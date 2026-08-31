@@ -2502,7 +2502,7 @@
     },
     "errors": {
       "accessDenied": "Tu acceso de operador ha cambiado. Actualiza la página y vuelve a autenticarte.",
-      "conflict": "El registro cambió mientras lo editabas. Se han cargado los detalles más recientes; revísalos antes de reintentar con el mismo ID de operación.",
+      "conflict": "El cambio fue rechazado. Puede que el registro haya cambiado desde que se cargó la lista, o que el espacio de trabajo no lo permita ahora mismo. Recarga y revisa el estado actual.",
       "invalidInput": "Revisa todos los campos. Los motivos deben tener al menos 8 caracteres y los valores numéricos deben respetar sus límites.",
       "notFound": "El usuario, espacio de trabajo, suscripción o periodo de créditos seleccionado ya no existe.",
       "unavailable": "La corrección solicitada no está disponible para la configuración actual de la cuenta.",

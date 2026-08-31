@@ -2502,7 +2502,7 @@
     },
     "errors": {
       "accessDenied": "Il tuo accesso operatore è cambiato. Aggiorna la pagina ed esegui nuovamente l’autenticazione.",
-      "conflict": "Il record è cambiato durante la modifica. Sono stati caricati i dettagli più recenti; esaminali prima di riprovare con lo stesso ID operazione.",
+      "conflict": "La modifica è stata rifiutata. Il record potrebbe essere cambiato dal caricamento dell’elenco, oppure lo spazio di lavoro al momento non la consente. Ricarica e verifica lo stato attuale.",
       "invalidInput": "Controlla tutti i campi. Le motivazioni devono avere almeno 8 caratteri e i valori numerici devono rispettare i limiti.",
       "notFound": "L’utente, l’area di lavoro, l’abbonamento o il periodo crediti selezionato non esiste più.",
       "unavailable": "La correzione richiesta non è disponibile per la configurazione corrente dell’account.",

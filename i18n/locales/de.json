@@ -2502,7 +2502,7 @@
     },
     "errors": {
       "accessDenied": "Dein Operator-Zugriff hat sich geändert. Aktualisiere die Seite und authentifiziere dich erneut.",
-      "conflict": "Der Datensatz wurde während der Bearbeitung geändert. Die neuesten Details wurden geladen; prüfe sie, bevor du den Vorgang mit derselben Vorgangs-ID wiederholst.",
+      "conflict": "Die Änderung wurde abgelehnt. Der Datensatz hat sich seit dem Laden der Liste möglicherweise geändert, oder der Workspace lässt sie derzeit nicht zu. Lade neu und prüfe den aktuellen Stand.",
       "invalidInput": "Prüfe alle Felder. Begründungen müssen mindestens 8 Zeichen lang sein und Zahlen innerhalb der Grenzwerte liegen.",
       "notFound": "Der ausgewählte Benutzer, Arbeitsbereich, das Abonnement oder der Credit-Zeitraum existiert nicht mehr.",
       "unavailable": "Die gewünschte Korrektur ist für die aktuelle Kontokonfiguration nicht verfügbar.",

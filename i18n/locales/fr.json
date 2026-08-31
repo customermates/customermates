@@ -2502,7 +2502,7 @@
     },
     "errors": {
       "accessDenied": "Votre accès opérateur a changé. Actualisez la page et authentifiez-vous de nouveau.",
-      "conflict": "L’enregistrement a changé pendant votre modification. Les informations les plus récentes ont été chargées ; examinez-les avant de réessayer avec le même ID d’opération.",
+      "conflict": "La modification a été refusée. L’enregistrement a peut-être changé depuis le chargement de la liste, ou l’espace de travail ne l’autorise pas actuellement. Rechargez et vérifiez l’état actuel.",
       "invalidInput": "Vérifiez tous les champs. Les motifs doivent comporter au moins 8 caractères et les valeurs numériques respecter leurs limites.",
       "notFound": "L’utilisateur, l’espace de travail, l’abonnement ou la période de crédits sélectionné n’existe plus.",
       "unavailable": "La correction demandée n’est pas disponible pour la configuration actuelle du compte.",

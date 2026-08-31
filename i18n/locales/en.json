@@ -2502,7 +2502,7 @@
     },
     "errors": {
       "accessDenied": "Your operator access changed. Refresh the page and authenticate again.",
-      "conflict": "The record changed while you were editing. The latest detail was loaded; review it before retrying with the retained operation ID.",
+      "conflict": "That change was refused. The record may have changed since the list loaded, or the workspace may not allow it right now. Reload and check the current state.",
       "invalidInput": "Review every field. Reasons need at least 8 characters and numeric values must stay within their limits.",
       "notFound": "The selected user, workspace, subscription, or credit period no longer exists.",
       "unavailable": "The requested correction is not available for the current account configuration.",
