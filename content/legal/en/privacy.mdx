@@ -220,7 +220,9 @@ The transfer of personal data to the USA is based on the standard contractual cl
 
 ### First-party Google Ads click attribution
 
-When a managed-cloud public content page or the contact page is opened with a valid Google Ads click identifier (`gclid`, `gbraid` or `wbraid`), Customermates offers an optional attribution choice. If you consent, a signed, first-party, HTTP-only cookie stores exactly one identifier with its identifier kind, capture time, consent decision time and expiry. It does not store UTM parameters, referrers, landing paths, form contents or CRM records. The cookie and raw identifier expire no later than 90 days after the decision.
+When a managed-cloud public content page or the contact page is opened with a valid Google Ads click identifier (`gclid`, `gbraid` or `wbraid`) and no attribution decision is stored, Customermates offers an optional attribution choice. If you consent, a signed, first-party, HTTP-only cookie stores exactly one identifier with its identifier kind, capture time, consent decision time and expiry. It does not store UTM parameters, referrers, landing paths, form contents or CRM records. The cookie and raw identifier expire no later than 90 days after the decision.
+
+The consent choice remains valid until its stated expiry or withdrawal. If no click identifier is currently stored, one identifier from a later eligible Google Ads visit during that period may be stored without presenting the choice again; an existing identifier is never replaced.
 
 If the visitor creates a new managed-cloud workspace before expiry, the identifier and those timestamps are copied once, as part of the same registration transaction, to the initial owner's user record. They are not copied to invited users or users joining an existing workspace and are not overwritten on later sign-ins. Existing registration, onboarding and subscription fields may be reviewed internally to assess the limited paid-search experiment. Customermates does not create a separate behavioural lifecycle profile for this purpose.
 

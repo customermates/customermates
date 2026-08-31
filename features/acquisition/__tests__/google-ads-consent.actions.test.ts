@@ -97,4 +97,22 @@ describe("Google Ads consent actions", () => {
     await captureConsentedGoogleAdsClickAction({ search: "?gclid=second" });
     expect(mocks.write).not.toHaveBeenCalled();
   });
+
+  it("captures a later eligible click while an unexpired allow choice has no stored click", async () => {
+    mocks.read.mockResolvedValue({
+      version: 1,
+      consent: { advertising: true, decidedAt: "2026-08-31T10:00:00.000Z" },
+      click: null,
+      expiresAt: "2026-11-29T10:00:00.000Z",
+    });
+
+    await captureConsentedGoogleAdsClickAction({ search: "?gclid=later-click" });
+
+    expect(mocks.write).toHaveBeenCalledWith(
+      expect.objectContaining({
+        consent: { advertising: true, decidedAt: "2026-08-31T10:00:00.000Z" },
+        click: expect.objectContaining({ kind: "gclid", value: "later-click" }),
+      }),
+    );
+  });
 });
