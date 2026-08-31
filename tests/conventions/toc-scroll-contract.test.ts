@@ -10,11 +10,27 @@ const navigationSource = readFileSync(
   join(REPO_ROOT, "app", "components", "navigation", "navigation-switch.tsx"),
   "utf8",
 );
+const styleguideSource = readFileSync(
+  join(
+    REPO_ROOT,
+    "app",
+    "[locale]",
+    "(static)",
+    "styleguide",
+    "components",
+    "styleguide-chapter.tsx",
+  ),
+  "utf8",
+);
 
 describe("shared table-of-contents scroll contract", () => {
   it("offsets the public rail and heading anchors below the sticky navbar", () => {
     expect(navigationSource).toContain("[--toc-sticky-top:4rem]");
     expect(navigationSource).toContain("[--toc-anchor-offset:5rem]");
+    expect(navigationSource).toContain("xl:[--table-sticky-top:3.5rem]");
+    expect(navigationSource).toContain("xl:[--toc-sticky-top:3.5rem]");
+    expect(navigationSource).toContain("xl:[--toc-anchor-offset:4.5rem]");
+    expect(styleguideSource).toContain("xl:top-14");
     expect(tocSource).toContain("top-[var(--toc-sticky-top,0px)]");
     expect(tocSource).toContain("max-h-[calc(100svh-var(--toc-sticky-top,0px))]");
     expect(tocSource).toContain("[&_[id]]:scroll-mt-[var(--toc-anchor-offset,0px)]");
