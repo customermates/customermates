@@ -196,6 +196,7 @@ describe("homepage visual-system adoption", () => {
   });
 
   it("keeps the live workspace on-page and gives the walkthrough the contrasting story band", () => {
+    const demoIframe = readComponent("hero-demo-iframe.tsx");
     const liveDemo = readComponent("homepage-live-demo.tsx");
     const proof = readComponent("homepage-product-proof.tsx");
 
@@ -205,6 +206,9 @@ describe("homepage visual-system adoption", () => {
     expect(liveDemo).toContain("proof.demoTitle");
     expect(liveDemo).toContain("proof.demoDescription");
     expect(liveDemo).toContain('containerSize="wide"');
+    expect(liveDemo).toContain('<HeroDemoIframe className="max-w-7xl" size="article" src={demoSrc} />');
+    expect(demoIframe).toContain('size = "full"');
+    expect(demoIframe).toContain("<BrowserFrame size={size}");
   });
 
   it("authors page-specific visuals from the approved native fixture layer", () => {
