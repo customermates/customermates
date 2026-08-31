@@ -26,7 +26,9 @@ export function WhyFeaturesSection({ description, features, title }: Props) {
 
             return (
               <article key={feature.title} className="border-b border-r border-border bg-sidebar p-5 sm:p-6">
-                <Icon aria-hidden className="text-muted-foreground" icon={IconComponent} size="md" />
+                <span className="grid size-9 place-items-center rounded-lg border border-primary/20 bg-primary/10 text-primary">
+                  <Icon aria-hidden icon={IconComponent} />
+                </span>
 
                 <h3 className="mt-5 text-sm font-semibold">{feature.title}</h3>
 

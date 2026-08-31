@@ -14,12 +14,14 @@ import { ProviderMark } from "@/components/marketing/visuals/native-visual-primi
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { cn } from "@/core/utils/cn";
 
-export type PublicNavLink = {
+type PublicNavLinkBase = {
   activeMatch?: boolean;
   href: string;
-  mark?: PublicNavMark;
   title: string;
 };
+
+export type PublicNavLink = PublicNavLinkBase &
+  ({ icon: LucideIcon; mark?: never } | { icon?: never; mark: PublicNavMark });
 
 type PublicNavAgentProvider = Extract<AiClientLogoProvider, "chatgpt" | "claude" | "codex" | "cursor" | "gemini">;
 
@@ -118,6 +120,14 @@ export function PublicNavLinkMark({ mark }: { mark: PublicNavMark }) {
       data-public-nav-mark={`${mark.kind}:${mark.provider}`}
     >
       {icon}
+    </span>
+  );
+}
+
+export function PublicNavLinkIcon({ icon: LinkIcon }: { icon: LucideIcon }) {
+  return (
+    <span aria-hidden className="grid h-[18px] w-[22px] shrink-0 place-items-center" data-public-nav-icon="true">
+      <LinkIcon className="size-4" />
     </span>
   );
 }
@@ -340,7 +350,7 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
             className={cn(
               "max-h-[min(34rem,calc(100svh-5rem))] overflow-y-auto overscroll-contain rounded-lg border-0 bg-transparent p-0 shadow-none transition-[width] duration-200 ease-marketing data-[state=closed]:pointer-events-none data-[state=closed]:invisible data-[state=closed]:animate-none data-[state=open]:animate-none motion-reduce:transition-none",
               visibleColumnCount === 3
-                ? "w-[min(45rem,calc(100vw-2rem))]"
+                ? "w-[min(48rem,calc(100vw-2rem))]"
                 : visibleLinkCount <= 4
                   ? "w-[min(28rem,calc(100vw-2rem))]"
                   : "w-[min(34rem,calc(100vw-2rem))]",
@@ -396,7 +406,11 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
                             onKeyDown={(event) => handlePanelLinkKeyDown(event, group.id)}
                             onNavigate={navigate}
                           >
-                            {link.mark ? <PublicNavLinkMark mark={link.mark} /> : null}
+                            {link.mark ? (
+                              <PublicNavLinkMark mark={link.mark} />
+                            ) : (
+                              <PublicNavLinkIcon icon={link.icon} />
+                            )}
 
                             <span className="min-w-0 truncate">{link.title}</span>
                           </AppLink>

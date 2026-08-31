@@ -1487,12 +1487,14 @@
     "title": "Kontakt"
   },
   "ContactPage": {
-    "description": "Frage, Walkthrough oder Partnerschaft? Schreib mir kurz, ich melde mich innerhalb eines Tages zurück.",
+    "description": "Frage, Walkthrough oder Partnerschaft? Schreiben Sie mir kurz, ich melde mich innerhalb eines Tages zurück.",
     "form": {
       "founderName": "Benjamin Wagner",
-      "founderNote": "Deine Nachricht kommt direkt bei mir an. Schreib kurz, was du heute nutzt und wo der Workflow hakt.",
+      "founderNote": "Ihre Nachricht kommt direkt bei mir an. Schreiben Sie kurz, was Sie heute nutzen und wo der Workflow hakt.",
       "founderRole": "Gründer von Customermates",
-      "messagePlaceholder": "Woran arbeitest du und wie kann ich helfen?",
+      "messagePlaceholder": "Woran arbeiten Sie und wie kann ich helfen?",
+      "privacyAcknowledgement": "Ich habe die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> gelesen.",
+      "privacyAcknowledgementRequired": "Bitte bestätigen Sie, dass Sie die Datenschutzerklärung gelesen haben.",
       "submit": "Nachricht senden",
       "successBody": "Ich melde mich unter der angegebenen E‑Mail, meist innerhalb von 24 Stunden.",
       "successCta": "Weitere Nachricht senden",
@@ -1501,7 +1503,7 @@
     },
     "highlights": {
       "direct": {
-        "body": "Lieber E‑Mail? Schreib direkt, deine Nachricht landet an derselben Stelle.",
+        "body": "Lieber per E‑Mail? Schreiben Sie direkt; Ihre Nachricht landet an derselben Stelle.",
         "title": "Mail: mail@customermates.com"
       },
       "fast": {
@@ -1509,11 +1511,11 @@
         "title": "Schnelle Antwort"
       },
       "personal": {
-        "body": "Schick mir kurz dein heutiges Setup. Ich sage dir direkt, was passt und wo eine separate Integration die ehrliche Antwort ist.",
+        "body": "Schicken Sie mir kurz Ihr heutiges Setup. Ich sage Ihnen direkt, was passt und wo eine separate Integration die ehrliche Antwort ist.",
         "title": "Den Workflow kurz durchgehen"
       }
     },
-    "title": "Lass uns reden."
+    "title": "Lassen Sie uns reden."
   },
   "Dashboard": {
     "activityWidget": {
@@ -1660,7 +1662,7 @@
     "copyMcpConfig": "MCP-Config kopieren",
     "copyPage": "Seite kopieren",
     "englishOnlyAlert": "Die technische API-Endpunkt-Dokumentation ist nur auf Englisch verfügbar. Dies liegt daran, dass API-Dokumentation präzise technische Terminologie und Konsistenz mit Industriestandards erfordert.",
-    "liveDataAlert": "Das Ausführen von Operationen im API-Playground wirkt sich auf deine Live-Daten aus.",
+    "liveDataAlert": "Das Ausführen von Operationen im API-Playground wirkt sich auf Ihre Live-Daten aus.",
     "markdownCopied": "Seite in die Zwischenablage kopiert.",
     "mcpCommandCopied": "MCP-Command in die Zwischenablage kopiert.",
     "mcpConfigCopied": "MCP-Config in die Zwischenablage kopiert.",
@@ -2030,16 +2032,16 @@
       "featureUsers": "Workspace-Nutzer",
       "period": "unter AGPL",
       "price": "Kern kostenlos",
-      "tag": "Betreibe die AGPL-Kernanwendung und PostgreSQL mit Docker Compose auf deinem Server im Starter-Umfang. Externe Dienste bleiben separat.",
+      "tag": "Betreiben Sie die AGPL-Kernanwendung und PostgreSQL mit Docker Compose auf Ihrem Server im Starter-Umfang. Externe Dienste bleiben separat.",
       "title": "Self-Hosted"
     },
-    "subtitle": "Transparente Tarife, keine versteckten Kosten. Der AGPL-Kern bleibt beim Self-Hosting kostenlos; externe Dienste bleiben separat. Oder starte ohne Kreditkarte in der Cloud.",
+    "subtitle": "Transparente Tarife, keine versteckten Kosten. Der AGPL-Kern bleibt beim Self-Hosting kostenlos; externe Dienste bleiben separat. Oder starten Sie ohne Kreditkarte in der Cloud.",
     "title": "Einfach, ehrlich, europäisch"
   },
   "HomepageStatsRow": {
     "automationLabel": "Automatisierung",
     "taglineMcp": "MCP",
-    "taglinePost": ". Automatisierung über REST, Webhooks und deine n8n-Instanz.",
+    "taglinePost": ". Automatisierung über REST, Webhooks und Ihre n8n-Instanz.",
     "taglinePre": "Externe KI über"
   },
   "Inbox": {
@@ -2297,7 +2299,7 @@
     "body": "Wir wurden automatisch benachrichtigt, dass diese Seite in den Urlaub gefahren ist. Wir werden sie finden und bald zurückbringen!",
     "ctaLabel": "Zurück zur Startseite",
     "subtitle": "Diese Seite ist ohne uns zu informieren in den Urlaub gefahren",
-    "title": "Huch! Du hast die Leere betreten"
+    "title": "Huch! Sie haben die Leere betreten"
   },
   "OnboardingForm": {
     "agreeToTerms": "Ich bin berechtigt, für den Geschäftskunden zu handeln, und stimme den <termsOfServiceLink>AGB</termsOfServiceLink> sowie dem <dpaLink>AVV</dpaLink> zu. Die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> habe ich gelesen.",

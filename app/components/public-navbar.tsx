@@ -2,7 +2,35 @@
 
 import type { AccountState } from "@/features/auth/account-state";
 
-import { BookOpen, Boxes, CircleDollarSign, FileText, LogOut, Menu, Plug, UsersRound, X } from "lucide-react";
+import {
+  BookOpen,
+  Bot,
+  Boxes,
+  BriefcaseBusiness,
+  Building2,
+  Cable,
+  CheckCircle2,
+  CircleDollarSign,
+  FileText,
+  GitCompareArrows,
+  Github,
+  HeartPulse,
+  Inbox,
+  LayoutGrid,
+  LogOut,
+  Megaphone,
+  Menu,
+  Plug,
+  Presentation,
+  Rocket,
+  Server,
+  Store,
+  TrendingUp,
+  UserRoundSearch,
+  Users,
+  UsersRound,
+  X,
+} from "lucide-react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
@@ -31,6 +59,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { resolvePublicNavbarActions } from "./navigation/public-navbar-model";
 import {
   isPrimaryPublicNavLink,
+  PublicNavLinkIcon,
   PublicNavLinkMark,
   PublicNavbarMenu,
   type PublicNavGroup,
@@ -68,39 +97,48 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
       id: "product",
       links: [
         {
+          icon: Inbox,
           href: "/features/unified-inbox",
           title: t("NavigationBar.public.unifiedInbox"),
         },
         {
+          icon: Users,
           href: "/features/contact-management",
           title: t("NavigationBar.public.contactManagement"),
         },
         {
+          icon: TrendingUp,
           href: "/features/pipeline",
           title: t("NavigationBar.public.pipeline"),
         },
         {
+          icon: TrendingUp,
           href: "/features/sales-tracking",
           title: t("NavigationBar.public.salesTracking"),
         },
         {
+          icon: CheckCircle2,
           href: "/features/task-management",
           title: t("NavigationBar.public.taskManagement"),
         },
         {
+          icon: LayoutGrid,
           href: "/features/cloud-crm",
           title: t("NavigationBar.public.cloudCrm"),
         },
         {
+          icon: Server,
           href: "/features/self-hosted",
           title: t("NavigationBar.public.selfHosted"),
         },
         {
           activeMatch: false,
+          icon: Cable,
           href: "/docs/mcp",
           title: t("NavigationBar.public.mcp"),
         },
         {
+          icon: Boxes,
           href: "/features/all",
           title: t("NavigationBar.public.allFeatures"),
         },
@@ -114,38 +152,47 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
       id: "solutions",
       links: [
         {
+          icon: BriefcaseBusiness,
           href: "/for/professional-services",
           title: t("NavigationBar.public.professionalServices"),
         },
         {
+          icon: Megaphone,
           href: "/for/agencies",
           title: t("NavigationBar.public.agencies"),
         },
         {
+          icon: Presentation,
           href: "/for/consultants",
           title: t("NavigationBar.public.consultants"),
         },
         {
+          icon: UserRoundSearch,
           href: "/for/recruiting",
           title: t("NavigationBar.public.recruiting"),
         },
         {
+          icon: HeartPulse,
           href: "/for/healthcare",
           title: t("NavigationBar.public.healthcare"),
         },
         {
+          icon: Building2,
           href: "/for/property-management",
           title: t("NavigationBar.public.propertyManagement"),
         },
         {
+          icon: Rocket,
           href: "/for/startups",
           title: t("NavigationBar.public.startups"),
         },
         {
+          icon: Store,
           href: "/for/smb",
           title: t("NavigationBar.public.smallBusiness"),
         },
         {
+          icon: UsersRound,
           href: "/for",
           title: t("NavigationBar.public.allSolutions"),
         },
@@ -246,15 +293,22 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
       id: "resources",
       links: [
         {
+          icon: BookOpen,
           href: "/blog",
           title: t("NavigationBar.public.blog"),
         },
-        { href: "/compare", title: t("NavigationBar.public.compare") },
         {
+          icon: GitCompareArrows,
+          href: "/compare",
+          title: t("NavigationBar.public.compare"),
+        },
+        {
+          icon: Bot,
           href: "/blog/agentic-crm",
           title: t("NavigationBar.public.agenticCrm"),
         },
         {
+          icon: Github,
           href: "/blog/open-source-crm",
           title: t("NavigationBar.public.openSourceCrm"),
         },
@@ -434,7 +488,11 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
                                   href={link.href}
                                   onNavigate={closeMenu}
                                 >
-                                  {link.mark ? <PublicNavLinkMark mark={link.mark} /> : null}
+                                  {link.mark ? (
+                                    <PublicNavLinkMark mark={link.mark} />
+                                  ) : (
+                                    <PublicNavLinkIcon icon={link.icon} />
+                                  )}
 
                                   {link.title}
                                 </AppLink>

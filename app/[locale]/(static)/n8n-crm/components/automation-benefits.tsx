@@ -19,7 +19,7 @@ export function AutomationBenefits({ benefitsSection }: Props) {
               key={benefit.title}
               className="border-b border-border p-6 last:border-b-0 sm:border-r sm:p-7 sm:[&:nth-child(even)]:border-r-0 lg:[&:nth-child(even)]:border-r lg:[&:nth-child(3n)]:border-r-0 lg:[&:nth-last-child(-n+3)]:border-b-0"
             >
-              <span className="grid size-9 place-items-center rounded-lg border border-border bg-sidebar text-subdued">
+              <span className="grid size-9 place-items-center rounded-lg border border-primary/20 bg-primary/10 text-primary">
                 <Icon aria-hidden className="size-4" strokeWidth={1.75} />
               </span>
 

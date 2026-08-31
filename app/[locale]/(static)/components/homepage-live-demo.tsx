@@ -16,7 +16,7 @@ export function HomepageLiveDemo({ locale, proof }: { locale: ContentLocale; pro
       : `https://demo.customermates.com${demoPath}`;
 
   return (
-    <MarketingSection containerClassName="scroll-mt-24" id="live-demo">
+    <MarketingSection containerClassName="scroll-mt-6" containerSize="wide" id="live-demo">
       <div className="marketing-grid items-end gap-y-6">
         <div className="col-span-12 lg:col-span-5">
           <p className="text-eyebrow flex items-center gap-2">

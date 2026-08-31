@@ -48,7 +48,7 @@ export function HomepageBenefits({ benefitsSection }: Props) {
                 key={group.title}
                 className="col-span-12 flex min-h-64 flex-col rounded-card border border-border bg-card p-6 sm:col-span-6 lg:col-span-4 lg:p-7"
               >
-                <span className="grid size-10 place-items-center rounded-lg bg-muted text-muted-foreground">
+                <span className="grid size-10 place-items-center rounded-lg border border-primary/20 bg-primary/10 text-primary">
                   <Icon aria-hidden className="size-[18px]" strokeWidth={1.75} />
                 </span>
 

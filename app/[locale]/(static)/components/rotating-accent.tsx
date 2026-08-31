@@ -9,6 +9,7 @@ import { cn } from "@/core/utils/cn";
 import { useHomepageMotion } from "./homepage-motion";
 
 type Props = {
+  activeClassName?: string;
   className?: string;
   words: string[];
 };
@@ -16,7 +17,7 @@ type Props = {
 const ROTATION_INTERVAL_MS = 2_600;
 const ROTATION_DURATION_SECONDS = 0.2;
 
-export function RotatingAccent({ className, words }: Props) {
+export function RotatingAccent({ activeClassName, className, words }: Props) {
   const { ref, shouldAnimate, shouldReduceMotion } = useHomepageMotion<HTMLSpanElement>(0.6);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -39,7 +40,7 @@ export function RotatingAccent({ className, words }: Props) {
     <span
       ref={ref}
       aria-hidden
-      className={cn("relative inline-grid overflow-hidden align-bottom", className)}
+      className={cn("relative inline-grid max-w-full overflow-hidden align-bottom", className)}
       data-homepage-motion="rotating-accent"
       data-motion-active={shouldAnimate ? "true" : "false"}
     >
@@ -61,7 +62,7 @@ export function RotatingAccent({ className, words }: Props) {
             ease: [0.22, 1, 0.36, 1],
           }}
         >
-          {activeWord}
+          <span className={cn("inline-block", activeClassName)}>{activeWord}</span>
         </motion.span>
       </AnimatePresence>
     </span>

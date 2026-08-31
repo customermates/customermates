@@ -123,6 +123,8 @@ describe("homepage visual-system adoption", () => {
     expect(hero).not.toMatch(/HomepageAgentRecordVisual|GoogleCalendar|OutlookCalendar|Messenger|XTwitter/u);
     expect(englishHomepage).toContain("title: The open-source CRM");
     expect(englishHomepage).toContain("titleAccent: for AI agents.");
+    expect(hero).toContain("heroSection.useCaseEyebrow");
+    expect(hero).toContain("heroSection.useCase");
   });
 
   it("rotates a width-reserved, accessible hero reel only while motion is appropriate", () => {
@@ -140,14 +142,21 @@ describe("homepage visual-system adoption", () => {
     expect(hero.indexOf('data-homepage-hero-line="lead"')).toBeLessThan(
       hero.indexOf('data-homepage-hero-line="rotation"'),
     );
+    expect(hero).toContain("gap-y-[0.1em] lg:gap-y-[0.06em]");
     expect(leadLine).toContain("whitespace-nowrap");
     expect(rotationLine).toContain("whitespace-nowrap");
     expect(rotatingAccent).toContain("AnimatePresence");
     expect(rotatingAccent).toContain("ROTATION_INTERVAL_MS = 2_600");
     expect(rotatingAccent).toContain("ROTATION_DURATION_SECONDS = 0.2");
+    expect(rotatingAccent).toContain("relative inline-grid max-w-full overflow-hidden");
     expect(rotatingAccent).toContain("invisible col-start-1 row-start-1 whitespace-nowrap");
+    expect(rotatingAccent).toContain('className={cn("inline-block", activeClassName)}');
     expect(rotatingAccent).toContain('data-homepage-motion="rotating-accent"');
     expect(rotatingAccent).not.toContain("aria-live");
+    expect(rotatingAccent).toContain("useHomepageMotion<HTMLSpanElement>(0.6)");
+    expect(hero).toContain('activeClassName="rounded-xl bg-primary/10 px-[0.12em]"');
+    expect(hero).toContain('className="p-[0.12em] text-primary"');
+    expect(motionSource).toContain("HOMEPAGE_MOTION_VISIBILITY_AMOUNT = 0.35");
     expect(motionSource).toContain("useInView");
     expect(motionSource).toContain("useReducedMotion");
     expect(motionSource).toContain('document.visibilityState === "visible"');
@@ -182,6 +191,8 @@ describe("homepage visual-system adoption", () => {
     ]) {
       expect(germanHomepage).toContain(`    - ${label}`);
     }
+    expect(englishHomepage).toContain("useCaseEyebrow: A real workflow");
+    expect(germanHomepage).toContain("useCaseEyebrow: Ein konkreter Ablauf");
   });
 
   it("keeps the live workspace on-page and gives the walkthrough the contrasting story band", () => {
@@ -193,6 +204,7 @@ describe("homepage visual-system adoption", () => {
     expect(liveDemo).toContain("proof.demoEyebrow");
     expect(liveDemo).toContain("proof.demoTitle");
     expect(liveDemo).toContain("proof.demoDescription");
+    expect(liveDemo).toContain('containerSize="wide"');
   });
 
   it("authors page-specific visuals from the approved native fixture layer", () => {
@@ -420,12 +432,14 @@ describe("homepage visual-system adoption", () => {
     expect(globalStyles).toMatch(/\[data-marketing-flow="continuous"\]\s+\.marketing-section:not/u);
   });
 
-  it("keeps display typography neutral while reserving accent for signals and actions", () => {
+  it("keeps the base display neutral while accenting the rotating subject", () => {
     const hero = readComponent("homepage-hero.tsx");
     const walkthrough = readComponent("homepage-walkthrough.tsx");
+    const heroHeading = readOpeningElementContaining(hero, 'className="text-hero mt-7 max-w-6xl"');
 
-    expect(hero).not.toMatch(/<h1[\s\S]{0,500}text-primary/u);
+    expect(heroHeading).not.toContain("text-primary");
     expect(hero).toContain('className="text-hero mt-7 max-w-6xl"');
+    expect(hero).toContain('className="p-[0.12em] text-primary"');
     expect(hero).not.toContain("text-[clamp(");
     expect(walkthrough).not.toMatch(/<h2[\s\S]{0,240}text-primary/u);
   });

@@ -506,6 +506,10 @@
   html {
     --scrollbar-thumb: #d4d4d8;
     --scrollbar-track: #f4f4f500;
+  }
+
+  html[data-scroll-behavior="smooth"],
+  html[data-scroll-behavior="smooth"] [data-public-scrollport] {
     scroll-behavior: smooth;
   }
 
@@ -660,6 +664,10 @@ path:focus {
     padding-inline: var(--marketing-gutter);
   }
 
+  .marketing-container-wide {
+    max-width: 96rem;
+  }
+
   @media (width >= 40rem) {
     .marketing-container {
       padding-inline: var(--marketing-gutter-lg);
@@ -711,7 +719,7 @@ path:focus {
   }
 
   .text-display {
-    @apply font-bold text-balance;
+    @apply font-medium text-balance;
     font-size: clamp(2.5rem, 1.7325rem + 3.275vw, 5.25rem);
     line-height: 0.98;
     letter-spacing: -0.045em;
