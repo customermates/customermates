@@ -131,8 +131,8 @@ export function NavigationSwitch({
   } else if (shellMode === "public") {
     shell = (
       <div className="h-svh flex">
-        <main className="flex flex-col relative flex-1 overflow-y-auto bg-background min-w-0 [--table-sticky-top:4rem] [--toc-sticky-top:4rem] [--toc-anchor-offset:5rem]">
-          <header className="sticky top-0 z-30 bg-background/80 backdrop-blur flex flex-col">
+        <main className="flex flex-col relative flex-1 overflow-y-auto bg-background min-w-0 [--table-sticky-top:4rem] [--toc-sticky-top:4rem] [--toc-anchor-offset:5rem] xl:[--table-sticky-top:3.5rem] xl:[--toc-sticky-top:3.5rem] xl:[--toc-anchor-offset:4.5rem]">
+          <header className="sticky top-0 z-50 flex flex-col bg-background/90 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
             <PublicNavbar accountState={currentAccountState} hasValidSession={hasValidSession} />
           </header>
 

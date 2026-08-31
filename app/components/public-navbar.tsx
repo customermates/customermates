@@ -2,7 +2,7 @@
 
 import type { AccountState } from "@/features/auth/account-state";
 
-import { BookOpen, Boxes, LogOut, Menu, Plug, UsersRound, X } from "lucide-react";
+import { BookOpen, Boxes, CircleDollarSign, FileText, LogOut, Menu, Plug, UsersRound, X } from "lucide-react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
@@ -29,15 +29,22 @@ import { signOutAction } from "@/app/[locale]/actions";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { resolvePublicNavbarActions } from "./navigation/public-navbar-model";
-import { isPrimaryPublicNavLink, PublicNavbarMenu, type PublicNavGroup } from "./navigation/public-navbar-menu";
+import {
+  isPrimaryPublicNavLink,
+  PublicNavLinkMark,
+  PublicNavbarMenu,
+  type PublicNavGroup,
+} from "./navigation/public-navbar-menu";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
-import { ProviderMark } from "@/components/marketing/visuals/native-visual-primitives";
 
 type Props = {
   accountState: AccountState;
   hasValidSession: boolean;
 };
+
+const mobileOverviewRowClassName =
+  "flex min-h-14 w-full items-center justify-between gap-4 rounded-md py-4 text-left text-base font-medium text-sidebar-foreground no-underline transition-all outline-none hover:no-underline focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50";
 
 export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) => {
   const t = useTranslations();
@@ -56,214 +63,203 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
   const publicNavGroups: PublicNavGroup[] = [
     {
       activeHref: "/features",
-      description: t("NavigationBar.public.productDescription"),
+      columns: 3,
       icon: Boxes,
       id: "product",
-      title: t("NavigationBar.public.product"),
-      sections: [
+      links: [
         {
-          title: t("NavigationBar.public.coreCrm"),
-          links: [
-            {
-              href: "/features/contact-management",
-              title: t("NavigationBar.public.contactManagement"),
-            },
-            {
-              href: "/features/pipeline",
-              title: t("NavigationBar.public.pipeline"),
-            },
-            {
-              href: "/features/task-management",
-              title: t("NavigationBar.public.taskManagement"),
-            },
-            {
-              href: "/features/sales-tracking",
-              title: t("NavigationBar.public.salesTracking"),
-            },
-          ],
+          href: "/features/unified-inbox",
+          title: t("NavigationBar.public.unifiedInbox"),
         },
         {
-          title: t("NavigationBar.public.deployment"),
-          links: [
-            {
-              href: "/features/cloud-crm",
-              title: t("NavigationBar.public.cloudCrm"),
-            },
-            {
-              href: "/features/self-hosted",
-              title: t("NavigationBar.public.selfHosted"),
-            },
-            {
-              href: "/features/all",
-              title: t("NavigationBar.public.allFeatures"),
-            },
-          ],
+          href: "/features/contact-management",
+          title: t("NavigationBar.public.contactManagement"),
+        },
+        {
+          href: "/features/pipeline",
+          title: t("NavigationBar.public.pipeline"),
+        },
+        {
+          href: "/features/sales-tracking",
+          title: t("NavigationBar.public.salesTracking"),
+        },
+        {
+          href: "/features/task-management",
+          title: t("NavigationBar.public.taskManagement"),
+        },
+        {
+          href: "/features/cloud-crm",
+          title: t("NavigationBar.public.cloudCrm"),
+        },
+        {
+          href: "/features/self-hosted",
+          title: t("NavigationBar.public.selfHosted"),
+        },
+        {
+          activeMatch: false,
+          href: "/docs/mcp",
+          title: t("NavigationBar.public.mcp"),
+        },
+        {
+          href: "/features/all",
+          title: t("NavigationBar.public.allFeatures"),
         },
       ],
+      title: t("NavigationBar.public.product"),
     },
     {
       activeHref: "/for",
-      description: t("NavigationBar.public.solutionsDescription"),
+      columns: 3,
       icon: UsersRound,
       id: "solutions",
-      title: t("NavigationBar.public.solutions"),
-      sections: [
+      links: [
         {
-          title: t("NavigationBar.public.serviceTeams"),
-          links: [
-            {
-              href: "/for/professional-services",
-              title: t("NavigationBar.public.professionalServices"),
-            },
-            {
-              href: "/for/agencies",
-              title: t("NavigationBar.public.agencies"),
-            },
-            {
-              href: "/for/consultants",
-              title: t("NavigationBar.public.consultants"),
-            },
-          ],
+          href: "/for/professional-services",
+          title: t("NavigationBar.public.professionalServices"),
         },
         {
-          title: t("NavigationBar.public.industries"),
-          links: [
-            {
-              href: "/for/recruiting",
-              title: t("NavigationBar.public.recruiting"),
-            },
-            {
-              href: "/for/healthcare",
-              title: t("NavigationBar.public.healthcare"),
-            },
-            {
-              href: "/for/property-management",
-              title: t("NavigationBar.public.propertyManagement"),
-            },
-            {
-              href: "/for",
-              title: t("NavigationBar.public.allSolutions"),
-            },
-          ],
+          href: "/for/agencies",
+          title: t("NavigationBar.public.agencies"),
+        },
+        {
+          href: "/for/consultants",
+          title: t("NavigationBar.public.consultants"),
+        },
+        {
+          href: "/for/recruiting",
+          title: t("NavigationBar.public.recruiting"),
+        },
+        {
+          href: "/for/healthcare",
+          title: t("NavigationBar.public.healthcare"),
+        },
+        {
+          href: "/for/property-management",
+          title: t("NavigationBar.public.propertyManagement"),
+        },
+        {
+          href: "/for/startups",
+          title: t("NavigationBar.public.startups"),
+        },
+        {
+          href: "/for/smb",
+          title: t("NavigationBar.public.smallBusiness"),
+        },
+        {
+          href: "/for",
+          title: t("NavigationBar.public.allSolutions"),
         },
       ],
+      title: t("NavigationBar.public.solutions"),
     },
     {
       activeHref: "/features/integrations",
-      description: t("NavigationBar.public.integrationsDescription"),
+      columns: 2,
       icon: Plug,
       id: "integrations",
-      title: t("NavigationBar.public.integrations"),
-      sections: [
+      links: [
         {
-          title: t("NavigationBar.public.communication"),
-          links: [
-            {
-              href: "/features/unified-inbox",
-              provider: "imap",
-              title: t("NavigationBar.public.unifiedInbox"),
-            },
-            {
-              href: "/features/linkedin-integration",
-              provider: "linkedin",
-              title: t("NavigationBar.public.providerLinkedIn"),
-            },
-            {
-              href: "/features/outlook-integration",
-              provider: "outlook",
-              title: t("NavigationBar.public.providerOutlook"),
-            },
-            {
-              href: "/features/email-integration",
-              provider: "gmail",
-              title: t("NavigationBar.public.emailAndGmail"),
-            },
-          ],
+          activeMatch: false,
+          href: "/docs/connect-custom-connector#claude",
+          mark: { kind: "agent", provider: "claude" },
+          title: t("NavigationBar.public.providerClaude"),
         },
         {
-          title: t("NavigationBar.public.moreChannels"),
-          links: [
-            {
-              href: "/features/unified-inbox",
-              provider: "whatsapp",
-              title: t("NavigationBar.public.providerWhatsApp"),
-            },
-            {
-              href: "/features/unified-inbox",
-              provider: "instagram",
-              title: t("NavigationBar.public.providerInstagram"),
-            },
-            {
-              href: "/features/unified-inbox",
-              provider: "telegram",
-              title: t("NavigationBar.public.providerTelegram"),
-            },
-          ],
+          activeMatch: false,
+          href: "/docs/connect-custom-connector#chatgpt",
+          mark: { kind: "agent", provider: "chatgpt" },
+          title: t("NavigationBar.public.providerChatGPT"),
         },
         {
-          title: t("NavigationBar.public.buildAndAutomate"),
-          links: [
-            {
-              href: "/features/integrations",
-              title: t("NavigationBar.public.allIntegrations"),
-            },
-            {
-              href: "/features/slack-integration",
-              title: t("NavigationBar.public.providerSlack"),
-            },
-            { href: "/n8n-crm", title: t("NavigationBar.public.n8n") },
-            { href: "/features/api", title: t("NavigationBar.public.api") },
-            { href: "/docs/mcp", title: t("NavigationBar.public.mcpGuide") },
-          ],
+          activeMatch: false,
+          href: "/docs/connect-cli#codex",
+          mark: { kind: "agent", provider: "codex" },
+          title: t("NavigationBar.public.providerCodex"),
+        },
+        {
+          activeMatch: false,
+          href: "/docs/connect-cli#gemini-cli",
+          mark: { kind: "agent", provider: "gemini" },
+          title: t("NavigationBar.public.providerGemini"),
+        },
+        {
+          activeMatch: false,
+          href: "/docs/connect-cli#cursor",
+          mark: { kind: "agent", provider: "cursor" },
+          title: t("NavigationBar.public.providerCursor"),
+        },
+        {
+          href: "/features/email-integration",
+          mark: { kind: "channel", provider: "gmail" },
+          title: t("NavigationBar.public.providerGmail"),
+        },
+        {
+          href: "/features/outlook-integration",
+          mark: { kind: "channel", provider: "outlook" },
+          title: t("NavigationBar.public.providerOutlook"),
+        },
+        {
+          href: "/features/linkedin-integration",
+          mark: { kind: "channel", provider: "linkedin" },
+          title: t("NavigationBar.public.providerLinkedIn"),
+        },
+        {
+          activeMatch: false,
+          href: "/features/unified-inbox",
+          mark: { kind: "channel", provider: "whatsapp" },
+          title: t("NavigationBar.public.providerWhatsApp"),
+        },
+        {
+          activeMatch: false,
+          href: "/features/unified-inbox",
+          mark: { kind: "channel", provider: "instagram" },
+          title: t("NavigationBar.public.providerInstagram"),
+        },
+        {
+          activeMatch: false,
+          href: "/features/unified-inbox",
+          mark: { kind: "channel", provider: "telegram" },
+          title: t("NavigationBar.public.providerTelegram"),
+        },
+        {
+          href: "/features/email-integration",
+          mark: { kind: "channel", provider: "imap" },
+          title: t("NavigationBar.public.providerImap"),
+        },
+        {
+          href: "/features/slack-integration",
+          mark: { kind: "provider", provider: "slack" },
+          title: t("NavigationBar.public.providerSlack"),
+        },
+        {
+          href: "/n8n-crm",
+          mark: { kind: "automation", provider: "n8n" },
+          title: t("NavigationBar.public.n8n"),
         },
       ],
+      title: t("NavigationBar.public.integrations"),
     },
     {
       activeHref: "/blog",
-      description: t("NavigationBar.public.resourcesDescription"),
+      columns: 2,
       icon: BookOpen,
       id: "resources",
-      title: t("NavigationBar.public.resources"),
-      sections: [
+      links: [
         {
-          title: t("NavigationBar.public.explore"),
-          links: [
-            { href: "/docs", title: t("NavigationBar.docs") },
-            {
-              href: "/blog",
-              title: t("NavigationBar.public.articlesAndGuides"),
-            },
-            { href: "/compare", title: t("NavigationBar.public.compare") },
-          ],
+          href: "/blog",
+          title: t("NavigationBar.public.blog"),
+        },
+        { href: "/compare", title: t("NavigationBar.public.compare") },
+        {
+          href: "/blog/agentic-crm",
+          title: t("NavigationBar.public.agenticCrm"),
         },
         {
-          title: t("NavigationBar.public.guides"),
-          links: [
-            { href: "/docs/mcp", title: t("NavigationBar.public.mcpGuide") },
-            {
-              href: "/docs/self-hosting",
-              title: t("NavigationBar.public.selfHostingGuide"),
-            },
-            {
-              href: "/docs/app-inbox",
-              title: t("NavigationBar.public.inboxGuide"),
-            },
-          ],
-        },
-        {
-          title: t("NavigationBar.public.featuredTopics"),
-          links: [
-            {
-              href: "/blog/agentic-crm",
-              title: t("NavigationBar.public.agenticCrm"),
-            },
-            {
-              href: "/blog/open-source-crm",
-              title: t("NavigationBar.public.openSourceCrm"),
-            },
-          ],
+          href: "/blog/open-source-crm",
+          title: t("NavigationBar.public.openSourceCrm"),
         },
       ],
+      title: t("NavigationBar.public.resources"),
     },
   ];
 
@@ -300,11 +296,11 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
         : cta?.label === "continueSetup"
           ? t("Common.actions.continueSetup")
           : null;
-  function renderCtaButton(className?: string) {
+  function renderCtaButton(className?: string, prominent = false) {
     if (!cta || !ctaLabel || pathname === cta.href) return null;
 
     return (
-      <Button asChild className={className} size="sm" variant="softPrimary">
+      <Button asChild className={className} size="sm" variant={prominent ? "default" : "softPrimary"}>
         <AppLink appearance="unstyled" href={cta.href} onNavigate={closeMenu}>
           {ctaLabel}
         </AppLink>
@@ -345,11 +341,11 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
     );
   }
 
-  function renderContactButton(className?: string) {
+  function renderContactButton(className?: string, subtle = false) {
     if (!actions.showContact) return null;
 
     return (
-      <Button asChild className={className} size="sm" variant="secondary">
+      <Button asChild className={className} size="sm" variant={subtle ? "ghost" : "secondary"}>
         <IntlLink href="/contact" onNavigate={closeMenu}>
           {t("Common.actions.contact")}
         </IntlLink>
@@ -369,23 +365,24 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
 
   return (
     <div className="border-b border-border">
-      <MarketingContainer className="grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-6">
+      <MarketingContainer className="grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-6 xl:h-14 xl:max-w-[75rem] xl:border-x xl:border-border xl:gap-4">
         <div className="hidden justify-self-start xl:flex">{renderHomeButton()}</div>
 
         <PublicNavbarMenu
           ariaLabel={t("NavigationBar.public.primaryNavigation")}
+          docsLabel={t("NavigationBar.docs")}
           groups={publicNavGroups}
           pathname={pathname}
           pricingLabel={t("NavigationBar.pricing")}
           onNavigate={closeMenu}
         />
 
-        <div className="hidden items-center gap-1.5 justify-self-end xl:flex">
+        <div className="hidden items-center gap-1 justify-self-end xl:flex">
           {renderPreferenceButtons()}
 
-          {renderContactButton()}
+          {renderContactButton(undefined, true)}
 
-          {renderCtaButton()}
+          {renderCtaButton(undefined, true)}
 
           {renderSignOutButton()}
         </div>
@@ -408,67 +405,83 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
               </SheetHeader>
 
               <SheetBody className="flex flex-col gap-3 pb-6">
-                <Accordion collapsible className="w-full" type="single">
-                  {publicNavGroups.map((group) => (
-                    <AccordionItem key={group.id} value={group.id}>
-                      <AccordionTrigger className="text-base no-underline hover:no-underline">
-                        <span className="flex items-center gap-2.5">
-                          <Icon aria-hidden icon={group.icon} size="md" />
+                <div className="w-full">
+                  <Accordion collapsible className="w-full" type="single">
+                    {publicNavGroups.map((group) => (
+                      <AccordionItem key={group.id} value={group.id}>
+                        <AccordionTrigger className={mobileOverviewRowClassName}>
+                          <span className="flex items-center gap-2.5">
+                            <Icon aria-hidden icon={group.icon} size="md" />
 
-                          {group.title}
-                        </span>
-                      </AccordionTrigger>
+                            {group.title}
+                          </span>
+                        </AccordionTrigger>
 
-                      <AccordionContent className="space-y-5">
-                        <p className="px-2 text-sm leading-6 text-subdued">{group.description}</p>
+                        <AccordionContent>
+                          <div className="flex flex-col gap-1 pt-1">
+                            {group.links.map((link) => {
+                              const linkActive =
+                                isNavItemActive(link.href) && isPrimaryPublicNavLink(publicNavGroups, link);
 
-                        {group.sections.map((section) => (
-                          <div key={section.title}>
-                            <p className="px-2 text-xs font-medium uppercase tracking-[0.14em] text-subdued">
-                              {section.title}
-                            </p>
-
-                            <div className="mt-2 flex flex-col">
-                              {section.links.map((link) => (
+                              return (
                                 <AppLink
                                   key={`${link.href}-${link.title}`}
-                                  aria-current={
-                                    isNavItemActive(link.href) && isPrimaryPublicNavLink(group, link)
-                                      ? "page"
-                                      : undefined
-                                  }
+                                  aria-current={linkActive ? "page" : undefined}
                                   className={cn(
-                                    "rounded-md px-2 py-2.5 text-sm",
-                                    !isNavItemActive(link.href) && "text-subdued",
+                                    "flex min-h-10 items-center gap-2.5 rounded-md p-2 text-sm",
+                                    !linkActive && "text-subdued",
                                   )}
                                   href={link.href}
                                   onNavigate={closeMenu}
                                 >
-                                  {link.provider ? (
-                                    <span className="mr-2 inline-flex align-middle">
-                                      <ProviderMark decorative provider={link.provider} size={17} />
-                                    </span>
-                                  ) : null}
+                                  {link.mark ? <PublicNavLinkMark mark={link.mark} /> : null}
 
                                   {link.title}
                                 </AppLink>
-                              ))}
-                            </div>
+                              );
+                            })}
                           </div>
-                        ))}
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
 
-                <AppLink
-                  aria-current={isNavItemActive("/pricing") ? "page" : undefined}
-                  className={cn("py-3 text-base", !isNavItemActive("/pricing") && "text-subdued")}
-                  href="/pricing"
-                  onNavigate={closeMenu}
-                >
-                  {t("NavigationBar.pricing")}
-                </AppLink>
+                  <AppLink
+                    appearance="unstyled"
+                    aria-current={isNavItemActive("/pricing") ? "page" : undefined}
+                    className={cn(
+                      mobileOverviewRowClassName,
+                      "border-t border-border",
+                      isNavItemActive("/pricing") && "bg-accent",
+                    )}
+                    href="/pricing"
+                    onNavigate={closeMenu}
+                  >
+                    <span className="flex items-center gap-2.5">
+                      <Icon aria-hidden icon={CircleDollarSign} size="md" />
+
+                      {t("NavigationBar.pricing")}
+                    </span>
+                  </AppLink>
+
+                  <AppLink
+                    appearance="unstyled"
+                    aria-current={isNavItemActive("/docs") ? "page" : undefined}
+                    className={cn(
+                      mobileOverviewRowClassName,
+                      "border-t border-border",
+                      isNavItemActive("/docs") && "bg-accent",
+                    )}
+                    href="/docs"
+                    onNavigate={closeMenu}
+                  >
+                    <span className="flex items-center gap-2.5">
+                      <Icon aria-hidden icon={FileText} size="md" />
+
+                      {t("NavigationBar.docs")}
+                    </span>
+                  </AppLink>
+                </div>
 
                 <div className="my-1 py-3">{renderPreferenceButtons()}</div>
 
