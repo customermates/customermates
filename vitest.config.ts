@@ -27,6 +27,7 @@ const domTestFiles = [
   "core/base/__tests__/persist-view-options-rejection.test.ts",
   "core/utils/__tests__/clipboard.test.ts",
   "core/utils/__tests__/use-is-truncated.test.ts",
+  "components/data-view/__tests__/is-interactive-click.test.ts",
   "components/data-view/__tests__/data-view-url-sync.test.ts",
   "components/data-view/__tests__/use-data-view-sync.test.ts",
   "components/data-view/filter-modal/inputs/__tests__/filter-input-number.test.ts",
