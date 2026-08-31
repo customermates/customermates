@@ -14,22 +14,26 @@ import { useFormFieldErrors } from "./use-form-field";
 type Props = {
   id: string;
   label?: ReactNode;
+  errorMessage?: ReactNode;
   required?: boolean;
   className?: string;
   containerClassName?: string;
 };
 
-export const FormCheckbox = observer(({ id, label, required, className, containerClassName }: Props) => {
+export const FormCheckbox = observer(({ id, label, errorMessage, required, className, containerClassName }: Props) => {
   const store = useAppForm();
   const checked = Boolean(store?.getValue(id));
-  const { hasError } = useFormFieldErrors(id);
+  const { errors, hasError } = useFormFieldErrors(id);
   const isLoading = store?.isLoading ?? false;
   const isReadOnly = !isLoading && (store?.isReadOnly ?? false);
+  const errorId = `${id}-error`;
+  const resolvedErrorMessage = errorMessage ?? (Array.isArray(errors) ? errors.join(" ") : errors);
 
   return (
     <div className={cn("space-y-1.5", containerClassName)}>
       <div className="flex items-center gap-2">
         <Checkbox
+          aria-describedby={hasError ? errorId : undefined}
           aria-invalid={hasError}
           aria-readonly={isReadOnly || undefined}
           aria-required={required}
@@ -50,6 +54,12 @@ export const FormCheckbox = observer(({ id, label, required, className, containe
           </FormLabel>
         )}
       </div>
+
+      {hasError && resolvedErrorMessage ? (
+        <p className="text-xs text-destructive" id={errorId} role="alert">
+          {resolvedErrorMessage}
+        </p>
+      ) : null}
     </div>
   );
 });

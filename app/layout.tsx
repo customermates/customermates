@@ -77,6 +77,7 @@ export default async function RootLayout({ children }: Props) {
     <html
       suppressHydrationWarning
       className={`${latin.variable} ${mono.variable} ${serif.variable} ${latin.className}`}
+      data-scroll-behavior="smooth"
       lang={displayLanguage}
     >
       <body className="h-svh flex flex-col font-sans antialiased">

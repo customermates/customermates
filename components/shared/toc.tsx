@@ -35,7 +35,7 @@ export function Toc({ items, children, actions, asideFooter, layout = "default" 
 
         <aside
           className={cn(
-            "top-[var(--toc-sticky-top,0px)] min-h-0 shrink-0 self-start lg:flex lg:max-h-[calc(100svh-var(--toc-sticky-top,0px))] lg:flex-col",
+            "top-[var(--toc-sticky-top,0px)] min-h-0 shrink-0 self-start lg:flex lg:max-h-[calc(100svh-var(--toc-viewport-offset,0px)-var(--toc-sticky-top,0px))] lg:flex-col",
             hasMobileFooter ? "static mt-10 flex flex-col lg:sticky lg:mt-0" : "sticky hidden",
             layout === "article" ? "lg:w-60" : "max-w-68",
           )}

@@ -5,8 +5,13 @@ import { cn } from "@/core/utils/cn";
 type Props = {
   children: ReactNode;
   className?: string;
+  size?: "default" | "wide";
 };
 
-export function MarketingContainer({ children, className }: Props) {
-  return <div className={cn("marketing-container", className)}>{children}</div>;
+export function MarketingContainer({ children, className, size = "default" }: Props) {
+  return (
+    <div className={cn("marketing-container", size === "wide" && "marketing-container-wide", className)}>
+      {children}
+    </div>
+  );
 }

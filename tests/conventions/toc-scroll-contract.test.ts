@@ -5,9 +5,17 @@ import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT } from "./walk";
 
-const tocSource = readFileSync(join(REPO_ROOT, "components", "shared", "toc.tsx"), "utf8");
+const tocSource = readFileSync(
+  join(REPO_ROOT, "components", "shared", "toc.tsx"),
+  "utf8",
+);
 const navigationSource = readFileSync(
   join(REPO_ROOT, "app", "components", "navigation", "navigation-switch.tsx"),
+  "utf8",
+);
+const layoutSource = readFileSync(join(REPO_ROOT, "app", "layout.tsx"), "utf8");
+const globalStyles = readFileSync(
+  join(REPO_ROOT, "styles", "globals.css"),
   "utf8",
 );
 const styleguideSource = readFileSync(
@@ -24,23 +32,36 @@ const styleguideSource = readFileSync(
 );
 
 describe("shared table-of-contents scroll contract", () => {
-  it("offsets the public rail and heading anchors below the sticky navbar", () => {
+  it("preserves the public rail and heading offsets", () => {
+    expect(navigationSource).toContain("[--table-sticky-top:4rem]");
     expect(navigationSource).toContain("[--toc-sticky-top:4rem]");
     expect(navigationSource).toContain("[--toc-anchor-offset:5rem]");
     expect(navigationSource).toContain("xl:[--table-sticky-top:3.5rem]");
     expect(navigationSource).toContain("xl:[--toc-sticky-top:3.5rem]");
     expect(navigationSource).toContain("xl:[--toc-anchor-offset:4.5rem]");
-    expect(styleguideSource).toContain("xl:top-14");
+    expect(styleguideSource).toContain("sticky top-16");
     expect(tocSource).toContain("top-[var(--toc-sticky-top,0px)]");
-    expect(tocSource).toContain("max-h-[calc(100svh-var(--toc-sticky-top,0px))]");
-    expect(tocSource).toContain("[&_[id]]:scroll-mt-[var(--toc-anchor-offset,0px)]");
+    expect(tocSource).toContain(
+      "max-h-[calc(100svh-var(--toc-viewport-offset,0px)-var(--toc-sticky-top,0px))]",
+    );
+    expect(tocSource).toContain(
+      "[&_[id]]:scroll-mt-[var(--toc-anchor-offset,0px)]",
+    );
     expect(tocSource).toContain("self-start");
+  });
+
+  it("lets Next disable global smooth scrolling during route transitions", () => {
+    expect(globalStyles).toContain('html[data-scroll-behavior="smooth"] [data-public-scrollport]');
+    expect(layoutSource).toContain('data-scroll-behavior="smooth"');
+    expect(navigationSource).toContain("publicScrollportRef.current.scrollTop = 0");
   });
 
   it("lets Fumadocs manage active-item scrolling without a polling workaround", () => {
     expect(tocSource).toContain("<FumaToc.TOCScrollArea");
     expect(tocSource).toContain("<TocClerk.TOCItems />");
-    expect(tocSource).not.toMatch(/\b(?:setInterval|clearInterval|useEffect|useRef|ScrollProvider)\b/u);
+    expect(tocSource).not.toMatch(
+      /\b(?:setInterval|clearInterval|useEffect|useRef|ScrollProvider)\b/u,
+    );
     expect(tocSource).not.toMatch(/<main\b/u);
   });
 
@@ -57,7 +78,9 @@ describe("shared table-of-contents scroll contract", () => {
     );
     expect(tocSource).toContain("lg:grid-cols-[minmax(0,96ch)_15rem]");
     expect(tocSource).toContain("lg:gap-6");
-    expect(tocSource).toContain('layout === "article" ? "lg:w-60" : "max-w-68"');
+    expect(tocSource).toContain(
+      'layout === "article" ? "lg:w-60" : "max-w-68"',
+    );
     expect(tocSource).toContain('layout === "default" && "flex-1"');
   });
 });

@@ -4,7 +4,7 @@ import type { Root } from "react-dom/client";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
-import { Boxes, UsersRound } from "lucide-react";
+import { Boxes, Cable, FileText, Inbox, Megaphone, Server, UsersRound } from "lucide-react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/components/shared/app-link", () => ({
@@ -43,6 +43,7 @@ import {
   PublicNavbarMenu,
   resolveActivePublicNavGroup,
   type PublicNavGroup,
+  type PublicNavLink,
 } from "../public-navbar-menu";
 
 const groups: PublicNavGroup[] = [
@@ -51,8 +52,12 @@ const groups: PublicNavGroup[] = [
     columns: 2,
     icon: Boxes,
     links: [
-      { href: "/features/self-hosted", title: "Self-hosted" },
-      { href: "/features/all", title: "All features" },
+      {
+        icon: Server,
+        href: "/features/self-hosted",
+        title: "Self-hosted",
+      },
+      { href: "/features/all", icon: Boxes, title: "All features" },
     ],
     id: "product",
     title: "Product",
@@ -63,8 +68,8 @@ const groups: PublicNavGroup[] = [
     id: "solutions",
     icon: UsersRound,
     links: [
-      { href: "/for/agencies", title: "Agencies" },
-      { href: "/for", title: "All solutions" },
+      { href: "/for/agencies", icon: Megaphone, title: "Agencies" },
+      { href: "/for", icon: UsersRound, title: "All solutions" },
     ],
     title: "Solutions",
   },
@@ -120,6 +125,25 @@ describe("PublicNavbarMenu", () => {
     expect(markup).not.toContain("Find a solution");
     expect(markup).not.toContain("<section");
     expect(markup).not.toContain("<footer");
+    expect(markup.match(/data-public-nav-icon="true"/gu)).toHaveLength(4);
+  });
+
+  it("renders generic navigation icons as decorative link visuals", () => {
+    act(() => root?.render(menu()));
+
+    const product = container?.querySelector<HTMLButtonElement>('[data-public-nav-trigger="product"]');
+    if (!product) throw new Error("product navigation trigger did not render");
+    act(() => product.click());
+
+    const link = container?.querySelector<HTMLAnchorElement>('a[href="/features/self-hosted"]');
+    const icon = link?.querySelector<HTMLElement>('[data-public-nav-icon="true"]');
+    if (!link || !icon) throw new Error("generic navigation icon did not render");
+
+    expect(icon.getAttribute("aria-hidden")).toBe("true");
+    expect(icon.classList.contains("text-primary")).toBe(false);
+    expect(icon.querySelector("svg")).not.toBeNull();
+    expect(link.querySelector("[data-public-nav-mark]")).toBeNull();
+    expect(link.textContent).toContain("Self-hosted");
   });
 
   it("opens one panel at a time, restores focus on Escape, and closes on navigation", async () => {
@@ -539,11 +563,17 @@ describe("PublicNavbarMenu", () => {
     const productGroup = groups[0];
     if (!productGroup) throw new Error("product navigation fixture did not render");
 
-    const unifiedInbox = {
+    const unifiedInbox: PublicNavLink = {
+      icon: Inbox,
       href: "/features/unified-inbox",
       title: "Unified inbox",
     };
-    const whatsapp = { activeMatch: false, href: "/features/unified-inbox", title: "WhatsApp" };
+    const whatsapp: PublicNavLink = {
+      activeMatch: false,
+      href: "/features/unified-inbox",
+      mark: { kind: "channel", provider: "whatsapp" },
+      title: "WhatsApp",
+    };
     const overlappingGroups: PublicNavGroup[] = [
       {
         ...productGroup,
@@ -555,9 +585,18 @@ describe("PublicNavbarMenu", () => {
         icon: Boxes,
         id: "integrations",
         links: [
-          { href: "/features/linkedin-integration", title: "LinkedIn" },
+          {
+            href: "/features/linkedin-integration",
+            mark: { kind: "channel", provider: "linkedin" },
+            title: "LinkedIn",
+          },
           whatsapp,
-          { activeMatch: false, href: "/docs/mcp", title: "MCP guide" },
+          {
+            activeMatch: false,
+            icon: Cable,
+            href: "/docs/mcp",
+            title: "MCP guide",
+          },
         ],
         title: "Integrations",
       },
@@ -567,8 +606,8 @@ describe("PublicNavbarMenu", () => {
         icon: UsersRound,
         id: "resources",
         links: [
-          { href: "/docs", title: "Documentation" },
-          { href: "/docs/mcp", title: "MCP guide" },
+          { href: "/docs", icon: FileText, title: "Documentation" },
+          { href: "/docs/mcp", icon: Cable, title: "MCP guide" },
         ],
         title: "Resources",
       },

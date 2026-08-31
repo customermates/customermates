@@ -194,7 +194,9 @@ describe("public acquisition UI contract", () => {
     const hero = source("components/marketing/page-hero.tsx");
     expect(hero).toContain("<GridPattern");
     expect(hero).toContain("<MarketingContainer");
-    expect(hero).toContain("text-display");
+    expect(hero).toContain(
+      'visual ? "text-display-sm" : "text-display max-w-5xl"',
+    );
     expect(hero).toContain("visual?: ReactNode");
     expect(hero).not.toContain("WaveDecoration");
     expect(hero).not.toContain("var(--font-serif)");
@@ -230,13 +232,19 @@ describe("public acquisition UI contract", () => {
       "app/[locale]/(static)/help-and-feedback/page.tsx",
     ]) {
       expect(source(route), route).toContain("<PageHero");
-      expect(source(route), route).toContain('data-marketing-flow="continuous"');
+      expect(source(route), route).toContain(
+        'data-marketing-flow="continuous"',
+      );
     }
 
     const runtimeFiles = ["app", "components", "styles"].flatMap((directory) =>
-      walkFiles(join(REPO_ROOT, directory), (path) => /\.(?:css|tsx?)$/u.test(path)),
+      walkFiles(join(REPO_ROOT, directory), (path) =>
+        /\.(?:css|tsx?)$/u.test(path),
+      ),
     );
-    const runtimeSource = runtimeFiles.map((path) => readFileSync(path, "utf8")).join("\n");
+    const runtimeSource = runtimeFiles
+      .map((path) => readFileSync(path, "utf8"))
+      .join("\n");
 
     expect(runtimeSource).not.toContain("WaveDecoration");
     expect(runtimeSource).not.toContain("wave-decoration");
@@ -275,9 +283,15 @@ describe("public acquisition UI contract", () => {
   });
 
   it("aligns pricing summaries without pretending that unequal benefits are table rows", () => {
-    const section = source("app/[locale]/(static)/pricing/components/pricing-section.tsx");
-    const card = source("app/[locale]/(static)/pricing/components/pricing-card.tsx");
-    const comparison = source("components/marketing/responsive-comparison-table.tsx");
+    const section = source(
+      "app/[locale]/(static)/pricing/components/pricing-section.tsx",
+    );
+    const card = source(
+      "app/[locale]/(static)/pricing/components/pricing-card.tsx",
+    );
+    const comparison = source(
+      "components/marketing/responsive-comparison-table.tsx",
+    );
 
     expect(section).toContain("rounded-card border border-border bg-card");
     expect(section).toContain("<output");
@@ -306,7 +320,9 @@ describe("public acquisition UI contract", () => {
       "app/[locale]/(static)/n8n-crm/components/automation-benefits.tsx",
     ]) {
       const section = source(route);
-      expect(section, route).toContain("rounded-card border border-border bg-card");
+      expect(section, route).toContain(
+        "rounded-card border border-border bg-card",
+      );
       expect(section, route).not.toContain("grid border-y border-border");
     }
   });
@@ -317,12 +333,12 @@ describe("public acquisition UI contract", () => {
     expect(article).toContain("mx-auto max-w-[96ch]");
     expect(article).toContain("[&>p]:max-w-[82ch]");
     expect(article).toContain("lg:mx-0 lg:max-w-none");
+    expect(article).toContain("prose-headings:font-medium");
     expect(article).toContain(
       "asideFooter={founderContact ? <FounderContactCard /> : undefined}",
     );
     expect(article).toContain("[--toc-sticky-top:5.5rem]");
-    expect(article).toContain("xl:[--toc-sticky-top:5rem]");
-    expect(article).toContain("xl:[--toc-anchor-offset:5rem]");
+    expect(article).toContain("[--toc-anchor-offset:5.5rem]");
     expect(article).not.toContain("rounded-panel");
     expect(article).not.toContain("shadow-sm");
 
@@ -336,6 +352,31 @@ describe("public acquisition UI contract", () => {
       expect(routeSource, route).toContain("<LandingArticle");
       expect(routeSource, route).not.toContain("<ShowcaseFrame");
     }
+  });
+
+  it("uses primary accents for generic marketing icons without recoloring provider marks", () => {
+    for (const route of [
+      "app/[locale]/(static)/components/homepage-benefits.tsx",
+      "app/[locale]/(static)/features/components/base-features-section.tsx",
+      "app/[locale]/(static)/features/components/why-features-section.tsx",
+      "app/[locale]/(static)/n8n-crm/components/automation-benefits.tsx",
+    ]) {
+      const section = source(route);
+      expect(section, route).toContain(
+        "border-primary/20 bg-primary/10 text-primary",
+      );
+    }
+
+    const whyFeatures = source(
+      "app/[locale]/(static)/features/components/why-features-section.tsx",
+    );
+    expect(whyFeatures).toContain("<Icon aria-hidden icon={IconComponent} />");
+
+    const hero = source("app/[locale]/(static)/components/homepage-hero.tsx");
+    expect(hero).toContain("<ProviderMark");
+    expect(hero).not.toMatch(
+      /<ProviderMark[^>]*className=.*(?:grayscale|text-primary)/u,
+    );
   });
 
   it("keeps the founder contact on every long-form detail page", () => {
@@ -366,7 +407,6 @@ describe("public acquisition UI contract", () => {
     expect(source("app/[locale]/(static)/blog/[slug]/page.tsx")).toContain(
       "<LandingArticle founderContact items={page.data.toc}",
     );
-
   });
 
   it("uses one route-owned related-content and CTA ending across acquisition and blog pages", () => {

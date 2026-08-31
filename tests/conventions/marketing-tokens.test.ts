@@ -123,6 +123,9 @@ describe("style-guide CSS isolation", () => {
     expect(css).toContain("--radius-md: calc(var(--radius) - 2px);");
     expect(css).toContain("--radius-xl: calc(var(--radius) + 4px);");
     expect(css).toContain("--container-marketing: 80rem;");
+    expect(css).toMatch(
+      /\.marketing-container-wide\s*\{\s*max-width:\s*96rem;/u,
+    );
     expect(css).toMatch(/\.dark,[\s\S]*?--background:\s*#0d0d10;/u);
     expect(css).toMatch(/\.dark,[\s\S]*?--card:\s*#151518;/u);
     expect(css).toMatch(
@@ -143,6 +146,12 @@ describe("style-guide CSS isolation", () => {
 
     expect(css).toMatch(
       /\.text-hero\s*\{[\s\S]*?font-size:\s*clamp\(3rem, 6\.5vw, 6rem\);/u,
+    );
+    expect(css).toMatch(
+      /\.text-display\s*\{[\s\S]*?@apply font-medium text-balance;/u,
+    );
+    expect(css).toMatch(
+      /\.text-display-sm\s*\{[\s\S]*?@apply font-medium text-balance;/u,
     );
     expect(css).toMatch(
       /\[data-marketing-flow="continuous"\]\s+\.marketing-section:not/u,

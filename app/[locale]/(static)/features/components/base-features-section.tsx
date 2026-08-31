@@ -26,7 +26,7 @@ export function BaseFeaturesSection({ features, index, subtitle, title }: Props)
 
             return (
               <article key={feature.title} className="border-b border-r border-border bg-background p-5 sm:p-6">
-                <span className="grid size-8 place-items-center rounded-md border border-border bg-sidebar text-muted-foreground">
+                <span className="grid size-8 place-items-center rounded-md border border-primary/20 bg-primary/10 text-primary">
                   <Icon aria-hidden icon={IconComponent} size="sm" />
                 </span>
 

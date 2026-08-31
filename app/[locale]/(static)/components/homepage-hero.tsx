@@ -37,7 +37,7 @@ export function HomepageHero({ heroSection }: Props) {
           <h1 className="text-hero mt-7 max-w-6xl">
             <span className="sr-only">{accessibleHeadline}</span>
 
-            <span aria-hidden className="flex flex-col items-center justify-center gap-y-[0.04em]">
+            <span aria-hidden className="flex flex-col items-center justify-center gap-y-[0.1em] lg:gap-y-[0.06em]">
               <span
                 className="whitespace-nowrap [font-size:min(1em,8.6vw)] sm:text-[1em]"
                 data-homepage-hero-line="lead"
@@ -49,18 +49,28 @@ export function HomepageHero({ heroSection }: Props) {
                 className="inline-flex whitespace-nowrap [font-size:min(1em,8.6vw)] sm:text-[1em]"
                 data-homepage-hero-line="rotation"
               >
-                <RotatingAccent words={accentRotations} />
+                <RotatingAccent
+                  activeClassName="rounded-xl bg-primary/10 px-[0.12em]"
+                  className="p-[0.12em] text-primary"
+                  words={accentRotations}
+                />
               </span>
             </span>
           </h1>
 
           <div className="mt-10 w-full max-w-[820px] rounded-card border border-border bg-card p-5 text-left shadow-[0_20px_70px_-48px_rgba(0,0,0,0.7)] sm:p-6">
-            <p className="max-w-[700px] text-[15px] leading-relaxed text-muted-foreground sm:text-base">
+            <p className="text-eyebrow">{heroSection.useCaseEyebrow}</p>
+
+            <p className="mt-3 max-w-[700px] text-base leading-relaxed font-medium text-foreground sm:text-lg">
+              {heroSection.useCase}
+            </p>
+
+            <p className="mt-4 max-w-[700px] text-[15px] leading-relaxed text-muted-foreground sm:text-base">
               {heroSection.subtitle}
             </p>
 
-            <div className="mt-7 flex items-end justify-between gap-4">
-              <ul className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:gap-2.5">
+            <div className="mt-7">
+              <ul className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-2.5">
                 {SUPPORTED_INBOX_PROVIDERS.map((provider) => (
                   <li
                     key={provider}
@@ -70,12 +80,6 @@ export function HomepageHero({ heroSection }: Props) {
                   </li>
                 ))}
               </ul>
-
-              <Button asChild className="size-11 shrink-0 rounded-full p-0" size="icon-lg">
-                <AppLink aria-label={heroSection.buttonLeftText} href={heroSection.buttonLeftHref}>
-                  <ArrowUpRight aria-hidden className="size-5" />
-                </AppLink>
-              </Button>
             </div>
           </div>
 

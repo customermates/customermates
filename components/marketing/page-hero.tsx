@@ -97,7 +97,7 @@ export function PageHero(props: Props) {
               </div>
             ) : null}
 
-            <h1 className={cn("text-display m-0", !visual && "max-w-5xl")}>
+            <h1 className={cn("m-0", visual ? "text-display-sm" : "text-display max-w-5xl")}>
               {title}
 
               {titleAccent ? <span> {titleAccent}</span> : null}
