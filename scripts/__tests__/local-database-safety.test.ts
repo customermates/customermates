@@ -130,15 +130,26 @@ describe("local database safety", () => {
   });
 
 describe("operator seed access", () => {
-  it("grants operator access on a Vercel preview so the branch is reviewable", () => {
-    expect(shouldIncludeOperatorSeedAccess({ VERCEL: "1", VERCEL_ENV: "preview" })).toBe(true);
-  });
-
-  it("never grants operator access on production or any other Vercel environment", () => {
+  it("never grants operator access on any Vercel environment, preview included", () => {
+    expect(shouldIncludeOperatorSeedAccess({ VERCEL: "1", VERCEL_ENV: "preview" })).toBe(false);
     expect(shouldIncludeOperatorSeedAccess({ VERCEL: "1", VERCEL_ENV: "production" })).toBe(false);
     expect(shouldIncludeOperatorSeedAccess({ VERCEL: "1", VERCEL_ENV: "development" })).toBe(false);
     expect(shouldIncludeOperatorSeedAccess({ VERCEL_ENV: "preview", NODE_ENV: "production" })).toBe(false);
     expect(shouldIncludeOperatorSeedAccess({})).toBe(false);
+  });
+
+  it("refuses the opt-in unless the database is loopback-local and no build environment is present", () => {
+    const optIn = { [LOCAL_OPERATOR_SEED_OPT_IN]: "true" } as const;
+    const localUrl = "postgresql://postgres:postgres@127.0.0.1:31758/customermates";
+
+    expect(shouldIncludeOperatorSeedAccess({ ...optIn, DATABASE_URL: localUrl })).toBe(true);
+    expect(shouldIncludeOperatorSeedAccess({ ...optIn, DATABASE_URL: localUrl, VERCEL_ENV: "preview" })).toBe(false);
+    expect(shouldIncludeOperatorSeedAccess({ ...optIn, DATABASE_URL: localUrl, VERCEL: "1" })).toBe(false);
+    expect(shouldIncludeOperatorSeedAccess({ ...optIn, DATABASE_URL: localUrl, CI: "true" })).toBe(false);
+    expect(
+      shouldIncludeOperatorSeedAccess({ ...optIn, DATABASE_URL: "postgresql://user:pw@db.example.com:5432/app" }),
+    ).toBe(false);
+    expect(shouldIncludeOperatorSeedAccess({ DATABASE_URL: localUrl })).toBe(false);
   });
 });
 });
