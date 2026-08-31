@@ -10,6 +10,8 @@ import { AppLink } from "@/components/shared/app-link";
 import { GridPattern } from "@/components/shared/grid-pattern";
 import { Button } from "@/components/ui/button";
 
+import { RotatingAccent } from "./rotating-accent";
+
 type Props = {
   heroSection: Hero;
 };
@@ -17,6 +19,13 @@ type Props = {
 const SUPPORTED_INBOX_PROVIDERS = VISUAL_PROVIDER_SET_FIXTURES["unified-inbox"].providers;
 
 export function HomepageHero({ heroSection }: Props) {
+  const accentRotations = heroSection.titleAccentRotations?.length
+    ? heroSection.titleAccentRotations
+    : heroSection.titleAccent
+      ? [heroSection.titleAccent]
+      : [];
+  const accessibleHeadline = [heroSection.title, accentRotations[0]].filter(Boolean).join(" ");
+
   return (
     <section className="relative isolate w-full overflow-hidden" data-homepage-section="hero">
       <GridPattern className="z-0" fade="bottom" />
@@ -26,9 +35,23 @@ export function HomepageHero({ heroSection }: Props) {
           <AgplGithubBadge />
 
           <h1 className="text-hero mt-7 max-w-6xl">
-            {/* eslint-disable react/jsx-newline */}
-            {heroSection.title} {heroSection.titleAccent ? <span>{heroSection.titleAccent}</span> : null}
-            {/* eslint-enable react/jsx-newline */}
+            <span className="sr-only">{accessibleHeadline}</span>
+
+            <span aria-hidden className="flex flex-col items-center justify-center gap-y-[0.04em]">
+              <span
+                className="whitespace-nowrap [font-size:min(1em,8.6vw)] sm:text-[1em]"
+                data-homepage-hero-line="lead"
+              >
+                {heroSection.title}
+              </span>
+
+              <span
+                className="inline-flex whitespace-nowrap [font-size:min(1em,8.6vw)] sm:text-[1em]"
+                data-homepage-hero-line="rotation"
+              >
+                <RotatingAccent words={accentRotations} />
+              </span>
+            </span>
           </h1>
 
           <div className="mt-10 w-full max-w-[820px] rounded-card border border-border bg-card p-5 text-left shadow-[0_20px_70px_-48px_rgba(0,0,0,0.7)] sm:p-6">
