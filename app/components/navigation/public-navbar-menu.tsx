@@ -1,37 +1,46 @@
 "use client";
 
+import type { AiClientLogoProvider } from "@/components/ai-connection/ai-client-logo";
 import type { LucideIcon } from "lucide-react";
 import type { VisualProviderFixtureId } from "@/components/marketing/visuals/native-fixtures";
-import type { KeyboardEvent as ReactKeyboardEvent } from "react";
+import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from "react";
 
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Slack } from "lucide-react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
+import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
 import { AppLink } from "@/components/shared/app-link";
 import { ProviderMark } from "@/components/marketing/visuals/native-visual-primitives";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { cn } from "@/core/utils/cn";
 
 export type PublicNavLink = {
+  activeMatch?: boolean;
   href: string;
-  provider?: VisualProviderFixtureId;
+  mark?: PublicNavMark;
   title: string;
 };
 
+type PublicNavAgentProvider = Extract<AiClientLogoProvider, "chatgpt" | "claude" | "codex" | "cursor" | "gemini">;
+
+export type PublicNavMark =
+  | { kind: "agent"; provider: PublicNavAgentProvider }
+  | { kind: "automation"; provider: "n8n" }
+  | { kind: "channel"; provider: VisualProviderFixtureId }
+  | { kind: "provider"; provider: "slack" };
+
 export type PublicNavGroup = {
   activeHref: string;
-  description: string;
+  columns: 2 | 3;
   icon: LucideIcon;
   id: string;
-  sections: {
-    links: PublicNavLink[];
-    title: string;
-  }[];
+  links: PublicNavLink[];
   title: string;
 };
 
 type Props = {
   ariaLabel: string;
+  docsLabel: string;
   groups: PublicNavGroup[];
   onNavigate: () => void;
   pathname: string;
@@ -47,15 +56,15 @@ function isCurrentPage(pathname: string, href: string) {
 }
 
 function groupMatchScore(pathname: string, group: PublicNavGroup) {
-  return [group.activeHref, ...group.sections.flatMap((section) => section.links.map((link) => link.href))].reduce(
-    (best, href) => {
-      if (!isPathActive(pathname, href)) return best;
+  return [
+    group.activeHref,
+    ...group.links.filter((link) => link.activeMatch !== false).map((link) => link.href),
+  ].reduce((best, href) => {
+    if (!isPathActive(pathname, href)) return best;
 
-      const exactMatchBonus = pathname === href ? 10_000 : 0;
-      return Math.max(best, exactMatchBonus + href.length);
-    },
-    -1,
-  );
+    const exactMatchBonus = pathname === href ? 10_000 : 0;
+    return Math.max(best, exactMatchBonus + href.length);
+  }, -1);
 }
 
 const subscribeToHydration = () => () => undefined;
@@ -78,11 +87,42 @@ export function resolveActivePublicNavGroup(pathname: string, groups: PublicNavG
   return activeGroupId;
 }
 
-export function isPrimaryPublicNavLink(group: PublicNavGroup, link: PublicNavLink) {
-  return group.sections.flatMap((section) => section.links).find((candidate) => candidate.href === link.href) === link;
+export function isPrimaryPublicNavLink(groups: PublicNavGroup[], link: PublicNavLink) {
+  for (const group of groups) {
+    const primaryLink = group.links.find((candidate) => candidate.href === link.href);
+    if (primaryLink) return primaryLink === link;
+  }
+
+  return false;
 }
 
-export function PublicNavbarMenu({ ariaLabel, groups, onNavigate, pathname, pricingLabel }: Props) {
+export function PublicNavLinkMark({ mark }: { mark: PublicNavMark }) {
+  let icon: ReactNode = null;
+
+  if (mark.kind === "channel") icon = <ProviderMark decorative provider={mark.provider} size={18} />;
+
+  if (mark.kind === "agent") icon = <AiClientLogo className="size-[18px]" provider={mark.provider} />;
+
+  if (mark.kind === "automation") {
+    icon = (
+      // eslint-disable-next-line @next/next/no-img-element -- the allowlisted n8n mark is a bundled local SVG.
+      <img aria-hidden alt="" className="h-4 w-[22px] shrink-0 object-contain" src="/icons/integrations/n8n.svg" />
+    );
+  }
+
+  if (mark.kind === "provider") icon = <Slack aria-hidden className="size-[18px] text-[#4a154b] dark:text-[#e01e5a]" />;
+
+  return (
+    <span
+      className="grid h-[18px] w-[22px] shrink-0 place-items-center"
+      data-public-nav-mark={`${mark.kind}:${mark.provider}`}
+    >
+      {icon}
+    </span>
+  );
+}
+
+export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pathname, pricingLabel }: Props) {
   const [openGroup, setOpenGroup] = useState("");
   const hydrated = useSyncExternalStore(subscribeToHydration, clientHydrationSnapshot, serverHydrationSnapshot);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -92,6 +132,9 @@ export function PublicNavbarMenu({ ariaLabel, groups, onNavigate, pathname, pric
   const pricingItemRef = useRef<HTMLLIElement>(null);
   const triggerRefs = useRef(new Map<string, HTMLButtonElement>());
   const activeGroupId = resolveActivePublicNavGroup(pathname, groups);
+  const visibleGroup = groups.find((group) => group.id === openGroup);
+  const visibleColumnCount = visibleGroup?.columns ?? Math.max(2, ...groups.map((group) => group.columns));
+  const visibleLinkCount = visibleGroup?.links.length ?? Math.max(1, ...groups.map((group) => group.links.length));
 
   function cancelScheduledClose() {
     if (!closeTimerRef.current) return;
@@ -198,8 +241,8 @@ export function PublicNavbarMenu({ ariaLabel, groups, onNavigate, pathname, pric
                     aria-controls="public-nav-popover"
                     aria-expanded={expanded}
                     className={cn(
-                      "group flex h-8 items-center gap-1 rounded-md px-2.5 text-sm font-medium outline-none transition-colors hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50",
-                      active || expanded ? "text-foreground" : "text-subdued",
+                      "group flex h-8 items-center gap-1 rounded-md px-2.5 text-[13px] font-medium outline-none transition-colors hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 motion-reduce:transition-none",
+                      active || expanded ? "bg-accent text-foreground" : "text-subdued",
                     )}
                     data-public-nav-active={active ? "true" : undefined}
                     data-public-nav-trigger={group.id}
@@ -261,13 +304,28 @@ export function PublicNavbarMenu({ ariaLabel, groups, onNavigate, pathname, pric
                 appearance="unstyled"
                 aria-current={isCurrentPage(pathname, "/pricing") ? "page" : undefined}
                 className={cn(
-                  "flex h-8 items-center rounded-md px-2.5 text-sm font-medium transition-colors hover:bg-accent hover:text-foreground focus-visible:bg-accent",
-                  !isCurrentPage(pathname, "/pricing") && "text-subdued",
+                  "flex h-8 items-center rounded-md px-2.5 text-[13px] font-medium transition-colors hover:bg-accent hover:text-foreground focus-visible:bg-accent motion-reduce:transition-none",
+                  isCurrentPage(pathname, "/pricing") ? "bg-accent text-foreground" : "text-subdued",
                 )}
                 href="/pricing"
                 onNavigate={navigate}
               >
                 {pricingLabel}
+              </AppLink>
+            </li>
+
+            <li>
+              <AppLink
+                appearance="unstyled"
+                aria-current={isCurrentPage(pathname, "/docs") ? "page" : undefined}
+                className={cn(
+                  "flex h-8 items-center rounded-md px-2.5 text-[13px] font-medium transition-colors hover:bg-accent hover:text-foreground focus-visible:bg-accent motion-reduce:transition-none",
+                  isCurrentPage(pathname, "/docs") ? "bg-accent text-foreground" : "text-subdued",
+                )}
+                href="/docs"
+                onNavigate={navigate}
+              >
+                {docsLabel}
               </AppLink>
             </li>
           </ul>
@@ -279,7 +337,14 @@ export function PublicNavbarMenu({ ariaLabel, groups, onNavigate, pathname, pric
             forceMount
             aria-hidden={!openGroup}
             aria-labelledby={openGroup ? `public-nav-trigger-${openGroup}` : undefined}
-            className="w-[min(64rem,calc(100vw-2rem))] rounded-xl border-0 bg-transparent p-0 shadow-none data-[state=closed]:pointer-events-none data-[state=closed]:invisible data-[state=closed]:animate-none data-[state=open]:animate-none"
+            className={cn(
+              "max-h-[min(34rem,calc(100svh-5rem))] overflow-y-auto overscroll-contain rounded-lg border-0 bg-transparent p-0 shadow-none transition-[width] duration-200 ease-marketing data-[state=closed]:pointer-events-none data-[state=closed]:invisible data-[state=closed]:animate-none data-[state=open]:animate-none motion-reduce:transition-none",
+              visibleColumnCount === 3
+                ? "w-[min(45rem,calc(100vw-2rem))]"
+                : visibleLinkCount <= 4
+                  ? "w-[min(28rem,calc(100vw-2rem))]"
+                  : "w-[min(34rem,calc(100vw-2rem))]",
+            )}
             id="public-nav-popover"
             portalled={false}
             role="region"
@@ -306,74 +371,39 @@ export function PublicNavbarMenu({ ariaLabel, groups, onNavigate, pathname, pric
                     else panelRefs.current.delete(group.id);
                   }}
                   aria-hidden={!expanded}
-                  className={cn(!expanded && "hidden")}
+                  className={cn(
+                    "overflow-hidden rounded-lg border border-border bg-popover shadow-md",
+                    !expanded && "hidden",
+                  )}
                   data-public-nav-surface={group.id}
                   data-state={expanded ? "open" : "closed"}
                 >
-                  <div className="overflow-hidden rounded-xl border border-border-strong bg-popover text-popover-foreground shadow-lg">
-                    <div className="border-b border-border bg-sidebar/45 px-6 py-5">
-                      <p className="text-sm font-semibold text-foreground">{group.title}</p>
+                  <ul className={cn("grid gap-px bg-border", group.columns === 3 ? "grid-cols-3" : "grid-cols-2")}>
+                    {group.links.map((link) => {
+                      const linkActive = isCurrentPage(pathname, link.href) && isPrimaryPublicNavLink(groups, link);
 
-                      <p className="mt-1 max-w-2xl text-sm leading-6 text-subdued">{group.description}</p>
-                    </div>
-
-                    <div
-                      className={cn(
-                        "grid content-start gap-x-8 gap-y-7 p-6",
-                        group.sections.length >= 3
-                          ? "grid-cols-3"
-                          : group.sections.length === 2
-                            ? "grid-cols-2"
-                            : "grid-cols-1",
-                      )}
-                    >
-                      {group.sections.map((section, sectionIndex) => (
-                        <section key={section.title} aria-labelledby={`public-nav-${group.id}-${sectionIndex}`}>
-                          <p
-                            className="text-xs font-medium uppercase tracking-[0.14em] text-subdued"
-                            id={`public-nav-${group.id}-${sectionIndex}`}
-                          >
-                            {section.title}
-                          </p>
-
-                          <ul
+                      return (
+                        <li key={`${link.href}-${link.title}`} className="min-w-0">
+                          <AppLink
+                            appearance="unstyled"
+                            aria-current={linkActive ? "page" : undefined}
                             className={cn(
-                              "mt-3 space-y-1",
-                              group.sections.length === 1 && "grid max-w-2xl grid-cols-2 gap-x-8 space-y-0",
+                              "flex h-full min-h-11 items-center gap-2.5 bg-popover px-3 py-2.5 text-[13px] font-medium text-foreground transition-colors hover:bg-accent focus-visible:bg-accent motion-reduce:transition-none",
+                              linkActive && "bg-accent",
                             )}
+                            href={link.href}
+                            tabIndex={expanded ? undefined : -1}
+                            onKeyDown={(event) => handlePanelLinkKeyDown(event, group.id)}
+                            onNavigate={navigate}
                           >
-                            {section.links.map((link) => {
-                              const linkActive =
-                                isCurrentPage(pathname, link.href) && isPrimaryPublicNavLink(group, link);
+                            {link.mark ? <PublicNavLinkMark mark={link.mark} /> : null}
 
-                              return (
-                                <li key={`${link.href}-${link.title}`}>
-                                  <AppLink
-                                    appearance="unstyled"
-                                    aria-current={linkActive ? "page" : undefined}
-                                    className={cn(
-                                      "-mx-2.5 flex min-h-9 items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent focus-visible:bg-accent",
-                                      linkActive && "bg-accent",
-                                    )}
-                                    href={link.href}
-                                    tabIndex={expanded ? undefined : -1}
-                                    onKeyDown={(event) => handlePanelLinkKeyDown(event, group.id)}
-                                    onNavigate={navigate}
-                                  >
-                                    {link.provider ? (
-                                      <ProviderMark decorative provider={link.provider} size={18} />
-                                    ) : null}
-
-                                    {link.title}
-                                  </AppLink>
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        </section>
-                      ))}
-                    </div>
-                  </div>
+                            <span className="min-w-0 truncate">{link.title}</span>
+                          </AppLink>
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </div>
               );
             })}

@@ -48,33 +48,23 @@ import {
 const groups: PublicNavGroup[] = [
   {
     activeHref: "/features",
-    description: "Understand the product.",
+    columns: 2,
     icon: Boxes,
-    sections: [
-      {
-        links: [
-          { href: "/features/self-hosted", title: "Self-hosted" },
-          { href: "/features/all", title: "All features" },
-        ],
-        title: "Platform",
-      },
+    links: [
+      { href: "/features/self-hosted", title: "Self-hosted" },
+      { href: "/features/all", title: "All features" },
     ],
     id: "product",
     title: "Product",
   },
   {
     activeHref: "/for",
-    description: "Find a solution.",
+    columns: 2,
     id: "solutions",
     icon: UsersRound,
-    sections: [
-      {
-        links: [
-          { href: "/for/agencies", title: "Agencies" },
-          { href: "/for", title: "All solutions" },
-        ],
-        title: "Teams",
-      },
+    links: [
+      { href: "/for/agencies", title: "Agencies" },
+      { href: "/for", title: "All solutions" },
     ],
     title: "Solutions",
   },
@@ -86,6 +76,7 @@ let root: Root | undefined;
 function menu(onNavigate = vi.fn()) {
   return createElement(PublicNavbarMenu, {
     ariaLabel: "Primary navigation",
+    docsLabel: "Documentation",
     groups,
     onNavigate,
     pathname: "/",
@@ -121,7 +112,14 @@ describe("PublicNavbarMenu", () => {
     expect(markup).toContain('href="/for"');
     expect(markup).toContain('href="/for/agencies"');
     expect(markup).toContain('href="/pricing"');
+    expect(markup).toContain('href="/docs"');
     expect(markup.match(/aria-expanded="false"/gu)).toHaveLength(groups.length);
+    expect(markup).not.toContain("Platform");
+    expect(markup).not.toContain("Teams");
+    expect(markup).not.toContain("Understand the product");
+    expect(markup).not.toContain("Find a solution");
+    expect(markup).not.toContain("<section");
+    expect(markup).not.toContain("<footer");
   });
 
   it("opens one panel at a time, restores focus on Escape, and closes on navigation", async () => {
@@ -207,10 +205,18 @@ describe("PublicNavbarMenu", () => {
     const productLink = container?.querySelector<HTMLAnchorElement>('a[href="/features/self-hosted"]');
     const solutionsLink = container?.querySelector<HTMLAnchorElement>('a[href="/for/agencies"]');
     const content = container?.querySelector<HTMLElement>('[data-slot="popover-content"]');
-    if (!productLink || !solutionsLink || !content) throw new Error("open navigation links did not render");
+    const surface = container?.querySelector<HTMLElement>('[data-public-nav-surface="product"]');
+    const grid = surface?.querySelector("ul");
+    if (!productLink || !solutionsLink || !content || !surface || !grid)
+      throw new Error("open navigation links did not render");
     expect(product.getAttribute("aria-expanded")).toBe("true");
     expect(content.className).toContain("overflow-y-auto");
     expect(content.className).not.toContain("overflow-hidden");
+    expect(surface.classList.contains("bg-popover")).toBe(true);
+    expect(surface.classList.contains("border-border")).toBe(true);
+    expect(grid.classList.contains("bg-border")).toBe(true);
+    expect(grid.classList.contains("border-sidebar")).toBe(false);
+    expect(grid.classList.contains("bg-sidebar")).toBe(false);
     expect(productLink.getAttribute("tabindex")).toBeNull();
     expect(solutionsLink.tabIndex).toBe(-1);
 
@@ -498,6 +504,7 @@ describe("PublicNavbarMenu", () => {
     const markup = renderToStaticMarkup(
       createElement(PublicNavbarMenu, {
         ariaLabel: "Primary navigation",
+        docsLabel: "Documentation",
         groups,
         onNavigate: vi.fn(),
         pathname: "/features/self-hosted",
@@ -510,6 +517,24 @@ describe("PublicNavbarMenu", () => {
     expect(markup.match(/aria-current="page"/gu)).toHaveLength(1);
   });
 
+  it("keeps documentation as one standalone current destination", () => {
+    const markup = renderToStaticMarkup(
+      createElement(PublicNavbarMenu, {
+        ariaLabel: "Primary navigation",
+        docsLabel: "Documentation",
+        groups,
+        onNavigate: vi.fn(),
+        pathname: "/docs",
+        pricingLabel: "Pricing",
+      }),
+    );
+
+    expect(resolveActivePublicNavGroup("/docs", groups)).toBeNull();
+    expect(markup.match(/href="\/docs"/gu)).toHaveLength(1);
+    expect(markup).toMatch(/<a(?=[^>]*aria-current="page")(?=[^>]*href="\/docs")[^>]*>/u);
+    expect(markup.match(/aria-current="page"/gu)).toHaveLength(1);
+  });
+
   it("resolves overlapping routes to one active group and one current link", () => {
     const productGroup = groups[0];
     if (!productGroup) throw new Error("product navigation fixture did not render");
@@ -518,40 +543,32 @@ describe("PublicNavbarMenu", () => {
       href: "/features/unified-inbox",
       title: "Unified inbox",
     };
-    const whatsapp = { href: "/features/unified-inbox", title: "WhatsApp" };
+    const whatsapp = { activeMatch: false, href: "/features/unified-inbox", title: "WhatsApp" };
     const overlappingGroups: PublicNavGroup[] = [
-      productGroup,
+      {
+        ...productGroup,
+        links: [...productGroup.links, unifiedInbox],
+      },
       {
         activeHref: "/features/integrations",
-        description: "Connect channels.",
+        columns: 2,
         icon: Boxes,
         id: "integrations",
-        sections: [
-          {
-            links: [
-              { href: "/features/linkedin-integration", title: "LinkedIn" },
-              unifiedInbox,
-              whatsapp,
-              { href: "/docs/mcp", title: "MCP guide" },
-            ],
-            title: "Channels",
-          },
+        links: [
+          { href: "/features/linkedin-integration", title: "LinkedIn" },
+          whatsapp,
+          { activeMatch: false, href: "/docs/mcp", title: "MCP guide" },
         ],
         title: "Integrations",
       },
       {
         activeHref: "/blog",
-        description: "Read the guides.",
+        columns: 2,
         icon: UsersRound,
         id: "resources",
-        sections: [
-          {
-            links: [
-              { href: "/docs", title: "Documentation" },
-              { href: "/docs/mcp", title: "MCP guide" },
-            ],
-            title: "Guides",
-          },
+        links: [
+          { href: "/docs", title: "Documentation" },
+          { href: "/docs/mcp", title: "MCP guide" },
         ],
         title: "Resources",
       },
@@ -559,12 +576,14 @@ describe("PublicNavbarMenu", () => {
 
     expect(resolveActivePublicNavGroup("/features/linkedin-integration", overlappingGroups)).toBe("integrations");
     expect(resolveActivePublicNavGroup("/docs/mcp", overlappingGroups)).toBe("resources");
-    expect(isPrimaryPublicNavLink(overlappingGroups[1], unifiedInbox)).toBe(true);
-    expect(isPrimaryPublicNavLink(overlappingGroups[1], whatsapp)).toBe(false);
+    expect(resolveActivePublicNavGroup("/features/unified-inbox", overlappingGroups)).toBe("product");
+    expect(isPrimaryPublicNavLink(overlappingGroups, unifiedInbox)).toBe(true);
+    expect(isPrimaryPublicNavLink(overlappingGroups, whatsapp)).toBe(false);
 
     const markup = renderToStaticMarkup(
       createElement(PublicNavbarMenu, {
         ariaLabel: "Primary navigation",
+        docsLabel: "Documentation",
         groups: overlappingGroups,
         onNavigate: vi.fn(),
         pathname: "/features/unified-inbox",
@@ -572,7 +591,7 @@ describe("PublicNavbarMenu", () => {
       }),
     );
 
-    expect(markup).toMatch(/data-public-nav-active="true"[^>]*data-public-nav-trigger="integrations"/u);
+    expect(markup).toMatch(/data-public-nav-active="true"[^>]*data-public-nav-trigger="product"/u);
     expect(markup.match(/aria-current="page"/gu)).toHaveLength(1);
   });
 });
