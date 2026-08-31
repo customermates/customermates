@@ -17,7 +17,7 @@ export function HomepageLiveDemo({ locale, proof }: { locale: ContentLocale; pro
 
   return (
     <MarketingSection containerClassName="scroll-mt-6" containerSize="wide" id="live-demo">
-      <div className="marketing-grid items-end gap-y-6">
+      <div className="marketing-grid mx-auto max-w-[84rem] items-end gap-y-6">
         <div className="col-span-12 lg:col-span-5">
           <p className="text-eyebrow flex items-center gap-2">
             <MousePointerClick aria-hidden className="size-3.5" />
@@ -33,7 +33,7 @@ export function HomepageLiveDemo({ locale, proof }: { locale: ContentLocale; pro
         </p>
 
         <div className="col-span-12 mt-4">
-          <HeroDemoIframe className="max-w-7xl" size="article" src={demoSrc} />
+          <HeroDemoIframe size="article" src={demoSrc} />
         </div>
       </div>
     </MarketingSection>
