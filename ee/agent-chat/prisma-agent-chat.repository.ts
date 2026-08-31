@@ -39,7 +39,6 @@ import {
 } from "./agent-turn-request";
 import type { AgentUsageSettlement } from "./agent-usage-settlement";
 import { AGENT_CREDIT_MICROCENTS, resolveAgentCreditEntitlement } from "./agent-credit-policy";
-import { HostedAiAdmissionBlockedError, isHostedAiAdmissionBlockedError } from "./hosted-ai-admission";
 
 type StoredAgentTurnRow = {
   id: string;
@@ -201,8 +200,8 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     now: Date;
     excludeReservationId?: string;
     additionalReservedCredits?: number;
-  }): Promise<void> {
-    if (!env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED) return;
+  }): Promise<boolean> {
+    if (!env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED) return true;
 
     const additionalReservedCredits = args.additionalReservedCredits ?? 0;
     if (!Number.isSafeInteger(additionalReservedCredits) || additionalReservedCredits < 0)
@@ -217,9 +216,8 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       FOR UPDATE
     `;
     const control = controls[0];
-    if (!control || control.monthlySpendCapMicrocents === null)
-      throw new HostedAiAdmissionBlockedError("configuration_unavailable");
-    if (control.hostedProviderWorkPaused) throw new HostedAiAdmissionBlockedError("operator_paused");
+    if (!control || control.monthlySpendCapMicrocents === null) return false;
+    if (control.hostedProviderWorkPaused) return false;
 
     const monthStart = new Date(Date.UTC(args.now.getUTCFullYear(), args.now.getUTCMonth(), 1));
     const monthEnd = new Date(Date.UTC(args.now.getUTCFullYear(), args.now.getUTCMonth() + 1, 1));
@@ -258,8 +256,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     const committedMicrocents =
       commitment.settledCostMicrocents +
       (commitment.activeReservedCredits + BigInt(additionalReservedCredits)) * BigInt(AGENT_CREDIT_MICROCENTS);
-    if (committedMicrocents > control.monthlySpendCapMicrocents)
-      throw new HostedAiAdmissionBlockedError("global_spend_cap");
+    return committedMicrocents <= control.monthlySpendCapMicrocents;
   }
 
   private turnSnapshot(row: StoredAgentTurnRow, hasLaterMessages: boolean): AgentTurnRequestSnapshot {
@@ -1479,8 +1476,8 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       if (!user?.subscription) throw new Error("Agent credit subscription is unavailable at provider start.");
       if (user.status !== Status.active) throw new Error("Agent credit user is not an active seat at provider start.");
       const entitlement = await this.resolveCurrentAgentCreditEntitlement(user, startedAt);
-      if (!entitlement || entitlement.blockedReason)
-        throw new HostedAiAdmissionBlockedError("configuration_unavailable");
+      if (!entitlement) throw new Error("Agent credit entitlement is unavailable at provider start.");
+      if (entitlement.blockedReason) throw new Error(`Agent credits are blocked: ${entitlement.blockedReason}.`);
       const reservation = await this.prisma.agentUsageEvent.findFirst({
         where: {
           turnRequestId: args.turnRequestId,
@@ -1504,9 +1501,9 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       });
       const usedCredits = sumCommittedAgentCredits(currentEvents);
       if (usedCredits + reservation.reservedCredits > entitlement.limit)
-        throw new HostedAiAdmissionBlockedError("credits_exhausted");
+        throw new Error("Agent credit reservation exceeds the current allowance at provider start.");
 
-      await this.lockHostedAiGlobalControlForAdmission({ now: startedAt });
+      if (!(await this.lockHostedAiGlobalControlForAdmission({ now: startedAt }))) return false;
 
       const updated = await this.prisma.agentTurnRequest.updateMany({
         where: {
@@ -1540,6 +1537,8 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         },
       });
       if (usage.count !== 1) throw new Error("Agent usage reservation could not be marked as provider-started.");
+
+      return true;
     });
   }
 
@@ -1594,12 +1593,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       const committedElsewhere = sumCommittedAgentCredits(others);
       if (committedElsewhere + reservation.reservedCredits > entitlement.limit) return false;
 
-      try {
-        await this.lockHostedAiGlobalControlForAdmission({ now });
-      } catch (error) {
-        if (isHostedAiAdmissionBlockedError(error)) return false;
-        throw error;
-      }
+      if (!(await this.lockHostedAiGlobalControlForAdmission({ now }))) return false;
 
       return true;
     });
@@ -1973,15 +1967,15 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     if (!Number.isSafeInteger(event.reservedCredits) || event.reservedCredits < 1)
       throw new Error("Agent credit reservation is invalid.");
 
-    await this.withCompanyTransaction(event.companyId, async () => {
+    return this.withCompanyTransaction(event.companyId, async () => {
       const reservedAt = new Date();
       const user = await this.findUserForUsageUnscoped(event.userId);
       if (!user || user.companyId !== event.companyId || user.status !== Status.active || !user.subscription)
         throw new Error("Agent credit seat is unavailable.");
 
       const entitlement = await this.resolveCurrentAgentCreditEntitlement(user, reservedAt);
-      if (!entitlement || entitlement.blockedReason)
-        throw new HostedAiAdmissionBlockedError("configuration_unavailable");
+      if (!entitlement) throw new Error("Agent credit entitlement is unavailable.");
+      if (entitlement.blockedReason) throw new Error(`Agent credits are blocked: ${entitlement.blockedReason}.`);
 
       const existing = await this.prisma.agentUsageEvent.findMany({
         where: {
@@ -1995,12 +1989,15 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       });
       const used = sumCommittedAgentCredits(existing);
       if (used + event.reservedCredits > entitlement.limit)
-        throw new HostedAiAdmissionBlockedError("credits_exhausted");
+        throw new Error("Agent credit reservation exceeds the current allowance.");
 
-      await this.lockHostedAiGlobalControlForAdmission({
-        now: reservedAt,
-        additionalReservedCredits: event.reservedCredits,
-      });
+      if (
+        !(await this.lockHostedAiGlobalControlForAdmission({
+          now: reservedAt,
+          additionalReservedCredits: event.reservedCredits,
+        }))
+      )
+        return false;
 
       await this.prisma.agentUsageEvent.create({
         data: {
@@ -2015,6 +2012,8 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           policyBreach: false,
         },
       });
+
+      return true;
     });
   }
 
@@ -2074,16 +2073,14 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       const committedElsewhere = sumCommittedAgentCredits(others);
       if (committedElsewhere + args.requiredCredits > entitlement.limit) return null;
 
-      try {
-        await this.lockHostedAiGlobalControlForAdmission({
+      if (
+        !(await this.lockHostedAiGlobalControlForAdmission({
           now,
           excludeReservationId: reservation.id,
           additionalReservedCredits: args.requiredCredits,
-        });
-      } catch (error) {
-        if (isHostedAiAdmissionBlockedError(error)) return null;
-        throw error;
-      }
+        }))
+      )
+        return null;
 
       const extended = await this.prisma.agentUsageEvent.updateMany({
         where: {

@@ -191,17 +191,13 @@ describeDatabase(
       const repo = new PrismaAgentChatRepo();
 
       await configureControl({ paused: false, cap: null });
-      await expect(reserve(repo, seats[0], 1)).rejects.toMatchObject({
-        reason: "configuration_unavailable",
-      });
+      await expect(reserve(repo, seats[0], 1)).resolves.toBe(false);
 
       await configureControl({
         paused: true,
         cap: 100n * BigInt(AGENT_CREDIT_MICROCENTS),
       });
-      await expect(reserve(repo, seats[0], 1)).rejects.toMatchObject({
-        reason: "operator_paused",
-      });
+      await expect(reserve(repo, seats[0], 1)).resolves.toBe(false);
 
       await expect(
         runWithoutTenant(() => prisma.agentUsageEvent.count({ where: { state: "reserved" } })),
@@ -242,12 +238,8 @@ describeDatabase(
         reserve(repo, seats[1], competingReservationCredits),
       ]);
 
-      expect(outcomes.filter(({ status }) => status === "fulfilled")).toHaveLength(1);
-      const rejected = outcomes.find(({ status }) => status === "rejected");
-      expect(rejected).toMatchObject({
-        status: "rejected",
-        reason: expect.objectContaining({ reason: "global_spend_cap" }),
-      });
+      expect(outcomes.filter((outcome) => outcome.status === "fulfilled" && outcome.value === true)).toHaveLength(1);
+      expect(outcomes.filter((outcome) => outcome.status === "fulfilled" && outcome.value === false)).toHaveLength(1);
       await expect(
         runWithoutTenant(() =>
           prisma.agentUsageEvent.aggregate({
@@ -318,9 +310,7 @@ describeDatabase(
         )) as never);
 
       try {
-        await expect(reserve(repo, seats[1], 1)).rejects.toMatchObject({
-          reason: "global_spend_cap",
-        });
+        await expect(reserve(repo, seats[1], 1)).resolves.toBe(false);
       } finally {
         transactionSpy.mockRestore();
         if (!transitionCommitted) await transition.query("ROLLBACK");
@@ -369,9 +359,7 @@ describeDatabase(
         }),
       );
 
-      await expect(reserve(new PrismaAgentChatRepo(), seats[1], 1)).rejects.toMatchObject({
-        reason: "global_spend_cap",
-      });
+      await expect(reserve(new PrismaAgentChatRepo(), seats[1], 1)).resolves.toBe(false);
       await expect(
         runWithoutTenant(() => prisma.agentUsageEvent.count({ where: { state: "retained" } })),
       ).resolves.toBe(1);

@@ -62,7 +62,7 @@ function makeRepo(
       }),
     ),
     recordUsageEventUnscoped: vi.fn(() => Promise.resolve()),
-    reserveUsageEventUnscoped: vi.fn(() => Promise.resolve()),
+    reserveUsageEventUnscoped: vi.fn(() => Promise.resolve(true)),
     releaseUsageReservationUnscoped: vi.fn(() => Promise.resolve()),
   };
 }

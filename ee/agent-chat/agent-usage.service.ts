@@ -48,7 +48,7 @@ export abstract class AgentUsageRepo {
     allowanceCreditsSnapshot: number;
     periodStart: Date;
     periodEnd: Date;
-  }): Promise<void>;
+  }): Promise<boolean>;
   abstract releaseUsageReservationUnscoped(args: {
     id: string;
     companyId: string;
@@ -240,8 +240,8 @@ export class AgentUsageService {
     companyId: string;
     userId: string;
     reservation: AgentTurnCreditReservation;
-  }) {
-    await this.repo.reserveUsageEventUnscoped({
+  }): Promise<boolean> {
+    return this.repo.reserveUsageEventUnscoped({
       id: args.reservationId,
       companyId: args.companyId,
       userId: args.userId,

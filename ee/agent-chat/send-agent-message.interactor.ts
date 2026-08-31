@@ -35,7 +35,6 @@ import { isAgentModelKey, resolveAgentModel } from "./model-catalog";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import { fail, failConflict, failNotFound, failRateLimit } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { isHostedAiAdmissionBlockedError } from "./hosted-ai-admission";
 
 type AdmittedAgentRun = { disposition: "run"; externalRunId: string } & Omit<AgentRunContext, "appBaseUrl">;
 
@@ -204,7 +203,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       const claimed = await runInTransaction(async () => {
         const phaseOneAt = new Date();
         if (conversationIsNew) {
-          if (await this.repo.isAtAgentRunLimit(phaseOneAt)) return false;
+          if (await this.repo.isAtAgentRunLimit(phaseOneAt)) return "unavailable" as const;
           await this.repo.createAgentConversationForRun({
             conversationId,
             title: data.text,
@@ -219,17 +218,20 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           expiresAt: new Date(phaseOneAt.getTime() + AGENT_RUN_LEASE_MS),
           now: phaseOneAt,
         });
-        if (lease !== "claimed") return false;
+        if (lease !== "claimed") return "unavailable" as const;
 
-        await this.usageService.reserveUsage({
+        const admitted = await this.usageService.reserveUsage({
           reservationId,
           companyId: user.companyId,
           userId: user.id,
           reservation,
         });
-        return true;
+        if (!admitted) return "not-admitted" as const;
+
+        return "claimed" as const;
       });
-      if (!claimed) {
+      if (claimed === "not-admitted") return failRateLimit(CustomErrorCode.agentLimitReached);
+      if (claimed !== "claimed") {
         if (conversationIsNew) return failConflict(CustomErrorCode.agentTurnAlreadyRunning);
         return {
           ok: true as const,
@@ -329,7 +331,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           tags: { kind: "agent-admission-cleanup-failure" },
         });
       }
-      if (isHostedAiAdmissionBlockedError(error)) return failRateLimit(CustomErrorCode.agentLimitReached);
       throw error;
     }
   }

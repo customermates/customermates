@@ -4,7 +4,7 @@ const state = vi.hoisted(() => ({
   gateResults: [] as boolean[],
   providerCalls: 0,
   writes: [] as unknown[],
-  markProviderStarted: vi.fn<() => Promise<void>>(),
+  markProviderStarted: vi.fn<() => Promise<boolean>>(),
   finalize: vi.fn(),
 }));
 
@@ -80,7 +80,6 @@ vi.mock("../capture-failure", () => ({
   toWorkflowFailure: (error: unknown) => error,
 }));
 
-import { HostedAiAdmissionBlockedError } from "@/ee/agent-chat/hosted-ai-admission";
 import { runAgentTurn, type AgentTurnWorkflowPayload } from "../agent-turn";
 
 const payload: AgentTurnWorkflowPayload = {
@@ -110,7 +109,7 @@ beforeEach(() => {
   state.gateResults = [];
   state.providerCalls = 0;
   state.writes = [];
-  state.markProviderStarted.mockReset().mockResolvedValue(undefined);
+  state.markProviderStarted.mockReset().mockResolvedValue(true);
   state.finalize.mockReset().mockImplementation((args) =>
     Promise.resolve({
       assistantMessage: { id: "assistant-1" },
@@ -123,7 +122,7 @@ beforeEach(() => {
 
 describe("agent-turn hosted-AI provider gates", () => {
   it("makes no provider call when the provider-start admission is rejected", async () => {
-    state.markProviderStarted.mockRejectedValueOnce(new HostedAiAdmissionBlockedError("operator_paused"));
+    state.markProviderStarted.mockResolvedValueOnce(false);
 
     await runAgentTurn(payload);
 

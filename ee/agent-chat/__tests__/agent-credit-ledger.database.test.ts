@@ -159,7 +159,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
           periodEnd: anchor,
         }),
       ),
-    ).rejects.toThrow(/credits_exhausted/);
+    ).rejects.toThrow(/exceeds the current allowance/);
 
     const rows = await runWithoutTenant(() => prisma.agentUsageEvent.findMany({ where: { userId } }));
     expect(rows).toHaveLength(0);

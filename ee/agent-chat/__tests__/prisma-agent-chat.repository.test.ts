@@ -1618,7 +1618,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           periodStart: new Date("2026-08-01T00:00:00.000Z"),
           periodEnd: new Date("2026-09-01T00:00:00.000Z"),
         }),
-      ).rejects.toThrow("credits_exhausted");
+      ).rejects.toThrow("current allowance");
     } finally {
       vi.useRealTimers();
     }
@@ -1681,7 +1681,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           periodStart: new Date("2026-07-15T10:30:00.000Z"),
           periodEnd: new Date("2026-08-15T10:30:00.000Z"),
         }),
-      ).rejects.toThrow("global_spend_cap");
+      ).resolves.toBe(false);
     } finally {
       vi.useRealTimers();
     }

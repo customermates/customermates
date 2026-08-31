@@ -55,7 +55,6 @@ import { resolveAgentApprovalContext } from "@/ee/agent-chat/agent-external-appr
 import { resolveAgentToolResultMaxChars } from "@/ee/agent-chat/agent-budget-policy";
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { HostedAiAdmissionBlockedError, isHostedAiAdmissionBlockedError } from "@/ee/agent-chat/hosted-ai-admission";
 
 import { reportFailure, toWorkflowFailure, type WorkflowFailure } from "./capture-failure";
 
@@ -168,21 +167,15 @@ function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprov
 
 async function openTurn(payload: AgentTurnWorkflowPayload): Promise<boolean> {
   "use step";
-  try {
-    await runAsBackgroundTenant(payload.userId, () =>
-      getAgentChatRepo().markAgentTurnProviderStartedUnscoped({
-        turnRequestId: payload.turnRequestId,
-        conversationId: payload.conversationId,
-        companyId: payload.companyId,
-        userId: payload.userId,
-        runId: payload.runId,
-      }),
-    );
-    return true;
-  } catch (error) {
-    if (isHostedAiAdmissionBlockedError(error)) return false;
-    throw error;
-  }
+  return runAsBackgroundTenant(payload.userId, () =>
+    getAgentChatRepo().markAgentTurnProviderStartedUnscoped({
+      turnRequestId: payload.turnRequestId,
+      conversationId: payload.conversationId,
+      companyId: payload.companyId,
+      userId: payload.userId,
+      runId: payload.runId,
+    }),
+  );
 }
 openTurn.maxRetries = 0;
 
@@ -649,6 +642,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let safetyStop: string | null = null;
     let budgetStop = false;
     let hostedAiStop = false;
+    const hostedAiPaused = new Error("Hosted AI provider work is paused.");
     let abandoned = false;
     let reservedCredits = payload.turnBudget.reservedCredits;
     let roundFailure: WorkflowFailure | null = null;
@@ -809,8 +803,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           openai: { parallelToolCalls: false },
         },
         prepareStep: async () => {
-          if (!(await canStartNextHostedAiProviderRound(payload)))
-            throw new HostedAiAdmissionBlockedError("operator_paused");
+          if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
           return {};
         },
         stopWhen: [
@@ -840,7 +833,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       try {
         result = await agent.stream({ messages, writable, preventClose: true, sendFinish: false });
       } catch (error) {
-        if (isHostedAiAdmissionBlockedError(error)) {
+        if (error === hostedAiPaused) {
           hostedAiStop = true;
           break;
         }
