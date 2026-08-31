@@ -23,6 +23,8 @@ import {
   reconcileGoogleAdsAttributionWithdrawalAction,
 } from "../google-ads-consent.actions";
 
+const freshPendingAt = () => new Date().toISOString();
+
 describe("Google Ads consent actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -35,7 +37,7 @@ describe("Google Ads consent actions", () => {
     await expect(
       decidePublicGoogleAdsConsentAction({
         choice: "allow-attribution",
-        visit: { search: "?gclid=one" },
+        visit: { pendingAt: freshPendingAt(), search: "?gclid=one" },
       }),
     ).resolves.toMatchObject({ advertising: true });
     expect(mocks.write).toHaveBeenCalledWith(
@@ -50,7 +52,7 @@ describe("Google Ads consent actions", () => {
     await expect(
       decidePublicGoogleAdsConsentAction({
         choice: "necessary-only",
-        visit: { search: "?gclid=one" },
+        visit: { pendingAt: freshPendingAt(), search: "?gclid=one" },
       }),
     ).resolves.toMatchObject({ advertising: false });
     expect(mocks.write).toHaveBeenCalledWith(expect.objectContaining({ click: null }));
@@ -94,7 +96,7 @@ describe("Google Ads consent actions", () => {
       },
       expiresAt: "2026-11-29T10:00:00.000Z",
     });
-    await captureConsentedGoogleAdsClickAction({ search: "?gclid=second" });
+    await captureConsentedGoogleAdsClickAction({ pendingAt: freshPendingAt(), search: "?gclid=second" });
     expect(mocks.write).not.toHaveBeenCalled();
   });
 
@@ -106,7 +108,7 @@ describe("Google Ads consent actions", () => {
       expiresAt: "2026-11-29T10:00:00.000Z",
     });
 
-    await captureConsentedGoogleAdsClickAction({ search: "?gclid=later-click" });
+    await captureConsentedGoogleAdsClickAction({ pendingAt: freshPendingAt(), search: "?gclid=later-click" });
 
     expect(mocks.write).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -114,5 +116,22 @@ describe("Google Ads consent actions", () => {
         click: expect.objectContaining({ kind: "gclid", value: "later-click" }),
       }),
     );
+  });
+
+  it("does not capture an expired pending click under stored consent", async () => {
+    mocks.read.mockResolvedValue({
+      version: 1,
+      consent: { advertising: true, decidedAt: "2026-08-31T10:00:00.000Z" },
+      click: null,
+      expiresAt: "2026-11-29T10:00:00.000Z",
+    });
+    const expiredPendingAt = new Date(Date.now() - 60 * 60 * 24 * 1000 - 1).toISOString();
+
+    await captureConsentedGoogleAdsClickAction({
+      pendingAt: expiredPendingAt,
+      search: "?gclid=expired-click",
+    });
+
+    expect(mocks.write).not.toHaveBeenCalled();
   });
 });

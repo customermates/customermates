@@ -8,7 +8,7 @@ import { readPublicGoogleAdsCookie, writePublicGoogleAdsCookie } from "./google-
 import {
   PublicGoogleAdsConsentDecisionInputSchema,
   buildPublicGoogleAdsCookieDecision,
-  normalizeGoogleAdsClick,
+  normalizePublicGoogleAdsVisitClick,
   type PublicGoogleAdsConsent,
 } from "./google-ads-consent.schema";
 
@@ -36,7 +36,7 @@ export async function captureConsentedGoogleAdsClickAction(input: unknown): Prom
   if (env.APP_MODE !== "cloud") return;
   const existing = await readPublicGoogleAdsCookie();
   if (!existing?.consent.advertising || existing.click) return;
-  const click = normalizeGoogleAdsClick(input);
+  const click = normalizePublicGoogleAdsVisitClick(input);
   if (!click) return;
   await writePublicGoogleAdsCookie({ ...existing, click });
 }
