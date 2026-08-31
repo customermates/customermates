@@ -62,7 +62,7 @@ export async function buildWorkbook(input: WorkbookBuildInput): Promise<Workbook
   const stream = new PassThrough();
   const collected = collect(stream);
 
-  const workbook = new ExcelJS.stream.xlsx.WorkbookWriter({ stream, useStyles: false, useSharedStrings: false });
+  const workbook = new ExcelJS.stream.xlsx.WorkbookWriter({ stream, useStyles: true, useSharedStrings: false });
 
   const sheet = workbook.addWorksheet(input.sheetName);
   sheet.columns = input.columns.map((column) => ({
@@ -70,6 +70,7 @@ export async function buildWorkbook(input: WorkbookBuildInput): Promise<Workbook
     key: column.key,
     width: column.hidden ? 38 : 22,
     hidden: column.hidden,
+    style: column.numFmt ? { numFmt: column.numFmt } : {},
   }));
 
   const relationSheets = new Map<string, ReturnType<typeof workbook.addWorksheet>>();

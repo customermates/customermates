@@ -20,6 +20,7 @@ export type ImportRowIssue = {
   fieldPath: string;
   message: string;
   code: string;
+  blocking: boolean;
 };
 
 export function fieldPathOf(path: Array<string | number>): string {
@@ -60,6 +61,7 @@ export function mapFailureToRows(
       fieldPath: belongsToRow ? fieldPathOf(issue.path) : issue.path.join("."),
       message: issue.message,
       code: issue.customCode ?? issue.code,
+      blocking: true,
     };
   });
 }
@@ -72,6 +74,7 @@ export function planIssueToRowIssue(issue: PlanIssue): ImportRowIssue {
     fieldPath: "",
     message: issue.message,
     code: issue.code,
+    blocking: issue.blocking,
   };
 }
 

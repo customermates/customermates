@@ -58,9 +58,16 @@ export function columnLetter(index: number): string {
   return letter;
 }
 
+function columnUidOf(field: { labelKey: string }): string {
+  return field.labelKey.split(".").at(-1) ?? "";
+}
+
 function targetFromSchemaKey(key: string, descriptor: ImportEntityDescriptor): MappingTarget {
   if (key === RECORD_ID_COLUMN_KEY) return { kind: "recordId" };
   if (descriptor.fields.some((field) => field.key === key)) return { kind: "field", key };
+
+  const byColumnUid = descriptor.fields.find((field) => columnUidOf(field) === key);
+  if (byColumnUid) return { kind: "field", key: byColumnUid.key };
 
   return { kind: "ignore" };
 }

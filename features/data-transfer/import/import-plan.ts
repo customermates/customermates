@@ -7,6 +7,8 @@ import { CustomColumnType, MessagingProvider } from "@/generated/prisma";
 
 import { STORED_MULTI_VALUE_SEPARATOR } from "../workbook-columns";
 import { columnLetter, normalizeHeader } from "./import-mapping";
+import { looksLikePhoneText, normalizeChannelValue } from "@/features/contacts/channel-value";
+import { isPhoneProvider } from "@/ee/messaging/provider";
 
 export type SourceRow = {
   sourceIndex: number;
@@ -28,6 +30,7 @@ export type PlanIssue = {
   columnLabel: string | null;
   message: string;
   code: string;
+  blocking: boolean;
 };
 
 export type ImportPlan = {
@@ -86,6 +89,14 @@ function asText(value: WorkbookCellValue): string {
   return String(value).trim();
 }
 
+export function channelValueProblem(provider: string, raw: string): string | null {
+  const messagingProvider = provider as MessagingProvider;
+
+  if (isPhoneProvider(messagingProvider) && !looksLikePhoneText(raw)) return `"${raw}" is not a phone number`;
+
+  return normalizeChannelValue(messagingProvider, raw) === null ? `"${raw}" is not a valid ${provider} value` : null;
+}
+
 function splitMulti(value: string): string[] {
   return value
     .split(STORED_MULTI_VALUE_SEPARATOR)
@@ -127,8 +138,8 @@ export function buildPlan(args: {
     let recordId: string | null = null;
     let rowFailed = false;
 
-    const fail = (index: number | null, code: string, message: string) => {
-      rowFailed = true;
+    const note = (index: number | null, code: string, message: string, blocking: boolean) => {
+      if (blocking) rowFailed = true;
       issues.push({
         sheetRow: row.sheetRow,
         sourceIndex: row.sourceIndex,
@@ -136,8 +147,12 @@ export function buildPlan(args: {
         columnLabel: index === null ? null : (sources[index]?.header ?? null),
         code,
         message,
+        blocking,
       });
     };
+
+    const fail = (index: number | null, code: string, message: string) => note(index, code, message, true);
+    const warn = (index: number | null, code: string, message: string) => note(index, code, message, false);
 
     mapping.forEach((target, index) => {
       const text = asText(row.cells[index] ?? null);
@@ -168,7 +183,17 @@ export function buildPlan(args: {
         if (text.length === 0) return;
 
         const existing = (payload.identifiers as Array<{ provider: string; value: string }>) ?? [];
-        payload.identifiers = [...existing, ...splitMulti(text).map((value) => ({ provider: target.provider, value }))];
+        const accepted: Array<{ provider: string; value: string }> = [];
+
+        for (const value of splitMulti(text)) {
+          const problem = channelValueProblem(target.provider, value);
+
+          if (problem) warn(index, "invalidChannelValue", problem);
+          else accepted.push({ provider: target.provider, value });
+        }
+
+        const combined = [...existing, ...accepted];
+        if (combined.length > 0) payload.identifiers = combined;
         return;
       }
 
@@ -226,8 +251,19 @@ export function buildPlan(args: {
 
       for (const entry of unknown) fail(null, "unknownProvider", `"${entry.provider}" is not a known channel type`);
 
-      if (unknown.length === 0)
-        payload.identifiers = mergeIdentifiers((payload.identifiers as IdentifierRow[]) ?? [], sheetIdentifiers);
+      if (unknown.length === 0) {
+        const usable: IdentifierRow[] = [];
+
+        for (const entry of sheetIdentifiers) {
+          const problem = channelValueProblem(entry.provider, entry.value);
+
+          if (problem) warn(null, "invalidChannelValue", problem);
+          else usable.push(entry);
+        }
+
+        const merged = mergeIdentifiers((payload.identifiers as IdentifierRow[]) ?? [], usable);
+        if (merged.length > 0) payload.identifiers = merged;
+      }
     }
 
     if (rowFailed) continue;

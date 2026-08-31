@@ -4,8 +4,11 @@ import { describe, expect, it } from "vitest";
 import { CustomColumnType, EntityType } from "@/generated/prisma";
 
 import {
+  DATE_NUMBER_FORMAT,
+  DATE_TIME_NUMBER_FORMAT,
   buildExportColumns,
   buildSchemaSheetRows,
+  numberFormatFor,
   RANGE_SEPARATOR,
   RECORD_ID_COLUMN_KEY,
   resolveCustomFieldCell,
@@ -209,5 +212,45 @@ describe("resolveCustomFieldCell", () => {
     } as CustomColumnDto;
 
     expect(resolveCustomFieldCell(column, [{ columnId: STATUS_A, value: "ACME-42" }])).toBe("ACME-42");
+  });
+});
+
+describe("numberFormatFor", () => {
+  it("gives the standard timestamps a format that shows the time", () => {
+    expect(numberFormatFor("updatedAt", undefined)).toBe(DATE_TIME_NUMBER_FORMAT);
+    expect(numberFormatFor("createdAt", undefined)).toBe(DATE_TIME_NUMBER_FORMAT);
+  });
+
+  it("matches the custom column type, date-only staying date-only", () => {
+    const WHEN = "cccc3333-0000-4000-8000-00000000000c";
+
+    const dateTimeColumn: CustomColumnDto = {
+      id: WHEN,
+      label: "When",
+      entityType: EntityType.contact,
+      type: CustomColumnType.dateTime,
+    };
+
+    const dateColumn: CustomColumnDto = {
+      id: WHEN,
+      label: "When",
+      entityType: EntityType.contact,
+      type: CustomColumnType.date,
+    };
+
+    expect(numberFormatFor(WHEN, dateTimeColumn)).toBe(DATE_TIME_NUMBER_FORMAT);
+    expect(numberFormatFor(WHEN, dateColumn)).toBe(DATE_NUMBER_FORMAT);
+  });
+
+  it("leaves alone every column whose cell is not a Date, ranges included", () => {
+    const ranged: CustomColumnDto = {
+      id: "dddd4444-0000-4000-8000-00000000000d",
+      label: "Window",
+      entityType: EntityType.contact,
+      type: CustomColumnType.dateTimeRange,
+    };
+
+    expect(numberFormatFor("name", undefined)).toBeUndefined();
+    expect(numberFormatFor("dddd4444-0000-4000-8000-00000000000d", ranged)).toBeUndefined();
   });
 });

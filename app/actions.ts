@@ -48,6 +48,7 @@ import {
   getExportTasksPageInteractor,
   getDeleteManyTasksInteractor,
   getGetP13nInteractor,
+  getGetUsersApiInteractor,
   getUpsertP13nInteractor,
   getUpsertFilterPresetInteractor,
   getDeleteFilterPresetInteractor,
@@ -247,8 +248,25 @@ function relationLabel(record: { name?: string; firstName?: string; lastName?: s
   return record.name ?? `${record.firstName ?? ""} ${record.lastName ?? ""}`.trim();
 }
 
-export async function getImportRelationIndexAction(data: { entityTypes: EntityType[] }) {
+async function userIndexEntries(): Promise<Array<[string, string]>> {
+  const entries: Array<[string, string]> = [];
+
+  for (let skip = 0; skip < RELATION_INDEX_LIMIT; skip += RELATION_PAGE_SIZE) {
+    const page = await getGetUsersApiInteractor().invoke({ take: RELATION_PAGE_SIZE, skip });
+    if (!page.ok) break;
+
+    for (const user of page.data.items) entries.push([relationLabel(user).toLocaleLowerCase(), user.id]);
+
+    if (page.data.items.length < RELATION_PAGE_SIZE) break;
+  }
+
+  return entries;
+}
+
+export async function getImportRelationIndexAction(data: { entityTypes: EntityType[]; includeUsers?: boolean }) {
   const index: Record<string, Array<[string, string]>> = {};
+
+  if (data.includeUsers) index.user = await userIndexEntries();
 
   for (const entityType of data.entityTypes) {
     const interactor = relationInvoker(entityType);

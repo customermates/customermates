@@ -210,6 +210,67 @@ describe("mappingFromSchemaSheet", () => {
   it("returns null when there is no schema sheet to bind from", () => {
     expect(mappingFromSchemaSheet(sources(["Name"]), [], contact, [])).toBeNull();
   });
+
+  it("binds the relation columns the export actually writes, so a workbook round-trips", () => {
+    const schemaRow = (position: number, header: string, key: string) => ({
+      position,
+      header,
+      key,
+      customColumnId: "",
+      customColumnType: "",
+      optionValues: "",
+      optionLabels: "",
+    });
+
+    const mapping = mappingFromSchemaSheet(
+      sources(["Organizations", "Assigned", "Deals", "Tasks"]),
+      [
+        schemaRow(1, "Organizations", "organizations"),
+        schemaRow(2, "Assigned", "users"),
+        schemaRow(3, "Deals", "deals"),
+        schemaRow(4, "Tasks", "tasks"),
+      ],
+      contact,
+      [],
+    );
+
+    expect(mapping).toEqual([
+      { kind: "field", key: "organizationIds" },
+      { kind: "field", key: "userIds" },
+      { kind: "field", key: "dealIds" },
+      { kind: "field", key: "taskIds" },
+    ]);
+  });
+
+  it("still ignores an export column that no import field corresponds to", () => {
+    const mapping = mappingFromSchemaSheet(
+      sources(["ID", "Channels"]),
+      [
+        {
+          position: 1,
+          header: "ID",
+          key: "__recordId",
+          customColumnId: "",
+          customColumnType: "",
+          optionValues: "",
+          optionLabels: "",
+        },
+        {
+          position: 2,
+          header: "Channels",
+          key: "channels",
+          customColumnId: "",
+          customColumnType: "",
+          optionValues: "",
+          optionLabels: "",
+        },
+      ],
+      contact,
+      [],
+    );
+
+    expect(mapping?.[1]).toEqual({ kind: "ignore" });
+  });
 });
 
 describe("mapFailureToRows", () => {
@@ -333,14 +394,14 @@ describe("buildPlan identifier merging", () => {
       [["", "ADA@example.com, second@example.com"]],
       [
         { row: "2", provider: "mail", value: "ada@example.com" },
-        { row: "2", provider: "linkedin", value: "in/ada" },
+        { row: "2", provider: "linkedin", value: "ada-lovelace.linkedin.example" },
       ],
     );
 
     expect(result.create[0].payload.identifiers).toEqual([
       { provider: "mail", value: "ADA@example.com" },
       { provider: "mail", value: "second@example.com" },
-      { provider: "linkedin", value: "in/ada" },
+      { provider: "linkedin", value: "ada-lovelace.linkedin.example" },
     ]);
   });
 
@@ -352,5 +413,54 @@ describe("buildPlan identifier merging", () => {
     );
 
     expect(result.create[0].payload.identifiers).toEqual([{ provider: "whatsapp", value: "+4915112345678" }]);
+  });
+});
+
+describe("buildPlan channel value validation", () => {
+  it("reports a phone column fed prose, and does not manufacture a number from its digits", () => {
+    const result = plan(
+      [{ kind: "recordId" }, { kind: "identifier", provider: "whatsapp" }],
+      ["ID", "Mobil"],
+      [["", "Rechnung 2024-000123"]],
+    );
+
+    const issue = result.issues.find((entry) => entry.code === "invalidChannelValue");
+
+    expect(issue?.message).toContain("is not a phone number");
+    expect(issue?.columnLabel).toBe("Mobil");
+    expect(result.create[0].payload.identifiers).toBeUndefined();
+  });
+
+  it("keeps the row importable, dropping only the bad channel", () => {
+    const result = plan(
+      [
+        { kind: "field", key: "firstName" },
+        { kind: "identifier", provider: "whatsapp" },
+      ],
+      ["Vorname", "Mobil"],
+      [["Ada", "30.08.2026"]],
+    );
+
+    expect(result.create).toHaveLength(1);
+    expect(result.create[0].payload.firstName).toBe("Ada");
+    expect(result.issues.every((entry) => entry.blocking === false)).toBe(true);
+  });
+
+  it("accepts the channel values the export actually writes", () => {
+    const result = plan(
+      [
+        { kind: "recordId" },
+        { kind: "identifier", provider: "whatsapp" },
+        { kind: "identifier", provider: "linkedin" },
+      ],
+      ["ID", "Phone", "LinkedIn"],
+      [["", "+12025550106", "leon-becker.linkedin.example"]],
+    );
+
+    expect(result.issues).toHaveLength(0);
+    expect(result.create[0].payload.identifiers).toEqual([
+      { provider: "whatsapp", value: "+12025550106" },
+      { provider: "linkedin", value: "leon-becker.linkedin.example" },
+    ]);
   });
 });

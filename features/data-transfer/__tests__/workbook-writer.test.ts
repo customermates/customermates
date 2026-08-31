@@ -5,7 +5,12 @@ import ExcelJS from "exceljs";
 import { describe, expect, it } from "vitest";
 import { CustomColumnType, EntityType } from "@/generated/prisma";
 
-import { buildExportColumns, buildSchemaSheetRows, RECORD_ID_COLUMN_KEY } from "../workbook-columns";
+import {
+  DATE_TIME_NUMBER_FORMAT,
+  buildExportColumns,
+  buildSchemaSheetRows,
+  RECORD_ID_COLUMN_KEY,
+} from "../workbook-columns";
 import { buildWorkbook } from "../workbook-writer";
 
 const STATUS_ID = "aaaa1111-0000-4000-8000-00000000000a";
@@ -92,6 +97,31 @@ describe("buildWorkbook", () => {
     expect(sheet?.getRow(2).getCell(4).value).toBeInstanceOf(Date);
     expect(sheet?.getRow(2).getCell(5).value).toBe(12500.5);
     expect(sheet?.getRow(4).getCell(2).value).toBe("Grace Hopper");
+  });
+
+  it("shows the time on a timestamp column, and still reads back as the same instant", async () => {
+    const updatedAt = new Date("2026-11-04T15:37:09.123Z");
+    const columns = buildExportColumns([{ key: "updatedAt", header: "Updated at" }], []);
+
+    const result = await buildWorkbook({
+      sheetName: "Contacts",
+      columns,
+      schemaRows: buildSchemaSheetRows(columns),
+      relationSheetNames: [],
+      pageSize: 10,
+      rowLimit: 100,
+      fetchPage: (skip: number) =>
+        Promise.resolve(
+          skip === 0 ? { rows: [{ [RECORD_ID_COLUMN_KEY]: "id-1", updatedAt }], relations: [], total: 1 } : null,
+        ),
+    });
+
+    const sheet = (await read(result.buffer)).getWorksheet("Contacts");
+    const cell = sheet?.getRow(2).getCell(2);
+
+    expect(cell?.numFmt).toBe(DATE_TIME_NUMBER_FORMAT);
+    expect(cell?.value).toBeInstanceOf(Date);
+    expect((cell?.value as Date).getTime()).toBe(updatedAt.getTime());
   });
 
   it("writes the relation sheet with its header exactly once across pages", async () => {

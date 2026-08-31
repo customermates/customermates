@@ -110,7 +110,7 @@ export class ImportWizardStore extends BaseModalStore {
   }
 
   get invalidSheetRows(): Set<number> {
-    return new Set(this.issues.flatMap((issue) => (issue.sheetRow === null ? [] : [issue.sheetRow])));
+    return new Set(this.issues.flatMap((issue) => (issue.blocking && issue.sheetRow !== null ? [issue.sheetRow] : [])));
   }
 
   get skippableCount(): number {
@@ -121,7 +121,7 @@ export class ImportWizardStore extends BaseModalStore {
   }
 
   get hasBlockingIssues(): boolean {
-    if (this.issues.length === 0) return false;
+    if (!this.issues.some((issue) => issue.blocking)) return false;
 
     return !this.skipInvalid || this.skippableCount === 0;
   }
@@ -175,18 +175,15 @@ export class ImportWizardStore extends BaseModalStore {
       const parsed = await readWorkbookFile(file);
       const customColumns = await getCustomColumnsByEntityTypeAction({ entityType: this.entityType });
 
-      const relationTypes = [
-        ...new Set(
-          this.descriptor.fields.flatMap((field) => {
-            const target = field.relationTarget;
-            if (!target || target === "user") return [];
+      const targets = new Set(
+        this.descriptor.fields.flatMap((field) => (field.relationTarget ? [field.relationTarget] : [])),
+      );
+      const relationTypes = [...targets].flatMap((target) => (target === "user" ? [] : [RELATION_TARGETS[target]]));
 
-            return [RELATION_TARGETS[target]];
-          }),
-        ),
-      ];
-
-      const relations = await getImportRelationIndexAction({ entityTypes: relationTypes });
+      const relations = await getImportRelationIndexAction({
+        entityTypes: relationTypes,
+        includeUsers: targets.has("user"),
+      });
       const relationIndex: RelationIndex = {};
 
       for (const [key, entries] of Object.entries(relations.index)) {

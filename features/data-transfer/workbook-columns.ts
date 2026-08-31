@@ -12,12 +12,19 @@ export const RECORD_ID_COLUMN_KEY = "__recordId";
 
 export const RECORD_ID_COLUMN_HEADER = "ID";
 
+export const DATE_TIME_NUMBER_FORMAT = 'yyyy-mm-dd hh:mm "UTC"';
+
+export const DATE_NUMBER_FORMAT = "yyyy-mm-dd";
+
+const DATE_TIME_STANDARD_KEYS = new Set(["createdAt", "updatedAt"]);
+
 export type RequestedColumn = { key: string; header: string };
 
 export type ExportColumn = {
   key: string;
   header: string;
   hidden: boolean;
+  numFmt?: string;
   customColumn?: CustomColumnDto;
 };
 
@@ -31,6 +38,14 @@ export type SchemaSheetRow = {
   optionLabels: string;
 };
 
+export function numberFormatFor(key: string, customColumn: CustomColumnDto | undefined): string | undefined {
+  if (!customColumn) return DATE_TIME_STANDARD_KEYS.has(key) ? DATE_TIME_NUMBER_FORMAT : undefined;
+  if (customColumn.type === CustomColumnType.dateTime) return DATE_TIME_NUMBER_FORMAT;
+  if (customColumn.type === CustomColumnType.date) return DATE_NUMBER_FORMAT;
+
+  return undefined;
+}
+
 export function buildExportColumns(requested: RequestedColumn[], customColumns: CustomColumnDto[]): ExportColumn[] {
   const byId = new Map(customColumns.map((column) => [column.id, column]));
 
@@ -40,6 +55,7 @@ export function buildExportColumns(requested: RequestedColumn[], customColumns: 
     key: column.key,
     header: column.header,
     hidden: false,
+    numFmt: numberFormatFor(column.key, byId.get(column.key)),
     customColumn: byId.get(column.key),
   }));
 
