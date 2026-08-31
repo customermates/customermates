@@ -2476,8 +2476,6 @@
         "creditAdjustmentCreate": "Guthabenkorrektur erfasst",
         "creditBalanceReset": "Guthaben zurückgesetzt",
         "enterpriseAllowanceUpdate": "Enterprise-Kontingent aktualisiert",
-        "globalControlUpdate": "Globale Hosted-AI-Steuerung aktualisiert",
-        "operatorBootstrap": "Operator-Zugriff initialisiert",
         "overviewRead": "Hosted-AI-Übersicht gelesen",
         "subscriptionSnapshotCorrect": "Workspace-Abonnement korrigiert",
         "userDetailRead": "Benutzerdetails gelesen",

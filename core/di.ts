@@ -309,7 +309,8 @@ import { DeleteAgentConversationInteractor } from "@/ee/agent-chat/delete-agent-
 import { ArchiveAgentConversationInteractor } from "@/ee/agent-chat/archive-agent-conversation.interactor";
 import { RestoreAgentConversationInteractor } from "@/ee/agent-chat/restore-agent-conversation.interactor";
 import { PrismaOperatorRepo } from "@/ee/operator/prisma-operator.repository";
-import { OperatorAccessService, PrismaOperatorAccessRepo } from "@/ee/operator/operator-access.service";
+import { OperatorAccessService } from "@/ee/operator/operator-access.service";
+import { PrismaOperatorAccessRepo } from "@/ee/operator/prisma-operator-access.repository";
 import { GetOperatorConsoleVisibilityInteractor } from "@/ee/operator/get/get-operator-console-visibility.interactor";
 import { GetHostedAiOperatorOverviewInteractor } from "@/ee/operator/get/get-hosted-ai-operator-overview.interactor";
 import { UpdateHostedAiEnterpriseAllowanceInteractor } from "@/ee/operator/update-hosted-ai-enterprise-allowance.interactor";
@@ -1572,8 +1573,10 @@ export const getOperatorAuditRepo = () => new PrismaOperatorAuditRepo();
 export const getGetOperatorAuditLogsInteractor = () =>
   new GetOperatorAuditLogsInteractor(getOperatorAuditRepo(), getP13nRepo());
 
+export const getOperatorRiskSummaryRepo = () => new PrismaOperatorRiskSummaryRepo();
+
 export const getGetOperatorRiskSummaryInteractor = () =>
-  new GetOperatorRiskSummaryInteractor(new PrismaOperatorRiskSummaryRepo());
+  new GetOperatorRiskSummaryInteractor(getOperatorRiskSummaryRepo());
 
 export const getUpdateOperatorUserPlatformAccessInteractor = () =>
   new UpdateOperatorUserPlatformAccessInteractor(getOperatorRepo());

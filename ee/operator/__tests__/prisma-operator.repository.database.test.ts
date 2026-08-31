@@ -22,8 +22,7 @@ const operatorEnv = vi.hoisted(() => ({
 vi.mock("@/env", () => ({ env: operatorEnv }));
 
 import { OperatorConflictError } from "../operator.errors";
-import { PrismaOperatorAccessRepo } from "../operator-access.service";
-import { PrismaOperatorBootstrapService } from "../operator-bootstrap.service";
+import { PrismaOperatorAccessRepo } from "../prisma-operator-access.repository";
 import { OPERATOR_AUDIT_ACTION } from "../operator.schema";
 import { PrismaOperatorRepo } from "../prisma-operator.repository";
 
@@ -37,7 +36,7 @@ const now = new Date("2026-08-28T12:00:00.000Z");
 const periodStart = new Date("2026-08-01T08:00:00.000Z");
 const periodEnd = new Date("2026-09-01T08:00:00.000Z");
 
-class RollbackBootstrapTest extends Error {}
+class RollbackOperatorTest extends Error {}
 
 async function createPlatformAccessUser(
   tx: AppPrismaClient,
@@ -244,7 +243,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
       }),
     );
 
-    const detail = await runWithOperator(actor, () => repo.getUserDetailAuditedOrThrowUnscoped(target.userId, now));
+    const detail = await runWithOperator(actor, () => repo.getUserDetailOrThrowUnscoped(target.userId, now));
     expect(detail.creditPeriod).toMatchObject({
       chargedCredits: 7,
       reservedCredits: 2,
@@ -324,71 +323,6 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
     expect(subscription.enterpriseAgentCreditsPerUser).toBe(10);
   });
 
-  it("bootstraps only one active verified email candidate and audits it atomically", async () => {
-    const companyId = randomUUID();
-    const userId = randomUUID();
-    const authUserId = randomUUID();
-    const email = `bootstrap-${randomUUID()}@example.invalid`;
-    let observed: { resultUserId: string; auditCount: number; secondGrantRejected: boolean } | null = null;
-
-    try {
-      await runWithoutTenant(() =>
-        runInTransaction(async () => {
-          const tx = getTransactionClient<AppPrismaClient>();
-          if (!tx) throw new Error("Expected bootstrap test transaction.");
-
-          await tx.user.updateMany({
-            where: { isPlatformOperator: true },
-            data: { isPlatformOperator: false },
-          });
-          await tx.company.create({ data: { id: companyId } });
-          await tx.user.create({
-            data: {
-              id: userId,
-              companyId,
-              email,
-              firstName: "First",
-              lastName: "Operator",
-              status: "active",
-            },
-          });
-          await tx.authUser.create({
-            data: {
-              id: authUserId,
-              companyId,
-              email,
-              name: "First Operator",
-              emailVerified: true,
-            },
-          });
-
-          const service = new PrismaOperatorBootstrapService();
-          const result = await service.bootstrapFirstOperatorUnscoped({
-            email: `  ${email.toUpperCase()}  `,
-            confirmationEmail: email,
-          });
-          const auditCount = await tx.operatorAuditEvent.count({
-            where: { operationId: result.auditOperationId, action: OPERATOR_AUDIT_ACTION.operatorBootstrap },
-          });
-          let secondGrantRejected = false;
-          try {
-            await service.bootstrapFirstOperatorUnscoped({ email, confirmationEmail: email });
-          } catch (error) {
-            secondGrantRejected = error instanceof OperatorConflictError;
-          }
-          observed = { resultUserId: result.userId, auditCount, secondGrantRejected };
-
-          throw new RollbackBootstrapTest();
-        }),
-      );
-    } catch (error) {
-      if (!(error instanceof RollbackBootstrapTest)) throw error;
-    }
-
-    expect(observed).toEqual({ resultUserId: userId, auditCount: 1, secondGrantRejected: true });
-    await expect(runWithoutTenant(() => prisma.user.findUnique({ where: { id: userId } }))).resolves.toBeNull();
-  });
-
   it("grants and revokes platform access, counting active operators in every workspace", async () => {
     const actor = operatorActor();
     let observed: {
@@ -462,12 +396,12 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
               lastOperatorRejected,
             };
 
-            throw new RollbackBootstrapTest();
+            throw new RollbackOperatorTest();
           }),
         ),
       );
     } catch (error) {
-      if (!(error instanceof RollbackBootstrapTest)) throw error;
+      if (!(error instanceof RollbackOperatorTest)) throw error;
     }
 
     expect(observed).toEqual({
@@ -522,47 +456,13 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
             stale: await rejects(operatorActor(), own.userId, new Date("2020-01-01T00:00:00.000Z").toISOString()),
           };
 
-          throw new RollbackBootstrapTest();
+          throw new RollbackOperatorTest();
         }),
       );
     } catch (error) {
-      if (!(error instanceof RollbackBootstrapTest)) throw error;
+      if (!(error instanceof RollbackOperatorTest)) throw error;
     }
 
     expect(observed).toEqual({ self: true, inactive: true, unverified: true, stale: true });
-  });
-
-  it("reopens first-operator bootstrap when every remaining operator is inactive", async () => {
-    const email = `reopen-${randomUUID()}@example.invalid`;
-    let observed: { grantedTo: string; remainingActive: number } | null = null;
-
-    try {
-      await runWithoutTenant(() =>
-        runInTransaction(async () => {
-          const tx = getTransactionClient<AppPrismaClient>();
-          if (!tx) throw new Error("Expected bootstrap reopen test transaction.");
-          await tx.user.updateMany({ where: { isPlatformOperator: true }, data: { isPlatformOperator: false } });
-
-          await createPlatformAccessUser(tx, { status: "inactive", isPlatformOperator: true });
-          const candidate = await createPlatformAccessUser(tx, { email });
-
-          const result = await new PrismaOperatorBootstrapService().bootstrapFirstOperatorUnscoped({
-            email,
-            confirmationEmail: email,
-          });
-          observed = {
-            grantedTo: result.userId,
-            remainingActive: await tx.user.count({ where: { isPlatformOperator: true, status: "active" } }),
-          };
-          expect(result.userId).toBe(candidate.userId);
-
-          throw new RollbackBootstrapTest();
-        }),
-      );
-    } catch (error) {
-      if (!(error instanceof RollbackBootstrapTest)) throw error;
-    }
-
-    expect(observed).toEqual({ grantedTo: expect.any(String), remainingActive: 1 });
   });
 });

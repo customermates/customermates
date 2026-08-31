@@ -197,7 +197,6 @@
     "marketing:visual-catalog": "tsx scripts/list-marketing-visual-fixtures.ts",
     "marketing:visual-review": "tsx scripts/render-marketing-visual-review.ts",
     "openapi:generate": "tsx scripts/generate-openapi.ts",
-    "operator:bootstrap": "tsx ee/operator/bootstrap-first-operator.ts",
     "postinstall": "prisma generate",
     "prepare": "husky",
     "raw-docs:generate": "tsx scripts/generate-raw-docs-manifest.ts",

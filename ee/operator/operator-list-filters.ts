@@ -1,4 +1,5 @@
 import type { Filter } from "@/core/base/base-get.schema";
+import type { AppPrismaClient } from "@/prisma/db";
 import type { Prisma } from "@/generated/prisma";
 
 import { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
@@ -70,4 +71,24 @@ export function partitionOperatorUserFilters(filters: Filter[] | undefined): {
   if (Object.keys(subscription).length > 0) baseWhere.company = { subscription: { is: subscription } };
 
   return { baseWhere, passthrough };
+}
+
+export async function resolveWorkspaceLabels(
+  prisma: AppPrismaClient,
+  companyIds: string[],
+): Promise<Map<string, string>> {
+  const labels = new Map<string, string>();
+  if (companyIds.length === 0) return labels;
+
+  const rows = await prisma.$queryRaw<Array<{ companyId: string; domain: string | null }>>`
+    SELECT DISTINCT ON ("companyId") "companyId", split_part("email", '@', 2) AS domain
+    FROM "User"
+    WHERE "companyId" = ANY(${companyIds}::text[])
+    GROUP BY "companyId", domain
+    ORDER BY "companyId" ASC, COUNT(*) DESC, domain ASC
+  `;
+
+  for (const row of rows) if (row.domain) labels.set(row.companyId, row.domain);
+
+  return labels;
 }

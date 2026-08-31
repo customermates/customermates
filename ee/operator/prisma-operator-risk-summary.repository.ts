@@ -1,12 +1,12 @@
 import type { OperatorRiskSummaryDto } from "./operator-lists.schema";
+import type { GetOperatorRiskSummaryRepo } from "./get/get-operator-risk-summary.interactor";
 
-import type { Prisma } from "@/generated/prisma";
 import { SubscriptionStatus as SubscriptionStatusEnum } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 
-export class PrismaOperatorRiskSummaryRepo extends BaseRepository<Prisma.CompanyWhereInput> {
+export class PrismaOperatorRiskSummaryRepo extends BaseRepository implements GetOperatorRiskSummaryRepo {
   @BypassTenantGuard
   async getRiskSummaryUnscoped(now = new Date()): Promise<OperatorRiskSummaryDto> {
     const sevenDaysAhead = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);

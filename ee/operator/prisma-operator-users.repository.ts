@@ -9,7 +9,7 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 
-import { partitionOperatorUserFilters } from "./operator-list-filters";
+import { partitionOperatorUserFilters, resolveWorkspaceLabels } from "./operator-list-filters";
 
 export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInput> implements GetOperatorUsersRepo {
   getSearchableFields() {
@@ -39,31 +39,6 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
     );
   }
 
-  getCustomColumns() {
-    return Promise.resolve([]);
-  }
-
-  @BypassTenantGuard
-  async resolveWorkspaceLabelsUnscoped(companyIds: string[]): Promise<Map<string, string>> {
-    const labels = new Map<string, string>();
-    if (companyIds.length === 0) return labels;
-
-    const rows = await this.prisma.$queryRaw<Array<{ companyId: string; domain: string | null; total: bigint }>>`
-      SELECT "companyId", split_part("email", '@', 2) AS domain, COUNT(*)::bigint AS total
-      FROM "User"
-      WHERE "companyId" = ANY(${companyIds}::text[])
-      GROUP BY 1, 2
-      ORDER BY "companyId" ASC, total DESC, domain ASC
-    `;
-
-    for (const row of rows) {
-      if (labels.has(row.companyId) || !row.domain) continue;
-      labels.set(row.companyId, row.domain);
-    }
-
-    return labels;
-  }
-
   async getItems(params: GetQueryParams): Promise<OperatorUserRowDto[]> {
     return this.listRowsUnscoped(params);
   }
@@ -78,10 +53,7 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
     const args = await this.buildQueryArgs({ ...params, filters: passthrough }, baseWhere);
 
     const users = await this.prisma.user.findMany({
-      where: args.where,
-      orderBy: args.orderBy,
-      skip: args.skip,
-      take: args.take,
+      ...args,
       select: {
         id: true,
         firstName: true,
@@ -99,7 +71,7 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
       },
     });
 
-    const labels = await this.resolveWorkspaceLabelsUnscoped([...new Set(users.map((user) => user.companyId))]);
+    const labels = await resolveWorkspaceLabels(this.prisma, [...new Set(users.map((user) => user.companyId))]);
 
     return users.map((user) => ({
       id: user.id,

@@ -2476,8 +2476,6 @@
         "creditAdjustmentCreate": "Credit correction recorded",
         "creditBalanceReset": "Credit balance reset",
         "enterpriseAllowanceUpdate": "Enterprise allowance updated",
-        "globalControlUpdate": "Hosted-AI global control updated",
-        "operatorBootstrap": "Operator access bootstrapped",
         "overviewRead": "Hosted-AI overview read",
         "subscriptionSnapshotCorrect": "Workspace subscription corrected",
         "userDetailRead": "User detail read",

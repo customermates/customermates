@@ -167,26 +167,6 @@ function mapGlobalControl(control: {
   };
 }
 
-function mapAdjustment(adjustment: {
-  id: string;
-  companyId: string;
-  userId: string;
-  creditDelta: number;
-  periodStart: Date;
-  periodEnd: Date;
-  reason: string | null;
-  operationId: string;
-  createdByOperatorUserId: string;
-  createdAt: Date;
-}): AgentCreditAdjustmentDto {
-  return {
-    ...adjustment,
-    periodStart: adjustment.periodStart,
-    periodEnd: adjustment.periodEnd,
-    createdAt: adjustment.createdAt,
-  };
-}
-
 export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
   private async createAudit(args: {
     action: AuditAction;
@@ -455,124 +435,116 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
   }
 
   @BypassTenantGuard
-  async getOverviewAuditedUnscoped(now = new Date()): Promise<HostedAiOperatorOverviewDto> {
-    return runInTransaction(async () => {
-      const month = utcMonth(now);
-      const [control, companies, enterpriseCompanies, users, activeUsers, usage, companiesWithUsage] =
-        await Promise.all([
-          this.getGlobalControlOrThrow(),
-          this.prisma.company.count(),
-          this.prisma.subscription.count({
-            where: { plan: SubscriptionPlan.enterprise },
-          }),
-          this.prisma.user.count(),
-          this.prisma.user.count({ where: { status: Status.active } }),
-          this.usageTotals(null, now),
-          this.prisma.agentUsageEvent.findMany({
-            where: {
-              OR: [
-                {
-                  state: "settled",
-                  settledAt: { gte: month.start, lt: month.end },
-                },
-                { state: { in: ["reserved", "retained"] } },
-              ],
+  async getOverviewUnscoped(now = new Date()): Promise<HostedAiOperatorOverviewDto> {
+    const month = utcMonth(now);
+    const [control, companies, enterpriseCompanies, users, activeUsers, usage, companiesWithUsage] = await Promise.all([
+      this.getGlobalControlOrThrow(),
+      this.prisma.company.count(),
+      this.prisma.subscription.count({
+        where: { plan: SubscriptionPlan.enterprise },
+      }),
+      this.prisma.user.count(),
+      this.prisma.user.count({ where: { status: Status.active } }),
+      this.usageTotals(null, now),
+      this.prisma.agentUsageEvent.findMany({
+        where: {
+          OR: [
+            {
+              state: "settled",
+              settledAt: { gte: month.start, lt: month.end },
             },
-            distinct: ["companyId"],
-            select: { companyId: true },
-          }),
-        ]);
-
-      const result: HostedAiOperatorOverviewDto = {
-        generatedAt: now,
-        currentUtcMonth: {
-          periodStart: month.start,
-          periodEnd: month.end,
-          companiesWithUsage: companiesWithUsage.length,
-          ...usage,
+            { state: { in: ["reserved", "retained"] } },
+          ],
         },
-        fleet: { companies, enterpriseCompanies, users, activeUsers },
-        globalControl: mapGlobalControl(control),
-      };
-      return result;
-    });
+        distinct: ["companyId"],
+        select: { companyId: true },
+      }),
+    ]);
+
+    const result: HostedAiOperatorOverviewDto = {
+      generatedAt: now,
+      currentUtcMonth: {
+        periodStart: month.start,
+        periodEnd: month.end,
+        companiesWithUsage: companiesWithUsage.length,
+        ...usage,
+      },
+      fleet: { companies, enterpriseCompanies, users, activeUsers },
+      globalControl: mapGlobalControl(control),
+    };
+    return result;
   }
 
   @BypassTenantGuard
-  async getUserSummaryAuditedUnscoped(): Promise<OperatorUserSummaryDto> {
-    return runInTransaction(async () => {
-      const plans = Object.values(SubscriptionPlan);
-      const subscriptionStatuses = Object.values(SubscriptionStatus);
-      const [
-        statusCounts,
-        totalCompanies,
-        platformOperators,
-        verifiedRows,
-        planCounts,
-        subscriptionStatusCounts,
-        missing,
-      ] = await Promise.all([
-        this.prisma.user.groupBy({ by: ["status"], _count: { _all: true } }),
-        this.prisma.company.count(),
-        this.prisma.user.count({ where: { isPlatformOperator: true } }),
-        this.prisma.$queryRaw<Array<{ count: bigint }>>`
-            SELECT COUNT(*)::bigint AS "count"
-            FROM "User" AS domain_user
-            JOIN "AuthUser" AS auth_user
-              ON lower(auth_user."email") = lower(domain_user."email")
-              AND auth_user."companyId" = domain_user."companyId"
-              AND auth_user."emailVerified" = true
-            WHERE (
-              SELECT COUNT(*)
-              FROM "AuthUser" AS candidate
-              WHERE lower(candidate."email") = lower(domain_user."email")
-            ) = 1
-          `,
-        Promise.all(
-          plans.map((plan) =>
-            this.prisma.user.count({
-              where: { company: { subscription: { plan } } },
-            }),
-          ),
+  async getUserSummaryUnscoped(): Promise<OperatorUserSummaryDto> {
+    const plans = Object.values(SubscriptionPlan);
+    const subscriptionStatuses = Object.values(SubscriptionStatus);
+    const [
+      statusCounts,
+      totalCompanies,
+      platformOperators,
+      verifiedRows,
+      planCounts,
+      subscriptionStatusCounts,
+      missing,
+    ] = await Promise.all([
+      this.prisma.user.groupBy({ by: ["status"], _count: { _all: true } }),
+      this.prisma.company.count(),
+      this.prisma.user.count({ where: { isPlatformOperator: true } }),
+      this.prisma.$queryRaw<Array<{ count: bigint }>>`
+          SELECT COUNT(*)::bigint AS "count"
+          FROM "User" AS domain_user
+          JOIN "AuthUser" AS auth_user
+            ON lower(auth_user."email") = lower(domain_user."email")
+            AND auth_user."companyId" = domain_user."companyId"
+            AND auth_user."emailVerified" = true
+          WHERE (
+            SELECT COUNT(*)
+            FROM "AuthUser" AS candidate
+            WHERE lower(candidate."email") = lower(domain_user."email")
+          ) = 1
+        `,
+      Promise.all(
+        plans.map((plan) =>
+          this.prisma.user.count({
+            where: { company: { subscription: { plan } } },
+          }),
         ),
-        Promise.all(
-          subscriptionStatuses.map((status) =>
-            this.prisma.user.count({
-              where: { company: { subscription: { status } } },
-            }),
-          ),
+      ),
+      Promise.all(
+        subscriptionStatuses.map((status) =>
+          this.prisma.user.count({
+            where: { company: { subscription: { status } } },
+          }),
         ),
-        this.prisma.user.count({
-          where: { company: { subscription: { is: null } } },
-        }),
-      ]);
-      const summary = emptyUserSummary();
-      for (const row of statusCounts) {
-        summary.byStatus[row.status] = row._count._all;
-        summary.totalUsers += row._count._all;
-      }
-      summary.totalCompanies = totalCompanies;
-      summary.platformOperators = platformOperators;
-      summary.verifiedAuthUsers = asSafeBigIntCount(verifiedRows[0]?.count, "Verified auth-user count");
-      plans.forEach((plan, index) => {
-        summary.byPlan[plan] = planCounts[index];
-      });
-      subscriptionStatuses.forEach((status, index) => {
-        summary.bySubscriptionStatus[status] = subscriptionStatusCounts[index];
-      });
-      summary.byPlan.missing = missing;
-      summary.bySubscriptionStatus.missing = missing;
-
-      return summary;
+      ),
+      this.prisma.user.count({
+        where: { company: { subscription: { is: null } } },
+      }),
+    ]);
+    const summary = emptyUserSummary();
+    for (const row of statusCounts) {
+      summary.byStatus[row.status] = row._count._all;
+      summary.totalUsers += row._count._all;
+    }
+    summary.totalCompanies = totalCompanies;
+    summary.platformOperators = platformOperators;
+    summary.verifiedAuthUsers = asSafeBigIntCount(verifiedRows[0]?.count, "Verified auth-user count");
+    plans.forEach((plan, index) => {
+      summary.byPlan[plan] = planCounts[index];
     });
+    subscriptionStatuses.forEach((status, index) => {
+      summary.bySubscriptionStatus[status] = subscriptionStatusCounts[index];
+    });
+    summary.byPlan.missing = missing;
+    summary.bySubscriptionStatus.missing = missing;
+
+    return summary;
   }
 
   @BypassTenantGuard
-  async getUserDetailAuditedOrThrowUnscoped(userId: string, now = new Date()): Promise<OperatorUserDetailDto> {
-    return runInTransaction(async () => {
-      const detail = await this.userDetailOrThrow(userId, now);
-      return detail;
-    });
+  async getUserDetailOrThrowUnscoped(userId: string, now = new Date()): Promise<OperatorUserDetailDto> {
+    return this.userDetailOrThrow(userId, now);
   }
 
   @BypassTenantGuard
@@ -959,7 +931,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           )
             throw new OperatorConflictError("The operation ID was already used for another adjustment.");
 
-          return mapAdjustment(existing);
+          return existing;
         }
 
         const user = await this.prisma.user.findFirst({
@@ -1064,7 +1036,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             periodEnd: data.periodEnd,
           },
         });
-        return mapAdjustment(adjustment);
+        return adjustment;
       },
       { companyId: data.companyId },
     );
@@ -1115,7 +1087,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             throw new OperatorConflictError("The operation ID was already used for another request.");
 
           return {
-            adjustment: mapAdjustment(existing),
+            adjustment: existing,
             user: await this.userDetailOrThrow(data.userId, now),
           };
         }
@@ -1191,7 +1163,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           },
         });
         return {
-          adjustment: mapAdjustment(adjustment),
+          adjustment: adjustment,
           user: await this.userDetailOrThrow(data.userId, now),
         };
       },

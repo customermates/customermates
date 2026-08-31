@@ -188,7 +188,7 @@ describeDatabase("operator user administration against a real database", { timeo
     const actor = operatorActor();
     const repo = new PrismaOperatorRepo();
 
-    const summary = await runWithOperator(actor, () => repo.getUserSummaryAuditedUnscoped());
+    const summary = await runWithOperator(actor, () => repo.getUserSummaryUnscoped());
     expect(summary.totalUsers).toBeGreaterThanOrEqual(27);
     expect(summary.totalCompanies).toBeGreaterThanOrEqual(1);
     expect(summary.byStatus.active).toBeGreaterThanOrEqual(27);
@@ -196,7 +196,7 @@ describeDatabase("operator user administration against a real database", { timeo
     expect(summary.bySubscriptionStatus.active).toBeGreaterThanOrEqual(27);
     expect(summary.verifiedAuthUsers).toBeGreaterThanOrEqual(14);
 
-    const detail = await runWithOperator(actor, () => repo.getUserDetailAuditedOrThrowUnscoped(users[0].userId, now));
+    const detail = await runWithOperator(actor, () => repo.getUserDetailOrThrowUnscoped(users[0].userId, now));
     expect(detail).toMatchObject({
       userId: users[0].userId,
       companyId,

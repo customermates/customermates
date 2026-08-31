@@ -12,6 +12,6 @@ export class GetHostedAiOperatorOverviewInteractor {
 
   @ValidateOutput(HostedAiOperatorOverviewDtoSchema)
   async invoke(): Validated<HostedAiOperatorOverviewDto> {
-    return { ok: true, data: await this.repo.getOverviewAuditedUnscoped() };
+    return { ok: true, data: await this.repo.getOverviewUnscoped() };
   }
 }

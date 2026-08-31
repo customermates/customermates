@@ -12,6 +12,6 @@ export class GetOperatorUserSummaryInteractor {
 
   @ValidateOutput(OperatorUserSummaryDtoSchema)
   async invoke(): Validated<OperatorUserSummaryDto> {
-    return { ok: true, data: await this.repo.getUserSummaryAuditedUnscoped() };
+    return { ok: true, data: await this.repo.getUserSummaryUnscoped() };
   }
 }

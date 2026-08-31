@@ -29,7 +29,7 @@ export type OperatorUserStatusChangedEvent = {
 export type PublishOperatorUserStatusChanged = (event: OperatorUserStatusChangedEvent) => Promise<void>;
 
 export abstract class OperatorRepo {
-  abstract getOverviewAuditedUnscoped(now?: Date): Promise<HostedAiOperatorOverviewDto>;
+  abstract getOverviewUnscoped(now?: Date): Promise<HostedAiOperatorOverviewDto>;
   abstract updateEnterpriseAllowanceOrThrowUnscoped(
     data: UpdateHostedAiEnterpriseAllowanceData,
     now?: Date,
@@ -38,8 +38,8 @@ export abstract class OperatorRepo {
     data: CreateAgentCreditAdjustmentData,
     now?: Date,
   ): Promise<AgentCreditAdjustmentDto>;
-  abstract getUserSummaryAuditedUnscoped(): Promise<OperatorUserSummaryDto>;
-  abstract getUserDetailAuditedOrThrowUnscoped(userId: string, now?: Date): Promise<OperatorUserDetailDto>;
+  abstract getUserSummaryUnscoped(): Promise<OperatorUserSummaryDto>;
+  abstract getUserDetailOrThrowUnscoped(userId: string, now?: Date): Promise<OperatorUserDetailDto>;
   abstract updateUserStatusOrThrowUnscoped(
     data: UpdateOperatorUserStatusData,
     publishUserUpdated: PublishOperatorUserStatusChanged,

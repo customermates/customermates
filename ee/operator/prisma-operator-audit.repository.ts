@@ -4,6 +4,8 @@ import type { GetOperatorAuditLogsRepo } from "./get/get-operator-audit-logs.int
 
 import type { Prisma } from "@/generated/prisma";
 
+import { startOfDay, subDays } from "date-fns";
+
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
@@ -12,27 +14,30 @@ import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operat
 
 import { OPERATOR_AUDIT_SOURCE } from "./operator-lists.schema";
 import { OPERATOR_AUDIT_ACTION } from "./operator.schema";
-import { filterValues, negated } from "./operator-list-filters";
+import { filterValues, negated, resolveWorkspaceLabels } from "./operator-list-filters";
 
-function dateBound(filter: Filter): { gte?: Date; lte?: Date } {
+function createdAtFilter(filter: Filter): Prisma.DateTimeFilter | undefined {
   const raw = (filter as { value?: unknown }).value;
   const toDate = (value: unknown) => (typeof value === "string" || value instanceof Date ? new Date(value) : undefined);
 
-  if (filter.operator === FilterOperatorKey.inLastDays) {
-    const days = Number(raw);
-    if (!Number.isFinite(days) || days <= 0) return {};
-
-    return { gte: new Date(Date.now() - days * 24 * 60 * 60 * 1000) };
+  switch (filter.operator) {
+    case FilterOperatorKey.inLastDays: {
+      const days = Number(raw);
+      return Number.isFinite(days) && days > 0 ? { gte: startOfDay(subDays(new Date(), days)) } : undefined;
+    }
+    case FilterOperatorKey.between:
+      return Array.isArray(raw) ? { gte: toDate(raw[0]), lte: toDate(raw[1]) } : undefined;
+    case FilterOperatorKey.gt:
+      return { gt: toDate(raw) };
+    case FilterOperatorKey.gte:
+      return { gte: toDate(raw) };
+    case FilterOperatorKey.lt:
+      return { lt: toDate(raw) };
+    case FilterOperatorKey.lte:
+      return { lte: toDate(raw) };
+    default:
+      return undefined;
   }
-
-  if (filter.operator === FilterOperatorKey.between && Array.isArray(raw))
-    return { gte: toDate(raw[0]), lte: toDate(raw[1]) };
-  if (filter.operator === FilterOperatorKey.gt || filter.operator === FilterOperatorKey.gte)
-    return { gte: toDate(raw) };
-  if (filter.operator === FilterOperatorKey.lt || filter.operator === FilterOperatorKey.lte)
-    return { lte: toDate(raw) };
-
-  return {};
 }
 
 const OPERATOR_READ_ACTIONS: string[] = [
@@ -45,14 +50,7 @@ const OPERATOR_READ_ACTIONS: string[] = [
   OPERATOR_AUDIT_ACTION.userDetailRead,
 ];
 
-export class PrismaOperatorAuditRepo
-  extends BaseRepository<Prisma.OperatorAuditEventWhereInput>
-  implements GetOperatorAuditLogsRepo
-{
-  getSearchableFields() {
-    return [];
-  }
-
+export class PrismaOperatorAuditRepo extends BaseRepository implements GetOperatorAuditLogsRepo {
   getSortableFields() {
     return [{ field: "createdAt", resolvedFields: ["createdAt"] }];
   }
@@ -66,15 +64,10 @@ export class PrismaOperatorAuditRepo
     );
   }
 
-  getCustomColumns() {
-    return Promise.resolve([]);
-  }
-
   private plan(params: GetQueryParams) {
     let sources: OperatorAuditSource[] = [OPERATOR_AUDIT_SOURCE.product, OPERATOR_AUDIT_SOURCE.operator];
     let workspaceIds: string[] | null = null;
-    let from: Date | undefined;
-    let to: Date | undefined;
+    let createdAt: Prisma.DateTimeFilter | undefined;
 
     for (const filter of params.filters ?? []) {
       if (filter.field === String(FilterFieldKey.auditSource)) {
@@ -93,11 +86,7 @@ export class PrismaOperatorAuditRepo
         continue;
       }
 
-      if (filter.field === String(FilterFieldKey.createdAt)) {
-        const bound = dateBound(filter);
-        from = bound.gte ?? from;
-        to = bound.lte ?? to;
-      }
+      if (filter.field === String(FilterFieldKey.createdAt)) createdAt = { ...createdAt, ...createdAtFilter(filter) };
     }
 
     const take = params.take ?? params.pagination?.pageSize ?? 25;
@@ -105,31 +94,21 @@ export class PrismaOperatorAuditRepo
     const skip = params.skip ?? (page - 1) * take;
     const search = params.searchTerm?.trim() ?? "";
 
-    return { sources, workspaceIds, from, to, take, skip, search };
-  }
-
-  private createdAtRange(plan: ReturnType<PrismaOperatorAuditRepo["plan"]>) {
-    if (!plan.from && !plan.to) return undefined;
-
-    return { ...(plan.from ? { gte: plan.from } : {}), ...(plan.to ? { lte: plan.to } : {}) };
+    return { sources, workspaceIds, createdAt, take, skip, search };
   }
 
   private productWhere(plan: ReturnType<PrismaOperatorAuditRepo["plan"]>): Prisma.AuditLogWhereInput {
-    const createdAt = this.createdAtRange(plan);
-
     return {
       ...(plan.workspaceIds ? { companyId: { in: plan.workspaceIds } } : {}),
-      ...(createdAt ? { createdAt } : {}),
+      ...(plan.createdAt ? { createdAt: plan.createdAt } : {}),
       ...(plan.search ? { event: { contains: plan.search, mode: "insensitive" as const } } : {}),
     };
   }
 
   private operatorWhere(plan: ReturnType<PrismaOperatorAuditRepo["plan"]>): Prisma.OperatorAuditEventWhereInput {
-    const createdAt = this.createdAtRange(plan);
-
     return {
       ...(plan.workspaceIds ? { targetCompanyId: { in: plan.workspaceIds } } : {}),
-      ...(createdAt ? { createdAt } : {}),
+      ...(plan.createdAt ? { createdAt: plan.createdAt } : {}),
       action: {
         notIn: OPERATOR_READ_ACTIONS,
         ...(plan.search ? { contains: plan.search, mode: "insensitive" as const } : {}),
@@ -230,7 +209,7 @@ export class PrismaOperatorAuditRepo
 
     const page = merged.slice(plan.skip, plan.skip + plan.take);
     const workspaceIds = [...new Set(page.flatMap((row) => (row.workspaceId ? [row.workspaceId] : [])))];
-    const labels = await this.dominantDomainsUnscoped(workspaceIds);
+    const labels = await resolveWorkspaceLabels(this.prisma, workspaceIds);
 
     return page.map((row) => ({
       ...row,
@@ -267,33 +246,5 @@ export class PrismaOperatorAuditRepo
     for (const user of users) emails.set(user.id, user.email);
 
     return emails;
-  }
-
-  @BypassTenantGuard
-  private async dominantDomainsUnscoped(companyIds: string[]): Promise<Map<string, string>> {
-    const labels = new Map<string, string>();
-    if (companyIds.length === 0) return labels;
-
-    const users = await this.prisma.user.findMany({
-      where: { companyId: { in: companyIds } },
-      select: { companyId: true, email: true },
-      take: 2000,
-    });
-
-    const counts = new Map<string, Map<string, number>>();
-    for (const user of users) {
-      const domain = user.email.split("@")[1];
-      if (!domain) continue;
-      const perCompany = counts.get(user.companyId) ?? new Map<string, number>();
-      perCompany.set(domain, (perCompany.get(domain) ?? 0) + 1);
-      counts.set(user.companyId, perCompany);
-    }
-
-    for (const [companyId, perCompany] of counts) {
-      const best = [...perCompany.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))[0];
-      if (best) labels.set(companyId, best[0]);
-    }
-
-    return labels;
   }
 }

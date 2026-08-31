@@ -271,7 +271,6 @@ export const OPERATOR_AUDIT_ACTION = {
   candidateRead: "hosted_ai.candidate.read",
   companyRead: "hosted_ai.company.read",
   auditRead: "hosted_ai.audit.read",
-  globalControlUpdate: "hosted_ai.global_control.update",
   enterpriseAllowanceUpdate: "hosted_ai.enterprise_allowance.update",
   creditAdjustmentCreate: "hosted_ai.credit_adjustment.create",
   userListRead: "operator.users.list",
@@ -281,5 +280,4 @@ export const OPERATOR_AUDIT_ACTION = {
   userPlatformAccessUpdate: "operator.platform_access.update",
   subscriptionSnapshotCorrect: "operator.subscription_snapshot.correct",
   creditBalanceReset: "operator.credit_balance.reset",
-  operatorBootstrap: "operator.bootstrap",
 } as const;

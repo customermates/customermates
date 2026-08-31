@@ -16,7 +16,7 @@ export class GetOperatorUserDetailInteractor {
   @ValidateOutput(OperatorUserDetailDtoSchema)
   async invoke(data: GetOperatorUserDetailData): Validated<OperatorUserDetailDto> {
     try {
-      const user = await this.repo.getUserDetailAuditedOrThrowUnscoped(data.userId);
+      const user = await this.repo.getUserDetailOrThrowUnscoped(data.userId);
       return { ok: true, data: user };
     } catch (error) {
       const failure = operatorFailure(error);

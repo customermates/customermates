@@ -68,7 +68,7 @@ export class PrismaOperatorWorkspacesRepo
   implements GetOperatorWorkspacesRepo
 {
   getSearchableFields() {
-    return [];
+    return [{ field: "users.email" }];
   }
 
   getSortableFields() {
@@ -84,17 +84,6 @@ export class PrismaOperatorWorkspacesRepo
         FilterFieldKey.workspaceId,
       ].map((field) => ({ field, operators: FILTER_FIELD_DEFAULT_OPERATORS[field] })),
     );
-  }
-
-  getCustomColumns() {
-    return Promise.resolve([]);
-  }
-
-  private searchClause(searchTerm: string | undefined): Prisma.CompanyWhereInput {
-    const term = searchTerm?.trim();
-    if (!term) return {};
-
-    return { users: { some: { email: { contains: term, mode: "insensitive" } } } };
   }
 
   @BypassTenantGuard
@@ -153,16 +142,10 @@ export class PrismaOperatorWorkspacesRepo
   @BypassTenantGuard
   private async listWorkspacesUnscoped(params: GetQueryParams): Promise<OperatorWorkspaceRowDto[]> {
     const { baseWhere, passthrough } = partitionOperatorWorkspaceFilters(params.filters);
-    const args = await this.buildQueryArgs(
-      { ...params, filters: passthrough, searchTerm: undefined },
-      { ...baseWhere, ...this.searchClause(params.searchTerm) },
-    );
+    const args = await this.buildQueryArgs({ ...params, filters: passthrough }, baseWhere);
 
     const companies = await this.prisma.company.findMany({
-      where: args.where,
-      orderBy: args.orderBy,
-      skip: args.skip,
-      take: args.take,
+      ...args,
       select: {
         id: true,
         createdAt: true,
@@ -197,10 +180,7 @@ export class PrismaOperatorWorkspacesRepo
   @BypassTenantGuard
   private async countWorkspacesUnscoped(params: GetQueryParams): Promise<number> {
     const { baseWhere, passthrough } = partitionOperatorWorkspaceFilters(params.filters);
-    const { where } = await this.buildQueryArgs(
-      { ...params, filters: passthrough, searchTerm: undefined },
-      { ...baseWhere, ...this.searchClause(params.searchTerm) },
-    );
+    const { where } = await this.buildQueryArgs({ ...params, filters: passthrough }, baseWhere);
 
     return this.prisma.company.count({ where });
   }

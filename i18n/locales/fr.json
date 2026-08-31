@@ -2476,8 +2476,6 @@
         "creditAdjustmentCreate": "Correction de crédits enregistrée",
         "creditBalanceReset": "Solde de crédits réinitialisé",
         "enterpriseAllowanceUpdate": "Allocation Enterprise mise à jour",
-        "globalControlUpdate": "Contrôle global Hosted-AI mis à jour",
-        "operatorBootstrap": "Accès opérateur initialisé",
         "overviewRead": "Vue d’ensemble Hosted-AI consultée",
         "subscriptionSnapshotCorrect": "Abonnement de l’espace de travail corrigé",
         "userDetailRead": "Détail utilisateur consulté",
