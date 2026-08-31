@@ -8,6 +8,7 @@ import { agentCreditPeriodForAnchor } from "@/ee/agent-chat/agent-credit-policy"
 import { APP_LOCALES } from "@/i18n/locale-registry";
 
 import type { SeedContext } from "./context";
+import { fixtureId, reconcileAuthUserId, reconcileDomainUserId } from "./helpers";
 
 const HOUR = 60 * 60_000;
 
@@ -56,10 +57,6 @@ export type SyntheticHostedAiOperatorUserDefinition = Readonly<{
   subscription: SyntheticHostedAiOperatorSubscriptionDefinition | null;
 }>;
 
-function operatorTableUuid(namespace: string, index: number): string {
-  return `${namespace}-0000-4000-8000-${String(index + 1).padStart(12, "0")}`;
-}
-
 function titleCase(value: string): string {
   return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
 }
@@ -83,7 +80,7 @@ export const SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS: readonly SyntheticHo
   operatorTableSubscriptionScenarios.map((scenario, index) => {
     const createdAt = new Date(OPERATOR_TABLE_CREATED_AT.getTime() + Math.floor(index / 2) * HOUR);
     const status = OPERATOR_TABLE_USER_STATUSES[index % OPERATOR_TABLE_USER_STATUSES.length];
-    const companyId = operatorTableUuid("c1260000", index);
+    const companyId = fixtureId("c1260000", index + 1);
     const number = String(index + 1).padStart(2, "0");
     const providerManaged =
       index < OPERATOR_TABLE_COMBINATION_COUNT && scenario?.plan === "pro" && scenario.status === "active";
@@ -96,7 +93,7 @@ export const SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS: readonly SyntheticHo
           currentPeriodEnd: OPERATOR_TABLE_CURRENT_PERIOD_END,
           enterpriseAgentCreditsPerUser:
             scenario.plan === "enterprise" && !missingEnterpriseAllowance ? 1_200 + index : null,
-          id: operatorTableUuid("b1260000", index),
+          id: fixtureId("b1260000", index + 1),
           lemonSqueezyId: providerManaged ? "synthetic-operator-provider-subscription" : null,
           lemonSqueezyVariantId: providerManaged ? "synthetic-operator-provider-variant" : null,
           plan: scenario.plan,
@@ -113,7 +110,7 @@ export const SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS: readonly SyntheticHo
       createdAt,
       email: `hosted-ai.operator-user-${number}@example.invalid`,
       firstName: titleCase(status === "pendingAuthorization" ? "pending" : status),
-      id: operatorTableUuid("a1260000", index),
+      id: fixtureId("a1260000", index + 1),
       isPlatformOperator: index % 11 === 0 || index === 30,
       lastName: scenario
         ? `${titleCase(scenario.plan)} ${titleCase(scenario.status)} ${number}`
@@ -157,41 +154,6 @@ export const SYNTHETIC_HOSTED_AI_USAGE = {
     state: "settled",
   },
 } as const;
-
-async function reconcileAuthUserId(context: SeedContext, id: string, email: string): Promise<void> {
-  const [existingById, existingByEmail] = await Promise.all([
-    context.prisma.authUser.findUnique({ where: { id }, select: { id: true } }),
-    context.prisma.authUser.findUnique({
-      where: { email },
-      select: { id: true },
-    }),
-  ]);
-
-  if (!existingByEmail || existingByEmail.id === id) return;
-  if (existingById) await context.prisma.authUser.delete({ where: { id: existingByEmail.id } });
-  else {
-    await context.prisma.authUser.update({
-      where: { id: existingByEmail.id },
-      data: { id },
-    });
-  }
-}
-
-async function reconcileDomainUserId(context: SeedContext, id: string, email: string): Promise<void> {
-  const [existingById, existingByEmail] = await Promise.all([
-    context.prisma.user.findUnique({ where: { id }, select: { id: true } }),
-    context.prisma.user.findUnique({ where: { email }, select: { id: true } }),
-  ]);
-
-  if (!existingByEmail || existingByEmail.id === id) return;
-  if (existingById) await context.prisma.user.delete({ where: { id: existingByEmail.id } });
-  else {
-    await context.prisma.user.update({
-      where: { id: existingByEmail.id },
-      data: { id },
-    });
-  }
-}
 
 export async function seedHostedAiOperatorFixtures(context: SeedContext, now = new Date()): Promise<void> {
   const { ids, prisma, sharedUserPassword } = context;

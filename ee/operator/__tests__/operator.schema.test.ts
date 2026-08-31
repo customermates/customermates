@@ -3,11 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   CreateAgentCreditAdjustmentSchema,
   CorrectOperatorSubscriptionSnapshotSchema,
-  FindHostedAiOperatorCandidateSchema,
-  ListOperatorUsersSchema,
   ResetOperatorUserCreditsSchema,
   UpdateHostedAiEnterpriseAllowanceSchema,
-  UpdateHostedAiGlobalControlSchema,
   UpdateOperatorUserPlatformAccessSchema,
   UpdateOperatorUserStatusSchema,
 } from "../operator.schema";
@@ -15,16 +12,6 @@ import {
 const operationId = "04d695c1-aea1-47e6-9871-010644068f9a";
 
 describe("operator input contracts", () => {
-  it("normalizes an exact email identifier", () => {
-    expect(
-      FindHostedAiOperatorCandidateSchema.parse({
-        email: "  Linnea@Example.COM ",
-      }),
-    ).toEqual({
-      email: "linnea@example.com",
-    });
-  });
-
   it("keeps Enterprise allowances inside the database safety bound", () => {
     const base = {
       companyId: operationId,
@@ -63,51 +50,6 @@ describe("operator input contracts", () => {
         periodEnd: base.periodStart,
       }).success,
     ).toBe(false);
-  });
-
-  it("accepts only unsigned 64-bit decimal cap strings", () => {
-    const base = {
-      expectedVersion: 1,
-      hostedProviderWorkPaused: false,
-      reason: "Monthly control change",
-      operationId,
-    };
-    expect(
-      UpdateHostedAiGlobalControlSchema.safeParse({
-        ...base,
-        monthlySpendCapMicrocents: "9223372036854775807",
-      }).success,
-    ).toBe(true);
-    expect(
-      UpdateHostedAiGlobalControlSchema.safeParse({
-        ...base,
-        monthlySpendCapMicrocents: "-1",
-      }).success,
-    ).toBe(false);
-    expect(
-      UpdateHostedAiGlobalControlSchema.safeParse({
-        ...base,
-        monthlySpendCapMicrocents: "9223372036854775808",
-      }).success,
-    ).toBe(false);
-  });
-
-  it("normalizes list pagination and validates every filter", () => {
-    expect(
-      ListOperatorUsersSchema.parse({
-        query: "  Linnea   Example  ",
-        status: "pendingAuthorization",
-        subscriptionPlan: "enterprise",
-        subscriptionStatus: "pastDue",
-        isPlatformOperator: false,
-      }),
-    ).toMatchObject({
-      query: "Linnea Example",
-      limit: 25,
-      sort: "newest",
-    });
-    expect(ListOperatorUsersSchema.safeParse({ limit: 101 }).success).toBe(false);
-    expect(ListOperatorUsersSchema.safeParse({ status: "deleted" }).success).toBe(false);
   });
 
   it("requires optimistic timestamps and a positive or null subscription quantity", () => {

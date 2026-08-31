@@ -310,28 +310,21 @@ import { ArchiveAgentConversationInteractor } from "@/ee/agent-chat/archive-agen
 import { RestoreAgentConversationInteractor } from "@/ee/agent-chat/restore-agent-conversation.interactor";
 import { PrismaOperatorRepo } from "@/ee/operator/prisma-operator.repository";
 import { OperatorAccessService, PrismaOperatorAccessRepo } from "@/ee/operator/operator-access.service";
-import { GetOperatorConsoleVisibilityInteractor } from "@/ee/operator/get-operator-console-visibility.interactor";
-import { GetHostedAiOperatorOverviewInteractor } from "@/ee/operator/get-hosted-ai-operator-overview.interactor";
-import { FindHostedAiOperatorCandidateInteractor } from "@/ee/operator/find-hosted-ai-operator-candidate.interactor";
-import { GetHostedAiOperatorCompanyInteractor } from "@/ee/operator/get-hosted-ai-operator-company.interactor";
+import { GetOperatorConsoleVisibilityInteractor } from "@/ee/operator/get/get-operator-console-visibility.interactor";
+import { GetHostedAiOperatorOverviewInteractor } from "@/ee/operator/get/get-hosted-ai-operator-overview.interactor";
 import { UpdateHostedAiEnterpriseAllowanceInteractor } from "@/ee/operator/update-hosted-ai-enterprise-allowance.interactor";
 import { CreateAgentCreditAdjustmentInteractor } from "@/ee/operator/create-agent-credit-adjustment.interactor";
-import { UpdateHostedAiGlobalControlInteractor } from "@/ee/operator/update-hosted-ai-global-control.interactor";
-import { ListOperatorAuditEventsInteractor } from "@/ee/operator/list-operator-audit-events.interactor";
-import { ListOperatorUsersInteractor } from "@/ee/operator/list-operator-users.interactor";
-import { GetOperatorUserSummaryInteractor } from "@/ee/operator/get-operator-user-summary.interactor";
-import { GetOperatorUserDetailInteractor } from "@/ee/operator/get-operator-user-detail.interactor";
+import { GetOperatorUserSummaryInteractor } from "@/ee/operator/get/get-operator-user-summary.interactor";
+import { GetOperatorUserDetailInteractor } from "@/ee/operator/get/get-operator-user-detail.interactor";
 import { UpdateOperatorUserStatusInteractor } from "@/ee/operator/update-operator-user-status.interactor";
-import { GetOperatorAuditInteractor } from "@/ee/operator/get/get-operator-audit.interactor";
+import { GetOperatorAuditLogsInteractor } from "@/ee/operator/get/get-operator-audit-logs.interactor";
 import { GetOperatorUsersInteractor } from "@/ee/operator/get/get-operator-users.interactor";
 import { GetOperatorWorkspacesInteractor } from "@/ee/operator/get/get-operator-workspaces.interactor";
 import { GetOperatorRiskSummaryInteractor } from "@/ee/operator/get/get-operator-risk-summary.interactor";
-import {
-  PrismaOperatorAuditRepo,
-  PrismaOperatorRiskSummaryRepo,
-  PrismaOperatorUsersRepo,
-  PrismaOperatorWorkspacesRepo,
-} from "@/ee/operator/prisma-operator-lists.repository";
+import { PrismaOperatorUsersRepo } from "@/ee/operator/prisma-operator-users.repository";
+import { PrismaOperatorWorkspacesRepo } from "@/ee/operator/prisma-operator-workspaces.repository";
+import { PrismaOperatorAuditRepo } from "@/ee/operator/prisma-operator-audit.repository";
+import { PrismaOperatorRiskSummaryRepo } from "@/ee/operator/prisma-operator-risk-summary.repository";
 import { UpdateOperatorUserPlatformAccessInteractor } from "@/ee/operator/update-operator-user-platform-access.interactor";
 import { CorrectOperatorSubscriptionSnapshotInteractor } from "@/ee/operator/correct-operator-subscription-snapshot.interactor";
 import { ResetOperatorUserCreditsInteractor } from "@/ee/operator/reset-operator-user-credits.interactor";
@@ -1545,56 +1538,47 @@ export const getCreateChatSupportTicketInteractor = () =>
 
 // --- Hosted-AI operator console ---
 
-export const getOperatorConsoleVisibilityInteractor = () =>
+export const getGetOperatorConsoleVisibilityInteractor = () =>
   new GetOperatorConsoleVisibilityInteractor(getOperatorAccessService());
 
-export const getHostedAiOperatorOverviewInteractor = () => new GetHostedAiOperatorOverviewInteractor(getOperatorRepo());
+export const getGetHostedAiOperatorOverviewInteractor = () =>
+  new GetHostedAiOperatorOverviewInteractor(getOperatorRepo());
 
-export const findHostedAiOperatorCandidateInteractor = () =>
-  new FindHostedAiOperatorCandidateInteractor(getOperatorRepo());
-
-export const getHostedAiOperatorCompanyInteractor = () => new GetHostedAiOperatorCompanyInteractor(getOperatorRepo());
-
-export const updateHostedAiEnterpriseAllowanceInteractor = () =>
+export const getUpdateHostedAiEnterpriseAllowanceInteractor = () =>
   new UpdateHostedAiEnterpriseAllowanceInteractor(getOperatorRepo());
 
-export const createAgentCreditAdjustmentInteractor = () => new CreateAgentCreditAdjustmentInteractor(getOperatorRepo());
+export const getCreateAgentCreditAdjustmentInteractor = () =>
+  new CreateAgentCreditAdjustmentInteractor(getOperatorRepo());
 
-export const updateHostedAiGlobalControlInteractor = () => new UpdateHostedAiGlobalControlInteractor(getOperatorRepo());
+export const getGetOperatorUserSummaryInteractor = () => new GetOperatorUserSummaryInteractor(getOperatorRepo());
 
-export const listOperatorAuditEventsInteractor = () => new ListOperatorAuditEventsInteractor(getOperatorRepo());
+export const getGetOperatorUserDetailInteractor = () => new GetOperatorUserDetailInteractor(getOperatorRepo());
 
-export const listOperatorUsersInteractor = () => new ListOperatorUsersInteractor(getOperatorRepo());
-
-export const getOperatorUserSummaryInteractor = () => new GetOperatorUserSummaryInteractor(getOperatorRepo());
-
-export const getOperatorUserDetailInteractor = () => new GetOperatorUserDetailInteractor(getOperatorRepo());
-
-export const updateOperatorUserStatusInteractor = () =>
+export const getUpdateOperatorUserStatusInteractor = () =>
   new UpdateOperatorUserStatusInteractor(getOperatorRepo(), getEventService());
 
 export const getOperatorUsersRepo = () => new PrismaOperatorUsersRepo();
 
-export const getOperatorUsersListInteractor = () =>
+export const getGetOperatorUsersInteractor = () =>
   new GetOperatorUsersInteractor(getOperatorUsersRepo(), getP13nRepo());
 
 export const getOperatorWorkspacesRepo = () => new PrismaOperatorWorkspacesRepo();
 
-export const getOperatorWorkspacesListInteractor = () =>
+export const getGetOperatorWorkspacesInteractor = () =>
   new GetOperatorWorkspacesInteractor(getOperatorWorkspacesRepo(), getP13nRepo());
 
 export const getOperatorAuditRepo = () => new PrismaOperatorAuditRepo();
 
-export const getOperatorAuditListInteractor = () =>
-  new GetOperatorAuditInteractor(getOperatorAuditRepo(), getP13nRepo());
+export const getGetOperatorAuditLogsInteractor = () =>
+  new GetOperatorAuditLogsInteractor(getOperatorAuditRepo(), getP13nRepo());
 
-export const getOperatorRiskSummaryInteractor = () =>
+export const getGetOperatorRiskSummaryInteractor = () =>
   new GetOperatorRiskSummaryInteractor(new PrismaOperatorRiskSummaryRepo());
 
-export const updateOperatorUserPlatformAccessInteractor = () =>
+export const getUpdateOperatorUserPlatformAccessInteractor = () =>
   new UpdateOperatorUserPlatformAccessInteractor(getOperatorRepo());
 
-export const correctOperatorSubscriptionSnapshotInteractor = () =>
+export const getCorrectOperatorSubscriptionSnapshotInteractor = () =>
   new CorrectOperatorSubscriptionSnapshotInteractor(getOperatorRepo());
 
-export const resetOperatorUserCreditsInteractor = () => new ResetOperatorUserCreditsInteractor(getOperatorRepo());
+export const getResetOperatorUserCreditsInteractor = () => new ResetOperatorUserCreditsInteractor(getOperatorRepo());

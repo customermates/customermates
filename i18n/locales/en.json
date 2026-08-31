@@ -991,6 +991,8 @@
       "notAuthenticated": "Sign in to use this action.",
       "notesExceedsMaxLength": "Notes content exceeds maximum length.",
       "notesInvalidFormat": "Invalid notes format. Must be valid Tiptap JSON or markdown text.",
+      "operatorConflict": "That change was refused. The record may have changed since the list loaded, or the workspace may not allow it right now. Reload and check the current state.",
+      "operatorUnavailable": "The requested correction is not available for the current account configuration.",
       "organizationNotFound": "Organization ID not found or not accessible.",
       "passwordInvalid": "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
       "passwordMismatch": "Passwords must match.",
@@ -2263,6 +2265,7 @@
     "features": "Features",
     "inbox": "Inbox",
     "members": "Members",
+    "operator": "Operator console",
     "overview": "Overview",
     "pricing": "Pricing",
     "public": {
@@ -2461,12 +2464,10 @@
     }
   },
   "OperatorAudit": {
-    "description": "Every recorded change across all workspaces, from product activity and operator actions.",
     "emptyBody": "Adjust the search or filters to widen the log.",
     "emptyTitle": "No audit events match these filters",
     "navigation": "Audit log",
     "searchPlaceholder": "Search by action",
-    "title": "Audit log",
     "values": {
       "action": {
         "auditRead": "Operator audit read",
@@ -2492,44 +2493,10 @@
     }
   },
   "OperatorConsole": {
-    "actions": {
-      "retry": "Try again"
-    },
     "confirm": {
       "plan": "Set the plan for {name} to {value}? This applies to the whole workspace.",
       "subscription": "Set the subscription status for {name} to {value}? This applies to the whole workspace and contacts no billing provider.",
       "title": "Confirm operator change"
-    },
-    "errors": {
-      "accessDenied": "Your operator access changed. Refresh the page and authenticate again.",
-      "conflict": "That change was refused. The record may have changed since the list loaded, or the workspace may not allow it right now. Reload and check the current state.",
-      "invalidInput": "Review every field. Reasons need at least 8 characters and numeric values must stay within their limits.",
-      "notFound": "The selected user, workspace, subscription, or credit period no longer exists.",
-      "unavailable": "The requested correction is not available for the current account configuration.",
-      "unexpected": "An unexpected error occurred. No successful change is implied; retry with the same operation ID."
-    },
-    "shell": {
-      "console": "Operator console"
-    },
-    "states": {
-      "errorDescription": "The operator data could not be loaded. Try again; no change was made.",
-      "errorTitle": "Operator console unavailable"
-    },
-    "values": {
-      "plans": {
-        "business": "Business",
-        "enterprise": "Enterprise",
-        "pro": "Pro",
-        "starter": "Starter"
-      },
-      "subscription": {
-        "active": "Active",
-        "cancelled": "Cancelled",
-        "expired": "Expired",
-        "pastDue": "Past due",
-        "trial": "Trial",
-        "unPaid": "Unpaid"
-      }
     }
   },
   "OperatorOverview": {
@@ -2537,7 +2504,6 @@
       "description": "Of {total} users in total",
       "label": "Active last 7 days"
     },
-    "description": "Fleet health across every workspace: spend exposure, revenue risk, and growth.",
     "growth": {
       "description": "Alongside {workspaces} new workspaces",
       "label": "New users last 30 days"
@@ -2560,7 +2526,6 @@
       "noCap": "No monthly cap configured; new work is blocked",
       "ofCap": "{percent}% of the {cap} monthly cap"
     },
-    "title": "Operator overview",
     "users": {
       "description": "{active} active, {pending} awaiting authorization",
       "label": "Users"
@@ -2588,7 +2553,6 @@
       "title": "Current credit position",
       "unavailableDescription": "The workspace needs a valid entitlement and credit anchor before credits can be corrected or reset."
     },
-    "description": "Review users across every workspace, filter the directory, and make audited account, subscription, and credit corrections.",
     "emptyBody": "Adjust the search or filters to widen the directory.",
     "emptyTitle": "No users match these filters",
     "navigation": "Users",
@@ -2601,14 +2565,7 @@
       "zeroBalance": "Set remaining balance to zero"
     },
     "searchPlaceholder": "Search by name or account email",
-    "title": "User operations",
     "values": {
-      "accountStatus": {
-        "active": "Active",
-        "inactive": "Inactive",
-        "pendingAuthorization": "Awaiting authorization"
-      },
-      "never": "Never",
       "noSubscription": "No subscription",
       "operator": "Platform operator"
     }
@@ -2619,12 +2576,10 @@
       "title": "Enterprise allowance",
       "warningDescription": "The allowance is granted per user across the whole workspace and takes effect on the current period."
     },
-    "description": "Every workspace across the platform, with its plan, members and allowance.",
     "emptyBody": "Adjust the search or filters to widen the list.",
     "emptyTitle": "No workspaces match these filters",
     "navigation": "Workspaces",
     "searchPlaceholder": "Search by member email",
-    "title": "Workspace operations",
     "values": {
       "members": "{active} of {total}"
     }

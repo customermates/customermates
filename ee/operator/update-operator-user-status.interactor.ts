@@ -1,10 +1,14 @@
 import type { EventService } from "@/features/event/event.service";
 import type { OperatorRepo, OperatorUserStatusChangedEvent } from "./operator.repo";
-import type { OperatorUserDetailDto } from "./operator.schema";
+import type { OperatorUserDetailDto, UpdateOperatorUserStatusData } from "./operator.schema";
+import type { Validated } from "@/core/validation/validation.utils";
 
 import { OperatorInteractor } from "@/core/decorators/operator-interactor.decorator";
+import { Enforce } from "@/core/decorators/enforce.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { DomainEvent } from "@/features/event/domain-events";
-import { UpdateOperatorUserStatusSchema } from "./operator.schema";
+import { operatorFailure } from "./operator.errors";
+import { OperatorUserDetailDtoSchema, UpdateOperatorUserStatusSchema } from "./operator.schema";
 
 @OperatorInteractor
 export class UpdateOperatorUserStatusInteractor {
@@ -13,9 +17,17 @@ export class UpdateOperatorUserStatusInteractor {
     private readonly eventService: EventService,
   ) {}
 
-  async invoke(input: unknown): Promise<OperatorUserDetailDto> {
-    const data = UpdateOperatorUserStatusSchema.parse(input);
-    return this.repo.updateUserStatusOrThrowUnscoped(data, (event) => this.publishUserUpdated(event));
+  @Enforce(UpdateOperatorUserStatusSchema)
+  @ValidateOutput(OperatorUserDetailDtoSchema)
+  async invoke(data: UpdateOperatorUserStatusData): Validated<OperatorUserDetailDto> {
+    try {
+      const user = await this.repo.updateUserStatusOrThrowUnscoped(data, (event) => this.publishUserUpdated(event));
+      return { ok: true, data: user };
+    } catch (error) {
+      const failure = operatorFailure(error);
+      if (failure) return failure;
+      throw error;
+    }
   }
 
   private async publishUserUpdated(event: OperatorUserStatusChangedEvent): Promise<void> {

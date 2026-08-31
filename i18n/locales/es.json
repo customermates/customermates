@@ -991,6 +991,8 @@
       "notAuthenticated": "Inicia sesión para usar esta acción.",
       "notesExceedsMaxLength": "El contenido de las notas supera la longitud máxima.",
       "notesInvalidFormat": "Formato de notas no válido. Debe ser JSON de Tiptap válido o texto markdown.",
+      "operatorConflict": "El cambio fue rechazado. Puede que el registro haya cambiado desde que se cargó la lista, o que el espacio de trabajo no lo permita ahora mismo. Recarga y revisa el estado actual.",
+      "operatorUnavailable": "La corrección solicitada no está disponible para la configuración actual de la cuenta.",
       "organizationNotFound": "ID de organización no encontrado o no accesible.",
       "passwordInvalid": "La contraseña debe tener al menos 8 caracteres e incluir al menos una mayúscula, una minúscula, un número y un carácter especial.",
       "passwordMismatch": "Las contraseñas deben coincidir.",
@@ -2263,6 +2265,7 @@
     "features": "Funciones",
     "inbox": "Bandeja de entrada",
     "members": "Miembros",
+    "operator": "Consola del operador",
     "overview": "Resumen",
     "pricing": "Precios",
     "public": {
@@ -2461,12 +2464,10 @@
     }
   },
   "OperatorAudit": {
-    "description": "Todos los cambios registrados en todos los espacios, de la actividad del producto y de los operadores.",
     "emptyBody": "Ajusta la búsqueda o los filtros para ampliar el registro.",
     "emptyTitle": "Ningún evento coincide con estos filtros",
     "navigation": "Registro de auditoría",
     "searchPlaceholder": "Buscar por acción",
-    "title": "Registro de auditoría",
     "values": {
       "action": {
         "auditRead": "Auditoría de operador leída",
@@ -2492,44 +2493,10 @@
     }
   },
   "OperatorConsole": {
-    "actions": {
-      "retry": "Inténtalo de nuevo"
-    },
     "confirm": {
       "plan": "¿Establecer el plan de {name} en {value}? Se aplica a todo el espacio de trabajo.",
       "subscription": "¿Establecer el estado de suscripción de {name} en {value}? Se aplica a todo el espacio de trabajo y no contacta con ningún proveedor de facturación.",
       "title": "Confirmar el cambio del operador"
-    },
-    "errors": {
-      "accessDenied": "Tu acceso de operador ha cambiado. Actualiza la página y vuelve a autenticarte.",
-      "conflict": "El cambio fue rechazado. Puede que el registro haya cambiado desde que se cargó la lista, o que el espacio de trabajo no lo permita ahora mismo. Recarga y revisa el estado actual.",
-      "invalidInput": "Revisa todos los campos. Los motivos deben tener al menos 8 caracteres y los valores numéricos deben respetar sus límites.",
-      "notFound": "El usuario, espacio de trabajo, suscripción o periodo de créditos seleccionado ya no existe.",
-      "unavailable": "La corrección solicitada no está disponible para la configuración actual de la cuenta.",
-      "unexpected": "Se ha producido un error inesperado. No se presupone ningún cambio correcto; reintenta con el mismo ID de operación."
-    },
-    "shell": {
-      "console": "Consola del operador"
-    },
-    "states": {
-      "errorDescription": "No se han podido cargar los datos del operador. Vuelve a intentarlo; no se ha realizado ningún cambio.",
-      "errorTitle": "La consola del operador no está disponible"
-    },
-    "values": {
-      "plans": {
-        "business": "Business",
-        "enterprise": "Enterprise",
-        "pro": "Pro",
-        "starter": "Inicial"
-      },
-      "subscription": {
-        "active": "Activa",
-        "cancelled": "Cancelada",
-        "expired": "Caducada",
-        "pastDue": "Vencida",
-        "trial": "Prueba",
-        "unPaid": "Impagada"
-      }
     }
   },
   "OperatorOverview": {
@@ -2537,7 +2504,6 @@
       "description": "De {total} usuarios en total",
       "label": "Activos en 7 días"
     },
-    "description": "Estado de la flota en todos los espacios: exposición de gasto, riesgo de ingresos y crecimiento.",
     "growth": {
       "description": "Junto a {workspaces} espacios nuevos",
       "label": "Usuarios nuevos en 30 días"
@@ -2560,7 +2526,6 @@
       "noCap": "Sin límite mensual configurado; el trabajo nuevo está bloqueado",
       "ofCap": "{percent}% del límite mensual de {cap}"
     },
-    "title": "Resumen del operador",
     "users": {
       "description": "{active} activos, {pending} pendientes de autorización",
       "label": "Usuarios"
@@ -2588,7 +2553,6 @@
       "title": "Posición de créditos actual",
       "unavailableDescription": "El espacio de trabajo necesita una autorización válida y un punto de anclaje de créditos antes de poder corregirlos o restablecerlos."
     },
-    "description": "Revisa usuarios de todos los espacios de trabajo, filtra el directorio y realiza correcciones auditadas de cuentas, suscripciones y créditos.",
     "emptyBody": "Ajusta la búsqueda o los filtros para ampliar el directorio.",
     "emptyTitle": "Ningún usuario coincide con estos filtros",
     "navigation": "Usuarios",
@@ -2601,14 +2565,7 @@
       "zeroBalance": "Poner a cero el saldo restante"
     },
     "searchPlaceholder": "Buscar por nombre o correo de la cuenta",
-    "title": "Operaciones de usuarios",
     "values": {
-      "accountStatus": {
-        "active": "Activo",
-        "inactive": "Inactivo",
-        "pendingAuthorization": "Pendiente de autorización"
-      },
-      "never": "Nunca",
       "noSubscription": "Sin suscripción",
       "operator": "Operador de la plataforma"
     }
@@ -2619,12 +2576,10 @@
       "title": "Asignación Enterprise",
       "warningDescription": "La asignación se concede por usuario en todo el espacio y afecta al periodo actual."
     },
-    "description": "Todos los espacios de la plataforma, con su plan, miembros y asignación.",
     "emptyBody": "Ajusta la búsqueda o los filtros para ampliar la lista.",
     "emptyTitle": "Ningún espacio coincide con estos filtros",
     "navigation": "Espacios de trabajo",
     "searchPlaceholder": "Buscar por correo de un miembro",
-    "title": "Operaciones de espacios",
     "values": {
       "members": "{active} de {total}"
     }

@@ -115,9 +115,7 @@ export const AppTopBar = observer(({ operatorConsoleVisible }: { operatorConsole
                     </DropdownMenu>
                   ) : c.href && !isLeaf ? (
                     <BreadcrumbLink asChild>
-                      <IntlLink href={c.href} prefetch={c.prefetch}>
-                        {c.label}
-                      </IntlLink>
+                      <IntlLink href={c.href}>{c.label}</IntlLink>
                     </BreadcrumbLink>
                   ) : (
                     <BreadcrumbPage

@@ -1,13 +1,10 @@
-import { normalizeBaseUrl, resolveAppMode, resolveAuthAllowedHosts, resolveBaseUrl } from "@/core/config/environment";
-
-export function resolveStrictBoolean(name: string, value: string | undefined): boolean {
-  const normalized = value?.trim();
-  if (!normalized) return false;
-  if (normalized === "true") return true;
-  if (normalized === "false") return false;
-
-  throw new Error(`${name} must be configured as \"true\" or \"false\"`);
-}
+import {
+  normalizeBaseUrl,
+  resolveAppMode,
+  resolveAuthAllowedHosts,
+  resolveBaseUrl,
+  resolveStrictBoolean,
+} from "@/core/config/environment";
 
 const BASE_URL = resolveBaseUrl(process.env);
 const oauthProxyUrl = process.env.OAUTH_PROXY_URL?.trim();

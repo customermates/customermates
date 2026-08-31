@@ -17,9 +17,9 @@ export const SEED_IDS = {
   hostedAiOrdinaryCredentialAccount: "40000000-0000-4000-8000-000000000004",
   subscription: "50000000-0000-4000-8000-000000000001",
   hostedAiFixtureSubscription: "50000000-0000-4000-8000-000000000002",
-  hostedAiSettledUsage: "60000000-0000-4000-8000-000000000001",
-  hostedAiReservedUsage: "60000000-0000-4000-8000-000000000002",
-  hostedAiReleasedUsage: "60000000-0000-4000-8000-000000000003",
+  hostedAiSettledUsage: "61000000-0000-4000-8000-000000000001",
+  hostedAiReservedUsage: "61000000-0000-4000-8000-000000000002",
+  hostedAiReleasedUsage: "61000000-0000-4000-8000-000000000003",
 } as const;
 
 export type SeedContext = {

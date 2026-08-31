@@ -28,6 +28,7 @@ import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AGENT_ACTIVITY_KINDS } from "@/ee/agent-chat/agent-activity";
+import { OPERATOR_AUDIT_ACTION } from "@/ee/operator/operator.schema";
 import { DomainEvent } from "@/features/event/domain-events";
 import { FeedbackType } from "@/features/feedback/send-feedback.schema";
 import {
@@ -488,7 +489,10 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
 const ENFORCED = true;
 
 export const DYNAMIC_KEY_SITES = [
-  "app/[locale]/(protected)/operator/operator-value-labels.tsx :: t :: Common.events.${action}",
+  "app/[locale]/(protected)/operator/components/operator-value-labels.tsx :: t :: Common.events.${action}",
+  "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Common.userStatuses.${status}",
+  "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Subscription.planNames.${plan}",
+  "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Subscription.status.${status}",
   "app/[locale]/(protected)/company/components/audit-log/audit-log-modal.tsx :: t :: Common.events.${auditLog.event}",
   "app/[locale]/(protected)/company/components/audit-log/use-audit-log-columns.tsx :: t :: Common.events.${row.original.event}",
   "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",
@@ -628,7 +632,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     'features/messaging/activities/audit-detail.tsx :: t :: terminologyMessageKey(selection.entityType, presetKey, "plural") as never',
     1,
   ],
-  ["app/[locale]/(protected)/operator/use-operator-error-toast.ts :: t :: operatorErrorKey(code)", 1],
+  ["app/[locale]/(protected)/operator/components/operator-value-labels.tsx :: t :: key", 1],
   ["app/[locale]/(protected)/contacts/components/add-channel-popover.tsx :: t :: SOURCE_HINT_KEYS[source]", 1],
   ["app/[locale]/(protected)/contacts/components/use-contact-columns.tsx :: t :: nameKey", 1],
   ["app/[locale]/(protected)/deals/components/use-deal-columns.tsx :: t :: nameKey", 1],
@@ -694,6 +698,15 @@ type IndirectKeyConsumer = {
   evidence?: Readonly<Record<string, readonly SourceEvidence[]>>;
 };
 
+const OPERATOR_AUDIT_ACTION_LABEL_KEYS = Object.keys(OPERATOR_AUDIT_ACTION).map(
+  (name) => `OperatorAudit.values.action.${name}`,
+);
+const OPERATOR_AUDIT_ACTION_LABEL_EVIDENCE = Object.fromEntries(
+  OPERATOR_AUDIT_ACTION_LABEL_KEYS.map((key) => [
+    key,
+    [{ kind: "template" as const, value: "`OperatorAudit.values.action.${name}`" }],
+  ]),
+);
 const TERMINOLOGY_TEMPLATE_EVIDENCE = Object.fromEntries(
   ENTITY_TERMINOLOGY_KEYS.map((key) => [
     key,
@@ -709,15 +722,9 @@ const TERMINOLOGY_TEMPLATE_EVIDENCE = Object.fromEntries(
 
 const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
   {
-    file: "app/[locale]/(protected)/operator/operator-action-state.ts",
-    keys: [
-      "OperatorConsole.errors.accessDenied",
-      "OperatorConsole.errors.conflict",
-      "OperatorConsole.errors.invalidInput",
-      "OperatorConsole.errors.notFound",
-      "OperatorConsole.errors.unavailable",
-      "OperatorConsole.errors.unexpected",
-    ],
+    file: "app/[locale]/(protected)/operator/components/operator-value-labels.tsx",
+    keys: OPERATOR_AUDIT_ACTION_LABEL_KEYS,
+    evidence: OPERATOR_AUDIT_ACTION_LABEL_EVIDENCE,
   },
   {
     file: "app/[locale]/(protected)/contacts/components/add-channel-popover.tsx",

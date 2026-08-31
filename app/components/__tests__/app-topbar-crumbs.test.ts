@@ -24,7 +24,7 @@ describe("app topbar crumbs", () => {
       buildAppTopbarCrumbs(`/en/operator/${route}`, translate, ENTITY_LABELS, null, "cloud", canAccess, null, true),
     ).toEqual({
       crumbs: [
-        { href: "/operator/overview", label: "OperatorConsole.shell.console", prefetch: false },
+        { href: "/operator/overview", label: "NavigationBar.operator" },
         {
           label: leafLabel,
           siblings: [

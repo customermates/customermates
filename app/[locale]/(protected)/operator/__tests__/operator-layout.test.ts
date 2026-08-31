@@ -11,7 +11,7 @@ const state = vi.hoisted(() => ({
 
 vi.mock("next/navigation", () => ({ notFound: state.notFound }));
 vi.mock("@/core/di", () => ({
-  getOperatorConsoleVisibilityInteractor: () => ({ invoke: state.visibility }),
+  getGetOperatorConsoleVisibilityInteractor: () => ({ invoke: state.visibility }),
 }));
 import OperatorLayout from "../layout";
 

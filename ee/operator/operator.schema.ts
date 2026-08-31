@@ -4,9 +4,7 @@ import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma
 
 const MAX_CREDITS = 1_000_000;
 const MAX_SIGNED_CREDITS = 1_000_000;
-const MAX_BIGINT = 9_223_372_036_854_775_807n;
 
-const ReasonSchema = z.string().trim().min(8).max(500);
 const OptionalReasonSchema = z
   .string()
   .trim()
@@ -14,19 +12,6 @@ const OptionalReasonSchema = z
   .transform((value) => (value.length > 0 ? value : undefined))
   .optional();
 const OperationIdSchema = z.uuid();
-
-export const FindHostedAiOperatorCandidateSchema = z
-  .object({
-    email: z
-      .string()
-      .trim()
-      .max(320)
-      .transform((email) => email.toLocaleLowerCase("en-US"))
-      .pipe(z.email()),
-  })
-  .strict();
-
-export const GetHostedAiOperatorCompanySchema = z.object({ companyId: z.uuid() }).strict();
 
 export const UpdateHostedAiEnterpriseAllowanceSchema = z
   .object({
@@ -57,48 +42,6 @@ export const CreateAgentCreditAdjustmentSchema = z
     path: ["periodEnd"],
     message: "The adjustment period must end after it starts.",
   });
-
-export const UpdateHostedAiGlobalControlSchema = z
-  .object({
-    expectedVersion: z.number().int().min(1).max(2_147_483_646),
-    hostedProviderWorkPaused: z.boolean(),
-    monthlySpendCapMicrocents: z
-      .string()
-      .max(19)
-      .regex(/^\d+$/)
-      .refine((value) => BigInt(value) <= MAX_BIGINT)
-      .nullable(),
-    reason: ReasonSchema,
-    operationId: OperationIdSchema,
-  })
-  .strict();
-
-export const ListOperatorAuditEventsSchema = z
-  .object({
-    cursor: z.uuid().optional(),
-    limit: z.number().int().min(1).max(100).default(50),
-  })
-  .strict();
-
-export const OperatorUserSortSchema = z.enum(["newest", "oldest", "emailAsc", "emailDesc"]);
-
-export const ListOperatorUsersSchema = z
-  .object({
-    cursor: z.uuid().optional(),
-    limit: z.number().int().min(1).max(100).default(25),
-    query: z
-      .string()
-      .trim()
-      .max(200)
-      .transform((query) => query.replace(/\s+/gu, " "))
-      .optional(),
-    status: z.enum(Status).optional(),
-    subscriptionPlan: z.enum(SubscriptionPlan).optional(),
-    subscriptionStatus: z.enum(SubscriptionStatus).optional(),
-    isPlatformOperator: z.boolean().optional(),
-    sort: OperatorUserSortSchema.default("newest"),
-  })
-  .strict();
 
 export const GetOperatorUserDetailSchema = z.object({ userId: z.uuid() }).strict();
 
@@ -148,189 +91,180 @@ export const ResetOperatorUserCreditsSchema = z
   })
   .strict();
 
-export type FindHostedAiOperatorCandidateData = z.infer<typeof FindHostedAiOperatorCandidateSchema>;
-export type GetHostedAiOperatorCompanyData = z.infer<typeof GetHostedAiOperatorCompanySchema>;
 export type UpdateHostedAiEnterpriseAllowanceData = z.infer<typeof UpdateHostedAiEnterpriseAllowanceSchema>;
 export type CreateAgentCreditAdjustmentData = z.infer<typeof CreateAgentCreditAdjustmentSchema>;
-export type UpdateHostedAiGlobalControlData = z.infer<typeof UpdateHostedAiGlobalControlSchema>;
-export type ListOperatorAuditEventsData = z.input<typeof ListOperatorAuditEventsSchema>;
-export type ListOperatorUsersData = z.input<typeof ListOperatorUsersSchema>;
-export type ParsedListOperatorUsersData = z.output<typeof ListOperatorUsersSchema>;
 export type GetOperatorUserDetailData = z.infer<typeof GetOperatorUserDetailSchema>;
 export type UpdateOperatorUserStatusData = z.infer<typeof UpdateOperatorUserStatusSchema>;
 export type UpdateOperatorUserPlatformAccessData = z.infer<typeof UpdateOperatorUserPlatformAccessSchema>;
 export type CorrectOperatorSubscriptionSnapshotData = z.infer<typeof CorrectOperatorSubscriptionSnapshotSchema>;
 export type ResetOperatorUserCreditsData = z.infer<typeof ResetOperatorUserCreditsSchema>;
 
-export type HostedAiGlobalControlDto = {
-  id: "global";
-  hostedProviderWorkPaused: boolean;
-  monthlySpendCapMicrocents: string | null;
-  reason: string;
-  version: number;
-  updatedByOperatorUserId: string;
-  createdAt: string;
-  updatedAt: string;
-};
+export const HostedAiGlobalControlDtoSchema = z.object({
+  id: z.literal("global"),
+  hostedProviderWorkPaused: z.boolean(),
+  monthlySpendCapMicrocents: z.string().nullable(),
+  reason: z.string(),
+  version: z.number(),
+  updatedByOperatorUserId: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
 
-export type HostedAiUsageTotalsDto = {
-  settledCostMicrocents: string;
-  reservedExposureMicrocents: string;
-  totalCommittedMicrocents: string;
-  chargedCredits: number;
-  reservedCredits: number;
-};
+export type HostedAiGlobalControlDto = z.infer<typeof HostedAiGlobalControlDtoSchema>;
 
-export type HostedAiOperatorOverviewDto = {
-  generatedAt: string;
-  currentUtcMonth: HostedAiUsageTotalsDto & {
-    periodStart: string;
-    periodEnd: string;
-    companiesWithUsage: number;
-  };
-  fleet: {
-    companies: number;
-    enterpriseCompanies: number;
-    users: number;
-    activeUsers: number;
-  };
-  globalControl: HostedAiGlobalControlDto;
-};
+export const HostedAiUsageTotalsDtoSchema = z.object({
+  settledCostMicrocents: z.string(),
+  reservedExposureMicrocents: z.string(),
+  totalCommittedMicrocents: z.string(),
+  chargedCredits: z.number(),
+  reservedCredits: z.number(),
+});
 
-export type HostedAiSubscriptionDto = {
-  plan: SubscriptionPlan;
-  status: SubscriptionStatus;
-  enterpriseCreditsPerUser: number | null;
-  agentCreditAnchorAt: string | null;
-  trialEndDate: string | null;
-  currentPeriodEnd: string | null;
-};
+export type HostedAiUsageTotalsDto = z.infer<typeof HostedAiUsageTotalsDtoSchema>;
 
-export type HostedAiOperatorCompanyDto = {
-  companyId: string;
-  subscription: HostedAiSubscriptionDto;
-  seats: { total: number; active: number };
-  currentUtcMonth: HostedAiUsageTotalsDto;
-};
+export const HostedAiOperatorOverviewDtoSchema = z.object({
+  generatedAt: z.date(),
+  currentUtcMonth: HostedAiUsageTotalsDtoSchema.extend({
+    periodStart: z.date(),
+    periodEnd: z.date(),
+    companiesWithUsage: z.number(),
+  }),
+  fleet: z.object({
+    companies: z.number(),
+    enterpriseCompanies: z.number(),
+    users: z.number(),
+    activeUsers: z.number(),
+  }),
+  globalControl: HostedAiGlobalControlDtoSchema,
+});
 
-export type OperatorUserCreditPeriodDto = {
-  periodStart: string;
-  periodEnd: string;
-  baseAllowanceCredits: number;
-  adjustmentCredits: number;
-  effectiveAllowanceCredits: number;
-  chargedCredits: number;
-  reservedCredits: number;
-  committedCredits: number;
-  remainingCredits: number;
-  overageCredits: number;
-  blockedReason: string | null;
-};
+export type HostedAiOperatorOverviewDto = z.infer<typeof HostedAiOperatorOverviewDtoSchema>;
 
-export type HostedAiOperatorCandidateDto = {
-  userId: string;
-  companyId: string;
-  email: string;
-  displayName: string;
-  status: Status;
-  authEmailVerified: boolean;
-  company: HostedAiOperatorCompanyDto;
-  creditPeriod: OperatorUserCreditPeriodDto | null;
-};
+export const HostedAiSubscriptionDtoSchema = z.object({
+  plan: z.enum(SubscriptionPlan),
+  status: z.enum(SubscriptionStatus),
+  enterpriseCreditsPerUser: z.number().nullable(),
+  agentCreditAnchorAt: z.date().nullable(),
+  trialEndDate: z.date().nullable(),
+  currentPeriodEnd: z.date().nullable(),
+});
 
-export type OperatorUserListSubscriptionDto = {
-  plan: SubscriptionPlan;
-  status: SubscriptionStatus;
-  quantity: number | null;
-  billingProviderManaged: boolean;
-};
+export type HostedAiSubscriptionDto = z.infer<typeof HostedAiSubscriptionDtoSchema>;
 
-export type OperatorUserListItemDto = {
-  userId: string;
-  companyId: string;
-  email: string;
-  displayName: string;
-  status: Status;
-  isPlatformOperator: boolean;
-  authEmailVerified: boolean;
-  createdAt: string;
-  lastActiveAt: string | null;
-  role: { name: string; isSystemRole: boolean } | null;
-  subscription: OperatorUserListSubscriptionDto | null;
-};
+export const HostedAiOperatorCompanyDtoSchema = z.object({
+  companyId: z.uuid(),
+  subscription: HostedAiSubscriptionDtoSchema,
+  seats: z.object({ total: z.number(), active: z.number() }),
+  currentUtcMonth: HostedAiUsageTotalsDtoSchema,
+});
 
-export type OperatorUserPageDto = {
-  users: OperatorUserListItemDto[];
-  nextCursor: string | null;
-  total: number;
-};
+export type HostedAiOperatorCompanyDto = z.infer<typeof HostedAiOperatorCompanyDtoSchema>;
 
-export type OperatorUserSummaryDto = {
-  totalUsers: number;
-  totalCompanies: number;
-  platformOperators: number;
-  verifiedAuthUsers: number;
-  byStatus: Record<Status, number>;
-  byPlan: Record<SubscriptionPlan, number> & { missing: number };
-  bySubscriptionStatus: Record<SubscriptionStatus, number> & {
-    missing: number;
-  };
-};
+export const OperatorUserCreditPeriodDtoSchema = z.object({
+  periodStart: z.date(),
+  periodEnd: z.date(),
+  baseAllowanceCredits: z.number(),
+  adjustmentCredits: z.number(),
+  effectiveAllowanceCredits: z.number(),
+  chargedCredits: z.number(),
+  reservedCredits: z.number(),
+  committedCredits: z.number(),
+  remainingCredits: z.number(),
+  overageCredits: z.number(),
+  blockedReason: z.string().nullable(),
+});
 
-export type OperatorUserSubscriptionDto = OperatorUserListSubscriptionDto & {
-  updatedAt: string;
-  enterpriseCreditsPerUser: number | null;
-  agentCreditAnchorAt: string | null;
-  trialEndDate: string | null;
-  currentPeriodEnd: string | null;
-};
+export type OperatorUserCreditPeriodDto = z.infer<typeof OperatorUserCreditPeriodDtoSchema>;
 
-export type OperatorUserDetailDto = Omit<OperatorUserListItemDto, "subscription"> & {
-  updatedAt: string;
-  agentCreditActivatedAt: string | null;
-  isCurrentOperator: boolean;
-  statusMutation: {
-    allowed: boolean;
-    blockedReason: "provider_managed_seat_sync_required" | null;
-  };
-  subscription: OperatorUserSubscriptionDto | null;
-  creditPeriod: OperatorUserCreditPeriodDto | null;
-};
+export const OperatorUserSummaryDtoSchema = z.object({
+  totalUsers: z.number(),
+  totalCompanies: z.number(),
+  platformOperators: z.number(),
+  verifiedAuthUsers: z.number(),
+  byStatus: z.object({
+    active: z.number(),
+    inactive: z.number(),
+    pendingAuthorization: z.number(),
+  }),
+  byPlan: z.object({
+    starter: z.number(),
+    pro: z.number(),
+    business: z.number(),
+    enterprise: z.number(),
+    missing: z.number(),
+  }),
+  bySubscriptionStatus: z.object({
+    trial: z.number(),
+    active: z.number(),
+    cancelled: z.number(),
+    expired: z.number(),
+    pastDue: z.number(),
+    unPaid: z.number(),
+    missing: z.number(),
+  }),
+});
 
-export type ResetOperatorUserCreditsResultDto = {
-  adjustment: AgentCreditAdjustmentDto;
-  user: OperatorUserDetailDto;
-};
+export type OperatorUserSummaryDto = z.infer<typeof OperatorUserSummaryDtoSchema>;
 
-export type AgentCreditAdjustmentDto = {
-  id: string;
-  companyId: string;
-  userId: string;
-  creditDelta: number;
-  periodStart: string;
-  periodEnd: string;
-  reason: string | null;
-  operationId: string;
-  createdByOperatorUserId: string;
-  createdAt: string;
-};
+export const OperatorUserSubscriptionDtoSchema = z.object({
+  plan: z.enum(SubscriptionPlan),
+  status: z.enum(SubscriptionStatus),
+  quantity: z.number().nullable(),
+  billingProviderManaged: z.boolean(),
+  updatedAt: z.date(),
+  enterpriseCreditsPerUser: z.number().nullable(),
+  agentCreditAnchorAt: z.date().nullable(),
+  trialEndDate: z.date().nullable(),
+  currentPeriodEnd: z.date().nullable(),
+});
 
-export type OperatorAuditEventDto = {
-  id: string;
-  actorUserId: string;
-  action: string;
-  targetCompanyId: string | null;
-  targetUserId: string | null;
-  operationId: string;
-  reason: string | null;
-  metadata: unknown;
-  createdAt: string;
-};
+export type OperatorUserSubscriptionDto = z.infer<typeof OperatorUserSubscriptionDtoSchema>;
 
-export type OperatorAuditPageDto = {
-  events: OperatorAuditEventDto[];
-  nextCursor: string | null;
-};
+export const OperatorUserDetailDtoSchema = z.object({
+  userId: z.uuid(),
+  companyId: z.uuid(),
+  email: z.string(),
+  displayName: z.string(),
+  status: z.enum(Status),
+  isPlatformOperator: z.boolean(),
+  authEmailVerified: z.boolean(),
+  createdAt: z.date(),
+  lastActiveAt: z.date().nullable(),
+  role: z.object({ name: z.string(), isSystemRole: z.boolean() }).nullable(),
+  updatedAt: z.date(),
+  agentCreditActivatedAt: z.date().nullable(),
+  isCurrentOperator: z.boolean(),
+  statusMutation: z.object({
+    allowed: z.boolean(),
+    blockedReason: z.literal("provider_managed_seat_sync_required").nullable(),
+  }),
+  subscription: OperatorUserSubscriptionDtoSchema.nullable(),
+  creditPeriod: OperatorUserCreditPeriodDtoSchema.nullable(),
+});
+
+export type OperatorUserDetailDto = z.infer<typeof OperatorUserDetailDtoSchema>;
+
+export const AgentCreditAdjustmentDtoSchema = z.object({
+  id: z.uuid(),
+  companyId: z.uuid(),
+  userId: z.uuid(),
+  creditDelta: z.number(),
+  periodStart: z.date(),
+  periodEnd: z.date(),
+  reason: z.string().nullable(),
+  operationId: z.uuid(),
+  createdByOperatorUserId: z.uuid(),
+  createdAt: z.date(),
+});
+
+export type AgentCreditAdjustmentDto = z.infer<typeof AgentCreditAdjustmentDtoSchema>;
+
+export const ResetOperatorUserCreditsResultDtoSchema = z.object({
+  adjustment: AgentCreditAdjustmentDtoSchema,
+  user: OperatorUserDetailDtoSchema,
+});
+
+export type ResetOperatorUserCreditsResultDto = z.infer<typeof ResetOperatorUserCreditsResultDtoSchema>;
 
 export const OPERATOR_AUDIT_ACTION = {
   overviewRead: "hosted_ai.overview.read",

@@ -21,7 +21,7 @@ const operatorEnv = vi.hoisted(() => ({
 
 vi.mock("@/env", () => ({ env: operatorEnv }));
 
-import { OperatorConfigurationError, OperatorConflictError } from "../operator.errors";
+import { OperatorConflictError } from "../operator.errors";
 import { PrismaOperatorAccessRepo } from "../operator-access.service";
 import { PrismaOperatorBootstrapService } from "../operator-bootstrap.service";
 import { OPERATOR_AUDIT_ACTION } from "../operator.schema";
@@ -198,32 +198,6 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
     });
   });
 
-  it("returns only an exact-email candidate projection across two companies without recording a read", async () => {
-    const target = await seedEnterpriseUser(`target-${randomUUID()}@example.invalid`);
-    const hidden = await seedEnterpriseUser(`hidden-${randomUUID()}@example.invalid`);
-    const actor = operatorActor();
-    const repo = new PrismaOperatorRepo();
-
-    const candidate = await runWithOperator(actor, () =>
-      repo.findCandidateAuditedUnscoped(target.email.toUpperCase(), now),
-    );
-
-    expect(candidate).toMatchObject({
-      userId: target.userId,
-      companyId: target.companyId,
-      email: target.email,
-      authEmailVerified: true,
-      company: { companyId: target.companyId, seats: { total: 1, active: 1 } },
-    });
-    expect(JSON.stringify(candidate)).not.toContain(hidden.email);
-    expect(JSON.stringify(candidate)).not.toContain(hidden.userId);
-
-    const audits = await runWithoutTenant(() =>
-      prisma.operatorAuditEvent.findMany({ where: { actorUserId: actor.userId } }),
-    );
-    expect(audits).toHaveLength(0);
-  });
-
   it("rejects a negative adjustment below committed usage and replays a valid operation once", async () => {
     const target = await seedEnterpriseUser(`adjust-${randomUUID()}@example.invalid`, 10);
     const actor = operatorActor();
@@ -270,8 +244,8 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
       }),
     );
 
-    const candidate = await runWithOperator(actor, () => repo.findCandidateAuditedUnscoped(target.email, now));
-    expect(candidate?.creditPeriod).toMatchObject({
+    const detail = await runWithOperator(actor, () => repo.getUserDetailAuditedOrThrowUnscoped(target.userId, now));
+    expect(detail.creditPeriod).toMatchObject({
       chargedCredits: 7,
       reservedCredits: 2,
       remainingCredits: 1,
@@ -329,10 +303,6 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
     const target = await seedEnterpriseUser(`rollback-${randomUUID()}@example.invalid`, 10);
     const invalidActor = operatorActor("x".repeat(201));
     const repo = new PrismaOperatorRepo();
-
-    await expect(
-      runWithOperator(invalidActor, () => repo.getCompanyAuditedOrThrowUnscoped(target.companyId, now)),
-    ).resolves.toBeDefined();
 
     await expect(
       runWithOperator(invalidActor, () =>
@@ -417,96 +387,6 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
 
     expect(observed).toEqual({ resultUserId: userId, auditCount: 1, secondGrantRejected: true });
     await expect(runWithoutTenant(() => prisma.user.findUnique({ where: { id: userId } }))).resolves.toBeNull();
-  });
-
-  it("blocks global-control mutations server-side when the enforcement switch is off", async () => {
-    const actor = operatorActor();
-    const operationId = randomUUID();
-
-    try {
-      await runWithOperator(actor, () =>
-        runWithoutTenant(() =>
-          runInTransaction(async () => {
-            const tx = getTransactionClient<AppPrismaClient>();
-            if (!tx) throw new Error("Expected disabled-control test transaction.");
-            await tx.$queryRaw`SELECT "id" FROM "HostedAiGlobalControl" WHERE "id" = 'global' FOR UPDATE`;
-            const before = await tx.hostedAiGlobalControl.findUniqueOrThrow({ where: { id: "global" } });
-            const repo = new PrismaOperatorRepo();
-            operatorEnv.HOSTED_AI_OPERATOR_CONTROLS_ENABLED = false;
-            try {
-              await expect(
-                repo.updateGlobalControlUnscoped({
-                  expectedVersion: before.version,
-                  hostedProviderWorkPaused: !before.hostedProviderWorkPaused,
-                  monthlySpendCapMicrocents: "125000000",
-                  reason: "Exercise disabled global control",
-                  operationId,
-                }),
-              ).rejects.toBeInstanceOf(OperatorConfigurationError);
-            } finally {
-              operatorEnv.HOSTED_AI_OPERATOR_CONTROLS_ENABLED = true;
-            }
-
-            await expect(tx.hostedAiGlobalControl.findUniqueOrThrow({ where: { id: "global" } })).resolves.toEqual(
-              before,
-            );
-            await expect(tx.operatorAuditEvent.findUnique({ where: { operationId } })).resolves.toBeNull();
-
-            throw new RollbackBootstrapTest();
-          }),
-        ),
-      );
-    } catch (error) {
-      if (!(error instanceof RollbackBootstrapTest)) throw error;
-    }
-  });
-
-  it("locks and version-checks the singleton global control while keeping replay idempotent", async () => {
-    const actor = operatorActor();
-    const operationId = randomUUID();
-    let observed: { versionAdvanced: boolean; replayEqual: boolean; staleRejected: boolean } | null = null;
-
-    try {
-      await runWithOperator(actor, () =>
-        runWithoutTenant(() =>
-          runInTransaction(async () => {
-            const tx = getTransactionClient<AppPrismaClient>();
-            if (!tx) throw new Error("Expected global-control test transaction.");
-            const before = await tx.hostedAiGlobalControl.findUniqueOrThrow({ where: { id: "global" } });
-            const request = {
-              expectedVersion: before.version,
-              hostedProviderWorkPaused: !before.hostedProviderWorkPaused,
-              monthlySpendCapMicrocents: "250000000",
-              reason: "Exercise optimistic global control",
-              operationId,
-            };
-            const repo = new PrismaOperatorRepo();
-            const first = await repo.updateGlobalControlUnscoped(request);
-            const replay = await repo.updateGlobalControlUnscoped(request);
-            let staleRejected = false;
-            try {
-              await repo.updateGlobalControlUnscoped({ ...request, operationId: randomUUID() });
-            } catch (error) {
-              staleRejected = error instanceof OperatorConflictError;
-            }
-            observed = {
-              versionAdvanced: first.version === before.version + 1,
-              replayEqual: JSON.stringify(replay) === JSON.stringify(first),
-              staleRejected,
-            };
-
-            throw new RollbackBootstrapTest();
-          }),
-        ),
-      );
-    } catch (error) {
-      if (!(error instanceof RollbackBootstrapTest)) throw error;
-    }
-
-    expect(observed).toEqual({ versionAdvanced: true, replayEqual: true, staleRejected: true });
-    await expect(
-      runWithoutTenant(() => prisma.operatorAuditEvent.findUnique({ where: { operationId } })),
-    ).resolves.toBeNull();
   });
 
   it("grants and revokes platform access, counting active operators in every workspace", async () => {

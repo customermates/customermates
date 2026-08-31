@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { notFound } from "next/navigation";
 
-import { getOperatorConsoleVisibilityInteractor } from "@/core/di";
+import { getGetOperatorConsoleVisibilityInteractor } from "@/core/di";
 
 export const metadata: Metadata = {
   robots: {
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function OperatorLayout({ children }: { children: React.ReactNode }) {
-  if (!(await getOperatorConsoleVisibilityInteractor().invoke())) notFound();
+  if (!(await getGetOperatorConsoleVisibilityInteractor().invoke())) notFound();
 
   return children;
 }

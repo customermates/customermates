@@ -57,7 +57,7 @@ export const DeleteConfirmationModal = observer(() => {
             <AlertDialogAction
               disabled={isLoading}
               id="confirm-delete"
-              variant={form.confirmVariant ?? "destructive"}
+              variant={form.confirmVariant || "destructive"}
               onClick={(event) => {
                 event.preventDefault();
                 runUserAction(() => store.onSubmit());

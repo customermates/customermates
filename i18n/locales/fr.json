@@ -991,6 +991,8 @@
       "notAuthenticated": "Connectez-vous pour utiliser cette action.",
       "notesExceedsMaxLength": "Le contenu des notes dépasse la longueur maximale.",
       "notesInvalidFormat": "Format de notes invalide. Il doit s'agir de JSON Tiptap valide ou de texte markdown.",
+      "operatorConflict": "La modification a été refusée. L’enregistrement a peut-être changé depuis le chargement de la liste, ou l’espace de travail ne l’autorise pas actuellement. Rechargez et vérifiez l’état actuel.",
+      "operatorUnavailable": "La correction demandée n’est pas disponible pour la configuration actuelle du compte.",
       "organizationNotFound": "ID d'organisation introuvable ou inaccessible.",
       "passwordInvalid": "Le mot de passe doit comporter au moins 8 caractères et contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial.",
       "passwordMismatch": "Les mots de passe doivent correspondre.",
@@ -2263,6 +2265,7 @@
     "features": "Fonctionnalités",
     "inbox": "Boîte de réception",
     "members": "Membres",
+    "operator": "Console opérateur",
     "overview": "Aperçu",
     "pricing": "Tarifs",
     "public": {
@@ -2461,12 +2464,10 @@
     }
   },
   "OperatorAudit": {
-    "description": "Toutes les modifications enregistrées sur tous les espaces, issues du produit et des actions opérateur.",
     "emptyBody": "Ajustez la recherche ou les filtres pour élargir le journal.",
     "emptyTitle": "Aucun événement ne correspond à ces filtres",
     "navigation": "Journal d’audit",
     "searchPlaceholder": "Rechercher par action",
-    "title": "Journal d’audit",
     "values": {
       "action": {
         "auditRead": "Audit opérateur consulté",
@@ -2492,44 +2493,10 @@
     }
   },
   "OperatorConsole": {
-    "actions": {
-      "retry": "Réessayer"
-    },
     "confirm": {
       "plan": "Définir le forfait de {name} sur {value} ? Cela s’applique à tout l’espace de travail.",
       "subscription": "Définir le statut d’abonnement de {name} sur {value} ? Cela s’applique à tout l’espace de travail et ne contacte aucun prestataire de facturation.",
       "title": "Confirmer la modification opérateur"
-    },
-    "errors": {
-      "accessDenied": "Votre accès opérateur a changé. Actualisez la page et authentifiez-vous de nouveau.",
-      "conflict": "La modification a été refusée. L’enregistrement a peut-être changé depuis le chargement de la liste, ou l’espace de travail ne l’autorise pas actuellement. Rechargez et vérifiez l’état actuel.",
-      "invalidInput": "Vérifiez tous les champs. Les motifs doivent comporter au moins 8 caractères et les valeurs numériques respecter leurs limites.",
-      "notFound": "L’utilisateur, l’espace de travail, l’abonnement ou la période de crédits sélectionné n’existe plus.",
-      "unavailable": "La correction demandée n’est pas disponible pour la configuration actuelle du compte.",
-      "unexpected": "Une erreur inattendue s’est produite. Aucun changement réussi n’est supposé ; réessayez avec le même ID d’opération."
-    },
-    "shell": {
-      "console": "Console opérateur"
-    },
-    "states": {
-      "errorDescription": "Les données opérateur n’ont pas pu être chargées. Réessayez ; aucune modification n’a été effectuée.",
-      "errorTitle": "Console opérateur indisponible"
-    },
-    "values": {
-      "plans": {
-        "business": "Business",
-        "enterprise": "Enterprise",
-        "pro": "Pro",
-        "starter": "Essentiel"
-      },
-      "subscription": {
-        "active": "Actif",
-        "cancelled": "Résilié",
-        "expired": "Expiré",
-        "pastDue": "En retard",
-        "trial": "Essai",
-        "unPaid": "Impayé"
-      }
     }
   },
   "OperatorOverview": {
@@ -2537,7 +2504,6 @@
       "description": "Sur {total} utilisateurs au total",
       "label": "Actifs sur 7 jours"
     },
-    "description": "Santé de la flotte sur tous les espaces : exposition aux coûts, risque de revenus et croissance.",
     "growth": {
       "description": "Avec {workspaces} nouveaux espaces",
       "label": "Nouveaux utilisateurs sur 30 jours"
@@ -2560,7 +2526,6 @@
       "noCap": "Aucun plafond mensuel configuré ; le nouveau travail est bloqué",
       "ofCap": "{percent}% du plafond mensuel de {cap}"
     },
-    "title": "Vue d’ensemble opérateur",
     "users": {
       "description": "{active} actifs, {pending} en attente d’autorisation",
       "label": "Utilisateurs"
@@ -2588,7 +2553,6 @@
       "title": "Solde de crédits actuel",
       "unavailableDescription": "L’espace de travail doit disposer d’un droit valide et d’un point d’ancrage de crédits avant toute correction ou réinitialisation."
     },
-    "description": "Examinez les utilisateurs de tous les espaces, filtrez l’annuaire et apportez des corrections auditées aux comptes, abonnements et crédits.",
     "emptyBody": "Ajustez la recherche ou les filtres pour élargir l’annuaire.",
     "emptyTitle": "Aucun utilisateur ne correspond à ces filtres",
     "navigation": "Utilisateurs",
@@ -2601,14 +2565,7 @@
       "zeroBalance": "Ramener le solde restant à zéro"
     },
     "searchPlaceholder": "Rechercher par nom ou e-mail du compte",
-    "title": "Opérations utilisateurs",
     "values": {
-      "accountStatus": {
-        "active": "Actif",
-        "inactive": "Inactif",
-        "pendingAuthorization": "En attente d’autorisation"
-      },
-      "never": "Jamais",
       "noSubscription": "Aucun abonnement",
       "operator": "Opérateur de la plateforme"
     }
@@ -2619,12 +2576,10 @@
       "title": "Allocation Enterprise",
       "warningDescription": "L’allocation est accordée par utilisateur sur tout l’espace et prend effet sur la période en cours."
     },
-    "description": "Tous les espaces de la plateforme, avec leur forfait, leurs membres et leur allocation.",
     "emptyBody": "Ajustez la recherche ou les filtres pour élargir la liste.",
     "emptyTitle": "Aucun espace ne correspond à ces filtres",
     "navigation": "Espaces de travail",
     "searchPlaceholder": "Rechercher par e-mail d’un membre",
-    "title": "Opérations des espaces",
     "values": {
       "members": "{active} sur {total}"
     }

@@ -10,7 +10,6 @@ type Sibling = { slug: string; label: string };
 export type AppTopbarCrumb = {
   label: string;
   href?: string;
-  prefetch?: boolean;
   siblings?: Sibling[];
   pictureUrl?: string | null;
   isEntity?: boolean;
@@ -29,7 +28,7 @@ const GROUP_MAP: Record<string, { group: "overview" | "crm" | "settings" | null;
   settings: { group: "settings", labelKey: "settings" },
   profile: { group: "settings", labelKey: "profile" },
   company: { group: "settings", labelKey: "company" },
-  operator: { group: null, labelKey: "OperatorConsole.shell.console" },
+  operator: { group: null, labelKey: "operator" },
 };
 
 function isWorkspaceSection(segment: string): segment is WorkspaceSection {
@@ -60,22 +59,13 @@ export function buildAppTopbarCrumbs(
   const sectionSubroutes = workspaceSection ? visibleSubroutes(workspaceSection, appMode, canAccess) : [];
 
   const crumbs: AppTopbarCrumb[] = [];
-  const leafKey =
-    first === "operator"
-      ? entry.labelKey
-      : entry.group === "settings"
-        ? `UserAvatar.${entry.labelKey}`
-        : `NavigationBar.${entry.labelKey}`;
+  const leafKey = entry.group === "settings" ? `UserAvatar.${entry.labelKey}` : `NavigationBar.${entry.labelKey}`;
   const sectionHref = workspaceSection
     ? `/${first}/${sectionSubroutes[0]?.slug ?? "settings"}`
     : first === "operator"
       ? "/operator/overview"
       : `/${first}`;
-  crumbs.push({
-    label: entityLabels[first] ?? t(leafKey),
-    href: sectionHref,
-    ...(first === "operator" ? { prefetch: false } : {}),
-  });
+  crumbs.push({ label: entityLabels[first] ?? t(leafKey), href: sectionHref });
 
   if (parts.length > 1) {
     const leaf = parts[1];

@@ -18,11 +18,9 @@ const operatorEnv = vi.hoisted(() => ({
 
 vi.mock("@/env", () => ({ env: operatorEnv }));
 
-import {
-  PrismaOperatorAuditRepo,
-  PrismaOperatorUsersRepo,
-  PrismaOperatorWorkspacesRepo,
-} from "../prisma-operator-lists.repository";
+import { PrismaOperatorAuditRepo } from "../prisma-operator-audit.repository";
+import { PrismaOperatorUsersRepo } from "../prisma-operator-users.repository";
+import { PrismaOperatorWorkspacesRepo } from "../prisma-operator-workspaces.repository";
 
 const { prisma } = await import("@/prisma/db");
 

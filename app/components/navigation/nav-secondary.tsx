@@ -17,9 +17,6 @@ export type NavSecondaryItem = {
   title: string;
   icon: React.FC<SVGProps<SVGSVGElement>>;
   href?: string;
-  isActive?: boolean;
-  ariaCurrent?: "page";
-  prefetch?: boolean;
   onSelect?: (invoker: HTMLElement) => void;
 };
 
@@ -35,13 +32,11 @@ export function NavSecondary({ items, ...props }: Props) {
           {items.map((item) => (
             <SidebarMenuItem key={item.key}>
               {item.href ? (
-                <SidebarMenuButton asChild isActive={item.isActive} size="sm" tooltip={item.title}>
+                <SidebarMenuButton asChild size="sm" tooltip={item.title}>
                   <AppLink
-                    aria-current={item.ariaCurrent}
                     className="text-foreground no-underline hover:no-underline"
                     href={item.href}
                     id={`nav-${item.key}`}
-                    prefetch={item.prefetch}
                   >
                     <NavLinkPendingIcon icon={item.icon} />
 

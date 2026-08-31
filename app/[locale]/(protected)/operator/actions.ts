@@ -3,25 +3,20 @@
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 
 import {
-  getOperatorAuditListInteractor,
-  getOperatorRiskSummaryInteractor,
-  getOperatorUsersListInteractor,
-  getOperatorWorkspacesListInteractor,
+  getGetOperatorAuditLogsInteractor,
+  getGetOperatorUsersInteractor,
+  getGetOperatorWorkspacesInteractor,
 } from "@/core/di";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function getOperatorUsersAction(params?: GetQueryParams) {
-  return unwrapValidated(getOperatorUsersListInteractor().invoke(params));
+  return unwrapValidated(getGetOperatorUsersInteractor().invoke(params));
 }
 
 export async function getOperatorWorkspacesAction(params?: GetQueryParams) {
-  return unwrapValidated(getOperatorWorkspacesListInteractor().invoke(params));
+  return unwrapValidated(getGetOperatorWorkspacesInteractor().invoke(params));
 }
 
 export async function getOperatorAuditAction(params?: GetQueryParams) {
-  return unwrapValidated(getOperatorAuditListInteractor().invoke(params));
-}
-
-export async function getOperatorRiskSummaryAction() {
-  return getOperatorRiskSummaryInteractor().invoke();
+  return unwrapValidated(getGetOperatorAuditLogsInteractor().invoke(params));
 }

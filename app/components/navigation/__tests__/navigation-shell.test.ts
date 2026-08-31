@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { STYLEGUIDE_CHAPTERS } from "@/app/[locale]/(static)/styleguide/components/styleguide-chapters";
 import { ACCOUNT_STATES } from "@/features/auth/account-state";
 
-import { isOperatorPathname, resolveNavigationShell } from "../navigation-shell";
+import { resolveNavigationShell } from "../navigation-shell";
 
 describe("resolveNavigationShell", () => {
   it("uses the normal app shell for an allowed registered operator", () => {
@@ -195,20 +195,4 @@ describe("resolveNavigationShell", () => {
       }),
     ).toBe("app");
   });
-});
-
-describe("isOperatorPathname", () => {
-  it.each(["/operator", "/operator/users", "/operator/hosted-ai", "/operator/users/user-id"])(
-    "recognizes %s as an operator route",
-    (pathname) => {
-      expect(isOperatorPathname(pathname)).toBe(true);
-    },
-  );
-
-  it.each([null, "/", "/dashboard", "/operators", "/operator-tools"])(
-    "does not treat %s as an operator route",
-    (pathname) => {
-      expect(isOperatorPathname(pathname)).toBe(false);
-    },
-  );
 });

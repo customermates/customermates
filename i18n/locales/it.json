@@ -991,6 +991,8 @@
       "notAuthenticated": "Accedi per usare questa azione.",
       "notesExceedsMaxLength": "Il contenuto delle note supera la lunghezza massima.",
       "notesInvalidFormat": "Formato delle note non valido. Deve essere JSON Tiptap valido o testo markdown.",
+      "operatorConflict": "La modifica è stata rifiutata. Il record potrebbe essere cambiato dal caricamento dell’elenco, oppure lo spazio di lavoro al momento non la consente. Ricarica e verifica lo stato attuale.",
+      "operatorUnavailable": "La correzione richiesta non è disponibile per la configurazione corrente dell’account.",
       "organizationNotFound": "ID organizzazione non trovato o non accessibile.",
       "passwordInvalid": "La password deve contenere almeno 8 caratteri e includere almeno una lettera maiuscola, una minuscola, un numero e un carattere speciale.",
       "passwordMismatch": "Le password devono coincidere.",
@@ -2263,6 +2265,7 @@
     "features": "Funzionalità",
     "inbox": "Posta in arrivo",
     "members": "Membri",
+    "operator": "Console operatore",
     "overview": "Panoramica",
     "pricing": "Prezzi",
     "public": {
@@ -2461,12 +2464,10 @@
     }
   },
   "OperatorAudit": {
-    "description": "Tutte le modifiche registrate in ogni area, da attività di prodotto e azioni dell’operatore.",
     "emptyBody": "Modifica la ricerca o i filtri per ampliare il registro.",
     "emptyTitle": "Nessun evento corrisponde a questi filtri",
     "navigation": "Registro di audit",
     "searchPlaceholder": "Cerca per azione",
-    "title": "Registro di audit",
     "values": {
       "action": {
         "auditRead": "Audit operatore letto",
@@ -2492,44 +2493,10 @@
     }
   },
   "OperatorConsole": {
-    "actions": {
-      "retry": "Riprova"
-    },
     "confirm": {
       "plan": "Impostare il piano di {name} su {value}? Si applica all’intero spazio di lavoro.",
       "subscription": "Impostare lo stato dell’abbonamento di {name} su {value}? Si applica all’intero spazio di lavoro e non contatta alcun fornitore di fatturazione.",
       "title": "Conferma la modifica operatore"
-    },
-    "errors": {
-      "accessDenied": "Il tuo accesso operatore è cambiato. Aggiorna la pagina ed esegui nuovamente l’autenticazione.",
-      "conflict": "La modifica è stata rifiutata. Il record potrebbe essere cambiato dal caricamento dell’elenco, oppure lo spazio di lavoro al momento non la consente. Ricarica e verifica lo stato attuale.",
-      "invalidInput": "Controlla tutti i campi. Le motivazioni devono avere almeno 8 caratteri e i valori numerici devono rispettare i limiti.",
-      "notFound": "L’utente, l’area di lavoro, l’abbonamento o il periodo crediti selezionato non esiste più.",
-      "unavailable": "La correzione richiesta non è disponibile per la configurazione corrente dell’account.",
-      "unexpected": "Si è verificato un errore imprevisto. Non viene considerata riuscita alcuna modifica; riprova con lo stesso ID operazione."
-    },
-    "shell": {
-      "console": "Console operatore"
-    },
-    "states": {
-      "errorDescription": "Non è stato possibile caricare i dati dell’operatore. Riprova; non è stata apportata alcuna modifica.",
-      "errorTitle": "Console operatore non disponibile"
-    },
-    "values": {
-      "plans": {
-        "business": "Business",
-        "enterprise": "Enterprise",
-        "pro": "Pro",
-        "starter": "Base"
-      },
-      "subscription": {
-        "active": "Attivo",
-        "cancelled": "Annullato",
-        "expired": "Scaduto",
-        "pastDue": "In ritardo",
-        "trial": "Prova",
-        "unPaid": "Non pagato"
-      }
     }
   },
   "OperatorOverview": {
@@ -2537,7 +2504,6 @@
       "description": "Su {total} utenti totali",
       "label": "Attivi in 7 giorni"
     },
-    "description": "Salute della flotta su tutte le aree: esposizione di spesa, rischio sui ricavi e crescita.",
     "growth": {
       "description": "Insieme a {workspaces} nuove aree",
       "label": "Nuovi utenti in 30 giorni"
@@ -2560,7 +2526,6 @@
       "noCap": "Nessun limite mensile configurato; il nuovo lavoro è bloccato",
       "ofCap": "{percent}% del limite mensile di {cap}"
     },
-    "title": "Panoramica operatore",
     "users": {
       "description": "{active} attivi, {pending} in attesa di autorizzazione",
       "label": "Utenti"
@@ -2588,7 +2553,6 @@
       "title": "Posizione crediti corrente",
       "unavailableDescription": "L’area di lavoro deve avere un’autorizzazione valida e un riferimento temporale per i crediti prima di poterli correggere o ripristinare."
     },
-    "description": "Esamina gli utenti di tutte le aree di lavoro, filtra l’elenco ed esegui correzioni tracciate su account, abbonamenti e crediti.",
     "emptyBody": "Modifica la ricerca o i filtri per ampliare l’elenco.",
     "emptyTitle": "Nessun utente corrisponde a questi filtri",
     "navigation": "Utenti",
@@ -2601,14 +2565,7 @@
       "zeroBalance": "Imposta a zero il saldo rimanente"
     },
     "searchPlaceholder": "Cerca per nome o e-mail dell’account",
-    "title": "Operazioni sugli utenti",
     "values": {
-      "accountStatus": {
-        "active": "Attivo",
-        "inactive": "Inattivo",
-        "pendingAuthorization": "In attesa di autorizzazione"
-      },
-      "never": "Mai",
       "noSubscription": "Nessun abbonamento",
       "operator": "Operatore della piattaforma"
     }
@@ -2619,12 +2576,10 @@
       "title": "Dotazione Enterprise",
       "warningDescription": "La dotazione è concessa per utente su tutta l’area e ha effetto sul periodo corrente."
     },
-    "description": "Tutte le aree della piattaforma, con piano, membri e dotazione.",
     "emptyBody": "Modifica la ricerca o i filtri per ampliare l’elenco.",
     "emptyTitle": "Nessuna area corrisponde a questi filtri",
     "navigation": "Aree di lavoro",
     "searchPlaceholder": "Cerca per e-mail di un membro",
-    "title": "Operazioni sulle aree",
     "values": {
       "members": "{active} su {total}"
     }

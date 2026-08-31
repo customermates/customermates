@@ -19,21 +19,15 @@ import {
   type CorrectOperatorSubscriptionSnapshotData,
   type CreateAgentCreditAdjustmentData,
   type HostedAiGlobalControlDto,
-  type HostedAiOperatorCandidateDto,
   type HostedAiOperatorCompanyDto,
   type HostedAiOperatorOverviewDto,
   type HostedAiUsageTotalsDto,
-  type OperatorAuditPageDto,
   type OperatorUserCreditPeriodDto,
   type OperatorUserDetailDto,
-  type OperatorUserListItemDto,
-  type OperatorUserPageDto,
   type OperatorUserSummaryDto,
-  type ParsedListOperatorUsersData,
   type ResetOperatorUserCreditsData,
   type ResetOperatorUserCreditsResultDto,
   type UpdateHostedAiEnterpriseAllowanceData,
-  type UpdateHostedAiGlobalControlData,
   type UpdateOperatorUserPlatformAccessData,
   type UpdateOperatorUserStatusData,
 } from "./operator.schema";
@@ -84,10 +78,6 @@ function utcMonth(now: Date): { start: Date; end: Date } {
   return { start, end };
 }
 
-function toIso(value: Date | null): string | null {
-  return value?.toISOString() ?? null;
-}
-
 function asSafeCreditCount(value: number | null | undefined, description: string): number {
   const count = value ?? 0;
   if (!Number.isSafeInteger(count) || count < 0) throw new OperatorConfigurationError(`${description} is invalid.`);
@@ -111,31 +101,6 @@ function asSafeBigIntCount(value: bigint | null | undefined, description: string
   if (count < 0n || count > BigInt(Number.MAX_SAFE_INTEGER))
     throw new OperatorConfigurationError(`${description} is invalid.`);
   return Number(count);
-}
-
-function operatorUserOrderBy(sort: ParsedListOperatorUsersData["sort"]): Prisma.UserOrderByWithRelationInput[] {
-  if (sort === "oldest") return [{ createdAt: "asc" }, { id: "asc" }];
-  if (sort === "emailAsc") return [{ email: "asc" }, { id: "asc" }];
-  if (sort === "emailDesc") return [{ email: "desc" }, { id: "desc" }];
-  return [{ createdAt: "desc" }, { id: "desc" }];
-}
-
-function operatorUserSearchWhere(query: string): Prisma.UserWhereInput {
-  const nameTokens = query.split(/\s+/u);
-
-  return {
-    OR: [
-      { email: { contains: query, mode: "insensitive" } },
-      {
-        AND: nameTokens.map((token) => ({
-          OR: [
-            { firstName: { contains: token, mode: "insensitive" } },
-            { lastName: { contains: token, mode: "insensitive" } },
-          ],
-        })),
-      },
-    ],
-  };
 }
 
 function emptyUserSummary(): OperatorUserSummaryDto {
@@ -197,8 +162,8 @@ function mapGlobalControl(control: {
     reason: control.reason,
     version: control.version,
     updatedByOperatorUserId: control.updatedByOperatorUserId,
-    createdAt: control.createdAt.toISOString(),
-    updatedAt: control.updatedAt.toISOString(),
+    createdAt: control.createdAt,
+    updatedAt: control.updatedAt,
   };
 }
 
@@ -216,9 +181,9 @@ function mapAdjustment(adjustment: {
 }): AgentCreditAdjustmentDto {
   return {
     ...adjustment,
-    periodStart: adjustment.periodStart.toISOString(),
-    periodEnd: adjustment.periodEnd.toISOString(),
-    createdAt: adjustment.createdAt.toISOString(),
+    periodStart: adjustment.periodStart,
+    periodEnd: adjustment.periodEnd,
+    createdAt: adjustment.createdAt,
   };
 }
 
@@ -309,9 +274,9 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         plan: company.subscription.plan,
         status: company.subscription.status,
         enterpriseCreditsPerUser: company.subscription.enterpriseAgentCreditsPerUser,
-        agentCreditAnchorAt: toIso(company.subscription.agentCreditAnchorAt),
-        trialEndDate: toIso(company.subscription.trialEndDate),
-        currentPeriodEnd: toIso(company.subscription.currentPeriodEnd),
+        agentCreditAnchorAt: company.subscription.agentCreditAnchorAt,
+        trialEndDate: company.subscription.trialEndDate,
+        currentPeriodEnd: company.subscription.currentPeriodEnd,
       },
       seats: { total: company._count.users, active: activeUsers },
       currentUtcMonth: usage,
@@ -344,7 +309,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
     );
   }
 
-  private mapUserListItem(user: OperatorUserRecord, authEmailVerified: boolean): OperatorUserListItemDto {
+  private mapUserBase(user: OperatorUserRecord, authEmailVerified: boolean) {
     const subscription = user.company.subscription;
     return {
       userId: user.id,
@@ -354,8 +319,8 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
       status: user.status,
       isPlatformOperator: user.isPlatformOperator,
       authEmailVerified,
-      createdAt: user.createdAt.toISOString(),
-      lastActiveAt: toIso(user.lastActiveAt),
+      createdAt: user.createdAt,
+      lastActiveAt: user.lastActiveAt,
       role: user.role,
       subscription: subscription
         ? {
@@ -427,8 +392,8 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
     const committedCredits = addSafeCreditCounts(chargedCredits, reservedCredits, "Committed hosted-AI credits");
 
     return {
-      periodStart: entitlement.start.toISOString(),
-      periodEnd: entitlement.resetAt.toISOString(),
+      periodStart: entitlement.start,
+      periodEnd: entitlement.resetAt,
       baseAllowanceCredits: entitlement.limit,
       adjustmentCredits,
       effectiveAllowanceCredits,
@@ -455,9 +420,9 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
     const subscription = user.company.subscription;
     const statusRequiresProviderSeatSync = Boolean(subscription?.lemonSqueezyId);
     return {
-      ...this.mapUserListItem(user, verification.get(user.id) ?? false),
-      updatedAt: user.updatedAt.toISOString(),
-      agentCreditActivatedAt: toIso(user.agentCreditActivatedAt),
+      ...this.mapUserBase(user, verification.get(user.id) ?? false),
+      updatedAt: user.updatedAt,
+      agentCreditActivatedAt: user.agentCreditActivatedAt,
       isCurrentOperator: getOperatorActor().userId === user.id,
       statusMutation: {
         allowed: !statusRequiresProviderSeatSync,
@@ -469,11 +434,11 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             status: subscription.status,
             quantity: subscription.quantity,
             billingProviderManaged: subscription.lemonSqueezyId !== null,
-            updatedAt: subscription.updatedAt.toISOString(),
+            updatedAt: subscription.updatedAt,
             enterpriseCreditsPerUser: subscription.enterpriseAgentCreditsPerUser,
-            agentCreditAnchorAt: toIso(subscription.agentCreditAnchorAt),
-            trialEndDate: toIso(subscription.trialEndDate),
-            currentPeriodEnd: toIso(subscription.currentPeriodEnd),
+            agentCreditAnchorAt: subscription.agentCreditAnchorAt,
+            trialEndDate: subscription.trialEndDate,
+            currentPeriodEnd: subscription.currentPeriodEnd,
           }
         : null,
       creditPeriod,
@@ -519,10 +484,10 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         ]);
 
       const result: HostedAiOperatorOverviewDto = {
-        generatedAt: now.toISOString(),
+        generatedAt: now,
         currentUtcMonth: {
-          periodStart: month.start.toISOString(),
-          periodEnd: month.end.toISOString(),
+          periodStart: month.start,
+          periodEnd: month.end,
           companiesWithUsage: companiesWithUsage.length,
           ...usage,
         },
@@ -530,197 +495,6 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         globalControl: mapGlobalControl(control),
       };
       return result;
-    });
-  }
-
-  @BypassTenantGuard
-  async findCandidateAuditedUnscoped(
-    normalizedEmail: string,
-    now = new Date(),
-  ): Promise<HostedAiOperatorCandidateDto | null> {
-    return runInTransaction(async () => {
-      const users = await this.prisma.user.findMany({
-        where: { email: { equals: normalizedEmail, mode: "insensitive" } },
-        take: 2,
-        select: {
-          id: true,
-          companyId: true,
-          email: true,
-          firstName: true,
-          lastName: true,
-          status: true,
-          createdAt: true,
-          agentCreditActivatedAt: true,
-          company: {
-            select: {
-              subscription: {
-                select: {
-                  plan: true,
-                  status: true,
-                  trialEndDate: true,
-                  agentCreditAnchorAt: true,
-                  enterpriseAgentCreditsPerUser: true,
-                  createdAt: true,
-                },
-              },
-            },
-          },
-        },
-      });
-      if (users.length > 1) throw new OperatorConflictError("The normalized email matches multiple users.");
-
-      const user = users[0];
-      if (!user) return null;
-
-      const [authUsers, company] = await Promise.all([
-        this.prisma.authUser.findMany({
-          where: { email: { equals: normalizedEmail, mode: "insensitive" } },
-          take: 2,
-          select: { emailVerified: true, companyId: true },
-        }),
-        this.companySnapshot(user.companyId, now),
-      ]);
-      if (authUsers.length > 1) throw new OperatorConflictError("The normalized email matches multiple auth users.");
-      if (!company) throw new OperatorConfigurationError("The candidate company has no subscription.");
-
-      let creditPeriod: HostedAiOperatorCandidateDto["creditPeriod"] = null;
-      const subscription = user.company.subscription;
-      if (subscription) {
-        const entitlement = resolveAgentCreditEntitlement({
-          appMode: env.APP_MODE,
-          plan: subscription.plan,
-          status: subscription.status,
-          trialEndDate: subscription.trialEndDate,
-          creditAnchorAt: subscription.agentCreditAnchorAt ?? subscription.createdAt,
-          enterpriseCreditsPerUser: subscription.enterpriseAgentCreditsPerUser,
-          activeSeatAt: user.agentCreditActivatedAt,
-          now,
-        });
-        const [adjustments, settled, reserved] = await Promise.all([
-          this.prisma.agentCreditAdjustment.aggregate({
-            where: {
-              companyId: user.companyId,
-              userId: user.id,
-              periodStart: entitlement.start,
-              periodEnd: entitlement.resetAt,
-            },
-            _sum: { creditDelta: true },
-          }),
-          this.prisma.agentUsageEvent.aggregate({
-            where: {
-              companyId: user.companyId,
-              userId: user.id,
-              periodStart: entitlement.start,
-              periodEnd: entitlement.resetAt,
-              state: "settled",
-            },
-            _sum: { chargedCredits: true },
-          }),
-          this.prisma.agentUsageEvent.aggregate({
-            where: {
-              companyId: user.companyId,
-              userId: user.id,
-              periodStart: entitlement.start,
-              periodEnd: entitlement.resetAt,
-              state: { in: ["reserved", "retained"] },
-            },
-            _sum: { reservedCredits: true },
-          }),
-        ]);
-        const adjustmentCredits = asSafeSignedCreditCount(
-          adjustments._sum.creditDelta,
-          "Hosted-AI credit adjustment total",
-        );
-        const rawEffectiveAllowance = entitlement.limit + adjustmentCredits;
-        if (!Number.isSafeInteger(rawEffectiveAllowance))
-          throw new OperatorConfigurationError("Effective hosted-AI allowance is invalid.");
-
-        const effectiveAllowanceCredits = Math.max(0, rawEffectiveAllowance);
-
-        const chargedCredits = asSafeCreditCount(settled._sum.chargedCredits, "Charged hosted-AI credits");
-        const reservedCredits = asSafeCreditCount(reserved._sum.reservedCredits, "Reserved hosted-AI credits");
-        const committedCredits = addSafeCreditCounts(chargedCredits, reservedCredits, "Committed hosted-AI credits");
-
-        creditPeriod = {
-          periodStart: entitlement.start.toISOString(),
-          periodEnd: entitlement.resetAt.toISOString(),
-          baseAllowanceCredits: entitlement.limit,
-          adjustmentCredits,
-          effectiveAllowanceCredits,
-          chargedCredits,
-          reservedCredits,
-          committedCredits,
-          remainingCredits: Math.max(0, effectiveAllowanceCredits - committedCredits),
-          overageCredits: Math.max(0, committedCredits - effectiveAllowanceCredits),
-          blockedReason: user.status === Status.active ? entitlement.blockedReason : "subscription_unavailable",
-        };
-      }
-
-      const candidate: HostedAiOperatorCandidateDto = {
-        userId: user.id,
-        companyId: user.companyId,
-        email: user.email,
-        displayName: `${user.firstName} ${user.lastName}`.trim(),
-        status: user.status,
-        authEmailVerified:
-          authUsers.length === 1 && authUsers[0].emailVerified && authUsers[0].companyId === user.companyId,
-        company,
-        creditPeriod,
-      };
-      return candidate;
-    });
-  }
-
-  @BypassTenantGuard
-  async getCompanyAuditedOrThrowUnscoped(companyId: string, now = new Date()): Promise<HostedAiOperatorCompanyDto> {
-    return runInTransaction(async () => {
-      const company = await this.companySnapshot(companyId, now);
-      if (!company) throw new OperatorNotFoundError("Company or subscription not found.");
-
-      return company;
-    });
-  }
-
-  @BypassTenantGuard
-  async listUsersAuditedUnscoped(data: ParsedListOperatorUsersData): Promise<OperatorUserPageDto> {
-    return runInTransaction(async () => {
-      const subscriptionFilter =
-        data.subscriptionPlan || data.subscriptionStatus
-          ? {
-              company: {
-                subscription: {
-                  ...(data.subscriptionPlan ? { plan: data.subscriptionPlan } : {}),
-                  ...(data.subscriptionStatus ? { status: data.subscriptionStatus } : {}),
-                },
-              },
-            }
-          : {};
-      const where: Prisma.UserWhereInput = {
-        ...(data.query ? operatorUserSearchWhere(data.query) : {}),
-        ...(data.status ? { status: data.status } : {}),
-        ...(data.isPlatformOperator === undefined ? {} : { isPlatformOperator: data.isPlatformOperator }),
-        ...subscriptionFilter,
-      };
-      const [rows, total] = await Promise.all([
-        this.prisma.user.findMany({
-          where,
-          ...(data.cursor ? { cursor: { id: data.cursor }, skip: 1 } : {}),
-          take: data.limit + 1,
-          orderBy: operatorUserOrderBy(data.sort),
-          select: operatorUserDetailSelect,
-        }),
-        this.prisma.user.count({ where }),
-      ]);
-      const hasMore = rows.length > data.limit;
-      const visible = hasMore ? rows.slice(0, data.limit) : rows;
-      const verification = await this.authVerificationByUserId(visible);
-      const users = visible.map((user) => this.mapUserListItem(user, verification.get(user.id) ?? false));
-
-      return {
-        users,
-        nextCursor: hasMore ? (visible.at(-1)?.id ?? null) : null,
-        total,
-      };
     });
   }
 
@@ -1358,8 +1132,8 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         const credit = await this.userCreditPeriod(user, now);
         if (!credit) throw new OperatorConfigurationError("The selected user has no credit period.");
         if (
-          credit.periodStart !== data.expectedPeriodStart ||
-          credit.periodEnd !== data.expectedPeriodEnd ||
+          credit.periodStart.toISOString() !== data.expectedPeriodStart ||
+          credit.periodEnd.toISOString() !== data.expectedPeriodEnd ||
           credit.baseAllowanceCredits !== data.expectedBaseAllowanceCredits ||
           credit.adjustmentCredits !== data.expectedAdjustmentCredits ||
           credit.committedCredits !== data.expectedCommittedCredits
@@ -1387,8 +1161,8 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             companyId,
             userId: data.userId,
             creditDelta,
-            periodStart: new Date(credit.periodStart),
-            periodEnd: new Date(credit.periodEnd),
+            periodStart: credit.periodStart,
+            periodEnd: credit.periodEnd,
             reason,
             operationId: data.operationId,
             createdByOperatorUserId: actor.userId,
@@ -1407,8 +1181,8 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             expectedBaseAllowanceCredits: data.expectedBaseAllowanceCredits,
             expectedAdjustmentCredits: data.expectedAdjustmentCredits,
             expectedCommittedCredits: data.expectedCommittedCredits,
-            periodStart: credit.periodStart,
-            periodEnd: credit.periodEnd,
+            periodStart: credit.periodStart.toISOString(),
+            periodEnd: credit.periodEnd.toISOString(),
             baseAllowanceCredits: credit.baseAllowanceCredits,
             previousAdjustmentCredits: credit.adjustmentCredits,
             committedCredits: credit.committedCredits,
@@ -1423,80 +1197,5 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
       },
       { companyId },
     );
-  }
-
-  @BypassTenantGuard
-  async updateGlobalControlUnscoped(data: UpdateHostedAiGlobalControlData): Promise<HostedAiGlobalControlDto> {
-    if (env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED !== true)
-      throw new OperatorConfigurationError("Hosted-AI global control mutations are disabled by server configuration.");
-
-    return runInTransaction(async () => {
-      await this.prisma.$queryRaw`SELECT "id" FROM "HostedAiGlobalControl" WHERE "id" = 'global' FOR UPDATE`;
-      const current = await this.getGlobalControlOrThrow();
-      const actor = getOperatorActor();
-      const prior = await this.prisma.operatorAuditEvent.findUnique({
-        where: { operationId: data.operationId },
-      });
-      if (prior) {
-        const metadata = prior.metadata as Record<string, unknown> | null;
-        if (
-          prior.actorUserId !== actor.userId ||
-          prior.action !== OPERATOR_AUDIT_ACTION.globalControlUpdate ||
-          prior.reason !== data.reason ||
-          metadata?.expectedVersion !== data.expectedVersion ||
-          metadata?.hostedProviderWorkPaused !== data.hostedProviderWorkPaused ||
-          metadata?.monthlySpendCapMicrocents !== data.monthlySpendCapMicrocents
-        )
-          throw new OperatorConflictError("The operation ID was already used for another request.");
-
-        return mapGlobalControl(current);
-      }
-      if (current.version !== data.expectedVersion)
-        throw new OperatorConflictError("Hosted-AI global controls changed. Refresh before saving again.");
-
-      const updated = await this.prisma.hostedAiGlobalControl.update({
-        where: { id: "global" },
-        data: {
-          hostedProviderWorkPaused: data.hostedProviderWorkPaused,
-          monthlySpendCapMicrocents:
-            data.monthlySpendCapMicrocents === null ? null : BigInt(data.monthlySpendCapMicrocents),
-          reason: data.reason,
-          version: { increment: 1 },
-          updatedByOperatorUserId: actor.userId,
-        },
-      });
-      await this.createAudit({
-        action: OPERATOR_AUDIT_ACTION.globalControlUpdate,
-        operationId: data.operationId,
-        reason: data.reason,
-        metadata: {
-          expectedVersion: data.expectedVersion,
-          hostedProviderWorkPaused: data.hostedProviderWorkPaused,
-          monthlySpendCapMicrocents: data.monthlySpendCapMicrocents,
-        },
-      });
-      return mapGlobalControl(updated);
-    });
-  }
-
-  @BypassTenantGuard
-  async listAuditEventsAuditedUnscoped(args: { cursor?: string; limit: number }): Promise<OperatorAuditPageDto> {
-    return runInTransaction(async () => {
-      const rows = await this.prisma.operatorAuditEvent.findMany({
-        ...(args.cursor ? { cursor: { id: args.cursor }, skip: 1 } : {}),
-        take: args.limit + 1,
-        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-      });
-      const hasMore = rows.length > args.limit;
-      const visible = hasMore ? rows.slice(0, args.limit) : rows;
-
-      return {
-        events: visible.map((event) => ({
-          ...event,
-          createdAt: event.createdAt.toISOString(),
-        })),
-        nextCursor: hasMore ? (visible.at(-1)?.id ?? null) : null,
-      };
-    });
   }
 }

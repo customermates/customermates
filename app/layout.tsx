@@ -17,7 +17,7 @@ import {
   getGetSubscriptionInteractor,
   getGetUnreadThreadCountInteractor,
   getGetMyConnectedAccountsInteractor,
-  getOperatorConsoleVisibilityInteractor,
+  getGetOperatorConsoleVisibilityInteractor,
 } from "@/core/di";
 import { accountNeedsAction } from "@/ee/messaging/provider";
 import { env } from "@/env";
@@ -49,7 +49,7 @@ export default async function RootLayout({ children }: Props) {
     getLocale(),
     resolveRequestAccountState(),
     cookies(),
-    getOperatorConsoleVisibilityInteractor().invoke(),
+    getGetOperatorConsoleVisibilityInteractor().invoke(),
   ]);
   const navigation = await loadNavigationData(account.state, {
     company: async () => {

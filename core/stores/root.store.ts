@@ -29,9 +29,9 @@ import { ConnectedAccountModalStore } from "@/app/[locale]/(protected)/profile/c
 import { ConnectedAccountsStore } from "@/app/[locale]/(protected)/profile/components/connected-accounts.store";
 import { ConnectUpsellModalStore } from "@/app/[locale]/(protected)/profile/components/connect-upsell-modal.store";
 import { ContactsStore } from "@/app/[locale]/(protected)/contacts/components/contacts.store";
-import { OperatorUsersStore } from "@/app/[locale]/(protected)/operator/users/operator-users.store";
-import { OperatorAuditStore } from "@/app/[locale]/(protected)/operator/audit/operator-audit.store";
-import { OperatorWorkspacesStore } from "@/app/[locale]/(protected)/operator/workspaces/operator-workspaces.store";
+import { OperatorUsersStore } from "@/app/[locale]/(protected)/operator/components/users/operator-users.store";
+import { OperatorAuditStore } from "@/app/[locale]/(protected)/operator/components/audit/operator-audit.store";
+import { OperatorWorkspacesStore } from "@/app/[locale]/(protected)/operator/components/workspaces/operator-workspaces.store";
 import { MessagingThreadsStore } from "@/app/[locale]/(protected)/inbox/components/messaging-threads.store";
 import { MessagingThreadDetailStore } from "@/app/[locale]/(protected)/inbox/components/messaging-thread-detail.store";
 import { ThreadComposeStore } from "@/app/[locale]/(protected)/inbox/components/thread-compose.store";

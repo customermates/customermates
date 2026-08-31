@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { PageState } from "@/components/page-state/page-state";
 import { PageContainer } from "@/components/shared/page-container";
 
-import { OperatorListSkeleton } from "../operator-list-skeleton";
+import { OperatorAuditPageSkeleton } from "../components/audit/operator-audit-page-skeleton";
 
 export default async function Loading() {
   const t = await getTranslations("PageState");
@@ -11,7 +11,7 @@ export default async function Loading() {
   return (
     <PageContainer padded={false}>
       <PageState
-        background={<OperatorListSkeleton />}
+        background={<OperatorAuditPageSkeleton />}
         className="h-[calc(100svh-4rem)] md:h-[calc(100svh-5rem)]"
         label={t("loading")}
         state="loading"

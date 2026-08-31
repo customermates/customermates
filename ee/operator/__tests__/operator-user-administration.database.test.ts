@@ -18,7 +18,7 @@ vi.mock("@/env", () => ({
 }));
 
 import { OperatorConflictError, OperatorNotFoundError } from "../operator.errors";
-import { ListOperatorUsersSchema, OPERATOR_AUDIT_ACTION } from "../operator.schema";
+import { OPERATOR_AUDIT_ACTION } from "../operator.schema";
 import { PrismaOperatorRepo } from "../prisma-operator.repository";
 
 const { prisma } = await import("@/prisma/db");
@@ -158,7 +158,7 @@ afterAll(async () => {
 });
 
 describeDatabase("operator user administration against a real database", { timeout: 120_000 }, () => {
-  it("combines filters, paginates stably, returns minimal detail and summary, and records no read events", async () => {
+  it("returns minimal detail and summary and records no read events", async () => {
     const companyId = await createCompany({ plan: "pro", status: "active" });
     const role = await runWithoutTenant(() =>
       prisma.userRole.create({
@@ -187,56 +187,6 @@ describeDatabase("operator user administration against a real database", { timeo
 
     const actor = operatorActor();
     const repo = new PrismaOperatorRepo();
-    const first = await runWithOperator(actor, () =>
-      repo.listUsersAuditedUnscoped(
-        ListOperatorUsersSchema.parse({
-          query,
-          status: "active",
-          subscriptionPlan: "pro",
-          subscriptionStatus: "active",
-          isPlatformOperator: false,
-          sort: "oldest",
-        }),
-      ),
-    );
-    const second = await runWithOperator(actor, () =>
-      repo.listUsersAuditedUnscoped(
-        ListOperatorUsersSchema.parse({
-          cursor: first.nextCursor,
-          query,
-          status: "active",
-          subscriptionPlan: "pro",
-          subscriptionStatus: "active",
-          isPlatformOperator: false,
-          sort: "oldest",
-        }),
-      ),
-    );
-
-    expect(first.total).toBe(27);
-    expect(first.users.map((user) => user.userId)).toEqual(users.slice(0, 25).map((user) => user.userId));
-    expect(first.nextCursor).toBe(users[24].userId);
-    expect(second.users.map((user) => user.userId)).toEqual(users.slice(25).map((user) => user.userId));
-    expect(second.nextCursor).toBeNull();
-    const fullName = await runWithOperator(actor, () =>
-      repo.listUsersAuditedUnscoped(
-        ListOperatorUsersSchema.parse({
-          query: "  Linnea\t  Example  ",
-          sort: "emailAsc",
-        }),
-      ),
-    );
-    expect(fullName.users).toHaveLength(1);
-    expect(fullName.users[0]).toMatchObject({ userId: users[0].userId, displayName: "Linnea Example" });
-    expect(first.users[0]).toMatchObject({
-      authEmailVerified: true,
-      role: { name: role.name, isSystemRole: false },
-      subscription: {
-        plan: "pro",
-        status: "active",
-        billingProviderManaged: false,
-      },
-    });
 
     const summary = await runWithOperator(actor, () => repo.getUserSummaryAuditedUnscoped());
     expect(summary.totalUsers).toBeGreaterThanOrEqual(27);
@@ -357,7 +307,7 @@ describeDatabase("operator user administration against a real database", { timeo
       ),
     );
     expect(activated.status).toBe("active");
-    expect(activated.agentCreditActivatedAt).toBe(now.toISOString());
+    expect(activated.agentCreditActivatedAt).toEqual(now);
     await expect(runWithoutTenant(() => prisma.task.findUnique({ where: { id: pendingTask.id } }))).resolves.toBeNull();
     expect(publishUserUpdated).toHaveBeenLastCalledWith(
       expect.objectContaining({ companyId, userId: backup.userId, status: "active" }),

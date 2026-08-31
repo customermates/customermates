@@ -2,21 +2,15 @@ import type {
   AgentCreditAdjustmentDto,
   CorrectOperatorSubscriptionSnapshotData,
   CreateAgentCreditAdjustmentData,
-  HostedAiGlobalControlDto,
-  HostedAiOperatorCandidateDto,
   HostedAiOperatorCompanyDto,
   HostedAiOperatorOverviewDto,
-  OperatorAuditPageDto,
   OperatorUserDetailDto,
-  OperatorUserPageDto,
   OperatorUserSummaryDto,
-  ParsedListOperatorUsersData,
   ResetOperatorUserCreditsData,
   ResetOperatorUserCreditsResultDto,
   UpdateOperatorUserPlatformAccessData,
   UpdateOperatorUserStatusData,
   UpdateHostedAiEnterpriseAllowanceData,
-  UpdateHostedAiGlobalControlData,
 } from "./operator.schema";
 
 import type { CountryCode, Status } from "@/generated/prisma";
@@ -36,8 +30,6 @@ export type PublishOperatorUserStatusChanged = (event: OperatorUserStatusChanged
 
 export abstract class OperatorRepo {
   abstract getOverviewAuditedUnscoped(now?: Date): Promise<HostedAiOperatorOverviewDto>;
-  abstract findCandidateAuditedUnscoped(email: string, now?: Date): Promise<HostedAiOperatorCandidateDto | null>;
-  abstract getCompanyAuditedOrThrowUnscoped(companyId: string, now?: Date): Promise<HostedAiOperatorCompanyDto>;
   abstract updateEnterpriseAllowanceOrThrowUnscoped(
     data: UpdateHostedAiEnterpriseAllowanceData,
     now?: Date,
@@ -46,9 +38,6 @@ export abstract class OperatorRepo {
     data: CreateAgentCreditAdjustmentData,
     now?: Date,
   ): Promise<AgentCreditAdjustmentDto>;
-  abstract updateGlobalControlUnscoped(data: UpdateHostedAiGlobalControlData): Promise<HostedAiGlobalControlDto>;
-  abstract listAuditEventsAuditedUnscoped(args: { cursor?: string; limit: number }): Promise<OperatorAuditPageDto>;
-  abstract listUsersAuditedUnscoped(data: ParsedListOperatorUsersData): Promise<OperatorUserPageDto>;
   abstract getUserSummaryAuditedUnscoped(): Promise<OperatorUserSummaryDto>;
   abstract getUserDetailAuditedOrThrowUnscoped(userId: string, now?: Date): Promise<OperatorUserDetailDto>;
   abstract updateUserStatusOrThrowUnscoped(

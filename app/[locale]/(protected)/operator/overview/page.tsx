@@ -1,28 +1,17 @@
-import type { Metadata } from "next";
-
 import { getFormatter, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Activity, AlertTriangle, Building2, CircleDollarSign, Sparkles, Users } from "lucide-react";
 
+import { OperatorMetricCard } from "../components/overview/operator-metric-card";
+
 import { PageContainer } from "@/components/shared/page-container";
 import {
-  getHostedAiOperatorOverviewInteractor,
-  getOperatorConsoleVisibilityInteractor,
-  getOperatorRiskSummaryInteractor,
-  getOperatorUserSummaryInteractor,
+  getGetHostedAiOperatorOverviewInteractor,
+  getGetOperatorRiskSummaryInteractor,
+  getGetOperatorUserSummaryInteractor,
 } from "@/core/di";
 import { appErrorDetails } from "@/core/errors/app-errors";
-
-import { OperatorMetricCard } from "../operator-metric-card";
-
-export async function generateMetadata(): Promise<Metadata> {
-  const robots = { follow: false, index: false, noarchive: true, nosnippet: true };
-  if (!(await getOperatorConsoleVisibilityInteractor().invoke())) return { robots };
-
-  const t = await getTranslations("OperatorOverview");
-
-  return { title: t("title"), description: t("description"), robots };
-}
+import { unwrapValidated } from "@/core/validation/validation.utils";
 
 function microcentsAsDollars(value: string): number {
   return Number(BigInt(value)) / 100_000_000;
@@ -37,9 +26,9 @@ export default async function OperatorOverviewPage() {
   let risk;
   try {
     [overview, summary, risk] = await Promise.all([
-      getHostedAiOperatorOverviewInteractor().invoke(),
-      getOperatorUserSummaryInteractor().invoke(),
-      getOperatorRiskSummaryInteractor().invoke(),
+      unwrapValidated(getGetHostedAiOperatorOverviewInteractor().invoke()),
+      unwrapValidated(getGetOperatorUserSummaryInteractor().invoke()),
+      unwrapValidated(getGetOperatorRiskSummaryInteractor().invoke()),
     ]);
   } catch (error) {
     if (appErrorDetails(error)) notFound();

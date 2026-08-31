@@ -251,8 +251,8 @@ const FullAppSidebar = observer(
             },
             {
               key: "operator",
-              title: t("OperatorConsole.shell.console"),
-              href: "/operator/overview",
+              title: t("NavigationBar.operator"),
+              href: `/operator/${OPERATOR_SUBROUTES[0]?.slug ?? "overview"}`,
               icon: ShieldCheck,
               visible: operatorConsoleVisible,
               items: OPERATOR_SUBROUTES.map((subroute) => ({
