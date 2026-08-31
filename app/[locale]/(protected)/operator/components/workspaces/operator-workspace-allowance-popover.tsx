@@ -9,9 +9,9 @@ import { ClickableChip } from "@/components/chip/clickable-chip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { runUserAction } from "@/core/errors/report-application-error";
 
 type Props = { workspace: OperatorWorkspaceRowDto };
 
@@ -19,6 +19,7 @@ export function OperatorWorkspaceAllowancePopover({ workspace }: Props) {
   const t = useTranslations();
   const intlStore = useHydratedIntlStore();
   const { operatorWorkspacesStore } = useRootStore();
+  const { showConfirmation } = useDeleteConfirmation();
   const [isOpen, setIsOpen] = useState(false);
   const [credits, setCredits] = useState("");
 
@@ -27,16 +28,31 @@ export function OperatorWorkspaceAllowancePopover({ workspace }: Props) {
     setCredits(next ? String(workspace.enterpriseCreditsPerUser ?? "") : "");
   }
 
-  async function apply() {
+  function apply() {
     const creditsPerUser = Number(credits);
     if (!Number.isInteger(creditsPerUser) || creditsPerUser < 1) return;
 
-    const committed = await operatorWorkspacesStore.updateEnterpriseAllowance({
-      companyId: workspace.id,
-      creditsPerUser,
-      operationId: globalThis.crypto.randomUUID(),
+    const operationId = globalThis.crypto.randomUUID();
+
+    showConfirmation({
+      title: t("OperatorConsole.confirm.title"),
+      message: t("OperatorConsole.confirm.allowance", {
+        name: workspace.workspaceLabel,
+        value: intlStore.formatNumber(creditsPerUser),
+      }),
+      confirmLabel: t("Common.actions.confirm"),
+      confirmVariant: "default",
+      successKey: "Common.notifications.updated",
+      onConfirm: async () => {
+        const committed = await operatorWorkspacesStore.updateEnterpriseAllowance({
+          companyId: workspace.id,
+          creditsPerUser,
+          operationId,
+        });
+        if (committed) setIsOpen(false);
+        return committed;
+      },
     });
-    if (committed) setIsOpen(false);
   }
 
   return (
@@ -68,7 +84,7 @@ export function OperatorWorkspaceAllowancePopover({ workspace }: Props) {
             onChange={(event) => setCredits(event.target.value)}
           />
 
-          <Button disabled={!credits} size="sm" variant="secondary" onClick={() => runUserAction(apply)}>
+          <Button disabled={!credits} size="sm" variant="secondary" onClick={apply}>
             {t("Common.actions.save")}
           </Button>
         </div>

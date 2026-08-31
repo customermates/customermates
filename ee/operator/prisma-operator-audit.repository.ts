@@ -23,7 +23,7 @@ function createdAtFilter(filter: Filter): Prisma.DateTimeFilter | undefined {
   switch (filter.operator) {
     case FilterOperatorKey.inLastDays: {
       const days = Number(raw);
-      return Number.isFinite(days) && days > 0 ? { gte: startOfDay(subDays(new Date(), days)) } : undefined;
+      return Number.isInteger(days) && days > 0 ? { gte: startOfDay(subDays(new Date(), days)) } : undefined;
     }
     case FilterOperatorKey.between:
       return Array.isArray(raw) ? { gte: toDate(raw[0]), lte: toDate(raw[1]) } : undefined;

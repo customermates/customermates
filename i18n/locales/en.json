@@ -2492,6 +2492,7 @@
   },
   "OperatorConsole": {
     "confirm": {
+      "allowance": "Set the Enterprise allowance for {name} to {value} credits per user? This applies to the whole workspace.",
       "plan": "Set the plan for {name} to {value}? This applies to the whole workspace.",
       "subscription": "Set the subscription status for {name} to {value}? This applies to the whole workspace and contacts no billing provider.",
       "title": "Confirm operator change"

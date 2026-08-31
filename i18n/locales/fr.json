@@ -2492,6 +2492,7 @@
   },
   "OperatorConsole": {
     "confirm": {
+      "allowance": "Définir l'allocation Enterprise de {name} à {value} crédits par utilisateur ? Cela s'applique à tout l'espace de travail.",
       "plan": "Définir le forfait de {name} sur {value} ? Cela s’applique à tout l’espace de travail.",
       "subscription": "Définir le statut d’abonnement de {name} sur {value} ? Cela s’applique à tout l’espace de travail et ne contacte aucun prestataire de facturation.",
       "title": "Confirmer la modification opérateur"
