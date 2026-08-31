@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/nextjs";
 
+import { errorDigest } from "@/core/errors/error-digest";
 import { isExpectedError } from "@/core/errors/app-errors";
 
 const sentryDsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
@@ -18,6 +19,10 @@ if (sentryEnabled) {
         console.error(hint?.originalException ?? event);
         return null;
       }
+
+      const digest = errorDigest(hint?.originalException);
+      if (digest) event.tags = { ...event.tags, digest };
+
       return event;
     },
   });
