@@ -16,7 +16,7 @@ export function LandingArticle({ children, founderContact = false, items }: Prop
   return (
     <MarketingSection
       className="py-12 sm:py-16 lg:py-20"
-      containerClassName="[--toc-anchor-offset:5.5rem] [--toc-sticky-top:5.5rem]"
+      containerClassName="[--toc-anchor-offset:5.5rem] [--toc-sticky-top:5.5rem] xl:[--toc-anchor-offset:5rem] xl:[--toc-sticky-top:5rem]"
       tone="canvas"
     >
       <Toc asideFooter={founderContact ? <FounderContactCard /> : undefined} items={items} layout="article">

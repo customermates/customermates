@@ -16,6 +16,27 @@ function read(file: string): string {
   return readFileSync(join(REPO_ROOT, file), "utf8");
 }
 
+function publicNavGroup(source: string, id: string, nextId?: string): string {
+  const start = source.indexOf(`id: "${id}"`);
+  if (start < 0) throw new Error(`public navigation group ${id} is missing`);
+
+  const end = nextId ? source.indexOf(`id: "${nextId}"`, start) : source.indexOf("\n  ];", start);
+  if (end < 0) throw new Error(`public navigation group ${id} has no closing boundary`);
+
+  return source.slice(start, end);
+}
+
+function expectHrefOrder(source: string, hrefs: string[]) {
+  let previousIndex = -1;
+
+  for (const href of hrefs) {
+    const index = source.indexOf(`href: "${href}"`);
+    expect(index, `${href} is missing`).toBeGreaterThan(-1);
+    expect(index, `${href} is out of order`).toBeGreaterThan(previousIndex);
+    previousIndex = index;
+  }
+}
+
 function sourceFiles(): string[] {
   const found: string[] = [];
   const skip = new Set(["node_modules", ".next", ".git", "generated"]);
@@ -45,7 +66,7 @@ describe("public navigation preferences", () => {
     expect(navbar.match(/<ThemeSwitcher/g)).toHaveLength(1);
     expect(navbar.match(/\{renderPreferenceButtons\(\)\}/g)).toHaveLength(2);
     expect(navbar).toContain(
-      'className="hidden items-center gap-1.5 justify-self-end xl:flex"',
+      'className="hidden items-center gap-1 justify-self-end xl:flex"',
     );
     expect(navbar).toContain(
       'className="col-span-3 flex w-full items-center justify-between xl:hidden"',
@@ -97,9 +118,14 @@ describe("public navigation preferences", () => {
     expect(footer).not.toContain('t("Footer.compareViewAll")');
   });
 
-  it("keeps the expanded marketing map restrained and shared with mobile", () => {
+  it("keeps the flat marketing map restrained and shared with mobile", () => {
     const navbar = read(HEADER_SHELLS.navbar);
     const menu = read("app/components/navigation/public-navbar-menu.tsx");
+    const product = publicNavGroup(navbar, "product", "solutions");
+    const solutions = publicNavGroup(navbar, "solutions", "integrations");
+    const integrations = publicNavGroup(navbar, "integrations", "resources");
+    const resources = publicNavGroup(navbar, "resources");
+    const mobile = navbar.slice(navbar.indexOf("<SheetBody"), navbar.indexOf("</SheetBody>"));
 
     for (const href of [
       "/blog/agentic-crm",
@@ -133,23 +159,147 @@ describe("public navigation preferences", () => {
     );
 
     expect(navbar).toContain('id: "integrations"');
-    expect(navbar).toContain('href: "/features/integrations"');
+    expect(navbar).toContain('activeHref: "/features/integrations"');
+    expect(navbar).not.toContain("desktopHidden");
+    expect(navbar.match(/t\("NavigationBar\.docs"\)/gu)).toHaveLength(2);
+    expect(navbar.match(/href="\/docs"/gu)).toHaveLength(1);
+    expect(navbar).toContain('isNavItemActive("/docs")');
     expect(navbar).not.toContain("featured:");
     expect(navbar).not.toContain("secondary:");
-    expect(menu).toContain("<ProviderMark");
-    expect(menu).not.toContain("group.featured");
-    expect(menu).toContain('"-mx-2.5 flex min-h-9');
+    expect(navbar).not.toContain("sections:");
+    expect(navbar).not.toContain("description: t(");
+    expect(navbar).toContain("group.links.map");
+    expect(navbar).not.toContain("group.sections");
+    expect(navbar).not.toContain("group.description");
 
-    for (const providerHref of [
-      "/features/linkedin-integration",
-      "/features/outlook-integration",
-      "/features/slack-integration",
-    ]) {
-      expect(
-        navbar,
-        `${providerHref} belongs under the integrations hub`,
-      ).toContain(`href: "${providerHref}"`);
+    expect(menu).toContain("group.links.map");
+    expect(menu).toContain('group.columns === 3 ? "grid-cols-3" : "grid-cols-2"');
+    expect(menu).not.toContain("group.sections");
+    expect(menu).not.toContain("group.description");
+    expect(menu).not.toContain("<section");
+    expect(menu).not.toContain("<footer");
+    expect(menu).not.toContain("GroupIcon");
+    expect(menu).toContain("<ProviderMark");
+    expect(menu).toContain("<AiClientLogo");
+    expect(menu).toContain("<Slack");
+    expect(menu).toContain("/icons/integrations/n8n.svg");
+    expect(menu).toContain("<PublicNavLinkMark mark={link.mark} />");
+    expect(menu).toContain('<span className="min-w-0 truncate">{link.title}</span>');
+    expect(menu).not.toContain("group.featured");
+    expect(menu).toContain(
+      '"overflow-hidden rounded-lg border border-border bg-popover shadow-md"',
+    );
+    expect(menu).toContain('"grid gap-px bg-border"');
+    expect(menu).toContain('"flex h-full min-h-11 items-center gap-2.5 bg-popover');
+    expect(menu).toContain('href="/docs"');
+
+    expect(mobile.match(/mobileOverviewRowClassName/gu)).toHaveLength(3);
+    expect(mobile).toContain("<AccordionTrigger className={mobileOverviewRowClassName}>");
+    for (const href of ["/pricing", "/docs"]) {
+      const hrefIndex = mobile.indexOf(`href="${href}"`);
+      const linkStart = mobile.lastIndexOf("<AppLink", hrefIndex);
+      expect(mobile.slice(linkStart, hrefIndex)).toContain('appearance="unstyled"');
+      expect(mobile.slice(linkStart, hrefIndex)).toContain("mobileOverviewRowClassName");
+      expect(mobile.slice(linkStart, hrefIndex)).toContain("border-t border-border");
     }
+    expect(mobile).toContain("icon={CircleDollarSign}");
+    expect(mobile).toContain("icon={FileText}");
+    expect(mobile).not.toContain('cn("py-3 text-base"');
+
+    expectHrefOrder(product, [
+      "/features/unified-inbox",
+      "/features/contact-management",
+      "/features/pipeline",
+      "/features/sales-tracking",
+      "/features/task-management",
+      "/features/cloud-crm",
+      "/features/self-hosted",
+      "/docs/mcp",
+      "/features/all",
+    ]);
+    expectHrefOrder(solutions, [
+      "/for/professional-services",
+      "/for/agencies",
+      "/for/consultants",
+      "/for/recruiting",
+      "/for/healthcare",
+      "/for/property-management",
+      "/for/startups",
+      "/for/smb",
+      "/for",
+    ]);
+    expectHrefOrder(resources, ["/blog", "/compare", "/blog/agentic-crm", "/blog/open-source-crm"]);
+
+    const accordionEnd = mobile.indexOf("</Accordion>");
+    const pricingIndex = mobile.indexOf('href="/pricing"');
+    const docsIndex = mobile.indexOf('href="/docs"');
+    const preferencesIndex = mobile.indexOf("{renderPreferenceButtons()}");
+    expect(accordionEnd).toBeGreaterThan(-1);
+    expect(pricingIndex).toBeGreaterThan(accordionEnd);
+    expect(docsIndex).toBeGreaterThan(pricingIndex);
+    expect(preferencesIndex).toBeGreaterThan(docsIndex);
+
+    for (const href of [
+      "/features/unified-inbox",
+      "/docs/mcp",
+      "/features/all",
+    ]) {
+      expect(product, `${href} belongs in Product`).toContain(`href: "${href}"`);
+    }
+
+    for (const href of ["/for/startups", "/for/smb"]) {
+      expect(solutions, `${href} belongs in Solutions`).toContain(`href: "${href}"`);
+    }
+
+    for (const href of ["/blog", "/compare", "/blog/agentic-crm", "/blog/open-source-crm"]) {
+      expect(resources, `${href} belongs in Resources`).toContain(`href: "${href}"`);
+    }
+    expect(resources.match(/href:/gu)).toHaveLength(4);
+    expect(resources).not.toContain('href: "/docs');
+    expect(resources).not.toContain("mcpGuide");
+    expect(resources).not.toContain("selfHostingGuide");
+    expect(resources).not.toContain("inboxGuide");
+
+    for (const [provider, labelKey] of [
+      ["claude", "providerClaude"],
+      ["chatgpt", "providerChatGPT"],
+      ["codex", "providerCodex"],
+      ["gemini", "providerGemini"],
+      ["cursor", "providerCursor"],
+    ] as const) {
+      expect(integrations).toMatch(
+        new RegExp(
+          `mark: \\{ kind: "agent", provider: "${provider}" \\},\\s+title: t\\("NavigationBar\\.public\\.${labelKey}"\\)`,
+          "u",
+        ),
+      );
+    }
+
+    for (const [provider, labelKey] of [
+      ["gmail", "providerGmail"],
+      ["outlook", "providerOutlook"],
+      ["linkedin", "providerLinkedIn"],
+      ["whatsapp", "providerWhatsApp"],
+      ["instagram", "providerInstagram"],
+      ["telegram", "providerTelegram"],
+      ["imap", "providerImap"],
+    ] as const) {
+      expect(integrations).toMatch(
+        new RegExp(
+          `mark: \\{ kind: "channel", provider: "${provider}" \\},\\s+title: t\\("NavigationBar\\.public\\.${labelKey}"\\)`,
+          "u",
+        ),
+      );
+    }
+
+    expect(integrations).toMatch(
+      /mark: \{ kind: "provider", provider: "slack" \},\s+title: t\("NavigationBar\.public\.providerSlack"\)/u,
+    );
+    expect(integrations).toMatch(
+      /mark: \{ kind: "automation", provider: "n8n" \},\s+title: t\("NavigationBar\.public\.n8n"\)/u,
+    );
+    expect(navbar).not.toContain('href: "/features/integrations"');
+    expect(navbar).not.toContain("NavigationBar.public.allIntegrations");
   });
 
   it("keeps the six official theme-aware Featured On badges and outbound destinations", () => {

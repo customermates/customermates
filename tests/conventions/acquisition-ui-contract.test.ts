@@ -321,6 +321,8 @@ describe("public acquisition UI contract", () => {
       "asideFooter={founderContact ? <FounderContactCard /> : undefined}",
     );
     expect(article).toContain("[--toc-sticky-top:5.5rem]");
+    expect(article).toContain("xl:[--toc-sticky-top:5rem]");
+    expect(article).toContain("xl:[--toc-anchor-offset:5rem]");
     expect(article).not.toContain("rounded-panel");
     expect(article).not.toContain("shadow-sm");
 
