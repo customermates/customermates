@@ -464,3 +464,29 @@ describe("buildPlan channel value validation", () => {
     ]);
   });
 });
+
+describe("buildPlan channels on update rows", () => {
+  it("never sends mapped channels on an update, because identifiers replace on write", () => {
+    const result = plan(
+      [{ kind: "recordId" }, { kind: "identifier", provider: "mail" }],
+      ["ID", "E-Mail"],
+      [["60000000-0000-4000-8000-000000000001", "ada@example.com"]],
+    );
+
+    expect(result.update).toHaveLength(1);
+    expect(result.update[0].payload.identifiers).toBeUndefined();
+    expect(result.issues.map((issue) => issue.code)).toContain("channelsNotUpdated");
+    expect(result.issues.every((issue) => issue.blocking === false)).toBe(true);
+  });
+
+  it("still applies mapped channels when the row creates a record", () => {
+    const result = plan(
+      [{ kind: "recordId" }, { kind: "identifier", provider: "mail" }],
+      ["ID", "E-Mail"],
+      [["", "ada@example.com"]],
+    );
+
+    expect(result.create[0].payload.identifiers).toEqual([{ provider: "mail", value: "ada@example.com" }]);
+    expect(result.issues).toHaveLength(0);
+  });
+});

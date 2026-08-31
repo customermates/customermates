@@ -243,6 +243,11 @@ export function buildPlan(args: {
       else seenRecordIds.set(recordId, row.sheetRow);
     }
 
+    if (recordId && payload.identifiers) {
+      delete payload.identifiers;
+      warn(null, "channelsNotUpdated", "Channels are left unchanged on an existing record");
+    }
+
     const sheetIdentifiers =
       descriptor.supportsIdentifiers && !recordId ? identifiersByRow?.get(row.sheetRow) : undefined;
 
