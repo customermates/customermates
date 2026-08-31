@@ -1518,6 +1518,8 @@
       "founderNote": "Il tuo messaggio arriva direttamente a me. Dimmi cosa usi oggi e dove il flusso di lavoro si blocca.",
       "founderRole": "Fondatore di Customermates",
       "messagePlaceholder": "A cosa stai lavorando e come posso aiutarti?",
+      "privacyAcknowledgement": "Ho letto l’<dataPrivacyLink>Informativa sulla privacy</dataPrivacyLink>.",
+      "privacyAcknowledgementRequired": "Conferma di aver letto l’Informativa sulla privacy.",
       "submit": "Invia il messaggio",
       "successBody": "Ti rispondo all'indirizzo che hai indicato, di solito entro 24 ore.",
       "successCta": "Invia un altro messaggio",

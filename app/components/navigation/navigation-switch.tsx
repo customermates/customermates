@@ -9,7 +9,7 @@ import type { AccountState } from "@/features/auth/account-state";
 import type { SidebarUser } from "./sidebar-user";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import * as Sentry from "@sentry/nextjs";
 
 import { AppSidebar } from "../app-sidebar";
@@ -85,6 +85,7 @@ export function NavigationSwitch({
     isRegistered,
   });
   const rootStore = useRootStore();
+  const publicScrollportRef = useRef<HTMLDivElement>(null);
   const { userStore, companyStore, subscriptionStore, terminologyStore } = rootStore;
   const accountAllowed = currentAccountState === "allowed";
   const protectedEnhancementsAllowed = accountAllowed && shellMode === "app";
@@ -115,6 +116,11 @@ export function NavigationSwitch({
     if (!protectedEnhancementsAllowed) rootStore.closeAllModals();
   }, [accountAllowed, company, identifiedUser, protectedEnhancementsAllowed, rootStore, subscription, terminology]);
 
+  useLayoutEffect(() => {
+    if (shellMode !== "public" || !publicScrollportRef.current) return;
+    publicScrollportRef.current.scrollTop = 0;
+  }, [pathname, shellMode]);
+
   let shell: React.ReactNode;
   if (shellMode === "docs") {
     shell = (
@@ -130,12 +136,16 @@ export function NavigationSwitch({
     );
   } else if (shellMode === "public") {
     shell = (
-      <div className="h-svh flex">
-        <main className="flex flex-col relative flex-1 overflow-y-auto bg-background min-w-0 [--table-sticky-top:4rem] [--toc-sticky-top:4rem] [--toc-anchor-offset:5rem] xl:[--table-sticky-top:3.5rem] xl:[--toc-sticky-top:3.5rem] xl:[--toc-anchor-offset:4.5rem]">
-          <header className="sticky top-0 z-50 flex flex-col bg-background/90 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
-            <PublicNavbar accountState={currentAccountState} hasValidSession={hasValidSession} />
-          </header>
+      <div
+        ref={publicScrollportRef}
+        data-public-scrollport
+        className="relative h-svh overflow-y-auto bg-background [--table-sticky-top:4rem] [--toc-sticky-top:4rem] [--toc-anchor-offset:5rem] xl:[--table-sticky-top:3.5rem] xl:[--toc-sticky-top:3.5rem] xl:[--toc-anchor-offset:4.5rem]"
+      >
+        <header className="sticky top-0 z-50 flex flex-col bg-background/90 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
+          <PublicNavbar accountState={currentAccountState} hasValidSession={hasValidSession} />
+        </header>
 
+        <main className="relative flex min-w-0 flex-col">
           <div className="flex flex-col flex-1 overflow-x-clip">{children}</div>
         </main>
       </div>

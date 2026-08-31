@@ -38,6 +38,16 @@ describe("docs navigation completeness", () => {
     expect(missing).toEqual([]);
   });
 
+  it("starts the localized landing-page demos with the agent chat closed", () => {
+    for (const locale of CONTENT_LOCALES) {
+      const landingPage = readFileSync(join(REPO_ROOT, "content", "docs", locale, "intro-page.mdx"), "utf8");
+
+      expect(landingPage).toContain(
+        `src: https://demo.customermates.com/${locale}/dashboard?agentChat=closed`,
+      );
+    }
+  });
+
   it("labels every registered slug in every app locale", () => {
     const locales = readdirSync(join(REPO_ROOT, "i18n", "locales")).filter((file) => file.endsWith(".json"));
     const missing: string[] = [];

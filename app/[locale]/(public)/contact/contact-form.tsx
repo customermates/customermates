@@ -9,9 +9,11 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { AppForm } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
+import { FormCheckbox } from "@/components/forms/form-checkbox";
 import { FormInput } from "@/components/forms/form-input";
 import { FormTextarea } from "@/components/forms/form-textarea";
 import { AppImage } from "@/components/shared/app-image";
+import { AppLink } from "@/components/shared/app-link";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 export const ContactForm = observer(() => {
@@ -71,6 +73,19 @@ export const ContactForm = observer(() => {
           <FormInput autoComplete="organization" id="company" />
 
           <FormTextarea required id="message" placeholder={t("ContactPage.form.messagePlaceholder")} rows={6} />
+
+          <FormCheckbox
+            required
+            errorMessage={t("ContactPage.form.privacyAcknowledgementRequired")}
+            id="privacyAcknowledged"
+            label={t.rich("ContactPage.form.privacyAcknowledgement", {
+              dataPrivacyLink: (chunks) => (
+                <AppLink inheritSize appearance="inline" href="/privacy" target="_blank">
+                  {chunks}
+                </AppLink>
+              ),
+            })}
+          />
         </AppCardBody>
 
         <AppCardFooter>

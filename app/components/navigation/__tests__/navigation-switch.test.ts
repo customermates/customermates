@@ -5,8 +5,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const state = vi.hoisted(() => ({
   appMode: "cloud" as "cloud" | "demo",
-  refresh: vi.fn(),
   pathname: "/dashboard",
+  refresh: vi.fn(),
   currentUser: null as { id: string } | null,
   navigationRenderActive: false,
   renderPhaseUserWrites: [] as Array<{ id: string } | null>,
@@ -59,7 +59,9 @@ vi.mock("@/app/components/app-topbar", () => ({
       "data-operator-console-visible": operatorConsoleVisible,
     }),
 }));
-vi.mock("@/app/components/public-navbar", () => ({ PublicNavbar: () => null }));
+vi.mock("@/app/components/public-navbar", () => ({
+  PublicNavbar: () => jsx("div", { "data-public-navbar": true }),
+}));
 vi.mock("@/app/components/shell-header", () => ({ ShellHeader: () => null }));
 vi.mock("@/app/[locale]/(static)/docs/components/docs-sidebar", () => ({
   DocsSidebar: () => null,
@@ -161,6 +163,7 @@ beforeEach(() => {
   state.navigationRenderActive = false;
   state.renderPhaseUserWrites = [];
   state.appMode = "cloud";
+  state.pathname = "/dashboard";
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -285,5 +288,45 @@ describe("NavigationSwitch account-state refresh", () => {
     expect(scrollport).toBe(page?.parentElement?.parentElement);
     expect(scrollport?.className).toContain("overflow-y-auto");
     expect(scrollport?.className).toContain("[--table-sticky-top:4rem]");
+  });
+
+  it("keeps the public header and page in one route-resetting scrollport", () => {
+    state.pathname = "/styleguide";
+
+    act(() => {
+      root.render(
+        jsx(NavigationSwitch, {
+          ...allowedProps(),
+          children: jsx("div", { "data-page-content": true }),
+        }),
+      );
+    });
+
+    const navbar = container.querySelector<HTMLElement>("[data-public-navbar]");
+    const header = navbar?.parentElement;
+    const page = container.querySelector<HTMLElement>("[data-page-content]");
+    const scrollport = container.querySelector<HTMLElement>("[data-public-scrollport]");
+
+    expect(header?.tagName).toBe("HEADER");
+    expect(header?.parentElement).toBe(scrollport);
+    expect(header?.className).toContain("sticky");
+    expect(page?.closest("[data-public-scrollport]")).toBe(scrollport);
+    expect(scrollport?.className).toContain("h-svh");
+    expect(scrollport?.className).toContain("overflow-y-auto");
+    expect(scrollport?.className).toContain("[--table-sticky-top:4rem]");
+    expect(scrollport?.className).toContain("[--toc-sticky-top:4rem]");
+    expect(scrollport?.className).toContain("[--toc-anchor-offset:5rem]");
+
+    if (scrollport) scrollport.scrollTop = 480;
+    state.pathname = "/styleguide/patterns";
+    act(() => {
+      root.render(
+        jsx(NavigationSwitch, {
+          ...allowedProps(),
+          children: jsx("div", { "data-page-content": true }),
+        }),
+      );
+    });
+    expect(scrollport?.scrollTop).toBe(0);
   });
 });

@@ -7,6 +7,7 @@ export const SendContactInquirySchema = z.object({
   email: z.email(),
   company: z.string().trim().max(200).optional(),
   message: z.string().trim().min(10).max(5000),
+  privacyAcknowledged: z.boolean().refine((value) => value),
 });
 
 export type SendContactInquiryData = Data<typeof SendContactInquirySchema>;

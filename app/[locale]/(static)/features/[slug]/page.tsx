@@ -8,6 +8,8 @@ import { AcquisitionStoryVisual } from "@/components/marketing/acquisition-story
 import { LandingArticle } from "@/components/marketing/landing-article";
 import { PageHero } from "@/components/marketing/page-hero";
 import { PageEnding } from "@/components/marketing/page-ending";
+import { productDemoForFeature } from "@/components/marketing/product-demo-config";
+import { ProductDemoSection } from "@/components/marketing/product-demo-section";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { featurePagesSource } from "@/core/fumadocs/source";
@@ -45,6 +47,7 @@ export default async function FeaturePage({ params }: Props) {
 
   const MDX = page.data.body;
   const components = getMDXComponents();
+  const demo = productDemoForFeature(slug);
   const visual =
     page.data.acquisition?.visual.kind === "brand-illustration" ? (
       <AcquisitionStoryVisual brief={page.data.acquisition.visual} locale={locale} />
@@ -61,6 +64,8 @@ export default async function FeaturePage({ params }: Props) {
       />
 
       <PageHero {...page.data.hero} visual={visual} />
+
+      {demo ? <ProductDemoSection {...demo} /> : null}
 
       <LandingArticle founderContact items={page.data.toc}>
         <MDX components={components} />

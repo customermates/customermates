@@ -12,7 +12,13 @@ export class ContactStore extends BaseFormStore<SendContactInquiryData> {
   isSent = false;
 
   constructor(rootStore: RootStore) {
-    super(rootStore, { name: "", email: "", company: "", message: "" });
+    super(rootStore, {
+      name: "",
+      email: "",
+      company: "",
+      message: "",
+      privacyAcknowledged: false,
+    });
 
     makeObservable(this, {
       isSent: observable,
@@ -23,7 +29,13 @@ export class ContactStore extends BaseFormStore<SendContactInquiryData> {
 
   reset = () => {
     this.isSent = false;
-    this.onInitOrRefresh({ name: "", email: "", company: "", message: "" });
+    this.onInitOrRefresh({
+      name: "",
+      email: "",
+      company: "",
+      message: "",
+      privacyAcknowledged: false,
+    });
   };
 
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
@@ -39,7 +51,13 @@ export class ContactStore extends BaseFormStore<SendContactInquiryData> {
 
       if (res.ok) {
         this.isSent = true;
-        this.onInitOrRefresh({ name: "", email: "", company: "", message: "" });
+        this.onInitOrRefresh({
+          name: "",
+          email: "",
+          company: "",
+          message: "",
+          privacyAcknowledged: false,
+        });
         this.toastSuccess("ContactPage.form.successToast");
       } else this.setError(res.error);
     } finally {

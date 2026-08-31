@@ -1518,6 +1518,8 @@
       "founderNote": "Your message comes directly to me. Tell me what you use today and where the workflow gets stuck.",
       "founderRole": "Founder, Customermates",
       "messagePlaceholder": "What are you working on, and how can I help?",
+      "privacyAcknowledgement": "I have read the <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
+      "privacyAcknowledgementRequired": "Please confirm that you have read the Privacy Policy.",
       "submit": "Send message",
       "successBody": "I'll get back to you at the email you provided, usually within 24 hours.",
       "successCta": "Send another",

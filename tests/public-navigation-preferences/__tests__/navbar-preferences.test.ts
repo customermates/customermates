@@ -184,6 +184,8 @@ describe("public navigation preferences", () => {
     expect(menu).toContain("<Slack");
     expect(menu).toContain("/icons/integrations/n8n.svg");
     expect(menu).toContain("<PublicNavLinkMark mark={link.mark} />");
+    expect(menu).toContain("<PublicNavLinkIcon icon={link.icon} />");
+    expect(menu).toContain('data-public-nav-icon="true"');
     expect(menu).toContain('<span className="min-w-0 truncate">{link.title}</span>');
     expect(menu).not.toContain("group.featured");
     expect(menu).toContain(
@@ -204,6 +206,7 @@ describe("public navigation preferences", () => {
     }
     expect(mobile).toContain("icon={CircleDollarSign}");
     expect(mobile).toContain("icon={FileText}");
+    expect(mobile).toContain("<PublicNavLinkIcon icon={link.icon} />");
     expect(mobile).not.toContain('cn("py-3 text-base"');
 
     expectHrefOrder(product, [
@@ -229,6 +232,56 @@ describe("public navigation preferences", () => {
       "/for",
     ]);
     expectHrefOrder(resources, ["/blog", "/compare", "/blog/agentic-crm", "/blog/open-source-crm"]);
+
+    const iconMaps = [
+      [
+        product,
+        [
+          ["/features/unified-inbox", "Inbox"],
+          ["/features/contact-management", "Users"],
+          ["/features/pipeline", "TrendingUp"],
+          ["/features/sales-tracking", "TrendingUp"],
+          ["/features/task-management", "CheckCircle2"],
+          ["/features/cloud-crm", "LayoutGrid"],
+          ["/features/self-hosted", "Server"],
+          ["/docs/mcp", "Cable"],
+          ["/features/all", "Boxes"],
+        ],
+      ],
+      [
+        solutions,
+        [
+          ["/for/professional-services", "BriefcaseBusiness"],
+          ["/for/agencies", "Megaphone"],
+          ["/for/consultants", "Presentation"],
+          ["/for/recruiting", "UserRoundSearch"],
+          ["/for/healthcare", "HeartPulse"],
+          ["/for/property-management", "Building2"],
+          ["/for/startups", "Rocket"],
+          ["/for/smb", "Store"],
+          ["/for", "UsersRound"],
+        ],
+      ],
+      [
+        resources,
+        [
+          ["/blog", "BookOpen"],
+          ["/compare", "GitCompareArrows"],
+          ["/blog/agentic-crm", "Bot"],
+          ["/blog/open-source-crm", "Github"],
+        ],
+      ],
+    ] as const;
+
+    for (const [group, links] of iconMaps) {
+      expect(group.match(/icon: \w+,\s+href:/gu)).toHaveLength(links.length);
+      for (const [href, icon] of links) {
+        expect(group, `${href} should use the ${icon} navigation icon`).toMatch(
+          new RegExp(`icon: ${icon},\\s+href: "${href}"`, "u"),
+        );
+      }
+    }
+    expect(integrations).not.toMatch(/icon: \w+,\s+href:/u);
 
     const accordionEnd = mobile.indexOf("</Accordion>");
     const pricingIndex = mobile.indexOf('href="/pricing"');

@@ -1518,6 +1518,8 @@
       "founderNote": "Votre message m’arrive directement. Dites-moi ce que vous utilisez aujourd’hui et où le workflow bloque.",
       "founderRole": "Fondateur de Customermates",
       "messagePlaceholder": "Sur quoi travaillez-vous et comment puis-je vous aider ?",
+      "privacyAcknowledgement": "J’ai lu la <dataPrivacyLink>politique de confidentialité</dataPrivacyLink>.",
+      "privacyAcknowledgementRequired": "Veuillez confirmer que vous avez lu la politique de confidentialité.",
       "submit": "Envoyer le message",
       "successBody": "Je vous réponds à l'adresse indiquée, généralement sous 24 heures.",
       "successCta": "Envoyer un autre message",

@@ -20,7 +20,7 @@ export function LandingArticle({ children, founderContact = false, items }: Prop
       tone="canvas"
     >
       <Toc asideFooter={founderContact ? <FounderContactCard /> : undefined} items={items} layout="article">
-        <div className="prose prose-sm prose-neutral mx-auto max-w-[96ch] dark:prose-invert prose-headings:text-balance prose-headings:tracking-tight prose-a:font-medium prose-a:decoration-primary/40 prose-a:underline-offset-4 prose-img:rounded-card lg:mx-0 lg:max-w-none [&>ol]:max-w-[82ch] [&>p]:max-w-[82ch] [&>ul]:max-w-[82ch]">
+        <div className="prose prose-sm prose-neutral mx-auto max-w-[96ch] dark:prose-invert prose-headings:font-medium prose-headings:text-balance prose-headings:tracking-tight prose-a:font-medium prose-a:decoration-primary/40 prose-a:underline-offset-4 prose-img:rounded-card lg:mx-0 lg:max-w-none [&>ol]:max-w-[82ch] [&>p]:max-w-[82ch] [&>ul]:max-w-[82ch]">
           {children}
         </div>
       </Toc>
