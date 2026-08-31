@@ -17,6 +17,8 @@ import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
 import type { DeactivateUsersAfterSubscriptionGracePeriodRepo } from "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.interactor";
 import type { WebhookUserRepo } from "@/ee/messaging/webhooks/account/account-webhook.repo";
 import type { SendLegalDocumentNoticesRepo } from "@/ee/lifecycle/send-legal-document-notices.interactor";
+import type { ExpireGoogleAdsClickIdsRepo } from "@/ee/lifecycle/expire-google-ads-click-ids.interactor";
+import type { WithdrawGoogleAdsAttributionRepo } from "@/features/acquisition/withdraw-google-ads-attribution.interactor";
 
 import { randomUUID } from "node:crypto";
 
@@ -94,7 +96,9 @@ export class PrismaUserRepo
     CountActiveUsersRepo,
     CompleteOnboardingWizardRepo,
     WebhookUserRepo,
-    SendLegalDocumentNoticesRepo
+    SendLegalDocumentNoticesRepo,
+    ExpireGoogleAdsClickIdsRepo,
+    WithdrawGoogleAdsAttributionRepo
 {
   @BypassTenantGuard
   async findUserByIdOrThrowUnscoped(userId: string) {
@@ -372,6 +376,11 @@ export class PrismaUserRepo
         roleId: adminRole.id,
         lastActiveAt: new Date(),
         agentCreditActivatedAt: new Date(),
+        googleAdsClickId: args.googleAdsAttribution?.clickId ?? null,
+        googleAdsClickIdKind: args.googleAdsAttribution?.clickIdKind ?? null,
+        googleAdsClickIdCapturedAt: args.googleAdsAttribution?.capturedAt ?? null,
+        googleAdsAttributionConsentedAt: args.googleAdsAttribution?.consentedAt ?? null,
+        googleAdsClickIdExpiresAt: args.googleAdsAttribution?.expiresAt ?? null,
       },
     });
 
@@ -381,6 +390,45 @@ export class PrismaUserRepo
     });
 
     return tenantUser;
+  }
+
+  async clearGoogleAdsAttributionForUser(args: { userId: string }) {
+    const result = await this.prisma.user.updateMany({
+      where: {
+        id: args.userId,
+        companyId: this.companyId,
+        OR: [
+          { googleAdsClickId: { not: null } },
+          { googleAdsClickIdKind: { not: null } },
+          { googleAdsClickIdCapturedAt: { not: null } },
+          { googleAdsAttributionConsentedAt: { not: null } },
+          { googleAdsClickIdExpiresAt: { not: null } },
+        ],
+      },
+      data: {
+        googleAdsClickId: null,
+        googleAdsClickIdKind: null,
+        googleAdsClickIdCapturedAt: null,
+        googleAdsAttributionConsentedAt: null,
+        googleAdsClickIdExpiresAt: null,
+      },
+    });
+    return result.count === 1;
+  }
+
+  @BypassTenantGuard
+  async expireGoogleAdsClickIdsUnscoped(now: Date) {
+    const result = await this.prisma.user.updateMany({
+      where: { googleAdsClickIdExpiresAt: { lte: now } },
+      data: {
+        googleAdsClickId: null,
+        googleAdsClickIdKind: null,
+        googleAdsClickIdCapturedAt: null,
+        googleAdsAttributionConsentedAt: null,
+        googleAdsClickIdExpiresAt: null,
+      },
+    });
+    return result.count;
   }
 
   @Transaction

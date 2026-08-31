@@ -8,10 +8,16 @@ import { redirect } from "next/navigation";
 
 import { getCompleteOnboardingWizardInteractor, getRegisterUserInteractor } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
+import {
+  clearRegisteredGoogleAdsClickFromCookie,
+  readRegistrationGoogleAdsAttribution,
+} from "@/features/acquisition/google-ads-consent.cookie";
 
 export async function registerProfileAction(data: RegisterUserData) {
-  const result = await serializeResult(getRegisterUserInteractor().invoke(data));
+  const googleAdsAttribution = await readRegistrationGoogleAdsAttribution();
+  const result = await serializeResult(getRegisterUserInteractor().invoke(data, { googleAdsAttribution }));
   if (result.ok) {
+    await clearRegisteredGoogleAdsClickFromCookie();
     const cookieStore = await cookies();
     cookieStore.delete("inviteToken");
     refresh();

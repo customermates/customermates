@@ -7,6 +7,13 @@
     "subject": "Certains de vos comptes connectés ont été supprimés",
     "title": "Comptes connectés supprimés"
   },
+  "AcquisitionConsent": {
+    "allowAttribution": "Autoriser l’attribution du clic",
+    "description": "L’attribution facultative conserve un identifiant de clic Google Ads dans un cookie propriétaire signé pendant 90 jours au maximum. Aucun tag ni envoi Google n’est actif ; Vercel Web Analytics et le script d’affiliation Lemon Squeezy restent séparés.",
+    "necessaryOnly": "Continuer sans mesure",
+    "privacyLink": "Détails de confidentialité",
+    "title": "Vos choix de confidentialité"
+  },
   "AgentChat": {
     "activity": {
       "cancelled": "Arrêté",
@@ -1976,6 +1983,7 @@
     "imprint": "Mentions légales",
     "legal": "Aide et mentions légales",
     "privacy": "Confidentialité",
+    "privacyChoices": "Choix de confidentialité",
     "product": "Produit",
     "resources": "Ressources",
     "reviewsOnPlatform": "Avis sur Customermates publiés sur {platform}",

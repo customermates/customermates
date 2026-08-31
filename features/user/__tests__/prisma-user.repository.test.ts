@@ -4,6 +4,8 @@ import { CustomColumnType, EntityType, Status } from "@/generated/prisma";
 
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
+import { runWithTenant } from "@/core/decorators/tenant-context";
+import { createMockUser } from "@/tests/helpers/mock-user";
 
 const customColumnCreate = vi.fn().mockResolvedValue({ id: "column-1" });
 
@@ -12,6 +14,7 @@ const prismaMock = {
     findFirst: vi.fn().mockResolvedValue(null),
     findMany: vi.fn().mockResolvedValue([]),
     create: vi.fn().mockResolvedValue({ id: "user-1" }),
+    updateMany: vi.fn().mockResolvedValue({ count: 1 }),
     findUniqueOrThrow: vi.fn().mockResolvedValue({ id: "user-1", email: "owner@example.com" }),
   },
   company: {
@@ -129,6 +132,78 @@ describe("PrismaUserRepo.createCompanyAndUser", () => {
     expect(prismaMock.userRole.create).toHaveBeenCalledTimes(1);
     expect(prismaMock.user.create).toHaveBeenCalledTimes(1);
     expect(customColumnCreate).toHaveBeenCalledTimes(3);
+  });
+
+  it("stores one consented Google Ads click on the initial owner user", async () => {
+    const googleAdsAttribution = {
+      clickId: "Case-Sensitive_GCLID",
+      clickIdKind: "gclid" as const,
+      capturedAt: new Date("2026-08-31T10:00:00.000Z"),
+      consentedAt: new Date("2026-08-31T10:00:00.000Z"),
+      expiresAt: new Date("2026-11-28T10:00:00.000Z"),
+    };
+
+    await new PrismaUserRepo().createCompanyAndUser({
+      ...registerArgs,
+      googleAdsAttribution,
+    });
+
+    expect(prismaMock.user.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        googleAdsClickId: googleAdsAttribution.clickId,
+        googleAdsClickIdKind: googleAdsAttribution.clickIdKind,
+        googleAdsClickIdCapturedAt: googleAdsAttribution.capturedAt,
+        googleAdsAttributionConsentedAt: googleAdsAttribution.consentedAt,
+        googleAdsClickIdExpiresAt: googleAdsAttribution.expiresAt,
+      }),
+    });
+  });
+
+  it("clears expired Google Ads click identifiers without touching account state", async () => {
+    const now = new Date("2026-11-29T10:00:00.000Z");
+
+    await expect(new PrismaUserRepo().expireGoogleAdsClickIdsUnscoped(now)).resolves.toBe(1);
+
+    expect(prismaMock.user.updateMany).toHaveBeenCalledWith({
+      where: { googleAdsClickIdExpiresAt: { lte: now } },
+      data: {
+        googleAdsClickId: null,
+        googleAdsClickIdKind: null,
+        googleAdsClickIdCapturedAt: null,
+        googleAdsAttributionConsentedAt: null,
+        googleAdsClickIdExpiresAt: null,
+      },
+    });
+  });
+
+  it("does not rewrite an already-cleared attribution during a withdrawal retry", async () => {
+    prismaMock.user.updateMany.mockResolvedValueOnce({ count: 0 });
+    const user = createMockUser({ id: "user-1", companyId: "company-1" });
+
+    await expect(
+      runWithTenant(user, () => new PrismaUserRepo().clearGoogleAdsAttributionForUser({ userId: user.id })),
+    ).resolves.toBe(false);
+
+    expect(prismaMock.user.updateMany).toHaveBeenCalledWith({
+      where: {
+        id: "user-1",
+        companyId: "company-1",
+        OR: [
+          { googleAdsClickId: { not: null } },
+          { googleAdsClickIdKind: { not: null } },
+          { googleAdsClickIdCapturedAt: { not: null } },
+          { googleAdsAttributionConsentedAt: { not: null } },
+          { googleAdsClickIdExpiresAt: { not: null } },
+        ],
+      },
+      data: {
+        googleAdsClickId: null,
+        googleAdsClickIdKind: null,
+        googleAdsClickIdCapturedAt: null,
+        googleAdsAttributionConsentedAt: null,
+        googleAdsClickIdExpiresAt: null,
+      },
+    });
   });
 
   it("creates the catalog-owned Pro cloud trial", async () => {

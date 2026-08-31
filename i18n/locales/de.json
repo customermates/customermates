@@ -7,6 +7,13 @@
     "subject": "Einige deiner verbundenen Konten wurden entfernt",
     "title": "Verbundene Konten entfernt"
   },
+  "AcquisitionConsent": {
+    "allowAttribution": "Klickzuordnung erlauben",
+    "description": "Die optionale Zuordnung speichert eine Google-Ads-Klickkennung bis zu 90 Tage in einem signierten First-Party-Cookie. Es ist kein Google-Tag oder Upload aktiv; Vercel Web Analytics und das unveränderte Lemon-Squeezy-Referral-Skript sind davon getrennt.",
+    "necessaryOnly": "Ohne Messung fortfahren",
+    "privacyLink": "Datenschutzdetails",
+    "title": "Deine Datenschutzauswahl"
+  },
   "AgentChat": {
     "activity": {
       "cancelled": "Gestoppt",
@@ -1976,6 +1983,7 @@
     "imprint": "Impressum",
     "legal": "Hilfe & Rechtliches",
     "privacy": "Datenschutz",
+    "privacyChoices": "Datenschutzauswahl",
     "product": "Produkt",
     "resources": "Ressourcen",
     "reviewsOnPlatform": "Customermates-Bewertungen auf {platform}",

@@ -18,7 +18,7 @@ const LEGAL_COPY_MESSAGES = [
   ["SignInForm", "agreeToTerms"],
 ] as const;
 
-const REMOVED_SUBJECTS = ["newsletter", "zoom", "google ads", "supabase"];
+const REMOVED_SUBJECTS = ["newsletter", "zoom", "supabase"];
 
 const EXTERNAL_IMAGE_HOSTS = [
   "flagcdn.com",
@@ -103,8 +103,16 @@ describe("legal documents describe only what the product does", () => {
     expect(present, `retired subjects still disclosed: ${present.join(", ")}`).toEqual([]);
   });
 
-  it.each(CONTENT_LOCALES)("privacy (%s) does not claim a consent mechanism the product lacks", (name) => {
-    expect(legal(name, "privacy")).not.toMatch(/Google Ads/i);
+  it.each(CONTENT_LOCALES)("privacy (%s) bounds the first-party Google Ads click attribution", (name) => {
+    const privacy = legal(name, "privacy");
+
+    expect(privacy).toMatch(/Google.?Ads/i);
+    expect(privacy).toMatch(/gclid.*gbraid.*wbraid/is);
+    expect(privacy).toMatch(name === "en" ? /consent.*Privacy choices.*withdraw/is : /Einwilligung.*Datenschutzauswahl.*widerruf/is);
+    expect(privacy).toMatch(name === "en" ? /90 days/i : /90 Tage/i);
+    expect(privacy).toMatch(
+      name === "en" ? /no Google tag.*conversion upload/is : /kein Google-Tag.*kein Conversion-Upload/is,
+    );
   });
 
   it.each(CONTENT_LOCALES)("privacy and subprocessors (%s) disclose every external image host", (name) => {

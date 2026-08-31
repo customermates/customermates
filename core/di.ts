@@ -57,6 +57,7 @@ import { WidgetGroupingService } from "@/features/widget/calculator/widget-group
 import { SubscriptionService } from "@/ee/subscription/subscription.service";
 import { EntitlementService } from "@/ee/subscription/entitlement.service";
 import { BackgroundTaskService } from "@/core/utils/background-task.service";
+import { WithdrawGoogleAdsAttributionInteractor } from "@/features/acquisition/withdraw-google-ads-attribution.interactor";
 // Task Listeners
 import { UserPendingAuthorizationTaskListener } from "@/features/tasks/listener/user-pending-authorization-task.listener";
 import { DomainEvent } from "@/features/event/domain-events";
@@ -286,6 +287,7 @@ import { DeleteConnectedAccountsForExpiredTrialsInteractor } from "@/ee/lifecycl
 import { DeleteConnectedAccountsForInactiveOwnersInteractor } from "@/ee/lifecycle/delete-connected-accounts-for-inactive-owners.interactor";
 import { DeleteOrphanedUnipileAccountsInteractor } from "@/ee/lifecycle/delete-orphaned-unipile-accounts.interactor";
 import { SendLegalDocumentNoticesInteractor } from "@/ee/lifecycle/send-legal-document-notices.interactor";
+import { ExpireGoogleAdsClickIdsInteractor } from "@/ee/lifecycle/expire-google-ads-click-ids.interactor";
 import { GetLegalStatusInteractor } from "@/features/legal/get-legal-status.interactor";
 import { AcceptLegalDocumentsInteractor } from "@/features/legal/accept-legal-documents.interactor";
 // Webhook delivery interactor (workflow task consumer)
@@ -857,6 +859,9 @@ export const getDeleteManyTasksInteractor = () =>
 
 export const getRegisterUserInteractor = () =>
   new RegisterUserInteractor(getAuthService(), getUserRepo(), getEventService(), getRouteGuardService());
+
+export const getWithdrawGoogleAdsAttributionInteractor = () =>
+  new WithdrawGoogleAdsAttributionInteractor(getRouteGuardService(), getUserRepo());
 
 export const getUpdateUserDetailsInteractor = () => new UpdateUserDetailsInteractor(getUserRepo(), getEventService());
 
@@ -1455,6 +1460,8 @@ export const getDeleteOrphanedUnipileAccountsInteractor = () =>
 
 export const getSendLegalDocumentNoticesInteractor = () =>
   new SendLegalDocumentNoticesInteractor(getUserRepo(), getAuditLogRepo(), getEmailService(), getEventService());
+
+export const getExpireGoogleAdsClickIdsInteractor = () => new ExpireGoogleAdsClickIdsInteractor(getUserRepo());
 
 // --- Legal ---
 

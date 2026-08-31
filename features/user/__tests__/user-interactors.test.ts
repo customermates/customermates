@@ -128,6 +128,64 @@ describe("RegisterUserInteractor", () => {
     );
   });
 
+  it("passes an unexpired consented Google Ads click only to a new cloud owner", async () => {
+    mutableEnv.APP_MODE = "cloud";
+    const googleAdsAttribution = {
+      clickId: "Case-Sensitive_GCLID",
+      clickIdKind: "gclid" as const,
+      capturedAt: new Date(Date.now() - 1_000),
+      consentedAt: new Date(Date.now() - 1_000),
+      expiresAt: new Date(Date.now() + 60_000),
+    };
+    const data = {
+      email: "jane@example.com",
+      firstName: "Jane",
+      lastName: "Doe",
+      country: "de" as const,
+      avatarUrl: null,
+      agreeToTerms: true,
+    };
+
+    await createInteractor().invoke(data, { googleAdsAttribution });
+    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ googleAdsAttribution }));
+
+    vi.clearAllMocks();
+    mockRepo.findCompanyIdUnscoped.mockResolvedValue("existing-company-id");
+    mockRepo.registerExistingCompany.mockResolvedValue(mockTenantUser);
+    mockEventService.publish.mockResolvedValue(undefined);
+    mockAuthService.sendNewUserNotificationEmail.mockResolvedValue(undefined);
+    await createInteractor().invoke(data, { googleAdsAttribution });
+
+    const existingCompanyArgs = mockRepo.registerExistingCompany.mock.calls[0]?.[0];
+    expect(existingCompanyArgs).toEqual({ ...data, companyId: "existing-company-id" });
+    expect(Object.hasOwn(existingCompanyArgs, "googleAdsAttribution")).toBe(false);
+  });
+
+  it("drops an expired Google Ads click before owner creation", async () => {
+    mutableEnv.APP_MODE = "cloud";
+    await createInteractor().invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: true,
+      },
+      {
+        googleAdsAttribution: {
+          clickId: "expired-click",
+          clickIdKind: "gclid",
+          capturedAt: new Date("2026-01-01T00:00:00.000Z"),
+          consentedAt: new Date("2026-01-01T00:00:00.000Z"),
+          expiresAt: new Date("2026-01-02T00:00:00.000Z"),
+        },
+      },
+    );
+
+    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ googleAdsAttribution: null }));
+  });
+
   it("rejects an unchecked new cloud company before creating records", async () => {
     (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "demo" | "self-hosted" }).APP_MODE = "cloud";
 

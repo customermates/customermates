@@ -7,6 +7,13 @@
     "subject": "Some of your connected accounts were removed",
     "title": "Connected accounts removed"
   },
+  "AcquisitionConsent": {
+    "allowAttribution": "Allow click attribution",
+    "description": "Optional attribution stores one Google Ads click identifier in a signed first-party cookie for up to 90 days. No Google tag or upload is active; Vercel Web Analytics and the unchanged Lemon Squeezy referral script are separate.",
+    "necessaryOnly": "Continue without measurement",
+    "privacyLink": "Privacy details",
+    "title": "Your privacy choices"
+  },
   "AgentChat": {
     "activity": {
       "cancelled": "Stopped",
@@ -1976,6 +1983,7 @@
     "imprint": "Imprint",
     "legal": "Support & legal",
     "privacy": "Privacy",
+    "privacyChoices": "Privacy choices",
     "product": "Product",
     "resources": "Resources",
     "reviewsOnPlatform": "Customermates reviews on {platform}",
