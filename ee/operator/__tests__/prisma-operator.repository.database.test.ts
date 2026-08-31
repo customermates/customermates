@@ -21,10 +21,17 @@ const operatorEnv = vi.hoisted(() => ({
 
 vi.mock("@/env", () => ({ env: operatorEnv }));
 
-import { OperatorConflictError } from "../operator.errors";
 import { PrismaOperatorAccessRepo } from "../prisma-operator-access.repository";
 import { OPERATOR_AUDIT_ACTION } from "../operator.schema";
+import type { OperatorRefusal } from "../operator.repo";
 import { PrismaOperatorRepo } from "../prisma-operator.repository";
+
+const OPERATOR_REFUSALS: OperatorRefusal[] = ["conflict", "notFound", "unavailable"];
+
+function assertAdmitted<T>(result: T | OperatorRefusal): asserts result is T {
+  const refusal = OPERATOR_REFUSALS.find((candidate) => candidate === result);
+  if (refusal) throw new Error(`Expected a successful operator write but the repository refused with "${refusal}".`);
+}
 
 const { prisma } = await import("@/prisma/db");
 
@@ -243,7 +250,8 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
       }),
     );
 
-    const detail = await runWithOperator(actor, () => repo.getUserDetailOrThrowUnscoped(target.userId, now));
+    const detail = await runWithOperator(actor, () => repo.getUserDetailUnscoped(target.userId, now));
+    assertAdmitted(detail);
     expect(detail.creditPeriod).toMatchObject({
       chargedCredits: 7,
       reservedCredits: 2,
@@ -253,7 +261,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
     const rejectedOperationId = randomUUID();
     await expect(
       runWithOperator(actor, () =>
-        repo.createCreditAdjustmentOrThrowUnscoped(
+        repo.createCreditAdjustmentUnscoped(
           {
             companyId: target.companyId,
             userId: target.userId,
@@ -266,7 +274,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
           now,
         ),
       ),
-    ).rejects.toBeInstanceOf(OperatorConflictError);
+    ).resolves.toBe("conflict");
 
     const operationId = randomUUID();
     const request = {
@@ -279,8 +287,8 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
       operationId,
     };
     const [first, replay] = await runWithOperator(actor, async () => [
-      await repo.createCreditAdjustmentOrThrowUnscoped(request, now),
-      await repo.createCreditAdjustmentOrThrowUnscoped(request, now),
+      await repo.createCreditAdjustmentUnscoped(request, now),
+      await repo.createCreditAdjustmentUnscoped(request, now),
     ]);
     expect(replay).toEqual(first);
 
@@ -305,7 +313,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
 
     await expect(
       runWithOperator(invalidActor, () =>
-        repo.updateEnterpriseAllowanceOrThrowUnscoped(
+        repo.updateEnterpriseAllowanceUnscoped(
           {
             companyId: target.companyId,
             creditsPerUser: 50,
@@ -345,7 +353,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
             const repo = new PrismaOperatorRepo();
 
             const targetBefore = await tx.user.findUniqueOrThrow({ where: { id: target.userId } });
-            const granted = await repo.updateUserPlatformAccessOrThrowUnscoped(
+            const granted = await repo.updateUserPlatformAccessUnscoped(
               {
                 userId: target.userId,
                 expectedUpdatedAt: targetBefore.updatedAt.toISOString(),
@@ -355,9 +363,10 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
               },
               now,
             );
+            assertAdmitted(granted);
 
             const elsewhereBefore = await tx.user.findUniqueOrThrow({ where: { id: elsewhere.userId } });
-            const otherRevoked = await repo.updateUserPlatformAccessOrThrowUnscoped(
+            const otherRevoked = await repo.updateUserPlatformAccessUnscoped(
               {
                 userId: elsewhere.userId,
                 expectedUpdatedAt: elsewhereBefore.updatedAt.toISOString(),
@@ -367,11 +376,12 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
               },
               now,
             );
+            assertAdmitted(otherRevoked);
 
             const targetAfter = await tx.user.findUniqueOrThrow({ where: { id: target.userId } });
             let lastOperatorRejected = false;
-            try {
-              await repo.updateUserPlatformAccessOrThrowUnscoped(
+            {
+              const outcome = await repo.updateUserPlatformAccessUnscoped(
                 {
                   userId: target.userId,
                   expectedUpdatedAt: targetAfter.updatedAt.toISOString(),
@@ -381,8 +391,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
                 },
                 now,
               );
-            } catch (error) {
-              lastOperatorRejected = error instanceof OperatorConflictError;
+              lastOperatorRejected = outcome === "conflict";
             }
 
             const auditEvents = await tx.operatorAuditEvent.findMany({
@@ -424,23 +433,20 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
 
           const repo = new PrismaOperatorRepo();
           const rejects = async (actor: OperatorActor, userId: string, expectedUpdatedAt: string) => {
-            try {
-              await runWithOperator(actor, () =>
-                repo.updateUserPlatformAccessOrThrowUnscoped(
-                  {
-                    userId,
-                    expectedUpdatedAt,
-                    isPlatformOperator: true,
-                    reason: "Exercise the platform access guards",
-                    operationId: randomUUID(),
-                  },
-                  now,
-                ),
-              );
-              return false;
-            } catch (error) {
-              return error instanceof OperatorConflictError;
-            }
+            const outcome = await runWithOperator(actor, () =>
+              repo.updateUserPlatformAccessUnscoped(
+                {
+                  userId,
+                  expectedUpdatedAt,
+                  isPlatformOperator: true,
+                  reason: "Exercise the platform access guards",
+                  operationId: randomUUID(),
+                },
+                now,
+              ),
+            );
+
+            return outcome === "conflict";
           };
 
           const own = await createPlatformAccessUser(tx, {});

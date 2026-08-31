@@ -17,9 +17,16 @@ vi.mock("@/env", () => ({
   },
 }));
 
-import { OperatorConflictError, OperatorNotFoundError } from "../operator.errors";
 import { OPERATOR_AUDIT_ACTION } from "../operator.schema";
+import type { OperatorRefusal } from "../operator.repo";
 import { PrismaOperatorRepo } from "../prisma-operator.repository";
+
+const OPERATOR_REFUSALS: OperatorRefusal[] = ["conflict", "notFound", "unavailable"];
+
+function assertAdmitted<T>(result: T | OperatorRefusal): asserts result is T {
+  const refusal = OPERATOR_REFUSALS.find((candidate) => candidate === result);
+  if (refusal) throw new Error(`Expected a successful operator write but the repository refused with "${refusal}".`);
+}
 
 const { prisma } = await import("@/prisma/db");
 
@@ -196,7 +203,7 @@ describeDatabase("operator user administration against a real database", { timeo
     expect(summary.bySubscriptionStatus.active).toBeGreaterThanOrEqual(27);
     expect(summary.verifiedAuthUsers).toBeGreaterThanOrEqual(14);
 
-    const detail = await runWithOperator(actor, () => repo.getUserDetailOrThrowUnscoped(users[0].userId, now));
+    const detail = await runWithOperator(actor, () => repo.getUserDetailUnscoped(users[0].userId, now));
     expect(detail).toMatchObject({
       userId: users[0].userId,
       companyId,
@@ -261,7 +268,7 @@ describeDatabase("operator user administration against a real database", { timeo
 
     await expect(
       runWithOperator(operatorActor(target.userId), () =>
-        repo.updateUserStatusOrThrowUnscoped(
+        repo.updateUserStatusUnscoped(
           {
             userId: target.userId,
             expectedUpdatedAt: targetBefore.updatedAt.toISOString(),
@@ -273,12 +280,12 @@ describeDatabase("operator user administration against a real database", { timeo
           now,
         ),
       ),
-    ).rejects.toBeInstanceOf(OperatorConflictError);
+    ).resolves.toBe("conflict");
 
     const actor = operatorActor();
     await expect(
       runWithOperator(actor, () =>
-        repo.updateUserStatusOrThrowUnscoped(
+        repo.updateUserStatusUnscoped(
           {
             userId: target.userId,
             expectedUpdatedAt: targetBefore.updatedAt.toISOString(),
@@ -290,11 +297,11 @@ describeDatabase("operator user administration against a real database", { timeo
           now,
         ),
       ),
-    ).rejects.toBeInstanceOf(OperatorConflictError);
+    ).resolves.toBe("conflict");
 
     const backupBefore = await runWithoutTenant(() => prisma.user.findUniqueOrThrow({ where: { id: backup.userId } }));
     const activated = await runWithOperator(actor, () =>
-      repo.updateUserStatusOrThrowUnscoped(
+      repo.updateUserStatusUnscoped(
         {
           userId: backup.userId,
           expectedUpdatedAt: backupBefore.updatedAt.toISOString(),
@@ -306,6 +313,7 @@ describeDatabase("operator user administration against a real database", { timeo
         now,
       ),
     );
+    assertAdmitted(activated);
     expect(activated.status).toBe("active");
     expect(activated.agentCreditActivatedAt).toEqual(now);
     await expect(runWithoutTenant(() => prisma.task.findUnique({ where: { id: pendingTask.id } }))).resolves.toBeNull();
@@ -315,7 +323,7 @@ describeDatabase("operator user administration against a real database", { timeo
 
     await expect(
       runWithOperator(actor, () =>
-        repo.updateUserStatusOrThrowUnscoped(
+        repo.updateUserStatusUnscoped(
           {
             userId: target.userId,
             expectedUpdatedAt: "2000-01-01T00:00:00.000Z",
@@ -327,7 +335,7 @@ describeDatabase("operator user administration against a real database", { timeo
           now,
         ),
       ),
-    ).rejects.toBeInstanceOf(OperatorConflictError);
+    ).resolves.toBe("conflict");
 
     const operationId = randomUUID();
     const request = {
@@ -336,12 +344,10 @@ describeDatabase("operator user administration against a real database", { timeo
       status: "inactive" as const,
       operationId,
     };
-    const first = await runWithOperator(actor, () =>
-      repo.updateUserStatusOrThrowUnscoped(request, publishUserUpdated, now),
-    );
-    const replay = await runWithOperator(actor, () =>
-      repo.updateUserStatusOrThrowUnscoped(request, publishUserUpdated, now),
-    );
+    const first = await runWithOperator(actor, () => repo.updateUserStatusUnscoped(request, publishUserUpdated, now));
+    assertAdmitted(first);
+    const replay = await runWithOperator(actor, () => repo.updateUserStatusUnscoped(request, publishUserUpdated, now));
+    assertAdmitted(replay);
     expect(first.status).toBe("inactive");
     expect(first.agentCreditActivatedAt).toBeNull();
     expect(replay.status).toBe("inactive");
@@ -371,7 +377,7 @@ describeDatabase("operator user administration against a real database", { timeo
     const rollbackOperationId = randomUUID();
     await expect(
       runWithOperator(actor, () =>
-        repo.updateUserStatusOrThrowUnscoped(
+        repo.updateUserStatusUnscoped(
           {
             userId: rollbackTarget.userId,
             expectedUpdatedAt: rollbackBefore.updatedAt.toISOString(),
@@ -419,7 +425,7 @@ describeDatabase("operator user administration against a real database", { timeo
 
     await expect(
       runWithOperator(actor, () =>
-        repo.correctSubscriptionSnapshotOrThrowUnscoped(
+        repo.correctSubscriptionSnapshotUnscoped(
           {
             userId: target.userId,
             expectedUpdatedAt: "2000-01-01T00:00:00.000Z",
@@ -432,7 +438,7 @@ describeDatabase("operator user administration against a real database", { timeo
           now,
         ),
       ),
-    ).rejects.toBeInstanceOf(OperatorConflictError);
+    ).resolves.toBe("conflict");
 
     const operationId = randomUUID();
     const request = {
@@ -444,8 +450,10 @@ describeDatabase("operator user administration against a real database", { timeo
       reason: "Correct a provider-managed local snapshot",
       operationId,
     };
-    const first = await runWithOperator(actor, () => repo.correctSubscriptionSnapshotOrThrowUnscoped(request, now));
-    const replay = await runWithOperator(actor, () => repo.correctSubscriptionSnapshotOrThrowUnscoped(request, now));
+    const first = await runWithOperator(actor, () => repo.correctSubscriptionSnapshotUnscoped(request, now));
+    assertAdmitted(first);
+    const replay = await runWithOperator(actor, () => repo.correctSubscriptionSnapshotUnscoped(request, now));
+    assertAdmitted(replay);
     expect(first.subscription).toMatchObject({
       plan: "enterprise",
       status: "pastDue",
@@ -487,7 +495,7 @@ describeDatabase("operator user administration against a real database", { timeo
     const publishUserUpdated = vi.fn(() => Promise.resolve());
     await expect(
       runWithOperator(actor, () =>
-        repo.updateUserStatusOrThrowUnscoped(
+        repo.updateUserStatusUnscoped(
           {
             userId: target.userId,
             expectedUpdatedAt: userBeforeStatus.updatedAt.toISOString(),
@@ -499,7 +507,7 @@ describeDatabase("operator user administration against a real database", { timeo
           now,
         ),
       ),
-    ).rejects.toBeInstanceOf(OperatorConflictError);
+    ).resolves.toBe("conflict");
     expect(publishUserUpdated).not.toHaveBeenCalled();
     await expect(
       runWithoutTenant(() => prisma.user.findUniqueOrThrow({ where: { id: target.userId } })),
@@ -507,7 +515,7 @@ describeDatabase("operator user administration against a real database", { timeo
 
     await expect(
       runWithOperator(actor, () =>
-        repo.correctSubscriptionSnapshotOrThrowUnscoped(
+        repo.correctSubscriptionSnapshotUnscoped(
           {
             userId: missing.userId,
             expectedUpdatedAt: now.toISOString(),
@@ -520,7 +528,7 @@ describeDatabase("operator user administration against a real database", { timeo
           now,
         ),
       ),
-    ).rejects.toBeInstanceOf(OperatorNotFoundError);
+    ).resolves.toBe("notFound");
   });
 
   it("resets credits with compensating rows, serializes concurrent resets, and never rewrites usage", async () => {
@@ -594,11 +602,9 @@ describeDatabase("operator user administration against a real database", { timeo
       reason: "Reject a stale credit reset snapshot",
       operationId: randomUUID(),
     }));
-    for (const request of staleRequests) {
-      await expect(
-        runWithOperator(actor, () => repo.resetUserCreditsOrThrowUnscoped(request, now)),
-      ).rejects.toBeInstanceOf(OperatorConflictError);
-    }
+    for (const request of staleRequests)
+      await expect(runWithOperator(actor, () => repo.resetUserCreditsUnscoped(request, now))).resolves.toBe("conflict");
+
     await expect(
       runWithoutTenant(() =>
         prisma.agentCreditAdjustment.count({
@@ -623,7 +629,7 @@ describeDatabase("operator user administration against a real database", { timeo
     );
     await expect(
       runWithOperator(actor, () =>
-        repo.resetUserCreditsOrThrowUnscoped(
+        repo.resetUserCreditsUnscoped(
           {
             userId: target.userId,
             mode: "baseAllowance",
@@ -634,7 +640,7 @@ describeDatabase("operator user administration against a real database", { timeo
           now,
         ),
       ),
-    ).rejects.toBeInstanceOf(OperatorConflictError);
+    ).resolves.toBe("conflict");
     await expect(
       runWithoutTenant(() => prisma.agentCreditAdjustment.findUnique({ where: { operationId: staleBaseOperationId } })),
     ).resolves.toBeNull();
@@ -656,8 +662,10 @@ describeDatabase("operator user administration against a real database", { timeo
       reason: "Return allowance to the contracted base",
       operationId: baseOperationId,
     };
-    const base = await runWithOperator(actor, () => repo.resetUserCreditsOrThrowUnscoped(baseRequest, now));
-    const baseReplay = await runWithOperator(actor, () => repo.resetUserCreditsOrThrowUnscoped(baseRequest, now));
+    const base = await runWithOperator(actor, () => repo.resetUserCreditsUnscoped(baseRequest, now));
+    assertAdmitted(base);
+    const baseReplay = await runWithOperator(actor, () => repo.resetUserCreditsUnscoped(baseRequest, now));
+    assertAdmitted(baseReplay);
     expect(base.adjustment.creditDelta).toBe(-4);
     expect(base.user.creditPeriod).toMatchObject({
       baseAllowanceCredits: 10,
@@ -668,9 +676,9 @@ describeDatabase("operator user administration against a real database", { timeo
     expect(baseReplay.adjustment).toEqual(base.adjustment);
     await expect(
       runWithOperator(actor, () =>
-        repo.resetUserCreditsOrThrowUnscoped({ ...baseRequest, expectedBaseAllowanceCredits: 11 }, now),
+        repo.resetUserCreditsUnscoped({ ...baseRequest, expectedBaseAllowanceCredits: 11 }, now),
       ),
-    ).rejects.toBeInstanceOf(OperatorConflictError);
+    ).resolves.toBe("conflict");
     await expect(
       runWithoutTenant(() => prisma.operatorAuditEvent.findUniqueOrThrow({ where: { operationId: baseOperationId } })),
     ).resolves.toMatchObject({
@@ -689,35 +697,35 @@ describeDatabase("operator user administration against a real database", { timeo
       operationId,
     }));
     const outcomes = await Promise.allSettled(
-      zeroRequests.map((request) => runWithOperator(actor, () => repo.resetUserCreditsOrThrowUnscoped(request, now))),
+      zeroRequests.map((request) => runWithOperator(actor, () => repo.resetUserCreditsUnscoped(request, now))),
     );
-    const fulfilled = outcomes.filter(
-      (outcome): outcome is PromiseFulfilledResult<Awaited<ReturnType<typeof repo.resetUserCreditsOrThrowUnscoped>>> =>
-        outcome.status === "fulfilled",
-    );
-    const rejected = outcomes.filter((outcome) => outcome.status === "rejected");
-    expect(fulfilled).toHaveLength(1);
-    expect(rejected).toHaveLength(1);
-    expect(rejected[0]).toMatchObject({
-      reason: expect.any(OperatorConflictError),
+    const results = outcomes.map((outcome) => {
+      if (outcome.status !== "fulfilled") throw outcome.reason;
+      return outcome.value;
     });
-    expect(fulfilled[0].value.adjustment.creditDelta).toBe(-4);
-    expect(fulfilled[0].value.user.creditPeriod).toMatchObject({
+    const admittedResults = results.filter((value) => typeof value !== "string");
+    expect(admittedResults).toHaveLength(1);
+    expect(results.filter((value) => value === "conflict")).toHaveLength(1);
+
+    const winner = admittedResults[0];
+    expect(winner.adjustment.creditDelta).toBe(-4);
+    expect(winner.user.creditPeriod).toMatchObject({
       effectiveAllowanceCredits: 6,
       committedCredits: 6,
       remainingCredits: 0,
       overageCredits: 0,
     });
 
-    const winningOperationId = fulfilled[0].value.adjustment.operationId;
+    const winningOperationId = winner.adjustment.operationId;
     const winningRequest = zeroRequests.find((request) => request.operationId === winningOperationId);
     if (!winningRequest) throw new Error("Expected a successful zero-balance request.");
-    const zeroReplay = await runWithOperator(actor, () => repo.resetUserCreditsOrThrowUnscoped(winningRequest, now));
-    expect(zeroReplay.adjustment).toEqual(fulfilled[0].value.adjustment);
+    const zeroReplay = await runWithOperator(actor, () => repo.resetUserCreditsUnscoped(winningRequest, now));
+    assertAdmitted(zeroReplay);
+    expect(zeroReplay.adjustment).toEqual(winner.adjustment);
 
     await expect(
       runWithOperator(actor, () =>
-        repo.resetUserCreditsOrThrowUnscoped(
+        repo.resetUserCreditsUnscoped(
           {
             userId: target.userId,
             mode: "zeroBalance",
@@ -732,7 +740,7 @@ describeDatabase("operator user administration against a real database", { timeo
           now,
         ),
       ),
-    ).rejects.toBeInstanceOf(OperatorConflictError);
+    ).resolves.toBe("conflict");
 
     const usageAfter = await runWithoutTenant(() =>
       prisma.agentUsageEvent.findMany({
@@ -818,7 +826,7 @@ describeDatabase("operator user administration against a real database", { timeo
 
     await expect(
       runWithOperator(actor, () =>
-        repo.resetUserCreditsOrThrowUnscoped(
+        repo.resetUserCreditsUnscoped(
           {
             userId: target.userId,
             mode: "baseAllowance",
@@ -833,7 +841,7 @@ describeDatabase("operator user administration against a real database", { timeo
           now,
         ),
       ),
-    ).rejects.toBeInstanceOf(OperatorConflictError);
+    ).resolves.toBe("conflict");
     await expect(
       runWithoutTenant(() => prisma.agentCreditAdjustment.findUnique({ where: { operationId } })),
     ).resolves.toBeNull();

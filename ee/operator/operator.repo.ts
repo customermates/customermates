@@ -26,35 +26,37 @@ export type OperatorUserStatusChangedEvent = {
   roleId: string | null;
 };
 
+export type OperatorRefusal = "conflict" | "notFound" | "unavailable";
+
 export type PublishOperatorUserStatusChanged = (event: OperatorUserStatusChangedEvent) => Promise<void>;
 
 export abstract class OperatorRepo {
-  abstract getOverviewUnscoped(now?: Date): Promise<HostedAiOperatorOverviewDto>;
-  abstract updateEnterpriseAllowanceOrThrowUnscoped(
+  abstract getOverviewUnscoped(now?: Date): Promise<HostedAiOperatorOverviewDto | OperatorRefusal>;
+  abstract updateEnterpriseAllowanceUnscoped(
     data: UpdateHostedAiEnterpriseAllowanceData,
     now?: Date,
-  ): Promise<HostedAiOperatorCompanyDto>;
-  abstract createCreditAdjustmentOrThrowUnscoped(
+  ): Promise<HostedAiOperatorCompanyDto | OperatorRefusal>;
+  abstract createCreditAdjustmentUnscoped(
     data: CreateAgentCreditAdjustmentData,
     now?: Date,
-  ): Promise<AgentCreditAdjustmentDto>;
+  ): Promise<AgentCreditAdjustmentDto | OperatorRefusal>;
   abstract getUserSummaryUnscoped(): Promise<OperatorUserSummaryDto>;
-  abstract getUserDetailOrThrowUnscoped(userId: string, now?: Date): Promise<OperatorUserDetailDto>;
-  abstract updateUserStatusOrThrowUnscoped(
+  abstract getUserDetailUnscoped(userId: string, now?: Date): Promise<OperatorUserDetailDto | OperatorRefusal>;
+  abstract updateUserStatusUnscoped(
     data: UpdateOperatorUserStatusData,
     publishUserUpdated: PublishOperatorUserStatusChanged,
     now?: Date,
-  ): Promise<OperatorUserDetailDto>;
-  abstract updateUserPlatformAccessOrThrowUnscoped(
+  ): Promise<OperatorUserDetailDto | OperatorRefusal>;
+  abstract updateUserPlatformAccessUnscoped(
     data: UpdateOperatorUserPlatformAccessData,
     now?: Date,
-  ): Promise<OperatorUserDetailDto>;
-  abstract correctSubscriptionSnapshotOrThrowUnscoped(
+  ): Promise<OperatorUserDetailDto | OperatorRefusal>;
+  abstract correctSubscriptionSnapshotUnscoped(
     data: CorrectOperatorSubscriptionSnapshotData,
     now?: Date,
-  ): Promise<OperatorUserDetailDto>;
-  abstract resetUserCreditsOrThrowUnscoped(
+  ): Promise<OperatorUserDetailDto | OperatorRefusal>;
+  abstract resetUserCreditsUnscoped(
     data: ResetOperatorUserCreditsData,
     now?: Date,
-  ): Promise<ResetOperatorUserCreditsResultDto>;
+  ): Promise<ResetOperatorUserCreditsResultDto | OperatorRefusal>;
 }

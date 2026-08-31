@@ -10,9 +10,8 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { AGENT_CREDIT_MICROCENTS, resolveAgentCreditEntitlement } from "@/ee/agent-chat/agent-credit-policy";
 import { env } from "@/env";
 
-import { OperatorConfigurationError, OperatorConflictError, OperatorNotFoundError } from "./operator.errors";
 import { normalizeOperatorEmail } from "./operator-access.service";
-import type { OperatorRepo, PublishOperatorUserStatusChanged } from "./operator.repo";
+import type { OperatorRefusal, OperatorRepo, PublishOperatorUserStatusChanged } from "./operator.repo";
 import {
   OPERATOR_AUDIT_ACTION,
   type AgentCreditAdjustmentDto,
@@ -80,26 +79,25 @@ function utcMonth(now: Date): { start: Date; end: Date } {
 
 function asSafeCreditCount(value: number | null | undefined, description: string): number {
   const count = value ?? 0;
-  if (!Number.isSafeInteger(count) || count < 0) throw new OperatorConfigurationError(`${description} is invalid.`);
+  if (!Number.isSafeInteger(count) || count < 0) throw new Error(`${description} is invalid.`);
   return count;
 }
 
 function asSafeSignedCreditCount(value: number | null | undefined, description: string): number {
   const count = value ?? 0;
-  if (!Number.isSafeInteger(count)) throw new OperatorConfigurationError(`${description} is invalid.`);
+  if (!Number.isSafeInteger(count)) throw new Error(`${description} is invalid.`);
   return count;
 }
 
 function addSafeCreditCounts(left: number, right: number, description: string): number {
   const total = left + right;
-  if (!Number.isSafeInteger(total) || total < 0) throw new OperatorConfigurationError(`${description} is invalid.`);
+  if (!Number.isSafeInteger(total) || total < 0) throw new Error(`${description} is invalid.`);
   return total;
 }
 
 function asSafeBigIntCount(value: bigint | null | undefined, description: string): number {
   const count = value ?? 0n;
-  if (count < 0n || count > BigInt(Number.MAX_SAFE_INTEGER))
-    throw new OperatorConfigurationError(`${description} is invalid.`);
+  if (count < 0n || count > BigInt(Number.MAX_SAFE_INTEGER)) throw new Error(`${description} is invalid.`);
   return Number(count);
 }
 
@@ -131,7 +129,7 @@ function toUsageTotals(input: {
   const settled = input.settledCostMicrocents ?? 0n;
   const reservedCredits = asSafeCreditCount(input.reservedCredits, "Reserved hosted-AI credits");
   const chargedCredits = asSafeCreditCount(input.chargedCredits, "Charged hosted-AI credits");
-  if (settled < 0n) throw new OperatorConfigurationError("Settled hosted-AI cost is invalid.");
+  if (settled < 0n) throw new Error("Settled hosted-AI cost is invalid.");
 
   const reservedExposure = BigInt(reservedCredits) * BigInt(AGENT_CREDIT_MICROCENTS);
   return {
@@ -153,7 +151,7 @@ function mapGlobalControl(control: {
   createdAt: Date;
   updatedAt: Date;
 }): HostedAiGlobalControlDto {
-  if (control.id !== "global") throw new OperatorConfigurationError("Hosted-AI global control is malformed.");
+  if (control.id !== "global") throw new Error("Hosted-AI global control is malformed.");
 
   return {
     id: "global",
@@ -194,7 +192,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
     const control = await this.prisma.hostedAiGlobalControl.findUnique({
       where: { id: "global" },
     });
-    if (!control) throw new OperatorConfigurationError("Hosted-AI global control is not configured.");
+    if (!control) return "unavailable";
     return control;
   }
 
@@ -363,8 +361,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
       "Hosted-AI credit adjustment total",
     );
     const rawEffectiveAllowance = entitlement.limit + adjustmentCredits;
-    if (!Number.isSafeInteger(rawEffectiveAllowance))
-      throw new OperatorConfigurationError("Effective hosted-AI allowance is invalid.");
+    if (!Number.isSafeInteger(rawEffectiveAllowance)) throw new Error("Effective hosted-AI allowance is invalid.");
 
     const effectiveAllowanceCredits = Math.max(0, rawEffectiveAllowance);
     const chargedCredits = asSafeCreditCount(settled._sum.chargedCredits, "Charged hosted-AI credits");
@@ -387,11 +384,18 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
   }
 
   private async userDetailOrThrow(userId: string, now: Date): Promise<OperatorUserDetailDto> {
+    const detail = await this.userDetail(userId, now);
+    if (!detail) throw new Error("User not found after it was written.");
+
+    return detail;
+  }
+
+  private async userDetail(userId: string, now: Date): Promise<OperatorUserDetailDto | null> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: operatorUserDetailSelect,
     });
-    if (!user) throw new OperatorNotFoundError("User not found.");
+    if (!user) return null;
 
     const [verification, creditPeriod] = await Promise.all([
       this.authVerificationByUserId([user]),
@@ -425,17 +429,17 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
     };
   }
 
-  private async userCompanyIdOrThrow(userId: string): Promise<string> {
+  private async userCompanyId(userId: string): Promise<string | null> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { companyId: true },
     });
-    if (!user) throw new OperatorNotFoundError("User not found.");
+    if (!user) return null;
     return user.companyId;
   }
 
   @BypassTenantGuard
-  async getOverviewUnscoped(now = new Date()): Promise<HostedAiOperatorOverviewDto> {
+  async getOverviewUnscoped(now = new Date()): Promise<HostedAiOperatorOverviewDto | OperatorRefusal> {
     const month = utcMonth(now);
     const [control, companies, enterpriseCompanies, users, activeUsers, usage, companiesWithUsage] = await Promise.all([
       this.getGlobalControlOrThrow(),
@@ -460,6 +464,8 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         select: { companyId: true },
       }),
     ]);
+
+    if (control === "unavailable") return control;
 
     const result: HostedAiOperatorOverviewDto = {
       generatedAt: now,
@@ -543,17 +549,18 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
   }
 
   @BypassTenantGuard
-  async getUserDetailOrThrowUnscoped(userId: string, now = new Date()): Promise<OperatorUserDetailDto> {
-    return this.userDetailOrThrow(userId, now);
+  async getUserDetailUnscoped(userId: string, now = new Date()): Promise<OperatorUserDetailDto | OperatorRefusal> {
+    return (await this.userDetail(userId, now)) ?? "notFound";
   }
 
   @BypassTenantGuard
-  async updateUserStatusOrThrowUnscoped(
+  async updateUserStatusUnscoped(
     data: UpdateOperatorUserStatusData,
     publishUserUpdated: PublishOperatorUserStatusChanged,
     now = new Date(),
-  ): Promise<OperatorUserDetailDto> {
-    const companyId = await this.userCompanyIdOrThrow(data.userId);
+  ): Promise<OperatorUserDetailDto | OperatorRefusal> {
+    const companyId = await this.userCompanyId(data.userId);
+    if (!companyId) return "notFound";
     return runInTransaction(
       async () => {
         const actor = getOperatorActor();
@@ -579,7 +586,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             },
           },
         });
-        if (!target) throw new OperatorNotFoundError("User not found.");
+        if (!target) return "notFound";
 
         const prior = await this.prisma.operatorAuditEvent.findUnique({
           where: { operationId: data.operationId },
@@ -595,24 +602,18 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             metadata?.expectedUpdatedAt !== data.expectedUpdatedAt ||
             metadata?.nextStatus !== data.status
           )
-            throw new OperatorConflictError("The operation ID was already used for another request.");
+            return "conflict";
 
           return this.userDetailOrThrow(data.userId, now);
         }
 
-        if (target.updatedAt.toISOString() !== data.expectedUpdatedAt)
-          throw new OperatorConflictError("The user changed. Refresh before updating their status.");
+        if (target.updatedAt.toISOString() !== data.expectedUpdatedAt) return "conflict";
 
-        if (actor.userId === data.userId && data.status !== Status.active)
-          throw new OperatorConflictError("An operator cannot deactivate or suspend their own account.");
+        if (actor.userId === data.userId && data.status !== Status.active) return "conflict";
 
         const statusChanged = target.status !== data.status;
         const subscription = target.company.subscription;
-        if (statusChanged && subscription?.lemonSqueezyId) {
-          throw new OperatorConflictError(
-            "Provider-managed seat status must be changed through the tenant billing flow.",
-          );
-        }
+        if (statusChanged && subscription?.lemonSqueezyId) return "conflict";
 
         const leavingActive = target.status === Status.active && data.status !== Status.active;
         if (leavingActive && target.role?.isSystemRole) {
@@ -624,8 +625,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
               role: { isSystemRole: true },
             },
           });
-          if (otherActiveSystemUsers === 0)
-            throw new OperatorConflictError("The company must retain at least one active system-role user.");
+          if (otherActiveSystemUsers === 0) return "conflict";
         }
 
         const enteringActive = target.status !== Status.active && data.status === Status.active;
@@ -677,11 +677,12 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
   }
 
   @BypassTenantGuard
-  async updateUserPlatformAccessOrThrowUnscoped(
+  async updateUserPlatformAccessUnscoped(
     data: UpdateOperatorUserPlatformAccessData,
     now = new Date(),
-  ): Promise<OperatorUserDetailDto> {
-    const companyId = await this.userCompanyIdOrThrow(data.userId);
+  ): Promise<OperatorUserDetailDto | OperatorRefusal> {
+    const companyId = await this.userCompanyId(data.userId);
+    if (!companyId) return "notFound";
     return runInTransaction(
       async () => {
         const actor = getOperatorActor();
@@ -690,7 +691,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           where: { id: data.userId, companyId },
           select: { id: true, email: true, status: true, updatedAt: true, isPlatformOperator: true },
         });
-        if (!target) throw new OperatorNotFoundError("User not found.");
+        if (!target) return "notFound";
 
         const prior = await this.prisma.operatorAuditEvent.findUnique({
           where: { operationId: data.operationId },
@@ -706,43 +707,37 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             metadata?.expectedUpdatedAt !== data.expectedUpdatedAt ||
             metadata?.nextIsPlatformOperator !== data.isPlatformOperator
           )
-            throw new OperatorConflictError("The operation ID was already used for another request.");
+            return "conflict";
 
           return this.userDetailOrThrow(data.userId, now);
         }
 
-        if (target.updatedAt.toISOString() !== data.expectedUpdatedAt)
-          throw new OperatorConflictError("The user changed. Refresh before updating their platform access.");
+        if (target.updatedAt.toISOString() !== data.expectedUpdatedAt) return "conflict";
 
-        if (actor.userId === data.userId)
-          throw new OperatorConflictError("An operator cannot change their own platform access.");
+        if (actor.userId === data.userId) return "conflict";
 
         if (data.isPlatformOperator) {
-          if (target.status !== Status.active)
-            throw new OperatorConflictError("Only an active user can hold platform operator access.");
+          if (target.status !== Status.active) return "conflict";
 
           const email = normalizeOperatorEmail(target.email);
           const domainUsers = await this.prisma.user.count({
             where: { email: { equals: email, mode: "insensitive" } },
           });
-          if (domainUsers !== 1) throw new OperatorConflictError("The normalized email matches multiple users.");
+          if (domainUsers !== 1) return "conflict";
 
           const authUsers = await this.prisma.authUser.findMany({
             where: { email: { equals: email, mode: "insensitive" } },
             take: 2,
             select: { companyId: true, emailVerified: true },
           });
-          if (authUsers.length !== 1)
-            throw new OperatorConflictError("The normalized email must match exactly one auth user.");
-          if (!authUsers[0].emailVerified) throw new OperatorConflictError("The user's email must be verified.");
-          if (authUsers[0].companyId !== companyId)
-            throw new OperatorConflictError("The auth and domain users do not belong to the same company.");
+          if (authUsers.length !== 1) return "conflict";
+          if (!authUsers[0].emailVerified) return "conflict";
+          if (authUsers[0].companyId !== companyId) return "conflict";
         } else if (target.isPlatformOperator) {
           const otherActiveOperators = await this.prisma.user.count({
             where: { id: { not: data.userId }, isPlatformOperator: true, status: Status.active },
           });
-          if (otherActiveOperators === 0)
-            throw new OperatorConflictError("The platform must retain at least one active operator.");
+          if (otherActiveOperators === 0) return "conflict";
         }
 
         await this.prisma.user.update({
@@ -768,11 +763,12 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
   }
 
   @BypassTenantGuard
-  async correctSubscriptionSnapshotOrThrowUnscoped(
+  async correctSubscriptionSnapshotUnscoped(
     data: CorrectOperatorSubscriptionSnapshotData,
     now = new Date(),
-  ): Promise<OperatorUserDetailDto> {
-    const companyId = await this.userCompanyIdOrThrow(data.userId);
+  ): Promise<OperatorUserDetailDto | OperatorRefusal> {
+    const companyId = await this.userCompanyId(data.userId);
+    if (!companyId) return "notFound";
     return runInTransaction(
       async () => {
         const actor = getOperatorActor();
@@ -781,7 +777,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           where: { id: data.userId, companyId },
           select: { id: true },
         });
-        if (!target) throw new OperatorNotFoundError("User not found.");
+        if (!target) return "notFound";
 
         const prior = await this.prisma.operatorAuditEvent.findUnique({
           where: { operationId: data.operationId },
@@ -800,7 +796,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             next?.status !== data.status ||
             next?.quantity !== data.quantity
           )
-            throw new OperatorConflictError("The operation ID was already used for another request.");
+            return "conflict";
 
           return this.userDetailOrThrow(data.userId, now);
         }
@@ -808,9 +804,8 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         const subscription = await this.prisma.subscription.findUnique({
           where: { companyId },
         });
-        if (!subscription) throw new OperatorNotFoundError("Company subscription not found.");
-        if (subscription.updatedAt.toISOString() !== data.expectedUpdatedAt)
-          throw new OperatorConflictError("The subscription changed. Refresh before correcting its snapshot.");
+        if (!subscription) return "notFound";
+        if (subscription.updatedAt.toISOString() !== data.expectedUpdatedAt) return "conflict";
 
         const previous = {
           plan: subscription.plan,
@@ -848,10 +843,10 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
   }
 
   @BypassTenantGuard
-  async updateEnterpriseAllowanceOrThrowUnscoped(
+  async updateEnterpriseAllowanceUnscoped(
     data: UpdateHostedAiEnterpriseAllowanceData,
     now = new Date(),
-  ): Promise<HostedAiOperatorCompanyDto> {
+  ): Promise<HostedAiOperatorCompanyDto | OperatorRefusal> {
     return runInTransaction(
       async () => {
         const actor = getOperatorActor();
@@ -868,19 +863,18 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             prior.reason !== reason ||
             metadata?.creditsPerUser !== data.creditsPerUser
           )
-            throw new OperatorConflictError("The operation ID was already used for another request.");
+            return "conflict";
 
           const replay = await this.companySnapshot(data.companyId, now);
-          if (!replay) throw new OperatorNotFoundError("Company or subscription not found.");
+          if (!replay) return "notFound";
           return replay;
         }
 
         const subscription = await this.prisma.subscription.findUnique({
           where: { companyId: data.companyId },
         });
-        if (!subscription) throw new OperatorNotFoundError("Company subscription not found.");
-        if (subscription.plan !== SubscriptionPlan.enterprise)
-          throw new OperatorConflictError("Enterprise allowance can only be set for an Enterprise subscription.");
+        if (!subscription) return "notFound";
+        if (subscription.plan !== SubscriptionPlan.enterprise) return "conflict";
 
         await this.prisma.subscription.update({
           where: { companyId: data.companyId },
@@ -898,7 +892,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         });
 
         const result = await this.companySnapshot(data.companyId, now);
-        if (!result) throw new OperatorConfigurationError("Updated Enterprise subscription could not be read.");
+        if (!result) throw new Error("Updated Enterprise subscription could not be read.");
         return result;
       },
       { companyId: data.companyId },
@@ -906,10 +900,10 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
   }
 
   @BypassTenantGuard
-  async createCreditAdjustmentOrThrowUnscoped(
+  async createCreditAdjustmentUnscoped(
     data: CreateAgentCreditAdjustmentData,
     now = new Date(),
-  ): Promise<AgentCreditAdjustmentDto> {
+  ): Promise<AgentCreditAdjustmentDto | OperatorRefusal> {
     return runInTransaction(
       async () => {
         const actor = getOperatorActor();
@@ -929,7 +923,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             existing.reason !== reason ||
             existing.createdByOperatorUserId !== actor.userId
           )
-            throw new OperatorConflictError("The operation ID was already used for another adjustment.");
+            return "conflict";
 
           return existing;
         }
@@ -944,12 +938,11 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             company: { select: { subscription: true } },
           },
         });
-        if (!user) throw new OperatorNotFoundError("User was not found in the selected company.");
-        if (user.status !== Status.active)
-          throw new OperatorConflictError("Credit adjustments require an active user.");
+        if (!user) return "notFound";
+        if (user.status !== Status.active) return "conflict";
 
         const subscription = user.company.subscription;
-        if (!subscription) throw new OperatorConfigurationError("The selected company has no subscription.");
+        if (!subscription) return "unavailable";
 
         const entitlement = resolveAgentCreditEntitlement({
           appMode: env.APP_MODE,
@@ -961,14 +954,13 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           activeSeatAt: user.agentCreditActivatedAt,
           now,
         });
-        if (entitlement.blockedReason)
-          throw new OperatorConflictError(`Hosted-AI credits are blocked: ${entitlement.blockedReason}.`);
+        if (entitlement.blockedReason) return "conflict";
 
         if (
           entitlement.start.getTime() !== periodStart.getTime() ||
           entitlement.resetAt.getTime() !== periodEnd.getTime()
         )
-          throw new OperatorConflictError("The adjustment must target the user's current credit period.");
+          return "conflict";
 
         const [adjustmentAggregate, settledAggregate, reservedAggregate] = await Promise.all([
           this.prisma.agentCreditAdjustment.aggregate({
@@ -1009,8 +1001,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           asSafeCreditCount(settledAggregate._sum.chargedCredits, "Charged hosted-AI credits") +
           asSafeCreditCount(reservedAggregate._sum.reservedCredits, "Reserved hosted-AI credits");
         const effectiveAllowance = entitlement.limit + priorAdjustments + data.creditDelta;
-        if (!Number.isSafeInteger(effectiveAllowance) || effectiveAllowance < committed)
-          throw new OperatorConflictError("The adjustment would reduce the allowance below committed usage.");
+        if (!Number.isSafeInteger(effectiveAllowance) || effectiveAllowance < committed) return "conflict";
 
         const adjustment = await this.prisma.agentCreditAdjustment.create({
           data: {
@@ -1043,11 +1034,12 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
   }
 
   @BypassTenantGuard
-  async resetUserCreditsOrThrowUnscoped(
+  async resetUserCreditsUnscoped(
     data: ResetOperatorUserCreditsData,
     now = new Date(),
-  ): Promise<ResetOperatorUserCreditsResultDto> {
-    const companyId = await this.userCompanyIdOrThrow(data.userId);
+  ): Promise<ResetOperatorUserCreditsResultDto | OperatorRefusal> {
+    const companyId = await this.userCompanyId(data.userId);
+    if (!companyId) return "notFound";
     return runInTransaction(
       async () => {
         const actor = getOperatorActor();
@@ -1084,7 +1076,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             metadata?.periodStart !== existing.periodStart.toISOString() ||
             metadata?.periodEnd !== existing.periodEnd.toISOString()
           )
-            throw new OperatorConflictError("The operation ID was already used for another request.");
+            return "conflict";
 
           return {
             adjustment: existing,
@@ -1096,13 +1088,12 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           where: { id: data.userId, companyId },
           select: operatorUserDetailSelect,
         });
-        if (!user) throw new OperatorNotFoundError("User not found.");
-        if (user.status !== Status.active) throw new OperatorConflictError("Credit resets require an active user.");
-        if (!user.company.subscription)
-          throw new OperatorConfigurationError("The selected company has no subscription.");
+        if (!user) return "notFound";
+        if (user.status !== Status.active) return "conflict";
+        if (!user.company.subscription) return "unavailable";
 
         const credit = await this.userCreditPeriod(user, now);
-        if (!credit) throw new OperatorConfigurationError("The selected user has no credit period.");
+        if (!credit) return "unavailable";
         if (
           credit.periodStart.toISOString() !== data.expectedPeriodStart ||
           credit.periodEnd.toISOString() !== data.expectedPeriodEnd ||
@@ -1110,23 +1101,20 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           credit.adjustmentCredits !== data.expectedAdjustmentCredits ||
           credit.committedCredits !== data.expectedCommittedCredits
         )
-          throw new OperatorConflictError("The user's credit position changed. Refresh before resetting credits.");
+          return "conflict";
 
         const currentAllowance = credit.baseAllowanceCredits + credit.adjustmentCredits;
-        if (!Number.isSafeInteger(currentAllowance))
-          throw new OperatorConfigurationError("Current hosted-AI allowance is invalid.");
+        if (!Number.isSafeInteger(currentAllowance)) throw new Error("Current hosted-AI allowance is invalid.");
 
         const creditDelta =
           data.mode === "baseAllowance" ? -credit.adjustmentCredits : credit.committedCredits - currentAllowance;
-        if (!Number.isSafeInteger(creditDelta) || Math.abs(creditDelta) > MAX_ADJUSTMENT_CREDITS)
-          throw new OperatorConflictError("The required reset adjustment exceeds the safe credit limit.");
+        if (!Number.isSafeInteger(creditDelta) || Math.abs(creditDelta) > MAX_ADJUSTMENT_CREDITS) return "conflict";
 
-        if (creditDelta === 0)
-          throw new OperatorConflictError("The user's credits already match the requested reset target.");
+        if (creditDelta === 0) return "conflict";
 
         const resultingAllowance = currentAllowance + creditDelta;
         if (!Number.isSafeInteger(resultingAllowance) || resultingAllowance < credit.committedCredits)
-          throw new OperatorConflictError("The reset would reduce the allowance below committed usage.");
+          return "conflict";
 
         const adjustment = await this.prisma.agentCreditAdjustment.create({
           data: {
