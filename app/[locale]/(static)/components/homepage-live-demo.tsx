@@ -33,7 +33,7 @@ export function HomepageLiveDemo({ locale, proof }: { locale: ContentLocale; pro
         </p>
 
         <div className="col-span-12 mt-4">
-          <HeroDemoIframe size="article" src={demoSrc} />
+          <HeroDemoIframe size="full" src={demoSrc} />
         </div>
       </div>
     </MarketingSection>
