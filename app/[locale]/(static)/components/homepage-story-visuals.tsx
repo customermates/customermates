@@ -1,6 +1,11 @@
-import type { CSSProperties, ReactNode } from "react";
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import type { CSSProperties, ReactNode, Ref } from "react";
 import type { HomepageVisualLabels } from "@/core/fumadocs/schemas/homepage";
 
+import { animate, cubicBezier, motion, useMotionValue, useTransform } from "framer-motion";
+import type { MotionValue } from "framer-motion";
 import { Check, MousePointer2, Send } from "lucide-react";
 
 import {
@@ -25,6 +30,8 @@ import { VisualArtboard as MarketingVisualArtboard } from "@/components/marketin
 import { cn } from "@/core/utils/cn";
 import { formattingTagFor, type ContentLocale } from "@/i18n/locale-registry";
 
+import { useHomepageMotion } from "./homepage-motion";
+
 type VisualProps = {
   className?: string;
   labels: HomepageVisualLabels;
@@ -32,6 +39,99 @@ type VisualProps = {
 };
 
 type VisualArtboardName = "agent-record" | "human-handoff" | "omnichannel-record" | "pipeline";
+
+const MARKETING_MOTION_EASE = [0.22, 1, 0.36, 1] as const;
+const SIGNAL_EASES = {
+  drift: [0.38, 0.1, 0.3, 1],
+  settle: MARKETING_MOTION_EASE,
+  swift: [0.2, 0.75, 0.35, 1],
+} as const;
+const PIPELINE_LOOP_SECONDS = 12;
+const PIPELINE_LOOP_TRANSITION = {
+  duration: PIPELINE_LOOP_SECONDS,
+  ease: MARKETING_MOTION_EASE,
+  repeat: Number.POSITIVE_INFINITY,
+};
+const HANDOFF_DRAFT_LINES = ["w-[92%] bg-placeholder", "w-[76%] bg-muted", "w-[54%] bg-muted"];
+const SIGNAL_ACTIVITY_TIMES = [0, 0.02, 0.12, 0.9, 0.98, 1];
+const SIGNAL_ACTIVITY_VALUES = [0, 0, 1, 1, 0, 0];
+const SIGNAL_TRAVEL_TIMES = [0, 0.12, 0.9, 1];
+const SIGNAL_TRAVEL_VALUES = [0, 0, 1, 1];
+const PROVIDER_ARRIVAL_OPACITY = [0, 0.65, 0];
+const PROVIDER_ARRIVAL_SCALE = [1, 1.015, 1];
+const PROVIDER_ARRIVAL_TIMES = [0, 0.45, 1];
+const PROVIDER_ARRIVAL_DELAY_RATIO = 0.72;
+const PROVIDER_ARRIVAL_DURATION_RATIO = 0.22;
+const PIPELINE_DRAG_TIMES = [0, 0.08, 0.14, 0.3, 0.38, 0.54, 0.62, 0.76, 0.84, 0.94, 1];
+const PIPELINE_DRAG_X = ["0%", "0%", "0%", "110%", "110%", "220%", "220%", "110%", "110%", "0%", "0%"];
+const PIPELINE_DRAG_Y = [-18, -18, -12, 4, 4, 28, 28, 4, 4, -18, -18];
+const PIPELINE_SOURCE_OUTLINE_OPACITY = [0, 1, 1, 1, 1, 1, 1, 1, 0.55, 0, 0];
+const APPROVED_INBOX_PROVIDERS = new Set(VISUAL_PROVIDER_SET_FIXTURES["unified-inbox"].providers);
+
+type SignalEase = keyof typeof SIGNAL_EASES;
+type OneToThree<T> = readonly [T] | readonly [T, T] | readonly [T, T, T];
+type TimedScene = { durationMs: number };
+type TimedSignal = {
+  delayMs: number;
+  durationMs: number;
+  ease: SignalEase;
+};
+type SignalTimeline = {
+  activity: MotionValue<number>;
+  travel: MotionValue<number>;
+};
+
+const LINEAR_EASE = (progress: number) => progress;
+const SIGNAL_EASING_FUNCTIONS = {
+  drift: cubicBezier(...SIGNAL_EASES.drift),
+  settle: cubicBezier(...SIGNAL_EASES.settle),
+  swift: cubicBezier(...SIGNAL_EASES.swift),
+} satisfies Record<SignalEase, (progress: number) => number>;
+
+function useSignalTimeline(signal: TimedSignal, shouldAnimate: boolean): SignalTimeline {
+  const phase = useMotionValue(0);
+  const activity = useTransform(phase, SIGNAL_ACTIVITY_TIMES, SIGNAL_ACTIVITY_VALUES);
+  const travel = useTransform(phase, SIGNAL_TRAVEL_TIMES, SIGNAL_TRAVEL_VALUES, {
+    ease: [LINEAR_EASE, SIGNAL_EASING_FUNCTIONS[signal.ease], LINEAR_EASE],
+  });
+
+  useEffect(() => {
+    phase.set(0);
+    if (!shouldAnimate) return;
+
+    const controls = animate(phase, 1, {
+      delay: signal.delayMs / 1_000,
+      duration: signal.durationMs / 1_000,
+      ease: LINEAR_EASE,
+    });
+
+    return () => controls.stop();
+  }, [phase, shouldAnimate, signal.delayMs, signal.durationMs, signal.ease]);
+
+  return { activity, travel };
+}
+
+function useTimedSceneCycle<TScene extends TimedScene>(scenes: readonly TScene[], shouldAnimate: boolean) {
+  const [position, setPosition] = useState({ revision: 0, sceneIndex: 0 });
+
+  useEffect(() => {
+    if (!shouldAnimate) return;
+
+    const timeout = window.setTimeout(() => {
+      setPosition(({ revision, sceneIndex }) => ({
+        revision: revision + 1,
+        sceneIndex: (sceneIndex + 1) % scenes.length,
+      }));
+    }, scenes[position.sceneIndex].durationMs);
+
+    return () => window.clearTimeout(timeout);
+  }, [position.sceneIndex, scenes, shouldAnimate]);
+
+  return {
+    revision: position.revision,
+    scene: scenes[position.sceneIndex],
+  };
+}
 
 const STAGE_CROP_CLASSES: Record<VisualArtboardName, string> = {
   "agent-record": "-right-[22%] -top-[38%] rotate-[-12deg]",
@@ -44,14 +144,18 @@ function HomepageVisualArtboard({
   children,
   className,
   label,
+  motionActive,
+  motionRef,
   name,
 }: {
   children: ReactNode;
   className?: string;
   label: string;
+  motionActive?: boolean;
+  motionRef?: Ref<HTMLDivElement>;
   name: VisualArtboardName;
 }) {
-  return (
+  const artboard = (
     <MarketingVisualArtboard
       aria-label={label}
       className={cn(
@@ -75,6 +179,19 @@ function HomepageVisualArtboard({
 
       {children}
     </MarketingVisualArtboard>
+  );
+
+  if (!motionRef) return artboard;
+
+  return (
+    <div
+      ref={motionRef}
+      className="w-full"
+      data-homepage-motion-scene={name}
+      data-motion-active={motionActive ? "true" : "false"}
+    >
+      {artboard}
+    </div>
   );
 }
 
@@ -190,17 +307,17 @@ type OrbitNode = {
 const ORBIT_NODES = [
   {
     desktop: { node: [120, 112], target: [275, 245] },
-    mobile: { node: [85, 85], target: [126, 260] },
+    mobile: { node: [85, 85], target: [138, 205] },
     provider: "gmail",
   },
   {
     desktop: { node: [95, 310], target: [275, 310] },
-    mobile: { node: [55, 330], target: [126, 340] },
+    mobile: { node: [55, 330], target: [126, 330] },
     provider: "outlook",
   },
   {
-    desktop: { node: [220, 552], target: [365, 505] },
-    mobile: { node: [160, 660], target: [220, 460] },
+    desktop: { node: [220, 552], target: [365, 400] },
+    mobile: { node: [160, 660], target: [160, 400] },
     provider: "imap",
   },
   {
@@ -210,20 +327,85 @@ const ORBIT_NODES = [
   },
   {
     desktop: { node: [880, 112], target: [725, 245] },
-    mobile: { node: [515, 85], target: [474, 260] },
+    mobile: { node: [515, 85], target: [462, 205] },
     provider: "linkedin",
   },
   {
     desktop: { node: [905, 310], target: [725, 310] },
-    mobile: { node: [545, 330], target: [474, 340] },
+    mobile: { node: [545, 330], target: [474, 330] },
     provider: "whatsapp",
   },
   {
-    desktop: { node: [780, 552], target: [635, 505] },
-    mobile: { node: [440, 660], target: [380, 460] },
+    desktop: { node: [780, 552], target: [635, 400] },
+    mobile: { node: [440, 660], target: [440, 400] },
     provider: "instagram",
   },
 ] as const satisfies readonly OrbitNode[];
+
+type OmnichannelSignalSpec = {
+  delayMs: number;
+  durationMs: number;
+  ease: SignalEase;
+  provider: VisualProviderFixtureId;
+};
+
+type OmnichannelSignalBurst = {
+  durationMs: number;
+  signals: OneToThree<OmnichannelSignalSpec>;
+};
+
+const OMNICHANNEL_SIGNAL_BURSTS = [
+  {
+    durationMs: 2_800,
+    signals: [
+      { delayMs: 0, durationMs: 2_600, ease: "settle", provider: "gmail" },
+      { delayMs: 750, durationMs: 2_000, ease: "drift", provider: "telegram" },
+    ],
+  },
+  {
+    durationMs: 3_500,
+    signals: [
+      { delayMs: 0, durationMs: 3_000, ease: "drift", provider: "whatsapp" },
+      { delayMs: 450, durationMs: 2_400, ease: "settle", provider: "linkedin" },
+      { delayMs: 1_200, durationMs: 2_200, ease: "swift", provider: "imap" },
+    ],
+  },
+  {
+    durationMs: 3_150,
+    signals: [
+      { delayMs: 0, durationMs: 2_700, ease: "settle", provider: "outlook" },
+      { delayMs: 650, durationMs: 2_400, ease: "drift", provider: "instagram" },
+    ],
+  },
+  {
+    durationMs: 3_750,
+    signals: [
+      { delayMs: 0, durationMs: 3_100, ease: "drift", provider: "telegram" },
+      { delayMs: 800, durationMs: 2_400, ease: "settle", provider: "gmail" },
+      {
+        delayMs: 1_450,
+        durationMs: 2_200,
+        ease: "swift",
+        provider: "whatsapp",
+      },
+    ],
+  },
+  {
+    durationMs: 3_200,
+    signals: [
+      { delayMs: 0, durationMs: 2_800, ease: "settle", provider: "linkedin" },
+      { delayMs: 600, durationMs: 2_500, ease: "drift", provider: "outlook" },
+    ],
+  },
+  {
+    durationMs: 3_700,
+    signals: [
+      { delayMs: 0, durationMs: 3_100, ease: "drift", provider: "instagram" },
+      { delayMs: 700, durationMs: 2_500, ease: "settle", provider: "imap" },
+      { delayMs: 1_500, durationMs: 2_100, ease: "swift", provider: "gmail" },
+    ],
+  },
+] as const satisfies readonly OmnichannelSignalBurst[];
 
 type OrbitPositionStyle = CSSProperties &
   Record<"--orbit-desktop-x" | "--orbit-desktop-y" | "--orbit-mobile-x" | "--orbit-mobile-y", string>;
@@ -235,6 +417,130 @@ function orbitPositionStyle({ desktop, mobile }: OrbitNode): OrbitPositionStyle 
     "--orbit-mobile-x": `${mobile.node[0] / 6}%`,
     "--orbit-mobile-y": `${(mobile.node[1] / 760) * 100}%`,
   };
+}
+
+function SyncedSignalPath({
+  kind,
+  path,
+  provider,
+  start,
+  timeline,
+}: {
+  kind: "handoff" | "omnichannel";
+  path: string;
+  provider: VisualAgentProviderFixtureId | VisualProviderFixtureId;
+  start: OrbitPoint;
+  timeline: SignalTimeline;
+}) {
+  const pathRef = useRef<SVGPathElement>(null);
+  const point = useTransform(timeline.travel, (progress) => {
+    const motionPath = pathRef.current;
+
+    if (!motionPath) return { x: start[0], y: start[1] };
+
+    const totalLength = motionPath.getTotalLength();
+    if (totalLength === 0) return { x: start[0], y: start[1] };
+
+    const position = motionPath.getPointAtLength(totalLength * progress);
+    return { x: position.x, y: position.y };
+  });
+  const signalX = useTransform(point, ({ x }) => x);
+  const signalY = useTransform(point, ({ y }) => y);
+
+  return (
+    <>
+      <motion.path
+        ref={pathRef}
+        d={path}
+        fill="none"
+        stroke="var(--primary)"
+        strokeLinecap="butt"
+        strokeWidth="2.5"
+        style={{ opacity: timeline.activity, pathLength: timeline.travel }}
+      />
+
+      <motion.circle
+        cx={signalX}
+        cy={signalY}
+        data-homepage-handoff-signal={kind === "handoff" ? provider : undefined}
+        data-homepage-motion-signal={kind === "omnichannel" ? provider : undefined}
+        fill="var(--primary)"
+        r="5"
+        style={{ opacity: timeline.activity }}
+      />
+    </>
+  );
+}
+
+function ProviderSignalRing({
+  provider,
+  timeline,
+}: {
+  provider: VisualAgentProviderFixtureId | VisualProviderFixtureId;
+  timeline: SignalTimeline;
+}) {
+  const pingOpacity = useTransform(timeline.travel, [0, 0.16, 0.65, 1], [0, 0.55, 0.18, 0]);
+  const pingScale = useTransform(timeline.travel, [0, 0.45, 1], [1, 1.16, 1.24]);
+
+  return (
+    <motion.span
+      aria-hidden
+      className="pointer-events-none absolute -inset-1 z-0 rounded-full border border-primary/70"
+      data-homepage-provider-ping={provider}
+      style={{ opacity: timeline.activity }}
+    >
+      <motion.span
+        className="absolute -inset-px rounded-full border border-primary/35"
+        style={{ opacity: pingOpacity, scale: pingScale }}
+      />
+    </motion.span>
+  );
+}
+
+function OrbitSignal({ orbitNode, signal }: { orbitNode: OrbitNode; signal: OmnichannelSignalSpec }) {
+  const timeline = useSignalTimeline(signal, true);
+
+  return (
+    <>
+      <svg
+        aria-hidden
+        className="absolute inset-0 hidden size-full sm:block"
+        preserveAspectRatio="none"
+        viewBox="0 0 1000 620"
+      >
+        <SyncedSignalPath
+          kind="omnichannel"
+          path={`M${orbitNode.desktop.node.join(" ")} L${orbitNode.desktop.target.join(" ")}`}
+          provider={signal.provider}
+          start={orbitNode.desktop.node}
+          timeline={timeline}
+        />
+      </svg>
+
+      <svg
+        aria-hidden
+        className="absolute inset-0 size-full sm:hidden"
+        preserveAspectRatio="none"
+        viewBox="0 0 600 760"
+      >
+        <SyncedSignalPath
+          kind="omnichannel"
+          path={`M${orbitNode.mobile.node.join(" ")} L${orbitNode.mobile.target.join(" ")}`}
+          provider={signal.provider}
+          start={orbitNode.mobile.node}
+          timeline={timeline}
+        />
+      </svg>
+
+      <span
+        aria-hidden
+        className="pointer-events-none absolute left-[var(--orbit-mobile-x)] top-[var(--orbit-mobile-y)] z-[11] size-12 -translate-1/2 sm:left-[var(--orbit-desktop-x)] sm:top-[var(--orbit-desktop-y)] sm:size-14"
+        style={orbitPositionStyle(orbitNode)}
+      >
+        <ProviderSignalRing provider={signal.provider} timeline={timeline} />
+      </span>
+    </>
+  );
 }
 
 function OrbitConnectors() {
@@ -280,70 +586,89 @@ function OrbitConnectors() {
 }
 
 export function HomepageOmnichannelVisual({ className, label, labels, locale }: VisualProps & { label: string }) {
-  const approvedProviders = new Set(VISUAL_PROVIDER_SET_FIXTURES["unified-inbox"].providers);
   const activeConversation = VISUAL_CONVERSATION_FIXTURES["gmail-rollout-next-steps"];
+  const { ref, shouldAnimate } = useHomepageMotion<HTMLDivElement>();
+  const { revision, scene: activeBurst } = useTimedSceneCycle(OMNICHANNEL_SIGNAL_BURSTS, shouldAnimate);
 
   return (
     <HomepageVisualArtboard
       className={cn("aspect-[4/5] min-h-[34rem] sm:aspect-[8/5] sm:min-h-0", className)}
       label={label}
+      motionActive={shouldAnimate}
+      motionRef={ref}
       name="omnichannel-record"
     >
       <OrbitConnectors />
 
-      {ORBIT_NODES.filter(({ provider }) => approvedProviders.has(provider)).map((orbitNode) => (
+      {shouldAnimate
+        ? activeBurst.signals.map((signal) => {
+            const orbitNode = ORBIT_NODES.find(({ provider }) => provider === signal.provider);
+
+            return orbitNode ? (
+              <OrbitSignal key={`${revision}-${signal.provider}`} orbitNode={orbitNode} signal={signal} />
+            ) : null;
+          })
+        : null}
+
+      {ORBIT_NODES.filter(({ provider }) => APPROVED_INBOX_PROVIDERS.has(provider)).map((orbitNode) => (
         <span
           key={orbitNode.provider}
-          className={cn(
-            "absolute left-[var(--orbit-mobile-x)] top-[var(--orbit-mobile-y)] z-10 grid size-12 -translate-1/2 place-items-center rounded-full border border-border bg-card shadow-sm sm:left-[var(--orbit-desktop-x)] sm:top-[var(--orbit-desktop-y)] sm:size-14",
-            orbitNode.provider === activeConversation.provider
-              ? "border-primary/50 ring-4 ring-primary/10"
-              : "opacity-75",
-          )}
+          className="absolute left-[var(--orbit-mobile-x)] top-[var(--orbit-mobile-y)] z-10 size-12 -translate-1/2 sm:left-[var(--orbit-desktop-x)] sm:top-[var(--orbit-desktop-y)] sm:size-14"
+          data-homepage-provider-shell={orbitNode.provider}
           style={orbitPositionStyle(orbitNode)}
         >
-          <ProviderMark provider={orbitNode.provider} size={22} />
+          <span className="relative z-10 grid size-full place-items-center rounded-full border border-border bg-card shadow-sm">
+            <ProviderMark provider={orbitNode.provider} size={22} />
+          </span>
         </span>
       ))}
 
-      <div className="absolute left-1/2 top-[27%] z-20 w-[58%] -translate-x-1/2 overflow-hidden rounded-card border border-border bg-card p-4 shadow-xl shadow-black/10 dark:shadow-black/30 sm:top-[29%] sm:w-[45%] sm:p-6">
-        <p className="text-meta">{labels.customerRecord}</p>
+      <div className="absolute left-1/2 top-[27%] z-20 w-[58%] -translate-x-1/2 sm:top-[29%] sm:w-[45%]">
+        <div
+          className="relative overflow-hidden rounded-card border border-border bg-card p-4 shadow-xl shadow-black/10 dark:shadow-black/30 sm:p-6"
+          data-homepage-motion-phase="signal-to-record"
+        >
+          <p className="text-meta">{labels.customerRecord}</p>
 
-        <div className="mt-3 flex items-center gap-3">
-          <PersonAvatar person="anna-mueller" size={44} />
+          <div className="mt-3 flex items-center gap-3">
+            <PersonAvatar person="anna-mueller" size={44} />
 
-          <div className="min-w-0">
-            <p className="truncate font-medium">{VISUAL_PERSON_FIXTURES["anna-mueller"].name}</p>
+            <div className="min-w-0">
+              <p className="truncate font-medium">{VISUAL_PERSON_FIXTURES["anna-mueller"].name}</p>
 
-            <p className="mt-1 text-xs text-muted-foreground">{labels.connectedRecord}</p>
-          </div>
-        </div>
-
-        <div className="-mx-4 mt-5 border-t border-border px-4 pt-4 sm:-mx-6 sm:px-6" data-homepage-rules="full-bleed">
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-[9px] font-medium tracking-[0.1em] text-muted-foreground uppercase">
-              {labels.latestActivity}
-            </p>
-
-            <span className="flex shrink-0 items-center gap-1.5 text-[10px] text-muted-foreground">
-              <span aria-hidden className="size-1.5 rounded-full bg-warning" />
-
-              {labels.open}
-            </span>
+              <p className="mt-1 text-xs text-muted-foreground">{labels.connectedRecord}</p>
+            </div>
           </div>
 
-          <div className="mt-3 flex min-w-0 items-center gap-2">
-            <ProviderIdentity className="text-[10px]" iconSize={16} provider={activeConversation.provider} />
+          <div
+            className="-mx-4 mt-5 border-t border-border px-4 pt-4 sm:-mx-6 sm:px-6"
+            data-homepage-rules="full-bleed"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-[9px] font-medium tracking-[0.1em] text-muted-foreground uppercase">
+                {labels.latestActivity}
+              </p>
 
-            <span aria-hidden className="h-4 w-px shrink-0 bg-border" />
+              <span className="flex shrink-0 items-center gap-1.5 text-[10px] text-muted-foreground">
+                <span aria-hidden className="size-1.5 rounded-full bg-warning" />
 
-            <p className="min-w-0 truncate text-[11px] font-medium">{activeConversation.localizedSubject[locale]}</p>
-          </div>
+                {labels.open}
+              </span>
+            </div>
 
-          <div aria-hidden className="mt-2 space-y-1.5 pl-6">
-            <div className="h-1.5 w-full rounded-full bg-placeholder" />
+            <div className="mt-3 flex min-w-0 items-center gap-2">
+              <ProviderIdentity className="text-[10px]" iconSize={16} provider={activeConversation.provider} />
 
-            <div className="h-1.5 w-[68%] rounded-full bg-muted" />
+              <span aria-hidden className="h-4 w-px shrink-0 bg-border" />
+
+              <p className="min-w-0 truncate text-[11px] font-medium">{activeConversation.localizedSubject[locale]}</p>
+            </div>
+
+            <div aria-hidden className="mt-2 space-y-1.5 pl-6">
+              <div className="h-1.5 w-full rounded-full bg-placeholder" />
+
+              <div className="h-1.5 w-[68%] rounded-full bg-muted" />
+            </div>
           </div>
         </div>
       </div>
@@ -354,40 +679,175 @@ export function HomepageOmnichannelVisual({ className, label, labels, locale }: 
 const HANDOFF_AGENT_PROVIDERS = [
   {
     desktop: "sm:left-[6%] sm:right-auto sm:top-[18%]",
+    desktopPoint: [232, 90],
     mobile: "left-[6%] top-[10%]",
+    mobileJustify: "justify-end",
+    mobilePoint: [264, 76],
     provider: "chatgpt",
-    y: 90,
   },
   {
     desktop: "sm:left-[6%] sm:right-auto sm:top-[36%]",
+    desktopPoint: [232, 180],
     mobile: "right-[6%] top-[10%]",
+    mobileJustify: "justify-start",
+    mobilePoint: [336, 76],
     provider: "claude",
-    y: 180,
   },
   {
     desktop: "sm:left-[6%] sm:right-auto sm:top-[54%]",
+    desktopPoint: [232, 270],
     mobile: "left-[6%] top-[22%]",
+    mobileJustify: "justify-end",
+    mobilePoint: [264, 167],
     provider: "cursor",
-    y: 270,
   },
   {
     desktop: "sm:left-[6%] sm:right-auto sm:top-[72%]",
+    desktopPoint: [232, 360],
     mobile: "right-[6%] top-[22%]",
+    mobileJustify: "justify-start",
+    mobilePoint: [336, 167],
     provider: "gemini",
-    y: 360,
   },
 ] as const satisfies readonly {
   desktop: string;
+  desktopPoint: OrbitPoint;
   mobile: string;
+  mobileJustify: string;
+  mobilePoint: OrbitPoint;
   provider: VisualAgentProviderFixtureId;
-  y: number;
 }[];
 
+type HandoffProvider = (typeof HANDOFF_AGENT_PROVIDERS)[number];
+
+type HandoffSignalSpec = {
+  delayMs: number;
+  durationMs: number;
+  ease: SignalEase;
+  provider: VisualAgentProviderFixtureId;
+};
+
+type HandoffSignalScene = {
+  durationMs: number;
+  signal: HandoffSignalSpec;
+};
+
+const HANDOFF_SIGNAL_SEQUENCE = [
+  {
+    durationMs: 2_900,
+    signal: {
+      delayMs: 80,
+      durationMs: 2_200,
+      ease: "settle",
+      provider: "chatgpt",
+    },
+  },
+  {
+    durationMs: 3_300,
+    signal: {
+      delayMs: 240,
+      durationMs: 2_450,
+      ease: "drift",
+      provider: "cursor",
+    },
+  },
+  {
+    durationMs: 2_700,
+    signal: {
+      delayMs: 0,
+      durationMs: 2_100,
+      ease: "swift",
+      provider: "claude",
+    },
+  },
+  {
+    durationMs: 3_400,
+    signal: {
+      delayMs: 360,
+      durationMs: 2_350,
+      ease: "settle",
+      provider: "chatgpt",
+    },
+  },
+  {
+    durationMs: 3_000,
+    signal: {
+      delayMs: 120,
+      durationMs: 2_250,
+      ease: "drift",
+      provider: "gemini",
+    },
+  },
+  {
+    durationMs: 3_200,
+    signal: {
+      delayMs: 260,
+      durationMs: 2_300,
+      ease: "swift",
+      provider: "cursor",
+    },
+  },
+  {
+    durationMs: 2_850,
+    signal: {
+      delayMs: 40,
+      durationMs: 2_150,
+      ease: "settle",
+      provider: "claude",
+    },
+  },
+  {
+    durationMs: 3_500,
+    signal: {
+      delayMs: 200,
+      durationMs: 2_500,
+      ease: "drift",
+      provider: "gemini",
+    },
+  },
+] as const satisfies readonly HandoffSignalScene[];
+
+function HandoffSignal({
+  layout,
+  provider,
+  timeline,
+}: {
+  layout: "desktop" | "mobile";
+  provider: HandoffProvider;
+  timeline: SignalTimeline;
+}) {
+  const [startX, startY] = layout === "desktop" ? provider.desktopPoint : provider.mobilePoint;
+  const path =
+    layout === "desktop"
+      ? `M${startX} ${startY} C285 ${startY} 285 225 320 225 H350`
+      : `M${startX} ${startY} H300 V243`;
+
+  return (
+    <SyncedSignalPath
+      kind="handoff"
+      path={path}
+      provider={provider.provider}
+      start={layout === "desktop" ? provider.desktopPoint : provider.mobilePoint}
+      timeline={timeline}
+    />
+  );
+}
+
 export function HomepageHandoffVisual({ className, labels }: VisualProps) {
+  const { ref, shouldAnimate } = useHomepageMotion<HTMLDivElement>();
+  const { revision, scene: activeScene } = useTimedSceneCycle(HANDOFF_SIGNAL_SEQUENCE, shouldAnimate);
+  const activeSignal = activeScene.signal;
+  const handoffTimeline = useSignalTimeline(activeSignal, shouldAnimate);
+  const activeProvider = HANDOFF_AGENT_PROVIDERS.find(({ provider }) => provider === activeSignal.provider);
+
+  if (!activeProvider) return null;
+
   return (
     <HomepageVisualArtboard
       className={cn("aspect-[4/5] min-h-[33rem] sm:aspect-[8/5] sm:min-h-[25rem] xl:min-h-0", className)}
       label={`${labels.draft}. ${labels.humanDecision}.`}
+      motionActive={shouldAnimate}
+      motionRef={ref}
       name="human-handoff"
     >
       <svg
@@ -397,12 +857,21 @@ export function HomepageHandoffVisual({ className, labels }: VisualProps) {
         viewBox="0 0 800 500"
       >
         <path
-          d={`${HANDOFF_AGENT_PROVIDERS.map(({ y }) => `M232 ${y} C285 ${y} 285 225 320 225`).join(" ")} M320 225 H350`}
+          d={`${HANDOFF_AGENT_PROVIDERS.map(({ desktopPoint: [, y] }) => `M232 ${y} C285 ${y} 285 225 320 225`).join(" ")} M320 225 H350`}
           fill="none"
           stroke={COMPOUND_CONNECTOR_STROKE}
           strokeLinecap="butt"
           strokeWidth="1.5"
         />
+
+        {shouldAnimate ? (
+          <HandoffSignal
+            key={`${revision}-desktop-${activeProvider.provider}`}
+            layout="desktop"
+            provider={activeProvider}
+            timeline={handoffTimeline}
+          />
+        ) : null}
       </svg>
 
       <svg
@@ -418,35 +887,76 @@ export function HomepageHandoffVisual({ className, labels }: VisualProps) {
           strokeLinecap="butt"
           strokeWidth="1.5"
         />
+
+        {shouldAnimate ? (
+          <HandoffSignal
+            key={`${revision}-mobile-${activeProvider.provider}`}
+            layout="mobile"
+            provider={activeProvider}
+            timeline={handoffTimeline}
+          />
+        ) : null}
       </svg>
 
-      {HANDOFF_AGENT_PROVIDERS.map(({ desktop, mobile, provider }) => (
-        <div
-          key={provider}
-          className={cn(
-            "absolute z-10 w-[38%] -translate-y-1/2 rounded-full border border-border bg-card px-3 shadow-sm sm:w-[23%]",
-            provider === "chatgpt"
-              ? "flex h-[3.25rem] flex-col items-start justify-center py-2"
-              : "flex h-10 items-center py-2",
-            mobile,
-            desktop,
-          )}
-        >
-          <NativeAgentProviderIdentity className="text-[10px] sm:text-xs" iconSize={18} provider={provider} />
+      {HANDOFF_AGENT_PROVIDERS.map((provider) => {
+        const isActive = shouldAnimate && activeSignal.provider === provider.provider;
 
-          {provider === "chatgpt" ? (
-            <span aria-hidden className="mt-1 flex h-1 items-center gap-1 pl-6">
-              <span className="size-1 rounded-full bg-primary" />
+        return (
+          <div
+            key={provider.provider}
+            className={cn(
+              "absolute z-10 flex w-[38%] -translate-y-1/2 sm:w-[23%] sm:justify-end",
+              provider.mobile,
+              provider.mobileJustify,
+              provider.desktop,
+            )}
+          >
+            <div
+              className="relative flex w-fit max-w-full items-center whitespace-nowrap rounded-full border border-border bg-card px-3 py-2 shadow-sm"
+              data-homepage-handoff-provider={provider.provider}
+            >
+              {isActive ? <ProviderSignalRing provider={provider.provider} timeline={handoffTimeline} /> : null}
 
-              <span className="size-1 rounded-full bg-primary/65" />
+              <NativeAgentProviderIdentity
+                className="relative z-10 shrink-0 text-[10px] sm:text-xs"
+                iconSize={18}
+                provider={provider.provider}
+              />
+            </div>
+          </div>
+        );
+      })}
 
-              <span className="size-1 rounded-full bg-primary/30" />
-            </span>
-          ) : null}
-        </div>
-      ))}
+      <div
+        className="absolute left-[8%] top-[32%] z-20 w-[84%] overflow-hidden rounded-card border border-border bg-card p-5 shadow-xl shadow-black/10 dark:shadow-black/30 sm:left-[43.75%] sm:top-[10%] sm:w-[52.25%] sm:p-7"
+        data-homepage-motion-phase="provider-to-draft"
+      >
+        <motion.span
+          key={shouldAnimate ? `${revision}-${activeSignal.provider}` : "static"}
+          aria-hidden
+          animate={
+            shouldAnimate
+              ? {
+                  opacity: PROVIDER_ARRIVAL_OPACITY,
+                  scale: PROVIDER_ARRIVAL_SCALE,
+                }
+              : { opacity: 0, scale: 1 }
+          }
+          className="pointer-events-none absolute inset-0 rounded-card border border-primary"
+          data-homepage-draft-arrival-provider={activeSignal.provider}
+          initial={{ opacity: 0, scale: 1 }}
+          transition={
+            shouldAnimate
+              ? {
+                  delay: (activeSignal.delayMs + activeSignal.durationMs * PROVIDER_ARRIVAL_DELAY_RATIO) / 1_000,
+                  duration: (activeSignal.durationMs / 1_000) * PROVIDER_ARRIVAL_DURATION_RATIO,
+                  ease: SIGNAL_EASES[activeSignal.ease],
+                  times: PROVIDER_ARRIVAL_TIMES,
+                }
+              : { duration: 0 }
+          }
+        />
 
-      <div className="absolute left-[8%] top-[32%] z-20 w-[84%] overflow-hidden rounded-card border border-border bg-card p-5 shadow-xl shadow-black/10 dark:shadow-black/30 sm:left-[43.75%] sm:top-[10%] sm:w-[52.25%] sm:p-7">
         <div
           className="-mx-5 flex items-center justify-between gap-3 border-b border-border px-5 pb-4 sm:-mx-7 sm:px-7"
           data-homepage-rules="full-bleed"
@@ -462,19 +972,17 @@ export function HomepageHandoffVisual({ className, labels }: VisualProps) {
           <PersonIdentity person="leon-becker" size={30} />
         </div>
 
-        <div className="mt-5 space-y-2.5">
-          <div className="h-1.5 w-[92%] rounded-full bg-placeholder" />
-
-          <div className="h-1.5 w-[76%] rounded-full bg-muted" />
-
-          <div className="h-1.5 w-[54%] rounded-full bg-muted" />
+        <div aria-hidden className="mt-5 space-y-2.5">
+          {HANDOFF_DRAFT_LINES.map((line) => (
+            <div key={line} className={cn("h-1.5 rounded-full", line)} />
+          ))}
         </div>
 
         <div
           className="-mx-5 mt-6 flex items-center justify-between gap-3 border-t border-border px-5 pt-4 sm:-mx-7 sm:px-7"
           data-homepage-rules="full-bleed"
         >
-          <span className="min-w-0">
+          <span className="min-w-0" data-homepage-motion-phase="human-review">
             <span className="text-[9px] text-muted-foreground">{labels.humanDecision}</span>
 
             <PersonIdentity className="mt-1 max-w-32" person="max-bergmann" size={28} />
@@ -511,13 +1019,11 @@ function formatMoney(locale: ContentLocale, amount: number) {
 
 function PipelineCard({
   className,
-  compact = false,
   labels,
   locale,
   record,
 }: {
   className?: string;
-  compact?: boolean;
   labels: HomepageVisualLabels;
   locale: ContentLocale;
   record: VisualRecordFixtureId;
@@ -529,18 +1035,14 @@ function PipelineCard({
       className={cn("overflow-hidden rounded-xl border border-border bg-card p-3 shadow-sm", className)}
       data-native-record={record}
     >
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex flex-col items-start gap-2 sm:flex-row sm:justify-between">
         <p className="line-clamp-2 text-[11px] leading-snug font-medium sm:text-xs">{fixture.name}</p>
 
-        <NativeStatusBadge
-          className={compact ? "hidden md:inline-flex" : "hidden sm:inline-flex"}
-          locale={locale}
-          status={fixture.status}
-        />
+        <NativeStatusBadge className="inline-flex" locale={locale} status={fixture.status} />
       </div>
 
       <div
-        className={cn("-mx-3 mt-3 grid-cols-2 gap-2 border-y border-border p-3", compact ? "hidden md:grid" : "grid")}
+        className="-mx-3 mt-3 grid grid-cols-1 gap-2 border-y border-border p-3 sm:grid-cols-2"
         data-homepage-rules="full-bleed"
       >
         <div>
@@ -562,10 +1064,12 @@ function PipelineCard({
         </div>
       </div>
 
-      <div className={cn("mt-3 items-center justify-between", compact ? "hidden md:flex" : "flex")}>
+      <div className="mt-3 flex items-center justify-between gap-2">
         <PersonAvatar decorative person={fixture.assignee} size={24} />
 
-        <span className="text-[9px] text-muted-foreground">{VISUAL_PERSON_FIXTURES[fixture.assignee].name}</span>
+        <span className="min-w-0 truncate text-[9px] text-muted-foreground">
+          {VISUAL_PERSON_FIXTURES[fixture.assignee].name}
+        </span>
       </div>
     </div>
   );
@@ -574,15 +1078,18 @@ function PipelineCard({
 const PIPELINE_RECORDS = {
   active: "deal-digital-customer-platform",
   lost: "deal-process-automation",
-  open: "deal-data-analytics",
   won: "deal-crm-rollout",
 } as const satisfies Record<string, VisualRecordFixtureId>;
 
 export function HomepagePipelineVisual({ className, labels, locale }: VisualProps) {
+  const { ref, shouldAnimate } = useHomepageMotion<HTMLDivElement>();
+
   return (
     <HomepageVisualArtboard
       className={cn("aspect-[4/5] min-h-[35rem] sm:aspect-[8/5] sm:min-h-0", className)}
       label={`${labels.pipeline}: ${VISUAL_RECORD_FIXTURES[PIPELINE_RECORDS.active].name}`}
+      motionActive={shouldAnimate}
+      motionRef={ref}
       name="pipeline"
     >
       <div className="absolute inset-x-[5%] inset-y-[8%] grid grid-cols-3 gap-2 sm:inset-x-[7%] sm:gap-4">
@@ -591,9 +1098,13 @@ export function HomepagePipelineVisual({ className, labels, locale }: VisualProp
           { label: labels.won, status: "deal-won" as const },
           { label: labels.lost, status: "deal-lost" as const },
         ].map(({ label, status }) => (
-          <div key={status} className="min-w-0 border-l border-border pl-2 sm:pl-4">
+          <div
+            key={status}
+            className="relative min-w-0 overflow-hidden border-l border-border pl-2 sm:pl-4"
+            data-homepage-pipeline-column={status}
+          >
             <div
-              className="-ml-2 flex items-center gap-2 border-b border-border pb-3 pl-2 sm:-ml-4 sm:pl-4"
+              className="relative z-10 -ml-2 flex items-center gap-2 border-b border-border pb-3 pl-2 sm:-ml-4 sm:pl-4"
               data-homepage-rules="full-bleed"
             >
               <span
@@ -611,42 +1122,74 @@ export function HomepagePipelineVisual({ className, labels, locale }: VisualProp
         ))}
       </div>
 
-      <PipelineCard
-        compact
-        className="absolute left-[8%] top-[24%] z-10 w-[27%] brightness-75 saturate-50 sm:left-[9%] sm:w-[25%]"
-        labels={labels}
-        locale={locale}
-        record={PIPELINE_RECORDS.open}
-      />
+      {[
+        {
+          className: "left-[38%] top-[20%] w-[25%] sm:left-[39%]",
+          record: PIPELINE_RECORDS.won,
+          status: "deal-won" as const,
+        },
+        {
+          className: "right-[7%] top-[28%] w-[26%]",
+          record: PIPELINE_RECORDS.lost,
+          status: "deal-lost" as const,
+        },
+      ].map(({ className: cardClassName, record, status }) => (
+        <div
+          key={status}
+          className={cn("absolute z-10 opacity-75 saturate-50", cardClassName)}
+          data-homepage-pipeline-background-card={status}
+        >
+          <PipelineCard labels={labels} locale={locale} record={record} />
+        </div>
+      ))}
 
-      <PipelineCard
-        compact
-        className="absolute left-[38%] top-[20%] z-10 w-[25%] brightness-[0.7] saturate-50 sm:left-[39%]"
-        labels={labels}
-        locale={locale}
-        record={PIPELINE_RECORDS.won}
-      />
+      <div className="pointer-events-none absolute inset-y-[8%] left-[8%] z-20 w-[27%] sm:left-[9%] sm:w-[25%]">
+        <span className="absolute left-0 top-[52.4%] grid w-full sm:top-[45.2%]">
+          <motion.span
+            aria-hidden
+            animate={shouldAnimate ? { opacity: PIPELINE_SOURCE_OUTLINE_OPACITY } : { opacity: 0 }}
+            className="pointer-events-none relative z-10 col-start-1 row-start-1 rounded-xl border border-dashed border-input bg-card/50"
+            data-homepage-pipeline-source-footprint="deal-open"
+            initial={false}
+            style={{ transform: `translateY(${PIPELINE_DRAG_Y[0]}px)` }}
+            transition={
+              shouldAnimate
+                ? {
+                    ...PIPELINE_LOOP_TRANSITION,
+                    times: PIPELINE_DRAG_TIMES,
+                  }
+                : { duration: 0 }
+            }
+          />
 
-      <PipelineCard
-        compact
-        className="absolute right-[7%] top-[28%] z-10 w-[26%] brightness-50 saturate-50"
-        labels={labels}
-        locale={locale}
-        record={PIPELINE_RECORDS.lost}
-      />
+          <motion.div
+            key={shouldAnimate ? "pipeline-active" : "pipeline-static"}
+            animate={
+              shouldAnimate
+                ? {
+                    x: PIPELINE_DRAG_X,
+                    y: PIPELINE_DRAG_Y,
+                  }
+                : { x: "0%", y: PIPELINE_DRAG_Y[0] }
+            }
+            className="relative z-20 col-start-1 row-start-1"
+            data-homepage-motion-phase="pipeline-drag-preview"
+            initial={shouldAnimate ? { x: "0%", y: PIPELINE_DRAG_Y[0] } : false}
+            transition={shouldAnimate ? { ...PIPELINE_LOOP_TRANSITION, times: PIPELINE_DRAG_TIMES } : { duration: 0 }}
+          >
+            <PipelineCard
+              className="border-border shadow-xl shadow-black/10 dark:shadow-black/30"
+              labels={labels}
+              locale={locale}
+              record={PIPELINE_RECORDS.active}
+            />
 
-      <PipelineCard
-        className="absolute left-[27%] top-[52%] z-20 w-[46%] border-border shadow-xl shadow-black/10 dark:shadow-black/30 sm:left-[27%] sm:top-[46%] sm:w-[46%]"
-        labels={labels}
-        locale={locale}
-        record={PIPELINE_RECORDS.active}
-      />
-
-      <MousePointer2
-        aria-hidden
-        className="absolute bottom-[10%] left-[66%] z-30 size-7 fill-card text-foreground drop-shadow-md sm:bottom-[13%] sm:left-[64%] sm:size-8"
-        strokeWidth={1.5}
-      />
+            <span aria-hidden data-homepage-drag-cursor className="absolute -bottom-5 -right-2 z-40">
+              <MousePointer2 className="size-7 fill-card text-foreground drop-shadow-md sm:size-8" strokeWidth={1.5} />
+            </span>
+          </motion.div>
+        </span>
+      </div>
     </HomepageVisualArtboard>
   );
 }
