@@ -794,6 +794,7 @@
       "clear": "Clear",
       "close": "Close",
       "collapse": "Collapse",
+      "confirm": "Confirm",
       "contact": "Contact",
       "continueSetup": "Continue setup",
       "copy": "Copy to clipboard",
@@ -1304,6 +1305,7 @@
         "channels": "Channels",
         "contacts": "Contacts",
         "createdAt": "Created at",
+        "credits": "Credits",
         "customFieldValues": "Custom fields",
         "deals": "Deals",
         "description": "Description",
@@ -2500,6 +2502,11 @@
     "actions": {
       "retry": "Try again"
     },
+    "confirm": {
+      "plan": "Set the plan for {name} to {value}? This applies to the whole workspace.",
+      "subscription": "Set the subscription status for {name} to {value}? This applies to the whole workspace and contacts no billing provider.",
+      "title": "Confirm operator change"
+    },
     "errors": {
       "accessDenied": "Your operator access changed. Refresh the page and authenticate again.",
       "conflict": "The record changed while you were editing. The latest detail was loaded; review it before retrying with the retained operation ID.",
@@ -2507,11 +2514,6 @@
       "notFound": "The selected user, workspace, subscription, or credit period no longer exists.",
       "unavailable": "The requested correction is not available for the current account configuration.",
       "unexpected": "An unexpected error occurred. No successful change is implied; retry with the same operation ID."
-    },
-    "forms": {
-      "reason": "Reason",
-      "reasonDescription": "Required for the append-only operator audit record. Use at least 8 characters.",
-      "reasonPlaceholder": "Explain why this correction is required"
     },
     "shell": {
       "console": "Operator console"
@@ -2577,88 +2579,35 @@
   },
   "OperatorUsers": {
     "adjustment": {
-      "deltaDescription": "Use a positive whole number to grant credits or a negative one to apply a correction.",
       "deltaLabel": "Signed credit correction",
-      "deltaPlaceholder": "For example, 500 or -100",
-      "description": "Append a finite correction to this user’s current credit period.",
-      "success": "The credit correction was recorded.",
-      "title": "Credit correction"
+      "deltaPlaceholder": "For example, 500 or -100"
+    },
+    "confirm": {
+      "operator": "Set platform operator access for {name} to {value}?",
+      "reset": "Reset the credits of {name}: {value}?",
+      "status": "Set the account status of {name} to {value}?"
     },
     "credits": {
       "adjustments": "Manual corrections",
       "base": "Base allowance",
-      "blocked": "New hosted-AI work is currently blocked for this user.",
-      "charged": "Charged usage",
       "committed": "Used and reserved",
-      "effective": "Effective allowance",
-      "immutableDescription": "Corrections and resets append entries for the current period. They never delete settled usage, active reservations, provider cost, or audit history.",
-      "immutableTitle": "Usage remains immutable",
-      "overage": "Overage",
-      "period": "Current period: {start} to {end}",
       "remaining": "Remaining",
-      "reserved": "Reserved usage",
       "title": "Current credit position",
-      "unavailableDescription": "The workspace needs a valid entitlement and credit anchor before credits can be corrected or reset.",
-      "unavailableTitle": "Credit controls unavailable"
+      "unavailableDescription": "The workspace needs a valid entitlement and credit anchor before credits can be corrected or reset."
     },
     "description": "Review users across every workspace, filter the directory, and make audited account, subscription, and credit corrections.",
-    "detail": {
-      "companyId": "Opaque workspace ID",
-      "createdAt": "Created",
-      "errorDescription": "No editable user is selected. Retry the opaque-ID lookup.",
-      "errorTitle": "User details unavailable",
-      "lastActive": "Last active",
-      "noRole": "No assigned role",
-      "panelLabel": "Selected user controls",
-      "role": "Workspace role",
-      "systemRole": "System role",
-      "updatedAt": "Last updated",
-      "userId": "Opaque user ID"
-    },
     "emptyBody": "Adjust the search or filters to widen the directory.",
     "emptyTitle": "No users match these filters",
     "navigation": "Users",
     "platformAccess": {
-      "description": "Grant or revoke cross-workspace operator access for this account.",
-      "granted": "Granted",
-      "label": "Platform operator access",
-      "revoked": "Not granted",
-      "selfDescription": "An operator can never grant or revoke their own platform access. Ask another active operator to make this change.",
-      "selfTitle": "You cannot change your own access",
-      "success": "Platform access was updated.",
-      "title": "Platform access",
-      "warningDescription": "An operator can read and correct accounts, subscriptions and credits across every workspace. Grant it only to a verified, active account, and revoke it as soon as it is no longer needed.",
-      "warningTitle": "Operator access spans every workspace"
+      "revoked": "Not granted"
     },
     "reset": {
       "baseAllowance": "Return manual corrections to base allowance",
-      "description": "Append a calculated correction for this user’s current period.",
-      "disclosureDescription": "Base allowance removes the net manual correction. Zero balance changes remaining credits to zero. Both retain charged and reserved usage, provider cost, and history.",
-      "disclosureTitle": "This is not usage deletion",
-      "modeDescription": "Choose the calculated target. The server records a finite signed correction.",
-      "modeLabel": "Reset target",
-      "success": "The calculated credit reset was recorded.",
       "title": "Credit reset",
       "zeroBalance": "Set remaining balance to zero"
     },
     "searchPlaceholder": "Search by name or account email",
-    "status": {
-      "adminWarningDescription": "The last active administrator of a workspace cannot be deactivated. Assign another active administrator first.",
-      "adminWarningTitle": "Workspace administration must remain available",
-      "currentOperatorDescription": "Changing your own account can end this operator session. Review the target status before saving.",
-      "currentOperatorTitle": "This is your account",
-      "description": "Change this account’s local access state without altering its workspace data.",
-      "label": "Account status",
-      "providerSyncRequiredDescription": "This provider-managed workspace must change user seats or account status through the canonical tenant or billing flow. Operator status changes are disabled to prevent local access and provider billing from drifting.",
-      "providerSyncRequiredTitle": "Provider seat sync required",
-      "success": "The account status was updated.",
-      "title": "Account access"
-    },
-    "tabs": {
-      "access": "Access",
-      "credits": "Credits",
-      "overview": "Overview"
-    },
     "title": "User operations",
     "values": {
       "accountStatus": {
@@ -2667,43 +2616,21 @@
         "pendingAuthorization": "Awaiting authorization"
       },
       "never": "Never",
-      "no": "No",
       "noSubscription": "No subscription",
-      "notVerified": "Not verified",
-      "operator": "Platform operator",
-      "verified": "Verified"
+      "operator": "Platform operator"
     }
   },
   "OperatorWorkspaces": {
     "allowance": {
       "label": "Credits per user",
-      "success": "The Enterprise allowance was updated.",
       "title": "Enterprise allowance",
-      "warningDescription": "The allowance is granted per user across the whole workspace and takes effect on the current period.",
-      "warningTitle": "Applies to every member"
+      "warningDescription": "The allowance is granted per user across the whole workspace and takes effect on the current period."
     },
     "description": "Every workspace across the platform, with its plan, members and allowance.",
-    "detail": {
-      "title": "Workspace controls",
-      "workspaceId": "Workspace ID"
-    },
     "emptyBody": "Adjust the search or filters to widen the list.",
     "emptyTitle": "No workspaces match these filters",
     "navigation": "Workspaces",
     "searchPlaceholder": "Search by member email",
-    "subscription": {
-      "seatsDescription": "Optional local seat quantity for the whole workspace. Leave blank to keep it unspecified.",
-      "seatsLabel": "Seat quantity",
-      "success": "The workspace subscription was corrected.",
-      "title": "Local workspace subscription",
-      "unavailable": "This workspace has no active member with a subscription to correct.",
-      "warningDescription": "This corrects local authorization for the whole workspace. It does not update, charge, cancel, or contact a billing provider.",
-      "warningTitle": "Local snapshot only"
-    },
-    "tabs": {
-      "allowance": "Allowance",
-      "subscription": "Subscription"
-    },
     "title": "Workspace operations",
     "values": {
       "members": "{active} of {total}"

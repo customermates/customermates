@@ -209,7 +209,7 @@ function mapAdjustment(adjustment: {
   creditDelta: number;
   periodStart: Date;
   periodEnd: Date;
-  reason: string;
+  reason: string | null;
   operationId: string;
   createdByOperatorUserId: string;
   createdAt: Date;
@@ -811,6 +811,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
     return runInTransaction(
       async () => {
         const actor = getOperatorActor();
+        const reason = data.reason ?? null;
         const target = await this.prisma.user.findFirst({
           where: { id: data.userId, companyId },
           select: {
@@ -844,7 +845,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             prior.action !== OPERATOR_AUDIT_ACTION.userStatusUpdate ||
             prior.targetCompanyId !== companyId ||
             prior.targetUserId !== data.userId ||
-            prior.reason !== data.reason ||
+            prior.reason !== reason ||
             metadata?.expectedUpdatedAt !== data.expectedUpdatedAt ||
             metadata?.nextStatus !== data.status
           )
@@ -916,7 +917,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           targetCompanyId: companyId,
           targetUserId: data.userId,
           operationId: data.operationId,
-          reason: data.reason,
+          reason,
           metadata: {
             expectedUpdatedAt: data.expectedUpdatedAt,
             previousStatus: target.status,
@@ -938,6 +939,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
     return runInTransaction(
       async () => {
         const actor = getOperatorActor();
+        const reason = data.reason ?? null;
         const target = await this.prisma.user.findFirst({
           where: { id: data.userId, companyId },
           select: { id: true, email: true, status: true, updatedAt: true, isPlatformOperator: true },
@@ -954,7 +956,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             prior.action !== OPERATOR_AUDIT_ACTION.userPlatformAccessUpdate ||
             prior.targetCompanyId !== companyId ||
             prior.targetUserId !== data.userId ||
-            prior.reason !== data.reason ||
+            prior.reason !== reason ||
             metadata?.expectedUpdatedAt !== data.expectedUpdatedAt ||
             metadata?.nextIsPlatformOperator !== data.isPlatformOperator
           )
@@ -1006,7 +1008,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           targetCompanyId: companyId,
           targetUserId: data.userId,
           operationId: data.operationId,
-          reason: data.reason,
+          reason,
           metadata: {
             expectedUpdatedAt: data.expectedUpdatedAt,
             previousIsPlatformOperator: target.isPlatformOperator,
@@ -1028,6 +1030,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
     return runInTransaction(
       async () => {
         const actor = getOperatorActor();
+        const reason = data.reason ?? null;
         const target = await this.prisma.user.findFirst({
           where: { id: data.userId, companyId },
           select: { id: true },
@@ -1045,7 +1048,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             prior.action !== OPERATOR_AUDIT_ACTION.subscriptionSnapshotCorrect ||
             prior.targetCompanyId !== companyId ||
             prior.targetUserId !== data.userId ||
-            prior.reason !== data.reason ||
+            prior.reason !== reason ||
             metadata?.expectedUpdatedAt !== data.expectedUpdatedAt ||
             next?.plan !== data.plan ||
             next?.status !== data.status ||
@@ -1084,7 +1087,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           targetCompanyId: companyId,
           targetUserId: data.userId,
           operationId: data.operationId,
-          reason: data.reason,
+          reason,
           metadata: {
             expectedUpdatedAt: data.expectedUpdatedAt,
             previous,
@@ -1106,6 +1109,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
     return runInTransaction(
       async () => {
         const actor = getOperatorActor();
+        const reason = data.reason ?? null;
         const prior = await this.prisma.operatorAuditEvent.findUnique({
           where: { operationId: data.operationId },
         });
@@ -1115,7 +1119,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             prior.actorUserId !== actor.userId ||
             prior.action !== OPERATOR_AUDIT_ACTION.enterpriseAllowanceUpdate ||
             prior.targetCompanyId !== data.companyId ||
-            prior.reason !== data.reason ||
+            prior.reason !== reason ||
             metadata?.creditsPerUser !== data.creditsPerUser
           )
             throw new OperatorConflictError("The operation ID was already used for another request.");
@@ -1140,7 +1144,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           action: OPERATOR_AUDIT_ACTION.enterpriseAllowanceUpdate,
           targetCompanyId: data.companyId,
           operationId: data.operationId,
-          reason: data.reason,
+          reason,
           metadata: {
             creditsPerUser: data.creditsPerUser,
             previousCreditsPerUser: subscription.enterpriseAgentCreditsPerUser,
@@ -1163,6 +1167,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
     return runInTransaction(
       async () => {
         const actor = getOperatorActor();
+        const reason = data.reason ?? null;
         const periodStart = new Date(data.periodStart);
         const periodEnd = new Date(data.periodEnd);
         const existing = await this.prisma.agentCreditAdjustment.findUnique({
@@ -1175,7 +1180,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             existing.creditDelta !== data.creditDelta ||
             existing.periodStart.getTime() !== periodStart.getTime() ||
             existing.periodEnd.getTime() !== periodEnd.getTime() ||
-            existing.reason !== data.reason ||
+            existing.reason !== reason ||
             existing.createdByOperatorUserId !== actor.userId
           )
             throw new OperatorConflictError("The operation ID was already used for another adjustment.");
@@ -1268,7 +1273,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             creditDelta: data.creditDelta,
             periodStart,
             periodEnd,
-            reason: data.reason,
+            reason,
             operationId: data.operationId,
             createdByOperatorUserId: actor.userId,
           },
@@ -1278,7 +1283,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           targetCompanyId: data.companyId,
           targetUserId: data.userId,
           operationId: data.operationId,
-          reason: data.reason,
+          reason,
           metadata: {
             creditDelta: data.creditDelta,
             periodStart: data.periodStart,
@@ -1300,6 +1305,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
     return runInTransaction(
       async () => {
         const actor = getOperatorActor();
+        const reason = data.reason ?? null;
         const [existing, priorAudit] = await Promise.all([
           this.prisma.agentCreditAdjustment.findUnique({
             where: { operationId: data.operationId },
@@ -1315,13 +1321,13 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             !priorAudit ||
             existing.companyId !== companyId ||
             existing.userId !== data.userId ||
-            existing.reason !== data.reason ||
+            existing.reason !== reason ||
             existing.createdByOperatorUserId !== actor.userId ||
             priorAudit.actorUserId !== actor.userId ||
             priorAudit.action !== OPERATOR_AUDIT_ACTION.creditBalanceReset ||
             priorAudit.targetCompanyId !== companyId ||
             priorAudit.targetUserId !== data.userId ||
-            priorAudit.reason !== data.reason ||
+            priorAudit.reason !== reason ||
             metadata?.mode !== data.mode ||
             metadata?.expectedPeriodStart !== data.expectedPeriodStart ||
             metadata?.expectedPeriodEnd !== data.expectedPeriodEnd ||
@@ -1383,7 +1389,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             creditDelta,
             periodStart: new Date(credit.periodStart),
             periodEnd: new Date(credit.periodEnd),
-            reason: data.reason,
+            reason,
             operationId: data.operationId,
             createdByOperatorUserId: actor.userId,
           },
@@ -1393,7 +1399,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           targetCompanyId: companyId,
           targetUserId: data.userId,
           operationId: data.operationId,
-          reason: data.reason,
+          reason,
           metadata: {
             mode: data.mode,
             expectedPeriodStart: data.expectedPeriodStart,

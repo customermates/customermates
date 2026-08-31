@@ -30,10 +30,8 @@ import { ConnectedAccountsStore } from "@/app/[locale]/(protected)/profile/compo
 import { ConnectUpsellModalStore } from "@/app/[locale]/(protected)/profile/components/connect-upsell-modal.store";
 import { ContactsStore } from "@/app/[locale]/(protected)/contacts/components/contacts.store";
 import { OperatorUsersStore } from "@/app/[locale]/(protected)/operator/users/operator-users.store";
-import { OperatorUserModalStore } from "@/app/[locale]/(protected)/operator/users/operator-user-modal.store";
 import { OperatorAuditStore } from "@/app/[locale]/(protected)/operator/audit/operator-audit.store";
 import { OperatorWorkspacesStore } from "@/app/[locale]/(protected)/operator/workspaces/operator-workspaces.store";
-import { OperatorWorkspaceModalStore } from "@/app/[locale]/(protected)/operator/workspaces/operator-workspace-modal.store";
 import { MessagingThreadsStore } from "@/app/[locale]/(protected)/inbox/components/messaging-threads.store";
 import { MessagingThreadDetailStore } from "@/app/[locale]/(protected)/inbox/components/messaging-thread-detail.store";
 import { ThreadComposeStore } from "@/app/[locale]/(protected)/inbox/components/thread-compose.store";
@@ -108,10 +106,8 @@ export class RootStore {
   private _widgetsGridStore?: WidgetsStore;
   private _auditLogsStore?: AuditLogsStore;
   private _operatorUsersStore?: OperatorUsersStore;
-  private _operatorUserModalStore?: OperatorUserModalStore;
   private _operatorAuditStore?: OperatorAuditStore;
   private _operatorWorkspacesStore?: OperatorWorkspacesStore;
-  private _operatorWorkspaceModalStore?: OperatorWorkspaceModalStore;
 
   private _companySettingsStore?: CompanySettingsStore;
   private _forgotPasswordStore?: ForgotPasswordStore;
@@ -409,16 +405,8 @@ export class RootStore {
     return (this._operatorUsersStore ??= new OperatorUsersStore(this));
   }
 
-  get operatorUserModalStore() {
-    return (this._operatorUserModalStore ??= new OperatorUserModalStore(this));
-  }
-
   get operatorWorkspacesStore() {
     return (this._operatorWorkspacesStore ??= new OperatorWorkspacesStore(this));
-  }
-
-  get operatorWorkspaceModalStore() {
-    return (this._operatorWorkspaceModalStore ??= new OperatorWorkspaceModalStore(this));
   }
 
   get operatorAuditStore() {

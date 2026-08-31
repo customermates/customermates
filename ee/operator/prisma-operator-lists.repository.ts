@@ -170,8 +170,11 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
         isPlatformOperator: true,
         lastActiveAt: true,
         createdAt: true,
+        updatedAt: true,
         companyId: true,
-        company: { select: { subscription: { select: { plan: true, status: true } } } },
+        company: {
+          select: { subscription: { select: { plan: true, status: true, quantity: true, updatedAt: true } } },
+        },
       },
     });
 
@@ -186,10 +189,13 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
       isPlatformOperator: user.isPlatformOperator,
       lastActiveAt: user.lastActiveAt,
       createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
       companyId: user.companyId,
       workspaceLabel: labels.get(user.companyId) ?? user.companyId.slice(0, 8),
       plan: user.company.subscription?.plan ?? null,
       subscriptionStatus: user.company.subscription?.status ?? null,
+      subscriptionQuantity: user.company.subscription?.quantity ?? null,
+      subscriptionUpdatedAt: user.company.subscription?.updatedAt ?? null,
     }));
   }
 
@@ -357,7 +363,7 @@ export class PrismaOperatorWorkspacesRepo
         id: true,
         createdAt: true,
         subscription: {
-          select: { plan: true, status: true, quantity: true, enterpriseAgentCreditsPerUser: true },
+          select: { plan: true, status: true, quantity: true, enterpriseAgentCreditsPerUser: true, updatedAt: true },
         },
       },
     });
@@ -378,6 +384,7 @@ export class PrismaOperatorWorkspacesRepo
         subscriptionStatus: company.subscription?.status ?? null,
         seats: company.subscription?.quantity ?? null,
         enterpriseCreditsPerUser: company.subscription?.enterpriseAgentCreditsPerUser ?? null,
+        subscriptionUpdatedAt: company.subscription?.updatedAt ?? null,
         createdAt: company.createdAt,
       };
     });

@@ -794,6 +794,7 @@
       "clear": "Cancella",
       "close": "Chiudi",
       "collapse": "Riduci",
+      "confirm": "Conferma",
       "contact": "Contatta",
       "continueSetup": "Prosegui la configurazione",
       "copy": "Copia negli appunti",
@@ -1304,6 +1305,7 @@
         "channels": "Canali",
         "contacts": "Contatti",
         "createdAt": "Creato il",
+        "credits": "Crediti",
         "customFieldValues": "Campi personalizzati",
         "deals": "Trattative",
         "description": "Descrizione",
@@ -2500,6 +2502,11 @@
     "actions": {
       "retry": "Riprova"
     },
+    "confirm": {
+      "plan": "Impostare il piano di {name} su {value}? Si applica all’intero spazio di lavoro.",
+      "subscription": "Impostare lo stato dell’abbonamento di {name} su {value}? Si applica all’intero spazio di lavoro e non contatta alcun fornitore di fatturazione.",
+      "title": "Conferma la modifica operatore"
+    },
     "errors": {
       "accessDenied": "Il tuo accesso operatore è cambiato. Aggiorna la pagina ed esegui nuovamente l’autenticazione.",
       "conflict": "Il record è cambiato durante la modifica. Sono stati caricati i dettagli più recenti; esaminali prima di riprovare con lo stesso ID operazione.",
@@ -2507,11 +2514,6 @@
       "notFound": "L’utente, l’area di lavoro, l’abbonamento o il periodo crediti selezionato non esiste più.",
       "unavailable": "La correzione richiesta non è disponibile per la configurazione corrente dell’account.",
       "unexpected": "Si è verificato un errore imprevisto. Non viene considerata riuscita alcuna modifica; riprova con lo stesso ID operazione."
-    },
-    "forms": {
-      "reason": "Motivazione",
-      "reasonDescription": "Obbligatoria per il registro di audit operatore a sola aggiunta. Usa almeno 8 caratteri.",
-      "reasonPlaceholder": "Spiega perché questa correzione è necessaria"
     },
     "shell": {
       "console": "Console operatore"
@@ -2577,88 +2579,35 @@
   },
   "OperatorUsers": {
     "adjustment": {
-      "deltaDescription": "Usa un numero intero positivo per concedere crediti o uno negativo per applicare una correzione.",
       "deltaLabel": "Correzione crediti con segno",
-      "deltaPlaceholder": "Ad esempio, 500 o -100",
-      "description": "Aggiungi una correzione limitata al periodo crediti corrente di questo utente.",
-      "success": "La correzione crediti è stata registrata.",
-      "title": "Correzione crediti"
+      "deltaPlaceholder": "Ad esempio, 500 o -100"
+    },
+    "confirm": {
+      "operator": "Impostare l’accesso operatore di piattaforma di {name} su {value}?",
+      "reset": "Azzerare i crediti di {name}: {value}?",
+      "status": "Impostare lo stato dell’account di {name} su {value}?"
     },
     "credits": {
       "adjustments": "Correzioni manuali",
       "base": "Disponibilità di base",
-      "blocked": "Le nuove attività di IA ospitata sono attualmente bloccate per questo utente.",
-      "charged": "Utilizzo addebitato",
       "committed": "Usati e riservati",
-      "effective": "Disponibilità effettiva",
-      "immutableDescription": "Le correzioni e i ripristini aggiungono voci per il periodo corrente. Non eliminano mai utilizzo contabilizzato, prenotazioni attive, costi del fornitore o cronologia di audit.",
-      "immutableTitle": "L’utilizzo resta immutabile",
-      "overage": "Eccedenza",
-      "period": "Periodo corrente: dal {start} al {end}",
       "remaining": "Rimanenti",
-      "reserved": "Utilizzo riservato",
       "title": "Posizione crediti corrente",
-      "unavailableDescription": "L’area di lavoro deve avere un’autorizzazione valida e un riferimento temporale per i crediti prima di poterli correggere o ripristinare.",
-      "unavailableTitle": "Controlli crediti non disponibili"
+      "unavailableDescription": "L’area di lavoro deve avere un’autorizzazione valida e un riferimento temporale per i crediti prima di poterli correggere o ripristinare."
     },
     "description": "Esamina gli utenti di tutte le aree di lavoro, filtra l’elenco ed esegui correzioni tracciate su account, abbonamenti e crediti.",
-    "detail": {
-      "companyId": "ID opaco dell’area di lavoro",
-      "createdAt": "Creato il",
-      "errorDescription": "Non è selezionato alcun utente modificabile. Riprova la ricerca tramite ID opaco.",
-      "errorTitle": "Dettagli utente non disponibili",
-      "lastActive": "Ultima attività",
-      "noRole": "Nessun ruolo assegnato",
-      "panelLabel": "Controlli dell’utente selezionato",
-      "role": "Ruolo nell’area di lavoro",
-      "systemRole": "Ruolo di sistema",
-      "updatedAt": "Ultimo aggiornamento",
-      "userId": "ID utente opaco"
-    },
     "emptyBody": "Modifica la ricerca o i filtri per ampliare l’elenco.",
     "emptyTitle": "Nessun utente corrisponde a questi filtri",
     "navigation": "Utenti",
     "platformAccess": {
-      "description": "Concedi o revoca l’accesso operatore tra le aree di lavoro per questo account.",
-      "granted": "Concesso",
-      "label": "Accesso operatore di piattaforma",
-      "revoked": "Non concesso",
-      "selfDescription": "Un operatore non può mai concedere o revocare il proprio accesso alla piattaforma. Chiedi a un altro operatore attivo di effettuare questa modifica.",
-      "selfTitle": "Non puoi modificare il tuo accesso",
-      "success": "L’accesso alla piattaforma è stato aggiornato.",
-      "title": "Accesso alla piattaforma",
-      "warningDescription": "Un operatore può consultare e correggere account, abbonamenti e crediti in tutte le aree di lavoro. Concedilo solo a un account attivo e verificato e revocalo appena non serve più.",
-      "warningTitle": "L’accesso operatore vale per tutte le aree di lavoro"
+      "revoked": "Non concesso"
     },
     "reset": {
       "baseAllowance": "Riporta le correzioni manuali alla disponibilità di base",
-      "description": "Aggiungi una correzione calcolata per il periodo corrente di questo utente.",
-      "disclosureDescription": "La disponibilità di base annulla la correzione manuale netta. Il saldo zero porta a zero i crediti rimanenti. Entrambe le opzioni conservano utilizzo addebitato e riservato, costi del fornitore e cronologia.",
-      "disclosureTitle": "Questa operazione non elimina l’utilizzo",
-      "modeDescription": "Scegli l’obiettivo calcolato. Il server registra una correzione limitata con segno.",
-      "modeLabel": "Obiettivo del ripristino",
-      "success": "Il ripristino crediti calcolato è stato registrato.",
       "title": "Ripristino crediti",
       "zeroBalance": "Imposta a zero il saldo rimanente"
     },
     "searchPlaceholder": "Cerca per nome o e-mail dell’account",
-    "status": {
-      "adminWarningDescription": "L’ultimo amministratore attivo di un’area di lavoro non può essere disattivato. Assegna prima un altro amministratore attivo.",
-      "adminWarningTitle": "L’amministrazione dell’area di lavoro deve restare disponibile",
-      "currentOperatorDescription": "La modifica del tuo account può terminare questa sessione operatore. Controlla lo stato di destinazione prima di salvare.",
-      "currentOperatorTitle": "Questo è il tuo account",
-      "description": "Modifica lo stato di accesso locale di questo account senza alterare i dati della sua area di lavoro.",
-      "label": "Stato dell’account",
-      "providerSyncRequiredDescription": "In questa area di lavoro gestita dal fornitore, le postazioni utente o lo stato dell’account devono essere modificati tramite il normale flusso del tenant o di fatturazione. Le modifiche di stato dell’operatore sono disabilitate per evitare divergenze tra accesso locale e fatturazione del fornitore.",
-      "providerSyncRequiredTitle": "È richiesta la sincronizzazione delle postazioni del fornitore",
-      "success": "Lo stato dell’account è stato aggiornato.",
-      "title": "Accesso all’account"
-    },
-    "tabs": {
-      "access": "Accesso",
-      "credits": "Crediti",
-      "overview": "Panoramica"
-    },
     "title": "Operazioni sugli utenti",
     "values": {
       "accountStatus": {
@@ -2667,43 +2616,21 @@
         "pendingAuthorization": "In attesa di autorizzazione"
       },
       "never": "Mai",
-      "no": "No",
       "noSubscription": "Nessun abbonamento",
-      "notVerified": "Non verificato",
-      "operator": "Operatore della piattaforma",
-      "verified": "Verificato"
+      "operator": "Operatore della piattaforma"
     }
   },
   "OperatorWorkspaces": {
     "allowance": {
       "label": "Crediti per utente",
-      "success": "La dotazione Enterprise è stata aggiornata.",
       "title": "Dotazione Enterprise",
-      "warningDescription": "La dotazione è concessa per utente su tutta l’area e ha effetto sul periodo corrente.",
-      "warningTitle": "Si applica a tutti i membri"
+      "warningDescription": "La dotazione è concessa per utente su tutta l’area e ha effetto sul periodo corrente."
     },
     "description": "Tutte le aree della piattaforma, con piano, membri e dotazione.",
-    "detail": {
-      "title": "Controlli dell’area",
-      "workspaceId": "ID dell’area"
-    },
     "emptyBody": "Modifica la ricerca o i filtri per ampliare l’elenco.",
     "emptyTitle": "Nessuna area corrisponde a questi filtri",
     "navigation": "Aree di lavoro",
     "searchPlaceholder": "Cerca per e-mail di un membro",
-    "subscription": {
-      "seatsDescription": "Numero locale di postazioni per l’intera area. Lascia vuoto per non specificarlo.",
-      "seatsLabel": "Numero di postazioni",
-      "success": "L’abbonamento dell’area è stato corretto.",
-      "title": "Abbonamento locale dell’area di lavoro",
-      "unavailable": "Quest’area non ha membri attivi con un abbonamento da correggere.",
-      "warningDescription": "Questo corregge l’autorizzazione locale per l’intera area. Non aggiorna, addebita, annulla né contatta un fornitore di fatturazione.",
-      "warningTitle": "Solo snapshot locale"
-    },
-    "tabs": {
-      "allowance": "Dotazione",
-      "subscription": "Abbonamento"
-    },
     "title": "Operazioni sulle aree",
     "values": {
       "members": "{active} su {total}"

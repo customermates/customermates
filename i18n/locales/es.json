@@ -794,6 +794,7 @@
       "clear": "Borrar",
       "close": "Cerrar",
       "collapse": "Contraer",
+      "confirm": "Confirmar",
       "contact": "Contactar",
       "continueSetup": "Continuar con la configuración",
       "copy": "Copiar al portapapeles",
@@ -1304,6 +1305,7 @@
         "channels": "Canales",
         "contacts": "Contactos",
         "createdAt": "Creado el",
+        "credits": "Créditos",
         "customFieldValues": "Campos personalizados",
         "deals": "Oportunidades",
         "description": "Descripción",
@@ -2500,6 +2502,11 @@
     "actions": {
       "retry": "Inténtalo de nuevo"
     },
+    "confirm": {
+      "plan": "¿Establecer el plan de {name} en {value}? Se aplica a todo el espacio de trabajo.",
+      "subscription": "¿Establecer el estado de suscripción de {name} en {value}? Se aplica a todo el espacio de trabajo y no contacta con ningún proveedor de facturación.",
+      "title": "Confirmar el cambio del operador"
+    },
     "errors": {
       "accessDenied": "Tu acceso de operador ha cambiado. Actualiza la página y vuelve a autenticarte.",
       "conflict": "El registro cambió mientras lo editabas. Se han cargado los detalles más recientes; revísalos antes de reintentar con el mismo ID de operación.",
@@ -2507,11 +2514,6 @@
       "notFound": "El usuario, espacio de trabajo, suscripción o periodo de créditos seleccionado ya no existe.",
       "unavailable": "La corrección solicitada no está disponible para la configuración actual de la cuenta.",
       "unexpected": "Se ha producido un error inesperado. No se presupone ningún cambio correcto; reintenta con el mismo ID de operación."
-    },
-    "forms": {
-      "reason": "Motivo",
-      "reasonDescription": "Obligatorio para el registro de auditoría de operador de solo anexado. Usa al menos 8 caracteres.",
-      "reasonPlaceholder": "Explica por qué se necesita esta corrección"
     },
     "shell": {
       "console": "Consola del operador"
@@ -2577,88 +2579,35 @@
   },
   "OperatorUsers": {
     "adjustment": {
-      "deltaDescription": "Usa un número entero positivo para conceder créditos o uno negativo para aplicar una corrección.",
       "deltaLabel": "Corrección de créditos con signo",
-      "deltaPlaceholder": "Por ejemplo, 500 o -100",
-      "description": "Añade una corrección limitada al periodo de créditos actual de este usuario.",
-      "success": "La corrección de créditos se ha registrado.",
-      "title": "Corrección de créditos"
+      "deltaPlaceholder": "Por ejemplo, 500 o -100"
+    },
+    "confirm": {
+      "operator": "¿Establecer el acceso de operador de plataforma de {name} en {value}?",
+      "reset": "¿Restablecer los créditos de {name}: {value}?",
+      "status": "¿Establecer el estado de la cuenta de {name} en {value}?"
     },
     "credits": {
       "adjustments": "Correcciones manuales",
       "base": "Asignación base",
-      "blocked": "Las nuevas tareas de IA alojada están bloqueadas actualmente para este usuario.",
-      "charged": "Uso cargado",
       "committed": "Usados y reservados",
-      "effective": "Asignación efectiva",
-      "immutableDescription": "Las correcciones y los restablecimientos añaden entradas para el periodo actual. Nunca eliminan el uso contabilizado, las reservas activas, los costes del proveedor ni el historial de auditoría.",
-      "immutableTitle": "El uso permanece inmutable",
-      "overage": "Exceso",
-      "period": "Periodo actual: del {start} al {end}",
       "remaining": "Restantes",
-      "reserved": "Uso reservado",
       "title": "Posición de créditos actual",
-      "unavailableDescription": "El espacio de trabajo necesita una autorización válida y un punto de anclaje de créditos antes de poder corregirlos o restablecerlos.",
-      "unavailableTitle": "Controles de créditos no disponibles"
+      "unavailableDescription": "El espacio de trabajo necesita una autorización válida y un punto de anclaje de créditos antes de poder corregirlos o restablecerlos."
     },
     "description": "Revisa usuarios de todos los espacios de trabajo, filtra el directorio y realiza correcciones auditadas de cuentas, suscripciones y créditos.",
-    "detail": {
-      "companyId": "ID opaco del espacio de trabajo",
-      "createdAt": "Creado",
-      "errorDescription": "No hay ningún usuario editable seleccionado. Reintenta la búsqueda mediante el ID opaco.",
-      "errorTitle": "Detalles del usuario no disponibles",
-      "lastActive": "Última actividad",
-      "noRole": "Sin rol asignado",
-      "panelLabel": "Controles del usuario seleccionado",
-      "role": "Rol del espacio de trabajo",
-      "systemRole": "Rol del sistema",
-      "updatedAt": "Última actualización",
-      "userId": "ID de usuario opaco"
-    },
     "emptyBody": "Ajusta la búsqueda o los filtros para ampliar el directorio.",
     "emptyTitle": "Ningún usuario coincide con estos filtros",
     "navigation": "Usuarios",
     "platformAccess": {
-      "description": "Concede o revoca el acceso de operador entre espacios de trabajo para esta cuenta.",
-      "granted": "Concedido",
-      "label": "Acceso de operador de plataforma",
-      "revoked": "No concedido",
-      "selfDescription": "Un operador nunca puede concederse ni revocarse su propio acceso de plataforma. Pide a otro operador activo que haga este cambio.",
-      "selfTitle": "No puedes cambiar tu propio acceso",
-      "success": "El acceso de plataforma se actualizó.",
-      "title": "Acceso de plataforma",
-      "warningDescription": "Un operador puede consultar y corregir cuentas, suscripciones y créditos en todos los espacios de trabajo. Concédelo solo a una cuenta activa y verificada, y revócalo en cuanto deje de ser necesario.",
-      "warningTitle": "El acceso de operador abarca todos los espacios de trabajo"
+      "revoked": "No concedido"
     },
     "reset": {
       "baseAllowance": "Devolver las correcciones manuales a la asignación base",
-      "description": "Añade una corrección calculada para el periodo actual de este usuario.",
-      "disclosureDescription": "La asignación base elimina la corrección manual neta. El saldo cero pone a cero los créditos restantes. Ambas opciones conservan el uso cargado y reservado, los costes del proveedor y el historial.",
-      "disclosureTitle": "Esto no elimina el uso",
-      "modeDescription": "Elige el objetivo calculado. El servidor registra una corrección limitada con signo.",
-      "modeLabel": "Objetivo del restablecimiento",
-      "success": "El restablecimiento calculado de créditos se ha registrado.",
       "title": "Restablecimiento de créditos",
       "zeroBalance": "Poner a cero el saldo restante"
     },
     "searchPlaceholder": "Buscar por nombre o correo de la cuenta",
-    "status": {
-      "adminWarningDescription": "No se puede desactivar al último administrador activo de un espacio de trabajo. Asigna primero otro administrador activo.",
-      "adminWarningTitle": "La administración del espacio de trabajo debe seguir disponible",
-      "currentOperatorDescription": "Cambiar tu propia cuenta puede finalizar esta sesión de operador. Revisa el estado de destino antes de guardar.",
-      "currentOperatorTitle": "Esta es tu cuenta",
-      "description": "Cambia el estado de acceso local de esta cuenta sin alterar los datos de su espacio de trabajo.",
-      "label": "Estado de la cuenta",
-      "providerSyncRequiredDescription": "En este espacio de trabajo gestionado por un proveedor, los puestos de usuario o el estado de la cuenta deben cambiarse mediante el flujo normal del tenant o de facturación. Los cambios de estado de operador están desactivados para evitar divergencias entre el acceso local y la facturación del proveedor.",
-      "providerSyncRequiredTitle": "Se requiere sincronizar los puestos del proveedor",
-      "success": "El estado de la cuenta se ha actualizado.",
-      "title": "Acceso a la cuenta"
-    },
-    "tabs": {
-      "access": "Acceso",
-      "credits": "Créditos",
-      "overview": "Resumen"
-    },
     "title": "Operaciones de usuarios",
     "values": {
       "accountStatus": {
@@ -2667,43 +2616,21 @@
         "pendingAuthorization": "Pendiente de autorización"
       },
       "never": "Nunca",
-      "no": "No",
       "noSubscription": "Sin suscripción",
-      "notVerified": "No verificado",
-      "operator": "Operador de la plataforma",
-      "verified": "Verificado"
+      "operator": "Operador de la plataforma"
     }
   },
   "OperatorWorkspaces": {
     "allowance": {
       "label": "Créditos por usuario",
-      "success": "La asignación Enterprise se actualizó.",
       "title": "Asignación Enterprise",
-      "warningDescription": "La asignación se concede por usuario en todo el espacio y afecta al periodo actual.",
-      "warningTitle": "Se aplica a todos los miembros"
+      "warningDescription": "La asignación se concede por usuario en todo el espacio y afecta al periodo actual."
     },
     "description": "Todos los espacios de la plataforma, con su plan, miembros y asignación.",
-    "detail": {
-      "title": "Controles del espacio",
-      "workspaceId": "ID del espacio"
-    },
     "emptyBody": "Ajusta la búsqueda o los filtros para ampliar la lista.",
     "emptyTitle": "Ningún espacio coincide con estos filtros",
     "navigation": "Espacios de trabajo",
     "searchPlaceholder": "Buscar por correo de un miembro",
-    "subscription": {
-      "seatsDescription": "Cantidad local de asientos para todo el espacio. Déjalo vacío para no especificarlo.",
-      "seatsLabel": "Número de asientos",
-      "success": "La suscripción del espacio se corrigió.",
-      "title": "Suscripción local del espacio de trabajo",
-      "unavailable": "Este espacio no tiene ningún miembro activo con una suscripción que corregir.",
-      "warningDescription": "Esto corrige la autorización local de todo el espacio. No actualiza, cobra, cancela ni contacta con un proveedor de facturación.",
-      "warningTitle": "Solo instantánea local"
-    },
-    "tabs": {
-      "allowance": "Asignación",
-      "subscription": "Suscripción"
-    },
     "title": "Operaciones de espacios",
     "values": {
       "members": "{active} de {total}"

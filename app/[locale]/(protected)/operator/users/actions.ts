@@ -15,6 +15,8 @@ import type {
 
 import { revalidatePath } from "next/cache";
 
+import type { OperatorActionErrorCode, OperatorActionState } from "../operator-action-state";
+
 import {
   correctOperatorSubscriptionSnapshotInteractor,
   createAgentCreditAdjustmentInteractor,
@@ -40,24 +42,6 @@ import {
   OperatorNotFoundError,
 } from "@/ee/operator/operator.errors";
 
-export type OperatorUsersActionErrorCode =
-  | "accessDenied"
-  | "conflict"
-  | "invalidInput"
-  | "notFound"
-  | "unavailable"
-  | "unexpected";
-
-export type OperatorUsersActionState<T> =
-  | { status: "idle"; data?: never; errorCode?: never; operationId?: string }
-  | { status: "success"; data: T; errorCode?: never; operationId?: string }
-  | {
-      status: "error";
-      data?: never;
-      errorCode: OperatorUsersActionErrorCode;
-      operationId?: string;
-    };
-
 export type OperatorUsersListResult = {
   page: OperatorUserPageDto;
   request: ParsedListOperatorUsersData;
@@ -79,11 +63,11 @@ function optionalFormText(formData: FormData, name: string): string | undefined 
   return formText(formData, name) || undefined;
 }
 
-function failure<T>(errorCode: OperatorUsersActionErrorCode, operationId?: string): OperatorUsersActionState<T> {
+function failure<T>(errorCode: OperatorActionErrorCode, operationId?: string): OperatorActionState<T> {
   return { status: "error", errorCode, operationId };
 }
 
-function handledFailure<T>(error: unknown, operationId?: string): OperatorUsersActionState<T> {
+function handledFailure<T>(error: unknown, operationId?: string): OperatorActionState<T> {
   if (error instanceof OperatorConflictError) return failure("conflict", operationId);
   if (error instanceof OperatorNotFoundError) return failure("notFound", operationId);
   if (error instanceof OperatorConfigurationError) return failure("unavailable", operationId);
@@ -101,7 +85,7 @@ function operatorFilter(formData: FormData): boolean | undefined | null {
 
 export async function listOperatorUsersAction(
   formData: FormData,
-): Promise<OperatorUsersActionState<OperatorUsersListResult>> {
+): Promise<OperatorActionState<OperatorUsersListResult>> {
   const isPlatformOperator = operatorFilter(formData);
   if (isPlatformOperator === null) return failure("invalidInput");
 
@@ -125,9 +109,7 @@ export async function listOperatorUsersAction(
   }
 }
 
-export async function getOperatorUserDetailAction(
-  userId: string,
-): Promise<OperatorUsersActionState<OperatorUserDetailDto>> {
+export async function getOperatorUserDetailAction(userId: string): Promise<OperatorActionState<OperatorUserDetailDto>> {
   const input = GetOperatorUserDetailSchema.safeParse({ userId });
   if (!input.success) return failure("invalidInput");
 
@@ -142,7 +124,7 @@ export async function getOperatorUserDetailAction(
 
 export async function updateOperatorUserStatusAction(
   data: UpdateOperatorUserStatusData,
-): Promise<OperatorUsersActionState<OperatorUserDetailDto>> {
+): Promise<OperatorActionState<OperatorUserDetailDto>> {
   const operationId = data.operationId;
   const input = UpdateOperatorUserStatusSchema.safeParse(data);
   if (!input.success) return failure("invalidInput", operationId);
@@ -159,7 +141,7 @@ export async function updateOperatorUserStatusAction(
 
 export async function updateOperatorUserPlatformAccessAction(
   data: UpdateOperatorUserPlatformAccessData,
-): Promise<OperatorUsersActionState<OperatorUserDetailDto>> {
+): Promise<OperatorActionState<OperatorUserDetailDto>> {
   const operationId = data.operationId;
   const input = UpdateOperatorUserPlatformAccessSchema.safeParse(data);
   if (!input.success) return failure("invalidInput", operationId);
@@ -176,7 +158,7 @@ export async function updateOperatorUserPlatformAccessAction(
 
 export async function correctOperatorSubscriptionSnapshotAction(
   data: CorrectOperatorSubscriptionSnapshotData,
-): Promise<OperatorUsersActionState<OperatorUserDetailDto>> {
+): Promise<OperatorActionState<OperatorUserDetailDto>> {
   const operationId = data.operationId;
   const input = CorrectOperatorSubscriptionSnapshotSchema.safeParse(data);
   if (!input.success) return failure("invalidInput", operationId);
@@ -193,7 +175,7 @@ export async function correctOperatorSubscriptionSnapshotAction(
 
 export async function createOperatorUserCreditAdjustmentAction(
   data: CreateAgentCreditAdjustmentData,
-): Promise<OperatorUsersActionState<OperatorUserCreditAdjustmentResult>> {
+): Promise<OperatorActionState<OperatorUserCreditAdjustmentResult>> {
   const operationId = data.operationId;
   const input = CreateAgentCreditAdjustmentSchema.safeParse(data);
   if (!input.success) return failure("invalidInput", operationId);
@@ -221,7 +203,7 @@ export async function createOperatorUserCreditAdjustmentAction(
 
 export async function resetOperatorUserCreditsAction(
   data: ResetOperatorUserCreditsData,
-): Promise<OperatorUsersActionState<ResetOperatorUserCreditsResultDto>> {
+): Promise<OperatorActionState<ResetOperatorUserCreditsResultDto>> {
   const operationId = data.operationId;
   const input = ResetOperatorUserCreditsSchema.safeParse(data);
   if (!input.success) return failure("invalidInput", operationId);

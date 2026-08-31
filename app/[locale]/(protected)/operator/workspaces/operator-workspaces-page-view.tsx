@@ -14,7 +14,7 @@ import { useOperatorWorkspaceColumns } from "./use-operator-workspace-columns";
 type Props = { initialWorkspaces: GetResult<OperatorWorkspaceRowDto> };
 
 export const OperatorWorkspacesPageView = observer(function OperatorWorkspacesPageView({ initialWorkspaces }: Props) {
-  const { operatorWorkspaceModalStore, operatorWorkspacesStore } = useRootStore();
+  const { operatorWorkspacesStore } = useRootStore();
   const columns = useOperatorWorkspaceColumns();
   const t = useTranslations();
 
@@ -27,7 +27,6 @@ export const OperatorWorkspacesPageView = observer(function OperatorWorkspacesPa
       initialData={initialWorkspaces}
       searchPlaceholder={t("OperatorWorkspaces.searchPlaceholder")}
       store={operatorWorkspacesStore}
-      onRowClick={(item) => operatorWorkspaceModalStore.openForWorkspace(item)}
     />
   );
 });

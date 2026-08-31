@@ -142,6 +142,7 @@ const TABLE_COLUMN_KEYS = [
   "Common.table.columns.channels",
   "Common.table.columns.contacts",
   "Common.table.columns.createdAt",
+  "Common.table.columns.credits",
   "Common.table.columns.customFieldValues",
   "Common.table.columns.deals",
   "Common.table.columns.description",
@@ -627,6 +628,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     'features/messaging/activities/audit-detail.tsx :: t :: terminologyMessageKey(selection.entityType, presetKey, "plural") as never',
     1,
   ],
+  ["app/[locale]/(protected)/operator/use-operator-error-toast.ts :: t :: operatorErrorKey(code)", 1],
   ["app/[locale]/(protected)/contacts/components/add-channel-popover.tsx :: t :: SOURCE_HINT_KEYS[source]", 1],
   ["app/[locale]/(protected)/contacts/components/use-contact-columns.tsx :: t :: nameKey", 1],
   ["app/[locale]/(protected)/deals/components/use-deal-columns.tsx :: t :: nameKey", 1],
@@ -707,7 +709,7 @@ const TERMINOLOGY_TEMPLATE_EVIDENCE = Object.fromEntries(
 
 const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
   {
-    file: "app/[locale]/(protected)/operator/operator-form.store.ts",
+    file: "app/[locale]/(protected)/operator/operator-action-state.ts",
     keys: [
       "OperatorConsole.errors.accessDenied",
       "OperatorConsole.errors.conflict",

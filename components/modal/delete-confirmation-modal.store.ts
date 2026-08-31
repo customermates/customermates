@@ -7,6 +7,9 @@ export interface DeleteConfirmationData {
   title: string;
   message: string;
   entityName?: string;
+  confirmLabel?: string;
+  confirmVariant?: "default" | "destructive";
+  successKey?: string;
   onConfirm: () => Promise<boolean>;
 }
 
@@ -29,7 +32,7 @@ export class DeleteConfirmationModalStore extends BaseModalStore<DeleteConfirmat
       const confirmed = await this.form.onConfirm();
       if (!confirmed) return;
 
-      this.toastSuccess("Common.notifications.deleted");
+      this.toastSuccess(this.form.successKey ?? "Common.notifications.deleted");
       this.close();
     } finally {
       this.setIsLoading(false);

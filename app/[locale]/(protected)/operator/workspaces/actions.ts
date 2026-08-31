@@ -4,6 +4,8 @@ import type { HostedAiOperatorCompanyDto, UpdateHostedAiEnterpriseAllowanceData 
 
 import { revalidatePath } from "next/cache";
 
+import type { OperatorActionErrorCode, OperatorActionState } from "../operator-action-state";
+
 import { updateHostedAiEnterpriseAllowanceInteractor } from "@/core/di";
 import { appErrorDetails } from "@/core/errors/app-errors";
 import { UpdateHostedAiEnterpriseAllowanceSchema } from "@/ee/operator/operator.schema";
@@ -13,29 +15,13 @@ import {
   OperatorNotFoundError,
 } from "@/ee/operator/operator.errors";
 
-export type OperatorWorkspacesActionErrorCode =
-  | "accessDenied"
-  | "conflict"
-  | "invalidInput"
-  | "notFound"
-  | "unavailable"
-  | "unexpected";
-
-export type OperatorWorkspacesActionState<T> =
-  | { status: "idle"; data?: never; errorCode?: never; operationId?: string }
-  | { status: "success"; data: T; errorCode?: never; operationId?: string }
-  | { status: "error"; data?: never; errorCode: OperatorWorkspacesActionErrorCode; operationId?: string };
-
 const OPERATOR_WORKSPACES_PATH = "/operator/workspaces";
 
-function failure<T>(
-  errorCode: OperatorWorkspacesActionErrorCode,
-  operationId?: string,
-): OperatorWorkspacesActionState<T> {
+function failure<T>(errorCode: OperatorActionErrorCode, operationId?: string): OperatorActionState<T> {
   return { status: "error", errorCode, operationId };
 }
 
-function handledFailure<T>(error: unknown, operationId?: string): OperatorWorkspacesActionState<T> {
+function handledFailure<T>(error: unknown, operationId?: string): OperatorActionState<T> {
   if (error instanceof OperatorConflictError) return failure("conflict", operationId);
   if (error instanceof OperatorNotFoundError) return failure("notFound", operationId);
   if (error instanceof OperatorConfigurationError) return failure("unavailable", operationId);
@@ -46,7 +32,7 @@ function handledFailure<T>(error: unknown, operationId?: string): OperatorWorksp
 
 export async function updateOperatorEnterpriseAllowanceAction(
   data: UpdateHostedAiEnterpriseAllowanceData,
-): Promise<OperatorWorkspacesActionState<HostedAiOperatorCompanyDto>> {
+): Promise<OperatorActionState<HostedAiOperatorCompanyDto>> {
   const operationId = data.operationId;
   const input = UpdateHostedAiEnterpriseAllowanceSchema.safeParse(data);
   if (!input.success) return failure("invalidInput", operationId);

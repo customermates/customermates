@@ -794,6 +794,7 @@
       "clear": "Leeren",
       "close": "Schließen",
       "collapse": "Einklappen",
+      "confirm": "Bestätigen",
       "contact": "Kontakt",
       "continueSetup": "Einrichtung fortsetzen",
       "copy": "In die Zwischenablage kopieren",
@@ -1304,6 +1305,7 @@
         "channels": "Kanäle",
         "contacts": "Kontakte",
         "createdAt": "Erstellt am",
+        "credits": "Guthaben",
         "customFieldValues": "Benutzerdefinierte Felder",
         "deals": "Deals",
         "description": "Beschreibung",
@@ -2500,6 +2502,11 @@
     "actions": {
       "retry": "Erneut versuchen"
     },
+    "confirm": {
+      "plan": "Den Tarif für {name} auf {value} setzen? Das gilt für den gesamten Workspace.",
+      "subscription": "Den Abonnementstatus für {name} auf {value} setzen? Das gilt für den gesamten Workspace und kontaktiert keinen Zahlungsanbieter.",
+      "title": "Operator-Änderung bestätigen"
+    },
     "errors": {
       "accessDenied": "Dein Operator-Zugriff hat sich geändert. Aktualisiere die Seite und authentifiziere dich erneut.",
       "conflict": "Der Datensatz wurde während der Bearbeitung geändert. Die neuesten Details wurden geladen; prüfe sie, bevor du den Vorgang mit derselben Vorgangs-ID wiederholst.",
@@ -2507,11 +2514,6 @@
       "notFound": "Der ausgewählte Benutzer, Arbeitsbereich, das Abonnement oder der Credit-Zeitraum existiert nicht mehr.",
       "unavailable": "Die gewünschte Korrektur ist für die aktuelle Kontokonfiguration nicht verfügbar.",
       "unexpected": "Ein unerwarteter Fehler ist aufgetreten. Es wird keine erfolgreiche Änderung angenommen; wiederhole den Vorgang mit derselben Vorgangs-ID."
-    },
-    "forms": {
-      "reason": "Begründung",
-      "reasonDescription": "Für den nur erweiterbaren Operator-Prüfverlauf erforderlich. Verwende mindestens 8 Zeichen.",
-      "reasonPlaceholder": "Erkläre, warum diese Korrektur erforderlich ist"
     },
     "shell": {
       "console": "Operator-Konsole"
@@ -2577,88 +2579,35 @@
   },
   "OperatorUsers": {
     "adjustment": {
-      "deltaDescription": "Verwende eine positive ganze Zahl, um Credits zu gewähren, oder eine negative Zahl für eine Korrektur.",
       "deltaLabel": "Vorzeichenbehaftete Credit-Korrektur",
-      "deltaPlaceholder": "Zum Beispiel 500 oder -100",
-      "description": "Füge dem aktuellen Credit-Zeitraum dieses Benutzers eine begrenzte Korrektur hinzu.",
-      "success": "Die Credit-Korrektur wurde erfasst.",
-      "title": "Credit-Korrektur"
+      "deltaPlaceholder": "Zum Beispiel 500 oder -100"
+    },
+    "confirm": {
+      "operator": "Den Plattform-Operator-Zugriff für {name} auf {value} setzen?",
+      "reset": "Das Guthaben von {name} zurücksetzen: {value}?",
+      "status": "Den Kontostatus von {name} auf {value} setzen?"
     },
     "credits": {
       "adjustments": "Manuelle Korrekturen",
       "base": "Grundkontingent",
-      "blocked": "Neue Aufgaben mit gehosteter KI sind für diesen Benutzer derzeit gesperrt.",
-      "charged": "Abgerechnete Nutzung",
       "committed": "Verbraucht und reserviert",
-      "effective": "Wirksames Kontingent",
-      "immutableDescription": "Korrekturen und Zurücksetzungen fügen Einträge für den aktuellen Zeitraum hinzu. Sie löschen niemals abgerechnete Nutzung, aktive Reservierungen, Anbieterkosten oder den Prüfverlauf.",
-      "immutableTitle": "Nutzung bleibt unveränderlich",
-      "overage": "Überschreitung",
-      "period": "Aktueller Zeitraum: {start} bis {end}",
       "remaining": "Verbleibend",
-      "reserved": "Reservierte Nutzung",
       "title": "Aktueller Credit-Stand",
-      "unavailableDescription": "Der Arbeitsbereich benötigt eine gültige Berechtigung und einen Credit-Anker, bevor Credits korrigiert oder zurückgesetzt werden können.",
-      "unavailableTitle": "Credit-Steuerung nicht verfügbar"
+      "unavailableDescription": "Der Arbeitsbereich benötigt eine gültige Berechtigung und einen Credit-Anker, bevor Credits korrigiert oder zurückgesetzt werden können."
     },
     "description": "Prüfe Benutzer in allen Arbeitsbereichen, filtere das Verzeichnis und nimm protokollierte Konto-, Abonnement- und Credit-Korrekturen vor.",
-    "detail": {
-      "companyId": "Nicht ableitbare Arbeitsbereichs-ID",
-      "createdAt": "Erstellt",
-      "errorDescription": "Es ist kein bearbeitbarer Benutzer ausgewählt. Wiederhole die Suche über die nicht ableitbare ID.",
-      "errorTitle": "Benutzerdetails nicht verfügbar",
-      "lastActive": "Zuletzt aktiv",
-      "noRole": "Keine Rolle zugewiesen",
-      "panelLabel": "Steuerungen für den ausgewählten Benutzer",
-      "role": "Arbeitsbereichsrolle",
-      "systemRole": "Systemrolle",
-      "updatedAt": "Zuletzt aktualisiert",
-      "userId": "Nicht ableitbare Benutzer-ID"
-    },
     "emptyBody": "Passen Sie Suche oder Filter an, um das Verzeichnis zu erweitern.",
     "emptyTitle": "Keine Benutzer passen zu diesen Filtern",
     "navigation": "Benutzer",
     "platformAccess": {
-      "description": "Operator-Zugriff über alle Arbeitsbereiche für dieses Konto erteilen oder entziehen.",
-      "granted": "Erteilt",
-      "label": "Plattform-Operator-Zugriff",
-      "revoked": "Nicht erteilt",
-      "selfDescription": "Ein Operator kann seinen eigenen Plattformzugriff niemals erteilen oder entziehen. Bitten Sie einen anderen aktiven Operator um diese Änderung.",
-      "selfTitle": "Sie können Ihren eigenen Zugriff nicht ändern",
-      "success": "Der Plattformzugriff wurde aktualisiert.",
-      "title": "Plattformzugriff",
-      "warningDescription": "Ein Operator kann Konten, Abonnements und Credits in allen Arbeitsbereichen einsehen und korrigieren. Erteilen Sie ihn nur einem verifizierten, aktiven Konto und entziehen Sie ihn, sobald er nicht mehr benötigt wird.",
-      "warningTitle": "Operator-Zugriff gilt für alle Arbeitsbereiche"
+      "revoked": "Nicht erteilt"
     },
     "reset": {
       "baseAllowance": "Manuelle Korrekturen auf das Grundkontingent zurückführen",
-      "description": "Füge eine berechnete Korrektur für den aktuellen Zeitraum dieses Benutzers hinzu.",
-      "disclosureDescription": "Grundkontingent hebt die manuelle Nettokorrektur auf. Nullsaldo setzt die verbleibenden Credits auf null. Beides erhält belastete und reservierte Nutzung, Anbieterkosten und Verlauf.",
-      "disclosureTitle": "Dies löscht keine Nutzung",
-      "modeDescription": "Wähle das berechnete Ziel. Der Server erfasst eine begrenzte Korrektur mit Vorzeichen.",
-      "modeLabel": "Ziel der Zurücksetzung",
-      "success": "Die berechnete Credit-Zurücksetzung wurde erfasst.",
       "title": "Credits zurücksetzen",
       "zeroBalance": "Verbleibendes Guthaben auf null setzen"
     },
     "searchPlaceholder": "Nach Name oder Konto-E-Mail suchen",
-    "status": {
-      "adminWarningDescription": "Der letzte aktive Administrator eines Arbeitsbereichs kann nicht deaktiviert werden. Weise zuerst einen anderen aktiven Administrator zu.",
-      "adminWarningTitle": "Die Arbeitsbereichsverwaltung muss verfügbar bleiben",
-      "currentOperatorDescription": "Eine Änderung deines eigenen Kontos kann diese Operator-Sitzung beenden. Prüfe den Zielstatus vor dem Speichern.",
-      "currentOperatorTitle": "Dies ist dein Konto",
-      "description": "Ändere den lokalen Zugriffsstatus dieses Kontos, ohne seine Arbeitsbereichsdaten zu verändern.",
-      "label": "Kontostatus",
-      "providerSyncRequiredDescription": "In diesem anbieterverwalteten Arbeitsbereich müssen Benutzerplätze oder Kontostatus über den regulären Mandanten- oder Abrechnungsablauf geändert werden. Operator-Statusänderungen sind gesperrt, damit lokaler Zugriff und Anbieterabrechnung nicht auseinanderlaufen.",
-      "providerSyncRequiredTitle": "Synchronisierung der Anbieterplätze erforderlich",
-      "success": "Der Kontostatus wurde aktualisiert.",
-      "title": "Kontozugriff"
-    },
-    "tabs": {
-      "access": "Zugriff",
-      "credits": "Credits",
-      "overview": "Übersicht"
-    },
     "title": "Benutzerverwaltung",
     "values": {
       "accountStatus": {
@@ -2667,43 +2616,21 @@
         "pendingAuthorization": "Wartet auf Autorisierung"
       },
       "never": "Nie",
-      "no": "Nein",
       "noSubscription": "Kein Abonnement",
-      "notVerified": "Nicht verifiziert",
-      "operator": "Plattform-Operator",
-      "verified": "Verifiziert"
+      "operator": "Plattform-Operator"
     }
   },
   "OperatorWorkspaces": {
     "allowance": {
       "label": "Credits pro Benutzer",
-      "success": "Das Enterprise-Kontingent wurde aktualisiert.",
       "title": "Enterprise-Kontingent",
-      "warningDescription": "Das Kontingent gilt pro Benutzer im gesamten Arbeitsbereich und wirkt sich auf die aktuelle Periode aus.",
-      "warningTitle": "Gilt für alle Mitglieder"
+      "warningDescription": "Das Kontingent gilt pro Benutzer im gesamten Arbeitsbereich und wirkt sich auf die aktuelle Periode aus."
     },
     "description": "Alle Arbeitsbereiche der Plattform mit Tarif, Mitgliedern und Kontingent.",
-    "detail": {
-      "title": "Arbeitsbereichssteuerung",
-      "workspaceId": "Arbeitsbereichs-ID"
-    },
     "emptyBody": "Passen Sie Suche oder Filter an, um die Liste zu erweitern.",
     "emptyTitle": "Keine Arbeitsbereiche passen zu diesen Filtern",
     "navigation": "Arbeitsbereiche",
     "searchPlaceholder": "Nach Mitglieds-E-Mail suchen",
-    "subscription": {
-      "seatsDescription": "Optionale lokale Platzanzahl für den gesamten Arbeitsbereich. Leer lassen, um sie offen zu lassen.",
-      "seatsLabel": "Anzahl der Plätze",
-      "success": "Das Abonnement des Arbeitsbereichs wurde korrigiert.",
-      "title": "Lokales Arbeitsbereichsabonnement",
-      "unavailable": "Dieser Arbeitsbereich hat kein aktives Mitglied mit einem korrigierbaren Abonnement.",
-      "warningDescription": "Dies korrigiert die lokale Autorisierung für den gesamten Arbeitsbereich. Es aktualisiert, belastet, kündigt oder kontaktiert keinen Zahlungsanbieter.",
-      "warningTitle": "Nur lokaler Snapshot"
-    },
-    "tabs": {
-      "allowance": "Kontingent",
-      "subscription": "Abonnement"
-    },
     "title": "Arbeitsbereichsverwaltung",
     "values": {
       "members": "{active} von {total}"

@@ -384,7 +384,6 @@ describeDatabase("operator user administration against a real database", { timeo
       userId: target.userId,
       expectedUpdatedAt: targetBefore.updatedAt.toISOString(),
       status: "inactive" as const,
-      reason: "Deactivate after restoring an administrator",
       operationId,
     };
     const first = await runWithOperator(actor, () =>
@@ -397,6 +396,9 @@ describeDatabase("operator user administration against a real database", { timeo
     expect(first.agentCreditActivatedAt).toBeNull();
     expect(replay.status).toBe("inactive");
     await expect(runWithoutTenant(() => prisma.operatorAuditEvent.count({ where: { operationId } }))).resolves.toBe(1);
+    await expect(
+      runWithoutTenant(() => prisma.operatorAuditEvent.findUniqueOrThrow({ where: { operationId } })),
+    ).resolves.toMatchObject({ reason: null });
 
     const rollbackTarget = await createUser({
       companyId,

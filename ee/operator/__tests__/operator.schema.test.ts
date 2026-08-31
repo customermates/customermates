@@ -193,7 +193,21 @@ describe("operator input contracts", () => {
       UpdateOperatorUserPlatformAccessSchema.safeParse({ ...base, isPlatformOperator: true, status: "active" }).success,
     ).toBe(false);
     expect(
-      UpdateOperatorUserPlatformAccessSchema.safeParse({ ...base, isPlatformOperator: true, reason: "short" }).success,
+      UpdateOperatorUserPlatformAccessSchema.safeParse({ ...base, isPlatformOperator: true, reason: "x".repeat(501) })
+        .success,
     ).toBe(false);
+  });
+
+  it("treats an operator reason as optional and reads a blank one as absent", () => {
+    const base = {
+      userId: operationId,
+      expectedUpdatedAt: "2026-08-28T12:00:00.000Z",
+      isPlatformOperator: true,
+      operationId,
+    };
+
+    expect(UpdateOperatorUserPlatformAccessSchema.safeParse(base).data?.reason).toBeUndefined();
+    expect(UpdateOperatorUserPlatformAccessSchema.safeParse({ ...base, reason: "   " }).data?.reason).toBeUndefined();
+    expect(UpdateOperatorUserPlatformAccessSchema.safeParse({ ...base, reason: "Ad hoc" }).data?.reason).toBe("Ad hoc");
   });
 });

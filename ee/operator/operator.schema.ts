@@ -7,6 +7,12 @@ const MAX_SIGNED_CREDITS = 1_000_000;
 const MAX_BIGINT = 9_223_372_036_854_775_807n;
 
 const ReasonSchema = z.string().trim().min(8).max(500);
+const OptionalReasonSchema = z
+  .string()
+  .trim()
+  .max(500)
+  .transform((value) => (value.length > 0 ? value : undefined))
+  .optional();
 const OperationIdSchema = z.uuid();
 
 export const FindHostedAiOperatorCandidateSchema = z
@@ -26,7 +32,7 @@ export const UpdateHostedAiEnterpriseAllowanceSchema = z
   .object({
     companyId: z.uuid(),
     creditsPerUser: z.number().int().min(1).max(MAX_CREDITS),
-    reason: ReasonSchema,
+    reason: OptionalReasonSchema,
     operationId: OperationIdSchema,
   })
   .strict();
@@ -43,7 +49,7 @@ export const CreateAgentCreditAdjustmentSchema = z
       .refine((value) => value !== 0),
     periodStart: z.iso.datetime({ offset: true, precision: 3 }),
     periodEnd: z.iso.datetime({ offset: true, precision: 3 }),
-    reason: ReasonSchema,
+    reason: OptionalReasonSchema,
     operationId: OperationIdSchema,
   })
   .strict()
@@ -101,7 +107,7 @@ export const UpdateOperatorUserStatusSchema = z
     userId: z.uuid(),
     expectedUpdatedAt: z.iso.datetime({ offset: true, precision: 3 }),
     status: z.enum(Status),
-    reason: ReasonSchema,
+    reason: OptionalReasonSchema,
     operationId: OperationIdSchema,
   })
   .strict();
@@ -111,7 +117,7 @@ export const UpdateOperatorUserPlatformAccessSchema = z
     userId: z.uuid(),
     expectedUpdatedAt: z.iso.datetime({ offset: true, precision: 3 }),
     isPlatformOperator: z.boolean(),
-    reason: ReasonSchema,
+    reason: OptionalReasonSchema,
     operationId: OperationIdSchema,
   })
   .strict();
@@ -123,7 +129,7 @@ export const CorrectOperatorSubscriptionSnapshotSchema = z
     plan: z.enum(SubscriptionPlan),
     status: z.enum(SubscriptionStatus),
     quantity: z.number().int().min(1).max(MAX_CREDITS).nullable(),
-    reason: ReasonSchema,
+    reason: OptionalReasonSchema,
     operationId: OperationIdSchema,
   })
   .strict();
@@ -137,7 +143,7 @@ export const ResetOperatorUserCreditsSchema = z
     expectedBaseAllowanceCredits: z.number().int().safe().min(0),
     expectedAdjustmentCredits: z.number().int().safe(),
     expectedCommittedCredits: z.number().int().safe().min(0),
-    reason: ReasonSchema,
+    reason: OptionalReasonSchema,
     operationId: OperationIdSchema,
   })
   .strict();
@@ -303,7 +309,7 @@ export type AgentCreditAdjustmentDto = {
   creditDelta: number;
   periodStart: string;
   periodEnd: string;
-  reason: string;
+  reason: string | null;
   operationId: string;
   createdByOperatorUserId: string;
   createdAt: string;

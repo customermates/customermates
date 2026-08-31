@@ -13,13 +13,6 @@ vi.mock("next/navigation", () => ({ notFound: state.notFound }));
 vi.mock("@/core/di", () => ({
   getOperatorConsoleVisibilityInteractor: () => ({ invoke: state.visibility }),
 }));
-vi.mock("../users/operator-user-modal", () => ({
-  OperatorUserModal: () => jsx("div", { "data-operator-user-modal": true }),
-}));
-vi.mock("../workspaces/operator-workspace-modal", () => ({
-  OperatorWorkspaceModal: () => jsx("div", { "data-operator-workspace-modal": true }),
-}));
-
 import OperatorLayout from "../layout";
 
 beforeEach(() => {
@@ -38,15 +31,13 @@ describe("OperatorLayout access boundary", () => {
     expect(state.notFound).toHaveBeenCalledOnce();
   });
 
-  it("renders operator content and the operator modals after the persisted access check passes", async () => {
+  it("renders operator content without a chrome of its own after the persisted access check passes", async () => {
     const element = await OperatorLayout({ children: jsx("main", { children: "operator content" }) });
     const html = renderToStaticMarkup(element);
 
     expect(state.visibility).toHaveBeenCalledOnce();
     expect(state.notFound).not.toHaveBeenCalled();
     expect(html).toContain("operator content");
-    expect(html).toContain("data-operator-user-modal");
-    expect(html).toContain("data-operator-workspace-modal");
     expect(html).not.toContain("header");
   });
 });

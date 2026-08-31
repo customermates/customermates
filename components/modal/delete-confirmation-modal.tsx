@@ -57,13 +57,13 @@ export const DeleteConfirmationModal = observer(() => {
             <AlertDialogAction
               disabled={isLoading}
               id="confirm-delete"
-              variant="destructive"
+              variant={form.confirmVariant ?? "destructive"}
               onClick={(event) => {
                 event.preventDefault();
                 runUserAction(() => store.onSubmit());
               }}
             >
-              {t("Common.actions.delete")}
+              {form.confirmLabel || t("Common.actions.delete")}
             </AlertDialogAction>
           </AppCardFooter>
         </AppCard>

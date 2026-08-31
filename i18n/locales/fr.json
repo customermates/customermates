@@ -794,6 +794,7 @@
       "clear": "Effacer",
       "close": "Fermer",
       "collapse": "Réduire",
+      "confirm": "Confirmer",
       "contact": "Contacter",
       "continueSetup": "Poursuivre la configuration",
       "copy": "Copier dans le presse-papiers",
@@ -1304,6 +1305,7 @@
         "channels": "Canaux",
         "contacts": "Contacts",
         "createdAt": "Créé le",
+        "credits": "Crédits",
         "customFieldValues": "Champs personnalisés",
         "deals": "Affaires",
         "description": "Description",
@@ -2500,6 +2502,11 @@
     "actions": {
       "retry": "Réessayer"
     },
+    "confirm": {
+      "plan": "Définir le forfait de {name} sur {value} ? Cela s’applique à tout l’espace de travail.",
+      "subscription": "Définir le statut d’abonnement de {name} sur {value} ? Cela s’applique à tout l’espace de travail et ne contacte aucun prestataire de facturation.",
+      "title": "Confirmer la modification opérateur"
+    },
     "errors": {
       "accessDenied": "Votre accès opérateur a changé. Actualisez la page et authentifiez-vous de nouveau.",
       "conflict": "L’enregistrement a changé pendant votre modification. Les informations les plus récentes ont été chargées ; examinez-les avant de réessayer avec le même ID d’opération.",
@@ -2507,11 +2514,6 @@
       "notFound": "L’utilisateur, l’espace de travail, l’abonnement ou la période de crédits sélectionné n’existe plus.",
       "unavailable": "La correction demandée n’est pas disponible pour la configuration actuelle du compte.",
       "unexpected": "Une erreur inattendue s’est produite. Aucun changement réussi n’est supposé ; réessayez avec le même ID d’opération."
-    },
-    "forms": {
-      "reason": "Motif",
-      "reasonDescription": "Requis pour le journal d’audit opérateur en ajout uniquement. Utilisez au moins 8 caractères.",
-      "reasonPlaceholder": "Expliquez pourquoi cette correction est nécessaire"
     },
     "shell": {
       "console": "Console opérateur"
@@ -2577,88 +2579,35 @@
   },
   "OperatorUsers": {
     "adjustment": {
-      "deltaDescription": "Utilisez un entier positif pour accorder des crédits ou un entier négatif pour appliquer une correction.",
       "deltaLabel": "Correction de crédits signée",
-      "deltaPlaceholder": "Par exemple, 500 ou -100",
-      "description": "Ajoutez une correction limitée à la période de crédits actuelle de cet utilisateur.",
-      "success": "La correction de crédits a été enregistrée.",
-      "title": "Correction de crédits"
+      "deltaPlaceholder": "Par exemple, 500 ou -100"
+    },
+    "confirm": {
+      "operator": "Définir l’accès opérateur de plateforme de {name} sur {value} ?",
+      "reset": "Réinitialiser les crédits de {name} : {value} ?",
+      "status": "Définir le statut du compte de {name} sur {value} ?"
     },
     "credits": {
       "adjustments": "Corrections manuelles",
       "base": "Allocation de base",
-      "blocked": "Les nouvelles tâches d’IA hébergée sont actuellement bloquées pour cet utilisateur.",
-      "charged": "Utilisation facturée",
       "committed": "Utilisés et réservés",
-      "effective": "Allocation effective",
-      "immutableDescription": "Les corrections et réinitialisations ajoutent des entrées pour la période actuelle. Elles ne suppriment jamais l’utilisation comptabilisée, les réservations actives, les coûts du fournisseur ni l’historique d’audit.",
-      "immutableTitle": "L’utilisation reste immuable",
-      "overage": "Dépassement",
-      "period": "Période actuelle : du {start} au {end}",
       "remaining": "Restants",
-      "reserved": "Utilisation réservée",
       "title": "Solde de crédits actuel",
-      "unavailableDescription": "L’espace de travail doit disposer d’un droit valide et d’un point d’ancrage de crédits avant toute correction ou réinitialisation.",
-      "unavailableTitle": "Contrôles de crédits indisponibles"
+      "unavailableDescription": "L’espace de travail doit disposer d’un droit valide et d’un point d’ancrage de crédits avant toute correction ou réinitialisation."
     },
     "description": "Examinez les utilisateurs de tous les espaces, filtrez l’annuaire et apportez des corrections auditées aux comptes, abonnements et crédits.",
-    "detail": {
-      "companyId": "ID opaque de l’espace de travail",
-      "createdAt": "Créé le",
-      "errorDescription": "Aucun utilisateur modifiable n’est sélectionné. Relancez la recherche par ID opaque.",
-      "errorTitle": "Détails de l’utilisateur indisponibles",
-      "lastActive": "Dernière activité",
-      "noRole": "Aucun rôle attribué",
-      "panelLabel": "Contrôles de l’utilisateur sélectionné",
-      "role": "Rôle dans l’espace de travail",
-      "systemRole": "Rôle système",
-      "updatedAt": "Dernière mise à jour",
-      "userId": "ID utilisateur opaque"
-    },
     "emptyBody": "Ajustez la recherche ou les filtres pour élargir l’annuaire.",
     "emptyTitle": "Aucun utilisateur ne correspond à ces filtres",
     "navigation": "Utilisateurs",
     "platformAccess": {
-      "description": "Accordez ou révoquez l’accès opérateur inter-espaces pour ce compte.",
-      "granted": "Accordé",
-      "label": "Accès opérateur de plateforme",
-      "revoked": "Non accordé",
-      "selfDescription": "Un opérateur ne peut jamais accorder ni révoquer son propre accès plateforme. Demandez à un autre opérateur actif d’effectuer ce changement.",
-      "selfTitle": "Vous ne pouvez pas modifier votre propre accès",
-      "success": "L’accès plateforme a été mis à jour.",
-      "title": "Accès plateforme",
-      "warningDescription": "Un opérateur peut consulter et corriger les comptes, abonnements et crédits de tous les espaces. Ne l’accordez qu’à un compte actif et vérifié, et révoquez-le dès qu’il n’est plus nécessaire.",
-      "warningTitle": "L’accès opérateur couvre tous les espaces"
+      "revoked": "Non accordé"
     },
     "reset": {
       "baseAllowance": "Ramener les corrections manuelles à l’allocation de base",
-      "description": "Ajoutez une correction calculée pour la période actuelle de cet utilisateur.",
-      "disclosureDescription": "L’allocation de base annule la correction manuelle nette. Le solde nul ramène les crédits restants à zéro. Les deux conservent l’utilisation facturée et réservée, les coûts du fournisseur et l’historique.",
-      "disclosureTitle": "Cette action ne supprime pas l’utilisation",
-      "modeDescription": "Choisissez la cible calculée. Le serveur enregistre une correction signée et limitée.",
-      "modeLabel": "Cible de réinitialisation",
-      "success": "La réinitialisation calculée des crédits a été enregistrée.",
       "title": "Réinitialisation des crédits",
       "zeroBalance": "Ramener le solde restant à zéro"
     },
     "searchPlaceholder": "Rechercher par nom ou e-mail du compte",
-    "status": {
-      "adminWarningDescription": "Le dernier administrateur actif d’un espace de travail ne peut pas être désactivé. Attribuez d’abord un autre administrateur actif.",
-      "adminWarningTitle": "L’administration de l’espace doit rester disponible",
-      "currentOperatorDescription": "La modification de votre propre compte peut mettre fin à cette session opérateur. Vérifiez l’état cible avant d’enregistrer.",
-      "currentOperatorTitle": "Il s’agit de votre compte",
-      "description": "Modifiez l’état d’accès local de ce compte sans altérer les données de son espace de travail.",
-      "label": "État du compte",
-      "providerSyncRequiredDescription": "Dans cet espace géré par un fournisseur, les sièges utilisateur ou l’état du compte doivent être modifiés par le parcours normal du tenant ou de facturation. Les changements d’état opérateur sont désactivés afin d’éviter un écart entre l’accès local et la facturation du fournisseur.",
-      "providerSyncRequiredTitle": "Synchronisation des sièges fournisseur requise",
-      "success": "L’état du compte a été mis à jour.",
-      "title": "Accès au compte"
-    },
-    "tabs": {
-      "access": "Accès",
-      "credits": "Crédits",
-      "overview": "Vue d’ensemble"
-    },
     "title": "Opérations utilisateurs",
     "values": {
       "accountStatus": {
@@ -2667,43 +2616,21 @@
         "pendingAuthorization": "En attente d’autorisation"
       },
       "never": "Jamais",
-      "no": "Non",
       "noSubscription": "Aucun abonnement",
-      "notVerified": "Non vérifié",
-      "operator": "Opérateur de la plateforme",
-      "verified": "Vérifié"
+      "operator": "Opérateur de la plateforme"
     }
   },
   "OperatorWorkspaces": {
     "allowance": {
       "label": "Crédits par utilisateur",
-      "success": "L’allocation Enterprise a été mise à jour.",
       "title": "Allocation Enterprise",
-      "warningDescription": "L’allocation est accordée par utilisateur sur tout l’espace et prend effet sur la période en cours.",
-      "warningTitle": "S’applique à tous les membres"
+      "warningDescription": "L’allocation est accordée par utilisateur sur tout l’espace et prend effet sur la période en cours."
     },
     "description": "Tous les espaces de la plateforme, avec leur forfait, leurs membres et leur allocation.",
-    "detail": {
-      "title": "Contrôles de l’espace",
-      "workspaceId": "Identifiant de l’espace"
-    },
     "emptyBody": "Ajustez la recherche ou les filtres pour élargir la liste.",
     "emptyTitle": "Aucun espace ne correspond à ces filtres",
     "navigation": "Espaces de travail",
     "searchPlaceholder": "Rechercher par e-mail d’un membre",
-    "subscription": {
-      "seatsDescription": "Nombre de sièges local pour tout l’espace. Laissez vide pour ne pas le préciser.",
-      "seatsLabel": "Nombre de sièges",
-      "success": "L’abonnement de l’espace a été corrigé.",
-      "title": "Abonnement local de l’espace",
-      "unavailable": "Cet espace n’a aucun membre actif avec un abonnement à corriger.",
-      "warningDescription": "Ceci corrige l’autorisation locale de tout l’espace. Cela ne met pas à jour, ne facture pas, n’annule pas et ne contacte aucun prestataire de facturation.",
-      "warningTitle": "Instantané local uniquement"
-    },
-    "tabs": {
-      "allowance": "Allocation",
-      "subscription": "Abonnement"
-    },
     "title": "Opérations des espaces",
     "values": {
       "members": "{active} sur {total}"

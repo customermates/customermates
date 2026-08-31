@@ -848,7 +848,7 @@ model AgentCreditAdjustment {
   creditDelta             Int
   periodStart             DateTime
   periodEnd               DateTime
-  reason                  String
+  reason                  String?
   operationId             String   @unique
   createdByOperatorUserId String
   createdAt               DateTime @default(now())
