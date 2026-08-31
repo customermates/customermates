@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { Analytics } from "@vercel/analytics/next";
 
-import { PublicGoogleAdsConsent } from "@/components/acquisition/public-google-ads-consent";
 import { Toaster } from "@/components/ui/sonner";
 import { env } from "@/env";
 import { isContentLocale } from "@/i18n/locale-registry";
@@ -25,8 +24,6 @@ export default async function StaticLayout({ children, params }: Props) {
       {env.APP_MODE === "cloud" ? (
         <>
           <Analytics />
-
-          <PublicGoogleAdsConsent />
 
           <script
             dangerouslySetInnerHTML={{

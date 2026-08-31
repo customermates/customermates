@@ -5,22 +5,17 @@ import { getTranslations } from "next-intl/server";
 
 import { ContactForm } from "./contact-form";
 
-import { PublicGoogleAdsConsent } from "@/components/acquisition/public-google-ads-consent";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { PageHero } from "@/components/marketing/page-hero";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { Footer } from "@/app/components/footer";
-import { env } from "@/env";
-import { isContentLocale } from "@/i18n/locale-registry";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   return generateMetadataFromMeta({ locale, route: "/contact" });
 }
 
-export default async function ContactPage({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
-  const acquisitionEnabled = env.APP_MODE === "cloud" && isContentLocale(locale);
+export default async function ContactPage() {
   const t = await getTranslations();
 
   const highlights = [
@@ -71,8 +66,6 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
       </div>
 
       <Footer />
-
-      {acquisitionEnabled ? <PublicGoogleAdsConsent /> : null}
     </>
   );
 }

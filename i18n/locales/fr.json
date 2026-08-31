@@ -8,11 +8,11 @@
     "title": "Comptes connectés supprimés"
   },
   "AcquisitionConsent": {
-    "allowAttribution": "Autoriser l’attribution du clic",
-    "description": "L’attribution facultative conserve un identifiant de clic Google Ads dans un cookie propriétaire signé pendant 90 jours au maximum. Aucun tag ni envoi Google n’est actif ; Vercel Web Analytics et le script d’affiliation Lemon Squeezy restent séparés.",
-    "necessaryOnly": "Continuer sans mesure",
+    "allowAttribution": "Autoriser",
+    "description": "Il semble que vous soyez arrivé via une annonce Google. Avec votre autorisation, nous mémoriserons cette visite pendant 90 jours au maximum et la relierons à votre compte Customermates si vous créez un nouvel espace de travail. Cela nous aide à comprendre quelles annonces sont utiles.",
+    "necessaryOnly": "Non merci",
     "privacyLink": "Détails de confidentialité",
-    "title": "Vos choix de confidentialité"
+    "title": "Aidez-nous à comprendre ce qui fonctionne"
   },
   "AgentChat": {
     "activity": {

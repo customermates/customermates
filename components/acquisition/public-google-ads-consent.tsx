@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { AppLink } from "@/components/shared/app-link";
@@ -14,30 +14,48 @@ import {
   reconcileGoogleAdsAttributionWithdrawalAction,
 } from "@/features/acquisition/google-ads-consent.actions";
 import { normalizeGoogleAdsClick } from "@/features/acquisition/google-ads-consent.schema";
+import { stripLocalePrefix } from "@/i18n/locale-registry";
+import { isContentPathname } from "@/i18n/routing";
 import { OPEN_PRIVACY_CHOICES_EVENT } from "./privacy-choices-event";
 
-function currentVisit() {
-  return { search: window.location.search };
+type GoogleAdsVisit = { search: string };
+
+function currentGoogleAdsVisit(): GoogleAdsVisit | null {
+  const pathname = window.location.pathname;
+  if (!isContentPathname(pathname) && stripLocalePrefix(pathname) !== "/contact") return null;
+
+  const click = normalizeGoogleAdsClick({ search: window.location.search });
+  if (!click) return null;
+
+  const params = new URLSearchParams([[click.kind, click.value]]);
+  return { search: `?${params.toString()}` };
 }
 
 export function PublicGoogleAdsConsent() {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
+  const pendingVisit = useRef<GoogleAdsVisit | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    const landingVisit = currentGoogleAdsVisit();
     const hydrate = async () => {
       const stored = await readPublicGoogleAdsConsentAction();
       if (cancelled) return;
-      const visit = currentVisit();
-      if (stored?.advertising) await captureConsentedGoogleAdsClickAction(visit);
+      if (stored?.advertising && landingVisit) await captureConsentedGoogleAdsClickAction(landingVisit);
       else if (stored) await reconcileGoogleAdsAttributionWithdrawalAction();
-      else if (stored === null && normalizeGoogleAdsClick(visit)) setOpen(true);
+      else if (stored === null && landingVisit) {
+        pendingVisit.current = landingVisit;
+        setOpen(true);
+      }
     };
     void hydrate().catch((error) => {
       reportApplicationError(error);
-      if (!cancelled && normalizeGoogleAdsClick(currentVisit())) setOpen(true);
+      if (!cancelled && landingVisit) {
+        pendingVisit.current = landingVisit;
+        setOpen(true);
+      }
     });
 
     const reopen = () => setOpen(true);
@@ -54,9 +72,10 @@ export function PublicGoogleAdsConsent() {
     try {
       const decision = await decidePublicGoogleAdsConsentAction({
         choice,
-        visit: currentVisit(),
+        visit: pendingVisit.current ?? currentGoogleAdsVisit(),
       });
       if (!decision) return;
+      pendingVisit.current = null;
       setOpen(false);
       if (!decision.advertising) void reconcileGoogleAdsAttributionWithdrawalAction().catch(reportApplicationError);
     } finally {
@@ -99,7 +118,7 @@ export function PublicGoogleAdsConsent() {
           <p className="text-sm leading-6 text-subdued" id="google-ads-consent-description">
             <span>{t("AcquisitionConsent.description")} </span>
 
-            <AppLink appearance="inline" href="/privacy" onClick={() => setOpen(false)}>
+            <AppLink appearance="inline" href="/privacy">
               {t("AcquisitionConsent.privacyLink")}
             </AppLink>
           </p>

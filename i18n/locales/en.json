@@ -8,11 +8,11 @@
     "title": "Connected accounts removed"
   },
   "AcquisitionConsent": {
-    "allowAttribution": "Allow click attribution",
-    "description": "Optional attribution stores one Google Ads click identifier in a signed first-party cookie for up to 90 days. No Google tag or upload is active; Vercel Web Analytics and the unchanged Lemon Squeezy referral script are separate.",
-    "necessaryOnly": "Continue without measurement",
+    "allowAttribution": "Allow",
+    "description": "It looks like you arrived through a Google ad. With your permission, we’ll remember this ad visit for up to 90 days and link it to your Customermates account if you create a new workspace. This helps us understand which ads are useful.",
+    "necessaryOnly": "No thanks",
     "privacyLink": "Privacy details",
-    "title": "Your privacy choices"
+    "title": "Help us learn what works"
   },
   "AgentChat": {
     "activity": {

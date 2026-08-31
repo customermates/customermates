@@ -8,11 +8,11 @@
     "title": "Cuentas conectadas eliminadas"
   },
   "AcquisitionConsent": {
-    "allowAttribution": "Permitir la atribución del clic",
-    "description": "La atribución opcional guarda un identificador de clic de Google Ads en una cookie propia firmada durante un máximo de 90 días. No hay ninguna etiqueta ni carga de Google activa; Vercel Web Analytics y el script de referidos de Lemon Squeezy no se modifican.",
-    "necessaryOnly": "Continuar sin medición",
+    "allowAttribution": "Permitir",
+    "description": "Parece que has llegado a través de un anuncio de Google. Con tu permiso, recordaremos esta visita durante un máximo de 90 días y la vincularemos a tu cuenta de Customermates si creas un espacio de trabajo nuevo. Así podremos saber qué anuncios son útiles.",
+    "necessaryOnly": "No, gracias",
     "privacyLink": "Detalles de privacidad",
-    "title": "Tus opciones de privacidad"
+    "title": "Ayúdanos a saber qué funciona"
   },
   "AgentChat": {
     "activity": {

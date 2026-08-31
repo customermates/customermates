@@ -190,6 +190,17 @@ function acquisitionBrief(
 }
 
 describe("public acquisition UI contract", () => {
+  it("mounts one route-persistent consent controller above the public route groups", () => {
+    const localeLayout = source("app/[locale]/layout.tsx");
+    const staticLayout = source("app/[locale]/(static)/layout.tsx");
+    const contactPage = source("app/[locale]/(public)/contact/page.tsx");
+
+    expect(localeLayout).toContain("<PublicGoogleAdsConsent />");
+    expect(localeLayout).toContain('env.APP_MODE === "cloud" && isContentLocale(locale)');
+    expect(staticLayout).not.toContain("PublicGoogleAdsConsent");
+    expect(contactPage).not.toContain("PublicGoogleAdsConsent");
+  });
+
   it("uses the current marketing system for shared heroes and closing panels", () => {
     const hero = source("components/marketing/page-hero.tsx");
     expect(hero).toContain("<GridPattern");

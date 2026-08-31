@@ -8,11 +8,11 @@
     "title": "Verbundene Konten entfernt"
   },
   "AcquisitionConsent": {
-    "allowAttribution": "Klickzuordnung erlauben",
-    "description": "Die optionale Zuordnung speichert eine Google-Ads-Klickkennung bis zu 90 Tage in einem signierten First-Party-Cookie. Es ist kein Google-Tag oder Upload aktiv; Vercel Web Analytics und das unveränderte Lemon-Squeezy-Referral-Skript sind davon getrennt.",
-    "necessaryOnly": "Ohne Messung fortfahren",
+    "allowAttribution": "Erlauben",
+    "description": "Es sieht so aus, als wärst du über eine Google-Anzeige zu uns gekommen. Mit deiner Erlaubnis merken wir uns diesen Anzeigenbesuch bis zu 90 Tage lang und verknüpfen ihn mit deinem Customermates-Konto, wenn du einen neuen Workspace erstellst. So verstehen wir besser, welche Anzeigen hilfreich sind.",
+    "necessaryOnly": "Nein, danke",
     "privacyLink": "Datenschutzdetails",
-    "title": "Deine Datenschutzauswahl"
+    "title": "Hilf uns zu verstehen, was funktioniert"
   },
   "AgentChat": {
     "activity": {

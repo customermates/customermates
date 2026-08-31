@@ -93,6 +93,14 @@ describe("PublicGoogleAdsConsent", () => {
     expect(container.querySelector('[data-testid="google-ads-consent-card"]')).toBeNull();
   });
 
+  it.each(["/en/auth/signup", "/en/dashboard"])(
+    "does not start attribution on an ineligible %s landing",
+    async (path) => {
+      await render(`${path}?gclid=paid-click`);
+      expect(container.querySelector('[data-testid="google-ads-consent-card"]')).toBeNull();
+    },
+  );
+
   it("emphasizes allow, persists refusal, and closes only after the decision", async () => {
     mocks.decide.mockResolvedValue({
       advertising: false,
@@ -134,13 +142,54 @@ describe("PublicGoogleAdsConsent", () => {
     expect(container.querySelector('[data-testid="google-ads-consent-card"]')).toBeNull();
   });
 
-  it("closes for the explicit privacy information path", async () => {
+  it("stays open while the visitor reads the explicit privacy information path", async () => {
     await render("/en/features/cloud-crm?gclid=paid-click");
     await act(async () => {
       container.querySelector<HTMLAnchorElement>("a")?.click();
       await Promise.resolve();
     });
+    expect(container.querySelector('[data-testid="google-ads-consent-card"]')).not.toBeNull();
+  });
+
+  it("keeps only the landing click in memory across routes until the visitor decides", async () => {
+    mocks.decide.mockResolvedValue({
+      advertising: true,
+      decidedAt: "2026-08-31T10:00:00.000Z",
+    });
+    await render("/en/features/cloud-crm?utm_source=google&gclid=paid-click&utm_campaign=cloud-crm");
+    window.history.replaceState({}, "", "/en/compare");
+
+    await act(async () => {
+      container.querySelectorAll("button")[0]?.click();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(mocks.decide).toHaveBeenCalledWith({
+      choice: "allow-attribution",
+      visit: { search: "?gclid=paid-click" },
+    });
     expect(container.querySelector('[data-testid="google-ads-consent-card"]')).toBeNull();
+  });
+
+  it("snapshots the landing click before an immediate route change", async () => {
+    let resolveConsent: ((value: null) => void) | undefined;
+    mocks.read.mockReturnValue(
+      new Promise<null>((resolve) => {
+        resolveConsent = resolve;
+      }),
+    );
+
+    await render("/en/features/cloud-crm?gclid=fast-paid-click");
+    window.history.replaceState({}, "", "/en/compare");
+
+    await act(async () => {
+      resolveConsent?.(null);
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(container.querySelector('[data-testid="google-ads-consent-card"]')).not.toBeNull();
   });
 
   it("reconciles a stored refusal without prompting", async () => {
