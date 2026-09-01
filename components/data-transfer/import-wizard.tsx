@@ -33,6 +33,38 @@ function columnPrefix(issue: ImportRowIssue): string {
   return `${letter}${issue.columnLabel}:`;
 }
 
+function ImportIssueList({ issues }: { issues: ImportRowIssue[] }) {
+  const t = useTranslations();
+
+  return (
+    <div className="space-y-2">
+      <p className="text-sm text-destructive">{t("DataTransfer.import.issueCount", { count: issues.length })}</p>
+
+      <ul className="max-h-80 space-y-1 overflow-y-auto text-sm">
+        {issues.slice(0, ISSUE_DISPLAY_LIMIT).map((issue, index) => (
+          <li key={index} className="flex gap-2">
+            <span className="shrink-0 font-mono text-xs text-muted-foreground">
+              {issue.sheetRow ? `${t("DataTransfer.import.row")} ${issue.sheetRow}` : "-"}
+            </span>
+
+            <span className="min-w-0">
+              {issue.columnLabel && <span className="mr-1 font-medium">{columnPrefix(issue)}</span>}
+
+              {issue.values ? t(`DataTransfer.import.issues.${issue.code}`, issue.values) : issue.message}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      {issues.length > ISSUE_DISPLAY_LIMIT && (
+        <p className="text-xs text-muted-foreground">
+          {t("DataTransfer.import.moreIssues", { count: issues.length - ISSUE_DISPLAY_LIMIT })}
+        </p>
+      )}
+    </div>
+  );
+}
+
 const ISSUE_DISPLAY_LIMIT = 200;
 
 function decodeTarget(value: string): MappingTarget {
@@ -199,31 +231,7 @@ export const ImportWizard = observer(function ImportWizard() {
                 <p className="text-sm text-success">{t("DataTransfer.import.noIssues")}</p>
               ) : (
                 <div className="space-y-2">
-                  <p className="text-sm text-destructive">
-                    {t("DataTransfer.import.issueCount", { count: store.issues.length })}
-                  </p>
-
-                  <ul className="max-h-80 space-y-1 overflow-y-auto text-sm">
-                    {store.issues.slice(0, ISSUE_DISPLAY_LIMIT).map((issue, index) => (
-                      <li key={index} className="flex gap-2">
-                        <span className="shrink-0 font-mono text-xs text-muted-foreground">
-                          {issue.sheetRow ? `${t("DataTransfer.import.row")} ${issue.sheetRow}` : "-"}
-                        </span>
-
-                        <span className="min-w-0">
-                          {issue.columnLabel && <span className="mr-1 font-medium">{columnPrefix(issue)}</span>}
-
-                          {issue.values ? t(`DataTransfer.import.issues.${issue.code}`, issue.values) : issue.message}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {store.issues.length > ISSUE_DISPLAY_LIMIT && (
-                    <p className="text-xs text-muted-foreground">
-                      {t("DataTransfer.import.moreIssues", { count: store.issues.length - ISSUE_DISPLAY_LIMIT })}
-                    </p>
-                  )}
+                  <ImportIssueList issues={store.issues} />
 
                   {store.skippableCount > 0 && (
                     <label className="flex items-center gap-2 text-sm" htmlFor="import-skip-invalid">
@@ -264,6 +272,8 @@ export const ImportWizard = observer(function ImportWizard() {
                   })}
                 </p>
               )}
+
+              {store.issues.length > 0 && <ImportIssueList issues={store.issues} />}
             </div>
           )}
 

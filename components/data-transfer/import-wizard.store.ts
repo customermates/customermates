@@ -316,9 +316,11 @@ export class ImportWizardStore extends BaseModalStore {
         }
       }
 
+      const carried = this.skipInvalid ? this.issues : this.issues.filter((issue) => !issue.blocking);
+
       this.applySummary(
         { created, updated, skipped, notAttempted: total - created - updated, stoppedAtSheetRow },
-        this.attribute(dedupeIssues([...failures, ...(this.skipInvalid ? this.issues : [])])),
+        this.attribute(dedupeIssues([...failures, ...carried])),
       );
     } finally {
       this.setBusy(false);

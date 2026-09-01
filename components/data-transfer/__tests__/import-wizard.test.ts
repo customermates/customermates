@@ -160,6 +160,63 @@ describe("ImportWizard", () => {
     expect(html).not.toContain("identifiers[0]");
   });
 
+  it("shows the failing rows on the result step, not just a count", () => {
+    const html = render({
+      step: "result",
+      summary: { created: 7, updated: 0, skipped: 0, notAttempted: 3, stoppedAtSheetRow: 12 },
+      issues: [
+        {
+          sheetRow: 12,
+          columnLetter: "D",
+          columnLabel: "Amount",
+          fieldPath: "amount",
+          message: "",
+          values: { value: "n/a" },
+          code: "notANumber",
+          blocking: true,
+        },
+      ],
+    });
+
+    expect(html).toContain("DataTransfer.import.resultCounts");
+    expect(html).toContain("DataTransfer.import.stopped");
+    expect(html).toContain("D. Amount");
+    expect(html).toContain("DataTransfer.import.issues.notANumber");
+  });
+
+  it("still reports a dropped value on the result step even though the row imported", () => {
+    const html = render({
+      step: "result",
+      summary: { created: 4, updated: 0, skipped: 0, notAttempted: 0, stoppedAtSheetRow: null },
+      issues: [
+        {
+          sheetRow: 3,
+          columnLetter: "D",
+          columnLabel: "Mobil",
+          fieldPath: "",
+          message: "",
+          values: { value: "hello world" },
+          code: "notAPhoneNumber",
+          blocking: false,
+        },
+      ],
+    });
+
+    expect(html).toContain("D. Mobil");
+    expect(html).toContain("DataTransfer.import.issues.notAPhoneNumber");
+  });
+
+  it("keeps the result step quiet when nothing went wrong", () => {
+    const html = render({
+      step: "result",
+      summary: { created: 4, updated: 0, skipped: 0, notAttempted: 0, stoppedAtSheetRow: null },
+      issues: [],
+    });
+
+    expect(html).toContain("DataTransfer.import.resultCounts");
+    expect(html).not.toContain("DataTransfer.import.issueCount");
+  });
+
   it("allows the commit when the preview is clean", () => {
     const html = render({
       step: "preview",
