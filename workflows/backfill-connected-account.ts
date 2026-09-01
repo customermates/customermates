@@ -10,7 +10,12 @@ import {
   getBackfillCalendarsInteractor,
   getReleaseBackfillClaimInteractor,
 } from "@/core/di";
-import { getRetryAfterSeconds, isUnipileRateLimit, isUnipileTimeout } from "@/ee/messaging/messaging.service";
+import {
+  getRetryAfterSeconds,
+  isUnipileProviderUnprocessable,
+  isUnipileRateLimit,
+  isUnipileTimeout,
+} from "@/ee/messaging/messaging.service";
 
 import type { WorkflowTenant } from "./workflow-tenant";
 
@@ -24,7 +29,7 @@ const GIVE_UP_RATE_LIMIT_SECONDS = 600;
 const RESWEEP_DELAY_MS = 90_000;
 const BACKFILL_RESWEEPS = 2;
 const FINAL_SWEEP_DELAY_MS = 45 * 60_000;
-const MAX_PAGE_TIMEOUT_RETRIES = 4;
+const MAX_PAGE_STALL_RETRIES = 4;
 const CALENDAR_SOURCE = "calendar";
 
 export type BackfillConnectedAccountPayload = {
@@ -34,7 +39,7 @@ export type BackfillConnectedAccountPayload = {
 };
 
 type PageKind = "chat" | "email" | "calendar";
-type ListPageResult = { nextCursor: string | null; done: boolean; retryAfterSeconds?: number; timedOut?: boolean };
+type ListPageResult = { nextCursor: string | null; done: boolean; retryAfterSeconds?: number; stalled?: boolean };
 type PageFetcher = (connectedAccountId: string, source: string, cursor: string | null) => Promise<ListPageResult>;
 
 const pageFetchers: Record<PageKind, PageFetcher> = {
@@ -80,7 +85,8 @@ async function listPage(
   } catch (err) {
     if (isUnipileRateLimit(err))
       return { nextCursor: cursor, done: false, retryAfterSeconds: getRetryAfterSeconds(err) ?? 60 };
-    if (isUnipileTimeout(err)) return { nextCursor: cursor, done: false, timedOut: true };
+    if (isUnipileTimeout(err) || isUnipileProviderUnprocessable(err))
+      return { nextCursor: cursor, done: false, stalled: true };
     throw err;
   }
 }
@@ -103,7 +109,7 @@ async function awaitReady(connectedAccountId: string, token: string, sourceFilte
   return plan;
 }
 
-type SourceProgress = { source: string; cursor: string | null; timeoutCount: number };
+type SourceProgress = { source: string; cursor: string | null; stallCount: number };
 
 async function drainSources(
   kind: PageKind,
@@ -111,19 +117,19 @@ async function drainSources(
   sources: string[],
   tenant?: WorkflowTenant,
 ): Promise<boolean> {
-  let pending: SourceProgress[] = sources.map((source) => ({ source, cursor: null, timeoutCount: 0 }));
+  let pending: SourceProgress[] = sources.map((source) => ({ source, cursor: null, stallCount: 0 }));
 
   while (pending.length > 0) {
     const stillPending: SourceProgress[] = [];
     for (const progress of pending) {
       const page = await listPage(kind, connectedAccountId, progress.source, progress.cursor);
 
-      if (page.timedOut) {
-        progress.timeoutCount += 1;
-        if (progress.timeoutCount > MAX_PAGE_TIMEOUT_RETRIES) {
+      if (page.stalled) {
+        progress.stallCount += 1;
+        if (progress.stallCount > MAX_PAGE_STALL_RETRIES) {
           await reportWarning(
             WORKFLOW_NAME,
-            `source "${progress.source}" abandoned after ${MAX_PAGE_TIMEOUT_RETRIES} timeouts (account ${connectedAccountId})`,
+            `source "${progress.source}" abandoned after ${MAX_PAGE_STALL_RETRIES} stalled pages (account ${connectedAccountId})`,
             tenant,
           );
         } else {
@@ -133,7 +139,7 @@ async function drainSources(
         continue;
       }
 
-      progress.timeoutCount = 0;
+      progress.stallCount = 0;
       progress.cursor = page.nextCursor;
       if (rateLimitedTooLong(page.retryAfterSeconds)) return true;
       if (page.retryAfterSeconds) await sleep(backoff(page.retryAfterSeconds));
