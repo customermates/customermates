@@ -2576,6 +2576,11 @@
     },
     "emptyBody": "Passen Sie Suche oder Filter an, um das Verzeichnis zu erweitern.",
     "emptyTitle": "Keine Benutzer passen zu diesen Filtern",
+    "modal": {
+      "access": "Zugriff",
+      "adjustmentConfirm": "Korrektur von {value} Credits für {name} anwenden?",
+      "identity": "{person} · {email}"
+    },
     "navigation": "Benutzer",
     "platformAccess": {
       "revoked": "Nicht erteilt"
@@ -2603,13 +2608,17 @@
       "confirmLabel": "Zur Bestätigung {name} eingeben",
       "confirmMessage": "{name} und {members, plural, =1 {sein einziges Mitgliedskonto} other {alle # Mitgliedskonten}} werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden.",
       "confirmTitle": "Diesen Workspace dauerhaft löschen",
-      "label": "Workspace löschen",
       "reasonLabel": "Grund",
       "title": "Diesen Workspace löschen",
       "warningDescription": "Beim Löschen von {name} werden der Workspace und {members, plural, =1 {sein einziges Mitgliedskonto} other {alle # Mitgliedskonten}} dauerhaft entfernt, samt Kontakten, Deals, Nachrichten, Anmeldedaten und Abrechnungsdaten. Dies kann nicht rückgängig gemacht werden."
     },
     "emptyBody": "Passen Sie Suche oder Filter an, um die Liste zu erweitern.",
     "emptyTitle": "Keine Arbeitsbereiche passen zu diesen Filtern",
+    "modal": {
+      "identity": "{domain} · {owner}",
+      "subscription": "Abonnement",
+      "workspaceId": "Workspace-ID"
+    },
     "navigation": "Arbeitsbereiche",
     "searchPlaceholder": "Nach Mitglieds-E-Mail suchen",
     "stats": {
@@ -2631,10 +2640,7 @@
       "billingId": "Abrechnungs-Abo-ID",
       "billingIdPlaceholder": "Leer lassen zum Trennen",
       "billingWarning": "Das Leeren trennt den Workspace von seinem Abrechnungsabo. Der Anbieter berechnet weiter, bis du dort kündigst.",
-      "description": "Gilt für den gesamten Workspace und kontaktiert keinen Zahlungsanbieter.",
-      "label": "Abonnementkonditionen",
       "noTrial": "Keine Testphase",
-      "title": "Abonnementkonditionen",
       "trialEnd": "Testphase endet"
     },
     "values": {

@@ -84,6 +84,32 @@ export function partitionOperatorUserFilters(filters: Filter[] | undefined): {
   return { baseWhere, passthrough };
 }
 
+export async function resolveWorkspaceOwners(
+  prisma: AppPrismaClient,
+  companyIds: string[],
+): Promise<Map<string, string>> {
+  const owners = new Map<string, string>();
+  if (companyIds.length === 0) return owners;
+
+  const rows = await prisma.$queryRaw<Array<{ companyId: string; owner: string | null }>>`
+    SELECT DISTINCT ON (u."companyId")
+      u."companyId" AS "companyId",
+      u."email" AS "owner"
+    FROM "User" AS u
+    LEFT JOIN "UserRole" AS r ON r."id" = u."roleId"
+    WHERE u."companyId" = ANY(${companyIds}::text[])
+    ORDER BY
+      u."companyId" ASC,
+      (u."status"::text = 'active') DESC,
+      (r."isSystemRole" IS TRUE) DESC,
+      u."createdAt" ASC
+  `;
+
+  for (const row of rows) if (row.owner) owners.set(row.companyId, row.owner);
+
+  return owners;
+}
+
 export async function resolveWorkspaceLabels(
   prisma: AppPrismaClient,
   companyIds: string[],

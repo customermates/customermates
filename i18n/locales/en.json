@@ -2576,6 +2576,11 @@
     },
     "emptyBody": "Adjust the search or filters to widen the directory.",
     "emptyTitle": "No users match these filters",
+    "modal": {
+      "access": "Access",
+      "adjustmentConfirm": "Apply a correction of {value} credits to {name}?",
+      "identity": "{person} · {email}"
+    },
     "navigation": "Users",
     "platformAccess": {
       "revoked": "Not granted"
@@ -2603,13 +2608,17 @@
       "confirmLabel": "Type {name} to confirm",
       "confirmMessage": "{name} and {members, plural, =1 {its one member account} other {all # member accounts}} will be permanently deleted. This cannot be undone.",
       "confirmTitle": "Delete this workspace permanently",
-      "label": "Delete workspace",
       "reasonLabel": "Reason",
       "title": "Delete this workspace",
       "warningDescription": "Deleting {name} permanently removes the workspace and {members, plural, =1 {its one member account} other {all # member accounts}}, together with their contacts, deals, messages, sign-in credentials and billing records. This cannot be undone."
     },
     "emptyBody": "Adjust the search or filters to widen the list.",
     "emptyTitle": "No workspaces match these filters",
+    "modal": {
+      "identity": "{domain} · {owner}",
+      "subscription": "Subscription",
+      "workspaceId": "Workspace ID"
+    },
     "navigation": "Workspaces",
     "searchPlaceholder": "Search by member email",
     "stats": {
@@ -2631,10 +2640,7 @@
       "billingId": "Billing subscription ID",
       "billingIdPlaceholder": "Leave empty to detach",
       "billingWarning": "Clearing this detaches the workspace from its billing subscription. The provider keeps charging until you cancel it there.",
-      "description": "Applies to the whole workspace and contacts no billing provider.",
-      "label": "Subscription terms",
       "noTrial": "No trial",
-      "title": "Subscription terms",
       "trialEnd": "Trial ends"
     },
     "values": {

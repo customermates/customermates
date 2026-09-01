@@ -2576,6 +2576,11 @@
     },
     "emptyBody": "Ajustez la recherche ou les filtres pour élargir l’annuaire.",
     "emptyTitle": "Aucun utilisateur ne correspond à ces filtres",
+    "modal": {
+      "access": "Accès",
+      "adjustmentConfirm": "Appliquer une correction de {value} crédits à {name} ?",
+      "identity": "{person} · {email}"
+    },
     "navigation": "Utilisateurs",
     "platformAccess": {
       "revoked": "Non accordé"
@@ -2603,13 +2608,17 @@
       "confirmLabel": "Saisissez {name} pour confirmer",
       "confirmMessage": "{name} et {members, plural, =1 {son unique compte membre} other {ses # comptes membres}} seront définitivement supprimés. Cette action est irréversible.",
       "confirmTitle": "Supprimer définitivement cet espace de travail",
-      "label": "Supprimer l'espace de travail",
       "reasonLabel": "Motif",
       "title": "Supprimer cet espace de travail",
       "warningDescription": "La suppression de {name} retire définitivement l'espace de travail et {members, plural, =1 {son unique compte membre} other {ses # comptes membres}}, ainsi que leurs contacts, affaires, messages, identifiants de connexion et données de facturation. Cette action est irréversible."
     },
     "emptyBody": "Ajustez la recherche ou les filtres pour élargir la liste.",
     "emptyTitle": "Aucun espace ne correspond à ces filtres",
+    "modal": {
+      "identity": "{domain} · {owner}",
+      "subscription": "Abonnement",
+      "workspaceId": "ID de l'espace de travail"
+    },
     "navigation": "Espaces de travail",
     "searchPlaceholder": "Rechercher par e-mail d’un membre",
     "stats": {
@@ -2631,10 +2640,7 @@
       "billingId": "ID d'abonnement de facturation",
       "billingIdPlaceholder": "Laisser vide pour détacher",
       "billingWarning": "Vider ce champ détache l'espace de travail de son abonnement de facturation. Le prestataire continue de facturer jusqu'à ce que vous l'annuliez chez lui.",
-      "description": "S'applique à tout l'espace de travail et ne contacte aucun prestataire de facturation.",
-      "label": "Conditions d'abonnement",
       "noTrial": "Pas d'essai",
-      "title": "Conditions d'abonnement",
       "trialEnd": "Fin de l'essai"
     },
     "values": {

@@ -13,7 +13,7 @@ import { resolveAgentCreditEntitlement } from "@/ee/agent-chat/agent-credit-poli
 import { env } from "@/env";
 import { Status } from "@/generated/prisma";
 
-import { partitionOperatorUserFilters, resolveWorkspaceLabels } from "./operator-list-filters";
+import { partitionOperatorUserFilters, resolveWorkspaceLabels, resolveWorkspaceOwners } from "./operator-list-filters";
 
 export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInput> implements GetOperatorUsersRepo {
   getSearchableFields() {
@@ -92,7 +92,11 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
       },
     });
 
-    const labels = await resolveWorkspaceLabels(this.prisma, [...new Set(users.map((user) => user.companyId))]);
+    const companyIds = [...new Set(users.map((user) => user.companyId))];
+    const [labels, owners] = await Promise.all([
+      resolveWorkspaceLabels(this.prisma, companyIds),
+      resolveWorkspaceOwners(this.prisma, companyIds),
+    ]);
     const credits = await this.creditPositionsUnscoped(users, now);
 
     return users.map((user) => ({
@@ -107,6 +111,7 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
       updatedAt: user.updatedAt,
       companyId: user.companyId,
       workspaceLabel: labels.get(user.companyId) ?? user.companyId.slice(0, 8),
+      workspaceOwnerEmail: owners.get(user.companyId) ?? null,
       plan: user.company.subscription?.plan ?? null,
       subscriptionStatus: user.company.subscription?.status ?? null,
       subscriptionQuantity: user.company.subscription?.quantity ?? null,

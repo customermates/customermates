@@ -2576,6 +2576,11 @@
     },
     "emptyBody": "Modifica la ricerca o i filtri per ampliare l’elenco.",
     "emptyTitle": "Nessun utente corrisponde a questi filtri",
+    "modal": {
+      "access": "Accesso",
+      "adjustmentConfirm": "Applicare una correzione di {value} crediti a {name}?",
+      "identity": "{person} · {email}"
+    },
     "navigation": "Utenti",
     "platformAccess": {
       "revoked": "Non concesso"
@@ -2603,13 +2608,17 @@
       "confirmLabel": "Digita {name} per confermare",
       "confirmMessage": "{name} e {members, plural, =1 {il suo unico account membro} other {tutti i suoi # account membri}} saranno eliminati definitivamente. L'operazione non è reversibile.",
       "confirmTitle": "Elimina definitivamente questo spazio di lavoro",
-      "label": "Elimina spazio di lavoro",
       "reasonLabel": "Motivo",
       "title": "Elimina questo spazio di lavoro",
       "warningDescription": "L'eliminazione di {name} rimuove definitivamente lo spazio di lavoro e {members, plural, =1 {il suo unico account membro} other {tutti i suoi # account membri}}, insieme a contatti, trattative, messaggi, credenziali di accesso e dati di fatturazione. L'operazione non è reversibile."
     },
     "emptyBody": "Modifica la ricerca o i filtri per ampliare l’elenco.",
     "emptyTitle": "Nessuna area corrisponde a questi filtri",
+    "modal": {
+      "identity": "{domain} · {owner}",
+      "subscription": "Abbonamento",
+      "workspaceId": "ID spazio di lavoro"
+    },
     "navigation": "Aree di lavoro",
     "searchPlaceholder": "Cerca per e-mail di un membro",
     "stats": {
@@ -2631,10 +2640,7 @@
       "billingId": "ID abbonamento di fatturazione",
       "billingIdPlaceholder": "Lascia vuoto per scollegare",
       "billingWarning": "Svuotarlo scollega lo spazio di lavoro dal suo abbonamento di fatturazione. Il fornitore continua ad addebitare finché non lo annulli lì.",
-      "description": "Si applica all'intero spazio di lavoro e non contatta alcun fornitore di fatturazione.",
-      "label": "Condizioni di abbonamento",
       "noTrial": "Nessuna prova",
-      "title": "Condizioni di abbonamento",
       "trialEnd": "Fine della prova"
     },
     "values": {
