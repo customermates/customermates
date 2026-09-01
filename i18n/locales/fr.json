@@ -2267,6 +2267,7 @@
     "addEntity": "Ajouter {entity}",
     "addPickerDescription": "Choisissez le type d'enregistrement à créer.",
     "addPickerTitle": "Créer…",
+    "admin": "Administration",
     "affiliate": "Programme d'affiliation",
     "connectedAccounts": "Canaux",
     "crm": "CRM",
@@ -2583,6 +2584,7 @@
   "OperatorWorkspaces": {
     "allowance": {
       "label": "Crédits par utilisateur",
+      "notSet": "Non défini",
       "title": "Allocation Enterprise",
       "warningDescription": "L’allocation est accordée par utilisateur sur tout l’espace et prend effet sur la période en cours."
     },

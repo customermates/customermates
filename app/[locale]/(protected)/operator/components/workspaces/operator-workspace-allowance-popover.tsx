@@ -58,7 +58,7 @@ export function OperatorWorkspaceAllowancePopover({ workspace }: Props) {
         <button aria-label={t("OperatorWorkspaces.allowance.label")} type="button">
           <ClickableChip size="sm" variant="secondary">
             {workspace.enterpriseCreditsPerUser == null
-              ? "-"
+              ? t("OperatorWorkspaces.allowance.notSet")
               : intlStore.formatNumber(workspace.enterpriseCreditsPerUser)}
           </ClickableChip>
         </button>

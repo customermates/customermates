@@ -2267,6 +2267,7 @@
     "addEntity": "{entity} hinzufügen",
     "addPickerDescription": "Wähle den Typ des Datensatzes, den du anlegen möchtest.",
     "addPickerTitle": "Neu anlegen…",
+    "admin": "Administration",
     "affiliate": "Affiliate-Programm",
     "connectedAccounts": "Kanäle",
     "crm": "CRM",
@@ -2583,6 +2584,7 @@
   "OperatorWorkspaces": {
     "allowance": {
       "label": "Credits pro Benutzer",
+      "notSet": "Nicht gesetzt",
       "title": "Enterprise-Kontingent",
       "warningDescription": "Das Kontingent gilt pro Benutzer im gesamten Arbeitsbereich und wirkt sich auf die aktuelle Periode aus."
     },

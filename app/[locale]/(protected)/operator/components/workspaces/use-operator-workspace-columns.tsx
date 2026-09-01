@@ -1,7 +1,9 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
+import type { SubscriptionStatus } from "@/generated/prisma";
+
+import { SubscriptionPlan } from "@/generated/prisma";
 import type { OperatorWorkspaceRowDto } from "@/ee/operator/operator-lists.schema";
 
 import { useMemo } from "react";
@@ -97,7 +99,10 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
       {
         id: "allowance",
         header: t("Common.table.columns.allowance"),
-        cell: ({ row }) => <OperatorWorkspaceAllowancePopover workspace={row.original} />,
+        cell: ({ row }) =>
+          row.original.plan === SubscriptionPlan.enterprise ? (
+            <OperatorWorkspaceAllowancePopover workspace={row.original} />
+          ) : null,
       },
       {
         accessorKey: "createdAt",
@@ -111,7 +116,7 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
         id: "actions",
         header: t("Common.table.columns.actions"),
         cell: ({ row }) => (
-          <div className="flex justify-end">
+          <div className="flex justify-center">
             <OperatorWorkspaceDeletePopover workspace={row.original} />
           </div>
         ),

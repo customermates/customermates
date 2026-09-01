@@ -2267,6 +2267,7 @@
     "addEntity": "Añadir {entity}",
     "addPickerDescription": "Elige el tipo de registro que quieres crear.",
     "addPickerTitle": "Crear nuevo…",
+    "admin": "Administración",
     "affiliate": "Programa de afiliados",
     "connectedAccounts": "Canales",
     "crm": "CRM",
@@ -2583,6 +2584,7 @@
   "OperatorWorkspaces": {
     "allowance": {
       "label": "Créditos por usuario",
+      "notSet": "Sin definir",
       "title": "Asignación Enterprise",
       "warningDescription": "La asignación se concede por usuario en todo el espacio y afecta al periodo actual."
     },

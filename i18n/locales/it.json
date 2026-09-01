@@ -2267,6 +2267,7 @@
     "addEntity": "Aggiungi {entity}",
     "addPickerDescription": "Scegli il tipo di record che vuoi creare.",
     "addPickerTitle": "Crea nuovo…",
+    "admin": "Amministrazione",
     "affiliate": "Programma di affiliazione",
     "connectedAccounts": "Canali",
     "crm": "CRM",
@@ -2583,6 +2584,7 @@
   "OperatorWorkspaces": {
     "allowance": {
       "label": "Crediti per utente",
+      "notSet": "Non impostato",
       "title": "Dotazione Enterprise",
       "warningDescription": "La dotazione è concessa per utente su tutta l’area e ha effetto sul periodo corrente."
     },

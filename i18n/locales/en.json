@@ -2267,6 +2267,7 @@
     "addEntity": "Add {entity}",
     "addPickerDescription": "Pick the type of record you want to create.",
     "addPickerTitle": "Create new…",
+    "admin": "Admin",
     "affiliate": "Affiliate Program",
     "connectedAccounts": "Channels",
     "crm": "CRM",
@@ -2583,6 +2584,7 @@
   "OperatorWorkspaces": {
     "allowance": {
       "label": "Credits per user",
+      "notSet": "Not set",
       "title": "Enterprise allowance",
       "warningDescription": "The allowance is granted per user across the whole workspace and takes effect on the current period."
     },
