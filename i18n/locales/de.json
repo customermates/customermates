@@ -1244,7 +1244,6 @@
       "roleId": "Rolle",
       "scheduleDayOfMonth": "Tag des Monats",
       "schedulePreset": "Wiederholung",
-      "scheduleTime": "Uhrzeit",
       "scheduleWeekday": "Wochentag",
       "secret": "Secret",
       "status": "Status",
@@ -2531,6 +2530,7 @@
   },
   "RoutineDetail": {
     "credits": "Guthaben",
+    "followUpPlaceholder": "Stelle eine Rückfrage zu diesem Lauf…",
     "loopWarningMutual": "Diese und eine weitere Routine ändern jeweils die Datensätze, auf die die andere hört. Customermates ignoriert Ereignisse, die eine Routine ausgelöst hat, sie lösen einander also nicht aus.",
     "loopWarningSelf": "Diese Routine ändert dieselben Datensätze, auf die sie hört. Customermates ignoriert Ereignisse, die eine Routine ausgelöst hat, sie läuft also nicht im Kreis, reagiert aber auch nicht auf eigene Änderungen.",
     "loopWarningTitle": "Möglicher Auslöser-Kreislauf",
@@ -2539,12 +2539,14 @@
     "noRuns": "Diese Routine wurde noch nicht ausgeführt.",
     "runNow": "Jetzt ausführen",
     "runs": "Läufe",
-    "selectRun": "Wähle einen Lauf, um zu sehen, was der Assistent getan hat."
+    "runTitle": "Routinelauf"
   },
   "RoutineModal": {
+    "advanced": "Erweitert",
+    "at": "um",
     "disabled": "Pausiert",
     "enabled": "Aktiv",
-    "guardrails": "Schutzgrenzen",
+    "onMinute": "zur Minute",
     "promptDescription": "Der Assistent erhält diese Anweisungen bei jedem Lauf der Routine.",
     "scheduleDescription": "Routinen laufen höchstens alle 15 Minuten.",
     "title": "Routine"

@@ -15,7 +15,7 @@ import {
 
 import { useActivityGroupState } from "./use-activity-group-state";
 import { useSteadyLabel } from "./use-steady-label";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useAgentChatStore } from "./agent-chat-store-context";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { Button } from "@/components/ui/button";
@@ -40,7 +40,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
 }: {
   item: Exclude<AgentChatItem, { kind: "activity" }>;
 }) {
-  const { agentChatStore: store } = useRootStore();
+  const store = useAgentChatStore();
   const t = useTranslations();
   const copyToClipboard = useCopyToClipboard();
   const terminology = useAgentActivityTerminology();

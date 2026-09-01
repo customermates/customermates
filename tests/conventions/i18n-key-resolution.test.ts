@@ -522,6 +522,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/company/components/webhook/webhook-delivery-modal.tsx :: t :: WebhookDeliveryModal.deliveryStatus.${delivery.status}",
   "app/[locale]/(protected)/company/components/webhook/webhook-modal.tsx :: t :: Common.events.${item.key}",
   "app/[locale]/(protected)/routines/components/routine-detail-view.tsx :: t :: RoutineRunStatus.${run.status}",
+  "app/[locale]/(protected)/routines/components/routine-run-modal.tsx :: t :: RoutineRunStatus.${run.status}",
   "app/[locale]/(protected)/routines/components/routine-modal.tsx :: t :: Common.events.${item.key}",
   "app/[locale]/(protected)/routines/components/routine-modal.tsx :: t :: RoutineSchedulePreset.${value}",
   "app/[locale]/(protected)/routines/components/routine-modal.tsx :: t :: RoutineWeekday.${key}",

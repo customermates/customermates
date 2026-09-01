@@ -1244,7 +1244,6 @@
       "roleId": "Rôle",
       "scheduleDayOfMonth": "Jour du mois",
       "schedulePreset": "Répétition",
-      "scheduleTime": "Heure",
       "scheduleWeekday": "Jour de la semaine",
       "secret": "Secret",
       "status": "Statut",
@@ -2531,6 +2530,7 @@
   },
   "RoutineDetail": {
     "credits": "Crédits",
+    "followUpPlaceholder": "Posez une question complémentaire sur cette exécution…",
     "loopWarningMutual": "Cette routine et une autre modifient chacune les enregistrements que l'autre surveille. Customermates ignore les évènements causés par une routine, elles ne se déclencheront donc pas mutuellement.",
     "loopWarningSelf": "Cette routine modifie les mêmes enregistrements qu'elle surveille. Customermates ignore les évènements causés par une routine, elle ne bouclera donc pas, mais ne réagira pas non plus à ses propres modifications.",
     "loopWarningTitle": "Boucle de déclenchement possible",
@@ -2539,12 +2539,14 @@
     "noRuns": "Cette routine n'a pas encore été exécutée.",
     "runNow": "Exécuter maintenant",
     "runs": "Exécutions",
-    "selectRun": "Sélectionnez une exécution pour voir ce que l'assistant a fait."
+    "runTitle": "Exécution de routine"
   },
   "RoutineModal": {
+    "advanced": "Avancé",
+    "at": "à",
     "disabled": "En pause",
     "enabled": "Active",
-    "guardrails": "Garde-fous",
+    "onMinute": "à la minute",
     "promptDescription": "L'assistant reçoit ces instructions à chaque exécution de la routine.",
     "scheduleDescription": "Les routines s'exécutent au maximum toutes les 15 minutes.",
     "title": "Routine"

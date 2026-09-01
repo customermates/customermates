@@ -1244,7 +1244,6 @@
       "roleId": "Role",
       "scheduleDayOfMonth": "Day of month",
       "schedulePreset": "Repeats",
-      "scheduleTime": "Time",
       "scheduleWeekday": "Weekday",
       "secret": "Secret",
       "status": "Status",
@@ -2531,6 +2530,7 @@
   },
   "RoutineDetail": {
     "credits": "Credits",
+    "followUpPlaceholder": "Ask a follow-up about this run…",
     "loopWarningMutual": "This routine and another one each change the records the other listens to. Customermates ignores events a routine caused, so they will not trigger each other.",
     "loopWarningSelf": "This routine changes the same records it listens to. Customermates ignores events a routine caused, so it will not loop, but it also will not react to its own changes.",
     "loopWarningTitle": "Possible trigger loop",
@@ -2539,12 +2539,14 @@
     "noRuns": "This routine has not run yet.",
     "runNow": "Run now",
     "runs": "Runs",
-    "selectRun": "Select a run to see what the assistant did."
+    "runTitle": "Routine run"
   },
   "RoutineModal": {
+    "advanced": "Advanced",
+    "at": "at",
     "disabled": "Paused",
     "enabled": "Active",
-    "guardrails": "Guardrails",
+    "onMinute": "at minute",
     "promptDescription": "The assistant receives these instructions each time the routine runs.",
     "scheduleDescription": "Routines run at most once every 15 minutes.",
     "title": "Routine"

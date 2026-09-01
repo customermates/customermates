@@ -2,7 +2,7 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Trash2 } from "lucide-react";
+import { ChevronDown, Trash2 } from "lucide-react";
 
 import { RoutineTriggerKind } from "@/generated/prisma";
 
@@ -13,12 +13,13 @@ import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { FormTextarea } from "@/components/forms/form-textarea";
-import { FormCheckbox } from "@/components/forms/form-checkbox";
+import { FormSwitch } from "@/components/forms/form-switch";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormNumberInput } from "@/components/forms/form-number-input";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormActions } from "@/components/card/form-actions";
 import { AppChip } from "@/components/chip/app-chip";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
@@ -68,13 +69,20 @@ export const RoutineModal = observer(() => {
         <AppCard>
           <AppCardHeader>
             <h2 className="truncate text-x-lg">{t("RoutineModal.title")}</h2>
+
+            <FormSwitch
+              containerClassName="ml-auto w-auto shrink-0"
+              id="enabled"
+              label={t("RoutineModal.enabled")}
+              size="sm"
+            />
           </AppCardHeader>
 
           <AppCardBody>
             <FormInput required id="name" />
 
             <div className="space-y-1.5">
-              <FormTextarea required id="prompt" rows={5} />
+              <FormTextarea required id="prompt" rows={4} />
 
               <p className="text-subdued text-xs">{t("RoutineModal.promptDescription")}</p>
             </div>
@@ -89,61 +97,66 @@ export const RoutineModal = observer(() => {
             />
 
             {scheduled ? (
-              <div className="space-y-3">
-                <FormSelect
-                  id="schedulePreset"
-                  items={ROUTINE_SCHEDULE_PRESETS.map((value) => ({
-                    value,
-                    label: t(`RoutineSchedulePreset.${value}`),
-                  }))}
-                />
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-end gap-2">
+                  <FormSelect
+                    containerClassName="min-w-44 flex-1"
+                    id="schedulePreset"
+                    items={ROUTINE_SCHEDULE_PRESETS.map((value) => ({
+                      value,
+                      label: t(`RoutineSchedulePreset.${value}`),
+                    }))}
+                  />
 
-                {preset === "custom" ? (
-                  <div className="space-y-1.5">
-                    <FormInput required id="cronExpression" />
-
-                    <p className="text-subdued text-xs">{t("RoutineModal.scheduleDescription")}</p>
-                  </div>
-                ) : (
-                  <div className="flex flex-wrap items-end gap-3">
-                    {preset === "weekly" && (
-                      <FormSelect
-                        containerClassName="min-w-40"
-                        id="scheduleWeekday"
-                        items={WEEKDAY_KEYS.map((key, index) => ({
-                          value: String(index),
-                          label: t(`RoutineWeekday.${key}`),
-                        }))}
-                      />
-                    )}
-
-                    {preset === "monthly" && (
-                      <FormSelect
-                        containerClassName="min-w-32"
-                        id="scheduleDayOfMonth"
-                        items={DAYS_OF_MONTH.map((value) => ({ value, label: value }))}
-                      />
-                    )}
-
-                    {preset !== "hourly" && (
-                      <FormSelect
-                        containerClassName="min-w-28"
-                        id="scheduleHour"
-                        items={HOURS.map((value) => ({ value, label: padded(value) }))}
-                        label={t("Common.inputs.scheduleTime")}
-                      />
-                    )}
-
+                  {preset === "weekly" && (
                     <FormSelect
-                      containerClassName="min-w-28"
-                      id="scheduleMinute"
-                      items={MINUTES.map((value) => ({ value, label: padded(value) }))}
-                      label={preset === "hourly" ? t("Common.inputs.scheduleTime") : null}
+                      containerClassName="min-w-36"
+                      id="scheduleWeekday"
+                      items={WEEKDAY_KEYS.map((key, index) => ({
+                        value: String(index),
+                        label: t(`RoutineWeekday.${key}`),
+                      }))}
+                      label={null}
                     />
-                  </div>
-                )}
+                  )}
 
-                <FormInput id="timezone" />
+                  {preset === "monthly" && (
+                    <FormSelect
+                      containerClassName="w-24"
+                      id="scheduleDayOfMonth"
+                      items={DAYS_OF_MONTH.map((value) => ({ value, label: value }))}
+                      label={null}
+                    />
+                  )}
+
+                  {preset !== "custom" && (
+                    <>
+                      <span className="text-subdued pb-2.5 text-xs">
+                        {preset === "hourly" ? t("RoutineModal.onMinute") : t("RoutineModal.at")}
+                      </span>
+
+                      {preset !== "hourly" && (
+                        <FormSelect
+                          containerClassName="w-20"
+                          id="scheduleHour"
+                          items={HOURS.map((value) => ({ value, label: padded(value) }))}
+                          label={null}
+                        />
+                      )}
+
+                      <FormSelect
+                        containerClassName="w-20"
+                        id="scheduleMinute"
+                        items={MINUTES.map((value) => ({ value, label: padded(value) }))}
+                        label={null}
+                      />
+                    </>
+                  )}
+                </div>
+
+                {preset === "custom" && <FormInput required id="cronExpression" />}
+
+                <p className="text-subdued text-xs">{t("RoutineModal.scheduleDescription")}</p>
               </div>
             ) : (
               <FormAutocomplete
@@ -159,17 +172,23 @@ export const RoutineModal = observer(() => {
               </FormAutocomplete>
             )}
 
-            <div className="space-y-3">
-              <p className="text-subdued text-xs font-medium">{t("RoutineModal.guardrails")}</p>
+            <Collapsible className="border-t pt-3">
+              <CollapsibleTrigger className="text-subdued group flex w-full items-center gap-1.5 text-xs font-medium">
+                <ChevronDown className="size-3.5 transition-transform group-data-[state=open]:rotate-180" />
 
-              <div className="flex flex-wrap gap-3">
-                <FormNumberInput containerClassName="min-w-44" id="maxRunsPerHour" />
+                {t("RoutineModal.advanced")}
+              </CollapsibleTrigger>
 
-                <FormNumberInput containerClassName="min-w-44" id="maxCreditsPerRun" />
-              </div>
-            </div>
+              <CollapsibleContent className="space-y-3 pt-3">
+                {scheduled && <FormInput id="timezone" />}
 
-            <FormCheckbox id="enabled" />
+                <div className="flex flex-wrap gap-3">
+                  <FormNumberInput containerClassName="min-w-44 flex-1" id="maxRunsPerHour" />
+
+                  <FormNumberInput containerClassName="min-w-44 flex-1" id="maxCreditsPerRun" />
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           </AppCardBody>
 
           <FormActions anchorScope="routine-modal" store={routineModalStore} />

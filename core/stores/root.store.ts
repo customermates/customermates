@@ -58,6 +58,7 @@ import { WebhookModalStore } from "@/app/[locale]/(protected)/company/components
 import { RoutinesStore } from "@/app/[locale]/(protected)/routines/components/routines.store";
 import { RoutineDetailStore } from "@/app/[locale]/(protected)/routines/components/routine-detail.store";
 import { RoutineModalStore } from "@/app/[locale]/(protected)/routines/components/routine-modal.store";
+import { RoutineRunModalStore } from "@/app/[locale]/(protected)/routines/components/routine-run-modal.store";
 import { WebhooksStore } from "@/app/[locale]/(protected)/company/components/webhook/webhooks.store";
 import { WebhookDeliveriesStore } from "@/app/[locale]/(protected)/company/components/webhook/webhook-deliveries.store";
 import { WebhookDeliveryModalStore } from "@/app/[locale]/(protected)/company/components/webhook/webhook-delivery-modal.store";
@@ -140,6 +141,8 @@ export class RootStore {
   private _webhookDeliveryModalStore?: WebhookDeliveryModalStore;
   private _webhookModalStore?: WebhookModalStore;
   private _routineModalStore?: RoutineModalStore;
+  private _routineRunModalStore?: RoutineRunModalStore;
+  private _routineRunChatStore?: AgentChatStore;
   private _widgetModalStore?: WidgetModalStore;
   private _auditLogModalStore?: AuditLogModalStore;
   private _feedbackModalStore?: FeedbackModalStore;
@@ -387,6 +390,14 @@ export class RootStore {
 
   get routineModalStore() {
     return (this._routineModalStore ??= new RoutineModalStore(this));
+  }
+
+  get routineRunModalStore() {
+    return (this._routineRunModalStore ??= new RoutineRunModalStore(this));
+  }
+
+  get routineRunChatStore() {
+    return (this._routineRunChatStore ??= new AgentChatStore(this));
   }
 
   get routinesStore() {
