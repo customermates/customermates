@@ -9,7 +9,7 @@ import { AGENT_CREDIT_MICROCENTS, resolveAgentCreditEntitlement } from "@/ee/age
 import { env } from "@/env";
 
 import { normalizeOperatorEmail } from "./operator-access.service";
-import type { OperatorRefusal, OperatorRepo, PublishOperatorUserStatusChanged } from "./operator.repo";
+import type { OperatorRefusal, OperatorRepo } from "./operator.repo";
 import {
   OPERATOR_AUDIT_ACTION,
   type AgentCreditAdjustmentDto,
@@ -516,7 +516,6 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
   @BypassTenantGuard
   async updateUserStatusUnscoped(
     data: UpdateOperatorUserStatusData,
-    publishUserUpdated: PublishOperatorUserStatusChanged,
     now = new Date(),
   ): Promise<OperatorUserDetailDto | OperatorRefusal> {
     const companyId = await this.userCompanyId(data.userId);
@@ -528,14 +527,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         const target = await this.prisma.user.findFirst({
           where: { id: data.userId, companyId },
           select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            country: true,
-            avatarUrl: true,
-            roleId: true,
             status: true,
-            updatedAt: true,
             role: { select: { isSystemRole: true } },
             company: {
               select: {
@@ -583,18 +575,6 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
               relatedUserId: data.userId,
               type: TaskType.userPendingAuthorization,
             },
-          });
-        }
-        if (statusChanged) {
-          await publishUserUpdated({
-            companyId,
-            userId: data.userId,
-            firstName: target.firstName,
-            lastName: target.lastName,
-            country: target.country,
-            status: data.status,
-            avatarUrl: target.avatarUrl,
-            roleId: target.roleId,
           });
         }
         await this.createAudit({

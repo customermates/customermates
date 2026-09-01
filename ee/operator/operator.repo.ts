@@ -13,22 +13,7 @@ import type {
   UpdateHostedAiEnterpriseAllowanceData,
 } from "./operator.schema";
 
-import type { CountryCode, Status } from "@/generated/prisma";
-
-export type OperatorUserStatusChangedEvent = {
-  companyId: string;
-  userId: string;
-  firstName: string;
-  lastName: string;
-  country: CountryCode;
-  status: Status;
-  avatarUrl: string | null;
-  roleId: string | null;
-};
-
 export type OperatorRefusal = "conflict" | "notFound" | "unavailable";
-
-export type PublishOperatorUserStatusChanged = (event: OperatorUserStatusChangedEvent) => Promise<void>;
 
 export abstract class OperatorRepo {
   abstract getOverviewUnscoped(now?: Date): Promise<HostedAiOperatorOverviewDto | OperatorRefusal>;
@@ -44,7 +29,6 @@ export abstract class OperatorRepo {
   abstract getUserDetailUnscoped(userId: string, now?: Date): Promise<OperatorUserDetailDto | OperatorRefusal>;
   abstract updateUserStatusUnscoped(
     data: UpdateOperatorUserStatusData,
-    publishUserUpdated: PublishOperatorUserStatusChanged,
     now?: Date,
   ): Promise<OperatorUserDetailDto | OperatorRefusal>;
   abstract updateUserPlatformAccessUnscoped(

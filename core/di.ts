@@ -1562,8 +1562,7 @@ export const getGetOperatorUserSummaryInteractor = () => new GetOperatorUserSumm
 
 export const getGetOperatorUserDetailInteractor = () => new GetOperatorUserDetailInteractor(getOperatorRepo());
 
-export const getUpdateOperatorUserStatusInteractor = () =>
-  new UpdateOperatorUserStatusInteractor(getOperatorRepo(), getEventService());
+export const getUpdateOperatorUserStatusInteractor = () => new UpdateOperatorUserStatusInteractor(getOperatorRepo());
 
 export const getOperatorUsersRepo = () => new PrismaOperatorUsersRepo();
 
