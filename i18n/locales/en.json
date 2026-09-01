@@ -2277,7 +2277,7 @@
     "features": "Features",
     "inbox": "Inbox",
     "members": "Members",
-    "operator": "Operator console",
+    "operator": "Operator Console",
     "overview": "Overview",
     "pricing": "Pricing",
     "public": {
@@ -2478,7 +2478,7 @@
   "OperatorAudit": {
     "emptyBody": "Adjust the search or filters to widen the log.",
     "emptyTitle": "No audit events match these filters",
-    "navigation": "Audit log",
+    "navigation": "Audit Log",
     "searchPlaceholder": "Search by action",
     "values": {
       "action": {

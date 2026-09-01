@@ -34,7 +34,12 @@ async function seedWorkspace(args: {
   domain: string;
   plan: "starter" | "pro" | "business" | "enterprise";
   status: "trial" | "active" | "cancelled" | "expired" | "pastDue" | "unPaid";
-  members: Array<{ status?: "active" | "inactive"; isPlatformOperator?: boolean; googleAdsClickId?: string }>;
+  members: Array<{
+    status?: "active" | "inactive";
+    isPlatformOperator?: boolean;
+    googleAdsClickId?: string;
+    googleAdsClickIdKind?: string;
+  }>;
 }) {
   const companyId = randomUUID();
   companyIds.push(companyId);
@@ -63,6 +68,7 @@ async function seedWorkspace(args: {
           status: member.status ?? "active",
           isPlatformOperator: member.isPlatformOperator ?? false,
           googleAdsClickId: member.googleAdsClickId ?? null,
+          googleAdsClickIdKind: member.googleAdsClickIdKind ?? null,
         },
       });
     }
@@ -159,12 +165,15 @@ describeDatabase("operator user list against a real database", { timeout: 120_00
 
   it("separates attributed from unattributed users by Google Ads click id presence", async () => {
     const marker = randomUUID().slice(0, 8);
-    const clickId = `gclid-${marker}`;
+    const clicks = (["gclid", "gbraid", "wbraid"] as const).map((kind) => ({
+      googleAdsClickIdKind: kind,
+      googleAdsClickId: `${kind}-${marker}`,
+    }));
     const workspace = await seedWorkspace({
       domain: `attribution-${marker}.invalid`,
       plan: "pro",
       status: "active",
-      members: [{ googleAdsClickId: clickId }, {}, {}],
+      members: [...clicks, {}, {}],
     });
 
     const repo = new PrismaOperatorUsersRepo();
@@ -175,8 +184,10 @@ describeDatabase("operator user list against a real database", { timeout: 120_00
         filters: [scoped, presenceFilter(FilterFieldKey.googleAdsClickId, FilterOperatorKey.isNotNull)],
       }),
     );
-    expect(attributed).toHaveLength(1);
-    expect(attributed[0]?.googleAdsClickId).toBe(clickId);
+    expect(attributed).toHaveLength(clicks.length);
+    expect(attributed.map((row) => [row.googleAdsClickIdKind, row.googleAdsClickId]).sort()).toEqual(
+      clicks.map((click) => [click.googleAdsClickIdKind, click.googleAdsClickId]).sort(),
+    );
 
     const unattributed = await runWithoutTenant(() =>
       repo.getItems({ filters: [scoped, presenceFilter(FilterFieldKey.googleAdsClickId, FilterOperatorKey.isNull)] }),

@@ -19,6 +19,7 @@ export const OperatorUserRowDtoSchema = z.object({
   subscriptionQuantity: z.number().nullable(),
   subscriptionUpdatedAt: z.date().nullable(),
   googleAdsClickId: z.string().nullable(),
+  googleAdsClickIdKind: z.string().nullable(),
 });
 
 export type OperatorUserRowDto = z.infer<typeof OperatorUserRowDtoSchema>;

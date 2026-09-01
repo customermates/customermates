@@ -156,14 +156,16 @@ export function useOperatorUserColumns(): ColumnDef<OperatorUserRowDto>[] {
         accessorKey: "googleAdsClickId",
         id: "googleAdsClickId",
         header: t("Common.table.columns.googleAdsClickId"),
-        cell: ({ row }) => (
-          <span
-            className="block max-w-40 truncate font-mono text-xs"
-            title={row.original.googleAdsClickId ?? undefined}
-          >
-            {row.original.googleAdsClickId ?? "-"}
-          </span>
-        ),
+        cell: ({ row }) =>
+          row.original.googleAdsClickId ? (
+            <span className="flex max-w-40 flex-col" title={row.original.googleAdsClickId}>
+              <span className="text-[11px] uppercase text-muted-foreground">{row.original.googleAdsClickIdKind}</span>
+
+              <span className="truncate font-mono text-xs">{row.original.googleAdsClickId}</span>
+            </span>
+          ) : (
+            <span className="text-sm">-</span>
+          ),
       },
       {
         id: "credits",

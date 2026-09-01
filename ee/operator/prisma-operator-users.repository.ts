@@ -67,6 +67,7 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
         updatedAt: true,
         companyId: true,
         googleAdsClickId: true,
+        googleAdsClickIdKind: true,
         company: {
           select: { subscription: { select: { plan: true, status: true, quantity: true, updatedAt: true } } },
         },
@@ -92,6 +93,7 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
       subscriptionQuantity: user.company.subscription?.quantity ?? null,
       subscriptionUpdatedAt: user.company.subscription?.updatedAt ?? null,
       googleAdsClickId: user.googleAdsClickId,
+      googleAdsClickIdKind: user.googleAdsClickIdKind,
     }));
   }
 
