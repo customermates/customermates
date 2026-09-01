@@ -21,7 +21,7 @@ type Props = {
   initialSubscription: SubscriptionDto | null;
 };
 
-const STATUS_COLOR_MAP: Record<SubscriptionStatus, ChipColor> = {
+export const SUBSCRIPTION_STATUS_COLOR_MAP: Record<SubscriptionStatus, ChipColor> = {
   [SubscriptionStatus.active]: "success",
   [SubscriptionStatus.trial]: "warning",
   [SubscriptionStatus.expired]: "destructive",
@@ -78,7 +78,7 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
           <AppChip
             className="shrink-0"
             size="sm"
-            variant={subscription ? STATUS_COLOR_MAP[subscription.status] : "default"}
+            variant={subscription ? SUBSCRIPTION_STATUS_COLOR_MAP[subscription.status] : "default"}
           >
             {t(`Subscription.status.${subscription?.status ?? SubscriptionStatus.trial}`)}
           </AppChip>

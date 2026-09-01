@@ -8,6 +8,11 @@ import type { TaskSeedData } from "./tasks";
 import { seedContacts } from "./contacts";
 import { seedCustomFields } from "./custom-fields";
 import { seedDeals } from "./deals";
+import {
+  seedHostedAiOperatorFixtures,
+  seedHostedAiOperatorUserTableFixtures,
+  seedLocalHostedAiOperatorAccess,
+} from "./hosted-ai-operator";
 import { seedIdentity } from "./identity";
 import { seedAgentConversations } from "./agent-chat";
 import { seedDemoMessagingFixtures } from "./messaging/seed";
@@ -22,8 +27,14 @@ import { seedWidgets } from "./widgets";
 
 export type SyntheticSeedData = OrganizationSeedData & ContactSeedData & DealSeedData & ServiceSeedData & TaskSeedData;
 
-export async function runSyntheticSeed(context: SeedContext): Promise<SyntheticSeedData> {
+export async function runSyntheticSeed(
+  context: SeedContext,
+  options: { includeLocalOperatorAccess?: boolean } = {},
+): Promise<SyntheticSeedData> {
   await seedIdentity(context);
+  await seedHostedAiOperatorFixtures(context);
+  if (options.includeLocalOperatorAccess) await seedLocalHostedAiOperatorAccess(context);
+  await seedHostedAiOperatorUserTableFixtures(context, options);
 
   const organizationData = await seedOrganizations(context);
   const contactData = await seedContacts(context, organizationData.organizations);

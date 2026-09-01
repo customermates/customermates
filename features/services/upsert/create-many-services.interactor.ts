@@ -21,16 +21,16 @@ import { validateNotes } from "@/core/validation/validate-notes";
 import { buildRelationChangePublishes } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
 
-export const CreateManyServicesSchema = z
-  .object({
-    services: z.array(BaseCreateServiceSchema).min(1).max(100),
-  })
-  .superRefine((data, ctx) => {
-    for (let i = 0; i < data.services.length; i++) {
-      const service = data.services[i];
-      service.notes = validateNotes(service.notes, ctx, ["services", i, "notes"]);
-    }
-  });
+export const CreateManyServicesSchema = z.object({
+  services: z
+    .array(
+      BaseCreateServiceSchema.superRefine((service, ctx) => {
+        service.notes = validateNotes(service.notes, ctx, ["notes"]);
+      }),
+    )
+    .min(1)
+    .max(100),
+});
 export type CreateManyServicesData = Data<typeof CreateManyServicesSchema>;
 
 @TenantInteractor({

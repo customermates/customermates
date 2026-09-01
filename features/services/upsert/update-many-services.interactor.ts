@@ -21,16 +21,16 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { validateNotes } from "@/core/validation/validate-notes";
 import { unique } from "@/core/utils/unique";
 
-export const UpdateManyServicesSchema = z
-  .object({
-    services: z.array(BaseUpdateServiceSchema).min(1).max(100),
-  })
-  .superRefine((data, ctx) => {
-    for (let i = 0; i < data.services.length; i++) {
-      const service = data.services[i];
-      service.notes = validateNotes(service.notes, ctx, ["services", i, "notes"]);
-    }
-  });
+export const UpdateManyServicesSchema = z.object({
+  services: z
+    .array(
+      BaseUpdateServiceSchema.superRefine((service, ctx) => {
+        service.notes = validateNotes(service.notes, ctx, ["notes"]);
+      }),
+    )
+    .min(1)
+    .max(100),
+});
 export type UpdateManyServicesData = Data<typeof UpdateManyServicesSchema>;
 
 @TenantInteractor({

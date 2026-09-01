@@ -19,4 +19,11 @@ export enum FilterFieldKey {
   connectedAccountId = "connectedAccountId",
   calendarId = "calendarId",
   startsAt = "startsAt",
+  plan = "plan",
+  subscriptionStatus = "subscriptionStatus",
+  isPlatformOperator = "isPlatformOperator",
+  lastActiveAt = "lastActiveAt",
+  workspaceId = "workspaceId",
+  googleAdsClickId = "googleAdsClickId",
+  auditSource = "auditSource",
 }

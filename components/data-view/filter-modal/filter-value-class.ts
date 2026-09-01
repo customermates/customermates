@@ -33,9 +33,19 @@ const RELATION_FILTER_FIELDS = [
   FilterFieldKey.timelineThreadId,
   FilterFieldKey.connectedAccountId,
   FilterFieldKey.participants,
+  FilterFieldKey.plan,
+  FilterFieldKey.subscriptionStatus,
+  FilterFieldKey.isPlatformOperator,
+  FilterFieldKey.workspaceId,
+  FilterFieldKey.auditSource,
 ];
 
-const DATE_FILTER_FIELDS = [FilterFieldKey.updatedAt, FilterFieldKey.createdAt];
+const DATE_FILTER_FIELDS = [
+  FilterFieldKey.updatedAt,
+  FilterFieldKey.createdAt,
+  FilterFieldKey.lastActiveAt,
+  FilterFieldKey.startsAt,
+];
 
 const DAY_GRANULARITY_COLUMN_TYPES = ["date", "dateRange"];
 

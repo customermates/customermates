@@ -22,5 +22,10 @@ export function useDeleteConfirmation() {
     deleteConfirmationModalStore.open();
   }
 
-  return { showDeleteConfirmation };
+  function showConfirmation(data: Omit<DeleteConfirmationData, "entityName">) {
+    deleteConfirmationModalStore.onInitOrRefresh({ ...data, entityName: undefined });
+    deleteConfirmationModalStore.open();
+  }
+
+  return { showConfirmation, showDeleteConfirmation };
 }

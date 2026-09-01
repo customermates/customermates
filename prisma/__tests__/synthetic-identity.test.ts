@@ -182,6 +182,7 @@ describe("synthetic Better Auth identities", () => {
     expect(companyMembers).toMatchObject([
       {
         email: SYNTHETIC_COMPANY_USERS.maxBergmann.email,
+        isPlatformOperator: false,
         roleId: SEED_IDS.role,
         status: "active",
       },

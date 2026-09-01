@@ -7,6 +7,7 @@ import type { SeedContext } from "./context";
 import { SYNTHETIC_AVATAR_URLS } from "./avatars";
 import { SEED_IDS } from "./context";
 import { seedCompanyMembers } from "./members";
+import { reconcileAuthUserId } from "./helpers";
 import { seedRoles } from "./roles";
 import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
@@ -48,18 +49,6 @@ export const SYNTHETIC_AUTH_IDENTITY_DEFINITIONS = [
     userId: SEED_IDS.elenaHoffmannUser,
   },
 ] satisfies readonly SyntheticAuthIdentityDefinition[];
-
-async function reconcileAuthUserId(context: SeedContext, id: string, email: string): Promise<void> {
-  const [existingById, existingByEmail] = await Promise.all([
-    context.prisma.authUser.findUnique({ where: { id }, select: { id: true } }),
-    context.prisma.authUser.findUnique({ where: { email }, select: { id: true } }),
-  ]);
-
-  if (!existingByEmail || existingByEmail.id === id) return;
-
-  if (existingById) await context.prisma.authUser.delete({ where: { id: existingByEmail.id } });
-  else await context.prisma.authUser.update({ where: { id: existingByEmail.id }, data: { id } });
-}
 
 export async function seedIdentity(context: SeedContext): Promise<void> {
   const { prisma, ids, sharedUserPassword } = context;

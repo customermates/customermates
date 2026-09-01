@@ -30,6 +30,7 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AGENT_ACTIVITY_KINDS } from "@/ee/agent-chat/agent-activity";
 import { ROUTINE_SCHEDULE_PRESETS } from "@/ee/routines/routine-schedule-preset";
+import { OPERATOR_AUDIT_ACTION } from "@/ee/operator/operator.schema";
 import { DomainEvent } from "@/features/event/domain-events";
 import { FeedbackType } from "@/features/feedback/send-feedback.schema";
 import {
@@ -166,6 +167,7 @@ const TABLE_COLUMN_KEYS = [
   "Common.table.columns.channels",
   "Common.table.columns.contacts",
   "Common.table.columns.createdAt",
+  "Common.table.columns.credits",
   "Common.table.columns.customFieldValues",
   "Common.table.columns.deals",
   "Common.table.columns.description",
@@ -180,6 +182,7 @@ const TABLE_COLUMN_KEYS = [
   "Common.table.columns.events",
   "Common.table.columns.expiresAt",
   "Common.table.columns.firstName",
+  "Common.table.columns.googleAdsClickId",
   "Common.table.columns.id",
   "Common.table.columns.identifiers",
   "Common.table.columns.isSystemRole",
@@ -205,6 +208,19 @@ const TABLE_COLUMN_KEYS = [
   "Common.table.columns.url",
   "Common.table.columns.user",
   "Common.table.columns.users",
+  "Common.table.columns.action",
+  "Common.table.columns.actor",
+  "Common.table.columns.allowance",
+  "Common.table.columns.lastActiveAt",
+  "Common.table.columns.members",
+  "Common.table.columns.operator",
+  "Common.table.columns.owner",
+  "Common.table.columns.plan",
+  "Common.table.columns.reason",
+  "Common.table.columns.source",
+  "Common.table.columns.subscription",
+  "Common.table.columns.target",
+  "Common.table.columns.workspace",
 ] as const;
 
 const PROVIDER_KEYS = Object.values(MessagingProvider).map((provider) => `Common.providers.${provider}`);
@@ -501,6 +517,10 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
 const ENFORCED = true;
 
 export const DYNAMIC_KEY_SITES = [
+  "app/[locale]/(protected)/operator/components/operator-value-labels.tsx :: t :: Common.events.${action}",
+  "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Common.userStatuses.${status}",
+  "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Subscription.planNames.${plan}",
+  "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Subscription.status.${status}",
   "app/[locale]/(protected)/company/components/audit-log/audit-log-modal.tsx :: t :: Common.events.${auditLog.event}",
   "app/[locale]/(protected)/company/components/audit-log/use-audit-log-columns.tsx :: t :: Common.events.${row.original.event}",
   "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",
@@ -595,6 +615,8 @@ export const DYNAMIC_KEY_SITES = [
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.providers.${thread.provider}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.userStatuses.${status}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: EntityTimeline.types.${type}",
+  "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Subscription.planNames.${plan}",
+  "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Subscription.status.${status}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Inbox.threadStates.${state}",
   "components/data-view/header/active-filters-bar.tsx :: t :: Common.filters.operators.${filter.operator}",
   "components/entity-terminology/use-column-label.ts :: t :: AuditLogModal.fields.${columnId}",
@@ -648,6 +670,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     'features/messaging/activities/audit-detail.tsx :: t :: terminologyMessageKey(selection.entityType, presetKey, "plural") as never',
     1,
   ],
+  ["app/[locale]/(protected)/operator/components/operator-value-labels.tsx :: t :: key", 1],
   ["app/[locale]/(protected)/contacts/components/add-channel-popover.tsx :: t :: SOURCE_HINT_KEYS[source]", 1],
   ["app/[locale]/(protected)/contacts/components/use-contact-columns.tsx :: t :: nameKey", 1],
   ["app/[locale]/(protected)/deals/components/use-deal-columns.tsx :: t :: nameKey", 1],
@@ -674,9 +697,10 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["app/[locale]/(static)/docs/page.tsx :: t :: navKey", 1],
   ["app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: group.i18nKey", 1],
   ["app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: item.i18nKey", 1],
-  ["app/components/app-sidebar.tsx :: t :: subroute.labelKey", 2],
+  ["app/components/app-sidebar.tsx :: t :: subroute.labelKey", 3],
   ["app/components/app-topbar-crumbs.ts :: t :: leafKey", 1],
-  ["app/components/app-topbar-crumbs.ts :: t :: route.labelKey", 1],
+  ["app/components/app-topbar-crumbs.ts :: t :: operatorSubroute.labelKey", 1],
+  ["app/components/app-topbar-crumbs.ts :: t :: route.labelKey", 2],
   ["app/components/app-topbar-crumbs.ts :: t :: subroute.labelKey", 1],
   ["components/card/form-actions.tsx :: t :: primaryButtonLabel", 1],
   ["components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: nameKey", 1],
@@ -712,6 +736,15 @@ type IndirectKeyConsumer = {
   evidence?: Readonly<Record<string, readonly SourceEvidence[]>>;
 };
 
+const OPERATOR_AUDIT_ACTION_LABEL_KEYS = Object.keys(OPERATOR_AUDIT_ACTION).map(
+  (name) => `OperatorAudit.values.action.${name}`,
+);
+const OPERATOR_AUDIT_ACTION_LABEL_EVIDENCE = Object.fromEntries(
+  OPERATOR_AUDIT_ACTION_LABEL_KEYS.map((key) => [
+    key,
+    [{ kind: "template" as const, value: "`OperatorAudit.values.action.${name}`" }],
+  ]),
+);
 const TERMINOLOGY_TEMPLATE_EVIDENCE = Object.fromEntries(
   ENTITY_TERMINOLOGY_KEYS.map((key) => [
     key,
@@ -726,6 +759,11 @@ const TERMINOLOGY_TEMPLATE_EVIDENCE = Object.fromEntries(
 );
 
 const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
+  {
+    file: "app/[locale]/(protected)/operator/components/operator-value-labels.tsx",
+    keys: OPERATOR_AUDIT_ACTION_LABEL_KEYS,
+    evidence: OPERATOR_AUDIT_ACTION_LABEL_EVIDENCE,
+  },
   {
     file: "app/[locale]/(protected)/contacts/components/add-channel-popover.tsx",
     keys: [

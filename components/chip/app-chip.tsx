@@ -52,6 +52,7 @@ export function AppChip({
   const chip = (
     <Badge
       className={cn("rounded-md shrink min-w-0 w-auto max-w-full", chipVariants({ size }), className)}
+      data-slot="badge"
       interactive={interactive}
       // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- a truncated, noninteractive chip needs a keyboard focus target for its tooltip
       tabIndex={tabIndex ?? keyboardTooltipTabIndex}

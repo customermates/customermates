@@ -327,11 +327,11 @@ export function FooterContent({ blogPosts = [], className, featureLinks = [], in
             <li>
               <a
                 className={FOOTER_LINK_CLASS}
-                href="http://www.usawebsitesdirectory.com/computers_and_internet/"
+                href="https://www.usawebsitesdirectory.com/computers_and_internet/"
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                http://www.usawebsitesdirectory.com/computers_and_internet/
+                https://www.usawebsitesdirectory.com/computers_and_internet/
               </a>
             </li>
 

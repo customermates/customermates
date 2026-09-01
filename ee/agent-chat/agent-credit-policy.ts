@@ -5,15 +5,15 @@ import { SubscriptionStatus, type SubscriptionPlan } from "@/generated/prisma";
 import type { Data } from "@/core/validation/validation.utils";
 import { assertValidDate } from "@/core/utils/date";
 
-import {
-  getEntitlements,
-  lowestPlanHostedAiCreditsPerActiveUser,
-  TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER,
-} from "@/ee/subscription/entitlements";
+import { getEntitlements, TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER } from "@/ee/subscription/entitlements";
 
 export const AGENT_CREDIT_MICROCENTS = 1_000_000;
 
-export const AgentCreditEntitlementBlockedReasonSchema = z.enum(["self_hosted", "subscription_unavailable"]);
+export const AgentCreditEntitlementBlockedReasonSchema = z.enum([
+  "self_hosted",
+  "subscription_unavailable",
+  "enterprise_allowance_missing",
+]);
 
 export type AgentCreditEntitlementBlockedReason = Data<typeof AgentCreditEntitlementBlockedReasonSchema>;
 
@@ -35,6 +35,7 @@ type AgentCreditEntitlementInput = {
   trialEndDate: Date | null;
   creditAnchorAt: Date;
   enterpriseCreditsPerUser: number | null;
+  adjustmentCredits?: number;
   activeSeatAt: Date | null;
   now: Date;
 };
@@ -97,7 +98,7 @@ export function prorateAgentCreditsForSeat(
   return result;
 }
 
-function paidPlanAllowance(plan: SubscriptionPlan, enterpriseCreditsPerUser: number | null): number {
+function paidPlanAllowance(plan: SubscriptionPlan, enterpriseCreditsPerUser: number | null): number | null {
   const configured = getEntitlements(plan).hostedAiCreditsPerActiveUser;
   if (typeof configured === "number") return configured;
 
@@ -106,7 +107,16 @@ function paidPlanAllowance(plan: SubscriptionPlan, enterpriseCreditsPerUser: num
       ? enterpriseCreditsPerUser
       : null;
 
-  return contracted ?? lowestPlanHostedAiCreditsPerActiveUser();
+  return contracted;
+}
+
+function adjustedAllowance(baseAllowance: number, adjustmentCredits = 0): number {
+  if (!Number.isSafeInteger(adjustmentCredits)) throw new Error("AI credit adjustment must be a whole number.");
+
+  const allowance = baseAllowance + adjustmentCredits;
+  if (!Number.isSafeInteger(allowance) || allowance < 0) throw new Error("Adjusted AI credit allowance is invalid.");
+
+  return allowance;
 }
 
 export function resolveAgentCreditEntitlement(input: AgentCreditEntitlementInput): AgentCreditEntitlement {
@@ -138,12 +148,20 @@ export function resolveAgentCreditEntitlement(input: AgentCreditEntitlementInput
     return {
       ...period,
       plan: input.plan,
-      limit: TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER,
+      limit: adjustedAllowance(TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER, input.adjustmentCredits),
       blockedReason: null,
     };
   }
 
   const allowance = paidPlanAllowance(input.plan, input.enterpriseCreditsPerUser);
+  if (allowance === null) {
+    return {
+      ...period,
+      plan: input.plan,
+      limit: 0,
+      blockedReason: "enterprise_allowance_missing",
+    };
+  }
 
   if (
     input.activeSeatAt === null ||
@@ -162,7 +180,10 @@ export function resolveAgentCreditEntitlement(input: AgentCreditEntitlementInput
   return {
     ...period,
     plan: input.plan,
-    limit: prorateAgentCreditsForSeat(allowance, input.activeSeatAt, period),
+    limit: adjustedAllowance(
+      prorateAgentCreditsForSeat(allowance, input.activeSeatAt, period),
+      input.adjustmentCredits,
+    ),
     blockedReason: null,
   };
 }

@@ -60,6 +60,11 @@ describeDatabase("agent assistant migration", { timeout: 120_000 }, () => {
       );
 
       expect(checks.rows.map((row) => row.conname)).toEqual([
+        "AgentCreditAdjustment_actor_id_valid",
+        "AgentCreditAdjustment_delta_bounded_nonzero",
+        "AgentCreditAdjustment_operation_id_valid",
+        "AgentCreditAdjustment_period_ordered",
+        "AgentCreditAdjustment_reason_valid",
         "AgentTurnRequest_attempt_count_positive",
         "AgentUsageEvent_amounts_nonnegative",
         "AgentUsageEvent_charge_within_reservation",
@@ -149,6 +154,7 @@ describeDatabase("agent assistant migration", { timeout: 120_000 }, () => {
       expect(tables.rows.map((row) => row.table_name)).toEqual([
         "AgentApproval",
         "AgentConversation",
+        "AgentCreditAdjustment",
         "AgentMessage",
         "AgentRunLease",
         "AgentRunRound",

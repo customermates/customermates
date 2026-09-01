@@ -204,7 +204,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       const claimed = await runInTransaction(async () => {
         const phaseOneAt = new Date();
         if (conversationIsNew) {
-          if (await this.repo.isAtAgentRunLimit(phaseOneAt)) return false;
+          if (await this.repo.isAtAgentRunLimit(phaseOneAt)) return "unavailable" as const;
           await this.repo.createAgentConversationForRun({
             conversationId,
             title: data.text,
@@ -219,17 +219,20 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           expiresAt: new Date(phaseOneAt.getTime() + AGENT_RUN_LEASE_MS),
           now: phaseOneAt,
         });
-        if (lease !== "claimed") return false;
+        if (lease !== "claimed") return "unavailable" as const;
 
-        await this.usageService.reserveUsage({
+        const admitted = await this.usageService.reserveUsage({
           reservationId,
           companyId: user.companyId,
           userId: user.id,
           reservation,
         });
-        return true;
+        if (!admitted) return "not-admitted" as const;
+
+        return "claimed" as const;
       });
-      if (!claimed) {
+      if (claimed === "not-admitted") return failRateLimit(CustomErrorCode.agentLimitReached);
+      if (claimed !== "claimed") {
         if (conversationIsNew) return failConflict(CustomErrorCode.agentTurnAlreadyRunning);
         return {
           ok: true as const,

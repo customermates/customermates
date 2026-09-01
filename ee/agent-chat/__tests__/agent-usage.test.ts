@@ -26,6 +26,7 @@ function makeRepo(
   overrides: {
     usedCredits?: number;
     recentTurnCredits?: number | null;
+    adjustmentCredits?: number;
     user?: Partial<NonNullable<Awaited<ReturnType<AgentUsageRepo["findUserForUsageUnscoped"]>>>>;
     subscription?: Partial<
       NonNullable<Awaited<ReturnType<AgentUsageRepo["findUserForUsageUnscoped"]>>>["subscription"]
@@ -48,6 +49,7 @@ function makeRepo(
         recentTurnCredits: overrides.recentTurnCredits ?? null,
       }),
     ),
+    getUserCreditAdjustmentUnscoped: vi.fn(() => Promise.resolve(overrides.adjustmentCredits ?? 0)),
     findUserForUsageUnscoped: vi.fn(() =>
       Promise.resolve({
         id: "user-1",
@@ -60,7 +62,7 @@ function makeRepo(
       }),
     ),
     recordUsageEventUnscoped: vi.fn(() => Promise.resolve()),
-    reserveUsageEventUnscoped: vi.fn(() => Promise.resolve()),
+    reserveUsageEventUnscoped: vi.fn(() => Promise.resolve(true)),
     releaseUsageReservationUnscoped: vi.fn(() => Promise.resolve()),
   };
 }
@@ -132,9 +134,40 @@ describe("AgentUsageService summary", () => {
 
     const summary = await service.getUsageSummary("user-1", NOW);
 
-    expect(summary.creditsLimit).toBe(200);
+    expect(summary.creditsLimit).toBe(0);
     expect(summary.usedPct).toBe(0);
-    expect(summary.blockedReason).toBeNull();
+    expect(summary.blockedReason).toBe("configuration_unavailable");
+  });
+
+  it("applies a signed current-period adjustment to a live trial seat", async () => {
+    const service = new AgentUsageService(
+      makeRepo({
+        adjustmentCredits: -25,
+        usedCredits: 100,
+        subscription: {
+          status: SubscriptionStatus.trial,
+          plan: SubscriptionPlan.starter,
+          trialEndDate: new Date("2026-08-13T12:00:00.000Z"),
+        },
+      }),
+    );
+
+    await expect(service.getUsageSummary("user-1", NOW)).resolves.toMatchObject({
+      creditsUsed: 100,
+      creditsLimit: 475,
+      creditsRemaining: 375,
+      blockedReason: null,
+    });
+  });
+
+  it("includes current-period manual adjustments without exposing their reasons", async () => {
+    const service = new AgentUsageService(makeRepo({ usedCredits: 100, adjustmentCredits: 75 }));
+
+    const summary = await service.getUsageSummary("user-1", NOW);
+
+    expect(summary).toMatchObject({ creditsUsed: 100, creditsLimit: 575, creditsRemaining: 475 });
+    expect(summary).not.toHaveProperty("adjustments");
+    expect(summary).not.toHaveProperty("reason");
   });
 
   it("does not grant a hosted allowance to an inactive user", async () => {
@@ -276,7 +309,7 @@ describe("AgentUsageService admission and ledger", () => {
   it("charges the gateway's measured cost rather than the pinned estimate", () => {
     const settlement = buildAgentUsageSettlement({
       model: "openai/gpt-5-nano",
-      provider: "openai",
+      provider: "azure",
       tokens: { inputTokens: 35_329, outputTokens: 2_945, cacheReadTokens: 73_728, cacheWriteTokens: 0 },
       reservedCredits: 14,
       providerCharge: { billed: true, measuredCostMicrocents: 2_000_001, stepTokens: [], unreadableReason: null },
@@ -293,7 +326,7 @@ describe("AgentUsageService admission and ledger", () => {
   it("quarantines an unreadable cost against the pinned estimate instead of throwing", () => {
     const settlement = buildAgentUsageSettlement({
       model: "openai/gpt-5-nano",
-      provider: "openai",
+      provider: "azure",
       tokens: { inputTokens: 35_329, outputTokens: 2_945, cacheReadTokens: 73_728, cacheWriteTokens: 0 },
       reservedCredits: 14,
       providerCharge: {
@@ -304,7 +337,7 @@ describe("AgentUsageService admission and ledger", () => {
       },
     });
 
-    expect(settlement).toMatchObject({ costMicrocents: 331_309, costSource: "estimated", state: "settled" });
+    expect(settlement).toMatchObject({ costMicrocents: 368_173, costSource: "estimated", state: "settled" });
   });
 
   it("prices a multi-step turn per request, as the provider bills it, not on the turn aggregate", () => {
@@ -319,14 +352,14 @@ describe("AgentUsageService admission and ledger", () => {
 
     const settlement = buildAgentUsageSettlement({
       model: "openai/gpt-5.6-luna",
-      provider: "openai",
+      provider: "azure",
       tokens: aggregate,
       reservedCredits: 40,
       providerCharge: { billed: true, measuredCostMicrocents: null, stepTokens: steps, unreadableReason: "test" },
     });
 
     expect(settlement.costMicrocents).toBe(1_568_524);
-    expect(computeCostMicrocents("openai/gpt-5.6-luna", aggregate, "openai")).toBe(3_105_428);
+    expect(computeCostMicrocents("openai/gpt-5.6-luna", aggregate, "azure")).toBe(3_105_428);
     expect(settlement.chargedCredits).toBe(2);
   });
 

@@ -16,6 +16,10 @@ const BALANCED = MODEL_CATALOG.balanced;
 const FAST = MODEL_CATALOG.fast;
 
 describe("agent turn credit budget", () => {
+  it("pins every shipped model to the ZDR-compatible Azure provider", () => {
+    expect([FAST.servingProvider, BALANCED.servingProvider]).toEqual(["azure", "azure"]);
+  });
+
   it("gives every model its own full envelope, because affordability is no longer a smaller envelope", () => {
     for (const model of [FAST, BALANCED]) {
       const budget = resolveAgentTurnBudget({ model, availableCredits: 500 });

@@ -340,6 +340,7 @@
       "cancelled": "This response was stopped.",
       "creditLimit": "I completed part of this request, but stopped because your Assistant credits ran out. Completed work remains in place; credits reset at the start of your next period.",
       "emptyReply": "I couldn't produce a response. Please try again.",
+      "hostedAiUnavailable": "Hosted AI is temporarily unavailable. Please try again later.",
       "outputLimit": "I completed part of this response, but reached this turn's output limit. Ask me to continue and I'll finish from the completed work.",
       "safetyLimit": "I completed part of this request, but stopped because the latest steps were repeating, failing, or reached a safety limit. Completed work remains in place; review the steps above before asking me to proceed.",
       "turnError": "I couldn't complete that request. Please try again."
@@ -800,6 +801,7 @@
       "clear": "Clear",
       "close": "Close",
       "collapse": "Collapse",
+      "confirm": "Confirm",
       "contact": "Contact",
       "continueSetup": "Continue setup",
       "copy": "Copy to clipboard",
@@ -996,6 +998,8 @@
       "notAuthenticated": "Sign in to use this action.",
       "notesExceedsMaxLength": "Notes content exceeds maximum length.",
       "notesInvalidFormat": "Invalid notes format. Must be valid Tiptap JSON or markdown text.",
+      "operatorConflict": "That change was refused. The record may have changed since the list loaded, or the workspace may not allow it right now. Reload and check the current state.",
+      "operatorUnavailable": "The requested correction is not available for the current account configuration.",
       "organizationNotFound": "Organization ID not found or not accessible.",
       "passwordInvalid": "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
       "passwordMismatch": "Passwords must match.",
@@ -1144,20 +1148,27 @@
       "daysPreset": "{count, plural, =1 {1 day} other {# days}}",
       "daysSuffix": "days",
       "fields": {
+        "auditSource": "Source",
         "calendarId": "Calendar",
         "connectedAccountId": "Channel",
         "createdAt": "Created at",
         "event": "Event",
+        "googleAdsClickId": "Google Ads click ID",
+        "isPlatformOperator": "Platform operator",
+        "lastActiveAt": "Last active",
         "participants": "Participants",
+        "plan": "Plan",
         "provider": "Provider",
         "startsAt": "Starts at",
         "state": "State",
         "status": "Status",
+        "subscriptionStatus": "Subscription",
         "timelineKind": "Type",
         "timelineThreadId": "Conversation",
         "updatedAt": "Updated at",
         "url": "URL",
-        "userIds": "Assigned"
+        "userIds": "Assigned",
+        "workspaceId": "Workspace"
       },
       "operators": {
         "allSet": "fully linked",
@@ -1310,11 +1321,15 @@
     },
     "table": {
       "columns": {
+        "action": "Action",
+        "actor": "Actor",
+        "allowance": "Allowance",
         "amount": "Amount",
         "avatarUrl": "Avatar",
         "channels": "Channels",
         "contacts": "Contacts",
         "createdAt": "Created at",
+        "credits": "Credits",
         "customFieldValues": "Custom fields",
         "deals": "Deals",
         "description": "Description",
@@ -1329,25 +1344,35 @@
         "events": "Events",
         "expiresAt": "Expires at",
         "firstName": "First Name",
+        "googleAdsClickId": "Google Ads click ID",
         "id": "ID",
         "identifiers": "Channels",
         "isSystemRole": "System role",
         "label": "Label",
+        "lastActiveAt": "Last active",
         "lastName": "Last Name",
         "lastRequest": "Last used",
         "lastRun": "Last run",
+        "members": "Members",
         "name": "Name",
         "nextRunAt": "Next run",
         "notes": "Notes",
+        "operator": "Operator",
         "options": "Options",
         "organizations": "Organizations",
+        "owner": "Owner",
         "permissions": "Permissions",
+        "plan": "Plan",
         "provider": "Provider",
+        "reason": "Reason",
         "role": "Role",
         "secret": "Secret",
         "services": "Services",
+        "source": "Source",
         "status": "Status",
         "statusCode": "Status Code",
+        "subscription": "Subscription",
+        "target": "Target",
         "tasks": "Tasks",
         "totalQuantity": "Service Quantity",
         "totalValue": "Deal Value",
@@ -1357,7 +1382,8 @@
         "url": "URL",
         "user": "User",
         "users": "Assigned",
-        "weightedValue": "Weighted Value"
+        "weightedValue": "Weighted Value",
+        "workspace": "Workspace"
       },
       "groupBy": "Group By",
       "layout": "Layout",
@@ -2267,6 +2293,7 @@
     "features": "Features",
     "inbox": "Inbox",
     "members": "Members",
+    "operator": "Operator Console",
     "overview": "Overview",
     "pricing": "Pricing",
     "public": {
@@ -2463,6 +2490,126 @@
         "subtitle": "Tell us who you are so we can set up your workspace.",
         "title": "Your profile"
       }
+    }
+  },
+  "OperatorAudit": {
+    "emptyBody": "Adjust the search or filters to widen the log.",
+    "emptyTitle": "No audit events match these filters",
+    "navigation": "Audit Log",
+    "searchPlaceholder": "Search by action",
+    "values": {
+      "action": {
+        "auditRead": "Operator audit read",
+        "candidateRead": "Operator candidate read",
+        "companyRead": "Workspace read",
+        "creditAdjustmentCreate": "Credit correction recorded",
+        "creditBalanceReset": "Credit balance reset",
+        "enterpriseAllowanceUpdate": "Enterprise allowance updated",
+        "overviewRead": "Hosted-AI overview read",
+        "subscriptionSnapshotCorrect": "Workspace subscription corrected",
+        "userDetailRead": "User detail read",
+        "userListRead": "User list read",
+        "userPlatformAccessUpdate": "Platform access updated",
+        "userStatusUpdate": "Account status updated",
+        "userSummaryRead": "User summary read"
+      },
+      "source": {
+        "operator": "Operator",
+        "product": "Product"
+      }
+    }
+  },
+  "OperatorConsole": {
+    "confirm": {
+      "allowance": "Set the Enterprise allowance for {name} to {value} credits per user? This applies to the whole workspace.",
+      "plan": "Set the plan for {name} to {value}? This applies to the whole workspace.",
+      "subscription": "Set the subscription status for {name} to {value}? This applies to the whole workspace and contacts no billing provider.",
+      "title": "Confirm operator change"
+    }
+  },
+  "OperatorOverview": {
+    "activity": {
+      "description": "Of {total} users in total",
+      "label": "Active last 7 days"
+    },
+    "growth": {
+      "description": "Alongside {workspaces} new workspaces",
+      "label": "New users last 30 days"
+    },
+    "navigation": "Overview",
+    "operators": {
+      "description": "Accounts with cross-workspace access",
+      "label": "Platform operators"
+    },
+    "reserved": {
+      "description": "Worst-case value still held by in-flight turns",
+      "label": "Reserved exposure"
+    },
+    "risk": {
+      "description": "Past due, unpaid or expired. {trials} trials end within 7 days.",
+      "label": "Revenue at risk"
+    },
+    "spend": {
+      "label": "Hosted-AI spend this month",
+      "noCap": "No monthly cap configured; new work is blocked",
+      "ofCap": "{percent}% of the {cap} monthly cap"
+    },
+    "users": {
+      "description": "{active} active, {pending} awaiting authorization",
+      "label": "Users"
+    },
+    "workspaces": {
+      "description": "{enterprise} on Enterprise",
+      "label": "Workspaces"
+    }
+  },
+  "OperatorUsers": {
+    "adjustment": {
+      "deltaLabel": "Signed credit correction",
+      "deltaPlaceholder": "For example, 500 or -100"
+    },
+    "confirm": {
+      "operator": "Set platform operator access for {name} to {value}?",
+      "reset": "Reset the credits of {name}: {value}?",
+      "status": "Set the account status of {name} to {value}?"
+    },
+    "credits": {
+      "adjustments": "Manual corrections",
+      "base": "Base allowance",
+      "committed": "Used and reserved",
+      "remaining": "Remaining",
+      "title": "Current credit position",
+      "unavailableDescription": "The workspace needs a valid entitlement and credit anchor before credits can be corrected or reset."
+    },
+    "emptyBody": "Adjust the search or filters to widen the directory.",
+    "emptyTitle": "No users match these filters",
+    "navigation": "Users",
+    "platformAccess": {
+      "revoked": "Not granted"
+    },
+    "reset": {
+      "baseAllowance": "Return manual corrections to base allowance",
+      "title": "Credit reset",
+      "zeroBalance": "Set remaining balance to zero"
+    },
+    "searchPlaceholder": "Search by name or account email",
+    "values": {
+      "noSubscription": "No subscription",
+      "operator": "Platform operator"
+    }
+  },
+  "OperatorWorkspaces": {
+    "allowance": {
+      "label": "Credits per user",
+      "title": "Enterprise allowance",
+      "warningDescription": "The allowance is granted per user across the whole workspace and takes effect on the current period."
+    },
+    "emptyBody": "Adjust the search or filters to widen the list.",
+    "emptyTitle": "No workspaces match these filters",
+    "navigation": "Workspaces",
+    "searchPlaceholder": "Search by member email",
+    "values": {
+      "members": "{active} of {total}"
     }
   },
   "OrganizationModal": {

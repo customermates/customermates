@@ -172,9 +172,9 @@ function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprov
   };
 }
 
-async function openTurn(payload: AgentTurnWorkflowPayload): Promise<void> {
+async function openTurn(payload: AgentTurnWorkflowPayload): Promise<boolean> {
   "use step";
-  await runAsBackgroundTenant(payload.userId, () =>
+  return runAsBackgroundTenant(payload.userId, () =>
     getAgentChatRepo().markAgentTurnProviderStartedUnscoped({
       turnRequestId: payload.turnRequestId,
       conversationId: payload.conversationId,
@@ -185,6 +185,18 @@ async function openTurn(payload: AgentTurnWorkflowPayload): Promise<void> {
   );
 }
 openTurn.maxRetries = 0;
+
+async function canStartNextHostedAiProviderRound(payload: AgentTurnWorkflowPayload): Promise<boolean> {
+  "use step";
+  return runAsBackgroundTenant(payload.userId, () =>
+    getAgentChatRepo().canStartNextHostedAiProviderRoundUnscoped({
+      turnRequestId: payload.turnRequestId,
+      companyId: payload.companyId,
+      userId: payload.userId,
+    }),
+  );
+}
+canStartNextHostedAiProviderRound.maxRetries = 0;
 
 async function loadAgentToolShells(surface: AgentTurnSurface): Promise<AgentToolShell[]> {
   "use step";
@@ -343,7 +355,13 @@ async function ensureTurnReservation(
   );
 }
 
-type AgentRunnerMessageKind = "safetyLimit" | "creditLimit" | "outputLimit" | "turnError" | "emptyReply";
+type AgentRunnerMessageKind =
+  | "safetyLimit"
+  | "creditLimit"
+  | "hostedAiUnavailable"
+  | "outputLimit"
+  | "turnError"
+  | "emptyReply";
 
 async function resolveRunnerMessage(locale: string, kind: AgentRunnerMessageKind): Promise<string> {
   "use step";
@@ -352,6 +370,7 @@ async function resolveRunnerMessage(locale: string, kind: AgentRunnerMessageKind
   const t = await getTranslator(appLocaleOrDefault(locale));
 
   if (kind === "creditLimit") return t("AgentChat.runner.creditLimit");
+  if (kind === "hostedAiUnavailable") return t("AgentChat.runner.hostedAiUnavailable");
   if (kind === "outputLimit") return t("AgentChat.runner.outputLimit");
   if (kind === "turnError") return t("AgentChat.runner.turnError");
   if (kind === "emptyReply") return t("AgentChat.runner.emptyReply");
@@ -516,6 +535,7 @@ async function finalizeTurn(
     tokens: TokenCounts;
     ledger: RoundLedgerEntry[];
     reservedCredits: number;
+    providerStarted?: boolean;
   },
 ): Promise<void> {
   "use step";
@@ -532,21 +552,24 @@ async function finalizeTurn(
       parts: outcome.parts as Prisma.InputJsonValue,
       terminalCode: outcome.terminalCode,
       affectedResources: outcome.affectedResources,
-      usageSettlement: buildAgentUsageSettlement({
-        model: payload.turnBudget.modelSpec,
-        tokens: outcome.tokens,
-        provider: payload.turnBudget.servingProvider,
-        reservedCredits: outcome.reservedCredits,
-        providerCharge: {
-          billed: outcome.ledger.length > 0,
-          measuredCostMicrocents:
-            measured && outcome.ledger.length > 0
-              ? outcome.ledger.reduce((total, entry) => total + entry.costMicrocents, 0)
-              : null,
-          stepTokens: outcome.ledger.map((entry) => entry.tokens),
-          unreadableReason,
-        },
-      }),
+      usageSettlement:
+        outcome.providerStarted === false
+          ? null
+          : buildAgentUsageSettlement({
+              model: payload.turnBudget.modelSpec,
+              tokens: outcome.tokens,
+              provider: payload.turnBudget.servingProvider,
+              reservedCredits: outcome.reservedCredits,
+              providerCharge: {
+                billed: outcome.ledger.length > 0,
+                measuredCostMicrocents:
+                  measured && outcome.ledger.length > 0
+                    ? outcome.ledger.reduce((total, entry) => total + entry.costMicrocents, 0)
+                    : null,
+                stepTokens: outcome.ledger.map((entry) => entry.tokens),
+                unreadableReason,
+              },
+            }),
     }),
   );
 
@@ -579,7 +602,25 @@ finalizeTurn.maxRetries = 0;
 export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<void> {
   "use workflow";
   try {
-    await openTurn(payload);
+    const providerStarted = await openTurn(payload);
+    if (!providerStarted) {
+      const message = await resolveRunnerMessage(payload.locale, "hostedAiUnavailable");
+      const transcript = new AgentTurnTranscript(() => undefined);
+      transcript.appendText(message);
+      await publishAssistantText(message);
+      await finalizeTurn(payload, {
+        parts: transcript.replyParts,
+        terminalCode: "partial",
+        affectedResources: [],
+        hasSuccessfulMutation: false,
+        tokens: emptyTokens(),
+        ledger: [],
+        reservedCredits: payload.turnBudget.reservedCredits,
+        providerStarted: false,
+      });
+      await closeTurnStream();
+      return;
+    }
     const surface: AgentTurnSurface = payload.surface ?? "chat";
     const approvalWindowMs = surface === "routine" ? 0 : AGENT_APPROVAL_WINDOW_MS;
     const shells = await loadAgentToolShells(surface);
@@ -614,6 +655,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const continuationLimits = agentContinuationLimits(Number.MAX_SAFE_INTEGER);
     let safetyStop: string | null = null;
     let budgetStop = false;
+    let hostedAiStop = false;
+    const hostedAiPaused = new Error("Hosted AI provider work is paused.");
     let abandoned = false;
     let reservedCredits = payload.turnBudget.reservedCredits;
     let roundFailure: WorkflowFailure | null = null;
@@ -738,7 +781,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let messages = providerContext.messages;
     let instructions = systemPrompt;
 
-    while (!abandoned && !cancelled && !budgetStop && safetyStop === null && roundFailure === null) {
+    while (!abandoned && !cancelled && !budgetStop && !hostedAiStop && safetyStop === null && roundFailure === null) {
       const agent = new WorkflowAgent({
         id: WORKFLOW_NAME,
         model: payload.turnBudget.modelSpec,
@@ -773,9 +816,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           gateway: { only: [payload.turnBudget.servingProvider] },
           openai: { parallelToolCalls: false },
         },
+        prepareStep: async () => {
+          if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
+          return {};
+        },
         stopWhen: [
           isStepCount(AGENT_SEGMENT_ROUNDS),
-          () => abandoned || cancelled || budgetStop || safetyStop !== null || roundFailure !== null,
+          () => abandoned || cancelled || budgetStop || hostedAiStop || safetyStop !== null || roundFailure !== null,
         ],
         onToolExecutionEnd: (event) => {
           completedTools.push(
@@ -796,12 +843,16 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       });
 
       appliedThisCall = 0;
-      const result = await agent.stream({
-        messages,
-        writable,
-        preventClose: true,
-        sendFinish: false,
-      });
+      let result;
+      try {
+        result = await agent.stream({ messages, writable, preventClose: true, sendFinish: false });
+      } catch (error) {
+        if (error === hostedAiPaused) {
+          hostedAiStop = true;
+          break;
+        }
+        throw error;
+      }
       finishReason = result.finishReason;
 
       for (const step of (result.steps as unknown as AgentRoundResult[]).slice(appliedThisCall)) await applyRound(step);
@@ -952,15 +1003,17 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     transcript.finishTextSegment();
     if (roundFailure) await reportFailure(WORKFLOW_NAME, roundFailure, payload.tenant);
 
-    const stopKind: AgentRunnerMessageKind | null = budgetStop
-      ? "creditLimit"
-      : roundFailure
-        ? "turnError"
-        : safetyStop
-          ? "safetyLimit"
-          : finishReason === "length"
-            ? "outputLimit"
-            : null;
+    const stopKind: AgentRunnerMessageKind | null = hostedAiStop
+      ? "hostedAiUnavailable"
+      : budgetStop
+        ? "creditLimit"
+        : roundFailure
+          ? "turnError"
+          : safetyStop
+            ? "safetyLimit"
+            : finishReason === "length"
+              ? "outputLimit"
+              : null;
     if (stopKind) {
       const message = await resolveRunnerMessage(payload.locale, stopKind);
       const trailing = transcript.replyText.trim() ? `\n\n${message}` : message;
@@ -979,7 +1032,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       parts: transcript.replyParts,
       terminalCode: cancelled
         ? "cancelled"
-        : safetyStop || roundFailure || finishReason !== "stop"
+        : hostedAiStop || safetyStop || roundFailure || finishReason !== "stop"
           ? "partial"
           : "completed",
       affectedResources: transcript.affectedResources,

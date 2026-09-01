@@ -15,6 +15,7 @@ const ACCESS_ERROR_CONSTRUCTORS = new Set([
 const ACCESS_ERROR_OWNER_FILES = new Set([
   "core/decorators/system-interactor.decorator.ts",
   "core/decorators/tenant-interactor.decorator.ts",
+  "ee/operator/operator-access.service.ts",
   "features/user/user.service.ts",
 ]);
 const LEGACY_MCP_FAILURE_IDENTIFIERS = new Set([
