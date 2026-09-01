@@ -33,6 +33,16 @@ import { PrismaP13nRepo } from "@/features/p13n/prisma-p13n.repository";
 import { PrismaWidgetRepo } from "@/features/widget/prisma-widget.repository";
 import { PrismaWidgetCalculatorRepo } from "@/features/widget/calculator/prisma-widget-calculator.repository";
 import { PrismaWebhookRepo } from "@/features/webhook/prisma-webhook.repository";
+import { PrismaRoutineRepo } from "@/ee/routines/prisma-routine.repository";
+import { GetRoutinesInteractor } from "@/ee/routines/get-routines.interactor";
+import { GetRoutineRunsInteractor } from "@/ee/routines/get-routine-runs.interactor";
+import { UpsertRoutineInteractor } from "@/ee/routines/upsert-routine.interactor";
+import { DeleteRoutineInteractor } from "@/ee/routines/delete-routine.interactor";
+import { RunRoutineNowInteractor } from "@/ee/routines/run-routine-now.interactor";
+import { StartRoutineRunInteractor } from "@/ee/routines/start-routine-run.interactor";
+import { FailRoutineRunInteractor } from "@/ee/routines/fail-routine-run.interactor";
+import { SweepDueRoutinesInteractor } from "@/ee/routines/sweep-due-routines.interactor";
+import { ReconcileRoutineRunsInteractor } from "@/ee/routines/reconcile-routine-runs.interactor";
 import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-delivery.repository";
 import { PrismaAuditLogRepo } from "@/features/audit-log/prisma-audit-log.repository";
 import { PrismaMessagingRepo } from "@/ee/messaging/persistence/prisma-messaging.repository";
@@ -329,6 +339,8 @@ export const getWidgetRepo = () => new PrismaWidgetRepo();
 export const getActivitiesRepo = () => new PrismaActivitiesRepo();
 export const getWidgetCalculatorRepo = () => new PrismaWidgetCalculatorRepo();
 export const getWebhookRepo = () => new PrismaWebhookRepo();
+
+export const getRoutineRepo = () => new PrismaRoutineRepo();
 export const getWebhookDeliveryRepo = () => new PrismaWebhookDeliveryRepo();
 export const getAuditLogRepo = () => new PrismaAuditLogRepo();
 export const getMessagingRepo = () => new PrismaMessagingRepo();
@@ -1486,6 +1498,28 @@ export const getSendAgentMessageInteractor = () =>
     getEntitlementService(),
     getBackgroundTaskService(),
   );
+
+export const getGetRoutinesInteractor = () =>
+  new GetRoutinesInteractor(getRoutineRepo(), getP13nRepo(), "interactive", getQueryParamsPrecheck());
+
+export const getGetRoutineRunsInteractor = () => new GetRoutineRunsInteractor(getRoutineRepo());
+
+export const getUpsertRoutineInteractor = () => new UpsertRoutineInteractor(getRoutineRepo());
+
+export const getDeleteRoutineInteractor = () => new DeleteRoutineInteractor(getRoutineRepo());
+
+export const getRunRoutineNowInteractor = () =>
+  new RunRoutineNowInteractor(getRoutineRepo(), getBackgroundTaskService());
+
+export const getStartRoutineRunInteractor = () =>
+  new StartRoutineRunInteractor(getRoutineRepo(), getAgentChatRepo(), getSendAgentMessageInteractor());
+
+export const getFailRoutineRunInteractor = () => new FailRoutineRunInteractor(getRoutineRepo());
+
+export const getSweepDueRoutinesInteractor = () =>
+  new SweepDueRoutinesInteractor(getRoutineRepo(), getBackgroundTaskService());
+
+export const getReconcileRoutineRunsInteractor = () => new ReconcileRoutineRunsInteractor(getRoutineRepo());
 
 export const getGetAgentConfigInteractor = () =>
   new GetAgentConfigInteractor(getAgentChatRepo(), getAgentUsageService(), getEntitlementService());

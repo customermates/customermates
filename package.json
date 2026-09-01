@@ -200,6 +200,7 @@
     "postinstall": "prisma generate",
     "prepare": "husky",
     "raw-docs:generate": "tsx scripts/generate-raw-docs-manifest.ts",
+    "routines:tick": "tsx --tsconfig tsconfig.json scripts/routines-tick.ts",
     "start": "next start -p 4000",
     "test": "vitest run",
     "test:watch": "vitest",

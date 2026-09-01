@@ -198,6 +198,7 @@ model User {
   connectedAccounts               ConnectedAccount[]
   agentConversations              AgentConversation[]
   agentRunLeases                  AgentRunLease[]
+  ownedRoutines                   Routine[]
 
   @@index([companyId])
   @@index([companyId, status])
@@ -260,6 +261,8 @@ model Company {
   agentTurnRequests           AgentTurnRequest[]
   agentApprovals              AgentApproval[]
   agentUiCommandResults       AgentUiCommandResult[]
+  routines                    Routine[]
+  routineRuns                 RoutineRun[]
 }
 
 model EntityTerminology {
@@ -1605,24 +1608,27 @@ enum UnipileWebhookSource {
 }
 
 model AgentConversation {
-  id               String                 @id @default(uuid())
+  id               String                  @id @default(uuid())
   companyId        String
   userId           String
   title            String?
   modelKey         String?
+  origin           AgentConversationOrigin @default(user)
   archivedAt       DateTime?
   selectedAt       DateTime?
-  createdAt        DateTime               @default(now())
-  updatedAt        DateTime               @updatedAt
-  company          Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  user             User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+  company          Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user             User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages         AgentMessage[]
   approvals        AgentApproval[]
   uiCommandResults AgentUiCommandResult[]
   turnRequests     AgentTurnRequest[]
   runLease         AgentRunLease?
+  routineRuns      RoutineRun[]
 
   @@index([companyId, userId, archivedAt, updatedAt])
+  @@index([companyId, userId, origin, archivedAt, updatedAt])
   @@index([companyId, userId, archivedAt, selectedAt])
 }
 
@@ -1846,4 +1852,87 @@ model AgentRunLease {
 enum AgentApprovalDecision {
   approve
   reject
+}
+
+enum AgentConversationOrigin {
+  user
+  routine
+}
+
+enum RoutineTriggerKind {
+  schedule
+  event
+}
+
+enum RoutineRunStatus {
+  queued
+  running
+  succeeded
+  partial
+  failed
+  skipped
+  blocked
+}
+
+model Routine {
+  id                   String             @id @default(uuid())
+  companyId            String
+  ownerUserId          String
+  name                 String
+  prompt               String
+  modelKey             String?
+  enabled              Boolean            @default(true)
+  triggerKind          RoutineTriggerKind
+  cronExpression       String?
+  timezone             String?
+  runOnceAt            DateTime?
+  triggerEvents        String[]
+  debounceSeconds      Int                @default(300)
+  maxRunsPerHour       Int                @default(4)
+  maxCreditsPerRun     Int                @default(10)
+  nextRunAt            DateTime?
+  lastRunAt            DateTime?
+  lastRunStatus        RoutineRunStatus?
+  disabledReason       String?
+  suppressedEventCount Int                @default(0)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  company              Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  owner                User               @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+  runs                 RoutineRun[]
+
+  @@index([companyId])
+  @@index([companyId, enabled])
+  @@index([enabled, nextRunAt])
+  @@index([ownerUserId])
+}
+
+model RoutineRun {
+  id              String                 @id @default(uuid())
+  companyId       String
+  routineId       String
+  conversationId  String?
+  turnRequestId   String?
+  status          RoutineRunStatus       @default(queued)
+  triggerKind     RoutineTriggerKind
+  triggerEvent    String?
+  triggerEntityId String?
+  scheduledFor    DateTime
+  startedAt       DateTime?
+  finishedAt      DateTime?
+  terminalCode    AgentTurnTerminalCode?
+  chargedCredits  Int                    @default(0)
+  summary         String?
+  error           String?
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  company         Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  routine         Routine                @relation(fields: [routineId], references: [id], onDelete: Cascade)
+  conversation    AgentConversation?     @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+
+  @@index([companyId])
+  @@index([companyId, routineId, createdAt])
+  @@index([status, scheduledFor])
+  @@index([routineId, status])
+  @@index([conversationId])
 }

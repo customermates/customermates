@@ -5,6 +5,7 @@ import {
   AgentMessageRole,
   Resource,
   Status,
+  type AgentConversationOrigin,
   type Prisma,
   type SubscriptionPlan,
   type SubscriptionStatus,
@@ -1042,6 +1043,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     title: string | null;
     modelKey?: string | null;
     now: Date;
+    origin?: AgentConversationOrigin;
   }) {
     await this.prisma.agentConversation.create({
       data: {
@@ -1050,6 +1052,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         userId: this.userId,
         title: sanitizeAgentConversationTitle(args.title),
         modelKey: args.modelKey ?? null,
+        origin: args.origin ?? "user",
         selectedAt: args.now,
       },
       select: { id: true },

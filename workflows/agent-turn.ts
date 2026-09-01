@@ -76,7 +76,10 @@ export type AgentTurnWorkflowPayload = {
   messages: ReplayMessage[];
   turnBudget: AgentTurnBudget;
   tenant: WorkflowTenant;
+  surface?: AgentTurnSurface;
 };
+
+export type AgentTurnSurface = "chat" | "routine";
 
 type AgentToolShell = {
   name: string;
@@ -179,19 +182,24 @@ async function openTurn(payload: AgentTurnWorkflowPayload): Promise<void> {
 }
 openTurn.maxRetries = 0;
 
-async function loadAgentToolShells(): Promise<AgentToolShell[]> {
+async function loadAgentToolShells(surface: AgentTurnSurface): Promise<AgentToolShell[]> {
   "use step";
   const { getAgentAiToolDefinitions } = await import("@/ee/agent-chat/agent-tools");
   const { ALL_MCP_TOOLS } = await import("@/features/mcp-tools/tool-registry");
+  const { AGENT_UI_TOOL_NAMES } = await import("@/ee/agent-chat/agent-ui-command");
   const gatedByName = new Map(ALL_MCP_TOOLS.map((mcp) => [mcp.name, mcp.annotations]));
+  const unattended = surface === "routine";
+  const panelToolNames = new Set<string>(AGENT_UI_TOOL_NAMES);
 
-  return getAgentAiToolDefinitions().map((definition) => ({
-    name: definition.name,
-    description: definition.description,
-    inputSchema: definition.inputSchema,
-    annotations: gatedByName.get(definition.name),
-    gated: gatedByName.has(definition.name),
-  }));
+  return getAgentAiToolDefinitions()
+    .filter((definition) => !unattended || !panelToolNames.has(definition.name))
+    .map((definition) => ({
+      name: definition.name,
+      description: definition.description,
+      inputSchema: definition.inputSchema,
+      annotations: gatedByName.get(definition.name),
+      gated: gatedByName.has(definition.name),
+    }));
 }
 
 async function executeAgentTool(
@@ -568,7 +576,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
   "use workflow";
   try {
     await openTurn(payload);
-    const shells = await loadAgentToolShells();
+    const surface: AgentTurnSurface = payload.surface ?? "chat";
+    const approvalWindowMs = surface === "routine" ? 0 : AGENT_APPROVAL_WINDOW_MS;
+    const shells = await loadAgentToolShells(surface);
     const writable = getWritable();
 
     const queued: AgentTranscriptEvent[] = [];
@@ -865,10 +875,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         input: call.input,
       }));
 
-      const hook = createHook<AgentApprovalWake>({
-        token: agentApprovalHookToken(payload.conversationId),
-      });
-      await openApprovalRequests(payload, requests, AGENT_APPROVAL_WINDOW_MS);
+      const hook =
+        approvalWindowMs > 0
+          ? createHook<AgentApprovalWake>({ token: agentApprovalHookToken(payload.conversationId) })
+          : null;
+      await openApprovalRequests(payload, requests, approvalWindowMs);
       for (const request of requests) {
         transcript.beginApproval(
           request.requestId,
@@ -877,14 +888,16 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       }
       await publishTranscriptEvents(queued.splice(0));
 
-      const requestIds = new Set(requests.map((request) => request.requestId));
-      await Promise.race([
-        (async () => {
-          for await (const wake of hook) if (isRelevantAgentApprovalWake(wake, requestIds)) return;
-        })(),
-        sleep(AGENT_APPROVAL_WINDOW_MS),
-      ]);
-      hook.dispose();
+      if (hook) {
+        const requestIds = new Set(requests.map((request) => request.requestId));
+        await Promise.race([
+          (async () => {
+            for await (const wake of hook) if (isRelevantAgentApprovalWake(wake, requestIds)) return;
+          })(),
+          sleep(approvalWindowMs),
+        ]);
+        hook.dispose();
+      }
 
       cancelled = await readCancellation(payload);
       const outcomes = await readApprovalDecisions(payload, requests);

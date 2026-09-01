@@ -1,0 +1,63 @@
+import type { AgentTurnTerminalCode, RoutineRunStatus as RoutineRunStatusType } from "@/generated/prisma";
+
+import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
+
+const RECONCILE_BATCH_LIMIT = 200;
+
+export abstract class ReconcileRoutineRunsRepo {
+  abstract findRunningRoutineRunsUnscoped(limit: number): Promise<
+    {
+      id: string;
+      routineId: string;
+      turnRequestId: string | null;
+      conversationId: string | null;
+    }[]
+  >;
+  abstract readTurnOutcomeUnscoped(turnRequestId: string): Promise<{
+    status: RoutineRunStatusType;
+    terminalCode: AgentTurnTerminalCode | null;
+    settled: boolean;
+    chargedCredits: number;
+    summary: string | null;
+  } | null>;
+  abstract settleRoutineRunUnscoped(args: {
+    routineRunId: string;
+    routineId: string;
+    status: RoutineRunStatusType;
+    error?: string | null;
+    summary?: string | null;
+    chargedCredits?: number;
+    terminalCode?: AgentTurnTerminalCode | null;
+    now: Date;
+  }): Promise<void>;
+}
+
+@SystemInteractor
+export class ReconcileRoutineRunsInteractor {
+  constructor(private repo: ReconcileRoutineRunsRepo) {}
+
+  async invoke(now = new Date()): Promise<{ settled: number }> {
+    const running = await this.repo.findRunningRoutineRunsUnscoped(RECONCILE_BATCH_LIMIT);
+
+    let settled = 0;
+    for (const run of running) {
+      if (!run.turnRequestId) continue;
+
+      const outcome = await this.repo.readTurnOutcomeUnscoped(run.turnRequestId);
+      if (!outcome || !outcome.settled) continue;
+
+      await this.repo.settleRoutineRunUnscoped({
+        routineRunId: run.id,
+        routineId: run.routineId,
+        status: outcome.status,
+        summary: outcome.summary,
+        chargedCredits: outcome.chargedCredits,
+        terminalCode: outcome.terminalCode,
+        now,
+      });
+      settled += 1;
+    }
+
+    return { settled };
+  }
+}

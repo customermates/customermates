@@ -31,6 +31,8 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
     readOnlyActions: ["list", "browse"],
   },
   save_message_draft: { approvalFree: true },
+  send_chat_message: { approvalFree: true },
+  send_email: { approvalFree: true },
   update_contacts: { approvalFree: true },
   update_deals: { approvalFree: true },
   update_messaging_thread: { approvalFree: true },
