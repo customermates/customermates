@@ -110,9 +110,20 @@ describe("customer data never reaches the exception message", () => {
   });
 
   it("bounds the message so a large body cannot be stored or indexed whole", () => {
+    const started = performance.now();
     const huge = new UnipileRequestError(500, "api/internal_error", "x".repeat(50_000));
+    const took = performance.now() - started;
 
     expect(huge.message.length).toBeLessThan(700);
+    expect(took, `redaction took ${took.toFixed(0)}ms on a 50KB body`).toBeLessThan(250);
+  });
+
+  it("redacts an address that straddles the truncation boundary", () => {
+    const padded = `${"x".repeat(480)}buyer@example-customer.com and more`;
+    const err = new UnipileRequestError(500, "api/internal_error", padded);
+
+    expect(err.message).not.toContain("buyer@");
+    expect(err.message).toContain("[redacted]");
   });
 
   it("still exposes the raw body to callers that need it", () => {

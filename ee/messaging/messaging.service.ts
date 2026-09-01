@@ -146,9 +146,13 @@ const UNIPILE_TRANSIENT_5XX_TYPES = new Set(["api/proxy_error", "api/proxy_timeo
 
 const EMAIL_LIKE = /[\w.+-]+@[\w-]+\.[\w.-]+/g;
 const MAX_ERROR_BODY = 500;
+const TRAILING_PARTIAL_EMAIL = /[\w.+-]{1,64}@[\w.-]{0,64}$/;
 
 export function redactUnipileBody(bodyText: string): string {
-  return bodyText.replace(EMAIL_LIKE, "[redacted]").slice(0, MAX_ERROR_BODY);
+  return bodyText
+    .slice(0, MAX_ERROR_BODY)
+    .replace(EMAIL_LIKE, "[redacted]")
+    .replace(TRAILING_PARTIAL_EMAIL, "[redacted]");
 }
 
 function unipileBodyField(bodyText: string, field: "detail" | "req_id"): string | null {
