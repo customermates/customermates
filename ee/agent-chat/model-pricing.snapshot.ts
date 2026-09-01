@@ -1,11 +1,11 @@
 export const MODEL_PRICING_SNAPSHOT = {
   source: "https://ai-gateway.vercel.sh/v1/models/{model}/endpoints",
-  fetchedAt: "2026-08-25T09:09:14Z",
+  fetchedAt: "2026-09-01T11:14:07Z",
   endpoints: [
     {
       modelId: "openai/gpt-5.6-luna",
       providerNativeModelId: "gpt-5.6-luna",
-      provider: "openai",
+      provider: "azure",
       contextLength: 1050000,
       maxCompletionTokens: 128000,
       requestUsd: "0",
@@ -57,7 +57,7 @@ export const MODEL_PRICING_SNAPSHOT = {
     {
       modelId: "openai/gpt-5-nano",
       providerNativeModelId: "gpt-5-nano",
-      provider: "openai",
+      provider: "azure",
       contextLength: 400000,
       maxCompletionTokens: 128000,
       requestUsd: "0",
@@ -74,7 +74,7 @@ export const MODEL_PRICING_SNAPSHOT = {
       ],
       inputCacheRead: [
         {
-          costUsdPerToken: "0.000000005",
+          costUsdPerToken: "0.00000001",
         },
       ],
       inputCacheWrite: [

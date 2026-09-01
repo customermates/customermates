@@ -14,14 +14,14 @@ export type AgentModelEntry = {
 export const MODEL_CATALOG = {
   fast: {
     modelId: "openai/gpt-5-nano",
-    servingProvider: "openai",
+    servingProvider: "azure",
     maxOutputTokens: 8192,
     maxContextTokens: 66_000,
     maxToolResultChars: 6000,
   },
   balanced: {
     modelId: "openai/gpt-5.6-luna",
-    servingProvider: "openai",
+    servingProvider: "azure",
     maxOutputTokens: 2048,
     maxContextTokens: 66_000,
     maxToolResultChars: 6000,
