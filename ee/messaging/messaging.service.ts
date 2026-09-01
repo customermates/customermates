@@ -124,10 +124,12 @@ const UNIPILE_ERROR_CODES: Record<string, CustomErrorCode> = {
   "api/proxy_error": CustomErrorCode.unipileServiceUnavailable,
   "api/proxy_timeout": CustomErrorCode.unipileServiceUnavailable,
   "api/proxy_auth_error": CustomErrorCode.unipileServiceUnavailable,
-  "api/inactive_subscription": CustomErrorCode.unipileServiceUnavailable,
-  "api/not_implemented": CustomErrorCode.unipileServiceUnavailable,
+  "api/inactive_subscription": CustomErrorCode.unipileFeatureUnavailable,
+  "api/not_implemented": CustomErrorCode.unipileFeatureUnavailable,
   "provider/invalid_parameters": CustomErrorCode.unipileInvalidRequest,
 };
+
+const UNIPILE_PERMANENT_TYPES = new Set(["api/not_implemented", "api/inactive_subscription"]);
 
 const UNIPILE_BAD_IMPL_TYPES = new Set([
   "api/invalid_parameters",
@@ -140,6 +142,28 @@ const UNIPILE_BAD_IMPL_TYPES = new Set([
 ]);
 
 const UNIPILE_TRANSIENT_5XX_TYPES = new Set(["api/proxy_error", "api/proxy_timeout", "api/proxy_auth_error"]);
+
+function unipileBodyField(bodyText: string, field: "detail" | "req_id"): string | null {
+  try {
+    const parsed: unknown = JSON.parse(bodyText);
+    if (typeof parsed !== "object" || parsed === null) return null;
+    const value = (parsed as Record<string, unknown>)[field];
+
+    return typeof value === "string" && value.trim() !== "" ? value.slice(0, 200) : null;
+  } catch {
+    return null;
+  }
+}
+
+function unipileDiagnostics(err: UnipileRequestError): Record<string, string> {
+  return {
+    unipileStatus: String(err.status),
+    unipileErrorType: err.errorType || "none",
+    unipileEndpoint: endpointHint(err.url),
+    unipileDetail: unipileBodyField(err.bodyText, "detail") ?? "none",
+    unipileRequestId: unipileBodyField(err.bodyText, "req_id") ?? "none",
+  };
+}
 
 function endpointHint(url: string | null): string {
   if (!url) return "unknown";
@@ -357,18 +381,14 @@ export class MessagingService {
     if (source.status === 429 && type.startsWith("provider/")) {
       Sentry.captureMessage("Unipile provider rate limit reached; the dashboard limit may be too high", {
         level: "warning",
-        tags: { unipileErrorType: type },
+        tags: unipileDiagnostics(source),
       });
-    } else if (UNIPILE_BAD_IMPL_TYPES.has(type)) Sentry.captureException(source);
-    else if (source.status >= 500 && !UNIPILE_TRANSIENT_5XX_TYPES.has(type)) {
-      Sentry.captureException(source, {
-        tags: {
-          unipileStatus: String(source.status),
-          unipileErrorType: type || "none",
-          unipileEndpoint: endpointHint(source.url),
-        },
-      });
-    }
+    } else if (
+      UNIPILE_BAD_IMPL_TYPES.has(type) ||
+      UNIPILE_PERMANENT_TYPES.has(type) ||
+      (source.status >= 500 && !UNIPILE_TRANSIENT_5XX_TYPES.has(type))
+    )
+      Sentry.captureException(source, { tags: unipileDiagnostics(source) });
 
     const error = unipileErrorCode(source);
 
