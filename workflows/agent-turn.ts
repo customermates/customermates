@@ -13,6 +13,7 @@ import { createHook, getWritable, sleep } from "workflow";
 import { isStepCount, jsonSchema } from "ai";
 
 import { AgentTurnTranscript } from "@/ee/agent-chat/agent-turn-transcript";
+import { approvalWindowMsForSurface, isUnattendedSurface } from "@/ee/agent-chat/agent-surface-policy";
 import { isAgentTurnTerminalError } from "@/ee/agent-chat/agent-turn-request";
 import {
   agentApprovalHookToken,
@@ -61,7 +62,6 @@ import { reportFailure, toWorkflowFailure, type WorkflowFailure } from "./captur
 
 const WORKFLOW_NAME = "agent-turn";
 
-export const AGENT_APPROVAL_WINDOW_MS = 30 * 60 * 1000;
 export const AGENT_UI_COMMAND_WINDOW_MS = 30 * 1000;
 export const AGENT_SEGMENT_ROUNDS = 32;
 
@@ -204,7 +204,7 @@ async function loadAgentToolShells(surface: AgentTurnSurface): Promise<AgentTool
   const { ALL_MCP_TOOLS } = await import("@/features/mcp-tools/tool-registry");
   const { AGENT_UI_TOOL_NAMES } = await import("@/ee/agent-chat/agent-ui-command");
   const gatedByName = new Map(ALL_MCP_TOOLS.map((mcp) => [mcp.name, mcp.annotations]));
-  const unattended = surface === "routine";
+  const unattended = isUnattendedSurface(surface);
   const panelToolNames = new Set<string>(AGENT_UI_TOOL_NAMES);
 
   return getAgentAiToolDefinitions()
@@ -622,7 +622,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       return;
     }
     const surface: AgentTurnSurface = payload.surface ?? "chat";
-    const approvalWindowMs = surface === "routine" ? 0 : AGENT_APPROVAL_WINDOW_MS;
+    const approvalWindowMs = approvalWindowMsForSurface(surface);
     const shells = await loadAgentToolShells(surface);
     const writable = getWritable();
 
