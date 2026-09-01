@@ -7,7 +7,7 @@ import { CustomColumnType, EntityType } from "@/generated/prisma";
 
 import { IMPORT_ENTITIES } from "../import/import-entity.registry";
 import { autoMatchColumns, mappingFromSchemaSheet, normalizeHeader } from "../import/import-mapping";
-import { buildPlan, chunkRows, identifiersBySheetRow } from "../import/import-plan";
+import { buildPlan, chunkRows, dealServicesBySheetRow, identifiersBySheetRow } from "../import/import-plan";
 import { mapFailureToRows } from "../import/import-issues";
 
 const STATUS_A = "aaaa1111-0000-4000-8000-00000000000a";
@@ -424,9 +424,9 @@ describe("buildPlan channel value validation", () => {
       [["", "Rechnung 2024-000123"]],
     );
 
-    const issue = result.issues.find((entry) => entry.code === "invalidChannelValue");
+    const issue = result.issues.find((entry) => entry.code === "notAPhoneNumber");
 
-    expect(issue?.message).toContain("is not a phone number");
+    expect(issue?.values).toEqual({ value: "Rechnung 2024-000123" });
     expect(issue?.columnLabel).toBe("Mobil");
     expect(result.create[0].payload.identifiers).toBeUndefined();
   });
@@ -488,5 +488,116 @@ describe("buildPlan channels on update rows", () => {
 
     expect(result.create[0].payload.identifiers).toEqual([{ provider: "mail", value: "ada@example.com" }]);
     expect(result.issues).toHaveLength(0);
+  });
+});
+
+describe("buildPlan date ranges", () => {
+  const period: CustomColumnDto = {
+    id: "eeee5555-0000-4000-8000-00000000000e",
+    label: "Project Period",
+    entityType: EntityType.deal,
+    type: CustomColumnType.dateTimeRange,
+  };
+
+  it("accepts the readable range the export writes, storing it in the comma form", () => {
+    const result = buildPlan({
+      rows: [{ sourceIndex: 0, sheetRow: 2, cells: ["2026-05-01T00:00:00.000Z / 2026-07-28T00:00:00.000Z"] }],
+      sources: [{ index: 0, letter: "A", header: "Project Period", samples: [] }],
+      mapping: [{ kind: "customField", columnId: period.id }],
+      descriptor: IMPORT_ENTITIES[EntityType.deal],
+      customColumns: [period],
+      relationIndex: {},
+    });
+
+    expect(result.issues).toHaveLength(0);
+    expect(result.create[0].payload.customFieldValues).toEqual([
+      { columnId: period.id, value: "2026-05-01T00:00:00.000Z,2026-07-28T00:00:00.000Z" },
+    ]);
+  });
+
+  it("leaves a range already written in the comma form untouched", () => {
+    const result = buildPlan({
+      rows: [{ sourceIndex: 0, sheetRow: 2, cells: ["2026-05-01T00:00:00.000Z,2026-07-28T00:00:00.000Z"] }],
+      sources: [{ index: 0, letter: "A", header: "Project Period", samples: [] }],
+      mapping: [{ kind: "customField", columnId: period.id }],
+      descriptor: IMPORT_ENTITIES[EntityType.deal],
+      customColumns: [period],
+      relationIndex: {},
+    });
+
+    expect(result.create[0].payload.customFieldValues).toEqual([
+      { columnId: period.id, value: "2026-05-01T00:00:00.000Z,2026-07-28T00:00:00.000Z" },
+    ]);
+  });
+});
+
+describe("buildPlan deal services", () => {
+  const deal = IMPORT_ENTITIES[EntityType.deal];
+  const SERVICE_A = "90000000-0000-4000-8000-000000000031";
+  const SERVICE_B = "90000000-0000-4000-8000-000000000035";
+
+  const relationIndex: RelationIndex = {
+    service: new Map([
+      ["device provisioning", [SERVICE_A]],
+      ["monitor", [SERVICE_B]],
+    ]),
+  };
+
+  function planServices(dealServicesByRow?: Map<number, Array<{ serviceId: string; quantity: number }>>) {
+    return buildPlan({
+      rows: [{ sourceIndex: 0, sheetRow: 2, cells: ["Device Provisioning,Monitor"] }],
+      sources: [{ index: 0, letter: "A", header: "Services", samples: [] }],
+      mapping: [{ kind: "field", key: "services" }],
+      descriptor: deal,
+      customColumns: [],
+      relationIndex,
+      dealServicesByRow,
+    });
+  }
+
+  it("takes the real quantities from the Services sheet the export writes", () => {
+    const result = planServices(
+      new Map([
+        [
+          2,
+          [
+            { serviceId: SERVICE_A, quantity: 300 },
+            { serviceId: SERVICE_B, quantity: 150 },
+          ],
+        ],
+      ]),
+    );
+
+    expect(result.issues).toHaveLength(0);
+    expect(result.create[0].payload.services).toEqual([
+      { serviceId: SERVICE_A, quantity: 300 },
+      { serviceId: SERVICE_B, quantity: 150 },
+    ]);
+  });
+
+  it("falls back to one for a hand-authored file that has no Services sheet", () => {
+    expect(planServices().create[0].payload.services).toEqual([
+      { serviceId: SERVICE_A, quantity: 1 },
+      { serviceId: SERVICE_B, quantity: 1 },
+    ]);
+  });
+});
+
+describe("dealServicesBySheetRow", () => {
+  it("groups the sheet rows and defaults a missing or unusable quantity to one", () => {
+    const byRow = dealServicesBySheetRow([
+      { row: "2", serviceId: "a", quantity: "300" },
+      { row: "2", serviceId: "b", quantity: "" },
+      { row: "2", serviceId: "c", quantity: "0" },
+      { row: "", serviceId: "orphan", quantity: "5" },
+      { row: "2", serviceId: "", quantity: "9" },
+    ]);
+
+    expect(byRow.get(2)).toEqual([
+      { serviceId: "a", quantity: 300 },
+      { serviceId: "b", quantity: 1 },
+      { serviceId: "c", quantity: 1 },
+    ]);
+    expect(byRow.size).toBe(1);
   });
 });

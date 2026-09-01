@@ -5,7 +5,7 @@ import type { WorkbookCellValue } from "../workbook-cell";
 
 import { EntityType } from "@/generated/prisma";
 
-import { CHANNELS_SHEET_NAME } from "../data-transfer.schema";
+import { CHANNELS_SHEET_NAME, SERVICES_SHEET_NAME } from "../data-transfer.schema";
 import { RECORD_ID_COLUMN_KEY, resolveCustomFieldCell, STORED_MULTI_VALUE_SEPARATOR } from "../workbook-columns";
 import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 
@@ -41,7 +41,7 @@ export const RELATION_SHEET_NAMES = {
   contacts: "Contacts",
   deals: "Deals",
   organizations: "Organizations",
-  services: "Services",
+  services: SERVICES_SHEET_NAME,
   tasks: "Tasks",
   users: "Assigned",
 } as const;

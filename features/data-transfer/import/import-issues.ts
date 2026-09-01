@@ -1,5 +1,5 @@
 import type { MappingTarget, SourceColumn } from "./import-mapping";
-import type { PlanIssue, PlanRow } from "./import-plan";
+import type { IssueValues, PlanIssue, PlanRow } from "./import-plan";
 
 export type SerializedIssue = {
   code: string;
@@ -19,6 +19,7 @@ export type ImportRowIssue = {
   columnLabel: string | null;
   fieldPath: string;
   message: string;
+  values: IssueValues | null;
   code: string;
   blocking: boolean;
 };
@@ -60,6 +61,7 @@ export function mapFailureToRows(
       columnLabel: null,
       fieldPath: belongsToRow ? fieldPathOf(issue.path) : issue.path.join("."),
       message: issue.message,
+      values: null,
       code: issue.customCode ?? issue.code,
       blocking: true,
     };
@@ -72,7 +74,8 @@ export function planIssueToRowIssue(issue: PlanIssue): ImportRowIssue {
     columnLetter: issue.columnLetter,
     columnLabel: issue.columnLabel,
     fieldPath: "",
-    message: issue.message,
+    message: "",
+    values: issue.values,
     code: issue.code,
     blocking: issue.blocking,
   };
@@ -82,7 +85,7 @@ export function dedupeIssues(issues: ImportRowIssue[]): ImportRowIssue[] {
   const seen = new Set<string>();
 
   return issues.filter((issue) => {
-    const key = `${issue.sheetRow}|${issue.fieldPath}|${issue.message}`;
+    const key = `${issue.sheetRow}|${issue.fieldPath}|${issue.code}|${issue.message}|${JSON.stringify(issue.values)}`;
     if (seen.has(key)) return false;
 
     seen.add(key);

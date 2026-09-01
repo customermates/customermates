@@ -1689,6 +1689,17 @@
       "fileRejected": "Diese Datei konnte nicht gelesen werden.",
       "ignoreColumn": "Nicht hinzufügen",
       "issueCount": "{count, plural, one {# Problem gefunden} other {# Probleme gefunden}}",
+      "issues": {
+        "channelsNotUpdated": "Kanäle bleiben unverändert, wenn der Datensatz bereits existiert",
+        "duplicateRecordId": "Zeile {row} aktualisiert diesen Datensatz bereits",
+        "invalidChannelValue": "\"{value}\" ist keine gültige {provider}-Adresse",
+        "notANumber": "\"{value}\" ist keine Zahl",
+        "notAPhoneNumber": "\"{value}\" ist keine Telefonnummer",
+        "relationAmbiguous": "\"{value}\" passt auf mehr als einen Datensatz",
+        "relationNotFound": "\"{value}\" wurde nicht gefunden",
+        "unknownOption": "\"{value}\" ist keine der Optionen für {column}",
+        "unknownProvider": "\"{value}\" ist kein unterstützter Kanaltyp"
+      },
       "mappingHint": "{file}, {rows} Zeilen",
       "moreIssues": "und {count} weitere",
       "noIssues": "Keine Probleme gefunden.",

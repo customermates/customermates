@@ -5,7 +5,7 @@ import type { WorkbookCellValue } from "../workbook-cell";
 
 import { CustomColumnType, MessagingProvider } from "@/generated/prisma";
 
-import { STORED_MULTI_VALUE_SEPARATOR } from "../workbook-columns";
+import { RANGE_SEPARATOR, STORED_MULTI_VALUE_SEPARATOR } from "../workbook-columns";
 import { columnLetter, normalizeHeader } from "./import-mapping";
 import { looksLikePhoneText, normalizeChannelValue } from "@/features/contacts/channel-value";
 import { isPhoneProvider } from "@/ee/messaging/provider";
@@ -23,12 +23,26 @@ export type PlanRow = {
   payload: Record<string, unknown>;
 };
 
+export const IMPORT_ISSUE_CODES = [
+  "channelsNotUpdated",
+  "duplicateRecordId",
+  "invalidChannelValue",
+  "notANumber",
+  "notAPhoneNumber",
+  "relationAmbiguous",
+  "relationNotFound",
+  "unknownOption",
+  "unknownProvider",
+] as const;
+
+export type IssueValues = Record<string, string | number>;
+
 export type PlanIssue = {
   sheetRow: number;
   sourceIndex: number;
   columnLetter: string | null;
   columnLabel: string | null;
-  message: string;
+  values: IssueValues;
   code: string;
   blocking: boolean;
 };
@@ -80,6 +94,25 @@ export function identifiersBySheetRow(rows: Array<Record<string, string>>): Map<
   return byRow;
 }
 
+export type DealServiceRow = { serviceId: string; quantity: number };
+
+export function dealServicesBySheetRow(rows: Array<Record<string, string>>): Map<number, DealServiceRow[]> {
+  const byRow = new Map<number, DealServiceRow[]>();
+
+  for (const row of rows) {
+    const sheetRow = Number(row.row);
+    const serviceId = (row.serviceId ?? "").trim();
+    if (!Number.isInteger(sheetRow) || sheetRow < FIRST_DATA_ROW || serviceId.length === 0) continue;
+
+    const parsed = Number((row.quantity ?? "").trim());
+    const quantity = Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+
+    byRow.set(sheetRow, [...(byRow.get(sheetRow) ?? []), { serviceId, quantity }]);
+  }
+
+  return byRow;
+}
+
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function asText(value: WorkbookCellValue): string {
@@ -89,12 +122,16 @@ function asText(value: WorkbookCellValue): string {
   return String(value).trim();
 }
 
-export function channelValueProblem(provider: string, raw: string): string | null {
+export function channelValueProblem(provider: string, raw: string): { code: string; values: IssueValues } | null {
   const messagingProvider = provider as MessagingProvider;
 
-  if (isPhoneProvider(messagingProvider) && !looksLikePhoneText(raw)) return `"${raw}" is not a phone number`;
+  if (isPhoneProvider(messagingProvider) && !looksLikePhoneText(raw))
+    return { code: "notAPhoneNumber", values: { value: raw } };
 
-  return normalizeChannelValue(messagingProvider, raw) === null ? `"${raw}" is not a valid ${provider} value` : null;
+  if (normalizeChannelValue(messagingProvider, raw) === null)
+    return { code: "invalidChannelValue", values: { value: raw, provider } };
+
+  return null;
 }
 
 function splitMulti(value: string): string[] {
@@ -104,7 +141,18 @@ function splitMulti(value: string): string[] {
     .filter((part) => part.length > 0);
 }
 
+const RANGE_COLUMN_TYPES = new Set<CustomColumnType>([CustomColumnType.dateRange, CustomColumnType.dateTimeRange]);
+
 function resolveOptionValue(column: CustomColumnDto, raw: string): string | null {
+  if (RANGE_COLUMN_TYPES.has(column.type)) {
+    return raw.includes(RANGE_SEPARATOR)
+      ? raw
+          .split(RANGE_SEPARATOR)
+          .map((part) => part.trim())
+          .join(STORED_MULTI_VALUE_SEPARATOR)
+      : raw;
+  }
+
   if (column.type !== CustomColumnType.singleSelect) return raw;
 
   const byLabel = column.options.options.filter((option) => option.label === raw);
@@ -122,6 +170,7 @@ export function buildPlan(args: {
   customColumns: CustomColumnDto[];
   relationIndex: RelationIndex;
   identifiersByRow?: Map<number, IdentifierRow[]>;
+  dealServicesByRow?: Map<number, DealServiceRow[]>;
 }): ImportPlan {
   const { rows, sources, mapping, descriptor, customColumns, relationIndex, identifiersByRow } = args;
   const customById = new Map(customColumns.map((column) => [column.id, column]));
@@ -138,7 +187,7 @@ export function buildPlan(args: {
     let recordId: string | null = null;
     let rowFailed = false;
 
-    const note = (index: number | null, code: string, message: string, blocking: boolean) => {
+    const note = (index: number | null, code: string, values: IssueValues, blocking: boolean) => {
       if (blocking) rowFailed = true;
       issues.push({
         sheetRow: row.sheetRow,
@@ -146,13 +195,13 @@ export function buildPlan(args: {
         columnLetter: index === null ? null : columnLetter(index),
         columnLabel: index === null ? null : (sources[index]?.header ?? null),
         code,
-        message,
+        values,
         blocking,
       });
     };
 
-    const fail = (index: number | null, code: string, message: string) => note(index, code, message, true);
-    const warn = (index: number | null, code: string, message: string) => note(index, code, message, false);
+    const fail = (index: number | null, code: string, values: IssueValues) => note(index, code, values, true);
+    const warn = (index: number | null, code: string, values: IssueValues) => note(index, code, values, false);
 
     mapping.forEach((target, index) => {
       const text = asText(row.cells[index] ?? null);
@@ -171,7 +220,7 @@ export function buildPlan(args: {
 
         const resolved = resolveOptionValue(column, text);
         if (resolved === null) {
-          fail(index, "unknownOption", `"${text}" is not an option of ${column.label}`);
+          fail(index, "unknownOption", { value: text, column: column.label });
           return;
         }
 
@@ -188,7 +237,7 @@ export function buildPlan(args: {
         for (const value of splitMulti(text)) {
           const problem = channelValueProblem(target.provider, value);
 
-          if (problem) warn(index, "invalidChannelValue", problem);
+          if (problem) warn(index, problem.code, problem.values);
           else accepted.push({ provider: target.provider, value });
         }
 
@@ -204,7 +253,7 @@ export function buildPlan(args: {
 
       if (field.kind === "number") {
         const numeric = Number(text.replace(",", "."));
-        if (isNaN(numeric)) fail(index, "notANumber", `"${text}" is not a number`);
+        if (isNaN(numeric)) fail(index, "notANumber", { value: text });
         else payload[field.key] = numeric;
         return;
       }
@@ -222,13 +271,17 @@ export function buildPlan(args: {
 
           const byName = index_.get(token.toLocaleLowerCase()) ?? index_.get(normalizeHeader(token));
 
-          if (!byName || byName.length === 0) fail(index, "relationNotFound", `"${token}" was not found`);
-          else if (byName.length > 1) fail(index, "relationAmbiguous", `"${token}" matches more than one record`);
+          if (!byName || byName.length === 0) fail(index, "relationNotFound", { value: token });
+          else if (byName.length > 1) fail(index, "relationAmbiguous", { value: token });
           else ids.push(byName[0]);
         }
 
-        if (field.kind === "dealServices") payload[field.key] = ids.map((serviceId) => ({ serviceId, quantity: 1 }));
-        else payload[field.key] = ids;
+        if (field.kind === "dealServices") {
+          const fromSheet = args.dealServicesByRow?.get(row.sheetRow) ?? [];
+          const quantityById = new Map(fromSheet.map((entry) => [entry.serviceId, entry.quantity]));
+
+          payload[field.key] = ids.map((serviceId) => ({ serviceId, quantity: quantityById.get(serviceId) ?? 1 }));
+        } else payload[field.key] = ids;
         return;
       }
 
@@ -239,13 +292,13 @@ export function buildPlan(args: {
 
     if (recordId) {
       const previous = seenRecordIds.get(recordId);
-      if (previous !== undefined) fail(null, "duplicateRecordId", `Row ${previous} already updates this record`);
+      if (previous !== undefined) fail(null, "duplicateRecordId", { row: previous });
       else seenRecordIds.set(recordId, row.sheetRow);
     }
 
     if (recordId && payload.identifiers) {
       delete payload.identifiers;
-      warn(null, "channelsNotUpdated", "Channels are left unchanged on an existing record");
+      warn(null, "channelsNotUpdated", {});
     }
 
     const sheetIdentifiers =
@@ -254,7 +307,7 @@ export function buildPlan(args: {
     if (sheetIdentifiers && sheetIdentifiers.length > 0) {
       const unknown = sheetIdentifiers.filter((entry) => !MESSAGING_PROVIDERS.has(entry.provider));
 
-      for (const entry of unknown) fail(null, "unknownProvider", `"${entry.provider}" is not a known channel type`);
+      for (const entry of unknown) fail(null, "unknownProvider", { value: entry.provider });
 
       if (unknown.length === 0) {
         const usable: IdentifierRow[] = [];
@@ -262,7 +315,7 @@ export function buildPlan(args: {
         for (const entry of sheetIdentifiers) {
           const problem = channelValueProblem(entry.provider, entry.value);
 
-          if (problem) warn(null, "invalidChannelValue", problem);
+          if (problem) warn(null, problem.code, problem.values);
           else usable.push(entry);
         }
 

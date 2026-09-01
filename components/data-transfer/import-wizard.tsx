@@ -213,7 +213,7 @@ export const ImportWizard = observer(function ImportWizard() {
                         <span className="min-w-0">
                           {issue.columnLabel && <span className="mr-1 font-medium">{columnPrefix(issue)}</span>}
 
-                          {issue.message}
+                          {issue.values ? t(`DataTransfer.import.issues.${issue.code}`, issue.values) : issue.message}
                         </span>
                       </li>
                     ))}

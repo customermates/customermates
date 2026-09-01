@@ -1689,6 +1689,17 @@
       "fileRejected": "Non è stato possibile leggere questo file.",
       "ignoreColumn": "Non aggiungere",
       "issueCount": "{count, plural, one {# problema rilevato} other {# problemi rilevati}}",
+      "issues": {
+        "channelsNotUpdated": "I canali restano invariati su un record che esiste già",
+        "duplicateRecordId": "La riga {row} aggiorna già questo record",
+        "invalidChannelValue": "\"{value}\" non è un indirizzo {provider} valido",
+        "notANumber": "\"{value}\" non è un numero",
+        "notAPhoneNumber": "\"{value}\" non è un numero di telefono",
+        "relationAmbiguous": "\"{value}\" corrisponde a più di un record",
+        "relationNotFound": "\"{value}\" non è stato trovato",
+        "unknownOption": "\"{value}\" non è una delle opzioni di {column}",
+        "unknownProvider": "\"{value}\" non è un tipo di canale supportato"
+      },
       "mappingHint": "{file}, {rows} righe",
       "moreIssues": "e altri {count}",
       "noIssues": "Nessun problema rilevato.",

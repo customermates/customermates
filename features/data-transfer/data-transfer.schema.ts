@@ -7,6 +7,8 @@ import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema"
 
 export const CHANNELS_SHEET_NAME = "Channels";
 
+export const SERVICES_SHEET_NAME = "Services";
+
 export const EXPORT_PAGE_SIZE = 500;
 
 export const EXPORT_ROW_LIMIT = 50_000;

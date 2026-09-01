@@ -1689,6 +1689,17 @@
       "fileRejected": "That file could not be read.",
       "ignoreColumn": "Do not add",
       "issueCount": "{count, plural, one {# problem found} other {# problems found}}",
+      "issues": {
+        "channelsNotUpdated": "Channels stay as they are on a record that already exists",
+        "duplicateRecordId": "Row {row} already updates this record",
+        "invalidChannelValue": "\"{value}\" is not a valid {provider} address",
+        "notANumber": "\"{value}\" is not a number",
+        "notAPhoneNumber": "\"{value}\" is not a phone number",
+        "relationAmbiguous": "\"{value}\" matches more than one record",
+        "relationNotFound": "\"{value}\" was not found",
+        "unknownOption": "\"{value}\" is not one of the options for {column}",
+        "unknownProvider": "\"{value}\" is not a channel type we support"
+      },
       "mappingHint": "{file}, {rows} rows",
       "moreIssues": "and {count} more",
       "noIssues": "No problems found.",

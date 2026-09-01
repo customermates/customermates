@@ -1689,6 +1689,17 @@
       "fileRejected": "Ce fichier n'a pas pu être lu.",
       "ignoreColumn": "Ne pas ajouter",
       "issueCount": "{count, plural, one {# problème détecté} other {# problèmes détectés}}",
+      "issues": {
+        "channelsNotUpdated": "Les canaux restent inchangés sur un enregistrement existant",
+        "duplicateRecordId": "La ligne {row} met déjà à jour cet enregistrement",
+        "invalidChannelValue": "\"{value}\" n'est pas une adresse {provider} valide",
+        "notANumber": "\"{value}\" n'est pas un nombre",
+        "notAPhoneNumber": "\"{value}\" n'est pas un numéro de téléphone",
+        "relationAmbiguous": "\"{value}\" correspond à plusieurs enregistrements",
+        "relationNotFound": "\"{value}\" est introuvable",
+        "unknownOption": "\"{value}\" ne fait pas partie des options de {column}",
+        "unknownProvider": "\"{value}\" n'est pas un type de canal pris en charge"
+      },
       "mappingHint": "{file}, {rows} lignes",
       "moreIssues": "et {count} de plus",
       "noIssues": "Aucun problème détecté.",

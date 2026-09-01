@@ -94,12 +94,16 @@ export async function readWorkbookFile(file: File): Promise<ParsedWorkbook> {
   if (dataSheet.rowCount - 1 > IMPORT_ROW_LIMIT) throw new ImportFileError("tooManyRows");
 
   const headerValues = (dataSheet.getRow(1).values as unknown[]).slice(1);
-  const sources: SourceColumn[] = headerValues.map((value, index) => ({
-    index,
-    letter: columnLetter(index),
-    header: String(fromWorkbookCell(value) ?? ""),
-    samples: [],
-  }));
+  const sources: SourceColumn[] = [];
+
+  for (let index = 0; index < headerValues.length; index += 1) {
+    sources.push({
+      index,
+      letter: columnLetter(index),
+      header: String(fromWorkbookCell(headerValues[index]) ?? ""),
+      samples: [],
+    });
+  }
 
   const rows: SourceRow[] = [];
 
