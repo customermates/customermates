@@ -490,6 +490,28 @@ describe("Unipile failure diagnostics reach Sentry", () => {
     });
   });
 
+  it("keeps a customer address out of the Sentry tags", async () => {
+    stubFetch(
+      {
+        object: "Error",
+        status: 500,
+        type: "api/internal_error",
+        title: "Internal Server Error",
+        detail: "Delivery to buyer@example-customer.com failed permanently.",
+        req_id: "req-priv",
+      },
+      500,
+    );
+
+    await new MessagingService().getPost({ accountId: "acc_1", postId: "p1" });
+
+    const context = vi.mocked(Sentry.captureException).mock.calls[0][1] as { tags: Record<string, string> };
+    const tags = context.tags;
+    expect(tags.unipileDetail).toBe("Delivery to [redacted] failed permanently.");
+    expect(tags.unipileDetail).not.toContain("@");
+    expect(tags.unipileRequestId).toBe("req-priv");
+  });
+
   it("keeps a genuinely transient proxy failure quiet and still temporary", async () => {
     stubFetch({ object: "Error", status: 502, type: "api/proxy_error", title: "Proxy", req_id: "req-1" }, 502);
 

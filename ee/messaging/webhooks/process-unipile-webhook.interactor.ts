@@ -76,7 +76,7 @@ export class ProcessUnipileWebhookInteractor {
       }
 
       if (isUnipileTimeout(err) || isUnipileProviderUnprocessable(err)) {
-        await this.events.markWebhookEventFailedUnscoped({ id, error: (err as Error).message, terminal: false });
+        await this.events.markWebhookEventFailedUnscoped({ id, error: err.message, terminal: false });
 
         return;
       }

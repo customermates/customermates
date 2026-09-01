@@ -143,13 +143,17 @@ const UNIPILE_BAD_IMPL_TYPES = new Set([
 
 const UNIPILE_TRANSIENT_5XX_TYPES = new Set(["api/proxy_error", "api/proxy_timeout", "api/proxy_auth_error"]);
 
+const EMAIL_LIKE = /[\w.+-]+@[\w-]+\.[\w.-]+/g;
+
 function unipileBodyField(bodyText: string, field: "detail" | "req_id"): string | null {
   try {
     const parsed: unknown = JSON.parse(bodyText);
     if (typeof parsed !== "object" || parsed === null) return null;
     const value = (parsed as Record<string, unknown>)[field];
 
-    return typeof value === "string" && value.trim() !== "" ? value.slice(0, 200) : null;
+    if (typeof value !== "string" || value.trim() === "") return null;
+
+    return value.replace(EMAIL_LIKE, "[redacted]").slice(0, 200);
   } catch {
     return null;
   }
@@ -191,17 +195,17 @@ export function getRetryAfterSeconds(err: unknown): number | null {
   return err instanceof UnipileRequestError ? err.retryAfterSeconds : null;
 }
 
-export function isUnipileTimeout(err: unknown): boolean {
+export function isUnipileTimeout(err: unknown): err is UnipileRequestError {
   return err instanceof UnipileRequestError && err.status === 0;
 }
 
-export function isUnipileProviderUnprocessable(err: unknown): boolean {
+export function isUnipileProviderUnprocessable(err: unknown): err is UnipileRequestError {
   if (!(err instanceof UnipileRequestError) || err.status !== 422) return false;
 
   return (err.errorType ?? "").endsWith("/unprocessable_entity");
 }
 
-export function isUnipileSourceForbidden(err: unknown): boolean {
+export function isUnipileSourceForbidden(err: unknown): err is UnipileRequestError {
   if (!(err instanceof UnipileRequestError) || err.status !== 403) return false;
 
   return (err.errorType ?? "").endsWith("/insufficient_permissions");
