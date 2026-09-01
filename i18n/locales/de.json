@@ -1361,6 +1361,7 @@
         "tasks": "Aufgaben",
         "totalQuantity": "Service-Anzahl",
         "totalValue": "Deal-Wert",
+        "trialEnd": "Testphase endet",
         "type": "Typ",
         "updatedAt": "Aktualisiert am",
         "url": "URL",
@@ -2490,6 +2491,7 @@
         "enterpriseAllowanceUpdate": "Enterprise-Kontingent aktualisiert",
         "overviewRead": "Hosted-AI-Übersicht gelesen",
         "subscriptionSnapshotCorrect": "Workspace-Abonnement korrigiert",
+        "subscriptionTermsUpdate": "Abonnementkonditionen aktualisiert",
         "userDetailRead": "Benutzerdetails gelesen",
         "userListRead": "Benutzerliste gelesen",
         "userPlatformAccessUpdate": "Plattformzugriff aktualisiert",
@@ -2508,6 +2510,8 @@
       "allowance": "Enterprise-Kontingent für {name} auf {value} Credits pro Nutzer setzen? Das gilt für den gesamten Workspace.",
       "plan": "Den Tarif für {name} auf {value} setzen? Das gilt für den gesamten Workspace.",
       "subscription": "Den Abonnementstatus für {name} auf {value} setzen? Das gilt für den gesamten Workspace und kontaktiert keinen Zahlungsanbieter.",
+      "terms": "Abonnementkonditionen für {name} aktualisieren? Gilt für den gesamten Workspace.",
+      "termsClearingBilling": "Abonnementkonditionen für {name} aktualisieren und das Abrechnungsabo trennen? Der Anbieter berechnet weiter, bis du dort kündigst.",
       "title": "Operator-Änderung bestätigen"
     }
   },
@@ -2605,6 +2609,16 @@
     "emptyTitle": "Keine Arbeitsbereiche passen zu diesen Filtern",
     "navigation": "Arbeitsbereiche",
     "searchPlaceholder": "Nach Mitglieds-E-Mail suchen",
+    "terms": {
+      "billingId": "Abrechnungs-Abo-ID",
+      "billingIdPlaceholder": "Leer lassen zum Trennen",
+      "billingWarning": "Das Leeren trennt den Workspace von seinem Abrechnungsabo. Der Anbieter berechnet weiter, bis du dort kündigst.",
+      "description": "Gilt für den gesamten Workspace und kontaktiert keinen Zahlungsanbieter.",
+      "label": "Abonnementkonditionen",
+      "noTrial": "Keine Testphase",
+      "title": "Abonnementkonditionen",
+      "trialEnd": "Testphase endet"
+    },
     "values": {
       "members": "{active} von {total}"
     }

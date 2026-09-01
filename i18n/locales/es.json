@@ -1361,6 +1361,7 @@
         "tasks": "Tareas",
         "totalQuantity": "Cantidad de servicios",
         "totalValue": "Valor de la oportunidad",
+        "trialEnd": "Fin de prueba",
         "type": "Tipo",
         "updatedAt": "Actualizado el",
         "url": "URL",
@@ -2490,6 +2491,7 @@
         "enterpriseAllowanceUpdate": "Asignación Enterprise actualizada",
         "overviewRead": "Resumen de Hosted-AI leído",
         "subscriptionSnapshotCorrect": "Suscripción del espacio de trabajo corregida",
+        "subscriptionTermsUpdate": "Condiciones de suscripción actualizadas",
         "userDetailRead": "Detalle de usuario leído",
         "userListRead": "Lista de usuarios leída",
         "userPlatformAccessUpdate": "Acceso de plataforma actualizado",
@@ -2508,6 +2510,8 @@
       "allowance": "¿Establecer la asignación Enterprise de {name} en {value} créditos por usuario? Se aplica a todo el espacio de trabajo.",
       "plan": "¿Establecer el plan de {name} en {value}? Se aplica a todo el espacio de trabajo.",
       "subscription": "¿Establecer el estado de suscripción de {name} en {value}? Se aplica a todo el espacio de trabajo y no contacta con ningún proveedor de facturación.",
+      "terms": "¿Actualizar las condiciones de suscripción de {name}? Se aplica a todo el espacio de trabajo.",
+      "termsClearingBilling": "¿Actualizar las condiciones de {name} y desvincular su suscripción de facturación? El proveedor sigue cobrando hasta que la canceles allí.",
       "title": "Confirmar el cambio del operador"
     }
   },
@@ -2605,6 +2609,16 @@
     "emptyTitle": "Ningún espacio coincide con estos filtros",
     "navigation": "Espacios de trabajo",
     "searchPlaceholder": "Buscar por correo de un miembro",
+    "terms": {
+      "billingId": "ID de suscripción de facturación",
+      "billingIdPlaceholder": "Déjalo vacío para desvincular",
+      "billingWarning": "Vaciarlo desvincula el espacio de trabajo de su suscripción de facturación. El proveedor sigue cobrando hasta que la canceles allí.",
+      "description": "Se aplica a todo el espacio de trabajo y no contacta con ningún proveedor de facturación.",
+      "label": "Condiciones de suscripción",
+      "noTrial": "Sin prueba",
+      "title": "Condiciones de suscripción",
+      "trialEnd": "Fin de la prueba"
+    },
     "values": {
       "members": "{active} de {total}"
     }

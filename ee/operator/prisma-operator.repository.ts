@@ -16,6 +16,7 @@ import {
   type CorrectOperatorSubscriptionSnapshotData,
   type CreateAgentCreditAdjustmentData,
   type DeleteOperatorWorkspaceData,
+  type UpdateOperatorSubscriptionTermsData,
   type DeleteOperatorWorkspaceResultDto,
   type HostedAiOperatorCompanyDto,
   type HostedAiOperatorOverviewDto,
@@ -1036,6 +1037,58 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           deletedMemberCount: memberIds.length,
           deletedAuthIdentityCount: identityIds.length,
         };
+      },
+      { companyId: data.companyId },
+    );
+  }
+
+  @BypassTenantGuard
+  async updateSubscriptionTermsUnscoped(
+    data: UpdateOperatorSubscriptionTermsData,
+    now = new Date(),
+  ): Promise<HostedAiOperatorCompanyDto | OperatorRefusal> {
+    return runInTransaction(
+      async () => {
+        const reason = data.reason ?? null;
+        const subscription = await this.prisma.subscription.findUnique({
+          where: { companyId: data.companyId },
+        });
+        if (!subscription) return "notFound";
+
+        const trialEndDate = data.trialEndDate === null ? null : new Date(data.trialEndDate);
+        if (trialEndDate && !Number.isFinite(trialEndDate.getTime())) return "conflict";
+
+        const previous = {
+          trialEndDate: subscription.trialEndDate?.toISOString() ?? null,
+          lemonSqueezyId: subscription.lemonSqueezyId,
+        };
+        const next = {
+          trialEndDate: trialEndDate?.toISOString() ?? null,
+          lemonSqueezyId: data.lemonSqueezyId,
+        };
+
+        await this.prisma.subscription.update({
+          where: { companyId: data.companyId },
+          data: {
+            trialEndDate,
+            lemonSqueezyId: data.lemonSqueezyId,
+            ...(data.lemonSqueezyId === null ? { lemonSqueezyVariantId: null } : {}),
+          },
+        });
+        await this.createAudit({
+          action: OPERATOR_AUDIT_ACTION.subscriptionTermsUpdate,
+          targetCompanyId: data.companyId,
+          reason,
+          metadata: {
+            previous,
+            next,
+            billingBindingCleared: previous.lemonSqueezyId !== null && next.lemonSqueezyId === null,
+          },
+        });
+
+        const result = await this.companySnapshot(data.companyId, now);
+        if (!result) throw new Error("Updated subscription terms could not be read.");
+        return result;
       },
       { companyId: data.companyId },
     );

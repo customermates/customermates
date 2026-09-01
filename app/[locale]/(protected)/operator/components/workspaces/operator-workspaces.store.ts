@@ -4,6 +4,7 @@ import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type {
   CorrectOperatorSubscriptionSnapshotData,
   DeleteOperatorWorkspaceData,
+  UpdateOperatorSubscriptionTermsData,
   UpdateHostedAiEnterpriseAllowanceData,
 } from "@/ee/operator/operator.schema";
 import type { OperatorWorkspaceRowDto } from "@/ee/operator/operator-lists.schema";
@@ -12,7 +13,11 @@ import { action, makeObservable } from "mobx";
 
 import { getOperatorWorkspacesAction } from "../../actions";
 import { correctOperatorSubscriptionSnapshotAction } from "../../users/actions";
-import { deleteOperatorWorkspaceAction, updateOperatorEnterpriseAllowanceAction } from "../../workspaces/actions";
+import {
+  deleteOperatorWorkspaceAction,
+  updateOperatorEnterpriseAllowanceAction,
+  updateOperatorSubscriptionTermsAction,
+} from "../../workspaces/actions";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
@@ -25,6 +30,7 @@ export class OperatorWorkspacesStore extends BaseDataViewStore<OperatorWorkspace
       correctSubscription: action,
       updateEnterpriseAllowance: action,
       deleteWorkspace: action,
+      updateSubscriptionTerms: action,
     });
   }
 
@@ -36,6 +42,7 @@ export class OperatorWorkspacesStore extends BaseDataViewStore<OperatorWorkspace
       { uid: "subscription" },
       { uid: "members" },
       { uid: "allowance" },
+      { uid: "trialEnd" },
       { uid: "createdAt", sortable: true },
       { uid: "actions" },
     ];
@@ -70,6 +77,19 @@ export class OperatorWorkspacesStore extends BaseDataViewStore<OperatorWorkspace
   deleteWorkspace = async (data: DeleteOperatorWorkspaceData): Promise<boolean> => {
     return this.rootStore.loadingOverlayStore.withLoading(async () => {
       const res = await deleteOperatorWorkspaceAction(data);
+      if (!res.ok) {
+        toastZodErrorTree(res.error);
+        return false;
+      }
+
+      await this.refresh();
+      return true;
+    });
+  };
+
+  updateSubscriptionTerms = async (data: UpdateOperatorSubscriptionTermsData): Promise<boolean> => {
+    return this.rootStore.loadingOverlayStore.withLoading(async () => {
+      const res = await updateOperatorSubscriptionTermsAction(data);
       if (!res.ok) {
         toastZodErrorTree(res.error);
         return false;

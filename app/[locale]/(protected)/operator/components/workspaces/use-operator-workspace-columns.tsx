@@ -16,6 +16,7 @@ import { OperatorChipSelect } from "../operator-chip-select";
 import { useOperatorChipOptions } from "../use-operator-chip-options";
 import { OperatorWorkspaceAllowancePopover } from "./operator-workspace-allowance-popover";
 import { OperatorWorkspaceDeletePopover } from "./operator-workspace-delete-popover";
+import { OperatorWorkspaceTermsPopover } from "./operator-workspace-terms-popover";
 
 export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto>[] {
   const { operatorWorkspacesStore } = useRootStore();
@@ -103,6 +104,11 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
           row.original.plan === SubscriptionPlan.enterprise ? (
             <OperatorWorkspaceAllowancePopover workspace={row.original} />
           ) : null,
+      },
+      {
+        id: "trialEnd",
+        header: t("Common.table.columns.trialEnd"),
+        cell: ({ row }) => <OperatorWorkspaceTermsPopover workspace={row.original} />,
       },
       {
         accessorKey: "createdAt",

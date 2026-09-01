@@ -166,7 +166,15 @@ export class PrismaOperatorWorkspacesRepo
         id: true,
         createdAt: true,
         subscription: {
-          select: { plan: true, status: true, quantity: true, enterpriseAgentCreditsPerUser: true, updatedAt: true },
+          select: {
+            plan: true,
+            status: true,
+            quantity: true,
+            enterpriseAgentCreditsPerUser: true,
+            trialEndDate: true,
+            lemonSqueezyId: true,
+            updatedAt: true,
+          },
         },
       },
     });
@@ -187,6 +195,8 @@ export class PrismaOperatorWorkspacesRepo
         subscriptionStatus: company.subscription?.status ?? null,
         seats: company.subscription?.quantity ?? null,
         enterpriseCreditsPerUser: company.subscription?.enterpriseAgentCreditsPerUser ?? null,
+        trialEndDate: company.subscription?.trialEndDate ?? null,
+        lemonSqueezyId: company.subscription?.lemonSqueezyId ?? null,
         subscriptionUpdatedAt: company.subscription?.updatedAt ?? null,
         createdAt: company.createdAt,
       };

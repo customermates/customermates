@@ -719,4 +719,55 @@ describeDatabase("operator user administration against a real database", { timeo
       expect(await prisma.agentCreditAdjustment.count({ where: { companyId } })).toBe(1);
     });
   });
+
+  it("updates trial end and billing binding, auditing previous and next on every edit", async () => {
+    const repo = new PrismaOperatorRepo();
+    const providerId = `provider-${randomUUID()}`;
+    const companyId = await createCompany({ plan: "pro", status: "trial", lemonSqueezyId: providerId });
+    await createUser({ companyId, email: `terms-${randomUUID()}@example.invalid` });
+    const actor = operatorActor();
+    const extended = new Date("2026-11-20T22:59:59.999Z");
+
+    const updated = await runWithOperator(actor, () =>
+      repo.updateSubscriptionTermsUnscoped(
+        { companyId, trialEndDate: extended.toISOString(), lemonSqueezyId: providerId },
+        now,
+      ),
+    );
+    assertAdmitted(updated);
+
+    const cleared = await runWithOperator(actor, () =>
+      repo.updateSubscriptionTermsUnscoped(
+        { companyId, trialEndDate: extended.toISOString(), lemonSqueezyId: null },
+        now,
+      ),
+    );
+    assertAdmitted(cleared);
+
+    await runWithoutTenant(async () => {
+      const subscription = await prisma.subscription.findUniqueOrThrow({ where: { companyId } });
+      expect(subscription.trialEndDate?.toISOString()).toBe(extended.toISOString());
+      expect(subscription.lemonSqueezyId).toBeNull();
+      expect(subscription.lemonSqueezyVariantId).toBeNull();
+
+      const audits = await prisma.operatorAuditEvent.findMany({
+        where: { actorUserId: actor.userId, action: OPERATOR_AUDIT_ACTION.subscriptionTermsUpdate },
+        orderBy: { createdAt: "asc" },
+      });
+      expect(audits).toHaveLength(2);
+
+      const first = audits[0]?.metadata as { previous?: Record<string, unknown>; next?: Record<string, unknown> };
+      expect(first.previous?.lemonSqueezyId).toBe(providerId);
+      expect(first.next?.trialEndDate).toBe(extended.toISOString());
+
+      const second = audits[1]?.metadata as {
+        previous?: Record<string, unknown>;
+        next?: Record<string, unknown>;
+        billingBindingCleared?: boolean;
+      };
+      expect(second.previous?.lemonSqueezyId).toBe(providerId);
+      expect(second.next?.lemonSqueezyId).toBeNull();
+      expect(second.billingBindingCleared).toBe(true);
+    });
+  });
 });

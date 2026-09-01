@@ -1361,6 +1361,7 @@
         "tasks": "Tâches",
         "totalQuantity": "Quantité de services",
         "totalValue": "Valeur de l'affaire",
+        "trialEnd": "Fin d'essai",
         "type": "Type",
         "updatedAt": "Mis à jour le",
         "url": "URL",
@@ -2490,6 +2491,7 @@
         "enterpriseAllowanceUpdate": "Allocation Enterprise mise à jour",
         "overviewRead": "Vue d’ensemble Hosted-AI consultée",
         "subscriptionSnapshotCorrect": "Abonnement de l’espace de travail corrigé",
+        "subscriptionTermsUpdate": "Conditions d'abonnement mises à jour",
         "userDetailRead": "Détail utilisateur consulté",
         "userListRead": "Liste des utilisateurs consultée",
         "userPlatformAccessUpdate": "Accès plateforme mis à jour",
@@ -2508,6 +2510,8 @@
       "allowance": "Définir l'allocation Enterprise de {name} à {value} crédits par utilisateur ? Cela s'applique à tout l'espace de travail.",
       "plan": "Définir le forfait de {name} sur {value} ? Cela s’applique à tout l’espace de travail.",
       "subscription": "Définir le statut d’abonnement de {name} sur {value} ? Cela s’applique à tout l’espace de travail et ne contacte aucun prestataire de facturation.",
+      "terms": "Mettre à jour les conditions d'abonnement de {name} ? S'applique à tout l'espace de travail.",
+      "termsClearingBilling": "Mettre à jour les conditions de {name} et détacher son abonnement de facturation ? Le prestataire continue de facturer jusqu'à annulation chez lui.",
       "title": "Confirmer la modification opérateur"
     }
   },
@@ -2605,6 +2609,16 @@
     "emptyTitle": "Aucun espace ne correspond à ces filtres",
     "navigation": "Espaces de travail",
     "searchPlaceholder": "Rechercher par e-mail d’un membre",
+    "terms": {
+      "billingId": "ID d'abonnement de facturation",
+      "billingIdPlaceholder": "Laisser vide pour détacher",
+      "billingWarning": "Vider ce champ détache l'espace de travail de son abonnement de facturation. Le prestataire continue de facturer jusqu'à ce que vous l'annuliez chez lui.",
+      "description": "S'applique à tout l'espace de travail et ne contacte aucun prestataire de facturation.",
+      "label": "Conditions d'abonnement",
+      "noTrial": "Pas d'essai",
+      "title": "Conditions d'abonnement",
+      "trialEnd": "Fin de l'essai"
+    },
     "values": {
       "members": "{active} sur {total}"
     }

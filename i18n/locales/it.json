@@ -1361,6 +1361,7 @@
         "tasks": "Attività",
         "totalQuantity": "Quantità di servizi",
         "totalValue": "Valore della trattativa",
+        "trialEnd": "Fine prova",
         "type": "Tipo",
         "updatedAt": "Aggiornato il",
         "url": "URL",
@@ -2490,6 +2491,7 @@
         "enterpriseAllowanceUpdate": "Assegnazione Enterprise aggiornata",
         "overviewRead": "Panoramica Hosted-AI letta",
         "subscriptionSnapshotCorrect": "Abbonamento dello spazio di lavoro corretto",
+        "subscriptionTermsUpdate": "Condizioni di abbonamento aggiornate",
         "userDetailRead": "Dettaglio utente letto",
         "userListRead": "Elenco utenti letto",
         "userPlatformAccessUpdate": "Accesso alla piattaforma aggiornato",
@@ -2508,6 +2510,8 @@
       "allowance": "Impostare l'allocazione Enterprise di {name} su {value} crediti per utente? Si applica all'intero spazio di lavoro.",
       "plan": "Impostare il piano di {name} su {value}? Si applica all’intero spazio di lavoro.",
       "subscription": "Impostare lo stato dell’abbonamento di {name} su {value}? Si applica all’intero spazio di lavoro e non contatta alcun fornitore di fatturazione.",
+      "terms": "Aggiornare le condizioni di abbonamento di {name}? Si applica all'intero spazio di lavoro.",
+      "termsClearingBilling": "Aggiornare le condizioni di {name} e scollegare il suo abbonamento di fatturazione? Il fornitore continua ad addebitare finché non lo annulli lì.",
       "title": "Conferma la modifica operatore"
     }
   },
@@ -2605,6 +2609,16 @@
     "emptyTitle": "Nessuna area corrisponde a questi filtri",
     "navigation": "Aree di lavoro",
     "searchPlaceholder": "Cerca per e-mail di un membro",
+    "terms": {
+      "billingId": "ID abbonamento di fatturazione",
+      "billingIdPlaceholder": "Lascia vuoto per scollegare",
+      "billingWarning": "Svuotarlo scollega lo spazio di lavoro dal suo abbonamento di fatturazione. Il fornitore continua ad addebitare finché non lo annulli lì.",
+      "description": "Si applica all'intero spazio di lavoro e non contatta alcun fornitore di fatturazione.",
+      "label": "Condizioni di abbonamento",
+      "noTrial": "Nessuna prova",
+      "title": "Condizioni di abbonamento",
+      "trialEnd": "Fine della prova"
+    },
     "values": {
       "members": "{active} su {total}"
     }

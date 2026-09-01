@@ -79,6 +79,15 @@ export const ResetOperatorUserCreditsSchema = z
   })
   .strict();
 
+export const UpdateOperatorSubscriptionTermsSchema = z
+  .object({
+    companyId: z.uuid(),
+    trialEndDate: z.iso.datetime({ offset: true, precision: 3 }).nullable(),
+    lemonSqueezyId: z.string().trim().min(1).max(200).nullable(),
+    reason: OptionalReasonSchema,
+  })
+  .strict();
+
 export const DeleteOperatorWorkspaceSchema = z
   .object({
     companyId: z.uuid(),
@@ -95,6 +104,7 @@ export type UpdateOperatorUserPlatformAccessData = z.infer<typeof UpdateOperator
 export type CorrectOperatorSubscriptionSnapshotData = z.infer<typeof CorrectOperatorSubscriptionSnapshotSchema>;
 export type ResetOperatorUserCreditsData = z.infer<typeof ResetOperatorUserCreditsSchema>;
 export type DeleteOperatorWorkspaceData = z.infer<typeof DeleteOperatorWorkspaceSchema>;
+export type UpdateOperatorSubscriptionTermsData = z.infer<typeof UpdateOperatorSubscriptionTermsSchema>;
 
 export const DeleteOperatorWorkspaceResultDtoSchema = z.object({
   companyId: z.uuid(),
@@ -274,4 +284,5 @@ export const OPERATOR_AUDIT_ACTION = {
   subscriptionSnapshotCorrect: "operator.subscription_snapshot.correct",
   creditBalanceReset: "operator.credit_balance.reset",
   workspaceDelete: "operator.workspace.delete",
+  subscriptionTermsUpdate: "operator.subscription_terms.update",
 } as const;

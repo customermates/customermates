@@ -1361,6 +1361,7 @@
         "tasks": "Tasks",
         "totalQuantity": "Service Quantity",
         "totalValue": "Deal Value",
+        "trialEnd": "Trial ends",
         "type": "Type",
         "updatedAt": "Updated at",
         "url": "URL",
@@ -2490,6 +2491,7 @@
         "enterpriseAllowanceUpdate": "Enterprise allowance updated",
         "overviewRead": "Hosted-AI overview read",
         "subscriptionSnapshotCorrect": "Workspace subscription corrected",
+        "subscriptionTermsUpdate": "Subscription terms updated",
         "userDetailRead": "User detail read",
         "userListRead": "User list read",
         "userPlatformAccessUpdate": "Platform access updated",
@@ -2508,6 +2510,8 @@
       "allowance": "Set the Enterprise allowance for {name} to {value} credits per user? This applies to the whole workspace.",
       "plan": "Set the plan for {name} to {value}? This applies to the whole workspace.",
       "subscription": "Set the subscription status for {name} to {value}? This applies to the whole workspace and contacts no billing provider.",
+      "terms": "Update the subscription terms for {name}? This applies to the whole workspace.",
+      "termsClearingBilling": "Update the subscription terms for {name} and detach its billing subscription? The provider keeps charging until you cancel it there.",
       "title": "Confirm operator change"
     }
   },
@@ -2605,6 +2609,16 @@
     "emptyTitle": "No workspaces match these filters",
     "navigation": "Workspaces",
     "searchPlaceholder": "Search by member email",
+    "terms": {
+      "billingId": "Billing subscription ID",
+      "billingIdPlaceholder": "Leave empty to detach",
+      "billingWarning": "Clearing this detaches the workspace from its billing subscription. The provider keeps charging until you cancel it there.",
+      "description": "Applies to the whole workspace and contacts no billing provider.",
+      "label": "Subscription terms",
+      "noTrial": "No trial",
+      "title": "Subscription terms",
+      "trialEnd": "Trial ends"
+    },
     "values": {
       "members": "{active} of {total}"
     }

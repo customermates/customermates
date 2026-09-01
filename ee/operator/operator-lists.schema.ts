@@ -35,6 +35,8 @@ export const OperatorWorkspaceRowDtoSchema = z.object({
   subscriptionStatus: z.enum(SubscriptionStatus).nullable(),
   seats: z.number().nullable(),
   enterpriseCreditsPerUser: z.number().nullable(),
+  trialEndDate: z.date().nullable(),
+  lemonSqueezyId: z.string().nullable(),
   subscriptionUpdatedAt: z.date().nullable(),
   createdAt: z.date(),
 });
