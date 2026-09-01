@@ -479,6 +479,32 @@ describe("buildPlan channels on update rows", () => {
     expect(result.issues.every((issue) => issue.blocking === false)).toBe(true);
   });
 
+  it("keeps a blank required text field as an empty string when the row creates a record", () => {
+    const result = plan(
+      [
+        { kind: "field", key: "firstName" },
+        { kind: "field", key: "lastName" },
+      ],
+      ["First Name", "Last Name"],
+      [["Solo", ""]],
+    );
+
+    expect(result.create).toHaveLength(1);
+    expect(result.create[0].payload).toMatchObject({ firstName: "Solo", lastName: "" });
+    expect(result.issues).toHaveLength(0);
+  });
+
+  it("does not blank a required text field when the row updates a record", () => {
+    const result = plan(
+      [{ kind: "recordId" }, { kind: "field", key: "firstName" }, { kind: "field", key: "lastName" }],
+      ["ID", "First Name", "Last Name"],
+      [[ACME, "Solo", ""]],
+    );
+
+    expect(result.update).toHaveLength(1);
+    expect(result.update[0].payload).not.toHaveProperty("lastName");
+  });
+
   it("still applies mapped channels when the row creates a record", () => {
     const result = plan(
       [{ kind: "recordId" }, { kind: "identifier", provider: "mail" }],

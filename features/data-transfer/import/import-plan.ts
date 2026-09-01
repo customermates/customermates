@@ -184,6 +184,7 @@ export function buildPlan(args: {
   for (const row of rows) {
     const payload: Record<string, unknown> = {};
     const customFieldValues: Array<{ columnId: string; value: string }> = [];
+    const blankRequiredText: string[] = [];
     let recordId: string | null = null;
     let rowFailed = false;
 
@@ -246,10 +247,13 @@ export function buildPlan(args: {
         return;
       }
 
-      if (text.length === 0) return;
-
       const field = fieldByKey.get(target.key);
       if (!field) return;
+
+      if (text.length === 0) {
+        if (field.kind === "text" && field.requiredOnCreate) blankRequiredText.push(field.key);
+        return;
+      }
 
       if (field.kind === "number") {
         const numeric = Number(text.replace(",", "."));
@@ -287,6 +291,8 @@ export function buildPlan(args: {
 
       payload[field.key] = text;
     });
+
+    if (!recordId) for (const key of blankRequiredText) payload[key] ??= "";
 
     if (customFieldValues.length > 0) payload.customFieldValues = customFieldValues;
 

@@ -72,6 +72,46 @@ function targetFromSchemaKey(key: string, descriptor: ImportEntityDescriptor): M
   return { kind: "ignore" };
 }
 
+function schemaRowTarget(
+  row: SchemaSheetRow,
+  descriptor: ImportEntityDescriptor,
+  knownCustom: Set<string>,
+): MappingTarget {
+  if (row.customColumnId) {
+    return knownCustom.has(row.customColumnId)
+      ? { kind: "customField", columnId: row.customColumnId }
+      : { kind: "ignore" };
+  }
+
+  return targetFromSchemaKey(row.key, descriptor);
+}
+
+function bindSchemaRows(sources: SourceColumn[], schemaRows: SchemaSheetRow[]): Map<number, SchemaSheetRow> {
+  const bound = new Map<number, SchemaSheetRow>();
+  const unplaced: SchemaSheetRow[] = [];
+
+  for (const row of schemaRows) {
+    const index = row.position - 1;
+    const source = sources[index];
+
+    if (source && !bound.has(index) && normalizeHeader(source.header) === normalizeHeader(row.header))
+      bound.set(index, row);
+    else unplaced.push(row);
+  }
+
+  for (const row of unplaced) {
+    const candidates: number[] = [];
+
+    sources.forEach((source, index) => {
+      if (!bound.has(index) && normalizeHeader(source.header) === normalizeHeader(row.header)) candidates.push(index);
+    });
+
+    if (candidates.length === 1) bound.set(candidates[0], row);
+  }
+
+  return bound;
+}
+
 export function mappingFromSchemaSheet(
   sources: SourceColumn[],
   schemaRows: SchemaSheetRow[],
@@ -81,26 +121,20 @@ export function mappingFromSchemaSheet(
   if (schemaRows.length === 0) return null;
 
   const knownCustom = new Set(customColumns.map((column) => column.id));
-  const mapping: MappingTarget[] = sources.map(() => ({ kind: "ignore" }));
-  let bound = 0;
+  const bound = bindSchemaRows(sources, schemaRows);
 
-  for (const row of schemaRows) {
-    const index = row.position - 1;
-    if (index < 0 || index >= sources.length) continue;
+  const mapping: MappingTarget[] = sources.map((_, index) => {
+    const row = bound.get(index);
+    return row ? schemaRowTarget(row, descriptor, knownCustom) : { kind: "ignore" };
+  });
 
-    if (row.customColumnId) {
-      if (!knownCustom.has(row.customColumnId)) continue;
-      mapping[index] = { kind: "customField", columnId: row.customColumnId };
-      bound += 1;
-      continue;
-    }
+  const taken = new Set(mapping.filter((target) => target.kind !== "ignore").map(targetIdentity));
 
-    const target = targetFromSchemaKey(row.key, descriptor);
-    if (target.kind !== "ignore") bound += 1;
-    mapping[index] = target;
-  }
+  sources.forEach((source, index) => {
+    if (mapping[index].kind === "ignore") mapping[index] = matchSource(source, descriptor, customColumns, taken);
+  });
 
-  return bound > 0 ? mapping : null;
+  return mapping;
 }
 
 type Candidate = { target: MappingTarget; score: number };
@@ -125,6 +159,30 @@ function customCandidates(normalized: string, customColumns: CustomColumnDto[]):
   return [{ target: { kind: "customField", columnId: matches[0].id }, score: 95 }];
 }
 
+function matchSource(
+  source: SourceColumn,
+  descriptor: ImportEntityDescriptor,
+  customColumns: CustomColumnDto[],
+  taken: Set<string>,
+): MappingTarget {
+  const normalized = normalizeHeader(source.header);
+  if (normalized.length === 0) return { kind: "ignore" };
+
+  const candidates = [...fieldCandidates(normalized, descriptor), ...customCandidates(normalized, customColumns)];
+  const best = candidates.sort((a, b) => b.score - a.score)[0];
+
+  if (!best || best.score < AUTO_MATCH_THRESHOLD) return { kind: "ignore" };
+
+  const tied = candidates.filter((candidate) => candidate.score === best.score);
+  if (tied.length > 1) return { kind: "ignore" };
+
+  const identity = targetIdentity(best.target);
+  if (taken.has(identity)) return { kind: "ignore" };
+  taken.add(identity);
+
+  return best.target;
+}
+
 export function autoMatchColumns(
   sources: SourceColumn[],
   descriptor: ImportEntityDescriptor,
@@ -132,24 +190,7 @@ export function autoMatchColumns(
 ): MappingTarget[] {
   const taken = new Set<string>();
 
-  return sources.map((source) => {
-    const normalized = normalizeHeader(source.header);
-    if (normalized.length === 0) return { kind: "ignore" };
-
-    const candidates = [...fieldCandidates(normalized, descriptor), ...customCandidates(normalized, customColumns)];
-    const best = candidates.sort((a, b) => b.score - a.score)[0];
-
-    if (!best || best.score < AUTO_MATCH_THRESHOLD) return { kind: "ignore" };
-
-    const tied = candidates.filter((candidate) => candidate.score === best.score);
-    if (tied.length > 1) return { kind: "ignore" };
-
-    const identity = targetIdentity(best.target);
-    if (taken.has(identity)) return { kind: "ignore" };
-    taken.add(identity);
-
-    return best.target;
-  });
+  return sources.map((source) => matchSource(source, descriptor, customColumns, taken));
 }
 
 export function targetIdentity(target: MappingTarget): string {
