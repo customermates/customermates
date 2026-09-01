@@ -42,6 +42,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { env } from "@/env";
 import { isEmailProvider } from "./provider";
 import { UnipileAccountSchema, UnipileAttachmentSchema, UnipileUserSchema } from "./unipile.schema";
+import { unipilePostIdForFetch } from "./posts/post-id";
 import {
   SocialPostSchema,
   SocialPostListSchema,
@@ -955,7 +956,9 @@ export class MessagingService {
   async getPost(input: { accountId: string; postId: string }): Promise<MessagingSendResult<SocialPost>> {
     try {
       const raw = await requestData(
-        this.sdk.posts.getPost({ path: { account_id: input.accountId, post_id: input.postId } }),
+        this.sdk.posts.getPost({
+          path: { account_id: input.accountId, post_id: unipilePostIdForFetch(input.postId) },
+        }),
       );
 
       return { ok: true, data: SocialPostSchema.parse(raw) };
