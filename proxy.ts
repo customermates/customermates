@@ -58,6 +58,11 @@ function isUnsupportedLocalePrefix(pathname: string): boolean {
   return LOCALE_SHAPED_SEGMENT.test(firstSegment) && routingLocaleFromUrlSegment(firstSegment) === null;
 }
 
+function hasNestedLocalePrefix(pathname: string): boolean {
+  const secondSegment = pathname.split("/")[2] ?? "";
+  return routingLocaleFromUrlSegment(secondSegment) !== null;
+}
+
 function hasSessionCookie(req: NextRequest): boolean {
   const cookieHeader = req.headers.get("cookie") ?? "";
   return cookieHeader.includes("app.session_token=");
@@ -126,6 +131,9 @@ export default async function proxy(req: NextRequest) {
     if (isUnsupportedLocalePrefix(pathname)) return NextResponse.next();
     return negotiateLocale(req, base, isAuthenticated && pathname === "/" ? "app" : "auto");
   }
+
+  if (hasNestedLocalePrefix(pathname))
+    return isContentLocale(currentLocale) ? intlContentMiddleware(req) : intlAppMiddleware(req);
 
   if (env.APP_MODE === "demo") {
     const isNonDemoUser = isAuthenticated && session?.user?.email !== SYNTHETIC_SEED_USER.email;

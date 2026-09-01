@@ -11,11 +11,12 @@ import {
 
 const GATEWAY_ID = "openai/gpt-5.6-luna";
 const NATIVE_ID = "gpt-5.6-luna";
+const PROVIDER = "azure";
 const BOUNDARY = 272_000;
 
 describe("pinned pricing snapshot", () => {
   it("validates at module load and pins the configured endpoint", () => {
-    expect(pinnedModelEndpoints()).toEqual(expect.arrayContaining([{ modelId: GATEWAY_ID, provider: "openai" }]));
+    expect(pinnedModelEndpoints()).toEqual(expect.arrayContaining([{ modelId: GATEWAY_ID, provider: PROVIDER }]));
     expect(
       pinnedModelEndpoints()
         .map((endpoint) => endpoint.modelId)
@@ -24,7 +25,7 @@ describe("pinned pricing snapshot", () => {
   });
 
   it("resolves by gateway id and by provider-native id alike", () => {
-    expect(resolveModelPricing(GATEWAY_ID)).toEqual(resolveModelPricing(NATIVE_ID));
+    expect(resolveModelPricing(GATEWAY_ID, 0, PROVIDER)).toEqual(resolveModelPricing(NATIVE_ID, 0, PROVIDER));
   });
 
   it("refuses an unpinned model rather than substituting a fallback rate", () => {
@@ -122,7 +123,7 @@ describe("measured against the live gateway", () => {
   ];
 
   it.each(MEASURED)("prices $label exactly as the gateway billed it", ({ tokens, microcents }) => {
-    expect(computeCostMicrocents(GATEWAY_ID, tokens, "openai")).toBe(microcents);
+    expect(computeCostMicrocents(GATEWAY_ID, tokens, PROVIDER)).toBe(microcents);
   });
 
   it("counts cached tokens toward the long-context boundary, as the provider does", () => {
@@ -130,10 +131,10 @@ describe("measured against the live gateway", () => {
 
     expect(promptTokensOf(cachedOnly)).toBeGreaterThan(BOUNDARY);
     expect(cachedOnly.inputTokens).toBeLessThan(BOUNDARY);
-    expect(resolveModelPricing(GATEWAY_ID, promptTokensOf(cachedOnly), "openai").inputPerMTok).toBe(0.4);
-    expect(computeCostMicrocents(GATEWAY_ID, cachedOnly, "openai")).toBe(15_791_420);
+    expect(resolveModelPricing(GATEWAY_ID, promptTokensOf(cachedOnly), PROVIDER).inputPerMTok).toBe(0.4);
+    expect(computeCostMicrocents(GATEWAY_ID, cachedOnly, PROVIDER)).toBe(15_791_420);
 
-    const tier1 = resolveModelPricing(GATEWAY_ID, 0, "openai");
+    const tier1 = resolveModelPricing(GATEWAY_ID, 0, PROVIDER);
     const ifOnlyUncachedCounted = Math.round(
       (cachedOnly.inputTokens * tier1.inputPerMTok +
         cachedOnly.outputTokens * tier1.outputPerMTok +
@@ -142,6 +143,6 @@ describe("measured against the live gateway", () => {
     );
 
     expect(ifOnlyUncachedCounted).toBe(7_895_860);
-    expect(computeCostMicrocents(GATEWAY_ID, cachedOnly, "openai") - ifOnlyUncachedCounted).toBe(7_895_560);
+    expect(computeCostMicrocents(GATEWAY_ID, cachedOnly, PROVIDER) - ifOnlyUncachedCounted).toBe(7_895_560);
   });
 });

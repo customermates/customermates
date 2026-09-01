@@ -139,13 +139,13 @@ export function NavigationSwitch({
       <div
         ref={publicScrollportRef}
         data-public-scrollport
-        className="relative h-svh overflow-y-auto bg-background [--table-sticky-top:4rem] [--toc-sticky-top:4rem] [--toc-anchor-offset:5rem] xl:[--table-sticky-top:3.5rem] xl:[--toc-sticky-top:3.5rem] xl:[--toc-anchor-offset:4.5rem]"
+        className="relative flex h-svh flex-col overflow-y-auto bg-background [--table-sticky-top:4rem] [--toc-sticky-top:4rem] [--toc-anchor-offset:5rem] xl:[--table-sticky-top:3.5rem] xl:[--toc-sticky-top:3.5rem] xl:[--toc-anchor-offset:4.5rem]"
       >
-        <header className="sticky top-0 z-50 flex flex-col bg-background/90 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
+        <header className="sticky top-0 z-50 flex shrink-0 flex-col bg-background/90 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
           <PublicNavbar accountState={currentAccountState} hasValidSession={hasValidSession} />
         </header>
 
-        <main className="relative flex min-w-0 flex-col">
+        <main className="relative flex min-w-0 flex-1 flex-col">
           <div className="flex flex-col flex-1 overflow-x-clip">{children}</div>
         </main>
       </div>

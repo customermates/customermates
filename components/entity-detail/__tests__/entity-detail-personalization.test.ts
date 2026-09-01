@@ -37,8 +37,11 @@ import {
 } from "../entity-detail-personalization";
 import { EntityDetailCustomFieldsSection } from "../entity-detail-custom-fields-section";
 import {
+  collapsedSectionIdsForOpenSection,
   reconcileAvailableIds,
   reconcileColumnOrder,
+  reconcileSingleOpenSections,
+  resolveSingleOpenSectionId,
   resolveOrderedCustomColumns,
 } from "../entity-detail-personalization.utils";
 import { EntityDetailSection, EntityDetailSectionGroup } from "../entity-detail-section";
@@ -46,6 +49,8 @@ import { EntityDetailSection, EntityDetailSectionGroup } from "../entity-detail-
 const firstId = "10000000-0000-4000-8000-000000000001";
 const secondId = "10000000-0000-4000-8000-000000000002";
 const thirdId = "10000000-0000-4000-8000-000000000003";
+const detailSectionIds = ["base", "relations", "customFields"];
+const defaultCollapsedSectionIds = ["relations", "customFields"];
 const roots = new Set<Root>();
 const TestProvider = EntityDetailPersonalizationProvider as ComponentType<{
   children?: ReactNode;
@@ -63,12 +68,18 @@ const TestSectionGroup = EntityDetailSectionGroup as ComponentType<{
   children?: ReactNode;
 }>;
 
-function sectionView() {
+function sectionView(initial?: P13nEntry | null) {
   return createElement(
     TestProvider,
     {
-      config: { p13nId: "contact-detail", defaultStarredFieldIds: [] },
+      config: {
+        p13nId: "contact-detail",
+        defaultStarredFieldIds: [],
+        defaultCollapsedSectionIds,
+        sectionIds: detailSectionIds,
+      },
       customColumnIds: [],
+      initial,
       persistenceScope: "user-1",
     },
     createElement(
@@ -80,6 +91,12 @@ function sectionView() {
         createElement("input", {
           id: "identity-probe",
         }),
+      ),
+      createElement(TestSection, { label: "Relations", sectionId: "relations" }, createElement("div", null, "Links")),
+      createElement(
+        TestSection,
+        { label: "Custom fields", sectionId: "customFields" },
+        createElement("div", null, "Fields"),
       ),
     ),
   );
@@ -181,6 +198,24 @@ describe("entity detail custom field order", () => {
     act(() => root.render(view([firstId, secondId])));
 
     expect(container.querySelector("button")?.dataset.columnOrder).toBe(`${firstId},${secondId}`);
+  });
+});
+
+describe("entity detail single-open section state", () => {
+  it("defaults legacy ambiguous section preferences to Base data", () => {
+    expect(resolveSingleOpenSectionId(detailSectionIds, [], defaultCollapsedSectionIds)).toBe("base");
+    expect(resolveSingleOpenSectionId(detailSectionIds, detailSectionIds, defaultCollapsedSectionIds)).toBe("base");
+    expect(resolveSingleOpenSectionId(detailSectionIds, ["relations"], defaultCollapsedSectionIds)).toBe("base");
+    expect(reconcileSingleOpenSections(detailSectionIds, [], defaultCollapsedSectionIds)).toEqual(
+      defaultCollapsedSectionIds,
+    );
+  });
+
+  it("preserves an unambiguous saved section and collapses every other section", () => {
+    expect(resolveSingleOpenSectionId(detailSectionIds, ["base", "customFields"], defaultCollapsedSectionIds)).toBe(
+      "relations",
+    );
+    expect(collapsedSectionIdsForOpenSection(detailSectionIds, "relations")).toEqual(["base", "customFields"]);
   });
 });
 
@@ -289,7 +324,7 @@ describe("entity detail preference persistence", () => {
 
   it("stores collapsed sections in the same P13N record as pinned fields and field order", async () => {
     const { container, root } = mountNode(sectionView());
-    const trigger = container.querySelector<HTMLButtonElement>('[data-detail-section-trigger="base"]');
+    const trigger = container.querySelector<HTMLButtonElement>('[data-detail-section-trigger="relations"]');
 
     act(() => trigger?.click());
     act(() => root.unmount());
@@ -300,7 +335,7 @@ describe("entity detail preference persistence", () => {
       p13nId: "contact-detail",
       detailOptions: {
         starredFieldIds: [],
-        collapsedSectionIds: ["base"],
+        collapsedSectionIds: ["base", "customFields"],
       },
       columnOrder: [],
     });
@@ -310,30 +345,19 @@ describe("entity detail preference persistence", () => {
 describe("entity detail section", () => {
   it("clips fields throughout the collapse animation", () => {
     const { container } = mountNode(sectionView());
-    const content = container.querySelector<HTMLElement>('[data-slot="collapsible-content"]');
+    const content = container.querySelector<HTMLElement>('[data-slot="accordion-content"]');
 
-    expect(content?.className).toContain("overflow-hidden");
-    expect(content?.className).toContain("data-[state=closed]:animate-collapsible-up");
+    expect(content?.className).toContain("overflow-y-hidden");
+    expect(content?.className).toContain("data-[state=closed]:animate-accordion-up");
+    expect(content?.className).toContain("data-[state=open]:animate-accordion-down");
   });
 
-  it("uses the complete header row as its accessible collapse trigger", () => {
-    const { container } = mountNode(
-      createElement(
-        TestProvider,
-        {
-          config: { p13nId: "contact-detail", defaultStarredFieldIds: [] },
-          customColumnIds: [],
-          persistenceScope: "user-1",
-        },
-        createElement(
-          TestSectionGroup,
-          null,
-          createElement(TestSection, { label: "Base data", sectionId: "base" }, createElement("div", null, "Fields")),
-        ),
-      ),
-    );
+  it("uses the complete header row as its accessible accordion trigger", () => {
+    const { container } = mountNode(sectionView());
     const trigger = container.querySelector<HTMLButtonElement>('[data-detail-section-trigger="base"]');
     const group = container.querySelector<HTMLElement>("[data-detail-section-group]");
+    const section = container.querySelector<HTMLElement>('[data-detail-section="base"]');
+    const content = container.querySelector<HTMLElement>('[data-detail-section-content="base"]');
 
     expect(trigger?.tagName).toBe("BUTTON");
     expect(trigger?.className).toContain("w-full");
@@ -346,19 +370,65 @@ describe("entity detail section", () => {
     expect(group?.className).not.toContain("divide-y");
     expect(group?.className).not.toContain("border-b");
     expect(group?.className).not.toContain("border-t");
-    expect(trigger?.parentElement?.className).toContain("border-b");
-    expect(trigger?.parentElement?.className).toContain("border-border");
+    expect(section?.className).toContain("border-b");
+    expect(section?.className).toContain("border-border");
     expect(trigger?.textContent).toContain("Base data");
     expect(trigger?.querySelector("span")?.className).not.toContain("uppercase");
-    expect(trigger?.getAttribute("aria-label")).toBe("EntityDetail.collapseSection:Base data");
+    expect(trigger?.getAttribute("aria-label")).toBeNull();
     expect(trigger?.getAttribute("aria-expanded")).toBe("true");
+    expect(trigger?.getAttribute("aria-disabled")).toBe("true");
+    expect(trigger?.className).toContain("aria-disabled:cursor-default");
+    expect(trigger?.getAttribute("aria-controls")).toBe(content?.id);
+    expect(content?.getAttribute("aria-labelledby")).toBe(trigger?.id);
+    expect(content?.getAttribute("role")).toBe("region");
     expect(trigger?.querySelector("button")).toBeNull();
-    expect(container.querySelector('[data-detail-section-content="base"]')?.className).toContain("pb-4");
+    expect(content?.firstElementChild?.className).toContain("pb-4");
 
     act(() => trigger?.click());
 
-    expect(trigger?.getAttribute("aria-label")).toBe("EntityDetail.expandSection:Base data");
-    expect(trigger?.getAttribute("aria-expanded")).toBe("false");
+    expect(trigger?.getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("opens exactly one section and does not let the active section close", () => {
+    const stored: P13nEntry = {
+      p13nId: "contact-detail",
+      columnOrder: [],
+      detailOptions: { starredFieldIds: [], collapsedSectionIds: [] },
+    };
+    const { container } = mountNode(sectionView(stored));
+    const base = container.querySelector<HTMLButtonElement>('[data-detail-section-trigger="base"]');
+    const relations = container.querySelector<HTMLButtonElement>('[data-detail-section-trigger="relations"]');
+    const customFields = container.querySelector<HTMLButtonElement>('[data-detail-section-trigger="customFields"]');
+
+    expect(base?.getAttribute("aria-expanded")).toBe("true");
+    expect(base?.getAttribute("aria-disabled")).toBe("true");
+    expect(relations?.getAttribute("aria-expanded")).toBe("false");
+    expect(customFields?.getAttribute("aria-expanded")).toBe("false");
+
+    act(() => relations?.click());
+
+    expect(base?.getAttribute("aria-expanded")).toBe("false");
+    expect(base?.getAttribute("aria-disabled")).toBeNull();
+    expect(relations?.getAttribute("aria-expanded")).toBe("true");
+    expect(relations?.getAttribute("aria-disabled")).toBe("true");
+    expect(customFields?.getAttribute("aria-expanded")).toBe("false");
+
+    act(() => relations?.click());
+
+    expect(relations?.getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("supports arrow-key navigation between section triggers", () => {
+    const { container } = mountNode(sectionView());
+    const base = container.querySelector<HTMLButtonElement>('[data-detail-section-trigger="base"]');
+    const relations = container.querySelector<HTMLButtonElement>('[data-detail-section-trigger="relations"]');
+
+    act(() => {
+      base?.focus();
+      base?.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "ArrowDown" }));
+    });
+
+    expect(document.activeElement).toBe(relations);
   });
 
   it("uses the selected full-width divider treatment", () => {
@@ -378,7 +448,12 @@ describe("entity detail section", () => {
       createElement(
         TestProvider,
         {
-          config: { p13nId: "contact-detail", defaultStarredFieldIds: [] },
+          config: {
+            p13nId: "contact-detail",
+            defaultStarredFieldIds: [],
+            defaultCollapsedSectionIds: [],
+            sectionIds: ["customFields"],
+          },
           customColumnIds: [],
           persistenceScope: "user-1",
         },

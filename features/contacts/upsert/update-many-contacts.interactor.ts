@@ -23,17 +23,17 @@ import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator"
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { unique } from "@/core/utils/unique";
 
-export const UpdateManyContactsSchema = z
-  .object({
-    contacts: z.array(BaseUpdateContactSchema).min(1).max(100),
-  })
-  .superRefine((data, ctx) => {
-    for (let i = 0; i < data.contacts.length; i++) {
-      const contact = data.contacts[i];
-      validateIdentifiers(contact.identifiers, ctx, ["contacts", i, "identifiers"]);
-      contact.notes = validateNotes(contact.notes, ctx, ["contacts", i, "notes"]);
-    }
-  });
+export const UpdateManyContactsSchema = z.object({
+  contacts: z
+    .array(
+      BaseUpdateContactSchema.superRefine((contact, ctx) => {
+        validateIdentifiers(contact.identifiers, ctx, ["identifiers"]);
+        contact.notes = validateNotes(contact.notes, ctx, ["notes"]);
+      }),
+    )
+    .min(1)
+    .max(100),
+});
 export type UpdateManyContactsData = Data<typeof UpdateManyContactsSchema>;
 
 @TenantInteractor({

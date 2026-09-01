@@ -23,17 +23,17 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { buildRelationChangePublishes } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
 
-export const CreateManyContactsSchema = z
-  .object({
-    contacts: z.array(BaseCreateContactSchema).min(1).max(100),
-  })
-  .superRefine((data, ctx) => {
-    for (let i = 0; i < data.contacts.length; i++) {
-      const contact = data.contacts[i];
-      validateIdentifiers(contact.identifiers, ctx, ["contacts", i, "identifiers"]);
-      contact.notes = validateNotes(contact.notes, ctx, ["contacts", i, "notes"]);
-    }
-  });
+export const CreateManyContactsSchema = z.object({
+  contacts: z
+    .array(
+      BaseCreateContactSchema.superRefine((contact, ctx) => {
+        validateIdentifiers(contact.identifiers, ctx, ["identifiers"]);
+        contact.notes = validateNotes(contact.notes, ctx, ["notes"]);
+      }),
+    )
+    .min(1)
+    .max(100),
+});
 export type CreateManyContactsData = Data<typeof CreateManyContactsSchema>;
 
 @TenantInteractor({

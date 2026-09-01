@@ -79,6 +79,7 @@ describe("entity detail personalization registry", () => {
         (configuration?.defaultCollapsedSectionIds ?? []).every((id) => configuration?.sectionIds?.includes(id)),
       ).toBe(true);
       expect(configuration?.sectionIds).toEqual(["base", "relations", "customFields"]);
+      expect(configuration?.defaultCollapsedSectionIds).toEqual(["relations", "customFields"]);
     }
   });
 

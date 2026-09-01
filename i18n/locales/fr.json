@@ -1805,7 +1805,6 @@
     "unverified": "Non vérifié"
   },
   "EntityDetail": {
-    "collapseSection": "Réduire {section}",
     "computedFieldHelp": {
       "dealValue": "Somme du prix unitaire × la quantité pour chaque élément lié dans « {services} ». Modifiez-y les éléments liés ou les quantités pour l’actualiser.",
       "serviceLineValue": "Prix de « {service} » × quantité. Modifiez ici l’élément ou la quantité ; modifiez l’élément lié pour changer son prix.",
@@ -1814,7 +1813,6 @@
       "weightedValueUnconfigured": "{dealValue} × probabilité de conclusion de l’étape sélectionnée. Configurez les probabilités dans « {company} » et sélectionnez une étape ; modifiez « {services} » ou les quantités."
     },
     "donePersonalizing": "Terminé",
-    "expandSection": "Développer {section}",
     "fields": {
       "createdAt": "Créé le",
       "updatedAt": "Mis à jour le"
