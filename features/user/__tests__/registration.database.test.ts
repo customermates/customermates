@@ -8,6 +8,14 @@ import { createTranslator } from "next-intl";
 
 import messages from "@/i18n/locales/en.json";
 
+function routineTriggerRepoStub() {
+  return {
+    findEventRoutinesUnscoped: () => Promise.resolve([]),
+    countSuppressedRoutineEventsUnscoped: () => Promise.resolve(),
+    admitEventRoutineRunsUnscoped: () => Promise.resolve([]),
+  };
+}
+
 const activeTenantUser = vi.hoisted(() => ({
   value: null as TenantUser | null,
 }));
@@ -248,6 +256,7 @@ describeDatabase("registration against a real database", () => {
       },
       new PrismaAuditLogRepo(),
       { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
+      routineTriggerRepoStub(),
     );
     const interactor = new RegisterUserInteractor(
       authService as never,
@@ -394,6 +403,7 @@ describeDatabase("registration against a real database", () => {
       },
       new PrismaAuditLogRepo(),
       { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
+      routineTriggerRepoStub(),
     );
     const interactor = new RegisterUserInteractor(
       {
@@ -475,6 +485,7 @@ describeDatabase("registration against a real database", () => {
       },
       auditRepo,
       { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
+      routineTriggerRepoStub(),
     );
     const versions = currentLegalDocumentVersions();
     await runWithoutTenant(async () => {
@@ -573,6 +584,7 @@ describeDatabase("registration against a real database", () => {
       },
       new PrismaAuditLogRepo(),
       { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
+      routineTriggerRepoStub(),
     );
     const interactor = new RegisterUserInteractor(
       {

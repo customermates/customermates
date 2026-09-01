@@ -3,6 +3,7 @@ import type { GetRoutinesRepo } from "./get-routines.interactor";
 import type { GetRoutineRepo } from "./get-routine.interactor";
 import type { GetRoutineRunsRepo } from "./get-routine-runs.interactor";
 import type { GetRoutineRunTranscriptRepo } from "./get-routine-run-transcript.interactor";
+import type { AdmittedRoutineRun, TriggerRoutinesRepo } from "./trigger-routines.repo";
 import type { UpsertRoutineRepo } from "./upsert-routine.interactor";
 import type { DeleteRoutineRepo } from "./delete-routine.interactor";
 import type { RunRoutineNowRepo } from "./run-routine-now.interactor";
@@ -11,9 +12,9 @@ import type { SweepDueRoutinesRepo } from "./sweep-due-routines.interactor";
 import type { ReconcileRoutineRunsRepo } from "./reconcile-routine-runs.interactor";
 import type { RoutineDto, RoutineRunDto } from "./routine.schema";
 
-import type { AgentTurnTerminalCode, Prisma, RoutineTriggerKind } from "@/generated/prisma";
+import type { AgentTurnTerminalCode, Prisma } from "@/generated/prisma";
 
-import { RoutineRunStatus } from "@/generated/prisma";
+import { RoutineRunStatus, RoutineTriggerKind } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
@@ -99,7 +100,8 @@ export class PrismaRoutineRepo
     RunRoutineNowRepo,
     StartRoutineRunRepo,
     SweepDueRoutinesRepo,
-    ReconcileRoutineRunsRepo
+    ReconcileRoutineRunsRepo,
+    TriggerRoutinesRepo
 {
   getSearchableFields() {
     return [{ field: "name" }];
@@ -391,6 +393,78 @@ export class PrismaRoutineRepo
       where: { id: routineId },
       data: { enabled: false, disabledReason: reason, nextRunAt: null },
     });
+  }
+
+  @BypassTenantGuard
+  async findEventRoutinesUnscoped(companyId: string, event: string) {
+    return this.prisma.routine.findMany({
+      where: { companyId, enabled: true, triggerKind: RoutineTriggerKind.event, triggerEvents: { has: event } },
+      select: { id: true, ownerUserId: true },
+    });
+  }
+
+  @BypassTenantGuard
+  async countSuppressedRoutineEventsUnscoped(routineIds: string[]) {
+    if (routineIds.length === 0) return;
+
+    await this.prisma.routine.updateMany({
+      where: { id: { in: routineIds } },
+      data: { suppressedEventCount: { increment: 1 } },
+    });
+  }
+
+  @BypassTenantGuard
+  async admitEventRoutineRunsUnscoped(args: {
+    companyId: string;
+    event: string;
+    entityId: string | null;
+    routineIds: string[];
+    now: Date;
+  }): Promise<AdmittedRoutineRun[]> {
+    const routines = await this.prisma.routine.findMany({
+      where: { id: { in: args.routineIds } },
+      select: { id: true, ownerUserId: true, debounceSeconds: true, maxRunsPerHour: true },
+    });
+
+    const admitted: AdmittedRoutineRun[] = [];
+    for (const routine of routines) {
+      const inFlight = await this.prisma.routineRun.count({
+        where: { routineId: routine.id, status: { in: [RoutineRunStatus.queued, RoutineRunStatus.running] } },
+      });
+      if (inFlight > 0) continue;
+
+      const debounceSince = new Date(args.now.getTime() - routine.debounceSeconds * 1000);
+      const recentlyTriggered = await this.prisma.routineRun.count({
+        where: { routineId: routine.id, createdAt: { gt: debounceSince } },
+      });
+      if (recentlyTriggered > 0) continue;
+
+      const hourlyCount = await this.prisma.routineRun.count({
+        where: {
+          routineId: routine.id,
+          createdAt: { gt: new Date(args.now.getTime() - 3_600_000) },
+          status: { not: RoutineRunStatus.skipped },
+        },
+      });
+      if (hourlyCount >= routine.maxRunsPerHour) continue;
+
+      const run = await this.prisma.routineRun.create({
+        data: {
+          companyId: args.companyId,
+          routineId: routine.id,
+          status: RoutineRunStatus.queued,
+          triggerKind: RoutineTriggerKind.event,
+          triggerEvent: args.event,
+          triggerEntityId: args.entityId,
+          scheduledFor: args.now,
+        },
+        select: { id: true },
+      });
+
+      admitted.push({ id: run.id, routineId: routine.id, ownerUserId: routine.ownerUserId });
+    }
+
+    return admitted;
   }
 
   @BypassTenantGuard

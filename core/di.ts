@@ -389,6 +389,7 @@ export const getEventService = () => {
     getWebhookDeliveryRepo(),
     getAuditLogRepo(),
     getBackgroundTaskService(),
+    getRoutineRepo(),
   );
 };
 export const getWidgetDataFetcher = () => new WidgetDataFetcher();

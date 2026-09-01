@@ -54,6 +54,7 @@ import { requiresApproval } from "@/ee/agent-chat/gated-tools";
 import { resolveAgentApprovalContext } from "@/ee/agent-chat/agent-external-approval-context";
 import { resolveAgentToolResultMaxChars } from "@/ee/agent-chat/agent-budget-policy";
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
+import { runInRoutineContext } from "@/core/decorators/routine-context";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 
 import { reportFailure, toWorkflowFailure, type WorkflowFailure } from "./capture-failure";
@@ -135,7 +136,10 @@ function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprov
 
   return {
     resultMaxChars: resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars),
-    runInCallerContext: (run) => runAsBackgroundTenant(payload.userId, run),
+    runInCallerContext: (run) =>
+      runAsBackgroundTenant(payload.userId, () =>
+        runInRoutineContext(payload.surface === "routine" ? { causationDepth: 1 } : null, run),
+      ),
     resolveApprovalContext: resolveAgentApprovalContext,
     requestApproval: () => Promise.resolve(toolApprovalDecisionForGrant(grant)),
     runUiCommand: () =>
