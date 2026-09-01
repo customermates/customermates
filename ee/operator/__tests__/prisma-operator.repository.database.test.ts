@@ -204,6 +204,49 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
     });
   });
 
+  it("keeps authorizing an operator when a stranger holds a case-variant of their email", async () => {
+    const target = await seedEnterpriseUser(`case-variant-${randomUUID()}@example.invalid`);
+    const sessionId = randomUUID();
+    await runWithoutTenant(async () => {
+      await prisma.user.update({ where: { id: target.userId }, data: { isPlatformOperator: true } });
+      await prisma.authSession.create({
+        data: {
+          id: sessionId,
+          token: randomUUID(),
+          userId: target.authUserId,
+          expiresAt: new Date(Date.now() + 60_000),
+        },
+      });
+    });
+    const session = {
+      session: { id: sessionId },
+      user: { id: target.authUserId, email: target.email },
+    } as InteractiveSession;
+    const repo = new PrismaOperatorAccessRepo();
+
+    await expect(repo.findAuthorizedActorUnscoped(session)).resolves.toMatchObject({ userId: target.userId });
+
+    const strangerCompanyId = randomUUID();
+    companyIds.push(strangerCompanyId);
+    await runWithoutTenant(async () => {
+      await prisma.company.create({ data: { id: strangerCompanyId } });
+      await prisma.user.create({
+        data: {
+          id: randomUUID(),
+          email: target.email.toUpperCase(),
+          firstName: "Case",
+          lastName: "Variant",
+          companyId: strangerCompanyId,
+          status: "active",
+        },
+      });
+    });
+
+    await expect(repo.findAuthorizedActorUnscoped(session)).resolves.toMatchObject({ userId: target.userId });
+
+    await runWithoutTenant(() => prisma.authSession.delete({ where: { id: sessionId } }));
+  });
+
   it("rejects a negative adjustment below committed usage and replays a valid operation once", async () => {
     const target = await seedEnterpriseUser(`adjust-${randomUUID()}@example.invalid`, 10);
     const actor = operatorActor();

@@ -23,14 +23,14 @@ export class PrismaOperatorAccessRepo extends BaseRepository implements Operator
     ]);
     if (!freshSession || freshSession.userId !== session.user.id || freshSession.expiresAt.getTime() <= Date.now())
       return null;
-    if (!authUser?.emailVerified) return null;
+    if (!authUser?.emailVerified || !authUser.companyId) return null;
 
     const sessionEmail = normalizeOperatorEmail(session.user.email);
     const freshAuthEmail = normalizeOperatorEmail(authUser.email);
     if (sessionEmail !== freshAuthEmail) return null;
 
     const users = await this.prisma.user.findMany({
-      where: { email: { equals: freshAuthEmail, mode: "insensitive" } },
+      where: { email: { equals: freshAuthEmail, mode: "insensitive" }, companyId: authUser.companyId },
       take: 2,
       select: {
         id: true,
