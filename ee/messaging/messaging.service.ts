@@ -201,6 +201,12 @@ export function isUnipileProviderUnprocessable(err: unknown): boolean {
   return (err.errorType ?? "").endsWith("/unprocessable_entity");
 }
 
+export function isUnipileSourceForbidden(err: unknown): boolean {
+  if (!(err instanceof UnipileRequestError) || err.status !== 403) return false;
+
+  return (err.errorType ?? "").endsWith("/insufficient_permissions");
+}
+
 export function isUnipileCursorPaginationRequired(err: unknown): boolean {
   if (!(err instanceof UnipileRequestError) || err.status !== 400) return false;
   if (!(err.errorType ?? "").endsWith("/invalid_parameters")) return false;

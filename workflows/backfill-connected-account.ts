@@ -14,6 +14,7 @@ import {
   getRetryAfterSeconds,
   isUnipileProviderUnprocessable,
   isUnipileRateLimit,
+  isUnipileSourceForbidden,
   isUnipileTimeout,
 } from "@/ee/messaging/messaging.service";
 
@@ -39,7 +40,13 @@ export type BackfillConnectedAccountPayload = {
 };
 
 type PageKind = "chat" | "email" | "calendar";
-type ListPageResult = { nextCursor: string | null; done: boolean; retryAfterSeconds?: number; stalled?: boolean };
+type ListPageResult = {
+  nextCursor: string | null;
+  done: boolean;
+  retryAfterSeconds?: number;
+  stalled?: boolean;
+  forbidden?: boolean;
+};
 type PageFetcher = (connectedAccountId: string, source: string, cursor: string | null) => Promise<ListPageResult>;
 
 const pageFetchers: Record<PageKind, PageFetcher> = {
@@ -87,6 +94,7 @@ async function listPage(
       return { nextCursor: cursor, done: false, retryAfterSeconds: getRetryAfterSeconds(err) ?? 60 };
     if (isUnipileTimeout(err) || isUnipileProviderUnprocessable(err))
       return { nextCursor: cursor, done: false, stalled: true };
+    if (isUnipileSourceForbidden(err)) return { nextCursor: null, done: true, forbidden: true };
     throw err;
   }
 }
@@ -123,6 +131,15 @@ async function drainSources(
     const stillPending: SourceProgress[] = [];
     for (const progress of pending) {
       const page = await listPage(kind, connectedAccountId, progress.source, progress.cursor);
+
+      if (page.forbidden) {
+        await reportWarning(
+          WORKFLOW_NAME,
+          `source "${progress.source}" skipped: the account lacks permission to read it (account ${connectedAccountId})`,
+          tenant,
+        );
+        continue;
+      }
 
       if (page.stalled) {
         progress.stallCount += 1;

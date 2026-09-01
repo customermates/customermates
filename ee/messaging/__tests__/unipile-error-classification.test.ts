@@ -4,7 +4,12 @@ import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
 
 vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, UNIPILE_API_KEY: "test-key" } }));
 
-import { UnipileRequestError, isUnipileProviderUnprocessable, isUnipileTimeout } from "../messaging.service";
+import {
+  UnipileRequestError,
+  isUnipileProviderUnprocessable,
+  isUnipileSourceForbidden,
+  isUnipileTimeout,
+} from "../messaging.service";
 
 function unprocessable(detail: string): UnipileRequestError {
   return new UnipileRequestError(
@@ -52,5 +57,37 @@ describe("isUnipileProviderUnprocessable", () => {
     expect(isUnipileTimeout(timeout)).toBe(true);
     expect(isUnipileProviderUnprocessable(timeout)).toBe(false);
     expect(isUnipileTimeout(unprocessable("LIST completed"))).toBe(false);
+  });
+});
+
+describe("isUnipileSourceForbidden", () => {
+  const forbidden = new UnipileRequestError(
+    403,
+    "provider/insufficient_permissions",
+    JSON.stringify({
+      object: "Error",
+      status: 403,
+      type: "provider/insufficient_permissions",
+      title: "Insufficient permissions",
+      detail: "You need to have admin rights of the company page.",
+      req_id: "req-sgo",
+    }),
+  );
+
+  it("recognises a source the account may not read", () => {
+    expect(isUnipileSourceForbidden(forbidden)).toBe(true);
+  });
+
+  it("stays distinct from the retryable classifiers, since permission never recovers", () => {
+    expect(isUnipileProviderUnprocessable(forbidden)).toBe(false);
+    expect(isUnipileTimeout(forbidden)).toBe(false);
+  });
+
+  it("ignores a 403 of a different type and other statuses", () => {
+    expect(isUnipileSourceForbidden(new UnipileRequestError(403, "api/account_restricted", "{}"))).toBe(false);
+    expect(isUnipileSourceForbidden(new UnipileRequestError(401, "provider/insufficient_permissions", "{}"))).toBe(
+      false,
+    );
+    expect(isUnipileSourceForbidden(new Error("boom"))).toBe(false);
   });
 });
