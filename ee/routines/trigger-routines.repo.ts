@@ -1,4 +1,4 @@
-export type EventRoutineCandidate = { id: string; ownerUserId: string };
+export type EventRoutineCandidate = { id: string; ownerUserId: string; changedFields: string[] };
 
 export type AdmittedRoutineRun = { id: string; routineId: string; ownerUserId: string };
 

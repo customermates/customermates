@@ -147,6 +147,7 @@ function startFixtures(overrides: { run?: Record<string, unknown>; routine?: Rec
     settleRoutineRunUnscoped: vi.fn().mockResolvedValue(undefined),
   };
   const conversations = { createAgentConversationForRun: vi.fn().mockResolvedValue(undefined) };
+  const filterMatcher = { matches: vi.fn().mockResolvedValue(true) };
   const sendAgentMessage = {
     invoke: vi.fn().mockResolvedValue({
       ok: true,
@@ -158,15 +159,20 @@ function startFixtures(overrides: { run?: Record<string, unknown>; routine?: Rec
     }),
   };
 
-  return { repo, conversations, sendAgentMessage };
+  return { repo, conversations, sendAgentMessage, filterMatcher };
 }
 
 describe("StartRoutineRunInteractor", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("starts the turn in a routine-origin conversation", async () => {
-    const { repo, conversations, sendAgentMessage } = startFixtures();
-    const interactor = new StartRoutineRunInteractor(repo as never, conversations as never, sendAgentMessage as never);
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
 
     const result = await interactor.invoke({ routineRunId: RUN_ID });
 
@@ -179,8 +185,13 @@ describe("StartRoutineRunInteractor", () => {
   });
 
   it("does not start a run that is no longer queued", async () => {
-    const { repo, conversations, sendAgentMessage } = startFixtures({ run: { status: "running" } });
-    const interactor = new StartRoutineRunInteractor(repo as never, conversations as never, sendAgentMessage as never);
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures({ run: { status: "running" } });
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
 
     const result = await interactor.invoke({ routineRunId: RUN_ID });
 
@@ -189,8 +200,13 @@ describe("StartRoutineRunInteractor", () => {
   });
 
   it("skips a disabled routine", async () => {
-    const { repo, conversations, sendAgentMessage } = startFixtures({ routine: { enabled: false } });
-    const interactor = new StartRoutineRunInteractor(repo as never, conversations as never, sendAgentMessage as never);
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures({ routine: { enabled: false } });
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
 
     const result = await interactor.invoke({ routineRunId: RUN_ID });
 
@@ -199,9 +215,14 @@ describe("StartRoutineRunInteractor", () => {
   });
 
   it("leaves chat capacity for the owner by capping in-flight routine runs", async () => {
-    const { repo, conversations, sendAgentMessage } = startFixtures();
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
     repo.countInFlightRoutineRunsForOwnerUnscoped.mockResolvedValue(1);
-    const interactor = new StartRoutineRunInteractor(repo as never, conversations as never, sendAgentMessage as never);
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
 
     const result = await interactor.invoke({ routineRunId: RUN_ID });
 
@@ -210,9 +231,14 @@ describe("StartRoutineRunInteractor", () => {
   });
 
   it("enforces the hourly run ceiling", async () => {
-    const { repo, conversations, sendAgentMessage } = startFixtures();
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
     repo.countRecentRoutineRunsUnscoped.mockResolvedValue(5);
-    const interactor = new StartRoutineRunInteractor(repo as never, conversations as never, sendAgentMessage as never);
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
 
     const result = await interactor.invoke({ routineRunId: RUN_ID });
 
@@ -220,9 +246,14 @@ describe("StartRoutineRunInteractor", () => {
   });
 
   it("refuses to spend anything when the run was already claimed by another dispatch", async () => {
-    const { repo, conversations, sendAgentMessage } = startFixtures();
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
     repo.claimQueuedRoutineRunUnscoped.mockResolvedValue(false);
-    const interactor = new StartRoutineRunInteractor(repo as never, conversations as never, sendAgentMessage as never);
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
 
     const result = await interactor.invoke({ routineRunId: RUN_ID });
 
@@ -232,8 +263,15 @@ describe("StartRoutineRunInteractor", () => {
   });
 
   it("caps the turn budget with the routine's per-run credit ceiling", async () => {
-    const { repo, conversations, sendAgentMessage } = startFixtures({ routine: { maxCreditsPerRun: 3 } });
-    const interactor = new StartRoutineRunInteractor(repo as never, conversations as never, sendAgentMessage as never);
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures({
+      routine: { maxCreditsPerRun: 3 },
+    });
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
 
     await interactor.invoke({ routineRunId: RUN_ID });
 
@@ -242,13 +280,38 @@ describe("StartRoutineRunInteractor", () => {
     );
   });
 
+  it("skips a run whose record no longer matches the routine's conditions", async () => {
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures({
+      run: { triggerEvent: "contact.updated", triggerEntityId: "contact-1" },
+      routine: { triggerFilters: [{ field: "stage", operator: "equals", value: "won" }] },
+    });
+    filterMatcher.matches.mockResolvedValue(false);
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
+
+    const result = await interactor.invoke({ routineRunId: RUN_ID });
+
+    expect(result).toEqual({ ok: true, data: { started: false, reason: "filtersNotMatched" } });
+    expect(repo.claimQueuedRoutineRunUnscoped).not.toHaveBeenCalled();
+    expect(sendAgentMessage.invoke).not.toHaveBeenCalled();
+  });
+
   it("records a blocked run when the agent refuses to start", async () => {
-    const { repo, conversations, sendAgentMessage } = startFixtures();
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
     sendAgentMessage.invoke.mockResolvedValue({
       ok: false,
       error: { issues: [{ message: "You have used all your AI credits." }] },
     });
-    const interactor = new StartRoutineRunInteractor(repo as never, conversations as never, sendAgentMessage as never);
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
 
     const result = await interactor.invoke({ routineRunId: RUN_ID });
 

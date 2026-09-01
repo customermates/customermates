@@ -19,8 +19,8 @@ import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
 import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { runUserAction } from "@/core/errors/report-application-error";
 
-import { EMPTY_ROUTINE_FORM } from "./routine-modal.store";
 import { useRoutineColumns } from "./use-routine-columns";
 import { RoutinesPageSkeleton } from "./routines-page-skeleton";
 
@@ -42,7 +42,7 @@ export const RoutinesPageView = observer(function RoutinesPageView({ initialRout
     total: routinesStore.pagination?.total,
   });
   const descriptor = { title: t("RoutinesCard.emptyTitle"), body: t("RoutinesCard.emptyBody") };
-  const handleAdd = useCallback(() => routineModalStore.openWith(EMPTY_ROUTINE_FORM), [routineModalStore]);
+  const handleAdd = useCallback(() => runUserAction(() => routineModalStore.openForCreate()), [routineModalStore]);
   const topBarNode = useMemo(
     () => (
       <DataViewToolbar

@@ -9,6 +9,7 @@ import type { TriggerRoutinesRepo } from "@/ee/routines/trigger-routines.repo";
 
 import { UserAccessor } from "@/core/base/user-accessor";
 import { currentRoutineContext } from "@/core/decorators/routine-context";
+import { changedFieldsOf, matchesChangedFields } from "@/ee/routines/routine-event-filter";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { env } from "@/env";
 
@@ -134,13 +135,17 @@ export class EventService extends UserAccessor {
   ): Promise<number> {
     if (!WebhookEventSchema.options.some((option) => option === event)) return 0;
 
-    const routines = await this.routineRepo.findEventRoutinesUnscoped(companyId, event);
-    if (routines.length === 0) return 0;
+    const subscribed = await this.routineRepo.findEventRoutinesUnscoped(companyId, event);
+    if (subscribed.length === 0) return 0;
 
     if (currentRoutineContext()) {
-      await this.routineRepo.countSuppressedRoutineEventsUnscoped(routines.map((routine) => routine.id));
+      await this.routineRepo.countSuppressedRoutineEventsUnscoped(subscribed.map((routine) => routine.id));
       return 0;
     }
+
+    const changed = changedFieldsOf((payload as { payload?: unknown }).payload);
+    const routines = subscribed.filter((routine) => matchesChangedFields(routine.changedFields, changed));
+    if (routines.length === 0) return 0;
 
     const admitted = await this.routineRepo.admitEventRoutineRunsUnscoped({
       companyId,

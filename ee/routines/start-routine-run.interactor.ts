@@ -1,6 +1,7 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { RoutineDto } from "./routine.schema";
 import type { SendAgentMessageInteractor } from "@/ee/agent-chat/send-agent-message.interactor";
+import type { RoutineFilterMatcher } from "./routine-filter-matcher";
 import type { AgentConversationOrigin, RoutineRunStatus as RoutineRunStatusType } from "@/generated/prisma";
 
 import { randomUUID } from "node:crypto";
@@ -13,6 +14,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
 
 import { composeRoutinePrompt } from "./routine-prompt";
+import { entityTypeForEvent } from "./routine-event-filter";
 
 export const ROUTINE_MAX_IN_FLIGHT_RUNS_PER_OWNER = 1;
 
@@ -66,6 +68,7 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
     private repo: StartRoutineRunRepo,
     private conversations: StartRoutineConversationRepo,
     private sendAgentMessage: SendAgentMessageInteractor,
+    private filterMatcher: RoutineFilterMatcher,
   ) {
     super();
   }
@@ -92,6 +95,18 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
       });
 
       return { ok: true as const, data: { started: false, reason: blocked } };
+    }
+
+    if (!(await this.matchesTriggerFilters(routine, run.triggerEvent, run.triggerEntityId))) {
+      await this.repo.settleRoutineRunUnscoped({
+        routineRunId: run.id,
+        routineId: routine.id,
+        status: RoutineRunStatus.skipped,
+        error: "filtersNotMatched",
+        now,
+      });
+
+      return { ok: true as const, data: { started: false, reason: "filtersNotMatched" } };
     }
 
     if (!(await this.repo.claimQueuedRoutineRunUnscoped(run.id, now)))
@@ -151,6 +166,20 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
     });
 
     return { ok: true as const, data: { started: true } };
+  }
+
+  private async matchesTriggerFilters(
+    routine: RoutineDto,
+    triggerEvent: string | null,
+    triggerEntityId: string | null,
+  ): Promise<boolean> {
+    const filters = routine.triggerFilters ?? [];
+    if (filters.length === 0 || !triggerEvent || !triggerEntityId) return true;
+
+    const entityType = entityTypeForEvent(triggerEvent);
+    if (!entityType) return true;
+
+    return this.filterMatcher.matches(entityType, triggerEntityId, filters);
   }
 
   private async resolveBlockReason(routine: RoutineDto, runId: string, now: Date): Promise<string | null> {

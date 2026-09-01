@@ -1889,6 +1889,8 @@ model Routine {
   timezone             String?
   runOnceAt            DateTime?
   triggerEvents        String[]
+  changedFields        String[]
+  triggerFilters       Json?
   debounceSeconds      Int                  @default(300)
   maxRunsPerHour       Int                  @default(4)
   maxCreditsPerRun     Int                  @default(10)

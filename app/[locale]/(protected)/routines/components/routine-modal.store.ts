@@ -3,16 +3,38 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { UpsertRoutineData } from "@/ee/routines/routine.schema";
 import type { RoutineDto } from "@/ee/routines/routine.schema";
 import type { RoutineSchedulePreset } from "@/ee/routines/routine-schedule-preset";
+import type { Filter, FilterableField } from "@/core/base/base-get.schema";
+import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
-import { action, makeObservable, toJS } from "mobx";
+import { action, computed, makeObservable, observable, runInAction, toJS } from "mobx";
+import type { EntityType } from "@/generated/prisma";
 import { Resource, RoutineTriggerKind } from "@/generated/prisma";
 
-import { deleteRoutineAction, upsertRoutineAction } from "../actions";
+import { deleteRoutineAction, getRoutineFilterFieldsAction, upsertRoutineAction } from "../actions";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
+import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { DEFAULT_ROUTINE_TIMEZONE } from "@/ee/routines/routine-schedule";
 import { DEFAULT_ROUTINE_SCHEDULE, cronForSchedule, scheduleFromCron } from "@/ee/routines/routine-schedule-preset";
+import { entityTypeForEvents } from "@/ee/routines/routine-event-filter";
+
+function mergeFilters(filterableFields: FilterableField[], current: Filter[]): Filter[] {
+  const existing = new Map<string, Filter>();
+  for (const filter of Array.isArray(current) ? current : [])
+    if (filter && typeof filter.field === "string") existing.set(filter.field, filter);
+
+  return filterableFields.map((field) => {
+    const match = existing.get(field.field);
+    if (!match) return { field: field.field, operator: undefined, value: undefined } as unknown as Filter;
+
+    return {
+      field: match.field,
+      operator: match.operator,
+      ...("value" in match ? { value: match.value } : {}),
+    } as Filter;
+  });
+}
 
 export type RoutineModalForm = UpsertRoutineData & {
   schedulePreset: RoutineSchedulePreset;
@@ -29,6 +51,8 @@ export const EMPTY_ROUTINE_FORM: RoutineModalForm = {
   triggerKind: RoutineTriggerKind.schedule,
   timezone: DEFAULT_ROUTINE_TIMEZONE,
   triggerEvents: [],
+  changedFields: [],
+  triggerFilters: [],
   maxRunsPerHour: 4,
   maxCreditsPerRun: 10,
   schedulePreset: DEFAULT_ROUTINE_SCHEDULE.preset,
@@ -50,6 +74,8 @@ export function routineFormFor(routine: RoutineDto): RoutineModalForm {
     triggerKind: routine.triggerKind,
     timezone: routine.timezone ?? DEFAULT_ROUTINE_TIMEZONE,
     triggerEvents: routine.triggerEvents,
+    changedFields: routine.changedFields,
+    triggerFilters: routine.triggerFilters ?? [],
     maxRunsPerHour: routine.maxRunsPerHour,
     maxCreditsPerRun: routine.maxCreditsPerRun,
     schedulePreset: schedule.preset,
@@ -62,14 +88,75 @@ export function routineFormFor(routine: RoutineDto): RoutineModalForm {
 }
 
 export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
+  filterableFieldsByEntityType: Partial<Record<EntityType, FilterableField[]>> = {};
+  customColumnsByEntityType: Partial<Record<EntityType, CustomColumnDto[]>> = {};
+  private filterFieldsLoaded = false;
+
   constructor(rootStore: RootStore) {
     super(rootStore, EMPTY_ROUTINE_FORM, Resource.api);
 
     makeObservable(this, {
+      filterableFieldsByEntityType: observable,
+      customColumnsByEntityType: observable,
+
+      triggerEntityType: computed,
+      filterableFields: computed,
+      customColumns: computed,
+
       delete: action,
       onSubmit: action,
+      loadFilterFields: action,
+      openForCreate: action,
+      openForEdit: action,
     });
   }
+
+  get triggerEntityType(): EntityType | null {
+    return entityTypeForEvents(this.form?.triggerEvents ?? []);
+  }
+
+  get filterableFields(): FilterableField[] {
+    const entityType = this.triggerEntityType;
+
+    return entityType ? (this.filterableFieldsByEntityType[entityType] ?? []) : [];
+  }
+
+  get customColumns(): CustomColumnDto[] {
+    const entityType = this.triggerEntityType;
+
+    return entityType ? (this.customColumnsByEntityType[entityType] ?? []) : [];
+  }
+
+  openForCreate = async () => {
+    await this.loadFilterFields();
+    this.openWith(this.withMergedFilterRows(EMPTY_ROUTINE_FORM));
+  };
+
+  openForEdit = async (routine: RoutineDto) => {
+    await this.loadFilterFields();
+    this.openWith(this.withMergedFilterRows(routineFormFor(routine)));
+  };
+
+  private withMergedFilterRows = (form: RoutineModalForm): RoutineModalForm => {
+    const entityType = entityTypeForEvents(form.triggerEvents ?? []);
+    const fields = entityType ? (this.filterableFieldsByEntityType[entityType] ?? []) : [];
+
+    return { ...form, triggerFilters: mergeFilters(fields, (form.triggerFilters as Filter[]) ?? []) };
+  };
+
+  loadFilterFields = async () => {
+    if (this.filterFieldsLoaded) return;
+    this.filterFieldsLoaded = true;
+
+    const { filterableFields, customColumns } = await getRoutineFilterFieldsAction();
+    const byEntityType: Partial<Record<EntityType, CustomColumnDto[]>> = {};
+    for (const column of customColumns) (byEntityType[column.entityType] ??= []).push(column);
+
+    runInAction(() => {
+      this.filterableFieldsByEntityType = filterableFields;
+      this.customColumnsByEntityType = byEntityType;
+    });
+  };
 
   get payload(): UpsertRoutineData {
     const form = toJS(this.form);
@@ -83,6 +170,8 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       triggerKind: form.triggerKind,
       timezone: form.timezone,
       triggerEvents: scheduled ? [] : form.triggerEvents,
+      changedFields: scheduled ? [] : (form.changedFields ?? []),
+      triggerFilters: scheduled ? [] : (form.triggerFilters ?? []).filter(hasValidFilterConfiguration),
       maxRunsPerHour: form.maxRunsPerHour,
       maxCreditsPerRun: form.maxCreditsPerRun,
       cronExpression: scheduled

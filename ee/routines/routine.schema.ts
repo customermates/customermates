@@ -5,6 +5,7 @@ import { z } from "zod";
 import { RoutineRunStatus, RoutineTriggerKind, AgentTurnTerminalCode } from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
+import { FilterSchema } from "@/core/base/base-get.schema";
 import {
   DEFAULT_ROUTINE_TIMEZONE,
   MIN_ROUTINE_INTERVAL_MINUTES,
@@ -31,6 +32,8 @@ export const RoutineDtoSchema = z.object({
   timezone: z.string().nullable(),
   runOnceAt: z.date().nullable(),
   triggerEvents: z.array(WebhookEventSchema),
+  changedFields: z.array(z.string()),
+  triggerFilters: z.array(FilterSchema).nullable(),
   debounceSeconds: z.number().int(),
   maxRunsPerHour: z.number().int(),
   maxCreditsPerRun: z.number().int(),
@@ -79,6 +82,8 @@ export const UpsertRoutineSchema = z
     timezone: z.string().min(1).max(64).nullable().optional(),
     runOnceAt: z.coerce.date().nullable().optional(),
     triggerEvents: z.array(WebhookEventSchema).optional(),
+    changedFields: z.array(z.string()).optional(),
+    triggerFilters: z.array(FilterSchema).nullable().optional(),
     debounceSeconds: z.number().int().min(0).max(86_400).optional(),
     maxRunsPerHour: z.number().int().min(1).max(60).optional(),
     maxCreditsPerRun: z.number().int().min(1).max(500).optional(),

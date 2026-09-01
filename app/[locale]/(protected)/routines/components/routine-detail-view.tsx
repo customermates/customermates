@@ -18,7 +18,6 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { ROUTINE_RUN_STATUS_CHIP_COLOR } from "@/ee/routines/routine-run-chip-colors";
 
-import { routineFormFor } from "./routine-modal.store";
 import { useRoutineDetailSync } from "./use-routine-detail-sync";
 
 type Props = { routine: RoutineDto; initialRuns: RoutineRunDto[]; risks: RoutineRiskDto[] };
@@ -99,7 +98,7 @@ export const RoutineDetailView = observer(function RoutineDetailView({ routine, 
                 id="routines-edit"
                 size="sm"
                 variant="secondary"
-                onClick={() => routineModalStore.openWith(routineFormFor(routine))}
+                onClick={() => runUserAction(() => routineModalStore.openForEdit(routine))}
               >
                 <Pencil className="size-3.5" />
 

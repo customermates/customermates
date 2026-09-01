@@ -14,9 +14,9 @@ import type { SweepDueRoutinesRepo } from "./sweep-due-routines.interactor";
 import type { ReconcileRoutineRunsRepo } from "./reconcile-routine-runs.interactor";
 import type { RoutineDto, RoutineRunDto } from "./routine.schema";
 
-import type { AgentTurnTerminalCode, Prisma, RoutineRiskKind } from "@/generated/prisma";
+import type { AgentTurnTerminalCode, RoutineRiskKind } from "@/generated/prisma";
 
-import { RoutineRiskSeverity, RoutineRunStatus, RoutineTriggerKind } from "@/generated/prisma";
+import { Prisma, RoutineRiskSeverity, RoutineRunStatus, RoutineTriggerKind } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
@@ -42,6 +42,8 @@ const ROUTINE_SELECT = {
   timezone: true,
   runOnceAt: true,
   triggerEvents: true,
+  changedFields: true,
+  triggerFilters: true,
   debounceSeconds: true,
   maxRunsPerHour: true,
   maxCreditsPerRun: true,
@@ -210,7 +212,20 @@ export class PrismaRoutineRepo
       await this.prisma.routine.update({
         where: { id, companyId },
         data: {
-          ...input,
+          name: input.name,
+          prompt: input.prompt,
+          modelKey: input.modelKey,
+          enabled: input.enabled,
+          triggerKind: input.triggerKind,
+          cronExpression: input.cronExpression,
+          timezone: input.timezone,
+          runOnceAt: input.runOnceAt,
+          triggerEvents: input.triggerEvents,
+          changedFields: input.changedFields,
+          triggerFilters: input.triggerFilters === undefined ? undefined : (input.triggerFilters ?? Prisma.DbNull),
+          debounceSeconds: input.debounceSeconds,
+          maxRunsPerHour: input.maxRunsPerHour,
+          maxCreditsPerRun: input.maxCreditsPerRun,
           nextRunAt: enabled ? resolveNextRunAt(merged, now) : null,
           disabledReason: enabled ? null : existing.disabledReason,
         },
@@ -232,6 +247,8 @@ export class PrismaRoutineRepo
         timezone: input.timezone ?? DEFAULT_ROUTINE_TIMEZONE,
         runOnceAt: input.runOnceAt ?? null,
         triggerEvents: input.triggerEvents ?? [],
+        changedFields: input.changedFields ?? [],
+        triggerFilters: input.triggerFilters ?? Prisma.DbNull,
         debounceSeconds: input.debounceSeconds ?? 300,
         maxRunsPerHour: input.maxRunsPerHour ?? 4,
         maxCreditsPerRun: input.maxCreditsPerRun ?? 10,
@@ -471,10 +488,12 @@ export class PrismaRoutineRepo
 
   @BypassTenantGuard
   async findEventRoutinesUnscoped(companyId: string, event: string) {
-    return this.prisma.routine.findMany({
+    const routines = await this.prisma.routine.findMany({
       where: { companyId, enabled: true, triggerKind: RoutineTriggerKind.event, triggerEvents: { has: event } },
-      select: { id: true, ownerUserId: true },
+      select: { id: true, ownerUserId: true, changedFields: true },
     });
+
+    return routines.map((routine) => ({ ...routine, changedFields: [...routine.changedFields] }));
   }
 
   @BypassTenantGuard

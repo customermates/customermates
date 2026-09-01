@@ -106,6 +106,7 @@ const ENTITLEMENT_DENIAL_KEYS = [
 ] as const;
 const FORM_FIELD_INPUT_KEYS = [
   "Common.inputs.amount",
+  "Common.inputs.changedFields",
   "Common.inputs.cronExpression",
   "Common.inputs.enabled",
   "Common.inputs.maxCreditsPerRun",

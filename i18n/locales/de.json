@@ -1198,6 +1198,7 @@
       "aggregationType": "Metrik",
       "amount": "Betrag",
       "avatarUrl": "Avatar-URL",
+      "changedFields": "Nur wenn sich diese Felder ändern",
       "company": "Unternehmen",
       "confirmEmail": "E-Mail bestätigen",
       "confirmPassword": "Passwort bestätigen",
@@ -2544,8 +2545,10 @@
   "RoutineModal": {
     "advanced": "Erweitert",
     "at": "um",
+    "changedFieldsHelp": "Leer lassen, um bei jeder Änderung zu laufen. Eine Einschränkung spart Guthaben.",
     "disabled": "Pausiert",
     "enabled": "Aktiv",
+    "eventFilters": "Nur wenn der Datensatz passt",
     "onMinute": "zur Minute",
     "promptDescription": "Der Assistent erhält diese Anweisungen bei jedem Lauf der Routine.",
     "scheduleDescription": "Routinen laufen höchstens alle 15 Minuten.",

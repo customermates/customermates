@@ -34,6 +34,7 @@ import { PrismaWidgetRepo } from "@/features/widget/prisma-widget.repository";
 import { PrismaWidgetCalculatorRepo } from "@/features/widget/calculator/prisma-widget-calculator.repository";
 import { PrismaWebhookRepo } from "@/features/webhook/prisma-webhook.repository";
 import { PrismaRoutineRepo } from "@/ee/routines/prisma-routine.repository";
+import { PrismaRoutineFilterMatcher } from "@/ee/routines/routine-filter-matcher";
 import { GetRoutinesInteractor } from "@/ee/routines/get-routines.interactor";
 import { GetRoutineRunsInteractor } from "@/ee/routines/get-routine-runs.interactor";
 import { GetRoutineInteractor } from "@/ee/routines/get-routine.interactor";
@@ -346,6 +347,15 @@ export const getWidgetCalculatorRepo = () => new PrismaWidgetCalculatorRepo();
 export const getWebhookRepo = () => new PrismaWebhookRepo();
 
 export const getRoutineRepo = () => new PrismaRoutineRepo();
+
+export const getRoutineFilterMatcher = () =>
+  new PrismaRoutineFilterMatcher(
+    getContactRepo(),
+    getOrganizationRepo(),
+    getDealRepo(),
+    getServiceRepo(),
+    getTaskRepo(),
+  );
 export const getWebhookDeliveryRepo = () => new PrismaWebhookDeliveryRepo();
 export const getAuditLogRepo = () => new PrismaAuditLogRepo();
 export const getMessagingRepo = () => new PrismaMessagingRepo();
@@ -1523,7 +1533,12 @@ export const getRunRoutineNowInteractor = () =>
   new RunRoutineNowInteractor(getRoutineRepo(), getBackgroundTaskService());
 
 export const getStartRoutineRunInteractor = () =>
-  new StartRoutineRunInteractor(getRoutineRepo(), getAgentChatRepo(), getSendAgentMessageInteractor());
+  new StartRoutineRunInteractor(
+    getRoutineRepo(),
+    getAgentChatRepo(),
+    getSendAgentMessageInteractor(),
+    getRoutineFilterMatcher(),
+  );
 
 export const getFailRoutineRunInteractor = () => new FailRoutineRunInteractor(getRoutineRepo());
 

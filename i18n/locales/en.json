@@ -1198,6 +1198,7 @@
       "aggregationType": "Metric",
       "amount": "Amount",
       "avatarUrl": "Avatar URL",
+      "changedFields": "Only when these fields change",
       "company": "Company",
       "confirmEmail": "Confirm Email",
       "confirmPassword": "Confirm Password",
@@ -2544,8 +2545,10 @@
   "RoutineModal": {
     "advanced": "Advanced",
     "at": "at",
+    "changedFieldsHelp": "Leave empty to run on every change. Narrowing this saves credits.",
     "disabled": "Paused",
     "enabled": "Active",
+    "eventFilters": "Only when the record matches",
     "onMinute": "at minute",
     "promptDescription": "The assistant receives these instructions each time the routine runs.",
     "scheduleDescription": "Routines run at most once every 15 minutes.",

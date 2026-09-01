@@ -20,6 +20,8 @@ import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormActions } from "@/components/card/form-actions";
 import { AppChip } from "@/components/chip/app-chip";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { FilterAccordion } from "@/components/data-view/filter-modal/filter-accordion";
+import { useFilterFieldLabel } from "@/components/entity-terminology/use-filter-field-label";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
@@ -45,6 +47,10 @@ export const RoutineModal = observer(() => {
 
   const scheduled = form?.triggerKind === RoutineTriggerKind.schedule;
   const preset = form?.schedulePreset ?? "daily";
+  const filterFieldLabel = useFilterFieldLabel();
+  const filterableFields = routineModalStore.filterableFields;
+  const changedFieldItems = filterableFields.map((field) => ({ key: field.field }));
+  const changedFieldLabel = (key: string) => filterFieldLabel(key, routineModalStore.customColumns);
 
   return (
     <AppModal
@@ -159,17 +165,50 @@ export const RoutineModal = observer(() => {
                 <p className="text-subdued text-xs">{t("RoutineModal.scheduleDescription")}</p>
               </div>
             ) : (
-              <FormAutocomplete
-                required
-                id="triggerEvents"
-                items={TRIGGER_EVENT_ITEMS}
-                renderValue={(items) =>
-                  items.map((item) => <AppChip key={item.key}>{t(`Common.events.${item.key}`)}</AppChip>)
-                }
-                selectionMode="multiple"
-              >
-                {(item) => <span>{t(`Common.events.${item.key}`)}</span>}
-              </FormAutocomplete>
+              <div className="space-y-3">
+                <FormAutocomplete
+                  required
+                  id="triggerEvents"
+                  items={TRIGGER_EVENT_ITEMS}
+                  renderValue={(items) =>
+                    items.map((item) => <AppChip key={item.key}>{t(`Common.events.${item.key}`)}</AppChip>)
+                  }
+                  selectionMode="multiple"
+                >
+                  {(item) => <span>{t(`Common.events.${item.key}`)}</span>}
+                </FormAutocomplete>
+
+                {changedFieldItems.length > 0 && (
+                  <div className="space-y-1.5">
+                    <FormAutocomplete
+                      id="changedFields"
+                      items={changedFieldItems}
+                      renderValue={(items) =>
+                        items.map((item) => <AppChip key={item.key}>{changedFieldLabel(item.key)}</AppChip>)
+                      }
+                      selectionMode="multiple"
+                    >
+                      {(item) => <span>{changedFieldLabel(item.key)}</span>}
+                    </FormAutocomplete>
+
+                    <p className="text-subdued text-xs">{t("RoutineModal.changedFieldsHelp")}</p>
+                  </div>
+                )}
+
+                {filterableFields.length > 0 && (
+                  <div className="space-y-1.5">
+                    <p className="text-x-sm font-medium">{t("RoutineModal.eventFilters")}</p>
+
+                    <FilterAccordion
+                      baseId="triggerFilters"
+                      customColumns={routineModalStore.customColumns}
+                      filterableFields={filterableFields}
+                      filters={(form?.triggerFilters as never) ?? []}
+                      variant="grouped"
+                    />
+                  </div>
+                )}
+              </div>
             )}
 
             <Collapsible className="border-t pt-3">

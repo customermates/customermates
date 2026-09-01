@@ -1198,6 +1198,7 @@
       "aggregationType": "Métrica",
       "amount": "Importe",
       "avatarUrl": "URL del avatar",
+      "changedFields": "Solo cuando cambien estos campos",
       "company": "Empresa",
       "confirmEmail": "Confirmar el correo",
       "confirmPassword": "Confirmar la contraseña",
@@ -2544,8 +2545,10 @@
   "RoutineModal": {
     "advanced": "Avanzado",
     "at": "a las",
+    "changedFieldsHelp": "Déjalo vacío para ejecutarse con cada cambio. Acotarlo ahorra créditos.",
     "disabled": "En pausa",
     "enabled": "Activa",
+    "eventFilters": "Solo cuando el registro coincida",
     "onMinute": "en el minuto",
     "promptDescription": "El asistente recibe estas instrucciones cada vez que se ejecuta la rutina.",
     "scheduleDescription": "Las rutinas se ejecutan como máximo cada 15 minutos.",

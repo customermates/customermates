@@ -11,7 +11,9 @@ import type { GetRoutineRisksData } from "@/ee/routines/get-routine-risks.intera
 import {
   getDeleteRoutineInteractor,
   getGetRoutineRunTranscriptInteractor,
+  getGetCustomColumnsInteractor,
   getGetRoutineRisksInteractor,
+  getGetWidgetFilterableFieldsInteractor,
   getGetRoutineRunsInteractor,
   getGetRoutinesInteractor,
   getRunRoutineNowInteractor,
@@ -46,4 +48,13 @@ export async function getRoutineRunTranscriptAction(data: GetRoutineRunTranscrip
 
 export async function getRoutineRisksAction(data: GetRoutineRisksData) {
   return unwrapValidated(getGetRoutineRisksInteractor().invoke(data));
+}
+
+export async function getRoutineFilterFieldsAction() {
+  const [filterableFields, customColumns] = await Promise.all([
+    unwrapValidated(getGetWidgetFilterableFieldsInteractor().invoke()),
+    unwrapValidated(getGetCustomColumnsInteractor().invoke()),
+  ]);
+
+  return { filterableFields: filterableFields.chart, customColumns };
 }

@@ -1198,6 +1198,7 @@
       "aggregationType": "Metrica",
       "amount": "Importo",
       "avatarUrl": "URL dell'avatar",
+      "changedFields": "Solo quando cambiano questi campi",
       "company": "Azienda",
       "confirmEmail": "Conferma l'e-mail",
       "confirmPassword": "Conferma la password",
@@ -2544,8 +2545,10 @@
   "RoutineModal": {
     "advanced": "Avanzate",
     "at": "alle",
+    "changedFieldsHelp": "Lascia vuoto per eseguire a ogni modifica. Restringere il campo fa risparmiare crediti.",
     "disabled": "In pausa",
     "enabled": "Attiva",
+    "eventFilters": "Solo se il record corrisponde",
     "onMinute": "al minuto",
     "promptDescription": "L'assistente riceve queste istruzioni a ogni esecuzione della routine.",
     "scheduleDescription": "Le routine vengono eseguite al massimo ogni 15 minuti.",

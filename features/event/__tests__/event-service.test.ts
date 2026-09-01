@@ -231,7 +231,9 @@ describe("EventService routine triggers", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     routineRepo = {
-      findEventRoutinesUnscoped: vi.fn().mockResolvedValue([{ id: ROUTINE_ID, ownerUserId: mockUser.id }]),
+      findEventRoutinesUnscoped: vi
+        .fn()
+        .mockResolvedValue([{ id: ROUTINE_ID, ownerUserId: mockUser.id, changedFields: [] }]),
       countSuppressedRoutineEventsUnscoped: vi.fn().mockResolvedValue(undefined),
       admitEventRoutineRunsUnscoped: vi
         .fn()
@@ -286,6 +288,27 @@ describe("EventService routine triggers", () => {
     expect(routineRepo.admitEventRoutineRunsUnscoped).not.toHaveBeenCalled();
     expect(backgroundTaskService.dispatch).not.toHaveBeenCalledWith("run-routine", expect.anything());
     expect(routineRepo.countSuppressedRoutineEventsUnscoped).toHaveBeenCalledWith([ROUTINE_ID]);
+  });
+
+  it("skips a routine whose required fields did not change", async () => {
+    routineRepo.findEventRoutinesUnscoped.mockResolvedValue([
+      { id: ROUTINE_ID, ownerUserId: mockUser.id, changedFields: ["stage"] },
+    ]);
+
+    const result = await publishContactUpdate();
+
+    expect(result.routineRuns).toBe(0);
+    expect(routineRepo.admitEventRoutineRunsUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("triggers when one of the required fields is among the changes", async () => {
+    routineRepo.findEventRoutinesUnscoped.mockResolvedValue([
+      { id: ROUTINE_ID, ownerUserId: mockUser.id, changedFields: ["firstName", "stage"] },
+    ]);
+
+    const result = await publishContactUpdate();
+
+    expect(result.routineRuns).toBe(1);
   });
 
   it("still triggers once the routine's own execution context has ended", async () => {

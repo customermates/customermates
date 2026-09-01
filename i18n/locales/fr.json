@@ -1198,6 +1198,7 @@
       "aggregationType": "Indicateur",
       "amount": "Montant",
       "avatarUrl": "URL de l'avatar",
+      "changedFields": "Uniquement quand ces champs changent",
       "company": "Entreprise",
       "confirmEmail": "Confirmer l'e-mail",
       "confirmPassword": "Confirmer le mot de passe",
@@ -2544,8 +2545,10 @@
   "RoutineModal": {
     "advanced": "Avancé",
     "at": "à",
+    "changedFieldsHelp": "Laissez vide pour s'exécuter à chaque changement. Restreindre économise des crédits.",
     "disabled": "En pause",
     "enabled": "Active",
+    "eventFilters": "Uniquement si l'enregistrement correspond",
     "onMinute": "à la minute",
     "promptDescription": "L'assistant reçoit ces instructions à chaque exécution de la routine.",
     "scheduleDescription": "Les routines s'exécutent au maximum toutes les 15 minutes.",
