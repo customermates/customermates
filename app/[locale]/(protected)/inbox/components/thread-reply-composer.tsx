@@ -29,6 +29,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useRootStore } from "@/core/stores/root-store.provider";
+
+import { ComposerSignature } from "./composer-signature";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 const COMPOSER_EMOJIS = [
@@ -94,7 +96,8 @@ export const ThreadReplyComposer = observer(
   ({ threadId, provider, defaultSubject, defaultRecipients, defaultCc, bare, newThreadTarget }: Props) => {
     const t = useTranslations();
     const intlStore = useHydratedIntlStore();
-    const { userStore, threadComposeStore, connectedAccountsStore } = useRootStore();
+    const rootStore = useRootStore();
+    const { userStore, threadComposeStore, connectedAccountsStore } = rootStore;
     const fileInputRef = useRef<HTMLInputElement>(null);
     const initializedThreadId = useRef<string | null>(null);
     const [emojiOpen, setEmojiOpen] = useState(false);
@@ -146,6 +149,9 @@ export const ThreadReplyComposer = observer(
     if (!userStore.can(Resource.inboxMessages, Action.create)) return null;
 
     const { isLoading, isEmail, isLinkedin, isNewThread, showCcBcc, editingDraftId, attachments } = threadComposeStore;
+    const signatureAccountId = isNewThread
+      ? (threadComposeStore.newThreadTarget?.connectedAccountId ?? null)
+      : (rootStore.messagingThreadDetailStore.thread?.connectedAccountId ?? null);
     const linkedinProduct = threadComposeStore.form.linkedinProduct;
 
     const senders = isNewThread ? connectedAccountsStore.usableSendersFor(provider) : [];
@@ -353,6 +359,8 @@ export const ThreadReplyComposer = observer(
             })}
           </div>
         )}
+
+        <ComposerSignature connectedAccountId={signatureAccountId} />
 
         <div className="flex items-center justify-between gap-2 px-2 pt-0.5 pb-1.5">
           <div className="flex items-center gap-0.5">

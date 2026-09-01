@@ -21,7 +21,6 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { isEmailProvider } from "../provider";
 import { MessagingMessageDtoSchema, toMessagingMessageDto } from "../inbox/inbox.schema";
 import { EMPTY_ATTENDEE } from "../unipile.mappers";
-import { applyEmailSignature } from "./email-signature";
 
 export const BaseSaveDraftSchema = z.object({
   threadId: z
@@ -71,7 +70,6 @@ export abstract class SaveDraftRepo {
     recipients: string[];
   }): Promise<MessagingThread>;
   abstract findSelfAttendeeForThread(threadId: string): Promise<MessagingAttendee | null>;
-  abstract findThreadDraftId(threadId: string): Promise<string | null>;
   abstract upsertThreadDraft(args: {
     threadId: string;
     connectedAccountId: string;
@@ -113,13 +111,9 @@ export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, 
     const thread = resolved.thread;
     const isEmail = isEmailProvider(thread.provider);
 
-    const existingDraft = await this.repo.findThreadDraftId(thread.id);
-
-    let signature: string | null = null;
     let sender: MessagingAttendee;
     if (isEmail) {
       const account = await this.accountRepo.findUsableAccountByIdOrThrow(thread.connectedAccountId);
-      signature = account.signature;
       sender = {
         ...EMPTY_ATTENDEE,
         attendeeId: account.emailAddress ?? "",
@@ -141,7 +135,7 @@ export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, 
       provider: thread.provider,
       sender,
       subject: isEmail ? (data.subject ?? null) : null,
-      bodyText: existingDraft ? data.body : applyEmailSignature(data.body, signature),
+      bodyText: data.body,
       recipients,
     });
 

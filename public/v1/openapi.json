@@ -53236,6 +53236,17 @@
                 "type": "null"
               }
             ]
+          },
+          "signatureHtml": {
+            "default": null,
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -53256,7 +53267,8 @@
           "selectedFolderIds",
           "foldersSyncedAt",
           "linkedinProducts",
-          "signature"
+          "signature",
+          "signatureHtml"
         ],
         "additionalProperties": false
       },

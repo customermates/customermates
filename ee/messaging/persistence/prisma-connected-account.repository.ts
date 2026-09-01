@@ -13,6 +13,7 @@ import type { WebhookActivityRepo } from "../webhooks/relation/relation-webhook.
 import type { ConnectedAccountDto } from "../messaging.schema";
 
 import { type EmailFolder, EmailFolderSchema } from "../email-folders";
+import { signatureToHtml } from "../outbound/email-signature";
 import type { BackfillConnectedAccountRepo } from "../ingest/backfill/backfill.repo";
 import type { ClaimBackfillRepo } from "../ingest/claim-backfill.interactor";
 import type { ReleaseBackfillClaimRepo } from "../ingest/release-backfill-claim.interactor";
@@ -415,6 +416,7 @@ export class PrismaConnectedAccountRepo
     const { user, folders, ...account } = row;
     return {
       ...account,
+      signatureHtml: account.signature ? signatureToHtml(account.signature) : null,
       folders: EmailFolderSchema.array().catch([]).parse(folders),
       owner: { userId: user.id, firstName: user.firstName, lastName: user.lastName, avatarUrl: user.avatarUrl },
       isOwner,

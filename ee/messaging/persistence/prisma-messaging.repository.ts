@@ -833,20 +833,6 @@ export class PrismaMessagingRepo
     return { ...rest, identifier: identifier ?? "", attendeeId: providerUserId ?? "", contact: null };
   }
 
-  async findThreadDraftId(threadId: string) {
-    const row = await this.prisma.messagingMessage.findFirst({
-      where: {
-        messagingThreadId: threadId,
-        companyId: this.companyId,
-        isDraft: true,
-        thread: threadAccessWhere(this.companyId, this.userId),
-      },
-      select: { id: true },
-    });
-
-    return row?.id ?? null;
-  }
-
   async findOrCreateDraftThread(args: {
     connectedAccountId: string;
     provider: MessagingProvider;

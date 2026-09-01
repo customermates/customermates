@@ -29,6 +29,7 @@ export class ConnectedAccountModalStore extends BaseModalStore<ConnectedAccountD
         foldersSyncedAt: null,
         linkedinProducts: [],
         signature: null,
+        signatureHtml: null,
       },
       Resource.inboxMessages,
     );
