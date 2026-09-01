@@ -5,7 +5,10 @@ import { SystemInteractor } from "@/core/decorators/system-interactor.decorator"
 const RECONCILE_BATCH_LIMIT = 200;
 
 export abstract class ReconcileRoutineRunsRepo {
-  abstract findRunningRoutineRunsUnscoped(limit: number): Promise<
+  abstract findRunningRoutineRunsUnscoped(
+    limit: number,
+    ownerUserId?: string,
+  ): Promise<
     {
       id: string;
       routineId: string;
@@ -36,8 +39,9 @@ export abstract class ReconcileRoutineRunsRepo {
 export class ReconcileRoutineRunsInteractor {
   constructor(private repo: ReconcileRoutineRunsRepo) {}
 
-  async invoke(now = new Date()): Promise<{ settled: number }> {
-    const running = await this.repo.findRunningRoutineRunsUnscoped(RECONCILE_BATCH_LIMIT);
+  async invoke(args: { ownerUserId?: string; now?: Date } = {}): Promise<{ settled: number }> {
+    const now = args.now ?? new Date();
+    const running = await this.repo.findRunningRoutineRunsUnscoped(RECONCILE_BATCH_LIMIT, args.ownerUserId);
 
     let settled = 0;
     for (const run of running) {

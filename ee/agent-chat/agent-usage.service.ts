@@ -178,7 +178,7 @@ export class AgentUsageService {
   async prepareTurn(
     userId: string,
     now: Date,
-    options: { model: AgentModelEntry; requiredContextBytes?: number },
+    options: { model: AgentModelEntry; requiredContextBytes?: number; creditCeiling?: number | null },
   ): Promise<{
     summary: AgentUsageSummary;
     reservation: AgentTurnCreditReservation | null;
@@ -197,7 +197,9 @@ export class AgentUsageService {
 
     const budget = resolveAgentTurnBudget({
       model: options.model,
-      availableCredits: state.summary.creditsRemaining,
+      availableCredits: options.creditCeiling
+        ? Math.min(state.summary.creditsRemaining, options.creditCeiling)
+        : state.summary.creditsRemaining,
       requiredContextBytes: options.requiredContextBytes,
     });
     if (!budget) {

@@ -16,7 +16,7 @@ import type { RoutineDto, RoutineRunDto } from "./routine.schema";
 
 import type { AgentTurnTerminalCode, Prisma, RoutineRiskKind } from "@/generated/prisma";
 
-import { RoutineRunStatus, RoutineTriggerKind } from "@/generated/prisma";
+import { RoutineRiskSeverity, RoutineRunStatus, RoutineTriggerKind } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
@@ -171,7 +171,11 @@ export class PrismaRoutineRepo
     if (!run?.conversationId) return [];
 
     const messages = await this.prisma.agentMessage.findMany({
-      where: { conversationId: run.conversationId, companyId: this.companyId },
+      where: {
+        conversationId: run.conversationId,
+        companyId: this.companyId,
+        conversation: { userId: this.userId, companyId: this.companyId },
+      },
       select: { id: true, role: true, parts: true, createdAt: true },
       orderBy: { sequence: "asc" },
     });
@@ -249,6 +253,7 @@ export class PrismaRoutineRepo
     return this.getRoutineByIdOrThrow(created.id);
   }
 
+  @Transaction
   async deleteRoutineOrThrow(id: string): Promise<RoutineDto> {
     const routine = await this.getRoutineByIdOrThrow(id);
     await this.prisma.routine.delete({ where: { id, companyId: this.companyId } });
@@ -346,6 +351,16 @@ export class PrismaRoutineRepo
   }
 
   @BypassTenantGuard
+  async claimQueuedRoutineRunUnscoped(routineRunId: string, now: Date) {
+    const claimed = await this.prisma.routineRun.updateMany({
+      where: { id: routineRunId, status: RoutineRunStatus.queued },
+      data: { status: RoutineRunStatus.running, startedAt: now },
+    });
+
+    return claimed.count === 1;
+  }
+
+  @BypassTenantGuard
   async markRoutineRunStartedUnscoped(args: {
     routineRunId: string;
     conversationId: string;
@@ -354,12 +369,7 @@ export class PrismaRoutineRepo
   }) {
     await this.prisma.routineRun.updateMany({
       where: { id: args.routineRunId },
-      data: {
-        status: RoutineRunStatus.running,
-        conversationId: args.conversationId,
-        turnRequestId: args.turnRequestId,
-        startedAt: args.now,
-      },
+      data: { conversationId: args.conversationId, turnRequestId: args.turnRequestId, startedAt: args.now },
     });
   }
 
@@ -452,6 +462,7 @@ export class PrismaRoutineRepo
         kind: finding.kind,
         triggerEvent: finding.triggerEvent,
         confidence: finding.confidence,
+        severity: finding.confidence === "low" ? RoutineRiskSeverity.info : RoutineRiskSeverity.warning,
         detectedAt: args.now,
       })),
       skipDuplicates: true,
@@ -485,7 +496,7 @@ export class PrismaRoutineRepo
     now: Date;
   }): Promise<AdmittedRoutineRun[]> {
     const routines = await this.prisma.routine.findMany({
-      where: { id: { in: args.routineIds } },
+      where: { id: { in: args.routineIds }, companyId: args.companyId },
       select: { id: true, ownerUserId: true, debounceSeconds: true, maxRunsPerHour: true },
     });
 
@@ -543,9 +554,13 @@ export class PrismaRoutineRepo
   }
 
   @BypassTenantGuard
-  async findRunningRoutineRunsUnscoped(limit: number) {
+  async findRunningRoutineRunsUnscoped(limit: number, ownerUserId?: string) {
     return this.prisma.routineRun.findMany({
-      where: { status: RoutineRunStatus.running, turnRequestId: { not: null } },
+      where: {
+        status: RoutineRunStatus.running,
+        turnRequestId: { not: null },
+        ...(ownerUserId ? { routine: { ownerUserId } } : {}),
+      },
       select: { id: true, routineId: true, turnRequestId: true, conversationId: true },
       orderBy: { startedAt: "asc" },
       take: limit,

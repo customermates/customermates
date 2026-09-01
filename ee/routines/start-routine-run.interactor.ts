@@ -32,6 +32,7 @@ export abstract class StartRoutineRunRepo {
     routine: RoutineDto;
   } | null>;
   abstract countInFlightRoutineRunsForOwnerUnscoped(ownerUserId: string, excludeRunId: string): Promise<number>;
+  abstract claimQueuedRoutineRunUnscoped(routineRunId: string, now: Date): Promise<boolean>;
   abstract countRecentRoutineRunsUnscoped(routineId: string, since: Date): Promise<number>;
   abstract markRoutineRunStartedUnscoped(args: {
     routineRunId: string;
@@ -55,6 +56,7 @@ export abstract class StartRoutineConversationRepo {
     modelKey?: string | null;
     now: Date;
     origin?: AgentConversationOrigin;
+    creditCeiling?: number | null;
   }): Promise<void>;
 }
 
@@ -92,6 +94,9 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
       return { ok: true as const, data: { started: false, reason: blocked } };
     }
 
+    if (!(await this.repo.claimQueuedRoutineRunUnscoped(run.id, now)))
+      return { ok: true as const, data: { started: false, reason: "runAlreadyClaimed" } };
+
     const conversationId = randomUUID();
     await this.conversations.createAgentConversationForRun({
       conversationId,
@@ -99,6 +104,7 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
       modelKey: routine.modelKey,
       now,
       origin: "routine",
+      creditCeiling: routine.maxCreditsPerRun,
     });
 
     const sent = await this.sendAgentMessage.invoke({

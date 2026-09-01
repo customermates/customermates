@@ -21,9 +21,9 @@ async function normalizeOwnerLeasesStep(payload: ReconcileRoutineRunsWorkflowPay
 }
 normalizeOwnerLeasesStep.maxRetries = 0;
 
-async function settleRoutineRunsStep(): Promise<void> {
+async function settleRoutineRunsStep(ownerUserId: string): Promise<void> {
   "use step";
-  await getReconcileRoutineRunsInteractor().invoke();
+  await getReconcileRoutineRunsInteractor().invoke({ ownerUserId });
 }
 settleRoutineRunsStep.maxRetries = 0;
 
@@ -33,7 +33,7 @@ export async function reconcileRoutineRuns(payload: ReconcileRoutineRunsWorkflow
 
   try {
     await normalizeOwnerLeasesStep(payload);
-    await settleRoutineRunsStep();
+    await settleRoutineRunsStep(payload.ownerUserId);
   } catch (err) {
     await reportFailure(WORKFLOW_NAME, toWorkflowFailure(err), tenant);
     throw err;

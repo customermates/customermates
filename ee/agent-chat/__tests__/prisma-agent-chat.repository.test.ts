@@ -127,6 +127,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         title: "Import failed apiKey=[redacted]",
         modelKey: null,
         origin: "user",
+        creditCeiling: null,
         selectedAt: new Date("2026-08-06T10:00:00.000Z"),
       },
       select: { id: true },

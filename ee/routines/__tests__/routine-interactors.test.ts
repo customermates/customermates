@@ -142,6 +142,7 @@ function startFixtures(overrides: { run?: Record<string, unknown>; routine?: Rec
     }),
     countInFlightRoutineRunsForOwnerUnscoped: vi.fn().mockResolvedValue(0),
     countRecentRoutineRunsUnscoped: vi.fn().mockResolvedValue(0),
+    claimQueuedRoutineRunUnscoped: vi.fn().mockResolvedValue(true),
     markRoutineRunStartedUnscoped: vi.fn().mockResolvedValue(undefined),
     settleRoutineRunUnscoped: vi.fn().mockResolvedValue(undefined),
   };
@@ -171,7 +172,7 @@ describe("StartRoutineRunInteractor", () => {
 
     expect(result).toEqual({ ok: true, data: { started: true } });
     expect(conversations.createAgentConversationForRun).toHaveBeenCalledWith(
-      expect.objectContaining({ origin: "routine", title: "Daily digest" }),
+      expect.objectContaining({ origin: "routine", title: "Daily digest", creditCeiling: 10 }),
     );
     expect(sendAgentMessage.invoke).toHaveBeenCalledWith(expect.objectContaining({ clientRequestId: RUN_ID }));
     expect(repo.markRoutineRunStartedUnscoped).toHaveBeenCalled();
@@ -216,6 +217,29 @@ describe("StartRoutineRunInteractor", () => {
     const result = await interactor.invoke({ routineRunId: RUN_ID });
 
     expect(result).toEqual({ ok: true, data: { started: false, reason: "hourlyRunLimit" } });
+  });
+
+  it("refuses to spend anything when the run was already claimed by another dispatch", async () => {
+    const { repo, conversations, sendAgentMessage } = startFixtures();
+    repo.claimQueuedRoutineRunUnscoped.mockResolvedValue(false);
+    const interactor = new StartRoutineRunInteractor(repo as never, conversations as never, sendAgentMessage as never);
+
+    const result = await interactor.invoke({ routineRunId: RUN_ID });
+
+    expect(result).toEqual({ ok: true, data: { started: false, reason: "runAlreadyClaimed" } });
+    expect(conversations.createAgentConversationForRun).not.toHaveBeenCalled();
+    expect(sendAgentMessage.invoke).not.toHaveBeenCalled();
+  });
+
+  it("caps the turn budget with the routine's per-run credit ceiling", async () => {
+    const { repo, conversations, sendAgentMessage } = startFixtures({ routine: { maxCreditsPerRun: 3 } });
+    const interactor = new StartRoutineRunInteractor(repo as never, conversations as never, sendAgentMessage as never);
+
+    await interactor.invoke({ routineRunId: RUN_ID });
+
+    expect(conversations.createAgentConversationForRun).toHaveBeenCalledWith(
+      expect.objectContaining({ creditCeiling: 3 }),
+    );
   });
 
   it("records a blocked run when the agent refuses to start", async () => {

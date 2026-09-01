@@ -1615,6 +1615,7 @@ model AgentConversation {
   title            String?
   modelKey         String?
   origin           AgentConversationOrigin @default(user)
+  creditCeiling    Int?
   archivedAt       DateTime?
   selectedAt       DateTime?
   createdAt        DateTime                @default(now())

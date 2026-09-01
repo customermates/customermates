@@ -5,6 +5,9 @@ import type { RoutineDto } from "./routine.schema";
 import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
 
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { failAuthorization } from "@/core/validation/interactor-failure-server";
+
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Write } from "@/core/decorators/write.decorator";
@@ -30,6 +33,8 @@ export class RunRoutineNowInteractor extends AuthenticatedInteractor<RunRoutineN
   @Write({ input: Schema, output: z.string() })
   async invoke(data: RunRoutineNowData): Validated<string> {
     const routine = await this.repo.getRoutineByIdOrThrow(data.routineId);
+    if (routine.ownerUserId !== this.user.id) return failAuthorization(CustomErrorCode.routineRunNotOwner);
+
     const run = await this.repo.createManualRoutineRunOrThrow(routine.id, new Date());
 
     await this.backgroundTaskService.dispatch("run-routine", {

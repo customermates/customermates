@@ -8,12 +8,14 @@ import { type RoutineDto, RoutineDtoSchema } from "./routine.schema";
 
 import { BaseGetRepo, BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { GetQueryParamsSchema, type GetQueryParams, createGetResultSchema } from "@/core/base/base-get.schema";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 export abstract class GetRoutinesRepo extends BaseGetRepo<RoutineDto> {}
 
+@AllowInDemoMode
 @TenantInteractor({ resource: Resource.api, action: Action.readAll })
 export class GetRoutinesInteractor extends BaseGetInteractor<RoutineDto> {
   constructor(

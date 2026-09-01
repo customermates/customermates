@@ -6,6 +6,7 @@ import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
 
@@ -24,6 +25,7 @@ export abstract class GetRoutineRunTranscriptRepo {
   abstract getRoutineRunTranscript(routineRunId: string): Promise<RoutineTranscriptMessage[]>;
 }
 
+@AllowInDemoMode
 @TenantInteractor({ resource: Resource.api, action: Action.readAll })
 export class GetRoutineRunTranscriptInteractor extends AuthenticatedInteractor<
   GetRoutineRunTranscriptData,

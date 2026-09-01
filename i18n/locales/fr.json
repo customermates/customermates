@@ -1008,6 +1008,7 @@
       "roleSelfEditForbidden": "Vous ne pouvez pas modifier les autorisations de votre propre rôle.",
       "roleSystemImmutable": "Les rôles système ne peuvent pas être modifiés.",
       "roleSystemRequired": "Au moins un utilisateur doit être administrateur système.",
+      "routineRunNotOwner": "Seule la personne qui possède cette routine peut l'exécuter, car elle consomme ses crédits IA.",
       "routineScheduleInvalid": "Cette planification n'est pas une expression cron valide.",
       "routineScheduleRequired": "Choisissez une planification ou une date unique pour cette routine.",
       "routineScheduleTooFrequent": "Cette planification s'exécute trop souvent. Les routines peuvent s'exécuter au maximum toutes les 15 minutes.",

@@ -15,6 +15,16 @@ export abstract class UpsertRoutineRepo {
   abstract getRoutineByIdOrThrow(id: string): Promise<RoutineDto>;
 }
 
+function analysisInputsChanged(previous: RoutineDto | null, next: RoutineDto): boolean {
+  if (!previous) return true;
+
+  return (
+    previous.prompt !== next.prompt ||
+    previous.enabled !== next.enabled ||
+    previous.triggerEvents.join("|") !== next.triggerEvents.join("|")
+  );
+}
+
 @TenantInteractor({ resource: Resource.api, action: Action.update })
 export class UpsertRoutineInteractor extends AuthenticatedInteractor<UpsertRoutineData, RoutineDto> {
   constructor(
@@ -26,9 +36,10 @@ export class UpsertRoutineInteractor extends AuthenticatedInteractor<UpsertRouti
 
   @Write({ input: UpsertRoutineSchema, output: RoutineDtoSchema })
   async invoke(data: UpsertRoutineData): Validated<RoutineDto> {
+    const previous = data.id ? await this.repo.getRoutineByIdOrThrow(data.id) : null;
     const routine = await this.repo.upsertRoutineOrThrow(data);
 
-    if (routine.triggerKind === RoutineTriggerKind.event)
+    if (routine.triggerKind === RoutineTriggerKind.event && analysisInputsChanged(previous, routine))
       await this.backgroundTaskService.dispatch("analyze-routine-loops", { companyId: this.user.companyId });
 
     return { ok: true as const, data: routine };

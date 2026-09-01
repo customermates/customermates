@@ -191,6 +191,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     const creditAdmission = await this.usageService.prepareTurn(user.id, now, {
       model: turnModel,
       requiredContextBytes,
+      creditCeiling: conversation?.creditCeiling ?? null,
     });
     const reservation = creditAdmission.reservation;
     if (!reservation) return failRateLimit(CustomErrorCode.agentLimitReached);
