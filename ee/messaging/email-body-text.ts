@@ -1,7 +1,15 @@
-const REMOVED_BLOCKS = /<(script|style|head|noscript|template)\b[^>]*>[\s\S]*?<\/\1\s*>/gi;
+const REMOVED_BLOCK_TAGS = ["script", "style", "head", "noscript", "template"] as const;
+const MAX_HTML_LENGTH = 1_000_000;
+const MAX_TAG_LENGTH = 2048;
+const MAX_HREF_LENGTH = 4096;
+const MAX_ANCHOR_LABEL = 8192;
 const BLOCK_BOUNDARY =
   /<\/?(?:p|div|br|hr|tr|table|thead|tbody|li|ul|ol|h[1-6]|blockquote|pre|section|article|header|footer|address)\b[^>]*>/gi;
-const ANCHOR = /<a\b[^>]*?href\s*=\s*(["'])(.*?)\1[^>]*>([\s\S]*?)<\/a\s*>/gi;
+const ANCHOR = new RegExp(
+  `<a\\b[^>]{0,${MAX_TAG_LENGTH}}?href\\s*=\\s*(["'])([^"']{0,${MAX_HREF_LENGTH}})\\1[^>]{0,${MAX_TAG_LENGTH}}>` +
+    `((?:[^<]|<(?!\\/a\\s*>)){0,${MAX_ANCHOR_LABEL}})<\\/a\\s*>`,
+  "gi",
+);
 const REMAINING_TAGS = /<[^>]*>/g;
 const URL_SCHEME = /^[a-z][a-z0-9+.-]*:/i;
 const URL_CONTROL_CHARS = /[\u0000-\u0020]/g;
@@ -54,6 +62,42 @@ function collapse(value: string): string {
     .trim();
 }
 
+function stripRemovedBlocks(html: string): string {
+  const lower = html.toLowerCase();
+  let out = "";
+  let cursor = 0;
+
+  while (cursor < html.length) {
+    const open = lower.indexOf("<", cursor);
+    if (open === -1) return out + html.slice(cursor);
+
+    const tag = REMOVED_BLOCK_TAGS.find((candidate) => {
+      if (!lower.startsWith(`<${candidate}`, open)) return false;
+      const next = lower[open + 1 + candidate.length];
+      return next === undefined || next === ">" || next === "/" || /\s/.test(next);
+    });
+
+    if (!tag) {
+      out += html.slice(cursor, open + 1);
+      cursor = open + 1;
+      continue;
+    }
+
+    out += `${html.slice(cursor, open)} `;
+
+    const openEnd = lower.indexOf(">", open);
+    if (openEnd === -1) return out;
+
+    const close = lower.indexOf(`</${tag}`, openEnd);
+    if (close === -1) return out;
+
+    const closeEnd = lower.indexOf(">", close);
+    cursor = closeEnd === -1 ? html.length : closeEnd + 1;
+  }
+
+  return out;
+}
+
 function safeUrl(href: string): string | null {
   const url = href.replace(URL_CONTROL_CHARS, "");
   if (url === "") return null;
@@ -67,8 +111,9 @@ function safeUrl(href: string): string | null {
 export function htmlToPlainText(html: string | null | undefined): string | null {
   if (typeof html !== "string" || html.trim() === "") return null;
 
-  const withLinks = html
-    .replace(REMOVED_BLOCKS, " ")
+  const bounded = html.length > MAX_HTML_LENGTH ? html.slice(0, MAX_HTML_LENGTH) : html;
+
+  const withLinks = stripRemovedBlocks(bounded)
     .replace(ANCHOR, (_, __, href: string, label: string) => {
       const text = collapse(decodeEntities(label.replace(REMAINING_TAGS, " ")));
       const url = safeUrl(decodeEntities(href));

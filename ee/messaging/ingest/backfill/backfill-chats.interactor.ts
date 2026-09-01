@@ -163,7 +163,9 @@ export class BackfillChatsInteractor {
     try {
       messages = await this.pullLatestMessages(account, chatId);
     } catch (err) {
-      if (isUnipileRateLimit(err) || isUnipileTimeout(err)) throw err;
+      if (isUnipileRateLimit(err)) throw err;
+
+      if (isUnipileTimeout(err)) return;
 
       Sentry.captureException(err, {
         tags: {
@@ -318,7 +320,9 @@ export class BackfillChatsInteractor {
         },
       });
     } catch (err) {
-      if (isUnipileRateLimit(err) || isUnipileTimeout(err)) throw err;
+      if (isUnipileRateLimit(err)) throw err;
+
+      if (isUnipileTimeout(err)) return participants;
 
       Sentry.captureException(err, {
         tags: {

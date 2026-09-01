@@ -362,7 +362,7 @@ export class PrismaConnectedAccountRepo
 
   async findFolderContextById(accountId: string) {
     const row = await this.prisma.connectedAccount.findFirst({
-      where: { id: accountId, companyId: this.companyId },
+      where: { id: accountId, ...accessibleConnectedAccountWhere(this.companyId, this.userId) },
       select: { folders: true, selectedFolderIds: true, foldersSyncedAt: true },
     });
     if (!row || row.foldersSyncedAt === null) return null;
