@@ -2607,8 +2607,9 @@
     "channels": {
       "approximate": "Almeno un orario di disconnessione è stimato, quindi questo picco potrebbe essere leggermente alto.",
       "description": "Numero massimo di canali collegati contemporaneamente per mese, ricostruito dal registro di audit dello spazio di lavoro.",
+      "monthLabel": "Mese",
+      "monthOption": "{month} · {count} al picco",
       "none": "Non è mai stato collegato alcun canale.",
-      "peak": "{count} al picco",
       "title": "Canali collegati"
     },
     "delete": {

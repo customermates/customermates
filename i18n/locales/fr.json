@@ -2607,8 +2607,9 @@
     "channels": {
       "approximate": "Au moins une heure de déconnexion est estimée, ce maximum peut donc être légèrement élevé.",
       "description": "Nombre maximal de canaux connectés simultanément par mois, reconstitué à partir du journal d'audit de l'espace de travail.",
+      "monthLabel": "Mois",
+      "monthOption": "{month} · {count} au maximum",
       "none": "Aucun canal n'a jamais été connecté.",
-      "peak": "{count} au maximum",
       "title": "Canaux connectés"
     },
     "delete": {

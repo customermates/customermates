@@ -2607,8 +2607,9 @@
     "channels": {
       "approximate": "Al menos una hora de desconexión es estimada, por lo que este máximo puede ser algo alto.",
       "description": "Máximo de canales conectados simultáneamente por mes, reconstruido a partir del registro de auditoría del espacio de trabajo.",
+      "monthLabel": "Mes",
+      "monthOption": "{month} · {count} en el pico",
       "none": "Nunca se han conectado canales.",
-      "peak": "{count} en el pico",
       "title": "Canales conectados"
     },
     "delete": {

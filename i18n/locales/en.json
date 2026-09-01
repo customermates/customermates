@@ -2607,8 +2607,9 @@
     "channels": {
       "approximate": "One or more disconnect times are estimated, so this peak may be slightly high.",
       "description": "Peak simultaneously connected channels per month, reconstructed from the workspace audit trail.",
+      "monthLabel": "Month",
+      "monthOption": "{month} · {count} at peak",
       "none": "No channels have ever been connected.",
-      "peak": "{count} at peak",
       "title": "Connected channels"
     },
     "delete": {

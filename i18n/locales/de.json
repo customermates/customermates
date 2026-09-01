@@ -2607,8 +2607,9 @@
     "channels": {
       "approximate": "Mindestens ein Trennzeitpunkt ist geschätzt, daher kann dieser Höchstwert leicht zu hoch sein.",
       "description": "Höchstzahl gleichzeitig verbundener Kanäle pro Monat, rekonstruiert aus dem Audit-Verlauf des Workspace.",
+      "monthLabel": "Monat",
+      "monthOption": "{month} · {count} im Maximum",
       "none": "Es waren nie Kanäle verbunden.",
-      "peak": "{count} im Maximum",
       "title": "Verbundene Kanäle"
     },
     "delete": {

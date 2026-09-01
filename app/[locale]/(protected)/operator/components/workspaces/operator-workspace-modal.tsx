@@ -18,6 +18,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { InfoRow } from "@/components/shared/info-row";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
@@ -50,6 +51,7 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
   const [allowance, setAllowance] = useState("");
   const [trialEnd, setTrialEnd] = useState("");
   const [billingId, setBillingId] = useState("");
+  const [channelMonth, setChannelMonth] = useState("");
   const [confirmLabel, setConfirmLabel] = useState("");
   const [reason, setReason] = useState("");
 
@@ -59,6 +61,7 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
     if (!workspace) return;
 
     setStats(null);
+    setChannelMonth("");
     setAllowance(workspace.enterpriseCreditsPerUser === null ? "" : String(workspace.enterpriseCreditsPerUser));
     setTrialEnd(toDateInput(workspace.trialEndDate));
     setBillingId(workspace.lemonSqueezyId ?? "");
@@ -70,8 +73,10 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
     void getOperatorWorkspaceStatsAction({ companyId: workspace.id })
       .then((res) => {
         if (cancelled) return;
-        if (res.ok) setStats(res.data);
-        else toastZodErrorTree(res.error);
+        if (res.ok) {
+          setStats(res.data);
+          setChannelMonth(res.data.channelMonths[0]?.month ?? "");
+        } else toastZodErrorTree(res.error);
       })
       .finally(() => {
         if (!cancelled) setIsLoadingStats(false);
@@ -93,6 +98,7 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
   const isEnterprise = workspace.plan === SubscriptionPlanEnum.enterprise;
   const canDelete = confirmLabel === workspace.workspaceLabel && reason.trim().length > 0;
   const clearingBinding = Boolean(workspace.lemonSqueezyId) && billingId.trim().length === 0;
+  const selectedChannelMonth = stats?.channelMonths.find((entry) => entry.month === channelMonth) ?? null;
 
   const saveAllowance = () => {
     const creditsPerUser = Number(allowance);
@@ -378,29 +384,47 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
               <p className="text-xs text-muted-foreground">{t("OperatorWorkspaces.channels.none")}</p>
             ) : null}
 
-            {stats?.channelMonths.map((entry) => (
-              <div key={entry.month} className="flex flex-col gap-1.5 rounded-md bg-foreground/5 p-3">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-medium">{entry.month}</span>
+            {stats && stats.channelMonths.length > 0 ? (
+              <>
+                <Select value={channelMonth} onValueChange={setChannelMonth}>
+                  <SelectTrigger aria-label={t("OperatorWorkspaces.channels.monthLabel")} id="operator-channel-month">
+                    <SelectValue placeholder={t("OperatorWorkspaces.channels.monthLabel")} />
+                  </SelectTrigger>
 
-                  <AppChip size="sm" variant="secondary">
-                    {t("OperatorWorkspaces.channels.peak", { count: entry.peakConcurrent })}
-                  </AppChip>
-                </div>
+                  <SelectContent>
+                    {stats.channelMonths.map((entry) => (
+                      <SelectItem key={entry.month} textValue={entry.month} value={entry.month}>
+                        {t("OperatorWorkspaces.channels.monthOption", {
+                          month: entry.month,
+                          count: entry.peakConcurrent,
+                        })}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
-                <div className="flex flex-col gap-1">
-                  {entry.channels.map((channel) => (
-                    <span key={`${channel.provider}-${channel.identifier}`} className="text-xs text-muted-foreground">
-                      {`${t(`Common.providers.${channel.provider}`)} \u00b7 ${channel.identifier}`}
-                    </span>
-                  ))}
-                </div>
+                {selectedChannelMonth ? (
+                  <div className="flex flex-col gap-1.5 rounded-md bg-foreground/5 p-3">
+                    <div className="flex flex-col gap-1">
+                      {selectedChannelMonth.channels.map((channel) => (
+                        <span
+                          key={`${channel.provider}-${channel.identifier}`}
+                          className="text-xs text-muted-foreground"
+                        >
+                          {`${t(`Common.providers.${channel.provider}`)} \u00b7 ${channel.identifier}`}
+                        </span>
+                      ))}
+                    </div>
 
-                {entry.approximate ? (
-                  <span className="text-xs text-muted-foreground">{t("OperatorWorkspaces.channels.approximate")}</span>
+                    {selectedChannelMonth.approximate ? (
+                      <span className="text-xs text-muted-foreground">
+                        {t("OperatorWorkspaces.channels.approximate")}
+                      </span>
+                    ) : null}
+                  </div>
                 ) : null}
-              </div>
-            ))}
+              </>
+            ) : null}
           </div>
 
           <Separator />
