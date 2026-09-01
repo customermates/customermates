@@ -7,6 +7,13 @@
     "subject": "Alcuni dei tuoi account collegati sono stati rimossi",
     "title": "Account collegati rimossi"
   },
+  "AcquisitionConsent": {
+    "allowAttribution": "Consenti",
+    "description": "Sembra che tu abbia raggiunto il sito tramite un annuncio Google. Con il tuo consenso, ricorderemo questa visita per un massimo di 90 giorni e la collegheremo al tuo account Customermates se crei un nuovo workspace. Questo ci aiuta a capire quali annunci sono utili.",
+    "necessaryOnly": "No, grazie",
+    "privacyLink": "Dettagli sulla privacy",
+    "title": "Aiutaci a capire cosa funziona"
+  },
   "AgentChat": {
     "activity": {
       "cancelled": "Interrotto",
@@ -2001,6 +2008,7 @@
     "imprint": "Note legali",
     "legal": "Assistenza e informazioni legali",
     "privacy": "Privacy",
+    "privacyChoices": "Scelte sulla privacy",
     "product": "Prodotto",
     "resources": "Risorse",
     "reviewsOnPlatform": "Recensioni di Customermates su {platform}",

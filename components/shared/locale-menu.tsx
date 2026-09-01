@@ -13,6 +13,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 import { CONTENT_LOCALES, buildLocalePath, contentLocaleOrDefault, flagCodeFor } from "@/i18n/locale-registry";
 import { usePathname } from "@/i18n/navigation";
+import { preserveGoogleAdsClickInHref } from "@/features/acquisition/google-ads-consent.schema";
 
 type Props = {
   align?: "start" | "end";
@@ -55,14 +56,26 @@ export const LocaleMenu = observer(({ align = "start", className, side = "bottom
   }, []);
 
   function handleSelect(event: ReactMouseEvent<HTMLAnchorElement>, locale: ContentLocale) {
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+    const destination = preserveGoogleAdsClickInHref(buildLocalePath(locale, pathname), {
+      search: window.location.search,
+    });
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) {
+      event.currentTarget.href = destination;
+      return;
+    }
 
     event.preventDefault();
     if (menuRef.current) menuRef.current.open = false;
     if (locale === currentLocale) return;
 
     navigationGuard.tryNavigate(() => {
-      window.location.href = buildLocalePath(locale, pathname);
+      window.location.href = destination;
+    });
+  }
+
+  function preservePendingClick(event: ReactMouseEvent<HTMLAnchorElement>, locale: ContentLocale) {
+    event.currentTarget.href = preserveGoogleAdsClickInHref(buildLocalePath(locale, pathname), {
+      search: window.location.search,
     });
   }
 
@@ -106,7 +119,9 @@ export const LocaleMenu = observer(({ align = "start", className, side = "bottom
               data-selected={isSelected}
               href={buildLocalePath(locale, pathname)}
               hrefLang={locale}
+              onAuxClick={(event) => preservePendingClick(event, locale)}
               onClick={(event) => handleSelect(event, locale)}
+              onContextMenu={(event) => preservePendingClick(event, locale)}
             >
               <FormAutocompleteCountryItem countryKey={flagCodeFor(locale)} label={label} />
             </a>

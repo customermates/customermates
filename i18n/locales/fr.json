@@ -7,6 +7,13 @@
     "subject": "Certains de vos comptes connectés ont été supprimés",
     "title": "Comptes connectés supprimés"
   },
+  "AcquisitionConsent": {
+    "allowAttribution": "Autoriser",
+    "description": "Il semble que vous soyez arrivé via une annonce Google. Avec votre autorisation, nous mémoriserons cette visite pendant 90 jours au maximum et la relierons à votre compte Customermates si vous créez un nouvel espace de travail. Cela nous aide à comprendre quelles annonces sont utiles.",
+    "necessaryOnly": "Non merci",
+    "privacyLink": "Détails de confidentialité",
+    "title": "Aidez-nous à comprendre ce qui fonctionne"
+  },
   "AgentChat": {
     "activity": {
       "cancelled": "Arrêté",
@@ -2001,6 +2008,7 @@
     "imprint": "Mentions légales",
     "legal": "Aide et mentions légales",
     "privacy": "Confidentialité",
+    "privacyChoices": "Choix de confidentialité",
     "product": "Produit",
     "resources": "Ressources",
     "reviewsOnPlatform": "Avis sur Customermates publiés sur {platform}",

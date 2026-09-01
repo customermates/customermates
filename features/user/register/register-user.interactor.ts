@@ -22,6 +22,10 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
 import { accountStateRedirect } from "@/features/auth/account-state";
 import { redirectTo } from "@/features/auth/auth-outcome";
+import {
+  RegistrationGoogleAdsAttributionSchema,
+  type RegistrationGoogleAdsAttribution,
+} from "@/features/acquisition/google-ads-consent.schema";
 
 const Schema = z
   .object({
@@ -48,12 +52,23 @@ const OutputSchema = z.object({
 });
 export type RegisterUserResult = Data<typeof OutputSchema>;
 
-const RegistrationSchema = Schema.extend({ sessionUserId: z.string().min(1) });
+const RegistrationSchema = Schema.extend({
+  sessionUserId: z.string().min(1),
+  googleAdsAttribution: RegistrationGoogleAdsAttributionSchema.nullable(),
+});
 type RegistrationData = Data<typeof RegistrationSchema>;
+
+type RegistrationContext = {
+  googleAdsAttribution?: RegistrationGoogleAdsAttribution | null;
+};
 
 export abstract class RegisterUserRepo {
   abstract findCompanyIdUnscoped(userId: string): Promise<string | null>;
-  abstract createCompanyAndUser(args: RegisterUserData): Promise<TenantUser>;
+  abstract createCompanyAndUser(
+    args: RegisterUserData & {
+      googleAdsAttribution?: RegistrationGoogleAdsAttribution | null;
+    },
+  ): Promise<TenantUser>;
   abstract registerExistingCompany(args: RegisterUserData & { companyId: string }): Promise<TenantUser>;
 }
 
@@ -66,7 +81,10 @@ export class RegisterUserInteractor {
     private routeGuardService: RouteGuardService,
   ) {}
 
-  async invoke(data: RegisterUserData): Promise<Awaited<Validated<RegisterUserResult>> | Redirect> {
+  async invoke(
+    data: RegisterUserData,
+    context: RegistrationContext = {},
+  ): Promise<Awaited<Validated<RegisterUserResult>> | Redirect> {
     const resolution = await this.routeGuardService.resolveAccountState();
     if (!resolution.sessionUser) return redirectTo("/auth/signin");
     if (resolution.state !== "unregistered") return redirectTo(accountStateRedirect(resolution.state) ?? "/");
@@ -75,6 +93,7 @@ export class RegisterUserInteractor {
       ...data,
       email: resolution.sessionUser.email,
       sessionUserId: resolution.sessionUser.id,
+      googleAdsAttribution: context.googleAdsAttribution ?? null,
     });
   }
 
@@ -82,17 +101,24 @@ export class RegisterUserInteractor {
   @Transaction
   @ValidateOutput(OutputSchema)
   private async register(data: RegistrationData): Promise<Awaited<Validated<RegisterUserResult>>> {
-    const { sessionUserId, ...registrationData } = data;
+    const { sessionUserId, googleAdsAttribution, ...registrationData } = data;
 
     const companyId = await this.repo.findCompanyIdUnscoped(sessionUserId);
     const isNewCloudCompany = env.APP_MODE === "cloud" && !companyId;
+    const eligibleGoogleAdsAttribution =
+      env.APP_MODE === "cloud" && googleAdsAttribution !== null && googleAdsAttribution.expiresAt.getTime() > Date.now()
+        ? googleAdsAttribution
+        : null;
 
     const tenantUser = companyId
       ? await this.repo.registerExistingCompany({
           ...registrationData,
           companyId,
         })
-      : await this.repo.createCompanyAndUser(registrationData);
+      : await this.repo.createCompanyAndUser({
+          ...registrationData,
+          googleAdsAttribution: eligibleGoogleAdsAttribution,
+        });
 
     await runWithTenant(tenantUser, async () => {
       if (isNewCloudCompany) {

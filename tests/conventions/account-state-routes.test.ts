@@ -30,7 +30,7 @@ describe("guarded account-state route contract", () => {
     const completeInteractor = source("features/onboarding-wizard/complete-onboarding-wizard.interactor.ts");
 
     expect(page).toContain('requireAccountState(["unregistered", "onboarding"])');
-    expect(actions).toContain("getRegisterUserInteractor().invoke(data)");
+    expect(actions).toContain("getRegisterUserInteractor().invoke(data, { googleAdsAttribution })");
     expect(actions).toContain("getCompleteOnboardingWizardInteractor().invoke()");
     expect(actions.match(/serializeResult\(/g)).toHaveLength(2);
     expect(actions).toContain("redirect(result.data.redirectTo)");
