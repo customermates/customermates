@@ -15,6 +15,7 @@ import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppChip } from "@/components/chip/app-chip";
 import { InfoRow } from "@/components/shared/info-row";
 import { Button } from "@/components/ui/button";
+import { FormLabel } from "@/components/forms/form-label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -263,14 +264,18 @@ export const OperatorUserModal = observer(function OperatorUserModal({ user, onC
                 ) : (
                   <>
                     <div className="flex items-end gap-2">
-                      <Input
-                        aria-label={t("OperatorUsers.adjustment.deltaLabel")}
-                        inputMode="numeric"
-                        placeholder={t("OperatorUsers.adjustment.deltaPlaceholder")}
-                        type="number"
-                        value={delta}
-                        onChange={(event) => setDelta(event.target.value)}
-                      />
+                      <div className="flex-1 space-y-1.5">
+                        <FormLabel htmlFor="operator-modal-delta">{t("OperatorUsers.adjustment.deltaLabel")}</FormLabel>
+
+                        <Input
+                          id="operator-modal-delta"
+                          inputMode="numeric"
+                          placeholder={t("OperatorUsers.adjustment.deltaPlaceholder")}
+                          type="number"
+                          value={delta}
+                          onChange={(event) => setDelta(event.target.value)}
+                        />
+                      </div>
 
                       <Button disabled={!delta} size="sm" variant="secondary" onClick={applyCorrection}>
                         {t("Common.actions.save")}

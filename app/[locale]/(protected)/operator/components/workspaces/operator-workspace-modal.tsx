@@ -17,6 +17,7 @@ import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppChip } from "@/components/chip/app-chip";
 import { InfoRow } from "@/components/shared/info-row";
 import { Button } from "@/components/ui/button";
+import { FormLabel } from "@/components/forms/form-label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
@@ -243,13 +244,10 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
             </div>
 
             <div className="flex items-end gap-2">
-              <div className="flex-1 space-y-1">
-                <label className="text-xs text-muted-foreground" htmlFor="operator-modal-trial">
-                  {t("OperatorWorkspaces.terms.trialEnd")}
-                </label>
+              <div className="flex-1 space-y-1.5">
+                <FormLabel htmlFor="operator-modal-trial">{t("OperatorWorkspaces.terms.trialEnd")}</FormLabel>
 
                 <Input
-                  aria-label={t("OperatorWorkspaces.terms.trialEnd")}
                   id="operator-modal-trial"
                   type="date"
                   value={trialEnd}
@@ -257,13 +255,10 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
                 />
               </div>
 
-              <div className="flex-1 space-y-1">
-                <label className="text-xs text-muted-foreground" htmlFor="operator-modal-billing">
-                  {t("OperatorWorkspaces.terms.billingId")}
-                </label>
+              <div className="flex-1 space-y-1.5">
+                <FormLabel htmlFor="operator-modal-billing">{t("OperatorWorkspaces.terms.billingId")}</FormLabel>
 
                 <Input
-                  aria-label={t("OperatorWorkspaces.terms.billingId")}
                   autoComplete="off"
                   id="operator-modal-billing"
                   placeholder={t("OperatorWorkspaces.terms.billingIdPlaceholder")}
@@ -296,14 +291,18 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
                 </div>
 
                 <div className="flex items-end gap-2">
-                  <Input
-                    aria-label={t("OperatorWorkspaces.allowance.label")}
-                    inputMode="numeric"
-                    min={1}
-                    type="number"
-                    value={allowance}
-                    onChange={(event) => setAllowance(event.target.value)}
-                  />
+                  <div className="flex-1 space-y-1.5">
+                    <FormLabel htmlFor="operator-modal-allowance">{t("OperatorWorkspaces.allowance.label")}</FormLabel>
+
+                    <Input
+                      id="operator-modal-allowance"
+                      inputMode="numeric"
+                      min={1}
+                      type="number"
+                      value={allowance}
+                      onChange={(event) => setAllowance(event.target.value)}
+                    />
+                  </div>
 
                   <Button disabled={!allowance} size="sm" variant="secondary" onClick={saveAllowance}>
                     {t("Common.actions.save")}
@@ -442,13 +441,12 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
             </div>
 
             <div className="flex items-end gap-2">
-              <div className="flex-1 space-y-1">
-                <label className="text-xs text-muted-foreground" htmlFor="operator-modal-confirm">
+              <div className="flex-1 space-y-1.5">
+                <FormLabel htmlFor="operator-modal-confirm">
                   {t("OperatorWorkspaces.delete.confirmLabel", { name: workspace.workspaceLabel })}
-                </label>
+                </FormLabel>
 
                 <Input
-                  aria-label={t("OperatorWorkspaces.delete.confirmLabel", { name: workspace.workspaceLabel })}
                   autoComplete="off"
                   id="operator-modal-confirm"
                   value={confirmLabel}
@@ -456,13 +454,10 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
                 />
               </div>
 
-              <div className="flex-1 space-y-1">
-                <label className="text-xs text-muted-foreground" htmlFor="operator-modal-reason">
-                  {t("OperatorWorkspaces.delete.reasonLabel")}
-                </label>
+              <div className="flex-1 space-y-1.5">
+                <FormLabel htmlFor="operator-modal-reason">{t("OperatorWorkspaces.delete.reasonLabel")}</FormLabel>
 
                 <Input
-                  aria-label={t("OperatorWorkspaces.delete.reasonLabel")}
                   autoComplete="off"
                   id="operator-modal-reason"
                   value={reason}
