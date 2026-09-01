@@ -13,6 +13,7 @@ const ANCHOR = new RegExp(
 const REMAINING_TAGS = /<[^>]*>/g;
 const URL_SCHEME = /^[a-z][a-z0-9+.-]*:/i;
 const URL_CONTROL_CHARS = /[\u0000-\u0020]/g;
+const STRIPPED_CONTROLS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
 const SAFE_URL_SCHEMES = new Set(["http:", "https:", "mailto:", "tel:"]);
 const NAMED_ENTITIES: Record<string, string> = {
   amp: "&",
@@ -46,9 +47,16 @@ function decodeEntities(value: string): string {
     .replace(/&([a-z][a-z0-9]*);/gi, (match, name: string) => NAMED_ENTITIES[name.toLowerCase()] ?? match);
 }
 
+function isStrippedControl(code: number): boolean {
+  if (code === 0x09 || code === 0x0a || code === 0x0d) return false;
+
+  return code <= 0x1f || code === 0x7f;
+}
+
 function safeCodePoint(code: number): string {
   if (!Number.isFinite(code) || code < 0 || code > 0x10ffff) return "";
   if (code >= 0xd800 && code <= 0xdfff) return "";
+  if (isStrippedControl(code)) return "";
 
   return String.fromCodePoint(code);
 }
@@ -111,7 +119,10 @@ function safeUrl(href: string): string | null {
 export function htmlToPlainText(html: string | null | undefined): string | null {
   if (typeof html !== "string" || html.trim() === "") return null;
 
-  const bounded = html.length > MAX_HTML_LENGTH ? html.slice(0, MAX_HTML_LENGTH) : html;
+  const bounded = (html.length > MAX_HTML_LENGTH ? html.slice(0, MAX_HTML_LENGTH) : html).replace(
+    STRIPPED_CONTROLS,
+    "",
+  );
 
   const withLinks = stripRemovedBlocks(bounded)
     .replace(ANCHOR, (_, __, href: string, label: string) => {

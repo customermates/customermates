@@ -97,7 +97,7 @@ export class UnipileRequestError extends Error {
     readonly retryAfterSeconds: number | null = null,
     readonly url: string | null = null,
   ) {
-    super(`Unipile v2 request failed: ${status} ${bodyText}`);
+    super(`Unipile v2 request failed: ${status} ${redactUnipileBody(bodyText)}`);
     this.name = "UnipileRequestError";
   }
 }
@@ -145,6 +145,11 @@ const UNIPILE_BAD_IMPL_TYPES = new Set([
 const UNIPILE_TRANSIENT_5XX_TYPES = new Set(["api/proxy_error", "api/proxy_timeout", "api/proxy_auth_error"]);
 
 const EMAIL_LIKE = /[\w.+-]+@[\w-]+\.[\w.-]+/g;
+const MAX_ERROR_BODY = 500;
+
+export function redactUnipileBody(bodyText: string): string {
+  return bodyText.replace(EMAIL_LIKE, "[redacted]").slice(0, MAX_ERROR_BODY);
+}
 
 function unipileBodyField(bodyText: string, field: "detail" | "req_id"): string | null {
   try {

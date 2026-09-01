@@ -91,3 +91,31 @@ describe("isUnipileSourceForbidden", () => {
     expect(isUnipileSourceForbidden(new Error("boom"))).toBe(false);
   });
 });
+
+describe("customer data never reaches the exception message", () => {
+  const body = JSON.stringify({
+    object: "Error",
+    status: 500,
+    type: "api/internal_error",
+    detail: "Delivery to buyer@example-customer.com failed permanently.",
+    req_id: "req-priv",
+  });
+
+  it("keeps a customer address out of err.message, which becomes the Sentry title and a stored row", () => {
+    const err = new UnipileRequestError(500, "api/internal_error", body);
+
+    expect(err.message).not.toContain("buyer@example-customer.com");
+    expect(err.message).toContain("[redacted]");
+    expect(err.message).toContain("req-priv");
+  });
+
+  it("bounds the message so a large body cannot be stored or indexed whole", () => {
+    const huge = new UnipileRequestError(500, "api/internal_error", "x".repeat(50_000));
+
+    expect(huge.message.length).toBeLessThan(700);
+  });
+
+  it("still exposes the raw body to callers that need it", () => {
+    expect(new UnipileRequestError(500, "api/internal_error", body).bodyText).toContain("buyer@example-customer.com");
+  });
+});
