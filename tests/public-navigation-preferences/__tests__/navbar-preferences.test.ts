@@ -101,7 +101,7 @@ describe("public navigation preferences", () => {
     for (const href of [
       "https://viesearch.com/",
       "https://www.promotebusinessdirectory.com/",
-      "http://www.usawebsitesdirectory.com/computers_and_internet/",
+      "https://www.usawebsitesdirectory.com/computers_and_internet/",
       "https://www.bestsitesindex.com/submit.php",
     ]) {
       expect(footer, `${href} is missing below the Featured On rail`).toContain(href);
