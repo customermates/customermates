@@ -10,6 +10,8 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { failNotFound } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 const Schema = z.object({ id: z.uuid() });
@@ -17,7 +19,7 @@ const Schema = z.object({ id: z.uuid() });
 export type GetRoutineData = Data<typeof Schema>;
 
 export abstract class GetRoutineRepo {
-  abstract getRoutineByIdOrThrow(id: string): Promise<RoutineDto>;
+  abstract findRoutineById(id: string): Promise<RoutineDto | null>;
 }
 
 @AllowInDemoMode
@@ -30,6 +32,9 @@ export class GetRoutineInteractor extends AuthenticatedInteractor<GetRoutineData
   @Validate(Schema)
   @ValidateOutput(RoutineDtoSchema)
   async invoke(data: GetRoutineData): Validated<RoutineDto> {
-    return { ok: true as const, data: await this.repo.getRoutineByIdOrThrow(data.id) };
+    const routine = await this.repo.findRoutineById(data.id);
+    if (!routine) return failNotFound(CustomErrorCode.routineNotFound, ["id"]);
+
+    return { ok: true as const, data: routine };
   }
 }

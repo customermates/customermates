@@ -1008,6 +1008,7 @@
       "roleSelfEditForbidden": "Non puoi modificare i permessi del ruolo che ti è assegnato.",
       "roleSystemImmutable": "I ruoli di sistema non possono essere modificati.",
       "roleSystemRequired": "Almeno un utente deve essere amministratore di sistema.",
+      "routineNotFound": "ID routine non trovato o non accessibile.",
       "routineRunNotOwner": "Solo chi possiede questa routine può eseguirla, perché consuma i suoi crediti IA.",
       "routineScheduleInvalid": "Questa pianificazione non è un'espressione cron valida.",
       "routineScheduleRequired": "Scegli una pianificazione o una data singola per questa routine.",

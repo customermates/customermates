@@ -15,8 +15,10 @@ export default async function RoutineDetailPage({ params }: Props) {
 
   const { id } = await params;
 
-  const routine = await unwrapValidated(getGetRoutineInteractor().invoke({ id })).catch(() => null);
-  if (!routine) notFound();
+  const routineResult = await getGetRoutineInteractor().invoke({ id });
+  if (!routineResult.ok) notFound();
+
+  const routine = routineResult.data;
 
   const runs = await unwrapValidated(getGetRoutineRunsInteractor().invoke({ routineId: id, limit: 25 }));
   const risks = await unwrapValidated(getGetRoutineRisksInteractor().invoke({ routineId: id }));

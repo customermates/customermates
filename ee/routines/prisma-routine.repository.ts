@@ -145,6 +145,15 @@ export class PrismaRoutineRepo
     return this.prisma.routine.count({ where });
   }
 
+  async findRoutineById(id: string): Promise<RoutineDto | null> {
+    const routine = await this.prisma.routine.findFirst({
+      where: { id, companyId: this.companyId },
+      select: ROUTINE_SELECT,
+    });
+
+    return (routine as RoutineDto | null) ?? null;
+  }
+
   async getRoutineByIdOrThrow(id: string): Promise<RoutineDto> {
     const routine = await this.prisma.routine.findFirstOrThrow({
       where: { id, companyId: this.companyId },

@@ -1008,6 +1008,7 @@
       "roleSelfEditForbidden": "No puedes cambiar los permisos del rol que tienes asignado.",
       "roleSystemImmutable": "Los roles del sistema no se pueden editar.",
       "roleSystemRequired": "Al menos un usuario debe ser administrador del sistema.",
+      "routineNotFound": "ID de rutina no encontrado o no accesible.",
       "routineRunNotOwner": "Solo quien posee esta rutina puede ejecutarla, porque consume sus créditos de IA.",
       "routineScheduleInvalid": "Esa programación no es una expresión cron válida.",
       "routineScheduleRequired": "Elige una programación o una fecha única para esta rutina.",

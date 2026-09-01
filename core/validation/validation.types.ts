@@ -76,6 +76,7 @@ export enum CustomErrorCode {
   roleAssignedCannotDelete = "roleAssignedCannotDelete",
   roleSelfEditForbidden = "roleSelfEditForbidden",
   roleSystemImmutable = "roleSystemImmutable",
+  routineNotFound = "routineNotFound",
   routineRunNotOwner = "routineRunNotOwner",
   routineScheduleInvalid = "routineScheduleInvalid",
   routineScheduleRequired = "routineScheduleRequired",
