@@ -29,6 +29,9 @@ import { ConnectedAccountModalStore } from "@/app/[locale]/(protected)/profile/c
 import { ConnectedAccountsStore } from "@/app/[locale]/(protected)/profile/components/connected-accounts.store";
 import { ConnectUpsellModalStore } from "@/app/[locale]/(protected)/profile/components/connect-upsell-modal.store";
 import { ContactsStore } from "@/app/[locale]/(protected)/contacts/components/contacts.store";
+import { OperatorUsersStore } from "@/app/[locale]/(protected)/operator/components/users/operator-users.store";
+import { OperatorAuditStore } from "@/app/[locale]/(protected)/operator/components/audit/operator-audit.store";
+import { OperatorWorkspacesStore } from "@/app/[locale]/(protected)/operator/components/workspaces/operator-workspaces.store";
 import { MessagingThreadsStore } from "@/app/[locale]/(protected)/inbox/components/messaging-threads.store";
 import { MessagingThreadDetailStore } from "@/app/[locale]/(protected)/inbox/components/messaging-thread-detail.store";
 import { ThreadComposeStore } from "@/app/[locale]/(protected)/inbox/components/thread-compose.store";
@@ -102,6 +105,9 @@ export class RootStore {
   private _webhooksStore?: WebhooksStore;
   private _widgetsGridStore?: WidgetsStore;
   private _auditLogsStore?: AuditLogsStore;
+  private _operatorUsersStore?: OperatorUsersStore;
+  private _operatorAuditStore?: OperatorAuditStore;
+  private _operatorWorkspacesStore?: OperatorWorkspacesStore;
 
   private _companySettingsStore?: CompanySettingsStore;
   private _forgotPasswordStore?: ForgotPasswordStore;
@@ -393,6 +399,18 @@ export class RootStore {
 
   get webhookDeliveryModalStore() {
     return (this._webhookDeliveryModalStore ??= new WebhookDeliveryModalStore(this));
+  }
+
+  get operatorUsersStore() {
+    return (this._operatorUsersStore ??= new OperatorUsersStore(this));
+  }
+
+  get operatorWorkspacesStore() {
+    return (this._operatorWorkspacesStore ??= new OperatorWorkspacesStore(this));
+  }
+
+  get operatorAuditStore() {
+    return (this._operatorAuditStore ??= new OperatorAuditStore(this));
   }
 
   get auditLogsStore() {

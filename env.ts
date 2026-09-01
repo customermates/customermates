@@ -1,4 +1,11 @@
-import { normalizeBaseUrl, resolveAppMode, resolveAuthAllowedHosts, resolveBaseUrl } from "@/core/config/environment";
+import {
+  normalizeBaseUrl,
+  resolveAppMode,
+  resolveAuthAllowedHosts,
+  resolveBaseUrl,
+  resolveOptionalBigInt,
+  resolveStrictBoolean,
+} from "@/core/config/environment";
 
 const BASE_URL = resolveBaseUrl(process.env);
 const oauthProxyUrl = process.env.OAUTH_PROXY_URL?.trim();
@@ -22,6 +29,18 @@ export const env = {
   APP_MODE: resolveAppMode(process.env),
   AGENT_CHAT_DISABLED: Boolean(process.env.AGENT_CHAT_DISABLED),
   AI_GATEWAY_API_KEY: process.env.AI_GATEWAY_API_KEY,
+  HOSTED_AI_OPERATOR_CONTROLS_ENABLED: resolveStrictBoolean(
+    "HOSTED_AI_OPERATOR_CONTROLS_ENABLED",
+    process.env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED,
+  ),
+  HOSTED_AI_PROVIDER_WORK_PAUSED: resolveStrictBoolean(
+    "HOSTED_AI_PROVIDER_WORK_PAUSED",
+    process.env.HOSTED_AI_PROVIDER_WORK_PAUSED,
+  ),
+  HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS: resolveOptionalBigInt(
+    "HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS",
+    process.env.HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS,
+  ),
 
   RESEND_API_KEY: process.env.RESEND_API_KEY,
   RESEND_OPERATOR_EMAIL: process.env.RESEND_OPERATOR_EMAIL as string,

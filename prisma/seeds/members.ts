@@ -15,6 +15,7 @@ export type SyntheticCompanyMemberDefinition = Readonly<{
   email: string;
   firstName: string;
   id: string;
+  isPlatformOperator: boolean;
   lastName: string;
   roleId: string | null;
   status: Status;
@@ -28,6 +29,7 @@ export const SYNTHETIC_COMPANY_MEMBER_DEFINITIONS = [
     country: "de",
     email: SYNTHETIC_COMPANY_USERS.maxBergmann.email,
     firstName: SYNTHETIC_COMPANY_USERS.maxBergmann.firstName,
+    isPlatformOperator: false,
     lastName: SYNTHETIC_COMPANY_USERS.maxBergmann.lastName,
     roleId: SEED_IDS.role,
     status: "active",
@@ -39,6 +41,7 @@ export const SYNTHETIC_COMPANY_MEMBER_DEFINITIONS = [
     country: "it",
     email: SYNTHETIC_COMPANY_USERS.sofiaRossi.email,
     firstName: SYNTHETIC_COMPANY_USERS.sofiaRossi.firstName,
+    isPlatformOperator: false,
     lastName: SYNTHETIC_COMPANY_USERS.sofiaRossi.lastName,
     roleId: SEED_IDS.salesManagerRole,
     status: "active",
@@ -50,6 +53,7 @@ export const SYNTHETIC_COMPANY_MEMBER_DEFINITIONS = [
     country: "de",
     email: SYNTHETIC_COMPANY_USERS.elenaHoffmann.email,
     firstName: SYNTHETIC_COMPANY_USERS.elenaHoffmann.firstName,
+    isPlatformOperator: false,
     lastName: SYNTHETIC_COMPANY_USERS.elenaHoffmann.lastName,
     roleId: SEED_IDS.customerSuccessRole,
     status: "active",

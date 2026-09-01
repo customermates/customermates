@@ -17,6 +17,7 @@ import {
   getGetSubscriptionInteractor,
   getGetUnreadThreadCountInteractor,
   getGetMyConnectedAccountsInteractor,
+  getGetOperatorConsoleVisibilityInteractor,
 } from "@/core/di";
 import { accountNeedsAction } from "@/ee/messaging/provider";
 import { env } from "@/env";
@@ -43,11 +44,12 @@ type Props = {
 };
 
 export default async function RootLayout({ children }: Props) {
-  const [messages, displayLanguage, account, cookiesStore] = await Promise.all([
+  const [messages, displayLanguage, account, cookiesStore, operatorConsoleVisible] = await Promise.all([
     getMessages(),
     getLocale(),
     resolveRequestAccountState(),
     cookies(),
+    getGetOperatorConsoleVisibilityInteractor().invoke(),
   ]);
   const navigation = await loadNavigationData(account.state, {
     company: async () => {
@@ -103,6 +105,7 @@ export default async function RootLayout({ children }: Props) {
             defaultSidebarOpen={initialSidebarOpen}
             emailVerified={accountAllowed ? account.emailVerified : null}
             legalStatus={accountAllowed ? account.legalStatus : null}
+            operatorConsoleVisible={operatorConsoleVisible}
             sidebarUser={sidebarUser}
             subscription={navigation.subscription}
             systemTaskCount={navigation.systemTaskCount}

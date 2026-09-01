@@ -14,6 +14,40 @@ const canAccess = () => true;
 const OPAQUE_ID = "bcad5c22-5549-4847-93e4-c17296828b76";
 
 describe("app topbar crumbs", () => {
+  it.each([
+    ["overview", "OperatorOverview.navigation"],
+    ["users", "OperatorUsers.navigation"],
+    ["workspaces", "OperatorWorkspaces.navigation"],
+    ["audit", "OperatorAudit.navigation"],
+  ])("renders the operator and %s crumbs when the operator console is visible", (route, leafLabel) => {
+    expect(
+      buildAppTopbarCrumbs(`/en/operator/${route}`, translate, ENTITY_LABELS, null, "cloud", canAccess, null, true),
+    ).toEqual({
+      crumbs: [
+        { href: "/operator/overview", label: "NavigationBar.operator" },
+        {
+          label: leafLabel,
+          siblings: [
+            { slug: "overview", label: "OperatorOverview.navigation" },
+            { slug: "users", label: "OperatorUsers.navigation" },
+            { slug: "workspaces", label: "OperatorWorkspaces.navigation" },
+            { slug: "audit", label: "OperatorAudit.navigation" },
+          ],
+        },
+      ],
+      section: "operator",
+    });
+  });
+
+  it.each(["overview", "users", "workspaces", "audit"])(
+    "does not expose operator crumbs for %s when the operator console is hidden",
+    (route) => {
+      expect(
+        buildAppTopbarCrumbs(`/en/operator/${route}`, translate, ENTITY_LABELS, null, "cloud", canAccess, null, false),
+      ).toEqual({ crumbs: [], section: null });
+    },
+  );
+
   it.each(["contacts", "organizations", "deals", "services", "tasks"])(
     "uses a loading crumb instead of exposing the %s route key",
     (section) => {

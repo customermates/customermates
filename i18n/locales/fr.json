@@ -340,6 +340,7 @@
       "cancelled": "Cette réponse a été arrêtée.",
       "creditLimit": "J'ai traité une partie de cette demande, puis je me suis arrêté car vos crédits Assistant sont épuisés. Le travail effectué est conservé ; les crédits sont réinitialisés au début de votre prochaine période.",
       "emptyReply": "Je n'ai pas pu générer de réponse. Veuillez réessayer.",
+      "hostedAiUnavailable": "L’IA hébergée est temporairement indisponible. Veuillez réessayer plus tard.",
       "outputLimit": "J’ai rédigé une partie de cette réponse, mais j’ai atteint la limite de sortie de ce tour. Demandez-moi de continuer et je terminerai à partir du travail déjà effectué.",
       "safetyLimit": "J’ai réalisé une partie de cette demande, mais je me suis arrêté parce que les dernières étapes se répétaient, échouaient ou avaient atteint une limite de sécurité. Le travail terminé reste en place ; vérifiez les étapes ci-dessus avant de me demander de poursuivre.",
       "turnError": "Je n'ai pas pu traiter cette demande. Veuillez réessayer."
@@ -800,6 +801,7 @@
       "clear": "Effacer",
       "close": "Fermer",
       "collapse": "Réduire",
+      "confirm": "Confirmer",
       "contact": "Contacter",
       "continueSetup": "Poursuivre la configuration",
       "copy": "Copier dans le presse-papiers",
@@ -996,6 +998,8 @@
       "notAuthenticated": "Connectez-vous pour utiliser cette action.",
       "notesExceedsMaxLength": "Le contenu des notes dépasse la longueur maximale.",
       "notesInvalidFormat": "Format de notes invalide. Il doit s'agir de JSON Tiptap valide ou de texte markdown.",
+      "operatorConflict": "La modification a été refusée. L’enregistrement a peut-être changé depuis le chargement de la liste, ou l’espace de travail ne l’autorise pas actuellement. Rechargez et vérifiez l’état actuel.",
+      "operatorUnavailable": "La correction demandée n’est pas disponible pour la configuration actuelle du compte.",
       "organizationNotFound": "ID d'organisation introuvable ou inaccessible.",
       "passwordInvalid": "Le mot de passe doit comporter au moins 8 caractères et contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial.",
       "passwordMismatch": "Les mots de passe doivent correspondre.",
@@ -1138,20 +1142,27 @@
       "daysPreset": "{count, plural, =1 {1 jour} other {# jours}}",
       "daysSuffix": "jours",
       "fields": {
+        "auditSource": "Source",
         "calendarId": "Calendrier",
         "connectedAccountId": "Canal",
         "createdAt": "Créé le",
         "event": "Évènement",
+        "googleAdsClickId": "ID de clic Google Ads",
+        "isPlatformOperator": "Opérateur de plateforme",
+        "lastActiveAt": "Dernière activité",
         "participants": "Participants",
+        "plan": "Forfait",
         "provider": "Fournisseur",
         "startsAt": "Commence le",
         "state": "État",
         "status": "Statut",
+        "subscriptionStatus": "Abonnement",
         "timelineKind": "Type",
         "timelineThreadId": "Conversation",
         "updatedAt": "Mis à jour le",
         "url": "URL",
-        "userIds": "Assigné à"
+        "userIds": "Assigné à",
+        "workspaceId": "Espace de travail"
       },
       "operators": {
         "allSet": "entièrement lié",
@@ -1296,11 +1307,15 @@
     },
     "table": {
       "columns": {
+        "action": "Action",
+        "actor": "Auteur",
+        "allowance": "Allocation",
         "amount": "Montant",
         "avatarUrl": "Avatar",
         "channels": "Canaux",
         "contacts": "Contacts",
         "createdAt": "Créé le",
+        "credits": "Crédits",
         "customFieldValues": "Champs personnalisés",
         "deals": "Affaires",
         "description": "Description",
@@ -1315,23 +1330,33 @@
         "events": "Évènements",
         "expiresAt": "Expire le",
         "firstName": "Prénom",
+        "googleAdsClickId": "ID de clic Google Ads",
         "id": "ID",
         "identifiers": "Canaux",
         "isSystemRole": "Rôle système",
         "label": "Libellé",
+        "lastActiveAt": "Dernière activité",
         "lastName": "Nom",
         "lastRequest": "Dernière utilisation",
+        "members": "Membres",
         "name": "Nom",
         "notes": "Notes",
+        "operator": "Opérateur",
         "options": "Options",
         "organizations": "Organisations",
+        "owner": "Propriétaire",
         "permissions": "Autorisations",
+        "plan": "Forfait",
         "provider": "Fournisseur",
+        "reason": "Motif",
         "role": "Rôle",
         "secret": "Secret",
         "services": "Services",
+        "source": "Source",
         "status": "Statut",
         "statusCode": "Code de statut",
+        "subscription": "Abonnement",
+        "target": "Cible",
         "tasks": "Tâches",
         "totalQuantity": "Quantité de services",
         "totalValue": "Valeur de l'affaire",
@@ -1340,7 +1365,8 @@
         "url": "URL",
         "user": "Utilisateur",
         "users": "Assigné à",
-        "weightedValue": "Valeur pondérée"
+        "weightedValue": "Valeur pondérée",
+        "workspace": "Espace de travail"
       },
       "groupBy": "Grouper par",
       "layout": "Disposition",
@@ -2254,6 +2280,7 @@
     "features": "Fonctionnalités",
     "inbox": "Boîte de réception",
     "members": "Membres",
+    "operator": "Console opérateur",
     "overview": "Aperçu",
     "pricing": "Tarifs",
     "public": {
@@ -2449,6 +2476,126 @@
         "subtitle": "Dites-nous qui vous êtes pour que nous configurions votre espace de travail.",
         "title": "Votre profil"
       }
+    }
+  },
+  "OperatorAudit": {
+    "emptyBody": "Ajustez la recherche ou les filtres pour élargir le journal.",
+    "emptyTitle": "Aucun événement ne correspond à ces filtres",
+    "navigation": "Journal d’audit",
+    "searchPlaceholder": "Rechercher par action",
+    "values": {
+      "action": {
+        "auditRead": "Audit opérateur consulté",
+        "candidateRead": "Candidat opérateur consulté",
+        "companyRead": "Espace de travail consulté",
+        "creditAdjustmentCreate": "Correction de crédits enregistrée",
+        "creditBalanceReset": "Solde de crédits réinitialisé",
+        "enterpriseAllowanceUpdate": "Allocation Enterprise mise à jour",
+        "overviewRead": "Vue d’ensemble Hosted-AI consultée",
+        "subscriptionSnapshotCorrect": "Abonnement de l’espace de travail corrigé",
+        "userDetailRead": "Détail utilisateur consulté",
+        "userListRead": "Liste des utilisateurs consultée",
+        "userPlatformAccessUpdate": "Accès plateforme mis à jour",
+        "userStatusUpdate": "Statut du compte mis à jour",
+        "userSummaryRead": "Résumé des utilisateurs consulté"
+      },
+      "source": {
+        "operator": "Opérateur",
+        "product": "Produit"
+      }
+    }
+  },
+  "OperatorConsole": {
+    "confirm": {
+      "allowance": "Définir l'allocation Enterprise de {name} à {value} crédits par utilisateur ? Cela s'applique à tout l'espace de travail.",
+      "plan": "Définir le forfait de {name} sur {value} ? Cela s’applique à tout l’espace de travail.",
+      "subscription": "Définir le statut d’abonnement de {name} sur {value} ? Cela s’applique à tout l’espace de travail et ne contacte aucun prestataire de facturation.",
+      "title": "Confirmer la modification opérateur"
+    }
+  },
+  "OperatorOverview": {
+    "activity": {
+      "description": "Sur {total} utilisateurs au total",
+      "label": "Actifs sur 7 jours"
+    },
+    "growth": {
+      "description": "Avec {workspaces} nouveaux espaces",
+      "label": "Nouveaux utilisateurs sur 30 jours"
+    },
+    "navigation": "Vue d’ensemble",
+    "operators": {
+      "description": "Comptes avec accès inter-espaces",
+      "label": "Opérateurs de plateforme"
+    },
+    "reserved": {
+      "description": "Valeur maximale retenue par les tours en cours",
+      "label": "Exposition réservée"
+    },
+    "risk": {
+      "description": "En retard, impayés ou expirés. {trials} essais se terminent sous 7 jours.",
+      "label": "Revenus à risque"
+    },
+    "spend": {
+      "label": "Dépenses IA hébergée ce mois",
+      "noCap": "Aucun plafond mensuel configuré ; le nouveau travail est bloqué",
+      "ofCap": "{percent}% du plafond mensuel de {cap}"
+    },
+    "users": {
+      "description": "{active} actifs, {pending} en attente d’autorisation",
+      "label": "Utilisateurs"
+    },
+    "workspaces": {
+      "description": "{enterprise} en Enterprise",
+      "label": "Espaces de travail"
+    }
+  },
+  "OperatorUsers": {
+    "adjustment": {
+      "deltaLabel": "Correction de crédits signée",
+      "deltaPlaceholder": "Par exemple, 500 ou -100"
+    },
+    "confirm": {
+      "operator": "Définir l’accès opérateur de plateforme de {name} sur {value} ?",
+      "reset": "Réinitialiser les crédits de {name} : {value} ?",
+      "status": "Définir le statut du compte de {name} sur {value} ?"
+    },
+    "credits": {
+      "adjustments": "Corrections manuelles",
+      "base": "Allocation de base",
+      "committed": "Utilisés et réservés",
+      "remaining": "Restants",
+      "title": "Solde de crédits actuel",
+      "unavailableDescription": "L’espace de travail doit disposer d’un droit valide et d’un point d’ancrage de crédits avant toute correction ou réinitialisation."
+    },
+    "emptyBody": "Ajustez la recherche ou les filtres pour élargir l’annuaire.",
+    "emptyTitle": "Aucun utilisateur ne correspond à ces filtres",
+    "navigation": "Utilisateurs",
+    "platformAccess": {
+      "revoked": "Non accordé"
+    },
+    "reset": {
+      "baseAllowance": "Ramener les corrections manuelles à l’allocation de base",
+      "title": "Réinitialisation des crédits",
+      "zeroBalance": "Ramener le solde restant à zéro"
+    },
+    "searchPlaceholder": "Rechercher par nom ou e-mail du compte",
+    "values": {
+      "noSubscription": "Aucun abonnement",
+      "operator": "Opérateur de la plateforme"
+    }
+  },
+  "OperatorWorkspaces": {
+    "allowance": {
+      "label": "Crédits par utilisateur",
+      "title": "Allocation Enterprise",
+      "warningDescription": "L’allocation est accordée par utilisateur sur tout l’espace et prend effet sur la période en cours."
+    },
+    "emptyBody": "Ajustez la recherche ou les filtres pour élargir la liste.",
+    "emptyTitle": "Aucun espace ne correspond à ces filtres",
+    "navigation": "Espaces de travail",
+    "searchPlaceholder": "Rechercher par e-mail d’un membre",
+    "values": {
+      "members": "{active} sur {total}"
     }
   },
   "OrganizationModal": {

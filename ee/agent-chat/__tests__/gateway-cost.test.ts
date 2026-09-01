@@ -138,7 +138,7 @@ describe("gateway provider charge", () => {
     expect(reading.reason.length).toBeGreaterThan(0);
   });
 
-  it("refuses the real azure routing payload that prices the shipped model at five times the pinned rate", () => {
+  it("accepts the real Azure routing payload only when Azure is the expected provider", () => {
     const reading = readAgentProviderCharge(AZURE_SERVED_LUNA, "openai");
 
     expect(reading.outcome).toBe("unreadable");

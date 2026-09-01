@@ -221,6 +221,14 @@ describe("proxy locale routing", () => {
     }
   });
 
+  it("lets nested locale prefixes fall through to the app router", async () => {
+    for (const path of ["/de/de", "/en/en", "/de/en", "/en/de"]) {
+      const { status, location } = await call(path);
+      expect(location, `${path} must not redirect to sign-in`).toBeNull();
+      expect(status, `${path} should fall through to the app router`).toBe(200);
+    }
+  });
+
   it("negotiates an unprefixed path into a content locale only", async () => {
     const german = await call("/pricing", "de-DE,de;q=0.9");
     expect(german.status).toBe(307);
@@ -282,6 +290,10 @@ describe("proxy locale routing", () => {
     expect(contentOnly.status).toBe(307);
     expect(contentOnly.location).toContain("/en/dashboard");
     expect(contentOnly.location).not.toContain("/nl/auth/signin");
+
+    const germanDeals = await call("/de/deals");
+    expect(germanDeals.status).toBe(307);
+    expect(germanDeals.location).toContain("/de/auth/signin");
   });
 
   it("terminates within a bounded number of hops", async () => {

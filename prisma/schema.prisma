@@ -156,21 +156,21 @@ model OauthConsent {
 }
 
 model User {
-  id                              String              @id @default(uuid())
-  email                           String              @unique
+  id                              String                  @id @default(uuid())
+  email                           String                  @unique
   firstName                       String
   lastName                        String
   companyId                       String
   roleId                          String?
-  role                            UserRole?           @relation(fields: [roleId], references: [id])
-  status                          Status              @default(pendingAuthorization)
-  displayLanguage                 Locale              @default(system)
-  formattingLocale                Locale              @default(system)
+  role                            UserRole?               @relation(fields: [roleId], references: [id])
+  status                          Status                  @default(pendingAuthorization)
+  displayLanguage                 Locale                  @default(system)
+  formattingLocale                Locale                  @default(system)
   auditLogs                       AuditLog[]
-  theme                           Theme               @default(system)
-  country                         CountryCode         @default(de)
+  theme                           Theme                   @default(system)
+  country                         CountryCode             @default(de)
   avatarUrl                       String?
-  agreeToTerms                    Boolean             @default(false)
+  agreeToTerms                    Boolean                 @default(false)
   lastActiveAt                    DateTime?
   welcomeEmailSentAt              DateTime?
   trialExpiredOfferSentAt         DateTime?
@@ -178,26 +178,28 @@ model User {
   trialInactivationNoticeSentAt   DateTime?
   onboardingWizardCompletedAt     DateTime?
   agentCreditActivatedAt          DateTime?
-  googleAdsClickId                String?             @db.VarChar(512)
-  googleAdsClickIdKind            String?             @db.VarChar(8)
+  isPlatformOperator              Boolean                 @default(false)
+  googleAdsClickId                String?                 @db.VarChar(512)
+  googleAdsClickIdKind            String?                 @db.VarChar(8)
   googleAdsClickIdCapturedAt      DateTime?
   googleAdsAttributionConsentedAt DateTime?
   googleAdsClickIdExpiresAt       DateTime?
-  createdAt                       DateTime            @default(now())
-  updatedAt                       DateTime            @updatedAt
-  company                         Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  createdTokens                   InviteToken[]       @relation("TokenCreator")
+  createdAt                       DateTime                @default(now())
+  updatedAt                       DateTime                @updatedAt
+  company                         Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdTokens                   InviteToken[]           @relation("TokenCreator")
   deals                           DealUser[]
   contacts                        ContactUser[]
   organizations                   OrganizationUser[]
   services                        ServiceUser[]
   tasks                           TaskUser[]
-  relatedTasks                    Task[]              @relation("TaskRelatedUser")
+  relatedTasks                    Task[]                  @relation("TaskRelatedUser")
   widgets                         Widget[]
   p13n                            P13n[]
   connectedAccounts               ConnectedAccount[]
   agentConversations              AgentConversation[]
   agentRunLeases                  AgentRunLease[]
+  agentCreditAdjustments          AgentCreditAdjustment[]
 
   @@index([companyId])
   @@index([companyId, status])
@@ -257,6 +259,7 @@ model Company {
   agentToolReceipts           AgentToolReceipt[]
   agentMessages               AgentMessage[]
   agentUsageEvents            AgentUsageEvent[]
+  agentCreditAdjustments      AgentCreditAdjustment[]
   agentTurnRequests           AgentTurnRequest[]
   agentApprovals              AgentApproval[]
   agentUiCommandResults       AgentUiCommandResult[]
@@ -840,6 +843,38 @@ model Subscription {
 
   @@index([companyId])
   @@index([lemonSqueezyId])
+}
+
+model AgentCreditAdjustment {
+  id                      String   @id @default(uuid())
+  companyId               String
+  company                 Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  userId                  String
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  creditDelta             Int
+  periodStart             DateTime
+  periodEnd               DateTime
+  reason                  String?
+  operationId             String   @unique
+  createdByOperatorUserId String?
+  createdAt               DateTime @default(now())
+
+  @@index([companyId, userId, periodStart, periodEnd], map: "AgentCreditAdjustment_period_lookup_idx")
+  @@index([companyId, createdAt])
+}
+
+model OperatorAuditEvent {
+  id              String   @id @default(uuid())
+  actorUserId     String
+  action          String
+  targetCompanyId String?
+  targetUserId    String?
+  reason          String?
+  metadata        Json?
+  createdAt       DateTime @default(now())
+
+  @@index([action, createdAt])
+  @@index([targetCompanyId, createdAt])
 }
 
 enum Resource {
@@ -1675,6 +1710,7 @@ model AgentUsageEvent {
   @@index([userId, createdAt])
   @@index([companyId, createdAt])
   @@index([companyId, userId, periodStart, periodEnd, state])
+  @@index([state, settledAt, createdAt])
   @@index([turnRequestId])
 }
 

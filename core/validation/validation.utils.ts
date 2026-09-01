@@ -74,7 +74,10 @@ const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.webhookNotFound,
   CustomErrorCode.widgetNotFound,
 ]);
-const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([CustomErrorCode.roleSystemImmutable]);
+const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
+  CustomErrorCode.operatorConflict,
+  CustomErrorCode.roleSystemImmutable,
+]);
 
 function issueCustomCode(issue: $ZodIssue): CustomErrorCode | null {
   const candidate = issue.code === "custom" ? issue.params?.error : undefined;

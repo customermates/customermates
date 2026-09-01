@@ -1,16 +1,20 @@
 #!/bin/bash
 set -euo pipefail
 
+set -euo pipefail
+
+npx --no-install tsx scripts/assert-local-database-url.ts
+
 # Check if -f flag is provided
 if [ "${1:-}" == "-f" ]; then
     # Force push schema and run seed
     echo "Force pushing schema and running seed..."
     npx prisma db push --force-reset
-    npx prisma db seed
+    HOSTED_AI_LOCAL_OPERATOR_SEED_ENABLED=true npx prisma db seed
 else
     echo "Resetting the Prisma database..."
     npx prisma migrate reset --force
-    npx prisma db seed
+    HOSTED_AI_LOCAL_OPERATOR_SEED_ENABLED=true npx prisma db seed
 fi
 
 # The workflow engine (workflow / @workflow/world-postgres + graphile-worker) lives in

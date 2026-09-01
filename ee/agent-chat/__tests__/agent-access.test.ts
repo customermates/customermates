@@ -72,7 +72,7 @@ function usageService() {
         },
       },
     }),
-    reserveUsage: vi.fn().mockResolvedValue(undefined),
+    reserveUsage: vi.fn().mockResolvedValue(true),
     releaseReservation: vi.fn().mockResolvedValue(undefined),
   };
 }

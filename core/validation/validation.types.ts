@@ -111,6 +111,8 @@ export enum CustomErrorCode {
   unipileRequestTimeout = "unipileRequestTimeout",
   unipileDisconnectedAccount = "unipileDisconnectedAccount",
   unipileUnknown = "unipileUnknown",
+  operatorConflict = "operatorConflict",
+  operatorUnavailable = "operatorUnavailable",
   generic = "generic",
 }
 

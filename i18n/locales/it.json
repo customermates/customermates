@@ -340,6 +340,7 @@
       "cancelled": "Questa risposta è stata interrotta.",
       "creditLimit": "Ho completato una parte di questa richiesta, ma mi sono fermato perché i tuoi crediti Assistant sono esauriti. Il lavoro completato resta valido; i crediti si azzerano all'inizio del prossimo periodo.",
       "emptyReply": "Non sono riuscito a generare una risposta. Riprova.",
+      "hostedAiUnavailable": "L’IA ospitata è temporaneamente non disponibile. Riprova più tardi.",
       "outputLimit": "Ho completato parte della risposta, ma ho raggiunto il limite di output di questo turno. Chiedimi di continuare e terminerò dal lavoro già completato.",
       "safetyLimit": "Ho completato parte della richiesta, ma mi sono fermato perché gli ultimi passaggi si ripetevano, non riuscivano o avevano raggiunto un limite di sicurezza. Il lavoro completato resta invariato; controlla i passaggi precedenti prima di chiedermi di procedere.",
       "turnError": "Non sono riuscito a completare la richiesta. Riprova."
@@ -800,6 +801,7 @@
       "clear": "Cancella",
       "close": "Chiudi",
       "collapse": "Riduci",
+      "confirm": "Conferma",
       "contact": "Contatta",
       "continueSetup": "Prosegui la configurazione",
       "copy": "Copia negli appunti",
@@ -996,6 +998,8 @@
       "notAuthenticated": "Accedi per usare questa azione.",
       "notesExceedsMaxLength": "Il contenuto delle note supera la lunghezza massima.",
       "notesInvalidFormat": "Formato delle note non valido. Deve essere JSON Tiptap valido o testo markdown.",
+      "operatorConflict": "La modifica è stata rifiutata. Il record potrebbe essere cambiato dal caricamento dell’elenco, oppure lo spazio di lavoro al momento non la consente. Ricarica e verifica lo stato attuale.",
+      "operatorUnavailable": "La correzione richiesta non è disponibile per la configurazione corrente dell’account.",
       "organizationNotFound": "ID organizzazione non trovato o non accessibile.",
       "passwordInvalid": "La password deve contenere almeno 8 caratteri e includere almeno una lettera maiuscola, una minuscola, un numero e un carattere speciale.",
       "passwordMismatch": "Le password devono coincidere.",
@@ -1138,20 +1142,27 @@
       "daysPreset": "{count, plural, =1 {1 giorno} other {# giorni}}",
       "daysSuffix": "giorni",
       "fields": {
+        "auditSource": "Origine",
         "calendarId": "Calendario",
         "connectedAccountId": "Canale",
         "createdAt": "Creato il",
         "event": "Evento",
+        "googleAdsClickId": "ID clic Google Ads",
+        "isPlatformOperator": "Operatore di piattaforma",
+        "lastActiveAt": "Ultima attività",
         "participants": "Partecipanti",
+        "plan": "Piano",
         "provider": "Provider",
         "startsAt": "Inizia il",
         "state": "Stato",
         "status": "Stato",
+        "subscriptionStatus": "Abbonamento",
         "timelineKind": "Tipo",
         "timelineThreadId": "Conversazione",
         "updatedAt": "Aggiornato il",
         "url": "URL",
-        "userIds": "Assegnato a"
+        "userIds": "Assegnato a",
+        "workspaceId": "Area di lavoro"
       },
       "operators": {
         "allSet": "completamente collegato",
@@ -1296,11 +1307,15 @@
     },
     "table": {
       "columns": {
+        "action": "Azione",
+        "actor": "Autore",
+        "allowance": "Dotazione",
         "amount": "Importo",
         "avatarUrl": "Avatar",
         "channels": "Canali",
         "contacts": "Contatti",
         "createdAt": "Creato il",
+        "credits": "Crediti",
         "customFieldValues": "Campi personalizzati",
         "deals": "Trattative",
         "description": "Descrizione",
@@ -1315,23 +1330,33 @@
         "events": "Eventi",
         "expiresAt": "Scade il",
         "firstName": "Nome",
+        "googleAdsClickId": "ID clic Google Ads",
         "id": "ID",
         "identifiers": "Canali",
         "isSystemRole": "Ruolo di sistema",
         "label": "Etichetta",
+        "lastActiveAt": "Ultima attività",
         "lastName": "Cognome",
         "lastRequest": "Ultimo utilizzo",
+        "members": "Membri",
         "name": "Nome",
         "notes": "Note",
+        "operator": "Operatore",
         "options": "Opzioni",
         "organizations": "Organizzazioni",
+        "owner": "Proprietario",
         "permissions": "Autorizzazioni",
+        "plan": "Piano",
         "provider": "Provider",
+        "reason": "Motivo",
         "role": "Ruolo",
         "secret": "Secret",
         "services": "Servizi",
+        "source": "Origine",
         "status": "Stato",
         "statusCode": "Codice di stato",
+        "subscription": "Abbonamento",
+        "target": "Destinazione",
         "tasks": "Attività",
         "totalQuantity": "Quantità di servizi",
         "totalValue": "Valore della trattativa",
@@ -1340,7 +1365,8 @@
         "url": "URL",
         "user": "Utente",
         "users": "Assegnato a",
-        "weightedValue": "Valore ponderato"
+        "weightedValue": "Valore ponderato",
+        "workspace": "Area di lavoro"
       },
       "groupBy": "Raggruppa per",
       "layout": "Disposizione",
@@ -2254,6 +2280,7 @@
     "features": "Funzionalità",
     "inbox": "Posta in arrivo",
     "members": "Membri",
+    "operator": "Console operatore",
     "overview": "Panoramica",
     "pricing": "Prezzi",
     "public": {
@@ -2449,6 +2476,126 @@
         "subtitle": "Dicci chi sei così possiamo configurare la tua area di lavoro.",
         "title": "Il tuo profilo"
       }
+    }
+  },
+  "OperatorAudit": {
+    "emptyBody": "Modifica la ricerca o i filtri per ampliare il registro.",
+    "emptyTitle": "Nessun evento corrisponde a questi filtri",
+    "navigation": "Registro di audit",
+    "searchPlaceholder": "Cerca per azione",
+    "values": {
+      "action": {
+        "auditRead": "Audit operatore letto",
+        "candidateRead": "Candidato operatore letto",
+        "companyRead": "Spazio di lavoro letto",
+        "creditAdjustmentCreate": "Correzione di crediti registrata",
+        "creditBalanceReset": "Saldo crediti azzerato",
+        "enterpriseAllowanceUpdate": "Assegnazione Enterprise aggiornata",
+        "overviewRead": "Panoramica Hosted-AI letta",
+        "subscriptionSnapshotCorrect": "Abbonamento dello spazio di lavoro corretto",
+        "userDetailRead": "Dettaglio utente letto",
+        "userListRead": "Elenco utenti letto",
+        "userPlatformAccessUpdate": "Accesso alla piattaforma aggiornato",
+        "userStatusUpdate": "Stato account aggiornato",
+        "userSummaryRead": "Riepilogo utenti letto"
+      },
+      "source": {
+        "operator": "Operatore",
+        "product": "Prodotto"
+      }
+    }
+  },
+  "OperatorConsole": {
+    "confirm": {
+      "allowance": "Impostare l'allocazione Enterprise di {name} su {value} crediti per utente? Si applica all'intero spazio di lavoro.",
+      "plan": "Impostare il piano di {name} su {value}? Si applica all’intero spazio di lavoro.",
+      "subscription": "Impostare lo stato dell’abbonamento di {name} su {value}? Si applica all’intero spazio di lavoro e non contatta alcun fornitore di fatturazione.",
+      "title": "Conferma la modifica operatore"
+    }
+  },
+  "OperatorOverview": {
+    "activity": {
+      "description": "Su {total} utenti totali",
+      "label": "Attivi in 7 giorni"
+    },
+    "growth": {
+      "description": "Insieme a {workspaces} nuove aree",
+      "label": "Nuovi utenti in 30 giorni"
+    },
+    "navigation": "Panoramica",
+    "operators": {
+      "description": "Account con accesso tra le aree",
+      "label": "Operatori di piattaforma"
+    },
+    "reserved": {
+      "description": "Valore massimo trattenuto dai turni in corso",
+      "label": "Esposizione riservata"
+    },
+    "risk": {
+      "description": "Scaduti, non pagati o esauriti. {trials} prove terminano entro 7 giorni.",
+      "label": "Ricavi a rischio"
+    },
+    "spend": {
+      "label": "Spesa IA ospitata questo mese",
+      "noCap": "Nessun limite mensile configurato; il nuovo lavoro è bloccato",
+      "ofCap": "{percent}% del limite mensile di {cap}"
+    },
+    "users": {
+      "description": "{active} attivi, {pending} in attesa di autorizzazione",
+      "label": "Utenti"
+    },
+    "workspaces": {
+      "description": "{enterprise} con Enterprise",
+      "label": "Aree di lavoro"
+    }
+  },
+  "OperatorUsers": {
+    "adjustment": {
+      "deltaLabel": "Correzione crediti con segno",
+      "deltaPlaceholder": "Ad esempio, 500 o -100"
+    },
+    "confirm": {
+      "operator": "Impostare l’accesso operatore di piattaforma di {name} su {value}?",
+      "reset": "Azzerare i crediti di {name}: {value}?",
+      "status": "Impostare lo stato dell’account di {name} su {value}?"
+    },
+    "credits": {
+      "adjustments": "Correzioni manuali",
+      "base": "Disponibilità di base",
+      "committed": "Usati e riservati",
+      "remaining": "Rimanenti",
+      "title": "Posizione crediti corrente",
+      "unavailableDescription": "L’area di lavoro deve avere un’autorizzazione valida e un riferimento temporale per i crediti prima di poterli correggere o ripristinare."
+    },
+    "emptyBody": "Modifica la ricerca o i filtri per ampliare l’elenco.",
+    "emptyTitle": "Nessun utente corrisponde a questi filtri",
+    "navigation": "Utenti",
+    "platformAccess": {
+      "revoked": "Non concesso"
+    },
+    "reset": {
+      "baseAllowance": "Riporta le correzioni manuali alla disponibilità di base",
+      "title": "Ripristino crediti",
+      "zeroBalance": "Imposta a zero il saldo rimanente"
+    },
+    "searchPlaceholder": "Cerca per nome o e-mail dell’account",
+    "values": {
+      "noSubscription": "Nessun abbonamento",
+      "operator": "Operatore della piattaforma"
+    }
+  },
+  "OperatorWorkspaces": {
+    "allowance": {
+      "label": "Crediti per utente",
+      "title": "Dotazione Enterprise",
+      "warningDescription": "La dotazione è concessa per utente su tutta l’area e ha effetto sul periodo corrente."
+    },
+    "emptyBody": "Modifica la ricerca o i filtri per ampliare l’elenco.",
+    "emptyTitle": "Nessuna area corrisponde a questi filtri",
+    "navigation": "Aree di lavoro",
+    "searchPlaceholder": "Cerca per e-mail di un membro",
+    "values": {
+      "members": "{active} su {total}"
     }
   },
   "OrganizationModal": {
