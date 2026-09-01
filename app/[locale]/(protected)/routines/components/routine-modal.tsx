@@ -92,15 +92,6 @@ export const RoutineModal = observer(() => {
         <AppCard>
           <AppCardHeader>
             <h2 className="truncate text-x-lg">{form?.name?.trim() || t("RoutineModal.title")}</h2>
-
-            {!openRun && (
-              <FormSwitch
-                containerClassName="ml-auto w-auto shrink-0"
-                id="enabled"
-                label={t("RoutineModal.enabled")}
-                size="sm"
-              />
-            )}
           </AppCardHeader>
 
           {openRun ? (
@@ -358,6 +349,8 @@ export const RoutineModal = observer(() => {
                       )}
                     </div>
                   )}
+
+                  <FormSwitch id="enabled" label={t("RoutineModal.enabled")} />
                 </AppCardBody>
               )}
 
