@@ -134,23 +134,40 @@ describe("page-state ownership", () => {
     expect(read("app/[locale]/(protected)/inbox/components/inbox-list.tsx")).toContain("if (locked) return;");
   });
 
-  it("keeps the neutral public and protected catch-all loaders generic", () => {
-    for (const path of ["app/[locale]/(public)/loading.tsx", "app/[locale]/(protected)/loading.tsx"]) {
+  it("keeps the neutral public and internal-test loaders generic", () => {
+    for (const path of ["app/[locale]/(public)/loading.tsx", "app/[locale]/(protected)/test/loading.tsx"]) {
       const source = read(path);
       expect(source, path).toContain("GenericPageLoading");
       expect(source, path).not.toMatch(/PageState|PageSkeleton|RouteLoading|<main|\bfixed\b/);
     }
   });
 
-  it("keeps every loading boundary below the locale segment so published pages keep their status code", () => {
-    // A loader at app/[locale]/ or inside (static) puts a Suspense boundary above the marketing and
-    // docs routes. React then commits 200 with the shell before the page body runs, so notFound()
-    // renders a 404 card inside a 200 and permanentRedirect() degrades to a meta refresh. Crawlers
-    // read both as a live page. The (public) and (protected) groups keep their loaders because a
-    // skeleton is correct there and neither surface is indexed.
+  it("keeps loading boundaries out of every segment whose status code has to survive", () => {
+    // A loader puts a Suspense boundary above everything below it. React commits 200 with the shell
+    // before that subtree runs, so notFound() renders a 404 card inside a 200 and permanentRedirect()
+    // degrades to a meta refresh. Two surfaces cannot afford that. Marketing and docs pages are
+    // indexed, and a crawler reads either as a live page, so nothing above (static) may carry a
+    // loader. A layout that calls notFound() is an authorization boundary, and a denied viewer must
+    // get the same 404 as a route that does not exist, so nothing above such a layout may carry one
+    // either. That is why the (protected) group has no catch-all loader: its only pages without a
+    // direct loader are the internal test routes, which hold one of their own.
     expect(existsSync(resolve(root, "app/[locale]/loading.tsx")), "app/[locale]/loading.tsx").toBe(false);
     const staticLoaders = filesUnder("app/[locale]/(static)").filter((path) => path.endsWith("loading.tsx"));
     expect(staticLoaders, "loading.tsx under (static)").toEqual([]);
+
+    const guardedLayouts = filesUnder("app")
+      .filter((path) => path.endsWith("/layout.tsx"))
+      .filter((path) => /\bnotFound\(\)/.test(read(path)));
+    expect(guardedLayouts.length).toBeGreaterThan(0);
+    for (const layout of guardedLayouts) {
+      let segment = dirname(dirname(layout));
+      while (segment.startsWith("app")) {
+        const loader = join(segment, "loading.tsx");
+        expect(existsSync(resolve(root, loader)), `${loader} sits above ${layout}`).toBe(false);
+        if (segment === "app") break;
+        segment = dirname(segment);
+      }
+    }
   });
 
   it("keeps loading motion shape-only and disabled for reduced motion", () => {
