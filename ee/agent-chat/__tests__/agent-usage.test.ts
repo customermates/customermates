@@ -276,7 +276,7 @@ describe("AgentUsageService admission and ledger", () => {
   it("charges the gateway's measured cost rather than the pinned estimate", () => {
     const settlement = buildAgentUsageSettlement({
       model: "openai/gpt-5-nano",
-      provider: "openai",
+      provider: "azure",
       tokens: { inputTokens: 35_329, outputTokens: 2_945, cacheReadTokens: 73_728, cacheWriteTokens: 0 },
       reservedCredits: 14,
       providerCharge: { billed: true, measuredCostMicrocents: 2_000_001, stepTokens: [], unreadableReason: null },
@@ -293,7 +293,7 @@ describe("AgentUsageService admission and ledger", () => {
   it("quarantines an unreadable cost against the pinned estimate instead of throwing", () => {
     const settlement = buildAgentUsageSettlement({
       model: "openai/gpt-5-nano",
-      provider: "openai",
+      provider: "azure",
       tokens: { inputTokens: 35_329, outputTokens: 2_945, cacheReadTokens: 73_728, cacheWriteTokens: 0 },
       reservedCredits: 14,
       providerCharge: {
@@ -304,7 +304,7 @@ describe("AgentUsageService admission and ledger", () => {
       },
     });
 
-    expect(settlement).toMatchObject({ costMicrocents: 331_309, costSource: "estimated", state: "settled" });
+    expect(settlement).toMatchObject({ costMicrocents: 368_173, costSource: "estimated", state: "settled" });
   });
 
   it("prices a multi-step turn per request, as the provider bills it, not on the turn aggregate", () => {
@@ -319,14 +319,14 @@ describe("AgentUsageService admission and ledger", () => {
 
     const settlement = buildAgentUsageSettlement({
       model: "openai/gpt-5.6-luna",
-      provider: "openai",
+      provider: "azure",
       tokens: aggregate,
       reservedCredits: 40,
       providerCharge: { billed: true, measuredCostMicrocents: null, stepTokens: steps, unreadableReason: "test" },
     });
 
     expect(settlement.costMicrocents).toBe(1_568_524);
-    expect(computeCostMicrocents("openai/gpt-5.6-luna", aggregate, "openai")).toBe(3_105_428);
+    expect(computeCostMicrocents("openai/gpt-5.6-luna", aggregate, "azure")).toBe(3_105_428);
     expect(settlement.chargedCredits).toBe(2);
   });
 

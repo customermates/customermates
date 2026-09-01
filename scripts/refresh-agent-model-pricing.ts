@@ -6,8 +6,8 @@ const GATEWAY_ENDPOINTS_URL = "https://ai-gateway.vercel.sh/v1/models";
 const SNAPSHOT_PATH = join(process.cwd(), "ee/agent-chat/model-pricing.snapshot.ts");
 
 const PINNED = [
-  { modelId: "openai/gpt-5.6-luna", providerNativeModelId: "gpt-5.6-luna", provider: "openai" },
-  { modelId: "openai/gpt-5-nano", providerNativeModelId: "gpt-5-nano", provider: "openai" },
+  { modelId: "openai/gpt-5.6-luna", providerNativeModelId: "gpt-5.6-luna", provider: "azure" },
+  { modelId: "openai/gpt-5-nano", providerNativeModelId: "gpt-5-nano", provider: "azure" },
 ];
 
 type CatalogTier = { cost: string; min?: number; max?: number };
