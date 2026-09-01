@@ -163,7 +163,7 @@ describe("legal documents describe only what the product does", () => {
     expect(dpa).toMatch(
       name === "en"
         ? /when a user invokes Mate.*Vercel AI Gateway.*selected model.*downstream provider.*Subprocessors/is
-        : /wenn ein Nutzer Mate aufruft.*Vercel AI Gateway.*ausgewählte Modell.*nachgelagerten Anbieter.*Unterauftragsverarbeiter/is,
+        : /wenn ein Nutzer Mate (?:interaktiv )?aufruft.*Vercel AI Gateway.*ausgewählte Modell.*nachgelagerten Anbieter.*Unterauftragsverarbeiter/is,
     );
     expect(dpa).toMatch(
       name === "en"
@@ -177,8 +177,53 @@ describe("legal documents describe only what the product does", () => {
     );
     expect(terms).toMatch(
       name === "en"
-        ? /at least 16 years old.*under 18.*sensitive personal information.*legal or material impact.*every person.*complies/is
-        : /mindestens 16 Jahre alt.*unter 18 Jahren.*sensiblen personenbezogenen Informationen.*rechtliche oder wesentliche Auswirkungen.*jede Person.*einhält/is,
+        ? /at least 16 years old.*under 18.*Art\. 9 GDPR.*Art\. 10 GDPR.*legal or material impact.*every person.*complies/is
+        : /mindestens 16 Jahre alt.*unter 18 Jahren.*Art\. 9 DSGVO.*Art\. 10 DSGVO.*rechtliche oder wesentliche Auswirkungen.*jede Person.*einhält/is,
+    );
+    expect(terms).toMatch(
+      name === "en"
+        ? /applicable legal basis.*data minimisation.*safeguards appropriate to the risk.*Art\. 9 GDPR.*Art\. 10 GDPR/is
+        : /anwendbare Rechtsgrundlage.*Datenminimierung.*dem Risiko angemessene Schutzvorkehrungen.*Art\. 9 DSGVO.*Art\. 10 DSGVO/is,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /applicable legal basis.*data minimisation.*safeguards appropriate to the risk.*Art\. 9 GDPR.*Art\. 10 GDPR/is
+        : /anwendbare Rechtsgrundlage.*Datenminimierung.*dem Risiko angemessene Schutzvorkehrungen.*Art\. 9 DSGVO.*Art\. 10 DSGVO/is,
+    );
+    expect(dpa).toMatch(
+      name === "en"
+        ? /applicable legal basis.*data minimisation.*safeguards appropriate to the risk.*Art\. 9 GDPR.*Art\. 10 GDPR/is
+        : /anwendbare Rechtsgrundlage.*Datenminimierung.*dem Risiko angemessene Schutzvorkehrungen.*Art\. 9 DSGVO.*Art\. 10 DSGVO/is,
+    );
+    expect(subprocessors).toMatch(
+      name === "en"
+        ? /customer determines.*necessity.*applicable legal basis.*safeguards appropriate to the risk/is
+        : /Kunde bestimmt.*Erforderlichkeit.*anwendbare Rechtsgrundlage.*dem Risiko angemessene Schutzvorkehrungen/is,
+    );
+    expect(terms).toMatch(
+      name === "en"
+        ? /Where the managed service offers.*Routines.*saved or automated Mate runs.*manual execution.*schedule.*configured in-product event.*standing documented instruction.*without separate case-by-case confirmation/is
+        : /Soweit der verwaltete Dienst.*Routines.*gespeicherte oder automatisierte Mate-Durchläufe.*anbietet.*manuellen Ausführung.*Zeitplan.*konfigurierten produktinternen Ereignis.*dokumentierte Dauerweisung.*ohne gesonderte Bestätigung im Einzelfall/is,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /During interactive use.*must be checked before it is relied on.*Where a Routine is offered and enabled.*before activation or material change.*monitor operation and results.*without separate case-by-case confirmation/is
+        : /Bei interaktiver Nutzung.*müssen geprüft werden.*Soweit eine Routine angeboten und aktiviert ist.*vor der Aktivierung oder einer wesentlichen Änderung.*Betrieb und Ergebnisse überwachen.*ohne gesonderte Bestätigung im Einzelfall/is,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /full saved instruction.*recurring safety checks.*possible trigger loops.*before a Routine run starts/is
+        : /vollständige gespeicherte Weisung.*wiederkehrender Sicherheitsprüfungen.*mögliche Auslöserschleifen.*bevor ein Routine-Durchlauf beginnt/is,
+    );
+    expect(dpa).toMatch(
+      name === "en"
+        ? /deleting a saved Routine does not itself delete Mate conversations.*separately deleted/is
+        : /Löschen einer gespeicherten Routine.*nicht automatisch.*Mate-Konversationen.*gesondert/is,
+    );
+    expect(text).not.toMatch(
+      name === "en"
+        ? /(?:must not (?:submit or make available|send|instruct Mate to process)|Users must not include) sensitive personal information/i
+        : /(?:darf keine sensiblen personenbezogenen Informationen|dürfen (?:über Mate )?keine sensiblen personenbezogenen Informationen|darf den Anbieter nicht anweisen, mit Mate sensible personenbezogene Informationen)/i,
     );
     expect(privacy).toMatch(
       name === "en"
