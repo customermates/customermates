@@ -18,6 +18,7 @@ export class DeleteOperatorWorkspaceInteractor {
   async invoke(data: DeleteOperatorWorkspaceData): Validated<DeleteOperatorWorkspaceResultDto> {
     const result = await this.repo.deleteWorkspaceUnscoped(data);
 
+    if (result === "connectedAccountsActive") return failConflict(CustomErrorCode.operatorConnectedAccountsActive);
     if (result === "allowanceMissing") return failConflict(CustomErrorCode.operatorAllowanceMissing);
     if (result === "conflict") return failConflict(CustomErrorCode.operatorConflict);
     if (result === "notFound") return failNotFound(CustomErrorCode.userNotFound);

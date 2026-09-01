@@ -18,6 +18,7 @@ export class UpdateOperatorSubscriptionTermsInteractor {
   async invoke(data: UpdateOperatorSubscriptionTermsData): Validated<HostedAiOperatorCompanyDto> {
     const result = await this.repo.updateSubscriptionTermsUnscoped(data);
 
+    if (result === "connectedAccountsActive") return failConflict(CustomErrorCode.operatorConnectedAccountsActive);
     if (result === "allowanceMissing") return failConflict(CustomErrorCode.operatorAllowanceMissing);
     if (result === "conflict") return failConflict(CustomErrorCode.operatorConflict);
     if (result === "notFound") return failNotFound(CustomErrorCode.userNotFound);

@@ -353,4 +353,110 @@ describeDatabase("operator workspace deletion against a real database", { timeou
       expect(audit).toHaveLength(1);
     });
   });
+
+  it("refuses while the workspace still has a live connected messaging account", async () => {
+    const repo = new PrismaOperatorRepo();
+    const { companyId, members } = await createWorkspace({ domain: "connected.invalid", members: 1 });
+
+    const accountId = randomUUID();
+    await runWithoutTenant(() =>
+      prisma.connectedAccount.create({
+        data: {
+          id: accountId,
+          companyId,
+          userId: members[0].userId,
+          provider: "mail",
+          status: "ok",
+          unipileAccountId: `unipile-${randomUUID()}`,
+        },
+      }),
+    );
+
+    const refused = await runWithOperator(operatorActor(), () =>
+      repo.deleteWorkspaceUnscoped({
+        companyId,
+        confirmWorkspaceLabel: "connected.invalid",
+        reason: "should refuse",
+      }),
+    );
+    expect(refused).toBe("connectedAccountsActive");
+
+    await runWithoutTenant(async () => {
+      expect(await prisma.company.count({ where: { id: companyId } })).toBe(1);
+      await prisma.connectedAccount.update({ where: { id: accountId }, data: { status: "deleted" } });
+    });
+
+    const admitted = await runWithOperator(operatorActor(), () =>
+      repo.deleteWorkspaceUnscoped({
+        companyId,
+        confirmWorkspaceLabel: "connected.invalid",
+        reason: "disconnected first",
+      }),
+    );
+    assertAdmitted(admitted);
+
+    await runWithoutTenant(async () => {
+      expect(await prisma.company.count({ where: { id: companyId } })).toBe(0);
+    });
+  });
+
+  it("purges background workflow runs and their child rows for the deleted workspace", async () => {
+    const repo = new PrismaOperatorRepo();
+    const { companyId } = await createWorkspace({ domain: "workflows.invalid", members: 1 });
+    const survivor = await createWorkspace({ domain: "keepruns.invalid", members: 1 });
+    const doomedRun = `run-${randomUUID()}`;
+    const survivingRun = `run-${randomUUID()}`;
+
+    await runWithoutTenant(async () => {
+      for (const [runId, owner] of [
+        [doomedRun, companyId],
+        [survivingRun, survivor.companyId],
+      ] as const) {
+        await prisma.$executeRawUnsafe(
+          `INSERT INTO "workflow"."workflow_runs" ("id","deployment_id","status","name","input")
+           VALUES ($1, 'test-deployment', 'completed', 'agent-turn', $2::jsonb)`,
+          runId,
+          JSON.stringify({ companyId: owner, userId: randomUUID() }),
+        );
+        await prisma.$executeRawUnsafe(
+          `INSERT INTO "workflow"."workflow_steps" ("run_id","step_id","step_name","status","attempt","created_at","updated_at")
+           VALUES ($1, $2, 'step', 'completed', 1, NOW(), NOW())`,
+          runId,
+          randomUUID(),
+        );
+      }
+    });
+
+    const result = await runWithOperator(operatorActor(), () =>
+      repo.deleteWorkspaceUnscoped({
+        companyId,
+        confirmWorkspaceLabel: "workflows.invalid",
+        reason: "workflow purge",
+      }),
+    );
+    assertAdmitted(result);
+
+    await runWithoutTenant(async () => {
+      const doomed = await prisma.$queryRawUnsafe<Array<{ count: bigint }>>(
+        `SELECT COUNT(*)::bigint AS count FROM "workflow"."workflow_runs" WHERE "id" = $1`,
+        doomedRun,
+      );
+      expect(Number(doomed[0]?.count ?? 0)).toBe(0);
+
+      const doomedSteps = await prisma.$queryRawUnsafe<Array<{ count: bigint }>>(
+        `SELECT COUNT(*)::bigint AS count FROM "workflow"."workflow_steps" WHERE "run_id" = $1`,
+        doomedRun,
+      );
+      expect(Number(doomedSteps[0]?.count ?? 0)).toBe(0);
+
+      const kept = await prisma.$queryRawUnsafe<Array<{ count: bigint }>>(
+        `SELECT COUNT(*)::bigint AS count FROM "workflow"."workflow_runs" WHERE "id" = $1`,
+        survivingRun,
+      );
+      expect(Number(kept[0]?.count ?? 0)).toBe(1);
+
+      await prisma.$executeRawUnsafe(`DELETE FROM "workflow"."workflow_steps" WHERE "run_id" = $1`, survivingRun);
+      await prisma.$executeRawUnsafe(`DELETE FROM "workflow"."workflow_runs" WHERE "id" = $1`, survivingRun);
+    });
+  });
 });

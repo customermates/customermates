@@ -1000,6 +1000,7 @@
       "notesInvalidFormat": "Invalid notes format. Must be valid Tiptap JSON or markdown text.",
       "operatorAllowanceMissing": "This workspace has no contracted Enterprise allowance yet, so credits cannot be corrected. Set the allowance on the Workspaces list first.",
       "operatorConflict": "That change was refused. The record may have changed since the list loaded, or the workspace may not allow it right now. Reload and check the current state.",
+      "operatorConnectedAccountsActive": "This workspace still has connected messaging accounts. Disconnect them first so the provider accounts are released, then delete the workspace.",
       "operatorUnavailable": "The requested correction is not available for the current account configuration.",
       "organizationNotFound": "Organization ID not found or not accessible.",
       "passwordInvalid": "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.",

@@ -1,5 +1,5 @@
 import type { Prisma } from "@/generated/prisma";
-import { Status, SubscriptionPlan, SubscriptionStatus, TaskType } from "@/generated/prisma";
+import { ConnectedAccountStatus, Status, SubscriptionPlan, SubscriptionStatus, TaskType } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
@@ -44,6 +44,15 @@ function workspaceLabelFor(companyId: string, members: { email: string }[]): str
 
   return ranked[0]?.[0] ?? companyId.slice(0, 8);
 }
+
+const WORKFLOW_RUN_CHILD_TABLES = [
+  "workflow_event_slots",
+  "workflow_events",
+  "workflow_hooks",
+  "workflow_steps",
+  "workflow_stream_chunks",
+  "workflow_waits",
+] as const;
 
 type AuditAction = (typeof OPERATOR_AUDIT_ACTION)[keyof typeof OPERATOR_AUDIT_ACTION];
 const MAX_ADJUSTMENT_CREDITS = 1_000_000;
@@ -1004,6 +1013,11 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         if (company.users.some((member) => member.isPlatformOperator && member.status === Status.active))
           return "conflict";
 
+        const liveConnectedAccounts = await this.prisma.connectedAccount.count({
+          where: { companyId: data.companyId, status: { not: ConnectedAccountStatus.deleted } },
+        });
+        if (liveConnectedAccounts > 0) return "connectedAccountsActive";
+
         const memberIds = company.users.map((member) => member.id);
         const memberEmails = company.users.map((member) => member.email);
 
@@ -1022,6 +1036,22 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
 
         await this.prisma.messagingInboundEvent.deleteMany({ where: { companyId: data.companyId } });
 
+        const workflowRuns = await this.prisma.$queryRaw<Array<{ id: string }>>`
+          SELECT "id" FROM "workflow"."workflow_runs" WHERE "input"->>'companyId' = ${data.companyId}
+        `;
+        const workflowRunIds = workflowRuns.map((run) => run.id);
+        if (workflowRunIds.length > 0) {
+          for (const table of WORKFLOW_RUN_CHILD_TABLES) {
+            await this.prisma.$executeRawUnsafe(
+              `DELETE FROM "workflow"."${table}" WHERE "run_id" = ANY($1::text[])`,
+              workflowRunIds,
+            );
+          }
+          await this.prisma.$executeRaw`
+            DELETE FROM "workflow"."workflow_runs" WHERE "id" = ANY(${workflowRunIds}::text[])
+          `;
+        }
+
         await this.prisma.company.delete({ where: { id: data.companyId } });
 
         await this.createAudit({
@@ -1032,6 +1062,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             workspaceLabel,
             deletedMemberCount: memberIds.length,
             deletedAuthIdentityCount: identityIds.length,
+            deletedWorkflowRunCount: workflowRunIds.length,
             plan: company.subscription?.plan ?? null,
             subscriptionStatus: company.subscription?.status ?? null,
             billingSubscriptionLeftActive: Boolean(company.subscription?.lemonSqueezyId),

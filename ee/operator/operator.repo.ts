@@ -18,7 +18,7 @@ import type {
   UpdateHostedAiEnterpriseAllowanceData,
 } from "./operator.schema";
 
-export type OperatorRefusal = "conflict" | "notFound" | "unavailable" | "allowanceMissing";
+export type OperatorRefusal = "conflict" | "notFound" | "unavailable" | "allowanceMissing" | "connectedAccountsActive";
 
 export abstract class OperatorRepo {
   abstract getOverviewUnscoped(now?: Date): Promise<HostedAiOperatorOverviewDto | OperatorRefusal>;

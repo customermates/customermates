@@ -18,6 +18,7 @@ export class GetOperatorWorkspaceStatsInteractor {
   async invoke(data: GetOperatorWorkspaceStatsData): Validated<OperatorWorkspaceStatsDto> {
     const result = await this.repo.getWorkspaceStatsUnscoped(data);
 
+    if (result === "connectedAccountsActive") return failConflict(CustomErrorCode.operatorConnectedAccountsActive);
     if (result === "allowanceMissing") return failConflict(CustomErrorCode.operatorAllowanceMissing);
     if (result === "conflict") return failConflict(CustomErrorCode.operatorConflict);
     if (result === "notFound") return failNotFound(CustomErrorCode.userNotFound);

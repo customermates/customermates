@@ -1000,6 +1000,7 @@
       "notesInvalidFormat": "Format de notes invalide. Il doit s'agir de JSON Tiptap valide ou de texte markdown.",
       "operatorAllowanceMissing": "Cet espace de travail n'a pas encore d'allocation Enterprise contractuelle, les crédits ne peuvent donc pas être corrigés. Définissez d'abord l'allocation dans la liste des espaces de travail.",
       "operatorConflict": "La modification a été refusée. L’enregistrement a peut-être changé depuis le chargement de la liste, ou l’espace de travail ne l’autorise pas actuellement. Rechargez et vérifiez l’état actuel.",
+      "operatorConnectedAccountsActive": "Cet espace de travail a encore des comptes de messagerie connectés. Déconnectez-les d'abord pour libérer les comptes chez le prestataire, puis supprimez l'espace de travail.",
       "operatorUnavailable": "La correction demandée n’est pas disponible pour la configuration actuelle du compte.",
       "organizationNotFound": "ID d'organisation introuvable ou inaccessible.",
       "passwordInvalid": "Le mot de passe doit comporter au moins 8 caractères et contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial.",

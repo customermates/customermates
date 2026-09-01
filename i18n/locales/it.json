@@ -1000,6 +1000,7 @@
       "notesInvalidFormat": "Formato delle note non valido. Deve essere JSON Tiptap valido o testo markdown.",
       "operatorAllowanceMissing": "Questo spazio di lavoro non ha ancora un contingente Enterprise contrattuale, quindi i crediti non possono essere corretti. Imposta prima il contingente nell'elenco degli spazi di lavoro.",
       "operatorConflict": "La modifica è stata rifiutata. Il record potrebbe essere cambiato dal caricamento dell’elenco, oppure lo spazio di lavoro al momento non la consente. Ricarica e verifica lo stato attuale.",
+      "operatorConnectedAccountsActive": "Questo spazio di lavoro ha ancora account di messaggistica collegati. Scollegali prima per liberare gli account del fornitore, poi elimina lo spazio di lavoro.",
       "operatorUnavailable": "La correzione richiesta non è disponibile per la configurazione corrente dell’account.",
       "organizationNotFound": "ID organizzazione non trovato o non accessibile.",
       "passwordInvalid": "La password deve contenere almeno 8 caratteri e includere almeno una lettera maiuscola, una minuscola, un numero e un carattere speciale.",

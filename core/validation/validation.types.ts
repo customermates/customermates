@@ -113,6 +113,7 @@ export enum CustomErrorCode {
   operatorConflict = "operatorConflict",
   operatorUnavailable = "operatorUnavailable",
   operatorAllowanceMissing = "operatorAllowanceMissing",
+  operatorConnectedAccountsActive = "operatorConnectedAccountsActive",
   generic = "generic",
 }
 
