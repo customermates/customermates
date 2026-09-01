@@ -20,7 +20,7 @@ import { UnipileChatSchema, UnipileMessageSchema } from "../../unipile.schema";
 import { ACCOUNT_WIDE_SOURCE } from "./prepare-backfill.interactor";
 
 import { BACKFILL_MESSAGE_PAGE_BUDGET, UNIPILE_MAX_LIMIT, paginateStep } from "./paginate";
-import { isUnipileRateLimit } from "../../messaging.service";
+import { isUnipileRateLimit, isUnipileTimeout } from "../../messaging.service";
 
 const BACKFILL_MESSAGE_TIMEOUT_MS = 10_000;
 
@@ -163,7 +163,7 @@ export class BackfillChatsInteractor {
     try {
       messages = await this.pullLatestMessages(account, chatId);
     } catch (err) {
-      if (isUnipileRateLimit(err)) throw err;
+      if (isUnipileRateLimit(err) || isUnipileTimeout(err)) throw err;
 
       Sentry.captureException(err, {
         tags: {
@@ -318,7 +318,7 @@ export class BackfillChatsInteractor {
         },
       });
     } catch (err) {
-      if (isUnipileRateLimit(err)) throw err;
+      if (isUnipileRateLimit(err) || isUnipileTimeout(err)) throw err;
 
       Sentry.captureException(err, {
         tags: {

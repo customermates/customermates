@@ -1205,6 +1205,7 @@ export const getProcessUnipileWebhookInteractor = () => {
     "calendar.event.update": calendarEventUpsert,
     "calendar.event.delete": getProcessCalendarEventDeleteWebhookInteractor(),
     "relation.new": relation,
+    "follower.new": ignoreEvent,
   };
 
   return new ProcessUnipileWebhookInteractor(getUnipileWebhookRepo(), handlers);

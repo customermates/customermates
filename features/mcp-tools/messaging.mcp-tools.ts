@@ -97,6 +97,18 @@ const GetActivitiesOutputSchema = z.looseObject({
   page: z.number(),
 });
 
+function withoutRawMessageHtml<T>(entry: T): T {
+  if (typeof entry !== "object" || entry === null) return entry;
+
+  const candidate = entry as { kind?: unknown; message?: Record<string, unknown> };
+  if (candidate.kind !== "message" || typeof candidate.message !== "object" || candidate.message === null) return entry;
+
+  const message = { ...candidate.message };
+  delete message.bodyHtml;
+
+  return { ...entry, message } as T;
+}
+
 const GetCalendarsOutputSchema = z
   .looseObject({
     items: z.array(z.looseObject({})).optional(),
@@ -278,7 +290,7 @@ export const getActivitiesTool = {
         toonResult(
           formatDatesInResponse({
             availableSources: data.availableSources,
-            items: data.items,
+            items: data.items.map(withoutRawMessageHtml),
             pageLimitReached: data.pageLimitReached,
             scopeTruncated: data.scopeTruncated,
             total: data.pagination?.total ?? data.items.length,
@@ -553,7 +565,7 @@ export const connectMessagingAccountTool = {
     "You cannot complete the connection yourself: return the link and tell the user to open it and finish auth there " +
     "(scan a QR code for WhatsApp, sign in for email or LinkedIn). The link is single-user and expires in 30 minutes. " +
     "channel is one of google (Gmail), outlook, imap, whatsapp, linkedin, linkedin_sales_navigator, linkedin_recruiter, instagram, telegram. " +
-    "Requires a paid subscription and fewer than 5 connected channels. " +
+    "Requires a plan that includes messaging, and a free account slot: Pro allows 1 connected account per user, Business 3, Enterprise unlimited; Starter has none. " +
     "Call get_workspace_context first to see which accounts are already connected. Returns the connect url.",
   annotations: {
     readOnlyHint: false,

@@ -171,6 +171,12 @@ export function isUnipileTimeout(err: unknown): boolean {
   return err instanceof UnipileRequestError && err.status === 0;
 }
 
+export function isUnipileProviderUnprocessable(err: unknown): boolean {
+  if (!(err instanceof UnipileRequestError) || err.status !== 422) return false;
+
+  return (err.errorType ?? "").endsWith("/unprocessable_entity");
+}
+
 export function isUnipileCursorPaginationRequired(err: unknown): boolean {
   if (!(err instanceof UnipileRequestError) || err.status !== 400) return false;
   if (!(err.errorType ?? "").endsWith("/invalid_parameters")) return false;
