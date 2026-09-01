@@ -7,6 +7,13 @@
     "subject": "Se han eliminado algunas de tus cuentas conectadas",
     "title": "Cuentas conectadas eliminadas"
   },
+  "AcquisitionConsent": {
+    "allowAttribution": "Permitir",
+    "description": "Parece que has llegado a través de un anuncio de Google. Con tu permiso, recordaremos esta visita durante un máximo de 90 días y la vincularemos a tu cuenta de Customermates si creas un espacio de trabajo nuevo. Así podremos saber qué anuncios son útiles.",
+    "necessaryOnly": "No, gracias",
+    "privacyLink": "Detalles de privacidad",
+    "title": "Ayúdanos a saber qué funciona"
+  },
   "AgentChat": {
     "activity": {
       "cancelled": "Detenido",
@@ -1976,6 +1983,7 @@
     "imprint": "Aviso legal",
     "legal": "Ayuda y legal",
     "privacy": "Privacidad",
+    "privacyChoices": "Opciones de privacidad",
     "product": "Producto",
     "resources": "Recursos",
     "reviewsOnPlatform": "Reseñas de Customermates en {platform}",

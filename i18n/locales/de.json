@@ -7,6 +7,13 @@
     "subject": "Einige deiner verbundenen Konten wurden entfernt",
     "title": "Verbundene Konten entfernt"
   },
+  "AcquisitionConsent": {
+    "allowAttribution": "Erlauben",
+    "description": "Es sieht so aus, als wärst du über eine Google-Anzeige zu uns gekommen. Mit deiner Erlaubnis merken wir uns diesen Anzeigenbesuch bis zu 90 Tage lang und verknüpfen ihn mit deinem Customermates-Konto, wenn du einen neuen Workspace erstellst. So verstehen wir besser, welche Anzeigen hilfreich sind.",
+    "necessaryOnly": "Nein, danke",
+    "privacyLink": "Datenschutzdetails",
+    "title": "Hilf uns zu verstehen, was funktioniert"
+  },
   "AgentChat": {
     "activity": {
       "cancelled": "Gestoppt",
@@ -1976,6 +1983,7 @@
     "imprint": "Impressum",
     "legal": "Hilfe & Rechtliches",
     "privacy": "Datenschutz",
+    "privacyChoices": "Datenschutzauswahl",
     "product": "Produkt",
     "resources": "Ressourcen",
     "reviewsOnPlatform": "Customermates-Bewertungen auf {platform}",
