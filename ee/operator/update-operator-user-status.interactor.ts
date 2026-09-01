@@ -18,6 +18,7 @@ export class UpdateOperatorUserStatusInteractor {
   async invoke(data: UpdateOperatorUserStatusData): Validated<OperatorUserDetailDto> {
     const result = await this.repo.updateUserStatusUnscoped(data);
 
+    if (result === "allowanceMissing") return failConflict(CustomErrorCode.operatorAllowanceMissing);
     if (result === "conflict") return failConflict(CustomErrorCode.operatorConflict);
     if (result === "notFound") return failNotFound(CustomErrorCode.userNotFound);
     if (result === "unavailable") return failUnavailable(CustomErrorCode.operatorUnavailable);

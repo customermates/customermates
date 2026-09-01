@@ -18,6 +18,7 @@ export class CorrectOperatorSubscriptionSnapshotInteractor {
   async invoke(data: CorrectOperatorSubscriptionSnapshotData): Validated<OperatorUserDetailDto> {
     const result = await this.repo.correctSubscriptionSnapshotUnscoped(data);
 
+    if (result === "allowanceMissing") return failConflict(CustomErrorCode.operatorAllowanceMissing);
     if (result === "conflict") return failConflict(CustomErrorCode.operatorConflict);
     if (result === "notFound") return failNotFound(CustomErrorCode.userNotFound);
     if (result === "unavailable") return failUnavailable(CustomErrorCode.operatorUnavailable);

@@ -112,6 +112,7 @@ export enum CustomErrorCode {
   unipileUnknown = "unipileUnknown",
   operatorConflict = "operatorConflict",
   operatorUnavailable = "operatorUnavailable",
+  operatorAllowanceMissing = "operatorAllowanceMissing",
   generic = "generic",
 }
 

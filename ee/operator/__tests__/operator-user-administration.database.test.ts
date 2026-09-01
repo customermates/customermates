@@ -661,4 +661,62 @@ describeDatabase("operator user administration against a real database", { timeo
       ),
     ).resolves.toBe(0);
   });
+
+  it("refuses credit work with allowanceMissing until an Enterprise workspace has a contracted allowance", async () => {
+    const repo = new PrismaOperatorRepo();
+    const companyId = await createCompany({ plan: "enterprise", status: "active", enterpriseCreditsPerUser: null });
+    const target = await createUser({
+      companyId,
+      email: `allowance-missing-${randomUUID()}@example.invalid`,
+    });
+    const actor = operatorActor();
+
+    const refused = await runWithOperator(actor, () =>
+      repo.createCreditAdjustmentUnscoped(
+        {
+          companyId,
+          userId: target.userId,
+          creditDelta: 500,
+          periodStart: periodStart.toISOString(),
+          periodEnd: periodEnd.toISOString(),
+          operationId: randomUUID(),
+        },
+        now,
+      ),
+    );
+    expect(refused).toBe("allowanceMissing");
+
+    const refusedReset = await runWithOperator(actor, () =>
+      repo.resetUserCreditsUnscoped({ userId: target.userId, mode: "baseAllowance", operationId: randomUUID() }, now),
+    );
+    expect(refusedReset).toBe("allowanceMissing");
+
+    await runWithoutTenant(async () => {
+      expect(await prisma.agentCreditAdjustment.count({ where: { companyId } })).toBe(0);
+    });
+
+    const provisioned = await runWithOperator(actor, () =>
+      repo.updateEnterpriseAllowanceUnscoped({ companyId, creditsPerUser: 750 }, now),
+    );
+    assertAdmitted(provisioned);
+
+    const accepted = await runWithOperator(actor, () =>
+      repo.createCreditAdjustmentUnscoped(
+        {
+          companyId,
+          userId: target.userId,
+          creditDelta: 250,
+          periodStart: periodStart.toISOString(),
+          periodEnd: periodEnd.toISOString(),
+          operationId: randomUUID(),
+        },
+        now,
+      ),
+    );
+    assertAdmitted(accepted);
+
+    await runWithoutTenant(async () => {
+      expect(await prisma.agentCreditAdjustment.count({ where: { companyId } })).toBe(1);
+    });
+  });
 });

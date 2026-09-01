@@ -998,6 +998,7 @@
       "notAuthenticated": "Connectez-vous pour utiliser cette action.",
       "notesExceedsMaxLength": "Le contenu des notes dépasse la longueur maximale.",
       "notesInvalidFormat": "Format de notes invalide. Il doit s'agir de JSON Tiptap valide ou de texte markdown.",
+      "operatorAllowanceMissing": "Cet espace de travail n'a pas encore d'allocation Enterprise contractuelle, les crédits ne peuvent donc pas être corrigés. Définissez d'abord l'allocation dans la liste des espaces de travail.",
       "operatorConflict": "La modification a été refusée. L’enregistrement a peut-être changé depuis le chargement de la liste, ou l’espace de travail ne l’autorise pas actuellement. Rechargez et vérifiez l’état actuel.",
       "operatorUnavailable": "La correction demandée n’est pas disponible pour la configuration actuelle du compte.",
       "organizationNotFound": "ID d'organisation introuvable ou inaccessible.",
@@ -2558,9 +2559,11 @@
     },
     "credits": {
       "adjustments": "Corrections manuelles",
+      "allowanceMissingDescription": "L'espace de travail n'a pas d'allocation Enterprise contractuelle, toute correction de crédits est donc refusée ici. Définissez d'abord l'allocation de l'espace de travail.",
       "base": "Allocation de base",
       "committed": "Utilisés et réservés",
       "remaining": "Restants",
+      "setAllowance": "Définir l'allocation",
       "title": "Solde de crédits actuel",
       "unavailableDescription": "L’espace de travail doit disposer d’un droit valide et d’un point d’ancrage de crédits avant toute correction ou réinitialisation."
     },

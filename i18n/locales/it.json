@@ -998,6 +998,7 @@
       "notAuthenticated": "Accedi per usare questa azione.",
       "notesExceedsMaxLength": "Il contenuto delle note supera la lunghezza massima.",
       "notesInvalidFormat": "Formato delle note non valido. Deve essere JSON Tiptap valido o testo markdown.",
+      "operatorAllowanceMissing": "Questo spazio di lavoro non ha ancora un contingente Enterprise contrattuale, quindi i crediti non possono essere corretti. Imposta prima il contingente nell'elenco degli spazi di lavoro.",
       "operatorConflict": "La modifica è stata rifiutata. Il record potrebbe essere cambiato dal caricamento dell’elenco, oppure lo spazio di lavoro al momento non la consente. Ricarica e verifica lo stato attuale.",
       "operatorUnavailable": "La correzione richiesta non è disponibile per la configurazione corrente dell’account.",
       "organizationNotFound": "ID organizzazione non trovato o non accessibile.",
@@ -2558,9 +2559,11 @@
     },
     "credits": {
       "adjustments": "Correzioni manuali",
+      "allowanceMissingDescription": "Lo spazio di lavoro non ha un contingente Enterprise contrattuale, quindi ogni correzione di crediti viene rifiutata. Imposta prima il contingente dello spazio di lavoro.",
       "base": "Disponibilità di base",
       "committed": "Usati e riservati",
       "remaining": "Rimanenti",
+      "setAllowance": "Imposta contingente",
       "title": "Posizione crediti corrente",
       "unavailableDescription": "L’area di lavoro deve avere un’autorizzazione valida e un riferimento temporale per i crediti prima di poterli correggere o ripristinare."
     },

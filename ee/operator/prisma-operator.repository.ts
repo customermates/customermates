@@ -816,6 +816,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           activeSeatAt: user.agentCreditActivatedAt,
           now,
         });
+        if (entitlement.blockedReason === "enterprise_allowance_missing") return "allowanceMissing";
         if (entitlement.blockedReason) return "conflict";
 
         if (
@@ -925,6 +926,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
 
         const credit = await this.userCreditPeriod(user, now);
         if (!credit) return "unavailable";
+        if (credit.blockedReason === "enterprise_allowance_missing") return "allowanceMissing";
         const currentAllowance = credit.baseAllowanceCredits + credit.adjustmentCredits;
         if (!Number.isSafeInteger(currentAllowance)) throw new Error("Current hosted-AI allowance is invalid.");
 

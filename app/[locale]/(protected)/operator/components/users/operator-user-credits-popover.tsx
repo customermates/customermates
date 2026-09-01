@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -27,12 +28,14 @@ export function OperatorUserCreditsPopover({ user }: Props) {
   const intlStore = useHydratedIntlStore();
   const { operatorUsersStore } = useRootStore();
   const { showConfirmation } = useDeleteConfirmation();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [detail, setDetail] = useState<OperatorUserDetailDto | null>(null);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [delta, setDelta] = useState("");
 
   const period = detail?.creditPeriod ?? null;
+  const allowanceMissing = period?.blockedReason === "enterprise_allowance_missing";
   const name = `${user.firstName} ${user.lastName}`.trim() || user.email;
 
   async function load() {
@@ -128,40 +131,67 @@ export function OperatorUserCreditsPopover({ user }: Props) {
               </InfoRow>
             </div>
 
-            <div className="flex items-end gap-2">
-              <Input
-                aria-label={t("OperatorUsers.adjustment.deltaLabel")}
-                inputMode="numeric"
-                placeholder={t("OperatorUsers.adjustment.deltaPlaceholder")}
-                type="number"
-                value={delta}
-                onChange={(event) => setDelta(event.target.value)}
-              />
+            {allowanceMissing ? (
+              <div className="flex flex-col gap-2">
+                <p className="text-xs text-muted-foreground">
+                  {t("OperatorUsers.credits.allowanceMissingDescription")}
+                </p>
 
-              <Button disabled={!delta} size="sm" variant="secondary" onClick={() => runUserAction(applyCorrection)}>
-                {t("Common.actions.save")}
-              </Button>
-            </div>
+                <Button
+                  className="w-full"
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => {
+                    setIsOpen(false);
+                    router.push(`/operator/workspaces?searchTerm=${encodeURIComponent(user.email)}`);
+                  }}
+                >
+                  {t("OperatorUsers.credits.setAllowance")}
+                </Button>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-end gap-2">
+                  <Input
+                    aria-label={t("OperatorUsers.adjustment.deltaLabel")}
+                    inputMode="numeric"
+                    placeholder={t("OperatorUsers.adjustment.deltaPlaceholder")}
+                    type="number"
+                    value={delta}
+                    onChange={(event) => setDelta(event.target.value)}
+                  />
 
-            <div className="flex flex-col gap-2">
-              <Button
-                className="w-full"
-                size="sm"
-                variant="secondary"
-                onClick={() => confirmReset("baseAllowance", t("OperatorUsers.reset.baseAllowance"))}
-              >
-                {t("OperatorUsers.reset.baseAllowance")}
-              </Button>
+                  <Button
+                    disabled={!delta}
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => runUserAction(applyCorrection)}
+                  >
+                    {t("Common.actions.save")}
+                  </Button>
+                </div>
 
-              <Button
-                className="w-full"
-                size="sm"
-                variant="destructiveOutline"
-                onClick={() => confirmReset("zeroBalance", t("OperatorUsers.reset.zeroBalance"))}
-              >
-                {t("OperatorUsers.reset.zeroBalance")}
-              </Button>
-            </div>
+                <div className="flex flex-col gap-2">
+                  <Button
+                    className="w-full"
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => confirmReset("baseAllowance", t("OperatorUsers.reset.baseAllowance"))}
+                  >
+                    {t("OperatorUsers.reset.baseAllowance")}
+                  </Button>
+
+                  <Button
+                    className="w-full"
+                    size="sm"
+                    variant="destructiveOutline"
+                    onClick={() => confirmReset("zeroBalance", t("OperatorUsers.reset.zeroBalance"))}
+                  >
+                    {t("OperatorUsers.reset.zeroBalance")}
+                  </Button>
+                </div>
+              </>
+            )}
           </>
         ) : null}
       </PopoverContent>

@@ -18,6 +18,7 @@ export class CreateAgentCreditAdjustmentInteractor {
   async invoke(data: CreateAgentCreditAdjustmentData): Validated<AgentCreditAdjustmentDto> {
     const result = await this.repo.createCreditAdjustmentUnscoped(data);
 
+    if (result === "allowanceMissing") return failConflict(CustomErrorCode.operatorAllowanceMissing);
     if (result === "conflict") return failConflict(CustomErrorCode.operatorConflict);
     if (result === "notFound") return failNotFound(CustomErrorCode.userNotFound);
     if (result === "unavailable") return failUnavailable(CustomErrorCode.operatorUnavailable);

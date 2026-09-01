@@ -998,6 +998,7 @@
       "notAuthenticated": "Melde dich an, um diese Aktion zu verwenden.",
       "notesExceedsMaxLength": "Notizinhalt überschreitet die maximale Länge.",
       "notesInvalidFormat": "Ungültiges Notizformat. Muss gültiges Tiptap JSON oder Markdown-Text sein.",
+      "operatorAllowanceMissing": "Für diesen Workspace ist noch kein vertraglich vereinbartes Enterprise-Kontingent hinterlegt, daher lassen sich Credits nicht korrigieren. Hinterlege das Kontingent zuerst in der Workspace-Liste.",
       "operatorConflict": "Die Änderung wurde abgelehnt. Der Datensatz hat sich seit dem Laden der Liste möglicherweise geändert, oder der Workspace lässt sie derzeit nicht zu. Lade neu und prüfe den aktuellen Stand.",
       "operatorUnavailable": "Die gewünschte Korrektur ist für die aktuelle Kontokonfiguration nicht verfügbar.",
       "organizationNotFound": "Organisations-ID nicht gefunden oder nicht zugänglich.",
@@ -2558,9 +2559,11 @@
     },
     "credits": {
       "adjustments": "Manuelle Korrekturen",
+      "allowanceMissingDescription": "Der Workspace hat kein vertraglich vereinbartes Enterprise-Kontingent, daher wird hier jede Credit-Korrektur abgelehnt. Hinterlege zuerst das Kontingent des Workspace.",
       "base": "Grundkontingent",
       "committed": "Verbraucht und reserviert",
       "remaining": "Verbleibend",
+      "setAllowance": "Workspace-Kontingent setzen",
       "title": "Aktueller Credit-Stand",
       "unavailableDescription": "Der Arbeitsbereich benötigt eine gültige Berechtigung und einen Credit-Anker, bevor Credits korrigiert oder zurückgesetzt werden können."
     },
