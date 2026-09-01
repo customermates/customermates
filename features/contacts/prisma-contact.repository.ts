@@ -12,10 +12,7 @@ import type { StartChatContactRepo } from "@/ee/messaging/outbound/start-chat.in
 import type { ActivityContactRepo } from "@/ee/messaging/activities/prisma-activities.repository";
 import type { ModifyRelationContactRepo } from "@/features/relations/modify-entity-relation.interactor";
 import type { ContactIdentifierOwnersRepo } from "./contact-identifier-owners.repo";
-import type {
-  ExportPageParams,
-  ExportRecordsRepo,
-} from "@/features/data-transfer/export/export-records-page.interactor";
+import type { ExportPageParams, ExportRecordsRepo } from "@/core/base/base-export-records-page.interactor";
 
 import { EntityType, Resource } from "@/generated/prisma";
 

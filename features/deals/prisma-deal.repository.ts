@@ -13,10 +13,7 @@ import type { ModifyRelationDealRepo } from "@/features/relations/modify-entity-
 import { EntityType, Resource } from "@/generated/prisma";
 
 import type { Prisma } from "@/generated/prisma";
-import type {
-  ExportPageParams,
-  ExportRecordsRepo,
-} from "@/features/data-transfer/export/export-records-page.interactor";
+import type { ExportPageParams, ExportRecordsRepo } from "@/core/base/base-export-records-page.interactor";
 
 import { type DealDto } from "./deal.schema";
 

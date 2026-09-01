@@ -15,10 +15,7 @@ import type { ModifyRelationTaskRepo } from "@/features/relations/modify-entity-
 import { EntityType, TaskType, Resource, Action } from "@/generated/prisma";
 
 import type { Prisma } from "@/generated/prisma";
-import type {
-  ExportPageParams,
-  ExportRecordsRepo,
-} from "@/features/data-transfer/export/export-records-page.interactor";
+import type { ExportPageParams, ExportRecordsRepo } from "@/core/base/base-export-records-page.interactor";
 
 import { type TaskDto } from "@/features/tasks/task.schema";
 import { BaseRepository } from "@/core/base/base-repository";

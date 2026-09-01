@@ -5,15 +5,15 @@ import type { MappingTarget } from "@/features/data-transfer/import/import-mappi
 import type { ParsedWorkbook } from "@/features/data-transfer/import/read-workbook-file";
 import type { RootStore } from "@/core/stores/root.store";
 
-import { makeObservable, observable, action, computed } from "mobx";
+import { makeObservable, observable, action, computed, runInAction } from "mobx";
 import { EntityType } from "@/generated/prisma";
 
+import { getCustomColumnsByEntityTypeAction } from "@/app/actions";
 import {
   commitImportChunkAction,
   dryRunImportChunkAction,
-  getCustomColumnsByEntityTypeAction,
   getImportRelationIndexAction,
-} from "@/app/actions";
+} from "@/app/[locale]/(protected)/data-transfer/actions";
 import {
   CHANNELS_SHEET_NAME,
   IMPORT_CHUNK_SIZE,
@@ -70,7 +70,6 @@ export class ImportWizardStore extends BaseModalStore {
   plan?: ImportPlan;
   issues: ImportRowIssue[] = [];
   summary?: ImportSummary;
-  isBusy = false;
   progressDone = 0;
   progressTotal = 0;
   fileError: string | null = null;
@@ -91,7 +90,6 @@ export class ImportWizardStore extends BaseModalStore {
       plan: observable.ref,
       issues: observable.ref,
       summary: observable.ref,
-      isBusy: observable,
       progressDone: observable,
       progressTotal: observable,
       fileError: observable,
@@ -144,7 +142,7 @@ export class ImportWizardStore extends BaseModalStore {
     this.plan = undefined;
     this.issues = [];
     this.summary = undefined;
-    this.isBusy = false;
+    this.setIsLoading(false);
     this.progressDone = 0;
     this.progressTotal = 0;
     this.fileError = null;
@@ -164,7 +162,7 @@ export class ImportWizardStore extends BaseModalStore {
   };
 
   protected override prepareToClose(): boolean {
-    if (this.isBusy) return false;
+    if (this.isLoading) return false;
 
     this.reset();
     return true;
@@ -178,7 +176,7 @@ export class ImportWizardStore extends BaseModalStore {
   };
 
   selectFile = async (file: File) => {
-    this.setBusy(true);
+    this.setIsLoading(true);
     this.setFileError(null);
 
     try {
@@ -194,11 +192,11 @@ export class ImportWizardStore extends BaseModalStore {
         entityTypes: relationTypes,
         includeUsers: targets.has("user"),
       });
+      if (!relations.ok) throw new ImportFileError("relationsUnavailable");
+
       const relationIndex: RelationIndex = {};
 
-      for (const [key, entries] of Object.entries(relations.index)) {
-        if (key.endsWith(":truncated")) continue;
-
+      for (const [key, entries] of Object.entries(relations.data.index)) {
         const map = new Map<string, string[]>();
         for (const [label, id] of entries) map.set(label, [...(map.get(label) ?? []), id]);
         relationIndex[key] = map;
@@ -216,7 +214,7 @@ export class ImportWizardStore extends BaseModalStore {
     } catch (error) {
       this.setFileError(error instanceof ImportFileError ? error.reason : "unreadable");
     } finally {
-      this.setBusy(false);
+      this.setIsLoading(false);
     }
   };
 
@@ -238,7 +236,7 @@ export class ImportWizardStore extends BaseModalStore {
     const updateChunks = chunkRows(plan.update, IMPORT_CHUNK_SIZE);
     const createChunks = chunkRows(plan.create, IMPORT_CHUNK_SIZE);
 
-    this.setBusy(true);
+    this.setIsLoading(true);
     this.setProgress(0, updateChunks.length + createChunks.length);
 
     const found: ImportRowIssue[] = [...planIssues];
@@ -263,7 +261,7 @@ export class ImportWizardStore extends BaseModalStore {
 
       this.applyPlan(plan, this.attribute(dedupeIssues(found)));
     } finally {
-      this.setBusy(false);
+      this.setIsLoading(false);
     }
   };
 
@@ -281,7 +279,7 @@ export class ImportWizardStore extends BaseModalStore {
     const createChunks = chunkRows(createRows, IMPORT_CHUNK_SIZE);
     const total = updateRows.length + createRows.length;
 
-    this.setBusy(true);
+    this.setIsLoading(true);
     this.setProgress(0, updateChunks.length + createChunks.length);
 
     let created = 0;
@@ -323,7 +321,7 @@ export class ImportWizardStore extends BaseModalStore {
         this.attribute(dedupeIssues([...failures, ...carried])),
       );
     } finally {
-      this.setBusy(false);
+      this.setIsLoading(false);
       await this.onComplete?.();
     }
   };
@@ -340,45 +338,49 @@ export class ImportWizardStore extends BaseModalStore {
     });
   };
 
-  private setBusy = action((value: boolean) => {
-    this.isBusy = value;
-  });
+  private setFileError(value: string | null) {
+    runInAction(() => {
+      this.fileError = value;
+    });
+  }
 
-  private setFileError = action((value: string | null) => {
-    this.fileError = value;
-  });
+  private setProgress(done: number, total: number) {
+    runInAction(() => {
+      this.progressDone = done;
+      this.progressTotal = total;
+    });
+  }
 
-  private setProgress = action((done: number, total: number) => {
-    this.progressDone = done;
-    this.progressTotal = total;
-  });
-
-  private applyParsed = action(
-    (
-      fileName: string,
-      parsed: ParsedWorkbook,
-      customColumns: CustomColumnDto[],
-      relationIndex: RelationIndex,
-      mapping: MappingTarget[],
-    ) => {
+  private applyParsed(
+    fileName: string,
+    parsed: ParsedWorkbook,
+    customColumns: CustomColumnDto[],
+    relationIndex: RelationIndex,
+    mapping: MappingTarget[],
+  ) {
+    runInAction(() => {
       this.fileName = fileName;
       this.parsed = parsed;
       this.customColumns = customColumns;
       this.relationIndex = relationIndex;
       this.mapping = mapping;
       this.step = "mapping";
-    },
-  );
+    });
+  }
 
-  private applyPlan = action((plan: ImportPlan, issues: ImportRowIssue[]) => {
-    this.plan = plan;
-    this.issues = issues;
-    this.step = "preview";
-  });
+  private applyPlan(plan: ImportPlan, issues: ImportRowIssue[]) {
+    runInAction(() => {
+      this.plan = plan;
+      this.issues = issues;
+      this.step = "preview";
+    });
+  }
 
-  private applySummary = action((summary: ImportSummary, issues: ImportRowIssue[]) => {
-    this.summary = summary;
-    this.issues = issues;
-    this.step = "result";
-  });
+  private applySummary(summary: ImportSummary, issues: ImportRowIssue[]) {
+    runInAction(() => {
+      this.summary = summary;
+      this.issues = issues;
+      this.step = "result";
+    });
+  }
 }

@@ -63,20 +63,19 @@ import { UserPendingAuthorizationTaskListener } from "@/features/tasks/listener/
 import { DomainEvent } from "@/features/event/domain-events";
 // Contacts interactors
 import { GetContactsInteractor } from "@/features/contacts/get/get-contacts.interactor";
-import {
-  DryRunImportContactsInteractor,
-  DryRunImportDealsInteractor,
-  DryRunImportOrganizationsInteractor,
-  DryRunImportServicesInteractor,
-  DryRunImportTasksInteractor,
-} from "@/features/data-transfer/import/dry-run-import.interactor";
-import {
-  ExportContactsPageInteractor,
-  ExportDealsPageInteractor,
-  ExportOrganizationsPageInteractor,
-  ExportServicesPageInteractor,
-  ExportTasksPageInteractor,
-} from "@/features/data-transfer/export/export-records-page.interactor";
+// Data transfer interactors
+import { DryRunImportContactsInteractor } from "@/features/data-transfer/import/dry-run-import-contacts.interactor";
+import { DryRunImportDealsInteractor } from "@/features/data-transfer/import/dry-run-import-deals.interactor";
+import { DryRunImportOrganizationsInteractor } from "@/features/data-transfer/import/dry-run-import-organizations.interactor";
+import { DryRunImportServicesInteractor } from "@/features/data-transfer/import/dry-run-import-services.interactor";
+import { DryRunImportTasksInteractor } from "@/features/data-transfer/import/dry-run-import-tasks.interactor";
+import { ExportContactsPageInteractor } from "@/features/data-transfer/export/export-contacts-page.interactor";
+import { ExportDealsPageInteractor } from "@/features/data-transfer/export/export-deals-page.interactor";
+import { ExportOrganizationsPageInteractor } from "@/features/data-transfer/export/export-organizations-page.interactor";
+import { ExportServicesPageInteractor } from "@/features/data-transfer/export/export-services-page.interactor";
+import { ExportTasksPageInteractor } from "@/features/data-transfer/export/export-tasks-page.interactor";
+import { GetImportRelationIndexInteractor } from "@/features/data-transfer/import/get-import-relation-index.interactor";
+import { ImportRelationIndex } from "@/features/data-transfer/import/relation-index.service";
 import { GetContactsConfigurationInteractor } from "@/features/contacts/get/get-contacts-configuration.interactor";
 import { GetContactByIdInteractor } from "@/features/contacts/get/get-contact-by-id.interactor";
 import { CreateContactInteractor } from "@/features/contacts/upsert/create-contact.interactor";
@@ -1636,6 +1635,11 @@ export const getExportServicesPageInteractor = () => new ExportServicesPageInter
 export const getExportTasksPageInteractor = () => new ExportTasksPageInteractor(getTaskRepo());
 
 export const getDryRunImportContactsInteractor = () => new DryRunImportContactsInteractor(getContactWritePrecheck());
+
+export const getImportRelationIndex = () => new ImportRelationIndex();
+
+export const getGetImportRelationIndexInteractor = () =>
+  new GetImportRelationIndexInteractor(getImportRelationIndex(), getUserService());
 
 export const getDryRunImportOrganizationsInteractor = () =>
   new DryRunImportOrganizationsInteractor(getOrganizationWritePrecheck());

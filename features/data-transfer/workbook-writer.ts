@@ -4,6 +4,7 @@ import type { WorkbookCellValue } from "./workbook-cell";
 import { PassThrough } from "node:stream";
 
 import { toWorkbookCell } from "./workbook-cell";
+import { SCHEMA_SHEET_NAME } from "./data-transfer.schema";
 
 export type WorkbookRow = Record<string, WorkbookCellValue>;
 
@@ -34,8 +35,6 @@ export type WorkbookBuildResult = {
   rowCount: number;
   truncated: boolean;
 };
-
-const SCHEMA_SHEET_NAME = "Schema";
 
 const SCHEMA_HEADERS = [
   "position",

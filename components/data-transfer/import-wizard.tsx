@@ -142,7 +142,7 @@ export const ImportWizard = observer(function ImportWizard() {
               />
 
               <Button
-                disabled={store.isBusy}
+                disabled={store.isLoading}
                 id="import-choose-file"
                 type="button"
                 variant="secondary"
@@ -277,7 +277,7 @@ export const ImportWizard = observer(function ImportWizard() {
             </div>
           )}
 
-          {store.isBusy && store.progressTotal > 0 && (
+          {store.isLoading && store.progressTotal > 0 && (
             <p className="text-xs text-muted-foreground">
               {t("DataTransfer.import.batchProgress", { done: store.progressDone, total: store.progressTotal })}
             </p>
@@ -286,14 +286,14 @@ export const ImportWizard = observer(function ImportWizard() {
 
         <AppCardFooter>
           {store.step === "mapping" && (
-            <Button disabled={store.isBusy} type="button" variant="secondary" onClick={() => store.setStep("file")}>
+            <Button disabled={store.isLoading} type="button" variant="secondary" onClick={() => store.setStep("file")}>
               {t("Common.actions.back")}
             </Button>
           )}
 
           {store.step === "mapping" && (
             <Button
-              disabled={store.isBusy || store.duplicateTargetCount > 0}
+              disabled={store.isLoading || store.duplicateTargetCount > 0}
               id="import-validate"
               type="button"
               onClick={() => runUserAction(() => store.runDryRun())}
@@ -303,14 +303,19 @@ export const ImportWizard = observer(function ImportWizard() {
           )}
 
           {store.step === "preview" && (
-            <Button disabled={store.isBusy} type="button" variant="secondary" onClick={() => store.setStep("mapping")}>
+            <Button
+              disabled={store.isLoading}
+              type="button"
+              variant="secondary"
+              onClick={() => store.setStep("mapping")}
+            >
               {t("Common.actions.back")}
             </Button>
           )}
 
           {store.step === "preview" && (
             <Button
-              disabled={store.isBusy || store.hasBlockingIssues}
+              disabled={store.isLoading || store.hasBlockingIssues}
               id="import-commit"
               type="button"
               onClick={() => runUserAction(() => store.commit())}

@@ -163,12 +163,14 @@ function store(items: Array<Record<string, unknown>>, canManage = true) {
   };
 }
 
-const TRANSFER_CONTROL = /<button[^>]*data-transfer-menu[^>]*>[\s\S]*?<\/button>/g;
+const TRANSFERABLE_VIEWS = new Set(["Deals", "Services", "Tasks"]);
 
-const TRANSFERABLE_VIEWS = new Set(["Contacts", "Organizations", "Deals", "Services", "Tasks"]);
+function countOf(html: string, needle: RegExp): number {
+  return (html.match(needle) ?? []).length;
+}
 
-function withoutTransferControl(html: string): string {
-  return html.replace(TRANSFER_CONTROL, "");
+function expectOnlyTransferButtons(html: string) {
+  expect(countOf(html, /<button/g)).toBe(countOf(html, /data-transfer-menu/g));
 }
 
 function result(items: Array<Record<string, unknown>>): Result {
@@ -432,8 +434,8 @@ describe("migrated collection page wiring", () => {
     const readOnly = store([], false);
     const readOnlyHtml = fixture.render(readOnly, initial);
     const readOnlyTopBar = renderToStaticMarkup(harness.setTopBarActions.mock.lastCall?.[0] as ReactElement);
-    expect(withoutTransferControl(readOnlyHtml)).not.toContain("<button");
-    expect(withoutTransferControl(readOnlyTopBar)).not.toContain("<button");
+    expectOnlyTransferButtons(readOnlyHtml);
+    expectOnlyTransferButtons(readOnlyTopBar);
     expect(readOnlyTopBar.includes("data-transfer-menu")).toBe(TRANSFERABLE_VIEWS.has(fixture.name));
   });
 

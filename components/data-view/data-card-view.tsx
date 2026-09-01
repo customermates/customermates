@@ -5,6 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { observer } from "mobx-react-lite";
+import { visibleColumnDefs } from "./visible-column-defs";
 import { useTranslations } from "next-intl";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,8 +33,7 @@ export const DataCardView = observer(function DataCardView<E extends HasId>({
 }: Props<E>) {
   const t = useTranslations();
   const navigateToHref = useNavigateToHref();
-  const hidden = new Set(store.hiddenColumns);
-  const visibleColumns = columns.filter((c) => !hidden.has((c as { id?: string }).id ?? ""));
+  const visibleColumns = visibleColumnDefs(columns, store.hiddenColumns);
 
   const table = useReactTable<E>({
     data: store.items,

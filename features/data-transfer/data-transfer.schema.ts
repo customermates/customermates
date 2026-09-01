@@ -5,6 +5,8 @@ import { EntityType } from "@/generated/prisma";
 
 import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
 
+export const SCHEMA_SHEET_NAME = "Schema";
+
 export const CHANNELS_SHEET_NAME = "Channels";
 
 export const SERVICES_SHEET_NAME = "Services";
@@ -46,3 +48,24 @@ export const DryRunImportSchema = z.object({
   rows: z.array(z.unknown()).min(1).max(IMPORT_CHUNK_SIZE),
 });
 export type DryRunImportData = Data<typeof DryRunImportSchema>;
+
+export const RELATION_INDEX_LIMIT = 5000;
+
+export const RELATION_INDEX_PAGE_SIZE = 500;
+
+export const GetImportRelationIndexSchema = z.object({
+  entityTypes: z.array(z.enum(EntityType)).max(Object.keys(EntityType).length),
+  includeUsers: z.boolean().optional(),
+});
+export type GetImportRelationIndexData = Data<typeof GetImportRelationIndexSchema>;
+
+export const USER_RELATION_KEY = "user";
+
+export type RelationIndexKey = EntityType | typeof USER_RELATION_KEY;
+
+export type RelationIndexEntry = [label: string, id: string];
+
+export type RelationIndexResult = {
+  index: Partial<Record<RelationIndexKey, RelationIndexEntry[]>>;
+  truncated: RelationIndexKey[];
+};

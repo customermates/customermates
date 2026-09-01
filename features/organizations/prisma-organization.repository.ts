@@ -13,10 +13,7 @@ import type { ModifyRelationOrganizationRepo } from "@/features/relations/modify
 import { EntityType, Resource } from "@/generated/prisma";
 
 import type { Prisma } from "@/generated/prisma";
-import type {
-  ExportPageParams,
-  ExportRecordsRepo,
-} from "@/features/data-transfer/export/export-records-page.interactor";
+import type { ExportPageParams, ExportRecordsRepo } from "@/core/base/base-export-records-page.interactor";
 
 import { type OrganizationDto } from "./organization.schema";
 

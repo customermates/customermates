@@ -4,15 +4,13 @@ import type { SchemaSheetRow } from "../workbook-columns";
 import type { SourceColumn } from "./import-mapping";
 import type { SourceRow } from "./import-plan";
 
-import { IMPORT_ROW_LIMIT } from "../data-transfer.schema";
+import { IMPORT_ROW_LIMIT, SCHEMA_SHEET_NAME } from "../data-transfer.schema";
 import { columnLetter } from "./import-mapping";
 import { fromWorkbookCell } from "../workbook-cell";
 
 export const MAX_IMPORT_FILE_BYTES = 10 * 1024 * 1024;
 
 export const MAX_IMPORT_SHEETS = 12;
-
-export const SCHEMA_SHEET_NAME = "Schema";
 
 export type RelationSheetRows = Record<string, Array<Record<string, string>>>;
 
@@ -25,7 +23,9 @@ export type ParsedWorkbook = {
 };
 
 export class ImportFileError extends Error {
-  constructor(readonly reason: "tooLarge" | "tooManySheets" | "tooManyRows" | "empty" | "unreadable") {
+  constructor(
+    readonly reason: "tooLarge" | "tooManySheets" | "tooManyRows" | "empty" | "unreadable" | "relationsUnavailable",
+  ) {
     super(reason);
     this.name = "ImportFileError";
   }

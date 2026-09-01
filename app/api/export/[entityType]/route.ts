@@ -1,4 +1,4 @@
-import type { ExportPageResult } from "@/features/data-transfer/export/export-records-page.interactor";
+import type { ExportPageResult } from "@/core/base/base-export-records-page.interactor";
 import type { ExportableRecord } from "@/features/data-transfer/export/export-row-mapper";
 import type { ExportRecordsPageData } from "@/features/data-transfer/data-transfer.schema";
 import type { NextRequest } from "next/server";
