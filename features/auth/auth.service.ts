@@ -31,6 +31,7 @@ type AuthUser = {
 type AuthResult = { ok: true; user: AuthUser } | { ok: false; error: CustomErrorCode };
 
 type Session = NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>;
+export type InteractiveSession = Session;
 type SessionOrRedirect = { session: Session } | Redirect;
 type ApiKeyExpirationError = CustomErrorCode.apiKeyMinExpiration | CustomErrorCode.apiKeyMaxExpiration;
 type CreatedApiKey = Awaited<ReturnType<typeof auth.api.createApiKey>>;
@@ -60,6 +61,20 @@ export class AuthService {
         return null;
       }
     }
+
+    try {
+      return await auth.api.getSession({ headers: headersList });
+    } catch {
+      return null;
+    }
+  }
+
+  async getInteractiveSession(): Promise<InteractiveSession | null> {
+    const headersList = await headers();
+    if (headersList.has("x-api-key") || this.hasBearerToken(headersList)) return null;
+    const hasSessionCookie =
+      this.hasCookie(headersList, "app.session_token") || this.hasCookie(headersList, "__Secure-app.session_token");
+    if (!hasSessionCookie) return null;
 
     try {
       return await auth.api.getSession({ headers: headersList });
@@ -338,6 +353,13 @@ export class AuthService {
     const hasApiKey = headersList.has("x-api-key");
 
     return hasSessionCookie || hasApiKey || this.hasBearerToken(headersList);
+  }
+
+  private hasCookie(headersList: Headers, name: string): boolean {
+    return (headersList.get("cookie") ?? "").split(";").some((part) => {
+      const separator = part.indexOf("=");
+      return separator > 0 && part.slice(0, separator).trim() === name;
+    });
   }
 
   private hasBearerToken(headersList: Headers): boolean {

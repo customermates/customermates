@@ -1,10 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
-import {
-  TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER,
-  lowestPlanHostedAiCreditsPerActiveUser,
-} from "@/ee/subscription/entitlements";
+import { TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER } from "@/ee/subscription/entitlements";
 
 import {
   agentCreditPeriodForAnchor,
@@ -83,16 +80,37 @@ describe("agent credit entitlements", () => {
     expect(result.blockedReason).toBeNull();
   });
 
-  it("falls back to the lowest plan allowance when Enterprise has no contracted figure", () => {
+  it("fails closed when Enterprise has no contracted figure", () => {
     const result = entitlement({ plan: SubscriptionPlan.enterprise });
 
-    expect(result.limit).toBe(lowestPlanHostedAiCreditsPerActiveUser());
-    expect(result.limit).toBeGreaterThan(0);
-    expect(result.blockedReason).toBeNull();
+    expect(result.limit).toBe(0);
+    expect(result.blockedReason).toBe("enterprise_allowance_missing");
   });
 
   it("uses the finite Enterprise allowance", () => {
     expect(entitlement({ plan: SubscriptionPlan.enterprise, enterpriseCreditsPerUser: 3400 }).limit).toBe(3400);
+  });
+
+  it("applies signed current-period adjustments after seat proration", () => {
+    expect(entitlement({ adjustmentCredits: 75 }).limit).toBe(575);
+    expect(entitlement({ adjustmentCredits: -75 }).limit).toBe(425);
+  });
+
+  it("applies signed current-period adjustments to trial allowances", () => {
+    const trial = {
+      status: SubscriptionStatus.trial,
+      trialEndDate: new Date("2026-08-13T12:00:00.000Z"),
+    } as const;
+
+    expect(entitlement({ ...trial, adjustmentCredits: 75 }).limit).toBe(575);
+    expect(entitlement({ ...trial, adjustmentCredits: -75 }).limit).toBe(425);
+  });
+
+  it("does not let an adjustment bypass missing Enterprise configuration", () => {
+    expect(entitlement({ plan: SubscriptionPlan.enterprise, adjustmentCredits: 75 })).toMatchObject({
+      limit: 0,
+      blockedReason: "enterprise_allowance_missing",
+    });
   });
 
   it("fails closed for self-hosted, expired trials, and unusable subscriptions", () => {

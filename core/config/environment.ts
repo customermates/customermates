@@ -43,6 +43,23 @@ function matchesHostPattern(host: string, pattern: string): boolean {
   return new RegExp(`^${escaped}$`, "i").test(host);
 }
 
+export function resolveStrictBoolean(name: string, value: string | undefined): boolean {
+  const normalized = value?.trim();
+  if (!normalized) return false;
+  if (normalized === "true") return true;
+  if (normalized === "false") return false;
+
+  throw new Error(`${name} must be configured as "true" or "false"`);
+}
+
+export function resolveOptionalBigInt(name: string, value: string | undefined): bigint | null {
+  const normalized = value?.trim();
+  if (!normalized) return null;
+  if (!/^\d+$/u.test(normalized)) throw new Error(`${name} must be configured as a whole number of microcents`);
+
+  return BigInt(normalized);
+}
+
 export function resolveAppMode(source: Environment): AppMode {
   const appMode = source.APP_MODE?.trim();
   if (!appMode) throw new Error("APP_MODE must be configured as self-hosted, cloud, or demo");

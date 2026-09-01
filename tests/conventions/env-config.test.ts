@@ -7,7 +7,9 @@ import {
   resolveAppMode,
   resolveAuthAllowedHosts,
   resolveBaseUrl,
+  resolveOptionalBigInt,
   resolveRequestOrigin,
+  resolveStrictBoolean,
   resolveVercelBranchOrigin,
 } from "@/core/config/environment";
 
@@ -242,5 +244,33 @@ describe("client instrumentation", () => {
     expect(
       options.beforeSend?.(event, { originalException: new TypeError("Cannot read properties of undefined") }),
     ).toBe(event);
+  });
+});
+
+describe("hosted-AI control configuration", () => {
+  it("reads an unset monthly spend cap as no cap, which refuses hosted-AI spend rather than permitting it", () => {
+    for (const absent of [undefined, "", "   "])
+      expect(resolveOptionalBigInt("HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS", absent)).toBeNull();
+
+    expect(resolveOptionalBigInt("HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS", "0")).toBe(0n);
+    expect(resolveOptionalBigInt("HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS", " 50000000 ")).toBe(50_000_000n);
+  });
+
+  it("refuses a spend cap that is not a whole number of microcents instead of coercing it", () => {
+    for (const invalid of ["-1", "1.5", "1e6", "50_000", "fifty"])
+      expect(() => resolveOptionalBigInt("HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS", invalid)).toThrow(
+        /whole number of microcents/,
+      );
+  });
+
+  it("treats an unset provider pause as not paused and rejects anything but the two literals", () => {
+    for (const absent of [undefined, "", "   "])
+      expect(resolveStrictBoolean("HOSTED_AI_PROVIDER_WORK_PAUSED", absent)).toBe(false);
+
+    expect(resolveStrictBoolean("HOSTED_AI_PROVIDER_WORK_PAUSED", "true")).toBe(true);
+    expect(resolveStrictBoolean("HOSTED_AI_PROVIDER_WORK_PAUSED", "false")).toBe(false);
+
+    for (const invalid of ["TRUE", "1", "yes", "on"])
+      expect(() => resolveStrictBoolean("HOSTED_AI_PROVIDER_WORK_PAUSED", invalid)).toThrow(/"true" or "false"/);
   });
 });

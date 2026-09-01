@@ -24,6 +24,7 @@ import {
   Package,
   Plus,
   LayoutGrid,
+  ShieldCheck,
   TrendingUp,
   UserCircle,
   Users,
@@ -44,6 +45,7 @@ import { EntityType } from "@/generated/prisma";
 
 import { NavHeader } from "./navigation/nav-header";
 import { resolvePlanChip } from "./navigation/plan-subtitle";
+import { OPERATOR_SUBROUTES } from "./navigation/operator-sections";
 import { visibleSubroutes } from "./navigation/workspace-sections";
 import { NavMain } from "./navigation/nav-main";
 import { NavSecondary } from "./navigation/nav-secondary";
@@ -62,6 +64,7 @@ type FullProps = {
   trialDaysLeft: number | null;
   emailVerified: boolean | null;
   legalStatus: LegalUpdateStatus | null;
+  operatorConsoleVisible: boolean;
 };
 
 type Props = ({ mode: "full" } & FullProps) | { mode: "restricted"; user: SidebarUser };
@@ -78,6 +81,7 @@ export function AppSidebar(props: Props) {
         channelsNeedingActionCount={0}
         emailVerified={null}
         legalStatus={null}
+        operatorConsoleVisible={false}
         subscription={null}
         systemTaskCount={0}
         trialDaysLeft={null}
@@ -92,6 +96,7 @@ export function AppSidebar(props: Props) {
       channelsNeedingActionCount={props.channelsNeedingActionCount}
       emailVerified={props.emailVerified}
       legalStatus={props.legalStatus}
+      operatorConsoleVisible={props.operatorConsoleVisible}
       restricted={false}
       subscription={props.subscription}
       systemTaskCount={props.systemTaskCount}
@@ -112,6 +117,7 @@ const FullAppSidebar = observer(
     trialDaysLeft,
     emailVerified,
     legalStatus,
+    operatorConsoleVisible,
     restricted,
   }: SidebarContentProps) => {
     const t = useTranslations();
@@ -244,6 +250,20 @@ const FullAppSidebar = observer(
               })),
             },
             {
+              key: "operator",
+              title: t("NavigationBar.operator"),
+              href: `/operator/${OPERATOR_SUBROUTES[0]?.slug ?? "overview"}`,
+              icon: ShieldCheck,
+              visible: operatorConsoleVisible,
+              items: OPERATOR_SUBROUTES.map((subroute) => ({
+                key: `operator-${subroute.slug}`,
+                title: t(subroute.labelKey),
+                href: `/operator/${subroute.slug}`,
+                icon: ShieldCheck,
+                visible: true,
+              })),
+            },
+            {
               key: "company",
               title: t("UserAvatar.company"),
               href: `/company/${companySubroutes[0]?.slug ?? "settings"}`,
@@ -261,6 +281,7 @@ const FullAppSidebar = observer(
         },
       ].filter((g) => g.items.length > 0);
     }, [
+      operatorConsoleVisible,
       t,
       plural,
       terminologyStore.overrides,

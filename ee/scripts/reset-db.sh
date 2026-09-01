@@ -1,15 +1,19 @@
 #!/bin/bash
 
+set -euo pipefail
+
+npx --no-install tsx scripts/assert-local-database-url.ts
+
 # Check if -f flag is provided
-if [ "$1" == "-f" ]; then
+if [ "${1:-}" == "-f" ]; then
     # Force push schema and run seed
     echo "Force pushing schema and running seed..."
     npx prisma db push --force-reset
-    npx prisma db seed
+    HOSTED_AI_LOCAL_OPERATOR_SEED_ENABLED=true npx prisma db seed
 else
     echo "Resetting the Prisma database..."
     npx prisma migrate reset --force
-    npx prisma db seed
+    HOSTED_AI_LOCAL_OPERATOR_SEED_ENABLED=true npx prisma db seed
 fi
 
 # The workflow engine (workflow / @workflow/world-postgres + graphile-worker) lives in
@@ -21,7 +25,7 @@ fi
 # next run with `22P02 invalid input value for enum`.
 # Only the Postgres World (local dev + self-hosters) uses these schemas; on Vercel the managed
 # workflow runtime is used instead, so skip this there ($VERCEL is set on Vercel build/runtime).
-if [ -z "$VERCEL" ]; then
+if [ -z "${VERCEL:-}" ]; then
   echo "Resetting the workflow schemas..."
   printf 'DROP SCHEMA IF EXISTS workflow CASCADE;\nDROP SCHEMA IF EXISTS workflow_drizzle CASCADE;\nDROP SCHEMA IF EXISTS graphile_worker CASCADE;\nDROP TYPE IF EXISTS status CASCADE;\nDROP TYPE IF EXISTS step_status CASCADE;\nDROP TYPE IF EXISTS wait_status CASCADE;\n' \
     | npx prisma db execute --stdin

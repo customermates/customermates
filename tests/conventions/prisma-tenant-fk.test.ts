@@ -16,6 +16,7 @@ const TENANT_FK_ALLOWLIST = new Set([
   "OauthApplication",
   "OauthAccessToken",
   "OauthConsent",
+  "OperatorAuditEvent",
 ]);
 
 type PrismaModel = {

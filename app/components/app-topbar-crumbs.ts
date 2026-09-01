@@ -2,6 +2,7 @@ import type { AppMode } from "@/core/config/environment";
 import type { RuntimeIdentity } from "@/components/layout/layout.store";
 import type { Resource } from "@/generated/prisma";
 
+import { OPERATOR_SUBROUTES } from "./navigation/operator-sections";
 import { WORKSPACE_SECTIONS, visibleSubroutes, type WorkspaceSection } from "./navigation/workspace-sections";
 
 type Sibling = { slug: string; label: string };
@@ -27,6 +28,7 @@ const GROUP_MAP: Record<string, { group: "overview" | "crm" | "settings" | null;
   settings: { group: "settings", labelKey: "settings" },
   profile: { group: "settings", labelKey: "profile" },
   company: { group: "settings", labelKey: "company" },
+  operator: { group: null, labelKey: "operator" },
 };
 
 function isWorkspaceSection(segment: string): segment is WorkspaceSection {
@@ -41,12 +43,15 @@ export function buildAppTopbarCrumbs(
   appMode: AppMode,
   canAccess: (resource: Resource) => boolean,
   inboxThreadId: string | null = null,
+  operatorConsoleVisible = false,
 ): { crumbs: AppTopbarCrumb[]; section: string | null } {
   const segments = pathname.split("/").filter(Boolean);
   if (segments.length <= 1) return { crumbs: [], section: null };
   const parts = segments.slice(1);
 
   const first = parts[0];
+  if (first === "operator" && !operatorConsoleVisible) return { crumbs: [], section: null };
+
   const entry = GROUP_MAP[first];
   if (!entry) return { crumbs: [], section: null };
 
@@ -55,7 +60,11 @@ export function buildAppTopbarCrumbs(
 
   const crumbs: AppTopbarCrumb[] = [];
   const leafKey = entry.group === "settings" ? `UserAvatar.${entry.labelKey}` : `NavigationBar.${entry.labelKey}`;
-  const sectionHref = workspaceSection ? `/${first}/${sectionSubroutes[0]?.slug ?? "settings"}` : `/${first}`;
+  const sectionHref = workspaceSection
+    ? `/${first}/${sectionSubroutes[0]?.slug ?? "settings"}`
+    : first === "operator"
+      ? "/operator/overview"
+      : `/${first}`;
   crumbs.push({ label: entityLabels[first] ?? t(leafKey), href: sectionHref });
 
   if (parts.length > 1) {
@@ -64,7 +73,14 @@ export function buildAppTopbarCrumbs(
       ? WORKSPACE_SECTIONS[workspaceSection].find((route) => route.slug === leaf)
       : null;
 
-    if (subroute) {
+    const operatorSubroute = first === "operator" ? OPERATOR_SUBROUTES.find((route) => route.slug === leaf) : undefined;
+
+    if (operatorSubroute) {
+      crumbs.push({
+        label: t(operatorSubroute.labelKey),
+        siblings: OPERATOR_SUBROUTES.map((route) => ({ slug: route.slug, label: t(route.labelKey) })),
+      });
+    } else if (subroute) {
       const siblings: Sibling[] = sectionSubroutes.map((route) => ({
         slug: route.slug,
         label: t(route.labelKey),
@@ -95,5 +111,5 @@ export function buildAppTopbarCrumbs(
     });
   }
 
-  return { crumbs, section: workspaceSection };
+  return { crumbs, section: first === "operator" ? "operator" : workspaceSection };
 }

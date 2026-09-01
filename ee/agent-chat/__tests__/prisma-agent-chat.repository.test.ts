@@ -6,6 +6,7 @@ import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 const prismaMock = vi.hoisted(() => ({
   $transaction: vi.fn(),
   $executeRaw: vi.fn(),
+  $queryRaw: vi.fn(),
   agentConversation: {
     create: vi.fn(),
     findFirst: vi.fn(),
@@ -47,17 +48,27 @@ const prismaMock = vi.hoisted(() => ({
     updateMany: vi.fn(),
   },
   agentUsageEvent: {
+    aggregate: vi.fn(),
     findFirst: vi.fn(),
     findMany: vi.fn(),
     create: vi.fn(),
     updateMany: vi.fn(),
   },
+  agentCreditAdjustment: { aggregate: vi.fn() },
 }));
 
 vi.mock("@/prisma/db", () => ({ prisma: prismaMock }));
-vi.mock("@/env", () => ({ env: { APP_MODE: "cloud" } }));
+vi.mock("@/env", () => ({
+  env: {
+    APP_MODE: "cloud",
+    HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS: null,
+    HOSTED_AI_OPERATOR_CONTROLS_ENABLED: false,
+    HOSTED_AI_PROVIDER_WORK_PAUSED: false,
+  },
+}));
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
+import { env } from "@/env";
 
 import { PrismaAgentChatRepo } from "../prisma-agent-chat.repository";
 import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "../agent-run-limits";
@@ -87,8 +98,14 @@ function storedTurn(overrides: Record<string, unknown> = {}) {
 describe("PrismaAgentChatRepo tenant boundaries", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED = false;
+    env.HOSTED_AI_PROVIDER_WORK_PAUSED = false;
+    env.HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS = null;
     prismaMock.$transaction.mockImplementation((callback) => callback(prismaMock));
     prismaMock.$executeRaw.mockResolvedValue(undefined);
+    prismaMock.agentCreditAdjustment.aggregate.mockResolvedValue({
+      _sum: { creditDelta: null },
+    });
   });
 
   it("scopes conversation lookup to the active company and user", async () => {
@@ -1413,7 +1430,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     );
   });
 
-  it("charges an abandoned post-provider turn one started cent, not its whole reservation", async () => {
+  it("retains the full reservation when an abandoned post-provider turn has no spend evidence", async () => {
     const now = new Date("2026-08-06T10:10:00.000Z");
     prismaMock.agentRunLease.findMany.mockResolvedValue([
       { runId: "run-1", expiresAt: new Date("2026-08-06T10:00:00.000Z") },
@@ -1423,6 +1440,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     );
     prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
       id: "reservation-1",
+      reservedCredits: 6,
     });
     prismaMock.agentUsageEvent.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.agentTurnRequest.updateMany.mockResolvedValue({ count: 1 });
@@ -1438,11 +1456,11 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         state: "reserved",
       },
       data: {
-        state: "settled",
+        state: "retained",
         model: "claude-test",
         costMicrocents: 0,
         costSource: "estimated",
-        chargedCredits: 1,
+        chargedCredits: 6,
         settledAt: now,
       },
     });
@@ -1622,6 +1640,102 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       }),
     );
     expect(prismaMock.agentUsageEvent.create).not.toHaveBeenCalled();
+  });
+
+  it("counts reservations across companies before admitting against the global cap", async () => {
+    const reservedAt = new Date("2026-08-06T10:00:00.000Z");
+    vi.useFakeTimers();
+    vi.setSystemTime(reservedAt);
+    env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED = true;
+    env.HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS = 2_000_000n;
+    prismaMock.user.findUnique.mockResolvedValue({
+      id: user.id,
+      companyId: user.companyId,
+      status: Status.active,
+      createdAt: new Date("2026-01-15T10:30:00.000Z"),
+      agentCreditActivatedAt: new Date("2026-01-15T10:30:00.000Z"),
+      company: {
+        subscription: {
+          status: "active",
+          plan: "pro",
+          trialEndDate: null,
+          agentCreditAnchorAt: new Date("2026-01-15T10:30:00.000Z"),
+          enterpriseAgentCreditsPerUser: null,
+          createdAt: new Date("2026-01-15T10:30:00.000Z"),
+        },
+      },
+    });
+    prismaMock.agentUsageEvent.findMany.mockResolvedValue([]);
+    prismaMock.$queryRaw.mockResolvedValue([{ settledCostMicrocents: 0n, activeReservedCredits: 1n }]);
+
+    try {
+      await expect(
+        new PrismaAgentChatRepo().reserveUsageEventUnscoped({
+          id: "reservation-global-cap",
+          companyId: user.companyId,
+          userId: user.id,
+          sessionId: "session-global-cap",
+          reservedCredits: 2,
+          planSnapshot: "pro",
+          subscriptionStatusSnapshot: "active",
+          allowanceCreditsSnapshot: 500,
+          periodStart: new Date("2026-07-15T10:30:00.000Z"),
+          periodEnd: new Date("2026-08-15T10:30:00.000Z"),
+        }),
+      ).resolves.toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(prismaMock.$queryRaw).toHaveBeenCalledOnce();
+    expect(prismaMock.agentUsageEvent.create).not.toHaveBeenCalled();
+  });
+
+  it("rechecks an operator pause before a subsequent hosted-provider round", async () => {
+    const now = new Date("2026-08-06T10:00:00.000Z");
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
+    env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED = true;
+    env.HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS = 50_000_000n;
+    env.HOSTED_AI_PROVIDER_WORK_PAUSED = true;
+    prismaMock.user.findUnique.mockResolvedValue({
+      id: user.id,
+      companyId: user.companyId,
+      status: Status.active,
+      createdAt: new Date("2026-01-15T10:30:00.000Z"),
+      agentCreditActivatedAt: new Date("2026-01-15T10:30:00.000Z"),
+      company: {
+        subscription: {
+          status: "active",
+          plan: "pro",
+          trialEndDate: null,
+          agentCreditAnchorAt: new Date("2026-01-15T10:30:00.000Z"),
+          enterpriseAgentCreditsPerUser: null,
+          createdAt: new Date("2026-01-15T10:30:00.000Z"),
+        },
+      },
+    });
+    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
+      id: "reservation-paused",
+      reservedCredits: 4,
+      periodStart: new Date("2026-07-15T10:30:00.000Z"),
+      periodEnd: new Date("2026-08-15T10:30:00.000Z"),
+    });
+    prismaMock.agentUsageEvent.findMany.mockResolvedValue([]);
+
+    try {
+      await expect(
+        new PrismaAgentChatRepo().canStartNextHostedAiProviderRoundUnscoped({
+          turnRequestId: "turn-paused",
+          companyId: user.companyId,
+          userId: user.id,
+        }),
+      ).resolves.toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(prismaMock.$queryRaw).not.toHaveBeenCalled();
   });
 
   it("releases only a matching reserved usage event without deleting its billing record", async () => {

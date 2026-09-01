@@ -1,7 +1,13 @@
 import { FilterFieldKey } from "./filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "./filter-field-operators";
 
-import { MessagingProvider, MessagingThreadState, Status } from "@/generated/prisma";
+import {
+  MessagingProvider,
+  MessagingThreadState,
+  Status,
+  SubscriptionPlan,
+  SubscriptionStatus,
+} from "@/generated/prisma";
 
 export type FilterEntityKind =
   | "organization"
@@ -33,6 +39,10 @@ export const TIMELINE_KIND_FILTER_VALUES = [
   "calendar_event",
 ] as const;
 
+export const BOOLEAN_FILTER_VALUES = ["true", "false"] as const;
+
+export const AUDIT_SOURCE_FILTER_VALUES = ["product", "operator"] as const;
+
 export const DEFAULT_FILTER_VALUE_KIND: Record<FilterFieldKey, FilterValueKind> = {
   [FilterFieldKey.userIds]: { kind: "entityId", entity: "user" },
   [FilterFieldKey.serviceIds]: { kind: "entityId", entity: "service" },
@@ -54,6 +64,13 @@ export const DEFAULT_FILTER_VALUE_KIND: Record<FilterFieldKey, FilterValueKind> 
   [FilterFieldKey.connectedAccountId]: { kind: "entityId", entity: "connectedAccount" },
   [FilterFieldKey.calendarId]: { kind: "string" },
   [FilterFieldKey.startsAt]: { kind: "date" },
+  [FilterFieldKey.plan]: { kind: "enum", values: enumValues(SubscriptionPlan) },
+  [FilterFieldKey.subscriptionStatus]: { kind: "enum", values: enumValues(SubscriptionStatus) },
+  [FilterFieldKey.isPlatformOperator]: { kind: "enum", values: BOOLEAN_FILTER_VALUES },
+  [FilterFieldKey.lastActiveAt]: { kind: "date" },
+  [FilterFieldKey.workspaceId]: { kind: "string" },
+  [FilterFieldKey.googleAdsClickId]: { kind: "string" },
+  [FilterFieldKey.auditSource]: { kind: "enum", values: AUDIT_SOURCE_FILTER_VALUES },
 };
 
 export const filterValueKind = (field: string): FilterValueKind | undefined =>

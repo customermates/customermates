@@ -45,6 +45,7 @@ type NavigationSwitchProps = {
   emailVerified: boolean | null;
   defaultSidebarOpen?: boolean;
   legalStatus: LegalUpdateStatus | null;
+  operatorConsoleVisible: boolean;
   children: React.ReactNode;
 };
 
@@ -63,6 +64,7 @@ export function NavigationSwitch({
   emailVerified,
   defaultSidebarOpen = true,
   legalStatus,
+  operatorConsoleVisible,
   children,
 }: NavigationSwitchProps) {
   const pathname = usePathname();
@@ -89,13 +91,6 @@ export function NavigationSwitch({
   const protectedEnhancementsAllowed = accountAllowed && shellMode === "app";
   const identifiedUser = accountAllowed ? appUser : null;
 
-  if (userStore.user?.id !== identifiedUser?.id) {
-    userStore.setUser(identifiedUser);
-    companyStore.setCompany(accountAllowed ? company : null);
-    terminologyStore.setOverrides(accountAllowed ? terminology : []);
-    subscriptionStore.setSubscription(accountAllowed ? subscription : null);
-  }
-
   useEffect(() => {
     if (currentAccountState !== accountState) router.refresh();
   }, [accountState, currentAccountState, router]);
@@ -113,22 +108,13 @@ export function NavigationSwitch({
     Sentry.setUser(identifiedUser ? { id: identifiedUser.id } : null);
     Sentry.setTag("companyId", identifiedUser?.companyId);
 
-    userStore.setUser(accountAllowed ? appUser : null);
+    userStore.setUser(identifiedUser);
     companyStore.setCompany(accountAllowed ? company : null);
     terminologyStore.setOverrides(accountAllowed ? terminology : []);
     subscriptionStore.setSubscription(accountAllowed ? subscription : null);
 
     if (!protectedEnhancementsAllowed) rootStore.closeAllModals();
-  }, [
-    accountAllowed,
-    appUser,
-    company,
-    identifiedUser,
-    protectedEnhancementsAllowed,
-    rootStore,
-    subscription,
-    terminology,
-  ]);
+  }, [accountAllowed, company, identifiedUser, protectedEnhancementsAllowed, rootStore, subscription, terminology]);
 
   useLayoutEffect(() => {
     if (shellMode !== "public" || !publicScrollportRef.current) return;
@@ -186,6 +172,7 @@ export function NavigationSwitch({
           emailVerified={emailVerified}
           legalStatus={legalStatus}
           mode="full"
+          operatorConsoleVisible={operatorConsoleVisible}
           subscription={subscription}
           systemTaskCount={systemTaskCount}
           trialDaysLeft={trialDaysLeft}
@@ -196,7 +183,7 @@ export function NavigationSwitch({
         <SidebarInset className="min-w-0 overflow-x-clip">
           <TopBarActionsProvider>
             <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-clip overflow-y-auto [--table-sticky-top:4rem]">
-              <AppTopBar />
+              <AppTopBar operatorConsoleVisible={operatorConsoleVisible} />
 
               <div className="flex min-h-0 min-w-0 flex-1 flex-col">{children}</div>
             </div>
