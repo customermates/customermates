@@ -31,6 +31,7 @@ export function partitionOperatorUserFilters(filters: Filter[] | undefined): {
   const passthrough: Filter[] = [];
   const subscription: Prisma.SubscriptionWhereInput = {};
   const baseWhere: Prisma.UserWhereInput = {};
+  let hasPositiveSubscriptionCondition = false;
 
   for (const filter of filters ?? []) {
     if (!INTERCEPTED_FIELDS.has(filter.field)) {
@@ -58,17 +59,27 @@ export function partitionOperatorUserFilters(filters: Filter[] | undefined): {
       const plans = values.filter((value): value is SubscriptionPlan =>
         Object.values(SubscriptionPlan).includes(value as SubscriptionPlan),
       );
-      if (plans.length > 0) subscription.plan = negated(filter) ? { notIn: plans } : { in: plans };
+      if (plans.length > 0) {
+        subscription.plan = negated(filter) ? { notIn: plans } : { in: plans };
+        if (!negated(filter)) hasPositiveSubscriptionCondition = true;
+      }
       continue;
     }
 
     const statuses = values.filter((value): value is SubscriptionStatus =>
       Object.values(SubscriptionStatus).includes(value as SubscriptionStatus),
     );
-    if (statuses.length > 0) subscription.status = negated(filter) ? { notIn: statuses } : { in: statuses };
+    if (statuses.length > 0) {
+      subscription.status = negated(filter) ? { notIn: statuses } : { in: statuses };
+      if (!negated(filter)) hasPositiveSubscriptionCondition = true;
+    }
   }
 
-  if (Object.keys(subscription).length > 0) baseWhere.company = { subscription: { is: subscription } };
+  if (Object.keys(subscription).length > 0) {
+    if (hasPositiveSubscriptionCondition) baseWhere.company = { subscription: { is: subscription } };
+    else
+      baseWhere.OR = [{ company: { subscription: { is: subscription } } }, { company: { subscription: { is: null } } }];
+  }
 
   return { baseWhere, passthrough };
 }

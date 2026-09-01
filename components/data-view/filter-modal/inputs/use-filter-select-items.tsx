@@ -34,6 +34,7 @@ import { getOrganizationsAction } from "@/app/[locale]/(protected)/organizations
 import { getDealsAction } from "@/app/[locale]/(protected)/deals/actions";
 import { getServicesAction } from "@/app/[locale]/(protected)/services/actions";
 import { getTasksAction } from "@/app/[locale]/(protected)/tasks/actions";
+import { getOperatorWorkspacesAction } from "@/app/[locale]/(protected)/operator/actions";
 import {
   getActivityRecordOptionsAction,
   getActivityThreadOptionsAction,
@@ -185,6 +186,16 @@ export function useFilterSelectItems(
           })),
         }));
       },
+      [FilterFieldKey.workspaceId]: (params) =>
+        getOperatorWorkspacesAction(params).then((res) => ({
+          items: res.items.map((workspace) => ({
+            key: workspace.id,
+            value: workspace.id,
+            textValue: workspace.ownerEmail
+              ? `${workspace.workspaceLabel} · ${workspace.ownerEmail}`
+              : workspace.workspaceLabel,
+          })),
+        })),
       [FilterFieldKey.connectedAccountId]: () =>
         getConnectedAccountsAction().then((accounts) => ({
           items: accounts
