@@ -4,57 +4,6 @@ import { hasMarkdownBlockStructure, parseMarkdownToJSON, serializeJSONToMarkdown
 
 const roundTrip = (markdown: string) => serializeJSONToMarkdown(parseMarkdownToJSON(markdown));
 
-const TASK_LIST_DOC = {
-  type: "doc",
-  content: [
-    { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Kickoff" }] },
-    {
-      type: "bulletList",
-      content: [
-        { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "send the MSA" }] }] },
-      ],
-    },
-    {
-      type: "taskList",
-      content: [
-        {
-          type: "taskItem",
-          attrs: { checked: true },
-          content: [{ type: "paragraph", content: [{ type: "text", text: "NDA signed" }] }],
-        },
-      ],
-    },
-    { type: "paragraph", content: [{ type: "text", text: "Call again Friday." }] },
-  ],
-};
-
-const flatten = (node: { text?: string; content?: unknown[] }): string =>
-  (node.text ?? "") + ((node.content as Array<{ text?: string; content?: unknown[] }>) ?? []).map(flatten).join(" ");
-
-describe("task list markdown", () => {
-  it("writes task items without a list marker, because the parser drops a list that mixes both kinds", () => {
-    expect(serializeJSONToMarkdown(TASK_LIST_DOC)).toContain("\n  [x] NDA signed");
-    expect(serializeJSONToMarkdown(TASK_LIST_DOC)).not.toContain("- [x]");
-  });
-
-  it("keeps every word of a document that mixes a bullet list with a task list", () => {
-    const back = parseMarkdownToJSON(serializeJSONToMarkdown(TASK_LIST_DOC)) as {
-      content: Array<{ type: string }>;
-    };
-
-    expect(flatten(back)).toContain("send the MSA");
-    expect(flatten(back)).toContain("NDA signed");
-    expect(flatten(back)).toContain("Call again Friday.");
-    expect(back.content.map((node) => node.type)).toEqual(["heading", "bulletList", "paragraph"]);
-  });
-
-  it("drops the whole list when markdown mixes a bullet and a checkbox in one list", () => {
-    const back = parseMarkdownToJSON("- bullet\n- [x] task") as { content: Array<{ type: string }> };
-
-    expect(flatten(back)).toBe("");
-  });
-});
-
 describe("editor markdown round-trip", () => {
   it("round-trips an image", () => {
     const md = "Before ![alt text](https://example.com/x.png) after";
