@@ -1,8 +1,8 @@
 export const LEGAL_DOCUMENT_VERSIONS = {
-  dpa: "2026-08-30",
-  privacy: "2026-08-31",
-  subprocessors: "2026-08-30",
-  terms: "2026-08-30",
+  dpa: "2026-09-01",
+  privacy: "2026-09-01",
+  subprocessors: "2026-09-01",
+  terms: "2026-09-01",
 } as const;
 
 export const SUPPLIER_SUBPROCESSOR_OBJECTION_DEADLINE: string | null = null;

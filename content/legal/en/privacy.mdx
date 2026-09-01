@@ -5,7 +5,7 @@ description: Learn how Customermates processes and protects personal data and wh
 
 # Privacy Policy
 
-_Version 2026-08-31, last updated 31 August 2026_
+_Version 2026-09-01, last updated 1 September 2026_
 
 ## Scope of This Policy
 
@@ -395,7 +395,7 @@ Because we act as a processor, we cannot decide on your rights ourselves. Please
 
 Requests from data subjects concerning connected-account content that are addressed to Customermates are forwarded to you as the controller; within the scope of its role as processor, Customermates supports you in responding to such requests. Where you process the personal data of third parties within the CRM, you remain responsible for that processing under data protection law.
 
-## 7. Mate AI Assistant (Vercel AI Gateway and OpenAI)
+## 7. Mate AI Assistant (Vercel AI Gateway and Microsoft Azure)
 
 Mate is an AI assistant available to registered users of the managed Customermates cloud service. It has been active in the managed service since 29 August 2026. Mate is not part of an independently operated self-hosted installation. Its availability depends on an eligible subscription, available AI credits, and the managed service's global operating controls. A user initiates processing by sending a message or confirming an action in Mate; merely having an account does not submit CRM content to a model.
 
@@ -412,7 +412,7 @@ Depending on the request and the tools used, processing may include:
 - tool descriptions, tool inputs and results, approval and confirmation state, UI-command results, and generated output; and
 - company and user identifiers, model and provider identifiers, timestamps, status and diagnostic data, token usage, cost, credit, and billing metadata.
 
-Mate does not automatically upload the entire workspace. A model request contains the prompt and recent conversation together with the context and tool results needed for the requested task. Requests are routed through **Vercel AI Gateway**, operated by Vercel Inc., to **OpenAI** as the selected model provider. Vercel and OpenAI therefore receive the parts of a request necessary to generate the response. The current provider chain and transfer information are listed at [Subprocessors](/subprocessors).
+Mate does not automatically upload the entire workspace. A model request contains the prompt and recent conversation together with the context and tool results needed for the requested task. Requests are routed through **Vercel AI Gateway**, operated by Vercel Inc., to **Microsoft Azure** as the selected downstream inference provider for the OpenAI-created models used by Mate. Vercel and Microsoft Azure therefore receive the parts of a request necessary to generate the response. Microsoft states that prompts and outputs processed by Azure-hosted models are not available to OpenAI. The current provider chain and transfer information are listed at [Subprocessors](/subprocessors).
 
 ### Legal basis and roles
 
@@ -428,15 +428,15 @@ If a user expressly escalates a Mate conversation to support, the support reques
 
 ### Provider handling and international transfers
 
-Vercel's AI Gateway terms treat third-party model providers as non-Vercel services and make their provider terms applicable. Vercel's current Notices and License Information links OpenAI's Terms of Use for this route. The public product source does not establish that an account-specific training opt-out, business/API data-processing configuration, or Zero Data Retention setting applies. Customermates therefore does not promise that provider-side training is disabled, that a particular provider retention period applies, or that prompts and outputs are deleted immediately. Users must not send sensitive personal information through Mate, including health information, financial-account information, or government-issued identifiers, and customers must not make CRM or connected-account context containing such information available to a Mate request.
+Customermates has enabled Vercel's team-wide **Zero Data Retention (ZDR)** control. Vercel states that, while this control remains enabled, it applies to every AI Gateway request for the team, routes requests only to providers with which Vercel has a ZDR agreement, and includes a prompt-training opt-out. Mate additionally pins its selected models to Microsoft Azure; Vercel currently identifies both selected Azure endpoints as supporting ZDR and no prompt training. According to Vercel, Gateway-level prompts and outputs are deleted after inference under ZDR. These Gateway and downstream-provider controls do not delete, shorten, or otherwise change the Customermates application-level storage described above; routing and usage metadata and Customermates usage and billing records may still be retained. Users must not send sensitive personal information through Mate, including health information, financial-account information, or government-issued identifiers, and customers must not make CRM or connected-account context containing such information available to a Mate request.
 
-Use of Mate can involve processing in the United States and other countries used by the providers and their subprocessors. Vercel's data processing addendum incorporates the 2021 EU Standard Contractual Clauses for restricted transfers. The terms applicable to the OpenAI route, the recipient roles, and the known limitations are set out at [Subprocessors](/subprocessors). Further information:
+Use of Mate can involve processing in the United States and other countries used by Vercel, Microsoft Azure, and their subprocessors. Vercel's data processing addendum incorporates the 2021 EU Standard Contractual Clauses for restricted transfers covered by that addendum. The Microsoft Azure terms identified by Vercel, recipient roles, ZDR scope, transfer information, and known contractual and regional limitations are set out at [Subprocessors](/subprocessors). Further information:
 
 - Vercel AI Product Terms: https://vercel.com/legal/ai-product-terms
 - Vercel AI Gateway notices: https://vercel.com/legal/notices-and-license-information
+- Vercel Zero Data Retention: https://vercel.com/docs/ai-gateway/security-and-compliance/zdr
 - Vercel Data Processing Addendum: https://vercel.com/legal/dpa
-- OpenAI Data Processing Addendum: https://openai.com/policies/data-processing-addendum
-- OpenAI Privacy Policy: https://openai.com/policies/privacy-policy
+- Microsoft information on data privacy for Azure-hosted models: https://learn.microsoft.com/en-us/azure/foundry/responsible-ai/openai/data-privacy
 
 ### Responsibility
 

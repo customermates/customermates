@@ -153,6 +153,7 @@ describe("legal documents describe only what the product does", () => {
 
     expect(text).toMatch(/Mate/);
     expect(text).toMatch(/Vercel AI Gateway/);
+    expect(text).toMatch(/Microsoft Azure/);
     expect(text).toMatch(/OpenAI/);
     expect(privacy).toMatch(
       name === "en"
@@ -161,8 +162,8 @@ describe("legal documents describe only what the product does", () => {
     );
     expect(dpa).toMatch(
       name === "en"
-        ? /when a user invokes Mate.*Vercel AI Gateway.*OpenAI/is
-        : /wenn ein Nutzer Mate aufruft.*Vercel AI Gateway.*OpenAI/is,
+        ? /when a user invokes Mate.*Vercel AI Gateway.*selected model.*downstream provider.*Subprocessors/is
+        : /wenn ein Nutzer Mate aufruft.*Vercel AI Gateway.*ausgewählte Modell.*nachgelagerten Anbieter.*Unterauftragsverarbeiter/is,
     );
     expect(dpa).toMatch(
       name === "en"
@@ -186,13 +187,28 @@ describe("legal documents describe only what the product does", () => {
     );
     expect(subprocessors).toMatch(
       name === "en"
-        ? /Terms of Use.*does not establish an account-specific training opt-out/is
-        : /Nutzungsbedingungen.*weder eine kontospezifische Deaktivierung des Trainings/is,
+        ? /Microsoft Azure.*Active downstream inference provider.*OpenAI-created models/is
+        : /Microsoft Azure.*Aktiver nachgelagerter Inferenzanbieter.*von OpenAI entwickelten Modelle/is,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /team-wide.*Zero Data Retention.*every AI Gateway request.*ZDR agreement.*prompt-training opt-out/is
+        : /teamweite.*Zero-Data-Retention.*jede AI-Gateway-Anfrage.*ZDR-Vereinbarung.*Training/is,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /do not delete, shorten, or otherwise change.*Customermates application-level storage/is
+        : /löschen, verkürzen oder ändern nicht.*Speicherung auf Anwendungsebene bei Customermates/is,
+    );
+    expect(subprocessors).toMatch(
+      name === "en"
+        ? /does not identify the exact Microsoft legal entity or the regional inference location/is
+        : /weder die genaue Microsoft-Rechtseinheit noch den regionalen Inferenzstandort/is,
     );
     expect(text).not.toMatch(
       name === "en"
-        ? /business\/API data is not used to train|not used to train its models by default/i
-        : /Business- und API-Daten.*nicht zum Training|standardmäßig nicht zum Training/i,
+        ? /(?:routes?|sends?|transfers?) (?:model )?(?:requests?|request context|prompts?|outputs?).*to OpenAI|(?:requests?|request context|prompts?|outputs?) (?:are |is )?(?:routed|sent|transferred)(?: through [^.]+)? to OpenAI|OpenAI (?:receives|processes) (?:Mate )?(?:requests?|prompts?|outputs?)|absence of a public Zero Data Retention promise for Customermates/i
+        : /leitet.*(?:Anfragen?|Anfragekontext|Eingaben?|Ausgaben?).*an OpenAI weiter|(?:Anfragen?|Anfragekontext|Eingaben?|Ausgaben?).*an OpenAI (?:weitergeleitet|gesendet|übermittelt)|OpenAI (?:erhält|verarbeitet).*(?:Anfragen?|Eingaben?|Ausgaben?)|fehlenden öffentlichen Versprechens von Zero Data Retention für Customermates/i,
     );
     expect(privacy).toMatch(
       name === "en"
