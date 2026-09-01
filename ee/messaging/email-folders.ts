@@ -96,3 +96,20 @@ export function defaultSelectedFolderIds(folders: FolderLike[]): string[] {
     .map((folder) => folder.id)
     .sort();
 }
+
+export function isMovableEmailFolder(folder: { role?: string | null; name?: string | null }): boolean {
+  return !isSentEmailFolder(folder) && !isDraftEmailFolder(folder);
+}
+
+export function threadEmailFolderIds(
+  messages: { folderIds: string[]; sentAt: Date }[],
+  catalog: EmailFolder[],
+): string[] {
+  const byId = new Map(catalog.map((folder) => [folder.id, folder]));
+  const filed = messages
+    .filter((message) => message.folderIds.some((id) => isMovableEmailFolder(byId.get(id) ?? {})))
+    .sort((a, b) => b.sentAt.getTime() - a.sentAt.getTime());
+  if (filed.length === 0) return [];
+
+  return [...new Set(filed[0].folderIds.filter((id) => isMovableEmailFolder(byId.get(id) ?? {})))].sort();
+}

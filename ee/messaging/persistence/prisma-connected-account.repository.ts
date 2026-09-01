@@ -360,6 +360,19 @@ export class PrismaConnectedAccountRepo
     );
   }
 
+  async findFolderContextById(accountId: string) {
+    const row = await this.prisma.connectedAccount.findFirst({
+      where: { id: accountId, companyId: this.companyId },
+      select: { folders: true, selectedFolderIds: true, foldersSyncedAt: true },
+    });
+    if (!row || row.foldersSyncedAt === null) return null;
+
+    return {
+      folders: EmailFolderSchema.array().catch([]).parse(row.folders),
+      selectedFolderIds: row.selectedFolderIds,
+    };
+  }
+
   async findIds(ids: Set<string>): Promise<Set<string>> {
     if (ids.size === 0) return new Set();
 
