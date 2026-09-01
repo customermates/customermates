@@ -176,12 +176,24 @@ describe("NavigationSwitch account-state refresh", () => {
     const navbar = container.querySelector<HTMLElement>("[data-public-navbar]");
     const header = navbar?.parentElement;
     const page = container.querySelector<HTMLElement>("[data-page-content]");
+    const pageFrame = page?.parentElement;
     const scrollport = container.querySelector<HTMLElement>("[data-public-scrollport]");
+    const main = scrollport?.querySelector("main");
 
     expect(header?.tagName).toBe("HEADER");
     expect(header?.parentElement).toBe(scrollport);
     expect(header?.className).toContain("sticky");
+    expect(header?.classList.contains("shrink-0")).toBe(true);
     expect(page?.closest("[data-public-scrollport]")).toBe(scrollport);
+    expect(main?.parentElement).toBe(scrollport);
+    expect(pageFrame?.parentElement).toBe(main);
+    expect(main?.classList.contains("flex")).toBe(true);
+    expect(main?.classList.contains("flex-1")).toBe(true);
+    expect(main?.classList.contains("flex-col")).toBe(true);
+    expect(pageFrame?.classList.contains("flex")).toBe(true);
+    expect(pageFrame?.classList.contains("flex-1")).toBe(true);
+    expect(scrollport?.classList.contains("flex")).toBe(true);
+    expect(scrollport?.classList.contains("flex-col")).toBe(true);
     expect(scrollport?.className).toContain("h-svh");
     expect(scrollport?.className).toContain("overflow-y-auto");
     expect(scrollport?.className).toContain("[--table-sticky-top:4rem]");

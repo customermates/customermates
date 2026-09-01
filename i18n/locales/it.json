@@ -7,6 +7,13 @@
     "subject": "Alcuni dei tuoi account collegati sono stati rimossi",
     "title": "Account collegati rimossi"
   },
+  "AcquisitionConsent": {
+    "allowAttribution": "Consenti",
+    "description": "Sembra che tu abbia raggiunto il sito tramite un annuncio Google. Con il tuo consenso, ricorderemo questa visita per un massimo di 90 giorni e la collegheremo al tuo account Customermates se crei un nuovo workspace. Questo ci aiuta a capire quali annunci sono utili.",
+    "necessaryOnly": "No, grazie",
+    "privacyLink": "Dettagli sulla privacy",
+    "title": "Aiutaci a capire cosa funziona"
+  },
   "AgentChat": {
     "activity": {
       "cancelled": "Interrotto",
@@ -1773,7 +1780,6 @@
     "unverified": "Non verificato"
   },
   "EntityDetail": {
-    "collapseSection": "Comprimi {section}",
     "computedFieldHelp": {
       "dealValue": "Somma di prezzo unitario × quantità per ogni elemento collegato in «{services}». Modifica lì gli elementi collegati o le quantità per aggiornarlo.",
       "serviceLineValue": "Prezzo di «{service}» × quantità. Modifica qui l’elemento o la quantità; modifica l’elemento collegato per cambiarne il prezzo.",
@@ -1782,7 +1788,6 @@
       "weightedValueUnconfigured": "{dealValue} × probabilità di chiusura della fase selezionata. Configura le probabilità in «{company}» e seleziona una fase; modifica «{services}» o quantità."
     },
     "donePersonalizing": "Fine",
-    "expandSection": "Espandi {section}",
     "fields": {
       "createdAt": "Creato il",
       "updatedAt": "Aggiornato il"
@@ -1977,6 +1982,7 @@
     "imprint": "Note legali",
     "legal": "Assistenza e informazioni legali",
     "privacy": "Privacy",
+    "privacyChoices": "Scelte sulla privacy",
     "product": "Prodotto",
     "resources": "Risorse",
     "reviewsOnPlatform": "Recensioni di Customermates su {platform}",

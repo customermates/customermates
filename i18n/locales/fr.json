@@ -7,6 +7,13 @@
     "subject": "Certains de vos comptes connectés ont été supprimés",
     "title": "Comptes connectés supprimés"
   },
+  "AcquisitionConsent": {
+    "allowAttribution": "Autoriser",
+    "description": "Il semble que vous soyez arrivé via une annonce Google. Avec votre autorisation, nous mémoriserons cette visite pendant 90 jours au maximum et la relierons à votre compte Customermates si vous créez un nouvel espace de travail. Cela nous aide à comprendre quelles annonces sont utiles.",
+    "necessaryOnly": "Non merci",
+    "privacyLink": "Détails de confidentialité",
+    "title": "Aidez-nous à comprendre ce qui fonctionne"
+  },
   "AgentChat": {
     "activity": {
       "cancelled": "Arrêté",
@@ -1773,7 +1780,6 @@
     "unverified": "Non vérifié"
   },
   "EntityDetail": {
-    "collapseSection": "Réduire {section}",
     "computedFieldHelp": {
       "dealValue": "Somme du prix unitaire × la quantité pour chaque élément lié dans « {services} ». Modifiez-y les éléments liés ou les quantités pour l’actualiser.",
       "serviceLineValue": "Prix de « {service} » × quantité. Modifiez ici l’élément ou la quantité ; modifiez l’élément lié pour changer son prix.",
@@ -1782,7 +1788,6 @@
       "weightedValueUnconfigured": "{dealValue} × probabilité de conclusion de l’étape sélectionnée. Configurez les probabilités dans « {company} » et sélectionnez une étape ; modifiez « {services} » ou les quantités."
     },
     "donePersonalizing": "Terminé",
-    "expandSection": "Développer {section}",
     "fields": {
       "createdAt": "Créé le",
       "updatedAt": "Mis à jour le"
@@ -1977,6 +1982,7 @@
     "imprint": "Mentions légales",
     "legal": "Aide et mentions légales",
     "privacy": "Confidentialité",
+    "privacyChoices": "Choix de confidentialité",
     "product": "Produit",
     "resources": "Ressources",
     "reviewsOnPlatform": "Avis sur Customermates publiés sur {platform}",

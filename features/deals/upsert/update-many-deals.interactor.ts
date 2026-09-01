@@ -23,16 +23,16 @@ import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator"
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { unique } from "@/core/utils/unique";
 
-export const UpdateManyDealsSchema = z
-  .object({
-    deals: z.array(BaseUpdateDealSchema).min(1).max(100),
-  })
-  .superRefine((data, ctx) => {
-    for (let i = 0; i < data.deals.length; i++) {
-      const deal = data.deals[i];
-      deal.notes = validateNotes(deal.notes, ctx, ["deals", i, "notes"]);
-    }
-  });
+export const UpdateManyDealsSchema = z.object({
+  deals: z
+    .array(
+      BaseUpdateDealSchema.superRefine((deal, ctx) => {
+        deal.notes = validateNotes(deal.notes, ctx, ["notes"]);
+      }),
+    )
+    .min(1)
+    .max(100),
+});
 export type UpdateManyDealsData = Data<typeof UpdateManyDealsSchema>;
 
 @TenantInteractor({

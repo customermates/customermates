@@ -7,6 +7,13 @@
     "subject": "Some of your connected accounts were removed",
     "title": "Connected accounts removed"
   },
+  "AcquisitionConsent": {
+    "allowAttribution": "Allow",
+    "description": "It looks like you arrived through a Google ad. With your permission, we’ll remember this ad visit for up to 90 days and link it to your Customermates account if you create a new workspace. This helps us understand which ads are useful.",
+    "necessaryOnly": "No thanks",
+    "privacyLink": "Privacy details",
+    "title": "Help us learn what works"
+  },
   "AgentChat": {
     "activity": {
       "cancelled": "Stopped",
@@ -1773,7 +1780,6 @@
     "unverified": "Unverified"
   },
   "EntityDetail": {
-    "collapseSection": "Collapse {section}",
     "computedFieldHelp": {
       "dealValue": "Sum of unit price × quantity for every linked record in {services}. Change linked records or quantities there to update it.",
       "serviceLineValue": "{service} price × quantity. Change the record or quantity here; edit the linked record to change its price.",
@@ -1782,7 +1788,6 @@
       "weightedValueUnconfigured": "{dealValue} × the selected stage’s win probability. Configure stage probabilities in {company} and select a stage; change {services} or quantities to update it."
     },
     "donePersonalizing": "Done",
-    "expandSection": "Expand {section}",
     "fields": {
       "createdAt": "Created at",
       "updatedAt": "Updated at"
@@ -1977,6 +1982,7 @@
     "imprint": "Imprint",
     "legal": "Support & legal",
     "privacy": "Privacy",
+    "privacyChoices": "Privacy choices",
     "product": "Product",
     "resources": "Resources",
     "reviewsOnPlatform": "Customermates reviews on {platform}",

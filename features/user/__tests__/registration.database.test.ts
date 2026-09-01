@@ -42,7 +42,7 @@ const { GetLegalStatusInteractor } = await import("@/features/legal/get-legal-st
 const { AcceptLegalDocumentsInteractor } = await import("@/features/legal/accept-legal-documents.interactor");
 const { currentLegalDocumentVersions } = await import("@/constants/legal-documents");
 const { prisma } = await import("@/prisma/db");
-const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
+const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
 
 const email = `real-db-check-${Date.now()}@example.com`;
@@ -139,6 +139,95 @@ describeDatabase("registration against a real database", () => {
     );
 
     expect(persistedUser).toEqual({ agreeToTerms: true });
+  });
+
+  it("stores one owner click transactionally and clears it at bounded expiry", async () => {
+    const repo = new PrismaUserRepo();
+    const capturedAt = new Date("2026-08-31T10:00:00.000Z");
+    const expiresAt = new Date("2026-11-28T10:00:00.000Z");
+    const owner = await runWithoutTenant(() =>
+      repo.createCompanyAndUser({
+        email: `google-click-${Date.now()}@example.com`,
+        firstName: "Google",
+        lastName: "Click",
+        country: "de",
+        agreeToTerms: true,
+        avatarUrl: null,
+        googleAdsAttribution: {
+          clickId: "Case-Sensitive_GCLID",
+          clickIdKind: "gclid",
+          capturedAt,
+          consentedAt: capturedAt,
+          expiresAt,
+        },
+      }),
+    );
+    companyIds.push(owner.companyId);
+
+    await expect(
+      runWithoutTenant(() =>
+        prisma.user.findUniqueOrThrow({
+          where: { id: owner.id },
+          select: {
+            googleAdsClickId: true,
+            googleAdsClickIdKind: true,
+            googleAdsClickIdCapturedAt: true,
+            googleAdsAttributionConsentedAt: true,
+            googleAdsClickIdExpiresAt: true,
+            onboardingWizardCompletedAt: true,
+          },
+        }),
+      ),
+    ).resolves.toEqual({
+      googleAdsClickId: "Case-Sensitive_GCLID",
+      googleAdsClickIdKind: "gclid",
+      googleAdsClickIdCapturedAt: capturedAt,
+      googleAdsAttributionConsentedAt: capturedAt,
+      googleAdsClickIdExpiresAt: expiresAt,
+      onboardingWizardCompletedAt: null,
+    });
+
+    await expect(repo.expireGoogleAdsClickIdsUnscoped(new Date("2026-11-28T09:59:59.000Z"))).resolves.toBe(0);
+    await expect(repo.expireGoogleAdsClickIdsUnscoped(expiresAt)).resolves.toBe(1);
+    await expect(
+      runWithoutTenant(() =>
+        prisma.user.findUniqueOrThrow({
+          where: { id: owner.id },
+          select: {
+            googleAdsClickId: true,
+            googleAdsClickIdKind: true,
+            googleAdsClickIdCapturedAt: true,
+            googleAdsAttributionConsentedAt: true,
+            googleAdsClickIdExpiresAt: true,
+          },
+        }),
+      ),
+    ).resolves.toEqual({
+      googleAdsClickId: null,
+      googleAdsClickIdKind: null,
+      googleAdsClickIdCapturedAt: null,
+      googleAdsAttributionConsentedAt: null,
+      googleAdsClickIdExpiresAt: null,
+    });
+
+    const stableUpdatedAt = new Date("2026-11-28T10:01:00.000Z");
+    await runWithoutTenant(() =>
+      prisma.user.update({
+        where: { id: owner.id },
+        data: { updatedAt: stableUpdatedAt },
+      }),
+    );
+    await expect(runWithTenant(owner, () => repo.clearGoogleAdsAttributionForUser({ userId: owner.id }))).resolves.toBe(
+      false,
+    );
+    await expect(
+      runWithoutTenant(() =>
+        prisma.user.findUniqueOrThrow({
+          where: { id: owner.id },
+          select: { updatedAt: true },
+        }),
+      ),
+    ).resolves.toEqual({ updatedAt: stableUpdatedAt });
   });
 
   it("atomically creates a new cloud company and its initial legal audit evidence", async () => {

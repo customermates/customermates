@@ -1,13 +1,16 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { FooterBadges } from "./footer-badges";
 
+import { OPEN_PRIVACY_CHOICES_EVENT } from "@/components/acquisition/privacy-choices-event";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
 import { AppImage } from "@/components/shared/app-image";
 import { AppLink } from "@/components/shared/app-link";
+import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
+import { isContentLocale } from "@/i18n/locale-registry";
 
 type LinkItem = {
   displayName: string;
@@ -25,6 +28,8 @@ const FOOTER_LINK_CLASS = "text-subdued transition-colors hover:text-foreground 
 
 export function FooterContent({ blogPosts = [], className, featureLinks = [], industries = [] }: FooterProps) {
   const t = useTranslations();
+  const locale = useLocale();
+  const { appMode } = useRootStore();
 
   return (
     <footer className={cn("mt-auto w-full border-t border-border bg-background text-sm", className)}>
@@ -262,6 +267,18 @@ export function FooterContent({ blogPosts = [], className, featureLinks = [], in
                   {t("Footer.privacy")}
                 </AppLink>
               </li>
+
+              {appMode === "cloud" && isContentLocale(locale) ? (
+                <li>
+                  <button
+                    className={FOOTER_LINK_CLASS}
+                    type="button"
+                    onClick={() => window.dispatchEvent(new Event(OPEN_PRIVACY_CHOICES_EVENT))}
+                  >
+                    {t("Footer.privacyChoices")}
+                  </button>
+                </li>
+              ) : null}
 
               <li>
                 <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/terms">

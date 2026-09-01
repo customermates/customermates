@@ -178,6 +178,11 @@ model User {
   trialInactivationNoticeSentAt   DateTime?
   onboardingWizardCompletedAt     DateTime?
   agentCreditActivatedAt          DateTime?
+  googleAdsClickId                String?             @db.VarChar(512)
+  googleAdsClickIdKind            String?             @db.VarChar(8)
+  googleAdsClickIdCapturedAt      DateTime?
+  googleAdsAttributionConsentedAt DateTime?
+  googleAdsClickIdExpiresAt       DateTime?
   createdAt                       DateTime            @default(now())
   updatedAt                       DateTime            @updatedAt
   company                         Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -196,6 +201,7 @@ model User {
 
   @@index([companyId])
   @@index([companyId, status])
+  @@index([googleAdsClickIdExpiresAt, id])
   @@index([roleId])
 }
 

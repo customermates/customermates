@@ -23,16 +23,16 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { buildRelationChangePublishes } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
 
-export const CreateManyDealsSchema = z
-  .object({
-    deals: z.array(BaseCreateDealSchema).min(1).max(100),
-  })
-  .superRefine((data, ctx) => {
-    for (let i = 0; i < data.deals.length; i++) {
-      const deal = data.deals[i];
-      deal.notes = validateNotes(deal.notes, ctx, ["deals", i, "notes"]);
-    }
-  });
+export const CreateManyDealsSchema = z.object({
+  deals: z
+    .array(
+      BaseCreateDealSchema.superRefine((deal, ctx) => {
+        deal.notes = validateNotes(deal.notes, ctx, ["notes"]);
+      }),
+    )
+    .min(1)
+    .max(100),
+});
 export type CreateManyDealsData = Data<typeof CreateManyDealsSchema>;
 
 @TenantInteractor({
