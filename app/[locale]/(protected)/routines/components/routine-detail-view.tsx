@@ -1,11 +1,13 @@
 "use client";
 
 import type { RoutineDto, RoutineRunDto } from "@/ee/routines/routine.schema";
+import type { RoutineRiskDto } from "@/ee/routines/get-routine-risks.interactor";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Pencil, Play } from "lucide-react";
 
+import { Alert } from "@/components/shared/alert";
 import { AppChip } from "@/components/chip/app-chip";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -21,9 +23,9 @@ import { routineFormFor } from "./routine-modal.store";
 import { RoutineRunTranscript } from "./routine-run-transcript";
 import { useRoutineDetailSync } from "./use-routine-detail-sync";
 
-type Props = { routine: RoutineDto; initialRuns: RoutineRunDto[] };
+type Props = { routine: RoutineDto; initialRuns: RoutineRunDto[]; risks: RoutineRiskDto[] };
 
-export const RoutineDetailView = observer(function RoutineDetailView({ routine, initialRuns }: Props) {
+export const RoutineDetailView = observer(function RoutineDetailView({ routine, initialRuns, risks }: Props) {
   const t = useTranslations();
   const intlStore = useHydratedIntlStore();
   const { routineDetailStore, routineModalStore } = useRootStore();
@@ -38,6 +40,18 @@ export const RoutineDetailView = observer(function RoutineDetailView({ routine, 
 
   return (
     <div className="flex flex-col gap-4">
+      {risks.length > 0 && (
+        <Alert color="warning">
+          <p className="text-x-sm font-medium">{t("RoutineDetail.loopWarningTitle")}</p>
+
+          <p className="text-x-sm">
+            {risks.some((risk) => risk.kind === "selfLoop")
+              ? t("RoutineDetail.loopWarningSelf")
+              : t("RoutineDetail.loopWarningMutual")}
+          </p>
+        </Alert>
+      )}
+
       <AppCard>
         <AppCardBody>
           <div className="flex flex-wrap items-start justify-between gap-3">

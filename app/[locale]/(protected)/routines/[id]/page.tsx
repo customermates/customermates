@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import { RoutineDetailView } from "../components/routine-detail-view";
 
-import { getGetRoutineInteractor, getGetRoutineRunsInteractor } from "@/core/di";
+import { getGetRoutineInteractor, getGetRoutineRisksInteractor, getGetRoutineRunsInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
 import { PageContainer } from "@/components/shared/page-container";
 import { unwrapValidated } from "@/core/validation/validation.utils";
@@ -19,10 +19,11 @@ export default async function RoutineDetailPage({ params }: Props) {
   if (!routine) notFound();
 
   const runs = await unwrapValidated(getGetRoutineRunsInteractor().invoke({ routineId: id, limit: 25 }));
+  const risks = await unwrapValidated(getGetRoutineRisksInteractor().invoke({ routineId: id }));
 
   return (
     <PageContainer>
-      <RoutineDetailView initialRuns={runs} routine={routine} />
+      <RoutineDetailView initialRuns={runs} risks={risks} routine={routine} />
     </PageContainer>
   );
 }

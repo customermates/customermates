@@ -263,6 +263,7 @@ model Company {
   agentUiCommandResults       AgentUiCommandResult[]
   routines                    Routine[]
   routineRuns                 RoutineRun[]
+  routineRiskFindings         RoutineRiskFinding[]
 }
 
 model EntityTerminology {
@@ -1875,31 +1876,32 @@ enum RoutineRunStatus {
 }
 
 model Routine {
-  id                   String             @id @default(uuid())
+  id                   String               @id @default(uuid())
   companyId            String
   ownerUserId          String
   name                 String
   prompt               String
   modelKey             String?
-  enabled              Boolean            @default(true)
+  enabled              Boolean              @default(true)
   triggerKind          RoutineTriggerKind
   cronExpression       String?
   timezone             String?
   runOnceAt            DateTime?
   triggerEvents        String[]
-  debounceSeconds      Int                @default(300)
-  maxRunsPerHour       Int                @default(4)
-  maxCreditsPerRun     Int                @default(10)
+  debounceSeconds      Int                  @default(300)
+  maxRunsPerHour       Int                  @default(4)
+  maxCreditsPerRun     Int                  @default(10)
   nextRunAt            DateTime?
   lastRunAt            DateTime?
   lastRunStatus        RoutineRunStatus?
   disabledReason       String?
-  suppressedEventCount Int                @default(0)
-  createdAt            DateTime           @default(now())
-  updatedAt            DateTime           @updatedAt
-  company              Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  owner                User               @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+  suppressedEventCount Int                  @default(0)
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  company              Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  owner                User                 @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
   runs                 RoutineRun[]
+  riskFindings         RoutineRiskFinding[]
 
   @@index([companyId])
   @@index([companyId, enabled])
@@ -1935,4 +1937,34 @@ model RoutineRun {
   @@index([status, scheduledFor])
   @@index([routineId, status])
   @@index([conversationId])
+}
+
+enum RoutineRiskKind {
+  selfLoop
+  mutualLoop
+}
+
+enum RoutineRiskSeverity {
+  info
+  warning
+}
+
+model RoutineRiskFinding {
+  id            String              @id @default(uuid())
+  companyId     String
+  routineId     String
+  peerRoutineId String?
+  kind          RoutineRiskKind
+  severity      RoutineRiskSeverity @default(warning)
+  triggerEvent  String
+  confidence    String
+  resolvedAt    DateTime?
+  detectedAt    DateTime            @default(now())
+  company       Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  routine       Routine             @relation(fields: [routineId], references: [id], onDelete: Cascade)
+
+  @@unique([routineId, kind, triggerEvent, peerRoutineId])
+  @@index([companyId])
+  @@index([companyId, resolvedAt])
+  @@index([routineId, resolvedAt])
 }

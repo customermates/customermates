@@ -2530,6 +2530,9 @@
   },
   "RoutineDetail": {
     "credits": "Guthaben",
+    "loopWarningMutual": "Diese und eine weitere Routine ändern jeweils die Datensätze, auf die die andere hört. Customermates ignoriert Ereignisse, die eine Routine ausgelöst hat, sie lösen einander also nicht aus.",
+    "loopWarningSelf": "Diese Routine ändert dieselben Datensätze, auf die sie hört. Customermates ignoriert Ereignisse, die eine Routine ausgelöst hat, sie läuft also nicht im Kreis, reagiert aber auch nicht auf eigene Änderungen.",
+    "loopWarningTitle": "Möglicher Auslöser-Kreislauf",
     "never": "Nie",
     "nextRun": "Nächster Lauf",
     "noRuns": "Diese Routine wurde noch nicht ausgeführt.",

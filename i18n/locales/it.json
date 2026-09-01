@@ -2530,6 +2530,9 @@
   },
   "RoutineDetail": {
     "credits": "Crediti",
+    "loopWarningMutual": "Questa routine e un'altra modificano ciascuna i record che l'altra ascolta. Customermates ignora gli eventi causati da una routine, quindi non si attiveranno a vicenda.",
+    "loopWarningSelf": "Questa routine modifica gli stessi record che ascolta. Customermates ignora gli eventi causati da una routine, quindi non entrerà in ciclo, ma non reagirà nemmeno alle proprie modifiche.",
+    "loopWarningTitle": "Possibile ciclo di attivazione",
     "never": "Mai",
     "nextRun": "Prossima esecuzione",
     "noRuns": "Questa routine non è ancora stata eseguita.",

@@ -1,7 +1,8 @@
 import type { RoutineDto, UpsertRoutineData } from "./routine.schema";
 import type { Validated } from "@/core/validation/validation.utils";
+import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 
-import { Resource, Action } from "@/generated/prisma";
+import { Resource, Action, RoutineTriggerKind } from "@/generated/prisma";
 
 import { RoutineDtoSchema, UpsertRoutineSchema } from "./routine.schema";
 
@@ -16,12 +17,20 @@ export abstract class UpsertRoutineRepo {
 
 @TenantInteractor({ resource: Resource.api, action: Action.update })
 export class UpsertRoutineInteractor extends AuthenticatedInteractor<UpsertRoutineData, RoutineDto> {
-  constructor(private repo: UpsertRoutineRepo) {
+  constructor(
+    private repo: UpsertRoutineRepo,
+    private backgroundTaskService: BackgroundTaskService,
+  ) {
     super();
   }
 
   @Write({ input: UpsertRoutineSchema, output: RoutineDtoSchema })
   async invoke(data: UpsertRoutineData): Validated<RoutineDto> {
-    return { ok: true as const, data: await this.repo.upsertRoutineOrThrow(data) };
+    const routine = await this.repo.upsertRoutineOrThrow(data);
+
+    if (routine.triggerKind === RoutineTriggerKind.event)
+      await this.backgroundTaskService.dispatch("analyze-routine-loops", { companyId: this.user.companyId });
+
+    return { ok: true as const, data: routine };
   }
 }

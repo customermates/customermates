@@ -4,6 +4,8 @@ import type { GetRoutineRepo } from "./get-routine.interactor";
 import type { GetRoutineRunsRepo } from "./get-routine-runs.interactor";
 import type { GetRoutineRunTranscriptRepo } from "./get-routine-run-transcript.interactor";
 import type { AdmittedRoutineRun, TriggerRoutinesRepo } from "./trigger-routines.repo";
+import type { AnalyzeRoutineRepo, RecordRoutineRiskFindingsRepo } from "./record-routine-risk-findings.interactor";
+import type { GetRoutineRisksRepo } from "./get-routine-risks.interactor";
 import type { UpsertRoutineRepo } from "./upsert-routine.interactor";
 import type { DeleteRoutineRepo } from "./delete-routine.interactor";
 import type { RunRoutineNowRepo } from "./run-routine-now.interactor";
@@ -12,7 +14,7 @@ import type { SweepDueRoutinesRepo } from "./sweep-due-routines.interactor";
 import type { ReconcileRoutineRunsRepo } from "./reconcile-routine-runs.interactor";
 import type { RoutineDto, RoutineRunDto } from "./routine.schema";
 
-import type { AgentTurnTerminalCode, Prisma } from "@/generated/prisma";
+import type { AgentTurnTerminalCode, Prisma, RoutineRiskKind } from "@/generated/prisma";
 
 import { RoutineRunStatus, RoutineTriggerKind } from "@/generated/prisma";
 
@@ -101,7 +103,10 @@ export class PrismaRoutineRepo
     StartRoutineRunRepo,
     SweepDueRoutinesRepo,
     ReconcileRoutineRunsRepo,
-    TriggerRoutinesRepo
+    TriggerRoutinesRepo,
+    AnalyzeRoutineRepo,
+    RecordRoutineRiskFindingsRepo,
+    GetRoutineRisksRepo
 {
   getSearchableFields() {
     return [{ field: "name" }];
@@ -392,6 +397,64 @@ export class PrismaRoutineRepo
     await this.prisma.routine.updateMany({
       where: { id: routineId },
       data: { enabled: false, disabledReason: reason, nextRunAt: null },
+    });
+  }
+
+  async getRoutineRisks(routineId: string) {
+    return this.prisma.routineRiskFinding.findMany({
+      where: { routineId, companyId: this.companyId, resolvedAt: null },
+      select: { id: true, kind: true, severity: true, triggerEvent: true, peerRoutineId: true, confidence: true },
+      orderBy: { detectedAt: "desc" },
+    });
+  }
+
+  @BypassTenantGuard
+  async findRoutinesForAnalysisUnscoped(companyId: string) {
+    const routines = await this.prisma.routine.findMany({
+      where: { companyId, enabled: true, triggerKind: RoutineTriggerKind.event },
+      select: { id: true, name: true, prompt: true, triggerEvents: true },
+    });
+
+    return routines.map((routine) => ({ ...routine, triggerEvents: [...routine.triggerEvents] }));
+  }
+
+  @BypassTenantGuard
+  async findCompaniesWithEventRoutinesUnscoped(limit: number) {
+    const routines = await this.prisma.routine.findMany({
+      where: { enabled: true, triggerKind: RoutineTriggerKind.event },
+      select: { companyId: true },
+      take: limit,
+    });
+
+    return [...new Set(routines.map((routine) => routine.companyId))];
+  }
+
+  @BypassTenantGuard
+  async replaceRoutineRiskFindingsUnscoped(args: {
+    companyId: string;
+    findings: {
+      routineId: string;
+      peerRoutineId: string | null;
+      kind: RoutineRiskKind;
+      triggerEvent: string;
+      confidence: string;
+    }[];
+    now: Date;
+  }) {
+    await this.prisma.routineRiskFinding.deleteMany({ where: { companyId: args.companyId } });
+    if (args.findings.length === 0) return;
+
+    await this.prisma.routineRiskFinding.createMany({
+      data: args.findings.map((finding) => ({
+        companyId: args.companyId,
+        routineId: finding.routineId,
+        peerRoutineId: finding.peerRoutineId,
+        kind: finding.kind,
+        triggerEvent: finding.triggerEvent,
+        confidence: finding.confidence,
+        detectedAt: args.now,
+      })),
+      skipDuplicates: true,
     });
   }
 

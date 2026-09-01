@@ -2530,6 +2530,9 @@
   },
   "RoutineDetail": {
     "credits": "Credits",
+    "loopWarningMutual": "This routine and another one each change the records the other listens to. Customermates ignores events a routine caused, so they will not trigger each other.",
+    "loopWarningSelf": "This routine changes the same records it listens to. Customermates ignores events a routine caused, so it will not loop, but it also will not react to its own changes.",
+    "loopWarningTitle": "Possible trigger loop",
     "never": "Never",
     "nextRun": "Next run",
     "noRuns": "This routine has not run yet.",

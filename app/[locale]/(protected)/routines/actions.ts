@@ -6,10 +6,12 @@ import type { DeleteRoutineData } from "@/ee/routines/delete-routine.interactor"
 import type { RunRoutineNowData } from "@/ee/routines/run-routine-now.interactor";
 import type { GetRoutineRunsData } from "@/ee/routines/get-routine-runs.interactor";
 import type { GetRoutineRunTranscriptData } from "@/ee/routines/get-routine-run-transcript.interactor";
+import type { GetRoutineRisksData } from "@/ee/routines/get-routine-risks.interactor";
 
 import {
   getDeleteRoutineInteractor,
   getGetRoutineRunTranscriptInteractor,
+  getGetRoutineRisksInteractor,
   getGetRoutineRunsInteractor,
   getGetRoutinesInteractor,
   getRunRoutineNowInteractor,
@@ -40,4 +42,8 @@ export async function getRoutineRunsAction(data: GetRoutineRunsData) {
 
 export async function getRoutineRunTranscriptAction(data: GetRoutineRunTranscriptData) {
   return unwrapValidated(getGetRoutineRunTranscriptInteractor().invoke(data));
+}
+
+export async function getRoutineRisksAction(data: GetRoutineRisksData) {
+  return unwrapValidated(getGetRoutineRisksInteractor().invoke(data));
 }

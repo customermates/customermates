@@ -45,6 +45,9 @@ import { StartRoutineRunInteractor } from "@/ee/routines/start-routine-run.inter
 import { FailRoutineRunInteractor } from "@/ee/routines/fail-routine-run.interactor";
 import { SweepDueRoutinesInteractor } from "@/ee/routines/sweep-due-routines.interactor";
 import { ReconcileRoutineRunsInteractor } from "@/ee/routines/reconcile-routine-runs.interactor";
+import { RecordRoutineRiskFindingsInteractor } from "@/ee/routines/record-routine-risk-findings.interactor";
+import { GetRoutineRisksInteractor } from "@/ee/routines/get-routine-risks.interactor";
+import { AnalyzeCompanyRoutinesInteractor } from "@/ee/routines/analyze-company-routines.interactor";
 import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-delivery.repository";
 import { PrismaAuditLogRepo } from "@/features/audit-log/prisma-audit-log.repository";
 import { PrismaMessagingRepo } from "@/ee/messaging/persistence/prisma-messaging.repository";
@@ -1511,7 +1514,8 @@ export const getGetRoutineInteractor = () => new GetRoutineInteractor(getRoutine
 
 export const getGetRoutineRunTranscriptInteractor = () => new GetRoutineRunTranscriptInteractor(getRoutineRepo());
 
-export const getUpsertRoutineInteractor = () => new UpsertRoutineInteractor(getRoutineRepo());
+export const getUpsertRoutineInteractor = () =>
+  new UpsertRoutineInteractor(getRoutineRepo(), getBackgroundTaskService());
 
 export const getDeleteRoutineInteractor = () => new DeleteRoutineInteractor(getRoutineRepo());
 
@@ -1527,6 +1531,13 @@ export const getSweepDueRoutinesInteractor = () =>
   new SweepDueRoutinesInteractor(getRoutineRepo(), getBackgroundTaskService());
 
 export const getReconcileRoutineRunsInteractor = () => new ReconcileRoutineRunsInteractor(getRoutineRepo());
+
+export const getRecordRoutineRiskFindingsInteractor = () => new RecordRoutineRiskFindingsInteractor(getRoutineRepo());
+
+export const getGetRoutineRisksInteractor = () => new GetRoutineRisksInteractor(getRoutineRepo());
+
+export const getAnalyzeCompanyRoutinesInteractor = () =>
+  new AnalyzeCompanyRoutinesInteractor(getRoutineRepo(), getBackgroundTaskService());
 
 export const getGetAgentConfigInteractor = () =>
   new GetAgentConfigInteractor(getAgentChatRepo(), getAgentUsageService(), getEntitlementService());

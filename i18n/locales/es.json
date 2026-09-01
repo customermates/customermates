@@ -2530,6 +2530,9 @@
   },
   "RoutineDetail": {
     "credits": "Créditos",
+    "loopWarningMutual": "Esta rutina y otra cambian los registros que la otra escucha. Customermates ignora los eventos que causa una rutina, así que no se activarán entre sí.",
+    "loopWarningSelf": "Esta rutina cambia los mismos registros que escucha. Customermates ignora los eventos que causa una rutina, así que no entrará en bucle, pero tampoco reaccionará a sus propios cambios.",
+    "loopWarningTitle": "Posible bucle de disparadores",
     "never": "Nunca",
     "nextRun": "Próxima ejecución",
     "noRuns": "Esta rutina aún no se ha ejecutado.",
