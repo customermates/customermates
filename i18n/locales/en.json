@@ -1145,7 +1145,6 @@
         "calendarId": "Calendar",
         "connectedAccountId": "Channel",
         "createdAt": "Created at",
-        "emailVerified": "Email verified",
         "event": "Event",
         "googleAdsClickId": "Google Ads click ID",
         "isPlatformOperator": "Platform operator",

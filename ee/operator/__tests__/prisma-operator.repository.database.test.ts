@@ -296,7 +296,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
       adjustments: await prisma.agentCreditAdjustment.count({ where: { operationId } }),
       rejectedAdjustments: await prisma.agentCreditAdjustment.count({ where: { operationId: rejectedOperationId } }),
       auditEvents: await prisma.operatorAuditEvent.count({
-        where: { action: OPERATOR_AUDIT_ACTION.creditAdjustmentCreate },
+        where: { action: OPERATOR_AUDIT_ACTION.creditAdjustmentCreate, targetUserId: target.userId },
       }),
     }));
     expect(persisted).toEqual({

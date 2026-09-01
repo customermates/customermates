@@ -18,7 +18,7 @@ CREATE TABLE "AgentCreditAdjustment" (
   "creditDelta" INTEGER NOT NULL,
   "periodStart" TIMESTAMP(3) NOT NULL,
   "periodEnd" TIMESTAMP(3) NOT NULL,
-  "reason" TEXT NOT NULL,
+  "reason" TEXT,
   "operationId" TEXT NOT NULL,
   "createdByOperatorUserId" TEXT,
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -26,7 +26,6 @@ CREATE TABLE "AgentCreditAdjustment" (
   CONSTRAINT "AgentCreditAdjustment_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
 -- CreateTable
 CREATE TABLE "OperatorAuditEvent" (
   "id" TEXT NOT NULL,
@@ -53,19 +52,11 @@ CREATE INDEX "AgentCreditAdjustment_companyId_createdAt_idx"
 ON "AgentCreditAdjustment"("companyId", "createdAt");
 
 -- CreateIndex
-
--- CreateIndex
-
--- CreateIndex
-
--- CreateIndex
 CREATE INDEX "OperatorAuditEvent_action_createdAt_idx" ON "OperatorAuditEvent"("action", "createdAt");
 
 -- CreateIndex
 CREATE INDEX "OperatorAuditEvent_targetCompanyId_createdAt_idx"
 ON "OperatorAuditEvent"("targetCompanyId", "createdAt");
-
--- CreateIndex
 
 -- CreateIndex
 CREATE INDEX "AgentUsageEvent_state_settledAt_createdAt_idx"
@@ -88,7 +79,7 @@ ALTER TABLE "AgentCreditAdjustment"
   ),
   ADD CONSTRAINT "AgentCreditAdjustment_period_ordered" CHECK ("periodEnd" > "periodStart"),
   ADD CONSTRAINT "AgentCreditAdjustment_reason_valid" CHECK (
-    char_length(btrim("reason")) BETWEEN 1 AND 500
+    "reason" IS NULL OR char_length(btrim("reason")) BETWEEN 1 AND 500
   ),
   ADD CONSTRAINT "AgentCreditAdjustment_operation_id_valid" CHECK (
     char_length(btrim("operationId")) BETWEEN 1 AND 200

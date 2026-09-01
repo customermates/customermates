@@ -13,6 +13,8 @@ import {
   MessagingProvider,
   MessagingThreadState,
   Status,
+  SubscriptionPlan,
+  SubscriptionStatus,
   TaskType,
 } from "@/generated/prisma";
 
@@ -24,6 +26,8 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { type ChipColor } from "@/constants/chip-colors";
 import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
+import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/company/components/subscription/subscription-panel";
+import { OPERATOR_AUDIT_SOURCE } from "@/ee/operator/operator-lists.schema";
 import { getUsersAction } from "@/app/[locale]/(protected)/company/actions";
 import { getContactsAction } from "@/app/[locale]/(protected)/contacts/actions";
 import { getOrganizationsAction } from "@/app/[locale]/(protected)/organizations/actions";
@@ -379,8 +383,48 @@ export function useFilterSelectItems(
         });
       }
 
+      case FilterFieldKey.plan: {
+        return Object.values(SubscriptionPlan).map((plan) => ({
+          key: plan,
+          value: plan,
+          textValue: t(`Subscription.planNames.${plan}`),
+        }));
+      }
+
+      case FilterFieldKey.subscriptionStatus: {
+        return Object.values(SubscriptionStatus).map((status) => ({
+          key: status,
+          value: status,
+          textValue: t(`Subscription.status.${status}`),
+          color: SUBSCRIPTION_STATUS_COLOR_MAP[status],
+        }));
+      }
+
+      case FilterFieldKey.isPlatformOperator: {
+        return [
+          { key: "true", value: "true", textValue: t("OperatorUsers.values.operator") },
+          { key: "false", value: "false", textValue: t("OperatorUsers.platformAccess.revoked") },
+        ];
+      }
+
+      case FilterFieldKey.auditSource: {
+        return [
+          {
+            key: OPERATOR_AUDIT_SOURCE.product,
+            value: OPERATOR_AUDIT_SOURCE.product,
+            textValue: t("OperatorAudit.values.source.product"),
+          },
+          {
+            key: OPERATOR_AUDIT_SOURCE.operator,
+            value: OPERATOR_AUDIT_SOURCE.operator,
+            textValue: t("OperatorAudit.values.source.operator"),
+          },
+        ];
+      }
+
       case FilterFieldKey.createdAt:
       case FilterFieldKey.updatedAt:
+      case FilterFieldKey.lastActiveAt:
       case FilterFieldKey.participants: {
         return [];
       }

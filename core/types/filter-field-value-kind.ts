@@ -67,7 +67,6 @@ export const DEFAULT_FILTER_VALUE_KIND: Record<FilterFieldKey, FilterValueKind> 
   [FilterFieldKey.plan]: { kind: "enum", values: enumValues(SubscriptionPlan) },
   [FilterFieldKey.subscriptionStatus]: { kind: "enum", values: enumValues(SubscriptionStatus) },
   [FilterFieldKey.isPlatformOperator]: { kind: "enum", values: BOOLEAN_FILTER_VALUES },
-  [FilterFieldKey.emailVerified]: { kind: "enum", values: BOOLEAN_FILTER_VALUES },
   [FilterFieldKey.lastActiveAt]: { kind: "date" },
   [FilterFieldKey.workspaceId]: { kind: "string" },
   [FilterFieldKey.googleAdsClickId]: { kind: "string" },

@@ -84,7 +84,6 @@ const RELATION_FIELD_MAPPING: Record<FilterFieldKey, string> = {
   [FilterFieldKey.plan]: "plan",
   [FilterFieldKey.subscriptionStatus]: "subscriptionStatus",
   [FilterFieldKey.isPlatformOperator]: "isPlatformOperator",
-  [FilterFieldKey.emailVerified]: "emailVerified",
   [FilterFieldKey.lastActiveAt]: "lastActiveAt",
   [FilterFieldKey.workspaceId]: "companyId",
   [FilterFieldKey.googleAdsClickId]: "googleAdsClickId",

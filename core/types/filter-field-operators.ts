@@ -48,7 +48,6 @@ export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperat
   [FilterFieldKey.plan]: scalarSelectOperators,
   [FilterFieldKey.subscriptionStatus]: scalarSelectOperators,
   [FilterFieldKey.isPlatformOperator]: scalarSelectOperators,
-  [FilterFieldKey.emailVerified]: scalarSelectOperators,
   [FilterFieldKey.lastActiveAt]: dateOperators,
   [FilterFieldKey.workspaceId]: scalarSelectOperators,
   [FilterFieldKey.googleAdsClickId]: presenceOperators,

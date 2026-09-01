@@ -22,7 +22,6 @@ export enum FilterFieldKey {
   plan = "plan",
   subscriptionStatus = "subscriptionStatus",
   isPlatformOperator = "isPlatformOperator",
-  emailVerified = "emailVerified",
   lastActiveAt = "lastActiveAt",
   workspaceId = "workspaceId",
   googleAdsClickId = "googleAdsClickId",
