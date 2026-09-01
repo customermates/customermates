@@ -22,7 +22,7 @@ type Props = {
   confirmTitle: string;
   confirmMessage: (option: OperatorChipOption) => string;
   readOnly?: boolean;
-  onCommit: (value: string, operationId: string) => Promise<boolean>;
+  onCommit: (value: string) => Promise<boolean>;
 };
 
 export function OperatorChipSelect({
@@ -53,15 +53,13 @@ export function OperatorChipSelect({
     setIsOpen(false);
     if (option.value === value) return;
 
-    const operationId = globalThis.crypto.randomUUID();
-
     showConfirmation({
       title: confirmTitle,
       message: confirmMessage(option),
       confirmLabel: t("Common.actions.confirm"),
       confirmVariant: "default",
       successKey: "Common.notifications.updated",
-      onConfirm: () => onCommit(option.value, operationId),
+      onConfirm: () => onCommit(option.value),
     });
   }
 

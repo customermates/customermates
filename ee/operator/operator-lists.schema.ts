@@ -18,6 +18,7 @@ export const OperatorUserRowDtoSchema = z.object({
   subscriptionStatus: z.enum(SubscriptionStatus).nullable(),
   subscriptionQuantity: z.number().nullable(),
   subscriptionUpdatedAt: z.date().nullable(),
+  googleAdsClickId: z.string().nullable(),
 });
 
 export type OperatorUserRowDto = z.infer<typeof OperatorUserRowDtoSchema>;

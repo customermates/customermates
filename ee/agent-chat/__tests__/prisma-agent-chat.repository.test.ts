@@ -59,7 +59,12 @@ const prismaMock = vi.hoisted(() => ({
 
 vi.mock("@/prisma/db", () => ({ prisma: prismaMock }));
 vi.mock("@/env", () => ({
-  env: { APP_MODE: "cloud", HOSTED_AI_OPERATOR_CONTROLS_ENABLED: false },
+  env: {
+    APP_MODE: "cloud",
+    HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS: null,
+    HOSTED_AI_OPERATOR_CONTROLS_ENABLED: false,
+    HOSTED_AI_PROVIDER_WORK_PAUSED: false,
+  },
 }));
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
@@ -94,6 +99,8 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED = false;
+    env.HOSTED_AI_PROVIDER_WORK_PAUSED = false;
+    env.HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS = null;
     prismaMock.$transaction.mockImplementation((callback) => callback(prismaMock));
     prismaMock.$executeRaw.mockResolvedValue(undefined);
     prismaMock.agentCreditAdjustment.aggregate.mockResolvedValue({
@@ -1640,6 +1647,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     vi.useFakeTimers();
     vi.setSystemTime(reservedAt);
     env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED = true;
+    env.HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS = 2_000_000n;
     prismaMock.user.findUnique.mockResolvedValue({
       id: user.id,
       companyId: user.companyId,
@@ -1658,14 +1666,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       },
     });
     prismaMock.agentUsageEvent.findMany.mockResolvedValue([]);
-    prismaMock.$queryRaw
-      .mockResolvedValueOnce([
-        {
-          hostedProviderWorkPaused: false,
-          monthlySpendCapMicrocents: 2_000_000n,
-        },
-      ])
-      .mockResolvedValueOnce([{ settledCostMicrocents: 0n, activeReservedCredits: 1n }]);
+    prismaMock.$queryRaw.mockResolvedValue([{ settledCostMicrocents: 0n, activeReservedCredits: 1n }]);
 
     try {
       await expect(
@@ -1686,7 +1687,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       vi.useRealTimers();
     }
 
-    expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(2);
+    expect(prismaMock.$queryRaw).toHaveBeenCalledOnce();
     expect(prismaMock.agentUsageEvent.create).not.toHaveBeenCalled();
   });
 
@@ -1695,6 +1696,8 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     vi.useFakeTimers();
     vi.setSystemTime(now);
     env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED = true;
+    env.HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS = 50_000_000n;
+    env.HOSTED_AI_PROVIDER_WORK_PAUSED = true;
     prismaMock.user.findUnique.mockResolvedValue({
       id: user.id,
       companyId: user.companyId,
@@ -1719,12 +1722,6 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       periodEnd: new Date("2026-08-15T10:30:00.000Z"),
     });
     prismaMock.agentUsageEvent.findMany.mockResolvedValue([]);
-    prismaMock.$queryRaw.mockResolvedValue([
-      {
-        hostedProviderWorkPaused: true,
-        monthlySpendCapMicrocents: 50_000_000n,
-      },
-    ]);
 
     try {
       await expect(
@@ -1738,7 +1735,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       vi.useRealTimers();
     }
 
-    expect(prismaMock.$queryRaw).toHaveBeenCalledOnce();
+    expect(prismaMock.$queryRaw).not.toHaveBeenCalled();
   });
 
   it("releases only a matching reserved usage event without deleting its billing record", async () => {

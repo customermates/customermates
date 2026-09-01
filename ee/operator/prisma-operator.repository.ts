@@ -1,5 +1,3 @@
-import { randomUUID } from "node:crypto";
-
 import type { Prisma } from "@/generated/prisma";
 import { Status, SubscriptionPlan, SubscriptionStatus, TaskType } from "@/generated/prisma";
 
@@ -17,7 +15,6 @@ import {
   type AgentCreditAdjustmentDto,
   type CorrectOperatorSubscriptionSnapshotData,
   type CreateAgentCreditAdjustmentData,
-  type HostedAiGlobalControlDto,
   type HostedAiOperatorCompanyDto,
   type HostedAiOperatorOverviewDto,
   type HostedAiUsageTotalsDto,
@@ -141,36 +138,11 @@ function toUsageTotals(input: {
   };
 }
 
-function mapGlobalControl(control: {
-  id: string;
-  hostedProviderWorkPaused: boolean;
-  monthlySpendCapMicrocents: bigint | null;
-  reason: string;
-  version: number;
-  updatedByOperatorUserId: string;
-  createdAt: Date;
-  updatedAt: Date;
-}): HostedAiGlobalControlDto {
-  if (control.id !== "global") throw new Error("Hosted-AI global control is malformed.");
-
-  return {
-    id: "global",
-    hostedProviderWorkPaused: control.hostedProviderWorkPaused,
-    monthlySpendCapMicrocents: control.monthlySpendCapMicrocents?.toString() ?? null,
-    reason: control.reason,
-    version: control.version,
-    updatedByOperatorUserId: control.updatedByOperatorUserId,
-    createdAt: control.createdAt,
-    updatedAt: control.updatedAt,
-  };
-}
-
 export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
   private async createAudit(args: {
     action: AuditAction;
     targetCompanyId?: string | null;
     targetUserId?: string | null;
-    operationId?: string;
     reason?: string | null;
     metadata?: Prisma.InputJsonValue;
   }): Promise<void> {
@@ -181,19 +153,10 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         action: args.action,
         targetCompanyId: args.targetCompanyId ?? null,
         targetUserId: args.targetUserId ?? null,
-        operationId: args.operationId ?? randomUUID(),
         reason: args.reason ?? null,
         metadata: args.metadata,
       },
     });
-  }
-
-  private async getGlobalControlOrThrow() {
-    const control = await this.prisma.hostedAiGlobalControl.findUnique({
-      where: { id: "global" },
-    });
-    if (!control) return "unavailable";
-    return control;
   }
 
   private async usageTotals(companyId: string | null, now: Date): Promise<HostedAiUsageTotalsDto> {
@@ -441,8 +404,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
   @BypassTenantGuard
   async getOverviewUnscoped(now = new Date()): Promise<HostedAiOperatorOverviewDto | OperatorRefusal> {
     const month = utcMonth(now);
-    const [control, companies, enterpriseCompanies, users, activeUsers, usage, companiesWithUsage] = await Promise.all([
-      this.getGlobalControlOrThrow(),
+    const [companies, enterpriseCompanies, users, activeUsers, usage, companiesWithUsage] = await Promise.all([
       this.prisma.company.count(),
       this.prisma.subscription.count({
         where: { plan: SubscriptionPlan.enterprise },
@@ -465,8 +427,6 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
       }),
     ]);
 
-    if (control === "unavailable") return control;
-
     const result: HostedAiOperatorOverviewDto = {
       generatedAt: now,
       currentUtcMonth: {
@@ -476,7 +436,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         ...usage,
       },
       fleet: { companies, enterpriseCompanies, users, activeUsers },
-      globalControl: mapGlobalControl(control),
+      monthlySpendCapMicrocents: env.HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS?.toString() ?? null,
     };
     return result;
   }
@@ -588,27 +548,6 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         });
         if (!target) return "notFound";
 
-        const prior = await this.prisma.operatorAuditEvent.findUnique({
-          where: { operationId: data.operationId },
-        });
-        if (prior) {
-          const metadata = prior.metadata as Record<string, unknown> | null;
-          if (
-            prior.actorUserId !== actor.userId ||
-            prior.action !== OPERATOR_AUDIT_ACTION.userStatusUpdate ||
-            prior.targetCompanyId !== companyId ||
-            prior.targetUserId !== data.userId ||
-            prior.reason !== reason ||
-            metadata?.expectedUpdatedAt !== data.expectedUpdatedAt ||
-            metadata?.nextStatus !== data.status
-          )
-            return "conflict";
-
-          return this.userDetailOrThrow(data.userId, now);
-        }
-
-        if (target.updatedAt.toISOString() !== data.expectedUpdatedAt) return "conflict";
-
         if (actor.userId === data.userId && data.status !== Status.active) return "conflict";
 
         const statusChanged = target.status !== data.status;
@@ -662,10 +601,8 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           action: OPERATOR_AUDIT_ACTION.userStatusUpdate,
           targetCompanyId: companyId,
           targetUserId: data.userId,
-          operationId: data.operationId,
           reason,
           metadata: {
-            expectedUpdatedAt: data.expectedUpdatedAt,
             previousStatus: target.status,
             nextStatus: data.status,
           },
@@ -692,27 +629,6 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           select: { id: true, email: true, status: true, updatedAt: true, isPlatformOperator: true },
         });
         if (!target) return "notFound";
-
-        const prior = await this.prisma.operatorAuditEvent.findUnique({
-          where: { operationId: data.operationId },
-        });
-        if (prior) {
-          const metadata = prior.metadata as Record<string, unknown> | null;
-          if (
-            prior.actorUserId !== actor.userId ||
-            prior.action !== OPERATOR_AUDIT_ACTION.userPlatformAccessUpdate ||
-            prior.targetCompanyId !== companyId ||
-            prior.targetUserId !== data.userId ||
-            prior.reason !== reason ||
-            metadata?.expectedUpdatedAt !== data.expectedUpdatedAt ||
-            metadata?.nextIsPlatformOperator !== data.isPlatformOperator
-          )
-            return "conflict";
-
-          return this.userDetailOrThrow(data.userId, now);
-        }
-
-        if (target.updatedAt.toISOString() !== data.expectedUpdatedAt) return "conflict";
 
         if (actor.userId === data.userId) return "conflict";
 
@@ -748,10 +664,8 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           action: OPERATOR_AUDIT_ACTION.userPlatformAccessUpdate,
           targetCompanyId: companyId,
           targetUserId: data.userId,
-          operationId: data.operationId,
           reason,
           metadata: {
-            expectedUpdatedAt: data.expectedUpdatedAt,
             previousIsPlatformOperator: target.isPlatformOperator,
             nextIsPlatformOperator: data.isPlatformOperator,
           },
@@ -771,7 +685,6 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
     if (!companyId) return "notFound";
     return runInTransaction(
       async () => {
-        const actor = getOperatorActor();
         const reason = data.reason ?? null;
         const target = await this.prisma.user.findFirst({
           where: { id: data.userId, companyId },
@@ -779,33 +692,10 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         });
         if (!target) return "notFound";
 
-        const prior = await this.prisma.operatorAuditEvent.findUnique({
-          where: { operationId: data.operationId },
-        });
-        if (prior) {
-          const metadata = prior.metadata as Record<string, unknown> | null;
-          const next = metadata?.next as Record<string, unknown> | undefined;
-          if (
-            prior.actorUserId !== actor.userId ||
-            prior.action !== OPERATOR_AUDIT_ACTION.subscriptionSnapshotCorrect ||
-            prior.targetCompanyId !== companyId ||
-            prior.targetUserId !== data.userId ||
-            prior.reason !== reason ||
-            metadata?.expectedUpdatedAt !== data.expectedUpdatedAt ||
-            next?.plan !== data.plan ||
-            next?.status !== data.status ||
-            next?.quantity !== data.quantity
-          )
-            return "conflict";
-
-          return this.userDetailOrThrow(data.userId, now);
-        }
-
         const subscription = await this.prisma.subscription.findUnique({
           where: { companyId },
         });
         if (!subscription) return "notFound";
-        if (subscription.updatedAt.toISOString() !== data.expectedUpdatedAt) return "conflict";
 
         const previous = {
           plan: subscription.plan,
@@ -827,10 +717,8 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           action: OPERATOR_AUDIT_ACTION.subscriptionSnapshotCorrect,
           targetCompanyId: companyId,
           targetUserId: data.userId,
-          operationId: data.operationId,
           reason,
           metadata: {
-            expectedUpdatedAt: data.expectedUpdatedAt,
             previous,
             next,
             billingProviderManaged,
@@ -849,26 +737,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
   ): Promise<HostedAiOperatorCompanyDto | OperatorRefusal> {
     return runInTransaction(
       async () => {
-        const actor = getOperatorActor();
         const reason = data.reason ?? null;
-        const prior = await this.prisma.operatorAuditEvent.findUnique({
-          where: { operationId: data.operationId },
-        });
-        if (prior) {
-          const metadata = prior.metadata as Record<string, unknown> | null;
-          if (
-            prior.actorUserId !== actor.userId ||
-            prior.action !== OPERATOR_AUDIT_ACTION.enterpriseAllowanceUpdate ||
-            prior.targetCompanyId !== data.companyId ||
-            prior.reason !== reason ||
-            metadata?.creditsPerUser !== data.creditsPerUser
-          )
-            return "conflict";
-
-          const replay = await this.companySnapshot(data.companyId, now);
-          if (!replay) return "notFound";
-          return replay;
-        }
 
         const subscription = await this.prisma.subscription.findUnique({
           where: { companyId: data.companyId },
@@ -883,7 +752,6 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.enterpriseAllowanceUpdate,
           targetCompanyId: data.companyId,
-          operationId: data.operationId,
           reason,
           metadata: {
             creditsPerUser: data.creditsPerUser,
@@ -1019,7 +887,6 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           action: OPERATOR_AUDIT_ACTION.creditAdjustmentCreate,
           targetCompanyId: data.companyId,
           targetUserId: data.userId,
-          operationId: data.operationId,
           reason,
           metadata: {
             creditDelta: data.creditDelta,
@@ -1044,40 +911,10 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
       async () => {
         const actor = getOperatorActor();
         const reason = data.reason ?? null;
-        const [existing, priorAudit] = await Promise.all([
-          this.prisma.agentCreditAdjustment.findUnique({
-            where: { operationId: data.operationId },
-          }),
-          this.prisma.operatorAuditEvent.findUnique({
-            where: { operationId: data.operationId },
-          }),
-        ]);
-        if (existing || priorAudit) {
-          const metadata = priorAudit?.metadata as Record<string, unknown> | null | undefined;
-          if (
-            !existing ||
-            !priorAudit ||
-            existing.companyId !== companyId ||
-            existing.userId !== data.userId ||
-            existing.reason !== reason ||
-            existing.createdByOperatorUserId !== actor.userId ||
-            priorAudit.actorUserId !== actor.userId ||
-            priorAudit.action !== OPERATOR_AUDIT_ACTION.creditBalanceReset ||
-            priorAudit.targetCompanyId !== companyId ||
-            priorAudit.targetUserId !== data.userId ||
-            priorAudit.reason !== reason ||
-            metadata?.mode !== data.mode ||
-            metadata?.expectedPeriodStart !== data.expectedPeriodStart ||
-            metadata?.expectedPeriodEnd !== data.expectedPeriodEnd ||
-            metadata?.expectedBaseAllowanceCredits !== data.expectedBaseAllowanceCredits ||
-            metadata?.expectedAdjustmentCredits !== data.expectedAdjustmentCredits ||
-            metadata?.expectedCommittedCredits !== data.expectedCommittedCredits ||
-            metadata?.creditDelta !== existing.creditDelta ||
-            metadata?.periodStart !== existing.periodStart.toISOString() ||
-            metadata?.periodEnd !== existing.periodEnd.toISOString()
-          )
-            return "conflict";
-
+        const existing = await this.prisma.agentCreditAdjustment.findUnique({
+          where: { operationId: data.operationId },
+        });
+        if (existing) {
           return {
             adjustment: existing,
             user: await this.userDetailOrThrow(data.userId, now),
@@ -1094,15 +931,6 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
 
         const credit = await this.userCreditPeriod(user, now);
         if (!credit) return "unavailable";
-        if (
-          credit.periodStart.toISOString() !== data.expectedPeriodStart ||
-          credit.periodEnd.toISOString() !== data.expectedPeriodEnd ||
-          credit.baseAllowanceCredits !== data.expectedBaseAllowanceCredits ||
-          credit.adjustmentCredits !== data.expectedAdjustmentCredits ||
-          credit.committedCredits !== data.expectedCommittedCredits
-        )
-          return "conflict";
-
         const currentAllowance = credit.baseAllowanceCredits + credit.adjustmentCredits;
         if (!Number.isSafeInteger(currentAllowance)) throw new Error("Current hosted-AI allowance is invalid.");
 
@@ -1132,15 +960,9 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           action: OPERATOR_AUDIT_ACTION.creditBalanceReset,
           targetCompanyId: companyId,
           targetUserId: data.userId,
-          operationId: data.operationId,
           reason,
           metadata: {
             mode: data.mode,
-            expectedPeriodStart: data.expectedPeriodStart,
-            expectedPeriodEnd: data.expectedPeriodEnd,
-            expectedBaseAllowanceCredits: data.expectedBaseAllowanceCredits,
-            expectedAdjustmentCredits: data.expectedAdjustmentCredits,
-            expectedCommittedCredits: data.expectedCommittedCredits,
             periodStart: credit.periodStart.toISOString(),
             periodEnd: credit.periodEnd.toISOString(),
             baseAllowanceCredits: credit.baseAllowanceCredits,

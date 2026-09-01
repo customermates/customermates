@@ -45,11 +45,21 @@ if (sourceDatabaseUrl) {
   delete (globalThis as { prisma?: unknown }).prisma;
 }
 
+const hostedAiConfig = vi.hoisted(() => ({ paused: false, cap: null as bigint | null }));
+
 vi.mock("@/env", () => ({
   env: {
     APP_MODE: "cloud",
-    DATABASE_URL: process.env.DATABASE_URL,
+    get DATABASE_URL() {
+      return process.env.DATABASE_URL;
+    },
     HOSTED_AI_OPERATOR_CONTROLS_ENABLED: true,
+    get HOSTED_AI_PROVIDER_WORK_PAUSED() {
+      return hostedAiConfig.paused;
+    },
+    get HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS() {
+      return hostedAiConfig.cap;
+    },
     NODE_ENV: "test",
   },
 }));
@@ -95,18 +105,9 @@ async function seedSeat(): Promise<Seat> {
   return seat;
 }
 
-async function configureControl(args: { paused: boolean; cap: bigint | null }) {
-  await runWithoutTenant(() =>
-    prisma.hostedAiGlobalControl.update({
-      where: { id: "global" },
-      data: {
-        hostedProviderWorkPaused: args.paused,
-        monthlySpendCapMicrocents: args.cap,
-        reason: "Global admission database test",
-        updatedByOperatorUserId: "test:operator",
-      },
-    }),
-  );
+function configureControl(args: { paused: boolean; cap: bigint | null }) {
+  hostedAiConfig.paused = args.paused;
+  hostedAiConfig.cap = args.cap;
 }
 
 function reserve(repo: InstanceType<typeof PrismaAgentChatRepo>, seat: Seat, credits: number) {
@@ -131,31 +132,14 @@ function withAdmissionSnapshotBarrier(
   commitTransition: () => Promise<void>,
 ): Prisma.TransactionClient {
   let rawQueryCount = 0;
-  let aggregateCount = 0;
-  const usageDelegate = new Proxy(transaction.agentUsageEvent, {
-    get(target, property) {
-      const value = Reflect.get(target, property, target);
-      if (property === "aggregate" && typeof value === "function") {
-        return async (...args: unknown[]) => {
-          const result = await Reflect.apply(value, target, args);
-          aggregateCount += 1;
-          if (aggregateCount === 1) await commitTransition();
-          return result;
-        };
-      }
-      return typeof value === "function" ? value.bind(target) : value;
-    },
-  });
 
   return new Proxy(transaction, {
     get(target, property) {
-      if (property === "agentUsageEvent") return usageDelegate;
-
       const value = Reflect.get(target, property, target);
       if (property === "$queryRaw" && typeof value === "function") {
         return async (...args: unknown[]) => {
           rawQueryCount += 1;
-          if (rawQueryCount === 2) await commitTransition();
+          if (rawQueryCount === 1) await commitTransition();
           return Reflect.apply(value, target, args);
         };
       }
@@ -190,10 +174,10 @@ describeDatabase(
     it("fails closed when the finite cap is missing or provider work is paused", async () => {
       const repo = new PrismaAgentChatRepo();
 
-      await configureControl({ paused: false, cap: null });
+      configureControl({ paused: false, cap: null });
       await expect(reserve(repo, seats[0], 1)).resolves.toBe(false);
 
-      await configureControl({
+      configureControl({
         paused: true,
         cap: 100n * BigInt(AGENT_CREDIT_MICROCENTS),
       });
@@ -208,7 +192,7 @@ describeDatabase(
       const repo = new PrismaAgentChatRepo();
       const settledCredits = 2;
       const competingReservationCredits = 3;
-      await configureControl({
+      configureControl({
         paused: false,
         cap: BigInt(settledCredits + competingReservationCredits) * BigInt(AGENT_CREDIT_MICROCENTS),
       });
@@ -256,7 +240,7 @@ describeDatabase(
       const repo = new PrismaAgentChatRepo();
       const committedCredits = 4;
       const transitioningId = randomUUID();
-      await configureControl({
+      configureControl({
         paused: false,
         cap: BigInt(committedCredits) * BigInt(AGENT_CREDIT_MICROCENTS),
       });
@@ -334,7 +318,7 @@ describeDatabase(
 
     it("keeps retained uncertain-provider exposure committed against the global cap", async () => {
       const retainedCredits = 4;
-      await configureControl({
+      configureControl({
         paused: false,
         cap: BigInt(retainedCredits) * BigInt(AGENT_CREDIT_MICROCENTS),
       });

@@ -295,14 +295,14 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
     const persisted = await runWithoutTenant(async () => ({
       adjustments: await prisma.agentCreditAdjustment.count({ where: { operationId } }),
       rejectedAdjustments: await prisma.agentCreditAdjustment.count({ where: { operationId: rejectedOperationId } }),
-      auditEvents: await prisma.operatorAuditEvent.count({ where: { operationId } }),
-      rejectedAuditEvents: await prisma.operatorAuditEvent.count({ where: { operationId: rejectedOperationId } }),
+      auditEvents: await prisma.operatorAuditEvent.count({
+        where: { action: OPERATOR_AUDIT_ACTION.creditAdjustmentCreate },
+      }),
     }));
     expect(persisted).toEqual({
       adjustments: 1,
       rejectedAdjustments: 0,
       auditEvents: 1,
-      rejectedAuditEvents: 0,
     });
   });
 
@@ -318,7 +318,6 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
             companyId: target.companyId,
             creditsPerUser: 50,
             reason: "Exercise atomic audit rollback",
-            operationId: randomUUID(),
           },
           now,
         ),
@@ -352,42 +351,33 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
             const elsewhere = await createPlatformAccessUser(tx, { isPlatformOperator: true });
             const repo = new PrismaOperatorRepo();
 
-            const targetBefore = await tx.user.findUniqueOrThrow({ where: { id: target.userId } });
             const granted = await repo.updateUserPlatformAccessUnscoped(
               {
                 userId: target.userId,
-                expectedUpdatedAt: targetBefore.updatedAt.toISOString(),
                 isPlatformOperator: true,
                 reason: "Grant operator access for this exercise",
-                operationId: randomUUID(),
               },
               now,
             );
             assertAdmitted(granted);
 
-            const elsewhereBefore = await tx.user.findUniqueOrThrow({ where: { id: elsewhere.userId } });
             const otherRevoked = await repo.updateUserPlatformAccessUnscoped(
               {
                 userId: elsewhere.userId,
-                expectedUpdatedAt: elsewhereBefore.updatedAt.toISOString(),
                 isPlatformOperator: false,
                 reason: "Revoke the operator in the other workspace",
-                operationId: randomUUID(),
               },
               now,
             );
             assertAdmitted(otherRevoked);
 
-            const targetAfter = await tx.user.findUniqueOrThrow({ where: { id: target.userId } });
             let lastOperatorRejected = false;
             {
               const outcome = await repo.updateUserPlatformAccessUnscoped(
                 {
                   userId: target.userId,
-                  expectedUpdatedAt: targetAfter.updatedAt.toISOString(),
                   isPlatformOperator: false,
                   reason: "Attempt to remove the final active operator",
-                  operationId: randomUUID(),
                 },
                 now,
               );
@@ -421,8 +411,8 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
     });
   });
 
-  it("refuses a self change, an ineligible grant target, and a stale expectation", async () => {
-    let observed: { self: boolean; inactive: boolean; unverified: boolean; stale: boolean } | null = null;
+  it("refuses a self change and an ineligible grant target", async () => {
+    let observed: { self: boolean; inactive: boolean; unverified: boolean } | null = null;
 
     try {
       await runWithoutTenant(() =>
@@ -432,15 +422,13 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
           await tx.user.updateMany({ where: { isPlatformOperator: true }, data: { isPlatformOperator: false } });
 
           const repo = new PrismaOperatorRepo();
-          const rejects = async (actor: OperatorActor, userId: string, expectedUpdatedAt: string) => {
+          const rejects = async (actor: OperatorActor, userId: string) => {
             const outcome = await runWithOperator(actor, () =>
               repo.updateUserPlatformAccessUnscoped(
                 {
                   userId,
-                  expectedUpdatedAt,
                   isPlatformOperator: true,
                   reason: "Exercise the platform access guards",
-                  operationId: randomUUID(),
                 },
                 now,
               ),
@@ -452,14 +440,10 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
           const own = await createPlatformAccessUser(tx, {});
           const inactive = await createPlatformAccessUser(tx, { status: "inactive" });
           const unverified = await createPlatformAccessUser(tx, { emailVerified: false });
-          const stamp = async (userId: string) =>
-            (await tx.user.findUniqueOrThrow({ where: { id: userId } })).updatedAt.toISOString();
-
           observed = {
-            self: await rejects(operatorActor(own.userId), own.userId, await stamp(own.userId)),
-            inactive: await rejects(operatorActor(), inactive.userId, await stamp(inactive.userId)),
-            unverified: await rejects(operatorActor(), unverified.userId, await stamp(unverified.userId)),
-            stale: await rejects(operatorActor(), own.userId, new Date("2020-01-01T00:00:00.000Z").toISOString()),
+            self: await rejects(operatorActor(own.userId), own.userId),
+            inactive: await rejects(operatorActor(), inactive.userId),
+            unverified: await rejects(operatorActor(), unverified.userId),
           };
 
           throw new RollbackOperatorTest();
@@ -469,6 +453,6 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
       if (!(error instanceof RollbackOperatorTest)) throw error;
     }
 
-    expect(observed).toEqual({ self: true, inactive: true, unverified: true, stale: true });
+    expect(observed).toEqual({ self: true, inactive: true, unverified: true });
   });
 });

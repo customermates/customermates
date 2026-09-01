@@ -32,8 +32,6 @@ export function OperatorWorkspaceAllowancePopover({ workspace }: Props) {
     const creditsPerUser = Number(credits);
     if (!Number.isInteger(creditsPerUser) || creditsPerUser < 1) return;
 
-    const operationId = globalThis.crypto.randomUUID();
-
     showConfirmation({
       title: t("OperatorConsole.confirm.title"),
       message: t("OperatorConsole.confirm.allowance", {
@@ -47,7 +45,6 @@ export function OperatorWorkspaceAllowancePopover({ workspace }: Props) {
         const committed = await operatorWorkspacesStore.updateEnterpriseAllowance({
           companyId: workspace.id,
           creditsPerUser,
-          operationId,
         });
         if (committed) setIsOpen(false);
         return committed;

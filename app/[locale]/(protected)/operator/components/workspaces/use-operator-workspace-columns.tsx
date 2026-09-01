@@ -46,14 +46,12 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
             options={options.plan}
             readOnly={!row.original.ownerUserId || !row.original.subscriptionUpdatedAt}
             value={row.original.plan}
-            onCommit={(value, operationId) =>
+            onCommit={(value) =>
               operatorWorkspacesStore.correctSubscription({
                 userId: row.original.ownerUserId ?? "",
-                expectedUpdatedAt: (row.original.subscriptionUpdatedAt ?? new Date(0)).toISOString(),
                 plan: value as SubscriptionPlan,
                 status: row.original.subscriptionStatus as SubscriptionStatus,
                 quantity: row.original.seats,
-                operationId,
               })
             }
           />
@@ -72,14 +70,12 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
             options={options.subscription}
             readOnly={!row.original.ownerUserId || !row.original.subscriptionUpdatedAt}
             value={row.original.subscriptionStatus}
-            onCommit={(value, operationId) =>
+            onCommit={(value) =>
               operatorWorkspacesStore.correctSubscription({
                 userId: row.original.ownerUserId ?? "",
-                expectedUpdatedAt: (row.original.subscriptionUpdatedAt ?? new Date(0)).toISOString(),
                 plan: row.original.plan as SubscriptionPlan,
                 status: value as SubscriptionStatus,
                 quantity: row.original.seats,
-                operationId,
               })
             }
           />

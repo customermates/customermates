@@ -16,7 +16,6 @@ describe("operator input contracts", () => {
     const base = {
       companyId: operationId,
       reason: "Contracted allowance",
-      operationId,
     };
     expect(
       UpdateHostedAiEnterpriseAllowanceSchema.safeParse({
@@ -52,12 +51,10 @@ describe("operator input contracts", () => {
     ).toBe(false);
   });
 
-  it("requires optimistic timestamps and a positive or null subscription quantity", () => {
+  it("requires a positive or null subscription quantity", () => {
     const base = {
       userId: operationId,
-      expectedUpdatedAt: "2026-08-28T12:00:00.000Z",
       reason: "Correct the local snapshot",
-      operationId,
     };
     expect(UpdateOperatorUserStatusSchema.safeParse({ ...base, status: "inactive" }).success).toBe(true);
     expect(
@@ -76,23 +73,11 @@ describe("operator input contracts", () => {
         quantity: 0,
       }).success,
     ).toBe(false);
-    expect(
-      UpdateOperatorUserStatusSchema.safeParse({
-        ...base,
-        expectedUpdatedAt: "yesterday",
-        status: "active",
-      }).success,
-    ).toBe(false);
   });
 
   it("accepts only the two append-only credit reset modes", () => {
     const base = {
       userId: operationId,
-      expectedPeriodStart: "2026-08-01T08:00:00.000Z",
-      expectedPeriodEnd: "2026-09-01T08:00:00.000Z",
-      expectedBaseAllowanceCredits: 10,
-      expectedAdjustmentCredits: -2,
-      expectedCommittedCredits: 8,
       reason: "Reconcile the user balance",
       operationId,
     };
@@ -106,13 +91,6 @@ describe("operator input contracts", () => {
     expect(
       ResetOperatorUserCreditsSchema.safeParse({
         ...base,
-        mode: "zeroBalance",
-        expectedCommittedCredits: -1,
-      }).success,
-    ).toBe(false);
-    expect(
-      ResetOperatorUserCreditsSchema.safeParse({
-        ...base,
         mode: "deleteLedger",
       }).success,
     ).toBe(false);
@@ -121,9 +99,7 @@ describe("operator input contracts", () => {
   it("accepts only an explicit platform-access boolean and rejects unknown keys", () => {
     const base = {
       userId: operationId,
-      expectedUpdatedAt: "2026-08-28T12:00:00.000Z",
       reason: "Grant operator access for the on-call rotation",
-      operationId,
     };
     expect(UpdateOperatorUserPlatformAccessSchema.safeParse({ ...base, isPlatformOperator: true }).success).toBe(true);
     expect(UpdateOperatorUserPlatformAccessSchema.safeParse({ ...base, isPlatformOperator: false }).success).toBe(true);
@@ -143,9 +119,7 @@ describe("operator input contracts", () => {
   it("treats an operator reason as optional and reads a blank one as absent", () => {
     const base = {
       userId: operationId,
-      expectedUpdatedAt: "2026-08-28T12:00:00.000Z",
       isPlatformOperator: true,
-      operationId,
     };
 
     expect(UpdateOperatorUserPlatformAccessSchema.safeParse(base).data?.reason).toBeUndefined();

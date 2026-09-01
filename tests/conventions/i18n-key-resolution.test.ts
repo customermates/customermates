@@ -158,6 +158,7 @@ const TABLE_COLUMN_KEYS = [
   "Common.table.columns.events",
   "Common.table.columns.expiresAt",
   "Common.table.columns.firstName",
+  "Common.table.columns.googleAdsClickId",
   "Common.table.columns.id",
   "Common.table.columns.identifiers",
   "Common.table.columns.isSystemRole",

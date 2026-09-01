@@ -86,11 +86,6 @@ export function OperatorUserCreditsPopover({ user }: Props) {
         operatorUsersStore.resetCredits({
           userId: user.id,
           mode,
-          expectedPeriodStart: period.periodStart.toISOString(),
-          expectedPeriodEnd: period.periodEnd.toISOString(),
-          expectedBaseAllowanceCredits: period.baseAllowanceCredits,
-          expectedAdjustmentCredits: period.adjustmentCredits,
-          expectedCommittedCredits: period.committedCredits,
           operationId,
         }),
     });

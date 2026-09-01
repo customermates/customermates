@@ -230,7 +230,7 @@ describeDatabase("operator user administration against a real database", { timeo
     expect(audits).toHaveLength(0);
   });
 
-  it("rejects self-lockout, stale writes, and last-system-user removal while preserving activation semantics", async () => {
+  it("rejects self-lockout and last-system-user removal while preserving activation semantics", async () => {
     const companyId = await createCompany();
     const role = await runWithoutTenant(() =>
       prisma.userRole.create({
@@ -264,17 +264,14 @@ describeDatabase("operator user administration against a real database", { timeo
         },
       }),
     );
-    const targetBefore = await runWithoutTenant(() => prisma.user.findUniqueOrThrow({ where: { id: target.userId } }));
 
     await expect(
       runWithOperator(operatorActor(target.userId), () =>
         repo.updateUserStatusUnscoped(
           {
             userId: target.userId,
-            expectedUpdatedAt: targetBefore.updatedAt.toISOString(),
             status: "inactive",
             reason: "Exercise self lockout protection",
-            operationId: randomUUID(),
           },
           publishUserUpdated,
           now,
@@ -288,10 +285,8 @@ describeDatabase("operator user administration against a real database", { timeo
         repo.updateUserStatusUnscoped(
           {
             userId: target.userId,
-            expectedUpdatedAt: targetBefore.updatedAt.toISOString(),
             status: "pendingAuthorization",
             reason: "Exercise last system user protection",
-            operationId: randomUUID(),
           },
           publishUserUpdated,
           now,
@@ -299,15 +294,12 @@ describeDatabase("operator user administration against a real database", { timeo
       ),
     ).resolves.toBe("conflict");
 
-    const backupBefore = await runWithoutTenant(() => prisma.user.findUniqueOrThrow({ where: { id: backup.userId } }));
     const activated = await runWithOperator(actor, () =>
       repo.updateUserStatusUnscoped(
         {
           userId: backup.userId,
-          expectedUpdatedAt: backupBefore.updatedAt.toISOString(),
           status: "active",
           reason: "Restore a second system administrator",
-          operationId: randomUUID(),
         },
         publishUserUpdated,
         now,
@@ -321,40 +313,26 @@ describeDatabase("operator user administration against a real database", { timeo
       expect.objectContaining({ companyId, userId: backup.userId, status: "active" }),
     );
 
-    await expect(
-      runWithOperator(actor, () =>
-        repo.updateUserStatusUnscoped(
-          {
-            userId: target.userId,
-            expectedUpdatedAt: "2000-01-01T00:00:00.000Z",
-            status: "inactive",
-            reason: "Exercise stale status protection",
-            operationId: randomUUID(),
-          },
-          publishUserUpdated,
-          now,
-        ),
-      ),
-    ).resolves.toBe("conflict");
-
-    const operationId = randomUUID();
     const request = {
       userId: target.userId,
-      expectedUpdatedAt: targetBefore.updatedAt.toISOString(),
       status: "inactive" as const,
-      operationId,
     };
     const first = await runWithOperator(actor, () => repo.updateUserStatusUnscoped(request, publishUserUpdated, now));
     assertAdmitted(first);
-    const replay = await runWithOperator(actor, () => repo.updateUserStatusUnscoped(request, publishUserUpdated, now));
-    assertAdmitted(replay);
+    const repeated = await runWithOperator(actor, () =>
+      repo.updateUserStatusUnscoped(request, publishUserUpdated, now),
+    );
+    assertAdmitted(repeated);
     expect(first.status).toBe("inactive");
     expect(first.agentCreditActivatedAt).toBeNull();
-    expect(replay.status).toBe("inactive");
-    await expect(runWithoutTenant(() => prisma.operatorAuditEvent.count({ where: { operationId } }))).resolves.toBe(1);
-    await expect(
-      runWithoutTenant(() => prisma.operatorAuditEvent.findUniqueOrThrow({ where: { operationId } })),
-    ).resolves.toMatchObject({ reason: null });
+    expect(repeated.status).toBe("inactive");
+    const statusAudits = await runWithoutTenant(() =>
+      prisma.operatorAuditEvent.findMany({
+        where: { action: OPERATOR_AUDIT_ACTION.userStatusUpdate, targetUserId: request.userId },
+      }),
+    );
+    expect(statusAudits).toHaveLength(2);
+    expect(statusAudits.every(({ reason }) => reason === null)).toBe(true);
 
     const rollbackTarget = await createUser({
       companyId,
@@ -374,16 +352,13 @@ describeDatabase("operator user administration against a real database", { timeo
     const rollbackBefore = await runWithoutTenant(() =>
       prisma.user.findUniqueOrThrow({ where: { id: rollbackTarget.userId } }),
     );
-    const rollbackOperationId = randomUUID();
     await expect(
       runWithOperator(actor, () =>
         repo.updateUserStatusUnscoped(
           {
             userId: rollbackTarget.userId,
-            expectedUpdatedAt: rollbackBefore.updatedAt.toISOString(),
             status: "active",
             reason: "Exercise canonical event rollback",
-            operationId: rollbackOperationId,
           },
           () => Promise.reject(new Error("event persistence failed")),
           now,
@@ -392,16 +367,16 @@ describeDatabase("operator user administration against a real database", { timeo
     ).rejects.toThrow("event persistence failed");
     await expect(
       runWithoutTenant(() => prisma.user.findUniqueOrThrow({ where: { id: rollbackTarget.userId } })),
-    ).resolves.toMatchObject({ status: "pendingAuthorization", agentCreditActivatedAt: null });
+    ).resolves.toEqual(rollbackBefore);
     await expect(
       runWithoutTenant(() => prisma.task.findUnique({ where: { id: rollbackTask.id } })),
     ).resolves.not.toBeNull();
     await expect(
-      runWithoutTenant(() => prisma.operatorAuditEvent.findUnique({ where: { operationId: rollbackOperationId } })),
-    ).resolves.toBeNull();
+      runWithoutTenant(() => prisma.operatorAuditEvent.count({ where: { targetUserId: rollbackTarget.userId } })),
+    ).resolves.toBe(0);
   });
 
-  it("corrects provider-backed local snapshots without touching provider or period fields and replays idempotently", async () => {
+  it("corrects provider-backed local snapshots without touching provider or period fields", async () => {
     const providerId = `provider-${randomUUID()}`;
     const companyId = await createCompany({
       plan: "pro",
@@ -423,37 +398,17 @@ describeDatabase("operator user administration against a real database", { timeo
     const repo = new PrismaOperatorRepo();
     const before = await runWithoutTenant(() => prisma.subscription.findUniqueOrThrow({ where: { companyId } }));
 
-    await expect(
-      runWithOperator(actor, () =>
-        repo.correctSubscriptionSnapshotUnscoped(
-          {
-            userId: target.userId,
-            expectedUpdatedAt: "2000-01-01T00:00:00.000Z",
-            plan: "business",
-            status: "pastDue",
-            quantity: 3,
-            reason: "Exercise stale subscription protection",
-            operationId: randomUUID(),
-          },
-          now,
-        ),
-      ),
-    ).resolves.toBe("conflict");
-
-    const operationId = randomUUID();
     const request = {
       userId: target.userId,
-      expectedUpdatedAt: before.updatedAt.toISOString(),
       plan: "enterprise" as const,
       status: "pastDue" as const,
       quantity: 3,
       reason: "Correct a provider-managed local snapshot",
-      operationId,
     };
     const first = await runWithOperator(actor, () => repo.correctSubscriptionSnapshotUnscoped(request, now));
     assertAdmitted(first);
-    const replay = await runWithOperator(actor, () => repo.correctSubscriptionSnapshotUnscoped(request, now));
-    assertAdmitted(replay);
+    const repeated = await runWithOperator(actor, () => repo.correctSubscriptionSnapshotUnscoped(request, now));
+    assertAdmitted(repeated);
     expect(first.subscription).toMatchObject({
       plan: "enterprise",
       status: "pastDue",
@@ -464,7 +419,7 @@ describeDatabase("operator user administration against a real database", { timeo
       allowed: false,
       blockedReason: "provider_managed_seat_sync_required",
     });
-    expect(replay.subscription).toMatchObject({
+    expect(repeated.subscription).toMatchObject({
       plan: "enterprise",
       status: "pastDue",
       quantity: 3,
@@ -481,13 +436,19 @@ describeDatabase("operator user administration against a real database", { timeo
       status: "pastDue",
       quantity: 3,
     });
-    const audit = await runWithoutTenant(() => prisma.operatorAuditEvent.findUniqueOrThrow({ where: { operationId } }));
-    expect(audit.metadata).toMatchObject({
-      expectedUpdatedAt: before.updatedAt.toISOString(),
-      billingProviderManaged: true,
-      previous: { plan: "pro", status: "active", quantity: 2 },
-      next: { plan: "enterprise", status: "pastDue", quantity: 3 },
-    });
+    const snapshotAudits = await runWithoutTenant(() =>
+      prisma.operatorAuditEvent.findMany({
+        where: { action: OPERATOR_AUDIT_ACTION.subscriptionSnapshotCorrect, targetUserId: target.userId },
+      }),
+    );
+    expect(snapshotAudits).toHaveLength(2);
+    expect(snapshotAudits.map(({ metadata }) => metadata)).toContainEqual(
+      expect.objectContaining({
+        billingProviderManaged: true,
+        previous: { plan: "pro", status: "active", quantity: 2 },
+        next: { plan: "enterprise", status: "pastDue", quantity: 3 },
+      }),
+    );
 
     const userBeforeStatus = await runWithoutTenant(() =>
       prisma.user.findUniqueOrThrow({ where: { id: target.userId } }),
@@ -498,10 +459,8 @@ describeDatabase("operator user administration against a real database", { timeo
         repo.updateUserStatusUnscoped(
           {
             userId: target.userId,
-            expectedUpdatedAt: userBeforeStatus.updatedAt.toISOString(),
             status: "inactive",
             reason: "Do not drift a provider-managed seat quantity",
-            operationId: randomUUID(),
           },
           publishUserUpdated,
           now,
@@ -511,19 +470,17 @@ describeDatabase("operator user administration against a real database", { timeo
     expect(publishUserUpdated).not.toHaveBeenCalled();
     await expect(
       runWithoutTenant(() => prisma.user.findUniqueOrThrow({ where: { id: target.userId } })),
-    ).resolves.toMatchObject({ status: "active" });
+    ).resolves.toEqual(userBeforeStatus);
 
     await expect(
       runWithOperator(actor, () =>
         repo.correctSubscriptionSnapshotUnscoped(
           {
             userId: missing.userId,
-            expectedUpdatedAt: now.toISOString(),
             plan: "pro",
             status: "active",
             quantity: 1,
             reason: "Do not create a missing subscription",
-            operationId: randomUUID(),
           },
           now,
         ),
@@ -584,81 +541,10 @@ describeDatabase("operator user administration against a real database", { timeo
       }),
     );
 
-    const initialCreditPosition = {
-      expectedPeriodStart: periodStart.toISOString(),
-      expectedPeriodEnd: periodEnd.toISOString(),
-      expectedBaseAllowanceCredits: 10,
-      expectedAdjustmentCredits: 4,
-      expectedCommittedCredits: 6,
-    };
-    const staleRequests = [
-      { ...initialCreditPosition, expectedPeriodStart: "2026-07-01T08:00:00.000Z" },
-      { ...initialCreditPosition, expectedAdjustmentCredits: 3 },
-      { ...initialCreditPosition, expectedCommittedCredits: 5 },
-    ].map((position) => ({
-      userId: target.userId,
-      mode: "baseAllowance" as const,
-      ...position,
-      reason: "Reject a stale credit reset snapshot",
-      operationId: randomUUID(),
-    }));
-    for (const request of staleRequests)
-      await expect(runWithOperator(actor, () => repo.resetUserCreditsUnscoped(request, now))).resolves.toBe("conflict");
-
-    await expect(
-      runWithoutTenant(() =>
-        prisma.agentCreditAdjustment.count({
-          where: { operationId: { in: staleRequests.map(({ operationId }) => operationId) } },
-        }),
-      ),
-    ).resolves.toBe(0);
-    await expect(
-      runWithoutTenant(() =>
-        prisma.operatorAuditEvent.count({
-          where: { operationId: { in: staleRequests.map(({ operationId }) => operationId) } },
-        }),
-      ),
-    ).resolves.toBe(0);
-
-    const staleBaseOperationId = randomUUID();
-    await runWithoutTenant(() =>
-      prisma.subscription.update({
-        where: { companyId },
-        data: { enterpriseAgentCreditsPerUser: 11 },
-      }),
-    );
-    await expect(
-      runWithOperator(actor, () =>
-        repo.resetUserCreditsUnscoped(
-          {
-            userId: target.userId,
-            mode: "baseAllowance",
-            ...initialCreditPosition,
-            reason: "Reject a reset after the base allowance changed",
-            operationId: staleBaseOperationId,
-          },
-          now,
-        ),
-      ),
-    ).resolves.toBe("conflict");
-    await expect(
-      runWithoutTenant(() => prisma.agentCreditAdjustment.findUnique({ where: { operationId: staleBaseOperationId } })),
-    ).resolves.toBeNull();
-    await expect(
-      runWithoutTenant(() => prisma.operatorAuditEvent.findUnique({ where: { operationId: staleBaseOperationId } })),
-    ).resolves.toBeNull();
-    await runWithoutTenant(() =>
-      prisma.subscription.update({
-        where: { companyId },
-        data: { enterpriseAgentCreditsPerUser: 10 },
-      }),
-    );
-
     const baseOperationId = randomUUID();
     const baseRequest = {
       userId: target.userId,
       mode: "baseAllowance" as const,
-      ...initialCreditPosition,
       reason: "Return allowance to the contracted base",
       operationId: baseOperationId,
     };
@@ -674,25 +560,10 @@ describeDatabase("operator user administration against a real database", { timeo
       remainingCredits: 4,
     });
     expect(baseReplay.adjustment).toEqual(base.adjustment);
-    await expect(
-      runWithOperator(actor, () =>
-        repo.resetUserCreditsUnscoped({ ...baseRequest, expectedBaseAllowanceCredits: 11 }, now),
-      ),
-    ).resolves.toBe("conflict");
-    await expect(
-      runWithoutTenant(() => prisma.operatorAuditEvent.findUniqueOrThrow({ where: { operationId: baseOperationId } })),
-    ).resolves.toMatchObject({
-      metadata: expect.objectContaining({ expectedBaseAllowanceCredits: 10 }),
-    });
 
     const zeroRequests = [randomUUID(), randomUUID()].map((operationId) => ({
       userId: target.userId,
       mode: "zeroBalance" as const,
-      expectedPeriodStart: periodStart.toISOString(),
-      expectedPeriodEnd: periodEnd.toISOString(),
-      expectedBaseAllowanceCredits: 10,
-      expectedAdjustmentCredits: 0,
-      expectedCommittedCredits: 6,
       reason: "Set the remaining balance to zero",
       operationId,
     }));
@@ -729,11 +600,6 @@ describeDatabase("operator user administration against a real database", { timeo
           {
             userId: target.userId,
             mode: "zeroBalance",
-            expectedPeriodStart: periodStart.toISOString(),
-            expectedPeriodEnd: periodEnd.toISOString(),
-            expectedBaseAllowanceCredits: 10,
-            expectedAdjustmentCredits: -4,
-            expectedCommittedCredits: 6,
             reason: "Exercise the zero-balance no-op guard",
             operationId: randomUUID(),
           },
@@ -759,10 +625,10 @@ describeDatabase("operator user administration against a real database", { timeo
     await expect(
       runWithoutTenant(() =>
         prisma.operatorAuditEvent.count({
-          where: { operationId: baseOperationId },
+          where: { action: OPERATOR_AUDIT_ACTION.creditBalanceReset, targetUserId: target.userId },
         }),
       ),
-    ).resolves.toBe(1);
+    ).resolves.toBe(2);
     await expect(
       runWithoutTenant(() =>
         prisma.agentCreditAdjustment.count({
@@ -830,11 +696,6 @@ describeDatabase("operator user administration against a real database", { timeo
           {
             userId: target.userId,
             mode: "baseAllowance",
-            expectedPeriodStart: periodStart.toISOString(),
-            expectedPeriodEnd: periodEnd.toISOString(),
-            expectedBaseAllowanceCredits: 5,
-            expectedAdjustmentCredits: 2,
-            expectedCommittedCredits: 6,
             reason: "Exercise the committed lower bound",
             operationId,
           },
@@ -846,7 +707,11 @@ describeDatabase("operator user administration against a real database", { timeo
       runWithoutTenant(() => prisma.agentCreditAdjustment.findUnique({ where: { operationId } })),
     ).resolves.toBeNull();
     await expect(
-      runWithoutTenant(() => prisma.operatorAuditEvent.findUnique({ where: { operationId } })),
-    ).resolves.toBeNull();
+      runWithoutTenant(() =>
+        prisma.operatorAuditEvent.count({
+          where: { action: OPERATOR_AUDIT_ACTION.creditAdjustmentCreate, targetUserId: target.userId },
+        }),
+      ),
+    ).resolves.toBe(0);
   });
 });

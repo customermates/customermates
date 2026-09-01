@@ -27,13 +27,14 @@ const { prisma } = await import("@/prisma/db");
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 
 const inFilter = (field: string, value: string[]): Filter => ({ field, operator: FilterOperatorKey.in, value });
+const presenceFilter = (field: string, operator: FilterOperatorKey): Filter => ({ field, operator }) as Filter;
 const companyIds: string[] = [];
 
 async function seedWorkspace(args: {
   domain: string;
   plan: "starter" | "pro" | "business" | "enterprise";
   status: "trial" | "active" | "cancelled" | "expired" | "pastDue" | "unPaid";
-  members: Array<{ status?: "active" | "inactive"; isPlatformOperator?: boolean }>;
+  members: Array<{ status?: "active" | "inactive"; isPlatformOperator?: boolean; googleAdsClickId?: string }>;
 }) {
   const companyId = randomUUID();
   companyIds.push(companyId);
@@ -61,6 +62,7 @@ async function seedWorkspace(args: {
           lastName: `${index}`,
           status: member.status ?? "active",
           isPlatformOperator: member.isPlatformOperator ?? false,
+          googleAdsClickId: member.googleAdsClickId ?? null,
         },
       });
     }
@@ -154,6 +156,39 @@ describeDatabase("operator user list against a real database", { timeout: 120_00
     expect(searched).toHaveLength(1);
     expect(searched[0]?.companyId).toBe(beta.companyId);
   });
+
+  it("separates attributed from unattributed users by Google Ads click id presence", async () => {
+    const marker = randomUUID().slice(0, 8);
+    const clickId = `gclid-${marker}`;
+    const workspace = await seedWorkspace({
+      domain: `attribution-${marker}.invalid`,
+      plan: "pro",
+      status: "active",
+      members: [{ googleAdsClickId: clickId }, {}, {}],
+    });
+
+    const repo = new PrismaOperatorUsersRepo();
+    const scoped = inFilter(FilterFieldKey.workspaceId, [workspace.companyId]);
+
+    const attributed = await runWithoutTenant(() =>
+      repo.getItems({
+        filters: [scoped, presenceFilter(FilterFieldKey.googleAdsClickId, FilterOperatorKey.isNotNull)],
+      }),
+    );
+    expect(attributed).toHaveLength(1);
+    expect(attributed[0]?.googleAdsClickId).toBe(clickId);
+
+    const unattributed = await runWithoutTenant(() =>
+      repo.getItems({ filters: [scoped, presenceFilter(FilterFieldKey.googleAdsClickId, FilterOperatorKey.isNull)] }),
+    );
+    expect(unattributed).toHaveLength(2);
+    expect(unattributed.every((row) => row.googleAdsClickId === null)).toBe(true);
+    await expect(
+      runWithoutTenant(() =>
+        repo.getCount({ filters: [scoped, presenceFilter(FilterFieldKey.googleAdsClickId, FilterOperatorKey.isNull)] }),
+      ),
+    ).resolves.toBe(2);
+  });
 });
 
 describeDatabase("operator workspace list against a real database", { timeout: 120_000 }, () => {
@@ -246,7 +281,6 @@ describeDatabase("merged operator audit log against a real database", { timeout:
           actorUserId: actorId,
           action: "operator.users.list",
           targetCompanyId: workspace.companyId,
-          operationId: readOperationId,
           createdAt: new Date("2026-08-20T10:00:00.000Z"),
         },
       });
@@ -259,7 +293,6 @@ describeDatabase("merged operator audit log against a real database", { timeout:
             action: `operator.user_status.update.${marker}`,
             targetCompanyId: workspace.companyId,
             targetUserId: actorId,
-            operationId,
             reason: "Exercise the merged audit log",
             createdAt: new Date(`2026-08-1${index}T10:00:00.000Z`),
           },
@@ -303,7 +336,7 @@ describeDatabase("merged operator audit log against a real database", { timeout:
     expect(secondPage.map((row) => row.id)).toEqual(all.slice(2, 4).map((row) => row.id));
 
     await runWithoutTenant(async () => {
-      await prisma.operatorAuditEvent.deleteMany({ where: { operationId: { in: operationIds } } });
+      await prisma.operatorAuditEvent.deleteMany({ where: { targetCompanyId: workspace.companyId } });
       await prisma.auditLog.deleteMany({ where: { companyId: workspace.companyId } });
     });
   });

@@ -27,8 +27,6 @@ import {
 } from "../actions";
 
 const USER_ID = "22222222-2222-4222-8222-222222222222";
-const OPERATION_ID = "33333333-3333-4333-8333-333333333333";
-const UPDATED_AT = "2026-08-28T12:00:00.000Z";
 
 const user = { userId: USER_ID } as OperatorUserDetailDto;
 
@@ -40,16 +38,12 @@ describe("operator user server actions", () => {
 
     const result = await updateOperatorUserStatusAction({
       userId: USER_ID,
-      expectedUpdatedAt: UPDATED_AT,
       status: "inactive",
-      operationId: OPERATION_ID,
     });
 
     expect(mocks.status).toHaveBeenCalledWith({
       userId: USER_ID,
-      expectedUpdatedAt: UPDATED_AT,
       status: "inactive",
-      operationId: OPERATION_ID,
     });
     expect(result).toEqual({ ok: true, data: user });
   });
@@ -62,9 +56,7 @@ describe("operator user server actions", () => {
 
     const result = await updateOperatorUserPlatformAccessAction({
       userId: USER_ID,
-      expectedUpdatedAt: UPDATED_AT,
       isPlatformOperator: true,
-      operationId: OPERATION_ID,
     });
 
     expect(result.ok).toBe(false);

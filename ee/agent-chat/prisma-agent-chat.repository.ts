@@ -73,11 +73,6 @@ type AgentUsageUser = {
   } | null;
 };
 
-type LockedHostedAiGlobalControl = {
-  hostedProviderWorkPaused: boolean;
-  monthlySpendCapMicrocents: bigint | null;
-};
-
 type HostedAiGlobalCommitment = {
   settledCostMicrocents: bigint;
   activeReservedCredits: bigint;
@@ -196,7 +191,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     return resolveAgentCreditEntitlement({ ...input, adjustmentCredits });
   }
 
-  private async lockHostedAiGlobalControlForAdmission(args: {
+  private async admitsHostedAiGlobalSpend(args: {
     now: Date;
     excludeReservationId?: string;
     additionalReservedCredits?: number;
@@ -207,17 +202,12 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     if (!Number.isSafeInteger(additionalReservedCredits) || additionalReservedCredits < 0)
       throw new Error("Hosted AI global reservation amount is invalid.");
 
-    const controls = await this.prisma.$queryRaw<LockedHostedAiGlobalControl[]>`
-      SELECT
-        "hostedProviderWorkPaused",
-        "monthlySpendCapMicrocents"
-      FROM "HostedAiGlobalControl"
-      WHERE "id" = 'global'
-      FOR UPDATE
-    `;
-    const control = controls[0];
-    if (!control || control.monthlySpendCapMicrocents === null) return false;
-    if (control.hostedProviderWorkPaused) return false;
+    const monthlySpendCapMicrocents = env.HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS;
+    if (monthlySpendCapMicrocents === null) return false;
+    if (env.HOSTED_AI_PROVIDER_WORK_PAUSED) return false;
+
+    await this.prisma
+      .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended('customermates:hosted-ai-global-admission', 0))`;
 
     const monthStart = new Date(Date.UTC(args.now.getUTCFullYear(), args.now.getUTCMonth(), 1));
     const monthEnd = new Date(Date.UTC(args.now.getUTCFullYear(), args.now.getUTCMonth() + 1, 1));
@@ -256,7 +246,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     const committedMicrocents =
       commitment.settledCostMicrocents +
       (commitment.activeReservedCredits + BigInt(additionalReservedCredits)) * BigInt(AGENT_CREDIT_MICROCENTS);
-    return committedMicrocents <= control.monthlySpendCapMicrocents;
+    return committedMicrocents <= monthlySpendCapMicrocents;
   }
 
   private turnSnapshot(row: StoredAgentTurnRow, hasLaterMessages: boolean): AgentTurnRequestSnapshot {
@@ -1503,7 +1493,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       if (usedCredits + reservation.reservedCredits > entitlement.limit)
         throw new Error("Agent credit reservation exceeds the current allowance at provider start.");
 
-      if (!(await this.lockHostedAiGlobalControlForAdmission({ now: startedAt }))) return false;
+      if (!(await this.admitsHostedAiGlobalSpend({ now: startedAt }))) return false;
 
       const updated = await this.prisma.agentTurnRequest.updateMany({
         where: {
@@ -1593,7 +1583,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       const committedElsewhere = sumCommittedAgentCredits(others);
       if (committedElsewhere + reservation.reservedCredits > entitlement.limit) return false;
 
-      if (!(await this.lockHostedAiGlobalControlForAdmission({ now }))) return false;
+      if (!(await this.admitsHostedAiGlobalSpend({ now }))) return false;
 
       return true;
     });
@@ -1992,7 +1982,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         throw new Error("Agent credit reservation exceeds the current allowance.");
 
       if (
-        !(await this.lockHostedAiGlobalControlForAdmission({
+        !(await this.admitsHostedAiGlobalSpend({
           now: reservedAt,
           additionalReservedCredits: event.reservedCredits,
         }))
@@ -2074,7 +2064,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       if (committedElsewhere + args.requiredCredits > entitlement.limit) return null;
 
       if (
-        !(await this.lockHostedAiGlobalControlForAdmission({
+        !(await this.admitsHostedAiGlobalSpend({
           now,
           excludeReservationId: reservation.id,
           additionalReservedCredits: args.requiredCredits,

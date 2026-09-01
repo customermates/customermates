@@ -57,7 +57,7 @@ function requiredDatabaseUrl() {
 }
 
 describeDatabase("hosted AI operator migration", { timeout: 120_000 }, () => {
-  it("applies forward onto the earlier schema and establishes a fail-closed singleton", async () => {
+  it("applies forward onto the earlier schema and backfills platform access as denied", async () => {
     await withTemporaryDatabase(requiredDatabaseUrl(), async (client) => {
       const names = migrationNames();
       const cut = names.indexOf(MIGRATION);
@@ -80,31 +80,10 @@ describeDatabase("hosted AI operator migration", { timeout: 120_000 }, () => {
         `SELECT "isPlatformOperator" FROM "User" WHERE "id" = 'u-existing'`,
       );
       expect(user.rows).toEqual([{ isPlatformOperator: false }]);
-
-      const control = await client.query<{
-        hostedProviderWorkPaused: boolean;
-        monthlySpendCapMicrocents: string | null;
-        reason: string;
-        updatedByOperatorUserId: string;
-        version: number;
-      }>(
-        `SELECT "hostedProviderWorkPaused", "monthlySpendCapMicrocents", "reason", "version",
-                "updatedByOperatorUserId"
-           FROM "HostedAiGlobalControl" WHERE "id" = 'global'`,
-      );
-      expect(control.rows).toEqual([
-        {
-          hostedProviderWorkPaused: true,
-          monthlySpendCapMicrocents: null,
-          reason: "Initial fail-closed configuration",
-          updatedByOperatorUserId: "system:migration",
-          version: 1,
-        },
-      ]);
     });
   });
 
-  it("carries the bounded-money, singleton and immutable-ledger shape", async () => {
+  it("carries the bounded-money and immutable-ledger shape", async () => {
     await withTemporaryDatabase(requiredDatabaseUrl(), async (client) => {
       await applyMigrations(client, migrationNames());
 
@@ -113,7 +92,6 @@ describeDatabase("hosted AI operator migration", { timeout: 120_000 }, () => {
           WHERE contype = 'c'
             AND conrelid IN (
               '"AgentCreditAdjustment"'::regclass,
-              '"HostedAiGlobalControl"'::regclass,
               '"OperatorAuditEvent"'::regclass,
               '"Subscription"'::regclass
             )
@@ -125,14 +103,8 @@ describeDatabase("hosted AI operator migration", { timeout: 120_000 }, () => {
         "AgentCreditAdjustment_operation_id_valid",
         "AgentCreditAdjustment_period_ordered",
         "AgentCreditAdjustment_reason_valid",
-        "HostedAiGlobalControl_actor_id_valid",
-        "HostedAiGlobalControl_cap_nonnegative",
-        "HostedAiGlobalControl_reason_valid",
-        "HostedAiGlobalControl_singleton",
-        "HostedAiGlobalControl_version_positive",
         "OperatorAuditEvent_action_valid",
         "OperatorAuditEvent_actor_id_valid",
-        "OperatorAuditEvent_operation_id_valid",
         "OperatorAuditEvent_reason_valid",
         "Subscription_enterprise_agent_credits_valid",
       ]);
@@ -141,21 +113,21 @@ describeDatabase("hosted AI operator migration", { timeout: 120_000 }, () => {
         `SELECT indexname FROM pg_indexes
           WHERE schemaname = 'public'
             AND indexname IN (
+              'AgentCreditAdjustment_operationId_key',
               'AgentCreditAdjustment_period_lookup_idx',
-              'AgentUsageEvent_state_settledAt_createdAt_idx',
-              'OperatorAuditEvent_operationId_key'
+              'AgentUsageEvent_state_settledAt_createdAt_idx'
             )
           ORDER BY indexname`,
       );
       expect(indexes.rows.map(({ indexname }) => indexname)).toEqual([
+        "AgentCreditAdjustment_operationId_key",
         "AgentCreditAdjustment_period_lookup_idx",
         "AgentUsageEvent_state_settledAt_createdAt_idx",
-        "OperatorAuditEvent_operationId_key",
       ]);
     });
   });
 
-  it("rejects invalid allowances, adjustments, controls and audit records", async () => {
+  it("rejects invalid allowances, adjustments and audit records", async () => {
     await withTemporaryDatabase(requiredDatabaseUrl(), async (client) => {
       await applyMigrations(client, migrationNames());
       await client.query(`INSERT INTO "Company" ("id", "updatedAt") VALUES ('co', NOW())`);
@@ -188,19 +160,8 @@ describeDatabase("hosted AI operator migration", { timeout: 120_000 }, () => {
 
       await expect(
         client.query(
-          `INSERT INTO "HostedAiGlobalControl"
-             ("id", "hostedProviderWorkPaused", "reason", "version", "updatedByOperatorUserId", "updatedAt")
-           VALUES ('other', true, 'Invalid singleton', 1, 'operator', NOW())`,
-        ),
-      ).rejects.toThrow(/HostedAiGlobalControl_singleton/u);
-      await expect(
-        client.query(`UPDATE "HostedAiGlobalControl" SET "monthlySpendCapMicrocents" = -1 WHERE "id" = 'global'`),
-      ).rejects.toThrow(/HostedAiGlobalControl_cap_nonnegative/u);
-
-      await expect(
-        client.query(
-          `INSERT INTO "OperatorAuditEvent" ("id", "actorUserId", "action", "operationId")
-           VALUES ('audit', 'operator', ' ', 'audit-op')`,
+          `INSERT INTO "OperatorAuditEvent" ("id", "actorUserId", "action")
+           VALUES ('audit', 'operator', ' ')`,
         ),
       ).rejects.toThrow(/OperatorAuditEvent_action_valid/u);
     });
@@ -226,15 +187,13 @@ describeDatabase("hosted AI operator migration", { timeout: 120_000 }, () => {
 
         await expect(prisma.company.count()).resolves.toBe(2);
         await expect(prisma.user.count()).resolves.toBe(4);
-        await expect(prisma.hostedAiGlobalControl.count()).resolves.toBe(1);
         await expect(prisma.agentUsageEvent.count()).resolves.toBe(3);
 
-        const [operator, ordinary, ordinaryAuth, enterprise, control, usage] = await Promise.all([
+        const [operator, ordinary, ordinaryAuth, enterprise, usage] = await Promise.all([
           prisma.user.findUniqueOrThrow({ where: { id: SEED_IDS.user } }),
           prisma.user.findUniqueOrThrow({ where: { id: SEED_IDS.hostedAiOrdinaryUser } }),
           prisma.authUser.findUniqueOrThrow({ where: { id: SEED_IDS.hostedAiOrdinaryUser } }),
           prisma.subscription.findUniqueOrThrow({ where: { companyId: SEED_IDS.hostedAiFixtureCompany } }),
-          prisma.hostedAiGlobalControl.findUniqueOrThrow({ where: { id: "global" } }),
           prisma.agentUsageEvent.findMany({ orderBy: { id: "asc" } }),
         ]);
 
@@ -243,12 +202,6 @@ describeDatabase("hosted AI operator migration", { timeout: 120_000 }, () => {
         expect(ordinaryAuth).toMatchObject({ emailVerified: true });
         expect(ordinaryAuth.email).toMatch(/@example\.invalid$/u);
         expect(enterprise).toMatchObject({ enterpriseAgentCreditsPerUser: null, plan: "enterprise" });
-        expect(control).toMatchObject({
-          hostedProviderWorkPaused: false,
-          monthlySpendCapMicrocents: 1_000_000_000n,
-          updatedByOperatorUserId: SEED_IDS.user,
-          version: 1,
-        });
         expect(usage.map(({ state }) => state)).toEqual(["settled", "reserved", "released"]);
       } finally {
         await prisma.$disconnect();

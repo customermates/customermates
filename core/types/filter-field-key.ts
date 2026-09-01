@@ -25,5 +25,6 @@ export enum FilterFieldKey {
   emailVerified = "emailVerified",
   lastActiveAt = "lastActiveAt",
   workspaceId = "workspaceId",
+  googleAdsClickId = "googleAdsClickId",
   auditSource = "auditSource",
 }

@@ -44,9 +44,7 @@ export default async function OperatorOverviewPage() {
     });
   const integer = (value: number) => format.number(value, { maximumFractionDigits: 0 });
   const committed = microcentsAsDollars(overview.currentUtcMonth.totalCommittedMicrocents);
-  const cap = overview.globalControl.monthlySpendCapMicrocents
-    ? microcentsAsDollars(overview.globalControl.monthlySpendCapMicrocents)
-    : null;
+  const cap = overview.monthlySpendCapMicrocents ? microcentsAsDollars(overview.monthlySpendCapMicrocents) : null;
   const atRisk = risk.subscriptionsPastDue + risk.subscriptionsUnpaid + risk.subscriptionsExpired;
 
   return (
@@ -58,7 +56,7 @@ export default async function OperatorOverviewPage() {
               cap === null
                 ? t("OperatorOverview.spend.noCap")
                 : t("OperatorOverview.spend.ofCap", {
-                    cap: money(overview.globalControl.monthlySpendCapMicrocents ?? "0"),
+                    cap: money(overview.monthlySpendCapMicrocents ?? "0"),
                     percent: cap > 0 ? Math.min(100, Math.round((committed / cap) * 100)) : 0,
                   })
             }

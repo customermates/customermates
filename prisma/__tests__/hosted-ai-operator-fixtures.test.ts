@@ -9,7 +9,6 @@ import {
   seedHostedAiOperatorFixtures,
   seedHostedAiOperatorUserTableFixtures,
   seedLocalHostedAiOperatorAccess,
-  SYNTHETIC_HOSTED_AI_GLOBAL_CONTROL,
   SYNTHETIC_HOSTED_AI_ORDINARY_USER,
   SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS,
   SYNTHETIC_HOSTED_AI_USAGE,
@@ -32,7 +31,6 @@ function recordingPrisma() {
     authUserUpdate: vi.fn(() => Promise.resolve({})),
     authUserUpsert: upsert(),
     companyUpsert: upsert(),
-    hostedAiGlobalControlUpsert: upsert(),
     subscriptionDeleteMany: vi.fn(() => Promise.resolve({ count: 0 })),
     subscriptionUpsert: upsert(),
     userRoleUpsert: upsert(),
@@ -51,7 +49,6 @@ function recordingPrisma() {
       upsert: calls.authUserUpsert,
     },
     company: { upsert: calls.companyUpsert },
-    hostedAiGlobalControl: { upsert: calls.hostedAiGlobalControlUpsert },
     subscription: { deleteMany: calls.subscriptionDeleteMany, upsert: calls.subscriptionUpsert },
     userRole: { upsert: calls.userRoleUpsert },
     user: {
@@ -174,11 +171,6 @@ describe("hosted AI operator synthetic fixtures", () => {
       plan: "enterprise",
       status: "active",
     });
-    expect(calls.hostedAiGlobalControlUpsert.mock.calls[0]?.[0].create).toMatchObject({
-      id: "global",
-      ...SYNTHETIC_HOSTED_AI_GLOBAL_CONTROL,
-      updatedByOperatorUserId: SEED_IDS.user,
-    });
   });
 
   it("grants the known-password operator only through the explicit local step", async () => {
@@ -217,7 +209,6 @@ describe("hosted AI operator synthetic fixtures", () => {
     expect(calls.authUserUpsert).toHaveBeenCalledTimes(2);
     expect(calls.userUpsert).toHaveBeenCalledTimes(2);
     expect(calls.subscriptionUpsert).toHaveBeenCalledTimes(2);
-    expect(calls.hostedAiGlobalControlUpsert).toHaveBeenCalledTimes(2);
     expect(calls.agentUsageEventUpsert).toHaveBeenCalledTimes(6);
 
     const firstRun = calls.agentUsageEventUpsert.mock.calls.slice(0, 3).map(([input]) => input.create);

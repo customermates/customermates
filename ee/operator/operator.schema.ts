@@ -18,7 +18,6 @@ export const UpdateHostedAiEnterpriseAllowanceSchema = z
     companyId: z.uuid(),
     creditsPerUser: z.number().int().min(1).max(MAX_CREDITS),
     reason: OptionalReasonSchema,
-    operationId: OperationIdSchema,
   })
   .strict();
 
@@ -48,32 +47,26 @@ export const GetOperatorUserDetailSchema = z.object({ userId: z.uuid() }).strict
 export const UpdateOperatorUserStatusSchema = z
   .object({
     userId: z.uuid(),
-    expectedUpdatedAt: z.iso.datetime({ offset: true, precision: 3 }),
     status: z.enum(Status),
     reason: OptionalReasonSchema,
-    operationId: OperationIdSchema,
   })
   .strict();
 
 export const UpdateOperatorUserPlatformAccessSchema = z
   .object({
     userId: z.uuid(),
-    expectedUpdatedAt: z.iso.datetime({ offset: true, precision: 3 }),
     isPlatformOperator: z.boolean(),
     reason: OptionalReasonSchema,
-    operationId: OperationIdSchema,
   })
   .strict();
 
 export const CorrectOperatorSubscriptionSnapshotSchema = z
   .object({
     userId: z.uuid(),
-    expectedUpdatedAt: z.iso.datetime({ offset: true, precision: 3 }),
     plan: z.enum(SubscriptionPlan),
     status: z.enum(SubscriptionStatus),
     quantity: z.number().int().min(1).max(MAX_CREDITS).nullable(),
     reason: OptionalReasonSchema,
-    operationId: OperationIdSchema,
   })
   .strict();
 
@@ -81,11 +74,6 @@ export const ResetOperatorUserCreditsSchema = z
   .object({
     userId: z.uuid(),
     mode: z.enum(["baseAllowance", "zeroBalance"]),
-    expectedPeriodStart: z.iso.datetime({ offset: true, precision: 3 }),
-    expectedPeriodEnd: z.iso.datetime({ offset: true, precision: 3 }),
-    expectedBaseAllowanceCredits: z.number().int().safe().min(0),
-    expectedAdjustmentCredits: z.number().int().safe(),
-    expectedCommittedCredits: z.number().int().safe().min(0),
     reason: OptionalReasonSchema,
     operationId: OperationIdSchema,
   })
@@ -98,19 +86,6 @@ export type UpdateOperatorUserStatusData = z.infer<typeof UpdateOperatorUserStat
 export type UpdateOperatorUserPlatformAccessData = z.infer<typeof UpdateOperatorUserPlatformAccessSchema>;
 export type CorrectOperatorSubscriptionSnapshotData = z.infer<typeof CorrectOperatorSubscriptionSnapshotSchema>;
 export type ResetOperatorUserCreditsData = z.infer<typeof ResetOperatorUserCreditsSchema>;
-
-export const HostedAiGlobalControlDtoSchema = z.object({
-  id: z.literal("global"),
-  hostedProviderWorkPaused: z.boolean(),
-  monthlySpendCapMicrocents: z.string().nullable(),
-  reason: z.string(),
-  version: z.number(),
-  updatedByOperatorUserId: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-export type HostedAiGlobalControlDto = z.infer<typeof HostedAiGlobalControlDtoSchema>;
 
 export const HostedAiUsageTotalsDtoSchema = z.object({
   settledCostMicrocents: z.string(),
@@ -135,7 +110,7 @@ export const HostedAiOperatorOverviewDtoSchema = z.object({
     users: z.number(),
     activeUsers: z.number(),
   }),
-  globalControl: HostedAiGlobalControlDtoSchema,
+  monthlySpendCapMicrocents: z.string().nullable(),
 });
 
 export type HostedAiOperatorOverviewDto = z.infer<typeof HostedAiOperatorOverviewDtoSchema>;
@@ -253,7 +228,7 @@ export const AgentCreditAdjustmentDtoSchema = z.object({
   periodEnd: z.date(),
   reason: z.string().nullable(),
   operationId: z.uuid(),
-  createdByOperatorUserId: z.uuid(),
+  createdByOperatorUserId: z.uuid().nullable(),
   createdAt: z.date(),
 });
 

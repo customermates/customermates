@@ -54,12 +54,10 @@ export function useOperatorUserColumns(): ColumnDef<OperatorUserRowDto>[] {
             emptyLabel="-"
             options={options.accountStatus}
             value={row.original.status}
-            onCommit={(value, operationId) =>
+            onCommit={(value) =>
               operatorUsersStore.updateStatus({
                 userId: row.original.id,
-                expectedUpdatedAt: row.original.updatedAt.toISOString(),
                 status: value as Status,
-                operationId,
               })
             }
           />
@@ -78,14 +76,12 @@ export function useOperatorUserColumns(): ColumnDef<OperatorUserRowDto>[] {
             options={options.plan}
             readOnly={!row.original.subscriptionUpdatedAt}
             value={row.original.plan}
-            onCommit={(value, operationId) =>
+            onCommit={(value) =>
               operatorUsersStore.correctSubscription({
                 userId: row.original.id,
-                expectedUpdatedAt: (row.original.subscriptionUpdatedAt ?? new Date(0)).toISOString(),
                 plan: value as SubscriptionPlan,
                 status: row.original.subscriptionStatus as SubscriptionStatus,
                 quantity: row.original.subscriptionQuantity,
-                operationId,
               })
             }
           />
@@ -104,14 +100,12 @@ export function useOperatorUserColumns(): ColumnDef<OperatorUserRowDto>[] {
             options={options.subscription}
             readOnly={!row.original.subscriptionUpdatedAt}
             value={row.original.subscriptionStatus}
-            onCommit={(value, operationId) =>
+            onCommit={(value) =>
               operatorUsersStore.correctSubscription({
                 userId: row.original.id,
-                expectedUpdatedAt: (row.original.subscriptionUpdatedAt ?? new Date(0)).toISOString(),
                 plan: row.original.plan as SubscriptionPlan,
                 status: value as SubscriptionStatus,
                 quantity: row.original.subscriptionQuantity,
-                operationId,
               })
             }
           />
@@ -129,12 +123,10 @@ export function useOperatorUserColumns(): ColumnDef<OperatorUserRowDto>[] {
             emptyLabel="-"
             options={options.platformAccess}
             value={String(row.original.isPlatformOperator)}
-            onCommit={(value, operationId) =>
+            onCommit={(value) =>
               operatorUsersStore.updatePlatformAccess({
                 userId: row.original.id,
-                expectedUpdatedAt: row.original.updatedAt.toISOString(),
                 isPlatformOperator: value === PLATFORM_ACCESS_GRANTED,
-                operationId,
               })
             }
           />
@@ -158,6 +150,19 @@ export function useOperatorUserColumns(): ColumnDef<OperatorUserRowDto>[] {
         header: t("Common.table.columns.createdAt"),
         cell: ({ row }) => (
           <span className="text-sm">{intlStore.formatNumericalShortDateTime(row.original.createdAt)}</span>
+        ),
+      },
+      {
+        accessorKey: "googleAdsClickId",
+        id: "googleAdsClickId",
+        header: t("Common.table.columns.googleAdsClickId"),
+        cell: ({ row }) => (
+          <span
+            className="block max-w-40 truncate font-mono text-xs"
+            title={row.original.googleAdsClickId ?? undefined}
+          >
+            {row.original.googleAdsClickId ?? "-"}
+          </span>
         ),
       },
       {

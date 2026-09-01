@@ -127,13 +127,6 @@ export const SYNTHETIC_HOSTED_AI_ORDINARY_USER = {
   name: "Olivia Ordinary",
 } as const;
 
-export const SYNTHETIC_HOSTED_AI_GLOBAL_CONTROL = {
-  hostedProviderWorkPaused: false,
-  monthlySpendCapMicrocents: 1_000_000_000n,
-  reason: "Synthetic local operator fixture",
-  version: 1,
-} as const;
-
 export const SYNTHETIC_HOSTED_AI_USAGE = {
   released: {
     chargedCredits: 0,
@@ -257,22 +250,6 @@ export async function seedHostedAiOperatorFixtures(context: SeedContext, now = n
       id: ids.hostedAiFixtureSubscription,
       companyId: ids.hostedAiFixtureCompany,
       ...subscription,
-    },
-  });
-
-  await prisma.hostedAiGlobalControl.upsert({
-    where: { id: "global" },
-    update: {
-      ...SYNTHETIC_HOSTED_AI_GLOBAL_CONTROL,
-      updatedAt: FIXTURE_CREATED_AT,
-      updatedByOperatorUserId: ids.user,
-    },
-    create: {
-      id: "global",
-      ...SYNTHETIC_HOSTED_AI_GLOBAL_CONTROL,
-      createdAt: FIXTURE_CREATED_AT,
-      updatedAt: FIXTURE_CREATED_AT,
-      updatedByOperatorUserId: ids.user,
     },
   });
 
