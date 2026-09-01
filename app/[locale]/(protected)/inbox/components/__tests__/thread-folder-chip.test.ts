@@ -1,6 +1,7 @@
 import type { EmailFolder } from "@/ee/messaging/email-folders";
 import type { ReactNode } from "react";
 
+import { Folder } from "lucide-react";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -119,5 +120,23 @@ describe("ThreadFolderChip", () => {
     render({ currentFolderIds: [], folders: [folder("inbox", "INBOX")], selectedFolderIds: ["inbox"] });
 
     expect(chipProps().tooltip).toBe("Inbox.folders.current:Inbox.folders.none");
+  });
+
+  it("always shows a folder icon, never swapping it for the hidden state", () => {
+    render({ currentFolderIds: ["inbox"], folders: [folder("inbox", "INBOX")], selectedFolderIds: ["inbox"] });
+    const whenVisible = chipProps().startContent as { type: unknown };
+
+    render({ currentFolderIds: ["trash"], folders: [folder("trash", "Trash")], selectedFolderIds: ["inbox"] });
+    const whenHidden = chipProps().startContent as { type: unknown };
+
+    expect(whenVisible.type).toBe(Folder);
+    expect(whenHidden.type).toBe(Folder);
+  });
+
+  it("carries the hidden warning on the label, since the icon no longer signals it", () => {
+    render({ currentFolderIds: ["trash"], folders: [folder("trash", "Trash")], selectedFolderIds: ["inbox"] });
+
+    expect(chipProps()["aria-label"]).toBe("Inbox.folders.hiddenTooltip:Trash");
+    expect(chipProps().tooltip).toBe("Inbox.folders.hiddenTooltip:Trash");
   });
 });
