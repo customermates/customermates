@@ -19,6 +19,59 @@ function contact(overrides: Partial<ExportableRecord> = {}): ExportableRecord {
   };
 }
 
+const RICH_NOTES = {
+  type: "doc",
+  content: [
+    { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Discovery call" }] },
+    {
+      type: "paragraph",
+      content: [
+        { type: "text", text: "Budget confirmed at " },
+        { type: "text", marks: [{ type: "bold" }], text: "50k EUR" },
+      ],
+    },
+    {
+      type: "bulletList",
+      content: [{ type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "Needs SSO" }] }] }],
+    },
+  ],
+};
+
+describe("toWorkbookRow notes", () => {
+  it("serializes an editor document to markdown so it can be read back", () => {
+    const columns = buildExportColumns([{ key: "notes", header: "Notes" }], []);
+    const row = toWorkbookRow(contact({ notes: RICH_NOTES }), columns);
+
+    expect(row.notes).toContain("## Discovery call");
+    expect(row.notes).toContain("**50k EUR**");
+    expect(row.notes).toContain("- Needs SSO");
+  });
+
+  it("never lets one unreadable note fail the whole export", () => {
+    const columns = buildExportColumns([{ key: "notes", header: "Notes" }], []);
+
+    expect(
+      toWorkbookRow(contact({ notes: { type: "doc", content: [{ type: "callout" }] } }), columns).notes,
+    ).toBeNull();
+    expect(toWorkbookRow(contact({ notes: {} }), columns).notes).toBeNull();
+    expect(toWorkbookRow(contact({ notes: [] }), columns).notes).toBeNull();
+  });
+
+  it("carries a note that is already markdown text straight through", () => {
+    const columns = buildExportColumns([{ key: "notes", header: "Notes" }], []);
+
+    expect(toWorkbookRow(contact({ notes: "- a legacy plain note" }), columns).notes).toBe("- a legacy plain note");
+  });
+
+  it("emits an empty cell rather than a stray marker when a record has no notes", () => {
+    const columns = buildExportColumns([{ key: "notes", header: "Notes" }], []);
+
+    expect(toWorkbookRow(contact(), columns).notes).toBeNull();
+    expect(toWorkbookRow(contact({ notes: null }), columns).notes).toBeNull();
+    expect(toWorkbookRow(contact({ notes: { type: "doc", content: [] } }), columns).notes).toBeNull();
+  });
+});
+
 describe("toWorkbookRow for contacts", () => {
   it("writes the underlying name fields, which is what makes a re-import able to create", () => {
     const columns = buildExportColumns(

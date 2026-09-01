@@ -22,6 +22,8 @@ const CONTACT_NAME_COLUMNS = ["firstName", "lastName"] as const;
 
 const COMPOSED_CHANNELS_COLUMN = "channels";
 
+const NOTES_COLUMN = "notes";
+
 const CHANNEL_COLUMNS = [...new Set(Object.values(MessagingProvider).map(channelLabelKey))];
 
 function fileNameFrom(header: string | null, fallback: string): string {
@@ -75,6 +77,9 @@ export function useExportDownload<E extends HasId>(store: BaseDataViewStore<E>) 
         },
       ];
     });
+
+    if (!columns.some((column) => column.key === NOTES_COLUMN))
+      columns.push({ key: NOTES_COLUMN, header: columnLabelRef.current(NOTES_COLUMN) });
 
     const response = await fetch(`/api/export/${entityType}`, {
       method: "POST",

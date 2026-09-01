@@ -76,10 +76,15 @@ function joinNames(values: string[]): string | null {
 }
 
 function notesToMarkdown(notes: unknown): string | null {
+  if (typeof notes === "string") return notes.trim().length > 0 ? notes : null;
   if (!notes || typeof notes !== "object") return null;
 
-  const markdown = serializeJSONToMarkdown(notes).trim();
-  return markdown.length > 0 ? markdown : null;
+  try {
+    const markdown = serializeJSONToMarkdown(notes).trim();
+    return markdown.length > 0 ? markdown : null;
+  } catch {
+    return null;
+  }
 }
 
 function channelCell(record: ExportableRecord, provider: string): WorkbookCellValue {
