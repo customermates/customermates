@@ -1779,7 +1779,6 @@
     "unverified": "Unbestätigt"
   },
   "EntityDetail": {
-    "collapseSection": "{section} einklappen",
     "computedFieldHelp": {
       "dealValue": "Summe aus Einzelpreis × Menge für jeden verknüpften Eintrag in „{services}“. Ändere dort verknüpfte Einträge oder Mengen, um den Wert zu aktualisieren.",
       "serviceLineValue": "Preis von „{service}“ × Menge. Ändere hier den Eintrag oder die Menge; bearbeite den verknüpften Eintrag, um seinen Preis zu ändern.",
@@ -1788,7 +1787,6 @@
       "weightedValueUnconfigured": "{dealValue} × Abschlusswahrscheinlichkeit der ausgewählten Phase. Richte unter „{company}“ Phasenwahrscheinlichkeiten ein und wähle eine Phase; ändere „{services}“ oder Mengen."
     },
     "donePersonalizing": "Fertig",
-    "expandSection": "{section} ausklappen",
     "fields": {
       "createdAt": "Erstellt am",
       "updatedAt": "Aktualisiert am"

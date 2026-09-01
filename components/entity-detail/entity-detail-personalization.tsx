@@ -9,7 +9,13 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { upsertP13nAction } from "@/app/actions";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import { reconcileAvailableIds, reconcileColumnOrder } from "./entity-detail-personalization.utils";
+import {
+  collapsedSectionIdsForOpenSection,
+  reconcileAvailableIds,
+  reconcileColumnOrder,
+  reconcileSingleOpenSections,
+  resolveSingleOpenSectionId,
+} from "./entity-detail-personalization.utils";
 
 export type EntityDetailPersonalizationConfig = {
   p13nId: string;
@@ -32,13 +38,13 @@ type EntityDetailPersonalizationValue = {
   isPersonalizing: boolean;
   starredFieldIds: string[];
   hiddenFieldIds: string[];
-  collapsedSectionIds: string[];
+  openSectionId?: string;
   columnOrder: string[];
   previewFieldValues: Record<string, EntityDetailPreviewItem[]>;
   setIsPersonalizing: (value: boolean) => void;
   toggleStarredField: (fieldId: string) => void;
   toggleFieldVisibility: (fieldId: string) => void;
-  setSectionCollapsed: (sectionId: string, collapsed: boolean) => void;
+  setOpenSection: (sectionId: string) => void;
   moveColumn: (columnId: string, direction: MoveDirection) => void;
   setPreviewFieldValue: (fieldId: string, items: EntityDetailPreviewItem[]) => void;
 };
@@ -49,13 +55,13 @@ const EMPTY_VALUE: EntityDetailPersonalizationValue = {
   isPersonalizing: false,
   starredFieldIds: [],
   hiddenFieldIds: [],
-  collapsedSectionIds: [],
+  openSectionId: undefined,
   columnOrder: [],
   previewFieldValues: {},
   setIsPersonalizing: () => undefined,
   toggleStarredField: () => undefined,
   toggleFieldVisibility: () => undefined,
-  setSectionCollapsed: () => undefined,
+  setOpenSection: () => undefined,
   moveColumn: () => undefined,
   setPreviewFieldValue: () => undefined,
 };
@@ -148,9 +154,10 @@ export function EntityDetailPersonalizationProvider({
     ).filter((fieldId) => !initialHiddenFieldIds.includes(fieldId)),
   );
   const [collapsedSectionIds, setCollapsedSectionIds] = useState(() =>
-    reconcileAvailableIds(
-      storedOptions?.collapsedSectionIds ?? config?.defaultCollapsedSectionIds ?? [],
+    reconcileSingleOpenSections(
       config?.sectionIds,
+      storedOptions?.collapsedSectionIds ?? config?.defaultCollapsedSectionIds ?? [],
+      config?.defaultCollapsedSectionIds,
     ),
   );
   const storedColumnOrder = latestSnapshot?.columnOrder ?? initial?.columnOrder;
@@ -174,6 +181,12 @@ export function EntityDetailPersonalizationProvider({
   const currentColumnStamp = customColumnIds?.join("|");
   const availableFieldStamp = config?.availableFieldIds?.join("|");
   const sectionStamp = config?.sectionIds?.join("|");
+  const defaultCollapsedSectionStamp = config?.defaultCollapsedSectionIds?.join("|");
+  const openSectionId = resolveSingleOpenSectionId(
+    config?.sectionIds,
+    collapsedSectionIds,
+    config?.defaultCollapsedSectionIds,
+  );
 
   useEffect(() => {
     if (currentColumnStamp === undefined) return;
@@ -197,11 +210,13 @@ export function EntityDetailPersonalizationProvider({
 
   useEffect(() => {
     const sectionIds = sectionStamp === undefined ? undefined : sectionStamp.split("|");
+    const defaultCollapsedSectionIds =
+      defaultCollapsedSectionStamp === undefined ? undefined : defaultCollapsedSectionStamp.split("|");
     setCollapsedSectionIds((current) => {
-      const next = reconcileAvailableIds(current, sectionIds);
+      const next = reconcileSingleOpenSections(sectionIds, current, defaultCollapsedSectionIds);
       return next.length === current.length && next.every((id, index) => id === current[index]) ? current : next;
     });
-  }, [sectionStamp]);
+  }, [defaultCollapsedSectionStamp, sectionStamp]);
 
   useEffect(() => {
     if (!p13nId || !persistenceChannelKey) return;
@@ -245,12 +260,17 @@ export function EntityDetailPersonalizationProvider({
     [hiddenFieldIds],
   );
 
-  const setSectionCollapsed = useCallback((sectionId: string, collapsed: boolean) => {
-    setCollapsedSectionIds((current) => {
-      if (collapsed) return current.includes(sectionId) ? current : [...current, sectionId];
-      return current.filter((id) => id !== sectionId);
-    });
-  }, []);
+  const setOpenSection = useCallback(
+    (sectionId: string) => {
+      const sectionIds = sectionStamp === undefined ? undefined : sectionStamp.split("|");
+      if (!sectionIds?.includes(sectionId)) return;
+      setCollapsedSectionIds((current) => {
+        const next = collapsedSectionIdsForOpenSection(sectionIds, sectionId);
+        return next.length === current.length && next.every((id, index) => id === current[index]) ? current : next;
+      });
+    },
+    [sectionStamp],
+  );
 
   const moveColumn = useCallback((columnId: string, direction: MoveDirection) => {
     setColumnOrder((current) => {
@@ -281,26 +301,26 @@ export function EntityDetailPersonalizationProvider({
       isPersonalizing,
       starredFieldIds,
       hiddenFieldIds,
-      collapsedSectionIds,
+      openSectionId,
       columnOrder,
       previewFieldValues,
       setIsPersonalizing,
       toggleStarredField,
       toggleFieldVisibility,
-      setSectionCollapsed,
+      setOpenSection,
       moveColumn,
       setPreviewFieldValue,
     }),
     [
-      collapsedSectionIds,
       columnOrder,
       config,
       applyFieldVisibility,
       hiddenFieldIds,
       isPersonalizing,
       moveColumn,
+      openSectionId,
       previewFieldValues,
-      setSectionCollapsed,
+      setOpenSection,
       setPreviewFieldValue,
       starredFieldIds,
       toggleFieldVisibility,
