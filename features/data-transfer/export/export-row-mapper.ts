@@ -3,9 +3,12 @@ import type { ExportColumn } from "../workbook-columns";
 import type { RelationSheet, WorkbookRow } from "../workbook-writer";
 import type { WorkbookCellValue } from "../workbook-cell";
 
+import type { MessagingProvider } from "@/generated/prisma";
 import { EntityType } from "@/generated/prisma";
 
 import { CHANNELS_SHEET_NAME, SERVICES_SHEET_NAME } from "../data-transfer.schema";
+import { channelLabelKey } from "@/ee/messaging/provider";
+import { IDENTIFIER_TARGET_PREFIX } from "../import/import-mapping";
 import { RECORD_ID_COLUMN_KEY, resolveCustomFieldCell, STORED_MULTI_VALUE_SEPARATOR } from "../workbook-columns";
 import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 
@@ -79,6 +82,14 @@ function notesToMarkdown(notes: unknown): string | null {
   return markdown.length > 0 ? markdown : null;
 }
 
+function channelCell(record: ExportableRecord, provider: string): WorkbookCellValue {
+  const values = (record.identifiers ?? [])
+    .filter((identifier) => channelLabelKey(identifier.provider as MessagingProvider) === provider)
+    .map((identifier) => identifier.value);
+
+  return joinNames(values);
+}
+
 function standardCell(record: ExportableRecord, key: string): WorkbookCellValue {
   switch (key) {
     case RECORD_ID_COLUMN_KEY:
@@ -118,7 +129,9 @@ function standardCell(record: ExportableRecord, key: string): WorkbookCellValue 
     case "services":
       return joinNames((record.services ?? []).map((service) => service.name));
     default:
-      return null;
+      return key.startsWith(IDENTIFIER_TARGET_PREFIX)
+        ? channelCell(record, key.slice(IDENTIFIER_TARGET_PREFIX.length))
+        : null;
   }
 }
 

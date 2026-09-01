@@ -16,7 +16,8 @@ const EXPORTED_COLUMNS: Array<[header: string, key: string]> = [
   ["Last Name", "lastName"],
   ["Organizations", "organizations"],
   ["Tasks", "tasks"],
-  ["Channels", "channels"],
+  ["Email", "identifier:mail"],
+  ["WhatsApp", "identifier:whatsapp"],
   ["Assigned", "users"],
 ];
 
@@ -49,7 +50,8 @@ describe("mappingFromSchemaSheet", () => {
       { kind: "field", key: "lastName" },
       { kind: "field", key: "organizationIds" },
       { kind: "field", key: "taskIds" },
-      { kind: "ignore" },
+      { kind: "identifier", provider: "mail" },
+      { kind: "identifier", provider: "whatsapp" },
       { kind: "field", key: "userIds" },
     ]);
   });
@@ -62,7 +64,8 @@ describe("mappingFromSchemaSheet", () => {
       { kind: "field", key: "lastName" },
       { kind: "field", key: "organizationIds" },
       { kind: "field", key: "taskIds" },
-      { kind: "ignore" },
+      { kind: "identifier", provider: "mail" },
+      { kind: "identifier", provider: "whatsapp" },
       { kind: "field", key: "userIds" },
     ]);
   });
@@ -104,6 +107,20 @@ describe("mappingFromSchemaSheet", () => {
     expect(mapping[1]).toEqual({ kind: "field", key: "firstName" });
     expect(mapping[2]).toEqual({ kind: "ignore" });
     expect(mapping[3]).toEqual({ kind: "field", key: "organizationIds" });
+  });
+
+  it("ignores a channel key that is not a real messaging provider", () => {
+    const rows = [schemaRow(1, "Pigeon", "identifier:pigeon")];
+    const mapping = mapHeaders(["Pigeon"], rows);
+
+    expect(mapping).toEqual([{ kind: "ignore" }]);
+  });
+
+  it("does not read a channel key for an entity without identifiers", () => {
+    const rows = [schemaRow(1, "Email", "identifier:mail")];
+    const mapping = mappingFromSchemaSheet(sourcesFrom(["Email"]), rows, IMPORT_ENTITIES[EntityType.deal], []);
+
+    expect(mapping).toEqual([{ kind: "ignore" }]);
   });
 
   it("returns null when the workbook carries no schema sheet", () => {

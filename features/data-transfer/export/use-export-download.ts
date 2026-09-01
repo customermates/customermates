@@ -4,12 +4,14 @@ import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store"
 import type { RequestedColumnInput } from "../data-transfer.schema";
 
 import { toJS } from "mobx";
-import { EntityType } from "@/generated/prisma";
+import { EntityType, MessagingProvider } from "@/generated/prisma";
 import { toast } from "sonner";
 import { useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
 
 import { EXPORT_ROW_LIMIT } from "../data-transfer.schema";
+import { channelLabelKey } from "@/ee/messaging/provider";
+import { IDENTIFIER_TARGET_PREFIX } from "../import/import-mapping";
 import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
 
 const FILENAME_PATTERN = /filename="([^"]+)"/;
@@ -17,6 +19,10 @@ const FILENAME_PATTERN = /filename="([^"]+)"/;
 const COMPOSED_NAME_COLUMN = "name";
 
 const CONTACT_NAME_COLUMNS = ["firstName", "lastName"] as const;
+
+const COMPOSED_CHANNELS_COLUMN = "channels";
+
+const CHANNEL_COLUMNS = [...new Set(Object.values(MessagingProvider).map(channelLabelKey))];
 
 function fileNameFrom(header: string | null, fallback: string): string {
   const matched = header ? FILENAME_PATTERN.exec(header) : null;
@@ -41,6 +47,10 @@ export function useExportDownload<E extends HasId>(store: BaseDataViewStore<E>) 
   const columnLabelRef = useRef(columnLabel);
   columnLabelRef.current = columnLabel;
 
+  const translate = useTranslations();
+  const translateRef = useRef(translate);
+  translateRef.current = translate;
+
   return useCallback(async (): Promise<ExportOutcome> => {
     const entityType = store.entityType;
     if (!entityType) throw new Error("Data view has no entity type");
@@ -50,6 +60,13 @@ export function useExportDownload<E extends HasId>(store: BaseDataViewStore<E>) 
     const columns: RequestedColumnInput[] = store.visibleColumns.flatMap((column) => {
       if (entityType === EntityType.contact && column.uid === COMPOSED_NAME_COLUMN)
         return CONTACT_NAME_COLUMNS.map((key) => ({ key, header: columnLabelRef.current(key) }));
+
+      if (entityType === EntityType.contact && column.uid === COMPOSED_CHANNELS_COLUMN) {
+        return CHANNEL_COLUMNS.map((provider) => ({
+          key: `${IDENTIFIER_TARGET_PREFIX}${provider}`,
+          header: translateRef.current(`Common.providers.${provider}`),
+        }));
+      }
 
       return [
         {

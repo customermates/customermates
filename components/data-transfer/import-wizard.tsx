@@ -18,7 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { WizardProgress } from "@/components/shared/wizard-progress";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { targetIdentity } from "@/features/data-transfer/import/import-mapping";
+import { identifierTargetFor, targetIdentity } from "@/features/data-transfer/import/import-mapping";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 const STEP_ORDER = ["file", "mapping", "preview", "result"] as const;
@@ -71,7 +71,8 @@ function decodeTarget(value: string): MappingTarget {
   if (value === IGNORE_VALUE) return { kind: "ignore" };
   if (value === RECORD_ID_VALUE) return { kind: "recordId" };
   if (value.startsWith("custom:")) return { kind: "customField", columnId: value.slice("custom:".length) };
-  if (value.startsWith("identifier:")) return { kind: "identifier", provider: value.slice("identifier:".length) };
+  const identifier = identifierTargetFor(value);
+  if (identifier) return identifier;
 
   return { kind: "field", key: value.slice("field:".length) };
 }

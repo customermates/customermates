@@ -8,6 +8,7 @@ import { CustomColumnType, MessagingProvider } from "@/generated/prisma";
 import { RANGE_SEPARATOR, STORED_MULTI_VALUE_SEPARATOR } from "../workbook-columns";
 import { columnLetter, normalizeHeader } from "./import-mapping";
 import { looksLikePhoneText, normalizeChannelValue } from "@/features/contacts/channel-value";
+import { channelClass } from "@/ee/messaging/provider";
 import { isPhoneProvider } from "@/ee/messaging/provider";
 
 export type SourceRow = {
@@ -59,22 +60,29 @@ export type IdentifierRow = { provider: string; value: string; displayName?: str
 
 const FIRST_DATA_ROW = 2;
 
-function mergeIdentifiers(mapped: IdentifierRow[], fromSheet: IdentifierRow[]): IdentifierRow[] {
-  const merged: IdentifierRow[] = [];
-  const seen = new Set<string>();
+const MESSAGING_PROVIDERS = new Set<string>(Object.values(MessagingProvider));
 
-  for (const entry of [...mapped, ...fromSheet]) {
-    const key = `${entry.provider}:${entry.value.toLocaleLowerCase()}`;
-    if (seen.has(key)) continue;
+function identifierKey(entry: IdentifierRow): string {
+  const known = MESSAGING_PROVIDERS.has(entry.provider);
+  const group = known ? channelClass(entry.provider as MessagingProvider) : entry.provider;
 
-    seen.add(key);
-    merged.push(entry);
-  }
-
-  return merged;
+  return `${group}:${entry.value.toLocaleLowerCase()}`;
 }
 
-const MESSAGING_PROVIDERS = new Set<string>(Object.values(MessagingProvider));
+function mergeIdentifiers(mapped: IdentifierRow[], fromSheet: IdentifierRow[]): IdentifierRow[] {
+  const byKey = new Map<string, IdentifierRow>();
+
+  for (const entry of mapped) byKey.set(identifierKey(entry), entry);
+
+  for (const entry of fromSheet) {
+    const key = identifierKey(entry);
+    const typed = byKey.get(key);
+
+    byKey.set(key, typed ? { ...entry, value: typed.value } : entry);
+  }
+
+  return [...byKey.values()];
+}
 
 export function identifiersBySheetRow(rows: Array<Record<string, string>>): Map<number, IdentifierRow[]> {
   const byRow = new Map<number, IdentifierRow[]>();

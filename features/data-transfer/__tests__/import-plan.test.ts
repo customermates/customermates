@@ -387,6 +387,19 @@ describe("buildPlan channels", () => {
 });
 
 describe("buildPlan identifier merging", () => {
+  it("keeps the sheet's exact provider when the column reports the same address as plain mail", () => {
+    const result = plan(
+      [{ kind: "recordId" }, { kind: "identifier", provider: "mail" }],
+      ["ID", "Email"],
+      [["", "ada@example.com"]],
+      [{ row: "2", provider: "google", value: "ada@example.com", displayName: "Ada Lovelace" }],
+    );
+
+    expect(result.create[0].payload.identifiers).toEqual([
+      { provider: "google", value: "ada@example.com", displayName: "Ada Lovelace" },
+    ]);
+  });
+
   it("combines a mapped channel column with the Channels sheet, without duplicating a shared value", () => {
     const result = plan(
       [{ kind: "recordId" }, { kind: "identifier", provider: "mail" }],

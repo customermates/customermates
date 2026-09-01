@@ -2,6 +2,8 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 import type { ImportEntityDescriptor } from "./import-entity.registry";
 import type { SchemaSheetRow } from "../workbook-columns";
 
+import { MessagingProvider } from "@/generated/prisma";
+
 import { RECORD_ID_COLUMN_KEY } from "../workbook-columns";
 
 export type MappingTarget =
@@ -19,6 +21,18 @@ export type SourceColumn = {
 };
 
 export const AUTO_MATCH_THRESHOLD = 70;
+
+export const IDENTIFIER_TARGET_PREFIX = "identifier:";
+
+const MESSAGING_PROVIDERS = new Set<string>(Object.values(MessagingProvider));
+
+export function identifierTargetFor(key: string): MappingTarget | null {
+  if (!key.startsWith(IDENTIFIER_TARGET_PREFIX)) return null;
+
+  const provider = key.slice(IDENTIFIER_TARGET_PREFIX.length);
+
+  return MESSAGING_PROVIDERS.has(provider) ? { kind: "identifier", provider } : null;
+}
 
 const FIELD_SYNONYMS: Record<string, string[]> = {
   amount: ["amount", "price", "value", "betrag", "preis", "montant", "importe", "prezzo"],
@@ -64,6 +78,9 @@ function columnUidOf(field: { labelKey: string }): string {
 
 function targetFromSchemaKey(key: string, descriptor: ImportEntityDescriptor): MappingTarget {
   if (key === RECORD_ID_COLUMN_KEY) return { kind: "recordId" };
+
+  const identifier = descriptor.supportsIdentifiers ? identifierTargetFor(key) : null;
+  if (identifier) return identifier;
   if (descriptor.fields.some((field) => field.key === key)) return { kind: "field", key };
 
   const byColumnUid = descriptor.fields.find((field) => columnUidOf(field) === key);
@@ -204,7 +221,7 @@ export function targetIdentity(target: MappingTarget): string {
     case "customField":
       return `custom:${target.columnId}`;
     case "identifier":
-      return `identifier:${target.provider}`;
+      return `${IDENTIFIER_TARGET_PREFIX}${target.provider}`;
   }
 }
 
