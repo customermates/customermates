@@ -20,6 +20,7 @@ const GROUP_MAP: Record<string, { group: "overview" | "crm" | "settings" | null;
   dashboard: { group: "overview", labelKey: "dashboard" },
   inbox: { group: "overview", labelKey: "inbox" },
   tasks: { group: "overview", labelKey: "tasks" },
+  routines: { group: "overview", labelKey: "routines" },
   contacts: { group: "crm", labelKey: "contacts" },
   organizations: { group: "crm", labelKey: "organizations" },
   deals: { group: "crm", labelKey: "deals" },

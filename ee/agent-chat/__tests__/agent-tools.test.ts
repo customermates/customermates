@@ -492,8 +492,6 @@ describe("agent tools", () => {
 
   it.each([
     ["delete_records", {}],
-    ["send_email", {}],
-    ["send_chat_message", {}],
     ["discard_message_draft", {}],
     ["manage_custom_columns", { action: "delete" }],
     ["manage_widgets", { action: "delete" }],

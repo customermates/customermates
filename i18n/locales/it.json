@@ -806,6 +806,7 @@
       "delete": "Elimina",
       "deleteCustomFields": "Elimina campo",
       "discard": "Scarta",
+      "edit": "Modifica",
       "editCustomFields": "Modifica campo",
       "expand": "Espandi",
       "labelHistory": "Cronologia",
@@ -1200,6 +1201,7 @@
       "confirmEmail": "Conferma l'e-mail",
       "confirmPassword": "Conferma la password",
       "country": "Paese",
+      "cronExpression": "Espressione cron",
       "currency": "Valuta",
       "datePlaceholder": "Seleziona una data",
       "dateRangePlaceholder": "Seleziona un intervallo",
@@ -1215,6 +1217,7 @@
       "email": "E-mail",
       "emails": "Indirizzi e-mail",
       "emptyContent": "Nessun risultato",
+      "enabled": "Attiva",
       "entityType": "Elemento",
       "events": "Eventi",
       "feedback": "Feedback",
@@ -1223,6 +1226,8 @@
       "groupByValue": "Raggruppamento",
       "label": "Etichetta",
       "lastName": "Cognome",
+      "maxCreditsPerRun": "Limite di crediti per esecuzione",
+      "maxRunsPerHour": "Esecuzioni massime all'ora",
       "message": "Messaggio",
       "name": "Nome",
       "options": {
@@ -1234,10 +1239,18 @@
         "lastOption": "Una selezione singola richiede almeno un'opzione"
       },
       "password": "Password",
+      "prompt": "Istruzioni",
       "roleId": "Ruolo",
+      "scheduleDayOfMonth": "Giorno del mese",
+      "schedulePreset": "Ripetizione",
+      "scheduleTime": "Ora",
+      "scheduleWeekday": "Giorno della settimana",
       "secret": "Segreto",
       "status": "Stato",
       "theme": "Tema",
+      "timezone": "Fuso orario",
+      "triggerEvents": "Eventi",
+      "triggerKind": "Attivazione",
       "type": "Tipo",
       "unavailableSelection": "Selezione non disponibile",
       "url": "URL",
@@ -1325,7 +1338,9 @@
         "label": "Etichetta",
         "lastName": "Cognome",
         "lastRequest": "Ultimo utilizzo",
+        "lastRun": "Ultima esecuzione",
         "name": "Nome",
+        "nextRunAt": "Prossima esecuzione",
         "notes": "Note",
         "options": "Opzioni",
         "organizations": "Organizzazioni",
@@ -1339,6 +1354,7 @@
         "tasks": "Attività",
         "totalQuantity": "Quantità di servizi",
         "totalValue": "Valore della trattativa",
+        "trigger": "Attivazione",
         "type": "Tipo",
         "updatedAt": "Aggiornato il",
         "url": "URL",
@@ -1699,6 +1715,7 @@
     "appOnboarding": "Procedura di configurazione",
     "appProfile": "Profilo",
     "appRecords": "Record",
+    "appRoutines": "Routine",
     "appSearch": "Ricerca globale",
     "architectureSecurity": "Architettura e sicurezza",
     "concepts": "Concetti chiave",
@@ -2301,6 +2318,7 @@
       "taskManagement": "Gestione delle attività",
       "unifiedInbox": "Posta in arrivo unificata"
     },
+    "routines": "Routine",
     "search": "Cerca",
     "settings": "Impostazioni",
     "subscription": "Abbonamento",
@@ -2509,6 +2527,56 @@
     "custom": "Personalizzato",
     "system": "Sistema",
     "title": "Ruoli"
+  },
+  "RoutineDetail": {
+    "credits": "Crediti",
+    "never": "Mai",
+    "nextRun": "Prossima esecuzione",
+    "noRuns": "Questa routine non è ancora stata eseguita.",
+    "runNow": "Esegui ora",
+    "runs": "Esecuzioni",
+    "selectRun": "Seleziona un'esecuzione per vedere cosa ha fatto l'assistente."
+  },
+  "RoutineModal": {
+    "disabled": "In pausa",
+    "enabled": "Attiva",
+    "guardrails": "Limiti di sicurezza",
+    "promptDescription": "L'assistente riceve queste istruzioni a ogni esecuzione della routine.",
+    "scheduleDescription": "Le routine vengono eseguite al massimo ogni 15 minuti.",
+    "title": "Routine"
+  },
+  "RoutineRunStatus": {
+    "blocked": "Bloccata",
+    "failed": "Non riuscita",
+    "partial": "Parziale",
+    "queued": "In coda",
+    "running": "In esecuzione",
+    "skipped": "Saltata",
+    "succeeded": "Riuscita"
+  },
+  "RoutinesCard": {
+    "emptyBody": "Crea una routine per far lavorare l'assistente secondo una pianificazione.",
+    "emptyTitle": "Nessuna routine per ora"
+  },
+  "RoutineSchedulePreset": {
+    "custom": "Personalizzata",
+    "daily": "Ogni giorno",
+    "hourly": "Ogni ora",
+    "monthly": "Ogni mese",
+    "weekly": "Ogni settimana"
+  },
+  "RoutineTriggerKind": {
+    "event": "Quando qualcosa cambia",
+    "schedule": "Secondo una pianificazione"
+  },
+  "RoutineWeekday": {
+    "friday": "Venerdì",
+    "monday": "Lunedì",
+    "saturday": "Sabato",
+    "sunday": "Domenica",
+    "thursday": "Giovedì",
+    "tuesday": "Martedì",
+    "wednesday": "Mercoledì"
   },
   "ServiceModal": {
     "title": "Servizio"

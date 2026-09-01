@@ -1,0 +1,46 @@
+---
+title: "Routinen: Geplante und ereignisgesteuerte Assistenzläufe"
+description: "Routinen führen den Customermates-Assistenten nach Zeitplan oder bei Änderungen aus, mit vorhandenem KI-Guthaben und stabilen Anker-IDs für KI-Agenten."
+---
+
+Eine Routine besteht aus einer gespeicherten Anweisung und einem Auslöser. Wenn der Auslöser greift, öffnet Customermates eine neue Assistenz-Unterhaltung, sendet deine Anweisung und lässt den Assistenten selbstständig arbeiten. Jeder Lauf ist ein normaler Chat, den du danach öffnen und lesen kannst.
+
+## Woraus eine Routine besteht
+
+- **Anweisungen** — der Prompt, den der Assistent bei jedem Lauf erhält. Schreibe ihn so, wie du im Chat fragen würdest.
+- **Auslöser** — entweder ein Zeitplan oder ein Ereignis in der App, etwa eine aktualisierte Opportunität.
+- **Schutzgrenzen** — eine maximale Anzahl Läufe pro Stunde und eine Guthabengrenze pro Lauf.
+
+Routinen gibt es nur im Cloud-Produkt, da sie gehostetes KI-Guthaben aus dem Monatskontingent der Eigentümerin oder des Eigentümers verbrauchen.
+
+## Zeitpläne
+
+Wähle, wie oft die Routine wiederholt wird: stündlich, täglich, wöchentlich oder monatlich, dazu Uhrzeit und Zeitzone. Mit **Benutzerdefiniert** gibst du direkt einen Cron-Ausdruck ein.
+
+Routinen laufen höchstens alle 15 Minuten. Ein Zeitplan, der häufiger auslösen würde, wird beim Speichern abgelehnt. Der Planer sucht alle fünf Minuten nach fälligen Routinen, ein Lauf kann also einige Minuten nach seiner nominalen Zeit starten.
+
+## Läufe
+
+Öffne eine Routine, um ihre Läufe zu sehen, die neuesten zuerst. Ein ausgewählter Lauf zeigt das vollständige Transkript: worum der Assistent gebeten wurde, welche Datensätze er gelesen oder geändert hat und was er geantwortet hat. Jeder Lauf hält außerdem fest, wie viel KI-Guthaben er verbraucht hat.
+
+Mit **Jetzt ausführen** startest du einen Lauf sofort, ohne auf den Zeitplan zu warten.
+
+Die Laufstatus sind `queued`, `running`, `succeeded`, `partial`, `failed`, `skipped` und `blocked`. Ein Lauf ist `skipped`, wenn eine Schutzgrenze ihn gestoppt hat, und `blocked`, wenn der Assistent gar nicht starten konnte, etwa weil das Guthaben aufgebraucht oder das Konto nicht mehr aktiv ist.
+
+## Was eine Routine darf
+
+Ein unbeaufsichtigter Lauf darf deinen Arbeitsbereich lesen sowie Kontakte, Organisationen, Opportunitäten, Leistungen, Aufgaben und Notizen anlegen oder aktualisieren. Er darf außerdem Nachrichten entwerfen und senden.
+
+Das Löschen von Datensätzen muss immer eine Person freigeben. Eine Routine, die etwas löschen möchte, wird sofort abgelehnt, und der Lauf hält die Ablehnung fest.
+
+Oberflächenwerkzeuge stehen Routinen nicht zur Verfügung, da bei einem unbeaufsichtigten Lauf kein Browser angebunden ist.
+
+## Anker-IDs
+
+| Oberfläche | Route | Navigationsanker | Toolbar-Anker |
+| --- | --- | --- | --- |
+| Routinen | `/routines` | `#nav-routines` | `#routines-add`, `#routines-search`, `#routines-filter`, `#routines-display-options` |
+
+Layout-Steuerung: `#routines-layout-table`, `#routines-layout-cards`, `#routines-layout-kanban`
+
+Routinen-Dialog (zuerst eine Routine öffnen oder anlegen): `#routine-modal-save`, `#routine-modal-reset`

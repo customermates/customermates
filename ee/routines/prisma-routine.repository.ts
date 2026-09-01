@@ -1,5 +1,8 @@
 import type { RepoArgs } from "@/core/utils/types";
 import type { GetRoutinesRepo } from "./get-routines.interactor";
+import type { GetRoutineRepo } from "./get-routine.interactor";
+import type { GetRoutineRunsRepo } from "./get-routine-runs.interactor";
+import type { GetRoutineRunTranscriptRepo } from "./get-routine-run-transcript.interactor";
 import type { UpsertRoutineRepo } from "./upsert-routine.interactor";
 import type { DeleteRoutineRepo } from "./delete-routine.interactor";
 import type { RunRoutineNowRepo } from "./run-routine-now.interactor";
@@ -18,6 +21,8 @@ import { Transaction } from "@/core/decorators/transaction.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
+
+import { clientSafeAgentMessageParts } from "@/ee/agent-chat/agent-chat.schema";
 
 import { DEFAULT_ROUTINE_TIMEZONE, nextCronOccurrence, parseCronExpression } from "./routine-schedule";
 import { routineRunStatusFor, summarizeAssistantParts } from "./routine-run-outcome";
@@ -86,6 +91,9 @@ export class PrismaRoutineRepo
   extends BaseRepository<Prisma.RoutineWhereInput>
   implements
     GetRoutinesRepo,
+    GetRoutineRepo,
+    GetRoutineRunsRepo,
+    GetRoutineRunTranscriptRepo,
     UpsertRoutineRepo,
     DeleteRoutineRepo,
     RunRoutineNowRepo,
@@ -146,6 +154,27 @@ export class PrismaRoutineRepo
     });
 
     return runs as RoutineRunDto[];
+  }
+
+  async getRoutineRunTranscript(routineRunId: string) {
+    const run = await this.prisma.routineRun.findFirst({
+      where: { id: routineRunId, companyId: this.companyId },
+      select: { id: true, conversationId: true },
+    });
+    if (!run?.conversationId) return [];
+
+    const messages = await this.prisma.agentMessage.findMany({
+      where: { conversationId: run.conversationId, companyId: this.companyId },
+      select: { id: true, role: true, parts: true, createdAt: true },
+      orderBy: { sequence: "asc" },
+    });
+
+    return messages.map((message) => ({
+      id: message.id,
+      role: message.role,
+      parts: clientSafeAgentMessageParts(message.parts, { sanitizeText: true }),
+      createdAt: message.createdAt,
+    }));
   }
 
   @Transaction

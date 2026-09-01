@@ -13,6 +13,7 @@ import {
   MessagingProvider,
   MessagingThreadState,
   Resource,
+  RoutineRunStatus,
   Status,
   SubscriptionPlan,
   SubscriptionStatus,
@@ -28,6 +29,7 @@ import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AGENT_ACTIVITY_KINDS } from "@/ee/agent-chat/agent-activity";
+import { ROUTINE_SCHEDULE_PRESETS } from "@/ee/routines/routine-schedule-preset";
 import { DomainEvent } from "@/features/event/domain-events";
 import { FeedbackType } from "@/features/feedback/send-feedback.schema";
 import {
@@ -44,6 +46,17 @@ const ENTITY_TERMINOLOGY_KEYS = Object.entries(ENTITY_TERMINOLOGY_PRESETS).flatM
 );
 
 const DOMAIN_EVENT_KEYS = Object.values(DomainEvent).map((event) => `Common.events.${event}`);
+const ROUTINE_RUN_STATUS_KEYS = Object.values(RoutineRunStatus).map((status) => `RoutineRunStatus.${status}`);
+const ROUTINE_SCHEDULE_PRESET_KEYS = ROUTINE_SCHEDULE_PRESETS.map((preset) => `RoutineSchedulePreset.${preset}`);
+const ROUTINE_WEEKDAY_KEYS = [
+  "RoutineWeekday.sunday",
+  "RoutineWeekday.monday",
+  "RoutineWeekday.tuesday",
+  "RoutineWeekday.wednesday",
+  "RoutineWeekday.thursday",
+  "RoutineWeekday.friday",
+  "RoutineWeekday.saturday",
+] as const;
 const FEEDBACK_DESCRIPTION_KEYS = Object.values(FeedbackType).map((type) => `feedback.${type}.description`);
 const FEEDBACK_TITLE_KEYS = Object.values(FeedbackType).map((type) => `feedback.${type}.title`);
 const CUSTOM_ERROR_CODE_KEYS = Object.values(CustomErrorCode).map((code) => `Common.errors.${code}`);
@@ -93,6 +106,17 @@ const ENTITLEMENT_DENIAL_KEYS = [
 ] as const;
 const FORM_FIELD_INPUT_KEYS = [
   "Common.inputs.amount",
+  "Common.inputs.cronExpression",
+  "Common.inputs.enabled",
+  "Common.inputs.maxCreditsPerRun",
+  "Common.inputs.maxRunsPerHour",
+  "Common.inputs.prompt",
+  "Common.inputs.scheduleDayOfMonth",
+  "Common.inputs.schedulePreset",
+  "Common.inputs.scheduleWeekday",
+  "Common.inputs.timezone",
+  "Common.inputs.triggerEvents",
+  "Common.inputs.triggerKind",
   "Common.inputs.avatarUrl",
   "Common.inputs.company",
   "Common.inputs.confirmEmail",
@@ -137,6 +161,9 @@ const AUDIT_FIELD_KEYS = [
 
 const TABLE_COLUMN_KEYS = [
   "Common.table.columns.amount",
+  "Common.table.columns.trigger",
+  "Common.table.columns.lastRun",
+  "Common.table.columns.nextRunAt",
   "Common.table.columns.weightedValue",
   "Common.table.columns.avatarUrl",
   "Common.table.columns.channels",
@@ -394,6 +421,9 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Common.defaultData.${*}.options.${*}", DEFAULT_DATA_OPTION_KEYS],
   ["Common.errors.${*}", CUSTOM_ERROR_CODE_KEYS],
   ["Common.events.${*}", DOMAIN_EVENT_KEYS],
+  ["RoutineRunStatus.${*}", ROUTINE_RUN_STATUS_KEYS],
+  ["RoutineSchedulePreset.${*}", ROUTINE_SCHEDULE_PRESET_KEYS],
+  ["RoutineWeekday.${*}", ROUTINE_WEEKDAY_KEYS],
   ["Common.filters.operators.${*}", FILTER_OPERATOR_KEYS],
   ["Common.locales.${*}", LOCALE_KEYS],
   ["LegalDocumentNotice.documents.${*}", LEGAL_DOCUMENT_KEYS],
@@ -491,6 +521,11 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/company/components/webhook/webhook-delivery-modal.tsx :: t :: Common.events.${delivery.event}",
   "app/[locale]/(protected)/company/components/webhook/webhook-delivery-modal.tsx :: t :: WebhookDeliveryModal.deliveryStatus.${delivery.status}",
   "app/[locale]/(protected)/company/components/webhook/webhook-modal.tsx :: t :: Common.events.${item.key}",
+  "app/[locale]/(protected)/routines/components/routine-detail-view.tsx :: t :: RoutineRunStatus.${run.status}",
+  "app/[locale]/(protected)/routines/components/routine-modal.tsx :: t :: Common.events.${item.key}",
+  "app/[locale]/(protected)/routines/components/routine-modal.tsx :: t :: RoutineSchedulePreset.${value}",
+  "app/[locale]/(protected)/routines/components/routine-modal.tsx :: t :: RoutineWeekday.${key}",
+  "app/[locale]/(protected)/routines/components/use-routine-columns.tsx :: t :: RoutineRunStatus.${row.original.lastRunStatus}",
   "app/[locale]/(protected)/contacts/components/add-channel-popover.tsx :: t :: Common.providers.${provider}",
   "app/[locale]/(protected)/contacts/components/channel-icon-stack.tsx :: t :: Common.providers.${channelLabelKey(id.provider)}",
   "app/[locale]/(protected)/contacts/components/channel-icon-stack.tsx :: t :: Common.providers.${channelLabelKey(provider)}",

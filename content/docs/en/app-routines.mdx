@@ -1,0 +1,46 @@
+---
+title: "Routines: Scheduled and Event-Driven Assistant Runs"
+description: "Routines run the Customermates assistant on a schedule or when a record changes, using your existing AI credits, with stable anchor ids for AI agents."
+---
+
+A routine is a saved instruction plus a trigger. When the trigger fires, Customermates opens a new assistant conversation, sends your instruction, and lets the assistant work on its own. Every run is a normal chat you can open and read afterwards.
+
+## What a routine is made of
+
+- **Instructions** — the prompt the assistant receives on every run. Write it as if you were asking in chat.
+- **Trigger** — either a schedule, or an in-app event such as a deal being updated.
+- **Guardrails** — a maximum number of runs per hour and a credit ceiling per run.
+
+Routines are only available on the cloud product, because they spend hosted AI credits from the owner's monthly allowance.
+
+## Schedules
+
+Pick how often the routine repeats: every hour, day, week, or month, plus the time and time zone. Choose **Custom** to enter a cron expression directly.
+
+Routines run at most once every 15 minutes. A schedule that would fire more often than that is rejected when you save it. The scheduler checks for due routines every five minutes, so a run may start a few minutes after its nominal time.
+
+## Runs
+
+Open a routine to see its runs, newest first. Selecting a run shows the full transcript: what the assistant was asked, which records it read or changed, and what it replied. Each run also records how many AI credits it used.
+
+Use **Run now** to start a run immediately without waiting for the schedule.
+
+Run statuses are `queued`, `running`, `succeeded`, `partial`, `failed`, `skipped`, and `blocked`. A run is `skipped` when a guardrail stopped it, and `blocked` when the assistant could not start at all, for example because the owner is out of credits or their account is no longer active.
+
+## What a routine may do
+
+An unattended run can read your workspace and create or update contacts, organizations, deals, services, tasks, and notes. It can also draft and send messages.
+
+Deleting records always needs a person to approve it, so a routine that tries to delete something is declined immediately and the run records that it was refused.
+
+Interface tools are unavailable to routines, because there is no browser attached to an unattended run.
+
+## Anchor ids
+
+| Surface | Route | Nav anchor | Toolbar anchors |
+| --- | --- | --- | --- |
+| Routines | `/routines` | `#nav-routines` | `#routines-add`, `#routines-search`, `#routines-filter`, `#routines-display-options` |
+
+Layout controls: `#routines-layout-table`, `#routines-layout-cards`, `#routines-layout-kanban`
+
+Routine dialog (open a routine or add one first): `#routine-modal-save`, `#routine-modal-reset`

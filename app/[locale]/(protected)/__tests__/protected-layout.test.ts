@@ -50,6 +50,9 @@ vi.mock("../company/components/audit-log/audit-log-modal", () => ({
 vi.mock("../company/components/webhook/webhook-delivery-modal", () => ({
   WebhookDeliveryModal: () => "webhook-delivery-modal",
 }));
+vi.mock("../routines/components/routine-modal", () => ({
+  RoutineModal: () => "routine-modal",
+}));
 vi.mock("../company/components/webhook/webhook-modal", () => ({
   WebhookModal: () => "webhook-modal",
 }));

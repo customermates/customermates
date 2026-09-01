@@ -806,6 +806,7 @@
       "delete": "Delete",
       "deleteCustomFields": "Delete Field",
       "discard": "Discard",
+      "edit": "Edit",
       "editCustomFields": "Edit Field",
       "expand": "Expand",
       "labelHistory": "History",
@@ -1200,6 +1201,7 @@
       "confirmEmail": "Confirm Email",
       "confirmPassword": "Confirm Password",
       "country": "Country",
+      "cronExpression": "Cron expression",
       "currency": "Currency",
       "datePlaceholder": "Pick a date",
       "dateRangePlaceholder": "Pick a range",
@@ -1215,6 +1217,7 @@
       "email": "Email",
       "emails": "Emails",
       "emptyContent": "No results found",
+      "enabled": "Active",
       "entityType": "Element",
       "events": "Events",
       "feedback": "Feedback",
@@ -1223,6 +1226,8 @@
       "groupByValue": "Grouping",
       "label": "Label",
       "lastName": "Last Name",
+      "maxCreditsPerRun": "Credit limit per run",
+      "maxRunsPerHour": "Maximum runs per hour",
       "message": "Message",
       "name": "Name",
       "options": {
@@ -1234,10 +1239,18 @@
         "lastOption": "A single select needs at least one option"
       },
       "password": "Password",
+      "prompt": "Instructions",
       "roleId": "Role",
+      "scheduleDayOfMonth": "Day of month",
+      "schedulePreset": "Repeats",
+      "scheduleTime": "Time",
+      "scheduleWeekday": "Weekday",
       "secret": "Secret",
       "status": "Status",
       "theme": "Theme",
+      "timezone": "Time zone",
+      "triggerEvents": "Events",
+      "triggerKind": "Trigger",
       "type": "Type",
       "unavailableSelection": "Selection unavailable",
       "url": "URL",
@@ -1325,7 +1338,9 @@
         "label": "Label",
         "lastName": "Last Name",
         "lastRequest": "Last used",
+        "lastRun": "Last run",
         "name": "Name",
+        "nextRunAt": "Next run",
         "notes": "Notes",
         "options": "Options",
         "organizations": "Organizations",
@@ -1339,6 +1354,7 @@
         "tasks": "Tasks",
         "totalQuantity": "Service Quantity",
         "totalValue": "Deal Value",
+        "trigger": "Trigger",
         "type": "Type",
         "updatedAt": "Updated at",
         "url": "URL",
@@ -1699,6 +1715,7 @@
     "appOnboarding": "Onboarding Wizard",
     "appProfile": "Profile",
     "appRecords": "Records",
+    "appRoutines": "Routines",
     "appSearch": "Global Search",
     "architectureSecurity": "Architecture & Security",
     "concepts": "Core Concepts",
@@ -2301,6 +2318,7 @@
       "taskManagement": "Task management",
       "unifiedInbox": "Unified inbox"
     },
+    "routines": "Routines",
     "search": "Search",
     "settings": "Settings",
     "subscription": "Subscription",
@@ -2509,6 +2527,56 @@
     "custom": "Custom",
     "system": "System",
     "title": "Roles"
+  },
+  "RoutineDetail": {
+    "credits": "Credits",
+    "never": "Never",
+    "nextRun": "Next run",
+    "noRuns": "This routine has not run yet.",
+    "runNow": "Run now",
+    "runs": "Runs",
+    "selectRun": "Select a run to see what the assistant did."
+  },
+  "RoutineModal": {
+    "disabled": "Paused",
+    "enabled": "Active",
+    "guardrails": "Guardrails",
+    "promptDescription": "The assistant receives these instructions each time the routine runs.",
+    "scheduleDescription": "Routines run at most once every 15 minutes.",
+    "title": "Routine"
+  },
+  "RoutineRunStatus": {
+    "blocked": "Blocked",
+    "failed": "Failed",
+    "partial": "Partial",
+    "queued": "Queued",
+    "running": "Running",
+    "skipped": "Skipped",
+    "succeeded": "Succeeded"
+  },
+  "RoutinesCard": {
+    "emptyBody": "Create a routine to let the assistant work on a schedule.",
+    "emptyTitle": "No routines yet"
+  },
+  "RoutineSchedulePreset": {
+    "custom": "Custom",
+    "daily": "Every day",
+    "hourly": "Every hour",
+    "monthly": "Every month",
+    "weekly": "Every week"
+  },
+  "RoutineTriggerKind": {
+    "event": "When something changes",
+    "schedule": "On a schedule"
+  },
+  "RoutineWeekday": {
+    "friday": "Friday",
+    "monday": "Monday",
+    "saturday": "Saturday",
+    "sunday": "Sunday",
+    "thursday": "Thursday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday"
   },
   "ServiceModal": {
     "title": "Service"

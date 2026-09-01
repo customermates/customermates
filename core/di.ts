@@ -36,6 +36,8 @@ import { PrismaWebhookRepo } from "@/features/webhook/prisma-webhook.repository"
 import { PrismaRoutineRepo } from "@/ee/routines/prisma-routine.repository";
 import { GetRoutinesInteractor } from "@/ee/routines/get-routines.interactor";
 import { GetRoutineRunsInteractor } from "@/ee/routines/get-routine-runs.interactor";
+import { GetRoutineInteractor } from "@/ee/routines/get-routine.interactor";
+import { GetRoutineRunTranscriptInteractor } from "@/ee/routines/get-routine-run-transcript.interactor";
 import { UpsertRoutineInteractor } from "@/ee/routines/upsert-routine.interactor";
 import { DeleteRoutineInteractor } from "@/ee/routines/delete-routine.interactor";
 import { RunRoutineNowInteractor } from "@/ee/routines/run-routine-now.interactor";
@@ -1503,6 +1505,10 @@ export const getGetRoutinesInteractor = () =>
   new GetRoutinesInteractor(getRoutineRepo(), getP13nRepo(), "interactive", getQueryParamsPrecheck());
 
 export const getGetRoutineRunsInteractor = () => new GetRoutineRunsInteractor(getRoutineRepo());
+
+export const getGetRoutineInteractor = () => new GetRoutineInteractor(getRoutineRepo());
+
+export const getGetRoutineRunTranscriptInteractor = () => new GetRoutineRunTranscriptInteractor(getRoutineRepo());
 
 export const getUpsertRoutineInteractor = () => new UpsertRoutineInteractor(getRoutineRepo());
 

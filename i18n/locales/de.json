@@ -806,6 +806,7 @@
       "delete": "Löschen",
       "deleteCustomFields": "Feld löschen",
       "discard": "Verwerfen",
+      "edit": "Bearbeiten",
       "editCustomFields": "Feld bearbeiten",
       "expand": "Aufklappen",
       "labelHistory": "Verlauf",
@@ -1200,6 +1201,7 @@
       "confirmEmail": "E-Mail bestätigen",
       "confirmPassword": "Passwort bestätigen",
       "country": "Land",
+      "cronExpression": "Cron-Ausdruck",
       "currency": "Währung",
       "datePlaceholder": "Datum auswählen",
       "dateRangePlaceholder": "Zeitraum auswählen",
@@ -1215,6 +1217,7 @@
       "email": "E-Mail",
       "emails": "E-Mails",
       "emptyContent": "Keine Ergebnisse gefunden",
+      "enabled": "Aktiv",
       "entityType": "Element",
       "events": "Ereignisse",
       "feedback": "Feedback",
@@ -1223,6 +1226,8 @@
       "groupByValue": "Gruppierung",
       "label": "Bezeichnung",
       "lastName": "Nachname",
+      "maxCreditsPerRun": "Guthabenlimit pro Lauf",
+      "maxRunsPerHour": "Maximale Läufe pro Stunde",
       "message": "Nachricht",
       "name": "Name",
       "options": {
@@ -1234,10 +1239,18 @@
         "lastOption": "Eine Einfachauswahl benötigt mindestens eine Option"
       },
       "password": "Passwort",
+      "prompt": "Anweisungen",
       "roleId": "Rolle",
+      "scheduleDayOfMonth": "Tag des Monats",
+      "schedulePreset": "Wiederholung",
+      "scheduleTime": "Uhrzeit",
+      "scheduleWeekday": "Wochentag",
       "secret": "Secret",
       "status": "Status",
       "theme": "Darstellung",
+      "timezone": "Zeitzone",
+      "triggerEvents": "Ereignisse",
+      "triggerKind": "Auslöser",
       "type": "Typ",
       "unavailableSelection": "Auswahl nicht verfügbar",
       "url": "URL",
@@ -1325,7 +1338,9 @@
         "label": "Bezeichnung",
         "lastName": "Nachname",
         "lastRequest": "Zuletzt verwendet",
+        "lastRun": "Letzter Lauf",
         "name": "Name",
+        "nextRunAt": "Nächster Lauf",
         "notes": "Notizen",
         "options": "Optionen",
         "organizations": "Organisationen",
@@ -1339,6 +1354,7 @@
         "tasks": "Aufgaben",
         "totalQuantity": "Service-Anzahl",
         "totalValue": "Deal-Wert",
+        "trigger": "Auslöser",
         "type": "Typ",
         "updatedAt": "Aktualisiert am",
         "url": "URL",
@@ -1699,6 +1715,7 @@
     "appOnboarding": "Onboarding-Wizard",
     "appProfile": "Profil",
     "appRecords": "Datensätze",
+    "appRoutines": "Routinen",
     "appSearch": "Globale Suche",
     "architectureSecurity": "Architektur & Sicherheit",
     "concepts": "Kernkonzepte",
@@ -2301,6 +2318,7 @@
       "taskManagement": "Aufgabenverwaltung",
       "unifiedInbox": "Zentraler Posteingang"
     },
+    "routines": "Routinen",
     "search": "Suchen",
     "settings": "Einstellungen",
     "subscription": "Abonnement",
@@ -2509,6 +2527,56 @@
     "custom": "Benutzerdefiniert",
     "system": "System",
     "title": "Rollen"
+  },
+  "RoutineDetail": {
+    "credits": "Guthaben",
+    "never": "Nie",
+    "nextRun": "Nächster Lauf",
+    "noRuns": "Diese Routine wurde noch nicht ausgeführt.",
+    "runNow": "Jetzt ausführen",
+    "runs": "Läufe",
+    "selectRun": "Wähle einen Lauf, um zu sehen, was der Assistent getan hat."
+  },
+  "RoutineModal": {
+    "disabled": "Pausiert",
+    "enabled": "Aktiv",
+    "guardrails": "Schutzgrenzen",
+    "promptDescription": "Der Assistent erhält diese Anweisungen bei jedem Lauf der Routine.",
+    "scheduleDescription": "Routinen laufen höchstens alle 15 Minuten.",
+    "title": "Routine"
+  },
+  "RoutineRunStatus": {
+    "blocked": "Blockiert",
+    "failed": "Fehlgeschlagen",
+    "partial": "Teilweise",
+    "queued": "In Warteschlange",
+    "running": "Läuft",
+    "skipped": "Übersprungen",
+    "succeeded": "Erfolgreich"
+  },
+  "RoutinesCard": {
+    "emptyBody": "Erstelle eine Routine, damit der Assistent nach Zeitplan arbeitet.",
+    "emptyTitle": "Noch keine Routinen"
+  },
+  "RoutineSchedulePreset": {
+    "custom": "Benutzerdefiniert",
+    "daily": "Täglich",
+    "hourly": "Stündlich",
+    "monthly": "Monatlich",
+    "weekly": "Wöchentlich"
+  },
+  "RoutineTriggerKind": {
+    "event": "Wenn sich etwas ändert",
+    "schedule": "Nach Zeitplan"
+  },
+  "RoutineWeekday": {
+    "friday": "Freitag",
+    "monday": "Montag",
+    "saturday": "Samstag",
+    "sunday": "Sonntag",
+    "thursday": "Donnerstag",
+    "tuesday": "Dienstag",
+    "wednesday": "Mittwoch"
   },
   "ServiceModal": {
     "title": "Service"

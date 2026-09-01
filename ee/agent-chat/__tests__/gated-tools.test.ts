@@ -79,8 +79,12 @@ describe("gated-tools", () => {
     }
   });
 
+  it("lets the assistant send without an approval while deletion stays gated", () => {
+    for (const name of ["send_email", "send_chat_message"]) expect(approvalNeeded(toolByName(name), {})).toBe(false);
+  });
+
   it("requires approval for exactly the destructive and outbound tools", () => {
-    for (const name of ["delete_records", "discard_message_draft", "send_email", "send_chat_message"])
+    for (const name of ["delete_records", "discard_message_draft"])
       expect(approvalNeeded(toolByName(name), {})).toBe(true);
     for (const name of ["manage_custom_columns", "manage_widgets", "manage_webhooks"])
       expect(approvalNeeded(toolByName(name), { action: "delete" })).toBe(true);

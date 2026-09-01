@@ -29,7 +29,7 @@ export class GetRoutineRunsInteractor extends AuthenticatedInteractor<GetRoutine
   }
 
   @Validate(Schema)
-  @ValidateOutput(z.array(RoutineRunDtoSchema))
+  @ValidateOutput(RoutineRunDtoSchema)
   async invoke(data: GetRoutineRunsData): Validated<RoutineRunDto[]> {
     return { ok: true as const, data: await this.repo.getRoutineRuns(data.routineId, data.limit) };
   }

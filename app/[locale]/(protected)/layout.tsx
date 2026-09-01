@@ -9,6 +9,7 @@ import { CompanyInviteModal } from "./company/components/company-invite/company-
 import { AuditLogModal } from "./company/components/audit-log/audit-log-modal";
 import { WebhookDeliveryModal } from "./company/components/webhook/webhook-delivery-modal";
 import { WebhookModal } from "./company/components/webhook/webhook-modal";
+import { RoutineModal } from "./routines/components/routine-modal";
 import { ApiKeyModal } from "./profile/components/api-key-modal";
 import { ConnectedAccountModal } from "./profile/components/connected-account-modal";
 import { ConnectUpsellModal } from "./profile/components/connect-upsell-modal";
@@ -104,6 +105,8 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
           <TimelineDetailModal />
 
           <WebhookDeliveryModal />
+
+          <RoutineModal />
 
           <WebhookModal />
 

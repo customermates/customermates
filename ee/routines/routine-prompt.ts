@@ -5,11 +5,10 @@ export type RoutineTriggerContext = {
 };
 
 export function composeRoutinePrompt(prompt: string, context: RoutineTriggerContext): string {
-  const lines = [`<routine name="${context.routineName.replace(/"/g, "'")}"`];
+  if (!context.triggerEvent) return prompt;
 
-  if (context.triggerEvent) lines.push(` event="${context.triggerEvent}"`);
-  if (context.triggerEntityId) lines.push(` entityId="${context.triggerEntityId}"`);
-  lines.push(" />");
+  const attributes = [`event="${context.triggerEvent}"`];
+  if (context.triggerEntityId) attributes.push(`entityId="${context.triggerEntityId}"`);
 
-  return `${lines.join("")}\n${prompt}`;
+  return `<routine_trigger ${attributes.join(" ")} />\n${prompt}`;
 }
