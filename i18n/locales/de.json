@@ -2696,6 +2696,13 @@
     "title": "Routine",
     "useSchedulePreset": "Zu einem Muster wechseln"
   },
+  "RoutineRunReason": {
+    "filtersNotMatched": "Der Datensatz passte nicht zu den Filtern",
+    "hourlyRunLimit": "Das Stundenlimit für Läufe war erreicht",
+    "ownerRunLimit": "Ein anderer Lauf war bereits aktiv",
+    "routineDisabled": "Die Routine war pausiert",
+    "unknownFailure": "Der Lauf konnte nicht abgeschlossen werden"
+  },
   "RoutineRunStatus": {
     "blocked": "Blockiert",
     "failed": "Fehlgeschlagen",

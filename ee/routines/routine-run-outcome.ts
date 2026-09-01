@@ -4,6 +4,22 @@ import { RoutineRunStatus } from "@/generated/prisma";
 
 export const ROUTINE_SUMMARY_MAX_CHARS = 280;
 
+export const ROUTINE_RUN_REASONS = ["routineDisabled", "ownerRunLimit", "hourlyRunLimit", "filtersNotMatched"] as const;
+
+export function routineRunDetail(
+  run: { status: RoutineRunStatus; summary: string | null; error: string | null },
+  t: (key: string) => string,
+): string {
+  if (run.summary) return run.summary;
+
+  const reason = run.error;
+  if (reason && (ROUTINE_RUN_REASONS as readonly string[]).includes(reason)) return t(`RoutineRunReason.${reason}`);
+  if (reason) return reason;
+  if (run.status === RoutineRunStatus.failed) return t("RoutineRunReason.unknownFailure");
+
+  return "";
+}
+
 export function isTerminalTurnStatus(status: AgentTurnStatus): boolean {
   return status !== "running" && status !== "waitingBudget";
 }

@@ -33,8 +33,10 @@ import {
   ROUTINE_SCHEDULE_PRESETS,
   ROUTINE_WEEKDAY_KEYS,
   describeRoutineSchedule,
+  scheduleUsesTimeZone,
 } from "@/ee/routines/routine-schedule-preset";
 import { ROUTINE_RUN_STATUS_CHIP_COLOR } from "@/ee/routines/routine-run-chip-colors";
+import { routineRunDetail } from "@/ee/routines/routine-run-outcome";
 import { AgentChatStoreProvider } from "@/app/components/agent-chat/agent-chat-store-context";
 import { AgentComposer, AgentConversationLog } from "@/app/components/agent-chat/agent-conversation";
 
@@ -60,6 +62,7 @@ export const RoutineModal = observer(() => {
   const scheduleSummary = describeRoutineSchedule(routineModalStore.compiledCron, t, (date) =>
     intlStore.formatTime(date),
   );
+  const showScheduleTimeZone = scheduleUsesTimeZone(routineModalStore.compiledCron);
   const filterFieldLabel = useFilterFieldLabel();
   const filterableFields = routineModalStore.filterableFields;
   const changedFieldItems = filterableFields.map((field) => ({ key: field.field }));
@@ -120,9 +123,17 @@ export const RoutineModal = observer(() => {
                   </span>
                 </div>
 
-                <AgentConversationLog />
+                {openRun.conversationId ? (
+                  <>
+                    <AgentConversationLog />
 
-                <AgentComposer />
+                    <AgentComposer />
+                  </>
+                ) : (
+                  <div className="flex flex-1 items-center justify-center p-6">
+                    <p className="text-subdued text-center text-sm">{routineRunDetail(openRun, t)}</p>
+                  </div>
+                )}
               </div>
             </AgentChatStoreProvider>
           ) : (
@@ -188,7 +199,7 @@ export const RoutineModal = observer(() => {
                             </AppChip>
 
                             <span className="text-subdued line-clamp-1 min-w-0 flex-1 text-xs">
-                              {run.summary ?? run.error}
+                              {routineRunDetail(run, t)}
                             </span>
                           </button>
                         </li>
@@ -298,9 +309,8 @@ export const RoutineModal = observer(() => {
                       <p className="text-subdued text-xs">
                         {scheduleSummary}
 
-                        {" · "}
-
-                        {t("RoutineModal.scheduleTimeZone", { timezone: form?.timezone ?? "" })}
+                        {showScheduleTimeZone &&
+                          ` · ${t("RoutineModal.scheduleTimeZone", { timezone: form?.timezone ?? "" })}`}
                       </p>
                     </div>
                   ) : (

@@ -35,8 +35,11 @@ function makeRoutine(): RoutineDto {
   } as unknown as RoutineDto;
 }
 
-function makeStore(): RoutineModalStore {
-  return new RoutineModalStore({ registerModalStore: vi.fn() } as unknown as RootStore);
+function makeStore(chat?: { selectConversation: () => Promise<void>; newConversation: () => void }): RoutineModalStore {
+  return new RoutineModalStore({
+    registerModalStore: vi.fn(),
+    routineRunChatStore: chat,
+  } as unknown as RootStore);
 }
 
 describe("RoutineModalStore", () => {
@@ -51,6 +54,19 @@ describe("RoutineModalStore", () => {
     expect(store.payload.id).toBeUndefined();
     expect(store.payload.name).toBe("");
     expect(store.payload.prompt).toBe("");
+  });
+
+  it("clears the viewer instead of showing the previous run's transcript", async () => {
+    const chat = { selectConversation: vi.fn(() => Promise.resolve()), newConversation: vi.fn() };
+    const store = makeStore(chat);
+
+    await store.openRun({ id: "run-1", conversationId: "conv-1" } as never);
+    expect(chat.selectConversation).toHaveBeenCalledWith("conv-1");
+
+    await store.openRun({ id: "run-2", conversationId: null } as never);
+
+    expect(chat.newConversation).toHaveBeenCalled();
+    expect(chat.selectConversation).toHaveBeenCalledTimes(1);
   });
 
   it("stamps the local time zone on a routine created in the browser", async () => {

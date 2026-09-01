@@ -2696,6 +2696,13 @@
     "title": "Rutina",
     "useSchedulePreset": "Cambiar a una frecuencia predefinida"
   },
+  "RoutineRunReason": {
+    "filtersNotMatched": "El registro no coincidió con los filtros",
+    "hourlyRunLimit": "Se alcanzó el límite de ejecuciones por hora",
+    "ownerRunLimit": "Ya había otra ejecución en curso",
+    "routineDisabled": "La rutina estaba en pausa",
+    "unknownFailure": "No se pudo completar la ejecución"
+  },
   "RoutineRunStatus": {
     "blocked": "Bloqueada",
     "failed": "Fallida",

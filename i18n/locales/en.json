@@ -2696,6 +2696,13 @@
     "title": "Routine",
     "useSchedulePreset": "Switch to a preset"
   },
+  "RoutineRunReason": {
+    "filtersNotMatched": "The record did not match the filters",
+    "hourlyRunLimit": "The hourly run limit was reached",
+    "ownerRunLimit": "Another run was already in progress",
+    "routineDisabled": "The routine was paused",
+    "unknownFailure": "The run could not be completed"
+  },
   "RoutineRunStatus": {
     "blocked": "Blocked",
     "failed": "Failed",

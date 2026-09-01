@@ -196,6 +196,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     }
 
     if (conversationId) await this.rootStore.routineRunChatStore.selectConversation(conversationId);
+    else this.rootStore.routineRunChatStore.newConversation();
   };
 
   closeRun = () => {
