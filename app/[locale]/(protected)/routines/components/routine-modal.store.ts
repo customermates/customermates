@@ -25,7 +25,12 @@ import { BaseModalStore } from "@/core/base/base-modal.store";
 import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { DEFAULT_ROUTINE_TIMEZONE } from "@/ee/routines/routine-schedule";
-import { DEFAULT_ROUTINE_SCHEDULE, cronForSchedule, scheduleFromCron } from "@/ee/routines/routine-schedule-preset";
+import {
+  DEFAULT_ROUTINE_SCHEDULE,
+  cronForSchedule,
+  localTimeZone,
+  scheduleFromCron,
+} from "@/ee/routines/routine-schedule-preset";
 import { entityTypeForEvents } from "@/ee/routines/routine-event-filter";
 
 function mergeFilters(filterableFields: FilterableField[], current: Filter[]): Filter[] {
@@ -54,6 +59,8 @@ export type RoutineModalForm = UpsertRoutineData & {
 };
 
 export const EMPTY_ROUTINE_FORM: RoutineModalForm = {
+  id: undefined,
+  modelKey: undefined,
   name: "",
   prompt: "",
   enabled: true,
@@ -62,8 +69,6 @@ export const EMPTY_ROUTINE_FORM: RoutineModalForm = {
   triggerEvents: [],
   changedFields: [],
   triggerFilters: [],
-  maxRunsPerHour: 4,
-  maxCreditsPerRun: 10,
   schedulePreset: DEFAULT_ROUTINE_SCHEDULE.preset,
   scheduleHour: String(DEFAULT_ROUTINE_SCHEDULE.hour),
   scheduleMinute: String(DEFAULT_ROUTINE_SCHEDULE.minute),
@@ -85,8 +90,6 @@ export function routineFormFor(routine: RoutineDto): RoutineModalForm {
     triggerEvents: routine.triggerEvents,
     changedFields: routine.changedFields,
     triggerFilters: routine.triggerFilters ?? [],
-    maxRunsPerHour: routine.maxRunsPerHour,
-    maxCreditsPerRun: routine.maxCreditsPerRun,
     schedulePreset: schedule.preset,
     scheduleHour: String(schedule.hour),
     scheduleMinute: String(schedule.minute),
@@ -128,6 +131,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       delete: action,
       onSubmit: action,
       loadFilterFields: action,
+      useSchedulePreset: action,
       openForCreate: action,
       openForEdit: action,
       setActiveTab: action,
@@ -164,7 +168,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     this.openRunId = null;
     this.runs = [];
     this.risks = [];
-    this.openWith(this.withMergedFilterRows(EMPTY_ROUTINE_FORM));
+    this.openWith(this.withMergedFilterRows({ ...EMPTY_ROUTINE_FORM, timezone: localTimeZone() }));
   };
 
   openForEdit = async (routine: RoutineDto) => {
@@ -260,6 +264,25 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     });
   };
 
+  get compiledCron(): string {
+    const form = this.form;
+
+    return cronForSchedule({
+      preset: form?.schedulePreset ?? DEFAULT_ROUTINE_SCHEDULE.preset,
+      hour: Number(form?.scheduleHour ?? DEFAULT_ROUTINE_SCHEDULE.hour),
+      minute: Number(form?.scheduleMinute ?? DEFAULT_ROUTINE_SCHEDULE.minute),
+      weekday: Number(form?.scheduleWeekday ?? DEFAULT_ROUTINE_SCHEDULE.weekday),
+      dayOfMonth: Number(form?.scheduleDayOfMonth ?? DEFAULT_ROUTINE_SCHEDULE.dayOfMonth),
+      expression: form?.cronExpression ?? "",
+    });
+  }
+
+  useSchedulePreset = () => {
+    if (!this.form) return;
+    this.form.schedulePreset = DEFAULT_ROUTINE_SCHEDULE.preset;
+    this.form.cronExpression = DEFAULT_ROUTINE_SCHEDULE.expression;
+  };
+
   get payload(): UpsertRoutineData {
     const form = toJS(this.form);
     const scheduled = form.triggerKind === RoutineTriggerKind.schedule;
@@ -274,18 +297,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       triggerEvents: scheduled ? [] : form.triggerEvents,
       changedFields: scheduled ? [] : (form.changedFields ?? []),
       triggerFilters: scheduled ? [] : (form.triggerFilters ?? []).filter(hasValidFilterConfiguration),
-      maxRunsPerHour: form.maxRunsPerHour,
-      maxCreditsPerRun: form.maxCreditsPerRun,
-      cronExpression: scheduled
-        ? cronForSchedule({
-            preset: form.schedulePreset,
-            hour: Number(form.scheduleHour),
-            minute: Number(form.scheduleMinute),
-            weekday: Number(form.scheduleWeekday),
-            dayOfMonth: Number(form.scheduleDayOfMonth),
-            expression: form.cronExpression ?? "",
-          })
-        : null,
+      cronExpression: scheduled ? this.compiledCron : null,
     };
   }
 

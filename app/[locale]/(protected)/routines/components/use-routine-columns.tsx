@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import { AppChip } from "@/components/chip/app-chip";
 import { ROUTINE_RUN_STATUS_CHIP_COLOR } from "@/ee/routines/routine-run-chip-colors";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { describeRoutineSchedule } from "@/ee/routines/routine-schedule-preset";
 
 export function useRoutineColumns(): ColumnDef<RoutineDto>[] {
   const intlStore = useHydratedIntlStore();
@@ -28,7 +29,7 @@ export function useRoutineColumns(): ColumnDef<RoutineDto>[] {
         cell: ({ row }) => (
           <span className="truncate text-sm">
             {row.original.triggerKind === "schedule"
-              ? (row.original.cronExpression ?? t("RoutineTriggerKind.schedule"))
+              ? describeRoutineSchedule(row.original.cronExpression, t, (date) => intlStore.formatTime(date))
               : t("RoutineTriggerKind.event")}
           </span>
         ),

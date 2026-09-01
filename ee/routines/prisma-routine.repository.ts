@@ -24,6 +24,7 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 
 import { DEFAULT_ROUTINE_TIMEZONE, nextCronOccurrence, parseCronExpression } from "./routine-schedule";
+import { DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN, DEFAULT_ROUTINE_MAX_RUNS_PER_HOUR } from "./routine-run-limits";
 import { routineRunStatusFor, summarizeAssistantParts } from "./routine-run-outcome";
 
 const ROUTINE_SELECT = {
@@ -228,8 +229,8 @@ export class PrismaRoutineRepo
         changedFields: input.changedFields ?? [],
         triggerFilters: input.triggerFilters ?? Prisma.DbNull,
         debounceSeconds: input.debounceSeconds ?? 300,
-        maxRunsPerHour: input.maxRunsPerHour ?? 4,
-        maxCreditsPerRun: input.maxCreditsPerRun ?? 10,
+        maxRunsPerHour: input.maxRunsPerHour ?? DEFAULT_ROUTINE_MAX_RUNS_PER_HOUR,
+        maxCreditsPerRun: input.maxCreditsPerRun ?? DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN,
         nextRunAt:
           (input.enabled ?? true)
             ? resolveNextRunAt(

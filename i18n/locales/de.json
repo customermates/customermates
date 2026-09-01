@@ -1203,7 +1203,6 @@
       "confirmEmail": "E-Mail bestätigen",
       "confirmPassword": "Passwort bestätigen",
       "country": "Land",
-      "cronExpression": "Cron-Ausdruck",
       "currency": "Währung",
       "datePlaceholder": "Datum auswählen",
       "dateRangePlaceholder": "Zeitraum auswählen",
@@ -1228,8 +1227,6 @@
       "groupByValue": "Gruppierung",
       "label": "Bezeichnung",
       "lastName": "Nachname",
-      "maxCreditsPerRun": "Guthabenlimit pro Lauf",
-      "maxRunsPerHour": "Maximale Läufe pro Stunde",
       "message": "Nachricht",
       "name": "Name",
       "options": {
@@ -1249,7 +1246,6 @@
       "secret": "Secret",
       "status": "Status",
       "theme": "Darstellung",
-      "timezone": "Zeitzone",
       "triggerEvents": "Ereignisse",
       "triggerKind": "Auslöser",
       "type": "Typ",
@@ -2540,17 +2536,18 @@
     "runs": "Läufe"
   },
   "RoutineModal": {
-    "advanced": "Erweitert",
     "at": "um",
     "changedFieldsHelp": "Leer lassen, um bei jeder Änderung zu laufen. Eine Einschränkung spart Guthaben.",
+    "customSchedule": "Diese Routine nutzt einen eigenen Zeitplan: {expression}",
     "detailsTab": "Details",
     "disabled": "Pausiert",
     "enabled": "Aktiv",
     "eventFilters": "Nur wenn der Datensatz passt",
     "onMinute": "zur Minute",
     "promptDescription": "Der Assistent erhält diese Anweisungen bei jedem Lauf der Routine.",
-    "scheduleDescription": "Routinen laufen höchstens alle 15 Minuten.",
-    "title": "Routine"
+    "scheduleTimeZone": "Zeiten werden in {timezone} angezeigt.",
+    "title": "Routine",
+    "useSchedulePreset": "Zu einem Muster wechseln"
   },
   "RoutineRunStatus": {
     "blocked": "Blockiert",
@@ -2565,9 +2562,16 @@
     "emptyBody": "Erstelle eine Routine, damit der Assistent nach Zeitplan arbeitet.",
     "emptyTitle": "Noch keine Routinen"
   },
+  "RoutineSchedule": {
+    "daily": "Täglich um {time}",
+    "hourly": "Jede Stunde um :{minute}",
+    "monthly": "Am {day}. jedes Monats um {time}",
+    "weekly": "Jeden {weekday} um {time}"
+  },
   "RoutineSchedulePreset": {
-    "custom": "Benutzerdefiniert",
     "daily": "Täglich",
+    "every15Minutes": "Alle 15 Minuten",
+    "every30Minutes": "Alle 30 Minuten",
     "hourly": "Stündlich",
     "monthly": "Monatlich",
     "weekly": "Wöchentlich"

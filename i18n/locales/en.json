@@ -1203,7 +1203,6 @@
       "confirmEmail": "Confirm Email",
       "confirmPassword": "Confirm Password",
       "country": "Country",
-      "cronExpression": "Cron expression",
       "currency": "Currency",
       "datePlaceholder": "Pick a date",
       "dateRangePlaceholder": "Pick a range",
@@ -1228,8 +1227,6 @@
       "groupByValue": "Grouping",
       "label": "Label",
       "lastName": "Last Name",
-      "maxCreditsPerRun": "Credit limit per run",
-      "maxRunsPerHour": "Maximum runs per hour",
       "message": "Message",
       "name": "Name",
       "options": {
@@ -1249,7 +1246,6 @@
       "secret": "Secret",
       "status": "Status",
       "theme": "Theme",
-      "timezone": "Time zone",
       "triggerEvents": "Events",
       "triggerKind": "Trigger",
       "type": "Type",
@@ -2540,17 +2536,18 @@
     "runs": "Runs"
   },
   "RoutineModal": {
-    "advanced": "Advanced",
     "at": "at",
     "changedFieldsHelp": "Leave empty to run on every change. Narrowing this saves credits.",
+    "customSchedule": "This routine uses a custom schedule: {expression}",
     "detailsTab": "Details",
     "disabled": "Paused",
     "enabled": "Active",
     "eventFilters": "Only when the record matches",
     "onMinute": "at minute",
     "promptDescription": "The assistant receives these instructions each time the routine runs.",
-    "scheduleDescription": "Routines run at most once every 15 minutes.",
-    "title": "Routine"
+    "scheduleTimeZone": "Times are shown in {timezone}.",
+    "title": "Routine",
+    "useSchedulePreset": "Switch to a preset"
   },
   "RoutineRunStatus": {
     "blocked": "Blocked",
@@ -2565,9 +2562,16 @@
     "emptyBody": "Create a routine to let the assistant work on a schedule.",
     "emptyTitle": "No routines yet"
   },
+  "RoutineSchedule": {
+    "daily": "Every day at {time}",
+    "hourly": "Every hour at :{minute}",
+    "monthly": "Day {day} of every month at {time}",
+    "weekly": "Every {weekday} at {time}"
+  },
   "RoutineSchedulePreset": {
-    "custom": "Custom",
     "daily": "Every day",
+    "every15Minutes": "Every 15 minutes",
+    "every30Minutes": "Every 30 minutes",
     "hourly": "Every hour",
     "monthly": "Every month",
     "weekly": "Every week"

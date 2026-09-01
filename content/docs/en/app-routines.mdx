@@ -9,13 +9,13 @@ A routine is a saved instruction plus a trigger. When the trigger fires, Custome
 
 - **Instructions** — the prompt the assistant receives on every run. Write it as if you were asking in chat.
 - **Trigger** — either a schedule, or an in-app event such as a deal being updated.
-- **Guardrails** — a maximum number of runs per hour and a credit ceiling per run.
+- **Guardrails** — Customermates caps how often a routine may run and how many credits a single run may spend, so a routine cannot drain your allowance unattended.
 
 Routines are only available on the cloud product, because they spend hosted AI credits from the owner's monthly allowance.
 
 ## Schedules
 
-Pick how often the routine repeats: every hour, day, week, or month, plus the time and time zone. Choose **Custom** to enter a cron expression directly.
+Pick how often the routine repeats: every 15 or 30 minutes, or every hour, day, week, or month, plus the time. Underneath, the schedule is spelled out in words so you can check it at a glance. Times use the time zone of the browser the routine was created in.
 
 Routines run at most once every 15 minutes. A schedule that would fire more often than that is rejected when you save it. The scheduler checks for due routines every five minutes, so a run may start a few minutes after its nominal time.
 

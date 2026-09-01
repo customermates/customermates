@@ -2,7 +2,7 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { ChevronDown, ChevronLeft, Play, Trash2 } from "lucide-react";
+import { ChevronLeft, Play, Trash2 } from "lucide-react";
 
 import { RoutineTriggerKind } from "@/generated/prisma";
 
@@ -15,13 +15,11 @@ import { FormInput } from "@/components/forms/form-input";
 import { FormTextarea } from "@/components/forms/form-textarea";
 import { FormSwitch } from "@/components/forms/form-switch";
 import { FormSelect } from "@/components/forms/form-select";
-import { FormNumberInput } from "@/components/forms/form-number-input";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormActions } from "@/components/card/form-actions";
 import { AppChip } from "@/components/chip/app-chip";
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FilterAccordion } from "@/components/data-view/filter-modal/filter-accordion";
@@ -31,14 +29,16 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
-import { ROUTINE_SCHEDULE_PRESETS } from "@/ee/routines/routine-schedule-preset";
+import {
+  ROUTINE_SCHEDULE_PRESETS,
+  ROUTINE_WEEKDAY_KEYS,
+  describeRoutineSchedule,
+} from "@/ee/routines/routine-schedule-preset";
 import { ROUTINE_RUN_STATUS_CHIP_COLOR } from "@/ee/routines/routine-run-chip-colors";
 import { AgentChatStoreProvider } from "@/app/components/agent-chat/agent-chat-store-context";
 import { AgentComposer, AgentConversationLog } from "@/app/components/agent-chat/agent-conversation";
 
 const TRIGGER_EVENT_ITEMS = WebhookEventSchema.options.map((event) => ({ key: event }));
-
-const WEEKDAY_KEYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"] as const;
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => String(hour));
 const MINUTES = ["0", "5", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"];
@@ -57,6 +57,9 @@ export const RoutineModal = observer(() => {
 
   const scheduled = form?.triggerKind === RoutineTriggerKind.schedule;
   const preset = form?.schedulePreset ?? "daily";
+  const scheduleSummary = describeRoutineSchedule(routineModalStore.compiledCron, t, (date) =>
+    intlStore.formatTime(date),
+  );
   const filterFieldLabel = useFilterFieldLabel();
   const filterableFields = routineModalStore.filterableFields;
   const changedFieldItems = filterableFields.map((field) => ({ key: field.field }));
@@ -233,7 +236,17 @@ export const RoutineModal = observer(() => {
                     ]}
                   />
 
-                  {scheduled ? (
+                  {scheduled && preset === "custom" ? (
+                    <div className="flex flex-wrap items-center gap-3 rounded-md border p-3">
+                      <p className="text-x-sm flex-1">
+                        {t("RoutineModal.customSchedule", { expression: form?.cronExpression ?? "" })}
+                      </p>
+
+                      <Button size="sm" variant="secondary" onClick={routineModalStore.useSchedulePreset}>
+                        {t("RoutineModal.useSchedulePreset")}
+                      </Button>
+                    </div>
+                  ) : scheduled ? (
                     <div className="space-y-2">
                       <div className="flex flex-wrap items-end gap-2">
                         <FormSelect
@@ -249,7 +262,7 @@ export const RoutineModal = observer(() => {
                           <FormSelect
                             containerClassName="min-w-36"
                             id="scheduleWeekday"
-                            items={WEEKDAY_KEYS.map((key, index) => ({
+                            items={ROUTINE_WEEKDAY_KEYS.map((key, index) => ({
                               value: String(index),
                               label: t(`RoutineWeekday.${key}`),
                             }))}
@@ -266,7 +279,7 @@ export const RoutineModal = observer(() => {
                           />
                         )}
 
-                        {preset !== "custom" && (
+                        {preset !== "every15Minutes" && preset !== "every30Minutes" && (
                           <>
                             <span className="text-subdued pb-2.5 text-xs">
                               {preset === "hourly" ? t("RoutineModal.onMinute") : t("RoutineModal.at")}
@@ -291,9 +304,13 @@ export const RoutineModal = observer(() => {
                         )}
                       </div>
 
-                      {preset === "custom" && <FormInput required id="cronExpression" />}
+                      <p className="text-subdued text-xs">
+                        {scheduleSummary}
 
-                      <p className="text-subdued text-xs">{t("RoutineModal.scheduleDescription")}</p>
+                        {" · "}
+
+                        {t("RoutineModal.scheduleTimeZone", { timezone: form?.timezone ?? "" })}
+                      </p>
                     </div>
                   ) : (
                     <div className="space-y-3">
@@ -341,24 +358,6 @@ export const RoutineModal = observer(() => {
                       )}
                     </div>
                   )}
-
-                  <Collapsible className="border-t pt-3">
-                    <CollapsibleTrigger className="text-subdued group flex w-full items-center gap-1.5 text-xs font-medium">
-                      <ChevronDown className="size-3.5 transition-transform group-data-[state=open]:rotate-180" />
-
-                      {t("RoutineModal.advanced")}
-                    </CollapsibleTrigger>
-
-                    <CollapsibleContent className="space-y-3 pt-3">
-                      {scheduled && <FormInput id="timezone" />}
-
-                      <div className="flex flex-wrap gap-3">
-                        <FormNumberInput containerClassName="min-w-44 flex-1" id="maxRunsPerHour" />
-
-                        <FormNumberInput containerClassName="min-w-44 flex-1" id="maxCreditsPerRun" />
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
                 </AppCardBody>
               )}
 

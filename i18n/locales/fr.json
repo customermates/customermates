@@ -1203,7 +1203,6 @@
       "confirmEmail": "Confirmer l'e-mail",
       "confirmPassword": "Confirmer le mot de passe",
       "country": "Pays",
-      "cronExpression": "Expression cron",
       "currency": "Devise",
       "datePlaceholder": "Choisir une date",
       "dateRangePlaceholder": "Choisir une période",
@@ -1228,8 +1227,6 @@
       "groupByValue": "Regroupement",
       "label": "Libellé",
       "lastName": "Nom",
-      "maxCreditsPerRun": "Limite de crédits par exécution",
-      "maxRunsPerHour": "Exécutions maximum par heure",
       "message": "Message",
       "name": "Nom",
       "options": {
@@ -1249,7 +1246,6 @@
       "secret": "Secret",
       "status": "Statut",
       "theme": "Thème",
-      "timezone": "Fuseau horaire",
       "triggerEvents": "Évènements",
       "triggerKind": "Déclencheur",
       "type": "Type",
@@ -2540,17 +2536,18 @@
     "runs": "Exécutions"
   },
   "RoutineModal": {
-    "advanced": "Avancé",
     "at": "à",
     "changedFieldsHelp": "Laissez vide pour s'exécuter à chaque changement. Restreindre économise des crédits.",
+    "customSchedule": "Cette routine utilise une planification personnalisée : {expression}",
     "detailsTab": "Détails",
     "disabled": "En pause",
     "enabled": "Active",
     "eventFilters": "Uniquement si l'enregistrement correspond",
     "onMinute": "à la minute",
     "promptDescription": "L'assistant reçoit ces instructions à chaque exécution de la routine.",
-    "scheduleDescription": "Les routines s'exécutent au maximum toutes les 15 minutes.",
-    "title": "Routine"
+    "scheduleTimeZone": "Les heures sont affichées en {timezone}.",
+    "title": "Routine",
+    "useSchedulePreset": "Utiliser une fréquence prédéfinie"
   },
   "RoutineRunStatus": {
     "blocked": "Bloquée",
@@ -2565,9 +2562,16 @@
     "emptyBody": "Créez une routine pour que l'assistant travaille selon un planning.",
     "emptyTitle": "Aucune routine pour le moment"
   },
+  "RoutineSchedule": {
+    "daily": "Tous les jours à {time}",
+    "hourly": "Toutes les heures à :{minute}",
+    "monthly": "Le {day} de chaque mois à {time}",
+    "weekly": "Chaque {weekday} à {time}"
+  },
   "RoutineSchedulePreset": {
-    "custom": "Personnalisé",
     "daily": "Chaque jour",
+    "every15Minutes": "Toutes les 15 minutes",
+    "every30Minutes": "Toutes les 30 minutes",
     "hourly": "Toutes les heures",
     "monthly": "Chaque mois",
     "weekly": "Chaque semaine"
