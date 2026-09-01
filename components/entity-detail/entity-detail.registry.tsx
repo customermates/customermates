@@ -93,6 +93,7 @@ function detailPersonalization({
       ...customFieldIds.slice(0, 2),
     ],
     availableFieldIds: customColumns === undefined ? undefined : [...availableBuiltInFieldIds, ...customFieldIds],
+    defaultCollapsedSectionIds: sectionIds.slice(1),
     sectionIds,
   };
 }

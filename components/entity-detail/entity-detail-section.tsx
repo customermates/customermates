@@ -2,10 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { ChevronDown } from "lucide-react";
-import { useTranslations } from "next-intl";
-
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { cn } from "@/core/utils/cn";
 
 import { useEntityDetailPersonalization } from "./entity-detail-personalization";
@@ -20,48 +17,40 @@ type Props = {
 type GroupProps = Pick<Props, "children" | "className">;
 
 export function EntityDetailSectionGroup({ children, className }: GroupProps) {
+  const { openSectionId, setOpenSection } = useEntityDetailPersonalization();
+
   return (
-    <div data-detail-section-group className={cn("-mx-4 -mt-4 flex w-auto flex-col", className)}>
+    <Accordion
+      data-detail-section-group
+      className={cn("-mx-4 -mt-4 flex w-auto flex-col", className)}
+      type="single"
+      value={openSectionId}
+      onValueChange={(sectionId) => {
+        if (sectionId) setOpenSection(sectionId);
+      }}
+    >
       {children}
-    </div>
+    </Accordion>
   );
 }
 
 export function EntityDetailSection({ sectionId, label, children, className }: Props) {
-  const t = useTranslations();
-  const { collapsedSectionIds, setSectionCollapsed } = useEntityDetailPersonalization();
-  const open = !collapsedSectionIds.includes(sectionId);
-
   return (
-    <Collapsible
-      className={cn("w-full border-b border-border", className)}
+    <AccordionItem
+      className={cn("w-full border-border last:border-b", className)}
       data-detail-section={sectionId}
-      open={open}
-      onOpenChange={(nextOpen) => setSectionCollapsed(sectionId, !nextOpen)}
+      value={sectionId}
     >
-      <CollapsibleTrigger
-        aria-label={
-          open
-            ? t("EntityDetail.collapseSection", { section: label })
-            : t("EntityDetail.expandSection", { section: label })
-        }
-        className="group flex w-full cursor-pointer items-center gap-4 rounded-none p-4 text-left text-sm font-medium outline-none transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50"
+      <AccordionTrigger
+        className="group w-full cursor-pointer items-center gap-4 rounded-none p-4 text-left text-sm font-medium outline-none transition-colors hover:no-underline hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50 aria-disabled:cursor-default [&_svg]:motion-reduce:transition-none"
         data-detail-section-trigger={sectionId}
-        type="button"
       >
         <span className="text-sm font-medium text-foreground/85">{label}</span>
+      </AccordionTrigger>
 
-        <ChevronDown
-          aria-hidden
-          className="ml-auto size-4 text-muted-foreground transition-transform group-data-[state=closed]:-rotate-90 motion-reduce:transition-none"
-        />
-      </CollapsibleTrigger>
-
-      <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
-        <div className="flex flex-col gap-4 px-4 pb-4" data-detail-section-content={sectionId}>
-          {children}
-        </div>
-      </CollapsibleContent>
-    </Collapsible>
+      <AccordionContent className="flex flex-col gap-4 px-4 pb-4" data-detail-section-content={sectionId}>
+        {children}
+      </AccordionContent>
+    </AccordionItem>
   );
 }

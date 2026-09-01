@@ -1779,7 +1779,6 @@
     "unverified": "Unverified"
   },
   "EntityDetail": {
-    "collapseSection": "Collapse {section}",
     "computedFieldHelp": {
       "dealValue": "Sum of unit price × quantity for every linked record in {services}. Change linked records or quantities there to update it.",
       "serviceLineValue": "{service} price × quantity. Change the record or quantity here; edit the linked record to change its price.",
@@ -1788,7 +1787,6 @@
       "weightedValueUnconfigured": "{dealValue} × the selected stage’s win probability. Configure stage probabilities in {company} and select a stage; change {services} or quantities to update it."
     },
     "donePersonalizing": "Done",
-    "expandSection": "Expand {section}",
     "fields": {
       "createdAt": "Created at",
       "updatedAt": "Updated at"
