@@ -49,6 +49,41 @@ describe("htmlToPlainText", () => {
     expect(htmlToPlainText('<a href="data:text/html,x">Click</a>')).toBe("Click");
   });
 
+  it("drops every scheme outside the allowlist, not just the two we thought of", () => {
+    for (const href of [
+      "vbscript:msgbox(1)",
+      "file:///etc/passwd",
+      "blob:https://example.com/x",
+      "about:blank",
+      "jar:http://example.com!/x",
+    ])
+      expect(htmlToPlainText(`<a href="${href}">Click</a>`)).toBe("Click");
+  });
+
+  it("is not fooled by scheme casing", () => {
+    expect(htmlToPlainText('<a href="JavaScript:alert(1)">Click</a>')).toBe("Click");
+    expect(htmlToPlainText('<a href="VBScript:msgbox(1)">Click</a>')).toBe("Click");
+    expect(htmlToPlainText('<a href="DATA:text/html,x">Click</a>')).toBe("Click");
+  });
+
+  it("is not fooled by control characters smuggled into the scheme", () => {
+    expect(htmlToPlainText('<a href="java\u0009script:alert(1)">Click</a>')).toBe("Click");
+    expect(htmlToPlainText('<a href="\u0001javascript:alert(1)">Click</a>')).toBe("Click");
+    expect(htmlToPlainText('<a href="java\nscript:alert(1)">Click</a>')).toBe("Click");
+  });
+
+  it("keeps the schemes an email legitimately uses", () => {
+    expect(htmlToPlainText('<a href="https://example.com/a">Docs</a>')).toBe("Docs (https://example.com/a)");
+    expect(htmlToPlainText('<a href="http://example.com/a">Docs</a>')).toBe("Docs (http://example.com/a)");
+    expect(htmlToPlainText('<a href="mailto:a@example.com">Mail</a>')).toBe("Mail (mailto:a@example.com)");
+    expect(htmlToPlainText('<a href="tel:+4915112345678">Call</a>')).toBe("Call (tel:+4915112345678)");
+  });
+
+  it("keeps a schemeless relative or anchor href", () => {
+    expect(htmlToPlainText('<a href="/pricing">Pricing</a>')).toBe("Pricing (/pricing)");
+    expect(htmlToPlainText('<a href="#section">Section</a>')).toBe("Section (#section)");
+  });
+
   it("decodes named, decimal and hex entities", () => {
     expect(htmlToPlainText("<p>Tom &amp; Jerry &lt;3 &#65; &#x42;</p>")).toBe("Tom & Jerry <3 A B");
   });

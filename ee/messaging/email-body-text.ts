@@ -3,6 +3,9 @@ const BLOCK_BOUNDARY =
   /<\/?(?:p|div|br|hr|tr|table|thead|tbody|li|ul|ol|h[1-6]|blockquote|pre|section|article|header|footer|address)\b[^>]*>/gi;
 const ANCHOR = /<a\b[^>]*?href\s*=\s*(["'])(.*?)\1[^>]*>([\s\S]*?)<\/a\s*>/gi;
 const REMAINING_TAGS = /<[^>]*>/g;
+const URL_SCHEME = /^[a-z][a-z0-9+.-]*:/i;
+const URL_CONTROL_CHARS = /[\u0000-\u0020]/g;
+const SAFE_URL_SCHEMES = new Set(["http:", "https:", "mailto:", "tel:"]);
 const NAMED_ENTITIES: Record<string, string> = {
   amp: "&",
   lt: "<",
@@ -51,6 +54,16 @@ function collapse(value: string): string {
     .trim();
 }
 
+function safeUrl(href: string): string | null {
+  const url = href.replace(URL_CONTROL_CHARS, "");
+  if (url === "") return null;
+
+  const scheme = URL_SCHEME.exec(url)?.[0];
+  if (!scheme) return url;
+
+  return SAFE_URL_SCHEMES.has(scheme.toLowerCase()) ? url : null;
+}
+
 export function htmlToPlainText(html: string | null | undefined): string | null {
   if (typeof html !== "string" || html.trim() === "") return null;
 
@@ -58,8 +71,8 @@ export function htmlToPlainText(html: string | null | undefined): string | null 
     .replace(REMOVED_BLOCKS, " ")
     .replace(ANCHOR, (_, __, href: string, label: string) => {
       const text = collapse(decodeEntities(label.replace(REMAINING_TAGS, " ")));
-      const url = decodeEntities(href).trim();
-      if (!url || url.startsWith("javascript:") || url.startsWith("data:")) return text;
+      const url = safeUrl(decodeEntities(href));
+      if (!url) return text;
       if (!text || text === url) return url;
 
       return `${text} (${url})`;
