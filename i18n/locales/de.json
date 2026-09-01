@@ -2564,8 +2564,11 @@
     "credits": {
       "adjustments": "Manuelle Korrekturen",
       "allowanceMissingDescription": "Der Workspace hat kein vertraglich vereinbartes Enterprise-Kontingent, daher wird hier jede Credit-Korrektur abgelehnt. Hinterlege zuerst das Kontingent des Workspace.",
+      "allowanceMissingShort": "Nicht gesetzt",
       "base": "Grundkontingent",
       "committed": "Verbraucht und reserviert",
+      "noneShort": "Kein Tarif",
+      "position": "{remaining} von {limit}",
       "remaining": "Verbleibend",
       "setAllowance": "Workspace-Kontingent setzen",
       "title": "Aktueller Credit-Stand",
@@ -2609,6 +2612,21 @@
     "emptyTitle": "Keine Arbeitsbereiche passen zu diesen Filtern",
     "navigation": "Arbeitsbereiche",
     "searchPlaceholder": "Nach Mitglieds-E-Mail suchen",
+    "stats": {
+      "assistantConversations": "Assistent-Chats",
+      "connectedAccounts": "Verbundene Konten",
+      "contacts": "Kontakte",
+      "deals": "Deals",
+      "lastActive": "Letzte Anmeldung",
+      "lastActivity": "Letzte erfasste Änderung",
+      "messages": "Nachrichten",
+      "never": "Nie",
+      "organizations": "Organisationen",
+      "services": "Leistungen",
+      "tasks": "Aufgaben",
+      "threads": "Unterhaltungen",
+      "title": "Workspace-Statistiken"
+    },
     "terms": {
       "billingId": "Abrechnungs-Abo-ID",
       "billingIdPlaceholder": "Leer lassen zum Trennen",

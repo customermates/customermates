@@ -2564,8 +2564,11 @@
     "credits": {
       "adjustments": "Corrections manuelles",
       "allowanceMissingDescription": "L'espace de travail n'a pas d'allocation Enterprise contractuelle, toute correction de crédits est donc refusée ici. Définissez d'abord l'allocation de l'espace de travail.",
+      "allowanceMissingShort": "Non défini",
       "base": "Allocation de base",
       "committed": "Utilisés et réservés",
+      "noneShort": "Aucun forfait",
+      "position": "{remaining} sur {limit}",
       "remaining": "Restants",
       "setAllowance": "Définir l'allocation",
       "title": "Solde de crédits actuel",
@@ -2609,6 +2612,21 @@
     "emptyTitle": "Aucun espace ne correspond à ces filtres",
     "navigation": "Espaces de travail",
     "searchPlaceholder": "Rechercher par e-mail d’un membre",
+    "stats": {
+      "assistantConversations": "Discussions avec l'assistant",
+      "connectedAccounts": "Comptes connectés",
+      "contacts": "Contacts",
+      "deals": "Affaires",
+      "lastActive": "Dernière connexion",
+      "lastActivity": "Dernière modification enregistrée",
+      "messages": "Messages",
+      "never": "Jamais",
+      "organizations": "Organisations",
+      "services": "Services",
+      "tasks": "Tâches",
+      "threads": "Conversations",
+      "title": "Statistiques de l'espace"
+    },
     "terms": {
       "billingId": "ID d'abonnement de facturation",
       "billingIdPlaceholder": "Laisser vide pour détacher",

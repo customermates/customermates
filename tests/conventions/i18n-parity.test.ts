@@ -75,6 +75,7 @@ const REQUIRED_TRANSLATION_FRAGMENTS: Record<string, Record<string, readonly str
 };
 
 const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
+  "fr:OperatorWorkspaces.stats.threads",
   "de:AgentChat.activity.countedResource",
   "es:AgentChat.activity.countedResource",
   "fr:AgentChat.activity.countedResource",

@@ -17,6 +17,8 @@ import {
   type CreateAgentCreditAdjustmentData,
   type DeleteOperatorWorkspaceData,
   type UpdateOperatorSubscriptionTermsData,
+  type GetOperatorWorkspaceStatsData,
+  type OperatorWorkspaceStatsDto,
   type DeleteOperatorWorkspaceResultDto,
   type HostedAiOperatorCompanyDto,
   type HostedAiOperatorOverviewDto,
@@ -1015,6 +1017,8 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         await this.prisma.apikey.deleteMany({ where: { referenceId: { in: identityIds } } });
         await this.prisma.authUser.deleteMany({ where: { id: { in: identityIds } } });
 
+        await this.prisma.messagingInboundEvent.deleteMany({ where: { companyId: data.companyId } });
+
         await this.prisma.company.delete({ where: { id: data.companyId } });
 
         await this.createAudit({
@@ -1092,5 +1096,50 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
       },
       { companyId: data.companyId },
     );
+  }
+
+  @BypassTenantGuard
+  async getWorkspaceStatsUnscoped(
+    data: GetOperatorWorkspaceStatsData,
+  ): Promise<OperatorWorkspaceStatsDto | OperatorRefusal> {
+    const company = await this.prisma.company.findUnique({
+      where: { id: data.companyId },
+      select: { id: true },
+    });
+    if (!company) return "notFound";
+
+    const rows = await this.prisma.$queryRaw<
+      Array<{
+        contacts: number;
+        organizations: number;
+        deals: number;
+        services: number;
+        tasks: number;
+        messagingThreads: number;
+        messagingMessages: number;
+        agentConversations: number;
+        connectedAccounts: number;
+        lastActiveAt: Date | null;
+        lastActivityAt: Date | null;
+      }>
+    >`
+      SELECT
+        (SELECT COUNT(*) FROM "Contact" WHERE "companyId" = ${data.companyId})::int AS "contacts",
+        (SELECT COUNT(*) FROM "Organization" WHERE "companyId" = ${data.companyId})::int AS "organizations",
+        (SELECT COUNT(*) FROM "Deal" WHERE "companyId" = ${data.companyId})::int AS "deals",
+        (SELECT COUNT(*) FROM "Service" WHERE "companyId" = ${data.companyId})::int AS "services",
+        (SELECT COUNT(*) FROM "Task" WHERE "companyId" = ${data.companyId})::int AS "tasks",
+        (SELECT COUNT(*) FROM "MessagingThread" WHERE "companyId" = ${data.companyId})::int AS "messagingThreads",
+        (SELECT COUNT(*) FROM "MessagingMessage" WHERE "companyId" = ${data.companyId})::int AS "messagingMessages",
+        (SELECT COUNT(*) FROM "AgentConversation" WHERE "companyId" = ${data.companyId})::int AS "agentConversations",
+        (SELECT COUNT(*) FROM "ConnectedAccount" WHERE "companyId" = ${data.companyId})::int AS "connectedAccounts",
+        (SELECT MAX("lastActiveAt") FROM "User" WHERE "companyId" = ${data.companyId}) AS "lastActiveAt",
+        (SELECT MAX("createdAt") FROM "AuditLog" WHERE "companyId" = ${data.companyId}) AS "lastActivityAt"
+    `;
+
+    const row = rows[0];
+    if (!row) throw new Error("Workspace statistics could not be read.");
+
+    return { companyId: data.companyId, ...row };
   }
 }

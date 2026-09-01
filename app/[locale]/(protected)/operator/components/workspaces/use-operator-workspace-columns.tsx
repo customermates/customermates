@@ -16,6 +16,7 @@ import { OperatorChipSelect } from "../operator-chip-select";
 import { useOperatorChipOptions } from "../use-operator-chip-options";
 import { OperatorWorkspaceAllowancePopover } from "./operator-workspace-allowance-popover";
 import { OperatorWorkspaceDeletePopover } from "./operator-workspace-delete-popover";
+import { OperatorWorkspaceStatsPopover } from "./operator-workspace-stats-popover";
 import { OperatorWorkspaceTermsPopover } from "./operator-workspace-terms-popover";
 
 export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto>[] {
@@ -122,7 +123,9 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
         id: "actions",
         header: t("Common.table.columns.actions"),
         cell: ({ row }) => (
-          <div className="flex justify-center">
+          <div className="flex justify-center gap-1">
+            <OperatorWorkspaceStatsPopover workspace={row.original} />
+
             <OperatorWorkspaceDeletePopover workspace={row.original} />
           </div>
         ),

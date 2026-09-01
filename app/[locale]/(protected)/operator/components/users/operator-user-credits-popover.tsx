@@ -3,11 +3,11 @@
 import type { OperatorUserDetailDto } from "@/ee/operator/operator.schema";
 import type { OperatorUserRowDto } from "@/ee/operator/operator-lists.schema";
 
-import { CircleDollarSign } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
+import { ClickableChip } from "@/components/chip/clickable-chip";
 import { InfoRow } from "@/components/shared/info-row";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -97,9 +97,18 @@ export function OperatorUserCreditsPopover({ user }: Props) {
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
-        <Button aria-label={t("OperatorUsers.credits.title")} size="icon" variant="ghost">
-          <CircleDollarSign aria-hidden />
-        </Button>
+        <button aria-label={t("OperatorUsers.credits.title")} type="button">
+          <ClickableChip size="sm" variant="secondary">
+            {user.creditsBlockedReason === "enterprise_allowance_missing"
+              ? t("OperatorUsers.credits.allowanceMissingShort")
+              : user.creditsLimit === null
+                ? t("OperatorUsers.credits.noneShort")
+                : t("OperatorUsers.credits.position", {
+                    remaining: intlStore.formatNumber(user.creditsRemaining ?? 0),
+                    limit: intlStore.formatNumber(user.creditsLimit),
+                  })}
+          </ClickableChip>
+        </button>
       </PopoverTrigger>
 
       <PopoverContent align="end" className="flex w-80 flex-col gap-3">

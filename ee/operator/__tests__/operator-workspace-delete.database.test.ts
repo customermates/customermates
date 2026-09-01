@@ -262,4 +262,74 @@ describeDatabase("operator workspace deletion against a real database", { timeou
     );
     expect(unknown).toBe("notFound");
   });
+
+  it("leaves no row behind in any table that carries a companyId", async () => {
+    const repo = new PrismaOperatorRepo();
+    const { companyId, members } = await createWorkspace({ domain: "sweep.invalid", members: 2 });
+
+    await runWithoutTenant(async () => {
+      const owner = members[0];
+      await prisma.contact.create({ data: { companyId, firstName: "Swept", lastName: "Contact" } });
+      await prisma.organization.create({ data: { companyId, name: `Org ${randomUUID()}` } });
+      await prisma.task.create({ data: { companyId, name: `Task ${randomUUID()}`, type: "custom" } });
+      await prisma.auditLog.create({
+        data: { companyId, userId: owner.userId, event: "contact.created", eventData: {}, entityId: randomUUID() },
+      });
+      await prisma.inviteToken.create({
+        data: {
+          token: `sweep-${randomUUID()}`,
+          companyId,
+          createdById: owner.userId,
+          expiresAt: new Date("2027-01-01T00:00:00.000Z"),
+        },
+      });
+      await prisma.messagingInboundEvent.create({
+        data: { companyId, source: "webhook", payload: { probe: "sweep" } },
+      });
+    });
+
+    const tables = await runWithoutTenant(
+      () =>
+        prisma.$queryRaw<Array<{ table_name: string }>>`
+        SELECT table_name FROM information_schema.columns
+        WHERE table_schema = 'public' AND column_name = 'companyId'
+        ORDER BY table_name
+      `,
+    );
+    expect(tables.length).toBeGreaterThan(30);
+
+    const result = await runWithOperator(operatorActor(), () =>
+      repo.deleteWorkspaceUnscoped({
+        companyId,
+        confirmWorkspaceLabel: "sweep.invalid",
+        reason: "Completeness sweep",
+      }),
+    );
+    assertAdmitted(result);
+
+    const survivors: string[] = [];
+    await runWithoutTenant(async () => {
+      for (const { table_name: table } of tables) {
+        const rows = await prisma.$queryRawUnsafe<Array<{ count: bigint }>>(
+          `SELECT COUNT(*)::bigint AS count FROM "${table}" WHERE "companyId" = $1`,
+          companyId,
+        );
+        if (Number(rows[0]?.count ?? 0) > 0) survivors.push(table);
+      }
+    });
+
+    expect(survivors, `tables still holding rows for the deleted workspace:\n${survivors.join("\n")}`).toEqual([]);
+
+    await runWithoutTenant(async () => {
+      const emails = members.map((member) => member.email);
+      expect(await prisma.authUser.count({ where: { email: { in: emails } } })).toBe(0);
+      expect(
+        await prisma.authSession.count({ where: { userId: { in: members.map((member) => member.authUserId) } } }),
+      ).toBe(0);
+      expect(await prisma.apikey.count({ where: { referenceId: { in: members.map((m) => m.authUserId) } } })).toBe(0);
+
+      const audit = await prisma.operatorAuditEvent.findMany({ where: { targetCompanyId: companyId } });
+      expect(audit).toHaveLength(1);
+    });
+  });
 });

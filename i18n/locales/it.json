@@ -2564,8 +2564,11 @@
     "credits": {
       "adjustments": "Correzioni manuali",
       "allowanceMissingDescription": "Lo spazio di lavoro non ha un contingente Enterprise contrattuale, quindi ogni correzione di crediti viene rifiutata. Imposta prima il contingente dello spazio di lavoro.",
+      "allowanceMissingShort": "Non impostato",
       "base": "Disponibilità di base",
       "committed": "Usati e riservati",
+      "noneShort": "Nessun piano",
+      "position": "{remaining} di {limit}",
       "remaining": "Rimanenti",
       "setAllowance": "Imposta contingente",
       "title": "Posizione crediti corrente",
@@ -2609,6 +2612,21 @@
     "emptyTitle": "Nessuna area corrisponde a questi filtri",
     "navigation": "Aree di lavoro",
     "searchPlaceholder": "Cerca per e-mail di un membro",
+    "stats": {
+      "assistantConversations": "Chat dell'assistente",
+      "connectedAccounts": "Account collegati",
+      "contacts": "Contatti",
+      "deals": "Trattative",
+      "lastActive": "Ultimo accesso",
+      "lastActivity": "Ultima modifica registrata",
+      "messages": "Messaggi",
+      "never": "Mai",
+      "organizations": "Organizzazioni",
+      "services": "Servizi",
+      "tasks": "Attività",
+      "threads": "Conversazioni",
+      "title": "Statistiche dello spazio"
+    },
     "terms": {
       "billingId": "ID abbonamento di fatturazione",
       "billingIdPlaceholder": "Lascia vuoto per scollegare",

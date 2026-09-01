@@ -318,6 +318,7 @@ import { GetHostedAiOperatorOverviewInteractor } from "@/ee/operator/get/get-hos
 import { UpdateHostedAiEnterpriseAllowanceInteractor } from "@/ee/operator/update-hosted-ai-enterprise-allowance.interactor";
 import { DeleteOperatorWorkspaceInteractor } from "@/ee/operator/delete-operator-workspace.interactor";
 import { UpdateOperatorSubscriptionTermsInteractor } from "@/ee/operator/update-operator-subscription-terms.interactor";
+import { GetOperatorWorkspaceStatsInteractor } from "@/ee/operator/get/get-operator-workspace-stats.interactor";
 import { CreateAgentCreditAdjustmentInteractor } from "@/ee/operator/create-agent-credit-adjustment.interactor";
 import { GetOperatorUserSummaryInteractor } from "@/ee/operator/get/get-operator-user-summary.interactor";
 import { GetOperatorUserDetailInteractor } from "@/ee/operator/get/get-operator-user-detail.interactor";
@@ -1561,6 +1562,8 @@ export const getDeleteOperatorWorkspaceInteractor = () => new DeleteOperatorWork
 
 export const getUpdateOperatorSubscriptionTermsInteractor = () =>
   new UpdateOperatorSubscriptionTermsInteractor(getOperatorRepo());
+
+export const getGetOperatorWorkspaceStatsInteractor = () => new GetOperatorWorkspaceStatsInteractor(getOperatorRepo());
 
 export const getCreateAgentCreditAdjustmentInteractor = () =>
   new CreateAgentCreditAdjustmentInteractor(getOperatorRepo());

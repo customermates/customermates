@@ -4,12 +4,14 @@ import type {
   DeleteOperatorWorkspaceData,
   UpdateHostedAiEnterpriseAllowanceData,
   UpdateOperatorSubscriptionTermsData,
+  GetOperatorWorkspaceStatsData,
 } from "@/ee/operator/operator.schema";
 
 import {
   getDeleteOperatorWorkspaceInteractor,
   getUpdateHostedAiEnterpriseAllowanceInteractor,
   getUpdateOperatorSubscriptionTermsInteractor,
+  getGetOperatorWorkspaceStatsInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 
@@ -23,4 +25,8 @@ export async function deleteOperatorWorkspaceAction(data: DeleteOperatorWorkspac
 
 export async function updateOperatorSubscriptionTermsAction(data: UpdateOperatorSubscriptionTermsData) {
   return serializeResult(getUpdateOperatorSubscriptionTermsInteractor().invoke(data));
+}
+
+export async function getOperatorWorkspaceStatsAction(data: GetOperatorWorkspaceStatsData) {
+  return serializeResult(getGetOperatorWorkspaceStatsInteractor().invoke(data));
 }

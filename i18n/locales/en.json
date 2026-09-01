@@ -2564,8 +2564,11 @@
     "credits": {
       "adjustments": "Manual corrections",
       "allowanceMissingDescription": "The workspace has no contracted Enterprise allowance, so every credit correction here is refused. Set the allowance on the workspace first.",
+      "allowanceMissingShort": "Not set",
       "base": "Base allowance",
       "committed": "Used and reserved",
+      "noneShort": "No plan",
+      "position": "{remaining} of {limit}",
       "remaining": "Remaining",
       "setAllowance": "Set workspace allowance",
       "title": "Current credit position",
@@ -2609,6 +2612,21 @@
     "emptyTitle": "No workspaces match these filters",
     "navigation": "Workspaces",
     "searchPlaceholder": "Search by member email",
+    "stats": {
+      "assistantConversations": "Assistant chats",
+      "connectedAccounts": "Connected accounts",
+      "contacts": "Contacts",
+      "deals": "Deals",
+      "lastActive": "Last sign-in",
+      "lastActivity": "Last recorded change",
+      "messages": "Messages",
+      "never": "Never",
+      "organizations": "Organizations",
+      "services": "Services",
+      "tasks": "Tasks",
+      "threads": "Conversations",
+      "title": "Workspace statistics"
+    },
     "terms": {
       "billingId": "Billing subscription ID",
       "billingIdPlaceholder": "Leave empty to detach",

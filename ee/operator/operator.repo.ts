@@ -5,6 +5,8 @@ import type {
   DeleteOperatorWorkspaceData,
   DeleteOperatorWorkspaceResultDto,
   UpdateOperatorSubscriptionTermsData,
+  GetOperatorWorkspaceStatsData,
+  OperatorWorkspaceStatsDto,
   HostedAiOperatorCompanyDto,
   HostedAiOperatorOverviewDto,
   OperatorUserDetailDto,
@@ -53,4 +55,7 @@ export abstract class OperatorRepo {
     data: UpdateOperatorSubscriptionTermsData,
     now?: Date,
   ): Promise<HostedAiOperatorCompanyDto | OperatorRefusal>;
+  abstract getWorkspaceStatsUnscoped(
+    data: GetOperatorWorkspaceStatsData,
+  ): Promise<OperatorWorkspaceStatsDto | OperatorRefusal>;
 }

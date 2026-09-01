@@ -2564,8 +2564,11 @@
     "credits": {
       "adjustments": "Correcciones manuales",
       "allowanceMissingDescription": "El espacio de trabajo no tiene un cupo Enterprise contratado, por lo que aquí se rechaza cualquier corrección de créditos. Define primero el cupo del espacio de trabajo.",
+      "allowanceMissingShort": "Sin definir",
       "base": "Asignación base",
       "committed": "Usados y reservados",
+      "noneShort": "Sin plan",
+      "position": "{remaining} de {limit}",
       "remaining": "Restantes",
       "setAllowance": "Definir cupo del espacio",
       "title": "Posición de créditos actual",
@@ -2609,6 +2612,21 @@
     "emptyTitle": "Ningún espacio coincide con estos filtros",
     "navigation": "Espacios de trabajo",
     "searchPlaceholder": "Buscar por correo de un miembro",
+    "stats": {
+      "assistantConversations": "Chats del asistente",
+      "connectedAccounts": "Cuentas conectadas",
+      "contacts": "Contactos",
+      "deals": "Negocios",
+      "lastActive": "Último inicio de sesión",
+      "lastActivity": "Último cambio registrado",
+      "messages": "Mensajes",
+      "never": "Nunca",
+      "organizations": "Organizaciones",
+      "services": "Servicios",
+      "tasks": "Tareas",
+      "threads": "Conversaciones",
+      "title": "Estadísticas del espacio"
+    },
     "terms": {
       "billingId": "ID de suscripción de facturación",
       "billingIdPlaceholder": "Déjalo vacío para desvincular",
