@@ -153,6 +153,7 @@ describe("legal documents describe only what the product does", () => {
 
     expect(text).toMatch(/Mate/);
     expect(text).toMatch(/Vercel AI Gateway/);
+    expect(text).toMatch(/Microsoft Azure/);
     expect(text).toMatch(/OpenAI/);
     expect(privacy).toMatch(
       name === "en"
@@ -161,8 +162,8 @@ describe("legal documents describe only what the product does", () => {
     );
     expect(dpa).toMatch(
       name === "en"
-        ? /when a user invokes Mate.*Vercel AI Gateway.*OpenAI/is
-        : /wenn ein Nutzer Mate aufruft.*Vercel AI Gateway.*OpenAI/is,
+        ? /when a user invokes Mate.*Vercel AI Gateway.*selected model.*downstream provider.*Subprocessors/is
+        : /wenn ein Nutzer Mate (?:interaktiv )?aufruft.*Vercel AI Gateway.*ausgewählte Modell.*nachgelagerten Anbieter.*Unterauftragsverarbeiter/is,
     );
     expect(dpa).toMatch(
       name === "en"
@@ -176,8 +177,53 @@ describe("legal documents describe only what the product does", () => {
     );
     expect(terms).toMatch(
       name === "en"
-        ? /at least 16 years old.*under 18.*sensitive personal information.*legal or material impact.*every person.*complies/is
-        : /mindestens 16 Jahre alt.*unter 18 Jahren.*sensiblen personenbezogenen Informationen.*rechtliche oder wesentliche Auswirkungen.*jede Person.*einhält/is,
+        ? /at least 16 years old.*under 18.*Art\. 9 GDPR.*Art\. 10 GDPR.*legal or material impact.*every person.*complies/is
+        : /mindestens 16 Jahre alt.*unter 18 Jahren.*Art\. 9 DSGVO.*Art\. 10 DSGVO.*rechtliche oder wesentliche Auswirkungen.*jede Person.*einhält/is,
+    );
+    expect(terms).toMatch(
+      name === "en"
+        ? /applicable legal basis.*data minimisation.*safeguards appropriate to the risk.*Art\. 9 GDPR.*Art\. 10 GDPR/is
+        : /anwendbare Rechtsgrundlage.*Datenminimierung.*dem Risiko angemessene Schutzvorkehrungen.*Art\. 9 DSGVO.*Art\. 10 DSGVO/is,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /applicable legal basis.*data minimisation.*safeguards appropriate to the risk.*Art\. 9 GDPR.*Art\. 10 GDPR/is
+        : /anwendbare Rechtsgrundlage.*Datenminimierung.*dem Risiko angemessene Schutzvorkehrungen.*Art\. 9 DSGVO.*Art\. 10 DSGVO/is,
+    );
+    expect(dpa).toMatch(
+      name === "en"
+        ? /applicable legal basis.*data minimisation.*safeguards appropriate to the risk.*Art\. 9 GDPR.*Art\. 10 GDPR/is
+        : /anwendbare Rechtsgrundlage.*Datenminimierung.*dem Risiko angemessene Schutzvorkehrungen.*Art\. 9 DSGVO.*Art\. 10 DSGVO/is,
+    );
+    expect(subprocessors).toMatch(
+      name === "en"
+        ? /customer determines.*necessity.*applicable legal basis.*safeguards appropriate to the risk/is
+        : /Kunde bestimmt.*Erforderlichkeit.*anwendbare Rechtsgrundlage.*dem Risiko angemessene Schutzvorkehrungen/is,
+    );
+    expect(terms).toMatch(
+      name === "en"
+        ? /Where the managed service offers.*Routines.*saved or automated Mate runs.*manual execution.*schedule.*configured in-product event.*standing documented instruction.*without separate case-by-case confirmation/is
+        : /Soweit der verwaltete Dienst.*Routines.*gespeicherte oder automatisierte Mate-Durchläufe.*anbietet.*manuellen Ausführung.*Zeitplan.*konfigurierten produktinternen Ereignis.*dokumentierte Dauerweisung.*ohne gesonderte Bestätigung im Einzelfall/is,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /During interactive use.*must be checked before it is relied on.*Where a Routine is offered and enabled.*before activation or material change.*monitor operation and results.*without separate case-by-case confirmation/is
+        : /Bei interaktiver Nutzung.*müssen geprüft werden.*Soweit eine Routine angeboten und aktiviert ist.*vor der Aktivierung oder einer wesentlichen Änderung.*Betrieb und Ergebnisse überwachen.*ohne gesonderte Bestätigung im Einzelfall/is,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /full saved instruction.*recurring safety checks.*possible trigger loops.*before a Routine run starts/is
+        : /vollständige gespeicherte Weisung.*wiederkehrender Sicherheitsprüfungen.*mögliche Auslöserschleifen.*bevor ein Routine-Durchlauf beginnt/is,
+    );
+    expect(dpa).toMatch(
+      name === "en"
+        ? /deleting a saved Routine does not itself delete Mate conversations.*separately deleted/is
+        : /Löschen einer gespeicherten Routine.*nicht automatisch.*Mate-Konversationen.*gesondert/is,
+    );
+    expect(text).not.toMatch(
+      name === "en"
+        ? /(?:must not (?:submit or make available|send|instruct Mate to process)|Users must not include) sensitive personal information/i
+        : /(?:darf keine sensiblen personenbezogenen Informationen|dürfen (?:über Mate )?keine sensiblen personenbezogenen Informationen|darf den Anbieter nicht anweisen, mit Mate sensible personenbezogene Informationen)/i,
     );
     expect(privacy).toMatch(
       name === "en"
@@ -186,13 +232,28 @@ describe("legal documents describe only what the product does", () => {
     );
     expect(subprocessors).toMatch(
       name === "en"
-        ? /Terms of Use.*does not establish an account-specific training opt-out/is
-        : /Nutzungsbedingungen.*weder eine kontospezifische Deaktivierung des Trainings/is,
+        ? /Microsoft Azure.*Active downstream inference provider.*OpenAI-created models/is
+        : /Microsoft Azure.*Aktiver nachgelagerter Inferenzanbieter.*von OpenAI entwickelten Modelle/is,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /team-wide.*Zero Data Retention.*every AI Gateway request.*ZDR agreement.*prompt-training opt-out/is
+        : /teamweite.*Zero-Data-Retention.*jede AI-Gateway-Anfrage.*ZDR-Vereinbarung.*Training/is,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /do not delete, shorten, or otherwise change.*Customermates application-level storage/is
+        : /löschen, verkürzen oder ändern nicht.*Speicherung auf Anwendungsebene bei Customermates/is,
+    );
+    expect(subprocessors).toMatch(
+      name === "en"
+        ? /does not identify the exact Microsoft legal entity or the regional inference location/is
+        : /weder die genaue Microsoft-Rechtseinheit noch den regionalen Inferenzstandort/is,
     );
     expect(text).not.toMatch(
       name === "en"
-        ? /business\/API data is not used to train|not used to train its models by default/i
-        : /Business- und API-Daten.*nicht zum Training|standardmäßig nicht zum Training/i,
+        ? /(?:routes?|sends?|transfers?) (?:model )?(?:requests?|request context|prompts?|outputs?).*to OpenAI|(?:requests?|request context|prompts?|outputs?) (?:are |is )?(?:routed|sent|transferred)(?: through [^.]+)? to OpenAI|OpenAI (?:receives|processes) (?:Mate )?(?:requests?|prompts?|outputs?)|absence of a public Zero Data Retention promise for Customermates/i
+        : /leitet.*(?:Anfragen?|Anfragekontext|Eingaben?|Ausgaben?).*an OpenAI weiter|(?:Anfragen?|Anfragekontext|Eingaben?|Ausgaben?).*an OpenAI (?:weitergeleitet|gesendet|übermittelt)|OpenAI (?:erhält|verarbeitet).*(?:Anfragen?|Eingaben?|Ausgaben?)|fehlenden öffentlichen Versprechens von Zero Data Retention für Customermates/i,
     );
     expect(privacy).toMatch(
       name === "en"
