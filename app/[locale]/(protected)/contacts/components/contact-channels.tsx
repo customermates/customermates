@@ -56,7 +56,7 @@ export const ContactChannels = observer(({ contactId, emptyHint, headingEndAddon
       connectedAccountId: first?.id ?? "",
       recipientIdentifier: identifier.messagingId ?? identifier.value,
       recipientDisplayName: identifier.displayName ?? null,
-      onSent: () => setComposeKey(null),
+      onDone: () => setComposeKey(null),
     });
     setComposeKey(key);
   }

@@ -7,6 +7,7 @@ import { Send, Loader2, Check, ChevronDown, Paperclip, Smile } from "lucide-reac
 import { Action, Resource } from "@/generated/prisma";
 
 import type { MessagingProvider } from "@/generated/prisma";
+import type { NewThreadTarget } from "./thread-compose.store";
 import type { LinkedinProduct } from "@/ee/messaging/provider";
 
 import { LINKEDIN_PRODUCTS } from "@/ee/messaging/provider";
@@ -86,10 +87,11 @@ type Props = {
   defaultRecipients?: string[];
   defaultCc?: string[];
   bare?: boolean;
+  newThreadTarget?: NewThreadTarget | null;
 };
 
 export const ThreadReplyComposer = observer(
-  ({ threadId, provider, defaultSubject, defaultRecipients, defaultCc, bare }: Props) => {
+  ({ threadId, provider, defaultSubject, defaultRecipients, defaultCc, bare, newThreadTarget }: Props) => {
     const t = useTranslations();
     const intlStore = useHydratedIntlStore();
     const { userStore, threadComposeStore, connectedAccountsStore } = useRootStore();
@@ -121,6 +123,10 @@ export const ThreadReplyComposer = observer(
       if (initializedThreadId.current === threadId) return;
       initializedThreadId.current = threadId;
       if (threadComposeStore.form.threadId === threadId) return;
+      if (newThreadTarget) {
+        threadComposeStore.initializeNewThread({ provider, ...newThreadTarget });
+        return;
+      }
       threadComposeStore.initialize({
         provider,
         threadId,
@@ -128,7 +134,7 @@ export const ThreadReplyComposer = observer(
         defaultRecipients,
         defaultCc,
       });
-    }, [threadComposeStore, provider, threadId, defaultSubject, defaultRecipients, defaultCc]);
+    }, [threadComposeStore, provider, threadId, defaultSubject, defaultRecipients, defaultCc, newThreadTarget]);
 
     function handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
       if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
@@ -404,7 +410,7 @@ export const ThreadReplyComposer = observer(
 
           <div className="flex items-stretch">
             <Button
-              className={isNewThread ? undefined : "rounded-r-none pr-2.5"}
+              className="rounded-r-none pr-2.5"
               disabled={isLoading}
               id="inbox-reply-send"
               size="sm"
@@ -415,27 +421,25 @@ export const ThreadReplyComposer = observer(
               <span>{t("Inbox.compose.send")}</span>
             </Button>
 
-            {!isNewThread && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    aria-label={t("Inbox.compose.moreSendOptions")}
-                    className="border-primary-foreground/20 rounded-l-none border-l px-1.5"
-                    disabled={isLoading}
-                    size="sm"
-                    type="button"
-                  >
-                    <ChevronDown className="size-4" />
-                  </Button>
-                </DropdownMenuTrigger>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  aria-label={t("Inbox.compose.moreSendOptions")}
+                  className="border-primary-foreground/20 rounded-l-none border-l px-1.5"
+                  disabled={isLoading}
+                  size="sm"
+                  type="button"
+                >
+                  <ChevronDown className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
 
-                <DropdownMenuContent align="end" className="min-w-40">
-                  <DropdownMenuItem onSelect={() => runUserAction(() => threadComposeStore.saveDraft())}>
-                    {editingDraftId ? t("Inbox.compose.updateDraft") : t("Inbox.compose.saveDraft")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+              <DropdownMenuContent align="end" className="min-w-40">
+                <DropdownMenuItem onSelect={() => runUserAction(() => threadComposeStore.saveDraft())}>
+                  {editingDraftId ? t("Inbox.compose.updateDraft") : t("Inbox.compose.saveDraft")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </AppForm>

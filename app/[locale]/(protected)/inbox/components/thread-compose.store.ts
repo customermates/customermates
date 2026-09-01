@@ -48,7 +48,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   pendingAttachments: Record<string, File[]> = {};
   newThreadTarget: NewThreadTarget | null = null;
 
-  private onNewThreadSent: (() => void) | null = null;
+  private onNewThreadDone: (() => void) | null = null;
 
   constructor(rootStore: RootStore) {
     super(rootStore, {
@@ -159,7 +159,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     this.attachments = [];
     this.draftAttachments = [];
     this.newThreadTarget = null;
-    this.onNewThreadSent = null;
+    this.onNewThreadDone = null;
     this.onInitOrRefresh({
       provider: init.provider,
       threadId: init.threadId,
@@ -184,13 +184,13 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     connectedAccountId: string;
     recipientIdentifier: string;
     recipientDisplayName: string | null;
-    onSent?: () => void;
+    onDone?: () => void;
   }) => {
     this.showCcBcc = false;
     this.editingDraftId = null;
     this.attachments = [];
     this.draftAttachments = [];
-    this.onNewThreadSent = init.onSent ?? null;
+    this.onNewThreadDone = init.onDone ?? null;
     this.newThreadTarget = {
       connectedAccountId: init.connectedAccountId,
       recipientIdentifier: init.recipientIdentifier,
@@ -383,8 +383,12 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
         this.attachments = [];
       });
 
+      const sentDraftId = this.editingDraftId;
+      runInAction(() => (this.editingDraftId = null));
+      if (sentDraftId) await discardDraftAction({ messageId: sentDraftId });
+
       this.toastSuccess("Inbox.compose.newThreadSent");
-      this.onNewThreadSent?.();
+      this.onNewThreadDone?.();
     } catch {
       this.toastError("Common.notifications.unexpectedError");
     } finally {
@@ -409,7 +413,11 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   }
 
   saveDraft = async (): Promise<void> => {
-    if (!this.form.threadId || !this.form.body.trim()) return;
+    if (!this.form.body.trim()) return;
+
+    const target = this.newThreadTarget;
+    const threadId = this.form.threadId;
+    if (!threadId && !target) return;
     if (!this.validateEmails()) return;
 
     const detail = this.rootStore.messagingThreadDetailStore;
@@ -417,7 +425,9 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     this.setIsLoading(true);
     try {
       const result = await saveDraftAction({
-        threadId: this.form.threadId,
+        ...(threadId
+          ? { threadId }
+          : { connectedAccountId: target?.connectedAccountId, recipients: [target?.recipientIdentifier ?? ""] }),
         subject: this.isEmail ? this.form.subject : undefined,
         body: this.form.body,
         cc: this.isEmail && this.form.cc.length ? this.form.cc : undefined,
@@ -431,15 +441,23 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
 
       const draft = result.data;
       runInAction(() => {
-        if (detail.messages.some((message) => message.id === draft.id)) detail.replaceMessageById(draft.id, draft);
-        else detail.appendMessage(draft);
+        if (threadId) {
+          if (detail.messages.some((message) => message.id === draft.id)) detail.replaceMessageById(draft.id, draft);
+          else detail.appendMessage(draft);
+        }
         this.form.body = "";
+        this.form.subject = "";
         this.form.cc = [];
         this.form.bcc = [];
         this.draftAttachments = [...this.attachments];
         this.attachments = [];
         this.editingDraftId = null;
       });
+
+      if (!threadId) {
+        this.toastSuccess("Inbox.compose.draftSaved");
+        this.onNewThreadDone?.();
+      }
     } finally {
       runInAction(() => this.setIsLoading(false));
     }

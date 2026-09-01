@@ -1,11 +1,22 @@
 import type { MessagingProvider } from "@/generated/prisma";
 import { type Prisma } from "@/generated/prisma";
 
-import { MessagingMessageDirection, MessagingMessageOrigin, MessagingThreadType } from "@/generated/prisma";
+import {
+  MessagingMessageDirection,
+  MessagingMessageOrigin,
+  MessagingThreadState,
+  MessagingThreadType,
+} from "@/generated/prisma";
 
 import { randomUUID } from "node:crypto";
 
-import type { AttachmentMeta, MessagingAttendee, MessagingMessage, IngestMessage } from "../messaging.schema";
+import type {
+  AttachmentMeta,
+  MessagingAttendee,
+  MessagingMessage,
+  MessagingThread,
+  IngestMessage,
+} from "../messaging.schema";
 
 import type { GetMessagingThreadRepo } from "../inbox/get-messaging-thread.interactor";
 import type { ResyncThreadRepo } from "../inbox/resync-thread.interactor";
@@ -42,7 +53,14 @@ import {
   threadFolderMembershipWhere,
   threadHasActivityWhere,
 } from "../messaging-access";
-import { channelClass, classWhere, isEmailProvider, isHandleProvider } from "../provider";
+import {
+  DRAFT_THREAD_PREFIX,
+  channelClass,
+  classWhere,
+  isDraftThreadId,
+  isEmailProvider,
+  isHandleProvider,
+} from "../provider";
 import { identifierKey } from "@/features/contacts/upsert/validate-identifiers";
 
 type MappedThreadRow = ReturnType<PrismaMessagingRepo["mapThreadRow"]>;
@@ -193,11 +211,31 @@ export class PrismaMessagingRepo
         field: FilterFieldKey.provider,
         operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.provider],
       },
+      {
+        field: FilterFieldKey.draft,
+        operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.draft],
+      },
     ]);
   }
 
   private isContactFilterField(field: string) {
     return field === FilterFieldKey.participantContactId.toString() || field === FilterFieldKey.participants.toString();
+  }
+
+  private isDraftFilterField(field: string) {
+    return field === FilterFieldKey.draft.toString();
+  }
+
+  private isRepoHandledFilterField(field: string) {
+    return this.isContactFilterField(field) || this.isDraftFilterField(field);
+  }
+
+  private draftWhereForFilters(filters: Filter[]): Prisma.MessagingThreadWhereInput[] {
+    return filters.map((filter) =>
+      filter.operator === FilterOperatorKey.hasNone
+        ? { messages: { none: { isDraft: true } } }
+        : { messages: { some: { isDraft: true } } },
+    );
   }
 
   private async participantWhereForContactFilters(filters: Filter[]): Promise<Prisma.MessagingThreadWhereInput[]> {
@@ -237,18 +275,23 @@ export class PrismaMessagingRepo
 
   override async buildQueryArgs(params: GetQueryParams, baseWhere: Prisma.MessagingThreadWhereInput = {}) {
     const filters = params.filters ?? [];
-    const contactFilters = filters.filter((f) => this.isContactFilterField(f.field));
-    if (contactFilters.length === 0) return super.buildQueryArgs(params, baseWhere);
+    const handledFilters = filters.filter((f) => this.isRepoHandledFilterField(f.field));
+    if (handledFilters.length === 0) return super.buildQueryArgs(params, baseWhere);
 
-    const participantClauses = await this.participantWhereForContactFilters(contactFilters);
+    const clauses = [
+      ...(await this.participantWhereForContactFilters(
+        handledFilters.filter((f) => this.isContactFilterField(f.field)),
+      )),
+      ...this.draftWhereForFilters(handledFilters.filter((f) => this.isDraftFilterField(f.field))),
+    ];
     const existingAnd = Array.isArray(baseWhere.AND) ? baseWhere.AND : baseWhere.AND ? [baseWhere.AND] : [];
     const mergedBaseWhere: Prisma.MessagingThreadWhereInput = {
       ...baseWhere,
-      AND: [...existingAnd, ...participantClauses],
+      AND: [...existingAnd, ...clauses],
     };
     const strippedParams = {
       ...params,
-      filters: filters.filter((f) => !this.isContactFilterField(f.field)),
+      filters: filters.filter((f) => !this.isRepoHandledFilterField(f.field)),
     };
 
     return super.buildQueryArgs(strippedParams, mergedBaseWhere);
@@ -790,6 +833,58 @@ export class PrismaMessagingRepo
     return { ...rest, identifier: identifier ?? "", attendeeId: providerUserId ?? "", contact: null };
   }
 
+  async findThreadDraftId(threadId: string) {
+    const row = await this.prisma.messagingMessage.findFirst({
+      where: {
+        messagingThreadId: threadId,
+        companyId: this.companyId,
+        isDraft: true,
+        thread: threadAccessWhere(this.companyId, this.userId),
+      },
+      select: { id: true },
+    });
+
+    return row?.id ?? null;
+  }
+
+  async findOrCreateDraftThread(args: {
+    connectedAccountId: string;
+    provider: MessagingProvider;
+    recipients: string[];
+  }) {
+    const existing = await this.prisma.messagingThread.findFirst({
+      where: {
+        ...threadAccessWhere(this.companyId, this.userId),
+        connectedAccountId: args.connectedAccountId,
+        participants: { some: { identifier: { in: args.recipients } } },
+      },
+      orderBy: [{ lastMessageAt: { sort: "desc", nulls: "last" } }, { id: "desc" }],
+    });
+
+    if (existing) return existing as unknown as MessagingThread;
+
+    const row = await this.prisma.messagingThread.create({
+      data: {
+        companyId: this.companyId,
+        connectedAccountId: args.connectedAccountId,
+        provider: args.provider,
+        unipileThreadId: `${DRAFT_THREAD_PREFIX}${randomUUID()}`,
+        type: MessagingThreadType.single,
+        state: MessagingThreadState.open,
+        participants: {
+          create: args.recipients.map((identifier) => ({
+            companyId: this.companyId,
+            provider: args.provider,
+            providerUserId: identifier,
+            identifier,
+          })),
+        },
+      },
+    });
+
+    return row as unknown as MessagingThread;
+  }
+
   async upsertThreadDraft(args: {
     threadId: string;
     connectedAccountId: string;
@@ -949,7 +1044,20 @@ export class PrismaMessagingRepo
       where: { id: args.messageId, companyId: this.companyId, isDraft: true },
     });
 
+    await this.deleteEmptyDraftThreadShell(draft.messagingThreadId);
+
     return { messagingThreadId: draft.messagingThreadId };
+  }
+
+  private async deleteEmptyDraftThreadShell(threadId: string) {
+    const thread = await this.prisma.messagingThread.findFirst({
+      where: { id: threadId, companyId: this.companyId, messages: { none: {} } },
+      select: { id: true, unipileThreadId: true },
+    });
+
+    if (!thread || !isDraftThreadId(thread.unipileThreadId)) return;
+
+    await this.prisma.messagingThread.deleteMany({ where: { id: thread.id, companyId: this.companyId } });
   }
 
   async persistOutboundMessageOrThrow(args: { connectedAccountId: string; message: IngestMessage }) {

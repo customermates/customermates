@@ -15,6 +15,7 @@ import {
   refreshConnectedAccountsAction,
   resyncConnectedAccountAction,
   setConnectedAccountVisibilityAction,
+  setConnectedAccountSignatureAction,
   setSelectedFoldersAction,
   startConnectAccountAction,
   startReconnectAccountAction,
@@ -178,6 +179,22 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
 
       toastZodErrorTree(res.error);
     });
+  };
+
+  setSignature = async (id: string, signature: string): Promise<ConnectedAccountDto | null> => {
+    const res = await setConnectedAccountSignatureAction(id, signature);
+
+    if (!res.ok) {
+      this.toastError("ConnectedAccountsCard.signatureUpdateFailed");
+      return null;
+    }
+
+    const existing = this.items.find((account) => account.id === id);
+    const merged = { ...existing, ...res.data };
+    await this.upsertItem(merged);
+    this.toastSuccess("ConnectedAccountsCard.signatureSaved");
+
+    return merged;
   };
 
   setVisibility = async (id: string, shared: boolean): Promise<ConnectedAccountDto | null> => {

@@ -23,7 +23,10 @@ import { getEffectiveEntitlements } from "@/ee/subscription/entitlements";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 import { accountStatusChipColor, getProviderDisplayLabel } from "./account-status-color";
+import { isEmailProvider } from "@/ee/messaging/provider";
+
 import { AccountFolders } from "./account-folders";
+import { AccountSignature } from "./account-signature";
 
 export const ConnectedAccountModal = observer(() => {
   const t = useTranslations();
@@ -193,6 +196,14 @@ export const ConnectedAccountModal = observer(() => {
               </InfoRow>
             )}
           </div>
+
+          {isEmailProvider(account.provider) && account.isOwner && (
+            <AccountSignature
+              disabled={!canUpdate}
+              value={account.signature ?? ""}
+              onSave={(next) => runUserAction(() => connectedAccountModalStore.saveSignature(next))}
+            />
+          )}
 
           {account.folders.length > 0 && (
             <AccountFolders

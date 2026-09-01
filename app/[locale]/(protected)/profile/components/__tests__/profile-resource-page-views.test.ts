@@ -93,6 +93,7 @@ function connectedAccount(): ConnectedAccountDto {
     shared: false,
     hasMessaging: true,
     hasCalendar: false,
+    signature: null,
     emailAddress: "inbox@example.com",
     isOwner: true,
     folders: [],

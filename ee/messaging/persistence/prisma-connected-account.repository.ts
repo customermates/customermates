@@ -7,6 +7,7 @@ import type { DeleteConnectedAccountRepo } from "../connect/delete-connected-acc
 import type { ResyncConnectedAccountRepo } from "../connect/resync-connected-account.interactor";
 import type { ReconnectConnectedAccountRepo } from "../connect/reconnect-connected-account.interactor";
 import type { SetConnectedAccountVisibilityRepo } from "../connect/set-connected-account-visibility.interactor";
+import type { SetConnectedAccountSignatureRepo } from "../connect/set-connected-account-signature.interactor";
 import type { AccountWebhookRepo } from "../webhooks/account/account-webhook.repo";
 import type { WebhookActivityRepo } from "../webhooks/relation/relation-webhook.repo";
 import type { ConnectedAccountDto } from "../messaging.schema";
@@ -46,6 +47,7 @@ export class PrismaConnectedAccountRepo
     ResyncConnectedAccountRepo,
     ReconnectConnectedAccountRepo,
     SetConnectedAccountVisibilityRepo,
+    SetConnectedAccountSignatureRepo,
     AccountWebhookRepo,
     BackfillConnectedAccountRepo,
     ClaimBackfillRepo,
@@ -401,6 +403,7 @@ export class PrismaConnectedAccountRepo
       selectedFolderIds: true,
       foldersSyncedAt: true,
       linkedinProducts: true,
+      signature: true,
       user: { select: { id: true, firstName: true, lastName: true, avatarUrl: true } },
     } as const;
   }
@@ -498,6 +501,15 @@ export class PrismaConnectedAccountRepo
     await this.prisma.connectedAccount.updateMany({
       where: { id: args.id, companyId: this.companyId, userId: this.userId },
       data: { selectedFolderIds: args.selectedFolderIds },
+    });
+
+    return this.getAccountByIdOrThrow(args.id);
+  }
+
+  async setAccountSignatureOrThrow(args: { id: string; signature: string | null }) {
+    await this.prisma.connectedAccount.updateMany({
+      where: { id: args.id, companyId: this.companyId, userId: this.userId },
+      data: { signature: args.signature },
     });
 
     return this.getAccountByIdOrThrow(args.id);

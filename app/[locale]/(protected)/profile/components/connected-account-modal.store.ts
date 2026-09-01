@@ -28,6 +28,7 @@ export class ConnectedAccountModalStore extends BaseModalStore<ConnectedAccountD
         selectedFolderIds: [],
         foldersSyncedAt: null,
         linkedinProducts: [],
+        signature: null,
       },
       Resource.inboxMessages,
     );
@@ -35,6 +36,11 @@ export class ConnectedAccountModalStore extends BaseModalStore<ConnectedAccountD
 
   toggleVisibility = async (shared: boolean): Promise<void> => {
     const updated = await this.rootStore.connectedAccountsStore.setVisibility(this.form.id, shared);
+    if (updated) this.onInitOrRefresh(updated);
+  };
+
+  saveSignature = async (signature: string): Promise<void> => {
+    const updated = await this.rootStore.connectedAccountsStore.setSignature(this.form.id, signature);
     if (updated) this.onInitOrRefresh(updated);
   };
 

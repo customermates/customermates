@@ -486,10 +486,13 @@ export const saveMessageDraftTool = {
   name: "save_message_draft",
   title: "Save message draft",
   description:
-    "Use this when the user wants a reply prepared for review: the draft appears in their inbox compose box and they send it themselves. " +
-    "Drafts require an existing thread; there is no draft for a brand-new outbound email. " +
+    "Use this when the user wants a message prepared for review: the draft appears in their inbox and they send it themselves. " +
+    "Two modes. With threadId it drafts a reply on that existing thread. With connectedAccountId plus recipients it prepares a " +
+    "brand-new conversation that exists only as a draft, so outreach to someone you have never messaged can be prepared without " +
+    "sending anything; recipients takes email addresses, or one linkedin, telegram or instagram handle. " +
     "send_email and send_chat_message deliver immediately, never use them when asked to draft. " +
-    "A thread has at most one draft, saving again replaces it. subject, cc, and bcc apply to email threads only. " +
+    "A thread has at most one draft, saving again replaces it. subject, cc, and bcc apply to email only. " +
+    "Drafts show up in get_messaging_threads and can be isolated there with the draft filter. " +
     "Returns the draft message id and its thread id.",
   annotations: {
     readOnlyHint: false,

@@ -199,6 +199,7 @@ import { ResyncConnectedAccountInteractor } from "@/ee/messaging/connect/resync-
 import { ResyncThreadInteractor } from "@/ee/messaging/inbox/resync-thread.interactor";
 import { ReconnectConnectedAccountInteractor } from "@/ee/messaging/connect/reconnect-connected-account.interactor";
 import { SetConnectedAccountVisibilityInteractor } from "@/ee/messaging/connect/set-connected-account-visibility.interactor";
+import { SetConnectedAccountSignatureInteractor } from "@/ee/messaging/connect/set-connected-account-signature.interactor";
 import { SetSelectedFoldersInteractor } from "@/ee/messaging/connect/set-selected-folders.interactor";
 import { DeleteAccountForBillingService } from "@/ee/messaging/connect/delete-account-for-billing.service";
 import { DeleteAccountsForPlanInteractor } from "@/ee/messaging/connect/delete-accounts-for-plan.interactor";
@@ -1293,6 +1294,9 @@ export const getSendEmailInteractor = () =>
     getMessagingService(),
     getEntitlementService(),
   );
+
+export const getSetConnectedAccountSignatureInteractor = () =>
+  new SetConnectedAccountSignatureInteractor(getConnectedAccountRepo(), getEntitlementService());
 
 export const getSaveDraftInteractor = () =>
   new SaveDraftInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEntitlementService());

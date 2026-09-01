@@ -10,6 +10,7 @@ import {
   getGetMyConnectedAccountsInteractor,
   getReconnectConnectedAccountInteractor,
   getResyncConnectedAccountInteractor,
+  getSetConnectedAccountSignatureInteractor,
   getSetConnectedAccountVisibilityInteractor,
   getSetSelectedFoldersInteractor,
 } from "@/core/di";
@@ -29,6 +30,10 @@ export async function disconnectConnectedAccountAction(id: string) {
 
 export async function setConnectedAccountVisibilityAction(id: string, shared: boolean) {
   return serializeResult(getSetConnectedAccountVisibilityInteractor().invoke({ id, shared }));
+}
+
+export async function setConnectedAccountSignatureAction(id: string, signature: string) {
+  return serializeResult(getSetConnectedAccountSignatureInteractor().invoke({ id, signature }));
 }
 
 export async function resyncConnectedAccountAction(id: string) {

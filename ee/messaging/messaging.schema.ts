@@ -43,6 +43,7 @@ export const ConnectedAccountDtoSchema = z.object({
   selectedFolderIds: z.array(z.string()).default([]),
   foldersSyncedAt: z.date().nullable(),
   linkedinProducts: z.array(z.string()).default([]),
+  signature: z.string().nullable().default(null),
 });
 export type ConnectedAccountDto = Data<typeof ConnectedAccountDtoSchema>;
 

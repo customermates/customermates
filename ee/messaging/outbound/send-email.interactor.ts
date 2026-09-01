@@ -27,6 +27,8 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { formatRetryAfter } from "../retry-after";
 import { isUnipileResourceNotFound, isUnipileTimeout } from "../messaging.service";
+import { isDraftThreadId } from "../provider";
+import { applyEmailSignature, toEmailHtml } from "./email-signature";
 import { MessagingMessageDtoSchema, toMessagingMessageDto } from "../inbox/inbox.schema";
 import { EMPTY_ATTENDEE, buildEmailMessage, toAttachmentsMeta } from "../unipile.mappers";
 import { UnipileEmailSchema } from "../unipile.schema";
@@ -137,6 +139,8 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
 
     if (data.threadId) {
       thread = await this.repo.findThreadByIdOrThrow(data.threadId);
+      if (isDraftThreadId(thread.unipileThreadId)) return fail(CustomErrorCode.draftThreadNotSent, ["threadId"]);
+
       account = await this.accountRepo.findUsableAccountByIdOrThrow(thread.connectedAccountId);
       inReplyTo = (await this.repo.findLatestEmailReplyReferenceForThread(thread.id)) ?? undefined;
     } else {
@@ -151,12 +155,15 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
     if (data.draftMessageId && !(await this.repo.findDraftById({ messageId: data.draftMessageId })))
       return failNotFound(CustomErrorCode.draftMessageNotFound);
 
+    const outgoingBody = data.draftMessageId ? data.body : applyEmailSignature(data.body, account.signature);
+    const outgoingHtml = toEmailHtml(outgoingBody);
+
     if (
       thread &&
-      data.body.trim() &&
+      outgoingBody.trim() &&
       (await this.repo.findRecentOutboundDuplicate({
         messagingThreadId: thread.id,
-        bodyText: data.body,
+        bodyText: outgoingBody,
         windowMs: DUPLICATE_OUTBOUND_WINDOW_MS,
       }))
     )
@@ -171,7 +178,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
       cc: data.cc?.map((email) => ({ email })),
       bcc: data.bcc?.map((email) => ({ email })),
       subject: data.subject,
-      body: data.body,
+      body: outgoingHtml,
       inReplyTo,
       attachments: data.attachments,
     });
@@ -213,8 +220,8 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
         sender,
         recipients,
         subject: data.subject,
-        bodyText: data.body,
-        bodyHtml: data.body,
+        bodyText: outgoingBody,
+        bodyHtml: outgoingHtml,
         attachmentsMeta,
         sentAt,
       });
@@ -233,8 +240,8 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
         sender,
         recipients,
         subject: data.subject,
-        bodyText: data.body,
-        bodyHtml: data.body,
+        bodyText: outgoingBody,
+        bodyHtml: outgoingHtml,
         attachmentsMeta,
         isEvent: false,
         isDeleted: false,
