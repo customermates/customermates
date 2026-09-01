@@ -5,12 +5,10 @@ import type { UpsertRoutineData } from "@/ee/routines/routine.schema";
 import type { DeleteRoutineData } from "@/ee/routines/delete-routine.interactor";
 import type { RunRoutineNowData } from "@/ee/routines/run-routine-now.interactor";
 import type { GetRoutineRunsData } from "@/ee/routines/get-routine-runs.interactor";
-import type { GetRoutineRunTranscriptData } from "@/ee/routines/get-routine-run-transcript.interactor";
 import type { GetRoutineRisksData } from "@/ee/routines/get-routine-risks.interactor";
 
 import {
   getDeleteRoutineInteractor,
-  getGetRoutineRunTranscriptInteractor,
   getGetCustomColumnsInteractor,
   getGetRoutineRisksInteractor,
   getGetWidgetFilterableFieldsInteractor,
@@ -40,10 +38,6 @@ export async function runRoutineNowAction(data: RunRoutineNowData) {
 
 export async function getRoutineRunsAction(data: GetRoutineRunsData) {
   return unwrapValidated(getGetRoutineRunsInteractor().invoke(data));
-}
-
-export async function getRoutineRunTranscriptAction(data: GetRoutineRunTranscriptData) {
-  return unwrapValidated(getGetRoutineRunTranscriptInteractor().invoke(data));
 }
 
 export async function getRoutineRisksAction(data: GetRoutineRisksData) {

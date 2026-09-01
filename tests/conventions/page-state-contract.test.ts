@@ -61,7 +61,7 @@ const exhaustiveResourceOwners = [
 
 describe("page-state ownership", () => {
   it("gives every protected product route a direct feature or family loader", () => {
-    expect(protectedLoaders).toHaveLength(27);
+    expect(protectedLoaders).toHaveLength(26);
     for (const path of protectedLoaders) {
       expect(existsSync(resolve(root, path)), path).toBe(true);
       expect(existsSync(resolve(root, dirname(path), "page.tsx")), `${path}:page`).toBe(true);

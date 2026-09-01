@@ -8,12 +8,12 @@ import type { AgentChatItem } from "./agent-chat.store";
 
 import { agentActivityCopy } from "@/ee/agent-chat/agent-activity";
 
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useAgentChatStore } from "./agent-chat-store-context";
 import { chatUiCopy } from "./chat-ui";
 import { useAgentActivityTerminology } from "./agent-chat-items";
 
 export const AgentStatusAnnouncer = observer(function AgentStatusAnnouncer() {
-  const { agentChatStore: store } = useRootStore();
+  const store = useAgentChatStore();
   const t = useTranslations();
   const copy = chatUiCopy(t);
   const terminology = useAgentActivityTerminology();
@@ -53,7 +53,7 @@ export const AgentStatusAnnouncer = observer(function AgentStatusAnnouncer() {
 });
 
 export const AgentProgressStatus = observer(function AgentProgressStatus() {
-  const { agentChatStore: store } = useRootStore();
+  const store = useAgentChatStore();
   const t = useTranslations();
   const copy = chatUiCopy(t);
   const label =

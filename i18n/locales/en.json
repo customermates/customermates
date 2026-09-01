@@ -806,7 +806,6 @@
       "delete": "Delete",
       "deleteCustomFields": "Delete Field",
       "discard": "Discard",
-      "edit": "Edit",
       "editCustomFields": "Edit Field",
       "expand": "Expand",
       "labelHistory": "History",
@@ -2532,21 +2531,19 @@
   },
   "RoutineDetail": {
     "credits": "Credits",
-    "followUpPlaceholder": "Ask a follow-up about this run…",
     "loopWarningMutual": "This routine and another one each change the records the other listens to. Customermates ignores events a routine caused, so they will not trigger each other.",
     "loopWarningSelf": "This routine changes the same records it listens to. Customermates ignores events a routine caused, so it will not loop, but it also will not react to its own changes.",
     "loopWarningTitle": "Possible trigger loop",
     "never": "Never",
-    "nextRun": "Next run",
     "noRuns": "This routine has not run yet.",
     "runNow": "Run now",
-    "runs": "Runs",
-    "runTitle": "Routine run"
+    "runs": "Runs"
   },
   "RoutineModal": {
     "advanced": "Advanced",
     "at": "at",
     "changedFieldsHelp": "Leave empty to run on every change. Narrowing this saves credits.",
+    "detailsTab": "Details",
     "disabled": "Paused",
     "enabled": "Active",
     "eventFilters": "Only when the record matches",

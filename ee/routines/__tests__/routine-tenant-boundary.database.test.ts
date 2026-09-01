@@ -82,22 +82,6 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     ).rejects.toThrow();
   });
 
-  it("returns a routine run transcript to the person the conversation belongs to", async () => {
-    const transcript = await runWithTenant(tenant(ownerId), () =>
-      new PrismaRoutineRepo().getRoutineRunTranscript(runId),
-    );
-
-    expect(transcript).toHaveLength(1);
-  });
-
-  it("withholds the transcript from a teammate who does not own the conversation", async () => {
-    const transcript = await runWithTenant(tenant(teammateId), () =>
-      new PrismaRoutineRepo().getRoutineRunTranscript(runId),
-    );
-
-    expect(transcript).toEqual([]);
-  });
-
   it("lists only the caller's company when finding event routines", async () => {
     const routines = await runWithTenant(tenant(ownerId), () =>
       new PrismaRoutineRepo().findEventRoutinesUnscoped(companyId, "contact.updated"),

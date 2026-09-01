@@ -806,7 +806,6 @@
       "delete": "Supprimer",
       "deleteCustomFields": "Supprimer le champ",
       "discard": "Abandonner",
-      "edit": "Modifier",
       "editCustomFields": "Modifier le champ",
       "expand": "Agrandir",
       "labelHistory": "Historique",
@@ -2532,21 +2531,19 @@
   },
   "RoutineDetail": {
     "credits": "Crédits",
-    "followUpPlaceholder": "Posez une question complémentaire sur cette exécution…",
     "loopWarningMutual": "Cette routine et une autre modifient chacune les enregistrements que l'autre surveille. Customermates ignore les évènements causés par une routine, elles ne se déclencheront donc pas mutuellement.",
     "loopWarningSelf": "Cette routine modifie les mêmes enregistrements qu'elle surveille. Customermates ignore les évènements causés par une routine, elle ne bouclera donc pas, mais ne réagira pas non plus à ses propres modifications.",
     "loopWarningTitle": "Boucle de déclenchement possible",
     "never": "Jamais",
-    "nextRun": "Prochaine exécution",
     "noRuns": "Cette routine n'a pas encore été exécutée.",
     "runNow": "Exécuter maintenant",
-    "runs": "Exécutions",
-    "runTitle": "Exécution de routine"
+    "runs": "Exécutions"
   },
   "RoutineModal": {
     "advanced": "Avancé",
     "at": "à",
     "changedFieldsHelp": "Laissez vide pour s'exécuter à chaque changement. Restreindre économise des crédits.",
+    "detailsTab": "Détails",
     "disabled": "En pause",
     "enabled": "Active",
     "eventFilters": "Uniquement si l'enregistrement correspond",

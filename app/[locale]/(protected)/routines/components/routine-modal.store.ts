@@ -5,12 +5,21 @@ import type { RoutineDto } from "@/ee/routines/routine.schema";
 import type { RoutineSchedulePreset } from "@/ee/routines/routine-schedule-preset";
 import type { Filter, FilterableField } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { RoutineRunDto } from "@/ee/routines/routine.schema";
+import type { RoutineRiskDto } from "@/ee/routines/get-routine-risks.interactor";
 
 import { action, computed, makeObservable, observable, runInAction, toJS } from "mobx";
 import type { EntityType } from "@/generated/prisma";
 import { Resource, RoutineTriggerKind } from "@/generated/prisma";
 
-import { deleteRoutineAction, getRoutineFilterFieldsAction, upsertRoutineAction } from "../actions";
+import {
+  deleteRoutineAction,
+  getRoutineFilterFieldsAction,
+  getRoutineRisksAction,
+  getRoutineRunsAction,
+  runRoutineNowAction,
+  upsertRoutineAction,
+} from "../actions";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
@@ -88,6 +97,12 @@ export function routineFormFor(routine: RoutineDto): RoutineModalForm {
 }
 
 export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
+  activeTab: "details" | "runs" = "details";
+  runs: RoutineRunDto[] = [];
+  risks: RoutineRiskDto[] = [];
+  openRunId: string | null = null;
+  isRunsLoading = false;
+  isStartingRun = false;
   filterableFieldsByEntityType: Partial<Record<EntityType, FilterableField[]>> = {};
   customColumnsByEntityType: Partial<Record<EntityType, CustomColumnDto[]>> = {};
   private filterFieldsLoaded = false;
@@ -96,9 +111,16 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     super(rootStore, EMPTY_ROUTINE_FORM, Resource.api);
 
     makeObservable(this, {
+      activeTab: observable,
+      runs: observable,
+      risks: observable,
+      openRunId: observable,
+      isRunsLoading: observable,
+      isStartingRun: observable,
       filterableFieldsByEntityType: observable,
       customColumnsByEntityType: observable,
 
+      openRun_: computed,
       triggerEntityType: computed,
       filterableFields: computed,
       customColumns: computed,
@@ -108,6 +130,11 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       loadFilterFields: action,
       openForCreate: action,
       openForEdit: action,
+      setActiveTab: action,
+      openRun: action,
+      closeRun: action,
+      loadRuns: action,
+      runNow: action,
     });
   }
 
@@ -127,14 +154,89 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     return entityType ? (this.customColumnsByEntityType[entityType] ?? []) : [];
   }
 
+  get openRun_(): RoutineRunDto | null {
+    return this.runs.find((run) => run.id === this.openRunId) ?? null;
+  }
+
   openForCreate = async () => {
     await this.loadFilterFields();
+    this.activeTab = "details";
+    this.openRunId = null;
+    this.runs = [];
+    this.risks = [];
     this.openWith(this.withMergedFilterRows(EMPTY_ROUTINE_FORM));
   };
 
   openForEdit = async (routine: RoutineDto) => {
     await this.loadFilterFields();
+    this.activeTab = "details";
+    this.openRunId = null;
     this.openWith(this.withMergedFilterRows(routineFormFor(routine)));
+    void this.loadRuns(routine.id);
+  };
+
+  setActiveTab = (tab: "details" | "runs") => {
+    this.activeTab = tab;
+    if (tab === "runs" && this.form.id) void this.loadRuns(this.form.id);
+  };
+
+  openRun = async (run: RoutineRunDto) => {
+    runInAction(() => {
+      this.openRunId = run.id;
+    });
+
+    let conversationId = run.conversationId;
+    if (!conversationId && this.form.id) {
+      await this.loadRuns(this.form.id);
+      conversationId = this.runs.find((candidate) => candidate.id === run.id)?.conversationId ?? null;
+    }
+
+    if (conversationId) await this.rootStore.routineRunChatStore.selectConversation(conversationId);
+  };
+
+  closeRun = () => {
+    this.openRunId = null;
+  };
+
+  loadRuns = async (routineId: string) => {
+    this.isRunsLoading = true;
+
+    try {
+      const [runs, risks] = await Promise.all([
+        getRoutineRunsAction({ routineId, limit: 25 }),
+        getRoutineRisksAction({ routineId }),
+      ]);
+
+      runInAction(() => {
+        this.runs = runs;
+        this.risks = risks;
+      });
+    } finally {
+      runInAction(() => {
+        this.isRunsLoading = false;
+      });
+    }
+  };
+
+  runNow = async () => {
+    const routineId = this.form.id;
+    if (!routineId) return;
+
+    this.isStartingRun = true;
+
+    try {
+      const res = await runRoutineNowAction({ routineId });
+      if (!res.ok) {
+        toastZodErrorTree(res.error);
+        return;
+      }
+
+      await this.loadRuns(routineId);
+    } finally {
+      runInAction(() => {
+        this.isStartingRun = false;
+      });
+    }
   };
 
   private withMergedFilterRows = (form: RoutineModalForm): RoutineModalForm => {

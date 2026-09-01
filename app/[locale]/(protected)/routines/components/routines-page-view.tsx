@@ -8,7 +8,6 @@ import { observer } from "mobx-react-lite";
 import { useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
 
-import { useRouter } from "@/i18n/navigation";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { DataViewContent } from "@/components/data-view/data-view-content";
 import { DataViewEmpty } from "@/components/data-view/data-view-empty";
@@ -28,7 +27,6 @@ type Props = { initialRoutines: GetResult<RoutineDto> };
 
 export const RoutinesPageView = observer(function RoutinesPageView({ initialRoutines }: Props) {
   const { routineModalStore, routinesStore } = useRootStore();
-  const router = useRouter();
 
   useDataViewSync(routinesStore, initialRoutines);
   const columns = useRoutineColumns();
@@ -98,7 +96,7 @@ export const RoutinesPageView = observer(function RoutinesPageView({ initialRout
           columns={columns}
           store={routinesStore}
           view={view}
-          onRowClick={(item) => router.push(`/routines/${item.id}`)}
+          onRowClick={(item) => runUserAction(() => routineModalStore.openForEdit(item))}
         />
       );
       break;

@@ -806,7 +806,6 @@
       "delete": "Eliminar",
       "deleteCustomFields": "Eliminar campo",
       "discard": "Descartar",
-      "edit": "Editar",
       "editCustomFields": "Editar campo",
       "expand": "Ampliar",
       "labelHistory": "Historial",
@@ -2532,21 +2531,19 @@
   },
   "RoutineDetail": {
     "credits": "Créditos",
-    "followUpPlaceholder": "Haz una pregunta de seguimiento sobre esta ejecución…",
     "loopWarningMutual": "Esta rutina y otra cambian los registros que la otra escucha. Customermates ignora los eventos que causa una rutina, así que no se activarán entre sí.",
     "loopWarningSelf": "Esta rutina cambia los mismos registros que escucha. Customermates ignora los eventos que causa una rutina, así que no entrará en bucle, pero tampoco reaccionará a sus propios cambios.",
     "loopWarningTitle": "Posible bucle de disparadores",
     "never": "Nunca",
-    "nextRun": "Próxima ejecución",
     "noRuns": "Esta rutina aún no se ha ejecutado.",
     "runNow": "Ejecutar ahora",
-    "runs": "Ejecuciones",
-    "runTitle": "Ejecución de rutina"
+    "runs": "Ejecuciones"
   },
   "RoutineModal": {
     "advanced": "Avanzado",
     "at": "a las",
     "changedFieldsHelp": "Déjalo vacío para ejecutarse con cada cambio. Acotarlo ahorra créditos.",
+    "detailsTab": "Detalles",
     "disabled": "En pausa",
     "enabled": "Activa",
     "eventFilters": "Solo cuando el registro coincida",

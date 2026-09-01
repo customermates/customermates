@@ -167,6 +167,7 @@ export class AgentChatStore extends BaseStore {
   usage: AgentUsageSummary | null = null;
   counts: AgentDataCounts | null = null;
   conversationId: string | null = null;
+  private readonly persistOpenState: boolean;
   conversations: AgentConversationSummary[] = [];
   archivedConversations: AgentConversationSummary[] = [];
   lastArchivedConversation: AgentConversationSummary | null = null;
@@ -222,8 +223,9 @@ export class AgentChatStore extends BaseStore {
   private openStorageKey: string | null;
   private openPreference: boolean | null;
 
-  constructor(rootStore: RootStore) {
+  constructor(rootStore: RootStore, options: { persistOpenState?: boolean } = {}) {
     super(rootStore);
+    this.persistOpenState = options.persistOpenState ?? true;
     this.openOverride = readAgentChatOpenOverride();
     this.openStorageKey = agentChatOpenStorageKey(rootStore);
     this.openPreference = readAgentChatOpenPreference(this.openStorageKey);
@@ -390,6 +392,7 @@ export class AgentChatStore extends BaseStore {
   private setOpenState(isOpen: boolean) {
     this.syncOpenPreferenceScope();
     this.isOpen = isOpen;
+    if (!this.persistOpenState) return;
     if (this.openOverride !== null) return;
     this.openPreference = isOpen;
     writeAgentChatOpenPreference(this.openStorageKey, isOpen);

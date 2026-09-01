@@ -56,9 +56,7 @@ import { ResetPasswordStore } from "@/app/[locale]/(public)/auth/reset-password/
 import { GlobalSearchModalStore } from "@/app/components/global-search-modal.store";
 import { WebhookModalStore } from "@/app/[locale]/(protected)/company/components/webhook/webhook-modal.store";
 import { RoutinesStore } from "@/app/[locale]/(protected)/routines/components/routines.store";
-import { RoutineDetailStore } from "@/app/[locale]/(protected)/routines/components/routine-detail.store";
 import { RoutineModalStore } from "@/app/[locale]/(protected)/routines/components/routine-modal.store";
-import { RoutineRunModalStore } from "@/app/[locale]/(protected)/routines/components/routine-run-modal.store";
 import { WebhooksStore } from "@/app/[locale]/(protected)/company/components/webhook/webhooks.store";
 import { WebhookDeliveriesStore } from "@/app/[locale]/(protected)/company/components/webhook/webhook-deliveries.store";
 import { WebhookDeliveryModalStore } from "@/app/[locale]/(protected)/company/components/webhook/webhook-delivery-modal.store";
@@ -105,7 +103,6 @@ export class RootStore {
   private _webhookDeliveriesStore?: WebhookDeliveriesStore;
   private _webhooksStore?: WebhooksStore;
   private _routinesStore?: RoutinesStore;
-  private _routineDetailStore?: RoutineDetailStore;
   private _widgetsGridStore?: WidgetsStore;
   private _auditLogsStore?: AuditLogsStore;
 
@@ -141,7 +138,6 @@ export class RootStore {
   private _webhookDeliveryModalStore?: WebhookDeliveryModalStore;
   private _webhookModalStore?: WebhookModalStore;
   private _routineModalStore?: RoutineModalStore;
-  private _routineRunModalStore?: RoutineRunModalStore;
   private _routineRunChatStore?: AgentChatStore;
   private _widgetModalStore?: WidgetModalStore;
   private _auditLogModalStore?: AuditLogModalStore;
@@ -392,20 +388,12 @@ export class RootStore {
     return (this._routineModalStore ??= new RoutineModalStore(this));
   }
 
-  get routineRunModalStore() {
-    return (this._routineRunModalStore ??= new RoutineRunModalStore(this));
-  }
-
   get routineRunChatStore() {
-    return (this._routineRunChatStore ??= new AgentChatStore(this));
+    return (this._routineRunChatStore ??= new AgentChatStore(this, { persistOpenState: false }));
   }
 
   get routinesStore() {
     return (this._routinesStore ??= new RoutinesStore(this));
-  }
-
-  get routineDetailStore() {
-    return (this._routineDetailStore ??= new RoutineDetailStore(this));
   }
 
   get webhookModalStore() {

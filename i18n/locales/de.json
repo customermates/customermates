@@ -806,7 +806,6 @@
       "delete": "Löschen",
       "deleteCustomFields": "Feld löschen",
       "discard": "Verwerfen",
-      "edit": "Bearbeiten",
       "editCustomFields": "Feld bearbeiten",
       "expand": "Aufklappen",
       "labelHistory": "Verlauf",
@@ -2532,21 +2531,19 @@
   },
   "RoutineDetail": {
     "credits": "Guthaben",
-    "followUpPlaceholder": "Stelle eine Rückfrage zu diesem Lauf…",
     "loopWarningMutual": "Diese und eine weitere Routine ändern jeweils die Datensätze, auf die die andere hört. Customermates ignoriert Ereignisse, die eine Routine ausgelöst hat, sie lösen einander also nicht aus.",
     "loopWarningSelf": "Diese Routine ändert dieselben Datensätze, auf die sie hört. Customermates ignoriert Ereignisse, die eine Routine ausgelöst hat, sie läuft also nicht im Kreis, reagiert aber auch nicht auf eigene Änderungen.",
     "loopWarningTitle": "Möglicher Auslöser-Kreislauf",
     "never": "Nie",
-    "nextRun": "Nächster Lauf",
     "noRuns": "Diese Routine wurde noch nicht ausgeführt.",
     "runNow": "Jetzt ausführen",
-    "runs": "Läufe",
-    "runTitle": "Routinelauf"
+    "runs": "Läufe"
   },
   "RoutineModal": {
     "advanced": "Erweitert",
     "at": "um",
     "changedFieldsHelp": "Leer lassen, um bei jeder Änderung zu laufen. Eine Einschränkung spart Guthaben.",
+    "detailsTab": "Details",
     "disabled": "Pausiert",
     "enabled": "Aktiv",
     "eventFilters": "Nur wenn der Datensatz passt",

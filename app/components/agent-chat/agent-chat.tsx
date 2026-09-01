@@ -1,33 +1,26 @@
 "use client";
 
 import { observer } from "mobx-react-lite";
-import { Fragment, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { ArrowUp, ChevronLeft, History, Loader2, Maximize2, Minimize2, Plus, Sparkles, Square, X } from "lucide-react";
+import { ChevronLeft, History, Maximize2, Minimize2, Plus, Sparkles, X } from "lucide-react";
 
 import { AgentTourOverlay } from "./agent-tour-overlay";
 
-import { MessageDateSeparator, isSameDay } from "@/app/[locale]/(protected)/inbox/components/message-date-separator";
-import { MessagesScrollContainer } from "@/components/scroll/messages-scroll-container";
-
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { IconContainer } from "@/components/shared/icon-container";
 import { OVERLAY_SCROLL_REGION } from "@/components/ui/overlay-contract";
 import { cn } from "@/core/utils/cn";
 
-import { ActionTooltip, chatUiCopy, TypingDots } from "./chat-ui";
-import { AgentActivity, AgentChatItemView, consecutiveActivityItems } from "./agent-chat-items";
+import { ActionTooltip, chatUiCopy } from "./chat-ui";
+import { AgentComposer, AgentConversationLog } from "./agent-conversation";
 import { AgentProgressStatus, AgentStatusAnnouncer } from "./agent-status-announcer";
 import { ArchiveUndo, ConversationHistory } from "./conversation-history";
-import { CreditBlockedNotice } from "./credit-blocked-notice";
-import { QueuedPrompt } from "./queued-prompt";
 import { SuggestedQuestions } from "./suggested-questions";
-import { UsageRing } from "./usage-ring";
 import { AgentRouteReloadBridge } from "./agent-route-reload";
 
 export const AgentChat = observer(function AgentChat() {
@@ -160,11 +153,6 @@ const AgentChatPanel = observer(function AgentChatPanel() {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [agentUiControlStore, store]);
 
-  const submit = () => {
-    if (blocked) return;
-    store.submitDraft();
-  };
-
   return (
     <div
       aria-label={t("AgentChat.title")}
@@ -286,120 +274,12 @@ const AgentChatPanel = observer(function AgentChatPanel() {
           <p className="text-xs text-muted-foreground">{t("AgentChat.greeting.support")}</p>
         </div>
       ) : (
-        <MessagesScrollContainer
-          className="px-3"
-          jumpToLatestLabel={copy.jumpToLatest}
-          latestItemKey={store.items.at(-1)?.id}
-          loadOlderLabel={copy.loadOlderMessages}
-          scrollKey={store.conversationId ?? "new"}
-          scrollRegionLabel={t("AgentChat.title")}
-          onTopReach={store.olderMessagesCursor ? store.loadOlderMessages : undefined}
-        >
-          <div aria-atomic="false" aria-busy={store.isWorking} aria-live="off" className="space-y-3" role="log">
-            {store.olderMessagesPending && (
-              <div className="flex justify-center py-1" role="status">
-                <Loader2 aria-label={copy.loadingOlderMessages} className="size-4 animate-spin text-muted-foreground" />
-              </div>
-            )}
-
-            {store.items.map((item, index) => {
-              const prev = store.items[index - 1];
-              const showSeparator = item.at && (!prev?.at || !isSameDay(prev.at, item.at));
-
-              return (
-                <Fragment key={item.id}>
-                  {showSeparator && item.at && <MessageDateSeparator date={item.at} />}
-
-                  {item.kind === "activity" ? (
-                    prev?.kind === "activity" ? null : (
-                      <ActivityGroup index={index} />
-                    )
-                  ) : (
-                    <AgentChatItemView item={item} />
-                  )}
-                </Fragment>
-              );
-            })}
-
-            {store.isAwaitingAssistantResponse && (
-              <div aria-hidden="true" className="flex items-center gap-1 py-1">
-                <TypingDots />
-              </div>
-            )}
-          </div>
-        </MessagesScrollContainer>
+        <AgentConversationLog />
       )}
 
       <AgentProgressStatus />
 
-      {!store.isHistoryOpen && (
-        <div className="px-3 pt-2 pb-3">
-          <div className="rounded-xl border border-input bg-card p-2 shadow-xs transition-[color,box-shadow] focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-inset">
-            {store.queuedPrompt && <QueuedPrompt />}
-
-            {blocked && usage ? (
-              <CreditBlockedNotice usage={usage} />
-            ) : (
-              <div className="flex items-end gap-2">
-                <Textarea
-                  aria-label={t("AgentChat.placeholder")}
-                  className="max-h-40 min-h-9 flex-1 resize-none border-0 bg-transparent px-1 py-1.5 shadow-none focus-visible:border-0 focus-visible:ring-0"
-                  data-testid="agent-composer"
-                  id="agent-composer"
-                  placeholder={t("AgentChat.placeholder")}
-                  rows={2}
-                  value={store.composerDraft}
-                  onChange={(event) => store.setComposerDraft(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
-                      event.preventDefault();
-                      submit();
-                    }
-                  }}
-                />
-
-                <UsageRing />
-
-                {store.isWorking ? (
-                  <ActionTooltip label={t("AgentChat.stop")}>
-                    <Button
-                      aria-label={t("AgentChat.stop")}
-                      className="size-9 shrink-0 rounded-full border-destructive/60 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                      disabled={!store.canInterrupt}
-                      size="icon"
-                      variant="secondary"
-                      onClick={() => runUserAction(() => store.interrupt())}
-                    >
-                      <Square className="size-3.5" />
-                    </Button>
-                  </ActionTooltip>
-                ) : (
-                  <ActionTooltip label={t("AgentChat.send")}>
-                    <Button
-                      aria-label={t("AgentChat.send")}
-                      className="size-9 shrink-0 rounded-full"
-                      disabled={!store.composerDraft.trim() || Boolean(store.queuedPrompt)}
-                      size="icon"
-                      onClick={submit}
-                    >
-                      <ArrowUp className="size-4" />
-                    </Button>
-                  </ActionTooltip>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {!store.isHistoryOpen && <AgentComposer />}
     </div>
-  );
-});
-
-const ActivityGroup = observer(function ActivityGroup({ index }: { index: number }) {
-  const { agentChatStore: store } = useRootStore();
-  const items = consecutiveActivityItems(store.items, index);
-
-  return (
-    <AgentActivity isTrailing={index + items.length === store.items.length} isWorking={store.isWorking} items={items} />
   );
 });

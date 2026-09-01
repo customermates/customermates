@@ -10,6 +10,8 @@ import { agentPageActions, agentPageState } from "@/ee/agent-chat/agent-page-act
 
 import { usePathname } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
+
+import { useAgentChatStore } from "./agent-chat-store-context";
 import { Button } from "@/components/ui/button";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 
@@ -25,7 +27,8 @@ function suggestionIcon(id: string) {
 }
 
 export const SuggestedQuestions = observer(function SuggestedQuestions() {
-  const { agentChatStore: store, userStore } = useRootStore();
+  const store = useAgentChatStore();
+  const { userStore } = useRootStore();
   const { map } = useEntityTerminology();
   const t = useTranslations();
   const locale = useLocale();
