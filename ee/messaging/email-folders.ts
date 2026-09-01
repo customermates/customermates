@@ -106,10 +106,12 @@ export function threadEmailFolderIds(
   catalog: EmailFolder[],
 ): string[] {
   const byId = new Map(catalog.map((folder) => [folder.id, folder]));
-  const filed = messages
-    .filter((message) => message.folderIds.some((id) => isMovableEmailFolder(byId.get(id) ?? {})))
-    .sort((a, b) => b.sentAt.getTime() - a.sentAt.getTime());
-  if (filed.length === 0) return [];
+  const movable = (id: string) => isMovableEmailFolder(byId.get(id) ?? {});
+  const newestFirst = [...messages].sort((a, b) => b.sentAt.getTime() - a.sentAt.getTime());
 
-  return [...new Set(filed[0].folderIds.filter((id) => isMovableEmailFolder(byId.get(id) ?? {})))].sort();
+  const filed = newestFirst.find((message) => message.folderIds.some(movable));
+  if (filed) return [...new Set(filed.folderIds.filter(movable))].sort();
+
+  const outbound = newestFirst.find((message) => message.folderIds.length > 0);
+  return outbound ? [...new Set(outbound.folderIds)].sort() : [];
 }

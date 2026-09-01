@@ -1063,6 +1063,20 @@ export class PrismaMessagingRepo
     };
   }
 
+  async listThreadFolderPlacements(threadId: string) {
+    const accessibleThread = await this.prisma.messagingThread.findFirst({
+      where: { id: threadId, ...threadAccessWhere(this.companyId, this.userId) },
+      select: { id: true },
+    });
+    if (!accessibleThread) return [];
+
+    return this.prisma.messagingMessage.findMany({
+      where: { messagingThreadId: threadId, companyId: this.companyId, isHidden: false },
+      select: { folderIds: true, sentAt: true },
+      orderBy: { sentAt: "desc" },
+    });
+  }
+
   async listMessagesForThread(threadId: string, opts?: { page?: number; pageSize?: number }) {
     const accessibleThread = await this.prisma.messagingThread.findFirst({
       where: {

@@ -2101,6 +2101,11 @@
     "fileTypePdf": "PDF-Dokument",
     "fileTypePowerpoint": "PowerPoint-Präsentation",
     "fileTypeWord": "Word-Dokument",
+    "folders": {
+      "current": "In {folder}",
+      "hiddenTooltip": "In {folder}, der in Ihrem Posteingang ausgeblendet ist",
+      "none": "Kein Ordner"
+    },
     "groupThread": "Gruppe ({count, plural, one {# Mitglied} other {# Mitglieder}})",
     "hideQuotedText": "Zitierten Text ausblenden",
     "learnMore": "Mehr erfahren",

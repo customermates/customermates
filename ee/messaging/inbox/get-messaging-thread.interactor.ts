@@ -57,6 +57,7 @@ export abstract class GetMessagingThreadRepo {
     threadId: string,
     opts?: { page?: number; pageSize?: number },
   ): Promise<{ messages: MessagingMessage[]; total: number }>;
+  abstract listThreadFolderPlacements(threadId: string): Promise<{ folderIds: string[]; sentAt: Date }[]>;
 }
 
 export abstract class ThreadAccountOwnersRepo {
@@ -102,7 +103,7 @@ export class GetMessagingThreadInteractor extends AuthenticatedInteractor<
 
     const messages = rawMessages.map(toMessagingMessageDto);
     const accountOwners = await this.accountRepo.listAccountOwnersByIds([thread.connectedAccountId]);
-    const folderContext = await this.resolveFolderContext(thread, rawMessages);
+    const folderContext = await this.resolveFolderContext(thread);
 
     return {
       ok: true as const,
@@ -110,15 +111,13 @@ export class GetMessagingThreadInteractor extends AuthenticatedInteractor<
     };
   }
 
-  private async resolveFolderContext(
-    thread: MessagingThread,
-    messages: MessagingMessage[],
-  ): Promise<ThreadFolderContext | null> {
+  private async resolveFolderContext(thread: MessagingThread): Promise<ThreadFolderContext | null> {
     if (!isEmailProvider(thread.provider)) return null;
 
     const context = await this.accountRepo.findFolderContextById(thread.connectedAccountId);
     if (!context) return null;
 
-    return { ...context, currentFolderIds: threadEmailFolderIds(messages, context.folders) };
+    const placements = await this.repo.listThreadFolderPlacements(thread.id);
+    return { ...context, currentFolderIds: threadEmailFolderIds(placements, context.folders) };
   }
 }

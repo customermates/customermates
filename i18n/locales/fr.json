@@ -2101,6 +2101,11 @@
     "fileTypePdf": "Document PDF",
     "fileTypePowerpoint": "Présentation PowerPoint",
     "fileTypeWord": "Document Word",
+    "folders": {
+      "current": "Dans {folder}",
+      "hiddenTooltip": "Dans {folder}, qui est masqué dans votre boîte de réception",
+      "none": "Aucun dossier"
+    },
     "groupThread": "Groupe ({count, plural, one {# membre} other {# membres}})",
     "hideQuotedText": "Masquer le texte cité",
     "learnMore": "En savoir plus",

@@ -37,6 +37,7 @@ describe("GetMessagingThreadInteractor", () => {
     const repo = {
       findThreadById: vi.fn().mockResolvedValue(null),
       listMessagesForThread: vi.fn(),
+      listThreadFolderPlacements: vi.fn().mockResolvedValue([]),
     };
     const accountRepo = { listAccountOwnersByIds: vi.fn(), findFolderContextById: vi.fn() };
 
@@ -119,10 +120,16 @@ describe("GetMessagingThreadInteractor", () => {
     { id: "archive", name: "Archive", role: "ARCHIVE", totalCount: null, unreadCount: null },
   ];
 
-  function build(provider: string, messages: ReturnType<typeof message>[], context: unknown) {
+  function build(
+    provider: string,
+    messages: ReturnType<typeof message>[],
+    context: unknown,
+    placements: ReturnType<typeof message>[] = messages,
+  ) {
     const repo = {
       findThreadById: vi.fn().mockResolvedValue(thread(provider)),
       listMessagesForThread: vi.fn().mockResolvedValue({ messages, total: messages.length }),
+      listThreadFolderPlacements: vi.fn().mockResolvedValue(placements),
     };
     const accountRepo = {
       listAccountOwnersByIds: vi.fn().mockResolvedValue({}),
@@ -147,6 +154,24 @@ describe("GetMessagingThreadInteractor", () => {
     if (!result.ok) return;
     expect(result.data.folderContext?.currentFolderIds).toEqual(["archive"]);
     expect(result.data.folderContext?.folders).toHaveLength(3);
+  });
+
+  it("reports a folder the inbox filter hides, which the visible message list can never reveal", async () => {
+    const catalog = [...CATALOG, { id: "trash", name: "Trash", role: "TRASH", totalCount: null, unreadCount: null }];
+    const { repo, accountRepo } = build(
+      "mail",
+      [message(["sent"], "2026-09-01T12:00:00Z")],
+      { folders: catalog, selectedFolderIds: ["inbox", "archive"] },
+      [message(["trash"], "2026-09-01T10:00:00Z"), message(["sent"], "2026-09-01T12:00:00Z")],
+    );
+
+    const result = await new GetMessagingThreadInteractor(repo, accountRepo, mockEntitlementService()).invoke({
+      threadId: THREAD_ID,
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data.folderContext?.currentFolderIds).toEqual(["trash"]);
   });
 
   it("omits the folder context for a chat provider, which has no folders", async () => {

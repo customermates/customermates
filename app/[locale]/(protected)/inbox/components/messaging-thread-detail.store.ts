@@ -1,7 +1,7 @@
 import type { RootStore } from "@/core/stores/root.store";
 import { BaseStore } from "@/core/base/base.store";
 import type { MessagingAttendee, MessagingThread, MessagingThreadState } from "@/ee/messaging/messaging.schema";
-import type { AccountOwnerDto } from "@/ee/messaging/inbox/get-messaging-thread.interactor";
+import type { AccountOwnerDto, ThreadFolderContext } from "@/ee/messaging/inbox/get-messaging-thread.interactor";
 import type { MessagingMessageDto } from "@/ee/messaging/inbox/inbox.schema";
 
 import { action, makeObservable, observable, runInAction } from "mobx";
@@ -14,12 +14,14 @@ export type ThreadDetail = {
   thread: MessagingThread;
   messages: MessagingMessageDto[];
   accountOwners: Record<string, AccountOwnerDto>;
+  folderContext: ThreadFolderContext | null;
 };
 
 export class MessagingThreadDetailStore extends BaseStore {
   thread: MessagingThread | null = null;
   messages: MessagingMessageDto[] = [];
   accountOwners: Record<string, AccountOwnerDto> = {};
+  folderContext: ThreadFolderContext | null = null;
   messageStatus: Record<string, "sending" | "failed"> = {};
   loadingOlder = false;
   private olderSyncAttempted = new Set<string>();
@@ -30,6 +32,7 @@ export class MessagingThreadDetailStore extends BaseStore {
       thread: observable,
       messages: observable,
       accountOwners: observable,
+      folderContext: observable,
       messageStatus: observable,
       loadingOlder: observable,
       hydrate: action,
@@ -73,6 +76,7 @@ export class MessagingThreadDetailStore extends BaseStore {
     this.thread = detail?.thread ?? null;
     this.messages = detail?.messages ?? [];
     this.accountOwners = detail?.accountOwners ?? {};
+    this.folderContext = detail?.folderContext ?? null;
     this.messageStatus = {};
     this.loadingOlder = false;
 

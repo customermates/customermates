@@ -2101,6 +2101,11 @@
     "fileTypePdf": "PDF document",
     "fileTypePowerpoint": "PowerPoint presentation",
     "fileTypeWord": "Word document",
+    "folders": {
+      "current": "In {folder}",
+      "hiddenTooltip": "In {folder}, which is hidden from your inbox",
+      "none": "No folder"
+    },
     "groupThread": "Group ({count, plural, one {# member} other {# members}})",
     "hideQuotedText": "Hide quoted text",
     "learnMore": "Learn more",

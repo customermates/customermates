@@ -61,7 +61,7 @@ beforeEach(() => {
 describe("automatic Inbox updates in demo mode", () => {
   it("does not mark a viewed thread as read or resync older messages", async () => {
     const store = new MessagingThreadDetailStore(demoRoot());
-    store.hydrate({ accountOwners: {}, messages: [], thread: unreadThread() });
+    store.hydrate({ accountOwners: {}, folderContext: null, messages: [], thread: unreadThread() });
 
     await store.markRead();
     await store.loadOlderMessages();

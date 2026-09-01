@@ -60,13 +60,22 @@ describe("threadEmailFolderIds", () => {
     expect(threadEmailFolderIds(messages, CATALOG)).toEqual(["inbox"]);
   });
 
-  it("returns nothing when the thread only exists in Sent or Drafts", () => {
+  it("names Sent for an outbound-only thread, which is genuinely where it sits", () => {
     const messages = [
       { folderIds: ["sent"], sentAt: at("2026-09-01T10:00:00Z") },
       { folderIds: ["drafts"], sentAt: at("2026-09-01T11:00:00Z") },
     ];
 
-    expect(threadEmailFolderIds(messages, CATALOG)).toEqual([]);
+    expect(threadEmailFolderIds(messages, CATALOG)).toEqual(["drafts"]);
+  });
+
+  it("prefers a filed folder over the Sent copy of a newer reply", () => {
+    const messages = [
+      { folderIds: ["archive"], sentAt: at("2026-09-01T10:00:00Z") },
+      { folderIds: ["sent"], sentAt: at("2026-09-01T11:00:00Z") },
+    ];
+
+    expect(threadEmailFolderIds(messages, CATALOG)).toEqual(["archive"]);
   });
 
   it("keeps multiple labels on one message, as Gmail allows", () => {
