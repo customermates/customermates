@@ -1174,6 +1174,82 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
     const row = rows[0];
     if (!row) throw new Error("Workspace statistics could not be read.");
 
-    return { companyId: data.companyId, ...row };
+    const channelMonths = await this.channelMonthsUnscoped(data.companyId);
+
+    return { companyId: data.companyId, ...row, channelMonths };
+  }
+
+  @BypassTenantGuard
+  private async channelMonthsUnscoped(companyId: string): Promise<
+    Array<{
+      month: string;
+      peakConcurrent: number;
+      approximate: boolean;
+      channels: Array<{ provider: string; identifier: string }>;
+    }>
+  > {
+    const rows = await this.prisma.$queryRaw<
+      Array<{
+        month: string;
+        peakConcurrent: number;
+        approximate: boolean;
+        channels: Array<{ provider: string; identifier: string }> | null;
+      }>
+    >`
+      WITH ev AS (
+        SELECT "eventData"->>'entityId' AS acct,
+               "eventData"->'payload'->>'provider' AS provider,
+               COALESCE("eventData"->'payload'->>'emailAddress', "eventData"->'payload'->>'displayName') AS ident,
+               "event" AS name,
+               "createdAt"
+        FROM "AuditLog"
+        WHERE "companyId" = ${companyId} AND "event" LIKE 'connected_account%'
+      ),
+      iv AS (
+        SELECT e.acct,
+               MIN(e.provider) FILTER (WHERE e.provider IS NOT NULL) AS provider,
+               MIN(e.ident) FILTER (WHERE e.ident IS NOT NULL) AS ident,
+               MIN(e."createdAt") FILTER (WHERE e.name = 'connected_account.created') AS started,
+               COALESCE(
+                 MAX(e."createdAt") FILTER (WHERE e.name = 'connected_account.deleted'),
+                 CASE WHEN c."id" IS NULL THEN MAX(e."createdAt")
+                      WHEN c."status" = 'deleted' THEN c."updatedAt" END
+               ) AS ended,
+               (MAX(e."createdAt") FILTER (WHERE e.name = 'connected_account.deleted')) IS NULL
+                 AND (c."id" IS NULL OR c."status" = 'deleted') AS approx
+        FROM ev e LEFT JOIN "ConnectedAccount" c ON c."id" = e.acct
+        GROUP BY e.acct, c."id", c."status", c."updatedAt"
+      ),
+      bounded AS (SELECT * FROM iv WHERE started IS NOT NULL),
+      months AS (
+        SELECT generate_series(
+          date_trunc('month', (SELECT MIN(started) FROM bounded)),
+          date_trunc('month', NOW()),
+          interval '1 month'
+        ) AS m
+      ),
+      active AS (
+        SELECT m.m, i.*
+        FROM months m JOIN bounded i
+          ON i.started < m.m + interval '1 month' AND (i.ended IS NULL OR i.ended >= m.m)
+      ),
+      peak AS (
+        SELECT a.m,
+               MAX((SELECT COUNT(*) FROM bounded i WHERE i.started <= p.t AND (i.ended IS NULL OR i.ended >= p.t))) AS pk
+        FROM active a CROSS JOIN LATERAL (SELECT unnest(ARRAY[a.m, a.started]) AS t) p
+        WHERE p.t >= a.m AND p.t < a.m + interval '1 month'
+        GROUP BY a.m
+      )
+      SELECT to_char(a.m, 'YYYY-MM') AS "month",
+             COALESCE(MAX(p.pk), 0)::int AS "peakConcurrent",
+             bool_or(a.approx) AS "approximate",
+             jsonb_agg(DISTINCT jsonb_build_object('provider', a.provider, 'identifier', COALESCE(a.ident, '-')))
+               AS "channels"
+      FROM active a LEFT JOIN peak p ON p.m = a.m
+      GROUP BY a.m
+      ORDER BY a.m DESC
+    `;
+
+    return rows.map((row) => ({ ...row, channels: row.channels ?? [] }));
   }
 }

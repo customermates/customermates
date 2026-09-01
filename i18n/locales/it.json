@@ -2604,6 +2604,13 @@
       "title": "Dotazione Enterprise",
       "warningDescription": "La dotazione è concessa per utente su tutta l’area e ha effetto sul periodo corrente."
     },
+    "channels": {
+      "approximate": "Almeno un orario di disconnessione è stimato, quindi questo picco potrebbe essere leggermente alto.",
+      "description": "Numero massimo di canali collegati contemporaneamente per mese, ricostruito dal registro di audit dello spazio di lavoro.",
+      "none": "Non è mai stato collegato alcun canale.",
+      "peak": "{count} al picco",
+      "title": "Canali collegati"
+    },
     "delete": {
       "action": "Elimina spazio di lavoro",
       "confirmLabel": "Digita {name} per confermare",

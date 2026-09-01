@@ -122,6 +122,14 @@ export const OperatorWorkspaceStatsDtoSchema = z.object({
   connectedAccounts: z.number(),
   lastActiveAt: z.date().nullable(),
   lastActivityAt: z.date().nullable(),
+  channelMonths: z.array(
+    z.object({
+      month: z.string(),
+      peakConcurrent: z.number(),
+      approximate: z.boolean(),
+      channels: z.array(z.object({ provider: z.string(), identifier: z.string() })),
+    }),
+  ),
 });
 
 export type OperatorWorkspaceStatsDto = z.infer<typeof OperatorWorkspaceStatsDtoSchema>;

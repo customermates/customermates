@@ -2604,6 +2604,13 @@
       "title": "Allocation Enterprise",
       "warningDescription": "L’allocation est accordée par utilisateur sur tout l’espace et prend effet sur la période en cours."
     },
+    "channels": {
+      "approximate": "Au moins une heure de déconnexion est estimée, ce maximum peut donc être légèrement élevé.",
+      "description": "Nombre maximal de canaux connectés simultanément par mois, reconstitué à partir du journal d'audit de l'espace de travail.",
+      "none": "Aucun canal n'a jamais été connecté.",
+      "peak": "{count} au maximum",
+      "title": "Canaux connectés"
+    },
     "delete": {
       "action": "Supprimer l'espace de travail",
       "confirmLabel": "Saisissez {name} pour confirmer",

@@ -2604,6 +2604,13 @@
       "title": "Enterprise-Kontingent",
       "warningDescription": "Das Kontingent gilt pro Benutzer im gesamten Arbeitsbereich und wirkt sich auf die aktuelle Periode aus."
     },
+    "channels": {
+      "approximate": "Mindestens ein Trennzeitpunkt ist geschätzt, daher kann dieser Höchstwert leicht zu hoch sein.",
+      "description": "Höchstzahl gleichzeitig verbundener Kanäle pro Monat, rekonstruiert aus dem Audit-Verlauf des Workspace.",
+      "none": "Es waren nie Kanäle verbunden.",
+      "peak": "{count} im Maximum",
+      "title": "Verbundene Kanäle"
+    },
     "delete": {
       "action": "Workspace löschen",
       "confirmLabel": "Zur Bestätigung {name} eingeben",

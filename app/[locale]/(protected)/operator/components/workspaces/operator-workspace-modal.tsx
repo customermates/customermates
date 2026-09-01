@@ -367,6 +367,46 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
 
           <div className="flex flex-col gap-3">
             <div className="space-y-1">
+              <h3 className="text-x-sm font-medium">{t("OperatorWorkspaces.channels.title")}</h3>
+
+              <p className="text-xs text-muted-foreground">{t("OperatorWorkspaces.channels.description")}</p>
+            </div>
+
+            {isLoadingStats ? <Skeleton className="h-24 w-full" /> : null}
+
+            {stats && stats.channelMonths.length === 0 ? (
+              <p className="text-xs text-muted-foreground">{t("OperatorWorkspaces.channels.none")}</p>
+            ) : null}
+
+            {stats?.channelMonths.map((entry) => (
+              <div key={entry.month} className="flex flex-col gap-1.5 rounded-md bg-foreground/5 p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-medium">{entry.month}</span>
+
+                  <AppChip size="sm" variant="secondary">
+                    {t("OperatorWorkspaces.channels.peak", { count: entry.peakConcurrent })}
+                  </AppChip>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  {entry.channels.map((channel) => (
+                    <span key={`${channel.provider}-${channel.identifier}`} className="text-xs text-muted-foreground">
+                      {`${t(`Common.providers.${channel.provider}`)} \u00b7 ${channel.identifier}`}
+                    </span>
+                  ))}
+                </div>
+
+                {entry.approximate ? (
+                  <span className="text-xs text-muted-foreground">{t("OperatorWorkspaces.channels.approximate")}</span>
+                ) : null}
+              </div>
+            ))}
+          </div>
+
+          <Separator />
+
+          <div className="flex flex-col gap-3">
+            <div className="space-y-1">
               <h3 className="text-x-sm font-medium text-destructive">{t("OperatorWorkspaces.delete.title")}</h3>
 
               <p className="text-xs text-muted-foreground">
