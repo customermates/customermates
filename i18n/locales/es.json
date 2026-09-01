@@ -1307,6 +1307,7 @@
     "table": {
       "columns": {
         "action": "Acción",
+        "actions": "Acciones",
         "actor": "Actor",
         "allowance": "Asignación",
         "amount": "Importe",
@@ -2491,7 +2492,8 @@
         "userListRead": "Lista de usuarios leída",
         "userPlatformAccessUpdate": "Acceso de plataforma actualizado",
         "userStatusUpdate": "Estado de la cuenta actualizado",
-        "userSummaryRead": "Resumen de usuarios leído"
+        "userSummaryRead": "Resumen de usuarios leído",
+        "workspaceDelete": "Espacio de trabajo eliminado"
       },
       "source": {
         "operator": "Operador",
@@ -2583,6 +2585,16 @@
       "label": "Créditos por usuario",
       "title": "Asignación Enterprise",
       "warningDescription": "La asignación se concede por usuario en todo el espacio y afecta al periodo actual."
+    },
+    "delete": {
+      "action": "Eliminar espacio de trabajo",
+      "confirmLabel": "Escribe {name} para confirmar",
+      "confirmMessage": "{name} y {members, plural, =1 {su única cuenta de miembro} other {todas sus # cuentas de miembro}} se eliminarán de forma permanente. Esta acción no se puede deshacer.",
+      "confirmTitle": "Eliminar permanentemente este espacio de trabajo",
+      "label": "Eliminar espacio de trabajo",
+      "reasonLabel": "Motivo",
+      "title": "Eliminar este espacio de trabajo",
+      "warningDescription": "Al eliminar {name} se borran de forma permanente el espacio de trabajo y {members, plural, =1 {su única cuenta de miembro} other {todas sus # cuentas de miembro}}, junto con sus contactos, negocios, mensajes, credenciales de acceso y registros de facturación. Esta acción no se puede deshacer."
     },
     "emptyBody": "Ajusta la búsqueda o los filtros para ampliar la lista.",
     "emptyTitle": "Ningún espacio coincide con estos filtros",

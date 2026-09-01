@@ -1307,6 +1307,7 @@
     "table": {
       "columns": {
         "action": "Aktion",
+        "actions": "Aktionen",
         "actor": "Akteur",
         "allowance": "Kontingent",
         "amount": "Betrag",
@@ -2491,7 +2492,8 @@
         "userListRead": "Benutzerliste gelesen",
         "userPlatformAccessUpdate": "Plattformzugriff aktualisiert",
         "userStatusUpdate": "Kontostatus aktualisiert",
-        "userSummaryRead": "Benutzerübersicht gelesen"
+        "userSummaryRead": "Benutzerübersicht gelesen",
+        "workspaceDelete": "Workspace gelöscht"
       },
       "source": {
         "operator": "Operator",
@@ -2583,6 +2585,16 @@
       "label": "Credits pro Benutzer",
       "title": "Enterprise-Kontingent",
       "warningDescription": "Das Kontingent gilt pro Benutzer im gesamten Arbeitsbereich und wirkt sich auf die aktuelle Periode aus."
+    },
+    "delete": {
+      "action": "Workspace löschen",
+      "confirmLabel": "Zur Bestätigung {name} eingeben",
+      "confirmMessage": "{name} und {members, plural, =1 {sein einziges Mitgliedskonto} other {alle # Mitgliedskonten}} werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden.",
+      "confirmTitle": "Diesen Workspace dauerhaft löschen",
+      "label": "Workspace löschen",
+      "reasonLabel": "Grund",
+      "title": "Diesen Workspace löschen",
+      "warningDescription": "Beim Löschen von {name} werden der Workspace und {members, plural, =1 {sein einziges Mitgliedskonto} other {alle # Mitgliedskonten}} dauerhaft entfernt, samt Kontakten, Deals, Nachrichten, Anmeldedaten und Abrechnungsdaten. Dies kann nicht rückgängig gemacht werden."
     },
     "emptyBody": "Passen Sie Suche oder Filter an, um die Liste zu erweitern.",
     "emptyTitle": "Keine Arbeitsbereiche passen zu diesen Filtern",

@@ -1307,6 +1307,7 @@
     "table": {
       "columns": {
         "action": "Action",
+        "actions": "Actions",
         "actor": "Actor",
         "allowance": "Allowance",
         "amount": "Amount",
@@ -2491,7 +2492,8 @@
         "userListRead": "User list read",
         "userPlatformAccessUpdate": "Platform access updated",
         "userStatusUpdate": "Account status updated",
-        "userSummaryRead": "User summary read"
+        "userSummaryRead": "User summary read",
+        "workspaceDelete": "Workspace deleted"
       },
       "source": {
         "operator": "Operator",
@@ -2583,6 +2585,16 @@
       "label": "Credits per user",
       "title": "Enterprise allowance",
       "warningDescription": "The allowance is granted per user across the whole workspace and takes effect on the current period."
+    },
+    "delete": {
+      "action": "Delete workspace",
+      "confirmLabel": "Type {name} to confirm",
+      "confirmMessage": "{name} and {members, plural, =1 {its one member account} other {all # member accounts}} will be permanently deleted. This cannot be undone.",
+      "confirmTitle": "Delete this workspace permanently",
+      "label": "Delete workspace",
+      "reasonLabel": "Reason",
+      "title": "Delete this workspace",
+      "warningDescription": "Deleting {name} permanently removes the workspace and {members, plural, =1 {its one member account} other {all # member accounts}}, together with their contacts, deals, messages, sign-in credentials and billing records. This cannot be undone."
     },
     "emptyBody": "Adjust the search or filters to widen the list.",
     "emptyTitle": "No workspaces match these filters",

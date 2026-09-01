@@ -1307,6 +1307,7 @@
     "table": {
       "columns": {
         "action": "Action",
+        "actions": "Actions",
         "actor": "Auteur",
         "allowance": "Allocation",
         "amount": "Montant",
@@ -2491,7 +2492,8 @@
         "userListRead": "Liste des utilisateurs consultée",
         "userPlatformAccessUpdate": "Accès plateforme mis à jour",
         "userStatusUpdate": "Statut du compte mis à jour",
-        "userSummaryRead": "Résumé des utilisateurs consulté"
+        "userSummaryRead": "Résumé des utilisateurs consulté",
+        "workspaceDelete": "Espace de travail supprimé"
       },
       "source": {
         "operator": "Opérateur",
@@ -2583,6 +2585,16 @@
       "label": "Crédits par utilisateur",
       "title": "Allocation Enterprise",
       "warningDescription": "L’allocation est accordée par utilisateur sur tout l’espace et prend effet sur la période en cours."
+    },
+    "delete": {
+      "action": "Supprimer l'espace de travail",
+      "confirmLabel": "Saisissez {name} pour confirmer",
+      "confirmMessage": "{name} et {members, plural, =1 {son unique compte membre} other {ses # comptes membres}} seront définitivement supprimés. Cette action est irréversible.",
+      "confirmTitle": "Supprimer définitivement cet espace de travail",
+      "label": "Supprimer l'espace de travail",
+      "reasonLabel": "Motif",
+      "title": "Supprimer cet espace de travail",
+      "warningDescription": "La suppression de {name} retire définitivement l'espace de travail et {members, plural, =1 {son unique compte membre} other {ses # comptes membres}}, ainsi que leurs contacts, affaires, messages, identifiants de connexion et données de facturation. Cette action est irréversible."
     },
     "emptyBody": "Ajustez la recherche ou les filtres pour élargir la liste.",
     "emptyTitle": "Aucun espace ne correspond à ces filtres",

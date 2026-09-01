@@ -1307,6 +1307,7 @@
     "table": {
       "columns": {
         "action": "Azione",
+        "actions": "Azioni",
         "actor": "Autore",
         "allowance": "Dotazione",
         "amount": "Importo",
@@ -2491,7 +2492,8 @@
         "userListRead": "Elenco utenti letto",
         "userPlatformAccessUpdate": "Accesso alla piattaforma aggiornato",
         "userStatusUpdate": "Stato account aggiornato",
-        "userSummaryRead": "Riepilogo utenti letto"
+        "userSummaryRead": "Riepilogo utenti letto",
+        "workspaceDelete": "Spazio di lavoro eliminato"
       },
       "source": {
         "operator": "Operatore",
@@ -2583,6 +2585,16 @@
       "label": "Crediti per utente",
       "title": "Dotazione Enterprise",
       "warningDescription": "La dotazione è concessa per utente su tutta l’area e ha effetto sul periodo corrente."
+    },
+    "delete": {
+      "action": "Elimina spazio di lavoro",
+      "confirmLabel": "Digita {name} per confermare",
+      "confirmMessage": "{name} e {members, plural, =1 {il suo unico account membro} other {tutti i suoi # account membri}} saranno eliminati definitivamente. L'operazione non è reversibile.",
+      "confirmTitle": "Elimina definitivamente questo spazio di lavoro",
+      "label": "Elimina spazio di lavoro",
+      "reasonLabel": "Motivo",
+      "title": "Elimina questo spazio di lavoro",
+      "warningDescription": "L'eliminazione di {name} rimuove definitivamente lo spazio di lavoro e {members, plural, =1 {il suo unico account membro} other {tutti i suoi # account membri}}, insieme a contatti, trattative, messaggi, credenziali di accesso e dati di fatturazione. L'operazione non è reversibile."
     },
     "emptyBody": "Modifica la ricerca o i filtri per ampliare l’elenco.",
     "emptyTitle": "Nessuna area corrisponde a questi filtri",

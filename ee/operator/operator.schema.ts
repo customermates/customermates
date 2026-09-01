@@ -79,6 +79,14 @@ export const ResetOperatorUserCreditsSchema = z
   })
   .strict();
 
+export const DeleteOperatorWorkspaceSchema = z
+  .object({
+    companyId: z.uuid(),
+    confirmWorkspaceLabel: z.string().trim().min(1).max(200),
+    reason: z.string().trim().min(1).max(500),
+  })
+  .strict();
+
 export type UpdateHostedAiEnterpriseAllowanceData = z.infer<typeof UpdateHostedAiEnterpriseAllowanceSchema>;
 export type CreateAgentCreditAdjustmentData = z.infer<typeof CreateAgentCreditAdjustmentSchema>;
 export type GetOperatorUserDetailData = z.infer<typeof GetOperatorUserDetailSchema>;
@@ -86,6 +94,16 @@ export type UpdateOperatorUserStatusData = z.infer<typeof UpdateOperatorUserStat
 export type UpdateOperatorUserPlatformAccessData = z.infer<typeof UpdateOperatorUserPlatformAccessSchema>;
 export type CorrectOperatorSubscriptionSnapshotData = z.infer<typeof CorrectOperatorSubscriptionSnapshotSchema>;
 export type ResetOperatorUserCreditsData = z.infer<typeof ResetOperatorUserCreditsSchema>;
+export type DeleteOperatorWorkspaceData = z.infer<typeof DeleteOperatorWorkspaceSchema>;
+
+export const DeleteOperatorWorkspaceResultDtoSchema = z.object({
+  companyId: z.uuid(),
+  workspaceLabel: z.string(),
+  deletedMemberCount: z.number(),
+  deletedAuthIdentityCount: z.number(),
+});
+
+export type DeleteOperatorWorkspaceResultDto = z.infer<typeof DeleteOperatorWorkspaceResultDtoSchema>;
 
 export const HostedAiUsageTotalsDtoSchema = z.object({
   settledCostMicrocents: z.string(),
@@ -255,4 +273,5 @@ export const OPERATOR_AUDIT_ACTION = {
   userPlatformAccessUpdate: "operator.platform_access.update",
   subscriptionSnapshotCorrect: "operator.subscription_snapshot.correct",
   creditBalanceReset: "operator.credit_balance.reset",
+  workspaceDelete: "operator.workspace.delete",
 } as const;

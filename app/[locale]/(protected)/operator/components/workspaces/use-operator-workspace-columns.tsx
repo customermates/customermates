@@ -13,6 +13,7 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { OperatorChipSelect } from "../operator-chip-select";
 import { useOperatorChipOptions } from "../use-operator-chip-options";
 import { OperatorWorkspaceAllowancePopover } from "./operator-workspace-allowance-popover";
+import { OperatorWorkspaceDeletePopover } from "./operator-workspace-delete-popover";
 
 export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto>[] {
   const { operatorWorkspacesStore } = useRootStore();
@@ -104,6 +105,15 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
         header: t("Common.table.columns.createdAt"),
         cell: ({ row }) => (
           <span className="text-sm">{intlStore.formatNumericalShortDateTime(row.original.createdAt)}</span>
+        ),
+      },
+      {
+        id: "actions",
+        header: t("Common.table.columns.actions"),
+        cell: ({ row }) => (
+          <div className="flex justify-end">
+            <OperatorWorkspaceDeletePopover workspace={row.original} />
+          </div>
         ),
       },
     ],

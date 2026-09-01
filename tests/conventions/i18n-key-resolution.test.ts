@@ -137,6 +137,7 @@ const AUDIT_FIELD_KEYS = [
 ] as const;
 
 const TABLE_COLUMN_KEYS = [
+  "Common.table.columns.actions",
   "Common.table.columns.amount",
   "Common.table.columns.weightedValue",
   "Common.table.columns.avatarUrl",

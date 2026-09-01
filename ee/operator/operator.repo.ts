@@ -2,6 +2,8 @@ import type {
   AgentCreditAdjustmentDto,
   CorrectOperatorSubscriptionSnapshotData,
   CreateAgentCreditAdjustmentData,
+  DeleteOperatorWorkspaceData,
+  DeleteOperatorWorkspaceResultDto,
   HostedAiOperatorCompanyDto,
   HostedAiOperatorOverviewDto,
   OperatorUserDetailDto,
@@ -43,4 +45,7 @@ export abstract class OperatorRepo {
     data: ResetOperatorUserCreditsData,
     now?: Date,
   ): Promise<ResetOperatorUserCreditsResultDto | OperatorRefusal>;
+  abstract deleteWorkspaceUnscoped(
+    data: DeleteOperatorWorkspaceData,
+  ): Promise<DeleteOperatorWorkspaceResultDto | OperatorRefusal>;
 }

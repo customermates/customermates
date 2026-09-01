@@ -15,6 +15,8 @@ import {
   type AgentCreditAdjustmentDto,
   type CorrectOperatorSubscriptionSnapshotData,
   type CreateAgentCreditAdjustmentData,
+  type DeleteOperatorWorkspaceData,
+  type DeleteOperatorWorkspaceResultDto,
   type HostedAiOperatorCompanyDto,
   type HostedAiOperatorOverviewDto,
   type HostedAiUsageTotalsDto,
@@ -27,6 +29,18 @@ import {
   type UpdateOperatorUserPlatformAccessData,
   type UpdateOperatorUserStatusData,
 } from "./operator.schema";
+
+function workspaceLabelFor(companyId: string, members: { email: string }[]): string {
+  const counts = new Map<string, number>();
+  for (const member of members) {
+    const domain = member.email.split("@")[1];
+    if (domain) counts.set(domain, (counts.get(domain) ?? 0) + 1);
+  }
+
+  const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
+
+  return ranked[0]?.[0] ?? companyId.slice(0, 8);
+}
 
 type AuditAction = (typeof OPERATOR_AUDIT_ACTION)[keyof typeof OPERATOR_AUDIT_ACTION];
 const MAX_ADJUSTMENT_CREDITS = 1_000_000;
@@ -958,6 +972,70 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         };
       },
       { companyId },
+    );
+  }
+
+  @BypassTenantGuard
+  async deleteWorkspaceUnscoped(
+    data: DeleteOperatorWorkspaceData,
+  ): Promise<DeleteOperatorWorkspaceResultDto | OperatorRefusal> {
+    const actor = getOperatorActor();
+    if (actor.companyId === data.companyId) return "conflict";
+
+    return runInTransaction(
+      async () => {
+        const company = await this.prisma.company.findUnique({
+          where: { id: data.companyId },
+          select: {
+            id: true,
+            users: { select: { id: true, email: true, status: true, isPlatformOperator: true } },
+            subscription: { select: { plan: true, status: true, lemonSqueezyId: true } },
+          },
+        });
+        if (!company) return "notFound";
+
+        const workspaceLabel = workspaceLabelFor(company.id, company.users);
+        if (data.confirmWorkspaceLabel !== workspaceLabel) return "conflict";
+        if (company.users.some((member) => member.isPlatformOperator && member.status === Status.active))
+          return "conflict";
+
+        const memberIds = company.users.map((member) => member.id);
+        const memberEmails = company.users.map((member) => member.email);
+
+        await this.prisma.inviteToken.deleteMany({ where: { createdById: { in: memberIds } } });
+
+        const identities = await this.prisma.authUser.findMany({
+          where: { email: { in: memberEmails } },
+          select: { id: true },
+        });
+        const identityIds = identities.map((identity) => identity.id);
+        await this.prisma.apikey.deleteMany({ where: { referenceId: { in: identityIds } } });
+        await this.prisma.authUser.deleteMany({ where: { id: { in: identityIds } } });
+
+        await this.prisma.company.delete({ where: { id: data.companyId } });
+
+        await this.createAudit({
+          action: OPERATOR_AUDIT_ACTION.workspaceDelete,
+          targetCompanyId: data.companyId,
+          reason: data.reason,
+          metadata: {
+            workspaceLabel,
+            deletedMemberCount: memberIds.length,
+            deletedAuthIdentityCount: identityIds.length,
+            plan: company.subscription?.plan ?? null,
+            subscriptionStatus: company.subscription?.status ?? null,
+            billingSubscriptionLeftActive: Boolean(company.subscription?.lemonSqueezyId),
+          },
+        });
+
+        return {
+          companyId: data.companyId,
+          workspaceLabel,
+          deletedMemberCount: memberIds.length,
+          deletedAuthIdentityCount: identityIds.length,
+        };
+      },
+      { companyId: data.companyId },
     );
   }
 }
