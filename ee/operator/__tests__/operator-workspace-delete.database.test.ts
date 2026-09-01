@@ -286,6 +286,23 @@ describeDatabase("operator workspace deletion against a real database", { timeou
       await prisma.messagingInboundEvent.create({
         data: { companyId, source: "webhook", payload: { probe: "sweep" } },
       });
+      await prisma.authVerification.create({
+        data: {
+          id: randomUUID(),
+          identifier: owner.email.toUpperCase(),
+          value: `pending-${randomUUID()}`,
+          expiresAt: new Date("2027-01-01T00:00:00.000Z"),
+        },
+      });
+      await prisma.apikey.create({
+        data: {
+          id: randomUUID(),
+          key: `hashed-${randomUUID()}`,
+          referenceId: owner.authUserId,
+          createdAt: new Date("2026-01-01T00:00:00.000Z"),
+          updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+        },
+      });
     });
 
     const tables = await runWithoutTenant(
@@ -327,6 +344,10 @@ describeDatabase("operator workspace deletion against a real database", { timeou
         await prisma.authSession.count({ where: { userId: { in: members.map((member) => member.authUserId) } } }),
       ).toBe(0);
       expect(await prisma.apikey.count({ where: { referenceId: { in: members.map((m) => m.authUserId) } } })).toBe(0);
+      expect(await prisma.authVerification.count({ where: { identifier: { in: emails, mode: "insensitive" } } })).toBe(
+        0,
+      );
+      expect(await prisma.authAccount.count({ where: { userId: { in: members.map((m) => m.authUserId) } } })).toBe(0);
 
       const audit = await prisma.operatorAuditEvent.findMany({ where: { targetCompanyId: companyId } });
       expect(audit).toHaveLength(1);

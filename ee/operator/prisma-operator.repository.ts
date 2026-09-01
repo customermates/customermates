@@ -1010,11 +1010,14 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         await this.prisma.inviteToken.deleteMany({ where: { createdById: { in: memberIds } } });
 
         const identities = await this.prisma.authUser.findMany({
-          where: { email: { in: memberEmails } },
+          where: { email: { in: memberEmails, mode: "insensitive" } },
           select: { id: true },
         });
         const identityIds = identities.map((identity) => identity.id);
         await this.prisma.apikey.deleteMany({ where: { referenceId: { in: identityIds } } });
+        await this.prisma.authVerification.deleteMany({
+          where: { identifier: { in: memberEmails, mode: "insensitive" } },
+        });
         await this.prisma.authUser.deleteMany({ where: { id: { in: identityIds } } });
 
         await this.prisma.messagingInboundEvent.deleteMany({ where: { companyId: data.companyId } });
