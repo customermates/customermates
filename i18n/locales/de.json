@@ -2302,8 +2302,14 @@
     "text": "Laden..."
   },
   "MassActions": {
+    "apply": "Auf Auswahl anwenden",
+    "clearField": "Feld leeren",
     "delete": "Ausgewählte löschen",
+    "keepInView": "Nur sichtbare Zeilen behalten",
+    "limitReached": "Du kannst höchstens {limit} Datensätze gleichzeitig auswählen.",
     "noMatchingFields": "Keine Felder entsprechen deiner Suche.",
+    "offView": "{count, plural, one {# nicht in der aktuellen Ansicht} other {# nicht in der aktuellen Ansicht}}",
+    "scopeStale": "Die Filter haben sich seit dieser Auswahl geändert.",
     "searchFieldPlaceholder": "Felder suchen…",
     "selectedCount": "{count, plural, one {# Element ausgewählt} other {# Elemente ausgewählt}}",
     "update": "Aktualisieren"

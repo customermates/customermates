@@ -207,10 +207,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
           <Checkbox
             aria-label={t("DataView.selectAllRows")}
             checked={allSelected ? true : someSelected ? "indeterminate" : false}
-            onCheckedChange={(checked) => {
-              if (checked) store.setSelectedIds("all");
-              else store.clearSelection();
-            }}
+            onCheckedChange={(checked) => store.setPageSelection(checked === true)}
           />
         );
       },
@@ -222,10 +219,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
           <Checkbox
             aria-label={t("DataView.selectRow", { id: row.index + 1 })}
             checked={store.selectedIds.has(id)}
-            onCheckedChange={(checked) => {
-              if (checked) store.selectedIds.add(id);
-              else store.selectedIds.delete(id);
-            }}
+            onCheckedChange={() => store.toggleItemSelection(id)}
             onClick={(e) => e.stopPropagation()}
           />
         );
@@ -393,8 +387,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                 onClick={(e) => {
                   if (isInteractiveClick(e)) return;
                   if (store.selectedIds.size > 0 && canBulkAct) {
-                    if (store.selectedIds.has(row.original.id)) store.selectedIds.delete(row.original.id);
-                    else store.selectedIds.add(row.original.id);
+                    store.toggleItemSelection(row.original.id);
                     return;
                   }
                   if (onRowClick) {
