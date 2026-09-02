@@ -7,7 +7,6 @@ import { Action, EntityType, Resource } from "@/generated/prisma";
 
 import { GetImportRelationIndexSchema } from "../data-transfer.schema";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
@@ -19,7 +18,6 @@ const READ_RESOURCE: Record<EntityType, Resource> = {
   [EntityType.task]: Resource.tasks,
 };
 
-@AllowInDemoMode
 @TenantInteractor()
 export class GetImportRelationIndexInteractor extends AuthenticatedInteractor<
   GetImportRelationIndexData,

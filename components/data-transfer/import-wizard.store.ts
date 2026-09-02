@@ -23,6 +23,7 @@ import {
   type ImportMode,
 } from "@/features/data-transfer/data-transfer.schema";
 import { IMPORT_ENTITIES } from "@/features/data-transfer/import/import-entity.registry";
+import { isDemoEnvironment } from "@/core/errors/report-application-error";
 import { ImportFileError, readWorkbookFile } from "@/features/data-transfer/import/read-workbook-file";
 import {
   autoMatchColumns,
@@ -213,7 +214,8 @@ export class ImportWizardStore extends BaseModalStore {
         fromSchema ?? autoMatchColumns(parsed.sources, this.descriptor, customColumns),
       );
     } catch (error) {
-      this.setFileError(error instanceof ImportFileError ? error.reason : "unreadable");
+      if (isDemoEnvironment()) this.setFileError("demoBlocked");
+      else this.setFileError(error instanceof ImportFileError ? error.reason : "unreadable");
     } finally {
       this.setIsLoading(false);
     }

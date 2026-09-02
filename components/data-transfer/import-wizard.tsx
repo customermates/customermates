@@ -211,7 +211,13 @@ export const ImportWizard = observer(function ImportWizard() {
                 </p>
               )}
 
-              {store.fileError && <p className="text-sm text-destructive">{t("DataTransfer.import.fileRejected")}</p>}
+              {store.fileError && (
+                <p className="text-sm text-destructive">
+                  {store.fileError === "demoBlocked"
+                    ? t("Common.errors.demoMode")
+                    : t("DataTransfer.import.fileRejected")}
+                </p>
+              )}
             </div>
           )}
 
