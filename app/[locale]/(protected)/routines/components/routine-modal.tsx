@@ -173,38 +173,50 @@ export const RoutineModal = observer(() => {
                     <>
                       <div className="space-y-1" role="list">
                         {routineModalStore.runs.map((run) => (
-                          <div key={run.id} className="group flex items-center gap-1 rounded-lg" role="listitem">
+                          <div
+                            key={run.id}
+                            className="group flex items-center gap-1 overflow-hidden rounded-lg border"
+                            role="listitem"
+                          >
                             <Button
                               className="h-auto min-w-0 flex-1 justify-start rounded-lg px-3 py-2.5 text-left"
                               id={`routine-run-${run.id}`}
                               variant="ghost"
                               onClick={() => runUserAction(() => routineModalStore.openRun(run))}
                             >
-                              <span className="min-w-0 flex-1">
-                                <span className="flex items-center gap-2">
-                                  <AppChip size="sm" variant={ROUTINE_RUN_STATUS_CHIP_COLOR[run.status]}>
-                                    {t(`RoutineRunStatus.${run.status}`)}
-                                  </AppChip>
-
-                                  {run.chargedCredits > 0 && (
-                                    <span className="text-subdued text-xs font-normal">
-                                      {`${t("RoutineDetail.credits")}: ${run.chargedCredits}`}
+                              <span className="flex w-full min-w-0 items-start gap-3">
+                                <span className="min-w-0 flex-1">
+                                  <span className="flex items-baseline gap-2">
+                                    <span suppressHydrationWarning className="truncate text-sm font-medium">
+                                      {intlStore.formatNumericalShortDateTime(run.createdAt)}
                                     </span>
-                                  )}
 
+                                    {run.chargedCredits > 0 && (
+                                      <span className="text-subdued shrink-0 text-xs font-normal">
+                                        {`${t("RoutineDetail.credits")}: ${run.chargedCredits}`}
+                                      </span>
+                                    )}
+                                  </span>
+
+                                  {routineRunDetail(run, t) && (
+                                    <MessageResponse className="text-subdued mt-0.5 line-clamp-2 text-xs font-normal">
+                                      {routineRunDetail(run, t)}
+                                    </MessageResponse>
+                                  )}
+                                </span>
+
+                                <span className="flex shrink-0 flex-col items-end gap-1.5">
                                   <time
                                     suppressHydrationWarning
-                                    className="text-subdued ml-auto shrink-0 text-xs font-normal whitespace-nowrap"
+                                    className="text-subdued text-xs font-normal whitespace-nowrap"
                                   >
                                     {intlStore.formatRelativeTime(run.createdAt)}
                                   </time>
-                                </span>
 
-                                {routineRunDetail(run, t) && (
-                                  <MessageResponse className="text-subdued mt-0.5 line-clamp-2 text-xs font-normal">
-                                    {routineRunDetail(run, t)}
-                                  </MessageResponse>
-                                )}
+                                  <AppChip size="sm" variant={ROUTINE_RUN_STATUS_CHIP_COLOR[run.status]}>
+                                    {t(`RoutineRunStatus.${run.status}`)}
+                                  </AppChip>
+                                </span>
                               </span>
                             </Button>
                           </div>
