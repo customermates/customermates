@@ -66,6 +66,14 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
     authority: "features/data-transfer/import/read-workbook-file.ts, app/api/export/[entityType]/route.ts",
   },
   {
+    id: "whole-account-data-export",
+    pattern:
+      /\b(?:full|complete|entire|whole)[ -](?:data|account|workspace|database)[ -]?export\b|\bVollst(?:ä|ae)ndexport\b|\bexport\s+everything\b|\bexport(?:s|ing)?[^.!?;|]{0,24}\b(?:all|every|entire|whole|complete)\s+(?:of\s+)?(?:your|the|their)?\s*(?:data|account|workspace|database|CRM)\b|\b(?:alle|s(?:ä|ae)mtliche|gesamten?)\s+(?:Ihre\s+)?(?:Daten|Datenbank)\b[^.!?;|]{0,24}\bexportier\w*|\bexportier\w*[^.!?;|]{0,24}\b(?:alle|s(?:ä|ae)mtliche|gesamten?)\s+(?:Ihre\s+)?(?:Daten|Datenbank)\b|\b(?:unlimited|unbegrenzte?s?)\b[^.!?;|]{0,24}\bexport/iu,
+    permittedContext: [...NO_OR_EXTERNAL, CONTRASTED],
+    why: "Export runs per entity type, scoped to the caller's read access and the current view, and stops at EXPORT_ROW_LIMIT rows",
+    authority: "app/api/export/[entityType]/route.ts, features/data-transfer/data-transfer.schema.ts",
+  },
+  {
     id: "record-attachments",
     pattern:
       /\b(?:attach|upload|store|save|anhäng\w*|hochlad\w*|speicher\w*)[^.!?;|]{0,28}\b(?:files?|photos?|documents?|certificates?|Dateien?|Fotos?|Dokumente?|Zertifikate?)\b[^.!?;|]{0,28}\b(?:record|contact|deal|customer|Datensatz|Kontakt|Deal|Kunde\w*)\b|\b(?:record|contact|deal|customer|Datensatz|Kontakt|Deal|Kunde\w*)[^.!?;|]{0,28}\b(?:file attachments?|Dateianhänge|Dokumentanhänge)\b/iu,
@@ -601,6 +609,30 @@ describe("retired claims stay retired", () => {
       "Records export to XLSX rather than CSV.",
       "There is no CSV import; use an Excel workbook.",
       "Datensätze werden als XLSX-Datei exportiert.",
+    ]) {
+      expect(findViolationsInSource("content/features/en/example.mdx", claim), claim).toHaveLength(0);
+    }
+  });
+
+  it("catches an export claim wider than the per-entity capped export that ships", () => {
+    for (const claim of [
+      "One click full data export for your whole company.",
+      "Export everything in a single file.",
+      "Customermates can export your entire account.",
+      "Unlimited export of every record.",
+      "Exportieren Sie sämtliche Daten auf einmal.",
+    ]) {
+      expect(findViolationsInSource("content/features/en/example.mdx", claim), claim).toHaveLength(1);
+    }
+  });
+
+  it("leaves the per-entity export that actually ships alone", () => {
+    for (const claim of [
+      "Export all contacts to an Excel workbook.",
+      "Export every deal in the current view.",
+      "Export up to 50,000 records per workbook.",
+      "There is no full data export; export each list separately.",
+      "Exportieren Sie alle Kontakte als XLSX-Datei.",
     ]) {
       expect(findViolationsInSource("content/features/en/example.mdx", claim), claim).toHaveLength(0);
     }
