@@ -1512,6 +1512,12 @@
     "subTypeEmail": "E-mail",
     "syncing": "Sincronizzazione in background",
     "syncingTooltip": "I messaggi, le e-mail e gli eventi del calendario di questo account vengono importati in background. Di solito richiede qualche minuto, fino a un'ora per gli account di grandi dimensioni. Puoi continuare a lavorare nel frattempo; le nuove attività compaiono non appena arrivano.",
+    "tabs": {
+      "details": "Dettagli",
+      "folders": "Cartelle",
+      "label": "Sezioni dell'account",
+      "signature": "Firma"
+    },
     "title": "Canali",
     "upgradeToBusinessForMoreAccounts": "Hai raggiunto il numero di account collegati incluso nel piano Pro. Passa a Business per collegarne altri.",
     "upsellDialogTitle": "Passa a un piano superiore per collegare più account",

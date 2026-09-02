@@ -1512,6 +1512,12 @@
     "subTypeEmail": "E-Mail",
     "syncing": "Wird im Hintergrund synchronisiert",
     "syncingTooltip": "Nachrichten, E-Mails und Kalendereinträge dieses Kontos werden im Hintergrund importiert. Das dauert in der Regel wenige Minuten, bei großen Konten bis zu einer Stunde. Du kannst währenddessen normal weiterarbeiten; neue Aktivitäten erscheinen, sobald sie eingehen.",
+    "tabs": {
+      "details": "Details",
+      "folders": "Ordner",
+      "label": "Kontobereiche",
+      "signature": "Signatur"
+    },
     "title": "Kanäle",
     "upgradeToBusinessForMoreAccounts": "Du hast die im Pro-Tarif enthaltenen verbundenen Konten erreicht. Wechsle zu Business, um weitere zu verbinden.",
     "upsellDialogTitle": "Upgrade, um mehr Konten zu verbinden",

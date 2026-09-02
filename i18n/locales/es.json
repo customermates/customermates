@@ -1512,6 +1512,12 @@
     "subTypeEmail": "Correo electrónico",
     "syncing": "Sincronizando en segundo plano",
     "syncingTooltip": "Los mensajes, correos y eventos de calendario de esta cuenta se están importando en segundo plano. Suele tardar unos minutos, hasta una hora en cuentas grandes. Puedes seguir trabajando mientras tanto; la actividad nueva aparece en cuanto llega.",
+    "tabs": {
+      "details": "Detalles",
+      "folders": "Carpetas",
+      "label": "Secciones de la cuenta",
+      "signature": "Firma"
+    },
     "title": "Canales",
     "upgradeToBusinessForMoreAccounts": "Has alcanzado el número de cuentas conectadas incluido en el plan Pro. Cambia a Business para conectar más.",
     "upsellDialogTitle": "Cambia a un plan superior para conectar más cuentas",

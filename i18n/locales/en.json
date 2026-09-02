@@ -1512,6 +1512,12 @@
     "subTypeEmail": "Email",
     "syncing": "Syncing in background",
     "syncingTooltip": "Messages, emails and calendar events from this account are being imported in the background. This usually takes a few minutes, for large accounts up to an hour. You can keep working while it runs; new activity shows up as soon as it arrives.",
+    "tabs": {
+      "details": "Details",
+      "folders": "Folders",
+      "label": "Account sections",
+      "signature": "Signature"
+    },
     "title": "Channels",
     "upgradeToBusinessForMoreAccounts": "You've reached your included connected accounts for the Pro plan. Upgrade to Business to connect more.",
     "upsellDialogTitle": "Upgrade to connect more accounts",

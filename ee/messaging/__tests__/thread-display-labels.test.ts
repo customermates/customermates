@@ -45,7 +45,10 @@ describe("displayableIdentifier stays the linkable form", () => {
 
 describe("participantLabel", () => {
   it("prefers the crm contact name", () => {
-    const p = attendee({ identifier: "anna-keller-ops", contact: { id: "c1", firstName: "Anna", lastName: "Keller", avatarUrl: null } });
+    const p = attendee({
+      identifier: "anna-keller-ops",
+      contact: { id: "c1", firstName: "Anna", lastName: "Keller", avatarUrl: null },
+    });
 
     expect(participantLabel(p, "linkedin", "unknown")).toBe("Anna Keller");
   });
