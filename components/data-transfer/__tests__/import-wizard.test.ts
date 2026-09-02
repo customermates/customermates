@@ -281,6 +281,7 @@ describe("ImportWizard mapping aids", () => {
 
     expect(html.match(/data-group-label=""/g)).toHaveLength(3);
     expect(html.match(/data-group-separator=""/g)).toHaveLength(3);
+    expect(html.match(/data-group-label=""><svg/g)).toHaveLength(3);
     expect(html).toContain("DataTransfer.import.groupFields");
     expect(html).toContain("DataTransfer.import.groupCustomFields");
     expect(html).toContain("DataTransfer.import.groupChannels");

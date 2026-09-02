@@ -3,6 +3,7 @@
 import type { ImportRowIssue } from "@/features/data-transfer/import/import-issues";
 import type { MappingTarget } from "@/features/data-transfer/import/import-mapping";
 
+import { AtSign, SlidersHorizontal, Table2 } from "lucide-react";
 import { MessagingProvider } from "@/generated/prisma";
 import { observer } from "mobx-react-lite";
 import { Fragment, useRef } from "react";
@@ -113,9 +114,9 @@ export const ImportWizard = observer(function ImportWizard() {
     : [];
 
   const optionGroups = [
-    { labelKey: "DataTransfer.import.groupFields", options: fieldOptions },
-    { labelKey: "DataTransfer.import.groupCustomFields", options: customOptions },
-    { labelKey: "DataTransfer.import.groupChannels", options: channelOptions },
+    { labelKey: "DataTransfer.import.groupFields", icon: Table2, options: fieldOptions },
+    { labelKey: "DataTransfer.import.groupCustomFields", icon: SlidersHorizontal, options: customOptions },
+    { labelKey: "DataTransfer.import.groupChannels", icon: AtSign, options: channelOptions },
   ];
 
   return (
@@ -214,13 +215,17 @@ export const ImportWizard = observer(function ImportWizard() {
 
                         <SelectItem value={RECORD_ID_VALUE}>{t("DataTransfer.import.recordId")}</SelectItem>
 
-                        {optionGroups.map(({ labelKey, options }) =>
+                        {optionGroups.map(({ labelKey, icon: GroupIcon, options }) =>
                           options.length === 0 ? null : (
                             <Fragment key={labelKey}>
                               <SelectSeparator />
 
                               <SelectGroup>
-                                <SelectLabel className="text-sm font-medium text-foreground">{t(labelKey)}</SelectLabel>
+                                <SelectLabel className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                  <GroupIcon className="size-3.5 shrink-0" />
+
+                                  {t(labelKey)}
+                                </SelectLabel>
 
                                 {options.map((option) => (
                                   <SelectItem key={option.value} value={option.value}>
