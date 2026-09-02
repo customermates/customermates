@@ -194,6 +194,7 @@ export function buildPlan(args: {
     const customFieldValues: Array<{ columnId: string; value: string }> = [];
     const blankRequiredText: string[] = [];
     let recordId: string | null = null;
+    let recordKey: string | null = null;
     let rowFailed = false;
 
     const note = (index: number | null, code: string, values: IssueValues, blocking: boolean) => {
@@ -217,7 +218,11 @@ export function buildPlan(args: {
       if (target.kind === "ignore") return;
 
       if (target.kind === "recordId") {
-        if (text.length > 0) recordId = text;
+        if (text.length > 0) {
+          recordId = text;
+          recordKey = text.toLocaleLowerCase();
+        }
+
         return;
       }
 
@@ -304,10 +309,10 @@ export function buildPlan(args: {
 
     if (customFieldValues.length > 0) payload.customFieldValues = customFieldValues;
 
-    if (recordId) {
-      const previous = seenRecordIds.get(recordId);
+    if (recordKey) {
+      const previous = seenRecordIds.get(recordKey);
       if (previous !== undefined) fail(null, "duplicateRecordId", { row: previous });
-      else seenRecordIds.set(recordId, row.sheetRow);
+      else seenRecordIds.set(recordKey, row.sheetRow);
     }
 
     if (recordId && payload.identifiers) {

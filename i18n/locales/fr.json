@@ -1713,11 +1713,13 @@
       "resultCounts": "{created} ajoutés, {updated} mis à jour",
       "resultSkipped": "{count, plural, one {# ligne ignorée} other {# lignes ignorées}}",
       "row": "Ligne",
+      "rowsAffected": "{count, plural, one {# ligne} other {# lignes}}",
       "skipInvalid": "{count, plural, one {Importer le reste et ignorer # ligne} other {Importer le reste et ignorer # lignes}}",
       "stopped": "Arrêt à la ligne {row}. {remaining} lignes n'ont pas été traitées.",
       "title": "Ajouter des enregistrements depuis un fichier",
       "unnamedColumn": "Colonne sans nom",
-      "validate": "Vérifier le fichier"
+      "validate": "Vérifier le fichier",
+      "warningCount": "{count, plural, one {# avertissement} other {# avertissements}}"
     },
     "menu": "Importer et exporter"
   },

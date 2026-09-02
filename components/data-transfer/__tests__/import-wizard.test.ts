@@ -113,7 +113,17 @@ describe("ImportWizard", () => {
     const html = render({
       step: "preview",
       plan: { create: [{}], update: [], issues: [] },
-      issues: [{ sheetRow: 4, columnLetter: "B", columnLabel: "Status", fieldPath: "", message: "bad", code: "x" }],
+      issues: [
+        {
+          sheetRow: 4,
+          columnLetter: "B",
+          columnLabel: "Status",
+          fieldPath: "",
+          message: "bad",
+          code: "x",
+          blocking: true,
+        },
+      ],
       hasBlockingIssues: true,
     });
 
@@ -307,6 +317,62 @@ describe("ImportWizard mapping aids", () => {
 
     expect(html).toContain("DataTransfer.import.duplicateTargets");
     expect(buttonFor(html, "DataTransfer.import.validate")).toContain('disabled=""');
+  });
+});
+
+describe("ImportWizard issue list", () => {
+  const issue = (sheetRow: number, overrides: Record<string, unknown> = {}) => ({
+    sheetRow,
+    columnLetter: "H",
+    columnLabel: "Channels",
+    fieldPath: "identifiers",
+    message: "Channels stay as they are on a record that already exists",
+    values: null,
+    code: "channelsNotUpdated",
+    blocking: false,
+    ...overrides,
+  });
+
+  it("collapses one repeated problem into a single line with a row count", () => {
+    const issues = Array.from({ length: 30 }, (_, index) => issue(index + 2));
+    const html = render({ step: "preview", plan: { create: [], update: [{}], issues: [] }, issues });
+
+    expect(html.match(/<li /g)).toHaveLength(1);
+    expect(html).toContain("DataTransfer.import.rowsAffected");
+    expect(html).not.toContain("DataTransfer.import.row ");
+  });
+
+  it("keeps distinct problems apart and names the single row each affects", () => {
+    const issues = [issue(2), issue(3, { message: "Something else", code: "other" })];
+    const html = render({ step: "preview", plan: { create: [], update: [{}], issues: [] }, issues });
+
+    expect(html.match(/<li /g)).toHaveLength(2);
+    expect(html).toContain("Something else");
+    expect(html).not.toContain("DataTransfer.import.rowsAffected");
+  });
+
+  it("calls a set of warnings warnings, not problems, and keeps the alarming tone for blockers", () => {
+    const warned = render({ step: "preview", plan: { create: [], update: [{}], issues: [] }, issues: [issue(2)] });
+
+    expect(warned).toContain("DataTransfer.import.warningCount");
+    expect(warned).toContain("text-warning");
+    expect(warned).not.toContain("DataTransfer.import.issueCount");
+
+    const blocked = render({
+      step: "preview",
+      plan: { create: [], update: [{}], issues: [] },
+      issues: [issue(2, { blocking: true })],
+    });
+
+    expect(blocked).toContain("DataTransfer.import.issueCount");
+    expect(blocked).toContain("text-destructive");
+  });
+
+  it("lines the row labels up on one baseline and one left edge", () => {
+    const html = render({ step: "preview", plan: { create: [], update: [{}], issues: [] }, issues: [issue(2)] });
+
+    expect(html).toContain('class="flex items-baseline gap-2"');
+    expect(html).toContain("min-w-16 shrink-0 font-mono");
   });
 });
 

@@ -1713,11 +1713,13 @@
       "resultCounts": "{created} hinzugefügt, {updated} aktualisiert",
       "resultSkipped": "{count, plural, one {# Zeile übersprungen} other {# Zeilen übersprungen}}",
       "row": "Zeile",
+      "rowsAffected": "{count, plural, one {# Zeile} other {# Zeilen}}",
       "skipInvalid": "{count, plural, one {Rest importieren und # Zeile überspringen} other {Rest importieren und # Zeilen überspringen}}",
       "stopped": "Bei Zeile {row} gestoppt. {remaining} Zeilen wurden nicht verarbeitet.",
       "title": "Datensätze aus einer Datei hinzufügen",
       "unnamedColumn": "Unbenannte Spalte",
-      "validate": "Datei prüfen"
+      "validate": "Datei prüfen",
+      "warningCount": "{count, plural, one {# Hinweis} other {# Hinweise}}"
     },
     "menu": "Import und Export"
   },

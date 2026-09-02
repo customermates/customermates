@@ -1713,11 +1713,13 @@
       "resultCounts": "{created} added, {updated} updated",
       "resultSkipped": "{count, plural, one {# row skipped} other {# rows skipped}}",
       "row": "Row",
+      "rowsAffected": "{count, plural, one {# row} other {# rows}}",
       "skipInvalid": "{count, plural, one {Import the rest and skip # row} other {Import the rest and skip # rows}}",
       "stopped": "Stopped at row {row}. {remaining} rows were not processed.",
       "title": "Add records from a file",
       "unnamedColumn": "Unnamed column",
-      "validate": "Check the file"
+      "validate": "Check the file",
+      "warningCount": "{count, plural, one {# warning} other {# warnings}}"
     },
     "menu": "Import and export"
   },

@@ -387,6 +387,19 @@ describe("buildPlan channels", () => {
 });
 
 describe("buildPlan identifier merging", () => {
+  it("treats two spellings of the same record id as the duplicate it is", () => {
+    const result = plan(
+      [{ kind: "recordId" }, { kind: "field", key: "name" }],
+      ["ID", "Name"],
+      [
+        ["Ada@Example.com", "Ada"],
+        ["ada@example.com", "Ada again"],
+      ],
+    );
+
+    expect(result.issues.map((issue) => issue.code)).toContain("duplicateRecordId");
+  });
+
   it("keeps the sheet's exact provider when the column reports the same address as plain mail", () => {
     const result = plan(
       [{ kind: "recordId" }, { kind: "identifier", provider: "mail" }],

@@ -1713,11 +1713,13 @@
       "resultCounts": "{created} añadidos, {updated} actualizados",
       "resultSkipped": "{count, plural, one {# fila omitida} other {# filas omitidas}}",
       "row": "Fila",
+      "rowsAffected": "{count, plural, one {# fila} other {# filas}}",
       "skipInvalid": "{count, plural, one {Importar el resto y omitir # fila} other {Importar el resto y omitir # filas}}",
       "stopped": "Detenido en la fila {row}. {remaining} filas no se procesaron.",
       "title": "Añadir registros desde un archivo",
       "unnamedColumn": "Columna sin nombre",
-      "validate": "Comprobar el archivo"
+      "validate": "Comprobar el archivo",
+      "warningCount": "{count, plural, one {# aviso} other {# avisos}}"
     },
     "menu": "Importar y exportar"
   },

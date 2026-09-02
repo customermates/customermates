@@ -9,6 +9,7 @@ import { observer } from "mobx-react-lite";
 import { Fragment, useRef } from "react";
 import { useTranslations } from "next-intl";
 
+import { cn } from "@/core/utils/cn";
 import { AppCard } from "@/components/card/app-card";
 import { AppChip } from "@/components/chip/app-chip";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -44,18 +45,50 @@ function columnPrefix(issue: ImportRowIssue): string {
   return `${letter}${issue.columnLabel}:`;
 }
 
+type IssueGroup = { issue: ImportRowIssue; rows: number[] };
+
+function groupIssues(issues: ImportRowIssue[]): IssueGroup[] {
+  const groups = new Map<string, IssueGroup>();
+
+  for (const issue of issues) {
+    const key = [issue.code, issue.columnLetter, issue.columnLabel, issue.message, JSON.stringify(issue.values)].join(
+      "\u0000",
+    );
+    const seen = groups.get(key);
+
+    if (!seen) {
+      groups.set(key, { issue, rows: issue.sheetRow === null ? [] : [issue.sheetRow] });
+      continue;
+    }
+
+    if (issue.sheetRow !== null) seen.rows.push(issue.sheetRow);
+  }
+
+  return [...groups.values()];
+}
+
 function ImportIssueList({ issues }: { issues: ImportRowIssue[] }) {
   const t = useTranslations();
+  const groups = groupIssues(issues);
+  const blocking = issues.some((issue) => issue.blocking);
 
   return (
     <div className="space-y-2">
-      <p className="text-sm text-destructive">{t("DataTransfer.import.issueCount", { count: issues.length })}</p>
+      <p className={cn("text-sm", blocking ? "text-destructive" : "text-warning")}>
+        {blocking
+          ? t("DataTransfer.import.issueCount", { count: issues.length })
+          : t("DataTransfer.import.warningCount", { count: issues.length })}
+      </p>
 
       <ul className="max-h-80 space-y-1 overflow-y-auto text-sm">
-        {issues.slice(0, ISSUE_DISPLAY_LIMIT).map((issue, index) => (
-          <li key={index} className="flex gap-2">
-            <span className="shrink-0 font-mono text-xs text-muted-foreground">
-              {issue.sheetRow ? `${t("DataTransfer.import.row")} ${issue.sheetRow}` : "-"}
+        {groups.slice(0, ISSUE_DISPLAY_LIMIT).map(({ issue, rows }, index) => (
+          <li key={index} className="flex items-baseline gap-2">
+            <span className="min-w-16 shrink-0 font-mono text-xs text-muted-foreground">
+              {rows.length > 1
+                ? t("DataTransfer.import.rowsAffected", { count: rows.length })
+                : rows.length === 1
+                  ? `${t("DataTransfer.import.row")} ${rows[0]}`
+                  : "-"}
             </span>
 
             <span className="min-w-0">
@@ -67,9 +100,9 @@ function ImportIssueList({ issues }: { issues: ImportRowIssue[] }) {
         ))}
       </ul>
 
-      {issues.length > ISSUE_DISPLAY_LIMIT && (
+      {groups.length > ISSUE_DISPLAY_LIMIT && (
         <p className="text-xs text-muted-foreground">
-          {t("DataTransfer.import.moreIssues", { count: issues.length - ISSUE_DISPLAY_LIMIT })}
+          {t("DataTransfer.import.moreIssues", { count: groups.length - ISSUE_DISPLAY_LIMIT })}
         </p>
       )}
     </div>
