@@ -10,6 +10,8 @@ import type { MessagingProvider } from "@/generated/prisma";
 import type { LinkedinProduct } from "@/ee/messaging/provider";
 
 import { LINKEDIN_PRODUCTS } from "@/ee/messaging/provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+
 import { attachmentSubtitle, describeFile, downloadLocalFile } from "./attachment-classify";
 import { AttachmentRow } from "./attachment-row";
 import { AppChip } from "@/components/chip/app-chip";
@@ -89,6 +91,7 @@ type Props = {
 export const ThreadReplyComposer = observer(
   ({ threadId, provider, defaultSubject, defaultRecipients, defaultCc, bare }: Props) => {
     const t = useTranslations();
+    const intlStore = useHydratedIntlStore();
     const { userStore, threadComposeStore, connectedAccountsStore } = useRootStore();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const initializedThreadId = useRef<string | null>(null);
@@ -328,11 +331,15 @@ export const ThreadReplyComposer = observer(
                   fileIcon={FileTypeIcon}
                   name={file.name}
                   removeLabel={t("Inbox.compose.attachRemove")}
-                  subtitle={attachmentSubtitle(t, {
-                    mime: file.type,
-                    fileName: file.name,
-                    size: file.size,
-                  })}
+                  subtitle={attachmentSubtitle(
+                    t,
+                    {
+                      mime: file.type,
+                      fileName: file.name,
+                      size: file.size,
+                    },
+                    (value, options) => intlStore.formatNumber(value, options),
+                  )}
                   onOpen={() => downloadLocalFile(file)}
                   onRemove={() => threadComposeStore.removeAttachment(index)}
                 />

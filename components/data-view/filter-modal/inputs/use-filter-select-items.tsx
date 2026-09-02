@@ -98,6 +98,8 @@ function validActivityFilters(filters: Filter[] | undefined): NonNullable<Activi
   });
 }
 
+const SELF_IDENTIFYING_FILTER_FIELDS = new Set<FilterFieldKey>([FilterFieldKey.workspaceId]);
+
 export function useFilterSelectItems(
   filter: Filter,
   customColumns?: CustomColumnDto[],
@@ -255,12 +257,17 @@ export function useFilterSelectItems(
 
     if (!getItems) return undefined;
 
+    const selfIdentifyingField = SELF_IDENTIFYING_FILTER_FIELDS.has(fieldKey) ? fieldKey : null;
+
     return async (ids) => {
       const requested = new Set(ids);
-      const result = await getItems({});
+      const params: GetQueryParams = selfIdentifyingField
+        ? { filters: [{ field: selfIdentifyingField, operator: FilterOperatorKey.in, value: [...ids] }] }
+        : {};
+      const result = await getItems(params);
       return result.items.filter((item) => requested.has(item.key));
     };
-  }, [getItems, getSelectedItems]);
+  }, [fieldKey, getItems, getSelectedItems]);
 
   const [selectionAttempt, setSelectionAttempt] = useState(0);
   const selectionRequestKey =

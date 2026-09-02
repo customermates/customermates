@@ -3,6 +3,7 @@
 import { Ban, ExternalLink } from "lucide-react";
 
 import { Icon } from "@/components/shared/icon";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 import {
@@ -25,6 +26,7 @@ type Props = {
 };
 
 export function MessageAttachment({ messageId, att, t }: Props) {
+  const intlStore = useHydratedIntlStore();
   const kind = classifyAttachment(att);
   const proxyUrl = attachmentProxyUrl(messageId, att.id);
 
@@ -74,7 +76,7 @@ export function MessageAttachment({ messageId, att, t }: Props) {
         fileIcon={FileTypeIcon}
         href={proxyUrl}
         name={name}
-        subtitle={attachmentSubtitle(t, att)}
+        subtitle={attachmentSubtitle(t, att, (value, options) => intlStore.formatNumber(value, options))}
       />
     );
   }

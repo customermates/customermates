@@ -417,6 +417,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
     const { companyId } = await createWorkspace({ domain: "workflows.invalid", members: 1 });
     const survivor = await createWorkspace({ domain: "keepruns.invalid", members: 1 });
     const doomedRun = `run-${randomUUID()}`;
+    const doomedNestedRun = `run-${randomUUID()}`;
     const survivingRun = `run-${randomUUID()}`;
 
     await runWithoutTenant(async () => {
@@ -437,6 +438,13 @@ describeDatabase("operator workspace deletion against a real database", { timeou
           randomUUID(),
         );
       }
+
+      await prisma.$executeRawUnsafe(
+        `INSERT INTO "workflow"."workflow_runs" ("id","deployment_id","status","name","input")
+         VALUES ($1, 'test-deployment', 'completed', 'backfill-connected-account', $2::jsonb)`,
+        doomedNestedRun,
+        JSON.stringify({ connectedAccountId: randomUUID(), tenant: { companyId, userId: randomUUID() } }),
+      );
     });
 
     const result = await runWithOperator(operatorActor(), () =>
@@ -454,6 +462,12 @@ describeDatabase("operator workspace deletion against a real database", { timeou
         doomedRun,
       );
       expect(Number(doomed[0]?.count ?? 0)).toBe(0);
+
+      const doomedNested = await prisma.$queryRawUnsafe<Array<{ count: bigint }>>(
+        `SELECT COUNT(*)::bigint AS count FROM "workflow"."workflow_runs" WHERE "id" = $1`,
+        doomedNestedRun,
+      );
+      expect(Number(doomedNested[0]?.count ?? 0)).toBe(0);
 
       const doomedSteps = await prisma.$queryRawUnsafe<Array<{ count: bigint }>>(
         `SELECT COUNT(*)::bigint AS count FROM "workflow"."workflow_steps" WHERE "run_id" = $1`,

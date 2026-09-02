@@ -351,4 +351,17 @@ describeDatabase("merged operator audit log against a real database", { timeout:
       await prisma.auditLog.deleteMany({ where: { companyId: workspace.companyId } });
     });
   });
+
+  it("serves nothing beyond the audit paging window and never advertises a page it cannot serve", async () => {
+    const auditRepo = new PrismaOperatorAuditRepo();
+
+    const beyond = await runWithoutTenant(() => auditRepo.getItems({ skip: 10_001, take: 25 }));
+    expect(beyond).toEqual([]);
+
+    const atEdge = await runWithoutTenant(() => auditRepo.getItems({ skip: 10_000, take: 25 }));
+    expect(Array.isArray(atEdge)).toBe(true);
+
+    const advertised = await runWithoutTenant(() => auditRepo.getCount({ pagination: { page: 1, pageSize: 25 } }));
+    expect(advertised).toBeLessThanOrEqual(10_000 + 25);
+  });
 });

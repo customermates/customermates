@@ -2,13 +2,14 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Eye, EyeOff, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 import { AppModal } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
+import { PasswordInput } from "@/components/forms/password-input";
 import { FormTextarea } from "@/components/forms/form-textarea";
 import { FormCheckbox } from "@/components/forms/form-checkbox";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
@@ -16,7 +17,6 @@ import { FormActions } from "@/components/card/form-actions";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { AppChip } from "@/components/chip/app-chip";
-import { Icon } from "@/components/shared/icon";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { AppCardHeader } from "@/components/card/app-card-header";
 
@@ -77,18 +77,11 @@ export const WebhookModal = observer(() => {
             </FormAutocomplete>
 
             <div className="space-y-1.5">
-              <div className="relative">
-                <FormInput id="secret" type={webhookModalStore.showSecret ? "text" : "password"} />
-
-                <button
-                  className="absolute right-2 top-1/2 -translate-y-1/2"
-                  tabIndex={-1}
-                  type="button"
-                  onClick={webhookModalStore.toggleShowSecret}
-                >
-                  <Icon className="text-subdued" icon={webhookModalStore.showSecret ? EyeOff : Eye} />
-                </button>
-              </div>
+              <PasswordInput
+                id="secret"
+                showPassword={webhookModalStore.showSecret}
+                onToggleVisibility={webhookModalStore.toggleShowSecret}
+              />
 
               <p className="text-subdued text-xs">{t("WebhookModal.secretDescription")}</p>
             </div>

@@ -5,6 +5,8 @@ import { action, makeObservable, observable, reaction } from "mobx";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { Debouncer } from "@/core/utils/debounce";
+import { reportApplicationError } from "@/core/errors/report-application-error";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { checkSearchResultExistsAction, globalSearchAction } from "@/app/[locale]/(protected)/search/actions";
 
 type GlobalSearchFormData = {
@@ -116,8 +118,19 @@ export class GlobalSearchModalStore extends BaseModalStore<GlobalSearchFormData>
         this.setIsLoading(true);
 
         void globalSearchAction({ searchTerm: debouncedSearchTerm })
-          .then((results) => this.setResults(results))
-          .catch(() => this.setResults(null))
+          .then((result) => {
+            if (result.ok) {
+              this.setResults(result.data);
+              return;
+            }
+
+            this.setResults(null);
+            if (!toastZodErrorTree(result.error)) this.toastError("Common.notifications.unexpectedError");
+          })
+          .catch((error: unknown) => {
+            this.setResults(null);
+            reportApplicationError(error);
+          })
           .finally(() => this.setIsLoading(false));
       },
     );

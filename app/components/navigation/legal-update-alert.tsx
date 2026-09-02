@@ -3,7 +3,7 @@
 import type { LegalUpdateStatus } from "@/features/legal/get-legal-status.interactor";
 
 import { AlertCircle, ArrowRight, Info } from "lucide-react";
-import { useFormatter, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 
 import {
   SidebarGroup,
@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { cn } from "@/core/utils/cn";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { IntlLink } from "@/i18n/navigation";
 
 type Props = {
@@ -22,13 +23,10 @@ type Props = {
 
 export function LegalUpdateAlert({ status, onNavigate }: Props) {
   const t = useTranslations();
-  const format = useFormatter();
+  const intlStore = useHydratedIntlStore();
   const effectiveAt = status.contractNoticeSent && !status.contractAccepted ? status.effectiveAt : null;
   const formattedEffectiveAt = effectiveAt
-    ? format.dateTime(new Date(effectiveAt), {
-        dateStyle: "medium",
-        timeZone: "UTC",
-      })
+    ? intlStore.formatDescriptiveShortDate(new Date(effectiveAt), { timeZone: "UTC" })
     : null;
   const contractModel = formattedEffectiveAt
     ? {

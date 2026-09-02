@@ -66,11 +66,11 @@ export function OperatorChipSelect({
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <span>
+        <button className="inline-flex max-w-full" type="button">
           <ClickableChip size="sm" variant={selected?.color ?? "secondary"}>
             {selected?.label ?? emptyLabel}
           </ClickableChip>
-        </span>
+        </button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="max-h-60 overflow-y-auto">
