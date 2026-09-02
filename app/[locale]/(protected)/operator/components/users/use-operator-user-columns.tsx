@@ -13,6 +13,7 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { OperatorChipSelect } from "../operator-chip-select";
 import { PLATFORM_ACCESS_GRANTED, useOperatorChipOptions } from "../use-operator-chip-options";
 import { OperatorUserCreditsPopover } from "./operator-user-credits-popover";
+import { adProviderDisplayName, isAdProvider } from "@/features/acquisition/ad-provider-registry";
 
 function displayName(user: OperatorUserRowDto): string {
   return `${user.firstName} ${user.lastName}`.trim() || user.email;
@@ -153,19 +154,21 @@ export function useOperatorUserColumns(): ColumnDef<OperatorUserRowDto>[] {
         ),
       },
       {
-        accessorKey: "googleAdsClickId",
-        id: "googleAdsClickId",
-        header: t("Common.table.columns.googleAdsClickId"),
-        cell: ({ row }) =>
-          row.original.googleAdsClickId ? (
-            <span className="flex max-w-40 flex-col" title={row.original.googleAdsClickId}>
-              <span className="text-[11px] uppercase text-muted-foreground">{row.original.googleAdsClickIdKind}</span>
+        accessorKey: "adProvider",
+        id: "adProvider",
+        header: t("Common.table.columns.adProvider"),
+        cell: ({ row }) => {
+          const provider = row.original.adProvider;
+          if (!provider || !isAdProvider(provider)) return <span className="text-sm">-</span>;
 
-              <span className="truncate font-mono text-xs">{row.original.googleAdsClickId}</span>
+          return (
+            <span className="flex max-w-40 flex-col">
+              <span className="truncate text-sm">{adProviderDisplayName(provider)}</span>
+
+              <span className="text-[11px] uppercase text-muted-foreground">{row.original.adIdentifierKind}</span>
             </span>
-          ) : (
-            <span className="text-sm">-</span>
-          ),
+          );
+        },
       },
       {
         id: "credits",

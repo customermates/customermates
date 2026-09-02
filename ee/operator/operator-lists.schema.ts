@@ -18,8 +18,8 @@ export const OperatorUserRowDtoSchema = z.object({
   subscriptionStatus: z.enum(SubscriptionStatus).nullable(),
   subscriptionQuantity: z.number().nullable(),
   subscriptionUpdatedAt: z.date().nullable(),
-  googleAdsClickId: z.string().nullable(),
-  googleAdsClickIdKind: z.string().nullable(),
+  adProvider: z.string().nullable(),
+  adIdentifierKind: z.string().nullable(),
 });
 
 export type OperatorUserRowDto = z.infer<typeof OperatorUserRowDtoSchema>;
@@ -71,3 +71,23 @@ export const OperatorRiskSummaryDtoSchema = z.object({
 });
 
 export type OperatorRiskSummaryDto = z.infer<typeof OperatorRiskSummaryDtoSchema>;
+
+export const AdConversionExportRowDtoSchema = z.object({
+  provider: z.string(),
+  identifierKind: z.string(),
+  identifierValue: z.string(),
+  conversionType: z.string(),
+  conversionAt: z.date(),
+  orderId: z.string(),
+  adUserData: z.enum(["Granted", "Denied"]),
+  adPersonalization: z.enum(["Granted", "Denied"]),
+});
+
+export type AdConversionExportRowDto = z.infer<typeof AdConversionExportRowDtoSchema>;
+
+export const AdConversionExportDtoSchema = z.object({
+  generatedAt: z.date(),
+  rows: z.array(AdConversionExportRowDtoSchema),
+});
+
+export type AdConversionExportDto = z.infer<typeof AdConversionExportDtoSchema>;

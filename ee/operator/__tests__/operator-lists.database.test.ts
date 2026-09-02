@@ -27,7 +27,6 @@ const { prisma } = await import("@/prisma/db");
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 
 const inFilter = (field: string, value: string[]): Filter => ({ field, operator: FilterOperatorKey.in, value });
-const presenceFilter = (field: string, operator: FilterOperatorKey): Filter => ({ field, operator }) as Filter;
 const companyIds: string[] = [];
 
 async function seedWorkspace(args: {
@@ -37,8 +36,9 @@ async function seedWorkspace(args: {
   members: Array<{
     status?: "active" | "inactive";
     isPlatformOperator?: boolean;
-    googleAdsClickId?: string;
-    googleAdsClickIdKind?: string;
+    adProvider?: string;
+    adIdentifierKind?: string;
+    adIdentifierValue?: string;
   }>;
 }) {
   const companyId = randomUUID();
@@ -67,8 +67,24 @@ async function seedWorkspace(args: {
           lastName: `${index}`,
           status: member.status ?? "active",
           isPlatformOperator: member.isPlatformOperator ?? false,
-          googleAdsClickId: member.googleAdsClickId ?? null,
-          googleAdsClickIdKind: member.googleAdsClickIdKind ?? null,
+        },
+      });
+
+      if (!member.adProvider || !member.adIdentifierKind || !member.adIdentifierValue) continue;
+
+      const clickedAt = new Date("2026-08-31T10:00:00.000Z");
+      await prisma.adAttribution.create({
+        data: {
+          companyId,
+          userId,
+          provider: member.adProvider,
+          identifierKind: member.adIdentifierKind,
+          identifierValue: member.adIdentifierValue,
+          clickedAt,
+          capturedAt: clickedAt,
+          consentedAt: clickedAt,
+          consentNoticeVersion: "2026-09-02",
+          expiresAt: new Date("2026-11-28T10:00:00.000Z"),
         },
       });
     }
@@ -163,12 +179,12 @@ describeDatabase("operator user list against a real database", { timeout: 120_00
     expect(searched[0]?.companyId).toBe(beta.companyId);
   });
 
-  it("separates attributed from unattributed users by Google Ads click id presence", async () => {
+  it("separates users by advertising provider and surfaces the provider without the raw identifier", async () => {
     const marker = randomUUID().slice(0, 8);
-    const clicks = (["gclid", "gbraid", "wbraid"] as const).map((kind) => ({
-      googleAdsClickIdKind: kind,
-      googleAdsClickId: `${kind}-${marker}`,
-    }));
+    const clicks = [
+      { adProvider: "google_ads", adIdentifierKind: "gclid", adIdentifierValue: `gclid-${marker}` },
+      { adProvider: "openai_ads", adIdentifierKind: "oppref", adIdentifierValue: `oppref-${marker}` },
+    ];
     const workspace = await seedWorkspace({
       domain: `attribution-${marker}.invalid`,
       plan: "pro",
@@ -179,26 +195,42 @@ describeDatabase("operator user list against a real database", { timeout: 120_00
     const repo = new PrismaOperatorUsersRepo();
     const scoped = inFilter(FilterFieldKey.workspaceId, [workspace.companyId]);
 
-    const attributed = await runWithoutTenant(() =>
-      repo.getItems({
-        filters: [scoped, presenceFilter(FilterFieldKey.googleAdsClickId, FilterOperatorKey.isNotNull)],
-      }),
+    const google = await runWithoutTenant(() =>
+      repo.getItems({ filters: [scoped, inFilter(FilterFieldKey.adProvider, ["google_ads"])] }),
     );
-    expect(attributed).toHaveLength(clicks.length);
-    expect(attributed.map((row) => [row.googleAdsClickIdKind, row.googleAdsClickId]).sort()).toEqual(
-      clicks.map((click) => [click.googleAdsClickIdKind, click.googleAdsClickId]).sort(),
+    expect(google).toHaveLength(1);
+    expect(google[0]?.adProvider).toBe("google_ads");
+    expect(google[0]?.adIdentifierKind).toBe("gclid");
+
+    const openAi = await runWithoutTenant(() =>
+      repo.getItems({ filters: [scoped, inFilter(FilterFieldKey.adProvider, ["openai_ads"])] }),
     );
+    expect(openAi.map((row) => row.adIdentifierKind)).toEqual(["oppref"]);
+
+    const either = await runWithoutTenant(() =>
+      repo.getItems({ filters: [scoped, inFilter(FilterFieldKey.adProvider, ["google_ads", "openai_ads"])] }),
+    );
+    expect(either).toHaveLength(2);
 
     const unattributed = await runWithoutTenant(() =>
-      repo.getItems({ filters: [scoped, presenceFilter(FilterFieldKey.googleAdsClickId, FilterOperatorKey.isNull)] }),
+      repo.getItems({
+        filters: [
+          scoped,
+          { field: FilterFieldKey.adProvider, operator: FilterOperatorKey.notIn, value: ["google_ads", "openai_ads"] },
+        ],
+      }),
     );
     expect(unattributed).toHaveLength(2);
-    expect(unattributed.every((row) => row.googleAdsClickId === null)).toBe(true);
+    expect(unattributed.every((row) => row.adProvider === null)).toBe(true);
+
     await expect(
       runWithoutTenant(() =>
-        repo.getCount({ filters: [scoped, presenceFilter(FilterFieldKey.googleAdsClickId, FilterOperatorKey.isNull)] }),
+        repo.getCount({ filters: [scoped, inFilter(FilterFieldKey.adProvider, ["google_ads", "openai_ads"])] }),
       ),
     ).resolves.toBe(2);
+
+    expect(JSON.stringify(either)).not.toContain(`gclid-${marker}`);
+    expect(JSON.stringify(either)).not.toContain(`oppref-${marker}`);
   });
 });
 

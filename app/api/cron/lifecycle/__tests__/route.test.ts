@@ -26,7 +26,7 @@ vi.mock("@/core/di", () => ({
     invoke: invokes[6],
   }),
   getDeleteOrphanedUnipileAccountsInteractor: () => ({ invoke: invokes[7] }),
-  getExpireGoogleAdsClickIdsInteractor: () => ({ invoke: invokes[8] }),
+  getExpireAdAttributionInteractor: () => ({ invoke: invokes[8] }),
   getSendLegalDocumentNoticesInteractor: () => ({ invoke: invokes[9] }),
 }));
 

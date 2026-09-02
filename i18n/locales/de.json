@@ -9,7 +9,7 @@
   },
   "AcquisitionConsent": {
     "allowAttribution": "Erlauben",
-    "description": "Es sieht so aus, als wärst du über eine Google-Anzeige zu uns gekommen. Mit deiner Erlaubnis merken wir uns diesen Anzeigenbesuch bis zu 90 Tage lang und verknüpfen ihn mit deinem Customermates-Konto, wenn du einen neuen Workspace erstellst. So verstehen wir besser, welche Anzeigen hilfreich sind.",
+    "description": "Es sieht so aus, als wärst du über eine {provider}-Anzeige zu uns gekommen. Mit deiner Erlaubnis merken wir uns diesen Besuch bis zu {days} Tage lang, verknüpfen ihn mit deinem Customermates-Konto, wenn du einen Workspace erstellst, und teilen {provider} mit, dass die Anzeige zu einer Registrierung geführt hat. Deinen Namen, deine E-Mail-Adresse und andere persönliche Angaben geben wir dabei nie weiter.",
     "necessaryOnly": "Nein, danke",
     "privacyLink": "Datenschutzdetails",
     "title": "Hilf uns zu verstehen, was funktioniert"
@@ -1141,12 +1141,12 @@
       "daysPreset": "{count, plural, =1 {1 Tag} other {# Tage}}",
       "daysSuffix": "Tage",
       "fields": {
+        "adProvider": "Anzeigen-Anbieter",
         "auditSource": "Quelle",
         "calendarId": "Kalender",
         "connectedAccountId": "Kanal",
         "createdAt": "Erstellt am",
         "event": "Ereignis",
-        "googleAdsClickId": "Google Ads Klick-ID",
         "isPlatformOperator": "Plattform-Operator",
         "lastActiveAt": "Zuletzt aktiv",
         "participants": "Teilnehmer",
@@ -1308,6 +1308,7 @@
       "columns": {
         "action": "Aktion",
         "actor": "Akteur",
+        "adProvider": "Anzeigen-Anbieter",
         "allowance": "Kontingent",
         "amount": "Betrag",
         "avatarUrl": "Avatar",
@@ -1329,7 +1330,6 @@
         "events": "Ereignisse",
         "expiresAt": "Läuft ab",
         "firstName": "Vorname",
-        "googleAdsClickId": "Google Ads Klick-ID",
         "id": "ID",
         "identifiers": "Kanäle",
         "isSystemRole": "Systemrolle",
@@ -2511,6 +2511,14 @@
     "activity": {
       "description": "Von insgesamt {total} Benutzern",
       "label": "Aktiv in 7 Tagen"
+    },
+    "adConversions": {
+      "description": "Anzeigenklicks, die zu einer Registrierung oder einem zahlenden Abonnement geführt haben, gefiltert auf die Meldefrist der jeweiligen Plattform. Enthalten ist nur die Klickkennung der Plattform, nie personenbezogene Daten.",
+      "generate": "Conversion-Export erzeugen",
+      "googleAds": "Google-Ads-CSV",
+      "label": "Werbe-Conversions",
+      "otherProviders": "CSV weiterer Plattformen",
+      "rowCount": "{count} meldbare Conversions"
     },
     "growth": {
       "description": "Dazu {workspaces} neue Arbeitsbereiche",

@@ -179,11 +179,6 @@ model User {
   onboardingWizardCompletedAt     DateTime?
   agentCreditActivatedAt          DateTime?
   isPlatformOperator              Boolean                 @default(false)
-  googleAdsClickId                String?                 @db.VarChar(512)
-  googleAdsClickIdKind            String?                 @db.VarChar(8)
-  googleAdsClickIdCapturedAt      DateTime?
-  googleAdsAttributionConsentedAt DateTime?
-  googleAdsClickIdExpiresAt       DateTime?
   createdAt                       DateTime                @default(now())
   updatedAt                       DateTime                @updatedAt
   company                         Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -200,10 +195,10 @@ model User {
   agentConversations              AgentConversation[]
   agentRunLeases                  AgentRunLease[]
   agentCreditAdjustments          AgentCreditAdjustment[]
+  adAttributions                  AdAttribution[]
 
   @@index([companyId])
   @@index([companyId, status])
-  @@index([googleAdsClickIdExpiresAt, id])
   @@index([roleId])
 }
 
@@ -216,6 +211,8 @@ model Company {
   updatedAt                   DateTime                     @updatedAt
   tasks                       Task[]
   users                       User[]
+  adAttributions              AdAttribution[]
+  conversionEvents            ConversionEvent[]
   inviteTokens                InviteToken[]
   contacts                    Contact[]
   organizations               Organization[]
@@ -1882,4 +1879,44 @@ model AgentRunLease {
 enum AgentApprovalDecision {
   approve
   reject
+}
+
+model AdAttribution {
+  id                   String   @id @default(uuid())
+  companyId            String
+  company              Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  userId               String
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider             String   @db.VarChar(32)
+  identifierKind       String   @db.VarChar(32)
+  identifierValue      String   @db.VarChar(512)
+  clickedAt            DateTime
+  capturedAt           DateTime
+  consentedAt          DateTime
+  consentNoticeVersion String   @db.VarChar(32)
+  expiresAt            DateTime
+  createdAt            DateTime @default(now())
+
+  @@unique([companyId, provider])
+  @@index([companyId])
+  @@index([userId])
+  @@index([expiresAt, id])
+}
+
+model ConversionEvent {
+  id         String              @id @default(uuid())
+  companyId  String
+  company    Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  type       ConversionEventType
+  occurredAt DateTime
+  createdAt  DateTime            @default(now())
+
+  @@unique([companyId, type])
+  @@index([companyId])
+  @@index([occurredAt])
+}
+
+enum ConversionEventType {
+  signup
+  paid
 }

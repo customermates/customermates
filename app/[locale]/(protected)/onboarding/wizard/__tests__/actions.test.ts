@@ -22,9 +22,9 @@ vi.mock("@/core/di", () => ({
 vi.mock("@/core/utils/action-result", () => ({
   serializeResult: async (result: unknown) => await result,
 }));
-vi.mock("@/features/acquisition/google-ads-consent.cookie", () => ({
-  clearRegisteredGoogleAdsClickFromCookie: mocks.clearRegisteredClick,
-  readRegistrationGoogleAdsAttribution: mocks.readAttribution,
+vi.mock("@/features/acquisition/ad-attribution.cookie", () => ({
+  clearRegisteredAdClicksFromCookie: mocks.clearRegisteredClick,
+  readRegistrationAdAttribution: mocks.readAttribution,
 }));
 
 import { registerProfileAction } from "../actions";
@@ -38,15 +38,20 @@ const registration = {
   agreeToTerms: true,
 };
 
-const attribution = {
-  clickId: "Case-Sensitive_GCLID",
-  clickIdKind: "gclid" as const,
-  capturedAt: new Date("2026-08-31T10:00:00.000Z"),
-  consentedAt: new Date("2026-08-31T09:59:00.000Z"),
-  expiresAt: new Date("2026-11-28T10:00:00.000Z"),
-};
+const attribution = [
+  {
+    provider: "google_ads" as const,
+    identifierKind: "gclid" as const,
+    identifierValue: "Case-Sensitive_GCLID",
+    clickedAt: new Date("2026-08-31T09:55:00.000Z"),
+    capturedAt: new Date("2026-08-31T10:00:00.000Z"),
+    consentedAt: new Date("2026-08-31T09:59:00.000Z"),
+    consentNoticeVersion: "2026-09-02",
+    expiresAt: new Date("2026-11-28T10:00:00.000Z"),
+  },
+];
 
-describe("onboarding registration Google Ads attribution boundary", () => {
+describe("onboarding registration ad attribution boundary", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.clearRegisteredClick.mockResolvedValue(undefined);
@@ -60,9 +65,7 @@ describe("onboarding registration Google Ads attribution boundary", () => {
   it("reads the signed click before registration and clears it only after success", async () => {
     await registerProfileAction(registration);
 
-    expect(mocks.register).toHaveBeenCalledWith(registration, {
-      googleAdsAttribution: attribution,
-    });
+    expect(mocks.register).toHaveBeenCalledWith(registration, { adAttribution: attribution });
     expect(mocks.readAttribution.mock.invocationCallOrder[0]).toBeLessThan(mocks.register.mock.invocationCallOrder[0]);
     expect(mocks.register.mock.invocationCallOrder[0]).toBeLessThan(
       mocks.clearRegisteredClick.mock.invocationCallOrder[0],

@@ -24,6 +24,6 @@ export enum FilterFieldKey {
   isPlatformOperator = "isPlatformOperator",
   lastActiveAt = "lastActiveAt",
   workspaceId = "workspaceId",
-  googleAdsClickId = "googleAdsClickId",
+  adProvider = "adProvider",
   auditSource = "auditSource",
 }

@@ -48,7 +48,7 @@ export class OperatorUsersStore extends BaseDataViewStore<OperatorUserRowDto> {
       { uid: "operator" },
       { uid: "lastActiveAt", sortable: true },
       { uid: "createdAt", sortable: true },
-      { uid: "googleAdsClickId" },
+      { uid: "adProvider" },
       { uid: "credits" },
     ];
   }

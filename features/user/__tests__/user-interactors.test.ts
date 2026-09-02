@@ -128,15 +128,30 @@ describe("RegisterUserInteractor", () => {
     );
   });
 
-  it("passes an unexpired consented Google Ads click only to a new cloud owner", async () => {
+  it("passes unexpired consented ad clicks only to a new cloud owner", async () => {
     mutableEnv.APP_MODE = "cloud";
-    const googleAdsAttribution = {
-      clickId: "Case-Sensitive_GCLID",
-      clickIdKind: "gclid" as const,
-      capturedAt: new Date(Date.now() - 1_000),
-      consentedAt: new Date(Date.now() - 1_000),
-      expiresAt: new Date(Date.now() + 60_000),
-    };
+    const adAttribution = [
+      {
+        provider: "google_ads" as const,
+        identifierKind: "gclid" as const,
+        identifierValue: "Case-Sensitive_GCLID",
+        clickedAt: new Date(Date.now() - 2_000),
+        capturedAt: new Date(Date.now() - 1_000),
+        consentedAt: new Date(Date.now() - 1_000),
+        consentNoticeVersion: "2026-09-02",
+        expiresAt: new Date(Date.now() + 60_000),
+      },
+      {
+        provider: "openai_ads" as const,
+        identifierKind: "oppref" as const,
+        identifierValue: "Opaque-OPPREF",
+        clickedAt: new Date(Date.now() - 2_000),
+        capturedAt: new Date(Date.now() - 1_000),
+        consentedAt: new Date(Date.now() - 1_000),
+        consentNoticeVersion: "2026-09-02",
+        expiresAt: new Date(Date.now() + 60_000),
+      },
+    ];
     const data = {
       email: "jane@example.com",
       firstName: "Jane",
@@ -146,22 +161,22 @@ describe("RegisterUserInteractor", () => {
       agreeToTerms: true,
     };
 
-    await createInteractor().invoke(data, { googleAdsAttribution });
-    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ googleAdsAttribution }));
+    await createInteractor().invoke(data, { adAttribution });
+    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ adAttribution }));
 
     vi.clearAllMocks();
     mockRepo.findCompanyIdUnscoped.mockResolvedValue("existing-company-id");
     mockRepo.registerExistingCompany.mockResolvedValue(mockTenantUser);
     mockEventService.publish.mockResolvedValue(undefined);
     mockAuthService.sendNewUserNotificationEmail.mockResolvedValue(undefined);
-    await createInteractor().invoke(data, { googleAdsAttribution });
+    await createInteractor().invoke(data, { adAttribution });
 
     const existingCompanyArgs = mockRepo.registerExistingCompany.mock.calls[0]?.[0];
     expect(existingCompanyArgs).toEqual({ ...data, companyId: "existing-company-id" });
-    expect(Object.hasOwn(existingCompanyArgs, "googleAdsAttribution")).toBe(false);
+    expect(Object.hasOwn(existingCompanyArgs, "adAttribution")).toBe(false);
   });
 
-  it("drops an expired Google Ads click before owner creation", async () => {
+  it("drops an expired ad click before owner creation", async () => {
     mutableEnv.APP_MODE = "cloud";
     await createInteractor().invoke(
       {
@@ -173,17 +188,22 @@ describe("RegisterUserInteractor", () => {
         agreeToTerms: true,
       },
       {
-        googleAdsAttribution: {
-          clickId: "expired-click",
-          clickIdKind: "gclid",
-          capturedAt: new Date("2026-01-01T00:00:00.000Z"),
-          consentedAt: new Date("2026-01-01T00:00:00.000Z"),
-          expiresAt: new Date("2026-01-02T00:00:00.000Z"),
-        },
+        adAttribution: [
+          {
+            provider: "google_ads",
+            identifierKind: "gclid",
+            identifierValue: "expired-click",
+            clickedAt: new Date("2026-01-01T00:00:00.000Z"),
+            capturedAt: new Date("2026-01-01T00:00:00.000Z"),
+            consentedAt: new Date("2026-01-01T00:00:00.000Z"),
+            consentNoticeVersion: "2026-09-02",
+            expiresAt: new Date("2026-01-02T00:00:00.000Z"),
+          },
+        ],
       },
     );
 
-    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ googleAdsAttribution: null }));
+    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ adAttribution: [] }));
   });
 
   it("rejects an unchecked new cloud company before creating records", async () => {

@@ -103,15 +103,33 @@ describe("legal documents describe only what the product does", () => {
     expect(present, `retired subjects still disclosed: ${present.join(", ")}`).toEqual([]);
   });
 
-  it.each(CONTENT_LOCALES)("privacy (%s) bounds the first-party Google Ads click attribution", (name) => {
+  it.each(CONTENT_LOCALES)("privacy (%s) bounds the first-party advertising attribution", (name) => {
     const privacy = legal(name, "privacy");
 
-    expect(privacy).toMatch(/Google.?Ads/i);
-    expect(privacy).toMatch(/gclid.*gbraid.*wbraid/is);
-    expect(privacy).toMatch(name === "en" ? /consent.*Privacy choices.*withdraw/is : /Einwilligung.*Datenschutzauswahl.*widerruf/is);
-    expect(privacy).toMatch(name === "en" ? /90 days/i : /90 Tage/i);
+    for (const kind of ["gclid", "gbraid", "wbraid", "oppref", "rdt_cid", "li_fat_id"])
+      expect(privacy, `${name}/privacy does not name ${kind}`).toContain(kind);
+
+    for (const recipient of ["Google", "OpenAI", "Reddit", "LinkedIn"])
+      expect(privacy, `${name}/privacy does not name ${recipient}`).toContain(recipient);
+
     expect(privacy).toMatch(
-      name === "en" ? /no Google tag.*conversion upload/is : /kein Google-Tag.*kein Conversion-Upload/is,
+      name === "en" ? /consent.*Privacy choices.*withdraw/is : /Einwilligung.*Datenschutzauswahl.*widerruf/is,
+    );
+    expect(privacy).toMatch(name === "en" ? /89 days.*30 days/is : /89 Tage.*30 Tage/is);
+    expect(privacy).toMatch(
+      name === "en"
+        ? /No personal data is transmitted.*no hashed email address.*no IP address/is
+        : /keine personenbezogenen Daten übermittelt.*keine gehashte E-Mail-Adresse.*keine IP-Adresse/is,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /standard contractual clauses/i
+        : /Standardvertragsklauseln/i,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /No advertising pixel, tag, measurement SDK/is
+        : /kein Werbepixel, kein Tag, kein Mess-SDK/is,
     );
   });
 

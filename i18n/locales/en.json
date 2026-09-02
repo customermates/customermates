@@ -9,7 +9,7 @@
   },
   "AcquisitionConsent": {
     "allowAttribution": "Allow",
-    "description": "It looks like you arrived through a Google ad. With your permission, we’ll remember this ad visit for up to 90 days and link it to your Customermates account if you create a new workspace. This helps us understand which ads are useful.",
+    "description": "It looks like you arrived through a {provider} ad. With your permission we’ll remember this visit for up to {days} days, link it to your Customermates account if you create a workspace, and tell {provider} that their ad led to a signup. We never share your name, email or any other personal detail.",
     "necessaryOnly": "No thanks",
     "privacyLink": "Privacy details",
     "title": "Help us learn what works"
@@ -1141,12 +1141,12 @@
       "daysPreset": "{count, plural, =1 {1 day} other {# days}}",
       "daysSuffix": "days",
       "fields": {
+        "adProvider": "Ad provider",
         "auditSource": "Source",
         "calendarId": "Calendar",
         "connectedAccountId": "Channel",
         "createdAt": "Created at",
         "event": "Event",
-        "googleAdsClickId": "Google Ads click ID",
         "isPlatformOperator": "Platform operator",
         "lastActiveAt": "Last active",
         "participants": "Participants",
@@ -1308,6 +1308,7 @@
       "columns": {
         "action": "Action",
         "actor": "Actor",
+        "adProvider": "Ad provider",
         "allowance": "Allowance",
         "amount": "Amount",
         "avatarUrl": "Avatar",
@@ -1329,7 +1330,6 @@
         "events": "Events",
         "expiresAt": "Expires at",
         "firstName": "First Name",
-        "googleAdsClickId": "Google Ads click ID",
         "id": "ID",
         "identifiers": "Channels",
         "isSystemRole": "System role",
@@ -2511,6 +2511,14 @@
     "activity": {
       "description": "Of {total} users in total",
       "label": "Active last 7 days"
+    },
+    "adConversions": {
+      "description": "Ad clicks that produced a signup or a paying subscription, filtered to those still inside each platform's reporting deadline. Only the platform's own click identifier is included, never personal data.",
+      "generate": "Generate conversion export",
+      "googleAds": "Google Ads CSV",
+      "label": "Advertising conversions",
+      "otherProviders": "Other platforms CSV",
+      "rowCount": "{count} reportable conversions"
     },
     "growth": {
       "description": "Alongside {workspaces} new workspaces",

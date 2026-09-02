@@ -9,25 +9,30 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import {
-  captureConsentedGoogleAdsClickAction,
-  decidePublicGoogleAdsConsentAction,
-  readPublicGoogleAdsConsentAction,
-  reconcileGoogleAdsAttributionWithdrawalAction,
-} from "@/features/acquisition/google-ads-consent.actions";
+  captureConsentedAdClickAction,
+  decidePublicAdAttributionConsentAction,
+  readPublicAdAttributionConsentAction,
+  reconcileAdAttributionWithdrawalAction,
+} from "@/features/acquisition/ad-attribution.actions";
 import {
-  PUBLIC_GOOGLE_ADS_PENDING_MAX_AGE_SECONDS,
-  hasGoogleAdsPendingMarker,
-  normalizeGoogleAdsClick,
-  normalizePendingGoogleAdsClick,
-  normalizePublicGoogleAdsVisitClick,
-  preserveGoogleAdsClickInHref,
-  removeGoogleAdsClickFromHref,
-} from "@/features/acquisition/google-ads-consent.schema";
+  adClickRetentionDays,
+  adProviderDisplayName,
+  type AdProvider,
+} from "@/features/acquisition/ad-provider-registry";
+import {
+  PUBLIC_AD_ATTRIBUTION_PENDING_MAX_AGE_SECONDS,
+  hasAdAttributionPendingMarker,
+  normalizeAdClick,
+  normalizePendingAdClick,
+  normalizePublicAdVisitClick,
+  preserveAdClickInHref,
+  removeAdClickFromHref,
+} from "@/features/acquisition/ad-attribution.schema";
 import { stripLocalePrefix } from "@/i18n/locale-registry";
 import { isContentPathname } from "@/i18n/routing";
 import { OPEN_PRIVACY_CHOICES_EVENT } from "./privacy-choices-event";
 
-type GoogleAdsVisit = { pendingAt: string; search: string };
+type AdAttributionVisit = { pendingAt: string; search: string; provider: AdProvider };
 
 function currentRelativeHref(): string {
   return `${window.location.pathname}${window.location.search}${window.location.hash}`;
@@ -37,45 +42,45 @@ function replaceCurrentRelativeHref(href: string): void {
   if (href !== currentRelativeHref()) window.history.replaceState(null, "", href);
 }
 
-function currentGoogleAdsVisit(): GoogleAdsVisit | null {
+function currentAdAttributionVisit(): AdAttributionVisit | null {
   const pathname = window.location.pathname;
   const search = window.location.search;
   const eligibleLanding = isContentPathname(pathname) || stripLocalePrefix(pathname) === "/contact";
-  const markedClick = normalizePendingGoogleAdsClick({ search });
-  if (hasGoogleAdsPendingMarker({ search }) && !markedClick) return null;
+  const markedClick = normalizePendingAdClick({ search });
+  if (hasAdAttributionPendingMarker({ search }) && !markedClick) return null;
   if (!eligibleLanding && !markedClick) return null;
 
-  const click = markedClick ?? normalizeGoogleAdsClick({ search });
+  const click = markedClick ?? normalizeAdClick({ search });
   if (!click) return null;
 
   const params = new URLSearchParams([[click.kind, click.value]]);
-  return { pendingAt: click.capturedAt, search: `?${params.toString()}` };
+  return { pendingAt: click.clickedAt, search: `?${params.toString()}`, provider: click.provider };
 }
 
-export function PublicGoogleAdsConsent() {
+export function PublicAdAttributionConsentCard() {
   const t = useTranslations();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
-  const allowButton = useRef<HTMLButtonElement>(null);
+  const [provider, setProvider] = useState<AdProvider | null>(null);
   const decisionInFlight = useRef(false);
   const hasDecision = useRef(false);
-  const pendingVisit = useRef<GoogleAdsVisit | null>(null);
+  const pendingVisit = useRef<AdAttributionVisit | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    const hadPendingMarker = hasGoogleAdsPendingMarker({ search: window.location.search });
-    const landingVisit = currentGoogleAdsVisit();
-    if (hadPendingMarker && !landingVisit)
-      replaceCurrentRelativeHref(removeGoogleAdsClickFromHref(currentRelativeHref()));
+    const hadPendingMarker = hasAdAttributionPendingMarker({ search: window.location.search });
+    const landingVisit = currentAdAttributionVisit();
+    if (hadPendingMarker && !landingVisit) replaceCurrentRelativeHref(removeAdClickFromHref(currentRelativeHref()));
     const hydrate = async () => {
-      let stored: Awaited<ReturnType<typeof readPublicGoogleAdsConsentAction>>;
+      let stored: Awaited<ReturnType<typeof readPublicAdAttributionConsentAction>>;
       try {
-        stored = await readPublicGoogleAdsConsentAction();
+        stored = await readPublicAdAttributionConsentAction();
       } catch (error) {
         reportApplicationError(error);
         if (!cancelled && landingVisit) {
           pendingVisit.current = landingVisit;
+          setProvider(landingVisit.provider);
           setOpen(true);
         }
         return;
@@ -84,15 +89,16 @@ export function PublicGoogleAdsConsent() {
       if (cancelled) return;
       if (stored) {
         hasDecision.current = true;
-        replaceCurrentRelativeHref(removeGoogleAdsClickFromHref(currentRelativeHref()));
+        replaceCurrentRelativeHref(removeAdClickFromHref(currentRelativeHref()));
         try {
-          if (stored.advertising && landingVisit) await captureConsentedGoogleAdsClickAction(landingVisit);
-          else if (!stored.advertising) await reconcileGoogleAdsAttributionWithdrawalAction();
+          if (stored.advertising && landingVisit) await captureConsentedAdClickAction(landingVisit);
+          else if (!stored.advertising) await reconcileAdAttributionWithdrawalAction();
         } catch (error) {
           reportApplicationError(error);
         }
       } else if (landingVisit) {
         pendingVisit.current = landingVisit;
+        setProvider(landingVisit.provider);
         setOpen(true);
       }
     };
@@ -100,9 +106,9 @@ export function PublicGoogleAdsConsent() {
 
     const reopen = () => setOpen(true);
     const reconcileNavigatedClick = () => {
-      if (hasDecision.current) replaceCurrentRelativeHref(removeGoogleAdsClickFromHref(currentRelativeHref()));
+      if (hasDecision.current) replaceCurrentRelativeHref(removeAdClickFromHref(currentRelativeHref()));
       else if (pendingVisit.current)
-        replaceCurrentRelativeHref(preserveGoogleAdsClickInHref(currentRelativeHref(), pendingVisit.current));
+        replaceCurrentRelativeHref(preserveAdClickInHref(currentRelativeHref(), pendingVisit.current));
     };
     window.addEventListener(OPEN_PRIVACY_CHOICES_EVENT, reopen);
     window.addEventListener("popstate", reconcileNavigatedClick);
@@ -115,11 +121,11 @@ export function PublicGoogleAdsConsent() {
 
   useEffect(() => {
     if (hasDecision.current) {
-      replaceCurrentRelativeHref(removeGoogleAdsClickFromHref(currentRelativeHref()));
+      replaceCurrentRelativeHref(removeAdClickFromHref(currentRelativeHref()));
       return;
     }
     if (!open || !pendingVisit.current) return;
-    replaceCurrentRelativeHref(preserveGoogleAdsClickInHref(currentRelativeHref(), pendingVisit.current));
+    replaceCurrentRelativeHref(preserveAdClickInHref(currentRelativeHref(), pendingVisit.current));
   }, [open, pathname]);
 
   useEffect(() => {
@@ -128,11 +134,11 @@ export function PublicGoogleAdsConsent() {
 
     const expire = () => {
       pendingVisit.current = null;
-      replaceCurrentRelativeHref(removeGoogleAdsClickFromHref(currentRelativeHref()));
+      replaceCurrentRelativeHref(removeAdClickFromHref(currentRelativeHref()));
       setOpen(false);
     };
     const remainingMilliseconds =
-      new Date(visit.pendingAt).getTime() + PUBLIC_GOOGLE_ADS_PENDING_MAX_AGE_SECONDS * 1000 - Date.now();
+      new Date(visit.pendingAt).getTime() + PUBLIC_AD_ATTRIBUTION_PENDING_MAX_AGE_SECONDS * 1000 - Date.now();
     if (remainingMilliseconds <= 0) {
       expire();
       return;
@@ -147,23 +153,23 @@ export function PublicGoogleAdsConsent() {
     decisionInFlight.current = true;
     setIsPending(true);
     try {
-      const visit = pendingVisit.current ?? currentGoogleAdsVisit();
-      if (visit && !normalizePublicGoogleAdsVisitClick(visit)) {
+      const visit = pendingVisit.current ?? currentAdAttributionVisit();
+      if (visit && !normalizePublicAdVisitClick(visit)) {
         pendingVisit.current = null;
-        replaceCurrentRelativeHref(removeGoogleAdsClickFromHref(currentRelativeHref()));
+        replaceCurrentRelativeHref(removeAdClickFromHref(currentRelativeHref()));
         setOpen(false);
         return;
       }
-      const decision = await decidePublicGoogleAdsConsentAction({
+      const decision = await decidePublicAdAttributionConsentAction({
         choice,
-        visit,
+        visit: visit ? { pendingAt: visit.pendingAt, search: visit.search } : null,
       });
       if (!decision) return;
       hasDecision.current = true;
       pendingVisit.current = null;
-      replaceCurrentRelativeHref(removeGoogleAdsClickFromHref(currentRelativeHref()));
+      replaceCurrentRelativeHref(removeAdClickFromHref(currentRelativeHref()));
       setOpen(false);
-      if (!decision.advertising) void reconcileGoogleAdsAttributionWithdrawalAction().catch(reportApplicationError);
+      if (!decision.advertising) void reconcileAdAttributionWithdrawalAction().catch(reportApplicationError);
     } finally {
       decisionInFlight.current = false;
       setIsPending(false);
@@ -171,7 +177,7 @@ export function PublicGoogleAdsConsent() {
   };
 
   return (
-    <Popover modal open={open} onOpenChange={() => undefined}>
+    <Popover open={open} onOpenChange={() => undefined}>
       <PopoverAnchor asChild>
         <span
           aria-hidden="true"
@@ -186,25 +192,30 @@ export function PublicGoogleAdsConsent() {
       <PopoverContent
         align="start"
         aria-busy={isPending}
-        aria-describedby="google-ads-consent-description"
-        aria-labelledby="google-ads-consent-title"
+        aria-describedby="ad-attribution-consent-description"
+        aria-labelledby="ad-attribution-consent-title"
         aria-live="polite"
         className="flex w-[min(28rem,calc(100dvw-var(--viewport-gutter)-var(--viewport-gutter)-var(--safe-left)-var(--safe-right)))] flex-col gap-4 rounded-card bg-card p-5 text-card-foreground shadow-lg"
-        data-testid="google-ads-consent-card"
+        data-testid="ad-attribution-consent-card"
         role="dialog"
         side="top"
         sideOffset={0}
         onEscapeKeyDown={(event) => event.preventDefault()}
         onInteractOutside={(event) => event.preventDefault()}
-        onOpenAutoFocus={() => allowButton.current?.focus()}
+        onOpenAutoFocus={(event) => event.preventDefault()}
       >
         <div className="space-y-2">
-          <h2 className="text-sm font-semibold text-foreground" id="google-ads-consent-title">
+          <h2 className="text-sm font-semibold text-foreground" id="ad-attribution-consent-title">
             {t("AcquisitionConsent.title")}
           </h2>
 
-          <p className="text-sm leading-6 text-subdued" id="google-ads-consent-description">
-            <span>{t("AcquisitionConsent.description")} </span>
+          <p className="text-sm leading-6 text-subdued" id="ad-attribution-consent-description">
+            <span>
+              {t("AcquisitionConsent.description", {
+                provider: adProviderDisplayName(provider ?? "google_ads"),
+                days: adClickRetentionDays(provider ?? "google_ads"),
+              })}{" "}
+            </span>
 
             <AppLink appearance="inline" href="/privacy">
               {t("AcquisitionConsent.privacyLink")}
@@ -212,11 +223,11 @@ export function PublicGoogleAdsConsent() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <Button
-            ref={allowButton}
             className="w-full"
             disabled={isPending}
+            variant="secondary"
             onClick={() => runUserAction(() => decide("allow-attribution"))}
           >
             {t("AcquisitionConsent.allowAttribution")}

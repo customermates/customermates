@@ -12,6 +12,7 @@ const INTERCEPTED_FIELDS = new Set<string>([
   FilterFieldKey.subscriptionStatus,
   FilterFieldKey.isPlatformOperator,
   FilterFieldKey.workspaceId,
+  FilterFieldKey.adProvider,
 ]);
 
 export function filterValues(filter: Filter): string[] {
@@ -46,6 +47,13 @@ export function partitionOperatorUserFilters(filters: Filter[] | undefined): {
       const both = values.includes("true") && values.includes("false");
       if (both) continue;
       baseWhere.isPlatformOperator = negated(filter) ? !wanted : wanted;
+      continue;
+    }
+
+    if (filter.field === String(FilterFieldKey.adProvider)) {
+      baseWhere.adAttributions = negated(filter)
+        ? { none: { provider: { in: values } } }
+        : { some: { provider: { in: values } } };
       continue;
     }
 

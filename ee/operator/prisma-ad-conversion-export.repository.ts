@@ -1,0 +1,33 @@
+import type { AdProvider } from "@/features/acquisition/ad-provider-registry";
+import type { AdConversionExportRow, GetAdConversionExportRepo } from "./get/get-ad-conversion-export.interactor";
+
+import { BaseRepository } from "@/core/base/base-repository";
+import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
+
+export class PrismaAdConversionExportRepo extends BaseRepository implements GetAdConversionExportRepo {
+  @BypassTenantGuard
+  async listAdConversionCandidatesUnscoped(): Promise<AdConversionExportRow[]> {
+    const attributions = await this.prisma.adAttribution.findMany({
+      select: {
+        companyId: true,
+        provider: true,
+        identifierKind: true,
+        identifierValue: true,
+        clickedAt: true,
+        company: { select: { conversionEvents: { select: { type: true, occurredAt: true } } } },
+      },
+    });
+
+    return attributions.flatMap((attribution) =>
+      attribution.company.conversionEvents.map((conversion) => ({
+        companyId: attribution.companyId,
+        provider: attribution.provider as AdProvider,
+        identifierKind: attribution.identifierKind,
+        identifierValue: attribution.identifierValue,
+        clickedAt: attribution.clickedAt,
+        conversionType: conversion.type,
+        conversionAt: conversion.occurredAt,
+      })),
+    );
+  }
+}

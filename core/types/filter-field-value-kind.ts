@@ -1,3 +1,4 @@
+import { AD_PROVIDER_ORDER } from "@/features/acquisition/ad-provider-registry";
 import { FilterFieldKey } from "./filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "./filter-field-operators";
 
@@ -69,7 +70,7 @@ export const DEFAULT_FILTER_VALUE_KIND: Record<FilterFieldKey, FilterValueKind> 
   [FilterFieldKey.isPlatformOperator]: { kind: "enum", values: BOOLEAN_FILTER_VALUES },
   [FilterFieldKey.lastActiveAt]: { kind: "date" },
   [FilterFieldKey.workspaceId]: { kind: "string" },
-  [FilterFieldKey.googleAdsClickId]: { kind: "string" },
+  [FilterFieldKey.adProvider]: { kind: "enum", values: AD_PROVIDER_ORDER },
   [FilterFieldKey.auditSource]: { kind: "enum", values: AUDIT_SOURCE_FILTER_VALUES },
 };
 

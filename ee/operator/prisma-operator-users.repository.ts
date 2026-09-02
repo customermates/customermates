@@ -35,7 +35,7 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
         FilterFieldKey.lastActiveAt,
         FilterFieldKey.createdAt,
         FilterFieldKey.workspaceId,
-        FilterFieldKey.googleAdsClickId,
+        FilterFieldKey.adProvider,
       ].map((field) => ({ field, operators: FILTER_FIELD_DEFAULT_OPERATORS[field] })),
     );
   }
@@ -66,8 +66,11 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
         createdAt: true,
         updatedAt: true,
         companyId: true,
-        googleAdsClickId: true,
-        googleAdsClickIdKind: true,
+        adAttributions: {
+          select: { provider: true, identifierKind: true },
+          orderBy: { clickedAt: "desc" },
+          take: 1,
+        },
         company: {
           select: { subscription: { select: { plan: true, status: true, quantity: true, updatedAt: true } } },
         },
@@ -92,8 +95,8 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
       subscriptionStatus: user.company.subscription?.status ?? null,
       subscriptionQuantity: user.company.subscription?.quantity ?? null,
       subscriptionUpdatedAt: user.company.subscription?.updatedAt ?? null,
-      googleAdsClickId: user.googleAdsClickId,
-      googleAdsClickIdKind: user.googleAdsClickIdKind,
+      adProvider: user.adAttributions[0]?.provider ?? null,
+      adIdentifierKind: user.adAttributions[0]?.identifierKind ?? null,
     }));
   }
 

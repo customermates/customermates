@@ -2,6 +2,7 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Activity, AlertTriangle, Building2, CircleDollarSign, Sparkles, Users } from "lucide-react";
 
+import { AdConversionExportCard } from "../components/overview/ad-conversion-export-card";
 import { OperatorMetricCard } from "../components/overview/operator-metric-card";
 
 import { PageContainer } from "@/components/shared/page-container";
@@ -121,6 +122,8 @@ export default async function OperatorOverviewPage() {
             value={integer(summary.platformOperators)}
           />
         </div>
+
+        <AdConversionExportCard />
       </div>
     </PageContainer>
   );

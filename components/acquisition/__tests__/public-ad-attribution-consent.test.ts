@@ -44,14 +44,14 @@ vi.mock("@/core/errors/report-application-error", () => ({
   reportApplicationError: mocks.report,
   runUserAction: (action: () => unknown) => void Promise.resolve(action()).catch(mocks.report),
 }));
-vi.mock("@/features/acquisition/google-ads-consent.actions", () => ({
-  captureConsentedGoogleAdsClickAction: mocks.capture,
-  decidePublicGoogleAdsConsentAction: mocks.decide,
-  readPublicGoogleAdsConsentAction: mocks.read,
-  reconcileGoogleAdsAttributionWithdrawalAction: mocks.reconcile,
+vi.mock("@/features/acquisition/ad-attribution.actions", () => ({
+  captureConsentedAdClickAction: mocks.capture,
+  decidePublicAdAttributionConsentAction: mocks.decide,
+  readPublicAdAttributionConsentAction: mocks.read,
+  reconcileAdAttributionWithdrawalAction: mocks.reconcile,
 }));
 
-import { PublicGoogleAdsConsent } from "../public-google-ads-consent";
+import { PublicAdAttributionConsentCard } from "../public-ad-attribution-consent";
 
 let container: HTMLDivElement;
 let root: Root;
@@ -78,7 +78,7 @@ async function render(path: string) {
   window.history.replaceState({}, "", path);
   mocks.pathname = new URL(path, window.location.origin).pathname;
   await act(async () => {
-    root.render(createElement(PublicGoogleAdsConsent));
+    root.render(createElement(PublicAdAttributionConsentCard));
     await Promise.resolve();
     await Promise.resolve();
   });
@@ -88,42 +88,42 @@ async function navigate(path: string) {
   window.history.replaceState(null, "", path);
   mocks.pathname = new URL(path, window.location.origin).pathname;
   await act(async () => {
-    root.render(createElement(PublicGoogleAdsConsent));
+    root.render(createElement(PublicAdAttributionConsentCard));
     await Promise.resolve();
   });
 }
 
-describe("PublicGoogleAdsConsent", () => {
+describe("PublicAdAttributionConsentCard", () => {
   it.each(["gclid", "gbraid", "wbraid"])("opens only for a fresh %s click", async (kind) => {
     await render(`/en/features/cloud-crm?${kind}=paid-click`);
-    const card = container.querySelector('[data-testid="google-ads-consent-card"]');
+    const card = container.querySelector('[data-testid="ad-attribution-consent-card"]');
     expect(card).not.toBeNull();
-    expect(container.querySelector('[data-popover-modal="true"]')).not.toBeNull();
+    expect(container.querySelector('[data-popover-modal="true"]')).toBeNull();
     expect(card?.querySelectorAll("button")).toHaveLength(2);
     expect(card?.textContent).not.toContain("Common.actions.close");
   });
 
-  it("does not interrupt traffic without a Google click ID", async () => {
+  it("does not interrupt traffic without a recognised click identifier", async () => {
     await render("/en/features/cloud-crm?utm_source=google&utm_medium=cpc");
-    expect(container.querySelector('[data-testid="google-ads-consent-card"]')).toBeNull();
+    expect(container.querySelector('[data-testid="ad-attribution-consent-card"]')).toBeNull();
   });
 
   it.each(["/en/auth/signup", "/en/dashboard"])(
     "does not start attribution on an ineligible %s landing",
     async (path) => {
       await render(`${path}?gclid=paid-click`);
-      expect(container.querySelector('[data-testid="google-ads-consent-card"]')).toBeNull();
+      expect(container.querySelector('[data-testid="ad-attribution-consent-card"]')).toBeNull();
     },
   );
 
-  it("emphasizes allow, persists refusal, and closes only after the decision", async () => {
+  it("gives both choices equal weight, persists refusal, and closes only after the decision", async () => {
     mocks.decide.mockResolvedValue({
       advertising: false,
       decidedAt: "2026-08-31T10:00:00.000Z",
     });
     await render("/en/features/cloud-crm?gclid=paid-click");
     const buttons = [...container.querySelectorAll("button")];
-    expect(buttons[0]?.dataset.variant).toBe("default");
+    expect(buttons[0]?.dataset.variant).toBe("secondary");
     expect(buttons[1]?.dataset.variant).toBe("secondary");
 
     await act(async () => {
@@ -136,7 +136,7 @@ describe("PublicGoogleAdsConsent", () => {
       choice: "necessary-only",
       visit: expect.objectContaining({ pendingAt: expect.any(String), search: "?gclid=paid-click" }),
     });
-    expect(container.querySelector('[data-testid="google-ads-consent-card"]')).toBeNull();
+    expect(container.querySelector('[data-testid="ad-attribution-consent-card"]')).toBeNull();
   });
 
   it("closes after refusal without waiting for database cleanup", async () => {
@@ -154,7 +154,7 @@ describe("PublicGoogleAdsConsent", () => {
     });
 
     expect(mocks.reconcile).toHaveBeenCalledOnce();
-    expect(container.querySelector('[data-testid="google-ads-consent-card"]')).toBeNull();
+    expect(container.querySelector('[data-testid="ad-attribution-consent-card"]')).toBeNull();
   });
 
   it("submits only one decision when the primary action is clicked twice", async () => {
@@ -195,7 +195,7 @@ describe("PublicGoogleAdsConsent", () => {
 
     expect(mocks.report).toHaveBeenCalledOnce();
     expect(allow?.disabled).toBe(false);
-    expect(container.querySelector('[data-testid="google-ads-consent-card"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="ad-attribution-consent-card"]')).not.toBeNull();
 
     mocks.decide.mockResolvedValue({ advertising: true, decidedAt: "2026-08-31T10:00:00.000Z" });
     await act(async () => {
@@ -205,7 +205,7 @@ describe("PublicGoogleAdsConsent", () => {
     });
 
     expect(mocks.decide).toHaveBeenCalledTimes(2);
-    expect(container.querySelector('[data-testid="google-ads-consent-card"]')).toBeNull();
+    expect(container.querySelector('[data-testid="ad-attribution-consent-card"]')).toBeNull();
   });
 
   it("stays open while the visitor reads the explicit privacy information path", async () => {
@@ -214,7 +214,7 @@ describe("PublicGoogleAdsConsent", () => {
       container.querySelector<HTMLAnchorElement>("a")?.click();
       await Promise.resolve();
     });
-    expect(container.querySelector('[data-testid="google-ads-consent-card"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="ad-attribution-consent-card"]')).not.toBeNull();
   });
 
   it("keeps only the landing click in the marked URL across routes until the visitor decides", async () => {
@@ -238,7 +238,7 @@ describe("PublicGoogleAdsConsent", () => {
       choice: "allow-attribution",
       visit: expect.objectContaining({ pendingAt: expect.any(String), search: "?gclid=paid-click" }),
     });
-    expect(container.querySelector('[data-testid="google-ads-consent-card"]')).toBeNull();
+    expect(container.querySelector('[data-testid="ad-attribution-consent-card"]')).toBeNull();
     expect(window.location.search).toBe("");
   });
 
@@ -254,7 +254,7 @@ describe("PublicGoogleAdsConsent", () => {
     root = createRoot(container);
     await render(window.location.href);
 
-    expect(container.querySelector('[data-testid="google-ads-consent-card"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="ad-attribution-consent-card"]')).not.toBeNull();
   });
 
   it("recovers an undecided click after reloading an otherwise ineligible signup route", async () => {
@@ -268,7 +268,7 @@ describe("PublicGoogleAdsConsent", () => {
     root = createRoot(container);
     await render(window.location.href);
 
-    expect(container.querySelector('[data-testid="google-ads-consent-card"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="ad-attribution-consent-card"]')).not.toBeNull();
   });
 
   it("restores the first pending click after same-path browser history navigation", async () => {
@@ -300,7 +300,7 @@ describe("PublicGoogleAdsConsent", () => {
       await Promise.resolve();
     });
 
-    expect(container.querySelector('[data-testid="google-ads-consent-card"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="ad-attribution-consent-card"]')).not.toBeNull();
   });
 
   it("reconciles a stored refusal without prompting", async () => {
@@ -310,7 +310,7 @@ describe("PublicGoogleAdsConsent", () => {
     });
     await render("/en/features/cloud-crm?gclid=paid-click");
     expect(mocks.reconcile).toHaveBeenCalledOnce();
-    expect(container.querySelector('[data-testid="google-ads-consent-card"]')).toBeNull();
+    expect(container.querySelector('[data-testid="ad-attribution-consent-card"]')).toBeNull();
     expect(window.location.search).toBe("");
   });
 
@@ -325,7 +325,7 @@ describe("PublicGoogleAdsConsent", () => {
     expect(mocks.capture).toHaveBeenCalledWith(
       expect.objectContaining({ pendingAt: expect.any(String), search: "?gclid=paid-click" }),
     );
-    expect(container.querySelector('[data-testid="google-ads-consent-card"]')).toBeNull();
+    expect(container.querySelector('[data-testid="ad-attribution-consent-card"]')).toBeNull();
     expect(window.location.search).toBe("?utm_source=google");
   });
 
@@ -352,7 +352,7 @@ describe("PublicGoogleAdsConsent", () => {
     await render("/en/features/cloud-crm?gclid=paid-click");
 
     expect(mocks.report).toHaveBeenCalledOnce();
-    expect(container.querySelector('[data-testid="google-ads-consent-card"]')).toBeNull();
+    expect(container.querySelector('[data-testid="ad-attribution-consent-card"]')).toBeNull();
     expect(window.location.search).toBe("");
   });
 
@@ -361,7 +361,7 @@ describe("PublicGoogleAdsConsent", () => {
 
     await render(`/en/auth/signup?gclid=stale-click&cm_ads_pending=${staleMarker}`);
 
-    expect(container.querySelector('[data-testid="google-ads-consent-card"]')).toBeNull();
+    expect(container.querySelector('[data-testid="ad-attribution-consent-card"]')).toBeNull();
     expect(window.location.search).toBe("");
   });
 
@@ -370,14 +370,14 @@ describe("PublicGoogleAdsConsent", () => {
     vi.setSystemTime(new Date("2026-08-31T10:00:00.000Z"));
     await render("/en/features/cloud-crm?gclid=live-expiry-click");
 
-    expect(container.querySelector('[data-testid="google-ads-consent-card"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="ad-attribution-consent-card"]')).not.toBeNull();
 
     await act(async () => {
       vi.advanceTimersByTime(60 * 60 * 24 * 1000);
       await Promise.resolve();
     });
 
-    expect(container.querySelector('[data-testid="google-ads-consent-card"]')).toBeNull();
+    expect(container.querySelector('[data-testid="ad-attribution-consent-card"]')).toBeNull();
     expect(window.location.search).toBe("");
   });
 });

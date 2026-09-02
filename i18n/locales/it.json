@@ -9,7 +9,7 @@
   },
   "AcquisitionConsent": {
     "allowAttribution": "Consenti",
-    "description": "Sembra che tu abbia raggiunto il sito tramite un annuncio Google. Con il tuo consenso, ricorderemo questa visita per un massimo di 90 giorni e la collegheremo al tuo account Customermates se crei un nuovo workspace. Questo ci aiuta a capire quali annunci sono utili.",
+    "description": "Sembra che tu abbia raggiunto il sito tramite un annuncio {provider}. Con il tuo consenso ricorderemo questa visita per un massimo di {days} giorni, la collegheremo al tuo account Customermates se crei un workspace e comunicheremo a {provider} che il suo annuncio ha portato a una registrazione. Non condividiamo mai il tuo nome, la tua email o altri dati personali.",
     "necessaryOnly": "No, grazie",
     "privacyLink": "Dettagli sulla privacy",
     "title": "Aiutaci a capire cosa funziona"
@@ -1141,12 +1141,12 @@
       "daysPreset": "{count, plural, =1 {1 giorno} other {# giorni}}",
       "daysSuffix": "giorni",
       "fields": {
+        "adProvider": "Provider pubblicitario",
         "auditSource": "Origine",
         "calendarId": "Calendario",
         "connectedAccountId": "Canale",
         "createdAt": "Creato il",
         "event": "Evento",
-        "googleAdsClickId": "ID clic Google Ads",
         "isPlatformOperator": "Operatore di piattaforma",
         "lastActiveAt": "Ultima attività",
         "participants": "Partecipanti",
@@ -1308,6 +1308,7 @@
       "columns": {
         "action": "Azione",
         "actor": "Autore",
+        "adProvider": "Provider pubblicitario",
         "allowance": "Dotazione",
         "amount": "Importo",
         "avatarUrl": "Avatar",
@@ -1329,7 +1330,6 @@
         "events": "Eventi",
         "expiresAt": "Scade il",
         "firstName": "Nome",
-        "googleAdsClickId": "ID clic Google Ads",
         "id": "ID",
         "identifiers": "Canali",
         "isSystemRole": "Ruolo di sistema",
@@ -2511,6 +2511,14 @@
     "activity": {
       "description": "Su {total} utenti totali",
       "label": "Attivi in 7 giorni"
+    },
+    "adConversions": {
+      "description": "Clic pubblicitari che hanno prodotto una registrazione o un abbonamento a pagamento, filtrati in base alla scadenza di comunicazione di ciascuna piattaforma. È incluso solo l'identificatore di clic della piattaforma, mai dati personali.",
+      "generate": "Genera esportazione conversioni",
+      "googleAds": "CSV Google Ads",
+      "label": "Conversioni pubblicitarie",
+      "otherProviders": "CSV altre piattaforme",
+      "rowCount": "{count} conversioni comunicabili"
     },
     "growth": {
       "description": "Insieme a {workspaces} nuove aree",

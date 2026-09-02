@@ -9,7 +9,7 @@
   },
   "AcquisitionConsent": {
     "allowAttribution": "Permitir",
-    "description": "Parece que has llegado a través de un anuncio de Google. Con tu permiso, recordaremos esta visita durante un máximo de 90 días y la vincularemos a tu cuenta de Customermates si creas un espacio de trabajo nuevo. Así podremos saber qué anuncios son útiles.",
+    "description": "Parece que has llegado a través de un anuncio de {provider}. Con tu permiso recordaremos esta visita durante un máximo de {days} días, la vincularemos a tu cuenta de Customermates si creas un espacio de trabajo y comunicaremos a {provider} que su anuncio dio lugar a un registro. Nunca compartimos tu nombre, tu correo electrónico ni ningún otro dato personal.",
     "necessaryOnly": "No, gracias",
     "privacyLink": "Detalles de privacidad",
     "title": "Ayúdanos a saber qué funciona"
@@ -1141,12 +1141,12 @@
       "daysPreset": "{count, plural, =1 {1 día} other {# días}}",
       "daysSuffix": "días",
       "fields": {
+        "adProvider": "Proveedor de anuncios",
         "auditSource": "Origen",
         "calendarId": "Calendario",
         "connectedAccountId": "Canal",
         "createdAt": "Creado el",
         "event": "Evento",
-        "googleAdsClickId": "ID de clic de Google Ads",
         "isPlatformOperator": "Operador de plataforma",
         "lastActiveAt": "Última actividad",
         "participants": "Participantes",
@@ -1308,6 +1308,7 @@
       "columns": {
         "action": "Acción",
         "actor": "Actor",
+        "adProvider": "Proveedor de anuncios",
         "allowance": "Asignación",
         "amount": "Importe",
         "avatarUrl": "Avatar",
@@ -1329,7 +1330,6 @@
         "events": "Eventos",
         "expiresAt": "Caduca el",
         "firstName": "Nombre",
-        "googleAdsClickId": "ID de clic de Google Ads",
         "id": "ID",
         "identifiers": "Canales",
         "isSystemRole": "Rol del sistema",
@@ -2511,6 +2511,14 @@
     "activity": {
       "description": "De {total} usuarios en total",
       "label": "Activos en 7 días"
+    },
+    "adConversions": {
+      "description": "Clics de anuncios que produjeron un registro o una suscripción de pago, filtrados por el plazo de notificación de cada plataforma. Solo se incluye el identificador de clic de la plataforma, nunca datos personales.",
+      "generate": "Generar exportación de conversiones",
+      "googleAds": "CSV de Google Ads",
+      "label": "Conversiones publicitarias",
+      "otherProviders": "CSV de otras plataformas",
+      "rowCount": "{count} conversiones notificables"
     },
     "growth": {
       "description": "Junto a {workspaces} espacios nuevos",
