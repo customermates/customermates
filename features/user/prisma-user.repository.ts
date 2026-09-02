@@ -456,6 +456,17 @@ export class PrismaUserRepo
     return tenantUser;
   }
 
+  async isPlatformOperatorCompanyWide(userId: string) {
+    const { companyId } = this.user;
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId, companyId },
+      select: { isPlatformOperator: true },
+    });
+
+    return user?.isPlatformOperator ?? false;
+  }
+
   async findOrThrowCompanyWide(email: string) {
     const { companyId } = this.user;
 

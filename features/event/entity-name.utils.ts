@@ -83,6 +83,7 @@ const entityNameExtractors: {
   [DomainEvent.MESSAGING_RELATION_CREATED]: (eventData) => eventData.payload.connectedAccountId,
   [DomainEvent.LEGAL_NOTICE_SENT]: (eventData) => eventData.entityId,
   [DomainEvent.LEGAL_DOCUMENTS_ACCEPTED]: (eventData) => eventData.entityId,
+  [DomainEvent.RECORDS_EXPORTED]: (eventData) => eventData.payload.entityType,
 };
 
 export function getEntityName<E extends DomainEvent>(

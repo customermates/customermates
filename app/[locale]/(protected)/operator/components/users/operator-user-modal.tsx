@@ -15,8 +15,7 @@ import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppChip } from "@/components/chip/app-chip";
 import { InfoRow } from "@/components/shared/info-row";
 import { Button } from "@/components/ui/button";
-import { FormLabel } from "@/components/forms/form-label";
-import { Input } from "@/components/ui/input";
+import { FormNumberInput } from "@/components/forms/form-number-input";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
@@ -40,7 +39,7 @@ export const OperatorUserModal = observer(function OperatorUserModal({ user, onC
   const options = useOperatorChipOptions();
   const [detail, setDetail] = useState<OperatorUserDetailDto | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [delta, setDelta] = useState("");
+  const [delta, setDelta] = useState<number | undefined>(undefined);
 
   const userId = user?.id ?? null;
 
@@ -48,7 +47,7 @@ export const OperatorUserModal = observer(function OperatorUserModal({ user, onC
     if (!user) return;
 
     setDetail(null);
-    setDelta("");
+    setDelta(undefined);
 
     let cancelled = false;
     setIsLoading(true);
@@ -96,8 +95,8 @@ export const OperatorUserModal = observer(function OperatorUserModal({ user, onC
   };
 
   const applyCorrection = () => {
-    const creditDelta = Number(delta);
-    if (!period || !Number.isInteger(creditDelta) || creditDelta === 0) return;
+    const creditDelta = delta;
+    if (!period || creditDelta === undefined || !Number.isInteger(creditDelta) || creditDelta === 0) return;
 
     showConfirmation({
       title: t("OperatorConsole.confirm.title"),
@@ -118,7 +117,7 @@ export const OperatorUserModal = observer(function OperatorUserModal({ user, onC
           operationId: globalThis.crypto.randomUUID(),
         });
         if (committed) {
-          setDelta("");
+          setDelta(undefined);
           reload();
         }
         return committed;
@@ -265,19 +264,16 @@ export const OperatorUserModal = observer(function OperatorUserModal({ user, onC
                   <>
                     <div className="flex items-end gap-2">
                       <div className="flex-1 space-y-1.5">
-                        <FormLabel htmlFor="operator-modal-delta">{t("OperatorUsers.adjustment.deltaLabel")}</FormLabel>
-
-                        <Input
+                        <FormNumberInput
                           id="operator-modal-delta"
-                          inputMode="numeric"
+                          label={t("OperatorUsers.adjustment.deltaLabel")}
                           placeholder={t("OperatorUsers.adjustment.deltaPlaceholder")}
-                          type="number"
                           value={delta}
-                          onChange={(event) => setDelta(event.target.value)}
+                          onValueChange={setDelta}
                         />
                       </div>
 
-                      <Button disabled={!delta} size="sm" variant="secondary" onClick={applyCorrection}>
+                      <Button disabled={delta === undefined} size="sm" variant="secondary" onClick={applyCorrection}>
                         {t("Common.actions.save")}
                       </Button>
                     </div>

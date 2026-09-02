@@ -6,6 +6,8 @@ import type { RequestedColumnInput } from "../data-transfer.schema";
 import { toJS } from "mobx";
 import { EntityType, MessagingProvider } from "@/generated/prisma";
 import { toast } from "sonner";
+
+import { isDemoEnvironment } from "@/core/errors/report-application-error";
 import { useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
 
@@ -116,7 +118,7 @@ export function useExportAction<E extends HasId>(store: BaseDataViewStore<E>) {
       toast.success(t("DataTransfer.export.success", { count: outcome.rowCount }));
       if (outcome.truncated) toast.warning(t("DataTransfer.export.truncated", { limit: EXPORT_ROW_LIMIT }));
     } catch (error) {
-      toast.error(t("DataTransfer.export.failed"));
+      if (!isDemoEnvironment()) toast.error(t("DataTransfer.export.failed"));
       throw error;
     }
   }, [download, t]);

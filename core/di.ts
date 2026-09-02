@@ -1632,15 +1632,18 @@ export const getResetOperatorUserCreditsInteractor = () => new ResetOperatorUser
 
 // --- Data transfer ---
 
-export const getExportContactsPageInteractor = () => new ExportContactsPageInteractor(getContactRepo());
+export const getExportContactsPageInteractor = () =>
+  new ExportContactsPageInteractor(getContactRepo(), getEventService());
 
-export const getExportOrganizationsPageInteractor = () => new ExportOrganizationsPageInteractor(getOrganizationRepo());
+export const getExportOrganizationsPageInteractor = () =>
+  new ExportOrganizationsPageInteractor(getOrganizationRepo(), getEventService());
 
-export const getExportDealsPageInteractor = () => new ExportDealsPageInteractor(getDealRepo());
+export const getExportDealsPageInteractor = () => new ExportDealsPageInteractor(getDealRepo(), getEventService());
 
-export const getExportServicesPageInteractor = () => new ExportServicesPageInteractor(getServiceRepo());
+export const getExportServicesPageInteractor = () =>
+  new ExportServicesPageInteractor(getServiceRepo(), getEventService());
 
-export const getExportTasksPageInteractor = () => new ExportTasksPageInteractor(getTaskRepo());
+export const getExportTasksPageInteractor = () => new ExportTasksPageInteractor(getTaskRepo(), getEventService());
 
 export const getDryRunImportContactsInteractor = () => new DryRunImportContactsInteractor(getContactWritePrecheck());
 

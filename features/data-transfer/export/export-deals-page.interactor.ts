@@ -5,13 +5,11 @@ import type { Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action } from "@/generated/prisma";
 
-import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { BaseExportRecordsPageInteractor } from "@/core/base/base-export-records-page.interactor";
 import { ExportRecordsPageSchema } from "../data-transfer.schema";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 
-@AllowInDemoMode
 @TenantInteractor({
   permissions: [
     { resource: Resource.deals, action: Action.readAll },

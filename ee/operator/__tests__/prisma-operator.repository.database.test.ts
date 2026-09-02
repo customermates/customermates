@@ -667,4 +667,51 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
 
     expect(observed).toEqual({ self: true, inactive: true, unverified: true });
   });
+
+  it("refuses to deactivate the last active platform operator through the status path", async () => {
+    const actor = operatorActor();
+    let observed: { lastOperatorRejected: boolean; stillActive: boolean; peerDeactivated: boolean } | null = null;
+
+    try {
+      await runWithOperator(actor, () =>
+        runWithoutTenant(() =>
+          runInTransaction(async () => {
+            const tx = getTransactionClient<AppPrismaClient>();
+            if (!tx) throw new Error("Expected status-path test transaction.");
+            await tx.user.updateMany({ where: { isPlatformOperator: true }, data: { isPlatformOperator: false } });
+
+            const solo = await createPlatformAccessUser(tx, { isPlatformOperator: true });
+            const peer = await createPlatformAccessUser(tx, { isPlatformOperator: true });
+            const repo = new PrismaOperatorRepo();
+
+            const peerDeactivated = await repo.updateUserStatusUnscoped(
+              { userId: peer.userId, status: "inactive", reason: "Deactivate the peer operator" },
+              now,
+            );
+
+            const lastOperator = await repo.updateUserStatusUnscoped(
+              { userId: solo.userId, status: "inactive", reason: "Attempt to deactivate the final operator" },
+              now,
+            );
+
+            const soloRow = await tx.user.findUniqueOrThrow({
+              where: { id: solo.userId },
+              select: { status: true },
+            });
+
+            observed = {
+              lastOperatorRejected: lastOperator === "conflict",
+              stillActive: soloRow.status === "active",
+              peerDeactivated: typeof peerDeactivated !== "string",
+            };
+            throw new RollbackOperatorTest();
+          }),
+        ),
+      );
+    } catch (error) {
+      if (!(error instanceof RollbackOperatorTest)) throw error;
+    }
+
+    expect(observed).toEqual({ lastOperatorRejected: true, stillActive: true, peerDeactivated: true });
+  });
 });
