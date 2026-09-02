@@ -121,6 +121,7 @@ const UNIPILE_ERROR_CODES: Record<string, CustomErrorCode> = {
   "provider/invalid_credentials": CustomErrorCode.unipileDisconnectedAccount,
   "provider/unknown_authentication_context": CustomErrorCode.unipileDisconnectedAccount,
   "api/account_restricted": CustomErrorCode.unipileDisconnectedAccount,
+  "provider/insufficient_permissions": CustomErrorCode.unipileResourceNotFound,
   "api/internal_error": CustomErrorCode.unipileServiceUnavailable,
   "api/proxy_error": CustomErrorCode.unipileServiceUnavailable,
   "api/proxy_timeout": CustomErrorCode.unipileServiceUnavailable,
@@ -190,9 +191,10 @@ function endpointHint(url: string | null): string {
   }
 }
 
-function unipileErrorCode(err: UnipileRequestError): CustomErrorCode {
+export function unipileErrorCode(err: UnipileRequestError): CustomErrorCode {
   const type = err.errorType ?? "";
 
+  if (err.status === 0) return CustomErrorCode.unipileRequestTimeout;
   if (err.status === 429) return CustomErrorCode.unipileRateLimit;
   if (type.endsWith("/resource_not_found")) return CustomErrorCode.unipileResourceNotFound;
   if (UNIPILE_ERROR_CODES[type]) return UNIPILE_ERROR_CODES[type];
