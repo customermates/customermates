@@ -122,9 +122,17 @@ describe("legal documents describe only what the product does", () => {
         : /keine unmittelbar identifizierenden Daten übermittelt.*keine gehashte E-Mail-Adresse.*keine IP-Adresse/is,
     );
     expect(privacy).toMatch(
-      name === "en" ? /Reporting is not automatic/i : /Rückmeldung erfolgt nicht automatisch/i,
+      name === "en"
+        ? /Reporting is not automatic, and it has not begun/i
+        : /Rückmeldung erfolgt nicht automatisch, und sie hat noch nicht begonnen/i,
     );
-    expect(privacy).toMatch(name === "en" ? /cm_ad_attribution/ : /cm_ad_attribution/);
+    expect(privacy).toMatch(/cm_ad_attribution/);
+    expect(privacy).toMatch(
+      name === "en" ? /There is no recipient today/i : /Es gibt derzeit keinen Empfänger/i,
+    );
+    expect(privacy, `${name}/privacy still claims a live Google reporting route`).not.toMatch(
+      /spreadsheet in a Customermates Google account|Tabelle in einem Google-Konto/i,
+    );
     expect(privacy).toMatch(
       name === "en"
         ? /standard contractual clauses/i

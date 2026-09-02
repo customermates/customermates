@@ -417,7 +417,7 @@ describe("SendLegalDocumentNoticesInteractor", () => {
       "1. September 2026",
       "1. September 2026",
       "2. September 2026",
-      "2. September 2026",
+      "1. September 2026",
     ]);
   });
 
