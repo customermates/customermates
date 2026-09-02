@@ -13,6 +13,7 @@ import type { ModifyRelationOrganizationRepo } from "@/features/relations/modify
 import { EntityType, Resource } from "@/generated/prisma";
 
 import type { Prisma } from "@/generated/prisma";
+import type { ExportPageParams, ExportRecordsRepo } from "@/core/base/base-export-records-page.interactor";
 
 import { type OrganizationDto } from "./organization.schema";
 
@@ -35,7 +36,8 @@ export class PrismaOrganizationRepo
     GetWidgetFilterableFieldsOrganizationRepo,
     FindOrganizationsByIdsRepo,
     GetCompanyWideOrganizationRepo,
-    ModifyRelationOrganizationRepo
+    ModifyRelationOrganizationRepo,
+    ExportRecordsRepo<OrganizationDto>
 {
   private get userScopedSelect() {
     return {
@@ -207,6 +209,29 @@ export class PrismaOrganizationRepo
 
   async getCount(params: GetQueryParams) {
     const { where } = await this.buildQueryArgs(params, this.accessWhere("organization"));
+
+    return this.prisma.organization.count({ where });
+  }
+
+  private exportWhere(selectedIds?: string[]): Prisma.OrganizationWhereInput {
+    const scoped = this.accessWhere("organization");
+
+    return selectedIds && selectedIds.length > 0 ? { ...scoped, id: { in: selectedIds } } : scoped;
+  }
+
+  async exportItems(params: ExportPageParams) {
+    return this.list({
+      model: "organization",
+      baseWhere: this.exportWhere(params.selectedIds),
+      select: this.userScopedSelect,
+      params,
+      map: (organization: Prisma.OrganizationGetPayload<{ select: PrismaOrganizationRepo["userScopedSelect"] }>) =>
+        this.toDto(organization),
+    });
+  }
+
+  async exportCount(params: ExportPageParams) {
+    const { where } = await this.buildQueryArgs(params, this.exportWhere(params.selectedIds));
 
     return this.prisma.organization.count({ where });
   }

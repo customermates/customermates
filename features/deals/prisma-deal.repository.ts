@@ -13,6 +13,7 @@ import type { ModifyRelationDealRepo } from "@/features/relations/modify-entity-
 import { EntityType, Resource } from "@/generated/prisma";
 
 import type { Prisma } from "@/generated/prisma";
+import type { ExportPageParams, ExportRecordsRepo } from "@/core/base/base-export-records-page.interactor";
 
 import { type DealDto } from "./deal.schema";
 
@@ -36,7 +37,8 @@ export class PrismaDealRepo
     GetWidgetFilterableFieldsDealRepo,
     FindDealsByIdsRepo,
     GetCompanyWideDealRepo,
-    ModifyRelationDealRepo
+    ModifyRelationDealRepo,
+    ExportRecordsRepo<DealDto>
 {
   private get userScopedSelect() {
     return {
@@ -228,6 +230,28 @@ export class PrismaDealRepo
 
   async getCount(params: GetQueryParams) {
     const { where } = await this.buildQueryArgs(params, this.accessWhere("deal"));
+
+    return this.prisma.deal.count({ where });
+  }
+
+  private exportWhere(selectedIds?: string[]): Prisma.DealWhereInput {
+    const scoped = this.accessWhere("deal");
+
+    return selectedIds && selectedIds.length > 0 ? { ...scoped, id: { in: selectedIds } } : scoped;
+  }
+
+  async exportItems(params: ExportPageParams) {
+    return this.list({
+      model: "deal",
+      baseWhere: this.exportWhere(params.selectedIds),
+      select: this.userScopedSelect,
+      params,
+      map: (deal: Prisma.DealGetPayload<{ select: PrismaDealRepo["userScopedSelect"] }>) => this.toDto(deal),
+    });
+  }
+
+  async exportCount(params: ExportPageParams) {
+    const { where } = await this.buildQueryArgs(params, this.exportWhere(params.selectedIds));
 
     return this.prisma.deal.count({ where });
   }

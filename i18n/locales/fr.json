@@ -1670,6 +1670,59 @@
       "chart": "Graphique"
     }
   },
+  "DataTransfer": {
+    "export": {
+      "action": "Exporter",
+      "failed": "Le fichier n'a pas pu être créé.",
+      "success": "{count, plural, one {# enregistrement exporté} other {# enregistrements exportés}}",
+      "truncated": "Seuls les {limit} premiers enregistrements ont été exportés."
+    },
+    "import": {
+      "action": "Ajouter depuis un fichier",
+      "batchProgress": "Lot {done} sur {total}",
+      "channelOption": "{provider} (canal)",
+      "chooseFile": "Choisir un fichier",
+      "commit": "Ajouter les enregistrements",
+      "description": "Associe les colonnes du tableur aux champs, vérifie le résultat, puis ajoute les enregistrements.",
+      "duplicateTargets": "{count, plural, one {# champ reçoit des données de plusieurs colonnes. Corrige-le avant de continuer.} other {# champs reçoivent des données de plusieurs colonnes. Corrige-les avant de continuer.}}",
+      "fileHint": "Choisis un tableur. Les classeurs Excel sont pris en charge.",
+      "fileRejected": "Ce fichier n'a pas pu être lu.",
+      "groupChannels": "Canaux",
+      "groupCustomFields": "Champs personnalisés",
+      "groupFields": "Champs",
+      "ignoreColumn": "Ne pas ajouter",
+      "issueCount": "{count, plural, one {# problème détecté} other {# problèmes détectés}}",
+      "issues": {
+        "channelsNotUpdated": "Les canaux restent inchangés sur un enregistrement existant",
+        "duplicateRecordId": "La ligne {row} met déjà à jour cet enregistrement",
+        "invalidChannelValue": "\"{value}\" n'est pas une adresse {provider} valide",
+        "notANumber": "\"{value}\" n'est pas un nombre",
+        "notAPhoneNumber": "\"{value}\" n'est pas un numéro de téléphone",
+        "relationAmbiguous": "\"{value}\" correspond à plusieurs enregistrements",
+        "relationNotFound": "\"{value}\" est introuvable",
+        "unknownOption": "\"{value}\" ne fait pas partie des options de {column}",
+        "unknownProvider": "\"{value}\" n'est pas un type de canal pris en charge"
+      },
+      "mappingHint": "{file}, {rows} lignes",
+      "moreIssues": "et {count} de plus",
+      "noIssues": "Aucun problème détecté.",
+      "previewCounts": "{create} à ajouter, {update} à mettre à jour",
+      "progress": "Étape {current} sur {total}",
+      "progressLabel": "Progression",
+      "recordId": "Identifiant de l'enregistrement",
+      "resultCounts": "{created} ajoutés, {updated} mis à jour",
+      "resultSkipped": "{count, plural, one {# ligne ignorée} other {# lignes ignorées}}",
+      "row": "Ligne",
+      "rowsAffected": "{count, plural, one {# ligne} other {# lignes}}",
+      "skipInvalid": "{count, plural, one {Importer le reste et ignorer # ligne} other {Importer le reste et ignorer # lignes}}",
+      "stopped": "Arrêt à la ligne {row}. {remaining} lignes n'ont pas été traitées.",
+      "title": "Ajouter des enregistrements depuis un fichier",
+      "unnamedColumn": "Colonne sans nom",
+      "validate": "Vérifier le fichier",
+      "warningCount": "{count, plural, one {# avertissement} other {# avertissements}}"
+    },
+    "menu": "Importer et exporter"
+  },
   "DataView": {
     "dragToReorder": "Faire glisser pour réorganiser",
     "editColumn": "Modifier la colonne",

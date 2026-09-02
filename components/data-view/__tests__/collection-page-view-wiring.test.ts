@@ -144,7 +144,9 @@ type Result = {
 
 function store(items: Array<Record<string, unknown>>, canManage = true) {
   return {
+    canExport: true,
     canManage,
+    customColumns: [],
     dataRequest: { status: "ready" as const },
     entityType: undefined,
     filters: [],
@@ -159,6 +161,16 @@ function store(items: Array<Record<string, unknown>>, canManage = true) {
     setQueryOptions: vi.fn(),
     viewMode: ViewMode.table,
   };
+}
+
+const TRANSFERABLE_VIEWS = new Set(["Deals", "Services", "Tasks"]);
+
+function countOf(html: string, needle: RegExp): number {
+  return (html.match(needle) ?? []).length;
+}
+
+function expectOnlyTransferButtons(html: string) {
+  expect(countOf(html, /<button/g)).toBe(countOf(html, /data-transfer-menu/g));
 }
 
 function result(items: Array<Record<string, unknown>>): Result {
@@ -422,8 +434,9 @@ describe("migrated collection page wiring", () => {
     const readOnly = store([], false);
     const readOnlyHtml = fixture.render(readOnly, initial);
     const readOnlyTopBar = renderToStaticMarkup(harness.setTopBarActions.mock.lastCall?.[0] as ReactElement);
-    expect(readOnlyHtml).not.toContain("<button");
-    expect(readOnlyTopBar).not.toContain("<button");
+    expectOnlyTransferButtons(readOnlyHtml);
+    expectOnlyTransferButtons(readOnlyTopBar);
+    expect(readOnlyTopBar.includes("data-transfer-menu")).toBe(TRANSFERABLE_VIEWS.has(fixture.name));
   });
 
   it("keeps Roles off URL sync and makes its rejected retry caller-safe", () => {

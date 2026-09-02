@@ -1670,6 +1670,59 @@
       "chart": "Diagramm"
     }
   },
+  "DataTransfer": {
+    "export": {
+      "action": "Exportieren",
+      "failed": "Die Datei konnte nicht erstellt werden.",
+      "success": "{count, plural, one {# Datensatz exportiert} other {# Datensätze exportiert}}",
+      "truncated": "Es wurden nur die ersten {limit} Datensätze exportiert."
+    },
+    "import": {
+      "action": "Aus Datei hinzufügen",
+      "batchProgress": "Stapel {done} von {total}",
+      "channelOption": "{provider} (Kanal)",
+      "chooseFile": "Datei wählen",
+      "commit": "Datensätze hinzufügen",
+      "description": "Tabellenspalten den Feldern zuordnen, Ergebnis prüfen und Datensätze hinzufügen.",
+      "duplicateTargets": "{count, plural, one {# Feld wird von mehreren Spalten belegt. Bitte vor dem Fortfahren korrigieren.} other {# Felder werden von mehreren Spalten belegt. Bitte vor dem Fortfahren korrigieren.}}",
+      "fileHint": "Wähle eine Tabelle. Excel-Arbeitsmappen werden unterstützt.",
+      "fileRejected": "Diese Datei konnte nicht gelesen werden.",
+      "groupChannels": "Kanäle",
+      "groupCustomFields": "Benutzerdefinierte Felder",
+      "groupFields": "Felder",
+      "ignoreColumn": "Nicht hinzufügen",
+      "issueCount": "{count, plural, one {# Problem gefunden} other {# Probleme gefunden}}",
+      "issues": {
+        "channelsNotUpdated": "Kanäle bleiben unverändert, wenn der Datensatz bereits existiert",
+        "duplicateRecordId": "Zeile {row} aktualisiert diesen Datensatz bereits",
+        "invalidChannelValue": "\"{value}\" ist keine gültige {provider}-Adresse",
+        "notANumber": "\"{value}\" ist keine Zahl",
+        "notAPhoneNumber": "\"{value}\" ist keine Telefonnummer",
+        "relationAmbiguous": "\"{value}\" passt auf mehr als einen Datensatz",
+        "relationNotFound": "\"{value}\" wurde nicht gefunden",
+        "unknownOption": "\"{value}\" ist keine der Optionen für {column}",
+        "unknownProvider": "\"{value}\" ist kein unterstützter Kanaltyp"
+      },
+      "mappingHint": "{file}, {rows} Zeilen",
+      "moreIssues": "und {count} weitere",
+      "noIssues": "Keine Probleme gefunden.",
+      "previewCounts": "{create} hinzufügen, {update} aktualisieren",
+      "progress": "Schritt {current} von {total}",
+      "progressLabel": "Fortschritt",
+      "recordId": "Datensatz-ID",
+      "resultCounts": "{created} hinzugefügt, {updated} aktualisiert",
+      "resultSkipped": "{count, plural, one {# Zeile übersprungen} other {# Zeilen übersprungen}}",
+      "row": "Zeile",
+      "rowsAffected": "{count, plural, one {# Zeile} other {# Zeilen}}",
+      "skipInvalid": "{count, plural, one {Rest importieren und # Zeile überspringen} other {Rest importieren und # Zeilen überspringen}}",
+      "stopped": "Bei Zeile {row} gestoppt. {remaining} Zeilen wurden nicht verarbeitet.",
+      "title": "Datensätze aus einer Datei hinzufügen",
+      "unnamedColumn": "Unbenannte Spalte",
+      "validate": "Datei prüfen",
+      "warningCount": "{count, plural, one {# Hinweis} other {# Hinweise}}"
+    },
+    "menu": "Import und Export"
+  },
   "DataView": {
     "dragToReorder": "Zum Neuanordnen ziehen",
     "editColumn": "Spalte bearbeiten",

@@ -13,6 +13,7 @@ import type { ModifyRelationServiceRepo } from "@/features/relations/modify-enti
 import { EntityType, Resource } from "@/generated/prisma";
 
 import type { Prisma } from "@/generated/prisma";
+import type { ExportPageParams, ExportRecordsRepo } from "@/core/base/base-export-records-page.interactor";
 
 import { type ServiceDto } from "./service.schema";
 
@@ -35,7 +36,8 @@ export class PrismaServiceRepo
     GetWidgetFilterableFieldsServiceRepo,
     FindServicesByIdsRepo,
     GetCompanyWideServiceRepo,
-    ModifyRelationServiceRepo
+    ModifyRelationServiceRepo,
+    ExportRecordsRepo<ServiceDto>
 {
   private get userScopedSelect() {
     return {
@@ -185,6 +187,29 @@ export class PrismaServiceRepo
 
   async getCount(params: GetQueryParams) {
     const { where } = await this.buildQueryArgs(params, this.accessWhere("service"));
+
+    return this.prisma.service.count({ where });
+  }
+
+  private exportWhere(selectedIds?: string[]): Prisma.ServiceWhereInput {
+    const scoped = this.accessWhere("service");
+
+    return selectedIds && selectedIds.length > 0 ? { ...scoped, id: { in: selectedIds } } : scoped;
+  }
+
+  async exportItems(params: ExportPageParams) {
+    return this.list({
+      model: "service",
+      baseWhere: this.exportWhere(params.selectedIds),
+      select: this.userScopedSelect,
+      params,
+      map: (service: Prisma.ServiceGetPayload<{ select: PrismaServiceRepo["userScopedSelect"] }>) =>
+        this.toDto(service),
+    });
+  }
+
+  async exportCount(params: ExportPageParams) {
+    const { where } = await this.buildQueryArgs(params, this.exportWhere(params.selectedIds));
 
     return this.prisma.service.count({ where });
   }

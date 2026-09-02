@@ -1670,6 +1670,59 @@
       "chart": "Chart"
     }
   },
+  "DataTransfer": {
+    "export": {
+      "action": "Export",
+      "failed": "The file could not be created.",
+      "success": "{count, plural, one {# record exported} other {# records exported}}",
+      "truncated": "Only the first {limit} records were exported."
+    },
+    "import": {
+      "action": "Add from file",
+      "batchProgress": "Batch {done} of {total}",
+      "channelOption": "{provider} (channel)",
+      "chooseFile": "Choose file",
+      "commit": "Add records",
+      "description": "Match the spreadsheet columns to fields, check the result, then add the records.",
+      "duplicateTargets": "{count, plural, one {# field is mapped from more than one column. Fix it before continuing.} other {# fields are mapped from more than one column. Fix them before continuing.}}",
+      "fileHint": "Choose a spreadsheet. Excel workbooks are supported.",
+      "fileRejected": "That file could not be read.",
+      "groupChannels": "Channels",
+      "groupCustomFields": "Custom fields",
+      "groupFields": "Fields",
+      "ignoreColumn": "Do not add",
+      "issueCount": "{count, plural, one {# problem found} other {# problems found}}",
+      "issues": {
+        "channelsNotUpdated": "Channels stay as they are on a record that already exists",
+        "duplicateRecordId": "Row {row} already updates this record",
+        "invalidChannelValue": "\"{value}\" is not a valid {provider} address",
+        "notANumber": "\"{value}\" is not a number",
+        "notAPhoneNumber": "\"{value}\" is not a phone number",
+        "relationAmbiguous": "\"{value}\" matches more than one record",
+        "relationNotFound": "\"{value}\" was not found",
+        "unknownOption": "\"{value}\" is not one of the options for {column}",
+        "unknownProvider": "\"{value}\" is not a channel type we support"
+      },
+      "mappingHint": "{file}, {rows} rows",
+      "moreIssues": "and {count} more",
+      "noIssues": "No problems found.",
+      "previewCounts": "{create} to add, {update} to update",
+      "progress": "Step {current} of {total}",
+      "progressLabel": "Import progress",
+      "recordId": "Record ID",
+      "resultCounts": "{created} added, {updated} updated",
+      "resultSkipped": "{count, plural, one {# row skipped} other {# rows skipped}}",
+      "row": "Row",
+      "rowsAffected": "{count, plural, one {# row} other {# rows}}",
+      "skipInvalid": "{count, plural, one {Import the rest and skip # row} other {Import the rest and skip # rows}}",
+      "stopped": "Stopped at row {row}. {remaining} rows were not processed.",
+      "title": "Add records from a file",
+      "unnamedColumn": "Unnamed column",
+      "validate": "Check the file",
+      "warningCount": "{count, plural, one {# warning} other {# warnings}}"
+    },
+    "menu": "Import and export"
+  },
   "DataView": {
     "dragToReorder": "Drag to reorder",
     "editColumn": "Edit column",
