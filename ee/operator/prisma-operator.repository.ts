@@ -1054,20 +1054,28 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
 
         await this.prisma.messagingInboundEvent.deleteMany({ where: { companyId: data.companyId } });
 
-        const workflowRuns = await this.prisma.$queryRaw<Array<{ id: string }>>`
-          SELECT "id" FROM "workflow"."workflow_runs" WHERE "input"->>'companyId' = ${data.companyId}
+        const [workflowSchema] = await this.prisma.$queryRaw<Array<{ installed: boolean }>>`
+          SELECT to_regclass('workflow.workflow_runs') IS NOT NULL AS installed
         `;
-        const workflowRunIds = workflowRuns.map((run) => run.id);
-        if (workflowRunIds.length > 0) {
-          for (const table of WORKFLOW_RUN_CHILD_TABLES) {
-            await this.prisma.$executeRawUnsafe(
-              `DELETE FROM "workflow"."${table}" WHERE "run_id" = ANY($1::text[])`,
-              workflowRunIds,
-            );
-          }
-          await this.prisma.$executeRaw`
-            DELETE FROM "workflow"."workflow_runs" WHERE "id" = ANY(${workflowRunIds}::text[])
+
+        let workflowRunIds: string[] = [];
+        if (workflowSchema?.installed) {
+          const workflowRuns = await this.prisma.$queryRaw<Array<{ id: string }>>`
+            SELECT "id" FROM "workflow"."workflow_runs" WHERE "input"->>'companyId' = ${data.companyId}
           `;
+          workflowRunIds = workflowRuns.map((run) => run.id);
+
+          if (workflowRunIds.length > 0) {
+            for (const table of WORKFLOW_RUN_CHILD_TABLES) {
+              await this.prisma.$executeRawUnsafe(
+                `DELETE FROM "workflow"."${table}" WHERE "run_id" = ANY($1::text[])`,
+                workflowRunIds,
+              );
+            }
+            await this.prisma.$executeRaw`
+              DELETE FROM "workflow"."workflow_runs" WHERE "id" = ANY(${workflowRunIds}::text[])
+            `;
+          }
         }
 
         await this.prisma.company.delete({ where: { id: data.companyId } });

@@ -31,6 +31,16 @@ function assertAdmitted<T>(result: T | OperatorRefusal): asserts result is T {
 const { prisma } = await import("@/prisma/db");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
+
+async function workflowSchemaInstalled(): Promise<boolean> {
+  if (!getLocalDatabaseTestUrl()) return false;
+
+  const [row] = await prisma.$queryRaw<Array<{ installed: boolean }>>`
+    SELECT to_regclass('workflow.workflow_runs') IS NOT NULL AS installed
+  `;
+
+  return Boolean(row?.installed);
+}
 const companyIds: string[] = [];
 const authUserIds: string[] = [];
 const actorIds: string[] = [];
@@ -400,7 +410,9 @@ describeDatabase("operator workspace deletion against a real database", { timeou
     });
   });
 
-  it("purges background workflow runs and their child rows for the deleted workspace", async () => {
+  it("purges background workflow runs and their child rows for the deleted workspace", async (context) => {
+    if (!(await workflowSchemaInstalled())) return context.skip();
+
     const repo = new PrismaOperatorRepo();
     const { companyId } = await createWorkspace({ domain: "workflows.invalid", members: 1 });
     const survivor = await createWorkspace({ domain: "keepruns.invalid", members: 1 });
