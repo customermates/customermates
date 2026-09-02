@@ -1687,6 +1687,9 @@
       "duplicateTargets": "{count, plural, one {# campo recibe datos de más de una columna. Corrígelo antes de continuar.} other {# campos reciben datos de más de una columna. Corrígelos antes de continuar.}}",
       "fileHint": "Elige una hoja de cálculo. Se admiten libros de Excel.",
       "fileRejected": "No se pudo leer ese archivo.",
+      "groupChannels": "Canales",
+      "groupCustomFields": "Campos personalizados",
+      "groupFields": "Campos",
       "ignoreColumn": "No añadir",
       "issueCount": "{count, plural, one {# problema encontrado} other {# problemas encontrados}}",
       "issues": {

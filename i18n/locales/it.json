@@ -1687,6 +1687,9 @@
       "duplicateTargets": "{count, plural, one {# campo riceve dati da più colonne. Correggilo prima di continuare.} other {# campi ricevono dati da più colonne. Correggili prima di continuare.}}",
       "fileHint": "Scegli un foglio di calcolo. Sono supportate le cartelle di lavoro Excel.",
       "fileRejected": "Non è stato possibile leggere questo file.",
+      "groupChannels": "Canali",
+      "groupCustomFields": "Campi personalizzati",
+      "groupFields": "Campi",
       "ignoreColumn": "Non aggiungere",
       "issueCount": "{count, plural, one {# problema rilevato} other {# problemi rilevati}}",
       "issues": {

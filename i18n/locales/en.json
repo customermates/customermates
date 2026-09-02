@@ -1687,6 +1687,9 @@
       "duplicateTargets": "{count, plural, one {# field is mapped from more than one column. Fix it before continuing.} other {# fields are mapped from more than one column. Fix them before continuing.}}",
       "fileHint": "Choose a spreadsheet. Excel workbooks are supported.",
       "fileRejected": "That file could not be read.",
+      "groupChannels": "Channels",
+      "groupCustomFields": "Custom fields",
+      "groupFields": "Fields",
       "ignoreColumn": "Do not add",
       "issueCount": "{count, plural, one {# problem found} other {# problems found}}",
       "issues": {

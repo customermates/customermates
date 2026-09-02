@@ -9,13 +9,22 @@ import { useRef } from "react";
 import { useTranslations } from "next-intl";
 
 import { AppCard } from "@/components/card/app-card";
+import { AppChip } from "@/components/chip/app-chip";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppModal } from "@/components/modal";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { WizardProgress } from "@/components/shared/wizard-progress";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { identifierTargetFor, targetIdentity } from "@/features/data-transfer/import/import-mapping";
@@ -102,6 +111,12 @@ export const ImportWizard = observer(function ImportWizard() {
       }))
     : [];
 
+  const optionGroups = [
+    { labelKey: "DataTransfer.import.groupFields", options: fieldOptions },
+    { labelKey: "DataTransfer.import.groupCustomFields", options: customOptions },
+    { labelKey: "DataTransfer.import.groupChannels", options: channelOptions },
+  ];
+
   return (
     <AppModal
       description={t("DataTransfer.import.description")}
@@ -171,13 +186,17 @@ export const ImportWizard = observer(function ImportWizard() {
               <ul className="space-y-2">
                 {store.parsed.sources.map((source, index) => (
                   <li key={source.index} className="flex items-center gap-3">
-                    <span className="flex w-1/3 min-w-0 flex-col">
+                    <span className="flex w-1/3 min-w-0 flex-col gap-1">
                       <span className="truncate text-sm font-medium">
                         {`${source.letter}. ${source.header || t("DataTransfer.import.unnamedColumn")}`}
                       </span>
 
                       {source.samples.length > 0 && (
-                        <span className="truncate text-xs text-muted-foreground">{source.samples.join(", ")}</span>
+                        <span className="flex min-w-0 gap-1">
+                          {source.samples.map((sample, sampleIndex) => (
+                            <AppChip key={`${sampleIndex}-${sample}`}>{sample}</AppChip>
+                          ))}
+                        </span>
                       )}
                     </span>
 
@@ -194,23 +213,19 @@ export const ImportWizard = observer(function ImportWizard() {
 
                         <SelectItem value={RECORD_ID_VALUE}>{t("DataTransfer.import.recordId")}</SelectItem>
 
-                        {fieldOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
+                        {optionGroups.map(({ labelKey, options }) =>
+                          options.length === 0 ? null : (
+                            <SelectGroup key={labelKey}>
+                              <SelectLabel>{t(labelKey)}</SelectLabel>
 
-                        {customOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-
-                        {channelOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
+                              {options.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          ),
+                        )}
                       </SelectContent>
                     </Select>
                   </li>

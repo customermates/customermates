@@ -1687,6 +1687,9 @@
       "duplicateTargets": "{count, plural, one {# champ reçoit des données de plusieurs colonnes. Corrige-le avant de continuer.} other {# champs reçoivent des données de plusieurs colonnes. Corrige-les avant de continuer.}}",
       "fileHint": "Choisis un tableur. Les classeurs Excel sont pris en charge.",
       "fileRejected": "Ce fichier n'a pas pu être lu.",
+      "groupChannels": "Canaux",
+      "groupCustomFields": "Champs personnalisés",
+      "groupFields": "Champs",
       "ignoreColumn": "Ne pas ajouter",
       "issueCount": "{count, plural, one {# problème détecté} other {# problèmes détectés}}",
       "issues": {

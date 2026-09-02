@@ -22,6 +22,8 @@ vi.mock("@/components/ui/checkbox", () => ({
 vi.mock("@/components/ui/select", () => ({
   Select: ({ children }: { children: ReactElement }) => createElement("div", { "data-select": "" }, children),
   SelectContent: ({ children }: { children: ReactElement }) => createElement("div", null, children),
+  SelectGroup: ({ children }: { children: ReactElement }) => createElement("div", { "data-group": "" }, children),
+  SelectLabel: ({ children }: { children: ReactElement }) => createElement("div", { "data-group-label": "" }, children),
   SelectItem: ({ children, value }: { children: ReactElement; value: string }) =>
     createElement("div", { "data-option": value }, children),
   SelectTrigger: ({ children }: { children: ReactElement }) => createElement("div", null, children),
@@ -40,7 +42,7 @@ function stubStore(overrides: Record<string, unknown>) {
     plan: undefined,
     issues: [],
     summary: undefined,
-    isBusy: false,
+    isLoading: false,
     progressDone: 0,
     progressTotal: 0,
     fileError: null,
@@ -259,10 +261,34 @@ describe("ImportWizard mapping aids", () => {
     sources: [{ index: 0, letter: "A", header: "Column 1", samples: ["ada@example.com", "grace@example.com"] }],
   };
 
-  it("shows sample values so an unhelpful header can still be mapped", () => {
+  it("shows each sample value as its own chip, so a long value stays readable", () => {
     const html = render({ step: "mapping", parsed, mapping: [{ kind: "ignore" }] });
 
-    expect(html).toContain("ada@example.com, grace@example.com");
+    expect(html).toContain("ada@example.com");
+    expect(html).toContain("grace@example.com");
+    expect(html).not.toContain("ada@example.com, grace@example.com");
+    expect(html.match(/data-slot="badge"/g)).toHaveLength(2);
+  });
+
+  it("groups the target options, so channels do not sit in one flat list with the fields", () => {
+    const html = render({
+      step: "mapping",
+      parsed,
+      mapping: [{ kind: "ignore" }],
+      customColumns: [{ id: "16000000-0000-4000-8000-000000000001", label: "Phones" }],
+    });
+
+    expect(html.match(/data-group-label=""/g)).toHaveLength(3);
+    expect(html).toContain("DataTransfer.import.groupFields");
+    expect(html).toContain("DataTransfer.import.groupCustomFields");
+    expect(html).toContain("DataTransfer.import.groupChannels");
+  });
+
+  it("leaves out a group that has nothing in it", () => {
+    const html = render({ step: "mapping", parsed, mapping: [{ kind: "ignore" }] });
+
+    expect(html).not.toContain("DataTransfer.import.groupCustomFields");
+    expect(html.match(/data-group-label=""/g)).toHaveLength(2);
   });
 
   it("offers channel targets for contacts, so a foreign email column can become one", () => {

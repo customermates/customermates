@@ -1687,6 +1687,9 @@
       "duplicateTargets": "{count, plural, one {# Feld wird von mehreren Spalten belegt. Bitte vor dem Fortfahren korrigieren.} other {# Felder werden von mehreren Spalten belegt. Bitte vor dem Fortfahren korrigieren.}}",
       "fileHint": "Wähle eine Tabelle. Excel-Arbeitsmappen werden unterstützt.",
       "fileRejected": "Diese Datei konnte nicht gelesen werden.",
+      "groupChannels": "Kanäle",
+      "groupCustomFields": "Benutzerdefinierte Felder",
+      "groupFields": "Felder",
       "ignoreColumn": "Nicht hinzufügen",
       "issueCount": "{count, plural, one {# Problem gefunden} other {# Probleme gefunden}}",
       "issues": {
