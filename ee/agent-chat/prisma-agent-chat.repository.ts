@@ -2,10 +2,10 @@ import { randomUUID } from "node:crypto";
 
 import {
   AgentApprovalDecision,
+  AgentConversationOrigin,
   AgentMessageRole,
   Resource,
   Status,
-  type AgentConversationOrigin,
   type Prisma,
   type SubscriptionPlan,
   type SubscriptionStatus,
@@ -283,6 +283,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         companyId: this.companyId,
         userId: this.userId,
         archivedAt: null,
+        origin: AgentConversationOrigin.user,
       },
       orderBy: [{ selectedAt: "desc" }, { updatedAt: "desc" }, { id: "desc" }],
       select: { id: true },
@@ -332,6 +333,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         companyId: this.companyId,
         userId: this.userId,
         archivedAt: args.archived ? { not: null } : null,
+        origin: AgentConversationOrigin.user,
         ...(filters.length ? { AND: filters } : {}),
       },
       orderBy: [{ updatedAt: "desc" }, { id: "desc" }],

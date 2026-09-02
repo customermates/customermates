@@ -2783,9 +2783,11 @@
   "RoutineRunReason": {
     "filtersNotMatched": "The record did not match the filters",
     "hourlyRunLimit": "The hourly run limit was reached",
+    "ownerInactive": "The routine owner's account is no longer active",
     "ownerRunLimit": "Another run was already in progress",
     "routineDisabled": "The routine was paused",
     "startAbandoned": "The run was interrupted before it started",
+    "startFailed": "The run could not be started",
     "unknownFailure": "The run could not be completed"
   },
   "RoutineRunStatus": {

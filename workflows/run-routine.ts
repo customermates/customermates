@@ -3,7 +3,7 @@ import type { WorkflowTenant } from "./workflow-tenant";
 import { getFailRoutineRunInteractor, getStartRoutineRunInteractor } from "@/core/di";
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
 
-import { isExpectedError } from "@/core/errors/app-errors";
+import { AppErrorCode, appErrorDetailsInCauseChain, isExpectedError } from "@/core/errors/app-errors";
 
 import { reportFailure, toWorkflowFailure } from "./capture-failure";
 
@@ -16,10 +16,8 @@ export type RunRoutineWorkflowPayload = {
   tenant?: WorkflowTenant;
 };
 
-function ownerFailureReason(error: unknown): string {
-  const message = error instanceof Error ? error.message : String(error);
-
-  return `ownerUnavailable: ${message}`.slice(0, 500);
+function startFailureReason(error: unknown): string {
+  return appErrorDetailsInCauseChain(error)?.code === AppErrorCode.inactiveUser ? "ownerInactive" : "startFailed";
 }
 
 async function startRoutineRunStep(payload: RunRoutineWorkflowPayload): Promise<void> {
@@ -31,7 +29,7 @@ async function startRoutineRunStep(payload: RunRoutineWorkflowPayload): Promise<
   } catch (error) {
     await getFailRoutineRunInteractor().invoke({
       routineRunId: payload.routineRunId,
-      reason: ownerFailureReason(error),
+      reason: startFailureReason(error),
     });
 
     if (!isExpectedError(error)) throw error;

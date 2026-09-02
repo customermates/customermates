@@ -2783,9 +2783,11 @@
   "RoutineRunReason": {
     "filtersNotMatched": "Il record non corrispondeva ai filtri",
     "hourlyRunLimit": "È stato raggiunto il limite orario di esecuzioni",
+    "ownerInactive": "L’account del proprietario della routine non è più attivo",
     "ownerRunLimit": "Era già in corso un'altra esecuzione",
     "routineDisabled": "La routine era in pausa",
     "startAbandoned": "L’esecuzione è stata interrotta prima di iniziare",
+    "startFailed": "Non è stato possibile avviare l’esecuzione",
     "unknownFailure": "Non è stato possibile completare l'esecuzione"
   },
   "RoutineRunStatus": {

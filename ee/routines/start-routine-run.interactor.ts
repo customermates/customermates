@@ -60,6 +60,7 @@ export abstract class StartRoutineConversationRepo {
     origin?: AgentConversationOrigin;
     creditCeiling?: number | null;
   }): Promise<void>;
+  abstract deleteUnusedAgentConversation(conversationId: string): Promise<void>;
 }
 
 @TenantInteractor()
@@ -122,18 +123,25 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
       creditCeiling: routine.maxCreditsPerRun,
     });
 
-    const sent = await this.sendAgentMessage.invoke({
-      conversationId,
-      clientRequestId: run.id,
-      text: composeRoutinePrompt(routine.prompt, {
-        routineName: routine.name,
-        triggerEvent: run.triggerEvent,
-        triggerEntityId: run.triggerEntityId,
-      }),
-      retry: false,
-    });
+    let sent;
+    try {
+      sent = await this.sendAgentMessage.invoke({
+        conversationId,
+        clientRequestId: run.id,
+        text: composeRoutinePrompt(routine.prompt, {
+          routineName: routine.name,
+          triggerEvent: run.triggerEvent,
+          triggerEntityId: run.triggerEntityId,
+        }),
+        retry: false,
+      });
+    } catch (error) {
+      await this.conversations.deleteUnusedAgentConversation(conversationId);
+      throw error;
+    }
 
     if (!sent.ok) {
+      await this.conversations.deleteUnusedAgentConversation(conversationId);
       const message = sent.error.issues[0]?.message ?? "The routine could not start.";
       await this.repo.settleRoutineRunUnscoped({
         routineRunId: run.id,
@@ -154,6 +162,8 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
         error: `agentDisposition:${sent.data.disposition}`,
         now,
       });
+
+      await this.conversations.deleteUnusedAgentConversation(conversationId);
 
       return { ok: true as const, data: { started: false, reason: sent.data.disposition } };
     }

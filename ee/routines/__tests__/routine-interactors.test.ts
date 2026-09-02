@@ -148,7 +148,10 @@ function startFixtures(overrides: { run?: Record<string, unknown>; routine?: Rec
     markRoutineRunStartedUnscoped: vi.fn().mockResolvedValue(undefined),
     settleRoutineRunUnscoped: vi.fn().mockResolvedValue(undefined),
   };
-  const conversations = { createAgentConversationForRun: vi.fn().mockResolvedValue(undefined) };
+  const conversations = {
+    createAgentConversationForRun: vi.fn().mockResolvedValue(undefined),
+    deleteUnusedAgentConversation: vi.fn().mockResolvedValue(undefined),
+  };
   const filterMatcher = { matches: vi.fn().mockResolvedValue(true) };
   const sendAgentMessage = {
     invoke: vi.fn().mockResolvedValue({
@@ -319,6 +322,56 @@ describe("StartRoutineRunInteractor", () => {
 
     expect(filterMatcher.matches).not.toHaveBeenCalled();
     expect(result).toEqual({ ok: true, data: { started: true } });
+  });
+
+  it("discards the empty conversation when the agent refuses to start", async () => {
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
+    sendAgentMessage.invoke.mockResolvedValue({
+      ok: false,
+      error: { issues: [{ message: "You have used all your AI credits." }] },
+    });
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
+
+    await interactor.invoke({ routineRunId: RUN_ID });
+
+    expect(conversations.deleteUnusedAgentConversation).toHaveBeenCalledWith(
+      conversations.createAgentConversationForRun.mock.calls[0][0].conversationId,
+    );
+  });
+
+  it("discards the empty conversation when the agent throws", async () => {
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
+    sendAgentMessage.invoke.mockRejectedValue(new Error("transaction expired"));
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
+
+    await expect(interactor.invoke({ routineRunId: RUN_ID })).rejects.toThrow("transaction expired");
+    expect(conversations.deleteUnusedAgentConversation).toHaveBeenCalledWith(
+      conversations.createAgentConversationForRun.mock.calls[0][0].conversationId,
+    );
+  });
+
+  it("keeps the conversation when the turn actually starts", async () => {
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
+
+    await interactor.invoke({ routineRunId: RUN_ID });
+
+    expect(conversations.deleteUnusedAgentConversation).not.toHaveBeenCalled();
   });
 
   it("records a blocked run when the agent refuses to start", async () => {

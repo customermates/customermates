@@ -2783,9 +2783,11 @@
   "RoutineRunReason": {
     "filtersNotMatched": "Der Datensatz passte nicht zu den Filtern",
     "hourlyRunLimit": "Das Stundenlimit für Läufe war erreicht",
+    "ownerInactive": "Das Konto der Routine-Eigentümerin oder des Eigentümers ist nicht mehr aktiv",
     "ownerRunLimit": "Ein anderer Lauf war bereits aktiv",
     "routineDisabled": "Die Routine war pausiert",
     "startAbandoned": "Der Lauf wurde vor dem Start unterbrochen",
+    "startFailed": "Der Lauf konnte nicht gestartet werden",
     "unknownFailure": "Der Lauf konnte nicht abgeschlossen werden"
   },
   "RoutineRunStatus": {

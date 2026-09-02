@@ -10,6 +10,8 @@ export const ROUTINE_RUN_REASONS = [
   "hourlyRunLimit",
   "filtersNotMatched",
   "startAbandoned",
+  "ownerInactive",
+  "startFailed",
 ] as const;
 
 export function routineRunDetail(

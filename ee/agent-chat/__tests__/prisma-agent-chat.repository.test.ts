@@ -444,6 +444,27 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
   });
 
+  it("keeps routine runs out of the chat list", async () => {
+    prismaMock.agentConversation.findMany.mockResolvedValue([]);
+    prismaMock.agentMessage.findMany.mockResolvedValue([]);
+
+    await runWithTenant(user, () => new PrismaAgentChatRepo().listConversationPage({ archived: false }));
+
+    expect(prismaMock.agentConversation.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ origin: "user" }) }),
+    );
+  });
+
+  it("never opens a routine run as the chat's default conversation", async () => {
+    prismaMock.agentConversation.findFirst.mockResolvedValue(null);
+
+    await runWithTenant(user, () => new PrismaAgentChatRepo().findMyConversation());
+
+    expect(prismaMock.agentConversation.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ origin: "user" }) }),
+    );
+  });
+
   it("pages conversations in stable 25-chat windows with a resumable cursor", async () => {
     const rows = Array.from({ length: 26 }, (_, index) => ({
       id: `conversation-${String(index + 1).padStart(2, "0")}`,
