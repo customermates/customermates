@@ -2508,6 +2508,10 @@
     }
   },
   "OperatorOverview": {
+    "acquisition": {
+      "description": "Davon zahlen {paying}",
+      "label": "Workspaces aus Anzeigen"
+    },
     "activity": {
       "description": "Von insgesamt {total} Benutzern",
       "label": "Aktiv in 7 Tagen"

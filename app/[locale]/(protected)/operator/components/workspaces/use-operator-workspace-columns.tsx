@@ -13,6 +13,7 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { OperatorChipSelect } from "../operator-chip-select";
 import { useOperatorChipOptions } from "../use-operator-chip-options";
 import { OperatorWorkspaceAllowancePopover } from "./operator-workspace-allowance-popover";
+import { adProviderDisplayName, isAdProvider } from "@/features/acquisition/ad-provider-registry";
 
 export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto>[] {
   const { operatorWorkspacesStore } = useRootStore();
@@ -97,6 +98,17 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
         id: "allowance",
         header: t("Common.table.columns.allowance"),
         cell: ({ row }) => <OperatorWorkspaceAllowancePopover workspace={row.original} />,
+      },
+      {
+        accessorKey: "adProvider",
+        id: "adProvider",
+        header: t("Common.table.columns.adProvider"),
+        cell: ({ row }) => {
+          const provider = row.original.adProvider;
+          if (!provider || !isAdProvider(provider)) return <span className="text-sm">-</span>;
+
+          return <span className="truncate text-sm">{adProviderDisplayName(provider)}</span>;
+        },
       },
       {
         accessorKey: "createdAt",

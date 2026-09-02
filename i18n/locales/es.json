@@ -2508,6 +2508,10 @@
     }
   },
   "OperatorOverview": {
+    "acquisition": {
+      "description": "{paying} de ellos son de pago",
+      "label": "Espacios de trabajo desde anuncios"
+    },
     "activity": {
       "description": "De {total} usuarios en total",
       "label": "Activos en 7 días"

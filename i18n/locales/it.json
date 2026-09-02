@@ -2508,6 +2508,10 @@
     }
   },
   "OperatorOverview": {
+    "acquisition": {
+      "description": "Di cui {paying} paganti",
+      "label": "Workspace da annunci"
+    },
     "activity": {
       "description": "Su {total} utenti totali",
       "label": "Attivi in 7 giorni"

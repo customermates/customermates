@@ -2508,6 +2508,10 @@
     }
   },
   "OperatorOverview": {
+    "acquisition": {
+      "description": "Dont {paying} payants",
+      "label": "Espaces de travail issus des annonces"
+    },
     "activity": {
       "description": "Sur {total} utilisateurs au total",
       "label": "Actifs sur 7 jours"

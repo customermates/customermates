@@ -36,6 +36,16 @@ export function partitionOperatorWorkspaceFilters(filters: Filter[] | undefined)
       continue;
     }
 
+    if (filter.field === String(FilterFieldKey.adProvider)) {
+      const values = filterValues(filter);
+      if (values.length > 0) {
+        baseWhere.adAttributions = negated(filter)
+          ? { none: { provider: { in: values } } }
+          : { some: { provider: { in: values } } };
+      }
+      continue;
+    }
+
     if (filter.field !== String(FilterFieldKey.plan) && filter.field !== String(FilterFieldKey.subscriptionStatus)) {
       passthrough.push(filter);
       continue;
@@ -82,6 +92,7 @@ export class PrismaOperatorWorkspacesRepo
         FilterFieldKey.subscriptionStatus,
         FilterFieldKey.createdAt,
         FilterFieldKey.workspaceId,
+        FilterFieldKey.adProvider,
       ].map((field) => ({ field, operators: FILTER_FIELD_DEFAULT_OPERATORS[field] })),
     );
   }
@@ -152,6 +163,7 @@ export class PrismaOperatorWorkspacesRepo
         subscription: {
           select: { plan: true, status: true, quantity: true, enterpriseAgentCreditsPerUser: true, updatedAt: true },
         },
+        adAttributions: { select: { provider: true }, orderBy: { clickedAt: "desc" }, take: 1 },
       },
     });
 
@@ -172,6 +184,7 @@ export class PrismaOperatorWorkspacesRepo
         seats: company.subscription?.quantity ?? null,
         enterpriseCreditsPerUser: company.subscription?.enterpriseAgentCreditsPerUser ?? null,
         subscriptionUpdatedAt: company.subscription?.updatedAt ?? null,
+        adProvider: company.adAttributions[0]?.provider ?? null,
         createdAt: company.createdAt,
       };
     });

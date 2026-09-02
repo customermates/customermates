@@ -2508,6 +2508,10 @@
     }
   },
   "OperatorOverview": {
+    "acquisition": {
+      "description": "{paying} of them are paying",
+      "label": "Workspaces from ads"
+    },
     "activity": {
       "description": "Of {total} users in total",
       "label": "Active last 7 days"

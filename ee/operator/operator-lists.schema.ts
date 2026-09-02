@@ -36,6 +36,7 @@ export const OperatorWorkspaceRowDtoSchema = z.object({
   seats: z.number().nullable(),
   enterpriseCreditsPerUser: z.number().nullable(),
   subscriptionUpdatedAt: z.date().nullable(),
+  adProvider: z.string().nullable(),
   createdAt: z.date(),
 });
 
@@ -68,6 +69,8 @@ export const OperatorRiskSummaryDtoSchema = z.object({
   activeUsersLastSevenDays: z.number(),
   newWorkspacesLastThirtyDays: z.number(),
   newUsersLastThirtyDays: z.number(),
+  attributedWorkspaces: z.number(),
+  attributedPaidWorkspaces: z.number(),
 });
 
 export type OperatorRiskSummaryDto = z.infer<typeof OperatorRiskSummaryDtoSchema>;
