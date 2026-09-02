@@ -2,6 +2,8 @@ import { sleep } from "workflow";
 
 import type { BackfillPlan } from "@/ee/messaging/ingest/backfill/prepare-backfill.interactor";
 
+import { decideSource, leavesWorkUndone } from "@/ee/messaging/ingest/backfill/drain-decision";
+
 import {
   getClaimBackfillInteractor,
   getPrepareBackfillInteractor,
@@ -25,12 +27,9 @@ import { reportFailure, reportWarning, toWorkflowFailure } from "./capture-failu
 const WORKFLOW_NAME = "backfill-connected-account";
 const READY_POLL_MS = 60_000;
 const MAX_READY_POLLS = 15;
-const CATCHUP_DELAY_MS = 10_000;
-const GIVE_UP_RATE_LIMIT_SECONDS = 600;
 const RESWEEP_DELAY_MS = 90_000;
 const BACKFILL_RESWEEPS = 2;
 const FINAL_SWEEP_DELAY_MS = 45 * 60_000;
-const MAX_PAGE_STALL_RETRIES = 4;
 const CALENDAR_SOURCE = "calendar";
 
 export type BackfillConnectedAccountPayload = {
@@ -59,14 +58,6 @@ const pageFetchers: Record<PageKind, PageFetcher> = {
     return { nextCursor: null, done: true };
   },
 };
-
-function backoff(retryAfterSeconds?: number): number {
-  return retryAfterSeconds ? retryAfterSeconds * 1000 : CATCHUP_DELAY_MS;
-}
-
-function rateLimitedTooLong(retryAfterSeconds?: number): boolean {
-  return (retryAfterSeconds ?? 0) > GIVE_UP_RATE_LIMIT_SECONDS;
-}
 
 async function claimBackfill(connectedAccountId: string): Promise<string | null> {
   "use step";
@@ -133,7 +124,10 @@ async function drainSources(
     for (const progress of pending) {
       const page = await listPage(kind, connectedAccountId, progress.source, progress.cursor);
 
-      if (page.forbidden) {
+      const decision = decideSource(page, progress.stallCount);
+      if (leavesWorkUndone(decision)) deferred = true;
+
+      if (decision.action === "skip") {
         await reportWarning(
           WORKFLOW_NAME,
           `source "${progress.source}" skipped: the account lacks permission to read it (account ${connectedAccountId})`,
@@ -142,37 +136,36 @@ async function drainSources(
         continue;
       }
 
-      if (page.stalled) {
+      if (decision.action === "abandon") {
+        await reportWarning(
+          WORKFLOW_NAME,
+          `source "${progress.source}" abandoned after ${decision.afterAttempts} stalled pages (account ${connectedAccountId})`,
+          tenant,
+        );
+        continue;
+      }
+
+      if (decision.action === "retry") {
         progress.stallCount += 1;
-        if (progress.stallCount > MAX_PAGE_STALL_RETRIES) {
-          await reportWarning(
-            WORKFLOW_NAME,
-            `source "${progress.source}" abandoned after ${MAX_PAGE_STALL_RETRIES} stalled pages (account ${connectedAccountId})`,
-            tenant,
-          );
-          deferred = true;
-        } else {
-          await sleep(CATCHUP_DELAY_MS);
-          stillPending.push(progress);
-        }
+        await sleep(decision.delayMs);
+        stillPending.push(progress);
         continue;
       }
 
       progress.stallCount = 0;
       progress.cursor = page.nextCursor;
 
-      if (rateLimitedTooLong(page.retryAfterSeconds)) {
-        deferred = true;
+      if (decision.action === "defer") {
         await reportWarning(
           WORKFLOW_NAME,
-          `source "${progress.source}" deferred: the provider asked for ${page.retryAfterSeconds}s (account ${connectedAccountId})`,
+          `source "${progress.source}" deferred: the provider asked for ${decision.retryAfterSeconds}s (account ${connectedAccountId})`,
           tenant,
         );
         continue;
       }
 
-      if (page.retryAfterSeconds) await sleep(backoff(page.retryAfterSeconds));
-      if (!page.done) stillPending.push(progress);
+      if (decision.delayMs) await sleep(decision.delayMs);
+      if (!decision.done) stillPending.push(progress);
     }
     pending = stillPending;
   }
