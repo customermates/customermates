@@ -591,6 +591,16 @@ export class PrismaRoutineRepo
   }
 
   @BypassTenantGuard
+  async findOrphanedRunningRoutineRunsUnscoped(before: Date, limit: number) {
+    return this.prisma.routineRun.findMany({
+      where: { status: RoutineRunStatus.running, turnRequestId: null, startedAt: { lte: before } },
+      select: { id: true, routineId: true },
+      orderBy: { startedAt: "asc" },
+      take: limit,
+    });
+  }
+
+  @BypassTenantGuard
   async findStaleQueuedRoutineRunsUnscoped(before: Date, limit: number) {
     return this.prisma.routineRun.findMany({
       where: { status: RoutineRunStatus.queued, createdAt: { lte: before } },

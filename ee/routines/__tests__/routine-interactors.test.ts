@@ -408,6 +408,7 @@ describe("ReconcileRoutineRunsInteractor", () => {
         chargedCredits: 3,
         summary: "There are 42 contacts.",
       }),
+      findOrphanedRunningRoutineRunsUnscoped: vi.fn().mockResolvedValue([]),
       settleRoutineRunUnscoped: vi.fn().mockResolvedValue(undefined),
     };
 
@@ -416,6 +417,23 @@ describe("ReconcileRoutineRunsInteractor", () => {
     expect(result).toEqual({ settled: 1 });
     expect(repo.settleRoutineRunUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ status: "succeeded", chargedCredits: 3, summary: "There are 42 contacts." }),
+    );
+  });
+
+  it("frees a run abandoned between claiming it and recording its turn", async () => {
+    const repo = {
+      findRunningRoutineRunsUnscoped: vi.fn().mockResolvedValue([]),
+      readTurnOutcomeUnscoped: vi.fn(),
+      findOrphanedRunningRoutineRunsUnscoped: vi.fn().mockResolvedValue([{ id: RUN_ID, routineId: ROUTINE_ID }]),
+      settleRoutineRunUnscoped: vi.fn().mockResolvedValue(undefined),
+    };
+
+    const result = await new ReconcileRoutineRunsInteractor(repo as never).invoke();
+
+    expect(result).toEqual({ settled: 1 });
+    expect(repo.readTurnOutcomeUnscoped).not.toHaveBeenCalled();
+    expect(repo.settleRoutineRunUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ routineRunId: RUN_ID, status: "failed", error: "startAbandoned" }),
     );
   });
 
@@ -431,6 +449,7 @@ describe("ReconcileRoutineRunsInteractor", () => {
         chargedCredits: 0,
         summary: null,
       }),
+      findOrphanedRunningRoutineRunsUnscoped: vi.fn().mockResolvedValue([]),
       settleRoutineRunUnscoped: vi.fn().mockResolvedValue(undefined),
     };
 

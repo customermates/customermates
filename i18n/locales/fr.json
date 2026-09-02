@@ -2779,6 +2779,7 @@
     "hourlyRunLimit": "La limite horaire d'exécutions était atteinte",
     "ownerRunLimit": "Une autre exécution était déjà en cours",
     "routineDisabled": "La routine était en pause",
+    "startAbandoned": "L’exécution a été interrompue avant de démarrer",
     "unknownFailure": "L'exécution n'a pas pu aboutir"
   },
   "RoutineRunStatus": {

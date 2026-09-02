@@ -24,6 +24,7 @@ import {
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 import { DEFAULT_ROUTINE_TIMEZONE } from "@/ee/routines/routine-schedule";
 import {
   DEFAULT_ROUTINE_SCHEDULE,
@@ -216,6 +217,8 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
         this.runs = runs;
         this.risks = risks;
       });
+    } catch (error) {
+      reportApplicationError(error);
     } finally {
       runInAction(() => {
         this.isRunsLoading = false;

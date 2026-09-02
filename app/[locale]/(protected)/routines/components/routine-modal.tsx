@@ -369,7 +369,7 @@ export const RoutineModal = observer(() => {
                 </AppCardBody>
               )}
 
-              {!showRuns && <FormActions anchorScope="routine-modal" store={routineModalStore} />}
+              {!showRuns && <FormActions showInitially anchorScope="routine-modal" store={routineModalStore} />}
             </>
           )}
         </AppCard>

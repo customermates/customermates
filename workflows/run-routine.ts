@@ -3,6 +3,8 @@ import type { WorkflowTenant } from "./workflow-tenant";
 import { getFailRoutineRunInteractor, getStartRoutineRunInteractor } from "@/core/di";
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
 
+import { isExpectedError } from "@/core/errors/app-errors";
+
 import { reportFailure, toWorkflowFailure } from "./capture-failure";
 
 const WORKFLOW_NAME = "run-routine";
@@ -31,6 +33,8 @@ async function startRoutineRunStep(payload: RunRoutineWorkflowPayload): Promise<
       routineRunId: payload.routineRunId,
       reason: ownerFailureReason(error),
     });
+
+    if (!isExpectedError(error)) throw error;
   }
 }
 startRoutineRunStep.maxRetries = 0;

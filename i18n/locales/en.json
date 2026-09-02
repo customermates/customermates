@@ -2779,6 +2779,7 @@
     "hourlyRunLimit": "The hourly run limit was reached",
     "ownerRunLimit": "Another run was already in progress",
     "routineDisabled": "The routine was paused",
+    "startAbandoned": "The run was interrupted before it started",
     "unknownFailure": "The run could not be completed"
   },
   "RoutineRunStatus": {

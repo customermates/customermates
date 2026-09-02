@@ -3,6 +3,7 @@ import type { AgentTurnTerminalCode, RoutineRunStatus as RoutineRunStatusType } 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
 const RECONCILE_BATCH_LIMIT = 200;
+const ORPHANED_RUN_GRACE_MS = 10 * 60 * 1000;
 
 export abstract class ReconcileRoutineRunsRepo {
   abstract findRunningRoutineRunsUnscoped(
@@ -16,6 +17,10 @@ export abstract class ReconcileRoutineRunsRepo {
       conversationId: string | null;
     }[]
   >;
+  abstract findOrphanedRunningRoutineRunsUnscoped(
+    before: Date,
+    limit: number,
+  ): Promise<{ id: string; routineId: string }[]>;
   abstract readTurnOutcomeUnscoped(turnRequestId: string): Promise<{
     status: RoutineRunStatusType;
     terminalCode: AgentTurnTerminalCode | null;
@@ -57,6 +62,22 @@ export class ReconcileRoutineRunsInteractor {
         summary: outcome.summary,
         chargedCredits: outcome.chargedCredits,
         terminalCode: outcome.terminalCode,
+        now,
+      });
+      settled += 1;
+    }
+
+    const orphaned = await this.repo.findOrphanedRunningRoutineRunsUnscoped(
+      new Date(now.getTime() - ORPHANED_RUN_GRACE_MS),
+      RECONCILE_BATCH_LIMIT,
+    );
+
+    for (const run of orphaned) {
+      await this.repo.settleRoutineRunUnscoped({
+        routineRunId: run.id,
+        routineId: run.routineId,
+        status: "failed",
+        error: "startAbandoned",
         now,
       });
       settled += 1;
