@@ -17,6 +17,7 @@ import { FormInput } from "@/components/forms/form-input";
 import { FormTextarea } from "@/components/forms/form-textarea";
 import { FormSwitch } from "@/components/forms/form-switch";
 import { FormSelect } from "@/components/forms/form-select";
+import { FormLabel } from "@/components/forms/form-label";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormActions } from "@/components/card/form-actions";
 import { AppChip } from "@/components/chip/app-chip";
@@ -386,6 +387,8 @@ export const RoutineModal = observer(() => {
 
                       {filterableFields.length > 0 && (
                         <div className="space-y-1.5">
+                          <FormLabel>{t("Common.inputs.triggerFilters")}</FormLabel>
+
                           <FilterAccordion
                             baseId="triggerFilters"
                             customColumns={routineModalStore.customColumns}

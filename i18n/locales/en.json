@@ -1263,6 +1263,7 @@
       "status": "Status",
       "theme": "Theme",
       "triggerEvents": "Events",
+      "triggerFilters": "Only for matching records",
       "triggerKind": "Trigger",
       "type": "Type",
       "unavailableSelection": "Selection unavailable",

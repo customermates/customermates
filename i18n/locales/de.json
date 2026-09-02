@@ -1263,6 +1263,7 @@
       "status": "Status",
       "theme": "Darstellung",
       "triggerEvents": "Ereignisse",
+      "triggerFilters": "Nur bei passenden Datensätzen",
       "triggerKind": "Auslöser",
       "type": "Typ",
       "unavailableSelection": "Auswahl nicht verfügbar",

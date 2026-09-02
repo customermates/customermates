@@ -1263,6 +1263,7 @@
       "status": "Stato",
       "theme": "Tema",
       "triggerEvents": "Eventi",
+      "triggerFilters": "Solo per i record corrispondenti",
       "triggerKind": "Attivazione",
       "type": "Tipo",
       "unavailableSelection": "Selezione non disponibile",

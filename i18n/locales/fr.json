@@ -1263,6 +1263,7 @@
       "status": "Statut",
       "theme": "Thème",
       "triggerEvents": "Évènements",
+      "triggerFilters": "Uniquement pour les enregistrements correspondants",
       "triggerKind": "Déclencheur",
       "type": "Type",
       "unavailableSelection": "Sélection indisponible",

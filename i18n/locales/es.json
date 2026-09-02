@@ -1263,6 +1263,7 @@
       "status": "Estado",
       "theme": "Tema",
       "triggerEvents": "Eventos",
+      "triggerFilters": "Solo para registros coincidentes",
       "triggerKind": "Disparador",
       "type": "Tipo",
       "unavailableSelection": "Selección no disponible",
