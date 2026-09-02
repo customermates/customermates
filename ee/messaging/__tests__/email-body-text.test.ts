@@ -29,7 +29,7 @@ describe("htmlToPlainText", () => {
   it("turns block boundaries into line breaks", () => {
     expect(htmlToPlainText("<p>One</p><p>Two</p>")).toBe("One\n\nTwo");
     expect(htmlToPlainText("A<br>B")).toBe("A\nB");
-    expect(htmlToPlainText("<ul><li>a</li><li>b</li></ul>")).toBe("a\n\nb");
+    expect(htmlToPlainText("<ul><li>a</li><li>b</li></ul>")).toBe("* a\n* b");
   });
 
   it("preserves the canonical url behind a link", () => {
@@ -88,8 +88,14 @@ describe("htmlToPlainText", () => {
     expect(htmlToPlainText("<p>Tom &amp; Jerry &lt;3 &#65; &#x42;</p>")).toBe("Tom & Jerry <3 A B");
   });
 
-  it("leaves an unknown entity alone rather than mangling it", () => {
-    expect(htmlToPlainText("<p>&notarealentity; x</p>")).toBe("&notarealentity; x");
+  it("does not split a word that inline formatting interrupts", () => {
+    expect(htmlToPlainText("<p>Cus<b>tomer</b>mates</p>")).toBe("Customermates");
+    expect(htmlToPlainText("<p>un<i>believ</i>able</p>")).toBe("unbelievable");
+  });
+
+  it("decodes legacy named references the way a browser does", () => {
+    expect(htmlToPlainText("<p>&notarealentity; x</p>")).toBe("\u00acarealentity; x");
+    expect(htmlToPlainText("<p>&amp; &lt; &gt;</p>")).toBe("& < >");
   });
 
   it("collapses runs of whitespace and blank lines", () => {

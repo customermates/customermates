@@ -28,6 +28,6 @@ describe("behaviour preserved", () => {
   });
   it("still annotates links", () => {
     expect(htmlToPlainText('<a href="https://e.com">Docs</a>')).toBe("Docs (https://e.com)");
-    expect(htmlToPlainText('<a href="x">a<b>bold</b>c</a>')).toBe("a bold c (x)");
+    expect(htmlToPlainText(String.raw`<a href="x">a<b>bold</b>c</a>`)).toBe("aboldc (x)");
   });
 });
