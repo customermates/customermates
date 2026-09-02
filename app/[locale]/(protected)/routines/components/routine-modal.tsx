@@ -187,8 +187,10 @@ export const RoutineModal = observer(() => {
                               <span className="flex w-full min-w-0 items-start gap-3">
                                 <span className="min-w-0 flex-1">
                                   <span className="flex items-baseline gap-2">
-                                    <span suppressHydrationWarning className="truncate text-sm font-medium">
-                                      {intlStore.formatNumericalShortDateTime(run.createdAt)}
+                                    <span className="truncate text-sm font-medium">
+                                      {run.triggerEvent
+                                        ? t(`Common.events.${run.triggerEvent}`)
+                                        : t(`RoutineTriggerKind.${run.triggerKind}`)}
                                     </span>
 
                                     {run.chargedCredits > 0 && (

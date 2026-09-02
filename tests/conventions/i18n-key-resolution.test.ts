@@ -14,6 +14,7 @@ import {
   MessagingThreadState,
   Resource,
   RoutineRunStatus,
+  RoutineTriggerKind,
   Status,
   SubscriptionPlan,
   SubscriptionStatus,
@@ -49,6 +50,7 @@ const ENTITY_TERMINOLOGY_KEYS = Object.entries(ENTITY_TERMINOLOGY_PRESETS).flatM
 
 const DOMAIN_EVENT_KEYS = Object.values(DomainEvent).map((event) => `Common.events.${event}`);
 const ROUTINE_RUN_STATUS_KEYS = Object.values(RoutineRunStatus).map((status) => `RoutineRunStatus.${status}`);
+const ROUTINE_TRIGGER_KIND_KEYS = Object.values(RoutineTriggerKind).map((kind) => `RoutineTriggerKind.${kind}`);
 const ROUTINE_SCHEDULE_PRESET_KEYS = ROUTINE_SCHEDULE_PRESETS.map((preset) => `RoutineSchedulePreset.${preset}`);
 const ROUTINE_RUN_REASON_KEYS = ROUTINE_RUN_REASONS.map((reason) => `RoutineRunReason.${reason}`);
 const ROUTINE_WEEKDAY_KEYS = [
@@ -440,6 +442,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Common.errors.${*}", CUSTOM_ERROR_CODE_KEYS],
   ["Common.events.${*}", DOMAIN_EVENT_KEYS],
   ["RoutineRunStatus.${*}", ROUTINE_RUN_STATUS_KEYS],
+  ["RoutineTriggerKind.${*}", ROUTINE_TRIGGER_KIND_KEYS],
   ["RoutineSchedulePreset.${*}", ROUTINE_SCHEDULE_PRESET_KEYS],
   ["RoutineRunReason.${*}", ROUTINE_RUN_REASON_KEYS],
   ["RoutineWeekday.${*}", ROUTINE_WEEKDAY_KEYS],
@@ -554,6 +557,8 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/routines/components/routine-modal.tsx :: t :: RoutineRunStatus.${openRun.status}",
   "app/[locale]/(protected)/routines/components/routine-modal.tsx :: t :: RoutineRunStatus.${run.status}",
   "app/[locale]/(protected)/routines/components/routine-modal.tsx :: t :: Common.events.${item.key}",
+  "app/[locale]/(protected)/routines/components/routine-modal.tsx :: t :: Common.events.${run.triggerEvent}",
+  "app/[locale]/(protected)/routines/components/routine-modal.tsx :: t :: RoutineTriggerKind.${run.triggerKind}",
   "app/[locale]/(protected)/routines/components/routine-modal.tsx :: t :: RoutineSchedulePreset.${value}",
   "app/[locale]/(protected)/routines/components/routine-modal.tsx :: t :: RoutineWeekday.${key}",
   "ee/routines/routine-run-outcome.ts :: t :: RoutineRunReason.${reason}",
