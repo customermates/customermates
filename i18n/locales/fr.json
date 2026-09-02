@@ -2751,6 +2751,8 @@
   },
   "RoutineDetail": {
     "credits": "Crédits",
+    "disabledRepeatedFailures": "Mate a mis cette routine en pause car ses trois dernières exécutions ont échoué. Corrigez les instructions, puis réactivez-la.",
+    "disabledTitle": "En pause après des échecs répétés",
     "loopWarningMutual": "Cette routine et une autre modifient chacune les enregistrements que l'autre surveille. Customermates ignore les évènements causés par une routine, elles ne se déclencheront donc pas mutuellement.",
     "loopWarningSelf": "Cette routine modifie les mêmes enregistrements qu'elle surveille. Customermates ignore les évènements causés par une routine, elle ne bouclera donc pas, mais ne réagira pas non plus à ses propres modifications.",
     "loopWarningTitle": "Boucle de déclenchement possible",

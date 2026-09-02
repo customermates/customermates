@@ -2,6 +2,8 @@ import type { AgentTurnTerminalCode, RoutineRunStatus as RoutineRunStatusType } 
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
+import { ROUTINE_CONSECUTIVE_FAILURE_LIMIT, ROUTINE_DISABLED_REASON_REPEATED_FAILURES } from "./routine-run-limits";
+
 const RECONCILE_BATCH_LIMIT = 200;
 const ORPHANED_RUN_GRACE_MS = 10 * 60 * 1000;
 
@@ -28,6 +30,8 @@ export abstract class ReconcileRoutineRunsRepo {
     chargedCredits: number;
     summary: string | null;
   } | null>;
+  abstract readRecentRoutineRunOutcomesUnscoped(routineId: string, limit: number): Promise<RoutineRunStatusType[]>;
+  abstract disableRoutineUnscoped(routineId: string, reason: string): Promise<unknown>;
   abstract settleRoutineRunUnscoped(args: {
     routineRunId: string;
     routineId: string;
@@ -65,6 +69,8 @@ export class ReconcileRoutineRunsInteractor {
         now,
       });
       settled += 1;
+
+      if (outcome.status === "failed") await this.disableIfFailingRepeatedly(run.routineId);
     }
 
     const orphaned = await this.repo.findOrphanedRunningRoutineRunsUnscoped(
@@ -81,8 +87,18 @@ export class ReconcileRoutineRunsInteractor {
         now,
       });
       settled += 1;
+
+      await this.disableIfFailingRepeatedly(run.routineId);
     }
 
     return { settled };
+  }
+
+  private async disableIfFailingRepeatedly(routineId: string): Promise<void> {
+    const recent = await this.repo.readRecentRoutineRunOutcomesUnscoped(routineId, ROUTINE_CONSECUTIVE_FAILURE_LIMIT);
+    if (recent.length < ROUTINE_CONSECUTIVE_FAILURE_LIMIT) return;
+    if (!recent.every((status) => status === "failed")) return;
+
+    await this.repo.disableRoutineUnscoped(routineId, ROUTINE_DISABLED_REASON_REPEATED_FAILURES);
   }
 }

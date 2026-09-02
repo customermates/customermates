@@ -2751,6 +2751,8 @@
   },
   "RoutineDetail": {
     "credits": "Crediti",
+    "disabledRepeatedFailures": "Mate ha messo in pausa questa routine perché le ultime tre esecuzioni sono fallite. Correggi le istruzioni e riattivala.",
+    "disabledTitle": "In pausa dopo errori ripetuti",
     "loopWarningMutual": "Questa routine e un'altra modificano ciascuna i record che l'altra ascolta. Customermates ignora gli eventi causati da una routine, quindi non si attiveranno a vicenda.",
     "loopWarningSelf": "Questa routine modifica gli stessi record che ascolta. Customermates ignora gli eventi causati da una routine, quindi non entrerà in ciclo, ma non reagirà nemmeno alle proprie modifiche.",
     "loopWarningTitle": "Possibile ciclo di attivazione",

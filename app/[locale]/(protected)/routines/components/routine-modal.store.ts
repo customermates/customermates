@@ -105,6 +105,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   runs: RoutineRunDto[] = [];
   risks: RoutineRiskDto[] = [];
   openRunId: string | null = null;
+  disabledReason: string | null = null;
   isRunsLoading = false;
   isStartingRun = false;
   filterableFieldsByEntityType: Partial<Record<EntityType, FilterableField[]>> = {};
@@ -119,6 +120,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       runs: observable,
       risks: observable,
       openRunId: observable,
+      disabledReason: observable,
       isRunsLoading: observable,
       isStartingRun: observable,
       filterableFieldsByEntityType: observable,
@@ -167,6 +169,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     await this.loadFilterFields();
     this.activeTab = "details";
     this.openRunId = null;
+    this.disabledReason = null;
     this.runs = [];
     this.risks = [];
     this.openWith(this.withMergedFilterRows({ ...EMPTY_ROUTINE_FORM, timezone: localTimeZone() }));
@@ -176,6 +179,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     await this.loadFilterFields();
     this.activeTab = "details";
     this.openRunId = null;
+    this.disabledReason = routine.enabled ? null : routine.disabledReason;
     this.openWith(this.withMergedFilterRows(routineFormFor(routine)));
     void this.loadRuns(routine.id);
   };

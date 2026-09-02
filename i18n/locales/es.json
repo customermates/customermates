@@ -2751,6 +2751,8 @@
   },
   "RoutineDetail": {
     "credits": "Créditos",
+    "disabledRepeatedFailures": "Mate ha pausado esta rutina porque sus tres últimas ejecuciones fallaron. Corrige las instrucciones y vuelve a activarla.",
+    "disabledTitle": "En pausa tras fallos repetidos",
     "loopWarningMutual": "Esta rutina y otra cambian los registros que la otra escucha. Customermates ignora los eventos que causa una rutina, así que no se activarán entre sí.",
     "loopWarningSelf": "Esta rutina cambia los mismos registros que escucha. Customermates ignora los eventos que causa una rutina, así que no entrará en bucle, pero tampoco reaccionará a sus propios cambios.",
     "loopWarningTitle": "Posible bucle de disparadores",

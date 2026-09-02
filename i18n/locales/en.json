@@ -2751,6 +2751,8 @@
   },
   "RoutineDetail": {
     "credits": "Credits",
+    "disabledRepeatedFailures": "Mate paused this routine because its last three runs all failed. Fix the instructions, then switch it back on.",
+    "disabledTitle": "Paused after repeated failures",
     "loopWarningMutual": "This routine and another one each change the records the other listens to. Customermates ignores events a routine caused, so they will not trigger each other.",
     "loopWarningSelf": "This routine changes the same records it listens to. Customermates ignores events a routine caused, so it will not loop, but it also will not react to its own changes.",
     "loopWarningTitle": "Possible trigger loop",

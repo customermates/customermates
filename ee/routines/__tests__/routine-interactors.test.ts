@@ -409,6 +409,8 @@ describe("ReconcileRoutineRunsInteractor", () => {
         summary: "There are 42 contacts.",
       }),
       findOrphanedRunningRoutineRunsUnscoped: vi.fn().mockResolvedValue([]),
+      readRecentRoutineRunOutcomesUnscoped: vi.fn().mockResolvedValue([]),
+      disableRoutineUnscoped: vi.fn().mockResolvedValue(undefined),
       settleRoutineRunUnscoped: vi.fn().mockResolvedValue(undefined),
     };
 
@@ -425,6 +427,8 @@ describe("ReconcileRoutineRunsInteractor", () => {
       findRunningRoutineRunsUnscoped: vi.fn().mockResolvedValue([]),
       readTurnOutcomeUnscoped: vi.fn(),
       findOrphanedRunningRoutineRunsUnscoped: vi.fn().mockResolvedValue([{ id: RUN_ID, routineId: ROUTINE_ID }]),
+      readRecentRoutineRunOutcomesUnscoped: vi.fn().mockResolvedValue([]),
+      disableRoutineUnscoped: vi.fn().mockResolvedValue(undefined),
       settleRoutineRunUnscoped: vi.fn().mockResolvedValue(undefined),
     };
 
@@ -435,6 +439,75 @@ describe("ReconcileRoutineRunsInteractor", () => {
     expect(repo.settleRoutineRunUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ routineRunId: RUN_ID, status: "failed", error: "startAbandoned" }),
     );
+  });
+
+  it("pauses a routine whose last three runs all failed, so it stops spending credits", async () => {
+    const repo = {
+      findRunningRoutineRunsUnscoped: vi
+        .fn()
+        .mockResolvedValue([{ id: RUN_ID, routineId: ROUTINE_ID, turnRequestId: "turn-1", conversationId: "conv-1" }]),
+      readTurnOutcomeUnscoped: vi.fn().mockResolvedValue({
+        status: "failed",
+        terminalCode: "error",
+        settled: true,
+        chargedCredits: 1,
+        summary: null,
+      }),
+      findOrphanedRunningRoutineRunsUnscoped: vi.fn().mockResolvedValue([]),
+      readRecentRoutineRunOutcomesUnscoped: vi.fn().mockResolvedValue(["failed", "failed", "failed"]),
+      disableRoutineUnscoped: vi.fn().mockResolvedValue(undefined),
+      settleRoutineRunUnscoped: vi.fn().mockResolvedValue(undefined),
+    };
+
+    await new ReconcileRoutineRunsInteractor(repo as never).invoke();
+
+    expect(repo.disableRoutineUnscoped).toHaveBeenCalledWith(ROUTINE_ID, "repeatedFailures");
+  });
+
+  it("leaves a routine running when a success breaks the failure streak", async () => {
+    const repo = {
+      findRunningRoutineRunsUnscoped: vi
+        .fn()
+        .mockResolvedValue([{ id: RUN_ID, routineId: ROUTINE_ID, turnRequestId: "turn-1", conversationId: "conv-1" }]),
+      readTurnOutcomeUnscoped: vi.fn().mockResolvedValue({
+        status: "failed",
+        terminalCode: "error",
+        settled: true,
+        chargedCredits: 1,
+        summary: null,
+      }),
+      findOrphanedRunningRoutineRunsUnscoped: vi.fn().mockResolvedValue([]),
+      readRecentRoutineRunOutcomesUnscoped: vi.fn().mockResolvedValue(["failed", "succeeded", "failed"]),
+      disableRoutineUnscoped: vi.fn().mockResolvedValue(undefined),
+      settleRoutineRunUnscoped: vi.fn().mockResolvedValue(undefined),
+    };
+
+    await new ReconcileRoutineRunsInteractor(repo as never).invoke();
+
+    expect(repo.disableRoutineUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("waits for a full streak before pausing a routine that has only just started failing", async () => {
+    const repo = {
+      findRunningRoutineRunsUnscoped: vi
+        .fn()
+        .mockResolvedValue([{ id: RUN_ID, routineId: ROUTINE_ID, turnRequestId: "turn-1", conversationId: "conv-1" }]),
+      readTurnOutcomeUnscoped: vi.fn().mockResolvedValue({
+        status: "failed",
+        terminalCode: "error",
+        settled: true,
+        chargedCredits: 1,
+        summary: null,
+      }),
+      findOrphanedRunningRoutineRunsUnscoped: vi.fn().mockResolvedValue([]),
+      readRecentRoutineRunOutcomesUnscoped: vi.fn().mockResolvedValue(["failed", "failed"]),
+      disableRoutineUnscoped: vi.fn().mockResolvedValue(undefined),
+      settleRoutineRunUnscoped: vi.fn().mockResolvedValue(undefined),
+    };
+
+    await new ReconcileRoutineRunsInteractor(repo as never).invoke();
+
+    expect(repo.disableRoutineUnscoped).not.toHaveBeenCalled();
   });
 
   it("leaves a run alone while its turn is still in flight", async () => {
@@ -450,6 +523,8 @@ describe("ReconcileRoutineRunsInteractor", () => {
         summary: null,
       }),
       findOrphanedRunningRoutineRunsUnscoped: vi.fn().mockResolvedValue([]),
+      readRecentRoutineRunOutcomesUnscoped: vi.fn().mockResolvedValue([]),
+      disableRoutineUnscoped: vi.fn().mockResolvedValue(undefined),
       settleRoutineRunUnscoped: vi.fn().mockResolvedValue(undefined),
     };
 

@@ -216,6 +216,14 @@ export const RoutineModal = observer(() => {
                     <p className="text-subdued min-w-0 flex-1 text-xs">{t("RoutineModal.enabledHelp")}</p>
                   </div>
 
+                  {routineModalStore.disabledReason && (
+                    <Alert color="warning">
+                      <p className="text-x-sm font-medium">{t("RoutineDetail.disabledTitle")}</p>
+
+                      <p className="text-x-sm">{t("RoutineDetail.disabledRepeatedFailures")}</p>
+                    </Alert>
+                  )}
+
                   {routineModalStore.risks.length > 0 && (
                     <Alert color="warning">
                       <p className="text-x-sm font-medium">{t("RoutineDetail.loopWarningTitle")}</p>

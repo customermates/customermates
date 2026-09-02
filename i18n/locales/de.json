@@ -2751,6 +2751,8 @@
   },
   "RoutineDetail": {
     "credits": "Guthaben",
+    "disabledRepeatedFailures": "Mate hat diese Routine pausiert, weil die letzten drei Läufe fehlgeschlagen sind. Passe die Anweisungen an und schalte sie wieder ein.",
+    "disabledTitle": "Nach wiederholten Fehlern pausiert",
     "loopWarningMutual": "Diese und eine weitere Routine ändern jeweils die Datensätze, auf die die andere hört. Customermates ignoriert Ereignisse, die eine Routine ausgelöst hat, sie lösen einander also nicht aus.",
     "loopWarningSelf": "Diese Routine ändert dieselben Datensätze, auf die sie hört. Customermates ignoriert Ereignisse, die eine Routine ausgelöst hat, sie läuft also nicht im Kreis, reagiert aber auch nicht auf eigene Änderungen.",
     "loopWarningTitle": "Möglicher Auslöser-Kreislauf",
