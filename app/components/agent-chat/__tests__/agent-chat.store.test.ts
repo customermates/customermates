@@ -521,6 +521,32 @@ describe("AgentChatStore", () => {
     expect(store.items).toMatchObject([{ kind: "assistant", text: "Second chat" }]);
   });
 
+  it("hides the routine trigger envelope when replaying a routine run", async () => {
+    const conversationId = "00000000-0000-4000-8000-0000000000a1";
+    const prompt = "Read the deal that changed and reply with a one sentence summary.";
+    actionsMock.getAgentConversationAction.mockResolvedValue({
+      id: conversationId,
+      title: "Routine run",
+      messages: [
+        {
+          id: "m1",
+          role: "user",
+          parts: [
+            {
+              type: "text",
+              text: `<routine_trigger event="deal.updated" entityId="abc" />\n${prompt}`,
+            },
+          ],
+        },
+      ],
+    });
+    const store = new AgentChatStore(root() as never);
+
+    await store.selectConversation(conversationId);
+
+    expect(store.items).toMatchObject([{ kind: "user", text: prompt }]);
+  });
+
   it("keeps the current transcript and exposes a retry state when history loading fails", async () => {
     const currentId = "00000000-0000-4000-8000-000000000001";
     const failedId = "00000000-0000-4000-8000-000000000002";

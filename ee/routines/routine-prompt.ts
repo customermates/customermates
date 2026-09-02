@@ -12,3 +12,9 @@ export function composeRoutinePrompt(prompt: string, context: RoutineTriggerCont
 
   return `<routine_trigger ${attributes.join(" ")} />\n${prompt}`;
 }
+
+const ROUTINE_TRIGGER_BLOCK = /^<routine_trigger\b[^>]*\/>\n?/;
+
+export function stripRoutineTriggerBlock(text: string): string {
+  return text.replace(ROUTINE_TRIGGER_BLOCK, "");
+}

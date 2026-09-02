@@ -9,6 +9,7 @@ import {
   type AgentMessagePart,
 } from "@/ee/agent-chat/agent-chat.schema";
 import { AgentTourSchema } from "@/ee/agent-chat/agent-tours";
+import { stripRoutineTriggerBlock } from "@/ee/routines/routine-prompt";
 import { OpenRecordSchema } from "@/ee/agent-chat/ui-operations";
 import {
   AgentActivityDescriptorSchema,
@@ -649,7 +650,7 @@ export class AgentChatStore extends BaseStore {
           kind: "user",
           id,
           messageId: messageId ?? id,
-          text: part.text,
+          text: stripRoutineTriggerBlock(part.text),
           at,
         });
       } else {
