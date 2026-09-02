@@ -28,7 +28,7 @@ export abstract class RefreshInboxRepo {
     { id: string; unipileAccountId: string; status: ConnectedAccountStatus }[]
   >;
   abstract claimBackfillUnscoped(unipileAccountId: string): Promise<string | null>;
-  abstract releaseBackfillClaimUnscoped(unipileAccountId: string, token: string): Promise<void>;
+  abstract releaseBackfillClaimUnscoped(unipileAccountId: string, token: string, complete: boolean): Promise<void>;
 }
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
@@ -79,7 +79,7 @@ export class RefreshInboxInteractor extends AuthenticatedInteractor<void, Refres
       } catch (err) {
         Sentry.captureException(err);
       } finally {
-        await this.repo.releaseBackfillClaimUnscoped(account.unipileAccountId, token);
+        await this.repo.releaseBackfillClaimUnscoped(account.unipileAccountId, token, true);
       }
     }
 

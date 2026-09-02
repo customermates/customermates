@@ -282,6 +282,12 @@ export const OperatorUserModal = observer(function OperatorUserModal({ user, onC
                       </Button>
                     </div>
 
+                    <p className="text-xs text-muted-foreground">
+                      {t("OperatorUsers.adjustment.expiresAt", {
+                        date: intlStore.formatNumericalShortDate(period.periodEnd),
+                      })}
+                    </p>
+
                     <div className="flex flex-col gap-2">
                       <Button
                         className="w-full"

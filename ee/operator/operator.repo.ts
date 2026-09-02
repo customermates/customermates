@@ -20,7 +20,13 @@ import type {
   OperatorWorkspaceTagsDto,
 } from "./operator.schema";
 
-export type OperatorRefusal = "conflict" | "notFound" | "unavailable" | "allowanceMissing" | "connectedAccountsActive";
+export type OperatorRefusal =
+  | "conflict"
+  | "notFound"
+  | "unavailable"
+  | "allowanceMissing"
+  | "connectedAccountsActive"
+  | "trialEndRequired";
 
 export abstract class OperatorRepo {
   abstract getOverviewUnscoped(now?: Date): Promise<HostedAiOperatorOverviewDto | OperatorRefusal>;

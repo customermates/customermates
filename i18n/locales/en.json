@@ -1002,6 +1002,7 @@
       "operatorAllowanceMissing": "This workspace has no contracted Enterprise allowance yet, so credits cannot be corrected. Set the allowance on the Workspaces list first.",
       "operatorConflict": "That change was refused. The record may have changed since the list loaded, or the workspace may not allow it right now. Reload and check the current state.",
       "operatorConnectedAccountsActive": "This workspace still has connected messaging accounts. Disconnect them first so the provider accounts are released, then delete the workspace.",
+      "operatorTrialEndRequired": "A trial end date cannot be removed, only moved. Clearing it would leave the workspace on a trial that never expires.",
       "operatorUnavailable": "The requested correction is not available for the current account configuration.",
       "organizationNotFound": "Organization ID not found or not accessible.",
       "passwordInvalid": "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
@@ -1028,6 +1029,7 @@
       "termsNotAgreed": "You must agree to the terms and conditions.",
       "threadNotFound": "Thread ID not found or not accessible.",
       "unipileDisconnectedAccount": "The channel is disconnected. Please reconnect it and try again.",
+      "unipileFeatureUnavailable": "This is not available on this channel. Retrying will not help; the team has been notified.",
       "unipileInvalidRequest": "The provider rejected the request as invalid. Check the identifiers and parameters.",
       "unipileProviderError": "The provider is having issues right now. Please try again shortly.",
       "unipileRateLimit": "This channel reached its limit for now. You can try again {retryAfter}. Learn more at https://customermates.com/docs/messaging-rate-limits.",
@@ -1670,6 +1672,59 @@
       "chart": "Chart"
     }
   },
+  "DataTransfer": {
+    "export": {
+      "action": "Export",
+      "failed": "The file could not be created.",
+      "success": "{count, plural, one {# record exported} other {# records exported}}",
+      "truncated": "Only the first {limit} records were exported."
+    },
+    "import": {
+      "action": "Add from file",
+      "batchProgress": "Batch {done} of {total}",
+      "channelOption": "{provider} (channel)",
+      "chooseFile": "Choose file",
+      "commit": "Add records",
+      "description": "Match the spreadsheet columns to fields, check the result, then add the records.",
+      "duplicateTargets": "{count, plural, one {# field is mapped from more than one column. Fix it before continuing.} other {# fields are mapped from more than one column. Fix them before continuing.}}",
+      "fileHint": "Choose a spreadsheet. Excel workbooks are supported.",
+      "fileRejected": "That file could not be read.",
+      "groupChannels": "Channels",
+      "groupCustomFields": "Custom fields",
+      "groupFields": "Fields",
+      "ignoreColumn": "Do not add",
+      "issueCount": "{count, plural, one {# problem found} other {# problems found}}",
+      "issues": {
+        "channelsNotUpdated": "Channels stay as they are on a record that already exists",
+        "duplicateRecordId": "Row {row} already updates this record",
+        "invalidChannelValue": "\"{value}\" is not a valid {provider} address",
+        "notANumber": "\"{value}\" is not a number",
+        "notAPhoneNumber": "\"{value}\" is not a phone number",
+        "relationAmbiguous": "\"{value}\" matches more than one record",
+        "relationNotFound": "\"{value}\" was not found",
+        "unknownOption": "\"{value}\" is not one of the options for {column}",
+        "unknownProvider": "\"{value}\" is not a channel type we support"
+      },
+      "mappingHint": "{file}, {rows} rows",
+      "moreIssues": "and {count} more",
+      "noIssues": "No problems found.",
+      "previewCounts": "{create} to add, {update} to update",
+      "progress": "Step {current} of {total}",
+      "progressLabel": "Import progress",
+      "recordId": "Record ID",
+      "resultCounts": "{created} added, {updated} updated",
+      "resultSkipped": "{count, plural, one {# row skipped} other {# rows skipped}}",
+      "row": "Row",
+      "rowsAffected": "{count, plural, one {# row} other {# rows}}",
+      "skipInvalid": "{count, plural, one {Import the rest and skip # row} other {Import the rest and skip # rows}}",
+      "stopped": "Stopped at row {row}. {remaining} rows were not processed.",
+      "title": "Add records from a file",
+      "unnamedColumn": "Unnamed column",
+      "validate": "Check the file",
+      "warningCount": "{count, plural, one {# warning} other {# warnings}}"
+    },
+    "menu": "Import and export"
+  },
   "DataView": {
     "dragToReorder": "Drag to reorder",
     "editColumn": "Edit column",
@@ -2133,6 +2188,11 @@
     "fileTypePdf": "PDF document",
     "fileTypePowerpoint": "PowerPoint presentation",
     "fileTypeWord": "Word document",
+    "folders": {
+      "current": "In {folder}",
+      "hiddenTooltip": "In {folder}, which is hidden from your inbox",
+      "none": "No folder"
+    },
     "groupThread": "Group ({count, plural, one {# member} other {# members}})",
     "hideQuotedText": "Hide quoted text",
     "learnMore": "Learn more",
@@ -2243,8 +2303,14 @@
     "text": "Loading..."
   },
   "MassActions": {
+    "apply": "Apply to selected",
+    "clearField": "Clear field",
     "delete": "Delete selected",
+    "keepInView": "Keep only rows in view",
+    "limitReached": "You can select up to {limit} records at a time.",
     "noMatchingFields": "No fields match your search.",
+    "offView": "{count, plural, one {# not in the current view} other {# not in the current view}}",
+    "scopeStale": "The filters changed since you made this selection.",
     "searchFieldPlaceholder": "Search fields…",
     "selectedCount": "{count, plural, one {# item selected} other {# items selected}}",
     "update": "Update"
@@ -2572,7 +2638,8 @@
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Signed credit correction",
-      "deltaPlaceholder": "For example, 500 or -100"
+      "deltaPlaceholder": "For example, 500 or -100",
+      "expiresAt": "This correction applies to the current period only and lapses on {date}."
     },
     "confirm": {
       "operator": "Set platform operator access for {name} to {value}?",
@@ -2616,6 +2683,11 @@
   },
   "OperatorWorkspaces": {
     "allowance": {
+      "hintContract": "The contracted Enterprise rate, granted to each active member every month.",
+      "hintMissing": "Enterprise draws its rate from a contracted value, and none is set. Every member is blocked until you set one.",
+      "hintPlan": "{plan} includes this many credits for each active member every month.",
+      "hintTrial": "Every active member gets this during a trial, whatever the plan says.",
+      "hintUnavailable": "This subscription grants no credits in its current state.",
       "label": "Credits per user",
       "notSet": "Not set",
       "title": "Enterprise allowance",

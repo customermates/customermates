@@ -16,6 +16,7 @@ import { DataViewLayout } from "@/components/data-view/data-view-layout";
 import { resolveDataViewPageState, resolveDataViewView } from "@/components/data-view/data-view-state";
 import { DataViewToolbar } from "@/components/data-view/data-view-toolbar";
 import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
+import { useExportAction } from "@/features/data-transfer/export/use-export-download";
 import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { PageState } from "@/components/page-state/page-state";
@@ -28,7 +29,7 @@ import { useTaskColumns } from "./use-task-columns";
 type Props = { tasks: GetResult<TaskDto> };
 
 export const TasksPageView = observer(function TasksPageView({ tasks }: Props) {
-  const { tasksStore } = useRootStore();
+  const { importWizardStore, tasksStore } = useRootStore();
 
   useDataViewSync(tasksStore, tasks);
   const openEntity = useOpenEntity();
@@ -48,6 +49,11 @@ export const TasksPageView = observer(function TasksPageView({ tasks }: Props) {
   const emptyActionLabel = t("Common.emptyState.cta", { singular: singular(EntityType.task) });
   const handleAdd = useCallback(() => openEntity(EntityType.task, "new"), [openEntity]);
   const rowHref = useCallback((task: TaskDto) => entityHref(EntityType.task, task.id), [entityHref]);
+  const handleExport = useExportAction(tasksStore);
+  const handleImport = useCallback(
+    () => importWizardStore.openForEntity(EntityType.task, () => tasksStore.refresh()),
+    [importWizardStore, tasksStore],
+  );
   const topBarNode = useMemo(
     () => (
       <DataViewToolbar
@@ -55,9 +61,11 @@ export const TasksPageView = observer(function TasksPageView({ tasks }: Props) {
         anchorScope="tasks"
         store={tasksStore}
         onAdd={handleAdd}
+        onExport={handleExport}
+        onImport={handleImport}
       />
     ),
-    [emptyActionLabel, handleAdd, pageState, tasksStore],
+    [emptyActionLabel, handleAdd, handleExport, handleImport, pageState, tasksStore],
   );
   useSetTopBarActions(topBarNode);
 

@@ -27,6 +27,8 @@ import { BaseSendChatMessageSchema } from "@/ee/messaging/outbound/send-chat-mes
 import { BaseStartChatInputSchema, StartChatInputSchema } from "@/ee/messaging/outbound/start-chat.interactor";
 import { SaveDraftSchema } from "@/ee/messaging/outbound/save-draft.interactor";
 import { DiscardDraftSchema } from "@/ee/messaging/outbound/discard-draft.interactor";
+import type { ThreadFolderContext } from "@/ee/messaging/inbox/get-messaging-thread.interactor";
+
 import { UpdateThreadSchema } from "@/ee/messaging/thread-state/update-thread.interactor";
 import {
   getGetMessagingThreadsApiInteractor,
@@ -97,6 +99,18 @@ const GetActivitiesOutputSchema = z.looseObject({
   page: z.number(),
 });
 
+function withoutRawMessageHtml<T>(entry: T): T {
+  if (typeof entry !== "object" || entry === null) return entry;
+
+  const candidate = entry as { kind?: unknown; message?: Record<string, unknown> };
+  if (candidate.kind !== "message" || typeof candidate.message !== "object" || candidate.message === null) return entry;
+
+  const message = { ...candidate.message };
+  delete message.bodyHtml;
+
+  return { ...entry, message } as T;
+}
+
 const GetCalendarsOutputSchema = z
   .looseObject({
     items: z.array(z.looseObject({})).optional(),
@@ -163,6 +177,7 @@ export const getMessagingThreadsTool = {
               })),
               sharedToCrm: data.thread.sharedToCrm,
               isOwner: data.thread.isOwner,
+              folder: threadFolder(data.folderContext),
             },
             messages: data.messages.map((message) => ({
               id: message.id,
@@ -278,7 +293,7 @@ export const getActivitiesTool = {
         toonResult(
           formatDatesInResponse({
             availableSources: data.availableSources,
-            items: data.items,
+            items: data.items.map(withoutRawMessageHtml),
             pageLimitReached: data.pageLimitReached,
             scopeTruncated: data.scopeTruncated,
             total: data.pagination?.total ?? data.items.length,
@@ -288,6 +303,17 @@ export const getActivitiesTool = {
     ),
 };
 
+function threadFolder(context: ThreadFolderContext | null): { name: string; hiddenFromInbox: boolean } | null {
+  if (!context || context.currentFolderIds.length === 0) return null;
+
+  const byId = new Map(context.folders.map((folder) => [folder.id, folder]));
+  const names = context.currentFolderIds.map((id) => byId.get(id)?.name?.trim() || "Unnamed").sort();
+
+  return {
+    name: names.join(", "),
+    hiddenFromInbox: !context.currentFolderIds.some((id) => context.selectedFolderIds.includes(id)),
+  };
+}
 const GetCalendarsToolSchema = z.object({
   list: z
     .enum(["calendars", "events"])
@@ -553,7 +579,7 @@ export const connectMessagingAccountTool = {
     "You cannot complete the connection yourself: return the link and tell the user to open it and finish auth there " +
     "(scan a QR code for WhatsApp, sign in for email or LinkedIn). The link is single-user and expires in 30 minutes. " +
     "channel is one of google (Gmail), outlook, imap, whatsapp, linkedin, linkedin_sales_navigator, linkedin_recruiter, instagram, telegram. " +
-    "Requires a paid subscription and fewer than 5 connected channels. " +
+    "Requires a plan that includes messaging, and a free account slot: Pro allows 1 connected account per user, Business 3, Enterprise unlimited; Starter has none. " +
     "Call get_workspace_context first to see which accounts are already connected. Returns the connect url.",
   annotations: {
     readOnlyHint: false,

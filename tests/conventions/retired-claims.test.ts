@@ -33,7 +33,12 @@ const DENIED =
   /\b(?:no|not|without|does not|do not|has no|is not|isn['’]t|weder|kein\w*|keine\w*|nicht|ohne|gibt es (?:nicht|keine))\b/iu;
 const EXTERNAL =
   /\b(?:external|separate|customer[- ]run|customer[- ]operated|extern\w*|separat\w*|kundenseitig|selbst betrieben)\b/iu;
+const CONTRASTED =
+  /\b(?:rather than|instead of|as opposed to|not just|statt|anstelle|anstatt|sondern)\b/iu;
 const NO_OR_EXTERNAL = [DENIED, EXTERNAL];
+
+const ESM_STATEMENT =
+  /^\s*(?:import\s+(?:[\w*{]|["'])|export\s+(?:const|default|function|class|let|var|type|interface|async|\{|\*))/u;
 
 const RETIRED_CLAIMS: readonly RetiredClaim[] = [
   {
@@ -53,26 +58,20 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
     authority: "docker-compose.yml",
   },
   {
-    id: "csv-importer",
+    id: "non-xlsx-data-transfer",
     pattern:
-      /\b(?:CSV|Excel|XLSX)[ -]?(?:import(?:er|s)?|upload|mapping|Import\w*|Upload|Feldzuordnung)\b|\b(?:import|upload|map|importier\w*|hochlad\w*)[^.!?;|]{0,28}\b(?:CSV|Excel|XLSX)\b|\b(?:CSV|Excel|XLSX)[^.!?;|]{0,28}\b(?:import|upload|map|importier\w*|hochlad\w*)/iu,
-    permittedContext: [
-      ...NO_OR_EXTERNAL,
-      /\b(?:prepare|map|clean|prepared|aufbereit\w*|zuord\w*)\b[^.!?;|]{0,80}\b(?:REST|MCP)\b/iu,
-    ],
-    why: "There is no CSV/Excel importer, uploader, or field-mapping screen",
-    authority: "app/[locale]/(protected)/",
+      /\b(?:CSV|TSV|ODS|JSON|XML|Google[ -]?(?:Sheets?|Tabellen))[ -]?(?:import(?:er|s)?|export(?:er|s)?|upload|download|Import\w*|Export\w*|Upload|Download|Feldzuordnung)\b|\b(?:import|export|upload|download|importier\w*|exportier\w*|hochlad\w*|herunterlad\w*)[^.!?;|]{0,28}\b(?:CSV|TSV|ODS|Google[ -]?(?:Sheets?|Tabellen))\b|\b(?:CSV|TSV|ODS|Google[ -]?(?:Sheets?|Tabellen))[^.!?;|]{0,28}\b(?:import|export|upload|download|importier\w*|exportier\w*|hochlad\w*|herunterlad\w*)/iu,
+    permittedContext: [...NO_OR_EXTERNAL, CONTRASTED],
+    why: "Records transfer as XLSX workbooks only; no other spreadsheet or data format is read or written",
+    authority: "features/data-transfer/import/read-workbook-file.ts, app/api/export/[entityType]/route.ts",
   },
   {
-    id: "full-data-exporter",
+    id: "whole-account-data-export",
     pattern:
-      /\b(?:CSV[ -]?export|one[- ]click export|full data export|complete data export|Vollständexport|CSV[- ]Export)\b|\bexport(?: all| everything| the entire| complete)|\b(?:alle|sämtliche) Daten exportier/iu,
-    permittedContext: [
-      ...NO_OR_EXTERNAL,
-      /\bread supported\b[^.!?;|]{0,50}\bREST\b|\bunterstützte\w* Datensätze\b[^.!?;|]{0,50}\bREST\b/iu,
-    ],
-    why: "Supported records are readable through APIs, but there is no built-in CSV/full-data exporter",
-    authority: "app/[locale]/(protected)/, app/api/v1",
+      /\b(?:full|complete|entire|whole)[ -](?:data|account|workspace|database)[ -]?export\b|\bVollst(?:ä|ae)ndexport\b|\bexport\s+everything\b|\bexport(?:s|ing)?[^.!?;|]{0,24}\b(?:all|every|entire|whole|complete)\s+(?:of\s+)?(?:your|the|their)?\s*(?:data|account|workspace|database|CRM)\b|\b(?:alle|s(?:ä|ae)mtliche|gesamten?)\s+(?:Ihre\s+)?(?:Daten|Datenbank)\b[^.!?;|]{0,24}\bexportier\w*|\bexportier\w*[^.!?;|]{0,24}\b(?:alle|s(?:ä|ae)mtliche|gesamten?)\s+(?:Ihre\s+)?(?:Daten|Datenbank)\b|\b(?:unlimited|unbegrenzte?s?)\b[^.!?;|]{0,24}\bexport/iu,
+    permittedContext: [...NO_OR_EXTERNAL, CONTRASTED],
+    why: "Export runs per entity type, scoped to the caller's read access and the current view, and stops at EXPORT_ROW_LIMIT rows",
+    authority: "app/api/export/[entityType]/route.ts, features/data-transfer/data-transfer.schema.ts",
   },
   {
     id: "record-attachments",
@@ -356,7 +355,7 @@ function extractMdxUnits(file: string, source: string): ClaimUnit[] {
       inFence = !inFence;
       continue;
     }
-    if (inFence || /^\s*(?:import|export)\s/iu.test(raw)) continue;
+    if (inFence || ESM_STATEMENT.test(raw)) continue;
 
     if (index === 0 && inFrontmatter) continue;
     if (inFrontmatter && trimmed === "---") {
@@ -565,7 +564,7 @@ describe("retired claims stay retired", () => {
     expect(
       findViolationsInSource(
         "content/features/en/example.mdx",
-        "CSV import is included.",
+        "A record with file attachments is included.",
       ),
     ).toHaveLength(1);
     expect(
@@ -576,17 +575,80 @@ describe("retired claims stay retired", () => {
     ).toHaveLength(1);
   });
 
+  it("catches a data transfer claim for a format other than xlsx", () => {
+    for (const claim of [
+      "Import your contacts from a CSV file.",
+      "One click CSV export for every list.",
+      "Export to Google Sheets whenever you like.",
+      "Kontakte per CSV-Import anlegen.",
+      "Laden Sie eine CSV hoch, um Datensätze zu importieren.",
+    ]) {
+      expect(findViolationsInSource("content/features/en/example.mdx", claim), claim).toHaveLength(1);
+    }
+  });
+
+  it("scans prose that opens with import or export, while still ignoring module statements", () => {
+    expect(
+      findViolationsInSource("content/features/en/example.mdx", "Import your contacts from a CSV file."),
+    ).toHaveLength(1);
+    expect(
+      findViolationsInSource("content/features/en/example.mdx", "Export every list to CSV in one click."),
+    ).toHaveLength(1);
+    expect(
+      findViolationsInSource(
+        "content/features/en/example.mdx",
+        'import Chart from "@/components/chart";\nexport const meta = { csvImport: true };',
+      ),
+    ).toHaveLength(0);
+  });
+
+  it("leaves the xlsx transfer that actually ships alone", () => {
+    for (const claim of [
+      "Import your contacts from an Excel workbook.",
+      "Export every list as an XLSX file.",
+      "Records export to XLSX rather than CSV.",
+      "There is no CSV import; use an Excel workbook.",
+      "Datensätze werden als XLSX-Datei exportiert.",
+    ]) {
+      expect(findViolationsInSource("content/features/en/example.mdx", claim), claim).toHaveLength(0);
+    }
+  });
+
+  it("catches an export claim wider than the per-entity capped export that ships", () => {
+    for (const claim of [
+      "One click full data export for your whole company.",
+      "Export everything in a single file.",
+      "Customermates can export your entire account.",
+      "Unlimited export of every record.",
+      "Exportieren Sie sämtliche Daten auf einmal.",
+    ]) {
+      expect(findViolationsInSource("content/features/en/example.mdx", claim), claim).toHaveLength(1);
+    }
+  });
+
+  it("leaves the per-entity export that actually ships alone", () => {
+    for (const claim of [
+      "Export all contacts to an Excel workbook.",
+      "Export every deal in the current view.",
+      "Export up to 50,000 records per workbook.",
+      "There is no full data export; export each list separately.",
+      "Exportieren Sie alle Kontakte als XLSX-Datei.",
+    ]) {
+      expect(findViolationsInSource("content/features/en/example.mdx", claim), claim).toHaveLength(0);
+    }
+  });
+
   it("binds a denial to the capability instead of a nearby unrelated sentence", () => {
     expect(
       findViolationsInSource(
         "content/features/en/example.mdx",
-        "No Slack app. Import contacts with our CSV uploader.",
+        "No Slack app. Every record keeps file attachments.",
       ),
     ).toHaveLength(1);
     expect(
       findViolationsInSource(
         "content/features/en/example.mdx",
-        "Customermates has no CSV importer; prepare data for REST.",
+        "Customermates has no record file attachments; link them from storage.",
       ),
     ).toEqual([]);
   });
@@ -602,24 +664,24 @@ describe("retired claims stay retired", () => {
       "| Feature | Customermates | Rival |",
       "| --- | --- | --- |",
       "| Mobile app | Responsive web only | Native iOS app |",
-      "| CSV import | Included | Included |",
+      "| Record file attachments | Included | Included |",
     ].join("\n");
     const violations = findViolationsInSource(
       "content/compare-pages/en/example.mdx",
       table,
     );
     expect(violations).toHaveLength(1);
-    expect(violations[0]).toContain("csv-importer");
+    expect(violations[0]).toContain("record-attachments");
   });
 
   it("carries same-line Customermates attribution across split assertions", () => {
-    const firstParty = "Customermates stores contacts; CSV import is included.";
+    const firstParty = "Customermates stores contacts; a record with file attachments is included.";
     const violations = findViolationsInSource(
       "content/blog-posts/en/example.mdx",
       firstParty,
     );
     expect(violations).toHaveLength(1);
-    expect(violations[0]).toContain("csv-importer");
+    expect(violations[0]).toContain("record-attachments");
 
     const competitor =
       "Customermates has no built-in AI; HubSpot includes native AI.";

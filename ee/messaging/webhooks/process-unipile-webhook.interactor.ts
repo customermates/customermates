@@ -9,7 +9,7 @@ import type { UnipileWebhookEnvelope } from "../unipile.schema";
 
 import { UnipileWebhookEnvelopeSchema } from "../unipile.schema";
 import { UnmappableWebhookPayloadError } from "@/core/errors/app-errors";
-import { isUnipileDisconnectedAccount } from "../messaging.service";
+import { isUnipileDisconnectedAccount, isUnipileProviderUnprocessable, isUnipileTimeout } from "../messaging.service";
 
 export type UnipileWebhookHandlerMap = Partial<
   Record<string, { invoke(envelope: UnipileWebhookEnvelope): Promise<void> }>
@@ -71,6 +71,12 @@ export class ProcessUnipileWebhookInteractor {
 
       if (isUnipileDisconnectedAccount(err)) {
         await this.events.markWebhookEventFailedUnscoped({ id, error: err.message, terminal: true });
+
+        return;
+      }
+
+      if (isUnipileTimeout(err) || isUnipileProviderUnprocessable(err)) {
+        await this.events.markWebhookEventFailedUnscoped({ id, error: err.message, terminal: false });
 
         return;
       }

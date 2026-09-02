@@ -1002,6 +1002,7 @@
       "operatorAllowanceMissing": "Cet espace de travail n'a pas encore d'allocation Enterprise contractuelle, les crédits ne peuvent donc pas être corrigés. Définissez d'abord l'allocation dans la liste des espaces de travail.",
       "operatorConflict": "La modification a été refusée. L’enregistrement a peut-être changé depuis le chargement de la liste, ou l’espace de travail ne l’autorise pas actuellement. Rechargez et vérifiez l’état actuel.",
       "operatorConnectedAccountsActive": "Cet espace de travail a encore des comptes de messagerie connectés. Déconnectez-les d'abord pour libérer les comptes chez le prestataire, puis supprimez l'espace de travail.",
+      "operatorTrialEndRequired": "Une date de fin d'essai ne peut pas être supprimée, seulement déplacée. L'effacer laisserait l'espace de travail sur un essai qui n'expire jamais.",
       "operatorUnavailable": "La correction demandée n’est pas disponible pour la configuration actuelle du compte.",
       "organizationNotFound": "ID d'organisation introuvable ou inaccessible.",
       "passwordInvalid": "Le mot de passe doit comporter au moins 8 caractères et contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial.",
@@ -1028,6 +1029,7 @@
       "termsNotAgreed": "Vous devez accepter les conditions générales.",
       "threadNotFound": "ID de conversation introuvable ou inaccessible.",
       "unipileDisconnectedAccount": "Le canal est déconnecté. Reconnectez-le et réessayez.",
+      "unipileFeatureUnavailable": "Ce n'est pas disponible sur ce canal. Réessayer n'aidera pas ; l'équipe a été prévenue.",
       "unipileInvalidRequest": "Le fournisseur a rejeté la requête comme invalide. Vérifiez les identifiants et les paramètres.",
       "unipileProviderError": "Le fournisseur rencontre actuellement des problèmes. Réessayez dans un instant.",
       "unipileRateLimit": "Ce canal a atteint sa limite pour le moment. Vous pouvez réessayer {retryAfter}. Plus d'informations sur https://customermates.com/docs/messaging-rate-limits.",
@@ -1670,6 +1672,59 @@
       "chart": "Graphique"
     }
   },
+  "DataTransfer": {
+    "export": {
+      "action": "Exporter",
+      "failed": "Le fichier n'a pas pu être créé.",
+      "success": "{count, plural, one {# enregistrement exporté} other {# enregistrements exportés}}",
+      "truncated": "Seuls les {limit} premiers enregistrements ont été exportés."
+    },
+    "import": {
+      "action": "Ajouter depuis un fichier",
+      "batchProgress": "Lot {done} sur {total}",
+      "channelOption": "{provider} (canal)",
+      "chooseFile": "Choisir un fichier",
+      "commit": "Ajouter les enregistrements",
+      "description": "Associe les colonnes du tableur aux champs, vérifie le résultat, puis ajoute les enregistrements.",
+      "duplicateTargets": "{count, plural, one {# champ reçoit des données de plusieurs colonnes. Corrige-le avant de continuer.} other {# champs reçoivent des données de plusieurs colonnes. Corrige-les avant de continuer.}}",
+      "fileHint": "Choisis un tableur. Les classeurs Excel sont pris en charge.",
+      "fileRejected": "Ce fichier n'a pas pu être lu.",
+      "groupChannels": "Canaux",
+      "groupCustomFields": "Champs personnalisés",
+      "groupFields": "Champs",
+      "ignoreColumn": "Ne pas ajouter",
+      "issueCount": "{count, plural, one {# problème détecté} other {# problèmes détectés}}",
+      "issues": {
+        "channelsNotUpdated": "Les canaux restent inchangés sur un enregistrement existant",
+        "duplicateRecordId": "La ligne {row} met déjà à jour cet enregistrement",
+        "invalidChannelValue": "\"{value}\" n'est pas une adresse {provider} valide",
+        "notANumber": "\"{value}\" n'est pas un nombre",
+        "notAPhoneNumber": "\"{value}\" n'est pas un numéro de téléphone",
+        "relationAmbiguous": "\"{value}\" correspond à plusieurs enregistrements",
+        "relationNotFound": "\"{value}\" est introuvable",
+        "unknownOption": "\"{value}\" ne fait pas partie des options de {column}",
+        "unknownProvider": "\"{value}\" n'est pas un type de canal pris en charge"
+      },
+      "mappingHint": "{file}, {rows} lignes",
+      "moreIssues": "et {count} de plus",
+      "noIssues": "Aucun problème détecté.",
+      "previewCounts": "{create} à ajouter, {update} à mettre à jour",
+      "progress": "Étape {current} sur {total}",
+      "progressLabel": "Progression",
+      "recordId": "Identifiant de l'enregistrement",
+      "resultCounts": "{created} ajoutés, {updated} mis à jour",
+      "resultSkipped": "{count, plural, one {# ligne ignorée} other {# lignes ignorées}}",
+      "row": "Ligne",
+      "rowsAffected": "{count, plural, one {# ligne} other {# lignes}}",
+      "skipInvalid": "{count, plural, one {Importer le reste et ignorer # ligne} other {Importer le reste et ignorer # lignes}}",
+      "stopped": "Arrêt à la ligne {row}. {remaining} lignes n'ont pas été traitées.",
+      "title": "Ajouter des enregistrements depuis un fichier",
+      "unnamedColumn": "Colonne sans nom",
+      "validate": "Vérifier le fichier",
+      "warningCount": "{count, plural, one {# avertissement} other {# avertissements}}"
+    },
+    "menu": "Importer et exporter"
+  },
   "DataView": {
     "dragToReorder": "Faire glisser pour réorganiser",
     "editColumn": "Modifier la colonne",
@@ -2133,6 +2188,11 @@
     "fileTypePdf": "Document PDF",
     "fileTypePowerpoint": "Présentation PowerPoint",
     "fileTypeWord": "Document Word",
+    "folders": {
+      "current": "Dans {folder}",
+      "hiddenTooltip": "Dans {folder}, qui est masqué dans votre boîte de réception",
+      "none": "Aucun dossier"
+    },
     "groupThread": "Groupe ({count, plural, one {# membre} other {# membres}})",
     "hideQuotedText": "Masquer le texte cité",
     "learnMore": "En savoir plus",
@@ -2243,8 +2303,14 @@
     "text": "Chargement..."
   },
   "MassActions": {
+    "apply": "Appliquer à la sélection",
+    "clearField": "Vider le champ",
     "delete": "Supprimer la sélection",
+    "keepInView": "Conserver uniquement les lignes visibles",
+    "limitReached": "Vous pouvez sélectionner jusqu'à {limit} enregistrements à la fois.",
     "noMatchingFields": "Aucun champ ne correspond à votre recherche.",
+    "offView": "{count, plural, one {# hors de la vue actuelle} other {# hors de la vue actuelle}}",
+    "scopeStale": "Les filtres ont changé depuis cette sélection.",
     "searchFieldPlaceholder": "Rechercher des champs…",
     "selectedCount": "{count, plural, one {# élément sélectionné} other {# éléments sélectionnés}}",
     "update": "Mettre à jour"
@@ -2572,7 +2638,8 @@
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Correction de crédits signée",
-      "deltaPlaceholder": "Par exemple, 500 ou -100"
+      "deltaPlaceholder": "Par exemple, 500 ou -100",
+      "expiresAt": "Cette correction ne vaut que pour la période en cours et expire le {date}."
     },
     "confirm": {
       "operator": "Définir l’accès opérateur de plateforme de {name} sur {value} ?",
@@ -2616,6 +2683,11 @@
   },
   "OperatorWorkspaces": {
     "allowance": {
+      "hintContract": "Le tarif Enterprise contractuel, accordé à chaque membre actif chaque mois.",
+      "hintMissing": "Enterprise tire son tarif d'une valeur contractuelle, et aucune n'est définie. Tous les membres sont bloqués tant que vous n'en définissez pas une.",
+      "hintPlan": "{plan} inclut ce nombre de crédits pour chaque membre actif chaque mois.",
+      "hintTrial": "Pendant un essai, chaque membre actif reçoit ceci, quel que soit le forfait.",
+      "hintUnavailable": "Cet abonnement n'accorde aucun crédit dans son état actuel.",
       "label": "Crédits par utilisateur",
       "notSet": "Non défini",
       "title": "Allocation Enterprise",

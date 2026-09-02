@@ -8,6 +8,7 @@ import {
   NAV_KEYS,
   TOOLBAR_SCOPES_WITH_ADD,
   TOOLBAR_SCOPES_WITHOUT_ADD,
+  TRANSFERABLE_SCOPES,
 } from "@/ee/agent-chat/ui-anchors";
 import { AGENT_UI_TARGETS } from "@/ee/agent-chat/ui-targets";
 
@@ -71,6 +72,7 @@ function codeIds(): Set<string> {
         ids.add(`${scope}-layout-cards`);
         ids.add(`${scope}-layout-kanban`);
         if (TOOLBAR_SCOPES_WITH_ADD.includes(scope)) ids.add(`${scope}-add`);
+        if (TRANSFERABLE_SCOPES.has(scope)) ids.add(`${scope}-transfer`);
       }
       if (FORM_SCOPES.includes(scope)) {
         ids.add(`${scope}-save`);
@@ -140,6 +142,9 @@ describe("app-guide anchor id fidelity", () => {
       .join("\n");
     for (const scope of [...TOOLBAR_SCOPES_WITH_ADD, ...TOOLBAR_SCOPES_WITHOUT_ADD, ...FORM_SCOPES])
       expect(allSource, `anchorScope "${scope}" not found in source`).toContain(`anchorScope="${scope}"`);
+
+    for (const control of ["add", "search", "filter", "display-options", "transfer"])
+      expect(allSource, `no component renders a "${control}" anchor id`).toContain(`-${control}\``);
   });
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("documents only ids that exist in code", () => {

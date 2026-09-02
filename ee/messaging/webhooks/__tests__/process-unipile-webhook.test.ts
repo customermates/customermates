@@ -78,6 +78,41 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
     expect(events.markWebhookEventProcessedUnscoped).not.toHaveBeenCalled();
   });
 
+  it("retries a transient provider rejection without reporting it", async () => {
+    const unprocessable = new UnipileRequestError(
+      422,
+      "provider/unprocessable_entity",
+      '{"object":"Error","status":422,"type":"provider/unprocessable_entity","title":"Unprocessable entity","detail":"LIST completed","req_id":"req-48tf"}',
+    );
+    const handler = { invoke: vi.fn().mockRejectedValue(unprocessable) };
+    const { interactor, events } = build(row({ type: "email.delete", account_id: "acc_1", payload: {} }), {
+      "email.delete": handler,
+    });
+
+    await invoke(interactor);
+
+    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ id: EVENT_ID, terminal: false }),
+    );
+    expect(events.markWebhookEventProcessedUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("retries a Unipile timeout without reporting it", async () => {
+    const timeout = new UnipileRequestError(0, null, "{}");
+    const handler = { invoke: vi.fn().mockRejectedValue(timeout) };
+    const { interactor, events } = build(row({ type: "email.folder.create", account_id: "acc_1", payload: {} }), {
+      "email.folder.create": handler,
+    });
+
+    await invoke(interactor);
+
+    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ id: EVENT_ID, terminal: false }),
+    );
+  });
+
   it("still reports an unrelated Unipile rejection", async () => {
     const serverError = new UnipileRequestError(500, "api/unknown", '{"detail":"boom"}');
     const handler = { invoke: vi.fn().mockRejectedValue(serverError) };

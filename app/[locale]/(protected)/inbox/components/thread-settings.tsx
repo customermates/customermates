@@ -62,7 +62,7 @@ export const ThreadSettings = observer(
       <>
         <ClickableChip
           aria-label={t("Inbox.settings.title")}
-          className={cn("h-8", showBadge && "rounded-r-none")}
+          className={cn("h-8 bg-secondary shadow-xs", showBadge && "rounded-r-none")}
           size="md"
           startContent={
             linkable.length > 0 ? (
@@ -84,7 +84,7 @@ export const ThreadSettings = observer(
             )
           }
           tooltip={t("Inbox.settings.tooltip")}
-          variant="secondary"
+          variant="outline"
           onClick={() => threadParticipantsStore.setOpen(true)}
         >
           <span className="hidden sm:inline">

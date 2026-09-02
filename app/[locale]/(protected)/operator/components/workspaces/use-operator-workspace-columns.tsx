@@ -6,9 +6,10 @@ import type { OperatorWorkspaceRowDto } from "@/ee/operator/operator-lists.schem
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 
-import { SubscriptionPlan } from "@/generated/prisma";
+import { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
 import { AppChip } from "@/components/chip/app-chip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { OperatorTagsCell } from "../tags/operator-tags-cell";
 import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/company/components/subscription/subscription-panel";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
@@ -75,14 +76,39 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
       {
         id: "allowance",
         header: t("Common.table.columns.allowance"),
-        cell: ({ row }) =>
-          row.original.plan === SubscriptionPlan.enterprise ? (
-            <span className="text-sm">
-              {row.original.enterpriseCreditsPerUser === null
-                ? t("OperatorWorkspaces.allowance.notSet")
-                : intlStore.formatNumber(row.original.enterpriseCreditsPerUser)}
-            </span>
-          ) : null,
+        cell: ({ row }) => {
+          const { plan, subscriptionStatus, creditsPerUser } = row.original;
+          if (!plan) return <span className="text-sm text-muted-foreground">-</span>;
+
+          const awaitingContract = plan === SubscriptionPlan.enterprise && creditsPerUser === null;
+          const onTrial = subscriptionStatus === SubscriptionStatus.trial;
+          const label = awaitingContract
+            ? t("OperatorWorkspaces.allowance.notSet")
+            : creditsPerUser === null
+              ? "-"
+              : intlStore.formatNumber(creditsPerUser);
+          const explanation = awaitingContract
+            ? t("OperatorWorkspaces.allowance.hintMissing")
+            : creditsPerUser === null
+              ? t("OperatorWorkspaces.allowance.hintUnavailable")
+              : onTrial
+                ? t("OperatorWorkspaces.allowance.hintTrial")
+                : plan === SubscriptionPlan.enterprise
+                  ? t("OperatorWorkspaces.allowance.hintContract")
+                  : t("OperatorWorkspaces.allowance.hintPlan", {
+                      plan: t(`Subscription.planNames.${row.original.plan}`),
+                    });
+
+          return (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className={awaitingContract ? "text-sm text-warning" : "text-sm"}>{label}</span>
+              </TooltipTrigger>
+
+              <TooltipContent className="max-w-72">{explanation}</TooltipContent>
+            </Tooltip>
+          );
+        },
       },
       {
         id: "trialEnd",
