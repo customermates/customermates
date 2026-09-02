@@ -40,9 +40,11 @@ export const CompanySettingsForm = observer(({ currency, dealWeightingColumnId }
     store.onInitOrRefresh({ currency });
   }, [currency]);
 
+  const terminologyKey = JSON.stringify(terminologyStore.overrides);
   useEffect(() => {
     store.initTerminology(terminologyStore.overrides);
-  }, [store, terminologyStore.overrides]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the overrides' content so an identical refresh does not discard unsaved edits
+  }, [store, terminologyKey]);
 
   useEffect(() => {
     void store.loadForecasting(dealWeightingColumnId).catch(reportApplicationError);

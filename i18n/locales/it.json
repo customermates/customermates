@@ -1469,6 +1469,7 @@
     "foldersShown": "{shown} di {total} sincronizzate",
     "foldersUpdateFailed": "Impossibile aggiornare le cartelle",
     "folderSynced": "Sincronizzata",
+    "folderToggleLabel": "Sincronizza la cartella {folder}",
     "invalidCredentialsToastDescription": "Le credenziali non sono state accettate. Controllale e riprova.",
     "invalidCredentialsToastTitle": "Credenziali non valide",
     "lastSynced": "Ultima sincronizzazione",

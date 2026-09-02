@@ -1469,6 +1469,7 @@
     "foldersShown": "{shown} sur {total} synchronisés",
     "foldersUpdateFailed": "Impossible de mettre à jour les dossiers",
     "folderSynced": "Synchronisé",
+    "folderToggleLabel": "Synchroniser le dossier {folder}",
     "invalidCredentialsToastDescription": "Les identifiants n'ont pas été acceptés. Vérifiez-les et réessayez.",
     "invalidCredentialsToastTitle": "Identifiants invalides",
     "lastSynced": "Dernière synchronisation",

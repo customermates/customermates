@@ -265,11 +265,15 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
                     accent={accent}
                     fileIcon={FileTypeIcon}
                     name={file.name}
-                    subtitle={attachmentSubtitle(t, {
-                      mime: file.type,
-                      fileName: file.name,
-                      size: file.size,
-                    })}
+                    subtitle={attachmentSubtitle(
+                      t,
+                      {
+                        mime: file.type,
+                        fileName: file.name,
+                        size: file.size,
+                      },
+                      (value, options) => intlStore.formatNumber(value, options),
+                    )}
                     onOpen={() => downloadLocalFile(file)}
                   />
                 );

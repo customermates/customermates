@@ -9,12 +9,10 @@ import {
   getGetDealByIdInteractor,
   getGetServiceByIdInteractor,
 } from "@/core/di";
+import { serializeResult } from "@/core/utils/action-result";
 
 export async function globalSearchAction(data: GlobalSearchData) {
-  const interactor = getGlobalSearchInteractor();
-  const result = await interactor.invoke(data);
-
-  return result.data;
+  return serializeResult(getGlobalSearchInteractor().invoke(data));
 }
 
 export async function checkSearchResultExistsAction(data: { type: GlobalSearchResultItem["type"]; id: string }) {

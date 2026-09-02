@@ -1469,6 +1469,7 @@
     "foldersShown": "{shown} of {total} synced",
     "foldersUpdateFailed": "Couldn't update folders",
     "folderSynced": "Synced",
+    "folderToggleLabel": "Sync the {folder} folder",
     "invalidCredentialsToastDescription": "The login details were not accepted. Check your credentials and try again.",
     "invalidCredentialsToastTitle": "Invalid credentials",
     "lastSynced": "Last synced",

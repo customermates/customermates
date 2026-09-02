@@ -57,7 +57,7 @@ describe("hosted AI pricing contract", () => {
     );
     expect(subscriptionCreditNotes).toEqual({
       en: "Hosted AI credits refresh monthly; unused credits do not roll over. External MCP clients use your own AI provider and do not consume these credits.",
-      de: "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Externe MCP-Clients nutzen Ihren eigenen KI-Anbieter und verbrauchen diese Credits nicht.",
+      de: "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Externe MCP-Clients nutzen deinen eigenen KI-Anbieter und verbrauchen diese Credits nicht.",
       es: "Los créditos de IA alojada se renuevan cada mes; los créditos no utilizados no se acumulan. Los clientes MCP externos utilizan tu propio proveedor de IA y no consumen estos créditos.",
       fr: "Les crédits IA hébergés sont renouvelés chaque mois ; les crédits non utilisés ne sont pas reportés. Les clients MCP externes utilisent votre propre fournisseur d'IA et ne consomment pas ces crédits.",
       it: "I crediti IA in hosting si rinnovano ogni mese; i crediti non utilizzati non vengono trasferiti al mese successivo. I client MCP esterni utilizzano il tuo provider di IA e non consumano questi crediti.",

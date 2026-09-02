@@ -141,7 +141,7 @@ export class IntlStore {
     }).format(date);
   }
 
-  formatDescriptiveShortDate(date: Date | undefined): string {
+  formatDescriptiveShortDate(date: Date | undefined, options?: { timeZone?: string }): string {
     if (date === undefined) return "";
     if (!this.clientHydrated) return "";
 
@@ -149,6 +149,17 @@ export class IntlStore {
       year: "numeric" as const,
       month: "short" as const,
       day: "numeric" as const,
+      ...(options?.timeZone ? { timeZone: options.timeZone } : {}),
+    }).format(date);
+  }
+
+  formatMonthYear(date: Date | undefined): string {
+    if (date === undefined) return "";
+    if (!this.clientHydrated) return "";
+
+    return new Intl.DateTimeFormat(this.formattingLocale, {
+      year: "numeric" as const,
+      month: "long" as const,
     }).format(date);
   }
 

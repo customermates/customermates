@@ -936,9 +936,9 @@
     },
     "errors": {
       "activityDuplicateFilterField": "Jedes Aktivitätsfilterfeld kann nur einmal konfiguriert werden.",
-      "activityPageOutOfRange": "Der Aktivitätsverlauf kann nicht so weit zurückblättern. Grenzen Sie stattdessen die Filter ein.",
+      "activityPageOutOfRange": "Der Aktivitätsverlauf kann nicht so weit zurückblättern. Grenze stattdessen die Filter ein.",
       "activityScopeTooManyIds": "Ein Aktivitätsbereich darf nicht mehr als 50 Datensätze eines Typs auswählen.",
-      "activitySourcesUnavailable": "Sie haben keinen Zugriff auf eine Quelle des Aktivitätsverlaufs.",
+      "activitySourcesUnavailable": "Du hast keinen Zugriff auf eine Quelle des Aktivitätsverlaufs.",
       "agentApprovalUnavailable": "Diese Freigabeanfrage ist nicht verfügbar oder abgelaufen.",
       "agentConversationNotFound": "Diese Unterhaltung wurde nicht gefunden oder ist nicht mehr zugänglich.",
       "agentLimitReached": "Es sind nicht genügend KI-Credits übrig, um eine weitere Anfrage zu starten.",
@@ -1196,7 +1196,7 @@
         "none": "Kein Preset"
       },
       "searchLabel": "Suche",
-      "selectionLimit": "Sie können bis zu {count} Werte auswählen.",
+      "selectionLimit": "Du kannst bis zu {count} Werte auswählen.",
       "selectOperator": "Bedingung auswählen…",
       "unavailableValue": "Filter nicht verfügbar"
     },
@@ -1469,6 +1469,7 @@
     "foldersShown": "{shown} von {total} synchronisiert",
     "foldersUpdateFailed": "Ordner konnten nicht aktualisiert werden",
     "folderSynced": "Synchronisiert",
+    "folderToggleLabel": "Ordner {folder} synchronisieren",
     "invalidCredentialsToastDescription": "Die Anmeldedaten wurden nicht akzeptiert. Überprüfe sie und versuche es erneut.",
     "invalidCredentialsToastTitle": "Ungültige Anmeldedaten",
     "lastSynced": "Zuletzt synchronisiert",
@@ -2549,7 +2550,7 @@
     }
   },
   "OperatorAudit": {
-    "emptyBody": "Passen Sie Suche oder Filter an, um das Protokoll zu erweitern.",
+    "emptyBody": "Passe Suche oder Filter an, um das Protokoll zu erweitern.",
     "emptyTitle": "Keine Audit-Ereignisse passen zu diesen Filtern",
     "navigation": "Audit-Protokoll",
     "searchPlaceholder": "Nach Aktion suchen",
@@ -2650,7 +2651,7 @@
       "title": "Aktueller Credit-Stand",
       "unavailableDescription": "Der Arbeitsbereich benötigt eine gültige Berechtigung und einen Credit-Anker, bevor Credits korrigiert oder zurückgesetzt werden können."
     },
-    "emptyBody": "Passen Sie Suche oder Filter an, um das Verzeichnis zu erweitern.",
+    "emptyBody": "Passe Suche oder Filter an, um das Verzeichnis zu erweitern.",
     "emptyTitle": "Keine Benutzer passen zu diesen Filtern",
     "modal": {
       "access": "Zugriff",
@@ -2675,7 +2676,7 @@
   "OperatorWorkspaces": {
     "allowance": {
       "hintContract": "Der vertraglich vereinbarte Enterprise-Satz, jeden Monat pro aktivem Mitglied.",
-      "hintMissing": "Enterprise bezieht seinen Satz aus einem Vertragswert, und es ist keiner gesetzt. Alle Mitglieder sind blockiert, bis Sie einen setzen.",
+      "hintMissing": "Enterprise bezieht seinen Satz aus einem Vertragswert, und es ist keiner gesetzt. Alle Mitglieder sind blockiert, bis du einen setzt.",
       "hintPlan": "{plan} enthält so viele Credits pro aktivem Mitglied und Monat.",
       "hintTrial": "Während einer Testphase erhält das jedes aktive Mitglied, unabhängig vom Tarif.",
       "hintUnavailable": "Dieses Abonnement gewährt in seinem aktuellen Zustand keine Credits.",
@@ -2701,7 +2702,7 @@
       "title": "Diesen Workspace löschen",
       "warningDescription": "Beim Löschen von {name} werden der Workspace und {members, plural, =1 {sein einziges Mitgliedskonto} other {alle # Mitgliedskonten}} dauerhaft entfernt, samt Kontakten, Deals, Nachrichten, Anmeldedaten und Abrechnungsdaten. Dies kann nicht rückgängig gemacht werden."
     },
-    "emptyBody": "Passen Sie Suche oder Filter an, um die Liste zu erweitern.",
+    "emptyBody": "Passe Suche oder Filter an, um die Liste zu erweitern.",
     "emptyTitle": "Keine Arbeitsbereiche passen zu diesen Filtern",
     "modal": {
       "identity": "{domain} · {owner}",
@@ -2749,7 +2750,7 @@
   },
   "PageState": {
     "loading": "Seite wird geladen",
-    "notFoundDescription": "Dieser Datensatz wurde möglicherweise entfernt oder Sie haben keinen Zugriff darauf.",
+    "notFoundDescription": "Dieser Datensatz wurde möglicherweise entfernt oder du hast keinen Zugriff darauf.",
     "notFoundTitle": "Datensatz nicht gefunden"
   },
   "PendingCard": {
@@ -2859,7 +2860,7 @@
     "manageWithLemonSqueezy": "Verwalten mit Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# verbundenes Konto pro Nutzer} other {# verbundene Konten pro Nutzer}}",
-      "creditNote": "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Externe MCP-Clients nutzen Ihren eigenen KI-Anbieter und verbrauchen diese Credits nicht.",
+      "creditNote": "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Externe MCP-Clients nutzen deinen eigenen KI-Anbieter und verbrauchen diese Credits nicht.",
       "features": {
         "business": ["Alles aus Pro", "Geteilte Konten und priorisierter Support"],
         "pro": ["Alles aus Starter", "Zentraler Posteingang"],

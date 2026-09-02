@@ -4,7 +4,7 @@ import type { WidgetDto } from "@/features/widget/widget.schema";
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { RootStore } from "@/core/stores/root.store";
 
-import { action, makeObservable, observable } from "mobx";
+import { action, makeObservable, observable, runInAction } from "mobx";
 
 import { refreshWidgetsAction, updateWidgetLayoutsAction } from "../actions";
 
@@ -74,14 +74,27 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
 
     if (JSON.stringify(payloadNew) === JSON.stringify(payloadCurrent)) return;
 
+    const previousLayouts = this.layouts;
     this.layouts = layouts;
 
     void this.rootStore.loadingOverlayStore
       .withLoading(async () => {
         const res = await updateWidgetLayoutsAction({ layouts: payloadNew });
-        if (!res.ok) toastZodErrorTree(res.error);
+        if (!res.ok) {
+          this.restoreLayouts(previousLayouts);
+          toastZodErrorTree(res.error);
+        }
       })
-      .catch(reportApplicationError);
+      .catch((error: unknown) => {
+        this.restoreLayouts(previousLayouts);
+        reportApplicationError(error);
+      });
+  }
+
+  private restoreLayouts(layouts: ResponsiveLayouts) {
+    runInAction(() => {
+      this.layouts = layouts;
+    });
   }
 
   protected async refreshAction() {

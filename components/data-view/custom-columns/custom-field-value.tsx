@@ -102,9 +102,9 @@ export const CustomFieldValue = observer(
             <span className="relative" onClick={(event) => event.stopPropagation()}>
               <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
                 <DropdownMenuTrigger asChild>
-                  <span>
+                  <button className="inline-flex max-w-full" type="button">
                     <ClickableChip variant={selectedVariant}>{selectedOption.label}</ClickableChip>
-                  </span>
+                  </button>
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent className="max-h-60 overflow-y-auto">

@@ -66,7 +66,8 @@ describe("technical-id loading contract", () => {
     const filterSelect = read("components/data-view/filter-modal/inputs/filter-input-select.tsx");
     const autocomplete = read("components/forms/form-autocomplete.tsx");
 
-    expect(options).toContain("const result = await getItems({});");
+    expect(options).toContain("SELF_IDENTIFYING_FILTER_FIELDS");
+    expect(options).toContain("SELECTION_RESOLUTION_PAGE_SIZE");
     expect(options).toContain("requested.has(item.key)");
     expect(options).not.toContain("resolveFilterOptionsAction");
     expect(options).not.toContain("filters: [{ field, operator: FilterOperatorKey.in, value: ids }]");
