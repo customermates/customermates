@@ -186,14 +186,14 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
-  async releaseBackfillClaimUnscoped(unipileAccountId: string, token: string) {
+  async releaseBackfillClaimUnscoped(unipileAccountId: string, token: string, complete: boolean) {
     await this.prisma.connectedAccount.updateMany({
       where: { unipileAccountId, backfillClaimToken: token },
       data: {
         backfillClaimedAt: null,
         backfillClaimToken: null,
         syncing: false,
-        lastSyncedAt: new Date(),
+        ...(complete ? { lastSyncedAt: new Date() } : {}),
       },
     });
   }
