@@ -211,10 +211,12 @@ export function PublicAdAttributionConsentCard() {
 
           <p className="text-sm leading-6 text-subdued" id="ad-attribution-consent-description">
             <span>
-              {t("AcquisitionConsent.description", {
-                provider: adProviderDisplayName(provider ?? "google_ads"),
-                days: adClickRetentionDays(provider ?? "google_ads"),
-              })}{" "}
+              {provider
+                ? t("AcquisitionConsent.description", {
+                    provider: adProviderDisplayName(provider),
+                    days: adClickRetentionDays(provider),
+                  })
+                : t("AcquisitionConsent.descriptionGeneric")}{" "}
             </span>
 
             <AppLink appearance="inline" href="/privacy">

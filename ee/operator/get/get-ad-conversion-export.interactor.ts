@@ -1,6 +1,8 @@
 import type { Validated } from "@/core/validation/validation.utils";
 
 import { OperatorInteractor } from "@/core/decorators/operator-interactor.decorator";
+import { adConversionReferenceSecret } from "@/ee/operator/ad-conversion-reference";
+import { hmacSha256Hex } from "@/core/utils/hmac";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import {
   AD_PROVIDER_ORDER,
@@ -25,7 +27,8 @@ export abstract class GetAdConversionExportRepo {
 }
 
 function idempotencyKey(row: AdConversionExportRow): string {
-  return `${row.companyId}:${row.conversionType}:${Math.floor(row.conversionAt.getTime() / 1000)}`;
+  const material = `${row.companyId}:${row.conversionType}:${Math.floor(row.conversionAt.getTime() / 1000)}`;
+  return hmacSha256Hex(adConversionReferenceSecret(), material).slice(0, 32);
 }
 
 @OperatorInteractor
@@ -59,7 +62,7 @@ export class GetAdConversionExportInteractor {
         conversionAt: row.conversionAt,
         orderId: idempotencyKey(row),
         adUserData: "Granted" as const,
-        adPersonalization: "Granted" as const,
+        adPersonalization: "Denied" as const,
       }));
 
     return { ok: true, data: { generatedAt: now, rows } };

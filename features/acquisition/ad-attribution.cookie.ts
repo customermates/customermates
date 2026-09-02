@@ -2,11 +2,13 @@ import { cookies } from "next/headers";
 
 import { hmacSha256Hex, verifyHmacSha256Hex } from "@/core/utils/hmac";
 import { env } from "@/env";
+import { AD_ATTRIBUTION_NOTICE_VERSION } from "@/constants/legal-documents";
 import {
   PUBLIC_AD_ATTRIBUTION_COOKIE_MAX_AGE_SECONDS,
   PUBLIC_AD_ATTRIBUTION_COOKIE_NAME,
   PublicAdAttributionCookieSchema,
   activeRetainedAdClicks,
+  isConsentForNotice,
   type PublicAdAttributionCookie,
   type RegistrationAdAttribution,
 } from "./ad-attribution.schema";
@@ -84,7 +86,7 @@ export function registrationAdAttributionFromCookie(
   cookie: PublicAdAttributionCookie,
   now: Date,
 ): RegistrationAdAttribution[] {
-  if (!cookie.consent.advertising) return [];
+  if (!cookie.consent.advertising || !isConsentForNotice(cookie.consent, AD_ATTRIBUTION_NOTICE_VERSION)) return [];
 
   const cookieExpiresAt = new Date(cookie.expiresAt);
 

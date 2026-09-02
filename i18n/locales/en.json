@@ -9,7 +9,8 @@
   },
   "AcquisitionConsent": {
     "allowAttribution": "Allow",
-    "description": "It looks like you arrived through a {provider} ad. With your permission we’ll remember this visit for up to {days} days, link it to your Customermates account if you create a workspace, and tell {provider} that their ad led to a signup. We never share your name, email or any other personal detail.",
+    "description": "It looks like you arrived through a {provider} ad. With your permission we’ll remember this visit for up to {days} days, link it to your Customermates account if you create a workspace, and tell {provider} that their ad led to a signup or a paid subscription. We never share your name, email or any other personal detail. Either choice stores a small cookie, and you can change your mind at any time under Privacy choices.",
+    "descriptionGeneric": "It looks like you arrived through an ad. With your permission we’ll remember this visit, link it to your Customermates account if you create a workspace, and tell the advertising platform that their ad led to a signup or a paid subscription. We never share your name, email or any other personal detail. Either choice stores a small cookie, and you can change your mind at any time under Privacy choices.",
     "necessaryOnly": "No thanks",
     "privacyLink": "Privacy details",
     "title": "Help us learn what works"

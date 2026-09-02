@@ -7,6 +7,7 @@ import {
   type AdConversionExportRow,
 } from "../get/get-ad-conversion-export.interactor";
 
+vi.mock("@/env", () => ({ env: { BETTER_AUTH_SECRET: "test-secret" } }));
 vi.mock("@/core/decorators/operator-interactor.decorator", () => ({ OperatorInteractor: () => undefined }));
 vi.mock("@/core/decorators/validate-output.decorator", () => ({ ValidateOutput: () => undefined }));
 
@@ -38,7 +39,8 @@ describe("ad conversion export", () => {
     const second = await exportFor([row()]);
 
     expect(first.rows[0]?.orderId).toBe(second.rows[0]?.orderId);
-    expect(first.rows[0]?.orderId).toBe("company-1:signup:1788260400");
+    expect(first.rows[0]?.orderId).toMatch(/^[0-9a-f]{32}$/);
+    expect(first.rows[0]?.orderId).not.toContain("company-1");
   });
 
   it("excludes a conversion past its provider's reporting deadline", async () => {
@@ -58,7 +60,7 @@ describe("ad conversion export", () => {
     const exported = await exportFor([row(), row({ companyId: "company-2" })]);
 
     expect(exported.rows.map((entry) => entry.adUserData)).toEqual(["Granted", "Granted"]);
-    expect(exported.rows.map((entry) => entry.adPersonalization)).toEqual(["Granted", "Granted"]);
+    expect(exported.rows.map((entry) => entry.adPersonalization)).toEqual(["Denied", "Denied"]);
   });
 
   it("writes Google's upload shape with an explicit time zone line", async () => {
@@ -67,8 +69,8 @@ describe("ad conversion export", () => {
 
     expect(csv[0]).toBe("Parameters:TimeZone=+0000");
     expect(csv[1]).toBe("Google Click ID,Conversion Name,Conversion Time,Order ID,Ad User Data,Ad Personalization");
-    expect(csv[2]).toBe(
-      "Case-Sensitive_GCLID,Customermates signup,2026-09-01 11:00:00+0000,company-1:signup:1788260400,Granted,Granted",
+    expect(csv[2]).toMatch(
+      /^Case-Sensitive_GCLID,Customermates signup,2026-09-01 11:00:00\+0000,[0-9a-f]{32},Granted,Denied$/,
     );
   });
 
@@ -87,5 +89,13 @@ describe("ad conversion export", () => {
     expect(ledger).toContain("Opaque-OPPREF");
     expect(ledger).toContain("Customermates paid");
     expect(ledger).not.toContain("Case-Sensitive_GCLID");
+  });
+
+  it("does not let the platform link the signup and paid conversions of one workspace", async () => {
+    const exported = await exportFor([row(), row({ conversionType: "paid" })]);
+
+    const [signup, paid] = exported.rows;
+    expect(signup?.orderId).not.toBe(paid?.orderId);
+    expect(`${signup?.orderId}${paid?.orderId}`).not.toContain("company-1");
   });
 });

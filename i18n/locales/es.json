@@ -10,6 +10,7 @@
   "AcquisitionConsent": {
     "allowAttribution": "Permitir",
     "description": "Parece que has llegado a través de un anuncio de {provider}. Con tu permiso recordaremos esta visita durante un máximo de {days} días, la vincularemos a tu cuenta de Customermates si creas un espacio de trabajo y comunicaremos a {provider} que su anuncio dio lugar a un registro. Nunca compartimos tu nombre, tu correo electrónico ni ningún otro dato personal.",
+    "descriptionGeneric": "Parece que has llegado a través de un anuncio. Con tu permiso recordaremos esta visita, la vincularemos a tu cuenta de Customermates si creas un espacio de trabajo y comunicaremos a la plataforma publicitaria que su anuncio dio lugar a un registro. Nunca compartimos tu nombre, tu correo electrónico ni ningún otro dato personal.",
     "necessaryOnly": "No, gracias",
     "privacyLink": "Detalles de privacidad",
     "title": "Ayúdanos a saber qué funciona"

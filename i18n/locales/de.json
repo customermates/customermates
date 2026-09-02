@@ -9,7 +9,8 @@
   },
   "AcquisitionConsent": {
     "allowAttribution": "Erlauben",
-    "description": "Es sieht so aus, als wärst du über eine {provider}-Anzeige zu uns gekommen. Mit deiner Erlaubnis merken wir uns diesen Besuch bis zu {days} Tage lang, verknüpfen ihn mit deinem Customermates-Konto, wenn du einen Workspace erstellst, und teilen {provider} mit, dass die Anzeige zu einer Registrierung geführt hat. Deinen Namen, deine E-Mail-Adresse und andere persönliche Angaben geben wir dabei nie weiter.",
+    "description": "Es sieht so aus, als wären Sie über eine {provider}-Anzeige zu uns gekommen. Mit Ihrer Erlaubnis merken wir uns diesen Besuch bis zu {days} Tage lang, verknüpfen ihn mit Ihrem Customermates-Konto, wenn Sie einen Workspace erstellen, und teilen {provider} mit, dass die Anzeige zu einer Registrierung oder einem kostenpflichtigen Abonnement geführt hat. Ihren Namen, Ihre E-Mail-Adresse und andere persönliche Angaben geben wir dabei nie weiter. Beide Auswahlmöglichkeiten speichern ein kleines Cookie; Sie können Ihre Entscheidung jederzeit unter „Datenschutzauswahl“ ändern.",
+    "descriptionGeneric": "Es sieht so aus, als wären Sie über eine Anzeige zu uns gekommen. Mit Ihrer Erlaubnis merken wir uns diesen Besuch, verknüpfen ihn mit Ihrem Customermates-Konto, wenn Sie einen Workspace erstellen, und teilen der Werbeplattform mit, dass die Anzeige zu einer Registrierung oder einem kostenpflichtigen Abonnement geführt hat. Ihren Namen, Ihre E-Mail-Adresse und andere persönliche Angaben geben wir dabei nie weiter. Beide Auswahlmöglichkeiten speichern ein kleines Cookie; Sie können Ihre Entscheidung jederzeit unter „Datenschutzauswahl“ ändern.",
     "necessaryOnly": "Nein, danke",
     "privacyLink": "Datenschutzdetails",
     "title": "Hilf uns zu verstehen, was funktioniert"

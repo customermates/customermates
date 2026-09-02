@@ -23,10 +23,11 @@ import {
 import { PUBLIC_AD_ATTRIBUTION_COOKIE_NAME, type PublicAdAttributionCookie } from "../ad-attribution.schema";
 
 const SIGNING_SECRET = "ad-attribution:v1:test-secret";
+const CURRENT_NOTICE = "2026-09-02";
 
 const cookie: PublicAdAttributionCookie = {
   version: 1,
-  consent: { advertising: true, decidedAt: "2026-08-31T10:00:00.000Z", noticeVersion: "2026-09-02" },
+  consent: { advertising: true, decidedAt: "2026-08-31T10:00:00.000Z", noticeVersion: CURRENT_NOTICE },
   clicks: [
     {
       provider: "google_ads",
@@ -126,5 +127,15 @@ describe("signed ad attribution cookie", () => {
     const written = decodePublicAdAttributionCookie(cookieStore.set.mock.calls[0][1], SIGNING_SECRET);
     expect(written?.clicks).toEqual([]);
     expect(written?.consent).toEqual(cookie.consent);
+  });
+
+  it("refuses to hand a click consented under an older notice to registration", async () => {
+    const stale = {
+      ...cookie,
+      consent: { ...cookie.consent, noticeVersion: "2026-08-31" },
+    };
+    cookieStore.get.mockReturnValue({ value: encodePublicAdAttributionCookie(stale, SIGNING_SECRET) });
+
+    await expect(readRegistrationAdAttribution()).resolves.toEqual([]);
   });
 });

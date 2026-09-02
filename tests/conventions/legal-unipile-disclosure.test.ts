@@ -118,9 +118,13 @@ describe("legal documents describe only what the product does", () => {
     expect(privacy).toMatch(name === "en" ? /89 days.*30 days/is : /89 Tage.*30 Tage/is);
     expect(privacy).toMatch(
       name === "en"
-        ? /No personal data is transmitted.*no hashed email address.*no IP address/is
-        : /keine personenbezogenen Daten übermittelt.*keine gehashte E-Mail-Adresse.*keine IP-Adresse/is,
+        ? /no directly identifying data is transmitted.*no hashed email address.*no IP address/is
+        : /keine unmittelbar identifizierenden Daten übermittelt.*keine gehashte E-Mail-Adresse.*keine IP-Adresse/is,
     );
+    expect(privacy).toMatch(
+      name === "en" ? /Reporting is not automatic/i : /Rückmeldung erfolgt nicht automatisch/i,
+    );
+    expect(privacy).toMatch(name === "en" ? /cm_ad_attribution/ : /cm_ad_attribution/);
     expect(privacy).toMatch(
       name === "en"
         ? /standard contractual clauses/i
@@ -129,7 +133,7 @@ describe("legal documents describe only what the product does", () => {
     expect(privacy).toMatch(
       name === "en"
         ? /No advertising pixel, tag, measurement SDK/is
-        : /kein Werbepixel, kein Tag, kein Mess-SDK/is,
+        : /weder Werbepixel noch Tags oder Mess-SDKs/is,
     );
   });
 
