@@ -1,7 +1,8 @@
 import { getFormatter, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Activity, AlertTriangle, Building2, CircleDollarSign, Sparkles, Users } from "lucide-react";
+import { Activity, AlertTriangle, Building2, CircleDollarSign, Megaphone, Sparkles, Users } from "lucide-react";
 
+import { AdConversionExportCard } from "../components/overview/ad-conversion-export-card";
 import { OperatorMetricCard } from "../components/overview/operator-metric-card";
 
 import { PageContainer } from "@/components/shared/page-container";
@@ -120,7 +121,18 @@ export default async function OperatorOverviewPage() {
             label={t("OperatorOverview.operators.label")}
             value={integer(summary.platformOperators)}
           />
+
+          <OperatorMetricCard
+            description={t("OperatorOverview.acquisition.description", {
+              paying: risk.attributedPaidWorkspaces,
+            })}
+            icon={Megaphone}
+            label={t("OperatorOverview.acquisition.label")}
+            value={integer(risk.attributedWorkspaces)}
+          />
         </div>
+
+        <AdConversionExportCard />
       </div>
     </PageContainer>
   );

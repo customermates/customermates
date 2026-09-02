@@ -13,7 +13,7 @@ import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/adm
 import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement.service";
 import type { CreateAuthLinkSubscriptionRepo } from "@/ee/messaging/connect/create-auth-link.interactor";
 
-import { SubscriptionStatus } from "@/generated/prisma";
+import { ConversionEventType, SubscriptionStatus } from "@/generated/prisma";
 
 import { getCustomColumnRepo, getDealRepo } from "@/core/di";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
@@ -149,6 +149,16 @@ export class PrismaCompanyRepo
         where: { companyId: data.companyId },
         create: payload,
         update: payload,
+      });
+
+      if (payload.status !== SubscriptionStatus.active) return;
+
+      const attributed = await this.prisma.adAttribution.count({ where: { companyId: data.companyId } });
+      if (attributed === 0) return;
+
+      await this.prisma.conversionEvent.createMany({
+        data: [{ companyId: data.companyId, type: ConversionEventType.paid, occurredAt: new Date() }],
+        skipDuplicates: true,
       });
     });
   }

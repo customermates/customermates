@@ -22,8 +22,6 @@ const scalarSelectOperators = [FilterOperatorKey.in, FilterOperatorKey.notIn];
 
 const stringOperators = [FilterOperatorKey.equals, FilterOperatorKey.contains];
 
-const presenceOperators = [FilterOperatorKey.isNull, FilterOperatorKey.isNotNull];
-
 export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperatorKey[]> = {
   [FilterFieldKey.userIds]: relationOperators,
   [FilterFieldKey.serviceIds]: relationOperators,
@@ -50,7 +48,7 @@ export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperat
   [FilterFieldKey.isPlatformOperator]: scalarSelectOperators,
   [FilterFieldKey.lastActiveAt]: dateOperators,
   [FilterFieldKey.workspaceId]: scalarSelectOperators,
-  [FilterFieldKey.googleAdsClickId]: presenceOperators,
+  [FilterFieldKey.adProvider]: scalarSelectOperators,
   [FilterFieldKey.auditSource]: scalarSelectOperators,
   [FilterFieldKey.workspaceTags]: scalarSelectOperators,
 };

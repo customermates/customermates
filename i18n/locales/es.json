@@ -9,7 +9,8 @@
   },
   "AcquisitionConsent": {
     "allowAttribution": "Permitir",
-    "description": "Parece que has llegado a través de un anuncio de Google. Con tu permiso, recordaremos esta visita durante un máximo de 90 días y la vincularemos a tu cuenta de Customermates si creas un espacio de trabajo nuevo. Así podremos saber qué anuncios son útiles.",
+    "description": "Has llegado a través de un anuncio de {provider}. ¿Podemos recordar esta visita durante {days} días como máximo, vincularla a tu cuenta si te registras y comunicar a {provider} que su anuncio dio lugar a un registro o a una suscripción de pago? {provider} solo recibe de vuelta el identificador de clic que puso en el propio enlace, nunca tu nombre, tu correo electrónico ni nada más que nos des. Ambas opciones guardan una pequeña cookie; puedes cambiar de opinión cuando quieras en Opciones de privacidad.",
+    "descriptionGeneric": "Has llegado a través de un anuncio. ¿Podemos recordar esta visita, vincularla a tu cuenta si te registras y comunicar a la plataforma publicitaria que su anuncio dio lugar a un registro o a una suscripción de pago? La plataforma solo recibe de vuelta el identificador de clic que puso en el propio enlace, nunca tu nombre, tu correo electrónico ni nada más que nos des. Ambas opciones guardan una pequeña cookie; puedes cambiar de opinión cuando quieras en Opciones de privacidad.",
     "necessaryOnly": "No, gracias",
     "privacyLink": "Detalles de privacidad",
     "title": "Ayúdanos a saber qué funciona"
@@ -1149,12 +1150,12 @@
       "daysPreset": "{count, plural, =1 {1 día} other {# días}}",
       "daysSuffix": "días",
       "fields": {
+        "adProvider": "Proveedor de anuncios",
         "auditSource": "Origen",
         "calendarId": "Calendario",
         "connectedAccountId": "Canal",
         "createdAt": "Creado el",
         "event": "Evento",
-        "googleAdsClickId": "ID de clic de Google Ads",
         "isPlatformOperator": "Operador de plataforma",
         "lastActiveAt": "Última actividad",
         "participants": "Participantes",
@@ -1318,6 +1319,7 @@
         "action": "Acción",
         "actions": "Acciones",
         "actor": "Actor",
+        "adProvider": "Proveedor de anuncios",
         "allowance": "Asignación",
         "amount": "Importe",
         "avatarUrl": "Avatar",
@@ -1339,7 +1341,6 @@
         "events": "Eventos",
         "expiresAt": "Caduca el",
         "firstName": "Nombre",
-        "googleAdsClickId": "ID de clic de Google Ads",
         "id": "ID",
         "identifiers": "Canales",
         "isSystemRole": "Rol del sistema",
@@ -2593,9 +2594,21 @@
     }
   },
   "OperatorOverview": {
+    "acquisition": {
+      "description": "{paying} de ellos son de pago",
+      "label": "Espacios de trabajo desde anuncios"
+    },
     "activity": {
       "description": "De {total} usuarios en total",
       "label": "Activos en 7 días"
+    },
+    "adConversions": {
+      "description": "Clics en anuncios que produjeron un registro o una suscripción de pago, filtrados a los que siguen dentro del plazo de notificación de cada plataforma. No se incluye nada más allá del identificador de clic de la propia plataforma: ni nombre, ni correo electrónico, ni correo electrónico con hash, ni teléfono, ni dirección IP, ni agente de usuario. Ese identificador es en sí mismo un dato personal, porque la plataforma puede vincularlo al anuncio que te mostró.",
+      "generate": "Generar exportación de conversiones",
+      "googleAds": "CSV de Google Ads",
+      "label": "Conversiones publicitarias",
+      "rowCount": "{count} conversiones notificables",
+      "withoutColumnCount": "Conversiones de Google excluidas de este archivo: {count}. Su clic llevaba un identificador gbraid o wbraid, para el que la plantilla de carga de Google no tiene columna."
     },
     "growth": {
       "description": "Junto a {workspaces} espacios nuevos",

@@ -9,7 +9,8 @@
   },
   "AcquisitionConsent": {
     "allowAttribution": "Allow",
-    "description": "It looks like you arrived through a Google ad. With your permission, we’ll remember this ad visit for up to 90 days and link it to your Customermates account if you create a new workspace. This helps us understand which ads are useful.",
+    "description": "You arrived through a {provider} ad. May we remember this visit for up to {days} days, link it to your account if you sign up, and tell {provider} that their ad led to a signup or a paid subscription? {provider} only gets back the click identifier it put in the link itself, never your name, email or anything else you give us. Either choice stores a small cookie; change your mind any time under Privacy choices.",
+    "descriptionGeneric": "You arrived through an ad. May we remember this visit, link it to your account if you sign up, and tell the advertising platform that their ad led to a signup or a paid subscription? The platform only gets back the click identifier it put in the link itself, never your name, email or anything else you give us. Either choice stores a small cookie; change your mind any time under Privacy choices.",
     "necessaryOnly": "No thanks",
     "privacyLink": "Privacy details",
     "title": "Help us learn what works"
@@ -1149,12 +1150,12 @@
       "daysPreset": "{count, plural, =1 {1 day} other {# days}}",
       "daysSuffix": "days",
       "fields": {
+        "adProvider": "Ad provider",
         "auditSource": "Source",
         "calendarId": "Calendar",
         "connectedAccountId": "Channel",
         "createdAt": "Created at",
         "event": "Event",
-        "googleAdsClickId": "Google Ads click ID",
         "isPlatformOperator": "Platform operator",
         "lastActiveAt": "Last active",
         "participants": "Participants",
@@ -1318,6 +1319,7 @@
         "action": "Action",
         "actions": "Actions",
         "actor": "Actor",
+        "adProvider": "Ad provider",
         "allowance": "Allowance",
         "amount": "Amount",
         "avatarUrl": "Avatar",
@@ -1339,7 +1341,6 @@
         "events": "Events",
         "expiresAt": "Expires at",
         "firstName": "First Name",
-        "googleAdsClickId": "Google Ads click ID",
         "id": "ID",
         "identifiers": "Channels",
         "isSystemRole": "System role",
@@ -2593,9 +2594,21 @@
     }
   },
   "OperatorOverview": {
+    "acquisition": {
+      "description": "{paying} of them are paying",
+      "label": "Workspaces from ads"
+    },
     "activity": {
       "description": "Of {total} users in total",
       "label": "Active last 7 days"
+    },
+    "adConversions": {
+      "description": "Ad clicks that produced a signup or a paying subscription, filtered to those still inside each platform's reporting deadline. Nothing beyond the platform's own click identifier is included: no name, email, hashed email, phone number, IP address or user agent. That identifier is itself personal data, because the platform can link it to the advertisement it served.",
+      "generate": "Generate conversion export",
+      "googleAds": "Google Ads CSV",
+      "label": "Advertising conversions",
+      "rowCount": "{count} reportable conversions",
+      "withoutColumnCount": "Google conversions left out of this file: {count}. Their click carried a gbraid or wbraid identifier, which Google's upload template has no column for."
     },
     "growth": {
       "description": "Alongside {workspaces} new workspaces",

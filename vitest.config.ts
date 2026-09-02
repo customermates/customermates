@@ -10,6 +10,7 @@ const aliases = {
 const testEnvironment = {
   APP_MODE: "self-hosted",
   BASE_URL: "http://localhost:4000",
+  BETTER_AUTH_SECRET: "vitest-secret",
 };
 const domTestFiles = [
   "app/**/company/components/company-settings/__tests__/company-settings-form.test.ts",
@@ -37,7 +38,7 @@ const domTestFiles = [
   "components/forms/__tests__/form-context.test.ts",
   "components/forms/__tests__/selection-command.test.ts",
   "components/modal/__tests__/delete-confirmation-modal.test.ts",
-  "components/acquisition/__tests__/public-google-ads-consent.test.ts",
+  "components/acquisition/__tests__/public-ad-attribution-consent.test.ts",
   "components/scroll/__tests__/messages-scroll-container.test.ts",
   "components/shared/__tests__/unexpected-error-toaster.test.ts",
   "core/stores/__tests__/root-store-provider.test.ts",

@@ -46,6 +46,7 @@ export class OperatorWorkspacesStore extends BaseDataViewStore<OperatorWorkspace
       { uid: "tags" },
       { uid: "members" },
       { uid: "allowance" },
+      { uid: "adProvider" },
       { uid: "trialEnd" },
       { uid: "createdAt", sortable: true },
     ];

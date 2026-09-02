@@ -195,10 +195,10 @@ describe("public acquisition UI contract", () => {
     const staticLayout = source("app/[locale]/(static)/layout.tsx");
     const contactPage = source("app/[locale]/(public)/contact/page.tsx");
 
-    expect(localeLayout).toContain("<PublicGoogleAdsConsent />");
+    expect(localeLayout).toContain("<PublicAdAttributionConsentCard />");
     expect(localeLayout).toContain('env.APP_MODE === "cloud" && isContentLocale(locale)');
-    expect(staticLayout).not.toContain("PublicGoogleAdsConsent");
-    expect(contactPage).not.toContain("PublicGoogleAdsConsent");
+    expect(staticLayout).not.toContain("PublicAdAttributionConsentCard");
+    expect(contactPage).not.toContain("PublicAdAttributionConsentCard");
   });
 
   it("uses the current marketing system for shared heroes and closing panels", () => {

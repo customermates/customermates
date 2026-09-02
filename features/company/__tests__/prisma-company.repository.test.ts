@@ -4,6 +4,8 @@ const prismaMock = vi.hoisted(() => {
   const transactionClient = {
     $executeRaw: vi.fn().mockResolvedValue(0),
     subscription: { upsert: vi.fn().mockResolvedValue({}) },
+    adAttribution: { count: vi.fn().mockResolvedValue(0) },
+    conversionEvent: { createMany: vi.fn().mockResolvedValue({ count: 1 }) },
   };
   return {
     transactionClient,
@@ -60,5 +62,54 @@ describe("PrismaCompanyRepo subscription synchronization", () => {
     expect(prismaMock.transactionClient.$executeRaw).toHaveBeenCalledWith(expect.any(Array), companyId);
     expect(callback).toHaveBeenCalledTimes(1);
     expect(prismaMock.transactionClient.$executeRaw).toHaveBeenCalledBefore(callback);
+  });
+
+  it("records a paid conversion once for an attributed workspace becoming active", async () => {
+    const companyId = "00000000-0000-4000-8000-000000000002";
+    prismaMock.transactionClient.adAttribution.count.mockResolvedValueOnce(1);
+
+    await new PrismaCompanyRepo().upsertSubscriptionUnscoped({
+      companyId,
+      lemonSqueezyId: "subscription-2",
+      lemonSqueezyVariantId: "variant-1",
+      status: "active",
+      plan: "pro",
+      quantity: 1,
+      currentPeriodEnd: new Date("2027-08-06T10:00:00.000Z"),
+      agentCreditAnchorAt: new Date("2026-08-06T10:00:00.000Z"),
+    });
+
+    expect(prismaMock.transactionClient.conversionEvent.createMany).toHaveBeenCalledWith({
+      data: [expect.objectContaining({ companyId, type: "paid" })],
+      skipDuplicates: true,
+    });
+  });
+
+  it("records no paid conversion for a trial or an unattributed workspace", async () => {
+    const companyId = "00000000-0000-4000-8000-000000000003";
+
+    await new PrismaCompanyRepo().upsertSubscriptionUnscoped({
+      companyId,
+      lemonSqueezyId: "subscription-3",
+      lemonSqueezyVariantId: "variant-1",
+      status: "trial",
+      plan: "pro",
+      quantity: 1,
+      currentPeriodEnd: new Date("2027-08-06T10:00:00.000Z"),
+      agentCreditAnchorAt: new Date("2026-08-06T10:00:00.000Z"),
+    });
+    expect(prismaMock.transactionClient.adAttribution.count).not.toHaveBeenCalled();
+
+    await new PrismaCompanyRepo().upsertSubscriptionUnscoped({
+      companyId,
+      lemonSqueezyId: "subscription-3",
+      lemonSqueezyVariantId: "variant-1",
+      status: "active",
+      plan: "pro",
+      quantity: 1,
+      currentPeriodEnd: new Date("2027-08-06T10:00:00.000Z"),
+      agentCreditAnchorAt: new Date("2026-08-06T10:00:00.000Z"),
+    });
+    expect(prismaMock.transactionClient.conversionEvent.createMany).not.toHaveBeenCalled();
   });
 });

@@ -14,6 +14,8 @@ import { OperatorTagsCell } from "../tags/operator-tags-cell";
 import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/company/components/subscription/subscription-panel";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
+import { adProviderDisplayName, isAdProvider } from "@/features/acquisition/ad-provider-registry";
+
 export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto>[] {
   const intlStore = useHydratedIntlStore();
   const t = useTranslations();
@@ -118,6 +120,17 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
               : t("OperatorWorkspaces.terms.noTrial")}
           </span>
         ),
+      },
+      {
+        accessorKey: "adProvider",
+        id: "adProvider",
+        header: t("Common.table.columns.adProvider"),
+        cell: ({ row }) => {
+          const provider = row.original.adProvider;
+          if (!provider || !isAdProvider(provider)) return <span className="text-sm">-</span>;
+
+          return <span className="truncate text-sm">{adProviderDisplayName(provider)}</span>;
+        },
       },
       {
         accessorKey: "createdAt",
