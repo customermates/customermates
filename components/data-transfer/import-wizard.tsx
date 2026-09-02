@@ -18,6 +18,7 @@ import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppModal } from "@/components/modal";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Select,
   SelectContent,
@@ -201,6 +202,14 @@ export const ImportWizard = observer(function ImportWizard() {
               >
                 {t("DataTransfer.import.chooseFile")}
               </Button>
+
+              {store.isLoading && (
+                <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Spinner aria-label={t("Loading.text")} size="sm" />
+
+                  {t("Loading.text")}
+                </p>
+              )}
 
               {store.fileError && <p className="text-sm text-destructive">{t("DataTransfer.import.fileRejected")}</p>}
             </div>

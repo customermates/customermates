@@ -322,7 +322,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   }
 
   get canExport(): boolean {
-    if (!this.resource) return true;
+    if (!this.resource) return false;
 
     return this.rootStore.userStore.canAccess(this.resource);
   }

@@ -320,6 +320,13 @@ describe("ImportWizard mapping aids", () => {
   });
 });
 
+describe("ImportWizard file step", () => {
+  it("says it is working while a large workbook is being read", () => {
+    expect(render({ step: "file", isLoading: true })).toContain("Loading.text");
+    expect(render({ step: "file", isLoading: false })).not.toContain("Loading.text");
+  });
+});
+
 describe("ImportWizard issue list", () => {
   const issue = (sheetRow: number, overrides: Record<string, unknown> = {}) => ({
     sheetRow,

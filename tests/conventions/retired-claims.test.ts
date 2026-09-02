@@ -33,7 +33,12 @@ const DENIED =
   /\b(?:no|not|without|does not|do not|has no|is not|isn['’]t|weder|kein\w*|keine\w*|nicht|ohne|gibt es (?:nicht|keine))\b/iu;
 const EXTERNAL =
   /\b(?:external|separate|customer[- ]run|customer[- ]operated|extern\w*|separat\w*|kundenseitig|selbst betrieben)\b/iu;
+const CONTRASTED =
+  /\b(?:rather than|instead of|as opposed to|not just|statt|anstelle|anstatt|sondern)\b/iu;
 const NO_OR_EXTERNAL = [DENIED, EXTERNAL];
+
+const ESM_STATEMENT =
+  /^\s*(?:import\s+(?:[\w*{]|["'])|export\s+(?:const|default|function|class|let|var|type|interface|async|\{|\*))/u;
 
 const RETIRED_CLAIMS: readonly RetiredClaim[] = [
   {
@@ -51,6 +56,14 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
     permittedContext: NO_OR_EXTERNAL,
     why: "Customermates publishes integration surfaces; n8n is operated separately",
     authority: "docker-compose.yml",
+  },
+  {
+    id: "non-xlsx-data-transfer",
+    pattern:
+      /\b(?:CSV|TSV|ODS|JSON|XML|Google[ -]?(?:Sheets?|Tabellen))[ -]?(?:import(?:er|s)?|export(?:er|s)?|upload|download|Import\w*|Export\w*|Upload|Download|Feldzuordnung)\b|\b(?:import|export|upload|download|importier\w*|exportier\w*|hochlad\w*|herunterlad\w*)[^.!?;|]{0,28}\b(?:CSV|TSV|ODS|Google[ -]?(?:Sheets?|Tabellen))\b|\b(?:CSV|TSV|ODS|Google[ -]?(?:Sheets?|Tabellen))[^.!?;|]{0,28}\b(?:import|export|upload|download|importier\w*|exportier\w*|hochlad\w*|herunterlad\w*)/iu,
+    permittedContext: [...NO_OR_EXTERNAL, CONTRASTED],
+    why: "Records transfer as XLSX workbooks only; no other spreadsheet or data format is read or written",
+    authority: "features/data-transfer/import/read-workbook-file.ts, app/api/export/[entityType]/route.ts",
   },
   {
     id: "record-attachments",
@@ -334,7 +347,7 @@ function extractMdxUnits(file: string, source: string): ClaimUnit[] {
       inFence = !inFence;
       continue;
     }
-    if (inFence || /^\s*(?:import|export)\s/iu.test(raw)) continue;
+    if (inFence || ESM_STATEMENT.test(raw)) continue;
 
     if (index === 0 && inFrontmatter) continue;
     if (inFrontmatter && trimmed === "---") {
@@ -552,6 +565,45 @@ describe("retired claims stay retired", () => {
         "Built-in AI assistant for every user.",
       ),
     ).toHaveLength(1);
+  });
+
+  it("catches a data transfer claim for a format other than xlsx", () => {
+    for (const claim of [
+      "Import your contacts from a CSV file.",
+      "One click CSV export for every list.",
+      "Export to Google Sheets whenever you like.",
+      "Kontakte per CSV-Import anlegen.",
+      "Laden Sie eine CSV hoch, um Datensätze zu importieren.",
+    ]) {
+      expect(findViolationsInSource("content/features/en/example.mdx", claim), claim).toHaveLength(1);
+    }
+  });
+
+  it("scans prose that opens with import or export, while still ignoring module statements", () => {
+    expect(
+      findViolationsInSource("content/features/en/example.mdx", "Import your contacts from a CSV file."),
+    ).toHaveLength(1);
+    expect(
+      findViolationsInSource("content/features/en/example.mdx", "Export every list to CSV in one click."),
+    ).toHaveLength(1);
+    expect(
+      findViolationsInSource(
+        "content/features/en/example.mdx",
+        'import Chart from "@/components/chart";\nexport const meta = { csvImport: true };',
+      ),
+    ).toHaveLength(0);
+  });
+
+  it("leaves the xlsx transfer that actually ships alone", () => {
+    for (const claim of [
+      "Import your contacts from an Excel workbook.",
+      "Export every list as an XLSX file.",
+      "Records export to XLSX rather than CSV.",
+      "There is no CSV import; use an Excel workbook.",
+      "Datensätze werden als XLSX-Datei exportiert.",
+    ]) {
+      expect(findViolationsInSource("content/features/en/example.mdx", claim), claim).toHaveLength(0);
+    }
   });
 
   it("binds a denial to the capability instead of a nearby unrelated sentence", () => {
