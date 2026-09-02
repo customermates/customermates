@@ -47,7 +47,13 @@ class RollbackOperatorTest extends Error {}
 
 async function createPlatformAccessUser(
   tx: AppPrismaClient,
-  args: { email?: string; status?: "active" | "inactive"; isPlatformOperator?: boolean; emailVerified?: boolean },
+  args: {
+    email?: string;
+    status?: "active" | "inactive";
+    isPlatformOperator?: boolean;
+    emailVerified?: boolean;
+    authCompanyId?: string | null;
+  },
 ) {
   const companyId = randomUUID();
   const userId = randomUUID();
@@ -68,13 +74,13 @@ async function createPlatformAccessUser(
   await tx.authUser.create({
     data: {
       id: authUserId,
-      companyId,
+      companyId: args.authCompanyId === undefined ? companyId : args.authCompanyId,
       email,
       name: "Platform Candidate",
       emailVerified: args.emailVerified ?? true,
     },
   });
-  return { userId, companyId, email };
+  return { userId, companyId, email, authUserId };
 }
 
 function operatorActor(userId = `operator-${randomUUID()}`): OperatorActor {
@@ -371,6 +377,169 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
       prisma.subscription.findUniqueOrThrow({ where: { companyId: target.companyId } }),
     );
     expect(subscription.enterpriseAgentCreditsPerUser).toBe(10);
+  });
+
+  it("grants platform access without reading or writing the invite marker", async () => {
+    const actor = operatorActor();
+    let observed: { granted: boolean; markerLeftAlone: boolean } | null = null;
+
+    try {
+      await runWithOperator(actor, () =>
+        runWithoutTenant(() =>
+          runInTransaction(async () => {
+            const tx = getTransactionClient<AppPrismaClient>();
+            if (!tx) throw new Error("Expected platform-access test transaction.");
+
+            const target = await createPlatformAccessUser(tx, { authCompanyId: null });
+            const repo = new PrismaOperatorRepo();
+
+            const granted = await repo.updateUserPlatformAccessUnscoped({
+              userId: target.userId,
+              isPlatformOperator: true,
+            });
+            assertAdmitted(granted);
+
+            const identity = await tx.authUser.findUniqueOrThrow({
+              where: { id: target.authUserId },
+              select: { companyId: true },
+            });
+
+            observed = { granted: granted.isPlatformOperator, markerLeftAlone: identity.companyId === null };
+            throw new RollbackOperatorTest();
+          }),
+        ),
+      );
+    } catch (error) {
+      if (!(error instanceof RollbackOperatorTest)) throw error;
+    }
+
+    expect(observed).toEqual({ granted: true, markerLeftAlone: true });
+  });
+
+  it("lets the access gate admit a member identified by email alone", async () => {
+    const actor = operatorActor();
+    let admitted: unknown = null;
+
+    try {
+      await runWithOperator(actor, () =>
+        runWithoutTenant(() =>
+          runInTransaction(async () => {
+            const tx = getTransactionClient<AppPrismaClient>();
+            if (!tx) throw new Error("Expected platform-access test transaction.");
+
+            const target = await createPlatformAccessUser(tx, { authCompanyId: null });
+            const granted = await new PrismaOperatorRepo().updateUserPlatformAccessUnscoped({
+              userId: target.userId,
+              isPlatformOperator: true,
+            });
+            assertAdmitted(granted);
+
+            const sessionId = randomUUID();
+            await tx.authSession.create({
+              data: {
+                id: sessionId,
+                token: randomUUID(),
+                userId: target.authUserId,
+                expiresAt: new Date(Date.now() + 86_400_000),
+              },
+            });
+
+            admitted = await new PrismaOperatorAccessRepo().findAuthorizedActorUnscoped({
+              session: { id: sessionId },
+              user: { id: target.authUserId, email: target.email },
+            } as never);
+
+            throw new RollbackOperatorTest();
+          }),
+        ),
+      );
+    } catch (error) {
+      if (!(error instanceof RollbackOperatorTest)) throw error;
+    }
+
+    expect(admitted).toMatchObject({ userId: expect.any(String), email: expect.any(String) });
+  });
+
+  it("ignores a stale invite marker pointing at another workspace", async () => {
+    const actor = operatorActor();
+    let outcome: unknown = null;
+
+    try {
+      await runWithOperator(actor, () =>
+        runWithoutTenant(() =>
+          runInTransaction(async () => {
+            const tx = getTransactionClient<AppPrismaClient>();
+            if (!tx) throw new Error("Expected platform-access test transaction.");
+
+            const foreignCompanyId = randomUUID();
+            await tx.company.create({ data: { id: foreignCompanyId } });
+            const target = await createPlatformAccessUser(tx, { authCompanyId: foreignCompanyId });
+            const repo = new PrismaOperatorRepo();
+
+            outcome = await repo.updateUserPlatformAccessUnscoped({
+              userId: target.userId,
+              isPlatformOperator: true,
+            });
+            throw new RollbackOperatorTest();
+          }),
+        ),
+      );
+    } catch (error) {
+      if (!(error instanceof RollbackOperatorTest)) throw error;
+    }
+
+    expect(outcome).toMatchObject({ isPlatformOperator: true });
+  });
+
+  it("resolves an address whose local part contains a pattern wildcard", async () => {
+    const actor = operatorActor();
+    let observed: { granted: boolean; admittedMatchesOperator: boolean } | null = null;
+
+    try {
+      await runWithOperator(actor, () =>
+        runWithoutTenant(() =>
+          runInTransaction(async () => {
+            const tx = getTransactionClient<AppPrismaClient>();
+            if (!tx) throw new Error("Expected platform-access test transaction.");
+
+            const marker = randomUUID().slice(0, 8);
+            const operator = await createPlatformAccessUser(tx, { email: `a_c${marker}@example.invalid` });
+            await createPlatformAccessUser(tx, { email: `abc${marker}@example.invalid` });
+
+            const granted = await new PrismaOperatorRepo().updateUserPlatformAccessUnscoped({
+              userId: operator.userId,
+              isPlatformOperator: true,
+            });
+            assertAdmitted(granted);
+
+            const sessionId = randomUUID();
+            await tx.authSession.create({
+              data: {
+                id: sessionId,
+                token: randomUUID(),
+                userId: operator.authUserId,
+                expiresAt: new Date(Date.now() + 86_400_000),
+              },
+            });
+
+            const admitted = (await new PrismaOperatorAccessRepo().findAuthorizedActorUnscoped({
+              session: { id: sessionId },
+              user: { id: operator.authUserId, email: operator.email },
+            } as never)) as { userId: string } | null;
+
+            observed = {
+              granted: granted.isPlatformOperator,
+              admittedMatchesOperator: admitted?.userId === operator.userId,
+            };
+            throw new RollbackOperatorTest();
+          }),
+        ),
+      );
+    } catch (error) {
+      if (!(error instanceof RollbackOperatorTest)) throw error;
+    }
+
+    expect(observed).toEqual({ granted: true, admittedMatchesOperator: true });
   });
 
   it("grants and revokes platform access, counting active operators in every workspace", async () => {

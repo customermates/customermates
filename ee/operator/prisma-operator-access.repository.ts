@@ -18,35 +18,34 @@ export class PrismaOperatorAccessRepo extends BaseRepository implements Operator
       }),
       this.prisma.authUser.findUnique({
         where: { id: session.user.id },
-        select: { id: true, email: true, emailVerified: true, companyId: true },
+        select: { id: true, email: true, emailVerified: true },
       }),
     ]);
     if (!freshSession || freshSession.userId !== session.user.id || freshSession.expiresAt.getTime() <= Date.now())
       return null;
-    if (!authUser?.emailVerified || !authUser.companyId) return null;
+    if (!authUser?.emailVerified) return null;
 
     const sessionEmail = normalizeOperatorEmail(session.user.email);
     const freshAuthEmail = normalizeOperatorEmail(authUser.email);
     if (sessionEmail !== freshAuthEmail) return null;
 
-    const users = await this.prisma.user.findMany({
-      where: { email: { equals: freshAuthEmail, mode: "insensitive" }, companyId: authUser.companyId },
-      take: 2,
-      select: {
-        id: true,
-        email: true,
-        companyId: true,
-        status: true,
-        isPlatformOperator: true,
-      },
-    });
-    if (users.length !== 1) return null;
+    const operatorUserSelect = {
+      id: true,
+      email: true,
+      companyId: true,
+      status: true,
+      isPlatformOperator: true,
+    } as const;
 
-    const user = users[0];
+    const user = await this.prisma.user.findUnique({
+      where: { email: freshAuthEmail },
+      select: operatorUserSelect,
+    });
+    if (!user) return null;
+
     if (
       user.status !== Status.active ||
       !user.isPlatformOperator ||
-      authUser.companyId !== user.companyId ||
       normalizeOperatorEmail(user.email) !== freshAuthEmail
     )
       return null;
