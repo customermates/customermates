@@ -9,8 +9,8 @@
   },
   "AcquisitionConsent": {
     "allowAttribution": "Consenti",
-    "description": "Sembra che tu abbia raggiunto il sito tramite un annuncio {provider}. Con il tuo consenso ricorderemo questa visita per un massimo di {days} giorni, la collegheremo al tuo account Customermates se crei un workspace e comunicheremo a {provider} che il suo annuncio ha portato a una registrazione. Non condividiamo mai il tuo nome, la tua email o altri dati personali.",
-    "descriptionGeneric": "Sembra che tu abbia raggiunto il sito tramite un annuncio. Con il tuo consenso ricorderemo questa visita, la collegheremo al tuo account Customermates se crei un workspace e comunicheremo alla piattaforma pubblicitaria che il suo annuncio ha portato a una registrazione. Non condividiamo mai il tuo nome, la tua email o altri dati personali.",
+    "description": "Sei arrivato tramite un annuncio {provider}. Possiamo ricordare questa visita per un massimo di {days} giorni e collegarla al tuo account se ti registri, per capire quali annunci portano persone qui? Non viene inviato nulla su di te a {provider}. Entrambe le scelte salvano un piccolo cookie; puoi cambiare idea in qualsiasi momento in Scelte sulla privacy.",
+    "descriptionGeneric": "Sei arrivato tramite un annuncio. Possiamo ricordare questa visita e collegarla al tuo account se ti registri, per capire quali annunci portano persone qui? Non viene inviato nulla su di te alla piattaforma pubblicitaria. Entrambe le scelte salvano un piccolo cookie; puoi cambiare idea in qualsiasi momento in Scelte sulla privacy.",
     "necessaryOnly": "No, grazie",
     "privacyLink": "Dettagli sulla privacy",
     "title": "Aiutaci a capire cosa funziona"

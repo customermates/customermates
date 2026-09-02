@@ -24,8 +24,8 @@ vi.mock("@/components/shared/app-link", () => ({
     }),
 }));
 vi.mock("@/components/ui/button", () => ({
-  Button: ({ variant, ...props }: React.ComponentProps<"button"> & { variant?: string }) =>
-    createElement("button", { ...props, "data-variant": variant ?? "default" }),
+  Button: ({ variant, size, ...props }: React.ComponentProps<"button"> & { variant?: string; size?: string }) =>
+    createElement("button", { ...props, "data-variant": variant ?? "default", "data-size": size ?? "default" }),
 }));
 vi.mock("@/components/ui/popover", () => ({
   Popover: ({ children, modal, open }: { children: React.ReactNode; modal?: boolean; open: boolean }) =>
@@ -123,8 +123,9 @@ describe("PublicAdAttributionConsentCard", () => {
     });
     await render("/en/features/cloud-crm?gclid=paid-click");
     const buttons = [...container.querySelectorAll("button")];
-    expect(buttons[0]?.dataset.variant).toBe("secondary");
-    expect(buttons[1]?.dataset.variant).toBe("secondary");
+    expect(buttons[0]?.dataset.variant).toBe(buttons[1]?.dataset.variant);
+    expect(buttons[0]?.dataset.size).toBe(buttons[1]?.dataset.size);
+    expect(buttons[0]?.className).toBe(buttons[1]?.className);
 
     await act(async () => {
       buttons[1]?.click();

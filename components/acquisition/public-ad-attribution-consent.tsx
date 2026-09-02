@@ -184,13 +184,13 @@ export function PublicAdAttributionConsentCard() {
           className="pointer-events-none fixed size-px"
           style={{
             bottom: "calc(var(--viewport-gutter) + var(--safe-bottom))",
-            left: "calc(var(--viewport-gutter) + var(--safe-left))",
+            left: "50%",
           }}
         />
       </PopoverAnchor>
 
       <PopoverContent
-        align="start"
+        align="center"
         aria-busy={isPending}
         aria-describedby="ad-attribution-consent-description"
         aria-labelledby="ad-attribution-consent-title"
@@ -229,7 +229,7 @@ export function PublicAdAttributionConsentCard() {
           <Button
             className="w-full"
             disabled={isPending}
-            variant="secondary"
+            size="lg"
             onClick={() => runUserAction(() => decide("allow-attribution"))}
           >
             {t("AcquisitionConsent.allowAttribution")}
@@ -238,7 +238,7 @@ export function PublicAdAttributionConsentCard() {
           <Button
             className="w-full"
             disabled={isPending}
-            variant="secondary"
+            size="lg"
             onClick={() => runUserAction(() => decide("necessary-only"))}
           >
             {t("AcquisitionConsent.necessaryOnly")}
