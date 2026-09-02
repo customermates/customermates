@@ -79,6 +79,38 @@ export const ResetOperatorUserCreditsSchema = z
   })
   .strict();
 
+export const UpdateOperatorSubscriptionTermsSchema = z
+  .object({
+    companyId: z.uuid(),
+    trialEndDate: z.iso.datetime({ offset: true, precision: 3 }).nullable(),
+    lemonSqueezyId: z.string().trim().min(1).max(200).nullable(),
+    reason: OptionalReasonSchema,
+  })
+  .strict();
+
+export const GetOperatorWorkspaceStatsSchema = z.object({ companyId: z.uuid() }).strict();
+
+export const WORKSPACE_TAG_MAX_LENGTH = 60;
+export const WORKSPACE_TAG_MAX_COUNT = 25;
+
+export const WorkspaceTagSchema = z.string().trim().min(1).max(WORKSPACE_TAG_MAX_LENGTH);
+
+export const UpdateOperatorWorkspaceTagsSchema = z
+  .object({
+    companyId: z.uuid(),
+    tags: z.array(WorkspaceTagSchema).max(WORKSPACE_TAG_MAX_COUNT),
+    reason: OptionalReasonSchema,
+  })
+  .strict();
+
+export const DeleteOperatorWorkspaceSchema = z
+  .object({
+    companyId: z.uuid(),
+    confirmWorkspaceLabel: z.string().trim().min(1).max(200),
+    reason: z.string().trim().min(1).max(500),
+  })
+  .strict();
+
 export type UpdateHostedAiEnterpriseAllowanceData = z.infer<typeof UpdateHostedAiEnterpriseAllowanceSchema>;
 export type CreateAgentCreditAdjustmentData = z.infer<typeof CreateAgentCreditAdjustmentSchema>;
 export type GetOperatorUserDetailData = z.infer<typeof GetOperatorUserDetailSchema>;
@@ -86,6 +118,51 @@ export type UpdateOperatorUserStatusData = z.infer<typeof UpdateOperatorUserStat
 export type UpdateOperatorUserPlatformAccessData = z.infer<typeof UpdateOperatorUserPlatformAccessSchema>;
 export type CorrectOperatorSubscriptionSnapshotData = z.infer<typeof CorrectOperatorSubscriptionSnapshotSchema>;
 export type ResetOperatorUserCreditsData = z.infer<typeof ResetOperatorUserCreditsSchema>;
+export type DeleteOperatorWorkspaceData = z.infer<typeof DeleteOperatorWorkspaceSchema>;
+export type UpdateOperatorSubscriptionTermsData = z.infer<typeof UpdateOperatorSubscriptionTermsSchema>;
+export type GetOperatorWorkspaceStatsData = z.infer<typeof GetOperatorWorkspaceStatsSchema>;
+export type UpdateOperatorWorkspaceTagsData = z.infer<typeof UpdateOperatorWorkspaceTagsSchema>;
+
+export const OperatorWorkspaceTagsDtoSchema = z.object({
+  companyId: z.uuid(),
+  tags: z.array(z.string()),
+});
+
+export type OperatorWorkspaceTagsDto = z.infer<typeof OperatorWorkspaceTagsDtoSchema>;
+
+export const OperatorWorkspaceStatsDtoSchema = z.object({
+  companyId: z.uuid(),
+  contacts: z.number(),
+  organizations: z.number(),
+  deals: z.number(),
+  services: z.number(),
+  tasks: z.number(),
+  messagingThreads: z.number(),
+  messagingMessages: z.number(),
+  agentConversations: z.number(),
+  connectedAccounts: z.number(),
+  lastActiveAt: z.date().nullable(),
+  lastActivityAt: z.date().nullable(),
+  channelMonths: z.array(
+    z.object({
+      month: z.string(),
+      peakConcurrent: z.number(),
+      approximate: z.boolean(),
+      channels: z.array(z.object({ provider: z.string(), identifier: z.string() })),
+    }),
+  ),
+});
+
+export type OperatorWorkspaceStatsDto = z.infer<typeof OperatorWorkspaceStatsDtoSchema>;
+
+export const DeleteOperatorWorkspaceResultDtoSchema = z.object({
+  companyId: z.uuid(),
+  workspaceLabel: z.string(),
+  deletedMemberCount: z.number(),
+  deletedAuthIdentityCount: z.number(),
+});
+
+export type DeleteOperatorWorkspaceResultDto = z.infer<typeof DeleteOperatorWorkspaceResultDtoSchema>;
 
 export const HostedAiUsageTotalsDtoSchema = z.object({
   settledCostMicrocents: z.string(),
@@ -255,4 +332,7 @@ export const OPERATOR_AUDIT_ACTION = {
   userPlatformAccessUpdate: "operator.platform_access.update",
   subscriptionSnapshotCorrect: "operator.subscription_snapshot.correct",
   creditBalanceReset: "operator.credit_balance.reset",
+  workspaceDelete: "operator.workspace.delete",
+  subscriptionTermsUpdate: "operator.subscription_terms.update",
+  workspaceTagsUpdate: "operator.workspace_tags.update",
 } as const;

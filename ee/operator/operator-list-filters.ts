@@ -13,6 +13,7 @@ const INTERCEPTED_FIELDS = new Set<string>([
   FilterFieldKey.isPlatformOperator,
   FilterFieldKey.workspaceId,
   FilterFieldKey.adProvider,
+  FilterFieldKey.workspaceTags,
 ]);
 
 export function filterValues(filter: Filter): string[] {
@@ -31,7 +32,9 @@ export function partitionOperatorUserFilters(filters: Filter[] | undefined): {
 } {
   const passthrough: Filter[] = [];
   const subscription: Prisma.SubscriptionWhereInput = {};
+  const company: Prisma.CompanyWhereInput = {};
   const baseWhere: Prisma.UserWhereInput = {};
+  let hasPositiveSubscriptionCondition = false;
 
   for (const filter of filters ?? []) {
     if (!INTERCEPTED_FIELDS.has(filter.field)) {
@@ -62,23 +65,67 @@ export function partitionOperatorUserFilters(filters: Filter[] | undefined): {
       continue;
     }
 
+    if (filter.field === String(FilterFieldKey.workspaceTags)) {
+      if (negated(filter)) baseWhere.NOT = { company: { tags: { hasSome: values } } };
+      else company.tags = { hasSome: values };
+      continue;
+    }
+
     if (filter.field === String(FilterFieldKey.plan)) {
       const plans = values.filter((value): value is SubscriptionPlan =>
         Object.values(SubscriptionPlan).includes(value as SubscriptionPlan),
       );
-      if (plans.length > 0) subscription.plan = negated(filter) ? { notIn: plans } : { in: plans };
+      if (plans.length > 0) {
+        subscription.plan = negated(filter) ? { notIn: plans } : { in: plans };
+        if (!negated(filter)) hasPositiveSubscriptionCondition = true;
+      }
       continue;
     }
 
     const statuses = values.filter((value): value is SubscriptionStatus =>
       Object.values(SubscriptionStatus).includes(value as SubscriptionStatus),
     );
-    if (statuses.length > 0) subscription.status = negated(filter) ? { notIn: statuses } : { in: statuses };
+    if (statuses.length > 0) {
+      subscription.status = negated(filter) ? { notIn: statuses } : { in: statuses };
+      if (!negated(filter)) hasPositiveSubscriptionCondition = true;
+    }
   }
 
-  if (Object.keys(subscription).length > 0) baseWhere.company = { subscription: { is: subscription } };
+  if (Object.keys(subscription).length > 0) {
+    if (hasPositiveSubscriptionCondition) company.subscription = { is: subscription };
+    else
+      baseWhere.OR = [{ company: { subscription: { is: subscription } } }, { company: { subscription: { is: null } } }];
+  }
+
+  if (Object.keys(company).length > 0) baseWhere.company = company;
 
   return { baseWhere, passthrough };
+}
+
+export async function resolveWorkspaceOwners(
+  prisma: AppPrismaClient,
+  companyIds: string[],
+): Promise<Map<string, string>> {
+  const owners = new Map<string, string>();
+  if (companyIds.length === 0) return owners;
+
+  const rows = await prisma.$queryRaw<Array<{ companyId: string; owner: string | null }>>`
+    SELECT DISTINCT ON (u."companyId")
+      u."companyId" AS "companyId",
+      u."email" AS "owner"
+    FROM "User" AS u
+    LEFT JOIN "UserRole" AS r ON r."id" = u."roleId"
+    WHERE u."companyId" = ANY(${companyIds}::text[])
+    ORDER BY
+      u."companyId" ASC,
+      (u."status"::text = 'active') DESC,
+      (r."isSystemRole" IS TRUE) DESC,
+      u."createdAt" ASC
+  `;
+
+  for (const row of rows) if (row.owner) owners.set(row.companyId, row.owner);
+
+  return owners;
 }
 
 export async function resolveWorkspaceLabels(

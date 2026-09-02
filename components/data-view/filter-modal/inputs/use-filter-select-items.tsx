@@ -35,6 +35,10 @@ import { getDealsAction } from "@/app/[locale]/(protected)/deals/actions";
 import { getServicesAction } from "@/app/[locale]/(protected)/services/actions";
 import { getTasksAction } from "@/app/[locale]/(protected)/tasks/actions";
 import {
+  getOperatorWorkspacesAction,
+  getOperatorWorkspaceTagsAction,
+} from "@/app/[locale]/(protected)/operator/actions";
+import {
   getActivityRecordOptionsAction,
   getActivityThreadOptionsAction,
   getConnectedAccountsAction,
@@ -186,6 +190,20 @@ export function useFilterSelectItems(
           })),
         }));
       },
+      [FilterFieldKey.workspaceId]: (params) =>
+        getOperatorWorkspacesAction(params).then((res) => ({
+          items: res.items.map((workspace) => ({
+            key: workspace.id,
+            value: workspace.id,
+            textValue: workspace.ownerEmail
+              ? `${workspace.workspaceLabel} · ${workspace.ownerEmail}`
+              : workspace.workspaceLabel,
+          })),
+        })),
+      [FilterFieldKey.workspaceTags]: () =>
+        getOperatorWorkspaceTagsAction().then((tags) => ({
+          items: tags.map((tag) => ({ key: tag, value: tag, textValue: tag })),
+        })),
       [FilterFieldKey.connectedAccountId]: () =>
         getConnectedAccountsAction().then((accounts) => ({
           items: accounts
@@ -332,7 +350,9 @@ export function useFilterSelectItems(
       case FilterFieldKey.participantContactId:
       case FilterFieldKey.taskIds:
       case FilterFieldKey.timelineThreadId:
-      case FilterFieldKey.connectedAccountId: {
+      case FilterFieldKey.connectedAccountId:
+      case FilterFieldKey.workspaceId:
+      case FilterFieldKey.workspaceTags: {
         return fetchedItems;
       }
 

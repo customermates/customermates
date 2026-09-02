@@ -14,17 +14,14 @@ import { cn } from "@/core/utils/cn";
 import { useAppForm } from "./form-context";
 import { useResolvedFieldLabel } from "./use-form-field";
 
-type Props = {
+type SharedProps = {
   id: string;
   label?: string | null;
   placeholder?: string;
   required?: boolean;
   allowMultiple?: boolean;
-  arrayMode?: boolean;
   renderChip?: (value: string, endContent: ReactNode) => ReactNode;
   chipColor?: ChipColor;
-  value?: string;
-  onValueChange?: (value: string | undefined) => void;
   onChipClick?: (value: string) => void;
   disabled?: boolean;
   readOnly?: boolean;
@@ -32,6 +29,12 @@ type Props = {
   className?: string;
   containerClassName?: string;
 };
+
+type Props = SharedProps &
+  (
+    | { arrayMode: true; value?: string[]; onValueChange?: (value: string[]) => void }
+    | { arrayMode?: false; value?: string; onValueChange?: (value: string | undefined) => void }
+  );
 
 export const FormInputChips = observer(
   ({
@@ -80,11 +83,11 @@ export const FormInputChips = observer(
     function commit(next: string[]) {
       if (isReadOnly || isDisabled) return;
       if (arrayMode) {
-        if (onValueChange) onValueChange(next as unknown as string);
+        if (onValueChange) (onValueChange as (value: string[]) => void)(next);
         else store?.onChange(id, next);
       } else {
         const nextValue = allowMultiple ? next.join(",") : next[next.length - 1];
-        if (onValueChange) onValueChange(nextValue);
+        if (onValueChange) (onValueChange as (value: string | undefined) => void)(nextValue);
         else store?.onChange(id, nextValue);
       }
       setInputValue("");

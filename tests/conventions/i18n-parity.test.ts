@@ -75,6 +75,15 @@ const REQUIRED_TRANSLATION_FRAGMENTS: Record<string, Record<string, readonly str
 };
 
 const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
+  "de:OperatorUsers.modal.identity",
+  "es:OperatorUsers.modal.identity",
+  "fr:OperatorUsers.modal.identity",
+  "it:OperatorUsers.modal.identity",
+  "de:OperatorWorkspaces.modal.identity",
+  "es:OperatorWorkspaces.modal.identity",
+  "fr:OperatorWorkspaces.modal.identity",
+  "it:OperatorWorkspaces.modal.identity",
+  "fr:OperatorWorkspaces.stats.threads",
   "de:AgentChat.activity.countedResource",
   "es:AgentChat.activity.countedResource",
   "fr:AgentChat.activity.countedResource",

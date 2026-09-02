@@ -42,6 +42,7 @@ export class OperatorUsersStore extends BaseDataViewStore<OperatorUserRowDto> {
       { uid: "name" },
       { uid: "email", sortable: true },
       { uid: "workspace" },
+      { uid: "tags" },
       { uid: "status", sortable: true },
       { uid: "plan" },
       { uid: "subscription" },

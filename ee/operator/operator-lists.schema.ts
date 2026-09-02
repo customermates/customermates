@@ -14,12 +14,17 @@ export const OperatorUserRowDtoSchema = z.object({
   updatedAt: z.date(),
   companyId: z.uuid(),
   workspaceLabel: z.string(),
+  workspaceOwnerEmail: z.string().nullable(),
+  workspaceTags: z.array(z.string()),
   plan: z.enum(SubscriptionPlan).nullable(),
   subscriptionStatus: z.enum(SubscriptionStatus).nullable(),
   subscriptionQuantity: z.number().nullable(),
   subscriptionUpdatedAt: z.date().nullable(),
   adProvider: z.string().nullable(),
   adIdentifierKind: z.string().nullable(),
+  creditsRemaining: z.number().nullable(),
+  creditsLimit: z.number().nullable(),
+  creditsBlockedReason: z.string().nullable(),
 });
 
 export type OperatorUserRowDto = z.infer<typeof OperatorUserRowDtoSchema>;
@@ -35,8 +40,11 @@ export const OperatorWorkspaceRowDtoSchema = z.object({
   subscriptionStatus: z.enum(SubscriptionStatus).nullable(),
   seats: z.number().nullable(),
   enterpriseCreditsPerUser: z.number().nullable(),
+  trialEndDate: z.date().nullable(),
+  lemonSqueezyId: z.string().nullable(),
   subscriptionUpdatedAt: z.date().nullable(),
   adProvider: z.string().nullable(),
+  tags: z.array(z.string()),
   createdAt: z.date(),
 });
 

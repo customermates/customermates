@@ -209,6 +209,7 @@ model Company {
   dealWeightingColumn         CustomColumn?                @relation("CompanyDealWeightingColumn", fields: [dealWeightingColumnId], references: [id], onDelete: SetNull)
   createdAt                   DateTime                     @default(now())
   updatedAt                   DateTime                     @updatedAt
+  tags                        String[]                     @default([])
   tasks                       Task[]
   users                       User[]
   adAttributions              AdAttribution[]

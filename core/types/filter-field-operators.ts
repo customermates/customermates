@@ -50,4 +50,5 @@ export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperat
   [FilterFieldKey.workspaceId]: scalarSelectOperators,
   [FilterFieldKey.adProvider]: scalarSelectOperators,
   [FilterFieldKey.auditSource]: scalarSelectOperators,
+  [FilterFieldKey.workspaceTags]: scalarSelectOperators,
 };

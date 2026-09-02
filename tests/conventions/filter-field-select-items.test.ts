@@ -15,7 +15,8 @@ const SELECT_ITEMS = join(REPO_ROOT, "components/data-view/filter-modal/inputs/u
 function fieldsWithSelectableValues(): Set<string> {
   const source = readFileSync(SELECT_ITEMS, "utf8");
   const cases = source.matchAll(/case FilterFieldKey\.([A-Za-z]+):/g);
-  return new Set([...cases].map((match) => match[1]));
+  const mapped = source.matchAll(/\[FilterFieldKey\.([A-Za-z]+)\]:/g);
+  return new Set([...cases, ...mapped].map((match) => match[1]));
 }
 
 describe("filter field select items", () => {
@@ -41,6 +42,18 @@ describe("filter field select items", () => {
     expect(
       freeText,
       `An enum filter field missing from RELATION_FILTER_FIELDS renders a free-text input in the filter modal, so the operator types a value instead of picking one and the filter never matches. Add:\n${freeText.join("\n")}`,
+    ).toEqual([]);
+  });
+
+  it("gives every picker filter field a source of options, whatever its value kind", () => {
+    const handled = fieldsWithSelectableValues();
+    const missing = Object.values(FilterFieldKey).filter(
+      (field) => resolveFilterValueClass(field, FilterOperatorKey.in) === "stringArray" && !handled.has(field),
+    );
+
+    expect(
+      missing,
+      `A field in RELATION_FILTER_FIELDS renders a picker, so it needs either a case in the select-items switch or an entry in fieldToGetItemsMap. Without one the picker is permanently empty, shows "No results found", and hasValidFilterConfiguration discards the draft so the filter can never be applied at all. This check is deliberately not limited to enum fields, because workspaceId is declared as a string kind and slipped past the enum-only guard. Add a source of options for:\n${missing.join("\n")}`,
     ).toEqual([]);
   });
 

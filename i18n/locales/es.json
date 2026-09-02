@@ -998,7 +998,9 @@
       "notAuthenticated": "Inicia sesión para usar esta acción.",
       "notesExceedsMaxLength": "El contenido de las notas supera la longitud máxima.",
       "notesInvalidFormat": "Formato de notas no válido. Debe ser JSON de Tiptap válido o texto markdown.",
+      "operatorAllowanceMissing": "Este espacio de trabajo aún no tiene un cupo Enterprise contratado, por lo que no se pueden corregir los créditos. Define primero el cupo en la lista de espacios de trabajo.",
       "operatorConflict": "El cambio fue rechazado. Puede que el registro haya cambiado desde que se cargó la lista, o que el espacio de trabajo no lo permita ahora mismo. Recarga y revisa el estado actual.",
+      "operatorConnectedAccountsActive": "Este espacio de trabajo todavía tiene cuentas de mensajería conectadas. Desconéctalas primero para liberar las cuentas del proveedor y elimina después el espacio de trabajo.",
       "operatorUnavailable": "La corrección solicitada no está disponible para la configuración actual de la cuenta.",
       "organizationNotFound": "ID de organización no encontrado o no accesible.",
       "passwordInvalid": "La contraseña debe tener al menos 8 caracteres e incluir al menos una mayúscula, una minúscula, un número y un carácter especial.",
@@ -1161,7 +1163,8 @@
         "updatedAt": "Actualizado el",
         "url": "URL",
         "userIds": "Asignado a",
-        "workspaceId": "Espacio de trabajo"
+        "workspaceId": "Espacio de trabajo",
+        "workspaceTags": "Etiquetas"
       },
       "operators": {
         "allSet": "totalmente vinculado",
@@ -1307,6 +1310,7 @@
     "table": {
       "columns": {
         "action": "Acción",
+        "actions": "Acciones",
         "actor": "Actor",
         "adProvider": "Proveedor de anuncios",
         "allowance": "Asignación",
@@ -1355,10 +1359,12 @@
         "status": "Estado",
         "statusCode": "Código de estado",
         "subscription": "Suscripción",
+        "tags": "Etiquetas",
         "target": "Objetivo",
         "tasks": "Tareas",
         "totalQuantity": "Cantidad de servicios",
         "totalValue": "Valor de la oportunidad",
+        "trialEnd": "Fin de prueba",
         "type": "Tipo",
         "updatedAt": "Actualizado el",
         "url": "URL",
@@ -2266,6 +2272,7 @@
     "addEntity": "Añadir {entity}",
     "addPickerDescription": "Elige el tipo de registro que quieres crear.",
     "addPickerTitle": "Crear nuevo…",
+    "admin": "Administración",
     "affiliate": "Programa de afiliados",
     "connectedAccounts": "Canales",
     "crm": "CRM",
@@ -2487,11 +2494,14 @@
         "enterpriseAllowanceUpdate": "Asignación Enterprise actualizada",
         "overviewRead": "Resumen de Hosted-AI leído",
         "subscriptionSnapshotCorrect": "Suscripción del espacio de trabajo corregida",
+        "subscriptionTermsUpdate": "Condiciones de suscripción actualizadas",
         "userDetailRead": "Detalle de usuario leído",
         "userListRead": "Lista de usuarios leída",
         "userPlatformAccessUpdate": "Acceso de plataforma actualizado",
         "userStatusUpdate": "Estado de la cuenta actualizado",
-        "userSummaryRead": "Resumen de usuarios leído"
+        "userSummaryRead": "Resumen de usuarios leído",
+        "workspaceDelete": "Espacio de trabajo eliminado",
+        "workspaceTagsUpdate": "Etiquetas del espacio de trabajo actualizadas"
       },
       "source": {
         "operator": "Operador",
@@ -2504,6 +2514,10 @@
       "allowance": "¿Establecer la asignación Enterprise de {name} en {value} créditos por usuario? Se aplica a todo el espacio de trabajo.",
       "plan": "¿Establecer el plan de {name} en {value}? Se aplica a todo el espacio de trabajo.",
       "subscription": "¿Establecer el estado de suscripción de {name} en {value}? Se aplica a todo el espacio de trabajo y no contacta con ningún proveedor de facturación.",
+      "tags": "¿Establecer las etiquetas de {name} en {value}? Se aplica a todo el espacio de trabajo.",
+      "tagsCleared": "¿Quitar todas las etiquetas de {name}? Se aplica a todo el espacio de trabajo.",
+      "terms": "¿Actualizar las condiciones de suscripción de {name}? Se aplica a todo el espacio de trabajo.",
+      "termsClearingBilling": "¿Actualizar las condiciones de {name} y desvincular su suscripción de facturación? El proveedor sigue cobrando hasta que la canceles allí.",
       "title": "Confirmar el cambio del operador"
     }
   },
@@ -2567,14 +2581,24 @@
     },
     "credits": {
       "adjustments": "Correcciones manuales",
+      "allowanceMissingDescription": "El espacio de trabajo no tiene un cupo Enterprise contratado, por lo que aquí se rechaza cualquier corrección de créditos. Define primero el cupo del espacio de trabajo.",
+      "allowanceMissingShort": "Sin definir",
       "base": "Asignación base",
       "committed": "Usados y reservados",
+      "noneShort": "Sin plan",
+      "position": "{remaining} de {limit}",
       "remaining": "Restantes",
+      "setAllowance": "Definir cupo del espacio",
       "title": "Posición de créditos actual",
       "unavailableDescription": "El espacio de trabajo necesita una autorización válida y un punto de anclaje de créditos antes de poder corregirlos o restablecerlos."
     },
     "emptyBody": "Ajusta la búsqueda o los filtros para ampliar el directorio.",
     "emptyTitle": "Ningún usuario coincide con estos filtros",
+    "modal": {
+      "access": "Acceso",
+      "adjustmentConfirm": "¿Aplicar una corrección de {value} créditos a {name}?",
+      "identity": "{person} · {email}"
+    },
     "navigation": "Usuarios",
     "platformAccess": {
       "revoked": "No concedido"
@@ -2593,13 +2617,66 @@
   "OperatorWorkspaces": {
     "allowance": {
       "label": "Créditos por usuario",
+      "notSet": "Sin definir",
       "title": "Asignación Enterprise",
       "warningDescription": "La asignación se concede por usuario en todo el espacio y afecta al periodo actual."
     },
+    "channels": {
+      "approximate": "Al menos una hora de desconexión es estimada, por lo que este máximo puede ser algo alto.",
+      "description": "Máximo de canales conectados simultáneamente por mes, reconstruido a partir del registro de auditoría del espacio de trabajo.",
+      "monthLabel": "Mes",
+      "monthOption": "{month} · {count} en el pico",
+      "none": "Nunca se han conectado canales.",
+      "title": "Canales conectados"
+    },
+    "delete": {
+      "action": "Eliminar espacio de trabajo",
+      "confirmLabel": "Escribe {name} para confirmar",
+      "confirmMessage": "{name} y {members, plural, =1 {su única cuenta de miembro} other {todas sus # cuentas de miembro}} se eliminarán de forma permanente. Esta acción no se puede deshacer.",
+      "confirmTitle": "Eliminar permanentemente este espacio de trabajo",
+      "reasonLabel": "Motivo",
+      "title": "Eliminar este espacio de trabajo",
+      "warningDescription": "Al eliminar {name} se borran de forma permanente el espacio de trabajo y {members, plural, =1 {su única cuenta de miembro} other {todas sus # cuentas de miembro}}, junto con sus contactos, negocios, mensajes, credenciales de acceso y registros de facturación. Esta acción no se puede deshacer."
+    },
     "emptyBody": "Ajusta la búsqueda o los filtros para ampliar la lista.",
     "emptyTitle": "Ningún espacio coincide con estos filtros",
+    "modal": {
+      "identity": "{domain} · {owner}",
+      "subscription": "Suscripción",
+      "workspaceId": "ID del espacio de trabajo"
+    },
     "navigation": "Espacios de trabajo",
     "searchPlaceholder": "Buscar por correo de un miembro",
+    "stats": {
+      "assistantConversations": "Chats del asistente",
+      "connectedAccounts": "Cuentas conectadas",
+      "contacts": "Contactos",
+      "deals": "Negocios",
+      "lastActive": "Último inicio de sesión",
+      "lastActivity": "Último cambio registrado",
+      "messages": "Mensajes",
+      "never": "Nunca",
+      "organizations": "Organizaciones",
+      "services": "Servicios",
+      "tasks": "Tareas",
+      "threads": "Conversaciones",
+      "title": "Estadísticas del espacio"
+    },
+    "tags": {
+      "description": "Agrupa espacios de trabajo por distribuidor o responsable de cuenta. Las etiquetas aparecen en la lista de usuarios y se pueden filtrar en ambas listas.",
+      "label": "Etiquetas asignadas",
+      "more": "+{count} más",
+      "placeholder": "Escribe una etiqueta y pulsa Intro",
+      "suggestions": "Usadas recientemente",
+      "title": "Etiquetas"
+    },
+    "terms": {
+      "billingId": "ID de suscripción de facturación",
+      "billingIdPlaceholder": "Déjalo vacío para desvincular",
+      "billingWarning": "Vaciarlo desvincula el espacio de trabajo de su suscripción de facturación. El proveedor sigue cobrando hasta que la canceles allí.",
+      "noTrial": "Sin prueba",
+      "trialEnd": "Fin de la prueba"
+    },
     "values": {
       "members": "{active} de {total}"
     }

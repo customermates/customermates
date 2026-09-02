@@ -998,7 +998,9 @@
       "notAuthenticated": "Accedi per usare questa azione.",
       "notesExceedsMaxLength": "Il contenuto delle note supera la lunghezza massima.",
       "notesInvalidFormat": "Formato delle note non valido. Deve essere JSON Tiptap valido o testo markdown.",
+      "operatorAllowanceMissing": "Questo spazio di lavoro non ha ancora un contingente Enterprise contrattuale, quindi i crediti non possono essere corretti. Imposta prima il contingente nell'elenco degli spazi di lavoro.",
       "operatorConflict": "La modifica è stata rifiutata. Il record potrebbe essere cambiato dal caricamento dell’elenco, oppure lo spazio di lavoro al momento non la consente. Ricarica e verifica lo stato attuale.",
+      "operatorConnectedAccountsActive": "Questo spazio di lavoro ha ancora account di messaggistica collegati. Scollegali prima per liberare gli account del fornitore, poi elimina lo spazio di lavoro.",
       "operatorUnavailable": "La correzione richiesta non è disponibile per la configurazione corrente dell’account.",
       "organizationNotFound": "ID organizzazione non trovato o non accessibile.",
       "passwordInvalid": "La password deve contenere almeno 8 caratteri e includere almeno una lettera maiuscola, una minuscola, un numero e un carattere speciale.",
@@ -1161,7 +1163,8 @@
         "updatedAt": "Aggiornato il",
         "url": "URL",
         "userIds": "Assegnato a",
-        "workspaceId": "Area di lavoro"
+        "workspaceId": "Area di lavoro",
+        "workspaceTags": "Etichette"
       },
       "operators": {
         "allSet": "completamente collegato",
@@ -1307,6 +1310,7 @@
     "table": {
       "columns": {
         "action": "Azione",
+        "actions": "Azioni",
         "actor": "Autore",
         "adProvider": "Provider pubblicitario",
         "allowance": "Dotazione",
@@ -1355,10 +1359,12 @@
         "status": "Stato",
         "statusCode": "Codice di stato",
         "subscription": "Abbonamento",
+        "tags": "Etichette",
         "target": "Destinazione",
         "tasks": "Attività",
         "totalQuantity": "Quantità di servizi",
         "totalValue": "Valore della trattativa",
+        "trialEnd": "Fine prova",
         "type": "Tipo",
         "updatedAt": "Aggiornato il",
         "url": "URL",
@@ -2266,6 +2272,7 @@
     "addEntity": "Aggiungi {entity}",
     "addPickerDescription": "Scegli il tipo di record che vuoi creare.",
     "addPickerTitle": "Crea nuovo…",
+    "admin": "Amministrazione",
     "affiliate": "Programma di affiliazione",
     "connectedAccounts": "Canali",
     "crm": "CRM",
@@ -2487,11 +2494,14 @@
         "enterpriseAllowanceUpdate": "Assegnazione Enterprise aggiornata",
         "overviewRead": "Panoramica Hosted-AI letta",
         "subscriptionSnapshotCorrect": "Abbonamento dello spazio di lavoro corretto",
+        "subscriptionTermsUpdate": "Condizioni di abbonamento aggiornate",
         "userDetailRead": "Dettaglio utente letto",
         "userListRead": "Elenco utenti letto",
         "userPlatformAccessUpdate": "Accesso alla piattaforma aggiornato",
         "userStatusUpdate": "Stato account aggiornato",
-        "userSummaryRead": "Riepilogo utenti letto"
+        "userSummaryRead": "Riepilogo utenti letto",
+        "workspaceDelete": "Spazio di lavoro eliminato",
+        "workspaceTagsUpdate": "Etichette dell'area di lavoro aggiornate"
       },
       "source": {
         "operator": "Operatore",
@@ -2504,6 +2514,10 @@
       "allowance": "Impostare l'allocazione Enterprise di {name} su {value} crediti per utente? Si applica all'intero spazio di lavoro.",
       "plan": "Impostare il piano di {name} su {value}? Si applica all’intero spazio di lavoro.",
       "subscription": "Impostare lo stato dell’abbonamento di {name} su {value}? Si applica all’intero spazio di lavoro e non contatta alcun fornitore di fatturazione.",
+      "tags": "Impostare le etichette di {name} su {value}? Si applica all'intera area di lavoro.",
+      "tagsCleared": "Rimuovere tutte le etichette da {name}? Si applica all'intera area di lavoro.",
+      "terms": "Aggiornare le condizioni di abbonamento di {name}? Si applica all'intero spazio di lavoro.",
+      "termsClearingBilling": "Aggiornare le condizioni di {name} e scollegare il suo abbonamento di fatturazione? Il fornitore continua ad addebitare finché non lo annulli lì.",
       "title": "Conferma la modifica operatore"
     }
   },
@@ -2567,14 +2581,24 @@
     },
     "credits": {
       "adjustments": "Correzioni manuali",
+      "allowanceMissingDescription": "Lo spazio di lavoro non ha un contingente Enterprise contrattuale, quindi ogni correzione di crediti viene rifiutata. Imposta prima il contingente dello spazio di lavoro.",
+      "allowanceMissingShort": "Non impostato",
       "base": "Disponibilità di base",
       "committed": "Usati e riservati",
+      "noneShort": "Nessun piano",
+      "position": "{remaining} di {limit}",
       "remaining": "Rimanenti",
+      "setAllowance": "Imposta contingente",
       "title": "Posizione crediti corrente",
       "unavailableDescription": "L’area di lavoro deve avere un’autorizzazione valida e un riferimento temporale per i crediti prima di poterli correggere o ripristinare."
     },
     "emptyBody": "Modifica la ricerca o i filtri per ampliare l’elenco.",
     "emptyTitle": "Nessun utente corrisponde a questi filtri",
+    "modal": {
+      "access": "Accesso",
+      "adjustmentConfirm": "Applicare una correzione di {value} crediti a {name}?",
+      "identity": "{person} · {email}"
+    },
     "navigation": "Utenti",
     "platformAccess": {
       "revoked": "Non concesso"
@@ -2593,13 +2617,66 @@
   "OperatorWorkspaces": {
     "allowance": {
       "label": "Crediti per utente",
+      "notSet": "Non impostato",
       "title": "Dotazione Enterprise",
       "warningDescription": "La dotazione è concessa per utente su tutta l’area e ha effetto sul periodo corrente."
     },
+    "channels": {
+      "approximate": "Almeno un orario di disconnessione è stimato, quindi questo picco potrebbe essere leggermente alto.",
+      "description": "Numero massimo di canali collegati contemporaneamente per mese, ricostruito dal registro di audit dello spazio di lavoro.",
+      "monthLabel": "Mese",
+      "monthOption": "{month} · {count} al picco",
+      "none": "Non è mai stato collegato alcun canale.",
+      "title": "Canali collegati"
+    },
+    "delete": {
+      "action": "Elimina spazio di lavoro",
+      "confirmLabel": "Digita {name} per confermare",
+      "confirmMessage": "{name} e {members, plural, =1 {il suo unico account membro} other {tutti i suoi # account membri}} saranno eliminati definitivamente. L'operazione non è reversibile.",
+      "confirmTitle": "Elimina definitivamente questo spazio di lavoro",
+      "reasonLabel": "Motivo",
+      "title": "Elimina questo spazio di lavoro",
+      "warningDescription": "L'eliminazione di {name} rimuove definitivamente lo spazio di lavoro e {members, plural, =1 {il suo unico account membro} other {tutti i suoi # account membri}}, insieme a contatti, trattative, messaggi, credenziali di accesso e dati di fatturazione. L'operazione non è reversibile."
+    },
     "emptyBody": "Modifica la ricerca o i filtri per ampliare l’elenco.",
     "emptyTitle": "Nessuna area corrisponde a questi filtri",
+    "modal": {
+      "identity": "{domain} · {owner}",
+      "subscription": "Abbonamento",
+      "workspaceId": "ID spazio di lavoro"
+    },
     "navigation": "Aree di lavoro",
     "searchPlaceholder": "Cerca per e-mail di un membro",
+    "stats": {
+      "assistantConversations": "Chat dell'assistente",
+      "connectedAccounts": "Account collegati",
+      "contacts": "Contatti",
+      "deals": "Trattative",
+      "lastActive": "Ultimo accesso",
+      "lastActivity": "Ultima modifica registrata",
+      "messages": "Messaggi",
+      "never": "Mai",
+      "organizations": "Organizzazioni",
+      "services": "Servizi",
+      "tasks": "Attività",
+      "threads": "Conversazioni",
+      "title": "Statistiche dello spazio"
+    },
+    "tags": {
+      "description": "Raggruppa le aree di lavoro per rivenditore o referente. Le etichette compaiono nell'elenco utenti e sono filtrabili in entrambi gli elenchi.",
+      "label": "Etichette assegnate",
+      "more": "+{count} altre",
+      "placeholder": "Digita un'etichetta e premi Invio",
+      "suggestions": "Usate di recente",
+      "title": "Etichette"
+    },
+    "terms": {
+      "billingId": "ID abbonamento di fatturazione",
+      "billingIdPlaceholder": "Lascia vuoto per scollegare",
+      "billingWarning": "Svuotarlo scollega lo spazio di lavoro dal suo abbonamento di fatturazione. Il fornitore continua ad addebitare finché non lo annulli lì.",
+      "noTrial": "Nessuna prova",
+      "trialEnd": "Fine della prova"
+    },
     "values": {
       "members": "{active} su {total}"
     }

@@ -39,6 +39,7 @@ const RELATION_FILTER_FIELDS = [
   FilterFieldKey.workspaceId,
   FilterFieldKey.auditSource,
   FilterFieldKey.adProvider,
+  FilterFieldKey.workspaceTags,
 ];
 
 const DATE_FILTER_FIELDS = [

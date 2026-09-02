@@ -7,6 +7,7 @@ import {
   getGetOperatorAuditLogsInteractor,
   getGetOperatorUsersInteractor,
   getGetOperatorWorkspacesInteractor,
+  getGetOperatorWorkspaceTagsInteractor,
 } from "@/core/di";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 import { adConversionLedgerCsv, googleAdsConversionCsv } from "@/ee/operator/ad-conversion-csv";
@@ -37,4 +38,8 @@ export async function getAdConversionExportAction(): Promise<{
     otherProvidersCsv: adConversionLedgerCsv(exported),
     rowCount: exported.rows.length,
   };
+}
+
+export async function getOperatorWorkspaceTagsAction() {
+  return unwrapValidated(getGetOperatorWorkspaceTagsInteractor().invoke());
 }
