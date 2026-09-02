@@ -1,5 +1,5 @@
 import type { Prisma } from "@/generated/prisma";
-import { Status, SubscriptionPlan, SubscriptionStatus, TaskType } from "@/generated/prisma";
+import { ConnectedAccountStatus, Status, SubscriptionPlan, SubscriptionStatus, TaskType } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
@@ -15,6 +15,11 @@ import {
   type AgentCreditAdjustmentDto,
   type CorrectOperatorSubscriptionSnapshotData,
   type CreateAgentCreditAdjustmentData,
+  type DeleteOperatorWorkspaceData,
+  type UpdateOperatorSubscriptionTermsData,
+  type GetOperatorWorkspaceStatsData,
+  type OperatorWorkspaceStatsDto,
+  type DeleteOperatorWorkspaceResultDto,
   type HostedAiOperatorCompanyDto,
   type HostedAiOperatorOverviewDto,
   type HostedAiUsageTotalsDto,
@@ -26,7 +31,46 @@ import {
   type UpdateHostedAiEnterpriseAllowanceData,
   type UpdateOperatorUserPlatformAccessData,
   type UpdateOperatorUserStatusData,
+  type UpdateOperatorWorkspaceTagsData,
+  type OperatorWorkspaceTagsDto,
 } from "./operator.schema";
+
+function workspaceLabelFor(companyId: string, members: { email: string }[]): string {
+  const counts = new Map<string, number>();
+  for (const member of members) {
+    const domain = member.email.split("@")[1];
+    if (domain) counts.set(domain, (counts.get(domain) ?? 0) + 1);
+  }
+
+  const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
+
+  return ranked[0]?.[0] ?? companyId.slice(0, 8);
+}
+
+function normalizeWorkspaceTags(tags: string[]): string[] {
+  const byComparisonKey = new Map<string, string>();
+
+  for (const candidate of tags) {
+    const tag = candidate.trim().replace(/\s+/g, " ");
+    if (!tag) continue;
+
+    const key = tag.toLowerCase();
+    if (!byComparisonKey.has(key)) byComparisonKey.set(key, tag);
+  }
+
+  return [...byComparisonKey.entries()]
+    .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))
+    .map(([, tag]) => tag);
+}
+
+const WORKFLOW_RUN_CHILD_TABLES = [
+  "workflow_event_slots",
+  "workflow_events",
+  "workflow_hooks",
+  "workflow_steps",
+  "workflow_stream_chunks",
+  "workflow_waits",
+] as const;
 
 type AuditAction = (typeof OPERATOR_AUDIT_ACTION)[keyof typeof OPERATOR_AUDIT_ACTION];
 const MAX_ADJUSTMENT_CREDITS = 1_000_000;
@@ -802,6 +846,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           activeSeatAt: user.agentCreditActivatedAt,
           now,
         });
+        if (entitlement.blockedReason === "enterprise_allowance_missing") return "allowanceMissing";
         if (entitlement.blockedReason) return "conflict";
 
         if (
@@ -911,6 +956,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
 
         const credit = await this.userCreditPeriod(user, now);
         if (!credit) return "unavailable";
+        if (credit.blockedReason === "enterprise_allowance_missing") return "allowanceMissing";
         const currentAllowance = credit.baseAllowanceCredits + credit.adjustmentCredits;
         if (!Number.isSafeInteger(currentAllowance)) throw new Error("Current hosted-AI allowance is invalid.");
 
@@ -959,5 +1005,322 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
       },
       { companyId },
     );
+  }
+
+  @BypassTenantGuard
+  async deleteWorkspaceUnscoped(
+    data: DeleteOperatorWorkspaceData,
+  ): Promise<DeleteOperatorWorkspaceResultDto | OperatorRefusal> {
+    const actor = getOperatorActor();
+    if (actor.companyId === data.companyId) return "conflict";
+
+    return runInTransaction(
+      async () => {
+        const company = await this.prisma.company.findUnique({
+          where: { id: data.companyId },
+          select: {
+            id: true,
+            users: { select: { id: true, email: true, status: true, isPlatformOperator: true } },
+            subscription: { select: { plan: true, status: true, lemonSqueezyId: true } },
+          },
+        });
+        if (!company) return "notFound";
+
+        const workspaceLabel = workspaceLabelFor(company.id, company.users);
+        if (data.confirmWorkspaceLabel !== workspaceLabel) return "conflict";
+        if (company.users.some((member) => member.isPlatformOperator && member.status === Status.active))
+          return "conflict";
+
+        const liveConnectedAccounts = await this.prisma.connectedAccount.count({
+          where: { companyId: data.companyId, status: { not: ConnectedAccountStatus.deleted } },
+        });
+        if (liveConnectedAccounts > 0) return "connectedAccountsActive";
+
+        const memberIds = company.users.map((member) => member.id);
+        const memberEmails = company.users.map((member) => member.email);
+
+        await this.prisma.inviteToken.deleteMany({ where: { createdById: { in: memberIds } } });
+
+        const identities = await this.prisma.authUser.findMany({
+          where: { email: { in: memberEmails, mode: "insensitive" } },
+          select: { id: true },
+        });
+        const identityIds = identities.map((identity) => identity.id);
+        await this.prisma.apikey.deleteMany({ where: { referenceId: { in: identityIds } } });
+        await this.prisma.authVerification.deleteMany({
+          where: { identifier: { in: memberEmails, mode: "insensitive" } },
+        });
+        await this.prisma.authUser.deleteMany({ where: { id: { in: identityIds } } });
+
+        await this.prisma.messagingInboundEvent.deleteMany({ where: { companyId: data.companyId } });
+
+        const [workflowSchema] = await this.prisma.$queryRaw<Array<{ installed: boolean }>>`
+          SELECT to_regclass('workflow.workflow_runs') IS NOT NULL AS installed
+        `;
+
+        let workflowRunIds: string[] = [];
+        if (workflowSchema?.installed) {
+          const workflowRuns = await this.prisma.$queryRaw<Array<{ id: string }>>`
+            SELECT "id" FROM "workflow"."workflow_runs" WHERE "input"->>'companyId' = ${data.companyId}
+          `;
+          workflowRunIds = workflowRuns.map((run) => run.id);
+
+          if (workflowRunIds.length > 0) {
+            for (const table of WORKFLOW_RUN_CHILD_TABLES) {
+              await this.prisma.$executeRawUnsafe(
+                `DELETE FROM "workflow"."${table}" WHERE "run_id" = ANY($1::text[])`,
+                workflowRunIds,
+              );
+            }
+            await this.prisma.$executeRaw`
+              DELETE FROM "workflow"."workflow_runs" WHERE "id" = ANY(${workflowRunIds}::text[])
+            `;
+          }
+        }
+
+        await this.prisma.company.delete({ where: { id: data.companyId } });
+
+        await this.createAudit({
+          action: OPERATOR_AUDIT_ACTION.workspaceDelete,
+          targetCompanyId: data.companyId,
+          reason: data.reason,
+          metadata: {
+            workspaceLabel,
+            deletedMemberCount: memberIds.length,
+            deletedAuthIdentityCount: identityIds.length,
+            deletedWorkflowRunCount: workflowRunIds.length,
+            plan: company.subscription?.plan ?? null,
+            subscriptionStatus: company.subscription?.status ?? null,
+            billingSubscriptionLeftActive: Boolean(company.subscription?.lemonSqueezyId),
+          },
+        });
+
+        return {
+          companyId: data.companyId,
+          workspaceLabel,
+          deletedMemberCount: memberIds.length,
+          deletedAuthIdentityCount: identityIds.length,
+        };
+      },
+      { companyId: data.companyId },
+    );
+  }
+
+  @BypassTenantGuard
+  async updateSubscriptionTermsUnscoped(
+    data: UpdateOperatorSubscriptionTermsData,
+    now = new Date(),
+  ): Promise<HostedAiOperatorCompanyDto | OperatorRefusal> {
+    return runInTransaction(
+      async () => {
+        const reason = data.reason ?? null;
+        const subscription = await this.prisma.subscription.findUnique({
+          where: { companyId: data.companyId },
+        });
+        if (!subscription) return "notFound";
+
+        const trialEndDate = data.trialEndDate === null ? null : new Date(data.trialEndDate);
+        if (trialEndDate && !Number.isFinite(trialEndDate.getTime())) return "conflict";
+
+        const previous = {
+          trialEndDate: subscription.trialEndDate?.toISOString() ?? null,
+          lemonSqueezyId: subscription.lemonSqueezyId,
+        };
+        const next = {
+          trialEndDate: trialEndDate?.toISOString() ?? null,
+          lemonSqueezyId: data.lemonSqueezyId,
+        };
+
+        await this.prisma.subscription.update({
+          where: { companyId: data.companyId },
+          data: {
+            trialEndDate,
+            lemonSqueezyId: data.lemonSqueezyId,
+            ...(data.lemonSqueezyId === null ? { lemonSqueezyVariantId: null } : {}),
+          },
+        });
+        await this.createAudit({
+          action: OPERATOR_AUDIT_ACTION.subscriptionTermsUpdate,
+          targetCompanyId: data.companyId,
+          reason,
+          metadata: {
+            previous,
+            next,
+            billingBindingCleared: previous.lemonSqueezyId !== null && next.lemonSqueezyId === null,
+          },
+        });
+
+        const result = await this.companySnapshot(data.companyId, now);
+        if (!result) throw new Error("Updated subscription terms could not be read.");
+        return result;
+      },
+      { companyId: data.companyId },
+    );
+  }
+
+  @BypassTenantGuard
+  async getWorkspaceStatsUnscoped(
+    data: GetOperatorWorkspaceStatsData,
+  ): Promise<OperatorWorkspaceStatsDto | OperatorRefusal> {
+    const company = await this.prisma.company.findUnique({
+      where: { id: data.companyId },
+      select: { id: true },
+    });
+    if (!company) return "notFound";
+
+    const rows = await this.prisma.$queryRaw<
+      Array<{
+        contacts: number;
+        organizations: number;
+        deals: number;
+        services: number;
+        tasks: number;
+        messagingThreads: number;
+        messagingMessages: number;
+        agentConversations: number;
+        connectedAccounts: number;
+        lastActiveAt: Date | null;
+        lastActivityAt: Date | null;
+      }>
+    >`
+      SELECT
+        (SELECT COUNT(*) FROM "Contact" WHERE "companyId" = ${data.companyId})::int AS "contacts",
+        (SELECT COUNT(*) FROM "Organization" WHERE "companyId" = ${data.companyId})::int AS "organizations",
+        (SELECT COUNT(*) FROM "Deal" WHERE "companyId" = ${data.companyId})::int AS "deals",
+        (SELECT COUNT(*) FROM "Service" WHERE "companyId" = ${data.companyId})::int AS "services",
+        (SELECT COUNT(*) FROM "Task" WHERE "companyId" = ${data.companyId})::int AS "tasks",
+        (SELECT COUNT(*) FROM "MessagingThread" WHERE "companyId" = ${data.companyId})::int AS "messagingThreads",
+        (SELECT COUNT(*) FROM "MessagingMessage" WHERE "companyId" = ${data.companyId})::int AS "messagingMessages",
+        (SELECT COUNT(*) FROM "AgentConversation" WHERE "companyId" = ${data.companyId})::int AS "agentConversations",
+        (SELECT COUNT(*) FROM "ConnectedAccount" WHERE "companyId" = ${data.companyId})::int AS "connectedAccounts",
+        (SELECT MAX("lastActiveAt") FROM "User" WHERE "companyId" = ${data.companyId}) AS "lastActiveAt",
+        (SELECT MAX("createdAt") FROM "AuditLog" WHERE "companyId" = ${data.companyId}) AS "lastActivityAt"
+    `;
+
+    const row = rows[0];
+    if (!row) throw new Error("Workspace statistics could not be read.");
+
+    const channelMonths = await this.channelMonthsUnscoped(data.companyId);
+
+    return { companyId: data.companyId, ...row, channelMonths };
+  }
+
+  @BypassTenantGuard
+  async updateWorkspaceTagsUnscoped(
+    data: UpdateOperatorWorkspaceTagsData,
+  ): Promise<OperatorWorkspaceTagsDto | OperatorRefusal> {
+    return runInTransaction(
+      async () => {
+        const company = await this.prisma.company.findUnique({
+          where: { id: data.companyId },
+          select: { tags: true },
+        });
+        if (!company) return "notFound";
+
+        const previous = normalizeWorkspaceTags(company.tags);
+        const next = normalizeWorkspaceTags(data.tags);
+
+        await this.prisma.company.update({ where: { id: data.companyId }, data: { tags: next } });
+        await this.createAudit({
+          action: OPERATOR_AUDIT_ACTION.workspaceTagsUpdate,
+          targetCompanyId: data.companyId,
+          reason: data.reason ?? null,
+          metadata: {
+            previous,
+            next,
+            added: next.filter((tag) => !previous.includes(tag)),
+            removed: previous.filter((tag) => !next.includes(tag)),
+          },
+        });
+
+        return { companyId: data.companyId, tags: next };
+      },
+      { companyId: data.companyId },
+    );
+  }
+
+  @BypassTenantGuard
+  async listWorkspaceTagsUnscoped(): Promise<string[]> {
+    const rows = await this.prisma.$queryRaw<Array<{ tag: string }>>`
+      SELECT tag
+      FROM (SELECT DISTINCT unnest("tags") AS tag FROM "Company") AS distinct_tags
+      ORDER BY lower(tag) ASC, tag ASC
+    `;
+
+    return rows.map((row) => row.tag);
+  }
+
+  @BypassTenantGuard
+  private async channelMonthsUnscoped(companyId: string): Promise<
+    Array<{
+      month: string;
+      peakConcurrent: number;
+      approximate: boolean;
+      channels: Array<{ provider: string; identifier: string }>;
+    }>
+  > {
+    const rows = await this.prisma.$queryRaw<
+      Array<{
+        month: string;
+        peakConcurrent: number;
+        approximate: boolean;
+        channels: Array<{ provider: string; identifier: string }> | null;
+      }>
+    >`
+      WITH ev AS (
+        SELECT "eventData"->>'entityId' AS acct,
+               "eventData"->'payload'->>'provider' AS provider,
+               COALESCE("eventData"->'payload'->>'emailAddress', "eventData"->'payload'->>'displayName') AS ident,
+               "event" AS name,
+               "createdAt"
+        FROM "AuditLog"
+        WHERE "companyId" = ${companyId} AND "event" LIKE 'connected_account%'
+      ),
+      iv AS (
+        SELECT e.acct,
+               MIN(e.provider) FILTER (WHERE e.provider IS NOT NULL) AS provider,
+               MIN(e.ident) FILTER (WHERE e.ident IS NOT NULL) AS ident,
+               MIN(e."createdAt") FILTER (WHERE e.name = 'connected_account.created') AS started,
+               COALESCE(
+                 MAX(e."createdAt") FILTER (WHERE e.name = 'connected_account.deleted'),
+                 CASE WHEN c."id" IS NULL THEN MAX(e."createdAt")
+                      WHEN c."status" = 'deleted' THEN c."updatedAt" END
+               ) AS ended,
+               (MAX(e."createdAt") FILTER (WHERE e.name = 'connected_account.deleted')) IS NULL
+                 AND (c."id" IS NULL OR c."status" = 'deleted') AS approx
+        FROM ev e LEFT JOIN "ConnectedAccount" c ON c."id" = e.acct
+        GROUP BY e.acct, c."id", c."status", c."updatedAt"
+      ),
+      bounded AS (SELECT * FROM iv WHERE started IS NOT NULL),
+      months AS (
+        SELECT generate_series(
+          date_trunc('month', (SELECT MIN(started) FROM bounded)),
+          date_trunc('month', NOW()),
+          interval '1 month'
+        ) AS m
+      ),
+      active AS (
+        SELECT m.m, i.*
+        FROM months m JOIN bounded i
+          ON i.started < m.m + interval '1 month' AND (i.ended IS NULL OR i.ended >= m.m)
+      ),
+      peak AS (
+        SELECT a.m,
+               MAX((SELECT COUNT(*) FROM bounded i WHERE i.started <= p.t AND (i.ended IS NULL OR i.ended >= p.t))) AS pk
+        FROM active a CROSS JOIN LATERAL (SELECT unnest(ARRAY[a.m, a.started]) AS t) p
+        WHERE p.t >= a.m AND p.t < a.m + interval '1 month'
+        GROUP BY a.m
+      )
+      SELECT to_char(a.m, 'YYYY-MM') AS "month",
+             COALESCE(MAX(p.pk), 0)::int AS "peakConcurrent",
+             bool_or(a.approx) AS "approximate",
+             jsonb_agg(DISTINCT jsonb_build_object('provider', a.provider, 'identifier', COALESCE(a.ident, '-')))
+               AS "channels"
+      FROM active a LEFT JOIN peak p ON p.m = a.m
+      GROUP BY a.m
+      ORDER BY a.m DESC
+    `;
+
+    return rows.map((row) => ({ ...row, channels: row.channels ?? [] }));
   }
 }

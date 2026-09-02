@@ -998,7 +998,9 @@
       "notAuthenticated": "Sign in to use this action.",
       "notesExceedsMaxLength": "Notes content exceeds maximum length.",
       "notesInvalidFormat": "Invalid notes format. Must be valid Tiptap JSON or markdown text.",
+      "operatorAllowanceMissing": "This workspace has no contracted Enterprise allowance yet, so credits cannot be corrected. Set the allowance on the Workspaces list first.",
       "operatorConflict": "That change was refused. The record may have changed since the list loaded, or the workspace may not allow it right now. Reload and check the current state.",
+      "operatorConnectedAccountsActive": "This workspace still has connected messaging accounts. Disconnect them first so the provider accounts are released, then delete the workspace.",
       "operatorUnavailable": "The requested correction is not available for the current account configuration.",
       "organizationNotFound": "Organization ID not found or not accessible.",
       "passwordInvalid": "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
@@ -1161,7 +1163,8 @@
         "updatedAt": "Updated at",
         "url": "URL",
         "userIds": "Assigned",
-        "workspaceId": "Workspace"
+        "workspaceId": "Workspace",
+        "workspaceTags": "Tags"
       },
       "operators": {
         "allSet": "fully linked",
@@ -1307,6 +1310,7 @@
     "table": {
       "columns": {
         "action": "Action",
+        "actions": "Actions",
         "actor": "Actor",
         "allowance": "Allowance",
         "amount": "Amount",
@@ -1355,10 +1359,12 @@
         "status": "Status",
         "statusCode": "Status Code",
         "subscription": "Subscription",
+        "tags": "Tags",
         "target": "Target",
         "tasks": "Tasks",
         "totalQuantity": "Service Quantity",
         "totalValue": "Deal Value",
+        "trialEnd": "Trial ends",
         "type": "Type",
         "updatedAt": "Updated at",
         "url": "URL",
@@ -2266,6 +2272,7 @@
     "addEntity": "Add {entity}",
     "addPickerDescription": "Pick the type of record you want to create.",
     "addPickerTitle": "Create new…",
+    "admin": "Admin",
     "affiliate": "Affiliate Program",
     "connectedAccounts": "Channels",
     "crm": "CRM",
@@ -2487,11 +2494,14 @@
         "enterpriseAllowanceUpdate": "Enterprise allowance updated",
         "overviewRead": "Hosted-AI overview read",
         "subscriptionSnapshotCorrect": "Workspace subscription corrected",
+        "subscriptionTermsUpdate": "Subscription terms updated",
         "userDetailRead": "User detail read",
         "userListRead": "User list read",
         "userPlatformAccessUpdate": "Platform access updated",
         "userStatusUpdate": "Account status updated",
-        "userSummaryRead": "User summary read"
+        "userSummaryRead": "User summary read",
+        "workspaceDelete": "Workspace deleted",
+        "workspaceTagsUpdate": "Workspace tags updated"
       },
       "source": {
         "operator": "Operator",
@@ -2504,6 +2514,10 @@
       "allowance": "Set the Enterprise allowance for {name} to {value} credits per user? This applies to the whole workspace.",
       "plan": "Set the plan for {name} to {value}? This applies to the whole workspace.",
       "subscription": "Set the subscription status for {name} to {value}? This applies to the whole workspace and contacts no billing provider.",
+      "tags": "Set the tags for {name} to {value}? This applies to the whole workspace.",
+      "tagsCleared": "Remove all tags from {name}? This applies to the whole workspace.",
+      "terms": "Update the subscription terms for {name}? This applies to the whole workspace.",
+      "termsClearingBilling": "Update the subscription terms for {name} and detach its billing subscription? The provider keeps charging until you cancel it there.",
       "title": "Confirm operator change"
     }
   },
@@ -2555,14 +2569,24 @@
     },
     "credits": {
       "adjustments": "Manual corrections",
+      "allowanceMissingDescription": "The workspace has no contracted Enterprise allowance, so every credit correction here is refused. Set the allowance on the workspace first.",
+      "allowanceMissingShort": "Not set",
       "base": "Base allowance",
       "committed": "Used and reserved",
+      "noneShort": "No plan",
+      "position": "{remaining} of {limit}",
       "remaining": "Remaining",
+      "setAllowance": "Set workspace allowance",
       "title": "Current credit position",
       "unavailableDescription": "The workspace needs a valid entitlement and credit anchor before credits can be corrected or reset."
     },
     "emptyBody": "Adjust the search or filters to widen the directory.",
     "emptyTitle": "No users match these filters",
+    "modal": {
+      "access": "Access",
+      "adjustmentConfirm": "Apply a correction of {value} credits to {name}?",
+      "identity": "{person} · {email}"
+    },
     "navigation": "Users",
     "platformAccess": {
       "revoked": "Not granted"
@@ -2581,13 +2605,66 @@
   "OperatorWorkspaces": {
     "allowance": {
       "label": "Credits per user",
+      "notSet": "Not set",
       "title": "Enterprise allowance",
       "warningDescription": "The allowance is granted per user across the whole workspace and takes effect on the current period."
     },
+    "channels": {
+      "approximate": "One or more disconnect times are estimated, so this peak may be slightly high.",
+      "description": "Peak simultaneously connected channels per month, reconstructed from the workspace audit trail.",
+      "monthLabel": "Month",
+      "monthOption": "{month} · {count} at peak",
+      "none": "No channels have ever been connected.",
+      "title": "Connected channels"
+    },
+    "delete": {
+      "action": "Delete workspace",
+      "confirmLabel": "Type {name} to confirm",
+      "confirmMessage": "{name} and {members, plural, =1 {its one member account} other {all # member accounts}} will be permanently deleted. This cannot be undone.",
+      "confirmTitle": "Delete this workspace permanently",
+      "reasonLabel": "Reason",
+      "title": "Delete this workspace",
+      "warningDescription": "Deleting {name} permanently removes the workspace and {members, plural, =1 {its one member account} other {all # member accounts}}, together with their contacts, deals, messages, sign-in credentials and billing records. This cannot be undone."
+    },
     "emptyBody": "Adjust the search or filters to widen the list.",
     "emptyTitle": "No workspaces match these filters",
+    "modal": {
+      "identity": "{domain} · {owner}",
+      "subscription": "Subscription",
+      "workspaceId": "Workspace ID"
+    },
     "navigation": "Workspaces",
     "searchPlaceholder": "Search by member email",
+    "stats": {
+      "assistantConversations": "Assistant chats",
+      "connectedAccounts": "Connected accounts",
+      "contacts": "Contacts",
+      "deals": "Deals",
+      "lastActive": "Last sign-in",
+      "lastActivity": "Last recorded change",
+      "messages": "Messages",
+      "never": "Never",
+      "organizations": "Organizations",
+      "services": "Services",
+      "tasks": "Tasks",
+      "threads": "Conversations",
+      "title": "Workspace statistics"
+    },
+    "tags": {
+      "description": "Group workspaces by reseller or account owner. Tags show on the users list and can be filtered on both lists.",
+      "label": "Assigned tags",
+      "more": "+{count} more",
+      "placeholder": "Add a tag and press Enter",
+      "suggestions": "Recently used",
+      "title": "Tags"
+    },
+    "terms": {
+      "billingId": "Billing subscription ID",
+      "billingIdPlaceholder": "Leave empty to detach",
+      "billingWarning": "Clearing this detaches the workspace from its billing subscription. The provider keeps charging until you cancel it there.",
+      "noTrial": "No trial",
+      "trialEnd": "Trial ends"
+    },
     "values": {
       "members": "{active} of {total}"
     }

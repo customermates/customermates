@@ -21,10 +21,6 @@ vi.mock("../components/use-operator-chip-options", () => ({
   useOperatorChipOptions: () => ({ accountStatus: [], plan: [], subscription: [], platformAccess: [] }),
 }));
 
-vi.mock("../components/operator-chip-select", () => ({ OperatorChipSelect: () => null }));
-
-vi.mock("../components/users/operator-user-credits-popover", () => ({ OperatorUserCreditsPopover: () => null }));
-
 const { OperatorUsersStore } = await import("../components/users/operator-users.store");
 const { useOperatorUserColumns } = await import("../components/users/use-operator-user-columns");
 

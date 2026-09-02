@@ -3,7 +3,10 @@ import type { TableColumn } from "@/core/base/base-data-view.store";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type {
   CorrectOperatorSubscriptionSnapshotData,
+  DeleteOperatorWorkspaceData,
+  UpdateOperatorSubscriptionTermsData,
   UpdateHostedAiEnterpriseAllowanceData,
+  UpdateOperatorWorkspaceTagsData,
 } from "@/ee/operator/operator.schema";
 import type { OperatorWorkspaceRowDto } from "@/ee/operator/operator-lists.schema";
 
@@ -11,7 +14,12 @@ import { action, makeObservable } from "mobx";
 
 import { getOperatorWorkspacesAction } from "../../actions";
 import { correctOperatorSubscriptionSnapshotAction } from "../../users/actions";
-import { updateOperatorEnterpriseAllowanceAction } from "../../workspaces/actions";
+import {
+  deleteOperatorWorkspaceAction,
+  updateOperatorEnterpriseAllowanceAction,
+  updateOperatorSubscriptionTermsAction,
+  updateOperatorWorkspaceTagsAction,
+} from "../../workspaces/actions";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
@@ -23,6 +31,9 @@ export class OperatorWorkspacesStore extends BaseDataViewStore<OperatorWorkspace
     makeObservable(this, {
       correctSubscription: action,
       updateEnterpriseAllowance: action,
+      deleteWorkspace: action,
+      updateSubscriptionTerms: action,
+      updateTags: action,
     });
   }
 
@@ -32,8 +43,10 @@ export class OperatorWorkspacesStore extends BaseDataViewStore<OperatorWorkspace
       { uid: "owner" },
       { uid: "plan" },
       { uid: "subscription" },
+      { uid: "tags" },
       { uid: "members" },
       { uid: "allowance" },
+      { uid: "trialEnd" },
       { uid: "createdAt", sortable: true },
     ];
   }
@@ -54,6 +67,45 @@ export class OperatorWorkspacesStore extends BaseDataViewStore<OperatorWorkspace
   updateEnterpriseAllowance = async (data: UpdateHostedAiEnterpriseAllowanceData): Promise<boolean> => {
     return this.rootStore.loadingOverlayStore.withLoading(async () => {
       const res = await updateOperatorEnterpriseAllowanceAction(data);
+      if (!res.ok) {
+        toastZodErrorTree(res.error);
+        return false;
+      }
+
+      await this.refresh();
+      return true;
+    });
+  };
+
+  deleteWorkspace = async (data: DeleteOperatorWorkspaceData): Promise<boolean> => {
+    return this.rootStore.loadingOverlayStore.withLoading(async () => {
+      const res = await deleteOperatorWorkspaceAction(data);
+      if (!res.ok) {
+        toastZodErrorTree(res.error);
+        return false;
+      }
+
+      await this.refresh();
+      return true;
+    });
+  };
+
+  updateSubscriptionTerms = async (data: UpdateOperatorSubscriptionTermsData): Promise<boolean> => {
+    return this.rootStore.loadingOverlayStore.withLoading(async () => {
+      const res = await updateOperatorSubscriptionTermsAction(data);
+      if (!res.ok) {
+        toastZodErrorTree(res.error);
+        return false;
+      }
+
+      await this.refresh();
+      return true;
+    });
+  };
+
+  updateTags = async (data: UpdateOperatorWorkspaceTagsData): Promise<boolean> => {
+    return this.rootStore.loadingOverlayStore.withLoading(async () => {
+      const res = await updateOperatorWorkspaceTagsAction(data);
       if (!res.ok) {
         toastZodErrorTree(res.error);
         return false;

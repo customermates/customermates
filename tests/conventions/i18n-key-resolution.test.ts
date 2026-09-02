@@ -137,6 +137,8 @@ const AUDIT_FIELD_KEYS = [
 ] as const;
 
 const TABLE_COLUMN_KEYS = [
+  "Common.table.columns.actions",
+  "Common.table.columns.trialEnd",
   "Common.table.columns.amount",
   "Common.table.columns.weightedValue",
   "Common.table.columns.avatarUrl",
@@ -195,6 +197,7 @@ const TABLE_COLUMN_KEYS = [
   "Common.table.columns.reason",
   "Common.table.columns.source",
   "Common.table.columns.subscription",
+  "Common.table.columns.tags",
   "Common.table.columns.target",
   "Common.table.columns.workspace",
 ] as const;
@@ -490,6 +493,13 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
 const ENFORCED = true;
 
 export const DYNAMIC_KEY_SITES = [
+  "app/[locale]/(protected)/operator/components/workspaces/operator-workspace-modal.tsx :: t :: Common.providers.${channel.provider}",
+  "app/[locale]/(protected)/operator/components/users/use-operator-user-columns.tsx :: t :: Common.userStatuses.${row.original.status}",
+  "app/[locale]/(protected)/operator/components/users/use-operator-user-columns.tsx :: t :: Subscription.planNames.${row.original.plan}",
+  "app/[locale]/(protected)/operator/components/users/use-operator-user-columns.tsx :: t :: Subscription.status.${row.original.subscriptionStatus}",
+  "app/[locale]/(protected)/operator/components/workspaces/operator-workspace-modal.tsx :: t :: Subscription.planNames.${workspace.plan}",
+  "app/[locale]/(protected)/operator/components/workspaces/use-operator-workspace-columns.tsx :: t :: Subscription.planNames.${row.original.plan}",
+  "app/[locale]/(protected)/operator/components/workspaces/use-operator-workspace-columns.tsx :: t :: Subscription.status.${row.original.subscriptionStatus}",
   "app/[locale]/(protected)/operator/components/operator-value-labels.tsx :: t :: Common.events.${action}",
   "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Common.userStatuses.${status}",
   "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Subscription.planNames.${plan}",

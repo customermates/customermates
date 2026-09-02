@@ -661,4 +661,113 @@ describeDatabase("operator user administration against a real database", { timeo
       ),
     ).resolves.toBe(0);
   });
+
+  it("refuses credit work with allowanceMissing until an Enterprise workspace has a contracted allowance", async () => {
+    const repo = new PrismaOperatorRepo();
+    const companyId = await createCompany({ plan: "enterprise", status: "active", enterpriseCreditsPerUser: null });
+    const target = await createUser({
+      companyId,
+      email: `allowance-missing-${randomUUID()}@example.invalid`,
+    });
+    const actor = operatorActor();
+
+    const refused = await runWithOperator(actor, () =>
+      repo.createCreditAdjustmentUnscoped(
+        {
+          companyId,
+          userId: target.userId,
+          creditDelta: 500,
+          periodStart: periodStart.toISOString(),
+          periodEnd: periodEnd.toISOString(),
+          operationId: randomUUID(),
+        },
+        now,
+      ),
+    );
+    expect(refused).toBe("allowanceMissing");
+
+    const refusedReset = await runWithOperator(actor, () =>
+      repo.resetUserCreditsUnscoped({ userId: target.userId, mode: "baseAllowance", operationId: randomUUID() }, now),
+    );
+    expect(refusedReset).toBe("allowanceMissing");
+
+    await runWithoutTenant(async () => {
+      expect(await prisma.agentCreditAdjustment.count({ where: { companyId } })).toBe(0);
+    });
+
+    const provisioned = await runWithOperator(actor, () =>
+      repo.updateEnterpriseAllowanceUnscoped({ companyId, creditsPerUser: 750 }, now),
+    );
+    assertAdmitted(provisioned);
+
+    const accepted = await runWithOperator(actor, () =>
+      repo.createCreditAdjustmentUnscoped(
+        {
+          companyId,
+          userId: target.userId,
+          creditDelta: 250,
+          periodStart: periodStart.toISOString(),
+          periodEnd: periodEnd.toISOString(),
+          operationId: randomUUID(),
+        },
+        now,
+      ),
+    );
+    assertAdmitted(accepted);
+
+    await runWithoutTenant(async () => {
+      expect(await prisma.agentCreditAdjustment.count({ where: { companyId } })).toBe(1);
+    });
+  });
+
+  it("updates trial end and billing binding, auditing previous and next on every edit", async () => {
+    const repo = new PrismaOperatorRepo();
+    const providerId = `provider-${randomUUID()}`;
+    const companyId = await createCompany({ plan: "pro", status: "trial", lemonSqueezyId: providerId });
+    await createUser({ companyId, email: `terms-${randomUUID()}@example.invalid` });
+    const actor = operatorActor();
+    const extended = new Date("2026-11-20T22:59:59.999Z");
+
+    const updated = await runWithOperator(actor, () =>
+      repo.updateSubscriptionTermsUnscoped(
+        { companyId, trialEndDate: extended.toISOString(), lemonSqueezyId: providerId },
+        now,
+      ),
+    );
+    assertAdmitted(updated);
+
+    const cleared = await runWithOperator(actor, () =>
+      repo.updateSubscriptionTermsUnscoped(
+        { companyId, trialEndDate: extended.toISOString(), lemonSqueezyId: null },
+        now,
+      ),
+    );
+    assertAdmitted(cleared);
+
+    await runWithoutTenant(async () => {
+      const subscription = await prisma.subscription.findUniqueOrThrow({ where: { companyId } });
+      expect(subscription.trialEndDate?.toISOString()).toBe(extended.toISOString());
+      expect(subscription.lemonSqueezyId).toBeNull();
+      expect(subscription.lemonSqueezyVariantId).toBeNull();
+
+      const audits = await prisma.operatorAuditEvent.findMany({
+        where: { actorUserId: actor.userId, action: OPERATOR_AUDIT_ACTION.subscriptionTermsUpdate },
+        orderBy: { createdAt: "asc" },
+      });
+      expect(audits).toHaveLength(2);
+
+      const first = audits[0]?.metadata as { previous?: Record<string, unknown>; next?: Record<string, unknown> };
+      expect(first.previous?.lemonSqueezyId).toBe(providerId);
+      expect(first.next?.trialEndDate).toBe(extended.toISOString());
+
+      const second = audits[1]?.metadata as {
+        previous?: Record<string, unknown>;
+        next?: Record<string, unknown>;
+        billingBindingCleared?: boolean;
+      };
+      expect(second.previous?.lemonSqueezyId).toBe(providerId);
+      expect(second.next?.lemonSqueezyId).toBeNull();
+      expect(second.billingBindingCleared).toBe(true);
+    });
+  });
 });

@@ -88,6 +88,7 @@ const RELATION_FIELD_MAPPING: Record<FilterFieldKey, string> = {
   [FilterFieldKey.workspaceId]: "companyId",
   [FilterFieldKey.googleAdsClickId]: "googleAdsClickId",
   [FilterFieldKey.auditSource]: "auditSource",
+  [FilterFieldKey.workspaceTags]: "tags",
 };
 
 export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknown>> {

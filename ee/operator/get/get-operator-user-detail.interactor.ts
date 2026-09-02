@@ -18,6 +18,8 @@ export class GetOperatorUserDetailInteractor {
   async invoke(data: GetOperatorUserDetailData): Validated<OperatorUserDetailDto> {
     const result = await this.repo.getUserDetailUnscoped(data.userId);
 
+    if (result === "connectedAccountsActive") return failConflict(CustomErrorCode.operatorConnectedAccountsActive);
+    if (result === "allowanceMissing") return failConflict(CustomErrorCode.operatorAllowanceMissing);
     if (result === "conflict") return failConflict(CustomErrorCode.operatorConflict);
     if (result === "notFound") return failNotFound(CustomErrorCode.userNotFound);
     if (result === "unavailable") return failUnavailable(CustomErrorCode.operatorUnavailable);

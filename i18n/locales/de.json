@@ -998,7 +998,9 @@
       "notAuthenticated": "Melde dich an, um diese Aktion zu verwenden.",
       "notesExceedsMaxLength": "Notizinhalt überschreitet die maximale Länge.",
       "notesInvalidFormat": "Ungültiges Notizformat. Muss gültiges Tiptap JSON oder Markdown-Text sein.",
+      "operatorAllowanceMissing": "Für diesen Workspace ist noch kein vertraglich vereinbartes Enterprise-Kontingent hinterlegt, daher lassen sich Credits nicht korrigieren. Hinterlege das Kontingent zuerst in der Workspace-Liste.",
       "operatorConflict": "Die Änderung wurde abgelehnt. Der Datensatz hat sich seit dem Laden der Liste möglicherweise geändert, oder der Workspace lässt sie derzeit nicht zu. Lade neu und prüfe den aktuellen Stand.",
+      "operatorConnectedAccountsActive": "Dieser Workspace hat noch verbundene Messaging-Konten. Trenne sie zuerst, damit die Anbieterkonten freigegeben werden, und lösche den Workspace dann.",
       "operatorUnavailable": "Die gewünschte Korrektur ist für die aktuelle Kontokonfiguration nicht verfügbar.",
       "organizationNotFound": "Organisations-ID nicht gefunden oder nicht zugänglich.",
       "passwordInvalid": "Das Passwort muss mindestens 8 Zeichen lang sein und mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und ein Sonderzeichen enthalten.",
@@ -1161,7 +1163,8 @@
         "updatedAt": "Aktualisiert am",
         "url": "URL",
         "userIds": "Zugewiesen",
-        "workspaceId": "Arbeitsbereich"
+        "workspaceId": "Arbeitsbereich",
+        "workspaceTags": "Schlagwörter"
       },
       "operators": {
         "allSet": "vollständig verknüpft",
@@ -1307,6 +1310,7 @@
     "table": {
       "columns": {
         "action": "Aktion",
+        "actions": "Aktionen",
         "actor": "Akteur",
         "allowance": "Kontingent",
         "amount": "Betrag",
@@ -1355,10 +1359,12 @@
         "status": "Status",
         "statusCode": "Status-Code",
         "subscription": "Abonnement",
+        "tags": "Schlagwörter",
         "target": "Ziel",
         "tasks": "Aufgaben",
         "totalQuantity": "Service-Anzahl",
         "totalValue": "Deal-Wert",
+        "trialEnd": "Testphase endet",
         "type": "Typ",
         "updatedAt": "Aktualisiert am",
         "url": "URL",
@@ -2266,6 +2272,7 @@
     "addEntity": "{entity} hinzufügen",
     "addPickerDescription": "Wähle den Typ des Datensatzes, den du anlegen möchtest.",
     "addPickerTitle": "Neu anlegen…",
+    "admin": "Administration",
     "affiliate": "Affiliate-Programm",
     "connectedAccounts": "Kanäle",
     "crm": "CRM",
@@ -2487,11 +2494,14 @@
         "enterpriseAllowanceUpdate": "Enterprise-Kontingent aktualisiert",
         "overviewRead": "Hosted-AI-Übersicht gelesen",
         "subscriptionSnapshotCorrect": "Workspace-Abonnement korrigiert",
+        "subscriptionTermsUpdate": "Abonnementkonditionen aktualisiert",
         "userDetailRead": "Benutzerdetails gelesen",
         "userListRead": "Benutzerliste gelesen",
         "userPlatformAccessUpdate": "Plattformzugriff aktualisiert",
         "userStatusUpdate": "Kontostatus aktualisiert",
-        "userSummaryRead": "Benutzerübersicht gelesen"
+        "userSummaryRead": "Benutzerübersicht gelesen",
+        "workspaceDelete": "Workspace gelöscht",
+        "workspaceTagsUpdate": "Arbeitsbereichs-Schlagwörter aktualisiert"
       },
       "source": {
         "operator": "Operator",
@@ -2504,6 +2514,10 @@
       "allowance": "Enterprise-Kontingent für {name} auf {value} Credits pro Nutzer setzen? Das gilt für den gesamten Workspace.",
       "plan": "Den Tarif für {name} auf {value} setzen? Das gilt für den gesamten Workspace.",
       "subscription": "Den Abonnementstatus für {name} auf {value} setzen? Das gilt für den gesamten Workspace und kontaktiert keinen Zahlungsanbieter.",
+      "tags": "Schlagwörter für {name} auf {value} setzen? Das gilt für den gesamten Arbeitsbereich.",
+      "tagsCleared": "Alle Schlagwörter von {name} entfernen? Das gilt für den gesamten Arbeitsbereich.",
+      "terms": "Abonnementkonditionen für {name} aktualisieren? Gilt für den gesamten Workspace.",
+      "termsClearingBilling": "Abonnementkonditionen für {name} aktualisieren und das Abrechnungsabo trennen? Der Anbieter berechnet weiter, bis du dort kündigst.",
       "title": "Operator-Änderung bestätigen"
     }
   },
@@ -2555,14 +2569,24 @@
     },
     "credits": {
       "adjustments": "Manuelle Korrekturen",
+      "allowanceMissingDescription": "Der Workspace hat kein vertraglich vereinbartes Enterprise-Kontingent, daher wird hier jede Credit-Korrektur abgelehnt. Hinterlege zuerst das Kontingent des Workspace.",
+      "allowanceMissingShort": "Nicht gesetzt",
       "base": "Grundkontingent",
       "committed": "Verbraucht und reserviert",
+      "noneShort": "Kein Tarif",
+      "position": "{remaining} von {limit}",
       "remaining": "Verbleibend",
+      "setAllowance": "Workspace-Kontingent setzen",
       "title": "Aktueller Credit-Stand",
       "unavailableDescription": "Der Arbeitsbereich benötigt eine gültige Berechtigung und einen Credit-Anker, bevor Credits korrigiert oder zurückgesetzt werden können."
     },
     "emptyBody": "Passen Sie Suche oder Filter an, um das Verzeichnis zu erweitern.",
     "emptyTitle": "Keine Benutzer passen zu diesen Filtern",
+    "modal": {
+      "access": "Zugriff",
+      "adjustmentConfirm": "Korrektur von {value} Credits für {name} anwenden?",
+      "identity": "{person} · {email}"
+    },
     "navigation": "Benutzer",
     "platformAccess": {
       "revoked": "Nicht erteilt"
@@ -2581,13 +2605,66 @@
   "OperatorWorkspaces": {
     "allowance": {
       "label": "Credits pro Benutzer",
+      "notSet": "Nicht gesetzt",
       "title": "Enterprise-Kontingent",
       "warningDescription": "Das Kontingent gilt pro Benutzer im gesamten Arbeitsbereich und wirkt sich auf die aktuelle Periode aus."
     },
+    "channels": {
+      "approximate": "Mindestens ein Trennzeitpunkt ist geschätzt, daher kann dieser Höchstwert leicht zu hoch sein.",
+      "description": "Höchstzahl gleichzeitig verbundener Kanäle pro Monat, rekonstruiert aus dem Audit-Verlauf des Workspace.",
+      "monthLabel": "Monat",
+      "monthOption": "{month} · {count} im Maximum",
+      "none": "Es waren nie Kanäle verbunden.",
+      "title": "Verbundene Kanäle"
+    },
+    "delete": {
+      "action": "Workspace löschen",
+      "confirmLabel": "Zur Bestätigung {name} eingeben",
+      "confirmMessage": "{name} und {members, plural, =1 {sein einziges Mitgliedskonto} other {alle # Mitgliedskonten}} werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden.",
+      "confirmTitle": "Diesen Workspace dauerhaft löschen",
+      "reasonLabel": "Grund",
+      "title": "Diesen Workspace löschen",
+      "warningDescription": "Beim Löschen von {name} werden der Workspace und {members, plural, =1 {sein einziges Mitgliedskonto} other {alle # Mitgliedskonten}} dauerhaft entfernt, samt Kontakten, Deals, Nachrichten, Anmeldedaten und Abrechnungsdaten. Dies kann nicht rückgängig gemacht werden."
+    },
     "emptyBody": "Passen Sie Suche oder Filter an, um die Liste zu erweitern.",
     "emptyTitle": "Keine Arbeitsbereiche passen zu diesen Filtern",
+    "modal": {
+      "identity": "{domain} · {owner}",
+      "subscription": "Abonnement",
+      "workspaceId": "Workspace-ID"
+    },
     "navigation": "Arbeitsbereiche",
     "searchPlaceholder": "Nach Mitglieds-E-Mail suchen",
+    "stats": {
+      "assistantConversations": "Assistent-Chats",
+      "connectedAccounts": "Verbundene Konten",
+      "contacts": "Kontakte",
+      "deals": "Deals",
+      "lastActive": "Letzte Anmeldung",
+      "lastActivity": "Letzte erfasste Änderung",
+      "messages": "Nachrichten",
+      "never": "Nie",
+      "organizations": "Organisationen",
+      "services": "Leistungen",
+      "tasks": "Aufgaben",
+      "threads": "Unterhaltungen",
+      "title": "Workspace-Statistiken"
+    },
+    "tags": {
+      "description": "Arbeitsbereiche nach Reseller oder Kundenbetreuung gruppieren. Schlagwörter erscheinen in der Nutzerliste und lassen sich in beiden Listen filtern.",
+      "label": "Zugewiesene Schlagwörter",
+      "more": "+{count} weitere",
+      "placeholder": "Schlagwort eingeben und Enter drücken",
+      "suggestions": "Zuletzt verwendet",
+      "title": "Schlagwörter"
+    },
+    "terms": {
+      "billingId": "Abrechnungs-Abo-ID",
+      "billingIdPlaceholder": "Leer lassen zum Trennen",
+      "billingWarning": "Das Leeren trennt den Workspace von seinem Abrechnungsabo. Der Anbieter berechnet weiter, bis du dort kündigst.",
+      "noTrial": "Keine Testphase",
+      "trialEnd": "Testphase endet"
+    },
     "values": {
       "members": "{active} von {total}"
     }
