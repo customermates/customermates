@@ -1,6 +1,14 @@
 import type { AdConversionExportDto, AdConversionExportRowDto } from "./operator-lists.schema";
 
-export const GOOGLE_ADS_CSV_IDENTIFIER_KIND = "gclid";
+import { ConversionEventType } from "@/generated/prisma";
+import { AD_PROVIDERS } from "@/features/acquisition/ad-provider-registry";
+
+const GOOGLE_ADS_CSV_IDENTIFIER_KIND = AD_PROVIDERS.google_ads.identifierKinds[0];
+
+const AD_CONVERSION_ACTION_NAMES = {
+  [ConversionEventType.signup]: "Customermates signup",
+  [ConversionEventType.paid]: "Customermates paid",
+} as const satisfies Record<ConversionEventType, string>;
 
 export function isGoogleAdsCsvRow(row: AdConversionExportRowDto): boolean {
   return row.provider === "google_ads" && row.identifierKind === GOOGLE_ADS_CSV_IDENTIFIER_KIND;
@@ -9,11 +17,6 @@ export function isGoogleAdsCsvRow(row: AdConversionExportRowDto): boolean {
 export function isGoogleAdsRowWithoutCsvColumn(row: AdConversionExportRowDto): boolean {
   return row.provider === "google_ads" && row.identifierKind !== GOOGLE_ADS_CSV_IDENTIFIER_KIND;
 }
-
-export const AD_CONVERSION_ACTION_NAMES = {
-  signup: "Customermates signup",
-  paid: "Customermates paid",
-} as const;
 
 function googleConversionTime(value: Date): string {
   return `${value.toISOString().slice(0, 19).replace("T", " ")}+0000`;
@@ -27,11 +30,7 @@ function csvLine(cells: readonly string[]): string {
   return cells.map(csvCell).join(",");
 }
 
-function conversionActionName(conversionType: string): string {
-  return conversionType === "paid" ? AD_CONVERSION_ACTION_NAMES.paid : AD_CONVERSION_ACTION_NAMES.signup;
-}
-
-export function googleAdsConversionCsv(exported: AdConversionExportDto): string {
+export function googleAdsConversionCsv(exported: Pick<AdConversionExportDto, "rows">): string {
   const rows = exported.rows.filter(isGoogleAdsCsvRow);
   const lines = [
     "Parameters:TimeZone=+0000",
@@ -46,7 +45,7 @@ export function googleAdsConversionCsv(exported: AdConversionExportDto): string 
     ...rows.map((row) =>
       csvLine([
         row.identifierValue,
-        conversionActionName(row.conversionType),
+        AD_CONVERSION_ACTION_NAMES[row.conversionType],
         googleConversionTime(row.conversionAt),
         row.orderId,
         row.adUserData,

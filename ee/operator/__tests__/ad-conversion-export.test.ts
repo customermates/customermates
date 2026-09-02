@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AD_ATTRIBUTION_NOTICE_VERSION } from "@/constants/legal-documents";
 import { unwrapValidated } from "@/core/validation/validation.utils";
@@ -32,10 +32,19 @@ function exportFor(rows: AdConversionExportRow[]) {
   const interactor = new GetAdConversionExportInteractor({
     listAdConversionCandidatesUnscoped: () => Promise.resolve(rows),
   });
-  return unwrapValidated(interactor.invoke(NOW));
+  return unwrapValidated(interactor.invoke());
 }
 
 describe("ad conversion export", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("emits a stable order id so a repeated export deduplicates at the platform", async () => {
     const first = await exportFor([row()]);
     const second = await exportFor([row()]);
@@ -50,7 +59,7 @@ describe("ad conversion export", () => {
     async (kind) => {
       const exported = await exportFor([
         row(),
-        row({ companyId: "company-2", identifierKind: kind, identifierValue: "IOS_APP_CLICK" }),
+        row({ companyId: "company-2", identifierKind: kind as "gbraid" | "wbraid", identifierValue: "IOS_APP_CLICK" }),
       ]);
       const csv = googleAdsConversionCsv(exported);
 

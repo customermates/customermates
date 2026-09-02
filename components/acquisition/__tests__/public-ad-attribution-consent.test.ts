@@ -44,10 +44,11 @@ vi.mock("@/core/errors/report-application-error", () => ({
   reportApplicationError: mocks.report,
   runUserAction: (action: () => unknown) => void Promise.resolve(action()).catch(mocks.report),
 }));
-vi.mock("@/features/acquisition/ad-attribution.actions", () => ({
-  captureConsentedAdClickAction: mocks.capture,
-  decidePublicAdAttributionConsentAction: mocks.decide,
-  readPublicAdAttributionConsentAction: mocks.read,
+vi.mock("@/app/[locale]/actions", () => ({
+  captureAdClickAction: mocks.capture,
+  decideAdAttributionConsentAction: (...args: unknown[]) =>
+    mocks.decide(...args).then((data: unknown) => ({ ok: true as const, data })),
+  readAdAttributionConsentAction: mocks.read,
   reconcileAdAttributionWithdrawalAction: mocks.reconcile,
 }));
 

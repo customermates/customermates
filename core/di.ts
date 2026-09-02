@@ -57,6 +57,10 @@ import { WidgetGroupingService } from "@/features/widget/calculator/widget-group
 import { SubscriptionService } from "@/ee/subscription/subscription.service";
 import { EntitlementService } from "@/ee/subscription/entitlement.service";
 import { BackgroundTaskService } from "@/core/utils/background-task.service";
+import { CaptureAdClickInteractor } from "@/features/acquisition/capture-ad-click.interactor";
+import { DecideAdAttributionConsentInteractor } from "@/features/acquisition/decide-ad-attribution-consent.interactor";
+import { NextAdAttributionCookieRepo } from "@/features/acquisition/next/ad-attribution-cookie";
+import { ReadAdAttributionConsentInteractor } from "@/features/acquisition/read-ad-attribution-consent.interactor";
 import { WithdrawAdAttributionInteractor } from "@/features/acquisition/withdraw-ad-attribution.interactor";
 // Task Listeners
 import { UserPendingAuthorizationTaskListener } from "@/features/tasks/listener/user-pending-authorization-task.listener";
@@ -904,8 +908,18 @@ export const getDeleteManyTasksInteractor = () =>
 export const getRegisterUserInteractor = () =>
   new RegisterUserInteractor(getAuthService(), getUserRepo(), getEventService(), getRouteGuardService());
 
+export const getAdAttributionCookieRepo = () => new NextAdAttributionCookieRepo();
+
+export const getReadAdAttributionConsentInteractor = () =>
+  new ReadAdAttributionConsentInteractor(getAdAttributionCookieRepo());
+
+export const getDecideAdAttributionConsentInteractor = () =>
+  new DecideAdAttributionConsentInteractor(getAdAttributionCookieRepo());
+
+export const getCaptureAdClickInteractor = () => new CaptureAdClickInteractor(getAdAttributionCookieRepo());
+
 export const getWithdrawAdAttributionInteractor = () =>
-  new WithdrawAdAttributionInteractor(getRouteGuardService(), getUserRepo());
+  new WithdrawAdAttributionInteractor(getRouteGuardService(), getUserRepo(), getAdAttributionCookieRepo());
 
 export const getUpdateUserDetailsInteractor = () => new UpdateUserDetailsInteractor(getUserRepo(), getEventService());
 

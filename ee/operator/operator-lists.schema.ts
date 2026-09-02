@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
+import { ConversionEventType, Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
+import { AdIdentifierKindSchema, AdProviderSchema } from "@/features/acquisition/ad-provider-registry";
 
 export const OperatorUserRowDtoSchema = z.object({
   id: z.uuid(),
@@ -85,10 +86,10 @@ export const OperatorRiskSummaryDtoSchema = z.object({
 export type OperatorRiskSummaryDto = z.infer<typeof OperatorRiskSummaryDtoSchema>;
 
 export const AdConversionExportRowDtoSchema = z.object({
-  provider: z.string(),
-  identifierKind: z.string(),
+  provider: AdProviderSchema,
+  identifierKind: AdIdentifierKindSchema,
   identifierValue: z.string(),
-  conversionType: z.string(),
+  conversionType: z.enum(ConversionEventType),
   conversionAt: z.date(),
   orderId: z.string(),
   adUserData: z.enum(["Granted", "Denied"]),
@@ -100,6 +101,9 @@ export type AdConversionExportRowDto = z.infer<typeof AdConversionExportRowDtoSc
 export const AdConversionExportDtoSchema = z.object({
   generatedAt: z.date(),
   rows: z.array(AdConversionExportRowDtoSchema),
+  googleAdsCsv: z.string(),
+  googleAdsRowCount: z.number().int().nonnegative(),
+  googleAdsWithoutColumnCount: z.number().int().nonnegative(),
 });
 
 export type AdConversionExportDto = z.infer<typeof AdConversionExportDtoSchema>;

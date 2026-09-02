@@ -5,7 +5,7 @@ const DAY_SECONDS = 60 * 60 * 24;
 export const AdProviderSchema = z.enum(["google_ads", "openai_ads", "reddit_ads", "linkedin_ads"]);
 export type AdProvider = z.infer<typeof AdProviderSchema>;
 
-type AdProviderDefinition = {
+export type AdProviderDefinition = {
   displayName: string;
   identifierKinds: readonly [string, ...string[]];
   clickRetentionSeconds: number;
@@ -46,10 +46,11 @@ export const AD_PROVIDERS = {
 
 export const AD_PROVIDER_ORDER = AdProviderSchema.options;
 
+export type AdIdentifierKind = (typeof AD_PROVIDERS)[AdProvider]["identifierKinds"][number];
+
 export const AD_IDENTIFIER_KINDS = AD_PROVIDER_ORDER.flatMap((provider) => AD_PROVIDERS[provider].identifierKinds);
 
-export const AdIdentifierKindSchema = z.enum(AD_IDENTIFIER_KINDS as [string, ...string[]]);
-export type AdIdentifierKind = z.infer<typeof AdIdentifierKindSchema>;
+export const AdIdentifierKindSchema = z.enum(AD_IDENTIFIER_KINDS as [AdIdentifierKind, ...AdIdentifierKind[]]);
 
 const PROVIDER_BY_KIND = new Map<string, AdProvider>(
   AD_PROVIDER_ORDER.flatMap((provider) =>

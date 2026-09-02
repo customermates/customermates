@@ -13,7 +13,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 import { CONTENT_LOCALES, buildLocalePath, contentLocaleOrDefault, flagCodeFor } from "@/i18n/locale-registry";
 import { usePathname } from "@/i18n/navigation";
-import { preserveAdClickInHref } from "@/features/acquisition/ad-attribution.schema";
+import { preserveAdClickInHref } from "@/features/acquisition/ad-click-url";
 
 type Props = {
   align?: "start" | "end";

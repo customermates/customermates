@@ -10,11 +10,6 @@ import {
   getGetOperatorWorkspaceTagsInteractor,
 } from "@/core/di";
 import { unwrapValidated } from "@/core/validation/validation.utils";
-import {
-  googleAdsConversionCsv,
-  isGoogleAdsCsvRow,
-  isGoogleAdsRowWithoutCsvColumn,
-} from "@/ee/operator/ad-conversion-csv";
 
 export async function getOperatorUsersAction(params?: GetQueryParams) {
   return unwrapValidated(getGetOperatorUsersInteractor().invoke(params));
@@ -28,20 +23,8 @@ export async function getOperatorAuditAction(params?: GetQueryParams) {
   return unwrapValidated(getGetOperatorAuditLogsInteractor().invoke(params));
 }
 
-export async function getAdConversionExportAction(): Promise<{
-  generatedAt: string;
-  googleAdsCsv: string;
-  rowCount: number;
-  withoutColumnCount: number;
-}> {
-  const exported = await unwrapValidated(getGetAdConversionExportInteractor().invoke());
-
-  return {
-    generatedAt: exported.generatedAt.toISOString(),
-    googleAdsCsv: googleAdsConversionCsv(exported),
-    rowCount: exported.rows.filter(isGoogleAdsCsvRow).length,
-    withoutColumnCount: exported.rows.filter(isGoogleAdsRowWithoutCsvColumn).length,
-  };
+export async function getAdConversionExportAction() {
+  return unwrapValidated(getGetAdConversionExportInteractor().invoke());
 }
 
 export async function getOperatorWorkspaceTagsAction() {

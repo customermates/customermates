@@ -98,7 +98,7 @@ describeDatabase("ad conversion export against a real database", { timeout: 120_
     });
 
     const interactor = new GetAdConversionExportInteractor(new PrismaAdConversionExportRepo());
-    const outcome = await runWithoutTenant(() => interactor.invoke(now));
+    const outcome = await runWithoutTenant(() => interactor.invoke());
     if (!("data" in outcome)) throw new Error("export failed validation");
 
     const mine = outcome.data.rows.filter((row) => row.identifierValue === gclid);
@@ -134,7 +134,7 @@ describeDatabase("ad conversion export against a real database", { timeout: 120_
     });
 
     const interactor = new GetAdConversionExportInteractor(new PrismaAdConversionExportRepo());
-    const outcome = await runWithoutTenant(() => interactor.invoke(now));
+    const outcome = await runWithoutTenant(() => interactor.invoke());
     if (!("data" in outcome)) throw new Error("export failed validation");
 
     expect(googleAdsConversionCsv(outcome.data)).not.toContain(staleGclid);

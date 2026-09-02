@@ -2,18 +2,17 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Download } from "lucide-react";
+import { Download, Megaphone } from "lucide-react";
 
+import { AppCard } from "@/components/card/app-card";
+import { AppCardBody } from "@/components/card/app-card-body";
+import { AppCardHeader } from "@/components/card/app-card-header";
 import { Button } from "@/components/ui/button";
-import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import { IconContainer } from "@/components/shared/icon-container";
+import { runUserAction } from "@/core/errors/report-application-error";
 import { getAdConversionExportAction } from "../../actions";
 
-type ExportState = {
-  generatedAt: string;
-  rowCount: number;
-  withoutColumnCount: number;
-  googleAdsCsv: string;
-};
+type ExportState = { googleAdsCsv: string; rowCount: number; withoutColumnCount: number };
 
 function csvHref(content: string): string {
   return `data:text/csv;charset=utf-8,${encodeURIComponent(content)}`;
@@ -21,55 +20,62 @@ function csvHref(content: string): string {
 
 export function AdConversionExportCard() {
   const t = useTranslations();
-  const [isPending, setIsPending] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [exported, setExported] = useState<ExportState | null>(null);
 
   const generate = async () => {
-    setIsPending(true);
+    setIsLoading(true);
     try {
-      setExported(await getAdConversionExportAction());
-    } catch (error) {
-      reportApplicationError(error);
+      const result = await getAdConversionExportAction();
+      setExported({
+        googleAdsCsv: result.googleAdsCsv,
+        rowCount: result.googleAdsRowCount,
+        withoutColumnCount: result.googleAdsWithoutColumnCount,
+      });
     } finally {
-      setIsPending(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <section className="flex flex-col gap-3 rounded-card border border-border bg-card p-5 text-card-foreground">
-      <div className="space-y-1">
-        <h2 className="text-sm font-semibold">{t("OperatorOverview.adConversions.label")}</h2>
+    <AppCard>
+      <AppCardHeader className="gap-3">
+        <IconContainer className="shrink-0" icon={Megaphone} size="sm" />
 
-        <p className="text-sm text-subdued">{t("OperatorOverview.adConversions.description")}</p>
-      </div>
+        <h2 className="text-x-sm grow truncate text-muted-foreground">{t("OperatorOverview.adConversions.label")}</h2>
+      </AppCardHeader>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <Button disabled={isPending} variant="secondary" onClick={() => runUserAction(generate)}>
-          {t("OperatorOverview.adConversions.generate")}
-        </Button>
+      <AppCardBody className="gap-3">
+        <p className="text-xs text-muted-foreground">{t("OperatorOverview.adConversions.description")}</p>
 
-        {exported ? (
-          <>
-            <Button asChild variant="secondary">
-              <a download="google-ads-conversions.csv" href={csvHref(exported.googleAdsCsv)}>
-                <Download aria-hidden="true" className="size-4" />
+        <div aria-busy={isLoading} aria-live="polite" className="flex flex-wrap items-center gap-2">
+          <Button disabled={isLoading} variant="secondary" onClick={() => runUserAction(generate)}>
+            {t("OperatorOverview.adConversions.generate")}
+          </Button>
 
-                {t("OperatorOverview.adConversions.googleAds")}
-              </a>
-            </Button>
+          {exported ? (
+            <>
+              <Button asChild variant="secondary">
+                <a download="google-ads-conversions.csv" href={csvHref(exported.googleAdsCsv)}>
+                  <Download aria-hidden="true" className="size-4" />
 
-            <span className="text-sm text-subdued">
-              {t("OperatorOverview.adConversions.rowCount", { count: exported.rowCount })}
-            </span>
+                  {t("OperatorOverview.adConversions.googleAds")}
+                </a>
+              </Button>
 
-            {exported.withoutColumnCount > 0 ? (
-              <span className="text-sm text-warning">
-                {t("OperatorOverview.adConversions.withoutColumnCount", { count: exported.withoutColumnCount })}
+              <span className="text-xs text-muted-foreground">
+                {t("OperatorOverview.adConversions.rowCount", { count: exported.rowCount })}
               </span>
-            ) : null}
-          </>
-        ) : null}
-      </div>
-    </section>
+
+              {exported.withoutColumnCount > 0 ? (
+                <span className="text-xs text-warning">
+                  {t("OperatorOverview.adConversions.withoutColumnCount", { count: exported.withoutColumnCount })}
+                </span>
+              ) : null}
+            </>
+          ) : null}
+        </div>
+      </AppCardBody>
+    </AppCard>
   );
 }

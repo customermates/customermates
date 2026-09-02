@@ -9,25 +9,25 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import {
-  captureConsentedAdClickAction,
-  decidePublicAdAttributionConsentAction,
-  readPublicAdAttributionConsentAction,
+  captureAdClickAction,
+  decideAdAttributionConsentAction,
+  readAdAttributionConsentAction,
   reconcileAdAttributionWithdrawalAction,
-} from "@/features/acquisition/ad-attribution.actions";
+} from "@/app/[locale]/actions";
 import {
   adClickRetentionDays,
   adProviderDisplayName,
   type AdProvider,
 } from "@/features/acquisition/ad-provider-registry";
+import { PUBLIC_AD_ATTRIBUTION_PENDING_MAX_AGE_SECONDS } from "@/features/acquisition/ad-attribution.schema";
 import {
-  PUBLIC_AD_ATTRIBUTION_PENDING_MAX_AGE_SECONDS,
   hasAdAttributionPendingMarker,
   normalizeAdClick,
   normalizePendingAdClick,
   normalizePublicAdVisitClick,
   preserveAdClickInHref,
   removeAdClickFromHref,
-} from "@/features/acquisition/ad-attribution.schema";
+} from "@/features/acquisition/ad-click-url";
 import { stripLocalePrefix } from "@/i18n/locale-registry";
 import { isContentPathname } from "@/i18n/routing";
 import { OPEN_PRIVACY_CHOICES_EVENT } from "./privacy-choices-event";
@@ -73,9 +73,9 @@ export function PublicAdAttributionConsentCard() {
     const landingVisit = currentAdAttributionVisit();
     if (hadPendingMarker && !landingVisit) replaceCurrentRelativeHref(removeAdClickFromHref(currentRelativeHref()));
     const hydrate = async () => {
-      let stored: Awaited<ReturnType<typeof readPublicAdAttributionConsentAction>>;
+      let stored: Awaited<ReturnType<typeof readAdAttributionConsentAction>>;
       try {
-        stored = await readPublicAdAttributionConsentAction();
+        stored = await readAdAttributionConsentAction();
       } catch (error) {
         reportApplicationError(error);
         if (!cancelled && landingVisit) {
@@ -91,7 +91,7 @@ export function PublicAdAttributionConsentCard() {
         hasDecision.current = true;
         replaceCurrentRelativeHref(removeAdClickFromHref(currentRelativeHref()));
         try {
-          if (stored.advertising && landingVisit) await captureConsentedAdClickAction(landingVisit);
+          if (stored.advertising && landingVisit) await captureAdClickAction(landingVisit);
           else if (!stored.advertising) await reconcileAdAttributionWithdrawalAction();
         } catch (error) {
           reportApplicationError(error);
@@ -160,10 +160,11 @@ export function PublicAdAttributionConsentCard() {
         setOpen(false);
         return;
       }
-      const decision = await decidePublicAdAttributionConsentAction({
+      const result = await decideAdAttributionConsentAction({
         choice,
         visit: visit ? { pendingAt: visit.pendingAt, search: visit.search } : null,
       });
+      const decision = result.ok ? result.data : null;
       if (!decision) return;
       hasDecision.current = true;
       pendingVisit.current = null;

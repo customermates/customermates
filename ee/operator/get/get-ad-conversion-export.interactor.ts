@@ -1,36 +1,42 @@
+import type { AdConversionExportDto } from "../operator-lists.schema";
+import type { AdIdentifierKind, AdProvider } from "@/features/acquisition/ad-provider-registry";
+import type { ConversionEventType } from "@/generated/prisma";
 import type { Validated } from "@/core/validation/validation.utils";
 
-import { OperatorInteractor } from "@/core/decorators/operator-interactor.decorator";
-import { adConversionReferenceSecret } from "@/ee/operator/ad-conversion-reference";
-import { hmacSha256Hex } from "@/core/utils/hmac";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import {
-  AD_PROVIDER_ORDER,
-  isAdConversionReportable,
-  isAdProvider,
-  type AdProvider,
-} from "@/features/acquisition/ad-provider-registry";
 import { AD_ATTRIBUTION_NOTICE_VERSION } from "@/constants/legal-documents";
-import { AdConversionExportDtoSchema, type AdConversionExportDto } from "../operator-lists.schema";
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { OperatorInteractor } from "@/core/decorators/operator-interactor.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { failUnavailable } from "@/core/validation/interactor-failure-server";
+import { hmacSha256Hex } from "@/core/utils/hmac";
+import { env } from "@/env";
+import { AD_PROVIDER_ORDER, isAdConversionReportable, isAdProvider } from "@/features/acquisition/ad-provider-registry";
+import { AdConversionExportDtoSchema } from "../operator-lists.schema";
+import { googleAdsConversionCsv, isGoogleAdsCsvRow, isGoogleAdsRowWithoutCsvColumn } from "../ad-conversion-csv";
 
 export type AdConversionExportRow = {
   companyId: string;
-  provider: AdProvider;
-  identifierKind: string;
+  provider: string;
+  identifierKind: AdIdentifierKind;
   identifierValue: string;
   clickedAt: Date;
   consentNoticeVersion: string;
-  conversionType: string;
+  conversionType: ConversionEventType;
   conversionAt: Date;
 };
 
 export abstract class GetAdConversionExportRepo {
-  abstract listAdConversionCandidatesUnscoped(): Promise<AdConversionExportRow[]>;
+  abstract listAdConversionCandidatesUnscoped(noticeVersion: string): Promise<AdConversionExportRow[]>;
 }
 
-function idempotencyKey(row: AdConversionExportRow): string {
+function referenceSecret(): string | null {
+  const secret = env.BETTER_AUTH_SECRET?.trim();
+  return secret ? `ad-conversion-reference:v1:${secret}` : null;
+}
+
+function idempotencyKey(secret: string, row: AdConversionExportRow): string {
   const material = `${row.companyId}:${row.conversionType}:${Math.floor(row.conversionAt.getTime() / 1000)}`;
-  return hmacSha256Hex(adConversionReferenceSecret(), material).slice(0, 32);
+  return hmacSha256Hex(secret, material).slice(0, 32);
 }
 
 @OperatorInteractor
@@ -38,12 +44,16 @@ export class GetAdConversionExportInteractor {
   constructor(private readonly repo: GetAdConversionExportRepo) {}
 
   @ValidateOutput(AdConversionExportDtoSchema)
-  async invoke(now = new Date()): Validated<AdConversionExportDto> {
-    const candidates = await this.repo.listAdConversionCandidatesUnscoped();
+  async invoke(): Validated<AdConversionExportDto> {
+    const secret = referenceSecret();
+    if (!secret) return failUnavailable(CustomErrorCode.operatorUnavailable);
+
+    const now = new Date();
+    const candidates = await this.repo.listAdConversionCandidatesUnscoped(AD_ATTRIBUTION_NOTICE_VERSION);
 
     const rows = candidates
-      .filter((row) => isAdProvider(row.provider))
       .filter((row) => row.consentNoticeVersion === AD_ATTRIBUTION_NOTICE_VERSION)
+      .filter((row): row is AdConversionExportRow & { provider: AdProvider } => isAdProvider(row.provider))
       .filter((row) =>
         isAdConversionReportable({
           provider: row.provider,
@@ -63,11 +73,20 @@ export class GetAdConversionExportInteractor {
         identifierValue: row.identifierValue,
         conversionType: row.conversionType,
         conversionAt: row.conversionAt,
-        orderId: idempotencyKey(row),
+        orderId: idempotencyKey(secret, row),
         adUserData: "Granted" as const,
         adPersonalization: "Denied" as const,
       }));
 
-    return { ok: true, data: { generatedAt: now, rows } };
+    return {
+      ok: true,
+      data: {
+        generatedAt: now,
+        rows,
+        googleAdsCsv: googleAdsConversionCsv({ rows }),
+        googleAdsRowCount: rows.filter(isGoogleAdsCsvRow).length,
+        googleAdsWithoutColumnCount: rows.filter(isGoogleAdsRowWithoutCsvColumn).length,
+      },
+    };
   }
 }

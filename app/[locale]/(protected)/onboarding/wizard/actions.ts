@@ -11,7 +11,7 @@ import { serializeResult } from "@/core/utils/action-result";
 import {
   clearRegisteredAdClicksFromCookie,
   readRegistrationAdAttribution,
-} from "@/features/acquisition/ad-attribution.cookie";
+} from "@/features/acquisition/next/ad-attribution-cookie";
 
 export async function registerProfileAction(data: RegisterUserData) {
   const adAttribution = await readRegistrationAdAttribution();

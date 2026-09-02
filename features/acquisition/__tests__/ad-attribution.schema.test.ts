@@ -1,13 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  RegistrationAdAttributionSchema,
-  buildPublicAdAttributionCookieDecision,
-  hasPendingAdClick,
-  normalizeAdClick,
-  preserveAdClickInHref,
-  removeAdClickFromHref,
-} from "../ad-attribution.schema";
+import { RegistrationAdAttributionSchema } from "../ad-attribution.schema";
+import { buildPublicAdAttributionCookieDecision } from "../decide-ad-attribution-consent.interactor";
+import { hasPendingAdClick, normalizeAdClick, preserveAdClickInHref, removeAdClickFromHref } from "../ad-click-url";
 
 const NOTICE_VERSION = "2026-09-02";
 

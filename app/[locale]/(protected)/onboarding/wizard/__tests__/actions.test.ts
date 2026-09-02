@@ -22,7 +22,7 @@ vi.mock("@/core/di", () => ({
 vi.mock("@/core/utils/action-result", () => ({
   serializeResult: async (result: unknown) => await result,
 }));
-vi.mock("@/features/acquisition/ad-attribution.cookie", () => ({
+vi.mock("@/features/acquisition/next/ad-attribution-cookie", () => ({
   clearRegisteredAdClicksFromCookie: mocks.clearRegisteredClick,
   readRegistrationAdAttribution: mocks.readAttribution,
 }));

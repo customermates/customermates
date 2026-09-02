@@ -13,13 +13,15 @@ vi.mock("@/env", () => ({
   },
 }));
 
+import { decodePublicAdAttributionCookie, encodePublicAdAttributionCookie } from "../ad-attribution-cookie-codec";
 import {
+  NextAdAttributionCookieRepo,
   clearRegisteredAdClicksFromCookie,
-  decodePublicAdAttributionCookie,
-  encodePublicAdAttributionCookie,
   readRegistrationAdAttribution,
-  writePublicAdAttributionCookie,
-} from "../ad-attribution.cookie";
+} from "../next/ad-attribution-cookie";
+
+const cookieRepo = new NextAdAttributionCookieRepo();
+const writePublicAdAttributionCookie = (value: PublicAdAttributionCookie) => cookieRepo.writeCookie(value);
 import { PUBLIC_AD_ATTRIBUTION_COOKIE_NAME, type PublicAdAttributionCookie } from "../ad-attribution.schema";
 
 const SIGNING_SECRET = "ad-attribution:v1:test-secret";
@@ -62,8 +64,9 @@ describe("signed ad attribution cookie", () => {
 
   it("rejects tampering and preserves a valid payload", () => {
     const encoded = encodePublicAdAttributionCookie(cookie, "secret");
-    expect(decodePublicAdAttributionCookie(encoded, "secret")).toEqual(cookie);
-    expect(decodePublicAdAttributionCookie(`${encoded.slice(0, -1)}0`, "secret")).toBeNull();
+    expect(encoded).not.toBeNull();
+    expect(decodePublicAdAttributionCookie(encoded ?? undefined, "secret")).toEqual(cookie);
+    expect(decodePublicAdAttributionCookie(`${(encoded ?? "").slice(0, -1)}0`, "secret")).toBeNull();
   });
 
   it("writes an HTTP-only, same-site cookie and reports one registration row per provider", async () => {
