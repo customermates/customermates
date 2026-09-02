@@ -124,8 +124,7 @@ export class ImportWizardStore extends BaseModalStore {
   get skippableCount(): number {
     if (!this.plan) return 0;
 
-    const invalid = this.invalidSheetRows;
-    return [...this.plan.create, ...this.plan.update].filter((row) => invalid.has(row.sheetRow)).length;
+    return this.invalidSheetRows.size;
   }
 
   get hasBlockingIssues(): boolean {
@@ -273,11 +272,12 @@ export class ImportWizardStore extends BaseModalStore {
     const keep = (row: PlanRow) => !invalid.has(row.sheetRow);
     const updateRows = plan.update.filter(keep);
     const createRows = plan.create.filter(keep);
-    const skipped = plan.update.length + plan.create.length - updateRows.length - createRows.length;
+    const attempted = updateRows.length + createRows.length;
+    const skipped = (this.parsed?.rows.length ?? plan.update.length + plan.create.length) - attempted;
 
     const updateChunks = chunkRows(updateRows, IMPORT_CHUNK_SIZE);
     const createChunks = chunkRows(createRows, IMPORT_CHUNK_SIZE);
-    const total = updateRows.length + createRows.length;
+    const total = attempted;
 
     this.setIsLoading(true);
     this.setProgress(0, updateChunks.length + createChunks.length);

@@ -39,6 +39,72 @@ function makeStore(createRows: PlanRow[]) {
   return store;
 }
 
+function issue(sheetRow: number, blocking = true) {
+  return {
+    sheetRow,
+    columnLetter: null,
+    columnLabel: null,
+    fieldPath: "name",
+    message: "bad",
+    values: null,
+    code: "relationNotFound",
+    blocking,
+  };
+}
+
+describe("ImportWizardStore blocked rows", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("offers to skip a row the planner dropped, so one bad relation cannot dead-end the file", () => {
+    const store = makeStore([planRow(2), planRow(3)]);
+
+    runInAction(() => {
+      store.parsed = { rows: [{}, {}, {}] } as never;
+      store.issues = [issue(4)];
+    });
+
+    expect(store.skippableCount).toBe(1);
+    expect(store.hasBlockingIssues).toBe(true);
+
+    runInAction(() => {
+      store.skipInvalid = true;
+    });
+
+    expect(store.hasBlockingIssues).toBe(false);
+  });
+
+  it("counts a dropped row as skipped, so the summary adds up to the rows in the file", async () => {
+    const store = makeStore([planRow(2), planRow(3)]);
+
+    runInAction(() => {
+      store.parsed = { rows: [{}, {}, {}] } as never;
+      store.issues = [issue(4)];
+      store.skipInvalid = true;
+    });
+
+    transferActions.commitImportChunkAction.mockResolvedValue({ ok: true, ids: ["a", "b"] });
+
+    await store.commit();
+
+    const summary = store.summary as { created: number; updated: number; skipped: number; notAttempted: number };
+    expect(summary).toMatchObject({ created: 2, updated: 0, skipped: 1, notAttempted: 0 });
+    expect(summary.created + summary.updated + summary.skipped + summary.notAttempted).toBe(3);
+  });
+
+  it("still refuses a blocking problem that belongs to no row", () => {
+    const store = makeStore([planRow(2)]);
+
+    runInAction(() => {
+      store.parsed = { rows: [{}] } as never;
+      store.issues = [{ ...issue(2), sheetRow: null }];
+      store.skipInvalid = true;
+    });
+
+    expect(store.skippableCount).toBe(0);
+    expect(store.hasBlockingIssues).toBe(true);
+  });
+});
+
 describe("ImportWizardStore commit", () => {
   beforeEach(() => vi.clearAllMocks());
 
