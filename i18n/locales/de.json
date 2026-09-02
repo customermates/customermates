@@ -304,7 +304,7 @@
       "resuming": "Entscheidung gespeichert – Mate macht weiter…",
       "retryResume": "Mate konnte noch nicht fortfahren. Wiederhole dieselbe Entscheidung.",
       "timeout": "Zeit abgelaufen, keine Antwort",
-      "title": "Der Assistent möchte ausführen:"
+      "title": "Mate möchte ausführen:"
     },
     "askAi": "KI fragen",
     "askAiWorking": "Mate arbeitet",
@@ -326,9 +326,9 @@
     "errors": {
       "approvalFailed": "Die Freigabe konnte nicht übermittelt werden.",
       "limitReached": "Es sind nicht genügend KI-Credits übrig, um eine weitere Anfrage zu starten.",
-      "sendFailed": "Der Assistent konnte deine Nachricht nicht verarbeiten.",
+      "sendFailed": "Mate konnte deine Nachricht nicht verarbeiten.",
       "stopFailed": "Mate konnte nicht gestoppt werden. Die Verbindung wird wiederhergestellt, damit du es erneut versuchen kannst.",
-      "turnFailed": "Beim Assistenten ist ein Fehler aufgetreten."
+      "turnFailed": "Bei Mate ist ein Fehler aufgetreten."
     },
     "greeting": {
       "headline": "Hey, ich bin Mate",
@@ -652,7 +652,7 @@
       "archive": "Chat archivieren",
       "archived": "Archiviert",
       "archivedChats": "Archivierte Chats",
-      "assistantWorking": "Der Assistent antwortet",
+      "assistantWorking": "Mate antwortet",
       "back": "Zurück zum Chat",
       "cancel": "Abbrechen",
       "chats": "Chats",
@@ -2769,7 +2769,7 @@
     "enabledHelp": "Pausierte Routinen behalten ihren Zeitplan, laufen aber nicht.",
     "eventFilters": "Nur wenn der Datensatz passt",
     "onMinute": "zur Minute",
-    "promptDescription": "Der Assistent erhält diese Anweisungen bei jedem Lauf der Routine.",
+    "promptDescription": "Mate erhält diese Anweisungen bei jedem Lauf der Routine.",
     "scheduleTimeZone": "Zeiten werden in {timezone} angezeigt.",
     "title": "Routine",
     "useSchedulePreset": "Zu einem Muster wechseln"
@@ -2791,7 +2791,7 @@
     "succeeded": "Erfolgreich"
   },
   "RoutinesCard": {
-    "emptyBody": "Erstelle eine Routine, damit der Assistent nach Zeitplan arbeitet.",
+    "emptyBody": "Mate kann arbeiten, während du weg bist. Zum Beispiel: jeden Werktagmorgen zusammenfassen, was sich bewegt hat, oder eine Dankesmail entwerfen, sobald etwas gewonnen ist.",
     "emptyTitle": "Noch keine Routinen"
   },
   "RoutineSchedule": {

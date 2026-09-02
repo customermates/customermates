@@ -304,7 +304,7 @@
       "resuming": "Décision enregistrée — Mate continue…",
       "retryResume": "Mate n’a pas encore pu reprendre. Réessayez avec la même décision.",
       "timeout": "Délai dépassé sans réponse",
-      "title": "L’assistant souhaite exécuter :"
+      "title": "Mate souhaite exécuter :"
     },
     "askAi": "Demander à l'IA",
     "askAiWorking": "Mate travaille",
@@ -326,9 +326,9 @@
     "errors": {
       "approvalFailed": "L’approbation n’a pas pu être transmise.",
       "limitReached": "Il ne reste pas assez de crédits IA pour lancer une autre demande.",
-      "sendFailed": "L’assistant n’a pas pu traiter votre message.",
+      "sendFailed": "Mate n’a pas pu traiter votre message.",
       "stopFailed": "Mate n’a pas pu être arrêté. La reconnexion est en cours pour vous permettre de réessayer.",
-      "turnFailed": "L’assistant a rencontré une erreur."
+      "turnFailed": "Mate a rencontré une erreur."
     },
     "greeting": {
       "headline": "Bonjour, je suis Mate",
@@ -652,7 +652,7 @@
       "archive": "Archiver la discussion",
       "archived": "Archivé",
       "archivedChats": "Discussions archivées",
-      "assistantWorking": "L’assistant répond",
+      "assistantWorking": "Mate répond",
       "back": "Retour au chat",
       "cancel": "Annuler",
       "chats": "Discussions",
@@ -2769,7 +2769,7 @@
     "enabledHelp": "Les routines en pause conservent leur planification mais ne s'exécutent pas.",
     "eventFilters": "Uniquement si l'enregistrement correspond",
     "onMinute": "à la minute",
-    "promptDescription": "L'assistant reçoit ces instructions à chaque exécution de la routine.",
+    "promptDescription": "Mate reçoit ces instructions à chaque exécution de la routine.",
     "scheduleTimeZone": "Les heures sont affichées en {timezone}.",
     "title": "Routine",
     "useSchedulePreset": "Utiliser une fréquence prédéfinie"
@@ -2791,8 +2791,8 @@
     "succeeded": "Réussie"
   },
   "RoutinesCard": {
-    "emptyBody": "Créez une routine pour que l'assistant travaille selon un planning.",
-    "emptyTitle": "Aucune routine pour le moment"
+    "emptyBody": "Mate peut travailler en votre absence. Par exemple : résumer chaque matin de semaine ce qui a bougé, ou rédiger un e-mail de remerciement dès qu’une affaire est gagnée.",
+    "emptyTitle": "Aucune routine pour l’instant"
   },
   "RoutineSchedule": {
     "daily": "Tous les jours à {time}",

@@ -7,8 +7,15 @@ CREATE TYPE "RoutineTriggerKind" AS ENUM ('schedule', 'event');
 -- CreateEnum
 CREATE TYPE "RoutineRunStatus" AS ENUM ('queued', 'running', 'succeeded', 'partial', 'failed', 'skipped', 'blocked');
 
+-- CreateEnum
+CREATE TYPE "RoutineRiskKind" AS ENUM ('selfLoop', 'mutualLoop');
+
+-- CreateEnum
+CREATE TYPE "RoutineRiskSeverity" AS ENUM ('info', 'warning');
+
 -- AlterTable
-ALTER TABLE "AgentConversation" ADD COLUMN     "origin" "AgentConversationOrigin" NOT NULL DEFAULT 'user';
+ALTER TABLE "AgentConversation" ADD COLUMN     "creditCeiling" INTEGER,
+ADD COLUMN     "origin" "AgentConversationOrigin" NOT NULL DEFAULT 'user';
 
 -- CreateTable
 CREATE TABLE "Routine" (
@@ -24,6 +31,8 @@ CREATE TABLE "Routine" (
     "timezone" TEXT,
     "runOnceAt" TIMESTAMP(3),
     "triggerEvents" TEXT[],
+    "changedFields" TEXT[],
+    "triggerFilters" JSONB,
     "debounceSeconds" INTEGER NOT NULL DEFAULT 300,
     "maxRunsPerHour" INTEGER NOT NULL DEFAULT 4,
     "maxCreditsPerRun" INTEGER NOT NULL DEFAULT 10,
@@ -62,6 +71,22 @@ CREATE TABLE "RoutineRun" (
     CONSTRAINT "RoutineRun_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "RoutineRiskFinding" (
+    "id" TEXT NOT NULL,
+    "companyId" TEXT NOT NULL,
+    "routineId" TEXT NOT NULL,
+    "peerRoutineId" TEXT,
+    "kind" "RoutineRiskKind" NOT NULL,
+    "severity" "RoutineRiskSeverity" NOT NULL DEFAULT 'warning',
+    "triggerEvent" TEXT NOT NULL,
+    "confidence" TEXT NOT NULL,
+    "resolvedAt" TIMESTAMP(3),
+    "detectedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "RoutineRiskFinding_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE INDEX "Routine_companyId_idx" ON "Routine"("companyId");
 
@@ -90,6 +115,18 @@ CREATE INDEX "RoutineRun_routineId_status_idx" ON "RoutineRun"("routineId", "sta
 CREATE INDEX "RoutineRun_conversationId_idx" ON "RoutineRun"("conversationId");
 
 -- CreateIndex
+CREATE INDEX "RoutineRiskFinding_companyId_idx" ON "RoutineRiskFinding"("companyId");
+
+-- CreateIndex
+CREATE INDEX "RoutineRiskFinding_companyId_resolvedAt_idx" ON "RoutineRiskFinding"("companyId", "resolvedAt");
+
+-- CreateIndex
+CREATE INDEX "RoutineRiskFinding_routineId_resolvedAt_idx" ON "RoutineRiskFinding"("routineId", "resolvedAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "RoutineRiskFinding_routineId_kind_triggerEvent_peerRoutineI_key" ON "RoutineRiskFinding"("routineId", "kind", "triggerEvent", "peerRoutineId");
+
+-- CreateIndex
 CREATE INDEX "AgentConversation_companyId_userId_origin_archivedAt_update_idx" ON "AgentConversation"("companyId", "userId", "origin", "archivedAt", "updatedAt");
 
 -- AddForeignKey
@@ -106,3 +143,9 @@ ALTER TABLE "RoutineRun" ADD CONSTRAINT "RoutineRun_routineId_fkey" FOREIGN KEY 
 
 -- AddForeignKey
 ALTER TABLE "RoutineRun" ADD CONSTRAINT "RoutineRun_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "AgentConversation"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RoutineRiskFinding" ADD CONSTRAINT "RoutineRiskFinding_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RoutineRiskFinding" ADD CONSTRAINT "RoutineRiskFinding_routineId_fkey" FOREIGN KEY ("routineId") REFERENCES "Routine"("id") ON DELETE CASCADE ON UPDATE CASCADE;

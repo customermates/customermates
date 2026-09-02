@@ -304,7 +304,7 @@
       "resuming": "Decisión guardada — Mate continúa…",
       "retryResume": "Mate aún no pudo continuar. Reintenta la misma decisión.",
       "timeout": "Tiempo agotado sin respuesta",
-      "title": "El asistente quiere ejecutar:"
+      "title": "Mate quiere ejecutar:"
     },
     "askAi": "Preguntar a la IA",
     "askAiWorking": "Mate está trabajando",
@@ -326,9 +326,9 @@
     "errors": {
       "approvalFailed": "No se pudo enviar la aprobación.",
       "limitReached": "No quedan suficientes créditos de IA para iniciar otra solicitud.",
-      "sendFailed": "El asistente no ha podido procesar su mensaje.",
+      "sendFailed": "Mate no ha podido procesar su mensaje.",
       "stopFailed": "No se pudo detener a Mate. Se está reconectando para que puedas intentarlo de nuevo.",
-      "turnFailed": "Se ha producido un error en el asistente."
+      "turnFailed": "Se ha producido un error en Mate."
     },
     "greeting": {
       "headline": "Hola, soy Mate",
@@ -652,7 +652,7 @@
       "archive": "Archivar el chat",
       "archived": "Archivado",
       "archivedChats": "Chats archivados",
-      "assistantWorking": "El asistente está respondiendo",
+      "assistantWorking": "Mate está respondiendo",
       "back": "Volver al chat",
       "cancel": "Cancelar",
       "chats": "Chats",
@@ -2769,7 +2769,7 @@
     "enabledHelp": "Las rutinas en pausa conservan su programación, pero no se ejecutan.",
     "eventFilters": "Solo cuando el registro coincida",
     "onMinute": "en el minuto",
-    "promptDescription": "El asistente recibe estas instrucciones cada vez que se ejecuta la rutina.",
+    "promptDescription": "Mate recibe estas instrucciones cada vez que se ejecuta la rutina.",
     "scheduleTimeZone": "Las horas se muestran en {timezone}.",
     "title": "Rutina",
     "useSchedulePreset": "Cambiar a una frecuencia predefinida"
@@ -2791,7 +2791,7 @@
     "succeeded": "Correcta"
   },
   "RoutinesCard": {
-    "emptyBody": "Crea una rutina para que el asistente trabaje según un horario.",
+    "emptyBody": "Mate puede trabajar mientras no estás. Por ejemplo: resumir cada mañana laborable lo que ha cambiado, o redactar un correo de agradecimiento cuando algo se gana.",
     "emptyTitle": "Aún no hay rutinas"
   },
   "RoutineSchedule": {

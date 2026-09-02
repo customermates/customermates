@@ -304,7 +304,7 @@
       "resuming": "Decisione salvata — Mate continua…",
       "retryResume": "Mate non è ancora riuscito a riprendere. Riprova la stessa decisione.",
       "timeout": "Tempo scaduto senza risposta",
-      "title": "L’assistente vuole eseguire:"
+      "title": "Mate vuole eseguire:"
     },
     "askAi": "Chiedi all'IA",
     "askAiWorking": "Mate sta lavorando",
@@ -326,9 +326,9 @@
     "errors": {
       "approvalFailed": "Non è stato possibile inviare l’approvazione.",
       "limitReached": "Non restano abbastanza crediti IA per avviare un'altra richiesta.",
-      "sendFailed": "L’assistente non è riuscito a elaborare il messaggio.",
+      "sendFailed": "Mate non è riuscito a elaborare il messaggio.",
       "stopFailed": "Non è stato possibile fermare Mate. La connessione viene ripristinata per consentirti di riprovare.",
-      "turnFailed": "L’assistente ha riscontrato un errore."
+      "turnFailed": "Mate ha riscontrato un errore."
     },
     "greeting": {
       "headline": "Ciao, sono Mate",
@@ -652,7 +652,7 @@
       "archive": "Archivia chat",
       "archived": "Archiviato",
       "archivedChats": "Chat archiviate",
-      "assistantWorking": "L’assistente sta rispondendo",
+      "assistantWorking": "Mate sta rispondendo",
       "back": "Torna alla chat",
       "cancel": "Annulla",
       "chats": "Chat",
@@ -2769,7 +2769,7 @@
     "enabledHelp": "Le routine in pausa mantengono la pianificazione ma non vengono eseguite.",
     "eventFilters": "Solo se il record corrisponde",
     "onMinute": "al minuto",
-    "promptDescription": "L'assistente riceve queste istruzioni a ogni esecuzione della routine.",
+    "promptDescription": "Mate riceve queste istruzioni a ogni esecuzione della routine.",
     "scheduleTimeZone": "Gli orari sono mostrati in {timezone}.",
     "title": "Routine",
     "useSchedulePreset": "Passa a una frequenza predefinita"
@@ -2791,8 +2791,8 @@
     "succeeded": "Riuscita"
   },
   "RoutinesCard": {
-    "emptyBody": "Crea una routine per far lavorare l'assistente secondo una pianificazione.",
-    "emptyTitle": "Nessuna routine per ora"
+    "emptyBody": "Mate può lavorare mentre non ci sei. Per esempio: riassumere ogni mattina feriale ciò che è cambiato, oppure scrivere una email di ringraziamento quando qualcosa viene vinto.",
+    "emptyTitle": "Nessuna routine"
   },
   "RoutineSchedule": {
     "daily": "Ogni giorno alle {time}",

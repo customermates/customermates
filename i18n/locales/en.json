@@ -304,7 +304,7 @@
       "resuming": "Decision saved — Mate is continuing…",
       "retryResume": "Mate could not resume yet. Retry the same decision.",
       "timeout": "Timed out without a response",
-      "title": "The assistant wants to run:"
+      "title": "Mate wants to run:"
     },
     "askAi": "Ask AI",
     "askAiWorking": "Mate is working",
@@ -326,9 +326,9 @@
     "errors": {
       "approvalFailed": "The approval could not be delivered.",
       "limitReached": "Not enough AI credits remain to start another request.",
-      "sendFailed": "The assistant could not process your message.",
+      "sendFailed": "Mate could not process your message.",
       "stopFailed": "Mate could not be stopped. It is reconnecting so you can try again.",
-      "turnFailed": "The assistant ran into an error."
+      "turnFailed": "Mate ran into an error."
     },
     "greeting": {
       "headline": "Hey, I'm Mate",
@@ -652,7 +652,7 @@
       "archive": "Archive chat",
       "archived": "Archived",
       "archivedChats": "Archived chats",
-      "assistantWorking": "Assistant is responding",
+      "assistantWorking": "Mate is responding",
       "back": "Back to chat",
       "cancel": "Cancel",
       "chats": "Chats",
@@ -2769,7 +2769,7 @@
     "enabledHelp": "Paused routines keep their schedule but do not run.",
     "eventFilters": "Only when the record matches",
     "onMinute": "at minute",
-    "promptDescription": "The assistant receives these instructions each time the routine runs.",
+    "promptDescription": "Mate receives these instructions each time the routine runs.",
     "scheduleTimeZone": "Times are shown in {timezone}.",
     "title": "Routine",
     "useSchedulePreset": "Switch to a preset"
@@ -2791,7 +2791,7 @@
     "succeeded": "Succeeded"
   },
   "RoutinesCard": {
-    "emptyBody": "Create a routine to let the assistant work on a schedule.",
+    "emptyBody": "Mate can work while you are away. For example: summarise the deals that moved every weekday morning, or draft a thank-you email when one is won.",
     "emptyTitle": "No routines yet"
   },
   "RoutineSchedule": {
