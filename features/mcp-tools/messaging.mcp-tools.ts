@@ -27,6 +27,8 @@ import { BaseSendChatMessageSchema } from "@/ee/messaging/outbound/send-chat-mes
 import { BaseStartChatInputSchema, StartChatInputSchema } from "@/ee/messaging/outbound/start-chat.interactor";
 import { SaveDraftSchema } from "@/ee/messaging/outbound/save-draft.interactor";
 import { DiscardDraftSchema } from "@/ee/messaging/outbound/discard-draft.interactor";
+import type { ThreadFolderContext } from "@/ee/messaging/inbox/get-messaging-thread.interactor";
+
 import { UpdateThreadSchema } from "@/ee/messaging/thread-state/update-thread.interactor";
 import {
   getGetMessagingThreadsApiInteractor,
@@ -175,6 +177,7 @@ export const getMessagingThreadsTool = {
               })),
               sharedToCrm: data.thread.sharedToCrm,
               isOwner: data.thread.isOwner,
+              folder: threadFolder(data.folderContext),
             },
             messages: data.messages.map((message) => ({
               id: message.id,
@@ -300,6 +303,17 @@ export const getActivitiesTool = {
     ),
 };
 
+function threadFolder(context: ThreadFolderContext | null): { name: string; hiddenFromInbox: boolean } | null {
+  if (!context || context.currentFolderIds.length === 0) return null;
+
+  const byId = new Map(context.folders.map((folder) => [folder.id, folder]));
+  const names = context.currentFolderIds.map((id) => byId.get(id)?.name?.trim() || "Unnamed").sort();
+
+  return {
+    name: names.join(", "),
+    hiddenFromInbox: !context.currentFolderIds.some((id) => context.selectedFolderIds.includes(id)),
+  };
+}
 const GetCalendarsToolSchema = z.object({
   list: z
     .enum(["calendars", "events"])
