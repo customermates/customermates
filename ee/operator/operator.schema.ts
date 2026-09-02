@@ -90,6 +90,19 @@ export const UpdateOperatorSubscriptionTermsSchema = z
 
 export const GetOperatorWorkspaceStatsSchema = z.object({ companyId: z.uuid() }).strict();
 
+export const WORKSPACE_TAG_MAX_LENGTH = 60;
+export const WORKSPACE_TAG_MAX_COUNT = 25;
+
+export const WorkspaceTagSchema = z.string().trim().min(1).max(WORKSPACE_TAG_MAX_LENGTH);
+
+export const UpdateOperatorWorkspaceTagsSchema = z
+  .object({
+    companyId: z.uuid(),
+    tags: z.array(WorkspaceTagSchema).max(WORKSPACE_TAG_MAX_COUNT),
+    reason: OptionalReasonSchema,
+  })
+  .strict();
+
 export const DeleteOperatorWorkspaceSchema = z
   .object({
     companyId: z.uuid(),
@@ -108,6 +121,14 @@ export type ResetOperatorUserCreditsData = z.infer<typeof ResetOperatorUserCredi
 export type DeleteOperatorWorkspaceData = z.infer<typeof DeleteOperatorWorkspaceSchema>;
 export type UpdateOperatorSubscriptionTermsData = z.infer<typeof UpdateOperatorSubscriptionTermsSchema>;
 export type GetOperatorWorkspaceStatsData = z.infer<typeof GetOperatorWorkspaceStatsSchema>;
+export type UpdateOperatorWorkspaceTagsData = z.infer<typeof UpdateOperatorWorkspaceTagsSchema>;
+
+export const OperatorWorkspaceTagsDtoSchema = z.object({
+  companyId: z.uuid(),
+  tags: z.array(z.string()),
+});
+
+export type OperatorWorkspaceTagsDto = z.infer<typeof OperatorWorkspaceTagsDtoSchema>;
 
 export const OperatorWorkspaceStatsDtoSchema = z.object({
   companyId: z.uuid(),
@@ -313,4 +334,5 @@ export const OPERATOR_AUDIT_ACTION = {
   creditBalanceReset: "operator.credit_balance.reset",
   workspaceDelete: "operator.workspace.delete",
   subscriptionTermsUpdate: "operator.subscription_terms.update",
+  workspaceTagsUpdate: "operator.workspace_tags.update",
 } as const;

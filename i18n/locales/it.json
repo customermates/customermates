@@ -1163,7 +1163,8 @@
         "updatedAt": "Aggiornato il",
         "url": "URL",
         "userIds": "Assegnato a",
-        "workspaceId": "Area di lavoro"
+        "workspaceId": "Area di lavoro",
+        "workspaceTags": "Etichette"
       },
       "operators": {
         "allSet": "completamente collegato",
@@ -1358,6 +1359,7 @@
         "status": "Stato",
         "statusCode": "Codice di stato",
         "subscription": "Abbonamento",
+        "tags": "Etichette",
         "target": "Destinazione",
         "tasks": "Attività",
         "totalQuantity": "Quantità di servizi",
@@ -2498,7 +2500,8 @@
         "userPlatformAccessUpdate": "Accesso alla piattaforma aggiornato",
         "userStatusUpdate": "Stato account aggiornato",
         "userSummaryRead": "Riepilogo utenti letto",
-        "workspaceDelete": "Spazio di lavoro eliminato"
+        "workspaceDelete": "Spazio di lavoro eliminato",
+        "workspaceTagsUpdate": "Etichette dell'area di lavoro aggiornate"
       },
       "source": {
         "operator": "Operatore",
@@ -2511,6 +2514,8 @@
       "allowance": "Impostare l'allocazione Enterprise di {name} su {value} crediti per utente? Si applica all'intero spazio di lavoro.",
       "plan": "Impostare il piano di {name} su {value}? Si applica all’intero spazio di lavoro.",
       "subscription": "Impostare lo stato dell’abbonamento di {name} su {value}? Si applica all’intero spazio di lavoro e non contatta alcun fornitore di fatturazione.",
+      "tags": "Impostare le etichette di {name} su {value}? Si applica all'intera area di lavoro.",
+      "tagsCleared": "Rimuovere tutte le etichette da {name}? Si applica all'intera area di lavoro.",
       "terms": "Aggiornare le condizioni di abbonamento di {name}? Si applica all'intero spazio di lavoro.",
       "termsClearingBilling": "Aggiornare le condizioni di {name} e scollegare il suo abbonamento di fatturazione? Il fornitore continua ad addebitare finché non lo annulli lì.",
       "title": "Conferma la modifica operatore"
@@ -2644,6 +2649,14 @@
       "tasks": "Attività",
       "threads": "Conversazioni",
       "title": "Statistiche dello spazio"
+    },
+    "tags": {
+      "description": "Raggruppa le aree di lavoro per rivenditore o referente. Le etichette compaiono nell'elenco utenti e sono filtrabili in entrambi gli elenchi.",
+      "label": "Etichette assegnate",
+      "more": "+{count} altre",
+      "placeholder": "Digita un'etichetta e premi Invio",
+      "suggestions": "Usate di recente",
+      "title": "Etichette"
     },
     "terms": {
       "billingId": "ID abbonamento di fatturazione",

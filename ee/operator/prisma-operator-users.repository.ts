@@ -39,6 +39,7 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
         FilterFieldKey.lastActiveAt,
         FilterFieldKey.createdAt,
         FilterFieldKey.workspaceId,
+        FilterFieldKey.workspaceTags,
         FilterFieldKey.googleAdsClickId,
       ].map((field) => ({ field, operators: FILTER_FIELD_DEFAULT_OPERATORS[field] })),
     );
@@ -75,6 +76,7 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
         agentCreditActivatedAt: true,
         company: {
           select: {
+            tags: true,
             subscription: {
               select: {
                 plan: true,
@@ -112,6 +114,7 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
       companyId: user.companyId,
       workspaceLabel: labels.get(user.companyId) ?? user.companyId.slice(0, 8),
       workspaceOwnerEmail: owners.get(user.companyId) ?? null,
+      workspaceTags: user.company.tags,
       plan: user.company.subscription?.plan ?? null,
       subscriptionStatus: user.company.subscription?.status ?? null,
       subscriptionQuantity: user.company.subscription?.quantity ?? null,

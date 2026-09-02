@@ -5,6 +5,7 @@ import type {
   UpdateHostedAiEnterpriseAllowanceData,
   UpdateOperatorSubscriptionTermsData,
   GetOperatorWorkspaceStatsData,
+  UpdateOperatorWorkspaceTagsData,
 } from "@/ee/operator/operator.schema";
 
 import {
@@ -12,6 +13,7 @@ import {
   getUpdateHostedAiEnterpriseAllowanceInteractor,
   getUpdateOperatorSubscriptionTermsInteractor,
   getGetOperatorWorkspaceStatsInteractor,
+  getUpdateOperatorWorkspaceTagsInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 
@@ -29,4 +31,8 @@ export async function updateOperatorSubscriptionTermsAction(data: UpdateOperator
 
 export async function getOperatorWorkspaceStatsAction(data: GetOperatorWorkspaceStatsData) {
   return serializeResult(getGetOperatorWorkspaceStatsInteractor().invoke(data));
+}
+
+export async function updateOperatorWorkspaceTagsAction(data: UpdateOperatorWorkspaceTagsData) {
+  return serializeResult(getUpdateOperatorWorkspaceTagsInteractor().invoke(data));
 }

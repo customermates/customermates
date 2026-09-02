@@ -1163,7 +1163,8 @@
         "updatedAt": "Aktualisiert am",
         "url": "URL",
         "userIds": "Zugewiesen",
-        "workspaceId": "Arbeitsbereich"
+        "workspaceId": "Arbeitsbereich",
+        "workspaceTags": "Schlagwörter"
       },
       "operators": {
         "allSet": "vollständig verknüpft",
@@ -1358,6 +1359,7 @@
         "status": "Status",
         "statusCode": "Status-Code",
         "subscription": "Abonnement",
+        "tags": "Schlagwörter",
         "target": "Ziel",
         "tasks": "Aufgaben",
         "totalQuantity": "Service-Anzahl",
@@ -2498,7 +2500,8 @@
         "userPlatformAccessUpdate": "Plattformzugriff aktualisiert",
         "userStatusUpdate": "Kontostatus aktualisiert",
         "userSummaryRead": "Benutzerübersicht gelesen",
-        "workspaceDelete": "Workspace gelöscht"
+        "workspaceDelete": "Workspace gelöscht",
+        "workspaceTagsUpdate": "Arbeitsbereichs-Schlagwörter aktualisiert"
       },
       "source": {
         "operator": "Operator",
@@ -2511,6 +2514,8 @@
       "allowance": "Enterprise-Kontingent für {name} auf {value} Credits pro Nutzer setzen? Das gilt für den gesamten Workspace.",
       "plan": "Den Tarif für {name} auf {value} setzen? Das gilt für den gesamten Workspace.",
       "subscription": "Den Abonnementstatus für {name} auf {value} setzen? Das gilt für den gesamten Workspace und kontaktiert keinen Zahlungsanbieter.",
+      "tags": "Schlagwörter für {name} auf {value} setzen? Das gilt für den gesamten Arbeitsbereich.",
+      "tagsCleared": "Alle Schlagwörter von {name} entfernen? Das gilt für den gesamten Arbeitsbereich.",
       "terms": "Abonnementkonditionen für {name} aktualisieren? Gilt für den gesamten Workspace.",
       "termsClearingBilling": "Abonnementkonditionen für {name} aktualisieren und das Abrechnungsabo trennen? Der Anbieter berechnet weiter, bis du dort kündigst.",
       "title": "Operator-Änderung bestätigen"
@@ -2644,6 +2649,14 @@
       "tasks": "Aufgaben",
       "threads": "Unterhaltungen",
       "title": "Workspace-Statistiken"
+    },
+    "tags": {
+      "description": "Arbeitsbereiche nach Reseller oder Kundenbetreuung gruppieren. Schlagwörter erscheinen in der Nutzerliste und lassen sich in beiden Listen filtern.",
+      "label": "Zugewiesene Schlagwörter",
+      "more": "+{count} weitere",
+      "placeholder": "Schlagwort eingeben und Enter drücken",
+      "suggestions": "Zuletzt verwendet",
+      "title": "Schlagwörter"
     },
     "terms": {
       "billingId": "Abrechnungs-Abo-ID",

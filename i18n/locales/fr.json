@@ -1163,7 +1163,8 @@
         "updatedAt": "Mis à jour le",
         "url": "URL",
         "userIds": "Assigné à",
-        "workspaceId": "Espace de travail"
+        "workspaceId": "Espace de travail",
+        "workspaceTags": "Étiquettes"
       },
       "operators": {
         "allSet": "entièrement lié",
@@ -1358,6 +1359,7 @@
         "status": "Statut",
         "statusCode": "Code de statut",
         "subscription": "Abonnement",
+        "tags": "Étiquettes",
         "target": "Cible",
         "tasks": "Tâches",
         "totalQuantity": "Quantité de services",
@@ -2498,7 +2500,8 @@
         "userPlatformAccessUpdate": "Accès plateforme mis à jour",
         "userStatusUpdate": "Statut du compte mis à jour",
         "userSummaryRead": "Résumé des utilisateurs consulté",
-        "workspaceDelete": "Espace de travail supprimé"
+        "workspaceDelete": "Espace de travail supprimé",
+        "workspaceTagsUpdate": "Étiquettes de l'espace de travail mises à jour"
       },
       "source": {
         "operator": "Opérateur",
@@ -2511,6 +2514,8 @@
       "allowance": "Définir l'allocation Enterprise de {name} à {value} crédits par utilisateur ? Cela s'applique à tout l'espace de travail.",
       "plan": "Définir le forfait de {name} sur {value} ? Cela s’applique à tout l’espace de travail.",
       "subscription": "Définir le statut d’abonnement de {name} sur {value} ? Cela s’applique à tout l’espace de travail et ne contacte aucun prestataire de facturation.",
+      "tags": "Définir les étiquettes de {name} sur {value} ? Cela s'applique à tout l'espace de travail.",
+      "tagsCleared": "Supprimer toutes les étiquettes de {name} ? Cela s'applique à tout l'espace de travail.",
       "terms": "Mettre à jour les conditions d'abonnement de {name} ? S'applique à tout l'espace de travail.",
       "termsClearingBilling": "Mettre à jour les conditions de {name} et détacher son abonnement de facturation ? Le prestataire continue de facturer jusqu'à annulation chez lui.",
       "title": "Confirmer la modification opérateur"
@@ -2644,6 +2649,14 @@
       "tasks": "Tâches",
       "threads": "Conversations",
       "title": "Statistiques de l'espace"
+    },
+    "tags": {
+      "description": "Regroupez les espaces de travail par revendeur ou responsable de compte. Les étiquettes apparaissent dans la liste des utilisateurs et sont filtrables dans les deux listes.",
+      "label": "Étiquettes attribuées",
+      "more": "+{count} autres",
+      "placeholder": "Saisissez une étiquette et appuyez sur Entrée",
+      "suggestions": "Utilisées récemment",
+      "title": "Étiquettes"
     },
     "terms": {
       "billingId": "ID d'abonnement de facturation",

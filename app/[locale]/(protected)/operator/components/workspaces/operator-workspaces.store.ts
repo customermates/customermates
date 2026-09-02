@@ -6,6 +6,7 @@ import type {
   DeleteOperatorWorkspaceData,
   UpdateOperatorSubscriptionTermsData,
   UpdateHostedAiEnterpriseAllowanceData,
+  UpdateOperatorWorkspaceTagsData,
 } from "@/ee/operator/operator.schema";
 import type { OperatorWorkspaceRowDto } from "@/ee/operator/operator-lists.schema";
 
@@ -17,6 +18,7 @@ import {
   deleteOperatorWorkspaceAction,
   updateOperatorEnterpriseAllowanceAction,
   updateOperatorSubscriptionTermsAction,
+  updateOperatorWorkspaceTagsAction,
 } from "../../workspaces/actions";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
@@ -31,6 +33,7 @@ export class OperatorWorkspacesStore extends BaseDataViewStore<OperatorWorkspace
       updateEnterpriseAllowance: action,
       deleteWorkspace: action,
       updateSubscriptionTerms: action,
+      updateTags: action,
     });
   }
 
@@ -40,6 +43,7 @@ export class OperatorWorkspacesStore extends BaseDataViewStore<OperatorWorkspace
       { uid: "owner" },
       { uid: "plan" },
       { uid: "subscription" },
+      { uid: "tags" },
       { uid: "members" },
       { uid: "allowance" },
       { uid: "trialEnd" },
@@ -89,6 +93,19 @@ export class OperatorWorkspacesStore extends BaseDataViewStore<OperatorWorkspace
   updateSubscriptionTerms = async (data: UpdateOperatorSubscriptionTermsData): Promise<boolean> => {
     return this.rootStore.loadingOverlayStore.withLoading(async () => {
       const res = await updateOperatorSubscriptionTermsAction(data);
+      if (!res.ok) {
+        toastZodErrorTree(res.error);
+        return false;
+      }
+
+      await this.refresh();
+      return true;
+    });
+  };
+
+  updateTags = async (data: UpdateOperatorWorkspaceTagsData): Promise<boolean> => {
+    return this.rootStore.loadingOverlayStore.withLoading(async () => {
+      const res = await updateOperatorWorkspaceTagsAction(data);
       if (!res.ok) {
         toastZodErrorTree(res.error);
         return false;

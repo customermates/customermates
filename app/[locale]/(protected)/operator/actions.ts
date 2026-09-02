@@ -6,6 +6,7 @@ import {
   getGetOperatorAuditLogsInteractor,
   getGetOperatorUsersInteractor,
   getGetOperatorWorkspacesInteractor,
+  getGetOperatorWorkspaceTagsInteractor,
 } from "@/core/di";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
@@ -19,4 +20,8 @@ export async function getOperatorWorkspacesAction(params?: GetQueryParams) {
 
 export async function getOperatorAuditAction(params?: GetQueryParams) {
   return unwrapValidated(getGetOperatorAuditLogsInteractor().invoke(params));
+}
+
+export async function getOperatorWorkspaceTagsAction() {
+  return unwrapValidated(getGetOperatorWorkspaceTagsInteractor().invoke());
 }

@@ -15,8 +15,10 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppChip } from "@/components/chip/app-chip";
+import { ClickableChip } from "@/components/chip/clickable-chip";
 import { InfoRow } from "@/components/shared/info-row";
 import { Button } from "@/components/ui/button";
+import { FormInputChips } from "@/components/forms/form-input-chips";
 import { FormLabel } from "@/components/forms/form-label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -30,6 +32,7 @@ import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { OperatorChipSelect } from "../operator-chip-select";
 import { useOperatorChipOptions } from "../use-operator-chip-options";
 import { getOperatorWorkspaceStatsAction } from "../../workspaces/actions";
+import { getOperatorWorkspaceTagsAction } from "../../actions";
 
 type Props = { workspace: OperatorWorkspaceRowDto | null; onClose: () => void };
 
@@ -53,6 +56,8 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
   const [trialEnd, setTrialEnd] = useState("");
   const [billingId, setBillingId] = useState("");
   const [channelMonth, setChannelMonth] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [knownTags, setKnownTags] = useState<string[]>([]);
   const [confirmLabel, setConfirmLabel] = useState("");
   const [reason, setReason] = useState("");
 
@@ -66,10 +71,20 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
     setAllowance(workspace.enterpriseCreditsPerUser === null ? "" : String(workspace.enterpriseCreditsPerUser));
     setTrialEnd(toDateInput(workspace.trialEndDate));
     setBillingId(workspace.lemonSqueezyId ?? "");
+    setTags(workspace.tags);
     setConfirmLabel("");
     setReason("");
 
     let cancelled = false;
+
+    void getOperatorWorkspaceTagsAction()
+      .then((available) => {
+        if (!cancelled) setKnownTags(available);
+      })
+      .catch(() => {
+        if (!cancelled) setKnownTags([]);
+      });
+
     setIsLoadingStats(true);
     void getOperatorWorkspaceStatsAction({ companyId: workspace.id })
       .then((res) => {
@@ -100,6 +115,10 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
   const canDelete = confirmLabel === workspace.workspaceLabel && reason.trim().length > 0;
   const clearingBinding = Boolean(workspace.lemonSqueezyId) && billingId.trim().length === 0;
   const selectedChannelMonth = stats?.channelMonths.find((entry) => entry.month === channelMonth) ?? null;
+  const tagsDirty = tags.join("\u0000") !== workspace.tags.join("\u0000");
+  const tagSuggestions = knownTags.filter(
+    (tag) => !tags.some((applied) => applied.toLowerCase() === tag.toLowerCase()),
+  );
 
   const saveAllowance = () => {
     const creditsPerUser = Number(allowance);
@@ -137,6 +156,20 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
           trialEndDate: nextTrialEnd ? nextTrialEnd.toISOString() : null,
           lemonSqueezyId: trimmedId.length > 0 ? trimmedId : null,
         }),
+    });
+  };
+
+  const saveTags = () => {
+    showConfirmation({
+      title: t("OperatorConsole.confirm.title"),
+      message:
+        tags.length > 0
+          ? t("OperatorConsole.confirm.tags", { name: identity, value: tags.join(", ") })
+          : t("OperatorConsole.confirm.tagsCleared", { name: identity }),
+      confirmLabel: t("Common.actions.confirm"),
+      confirmVariant: "default",
+      successKey: "Common.notifications.updated",
+      onConfirm: () => operatorWorkspacesStore.updateTags({ companyId: workspace.id, tags }),
     });
   };
 
@@ -192,6 +225,44 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
             </InfoRow>
 
             <InfoRow label={t("OperatorWorkspaces.modal.workspaceId")}>{workspace.id}</InfoRow>
+          </div>
+
+          <Separator />
+
+          <div className="flex flex-col gap-3">
+            <div className="space-y-1">
+              <h3 className="text-x-sm font-medium">{t("OperatorWorkspaces.tags.title")}</h3>
+
+              <p className="text-xs text-muted-foreground">{t("OperatorWorkspaces.tags.description")}</p>
+            </div>
+
+            <div className="flex items-end gap-2">
+              <FormInputChips
+                arrayMode
+                containerClassName="flex-1"
+                id="operator-modal-tags"
+                label={t("OperatorWorkspaces.tags.label")}
+                placeholder={t("OperatorWorkspaces.tags.placeholder")}
+                value={tags}
+                onValueChange={setTags}
+              />
+
+              <Button disabled={!tagsDirty} size="sm" variant="secondary" onClick={saveTags}>
+                {t("Common.actions.save")}
+              </Button>
+            </div>
+
+            {tagSuggestions.length > 0 ? (
+              <div className="flex flex-wrap items-center gap-1">
+                <span className="text-xs text-muted-foreground">{t("OperatorWorkspaces.tags.suggestions")}</span>
+
+                {tagSuggestions.map((tag) => (
+                  <ClickableChip key={tag} size="sm" variant="outline" onClick={() => setTags([...tags, tag])}>
+                    {tag}
+                  </ClickableChip>
+                ))}
+              </div>
+            ) : null}
           </div>
 
           <Separator />

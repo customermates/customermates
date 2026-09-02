@@ -16,6 +16,8 @@ import type {
   UpdateOperatorUserPlatformAccessData,
   UpdateOperatorUserStatusData,
   UpdateHostedAiEnterpriseAllowanceData,
+  UpdateOperatorWorkspaceTagsData,
+  OperatorWorkspaceTagsDto,
 } from "./operator.schema";
 
 export type OperatorRefusal = "conflict" | "notFound" | "unavailable" | "allowanceMissing" | "connectedAccountsActive";
@@ -58,4 +60,8 @@ export abstract class OperatorRepo {
   abstract getWorkspaceStatsUnscoped(
     data: GetOperatorWorkspaceStatsData,
   ): Promise<OperatorWorkspaceStatsDto | OperatorRefusal>;
+  abstract updateWorkspaceTagsUnscoped(
+    data: UpdateOperatorWorkspaceTagsData,
+  ): Promise<OperatorWorkspaceTagsDto | OperatorRefusal>;
+  abstract listWorkspaceTagsUnscoped(): Promise<string[]>;
 }

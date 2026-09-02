@@ -197,6 +197,7 @@ const TABLE_COLUMN_KEYS = [
   "Common.table.columns.reason",
   "Common.table.columns.source",
   "Common.table.columns.subscription",
+  "Common.table.columns.tags",
   "Common.table.columns.target",
   "Common.table.columns.workspace",
 ] as const;

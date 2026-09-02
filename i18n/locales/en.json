@@ -1163,7 +1163,8 @@
         "updatedAt": "Updated at",
         "url": "URL",
         "userIds": "Assigned",
-        "workspaceId": "Workspace"
+        "workspaceId": "Workspace",
+        "workspaceTags": "Tags"
       },
       "operators": {
         "allSet": "fully linked",
@@ -1358,6 +1359,7 @@
         "status": "Status",
         "statusCode": "Status Code",
         "subscription": "Subscription",
+        "tags": "Tags",
         "target": "Target",
         "tasks": "Tasks",
         "totalQuantity": "Service Quantity",
@@ -2498,7 +2500,8 @@
         "userPlatformAccessUpdate": "Platform access updated",
         "userStatusUpdate": "Account status updated",
         "userSummaryRead": "User summary read",
-        "workspaceDelete": "Workspace deleted"
+        "workspaceDelete": "Workspace deleted",
+        "workspaceTagsUpdate": "Workspace tags updated"
       },
       "source": {
         "operator": "Operator",
@@ -2511,6 +2514,8 @@
       "allowance": "Set the Enterprise allowance for {name} to {value} credits per user? This applies to the whole workspace.",
       "plan": "Set the plan for {name} to {value}? This applies to the whole workspace.",
       "subscription": "Set the subscription status for {name} to {value}? This applies to the whole workspace and contacts no billing provider.",
+      "tags": "Set the tags for {name} to {value}? This applies to the whole workspace.",
+      "tagsCleared": "Remove all tags from {name}? This applies to the whole workspace.",
       "terms": "Update the subscription terms for {name}? This applies to the whole workspace.",
       "termsClearingBilling": "Update the subscription terms for {name} and detach its billing subscription? The provider keeps charging until you cancel it there.",
       "title": "Confirm operator change"
@@ -2644,6 +2649,14 @@
       "tasks": "Tasks",
       "threads": "Conversations",
       "title": "Workspace statistics"
+    },
+    "tags": {
+      "description": "Group workspaces by reseller or account owner. Tags show on the users list and can be filtered on both lists.",
+      "label": "Assigned tags",
+      "more": "+{count} more",
+      "placeholder": "Add a tag and press Enter",
+      "suggestions": "Recently used",
+      "title": "Tags"
     },
     "terms": {
       "billingId": "Billing subscription ID",

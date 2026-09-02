@@ -34,7 +34,10 @@ import { getOrganizationsAction } from "@/app/[locale]/(protected)/organizations
 import { getDealsAction } from "@/app/[locale]/(protected)/deals/actions";
 import { getServicesAction } from "@/app/[locale]/(protected)/services/actions";
 import { getTasksAction } from "@/app/[locale]/(protected)/tasks/actions";
-import { getOperatorWorkspacesAction } from "@/app/[locale]/(protected)/operator/actions";
+import {
+  getOperatorWorkspacesAction,
+  getOperatorWorkspaceTagsAction,
+} from "@/app/[locale]/(protected)/operator/actions";
 import {
   getActivityRecordOptionsAction,
   getActivityThreadOptionsAction,
@@ -196,6 +199,10 @@ export function useFilterSelectItems(
               : workspace.workspaceLabel,
           })),
         })),
+      [FilterFieldKey.workspaceTags]: () =>
+        getOperatorWorkspaceTagsAction().then((tags) => ({
+          items: tags.map((tag) => ({ key: tag, value: tag, textValue: tag })),
+        })),
       [FilterFieldKey.connectedAccountId]: () =>
         getConnectedAccountsAction().then((accounts) => ({
           items: accounts
@@ -342,7 +349,9 @@ export function useFilterSelectItems(
       case FilterFieldKey.participantContactId:
       case FilterFieldKey.taskIds:
       case FilterFieldKey.timelineThreadId:
-      case FilterFieldKey.connectedAccountId: {
+      case FilterFieldKey.connectedAccountId:
+      case FilterFieldKey.workspaceId:
+      case FilterFieldKey.workspaceTags: {
         return fetchedItems;
       }
 

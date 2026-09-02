@@ -31,6 +31,8 @@ import {
   type UpdateHostedAiEnterpriseAllowanceData,
   type UpdateOperatorUserPlatformAccessData,
   type UpdateOperatorUserStatusData,
+  type UpdateOperatorWorkspaceTagsData,
+  type OperatorWorkspaceTagsDto,
 } from "./operator.schema";
 
 function workspaceLabelFor(companyId: string, members: { email: string }[]): string {
@@ -43,6 +45,22 @@ function workspaceLabelFor(companyId: string, members: { email: string }[]): str
   const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
 
   return ranked[0]?.[0] ?? companyId.slice(0, 8);
+}
+
+function normalizeWorkspaceTags(tags: string[]): string[] {
+  const byComparisonKey = new Map<string, string>();
+
+  for (const candidate of tags) {
+    const tag = candidate.trim().replace(/\s+/g, " ");
+    if (!tag) continue;
+
+    const key = tag.toLowerCase();
+    if (!byComparisonKey.has(key)) byComparisonKey.set(key, tag);
+  }
+
+  return [...byComparisonKey.entries()]
+    .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))
+    .map(([, tag]) => tag);
 }
 
 const WORKFLOW_RUN_CHILD_TABLES = [
@@ -1177,6 +1195,51 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
     const channelMonths = await this.channelMonthsUnscoped(data.companyId);
 
     return { companyId: data.companyId, ...row, channelMonths };
+  }
+
+  @BypassTenantGuard
+  async updateWorkspaceTagsUnscoped(
+    data: UpdateOperatorWorkspaceTagsData,
+  ): Promise<OperatorWorkspaceTagsDto | OperatorRefusal> {
+    return runInTransaction(
+      async () => {
+        const company = await this.prisma.company.findUnique({
+          where: { id: data.companyId },
+          select: { tags: true },
+        });
+        if (!company) return "notFound";
+
+        const previous = normalizeWorkspaceTags(company.tags);
+        const next = normalizeWorkspaceTags(data.tags);
+
+        await this.prisma.company.update({ where: { id: data.companyId }, data: { tags: next } });
+        await this.createAudit({
+          action: OPERATOR_AUDIT_ACTION.workspaceTagsUpdate,
+          targetCompanyId: data.companyId,
+          reason: data.reason ?? null,
+          metadata: {
+            previous,
+            next,
+            added: next.filter((tag) => !previous.includes(tag)),
+            removed: previous.filter((tag) => !next.includes(tag)),
+          },
+        });
+
+        return { companyId: data.companyId, tags: next };
+      },
+      { companyId: data.companyId },
+    );
+  }
+
+  @BypassTenantGuard
+  async listWorkspaceTagsUnscoped(): Promise<string[]> {
+    const rows = await this.prisma.$queryRaw<Array<{ tag: string }>>`
+      SELECT tag
+      FROM (SELECT DISTINCT unnest("tags") AS tag FROM "Company") AS distinct_tags
+      ORDER BY lower(tag) ASC, tag ASC
+    `;
+
+    return rows.map((row) => row.tag);
   }
 
   @BypassTenantGuard

@@ -15,6 +15,7 @@ export const OperatorUserRowDtoSchema = z.object({
   companyId: z.uuid(),
   workspaceLabel: z.string(),
   workspaceOwnerEmail: z.string().nullable(),
+  workspaceTags: z.array(z.string()),
   plan: z.enum(SubscriptionPlan).nullable(),
   subscriptionStatus: z.enum(SubscriptionStatus).nullable(),
   subscriptionQuantity: z.number().nullable(),
@@ -42,6 +43,7 @@ export const OperatorWorkspaceRowDtoSchema = z.object({
   trialEndDate: z.date().nullable(),
   lemonSqueezyId: z.string().nullable(),
   subscriptionUpdatedAt: z.date().nullable(),
+  tags: z.array(z.string()),
   createdAt: z.date(),
 });
 

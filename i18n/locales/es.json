@@ -1163,7 +1163,8 @@
         "updatedAt": "Actualizado el",
         "url": "URL",
         "userIds": "Asignado a",
-        "workspaceId": "Espacio de trabajo"
+        "workspaceId": "Espacio de trabajo",
+        "workspaceTags": "Etiquetas"
       },
       "operators": {
         "allSet": "totalmente vinculado",
@@ -1358,6 +1359,7 @@
         "status": "Estado",
         "statusCode": "Código de estado",
         "subscription": "Suscripción",
+        "tags": "Etiquetas",
         "target": "Objetivo",
         "tasks": "Tareas",
         "totalQuantity": "Cantidad de servicios",
@@ -2498,7 +2500,8 @@
         "userPlatformAccessUpdate": "Acceso de plataforma actualizado",
         "userStatusUpdate": "Estado de la cuenta actualizado",
         "userSummaryRead": "Resumen de usuarios leído",
-        "workspaceDelete": "Espacio de trabajo eliminado"
+        "workspaceDelete": "Espacio de trabajo eliminado",
+        "workspaceTagsUpdate": "Etiquetas del espacio de trabajo actualizadas"
       },
       "source": {
         "operator": "Operador",
@@ -2511,6 +2514,8 @@
       "allowance": "¿Establecer la asignación Enterprise de {name} en {value} créditos por usuario? Se aplica a todo el espacio de trabajo.",
       "plan": "¿Establecer el plan de {name} en {value}? Se aplica a todo el espacio de trabajo.",
       "subscription": "¿Establecer el estado de suscripción de {name} en {value}? Se aplica a todo el espacio de trabajo y no contacta con ningún proveedor de facturación.",
+      "tags": "¿Establecer las etiquetas de {name} en {value}? Se aplica a todo el espacio de trabajo.",
+      "tagsCleared": "¿Quitar todas las etiquetas de {name}? Se aplica a todo el espacio de trabajo.",
       "terms": "¿Actualizar las condiciones de suscripción de {name}? Se aplica a todo el espacio de trabajo.",
       "termsClearingBilling": "¿Actualizar las condiciones de {name} y desvincular su suscripción de facturación? El proveedor sigue cobrando hasta que la canceles allí.",
       "title": "Confirmar el cambio del operador"
@@ -2644,6 +2649,14 @@
       "tasks": "Tareas",
       "threads": "Conversaciones",
       "title": "Estadísticas del espacio"
+    },
+    "tags": {
+      "description": "Agrupa espacios de trabajo por distribuidor o responsable de cuenta. Las etiquetas aparecen en la lista de usuarios y se pueden filtrar en ambas listas.",
+      "label": "Etiquetas asignadas",
+      "more": "+{count} más",
+      "placeholder": "Escribe una etiqueta y pulsa Intro",
+      "suggestions": "Usadas recientemente",
+      "title": "Etiquetas"
     },
     "terms": {
       "billingId": "ID de suscripción de facturación",

@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import { SubscriptionPlan } from "@/generated/prisma";
 
 import { AppChip } from "@/components/chip/app-chip";
+import { OperatorTagsCell } from "../tags/operator-tags-cell";
 import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/company/components/subscription/subscription-panel";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
@@ -51,6 +52,11 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
           ) : (
             <span className="text-sm text-muted-foreground">{t("OperatorUsers.values.noSubscription")}</span>
           ),
+      },
+      {
+        id: "tags",
+        header: t("Common.table.columns.tags"),
+        cell: ({ row }) => <OperatorTagsCell tags={row.original.tags} />,
       },
       {
         id: "members",

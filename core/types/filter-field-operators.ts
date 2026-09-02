@@ -52,4 +52,5 @@ export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperat
   [FilterFieldKey.workspaceId]: scalarSelectOperators,
   [FilterFieldKey.googleAdsClickId]: presenceOperators,
   [FilterFieldKey.auditSource]: scalarSelectOperators,
+  [FilterFieldKey.workspaceTags]: scalarSelectOperators,
 };

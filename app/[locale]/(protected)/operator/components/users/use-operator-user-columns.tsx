@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 import { AppChip } from "@/components/chip/app-chip";
+import { OperatorTagsCell } from "../tags/operator-tags-cell";
 import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
 import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/company/components/subscription/subscription-panel";
 
@@ -36,6 +37,11 @@ export function useOperatorUserColumns(): ColumnDef<OperatorUserRowDto>[] {
         id: "workspace",
         header: t("Common.table.columns.workspace"),
         cell: ({ row }) => <span className="text-sm">{row.original.workspaceLabel}</span>,
+      },
+      {
+        id: "tags",
+        header: t("Common.table.columns.tags"),
+        cell: ({ row }) => <OperatorTagsCell tags={row.original.workspaceTags} />,
       },
       {
         id: "status",
