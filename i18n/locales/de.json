@@ -1038,6 +1038,7 @@
       "unipileUnknown": "Der Anbieter hat diese Nachricht abgelehnt. Bitte erneut versuchen oder Support kontaktieren.",
       "userInactive": "Dein Benutzerkonto ist inaktiv. Wende dich an einen Workspace-Administrator.",
       "userNotFound": "Benutzer-ID nicht gefunden oder nicht zugänglich.",
+      "userPlatformOperatorStatusForbidden": "Dieses Konto gehört einem Plattform-Operator. Sein Status kann nur über die Operator-Konsole geändert werden.",
       "userSelfAdminUpdateForbidden": "Du kannst dein eigenes Konto nicht über die Teamverwaltung aktualisieren.",
       "webhookDeliveryNotFound": "Webhook-Zustellungs-ID nicht gefunden oder nicht zugänglich.",
       "webhookEventsRequired": "Wähle mindestens ein Ereignis aus.",

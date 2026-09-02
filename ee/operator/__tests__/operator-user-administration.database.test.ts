@@ -804,4 +804,50 @@ describeDatabase("operator user administration against a real database", { timeo
     );
     assertAdmitted(stillWritable);
   });
+
+  it("refuses a credit reset whose operationId belongs to a different workspace", async () => {
+    const repo = new PrismaOperatorRepo();
+    const actor = operatorActor();
+
+    const companyA = await createCompany({ plan: "enterprise", status: "active", enterpriseCreditsPerUser: 10 });
+    const targetA = await createUser({ companyId: companyA, email: `replay-a-${randomUUID()}@example.invalid` });
+
+    const companyB = await createCompany({ plan: "enterprise", status: "active", enterpriseCreditsPerUser: 10 });
+    const targetB = await createUser({ companyId: companyB, email: `replay-b-${randomUUID()}@example.invalid` });
+
+    const foreignOperationId = randomUUID();
+    await runWithoutTenant(() =>
+      prisma.agentCreditAdjustment.create({
+        data: {
+          companyId: companyB,
+          userId: targetB.userId,
+          creditDelta: 99,
+          periodStart,
+          periodEnd,
+          reason: "Belongs to another workspace",
+          operationId: foreignOperationId,
+          createdByOperatorUserId: "fixture",
+        },
+      }),
+    );
+
+    const replayed = await runWithOperator(actor, () =>
+      repo.resetUserCreditsUnscoped(
+        { userId: targetA.userId, mode: "baseAllowance", operationId: foreignOperationId },
+        now,
+      ),
+    );
+
+    expect(replayed).toBe("conflict");
+
+    await runWithoutTenant(async () => {
+      const adjustments = await prisma.agentCreditAdjustment.findMany({ where: { companyId: companyA } });
+      expect(adjustments).toEqual([]);
+      const foreign = await prisma.agentCreditAdjustment.findUniqueOrThrow({
+        where: { operationId: foreignOperationId },
+      });
+      expect(foreign.companyId).toBe(companyB);
+      expect(foreign.creditDelta).toBe(99);
+    });
+  });
 });

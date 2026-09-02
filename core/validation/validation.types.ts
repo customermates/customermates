@@ -62,6 +62,7 @@ export enum CustomErrorCode {
   organizationNotFound = "organizationNotFound",
   userNotFound = "userNotFound",
   userSelfAdminUpdateForbidden = "userSelfAdminUpdateForbidden",
+  userPlatformOperatorStatusForbidden = "userPlatformOperatorStatusForbidden",
   dealNotFound = "dealNotFound",
   serviceNotFound = "serviceNotFound",
   contactNotFound = "contactNotFound",

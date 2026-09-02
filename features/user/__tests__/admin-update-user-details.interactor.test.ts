@@ -18,6 +18,13 @@ vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 import { AdminUpdateUserDetailsInteractor } from "../upsert/admin-update-user-details.interactor";
 
+vi.mock("next-intl/server", () => ({
+  getTranslations: (namespace?: string) => {
+    const t = (key: string) => (namespace ? `${namespace}.${key}` : key);
+    return Promise.resolve(Object.assign(t, { raw: t }));
+  },
+}));
+
 const TARGET_USER_ID = "00000000-0000-4000-8000-000000000010";
 const TARGET_ROLE_ID = "00000000-0000-4000-8000-000000000011";
 const TARGET_EMAIL = "teammate@example.com";
@@ -25,6 +32,7 @@ const TARGET_EMAIL = "teammate@example.com";
 function harness(previousStatus: Status) {
   const userRepo = {
     findExistingEmailsCompanyWide: vi.fn().mockResolvedValue(new Set([TARGET_EMAIL])),
+    isPlatformOperatorCompanyWide: vi.fn().mockResolvedValue(false),
     findOrThrowCompanyWide: vi.fn().mockResolvedValue(
       createMockUser({
         id: TARGET_USER_ID,
@@ -118,5 +126,26 @@ describe("AdminUpdateUserDetailsInteractor agent credit activation", () => {
     expect(userRepo.clearAgentCreditActivatedOrThrow).toHaveBeenCalledWith(TARGET_USER_ID);
     expect(userRepo.markAgentCreditActivatedOrThrow).not.toHaveBeenCalled();
     expectProfileUpdateBefore(userRepo.adminUpdateDetailsOrThrow, userRepo.clearAgentCreditActivatedOrThrow);
+  });
+
+  it("refuses a tenant-side status change on a platform operator account", async () => {
+    const { userRepo, invoke } = harness(Status.active);
+    userRepo.isPlatformOperatorCompanyWide.mockResolvedValue(true);
+
+    const result = await invoke("inactive");
+
+    expect(result.ok).toBe(false);
+    expect(userRepo.adminUpdateDetailsOrThrow).not.toHaveBeenCalled();
+    expect(userRepo.clearAgentCreditActivatedOrThrow).not.toHaveBeenCalled();
+  });
+
+  it("still allows a tenant-side status change on an ordinary account", async () => {
+    const { userRepo, invoke } = harness(Status.active);
+    userRepo.isPlatformOperatorCompanyWide.mockResolvedValue(false);
+
+    const result = await invoke("inactive");
+
+    expect(result.ok).toBe(true);
+    expect(userRepo.adminUpdateDetailsOrThrow).toHaveBeenCalled();
   });
 });

@@ -1038,6 +1038,7 @@
       "unipileUnknown": "El proveedor rechazó este mensaje. Inténtalo de nuevo o contacta con soporte.",
       "userInactive": "Tu cuenta de usuario está inactiva. Contacta con un administrador del espacio de trabajo.",
       "userNotFound": "ID de usuario no encontrado o no accesible.",
+      "userPlatformOperatorStatusForbidden": "Esta cuenta pertenece a un operador de plataforma. Su estado solo se puede cambiar desde la consola de operador.",
       "userSelfAdminUpdateForbidden": "No puedes actualizar tu propia cuenta desde la administración del equipo.",
       "webhookDeliveryNotFound": "ID de entrega de webhook no encontrado o no accesible.",
       "webhookEventsRequired": "Selecciona al menos un evento.",

@@ -50,6 +50,8 @@ const OPERATOR_READ_ACTIONS: string[] = [
   OPERATOR_AUDIT_ACTION.userDetailRead,
 ];
 
+const AUDIT_MAX_SKIP = 10_000;
+
 export class PrismaOperatorAuditRepo extends BaseRepository implements GetOperatorAuditLogsRepo {
   getSortableFields() {
     return [{ field: "createdAt", resolvedFields: ["createdAt"] }];
@@ -91,7 +93,8 @@ export class PrismaOperatorAuditRepo extends BaseRepository implements GetOperat
 
     const take = params.take ?? params.pagination?.pageSize ?? 25;
     const page = params.pagination?.page ?? 1;
-    const skip = params.skip ?? (page - 1) * take;
+    const requestedSkip = params.skip ?? (page - 1) * take;
+    const skip = Math.min(Math.max(requestedSkip, 0), AUDIT_MAX_SKIP);
     const search = params.searchTerm?.trim() ?? "";
 
     return { sources, workspaceIds, createdAt, take, skip, search };
