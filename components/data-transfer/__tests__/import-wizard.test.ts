@@ -24,6 +24,7 @@ vi.mock("@/components/ui/select", () => ({
   SelectContent: ({ children }: { children: ReactElement }) => createElement("div", null, children),
   SelectGroup: ({ children }: { children: ReactElement }) => createElement("div", { "data-group": "" }, children),
   SelectLabel: ({ children }: { children: ReactElement }) => createElement("div", { "data-group-label": "" }, children),
+  SelectSeparator: () => createElement("hr", { "data-group-separator": "" }),
   SelectItem: ({ children, value }: { children: ReactElement; value: string }) =>
     createElement("div", { "data-option": value }, children),
   SelectTrigger: ({ children }: { children: ReactElement }) => createElement("div", null, children),
@@ -279,6 +280,7 @@ describe("ImportWizard mapping aids", () => {
     });
 
     expect(html.match(/data-group-label=""/g)).toHaveLength(3);
+    expect(html.match(/data-group-separator=""/g)).toHaveLength(3);
     expect(html).toContain("DataTransfer.import.groupFields");
     expect(html).toContain("DataTransfer.import.groupCustomFields");
     expect(html).toContain("DataTransfer.import.groupChannels");
@@ -289,6 +291,7 @@ describe("ImportWizard mapping aids", () => {
 
     expect(html).not.toContain("DataTransfer.import.groupCustomFields");
     expect(html.match(/data-group-label=""/g)).toHaveLength(2);
+    expect(html.match(/data-group-separator=""/g)).toHaveLength(2);
   });
 
   it("offers channel targets for contacts, so a foreign email column can become one", () => {

@@ -5,7 +5,7 @@ import type { MappingTarget } from "@/features/data-transfer/import/import-mappi
 
 import { MessagingProvider } from "@/generated/prisma";
 import { observer } from "mobx-react-lite";
-import { useRef } from "react";
+import { Fragment, useRef } from "react";
 import { useTranslations } from "next-intl";
 
 import { AppCard } from "@/components/card/app-card";
@@ -22,6 +22,7 @@ import {
   SelectGroup,
   SelectItem,
   SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -215,15 +216,19 @@ export const ImportWizard = observer(function ImportWizard() {
 
                         {optionGroups.map(({ labelKey, options }) =>
                           options.length === 0 ? null : (
-                            <SelectGroup key={labelKey}>
-                              <SelectLabel>{t(labelKey)}</SelectLabel>
+                            <Fragment key={labelKey}>
+                              <SelectSeparator />
 
-                              {options.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
+                              <SelectGroup>
+                                <SelectLabel className="text-sm font-medium text-foreground">{t(labelKey)}</SelectLabel>
+
+                                {options.map((option) => (
+                                  <SelectItem key={option.value} value={option.value}>
+                                    {option.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </Fragment>
                           ),
                         )}
                       </SelectContent>
