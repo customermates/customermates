@@ -1214,7 +1214,7 @@
       "aggregationType": "Metric",
       "amount": "Amount",
       "avatarUrl": "Avatar URL",
-      "changedFields": "Only when these fields change",
+      "changedFields": "Changed fields",
       "company": "Company",
       "confirmEmail": "Confirm Email",
       "confirmPassword": "Confirm Password",
@@ -1263,7 +1263,7 @@
       "status": "Status",
       "theme": "Theme",
       "triggerEvents": "Events",
-      "triggerFilters": "Only for matching records",
+      "triggerFilters": "Record filters",
       "triggerKind": "Trigger",
       "type": "Type",
       "unavailableSelection": "Selection unavailable",
@@ -2777,6 +2777,7 @@
     "promptExampleSchedule": "Summarise the deals that moved since yesterday and reply with a short list.",
     "scheduleTimeZone": "Times are shown in {timezone}.",
     "title": "Routine",
+    "triggerFiltersHelp": "Leave empty to run for every record.",
     "useSchedulePreset": "Switch to a preset"
   },
   "RoutineRunReason": {

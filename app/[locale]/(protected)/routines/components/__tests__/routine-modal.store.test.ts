@@ -87,6 +87,56 @@ describe("RoutineModalStore", () => {
     expect(store.form.triggerFilters).toHaveLength(2);
   });
 
+  it("offers change fields only once a selected event reports changes", async () => {
+    const store = makeStore();
+
+    await store.openForCreate();
+
+    store.form.triggerEvents = ["organization.created"];
+    await Promise.resolve();
+
+    expect(store.watchesRecordChanges).toBe(false);
+    expect(store.changeFields).toEqual([]);
+
+    store.form.triggerEvents = ["organization.updated"];
+    await Promise.resolve();
+
+    expect(store.watchesRecordChanges).toBe(true);
+    expect(store.changeFields).toContain("name");
+    expect(store.changeFields).toContain("notes");
+  });
+
+  it("drops watched fields when the events stop reporting changes", async () => {
+    const store = makeStore();
+
+    await store.openForCreate();
+
+    store.form.triggerEvents = ["organization.updated"];
+    await Promise.resolve();
+    store.form.changedFields = ["name"];
+
+    store.form.triggerEvents = ["organization.created"];
+    await Promise.resolve();
+
+    expect(store.form.changedFields).toEqual([]);
+    expect(store.payload.changedFields).toEqual([]);
+  });
+
+  it("drops watched fields the new entity does not have", async () => {
+    const store = makeStore();
+
+    await store.openForCreate();
+
+    store.form.triggerEvents = ["organization.updated"];
+    await Promise.resolve();
+    store.form.changedFields = ["name"];
+
+    store.form.triggerEvents = ["contact.updated"];
+    await Promise.resolve();
+
+    expect(store.form.changedFields).toEqual([]);
+  });
+
   it("stamps the local time zone on a routine created in the browser", async () => {
     const store = makeStore();
 

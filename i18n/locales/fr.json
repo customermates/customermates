@@ -1214,7 +1214,7 @@
       "aggregationType": "Indicateur",
       "amount": "Montant",
       "avatarUrl": "URL de l'avatar",
-      "changedFields": "Uniquement quand ces champs changent",
+      "changedFields": "Champs modifiés",
       "company": "Entreprise",
       "confirmEmail": "Confirmer l'e-mail",
       "confirmPassword": "Confirmer le mot de passe",
@@ -1263,7 +1263,7 @@
       "status": "Statut",
       "theme": "Thème",
       "triggerEvents": "Évènements",
-      "triggerFilters": "Uniquement pour les enregistrements correspondants",
+      "triggerFilters": "Filtres d’enregistrement",
       "triggerKind": "Déclencheur",
       "type": "Type",
       "unavailableSelection": "Sélection indisponible",
@@ -2777,6 +2777,7 @@
     "promptExampleSchedule": "Résume ce qui a bougé depuis hier et réponds par une courte liste.",
     "scheduleTimeZone": "Les heures sont affichées en {timezone}.",
     "title": "Routine",
+    "triggerFiltersHelp": "Laissez vide pour s’exécuter pour chaque enregistrement.",
     "useSchedulePreset": "Utiliser une fréquence prédéfinie"
   },
   "RoutineRunReason": {

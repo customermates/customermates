@@ -8,7 +8,7 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 import type { RoutineRunDto } from "@/ee/routines/routine.schema";
 import type { RoutineRiskDto } from "@/ee/routines/get-routine-risks.interactor";
 
-import { action, computed, makeObservable, observable, reaction, runInAction, toJS } from "mobx";
+import { action, comparer, computed, makeObservable, observable, reaction, runInAction, toJS } from "mobx";
 import type { EntityType } from "@/generated/prisma";
 import { Resource, RoutineTriggerKind } from "@/generated/prisma";
 
@@ -32,7 +32,8 @@ import {
   localTimeZone,
   scheduleFromCron,
 } from "@/ee/routines/routine-schedule-preset";
-import { entityTypeForEvents } from "@/ee/routines/routine-event-filter";
+import { entityTypeForEvents, isRecordChangeEvent } from "@/ee/routines/routine-event-filter";
+import { routineChangeFields } from "@/ee/routines/routine-change-fields";
 
 function mergeFilters(filterableFields: FilterableField[], current: Filter[]): Filter[] {
   const existing = new Map<string, Filter>();
@@ -132,6 +133,8 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
 
       openRun_: computed,
       triggerEntityType: computed,
+      watchesRecordChanges: computed,
+      changeFields: computed,
       filterableFields: computed,
       customColumns: computed,
 
@@ -149,25 +152,42 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       runNow: action,
     });
 
-    this.remergeFilterRowsOnTriggerChange();
+    this.syncTriggerFieldsOnEventChange();
   }
 
-  private remergeFilterRowsOnTriggerChange = () => {
+  private syncTriggerFieldsOnEventChange = () => {
     reaction(
-      () => this.triggerEntityType,
+      () => ({ entityType: this.triggerEntityType, watchesChanges: this.watchesRecordChanges }),
       () => {
         runInAction(() => {
           const form = this.form;
           if (!form) return;
 
           form.triggerFilters = mergeFilters(this.filterableFields, (form.triggerFilters as Filter[]) ?? []);
+
+          const offered = new Set(this.changeFields);
+          form.changedFields = this.watchesRecordChanges
+            ? (form.changedFields ?? []).filter((field) => offered.has(field))
+            : [];
         });
       },
+      { equals: comparer.structural },
     );
   };
 
   get triggerEntityType(): EntityType | null {
     return entityTypeForEvents(this.form?.triggerEvents ?? []);
+  }
+
+  get watchesRecordChanges(): boolean {
+    return (this.form?.triggerEvents ?? []).some(isRecordChangeEvent);
+  }
+
+  get changeFields(): string[] {
+    const entityType = this.triggerEntityType;
+    if (!entityType || !this.watchesRecordChanges) return [];
+
+    return [...routineChangeFields(entityType), ...this.customColumns.map((column) => column.id)];
   }
 
   get filterableFields(): FilterableField[] {
@@ -363,7 +383,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       triggerKind: form.triggerKind,
       timezone: form.timezone,
       triggerEvents: scheduled ? [] : form.triggerEvents,
-      changedFields: scheduled ? [] : (form.changedFields ?? []),
+      changedFields: scheduled || !this.watchesRecordChanges ? [] : (form.changedFields ?? []),
       triggerFilters: scheduled ? [] : (form.triggerFilters ?? []).filter(hasValidFilterConfiguration),
       cronExpression: scheduled ? this.compiledCron : null,
     };

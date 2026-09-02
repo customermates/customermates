@@ -14,7 +14,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
 
 import { composeRoutinePrompt } from "./routine-prompt";
-import { entityTypeForEvent } from "./routine-event-filter";
+import { entityTypeForEvent, isRecordRemovalEvent } from "./routine-event-filter";
 
 export const ROUTINE_MAX_IN_FLIGHT_RUNS_PER_OWNER = 1;
 
@@ -175,6 +175,7 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
   ): Promise<boolean> {
     const filters = routine.triggerFilters ?? [];
     if (filters.length === 0 || !triggerEvent || !triggerEntityId) return true;
+    if (isRecordRemovalEvent(triggerEvent)) return true;
 
     const entityType = entityTypeForEvent(triggerEvent);
     if (!entityType) return true;

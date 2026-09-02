@@ -1214,7 +1214,7 @@
       "aggregationType": "Metrica",
       "amount": "Importo",
       "avatarUrl": "URL dell'avatar",
-      "changedFields": "Solo quando cambiano questi campi",
+      "changedFields": "Campi modificati",
       "company": "Azienda",
       "confirmEmail": "Conferma l'e-mail",
       "confirmPassword": "Conferma la password",
@@ -1263,7 +1263,7 @@
       "status": "Stato",
       "theme": "Tema",
       "triggerEvents": "Eventi",
-      "triggerFilters": "Solo per i record corrispondenti",
+      "triggerFilters": "Filtri sui record",
       "triggerKind": "Attivazione",
       "type": "Tipo",
       "unavailableSelection": "Selezione non disponibile",
@@ -2777,6 +2777,7 @@
     "promptExampleSchedule": "Riassumi ciò che è cambiato da ieri e rispondi con un breve elenco.",
     "scheduleTimeZone": "Gli orari sono mostrati in {timezone}.",
     "title": "Routine",
+    "triggerFiltersHelp": "Lascia vuoto per eseguire su ogni record.",
     "useSchedulePreset": "Passa a una frequenza predefinita"
   },
   "RoutineRunReason": {

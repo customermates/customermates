@@ -302,6 +302,25 @@ describe("StartRoutineRunInteractor", () => {
     expect(sendAgentMessage.invoke).not.toHaveBeenCalled();
   });
 
+  it("runs a deleted-record trigger without asking the filters about a row that is gone", async () => {
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures({
+      run: { triggerEvent: "contact.deleted", triggerEntityId: "contact-1" },
+      routine: { triggerFilters: [{ field: "stage", operator: "equals", value: "won" }] },
+    });
+    filterMatcher.matches.mockResolvedValue(false);
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
+
+    const result = await interactor.invoke({ routineRunId: RUN_ID });
+
+    expect(filterMatcher.matches).not.toHaveBeenCalled();
+    expect(result).toEqual({ ok: true, data: { started: true } });
+  });
+
   it("records a blocked run when the agent refuses to start", async () => {
     const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
     sendAgentMessage.invoke.mockResolvedValue({

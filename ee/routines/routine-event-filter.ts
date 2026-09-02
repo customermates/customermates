@@ -1,6 +1,6 @@
-import type { ChangeRecord } from "@/core/utils/calculate-changes";
-
 import { EntityType } from "@/generated/prisma";
+
+import { extractAuditChanges } from "@/features/audit-log/audit-log-changes";
 
 const ENTITY_TYPE_BY_EVENT_PREFIX: Record<string, EntityType> = {
   contact: EntityType.contact,
@@ -20,13 +20,27 @@ export function entityTypeForEvents(events: readonly string[]): EntityType | nul
   return types.size === 1 ? [...types][0] : null;
 }
 
-export function changedFieldsOf(payload: unknown): string[] {
-  if (!payload || typeof payload !== "object" || !("changes" in payload)) return [];
+export function isRecordChangeEvent(event: string): boolean {
+  return entityTypeForEvent(event) !== null && event.endsWith(".updated");
+}
 
-  const { changes } = payload as { changes?: ChangeRecord };
-  if (!changes || typeof changes !== "object") return [];
+export function isRecordRemovalEvent(event: string): boolean {
+  return entityTypeForEvent(event) !== null && event.endsWith(".deleted");
+}
 
-  return Object.keys(changes);
+export function carriesChangedFields(eventData: unknown): boolean {
+  if (!eventData || typeof eventData !== "object" || Array.isArray(eventData)) return false;
+
+  const { payload } = eventData as { payload?: unknown };
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return false;
+
+  return "changes" in payload;
+}
+
+export function changedFieldsOf(eventData: unknown): string[] {
+  if (!carriesChangedFields(eventData)) return [];
+
+  return extractAuditChanges(eventData).map((change) => change.columnId ?? change.field);
 }
 
 export function matchesChangedFields(required: readonly string[], changed: readonly string[]): boolean {

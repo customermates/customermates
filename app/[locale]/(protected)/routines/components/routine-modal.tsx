@@ -26,7 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FilterAccordion } from "@/components/data-view/filter-modal/filter-accordion";
-import { useFilterFieldLabel } from "@/components/entity-terminology/use-filter-field-label";
+import { useChangeFieldLabel } from "@/components/entity-terminology/use-change-field-label";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -67,10 +67,10 @@ export const RoutineModal = observer(() => {
     intlStore.formatTime(date),
   );
   const hasClockTime = scheduleHasClockTime(routineModalStore.compiledCron);
-  const filterFieldLabel = useFilterFieldLabel();
+  const changeFieldLabel = useChangeFieldLabel();
   const filterableFields = routineModalStore.filterableFields;
-  const changedFieldItems = filterableFields.map((field) => ({ key: field.field }));
-  const changedFieldLabel = (key: string) => filterFieldLabel(key, routineModalStore.customColumns);
+  const changedFieldItems = routineModalStore.changeFields.map((field) => ({ key: field }));
+  const changedFieldLabel = (key: string) => changeFieldLabel(key, routineModalStore.customColumns);
 
   const isExistingRoutine = Boolean(form?.id);
   const openRun = routineModalStore.openRun_;
@@ -396,6 +396,8 @@ export const RoutineModal = observer(() => {
                             filters={(form?.triggerFilters as never) ?? []}
                             variant="grouped"
                           />
+
+                          <p className="text-subdued text-xs">{t("RoutineModal.triggerFiltersHelp")}</p>
                         </div>
                       )}
                     </div>

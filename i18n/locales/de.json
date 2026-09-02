@@ -1214,7 +1214,7 @@
       "aggregationType": "Metrik",
       "amount": "Betrag",
       "avatarUrl": "Avatar-URL",
-      "changedFields": "Nur wenn sich diese Felder ändern",
+      "changedFields": "Geänderte Felder",
       "company": "Unternehmen",
       "confirmEmail": "E-Mail bestätigen",
       "confirmPassword": "Passwort bestätigen",
@@ -1263,7 +1263,7 @@
       "status": "Status",
       "theme": "Darstellung",
       "triggerEvents": "Ereignisse",
-      "triggerFilters": "Nur bei passenden Datensätzen",
+      "triggerFilters": "Datensatzfilter",
       "triggerKind": "Auslöser",
       "type": "Typ",
       "unavailableSelection": "Auswahl nicht verfügbar",
@@ -2777,6 +2777,7 @@
     "promptExampleSchedule": "Fasse zusammen, was sich seit gestern bewegt hat, und antworte mit einer kurzen Liste.",
     "scheduleTimeZone": "Zeiten werden in {timezone} angezeigt.",
     "title": "Routine",
+    "triggerFiltersHelp": "Leer lassen, um für jeden Datensatz zu laufen.",
     "useSchedulePreset": "Zu einem Muster wechseln"
   },
   "RoutineRunReason": {

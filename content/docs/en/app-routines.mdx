@@ -21,6 +21,16 @@ Pick how often the routine repeats: every 15 or 30 minutes, or every hour, day, 
 
 Routines run at most once every 15 minutes. A schedule that would fire more often than that is rejected when you save it. The scheduler checks for due routines every five minutes, so a run may start a few minutes after its nominal time.
 
+## Event triggers
+
+An event trigger names one or more in-app events, such as a deal being created, updated, or deleted. Two optional controls narrow it further, so the routine spends credits only on the cases you care about.
+
+**Changed fields** applies to update events only. Name the fields you want to watch, for example a deal's value or one of your custom columns, and the routine runs only when one of them actually changed. The control is hidden when no update event is selected, because creations and deletions do not report field-level changes.
+
+**Record filters** restrict the routine to records matching the conditions you set, for example only deals assigned to you. They are not applied to deletions, because the record is already gone by the time the routine starts.
+
+Leave either control empty to run on every matching event.
+
 ## Runs
 
 Open a routine to see its runs, newest first. Selecting a run shows the full transcript: what the assistant was asked, which records it read or changed, and what it replied. Each run also records how many AI credits it used.

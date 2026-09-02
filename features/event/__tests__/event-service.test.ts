@@ -260,6 +260,15 @@ describe("EventService routine triggers", () => {
     );
   }
 
+  function publishContactCreate() {
+    return runWithTenant(mockUser, () =>
+      service.publish(DomainEvent.CONTACT_CREATED, {
+        entityId: CONTACT_ID,
+        payload: { id: CONTACT_ID, firstName: "A" } as never,
+      }),
+    );
+  }
+
   it("starts a routine run for a subscribed event", async () => {
     const result = await publishContactUpdate();
 
@@ -308,6 +317,16 @@ describe("EventService routine triggers", () => {
     ]);
 
     const result = await publishContactUpdate();
+
+    expect(result.routineRuns).toBe(1);
+  });
+
+  it("ignores the required fields on an event that reports no changes", async () => {
+    routineRepo.findEventRoutinesUnscoped.mockResolvedValue([
+      { id: ROUTINE_ID, ownerUserId: mockUser.id, changedFields: ["firstName"] },
+    ]);
+
+    const result = await publishContactCreate();
 
     expect(result.routineRuns).toBe(1);
   });

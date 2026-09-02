@@ -21,6 +21,16 @@ Wähle, wie oft die Routine wiederholt wird: alle 15 oder 30 Minuten oder stünd
 
 Routinen laufen höchstens alle 15 Minuten. Ein Zeitplan, der häufiger auslösen würde, wird beim Speichern abgelehnt. Der Planer sucht alle fünf Minuten nach fälligen Routinen, ein Lauf kann also einige Minuten nach seiner nominalen Zeit starten.
 
+## Ereignis-Auslöser
+
+Ein Ereignis-Auslöser benennt ein oder mehrere Ereignisse in der App, etwa eine erstellte, aktualisierte oder gelöschte Opportunität. Zwei optionale Felder grenzen ihn weiter ein, damit die Routine nur für die Fälle Guthaben ausgibt, die dich interessieren.
+
+**Geänderte Felder** gilt nur für Aktualisierungen. Benenne die Felder, die du beobachten willst, etwa den Wert einer Opportunität oder eine deiner eigenen Spalten, und die Routine läuft nur, wenn sich eines davon tatsächlich geändert hat. Das Feld ist ausgeblendet, solange kein Aktualisierungs-Ereignis gewählt ist, denn Erstellungen und Löschungen melden keine Änderungen einzelner Felder.
+
+**Datensatzfilter** beschränken die Routine auf Datensätze, die deinen Bedingungen entsprechen, etwa nur Opportunitäten, die dir zugewiesen sind. Bei Löschungen greifen sie nicht, weil der Datensatz zum Startzeitpunkt der Routine bereits weg ist.
+
+Lasse ein Feld leer, um bei jedem passenden Ereignis zu laufen.
+
 ## Läufe
 
 Öffne eine Routine, um ihre Läufe zu sehen, die neuesten zuerst. Ein ausgewählter Lauf zeigt das vollständige Transkript: worum der Assistent gebeten wurde, welche Datensätze er gelesen oder geändert hat und was er geantwortet hat. Jeder Lauf hält außerdem fest, wie viel KI-Guthaben er verbraucht hat.
