@@ -1879,6 +1879,10 @@
       "weightedValue": "{dealValue} × probabilità di chiusura del {percent}% per la fase corrente ({stage}). Modifica «{services}», quantità o fase; gestisci le probabilità in «{company}».",
       "weightedValueUnconfigured": "{dealValue} × probabilità di chiusura della fase selezionata. Configura le probabilità in «{company}» e seleziona una fase; modifica «{services}» o quantità."
     },
+    "customFieldsEmpty": {
+      "body": "I campi personalizzati contengono le informazioni aggiuntive che il tuo spazio di lavoro registra per questo tipo di record.",
+      "title": "Ancora nessun campo personalizzato"
+    },
     "donePersonalizing": "Fine",
     "fields": {
       "createdAt": "Creato il",

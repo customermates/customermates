@@ -1879,6 +1879,10 @@
       "weightedValue": "{dealValue} × {percent} % Abschlusswahrscheinlichkeit der aktuellen Phase ({stage}). Ändere „{services}“, Mengen oder die Phase; bearbeite Phasenwahrscheinlichkeiten unter „{company}“.",
       "weightedValueUnconfigured": "{dealValue} × Abschlusswahrscheinlichkeit der ausgewählten Phase. Richte unter „{company}“ Phasenwahrscheinlichkeiten ein und wähle eine Phase; ändere „{services}“ oder Mengen."
     },
+    "customFieldsEmpty": {
+      "body": "Benutzerdefinierte Felder enthalten die zusätzlichen Angaben, die dein Arbeitsbereich zu diesem Datensatztyp erfasst.",
+      "title": "Noch keine benutzerdefinierten Felder"
+    },
     "donePersonalizing": "Fertig",
     "fields": {
       "createdAt": "Erstellt am",

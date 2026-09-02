@@ -1879,6 +1879,10 @@
       "weightedValue": "{dealValue} × probabilité de conclusion de {percent} % pour l’étape actuelle ({stage}). Modifiez « {services} », les quantités ou l’étape ; gérez les probabilités dans « {company} ».",
       "weightedValueUnconfigured": "{dealValue} × probabilité de conclusion de l’étape sélectionnée. Configurez les probabilités dans « {company} » et sélectionnez une étape ; modifiez « {services} » ou les quantités."
     },
+    "customFieldsEmpty": {
+      "body": "Les champs personnalisés contiennent les informations supplémentaires que votre espace de travail suit pour ce type d’enregistrement.",
+      "title": "Aucun champ personnalisé pour le moment"
+    },
     "donePersonalizing": "Terminé",
     "fields": {
       "createdAt": "Créé le",
