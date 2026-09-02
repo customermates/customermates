@@ -1549,7 +1549,7 @@ export const getGetRoutinesInteractor = () =>
 export const getGetRoutineRunsInteractor = () => new GetRoutineRunsInteractor(getRoutineRepo());
 
 export const getUpsertRoutineInteractor = () =>
-  new UpsertRoutineInteractor(getRoutineRepo(), getBackgroundTaskService());
+  new UpsertRoutineInteractor(getRoutineRepo(), getCompanyRepo(), getBackgroundTaskService());
 
 export const getDeleteRoutineInteractor = () => new DeleteRoutineInteractor(getRoutineRepo());
 

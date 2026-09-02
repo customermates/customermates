@@ -185,6 +185,10 @@ export class PrismaRoutineRepo
     return routine as RoutineDto;
   }
 
+  async countRoutines(): Promise<number> {
+    return this.prisma.routine.count({ where: { companyId: this.companyId } });
+  }
+
   async getRoutineRuns(routineId: string, limit: number, cursor?: string | null): Promise<RoutineRunPage> {
     const decoded = cursor ? decodeRoutineRunCursor(cursor) : null;
     const rows = await this.prisma.routineRun.findMany({

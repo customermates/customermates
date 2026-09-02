@@ -12,6 +12,7 @@ import type { RouteGuardSubscriptionRepo } from "@/features/auth/route-guard.ser
 import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
 import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement.service";
 import type { CreateAuthLinkSubscriptionRepo } from "@/ee/messaging/connect/create-auth-link.interactor";
+import type { UpsertRoutineSubscriptionRepo } from "@/ee/routines/upsert-routine.interactor";
 
 import { SubscriptionStatus } from "@/generated/prisma";
 
@@ -34,7 +35,8 @@ export class PrismaCompanyRepo
     AdminUpdateUserSubscriptionRepo,
     RouteGuardSubscriptionRepo,
     EntitlementSubscriptionRepo,
-    CreateAuthLinkSubscriptionRepo
+    CreateAuthLinkSubscriptionRepo,
+    UpsertRoutineSubscriptionRepo
 {
   @Transaction
   async updateDetails(args: RepoArgs<UpdateCompanySettingsRepo, "updateDetails">) {

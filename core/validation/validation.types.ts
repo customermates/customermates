@@ -82,6 +82,8 @@ export enum CustomErrorCode {
   routineScheduleRequired = "routineScheduleRequired",
   routineScheduleTooFrequent = "routineScheduleTooFrequent",
   routineTimeZoneInvalid = "routineTimeZoneInvalid",
+  routineLimitReached = "routineLimitReached",
+  routinesRequirePaidPlan = "routinesRequirePaidPlan",
   routineTriggerEventsRequired = "routineTriggerEventsRequired",
   invalidFilterField = "invalidFilterField",
   invalidFilterOperator = "invalidFilterOperator",

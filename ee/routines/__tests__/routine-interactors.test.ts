@@ -19,6 +19,7 @@ import { UpsertRoutineSchema } from "../routine.schema";
 import { StartRoutineRunInteractor } from "../start-routine-run.interactor";
 import { SweepDueRoutinesInteractor } from "../sweep-due-routines.interactor";
 import { ReconcileRoutineRunsInteractor } from "../reconcile-routine-runs.interactor";
+import { UpsertRoutineInteractor } from "../upsert-routine.interactor";
 import { PruneRoutineRunsInteractor } from "../prune-routine-runs.interactor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
@@ -567,5 +568,60 @@ describe("PruneRoutineRunsInteractor", () => {
 
     expect(result).toEqual({ pruned: 0 });
     expect(repo.deleteRoutineRunsUnscoped).not.toHaveBeenCalled();
+  });
+});
+
+describe("routine plan allowance", () => {
+  const allowanceFor = async (plan: string, existing: number) => {
+    const issues: unknown[] = [];
+    const ctx = { addIssue: (issue: unknown) => issues.push(issue) };
+    const interactor = new UpsertRoutineInteractor(
+      { countRoutines: () => Promise.resolve(existing) } as never,
+      { getSubscriptionOrThrow: () => Promise.resolve({ plan }) } as never,
+      {} as never,
+    );
+
+    await (interactor as never as { precheck: (d: unknown, c: unknown) => Promise<void> }).precheck({}, ctx);
+
+    return issues as { params?: { error?: string; limit?: number } }[];
+  };
+
+  it("refuses a starter workspace its first routine", async () => {
+    const issues = await allowanceFor("starter", 0);
+
+    expect(issues[0]?.params?.error).toBe(CustomErrorCode.routinesRequirePaidPlan);
+  });
+
+  it("lets a pro workspace create up to three", async () => {
+    expect(await allowanceFor("pro", 2)).toEqual([]);
+  });
+
+  it("stops a pro workspace at its fourth", async () => {
+    const issues = await allowanceFor("pro", 3);
+
+    expect(issues[0]?.params?.error).toBe(CustomErrorCode.routineLimitReached);
+    expect(issues[0]?.params?.limit).toBe(3);
+  });
+
+  it("never counts for business or enterprise", async () => {
+    expect(await allowanceFor("business", 99)).toEqual([]);
+    expect(await allowanceFor("enterprise", 5_000)).toEqual([]);
+  });
+
+  it("leaves an edit alone, so a downgrade does not lock existing routines", async () => {
+    const issues: unknown[] = [];
+    const ctx = { addIssue: (issue: unknown) => issues.push(issue) };
+    const interactor = new UpsertRoutineInteractor(
+      { countRoutines: () => Promise.reject(new Error("must not count on edit")) } as never,
+      { getSubscriptionOrThrow: () => Promise.reject(new Error("must not read the plan on edit")) } as never,
+      {} as never,
+    );
+
+    await (interactor as never as { precheck: (d: unknown, c: unknown) => Promise<void> }).precheck(
+      { id: ROUTINE_ID },
+      ctx,
+    );
+
+    expect(issues).toEqual([]);
   });
 });
