@@ -17,41 +17,100 @@ type MdToken = {
 
 type MdState = { tokens: MdToken[]; Token: new (type: string, tag: string, nesting: 1 | 0 | -1) => MdToken };
 
-function rewriteTaskListTokens(state: MdState) {
-  const taskListStack: boolean[] = [];
+type ListItemSpan = { open: number; close: number; carriesCheckbox: boolean };
 
-  for (const token of state.tokens) {
-    if (token.type === "bullet_list_open") {
-      const isTaskList = token.attrGet("class")?.includes("contains-task-list") ?? false;
-      taskListStack.push(isTaskList);
-      if (isTaskList) token.type = "task_list_open";
-    } else if (token.type === "bullet_list_close") {
-      if (taskListStack.pop()) token.type = "task_list_close";
-    } else if (token.type === "list_item_open" && token.attrGet("class")?.includes("task-list-item"))
-      token.type = "task_item_open";
-    else if (token.type === "list_item_close" && taskListStack.at(-1)) token.type = "task_item_close";
+type ListSpan = { open: number; close: number; ordered: boolean; items: ListItemSpan[] };
+
+function collectListSpans(tokens: MdToken[]): ListSpan[] {
+  const spans: ListSpan[] = [];
+  const openLists: number[] = [];
+  const openItems: Array<{ list: number; item: number }> = [];
+
+  tokens.forEach((token, index) => {
+    if (token.type === "bullet_list_open" || token.type === "ordered_list_open") {
+      spans.push({ open: index, close: -1, ordered: token.type === "ordered_list_open", items: [] });
+      openLists.push(spans.length - 1);
+      return;
+    }
+
+    if (token.type === "bullet_list_close" || token.type === "ordered_list_close") {
+      const list = openLists.pop();
+      if (list !== undefined) spans[list].close = index;
+      return;
+    }
+
+    if (token.type === "list_item_open") {
+      const list = openLists.at(-1);
+      if (list === undefined) return;
+
+      spans[list].items.push({
+        open: index,
+        close: -1,
+        carriesCheckbox: token.attrGet("class")?.includes("task-list-item") ?? false,
+      });
+      openItems.push({ list, item: spans[list].items.length - 1 });
+      return;
+    }
+
+    if (token.type === "list_item_close") {
+      const item = openItems.pop();
+      if (item) spans[item.list].items[item.item].close = index;
+    }
+  });
+
+  return spans;
+}
+
+function holdsOnlyParagraphs(tokens: MdToken[], item: ListItemSpan): boolean {
+  for (let i = item.open + 1; i < item.close; i++) {
+    const type = tokens[i].type;
+    if (type !== "paragraph_open" && type !== "paragraph_close" && type !== "inline") return false;
   }
 
-  for (let i = 0; i < state.tokens.length; i++) {
-    if (state.tokens[i].type !== "task_item_open") continue;
+  return true;
+}
 
-    for (let j = i + 1; j < state.tokens.length; j++) {
-      if (state.tokens[j].type === "task_item_close") break;
+function isRepresentableTaskList(tokens: MdToken[], span: ListSpan): boolean {
+  if (span.ordered || span.close < 0 || span.items.length === 0) return false;
 
-      const children = state.tokens[j].children;
-      if (state.tokens[j].type !== "inline" || !children?.length) continue;
+  return span.items.every((item) => item.carriesCheckbox && item.close >= 0 && holdsOnlyParagraphs(tokens, item));
+}
 
-      const first = children[0];
-      if (first.type !== "html_inline" || !first.content.includes("task-list-item-checkbox")) continue;
+function normalizeCheckboxItem(tokens: MdToken[], item: ListItemSpan, converted: boolean) {
+  for (let i = item.open + 1; i < item.close; i++) {
+    const children = tokens[i].children;
+    if (tokens[i].type !== "inline" || !children?.length) continue;
 
-      const checked = first.content.includes("checked");
-      state.tokens[i].attrSet("checked", checked ? "true" : "false");
-      children.shift();
+    const first = children[0];
+    if (first.type !== "html_inline" || !first.content.includes("task-list-item-checkbox")) continue;
 
-      if (children[0]?.type === "text" && children[0].content.startsWith(" "))
-        children[0].content = children[0].content.slice(1);
+    if (converted) tokens[item.open].attrSet("checked", first.content.includes("checked") ? "true" : "false");
 
-      break;
+    children.shift();
+
+    if (children[0]?.type === "text" && children[0].content.startsWith(" "))
+      children[0].content = children[0].content.slice(1);
+
+    return;
+  }
+}
+
+function rewriteTaskListTokens(state: MdState) {
+  for (const span of collectListSpans(state.tokens)) {
+    const converted = isRepresentableTaskList(state.tokens, span);
+
+    if (converted) {
+      state.tokens[span.open].type = "task_list_open";
+      state.tokens[span.close].type = "task_list_close";
+    }
+
+    for (const item of span.items) {
+      if (converted) {
+        state.tokens[item.open].type = "task_item_open";
+        state.tokens[item.close].type = "task_item_close";
+      }
+
+      if (item.carriesCheckbox) normalizeCheckboxItem(state.tokens, item, converted);
     }
   }
 }
@@ -164,7 +223,7 @@ const markdownSerializer = new MarkdownSerializer(
       state.renderContent(node);
     },
     taskList: (state, node) => {
-      state.renderList(node, "  ", () => "");
+      state.renderList(node, "  ", () => "- ");
     },
     taskItem: (state, node) => {
       const checked = node.attrs.checked as boolean;

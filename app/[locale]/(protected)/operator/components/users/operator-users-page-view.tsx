@@ -5,7 +5,7 @@ import type { GetResult } from "@/core/base/base-get.interactor";
 import type { OperatorUserRowDto } from "@/ee/operator/operator-lists.schema";
 
 import { observer } from "mobx-react-lite";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
@@ -19,6 +19,7 @@ import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
+import { OperatorUserModal } from "./operator-user-modal";
 import { OperatorUsersPageSkeleton } from "./operator-users-page-skeleton";
 import { useOperatorUserColumns } from "./use-operator-user-columns";
 
@@ -26,6 +27,7 @@ type Props = { initialUsers: GetResult<OperatorUserRowDto> };
 
 export const OperatorUsersPageView = observer(function OperatorUsersPageView({ initialUsers }: Props) {
   const { operatorUsersStore } = useRootStore();
+  const [selected, setSelected] = useState<OperatorUserRowDto | null>(null);
 
   useDataViewSync(operatorUsersStore, initialUsers);
   const columns = useOperatorUserColumns();
@@ -93,16 +95,27 @@ export const OperatorUsersPageView = observer(function OperatorUsersPageView({ i
       );
       break;
     case "content":
-      body = <DataViewContent columns={columns} store={operatorUsersStore} view={view} />;
+      body = (
+        <DataViewContent
+          columns={columns}
+          store={operatorUsersStore}
+          view={view}
+          onRowClick={(item) => setSelected(item)}
+        />
+      );
       break;
     default: {
       const exhaustive: never = pageState;
       body = exhaustive;
     }
   }
+  const current = selected ? (operatorUsersStore.items.find((item) => item.id === selected.id) ?? null) : null;
+
   return (
     <DataViewLayout showPagination={pageState === "content" && view !== "board"} store={operatorUsersStore}>
       {body}
+
+      <OperatorUserModal user={current} onClose={() => setSelected(null)} />
     </DataViewLayout>
   );
 });

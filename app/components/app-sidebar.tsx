@@ -250,20 +250,6 @@ const FullAppSidebar = observer(
               })),
             },
             {
-              key: "operator",
-              title: t("NavigationBar.operator"),
-              href: `/operator/${OPERATOR_SUBROUTES[0]?.slug ?? "overview"}`,
-              icon: ShieldCheck,
-              visible: operatorConsoleVisible,
-              items: OPERATOR_SUBROUTES.map((subroute) => ({
-                key: `operator-${subroute.slug}`,
-                title: t(subroute.labelKey),
-                href: `/operator/${subroute.slug}`,
-                icon: ShieldCheck,
-                visible: true,
-              })),
-            },
-            {
               key: "company",
               title: t("UserAvatar.company"),
               href: `/company/${companySubroutes[0]?.slug ?? "settings"}`,
@@ -274,6 +260,26 @@ const FullAppSidebar = observer(
                 title: t(subroute.labelKey),
                 href: `/company/${subroute.slug}`,
                 icon: Building,
+                visible: true,
+              })),
+            },
+          ].filter((i) => i.visible),
+        },
+        {
+          key: "admin",
+          label: t("NavigationBar.admin"),
+          items: [
+            {
+              key: "operator",
+              title: t("NavigationBar.operator"),
+              href: `/operator/${OPERATOR_SUBROUTES[0]?.slug ?? "overview"}`,
+              icon: ShieldCheck,
+              visible: operatorConsoleVisible,
+              items: OPERATOR_SUBROUTES.map((subroute) => ({
+                key: `operator-${subroute.slug}`,
+                title: t(subroute.labelKey),
+                href: `/operator/${subroute.slug}`,
+                icon: ShieldCheck,
                 visible: true,
               })),
             },

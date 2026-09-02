@@ -274,3 +274,97 @@ describe("hasMarkdownBlockStructure", () => {
     expect(hasMarkdownBlockStructure(parseMarkdownToJSON(markdown))).toBe(false);
   });
 });
+
+const TASK_LIST_DOC = {
+  type: "doc",
+  content: [
+    { type: "paragraph", content: [{ type: "text", text: "Follow-ups:" }] },
+    {
+      type: "taskList",
+      content: [
+        {
+          type: "taskItem",
+          attrs: { checked: true },
+          content: [{ type: "paragraph", content: [{ type: "text", text: "Send the quote" }] }],
+        },
+        {
+          type: "taskItem",
+          attrs: { checked: false },
+          content: [{ type: "paragraph", content: [{ type: "text", text: "Book the demo" }] }],
+        },
+      ],
+    },
+  ],
+};
+
+const flatten = (node: { text?: string; content?: unknown[] }): string =>
+  (node.text ?? "") + ((node.content as Array<{ text?: string; content?: unknown[] }>) ?? []).map(flatten).join(" ");
+
+const topLevelTypes = (markdown: string) =>
+  (parseMarkdownToJSON(markdown) as { content: Array<{ type: string }> }).content.map((node) => node.type);
+
+describe("task list markdown", () => {
+  it("writes the list marker GFM needs", () => {
+    const markdown = serializeJSONToMarkdown(TASK_LIST_DOC);
+
+    expect(markdown).toContain("- [x] Send the quote");
+    expect(markdown).toContain("- [ ] Book the demo");
+  });
+
+  it("round-trips a task list back to the identical document", () => {
+    const back = parseMarkdownToJSON(serializeJSONToMarkdown(TASK_LIST_DOC));
+
+    expect(back).toEqual(TASK_LIST_DOC);
+  });
+
+  it("stays stable over a second cycle rather than escaping its own checkboxes", () => {
+    const once = serializeJSONToMarkdown(TASK_LIST_DOC);
+
+    expect(roundTrip(once)).toBe(once);
+  });
+
+  it("keeps every word when one list mixes a bullet with a checkbox", () => {
+    const doc = parseMarkdownToJSON("- bullet\n- [x] task") as { content: Array<{ type: string }> };
+
+    expect(flatten(doc)).toBe("bullet task");
+    expect(doc.content.map((node) => node.type)).toEqual(["bulletList"]);
+  });
+
+  it("keeps every word when a checkbox appears in an ordered list", () => {
+    const doc = parseMarkdownToJSON("1. [x] one\n2. two") as { content: Array<{ type: string }> };
+
+    expect(flatten(doc)).toBe("one two");
+    expect(doc.content.map((node) => node.type)).toEqual(["orderedList"]);
+  });
+
+  it("keeps both levels when a task list is nested under a task item", () => {
+    const doc = parseMarkdownToJSON("- [ ] parent\n  - [x] child");
+
+    expect(flatten(doc as never)).toBe("parent child");
+  });
+
+  it("leaves an ordinary bullet list untouched", () => {
+    expect(topLevelTypes("- one\n- two")).toEqual(["bulletList"]);
+    expect(flatten(parseMarkdownToJSON("- one\n- two") as never)).toBe("one two");
+  });
+
+  it("leaves a checkbox item alone when it holds a block a task item cannot contain", () => {
+    for (const markdown of [
+      "- [x] one\n\n  ```\n  code\n  ```",
+      "- [x] one\n\n  ## heading",
+      "- [x] one\n\n  > quoted",
+    ]) {
+      const doc = parseMarkdownToJSON(markdown) as { content: Array<{ type: string }> };
+
+      expect(doc.content.map((node) => node.type)).toEqual(["bulletList"]);
+      expect(flatten(doc)).toContain("one");
+    }
+  });
+
+  it("converts a task item that holds more than one paragraph", () => {
+    const doc = parseMarkdownToJSON("- [x] one\n\n  more text") as { content: Array<{ type: string }> };
+
+    expect(doc.content.map((node) => node.type)).toEqual(["taskList"]);
+    expect(flatten(doc)).toBe("one more text");
+  });
+});

@@ -1,29 +1,25 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import type { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 import type { OperatorUserRowDto } from "@/ee/operator/operator-lists.schema";
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 
-import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
-import { OperatorChipSelect } from "../operator-chip-select";
-import { PLATFORM_ACCESS_GRANTED, useOperatorChipOptions } from "../use-operator-chip-options";
-import { OperatorUserCreditsPopover } from "./operator-user-credits-popover";
+import { AppChip } from "@/components/chip/app-chip";
+import { OperatorTagsCell } from "../tags/operator-tags-cell";
+import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
+import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/company/components/subscription/subscription-panel";
 
 function displayName(user: OperatorUserRowDto): string {
   return `${user.firstName} ${user.lastName}`.trim() || user.email;
 }
 
 export function useOperatorUserColumns(): ColumnDef<OperatorUserRowDto>[] {
-  const { operatorUsersStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
   const t = useTranslations();
-  const options = useOperatorChipOptions();
-  const confirmTitle = t("OperatorConsole.confirm.title");
 
   return useMemo<ColumnDef<OperatorUserRowDto>[]>(
     () => [
@@ -43,93 +39,48 @@ export function useOperatorUserColumns(): ColumnDef<OperatorUserRowDto>[] {
         cell: ({ row }) => <span className="text-sm">{row.original.workspaceLabel}</span>,
       },
       {
+        id: "tags",
+        header: t("Common.table.columns.tags"),
+        cell: ({ row }) => <OperatorTagsCell tags={row.original.workspaceTags} />,
+      },
+      {
         id: "status",
         header: t("Common.table.columns.status"),
         cell: ({ row }) => (
-          <OperatorChipSelect
-            confirmMessage={(option) =>
-              t("OperatorUsers.confirm.status", { name: displayName(row.original), value: option.label })
-            }
-            confirmTitle={confirmTitle}
-            emptyLabel="-"
-            options={options.accountStatus}
-            value={row.original.status}
-            onCommit={(value) =>
-              operatorUsersStore.updateStatus({
-                userId: row.original.id,
-                status: value as Status,
-              })
-            }
-          />
+          <AppChip size="sm" variant={USER_STATUS_COLORS_MAP[row.original.status]}>
+            {t(`Common.userStatuses.${row.original.status}`)}
+          </AppChip>
         ),
       },
       {
         id: "plan",
         header: t("Common.table.columns.plan"),
-        cell: ({ row }) => (
-          <OperatorChipSelect
-            confirmMessage={(option) =>
-              t("OperatorConsole.confirm.plan", { name: row.original.workspaceLabel, value: option.label })
-            }
-            confirmTitle={confirmTitle}
-            emptyLabel={t("OperatorUsers.values.noSubscription")}
-            options={options.plan}
-            readOnly={!row.original.subscriptionUpdatedAt}
-            value={row.original.plan}
-            onCommit={(value) =>
-              operatorUsersStore.correctSubscription({
-                userId: row.original.id,
-                plan: value as SubscriptionPlan,
-                status: row.original.subscriptionStatus as SubscriptionStatus,
-                quantity: row.original.subscriptionQuantity,
-              })
-            }
-          />
-        ),
+        cell: ({ row }) =>
+          row.original.plan ? (
+            <AppChip size="sm" variant="secondary">
+              {t(`Subscription.planNames.${row.original.plan}`)}
+            </AppChip>
+          ) : (
+            <span className="text-sm text-muted-foreground">{t("OperatorUsers.values.noSubscription")}</span>
+          ),
       },
       {
         id: "subscription",
         header: t("Common.table.columns.subscription"),
-        cell: ({ row }) => (
-          <OperatorChipSelect
-            confirmMessage={(option) =>
-              t("OperatorConsole.confirm.subscription", { name: row.original.workspaceLabel, value: option.label })
-            }
-            confirmTitle={confirmTitle}
-            emptyLabel={t("OperatorUsers.values.noSubscription")}
-            options={options.subscription}
-            readOnly={!row.original.subscriptionUpdatedAt}
-            value={row.original.subscriptionStatus}
-            onCommit={(value) =>
-              operatorUsersStore.correctSubscription({
-                userId: row.original.id,
-                plan: row.original.plan as SubscriptionPlan,
-                status: value as SubscriptionStatus,
-                quantity: row.original.subscriptionQuantity,
-              })
-            }
-          />
-        ),
+        cell: ({ row }) =>
+          row.original.subscriptionStatus ? (
+            <AppChip size="sm" variant={SUBSCRIPTION_STATUS_COLOR_MAP[row.original.subscriptionStatus]}>
+              {t(`Subscription.status.${row.original.subscriptionStatus}`)}
+            </AppChip>
+          ) : (
+            <span className="text-sm text-muted-foreground">{t("OperatorUsers.values.noSubscription")}</span>
+          ),
       },
       {
         id: "operator",
         header: t("Common.table.columns.operator"),
         cell: ({ row }) => (
-          <OperatorChipSelect
-            confirmMessage={(option) =>
-              t("OperatorUsers.confirm.operator", { name: displayName(row.original), value: option.label })
-            }
-            confirmTitle={confirmTitle}
-            emptyLabel="-"
-            options={options.platformAccess}
-            value={String(row.original.isPlatformOperator)}
-            onCommit={(value) =>
-              operatorUsersStore.updatePlatformAccess({
-                userId: row.original.id,
-                isPlatformOperator: value === PLATFORM_ACCESS_GRANTED,
-              })
-            }
-          />
+          <span className="text-sm">{row.original.isPlatformOperator ? t("OperatorUsers.values.operator") : "-"}</span>
         ),
       },
       {
@@ -170,9 +121,20 @@ export function useOperatorUserColumns(): ColumnDef<OperatorUserRowDto>[] {
       {
         id: "credits",
         header: t("Common.table.columns.credits"),
-        cell: ({ row }) => <OperatorUserCreditsPopover user={row.original} />,
+        cell: ({ row }) => (
+          <span className="text-sm">
+            {row.original.creditsBlockedReason === "enterprise_allowance_missing"
+              ? t("OperatorUsers.credits.allowanceMissingShort")
+              : row.original.creditsLimit === null
+                ? t("OperatorUsers.credits.noneShort")
+                : t("OperatorUsers.credits.position", {
+                    remaining: intlStore.formatNumber(row.original.creditsRemaining ?? 0),
+                    limit: intlStore.formatNumber(row.original.creditsLimit),
+                  })}
+          </span>
+        ),
       },
     ],
-    [confirmTitle, intlStore, operatorUsersStore, options, t],
+    [intlStore, t],
   );
 }
