@@ -155,12 +155,15 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
       const subscription = user.company.subscription;
       if (!subscription) continue;
 
+      const creditAnchorAt = subscription.agentCreditAnchorAt ?? subscription.createdAt;
+      if (creditAnchorAt.getTime() > now.getTime()) continue;
+
       const entitlement = resolveAgentCreditEntitlement({
         appMode: env.APP_MODE,
         plan: subscription.plan,
         status: subscription.status,
         trialEndDate: subscription.trialEndDate,
-        creditAnchorAt: subscription.agentCreditAnchorAt ?? subscription.createdAt,
+        creditAnchorAt,
         enterpriseCreditsPerUser: subscription.enterpriseAgentCreditsPerUser,
         activeSeatAt: user.agentCreditActivatedAt,
         now,

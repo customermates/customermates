@@ -240,6 +240,35 @@ describeDatabase("operator workspace tags", { timeout: 120_000 }, () => {
     expect(filteredCount).toBe(1);
   });
 
+  it("keeps listing users when one workspace carries a credit anchor in the future", async () => {
+    const marker = randomUUID().slice(0, 8);
+    const sane = await seedWorkspace({ domain: `sane-${marker}.invalid` });
+    const skewed = await seedWorkspace({ domain: `skewed-${marker}.invalid` });
+
+    await runWithoutTenant(async () => {
+      await prisma.subscription.create({
+        data: { companyId: sane.companyId, plan: "starter", status: "active" },
+      });
+      await prisma.subscription.create({
+        data: {
+          companyId: skewed.companyId,
+          plan: "starter",
+          status: "active",
+          agentCreditAnchorAt: new Date(Date.now() + 86_400_000),
+        },
+      });
+    });
+
+    const repo = new PrismaOperatorUsersRepo();
+    const scoped = inFilter(FilterFieldKey.workspaceId, [sane.companyId, skewed.companyId]);
+
+    const rows = await runWithoutTenant(() => repo.getItems({ filters: [scoped] }));
+
+    expect(rows).toHaveLength(2);
+    expect(rows.find((row) => row.companyId === skewed.companyId)?.creditsLimit).toBeNull();
+    expect(rows.find((row) => row.companyId === sane.companyId)?.creditsLimit).not.toBeNull();
+  });
+
   it("combines a tag filter with a plan filter instead of dropping one of them", async () => {
     const marker = randomUUID().slice(0, 8);
     const tagged = await seedWorkspace({ domain: `combo-${marker}.invalid`, tags: [`Reseller ${marker}`] });
