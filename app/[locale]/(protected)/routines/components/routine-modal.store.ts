@@ -8,7 +8,7 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 import type { RoutineRunDto } from "@/ee/routines/routine.schema";
 import type { RoutineRiskDto } from "@/ee/routines/get-routine-risks.interactor";
 
-import { action, computed, makeObservable, observable, runInAction, toJS } from "mobx";
+import { action, computed, makeObservable, observable, reaction, runInAction, toJS } from "mobx";
 import type { EntityType } from "@/generated/prisma";
 import { Resource, RoutineTriggerKind } from "@/generated/prisma";
 
@@ -148,7 +148,23 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       loadMoreRuns: action,
       runNow: action,
     });
+
+    this.remergeFilterRowsOnTriggerChange();
   }
+
+  private remergeFilterRowsOnTriggerChange = () => {
+    reaction(
+      () => this.triggerEntityType,
+      () => {
+        runInAction(() => {
+          const form = this.form;
+          if (!form) return;
+
+          form.triggerFilters = mergeFilters(this.filterableFields, (form.triggerFilters as Filter[]) ?? []);
+        });
+      },
+    );
+  };
 
   get triggerEntityType(): EntityType | null {
     return entityTypeForEvents(this.form?.triggerEvents ?? []);

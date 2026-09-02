@@ -7,7 +7,12 @@ import { RoutineTriggerKind } from "@/generated/prisma";
 
 const routineActions = vi.hoisted(() => ({
   deleteRoutineAction: vi.fn(),
-  getRoutineFilterFieldsAction: vi.fn(() => Promise.resolve({ filterableFields: {}, customColumns: [] })),
+  getRoutineFilterFieldsAction: vi.fn(() =>
+    Promise.resolve({
+      filterableFields: { organization: [{ field: "name" }, { field: "type" }] },
+      customColumns: [],
+    }),
+  ),
   getRoutineRisksAction: vi.fn(() => Promise.resolve({ ok: true, data: { items: [] } })),
   getRoutineRunsAction: vi.fn(() => Promise.resolve({ ok: true, data: { items: [] } })),
   runRoutineNowAction: vi.fn(),
@@ -67,6 +72,19 @@ describe("RoutineModalStore", () => {
 
     expect(chat.newConversation).toHaveBeenCalled();
     expect(chat.selectConversation).toHaveBeenCalledTimes(1);
+  });
+
+  it("fills in the record filters once a trigger event names an entity", async () => {
+    const store = makeStore();
+
+    await store.openForCreate();
+
+    expect(store.form.triggerFilters).toEqual([]);
+
+    store.form.triggerEvents = ["organization.created"];
+    await Promise.resolve();
+
+    expect(store.form.triggerFilters).toHaveLength(2);
   });
 
   it("stamps the local time zone on a routine created in the browser", async () => {
