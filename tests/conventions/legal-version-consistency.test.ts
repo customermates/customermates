@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { LEGAL_DOCUMENT_VERSIONS } from "@/constants/legal-documents";
+import { AD_ATTRIBUTION_NOTICE_VERSION, LEGAL_DOCUMENT_VERSIONS } from "@/constants/legal-documents";
 import { CONTENT_LOCALES, type ContentLocale } from "@/i18n/locale-registry";
 
 import { REPO_ROOT } from "./walk";
@@ -36,4 +36,10 @@ describe("legal document versions", () => {
       }
     },
   );
+  it("ties the advertising notice version to the privacy notice it is printed in", () => {
+    expect(
+      AD_ATTRIBUTION_NOTICE_VERSION,
+      "AD_ATTRIBUTION_NOTICE_VERSION gates whether a stored advertising consent may still be used, and the privacy notice promises that changing the notice invalidates earlier decisions. Bump both together.",
+    ).toBe(LEGAL_DOCUMENT_VERSIONS.privacy);
+  });
 });

@@ -2598,11 +2598,12 @@
       "label": "Aktiv in 7 Tagen"
     },
     "adConversions": {
-      "description": "Anzeigenklicks, die zu einer Registrierung oder einem zahlenden Abonnement geführt haben, gefiltert auf die Meldefrist der jeweiligen Plattform. Enthalten ist nur die Klickkennung der Plattform, nie personenbezogene Daten.",
+      "description": "Anzeigenklicks, die zu einer Registrierung oder einem zahlenden Abonnement geführt haben, gefiltert auf die Meldefrist der jeweiligen Plattform. Über die Klickkennung der Plattform hinaus ist nichts enthalten: kein Name, keine E-Mail-Adresse, keine gehashte E-Mail-Adresse, keine Telefonnummer, keine IP-Adresse und kein User-Agent. Diese Kennung ist selbst ein personenbezogenes Datum, weil die Plattform sie mit der ausgelieferten Anzeige verknüpfen kann.",
       "generate": "Conversion-Export erzeugen",
       "googleAds": "Google-Ads-CSV",
       "label": "Werbe-Conversions",
-      "rowCount": "{count} meldbare Conversions"
+      "rowCount": "{count} meldbare Conversions",
+      "withoutColumnCount": "Nicht in dieser Datei enthaltene Google-Conversions: {count}. Ihr Klick trug eine gbraid- oder wbraid-Kennung, für die Googles Upload-Vorlage keine Spalte hat."
     },
     "growth": {
       "description": "Dazu {workspaces} neue Arbeitsbereiche",

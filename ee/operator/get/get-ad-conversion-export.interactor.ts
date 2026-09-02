@@ -10,6 +10,7 @@ import {
   isAdProvider,
   type AdProvider,
 } from "@/features/acquisition/ad-provider-registry";
+import { AD_ATTRIBUTION_NOTICE_VERSION } from "@/constants/legal-documents";
 import { AdConversionExportDtoSchema, type AdConversionExportDto } from "../operator-lists.schema";
 
 export type AdConversionExportRow = {
@@ -18,6 +19,7 @@ export type AdConversionExportRow = {
   identifierKind: string;
   identifierValue: string;
   clickedAt: Date;
+  consentNoticeVersion: string;
   conversionType: string;
   conversionAt: Date;
 };
@@ -41,6 +43,7 @@ export class GetAdConversionExportInteractor {
 
     const rows = candidates
       .filter((row) => isAdProvider(row.provider))
+      .filter((row) => row.consentNoticeVersion === AD_ATTRIBUTION_NOTICE_VERSION)
       .filter((row) =>
         isAdConversionReportable({
           provider: row.provider,

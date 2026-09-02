@@ -14,6 +14,7 @@ export class PrismaAdConversionExportRepo extends BaseRepository implements GetA
         identifierKind: true,
         identifierValue: true,
         clickedAt: true,
+        consentNoticeVersion: true,
         company: { select: { conversionEvents: { select: { type: true, occurredAt: true } } } },
       },
     });
@@ -25,6 +26,7 @@ export class PrismaAdConversionExportRepo extends BaseRepository implements GetA
         identifierKind: attribution.identifierKind,
         identifierValue: attribution.identifierValue,
         clickedAt: attribution.clickedAt,
+        consentNoticeVersion: attribution.consentNoticeVersion,
         conversionType: conversion.type,
         conversionAt: conversion.occurredAt,
       })),

@@ -2598,11 +2598,12 @@
       "label": "Attivi in 7 giorni"
     },
     "adConversions": {
-      "description": "Clic pubblicitari che hanno prodotto una registrazione o un abbonamento a pagamento, filtrati in base alla scadenza di comunicazione di ciascuna piattaforma. È incluso solo l'identificatore di clic della piattaforma, mai dati personali.",
+      "description": "Clic sugli annunci che hanno prodotto una registrazione o un abbonamento a pagamento, filtrati su quelli ancora entro la scadenza di comunicazione di ciascuna piattaforma. Non è incluso nulla oltre all'identificatore di clic della piattaforma stessa: nessun nome, nessuna email, nessuna email con hash, nessun numero di telefono, nessun indirizzo IP e nessun user agent. Quell'identificatore è esso stesso un dato personale, perché la piattaforma può collegarlo all'annuncio che ti ha mostrato.",
       "generate": "Genera esportazione conversioni",
       "googleAds": "CSV Google Ads",
       "label": "Conversioni pubblicitarie",
-      "rowCount": "{count} conversioni comunicabili"
+      "rowCount": "{count} conversioni comunicabili",
+      "withoutColumnCount": "Conversioni Google escluse da questo file: {count}. Il loro clic portava un identificatore gbraid o wbraid, per cui il modello di caricamento di Google non ha una colonna."
     },
     "growth": {
       "description": "Insieme a {workspaces} nuove aree",

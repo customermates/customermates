@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { AD_ATTRIBUTION_NOTICE_VERSION } from "@/constants/legal-documents";
 import { unwrapValidated } from "@/core/validation/validation.utils";
-import { googleAdsConversionCsv } from "../ad-conversion-csv";
+import { googleAdsConversionCsv, isGoogleAdsCsvRow, isGoogleAdsRowWithoutCsvColumn } from "../ad-conversion-csv";
 import {
   GetAdConversionExportInteractor,
   type AdConversionExportRow,
@@ -20,6 +21,7 @@ function row(overrides: Partial<AdConversionExportRow> = {}): AdConversionExport
     identifierKind: "gclid",
     identifierValue: "Case-Sensitive_GCLID",
     clickedAt: new Date("2026-09-01T10:00:00.000Z"),
+    consentNoticeVersion: AD_ATTRIBUTION_NOTICE_VERSION,
     conversionType: "signup",
     conversionAt: new Date("2026-09-01T11:00:00.000Z"),
     ...overrides,
@@ -41,6 +43,31 @@ describe("ad conversion export", () => {
     expect(first.rows[0]?.orderId).toBe(second.rows[0]?.orderId);
     expect(first.rows[0]?.orderId).toMatch(/^[0-9a-f]{32}$/);
     expect(first.rows[0]?.orderId).not.toContain("company-1");
+  });
+
+  it.each(["gbraid", "wbraid"])(
+    "keeps a %s conversion out of the file, because Google's template has only a Google Click ID column",
+    async (kind) => {
+      const exported = await exportFor([
+        row(),
+        row({ companyId: "company-2", identifierKind: kind, identifierValue: "IOS_APP_CLICK" }),
+      ]);
+      const csv = googleAdsConversionCsv(exported);
+
+      expect(exported.rows).toHaveLength(2);
+      expect(csv).not.toContain("IOS_APP_CLICK");
+      expect(csv).toContain("Case-Sensitive_GCLID");
+      expect(csv.trimEnd().split("\n")).toHaveLength(3);
+      expect(exported.rows.filter(isGoogleAdsCsvRow)).toHaveLength(1);
+      expect(exported.rows.filter(isGoogleAdsRowWithoutCsvColumn)).toHaveLength(1);
+    },
+  );
+
+  it("omits a row consented under an older notice, which the notice says is no longer usable", async () => {
+    const exported = await exportFor([row(), row({ companyId: "company-2", consentNoticeVersion: "2026-01-01" })]);
+
+    expect(exported.rows).toHaveLength(1);
+    expect(googleAdsConversionCsv(exported).trimEnd().split("\n")).toHaveLength(3);
   });
 
   it("excludes a conversion past its provider's reporting deadline", async () => {

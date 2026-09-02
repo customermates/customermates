@@ -1,4 +1,14 @@
-import type { AdConversionExportDto } from "./operator-lists.schema";
+import type { AdConversionExportDto, AdConversionExportRowDto } from "./operator-lists.schema";
+
+export const GOOGLE_ADS_CSV_IDENTIFIER_KIND = "gclid";
+
+export function isGoogleAdsCsvRow(row: AdConversionExportRowDto): boolean {
+  return row.provider === "google_ads" && row.identifierKind === GOOGLE_ADS_CSV_IDENTIFIER_KIND;
+}
+
+export function isGoogleAdsRowWithoutCsvColumn(row: AdConversionExportRowDto): boolean {
+  return row.provider === "google_ads" && row.identifierKind !== GOOGLE_ADS_CSV_IDENTIFIER_KIND;
+}
 
 export const AD_CONVERSION_ACTION_NAMES = {
   signup: "Customermates signup",
@@ -22,7 +32,7 @@ function conversionActionName(conversionType: string): string {
 }
 
 export function googleAdsConversionCsv(exported: AdConversionExportDto): string {
-  const rows = exported.rows.filter((row) => row.provider === "google_ads");
+  const rows = exported.rows.filter(isGoogleAdsCsvRow);
   const lines = [
     "Parameters:TimeZone=+0000",
     csvLine([

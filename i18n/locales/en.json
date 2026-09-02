@@ -2598,11 +2598,12 @@
       "label": "Active last 7 days"
     },
     "adConversions": {
-      "description": "Ad clicks that produced a signup or a paying subscription, filtered to those still inside each platform's reporting deadline. Only the platform's own click identifier is included, never personal data.",
+      "description": "Ad clicks that produced a signup or a paying subscription, filtered to those still inside each platform's reporting deadline. Nothing beyond the platform's own click identifier is included: no name, email, hashed email, phone number, IP address or user agent. That identifier is itself personal data, because the platform can link it to the advertisement it served.",
       "generate": "Generate conversion export",
       "googleAds": "Google Ads CSV",
       "label": "Advertising conversions",
-      "rowCount": "{count} reportable conversions"
+      "rowCount": "{count} reportable conversions",
+      "withoutColumnCount": "Google conversions left out of this file: {count}. Their click carried a gbraid or wbraid identifier, which Google's upload template has no column for."
     },
     "growth": {
       "description": "Alongside {workspaces} new workspaces",

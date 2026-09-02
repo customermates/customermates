@@ -8,7 +8,12 @@ import { Button } from "@/components/ui/button";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { getAdConversionExportAction } from "../../actions";
 
-type ExportState = { generatedAt: string; rowCount: number; googleAdsCsv: string };
+type ExportState = {
+  generatedAt: string;
+  rowCount: number;
+  withoutColumnCount: number;
+  googleAdsCsv: string;
+};
 
 function csvHref(content: string): string {
   return `data:text/csv;charset=utf-8,${encodeURIComponent(content)}`;
@@ -56,6 +61,12 @@ export function AdConversionExportCard() {
             <span className="text-sm text-subdued">
               {t("OperatorOverview.adConversions.rowCount", { count: exported.rowCount })}
             </span>
+
+            {exported.withoutColumnCount > 0 ? (
+              <span className="text-sm text-warning">
+                {t("OperatorOverview.adConversions.withoutColumnCount", { count: exported.withoutColumnCount })}
+              </span>
+            ) : null}
           </>
         ) : null}
       </div>

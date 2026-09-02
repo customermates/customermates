@@ -2598,11 +2598,12 @@
       "label": "Activos en 7 días"
     },
     "adConversions": {
-      "description": "Clics de anuncios que produjeron un registro o una suscripción de pago, filtrados por el plazo de notificación de cada plataforma. Solo se incluye el identificador de clic de la plataforma, nunca datos personales.",
+      "description": "Clics en anuncios que produjeron un registro o una suscripción de pago, filtrados a los que siguen dentro del plazo de notificación de cada plataforma. No se incluye nada más allá del identificador de clic de la propia plataforma: ni nombre, ni correo electrónico, ni correo electrónico con hash, ni teléfono, ni dirección IP, ni agente de usuario. Ese identificador es en sí mismo un dato personal, porque la plataforma puede vincularlo al anuncio que te mostró.",
       "generate": "Generar exportación de conversiones",
       "googleAds": "CSV de Google Ads",
       "label": "Conversiones publicitarias",
-      "rowCount": "{count} conversiones notificables"
+      "rowCount": "{count} conversiones notificables",
+      "withoutColumnCount": "Conversiones de Google excluidas de este archivo: {count}. Su clic llevaba un identificador gbraid o wbraid, para el que la plantilla de carga de Google no tiene columna."
     },
     "growth": {
       "description": "Junto a {workspaces} espacios nuevos",
