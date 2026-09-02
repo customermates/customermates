@@ -36,10 +36,27 @@ describe("legal document versions", () => {
       }
     },
   );
-  it("ties the advertising notice version to the privacy notice it is printed in", () => {
+  it("keeps the advertising consent version independent of, and never ahead of, the privacy notice", () => {
+    expect(AD_ATTRIBUTION_NOTICE_VERSION).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(
-      AD_ATTRIBUTION_NOTICE_VERSION,
-      "AD_ATTRIBUTION_NOTICE_VERSION gates whether a stored advertising consent may still be used, and the privacy notice promises that changing the notice invalidates earlier decisions. Bump both together.",
-    ).toBe(LEGAL_DOCUMENT_VERSIONS.privacy);
+      AD_ATTRIBUTION_NOTICE_VERSION <= LEGAL_DOCUMENT_VERSIONS.privacy,
+      "AD_ATTRIBUTION_NOTICE_VERSION dates what the advertising Allow covers. It moves only when that scope changes, which is a change to the notice, so it can never be later than the privacy version.",
+    ).toBe(true);
+  });
+
+  it.each(CONTENT_LOCALES)("keeps the %s notice's promise that only a scope change voids an advertising consent", (locale) => {
+    const privacy = legal(locale, "privacy");
+    expect(
+      privacy,
+      `${locale}/privacy must say that only a change to what the Allow covers voids it, because AD_ATTRIBUTION_NOTICE_VERSION is bumped deliberately rather than on every edit`,
+    ).toMatch(
+      locale === "en"
+        ? /If we change what your Allow covers, your earlier decision is treated as if it had not been given/i
+        : /Ändern wir den Umfang Ihrer Einwilligung, gilt Ihre frühere Entscheidung als nicht erteilt/i,
+    );
+    expect(
+      privacy,
+      `${locale}/privacy must say that a factual correction leaves the decision in place`,
+    ).toMatch(locale === "en" ? /leaves your decision in place/i : /lässt Ihre Entscheidung bestehen/i);
   });
 });

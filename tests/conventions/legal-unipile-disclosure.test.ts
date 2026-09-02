@@ -127,8 +127,16 @@ describe("legal documents describe only what the product does", () => {
         : /Rückmeldung erfolgt nicht automatisch, und sie hat noch nicht begonnen/i,
     );
     expect(privacy).toMatch(/cm_ad_attribution/);
-    expect(privacy).toMatch(
-      name === "en" ? /There is no recipient today/i : /Es gibt derzeit keinen Empfänger/i,
+    for (const company of ["Google LLC", "Reddit, Inc.", "LinkedIn Corporation"])
+      expect(privacy, `${name}/privacy does not name the receiving company ${company}`).toContain(company);
+    expect(privacy, `${name}/privacy does not state the recipients' role`).toMatch(
+      name === "en" ? /independent controller/i : /eigenst\u00e4ndig Verantwortlich/i,
+    );
+    expect(privacy, `${name}/privacy does not state the transfer basis`).toMatch(
+      name === "en" ? /Data Privacy Framework/i : /Data Privacy Framework/i,
+    );
+    expect(privacy, `${name}/privacy no longer says nothing has been transmitted yet`).toMatch(
+      name === "en" ? /has received anything from this feature yet/i : /hat aus dieser Funktion bisher etwas erhalten/i,
     );
     expect(privacy, `${name}/privacy still claims a live Google reporting route`).not.toMatch(
       /spreadsheet in a Customermates Google account|Tabelle in einem Google-Konto/i,

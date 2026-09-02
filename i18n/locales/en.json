@@ -9,8 +9,8 @@
   },
   "AcquisitionConsent": {
     "allowAttribution": "Allow",
-    "description": "You arrived through a {provider} ad. May we remember this visit for up to {days} days and link it to your account if you sign up, so we can see which ads bring people here? Nothing about you is sent to {provider}. Either choice stores a small cookie; change your mind any time under Privacy choices.",
-    "descriptionGeneric": "You arrived through an ad. May we remember this visit and link it to your account if you sign up, so we can see which ads bring people here? Nothing about you is sent to the advertising platform. Either choice stores a small cookie; change your mind any time under Privacy choices.",
+    "description": "You arrived through a {provider} ad. May we remember this visit for up to {days} days, link it to your account if you sign up, and tell {provider} that their ad led to a signup or a paid subscription? {provider} only gets back the click identifier it put in the link itself, never your name, email or anything else you give us. Either choice stores a small cookie; change your mind any time under Privacy choices.",
+    "descriptionGeneric": "You arrived through an ad. May we remember this visit, link it to your account if you sign up, and tell the advertising platform that their ad led to a signup or a paid subscription? The platform only gets back the click identifier it put in the link itself, never your name, email or anything else you give us. Either choice stores a small cookie; change your mind any time under Privacy choices.",
     "necessaryOnly": "No thanks",
     "privacyLink": "Privacy details",
     "title": "Help us learn what works"

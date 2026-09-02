@@ -9,8 +9,8 @@
   },
   "AcquisitionConsent": {
     "allowAttribution": "Permitir",
-    "description": "Has llegado a través de un anuncio de {provider}. ¿Podemos recordar esta visita durante {days} días como máximo y vincularla a tu cuenta si te registras, para saber qué anuncios traen gente aquí? No se envía nada sobre ti a {provider}. Ambas opciones guardan una pequeña cookie; puedes cambiar de opinión cuando quieras en Opciones de privacidad.",
-    "descriptionGeneric": "Has llegado a través de un anuncio. ¿Podemos recordar esta visita y vincularla a tu cuenta si te registras, para saber qué anuncios traen gente aquí? No se envía nada sobre ti a la plataforma publicitaria. Ambas opciones guardan una pequeña cookie; puedes cambiar de opinión cuando quieras en Opciones de privacidad.",
+    "description": "Has llegado a través de un anuncio de {provider}. ¿Podemos recordar esta visita durante {days} días como máximo, vincularla a tu cuenta si te registras y comunicar a {provider} que su anuncio dio lugar a un registro o a una suscripción de pago? {provider} solo recibe de vuelta el identificador de clic que puso en el propio enlace, nunca tu nombre, tu correo electrónico ni nada más que nos des. Ambas opciones guardan una pequeña cookie; puedes cambiar de opinión cuando quieras en Opciones de privacidad.",
+    "descriptionGeneric": "Has llegado a través de un anuncio. ¿Podemos recordar esta visita, vincularla a tu cuenta si te registras y comunicar a la plataforma publicitaria que su anuncio dio lugar a un registro o a una suscripción de pago? La plataforma solo recibe de vuelta el identificador de clic que puso en el propio enlace, nunca tu nombre, tu correo electrónico ni nada más que nos des. Ambas opciones guardan una pequeña cookie; puedes cambiar de opinión cuando quieras en Opciones de privacidad.",
     "necessaryOnly": "No, gracias",
     "privacyLink": "Detalles de privacidad",
     "title": "Ayúdanos a saber qué funciona"

@@ -9,8 +9,8 @@
   },
   "AcquisitionConsent": {
     "allowAttribution": "Autoriser",
-    "description": "Vous êtes arrivé via une annonce {provider}. Pouvons-nous mémoriser cette visite pendant {days} jours au maximum et la relier à votre compte si vous vous inscrivez, afin de savoir quelles annonces amènent des visiteurs ? Rien vous concernant n'est transmis à {provider}. Les deux choix enregistrent un petit cookie ; vous pouvez changer d'avis à tout moment dans Choix de confidentialité.",
-    "descriptionGeneric": "Vous êtes arrivé via une annonce. Pouvons-nous mémoriser cette visite et la relier à votre compte si vous vous inscrivez, afin de savoir quelles annonces amènent des visiteurs ? Rien vous concernant n'est transmis à la régie publicitaire. Les deux choix enregistrent un petit cookie ; vous pouvez changer d'avis à tout moment dans Choix de confidentialité.",
+    "description": "Vous êtes arrivé via une annonce {provider}. Pouvons-nous mémoriser cette visite pendant {days} jours au maximum, la relier à votre compte si vous vous inscrivez, et indiquer à {provider} que son annonce a donné lieu à une inscription ou à un abonnement payant ? {provider} ne reçoit en retour que l'identifiant de clic qu'il a lui-même placé dans le lien, jamais votre nom, votre adresse e-mail ni quoi que ce soit d'autre que vous nous confiez. Les deux choix enregistrent un petit cookie ; vous pouvez changer d'avis à tout moment dans Choix de confidentialité.",
+    "descriptionGeneric": "Vous êtes arrivé via une annonce. Pouvons-nous mémoriser cette visite, la relier à votre compte si vous vous inscrivez, et indiquer à la régie publicitaire que son annonce a donné lieu à une inscription ou à un abonnement payant ? La régie ne reçoit en retour que l'identifiant de clic qu'elle a elle-même placé dans le lien, jamais votre nom, votre adresse e-mail ni quoi que ce soit d'autre que vous nous confiez. Les deux choix enregistrent un petit cookie ; vous pouvez changer d'avis à tout moment dans Choix de confidentialité.",
     "necessaryOnly": "Non merci",
     "privacyLink": "Détails de confidentialité",
     "title": "Aidez-nous à comprendre ce qui fonctionne"
