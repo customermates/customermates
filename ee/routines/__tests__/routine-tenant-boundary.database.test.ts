@@ -117,6 +117,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
         companyId,
         event: "contact.updated",
         entityId: null,
+        triggerPayload: null,
         routineIds: [otherRoutineId],
         now: new Date(),
       }),

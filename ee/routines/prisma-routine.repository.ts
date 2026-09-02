@@ -363,6 +363,7 @@ export class PrismaRoutineRepo
         status: true,
         triggerEvent: true,
         triggerEntityId: true,
+        triggerPayload: true,
         routine: { select: ROUTINE_SELECT },
       },
     });
@@ -558,6 +559,7 @@ export class PrismaRoutineRepo
     companyId: string;
     event: string;
     entityId: string | null;
+    triggerPayload: unknown;
     routineIds: string[];
     now: Date;
   }): Promise<AdmittedRoutineRun[]> {
@@ -596,6 +598,7 @@ export class PrismaRoutineRepo
           triggerKind: RoutineTriggerKind.event,
           triggerEvent: args.event,
           triggerEntityId: args.entityId,
+          triggerPayload: (args.triggerPayload ?? Prisma.DbNull) as Prisma.InputJsonValue,
           scheduledFor: args.now,
         },
         select: { id: true },

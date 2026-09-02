@@ -31,6 +31,11 @@ An event trigger names one or more in-app events, such as a deal being created, 
 
 Leave either control empty to run on every matching event.
 
+When an event starts a run, the assistant is told what happened before your instructions: the
+event name, the kind of record and its id, which fields changed on an update, and for an inbox
+event the thread the message belongs to. It can read the record itself from there. It is not
+given the previous values of the fields that changed.
+
 ## Runs
 
 Open a routine to see its runs, newest first. Selecting a run shows the full transcript: what the assistant was asked, which records it read or changed, and what it replied. Each run also records how many AI credits it used.

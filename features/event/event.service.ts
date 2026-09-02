@@ -166,6 +166,7 @@ export class EventService extends UserAccessor {
       companyId,
       event,
       entityId: payload.entityId,
+      triggerPayload: payload,
       routineIds: routines.map((routine) => routine.id),
       now: new Date(),
     });

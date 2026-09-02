@@ -43,6 +43,17 @@ export function changedFieldsOf(eventData: unknown): string[] {
   return extractAuditChanges(eventData).map((change) => change.columnId ?? change.field);
 }
 
+export function threadIdOf(eventData: unknown): string | null {
+  if (!eventData || typeof eventData !== "object" || Array.isArray(eventData)) return null;
+
+  const { payload } = eventData as { payload?: unknown };
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return null;
+
+  const { threadId } = payload as { threadId?: unknown };
+
+  return typeof threadId === "string" ? threadId : null;
+}
+
 export function matchesChangedFields(required: readonly string[], changed: readonly string[]): boolean {
   if (required.length === 0) return true;
   if (changed.length === 0) return false;

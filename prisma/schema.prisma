@@ -1959,6 +1959,7 @@ model RoutineRun {
   triggerKind     RoutineTriggerKind
   triggerEvent    String?
   triggerEntityId String?
+  triggerPayload  Json?
   scheduledFor    DateTime
   startedAt       DateTime?
   finishedAt      DateTime?

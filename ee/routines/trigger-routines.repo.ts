@@ -10,6 +10,7 @@ export abstract class TriggerRoutinesRepo {
     companyId: string;
     event: string;
     entityId: string | null;
+    triggerPayload: unknown;
     routineIds: string[];
     now: Date;
   }): Promise<AdmittedRoutineRun[]>;

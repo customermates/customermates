@@ -31,6 +31,7 @@ export abstract class StartRoutineRunRepo {
     status: RoutineRunStatusType;
     triggerEvent: string | null;
     triggerEntityId: string | null;
+    triggerPayload: unknown;
     routine: RoutineDto;
   } | null>;
   abstract countInFlightRoutineRunsForOwnerUnscoped(ownerUserId: string, excludeRunId: string): Promise<number>;
@@ -132,6 +133,7 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
           routineName: routine.name,
           triggerEvent: run.triggerEvent,
           triggerEntityId: run.triggerEntityId,
+          triggerPayload: run.triggerPayload,
         }),
         retry: false,
       });
