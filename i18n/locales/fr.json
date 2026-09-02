@@ -2894,7 +2894,9 @@
       },
       "hostedAiCredits": "{credits, number} crédits IA hébergés par utilisateur actif / mois",
       "mostPopular": "Le plus populaire",
-      "perUserMonth": "par utilisateur / mois"
+      "perUserMonth": "par utilisateur / mois",
+      "routines": "{routines, plural, one {# routine} other {# routines}}",
+      "unlimitedRoutines": "Routines illimitées"
     },
     "plan": "Formule",
     "planNames": {

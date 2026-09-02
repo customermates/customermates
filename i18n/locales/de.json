@@ -2894,7 +2894,9 @@
       },
       "hostedAiCredits": "{credits, number} Credits für den gehosteten KI-Assistenten pro aktivem Nutzer / Monat",
       "mostPopular": "Am beliebtesten",
-      "perUserMonth": "pro Nutzer / Monat"
+      "perUserMonth": "pro Nutzer / Monat",
+      "routines": "{routines, plural, one {# Routine} other {# Routinen}}",
+      "unlimitedRoutines": "Unbegrenzte Routinen"
     },
     "plan": "Plan",
     "planNames": {

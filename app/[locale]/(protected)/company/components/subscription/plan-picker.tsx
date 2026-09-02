@@ -41,6 +41,7 @@ export const PlanPicker = observer(function PlanPicker({ isLoading, onSelect }: 
         const offer = PLAN_CATALOG[plan].offers.monthly;
         const selection: SelectableOffer = { plan, cadence: offer.cadence };
         const accountAllowance = PLAN_CATALOG[plan].entitlements.includedAccountsPerUser;
+        const routineAllowance = PLAN_CATALOG[plan].entitlements.includedRoutines;
         const credits = PLAN_CATALOG[plan].entitlements.hostedAiCreditsPerActiveUser;
         const features = t.raw(`Subscription.picker.features.${plan}`) as string[];
         const renderedFeatures = [
@@ -48,6 +49,13 @@ export const PlanPicker = observer(function PlanPicker({ isLoading, onSelect }: 
           ...(accountAllowance === 0
             ? []
             : [t("Subscription.picker.connectedAccountsPerUser", { accounts: accountAllowance })]),
+          ...(routineAllowance === 0
+            ? []
+            : [
+                routineAllowance === "unlimited"
+                  ? t("Subscription.picker.unlimitedRoutines")
+                  : t("Subscription.picker.routines", { routines: routineAllowance }),
+              ]),
           ...(typeof credits === "number" ? [t("Subscription.picker.hostedAiCredits", { credits })] : []),
         ];
 
