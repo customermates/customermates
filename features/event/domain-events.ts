@@ -56,6 +56,7 @@ export enum DomainEvent {
   MESSAGING_RELATION_CREATED = "messaging.relation.created",
   LEGAL_NOTICE_SENT = "legal.notice_sent",
   LEGAL_DOCUMENTS_ACCEPTED = "legal.documents_accepted",
+  RECORDS_EXPORTED = "records.exported",
 }
 
 type ConnectedAccountAuditPayload = {
@@ -429,6 +430,17 @@ export type DomainEventMap = {
     companyId: string;
     entityId: string;
     payload: LegalAcceptanceAuditPayload;
+  };
+  [DomainEvent.RECORDS_EXPORTED]: {
+    userId: string;
+    companyId: string;
+    entityId: string;
+    payload: {
+      entityType: EntityType;
+      rowCount: number;
+      truncated: boolean;
+      scope: "selection" | "view";
+    };
   };
 };
 

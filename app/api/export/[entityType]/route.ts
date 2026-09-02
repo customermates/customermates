@@ -14,6 +14,7 @@ import {
   getExportOrganizationsPageInteractor,
   getExportServicesPageInteractor,
   getExportTasksPageInteractor,
+  getRecordExportAuditInteractor,
 } from "@/core/di";
 import {
   ENTITY_SHEET_NAME,
@@ -108,6 +109,15 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     });
 
     if (failure) return failure;
+
+    const audit = await getRecordExportAuditInteractor().invoke({
+      entityType,
+      rowCount: result.rowCount,
+      truncated: result.truncated,
+      scope: exportRequest.selectedIds?.length ? "selection" : "view",
+    });
+
+    if (!audit.ok) throw new Error(`Export audit could not be recorded: ${z.prettifyError(audit.error)}`);
 
     return new NextResponse(new Uint8Array(result.buffer), {
       status: 200,

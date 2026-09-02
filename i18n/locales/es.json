@@ -1113,6 +1113,9 @@
         "deleted": "Organización eliminada",
         "updated": "Organización actualizada"
       },
+      "records": {
+        "exported": "Registros exportados"
+      },
       "role": {
         "created": "Rol creado",
         "deleted": "Rol eliminado",
