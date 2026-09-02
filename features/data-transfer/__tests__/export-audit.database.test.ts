@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 import { createTranslator } from "next-intl";
-import { describe, it, expect, afterAll, beforeAll, vi } from "vitest";
+import { describe, it, expect, afterAll, beforeAll, beforeEach, vi } from "vitest";
 import { Action, EntityType, Resource } from "@/generated/prisma";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
@@ -50,12 +50,19 @@ vi.mock("@/features/user/user.service", () => ({
   },
 }));
 
-const { getRecordExportAuditInteractor } = await import("@/core/di");
+const { getExportContactsPageInteractor } = await import("@/core/di");
 const { prisma } = await import("@/prisma/db");
 const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
 
 const company = randomUUID();
 const actor = randomUUID();
+const contact = randomUUID();
+
+const exportRequest = {
+  entityType: EntityType.contact,
+  columns: [{ key: "firstName", header: "First Name" }],
+  take: 500,
+};
 
 const tenantUser = createMockUserWithPermissions([{ resource: Resource.contacts, action: Action.readAll }]);
 
@@ -78,7 +85,14 @@ describeDatabase("an export leaves an audit trail in a real database", { timeout
           status: "active",
         },
       });
+      await prisma.contact.create({
+        data: { id: contact, companyId: company, firstName: "Exported", lastName: "Record" },
+      });
     });
+  });
+
+  beforeEach(async () => {
+    await runWithoutTenant(() => prisma.auditLog.deleteMany({ where: { companyId: company } }));
   });
 
   afterAll(async () => {
@@ -87,13 +101,8 @@ describeDatabase("an export leaves an audit trail in a real database", { timeout
     });
   });
 
-  it("writes exactly one row naming the actor, entity type and delivered row count", async () => {
-    const result = await getRecordExportAuditInteractor().invoke({
-      entityType: EntityType.contact,
-      rowCount: 137,
-      truncated: false,
-      scope: "view",
-    });
+  it("writes exactly one row naming the actor, entity type and covered row count", async () => {
+    const result = await getExportContactsPageInteractor().invoke({ ...exportRequest, skip: 0 });
 
     expect(result.ok).toBe(true);
 
@@ -109,7 +118,7 @@ describeDatabase("an export leaves an audit trail in a real database", { timeout
       companyId: company,
       payload: {
         entityType: "contact",
-        rowCount: 137,
+        rowCount: 1,
         truncated: false,
         scope: "view",
       },
@@ -120,20 +129,21 @@ describeDatabase("an export leaves an audit trail in a real database", { timeout
       expect(serialized, `audit row must not carry ${leaked}`).not.toContain(leaked);
   });
 
-  it("records the truncation flag rather than implying the whole set was delivered", async () => {
-    await getRecordExportAuditInteractor().invoke({
-      entityType: EntityType.contact,
-      rowCount: 50000,
-      truncated: true,
-      scope: "selection",
-    });
+  it("records one row for the whole export, not one per page", async () => {
+    await getExportContactsPageInteractor().invoke({ ...exportRequest, skip: 0 });
+    await getExportContactsPageInteractor().invoke({ ...exportRequest, skip: 500 });
+    await getExportContactsPageInteractor().invoke({ ...exportRequest, skip: 1000 });
 
-    const rows = await runWithoutTenant(() =>
-      prisma.auditLog.findMany({ where: { companyId: company }, orderBy: { createdAt: "desc" }, take: 1 }),
-    );
+    const rows = await runWithoutTenant(() => prisma.auditLog.findMany({ where: { companyId: company } }));
 
-    expect(rows[0].eventData).toMatchObject({
-      payload: { rowCount: 50000, truncated: true, scope: "selection" },
-    });
+    expect(rows).toHaveLength(1);
+  });
+
+  it("distinguishes an explicit selection from the current view", async () => {
+    await getExportContactsPageInteractor().invoke({ ...exportRequest, skip: 0, selectedIds: [contact] });
+
+    const rows = await runWithoutTenant(() => prisma.auditLog.findMany({ where: { companyId: company } }));
+
+    expect(rows[0].eventData).toMatchObject({ payload: { scope: "selection" } });
   });
 });

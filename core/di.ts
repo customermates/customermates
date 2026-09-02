@@ -74,7 +74,6 @@ import { ExportDealsPageInteractor } from "@/features/data-transfer/export/expor
 import { ExportOrganizationsPageInteractor } from "@/features/data-transfer/export/export-organizations-page.interactor";
 import { ExportServicesPageInteractor } from "@/features/data-transfer/export/export-services-page.interactor";
 import { ExportTasksPageInteractor } from "@/features/data-transfer/export/export-tasks-page.interactor";
-import { RecordExportAuditInteractor } from "@/features/data-transfer/export/record-export-audit.interactor";
 import { GetImportRelationIndexInteractor } from "@/features/data-transfer/import/get-import-relation-index.interactor";
 import { ImportRelationIndex } from "@/features/data-transfer/import/relation-index.service";
 import { GetContactsConfigurationInteractor } from "@/features/contacts/get/get-contacts-configuration.interactor";
@@ -1626,18 +1625,18 @@ export const getResetOperatorUserCreditsInteractor = () => new ResetOperatorUser
 
 // --- Data transfer ---
 
-export const getExportContactsPageInteractor = () => new ExportContactsPageInteractor(getContactRepo());
+export const getExportContactsPageInteractor = () =>
+  new ExportContactsPageInteractor(getContactRepo(), getEventService());
 
-export const getExportOrganizationsPageInteractor = () => new ExportOrganizationsPageInteractor(getOrganizationRepo());
+export const getExportOrganizationsPageInteractor = () =>
+  new ExportOrganizationsPageInteractor(getOrganizationRepo(), getEventService());
 
-export const getExportDealsPageInteractor = () => new ExportDealsPageInteractor(getDealRepo());
+export const getExportDealsPageInteractor = () => new ExportDealsPageInteractor(getDealRepo(), getEventService());
 
-export const getExportServicesPageInteractor = () => new ExportServicesPageInteractor(getServiceRepo());
+export const getExportServicesPageInteractor = () =>
+  new ExportServicesPageInteractor(getServiceRepo(), getEventService());
 
-export const getExportTasksPageInteractor = () => new ExportTasksPageInteractor(getTaskRepo());
-
-export const getRecordExportAuditInteractor = () =>
-  new RecordExportAuditInteractor(getUserService(), getEventService());
+export const getExportTasksPageInteractor = () => new ExportTasksPageInteractor(getTaskRepo(), getEventService());
 
 export const getDryRunImportContactsInteractor = () => new DryRunImportContactsInteractor(getContactWritePrecheck());
 

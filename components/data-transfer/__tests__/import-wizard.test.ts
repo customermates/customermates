@@ -325,6 +325,20 @@ describe("ImportWizard file step", () => {
     expect(render({ step: "file", isLoading: true })).toContain("Loading.text");
     expect(render({ step: "file", isLoading: false })).not.toContain("Loading.text");
   });
+
+  it("explains a demo block as a demo block, not as an unreadable file", () => {
+    const demo = render({ step: "file", fileError: "demoBlocked" });
+
+    expect(demo).toContain("Common.errors.demoMode");
+    expect(demo).not.toContain("DataTransfer.import.fileRejected");
+  });
+
+  it("still blames the file when the file is genuinely at fault", () => {
+    const rejected = render({ step: "file", fileError: "unreadable" });
+
+    expect(rejected).toContain("DataTransfer.import.fileRejected");
+    expect(rejected).not.toContain("Common.errors.demoMode");
+  });
 });
 
 describe("ImportWizard issue list", () => {
