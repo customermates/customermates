@@ -486,6 +486,31 @@ export class PrismaRoutineRepo
   }
 
   @BypassTenantGuard
+  async pruneRoutineFiltersForFieldUnscoped(companyId: string, field: string): Promise<number> {
+    const routines = await this.prisma.routine.findMany({
+      where: { companyId, triggerFilters: { not: Prisma.DbNull } },
+      select: { id: true, triggerFilters: true },
+    });
+
+    let pruned = 0;
+    for (const routine of routines) {
+      const filters = routine.triggerFilters;
+      if (!Array.isArray(filters)) continue;
+
+      const kept = filters.filter((filter) => (filter as { field?: unknown } | null)?.field !== field);
+      if (kept.length === filters.length) continue;
+
+      await this.prisma.routine.update({
+        where: { id: routine.id, companyId },
+        data: { triggerFilters: kept as Prisma.InputJsonValue },
+      });
+      pruned += 1;
+    }
+
+    return pruned;
+  }
+
+  @BypassTenantGuard
   async admitEventRoutineRunsUnscoped(args: {
     companyId: string;
     event: string;

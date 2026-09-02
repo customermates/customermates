@@ -24,6 +24,7 @@ function routineTriggerRepoStub() {
   return {
     findEventRoutinesUnscoped: () => Promise.resolve([]),
     countSuppressedRoutineEventsUnscoped: () => Promise.resolve(),
+    pruneRoutineFiltersForFieldUnscoped: () => Promise.resolve(0),
     admitEventRoutineRunsUnscoped: () => Promise.resolve([]),
   };
 }

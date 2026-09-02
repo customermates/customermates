@@ -2689,6 +2689,7 @@
     "detailsTab": "Details",
     "disabled": "Pausiert",
     "enabled": "Aktiv",
+    "enabledHelp": "Pausierte Routinen behalten ihren Zeitplan, laufen aber nicht.",
     "eventFilters": "Nur wenn der Datensatz passt",
     "onMinute": "zur Minute",
     "promptDescription": "Der Assistent erhält diese Anweisungen bei jedem Lauf der Routine.",

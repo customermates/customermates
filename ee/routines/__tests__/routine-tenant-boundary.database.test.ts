@@ -76,6 +76,27 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     await client.end();
   });
 
+  it("prunes only the deleted field's filter, and only inside the named company", async () => {
+    const deadField = randomUUID();
+    const liveFilter = { field: "assignedUserIds", operator: "isNotNull" };
+    const filters = JSON.stringify([{ field: deadField, operator: "isNotNull" }, liveFilter]);
+
+    for (const id of [routineId, otherRoutineId])
+      await client.query('UPDATE "Routine" SET "triggerFilters" = $1 WHERE "id" = $2', [filters, id]);
+
+    const pruned = await runWithTenant(tenant(ownerId), () =>
+      new PrismaRoutineRepo().pruneRoutineFiltersForFieldUnscoped(companyId, deadField),
+    );
+
+    expect(pruned).toBe(1);
+
+    const mine = await client.query('SELECT "triggerFilters" FROM "Routine" WHERE "id" = $1', [routineId]);
+    expect(mine.rows[0].triggerFilters).toEqual([liveFilter]);
+
+    const theirs = await client.query('SELECT "triggerFilters" FROM "Routine" WHERE "id" = $1', [otherRoutineId]);
+    expect(theirs.rows[0].triggerFilters).toHaveLength(2);
+  });
+
   it("hides another company's routine from a routine lookup", async () => {
     await expect(
       runWithTenant(tenant(ownerId), () => new PrismaRoutineRepo().getRoutineByIdOrThrow(otherRoutineId)),

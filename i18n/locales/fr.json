@@ -2689,6 +2689,7 @@
     "detailsTab": "Détails",
     "disabled": "En pause",
     "enabled": "Active",
+    "enabledHelp": "Les routines en pause conservent leur planification mais ne s'exécutent pas.",
     "eventFilters": "Uniquement si l'enregistrement correspond",
     "onMinute": "à la minute",
     "promptDescription": "L'assistant reçoit ces instructions à chaque exécution de la routine.",

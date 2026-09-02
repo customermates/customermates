@@ -2,9 +2,11 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { ChevronLeft, Play, Trash2 } from "lucide-react";
+import { ChevronLeft, Play, RefreshCw, Trash2 } from "lucide-react";
 
 import { RoutineTriggerKind } from "@/generated/prisma";
+
+import type { AppModalActions } from "@/components/modal";
 
 import { AppModal } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
@@ -39,6 +41,7 @@ import { ROUTINE_RUN_STATUS_CHIP_COLOR } from "@/ee/routines/routine-run-chip-co
 import { routineRunDetail } from "@/ee/routines/routine-run-outcome";
 import { AgentChatStoreProvider } from "@/app/components/agent-chat/agent-chat-store-context";
 import { AgentComposer, AgentConversationLog } from "@/app/components/agent-chat/agent-conversation";
+import { MessageResponse } from "@/components/ai-elements/message";
 
 const TRIGGER_EVENT_ITEMS = WebhookEventSchema.options.map((event) => ({ key: event }));
 
@@ -72,25 +75,38 @@ export const RoutineModal = observer(() => {
   const openRun = routineModalStore.openRun_;
   const showRuns = isExistingRoutine && routineModalStore.activeTab === "runs";
 
+  const modalActions: AppModalActions = openRun
+    ? [
+        {
+          id: "routine-run-back",
+          label: t("Common.actions.back"),
+          icon: ChevronLeft,
+          onClick: routineModalStore.closeRun,
+        },
+      ]
+    : isExistingRoutine && canManage
+      ? [
+          {
+            id: "routines-run-now",
+            label: t("RoutineDetail.runNow"),
+            icon: routineModalStore.isStartingRun ? RefreshCw : Play,
+            busy: routineModalStore.isStartingRun,
+            disabled: isDisabled || routineModalStore.hasUnsavedChanges,
+            onClick: routineModalStore.runNow,
+          },
+          {
+            id: "delete-routine",
+            label: t("Common.actions.delete"),
+            icon: Trash2,
+            variant: "destructive",
+            disabled: isDisabled,
+            onClick: () => showDeleteConfirmation(() => routineModalStore.delete()),
+          },
+        ]
+      : [];
+
   return (
-    <AppModal
-      actions={
-        form?.id && canManage
-          ? [
-              {
-                id: "delete-routine",
-                label: t("Common.actions.delete"),
-                icon: Trash2,
-                variant: "destructive",
-                disabled: isDisabled,
-                onClick: () => showDeleteConfirmation(() => routineModalStore.delete()),
-              },
-            ]
-          : []
-      }
-      store={routineModalStore}
-      title={t("RoutineModal.title")}
-    >
+    <AppModal actions={modalActions} store={routineModalStore} title={t("RoutineModal.title")}>
       <AppForm store={routineModalStore}>
         <AppCard>
           <AppCardHeader>
@@ -100,18 +116,7 @@ export const RoutineModal = observer(() => {
           {openRun ? (
             <AgentChatStoreProvider store={routineRunChatStore}>
               <div className="flex min-h-[26rem] flex-col">
-                <div className="flex items-center gap-2 border-b px-4 py-2">
-                  <Button
-                    aria-label={t("Common.actions.back")}
-                    className="-ml-1 size-7 shrink-0"
-                    id="routine-run-back"
-                    size="icon"
-                    variant="ghost"
-                    onClick={routineModalStore.closeRun}
-                  >
-                    <ChevronLeft className="size-4" />
-                  </Button>
-
+                <div className="flex items-center gap-2 border-b px-6 py-2.5">
                   <span className="text-sm">{intlStore.formatNumericalShortDateTime(openRun.createdAt)}</span>
 
                   <AppChip size="sm" variant={ROUTINE_RUN_STATUS_CHIP_COLOR[openRun.status]}>
@@ -159,48 +164,40 @@ export const RoutineModal = observer(() => {
 
               {showRuns ? (
                 <AppCardBody>
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-subdued text-xs">
-                      {form?.id && routineModalStore.runs.length > 0
-                        ? t("RoutineDetail.runs")
-                        : t("RoutineDetail.noRuns")}
-                    </p>
-
-                    <Button
-                      disabled={routineModalStore.isStartingRun}
-                      id="routines-run-now"
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => runUserAction(() => routineModalStore.runNow())}
-                    >
-                      <Play className="size-3.5" />
-
-                      {t("RoutineDetail.runNow")}
-                    </Button>
-                  </div>
-
                   {routineModalStore.isRunsLoading ? (
                     <Spinner aria-label={t("PageState.loading")} />
+                  ) : routineModalStore.runs.length === 0 ? (
+                    <p className="text-subdued py-8 text-center text-sm">{t("RoutineDetail.noRuns")}</p>
                   ) : (
-                    <ul className="flex flex-col gap-1">
+                    <ul className="flex flex-col gap-2">
                       {routineModalStore.runs.map((run) => (
                         <li key={run.id}>
                           <button
-                            className="hover:bg-muted flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors"
+                            className="hover:bg-muted flex w-full flex-col gap-1.5 rounded-lg border px-3.5 py-3 text-left transition-colors"
                             type="button"
                             onClick={() => runUserAction(() => routineModalStore.openRun(run))}
                           >
-                            <span className="w-40 shrink-0 text-sm">
-                              {intlStore.formatNumericalShortDateTime(run.createdAt)}
+                            <span className="flex flex-wrap items-center gap-2">
+                              <AppChip size="sm" variant={ROUTINE_RUN_STATUS_CHIP_COLOR[run.status]}>
+                                {t(`RoutineRunStatus.${run.status}`)}
+                              </AppChip>
+
+                              <span className="text-subdued text-xs">
+                                {intlStore.formatNumericalShortDateTime(run.createdAt)}
+                              </span>
+
+                              {run.chargedCredits > 0 && (
+                                <span className="text-subdued text-xs">
+                                  {`${t("RoutineDetail.credits")}: ${run.chargedCredits}`}
+                                </span>
+                              )}
                             </span>
 
-                            <AppChip size="sm" variant={ROUTINE_RUN_STATUS_CHIP_COLOR[run.status]}>
-                              {t(`RoutineRunStatus.${run.status}`)}
-                            </AppChip>
-
-                            <span className="text-subdued line-clamp-1 min-w-0 flex-1 text-xs">
-                              {routineRunDetail(run, t)}
-                            </span>
+                            {routineRunDetail(run, t) && (
+                              <MessageResponse className="text-subdued line-clamp-3 text-xs">
+                                {routineRunDetail(run, t)}
+                              </MessageResponse>
+                            )}
                           </button>
                         </li>
                       ))}
@@ -209,6 +206,16 @@ export const RoutineModal = observer(() => {
                 </AppCardBody>
               ) : (
                 <AppCardBody>
+                  <div className="bg-muted/40 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 rounded-lg border px-4 py-3">
+                    <FormSwitch
+                      containerClassName="shrink-0"
+                      id="enabled"
+                      label={form?.enabled ? t("RoutineModal.enabled") : t("RoutineModal.disabled")}
+                    />
+
+                    <p className="text-subdued min-w-0 flex-1 text-xs">{t("RoutineModal.enabledHelp")}</p>
+                  </div>
+
                   {routineModalStore.risks.length > 0 && (
                     <Alert color="warning">
                       <p className="text-x-sm font-medium">{t("RoutineDetail.loopWarningTitle")}</p>
@@ -359,8 +366,6 @@ export const RoutineModal = observer(() => {
                       )}
                     </div>
                   )}
-
-                  <FormSwitch id="enabled" label={t("RoutineModal.enabled")} />
                 </AppCardBody>
               )}
 

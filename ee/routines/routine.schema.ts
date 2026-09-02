@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { RoutineRunStatus, RoutineTriggerKind, AgentTurnTerminalCode } from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { zx } from "@/core/validation/validation.utils";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { FilterSchema } from "@/core/base/base-get.schema";
 import {
@@ -73,8 +74,8 @@ export type RoutineRunDto = Data<typeof RoutineRunDtoSchema>;
 export const UpsertRoutineSchema = z
   .object({
     id: z.uuid().optional(),
-    name: z.string().min(1).max(ROUTINE_NAME_MAX_CHARS).optional(),
-    prompt: z.string().min(1).max(ROUTINE_PROMPT_MAX_CHARS).optional(),
+    name: zx.nonBlankText(ROUTINE_NAME_MAX_CHARS).optional(),
+    prompt: zx.nonBlankText(ROUTINE_PROMPT_MAX_CHARS).optional(),
     modelKey: z.string().min(1).max(64).nullable().optional(),
     enabled: z.boolean().optional(),
     triggerKind: RoutineTriggerKindSchema.optional(),

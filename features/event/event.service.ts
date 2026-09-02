@@ -1,4 +1,6 @@
 import type { DomainEventMap, DomainEvent } from "./domain-events";
+
+import { DomainEvent as DomainEventValue } from "./domain-events";
 import type { DomainEventListener } from "./domain-event.listener";
 
 import { AUDIT_LOG_EXCLUDED_EVENTS } from "./domain-events";
@@ -84,6 +86,7 @@ export class EventService extends UserAccessor {
       this.createAuditLog(event, eventData, system),
       this.createWebhookDeliveries(event, eventData, companyId, system),
       this.createRoutineRuns(event, eventData, companyId),
+      this.pruneRoutineFilters(event, eventData, companyId),
     ]);
 
     return this.logAndReturn({
@@ -126,6 +129,16 @@ export class EventService extends UserAccessor {
       eventData: payload as Record<string, unknown>,
       entityId: payload.entityId,
     });
+  }
+
+  private async pruneRoutineFilters(
+    event: DomainEvent,
+    payload: DomainEventMap[DomainEvent],
+    companyId: string,
+  ): Promise<void> {
+    if (event !== DomainEventValue.CUSTOM_COLUMN_DELETED || !payload.entityId) return;
+
+    await this.routineRepo.pruneRoutineFiltersForFieldUnscoped(companyId, payload.entityId);
   }
 
   private async createRoutineRuns(

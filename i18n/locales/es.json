@@ -2689,6 +2689,7 @@
     "detailsTab": "Detalles",
     "disabled": "En pausa",
     "enabled": "Activa",
+    "enabledHelp": "Las rutinas en pausa conservan su programación, pero no se ejecutan.",
     "eventFilters": "Solo cuando el registro coincida",
     "onMinute": "en el minuto",
     "promptDescription": "El asistente recibe estas instrucciones cada vez que se ejecuta la rutina.",
