@@ -2,6 +2,11 @@ import type {
   AgentCreditAdjustmentDto,
   CorrectOperatorSubscriptionSnapshotData,
   CreateAgentCreditAdjustmentData,
+  DeleteOperatorWorkspaceData,
+  DeleteOperatorWorkspaceResultDto,
+  UpdateOperatorSubscriptionTermsData,
+  GetOperatorWorkspaceStatsData,
+  OperatorWorkspaceStatsDto,
   HostedAiOperatorCompanyDto,
   HostedAiOperatorOverviewDto,
   OperatorUserDetailDto,
@@ -11,9 +16,11 @@ import type {
   UpdateOperatorUserPlatformAccessData,
   UpdateOperatorUserStatusData,
   UpdateHostedAiEnterpriseAllowanceData,
+  UpdateOperatorWorkspaceTagsData,
+  OperatorWorkspaceTagsDto,
 } from "./operator.schema";
 
-export type OperatorRefusal = "conflict" | "notFound" | "unavailable";
+export type OperatorRefusal = "conflict" | "notFound" | "unavailable" | "allowanceMissing" | "connectedAccountsActive";
 
 export abstract class OperatorRepo {
   abstract getOverviewUnscoped(now?: Date): Promise<HostedAiOperatorOverviewDto | OperatorRefusal>;
@@ -43,4 +50,18 @@ export abstract class OperatorRepo {
     data: ResetOperatorUserCreditsData,
     now?: Date,
   ): Promise<ResetOperatorUserCreditsResultDto | OperatorRefusal>;
+  abstract deleteWorkspaceUnscoped(
+    data: DeleteOperatorWorkspaceData,
+  ): Promise<DeleteOperatorWorkspaceResultDto | OperatorRefusal>;
+  abstract updateSubscriptionTermsUnscoped(
+    data: UpdateOperatorSubscriptionTermsData,
+    now?: Date,
+  ): Promise<HostedAiOperatorCompanyDto | OperatorRefusal>;
+  abstract getWorkspaceStatsUnscoped(
+    data: GetOperatorWorkspaceStatsData,
+  ): Promise<OperatorWorkspaceStatsDto | OperatorRefusal>;
+  abstract updateWorkspaceTagsUnscoped(
+    data: UpdateOperatorWorkspaceTagsData,
+  ): Promise<OperatorWorkspaceTagsDto | OperatorRefusal>;
+  abstract listWorkspaceTagsUnscoped(): Promise<string[]>;
 }

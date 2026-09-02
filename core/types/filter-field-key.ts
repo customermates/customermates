@@ -26,4 +26,5 @@ export enum FilterFieldKey {
   workspaceId = "workspaceId",
   googleAdsClickId = "googleAdsClickId",
   auditSource = "auditSource",
+  workspaceTags = "workspaceTags",
 }

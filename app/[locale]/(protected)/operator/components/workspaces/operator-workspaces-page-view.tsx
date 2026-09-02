@@ -5,7 +5,7 @@ import type { GetResult } from "@/core/base/base-get.interactor";
 import type { OperatorWorkspaceRowDto } from "@/ee/operator/operator-lists.schema";
 
 import { observer } from "mobx-react-lite";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
@@ -19,6 +19,7 @@ import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
+import { OperatorWorkspaceModal } from "./operator-workspace-modal";
 import { OperatorWorkspacesPageSkeleton } from "./operator-workspaces-page-skeleton";
 import { useOperatorWorkspaceColumns } from "./use-operator-workspace-columns";
 
@@ -26,6 +27,7 @@ type Props = { initialWorkspaces: GetResult<OperatorWorkspaceRowDto> };
 
 export const OperatorWorkspacesPageView = observer(function OperatorWorkspacesPageView({ initialWorkspaces }: Props) {
   const { operatorWorkspacesStore } = useRootStore();
+  const [selected, setSelected] = useState<OperatorWorkspaceRowDto | null>(null);
 
   useDataViewSync(operatorWorkspacesStore, initialWorkspaces);
   const columns = useOperatorWorkspaceColumns();
@@ -94,16 +96,27 @@ export const OperatorWorkspacesPageView = observer(function OperatorWorkspacesPa
       );
       break;
     case "content":
-      body = <DataViewContent columns={columns} store={operatorWorkspacesStore} view={view} />;
+      body = (
+        <DataViewContent
+          columns={columns}
+          store={operatorWorkspacesStore}
+          view={view}
+          onRowClick={(item) => setSelected(item)}
+        />
+      );
       break;
     default: {
       const exhaustive: never = pageState;
       body = exhaustive;
     }
   }
+  const current = selected ? (operatorWorkspacesStore.items.find((item) => item.id === selected.id) ?? null) : null;
+
   return (
     <DataViewLayout showPagination={pageState === "content" && view !== "board"} store={operatorWorkspacesStore}>
       {body}
+
+      <OperatorWorkspaceModal workspace={current} onClose={() => setSelected(null)} />
     </DataViewLayout>
   );
 });

@@ -28,11 +28,21 @@ export function partitionOperatorWorkspaceFilters(filters: Filter[] | undefined)
   const passthrough: Filter[] = [];
   const subscription: Prisma.SubscriptionWhereInput = {};
   const baseWhere: Prisma.CompanyWhereInput = {};
+  let hasPositiveSubscriptionCondition = false;
 
   for (const filter of filters ?? []) {
     if (filter.field === String(FilterFieldKey.workspaceId)) {
       const values = filterValues(filter);
       if (values.length > 0) baseWhere.id = negated(filter) ? { notIn: values } : { in: values };
+      continue;
+    }
+
+    if (filter.field === String(FilterFieldKey.workspaceTags)) {
+      const values = filterValues(filter);
+      if (values.length > 0) {
+        if (negated(filter)) baseWhere.NOT = { tags: { hasSome: values } };
+        else baseWhere.tags = { hasSome: values };
+      }
       continue;
     }
 
@@ -48,17 +58,26 @@ export function partitionOperatorWorkspaceFilters(filters: Filter[] | undefined)
       const plans = values.filter((value): value is SubscriptionPlan =>
         Object.values(SubscriptionPlan).includes(value as SubscriptionPlan),
       );
-      if (plans.length > 0) subscription.plan = negated(filter) ? { notIn: plans } : { in: plans };
+      if (plans.length > 0) {
+        subscription.plan = negated(filter) ? { notIn: plans } : { in: plans };
+        if (!negated(filter)) hasPositiveSubscriptionCondition = true;
+      }
       continue;
     }
 
     const statuses = values.filter((value): value is SubscriptionStatus =>
       Object.values(SubscriptionStatus).includes(value as SubscriptionStatus),
     );
-    if (statuses.length > 0) subscription.status = negated(filter) ? { notIn: statuses } : { in: statuses };
+    if (statuses.length > 0) {
+      subscription.status = negated(filter) ? { notIn: statuses } : { in: statuses };
+      if (!negated(filter)) hasPositiveSubscriptionCondition = true;
+    }
   }
 
-  if (Object.keys(subscription).length > 0) baseWhere.subscription = { is: subscription };
+  if (Object.keys(subscription).length > 0) {
+    if (hasPositiveSubscriptionCondition) baseWhere.subscription = { is: subscription };
+    else baseWhere.OR = [{ subscription: { is: subscription } }, { subscription: { is: null } }];
+  }
 
   return { baseWhere, passthrough };
 }
@@ -82,6 +101,7 @@ export class PrismaOperatorWorkspacesRepo
         FilterFieldKey.subscriptionStatus,
         FilterFieldKey.createdAt,
         FilterFieldKey.workspaceId,
+        FilterFieldKey.workspaceTags,
       ].map((field) => ({ field, operators: FILTER_FIELD_DEFAULT_OPERATORS[field] })),
     );
   }
@@ -108,16 +128,22 @@ export class PrismaOperatorWorkspacesRepo
           SELECT owner_user."email"
           FROM "User" AS owner_user
           LEFT JOIN "UserRole" AS owner_role ON owner_role."id" = owner_user."roleId"
-          WHERE owner_user."companyId" = c."id" AND owner_user."status"::text = 'active'
-          ORDER BY (owner_role."isSystemRole" IS TRUE) DESC, owner_user."createdAt" ASC
+          WHERE owner_user."companyId" = c."id"
+          ORDER BY
+            (owner_user."status"::text = 'active') DESC,
+            (owner_role."isSystemRole" IS TRUE) DESC,
+            owner_user."createdAt" ASC
           LIMIT 1
         ) AS "owner",
         (
           SELECT owner_user."id"::text
           FROM "User" AS owner_user
           LEFT JOIN "UserRole" AS owner_role ON owner_role."id" = owner_user."roleId"
-          WHERE owner_user."companyId" = c."id" AND owner_user."status"::text = 'active'
-          ORDER BY (owner_role."isSystemRole" IS TRUE) DESC, owner_user."createdAt" ASC
+          WHERE owner_user."companyId" = c."id"
+          ORDER BY
+            (owner_user."status"::text = 'active') DESC,
+            (owner_role."isSystemRole" IS TRUE) DESC,
+            owner_user."createdAt" ASC
           LIMIT 1
         ) AS "ownerId"
       FROM "Company" AS c
@@ -149,8 +175,17 @@ export class PrismaOperatorWorkspacesRepo
       select: {
         id: true,
         createdAt: true,
+        tags: true,
         subscription: {
-          select: { plan: true, status: true, quantity: true, enterpriseAgentCreditsPerUser: true, updatedAt: true },
+          select: {
+            plan: true,
+            status: true,
+            quantity: true,
+            enterpriseAgentCreditsPerUser: true,
+            trialEndDate: true,
+            lemonSqueezyId: true,
+            updatedAt: true,
+          },
         },
       },
     });
@@ -171,7 +206,10 @@ export class PrismaOperatorWorkspacesRepo
         subscriptionStatus: company.subscription?.status ?? null,
         seats: company.subscription?.quantity ?? null,
         enterpriseCreditsPerUser: company.subscription?.enterpriseAgentCreditsPerUser ?? null,
+        trialEndDate: company.subscription?.trialEndDate ?? null,
+        lemonSqueezyId: company.subscription?.lemonSqueezyId ?? null,
         subscriptionUpdatedAt: company.subscription?.updatedAt ?? null,
+        tags: company.tags,
         createdAt: company.createdAt,
       };
     });
