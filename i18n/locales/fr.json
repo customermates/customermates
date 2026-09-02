@@ -2302,8 +2302,14 @@
     "text": "Chargement..."
   },
   "MassActions": {
+    "apply": "Appliquer à la sélection",
+    "clearField": "Vider le champ",
     "delete": "Supprimer la sélection",
+    "keepInView": "Conserver uniquement les lignes visibles",
+    "limitReached": "Vous pouvez sélectionner jusqu'à {limit} enregistrements à la fois.",
     "noMatchingFields": "Aucun champ ne correspond à votre recherche.",
+    "offView": "{count, plural, one {# hors de la vue actuelle} other {# hors de la vue actuelle}}",
+    "scopeStale": "Les filtres ont changé depuis cette sélection.",
     "searchFieldPlaceholder": "Rechercher des champs…",
     "selectedCount": "{count, plural, one {# élément sélectionné} other {# éléments sélectionnés}}",
     "update": "Mettre à jour"

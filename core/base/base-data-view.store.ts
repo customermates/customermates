@@ -8,7 +8,7 @@ import type { SavedFilterPreset } from "@/features/p13n/prisma-p13n.repository";
 
 import { makeObservable, observable, computed, action, toJS, runInAction } from "mobx";
 import deepEqual from "fast-deep-equal/es6";
-import { CustomColumnType } from "@/generated/prisma";
+import { Action, CustomColumnType } from "@/generated/prisma";
 
 import type { Resource, EntityType } from "@/generated/prisma";
 
@@ -26,6 +26,8 @@ import {
   bulkUpdateCustomFieldValuesAction,
   updateEntityCustomFieldValueAction,
 } from "@/app/actions";
+
+export const MAX_SELECTION_SIZE = 100;
 
 export interface HasId {
   id: string;
@@ -81,6 +83,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   viewMode: ViewMode = ViewMode.table;
   groupingColumnId?: string | null;
   selectedIds: ObservableSet<string> = observable.set();
+  selectedScopeKey: string | undefined = undefined;
 
   groupCounts: Record<string, number> = {};
   groupValueSums: Record<string, GroupValueSums> = {};
@@ -127,6 +130,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       viewMode: observable,
       groupingColumnId: observable,
       selectedIds: observable,
+      selectedScopeKey: observable,
 
       groupCounts: observable,
       groupValueSums: observable,
@@ -138,10 +142,18 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       sortableColumnIds: computed,
       canManage: computed,
       canExport: computed,
+      canUpdateSelection: computed,
+      canDeleteSelection: computed,
       isDisabled: computed,
       hasSelection: computed,
       selectedCount: computed,
+      selectedVisibleCount: computed,
+      selectedOffViewCount: computed,
+      isSelectionAtLimit: computed,
+      currentSelectionScopeKey: computed,
+      isSelectionScopeStale: computed,
       singleSelectCustomColumns: computed,
+      massEditableCustomColumns: computed,
       isKanbanMode: computed,
       kanbanGroupingKey: computed,
 
@@ -159,6 +171,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       executeOnChanges: action,
       setItems: action,
       setSelectedIds: action,
+      toggleItemSelection: action,
+      setPageSelection: action,
+      keepSelectionInView: action,
       clearSelection: action,
       loadMoreInGroup: action,
       resetGroupedTakeOverrides: action,
@@ -191,6 +206,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   bulkDelete = async (): Promise<boolean> => {
     const ids = Array.from(this.selectedIds);
     if (ids.length === 0 || !this.entityType) return false;
+    if (ids.length > MAX_SELECTION_SIZE) {
+      this.toastError("MassActions.limitReached", { values: { limit: MAX_SELECTION_SIZE } });
+      return false;
+    }
 
     this.setBulkMutating(true);
     try {
@@ -212,6 +231,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   bulkUpdateCustomField = async (columnId: string, value: string): Promise<boolean> => {
     const entityIds = Array.from(this.selectedIds);
     if (entityIds.length === 0 || !this.entityType) return false;
+    if (entityIds.length > MAX_SELECTION_SIZE) {
+      this.toastError("MassActions.limitReached", { values: { limit: MAX_SELECTION_SIZE } });
+      return false;
+    }
 
     this.setBulkMutating(true);
     try {
@@ -327,6 +350,18 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return this.rootStore.userStore.canAccess(this.resource);
   }
 
+  get canUpdateSelection(): boolean {
+    if (!this.resource) return true;
+
+    return this.rootStore.userStore.can(this.resource, Action.update);
+  }
+
+  get canDeleteSelection(): boolean {
+    if (!this.resource) return true;
+
+    return this.rootStore.userStore.can(this.resource, Action.delete);
+  }
+
   get isDisabled(): boolean {
     if (!this.resource) return false;
 
@@ -341,24 +376,101 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return this.selectedIds.size;
   }
 
+  get selectedVisibleCount(): number {
+    return this.items.reduce((count, item) => (this.selectedIds.has(item.id) ? count + 1 : count), 0);
+  }
+
+  get selectedOffViewCount(): number {
+    return this.selectedCount - this.selectedVisibleCount;
+  }
+
+  get isSelectionAtLimit(): boolean {
+    return this.selectedIds.size >= MAX_SELECTION_SIZE;
+  }
+
+  get currentSelectionScopeKey(): string {
+    return JSON.stringify({ filters: toJS(this.filters) ?? null, searchTerm: this.searchTerm ?? null });
+  }
+
+  get isSelectionScopeStale(): boolean {
+    if (!this.hasSelection || this.selectedScopeKey === undefined) return false;
+
+    return this.selectedScopeKey !== this.currentSelectionScopeKey;
+  }
+
   get singleSelectCustomColumns(): CustomColumnDto[] {
     return this.customColumns.filter((col) => col.type === CustomColumnType.singleSelect);
+  }
+
+  get massEditableCustomColumns(): CustomColumnDto[] {
+    return this.customColumns.filter((col) =>
+      col.type === CustomColumnType.singleSelect ? col.options.options.length > 0 : true,
+    );
   }
 
   isItemSelectable(_item: Entity): boolean {
     return true;
   }
 
-  setSelectedIds = (keys: "all" | Set<string>) => {
+  setSelectedIds = (keys: Set<string>) => {
     this.selectedIds.clear();
-    if (keys === "all") {
-      for (const item of this.items) if (this.isItemSelectable(item)) this.selectedIds.add(item.id);
-    } else keys.forEach((id) => this.selectedIds.add(id));
+    this.selectedScopeKey = undefined;
+    [...keys].slice(0, MAX_SELECTION_SIZE).forEach((id) => this.selectedIds.add(id));
+    this.rememberSelectionScope();
+  };
+
+  toggleItemSelection = (id: string): void => {
+    if (this.selectedIds.has(id)) {
+      this.selectedIds.delete(id);
+      this.rememberSelectionScope();
+      return;
+    }
+
+    if (this.isSelectionAtLimit) {
+      this.toastError("MassActions.limitReached", { values: { limit: MAX_SELECTION_SIZE } });
+      return;
+    }
+
+    this.selectedIds.add(id);
+    this.rememberSelectionScope();
+  };
+
+  setPageSelection = (selected: boolean): void => {
+    const pageIds = this.items.filter((item) => this.isItemSelectable(item)).map((item) => item.id);
+
+    if (!selected) {
+      pageIds.forEach((id) => this.selectedIds.delete(id));
+      this.rememberSelectionScope();
+      return;
+    }
+
+    const missing = pageIds.filter((id) => !this.selectedIds.has(id));
+    const room = Math.max(0, MAX_SELECTION_SIZE - this.selectedIds.size);
+    missing.slice(0, room).forEach((id) => this.selectedIds.add(id));
+    this.rememberSelectionScope();
+
+    if (missing.length > room) this.toastError("MassActions.limitReached", { values: { limit: MAX_SELECTION_SIZE } });
+  };
+
+  keepSelectionInView = (): void => {
+    const visible = new Set(this.items.map((item) => item.id));
+    for (const id of [...this.selectedIds]) if (!visible.has(id)) this.selectedIds.delete(id);
+    this.selectedScopeKey = this.selectedIds.size > 0 ? this.currentSelectionScopeKey : undefined;
   };
 
   clearSelection = () => {
     this.selectedIds.clear();
+    this.selectedScopeKey = undefined;
   };
+
+  private rememberSelectionScope(): void {
+    if (this.selectedIds.size === 0) {
+      this.selectedScopeKey = undefined;
+      return;
+    }
+
+    if (this.selectedScopeKey === undefined) this.selectedScopeKey = this.currentSelectionScopeKey;
+  }
 
   get orderedColumns() {
     const columnMap = new Map(this.columnsDefinition.map((col) => [col.uid, col]));

@@ -2302,8 +2302,14 @@
     "text": "Loading..."
   },
   "MassActions": {
+    "apply": "Apply to selected",
+    "clearField": "Clear field",
     "delete": "Delete selected",
+    "keepInView": "Keep only rows in view",
+    "limitReached": "You can select up to {limit} records at a time.",
     "noMatchingFields": "No fields match your search.",
+    "offView": "{count, plural, one {# not in the current view} other {# not in the current view}}",
+    "scopeStale": "The filters changed since you made this selection.",
     "searchFieldPlaceholder": "Search fields…",
     "selectedCount": "{count, plural, one {# item selected} other {# items selected}}",
     "update": "Update"

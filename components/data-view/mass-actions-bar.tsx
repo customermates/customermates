@@ -22,29 +22,55 @@ export const MassActionsBar = observer(function MassActionsBar<E extends HasId>(
   const entityType = store.entityType;
   if (!store.hasSelection || !entityType) return null;
 
+  const offView = store.selectedOffViewCount;
+
   return (
-    <div className="flex items-center gap-2 px-4 py-2 bg-card border-b border-border">
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 px-4 py-2 bg-card border-b border-border">
       <span className="text-sm font-medium whitespace-nowrap">
         {t("MassActions.selectedCount", { count: store.selectedCount })}
       </span>
 
+      {offView > 0 && (
+        <span className="text-muted-foreground text-xs whitespace-nowrap">
+          {t("MassActions.offView", { count: offView })}
+        </span>
+      )}
+
+      {store.isSelectionScopeStale && (
+        <>
+          <span className="text-muted-foreground text-xs whitespace-nowrap">{t("MassActions.scopeStale")}</span>
+
+          <Button
+            className="h-7 px-2 text-xs"
+            size="sm"
+            type="button"
+            variant="ghost"
+            onClick={() => store.keepSelectionInView()}
+          >
+            {t("MassActions.keepInView")}
+          </Button>
+        </>
+      )}
+
       <div className="grow" />
 
-      <MassUpdatePopover store={store} />
+      {store.canUpdateSelection && <MassUpdatePopover store={store} />}
 
-      <Button
-        className="h-8"
-        disabled={store.isBulkMutating}
-        id="mass-delete"
-        size="sm"
-        type="button"
-        variant="secondary"
-        onClick={() => showDeleteConfirmation(() => store.bulkDelete())}
-      >
-        <TrashIcon className="size-4 text-destructive" />
+      {store.canDeleteSelection && (
+        <Button
+          className="h-8"
+          disabled={store.isBulkMutating}
+          id="mass-delete"
+          size="sm"
+          type="button"
+          variant="secondary"
+          onClick={() => showDeleteConfirmation(() => store.bulkDelete())}
+        >
+          <TrashIcon className="size-4 text-destructive" />
 
-        {t("MassActions.delete")}
-      </Button>
+          {t("MassActions.delete")}
+        </Button>
+      )}
 
       <Button
         aria-label={t("Common.actions.clear")}

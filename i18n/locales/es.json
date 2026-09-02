@@ -2302,8 +2302,14 @@
     "text": "Cargando..."
   },
   "MassActions": {
+    "apply": "Aplicar a la selección",
+    "clearField": "Vaciar campo",
     "delete": "Eliminar la selección",
+    "keepInView": "Conservar solo las filas visibles",
+    "limitReached": "Puedes seleccionar hasta {limit} registros a la vez.",
     "noMatchingFields": "Ningún campo coincide con tu búsqueda.",
+    "offView": "{count, plural, one {# fuera de la vista actual} other {# fuera de la vista actual}}",
+    "scopeStale": "Los filtros han cambiado desde que hiciste esta selección.",
     "searchFieldPlaceholder": "Buscar campos…",
     "selectedCount": "{count, plural, one {# elemento seleccionado} other {# elementos seleccionados}}",
     "update": "Actualizar"
