@@ -1001,6 +1001,7 @@
       "operatorAllowanceMissing": "Este espacio de trabajo aún no tiene un cupo Enterprise contratado, por lo que no se pueden corregir los créditos. Define primero el cupo en la lista de espacios de trabajo.",
       "operatorConflict": "El cambio fue rechazado. Puede que el registro haya cambiado desde que se cargó la lista, o que el espacio de trabajo no lo permita ahora mismo. Recarga y revisa el estado actual.",
       "operatorConnectedAccountsActive": "Este espacio de trabajo todavía tiene cuentas de mensajería conectadas. Desconéctalas primero para liberar las cuentas del proveedor y elimina después el espacio de trabajo.",
+      "operatorTrialEndRequired": "La fecha de fin de prueba no se puede quitar, solo mover. Borrarla dejaría el espacio de trabajo en una prueba que nunca caduca.",
       "operatorUnavailable": "La corrección solicitada no está disponible para la configuración actual de la cuenta.",
       "organizationNotFound": "ID de organización no encontrado o no accesible.",
       "passwordInvalid": "La contraseña debe tener al menos 8 caracteres e incluir al menos una mayúscula, una minúscula, un número y un carácter especial.",
