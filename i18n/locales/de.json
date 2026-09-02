@@ -2560,7 +2560,8 @@
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Vorzeichenbehaftete Credit-Korrektur",
-      "deltaPlaceholder": "Zum Beispiel 500 oder -100"
+      "deltaPlaceholder": "Zum Beispiel 500 oder -100",
+      "expiresAt": "Diese Korrektur gilt nur für die aktuelle Periode und verfällt am {date}."
     },
     "confirm": {
       "operator": "Den Plattform-Operator-Zugriff für {name} auf {value} setzen?",
@@ -2604,6 +2605,11 @@
   },
   "OperatorWorkspaces": {
     "allowance": {
+      "hintContract": "Der vertraglich vereinbarte Enterprise-Satz, jeden Monat pro aktivem Mitglied.",
+      "hintMissing": "Enterprise bezieht seinen Satz aus einem Vertragswert, und es ist keiner gesetzt. Alle Mitglieder sind blockiert, bis Sie einen setzen.",
+      "hintPlan": "{plan} enthält so viele Credits pro aktivem Mitglied und Monat.",
+      "hintTrial": "Während einer Testphase erhält das jedes aktive Mitglied, unabhängig vom Tarif.",
+      "hintUnavailable": "Dieses Abonnement gewährt in seinem aktuellen Zustand keine Credits.",
       "label": "Credits pro Benutzer",
       "notSet": "Nicht gesetzt",
       "title": "Enterprise-Kontingent",

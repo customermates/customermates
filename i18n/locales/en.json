@@ -2560,7 +2560,8 @@
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Signed credit correction",
-      "deltaPlaceholder": "For example, 500 or -100"
+      "deltaPlaceholder": "For example, 500 or -100",
+      "expiresAt": "This correction applies to the current period only and lapses on {date}."
     },
     "confirm": {
       "operator": "Set platform operator access for {name} to {value}?",
@@ -2604,6 +2605,11 @@
   },
   "OperatorWorkspaces": {
     "allowance": {
+      "hintContract": "The contracted Enterprise rate, granted to each active member every month.",
+      "hintMissing": "Enterprise draws its rate from a contracted value, and none is set. Every member is blocked until you set one.",
+      "hintPlan": "{plan} includes this many credits for each active member every month.",
+      "hintTrial": "Every active member gets this during a trial, whatever the plan says.",
+      "hintUnavailable": "This subscription grants no credits in its current state.",
       "label": "Credits per user",
       "notSet": "Not set",
       "title": "Enterprise allowance",

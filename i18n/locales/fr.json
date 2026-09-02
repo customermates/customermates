@@ -2560,7 +2560,8 @@
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Correction de crédits signée",
-      "deltaPlaceholder": "Par exemple, 500 ou -100"
+      "deltaPlaceholder": "Par exemple, 500 ou -100",
+      "expiresAt": "Cette correction ne vaut que pour la période en cours et expire le {date}."
     },
     "confirm": {
       "operator": "Définir l’accès opérateur de plateforme de {name} sur {value} ?",
@@ -2604,6 +2605,11 @@
   },
   "OperatorWorkspaces": {
     "allowance": {
+      "hintContract": "Le tarif Enterprise contractuel, accordé à chaque membre actif chaque mois.",
+      "hintMissing": "Enterprise tire son tarif d'une valeur contractuelle, et aucune n'est définie. Tous les membres sont bloqués tant que vous n'en définissez pas une.",
+      "hintPlan": "{plan} inclut ce nombre de crédits pour chaque membre actif chaque mois.",
+      "hintTrial": "Pendant un essai, chaque membre actif reçoit ceci, quel que soit le forfait.",
+      "hintUnavailable": "Cet abonnement n'accorde aucun crédit dans son état actuel.",
       "label": "Crédits par utilisateur",
       "notSet": "Non défini",
       "title": "Allocation Enterprise",

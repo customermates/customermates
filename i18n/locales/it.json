@@ -2560,7 +2560,8 @@
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Correzione crediti con segno",
-      "deltaPlaceholder": "Ad esempio, 500 o -100"
+      "deltaPlaceholder": "Ad esempio, 500 o -100",
+      "expiresAt": "Questa correzione vale solo per il periodo corrente e decade il {date}."
     },
     "confirm": {
       "operator": "Impostare l’accesso operatore di piattaforma di {name} su {value}?",
@@ -2604,6 +2605,11 @@
   },
   "OperatorWorkspaces": {
     "allowance": {
+      "hintContract": "La tariffa Enterprise concordata, assegnata a ogni membro attivo ogni mese.",
+      "hintMissing": "Enterprise ricava la tariffa da un valore contrattuale, e non ne è impostato nessuno. Tutti i membri sono bloccati finché non ne imposti uno.",
+      "hintPlan": "{plan} include questi crediti per ogni membro attivo ogni mese.",
+      "hintTrial": "Durante una prova ogni membro attivo riceve questo, qualunque sia il piano.",
+      "hintUnavailable": "Questo abbonamento non concede crediti nel suo stato attuale.",
       "label": "Crediti per utente",
       "notSet": "Non impostato",
       "title": "Dotazione Enterprise",
