@@ -139,6 +139,16 @@ describe("AdminUpdateUserDetailsInteractor agent credit activation", () => {
     expect(userRepo.clearAgentCreditActivatedOrThrow).not.toHaveBeenCalled();
   });
 
+  it("still allows reactivating a platform operator, so a cron deactivation stays recoverable", async () => {
+    const { userRepo, invoke } = harness(Status.inactive);
+    userRepo.isPlatformOperatorCompanyWide.mockResolvedValue(true);
+
+    const result = await invoke("active");
+
+    expect(result.ok).toBe(true);
+    expect(userRepo.adminUpdateDetailsOrThrow).toHaveBeenCalled();
+  });
+
   it("still allows a tenant-side status change on an ordinary account", async () => {
     const { userRepo, invoke } = harness(Status.active);
     userRepo.isPlatformOperatorCompanyWide.mockResolvedValue(false);

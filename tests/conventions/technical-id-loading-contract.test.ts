@@ -67,10 +67,13 @@ describe("technical-id loading contract", () => {
     const autocomplete = read("components/forms/form-autocomplete.tsx");
 
     expect(options).toContain("SELF_IDENTIFYING_FILTER_FIELDS");
-    expect(options).toContain("SELECTION_RESOLUTION_PAGE_SIZE");
+    expect(options).toContain("const selfIdentifyingField = SELF_IDENTIFYING_FILTER_FIELDS.has(fieldKey)");
+    expect(options).toContain("field: selfIdentifyingField, operator: FilterOperatorKey.in");
     expect(options).toContain("requested.has(item.key)");
     expect(options).not.toContain("resolveFilterOptionsAction");
     expect(options).not.toContain("filters: [{ field, operator: FilterOperatorKey.in, value: ids }]");
+    expect(options).not.toMatch(/field: fieldKey, operator: FilterOperatorKey\.in/);
+    expect(options).not.toMatch(/pagination|pageSize/);
     expect(options).toContain('status: "error"');
     expect(filterSelect).toContain("optionError");
     expect(filterSelect).toContain('t("ErrorCard.retry")');

@@ -93,11 +93,11 @@ export class PrismaOperatorAuditRepo extends BaseRepository implements GetOperat
 
     const take = params.take ?? params.pagination?.pageSize ?? 25;
     const page = params.pagination?.page ?? 1;
-    const requestedSkip = params.skip ?? (page - 1) * take;
-    const skip = Math.min(Math.max(requestedSkip, 0), AUDIT_MAX_SKIP);
+    const skip = Math.max(params.skip ?? (page - 1) * take, 0);
+    const beyondWindow = skip > AUDIT_MAX_SKIP;
     const search = params.searchTerm?.trim() ?? "";
 
-    return { sources, workspaceIds, createdAt, take, skip, search };
+    return { sources, workspaceIds, createdAt, take, skip, search, beyondWindow };
   }
 
   private productWhere(plan: ReturnType<PrismaOperatorAuditRepo["plan"]>): Prisma.AuditLogWhereInput {
@@ -131,6 +131,7 @@ export class PrismaOperatorAuditRepo extends BaseRepository implements GetOperat
   private async listAuditUnscoped(params: GetQueryParams): Promise<OperatorAuditRowDto[]> {
     const plan = this.plan(params);
     if (plan.sources.length === 0) return [];
+    if (plan.beyondWindow) return [];
 
     const ascending = params.sortDescriptor?.direction === "asc";
     const order = ascending ? "asc" : "desc";
@@ -234,7 +235,7 @@ export class PrismaOperatorAuditRepo extends BaseRepository implements GetOperat
         : Promise.resolve(0),
     ]);
 
-    return product + operator;
+    return Math.min(product + operator, AUDIT_MAX_SKIP + plan.take);
   }
 
   @BypassTenantGuard

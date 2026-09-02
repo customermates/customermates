@@ -75,7 +75,8 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
 
     if (targetUserId === this.userId) return failAuthorization(CustomErrorCode.userSelfAdminUpdateForbidden, ["email"]);
 
-    if (targetUser.status !== data.status && (await this.userRepo.isPlatformOperatorCompanyWide(targetUserId)))
+    const leavingActive = targetUser.status === Status.active && data.status !== Status.active;
+    if (leavingActive && (await this.userRepo.isPlatformOperatorCompanyWide(targetUserId)))
       return failAuthorization(CustomErrorCode.userPlatformOperatorStatusForbidden, ["status"]);
 
     const targetIsSystem = targetUser.roleId ? await this.roleRepo.isSystemRoleOrThrow(targetUser.roleId) : false;

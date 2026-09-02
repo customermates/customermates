@@ -98,8 +98,6 @@ function validActivityFilters(filters: Filter[] | undefined): NonNullable<Activi
   });
 }
 
-const SELECTION_RESOLUTION_PAGE_SIZE = 100;
-
 const SELF_IDENTIFYING_FILTER_FIELDS = new Set<FilterFieldKey>([FilterFieldKey.workspaceId]);
 
 export function useFilterSelectItems(
@@ -265,7 +263,7 @@ export function useFilterSelectItems(
       const requested = new Set(ids);
       const params: GetQueryParams = selfIdentifyingField
         ? { filters: [{ field: selfIdentifyingField, operator: FilterOperatorKey.in, value: [...ids] }] }
-        : { pagination: { page: 1, pageSize: SELECTION_RESOLUTION_PAGE_SIZE } };
+        : {};
       const result = await getItems(params);
       return result.items.filter((item) => requested.has(item.key));
     };
