@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { unwrapValidated } from "@/core/validation/validation.utils";
-import { adConversionLedgerCsv, googleAdsConversionCsv } from "../ad-conversion-csv";
+import { googleAdsConversionCsv } from "../ad-conversion-csv";
 import {
   GetAdConversionExportInteractor,
   type AdConversionExportRow,
@@ -74,7 +74,7 @@ describe("ad conversion export", () => {
     );
   });
 
-  it("keeps non-Google providers out of the Google file and in the ledger file", async () => {
+  it("keeps every non-Google identifier out of the Google upload file", async () => {
     const openAi = row({
       companyId: "company-2",
       provider: "openai_ads",
@@ -82,13 +82,11 @@ describe("ad conversion export", () => {
       identifierValue: "Opaque-OPPREF",
       conversionType: "paid",
     });
-    const exported = await exportFor([row(), openAi]);
+    const csv = googleAdsConversionCsv(await exportFor([row(), openAi]));
 
-    expect(googleAdsConversionCsv(exported)).not.toContain("Opaque-OPPREF");
-    const ledger = adConversionLedgerCsv(exported);
-    expect(ledger).toContain("Opaque-OPPREF");
-    expect(ledger).toContain("Customermates paid");
-    expect(ledger).not.toContain("Case-Sensitive_GCLID");
+    expect(csv).not.toContain("Opaque-OPPREF");
+    expect(csv).toContain("Case-Sensitive_GCLID");
+    expect(csv.trim().split("\n")).toHaveLength(3);
   });
 
   it("does not let the platform link the signup and paid conversions of one workspace", async () => {

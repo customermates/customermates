@@ -10,7 +10,7 @@ import {
   getGetOperatorWorkspaceTagsInteractor,
 } from "@/core/di";
 import { unwrapValidated } from "@/core/validation/validation.utils";
-import { adConversionLedgerCsv, googleAdsConversionCsv } from "@/ee/operator/ad-conversion-csv";
+import { googleAdsConversionCsv } from "@/ee/operator/ad-conversion-csv";
 
 export async function getOperatorUsersAction(params?: GetQueryParams) {
   return unwrapValidated(getGetOperatorUsersInteractor().invoke(params));
@@ -27,7 +27,6 @@ export async function getOperatorAuditAction(params?: GetQueryParams) {
 export async function getAdConversionExportAction(): Promise<{
   generatedAt: string;
   googleAdsCsv: string;
-  otherProvidersCsv: string;
   rowCount: number;
 }> {
   const exported = await unwrapValidated(getGetAdConversionExportInteractor().invoke());
@@ -35,8 +34,7 @@ export async function getAdConversionExportAction(): Promise<{
   return {
     generatedAt: exported.generatedAt.toISOString(),
     googleAdsCsv: googleAdsConversionCsv(exported),
-    otherProvidersCsv: adConversionLedgerCsv(exported),
-    rowCount: exported.rows.length,
+    rowCount: exported.rows.filter((row) => row.provider === "google_ads").length,
   };
 }
 

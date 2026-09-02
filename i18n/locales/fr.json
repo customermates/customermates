@@ -2536,7 +2536,6 @@
       "generate": "Générer l'export de conversions",
       "googleAds": "CSV Google Ads",
       "label": "Conversions publicitaires",
-      "otherProviders": "CSV des autres plateformes",
       "rowCount": "{count} conversions déclarables"
     },
     "growth": {

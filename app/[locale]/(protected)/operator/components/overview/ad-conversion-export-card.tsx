@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { getAdConversionExportAction } from "../../actions";
 
-type ExportState = { generatedAt: string; rowCount: number; googleAdsCsv: string; otherProvidersCsv: string };
+type ExportState = { generatedAt: string; rowCount: number; googleAdsCsv: string };
 
 function csvHref(content: string): string {
   return `data:text/csv;charset=utf-8,${encodeURIComponent(content)}`;
@@ -50,14 +50,6 @@ export function AdConversionExportCard() {
                 <Download aria-hidden="true" className="size-4" />
 
                 {t("OperatorOverview.adConversions.googleAds")}
-              </a>
-            </Button>
-
-            <Button asChild variant="secondary">
-              <a download="ad-conversions.csv" href={csvHref(exported.otherProvidersCsv)}>
-                <Download aria-hidden="true" className="size-4" />
-
-                {t("OperatorOverview.adConversions.otherProviders")}
               </a>
             </Button>
 

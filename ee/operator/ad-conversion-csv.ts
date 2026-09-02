@@ -46,32 +46,3 @@ export function googleAdsConversionCsv(exported: AdConversionExportDto): string 
   ];
   return `${lines.join("\n")}\n`;
 }
-
-export function adConversionLedgerCsv(exported: AdConversionExportDto): string {
-  const rows = exported.rows.filter((row) => row.provider !== "google_ads");
-  const lines = [
-    csvLine([
-      "Provider",
-      "Identifier Kind",
-      "Identifier Value",
-      "Conversion Name",
-      "Conversion Time",
-      "Order ID",
-      "Ad User Data",
-      "Ad Personalization",
-    ]),
-    ...rows.map((row) =>
-      csvLine([
-        row.provider,
-        row.identifierKind,
-        row.identifierValue,
-        conversionActionName(row.conversionType),
-        row.conversionAt.toISOString(),
-        row.orderId,
-        row.adUserData,
-        row.adPersonalization,
-      ]),
-    ),
-  ];
-  return `${lines.join("\n")}\n`;
-}

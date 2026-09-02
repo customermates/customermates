@@ -10,6 +10,7 @@ const aliases = {
 const testEnvironment = {
   APP_MODE: "self-hosted",
   BASE_URL: "http://localhost:4000",
+  BETTER_AUTH_SECRET: "vitest-secret",
 };
 const domTestFiles = [
   "app/**/company/components/company-settings/__tests__/company-settings-form.test.ts",
