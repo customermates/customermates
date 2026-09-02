@@ -2,7 +2,7 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { ChevronLeft, Play, RefreshCw, Trash2 } from "lucide-react";
+import { ChevronLeft, Loader2, Play, RefreshCw, Trash2 } from "lucide-react";
 
 import { RoutineTriggerKind } from "@/generated/prisma";
 
@@ -35,7 +35,7 @@ import {
   ROUTINE_SCHEDULE_PRESETS,
   ROUTINE_WEEKDAY_KEYS,
   describeRoutineSchedule,
-  scheduleUsesTimeZone,
+  scheduleHasClockTime,
 } from "@/ee/routines/routine-schedule-preset";
 import { ROUTINE_RUN_STATUS_CHIP_COLOR } from "@/ee/routines/routine-run-chip-colors";
 import { routineRunDetail } from "@/ee/routines/routine-run-outcome";
@@ -65,7 +65,7 @@ export const RoutineModal = observer(() => {
   const scheduleSummary = describeRoutineSchedule(routineModalStore.compiledCron, t, (date) =>
     intlStore.formatTime(date),
   );
-  const showScheduleTimeZone = scheduleUsesTimeZone(routineModalStore.compiledCron);
+  const hasClockTime = scheduleHasClockTime(routineModalStore.compiledCron);
   const filterFieldLabel = useFilterFieldLabel();
   const filterableFields = routineModalStore.filterableFields;
   const changedFieldItems = filterableFields.map((field) => ({ key: field.field }));
@@ -169,39 +169,62 @@ export const RoutineModal = observer(() => {
                   ) : routineModalStore.runs.length === 0 ? (
                     <p className="text-subdued py-8 text-center text-sm">{t("RoutineDetail.noRuns")}</p>
                   ) : (
-                    <ul className="flex flex-col gap-2">
-                      {routineModalStore.runs.map((run) => (
-                        <li key={run.id}>
-                          <button
-                            className="hover:bg-muted flex w-full flex-col gap-1.5 rounded-lg border px-3.5 py-3 text-left transition-colors"
-                            type="button"
-                            onClick={() => runUserAction(() => routineModalStore.openRun(run))}
-                          >
-                            <span className="flex flex-wrap items-center gap-2">
-                              <AppChip size="sm" variant={ROUTINE_RUN_STATUS_CHIP_COLOR[run.status]}>
-                                {t(`RoutineRunStatus.${run.status}`)}
-                              </AppChip>
+                    <>
+                      <div className="space-y-1" role="list">
+                        {routineModalStore.runs.map((run) => (
+                          <div key={run.id} className="group flex items-center gap-1 rounded-lg" role="listitem">
+                            <Button
+                              className="h-auto min-w-0 flex-1 justify-start rounded-lg px-3 py-2.5 text-left"
+                              id={`routine-run-${run.id}`}
+                              variant="ghost"
+                              onClick={() => runUserAction(() => routineModalStore.openRun(run))}
+                            >
+                              <span className="min-w-0 flex-1">
+                                <span className="flex items-center gap-2">
+                                  <AppChip size="sm" variant={ROUTINE_RUN_STATUS_CHIP_COLOR[run.status]}>
+                                    {t(`RoutineRunStatus.${run.status}`)}
+                                  </AppChip>
 
-                              <span className="text-subdued text-xs">
-                                {intlStore.formatNumericalShortDateTime(run.createdAt)}
-                              </span>
+                                  {run.chargedCredits > 0 && (
+                                    <span className="text-subdued text-xs font-normal">
+                                      {`${t("RoutineDetail.credits")}: ${run.chargedCredits}`}
+                                    </span>
+                                  )}
 
-                              {run.chargedCredits > 0 && (
-                                <span className="text-subdued text-xs">
-                                  {`${t("RoutineDetail.credits")}: ${run.chargedCredits}`}
+                                  <time
+                                    suppressHydrationWarning
+                                    className="text-subdued ml-auto shrink-0 text-xs font-normal whitespace-nowrap"
+                                  >
+                                    {intlStore.formatRelativeTime(run.createdAt)}
+                                  </time>
                                 </span>
-                              )}
-                            </span>
 
-                            {routineRunDetail(run, t) && (
-                              <MessageResponse className="text-subdued line-clamp-3 text-xs">
-                                {routineRunDetail(run, t)}
-                              </MessageResponse>
-                            )}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
+                                {routineRunDetail(run, t) && (
+                                  <MessageResponse className="text-subdued mt-0.5 line-clamp-2 text-xs font-normal">
+                                    {routineRunDetail(run, t)}
+                                  </MessageResponse>
+                                )}
+                              </span>
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+
+                      {routineModalStore.runsNextCursor && (
+                        <Button
+                          className="mt-2 w-full"
+                          disabled={routineModalStore.isLoadingMoreRuns}
+                          id="routine-runs-load-more"
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => runUserAction(routineModalStore.loadMoreRuns)}
+                        >
+                          {routineModalStore.isLoadingMoreRuns && <Loader2 className="size-3.5 animate-spin" />}
+
+                          {t("Common.actions.loadMore")}
+                        </Button>
+                      )}
+                    </>
                   )}
                 </AppCardBody>
               ) : (
@@ -238,11 +261,14 @@ export const RoutineModal = observer(() => {
 
                   <FormInput required id="name" />
 
-                  <div className="space-y-1.5">
-                    <FormTextarea required id="prompt" rows={4} />
-
-                    <p className="text-subdued text-xs">{t("RoutineModal.promptDescription")}</p>
-                  </div>
+                  <FormTextarea
+                    required
+                    id="prompt"
+                    placeholder={
+                      scheduled ? t("RoutineModal.promptExampleSchedule") : t("RoutineModal.promptExampleEvent")
+                    }
+                    rows={4}
+                  />
 
                   <FormSelect
                     required
@@ -321,12 +347,11 @@ export const RoutineModal = observer(() => {
                         )}
                       </div>
 
-                      <p className="text-subdued text-xs">
-                        {scheduleSummary}
-
-                        {showScheduleTimeZone &&
-                          ` · ${t("RoutineModal.scheduleTimeZone", { timezone: form?.timezone ?? "" })}`}
-                      </p>
+                      {hasClockTime && (
+                        <p className="text-subdued text-xs">
+                          {`${scheduleSummary} · ${t("RoutineModal.scheduleTimeZone", { timezone: form?.timezone ?? "" })}`}
+                        </p>
+                      )}
                     </div>
                   ) : (
                     <div className="space-y-3">
@@ -361,8 +386,6 @@ export const RoutineModal = observer(() => {
 
                       {filterableFields.length > 0 && (
                         <div className="space-y-1.5">
-                          <p className="text-x-sm font-medium">{t("RoutineModal.eventFilters")}</p>
-
                           <FilterAccordion
                             baseId="triggerFilters"
                             customColumns={routineModalStore.customColumns}

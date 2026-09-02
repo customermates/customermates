@@ -2763,15 +2763,15 @@
   },
   "RoutineModal": {
     "at": "um",
-    "changedFieldsHelp": "Leer lassen, um bei jeder Änderung zu laufen. Eine Einschränkung spart Guthaben.",
+    "changedFieldsHelp": "Leer lassen, um bei jeder Änderung zu laufen. Eingrenzen spart Guthaben.",
     "customSchedule": "Diese Routine nutzt einen eigenen Zeitplan: {expression}",
     "detailsTab": "Details",
     "disabled": "Pausiert",
     "enabled": "Aktiv",
     "enabledHelp": "Pausierte Routinen behalten ihren Zeitplan, laufen aber nicht.",
-    "eventFilters": "Nur wenn der Datensatz passt",
     "onMinute": "zur Minute",
-    "promptDescription": "Mate erhält diese Anweisungen bei jedem Lauf der Routine.",
+    "promptExampleEvent": "Lies den geänderten Datensatz und antworte mit einem Satz dazu, was das bedeutet.",
+    "promptExampleSchedule": "Fasse zusammen, was sich seit gestern bewegt hat, und antworte mit einer kurzen Liste.",
     "scheduleTimeZone": "Zeiten werden in {timezone} angezeigt.",
     "title": "Routine",
     "useSchedulePreset": "Zu einem Muster wechseln"

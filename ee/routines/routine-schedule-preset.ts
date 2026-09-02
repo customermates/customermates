@@ -87,7 +87,7 @@ export function scheduleFromCron(expression: string | null): RoutineScheduleForm
 
 type ScheduleTranslator = (key: string, values?: Record<string, string | number>) => string;
 
-export function scheduleUsesTimeZone(expression: string | null): boolean {
+export function scheduleHasClockTime(expression: string | null): boolean {
   const preset = scheduleFromCron(expression).preset;
 
   return preset !== "every15Minutes" && preset !== "every30Minutes";

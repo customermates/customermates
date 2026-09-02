@@ -19,6 +19,7 @@ import { UpsertRoutineSchema } from "../routine.schema";
 import { StartRoutineRunInteractor } from "../start-routine-run.interactor";
 import { SweepDueRoutinesInteractor } from "../sweep-due-routines.interactor";
 import { ReconcileRoutineRunsInteractor } from "../reconcile-routine-runs.interactor";
+import { PruneRoutineRunsInteractor } from "../prune-routine-runs.interactor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const ROUTINE_ID = "00000000-0000-4000-8000-000000000001";
@@ -532,5 +533,39 @@ describe("ReconcileRoutineRunsInteractor", () => {
 
     expect(result).toEqual({ settled: 0 });
     expect(repo.settleRoutineRunUnscoped).not.toHaveBeenCalled();
+  });
+});
+
+describe("PruneRoutineRunsInteractor", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("deletes expired runs and the conversations that only existed to hold them", async () => {
+    const repo = {
+      findExpiredRoutineRunsUnscoped: vi.fn().mockResolvedValue([
+        { id: "run-1", conversationId: "conv-1" },
+        { id: "run-2", conversationId: null },
+      ]),
+      deleteRoutineRunsUnscoped: vi.fn().mockResolvedValue(undefined),
+    };
+
+    const result = await new PruneRoutineRunsInteractor(repo as never).invoke({
+      now: new Date("2026-09-02T00:00:00Z"),
+    });
+
+    expect(result).toEqual({ pruned: 2 });
+    expect(repo.deleteRoutineRunsUnscoped).toHaveBeenCalledWith(["run-1", "run-2"], ["conv-1"]);
+    expect(repo.findExpiredRoutineRunsUnscoped.mock.calls[0][0]).toEqual(new Date("2026-06-04T00:00:00Z"));
+  });
+
+  it("does nothing when no run is old enough", async () => {
+    const repo = {
+      findExpiredRoutineRunsUnscoped: vi.fn().mockResolvedValue([]),
+      deleteRoutineRunsUnscoped: vi.fn().mockResolvedValue(undefined),
+    };
+
+    const result = await new PruneRoutineRunsInteractor(repo as never).invoke();
+
+    expect(result).toEqual({ pruned: 0 });
+    expect(repo.deleteRoutineRunsUnscoped).not.toHaveBeenCalled();
   });
 });

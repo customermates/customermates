@@ -106,6 +106,8 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   risks: RoutineRiskDto[] = [];
   openRunId: string | null = null;
   disabledReason: string | null = null;
+  runsNextCursor: string | null = null;
+  isLoadingMoreRuns = false;
   isRunsLoading = false;
   isStartingRun = false;
   filterableFieldsByEntityType: Partial<Record<EntityType, FilterableField[]>> = {};
@@ -121,6 +123,8 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       risks: observable,
       openRunId: observable,
       disabledReason: observable,
+      runsNextCursor: observable,
+      isLoadingMoreRuns: observable,
       isRunsLoading: observable,
       isStartingRun: observable,
       filterableFieldsByEntityType: observable,
@@ -141,6 +145,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       openRun: action,
       closeRun: action,
       loadRuns: action,
+      loadMoreRuns: action,
       runNow: action,
     });
   }
@@ -171,6 +176,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     this.openRunId = null;
     this.disabledReason = null;
     this.runs = [];
+    this.runsNextCursor = null;
     this.risks = [];
     this.openWith(this.withMergedFilterRows({ ...EMPTY_ROUTINE_FORM, timezone: localTimeZone() }));
   };
@@ -180,6 +186,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     this.activeTab = "details";
     this.openRunId = null;
     this.disabledReason = routine.enabled ? null : routine.disabledReason;
+    this.runsNextCursor = null;
     this.openWith(this.withMergedFilterRows(routineFormFor(routine)));
     void this.loadRuns(routine.id);
   };
@@ -195,13 +202,27 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     });
 
     let conversationId = run.conversationId;
-    if (!conversationId && this.form.id) {
-      await this.loadRuns(this.form.id);
-      conversationId = this.runs.find((candidate) => candidate.id === run.id)?.conversationId ?? null;
-    }
+    if (!conversationId && this.form.id) conversationId = await this.refreshRun(this.form.id, run.id);
 
     if (conversationId) await this.rootStore.routineRunChatStore.selectConversation(conversationId);
     else this.rootStore.routineRunChatStore.newConversation();
+  };
+
+  private refreshRun = async (routineId: string, runId: string): Promise<string | null> => {
+    try {
+      const page = await getRoutineRunsAction({ routineId });
+      const fresh = page.runs.find((candidate) => candidate.id === runId);
+      if (!fresh) return null;
+
+      runInAction(() => {
+        this.runs = this.runs.map((candidate) => (candidate.id === runId ? fresh : candidate));
+      });
+
+      return fresh.conversationId;
+    } catch (error) {
+      reportApplicationError(error);
+      return null;
+    }
   };
 
   closeRun = () => {
@@ -212,13 +233,14 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     this.isRunsLoading = true;
 
     try {
-      const [runs, risks] = await Promise.all([
-        getRoutineRunsAction({ routineId, limit: 25 }),
+      const [page, risks] = await Promise.all([
+        getRoutineRunsAction({ routineId }),
         getRoutineRisksAction({ routineId }),
       ]);
 
       runInAction(() => {
-        this.runs = runs;
+        this.runs = page.runs;
+        this.runsNextCursor = page.nextCursor;
         this.risks = risks;
       });
     } catch (error) {
@@ -226,6 +248,28 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     } finally {
       runInAction(() => {
         this.isRunsLoading = false;
+      });
+    }
+  };
+
+  loadMoreRuns = async () => {
+    const routineId = this.form?.id;
+    if (!routineId || !this.runsNextCursor || this.isLoadingMoreRuns) return;
+
+    this.isLoadingMoreRuns = true;
+
+    try {
+      const page = await getRoutineRunsAction({ routineId, cursor: this.runsNextCursor });
+
+      runInAction(() => {
+        this.runs = [...this.runs, ...page.runs];
+        this.runsNextCursor = page.nextCursor;
+      });
+    } catch (error) {
+      reportApplicationError(error);
+    } finally {
+      runInAction(() => {
+        this.isLoadingMoreRuns = false;
       });
     }
   };

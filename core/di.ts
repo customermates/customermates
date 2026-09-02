@@ -47,6 +47,7 @@ import { ReconcileRoutineRunsInteractor } from "@/ee/routines/reconcile-routine-
 import { RecordRoutineRiskFindingsInteractor } from "@/ee/routines/record-routine-risk-findings.interactor";
 import { GetRoutineRisksInteractor } from "@/ee/routines/get-routine-risks.interactor";
 import { AnalyzeCompanyRoutinesInteractor } from "@/ee/routines/analyze-company-routines.interactor";
+import { PruneRoutineRunsInteractor } from "@/ee/routines/prune-routine-runs.interactor";
 import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-delivery.repository";
 import { PrismaAuditLogRepo } from "@/features/audit-log/prisma-audit-log.repository";
 import { PrismaMessagingRepo } from "@/ee/messaging/persistence/prisma-messaging.repository";
@@ -1576,6 +1577,8 @@ export const getGetRoutineRisksInteractor = () => new GetRoutineRisksInteractor(
 
 export const getAnalyzeCompanyRoutinesInteractor = () =>
   new AnalyzeCompanyRoutinesInteractor(getRoutineRepo(), getBackgroundTaskService());
+
+export const getPruneRoutineRunsInteractor = () => new PruneRoutineRunsInteractor(getRoutineRepo());
 
 export const getGetAgentConfigInteractor = () =>
   new GetAgentConfigInteractor(getAgentChatRepo(), getAgentUsageService(), getEntitlementService());

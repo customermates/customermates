@@ -5,7 +5,7 @@ import {
   cronForSchedule,
   describeRoutineSchedule,
   scheduleFromCron,
-  scheduleUsesTimeZone,
+  scheduleHasClockTime,
 } from "@/ee/routines/routine-schedule-preset";
 
 const t = (key: string, values?: Record<string, string | number>) =>
@@ -73,13 +73,13 @@ describe("schedule descriptions", () => {
   });
 });
 
-describe("time zone relevance", () => {
+describe("clock time relevance", () => {
   it.each([
     ["*/15 * * * *", false],
     ["*/30 * * * *", false],
     ["0 9 * * *", true],
     ["30 * * * *", true],
-  ])("decides whether %s needs a time zone", (expression, expected) => {
-    expect(scheduleUsesTimeZone(expression)).toBe(expected);
+  ])("decides whether %s has a clock time to spell out", (expression, expected) => {
+    expect(scheduleHasClockTime(expression)).toBe(expected);
   });
 });

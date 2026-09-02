@@ -2763,15 +2763,15 @@
   },
   "RoutineModal": {
     "at": "alle",
-    "changedFieldsHelp": "Lascia vuoto per eseguire a ogni modifica. Restringere il campo fa risparmiare crediti.",
+    "changedFieldsHelp": "Lascia vuoto per eseguire a ogni modifica. Restringere fa risparmiare crediti.",
     "customSchedule": "Questa routine usa una pianificazione personalizzata: {expression}",
     "detailsTab": "Dettagli",
     "disabled": "In pausa",
     "enabled": "Attiva",
     "enabledHelp": "Le routine in pausa mantengono la pianificazione ma non vengono eseguite.",
-    "eventFilters": "Solo se il record corrisponde",
     "onMinute": "al minuto",
-    "promptDescription": "Mate riceve queste istruzioni a ogni esecuzione della routine.",
+    "promptExampleEvent": "Leggi il record che è cambiato e rispondi con una frase su cosa significa.",
+    "promptExampleSchedule": "Riassumi ciò che è cambiato da ieri e rispondi con un breve elenco.",
     "scheduleTimeZone": "Gli orari sono mostrati in {timezone}.",
     "title": "Routine",
     "useSchedulePreset": "Passa a una frequenza predefinita"

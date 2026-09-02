@@ -2763,15 +2763,15 @@
   },
   "RoutineModal": {
     "at": "at",
-    "changedFieldsHelp": "Leave empty to run on every change. Narrowing this saves credits.",
+    "changedFieldsHelp": "Leave empty to run on every change. Narrowing saves credits.",
     "customSchedule": "This routine uses a custom schedule: {expression}",
     "detailsTab": "Details",
     "disabled": "Paused",
     "enabled": "Active",
     "enabledHelp": "Paused routines keep their schedule but do not run.",
-    "eventFilters": "Only when the record matches",
     "onMinute": "at minute",
-    "promptDescription": "Mate receives these instructions each time the routine runs.",
+    "promptExampleEvent": "Read the record that changed and reply with one sentence on what it means.",
+    "promptExampleSchedule": "Summarise the deals that moved since yesterday and reply with a short list.",
     "scheduleTimeZone": "Times are shown in {timezone}.",
     "title": "Routine",
     "useSchedulePreset": "Switch to a preset"

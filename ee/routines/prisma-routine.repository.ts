@@ -10,11 +10,18 @@ import type { RunRoutineNowRepo } from "./run-routine-now.interactor";
 import type { StartRoutineRunRepo } from "./start-routine-run.interactor";
 import type { SweepDueRoutinesRepo } from "./sweep-due-routines.interactor";
 import type { ReconcileRoutineRunsRepo } from "./reconcile-routine-runs.interactor";
+import type { RoutineRunPage } from "./routine-history";
 import type { RoutineDto, RoutineRunDto } from "./routine.schema";
 
 import type { AgentTurnTerminalCode, RoutineRiskKind } from "@/generated/prisma";
 
-import { Prisma, RoutineRiskSeverity, RoutineRunStatus, RoutineTriggerKind } from "@/generated/prisma";
+import {
+  AgentConversationOrigin,
+  Prisma,
+  RoutineRiskSeverity,
+  RoutineRunStatus,
+  RoutineTriggerKind,
+} from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
@@ -89,6 +96,26 @@ export function resolveNextRunAt(
   return null;
 }
 
+function encodeRoutineRunCursor(createdAt: Date, id: string) {
+  return Buffer.from(JSON.stringify({ createdAt: createdAt.toISOString(), id }), "utf8").toString("base64url");
+}
+
+function decodeRoutineRunCursor(cursor: string) {
+  try {
+    const value = JSON.parse(Buffer.from(cursor, "base64url").toString("utf8")) as {
+      createdAt?: unknown;
+      id?: unknown;
+    };
+    const createdAt = typeof value.createdAt === "string" ? new Date(value.createdAt) : null;
+    if (!createdAt || !Number.isFinite(createdAt.getTime()) || typeof value.id !== "string" || !value.id)
+      throw new Error();
+
+    return { createdAt, id: value.id };
+  } catch {
+    throw new Error("Routine run cursor is invalid.");
+  }
+}
+
 export class PrismaRoutineRepo
   extends BaseRepository<Prisma.RoutineWhereInput>
   implements
@@ -158,15 +185,27 @@ export class PrismaRoutineRepo
     return routine as RoutineDto;
   }
 
-  async getRoutineRuns(routineId: string, limit: number): Promise<RoutineRunDto[]> {
-    const runs = await this.prisma.routineRun.findMany({
-      where: { routineId, companyId: this.companyId },
+  async getRoutineRuns(routineId: string, limit: number, cursor?: string | null): Promise<RoutineRunPage> {
+    const decoded = cursor ? decodeRoutineRunCursor(cursor) : null;
+    const rows = await this.prisma.routineRun.findMany({
+      where: {
+        routineId,
+        companyId: this.companyId,
+        ...(decoded
+          ? {
+              OR: [{ createdAt: { lt: decoded.createdAt } }, { createdAt: decoded.createdAt, id: { lt: decoded.id } }],
+            }
+          : {}),
+      },
       select: ROUTINE_RUN_SELECT,
-      orderBy: { createdAt: "desc" },
-      take: limit,
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      take: limit + 1,
     });
 
-    return runs as RoutineRunDto[];
+    const runs = rows.slice(0, limit) as RoutineRunDto[];
+    const last = runs.at(-1);
+
+    return { runs, nextCursor: rows.length > limit && last ? encodeRoutineRunCursor(last.createdAt, last.id) : null };
   }
 
   @Transaction
@@ -603,6 +642,27 @@ export class PrismaRoutineRepo
     });
 
     return runs.map((run) => run.status);
+  }
+
+  @BypassTenantGuard
+  async findExpiredRoutineRunsUnscoped(before: Date, limit: number) {
+    return this.prisma.routineRun.findMany({
+      where: { createdAt: { lt: before } },
+      select: { id: true, conversationId: true },
+      orderBy: { createdAt: "asc" },
+      take: limit,
+    });
+  }
+
+  @BypassTenantGuard
+  async deleteRoutineRunsUnscoped(runIds: string[], conversationIds: string[]): Promise<void> {
+    await this.prisma.routineRun.deleteMany({ where: { id: { in: runIds } } });
+
+    if (conversationIds.length > 0) {
+      await this.prisma.agentConversation.deleteMany({
+        where: { id: { in: conversationIds }, origin: AgentConversationOrigin.routine },
+      });
+    }
   }
 
   @BypassTenantGuard

@@ -2763,15 +2763,15 @@
   },
   "RoutineModal": {
     "at": "a las",
-    "changedFieldsHelp": "Déjalo vacío para ejecutarse con cada cambio. Acotarlo ahorra créditos.",
+    "changedFieldsHelp": "Déjalo vacío para ejecutar en cada cambio. Acotar ahorra créditos.",
     "customSchedule": "Esta rutina usa una programación personalizada: {expression}",
     "detailsTab": "Detalles",
     "disabled": "En pausa",
     "enabled": "Activa",
     "enabledHelp": "Las rutinas en pausa conservan su programación, pero no se ejecutan.",
-    "eventFilters": "Solo cuando el registro coincida",
     "onMinute": "en el minuto",
-    "promptDescription": "Mate recibe estas instrucciones cada vez que se ejecuta la rutina.",
+    "promptExampleEvent": "Lee el registro que ha cambiado y responde con una frase sobre lo que significa.",
+    "promptExampleSchedule": "Resume lo que ha cambiado desde ayer y responde con una lista breve.",
     "scheduleTimeZone": "Las horas se muestran en {timezone}.",
     "title": "Rutina",
     "useSchedulePreset": "Cambiar a una frecuencia predefinida"

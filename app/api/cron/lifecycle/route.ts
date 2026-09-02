@@ -10,6 +10,7 @@ import {
   getExpireGoogleAdsClickIdsInteractor,
   getSendLegalDocumentNoticesInteractor,
   getAnalyzeCompanyRoutinesInteractor,
+  getPruneRoutineRunsInteractor,
 } from "@/core/di";
 import { env } from "@/env";
 
@@ -35,6 +36,7 @@ export async function GET(req: Request) {
     getExpireGoogleAdsClickIdsInteractor().invoke(),
     getSendLegalDocumentNoticesInteractor().invoke(),
     getAnalyzeCompanyRoutinesInteractor().invoke(),
+    getPruneRoutineRunsInteractor().invoke(),
   ]);
 
   await getDeleteOrphanedUnipileAccountsInteractor().invoke();

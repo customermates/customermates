@@ -2763,15 +2763,15 @@
   },
   "RoutineModal": {
     "at": "à",
-    "changedFieldsHelp": "Laissez vide pour s'exécuter à chaque changement. Restreindre économise des crédits.",
+    "changedFieldsHelp": "Laissez vide pour s’exécuter à chaque changement. Restreindre économise des crédits.",
     "customSchedule": "Cette routine utilise une planification personnalisée : {expression}",
     "detailsTab": "Détails",
     "disabled": "En pause",
     "enabled": "Active",
     "enabledHelp": "Les routines en pause conservent leur planification mais ne s'exécutent pas.",
-    "eventFilters": "Uniquement si l'enregistrement correspond",
     "onMinute": "à la minute",
-    "promptDescription": "Mate reçoit ces instructions à chaque exécution de la routine.",
+    "promptExampleEvent": "Lis l’enregistrement modifié et réponds en une phrase sur ce que cela signifie.",
+    "promptExampleSchedule": "Résume ce qui a bougé depuis hier et réponds par une courte liste.",
     "scheduleTimeZone": "Les heures sont affichées en {timezone}.",
     "title": "Routine",
     "useSchedulePreset": "Utiliser une fréquence prédéfinie"
