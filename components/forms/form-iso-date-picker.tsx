@@ -29,6 +29,9 @@ type Props = {
   required?: boolean;
   displayFormat?: DateDisplayFormat;
   dateOnly?: boolean;
+  clearable?: boolean;
+  value?: string;
+  onValueChange?: (value: string | undefined) => void;
   className?: string;
   containerClassName?: string;
 };
@@ -41,6 +44,9 @@ export const FormIsoDatePicker = observer(
     required,
     displayFormat = "descriptiveLong",
     dateOnly = true,
+    clearable = true,
+    value: controlledValue,
+    onValueChange,
     className,
     containerClassName,
   }: Props) => {
@@ -49,8 +55,8 @@ export const FormIsoDatePicker = observer(
     const store = useAppForm();
     const intlStore = useHydratedIntlStore();
 
-    const raw = store?.getValue(id);
-    const isoValue = typeof raw === "string" ? raw : undefined;
+    const raw = controlledValue ?? store?.getValue(id);
+    const isoValue = typeof raw === "string" && raw !== "" ? raw : undefined;
     const parsed = parseIsoDate(isoValue);
     const { hasError } = useFormFieldErrors(id);
     const isLoading = store?.isLoading ?? false;
@@ -70,10 +76,14 @@ export const FormIsoDatePicker = observer(
       if (isReadOnly || isLoading) return;
 
       if (!date) {
-        store?.onChange(id, undefined);
+        if (onValueChange) onValueChange(undefined);
+        else store?.onChange(id, undefined);
         return;
       }
-      store?.onChange(id, toLocalIso(date, dateOnly));
+
+      const next = toLocalIso(date, dateOnly);
+      if (onValueChange) onValueChange(next);
+      else store?.onChange(id, next);
       setCurrentMonth(startOfMonth(date));
     }
 
@@ -138,7 +148,9 @@ export const FormIsoDatePicker = observer(
 
               <span className="truncate flex-1">{parsed ? formatter(parsed) : resolvedPlaceholder}</span>
 
-              {parsed && !isReadOnly && !isLoading ? <InputClearButton onClear={() => commit(undefined)} /> : null}
+              {parsed && clearable && !isReadOnly && !isLoading ? (
+                <InputClearButton onClear={() => commit(undefined)} />
+              ) : null}
             </Button>
           </PopoverTrigger>
 

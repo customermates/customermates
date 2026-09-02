@@ -10,6 +10,8 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 
+import { workspaceAgentCreditRate } from "@/ee/agent-chat/agent-credit-policy";
+
 import { filterValues, negated } from "./operator-list-filters";
 
 type WorkspaceAggregate = {
@@ -191,9 +193,11 @@ export class PrismaOperatorWorkspacesRepo
     });
 
     const aggregates = await this.aggregatesUnscoped(companies.map((company) => company.id));
+    const now = new Date();
 
     return companies.map((company) => {
       const aggregate = aggregates.get(company.id);
+      const subscription = company.subscription;
 
       return {
         id: company.id,
@@ -206,6 +210,15 @@ export class PrismaOperatorWorkspacesRepo
         subscriptionStatus: company.subscription?.status ?? null,
         seats: company.subscription?.quantity ?? null,
         enterpriseCreditsPerUser: company.subscription?.enterpriseAgentCreditsPerUser ?? null,
+        creditsPerUser: subscription
+          ? workspaceAgentCreditRate({
+              plan: subscription.plan,
+              status: subscription.status,
+              trialEndDate: subscription.trialEndDate,
+              enterpriseCreditsPerUser: subscription.enterpriseAgentCreditsPerUser,
+              now,
+            })
+          : null,
         trialEndDate: company.subscription?.trialEndDate ?? null,
         lemonSqueezyId: company.subscription?.lemonSqueezyId ?? null,
         subscriptionUpdatedAt: company.subscription?.updatedAt ?? null,

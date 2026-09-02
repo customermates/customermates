@@ -1001,6 +1001,7 @@
       "operatorAllowanceMissing": "Este espacio de trabajo aún no tiene un cupo Enterprise contratado, por lo que no se pueden corregir los créditos. Define primero el cupo en la lista de espacios de trabajo.",
       "operatorConflict": "El cambio fue rechazado. Puede que el registro haya cambiado desde que se cargó la lista, o que el espacio de trabajo no lo permita ahora mismo. Recarga y revisa el estado actual.",
       "operatorConnectedAccountsActive": "Este espacio de trabajo todavía tiene cuentas de mensajería conectadas. Desconéctalas primero para liberar las cuentas del proveedor y elimina después el espacio de trabajo.",
+      "operatorTrialEndRequired": "La fecha de fin de prueba no se puede quitar, solo mover. Borrarla dejaría el espacio de trabajo en una prueba que nunca caduca.",
       "operatorUnavailable": "La corrección solicitada no está disponible para la configuración actual de la cuenta.",
       "organizationNotFound": "ID de organización no encontrado o no accesible.",
       "passwordInvalid": "La contraseña debe tener al menos 8 caracteres e incluir al menos una mayúscula, una minúscula, un número y un carácter especial.",
@@ -2560,7 +2561,8 @@
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Corrección de créditos con signo",
-      "deltaPlaceholder": "Por ejemplo, 500 o -100"
+      "deltaPlaceholder": "Por ejemplo, 500 o -100",
+      "expiresAt": "Esta corrección se aplica solo al periodo actual y caduca el {date}."
     },
     "confirm": {
       "operator": "¿Establecer el acceso de operador de plataforma de {name} en {value}?",
@@ -2604,6 +2606,11 @@
   },
   "OperatorWorkspaces": {
     "allowance": {
+      "hintContract": "La tarifa Enterprise contratada, concedida a cada miembro activo cada mes.",
+      "hintMissing": "Enterprise toma su tarifa de un valor contratado, y no hay ninguno. Todos los miembros están bloqueados hasta que definas uno.",
+      "hintPlan": "{plan} incluye esta cantidad de créditos por cada miembro activo al mes.",
+      "hintTrial": "Durante una prueba, cada miembro activo recibe esto, sea cual sea el plan.",
+      "hintUnavailable": "Esta suscripción no concede créditos en su estado actual.",
       "label": "Créditos por usuario",
       "notSet": "Sin definir",
       "title": "Asignación Enterprise",

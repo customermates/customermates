@@ -1118,6 +1118,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
 
         const trialEndDate = data.trialEndDate === null ? null : new Date(data.trialEndDate);
         if (trialEndDate && !Number.isFinite(trialEndDate.getTime())) return "conflict";
+        if (trialEndDate === null && subscription.trialEndDate !== null) return "trialEndRequired";
 
         const previous = {
           trialEndDate: subscription.trialEndDate?.toISOString() ?? null,

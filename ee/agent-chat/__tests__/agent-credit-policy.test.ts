@@ -8,6 +8,7 @@ import {
   agentCreditsForStartedProviderCost,
   prorateAgentCreditsForSeat,
   resolveAgentCreditEntitlement,
+  workspaceAgentCreditRate,
 } from "../agent-credit-policy";
 
 const ACTIVE = SubscriptionStatus.active;
@@ -167,6 +168,44 @@ describe("agent credit entitlements", () => {
 
     expect(business.limit).toBeGreaterThan(pro.limit);
     expect(starter.limit).toBeLessThan(pro.limit);
+  });
+});
+
+describe("workspace credit rate", () => {
+  function rate(overrides: Partial<Parameters<typeof workspaceAgentCreditRate>[0]> = {}) {
+    return workspaceAgentCreditRate({
+      plan: SubscriptionPlan.starter,
+      status: ACTIVE,
+      trialEndDate: null,
+      enterpriseCreditsPerUser: null,
+      now: NOW,
+      ...overrides,
+    });
+  }
+
+  it("reports the plan rate for a paid workspace", () => {
+    expect(rate({ plan: SubscriptionPlan.starter })).toBe(200);
+    expect(rate({ plan: SubscriptionPlan.pro })).toBe(500);
+    expect(rate({ plan: SubscriptionPlan.business })).toBe(1_200);
+  });
+
+  it("reports the trial rate whatever the plan says, until the trial ends", () => {
+    const live = { status: SubscriptionStatus.trial, trialEndDate: new Date("2026-08-20T12:00:00.000Z") };
+    expect(rate({ ...live, plan: SubscriptionPlan.starter })).toBe(TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER);
+    expect(rate({ ...live, plan: SubscriptionPlan.business })).toBe(TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER);
+    expect(rate({ ...live, plan: SubscriptionPlan.enterprise })).toBe(TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER);
+  });
+
+  it("reports nothing once the trial has lapsed or the subscription is not usable", () => {
+    expect(rate({ status: SubscriptionStatus.trial, trialEndDate: new Date("2026-08-01T12:00:00.000Z") })).toBeNull();
+    expect(rate({ status: SubscriptionStatus.cancelled })).toBeNull();
+    expect(rate({ status: SubscriptionStatus.pastDue })).toBeNull();
+  });
+
+  it("draws the Enterprise rate from the contracted value and reports nothing without one", () => {
+    expect(rate({ plan: SubscriptionPlan.enterprise, enterpriseCreditsPerUser: 750 })).toBe(750);
+    expect(rate({ plan: SubscriptionPlan.enterprise, enterpriseCreditsPerUser: null })).toBeNull();
+    expect(rate({ plan: SubscriptionPlan.enterprise, enterpriseCreditsPerUser: 0 })).toBeNull();
   });
 });
 

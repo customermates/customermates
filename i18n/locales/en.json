@@ -1001,6 +1001,7 @@
       "operatorAllowanceMissing": "This workspace has no contracted Enterprise allowance yet, so credits cannot be corrected. Set the allowance on the Workspaces list first.",
       "operatorConflict": "That change was refused. The record may have changed since the list loaded, or the workspace may not allow it right now. Reload and check the current state.",
       "operatorConnectedAccountsActive": "This workspace still has connected messaging accounts. Disconnect them first so the provider accounts are released, then delete the workspace.",
+      "operatorTrialEndRequired": "A trial end date cannot be removed, only moved. Clearing it would leave the workspace on a trial that never expires.",
       "operatorUnavailable": "The requested correction is not available for the current account configuration.",
       "organizationNotFound": "Organization ID not found or not accessible.",
       "passwordInvalid": "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
@@ -2560,7 +2561,8 @@
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Signed credit correction",
-      "deltaPlaceholder": "For example, 500 or -100"
+      "deltaPlaceholder": "For example, 500 or -100",
+      "expiresAt": "This correction applies to the current period only and lapses on {date}."
     },
     "confirm": {
       "operator": "Set platform operator access for {name} to {value}?",
@@ -2604,6 +2606,11 @@
   },
   "OperatorWorkspaces": {
     "allowance": {
+      "hintContract": "The contracted Enterprise rate, granted to each active member every month.",
+      "hintMissing": "Enterprise draws its rate from a contracted value, and none is set. Every member is blocked until you set one.",
+      "hintPlan": "{plan} includes this many credits for each active member every month.",
+      "hintTrial": "Every active member gets this during a trial, whatever the plan says.",
+      "hintUnavailable": "This subscription grants no credits in its current state.",
       "label": "Credits per user",
       "notSet": "Not set",
       "title": "Enterprise allowance",

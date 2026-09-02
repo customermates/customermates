@@ -19,6 +19,7 @@ import { ClickableChip } from "@/components/chip/clickable-chip";
 import { InfoRow } from "@/components/shared/info-row";
 import { Button } from "@/components/ui/button";
 import { FormInputChips } from "@/components/forms/form-input-chips";
+import { FormIsoDatePicker } from "@/components/forms/form-iso-date-picker";
 import { FormLabel } from "@/components/forms/form-label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -315,14 +316,14 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
             </div>
 
             <div className="flex items-end gap-2">
-              <div className="flex-1 space-y-1.5">
-                <FormLabel htmlFor="operator-modal-trial">{t("OperatorWorkspaces.terms.trialEnd")}</FormLabel>
-
-                <Input
+              <div className="flex-1">
+                <FormIsoDatePicker
+                  clearable={false}
+                  containerClassName="flex-1"
                   id="operator-modal-trial"
-                  type="date"
+                  label={t("OperatorWorkspaces.terms.trialEnd")}
                   value={trialEnd}
-                  onChange={(event) => setTrialEnd(event.target.value)}
+                  onValueChange={(value) => setTrialEnd(value ?? "")}
                 />
               </div>
 

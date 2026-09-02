@@ -1001,6 +1001,7 @@
       "operatorAllowanceMissing": "Cet espace de travail n'a pas encore d'allocation Enterprise contractuelle, les crédits ne peuvent donc pas être corrigés. Définissez d'abord l'allocation dans la liste des espaces de travail.",
       "operatorConflict": "La modification a été refusée. L’enregistrement a peut-être changé depuis le chargement de la liste, ou l’espace de travail ne l’autorise pas actuellement. Rechargez et vérifiez l’état actuel.",
       "operatorConnectedAccountsActive": "Cet espace de travail a encore des comptes de messagerie connectés. Déconnectez-les d'abord pour libérer les comptes chez le prestataire, puis supprimez l'espace de travail.",
+      "operatorTrialEndRequired": "Une date de fin d'essai ne peut pas être supprimée, seulement déplacée. L'effacer laisserait l'espace de travail sur un essai qui n'expire jamais.",
       "operatorUnavailable": "La correction demandée n’est pas disponible pour la configuration actuelle du compte.",
       "organizationNotFound": "ID d'organisation introuvable ou inaccessible.",
       "passwordInvalid": "Le mot de passe doit comporter au moins 8 caractères et contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial.",
@@ -2560,7 +2561,8 @@
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Correction de crédits signée",
-      "deltaPlaceholder": "Par exemple, 500 ou -100"
+      "deltaPlaceholder": "Par exemple, 500 ou -100",
+      "expiresAt": "Cette correction ne vaut que pour la période en cours et expire le {date}."
     },
     "confirm": {
       "operator": "Définir l’accès opérateur de plateforme de {name} sur {value} ?",
@@ -2604,6 +2606,11 @@
   },
   "OperatorWorkspaces": {
     "allowance": {
+      "hintContract": "Le tarif Enterprise contractuel, accordé à chaque membre actif chaque mois.",
+      "hintMissing": "Enterprise tire son tarif d'une valeur contractuelle, et aucune n'est définie. Tous les membres sont bloqués tant que vous n'en définissez pas une.",
+      "hintPlan": "{plan} inclut ce nombre de crédits pour chaque membre actif chaque mois.",
+      "hintTrial": "Pendant un essai, chaque membre actif reçoit ceci, quel que soit le forfait.",
+      "hintUnavailable": "Cet abonnement n'accorde aucun crédit dans son état actuel.",
       "label": "Crédits par utilisateur",
       "notSet": "Non défini",
       "title": "Allocation Enterprise",
