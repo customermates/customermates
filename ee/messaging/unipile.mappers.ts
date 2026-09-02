@@ -10,6 +10,8 @@ import {
 
 import * as Sentry from "@sentry/node";
 
+import { htmlToPlainText } from "./email-body-text";
+
 export const EMPTY_ATTENDEE: MessagingAttendee = {
   attendeeId: "",
   displayName: null,
@@ -206,7 +208,7 @@ export function buildEmailMessage(
     origin: MessagingMessageOrigin.external,
     subject: email.subject ?? null,
     bodyHtml: email.body ?? null,
-    bodyText: null,
+    bodyText: htmlToPlainText(email.body),
     previewText: email.snippet ?? null,
     sender: { ...sender, isSelf: senderIsSelf },
     recipients: { to, cc, bcc },

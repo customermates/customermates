@@ -53187,13 +53187,103 @@
               ],
               "additionalProperties": false
             }
+          },
+          "folderContext": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "folders": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "role": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "totalCount": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "unreadCount": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "role",
+                        "totalCount",
+                        "unreadCount"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "selectedFolderIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "currentFolderIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "folders",
+                  "selectedFolderIds",
+                  "currentFolderIds"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
           "thread",
           "messages",
           "total",
-          "accountOwners"
+          "accountOwners",
+          "folderContext"
         ],
         "additionalProperties": false
       },

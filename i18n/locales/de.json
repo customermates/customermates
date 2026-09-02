@@ -1028,6 +1028,7 @@
       "termsNotAgreed": "Du musst den Allgemeinen Geschäftsbedingungen zustimmen.",
       "threadNotFound": "Konversations-ID nicht gefunden oder nicht zugänglich.",
       "unipileDisconnectedAccount": "Der Kanal ist nicht verbunden. Verbinde ihn erneut und versuche es noch einmal.",
+      "unipileFeatureUnavailable": "Das ist auf diesem Kanal nicht verfügbar. Ein erneuter Versuch hilft nicht; das Team wurde benachrichtigt.",
       "unipileInvalidRequest": "Der Anbieter hat die Anfrage als ungültig abgelehnt. Bitte Kennungen und Parameter prüfen.",
       "unipileProviderError": "Der Anbieter hat aktuell Probleme. Bitte später erneut versuchen.",
       "unipileRateLimit": "Dieser Kanal hat sein Limit vorerst erreicht. Bitte {retryAfter} erneut versuchen. Mehr unter https://customermates.com/docs/messaging-rate-limits.",
@@ -2186,6 +2187,11 @@
     "fileTypePdf": "PDF-Dokument",
     "fileTypePowerpoint": "PowerPoint-Präsentation",
     "fileTypeWord": "Word-Dokument",
+    "folders": {
+      "current": "In {folder}",
+      "hiddenTooltip": "In {folder}, der in Ihrem Posteingang ausgeblendet ist",
+      "none": "Kein Ordner"
+    },
     "groupThread": "Gruppe ({count, plural, one {# Mitglied} other {# Mitglieder}})",
     "hideQuotedText": "Zitierten Text ausblenden",
     "learnMore": "Mehr erfahren",

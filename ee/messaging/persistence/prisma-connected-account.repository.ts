@@ -186,14 +186,14 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
-  async releaseBackfillClaimUnscoped(unipileAccountId: string, token: string) {
+  async releaseBackfillClaimUnscoped(unipileAccountId: string, token: string, complete: boolean) {
     await this.prisma.connectedAccount.updateMany({
       where: { unipileAccountId, backfillClaimToken: token },
       data: {
         backfillClaimedAt: null,
         backfillClaimToken: null,
         syncing: false,
-        lastSyncedAt: new Date(),
+        ...(complete ? { lastSyncedAt: new Date() } : {}),
       },
     });
   }
@@ -358,6 +358,19 @@ export class PrismaConnectedAccountRepo
         ];
       }),
     );
+  }
+
+  async findFolderContextById(accountId: string) {
+    const row = await this.prisma.connectedAccount.findFirst({
+      where: { id: accountId, ...accessibleConnectedAccountWhere(this.companyId, this.userId) },
+      select: { folders: true, selectedFolderIds: true, foldersSyncedAt: true },
+    });
+    if (!row || row.foldersSyncedAt === null) return null;
+
+    return {
+      folders: EmailFolderSchema.array().catch([]).parse(row.folders),
+      selectedFolderIds: row.selectedFolderIds,
+    };
   }
 
   async findIds(ids: Set<string>): Promise<Set<string>> {

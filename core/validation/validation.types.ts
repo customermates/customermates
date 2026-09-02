@@ -107,6 +107,7 @@ export enum CustomErrorCode {
   unipileInvalidRequest = "unipileInvalidRequest",
   unipileRateLimit = "unipileRateLimit",
   unipileServiceUnavailable = "unipileServiceUnavailable",
+  unipileFeatureUnavailable = "unipileFeatureUnavailable",
   unipileRequestTimeout = "unipileRequestTimeout",
   unipileDisconnectedAccount = "unipileDisconnectedAccount",
   unipileUnknown = "unipileUnknown",

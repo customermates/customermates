@@ -208,7 +208,7 @@ function renderThreadPanel(status: "locked" | "loading" | "empty" | "content") {
     thread: status === "content" || status === "empty" ? thread : null,
   };
   harness.getRootStore.mockReturnValue({ messagingThreadDetailStore: store });
-  const threadDetail = status === "empty" ? null : { accountOwners: {}, messages: [], thread };
+  const threadDetail = status === "empty" ? null : { accountOwners: {}, folderContext: null, messages: [], thread };
 
   return renderToStaticMarkup(
     createElement(ThreadPanel, {

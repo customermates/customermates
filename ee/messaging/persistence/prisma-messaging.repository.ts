@@ -1063,6 +1063,20 @@ export class PrismaMessagingRepo
     };
   }
 
+  async listThreadFolderPlacements(threadId: string) {
+    const accessibleThread = await this.prisma.messagingThread.findFirst({
+      where: { id: threadId, ...threadAccessWhere(this.companyId, this.userId) },
+      select: { id: true },
+    });
+    if (!accessibleThread) return [];
+
+    return this.prisma.messagingMessage.findMany({
+      where: { messagingThreadId: threadId, companyId: this.companyId, isHidden: false },
+      select: { folderIds: true, sentAt: true },
+      orderBy: { sentAt: "desc" },
+    });
+  }
+
   async listMessagesForThread(threadId: string, opts?: { page?: number; pageSize?: number }) {
     const accessibleThread = await this.prisma.messagingThread.findFirst({
       where: {
@@ -1289,11 +1303,14 @@ export class PrismaMessagingRepo
       if (duplicate) {
         const duplicateSender = duplicate.sender as unknown as MessagingAttendee;
         const upgradeSender = hasLetter(safeMessage.sender.displayName) && !hasLetter(duplicateSender.displayName);
+        const folderIds = [...new Set([...duplicate.folderIds, ...(safeMessage.folderIds ?? [])])];
 
         await this.prisma.messagingMessage.update({
           where: { id: duplicate.id },
           data: {
-            folderIds: [...new Set([...duplicate.folderIds, ...(safeMessage.folderIds ?? [])])],
+            folderIds,
+            unipileMessageId: safeMessage.unipileMessageId,
+            ...(folderIds.length > 0 ? { isHidden: false } : {}),
             ...(upgradeSender ? { sender: safeMessage.sender as unknown as Prisma.InputJsonValue } : {}),
           },
         });
