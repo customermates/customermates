@@ -288,7 +288,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
     return new Map(
       users.map((user) => {
         const matches = byEmail.get(normalizeOperatorEmail(user.email)) ?? [];
-        const verified = matches.length === 1 && matches[0].emailVerified && matches[0].companyId === user.companyId;
+        const verified = matches.length === 1 && matches[0].emailVerified;
         return [user.id, verified];
       }),
     );
@@ -506,7 +506,6 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           FROM "User" AS domain_user
           JOIN "AuthUser" AS auth_user
             ON lower(auth_user."email") = lower(domain_user."email")
-            AND auth_user."companyId" = domain_user."companyId"
             AND auth_user."emailVerified" = true
           WHERE (
             SELECT COUNT(*)
@@ -660,19 +659,17 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           if (target.status !== Status.active) return "conflict";
 
           const email = normalizeOperatorEmail(target.email);
-          const domainUsers = await this.prisma.user.count({
-            where: { email: { equals: email, mode: "insensitive" } },
+          const resolvedMember = await this.prisma.user.findUnique({
+            where: { email },
+            select: { id: true },
           });
-          if (domainUsers !== 1) return "conflict";
+          if (resolvedMember?.id !== data.userId) return "conflict";
 
-          const authUsers = await this.prisma.authUser.findMany({
-            where: { email: { equals: email, mode: "insensitive" } },
-            take: 2,
-            select: { companyId: true, emailVerified: true },
+          const identity = await this.prisma.authUser.findUnique({
+            where: { email },
+            select: { emailVerified: true },
           });
-          if (authUsers.length !== 1) return "conflict";
-          if (!authUsers[0].emailVerified) return "conflict";
-          if (authUsers[0].companyId !== companyId) return "conflict";
+          if (!identity?.emailVerified) return "conflict";
         } else if (target.isPlatformOperator) {
           const otherActiveOperators = await this.prisma.user.count({
             where: { id: { not: data.userId }, isPlatformOperator: true, status: Status.active },
@@ -1121,6 +1118,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
 
         const trialEndDate = data.trialEndDate === null ? null : new Date(data.trialEndDate);
         if (trialEndDate && !Number.isFinite(trialEndDate.getTime())) return "conflict";
+        if (trialEndDate === null && subscription.trialEndDate !== null) return "trialEndRequired";
 
         const previous = {
           trialEndDate: subscription.trialEndDate?.toISOString() ?? null,

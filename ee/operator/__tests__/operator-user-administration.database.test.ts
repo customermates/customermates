@@ -21,7 +21,14 @@ import { OPERATOR_AUDIT_ACTION } from "../operator.schema";
 import type { OperatorRefusal } from "../operator.repo";
 import { PrismaOperatorRepo } from "../prisma-operator.repository";
 
-const OPERATOR_REFUSALS: OperatorRefusal[] = ["conflict", "notFound", "unavailable"];
+const OPERATOR_REFUSALS: OperatorRefusal[] = [
+  "conflict",
+  "notFound",
+  "unavailable",
+  "allowanceMissing",
+  "connectedAccountsActive",
+  "trialEndRequired",
+];
 
 function assertAdmitted<T>(result: T | OperatorRefusal): asserts result is T {
   const refusal = OPERATOR_REFUSALS.find((candidate) => candidate === result);
@@ -769,5 +776,32 @@ describeDatabase("operator user administration against a real database", { timeo
       expect(second.next?.lemonSqueezyId).toBeNull();
       expect(second.billingBindingCleared).toBe(true);
     });
+  });
+
+  it("refuses to clear a trial end date that is already set, and leaves an absent one writable", async () => {
+    const repo = new PrismaOperatorRepo();
+    const companyId = await createCompany({ plan: "pro", status: "trial" });
+    const actor = operatorActor();
+
+    const refused = await runWithOperator(actor, () =>
+      repo.updateSubscriptionTermsUnscoped({ companyId, trialEndDate: null, lemonSqueezyId: null }, now),
+    );
+    expect(refused).toBe("trialEndRequired");
+
+    await runWithoutTenant(async () => {
+      const subscription = await prisma.subscription.findUniqueOrThrow({ where: { companyId } });
+      expect(subscription.trialEndDate).not.toBeNull();
+      expect(await prisma.operatorAuditEvent.count({ where: { actorUserId: actor.userId } })).toBe(0);
+    });
+
+    const perpetualId = await createCompany({ plan: "enterprise", status: "active" });
+    await runWithoutTenant(() =>
+      prisma.subscription.update({ where: { companyId: perpetualId }, data: { trialEndDate: null } }),
+    );
+
+    const stillWritable = await runWithOperator(actor, () =>
+      repo.updateSubscriptionTermsUnscoped({ companyId: perpetualId, trialEndDate: null, lemonSqueezyId: null }, now),
+    );
+    assertAdmitted(stillWritable);
   });
 });

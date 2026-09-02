@@ -115,6 +115,7 @@ export enum CustomErrorCode {
   operatorUnavailable = "operatorUnavailable",
   operatorAllowanceMissing = "operatorAllowanceMissing",
   operatorConnectedAccountsActive = "operatorConnectedAccountsActive",
+  operatorTrialEndRequired = "operatorTrialEndRequired",
   generic = "generic",
 }
 

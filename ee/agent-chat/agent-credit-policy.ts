@@ -119,6 +119,22 @@ function adjustedAllowance(baseAllowance: number, adjustmentCredits = 0): number
   return allowance;
 }
 
+export function workspaceAgentCreditRate(input: {
+  plan: SubscriptionPlan;
+  status: SubscriptionStatus;
+  trialEndDate: Date | null;
+  enterpriseCreditsPerUser: number | null;
+  now: Date;
+}): number | null {
+  const usableTrial =
+    input.status === SubscriptionStatus.trial &&
+    (input.trialEndDate === null || input.trialEndDate.getTime() >= input.now.getTime());
+  if (usableTrial) return TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER;
+  if (input.status !== SubscriptionStatus.active) return null;
+
+  return paidPlanAllowance(input.plan, input.enterpriseCreditsPerUser);
+}
+
 export function resolveAgentCreditEntitlement(input: AgentCreditEntitlementInput): AgentCreditEntitlement {
   const period = agentCreditPeriodForAnchor(input.creditAnchorAt, input.now);
 

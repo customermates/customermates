@@ -36,6 +36,7 @@ const OPERATOR_REFUSALS: OperatorRefusal[] = [
   "unavailable",
   "allowanceMissing",
   "connectedAccountsActive",
+  "trialEndRequired",
 ];
 
 function assertAdmitted<T>(result: T | OperatorRefusal): asserts result is T {

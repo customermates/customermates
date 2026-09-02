@@ -9,6 +9,7 @@ import {
   TOOLBAR_PAGES_WITHOUT_ADD,
   WORKSPACE_NAV_GROUPS,
   type AnchorPage,
+  TRANSFERABLE_SCOPES,
 } from "./ui-anchors";
 
 export type AgentUiTargetActivation = { kind: "expanded" } | { kind: "selected"; prerequisite: string };
@@ -74,6 +75,16 @@ function toolbarTargets(page: AnchorPage, hasAdd: boolean): AgentUiTarget[] {
       route: page.route,
       description: `Search input over ${page.label}`,
     },
+    ...(TRANSFERABLE_SCOPES.has(page.scope)
+      ? [
+          {
+            id: `${page.scope}-transfer`,
+            route: page.route,
+            description: `Menu that exports ${page.label} to a spreadsheet or adds them from one`,
+            activation: { kind: "expanded" as const },
+          },
+        ]
+      : []),
     {
       id: `${page.scope}-filter`,
       route: page.route,

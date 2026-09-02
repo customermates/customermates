@@ -1001,6 +1001,7 @@
       "operatorAllowanceMissing": "Este espacio de trabajo aún no tiene un cupo Enterprise contratado, por lo que no se pueden corregir los créditos. Define primero el cupo en la lista de espacios de trabajo.",
       "operatorConflict": "El cambio fue rechazado. Puede que el registro haya cambiado desde que se cargó la lista, o que el espacio de trabajo no lo permita ahora mismo. Recarga y revisa el estado actual.",
       "operatorConnectedAccountsActive": "Este espacio de trabajo todavía tiene cuentas de mensajería conectadas. Desconéctalas primero para liberar las cuentas del proveedor y elimina después el espacio de trabajo.",
+      "operatorTrialEndRequired": "La fecha de fin de prueba no se puede quitar, solo mover. Borrarla dejaría el espacio de trabajo en una prueba que nunca caduca.",
       "operatorUnavailable": "La corrección solicitada no está disponible para la configuración actual de la cuenta.",
       "organizationNotFound": "ID de organización no encontrado o no accesible.",
       "passwordInvalid": "La contraseña debe tener al menos 8 caracteres e incluir al menos una mayúscula, una minúscula, un número y un carácter especial.",
@@ -1669,6 +1670,59 @@
       "activityTimeline": "Cronología de actividad",
       "chart": "Gráfico"
     }
+  },
+  "DataTransfer": {
+    "export": {
+      "action": "Exportar",
+      "failed": "No se pudo crear el archivo.",
+      "success": "{count, plural, one {# registro exportado} other {# registros exportados}}",
+      "truncated": "Solo se exportaron los primeros {limit} registros."
+    },
+    "import": {
+      "action": "Añadir desde archivo",
+      "batchProgress": "Lote {done} de {total}",
+      "channelOption": "{provider} (canal)",
+      "chooseFile": "Elegir archivo",
+      "commit": "Añadir registros",
+      "description": "Asocia las columnas de la hoja a los campos, revisa el resultado y añade los registros.",
+      "duplicateTargets": "{count, plural, one {# campo recibe datos de más de una columna. Corrígelo antes de continuar.} other {# campos reciben datos de más de una columna. Corrígelos antes de continuar.}}",
+      "fileHint": "Elige una hoja de cálculo. Se admiten libros de Excel.",
+      "fileRejected": "No se pudo leer ese archivo.",
+      "groupChannels": "Canales",
+      "groupCustomFields": "Campos personalizados",
+      "groupFields": "Campos",
+      "ignoreColumn": "No añadir",
+      "issueCount": "{count, plural, one {# problema encontrado} other {# problemas encontrados}}",
+      "issues": {
+        "channelsNotUpdated": "Los canales no cambian en un registro que ya existe",
+        "duplicateRecordId": "La fila {row} ya actualiza este registro",
+        "invalidChannelValue": "\"{value}\" no es una dirección de {provider} válida",
+        "notANumber": "\"{value}\" no es un número",
+        "notAPhoneNumber": "\"{value}\" no es un número de teléfono",
+        "relationAmbiguous": "\"{value}\" coincide con más de un registro",
+        "relationNotFound": "No se encontró \"{value}\"",
+        "unknownOption": "\"{value}\" no es una de las opciones de {column}",
+        "unknownProvider": "\"{value}\" no es un tipo de canal compatible"
+      },
+      "mappingHint": "{file}, {rows} filas",
+      "moreIssues": "y {count} más",
+      "noIssues": "No se encontraron problemas.",
+      "previewCounts": "{create} para añadir, {update} para actualizar",
+      "progress": "Paso {current} de {total}",
+      "progressLabel": "Progreso",
+      "recordId": "ID del registro",
+      "resultCounts": "{created} añadidos, {updated} actualizados",
+      "resultSkipped": "{count, plural, one {# fila omitida} other {# filas omitidas}}",
+      "row": "Fila",
+      "rowsAffected": "{count, plural, one {# fila} other {# filas}}",
+      "skipInvalid": "{count, plural, one {Importar el resto y omitir # fila} other {Importar el resto y omitir # filas}}",
+      "stopped": "Detenido en la fila {row}. {remaining} filas no se procesaron.",
+      "title": "Añadir registros desde un archivo",
+      "unnamedColumn": "Columna sin nombre",
+      "validate": "Comprobar el archivo",
+      "warningCount": "{count, plural, one {# aviso} other {# avisos}}"
+    },
+    "menu": "Importar y exportar"
   },
   "DataView": {
     "dragToReorder": "Arrastrar para reordenar",
@@ -2566,7 +2620,8 @@
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Corrección de créditos con signo",
-      "deltaPlaceholder": "Por ejemplo, 500 o -100"
+      "deltaPlaceholder": "Por ejemplo, 500 o -100",
+      "expiresAt": "Esta corrección se aplica solo al periodo actual y caduca el {date}."
     },
     "confirm": {
       "operator": "¿Establecer el acceso de operador de plataforma de {name} en {value}?",
@@ -2610,6 +2665,11 @@
   },
   "OperatorWorkspaces": {
     "allowance": {
+      "hintContract": "La tarifa Enterprise contratada, concedida a cada miembro activo cada mes.",
+      "hintMissing": "Enterprise toma su tarifa de un valor contratado, y no hay ninguno. Todos los miembros están bloqueados hasta que definas uno.",
+      "hintPlan": "{plan} incluye esta cantidad de créditos por cada miembro activo al mes.",
+      "hintTrial": "Durante una prueba, cada miembro activo recibe esto, sea cual sea el plan.",
+      "hintUnavailable": "Esta suscripción no concede créditos en su estado actual.",
       "label": "Créditos por usuario",
       "notSet": "Sin definir",
       "title": "Asignación Enterprise",

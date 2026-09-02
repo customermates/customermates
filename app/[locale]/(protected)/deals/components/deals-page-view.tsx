@@ -16,6 +16,7 @@ import { DataViewLayout } from "@/components/data-view/data-view-layout";
 import { resolveDataViewPageState, resolveDataViewView } from "@/components/data-view/data-view-state";
 import { DataViewToolbar } from "@/components/data-view/data-view-toolbar";
 import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
+import { useExportAction } from "@/features/data-transfer/export/use-export-download";
 import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { PageState } from "@/components/page-state/page-state";
@@ -28,7 +29,7 @@ import { useDealColumns } from "./use-deal-columns";
 type Props = { deals: GetResult<DealDto> };
 
 export const DealsPageView = observer(function DealsPageView({ deals }: Props) {
-  const { contactsStore, dealsStore, organizationsStore, servicesStore } = useRootStore();
+  const { contactsStore, dealsStore, importWizardStore, organizationsStore, servicesStore } = useRootStore();
 
   useDataViewSync(dealsStore, deals, [organizationsStore, contactsStore, servicesStore]);
   const openEntity = useOpenEntity();
@@ -48,6 +49,11 @@ export const DealsPageView = observer(function DealsPageView({ deals }: Props) {
   const emptyActionLabel = t("Common.emptyState.cta", { singular: singular(EntityType.deal) });
   const handleAdd = useCallback(() => openEntity(EntityType.deal, "new"), [openEntity]);
   const rowHref = useCallback((deal: DealDto) => entityHref(EntityType.deal, deal.id), [entityHref]);
+  const handleExport = useExportAction(dealsStore);
+  const handleImport = useCallback(
+    () => importWizardStore.openForEntity(EntityType.deal, () => dealsStore.refresh()),
+    [importWizardStore, dealsStore],
+  );
   const topBarNode = useMemo(
     () => (
       <DataViewToolbar
@@ -55,9 +61,11 @@ export const DealsPageView = observer(function DealsPageView({ deals }: Props) {
         anchorScope="deals"
         store={dealsStore}
         onAdd={handleAdd}
+        onExport={handleExport}
+        onImport={handleImport}
       />
     ),
-    [dealsStore, emptyActionLabel, handleAdd, pageState],
+    [dealsStore, emptyActionLabel, handleAdd, handleExport, handleImport, pageState],
   );
   useSetTopBarActions(topBarNode);
 
