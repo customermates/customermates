@@ -8,6 +8,8 @@ import type { RootStore } from "@/core/stores/root.store";
 import { makeObservable, observable, action, computed, runInAction } from "mobx";
 import { EntityType } from "@/generated/prisma";
 
+import { reportApplicationError } from "@/core/errors/report-application-error";
+
 import { getCustomColumnsByEntityTypeAction } from "@/app/actions";
 import {
   commitImportChunkAction,
@@ -295,11 +297,19 @@ export class ImportWizardStore extends BaseModalStore {
         for (const chunk of chunks) {
           if (stoppedAtSheetRow !== null) break;
 
-          const result = await commitImportChunkAction({
-            entityType: this.entityType,
-            mode,
-            rows: chunk.map((row) => row.payload),
-          });
+          let result: Awaited<ReturnType<typeof commitImportChunkAction>>;
+
+          try {
+            result = await commitImportChunkAction({
+              entityType: this.entityType,
+              mode,
+              rows: chunk.map((row) => row.payload),
+            });
+          } catch (error) {
+            reportApplicationError(error);
+            stoppedAtSheetRow = chunk[0]?.sheetRow ?? null;
+            break;
+          }
 
           if (!result.ok) {
             failures.push(...mapFailureToRows(result.failure, chunk, this.descriptor.collectionKey));

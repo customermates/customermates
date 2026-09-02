@@ -20,6 +20,10 @@ vi.mock("@/app/actions", () => ({
   getCustomColumnsByEntityTypeAction: vi.fn(),
 }));
 
+const errors = vi.hoisted(() => ({ reportApplicationError: vi.fn() }));
+
+vi.mock("@/core/errors/report-application-error", () => errors);
+
 import { ImportWizardStore } from "../import-wizard.store";
 
 const rootStore = { registerModalStore: vi.fn() } as unknown as RootStore;
@@ -124,6 +128,45 @@ describe("ImportWizardStore commit", () => {
       notAttempted: IMPORT_CHUNK_SIZE * 2,
       stoppedAtSheetRow: IMPORT_CHUNK_SIZE + 2,
     });
+  });
+
+  it("keeps what already committed when a chunk throws, so a retry cannot write it twice", async () => {
+    const rows = Array.from({ length: IMPORT_CHUNK_SIZE * 3 }, (_, index) => planRow(index + 2));
+    const store = makeStore(rows);
+
+    runInAction(() => {
+      store.parsed = { rows: rows.map(() => ({})) } as never;
+    });
+
+    transferActions.commitImportChunkAction
+      .mockResolvedValueOnce({ ok: true, ids: rows.slice(0, IMPORT_CHUNK_SIZE).map((row) => `id-${row.sheetRow}`) })
+      .mockRejectedValueOnce(new Error("Failed to fetch"));
+
+    await store.commit();
+
+    expect(transferActions.commitImportChunkAction).toHaveBeenCalledTimes(2);
+    expect(store.step).toBe("result");
+    expect(store.summary).toMatchObject({
+      created: IMPORT_CHUNK_SIZE,
+      notAttempted: IMPORT_CHUNK_SIZE * 2,
+      stoppedAtSheetRow: IMPORT_CHUNK_SIZE + 2,
+    });
+  });
+
+  it("reports a thrown chunk through the application error handler, like every other action", async () => {
+    const store = makeStore([planRow(2)]);
+    const thrown = new Error("Forbidden");
+
+    runInAction(() => {
+      store.parsed = { rows: [{}] } as never;
+    });
+
+    transferActions.commitImportChunkAction.mockRejectedValueOnce(thrown);
+
+    await store.commit();
+
+    expect(errors.reportApplicationError).toHaveBeenCalledWith(thrown);
+    expect(store.step).toBe("result");
   });
 
   it("drops blocking rows from the payload and counts them as skipped when skipInvalid is set", async () => {
