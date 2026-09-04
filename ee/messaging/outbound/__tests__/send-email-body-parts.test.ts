@@ -27,6 +27,7 @@ vi.mock("../../inbox/inbox.schema", async (importActual) => ({
 
 import { SendEmailInteractor } from "../send-email.interactor";
 import { MessagingProvider, MessagingMessageDirection } from "@/generated/prisma";
+import { SIGNATURE_LOGO_URL, SignatureAccent, SignatureFieldsSchema, SignatureTemplate } from "../../signature-fields";
 
 const ACCOUNT_ID = "00000000-0000-4000-8000-000000000002";
 const THREAD_ID = "00000000-0000-4000-8000-000000000003";
@@ -39,7 +40,7 @@ const thread = {
   type: "single",
 } as never;
 
-function makeAccount(signature: string | null) {
+function makeAccount(signature: string | null, signatureFields: unknown = null) {
   return {
     id: ACCOUNT_ID,
     unipileAccountId: "acc-1",
@@ -48,8 +49,21 @@ function makeAccount(signature: string | null) {
     provider: MessagingProvider.google,
     sentFolderIds: [],
     signature,
+    signatureFields,
   } as never;
 }
+
+const structuredFields = SignatureFieldsSchema.parse({
+  template: SignatureTemplate.sideBySide,
+  accent: SignatureAccent.violet,
+  fullName: "Benjamin Wagner",
+  jobTitle: "Founder",
+  company: "Customermates",
+  email: "mail@customermates.com",
+  phone: "+49 170 0000000",
+  website: "customermates.com",
+  logoUrl: SIGNATURE_LOGO_URL,
+});
 
 const persistedRow = {
   id: "00000000-0000-4000-8000-000000000004",
@@ -84,7 +98,7 @@ function makeRepo() {
   };
 }
 
-async function send(signature: string | null, body: string) {
+async function send(signature: string | null, body: string, signatureFields: unknown = null) {
   const service = {
     sendEmail: vi.fn().mockResolvedValue({ ok: true, data: { id: "u-1", messageId: "m-1" } }),
     getEmailAttachments: vi.fn(),
@@ -92,7 +106,7 @@ async function send(signature: string | null, body: string) {
   const repo = makeRepo();
   const interactor = new SendEmailInteractor(
     repo as never,
-    { findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue(makeAccount(signature)) } as never,
+    { findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue(makeAccount(signature, signatureFields)) } as never,
     service as never,
     mockEntitlementService(),
   );
@@ -132,5 +146,50 @@ describe("SendEmailInteractor body parts", () => {
     const { sent } = await send(null, "a < b & c");
 
     expect(sent.body).toBe("a &lt; b &amp; c");
+  });
+
+  it("puts the structured signature table on the wire once fields are stored", async () => {
+    const { sent } = await send("Hauptstrasse 1, 68159 Mannheim", "Hello", structuredFields);
+
+    expect(sent.body).toContain('<table role="presentation"');
+    expect(sent.body).toContain(SIGNATURE_LOGO_URL);
+    expect(sent.body).toContain('width="56" height="56"');
+    expect(sent.body).toContain('href="mailto:mail@customermates.com"');
+    expect(sent.body.startsWith("Hello<br><br>-- <br><table")).toBe(true);
+  });
+
+  it("sends a de-marked plain part alongside it, never the raw markdown", async () => {
+    const { sent } = await send("**Bold** and [a link](https://example.com)", "Hello", structuredFields);
+
+    expect(sent.plainText).toBe(
+      [
+        "Hello",
+        "",
+        "-- ",
+        "Benjamin Wagner",
+        "Founder, Customermates",
+        "+49 170 0000000",
+        "mail@customermates.com",
+        "https://customermates.com",
+        "Bold and a link (https://example.com)",
+      ].join("\n"),
+    );
+    expect(sent.plainText).not.toContain("**");
+    expect(sent.plainText).not.toContain(SIGNATURE_LOGO_URL);
+  });
+
+  it("never ships an html-only message, since plain_text is only spread in when truthy", async () => {
+    const { sent } = await send(null, "Hello", structuredFields);
+
+    expect(sent.plainText.trim().length).toBeGreaterThan(0);
+    expect(sent.body.length).toBeGreaterThan(0);
+  });
+
+  it("persists the structured signature on both columns", async () => {
+    const { persisted } = await send(null, "Hello", structuredFields);
+
+    expect(persisted.message.bodyHtml).toContain('<table role="presentation"');
+    expect(persisted.message.bodyText).toContain("Benjamin Wagner");
+    expect(persisted.message.bodyText).not.toContain("<table");
   });
 });
