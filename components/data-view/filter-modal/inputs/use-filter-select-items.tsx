@@ -41,6 +41,7 @@ import {
 import {
   getActivityRecordOptionsAction,
   getActivityThreadOptionsAction,
+  getCalendarsAction,
   getConnectedAccountsAction,
 } from "@/app/[locale]/(protected)/actions";
 import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
@@ -62,6 +63,15 @@ export type FilterSelectItem = {
 
 type GetItemsFunction = (params: GetQueryParams) => Promise<GetResult<FilterSelectItem>>;
 type ResolveItemsFunction = (ids: readonly string[]) => Promise<FilterSelectItem[]>;
+type Translate = ReturnType<typeof useTranslations>;
+type ActivityQueryRef = { current: ReturnType<typeof useActivityQuery> };
+
+export const NO_FILTER_OPTIONS = null;
+
+export type FilterOptionSource =
+  | { getItems: GetItemsFunction }
+  | { items: () => FilterSelectItem[] }
+  | typeof NO_FILTER_OPTIONS;
 
 function renderAvatar(name: string, src?: string | null) {
   return <Avatar className="mr-0.5" name={name} size="sm" src={src} />;
@@ -100,6 +110,231 @@ function validActivityFilters(filters: Filter[] | undefined): NonNullable<Activi
 
 const SELF_IDENTIFYING_FILTER_FIELDS = new Set<FilterFieldKey>([FilterFieldKey.workspaceId]);
 
+const filterFieldKeyOf = (field: string): FilterFieldKey | undefined =>
+  Object.values(FilterFieldKey).find((key) => key === (field as FilterFieldKey));
+
+export function filterOptionSources(
+  t: Translate,
+  activityQueryRef: ActivityQueryRef,
+): Record<FilterFieldKey, FilterOptionSource> {
+  return {
+    [FilterFieldKey.userIds]: {
+      getItems: (params) =>
+        getUsersAction(params).then((res) => ({
+          items: res.items.map((user) => {
+            const name = `${user.firstName} ${user.lastName}`.trim();
+            return {
+              key: user.id,
+              value: user.id,
+              textValue: name,
+              startContent: renderAvatar(name, user.avatarUrl ?? undefined),
+            };
+          }),
+        })),
+    },
+    [FilterFieldKey.serviceIds]: {
+      getItems: (params) =>
+        getServicesAction(params).then((res) => ({
+          items: res.items.map((service) => ({
+            key: service.id,
+            value: service.id,
+            textValue: service.name,
+          })),
+        })),
+    },
+    [FilterFieldKey.dealIds]: {
+      getItems: (params) =>
+        getDealsAction(params).then((res) => ({
+          items: res.items.map((deal) => ({
+            key: deal.id,
+            value: deal.id,
+            textValue: deal.name,
+          })),
+        })),
+    },
+    [FilterFieldKey.organizationIds]: {
+      getItems: (params) =>
+        getOrganizationsAction(params).then((res) => ({
+          items: res.items.map((organization) => ({
+            key: organization.id,
+            value: organization.id,
+            textValue: organization.name,
+          })),
+        })),
+    },
+    [FilterFieldKey.contactIds]: { getItems: contactItems },
+    [FilterFieldKey.participantContactId]: { getItems: contactItems },
+    [FilterFieldKey.participants]: NO_FILTER_OPTIONS,
+    [FilterFieldKey.timelineKind]: {
+      items: () =>
+        (["changes", "messages", "activities"] as const).map((type) => ({
+          key: type,
+          value: type,
+          textValue: t(`EntityTimeline.types.${type}`),
+        })),
+    },
+    [FilterFieldKey.timelineThreadId]: {
+      getItems: () => {
+        const activeQuery = activityQueryRef.current;
+        return getActivityThreadOptionsAction({
+          scope: activeQuery?.scope,
+          filters: validActivityFilters(activeQuery?.filters),
+        }).then((threads) => ({
+          items: threads.map((thread) => ({
+            key: thread.id,
+            value: thread.id,
+            textValue: thread.label || t(`Common.providers.${thread.provider}`),
+            startContent: renderProviderIcon(thread.provider, t(`Common.providers.${thread.provider}`)),
+          })),
+        }));
+      },
+    },
+    [FilterFieldKey.taskIds]: {
+      getItems: (params) =>
+        getTasksAction(params).then((res) => ({
+          items: res.items.map((task) => {
+            const nameKey = getSystemTaskNameTranslationKey(task.type);
+            const label = nameKey && task.type !== TaskType.custom ? t(nameKey) : task.name;
+            return {
+              key: task.id,
+              value: task.id,
+              textValue: label,
+            };
+          }),
+        })),
+    },
+    [FilterFieldKey.updatedAt]: NO_FILTER_OPTIONS,
+    [FilterFieldKey.createdAt]: NO_FILTER_OPTIONS,
+    [FilterFieldKey.event]: {
+      items: () =>
+        Object.values(DomainEvent).map((event) => ({
+          key: event,
+          value: event,
+          textValue: t(`Common.events.${event}`),
+        })),
+    },
+    [FilterFieldKey.url]: NO_FILTER_OPTIONS,
+    [FilterFieldKey.status]: {
+      items: () =>
+        Object.values(Status).map((status) => ({
+          key: status,
+          value: status,
+          textValue: t(`Common.userStatuses.${status}`),
+          color: USER_STATUS_COLORS_MAP[status],
+        })),
+    },
+    [FilterFieldKey.provider]: {
+      items: () =>
+        Object.values(MessagingProvider).map((provider) => ({
+          key: provider,
+          value: provider,
+          textValue: t(`Common.providers.${provider}`),
+          startContent: renderProviderIcon(provider, t(`Common.providers.${provider}`)),
+        })),
+    },
+    [FilterFieldKey.state]: {
+      items: () =>
+        Object.values(MessagingThreadState).map((state) => ({
+          key: state,
+          value: state,
+          textValue: t(`Inbox.threadStates.${state}`),
+          color: THREAD_STATE_CHIP_COLOR[state],
+          startContent: <ThreadStateDot className="size-1.5" state={state} />,
+        })),
+    },
+    [FilterFieldKey.connectedAccountId]: {
+      getItems: () =>
+        getConnectedAccountsAction().then((accounts) => ({
+          items: accounts
+            .filter((account) => account.status !== ConnectedAccountStatus.deleted)
+            .map((account) => {
+              const providerLabel = t(`Common.providers.${account.provider}`);
+              const base = account.displayName?.trim() || account.emailAddress?.trim() || providerLabel;
+              const ownerName = account.isOwner ? null : `${account.owner.firstName} ${account.owner.lastName}`.trim();
+              return {
+                key: account.id,
+                value: account.id,
+                textValue: ownerName ? `${base} · ${ownerName}` : base,
+                startContent: renderProviderIcon(account.provider, providerLabel),
+              };
+            }),
+        })),
+    },
+    [FilterFieldKey.calendarId]: {
+      getItems: (params) =>
+        getCalendarsAction(params).then((res) => ({
+          items: res.items.map((calendar) => {
+            const { provider } = calendar;
+            return {
+              key: calendar.id,
+              value: calendar.id,
+              textValue: calendar.name,
+              startContent: renderProviderIcon(provider, t(`Common.providers.${provider}`)),
+            };
+          }),
+        })),
+    },
+    [FilterFieldKey.startsAt]: NO_FILTER_OPTIONS,
+    [FilterFieldKey.plan]: {
+      items: () =>
+        Object.values(SubscriptionPlan).map((plan) => ({
+          key: plan,
+          value: plan,
+          textValue: t(`Subscription.planNames.${plan}`),
+        })),
+    },
+    [FilterFieldKey.subscriptionStatus]: {
+      items: () =>
+        Object.values(SubscriptionStatus).map((status) => ({
+          key: status,
+          value: status,
+          textValue: t(`Subscription.status.${status}`),
+          color: SUBSCRIPTION_STATUS_COLOR_MAP[status],
+        })),
+    },
+    [FilterFieldKey.isPlatformOperator]: {
+      items: () => [
+        { key: "true", value: "true", textValue: t("OperatorUsers.values.operator") },
+        { key: "false", value: "false", textValue: t("OperatorUsers.platformAccess.revoked") },
+      ],
+    },
+    [FilterFieldKey.lastActiveAt]: NO_FILTER_OPTIONS,
+    [FilterFieldKey.workspaceId]: {
+      getItems: (params) =>
+        getOperatorWorkspacesAction(params).then((res) => ({
+          items: res.items.map((workspace) => ({
+            key: workspace.id,
+            value: workspace.id,
+            textValue: workspace.ownerEmail
+              ? `${workspace.workspaceLabel} · ${workspace.ownerEmail}`
+              : workspace.workspaceLabel,
+          })),
+        })),
+    },
+    [FilterFieldKey.googleAdsClickId]: NO_FILTER_OPTIONS,
+    [FilterFieldKey.auditSource]: {
+      items: () => [
+        {
+          key: OPERATOR_AUDIT_SOURCE.product,
+          value: OPERATOR_AUDIT_SOURCE.product,
+          textValue: t("OperatorAudit.values.source.product"),
+        },
+        {
+          key: OPERATOR_AUDIT_SOURCE.operator,
+          value: OPERATOR_AUDIT_SOURCE.operator,
+          textValue: t("OperatorAudit.values.source.operator"),
+        },
+      ],
+    },
+    [FilterFieldKey.workspaceTags]: {
+      getItems: () =>
+        getOperatorWorkspaceTagsAction().then((tags) => ({
+          items: tags.map((tag) => ({ key: tag, value: tag, textValue: tag })),
+        })),
+    },
+  };
+}
+
 export function useFilterSelectItems(
   filter: Filter,
   customColumns?: CustomColumnDto[],
@@ -125,109 +360,14 @@ export function useFilterSelectItems(
   const timelineScopeKey = JSON.stringify([activityQuery?.scope ?? null, validActivityFilters(activityQuery?.filters)]);
   const scopeKey = fieldKey === FilterFieldKey.timelineThreadId ? timelineScopeKey : String(field);
 
-  const getItems = useMemo(() => {
-    const fieldToGetItemsMap: Partial<Record<FilterFieldKey, GetItemsFunction>> = {
-      [FilterFieldKey.userIds]: (params) =>
-        getUsersAction(params).then((res) => ({
-          items: res.items.map((user) => {
-            const name = `${user.firstName} ${user.lastName}`.trim();
-            return {
-              key: user.id,
-              value: user.id,
-              textValue: name,
-              startContent: renderAvatar(name, user.avatarUrl ?? undefined),
-            };
-          }),
-        })),
-      [FilterFieldKey.serviceIds]: (params) =>
-        getServicesAction(params).then((res) => ({
-          items: res.items.map((service) => ({
-            key: service.id,
-            value: service.id,
-            textValue: service.name,
-          })),
-        })),
-      [FilterFieldKey.dealIds]: (params) =>
-        getDealsAction(params).then((res) => ({
-          items: res.items.map((deal) => ({
-            key: deal.id,
-            value: deal.id,
-            textValue: deal.name,
-          })),
-        })),
-      [FilterFieldKey.organizationIds]: (params) =>
-        getOrganizationsAction(params).then((res) => ({
-          items: res.items.map((organization) => ({
-            key: organization.id,
-            value: organization.id,
-            textValue: organization.name,
-          })),
-        })),
-      [FilterFieldKey.contactIds]: contactItems,
-      [FilterFieldKey.participantContactId]: contactItems,
-      [FilterFieldKey.taskIds]: (params) =>
-        getTasksAction(params).then((res) => ({
-          items: res.items.map((task) => {
-            const nameKey = getSystemTaskNameTranslationKey(task.type);
-            const label = nameKey && task.type !== TaskType.custom ? t(nameKey) : task.name;
-            return {
-              key: task.id,
-              value: task.id,
-              textValue: label,
-            };
-          }),
-        })),
-      [FilterFieldKey.timelineThreadId]: () => {
-        const activeQuery = activityQueryRef.current;
-        return getActivityThreadOptionsAction({
-          scope: activeQuery?.scope,
-          filters: validActivityFilters(activeQuery?.filters),
-        }).then((threads) => ({
-          items: threads.map((thread) => ({
-            key: thread.id,
-            value: thread.id,
-            textValue: thread.label || t(`Common.providers.${thread.provider}`),
-            startContent: renderProviderIcon(thread.provider, t(`Common.providers.${thread.provider}`)),
-          })),
-        }));
-      },
-      [FilterFieldKey.workspaceId]: (params) =>
-        getOperatorWorkspacesAction(params).then((res) => ({
-          items: res.items.map((workspace) => ({
-            key: workspace.id,
-            value: workspace.id,
-            textValue: workspace.ownerEmail
-              ? `${workspace.workspaceLabel} · ${workspace.ownerEmail}`
-              : workspace.workspaceLabel,
-          })),
-        })),
-      [FilterFieldKey.workspaceTags]: () =>
-        getOperatorWorkspaceTagsAction().then((tags) => ({
-          items: tags.map((tag) => ({ key: tag, value: tag, textValue: tag })),
-        })),
-      [FilterFieldKey.connectedAccountId]: () =>
-        getConnectedAccountsAction().then((accounts) => ({
-          items: accounts
-            .filter((account) => account.status !== ConnectedAccountStatus.deleted)
-            .map((account) => {
-              const providerLabel = t(`Common.providers.${account.provider}`);
-              const base = account.displayName?.trim() || account.emailAddress?.trim() || providerLabel;
-              const ownerName = account.isOwner ? null : `${account.owner.firstName} ${account.owner.lastName}`.trim();
-              return {
-                key: account.id,
-                value: account.id,
-                textValue: ownerName ? `${base} · ${ownerName}` : base,
-                startContent: renderProviderIcon(account.provider, providerLabel),
-              };
-            }),
-        })),
-    };
+  const source = useMemo<FilterOptionSource>(() => {
+    if (isCustom) return NO_FILTER_OPTIONS;
 
-    if (isCustom) return undefined;
-
-    const enumValue = Object.values(FilterFieldKey).find((key) => key === (field as FilterFieldKey));
-    return enumValue ? fieldToGetItemsMap[enumValue] : undefined;
+    const enumValue = filterFieldKeyOf(field);
+    return enumValue ? filterOptionSources(t, activityQueryRef)[enumValue] : NO_FILTER_OPTIONS;
   }, [field, isCustom, t, timelineScopeKey]);
+
+  const getItems = source && "getItems" in source ? source.getItems : undefined;
 
   const getSelectedItems = useMemo<ResolveItemsFunction | undefined>(() => {
     if (!hasActivityQuery) return undefined;
@@ -344,122 +484,10 @@ export function useFilterSelectItems(
       return [];
     }
 
-    const enumValue = Object.values(FilterFieldKey).find((key) => key === (field as FilterFieldKey));
-    if (!enumValue) return [];
+    if (!source) return [];
 
-    switch (enumValue) {
-      case FilterFieldKey.userIds:
-      case FilterFieldKey.serviceIds:
-      case FilterFieldKey.dealIds:
-      case FilterFieldKey.organizationIds:
-      case FilterFieldKey.contactIds:
-      case FilterFieldKey.participantContactId:
-      case FilterFieldKey.taskIds:
-      case FilterFieldKey.timelineThreadId:
-      case FilterFieldKey.connectedAccountId:
-      case FilterFieldKey.workspaceId:
-      case FilterFieldKey.workspaceTags: {
-        return fetchedItems;
-      }
-
-      case FilterFieldKey.provider: {
-        return Object.values(MessagingProvider).map((provider) => ({
-          key: provider,
-          value: provider,
-          textValue: t(`Common.providers.${provider}`),
-          startContent: renderProviderIcon(provider, t(`Common.providers.${provider}`)),
-        }));
-      }
-
-      case FilterFieldKey.timelineKind: {
-        return (["changes", "messages", "activities"] as const).map((type) => ({
-          key: type,
-          value: type,
-          textValue: t(`EntityTimeline.types.${type}`),
-        }));
-      }
-
-      case FilterFieldKey.state: {
-        return Object.values(MessagingThreadState).map((state) => ({
-          key: state,
-          value: state,
-          textValue: t(`Inbox.threadStates.${state}`),
-          color: THREAD_STATE_CHIP_COLOR[state],
-          startContent: <ThreadStateDot className="size-1.5" state={state} />,
-        }));
-      }
-
-      case FilterFieldKey.event: {
-        return Object.values(DomainEvent).map((event) => {
-          return {
-            key: event,
-            value: event,
-            textValue: t(`Common.events.${event}`),
-          };
-        });
-      }
-
-      case FilterFieldKey.status: {
-        return Object.values(Status).map((status) => {
-          return {
-            key: status,
-            value: status,
-            textValue: t(`Common.userStatuses.${status}`),
-            color: USER_STATUS_COLORS_MAP[status],
-          };
-        });
-      }
-
-      case FilterFieldKey.plan: {
-        return Object.values(SubscriptionPlan).map((plan) => ({
-          key: plan,
-          value: plan,
-          textValue: t(`Subscription.planNames.${plan}`),
-        }));
-      }
-
-      case FilterFieldKey.subscriptionStatus: {
-        return Object.values(SubscriptionStatus).map((status) => ({
-          key: status,
-          value: status,
-          textValue: t(`Subscription.status.${status}`),
-          color: SUBSCRIPTION_STATUS_COLOR_MAP[status],
-        }));
-      }
-
-      case FilterFieldKey.isPlatformOperator: {
-        return [
-          { key: "true", value: "true", textValue: t("OperatorUsers.values.operator") },
-          { key: "false", value: "false", textValue: t("OperatorUsers.platformAccess.revoked") },
-        ];
-      }
-
-      case FilterFieldKey.auditSource: {
-        return [
-          {
-            key: OPERATOR_AUDIT_SOURCE.product,
-            value: OPERATOR_AUDIT_SOURCE.product,
-            textValue: t("OperatorAudit.values.source.product"),
-          },
-          {
-            key: OPERATOR_AUDIT_SOURCE.operator,
-            value: OPERATOR_AUDIT_SOURCE.operator,
-            textValue: t("OperatorAudit.values.source.operator"),
-          },
-        ];
-      }
-
-      case FilterFieldKey.createdAt:
-      case FilterFieldKey.updatedAt:
-      case FilterFieldKey.lastActiveAt:
-      case FilterFieldKey.participants: {
-        return [];
-      }
-
-      default:
-        return [];
-    }
-  }, [field, isCustom, fetchedItems, customColumns, t]);
+    return "items" in source ? source.items() : fetchedItems;
+  }, [field, isCustom, fetchedItems, customColumns, source]);
 
   return {
     items,

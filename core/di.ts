@@ -1160,6 +1160,14 @@ export const getProcessCalendarEventUpsertWebhookInteractor = () =>
   new ProcessCalendarEventUpsertWebhookInteractor(getCalendarRepo(), getConnectedAccountRepo(), getEventService());
 export const getProcessCalendarEventDeleteWebhookInteractor = () =>
   new ProcessCalendarEventDeleteWebhookInteractor(getCalendarRepo(), getConnectedAccountRepo(), getEventService());
+export const getGetCalendarsInteractor = () =>
+  new GetCalendarsInteractor(
+    getCalendarRepo(),
+    getP13nRepo(),
+    "interactive",
+    getQueryParamsPrecheck(),
+    getEntitlementService(),
+  );
 export const getGetCalendarsApiInteractor = () =>
   new GetCalendarsInteractor(
     getCalendarRepo(),
