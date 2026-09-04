@@ -37,6 +37,8 @@ const domTestFiles = [
   "components/data-view/__tests__/data-view-views-rail-interaction.test.ts",
   "components/data-view/__tests__/use-data-view-sync.test.ts",
   "components/data-view/filter-modal/inputs/__tests__/filter-input-number.test.ts",
+  "components/data-view/filter-palette/__tests__/filter-palette-keyboard.test.tsx",
+  "components/data-view/filter-palette/__tests__/filter-palette-pages.test.tsx",
   "components/entity-detail/__tests__/entity-detail-personalization.test.ts",
   "components/entity-detail/__tests__/entity-detail-summary.test.ts",
   "components/entity-detail/__tests__/entity-detail-visibility.test.tsx",

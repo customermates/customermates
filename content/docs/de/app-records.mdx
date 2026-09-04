@@ -75,6 +75,8 @@ Alle fünf teilen dieselbe Maschinerie: dieselben Listenansichten, denselben Dra
 
 Jede Liste bietet eine Tabelle, ein Kartenraster und ein Board. `#{type}-display-options` öffnet den Umschalter; das Board braucht zusätzlich eine `singleSelect`-Spalte zum Gruppieren, und die Gruppierungsauswahl listet genau diese. Sortierung, Suche und Filter liegen in derselben Toolbar (`#{type}-search`, `#{type}-filter`). Ansichtswahlen bleiben pro Nutzer erhalten und überstehen Reloads. Mate kann die Display-options öffnen und das stabile Tabellen-, Karten- oder Kanban-Ziel aktivieren. Dynamische Werte für Gruppierung, Sortierung, Suche und Filter bleiben unter direkter Kontrolle des Nutzers; Mate kann Suche und Filter hervorheben oder für Sortierung und Gruppierung die Display-options öffnen.
 
+Das Filter-Steuerelement öffnet eine Befehlspalette. `#filter-palette-search` grenzt die Liste der filterbaren Felder beim Tippen ein; die Auswahl eines Feldes öffnet dessen Werteseite, und der Wert wirkt sofort auf die Liste, ohne separaten Übernehmen-Schritt. `#filter-palette-back` führt zurück zur Feldliste, Escape geht eine Seite zurück und schließt die Palette auf der obersten Ebene, und **Clear** entfernt alle gesetzten Filter auf einmal. Gesetzte Filter erscheinen zusätzlich als Chips unter der Toolbar, wo Bedingung und Wert getrennt geändert werden können.
+
 ## Custom Columns und die Board-Ansicht
 
 Jeder Datensatztyp kann benutzerdefinierte Custom Columns tragen. Es gibt keine fest im Typ verankerten Workflow-Felder, also weder eine produktseitige Deal-Stage noch einen produktseitigen Task-Status. `get_record_schema` gibt zurück, welche Columns ein Workspace für den jeweiligen Typ konfiguriert hat.

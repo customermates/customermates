@@ -6,12 +6,13 @@ import { SearchIcon, XIcon } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
-import { Button } from "@/components/ui/button";
 import { AppChip } from "@/components/chip/app-chip";
-import { ClickableChip } from "@/components/chip/clickable-chip";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { Button } from "@/components/ui/button";
+import { FilterChipOperatorMenu } from "@/components/data-view/header/filter-chip-operator-menu";
 import { FilterChipValue } from "@/components/data-view/filter-modal/filter-chip-display";
+import { isStandaloneOperator } from "@/core/base/base-query-builder";
 import { useFilterFieldLabel } from "@/components/entity-terminology/use-filter-field-label";
+import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 
 type Props<E extends HasId> = {
@@ -27,7 +28,7 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
 }: Props<E>) {
   const t = useTranslations();
   const filterFieldLabel = useFilterFieldLabel();
-  const { editFiltersModalStore } = useRootStore();
+  const { filterPaletteStore: palette } = useRootStore();
 
   const filters = store.filters ?? [];
   const searchTerm = store.searchTerm?.trim() ? store.searchTerm : undefined;
@@ -65,37 +66,44 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
 
       {filters.map((filter, index) => {
         const label = filterFieldLabel(filter.field, store.customColumns);
-        const operator = t(`Common.filters.operators.${filter.operator}`);
 
         return (
-          <ClickableChip
+          <AppChip
             key={`${filter.field}-${index}`}
             className="max-w-md"
+            data-filter-index={index}
             endContent={
               <button
-                aria-label={t("Common.actions.delete")}
+                aria-label={t("Common.filters.palette.removeFilter")}
                 className="ml-0.5 opacity-50 transition-[opacity,transform] hover:opacity-100 active:scale-[0.97] motion-reduce:transition-none"
-                tabIndex={-1}
                 type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  store.removeFilter(filter);
-                  editFiltersModalStore.syncDraftFromTable(store);
-                }}
+                onClick={() => store.removeFilterAt(index)}
               >
                 <XIcon className="size-3" />
               </button>
             }
             variant="default"
-            onClick={() => {
-              onEditFilters?.();
-              editFiltersModalStore.openFor(store, filter.field);
-            }}
           >
-            <span className="truncate text-[11px]">
-              <FilterChipValue customColumns={store.customColumns} filter={filter} label={label} operator={operator} />
+            <span className="flex min-w-0 items-center text-[11px]">
+              <span className="truncate font-medium">{label}</span>
+
+              <FilterChipOperatorMenu filter={filter} index={index} store={store} />
+
+              {!isStandaloneOperator(filter.operator) && (
+                <button
+                  aria-label={t("Common.filters.palette.editValue")}
+                  className="min-w-0 truncate transition-opacity hover:opacity-70 motion-reduce:transition-none"
+                  type="button"
+                  onClick={() => {
+                    onEditFilters?.();
+                    palette.openAt(store, { kind: "value", field: filter.field, editIndex: index });
+                  }}
+                >
+                  <FilterChipValue customColumns={store.customColumns} filter={filter} />
+                </button>
+              )}
             </span>
-          </ClickableChip>
+          </AppChip>
         );
       })}
 
@@ -105,10 +113,7 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
           size="xs"
           type="button"
           variant="secondary"
-          onClick={() => {
-            store.setQueryOptions({ filters: [], searchTerm: "" });
-            editFiltersModalStore.syncDraftFromTable(store);
-          }}
+          onClick={() => store.setQueryOptions({ filters: [], searchTerm: "" })}
         >
           {t("Common.filters.clearAll")}
         </Button>

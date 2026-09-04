@@ -75,6 +75,8 @@ All five share the same machinery: the same list views, the same drawer and deta
 
 Every list offers a table, a card grid, and a board. `#{type}-display-options` opens the switcher; the board additionally needs a `singleSelect` column to group by, and the group-by picker lists exactly those. Sorting, search, and filters live in the same toolbar (`#{type}-search`, `#{type}-filter`). View choices persist per user and survive reloads. Mate can open the display options and activate the stable table, cards, or kanban target. Dynamic grouping, sorting, search, and filter values remain under the user's direct control; Mate can highlight search and filter, or open display options for sorting and grouping.
 
+The filter control opens a command palette. `#filter-palette-search` narrows the list of filterable fields as you type; picking a field opens its value page, and the value applies to the list as soon as you set it, with no separate apply step. `#filter-palette-back` returns to the field list, Escape steps back one page and closes the palette at the top level, and **Clear** removes every applied filter at once. Applied filters also appear as chips under the toolbar, where the condition and the value can be changed separately.
+
 ## Custom columns and the board view
 
 Any record type can carry user-defined custom columns. There are no fixed workflow fields baked into a type, so there is no product-level deal stage or task status. `get_record_schema` returns whatever columns a workspace has configured for each type.

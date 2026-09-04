@@ -65,6 +65,7 @@ describe("technical-id loading contract", () => {
     const options = read("components/data-view/filter-modal/inputs/use-filter-select-items.tsx");
     const filterSelect = read("components/data-view/filter-modal/inputs/filter-input-select.tsx");
     const autocomplete = read("components/forms/form-autocomplete.tsx");
+    const paletteSelect = read("components/data-view/filter-palette/palette-value-select.tsx");
 
     expect(options).toContain("SELF_IDENTIFYING_FILTER_FIELDS");
     expect(options).toContain("const selfIdentifyingField = SELF_IDENTIFYING_FILTER_FIELDS.has(fieldKey)");
@@ -74,6 +75,7 @@ describe("technical-id loading contract", () => {
     expect(options).not.toContain("filters: [{ field, operator: FilterOperatorKey.in, value: ids }]");
     expect(options).not.toMatch(/field: fieldKey, operator: FilterOperatorKey\.in/);
     expect(options).not.toMatch(/pagination|pageSize/);
+    expect(paletteSelect).not.toMatch(/pagination|pageSize/);
     expect(options).toContain('status: "error"');
     expect(filterSelect).toContain("optionError");
     expect(filterSelect).toContain('t("ErrorCard.retry")');

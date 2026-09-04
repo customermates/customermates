@@ -1197,11 +1197,23 @@
         "lte": "≤",
         "notIn": "hors de"
       },
-      "presets": {
-        "add": "Enregistrer comme préréglage…",
-        "label": "Préréglage",
-        "namePlaceholder": "Nom du préréglage",
-        "none": "Aucun préréglage"
+      "palette": {
+        "activeGroup": "Filtres actifs",
+        "addFilter": "Ajouter un filtre…",
+        "appliedCount": "{count, plural, =1 {1 filtre} other {# filtres}}",
+        "dateAfter": "Après…",
+        "dateBefore": "Avant…",
+        "dateBetween": "Entre…",
+        "dateCustom": "Période personnalisée…",
+        "dateIncludes": "Inclut…",
+        "dateOnOrAfter": "À partir du…",
+        "dateOnOrBefore": "Jusqu'au…",
+        "editOperator": "Modifier la condition",
+        "editValue": "Modifier la valeur",
+        "fieldsGroup": "Filtrer par",
+        "limitReached": "Vous pouvez appliquer jusqu'à {count} filtres.",
+        "removeFilter": "Retirer le filtre",
+        "title": "Filtres"
       },
       "searchLabel": "Rechercher",
       "selectionLimit": "Vous pouvez sélectionner jusqu'à {count} valeurs.",

@@ -1197,11 +1197,23 @@
         "lte": "≤",
         "notIn": "non è uno di"
       },
-      "presets": {
-        "add": "Salva come preimpostazione…",
-        "label": "Preimpostazione",
-        "namePlaceholder": "Nome della preimpostazione",
-        "none": "Nessuna preimpostazione"
+      "palette": {
+        "activeGroup": "Filtri attivi",
+        "addFilter": "Aggiungi filtro…",
+        "appliedCount": "{count, plural, =1 {1 filtro} other {# filtri}}",
+        "dateAfter": "Dopo…",
+        "dateBefore": "Prima…",
+        "dateBetween": "Tra…",
+        "dateCustom": "Intervallo personalizzato…",
+        "dateIncludes": "Include…",
+        "dateOnOrAfter": "Dal…",
+        "dateOnOrBefore": "Fino al…",
+        "editOperator": "Modifica condizione",
+        "editValue": "Modifica valore",
+        "fieldsGroup": "Filtra per",
+        "limitReached": "Puoi applicare fino a {count} filtri.",
+        "removeFilter": "Rimuovi filtro",
+        "title": "Filtri"
       },
       "searchLabel": "Cerca",
       "selectionLimit": "Puoi selezionare fino a {count} valori.",

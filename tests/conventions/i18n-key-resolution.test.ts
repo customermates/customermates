@@ -608,7 +608,7 @@ export const DYNAMIC_KEY_SITES = [
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Subscription.planNames.${plan}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Subscription.status.${status}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Inbox.threadStates.${state}",
-  "components/data-view/header/active-filters-bar.tsx :: t :: Common.filters.operators.${filter.operator}",
+  "components/data-view/filter-modal/use-filter-operator-label.ts :: t :: Common.filters.operators.${operator}",
   "components/data-view/group-label.ts :: t :: Common.dateBuckets.${bucket}",
   "components/entity-terminology/use-column-label.ts :: t :: AuditLogModal.fields.${columnId}",
   "components/entity-terminology/use-column-label.ts :: t :: Common.table.columns.${columnId}",

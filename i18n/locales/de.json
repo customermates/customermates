@@ -1197,11 +1197,23 @@
         "lte": "≤",
         "notIn": "ist nicht in"
       },
-      "presets": {
-        "add": "Als Preset speichern…",
-        "label": "Preset",
-        "namePlaceholder": "Preset-Name",
-        "none": "Kein Preset"
+      "palette": {
+        "activeGroup": "Aktive Filter",
+        "addFilter": "Filter hinzufügen…",
+        "appliedCount": "{count, plural, =1 {1 Filter} other {# Filter}}",
+        "dateAfter": "Nach…",
+        "dateBefore": "Vor…",
+        "dateBetween": "Zwischen…",
+        "dateCustom": "Eigener Zeitraum…",
+        "dateIncludes": "Enthält…",
+        "dateOnOrAfter": "Ab…",
+        "dateOnOrBefore": "Bis…",
+        "editOperator": "Bedingung ändern",
+        "editValue": "Wert ändern",
+        "fieldsGroup": "Filtern nach",
+        "limitReached": "Du kannst bis zu {count} Filter anwenden.",
+        "removeFilter": "Filter entfernen",
+        "title": "Filter"
       },
       "searchLabel": "Suche",
       "selectionLimit": "Du kannst bis zu {count} Werte auswählen.",

@@ -1,12 +1,22 @@
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, relative, sep } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { REPO_ROOT } from "./walk";
+import { REPO_ROOT, walkFiles } from "./walk";
+
+const SCANNED_DIRECTORIES = ["app", "components", "features", "ee", "core", "workflows"];
+
+const WIDGET_EDITOR_DIRECTORY = "app/[locale]/(protected)/dashboard";
 
 function read(relativePath: string): string {
   return readFileSync(join(REPO_ROOT, relativePath), "utf8");
+}
+
+function sourceFiles(directories: string[]): string[] {
+  return directories.flatMap((directory) =>
+    walkFiles(join(REPO_ROOT, directory), (path) => /\.tsx?$/.test(path) && !path.includes(`${sep}__tests__${sep}`)),
+  );
 }
 
 const dashboardComponent = (name: string) => read(`app/[locale]/(protected)/dashboard/components/${name}`);
@@ -107,18 +117,76 @@ describe("dashboard widget UI", () => {
 
   it("groups each chart filter family inside one bordered accordion surface", () => {
     const accordion = read("components/data-view/filter-modal/filter-accordion.tsx");
-    const filterPopover = read("components/data-view/header/filter-popover.tsx");
+    const modal = dashboardComponent("widget-modal.tsx");
+    const fields = dashboardComponent("activity-filter-fields.tsx");
+    const groupedSurface = between(accordion, 'variant === "grouped" &&', "\n");
+    const groupedCallers = sourceFiles(SCANNED_DIRECTORIES).filter((file) =>
+      readFileSync(file, "utf8").includes('variant="grouped"'),
+    );
 
     expect(accordion).toContain('variant = "plain"');
-    expect(filterPopover).not.toContain('variant="grouped"');
+    expect(groupedSurface).toContain("rounded-md border border-input");
+    expect(between(modal, 'baseId="entityFilters"', "/>")).toContain('variant="grouped"');
+    expect(between(modal, 'baseId="dealFilters"', "/>")).toContain('variant="grouped"');
+    expect(between(fields, 'baseId="timelineFilters"', "/>")).toContain('variant="grouped"');
+    expect(groupedCallers.map((file) => relative(REPO_ROOT, file)).sort()).toEqual([
+      "app/[locale]/(protected)/dashboard/components/activity-filter-fields.tsx",
+      "app/[locale]/(protected)/dashboard/components/widget-modal.tsx",
+    ]);
+  });
+
+  it("keeps the list-surface filter palette off the widget editor accordion", () => {
+    const listSurfaceFiles = sourceFiles(["components/data-view/filter-palette", "components/data-view/header"]);
+    const borrowed = listSurfaceFiles.filter((file) => {
+      const source = readFileSync(file, "utf8");
+
+      return (
+        source.includes("filter-modal/filter-accordion") ||
+        source.includes("filter-modal/filter-field") ||
+        source.includes("<FilterAccordion") ||
+        source.includes("<FilterField") ||
+        source.includes('baseId="timelineFilters"')
+      );
+    });
+
+    expect(listSurfaceFiles.length).toBeGreaterThan(10);
+    expect(borrowed, borrowed.join("\n")).toEqual([]);
+    expect(read("components/data-view/filter-palette/filter-palette.tsx")).toContain("<PaletteRootList");
+    expect(read("components/data-view/header/filter-popover.tsx")).toContain("<FilterPalette");
   });
 
   it("disables shared filter operator controls with the surrounding form", () => {
     const field = read("components/data-view/filter-modal/filter-field.tsx");
+    const fields = dashboardComponent("activity-filter-fields.tsx");
 
     expect(field).toContain("const isDisabled = form?.isDisabled ?? false");
     expect(field).toContain("<Select disabled={isDisabled}");
     expect(field).toContain("disabled={isDisabled}");
+    expect(between(fields, "<SelectableCard", "/>")).toContain("disabled={form?.isDisabled}");
+    expect(between(fields, "Dashboard.widgetEditor.filters.removeUnavailable", "</button>")).toContain(
+      "disabled={form?.isDisabled}",
+    );
+  });
+
+  it("holds every widget filter edit until the widget editor's own save", () => {
+    const store = dashboardComponent("widget-modal.store.ts");
+    const field = read("components/data-view/filter-modal/filter-field.tsx");
+    const widgetEditorFiles = sourceFiles([WIDGET_EDITOR_DIRECTORY]);
+    const autoApplying = widgetEditorFiles.filter((file) => {
+      const source = readFileSync(file, "utf8");
+
+      return (
+        source.includes("filter-palette") ||
+        source.includes("FilterChipOperatorMenu") ||
+        source.includes("FILTER_AUTO_APPLY_DELAY_MS")
+      );
+    });
+
+    expect(widgetEditorFiles.length).toBeGreaterThan(10);
+    expect(autoApplying, autoApplying.join("\n")).toEqual([]);
+    expect(store).not.toContain("flushPendingChanges");
+    expect(store).toContain("onSubmit = async (event?: FormEvent<HTMLFormElement>)");
+    expect(field).toContain("form?.flushPendingChanges?.();");
   });
 
   it("renders axis options as ordinary switches", () => {
@@ -159,10 +227,22 @@ describe("dashboard widget UI", () => {
   it("resolves activity filter labels through the shared record-options action", () => {
     const input = read("components/data-view/filter-modal/inputs/filter-input-select.tsx");
     const items = read("components/data-view/filter-modal/inputs/use-filter-select-items.tsx");
+    const chip = read("components/data-view/filter-modal/filter-chip-display.tsx");
+    const paletteSelect = read("components/data-view/filter-palette/palette-value-select.tsx");
+    const resolvers = sourceFiles(SCANNED_DIRECTORIES).filter((file) =>
+      readFileSync(file, "utf8").includes("getActivityRecordOptionsAction({"),
+    );
 
     expect(input).toContain('role="status"');
     expect(items).toContain("getActivityRecordOptionsAction");
     expect(items).toContain("activityEntityTypeForFilterField(");
     expect(items).toContain("ACTIVITY_FILTER_VALUE_MAX");
+    for (const source of [input, chip, paletteSelect]) {
+      expect(source).toContain("use-filter-select-items");
+      expect(source).toContain("useFilterSelectItems(");
+    }
+    expect(resolvers.map((file) => relative(REPO_ROOT, file))).toEqual([
+      "components/data-view/filter-modal/inputs/use-filter-select-items.tsx",
+    ]);
   });
 });

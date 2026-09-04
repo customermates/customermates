@@ -188,7 +188,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
       setViewOptions: action,
       setQueryOptions: action,
-      removeFilter: action,
+      appendFilter: action,
+      replaceFilterAt: action,
+      removeFilterAt: action,
       applyView: action,
       refresh: action,
       refreshCustomColumns: action,
@@ -883,12 +885,22 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     else this.refreshQueryInBackground();
   };
 
-  removeFilter = (filter: Filter) => {
-    const newFilters = (this.filters ?? []).filter((f) => f.field !== filter.field);
+  appendFilter = (filter: Filter) => {
+    this.setQueryOptions({ filters: [...(this.filters ?? []), filter] });
+  };
 
-    this.setQueryOptions({
-      filters: newFilters,
-    });
+  replaceFilterAt = (index: number, filter: Filter) => {
+    const current = this.filters ?? [];
+    if (index < 0 || index >= current.length) return;
+
+    this.setQueryOptions({ filters: current.map((entry, position) => (position === index ? filter : entry)) });
+  };
+
+  removeFilterAt = (index: number) => {
+    const current = this.filters ?? [];
+    if (index < 0 || index >= current.length) return;
+
+    this.setQueryOptions({ filters: current.filter((_, position) => position !== index) });
   };
 
   applyView = (viewKey: string): void => {

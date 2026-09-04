@@ -51,7 +51,7 @@ import { WidgetsStore } from "@/app/[locale]/(protected)/dashboard/components/wi
 import { WidgetModalStore } from "@/app/[locale]/(protected)/dashboard/components/widget-modal.store";
 import { RolesStore } from "@/app/[locale]/(protected)/company/components/role/roles.store";
 import { CustomColumnModalStore } from "@/components/data-view/custom-columns/custom-column-modal.store";
-import { EditFiltersModalStore } from "@/components/data-view/filter-modal/edit-filters-modal.store";
+import { FilterPaletteStore } from "@/components/data-view/filter-palette/filter-palette.store";
 import { DeleteConfirmationModalStore } from "@/components/modal/delete-confirmation-modal.store";
 import { DealDetailStore } from "@/app/[locale]/(protected)/deals/components/deal-detail.store";
 import { DealsStore } from "@/app/[locale]/(protected)/deals/components/deals.store";
@@ -147,7 +147,7 @@ export class RootStore {
   private _feedbackModalStore?: FeedbackModalStore;
   private _timelineDetailModalStore?: TimelineDetailModalStore;
   private _customColumnModalStore?: CustomColumnModalStore;
-  private _editFiltersModalStore?: EditFiltersModalStore;
+  private _filterPaletteStore?: FilterPaletteStore;
   private _agentChatStore?: AgentChatStore;
   private _agentUiControlStore?: AgentUiControlStore;
 
@@ -239,8 +239,8 @@ export class RootStore {
     return (this._customColumnModalStore ??= new CustomColumnModalStore(this));
   }
 
-  get editFiltersModalStore() {
-    return (this._editFiltersModalStore ??= new EditFiltersModalStore(this));
+  get filterPaletteStore() {
+    return (this._filterPaletteStore ??= new FilterPaletteStore(this));
   }
 
   get widgetsStore() {

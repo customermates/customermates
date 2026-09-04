@@ -2,31 +2,19 @@
 
 import type { BaseDataViewStore } from "@/core/base/base-data-view.store";
 
-import { BookmarkPlus, Check, ChevronDown, Filter, Trash2 } from "lucide-react";
+import { Filter } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
-import { FilterAccordion } from "@/components/data-view/filter-modal/filter-accordion";
-import { cn } from "@/core/utils/cn";
-import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
-import { AppForm } from "@/components/forms/form-context";
-import { FormInput } from "@/components/forms/form-input";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { FilterPalette } from "@/components/data-view/filter-palette/filter-palette";
+import { MAX_APPLIED_FILTERS } from "@/components/data-view/filter-palette/filter-palette.store";
 import { ResponsiveOverlay } from "@/components/modal";
-import { Separator } from "@/components/ui/separator";
-import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { cn } from "@/core/utils/cn";
 import { runUserAction } from "@/core/errors/report-application-error";
-
-import { PopoverSection } from "./popover-section";
+import { useFilterFieldLabel } from "@/components/entity-terminology/use-filter-field-label";
+import { useRootStore } from "@/core/stores/root-store.provider";
 
 type Props = {
   store: BaseDataViewStore<any>;
@@ -36,55 +24,35 @@ type Props = {
 
 export const FilterPopover = observer(function FilterPopover({ store, compact, id }: Props) {
   const t = useTranslations();
-  const { editFiltersModalStore: modalStore } = useRootStore();
-  const { showDeleteConfirmation } = useDeleteConfirmation();
+  const { filterPaletteStore: palette } = useRootStore();
+  const filterFieldLabel = useFilterFieldLabel();
 
-  useEffect(() => () => modalStore.flushPendingChanges(), [modalStore]);
+  useEffect(() => () => palette.flushPendingChanges(), [palette]);
 
   if (store.filterableFields.length === 0) return null;
 
   const activeFilterCount = store.filters?.length ?? 0;
-  const savedPresets = modalStore.savedPresets;
-  const isEditingPreset = modalStore.isEditingPreset;
-  const isCreatingPreset = modalStore.isCreatingPreset;
-  const validFormFilters = (modalStore.form.filters ?? []).filter(hasValidFilterConfiguration);
-  const cannotSavePreset = (isCreatingPreset || isEditingPreset) && validFormFilters.length === 0;
-  const activePresetId = isEditingPreset ? (modalStore.form.presetId as string) : undefined;
-  const activePreset = activePresetId ? savedPresets.find((p) => p.id === activePresetId) : undefined;
+  const isOpen = palette.isOpen && palette.tableStore === store;
+  const page = palette.page;
+  const title =
+    isOpen && page.kind !== "root"
+      ? filterFieldLabel(page.field, store.customColumns)
+      : t("Common.filters.palette.title");
 
   function handleOpenChange(open: boolean) {
-    if (open) modalStore.openFor(store);
-    else modalStore.close();
+    if (open) palette.openFor(store);
+    else palette.close();
   }
 
-  function handleSavePreset() {
-    runUserAction(() => modalStore.onSubmit());
+  function handleEscapeKeyDown(event: KeyboardEvent) {
+    if (palette.page.kind === "root") return;
+
+    event.preventDefault();
+    palette.pop();
   }
 
   function handleClear() {
-    modalStore.cancelPendingAutoApply();
-    store.setQueryOptions({
-      filters: [],
-      forceRefresh: true,
-      refreshMode: "background",
-    });
-    modalStore.openFor(store);
-  }
-
-  function handleSelectPreset(presetId: string | undefined) {
-    modalStore.onChange("presetId", presetId);
-  }
-
-  function handleStartCreatePreset() {
-    modalStore.onChange("presetId", "new");
-  }
-
-  function handleCancelCreatePreset() {
-    modalStore.onChange("presetId", undefined);
-  }
-
-  function handleDeletePreset() {
-    showDeleteConfirmation(() => modalStore.deletePreset(), modalStore.form.name);
+    runUserAction(() => palette.clearFilters());
   }
 
   const trigger = (
@@ -115,30 +83,22 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, i
 
   const footer = (
     <>
-      {isCreatingPreset && (
-        <Button className="h-8" size="sm" type="button" variant="secondary" onClick={handleCancelCreatePreset}>
-          {t("Common.actions.cancel")}
-        </Button>
+      {activeFilterCount >= MAX_APPLIED_FILTERS && (
+        <p aria-live="polite" className="mr-auto text-xs text-muted-foreground" role="status">
+          {t("Common.filters.palette.limitReached", { count: MAX_APPLIED_FILTERS })}
+        </p>
       )}
 
-      {!isCreatingPreset && (
-        <Button
-          className="h-8"
-          disabled={activeFilterCount === 0}
-          size="sm"
-          type="button"
-          variant="secondary"
-          onClick={handleClear}
-        >
-          {t("Common.actions.clear")}
-        </Button>
-      )}
-
-      {(isCreatingPreset || isEditingPreset) && (
-        <Button className="h-8" disabled={cannotSavePreset} size="sm" type="button" onClick={handleSavePreset}>
-          {t("Common.actions.save")}
-        </Button>
-      )}
+      <Button
+        className="h-8"
+        disabled={activeFilterCount === 0}
+        size="sm"
+        type="button"
+        variant="secondary"
+        onClick={handleClear}
+      >
+        {t("Common.actions.clear")}
+      </Button>
     </>
   );
 
@@ -146,94 +106,14 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, i
     <ResponsiveOverlay
       align="end"
       footer={footer}
-      open={modalStore.isOpen && modalStore.tableStore === store}
-      popoverClassName="w-96"
-      title={t("Common.ariaLabels.tooltipFilters")}
+      open={isOpen}
+      popoverClassName="w-[min(22rem,var(--radix-popover-content-available-width))]"
+      title={title}
       trigger={trigger}
+      onEscapeKeyDown={handleEscapeKeyDown}
       onOpenChange={handleOpenChange}
     >
-      <AppForm store={modalStore}>
-        <PopoverSection label={t("Common.filters.presets.label")}>
-          {isCreatingPreset ? (
-            <FormInput
-              autoFocus
-              className="h-8"
-              id="name"
-              label={null}
-              placeholder={t("Common.filters.presets.namePlaceholder")}
-            />
-          ) : (
-            <div className="flex items-center gap-1">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    className="h-8 flex-1 justify-between font-normal"
-                    size="sm"
-                    type="button"
-                    variant="secondary"
-                  >
-                    <span className="truncate">
-                      {activePreset ? activePreset.name : t("Common.filters.presets.none")}
-                    </span>
-
-                    <ChevronDown className="size-3.5 opacity-50" />
-                  </Button>
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent align="start" className="w-56">
-                  <DropdownMenuItem onSelect={() => handleSelectPreset(undefined)}>
-                    <span className="flex-1">{t("Common.filters.presets.none")}</span>
-
-                    {!activePresetId && <Check className="size-3.5" />}
-                  </DropdownMenuItem>
-
-                  {savedPresets.length > 0 && <DropdownMenuSeparator />}
-
-                  {savedPresets.map((preset) => (
-                    <DropdownMenuItem key={preset.id} onSelect={() => handleSelectPreset(preset.id)}>
-                      <span className="flex-1">{preset.name}</span>
-
-                      {activePresetId === preset.id && <Check className="size-3.5" />}
-                    </DropdownMenuItem>
-                  ))}
-
-                  <DropdownMenuSeparator />
-
-                  <DropdownMenuItem onSelect={handleStartCreatePreset}>
-                    <BookmarkPlus className="size-3.5" />
-
-                    {t("Common.filters.presets.add")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {isEditingPreset && (
-                <Button
-                  aria-label={t("Common.actions.delete")}
-                  className="size-8 text-destructive"
-                  size="icon-sm"
-                  type="button"
-                  variant="secondary"
-                  onClick={handleDeletePreset}
-                >
-                  <Trash2 className="size-3.5" />
-                </Button>
-              )}
-            </div>
-          )}
-        </PopoverSection>
-
-        <Separator />
-
-        <FilterAccordion
-          baseId="filters"
-          customColumns={store.customColumns}
-          filterableFields={store.filterableFields}
-          filters={modalStore.form.filters}
-          value={modalStore.expandedField ?? ""}
-          onValueChange={modalStore.setExpandedField}
-        />
-      </AppForm>
+      <FilterPalette store={store} />
     </ResponsiveOverlay>
   );
 });
