@@ -1879,6 +1879,10 @@
       "weightedValue": "{dealValue} × {percent} % de probabilidad de cierre de la etapa actual ({stage}). Edita «{services}», las cantidades o la etapa; gestiona las probabilidades en «{company}».",
       "weightedValueUnconfigured": "{dealValue} × probabilidad de cierre de la etapa seleccionada. Configura las probabilidades en «{company}» y selecciona una etapa; edita «{services}» o las cantidades."
     },
+    "customFieldsEmpty": {
+      "body": "Los campos personalizados contienen los datos adicionales que tu espacio de trabajo registra para este tipo de registro.",
+      "title": "Aún no hay campos personalizados"
+    },
     "donePersonalizing": "Listo",
     "fields": {
       "createdAt": "Creado el",

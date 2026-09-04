@@ -1879,6 +1879,10 @@
       "weightedValue": "{dealValue} × the {percent}% win probability for the current stage ({stage}). Change {services}, quantities, or the stage; manage stage probabilities in {company}.",
       "weightedValueUnconfigured": "{dealValue} × the selected stage’s win probability. Configure stage probabilities in {company} and select a stage; change {services} or quantities to update it."
     },
+    "customFieldsEmpty": {
+      "body": "Custom fields hold the extra details your workspace tracks on this record type.",
+      "title": "No custom fields yet"
+    },
     "donePersonalizing": "Done",
     "fields": {
       "createdAt": "Created at",
