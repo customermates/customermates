@@ -15,6 +15,7 @@ export abstract class ReconcileRoutineRunsRepo {
     {
       id: string;
       routineId: string;
+      executedByUserId: string;
       turnRequestId: string | null;
       conversationId: string | null;
     }[]
@@ -22,7 +23,7 @@ export abstract class ReconcileRoutineRunsRepo {
   abstract findOrphanedRunningRoutineRunsUnscoped(
     before: Date,
     limit: number,
-  ): Promise<{ id: string; routineId: string }[]>;
+  ): Promise<{ id: string; routineId: string; executedByUserId: string }[]>;
   abstract readTurnOutcomeUnscoped(turnRequestId: string): Promise<{
     status: RoutineRunStatusType;
     terminalCode: AgentTurnTerminalCode | null;
@@ -30,18 +31,24 @@ export abstract class ReconcileRoutineRunsRepo {
     chargedCredits: number;
     summary: string | null;
   } | null>;
-  abstract readRecentRoutineRunOutcomesUnscoped(routineId: string, limit: number): Promise<RoutineRunStatusType[]>;
-  abstract disableRoutineUnscoped(routineId: string, reason: string): Promise<unknown>;
+  abstract readRecentRoutineRunOutcomesUnscoped(
+    routineId: string,
+    executedByUserId: string,
+    limit: number,
+  ): Promise<RoutineRunStatusType[]>;
+  abstract disableRoutineUnscoped(routineId: string, reason: string, executedByUserId: string): Promise<unknown>;
   abstract settleRoutineRunUnscoped(args: {
     routineRunId: string;
     routineId: string;
+    expectedStatus: RoutineRunStatusType;
     status: RoutineRunStatusType;
     error?: string | null;
     summary?: string | null;
     chargedCredits?: number;
     terminalCode?: AgentTurnTerminalCode | null;
+    expectedTurnRequestId?: string | null;
     now: Date;
-  }): Promise<void>;
+  }): Promise<boolean>;
 }
 
 @SystemInteractor
@@ -59,18 +66,20 @@ export class ReconcileRoutineRunsInteractor {
       const outcome = await this.repo.readTurnOutcomeUnscoped(run.turnRequestId);
       if (!outcome || !outcome.settled) continue;
 
-      await this.repo.settleRoutineRunUnscoped({
+      const didSettle = await this.repo.settleRoutineRunUnscoped({
         routineRunId: run.id,
         routineId: run.routineId,
+        expectedStatus: "running",
         status: outcome.status,
         summary: outcome.summary,
         chargedCredits: outcome.chargedCredits,
         terminalCode: outcome.terminalCode,
         now,
       });
+      if (!didSettle) continue;
       settled += 1;
 
-      if (outcome.status === "failed") await this.disableIfFailingRepeatedly(run.routineId);
+      if (outcome.status === "failed") await this.disableIfFailingRepeatedly(run.routineId, run.executedByUserId);
     }
 
     const orphaned = await this.repo.findOrphanedRunningRoutineRunsUnscoped(
@@ -79,26 +88,33 @@ export class ReconcileRoutineRunsInteractor {
     );
 
     for (const run of orphaned) {
-      await this.repo.settleRoutineRunUnscoped({
+      const didSettle = await this.repo.settleRoutineRunUnscoped({
         routineRunId: run.id,
         routineId: run.routineId,
+        expectedStatus: "running",
+        expectedTurnRequestId: null,
         status: "failed",
         error: "startAbandoned",
         now,
       });
+      if (!didSettle) continue;
       settled += 1;
 
-      await this.disableIfFailingRepeatedly(run.routineId);
+      await this.disableIfFailingRepeatedly(run.routineId, run.executedByUserId);
     }
 
     return { settled };
   }
 
-  private async disableIfFailingRepeatedly(routineId: string): Promise<void> {
-    const recent = await this.repo.readRecentRoutineRunOutcomesUnscoped(routineId, ROUTINE_CONSECUTIVE_FAILURE_LIMIT);
+  private async disableIfFailingRepeatedly(routineId: string, executedByUserId: string): Promise<void> {
+    const recent = await this.repo.readRecentRoutineRunOutcomesUnscoped(
+      routineId,
+      executedByUserId,
+      ROUTINE_CONSECUTIVE_FAILURE_LIMIT,
+    );
     if (recent.length < ROUTINE_CONSECUTIVE_FAILURE_LIMIT) return;
     if (!recent.every((status) => status === "failed")) return;
 
-    await this.repo.disableRoutineUnscoped(routineId, ROUTINE_DISABLED_REASON_REPEATED_FAILURES);
+    await this.repo.disableRoutineUnscoped(routineId, ROUTINE_DISABLED_REASON_REPEATED_FAILURES, executedByUserId);
   }
 }

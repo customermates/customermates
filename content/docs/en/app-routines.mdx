@@ -3,7 +3,7 @@ title: "Routines: Scheduled and Event-Driven Assistant Runs"
 description: "Routines run the Customermates assistant on a schedule or when a record changes, using your existing AI credits, with stable anchor ids for AI agents."
 ---
 
-A routine is a saved instruction plus a trigger. When the trigger fires, Customermates opens a new assistant conversation, sends your instruction, and lets the assistant work on its own. Every run is a normal chat you can open and read afterwards.
+A routine is a saved instruction plus a trigger. When the trigger fires, Customermates opens a new assistant conversation, sends your instruction, and lets the assistant work on its own. Everyone in the company can see the routine and its run summaries; the person who ran it can also open the full assistant transcript.
 
 ## What a routine is made of
 
@@ -12,6 +12,8 @@ A routine is a saved instruction plus a trigger. When the trigger fires, Custome
 - **Guardrails** — Customermates caps how often a routine may run and how many credits a single run may spend, so a routine cannot drain your allowance unattended.
 
 Routines are only available on the cloud product, because they spend hosted AI credits from the owner's monthly allowance.
+
+The creator becomes the routine owner. Only that owner can change its instructions or triggers, activate or pause it, or use **Test trigger**, because every run uses that person's identity, access and AI credits. A company administrator can pause or delete another person's routine, but cannot edit, test or run it. If an owner becomes inactive or is removed, the routine and its history are preserved, but the routine stays paused and read-only until an administrator deletes it.
 
 How many you can keep depends on the plan: Starter has none, Pro includes [[commercial.entitlement.pro.includedRoutines]], and Business and Enterprise are [[commercial.entitlement.business.includedRoutines]]. Pausing a routine does not free a slot, deleting one does.
 
@@ -38,9 +40,9 @@ given the previous values of the fields that changed.
 
 ## Runs
 
-Open a routine to see its runs, newest first. Selecting a run shows the full transcript: what the assistant was asked, which records it read or changed, and what it replied. Each run also records how many AI credits it used.
+Open a routine to see its runs, newest first. Each run records the person whose identity and credits it used. Everyone in the company can see run status, summary and credit use. Only that recorded executor can open the full transcript: what the assistant was asked, which records it read or changed, and what it replied.
 
-Use **Run now** to start a run immediately without waiting for the schedule.
+Use **Test trigger** to start a real run immediately for a scheduled routine. It uses AI credits and may change workspace data. Event-triggered routines need a real matching event, so this control is disabled for them.
 
 Run statuses are `queued`, `running`, `succeeded`, `partial`, `failed`, `skipped`, and `blocked`. A run is `skipped` when a guardrail stopped it, and `blocked` when the assistant could not start at all, for example because the owner is out of credits or their account is no longer active.
 
@@ -54,8 +56,8 @@ Interface tools are unavailable to routines, because there is no browser attache
 
 ## Anchor ids
 
-| Surface | Route | Nav anchor | Toolbar anchors |
-| --- | --- | --- | --- |
+| Surface  | Route       | Nav anchor      | Toolbar anchors                                                                      |
+| -------- | ----------- | --------------- | ------------------------------------------------------------------------------------ |
 | Routines | `/routines` | `#nav-routines` | `#routines-add`, `#routines-search`, `#routines-filter`, `#routines-display-options` |
 
 Layout controls: `#routines-layout-table`, `#routines-layout-cards`, `#routines-layout-kanban`

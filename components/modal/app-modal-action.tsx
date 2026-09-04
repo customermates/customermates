@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 
 import { cn } from "@/core/utils/cn";
@@ -19,6 +20,7 @@ type SharedActionProps = {
   id: string;
   icon: LucideIcon;
   label: string;
+  tooltip?: ReactNode;
   variant?: AppModalActionVariant;
 };
 
@@ -52,8 +54,9 @@ function isLinkAction(props: AppModalActionProps): props is LinkActionProps {
 }
 
 export function AppModalAction(props: AppModalActionProps) {
-  const { icon: Icon, label, variant = "neutral" } = props;
+  const { icon: Icon, label, tooltip, variant = "neutral" } = props;
   const isBusy = "busy" in props && props.busy === true;
+  const isDisabled = !isLinkAction(props) && (props.disabled === true || isBusy);
   const className = cn(OVERLAY_ICON_CONTROL_CLASS, actionVariantClassMap[variant]);
   const content = <Icon aria-hidden className={cn("size-4", isBusy && "animate-spin")} />;
 
@@ -87,8 +90,8 @@ export function AppModalAction(props: AppModalActionProps) {
     )
   ) : (
     <button
-      aria-busy={isBusy || undefined}
-      aria-label={label}
+      aria-hidden={isDisabled || undefined}
+      aria-label={isDisabled ? undefined : label}
       className={className}
       data-overlay-action=""
       data-size="icon"
@@ -101,12 +104,27 @@ export function AppModalAction(props: AppModalActionProps) {
       {content}
     </button>
   );
+  const trigger = isDisabled ? (
+    <span
+      aria-busy={isBusy || undefined}
+      aria-disabled="true"
+      aria-label={label}
+      className="inline-flex"
+      data-slot="app-modal-action-disabled-trigger"
+      role="button"
+      tabIndex={0}
+    >
+      {control}
+    </span>
+  ) : (
+    control
+  );
 
   return (
     <Tooltip>
-      <TooltipTrigger asChild>{control}</TooltipTrigger>
+      <TooltipTrigger asChild>{trigger}</TooltipTrigger>
 
-      <TooltipContent>{label}</TooltipContent>
+      <TooltipContent>{tooltip ?? label}</TooltipContent>
     </Tooltip>
   );
 }

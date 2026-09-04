@@ -15,9 +15,12 @@ export function entityTypeForEvent(event: string): EntityType | null {
 }
 
 export function entityTypeForEvents(events: readonly string[]): EntityType | null {
-  const types = new Set(events.map(entityTypeForEvent).filter((type): type is EntityType => type !== null));
+  const resolved = events.map(entityTypeForEvent);
+  if (resolved.some((type) => type === null)) return null;
 
-  return types.size === 1 ? [...types][0] : null;
+  const types = new Set(resolved);
+
+  return types.size === 1 ? ([...types][0] ?? null) : null;
 }
 
 export function isRecordChangeEvent(event: string): boolean {

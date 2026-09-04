@@ -9,7 +9,7 @@ const MODEL_CALL_PATTERN =
   /\b(?:streamText|generateText|generateObject|streamObject|embed|embedMany)\s*\(|\bnew\s+(?:Agent|WorkflowAgent|ToolLoopAgent)\s*\(/;
 const PROVIDER_FACTORY_PATTERN =
   /\b(?:createOpenAI|createAnthropic|createGoogleGenerativeAI|createGateway|createProviderRegistry|customProvider|wrapProvider)\s*\(/;
-const APPROVED_MODEL_CALL_FILES = ["workflows/agent-turn.ts", "workflows/analyze-routine-loops.ts"];
+const APPROVED_MODEL_CALL_FILES = ["workflows/agent-turn.ts"];
 
 function productionTypeScriptFiles() {
   return walkFiles(REPO_ROOT, (path) => {
@@ -40,11 +40,12 @@ describe("agent model budget boundary", () => {
     expect(matchingProductionFiles(PROVIDER_FACTORY_PATTERN)).toEqual([]);
   });
 
-  it("keeps the routine loop analyzer off the customer's credit ledger", () => {
+  it("keeps routine cleanup deterministic and free of model or provider calls", () => {
     const analyzer = readFileSync(`${REPO_ROOT}/workflows/analyze-routine-loops.ts`, "utf8");
 
-    expect(analyzer).not.toMatch(/AgentUsageEvent|agentUsageEvent|reserveUsage|usageService|turnBudget/);
-    expect(analyzer).toContain("MODEL_CATALOG.fast");
+    expect(analyzer).not.toMatch(MODEL_CALL_PATTERN);
+    expect(analyzer).not.toMatch(/\bfrom ["']ai["']|MODEL_CATALOG|servingProvider|providerOptions/);
+    expect(analyzer).toContain("findings: []");
   });
 
   it("addresses models by gateway id from the catalog rather than by a hardcoded string", () => {

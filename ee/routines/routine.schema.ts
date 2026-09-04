@@ -2,11 +2,12 @@ import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
-import { RoutineRunStatus, RoutineTriggerKind, AgentTurnTerminalCode } from "@/generated/prisma";
+import { RoutineRunStatus, RoutineTriggerKind, AgentTurnTerminalCode, Status } from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { FilterSchema } from "@/core/base/base-get.schema";
+import { DomainEvent } from "@/features/event/domain-events";
 import {
   DEFAULT_ROUTINE_TIMEZONE,
   MIN_ROUTINE_INTERVAL_MINUTES,
@@ -20,10 +21,26 @@ export const ROUTINE_NAME_MAX_CHARS = 120;
 
 export const RoutineTriggerKindSchema = z.enum(RoutineTriggerKind);
 export const RoutineRunStatusSchema = z.enum(RoutineRunStatus);
+export const RoutineTriggerEventSchema = WebhookEventSchema.exclude([
+  DomainEvent.MESSAGING_EMAIL_DELETED,
+  DomainEvent.MESSAGING_CHAT_DELETED,
+]);
+export const ROUTINE_TRIGGER_EVENTS = RoutineTriggerEventSchema.options;
+
+export const RoutineOwnerDtoSchema = z.object({
+  id: z.uuid(),
+  firstName: z.string(),
+  lastName: z.string(),
+  avatarUrl: z.string().nullable(),
+  status: z.enum(Status),
+});
+
+export type RoutineOwnerDto = Data<typeof RoutineOwnerDtoSchema>;
 
 export const RoutineDtoSchema = z.object({
   id: z.uuid(),
-  ownerUserId: z.uuid(),
+  ownerUserId: z.uuid().nullable(),
+  owner: RoutineOwnerDtoSchema.nullable(),
   name: z.string(),
   prompt: z.string(),
   modelKey: z.string().nullable(),
@@ -52,6 +69,8 @@ export type RoutineDto = Data<typeof RoutineDtoSchema>;
 export const RoutineRunDtoSchema = z.object({
   id: z.uuid(),
   routineId: z.uuid(),
+  executedByUserId: z.string().min(1),
+  executedByName: z.string(),
   conversationId: z.uuid().nullable(),
   turnRequestId: z.uuid().nullable(),
   status: RoutineRunStatusSchema,
@@ -71,84 +90,108 @@ export const RoutineRunDtoSchema = z.object({
 
 export type RoutineRunDto = Data<typeof RoutineRunDtoSchema>;
 
-export const UpsertRoutineSchema = z
-  .object({
-    id: z.uuid().optional(),
-    name: zx.nonBlankText(ROUTINE_NAME_MAX_CHARS).optional(),
-    prompt: zx.nonBlankText(ROUTINE_PROMPT_MAX_CHARS).optional(),
-    modelKey: z.string().min(1).max(64).nullable().optional(),
-    enabled: z.boolean().optional(),
-    triggerKind: RoutineTriggerKindSchema.optional(),
-    cronExpression: z.string().min(1).max(120).nullable().optional(),
-    timezone: z.string().min(1).max(64).nullable().optional(),
-    runOnceAt: z.coerce.date().nullable().optional(),
-    triggerEvents: z.array(WebhookEventSchema).optional(),
-    changedFields: z.array(z.string()).optional(),
-    triggerFilters: z.array(FilterSchema).nullable().optional(),
-    debounceSeconds: z.number().int().min(0).max(86_400).optional(),
-    maxRunsPerHour: z.number().int().min(1).max(60).optional(),
-    maxCreditsPerRun: z.number().int().min(1).max(500).optional(),
-  })
-  .superRefine((data, ctx) => {
-    const creating = !data.id;
+const UpsertRoutineFieldsSchema = z.object({
+  id: z.uuid().optional(),
+  name: zx.nonBlankText(ROUTINE_NAME_MAX_CHARS).optional(),
+  prompt: zx.nonBlankText(ROUTINE_PROMPT_MAX_CHARS).optional(),
+  modelKey: z.string().min(1).max(64).nullable().optional(),
+  enabled: z.boolean().optional(),
+  triggerKind: RoutineTriggerKindSchema.optional(),
+  cronExpression: z.string().min(1).max(120).nullable().optional(),
+  timezone: z.string().min(1).max(64).nullable().optional(),
+  runOnceAt: z.coerce.date().nullable().optional(),
+  triggerEvents: z.array(RoutineTriggerEventSchema).optional(),
+  changedFields: z.array(z.string()).optional(),
+  triggerFilters: z.array(FilterSchema).nullable().optional(),
+  debounceSeconds: z.number().int().min(0).max(86_400).optional(),
+  maxRunsPerHour: z.number().int().min(1).max(60).optional(),
+  maxCreditsPerRun: z.number().int().min(1).max(500).optional(),
+});
 
-    if (creating && data.name === undefined)
-      ctx.addIssue({ code: "custom", path: ["name"], params: { error: CustomErrorCode.mustNotBeBlank } });
-    if (creating && data.prompt === undefined)
-      ctx.addIssue({ code: "custom", path: ["prompt"], params: { error: CustomErrorCode.mustNotBeBlank } });
-    if (creating && data.triggerKind === undefined)
-      ctx.addIssue({ code: "custom", path: ["triggerKind"], params: { error: CustomErrorCode.mustNotBeBlank } });
+export type RoutineValidationData = z.output<typeof UpsertRoutineFieldsSchema>;
 
-    if (data.triggerKind === RoutineTriggerKind.event && creating && (data.triggerEvents?.length ?? 0) === 0) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["triggerEvents"],
-        params: { error: CustomErrorCode.routineTriggerEventsRequired },
-      });
-    }
+export function validateRoutineFinalState(data: RoutineValidationData, ctx: z.RefinementCtx) {
+  const creating = !data.id;
 
-    if (data.triggerKind === RoutineTriggerKind.schedule && creating && !data.cronExpression && !data.runOnceAt) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["cronExpression"],
-        params: { error: CustomErrorCode.routineScheduleRequired },
-      });
-    }
+  if (creating && data.name === undefined) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["name"],
+      params: { error: CustomErrorCode.mustNotBeBlank },
+    });
+  }
+  if (creating && data.prompt === undefined) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["prompt"],
+      params: { error: CustomErrorCode.mustNotBeBlank },
+    });
+  }
+  if (creating && data.triggerKind === undefined) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["triggerKind"],
+      params: { error: CustomErrorCode.mustNotBeBlank },
+    });
+  }
 
-    if (data.timezone && !isSupportedTimeZone(data.timezone))
-      ctx.addIssue({ code: "custom", path: ["timezone"], params: { error: CustomErrorCode.routineTimeZoneInvalid } });
+  if (data.triggerKind === RoutineTriggerKind.event && creating && (data.triggerEvents?.length ?? 0) === 0) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["triggerEvents"],
+      params: { error: CustomErrorCode.routineTriggerEventsRequired },
+    });
+  }
 
-    if (!data.cronExpression) return;
+  if (data.triggerKind === RoutineTriggerKind.schedule && creating && !data.cronExpression && !data.runOnceAt) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["cronExpression"],
+      params: { error: CustomErrorCode.routineScheduleRequired },
+    });
+  }
 
-    const parsed = parseCronExpression(data.cronExpression);
-    if (!parsed.ok) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["cronExpression"],
-        params: { error: CustomErrorCode.routineScheduleInvalid },
-      });
-      return;
-    }
+  if (data.timezone && !isSupportedTimeZone(data.timezone)) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["timezone"],
+      params: { error: CustomErrorCode.routineTimeZoneInvalid },
+    });
+  }
 
-    const timezone = data.timezone && isSupportedTimeZone(data.timezone) ? data.timezone : DEFAULT_ROUTINE_TIMEZONE;
-    const smallest = smallestIntervalMinutes(parsed.cron, new Date(), timezone);
+  if (!data.cronExpression) return;
 
-    if (smallest === null) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["cronExpression"],
-        params: { error: CustomErrorCode.routineScheduleInvalid },
-      });
-      return;
-    }
+  const parsed = parseCronExpression(data.cronExpression);
+  if (!parsed.ok) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["cronExpression"],
+      params: { error: CustomErrorCode.routineScheduleInvalid },
+    });
+    return;
+  }
 
-    if (smallest < MIN_ROUTINE_INTERVAL_MINUTES) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["cronExpression"],
-        params: { error: CustomErrorCode.routineScheduleTooFrequent },
-      });
-    }
-  });
+  const timezone = data.timezone && isSupportedTimeZone(data.timezone) ? data.timezone : DEFAULT_ROUTINE_TIMEZONE;
+  const smallest = smallestIntervalMinutes(parsed.cron, new Date(), timezone);
+
+  if (smallest === null) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["cronExpression"],
+      params: { error: CustomErrorCode.routineScheduleInvalid },
+    });
+    return;
+  }
+
+  if (smallest < MIN_ROUTINE_INTERVAL_MINUTES) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["cronExpression"],
+      params: { error: CustomErrorCode.routineScheduleTooFrequent },
+    });
+  }
+}
+
+export const UpsertRoutineSchema = UpsertRoutineFieldsSchema.superRefine(validateRoutineFinalState);
 
 export type UpsertRoutineData = Data<typeof UpsertRoutineSchema>;

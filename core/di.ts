@@ -35,17 +35,18 @@ import { PrismaWidgetCalculatorRepo } from "@/features/widget/calculator/prisma-
 import { PrismaWebhookRepo } from "@/features/webhook/prisma-webhook.repository";
 import { PrismaRoutineRepo } from "@/ee/routines/prisma-routine.repository";
 import { PrismaRoutineFilterMatcher } from "@/ee/routines/routine-filter-matcher";
+import { PrismaRoutineEventAccess } from "@/ee/routines/routine-event-access";
 import { GetRoutinesInteractor } from "@/ee/routines/get-routines.interactor";
 import { GetRoutineRunsInteractor } from "@/ee/routines/get-routine-runs.interactor";
 import { UpsertRoutineInteractor } from "@/ee/routines/upsert-routine.interactor";
 import { DeleteRoutineInteractor } from "@/ee/routines/delete-routine.interactor";
+import { PauseRoutineInteractor } from "@/ee/routines/pause-routine.interactor";
 import { RunRoutineNowInteractor } from "@/ee/routines/run-routine-now.interactor";
 import { StartRoutineRunInteractor } from "@/ee/routines/start-routine-run.interactor";
 import { FailRoutineRunInteractor } from "@/ee/routines/fail-routine-run.interactor";
 import { SweepDueRoutinesInteractor } from "@/ee/routines/sweep-due-routines.interactor";
 import { ReconcileRoutineRunsInteractor } from "@/ee/routines/reconcile-routine-runs.interactor";
 import { RecordRoutineRiskFindingsInteractor } from "@/ee/routines/record-routine-risk-findings.interactor";
-import { GetRoutineRisksInteractor } from "@/ee/routines/get-routine-risks.interactor";
 import { AnalyzeCompanyRoutinesInteractor } from "@/ee/routines/analyze-company-routines.interactor";
 import { PruneRoutineRunsInteractor } from "@/ee/routines/prune-routine-runs.interactor";
 import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-delivery.repository";
@@ -390,7 +391,7 @@ export const getActivitiesRepo = () => new PrismaActivitiesRepo();
 export const getWidgetCalculatorRepo = () => new PrismaWidgetCalculatorRepo();
 export const getWebhookRepo = () => new PrismaWebhookRepo();
 
-export const getRoutineRepo = () => new PrismaRoutineRepo();
+export const getRoutineRepo = () => new PrismaRoutineRepo(getRoutineEventAccess());
 
 export const getRoutineFilterMatcher = () =>
   new PrismaRoutineFilterMatcher(
@@ -400,6 +401,7 @@ export const getRoutineFilterMatcher = () =>
     getServiceRepo(),
     getTaskRepo(),
   );
+export const getRoutineEventAccess = () => new PrismaRoutineEventAccess(getRoutineFilterMatcher());
 export const getWebhookDeliveryRepo = () => new PrismaWebhookDeliveryRepo();
 export const getAuditLogRepo = () => new PrismaAuditLogRepo();
 export const getMessagingRepo = () => new PrismaMessagingRepo();
@@ -450,6 +452,7 @@ export const getEventService = () => {
     getAuditLogRepo(),
     getBackgroundTaskService(),
     getRoutineRepo(),
+    getRoutineEventAccess(),
   );
 };
 export const getWidgetDataFetcher = () => new WidgetDataFetcher();
@@ -1464,6 +1467,7 @@ export const getUpsertCustomColumnInteractor = () =>
 export const getDeleteCustomColumnInteractor = () =>
   new DeleteCustomColumnInteractor(
     getCustomColumnRepo(),
+    getRoutineRepo(),
     getUserService(),
     getEventService(),
     getCustomColumnIdsValidator(),
@@ -1583,6 +1587,8 @@ export const getUpsertRoutineInteractor = () =>
 
 export const getDeleteRoutineInteractor = () => new DeleteRoutineInteractor(getRoutineRepo());
 
+export const getPauseRoutineInteractor = () => new PauseRoutineInteractor(getRoutineRepo());
+
 export const getRunRoutineNowInteractor = () =>
   new RunRoutineNowInteractor(getRoutineRepo(), getBackgroundTaskService());
 
@@ -1591,7 +1597,7 @@ export const getStartRoutineRunInteractor = () =>
     getRoutineRepo(),
     getAgentChatRepo(),
     getSendAgentMessageInteractor(),
-    getRoutineFilterMatcher(),
+    getRoutineEventAccess(),
   );
 
 export const getFailRoutineRunInteractor = () => new FailRoutineRunInteractor(getRoutineRepo());
@@ -1602,8 +1608,6 @@ export const getSweepDueRoutinesInteractor = () =>
 export const getReconcileRoutineRunsInteractor = () => new ReconcileRoutineRunsInteractor(getRoutineRepo());
 
 export const getRecordRoutineRiskFindingsInteractor = () => new RecordRoutineRiskFindingsInteractor(getRoutineRepo());
-
-export const getGetRoutineRisksInteractor = () => new GetRoutineRisksInteractor(getRoutineRepo());
 
 export const getAnalyzeCompanyRoutinesInteractor = () =>
   new AnalyzeCompanyRoutinesInteractor(getRoutineRepo(), getBackgroundTaskService());

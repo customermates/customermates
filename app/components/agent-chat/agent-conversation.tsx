@@ -19,7 +19,11 @@ import { QueuedPrompt } from "./queued-prompt";
 import { UsageRing } from "./usage-ring";
 import { useAgentChatStore } from "./agent-chat-store-context";
 
-export const AgentConversationLog = observer(function AgentConversationLog() {
+export const AgentConversationLog = observer(function AgentConversationLog({
+  readOnly = false,
+}: {
+  readOnly?: boolean;
+}) {
   const store = useAgentChatStore();
   const t = useTranslations();
   const copy = chatUiCopy(t);
@@ -54,7 +58,7 @@ export const AgentConversationLog = observer(function AgentConversationLog() {
                   <ActivityGroup index={index} />
                 )
               ) : (
-                <AgentChatItemView item={item} />
+                <AgentChatItemView item={item} readOnly={readOnly} />
               )}
             </Fragment>
           );

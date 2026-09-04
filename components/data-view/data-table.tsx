@@ -423,6 +423,22 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                       >
                         {content}
                       </a>
+                    ) : isNameCell && onRowClick ? (
+                      <button
+                        className="block w-full truncate rounded-sm text-left text-inherit outline-none [&:hover_span:not([data-slot])]:underline focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-offset-1 focus-visible:ring-offset-background"
+                        data-slot="data-row-open"
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (store.selectedIds.size > 0 && canBulkAct) {
+                            store.toggleItemSelection(row.original.id);
+                            return;
+                          }
+                          onRowClick(row.original);
+                        }}
+                      >
+                        {content}
+                      </button>
                     ) : (
                       content
                     );

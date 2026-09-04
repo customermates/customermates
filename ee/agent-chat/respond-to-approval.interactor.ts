@@ -47,7 +47,7 @@ export class RespondToApprovalInteractor extends AuthenticatedInteractor<
     const denied = await this.entitlements.require("agentChat");
     if (denied) return denied;
 
-    const conversation = await this.repo.findConversation(data.conversationId);
+    const conversation = await this.repo.findUserConversation(data.conversationId);
     if (!conversation) return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     const resolved = await this.repo.resolvePendingApprovalRequest({

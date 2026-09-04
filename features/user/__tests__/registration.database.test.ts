@@ -12,8 +12,15 @@ function routineTriggerRepoStub() {
   return {
     findEventRoutinesUnscoped: () => Promise.resolve([]),
     countSuppressedRoutineEventsUnscoped: () => Promise.resolve(),
-    pruneRoutineFiltersForFieldUnscoped: () => Promise.resolve(0),
     admitEventRoutineRunsUnscoped: () => Promise.resolve([]),
+  };
+}
+
+function routineEventAccessStub() {
+  return {
+    matchesCurrentUser: () => Promise.resolve(true),
+    matchesUserUnscoped: () => Promise.resolve(true),
+    canUserAccessUnscoped: () => Promise.resolve(true),
   };
 }
 
@@ -117,13 +124,20 @@ describeDatabase("registration against a real database", () => {
     ]);
 
     const company = await runWithoutTenant(() =>
-      prisma.company.findUniqueOrThrow({ where: { id: companyId }, select: { dealWeightingColumnId: true } }),
+      prisma.company.findUniqueOrThrow({
+        where: { id: companyId },
+        select: { dealWeightingColumnId: true },
+      }),
     );
     const dealColumn = columns.find((column) => column.entityType === "deal");
 
     expect(company.dealWeightingColumnId).toBe(dealColumn?.id);
 
-    const stages = (dealColumn?.options as { options: { weight?: number; isDefault: boolean }[] }).options;
+    const stages = (
+      dealColumn?.options as {
+        options: { weight?: number; isDefault: boolean }[];
+      }
+    ).options;
 
     expect(stages.map((stage) => stage.weight)).toEqual([10, 20, 40, 60, 80, 100, 0]);
     expect(stages.filter((stage) => stage.isDefault)).toHaveLength(1);
@@ -195,7 +209,13 @@ describeDatabase("registration against a real database", () => {
         prisma.adAttribution.findMany({
           where: { companyId: owner.companyId },
           orderBy: { provider: "asc" },
-          select: { provider: true, identifierKind: true, identifierValue: true, clickedAt: true, userId: true },
+          select: {
+            provider: true,
+            identifierKind: true,
+            identifierValue: true,
+            clickedAt: true,
+            userId: true,
+          },
         }),
       ),
     ).resolves.toEqual([
@@ -217,7 +237,10 @@ describeDatabase("registration against a real database", () => {
 
     await expect(
       runWithoutTenant(() =>
-        prisma.conversionEvent.findMany({ where: { companyId: owner.companyId }, select: { type: true } }),
+        prisma.conversionEvent.findMany({
+          where: { companyId: owner.companyId },
+          select: { type: true },
+        }),
       ),
     ).resolves.toEqual([{ type: "signup" }]);
 
@@ -225,7 +248,10 @@ describeDatabase("registration against a real database", () => {
     await expect(repo.expireAdAttributionUnscoped(openAiExpiresAt)).resolves.toBe(1);
     await expect(
       runWithoutTenant(() =>
-        prisma.adAttribution.findMany({ where: { companyId: owner.companyId }, select: { provider: true } }),
+        prisma.adAttribution.findMany({
+          where: { companyId: owner.companyId },
+          select: { provider: true },
+        }),
       ),
     ).resolves.toEqual([{ provider: "google_ads" }]);
 
@@ -237,7 +263,10 @@ describeDatabase("registration against a real database", () => {
 
     await expect(
       runWithoutTenant(() =>
-        prisma.user.findUniqueOrThrow({ where: { id: owner.id }, select: { onboardingWizardCompletedAt: true } }),
+        prisma.user.findUniqueOrThrow({
+          where: { id: owner.id },
+          select: { onboardingWizardCompletedAt: true },
+        }),
       ),
     ).resolves.toEqual({ onboardingWizardCompletedAt: null });
   });
@@ -261,6 +290,7 @@ describeDatabase("registration against a real database", () => {
       new PrismaAuditLogRepo(),
       { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
       routineTriggerRepoStub(),
+      routineEventAccessStub(),
     );
     const interactor = new RegisterUserInteractor(
       authService as never,
@@ -408,6 +438,7 @@ describeDatabase("registration against a real database", () => {
       new PrismaAuditLogRepo(),
       { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
       routineTriggerRepoStub(),
+      routineEventAccessStub(),
     );
     const interactor = new RegisterUserInteractor(
       {
@@ -490,6 +521,7 @@ describeDatabase("registration against a real database", () => {
       auditRepo,
       { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
       routineTriggerRepoStub(),
+      routineEventAccessStub(),
     );
     const versions = currentLegalDocumentVersions();
     await runWithoutTenant(async () => {
@@ -589,6 +621,7 @@ describeDatabase("registration against a real database", () => {
       new PrismaAuditLogRepo(),
       { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
       routineTriggerRepoStub(),
+      routineEventAccessStub(),
     );
     const interactor = new RegisterUserInteractor(
       {

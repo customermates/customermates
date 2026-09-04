@@ -37,8 +37,10 @@ export function useAgentActivityTerminology(): Partial<Record<AgentActivityResou
 
 export const AgentChatItemView = observer(function AgentChatItemView({
   item,
+  readOnly = false,
 }: {
   item: Exclude<AgentChatItem, { kind: "activity" }>;
+  readOnly?: boolean;
 }) {
   const store = useAgentChatStore();
   const t = useTranslations();
@@ -105,18 +107,20 @@ export const AgentChatItemView = observer(function AgentChatItemView({
       >
         <span>{copy.turnFailed}</span>
 
-        <Button
-          className="shrink-0"
-          disabled={store.isWorking || Boolean(store.usage?.blockedReason) || !store.canRetryFailedTurn(item)}
-          size="sm"
-          variant="secondary"
-          onClick={() => {
-            store.retryFailedTurn(item);
-            focusAgentComposer();
-          }}
-        >
-          {copy.retryTurn}
-        </Button>
+        {!readOnly && (
+          <Button
+            className="shrink-0"
+            disabled={store.isWorking || Boolean(store.usage?.blockedReason) || !store.canRetryFailedTurn(item)}
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              store.retryFailedTurn(item);
+              focusAgentComposer();
+            }}
+          >
+            {copy.retryTurn}
+          </Button>
+        )}
       </div>
     );
   }
@@ -139,7 +143,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
 
           {t("AgentChat.approval.resuming")}
         </p>
-      ) : (
+      ) : readOnly ? null : (
         <div className="mt-3 space-y-2">
           {item.retryDecision && <p className="text-xs text-muted-foreground">{t("AgentChat.approval.retryResume")}</p>}
 

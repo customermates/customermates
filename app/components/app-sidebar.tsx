@@ -126,7 +126,7 @@ const FullAppSidebar = observer(
     const intlPathname = useIntlPathname();
     const router = useRouter();
     const rootStore = useRootStore();
-    const { userStore, terminologyStore } = rootStore;
+    const { feedbackModalStore, globalSearchModalStore, terminologyStore, userStore } = rootStore;
     const { singular, plural } = useEntityTerminology();
 
     const { isMobile, setOpenMobile } = useSidebar();
@@ -192,7 +192,7 @@ const FullAppSidebar = observer(
               title: t("NavigationBar.routines"),
               href: "/routines",
               icon: Repeat,
-              visible: canAccess(Resource.api) && rootStore.appMode !== "self-hosted",
+              visible: rootStore.appMode !== "self-hosted",
             },
           ].filter((i) => i.visible),
         },
@@ -325,11 +325,12 @@ const FullAppSidebar = observer(
           }
 
           closeMobileSidebar(() => {
-            rootStore.feedbackModalStore.onInitOrRefresh({
+            feedbackModalStore.onInitOrRefresh({
               type: FeedbackType.general,
               feedback: "",
             });
-            rootStore.feedbackModalStore.openFrom(invoker, document.getElementById("sidebar-trigger"));
+            const sidebarTrigger = document.getElementById("sidebar-trigger");
+            feedbackModalStore.openFrom(invoker, sidebarTrigger);
           });
         },
       },
@@ -442,9 +443,10 @@ const FullAppSidebar = observer(
                 return;
               }
 
-              closeMobileSidebar(() =>
-                rootStore.globalSearchModalStore.openFrom(invoker, document.getElementById("sidebar-trigger")),
-              );
+              closeMobileSidebar(() => {
+                const sidebarTrigger = document.getElementById("sidebar-trigger");
+                globalSearchModalStore.openFrom(invoker, sidebarTrigger);
+              });
             }}
           />
 

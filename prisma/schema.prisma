@@ -1913,7 +1913,7 @@ enum RoutineRunStatus {
 model Routine {
   id                   String               @id @default(uuid())
   companyId            String
-  ownerUserId          String
+  ownerUserId          String?
   name                 String
   prompt               String
   modelKey             String?
@@ -1936,7 +1936,7 @@ model Routine {
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @updatedAt
   company              Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  owner                User                 @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+  owner                User?                @relation(fields: [ownerUserId], references: [id], onDelete: SetNull)
   runs                 RoutineRun[]
   riskFindings         RoutineRiskFinding[]
 
@@ -1947,33 +1947,36 @@ model Routine {
 }
 
 model RoutineRun {
-  id              String                 @id @default(uuid())
-  companyId       String
-  routineId       String
-  conversationId  String?
-  turnRequestId   String?
-  status          RoutineRunStatus       @default(queued)
-  triggerKind     RoutineTriggerKind
-  triggerEvent    String?
-  triggerEntityId String?
-  triggerPayload  Json?
-  scheduledFor    DateTime
-  startedAt       DateTime?
-  finishedAt      DateTime?
-  terminalCode    AgentTurnTerminalCode?
-  chargedCredits  Int                    @default(0)
-  summary         String?
-  error           String?
-  createdAt       DateTime               @default(now())
-  updatedAt       DateTime               @updatedAt
-  company         Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  routine         Routine                @relation(fields: [routineId], references: [id], onDelete: Cascade)
-  conversation    AgentConversation?     @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  id               String                 @id @default(uuid())
+  companyId        String
+  routineId        String
+  executedByUserId String
+  executedByName   String
+  conversationId   String?
+  turnRequestId    String?
+  status           RoutineRunStatus       @default(queued)
+  triggerKind      RoutineTriggerKind
+  triggerEvent     String?
+  triggerEntityId  String?
+  triggerPayload   Json?
+  scheduledFor     DateTime
+  startedAt        DateTime?
+  finishedAt       DateTime?
+  terminalCode     AgentTurnTerminalCode?
+  chargedCredits   Int                    @default(0)
+  summary          String?
+  error            String?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  company          Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  routine          Routine                @relation(fields: [routineId], references: [id], onDelete: Cascade)
+  conversation     AgentConversation?     @relation(fields: [conversationId], references: [id], onDelete: SetNull)
 
   @@index([companyId])
   @@index([companyId, routineId, createdAt])
   @@index([status, scheduledFor])
   @@index([routineId, status])
+  @@index([executedByUserId, status])
   @@index([conversationId])
 }
 

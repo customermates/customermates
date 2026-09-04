@@ -12,17 +12,23 @@ export abstract class SweepDueRoutinesRepo {
     now: Date,
     limit: number,
   ): Promise<
-    { id: string; companyId: string; ownerUserId: string; nextRunAt: Date | null; triggerKind: RoutineTriggerKind }[]
+    {
+      id: string;
+      companyId: string;
+      ownerUserId: string;
+      nextRunAt: Date | null;
+      triggerKind: RoutineTriggerKind;
+    }[]
   >;
-  abstract claimDueRoutineUnscoped(args: {
-    routineId: string;
-    expectedNextRunAt: Date;
-    now: Date;
-  }): Promise<{ id: string; companyId: string } | null>;
+  abstract claimDueRoutineUnscoped(args: { routineId: string; expectedNextRunAt: Date; now: Date }): Promise<{
+    id: string;
+    companyId: string;
+    executedByUserId: string;
+  } | null>;
   abstract findStaleQueuedRoutineRunsUnscoped(
     before: Date,
     limit: number,
-  ): Promise<{ id: string; companyId: string; routine: { ownerUserId: string } }[]>;
+  ): Promise<{ id: string; companyId: string; executedByUserId: string }[]>;
   abstract findOwnersWithRunningRunsUnscoped(limit: number): Promise<string[]>;
 }
 
@@ -51,7 +57,7 @@ export class SweepDueRoutinesInteractor {
       await this.backgroundTaskService.dispatch("run-routine", {
         routineRunId: run.id,
         companyId: run.companyId,
-        ownerUserId: routine.ownerUserId,
+        ownerUserId: run.executedByUserId,
       });
     }
 
@@ -64,13 +70,16 @@ export class SweepDueRoutinesInteractor {
       await this.backgroundTaskService.dispatch("run-routine", {
         routineRunId: run.id,
         companyId: run.companyId,
-        ownerUserId: run.routine.ownerUserId,
+        ownerUserId: run.executedByUserId,
       });
     }
 
     const owners = await this.repo.findOwnersWithRunningRunsUnscoped(DUE_BATCH_LIMIT);
-    for (const ownerUserId of owners)
-      await this.backgroundTaskService.dispatch("reconcile-routine-runs", { ownerUserId });
+    for (const ownerUserId of owners) {
+      await this.backgroundTaskService.dispatch("reconcile-routine-runs", {
+        ownerUserId,
+      });
+    }
 
     return { claimed, redispatched: stale.length, reconciling: owners.length };
   }

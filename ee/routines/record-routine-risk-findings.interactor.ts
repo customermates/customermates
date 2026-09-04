@@ -11,9 +11,6 @@ export type RoutineRiskFindingInput = {
 };
 
 export abstract class AnalyzeRoutineRepo {
-  abstract findRoutinesForAnalysisUnscoped(
-    companyId: string,
-  ): Promise<{ id: string; name: string; prompt: string; triggerEvents: string[] }[]>;
   abstract findCompaniesWithEventRoutinesUnscoped(limit: number): Promise<string[]>;
 }
 

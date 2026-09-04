@@ -24,7 +24,7 @@ const CONVERSATION_ID = "00000000-0000-4000-8000-000000000001";
 
 function repoWith(cancelling: boolean) {
   return {
-    findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
+    findUserConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
     requestAgentTurnCancellation: vi.fn().mockResolvedValue(cancelling),
   };
 }

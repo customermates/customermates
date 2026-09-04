@@ -7,6 +7,8 @@ import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 
 import { AppChip } from "@/components/chip/app-chip";
+import { Avatar } from "@/components/ui/avatar";
+import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
 import { ROUTINE_RUN_STATUS_CHIP_COLOR } from "@/ee/routines/routine-run-chip-colors";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { describeRoutineSchedule } from "@/ee/routines/routine-schedule-preset";
@@ -22,6 +24,28 @@ export function useRoutineColumns(): ColumnDef<RoutineDto>[] {
         id: "name",
         header: t("Common.table.columns.name"),
         cell: ({ row }) => <span className="truncate text-sm font-medium">{row.original.name}</span>,
+      },
+      {
+        id: "owner",
+        header: t("Common.table.columns.owner"),
+        cell: ({ row }) => {
+          const owner = row.original.owner;
+          if (!owner) return <span className="text-subdued text-sm">{t("RoutineDetail.ownerUnavailable")}</span>;
+
+          return (
+            <div className="flex min-w-0 items-center gap-2">
+              <Avatar name={[owner.firstName, owner.lastName]} size="sm" src={owner.avatarUrl} />
+
+              <span className="truncate text-sm">{`${owner.firstName} ${owner.lastName}`.trim()}</span>
+
+              {owner.status !== "active" && (
+                <AppChip size="sm" variant={USER_STATUS_COLORS_MAP[owner.status]}>
+                  {t(`Common.userStatuses.${owner.status}`)}
+                </AppChip>
+              )}
+            </div>
+          );
+        },
       },
       {
         id: "trigger",

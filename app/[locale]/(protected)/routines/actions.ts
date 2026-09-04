@@ -5,15 +5,15 @@ import type { UpsertRoutineData } from "@/ee/routines/routine.schema";
 import type { DeleteRoutineData } from "@/ee/routines/delete-routine.interactor";
 import type { RunRoutineNowData } from "@/ee/routines/run-routine-now.interactor";
 import type { GetRoutineRunsData } from "@/ee/routines/get-routine-runs.interactor";
-import type { GetRoutineRisksData } from "@/ee/routines/get-routine-risks.interactor";
+import type { PauseRoutineData } from "@/ee/routines/pause-routine.interactor";
 
 import {
   getDeleteRoutineInteractor,
   getGetCustomColumnsInteractor,
-  getGetRoutineRisksInteractor,
   getGetWidgetFilterableFieldsInteractor,
   getGetRoutineRunsInteractor,
   getGetRoutinesInteractor,
+  getPauseRoutineInteractor,
   getRunRoutineNowInteractor,
   getUpsertRoutineInteractor,
 } from "@/core/di";
@@ -36,12 +36,12 @@ export async function runRoutineNowAction(data: RunRoutineNowData) {
   return serializeResult(getRunRoutineNowInteractor().invoke(data));
 }
 
-export async function getRoutineRunsAction(data: GetRoutineRunsData) {
-  return unwrapValidated(getGetRoutineRunsInteractor().invoke(data));
+export async function pauseRoutineAction(data: PauseRoutineData) {
+  return serializeResult(getPauseRoutineInteractor().invoke(data));
 }
 
-export async function getRoutineRisksAction(data: GetRoutineRisksData) {
-  return unwrapValidated(getGetRoutineRisksInteractor().invoke(data));
+export async function getRoutineRunsAction(data: GetRoutineRunsData) {
+  return unwrapValidated(getGetRoutineRunsInteractor().invoke(data));
 }
 
 export async function getRoutineFilterFieldsAction() {

@@ -1,22 +1,21 @@
 import type { FormEvent } from "react";
 import type { RootStore } from "@/core/stores/root.store";
 import type { UpsertRoutineData } from "@/ee/routines/routine.schema";
-import type { RoutineDto } from "@/ee/routines/routine.schema";
+import type { RoutineDto, RoutineOwnerDto } from "@/ee/routines/routine.schema";
 import type { RoutineSchedulePreset } from "@/ee/routines/routine-schedule-preset";
 import type { Filter, FilterableField } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { RoutineRunDto } from "@/ee/routines/routine.schema";
-import type { RoutineRiskDto } from "@/ee/routines/get-routine-risks.interactor";
 
-import { action, comparer, computed, makeObservable, observable, reaction, runInAction, toJS } from "mobx";
+import { action, computed, makeObservable, observable, runInAction, toJS } from "mobx";
 import type { EntityType } from "@/generated/prisma";
-import { Resource, RoutineTriggerKind } from "@/generated/prisma";
+import { RoutineTriggerKind } from "@/generated/prisma";
 
 import {
   deleteRoutineAction,
   getRoutineFilterFieldsAction,
-  getRoutineRisksAction,
   getRoutineRunsAction,
+  pauseRoutineAction,
   runRoutineNowAction,
   upsertRoutineAction,
 } from "../actions";
@@ -40,9 +39,16 @@ function mergeFilters(filterableFields: FilterableField[], current: Filter[]): F
   for (const filter of Array.isArray(current) ? current : [])
     if (filter && typeof filter.field === "string") existing.set(filter.field, filter);
 
-  return filterableFields.map((field) => {
+  const availableFieldIds = new Set(filterableFields.map((field) => field.field));
+  const availableRows = filterableFields.map((field) => {
     const match = existing.get(field.field);
-    if (!match) return { field: field.field, operator: undefined, value: undefined } as unknown as Filter;
+    if (!match) {
+      return {
+        field: field.field,
+        operator: undefined,
+        value: undefined,
+      } as unknown as Filter;
+    }
 
     return {
       field: match.field,
@@ -50,9 +56,15 @@ function mergeFilters(filterableFields: FilterableField[], current: Filter[]): F
       ...("value" in match ? { value: match.value } : {}),
     } as Filter;
   });
+
+  const unavailableRows = [...existing.values()].filter((filter) => !availableFieldIds.has(filter.field));
+
+  return [...availableRows, ...unavailableRows];
 }
 
 export type RoutineModalForm = UpsertRoutineData & {
+  ownerUserId: string | null;
+  owner: RoutineOwnerDto | null;
   schedulePreset: RoutineSchedulePreset;
   scheduleHour: string;
   scheduleMinute: string;
@@ -62,6 +74,8 @@ export type RoutineModalForm = UpsertRoutineData & {
 
 export const EMPTY_ROUTINE_FORM: RoutineModalForm = {
   id: undefined,
+  ownerUserId: null,
+  owner: null,
   modelKey: undefined,
   name: "",
   prompt: "",
@@ -84,8 +98,11 @@ export function routineFormFor(routine: RoutineDto): RoutineModalForm {
 
   return {
     id: routine.id,
+    ownerUserId: routine.ownerUserId,
+    owner: routine.owner,
     name: routine.name,
     prompt: routine.prompt,
+    modelKey: routine.modelKey,
     enabled: routine.enabled,
     triggerKind: routine.triggerKind,
     timezone: routine.timezone ?? DEFAULT_ROUTINE_TIMEZONE,
@@ -104,7 +121,6 @@ export function routineFormFor(routine: RoutineDto): RoutineModalForm {
 export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   activeTab: "details" | "runs" = "details";
   runs: RoutineRunDto[] = [];
-  risks: RoutineRiskDto[] = [];
   openRunId: string | null = null;
   disabledReason: string | null = null;
   runsNextCursor: string | null = null;
@@ -116,12 +132,11 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   private filterFieldsLoaded = false;
 
   constructor(rootStore: RootStore) {
-    super(rootStore, EMPTY_ROUTINE_FORM, Resource.api);
+    super(rootStore, EMPTY_ROUTINE_FORM);
 
     makeObservable(this, {
       activeTab: observable,
       runs: observable,
-      risks: observable,
       openRunId: observable,
       disabledReason: observable,
       runsNextCursor: observable,
@@ -137,6 +152,10 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       changeFields: computed,
       filterableFields: computed,
       customColumns: computed,
+      isOwner: computed,
+      hasAvailableOwner: computed,
+      isAdmin: computed,
+      canAdministerOtherRoutine: computed,
 
       delete: action,
       onSubmit: action,
@@ -150,30 +169,22 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       loadRuns: action,
       loadMoreRuns: action,
       runNow: action,
+      pause: action,
     });
-
-    this.syncTriggerFieldsOnEventChange();
   }
 
-  private syncTriggerFieldsOnEventChange = () => {
-    reaction(
-      () => ({ entityType: this.triggerEntityType, watchesChanges: this.watchesRecordChanges }),
-      () => {
-        runInAction(() => {
-          const form = this.form;
-          if (!form) return;
+  protected override afterChange(id: string, _value: unknown, previousValue: unknown): void {
+    if (id !== "triggerEvents") return;
 
-          form.triggerFilters = mergeFilters(this.filterableFields, (form.triggerFilters as Filter[]) ?? []);
+    const previousEvents = Array.isArray(previousValue) ? previousValue : [];
+    const entityChanged = entityTypeForEvents(previousEvents) !== this.triggerEntityType;
 
-          const offered = new Set(this.changeFields);
-          form.changedFields = this.watchesRecordChanges
-            ? (form.changedFields ?? []).filter((field) => offered.has(field))
-            : [];
-        });
-      },
-      { equals: comparer.structural },
+    this.form.triggerFilters = mergeFilters(
+      this.filterableFields,
+      entityChanged ? [] : ((this.form.triggerFilters as Filter[]) ?? []),
     );
-  };
+    this.form.changedFields = this.watchesRecordChanges && !entityChanged ? (this.form.changedFields ?? []) : [];
+  }
 
   get triggerEntityType(): EntityType | null {
     return entityTypeForEvents(this.form?.triggerEvents ?? []);
@@ -206,24 +217,60 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     return this.runs.find((run) => run.id === this.openRunId) ?? null;
   }
 
+  get isOwner(): boolean {
+    if (!this.form.id) return true;
+
+    return Boolean(this.form.ownerUserId && this.form.ownerUserId === this.rootStore.userStore.user?.id);
+  }
+
+  get hasAvailableOwner(): boolean {
+    return this.form.owner?.status === "active";
+  }
+
+  get isAdmin(): boolean {
+    return Boolean(this.rootStore.userStore.user?.role?.isSystemRole);
+  }
+
+  get canAdministerOtherRoutine(): boolean {
+    return Boolean(this.form.id && this.isAdmin && !this.isOwner);
+  }
+
+  get canManage(): boolean {
+    return this.isOwner;
+  }
+
+  get isReadOnly(): boolean {
+    return !this.isOwner;
+  }
+
+  canOpenRun = (run: RoutineRunDto): boolean => run.executedByUserId === this.rootStore.userStore.user?.id;
+
   openForCreate = async () => {
     await this.loadFilterFields();
-    this.activeTab = "details";
-    this.openRunId = null;
-    this.disabledReason = null;
-    this.runs = [];
-    this.runsNextCursor = null;
-    this.risks = [];
-    this.openWith(this.withMergedFilterRows({ ...EMPTY_ROUTINE_FORM, timezone: localTimeZone() }));
+    runInAction(() => {
+      this.activeTab = "details";
+      this.openRunId = null;
+      this.disabledReason = null;
+      this.runs = [];
+      this.runsNextCursor = null;
+      this.openWith(
+        this.withMergedFilterRows({
+          ...EMPTY_ROUTINE_FORM,
+          timezone: localTimeZone(),
+        }),
+      );
+    });
   };
 
   openForEdit = async (routine: RoutineDto) => {
     await this.loadFilterFields();
-    this.activeTab = "details";
-    this.openRunId = null;
-    this.disabledReason = routine.enabled ? null : routine.disabledReason;
-    this.runsNextCursor = null;
-    this.openWith(this.withMergedFilterRows(routineFormFor(routine)));
+    runInAction(() => {
+      this.activeTab = "details";
+      this.openRunId = null;
+      this.disabledReason = routine.enabled ? null : routine.disabledReason;
+      this.runsNextCursor = null;
+      this.openWith(this.withMergedFilterRows(routineFormFor(routine)));
+    });
     void this.loadRuns(routine.id);
   };
 
@@ -233,6 +280,8 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   };
 
   openRun = async (run: RoutineRunDto) => {
+    if (run.conversationId && !this.canOpenRun(run)) return;
+
     runInAction(() => {
       this.openRunId = run.id;
     });
@@ -240,7 +289,8 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     let conversationId = run.conversationId;
     if (!conversationId && this.form.id) conversationId = await this.refreshRun(this.form.id, run.id);
 
-    if (conversationId) await this.rootStore.routineRunChatStore.selectConversation(conversationId);
+    if (conversationId && this.canOpenRun(run))
+      await this.rootStore.routineRunChatStore.selectConversation(conversationId);
     else this.rootStore.routineRunChatStore.newConversation();
   };
 
@@ -269,15 +319,11 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     this.isRunsLoading = true;
 
     try {
-      const [page, risks] = await Promise.all([
-        getRoutineRunsAction({ routineId }),
-        getRoutineRisksAction({ routineId }),
-      ]);
+      const page = await getRoutineRunsAction({ routineId });
 
       runInAction(() => {
         this.runs = page.runs;
         this.runsNextCursor = page.nextCursor;
-        this.risks = risks;
       });
     } catch (error) {
       reportApplicationError(error);
@@ -295,7 +341,10 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     this.isLoadingMoreRuns = true;
 
     try {
-      const page = await getRoutineRunsAction({ routineId, cursor: this.runsNextCursor });
+      const page = await getRoutineRunsAction({
+        routineId,
+        cursor: this.runsNextCursor,
+      });
 
       runInAction(() => {
         this.runs = [...this.runs, ...page.runs];
@@ -312,7 +361,14 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
 
   runNow = async () => {
     const routineId = this.form.id;
-    if (!routineId) return;
+    if (
+      !routineId ||
+      !this.isOwner ||
+      !this.form.enabled ||
+      this.form.triggerKind !== RoutineTriggerKind.schedule ||
+      this.hasUnsavedChanges
+    )
+      return;
 
     this.isStartingRun = true;
 
@@ -331,11 +387,40 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     }
   };
 
+  pause = async (): Promise<boolean> => {
+    if (!this.form.id || !this.canAdministerOtherRoutine || this.hasUnsavedChanges) return false;
+
+    this.setIsLoading(true);
+    try {
+      const res = await pauseRoutineAction({ routineId: this.form.id });
+      if (!res.ok) {
+        toastZodErrorTree(res.error);
+        return false;
+      }
+
+      await this.applyRoutine(res.data);
+      return true;
+    } finally {
+      this.setIsLoading(false);
+    }
+  };
+
+  private applyRoutine = async (routine: RoutineDto) => {
+    await this.rootStore.routinesStore.upsertItem(routine);
+    runInAction(() => {
+      this.disabledReason = routine.enabled ? null : routine.disabledReason;
+      this.onInitOrRefresh(this.withMergedFilterRows(routineFormFor(routine)));
+    });
+  };
+
   private withMergedFilterRows = (form: RoutineModalForm): RoutineModalForm => {
     const entityType = entityTypeForEvents(form.triggerEvents ?? []);
     const fields = entityType ? (this.filterableFieldsByEntityType[entityType] ?? []) : [];
 
-    return { ...form, triggerFilters: mergeFilters(fields, (form.triggerFilters as Filter[]) ?? []) };
+    return {
+      ...form,
+      triggerFilters: mergeFilters(fields, (form.triggerFilters as Filter[]) ?? []),
+    };
   };
 
   loadFilterFields = async () => {
@@ -366,7 +451,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   }
 
   useSchedulePreset = () => {
-    if (!this.form) return;
+    if (!this.form || !this.canManage) return;
     this.form.schedulePreset = DEFAULT_ROUTINE_SCHEDULE.preset;
     this.form.cronExpression = DEFAULT_ROUTINE_SCHEDULE.expression;
   };
@@ -383,14 +468,16 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       triggerKind: form.triggerKind,
       timezone: form.timezone,
       triggerEvents: scheduled ? [] : form.triggerEvents,
-      changedFields: scheduled || !this.watchesRecordChanges ? [] : (form.changedFields ?? []),
-      triggerFilters: scheduled ? [] : (form.triggerFilters ?? []).filter(hasValidFilterConfiguration),
+      changedFields:
+        scheduled || !this.triggerEntityType || !this.watchesRecordChanges ? [] : (form.changedFields ?? []),
+      triggerFilters:
+        scheduled || !this.triggerEntityType ? [] : (form.triggerFilters ?? []).filter(hasValidFilterConfiguration),
       cronExpression: scheduled ? this.compiledCron : null,
     };
   }
 
   delete = async (): Promise<boolean> => {
-    if (!this.form.id) return false;
+    if (!this.form.id || !this.isAdmin) return false;
 
     this.setIsLoading(true);
     try {
@@ -410,6 +497,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
 
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
+    if (!this.canManage) return;
     this.setIsLoading(true);
 
     try {

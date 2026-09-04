@@ -32,6 +32,10 @@ describe("event entity types", () => {
     expect(entityTypeForEvents(["contact.updated", "deal.updated"])).toBeNull();
   });
 
+  it("refuses record filters when CRM and messaging triggers are mixed", () => {
+    expect(entityTypeForEvents(["contact.updated", "messaging.email.received"])).toBeNull();
+  });
+
   it("refuses to guess for an empty selection", () => {
     expect(entityTypeForEvents([])).toBeNull();
   });

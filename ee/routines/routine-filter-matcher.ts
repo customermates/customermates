@@ -1,11 +1,15 @@
-import type { Filter } from "@/core/base/base-get.schema";
+import type { Filter, FilterableField } from "@/core/base/base-get.schema";
+import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { Prisma } from "@/generated/prisma";
 
 import { EntityType } from "@/generated/prisma";
 
+import { BaseQueryBuilder } from "@/core/base/base-query-builder";
 import { BaseRepository } from "@/core/base/base-repository";
 
 export abstract class RoutineFilterQueryRepo {
+  abstract getFilterableFields(): Promise<FilterableField[]>;
+  abstract validateFilters(args: { filters: Filter[] | undefined; filterableFields: FilterableField[] }): Filter[];
   abstract buildQueryArgs(
     params: { filters?: Filter[] },
     baseWhere: Record<string, unknown>,
@@ -14,6 +18,34 @@ export abstract class RoutineFilterQueryRepo {
 
 export abstract class RoutineFilterMatcher {
   abstract matches(entityType: EntityType, entityId: string, filters: Filter[]): Promise<boolean>;
+  abstract matchesUnscoped(
+    entityType: EntityType,
+    entityId: string,
+    filters: Filter[],
+    scope: {
+      companyId: string;
+      readOwnUserId: string | null;
+      filterableFields: FilterableField[];
+      customColumns: CustomColumnDto[];
+    },
+  ): Promise<boolean>;
+}
+
+class ExplicitRoutineFilterQueryBuilder extends BaseQueryBuilder<Record<string, unknown>> {
+  constructor(
+    private readonly fields: FilterableField[],
+    private readonly columns: CustomColumnDto[],
+  ) {
+    super();
+  }
+
+  override getFilterableFields(): Promise<FilterableField[]> {
+    return Promise.resolve(this.fields);
+  }
+
+  override getCustomColumns(): Promise<CustomColumnDto[]> {
+    return Promise.resolve(this.columns);
+  }
 }
 
 export class PrismaRoutineFilterMatcher extends BaseRepository implements RoutineFilterMatcher {
@@ -28,12 +60,42 @@ export class PrismaRoutineFilterMatcher extends BaseRepository implements Routin
   }
 
   async matches(entityType: EntityType, entityId: string, filters: Filter[]): Promise<boolean> {
-    if (filters.length === 0) return true;
-
     const repo = this.repoFor(entityType);
-    if (!repo) return true;
+    if (!repo) return false;
 
-    const { where } = await repo.buildQueryArgs({ filters }, { id: entityId, companyId: this.companyId });
+    const filterableFields = await repo.getFilterableFields();
+    const validFilters = repo.validateFilters({ filters, filterableFields });
+    if (validFilters.length !== filters.length) return false;
+
+    const { where } = await repo.buildQueryArgs(
+      { filters: validFilters },
+      { ...this.accessWhere(entityType), id: entityId },
+    );
+
+    return (await this.countFor(entityType, where)) > 0;
+  }
+
+  async matchesUnscoped(
+    entityType: EntityType,
+    entityId: string,
+    filters: Filter[],
+    scope: {
+      companyId: string;
+      readOwnUserId: string | null;
+      filterableFields: FilterableField[];
+      customColumns: CustomColumnDto[];
+    },
+  ): Promise<boolean> {
+    const builder = new ExplicitRoutineFilterQueryBuilder(scope.filterableFields, scope.customColumns);
+    const validFilters = builder.validateFilters({ filters, filterableFields: scope.filterableFields });
+    if (validFilters.length !== filters.length) return false;
+
+    const baseWhere = {
+      companyId: scope.companyId,
+      ...(scope.readOwnUserId ? { users: { some: { userId: scope.readOwnUserId } } } : {}),
+      id: entityId,
+    };
+    const { where } = await builder.buildQueryArgs({ filters: validFilters }, baseWhere);
 
     return (await this.countFor(entityType, where)) > 0;
   }

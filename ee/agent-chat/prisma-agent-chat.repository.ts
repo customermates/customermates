@@ -5,6 +5,7 @@ import {
   AgentConversationOrigin,
   AgentMessageRole,
   Resource,
+  RoutineRunStatus,
   Status,
   type Prisma,
   type SubscriptionPlan,
@@ -301,6 +302,18 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     });
   }
 
+  async findUserConversation(id: string) {
+    return this.prisma.agentConversation.findFirst({
+      where: {
+        id,
+        companyId: this.companyId,
+        userId: this.userId,
+        archivedAt: null,
+        origin: AgentConversationOrigin.user,
+      },
+    });
+  }
+
   async hasRunningTurn(conversationId: string): Promise<boolean> {
     const turn = await this.prisma.agentTurnRequest.findFirst({
       where: {
@@ -380,6 +393,11 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     const userId = this.userId;
     return this.withCompanyTransaction(companyId, async () => {
       const admittedAt = new Date();
+      const activeUser = await this.prisma.user.count({
+        where: { id: userId, companyId, status: Status.active },
+      });
+      if (activeUser !== 1) throw new Error("Agent user is inactive before admission.");
+
       const renewedLease = await this.prisma.agentRunLease.updateMany({
         where: {
           companyId,
@@ -408,9 +426,29 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       const conversationId = args.conversationId;
       const conversation = await this.prisma.agentConversation.findFirst({
         where: { id: conversationId, companyId, userId, archivedAt: null },
-        select: { id: true },
+        select: { id: true, origin: true },
       });
       if (!conversation) throw new Error("Conversation not found.");
+
+      if (conversation.origin === AgentConversationOrigin.routine) {
+        if (args.turn.kind !== "create") throw new Error("Routine turns cannot be retried.");
+
+        const linkedRun = await this.prisma.routineRun.updateMany({
+          where: {
+            id: args.turn.clientRequestId,
+            companyId,
+            executedByUserId: userId,
+            status: RoutineRunStatus.running,
+            conversationId,
+            turnRequestId: null,
+          },
+          data: {
+            turnRequestId: args.turn.turnRequestId,
+            startedAt: admittedAt,
+          },
+        });
+        if (linkedRun.count !== 1) throw new Error("Routine run changed before agent admission.");
+      }
 
       if (args.turn.kind === "retry") {
         const retried = await this.prisma.agentTurnRequest.updateMany({
@@ -518,6 +556,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           companyId,
           userId: this.userId,
           archivedAt: null,
+          origin: AgentConversationOrigin.user,
         },
         data: { archivedAt: new Date() },
       });
@@ -533,6 +572,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         companyId: this.companyId,
         userId: this.userId,
         archivedAt: { not: null },
+        origin: AgentConversationOrigin.user,
       },
       data: { archivedAt: null, selectedAt: now, updatedAt: now },
     });
@@ -559,6 +599,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           companyId,
           userId: this.userId,
           archivedAt: { not: null },
+          origin: AgentConversationOrigin.user,
         },
       });
       return deleted.count === 1;
@@ -1181,6 +1222,41 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         selectedAt: args.now,
       },
       select: { id: true },
+    });
+  }
+
+  async createAndLinkRoutineConversationForRun(args: {
+    routineRunId: string;
+    conversationId: string;
+    title: string | null;
+    modelKey?: string | null;
+    now: Date;
+    creditCeiling?: number | null;
+  }) {
+    const companyId = this.companyId;
+    const userId = this.userId;
+    await this.withCompanyTransaction(companyId, async () => {
+      await this.createAgentConversationForRun({
+        conversationId: args.conversationId,
+        title: args.title,
+        modelKey: args.modelKey,
+        now: args.now,
+        origin: AgentConversationOrigin.routine,
+        creditCeiling: args.creditCeiling,
+      });
+
+      const linked = await this.prisma.routineRun.updateMany({
+        where: {
+          id: args.routineRunId,
+          companyId,
+          executedByUserId: userId,
+          status: RoutineRunStatus.running,
+          conversationId: null,
+          turnRequestId: null,
+        },
+        data: { conversationId: args.conversationId },
+      });
+      if (linked.count !== 1) throw new Error("Routine run changed before its conversation could be linked.");
     });
   }
 
@@ -2038,9 +2114,21 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           periodStart: true,
           periodEnd: true,
           allowanceCreditsSnapshot: true,
+          turnRequest: {
+            select: {
+              conversation: { select: { creditCeiling: true } },
+            },
+          },
         },
       });
       if (!reservation) return null;
+      if (!reservation.turnRequest) return null;
+      const creditCeiling = reservation.turnRequest.conversation.creditCeiling;
+      if (
+        creditCeiling !== null &&
+        (reservation.reservedCredits > creditCeiling || args.requiredCredits > creditCeiling)
+      )
+        return null;
       if (reservation.reservedCredits >= args.requiredCredits) return reservation.reservedCredits;
 
       const now = new Date();

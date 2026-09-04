@@ -5,7 +5,10 @@ import { RoutineRunStatus } from "@/generated/prisma";
 export const ROUTINE_SUMMARY_MAX_CHARS = 280;
 
 export const ROUTINE_RUN_REASONS = [
+  "adminPaused",
   "routineDisabled",
+  "ownerPaused",
+  "ownerUnavailable",
   "ownerRunLimit",
   "hourlyRunLimit",
   "filtersNotMatched",
@@ -15,7 +18,11 @@ export const ROUTINE_RUN_REASONS = [
 ] as const;
 
 export function routineRunDetail(
-  run: { status: RoutineRunStatus; summary: string | null; error: string | null },
+  run: {
+    status: RoutineRunStatus;
+    summary: string | null;
+    error: string | null;
+  },
   t: (key: string) => string,
 ): string {
   if (run.summary) return run.summary;

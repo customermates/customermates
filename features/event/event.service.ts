@@ -1,6 +1,5 @@
 import type { DomainEventMap, DomainEvent } from "./domain-events";
 
-import { DomainEvent as DomainEventValue } from "./domain-events";
 import type { DomainEventListener } from "./domain-event.listener";
 
 import { AUDIT_LOG_EXCLUDED_EVENTS } from "./domain-events";
@@ -8,6 +7,7 @@ import type { CreateWebhookDeliveryRepo } from "@/features/webhook/create-webhoo
 import type { ChangeRecord } from "@/core/utils/calculate-changes";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { TriggerRoutinesRepo } from "@/ee/routines/trigger-routines.repo";
+import type { RoutineEventAccess } from "@/ee/routines/routine-event-access";
 
 import { UserAccessor } from "@/core/base/user-accessor";
 import { currentRoutineContext } from "@/core/decorators/routine-context";
@@ -56,6 +56,7 @@ export class EventService extends UserAccessor {
     private auditLogRepo: CreateAuditLogRepo,
     private backgroundTaskService: BackgroundTaskService,
     private routineRepo: TriggerRoutinesRepo,
+    private routineEventAccess: RoutineEventAccess,
   ) {
     super();
   }
@@ -86,7 +87,6 @@ export class EventService extends UserAccessor {
       this.createAuditLog(event, eventData, system),
       this.createWebhookDeliveries(event, eventData, companyId, system),
       this.createRoutineRuns(event, eventData, companyId),
-      this.pruneRoutineFilters(event, eventData, companyId),
     ]);
 
     return this.logAndReturn({
@@ -131,16 +131,6 @@ export class EventService extends UserAccessor {
     });
   }
 
-  private async pruneRoutineFilters(
-    event: DomainEvent,
-    payload: DomainEventMap[DomainEvent],
-    companyId: string,
-  ): Promise<void> {
-    if (event !== DomainEventValue.CUSTOM_COLUMN_DELETED || !payload.entityId) return;
-
-    await this.routineRepo.pruneRoutineFiltersForFieldUnscoped(companyId, payload.entityId);
-  }
-
   private async createRoutineRuns(
     event: DomainEvent,
     payload: DomainEventMap[DomainEvent],
@@ -151,23 +141,42 @@ export class EventService extends UserAccessor {
     const subscribed = await this.routineRepo.findEventRoutinesUnscoped(companyId, event);
     if (subscribed.length === 0) return 0;
 
-    if (currentRoutineContext()) {
-      await this.routineRepo.countSuppressedRoutineEventsUnscoped(subscribed.map((routine) => routine.id));
-      return 0;
-    }
-
     const changed = changedFieldsOf(payload);
-    const routines = carriesChangedFields(payload)
+    const changedFieldMatches = carriesChangedFields(payload)
       ? subscribed.filter((routine) => matchesChangedFields(routine.changedFields, changed))
       : subscribed;
+    const routines = (
+      await Promise.all(
+        changedFieldMatches.map(async (routine) => ({
+          routine,
+          matches: await this.routineEventAccess.matchesUserUnscoped({
+            companyId,
+            userId: routine.ownerUserId,
+            event,
+            entityId: payload.entityId,
+            triggerPayload: payload,
+            filters: routine.triggerFilters,
+          }),
+        })),
+      )
+    ).flatMap(({ routine, matches }) => (matches ? [routine] : []));
     if (routines.length === 0) return 0;
+
+    if (currentRoutineContext()) {
+      await this.routineRepo.countSuppressedRoutineEventsUnscoped(routines.map((routine) => routine.id));
+      return 0;
+    }
 
     const admitted = await this.routineRepo.admitEventRoutineRunsUnscoped({
       companyId,
       event,
       entityId: payload.entityId,
       triggerPayload: payload,
-      routineIds: routines.map((routine) => routine.id),
+      routines: routines.map((routine) => ({
+        id: routine.id,
+        ownerUserId: routine.ownerUserId,
+        updatedAt: routine.updatedAt,
+      })),
       now: new Date(),
     });
 
@@ -176,7 +185,7 @@ export class EventService extends UserAccessor {
         this.backgroundTaskService.dispatch("run-routine", {
           routineRunId: run.id,
           companyId,
-          ownerUserId: run.ownerUserId,
+          ownerUserId: run.executedByUserId,
         }),
       ),
     );

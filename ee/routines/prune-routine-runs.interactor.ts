@@ -7,7 +7,7 @@ export abstract class PruneRoutineRunsRepo {
     before: Date,
     limit: number,
   ): Promise<{ id: string; conversationId: string | null }[]>;
-  abstract deleteRoutineRunsUnscoped(runIds: string[], conversationIds: string[]): Promise<void>;
+  abstract deleteRoutineRunsUnscoped(runIds: string[]): Promise<number>;
 }
 
 @SystemInteractor
@@ -20,12 +20,8 @@ export class PruneRoutineRunsInteractor {
     const expired = await this.repo.findExpiredRoutineRunsUnscoped(before, ROUTINE_RUN_PRUNE_BATCH_LIMIT);
     if (expired.length === 0) return { pruned: 0 };
 
-    const conversationIds = expired.flatMap((run) => (run.conversationId ? [run.conversationId] : []));
-    await this.repo.deleteRoutineRunsUnscoped(
-      expired.map((run) => run.id),
-      conversationIds,
-    );
+    const pruned = await this.repo.deleteRoutineRunsUnscoped(expired.map((run) => run.id));
 
-    return { pruned: expired.length };
+    return { pruned };
   }
 }

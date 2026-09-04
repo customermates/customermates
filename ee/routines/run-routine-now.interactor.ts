@@ -3,10 +3,10 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { RoutineDto } from "./routine.schema";
 
 import { z } from "zod";
-import { Resource, Action } from "@/generated/prisma";
+import { RoutineTriggerKind } from "@/generated/prisma";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { failAuthorization } from "@/core/validation/interactor-failure-server";
+import { failAuthorization, failConflict } from "@/core/validation/interactor-failure-server";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -18,10 +18,14 @@ export type RunRoutineNowData = Data<typeof Schema>;
 
 export abstract class RunRoutineNowRepo {
   abstract getRoutineByIdOrThrow(id: string): Promise<RoutineDto>;
-  abstract createManualRoutineRunOrThrow(routineId: string, now: Date): Promise<{ id: string }>;
+  abstract createManualRoutineRunOrThrow(
+    routineId: string,
+    executedByUserId: string,
+    now: Date,
+  ): Promise<{ id: string; companyId: string; executedByUserId: string }>;
 }
 
-@TenantInteractor({ resource: Resource.api, action: Action.update })
+@TenantInteractor()
 export class RunRoutineNowInteractor extends AuthenticatedInteractor<RunRoutineNowData, string> {
   constructor(
     private repo: RunRoutineNowRepo,
@@ -34,13 +38,16 @@ export class RunRoutineNowInteractor extends AuthenticatedInteractor<RunRoutineN
   async invoke(data: RunRoutineNowData): Validated<string> {
     const routine = await this.repo.getRoutineByIdOrThrow(data.routineId);
     if (routine.ownerUserId !== this.user.id) return failAuthorization(CustomErrorCode.routineRunNotOwner);
+    if (routine.triggerKind !== RoutineTriggerKind.schedule)
+      return failConflict(CustomErrorCode.routineRunNowRequiresSchedule, ["routineId"]);
+    if (!routine.enabled) return failConflict(CustomErrorCode.routineTestRequiresEnabled, ["routineId"]);
 
-    const run = await this.repo.createManualRoutineRunOrThrow(routine.id, new Date());
+    const run = await this.repo.createManualRoutineRunOrThrow(routine.id, this.user.id, new Date());
 
     await this.backgroundTaskService.dispatch("run-routine", {
       routineRunId: run.id,
-      companyId: this.user.companyId,
-      ownerUserId: routine.ownerUserId,
+      companyId: run.companyId,
+      ownerUserId: run.executedByUserId,
     });
 
     return { ok: true as const, data: run.id };

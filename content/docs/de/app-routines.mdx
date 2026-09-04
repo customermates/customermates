@@ -3,7 +3,7 @@ title: "Routinen: Geplante und ereignisgesteuerte Assistenzläufe"
 description: "Routinen führen den Customermates-Assistenten nach Zeitplan oder bei Änderungen aus, mit vorhandenem KI-Guthaben und stabilen Anker-IDs für KI-Agenten."
 ---
 
-Eine Routine besteht aus einer gespeicherten Anweisung und einem Auslöser. Wenn der Auslöser greift, öffnet Customermates eine neue Assistenz-Unterhaltung, sendet deine Anweisung und lässt den Assistenten selbstständig arbeiten. Jeder Lauf ist ein normaler Chat, den du danach öffnen und lesen kannst.
+Eine Routine besteht aus einer gespeicherten Anweisung und einem Auslöser. Wenn der Auslöser greift, öffnet Customermates eine neue Assistenz-Unterhaltung, sendet deine Anweisung und lässt den Assistenten selbstständig arbeiten. Alle im Unternehmen sehen die Routine und ihre Lauf-Zusammenfassungen; die Person, unter deren Identität sie lief, kann zusätzlich das vollständige Assistenz-Transkript öffnen.
 
 ## Woraus eine Routine besteht
 
@@ -12,6 +12,8 @@ Eine Routine besteht aus einer gespeicherten Anweisung und einem Auslöser. Wenn
 - **Schutzgrenzen** — Customermates begrenzt, wie oft eine Routine laufen und wie viel Guthaben ein einzelner Lauf verbrauchen darf, damit eine Routine unbeaufsichtigt nicht dein Kontingent leert.
 
 Routinen gibt es nur im Cloud-Produkt, da sie gehostetes KI-Guthaben aus dem Monatskontingent der Eigentümerin oder des Eigentümers verbrauchen.
+
+Wer eine Routine anlegt, wird ihre Eigentümerin oder ihr Eigentümer. Nur diese Person kann Anweisungen oder Auslöser ändern, die Routine aktivieren oder pausieren und **Auslöser testen** verwenden, denn jeder Lauf nutzt ihre Identität, Zugriffsrechte und ihr KI-Guthaben. Ein Unternehmensadmin kann die Routine einer anderen Person pausieren oder löschen, sie aber nicht bearbeiten, testen oder ausführen. Wird das Konto der Eigentümerin oder des Eigentümers inaktiv oder entfernt, bleiben Routine und Verlauf erhalten, die Routine bleibt jedoch pausiert und schreibgeschützt, bis ein Unternehmensadmin sie löscht.
 
 Wie viele du behalten kannst, hängt vom Tarif ab: Starter hat keine, Pro enthält [[commercial.entitlement.pro.includedRoutines]], und Business sowie Enterprise sind [[commercial.entitlement.business.includedRoutines]]. Eine Routine zu pausieren gibt keinen Platz frei, sie zu löschen schon.
 
@@ -39,9 +41,9 @@ Felder erhält er nicht.
 
 ## Läufe
 
-Öffne eine Routine, um ihre Läufe zu sehen, die neuesten zuerst. Ein ausgewählter Lauf zeigt das vollständige Transkript: worum der Assistent gebeten wurde, welche Datensätze er gelesen oder geändert hat und was er geantwortet hat. Jeder Lauf hält außerdem fest, wie viel KI-Guthaben er verbraucht hat.
+Öffne eine Routine, um ihre Läufe zu sehen, die neuesten zuerst. Jeder Lauf hält fest, wessen Identität und Guthaben er genutzt hat. Alle im Unternehmen sehen Status, Zusammenfassung und Guthabenverbrauch. Nur die für diesen Lauf festgehaltene Person kann das vollständige Transkript öffnen: worum der Assistent gebeten wurde, welche Datensätze er gelesen oder geändert hat und was er geantwortet hat.
 
-Mit **Jetzt ausführen** startest du einen Lauf sofort, ohne auf den Zeitplan zu warten.
+Mit **Auslöser testen** startest du für eine geplante Routine sofort einen echten Lauf. Er verbraucht KI-Guthaben und kann Daten im Arbeitsbereich ändern. Ereignisgesteuerte Routinen benötigen ein echtes passendes Ereignis; deshalb ist diese Schaltfläche für sie deaktiviert.
 
 Die Laufstatus sind `queued`, `running`, `succeeded`, `partial`, `failed`, `skipped` und `blocked`. Ein Lauf ist `skipped`, wenn eine Schutzgrenze ihn gestoppt hat, und `blocked`, wenn der Assistent gar nicht starten konnte, etwa weil das Guthaben aufgebraucht oder das Konto nicht mehr aktiv ist.
 
@@ -55,9 +57,9 @@ Oberflächenwerkzeuge stehen Routinen nicht zur Verfügung, da bei einem unbeauf
 
 ## Anker-IDs
 
-| Oberfläche | Route | Navigationsanker | Toolbar-Anker |
-| --- | --- | --- | --- |
-| Routinen | `/routines` | `#nav-routines` | `#routines-add`, `#routines-search`, `#routines-filter`, `#routines-display-options` |
+| Oberfläche | Route       | Navigationsanker | Toolbar-Anker                                                                        |
+| ---------- | ----------- | ---------------- | ------------------------------------------------------------------------------------ |
+| Routinen   | `/routines` | `#nav-routines`  | `#routines-add`, `#routines-search`, `#routines-filter`, `#routines-display-options` |
 
 Layout-Steuerung: `#routines-layout-table`, `#routines-layout-cards`, `#routines-layout-kanban`
 

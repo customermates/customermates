@@ -11,6 +11,7 @@ import { env } from "@/env";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { resolveUserLocale } from "@/i18n/user-locale";
+import { AgentConversationOrigin } from "@/generated/prisma";
 
 import {
   SendAgentMessageSchema,
@@ -78,6 +79,20 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     tx: false,
   })
   async invoke(data: SendAgentMessageData): Validated<SendAgentMessageResult> {
+    return this.invokeScoped(data, AgentConversationOrigin.user);
+  }
+
+  async invokeRoutine(data: SendAgentMessageData): Validated<SendAgentMessageResult> {
+    const denied = await this.entitlements.require("agentChat");
+    if (denied) return denied;
+
+    return this.invokeScoped(data, AgentConversationOrigin.routine);
+  }
+
+  private async invokeScoped(
+    data: SendAgentMessageData,
+    scope: AgentConversationOrigin,
+  ): Validated<SendAgentMessageResult> {
     const user = this.user;
     const now = new Date();
     const model = resolveAgentModel();
@@ -160,13 +175,21 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       };
     }
 
-    const conversation =
-      decision.disposition === "retry"
-        ? await this.repo.findConversation(decision.turn.conversationId)
-        : data.conversationId
-          ? await this.repo.findConversation(data.conversationId)
-          : null;
+    if (scope === AgentConversationOrigin.routine && decision.disposition === "retry")
+      return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+    if (scope === AgentConversationOrigin.routine && !data.conversationId)
+      return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+
+    const requestedConversationId =
+      decision.disposition === "retry" ? decision.turn.conversationId : data.conversationId;
+    const conversation = requestedConversationId
+      ? scope === AgentConversationOrigin.routine
+        ? await this.repo.findConversation(requestedConversationId)
+        : await this.repo.findUserConversation(requestedConversationId)
+      : null;
     if ((decision.disposition === "retry" || data.conversationId) && !conversation)
+      return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+    if (scope === AgentConversationOrigin.routine && conversation?.origin !== AgentConversationOrigin.routine)
       return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     const requestedModelKey = conversation?.modelKey ?? data.modelKey ?? null;

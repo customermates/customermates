@@ -29,6 +29,7 @@ async function startRoutineRunStep(payload: RunRoutineWorkflowPayload): Promise<
   } catch (error) {
     await getFailRoutineRunInteractor().invoke({
       routineRunId: payload.routineRunId,
+      expectedExecutorUserId: payload.ownerUserId,
       reason: startFailureReason(error),
     });
 
