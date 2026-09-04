@@ -26,6 +26,7 @@ vi.mock("../data-table", () => ({ DataTable: harness.table }));
 vi.mock("../header/active-filters-bar", () => ({ DataViewActiveFiltersBar: () => null }));
 vi.mock("../header/pagination", () => ({ DataViewPagination: harness.pagination }));
 vi.mock("../mass-actions-bar", () => ({ MassActionsBar: () => null }));
+vi.mock("../views/data-view-views-rail", () => ({ DataViewViewsRail: () => "views-rail" }));
 
 import { DataViewContent } from "../data-view-content";
 import { DataViewLayout } from "../data-view-layout";
@@ -56,6 +57,8 @@ describe("data-view presentation composition", () => {
     );
 
     expect(withPagination).toContain("content");
+    expect(withPagination).toContain("views-rail");
+    expect(withPagination.indexOf("views-rail")).toBeLessThan(withPagination.indexOf("content"));
     expect(withPagination).toContain('style="contain:layout"');
     expect(withPagination).toContain("pagination");
     expect(harness.pagination).toHaveBeenCalledOnce();

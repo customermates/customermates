@@ -89,6 +89,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   viewCanShare = false;
   viewPersistable = true;
   viewUnavailable = false;
+  viewLost = false;
   viewMode: ViewMode = ViewMode.table;
   groupingColumnId?: string | null;
   selectedIds: ObservableSet<string> = observable.set();
@@ -103,6 +104,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   public readonly entityType?: EntityType;
 
   private persistViewStateTimer?: number;
+  private overrideWrites = 0;
   private requestGeneration = 0;
   private backgroundRefreshRunning = false;
   private backgroundRefreshQueued = false;
@@ -142,6 +144,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       viewCanShare: observable,
       viewPersistable: observable,
       viewUnavailable: observable,
+      viewLost: observable,
       viewMode: observable,
       groupingColumnId: observable,
       selectedIds: observable,
@@ -521,6 +524,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   }
 
   setItems(args: GetResult<Entity>): void {
+    const previousViewKey = this.activeViewKey;
+
     this.requestGeneration += 1;
     this.items = args.items;
     this.customColumns = args.customColumns ?? [];
@@ -542,6 +547,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.viewCanShare = args.viewCanShare ?? false;
     this.viewPersistable = args.viewPersistable ?? true;
     this.viewUnavailable = args.viewUnavailable ?? false;
+    this.viewLost = this.viewUnavailable && previousViewKey !== ALL_VIEW_KEY;
     this.groupCounts = args.groupCounts ?? {};
     this.groupValueSums = args.groupValueSums ?? {};
     this.requestState = { status: "ready" };
@@ -749,6 +755,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       this.pagination = this.pagination ? { ...this.pagination, page: 1 } : this.pagination;
       this.groupedTakeOverrides = {};
       this.viewIsDirty = false;
+      this.viewLost = false;
     });
 
     if (this.p13nId && this.viewPersistable) {
@@ -764,12 +771,21 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     if (!this.p13nId || !this.viewPersistable) return;
 
     this.cancelPendingPersist();
-    await applyDataViewOverrideAction({
+    const viewKey = this.activeViewKey;
+    const result = await applyDataViewOverrideAction({
       surfaceKey: this.p13nId as DataViewSurfaceKey,
-      viewKey: this.activeViewKey,
+      viewKey,
       mode: "reset",
     });
+    if (result.ok && this.activeViewKey === viewKey) this.setViewIsDirty(result.data.hasOverride);
     this.refreshResolvedInBackground();
+  };
+
+  private setViewIsDirty = (isDirty: boolean): void => {
+    runInAction(() => {
+      this.overrideWrites += 1;
+      this.viewIsDirty = isDirty;
+    });
   };
 
   private withKnownFields(filters: Filter[] | undefined): Filter[] {
@@ -800,6 +816,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     resolveFromServer = false,
   ): Promise<void> => {
     const generation = ++this.requestGeneration;
+    const overrideWritesAtStart = this.overrideWrites;
     const wasInitialized = this.isReady;
     const groupedPagination = resolveFromServer ? undefined : this.buildGroupedPaginationRequest();
     const params: GetQueryParams = resolveFromServer
@@ -851,7 +868,11 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
     if (discardIfStale()) return;
 
-    runInAction(() => this.setItems(result));
+    runInAction(() => {
+      const dirtyBeforeResult = this.viewIsDirty;
+      this.setItems(result);
+      if (this.overrideWrites !== overrideWritesAtStart) this.viewIsDirty = dirtyBeforeResult;
+    });
   };
 
   private buildGroupedPaginationRequest(): GroupedPaginationRequest | undefined {
@@ -981,9 +1002,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
     this.persistViewStateTimer = window.setTimeout(() => {
       this.persistViewStateTimer = undefined;
+      const viewKey = this.activeViewKey;
       void applyDataViewOverrideAction({
         surfaceKey: this.p13nId as DataViewSurfaceKey,
-        viewKey: this.activeViewKey,
+        viewKey,
         mode: "save",
         state: {
           filters: toJS(this.filters) ?? [],
@@ -998,7 +1020,11 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
         },
       })
         .then((res) => {
-          if (!res.ok) toastZodErrorTree(res.error);
+          if (!res.ok) {
+            toastZodErrorTree(res.error);
+            return;
+          }
+          if (this.activeViewKey === viewKey) this.setViewIsDirty(res.data.hasOverride);
         })
         .catch(reportApplicationError);
     }, 1000);

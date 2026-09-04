@@ -2,7 +2,7 @@
 
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 
-import { BookmarkIcon, SearchIcon, XIcon } from "lucide-react";
+import { SearchIcon, XIcon } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -30,36 +30,14 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
   const { editFiltersModalStore } = useRootStore();
 
   const filters = store.filters ?? [];
-  const views = store.views;
   const searchTerm = store.searchTerm?.trim() ? store.searchTerm : undefined;
   const hasFilters = filters.length > 0;
   const hasSearch = Boolean(searchTerm);
 
-  if (!hasFilters && !hasSearch) {
-    if (views.length === 0) return null;
-
-    return (
-      <div className={cn("flex flex-wrap gap-1.5 items-center px-4 py-2", !noBorder && "border-b border-border")}>
-        {views.map((view) => (
-          <ClickableChip
-            key={view.id}
-            className="max-w-md"
-            startContent={<BookmarkIcon className="size-3 opacity-70" />}
-            variant="secondary"
-            onClick={() => {
-              store.applyView(view.id);
-              editFiltersModalStore.syncDraftFromTable(store);
-            }}
-          >
-            <span className="truncate text-[11px]">{view.name}</span>
-          </ClickableChip>
-        ))}
-      </div>
-    );
-  }
+  if (!hasFilters && !hasSearch) return null;
 
   return (
-    <div className="flex flex-wrap gap-1.5 items-center px-4 py-2 border-b border-border">
+    <div className={cn("flex flex-wrap gap-1.5 items-center px-4 py-2", !noBorder && "border-b border-border")}>
       {hasSearch && (
         <AppChip
           className="max-w-md"

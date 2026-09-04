@@ -12,6 +12,7 @@ import { useScrollReturn } from "@/components/scroll/use-scroll-return";
 import { DataViewActiveFiltersBar } from "./header/active-filters-bar";
 import { DataViewPagination } from "./header/pagination";
 import { MassActionsBar } from "./mass-actions-bar";
+import { DataViewViewsRail } from "./views/data-view-views-rail";
 
 type Props<E extends HasId> = {
   children: ReactNode;
@@ -37,6 +38,8 @@ export function DataViewLayout<E extends HasId>({ children, showPagination, stor
 
   return (
     <div className="flex h-[calc(100svh-4rem)] min-h-0 flex-col md:h-[calc(100svh-5rem)]">
+      <DataViewViewsRail joinsTopBar store={store} />
+
       <MassActionsBar store={store} />
 
       <DataViewActiveFiltersBar store={store} />

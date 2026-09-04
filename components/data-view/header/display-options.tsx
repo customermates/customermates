@@ -23,6 +23,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
+import { useRootStore } from "@/core/stores/root-store.provider";
+import { useViewCommitCommands } from "@/components/data-view/views/use-view-commands";
 import { cn } from "@/core/utils/cn";
 
 import { PopoverSection as Section } from "./popover-section";
@@ -98,6 +100,8 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   const t = useTranslations();
   const [isOpen, setIsOpen] = useState(false);
   const columnLabel = useColumnLabel();
+  const { appMode } = useRootStore();
+  const { reset, saveChanges } = useViewCommitCommands(store);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor),
@@ -115,7 +119,10 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   const currentSortDirectionLabel =
     currentSortDirection === "asc" ? t("Common.sort.ascending") : t("Common.sort.descending");
   const currentGroupingId = store.groupingColumnId ?? "";
-  const hasActiveOption = Boolean(currentSortField) || Boolean(currentGroupingId) || store.hiddenColumns.length > 0;
+  const hasActiveOption =
+    Boolean(currentSortField) || Boolean(currentGroupingId) || store.hiddenColumns.length > 0 || store.viewIsDirty;
+  const activeView = store.views.find((view) => view.id === store.activeViewKey);
+  const canSaveIntoView = appMode !== "demo" && Boolean(activeView?.isOwner);
 
   const currentLayout: DataViewMode =
     store.viewMode === ViewMode.table ? "table" : store.groupingColumnId ? "kanban" : "grid";
@@ -217,6 +224,24 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
     >
       <TooltipProvider>
         <div className="flex flex-col">
+          {store.viewIsDirty && (
+            <Section label={t("DataView.views.dirty")}>
+              <div className="flex flex-wrap gap-1.5">
+                <Button size="sm" variant="ghost" onClick={() => reset()}>
+                  {t("Common.actions.reset")}
+                </Button>
+
+                {canSaveIntoView && activeView && (
+                  <Button size="sm" variant="secondary" onClick={() => saveChanges(activeView)}>
+                    {t("DataView.views.saveChanges")}
+                  </Button>
+                )}
+              </div>
+            </Section>
+          )}
+
+          {store.viewIsDirty && <Separator />}
+
           {
             <Section label={t("Common.table.layout")}>
               <Tabs value={currentLayout} onValueChange={handleLayoutChange}>

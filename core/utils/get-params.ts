@@ -10,6 +10,19 @@ const DEFAULT_PAGE_SIZE = 25;
 const VALID_PAGE_SIZES = [5, 10, 25, 100];
 const GroupingColumnIdSchema = z.uuid();
 
+export const GET_PARAM_KEYS = [
+  "filters",
+  "groupBy",
+  "page",
+  "pageSize",
+  "searchTerm",
+  "sort",
+  "sortDir",
+  "sortField",
+  "view",
+  "viewMode",
+] as const;
+
 export function encodeGetParams(params: GetQueryParams = {}): URLSearchParams {
   const sp = new URLSearchParams();
 

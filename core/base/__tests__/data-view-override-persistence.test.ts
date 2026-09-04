@@ -33,6 +33,8 @@ const filter = (value: string): Filter => ({ field: "stage", operator: FilterOpe
 
 class TestStore extends BaseDataViewStore<Item> {
   requestedParams: (GetQueryParams | undefined)[] = [];
+  holdsRefetch = false;
+  releaseRefetch: (() => void) | undefined;
 
   get columnsDefinition() {
     return [{ uid: "name" }, { uid: "stage" }];
@@ -40,7 +42,12 @@ class TestStore extends BaseDataViewStore<Item> {
 
   protected refreshAction(params?: GetQueryParams): Promise<GetResult<Item>> {
     this.requestedParams.push(params);
-    return Promise.resolve(serverEcho(params));
+    const result = serverEcho(params);
+    if (!this.holdsRefetch) return Promise.resolve(result);
+
+    return new Promise((resolve) => {
+      this.releaseRefetch = () => resolve(result);
+    });
   }
 }
 
@@ -182,6 +189,72 @@ describe("data view override persistence", () => {
 
     expect(applyDataViewOverrideAction).not.toHaveBeenCalled();
     expect(store.viewPersistable).toBe(false);
+  });
+
+  it("reports the view as dirty from the override write that the change produced", async () => {
+    const store = hydrated();
+
+    store.setQueryOptions({ filters: [filter("open")] });
+    await vi.advanceTimersByTimeAsync(999);
+    expect(store.viewIsDirty).toBe(false);
+
+    await vi.advanceTimersByTimeAsync(1);
+    expect(store.viewIsDirty).toBe(true);
+  });
+
+  it("clears the dirty flag again when the change is undone back to the saved state", async () => {
+    const store = hydrated();
+
+    store.setQueryOptions({ filters: [filter("open")] });
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(store.viewIsDirty).toBe(true);
+
+    applyDataViewOverrideAction.mockResolvedValue({ ok: true, data: { hasOverride: false } });
+    store.setQueryOptions({ filters: [] });
+    await vi.advanceTimersByTimeAsync(1000);
+
+    expect(store.viewIsDirty).toBe(false);
+  });
+
+  it("keeps the dirty flag when a refetch issued before the override write lands after it", async () => {
+    const store = hydrated();
+    store.holdsRefetch = true;
+
+    store.setQueryOptions({ filters: [filter("open")] });
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(store.viewIsDirty).toBe(true);
+
+    store.releaseRefetch?.();
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(store.filters).toEqual([filter("open")]);
+    expect(store.viewIsDirty).toBe(true);
+  });
+
+  it("clears the dirty flag from the reset write itself", async () => {
+    const store = hydrated();
+
+    store.setQueryOptions({ filters: [filter("open")] });
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(store.viewIsDirty).toBe(true);
+
+    applyDataViewOverrideAction.mockResolvedValue({ ok: true, data: { hasOverride: false } });
+    await store.resetView();
+
+    expect(store.viewIsDirty).toBe(false);
+    expect(applyDataViewOverrideAction).toHaveBeenLastCalledWith(
+      expect.objectContaining({ mode: "reset", viewKey: ALL_VIEW_KEY }),
+    );
+  });
+
+  it("leaves the dirty flag alone when the override write is refused", async () => {
+    const store = hydrated();
+
+    applyDataViewOverrideAction.mockResolvedValue({ ok: false, error: { errors: ["nope"] } });
+    store.setQueryOptions({ filters: [filter("open")] });
+    await vi.advanceTimersByTimeAsync(1000);
+
+    expect(store.viewIsDirty).toBe(false);
   });
 
   it("fires nothing when the store has no surface key", async () => {

@@ -20,6 +20,7 @@ const harness = vi.hoisted(() => ({
   setQueryOptions: vi.fn(),
   setTopBarActions: vi.fn(),
   threadRowProps: vi.fn(),
+  viewsRailProps: vi.fn(),
 }));
 
 vi.mock("next-intl", () => ({
@@ -62,6 +63,13 @@ vi.mock("@/components/data-view/header/active-filters-bar", () => ({
 
 vi.mock("@/components/data-view/header/pagination", () => ({
   DataViewPagination: () => createElement("div", { "data-pagination": true }),
+}));
+
+vi.mock("@/components/data-view/views/data-view-views-rail", () => ({
+  DataViewViewsRail: (props: Record<string, unknown>) => {
+    harness.viewsRailProps(props);
+    return createElement("div", { "data-data-view-rail": true });
+  },
 }));
 
 vi.mock("@/components/data-view/data-view-empty-state", async (importOriginal) => {
@@ -256,6 +264,17 @@ describe("Inbox page-state owners", () => {
     expect(content).toContain(`data-thread-row="${thread.id}"`);
     expect(content).toContain('data-pagination="true"');
     expect(content).toContain("animate-page-result-in");
+  });
+
+  it("mounts the saved view rail above the filters bar as a pane, not a joined header strip", () => {
+    const content = renderInboxList("ready", { withItem: true });
+
+    expect(content).toContain('data-data-view-rail="true"');
+    expect(content.indexOf("data-data-view-rail")).toBeLessThan(content.indexOf("data-active-filters"));
+    expect(harness.viewsRailProps).toHaveBeenCalledWith(
+      expect.objectContaining({ store: harness.getRootStore().messagingThreadsStore }),
+    );
+    expect(harness.viewsRailProps.mock.lastCall?.[0]).not.toHaveProperty("joinsTopBar");
   });
 
   it("wires retry, clear, selection, and retained-content refresh failure", () => {

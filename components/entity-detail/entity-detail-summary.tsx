@@ -8,11 +8,11 @@ import type { EntityDetailPreviewItem } from "./entity-detail-personalization";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import type { EntityType } from "@/generated/prisma";
-import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { CustomFieldValue } from "@/components/data-view/custom-columns/custom-field-value";
 import { AvatarStack } from "@/components/shared/avatar-stack";
+import { OverflowRail } from "@/components/shared/overflow-rail";
 import { TruncatedText } from "@/components/shared/truncated-text";
 import { useEntityHref } from "./hooks/use-entity-drawer-stack";
 import { useEntityDetailPersonalization } from "./entity-detail-personalization";
@@ -120,34 +120,6 @@ function SummaryEntry({ item }: { item: EntityDetailSummaryField }) {
 
 function SummaryRail({ items }: { items: EntityDetailSummaryField[] }) {
   const t = useTranslations();
-  const scrollRegionRef = useRef<HTMLDivElement>(null);
-  const [isOverflowing, setIsOverflowing] = useState(false);
-  const updateOverflow = useCallback(() => {
-    const scrollRegion = scrollRegionRef.current;
-    setIsOverflowing(Boolean(scrollRegion && scrollRegion.scrollWidth > scrollRegion.clientWidth));
-  }, []);
-
-  useEffect(() => {
-    const scrollRegion = scrollRegionRef.current;
-    if (!scrollRegion) return;
-
-    updateOverflow();
-    window.addEventListener("resize", updateOverflow);
-
-    const resizeObserver =
-      typeof ResizeObserver === "undefined"
-        ? null
-        : new ResizeObserver(() => {
-            updateOverflow();
-          });
-    resizeObserver?.observe(scrollRegion);
-    if (scrollRegion.firstElementChild) resizeObserver?.observe(scrollRegion.firstElementChild);
-
-    return () => {
-      window.removeEventListener("resize", updateOverflow);
-      resizeObserver?.disconnect();
-    };
-  }, [items.length, updateOverflow]);
 
   return (
     <section
@@ -155,31 +127,25 @@ function SummaryRail({ items }: { items: EntityDetailSummaryField[] }) {
       className="shrink-0 border-b border-border bg-background px-4"
       data-summary-variant="pinned-mini-cards"
     >
-      <div
-        ref={scrollRegionRef}
-        data-summary-scroll-region
-        aria-label={isOverflowing ? t("NavigationBar.overview") : undefined}
-        className="-mx-4 overflow-x-auto px-4 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        data-summary-overflow={isOverflowing || undefined}
-        role={isOverflowing ? "region" : undefined}
-        tabIndex={isOverflowing ? 0 : undefined}
+      <OverflowRail
+        focusable
+        ariaLabel={t("NavigationBar.overview")}
+        observedKey={items.length}
+        overflowAttribute="data-summary-overflow"
+        railClassName="gap-2 pt-0 pb-4"
+        railProps={{ "data-summary-geometry": "cards", "data-summary-rail": "" }}
+        regionProps={{ "data-summary-scroll-region": "" }}
       >
-        <div
-          data-summary-rail
-          className="flex w-max min-w-full items-stretch gap-2 pt-0 pb-4"
-          data-summary-geometry="cards"
-        >
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="min-w-0 w-fit max-w-56 flex-none rounded-md border border-border/60 bg-card/40 px-3 py-2"
-              data-summary-cell={item.id}
-            >
-              <SummaryEntry item={item} />
-            </div>
-          ))}
-        </div>
-      </div>
+        {items.map((item) => (
+          <div
+            key={item.id}
+            className="min-w-0 w-fit max-w-56 flex-none rounded-md border border-border/60 bg-card/40 px-3 py-2"
+            data-summary-cell={item.id}
+          >
+            <SummaryEntry item={item} />
+          </div>
+        ))}
+      </OverflowRail>
     </section>
   );
 }

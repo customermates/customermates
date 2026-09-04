@@ -35,6 +35,20 @@ Inside each display-options popover, the stable layout controls are:
 - Services: `#services-layout-table`, `#services-layout-cards`, `#services-layout-kanban`
 - Tasks: `#tasks-layout-table`, `#tasks-layout-cards`, `#tasks-layout-kanban`
 
+## Saved views
+
+The saved-view rail sits directly under the header on every list surface, and it carries the same ids everywhere, so these ids have no record-type prefix.
+
+- `#global-data-views` is the rail itself, a navigation landmark.
+- `#global-data-views-all` is the built-in All chip, which clears the active view.
+- `#global-data-views-new` opens the create-view overlay.
+- `#global-data-views-menu` opens the action menu for the active view.
+- `#global-data-views-picker` opens the full list of saved views.
+- `#global-data-views-reset` discards your unsaved changes to the active view.
+- `#global-data-views-save` writes those changes back into the view.
+
+A view is addressed by the `view` query parameter, for example `/deals?view=<id>`; no parameter means All. The chips themselves carry no ids, so switch views by URL rather than by clicking a chip you located by id.
+
 ## Drawer and detail actions
 
 These ids are shared by every record type.

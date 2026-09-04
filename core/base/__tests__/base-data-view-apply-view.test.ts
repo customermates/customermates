@@ -165,6 +165,42 @@ describe("BaseDataViewStore.applyView", () => {
     expect(store.requestedParams[0]).toEqual({ p13nId: SURFACE.deals, viewId: ALL_VIEW_KEY });
   });
 
+  it("reports the active view as lost only when it disappears while you are on it", () => {
+    const store = hydrated();
+    store.applyView(VIEW_ID);
+
+    store.setItems({
+      items: [],
+      p13nId: SURFACE.deals,
+      filterableFields: FILTERABLE_FIELDS,
+      views: [],
+      activeViewKey: ALL_VIEW_KEY,
+      viewUnavailable: true,
+    });
+
+    expect(store.activeViewKey).toBe(ALL_VIEW_KEY);
+    expect(store.viewLost).toBe(true);
+
+    store.applyView(ALL_VIEW_KEY);
+    expect(store.viewLost).toBe(false);
+  });
+
+  it("keeps a stale view link in the address bar silent on a first paint", () => {
+    const store = new TestStore(rootStore());
+
+    store.setItems({
+      items: [],
+      p13nId: SURFACE.deals,
+      filterableFields: FILTERABLE_FIELDS,
+      views: [],
+      activeViewKey: ALL_VIEW_KEY,
+      viewUnavailable: true,
+    });
+
+    expect(store.viewUnavailable).toBe(true);
+    expect(store.viewLost).toBe(false);
+  });
+
   it("does not select a view when the surface cannot persist", () => {
     const store = hydrated();
     store.viewPersistable = false;

@@ -360,12 +360,13 @@ describe("migrated collection page wiring", () => {
     value.dataRequest = { status: "refresh-error", error: new Error("retained") } as never;
     const html = fixture.render(value, initial);
     const content = harness.contentProps.mock.lastCall?.[0] as Record<string, unknown>;
-    const layout = harness.layoutProps.mock.lastCall?.[0] as { showPagination: boolean };
+    const layout = harness.layoutProps.mock.lastCall?.[0] as { showPagination: boolean; store: unknown };
 
     expect(html).toContain('data-data-view-content="true"');
     expect(content.store).toBe(value);
     expect(content.view).toBe("table");
     expect(layout.showPagination).toBe(true);
+    expect(layout.store).toBe(value);
     fixture.verifySync(value, initial);
     fixture.verifyRow(content);
   });
@@ -419,6 +420,8 @@ describe("migrated collection page wiring", () => {
     const topBar = renderToStaticMarkup(harness.setTopBarActions.mock.lastCall?.[0] as ReactElement);
     const toolbar = harness.toolbarProps.mock.lastCall?.[0] as { onAdd?: () => void };
 
+    expect(html, `${fixture.name}: the view rail is layout owned, not page owned`).not.toContain("data-data-view-rail");
+
     if (fixture.creator) {
       expect(html).toContain('data-variant="secondary"');
       expect(topBar).toContain('data-variant="default"');
@@ -434,6 +437,9 @@ describe("migrated collection page wiring", () => {
     const readOnly = store([], false);
     const readOnlyHtml = fixture.render(readOnly, initial);
     const readOnlyTopBar = renderToStaticMarkup(harness.setTopBarActions.mock.lastCall?.[0] as ReactElement);
+    expect(readOnlyHtml, `${fixture.name}: the view rail is layout owned, not page owned`).not.toContain(
+      "data-data-view-rail",
+    );
     expectOnlyTransferButtons(readOnlyHtml);
     expectOnlyTransferButtons(readOnlyTopBar);
     expect(readOnlyTopBar.includes("data-transfer-menu")).toBe(TRANSFERABLE_VIEWS.has(fixture.name));

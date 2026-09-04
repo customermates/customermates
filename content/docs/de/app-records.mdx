@@ -35,6 +35,20 @@ In jedem Display-options-Popover haben die Layout-Steuerelemente stabile Ids:
 - Services: `#services-layout-table`, `#services-layout-cards`, `#services-layout-kanban`
 - Tasks: `#tasks-layout-table`, `#tasks-layout-cards`, `#tasks-layout-kanban`
 
+## Gespeicherte Ansichten
+
+Die Leiste der gespeicherten Ansichten sitzt direkt unter dem Header jeder Listenoberfläche und trägt überall dieselben Ids, deshalb haben diese Ids kein Datensatztyp-Präfix.
+
+- `#global-data-views` ist die Leiste selbst, ein Navigations-Landmark.
+- `#global-data-views-all` ist der eingebaute All-Chip, der die aktive Ansicht aufhebt.
+- `#global-data-views-new` öffnet das Overlay zum Anlegen einer Ansicht.
+- `#global-data-views-menu` öffnet das Aktionsmenü der aktiven Ansicht.
+- `#global-data-views-picker` öffnet die vollständige Liste der gespeicherten Ansichten.
+- `#global-data-views-reset` verwirft Ihre ungespeicherten Änderungen an der aktiven Ansicht.
+- `#global-data-views-save` schreibt diese Änderungen in die Ansicht zurück.
+
+Eine Ansicht wird über den Query-Parameter `view` adressiert, zum Beispiel `/deals?view=<id>`; ohne Parameter gilt All. Die Chips selbst tragen keine Ids, wechseln Sie Ansichten also über die URL statt über einen per Id gesuchten Chip.
+
 ## Drawer- und Detail-Aktionen
 
 Diese Ids teilen sich alle Datensatztypen.
