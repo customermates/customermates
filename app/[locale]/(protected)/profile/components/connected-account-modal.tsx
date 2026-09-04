@@ -239,9 +239,9 @@ export const ConnectedAccountModal = observer(() => {
             {showSignatureTab && (
               <TabsContent className="pt-5" value="signature">
                 <AccountSignature
+                  account={account}
                   disabled={!canUpdate}
-                  value={account.signature ?? ""}
-                  onSave={(next) => runUserAction(() => connectedAccountModalStore.saveSignature(next))}
+                  onSave={(next, fields) => runUserAction(() => connectedAccountModalStore.saveSignature(next, fields))}
                 />
               </TabsContent>
             )}

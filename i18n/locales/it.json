@@ -1492,12 +1492,36 @@
     "sharedAccountsRequiresCloud": "Gli account condivisi sono disponibili su Customermates Cloud (piano Business o superiore).",
     "sharedOffToast": "L'account è ora privato",
     "sharedOnToast": "Account condiviso con il tuo spazio di lavoro",
-    "signature": "Firma email",
-    "signatureHint": "Aggiunta quando invii da questo account. Supporta Markdown, quindi **grassetto** e [link](https://example.com) vengono resi nell'email.",
+    "signatureAccent": "Colore d'accento",
+    "signatureAccents": {
+      "blue": "Blu",
+      "green": "Verde",
+      "neutral": "Grigio",
+      "violet": "Viola"
+    },
+    "signatureExtra": "Righe aggiuntive",
+    "signatureFields": {
+      "company": "Azienda",
+      "email": "Email",
+      "fullName": "Nome completo",
+      "jobTitle": "Ruolo",
+      "logoUrl": "URL del logo",
+      "phone": "Telefono",
+      "website": "Sito web"
+    },
+    "signatureHint": "Markdown per ciò che i campi non coprono, come un indirizzo o una nota legale.",
+    "signatureLogoDefault": "Usa il logo",
+    "signatureLogoPlaceholder": "https://example.com/logo.png",
     "signaturePreview": "Anteprima",
     "signaturePreviewEmpty": "Non c'è ancora nulla da visualizzare.",
     "signatureSave": "Salva firma",
     "signatureSaved": "Firma salvata",
+    "signatureTemplate": "Layout",
+    "signatureTemplates": {
+      "plain": "Solo testo",
+      "sideBySide": "Logo accanto",
+      "stacked": "Logo sopra"
+    },
     "signatureUpdateFailed": "Impossibile salvare la firma",
     "status": "Stato",
     "statusLabels": {

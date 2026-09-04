@@ -1,11 +1,12 @@
-import markdownit from "markdown-it";
+import type { SignatureFields } from "../signature-fields";
 
 import { isPlainTextEmailBody } from "../email-quote";
+import { renderSignatureFields, signatureToHtml } from "./render-signature";
 
 export const SIGNATURE_DELIMITER = "\n\n-- \n";
 const HTML_SIGNATURE_DELIMITER = "<br><br>-- <br>";
 
-const signatureMarkdown = markdownit({ html: false, linkify: true, breaks: true });
+export { signatureToHtml };
 
 export function toEmailHtml(body: string): string {
   if (!isPlainTextEmailBody(body)) return body;
@@ -13,20 +14,27 @@ export function toEmailHtml(body: string): string {
   return body.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").split("\n").join("<br>");
 }
 
-export function signatureToHtml(signature: string): string {
-  return signatureMarkdown.render(signature).trim();
+export function renderSignature(
+  signature: string | null | undefined,
+  fields: SignatureFields | null,
+): { html: string; text: string } | null {
+  const markdown = signature?.trim() ?? "";
+  if (!fields) return markdown ? { html: signatureToHtml(markdown), text: markdown } : null;
+
+  return renderSignatureFields(fields, markdown);
 }
 
 export function composeEmailBodies(
   body: string,
   signature: string | null | undefined,
+  fields?: SignatureFields | null,
 ): { plainText: string; html: string } {
-  const trimmed = signature?.trim();
+  const rendered = renderSignature(signature, fields ?? null);
   const html = toEmailHtml(body);
-  if (!trimmed || body.includes(SIGNATURE_DELIMITER)) return { plainText: body, html };
+  if (!rendered || body.includes(SIGNATURE_DELIMITER)) return { plainText: body, html };
 
   return {
-    plainText: `${body.trimEnd()}${SIGNATURE_DELIMITER}${trimmed}`,
-    html: `${html}${HTML_SIGNATURE_DELIMITER}${signatureToHtml(trimmed)}`,
+    plainText: `${body.trimEnd()}${SIGNATURE_DELIMITER}${rendered.text}`,
+    html: `${html}${HTML_SIGNATURE_DELIMITER}${rendered.html}`,
   };
 }

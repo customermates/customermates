@@ -29,6 +29,7 @@ import { formatRetryAfter } from "../retry-after";
 import { isUnipileResourceNotFound, isUnipileTimeout } from "../messaging.service";
 import { isDraftThreadId } from "../provider";
 import { composeEmailBodies } from "./email-signature";
+import { parseSignatureFields } from "../signature-fields";
 import { MessagingMessageDtoSchema, toMessagingMessageDto } from "../inbox/inbox.schema";
 import { EMPTY_ATTENDEE, buildEmailMessage, toAttachmentsMeta } from "../unipile.mappers";
 import { UnipileEmailSchema } from "../unipile.schema";
@@ -155,7 +156,11 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
     if (data.draftMessageId && !(await this.repo.findDraftById({ messageId: data.draftMessageId })))
       return failNotFound(CustomErrorCode.draftMessageNotFound);
 
-    const { plainText: outgoingBody, html: outgoingHtml } = composeEmailBodies(data.body, account.signature);
+    const { plainText: outgoingBody, html: outgoingHtml } = composeEmailBodies(
+      data.body,
+      account.signature,
+      parseSignatureFields(account.signatureFields),
+    );
 
     if (
       thread &&

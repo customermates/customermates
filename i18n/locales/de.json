@@ -1492,12 +1492,36 @@
     "sharedAccountsRequiresCloud": "Geteilte Konten sind in Customermates Cloud verfügbar (ab dem Business-Tarif).",
     "sharedOffToast": "Konto ist jetzt privat",
     "sharedOnToast": "Konto mit deinem Workspace geteilt",
-    "signature": "E-Mail-Signatur",
-    "signatureHint": "Wird beim Senden über dieses Konto angehängt. Markdown wird unterstützt, also erscheinen **fett** und [Links](https://example.com) in der E-Mail.",
+    "signatureAccent": "Akzentfarbe",
+    "signatureAccents": {
+      "blue": "Blau",
+      "green": "Grün",
+      "neutral": "Grau",
+      "violet": "Violett"
+    },
+    "signatureExtra": "Zusätzliche Zeilen",
+    "signatureFields": {
+      "company": "Unternehmen",
+      "email": "E-Mail",
+      "fullName": "Vollständiger Name",
+      "jobTitle": "Position",
+      "logoUrl": "Logo-URL",
+      "phone": "Telefon",
+      "website": "Website"
+    },
+    "signatureHint": "Markdown für alles, was die Felder nicht abdecken, etwa eine Anschrift oder einen Haftungsausschluss.",
+    "signatureLogoDefault": "Logo nutzen",
+    "signatureLogoPlaceholder": "https://example.com/logo.png",
     "signaturePreview": "Vorschau",
     "signaturePreviewEmpty": "Noch nichts zur Vorschau.",
     "signatureSave": "Signatur speichern",
     "signatureSaved": "Signatur gespeichert",
+    "signatureTemplate": "Layout",
+    "signatureTemplates": {
+      "plain": "Nur Text",
+      "sideBySide": "Logo daneben",
+      "stacked": "Logo oben"
+    },
     "signatureUpdateFailed": "Signatur konnte nicht gespeichert werden",
     "status": "Status",
     "statusLabels": {

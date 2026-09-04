@@ -1,61 +1,182 @@
 "use client";
 
+import type { ConnectedAccountDto } from "@/ee/messaging/messaging.schema";
+import type { SignatureFields } from "@/ee/messaging/signature-fields";
+
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { SanitizedHtml } from "@/components/shared/sanitized-html";
-import { signatureToHtml } from "@/ee/messaging/outbound/email-signature";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { EmailFrame } from "@/app/[locale]/(protected)/inbox/components/email-frame";
+import { renderSignature } from "@/ee/messaging/outbound/email-signature";
+import { SIGNATURE_LOGO_URL, SignatureAccent, SignatureTemplate } from "@/ee/messaging/signature-fields";
+
+import { SignatureTemplatePicker } from "./signature-template-picker";
+
+type Draft = { signature: string; fields: SignatureFields };
 
 type Props = {
-  value: string;
+  account: ConnectedAccountDto;
   disabled?: boolean;
-  onSave: (signature: string) => void;
+  onSave: (signature: string, fields: SignatureFields) => void;
 };
 
-export function AccountSignature({ value, disabled = false, onSave }: Props) {
+const TEXT_FIELDS = ["fullName", "jobTitle", "company", "email", "phone", "website"] as const;
+
+function initialDraft(account: ConnectedAccountDto): Draft {
+  const owner = [account.owner.firstName, account.owner.lastName].filter(Boolean).join(" ");
+
+  return {
+    signature: account.signature ?? "",
+    fields: account.signatureFields ?? {
+      template: SignatureTemplate.stacked,
+      accent: SignatureAccent.violet,
+      fullName: owner,
+      jobTitle: "",
+      company: "",
+      email: account.emailAddress ?? "",
+      phone: "",
+      website: "",
+      logoUrl: SIGNATURE_LOGO_URL,
+    },
+  };
+}
+
+export function AccountSignature({ account, disabled = false, onSave }: Props) {
   const t = useTranslations();
-  const [draft, setDraft] = useState(value);
+  const [draft, setDraft] = useState<Draft>(() => initialDraft(account));
+  const [saved, setSaved] = useState(() => JSON.stringify(initialDraft(account)));
 
-  useEffect(() => setDraft(value), [value]);
+  useEffect(() => {
+    setDraft(initialDraft(account));
+    setSaved(JSON.stringify(initialDraft(account)));
+  }, [account]);
 
-  const trimmed = draft.trim();
-  const html = useMemo(() => (trimmed ? signatureToHtml(trimmed) : ""), [trimmed]);
+  const html = useMemo(() => renderSignature(draft.signature, draft.fields)?.html ?? "", [draft]);
+  const isDirty = JSON.stringify(draft) !== saved;
+
+  function setField<Key extends keyof SignatureFields>(key: Key, value: SignatureFields[Key]) {
+    setDraft((current) => ({ ...current, fields: { ...current.fields, [key]: value } }));
+  }
 
   return (
-    <div className="flex flex-col gap-2">
-      <Label className="text-subdued text-xs" htmlFor="connected-account-signature">
-        {t("ConnectedAccountsCard.signature")}
-      </Label>
-
-      <Textarea
-        className="min-h-24 font-mono text-xs"
+    <div className="flex flex-col gap-4">
+      <SignatureTemplatePicker
         disabled={disabled}
-        id="connected-account-signature"
-        rows={5}
-        value={draft}
-        onChange={(event) => setDraft(event.target.value)}
+        value={draft.fields.template}
+        onValueChange={(template) => setField("template", template)}
       />
 
-      <p className="text-muted-foreground text-xs">{t("ConnectedAccountsCard.signatureHint")}</p>
+      <div className="grid grid-cols-2 gap-3">
+        {TEXT_FIELDS.map((field) => (
+          <div key={field} className="flex min-w-0 flex-col gap-1.5">
+            <Label className="text-subdued text-xs" htmlFor={`signature-${field}`}>
+              {t(`ConnectedAccountsCard.signatureFields.${field}`)}
+            </Label>
 
-      <Label className="text-subdued mt-2 text-xs">{t("ConnectedAccountsCard.signaturePreview")}</Label>
+            <Input
+              disabled={disabled}
+              id={`signature-${field}`}
+              value={draft.fields[field]}
+              onChange={(event) => setField(field, event.target.value)}
+            />
+          </div>
+        ))}
 
-      <div className="border-border bg-muted/30 rounded-md border px-3 py-2 text-sm">
+        <div className="flex min-w-0 flex-col gap-1.5">
+          <Label className="text-subdued text-xs" htmlFor="signature-accent">
+            {t("ConnectedAccountsCard.signatureAccent")}
+          </Label>
+
+          <Select
+            disabled={disabled}
+            value={draft.fields.accent}
+            onValueChange={(next) => setField("accent", next as SignatureAccent)}
+          >
+            <SelectTrigger id="signature-accent">
+              <SelectValue />
+            </SelectTrigger>
+
+            <SelectContent>
+              {Object.values(SignatureAccent).map((accent) => (
+                <SelectItem key={accent} value={accent}>
+                  {t(`ConnectedAccountsCard.signatureAccents.${accent}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex min-w-0 flex-col gap-1.5">
+          <Label className="text-subdued text-xs" htmlFor="signature-logoUrl">
+            {t("ConnectedAccountsCard.signatureFields.logoUrl")}
+          </Label>
+
+          <div className="flex min-w-0 items-center gap-1.5">
+            <Input
+              className="min-w-0 flex-1"
+              disabled={disabled}
+              id="signature-logoUrl"
+              placeholder={t("ConnectedAccountsCard.signatureLogoPlaceholder")}
+              value={draft.fields.logoUrl}
+              onChange={(event) => setField("logoUrl", event.target.value)}
+            />
+
+            <Button
+              disabled={disabled || draft.fields.logoUrl === SIGNATURE_LOGO_URL}
+              size="sm"
+              type="button"
+              variant="secondary"
+              onClick={() => setField("logoUrl", SIGNATURE_LOGO_URL)}
+            >
+              {t("ConnectedAccountsCard.signatureLogoDefault")}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label className="text-subdued text-xs" htmlFor="connected-account-signature">
+          {t("ConnectedAccountsCard.signatureExtra")}
+        </Label>
+
+        <Textarea
+          className="min-h-20 font-mono text-xs"
+          disabled={disabled}
+          id="connected-account-signature"
+          rows={4}
+          value={draft.signature}
+          onChange={(event) => setDraft((current) => ({ ...current, signature: event.target.value }))}
+        />
+
+        <p className="text-muted-foreground text-xs">{t("ConnectedAccountsCard.signatureHint")}</p>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label className="text-subdued text-xs">{t("ConnectedAccountsCard.signaturePreview")}</Label>
+
         {html ? (
-          <SanitizedHtml
-            className="[&_a]:text-primary [&_a]:underline [&_h1]:text-base [&_h1]:font-semibold [&_h2]:text-sm [&_h2]:font-semibold [&_hr]:border-border [&_hr]:my-2 [&_img]:max-h-16 [&_img]:w-auto [&_li]:list-disc [&_p]:m-0 [&_p+p]:mt-2 [&_ul]:m-0 [&_ul]:pl-4"
-            html={html}
-          />
+          <div className="border-border overflow-hidden rounded-md border">
+            <EmailFrame showRemoteImages html={html} />
+          </div>
         ) : (
-          <p className="text-subdued m-0">{t("ConnectedAccountsCard.signaturePreviewEmpty")}</p>
+          <p className="text-subdued border-border rounded-md border px-3 py-2 text-xs">
+            {t("ConnectedAccountsCard.signaturePreviewEmpty")}
+          </p>
         )}
       </div>
 
       <div className="flex justify-end">
-        <Button disabled={disabled || draft === value} size="sm" type="button" onClick={() => onSave(draft)}>
+        <Button
+          disabled={disabled || !isDirty}
+          size="sm"
+          type="button"
+          onClick={() => onSave(draft.signature, draft.fields)}
+        >
           {t("ConnectedAccountsCard.signatureSave")}
         </Button>
       </div>

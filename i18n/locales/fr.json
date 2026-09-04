@@ -1492,12 +1492,36 @@
     "sharedAccountsRequiresCloud": "Les comptes partagés sont disponibles sur Customermates Cloud (formule Business ou supérieure).",
     "sharedOffToast": "Le compte est désormais privé",
     "sharedOnToast": "Compte partagé avec votre espace de travail",
-    "signature": "Signature e-mail",
-    "signatureHint": "Ajoutée lors de l'envoi depuis ce compte. Le Markdown est pris en charge : **gras** et [liens](https://example.com) sont rendus dans l'e-mail.",
+    "signatureAccent": "Couleur d'accent",
+    "signatureAccents": {
+      "blue": "Bleu",
+      "green": "Vert",
+      "neutral": "Gris",
+      "violet": "Violet"
+    },
+    "signatureExtra": "Lignes supplémentaires",
+    "signatureFields": {
+      "company": "Entreprise",
+      "email": "E-mail",
+      "fullName": "Nom complet",
+      "jobTitle": "Fonction",
+      "logoUrl": "URL du logo",
+      "phone": "Téléphone",
+      "website": "Site web"
+    },
+    "signatureHint": "Markdown pour ce que les champs ne couvrent pas, comme une adresse ou une mention légale.",
+    "signatureLogoDefault": "Utiliser le logo",
+    "signatureLogoPlaceholder": "https://example.com/logo.png",
     "signaturePreview": "Aperçu",
     "signaturePreviewEmpty": "Rien à prévisualiser pour le moment.",
     "signatureSave": "Enregistrer la signature",
     "signatureSaved": "Signature enregistrée",
+    "signatureTemplate": "Disposition",
+    "signatureTemplates": {
+      "plain": "Texte seul",
+      "sideBySide": "Logo à côté",
+      "stacked": "Logo au-dessus"
+    },
     "signatureUpdateFailed": "Impossible d'''enregistrer la signature",
     "status": "Statut",
     "statusLabels": {

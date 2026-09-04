@@ -1492,12 +1492,36 @@
     "sharedAccountsRequiresCloud": "Shared accounts are available on Customermates Cloud (Business plan or higher).",
     "sharedOffToast": "Account is now private",
     "sharedOnToast": "Account shared with your workspace",
-    "signature": "Email signature",
-    "signatureHint": "Appended when you send from this account. Markdown is supported, so **bold** and [links](https://example.com) render in the email.",
+    "signatureAccent": "Accent colour",
+    "signatureAccents": {
+      "blue": "Blue",
+      "green": "Green",
+      "neutral": "Grey",
+      "violet": "Violet"
+    },
+    "signatureExtra": "Extra lines",
+    "signatureFields": {
+      "company": "Company",
+      "email": "Email",
+      "fullName": "Full name",
+      "jobTitle": "Job title",
+      "logoUrl": "Logo URL",
+      "phone": "Phone",
+      "website": "Website"
+    },
+    "signatureHint": "Markdown for anything the fields do not cover, like an address or a disclaimer.",
+    "signatureLogoDefault": "Use logo",
+    "signatureLogoPlaceholder": "https://example.com/logo.png",
     "signaturePreview": "Preview",
     "signaturePreviewEmpty": "Nothing to preview yet.",
     "signatureSave": "Save signature",
     "signatureSaved": "Signature saved",
+    "signatureTemplate": "Layout",
+    "signatureTemplates": {
+      "plain": "Text only",
+      "sideBySide": "Logo beside",
+      "stacked": "Logo above"
+    },
     "signatureUpdateFailed": "Couldn'''t save the signature",
     "status": "Status",
     "statusLabels": {

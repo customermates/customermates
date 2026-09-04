@@ -5,6 +5,7 @@ import { ConnectedAccountStatus, MessagingProvider, Resource } from "@/generated
 import { BaseModalStore } from "@/core/base/base-modal.store";
 
 import type { ConnectedAccountDto } from "@/ee/messaging/messaging.schema";
+import type { SignatureFields } from "@/ee/messaging/signature-fields";
 
 export class ConnectedAccountModalStore extends BaseModalStore<ConnectedAccountDto> {
   constructor(rootStore: RootStore) {
@@ -29,6 +30,7 @@ export class ConnectedAccountModalStore extends BaseModalStore<ConnectedAccountD
         foldersSyncedAt: null,
         linkedinProducts: [],
         signature: null,
+        signatureFields: null,
         signatureHtml: null,
       },
       Resource.inboxMessages,
@@ -40,8 +42,8 @@ export class ConnectedAccountModalStore extends BaseModalStore<ConnectedAccountD
     if (updated) this.onInitOrRefresh(updated);
   };
 
-  saveSignature = async (signature: string): Promise<void> => {
-    const updated = await this.rootStore.connectedAccountsStore.setSignature(this.form.id, signature);
+  saveSignature = async (signature: string, fields: SignatureFields | null): Promise<void> => {
+    const updated = await this.rootStore.connectedAccountsStore.setSignature(this.form.id, signature, fields);
     if (updated) this.onInitOrRefresh(updated);
   };
 

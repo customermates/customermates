@@ -4,6 +4,7 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { TableColumn } from "@/core/base/base-data-view.store";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { MessagingProvider } from "@/generated/prisma";
+import type { SignatureFields } from "@/ee/messaging/signature-fields";
 
 import { action, computed, makeObservable } from "mobx";
 
@@ -181,8 +182,12 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
     });
   };
 
-  setSignature = async (id: string, signature: string): Promise<ConnectedAccountDto | null> => {
-    const res = await setConnectedAccountSignatureAction(id, signature);
+  setSignature = async (
+    id: string,
+    signature: string,
+    fields: SignatureFields | null,
+  ): Promise<ConnectedAccountDto | null> => {
+    const res = await setConnectedAccountSignatureAction(id, signature, fields);
 
     if (!res.ok) {
       this.toastError("ConnectedAccountsCard.signatureUpdateFailed");

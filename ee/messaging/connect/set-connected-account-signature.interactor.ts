@@ -1,12 +1,14 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { ConnectedAccountDto } from "../messaging.schema";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
+import type { SignatureFields } from "../signature-fields";
 
 import { z } from "zod";
 
 import { Action, Resource } from "@/generated/prisma";
 
 import { ConnectedAccountDtoSchema } from "../messaging.schema";
+import { SignatureFieldsSchema } from "../signature-fields";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
@@ -16,11 +18,16 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 const Schema = z.object({
   id: z.uuid(),
   signature: z.string().max(2_000),
+  fields: SignatureFieldsSchema.nullable().default(null),
 });
 export type SetConnectedAccountSignatureData = Data<typeof Schema>;
 
 export abstract class SetConnectedAccountSignatureRepo {
-  abstract setAccountSignatureOrThrow(args: { id: string; signature: string | null }): Promise<ConnectedAccountDto>;
+  abstract setAccountSignatureOrThrow(args: {
+    id: string;
+    signature: string | null;
+    fields: SignatureFields | null;
+  }): Promise<ConnectedAccountDto>;
 }
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
@@ -42,7 +49,11 @@ export class SetConnectedAccountSignatureInteractor extends AuthenticatedInterac
     if (denied) return denied;
 
     const signature = data.signature.trim();
-    const updated = await this.repo.setAccountSignatureOrThrow({ id: data.id, signature: signature || null });
+    const updated = await this.repo.setAccountSignatureOrThrow({
+      id: data.id,
+      signature: signature || null,
+      fields: data.fields,
+    });
 
     return { ok: true as const, data: updated };
   }

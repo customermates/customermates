@@ -25,7 +25,10 @@ export const ComposerSignature = observer(({ connectedAccountId }: Props) => {
   return (
     <div className="border-border text-muted-foreground mx-3 mb-2 border-t pt-2 text-xs">
       <div className="flex items-start justify-between gap-2">
-        <SanitizedHtml className="[&_a]:underline [&_p]:m-0 [&_p+p]:mt-1" html={account.signatureHtml} />
+        <SanitizedHtml
+          className="min-w-0 [&_a]:underline [&_div]:!text-[11px] [&_img]:max-h-8 [&_img]:w-auto [&_p]:m-0 [&_p+p]:mt-1 [&_table]:max-w-full"
+          html={account.signatureHtml}
+        />
 
         <Link className="shrink-0 underline underline-offset-2" href="/profile/connected-accounts">
           {t("Inbox.compose.signatureEdit")}

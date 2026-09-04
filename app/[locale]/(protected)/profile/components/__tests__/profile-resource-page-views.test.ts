@@ -94,6 +94,7 @@ function connectedAccount(): ConnectedAccountDto {
     hasMessaging: true,
     hasCalendar: false,
     signature: null,
+    signatureFields: null,
     signatureHtml: null,
     emailAddress: "inbox@example.com",
     isOwner: true,

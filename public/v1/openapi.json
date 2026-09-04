@@ -53237,6 +53237,93 @@
               }
             ]
           },
+          "signatureFields": {
+            "default": null,
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "template": {
+                    "default": "stacked",
+                    "type": "string",
+                    "enum": [
+                      "plain",
+                      "stacked",
+                      "sideBySide"
+                    ]
+                  },
+                  "accent": {
+                    "default": "violet",
+                    "type": "string",
+                    "enum": [
+                      "neutral",
+                      "violet",
+                      "blue",
+                      "green"
+                    ]
+                  },
+                  "fullName": {
+                    "default": "",
+                    "type": "string",
+                    "maxLength": 120
+                  },
+                  "jobTitle": {
+                    "default": "",
+                    "type": "string",
+                    "maxLength": 120
+                  },
+                  "company": {
+                    "default": "",
+                    "type": "string",
+                    "maxLength": 120
+                  },
+                  "email": {
+                    "default": "",
+                    "type": "string",
+                    "maxLength": 120
+                  },
+                  "phone": {
+                    "default": "",
+                    "type": "string",
+                    "maxLength": 120
+                  },
+                  "website": {
+                    "default": "",
+                    "type": "string",
+                    "maxLength": 120
+                  },
+                  "logoUrl": {
+                    "default": "",
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "const": ""
+                      },
+                      {
+                        "type": "string",
+                        "maxLength": 500
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "template",
+                  "accent",
+                  "fullName",
+                  "jobTitle",
+                  "company",
+                  "email",
+                  "phone",
+                  "website",
+                  "logoUrl"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "signatureHtml": {
             "default": null,
             "anyOf": [
@@ -53268,6 +53355,7 @@
           "foldersSyncedAt",
           "linkedinProducts",
           "signature",
+          "signatureFields",
           "signatureHtml"
         ],
         "additionalProperties": false
