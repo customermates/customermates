@@ -58,7 +58,7 @@
     "@toon-format/toon": "^2.1.0",
     "@types/js-cookie": "^3.0.6",
     "@types/mdx": "^2.0.13",
-    "@unipile/sdk": "2.32.0",
+    "@unipile/sdk": "2.41.0",
     "@vercel/analytics": "^1.5.0",
     "@vercel/kv": "3.0.0",
     "@workflow/world-postgres": "5.0.0-beta.36",
