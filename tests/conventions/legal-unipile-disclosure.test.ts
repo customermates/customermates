@@ -121,11 +121,7 @@ describe("legal documents describe only what the product does", () => {
         ? /no directly identifying data is transmitted.*no hashed email address.*no IP address/is
         : /keine unmittelbar identifizierenden Daten übermittelt.*keine gehashte E-Mail-Adresse.*keine IP-Adresse/is,
     );
-    expect(privacy).toMatch(
-      name === "en"
-        ? /Reporting is not automatic, and it has not begun/i
-        : /Rückmeldung erfolgt nicht automatisch, und sie hat noch nicht begonnen/i,
-    );
+    expect(privacy).toMatch(name === "en" ? /Reporting is not automatic/i : /Rückmeldung erfolgt nicht automatisch/i);
     expect(privacy).toMatch(/cm_ad_attribution/);
     for (const company of ["Google LLC", "Reddit, Inc.", "LinkedIn Corporation"])
       expect(privacy, `${name}/privacy does not name the receiving company ${company}`).toContain(company);
@@ -135,8 +131,8 @@ describe("legal documents describe only what the product does", () => {
     expect(privacy, `${name}/privacy does not state the transfer basis`).toMatch(
       name === "en" ? /Data Privacy Framework/i : /Data Privacy Framework/i,
     );
-    expect(privacy, `${name}/privacy no longer says nothing has been transmitted yet`).toMatch(
-      name === "en" ? /has received anything from this feature yet/i : /hat aus dieser Funktion bisher etwas erhalten/i,
+    expect(privacy, `${name}/privacy does not describe the recipients as conditional`).toMatch(
+      name === "en" ? /Potential recipients of such a report/i : /Mögliche Empfänger einer solchen Meldung/i,
     );
     expect(privacy, `${name}/privacy still claims a live Google reporting route`).not.toMatch(
       /spreadsheet in a Customermates Google account|Tabelle in einem Google-Konto/i,
@@ -719,14 +715,16 @@ describe("legal update workflow disclosure", () => {
     expect(deSubprocessors).toMatch(/Resend[\s\S]*Mitteilungen über aktualisierte AGB/i);
   });
 
-  it("does not describe the historical advertising launch state as current privacy behavior", () => {
+  it("keeps transient advertising operations out of the privacy notice", () => {
     const enPrivacy = legal("en", "privacy");
     const dePrivacy = legal("de", "privacy");
 
-    expect(enPrivacy).toContain("No advertising platform has received anything from this feature yet.");
-    expect(dePrivacy).toContain("Keine Werbeplattform hat aus dieser Funktion bisher etwas erhalten.");
-    expect(enPrivacy).not.toContain("no advertisement of ours has run");
-    expect(dePrivacy).not.toContain("keine unserer Anzeigen ist bisher gelaufen");
+    expect(enPrivacy).not.toMatch(
+      /Customermates advertises on|has not begun|has received anything from this feature yet|no export has been submitted|conversion interface now exists|interfaces Customermates has not built|no advertisement of ours has run/i,
+    );
+    expect(dePrivacy).not.toMatch(
+      /Customermates wirbt über|hat noch nicht begonnen|hat aus dieser Funktion bisher etwas erhalten|kein Export wurde übergeben|Conversion-Schnittstelle.*nun besteht|Programmierschnittstellen.*nicht gebaut|keine unserer Anzeigen ist bisher gelaufen/i,
+    );
   });
 
   it("keeps the legal flow free of superseded deployment and deterministic-key machinery", () => {
