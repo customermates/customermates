@@ -828,7 +828,7 @@ export class PrismaMessagingRepo
     const previewSource =
       last?.isDraft && isEmailProvider(row.provider)
         ? draftPreview(last.bodyText ?? "", row.provider)
-        : last?.bodyText?.trim() || last?.bodyHtml?.replace(/<[^>]*>/g, "").trim();
+        : last?.bodyText?.trim() || htmlToPlainText(last?.bodyHtml);
     const derivedPreview = previewSource ? safeTruncate(previewSource.replace(/\s+/g, " "), 200) : null;
     const preview = last?.isDeleted
       ? null
