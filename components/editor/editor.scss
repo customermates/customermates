@@ -8,7 +8,8 @@
     margin-bottom: 0.5rem;
   }
 
-  h1, h2 {
+  h1,
+  h2 {
     margin-top: 1rem;
     margin-bottom: 0.5rem;
   }
@@ -36,7 +37,7 @@
     }
   }
 
-  ul[data-type='taskList'] {
+  ul[data-type="taskList"] {
     list-style: none;
     margin-left: 0;
     padding: 0;
@@ -62,7 +63,7 @@
       }
     }
 
-    input[type='checkbox'] {
+    input[type="checkbox"] {
       cursor: pointer;
       accent-color: var(--primary);
       appearance: none;
@@ -80,7 +81,7 @@
         border-color: var(--primary);
 
         &::after {
-          content: '';
+          content: "";
           position: absolute;
           left: 4px;
           top: 1px;
@@ -93,12 +94,12 @@
       }
     }
 
-    ul[data-type='taskList'] {
+    ul[data-type="taskList"] {
       margin: 0;
     }
   }
 
-   p.is-editor-empty:first-child::before {
+  p.is-editor-empty:first-child::before {
     color: var(--muted-foreground);
     content: attr(data-placeholder);
     float: left;
@@ -116,7 +117,7 @@
 
   blockquote > p::before,
   blockquote > p::after {
-    content: '';
+    content: "";
   }
 
   hr {
@@ -165,7 +166,7 @@
 
     .selectedCell::after {
       background: var(--primary);
-      content: '';
+      content: "";
       inset: 0;
       opacity: 0.1;
       pointer-events: none;
@@ -188,5 +189,16 @@
     color: var(--primary);
     text-decoration: underline;
     word-break: break-all;
+  }
+}
+
+.email-markdown-editor .tiptap {
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+
+  a {
+    color: var(--email-link-color);
+    text-decoration: var(--email-link-decoration);
   }
 }

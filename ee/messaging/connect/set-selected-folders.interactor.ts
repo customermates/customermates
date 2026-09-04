@@ -8,7 +8,7 @@ import { z } from "zod";
 
 import { Action, Resource } from "@/generated/prisma";
 
-import { ConnectedAccountDtoSchema } from "../messaging.schema";
+import { ConnectedAccountAppDtoSchema } from "../messaging.schema";
 import { isSkippedEmailFolder } from "../email-folders";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -44,7 +44,7 @@ export class SetSelectedFoldersInteractor extends AuthenticatedInteractor<SetSel
   }
 
   @Enforce(Schema)
-  @ValidateOutput(ConnectedAccountDtoSchema)
+  @ValidateOutput(ConnectedAccountAppDtoSchema)
   async invoke(data: SetSelectedFoldersData): Validated<ConnectedAccountDto> {
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;

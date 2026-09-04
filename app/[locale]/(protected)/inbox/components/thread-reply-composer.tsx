@@ -9,6 +9,7 @@ import { Action, Resource } from "@/generated/prisma";
 import type { MessagingProvider } from "@/generated/prisma";
 import type { NewThreadTarget } from "./thread-compose.store";
 import type { LinkedinProduct } from "@/ee/messaging/provider";
+import type { EmailMarkdownEditorHandle } from "@/components/editor/email-markdown-editor";
 
 import { LINKEDIN_PRODUCTS } from "@/ee/messaging/provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
@@ -20,6 +21,7 @@ import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { FormInputChips } from "@/components/forms/form-input-chips";
 import { FormTextarea } from "@/components/forms/form-textarea";
+import { EmailMarkdownEditor } from "@/components/editor/email-markdown-editor";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -32,6 +34,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { ComposerSignature } from "./composer-signature";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { defaultEmailSettings } from "@/ee/messaging/email-settings";
 
 const COMPOSER_EMOJIS = [
   "😀",
@@ -99,10 +102,17 @@ export const ThreadReplyComposer = observer(
     const rootStore = useRootStore();
     const { userStore, threadComposeStore, connectedAccountsStore } = rootStore;
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const emailEditorRef = useRef<EmailMarkdownEditorHandle>(null);
     const initializedThreadId = useRef<string | null>(null);
     const [emojiOpen, setEmojiOpen] = useState(false);
 
     function insertEmoji(emoji: string) {
+      if (threadComposeStore.isEmail) {
+        emailEditorRef.current?.insertText(emoji);
+        setEmojiOpen(false);
+        return;
+      }
+
       const el = document.getElementById("inbox-reply-input") as HTMLTextAreaElement | null;
       const current = (threadComposeStore.getValue("body") as string | undefined) ?? "";
       const start = el?.selectionStart ?? current.length;
@@ -127,7 +137,10 @@ export const ThreadReplyComposer = observer(
       initializedThreadId.current = threadId;
       if (threadComposeStore.form.threadId === threadId) return;
       if (newThreadTarget) {
-        threadComposeStore.initializeNewThread({ provider, ...newThreadTarget });
+        threadComposeStore.initializeNewThread({
+          provider,
+          ...newThreadTarget,
+        });
         return;
       }
       threadComposeStore.initialize({
@@ -152,6 +165,10 @@ export const ThreadReplyComposer = observer(
     const signatureAccountId = isNewThread
       ? (threadComposeStore.newThreadTarget?.connectedAccountId ?? null)
       : (rootStore.messagingThreadDetailStore.thread?.connectedAccountId ?? null);
+    const emailAccount = signatureAccountId
+      ? connectedAccountsStore.items.find((account) => account.id === signatureAccountId)
+      : null;
+    const emailSettings = emailAccount?.emailSettings ?? defaultEmailSettings();
     const linkedinProduct = threadComposeStore.form.linkedinProduct;
 
     const senders = isNewThread ? connectedAccountsStore.usableSendersFor(provider) : [];
@@ -177,7 +194,7 @@ export const ThreadReplyComposer = observer(
               <DropdownMenuTrigger asChild>
                 <button
                   className="focus-visible:ring-ring/50 min-w-0 rounded-md outline-none focus-visible:ring-[3px]"
-                  disabled={Boolean(threadComposeStore.newThreadTarget?.draftThreadId)}
+                  disabled={isLoading || Boolean(threadComposeStore.newThreadTarget?.draftThreadId)}
                   type="button"
                 >
                   <AppChip interactive endContent={<ChevronDown className="size-3" />} variant="secondary">
@@ -212,6 +229,7 @@ export const ThreadReplyComposer = observer(
                   <DropdownMenuTrigger asChild>
                     <button
                       className="focus-visible:ring-ring/50 min-w-0 rounded-md outline-none focus-visible:ring-[3px]"
+                      disabled={isLoading}
                       type="button"
                     >
                       <AppChip interactive endContent={<ChevronDown className="size-3" />} variant="secondary">
@@ -320,15 +338,30 @@ export const ThreadReplyComposer = observer(
           </>
         )}
 
-        <FormTextarea
-          className="max-h-[calc(0.4*var(--viewport-block))] min-h-[56px] resize-none border-0 bg-transparent px-3 pt-2.5 text-sm shadow-none focus-visible:ring-0"
-          containerClassName="w-full"
-          id="body"
-          inputId="inbox-reply-input"
-          label={null}
-          placeholder={isEmail ? t("Inbox.compose.writeReply") : t("Inbox.compose.typeMessage")}
-          onKeyDown={handleKeyDown}
-        />
+        {isEmail ? (
+          <EmailMarkdownEditor
+            ref={emailEditorRef}
+            appearance={emailSettings.appearance}
+            ariaLabel={t("Inbox.compose.writeReply")}
+            className="rounded-none border-0 bg-transparent shadow-none focus-within:ring-0 [&_.ProseMirror]:max-h-[calc(0.4*var(--viewport-block))] [&_.ProseMirror]:min-h-[72px] [&_.ProseMirror]:overflow-y-auto"
+            disabled={isLoading}
+            invalid={Boolean(threadComposeStore.getError("body"))}
+            placeholder={t("Inbox.compose.writeReply")}
+            value={threadComposeStore.form.body}
+            onChange={(value) => threadComposeStore.onChange("body", value)}
+            onSubmitShortcut={() => runUserAction(() => threadComposeStore.send())}
+          />
+        ) : (
+          <FormTextarea
+            className="max-h-[calc(0.4*var(--viewport-block))] min-h-[56px] resize-none border-0 bg-transparent px-3 pt-2.5 text-sm shadow-none focus-visible:ring-0"
+            containerClassName="w-full"
+            id="body"
+            inputId="inbox-reply-input"
+            label={null}
+            placeholder={t("Inbox.compose.typeMessage")}
+            onKeyDown={handleKeyDown}
+          />
+        )}
 
         {attachments.length > 0 && (
           <div className="flex flex-col gap-1.5 px-3 pb-1.5">
@@ -369,6 +402,7 @@ export const ThreadReplyComposer = observer(
               ref={fileInputRef}
               multiple
               className="hidden"
+              disabled={isLoading}
               type="file"
               onChange={(event) => {
                 threadComposeStore.addAttachments(Array.from(event.target.files ?? []));
@@ -378,6 +412,7 @@ export const ThreadReplyComposer = observer(
 
             <Button
               aria-label={t("Inbox.compose.attachFiles")}
+              disabled={isLoading}
               size="icon-sm"
               type="button"
               variant="secondary"
@@ -386,9 +421,15 @@ export const ThreadReplyComposer = observer(
               <Paperclip className="size-4" />
             </Button>
 
-            <Popover open={emojiOpen} onOpenChange={setEmojiOpen}>
+            <Popover open={emojiOpen && !isLoading} onOpenChange={setEmojiOpen}>
               <PopoverTrigger asChild>
-                <Button aria-label={t("Inbox.compose.emojiPicker")} size="icon-sm" type="button" variant="secondary">
+                <Button
+                  aria-label={t("Inbox.compose.emojiPicker")}
+                  disabled={isLoading}
+                  size="icon-sm"
+                  type="button"
+                  variant="secondary"
+                >
                   <Smile className="size-4" />
                 </Button>
               </PopoverTrigger>
@@ -400,6 +441,7 @@ export const ThreadReplyComposer = observer(
                       key={emoji}
                       aria-label={emoji}
                       className="hover:bg-accent flex size-8 items-center justify-center rounded-md text-lg transition-[background-color,transform] active:scale-[0.97] motion-reduce:transition-none"
+                      disabled={isLoading}
                       type="button"
                       onClick={() => insertEmoji(emoji)}
                     >
@@ -411,7 +453,13 @@ export const ThreadReplyComposer = observer(
             </Popover>
 
             {isEmail && (
-              <Button size="sm" type="button" variant="secondary" onClick={threadComposeStore.toggleCcBcc}>
+              <Button
+                disabled={isLoading}
+                size="sm"
+                type="button"
+                variant="secondary"
+                onClick={threadComposeStore.toggleCcBcc}
+              >
                 {t("Inbox.compose.ccBccToggle")}
               </Button>
             )}

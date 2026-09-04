@@ -4,11 +4,12 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { TableColumn } from "@/core/base/base-data-view.store";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { MessagingProvider } from "@/generated/prisma";
-import type { SignatureFields } from "@/ee/messaging/signature-fields";
+import type { EmailSettings } from "@/ee/messaging/email-settings";
 
 import { action, computed, makeObservable } from "mobx";
 
 import { accountNeedsAction, isUsableSenderFor } from "@/ee/messaging/provider";
+import { EmailSettingsSchema } from "@/ee/messaging/email-settings";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 import {
@@ -174,7 +175,9 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
       }
 
       if (res.code === "upgradeToBusinessForMoreAccounts") {
-        this.rootStore.connectUpsellModalStore.openWith({ message: res.error.errors[0] ?? "" });
+        this.rootStore.connectUpsellModalStore.openWith({
+          message: res.error.errors[0] ?? "",
+        });
         return;
       }
 
@@ -185,19 +188,19 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
   setSignature = async (
     id: string,
     signature: string,
-    fields: SignatureFields | null,
+    settings: EmailSettings,
   ): Promise<ConnectedAccountDto | null> => {
-    const res = await setConnectedAccountSignatureAction(id, signature, fields);
+    const res = await setConnectedAccountSignatureAction(id, signature, EmailSettingsSchema.parse(settings));
 
     if (!res.ok) {
-      this.toastError("ConnectedAccountsCard.signatureUpdateFailed");
+      this.toastError("ConnectedAccountsCard.emailSaveFailed");
       return null;
     }
 
     const existing = this.items.find((account) => account.id === id);
     const merged = { ...existing, ...res.data };
     await this.upsertItem(merged);
-    this.toastSuccess("ConnectedAccountsCard.signatureSaved");
+    this.toastSuccess("ConnectedAccountsCard.emailSaved");
 
     return merged;
   };

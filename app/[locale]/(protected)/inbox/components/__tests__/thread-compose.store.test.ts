@@ -13,8 +13,15 @@ const actions = vi.hoisted(() => ({
   sendEmailAction: vi.fn(),
   startChatAction: vi.fn(),
 }));
+const attachmentInputs = vi.hoisted(() => ({
+  toAttachmentInput: vi.fn(),
+}));
 
 vi.mock("../../actions", () => actions);
+vi.mock("../attachment-input", () => ({
+  MAX_ATTACHMENTS_BYTES: 25 * 1024 * 1024,
+  toAttachmentInput: attachmentInputs.toAttachmentInput,
+}));
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({
   toastZodErrorTree: vi.fn(() => false),
 }));
@@ -25,6 +32,7 @@ import { ThreadComposeStore } from "../thread-compose.store";
 const ACCOUNT_ID = "00000000-0000-4000-8000-000000000001";
 const OTHER_ACCOUNT_ID = "00000000-0000-4000-8000-000000000002";
 const THREAD_ID = "00000000-0000-4000-8000-000000000003";
+const OTHER_THREAD_ID = "00000000-0000-4000-8000-000000000006";
 const DRAFT_ID = "00000000-0000-4000-8000-000000000004";
 const DRAFT_THREAD_ID = "00000000-0000-4000-8000-000000000005";
 const RECIPIENT = "recipient@example.com";
@@ -95,6 +103,7 @@ function makeHarness(initialMessages: MessagingMessageDto[] = []) {
     }),
   };
   const rootStore = {
+    connectedAccountsStore: { items: [] },
     localeStore: { getTranslation: (key: string) => key },
     messagingThreadDetailStore: detail,
   } as unknown as RootStore;
@@ -107,9 +116,18 @@ const failure = {
   error: { errors: ["provider unavailable"] },
 };
 
+function deferred<Value>() {
+  let resolve!: (value: Value) => void;
+  const promise = new Promise<Value>((done) => {
+    resolve = done;
+  });
+  return { promise, resolve };
+}
+
 describe("ThreadComposeStore draft lifecycle", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    attachmentInputs.toAttachmentInput.mockResolvedValue({});
   });
 
   it("preserves derived reply recipients when a legacy draft has an empty to list", () => {
@@ -199,13 +217,220 @@ describe("ThreadComposeStore draft lifecycle", () => {
     expect(action).toHaveBeenCalledTimes(2);
     expect(action).toHaveBeenNthCalledWith(
       1,
-      expect.objectContaining({ draftMessageId: DRAFT_ID, draftRevision: DRAFT_REVISION }),
+      expect.objectContaining({
+        draftMessageId: DRAFT_ID,
+        draftRevision: DRAFT_REVISION,
+      }),
     );
     expect(action).toHaveBeenNthCalledWith(
       2,
-      expect.objectContaining({ draftMessageId: DRAFT_ID, draftRevision: DRAFT_REVISION }),
+      expect.objectContaining({
+        draftMessageId: DRAFT_ID,
+        draftRevision: DRAFT_REVISION,
+      }),
     );
     expect(detail.messages).toEqual([sent]);
+  });
+
+  it("clears the email reply body as soon as sending begins", async () => {
+    actions.sendEmailAction.mockResolvedValue({ ok: true, data: null });
+    const { store } = makeHarness();
+    store.initialize({
+      provider: MessagingProvider.google,
+      threadId: THREAD_ID,
+      defaultSubject: "Subject",
+      defaultRecipients: [RECIPIENT],
+    });
+    store.onChange("body", "Message to send");
+
+    const sending = store.send();
+
+    expect(store.form.body).toBe("");
+    await sending;
+  });
+
+  it("keeps an attachment send bound to the thread and provider that started it", async () => {
+    const attachment = deferred<Record<string, never>>();
+    attachmentInputs.toAttachmentInput.mockReturnValueOnce(attachment.promise);
+    actions.sendEmailAction.mockResolvedValue({ ok: true, data: null });
+    const { store } = makeHarness();
+    store.initialize({
+      provider: MessagingProvider.google,
+      threadId: THREAD_ID,
+      defaultSubject: "Subject",
+      defaultRecipients: [RECIPIENT],
+    });
+    store.onChange("body", "Email from the first thread");
+    store.addAttachments([{ name: "proof.txt", size: 5, type: "text/plain" } as File]);
+
+    const sending = store.send();
+    store.initialize({
+      provider: MessagingProvider.linkedin,
+      threadId: OTHER_THREAD_ID,
+      defaultRecipients: ["linkedin-recipient"],
+    });
+    store.onChange("body", "Draft in the second thread");
+    attachment.resolve({});
+    await sending;
+
+    expect(actions.sendEmailAction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        threadId: THREAD_ID,
+        body: "Email from the first thread",
+      }),
+    );
+    expect(actions.sendChatMessageAction).not.toHaveBeenCalled();
+    expect(store.form).toMatchObject({
+      provider: MessagingProvider.linkedin,
+      threadId: OTHER_THREAD_ID,
+      body: "Draft in the second thread",
+    });
+  });
+
+  it("keeps an attachment retry bound to the thread and provider that started it", async () => {
+    const attachment = deferred<Record<string, never>>();
+    attachmentInputs.toAttachmentInput.mockReturnValueOnce(attachment.promise);
+    actions.sendEmailAction.mockResolvedValue({ ok: true, data: null });
+    const failedMessage = message({ provider: MessagingProvider.google, isDraft: false });
+    const { store } = makeHarness([failedMessage]);
+    store.initialize({
+      provider: MessagingProvider.google,
+      threadId: THREAD_ID,
+      defaultSubject: "Subject",
+      defaultRecipients: [RECIPIENT],
+    });
+    store.pendingAttachments = {
+      [DRAFT_ID]: [{ name: "proof.txt", size: 5, type: "text/plain" } as File],
+    };
+
+    const retrying = store.retrySend(DRAFT_ID);
+    store.initialize({
+      provider: MessagingProvider.linkedin,
+      threadId: OTHER_THREAD_ID,
+      defaultRecipients: ["linkedin-recipient"],
+    });
+    attachment.resolve({});
+    await retrying;
+
+    expect(actions.sendEmailAction).toHaveBeenCalledWith(expect.objectContaining({ threadId: THREAD_ID }));
+    expect(actions.sendChatMessageAction).not.toHaveBeenCalled();
+  });
+
+  it("does not let an older new-thread completion clear or close the active compose", async () => {
+    const firstSend = deferred<{ ok: true; data: null }>();
+    const secondSend = deferred<{ ok: true; data: null }>();
+    actions.sendEmailAction.mockReturnValueOnce(firstSend.promise).mockReturnValueOnce(secondSend.promise);
+    const firstDone = vi.fn();
+    const secondDone = vi.fn();
+    const { store } = makeHarness();
+    store.initializeNewThread({
+      provider: MessagingProvider.google,
+      connectedAccountId: ACCOUNT_ID,
+      recipients: [{ identifier: RECIPIENT, displayName: null }],
+      onDone: firstDone,
+    });
+    store.onChange("subject", "First subject");
+    store.onChange("body", "First message");
+
+    const firstSending = store.send();
+    store.initializeNewThread({
+      provider: MessagingProvider.google,
+      connectedAccountId: OTHER_ACCOUNT_ID,
+      recipients: [{ identifier: "second@example.com", displayName: null }],
+      onDone: secondDone,
+    });
+    store.onChange("subject", "Second subject");
+    store.onChange("body", "Second message");
+    const secondSending = store.send();
+
+    firstSend.resolve({ ok: true, data: null });
+    await firstSending;
+
+    expect(store.isLoading).toBe(true);
+    expect(store.form).toMatchObject({ subject: "Second subject", body: "Second message" });
+    expect(store.newThreadTarget?.connectedAccountId).toBe(OTHER_ACCOUNT_ID);
+    expect(firstDone).not.toHaveBeenCalled();
+    expect(secondDone).not.toHaveBeenCalled();
+
+    secondSend.resolve({ ok: true, data: null });
+    await secondSending;
+    expect(secondDone).toHaveBeenCalledOnce();
+  });
+
+  it("releases a consumed cold-draft binding while preserving edits made during send", async () => {
+    const sent = deferred<{ ok: true; data: null }>();
+    actions.sendEmailAction.mockReturnValue(sent.promise);
+    const onDone = vi.fn();
+    const draft = message({ provider: MessagingProvider.google, messagingThreadId: DRAFT_THREAD_ID });
+    const { store } = makeHarness([draft]);
+    store.initializeNewThread({
+      provider: MessagingProvider.google,
+      connectedAccountId: ACCOUNT_ID,
+      recipients: [{ identifier: RECIPIENT, displayName: null }],
+      draftThreadId: DRAFT_THREAD_ID,
+      onDone,
+    });
+    store.loadDraft(draft);
+
+    const sending = store.send();
+    store.onChange("body", "Next unsent message");
+    sent.resolve({ ok: true, data: null });
+    await sending;
+
+    expect(actions.sendEmailAction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        draftMessageId: DRAFT_ID,
+        draftRevision: DRAFT_REVISION,
+        body: "Prepared reply",
+      }),
+    );
+    expect(store.form.body).toBe("Next unsent message");
+    expect(store.editingDraftId).toBeNull();
+    expect(store.editingDraftRevision).toBeNull();
+    expect(store.newThreadTarget?.draftThreadId).toBeUndefined();
+    expect(onDone).not.toHaveBeenCalled();
+
+    actions.saveDraftAction.mockResolvedValue({
+      ok: true,
+      data: message({ provider: MessagingProvider.google, messagingThreadId: OTHER_THREAD_ID }),
+    });
+    await store.saveDraft();
+
+    const savedInput = actions.saveDraftAction.mock.calls[0]?.[0];
+    expect(savedInput).toEqual(
+      expect.objectContaining({ connectedAccountId: ACCOUNT_ID, body: "Next unsent message" }),
+    );
+    expect(savedInput).not.toHaveProperty("threadId");
+  });
+
+  it("does not apply an older draft-save result to a newly opened thread", async () => {
+    const savedDraft = deferred<{ ok: true; data: MessagingMessageDto }>();
+    actions.saveDraftAction.mockReturnValue(savedDraft.promise);
+    const { detail, store } = makeHarness();
+    store.initialize({
+      provider: MessagingProvider.google,
+      threadId: THREAD_ID,
+      defaultSubject: "First subject",
+      defaultRecipients: [RECIPIENT],
+    });
+    store.onChange("body", "First draft");
+
+    const saving = store.saveDraft();
+    store.initialize({
+      provider: MessagingProvider.linkedin,
+      threadId: OTHER_THREAD_ID,
+      defaultRecipients: ["linkedin-recipient"],
+    });
+    store.onChange("body", "Second draft");
+    savedDraft.resolve({ ok: true, data: message({ provider: MessagingProvider.google }) });
+    await saving;
+
+    expect(detail.messages).toEqual([]);
+    expect(store.form).toMatchObject({
+      provider: MessagingProvider.linkedin,
+      threadId: OTHER_THREAD_ID,
+      body: "Second draft",
+    });
   });
 
   it("restores an optimistically removed draft when exact-revision discard fails", async () => {

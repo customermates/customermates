@@ -1,202 +1,234 @@
 import { describe, expect, it } from "vitest";
 
-import type { SignatureFields } from "../../signature-fields";
+import type { EmailSettings } from "../../email-settings";
 
 import {
-  DEFAULT_ACCENT_HEX,
-  SIGNATURE_ACCENT_PRESETS,
+  DEFAULT_LINK_HEX,
+  EMAIL_LINK_COLOR_PRESETS,
+  EmailFontFamily,
+  EmailLinkStyle,
+  EmailSettingsSchema,
   SIGNATURE_LOGO_URL,
-  SignatureFieldsSchema,
   SignatureTemplate,
-  SignatureWeight,
-  contrastRatio,
-  parseSignatureFields,
-  signatureContrast,
-} from "../../signature-fields";
+  defaultEmailSettings,
+  emailLinkContrast,
+  isPublicEmailImageUrl,
+  normalizeEmailLinkUrl,
+  resolveStoredEmailSettings,
+} from "../../email-settings";
 import { composeEmailBodies, renderSignature } from "../email-signature";
-import { renderSignatureFields } from "../render-signature";
+import { renderEmailMarkdown, renderSignatureFields } from "../render-signature";
 
-function fields(overrides: Record<string, unknown> = {}): SignatureFields {
-  return SignatureFieldsSchema.parse({
-    template: SignatureTemplate.stacked,
-    fullName: "Benjamin Wagner",
-    jobTitle: "Founder",
-    company: "Customermates",
-    email: "mail@customermates.com",
-    phone: "+49 170 0000000",
-    website: "customermates.com",
-    logoUrl: SIGNATURE_LOGO_URL,
-    ...overrides,
-  });
+function settings(overrides: Partial<EmailSettings["signature"]> = {}): EmailSettings {
+  const value = defaultEmailSettings();
+  value.signature = { ...value.signature, enabled: true, ...overrides };
+  return value;
 }
 
-function rendered(signatureFields: SignatureFields, markdown = "") {
-  const result = renderSignatureFields(signatureFields, markdown);
+function rendered(value: EmailSettings, markdown = "**Benjamin Wagner**  \nFounder at Customermates") {
+  const result = renderSignatureFields(value, markdown);
   if (!result) throw new Error("expected a rendered signature");
-
   return result;
 }
 
-describe("renderSignatureFields", () => {
-  it("emits nothing but inline styles on a presentation table", () => {
-    const { html } = rendered(fields());
-
-    expect(html.startsWith('<table role="presentation"')).toBe(true);
-    expect(html).toContain("mso-table-lspace:0pt");
-    for (const forbidden of ["<style", "@media", "<!--", "data:", ".svg", "background-color", "<link", "<hr"])
-      expect(html).not.toContain(forbidden);
+describe("email settings", () => {
+  it("accepts public HTTPS logo URLs without requiring a file extension", () => {
+    expect(isPublicEmailImageUrl("https://images.example.com/assets/logo?id=42")).toBe(true);
+    expect(isPublicEmailImageUrl("http://images.example.com/logo.png")).toBe(false);
+    expect(isPublicEmailImageUrl("https://localhost/logo.png")).toBe(false);
+    expect(isPublicEmailImageUrl("https://localhost./logo.png")).toBe(false);
+    expect(isPublicEmailImageUrl("https://asset.internal/logo.png")).toBe(false);
+    expect(isPublicEmailImageUrl("https://home.arpa/logo.png")).toBe(false);
+    expect(isPublicEmailImageUrl("https://router.home.arpa/logo.png")).toBe(false);
+    expect(isPublicEmailImageUrl("https://127.0.0.1/logo.png")).toBe(false);
+    expect(isPublicEmailImageUrl("https://127.0.0.1.nip.io/logo.png")).toBe(false);
+    expect(isPublicEmailImageUrl("https://[::1]/logo.png")).toBe(false);
+    expect(isPublicEmailImageUrl("https://[::127.0.0.1]/logo.png")).toBe(false);
+    expect(isPublicEmailImageUrl("https://[fec0::1]/logo.png")).toBe(false);
+    expect(isPublicEmailImageUrl("https://user:secret@example.com/logo.png")).toBe(false);
   });
 
-  it("sizes the logo with attributes and inline css so a blocked image keeps its box", () => {
-    const { html } = rendered(fields());
-
-    expect(html).toContain(`src="${SIGNATURE_LOGO_URL}"`);
-    expect(html).toContain('width="48" height="48"');
-    expect(html).toContain("width:48px;height:48px");
-    expect(html).toContain('alt="Customermates"');
-    expect(html).toContain('border="0"');
+  it("normalizes bare editor links and rejects unsafe schemes", () => {
+    expect(normalizeEmailLinkUrl("example.com/path")).toBe("https://example.com/path");
+    expect(normalizeEmailLinkUrl("mailto:hello@example.com")).toBe("mailto:hello@example.com");
+    expect(normalizeEmailLinkUrl("javascript:alert(1)")).toBeNull();
   });
 
-  it("keeps every colour it chooses itself readable on white and on a dark surface", () => {
-    const { html } = rendered(fields());
-    const hexes = [...html.matchAll(/#[0-9a-f]{6}/g)].map(([hex]) => hex);
+  it("requires a public logo only while a logo layout is enabled", () => {
+    const missing = settings({ logoUrl: "" });
+    expect(EmailSettingsSchema.safeParse(missing).success).toBe(false);
 
-    expect(hexes.length).toBeGreaterThan(0);
-    for (const hex of hexes) {
-      expect(contrastRatio(hex, "#ffffff")).toBeGreaterThanOrEqual(2.8);
-      expect(contrastRatio(hex, "#1f1f1f")).toBeGreaterThanOrEqual(2.8);
-    }
+    missing.signature.enabled = false;
+    expect(EmailSettingsSchema.safeParse(missing).success).toBe(true);
+
+    missing.signature.logoUrl = "not a URL";
+    expect(EmailSettingsSchema.safeParse(missing).success).toBe(true);
+
+    missing.signature.enabled = true;
+    missing.signature.template = SignatureTemplate.plain;
+    expect(EmailSettingsSchema.safeParse(missing).success).toBe(true);
   });
 
-  it("ships every offered accent preset above the readability floor", () => {
-    for (const preset of SIGNATURE_ACCENT_PRESETS) expect(signatureContrast(preset).readable).toBe(true);
+  it("ships every link-colour preset above the readability floor", () => {
+    for (const preset of EMAIL_LINK_COLOR_PRESETS) expect(emailLinkContrast(preset).readable).toBe(true);
+    expect(emailLinkContrast("#5e4ae3").readable).toBe(false);
+    expect(emailLinkContrast(DEFAULT_LINK_HEX).readable).toBe(true);
   });
 
-  it("flags a hand-picked accent that fails the floor rather than silently allowing it", () => {
-    expect(signatureContrast("#5e4ae3").readable).toBe(false);
-    expect(signatureContrast(DEFAULT_ACCENT_HEX).readable).toBe(true);
+  it("converts legacy structured fields into one Markdown signature", () => {
+    const result = resolveStoredEmailSettings("VAT **DE123**", {
+      template: SignatureTemplate.sideBySide,
+      accent: "green",
+      fontSize: 16,
+      fullName: "Benjamin Wagner",
+      jobTitle: "Founder",
+      company: "Customermates",
+      email: "mail@customermates.com",
+      phone: "+49 170 0000000",
+      website: "customermates.com",
+      logoUrl: SIGNATURE_LOGO_URL,
+    });
+
+    expect(result.migratedLegacyFields).toBe(true);
+    expect(result.settings.signature.enabled).toBe(true);
+    expect(result.settings.signature.template).toBe(SignatureTemplate.sideBySide);
+    expect(result.settings.appearance.fontSize).toBe(16);
+    expect(result.settings.appearance.linkHex).toBe("#2ba449");
+    expect(result.markdown).toContain("**Benjamin Wagner**");
+    expect(result.markdown).toContain("[mail@customermates.com](mailto:mail@customermates.com)");
+    expect(result.markdown).toContain("[customermates.com](https://customermates.com)");
+    expect(result.markdown).toContain("VAT **DE123**");
   });
 
-  it("renders the chosen accent, font size and name weight", () => {
-    const { html } = rendered(fields({ accentHex: "#d23128", fontSize: 16, fontWeight: SignatureWeight.medium }));
+  it("falls back to text-only when a legacy logo is absent", () => {
+    const result = resolveStoredEmailSettings(null, {
+      fullName: "Ben",
+      template: SignatureTemplate.stacked,
+    });
 
-    expect(html).toContain("color:#d23128");
+    expect(result.settings.signature.template).toBe(SignatureTemplate.plain);
+    expect(EmailSettingsSchema.safeParse(result.settings).success).toBe(true);
+  });
+
+  it("keeps a legacy normal-weight name unbolded", () => {
+    const result = resolveStoredEmailSettings(null, {
+      fullName: "Ben",
+      fontWeight: "normal",
+    });
+
+    expect(result.markdown).toBe("Ben");
+  });
+
+  it("does not add a logo to an old Markdown-only signature", () => {
+    const result = resolveStoredEmailSettings("**Ben**", null);
+
+    expect(result.settings.signature.enabled).toBe(true);
+    expect(result.settings.signature.template).toBe(SignatureTemplate.plain);
+    expect(result.settings.signature.logoUrl).toBe("");
+  });
+});
+
+describe("renderEmailMarkdown", () => {
+  it("applies the selected font, size, link colour, and link style", () => {
+    const value = settings();
+    value.appearance = {
+      fontFamily: EmailFontFamily.serif,
+      fontSize: 16,
+      linkHex: "#d23128",
+      linkStyle: EmailLinkStyle.plain,
+    };
+    const { html, text } = renderEmailMarkdown("**Hello** [there](https://example.com)", value.appearance);
+
+    expect(html).toContain("font-family:Georgia,'Times New Roman',serif");
     expect(html).toContain("font-size:16px");
-    expect(html).toContain("font-size:17px");
-    expect(html).toContain("font-weight:500");
-    expect(html).not.toContain(DEFAULT_ACCENT_HEX);
+    expect(html).toContain("color:#d23128;text-decoration:none");
+    expect(text).toBe("Hello there (https://example.com)");
   });
 
-  it("upgrades a signature stored with the old accent enum instead of dropping it", () => {
-    const upgraded = parseSignatureFields({ template: SignatureTemplate.plain, accent: "green", fullName: "Ben" });
-
-    expect(upgraded?.accentHex).toBe("#2ba449");
-    expect(upgraded?.fontSize).toBe(13);
-    expect(upgraded?.fontWeight).toBe(SignatureWeight.bold);
-  });
-
-  it("draws no logo cell for the text-only template", () => {
-    const { html } = rendered(fields({ template: SignatureTemplate.plain }));
-
-    expect(html).not.toContain("<img");
-  });
-
-  it("puts the divider on a border, never on a filler cell", () => {
-    const stacked = rendered(fields()).html;
-    const beside = rendered(fields({ template: SignatureTemplate.sideBySide })).html;
-
-    expect(stacked).toContain("border-top:1px solid");
-    expect(beside).toContain("border-right:1px solid");
-    expect(stacked).not.toContain("&nbsp;");
-  });
-
-  it("links phone, email and website with dial-safe and absolute hrefs", () => {
-    const { html } = rendered(fields());
-
-    expect(html).toContain('href="tel:+491700000000"');
-    expect(html).toContain('href="mailto:mail@customermates.com"');
-    expect(html).toContain('href="https://customermates.com"');
-  });
-
-  it("truncates a long website label but keeps the full href", () => {
-    const long = `example.com/${"a".repeat(80)}`;
-    const { html } = rendered(fields({ website: long }));
-
-    expect(html).toContain(`href="https://${long}"`);
-    expect(html).toContain("…");
-  });
-
-  it("escapes every interpolated value", () => {
-    const { html } = rendered(fields({ fullName: '<script>"x"' }));
+  it("escapes raw HTML, drops Markdown images, and rejects unsafe link schemes", () => {
+    const { html } = renderEmailMarkdown(
+      "<script>alert(1)</script> ![tracking](https://example.com/pixel.png) [bad](javascript:alert(1))",
+      settings().appearance,
+    );
 
     expect(html).not.toContain("<script>");
-    expect(html).toContain("&lt;script&gt;&quot;x&quot;");
+    expect(html).not.toContain("<img");
+    expect(html).not.toContain('href="javascript:');
+    expect(html).toContain("tracking");
   });
 
-  it("upgrades a bare-domain autolink in the free-form block to https", () => {
-    const { html } = rendered(fields(), "see customermates.com");
+  it("upgrades a bare-domain autolink to HTTPS", () => {
+    const { html } = renderEmailMarkdown("See customermates.com", settings().appearance);
 
     expect(html).toContain('href="https://customermates.com"');
     expect(html).not.toContain('href="http://customermates.com"');
   });
 
-  it("returns null when there is nothing but a logo, rather than inventing content", () => {
-    const empty = fields({ fullName: "", jobTitle: "", company: "", email: "", phone: "", website: "" });
+  it("keeps one plain-text newline for one Markdown hard break", () => {
+    const { text } = renderEmailMarkdown("line 1\\\nline 2", settings().appearance);
 
-    expect(renderSignatureFields(empty, "")).toBeNull();
+    expect(text).toBe("line 1\nline 2");
   });
 });
 
-describe("the plain-text part", () => {
-  it("carries the same facts with no markup and no logo", () => {
-    const { text } = rendered(fields(), "**Bold** and [a link](https://example.com)");
+describe("renderSignatureFields", () => {
+  it.each([
+    [SignatureTemplate.plain, false, null],
+    [SignatureTemplate.stacked, true, "border-top:1px solid"],
+    [SignatureTemplate.sideBySide, true, "border-right:1px solid"],
+  ])("renders the %s layout", (template, hasLogo, divider) => {
+    const { html } = rendered(settings({ template }));
 
-    expect(text).toBe(
-      [
-        "Benjamin Wagner",
-        "Founder, Customermates",
-        "+49 170 0000000",
-        "mail@customermates.com",
-        "https://customermates.com",
-        "Bold and a link (https://example.com)",
-      ].join("\n"),
-    );
+    expect(html.startsWith('<table role="presentation"')).toBe(true);
+    expect(html.includes("<img")).toBe(hasLogo);
+    if (divider) expect(html).toContain(divider);
+    expect(html).not.toContain("<style");
+  });
+
+  it("uses fixed inline logo sizing and an empty decorative alt", () => {
+    const { html } = rendered(settings());
+
+    expect(html).toContain(`src="${SIGNATURE_LOGO_URL}"`);
+    expect(html).toContain('width="48" height="48" alt=""');
+    expect(html).toContain("width:48px;height:48px");
+  });
+
+  it("can render a logo-only signature when that is what the user configured", () => {
+    const result = renderSignatureFields(settings(), "");
+
+    expect(result?.html).toContain("<img");
+    expect(result?.text).toBe("");
+  });
+
+  it("emits nothing while disabled and preserves the configured content", () => {
+    const value = settings({ enabled: false });
+
+    expect(renderSignatureFields(value, "**Saved content**")).toBeNull();
+    value.signature.enabled = true;
+    expect(rendered(value, "**Saved content**").html).toContain("<strong>Saved content</strong>");
+  });
+
+  it("returns readable plain text with no logo markup", () => {
+    const { text } = rendered(settings(), "**Ben** and [a link](https://example.com)");
+
+    expect(text).toBe("Ben and a link (https://example.com)");
     expect(text).not.toContain(SIGNATURE_LOGO_URL);
-    expect(text).not.toContain("&amp;");
-  });
-
-  it("preserves ordinary underscores while removing actual markdown", () => {
-    const { text } = rendered(fields(), "VAT_ID_DE123 and **bold**");
-
-    expect(text).toContain("VAT_ID_DE123 and bold");
-  });
-
-  it("is never empty while the html part is not", () => {
-    const logoAndCompanyOnly = rendered(fields({ fullName: "", email: "", phone: "", website: "" }));
-
-    expect(logoAndCompanyOnly.text.trim().length).toBeGreaterThan(0);
-    expect(logoAndCompanyOnly.html.length).toBeGreaterThan(0);
   });
 });
 
-describe("the legacy lane", () => {
-  it("renders markdown exactly as before when no fields are stored", () => {
-    expect(renderSignature("**Ben**", null)).toEqual({
-      html: "<p><strong>Ben</strong></p>",
-      text: "**Ben**",
-    });
+describe("legacy compatibility", () => {
+  it("renders an old Markdown-only signature with safe defaults", () => {
+    const result = renderSignature("**Ben**", null);
+
+    expect(result?.html).toContain("<strong>Ben</strong>");
+    expect(result?.text).toBe("Ben");
   });
 
-  it("keeps composeEmailBodies byte-identical without a fields argument", () => {
-    expect(composeEmailBodies("Hello", "**Ben**").html).toBe(
-      'Hello<div data-customermates-signature="true"><br><br>-- <br><p><strong>Ben</strong></p></div>',
-    );
-  });
+  it("still appends an old Markdown-only signature", () => {
+    const result = composeEmailBodies("Hello", "**Ben**");
 
-  it("uses the table once fields are stored", () => {
-    const { html, plainText } = composeEmailBodies("Hello", "", fields());
-
-    expect(html).toContain('<table role="presentation"');
-    expect(plainText).toContain("Benjamin Wagner");
+    expect(result.plainText).toContain("Hello\n\n-- \nBen");
+    expect(result.html).toContain('data-customermates-signature="true"');
+    expect(result.html).toContain("<strong>Ben</strong>");
   });
 });

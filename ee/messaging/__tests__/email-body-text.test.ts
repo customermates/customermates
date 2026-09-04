@@ -77,6 +77,8 @@ describe("htmlToPlainText", () => {
     expect(htmlToPlainText('<a href="http://example.com/a">Docs</a>')).toBe("Docs (http://example.com/a)");
     expect(htmlToPlainText('<a href="mailto:a@example.com">Mail</a>')).toBe("Mail (mailto:a@example.com)");
     expect(htmlToPlainText('<a href="tel:+4915112345678">Call</a>')).toBe("Call (tel:+4915112345678)");
+    expect(htmlToPlainText('<a href="mailto:a@example.com">a@example.com</a>')).toBe("a@example.com");
+    expect(htmlToPlainText('<a href="tel:+4915112345678">+49 151 12345678</a>')).toBe("+49 151 12345678");
   });
 
   it("keeps a schemeless relative or anchor href", () => {

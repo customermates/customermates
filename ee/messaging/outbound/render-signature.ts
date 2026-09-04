@@ -1,8 +1,8 @@
-import type { SignatureFields } from "../signature-fields";
+import type { EmailSettings } from "../email-settings";
 
 import markdownit from "markdown-it";
 
-import { SIGNATURE_WEIGHT_VALUE, SignatureTemplate } from "../signature-fields";
+import { EmailLinkStyle, EMAIL_FONT_STACK, SignatureTemplate } from "../email-settings";
 import { htmlToPlainText } from "../email-body-text";
 
 type SignatureTemplateDefinition = {
@@ -12,163 +12,138 @@ type SignatureTemplateDefinition = {
 };
 
 export const SIGNATURE_TEMPLATES: Record<SignatureTemplate, SignatureTemplateDefinition> = {
-  [SignatureTemplate.plain]: { logoPosition: "none", logoPx: 0, maxWidthPx: 460 },
-  [SignatureTemplate.stacked]: { logoPosition: "above", logoPx: 48, maxWidthPx: 460 },
-  [SignatureTemplate.sideBySide]: { logoPosition: "beside", logoPx: 56, maxWidthPx: 520 },
+  [SignatureTemplate.plain]: {
+    logoPosition: "none",
+    logoPx: 0,
+    maxWidthPx: 460,
+  },
+  [SignatureTemplate.stacked]: {
+    logoPosition: "above",
+    logoPx: 48,
+    maxWidthPx: 460,
+  },
+  [SignatureTemplate.sideBySide]: {
+    logoPosition: "beside",
+    logoPx: 56,
+    maxWidthPx: 520,
+  },
 };
 
-const NAME_COLOR = "#6e6e6e";
-const TEXT_COLOR = "#7a7a7a";
+const TEXT_COLOR = "#1a1a1a";
 const DIVIDER_COLOR = "#8a8a8a";
-const FONT_STACK = "Arial,Helvetica,sans-serif";
-const WEBSITE_LABEL_MAX = 40;
+const SAFE_LINK_PROTOCOL = /^(?:https?:|mailto:|tel:)/i;
 
-function bodyStyle(fontSize: number): string {
-  return `font-family:${FONT_STACK};font-size:${fontSize}px;line-height:${fontSize + 6}px;mso-line-height-rule:exactly;color:${TEXT_COLOR};`;
-}
+type MarkdownEnv = { appearance?: EmailSettings["appearance"] };
 
-function nameStyle(fontSize: number, weight: number): string {
-  const size = fontSize + 1;
-  return `font-family:${FONT_STACK};font-size:${size}px;line-height:${size + 6}px;mso-line-height-rule:exactly;font-weight:${weight};color:${NAME_COLOR};`;
-}
+export const emailMarkdown = markdownit({
+  html: false,
+  linkify: true,
+  breaks: true,
+});
+emailMarkdown.validateLink = (url) => SAFE_LINK_PROTOCOL.test(url);
 
-type MarkdownEnv = { accentHex?: string };
-
-export const signatureMarkdown = markdownit({ html: false, linkify: true, breaks: true });
-
-type RenderRule = NonNullable<typeof signatureMarkdown.renderer.rules.link_open>;
-
+type RenderRule = NonNullable<typeof emailMarkdown.renderer.rules.link_open>;
 const renderToken: RenderRule = (tokens, idx, options, _env, self) => self.renderToken(tokens, idx, options);
 
-const baseLinkOpen = signatureMarkdown.renderer.rules.link_open ?? renderToken;
-const baseParagraphOpen = signatureMarkdown.renderer.rules.paragraph_open ?? renderToken;
-const baseImage = signatureMarkdown.renderer.rules.image ?? renderToken;
+const baseLinkOpen = emailMarkdown.renderer.rules.link_open ?? renderToken;
+const baseParagraphOpen = emailMarkdown.renderer.rules.paragraph_open ?? renderToken;
+const baseBulletListOpen = emailMarkdown.renderer.rules.bullet_list_open ?? renderToken;
+const baseOrderedListOpen = emailMarkdown.renderer.rules.ordered_list_open ?? renderToken;
+const baseBlockquoteOpen = emailMarkdown.renderer.rules.blockquote_open ?? renderToken;
 
-signatureMarkdown.renderer.rules.link_open = (tokens, idx, options, env, self) => {
+emailMarkdown.renderer.rules.link_open = (tokens, idx, options, env, self) => {
   const token = tokens[idx];
   const href = token.attrGet("href");
   if (href && token.markup === "linkify" && href.startsWith("http://"))
     token.attrSet("href", `https://${href.slice("http://".length)}`);
 
-  const accentHex = (env as MarkdownEnv | undefined)?.accentHex;
-  if (accentHex) token.attrSet("style", `color:${accentHex};text-decoration:underline;`);
+  const appearance = (env as MarkdownEnv | undefined)?.appearance;
+  if (appearance) {
+    token.attrSet(
+      "style",
+      `color:${appearance.linkHex};text-decoration:${appearance.linkStyle === EmailLinkStyle.underlined ? "underline" : "none"};`,
+    );
+  }
 
   return baseLinkOpen(tokens, idx, options, env, self);
 };
 
-signatureMarkdown.renderer.rules.paragraph_open = (tokens, idx, options, env, self) => {
-  if ((env as MarkdownEnv | undefined)?.accentHex) tokens[idx].attrSet("style", "margin:0;padding:0;");
-
+emailMarkdown.renderer.rules.paragraph_open = (tokens, idx, options, env, self) => {
+  tokens[idx].attrSet("style", "margin:0 0 8px 0;padding:0;");
   return baseParagraphOpen(tokens, idx, options, env, self);
 };
 
-signatureMarkdown.renderer.rules.image = (tokens, idx, options, env, self) => {
-  if ((env as MarkdownEnv | undefined)?.accentHex) {
-    tokens[idx].attrSet("border", "0");
-    tokens[idx].attrSet("style", "max-width:100%;border:0;outline:none;text-decoration:none;");
-  }
-
-  return baseImage(tokens, idx, options, env, self);
+emailMarkdown.renderer.rules.bullet_list_open = (tokens, idx, options, env, self) => {
+  tokens[idx].attrSet("style", "margin:0 0 8px 0;padding-left:20px;");
+  return baseBulletListOpen(tokens, idx, options, env, self);
 };
+
+emailMarkdown.renderer.rules.ordered_list_open = (tokens, idx, options, env, self) => {
+  tokens[idx].attrSet("style", "margin:0 0 8px 0;padding-left:20px;");
+  return baseOrderedListOpen(tokens, idx, options, env, self);
+};
+
+emailMarkdown.renderer.rules.blockquote_open = (tokens, idx, options, env, self) => {
+  tokens[idx].attrSet("style", `margin:0 0 8px 0;padding-left:12px;border-left:2px solid ${DIVIDER_COLOR};`);
+  return baseBlockquoteOpen(tokens, idx, options, env, self);
+};
+
+emailMarkdown.renderer.rules.image = (tokens, idx) =>
+  escapeHtml(tokens[idx].content || tokens[idx].attrGet("alt") || "");
+
+emailMarkdown.disable(["code", "fence", "heading", "table"]);
 
 export function escapeHtml(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-export function signatureToHtml(signature: string, accentHex?: string): string {
-  return signatureMarkdown.render(signature, accentHex ? { accentHex } : {}).trim();
+export function emailTextStyle(appearance: EmailSettings["appearance"]): string {
+  const fontSize = appearance.fontSize;
+  return `font-family:${EMAIL_FONT_STACK[appearance.fontFamily]};font-size:${fontSize}px;line-height:${fontSize + 7}px;mso-line-height-rule:exactly;color:${TEXT_COLOR};`;
 }
 
-function telHref(phone: string): string {
-  return phone.replace(/[^\d+]/g, "");
+export function renderEmailMarkdown(
+  markdown: string,
+  appearance: EmailSettings["appearance"],
+): { html: string; text: string } {
+  const source = markdown.trim();
+  if (!source) return { html: "", text: "" };
+
+  const inner = emailMarkdown.render(source, { appearance }).trim();
+  const html = `<div data-customermates-email-markdown="true" style="${emailTextStyle(appearance)}">${inner}</div>`;
+  const plainTextHtml = inner.replace(/(<br\b[^>]*>)\r?\n/gi, "$1");
+  return { html, text: htmlToPlainText(plainTextHtml) ?? "" };
 }
 
-function siteHref(website: string): string {
-  return /^https?:\/\//i.test(website) ? website : `https://${website}`;
-}
-
-function websiteLabel(website: string): string {
-  const bare = website.replace(/^https?:\/\//i, "").replace(/\/$/, "");
-  return bare.length > WEBSITE_LABEL_MAX ? `${bare.slice(0, WEBSITE_LABEL_MAX - 1)}…` : bare;
-}
-
-function link(href: string, label: string, accentHex: string): string {
-  return `<a href="${escapeHtml(href)}" style="color:${accentHex};text-decoration:underline;">${escapeHtml(label)}</a>`;
-}
-
-function row(style: string, inner: string): string {
-  return `<div style="${style}">${inner}</div>`;
-}
-
-function textBlock(fields: SignatureFields, markdown: string, accentHex: string): string {
-  const rows: string[] = [];
-  const body = bodyStyle(fields.fontSize);
-
-  if (fields.fullName)
-    rows.push(row(nameStyle(fields.fontSize, SIGNATURE_WEIGHT_VALUE[fields.fontWeight]), escapeHtml(fields.fullName)));
-
-  const role = [fields.jobTitle, fields.company].filter(Boolean).join(", ");
-  if (role) rows.push(row(body, escapeHtml(role)));
-
-  if (fields.phone) rows.push(row(body, link(`tel:${telHref(fields.phone)}`, fields.phone, accentHex)));
-  if (fields.email) rows.push(row(body, link(`mailto:${fields.email}`, fields.email, accentHex)));
-  if (fields.website) rows.push(row(body, link(siteHref(fields.website), websiteLabel(fields.website), accentHex)));
-
-  if (markdown) rows.push(row(body, signatureToHtml(markdown, accentHex)));
-
-  return rows.join("");
-}
-
-function logoCell(fields: SignatureFields, definition: SignatureTemplateDefinition, extraStyle: string): string {
+function logoCell(settings: EmailSettings, definition: SignatureTemplateDefinition, extraStyle: string): string {
   const size = definition.logoPx;
-  const alt = fields.company || fields.fullName || "";
   const cellStyle = `font-size:0;line-height:0;mso-line-height-rule:exactly;vertical-align:top;${extraStyle}`;
-  const img = `<img src="${escapeHtml(fields.logoUrl)}" width="${size}" height="${size}" alt="${escapeHtml(alt)}" border="0" style="display:block;width:${size}px;height:${size}px;border:0;outline:none;text-decoration:none;">`;
+  const img = `<img src="${escapeHtml(settings.signature.logoUrl)}" width="${size}" height="${size}" alt="" border="0" style="display:block;width:${size}px;height:${size}px;border:0;outline:none;text-decoration:none;">`;
 
   return `<td valign="top" style="${cellStyle}">${img}</td>`;
 }
 
-function markdownToPlainText(markdown: string): string {
-  return htmlToPlainText(signatureToHtml(markdown)) ?? "";
-}
-
-function plainTextBlock(fields: SignatureFields, markdown: string): string {
-  const role = [fields.jobTitle, fields.company].filter(Boolean).join(", ");
-
-  return [
-    fields.fullName,
-    role,
-    fields.phone,
-    fields.email,
-    fields.website ? siteHref(fields.website) : "",
-    markdownToPlainText(markdown),
-  ]
-    .filter(Boolean)
-    .join("\n");
-}
-
 export function renderSignatureFields(
-  fields: SignatureFields,
+  settings: EmailSettings,
   signature: string,
 ): { html: string; text: string } | null {
-  const markdown = signature.trim();
-  const text = plainTextBlock(fields, markdown);
-  if (!text) return null;
+  if (!settings.signature.enabled) return null;
 
-  const definition = SIGNATURE_TEMPLATES[fields.template];
-  const accentHex = fields.accentHex;
-  const showLogo = definition.logoPosition !== "none" && Boolean(fields.logoUrl);
-  const body = textBlock(fields, markdown, accentHex);
-  const textCellStyle = `vertical-align:top;${bodyStyle(fields.fontSize)}`;
+  const rendered = renderEmailMarkdown(signature, settings.appearance);
+  const definition = SIGNATURE_TEMPLATES[settings.signature.template];
+  const showLogo = definition.logoPosition !== "none" && Boolean(settings.signature.logoUrl);
+  if (!showLogo && !rendered.html) return null;
 
+  const textCellStyle = `vertical-align:top;${emailTextStyle(settings.appearance)}`;
+  const body = rendered.html;
   const rows =
     showLogo && definition.logoPosition === "beside"
-      ? `<tr>${logoCell(fields, definition, `padding:0 14px 0 0;border-right:1px solid ${DIVIDER_COLOR};`)}<td valign="top" style="${textCellStyle}padding:0 0 0 14px;">${body}</td></tr>`
+      ? `<tr>${logoCell(settings, definition, `padding:0 14px 0 0;border-right:1px solid ${DIVIDER_COLOR};`)}${body ? `<td valign="top" style="${textCellStyle}padding:0 0 0 14px;">${body}</td>` : ""}</tr>`
       : showLogo
-        ? `<tr>${logoCell(fields, definition, "padding:0 0 10px 0;")}</tr><tr><td valign="top" style="${textCellStyle}border-top:1px solid ${DIVIDER_COLOR};padding:10px 0 0 0;">${body}</td></tr>`
+        ? `<tr>${logoCell(settings, definition, "padding:0 0 10px 0;")}</tr>${body ? `<tr><td valign="top" style="${textCellStyle}border-top:1px solid ${DIVIDER_COLOR};padding:10px 0 0 0;">${body}</td></tr>` : ""}`
         : `<tr><td valign="top" style="${textCellStyle}">${body}</td></tr>`;
 
   const html = `<table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;max-width:${definition.maxWidthPx}px;">${rows}</table>`;
 
-  return { html, text };
+  return { html, text: rendered.text };
 }

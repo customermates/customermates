@@ -37,7 +37,7 @@ import {
   type DraftThreadTarget,
 } from "../draft-thread";
 import { composeEmailBodies } from "./email-signature";
-import { parseSignatureFields } from "../signature-fields";
+import { resolveStoredEmailSettings } from "../email-settings";
 import { MessagingMessageDtoSchema, toMessagingMessageDto } from "../inbox/inbox.schema";
 import { EMPTY_ATTENDEE, buildEmailMessage, toAttachmentsMeta } from "../unipile.mappers";
 import { UnipileEmailSchema } from "../unipile.schema";
@@ -67,9 +67,11 @@ export const SendEmailSchema = z
     subject: z.string().max(998),
     body: z.string().max(100_000),
     bodyFormat: z
-      .enum(["plain_text", "html"])
+      .enum(["plain_text", "markdown", "html"])
       .optional()
-      .describe("How to interpret body. Omit for backwards-compatible automatic detection"),
+      .describe(
+        "How to interpret body. Account appearance is applied to plain text and Markdown; explicit HTML remains caller-controlled. Omit for backwards-compatible automatic detection",
+      ),
     attachments: z.array(SendAttachmentSchema).max(20).optional(),
     draftMessageId: z
       .uuid()
@@ -132,7 +134,11 @@ export abstract class SendEmailRepo {
     unipileMessageId: string;
     providerMessageId: string | null;
     sender: MessagingAttendee;
-    recipients: { to: MessagingAttendee[]; cc: MessagingAttendee[]; bcc: MessagingAttendee[] };
+    recipients: {
+      to: MessagingAttendee[];
+      cc: MessagingAttendee[];
+      bcc: MessagingAttendee[];
+    };
     subject: string | null;
     bodyText: string | null;
     bodyHtml: string | null;
@@ -142,7 +148,12 @@ export abstract class SendEmailRepo {
 }
 
 function emailRecipient(email: string, displayName?: string | null): MessagingAttendee {
-  return { ...EMPTY_ATTENDEE, attendeeId: email, identifier: email.toLowerCase(), displayName: displayName ?? null };
+  return {
+    ...EMPTY_ATTENDEE,
+    attendeeId: email,
+    identifier: email.toLowerCase(),
+    displayName: displayName ?? null,
+  };
 }
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
@@ -199,10 +210,11 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
     )
       return failNotFound(CustomErrorCode.draftMessageNotFound);
 
+    const email = resolveStoredEmailSettings(account.signature, account.signatureFields);
     const { plainText: outgoingBody, html: outgoingHtml } = composeEmailBodies(
       data.body,
-      account.signature,
-      parseSignatureFields(account.signatureFields),
+      email.markdown,
+      email.settings,
       data.bodyFormat ?? "auto",
     );
 
@@ -221,9 +233,15 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
     const res = await this.messagingService.sendEmail({
       accountId: account.unipileAccountId,
       from: account.emailAddress
-        ? { email: account.emailAddress, display_name: account.displayName ?? undefined }
+        ? {
+            email: account.emailAddress,
+            display_name: account.displayName ?? undefined,
+          }
         : undefined,
-      to: data.to.map((attendee) => ({ email: attendee.identifier, display_name: attendee.display_name })),
+      to: data.to.map((attendee) => ({
+        email: attendee.identifier,
+        display_name: attendee.display_name,
+      })),
       cc: data.cc?.map((email) => ({ email })),
       bcc: data.bcc?.map((email) => ({ email })),
       subject: data.subject,
@@ -233,7 +251,11 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
       attachments: data.attachments,
     });
 
-    if (!res.ok) return fail(res.error, [], { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) });
+    if (!res.ok) {
+      return fail(res.error, [], {
+        retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds),
+      });
+    }
 
     if (!thread) {
       const adopted = await this.adoptSentEmail(account, res.data.id);
@@ -328,7 +350,10 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
       });
       if (!message) return { ok: true as const, data: null };
 
-      const persisted = await this.repo.persistOutboundMessageOrThrow({ connectedAccountId: account.id, message });
+      const persisted = await this.repo.persistOutboundMessageOrThrow({
+        connectedAccountId: account.id,
+        message,
+      });
 
       return { ok: true as const, data: toMessagingMessageDto(persisted) };
     } catch (err) {
@@ -339,11 +364,19 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
 
   private async fetchSentEmail(accountId: string, emailId: string): Promise<unknown> {
     try {
-      return await this.messagingService.getEmail({ accountId, emailId, timeoutMs: ADOPT_EMAIL_TIMEOUT_MS });
+      return await this.messagingService.getEmail({
+        accountId,
+        emailId,
+        timeoutMs: ADOPT_EMAIL_TIMEOUT_MS,
+      });
     } catch (err) {
       if (!isUnipileResourceNotFound(err)) throw err;
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      return this.messagingService.getEmail({ accountId, emailId, timeoutMs: ADOPT_EMAIL_TIMEOUT_MS });
+      return this.messagingService.getEmail({
+        accountId,
+        emailId,
+        timeoutMs: ADOPT_EMAIL_TIMEOUT_MS,
+      });
     }
   }
 

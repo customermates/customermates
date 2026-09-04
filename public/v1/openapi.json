@@ -33386,7 +33386,7 @@
       "post": {
         "operationId": "sendEmail",
         "summary": "Send an email",
-        "description": "Sends a real email (or reply) from a connected email account. Provide either threadId (reply; takes precedence if both are given) or connectedAccountId (new email). cc and bcc are plain email strings, unlike `to` which uses the `{ identifier }` object form. The connected account's stored signature is appended automatically. Set bodyFormat when the body is explicitly plain text or HTML. When delivering a saved draft, pass both draftMessageId and its opaque draftRevision so a newer edit cannot be consumed.",
+        "description": "Sends a real email (or reply) from a connected email account. Provide either threadId (reply; takes precedence if both are given) or connectedAccountId (new email). cc and bcc are plain email strings, unlike `to` which uses the `{ identifier }` object form. The connected account's enabled signature is appended automatically, and its email appearance is applied to plain-text and Markdown bodies. Explicit HTML remains caller-controlled. Set bodyFormat when the body is explicitly plain text, Markdown, or HTML. When delivering a saved draft, pass both draftMessageId and its opaque draftRevision so a newer edit cannot be consumed.",
         "tags": [
           "messaging"
         ],
@@ -52712,10 +52712,11 @@
             "maxLength": 100000
           },
           "bodyFormat": {
-            "description": "How to interpret body. Omit for backwards-compatible automatic detection",
+            "description": "How to interpret body. Account appearance is applied to plain text and Markdown; explicit HTML remains caller-controlled. Omit for backwards-compatible automatic detection",
             "type": "string",
             "enum": [
               "plain_text",
+              "markdown",
               "html"
             ]
           },
@@ -53331,128 +53332,6 @@
             "items": {
               "type": "string"
             }
-          },
-          "signature": {
-            "default": null,
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "signatureFields": {
-            "default": null,
-            "anyOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "template": {
-                    "default": "stacked",
-                    "type": "string",
-                    "enum": [
-                      "plain",
-                      "stacked",
-                      "sideBySide"
-                    ]
-                  },
-                  "accentHex": {
-                    "default": "#7161e8",
-                    "type": "string",
-                    "pattern": "^#[0-9a-fA-F]{6}$"
-                  },
-                  "fontSize": {
-                    "default": 13,
-                    "type": "integer",
-                    "minimum": 10,
-                    "maximum": 20
-                  },
-                  "fontWeight": {
-                    "default": "bold",
-                    "type": "string",
-                    "enum": [
-                      "normal",
-                      "medium",
-                      "semibold",
-                      "bold"
-                    ]
-                  },
-                  "fullName": {
-                    "default": "",
-                    "type": "string",
-                    "maxLength": 120
-                  },
-                  "jobTitle": {
-                    "default": "",
-                    "type": "string",
-                    "maxLength": 120
-                  },
-                  "company": {
-                    "default": "",
-                    "type": "string",
-                    "maxLength": 120
-                  },
-                  "email": {
-                    "default": "",
-                    "type": "string",
-                    "maxLength": 120
-                  },
-                  "phone": {
-                    "default": "",
-                    "type": "string",
-                    "maxLength": 120
-                  },
-                  "website": {
-                    "default": "",
-                    "type": "string",
-                    "maxLength": 120
-                  },
-                  "logoUrl": {
-                    "default": "",
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "const": ""
-                      },
-                      {
-                        "type": "string",
-                        "maxLength": 500
-                      }
-                    ]
-                  }
-                },
-                "required": [
-                  "template",
-                  "accentHex",
-                  "fontSize",
-                  "fontWeight",
-                  "fullName",
-                  "jobTitle",
-                  "company",
-                  "email",
-                  "phone",
-                  "website",
-                  "logoUrl"
-                ],
-                "additionalProperties": false
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "signatureHtml": {
-            "default": null,
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
           }
         },
         "required": [
@@ -53472,10 +53351,7 @@
           "folders",
           "selectedFolderIds",
           "foldersSyncedAt",
-          "linkedinProducts",
-          "signature",
-          "signatureFields",
-          "signatureHtml"
+          "linkedinProducts"
         ],
         "additionalProperties": false
       },

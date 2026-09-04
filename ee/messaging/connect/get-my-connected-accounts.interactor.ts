@@ -3,7 +3,7 @@ import type { Validated } from "@/core/validation/validation.utils";
 
 import { Action, Resource } from "@/generated/prisma";
 
-import { ConnectedAccountDtoSchema } from "../messaging.schema";
+import { ConnectedAccountAppDtoSchema } from "../messaging.schema";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
@@ -27,7 +27,7 @@ export class GetMyConnectedAccountsInteractor extends AuthenticatedInteractor<vo
     super();
   }
 
-  @ValidateOutput(ConnectedAccountDtoSchema)
+  @ValidateOutput(ConnectedAccountAppDtoSchema)
   async invoke(): Validated<ConnectedAccountDto[]> {
     const accounts = await this.repo.listAccounts();
 

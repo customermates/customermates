@@ -22,6 +22,17 @@ function safeUrl(href: string): string | null {
   return SAFE_URL_SCHEMES.has(scheme.toLowerCase()) ? url : null;
 }
 
+function visibleTextAlreadyNamesHref(text: string, href: string): boolean {
+  if (href === text) return true;
+  if (href.toLowerCase().startsWith("mailto:"))
+    return href.slice("mailto:".length).toLowerCase() === text.trim().toLowerCase();
+  if (href.toLowerCase().startsWith("tel:")) {
+    const phone = (value: string) => value.replace(/[^\d+]/g, "");
+    return phone(href.slice("tel:".length)) === phone(text);
+  }
+  return false;
+}
+
 const formatSafeAnchor: FormatCallback = (elem, walk, builder) => {
   const node = elem as DomNode & { attribs?: Record<string, string>; children?: DomNode[] };
   const href = node.attribs?.href ? safeUrl(node.attribs.href) : null;
@@ -35,7 +46,7 @@ const formatSafeAnchor: FormatCallback = (elem, walk, builder) => {
   walk(node.children ?? [], builder);
   builder.popWordTransform();
 
-  if (!href || href === text) return;
+  if (!href || visibleTextAlreadyNamesHref(text, href)) return;
 
   builder.addInline(text ? ` (${href})` : href, { noWordTransform: true });
 };

@@ -21,7 +21,7 @@ export const ComposerSignature = observer(({ connectedAccountId }: Props) => {
 
   return (
     <div className="mx-3 mt-1 mb-2 overflow-x-auto">
-      <EmailFrame html={account.signatureHtml} />
+      <EmailFrame html={account.signatureHtml} showRemoteImages={account.isOwner} />
     </div>
   );
 });

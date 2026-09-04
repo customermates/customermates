@@ -19,6 +19,8 @@ import { cn } from "@/core/utils/cn";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { defaultEmailSettings } from "@/ee/messaging/email-settings";
+import { composeEmailBodies } from "@/ee/messaging/outbound/email-signature";
 
 import { attachmentSubtitle, classifyAttachment, describeFile, downloadLocalFile } from "./attachment-classify";
 import { AttachmentRow } from "./attachment-row";
@@ -92,7 +94,12 @@ function TextWithQuote({ visible, quoted, onPaper }: { visible: string; quoted: 
 
 export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, isMine }: Props) => {
   const t = useTranslations();
-  const { messagingThreadDetailStore: detail, threadComposeStore: compose, threadParticipantsStore } = useRootStore();
+  const {
+    messagingThreadDetailStore: detail,
+    threadComposeStore: compose,
+    threadParticipantsStore,
+    connectedAccountsStore,
+  } = useRootStore();
   const intlStore = useHydratedIntlStore();
   const [showRemoteImages, setShowRemoteImages] = useState(false);
 
@@ -124,8 +131,19 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
   const avatarName = sender.avatarName;
   const pictureUrl = sender.avatarUrl;
 
-  const isEmail = isEmailProvider(message.provider) && Boolean(message.bodyHtml);
-  const emailPlainBody = isEmail && isPlainTextEmailBody(message.bodyHtml ?? "") ? (message.bodyHtml ?? "") : null;
+  const providerIsEmail = isEmailProvider(message.provider);
+  const account = connectedAccountsStore.items.find((item) => item.id === message.connectedAccountId);
+  const renderedEmailHtml =
+    providerIsEmail && isDraft
+      ? composeEmailBodies(
+          message.bodyText ?? "",
+          account?.signature,
+          account?.emailSettings ?? defaultEmailSettings(),
+          "markdown",
+        ).html
+      : (message.bodyHtml ?? "");
+  const isEmail = providerIsEmail && Boolean(renderedEmailHtml);
+  const emailPlainBody = isEmail && isPlainTextEmailBody(renderedEmailHtml) ? renderedEmailHtml : null;
   const inlineHtml = !isEmail && !isDeleted ? message.bodyHtml : null;
   const isUnsupportedBody = isUnipileUnsupportedBody(message.bodyText);
   const rawDisplayText = isUnsupportedBody ? null : message.bodyText;
@@ -148,7 +166,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
     !chatSubject &&
     !isEmail &&
     pendingFiles.length === 0;
-  const canLoadRemoteImages = isEmail && !showRemoteImages && hasLoadableRemoteImages(message.bodyHtml ?? "");
+  const canLoadRemoteImages = isEmail && !showRemoteImages && hasLoadableRemoteImages(renderedEmailHtml);
   const recipientRows = (
     [
       ["Inbox.compose.toLabel", message.recipients.to],
@@ -227,7 +245,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
                   <TextWithQuote quoted={quoteSplit.quoted} visible={quoteSplit.visible} onPaper />
                 </div>
               ) : (
-                <EmailFrame html={message.bodyHtml ?? ""} showRemoteImages={showRemoteImages} />
+                <EmailFrame html={renderedEmailHtml} showRemoteImages={showRemoteImages} />
               )}
             </>
           ) : showUnsupported ? (

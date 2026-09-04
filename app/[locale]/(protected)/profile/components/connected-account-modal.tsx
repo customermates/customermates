@@ -41,9 +41,9 @@ export const ConnectedAccountModal = observer(() => {
   const canUpdate = userStore.can(Resource.inboxMessages, Action.update);
   const canDelete = userStore.can(Resource.inboxMessages, Action.delete);
 
-  const showSignatureTab = isEmailProvider(account.provider) && account.isOwner;
+  const showEmailTab = isEmailProvider(account.provider) && account.isOwner;
   const showFoldersTab = account.folders.length > 0;
-  const tabCount = 1 + (showSignatureTab ? 1 : 0) + (showFoldersTab ? 1 : 0);
+  const tabCount = 1 + (showEmailTab ? 1 : 0) + (showFoldersTab ? 1 : 0);
 
   const title = account.displayName ?? getProviderDisplayLabel(account, t);
   const statusLabel = t(`ConnectedAccountsCard.statusLabels.${account.status}`);
@@ -103,7 +103,7 @@ export const ConnectedAccountModal = observer(() => {
       : [];
 
   return (
-    <AppModal actions={modalActions} store={connectedAccountModalStore} title={title}>
+    <AppModal actions={modalActions} size="xl" store={connectedAccountModalStore} title={title}>
       <AppCard>
         <AppCardHeader>
           <div className="flex min-w-0 items-center gap-2">
@@ -127,9 +127,9 @@ export const ConnectedAccountModal = observer(() => {
                 {t("ConnectedAccountsCard.tabs.details")}
               </TabsTrigger>
 
-              {showSignatureTab && (
-                <TabsTrigger id="connected-account-tab-signature" value="signature">
-                  {t("ConnectedAccountsCard.tabs.signature")}
+              {showEmailTab && (
+                <TabsTrigger id="connected-account-tab-email" value="email">
+                  {t("ConnectedAccountsCard.tabs.email")}
                 </TabsTrigger>
               )}
 
@@ -236,12 +236,14 @@ export const ConnectedAccountModal = observer(() => {
               </div>
             </TabsContent>
 
-            {showSignatureTab && (
-              <TabsContent className="pt-5" value="signature">
+            {showEmailTab && (
+              <TabsContent forceMount className="pt-5 data-[state=inactive]:hidden" value="email">
                 <AccountSignature
+                  key={account.id}
                   account={account}
                   disabled={!canUpdate}
-                  onSave={(next, fields) => runUserAction(() => connectedAccountModalStore.saveSignature(next, fields))}
+                  onDirtyChange={connectedAccountModalStore.setEmailSettingsDirty}
+                  onSave={connectedAccountModalStore.saveSignature}
                 />
               </TabsContent>
             )}

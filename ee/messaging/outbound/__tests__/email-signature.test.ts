@@ -1,70 +1,90 @@
 import { describe, expect, it } from "vitest";
 
+import { EmailLinkStyle, SignatureTemplate, defaultEmailSettings } from "../../email-settings";
 import { SIGNATURE_DELIMITER, composeEmailBodies, signatureToHtml, toEmailHtml } from "../email-signature";
 
 const HTML_END = "</body></html>";
 
 describe("toEmailHtml", () => {
-  it("turns newlines in a plain-text body into line breaks", () => {
-    expect(toEmailHtml("one\ntwo")).toBe("one<br>two");
+  it("escapes plain text, preserves line breaks, and applies account typography", () => {
+    const html = toEmailHtml("one < two\nthree");
+
+    expect(html).toContain('data-customermates-email-body="true"');
+    expect(html).toContain("font-family:Arial,Helvetica,sans-serif");
+    expect(html).toContain("one &lt; two<br>three");
   });
 
-  it("escapes markup so a plain-text body is not interpreted", () => {
-    expect(toEmailHtml("a < b & c > d")).toBe("a &lt; b &amp; c &gt; d");
+  it("renders Markdown with account link theming", () => {
+    const settings = defaultEmailSettings();
+    settings.appearance.linkHex = "#d23128";
+    settings.appearance.linkStyle = EmailLinkStyle.plain;
+
+    const html = toEmailHtml("**Hello** [there](https://example.com)", "markdown", settings);
+
+    expect(html).toContain("<strong>Hello</strong>");
+    expect(html).toContain("color:#d23128;text-decoration:none");
   });
 
-  it("leaves an html body untouched", () => {
-    const html = "<p>already html</p>\n<p>second</p>";
+  it("leaves an explicit or detected HTML body untouched", () => {
+    const html = "<section>already html</section>";
 
     expect(toEmailHtml(html)).toBe(html);
-  });
-
-  it("treats a bare tag name in prose as text unless html is explicit", () => {
-    expect(toEmailHtml("Write <div> literally")).toBe("Write &lt;div&gt; literally");
     expect(toEmailHtml("Write <div> literally", "html")).toBe("Write <div> literally");
   });
 
-  it("recognizes valid html tags outside the old fixed allow-list", () => {
-    expect(toEmailHtml("<section>already html</section>")).toBe("<section>already html</section>");
+  it("treats a tag name inside plain prose as text", () => {
+    expect(toEmailHtml("Write <div> literally")).toContain("Write &lt;div&gt; literally");
   });
 });
 
 describe("signatureToHtml", () => {
-  it("renders markdown emphasis and links", () => {
-    expect(signatureToHtml("**Ben**\nFounder, [Customermates](https://customermates.com)")).toBe(
-      '<p><strong>Ben</strong><br>\nFounder, <a href="https://customermates.com">Customermates</a></p>',
-    );
+  it("renders safe Markdown emphasis, links, and line breaks", () => {
+    const html = signatureToHtml("**Ben**\nFounder, [Customermates](https://customermates.com)");
+
+    expect(html).toContain("<strong>Ben</strong><br>");
+    expect(html).toContain('href="https://customermates.com"');
+    expect(html).toContain("Founder, ");
   });
 
-  it("keeps single newlines as line breaks", () => {
-    expect(signatureToHtml("Ben\nCustomermates")).toBe("<p>Ben<br>\nCustomermates</p>");
-  });
-
-  it("escapes raw html rather than trusting the stored value", () => {
+  it("escapes raw HTML rather than trusting the stored value", () => {
     expect(signatureToHtml("<script>alert(1)</script>")).toContain("&lt;script&gt;");
   });
 });
 
 describe("composeEmailBodies", () => {
-  it("returns the body untouched on both parts when there is no signature", () => {
-    expect(composeEmailBodies("Hello\nthere", null)).toEqual({
-      plainText: "Hello\nthere",
-      html: "Hello<br>there",
-    });
+  it("returns themed plain and HTML body parts when there is no signature", () => {
+    const result = composeEmailBodies("Hello\nthere", null);
+
+    expect(result.plainText).toBe("Hello\nthere");
+    expect(result.html).toContain("Hello<br>there");
+    expect(result.html).not.toContain("data-customermates-signature");
   });
 
-  it("appends the markdown source to the plain part and the rendered form to the html part", () => {
-    const { plainText, html } = composeEmailBodies("Hello", "**Ben**");
+  it("appends rendered signature text and HTML", () => {
+    const settings = defaultEmailSettings();
+    settings.signature.enabled = true;
+    settings.signature.template = SignatureTemplate.plain;
+    settings.signature.logoUrl = "";
+    const { plainText, html } = composeEmailBodies("Hello", "**Ben**", settings, "markdown");
 
-    expect(plainText).toBe(`Hello${SIGNATURE_DELIMITER}**Ben**`);
-    expect(html).toBe('Hello<div data-customermates-signature="true"><br><br>-- <br><p><strong>Ben</strong></p></div>');
+    expect(plainText).toBe(`Hello${SIGNATURE_DELIMITER}Ben`);
+    expect(html).toContain(
+      'data-customermates-signature="true" style="font-family:Arial,Helvetica,sans-serif;font-size:13px;',
+    );
+    expect(html).toContain("<strong>Ben</strong>");
   });
 
-  it("ignores a blank signature", () => {
-    expect(composeEmailBodies("Hello", "   ").plainText).toBe("Hello");
+  it("preserves a disabled signature without appending it", () => {
+    const settings = defaultEmailSettings();
+    settings.signature.enabled = false;
+
+    const result = composeEmailBodies("Hello", "**Saved for later**", settings, "markdown");
+
+    expect(result.plainText).toBe("Hello");
+    expect(result.html).not.toContain("Saved for later");
   });
 
-  it("does not double-append when the body already ends with a signature block", () => {
+  it("does not double-append when the visible body already ends with a signature block", () => {
     const once = composeEmailBodies("Hello", "Ben").plainText;
 
     expect(composeEmailBodies(once, "Ben").plainText.match(/-- \n/g)).toHaveLength(1);
@@ -76,7 +96,7 @@ describe("composeEmailBodies", () => {
     expect(composeEmailBodies(body, "My signature").plainText).toContain("\n\n-- \nMy signature");
   });
 
-  it("derives text from html, inserts inside a full document, and remains idempotent", () => {
+  it("derives text from HTML, inserts inside a full document, and remains idempotent", () => {
     const once = composeEmailBodies("<html><body><section>Hello</section></body></html>", "Ben", null, "html");
     const twice = composeEmailBodies(once.html, "Ben", null, "html");
 

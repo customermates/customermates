@@ -1,7 +1,7 @@
 "use server";
 
 import type { ConnectChannel } from "@/ee/messaging/connect/connect-channels";
-import type { SignatureFields } from "@/ee/messaging/signature-fields";
+import type { EmailSettings } from "@/ee/messaging/email-settings";
 
 import { z } from "zod";
 
@@ -22,7 +22,11 @@ import { unwrapValidated } from "@/core/validation/validation.utils";
 export async function startConnectAccountAction(channel: ConnectChannel) {
   const result = await getCreateAuthLinkInteractor().invoke({ channel });
   if (isRedirect(result)) return { ok: true as const, data: { url: result.redirect } };
-  return { ok: false as const, error: z.treeifyError(result.error), code: result.code };
+  return {
+    ok: false as const,
+    error: z.treeifyError(result.error),
+    code: result.code,
+  };
 }
 
 export async function disconnectConnectedAccountAction(id: string) {
@@ -33,12 +37,14 @@ export async function setConnectedAccountVisibilityAction(id: string, shared: bo
   return serializeResult(getSetConnectedAccountVisibilityInteractor().invoke({ id, shared }));
 }
 
-export async function setConnectedAccountSignatureAction(
-  id: string,
-  signature: string,
-  fields: SignatureFields | null,
-) {
-  return serializeResult(getSetConnectedAccountSignatureInteractor().invoke({ id, signature, fields }));
+export async function setConnectedAccountSignatureAction(id: string, signature: string, settings: EmailSettings) {
+  return serializeResult(
+    getSetConnectedAccountSignatureInteractor().invoke({
+      id,
+      signature,
+      settings,
+    }),
+  );
 }
 
 export async function resyncConnectedAccountAction(id: string) {

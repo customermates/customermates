@@ -1,14 +1,26 @@
 import type * as InboxSchemaModule from "../../inbox/inbox.schema";
+import type { EmailBodyFormat } from "../email-signature";
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { MessagingMessageDirection, MessagingProvider } from "@/generated/prisma";
 import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import {
   MOCK_ENV_MODULE,
-  createMockDiModule,
-  MOCK_ZOD_MODULE,
   MOCK_PRISMA_DB_MODULE,
+  MOCK_ZOD_MODULE,
+  createMockDiModule,
 } from "@/tests/helpers/interactor-test-setup";
+
+import {
+  EmailFontFamily,
+  EmailLinkStyle,
+  SIGNATURE_LOGO_URL,
+  SignatureTemplate,
+  defaultEmailSettings,
+} from "../../email-settings";
+import { SendEmailInteractor } from "../send-email.interactor";
 
 const mockUser = createMockUser();
 
@@ -24,10 +36,6 @@ vi.mock("../../inbox/inbox.schema", async (importActual) => ({
   ...(await importActual<typeof InboxSchemaModule>()),
   toMessagingMessageDto: (message: unknown) => message,
 }));
-
-import { SendEmailInteractor } from "../send-email.interactor";
-import { MessagingProvider, MessagingMessageDirection } from "@/generated/prisma";
-import { SIGNATURE_LOGO_URL, SignatureFieldsSchema, SignatureTemplate } from "../../signature-fields";
 
 const ACCOUNT_ID = "00000000-0000-4000-8000-000000000002";
 const THREAD_ID = "00000000-0000-4000-8000-000000000003";
@@ -53,16 +61,25 @@ function makeAccount(signature: string | null, signatureFields: unknown = null) 
   } as never;
 }
 
-const structuredFields = SignatureFieldsSchema.parse({
+const emailSettings = defaultEmailSettings();
+emailSettings.appearance = {
+  fontFamily: EmailFontFamily.serif,
+  fontSize: 16,
+  linkHex: "#d23128",
+  linkStyle: EmailLinkStyle.plain,
+};
+emailSettings.signature = {
+  enabled: true,
   template: SignatureTemplate.sideBySide,
-  fullName: "Benjamin Wagner",
-  jobTitle: "Founder",
-  company: "Customermates",
-  email: "mail@customermates.com",
-  phone: "+49 170 0000000",
-  website: "customermates.com",
   logoUrl: SIGNATURE_LOGO_URL,
-});
+};
+
+const signatureMarkdown = [
+  "**Benjamin Wagner**",
+  "Founder at Customermates",
+  "[mail@customermates.com](mailto:mail@customermates.com)",
+  "[customermates.com](https://customermates.com)",
+].join("  \n");
 
 const persistedRow = {
   id: "00000000-0000-4000-8000-000000000004",
@@ -71,7 +88,12 @@ const persistedRow = {
   providerMessageId: null,
   provider: MessagingProvider.google,
   direction: MessagingMessageDirection.outbound,
-  sender: { attendeeId: "me@example.com", displayName: "Me", identifier: "me@example.com", isSelf: true },
+  sender: {
+    attendeeId: "me@example.com",
+    displayName: "Me",
+    identifier: "me@example.com",
+    isSelf: true,
+  },
   recipients: { to: [], cc: [], bcc: [] },
   subject: "S",
   bodyText: "Hello",
@@ -98,7 +120,12 @@ function makeRepo() {
   };
 }
 
-async function send(signature: string | null, body: string, signatureFields: unknown = null) {
+async function send(
+  signature: string | null,
+  body: string,
+  signatureFields: unknown = null,
+  bodyFormat?: Exclude<EmailBodyFormat, "auto">,
+) {
   const service = {
     sendEmail: vi.fn().mockResolvedValue({ ok: true, data: { id: "u-1", messageId: "m-1" } }),
     getEmailAttachments: vi.fn(),
@@ -106,92 +133,92 @@ async function send(signature: string | null, body: string, signatureFields: unk
   const repo = makeRepo();
   const interactor = new SendEmailInteractor(
     repo as never,
-    { findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue(makeAccount(signature, signatureFields)) } as never,
+    {
+      findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue(makeAccount(signature, signatureFields)),
+    } as never,
     service as never,
     mockEntitlementService(),
   );
 
-  await interactor.invoke({ threadId: THREAD_ID, to: [{ identifier: "you@example.com" }], subject: "S", body });
+  await interactor.invoke({
+    threadId: THREAD_ID,
+    to: [{ identifier: "you@example.com" }],
+    subject: "S",
+    body,
+    ...(bodyFormat ? { bodyFormat } : {}),
+  });
 
-  return { sent: service.sendEmail.mock.calls[0][0], persisted: repo.persistOutboundMessageOrThrow.mock.calls[0][0] };
+  return {
+    sent: service.sendEmail.mock.calls[0][0],
+    persisted: repo.persistOutboundMessageOrThrow.mock.calls[0][0],
+  };
 }
 
 describe("SendEmailInteractor body parts", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("sends both alternative parts, not html alone", async () => {
+  it("sends both alternative parts for plain-text API callers", async () => {
     const { sent } = await send(null, "line one\nline two");
 
     expect(sent.plainText).toBe("line one\nline two");
-    expect(sent.body).toBe("line one<br>line two");
+    expect(sent.body).toContain("line one<br>line two");
+    expect(sent.body).toContain("font-family:Arial,Helvetica,sans-serif");
   });
 
-  it("puts the markdown signature in the plain part and the rendered one in the html part", async () => {
-    const { sent } = await send("**Ben**\n[site](https://example.com)", "Hello");
-
-    expect(sent.plainText).toBe("Hello\n\n-- \n**Ben**\n[site](https://example.com)");
-    expect(sent.body).toBe(
-      'Hello<div data-customermates-signature="true"><br><br>-- <br><p><strong>Ben</strong><br>\n<a href="https://example.com">site</a></p></div>',
+  it("renders Markdown body and signature with the account theme", async () => {
+    const { sent } = await send(
+      signatureMarkdown,
+      "Hello **there**\n\n[Project](https://example.com)",
+      emailSettings,
+      "markdown",
     );
+
+    expect(sent.plainText).toContain("Hello there\n\nProject (https://example.com)");
+    expect(sent.plainText).toContain("\n\n-- \nBenjamin Wagner");
+    expect(sent.body).toContain("<strong>there</strong>");
+    expect(sent.body).toContain("font-family:Georgia,'Times New Roman',serif");
+    expect(sent.body).toContain("font-size:16px");
+    expect(sent.body).toContain("color:#d23128;text-decoration:none");
+    expect(sent.body).toContain('<table role="presentation"');
+    expect(sent.body).toContain(SIGNATURE_LOGO_URL);
+    expect(sent.body).toContain('width="56" height="56"');
   });
 
-  it("persists what was actually sent on both columns", async () => {
-    const { persisted } = await send("Ben", "Hello");
+  it("persists exactly the rendered wire parts", async () => {
+    const { sent, persisted } = await send(signatureMarkdown, "Hello", emailSettings, "markdown");
 
-    expect(persisted.message.bodyText).toBe("Hello\n\n-- \nBen");
-    expect(persisted.message.bodyHtml).toBe(
-      'Hello<div data-customermates-signature="true"><br><br>-- <br><p>Ben</p></div>',
-    );
+    expect(persisted.message.bodyText).toBe(sent.plainText);
+    expect(persisted.message.bodyHtml).toBe(sent.body);
   });
 
   it("escapes a plain-text body so it cannot be read as markup", async () => {
     const { sent } = await send(null, "a < b & c");
 
-    expect(sent.body).toBe("a &lt; b &amp; c");
+    expect(sent.body).toContain("a &lt; b &amp; c");
+    expect(sent.body).not.toContain("a < b");
   });
 
-  it("puts the structured signature table on the wire once fields are stored", async () => {
-    const { sent } = await send("Hauptstrasse 1, 68159 Mannheim", "Hello", structuredFields);
+  it("does not append a configured signature while its toggle is off", async () => {
+    const disabled = structuredClone(emailSettings);
+    disabled.signature.enabled = false;
+    const { sent } = await send(signatureMarkdown, "Hello", disabled, "markdown");
 
-    expect(sent.body).toContain('<table role="presentation"');
-    expect(sent.body).toContain(SIGNATURE_LOGO_URL);
-    expect(sent.body).toContain('width="56" height="56"');
-    expect(sent.body).toContain('href="mailto:mail@customermates.com"');
-    expect(sent.body.startsWith('Hello<div data-customermates-signature="true"><br><br>-- <br><table')).toBe(true);
+    expect(sent.plainText).toBe("Hello");
+    expect(sent.body).not.toContain("Benjamin Wagner");
+    expect(sent.body).not.toContain("<table");
   });
 
-  it("sends a de-marked plain part alongside it, never the raw markdown", async () => {
-    const { sent } = await send("**Bold** and [a link](https://example.com)", "Hello", structuredFields);
+  it("upgrades legacy structured fields before sending", async () => {
+    const legacy = {
+      template: SignatureTemplate.plain,
+      accent: "green",
+      fullName: "Benjamin Wagner",
+      website: "customermates.com",
+    };
+    const { sent } = await send(null, "Hello", legacy, "markdown");
 
-    expect(sent.plainText).toBe(
-      [
-        "Hello",
-        "",
-        "-- ",
-        "Benjamin Wagner",
-        "Founder, Customermates",
-        "+49 170 0000000",
-        "mail@customermates.com",
-        "https://customermates.com",
-        "Bold and a link (https://example.com)",
-      ].join("\n"),
-    );
-    expect(sent.plainText).not.toContain("**");
-    expect(sent.plainText).not.toContain(SIGNATURE_LOGO_URL);
-  });
-
-  it("never ships an html-only message, since plain_text is only spread in when truthy", async () => {
-    const { sent } = await send(null, "Hello", structuredFields);
-
-    expect(sent.plainText.trim().length).toBeGreaterThan(0);
-    expect(sent.body.length).toBeGreaterThan(0);
-  });
-
-  it("persists the structured signature on both columns", async () => {
-    const { persisted } = await send(null, "Hello", structuredFields);
-
-    expect(persisted.message.bodyHtml).toContain('<table role="presentation"');
-    expect(persisted.message.bodyText).toContain("Benjamin Wagner");
-    expect(persisted.message.bodyText).not.toContain("<table");
+    expect(sent.plainText).toContain("Benjamin Wagner");
+    expect(sent.body).toContain("color:#2ba449");
+    expect(sent.body).toContain('href="https://customermates.com"');
   });
 });

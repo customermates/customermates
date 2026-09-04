@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { SIGNATURE_ACCENT_PRESETS, signatureContrast } from "@/ee/messaging/signature-fields";
+import { EMAIL_LINK_COLOR_PRESETS, emailLinkContrast } from "@/ee/messaging/email-settings";
 import { cn } from "@/core/utils/cn";
 
 type Props = {
@@ -14,23 +14,24 @@ type Props = {
   onValueChange: (value: string) => void;
 };
 
-export function SignatureColorField({ disabled = false, value, onValueChange }: Props) {
+export function EmailLinkColorField({ disabled = false, value, onValueChange }: Props) {
   const t = useTranslations();
   const normalized = value.toLowerCase();
-  const contrast = /^#[0-9a-f]{6}$/.test(normalized) ? signatureContrast(normalized) : null;
+  const contrast = /^#[0-9a-f]{6}$/.test(normalized) ? emailLinkContrast(normalized) : null;
 
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
-      <Label className="text-subdued text-xs" htmlFor="signature-accentHex">
-        {t("ConnectedAccountsCard.signatureAccent")}
+      <Label className="text-subdued text-xs" htmlFor="email-linkHex">
+        {t("ConnectedAccountsCard.emailLinkColour")}
       </Label>
 
-      <div className="flex min-w-0 items-center gap-1.5">
-        {SIGNATURE_ACCENT_PRESETS.map((preset) => (
+      <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+        {EMAIL_LINK_COLOR_PRESETS.map((preset) => (
           <Tooltip key={preset}>
             <TooltipTrigger asChild>
               <button
                 aria-label={preset}
+                aria-pressed={normalized === preset}
                 className={cn(
                   "size-6 shrink-0 rounded-md border transition-all",
                   "focus-visible:ring-ring/50 outline-none focus-visible:ring-[3px]",
@@ -49,16 +50,16 @@ export function SignatureColorField({ disabled = false, value, onValueChange }: 
         ))}
 
         <Input
-          className="w-28 min-w-0 font-mono text-xs"
+          className="w-28 shrink-0 font-mono text-xs"
           disabled={disabled}
-          id="signature-accentHex"
+          id="email-linkHex"
           maxLength={7}
           value={value}
           onChange={(event) => onValueChange(event.target.value.trim())}
         />
 
         <input
-          aria-label={t("ConnectedAccountsCard.signatureAccent")}
+          aria-label={t("ConnectedAccountsCard.emailLinkColour")}
           className="border-border size-8 shrink-0 cursor-pointer rounded-md border bg-transparent p-0.5 disabled:pointer-events-none disabled:opacity-50"
           disabled={disabled}
           type="color"
@@ -68,8 +69,8 @@ export function SignatureColorField({ disabled = false, value, onValueChange }: 
       </div>
 
       {contrast && !contrast.readable && (
-        <p className="text-warning text-xs">
-          {t("ConnectedAccountsCard.signatureAccentLowContrast", {
+        <p aria-live="polite" className="text-warning text-xs">
+          {t("ConnectedAccountsCard.emailLinkColourLowContrast", {
             light: contrast.light.toFixed(1),
             dark: contrast.dark.toFixed(1),
           })}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { sanitizeHtml } from "@/components/shared/sanitize-html";
@@ -28,9 +28,25 @@ const FRAME_CSS = `
   a { color: #2563eb; }
 `;
 
+const MIN_FRAME_HEIGHT = 96;
+const MAX_FRAME_HEIGHT = 640;
+
+function frameDocumentHeight(iframe: HTMLIFrameElement): number {
+  const document = iframe.contentDocument;
+  if (!document?.body) return MIN_FRAME_HEIGHT;
+
+  return Math.min(
+    MAX_FRAME_HEIGHT,
+    Math.max(
+      MIN_FRAME_HEIGHT,
+      document.body.scrollHeight,
+      document.body.offsetHeight,
+      document.documentElement?.scrollHeight ?? 0,
+    ),
+  );
+}
+
 export function EmailFrame({ html, showRemoteImages = false }: Props) {
-  const ref = useRef<HTMLIFrameElement>(null);
-  const [height, setHeight] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [showQuoted, setShowQuoted] = useState(false);
   const t = useTranslations();
@@ -48,46 +64,20 @@ export function EmailFrame({ html, showRemoteImages = false }: Props) {
     };
   }, [html, showRemoteImages, mounted, showQuoted]);
 
-  useEffect(() => {
-    const iframe = ref.current;
-    if (!iframe) return;
-
-    let observer: ResizeObserver | undefined;
-
-    function measure() {
-      const body = iframe?.contentDocument?.body;
-      if (!body) return;
-      const next = body.scrollHeight;
-      if (next > 0) setHeight(next);
-    }
-
-    function attach() {
-      measure();
-      const body = iframe?.contentDocument?.body;
-      if (body && typeof ResizeObserver !== "undefined") {
-        observer = new ResizeObserver(measure);
-        observer.observe(body);
-      }
-    }
-
-    iframe.addEventListener("load", attach);
-    if (iframe.contentDocument?.readyState === "complete") attach();
-
-    return () => {
-      iframe.removeEventListener("load", attach);
-      observer?.disconnect();
-    };
-  }, [srcDoc]);
-
   return (
     <>
       <iframe
-        ref={ref}
+        key={srcDoc}
         className="block w-full bg-white"
         sandbox="allow-same-origin"
         srcDoc={srcDoc}
-        style={{ height: `${height}px` }}
+        style={{ height: `${MIN_FRAME_HEIGHT}px`, minHeight: `${MIN_FRAME_HEIGHT}px` }}
         title={t("Inbox.compose.emailContent")}
+        onLoad={(event) => {
+          event.currentTarget.style.height = `${MIN_FRAME_HEIGHT}px`;
+          const next = frameDocumentHeight(event.currentTarget);
+          event.currentTarget.style.height = `${next}px`;
+        }}
       />
 
       {hasQuote && (

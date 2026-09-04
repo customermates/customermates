@@ -7,6 +7,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ConnectedAccountStatus, MessagingProvider } from "@/generated/prisma";
+import { defaultEmailSettings } from "@/ee/messaging/email-settings";
 
 const harness = vi.hoisted(() => ({
   addApiKey: vi.fn(),
@@ -53,7 +54,9 @@ vi.mock("../account-status-color", () => ({
 
 vi.mock("@/components/page-state/page-state", async (importOriginal) => {
   const React = await import("react");
-  const actual = await importOriginal<{ PageState: (props: PageStateProps) => ReactElement }>();
+  const actual = await importOriginal<{
+    PageState: (props: PageStateProps) => ReactElement;
+  }>();
 
   return {
     ...actual,
@@ -94,7 +97,7 @@ function connectedAccount(): ConnectedAccountDto {
     hasMessaging: true,
     hasCalendar: false,
     signature: null,
-    signatureFields: null,
+    emailSettings: defaultEmailSettings(),
     signatureHtml: null,
     emailAddress: "inbox@example.com",
     isOwner: true,

@@ -27,7 +27,7 @@ import { IMPORT_ISSUE_CODES } from "@/features/data-transfer/import/import-plan"
 import { ALL_LEGAL_DOCUMENTS } from "@/constants/legal-documents";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { SignatureTemplate, SignatureWeight } from "@/ee/messaging/signature-fields";
+import { SignatureTemplate } from "@/ee/messaging/email-settings";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AGENT_ACTIVITY_KINDS } from "@/ee/agent-chat/agent-activity";
 import { OPERATOR_AUDIT_ACTION } from "@/ee/operator/operator.schema";
@@ -223,12 +223,6 @@ const CONNECTED_ACCOUNT_STATUS_KEYS = Object.values(ConnectedAccountStatus).map(
 );
 const SIGNATURE_TEMPLATE_KEYS = Object.values(SignatureTemplate).map(
   (template) => `ConnectedAccountsCard.signatureTemplates.${template}`,
-);
-const SIGNATURE_WEIGHT_KEYS = Object.values(SignatureWeight).map(
-  (weight) => `ConnectedAccountsCard.signatureWeights.${weight}`,
-);
-const SIGNATURE_FIELD_KEYS = ["fullName", "jobTitle", "company", "email", "phone", "website", "logoUrl"].map(
-  (field) => `ConnectedAccountsCard.signatureFields.${field}`,
 );
 const SUBSCRIPTION_PLAN_KEYS = Object.values(SubscriptionPlan).map((plan) => `Subscription.planNames.${plan}`);
 const SUBSCRIPTION_STATUS_KEYS = Object.values(SubscriptionStatus).map((status) => `Subscription.status.${status}`);
@@ -434,8 +428,6 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Common.userStatuses.${*}", USER_STATUS_KEYS],
   ["ConnectedAccountsCard.statusLabels.${*}", CONNECTED_ACCOUNT_STATUS_KEYS],
   ["ConnectedAccountsCard.signatureTemplates.${*}", SIGNATURE_TEMPLATE_KEYS],
-  ["ConnectedAccountsCard.signatureWeights.${*}", SIGNATURE_WEIGHT_KEYS],
-  ["ConnectedAccountsCard.signatureFields.${*}", SIGNATURE_FIELD_KEYS],
   ["Dashboard.displayTypes.${*}", DISPLAY_TYPE_KEYS],
   ["Dashboard.widgetEditor.filters.activityTypeOptions.${*}.description", activityTypeOptionKeys("description")],
   ["Dashboard.widgetEditor.filters.activityTypeOptions.${*}.label", activityTypeOptionKeys("label")],
@@ -562,8 +554,6 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/profile/components/account-status-color.ts :: t :: Common.providers.${account.provider}",
   "app/[locale]/(protected)/profile/components/api-key-modal.tsx :: t :: OnboardingWizard.ai.choices.${aiConnectionStore.route.provider}",
   "app/[locale]/(protected)/profile/components/connected-account-modal.tsx :: t :: ConnectedAccountsCard.statusLabels.${account.status}",
-  "app/[locale]/(protected)/profile/components/account-signature.tsx :: t :: ConnectedAccountsCard.signatureWeights.${weight}",
-  "app/[locale]/(protected)/profile/components/account-signature.tsx :: t :: ConnectedAccountsCard.signatureFields.${field}",
   "app/[locale]/(protected)/profile/components/signature-template-picker.tsx :: t :: ConnectedAccountsCard.signatureTemplates.${template}",
   "app/[locale]/(protected)/profile/components/connected-accounts-page-view.tsx :: t :: ConnectedAccountsCard.statusLabels.${account.status}",
   "app/[locale]/(protected)/profile/components/profile-settings-form.tsx :: t :: Common.locales.${detectBrowserUiLocale()}",
@@ -740,7 +730,12 @@ const OPERATOR_AUDIT_ACTION_LABEL_KEYS = Object.keys(OPERATOR_AUDIT_ACTION).map(
 const OPERATOR_AUDIT_ACTION_LABEL_EVIDENCE = Object.fromEntries(
   OPERATOR_AUDIT_ACTION_LABEL_KEYS.map((key) => [
     key,
-    [{ kind: "template" as const, value: "`OperatorAudit.values.action.${name}`" }],
+    [
+      {
+        kind: "template" as const,
+        value: "`OperatorAudit.values.action.${name}`",
+      },
+    ],
   ]),
 );
 const TERMINOLOGY_TEMPLATE_EVIDENCE = Object.fromEntries(

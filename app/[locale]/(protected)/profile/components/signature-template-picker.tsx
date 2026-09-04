@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 
 import { SelectableCard } from "@/components/forms/selectable-card";
 import { RadioGroup } from "@/components/ui/radio-group";
-import { SignatureTemplate } from "@/ee/messaging/signature-fields";
+import { SignatureTemplate } from "@/ee/messaging/email-settings";
 import { cn } from "@/core/utils/cn";
 
 function Bars({ className }: { className?: string }) {

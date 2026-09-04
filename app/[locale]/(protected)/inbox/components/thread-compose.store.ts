@@ -18,6 +18,8 @@ import {
 import { BaseFormStore } from "@/core/base/base-form.store";
 import { isEmailProvider } from "@/ee/messaging/provider";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { defaultEmailSettings } from "@/ee/messaging/email-settings";
+import { composeEmailBodies } from "@/ee/messaging/outbound/email-signature";
 
 import { formatBytes } from "./attachment-classify";
 import { MAX_ATTACHMENTS_BYTES, toAttachmentInput } from "./attachment-input";
@@ -40,6 +42,10 @@ type ThreadComposeForm = {
   inmailSignature: string;
 };
 
+function sameValues(left: readonly string[], right: readonly string[]): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
 export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   showCcBcc = false;
   editingDraftId: string | null = null;
@@ -51,6 +57,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
 
   private onNewThreadDone: (() => void) | null = null;
   private retryDraftBindings = new Map<string, { messageId: string; revision: string }>();
+  private composeGeneration = 0;
 
   constructor(rootStore: RootStore) {
     super(rootStore, {
@@ -100,11 +107,14 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   }
 
   addAttachments = (files: File[]) => {
+    if (this.isLoading) return;
     if (files.length === 0) return;
 
     const total = [...this.attachments, ...files].reduce((sum, file) => sum + file.size, 0);
     if (total > MAX_ATTACHMENTS_BYTES) {
-      this.toastError("Inbox.compose.attachTooLarge", { values: { max: formatBytes(MAX_ATTACHMENTS_BYTES) } });
+      this.toastError("Inbox.compose.attachTooLarge", {
+        values: { max: formatBytes(MAX_ATTACHMENTS_BYTES) },
+      });
       return;
     }
 
@@ -112,6 +122,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   };
 
   removeAttachment = (index: number) => {
+    if (this.isLoading) return;
     this.attachments = this.attachments.filter((_, i) => i !== index);
   };
 
@@ -124,7 +135,11 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
         cc: z.array(z.email()),
         bcc: z.array(z.email()),
       })
-      .safeParse({ recipients: this.form.recipients, cc: this.form.cc, bcc: this.form.bcc });
+      .safeParse({
+        recipients: this.form.recipients,
+        cc: this.form.cc,
+        bcc: this.form.bcc,
+      });
 
     if (result.success) {
       if (this.error) this.setError(undefined);
@@ -144,6 +159,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   }
 
   toggleCcBcc = () => {
+    if (this.isLoading) return;
     this.showCcBcc = !this.showCcBcc;
   };
 
@@ -154,6 +170,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     defaultRecipients?: string[];
     defaultCc?: string[];
   }) => {
+    this.composeGeneration += 1;
     const subject = init.defaultSubject?.startsWith("Re:")
       ? init.defaultSubject
       : `Re: ${init.defaultSubject ?? ""}`.trim();
@@ -178,6 +195,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   };
 
   setNewThreadAccount = (connectedAccountId: string) => {
+    if (this.isLoading) return;
     if (this.newThreadTarget?.draftThreadId) return;
     if (this.newThreadTarget) this.newThreadTarget = { ...this.newThreadTarget, connectedAccountId };
     this.form.linkedinProduct = "classic";
@@ -191,6 +209,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     draftThreadId?: string;
     onDone?: () => void;
   }) => {
+    this.composeGeneration += 1;
     this.showCcBcc = false;
     this.editingDraftId = null;
     this.editingDraftRevision = null;
@@ -217,16 +236,35 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
 
   private buildOptimisticMessage = (opts: { isDraft: boolean; id?: string }): MessagingMessageDto => {
     const detail = this.rootStore.messagingThreadDetailStore;
-    const attendee = (value: string) => ({ attendeeId: value, identifier: value, displayName: null });
+    const attendee = (value: string) => ({
+      attendeeId: value,
+      identifier: value,
+      displayName: null,
+    });
+    const connectedAccountId = this.newThreadTarget?.connectedAccountId ?? detail.thread?.connectedAccountId ?? "";
+    const account = this.rootStore.connectedAccountsStore.items.find((item) => item.id === connectedAccountId);
+    const bodyHtml = this.isEmail
+      ? composeEmailBodies(
+          this.form.body,
+          account?.signature,
+          account?.emailSettings ?? defaultEmailSettings(),
+          "markdown",
+        ).html
+      : null;
 
     return {
       id: opts.id ?? `temp:${crypto.randomUUID()}`,
       messagingThreadId: this.form.threadId,
-      connectedAccountId: detail.thread?.connectedAccountId ?? "",
+      connectedAccountId,
       providerMessageId: null,
       provider: this.form.provider as MessagingProvider,
       direction: "outbound",
-      sender: { attendeeId: "", identifier: "", displayName: null, isSelf: true },
+      sender: {
+        attendeeId: "",
+        identifier: "",
+        displayName: null,
+        isSelf: true,
+      },
       recipients: {
         to: this.form.recipients.map(attendee),
         cc: this.form.cc.map(attendee),
@@ -234,7 +272,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       },
       subject: this.isEmail ? this.form.subject : null,
       bodyText: this.form.body,
-      bodyHtml: this.isEmail ? this.form.body : null,
+      bodyHtml,
       attachmentsMeta: [],
       isEvent: false,
       isDeleted: false,
@@ -253,14 +291,21 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   };
 
   send = async (): Promise<void> => {
+    if (this.isLoading) return;
     if (this.isNewThread) return this.sendNewThread();
     if (!this.form.threadId || (!this.form.body.trim() && this.attachments.length === 0)) return;
     if (!this.validateEmails(true)) return;
 
     const detail = this.rootStore.messagingThreadDetailStore;
+    const generation = this.composeGeneration;
+    const isEmail = this.isEmail;
+    const threadId = this.form.threadId;
     const draftId = this.editingDraftId;
     const draftRevision = this.editingDraftRevision;
-    const optimistic = this.buildOptimisticMessage({ isDraft: false, id: draftId ?? undefined });
+    const optimistic = this.buildOptimisticMessage({
+      isDraft: false,
+      id: draftId ?? undefined,
+    });
     const tempId = optimistic.id;
     const files = [...this.attachments];
     const snapshot = {
@@ -277,7 +322,12 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       else detail.appendMessage(optimistic);
 
       detail.setMessageStatus(tempId, "sending");
-      if (files.length) this.pendingAttachments = { ...this.pendingAttachments, [tempId]: files };
+      if (files.length) {
+        this.pendingAttachments = {
+          ...this.pendingAttachments,
+          [tempId]: files,
+        };
+      }
 
       this.form.body = "";
       this.form.cc = [];
@@ -297,9 +347,9 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     this.setIsLoading(true);
     try {
       const attachments = files.length ? await Promise.all(files.map(toAttachmentInput)) : undefined;
-      const result = this.isEmail
+      const result = isEmail
         ? await sendEmailAction({
-            threadId: this.form.threadId,
+            threadId,
             to: snapshot.recipients
               .map((value) => value.trim())
               .filter((value) => value.includes("@"))
@@ -308,16 +358,18 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
             bcc: snapshot.bcc.length ? snapshot.bcc : undefined,
             subject: snapshot.subject,
             body: snapshot.body,
-            bodyFormat: "plain_text",
+            bodyFormat: "markdown",
             attachments,
             ...(draftId && draftRevision ? { draftMessageId: draftId, draftRevision } : {}),
           })
         : await sendChatMessageAction({
-            threadId: this.form.threadId,
+            threadId,
             text: snapshot.body,
             attachments,
             ...(draftId && draftRevision ? { draftMessageId: draftId, draftRevision } : {}),
           });
+
+      if (generation !== this.composeGeneration) return;
 
       if (!result.ok) {
         runInAction(() => detail.setMessageStatus(tempId, "failed"));
@@ -334,10 +386,15 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       });
       this.retryDraftBindings.delete(tempId);
     } catch {
+      if (generation !== this.composeGeneration) return;
       runInAction(() => detail.setMessageStatus(tempId, "failed"));
       this.toastError("Common.notifications.unexpectedError");
     } finally {
-      runInAction(() => this.setIsLoading(false));
+      if (generation === this.composeGeneration) runInAction(() => this.setIsLoading(false));
+      else {
+        runInAction(() => this.clearPending(tempId));
+        this.retryDraftBindings.delete(tempId);
+      }
     }
   };
 
@@ -346,51 +403,70 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     if (!target) return;
     if (!this.validateEmails()) return;
 
+    const generation = this.composeGeneration;
+    const onDone = this.onNewThreadDone;
+    const draftBinding =
+      this.editingDraftId && this.editingDraftRevision
+        ? {
+            draftMessageId: this.editingDraftId,
+            draftRevision: this.editingDraftRevision,
+          }
+        : {};
+    const snapshot = {
+      provider: this.form.provider,
+      isEmail: this.isEmail,
+      isLinkedin: this.isLinkedin,
+      recipients: [...this.form.recipients],
+      body: this.form.body,
+      subject: this.form.subject,
+      cc: [...this.form.cc],
+      bcc: [...this.form.bcc],
+      linkedinProduct: this.form.linkedinProduct,
+      inmailSignature: this.form.inmailSignature,
+      files: [...this.attachments],
+    };
+
     this.setIsLoading(true);
     try {
-      const draftBinding =
-        this.editingDraftId && this.editingDraftRevision
-          ? {
-              draftMessageId: this.editingDraftId,
-              draftRevision: this.editingDraftRevision,
-            }
-          : {};
-      const attachments = this.attachments.length
-        ? await Promise.all(this.attachments.map(toAttachmentInput))
-        : undefined;
-      const result = this.isEmail
+      const attachments = snapshot.files.length ? await Promise.all(snapshot.files.map(toAttachmentInput)) : undefined;
+      const result = snapshot.isEmail
         ? await sendEmailAction({
             connectedAccountId: target.connectedAccountId,
-            to: this.form.recipients.map((identifier) => ({
+            to: snapshot.recipients.map((identifier) => ({
               identifier,
               display_name:
                 target.recipients.find((recipient) => recipient.identifier === identifier)?.displayName ?? undefined,
             })),
-            cc: this.form.cc.length ? this.form.cc : undefined,
-            bcc: this.form.bcc.length ? this.form.bcc : undefined,
-            subject: this.form.subject.trim(),
-            body: this.form.body,
-            bodyFormat: "plain_text",
+            cc: snapshot.cc.length ? snapshot.cc : undefined,
+            bcc: snapshot.bcc.length ? snapshot.bcc : undefined,
+            subject: snapshot.subject.trim(),
+            body: snapshot.body,
+            bodyFormat: "markdown",
             attachments,
             ...draftBinding,
           })
         : await startChatAction({
             connectedAccountId: target.connectedAccountId,
-            attendeeIdentifiers: this.form.recipients,
-            text: this.form.body,
+            attendeeIdentifiers: snapshot.recipients,
+            text: snapshot.body,
             attachments,
             ...draftBinding,
-            ...(this.isLinkedin && this.form.linkedinProduct !== "classic"
+            ...(snapshot.isLinkedin && snapshot.linkedinProduct !== "classic"
               ? {
-                  linkedinProduct: this.form.linkedinProduct,
-                  inmailSubject: this.form.subject.trim() || undefined,
+                  linkedinProduct: snapshot.linkedinProduct,
+                  inmailSubject: snapshot.subject.trim() || undefined,
                   inmailSignature:
-                    this.form.linkedinProduct === "recruiter"
-                      ? this.form.inmailSignature.trim() || undefined
-                      : undefined,
+                    snapshot.linkedinProduct === "recruiter" ? snapshot.inmailSignature.trim() || undefined : undefined,
                 }
               : {}),
           });
+
+      if (
+        generation !== this.composeGeneration ||
+        this.newThreadTarget?.connectedAccountId !== target.connectedAccountId ||
+        this.form.provider !== snapshot.provider
+      )
+        return;
 
       if (!result.ok) {
         const tree = this.toComposeError(result.error);
@@ -399,28 +475,53 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
         return;
       }
 
-      runInAction(() => {
-        if (this.error) this.setError(undefined);
-        this.form.body = "";
-        this.form.subject = "";
-        this.form.cc = [];
-        this.form.bcc = [];
-        this.form.linkedinProduct = "classic";
-        this.form.inmailSignature = "";
-        this.attachments = [];
-      });
+      const draftUnchanged =
+        this.form.body === snapshot.body &&
+        this.form.subject === snapshot.subject &&
+        sameValues(this.form.recipients, snapshot.recipients) &&
+        sameValues(this.form.cc, snapshot.cc) &&
+        sameValues(this.form.bcc, snapshot.bcc) &&
+        this.form.linkedinProduct === snapshot.linkedinProduct &&
+        this.form.inmailSignature === snapshot.inmailSignature &&
+        this.attachments.length === snapshot.files.length &&
+        this.attachments.every((file, index) => file === snapshot.files[index]);
 
-      runInAction(() => {
-        this.editingDraftId = null;
-        this.editingDraftRevision = null;
-      });
+      if (draftUnchanged) {
+        runInAction(() => {
+          if (this.error) this.setError(undefined);
+          this.form.body = "";
+          this.form.subject = "";
+          this.form.cc = [];
+          this.form.bcc = [];
+          this.form.linkedinProduct = "classic";
+          this.form.inmailSignature = "";
+          this.attachments = [];
+        });
+      }
+
+      if (
+        draftBinding.draftMessageId &&
+        this.editingDraftId === draftBinding.draftMessageId &&
+        this.editingDraftRevision === draftBinding.draftRevision
+      ) {
+        runInAction(() => {
+          this.editingDraftId = null;
+          this.editingDraftRevision = null;
+          if (this.newThreadTarget?.draftThreadId) {
+            const targetWithoutDraft = { ...this.newThreadTarget };
+            delete targetWithoutDraft.draftThreadId;
+            this.newThreadTarget = targetWithoutDraft;
+          }
+        });
+      }
 
       this.toastSuccess("Inbox.compose.newThreadSent");
-      this.onNewThreadDone?.();
+      if (draftUnchanged) onDone?.();
     } catch {
+      if (generation !== this.composeGeneration) return;
       this.toastError("Common.notifications.unexpectedError");
     } finally {
-      runInAction(() => this.setIsLoading(false));
+      if (generation === this.composeGeneration) runInAction(() => this.setIsLoading(false));
     }
   };
 
@@ -441,6 +542,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   }
 
   saveDraft = async (): Promise<void> => {
+    if (this.isLoading) return;
     if (!this.form.body.trim()) return;
     if (this.isLinkedin && this.isNewThread && this.form.linkedinProduct !== "classic") return;
     if (this.attachments.length > 0) {
@@ -455,17 +557,35 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     if (!this.validateEmails()) return;
 
     const detail = this.rootStore.messagingThreadDetailStore;
+    const generation = this.composeGeneration;
+    const onDone = this.onNewThreadDone;
+    const snapshot = {
+      provider: this.form.provider,
+      recipients: [...this.form.recipients],
+      subject: this.form.subject,
+      body: this.form.body,
+      cc: [...this.form.cc],
+      bcc: [...this.form.bcc],
+      isEmail: this.isEmail,
+    };
 
     this.setIsLoading(true);
     try {
       const result = await saveDraftAction({
         ...(draftThreadId ? { threadId: draftThreadId } : { connectedAccountId: target?.connectedAccountId }),
-        recipients: [...this.form.recipients],
-        subject: this.isEmail ? this.form.subject : undefined,
-        body: this.form.body,
-        cc: this.isEmail && this.form.cc.length ? [...this.form.cc] : undefined,
-        bcc: this.isEmail && this.form.bcc.length ? [...this.form.bcc] : undefined,
+        recipients: snapshot.recipients,
+        subject: snapshot.isEmail ? snapshot.subject : undefined,
+        body: snapshot.body,
+        cc: snapshot.isEmail && snapshot.cc.length ? snapshot.cc : undefined,
+        bcc: snapshot.isEmail && snapshot.bcc.length ? snapshot.bcc : undefined,
       });
+
+      const activeContext =
+        generation === this.composeGeneration &&
+        this.form.provider === snapshot.provider &&
+        this.form.threadId === threadId &&
+        (this.newThreadTarget?.connectedAccountId ?? null) === (target?.connectedAccountId ?? null);
+      if (!activeContext) return;
 
       if (!result.ok) {
         this.setError(result.error);
@@ -473,31 +593,40 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       }
 
       const draft = result.data;
+      const draftUnchanged =
+        this.form.subject === snapshot.subject &&
+        this.form.body === snapshot.body &&
+        sameValues(this.form.recipients, snapshot.recipients) &&
+        sameValues(this.form.cc, snapshot.cc) &&
+        sameValues(this.form.bcc, snapshot.bcc);
       runInAction(() => {
         if (draftThreadId) {
           if (detail.messages.some((message) => message.id === draft.id)) detail.replaceMessageById(draft.id, draft);
           else detail.appendMessage(draft);
         }
-        this.form.body = "";
-        this.form.subject = "";
-        this.form.cc = [];
-        this.form.bcc = [];
-        this.draftAttachments = [...this.attachments];
-        this.attachments = [];
-        this.editingDraftId = null;
-        this.editingDraftRevision = null;
+        if (draftUnchanged) {
+          this.form.body = "";
+          this.form.subject = "";
+          this.form.cc = [];
+          this.form.bcc = [];
+          this.draftAttachments = [...this.attachments];
+          this.attachments = [];
+          this.editingDraftId = null;
+          this.editingDraftRevision = null;
+        }
       });
 
       if (!threadId) {
         this.toastSuccess("Inbox.compose.draftSaved");
-        this.onNewThreadDone?.();
+        if (draftUnchanged) onDone?.();
       }
     } finally {
-      runInAction(() => this.setIsLoading(false));
+      if (generation === this.composeGeneration) runInAction(() => this.setIsLoading(false));
     }
   };
 
   loadDraft = (draft: MessagingMessageDto) => {
+    if (this.isLoading) return;
     runInAction(() => {
       this.form.subject = draft.subject ?? this.form.subject;
       this.form.body = draft.bodyText ?? "";
@@ -514,7 +643,9 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   };
 
   discardDraft = async (messageId: string, draftRevision: string): Promise<void> => {
+    if (this.isLoading) return;
     const detail = this.rootStore.messagingThreadDetailStore;
+    const generation = this.composeGeneration;
     const removed = detail.messages.find((message) => message.id === messageId);
 
     runInAction(() => {
@@ -531,7 +662,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     });
 
     const result = await discardDraftAction({ messageId, draftRevision });
-    if (!result.ok) {
+    if (!result.ok && generation === this.composeGeneration) {
       runInAction(() => {
         if (removed) detail.appendMessage(removed);
       });
@@ -541,9 +672,13 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   };
 
   retrySend = async (messageId: string): Promise<void> => {
+    if (this.isLoading) return;
     const detail = this.rootStore.messagingThreadDetailStore;
     const message = detail.messages.find((entry) => entry.id === messageId);
     if (!message || !this.form.threadId) return;
+    const generation = this.composeGeneration;
+    const isEmail = this.isEmail;
+    const threadId = this.form.threadId;
     const draftBinding = this.retryDraftBindings.get(messageId);
 
     runInAction(() => detail.setMessageStatus(messageId, "sending"));
@@ -551,9 +686,9 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     try {
       const files = this.pendingAttachments[messageId] ?? [];
       const attachments = files.length ? await Promise.all(files.map(toAttachmentInput)) : undefined;
-      const result = this.isEmail
+      const result = isEmail
         ? await sendEmailAction({
-            threadId: this.form.threadId,
+            threadId,
             to: message.recipients.to
               .map((attendee) => attendee.identifier)
               .filter((value) => value.includes("@"))
@@ -564,7 +699,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
               : undefined,
             subject: message.subject ?? "",
             body: message.bodyText ?? "",
-            bodyFormat: "plain_text",
+            bodyFormat: "markdown",
             attachments,
             ...(draftBinding
               ? {
@@ -574,7 +709,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
               : {}),
           })
         : await sendChatMessageAction({
-            threadId: this.form.threadId,
+            threadId,
             text: message.bodyText ?? "",
             attachments,
             ...(draftBinding
@@ -584,6 +719,8 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
                 }
               : {}),
           });
+
+      if (generation !== this.composeGeneration) return;
 
       if (!result.ok) {
         runInAction(() => detail.setMessageStatus(messageId, "failed"));
@@ -600,10 +737,15 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       });
       this.retryDraftBindings.delete(messageId);
     } catch {
+      if (generation !== this.composeGeneration) return;
       runInAction(() => detail.setMessageStatus(messageId, "failed"));
       this.toastError("Common.notifications.unexpectedError");
     } finally {
-      runInAction(() => this.setIsLoading(false));
+      if (generation === this.composeGeneration) runInAction(() => this.setIsLoading(false));
+      else {
+        runInAction(() => this.clearPending(messageId));
+        this.retryDraftBindings.delete(messageId);
+      }
     }
   };
 }

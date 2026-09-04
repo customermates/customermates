@@ -7,7 +7,7 @@ import { z } from "zod";
 
 import { Action, Resource } from "@/generated/prisma";
 
-import { ConnectedAccountDtoSchema } from "../messaging.schema";
+import { ConnectedAccountAppDtoSchema } from "../messaging.schema";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
@@ -40,7 +40,7 @@ export class SetConnectedAccountVisibilityInteractor extends AuthenticatedIntera
   }
 
   @Enforce(Schema)
-  @ValidateOutput(ConnectedAccountDtoSchema)
+  @ValidateOutput(ConnectedAccountAppDtoSchema)
   async invoke(data: SetConnectedAccountVisibilityData): Validated<ConnectedAccountDto> {
     const denied = await this.entitlements.require("sharedAccounts");
     if (denied) return denied;
