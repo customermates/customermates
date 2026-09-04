@@ -1,6 +1,7 @@
 "use server";
 
 import type { ConnectChannel } from "@/ee/messaging/connect/connect-channels";
+import type { SignatureFields } from "@/ee/messaging/signature-fields";
 
 import { z } from "zod";
 
@@ -10,6 +11,7 @@ import {
   getGetMyConnectedAccountsInteractor,
   getReconnectConnectedAccountInteractor,
   getResyncConnectedAccountInteractor,
+  getSetConnectedAccountSignatureInteractor,
   getSetConnectedAccountVisibilityInteractor,
   getSetSelectedFoldersInteractor,
 } from "@/core/di";
@@ -29,6 +31,14 @@ export async function disconnectConnectedAccountAction(id: string) {
 
 export async function setConnectedAccountVisibilityAction(id: string, shared: boolean) {
   return serializeResult(getSetConnectedAccountVisibilityInteractor().invoke({ id, shared }));
+}
+
+export async function setConnectedAccountSignatureAction(
+  id: string,
+  signature: string,
+  fields: SignatureFields | null,
+) {
+  return serializeResult(getSetConnectedAccountSignatureInteractor().invoke({ id, signature, fields }));
 }
 
 export async function resyncConnectedAccountAction(id: string) {

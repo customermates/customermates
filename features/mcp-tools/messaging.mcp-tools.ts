@@ -27,6 +27,7 @@ import { BaseSendChatMessageSchema } from "@/ee/messaging/outbound/send-chat-mes
 import { BaseStartChatInputSchema, StartChatInputSchema } from "@/ee/messaging/outbound/start-chat.interactor";
 import { SaveDraftSchema } from "@/ee/messaging/outbound/save-draft.interactor";
 import { DiscardDraftSchema } from "@/ee/messaging/outbound/discard-draft.interactor";
+import { hasCompleteDraftBinding } from "@/ee/messaging/draft-thread";
 import type { ThreadFolderContext } from "@/ee/messaging/inbox/get-messaging-thread.interactor";
 
 import { UpdateThreadSchema } from "@/ee/messaging/thread-state/update-thread.interactor";
@@ -64,6 +65,7 @@ const GetMessagingThreadsSchema = z.object({
       filterFieldsHint([
         FilterFieldKey.state,
         FilterFieldKey.provider,
+        FilterFieldKey.draft,
         FilterFieldKey.participantContactId,
         FilterFieldKey.participants,
       ]),
@@ -84,9 +86,21 @@ const linkedParticipantOutput = z.looseObject({
 
 const GetMessagingThreadsOutputSchema = z
   .looseObject({
-    thread: z.looseObject({ id: z.string(), participants: z.array(linkedParticipantOutput) }).optional(),
+    thread: z
+      .looseObject({
+        id: z.string(),
+        participants: z.array(linkedParticipantOutput),
+      })
+      .optional(),
     messages: z.array(z.looseObject({ id: z.string(), isDraft: z.boolean().optional() })).optional(),
-    items: z.array(z.looseObject({ id: z.string(), participants: z.array(linkedParticipantOutput) })).optional(),
+    items: z
+      .array(
+        z.looseObject({
+          id: z.string(),
+          participants: z.array(linkedParticipantOutput),
+        }),
+      )
+      .optional(),
   })
   .describe("Detail mode returns thread plus messages; list mode returns items.");
 
@@ -122,7 +136,7 @@ const GetCalendarsOutputSchema = z
 
 const SendChatMessageOutputSchema = z.object({ sent: z.literal(true), threadId: z.string().nullable() });
 const SendEmailOutputSchema = z.object({ sent: z.literal(true), threadId: z.string().nullable() });
-const SaveDraftOutputSchema = z.object({ draftMessageId: z.string(), threadId: z.string() });
+const SaveDraftOutputSchema = z.object({ draftMessageId: z.string(), draftRevision: z.string(), threadId: z.string() });
 const DiscardDraftOutputSchema = z.object({ discarded: z.boolean(), threadId: z.string().nullable() });
 const UpdateMessagingThreadOutputSchema = z.object({ threadId: z.string(), state: z.string() });
 const ConnectMessagingAccountOutputSchema = z.object({
@@ -186,6 +200,7 @@ export const getMessagingThreadsTool = {
               subject: message.subject,
               bodyText: message.bodyText,
               isDraft: message.isDraft,
+              draftRevision: message.draftRevision,
               attachments: message.attachmentsMeta.map((attachment) => ({
                 name: attachment.fileName ?? attachment.name,
                 type: attachment.type,
@@ -412,20 +427,30 @@ const SendChatMessageToolSchema = BaseSendChatMessageSchema.omit({
       connectedAccountId: true,
       attendeeIdentifiers: true,
     }).shape,
-  );
+  )
+  .superRefine((data, ctx) => {
+    if (!hasCompleteDraftBinding(data)) {
+      ctx.addIssue({
+        code: "custom",
+        params: { error: CustomErrorCode.draftMessageNotFound },
+        path: [data.draftMessageId ? "draftRevision" : "draftMessageId"],
+      });
+    }
+  });
 
 export const sendChatMessageTool = {
   name: "send_chat_message",
   title: "Send chat message",
   description:
     "Use this when sending a real chat message (LinkedIn, WhatsApp, and other connected chat accounts). SIDE EFFECT: delivers a real message. " +
-    "Exactly one mode: pass threadId to send text into that existing thread (optional draftMessageId converts a saved draft on send), " +
+    "Exactly one mode: pass threadId to send text into that existing thread, " +
     "or omit threadId to start a new chat, which requires connectedAccountId from get_workspace_context.connectedAccounts[].id (check its status is ok) and attendeeIdentifiers " +
     "(the recipients' provider handles, i.e. the value of a contact's messaging channel) plus optional chatName to name the group. " +
     "New LinkedIn chats default to the Classic product; set linkedinProduct to sales_navigator or recruiter to send an InMail from that product's inbox " +
     "(requires inmailSubject; recruiter also inmailSignature), or set inmail true on classic to InMail someone outside the network. " +
     "Only use a linkedinProduct listed in the account's linkedinProducts from get_workspace_context; an unavailable product is rejected. " +
     "An identical text sent into the same thread within about a minute is rejected as a duplicate. " +
+    "When sending a saved draft, pass both draftMessageId and its opaque draftRevision from save_message_draft or get_messaging_threads. " +
     "For email use send_email.",
   annotations: {
     readOnlyHint: false,
@@ -461,6 +486,7 @@ export const sendEmailTool = {
     "Send a real email (or reply) from a connected email account. SIDE EFFECT: delivers a real message. " +
     "Required: to, subject, body, and at least one of threadId (reply; takes precedence if both given) or connectedAccountId (new email). " +
     "Optional: cc, bcc. cc/bcc are plain email strings (not the {identifier} object form used by to). " +
+    "When sending a saved draft, pass both draftMessageId and its opaque draftRevision from save_message_draft or get_messaging_threads. " +
     "When replying into a thread, an identical body sent to that thread within about a minute is rejected as a duplicate. " +
     "connectedAccountId is get_workspace_context.connectedAccounts[].id (check its status is ok first); threadId is get_messaging_threads.items[].id.",
   annotations: {
@@ -486,11 +512,14 @@ export const saveMessageDraftTool = {
   name: "save_message_draft",
   title: "Save message draft",
   description:
-    "Use this when the user wants a reply prepared for review: the draft appears in their inbox compose box and they send it themselves. " +
-    "Drafts require an existing thread; there is no draft for a brand-new outbound email. " +
+    "Use this when the user wants a message prepared for review: the draft appears in their inbox and they send it themselves. " +
+    "Two modes. With threadId it drafts a reply on that existing thread. With connectedAccountId plus recipients it prepares a " +
+    "brand-new conversation that exists only as a draft, so outreach to someone you have never messaged can be prepared without " +
+    "sending anything; recipients takes email addresses, or one linkedin, telegram or instagram handle. " +
     "send_email and send_chat_message deliver immediately, never use them when asked to draft. " +
-    "A thread has at most one draft, saving again replaces it. subject, cc, and bcc apply to email threads only. " +
-    "Returns the draft message id and its thread id.",
+    "A thread has at most one draft, saving again replaces it. subject, cc, and bcc apply to email only. " +
+    "Drafts show up in get_messaging_threads and can be isolated there with the draft filter. " +
+    "Returns the draft message id, its opaque revision token for later send/discard, and its thread id.",
   annotations: {
     readOnlyHint: false,
     idempotentHint: true,
@@ -503,6 +532,7 @@ export const saveMessageDraftTool = {
     runInteractor(getSaveDraftInteractor().invoke(params), (data) =>
       toonResult({
         draftMessageId: data.id,
+        draftRevision: data.draftRevision,
         threadId: data.messagingThreadId,
       }),
     ),
@@ -513,7 +543,7 @@ export const discardMessageDraftTool = {
   title: "Discard message draft",
   description:
     "Use this when a prepared draft is no longer wanted: permanently deletes it. " +
-    "messageId is a DRAFT message id: save_message_draft.draftMessageId, or the id of a message flagged isDraft in " +
+    "messageId and draftRevision identify the exact DRAFT revision returned by save_message_draft or shown in " +
     "get_messaging_threads thread detail. Only drafts can be discarded; sent and received messages are never affected. " +
     "Discarding an id that is not a draft is a safe no-op that reports no draft found.",
   annotations: {

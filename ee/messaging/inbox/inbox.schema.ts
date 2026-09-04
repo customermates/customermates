@@ -9,6 +9,7 @@ import {
   MessagingAttendeeSchema,
   MessagingMessageSchema,
 } from "../messaging.schema";
+import { DraftRevisionSchema, toDraftRevision } from "../draft-thread";
 
 export const MessagingMessageDtoSchema = MessagingMessageSchema.omit({
   unipileMessageId: true,
@@ -24,12 +25,14 @@ export const MessagingMessageDtoSchema = MessagingMessageSchema.omit({
   }),
   attachmentsMeta: z.array(AttachmentMetaSchema.omit({ url: true }).extend({ linkUrl: z.string().nullish() })),
   reactions: z.array(MessageReactionEntrySchema.pick({ value: true })).default([]),
+  draftRevision: DraftRevisionSchema.nullable(),
 });
 export type MessagingMessageDto = Data<typeof MessagingMessageDtoSchema>;
 
 export function toMessagingMessageDto(message: MessagingMessage): MessagingMessageDto {
   return MessagingMessageDtoSchema.parse({
     ...message,
+    draftRevision: message.isDraft ? toDraftRevision(message.updatedAt) : null,
     attachmentsMeta: message.attachmentsMeta.map((attachment) => ({
       ...attachment,
       linkUrl: attachment.type === "linkedin_post" ? (attachment.url ?? null) : null,

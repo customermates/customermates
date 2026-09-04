@@ -22,6 +22,8 @@ const scalarSelectOperators = [FilterOperatorKey.in, FilterOperatorKey.notIn];
 
 const stringOperators = [FilterOperatorKey.equals, FilterOperatorKey.contains];
 
+const draftOperators = [FilterOperatorKey.hasSome, FilterOperatorKey.hasNone];
+
 export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperatorKey[]> = {
   [FilterFieldKey.userIds]: relationOperators,
   [FilterFieldKey.serviceIds]: relationOperators,
@@ -40,6 +42,7 @@ export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperat
   [FilterFieldKey.status]: scalarSelectOperators,
   [FilterFieldKey.provider]: scalarSelectOperators,
   [FilterFieldKey.state]: scalarSelectOperators,
+  [FilterFieldKey.draft]: draftOperators,
   [FilterFieldKey.connectedAccountId]: scalarSelectOperators,
   [FilterFieldKey.calendarId]: scalarSelectOperators,
   [FilterFieldKey.startsAt]: dateOperators,

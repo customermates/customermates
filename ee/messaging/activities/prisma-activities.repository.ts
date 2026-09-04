@@ -39,6 +39,7 @@ import {
 } from "./activity-filterable-fields";
 import { TERMINOLOGY_ENTITY_RESOURCE } from "@/features/entity-terminology/entity-terminology.constants";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
+import { toMessagingMessageDto } from "../inbox/inbox.schema";
 
 type UnresolvedRecordRef = { entityType: EntityType; id: string };
 
@@ -170,7 +171,7 @@ function auditRecordRefs(event: string, entityId: string | null): UnresolvedReco
   return [{ entityType, id: entityId }];
 }
 
-function messageRecordRefs(message: MessagingMessage): UnresolvedRecordRef[] {
+function messageRecordRefs(message: Pick<MessagingMessage, "sender">): UnresolvedRecordRef[] {
   const contactId = message.sender?.contact?.id;
   if (!contactId) return [];
 
@@ -1186,7 +1187,7 @@ export class PrismaActivitiesRepo
     return this.redactBcc(rows).map((row) => {
       const { thread, ...message } = row;
       return {
-        message: message as unknown as MessagingMessage,
+        message: toMessagingMessageDto(message as unknown as MessagingMessage),
         participants: thread.participants,
         thread: {
           id: thread.id,

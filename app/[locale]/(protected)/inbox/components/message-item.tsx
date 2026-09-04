@@ -25,7 +25,7 @@ import { AttachmentRow } from "./attachment-row";
 import { EmailFrame } from "./email-frame";
 import { MessageAttachment } from "./message-attachment";
 import { MessageText } from "./message-text";
-import { SanitizedHtml } from "./sanitized-html";
+import { SanitizedHtml } from "@/components/shared/sanitized-html";
 
 type Props = {
   message: MessagingMessageDto;
@@ -305,10 +305,15 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
                     <TooltipTrigger asChild>
                       <Button
                         aria-label={t("Inbox.compose.draftDiscard")}
+                        disabled={!message.draftRevision}
                         size="icon-xs"
                         type="button"
                         variant="softDestructive"
-                        onClick={() => runUserAction(() => compose.discardDraft(message.id))}
+                        onClick={() => {
+                          const draftRevision = message.draftRevision;
+                          if (!draftRevision) return;
+                          runUserAction(() => compose.discardDraft(message.id, draftRevision));
+                        }}
                       >
                         <Trash2 />
                       </Button>

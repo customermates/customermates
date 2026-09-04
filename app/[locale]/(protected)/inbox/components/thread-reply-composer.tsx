@@ -7,6 +7,7 @@ import { Send, Loader2, Check, ChevronDown, Paperclip, Smile } from "lucide-reac
 import { Action, Resource } from "@/generated/prisma";
 
 import type { MessagingProvider } from "@/generated/prisma";
+import type { NewThreadTarget } from "./thread-compose.store";
 import type { LinkedinProduct } from "@/ee/messaging/provider";
 
 import { LINKEDIN_PRODUCTS } from "@/ee/messaging/provider";
@@ -28,6 +29,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useRootStore } from "@/core/stores/root-store.provider";
+
+import { ComposerSignature } from "./composer-signature";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 const COMPOSER_EMOJIS = [
@@ -86,13 +89,15 @@ type Props = {
   defaultRecipients?: string[];
   defaultCc?: string[];
   bare?: boolean;
+  newThreadTarget?: NewThreadTarget | null;
 };
 
 export const ThreadReplyComposer = observer(
-  ({ threadId, provider, defaultSubject, defaultRecipients, defaultCc, bare }: Props) => {
+  ({ threadId, provider, defaultSubject, defaultRecipients, defaultCc, bare, newThreadTarget }: Props) => {
     const t = useTranslations();
     const intlStore = useHydratedIntlStore();
-    const { userStore, threadComposeStore, connectedAccountsStore } = useRootStore();
+    const rootStore = useRootStore();
+    const { userStore, threadComposeStore, connectedAccountsStore } = rootStore;
     const fileInputRef = useRef<HTMLInputElement>(null);
     const initializedThreadId = useRef<string | null>(null);
     const [emojiOpen, setEmojiOpen] = useState(false);
@@ -121,6 +126,10 @@ export const ThreadReplyComposer = observer(
       if (initializedThreadId.current === threadId) return;
       initializedThreadId.current = threadId;
       if (threadComposeStore.form.threadId === threadId) return;
+      if (newThreadTarget) {
+        threadComposeStore.initializeNewThread({ provider, ...newThreadTarget });
+        return;
+      }
       threadComposeStore.initialize({
         provider,
         threadId,
@@ -128,7 +137,7 @@ export const ThreadReplyComposer = observer(
         defaultRecipients,
         defaultCc,
       });
-    }, [threadComposeStore, provider, threadId, defaultSubject, defaultRecipients, defaultCc]);
+    }, [threadComposeStore, provider, threadId, defaultSubject, defaultRecipients, defaultCc, newThreadTarget]);
 
     function handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
       if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
@@ -140,6 +149,9 @@ export const ThreadReplyComposer = observer(
     if (!userStore.can(Resource.inboxMessages, Action.create)) return null;
 
     const { isLoading, isEmail, isLinkedin, isNewThread, showCcBcc, editingDraftId, attachments } = threadComposeStore;
+    const signatureAccountId = isNewThread
+      ? (threadComposeStore.newThreadTarget?.connectedAccountId ?? null)
+      : (rootStore.messagingThreadDetailStore.thread?.connectedAccountId ?? null);
     const linkedinProduct = threadComposeStore.form.linkedinProduct;
 
     const senders = isNewThread ? connectedAccountsStore.usableSendersFor(provider) : [];
@@ -165,6 +177,7 @@ export const ThreadReplyComposer = observer(
               <DropdownMenuTrigger asChild>
                 <button
                   className="focus-visible:ring-ring/50 min-w-0 rounded-md outline-none focus-visible:ring-[3px]"
+                  disabled={Boolean(threadComposeStore.newThreadTarget?.draftThreadId)}
                   type="button"
                 >
                   <AppChip interactive endContent={<ChevronDown className="size-3" />} variant="secondary">
@@ -348,6 +361,8 @@ export const ThreadReplyComposer = observer(
           </div>
         )}
 
+        <ComposerSignature connectedAccountId={signatureAccountId} />
+
         <div className="flex items-center justify-between gap-2 px-2 pt-0.5 pb-1.5">
           <div className="flex items-center gap-0.5">
             <input
@@ -404,7 +419,7 @@ export const ThreadReplyComposer = observer(
 
           <div className="flex items-stretch">
             <Button
-              className={isNewThread ? undefined : "rounded-r-none pr-2.5"}
+              className="rounded-r-none pr-2.5"
               disabled={isLoading}
               id="inbox-reply-send"
               size="sm"
@@ -415,7 +430,7 @@ export const ThreadReplyComposer = observer(
               <span>{t("Inbox.compose.send")}</span>
             </Button>
 
-            {!isNewThread && (
+            {(!isLinkedin || !isNewThread || linkedinProduct === "classic") && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button

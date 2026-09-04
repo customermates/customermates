@@ -27,6 +27,17 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { formatRetryAfter } from "../retry-after";
 import { isUnipileResourceNotFound, isUnipileTimeout } from "../messaging.service";
+import { isDraftThreadId } from "../provider";
+import {
+  DraftRevisionSchema,
+  draftRevisionMatches,
+  draftThreadRecipientSetsMatch,
+  draftUpdatedAtFromRevision,
+  hasCompleteDraftBinding,
+  type DraftThreadTarget,
+} from "../draft-thread";
+import { composeEmailBodies } from "./email-signature";
+import { parseSignatureFields } from "../signature-fields";
 import { MessagingMessageDtoSchema, toMessagingMessageDto } from "../inbox/inbox.schema";
 import { EMPTY_ATTENDEE, buildEmailMessage, toAttachmentsMeta } from "../unipile.mappers";
 import { UnipileEmailSchema } from "../unipile.schema";
@@ -55,10 +66,27 @@ export const SendEmailSchema = z
     bcc: z.array(z.email()).max(100).optional(),
     subject: z.string().max(998),
     body: z.string().max(100_000),
+    bodyFormat: z
+      .enum(["plain_text", "html"])
+      .optional()
+      .describe("How to interpret body. Omit for backwards-compatible automatic detection"),
     attachments: z.array(SendAttachmentSchema).max(20).optional(),
-    draftMessageId: z.uuid().optional(),
+    draftMessageId: z
+      .uuid()
+      .optional()
+      .describe("Saved draft to convert or discard after this exact delivery succeeds"),
+    draftRevision: DraftRevisionSchema.optional().describe(
+      "Opaque revision returned with the saved draft; required whenever draftMessageId is provided",
+    ),
   })
   .superRefine((d, ctx) => {
+    if (!hasCompleteDraftBinding(d)) {
+      ctx.addIssue({
+        code: "custom",
+        params: { error: CustomErrorCode.draftMessageNotFound },
+        path: [d.draftMessageId ? "draftRevision" : "draftMessageId"],
+      });
+    }
     if (!d.threadId && !d.connectedAccountId) {
       ctx.addIssue({
         code: "custom",
@@ -86,7 +114,9 @@ export type SendEmailData = Data<typeof SendEmailSchema>;
 export abstract class SendEmailRepo {
   abstract findThreadByIdOrThrow(threadId: string): Promise<MessagingThread>;
   abstract findLatestEmailReplyReferenceForThread(threadId: string): Promise<string | null>;
-  abstract findDraftById(args: { messageId: string }): Promise<{ id: string } | null>;
+  abstract findDraftById(args: { messageId: string }): Promise<DraftThreadTarget | null>;
+  abstract discardDraftAfterSend(args: { messageId: string; expectedUpdatedAt: Date }): Promise<void>;
+  abstract restoreDraftSummaryIfPresent(args: { messageId: string }): Promise<void>;
   abstract findRecentOutboundDuplicate(args: {
     messagingThreadId: string;
     bodyText: string;
@@ -98,6 +128,7 @@ export abstract class SendEmailRepo {
   }): Promise<MessagingMessage>;
   abstract convertDraftToSent(args: {
     messageId: string;
+    expectedUpdatedAt: Date;
     unipileMessageId: string;
     providerMessageId: string | null;
     sender: MessagingAttendee;
@@ -137,6 +168,8 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
 
     if (data.threadId) {
       thread = await this.repo.findThreadByIdOrThrow(data.threadId);
+      if (isDraftThreadId(thread.unipileThreadId)) return fail(CustomErrorCode.draftThreadNotSent, ["threadId"]);
+
       account = await this.accountRepo.findUsableAccountByIdOrThrow(thread.connectedAccountId);
       inReplyTo = (await this.repo.findLatestEmailReplyReferenceForThread(thread.id)) ?? undefined;
     } else {
@@ -148,20 +181,43 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
       account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
     }
 
-    if (data.draftMessageId && !(await this.repo.findDraftById({ messageId: data.draftMessageId })))
+    const draft = data.draftMessageId ? await this.repo.findDraftById({ messageId: data.draftMessageId }) : null;
+    if (data.draftMessageId && !draft) return failNotFound(CustomErrorCode.draftMessageNotFound);
+    if (draft && (!data.draftRevision || !draftRevisionMatches(draft.updatedAt, data.draftRevision)))
       return failNotFound(CustomErrorCode.draftMessageNotFound);
+    if (
+      draft &&
+      (draft.connectedAccountId !== account.id ||
+        (thread
+          ? draft.messagingThreadId !== thread.id
+          : !isDraftThreadId(draft.unipileThreadId) ||
+            !draftThreadRecipientSetsMatch(
+              account.provider,
+              draft.recipientIdentifiers,
+              data.to.map((recipient) => recipient.identifier),
+            )))
+    )
+      return failNotFound(CustomErrorCode.draftMessageNotFound);
+
+    const { plainText: outgoingBody, html: outgoingHtml } = composeEmailBodies(
+      data.body,
+      account.signature,
+      parseSignatureFields(account.signatureFields),
+      data.bodyFormat ?? "auto",
+    );
 
     if (
       thread &&
-      data.body.trim() &&
+      outgoingBody.trim() &&
       (await this.repo.findRecentOutboundDuplicate({
         messagingThreadId: thread.id,
-        bodyText: data.body,
+        bodyText: outgoingBody,
         windowMs: DUPLICATE_OUTBOUND_WINDOW_MS,
       }))
     )
       return failConflict(CustomErrorCode.duplicateOutboundSuppressed);
 
+    const sentAt = new Date();
     const res = await this.messagingService.sendEmail({
       accountId: account.unipileAccountId,
       from: account.emailAddress
@@ -171,14 +227,20 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
       cc: data.cc?.map((email) => ({ email })),
       bcc: data.bcc?.map((email) => ({ email })),
       subject: data.subject,
-      body: data.body,
+      body: outgoingHtml,
+      plainText: outgoingBody,
       inReplyTo,
       attachments: data.attachments,
     });
 
     if (!res.ok) return fail(res.error, [], { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) });
 
-    if (!thread) return this.adoptSentEmail(account, res.data.id);
+    if (!thread) {
+      const adopted = await this.adoptSentEmail(account, res.data.id);
+      if (draft && data.draftRevision)
+        await this.discardDraftSafely(draft.id, draftUpdatedAtFromRevision(data.draftRevision));
+      return adopted;
+    }
 
     let attachmentsMeta: AttachmentMeta[] = [];
     if (data.attachments?.length) {
@@ -189,7 +251,6 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
       if (sent.ok) attachmentsMeta = toAttachmentsMeta(sent.data);
     }
 
-    const sentAt = new Date();
     const sender: MessagingAttendee = {
       ...EMPTY_ATTENDEE,
       attendeeId: account.emailAddress ?? "",
@@ -205,21 +266,25 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
       bcc: (data.bcc ?? []).map((email) => markSelf(emailRecipient(email))),
     };
 
-    if (data.draftMessageId) {
+    if (draft && data.draftRevision) {
       const converted = await this.repo.convertDraftToSent({
-        messageId: data.draftMessageId,
+        messageId: draft.id,
+        expectedUpdatedAt: draftUpdatedAtFromRevision(data.draftRevision),
         unipileMessageId: res.data.id,
         providerMessageId: res.data.messageId,
         sender,
         recipients,
         subject: data.subject,
-        bodyText: data.body,
-        bodyHtml: data.body,
+        bodyText: outgoingBody,
+        bodyHtml: outgoingHtml,
         attachmentsMeta,
         sentAt,
       });
 
-      if (converted) return { ok: true as const, data: toMessagingMessageDto(converted) };
+      if (converted) {
+        await this.restoreDraftSummarySafely(draft.id);
+        return { ok: true as const, data: toMessagingMessageDto(converted) };
+      }
     }
 
     const persisted = await this.repo.persistOutboundMessageOrThrow({
@@ -233,8 +298,8 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
         sender,
         recipients,
         subject: data.subject,
-        bodyText: data.body,
-        bodyHtml: data.body,
+        bodyText: outgoingBody,
+        bodyHtml: outgoingHtml,
         attachmentsMeta,
         isEvent: false,
         isDeleted: false,
@@ -245,6 +310,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
         threadType: thread.type,
       },
     });
+    if (draft) await this.restoreDraftSummarySafely(draft.id);
 
     return { ok: true as const, data: toMessagingMessageDto(persisted) };
   }
@@ -278,6 +344,22 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
       if (!isUnipileResourceNotFound(err)) throw err;
       await new Promise((resolve) => setTimeout(resolve, 1000));
       return this.messagingService.getEmail({ accountId, emailId, timeoutMs: ADOPT_EMAIL_TIMEOUT_MS });
+    }
+  }
+
+  private async discardDraftSafely(messageId: string, expectedUpdatedAt: Date): Promise<void> {
+    try {
+      await this.repo.discardDraftAfterSend({ messageId, expectedUpdatedAt });
+    } catch (err) {
+      Sentry.captureException(err);
+    }
+  }
+
+  private async restoreDraftSummarySafely(messageId: string): Promise<void> {
+    try {
+      await this.repo.restoreDraftSummaryIfPresent({ messageId });
+    } catch (err) {
+      Sentry.captureException(err);
     }
   }
 }

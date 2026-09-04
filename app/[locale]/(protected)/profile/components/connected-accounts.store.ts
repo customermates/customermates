@@ -4,6 +4,7 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { TableColumn } from "@/core/base/base-data-view.store";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { MessagingProvider } from "@/generated/prisma";
+import type { SignatureFields } from "@/ee/messaging/signature-fields";
 
 import { action, computed, makeObservable } from "mobx";
 
@@ -15,6 +16,7 @@ import {
   refreshConnectedAccountsAction,
   resyncConnectedAccountAction,
   setConnectedAccountVisibilityAction,
+  setConnectedAccountSignatureAction,
   setSelectedFoldersAction,
   startConnectAccountAction,
   startReconnectAccountAction,
@@ -178,6 +180,26 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
 
       toastZodErrorTree(res.error);
     });
+  };
+
+  setSignature = async (
+    id: string,
+    signature: string,
+    fields: SignatureFields | null,
+  ): Promise<ConnectedAccountDto | null> => {
+    const res = await setConnectedAccountSignatureAction(id, signature, fields);
+
+    if (!res.ok) {
+      this.toastError("ConnectedAccountsCard.signatureUpdateFailed");
+      return null;
+    }
+
+    const existing = this.items.find((account) => account.id === id);
+    const merged = { ...existing, ...res.data };
+    await this.upsertItem(merged);
+    this.toastSuccess("ConnectedAccountsCard.signatureSaved");
+
+    return merged;
   };
 
   setVisibility = async (id: string, shared: boolean): Promise<ConnectedAccountDto | null> => {

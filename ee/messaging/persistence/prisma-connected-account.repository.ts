@@ -1,4 +1,4 @@
-import type { Prisma, MessagingProvider } from "@/generated/prisma";
+import type { MessagingProvider } from "@/generated/prisma";
 
 import type { GetMyConnectedAccountsRepo } from "../connect/get-my-connected-accounts.interactor";
 import type { CreateHostedAuthLinkRepo } from "../connect/create-auth-link.interactor";
@@ -7,11 +7,15 @@ import type { DeleteConnectedAccountRepo } from "../connect/delete-connected-acc
 import type { ResyncConnectedAccountRepo } from "../connect/resync-connected-account.interactor";
 import type { ReconnectConnectedAccountRepo } from "../connect/reconnect-connected-account.interactor";
 import type { SetConnectedAccountVisibilityRepo } from "../connect/set-connected-account-visibility.interactor";
+import type { SetConnectedAccountSignatureRepo } from "../connect/set-connected-account-signature.interactor";
 import type { AccountWebhookRepo } from "../webhooks/account/account-webhook.repo";
 import type { WebhookActivityRepo } from "../webhooks/relation/relation-webhook.repo";
 import type { ConnectedAccountDto } from "../messaging.schema";
+import type { SignatureFields } from "../signature-fields";
 
 import { type EmailFolder, EmailFolderSchema } from "../email-folders";
+import { renderSignature } from "../outbound/email-signature";
+import { parseSignatureFields } from "../signature-fields";
 import type { BackfillConnectedAccountRepo } from "../ingest/backfill/backfill.repo";
 import type { ClaimBackfillRepo } from "../ingest/claim-backfill.interactor";
 import type { ReleaseBackfillClaimRepo } from "../ingest/release-backfill-claim.interactor";
@@ -29,7 +33,7 @@ import type { RepoArgs } from "@/core/utils/types";
 
 import { randomUUID } from "node:crypto";
 
-import { AccountActivityKind, ConnectedAccountStatus, Status, SubscriptionStatus } from "@/generated/prisma";
+import { AccountActivityKind, ConnectedAccountStatus, Prisma, Status, SubscriptionStatus } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
@@ -46,6 +50,7 @@ export class PrismaConnectedAccountRepo
     ResyncConnectedAccountRepo,
     ReconnectConnectedAccountRepo,
     SetConnectedAccountVisibilityRepo,
+    SetConnectedAccountSignatureRepo,
     AccountWebhookRepo,
     BackfillConnectedAccountRepo,
     ClaimBackfillRepo,
@@ -401,6 +406,8 @@ export class PrismaConnectedAccountRepo
       selectedFolderIds: true,
       foldersSyncedAt: true,
       linkedinProducts: true,
+      signature: true,
+      signatureFields: true,
       user: { select: { id: true, firstName: true, lastName: true, avatarUrl: true } },
     } as const;
   }
@@ -409,9 +416,12 @@ export class PrismaConnectedAccountRepo
     row: Prisma.ConnectedAccountGetPayload<{ select: PrismaConnectedAccountRepo["dtoSelect"] }>,
     isOwner: boolean,
   ): ConnectedAccountDto {
-    const { user, folders, ...account } = row;
+    const { user, folders, signatureFields, ...account } = row;
+    const fields = parseSignatureFields(signatureFields);
     return {
       ...account,
+      signatureFields: fields,
+      signatureHtml: renderSignature(account.signature, fields)?.html ?? null,
       folders: EmailFolderSchema.array().catch([]).parse(folders),
       owner: { userId: user.id, firstName: user.firstName, lastName: user.lastName, avatarUrl: user.avatarUrl },
       isOwner,
@@ -498,6 +508,15 @@ export class PrismaConnectedAccountRepo
     await this.prisma.connectedAccount.updateMany({
       where: { id: args.id, companyId: this.companyId, userId: this.userId },
       data: { selectedFolderIds: args.selectedFolderIds },
+    });
+
+    return this.getAccountByIdOrThrow(args.id);
+  }
+
+  async setAccountSignatureOrThrow(args: { id: string; signature: string | null; fields: SignatureFields | null }) {
+    await this.prisma.connectedAccount.updateMany({
+      where: { id: args.id, companyId: this.companyId, userId: this.userId },
+      data: { signature: args.signature, signatureFields: args.fields ?? Prisma.DbNull },
     });
 
     return this.getAccountByIdOrThrow(args.id);

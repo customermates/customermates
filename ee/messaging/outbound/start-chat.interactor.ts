@@ -1,4 +1,4 @@
-import { fail } from "@/core/validation/interactor-failure-server";
+import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import type { ConnectedAccount } from "@/generated/prisma";
@@ -24,7 +24,21 @@ import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { normalizeChannelValue } from "@/features/contacts/channel-value";
-import { LINKEDIN_PRODUCTS, LINKEDIN_PRODUCT_PRIMARY_INBOX, isHandleProvider, type LinkedinProduct } from "../provider";
+import {
+  LINKEDIN_PRODUCTS,
+  LINKEDIN_PRODUCT_PRIMARY_INBOX,
+  isDraftThreadId,
+  isHandleProvider,
+  type LinkedinProduct,
+} from "../provider";
+import {
+  DraftRevisionSchema,
+  draftRevisionMatches,
+  draftThreadRecipientSetsMatch,
+  draftUpdatedAtFromRevision,
+  hasCompleteDraftBinding,
+  type DraftThreadTarget,
+} from "../draft-thread";
 import { formatRetryAfter } from "../retry-after";
 import { EMPTY_ATTENDEE, buildChatAttendee } from "../unipile.mappers";
 import { UnipileInboxSchema } from "../unipile.schema";
@@ -53,9 +67,20 @@ export const BaseStartChatInputSchema = z.object({
     .describe("Subject line of the InMail. Required for sales_navigator and recruiter"),
   inmailSignature: z.string().max(998).optional().describe("Sender signature. Required for recruiter"),
   attachments: z.array(SendAttachmentSchema).max(20).optional(),
+  draftMessageId: z.uuid().optional().describe("Saved new-conversation draft to reconcile after delivery"),
+  draftRevision: DraftRevisionSchema.optional().describe(
+    "Opaque revision returned with the saved draft; required whenever draftMessageId is provided",
+  ),
 });
 
 export const StartChatInputSchema = BaseStartChatInputSchema.superRefine((d, ctx) => {
+  if (!hasCompleteDraftBinding(d)) {
+    ctx.addIssue({
+      code: "custom",
+      params: { error: CustomErrorCode.draftMessageNotFound },
+      path: [d.draftMessageId ? "draftRevision" : "draftMessageId"],
+    });
+  }
   if (!d.text.trim() && !d.attachments?.length) {
     ctx.addIssue({
       code: "custom",
@@ -97,6 +122,8 @@ export abstract class StartChatContactRepo {
 }
 
 export abstract class StartChatThreadRepo {
+  abstract findDraftById(args: { messageId: string }): Promise<DraftThreadTarget | null>;
+  abstract discardDraftAfterSend(args: { messageId: string; expectedUpdatedAt: Date }): Promise<void>;
   abstract persistOutboundMessageOrThrow(args: {
     connectedAccountId: string;
     message: IngestMessage;
@@ -135,6 +162,17 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
     if (denied) return denied;
 
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
+    const draft = data.draftMessageId ? await this.threadRepo.findDraftById({ messageId: data.draftMessageId }) : null;
+    if (data.draftMessageId && !draft) return failNotFound(CustomErrorCode.draftMessageNotFound);
+    if (draft && (!data.draftRevision || !draftRevisionMatches(draft.updatedAt, data.draftRevision)))
+      return failNotFound(CustomErrorCode.draftMessageNotFound);
+    if (
+      draft &&
+      (draft.connectedAccountId !== account.id ||
+        !isDraftThreadId(draft.unipileThreadId) ||
+        !draftThreadRecipientSetsMatch(account.provider, draft.recipientIdentifiers, data.attendeeIdentifiers))
+    )
+      return failNotFound(CustomErrorCode.draftMessageNotFound);
 
     const attendees = isHandleProvider(account.provider)
       ? await this.resolveAttendees(account, data.attendeeIdentifiers)
@@ -164,7 +202,11 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
 
     if (!res.ok) return fail(res.error, [], { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) });
 
-    if (!res.data.chatId) return { ok: true as const, data: { threadId: null } };
+    if (!res.data.chatId) {
+      if (draft && data.draftRevision)
+        await this.discardDraftSafely(draft.id, draftUpdatedAtFromRevision(data.draftRevision));
+      return { ok: true as const, data: { threadId: null } };
+    }
 
     try {
       const persisted = await this.threadRepo.persistOutboundMessageOrThrow({
@@ -191,9 +233,13 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
         },
       });
 
+      if (draft && data.draftRevision)
+        await this.discardDraftSafely(draft.id, draftUpdatedAtFromRevision(data.draftRevision));
       return { ok: true as const, data: { threadId: persisted.messagingThreadId } };
     } catch (err) {
       Sentry.captureException(err);
+      if (draft && data.draftRevision)
+        await this.discardDraftSafely(draft.id, draftUpdatedAtFromRevision(data.draftRevision));
       return { ok: true as const, data: { threadId: null } };
     }
   }
@@ -231,6 +277,17 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
       }
       data.attendeeIdentifiers[index] = normalized;
     });
+  }
+
+  private async discardDraftSafely(messageId: string, expectedUpdatedAt: Date): Promise<void> {
+    try {
+      await this.threadRepo.discardDraftAfterSend({
+        messageId,
+        expectedUpdatedAt,
+      });
+    } catch (err) {
+      Sentry.captureException(err);
+    }
   }
 
   private buildSpecifics(data: StartChatData): StartChatSpecifics | undefined {

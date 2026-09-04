@@ -125,7 +125,13 @@ const activityReader = () =>
 
 function messageRow(id: string, contactId: string) {
   const participant = {
-    contact: { id: contactId },
+    attendeeId: "attendee-1",
+    contact: {
+      id: contactId,
+      firstName: "Anna",
+      lastName: "Müller",
+      avatarUrl: "https://cdn/anna.png",
+    },
     displayName: "Anna Müller",
     identifier: "anna.mueller@roche.example",
     isSelf: false,
@@ -136,7 +142,7 @@ function messageRow(id: string, contactId: string) {
     attachmentsMeta: [],
     bodyHtml: null,
     bodyText: "Hello",
-    connectedAccountId: "account-1",
+    connectedAccountId: "00000000-0000-4000-8000-000000000003",
     direction: "inbound",
     editedAt: null,
     folderIds: [],
@@ -149,6 +155,7 @@ function messageRow(id: string, contactId: string) {
     reactions: [],
     recipients: { to: [], cc: [], bcc: [] },
     sender: participant,
+    messagingThreadId: "00000000-0000-4000-8000-000000000002",
     sentAt: new Date(0),
     subject: null,
     thread: {
@@ -345,14 +352,15 @@ describe("record context on messaging entries", () => {
   beforeEach(() => fake.reset());
 
   it("uses the linked sender on a message", async () => {
-    fake.rows.messagingMessage.push(messageRow("m1", "c1"));
-    fake.rows.contact.push({ id: "c1", firstName: "Anna", lastName: "Müller", avatarUrl: "https://cdn/anna.png" });
+    const contactId = "00000000-0000-4000-8000-000000000001";
+    fake.rows.messagingMessage.push(messageRow("00000000-0000-4000-8000-000000000004", contactId));
+    fake.rows.contact.push({ id: contactId, firstName: "Anna", lastName: "Müller", avatarUrl: "https://cdn/anna.png" });
 
     const [entry] = await getItems(activityReader());
 
     expect(entry.records.primary).toEqual({
       entityType: EntityType.contact,
-      id: "c1",
+      id: contactId,
       label: "Anna Müller",
       avatarUrl: "https://cdn/anna.png",
     });

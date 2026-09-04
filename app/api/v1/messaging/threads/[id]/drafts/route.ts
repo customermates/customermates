@@ -6,12 +6,16 @@ import { z } from "zod";
 import { getSaveDraftInteractor } from "@/core/di";
 import { handleError } from "@/core/api/interactor-handler";
 import { mapRequestJsonError } from "@/core/api/request-json-error";
+import { SaveReplyDraftBodySchema } from "@/ee/messaging/outbound/save-draft.interactor";
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const body = await request.json().catch(mapRequestJsonError);
-    const result = await getSaveDraftInteractor().invoke({ ...body, threadId: id });
+    const parsed = SaveReplyDraftBodySchema.safeParse(body);
+    if (!parsed.success) return NextResponse.json(z.prettifyError(parsed.error), { status: 400 });
+
+    const result = await getSaveDraftInteractor().invoke({ ...parsed.data, threadId: id });
 
     if (!result.ok) return NextResponse.json(z.prettifyError(result.error), { status: 400 });
 
