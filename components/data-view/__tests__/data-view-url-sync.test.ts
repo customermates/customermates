@@ -4,15 +4,23 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 
 import { connectDataViewUrlSync } from "../data-view-url-sync";
+import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
+import { ViewMode } from "@/core/base/base-query-builder";
+
+const A_VIEW_ID = "7c1f2b3a-4d5e-4f60-8a71-9b2c3d4e5f60";
+const A_GROUPING_COLUMN_ID = "1a2b3c4d-5e6f-4071-8293-a4b5c6d7e8f9";
 
 function createStore() {
   const state = observable({
+    activeViewKey: ALL_VIEW_KEY as string,
     filters: [],
+    groupingColumnId: undefined as string | null | undefined,
     isRefreshing: false,
     pagination: { page: 1, pageSize: 25 },
     searchTerm: undefined as string | undefined,
     sortDescriptor: undefined as { direction: "asc" | "desc"; field: string } | undefined,
     sortableColumnIds: new Set(["name"]),
+    viewMode: ViewMode.table as ViewMode,
   });
   return { state, store: state as unknown as BaseDataViewStore<HasId> };
 }
@@ -113,6 +121,78 @@ describe("data-view URL synchronization", () => {
     vi.advanceTimersByTime(100);
     expect(replaceState).not.toHaveBeenCalled();
     cleanupNext();
+  });
+
+  it("writes the active view id, the card mode and the grouping column, and drops them again on All", () => {
+    const { state, store } = createStore();
+    const replaceState = vi.spyOn(window.history, "replaceState");
+    const cleanup = connectDataViewUrlSync(store);
+
+    runInAction(() => {
+      state.activeViewKey = A_VIEW_ID;
+      state.viewMode = ViewMode.card;
+      state.groupingColumnId = A_GROUPING_COLUMN_ID;
+    });
+    vi.advanceTimersByTime(100);
+
+    expect(replaceState).toHaveBeenCalledOnce();
+    expect(window.location.search).toBe(`?view=${A_VIEW_ID}&viewMode=card&groupBy=${A_GROUPING_COLUMN_ID}`);
+
+    runInAction(() => {
+      state.activeViewKey = ALL_VIEW_KEY;
+      state.viewMode = ViewMode.table;
+      state.groupingColumnId = null;
+    });
+    vi.advanceTimersByTime(100);
+
+    expect(window.location.search).toBe("");
+    cleanup();
+  });
+
+  it("keeps the grouping column out of the URL while the view mode is table", () => {
+    const { state, store } = createStore();
+    const cleanup = connectDataViewUrlSync(store);
+
+    runInAction(() => {
+      state.searchTerm = "acme";
+      state.groupingColumnId = A_GROUPING_COLUMN_ID;
+    });
+    vi.advanceTimersByTime(100);
+
+    expect(window.location.search).toBe("?searchTerm=acme");
+    cleanup();
+  });
+
+  it("normalises a pasted All link out of the address bar once, leaving the applied query alone", () => {
+    window.history.replaceState(null, "", `/en/contacts?view=${ALL_VIEW_KEY}&searchTerm=acme`);
+    const { state, store } = createStore();
+    state.searchTerm = "acme";
+    const replaceState = vi.spyOn(window.history, "replaceState");
+
+    const cleanup = connectDataViewUrlSync(store);
+
+    expect(replaceState).toHaveBeenCalledOnce();
+    expect(window.location.search).toBe("?searchTerm=acme");
+    expect(store.searchTerm).toBe("acme");
+    expect(store.activeViewKey).toBe(ALL_VIEW_KEY);
+
+    vi.advanceTimersByTime(200);
+    expect(replaceState).toHaveBeenCalledOnce();
+    cleanup();
+  });
+
+  it("leaves a pasted link that already names the active view untouched", () => {
+    window.history.replaceState(null, "", `/en/contacts?view=${A_VIEW_ID}`);
+    const { state, store } = createStore();
+    state.activeViewKey = A_VIEW_ID;
+    state.searchTerm = "acme";
+    const replaceState = vi.spyOn(window.history, "replaceState");
+
+    const cleanup = connectDataViewUrlSync(store);
+
+    expect(replaceState).toHaveBeenCalledOnce();
+    expect(window.location.search).toBe(`?searchTerm=acme&view=${A_VIEW_ID}`);
+    cleanup();
   });
 
   it("does not leak duplicate reactions across a strict remount", () => {

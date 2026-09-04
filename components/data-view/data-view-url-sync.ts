@@ -3,6 +3,7 @@ import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store"
 import { reaction, toJS } from "mobx";
 
 import { decodeGetParams, encodeGetParams } from "@/core/utils/get-params";
+import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 
 type DataViewUrlSyncWindow = Pick<Window, "clearTimeout" | "history" | "location" | "setTimeout">;
 
@@ -11,9 +12,11 @@ function getQueryString<E extends HasId>(store: BaseDataViewStore<E>): string {
     filters: store.filters,
     searchTerm: store.searchTerm,
     sortDescriptor: store.sortableColumnIds.size > 0 ? store.sortDescriptor : undefined,
-    pagination: store.pagination
-      ? { page: store.pagination.page, pageSize: store.pagination.pageSize }
-      : { page: 1, pageSize: 25 },
+    page: store.pagination?.page,
+    pageSize: store.pagination?.pageSize,
+    viewId: store.activeViewKey === ALL_VIEW_KEY ? undefined : store.activeViewKey,
+    viewMode: store.viewMode,
+    groupingColumnId: store.groupingColumnId ?? undefined,
   }).toString();
 }
 
@@ -54,12 +57,15 @@ export function connectDataViewUrlSync<E extends HasId>(
 
   const disposeReaction = reaction(
     () => ({
+      activeViewKey: store.activeViewKey,
       filters: toJS(store.filters),
+      groupingColumnId: store.groupingColumnId,
       isRefreshing: store.isRefreshing,
       page: store.pagination?.page ?? 1,
       pageSize: store.pagination?.pageSize ?? 25,
       searchTerm: store.searchTerm,
       sortDescriptor: toJS(store.sortDescriptor),
+      viewMode: store.viewMode,
     }),
     () => {
       if (store.isRefreshing) return;

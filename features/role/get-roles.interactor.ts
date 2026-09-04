@@ -1,5 +1,6 @@
 import type { RoleWithAssignmentsDto as RoleDto } from "./role.schema";
-import type { GetResult, P13nRepo } from "@/core/base/base-get.interactor";
+import type { GetResult } from "@/core/base/base-get.interactor";
+import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 import type { Validated } from "@/core/validation/validation.utils";
 
@@ -28,13 +29,13 @@ export abstract class GetRolesRepo extends BaseGetRepo<RoleDto> {}
 export class GetRolesInteractor extends BaseGetInteractor<RoleDto> {
   constructor(
     repo: GetRolesRepo,
-    p13nRepo: P13nRepo,
+    viewStateRepo: DataViewStateRepo,
     mode: "interactive" | "api",
     queryParamsPrecheck: QueryParamsPrecheckInteractor,
   ) {
     super(
       repo,
-      p13nRepo,
+      viewStateRepo,
       mode,
       undefined,
       { sortDescriptor: { field: "type", direction: "asc" } },

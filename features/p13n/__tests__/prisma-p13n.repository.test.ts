@@ -9,6 +9,7 @@ import {
 } from "@/tests/helpers/interactor-test-setup";
 
 const mockUser = createMockUser();
+const A_VIEW_KEY = "9c1f0a7e-0b6a-4b1d-9a4e-2d3f5b6c7a81";
 const { p13nFindUnique, p13nUpsert } = vi.hoisted(() => ({
   p13nFindUnique: vi.fn(),
   p13nUpsert: vi.fn(),
@@ -38,29 +39,17 @@ describe("PrismaP13nRepo legacy filter normalization", () => {
     vi.clearAllMocks();
   });
 
-  it("preserves active and preset relation filter behavior on read", async () => {
+  it("preserves legacy relation filter behavior on read", async () => {
     p13nFindUnique.mockResolvedValue({
       companyId: mockUser.companyId,
       userId: mockUser.id,
       p13nId: "organizations",
+      activeViewKey: null,
       filters: [
         {
           field: FilterFieldKey.dealIds,
           operator: FilterOperatorKey.hasNone,
           value: ["d1"],
-        },
-      ],
-      savedFilterPresets: [
-        {
-          id: "preset-1",
-          name: "Linked deals",
-          filters: [
-            {
-              field: FilterFieldKey.dealIds,
-              operator: FilterOperatorKey.hasSome,
-              value: ["d2"],
-            },
-          ],
         },
       ],
       searchTerm: null,
@@ -82,22 +71,14 @@ describe("PrismaP13nRepo legacy filter normalization", () => {
         value: ["d1"],
       },
     ]);
-    expect(result?.savedFilterPresets?.[0].filters).toEqual([
-      {
-        field: FilterFieldKey.dealIds,
-        operator: FilterOperatorKey.in,
-        value: ["d2"],
-      },
-    ]);
   });
 
-  it("reads personalization holding a malformed preset entry without throwing", async () => {
-    p13nFindUnique.mockResolvedValue({
+  it("reads the remembered active view key and reports an unset one as undefined", async () => {
+    const baseRow = {
       companyId: mockUser.companyId,
       userId: mockUser.id,
       p13nId: "organizations",
       filters: null,
-      savedFilterPresets: [null, { id: "p1", name: "Mine", filters: [] }],
       searchTerm: null,
       sortDescriptor: null,
       pagination: null,
@@ -106,12 +87,18 @@ describe("PrismaP13nRepo legacy filter normalization", () => {
       hiddenColumns: [],
       viewMode: null,
       groupingColumnId: null,
-    });
+    };
+    p13nFindUnique.mockResolvedValueOnce({ ...baseRow, activeViewKey: A_VIEW_KEY });
 
-    const result = await runWithTenant(mockUser, () => new PrismaP13nRepo().getP13n("organizations"));
+    const remembered = await runWithTenant(mockUser, () => new PrismaP13nRepo().getP13n("organizations"));
 
-    expect(result?.savedFilterPresets).toHaveLength(2);
-    expect(result?.savedFilterPresets?.[1].id).toBe("p1");
+    expect(remembered?.activeViewKey).toBe(A_VIEW_KEY);
+
+    p13nFindUnique.mockResolvedValueOnce({ ...baseRow, activeViewKey: null });
+
+    const unset = await runWithTenant(mockUser, () => new PrismaP13nRepo().getP13n("organizations"));
+
+    expect(unset?.activeViewKey).toBeUndefined();
   });
 
   it("reads valid entity detail options and ignores malformed options", async () => {
@@ -120,7 +107,6 @@ describe("PrismaP13nRepo legacy filter normalization", () => {
       userId: mockUser.id,
       p13nId: "contact-detail",
       filters: null,
-      savedFilterPresets: null,
       searchTerm: null,
       sortDescriptor: null,
       pagination: null,
@@ -163,8 +149,8 @@ describe("PrismaP13nRepo legacy filter normalization", () => {
       collapsedSectionIds: ["notes"],
     };
     p13nUpsert.mockResolvedValue({
+      activeViewKey: A_VIEW_KEY,
       filters: null,
-      savedFilterPresets: null,
       searchTerm: "existing",
       sortDescriptor: null,
       pagination: null,
@@ -179,6 +165,7 @@ describe("PrismaP13nRepo legacy filter normalization", () => {
     const result = await runWithTenant(mockUser, () =>
       new PrismaP13nRepo().upsertP13n({
         p13nId: "contact-detail",
+        activeViewKey: A_VIEW_KEY,
         columnOrder: ["custom-column"],
         detailOptions,
       }),
@@ -190,11 +177,13 @@ describe("PrismaP13nRepo legacy filter normalization", () => {
           companyId: mockUser.companyId,
           userId: mockUser.id,
           p13nId: "contact-detail",
+          activeViewKey: A_VIEW_KEY,
           columnOrder: ["custom-column"],
           detailOptions,
         },
       }),
     );
+    expect(result.activeViewKey).toBe(A_VIEW_KEY);
     expect(result.detailOptions).toEqual(detailOptions);
   });
 });

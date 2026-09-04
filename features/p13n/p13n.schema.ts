@@ -10,8 +10,8 @@ export type EntityDetailOptions = z.infer<typeof EntityDetailOptionsSchema>;
 
 export const P13nEntrySchema = z.object({
   p13nId: z.string(),
+  activeViewKey: z.string().optional(),
   filters: z.array(z.any()).optional(),
-  savedFilterPresets: z.array(z.any()).optional(),
   searchTerm: z.string().optional(),
   sortDescriptor: z.any().optional(),
   pagination: z.any().optional(),

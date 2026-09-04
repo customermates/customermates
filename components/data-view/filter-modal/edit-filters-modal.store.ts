@@ -1,23 +1,30 @@
 import type { FormEvent } from "react";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 import type { RootStore } from "@/core/stores/root.store";
-import type { UpsertFilterPresetData } from "@/features/p13n/upsert-filter-preset.interactor";
 import type { Filter, FilterableField } from "@/core/base/base-get.schema";
+import type { DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
 
 import { makeObservable, action, observable, computed, reaction, toJS } from "mobx";
 
 import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
-import { upsertFilterPresetAction, deleteFilterPresetAction } from "@/app/actions";
+import { upsertDataViewAction, deleteDataViewAction } from "@/app/actions";
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 
 export const FILTER_AUTO_APPLY_DELAY_MS = 300;
 
+type EditFiltersForm = {
+  p13nId: string;
+  presetId?: string;
+  name: string;
+  filters: Filter[];
+};
+
 const FILTER_DRAFT_PATH_PREFIX = "filters";
 
-export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData> {
+export class EditFiltersModalStore extends BaseModalStore<EditFiltersForm> {
   tableStore?: BaseDataViewStore<HasId>;
   expandedField: string | undefined = undefined;
   private autoApplyTimer: ReturnType<typeof setTimeout> | undefined = undefined;
@@ -169,11 +176,11 @@ export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData
     this.setIsLoading(true);
 
     try {
-      const res = await upsertFilterPresetAction({
-        p13nId: this.form.p13nId,
+      const res = await upsertDataViewAction({
+        id: this.isCreatingPreset ? undefined : this.form.presetId,
+        surfaceKey: this.form.p13nId as DataViewSurfaceKey,
         name: this.form.name,
-        presetId: this.isCreatingPreset ? undefined : this.form.presetId,
-        filters: this.validDraftFilters(),
+        state: { filters: this.validDraftFilters() },
       });
 
       if (!res.ok) {
@@ -223,10 +230,7 @@ export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData
     if (!this.form.presetId || !this.tableStore?.p13nId) return false;
 
     try {
-      const res = await deleteFilterPresetAction({
-        p13nId: this.tableStore.p13nId,
-        presetId: this.form.presetId,
-      });
+      const res = await deleteDataViewAction({ id: this.form.presetId });
       if (!res.ok) {
         toastZodErrorTree(res.error);
         return false;
@@ -274,6 +278,6 @@ export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData
         operator: undefined,
         value: undefined,
       };
-    }) as UpsertFilterPresetData["filters"];
+    }) as EditFiltersForm["filters"];
   };
 }

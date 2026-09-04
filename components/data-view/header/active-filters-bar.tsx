@@ -30,28 +30,28 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
   const { editFiltersModalStore } = useRootStore();
 
   const filters = store.filters ?? [];
-  const presets = store.savedFilterPresets ?? [];
+  const views = store.views;
   const searchTerm = store.searchTerm?.trim() ? store.searchTerm : undefined;
   const hasFilters = filters.length > 0;
   const hasSearch = Boolean(searchTerm);
 
   if (!hasFilters && !hasSearch) {
-    if (presets.length === 0) return null;
+    if (views.length === 0) return null;
 
     return (
       <div className={cn("flex flex-wrap gap-1.5 items-center px-4 py-2", !noBorder && "border-b border-border")}>
-        {presets.map((preset) => (
+        {views.map((view) => (
           <ClickableChip
-            key={preset.id}
+            key={view.id}
             className="max-w-md"
             startContent={<BookmarkIcon className="size-3 opacity-70" />}
             variant="secondary"
             onClick={() => {
-              store.changeFilterPreset(preset.id);
+              store.applyView(view.id);
               editFiltersModalStore.syncDraftFromTable(store);
             }}
           >
-            <span className="truncate text-[11px]">{preset.name}</span>
+            <span className="truncate text-[11px]">{view.name}</span>
           </ClickableChip>
         ))}
       </div>

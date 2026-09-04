@@ -1,7 +1,14 @@
-import type { Filter, GetQueryParams, PaginationRequest, SortDescriptor } from "@/core/base/base-get.schema";
+import type { Filter, GetQueryParams, SortDescriptor } from "@/core/base/base-get.schema";
 
-import { FilterOperatorKey } from "../base/base-query-builder";
+import { z } from "zod";
+
+import { FilterOperatorKey, ViewMode } from "../base/base-query-builder";
 import { normalizeFilter } from "../base/filter-compat";
+
+const DEFAULT_PAGE = 1;
+const DEFAULT_PAGE_SIZE = 25;
+const VALID_PAGE_SIZES = [5, 10, 25, 100];
+const GroupingColumnIdSchema = z.uuid();
 
 export function encodeGetParams(params: GetQueryParams = {}): URLSearchParams {
   const sp = new URLSearchParams();
@@ -15,14 +22,15 @@ export function encodeGetParams(params: GetQueryParams = {}): URLSearchParams {
     sp.set("sort", sortValue);
   }
 
-  if (params.pagination) {
-    const defaultPageSize = 25;
-    const defaultPage = 1;
+  const page = params.pagination?.page ?? params.page;
+  const pageSize = params.pagination?.pageSize ?? params.pageSize;
 
-    if (params.pagination.page && params.pagination.page > defaultPage) sp.set("page", String(params.pagination.page));
-    if (params.pagination.pageSize && params.pagination.pageSize !== defaultPageSize)
-      sp.set("pageSize", String(params.pagination.pageSize));
-  }
+  if (page && page > DEFAULT_PAGE) sp.set("page", String(page));
+  if (pageSize && pageSize !== DEFAULT_PAGE_SIZE) sp.set("pageSize", String(pageSize));
+
+  if (params.viewId) sp.set("view", params.viewId);
+  if (params.viewMode && params.viewMode !== ViewMode.table) sp.set("viewMode", params.viewMode);
+  if (params.viewMode === ViewMode.card && params.groupingColumnId) sp.set("groupBy", params.groupingColumnId);
 
   if (params.filters && params.filters.length > 0) {
     for (const candidate of params.filters) {
@@ -119,16 +127,25 @@ export function decodeGetParams(
     } catch {}
   }
 
-  const validPageSizes = [5, 10, 25, 100];
-  const parsedPageSize = pageSize ? Number(pageSize) : 100;
-  const validPageSize = validPageSizes.includes(parsedPageSize)
-    ? (parsedPageSize as PaginationRequest["pageSize"])
-    : 100;
+  const parsedPageSize = pageSize === null ? undefined : Number(pageSize);
+  const decodedViewMode = source.get("viewMode");
+  const decodedGroupBy = source.get("groupBy");
 
-  const pagination: PaginationRequest | undefined =
-    page || pageSize ? { page: Number(page || 1), pageSize: validPageSize } : undefined;
-
-  return { filters, searchTerm, sortDescriptor, pagination };
+  return {
+    filters,
+    searchTerm,
+    sortDescriptor,
+    page: page === null ? undefined : Math.max(1, Number(page) || 1),
+    pageSize:
+      parsedPageSize !== undefined && VALID_PAGE_SIZES.includes(parsedPageSize)
+        ? (parsedPageSize as 5 | 10 | 25 | 100)
+        : undefined,
+    viewId: source.get("view") || undefined,
+    viewMode: decodedViewMode === ViewMode.card || decodedViewMode === ViewMode.table ? decodedViewMode : undefined,
+    groupingColumnId: GroupingColumnIdSchema.safeParse(decodedGroupBy).success
+      ? (decodedGroupBy ?? undefined)
+      : undefined,
+  };
 }
 
 function serializeFilterValue(op: FilterOperatorKey, value: unknown): string | undefined {

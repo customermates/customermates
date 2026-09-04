@@ -4,7 +4,9 @@ import type { Filter, FilterableField, GroupValueSums, PaginationRequest, SortDe
 import type { GetResult } from "./base-get.interactor";
 import type { GetQueryParams, GroupedPaginationRequest } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { SavedFilterPreset } from "@/features/p13n/prisma-p13n.repository";
+import type { SavedFilterPreset } from "@/core/base/base-get.schema";
+import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
+import type { DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
 
 import { makeObservable, observable, computed, action, toJS, runInAction } from "mobx";
 import deepEqual from "fast-deep-equal/es6";
@@ -20,12 +22,14 @@ import { BaseStore } from "./base.store";
 
 import { KANBAN_PER_GROUP_DEFAULT } from "./base-get.schema";
 import {
-  upsertP13nAction,
+  applyDataViewOverrideAction,
+  selectDataViewAction,
   getCustomColumnsByEntityTypeAction,
   bulkDeleteEntitiesAction,
   bulkUpdateCustomFieldValuesAction,
   updateEntityCustomFieldValueAction,
 } from "@/app/actions";
+import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 
 export const MAX_SELECTION_SIZE = 100;
 
@@ -80,6 +84,13 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   columnWidths: Record<string, number> = {};
   hiddenColumns: string[] = [];
   savedFilterPresets?: SavedFilterPreset[] = undefined;
+  views: DataViewChipDto[] = [];
+  activeViewKey: string = ALL_VIEW_KEY;
+  viewIsDirty = false;
+  viewIsOwner = false;
+  viewCanShare = false;
+  viewPersistable = true;
+  viewUnavailable = false;
   viewMode: ViewMode = ViewMode.table;
   groupingColumnId?: string | null;
   selectedIds: ObservableSet<string> = observable.set();
@@ -93,7 +104,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   public readonly resource?: Resource;
   public readonly entityType?: EntityType;
 
-  private persistViewOptionsTimer?: number;
+  private persistViewStateTimer?: number;
   private requestGeneration = 0;
   private backgroundRefreshRunning = false;
   private backgroundRefreshQueued = false;
@@ -127,6 +138,13 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       columnOrder: observable,
       columnWidths: observable,
       savedFilterPresets: observable,
+      views: observable,
+      activeViewKey: observable,
+      viewIsDirty: observable,
+      viewIsOwner: observable,
+      viewCanShare: observable,
+      viewPersistable: observable,
+      viewUnavailable: observable,
       viewMode: observable,
       groupingColumnId: observable,
       selectedIds: observable,
@@ -160,7 +178,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       setViewOptions: action,
       setQueryOptions: action,
       removeFilter: action,
-      changeFilterPreset: action,
+      applyView: action,
       refresh: action,
       refreshCustomColumns: action,
       upsertItem: action,
@@ -507,7 +525,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   setItems(args: GetResult<Entity>): void {
     this.requestGeneration += 1;
-    const wasReady = this.isReady;
     this.items = args.items;
     this.customColumns = args.customColumns ?? [];
     this.p13nId = args.p13nId;
@@ -520,10 +537,15 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.hiddenColumns = (args.hiddenColumns ?? []).filter((uid) => uid !== "name");
     this.savedFilterPresets = args.savedFilterPresets;
     this.columnOrder = (args.columnOrder ?? []).filter((uid) => uid !== "name");
-    if (!wasReady) {
-      this.viewMode = args.viewMode ?? ViewMode.table;
-      this.groupingColumnId = args.groupingColumnId;
-    }
+    this.viewMode = args.viewMode ?? ViewMode.table;
+    this.groupingColumnId = args.groupingColumnId;
+    this.views = args.views ?? [];
+    this.activeViewKey = args.activeViewKey ?? ALL_VIEW_KEY;
+    this.viewIsDirty = args.viewIsDirty ?? false;
+    this.viewIsOwner = args.viewIsOwner ?? false;
+    this.viewCanShare = args.viewCanShare ?? false;
+    this.viewPersistable = args.viewPersistable ?? true;
+    this.viewUnavailable = args.viewUnavailable ?? false;
     this.groupCounts = args.groupCounts ?? {};
     this.groupValueSums = args.groupValueSums ?? {};
     this.requestState = { status: "ready" };
@@ -639,7 +661,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const groupingChanged = groupingBefore !== this.kanbanGroupingKey;
     if (groupingChanged) this.resetGroupedTakeOverrides();
 
-    if (hasChanges) this.persistViewOptions();
+    if (hasChanges) this.persistViewState();
     if (groupingChanged) this.refreshQueryInBackground();
   };
 
@@ -653,11 +675,13 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   }) => {
     let hasChanges = false;
     let queryShapeChanged = false;
+    let durableChanged = false;
 
     if (updates.filters !== undefined && !deepEqual(this.filters, updates.filters)) {
       this.filters = updates.filters;
       hasChanges = true;
       queryShapeChanged = true;
+      durableChanged = true;
     }
 
     if (updates.pagination) {
@@ -669,8 +693,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
           };
 
       if (!deepEqual(this.pagination, newPagination)) {
+        const pageSizeChanged = this.pagination?.pageSize !== newPagination.pageSize;
         this.pagination = newPagination;
         hasChanges = true;
+        if (pageSizeChanged) durableChanged = true;
       }
     }
 
@@ -678,18 +704,22 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       this.sortDescriptor = updates.sortDescriptor;
       hasChanges = true;
       queryShapeChanged = true;
+      durableChanged = true;
     }
 
     if (updates.searchTerm !== undefined && (this.searchTerm || undefined) !== (updates.searchTerm || undefined)) {
       this.searchTerm = updates.searchTerm;
       hasChanges = true;
       queryShapeChanged = true;
+      durableChanged = true;
     }
 
     if (queryShapeChanged) {
       this.resetPaginationPage();
       this.resetGroupedTakeOverrides();
     }
+
+    if (durableChanged) this.persistViewState();
 
     if (!hasChanges && !updates.forceRefresh) return;
 
@@ -705,11 +735,45 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     });
   };
 
-  changeFilterPreset = (presetId: string | undefined) => {
-    if (presetId) {
-      const preset = this.savedFilterPresets?.find((p) => p.id === presetId);
-      if (preset) this.setQueryOptions({ filters: this.withKnownFields(preset.filters) });
-    } else this.setQueryOptions({ filters: [] });
+  applyView = (viewKey: string): void => {
+    const chip = this.views.find((view) => view.id === viewKey);
+    const key = chip ? chip.id : ALL_VIEW_KEY;
+    const state: DataViewState = chip?.state ?? {};
+
+    runInAction(() => {
+      this.activeViewKey = key;
+      this.filters = this.withKnownFields(state.filters);
+      this.searchTerm = state.searchTerm;
+      this.sortDescriptor = state.sortDescriptor ?? undefined;
+      this.viewMode = state.viewMode ?? ViewMode.table;
+      this.groupingColumnId = state.groupingColumnId ?? null;
+      this.columnOrder = (state.columnOrder ?? []).filter((uid) => uid !== "name");
+      this.columnWidths = state.columnWidths ?? {};
+      this.hiddenColumns = (state.hiddenColumns ?? []).filter((uid) => uid !== "name");
+      this.pagination = this.pagination ? { ...this.pagination, page: 1 } : this.pagination;
+      this.groupedTakeOverrides = {};
+      this.viewIsDirty = false;
+    });
+
+    if (this.p13nId && this.viewPersistable) {
+      void selectDataViewAction({ surfaceKey: this.p13nId as DataViewSurfaceKey, viewKey: key }).catch(
+        reportApplicationError,
+      );
+    }
+
+    this.refreshResolvedInBackground();
+  };
+
+  resetView = async (): Promise<void> => {
+    if (!this.p13nId || !this.viewPersistable) return;
+
+    this.cancelPendingPersist();
+    await applyDataViewOverrideAction({
+      surfaceKey: this.p13nId as DataViewSurfaceKey,
+      viewKey: this.activeViewKey,
+      mode: "reset",
+    });
+    this.refreshResolvedInBackground();
   };
 
   private withKnownFields(filters: Filter[] | undefined): Filter[] {
@@ -734,20 +798,30 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   protected refreshGuarded = (shouldCommit: () => boolean): Promise<void> =>
     this.executeRefresh("background", shouldCommit);
 
-  private executeRefresh = async (mode: DataViewRefreshMode, shouldCommit?: () => boolean): Promise<void> => {
+  private executeRefresh = async (
+    mode: DataViewRefreshMode,
+    shouldCommit?: () => boolean,
+    resolveFromServer = false,
+  ): Promise<void> => {
     const generation = ++this.requestGeneration;
     const wasInitialized = this.isReady;
-    const groupedPagination = this.buildGroupedPaginationRequest();
-    const params: GetQueryParams = {
-      p13nId: this.p13nId,
-      filters: toJS(this.filters),
-      searchTerm: toJS(this.searchTerm),
-      sortDescriptor: toJS(this.sortDescriptor),
-      pagination: this.pagination ? { page: this.pagination.page, pageSize: this.pagination.pageSize } : undefined,
-      groupedPagination,
-      viewMode: this.viewMode,
-      groupingColumnId: this.groupingColumnId ?? undefined,
-    };
+    const groupedPagination = resolveFromServer ? undefined : this.buildGroupedPaginationRequest();
+    const params: GetQueryParams = resolveFromServer
+      ? {
+          p13nId: this.p13nId,
+          viewId: this.activeViewKey === ALL_VIEW_KEY ? ALL_VIEW_KEY : this.activeViewKey,
+        }
+      : {
+          p13nId: this.p13nId,
+          viewId: this.activeViewKey === ALL_VIEW_KEY ? undefined : this.activeViewKey,
+          filters: toJS(this.filters),
+          searchTerm: toJS(this.searchTerm),
+          sortDescriptor: toJS(this.sortDescriptor),
+          pagination: this.pagination ? { page: this.pagination.page, pageSize: this.pagination.pageSize } : undefined,
+          groupedPagination,
+          viewMode: this.viewMode,
+          groupingColumnId: this.groupingColumnId,
+        };
 
     runInAction(() => {
       if (mode === "visible") this.requestState = { status: "refreshing" };
@@ -861,6 +935,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     void this.refreshQuery().catch(() => undefined);
   };
 
+  private refreshResolvedInBackground = (): void => {
+    void this.executeRefresh("background", undefined, true).catch(() => undefined);
+  };
+
   refreshInBackground = (): void => {
     if (!this.isReady) return;
 
@@ -893,19 +971,35 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return Promise.reject(new Error("refreshAction must be implemented by entity stores"));
   }
 
-  private persistViewOptions = () => {
-    if (!this.p13nId) return;
+  private cancelPendingPersist = () => {
+    if (this.persistViewStateTimer === undefined) return;
 
-    if (this.persistViewOptionsTimer) clearTimeout(this.persistViewOptionsTimer);
+    clearTimeout(this.persistViewStateTimer);
+    this.persistViewStateTimer = undefined;
+  };
 
-    this.persistViewOptionsTimer = window.setTimeout(() => {
-      void upsertP13nAction({
-        p13nId: this.p13nId as string,
-        columnOrder: toJS(this.columnOrder),
-        columnWidths: toJS(this.columnWidths),
-        hiddenColumns: toJS(this.hiddenColumns),
-        viewMode: toJS(this.viewMode),
-        groupingColumnId: this.groupingColumnId,
+  private persistViewState = () => {
+    if (!this.p13nId || !this.viewPersistable) return;
+
+    this.cancelPendingPersist();
+
+    this.persistViewStateTimer = window.setTimeout(() => {
+      this.persistViewStateTimer = undefined;
+      void applyDataViewOverrideAction({
+        surfaceKey: this.p13nId as DataViewSurfaceKey,
+        viewKey: this.activeViewKey,
+        mode: "save",
+        state: {
+          filters: toJS(this.filters) ?? [],
+          searchTerm: this.searchTerm ?? "",
+          sortDescriptor: toJS(this.sortDescriptor) ?? null,
+          pageSize: this.pagination?.pageSize,
+          viewMode: toJS(this.viewMode),
+          groupingColumnId: this.groupingColumnId ?? null,
+          columnOrder: toJS(this.columnOrder),
+          columnWidths: toJS(this.columnWidths),
+          hiddenColumns: toJS(this.hiddenColumns),
+        },
       })
         .then((res) => {
           if (!res.ok) toastZodErrorTree(res.error);

@@ -4,7 +4,8 @@ import { ContactsPageView } from "./components/contacts-page-view";
 
 import { getGetContactsInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
-import { decodeGetParams } from "@/core/utils/get-params";
+import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
+import { SURFACE } from "@/core/data-view/data-view-keys";
 import { PageContainer } from "@/components/shared/page-container";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
@@ -17,12 +18,9 @@ type Props = {
 export default async function ContactsPage({ searchParams }: Props) {
   await requireAccess({ resource: Resource.contacts });
 
-  const params = await searchParams;
-  const contactParams = decodeGetParams(params);
+  const contactParams = await readSurfaceParams(SURFACE.contacts, searchParams);
 
-  const contacts = await unwrapValidated(
-    getGetContactsInteractor().invoke({ ...contactParams, p13nId: "contacts-card-store" }),
-  );
+  const contacts = await unwrapValidated(getGetContactsInteractor().invoke(contactParams));
 
   return (
     <PageContainer padded={false}>

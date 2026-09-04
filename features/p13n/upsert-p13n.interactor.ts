@@ -7,19 +7,14 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import {
-  FilterSchema,
-  SortDescriptorSchema,
-  SavedFilterPresetSchema,
-  PaginationRequestSchema,
-} from "@/core/base/base-get.schema";
+import { FilterSchema, SortDescriptorSchema, PaginationRequestSchema } from "@/core/base/base-get.schema";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { EntityDetailOptionsSchema, P13nEntrySchema } from "./p13n.schema";
 
 const Schema = z.object({
   p13nId: z.string().min(1),
+  activeViewKey: z.string().nullish(),
   filters: z.array(FilterSchema).nullish(),
-  savedFilterPresets: z.array(SavedFilterPresetSchema).nullish(),
   searchTerm: z.string().nullish(),
   sortDescriptor: SortDescriptorSchema.nullish(),
   pagination: PaginationRequestSchema.nullish(),

@@ -1,8 +1,13 @@
 import type { Validated } from "../validation/validation.utils";
 import type { SortableField, SearchableField } from "./base-query-builder";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { P13nEntry, SavedFilterPreset } from "@/features/p13n/prisma-p13n.repository";
-import type { UpsertP13nData } from "@/features/p13n/upsert-p13n.interactor";
+import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
+import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
+import type {
+  DataViewDefaultsLayer,
+  DataViewParamsLayer,
+  ResolvedDataViewState,
+} from "@/core/data-view/resolve-data-view-state";
 import type {
   FilterableField,
   Filter,
@@ -11,6 +16,7 @@ import type {
   GroupedPaginationRequest,
   PaginationRequest,
   PaginationResponse,
+  SavedFilterPreset,
   SortDescriptor,
 } from "./base-get.schema";
 
@@ -23,6 +29,8 @@ import type { QueryParamsPrecheckInteractor } from "./query-params-precheck.inte
 import { env } from "@/env";
 import { KANBAN_EMPTY_GROUP_KEY, KANBAN_PER_GROUP_DEFAULT } from "./base-get.schema";
 import { FilterOperatorKey, ViewMode } from "./base-query-builder";
+import { ALL_VIEW_KEY, isShareableSurface } from "@/core/data-view/data-view-keys";
+import { resolveDataViewState } from "@/core/data-view/resolve-data-view-state";
 import { runPrecheck } from "../validation/run-precheck";
 
 export interface GetResult<T> {
@@ -43,11 +51,13 @@ export interface GetResult<T> {
   groupCounts?: Record<string, number>;
   groupValueSums?: Record<string, GroupValueSums>;
   valueSums?: GroupValueSums;
-}
-
-export abstract class P13nRepo {
-  abstract getP13n(p13nId: string): Promise<P13nEntry | undefined>;
-  abstract upsertP13n(data: UpsertP13nData): Promise<P13nEntry>;
+  views?: DataViewChipDto[];
+  activeViewKey?: string;
+  viewIsDirty?: boolean;
+  viewIsOwner?: boolean;
+  viewCanShare?: boolean;
+  viewPersistable?: boolean;
+  viewUnavailable?: boolean;
 }
 
 export abstract class BaseGetRepo<T> {
@@ -82,10 +92,19 @@ type FetchResult<T> = {
   valueSums?: GroupValueSums;
 };
 
+type ViewContext = {
+  activeViewKey: string;
+  views: DataViewChipDto[];
+  view: DataViewChipDto | undefined;
+  override: DataViewState | undefined;
+  isOwner: boolean;
+  unavailable: boolean;
+};
+
 export abstract class BaseGetInteractor<T> {
   constructor(
     protected repo: BaseGetRepo<T>,
-    protected p13nRepo: P13nRepo,
+    protected viewStateRepo: DataViewStateRepo,
     protected mode: "interactive" | "api",
     protected entityType: EntityType | undefined,
     protected defaultParams?: GetQueryParams,
@@ -95,52 +114,21 @@ export abstract class BaseGetInteractor<T> {
   ) {}
 
   async invoke(params: GetQueryParams = {}): Validated<GetResult<T>> {
-    const { p13nId } = params;
+    const surfaceKey = params.p13nId;
+    const interactive = this.mode === "interactive" && surfaceKey !== undefined;
 
-    let searchTerm = params.searchTerm;
-    let sortDescriptor = params.sortDescriptor;
-    let pagination = params.pagination;
-    let filters = params.filters;
+    const context = interactive ? await this.loadViewContext(surfaceKey, params.viewId) : emptyViewContext();
 
-    const hasUrlQueryState =
-      filters !== undefined || searchTerm !== undefined || sortDescriptor !== undefined || pagination !== undefined;
+    const resolved = resolveDataViewState({
+      params: toParamsLayer(params),
+      override: context.override,
+      view: context.view?.state,
+      defaults: interactive ? this.defaultState : defaultsForUnsurfacedRequest(params, this.defaultState),
+    });
 
-    let columnOrder: string[] | undefined = undefined;
-    let columnWidths: Record<string, number> | undefined = undefined;
-    let hiddenColumns: string[] | undefined = undefined;
-    let viewMode: ViewMode | undefined = undefined;
-    let groupingColumnId: string | undefined = undefined;
-    let savedFilterPresets: SavedFilterPreset[] | undefined = undefined;
-
-    if (p13nId && this.mode === "interactive") {
-      const p13nData = await this.p13nRepo.getP13n(p13nId);
-
-      if (p13nData) {
-        if (!hasUrlQueryState) {
-          filters = p13nData.filters;
-          searchTerm = p13nData.searchTerm;
-          sortDescriptor = p13nData.sortDescriptor;
-          pagination = p13nData.pagination;
-        }
-
-        columnOrder = p13nData.columnOrder;
-        columnWidths = p13nData.columnWidths;
-        hiddenColumns = p13nData.hiddenColumns;
-        savedFilterPresets = p13nData.savedFilterPresets;
-        viewMode = p13nData.viewMode;
-        groupingColumnId = p13nData.groupingColumnId;
-      }
-    }
-
-    if (params.viewMode !== undefined) viewMode = params.viewMode as ViewMode;
-    if (params.groupingColumnId !== undefined) groupingColumnId = params.groupingColumnId ?? undefined;
-
-    if (!hasUrlQueryState) {
-      filters = filters ?? this.defaultParams?.filters;
-      searchTerm = searchTerm ?? this.defaultParams?.searchTerm;
-      sortDescriptor = sortDescriptor ?? this.defaultParams?.sortDescriptor;
-      pagination = pagination ?? this.defaultParams?.pagination;
-    }
+    const page = params.page ?? params.pagination?.page ?? 1;
+    const pageSize = resolved.pageSize;
+    const pagination: PaginationRequest = { page, pageSize };
 
     const [filterableFields, customColumns] = await Promise.all([
       this.repo.getFilterableFields(),
@@ -152,37 +140,37 @@ export abstract class BaseGetInteractor<T> {
       const precheck = this.queryParamsPrecheck;
       if (!precheck) throw new Error("api mode requires a queryParamsPrecheck");
 
-      const checked = await runPrecheck({ filters, sortDescriptor }, (data, ctx) =>
-        precheck.invoke(
-          {
-            filterableFields: this.queryParamsPrecheckFilterableFields ?? filterableFields,
-            customColumns,
-            sortableFields,
-          },
-          this.entityType,
-          data,
-          ctx,
-        ),
+      const checked = await runPrecheck(
+        { filters: resolved.filters, sortDescriptor: resolved.sortDescriptor },
+        (data, ctx) =>
+          precheck.invoke(
+            {
+              filterableFields: this.queryParamsPrecheckFilterableFields ?? filterableFields,
+              customColumns,
+              sortableFields,
+            },
+            this.entityType,
+            data,
+            ctx,
+          ),
       );
       if (!checked.ok) return { ok: false as const, error: checked.error };
     }
 
-    const keptFilters = this.repo.validateFilters({ filters, filterableFields });
-    filters = keptFilters;
-    sortDescriptor = this.repo.validateSortDescriptor({ sortDescriptor, sortableFields, customColumns });
+    const filters = this.repo.validateFilters({ filters: resolved.filters, filterableFields });
+    const sortDescriptor = this.repo.validateSortDescriptor({
+      sortDescriptor: resolved.sortDescriptor,
+      sortableFields,
+      customColumns,
+    });
 
-    if (p13nId && this.mode === "interactive" && env.APP_MODE !== "demo") {
-      await this.p13nRepo.upsertP13n({
-        p13nId,
-        filters: filters ?? null,
-        searchTerm: searchTerm ?? null,
-        sortDescriptor: sortDescriptor ?? null,
-        pagination: pagination ?? null,
-      });
-    }
-
-    const baseQuery: BaseQuery = { filters, searchTerm, sortDescriptor };
-    const groupingColumn = pickGroupingColumn(params.groupedPagination, viewMode, groupingColumnId, customColumns);
+    const baseQuery: BaseQuery = { filters, searchTerm: resolved.searchTerm, sortDescriptor };
+    const groupingColumn = pickGroupingColumn(
+      params.groupedPagination,
+      resolved.viewMode,
+      resolved.groupingColumnId,
+      customColumns,
+    );
 
     const { items, total, groupCounts, groupValueSums } = groupingColumn
       ? await this.fetchGrouped(
@@ -194,25 +182,16 @@ export abstract class BaseGetInteractor<T> {
 
     const valueSums = await this.sumDeclaredFields(baseQuery);
 
-    const pageSize = pagination?.pageSize || 100;
-    const page = pagination?.page || 1;
-
     return {
       ok: true,
       data: {
-        p13nId,
+        p13nId: surfaceKey,
         items,
         filters,
-        searchTerm,
+        searchTerm: resolved.searchTerm,
         sortDescriptor,
         customColumns,
         filterableFields,
-        columnOrder,
-        columnWidths,
-        hiddenColumns,
-        savedFilterPresets,
-        viewMode,
-        groupingColumnId,
         groupCounts,
         groupValueSums,
         valueSums,
@@ -222,7 +201,33 @@ export abstract class BaseGetInteractor<T> {
           totalPages: Math.max(1, Math.ceil(total / pageSize)),
           total,
         } as PaginationResponse,
+        ...(interactive ? viewResult(surfaceKey, resolved, context) : {}),
       },
+    };
+  }
+
+  private get defaultState(): DataViewDefaultsLayer {
+    return {
+      filters: this.defaultParams?.filters,
+      searchTerm: this.defaultParams?.searchTerm,
+      sortDescriptor: this.defaultParams?.sortDescriptor,
+      pageSize: this.defaultParams?.pagination?.pageSize,
+    };
+  }
+
+  private async loadViewContext(surfaceKey: string, requestedViewId: string | undefined): Promise<ViewContext> {
+    const surface = await this.viewStateRepo.loadSurfaceState(surfaceKey);
+    const readable = new Map(surface.views.map((chip) => [chip.id, chip]));
+    const selection = selectActiveViewKey(requestedViewId, surface.activeViewKey, readable);
+    const view = selection.key === ALL_VIEW_KEY ? undefined : readable.get(selection.key);
+
+    return {
+      activeViewKey: selection.key,
+      views: surface.views,
+      view,
+      override: surface.overrides.get(selection.key),
+      isOwner: view?.isOwner ?? false,
+      unavailable: selection.unavailable,
     };
   }
 
@@ -282,6 +287,78 @@ export abstract class BaseGetInteractor<T> {
       this.groupValueSumFields.flatMap((field) => (typeof sums[field] === "number" ? [[field, sums[field]]] : [])),
     );
   }
+}
+
+function emptyViewContext(): ViewContext {
+  return {
+    activeViewKey: ALL_VIEW_KEY,
+    views: [],
+    view: undefined,
+    override: undefined,
+    isOwner: false,
+    unavailable: false,
+  };
+}
+
+const OWN_QUERY_STATE_KEYS = ["filters", "searchTerm", "sortDescriptor", "pagination"] as const;
+
+function carriesOwnQueryState(params: GetQueryParams): boolean {
+  return OWN_QUERY_STATE_KEYS.some((key) => params[key] !== undefined);
+}
+
+function defaultsForUnsurfacedRequest(
+  params: GetQueryParams,
+  surfaceDefaults: DataViewDefaultsLayer,
+): DataViewDefaultsLayer {
+  return carriesOwnQueryState(params) ? {} : surfaceDefaults;
+}
+
+function toParamsLayer(params: GetQueryParams): DataViewParamsLayer {
+  return {
+    filters: params.filters,
+    searchTerm: params.searchTerm,
+    sortDescriptor: params.sortDescriptor,
+    pageSize: params.pageSize ?? params.pagination?.pageSize,
+    viewMode: params.viewMode,
+    groupingColumnId: params.groupingColumnId,
+  };
+}
+
+function selectActiveViewKey(
+  requestedViewId: string | undefined,
+  rememberedViewKey: string | null,
+  readable: Map<string, DataViewChipDto>,
+): { key: string; unavailable: boolean } {
+  if (requestedViewId === ALL_VIEW_KEY) return { key: ALL_VIEW_KEY, unavailable: false };
+
+  if (requestedViewId !== undefined) {
+    return readable.has(requestedViewId)
+      ? { key: requestedViewId, unavailable: false }
+      : { key: ALL_VIEW_KEY, unavailable: true };
+  }
+
+  const remembered = rememberedViewKey ?? ALL_VIEW_KEY;
+  const isResolvable = remembered === ALL_VIEW_KEY || readable.has(remembered);
+
+  return { key: isResolvable ? remembered : ALL_VIEW_KEY, unavailable: false };
+}
+
+function viewResult(surfaceKey: string | undefined, resolved: ResolvedDataViewState, context: ViewContext) {
+  return {
+    columnOrder: resolved.columnOrder,
+    columnWidths: resolved.columnWidths,
+    hiddenColumns: resolved.hiddenColumns,
+    viewMode: resolved.viewMode,
+    groupingColumnId: resolved.groupingColumnId,
+    views: context.views,
+    activeViewKey: context.activeViewKey,
+    viewIsDirty: context.override !== undefined,
+    viewIsOwner: context.isOwner,
+    viewCanShare: isShareableSurface(surfaceKey) && context.isOwner,
+    viewPersistable: env.APP_MODE !== "demo",
+    viewUnavailable: context.unavailable,
+    savedFilterPresets: context.views.map(({ id, name, state }) => ({ id, name, filters: state.filters ?? [] })),
+  };
 }
 
 function pickGroupingColumn(

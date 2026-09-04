@@ -2,12 +2,11 @@ import type { RootStore } from "@/core/stores/root.store";
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-const upsertP13nAction = vi.fn();
+const applyDataViewOverrideAction = vi.fn();
 
 vi.mock("@/app/actions", () => ({
-  upsertP13nAction: (...args: unknown[]) => upsertP13nAction(...args),
-  upsertFilterPresetAction: vi.fn(),
-  deleteFilterPresetAction: vi.fn(),
+  applyDataViewOverrideAction: (...args: unknown[]) => applyDataViewOverrideAction(...args),
+  selectDataViewAction: vi.fn(),
 }));
 
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn(() => true) }));
@@ -18,6 +17,7 @@ vi.mock("@sentry/nextjs", () => ({ captureException: (...args: unknown[]) => cap
 
 import { BaseDataViewStore, type HasId, type TableColumn } from "../base-data-view.store";
 import { registerApplicationErrorHandler } from "@/core/errors/report-application-error";
+import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 
 class TestStore extends BaseDataViewStore<HasId> {
   get columnsDefinition(): TableColumn[] {
@@ -28,11 +28,11 @@ class TestStore extends BaseDataViewStore<HasId> {
 function makeStore() {
   const rootStore = { localeStore: { getTranslation: (key: string) => key } } as unknown as RootStore;
   const store = new TestStore(rootStore);
-  store.p13nId = "tasks-store";
+  store.p13nId = SURFACE.tasks;
   return store;
 }
 
-describe("persistViewOptions rejection handling", () => {
+describe("persistViewState rejection handling", () => {
   let unhandled: unknown[] = [];
   const captureUnhandled = (reason: unknown) => unhandled.push(reason);
 
@@ -48,9 +48,9 @@ describe("persistViewOptions rejection handling", () => {
     vi.useRealTimers();
   });
 
-  it("routes a rejected p13n write to the application error handler instead of leaving it unhandled", async () => {
+  it("routes a rejected override write to the application error handler instead of leaving it unhandled", async () => {
     const demoError = new Error("Saving is not available in demo mode.");
-    upsertP13nAction.mockRejectedValue(demoError);
+    applyDataViewOverrideAction.mockRejectedValue(demoError);
 
     const seen: unknown[] = [];
     const unregister = registerApplicationErrorHandler((error) => seen.push(error));
@@ -61,14 +61,14 @@ describe("persistViewOptions rejection handling", () => {
     await vi.advanceTimersByTimeAsync(1500);
     await Promise.resolve();
 
-    expect(upsertP13nAction).toHaveBeenCalledTimes(1);
+    expect(applyDataViewOverrideAction).toHaveBeenCalledTimes(1);
     expect(seen).toEqual([demoError]);
 
     unregister();
   });
 
   it("keeps the optimistic column width applied even though the write failed", async () => {
-    upsertP13nAction.mockRejectedValue(new Error("Saving is not available in demo mode."));
+    applyDataViewOverrideAction.mockRejectedValue(new Error("Saving is not available in demo mode."));
     const unregister = registerApplicationErrorHandler(() => {});
 
     const store = makeStore();
@@ -82,7 +82,7 @@ describe("persistViewOptions rejection handling", () => {
   });
 
   it("does not report anything when the write succeeds", async () => {
-    upsertP13nAction.mockResolvedValue({ ok: true, data: null });
+    applyDataViewOverrideAction.mockResolvedValue({ ok: true, data: { hasOverride: true } });
 
     const seen: unknown[] = [];
     const unregister = registerApplicationErrorHandler((error) => seen.push(error));
@@ -92,10 +92,44 @@ describe("persistViewOptions rejection handling", () => {
 
     await vi.advanceTimersByTimeAsync(1500);
 
-    expect(upsertP13nAction).toHaveBeenCalledTimes(1);
+    expect(applyDataViewOverrideAction).toHaveBeenCalledTimes(1);
     expect(seen).toEqual([]);
 
     unregister();
+  });
+
+  it("sends a total state for the active view key, and stays silent when the surface cannot persist", async () => {
+    applyDataViewOverrideAction.mockResolvedValue({ ok: true, data: { hasOverride: true } });
+
+    const store = makeStore();
+    store.setViewOptions({ columnWidth: { uid: "title", width: 300 } });
+    await vi.advanceTimersByTimeAsync(1500);
+
+    expect(applyDataViewOverrideAction).toHaveBeenCalledExactlyOnceWith({
+      surfaceKey: SURFACE.tasks,
+      viewKey: ALL_VIEW_KEY,
+      mode: "save",
+      state: {
+        filters: [],
+        searchTerm: "",
+        sortDescriptor: null,
+        pageSize: undefined,
+        viewMode: "table",
+        groupingColumnId: null,
+        columnOrder: [],
+        columnWidths: { title: 300 },
+        hiddenColumns: [],
+      },
+    });
+
+    applyDataViewOverrideAction.mockClear();
+    const demoStore = makeStore();
+    demoStore.viewPersistable = false;
+    demoStore.setViewOptions({ columnWidth: { uid: "title", width: 320 } });
+    await vi.advanceTimersByTimeAsync(1500);
+
+    expect(applyDataViewOverrideAction).not.toHaveBeenCalled();
+    expect(demoStore.columnWidths.title).toBe(320);
   });
 });
 

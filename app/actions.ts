@@ -5,8 +5,13 @@ import type { UpsertCustomColumnData } from "@/features/custom-column/upsert-cus
 import type { GetCustomColumnsByEntityTypeData } from "@/features/custom-column/get-custom-columns-by-entity-type.interactor";
 import type { GetP13nData } from "@/features/p13n/get-p13n.interactor";
 import type { UpsertP13nData } from "@/features/p13n/upsert-p13n.interactor";
-import type { UpsertFilterPresetData } from "@/features/p13n/upsert-filter-preset.interactor";
-import type { DeleteFilterPresetData } from "@/features/p13n/delete-filter-preset.interactor";
+import type {
+  ApplyDataViewOverrideData,
+  DeleteDataViewData,
+  GetDataViewsData,
+  SelectDataViewData,
+  UpsertDataViewData,
+} from "@/features/data-view/data-view.schema";
 
 import { EntityType } from "@/generated/prisma";
 
@@ -31,8 +36,11 @@ import {
   getDeleteManyTasksInteractor,
   getGetP13nInteractor,
   getUpsertP13nInteractor,
-  getUpsertFilterPresetInteractor,
-  getDeleteFilterPresetInteractor,
+  getGetDataViewsInteractor,
+  getUpsertDataViewInteractor,
+  getDeleteDataViewInteractor,
+  getApplyDataViewOverrideInteractor,
+  getSelectDataViewInteractor,
   getGetCompanySettingsInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
@@ -62,12 +70,24 @@ export async function getP13nAction(data: GetP13nData) {
   return serializeResult(getGetP13nInteractor().invoke(data));
 }
 
-export async function upsertFilterPresetAction(data: UpsertFilterPresetData) {
-  return serializeResult(getUpsertFilterPresetInteractor().invoke(data));
+export async function getDataViewsAction(data: GetDataViewsData) {
+  return serializeResult(getGetDataViewsInteractor().invoke(data));
 }
 
-export async function deleteFilterPresetAction(data: DeleteFilterPresetData) {
-  return serializeResult(getDeleteFilterPresetInteractor().invoke(data));
+export async function upsertDataViewAction(data: UpsertDataViewData) {
+  return serializeResult(getUpsertDataViewInteractor().invoke(data));
+}
+
+export async function deleteDataViewAction(data: DeleteDataViewData) {
+  return serializeResult(getDeleteDataViewInteractor().invoke(data));
+}
+
+export async function applyDataViewOverrideAction(data: ApplyDataViewOverrideData) {
+  return serializeResult(getApplyDataViewOverrideInteractor().invoke(data));
+}
+
+export async function selectDataViewAction(data: SelectDataViewData) {
+  return serializeResult(getSelectDataViewInteractor().invoke(data));
 }
 
 export async function updateEntityCustomFieldValueAction(data: {

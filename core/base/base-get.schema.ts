@@ -3,7 +3,7 @@ import type { Data } from "../validation/validation.utils";
 import { z } from "zod";
 import { Prisma } from "@/generated/prisma";
 
-import { FilterOperatorKey } from "./base-query-builder";
+import { FilterOperatorKey, ViewMode } from "./base-query-builder";
 import { normalizeFilterInput } from "./filter-compat";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -120,6 +120,7 @@ export const SavedFilterPresetSchema = z.object({
   name: z.string().min(1),
   filters: z.array(FilterSchema),
 });
+export type SavedFilterPreset = Data<typeof SavedFilterPresetSchema>;
 
 export const FilterableFieldSchema = z.object({
   field: z.string(),
@@ -146,12 +147,15 @@ export type GetQueryParamsApi = Data<typeof GetQueryParamsApiSchema>;
 
 export const GetQueryParamsSchema = GetQueryParamsApiSchema.extend({
   p13nId: z.string().optional(),
+  viewId: z.string().optional(),
+  page: z.number().int().min(1).optional(),
+  pageSize: z.union([z.literal(5), z.literal(10), z.literal(25), z.literal(100)]).optional(),
+  viewMode: z.enum(ViewMode).optional(),
+  groupingColumnId: z.uuid().nullish(),
 });
 export type GetQueryParams = Data<typeof GetQueryParamsSchema> & {
   take?: number;
   skip?: number;
-  viewMode?: "table" | "card";
-  groupingColumnId?: string | null;
 };
 
 export const GetConfigurationSchema = z.object({
@@ -173,7 +177,17 @@ export const GetResultSchema = z.object({
   savedFilterPresets: z.array(SavedFilterPresetSchema).optional(),
 });
 
-export function createGetResultSchema<T extends z.ZodSchema>(itemSchema: T) {
+export const DataViewResultFields = {
+  views: z.array(z.any()).optional(),
+  activeViewKey: z.string().optional(),
+  viewIsDirty: z.boolean().optional(),
+  viewIsOwner: z.boolean().optional(),
+  viewCanShare: z.boolean().optional(),
+  viewPersistable: z.boolean().optional(),
+  viewUnavailable: z.boolean().optional(),
+};
+
+export function createApiGetResultSchema<T extends z.ZodSchema>(itemSchema: T) {
   return z.object({
     p13nId: z.string().optional(),
     items: z.array(itemSchema),
@@ -200,4 +214,8 @@ export function createGetResultSchema<T extends z.ZodSchema>(itemSchema: T) {
     groupValueSums: z.record(z.string(), GroupValueSumsSchema).optional(),
     valueSums: GroupValueSumsSchema.optional(),
   });
+}
+
+export function createGetResultSchema<T extends z.ZodSchema>(itemSchema: T) {
+  return createApiGetResultSchema(itemSchema).extend(DataViewResultFields);
 }

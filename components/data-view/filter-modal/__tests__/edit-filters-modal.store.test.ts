@@ -4,13 +4,13 @@ import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store"
 import type { RootStore } from "@/core/stores/root.store";
 import type { Filter, FilterableField } from "@/core/base/base-get.schema";
 
-const { deleteFilterPresetAction, upsertFilterPresetAction } = vi.hoisted(() => ({
-  deleteFilterPresetAction: vi.fn(),
-  upsertFilterPresetAction: vi.fn(),
+const { deleteDataViewAction, upsertDataViewAction } = vi.hoisted(() => ({
+  deleteDataViewAction: vi.fn(),
+  upsertDataViewAction: vi.fn(),
 }));
 
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
-vi.mock("@/app/actions", () => ({ deleteFilterPresetAction, upsertFilterPresetAction }));
+vi.mock("@/app/actions", () => ({ deleteDataViewAction, upsertDataViewAction }));
 
 import { EditFiltersModalStore, FILTER_AUTO_APPLY_DELAY_MS } from "../edit-filters-modal.store";
 
@@ -55,8 +55,8 @@ function committedFilters(table: ReturnType<typeof tableStore>, call = 0) {
 describe("EditFiltersModalStore auto-apply", () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    upsertFilterPresetAction.mockReset();
-    deleteFilterPresetAction.mockReset();
+    upsertDataViewAction.mockReset();
+    deleteDataViewAction.mockReset();
   });
 
   afterEach(() => {
@@ -244,7 +244,7 @@ describe("EditFiltersModalStore auto-apply", () => {
     store.onChange("filters[0].value", "acme");
     await store.onSubmit();
 
-    expect(upsertFilterPresetAction).not.toHaveBeenCalled();
+    expect(upsertDataViewAction).not.toHaveBeenCalled();
     expect(store.isOpen).toBe(true);
     expect(committedFilters(table)).toEqual({
       filters: [{ field: "name", operator: "contains", value: "acme" }],
@@ -255,7 +255,7 @@ describe("EditFiltersModalStore auto-apply", () => {
   it("writes the preset and closes only on an explicit save", async () => {
     const table = tableStore();
     const store = openedOn(table);
-    upsertFilterPresetAction.mockResolvedValue({ ok: true, data: {} });
+    upsertDataViewAction.mockResolvedValue({ ok: true, data: {} });
 
     store.onChange("presetId", "new");
     store.onChange("name", "Hot leads");
@@ -263,11 +263,11 @@ describe("EditFiltersModalStore auto-apply", () => {
     store.onChange("filters[0].value", "acme");
     await store.onSubmit();
 
-    expect(upsertFilterPresetAction).toHaveBeenCalledWith({
-      p13nId: "contacts",
+    expect(upsertDataViewAction).toHaveBeenCalledWith({
+      id: undefined,
+      surfaceKey: "contacts",
       name: "Hot leads",
-      presetId: undefined,
-      filters: [{ field: "name", operator: "contains", value: "acme" }],
+      state: { filters: [{ field: "name", operator: "contains", value: "acme" }] },
     });
     expect(store.isOpen).toBe(false);
   });

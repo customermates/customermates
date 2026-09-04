@@ -95,10 +95,22 @@ class MockActivitiesRepo extends GetActivitiesRepo {
   }
 }
 
-function makeInteractor(repo: MockActivitiesRepo, denied = false) {
+const A_TIMELINE_VIEW = {
+  id: "7d2c1b90-4a3e-4f51-8c62-0a1b2c3d4e5f",
+  name: "Emails only",
+  visibility: "private" as const,
+  position: 0,
+  isOwner: true,
+  ownerName: "Max Mustermann",
+  state: {},
+};
+
+function makeInteractor(repo: MockActivitiesRepo, denied = false, surfaceViews = [] as (typeof A_TIMELINE_VIEW)[]) {
   return new GetActivitiesInteractor(
     repo,
-    { getP13n: vi.fn(), upsertP13n: vi.fn() },
+    {
+      loadSurfaceState: vi.fn().mockResolvedValue({ activeViewKey: null, views: surfaceViews, overrides: new Map() }),
+    },
     "interactive",
     {} as never,
     {
@@ -110,7 +122,7 @@ function makeInteractor(repo: MockActivitiesRepo, denied = false) {
 function makeApiInteractor(repo: MockActivitiesRepo, precheck: { invoke: ReturnType<typeof vi.fn> }) {
   return new GetActivitiesInteractor(
     repo,
-    { getP13n: vi.fn(), upsertP13n: vi.fn() },
+    { loadSurfaceState: vi.fn().mockResolvedValue({ activeViewKey: null, views: [], overrides: new Map() }) },
     "api",
     precheck as never,
     { require: vi.fn().mockResolvedValue({ ok: false }) } as never,
@@ -144,6 +156,24 @@ describe("GetActivitiesInteractor", () => {
     const result = await invoke(repo);
 
     expect(result.ok && result.data.availableSources).toEqual([]);
+  });
+
+  it("keeps the data view fields on the interactive timeline output instead of validating them away", async () => {
+    const result = await runWithTenant(mockUser, () =>
+      makeInteractor(new MockActivitiesRepo(), false, [A_TIMELINE_VIEW]).invoke({
+        p13nId: "entity-timeline",
+        pagination: { page: 1, pageSize: 25 },
+      }),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data.views).toEqual([A_TIMELINE_VIEW]);
+    expect(result.data.activeViewKey).toBe("__all__");
+    expect(result.data.viewIsDirty).toBe(false);
+    expect(result.data.viewCanShare).toBe(false);
+    expect(result.data.viewPersistable).toBe(true);
+    expect(result.data.viewUnavailable).toBe(false);
   });
 
   it("keeps the full known filter contract in API precheck after messaging permission loss", async () => {

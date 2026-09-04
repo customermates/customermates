@@ -24,6 +24,7 @@ import {
 import type { SeedContext } from "./context";
 import type { CustomFieldSeedData } from "./custom-fields";
 
+import { SYNTHETIC_DATA_VIEW_IDS } from "./data-view-ids";
 import { fixtureId } from "./helpers";
 
 export const SYNTHETIC_P13N_ID_PREFIX = "1f000000";
@@ -247,6 +248,7 @@ export function buildSyntheticP13nFixtures(
       groupingColumnId: null,
     }),
     fixture(SYNTHETIC_P13N_IDS.organizations, "organizations-card-store", {
+      activeViewKey: SYNTHETIC_DATA_VIEW_IDS.directCustomer,
       columnOrder: [
         "contacts",
         "deals",

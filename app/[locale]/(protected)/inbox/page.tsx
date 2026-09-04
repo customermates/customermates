@@ -10,7 +10,8 @@ import {
   getUserService,
 } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
-import { decodeGetParams } from "@/core/utils/get-params";
+import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
+import { SURFACE } from "@/core/data-view/data-view-keys";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { PageContainer } from "@/components/shared/page-container";
@@ -37,7 +38,7 @@ export default async function InboxPage({ searchParams }: Props) {
 
   const { threadId: threadIdRaw, ...listParams } = await searchParams;
   const threadId = !locked && typeof threadIdRaw === "string" ? threadIdRaw : null;
-  const threadParams = decodeGetParams(listParams);
+  const threadParams = await readSurfaceParams(SURFACE.messagingThreads, listParams);
 
   const threadResult = threadId ? await getGetMessagingThreadInteractor().invoke({ threadId }) : null;
 
@@ -45,9 +46,7 @@ export default async function InboxPage({ searchParams }: Props) {
 
   const threads = locked
     ? { items: [] }
-    : await unwrapValidated(
-        getGetMessagingThreadsInteractor().invoke({ ...threadParams, p13nId: "messaging-threads-card-store" }),
-      );
+    : await unwrapValidated(getGetMessagingThreadsInteractor().invoke(threadParams));
 
   const threadDetail = threadResult?.ok ? threadResult.data : null;
 
