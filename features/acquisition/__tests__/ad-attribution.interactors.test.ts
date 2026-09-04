@@ -13,7 +13,7 @@ vi.mock("next-intl/server", () => ({
 
 import type { PublicAdAttributionCookie } from "../ad-attribution.schema";
 
-import { LEGAL_DOCUMENT_VERSIONS } from "@/constants/legal-documents";
+import { AD_ATTRIBUTION_NOTICE_VERSION } from "@/constants/legal-documents";
 import { ExpireAdAttributionInteractor } from "@/ee/lifecycle/expire-ad-attribution.interactor";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 import { CaptureAdClickInteractor } from "../capture-ad-click.interactor";
@@ -25,7 +25,7 @@ const cookieRepo = { readCookie: vi.fn(), writeCookie: vi.fn() };
 
 const freshPendingAt = () => new Date().toISOString();
 
-const storedCookie = (clicks: unknown[], noticeVersion: string = LEGAL_DOCUMENT_VERSIONS.privacy) =>
+const storedCookie = (clicks: unknown[], noticeVersion: string = AD_ATTRIBUTION_NOTICE_VERSION) =>
   ({
     version: 1,
     consent: { advertising: true, decidedAt: "2026-08-31T10:00:00.000Z", noticeVersion },
@@ -127,7 +127,11 @@ describe("ad attribution consent interactors", () => {
   it("does not write when a refusal is stored", async () => {
     cookieRepo.readCookie.mockResolvedValue({
       ...storedCookie([]),
-      consent: { advertising: false, decidedAt: "2026-08-31T10:00:00.000Z", noticeVersion: "2026-09-02" },
+      consent: {
+        advertising: false,
+        decidedAt: "2026-08-31T10:00:00.000Z",
+        noticeVersion: AD_ATTRIBUTION_NOTICE_VERSION,
+      },
     });
 
     await unwrapValidated(capture().invoke({ search: "?gclid=blocked", pendingAt: freshPendingAt() }));
@@ -160,7 +164,11 @@ describe("narrow ad attribution interactors", () => {
   };
   const refusedCookie = {
     version: 1,
-    consent: { advertising: false, decidedAt: "2026-08-31T10:00:00.000Z", noticeVersion: "2026-09-02" },
+    consent: {
+      advertising: false,
+      decidedAt: "2026-08-31T10:00:00.000Z",
+      noticeVersion: AD_ATTRIBUTION_NOTICE_VERSION,
+    },
     clicks: [],
     expiresAt: "2027-11-29T10:00:00.000Z",
   } as unknown as PublicAdAttributionCookie;

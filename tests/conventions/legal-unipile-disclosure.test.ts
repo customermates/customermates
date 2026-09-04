@@ -719,6 +719,16 @@ describe("legal update workflow disclosure", () => {
     expect(deSubprocessors).toMatch(/Resend[\s\S]*Mitteilungen über aktualisierte AGB/i);
   });
 
+  it("does not describe the historical advertising launch state as current privacy behavior", () => {
+    const enPrivacy = legal("en", "privacy");
+    const dePrivacy = legal("de", "privacy");
+
+    expect(enPrivacy).toContain("No advertising platform has received anything from this feature yet.");
+    expect(dePrivacy).toContain("Keine Werbeplattform hat aus dieser Funktion bisher etwas erhalten.");
+    expect(enPrivacy).not.toContain("no advertisement of ours has run");
+    expect(dePrivacy).not.toContain("keine unserer Anzeigen ist bisher gelaufen");
+  });
+
   it("keeps the legal flow free of superseded deployment and deterministic-key machinery", () => {
     const productionPaths = [
       "constants/legal-documents.ts",
