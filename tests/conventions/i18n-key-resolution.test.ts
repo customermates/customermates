@@ -16,6 +16,7 @@ import {
   Status,
   SubscriptionPlan,
   SubscriptionStatus,
+  TaskType,
   Theme,
   WebhookDeliveryStatus,
   WidgetKind,
@@ -66,6 +67,14 @@ const AGGREGATION_TYPE_KEYS = [
   "Dashboard.aggregationTypes.dealValueRelated",
   "Dashboard.aggregationTypes.dealWeightedValueRelated",
 ] as const;
+const DATE_BUCKET_KEYS = [
+  "Common.dateBuckets.day",
+  "Common.dateBuckets.earlier",
+  "Common.dateBuckets.later",
+  "Common.dateBuckets.month",
+  "Common.dateBuckets.week",
+] as const;
+const TASK_TYPE_KEYS = Object.values(TaskType).map((type) => `Common.taskTypes.${type}`);
 const DATE_PRESET_KEYS = [
   "Common.datePresets.endTime",
   "Common.datePresets.inAMonth",
@@ -410,6 +419,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["AuthSocialErrors.${*}", AUTH_SOCIAL_ERROR_KEYS],
   ["Common.colors.${*}", COLOR_KEYS],
   ["Common.customColumnTypes.${*}", CUSTOM_COLUMN_TYPE_KEYS],
+  ["Common.dateBuckets.${*}", DATE_BUCKET_KEYS],
   ["Common.datePresets.${*}", DATE_PRESET_KEYS],
   ["Common.defaultData.${*}.columnLabel", DEFAULT_DATA_COLUMN_KEYS],
   ["Common.defaultData.${*}.options.${*}", DEFAULT_DATA_OPTION_KEYS],
@@ -599,6 +609,7 @@ export const DYNAMIC_KEY_SITES = [
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Subscription.status.${status}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Inbox.threadStates.${state}",
   "components/data-view/header/active-filters-bar.tsx :: t :: Common.filters.operators.${filter.operator}",
+  "components/data-view/group-label.ts :: t :: Common.dateBuckets.${bucket}",
   "components/entity-terminology/use-column-label.ts :: t :: AuditLogModal.fields.${columnId}",
   "components/entity-terminology/use-column-label.ts :: t :: Common.table.columns.${columnId}",
   "components/entity-terminology/use-column-label.ts :: t.has :: AuditLogModal.fields.${columnId}",
@@ -684,6 +695,8 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["app/components/app-topbar-crumbs.ts :: t :: subroute.labelKey", 1],
   ["components/card/form-actions.tsx :: t :: primaryButtonLabel", 1],
   ["components/data-transfer/import-wizard.tsx :: t :: field.labelKey", 1],
+  ["components/data-view/group-label.ts :: t :: group.labelKey", 1],
+  ["components/data-view/header/display-options.tsx :: t :: field.labelKey", 1],
   ["components/data-transfer/import-wizard.tsx :: t :: labelKey", 1],
   ["components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: nameKey", 1],
   ["components/entity-detail/entity-detail.registry.tsx :: t :: key", 1],
@@ -762,6 +775,13 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
   {
     file: "features/event/entity-name.utils.ts",
     keys: ["Common.company"],
+  },
+  {
+    file: "core/base/grouping/groupable-field.ts",
+    keys: TASK_TYPE_KEYS,
+    evidence: Object.fromEntries(
+      TASK_TYPE_KEYS.map((key) => [key, [{ kind: "template" as const, value: "`Common.taskTypes.${value}`" }]]),
+    ),
   },
   {
     file: "app/[locale]/(protected)/dashboard/components/widget-label.ts",

@@ -36,6 +36,7 @@ const VIEW_SELECT = {
   sortDescriptor: true,
   viewMode: true,
   groupingColumnId: true,
+  grouping: true,
   columnOrder: true,
   columnWidths: true,
   hiddenColumns: true,

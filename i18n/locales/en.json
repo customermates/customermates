@@ -864,6 +864,13 @@
       "immutableType": "Field type is fixed after creation. Create a new custom field to use another type.",
       "probabilityPermission": "Stage probabilities are managed in {company}. Ask a workspace administrator for permission to update them."
     },
+    "dateBuckets": {
+      "day": "Day",
+      "earlier": "Earlier",
+      "later": "Later",
+      "month": "Month",
+      "week": "Week"
+    },
     "datePresets": {
       "endTime": "End time",
       "inAMonth": "In a month",
@@ -1387,6 +1394,10 @@
       "previousPage": "Previous page",
       "search": "Search..."
     },
+    "taskTypes": {
+      "custom": "Custom",
+      "userPendingAuthorization": "Pending authorization"
+    },
     "themes": {
       "dark": "Dark",
       "light": "Light",
@@ -1730,8 +1741,11 @@
     "menu": "Import and export"
   },
   "DataView": {
+    "collapseGroup": "Collapse group {group}",
     "dragToReorder": "Drag to reorder",
     "editColumn": "Edit column",
+    "expandGroup": "Expand group {group}",
+    "groupOverflow": "Only {count} groups are shown",
     "noValue": "No value",
     "resizeColumn": "Resize {column} column. Drag or use arrow keys to resize; double-tap or press Enter to reset.",
     "resizeHint": "Drag to resize. Double-click to reset.",

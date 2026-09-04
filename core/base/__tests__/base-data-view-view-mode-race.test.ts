@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { GetResult } from "../base-get.interactor";
 import type { GetQueryParams } from "../base-get.schema";
+import type { Grouping, GroupingResult } from "@/core/base/grouping/grouping.schema";
 import type { RootStore } from "@/core/stores/root.store";
 
 const { applyDataViewOverrideAction, selectDataViewAction } = vi.hoisted(() => ({
@@ -27,10 +28,23 @@ type Item = { id: string };
 
 const GROUPING_COLUMN_ID = "5b4c2ad0-52b1-4a9f-9d3a-1c5f2f5c9a01";
 
+function groupingResult(grouping: Grouping | undefined): GroupingResult | undefined {
+  if (!grouping) return undefined;
+
+  return {
+    grouping,
+    kind: "customSingleSelect",
+    supportsDragWriteBack: true,
+    columnId: grouping.field,
+    groups: [],
+    total: 0,
+  };
+}
+
 class TestStore extends BaseDataViewStore<Item> {
   requestedParams: (GetQueryParams | undefined)[] = [];
   storedViewMode: ViewMode = ViewMode.table;
-  storedGroupingColumnId: string | undefined = undefined;
+  storedGrouping: Grouping | undefined = undefined;
 
   get columnsDefinition() {
     return [{ uid: "name" }, { uid: "stage" }];
@@ -47,7 +61,7 @@ class TestStore extends BaseDataViewStore<Item> {
       activeViewKey: ALL_VIEW_KEY,
       viewPersistable: true,
       viewMode: params?.viewMode ?? this.storedViewMode,
-      groupingColumnId: params?.groupingColumnId ?? this.storedGroupingColumnId,
+      grouping: groupingResult(params?.grouping ?? this.storedGrouping),
     });
   }
 }
@@ -90,7 +104,7 @@ describe("view mode survives the refresh that races its own persistence", () => 
   it("sends the live view mode on the refresh that fires before the override write lands", async () => {
     const store = hydrated();
 
-    store.setViewOptions({ viewMode: ViewMode.card, groupingColumnId: GROUPING_COLUMN_ID });
+    store.setViewOptions({ viewMode: ViewMode.card, grouping: { field: GROUPING_COLUMN_ID } });
 
     expect(applyDataViewOverrideAction).not.toHaveBeenCalled();
 
@@ -98,16 +112,16 @@ describe("view mode survives the refresh that races its own persistence", () => 
 
     expect(store.requestedParams).toHaveLength(1);
     expect(store.requestedParams[0]?.viewMode).toBe(ViewMode.card);
-    expect(store.requestedParams[0]?.groupingColumnId).toBe(GROUPING_COLUMN_ID);
+    expect(store.requestedParams[0]?.grouping).toEqual({ field: GROUPING_COLUMN_ID });
     expect(store.viewMode).toBe(ViewMode.card);
-    expect(store.groupingColumnId).toBe(GROUPING_COLUMN_ID);
+    expect(store.grouping).toEqual({ field: GROUPING_COLUMN_ID });
 
     await vi.advanceTimersByTimeAsync(1000);
 
     expect(applyDataViewOverrideAction).toHaveBeenCalledTimes(1);
     expect(applyDataViewOverrideAction.mock.calls[0]?.[0]?.state).toMatchObject({
       viewMode: ViewMode.card,
-      groupingColumnId: GROUPING_COLUMN_ID,
+      grouping: { field: GROUPING_COLUMN_ID },
     });
     expect(store.viewMode).toBe(ViewMode.card);
   });
@@ -115,7 +129,7 @@ describe("view mode survives the refresh that races its own persistence", () => 
   it("applies a view mode the server resolved, on a store that is already ready", async () => {
     const store = hydrated();
     store.storedViewMode = ViewMode.card;
-    store.storedGroupingColumnId = GROUPING_COLUMN_ID;
+    store.storedGrouping = { field: GROUPING_COLUMN_ID };
 
     await store.refresh();
 
@@ -126,11 +140,12 @@ describe("view mode survives the refresh that races its own persistence", () => 
       items: [],
       p13nId: SURFACE.deals,
       viewMode: ViewMode.card,
-      groupingColumnId: GROUPING_COLUMN_ID,
+      grouping: groupingResult({ field: GROUPING_COLUMN_ID }),
       viewPersistable: true,
     });
 
     expect(store.viewMode).toBe(ViewMode.card);
+    expect(store.grouping).toEqual({ field: GROUPING_COLUMN_ID });
     expect(store.groupingColumnId).toBe(GROUPING_COLUMN_ID);
   });
 });

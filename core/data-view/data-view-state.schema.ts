@@ -3,6 +3,7 @@ import type { Data } from "@/core/validation/validation.utils";
 import { z } from "zod";
 
 import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
+import { GroupingSchema } from "@/core/base/grouping/grouping.schema";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { DataViewVisibility } from "@/generated/prisma";
 
@@ -25,7 +26,7 @@ const RawDataViewStateSchema = z
     sortDescriptor: SortDescriptorSchema.nullable(),
     pageSize: DataViewPageSizeSchema,
     viewMode: z.enum(ViewMode),
-    groupingColumnId: z.uuid().nullable(),
+    grouping: GroupingSchema.nullable(),
     columnOrder: z.array(z.string()),
     columnWidths: z.record(z.string(), z.number()),
     hiddenColumns: z.array(z.string()),
@@ -43,7 +44,7 @@ export const DATA_VIEW_STATE_FIELDS = [
   "sortDescriptor",
   "pageSize",
   "viewMode",
-  "groupingColumnId",
+  "grouping",
   "columnOrder",
   "columnWidths",
   "hiddenColumns",

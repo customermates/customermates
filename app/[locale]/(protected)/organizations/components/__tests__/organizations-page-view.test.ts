@@ -101,7 +101,7 @@ import { OrganizationsPageView } from "../organizations-page-view";
 type StoreState = {
   canManage?: boolean;
   filters?: unknown[];
-  groupingColumnId?: string | null;
+  hasGrouping?: boolean;
   isReady?: boolean;
   isRefreshing?: boolean;
   itemCount?: number;
@@ -129,7 +129,7 @@ function renderState(state: StoreState = {}) {
             : { status: "ready" },
     entityType: EntityType.organization,
     filters: state.filters ?? [],
-    groupingColumnId: state.groupingColumnId ?? null,
+    isGrouped: state.hasGrouping ?? false,
     isDisabled: !(state.canManage ?? true),
     isReady: state.isReady ?? true,
     isRefreshing: state.isRefreshing ?? false,
@@ -158,11 +158,11 @@ describe("OrganizationsPageView", () => {
   });
 
   it.each([
-    [ViewMode.table, null, "table"],
-    [ViewMode.card, null, "cards"],
-    [ViewMode.card, "organization-type", "board"],
-  ] as const)("renders one accessible animated %s loading branch", (viewMode, groupingColumnId, view) => {
-    const { html } = renderState({ groupingColumnId, isReady: false, viewMode });
+    [ViewMode.table, false, "table"],
+    [ViewMode.card, false, "cards"],
+    [ViewMode.card, true, "board"],
+  ] as const)("renders one accessible animated %s loading branch", (viewMode, hasGrouping, view) => {
+    const { html } = renderState({ hasGrouping, isReady: false, viewMode });
 
     expect(html).toContain('data-page-state="loading"');
     expect(html).toContain('data-organizations-page-skeleton="true"');
@@ -202,11 +202,11 @@ describe("OrganizationsPageView", () => {
   });
 
   it.each([
-    [ViewMode.table, null, "table"],
-    [ViewMode.card, null, "cards"],
-    [ViewMode.card, "organization-type", "board"],
-  ] as const)("uses one static inert %s background for true empty", (viewMode, groupingColumnId, view) => {
-    const { html } = renderState({ groupingColumnId, total: 0, viewMode });
+    [ViewMode.table, false, "table"],
+    [ViewMode.card, false, "cards"],
+    [ViewMode.card, true, "board"],
+  ] as const)("uses one static inert %s background for true empty", (viewMode, hasGrouping, view) => {
+    const { html } = renderState({ hasGrouping, total: 0, viewMode });
 
     expect(html).toContain(`data-skeleton-view="${view}"`);
     expect(html).toContain('data-page-state-background="true"');
@@ -224,11 +224,11 @@ describe("OrganizationsPageView", () => {
   });
 
   it.each([
-    [ViewMode.table, null, "table"],
-    [ViewMode.card, null, "cards"],
-    [ViewMode.card, "organization-type", "board"],
-  ] as const)("renders loaded %s content", (viewMode, groupingColumnId, view) => {
-    const { html } = renderState({ groupingColumnId, itemCount: 1, total: 1, viewMode });
+    [ViewMode.table, false, "table"],
+    [ViewMode.card, false, "cards"],
+    [ViewMode.card, true, "board"],
+  ] as const)("renders loaded %s content", (viewMode, hasGrouping, view) => {
+    const { html } = renderState({ hasGrouping, itemCount: 1, total: 1, viewMode });
 
     expect(html).toContain('data-data-view-content="true"');
     expect(html).toContain(`data-view="${view}"`);

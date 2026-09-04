@@ -1,4 +1,5 @@
 import type { Filter, SortDescriptor } from "@/core/base/base-get.schema";
+import type { Grouping } from "@/core/base/grouping/grouping.schema";
 import type { DataViewState } from "./data-view-state.schema";
 
 import deepEqual from "fast-deep-equal/es6";
@@ -17,7 +18,7 @@ const PARAM_CARRIED_FIELDS = new Set<keyof DataViewState>([
   "sortDescriptor",
   "pageSize",
   "viewMode",
-  "groupingColumnId",
+  "grouping",
 ]);
 
 export type DataViewParamsLayer = {
@@ -26,7 +27,7 @@ export type DataViewParamsLayer = {
   sortDescriptor?: SortDescriptor | null;
   pageSize?: DataViewPageSize;
   viewMode?: ViewMode;
-  groupingColumnId?: string | null;
+  grouping?: Grouping | null;
 };
 
 export type DataViewDefaultsLayer = {
@@ -42,7 +43,7 @@ export type ResolvedDataViewState = {
   sortDescriptor: SortDescriptor | undefined;
   pageSize: DataViewPageSize;
   viewMode: ViewMode;
-  groupingColumnId: string | undefined;
+  grouping: Grouping | undefined;
   columnOrder: string[];
   columnWidths: Record<string, number>;
   hiddenColumns: string[];
@@ -95,7 +96,7 @@ export function resolveDataViewState({
     sortDescriptor: (out.sortDescriptor as SortDescriptor | null | undefined) ?? defaults?.sortDescriptor,
     pageSize: (out.pageSize as DataViewPageSize | undefined) ?? defaults?.pageSize ?? DEFAULT_DATA_VIEW_PAGE_SIZE,
     viewMode: (out.viewMode as ViewMode | undefined) ?? ViewMode.table,
-    groupingColumnId: (out.groupingColumnId as string | null | undefined) ?? undefined,
+    grouping: (out.grouping as Grouping | null | undefined) ?? undefined,
     columnOrder: (out.columnOrder as string[] | undefined) ?? [],
     columnWidths: (out.columnWidths as Record<string, number> | undefined) ?? {},
     hiddenColumns: (out.hiddenColumns as string[] | undefined) ?? [],
@@ -103,7 +104,7 @@ export function resolveDataViewState({
 }
 
 function comparable(key: keyof DataViewState, value: unknown): unknown {
-  if (key === "sortDescriptor" || key === "groupingColumnId") return value ?? null;
+  if (key === "sortDescriptor" || key === "grouping") return value ?? null;
   if (key === "searchTerm") return value === "" ? undefined : value;
   return value;
 }

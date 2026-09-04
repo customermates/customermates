@@ -1,14 +1,12 @@
 import type { Filter, GetQueryParams, SortDescriptor } from "@/core/base/base-get.schema";
 
-import { z } from "zod";
-
 import { FilterOperatorKey, ViewMode } from "../base/base-query-builder";
+import { decodeGroupingToken, encodeGroupingToken } from "../base/grouping/grouping.schema";
 import { normalizeFilter } from "../base/filter-compat";
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 25;
 const VALID_PAGE_SIZES = [5, 10, 25, 100];
-const GroupingColumnIdSchema = z.uuid();
 
 export const GET_PARAM_KEYS = [
   "filters",
@@ -43,7 +41,7 @@ export function encodeGetParams(params: GetQueryParams = {}): URLSearchParams {
 
   if (params.viewId) sp.set("view", params.viewId);
   if (params.viewMode && params.viewMode !== ViewMode.table) sp.set("viewMode", params.viewMode);
-  if (params.viewMode === ViewMode.card && params.groupingColumnId) sp.set("groupBy", params.groupingColumnId);
+  if (params.grouping) sp.set("groupBy", encodeGroupingToken(params.grouping));
 
   if (params.filters && params.filters.length > 0) {
     for (const candidate of params.filters) {
@@ -155,9 +153,7 @@ export function decodeGetParams(
         : undefined,
     viewId: source.get("view") || undefined,
     viewMode: decodedViewMode === ViewMode.card || decodedViewMode === ViewMode.table ? decodedViewMode : undefined,
-    groupingColumnId: GroupingColumnIdSchema.safeParse(decodedGroupBy).success
-      ? (decodedGroupBy ?? undefined)
-      : undefined,
+    grouping: decodeGroupingToken(decodedGroupBy),
   };
 }
 

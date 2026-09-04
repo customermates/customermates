@@ -12,6 +12,7 @@ type ResolveDataViewPageStateInput = {
   hasActiveQuery: boolean;
   total?: number;
   explicitlyUnpaginated: boolean;
+  isGrouped?: boolean;
 };
 
 export function resolveDataViewPageState({
@@ -20,16 +21,18 @@ export function resolveDataViewPageState({
   hasActiveQuery,
   total,
   explicitlyUnpaginated,
+  isGrouped,
 }: ResolveDataViewPageStateInput): DataViewPageState {
   if (request.status === "refresh-error" && itemCount === 0) return "error";
   if (request.status === "uninitialized" || request.status === "refreshing") return "loading";
   if (itemCount > 0) return "content";
+  if (isGrouped && (total ?? 0) > 0) return "content";
   if (hasActiveQuery) return "filtered-empty";
   if (total === 0 || explicitlyUnpaginated) return "true-empty";
   return "content";
 }
 
-export function resolveDataViewView(viewMode: ViewMode, groupingColumnId?: string | null): DataViewView {
+export function resolveDataViewView(viewMode: ViewMode, hasGrouping?: boolean): DataViewView {
   if (viewMode === ViewMode.table) return "table";
-  return groupingColumnId ? "board" : "cards";
+  return hasGrouping ? "board" : "cards";
 }

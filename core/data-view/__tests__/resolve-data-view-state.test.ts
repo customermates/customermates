@@ -32,7 +32,7 @@ describe("resolveDataViewState precedence", () => {
       sortDescriptor: paramSort,
       pageSize: 10,
       viewMode: ViewMode.card,
-      groupingColumnId: "11111111-1111-4111-8111-111111111111",
+      grouping: { field: "11111111-1111-4111-8111-111111111111" },
     };
     const override: DataViewState = {
       filters: [overrideFilter],
@@ -40,7 +40,7 @@ describe("resolveDataViewState precedence", () => {
       sortDescriptor: viewSort,
       pageSize: 100,
       viewMode: ViewMode.table,
-      groupingColumnId: null,
+      grouping: null,
     };
     const view: DataViewState = { filters: [viewFilter], searchTerm: "view-search", pageSize: 5 };
 
@@ -50,7 +50,7 @@ describe("resolveDataViewState precedence", () => {
       sortDescriptor: paramSort,
       pageSize: 10,
       viewMode: ViewMode.card,
-      groupingColumnId: "11111111-1111-4111-8111-111111111111",
+      grouping: { field: "11111111-1111-4111-8111-111111111111" },
       columnOrder: [],
       columnWidths: {},
       hiddenColumns: [],
@@ -157,7 +157,7 @@ describe("resolveDataViewState precedence", () => {
       sortDescriptor: undefined,
       pageSize: 100,
       viewMode: ViewMode.table,
-      groupingColumnId: undefined,
+      grouping: undefined,
       columnOrder: [],
       columnWidths: {},
       hiddenColumns: [],
@@ -166,11 +166,11 @@ describe("resolveDataViewState precedence", () => {
 
   it("treats a cleared grouping column as no grouping with no floor", () => {
     const resolved = resolveDataViewState({
-      override: { groupingColumnId: null },
-      view: { groupingColumnId: "22222222-2222-4222-8222-222222222222" },
+      override: { grouping: null },
+      view: { grouping: { field: "22222222-2222-4222-8222-222222222222" } },
     });
 
-    expect(resolved.groupingColumnId).toBeUndefined();
+    expect(resolved.grouping).toBeUndefined();
   });
 });
 
@@ -183,7 +183,7 @@ describe("diffDataViewState", () => {
       sortDescriptor: viewSort,
       pageSize: 100,
       viewMode: ViewMode.table,
-      groupingColumnId: null,
+      grouping: null,
       columnOrder: [],
       columnWidths: {},
       hiddenColumns: [],
@@ -200,7 +200,7 @@ describe("diffDataViewState", () => {
       sortDescriptor: viewSort,
       pageSize: 100,
       viewMode: ViewMode.table,
-      groupingColumnId: null,
+      grouping: null,
       columnOrder: [],
       columnWidths: { firstName: 320 },
       hiddenColumns: [],

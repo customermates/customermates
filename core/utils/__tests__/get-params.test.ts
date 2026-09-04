@@ -39,7 +39,7 @@ describe("filter URL parameters", () => {
       filters,
       viewId,
       viewMode: ViewMode.card,
-      groupingColumnId,
+      grouping: { field: groupingColumnId },
       page: 2,
     });
 
@@ -51,7 +51,7 @@ describe("filter URL parameters", () => {
       pageSize: undefined,
       viewId,
       viewMode: ViewMode.card,
-      groupingColumnId,
+      grouping: { field: groupingColumnId },
     });
   });
 

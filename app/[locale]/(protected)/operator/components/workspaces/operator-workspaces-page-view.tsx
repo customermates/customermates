@@ -32,11 +32,12 @@ export const OperatorWorkspacesPageView = observer(function OperatorWorkspacesPa
   useDataViewSync(operatorWorkspacesStore, initialWorkspaces);
   const columns = useOperatorWorkspaceColumns();
   const t = useTranslations();
-  const view = resolveDataViewView(operatorWorkspacesStore.viewMode, operatorWorkspacesStore.groupingColumnId);
+  const view = resolveDataViewView(operatorWorkspacesStore.viewMode, operatorWorkspacesStore.isGrouped);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery:
       Boolean(operatorWorkspacesStore.searchTerm?.trim()) || (operatorWorkspacesStore.filters?.length ?? 0) > 0,
+    isGrouped: operatorWorkspacesStore.isGrouped,
     itemCount: operatorWorkspacesStore.items.length,
     request: operatorWorkspacesStore.dataRequest,
     total: operatorWorkspacesStore.pagination?.total,
@@ -113,7 +114,10 @@ export const OperatorWorkspacesPageView = observer(function OperatorWorkspacesPa
   const current = selected ? (operatorWorkspacesStore.items.find((item) => item.id === selected.id) ?? null) : null;
 
   return (
-    <DataViewLayout showPagination={pageState === "content" && view !== "board"} store={operatorWorkspacesStore}>
+    <DataViewLayout
+      showPagination={pageState === "content" && view !== "board" && !operatorWorkspacesStore.isGrouped}
+      store={operatorWorkspacesStore}
+    >
       {body}
 
       <OperatorWorkspaceModal workspace={current} onClose={() => setSelected(null)} />

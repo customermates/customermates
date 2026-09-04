@@ -38,10 +38,11 @@ export const MembersPageView = observer(function MembersPageView({ initialRoles,
 
   useLayoutEffect(() => rolesStore.setItems(initialRoles), [initialRoles, rolesStore]);
 
-  const view = resolveDataViewView(usersStore.viewMode, usersStore.groupingColumnId);
+  const view = resolveDataViewView(usersStore.viewMode, usersStore.isGrouped);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery: Boolean(usersStore.searchTerm?.trim()) || (usersStore.filters?.length ?? 0) > 0,
+    isGrouped: usersStore.isGrouped,
     itemCount: usersStore.items.length,
     request: usersStore.dataRequest,
     total: usersStore.pagination?.total,
@@ -116,7 +117,10 @@ export const MembersPageView = observer(function MembersPageView({ initialRoles,
   }
 
   return (
-    <DataViewLayout showPagination={pageState === "content" && view !== "board"} store={usersStore}>
+    <DataViewLayout
+      showPagination={pageState === "content" && view !== "board" && !usersStore.isGrouped}
+      store={usersStore}
+    >
       {body}
     </DataViewLayout>
   );

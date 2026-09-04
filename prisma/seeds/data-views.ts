@@ -67,7 +67,7 @@ export function personalizationStateToOverrideState(fixture: SyntheticP13nFixtur
   const pageSize = storedPageSize(fixture.pagination);
   if (pageSize !== undefined) state.pageSize = pageSize;
   if (fixture.viewMode) state.viewMode = fixture.viewMode as ViewMode;
-  if (fixture.groupingColumnId) state.groupingColumnId = fixture.groupingColumnId;
+  if (fixture.groupingColumnId) state.grouping = { field: fixture.groupingColumnId };
   if (isNonEmptyArray(fixture.columnOrder)) state.columnOrder = fixture.columnOrder;
   if (isNonEmptyObject(fixture.columnWidths)) state.columnWidths = fixture.columnWidths as Record<string, number>;
   if (isNonEmptyArray(fixture.hiddenColumns)) state.hiddenColumns = fixture.hiddenColumns;
@@ -99,7 +99,7 @@ export function buildSyntheticDataViewFixtures(
           },
         ],
         viewMode: ViewMode.card,
-        groupingColumnId: customColumnIds.dealStatus,
+        grouping: { field: customColumnIds.dealStatus },
       },
     },
   ];

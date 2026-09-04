@@ -20,5 +20,6 @@ export const P13nEntrySchema = z.object({
   hiddenColumns: z.array(z.string()).optional(),
   viewMode: z.string().optional(),
   groupingColumnId: z.string().optional(),
+  grouping: z.any().optional(),
   detailOptions: EntityDetailOptionsSchema.optional(),
 });

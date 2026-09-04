@@ -38,10 +38,11 @@ export const ServicesPageView = observer(function ServicesPageView({ services }:
   const { singular } = useEntityTerminology();
   const t = useTranslations();
 
-  const view = resolveDataViewView(servicesStore.viewMode, servicesStore.groupingColumnId);
+  const view = resolveDataViewView(servicesStore.viewMode, servicesStore.isGrouped);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery: Boolean(servicesStore.searchTerm?.trim()) || (servicesStore.filters?.length ?? 0) > 0,
+    isGrouped: servicesStore.isGrouped,
     itemCount: servicesStore.items.length,
     request: servicesStore.dataRequest,
     total: servicesStore.pagination?.total,
@@ -114,7 +115,10 @@ export const ServicesPageView = observer(function ServicesPageView({ services }:
   }
 
   return (
-    <DataViewLayout showPagination={pageState === "content" && view !== "board"} store={servicesStore}>
+    <DataViewLayout
+      showPagination={pageState === "content" && view !== "board" && !servicesStore.isGrouped}
+      store={servicesStore}
+    >
       {body}
     </DataViewLayout>
   );

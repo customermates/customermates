@@ -85,6 +85,8 @@ describe("technical-id loading contract", () => {
   it("keeps internal IDs as keys while removing them from customer-facing fallbacks", () => {
     expect(read("components/data-view/data-table.tsx")).toContain("row.index + 1");
     expect(read("components/data-view/data-kanban-view.tsx")).not.toContain("option?.label ?? key");
+    expect(read("components/data-view/data-kanban-view.tsx")).not.toContain("options.options");
+    expect(read("components/data-view/data-kanban-view.tsx")).not.toContain("KANBAN_EMPTY_GROUP_KEY");
     expect(read("app/[locale]/(protected)/dashboard/components/widget-label.ts")).toContain("UUID_LABEL.test");
     expect(read("app/[locale]/(protected)/profile/components/account-folders.tsx")).not.toContain(
       "folder.name ?? folder.id",

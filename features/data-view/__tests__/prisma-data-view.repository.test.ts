@@ -67,6 +67,7 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 
 const SURFACE = "contacts-card-store";
 const A_VIEW_ID = "3a7b2c11-5d4e-4f60-8a91-2b3c4d5e6f70";
+const A_SECOND_VIEW_ID = "3a7b2c11-5d4e-4f60-8a91-2b3c4d5e6f71";
 const A_GROUPING_COLUMN = "8f1c1a4e-0b2d-4a9e-9d7c-1f2a3b4c5d6e";
 
 function storedView(overrides: Record<string, unknown> = {}) {
@@ -82,6 +83,7 @@ function storedView(overrides: Record<string, unknown> = {}) {
     sortDescriptor: null,
     viewMode: null,
     groupingColumnId: null,
+    grouping: null,
     columnOrder: null,
     columnWidths: null,
     hiddenColumns: null,
@@ -178,7 +180,7 @@ describe("PrismaDataViewRepo scoping", () => {
           sortDescriptor: null,
           pageSize: 25,
           viewMode: ViewMode.card,
-          groupingColumnId: null,
+          grouping: null,
           columnOrder: [],
           columnWidths: {},
           hiddenColumns: [],
@@ -190,6 +192,7 @@ describe("PrismaDataViewRepo scoping", () => {
       "columnOrder",
       "columnWidths",
       "filters",
+      "grouping",
       "groupingColumnId",
       "hiddenColumns",
       "pageSize",
@@ -284,13 +287,25 @@ describe("PrismaDataViewRepo stored state", () => {
     });
   });
 
-  it("reads a cleared sort descriptor and a cleared grouping column as present nulls", async () => {
-    dataViewFindMany.mockResolvedValue([storedView({ sortDescriptor: {}, groupingColumnId: "" })]);
+  it("reads a cleared sort descriptor and a cleared grouping as present nulls", async () => {
+    dataViewFindMany.mockResolvedValue([storedView({ sortDescriptor: {}, grouping: {} })]);
 
     const surface = await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
 
-    expect(surface.views[0].state).toEqual({ sortDescriptor: null, groupingColumnId: null });
+    expect(surface.views[0].state).toEqual({ sortDescriptor: null, grouping: null });
     expect("sortDescriptor" in surface.views[0].state).toBe(true);
+  });
+
+  it("lifts a legacy grouping column into a descriptor only on a stored board", async () => {
+    dataViewFindMany.mockResolvedValue([
+      storedView({ groupingColumnId: A_GROUPING_COLUMN, viewMode: "card" }),
+      { ...storedView({ groupingColumnId: A_GROUPING_COLUMN, viewMode: "table" }), id: A_SECOND_VIEW_ID },
+    ]);
+
+    const surface = await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
+
+    expect(surface.views[0].state.grouping).toEqual({ field: A_GROUPING_COLUMN });
+    expect(surface.views[1].state).not.toHaveProperty("grouping");
   });
 
   it("drops an override whose view key is neither the All key nor a readable view", async () => {
@@ -396,7 +411,7 @@ describe("PrismaDataViewOverrideRepo", () => {
           filters: [],
           searchTerm: "",
           sortDescriptor: null,
-          groupingColumnId: null,
+          grouping: null,
           viewMode: ViewMode.card,
         },
       }),
@@ -407,19 +422,21 @@ describe("PrismaDataViewOverrideRepo", () => {
     expect(create.filters).toEqual([]);
     expect(create.searchTerm).toBe("");
     expect(create.sortDescriptor).toEqual({});
-    expect(create.groupingColumnId).toBe("");
+    expect(create.grouping).toEqual({});
+    expect(create.groupingColumnId).toBeNull();
     expect(create.viewMode).toBe("card");
   });
 
-  it("keeps a set grouping column verbatim", async () => {
+  it("keeps a set grouping descriptor verbatim and derives the shadow column", async () => {
     await asTenant(() =>
       new PrismaDataViewOverrideRepo().upsertOverride({
         surfaceKey: SURFACE,
         viewKey: A_VIEW_ID,
-        delta: { groupingColumnId: A_GROUPING_COLUMN },
+        delta: { grouping: { field: A_GROUPING_COLUMN } },
       }),
     );
 
+    expect(overrideUpsert.mock.calls[0][0].create.grouping).toEqual({ field: A_GROUPING_COLUMN });
     expect(overrideUpsert.mock.calls[0][0].create.groupingColumnId).toBe(A_GROUPING_COLUMN);
   });
 

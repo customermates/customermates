@@ -30,10 +30,11 @@ export const OperatorAuditPageView = observer(function OperatorAuditPageView({ i
   useDataViewSync(operatorAuditStore, initialAudit);
   const columns = useOperatorAuditColumns();
   const t = useTranslations();
-  const view = resolveDataViewView(operatorAuditStore.viewMode, operatorAuditStore.groupingColumnId);
+  const view = resolveDataViewView(operatorAuditStore.viewMode, operatorAuditStore.isGrouped);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery: Boolean(operatorAuditStore.searchTerm?.trim()) || (operatorAuditStore.filters?.length ?? 0) > 0,
+    isGrouped: operatorAuditStore.isGrouped,
     itemCount: operatorAuditStore.items.length,
     request: operatorAuditStore.dataRequest,
     total: operatorAuditStore.pagination?.total,
@@ -101,7 +102,10 @@ export const OperatorAuditPageView = observer(function OperatorAuditPageView({ i
     }
   }
   return (
-    <DataViewLayout showPagination={pageState === "content" && view !== "board"} store={operatorAuditStore}>
+    <DataViewLayout
+      showPagination={pageState === "content" && view !== "board" && !operatorAuditStore.isGrouped}
+      store={operatorAuditStore}
+    >
       {body}
     </DataViewLayout>
   );

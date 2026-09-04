@@ -6,12 +6,12 @@ import type { DataViewVisibility } from "@/generated/prisma";
 import { Prisma } from "@/generated/prisma";
 
 import { DATA_VIEW_STATE_FIELDS } from "@/core/data-view/data-view-state.schema";
+import { CLEARED_GROUPING, groupingShadowColumnId, readStoredGrouping } from "@/core/base/grouping/stored-grouping";
 import { normalizeFilters } from "@/core/base/filter-compat";
 
 type NullableJson = Prisma.InputJsonValue | typeof Prisma.DbNull;
 
 const CLEARED_SORT_DESCRIPTOR = {};
-const CLEARED_GROUPING_COLUMN_ID = "";
 
 export type DataViewStateColumns = {
   filters: NullableJson;
@@ -19,6 +19,7 @@ export type DataViewStateColumns = {
   sortDescriptor: NullableJson;
   viewMode: string | null;
   groupingColumnId: string | null;
+  grouping: NullableJson;
   columnOrder: NullableJson;
   columnWidths: NullableJson;
   hiddenColumns: NullableJson;
@@ -31,6 +32,7 @@ export type StoredStateRow = {
   sortDescriptor: unknown;
   viewMode: string | null;
   groupingColumnId: string | null;
+  grouping: unknown;
   columnOrder: unknown;
   columnWidths: unknown;
   hiddenColumns: unknown;
@@ -64,8 +66,8 @@ export function readStoredState(row: StoredStateRow): DataViewState {
     state.sortDescriptor = isClearedSortDescriptor(row.sortDescriptor) ? null : (row.sortDescriptor as SortDescriptor);
   if (row.pageSize !== null) state.pageSize = row.pageSize as DataViewState["pageSize"];
   if (row.viewMode !== null) state.viewMode = row.viewMode as ViewMode;
-  if (row.groupingColumnId !== null)
-    state.groupingColumnId = row.groupingColumnId === CLEARED_GROUPING_COLUMN_ID ? null : row.groupingColumnId;
+  const grouping = readStoredGrouping(row.grouping, row.groupingColumnId, row.viewMode);
+  if (grouping !== undefined) state.grouping = grouping;
   if (Array.isArray(row.columnOrder)) state.columnOrder = row.columnOrder as string[];
   if (isPlainObject(row.columnWidths)) state.columnWidths = row.columnWidths as Record<string, number>;
   if (Array.isArray(row.hiddenColumns)) state.hiddenColumns = row.hiddenColumns as string[];
@@ -82,8 +84,8 @@ export function writeStoredState(state: DataViewState): DataViewStateColumns {
     searchTerm: state.searchTerm === undefined ? null : state.searchTerm,
     sortDescriptor: json(state.sortDescriptor === null ? CLEARED_SORT_DESCRIPTOR : state.sortDescriptor),
     viewMode: state.viewMode === undefined ? null : state.viewMode,
-    groupingColumnId:
-      state.groupingColumnId === undefined ? null : (state.groupingColumnId ?? CLEARED_GROUPING_COLUMN_ID),
+    groupingColumnId: state.grouping === undefined ? null : groupingShadowColumnId(state.grouping),
+    grouping: json(state.grouping === null ? CLEARED_GROUPING : state.grouping),
     columnOrder: json(state.columnOrder),
     columnWidths: json(state.columnWidths),
     hiddenColumns: json(state.hiddenColumns),
@@ -98,6 +100,8 @@ export function writePartialStoredState(state: DataViewState): Partial<DataViewS
 
   for (const field of DATA_VIEW_STATE_FIELDS)
     if (Object.prototype.hasOwnProperty.call(declared, field)) columns[field] = written[field];
+
+  if (Object.prototype.hasOwnProperty.call(declared, "grouping")) columns.groupingColumnId = written.groupingColumnId;
 
   return columns as Partial<DataViewStateColumns>;
 }

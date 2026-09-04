@@ -1,3 +1,4 @@
+import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { RepoArgs } from "@/core/utils/types";
 import type { GetWidgetFilterableFieldsDealRepo } from "../widget/get-widget-filterable-fields.interactor";
 import type { GetCompanyWideDealRepo } from "./get-company-wide-deal.repo";
@@ -21,6 +22,12 @@ import { BaseRepository } from "@/core/base/base-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
+import {
+  customSelectGroupables,
+  dateGroupables,
+  enumGroupables,
+  relationGroupables,
+} from "@/core/base/grouping/groupable-field";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { getCustomColumnRepo } from "@/core/di";
 import { computeWeightedValue, readOptionWeights } from "./deal-weighting";
@@ -162,6 +169,23 @@ export class PrismaDealRepo
       },
       { field: FilterFieldKey.updatedAt, operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.updatedAt] },
       { field: FilterFieldKey.createdAt, operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.createdAt] },
+    ];
+  }
+
+  async getGroupableFields(customColumns?: readonly CustomColumnDto[]) {
+    if (!this.canAccess(Resource.deals)) return [];
+
+    return [
+      ...customSelectGroupables(EntityType.deal, customColumns ?? (await this.getCustomColumns())),
+      ...relationGroupables("deal", {
+        contactIds: this.canAccess(Resource.contacts),
+        organizationIds: this.canAccess(Resource.organizations),
+        serviceIds: this.canAccess(Resource.services),
+        taskIds: this.canAccess(Resource.tasks),
+        userIds: this.canAccess(Resource.users),
+      }),
+      ...enumGroupables("deal", {}),
+      ...dateGroupables("deal", { createdAt: true, updatedAt: true }),
     ];
   }
 

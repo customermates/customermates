@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { DataViewState } from "@/core/data-view/data-view-state.schema";
 import type { GetResult } from "../base-get.interactor";
+import type { Grouping, GroupingResult } from "@/core/base/grouping/grouping.schema";
 import type { GetQueryParams } from "../base-get.schema";
 import type { RootStore } from "@/core/stores/root.store";
 
@@ -25,13 +26,26 @@ import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import { ViewMode } from "../base-query-builder";
 import { resolveDataViewState } from "@/core/data-view/resolve-data-view-state";
 
+function groupingResult(grouping: Grouping | undefined): GroupingResult | undefined {
+  if (!grouping) return undefined;
+
+  return {
+    grouping,
+    kind: "customSingleSelect",
+    supportsDragWriteBack: true,
+    columnId: grouping.field,
+    groups: [],
+    total: 0,
+  };
+}
+
 type Item = { id: string };
 
 const GROUPING_COLUMN_ID = "5b4c2ad0-52b1-4a9f-9d3a-1c5f2f5c9a01";
 
 class TestStore extends BaseDataViewStore<Item> {
   requestedParams: (GetQueryParams | undefined)[] = [];
-  storedOverride: DataViewState = { viewMode: ViewMode.card, groupingColumnId: GROUPING_COLUMN_ID };
+  storedOverride: DataViewState = { viewMode: ViewMode.card, grouping: { field: GROUPING_COLUMN_ID } };
 
   get columnsDefinition() {
     return [{ uid: "name" }, { uid: "stage" }];
@@ -53,7 +67,7 @@ class TestStore extends BaseDataViewStore<Item> {
       activeViewKey: ALL_VIEW_KEY,
       viewPersistable: true,
       viewMode: resolved.viewMode,
-      groupingColumnId: resolved.groupingColumnId,
+      grouping: groupingResult(resolved.grouping),
     });
   }
 }
@@ -75,7 +89,7 @@ function groupedByTheOverride(): TestStore {
     activeViewKey: ALL_VIEW_KEY,
     viewPersistable: true,
     viewMode: ViewMode.card,
-    groupingColumnId: GROUPING_COLUMN_ID,
+    grouping: groupingResult({ field: GROUPING_COLUMN_ID }),
   });
   store.requestedParams = [];
   return store;
@@ -97,32 +111,33 @@ describe("clearing the grouping outlives the refresh it triggers", () => {
   it("sends the cleared grouping as null so the stored override cannot resurrect it", async () => {
     const store = groupedByTheOverride();
 
-    expect(store.groupingColumnId).toBe(GROUPING_COLUMN_ID);
+    expect(store.grouping).toEqual({ field: GROUPING_COLUMN_ID });
 
-    store.setViewOptions({ groupingColumnId: undefined });
+    store.setViewOptions({ grouping: null });
 
     await vi.advanceTimersByTimeAsync(0);
 
     expect(store.requestedParams).toHaveLength(1);
-    expect(store.requestedParams[0]?.groupingColumnId).toBeNull();
-    expect(store.groupingColumnId).toBeUndefined();
+    expect(store.requestedParams[0]?.grouping).toBeNull();
+    expect(store.grouping).toBeNull();
 
     await vi.advanceTimersByTimeAsync(1000);
 
     expect(applyDataViewOverrideAction).toHaveBeenCalledTimes(1);
-    expect(applyDataViewOverrideAction.mock.calls[0]?.[0]?.state?.groupingColumnId).toBeNull();
-    expect(store.groupingColumnId).toBeUndefined();
+    expect(applyDataViewOverrideAction.mock.calls[0]?.[0]?.state?.grouping).toBeNull();
+    expect(store.grouping).toBeNull();
   });
 
   it("still sends a live grouping the user picked, so the layout switch is not a no-op in the other direction", async () => {
     const store = groupedByTheOverride();
     const other = "7c1d3ee0-52b1-4a9f-9d3a-1c5f2f5c9a02";
 
-    store.setViewOptions({ viewMode: ViewMode.card, groupingColumnId: other });
+    store.setViewOptions({ viewMode: ViewMode.card, grouping: { field: other } });
 
     await vi.advanceTimersByTimeAsync(0);
 
-    expect(store.requestedParams[0]?.groupingColumnId).toBe(other);
+    expect(store.requestedParams[0]?.grouping).toEqual({ field: other });
+    expect(store.grouping).toEqual({ field: other });
     expect(store.groupingColumnId).toBe(other);
   });
 });

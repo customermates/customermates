@@ -6,6 +6,8 @@ import { z } from "zod";
 import { FilterSchema, PaginationRequestSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { EntityDetailOptionsSchema } from "@/features/p13n/p13n.schema";
+import { GroupingSchema } from "@/core/base/grouping/grouping.schema";
+import { groupingShadowColumnId } from "@/core/base/grouping/stored-grouping";
 
 import { SEED_IDS } from "../seeds/context";
 import { SYNTHETIC_CUSTOM_COLUMN_IDS, SYNTHETIC_CUSTOM_OPTION_IDS } from "../seeds/custom-fields";
@@ -60,6 +62,17 @@ describe("synthetic personalization fixtures", () => {
         expect(z.enum(ViewMode).safeParse(fixture.viewMode).success).toBe(true);
       if (fixture.groupingColumnId !== undefined && fixture.groupingColumnId !== null)
         expect(z.uuid().safeParse(fixture.groupingColumnId).success).toBe(true);
+      const grouping = GroupingSchema.safeParse(fixture.grouping);
+      expect([fixture.p13nId, grouping.success]).toEqual([
+        fixture.p13nId,
+        fixture.groupingColumnId !== undefined && fixture.groupingColumnId !== null,
+      ]);
+      if (grouping.success) {
+        expect([fixture.p13nId, groupingShadowColumnId(grouping.data)]).toEqual([
+          fixture.p13nId,
+          fixture.groupingColumnId,
+        ]);
+      }
       if (fixture.detailOptions !== undefined)
         expect(EntityDetailOptionsSchema.safeParse(fixture.detailOptions).success).toBe(true);
     }

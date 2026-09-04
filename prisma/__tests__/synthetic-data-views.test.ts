@@ -127,7 +127,7 @@ describe("synthetic data view fixtures", () => {
             value: [SYNTHETIC_CUSTOM_OPTION_IDS.dealStatus.open],
           },
         ],
-        groupingColumnId: SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus,
+        grouping: { field: SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus },
         viewMode: "card",
       },
     });

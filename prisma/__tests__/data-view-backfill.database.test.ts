@@ -21,6 +21,7 @@ const P13N_COLUMNS_AFTER_MIGRATION = [
   "createdAt",
   "detailOptions",
   "filters",
+  "grouping",
   "groupingColumnId",
   "hiddenColumns",
   "id",

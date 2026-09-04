@@ -23,9 +23,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { AppChip } from "@/components/chip/app-chip";
-import type { CustomColumnOption } from "@/features/custom-column/custom-column.schema";
+import type { ChipColor } from "@/constants/chip-colors";
 import type { GroupValueSums } from "@/core/base/base-get.schema";
-import { KANBAN_EMPTY_GROUP_KEY } from "@/core/base/base-get.schema";
+import { NO_VALUE_GROUP_KEY } from "@/core/base/grouping/grouping.schema";
+import { projectValueSumsForGroup } from "@/core/base/grouping/project-value-sums";
 import { DEAL_GROUP_SUM_FIELDS } from "@/features/deals/deal-weighting";
 import { visibleColumnDefs } from "./visible-column-defs";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -36,6 +37,7 @@ import { useColumnLabel } from "@/components/entity-terminology/use-column-label
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { DataCardBody } from "./data-card-body";
+import { useGroupLabel, visibleGroups } from "./group-label";
 import {
   DATA_KANBAN_CARDS_CLASS_NAME,
   DATA_KANBAN_COLUMN_CLASS_NAME,
@@ -58,17 +60,6 @@ type Props<E extends HasCustomFieldValues> = {
   className?: string;
 };
 
-function getGroupValue<E extends HasId>(
-  item: E & { customFieldValues?: Array<{ columnId: string; value: unknown }> },
-  groupingColumnId: string,
-): string {
-  const custom = item.customFieldValues?.find((cfv) => cfv.columnId === groupingColumnId)?.value;
-  const raw = custom ?? (item as unknown as Record<string, unknown>)[groupingColumnId];
-  if (raw == null || raw === "") return KANBAN_EMPTY_GROUP_KEY;
-  if (typeof raw === "object") return JSON.stringify(raw);
-  return String(raw);
-}
-
 function patchCustomFieldValue<E extends HasCustomFieldValues>(item: E, columnId: string, value: unknown): E {
   const existing = item.customFieldValues ?? [];
   const others = existing.filter((cfv) => cfv.columnId !== columnId);
@@ -78,12 +69,16 @@ function patchCustomFieldValue<E extends HasCustomFieldValues>(item: E, columnId
 
 function KanbanCard({
   itemId,
+  groupKey,
+  draggable,
   children,
   onClick,
   href,
   className,
 }: {
   itemId: string;
+  groupKey: string;
+  draggable: boolean;
   children: ReactNode;
   onClick?: () => void;
   href?: string;
@@ -91,7 +86,11 @@ function KanbanCard({
 }) {
   const t = useTranslations();
   const navigateToHref = useNavigateToHref();
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: itemId });
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: itemId,
+    data: { groupKey },
+    disabled: !draggable,
+  });
 
   const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
 
@@ -142,7 +141,9 @@ const KanbanColumn = observer(function KanbanColumn({
   label,
   count,
   valueSums,
-  option,
+  color,
+  weight,
+  droppable,
   entityType,
   onHeaderClick,
   loadMore,
@@ -152,7 +153,9 @@ const KanbanColumn = observer(function KanbanColumn({
   label: string;
   count: number;
   valueSums?: GroupValueSums;
-  option?: CustomColumnOption;
+  color?: ChipColor;
+  weight?: number;
+  droppable: boolean;
   entityType?: EntityType;
   onHeaderClick?: () => void;
   loadMore?: LoadMoreAction;
@@ -162,7 +165,7 @@ const KanbanColumn = observer(function KanbanColumn({
   const intlStore = useHydratedIntlStore();
   const columnLabel = useColumnLabel();
   const { singular, plural } = useEntityTerminology();
-  const { setNodeRef } = useDroppable({ id });
+  const { setNodeRef } = useDroppable({ id, disabled: !droppable });
 
   const formatSum = (amount: number) =>
     intlStore.formatCurrency(amount, undefined, {
@@ -176,8 +179,8 @@ const KanbanColumn = observer(function KanbanColumn({
   const countLabel = entityType ? `${count} ${count === 1 ? singular(entityType) : plural(entityType)}` : String(count);
   const rateLabel = t("Common.stageProbability");
 
-  const headerContent = option ? (
-    <AppChip size="sm" variant={option.color}>
+  const headerContent = color ? (
+    <AppChip size="sm" variant={color}>
       <span className="truncate">{label}</span>
     </AppChip>
   ) : (
@@ -211,10 +214,10 @@ const KanbanColumn = observer(function KanbanColumn({
           <TooltipContent>{countLabel}</TooltipContent>
         </Tooltip>
 
-        {option?.weight !== undefined && weightedSum !== undefined && (
+        {weight !== undefined && weightedSum !== undefined && (
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="text-xs text-muted-foreground tabular-nums">{option.weight}%</span>
+              <span className="text-xs text-muted-foreground tabular-nums">{weight}%</span>
             </TooltipTrigger>
 
             <TooltipContent>{rateLabel}</TooltipContent>
@@ -277,12 +280,15 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
 }: Props<E>) {
   const t = useTranslations();
   const { customColumnModalStore } = useRootStore();
-  const groupingColumnId = store.groupingColumnId ?? "";
-  const rawGrouping = store.customColumns.find((c) => c.id === groupingColumnId);
-  const groupingCustomColumn =
-    rawGrouping && rawGrouping.type === CustomColumnType.singleSelect ? rawGrouping : undefined;
+  const groupLabel = useGroupLabel(store.groupingResult);
+  const supportsDragWriteBack = store.groupingResult?.supportsDragWriteBack ?? false;
+  const writeBackColumnId = store.groupingResult?.columnId;
+  const editableColumn = store.customColumns.find(
+    (column) => column.id === writeBackColumnId && column.type === CustomColumnType.singleSelect,
+  );
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+  const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 4 } });
+  const sensors = useSensors(supportsDragWriteBack ? pointerSensor : null);
 
   const visibleColumns = visibleColumnDefs(columns, store.hiddenColumns);
 
@@ -293,107 +299,80 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
     getCoreRowModel: getCoreRowModel(),
   });
 
-  if (!groupingColumnId)
+  const groups = visibleGroups(store.groupingResult, { keepEmptyNoValue: true });
+
+  if (!store.isGrouped)
     return <div className="py-8 text-center text-sm text-muted-foreground">{t("DataView.selectGroupingColumn")}</div>;
 
-  const groups = new Map<string, E[]>();
-
-  if (groupingCustomColumn?.options?.options)
-    for (const opt of groupingCustomColumn.options.options) groups.set(opt.value, []);
-
-  groups.set(KANBAN_EMPTY_GROUP_KEY, []);
-
-  for (const item of store.items) {
-    const key = getGroupValue(item, groupingColumnId);
-    const bucket = groups.get(key) ?? [];
-    bucket.push(item);
-    groups.set(key, bucket);
-  }
-
   const rowsById = new Map(table.getRowModel().rows.map((row) => [row.id, row]));
-
-  function projectValueSumsForGroup(item: E, groupKey: string): GroupValueSums | undefined {
-    const total = (item as { totalValue?: unknown }).totalValue;
-    if (typeof total !== "number") return undefined;
-
-    const weight = groupingCustomColumn?.options?.options?.find((opt) => opt.value === groupKey)?.weight;
-
-    return weight === undefined
-      ? { [DEAL_GROUP_SUM_FIELDS.total]: total }
-      : {
-          [DEAL_GROUP_SUM_FIELDS.total]: total,
-          [DEAL_GROUP_SUM_FIELDS.weighted]: (total * weight) / 100,
-        };
-  }
+  const itemsById = new Map(store.items.map((item) => [item.id, item]));
 
   async function handleDragEnd(event: DragEndEvent) {
+    if (!supportsDragWriteBack || !writeBackColumnId) return;
     if (!event.over || !event.active) return;
+
     const itemId = String(event.active.id);
     const targetGroup = String(event.over.id);
+    const fromGroupKey = String(event.active.data.current?.groupKey ?? "");
 
-    const item = store.items.find((i) => i.id === itemId);
-    if (!item) return;
+    const item = itemsById.get(itemId);
+    if (!item || fromGroupKey === "" || fromGroupKey === targetGroup) return;
 
-    const currentValue = getGroupValue(item, groupingColumnId);
-    if (currentValue === targetGroup) return;
-
-    const nextValue = targetGroup === KANBAN_EMPTY_GROUP_KEY ? null : targetGroup;
+    const nextValue = targetGroup === NO_VALUE_GROUP_KEY ? null : targetGroup;
+    const weight = groups.find((group) => group.key === targetGroup)?.weight;
 
     await store.moveItemBetweenGroups({
       item,
-      optimisticItem: patchCustomFieldValue(item, groupingColumnId, nextValue),
-      columnId: groupingColumnId,
-      fromGroupKey: currentValue,
+      optimisticItem: patchCustomFieldValue(item, writeBackColumnId, nextValue),
+      fromGroupKey,
       toGroupKey: targetGroup,
       value: nextValue,
-      destinationValueSums: projectValueSumsForGroup(item, targetGroup),
+      destinationValueSums: projectValueSumsForGroup(item, weight),
     });
   }
 
-  if (groups.size === 0) return null;
-
   const loadMoreLabel = t("Common.actions.loadMore");
+  const overflow = store.groupingResult?.overflow;
 
   return (
     <DndContext sensors={sensors} onDragEnd={(event) => runUserAction(() => handleDragEnd(event))}>
       <div className={cn(DATA_KANBAN_ROOT_CLASS_NAME, className)} data-slot="kanban-root">
         <div className={DATA_KANBAN_TRACK_CLASS_NAME}>
-          {Array.from(groups.entries()).map(([key, items]) => {
-            const option = groupingCustomColumn?.options?.options.find((o) => o.value === key);
-            const label =
-              key === KANBAN_EMPTY_GROUP_KEY
-                ? t("DataView.noValue")
-                : (option?.label ?? t("Common.inputs.unavailableSelection"));
-            const total = store.groupCounts?.[key] ?? items.length;
-            const loadMore =
-              total > items.length
-                ? {
-                    label: loadMoreLabel,
-                    isLoading: store.isRefreshing,
-                    onClick: () => store.loadMoreInGroup(key),
-                  }
-                : undefined;
+          {groups.map((group) => {
+            const loadMore = group.hasMore
+              ? {
+                  label: loadMoreLabel,
+                  isLoading: store.isRefreshing,
+                  onClick: () => store.loadMoreInGroup(group.key),
+                }
+              : undefined;
+
             return (
               <KanbanColumn
-                key={key}
-                count={total}
+                key={group.key}
+                color={group.color}
+                count={group.count}
+                droppable={supportsDragWriteBack}
                 entityType={store.entityType}
-                id={key}
-                label={label}
+                id={group.key}
+                label={groupLabel(group)}
                 loadMore={loadMore}
-                option={option}
-                valueSums={store.groupValueSums?.[key]}
-                onHeaderClick={
-                  groupingCustomColumn ? () => customColumnModalStore.openWithColumn(groupingCustomColumn) : undefined
-                }
+                valueSums={group.valueSums}
+                weight={group.weight}
+                onHeaderClick={editableColumn ? () => customColumnModalStore.openWithColumn(editableColumn) : undefined}
               >
-                {items.map((item) => {
-                  const row = rowsById.get(item.id);
+                {group.itemIds.map((itemId) => {
+                  const item = itemsById.get(itemId);
+                  const row = rowsById.get(itemId);
+                  if (!item) return null;
+
                   return (
                     <KanbanCard
-                      key={item.id}
+                      key={itemId}
+                      draggable={supportsDragWriteBack}
+                      groupKey={group.key}
                       href={cardHref?.(item)}
-                      itemId={item.id}
+                      itemId={itemId}
                       onClick={onCardClick ? () => onCardClick(item) : undefined}
                     >
                       <CardContent className="px-3">{row ? <DataCardBody row={row} /> : null}</CardContent>
@@ -404,6 +383,12 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
             );
           })}
         </div>
+
+        {overflow && (
+          <p className="px-3 py-2 text-xs text-muted-foreground">
+            {t("DataView.groupOverflow", { count: overflow.shown })}
+          </p>
+        )}
       </div>
     </DndContext>
   );

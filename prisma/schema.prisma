@@ -297,6 +297,7 @@ model P13n {
   hiddenColumns      String[]
   viewMode           String?  @default("table")
   groupingColumnId   String?
+  grouping           Json?
   detailOptions      Json?
   activeViewKey      String?
   createdAt          DateTime @default(now())
@@ -322,6 +323,7 @@ model DataView {
   sortDescriptor   Json?
   viewMode         String?
   groupingColumnId String?
+  grouping         Json?
   columnOrder      Json?
   columnWidths     Json?
   hiddenColumns    Json?
@@ -350,6 +352,7 @@ model DataViewOverride {
   sortDescriptor   Json?
   viewMode         String?
   groupingColumnId String?
+  grouping         Json?
   columnOrder      Json?
   columnWidths     Json?
   hiddenColumns    Json?
@@ -387,6 +390,8 @@ model Task {
   @@index([companyId])
   @@index([type, companyId])
   @@index([relatedUserId])
+  @@index([companyId, createdAt])
+  @@index([companyId, updatedAt])
 }
 
 model InviteToken {
@@ -442,6 +447,8 @@ model Contact {
   @@index([companyId])
   @@index([firstName])
   @@index([lastName])
+  @@index([companyId, createdAt])
+  @@index([companyId, updatedAt])
 }
 
 model Organization {
@@ -460,6 +467,8 @@ model Organization {
 
   @@index([companyId])
   @@index([name])
+  @@index([companyId, createdAt])
+  @@index([companyId, updatedAt])
 }
 
 model CustomColumn {
@@ -516,6 +525,11 @@ model CustomFieldValue {
   @@index([dealId])
   @@index([serviceId])
   @@index([taskId])
+  @@index([dealId, columnId])
+  @@index([contactId, columnId])
+  @@index([organizationId, columnId])
+  @@index([serviceId, columnId])
+  @@index([taskId, columnId])
 }
 
 model Deal {
@@ -542,6 +556,8 @@ model Deal {
   @@index([totalValue])
   @@index([totalQuantity])
   @@index([weightedValue])
+  @@index([companyId, createdAt])
+  @@index([companyId, updatedAt])
 }
 
 model Service {
@@ -560,6 +576,8 @@ model Service {
 
   @@index([companyId])
   @@index([name])
+  @@index([companyId, createdAt])
+  @@index([companyId, updatedAt])
 }
 
 model ServiceDeal {
@@ -578,6 +596,8 @@ model ServiceDeal {
   @@index([dealId])
   @@index([serviceId])
   @@index([companyId])
+  @@index([companyId, serviceId])
+  @@index([companyId, dealId])
 }
 
 model ServiceUser {
@@ -595,6 +615,7 @@ model ServiceUser {
   @@index([serviceId])
   @@index([userId])
   @@index([companyId])
+  @@index([companyId, userId])
 }
 
 model DealOrganization {
@@ -612,6 +633,8 @@ model DealOrganization {
   @@index([dealId])
   @@index([organizationId])
   @@index([companyId])
+  @@index([companyId, organizationId])
+  @@index([companyId, dealId])
 }
 
 model DealUser {
@@ -629,6 +652,7 @@ model DealUser {
   @@index([dealId])
   @@index([userId])
   @@index([companyId])
+  @@index([companyId, userId])
 }
 
 model DealContact {
@@ -646,6 +670,8 @@ model DealContact {
   @@index([dealId])
   @@index([contactId])
   @@index([companyId])
+  @@index([companyId, dealId])
+  @@index([companyId, contactId])
 }
 
 model ContactUser {
@@ -663,6 +689,7 @@ model ContactUser {
   @@index([contactId])
   @@index([userId])
   @@index([companyId])
+  @@index([companyId, userId])
 }
 
 model OrganizationUser {
@@ -680,6 +707,7 @@ model OrganizationUser {
   @@index([organizationId])
   @@index([userId])
   @@index([companyId])
+  @@index([companyId, userId])
 }
 
 model TaskUser {
@@ -697,6 +725,7 @@ model TaskUser {
   @@index([taskId])
   @@index([userId])
   @@index([companyId])
+  @@index([companyId, userId])
 }
 
 model TaskContact {
@@ -714,6 +743,8 @@ model TaskContact {
   @@index([taskId])
   @@index([contactId])
   @@index([companyId])
+  @@index([companyId, taskId])
+  @@index([companyId, contactId])
 }
 
 model TaskOrganization {
@@ -731,6 +762,8 @@ model TaskOrganization {
   @@index([taskId])
   @@index([organizationId])
   @@index([companyId])
+  @@index([companyId, taskId])
+  @@index([companyId, organizationId])
 }
 
 model TaskDeal {
@@ -748,6 +781,8 @@ model TaskDeal {
   @@index([taskId])
   @@index([dealId])
   @@index([companyId])
+  @@index([companyId, taskId])
+  @@index([companyId, dealId])
 }
 
 model TaskService {
@@ -765,6 +800,8 @@ model TaskService {
   @@index([taskId])
   @@index([serviceId])
   @@index([companyId])
+  @@index([companyId, taskId])
+  @@index([companyId, serviceId])
 }
 
 model ContactOrganization {
@@ -782,6 +819,8 @@ model ContactOrganization {
   @@index([contactId])
   @@index([organizationId])
   @@index([companyId])
+  @@index([companyId, organizationId])
+  @@index([companyId, contactId])
 }
 
 model Widget {

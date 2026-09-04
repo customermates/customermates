@@ -864,6 +864,13 @@
       "immutableType": "Le type du champ est définitif après sa création. Créez un nouveau champ personnalisé pour utiliser un autre type.",
       "probabilityPermission": "Les probabilités d’étape sont gérées dans « {company} ». Demandez à un administrateur l’autorisation de les modifier."
     },
+    "dateBuckets": {
+      "day": "Jour",
+      "earlier": "Plus tôt",
+      "later": "Plus tard",
+      "month": "Mois",
+      "week": "Semaine"
+    },
     "datePresets": {
       "endTime": "Heure de fin",
       "inAMonth": "Dans un mois",
@@ -1387,6 +1394,10 @@
       "previousPage": "Page précédente",
       "search": "Rechercher..."
     },
+    "taskTypes": {
+      "custom": "Personnalisée",
+      "userPendingAuthorization": "Autorisation en attente"
+    },
     "themes": {
       "dark": "Sombre",
       "light": "Clair",
@@ -1730,8 +1741,11 @@
     "menu": "Importer et exporter"
   },
   "DataView": {
+    "collapseGroup": "Réduire le groupe {group}",
     "dragToReorder": "Faire glisser pour réorganiser",
     "editColumn": "Modifier la colonne",
+    "expandGroup": "Développer le groupe {group}",
+    "groupOverflow": "Seuls {count} groupes sont affichés",
     "noValue": "Aucune valeur",
     "resizeColumn": "Redimensionnez la colonne « {column} ». Faites glisser ou utilisez les touches fléchées ; touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
     "resizeHint": "Faites glisser pour redimensionner. Double-cliquez pour réinitialiser.",

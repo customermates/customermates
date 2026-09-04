@@ -132,7 +132,7 @@ describe("data view override persistence", () => {
         sortDescriptor: { field: "stage", direction: "asc" },
         pageSize: 25,
         viewMode: ViewMode.table,
-        groupingColumnId: null,
+        grouping: null,
         columnOrder: [],
         columnWidths: {},
         hiddenColumns: [],
@@ -151,7 +151,7 @@ describe("data view override persistence", () => {
     await vi.advanceTimersByTimeAsync(1000);
 
     const state = applyDataViewOverrideAction.mock.calls[0]?.[0]?.state;
-    expect(state).toMatchObject({ filters: [], searchTerm: "", sortDescriptor: null, groupingColumnId: null });
+    expect(state).toMatchObject({ filters: [], searchTerm: "", sortDescriptor: null, grouping: null });
   });
 
   it("never persists a page change", async () => {

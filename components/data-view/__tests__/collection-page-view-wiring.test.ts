@@ -150,8 +150,11 @@ function store(items: Array<Record<string, unknown>>, canManage = true) {
     dataRequest: { status: "ready" as const },
     entityType: undefined,
     filters: [],
-    groupingColumnId: null,
+    groupableFields: [],
+    grouping: null,
+    groupingResult: undefined,
     isDisabled: !canManage,
+    isGrouped: false,
     isReady: true,
     items,
     pagination: { page: 1, pageSize: 25, total: items.length, totalPages: items.length ? 1 : 0 },
@@ -369,6 +372,16 @@ describe("migrated collection page wiring", () => {
     expect(layout.store).toBe(value);
     fixture.verifySync(value, initial);
     fixture.verifyRow(content);
+  });
+
+  it.each(fixtures)("hands $name pagination back to the group rows once the surface is grouped", (fixture) => {
+    const item = { id: "row" };
+    const value = store([item]);
+    value.isGrouped = true;
+    fixture.render(value, result([item]));
+    const layout = harness.layoutProps.mock.lastCall?.[0] as { showPagination: boolean };
+
+    expect(layout.showPagination).toBe(false);
   });
 
   it.each(fixtures)("renders the complete $name page-state contract", (fixture) => {

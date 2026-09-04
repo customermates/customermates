@@ -3,6 +3,7 @@
 import type { DragEndEvent } from "@dnd-kit/core";
 import type { Prisma } from "@/generated/prisma";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
+import type { GroupableFieldDto } from "@/core/base/grouping/groupable-field";
 
 import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -11,7 +12,6 @@ import { ArrowDownAZ, ArrowUpAZ, GripVertical, LayoutGrid, LayoutList, SlidersHo
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { CustomColumnType } from "@/generated/prisma";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -23,8 +23,10 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
+import { useFilterFieldLabel } from "@/components/entity-terminology/use-filter-field-label";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useViewCommitCommands } from "@/components/data-view/views/use-view-commands";
+import { useDateBucketLabel } from "@/components/data-view/group-label";
 import { cn } from "@/core/utils/cn";
 
 import { PopoverSection as Section } from "./popover-section";
@@ -100,6 +102,8 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   const t = useTranslations();
   const [isOpen, setIsOpen] = useState(false);
   const columnLabel = useColumnLabel();
+  const filterFieldLabel = useFilterFieldLabel();
+  const dateBucketLabel = useDateBucketLabel();
   const { appMode } = useRootStore();
   const { reset, saveChanges } = useViewCommitCommands(store);
   const sensors = useSensors(
@@ -109,23 +113,20 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
 
   const orderedColumns = store.orderedColumns;
   const hiddenSet = new Set(store.hiddenColumns);
-  const isCardView = store.viewMode === ViewMode.card;
   const sortable = store.columnsDefinition.filter((col) => col.sortable);
-  const singleSelectColumns = store.customColumns.filter((col) => col.type === CustomColumnType.singleSelect);
-  const canUseKanban = singleSelectColumns.length > 0;
+  const canUseKanban = store.groupableFields.length > 0;
 
   const currentSortField = store.sortDescriptor?.field ?? "";
   const currentSortDirection = store.sortDescriptor?.direction ?? "asc";
   const currentSortDirectionLabel =
     currentSortDirection === "asc" ? t("Common.sort.ascending") : t("Common.sort.descending");
-  const currentGroupingId = store.groupingColumnId ?? "";
+  const currentGroupingId = store.currentGroupableFieldId;
   const hasActiveOption =
-    Boolean(currentSortField) || Boolean(currentGroupingId) || store.hiddenColumns.length > 0 || store.viewIsDirty;
+    Boolean(currentSortField) || Boolean(store.grouping) || store.hiddenColumns.length > 0 || store.viewIsDirty;
   const activeView = store.views.find((view) => view.id === store.activeViewKey);
   const canSaveIntoView = appMode !== "demo" && Boolean(activeView?.isOwner);
 
-  const currentLayout: DataViewMode =
-    store.viewMode === ViewMode.table ? "table" : store.groupingColumnId ? "kanban" : "grid";
+  const currentLayout: DataViewMode = store.viewMode === ViewMode.table ? "table" : store.grouping ? "kanban" : "grid";
 
   function handleLayoutChange(next: string) {
     if (!next) return;
@@ -136,17 +137,15 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
       case "grid":
         store.setViewOptions({
           viewMode: ViewMode.card,
-          groupingColumnId: undefined,
+          grouping: null,
         });
         break;
-      case "kanban": {
-        const defaultGrouping = store.singleSelectCustomColumns[0]?.id ?? store.columnsDefinition[0]?.uid ?? "";
+      case "kanban":
         store.setViewOptions({
           viewMode: ViewMode.card,
-          groupingColumnId: store.groupingColumnId ?? defaultGrouping,
+          grouping: store.grouping ?? store.groupableFields[0]?.grouping ?? null,
         });
         break;
-      }
     }
   }
 
@@ -171,9 +170,21 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   }
 
   function handleGroupingChange(next: string) {
-    store.setViewOptions({
-      groupingColumnId: next === "__none__" ? undefined : next,
-    });
+    const entry = store.groupableFields.find((field) => field.id === next);
+    store.setViewOptions({ grouping: next === "__none__" ? null : (entry?.grouping ?? null) });
+  }
+
+  function groupableFieldName(field: GroupableFieldDto): string {
+    if (field.label) return field.label;
+    if (field.kind === "relation" || field.kind === "dateBucket") return filterFieldLabel(field.grouping.field);
+
+    return field.labelKey ? t(field.labelKey) : columnLabel(field.grouping.field);
+  }
+
+  function groupableLabel(field: GroupableFieldDto): string {
+    const base = groupableFieldName(field);
+
+    return field.bucket ? `${base} \u00b7 ${dateBucketLabel(field.bucket)}` : base;
   }
 
   function handleToggle(uid: string, visible: boolean) {
@@ -352,7 +363,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
             </>
           )}
 
-          {isCardView && singleSelectColumns.length > 0 && (
+          {store.groupableFields.length > 0 && (
             <>
               <Separator />
 
@@ -365,9 +376,9 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
                   <SelectContent>
                     <SelectItem value="__none__">{t("Common.none")}</SelectItem>
 
-                    {singleSelectColumns.map((col) => (
-                      <SelectItem key={col.id} value={col.id}>
-                        {col.label}
+                    {store.groupableFields.map((field) => (
+                      <SelectItem key={field.id} value={field.id}>
+                        {groupableLabel(field)}
                       </SelectItem>
                     ))}
                   </SelectContent>

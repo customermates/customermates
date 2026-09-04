@@ -115,7 +115,7 @@ describe("persistViewState rejection handling", () => {
         sortDescriptor: null,
         pageSize: undefined,
         viewMode: "table",
-        groupingColumnId: null,
+        grouping: null,
         columnOrder: [],
         columnWidths: { title: 300 },
         hiddenColumns: [],

@@ -55,7 +55,7 @@ function totalStateOf(state: DataViewState): DataViewState {
     sortDescriptor: resolved.sortDescriptor ?? null,
     pageSize: resolved.pageSize,
     viewMode: resolved.viewMode,
-    groupingColumnId: resolved.groupingColumnId ?? null,
+    grouping: resolved.grouping ?? null,
     columnOrder: resolved.columnOrder,
     columnWidths: resolved.columnWidths,
     hiddenColumns: resolved.hiddenColumns,

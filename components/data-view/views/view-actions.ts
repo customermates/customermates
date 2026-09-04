@@ -19,7 +19,7 @@ export function currentViewState<E extends HasId>(store: BaseDataViewStore<E>): 
     columnOrder: toJS(store.columnOrder),
     columnWidths: toJS(store.columnWidths),
     filters: toJS(store.filters) ?? [],
-    groupingColumnId: store.groupingColumnId ?? null,
+    grouping: toJS(store.grouping) ?? null,
     hiddenColumns: toJS(store.hiddenColumns),
     pageSize: store.pagination?.pageSize,
     searchTerm: store.searchTerm ?? "",

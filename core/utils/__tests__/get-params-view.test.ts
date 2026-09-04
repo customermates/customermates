@@ -12,7 +12,7 @@ describe("view URL parameters", () => {
     const encoded = encodeGetParams({
       viewId: A_VIEW_ID,
       viewMode: ViewMode.card,
-      groupingColumnId: A_GROUPING_COLUMN,
+      grouping: { field: A_GROUPING_COLUMN },
     });
 
     expect(encoded.get("view")).toBe(A_VIEW_ID);
@@ -22,7 +22,7 @@ describe("view URL parameters", () => {
     expect(decodeGetParams(encoded)).toMatchObject({
       viewId: A_VIEW_ID,
       viewMode: ViewMode.card,
-      groupingColumnId: A_GROUPING_COLUMN,
+      grouping: { field: A_GROUPING_COLUMN },
     });
   });
 
@@ -30,10 +30,10 @@ describe("view URL parameters", () => {
     expect(encodeGetParams({ viewId: undefined }).has("view")).toBe(false);
   });
 
-  it("omits viewMode at table and omits groupBy outside card mode", () => {
+  it("omits viewMode at table and keeps groupBy there, because a table groups too", () => {
     expect(encodeGetParams({ viewMode: ViewMode.table }).has("viewMode")).toBe(false);
-    expect(encodeGetParams({ viewMode: ViewMode.table, groupingColumnId: A_GROUPING_COLUMN }).has("groupBy")).toBe(
-      false,
+    expect(encodeGetParams({ viewMode: ViewMode.table, grouping: { field: A_GROUPING_COLUMN } }).get("groupBy")).toBe(
+      A_GROUPING_COLUMN,
     );
   });
 
@@ -68,12 +68,26 @@ describe("view URL parameters", () => {
     expect(decodeGetParams(new URLSearchParams("viewMode=kanban")).viewMode).toBeUndefined();
   });
 
-  it("ignores a groupBy that is not a column id, the way it ignores an unreadable view", () => {
-    expect(decodeGetParams(new URLSearchParams("groupBy=deal%20status")).groupingColumnId).toBeUndefined();
-    expect(decodeGetParams(new URLSearchParams("groupBy=")).groupingColumnId).toBeUndefined();
-    expect(decodeGetParams(new URLSearchParams(`groupBy=${A_GROUPING_COLUMN}`)).groupingColumnId).toBe(
-      A_GROUPING_COLUMN,
-    );
+  it("decodes groupBy into a descriptor and leaves an unusable token to fail closed at resolution", () => {
+    expect(decodeGetParams(new URLSearchParams("groupBy=")).grouping).toBeUndefined();
+    expect(decodeGetParams(new URLSearchParams(`groupBy=${"f".repeat(201)}`)).grouping).toBeUndefined();
+    expect(decodeGetParams(new URLSearchParams(`groupBy=${A_GROUPING_COLUMN}`)).grouping).toEqual({
+      field: A_GROUPING_COLUMN,
+    });
+    expect(decodeGetParams(new URLSearchParams("groupBy=createdAt%3Amonth")).grouping).toEqual({
+      field: "createdAt",
+      bucket: "month",
+    });
+    expect(decodeGetParams(new URLSearchParams("groupBy=createdAt%3Adecade")).grouping).toEqual({
+      field: "createdAt:decade",
+    });
+  });
+
+  it("round trips a bucketed date grouping through the address bar", () => {
+    const encoded = encodeGetParams({ viewMode: ViewMode.card, grouping: { field: "createdAt", bucket: "week" } });
+
+    expect(encoded.get("groupBy")).toBe("createdAt:week");
+    expect(decodeGetParams(encoded).grouping).toEqual({ field: "createdAt", bucket: "week" });
   });
 
   it("decodes every link the address bar can carry into params the read path accepts", () => {

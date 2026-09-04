@@ -3,6 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 
+import type { Grouping } from "@/core/base/grouping/grouping.schema";
+
 import { connectDataViewUrlSync } from "../data-view-url-sync";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
@@ -20,7 +22,10 @@ function createStore() {
     activeViewKey: ALL_VIEW_KEY as string,
     applyView,
     filters: [] as { field: string; operator: FilterOperatorKey; value?: unknown }[],
-    groupingColumnId: undefined as string | null | undefined,
+    grouping: undefined as Grouping | null | undefined,
+    get groupingKey() {
+      return this.grouping ? `${this.grouping.field}:${this.grouping.bucket ?? ""}` : "";
+    },
     isRefreshing: false,
     pagination: { page: 1, pageSize: 25 },
     searchTerm: undefined as string | undefined,
@@ -137,7 +142,7 @@ describe("data-view URL synchronization", () => {
     runInAction(() => {
       state.activeViewKey = A_VIEW_ID;
       state.viewMode = ViewMode.card;
-      state.groupingColumnId = A_GROUPING_COLUMN_ID;
+      state.grouping = { field: A_GROUPING_COLUMN_ID };
     });
     vi.advanceTimersByTime(100);
 
@@ -147,7 +152,7 @@ describe("data-view URL synchronization", () => {
     runInAction(() => {
       state.activeViewKey = ALL_VIEW_KEY;
       state.viewMode = ViewMode.table;
-      state.groupingColumnId = null;
+      state.grouping = null;
     });
     vi.advanceTimersByTime(100);
 
@@ -155,17 +160,17 @@ describe("data-view URL synchronization", () => {
     cleanup();
   });
 
-  it("keeps the grouping column out of the URL while the view mode is table", () => {
+  it("keeps the grouping in the URL while the view mode is table, because a table groups too", () => {
     const { state, store } = createStore();
     const cleanup = connectDataViewUrlSync(store);
 
     runInAction(() => {
       state.searchTerm = "acme";
-      state.groupingColumnId = A_GROUPING_COLUMN_ID;
+      state.grouping = { field: "createdAt", bucket: "month" };
     });
     vi.advanceTimersByTime(100);
 
-    expect(window.location.search).toBe("?searchTerm=acme");
+    expect(window.location.search).toBe("?searchTerm=acme&groupBy=createdAt%3Amonth");
     cleanup();
   });
 

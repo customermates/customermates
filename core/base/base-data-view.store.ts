@@ -2,10 +2,12 @@ import type { ObservableSet } from "mobx";
 import type { RootStore } from "../stores/root.store";
 import type { Filter, FilterableField, GroupValueSums, PaginationRequest, SortDescriptor } from "./base-get.schema";
 import type { GetResult } from "./base-get.interactor";
-import type { GetQueryParams, GroupedPaginationRequest } from "@/core/base/base-get.schema";
+import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
 import type { DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
+import type { GroupPageRequest, Grouping, GroupingResult } from "@/core/base/grouping/grouping.schema";
+import type { GroupableFieldDto } from "@/core/base/grouping/groupable-field";
 
 import { makeObservable, observable, computed, action, toJS, runInAction } from "mobx";
 import deepEqual from "fast-deep-equal/es6";
@@ -19,7 +21,7 @@ import { reportApplicationError } from "../errors/report-application-error";
 import { ViewMode } from "./base-query-builder";
 import { BaseStore } from "./base.store";
 
-import { KANBAN_PER_GROUP_DEFAULT } from "./base-get.schema";
+import { GROUP_PAGE_SIZE_DEFAULT, encodeGroupingToken, sameGrouping } from "@/core/base/grouping/grouping.schema";
 import {
   applyDataViewOverrideAction,
   selectDataViewAction,
@@ -91,7 +93,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   viewUnavailable = false;
   viewLost = false;
   viewMode: ViewMode = ViewMode.table;
-  groupingColumnId?: string | null;
+  grouping?: Grouping | null;
+  groupingResult?: GroupingResult;
+  groupableFields: GroupableFieldDto[] = [];
+  collapsedGroupKeys: ObservableSet<string> = observable.set();
   selectedIds: ObservableSet<string> = observable.set();
   selectedScopeKey: string | undefined = undefined;
 
@@ -104,6 +109,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   public readonly entityType?: EntityType;
 
   private persistViewStateTimer?: number;
+  private pendingGroupOnly?: string;
   private overrideWrites = 0;
   private requestGeneration = 0;
   private backgroundRefreshRunning = false;
@@ -146,7 +152,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       viewUnavailable: observable,
       viewLost: observable,
       viewMode: observable,
-      groupingColumnId: observable,
+      grouping: observable,
+      groupingResult: observable.ref,
+      groupableFields: observable,
+      collapsedGroupKeys: observable,
       selectedIds: observable,
       selectedScopeKey: observable,
 
@@ -170,10 +179,12 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       isSelectionAtLimit: computed,
       currentSelectionScopeKey: computed,
       isSelectionScopeStale: computed,
-      singleSelectCustomColumns: computed,
       massEditableCustomColumns: computed,
       isKanbanMode: computed,
-      kanbanGroupingKey: computed,
+      isGrouped: computed,
+      groupingKey: computed,
+      groupingColumnId: computed,
+      currentGroupableFieldId: computed,
 
       setViewOptions: action,
       setQueryOptions: action,
@@ -194,9 +205,13 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       keepSelectionInView: action,
       clearSelection: action,
       loadMoreInGroup: action,
+      toggleGroupCollapsed: action,
+      setGroupSelection: action,
       resetGroupedTakeOverrides: action,
       transferItemBetweenGroups: action,
+      transferItemBetweenResultGroups: action,
       restoreGroupValueSums: action,
+      restoreResultGroups: action,
       setBulkMutating: action,
       bulkDelete: action,
       bulkUpdateCustomField: action,
@@ -296,7 +311,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   moveItemBetweenGroups = async (params: {
     item: Entity;
     optimisticItem: Entity;
-    columnId: string;
     fromGroupKey: string;
     toGroupKey: string;
     value: string | null;
@@ -305,33 +319,48 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const entityType = this.entityType;
     if (!entityType) return;
 
-    const groupingColumn = this.customColumns.find((column) => column.id === params.columnId);
+    const columnId = this.groupingResult?.columnId;
 
-    if (groupingColumn?.type !== CustomColumnType.singleSelect) {
+    if (!columnId || !this.groupingResult?.supportsDragWriteBack) {
       this.toastError("Common.notifications.unexpectedError");
       return;
     }
 
-    const summedFields = [...new Set(Object.values(this.groupValueSums).flatMap((sums) => Object.keys(sums)))];
+    const summedFields = [
+      ...new Set([
+        ...Object.values(this.groupValueSums).flatMap((sums) => Object.keys(sums)),
+        ...(this.groupingResult?.groups ?? []).flatMap((group) => Object.keys(group.valueSums ?? {})),
+      ]),
+    ];
     const itemValueSums = readItemValueSums(params.item, summedFields);
     const valueSumsBeforeMove = this.groupValueSums;
+    const resultGroupsBeforeMove = this.groupingResult;
 
     this.upsertItemLocal(params.optimisticItem);
     this.transferItemBetweenGroups(params.fromGroupKey, params.toGroupKey, itemValueSums, params.destinationValueSums);
+    this.transferItemBetweenResultGroups({
+      itemId: params.item.id,
+      fromGroupKey: params.fromGroupKey,
+      toGroupKey: params.toGroupKey,
+      itemValueSums,
+      destinationValueSums: params.destinationValueSums,
+    });
 
     const valueSumsAfterMove = this.groupValueSums;
+    const resultGroupsAfterMove = this.groupingResult;
 
     const revert = () => {
       this.upsertItemLocal(params.item);
       this.transferItemBetweenGroups(params.toGroupKey, params.fromGroupKey);
       this.restoreGroupValueSums(valueSumsBeforeMove, valueSumsAfterMove);
+      this.restoreResultGroups(resultGroupsBeforeMove, resultGroupsAfterMove);
     };
 
     try {
       const res = await updateEntityCustomFieldValueAction({
         entityType,
         entityId: params.item.id,
-        customFieldValues: [{ columnId: params.columnId, value: params.value }],
+        customFieldValues: [{ columnId, value: params.value }],
       });
       if (res?.ok) await this.upsertItem(res.data as unknown as Entity);
       else {
@@ -345,11 +374,26 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   };
 
   get isKanbanMode(): boolean {
-    return this.viewMode === ViewMode.card && Boolean(this.groupingColumnId);
+    return this.viewMode === ViewMode.card && Boolean(this.grouping);
   }
 
-  get kanbanGroupingKey(): string {
-    return this.isKanbanMode ? `${this.groupingColumnId}` : "";
+  get isGrouped(): boolean {
+    return Boolean(this.grouping && this.groupingResult);
+  }
+
+  get groupingKey(): string {
+    return this.grouping ? encodeGroupingToken(this.grouping) : "";
+  }
+
+  get groupingColumnId(): string | undefined {
+    return this.groupingResult?.columnId;
+  }
+
+  get currentGroupableFieldId(): string {
+    const grouping = this.grouping;
+    if (!grouping) return "";
+
+    return this.groupableFields.find((field) => sameGrouping(field.grouping, grouping))?.id ?? "";
   }
 
   get sortableColumnIds(): Set<string> {
@@ -414,10 +458,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     if (!this.hasSelection || this.selectedScopeKey === undefined) return false;
 
     return this.selectedScopeKey !== this.currentSelectionScopeKey;
-  }
-
-  get singleSelectCustomColumns(): CustomColumnDto[] {
-    return this.customColumns.filter((col) => col.type === CustomColumnType.singleSelect);
   }
 
   get massEditableCustomColumns(): CustomColumnDto[] {
@@ -524,6 +564,11 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   }
 
   setItems(args: GetResult<Entity>): void {
+    if (args.grouping?.partial) {
+      this.mergeGroupPage(args);
+      return;
+    }
+
     const previousViewKey = this.activeViewKey;
 
     this.requestGeneration += 1;
@@ -539,7 +584,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.hiddenColumns = (args.hiddenColumns ?? []).filter((uid) => uid !== "name");
     this.columnOrder = (args.columnOrder ?? []).filter((uid) => uid !== "name");
     this.viewMode = args.viewMode ?? ViewMode.table;
-    this.groupingColumnId = args.groupingColumnId;
+    this.grouping = args.grouping?.grouping ?? null;
+    this.groupingResult = args.grouping;
+    this.groupableFields = args.groupableFields ?? [];
     this.views = args.views ?? [];
     this.activeViewKey = args.activeViewKey ?? ALL_VIEW_KEY;
     this.viewIsDirty = args.viewIsDirty ?? false;
@@ -553,13 +600,71 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.requestState = { status: "ready" };
   }
 
+  private mergeGroupPage(args: GetResult<Entity>): void {
+    const page = args.grouping?.groups[0];
+    const current = this.groupingResult;
+    if (!page || !current) return;
+
+    this.requestGeneration += 1;
+
+    const merged = new Map(this.items.map((item) => [item.id, item]));
+    for (const item of args.items) merged.set(item.id, item);
+
+    this.items = [...merged.values()];
+    this.groupingResult = {
+      ...current,
+      groups: current.groups.map((group) =>
+        group.key === page.key ? { ...group, itemIds: page.itemIds, hasMore: page.hasMore, materialised: true } : group,
+      ),
+    };
+    this.requestState = { status: "ready" };
+  }
+
   loadMoreInGroup = (groupKey: string): void => {
-    const current = this.groupedTakeOverrides[groupKey] ?? KANBAN_PER_GROUP_DEFAULT;
+    const current = this.groupedTakeOverrides[groupKey] ?? GROUP_PAGE_SIZE_DEFAULT;
     this.groupedTakeOverrides = {
       ...this.groupedTakeOverrides,
-      [groupKey]: current + KANBAN_PER_GROUP_DEFAULT,
+      [groupKey]: current + GROUP_PAGE_SIZE_DEFAULT,
     };
+    this.pendingGroupOnly = groupKey;
     this.refreshQueryInBackground();
+  };
+
+  isGroupCollapsed = (groupKey: string): boolean => this.collapsedGroupKeys.has(groupKey);
+
+  toggleGroupCollapsed = (groupKey: string): void => {
+    if (!this.collapsedGroupKeys.has(groupKey)) {
+      this.collapsedGroupKeys.add(groupKey);
+      return;
+    }
+
+    this.collapsedGroupKeys.delete(groupKey);
+
+    const group = this.groupingResult?.groups.find((candidate) => candidate.key === groupKey);
+    if (!group || group.materialised || group.count === 0) return;
+
+    this.pendingGroupOnly = groupKey;
+    this.refreshInBackground();
+  };
+
+  setGroupSelection = (groupKey: string, selected: boolean): void => {
+    const inGroup = new Set(this.groupingResult?.groups.find((group) => group.key === groupKey)?.itemIds ?? []);
+    const groupIds = this.items
+      .filter((item) => inGroup.has(item.id) && this.isItemSelectable(item))
+      .map((item) => item.id);
+
+    if (!selected) {
+      groupIds.forEach((id) => this.selectedIds.delete(id));
+      this.rememberSelectionScope();
+      return;
+    }
+
+    const missing = groupIds.filter((id) => !this.selectedIds.has(id));
+    const room = Math.max(0, MAX_SELECTION_SIZE - this.selectedIds.size);
+    missing.slice(0, room).forEach((id) => this.selectedIds.add(id));
+    this.rememberSelectionScope();
+
+    if (missing.length > room) this.toastError("MassActions.limitReached", { values: { limit: MAX_SELECTION_SIZE } });
   };
 
   resetGroupedTakeOverrides = (): void => {
@@ -593,6 +698,51 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     };
   };
 
+  transferItemBetweenResultGroups = (args: {
+    itemId: string;
+    fromGroupKey: string;
+    toGroupKey: string;
+    itemValueSums?: GroupValueSums;
+    destinationValueSums?: GroupValueSums;
+  }): void => {
+    const current = this.groupingResult;
+    if (!current || args.fromGroupKey === args.toGroupKey) return;
+
+    const creditedSums = args.destinationValueSums ?? args.itemValueSums;
+
+    this.groupingResult = {
+      ...current,
+      groups: current.groups.map((group) => {
+        if (group.key === args.fromGroupKey) {
+          return {
+            ...group,
+            count: Math.max(0, group.count - 1),
+            itemIds: group.itemIds.filter((id) => id !== args.itemId),
+            ...(group.valueSums && args.itemValueSums
+              ? { valueSums: shiftValueSums(group.valueSums, args.itemValueSums, -1) }
+              : {}),
+          };
+        }
+
+        if (group.key === args.toGroupKey) {
+          return {
+            ...group,
+            count: group.count + 1,
+            itemIds: group.itemIds.includes(args.itemId) ? group.itemIds : [args.itemId, ...group.itemIds],
+            ...(group.valueSums && creditedSums ? { valueSums: shiftValueSums(group.valueSums, creditedSums, 1) } : {}),
+          };
+        }
+
+        return group;
+      }),
+    };
+  };
+
+  restoreResultGroups = (snapshot: GroupingResult | undefined, expected: GroupingResult | undefined): void => {
+    if (this.groupingResult !== expected) return;
+    this.groupingResult = snapshot;
+  };
+
   restoreGroupValueSums = (
     snapshot: Record<string, GroupValueSums>,
     expected: Record<string, GroupValueSums>,
@@ -607,10 +757,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     columnWidths?: Record<string, number>;
     hiddenColumns?: string[];
     viewMode?: ViewMode;
-    groupingColumnId?: string;
+    grouping?: Grouping | null;
   }) => {
     let hasChanges = false;
-    const groupingBefore = this.kanbanGroupingKey;
+    const groupingBefore = this.groupingKey;
 
     if (updates.columnOrder) {
       const newColumnOrder = updates.columnOrder.filter((uid) => uid !== "name");
@@ -655,13 +805,17 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       hasChanges = true;
     }
 
-    if ("groupingColumnId" in updates && this.groupingColumnId !== updates.groupingColumnId) {
-      this.groupingColumnId = updates.groupingColumnId ?? null;
+    if ("grouping" in updates && !sameGrouping(this.grouping, updates.grouping)) {
+      this.grouping = updates.grouping ?? null;
       hasChanges = true;
     }
 
-    const groupingChanged = groupingBefore !== this.kanbanGroupingKey;
-    if (groupingChanged) this.resetGroupedTakeOverrides();
+    const groupingChanged = groupingBefore !== this.groupingKey;
+    if (groupingChanged) {
+      this.resetGroupedTakeOverrides();
+      this.collapsedGroupKeys.clear();
+      this.resetPaginationPage();
+    }
 
     if (hasChanges) this.persistViewState();
     if (groupingChanged) this.refreshQueryInBackground();
@@ -748,12 +902,13 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       this.searchTerm = state.searchTerm;
       this.sortDescriptor = state.sortDescriptor ?? undefined;
       this.viewMode = state.viewMode ?? ViewMode.table;
-      this.groupingColumnId = state.groupingColumnId ?? null;
+      this.grouping = state.grouping ?? null;
       this.columnOrder = (state.columnOrder ?? []).filter((uid) => uid !== "name");
       this.columnWidths = state.columnWidths ?? {};
       this.hiddenColumns = (state.hiddenColumns ?? []).filter((uid) => uid !== "name");
       this.pagination = this.pagination ? { ...this.pagination, page: 1 } : this.pagination;
       this.groupedTakeOverrides = {};
+      this.collapsedGroupKeys.clear();
       this.viewIsDirty = false;
       this.viewLost = false;
     });
@@ -818,7 +973,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const generation = ++this.requestGeneration;
     const overrideWritesAtStart = this.overrideWrites;
     const wasInitialized = this.isReady;
-    const groupedPagination = resolveFromServer ? undefined : this.buildGroupedPaginationRequest();
+    const groupPage = this.buildGroupPageRequest();
     const params: GetQueryParams = resolveFromServer
       ? {
           p13nId: this.p13nId,
@@ -830,10 +985,15 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
           filters: toJS(this.filters),
           searchTerm: toJS(this.searchTerm),
           sortDescriptor: toJS(this.sortDescriptor),
-          pagination: this.pagination ? { page: this.pagination.page, pageSize: this.pagination.pageSize } : undefined,
-          groupedPagination,
+          ...(groupPage
+            ? { groupPage, pageSize: this.pagination?.pageSize }
+            : {
+                pagination: this.pagination
+                  ? { page: this.pagination.page, pageSize: this.pagination.pageSize }
+                  : undefined,
+              }),
           viewMode: this.viewMode,
-          groupingColumnId: this.groupingColumnId,
+          grouping: toJS(this.grouping),
         };
 
     runInAction(() => {
@@ -875,18 +1035,18 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     });
   };
 
-  private buildGroupedPaginationRequest(): GroupedPaginationRequest | undefined {
-    if (!this.isKanbanMode || !this.groupingColumnId) return undefined;
+  private buildGroupPageRequest(): GroupPageRequest | undefined {
+    const only = this.pendingGroupOnly;
+    this.pendingGroupOnly = undefined;
 
-    const groupingColumn = this.customColumns.find((c) => c.id === this.groupingColumnId);
-    if (!groupingColumn || groupingColumn.type !== CustomColumnType.singleSelect) return undefined;
-
-    const overrides = Object.keys(this.groupedTakeOverrides).length > 0 ? toJS(this.groupedTakeOverrides) : undefined;
+    if (!this.grouping) return undefined;
 
     return {
-      groupingColumnId: this.groupingColumnId,
-      perGroup: KANBAN_PER_GROUP_DEFAULT,
-      overrides,
+      perGroup: GROUP_PAGE_SIZE_DEFAULT,
+      ...(Object.keys(this.groupedTakeOverrides).length > 0 ? { overrides: toJS(this.groupedTakeOverrides) } : {}),
+      ...(this.collapsedGroupKeys.size > 0 ? { collapsed: [...this.collapsedGroupKeys] } : {}),
+      ...(only === undefined ? {} : { only }),
+      includeValueSums: this.viewMode === ViewMode.card,
     };
   }
 
@@ -1013,7 +1173,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
           sortDescriptor: toJS(this.sortDescriptor) ?? null,
           pageSize: this.pagination?.pageSize,
           viewMode: toJS(this.viewMode),
-          groupingColumnId: this.groupingColumnId ?? null,
+          grouping: toJS(this.grouping) ?? null,
           columnOrder: toJS(this.columnOrder),
           columnWidths: toJS(this.columnWidths),
           hiddenColumns: toJS(this.hiddenColumns),

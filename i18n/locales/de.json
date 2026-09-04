@@ -864,6 +864,13 @@
       "immutableType": "Der Feldtyp ist nach dem Erstellen festgelegt. Erstelle ein neues benutzerdefiniertes Feld, um einen anderen Typ zu verwenden.",
       "probabilityPermission": "Phasenwahrscheinlichkeiten werden unter „{company}“ verwaltet. Bitte einen Administrator um die Berechtigung, sie zu ändern."
     },
+    "dateBuckets": {
+      "day": "Tag",
+      "earlier": "Früher",
+      "later": "Später",
+      "month": "Monat",
+      "week": "Woche"
+    },
     "datePresets": {
       "endTime": "Endzeit",
       "inAMonth": "In einem Monat",
@@ -1387,6 +1394,10 @@
       "previousPage": "Vorherige Seite",
       "search": "Suchen..."
     },
+    "taskTypes": {
+      "custom": "Benutzerdefiniert",
+      "userPendingAuthorization": "Autorisierung ausstehend"
+    },
     "themes": {
       "dark": "Dunkel",
       "light": "Hell",
@@ -1730,8 +1741,11 @@
     "menu": "Import und Export"
   },
   "DataView": {
+    "collapseGroup": "Gruppe {group} einklappen",
     "dragToReorder": "Zum Neuanordnen ziehen",
     "editColumn": "Spalte bearbeiten",
+    "expandGroup": "Gruppe {group} ausklappen",
+    "groupOverflow": "Es werden nur {count} Gruppen angezeigt",
     "noValue": "Kein Wert",
     "resizeColumn": "Größe der Spalte „{column}“ ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
     "resizeHint": "Zum Ändern der Größe ziehen. Zum Zurücksetzen doppelklicken.",

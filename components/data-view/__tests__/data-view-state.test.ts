@@ -54,9 +54,20 @@ describe("data-view page state", () => {
     expect(resolveDataViewPageState({ ...READY, hasActiveQuery: true, itemCount: 1 })).toBe("content");
   });
 
+  it("keeps a grouped surface on its group rows when every group is collapsed", () => {
+    expect(resolveDataViewPageState({ ...READY, hasActiveQuery: true, isGrouped: true, total: 3 })).toBe("content");
+  });
+
+  it("still empties a grouped surface whose query matched nothing at all", () => {
+    expect(resolveDataViewPageState({ ...READY, hasActiveQuery: true, isGrouped: true, total: 0 })).toBe(
+      "filtered-empty",
+    );
+  });
+
   it("maps the live table, card, and grouped card modes to matching geometry", () => {
     expect(resolveDataViewView(ViewMode.table)).toBe("table");
     expect(resolveDataViewView(ViewMode.card)).toBe("cards");
-    expect(resolveDataViewView(ViewMode.card, "pipeline-stage")).toBe("board");
+    expect(resolveDataViewView(ViewMode.card, true)).toBe("board");
+    expect(resolveDataViewView(ViewMode.table, true)).toBe("table");
   });
 });

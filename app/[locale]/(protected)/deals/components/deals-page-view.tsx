@@ -38,10 +38,11 @@ export const DealsPageView = observer(function DealsPageView({ deals }: Props) {
   const { singular } = useEntityTerminology();
   const t = useTranslations();
 
-  const view = resolveDataViewView(dealsStore.viewMode, dealsStore.groupingColumnId);
+  const view = resolveDataViewView(dealsStore.viewMode, dealsStore.isGrouped);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery: Boolean(dealsStore.searchTerm?.trim()) || (dealsStore.filters?.length ?? 0) > 0,
+    isGrouped: dealsStore.isGrouped,
     itemCount: dealsStore.items.length,
     request: dealsStore.dataRequest,
     total: dealsStore.pagination?.total,
@@ -114,7 +115,10 @@ export const DealsPageView = observer(function DealsPageView({ deals }: Props) {
   }
 
   return (
-    <DataViewLayout showPagination={pageState === "content" && view !== "board"} store={dealsStore}>
+    <DataViewLayout
+      showPagination={pageState === "content" && view !== "board" && !dealsStore.isGrouped}
+      store={dealsStore}
+    >
       {body}
     </DataViewLayout>
   );

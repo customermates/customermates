@@ -9,6 +9,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { FilterSchema, SortDescriptorSchema, PaginationRequestSchema } from "@/core/base/base-get.schema";
 import { ViewMode } from "@/core/base/base-query-builder";
+import { GroupingSchema } from "@/core/base/grouping/grouping.schema";
 import { EntityDetailOptionsSchema, P13nEntrySchema } from "./p13n.schema";
 
 const Schema = z.object({
@@ -23,6 +24,7 @@ const Schema = z.object({
   hiddenColumns: z.array(z.string()).optional(),
   viewMode: z.enum(ViewMode).nullish(),
   groupingColumnId: z.uuid().nullish(),
+  grouping: GroupingSchema.nullish(),
   detailOptions: EntityDetailOptionsSchema.nullish(),
 });
 export type UpsertP13nData = Data<typeof Schema>;

@@ -864,6 +864,13 @@
       "immutableType": "El tipo de campo queda fijo después de crearlo. Crea un nuevo campo personalizado para usar otro tipo.",
       "probabilityPermission": "Las probabilidades de etapa se gestionan en «{company}». Solicita a un administrador permiso para actualizarlas."
     },
+    "dateBuckets": {
+      "day": "Día",
+      "earlier": "Anterior",
+      "later": "Posterior",
+      "month": "Mes",
+      "week": "Semana"
+    },
     "datePresets": {
       "endTime": "Hora de fin",
       "inAMonth": "Dentro de un mes",
@@ -1387,6 +1394,10 @@
       "previousPage": "Página anterior",
       "search": "Buscar..."
     },
+    "taskTypes": {
+      "custom": "Personalizada",
+      "userPendingAuthorization": "Autorización pendiente"
+    },
     "themes": {
       "dark": "Oscuro",
       "light": "Claro",
@@ -1730,8 +1741,11 @@
     "menu": "Importar y exportar"
   },
   "DataView": {
+    "collapseGroup": "Contraer el grupo {group}",
     "dragToReorder": "Arrastrar para reordenar",
     "editColumn": "Editar columna",
+    "expandGroup": "Expandir el grupo {group}",
+    "groupOverflow": "Solo se muestran {count} grupos",
     "noValue": "Sin valor",
     "resizeColumn": "Redimensiona la columna {column}. Arrastra o usa las teclas de flecha; toca dos veces o pulsa Intro para restablecer.",
     "resizeHint": "Arrastra para redimensionar. Haz doble clic para restablecer.",

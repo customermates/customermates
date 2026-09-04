@@ -1,4 +1,6 @@
-import type { Prisma, PrismaClient } from "@/generated/prisma";
+import type { PrismaClient } from "@/generated/prisma";
+
+import { Prisma } from "@/generated/prisma";
 
 import {
   CONTACT_DETAIL_FIELD,
@@ -112,6 +114,7 @@ export function buildSyntheticP13nFixtures(
       hiddenColumns: ["deals", "createdAt"],
       viewMode: "table",
       groupingColumnId: null,
+      grouping: Prisma.DbNull,
     }),
     fixture(SYNTHETIC_P13N_IDS.users, "users-card-store", {
       columnOrder: [],
@@ -123,6 +126,7 @@ export function buildSyntheticP13nFixtures(
       hiddenColumns: ["email"],
       viewMode: "table",
       groupingColumnId: null,
+      grouping: Prisma.DbNull,
     }),
     fixture(SYNTHETIC_P13N_IDS.tasks, "tasks-card-store", {
       columnOrder: [customColumnIds.taskPriority, customColumnIds.taskStatus, "updatedAt", "createdAt", "users"],
@@ -143,6 +147,7 @@ export function buildSyntheticP13nFixtures(
       ],
       viewMode: "card",
       groupingColumnId: customColumnIds.taskStatus,
+      grouping: inputJson({ field: customColumnIds.taskStatus }),
     }),
     fixture(SYNTHETIC_P13N_IDS.roles, "roles-card-store", {
       columnOrder: [],
@@ -154,6 +159,7 @@ export function buildSyntheticP13nFixtures(
       hiddenColumns: [],
       viewMode: null,
       groupingColumnId: null,
+      grouping: Prisma.DbNull,
     }),
     fixture(SYNTHETIC_P13N_IDS.webhooks, "webhooks-card-store", {
       columnOrder: [],
@@ -165,6 +171,7 @@ export function buildSyntheticP13nFixtures(
       hiddenColumns: [],
       viewMode: "card",
       groupingColumnId: null,
+      grouping: Prisma.DbNull,
     }),
     fixture(SYNTHETIC_P13N_IDS.deals, "deals-card-store", {
       columnOrder: [
@@ -189,6 +196,7 @@ export function buildSyntheticP13nFixtures(
       hiddenColumns: ["contacts", "updatedAt", "createdAt", "tasks"],
       viewMode: "card",
       groupingColumnId: customColumnIds.dealStatus,
+      grouping: inputJson({ field: customColumnIds.dealStatus }),
     }),
     fixture(SYNTHETIC_P13N_IDS.services, "services-card-store", {
       columnOrder: [
@@ -209,6 +217,7 @@ export function buildSyntheticP13nFixtures(
       hiddenColumns: ["createdAt", "tasks"],
       viewMode: "table",
       groupingColumnId: null,
+      grouping: Prisma.DbNull,
     }),
     fixture(SYNTHETIC_P13N_IDS.auditLogs, "audit-logs-card-store", {
       columnOrder: ["event", "entityId", "createdAt", "user"],
@@ -220,6 +229,7 @@ export function buildSyntheticP13nFixtures(
       hiddenColumns: ["entityId"],
       viewMode: "table",
       groupingColumnId: null,
+      grouping: Prisma.DbNull,
     }),
     fixture(SYNTHETIC_P13N_IDS.webhookDeliveries, "webhook-deliveries-card-store", {
       columnOrder: [],
@@ -231,6 +241,7 @@ export function buildSyntheticP13nFixtures(
       hiddenColumns: [],
       viewMode: null,
       groupingColumnId: null,
+      grouping: Prisma.DbNull,
     }),
     fixture(SYNTHETIC_P13N_IDS.organizations, "organizations-card-store", {
       columnOrder: [
@@ -251,6 +262,7 @@ export function buildSyntheticP13nFixtures(
       hiddenColumns: ["createdAt"],
       viewMode: "table",
       groupingColumnId: null,
+      grouping: Prisma.DbNull,
     }),
     detailFixture(
       SYNTHETIC_P13N_IDS.contactDetail,

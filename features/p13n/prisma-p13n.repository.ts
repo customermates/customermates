@@ -1,12 +1,14 @@
 import type { RepoArgs } from "@/core/utils/types";
 import type { Filter, SortDescriptor, PaginationRequest } from "@/core/base/base-get.schema";
 import type { ViewMode } from "@/core/base/base-query-builder";
+import type { Grouping } from "@/core/base/grouping/grouping.schema";
 import type { UpsertP13nRepo } from "./upsert-p13n.interactor";
 import type { GetP13nRepo } from "./get-p13n.interactor";
 
 import { Prisma } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
+import { CLEARED_GROUPING, groupingShadowColumnId, readStoredGrouping } from "@/core/base/grouping/stored-grouping";
 import { normalizeFilters } from "@/core/base/filter-compat";
 import { EntityDetailOptionsSchema, type EntityDetailOptions } from "./p13n.schema";
 
@@ -22,6 +24,7 @@ export interface P13nEntry {
   hiddenColumns?: string[];
   viewMode?: ViewMode;
   groupingColumnId?: string;
+  grouping?: Grouping;
   detailOptions?: EntityDetailOptions;
 }
 
@@ -58,6 +61,7 @@ export class PrismaP13nRepo extends BaseRepository implements GetP13nRepo, Upser
       hiddenColumns,
       viewMode,
       groupingColumnId,
+      grouping,
       detailOptions,
     } = res;
 
@@ -73,6 +77,7 @@ export class PrismaP13nRepo extends BaseRepository implements GetP13nRepo, Upser
       hiddenColumns,
       viewMode: (viewMode as ViewMode | null) ?? undefined,
       groupingColumnId: groupingColumnId ?? undefined,
+      grouping: readStoredGrouping(grouping, groupingColumnId, viewMode) ?? undefined,
       detailOptions: normalizeDetailOptions(detailOptions),
     };
   }
@@ -93,7 +98,8 @@ export class PrismaP13nRepo extends BaseRepository implements GetP13nRepo, Upser
       columnOrder: data.columnOrder ?? [],
       hiddenColumns: data.hiddenColumns ?? [],
       viewMode: data.viewMode ?? null,
-      groupingColumnId: data.groupingColumnId ?? null,
+      groupingColumnId: groupingShadowColumnId(data.grouping),
+      grouping: data.grouping ?? Prisma.JsonNull,
       detailOptions: data.detailOptions ?? Prisma.JsonNull,
     };
 
@@ -112,7 +118,10 @@ export class PrismaP13nRepo extends BaseRepository implements GetP13nRepo, Upser
     if (data.columnOrder !== undefined) updateData.columnOrder = data.columnOrder ?? [];
     if (data.hiddenColumns !== undefined) updateData.hiddenColumns = data.hiddenColumns ?? [];
     if (data.viewMode !== undefined) updateData.viewMode = data.viewMode ?? null;
-    if (data.groupingColumnId !== undefined) updateData.groupingColumnId = data.groupingColumnId ?? null;
+    if (data.grouping !== undefined) {
+      updateData.groupingColumnId = groupingShadowColumnId(data.grouping);
+      updateData.grouping = data.grouping ?? CLEARED_GROUPING;
+    }
     if (data.detailOptions !== undefined) updateData.detailOptions = data.detailOptions ?? Prisma.JsonNull;
 
     const row = await this.prisma.p13n.upsert({
@@ -136,6 +145,7 @@ export class PrismaP13nRepo extends BaseRepository implements GetP13nRepo, Upser
       hiddenColumns: row.hiddenColumns,
       viewMode: (row.viewMode as ViewMode | null) ?? undefined,
       groupingColumnId: row.groupingColumnId ?? undefined,
+      grouping: readStoredGrouping(row.grouping, row.groupingColumnId, row.viewMode) ?? undefined,
       detailOptions: normalizeDetailOptions(row.detailOptions),
     };
   }

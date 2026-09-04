@@ -32,7 +32,7 @@ function getQueryString<E extends HasId>(store: BaseDataViewStore<E>, currentSea
       pageSize: store.pagination?.pageSize,
       viewId: store.activeViewKey === ALL_VIEW_KEY ? undefined : store.activeViewKey,
       viewMode: store.viewMode,
-      groupingColumnId: store.groupingColumnId ?? undefined,
+      grouping: toJS(store.grouping) ?? undefined,
     }),
   );
 }
@@ -95,7 +95,7 @@ export function connectDataViewUrlSync<E extends HasId>(
     () => ({
       activeViewKey: store.activeViewKey,
       filters: toJS(store.filters),
-      groupingColumnId: store.groupingColumnId,
+      groupingKey: store.groupingKey,
       isRefreshing: store.isRefreshing,
       page: store.pagination?.page ?? 1,
       pageSize: store.pagination?.pageSize ?? 25,

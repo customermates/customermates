@@ -32,10 +32,11 @@ export const OperatorUsersPageView = observer(function OperatorUsersPageView({ i
   useDataViewSync(operatorUsersStore, initialUsers);
   const columns = useOperatorUserColumns();
   const t = useTranslations();
-  const view = resolveDataViewView(operatorUsersStore.viewMode, operatorUsersStore.groupingColumnId);
+  const view = resolveDataViewView(operatorUsersStore.viewMode, operatorUsersStore.isGrouped);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery: Boolean(operatorUsersStore.searchTerm?.trim()) || (operatorUsersStore.filters?.length ?? 0) > 0,
+    isGrouped: operatorUsersStore.isGrouped,
     itemCount: operatorUsersStore.items.length,
     request: operatorUsersStore.dataRequest,
     total: operatorUsersStore.pagination?.total,
@@ -112,7 +113,10 @@ export const OperatorUsersPageView = observer(function OperatorUsersPageView({ i
   const current = selected ? (operatorUsersStore.items.find((item) => item.id === selected.id) ?? null) : null;
 
   return (
-    <DataViewLayout showPagination={pageState === "content" && view !== "board"} store={operatorUsersStore}>
+    <DataViewLayout
+      showPagination={pageState === "content" && view !== "board" && !operatorUsersStore.isGrouped}
+      store={operatorUsersStore}
+    >
       {body}
 
       <OperatorUserModal user={current} onClose={() => setSelected(null)} />

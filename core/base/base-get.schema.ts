@@ -8,6 +8,15 @@ import { normalizeFilterInput } from "./filter-compat";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { CustomColumnDtoSchema } from "@/features/custom-column/custom-column.schema";
+import {
+  GROUP_PAGE_SIZE_DEFAULT,
+  GROUP_PAGE_SIZE_MAX,
+  GroupPageRequestSchema,
+  GroupingSchema,
+  NO_VALUE_GROUP_KEY,
+} from "@/core/base/grouping/grouping.schema";
+
+import type { GroupScope } from "@/core/base/grouping/group-scope";
 
 export const FilterSchema = z.preprocess(
   normalizeFilterInput,
@@ -101,9 +110,9 @@ export const PaginationResponseSchema = PaginationRequestSchema.extend({
 });
 export type PaginationResponse = Data<typeof PaginationResponseSchema>;
 
-const KANBAN_PER_GROUP_MAX = 500;
-export const KANBAN_PER_GROUP_DEFAULT = 10;
-export const KANBAN_EMPTY_GROUP_KEY = "__empty__";
+const KANBAN_PER_GROUP_MAX = GROUP_PAGE_SIZE_MAX;
+export const KANBAN_PER_GROUP_DEFAULT = GROUP_PAGE_SIZE_DEFAULT;
+export const KANBAN_EMPTY_GROUP_KEY = NO_VALUE_GROUP_KEY;
 
 export const GroupedPaginationRequestSchema = z.object({
   groupingColumnId: z.string(),
@@ -144,11 +153,13 @@ export const GetQueryParamsSchema = GetQueryParamsApiSchema.extend({
   page: z.number().int().min(1).optional(),
   pageSize: z.union([z.literal(5), z.literal(10), z.literal(25), z.literal(100)]).optional(),
   viewMode: z.enum(ViewMode).optional(),
-  groupingColumnId: z.uuid().nullish(),
+  grouping: GroupingSchema.nullish(),
+  groupPage: GroupPageRequestSchema.optional(),
 });
 export type GetQueryParams = Data<typeof GetQueryParamsSchema> & {
   take?: number;
   skip?: number;
+  groupScope?: GroupScope;
 };
 
 export const GetConfigurationSchema = z.object({
@@ -168,6 +179,11 @@ export const GetResultSchema = z.object({
   }).optional(),
   filterableFields: z.array(FilterableFieldSchema).optional(),
 });
+
+export const GroupingResultFields = {
+  grouping: z.any().optional(),
+  groupableFields: z.array(z.any()).optional(),
+};
 
 export const DataViewResultFields = {
   views: z.array(z.any()).optional(),
@@ -208,5 +224,5 @@ export function createApiGetResultSchema<T extends z.ZodSchema>(itemSchema: T) {
 }
 
 export function createGetResultSchema<T extends z.ZodSchema>(itemSchema: T) {
-  return createApiGetResultSchema(itemSchema).extend(DataViewResultFields);
+  return createApiGetResultSchema(itemSchema).extend({ ...DataViewResultFields, ...GroupingResultFields });
 }
