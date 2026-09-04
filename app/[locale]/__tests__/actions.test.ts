@@ -19,7 +19,7 @@ vi.mock("@/core/di", () => ({
 }));
 vi.mock("@/core/utils/action-result", () => ({ serializeResult: mocks.serializeResult }));
 vi.mock("@/core/validation/validation.utils", () => ({ unwrapValidated: mocks.unused }));
-import { signOutAction, signOutForInvitationAction } from "../actions";
+import { signOutAction, signOutWithOnboardingIntentAction } from "../actions";
 
 describe("shared account actions", () => {
   beforeEach(() => {
@@ -36,9 +36,9 @@ describe("shared account actions", () => {
   it("localizes the invitation sign-out destination returned by the interactor", async () => {
     mocks.signOut.mockResolvedValue({ redirect: "/auth/signup?intent=signed.intent" });
 
-    await signOutForInvitationAction("signed.intent");
+    await signOutWithOnboardingIntentAction("signed.intent");
 
-    expect(mocks.signOut).toHaveBeenCalledExactlyOnceWith({ invitationIntent: "signed.intent" });
+    expect(mocks.signOut).toHaveBeenCalledExactlyOnceWith({ onboardingIntent: "signed.intent" });
     expect(mocks.redirect).toHaveBeenCalledExactlyOnceWith("/en/auth/signup?intent=signed.intent");
   });
 });

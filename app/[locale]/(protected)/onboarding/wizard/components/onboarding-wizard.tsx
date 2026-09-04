@@ -39,14 +39,24 @@ export const OnboardingWizard = observer(
   }: Props) => {
     const t = useTranslations();
     const { onboardingWizardStore } = useRootStore();
-    useState(() => onboardingWizardStore.setInitialStep(profileCompleted ? 1 : 0));
-    const { currentStep, currentStepIndex, totalSteps, isFirstStep, isSubmitting, next, back } = onboardingWizardStore;
+    const initialStepIndex = profileCompleted ? 1 : 0;
+    const [initializedProfileCompleted, setInitializedProfileCompleted] = useState<boolean | null>(null);
+    const isStepSynchronized = initializedProfileCompleted === profileCompleted;
+    const currentStep = isStepSynchronized
+      ? onboardingWizardStore.currentStep
+      : profileCompleted
+        ? "invite"
+        : "profile";
+    const currentStepIndex = isStepSynchronized ? onboardingWizardStore.currentStepIndex : initialStepIndex;
+    const isFirstStep = isStepSynchronized ? onboardingWizardStore.isFirstStep : true;
+    const { totalSteps, isSubmitting, next, back } = onboardingWizardStore;
     const headingRef = useRef<HTMLHeadingElement>(null);
     const previousStep = useRef(currentStep);
 
     useEffect(() => {
-      onboardingWizardStore.setInitialStep(profileCompleted ? 1 : 0);
-    }, [onboardingWizardStore, profileCompleted]);
+      onboardingWizardStore.setInitialStep(initialStepIndex);
+      setInitializedProfileCompleted(profileCompleted);
+    }, [initialStepIndex, onboardingWizardStore, profileCompleted]);
 
     useEffect(() => {
       if (previousStep.current !== currentStep) headingRef.current?.focus();

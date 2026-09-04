@@ -136,12 +136,48 @@ describe("onboarding authentication detours", () => {
       { clear } as never,
     );
 
-    await expect(interactor.invoke({ invitationIntent: invitation.intent })).resolves.toEqual({
+    await expect(interactor.invoke({ onboardingIntent: invitation.intent })).resolves.toEqual({
       redirect: "/auth/signup?intent=signed.intent",
     });
     expect(clear).toHaveBeenCalledOnce();
     expect(signOut).toHaveBeenCalledOnce();
     expect(clear.mock.invocationCallOrder[0]).toBeLessThan(signOut.mock.invocationCallOrder[0]);
+  });
+
+  it("signs out without carrying a company-creation intent to another account", async () => {
+    onboardingIntentService.resolve.mockResolvedValue({
+      authUserId: "auth-user-one",
+      intent: "signed.create",
+      source: "explicit",
+      status: "valid",
+      type: "createCompany",
+    });
+    const signOut = vi.fn().mockResolvedValue(undefined);
+    const clear = vi.fn().mockResolvedValue(undefined);
+    const interactor = new SignOutInteractor(
+      { signOut } as unknown as AuthService,
+      onboardingIntentService as never,
+      { clear } as never,
+    );
+
+    await expect(interactor.invoke({ onboardingIntent: "signed.create" })).resolves.toEqual({ redirect: "/" });
+    expect(clear).toHaveBeenCalledOnce();
+    expect(signOut).toHaveBeenCalledOnce();
+  });
+
+  it("signs out normally when an explicit onboarding intent resolves as absent", async () => {
+    onboardingIntentService.resolve.mockResolvedValue({ status: "absent" });
+    const signOut = vi.fn().mockResolvedValue(undefined);
+    const clear = vi.fn().mockResolvedValue(undefined);
+    const interactor = new SignOutInteractor(
+      { signOut } as unknown as AuthService,
+      onboardingIntentService as never,
+      { clear } as never,
+    );
+
+    await expect(interactor.invoke({ onboardingIntent: "" })).resolves.toEqual({ redirect: "/" });
+    expect(clear).toHaveBeenCalledOnce();
+    expect(signOut).toHaveBeenCalledOnce();
   });
 
   it("still signs out when the invitation intent is invalid", async () => {
@@ -158,7 +194,7 @@ describe("onboarding authentication detours", () => {
       { clear } as never,
     );
 
-    await expect(interactor.invoke({ invitationIntent: "tampered" })).resolves.toEqual({
+    await expect(interactor.invoke({ onboardingIntent: "tampered" })).resolves.toEqual({
       redirect: "/auth/error?type=invalidOnboardingIntent",
     });
     expect(signOut).toHaveBeenCalledOnce();

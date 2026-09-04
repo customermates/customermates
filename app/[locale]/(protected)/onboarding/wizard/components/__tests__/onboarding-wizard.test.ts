@@ -66,4 +66,13 @@ describe("OnboardingWizard", () => {
     expect(renderWizard(true)).toContain('id="onboarding-back"');
     expect(renderWizard(true)).toContain('id="onboarding-next"');
   });
+
+  it("does not mutate the shared wizard store during render", () => {
+    const store = new OnboardingWizardStore({} as RootStore);
+    testContext.rootStore = { onboardingWizardStore: store } as unknown as RootStore;
+
+    renderToStaticMarkup(createElement(OnboardingWizard, { profileCompleted: true }));
+
+    expect(store.currentStep).toBe("profile");
+  });
 });

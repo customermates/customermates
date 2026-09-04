@@ -15,18 +15,17 @@ export class SignOutInteractor {
     private readonly inviteTokenCookieRepo: InviteTokenCookieRepo,
   ) {}
 
-  async invoke(data: { invitationIntent?: string } = {}): Promise<Redirect> {
-    const invitation =
-      data.invitationIntent === undefined ? null : await this.onboardingIntentService.resolve(data.invitationIntent);
+  async invoke(data: { onboardingIntent?: string } = {}): Promise<Redirect> {
+    const onboardingIntent =
+      data.onboardingIntent === undefined ? null : await this.onboardingIntentService.resolve(data.onboardingIntent);
     await this.inviteTokenCookieRepo.clear();
     await this.authService.signOut();
 
-    if (!invitation) return redirectTo("/");
-    if (invitation.status !== "valid" || invitation.type !== "invitation") {
-      const errorMessage = invitation.status === "invalid" ? invitation.errorMessage : "invalidOnboardingIntent";
-      return redirectTo(`/auth/error?type=${errorMessage}`);
-    }
+    if (!onboardingIntent) return redirectTo("/");
+    if (onboardingIntent.status === "invalid") return redirectTo(`/auth/error?type=${onboardingIntent.errorMessage}`);
+    if (onboardingIntent.status === "absent") return redirectTo("/");
+    if (onboardingIntent.type !== "invitation") return redirectTo("/");
 
-    return redirectTo(pathWithOnboardingIntent("/auth/signup", invitation.intent));
+    return redirectTo(pathWithOnboardingIntent("/auth/signup", onboardingIntent.intent));
   }
 }

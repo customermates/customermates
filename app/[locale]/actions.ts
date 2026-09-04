@@ -23,8 +23,8 @@ export async function signOutAction() {
   return serializeResult(getSignOutInteractor().invoke());
 }
 
-export async function signOutForInvitationAction(invitationIntent: string) {
-  const result = await getSignOutInteractor().invoke({ invitationIntent });
+export async function signOutWithOnboardingIntentAction(onboardingIntent: string) {
+  const result = await getSignOutInteractor().invoke({ onboardingIntent });
   return redirect(buildLocalePath(await getLocale(), result.redirect));
 }
 

@@ -4,6 +4,7 @@ vi.mock("../route-source-map", () => {
   const pages = new Map([
     ["pricing|en", { data: { description: "Plans and pricing", title: "Pricing" } }],
     ["pricing|de", { data: { description: "Pläne und Preise", title: "Preise" } }],
+    ["auth/signup|en", { data: { description: "Create an account", title: "Sign up" } }],
     ["best-crm|en", { data: { description: "", title: "Best CRM" } }],
     ["untitled|en", { data: { description: "Body without a title", title: "   " } }],
   ]);
@@ -15,6 +16,7 @@ vi.mock("../route-source-map", () => {
   return {
     ROUTE_SOURCE_MAP: {
       "/blog/:slug": { path: [":slug"], source },
+      "/auth/signup": { path: ["auth", "signup"], source },
       "/imprint": { path: ["imprint"], source },
       "/pricing": { path: ["pricing"], source },
     },
@@ -135,6 +137,15 @@ describe("generateMetadataFromMeta", () => {
       () => generateMetadataFromMeta({ locale: "fr", route: "/pricing" }),
       "fr is a routing-only locale, so a request for it is a bad URL and not a build bug",
     ).toThrow(/NEXT_HTTP_ERROR_FALLBACK;404/);
+  });
+
+  it("uses default-locale metadata for a noindex app route in a routing-only locale", () => {
+    const metadata = generateMetadataFromMeta({ locale: "fr", route: "/auth/signup" });
+
+    expect(metadata.title).toBe("Sign up");
+    expect(metadata.description).toBe("Create an account");
+    expect(metadata.alternates).toEqual({ canonical: `${BASE_URL}/fr/auth/signup` });
+    expect(metadata.robots).toEqual({ follow: true, index: false });
   });
 
   it("refuses a page whose title is blank", () => {

@@ -11,7 +11,7 @@ import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { Button } from "@/components/ui/button";
 import { IntlLink } from "@/i18n/navigation";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { signOutForInvitationAction } from "@/app/[locale]/actions";
+import { signOutWithOnboardingIntentAction } from "@/app/[locale]/actions";
 import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 
 type Props = {
@@ -29,7 +29,7 @@ export function InvitationCard({ canJoin, email, invitationIntent, inviterName }
     if (isSigningOut) return;
     setIsSigningOut(true);
     try {
-      await signOutForInvitationAction(invitationIntent);
+      await signOutWithOnboardingIntentAction(invitationIntent);
     } catch (error) {
       setIsSigningOut(false);
       throw error;

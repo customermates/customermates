@@ -6,7 +6,7 @@ import { ROUTE_SOURCE_MAP } from "./route-source-map";
 
 import { env } from "@/env";
 import { buildAlternateLanguages } from "@/core/seo/alternates";
-import { CONTENT_LOCALES, buildLocalePath, isContentLocale } from "@/i18n/locale-registry";
+import { CONTENT_LOCALES, DEFAULT_LOCALE, buildLocalePath, isContentLocale } from "@/i18n/locale-registry";
 import { isNoindexPublicRoute } from "@/i18n/routing";
 
 type GenerateMetadataParams = {
@@ -29,7 +29,9 @@ export function generateMetadataFromMeta({
 }: GenerateMetadataParams): Metadata {
   const { source, path: mappedPath } = ROUTE_SOURCE_MAP[route];
   const path = mappedPath.map((part) => (part.startsWith(":") ? (params[part.slice(1)] ?? part) : part));
-  const page = source.getPage(path, locale);
+  const noindex = isNoindexPublicRoute(route);
+  const metadataLocale = noindex && !isContentLocale(locale) ? DEFAULT_LOCALE : locale;
+  const page = source.getPage(path, metadataLocale);
   const isSlugRoute = mappedPath.some((part) => part.startsWith(":"));
 
   if (!page) {
@@ -61,8 +63,6 @@ export function generateMetadataFromMeta({
     url: `/og/image.png?${ogImageParams.toString()}`,
     width: 1200,
   };
-
-  const noindex = isNoindexPublicRoute(route);
 
   const metadata: Metadata = {
     alternates: alternates && !noindex ? { canonical, languages: alternates } : { canonical },
