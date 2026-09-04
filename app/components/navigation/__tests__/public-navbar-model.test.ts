@@ -35,7 +35,7 @@ describe("resolvePublicNavbarActions", () => {
         pathname: "/pricing",
       }),
     ).toEqual({
-      cta: { href: "/onboarding/wizard", label: "continueSetup" },
+      cta: { href: "/onboarding", label: "continueSetup" },
       showContact: false,
       signOut: "hidden",
     });
@@ -46,7 +46,7 @@ describe("resolvePublicNavbarActions", () => {
       resolvePublicNavbarActions({
         accountState: "unregistered",
         hasValidSession: true,
-        pathname: "/onboarding/wizard",
+        pathname: "/onboarding",
       }),
     ).toEqual({
       cta: null,
@@ -60,7 +60,7 @@ describe("resolvePublicNavbarActions", () => {
       resolvePublicNavbarActions({
         accountState: "unregistered",
         hasValidSession: true,
-        pathname: "/onboarding/wizard/profile",
+        pathname: "/onboarding/join",
       }),
     ).toEqual({
       cta: null,

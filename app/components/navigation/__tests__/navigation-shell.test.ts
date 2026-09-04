@@ -140,7 +140,7 @@ describe("resolveNavigationShell", () => {
     expect(
       resolveNavigationShell({
         accountState: "unregistered",
-        pathname: "/onboarding/wizard",
+        pathname: "/onboarding/join",
         isRegistered: false,
       }),
     ).toBe("public");
@@ -180,7 +180,7 @@ describe("resolveNavigationShell", () => {
     expect(
       resolveNavigationShell({
         accountState: "allowed",
-        pathname: "/onboarding/wizard/profile",
+        pathname: "/onboarding/join",
         isRegistered: true,
       }),
     ).toBe("public");

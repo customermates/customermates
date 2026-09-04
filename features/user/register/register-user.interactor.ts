@@ -52,18 +52,31 @@ const OutputSchema = z.object({
 });
 export type RegisterUserResult = Data<typeof OutputSchema>;
 
+const RegistrationTargetSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("createCompany") }),
+  z.object({ type: z.literal("invitation"), companyId: z.string().min(1) }),
+  z.object({ type: z.literal("legacyAuthBinding") }),
+]);
+export type RegistrationTarget = Data<typeof RegistrationTargetSchema>;
+
 const RegistrationSchema = Schema.extend({
   sessionUserId: z.string().min(1),
   adAttribution: z.array(RegistrationAdAttributionSchema),
+  target: RegistrationTargetSchema,
 });
 type RegistrationData = Data<typeof RegistrationSchema>;
 
 type RegistrationContext = {
   adAttribution?: RegistrationAdAttribution[];
+  target: RegistrationTarget;
 };
 
 export abstract class RegisterUserRepo {
-  abstract findCompanyIdUnscoped(userId: string): Promise<string | null>;
+  abstract peekAuthUserCompanyIdUnscoped(userId: string): Promise<string | null | undefined>;
+  abstract lockCompanyForRegistrationUnscoped(companyId: string): Promise<boolean>;
+  abstract lockAuthUserCompanyIdForRegistrationUnscoped(userId: string): Promise<string | null | undefined>;
+  abstract findCurrentUserUnscoped(email: string): Promise<TenantUser | null>;
+  abstract bindAuthUserToCompanyOrThrowUnscoped(args: { authUserId: string; companyId: string }): Promise<void>;
   abstract createCompanyAndUser(
     args: RegisterUserData & {
       adAttribution?: RegistrationAdAttribution[];
@@ -83,7 +96,7 @@ export class RegisterUserInteractor {
 
   async invoke(
     data: RegisterUserData,
-    context: RegistrationContext = {},
+    context: RegistrationContext,
   ): Promise<Awaited<Validated<RegisterUserResult>> | Redirect> {
     const resolution = await this.routeGuardService.resolveAccountState();
     if (!resolution.sessionUser) return redirectTo("/auth/signin");
@@ -94,17 +107,46 @@ export class RegisterUserInteractor {
       email: resolution.sessionUser.email,
       sessionUserId: resolution.sessionUser.id,
       adAttribution: context.adAttribution ?? [],
+      target: context.target,
     });
   }
 
   @Validate(RegistrationSchema)
   @Transaction
   @ValidateOutput(OutputSchema)
-  private async register(data: RegistrationData): Promise<Awaited<Validated<RegisterUserResult>>> {
-    const { sessionUserId, adAttribution, ...registrationData } = data;
+  private async register(data: RegistrationData): Promise<Awaited<Validated<RegisterUserResult>> | Redirect> {
+    const { sessionUserId, adAttribution, target, ...registrationData } = data;
+    const plannedCompanyId =
+      target.type === "invitation"
+        ? target.companyId
+        : target.type === "legacyAuthBinding"
+          ? await this.repo.peekAuthUserCompanyIdUnscoped(sessionUserId)
+          : null;
+    if (plannedCompanyId) {
+      const companyExists = await this.repo.lockCompanyForRegistrationUnscoped(plannedCompanyId);
+      if (!companyExists)
+        return redirectTo(target.type === "invitation" ? "/auth/error?type=invalidInviteLink" : "/onboarding");
+    }
 
-    const companyId = await this.repo.findCompanyIdUnscoped(sessionUserId);
-    const isNewCloudCompany = env.APP_MODE === "cloud" && !companyId;
+    const authUserCompanyId = await this.repo.lockAuthUserCompanyIdForRegistrationUnscoped(sessionUserId);
+    if (authUserCompanyId === undefined) return redirectTo("/auth/signup");
+    const existingUser = await this.repo.findCurrentUserUnscoped(registrationData.email);
+    if (existingUser) {
+      return redirectTo(
+        existingUser.status === Status.pendingAuthorization
+          ? "/auth/pending"
+          : existingUser.status === Status.inactive
+            ? "/auth/error?type=inactiveUser"
+            : "/onboarding/wizard",
+      );
+    }
+    if (target.type === "legacyAuthBinding" && authUserCompanyId !== plannedCompanyId) return redirectTo("/onboarding");
+
+    const companyId =
+      target.type === "invitation" ? target.companyId : target.type === "legacyAuthBinding" ? authUserCompanyId : null;
+    if (!companyId && target.type !== "createCompany") return redirectTo("/onboarding");
+
+    const isNewCloudCompany = env.APP_MODE === "cloud" && target.type === "createCompany";
     const eligibleAdAttribution =
       env.APP_MODE === "cloud"
         ? adAttribution.filter((attribution) => attribution.expiresAt.getTime() > Date.now())
@@ -119,6 +161,11 @@ export class RegisterUserInteractor {
           ...registrationData,
           adAttribution: eligibleAdAttribution,
         });
+
+    await this.repo.bindAuthUserToCompanyOrThrowUnscoped({
+      authUserId: sessionUserId,
+      companyId: tenantUser.companyId,
+    });
 
     await runWithTenant(tenantUser, async () => {
       if (isNewCloudCompany) {
@@ -142,7 +189,7 @@ export class RegisterUserInteractor {
           status: tenantUser.status,
           avatarUrl: tenantUser.avatarUrl,
           roleId: tenantUser.roleId,
-          isNewCompany: !companyId,
+          isNewCompany: target.type === "createCompany",
         },
       });
 

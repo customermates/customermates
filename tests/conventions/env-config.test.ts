@@ -195,7 +195,8 @@ describe("environment configuration", () => {
     expect(authConfig).not.toContain('protocol: "auto"');
     expect(authConfig).not.toContain("AUTH_USE_SECURE_COOKIES");
     expect(invitationRoute).toContain("resolveRequestOrigin(request.url, env.AUTH_ALLOWED_HOSTS, env.BASE_URL)");
-    expect(invitationRoute).toContain('secure: new URL(base).protocol === "https:"');
+    expect(invitationRoute).toContain("issueInvitationOnboardingIntent");
+    expect(invitationRoute).toContain("response.cookies.delete(INVITE_TOKEN_COOKIE_NAME)");
     expect(authConfig).toContain("productionURL: env.OAUTH_PROXY_URL");
     expect(authConfig).toContain("secret: env.OAUTH_PROXY_SECRET");
     expect(authConfig).not.toContain("currentURL:");

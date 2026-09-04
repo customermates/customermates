@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MOCK_ENV_MODULE, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
 
@@ -16,6 +16,10 @@ function interactor() {
 describe("InviteTokenValidationInteractor", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it.each(["{token}", "has spaces", "slash/token", "%7Btoken%7D"])(
@@ -45,9 +49,11 @@ describe("InviteTokenValidationInteractor", () => {
   });
 
   it("looks up a well-formed token", async () => {
+    const expiresAt = new Date(Date.now() + 60_000);
     repo.findTokenUnscoped.mockResolvedValue({
       companyId: "00000000-0000-4000-8000-000000000001",
-      expiresAt: new Date(Date.now() + 60_000),
+      createdBy: { email: "admin@example.com", firstName: "Invite", lastName: "Admin" },
+      expiresAt,
     });
 
     const result = await interactor().invoke({ token: "well-formed_TOKEN123" });
@@ -55,7 +61,12 @@ describe("InviteTokenValidationInteractor", () => {
     expect(repo.findTokenUnscoped).toHaveBeenCalledWith("well-formed_TOKEN123");
     expect(result).toEqual({
       ok: true,
-      data: { valid: true, companyId: "00000000-0000-4000-8000-000000000001" },
+      data: {
+        companyId: "00000000-0000-4000-8000-000000000001",
+        expiresAt,
+        inviterName: "Invite Admin",
+        valid: true,
+      },
     });
   });
 
@@ -68,5 +79,40 @@ describe("InviteTokenValidationInteractor", () => {
     const result = await interactor().invoke({ token: "expired-token" });
 
     expect(result).toEqual({ ok: true, data: { valid: false, errorMessage: "inviteLinkExpired" } });
+  });
+
+  it("treats the exact expiry instant as expired", async () => {
+    const now = new Date("2026-09-04T12:00:00.000Z");
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
+    repo.findTokenUnscoped.mockResolvedValue({
+      companyId: "00000000-0000-4000-8000-000000000001",
+      createdBy: { email: "admin@example.com", firstName: "Invite", lastName: "Admin" },
+      expiresAt: now,
+    });
+
+    await expect(interactor().invoke({ token: "exact-expiry" })).resolves.toEqual({
+      ok: true,
+      data: { valid: false, errorMessage: "inviteLinkExpired" },
+    });
+  });
+
+  it("falls back to the inviter email when no name is available", async () => {
+    const expiresAt = new Date(Date.now() + 60_000);
+    repo.findTokenUnscoped.mockResolvedValue({
+      companyId: "00000000-0000-4000-8000-000000000001",
+      createdBy: { email: "admin@example.com", firstName: "", lastName: "" },
+      expiresAt,
+    });
+
+    await expect(interactor().invoke({ token: "email-fallback" })).resolves.toEqual({
+      ok: true,
+      data: {
+        companyId: "00000000-0000-4000-8000-000000000001",
+        expiresAt,
+        inviterName: "admin@example.com",
+        valid: true,
+      },
+    });
   });
 });

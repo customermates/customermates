@@ -11,6 +11,7 @@ import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 export class SignInStore extends BaseFormStore<EmailSignInData> {
   callbackURL?: string;
+  errorCallbackURL?: string;
   showPassword = false;
 
   constructor(rootStore: RootStore) {
@@ -19,16 +20,18 @@ export class SignInStore extends BaseFormStore<EmailSignInData> {
     makeObservable(this, {
       showPassword: observable,
       callbackURL: observable,
+      errorCallbackURL: observable,
 
       onSubmit: action,
       continueWithProvider: action,
       toggleShowPassword: action,
-      setCallbackURL: action,
+      setCallbackURLs: action,
     });
   }
 
-  setCallbackURL = (callbackURL?: string) => {
+  setCallbackURLs = (callbackURL?: string, errorCallbackURL?: string) => {
     this.callbackURL = callbackURL;
+    this.errorCallbackURL = errorCallbackURL;
   };
 
   toggleShowPassword = () => {
@@ -65,7 +68,7 @@ export class SignInStore extends BaseFormStore<EmailSignInData> {
 
     try {
       const action = provider === "google" ? continueWithGoogleAction : continueWithMicrosoftAction;
-      const res = await action(this.callbackURL, "/auth/signin");
+      const res = await action(this.callbackURL, this.errorCallbackURL ?? "/auth/signin");
 
       if (!res.ok) toastZodErrorTree(res.error);
       else if (res.data.url) {

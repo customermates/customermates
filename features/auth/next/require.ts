@@ -34,10 +34,16 @@ export async function requireUnauthenticated(): Promise<void> {
 export async function requireAccountState(
   expected: AccountState | readonly AccountState[],
   fallback = "/",
+  redirectOverrides: Partial<Record<AccountState, string>> = {},
 ): Promise<AccountStateResolution> {
   const result = await resolveRequestAccountState();
   const expectedStates: readonly AccountState[] = Array.isArray(expected) ? expected : [expected];
   if (expectedStates.includes(result.state)) return result;
 
-  redirect(buildLocalePath(await getLocale(), accountStateRedirect(result.state) ?? fallback));
+  redirect(
+    buildLocalePath(
+      await getLocale(),
+      redirectOverrides[result.state] ?? accountStateRedirect(result.state) ?? fallback,
+    ),
+  );
 }

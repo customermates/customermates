@@ -2,7 +2,6 @@ import type { RootStore } from "@/core/stores/root.store";
 
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { runInAction } from "mobx";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const testContext = vi.hoisted(() => ({ rootStore: null as RootStore | null }));
@@ -35,16 +34,13 @@ vi.mock("../step-ai", () => ({
 import { OnboardingWizardStore } from "../onboarding-wizard.store";
 import { OnboardingWizard } from "../onboarding-wizard";
 
-function renderStep(index: number): string {
+function renderWizard(profileCompleted: boolean): string {
   const store = new OnboardingWizardStore({} as RootStore);
-  runInAction(() => {
-    store.currentStepIndex = index;
-  });
   testContext.rootStore = {
     onboardingWizardStore: store,
   } as unknown as RootStore;
 
-  return renderToStaticMarkup(createElement(OnboardingWizard, { profileCompleted: false }));
+  return renderToStaticMarkup(createElement(OnboardingWizard, { profileCompleted }));
 }
 
 beforeEach(() => {
@@ -53,11 +49,10 @@ beforeEach(() => {
 
 describe("OnboardingWizard", () => {
   it.each([
-    [0, "profile", 1],
-    [1, "invite", 2],
-    [2, "ai", 3],
-  ] as const)("renders only the %s step at the correct three-step progress", (index, step, current) => {
-    const html = renderStep(index);
+    [false, "profile", 1],
+    [true, "invite", 2],
+  ] as const)("initializes profileCompleted=%s at the %s step", (profileCompleted, step, current) => {
+    const html = renderWizard(profileCompleted);
 
     expect(html).toContain(`data-step="${step}"`);
     expect(html).toContain(`OnboardingWizard.progress current=${current} total=3`);
@@ -66,11 +61,9 @@ describe("OnboardingWizard", () => {
     expect(html).not.toContain("OnboardingWizard.steps.terminology");
   });
 
-  it("keeps shared Back and Next navigation on Invite only", () => {
-    expect(renderStep(0)).not.toContain('id="onboarding-next"');
-    expect(renderStep(1)).toContain('id="onboarding-back"');
-    expect(renderStep(1)).toContain('id="onboarding-next"');
-    expect(renderStep(2)).not.toContain('id="onboarding-next"');
-    expect(renderStep(2)).toContain('data-step-footer="ai"');
+  it("keeps shared Back and Next navigation on the initial Invite step only", () => {
+    expect(renderWizard(false)).not.toContain('id="onboarding-next"');
+    expect(renderWizard(true)).toContain('id="onboarding-back"');
+    expect(renderWizard(true)).toContain('id="onboarding-next"');
   });
 });

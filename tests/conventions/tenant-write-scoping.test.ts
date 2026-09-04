@@ -27,11 +27,11 @@ const GUARD_EXEMPT_MODELS = new Set([
 ]);
 
 const REACHED_ONLY_FROM_BYPASSED_CALLERS = new Set([
-  "core/auth/better-auth.ts:103",
-  "features/user/prisma-user.repository.ts:646",
-  "features/user/prisma-user.repository.ts:656",
-  "features/user/prisma-user.repository.ts:666",
-  "features/user/prisma-user.repository.ts:676",
+  "core/auth/better-auth.ts:79",
+  "features/user/prisma-user.repository.ts:680",
+  "features/user/prisma-user.repository.ts:690",
+  "features/user/prisma-user.repository.ts:700",
+  "features/user/prisma-user.repository.ts:710",
 ]);
 
 type WriteSite = {
@@ -44,7 +44,10 @@ type WriteSite = {
 
 function sourceFiles() {
   return SCANNED_DIRECTORIES.flatMap((dir) =>
-    walkFiles(join(REPO_ROOT, dir), (path) => path.endsWith(".ts") && !path.includes("__tests__")),
+    walkFiles(
+      join(REPO_ROOT, dir),
+      (path) => path.endsWith(".ts") && !path.includes("__tests__"),
+    ),
   );
 }
 
@@ -66,21 +69,29 @@ function declaresBypass(method: ts.MethodDeclaration): boolean {
   );
 }
 
-function methodsByName(source: ts.SourceFile): Map<string, ts.MethodDeclaration> {
+function methodsByName(
+  source: ts.SourceFile,
+): Map<string, ts.MethodDeclaration> {
   const found = new Map<string, ts.MethodDeclaration>();
   const visit = (node: ts.Node) => {
-    if (ts.isMethodDeclaration(node) && node.name) found.set(node.name.getText(source), node);
+    if (ts.isMethodDeclaration(node) && node.name)
+      found.set(node.name.getText(source), node);
     ts.forEachChild(node, visit);
   };
   visit(source);
   return found;
 }
 
-function callersOf(name: string, methods: Map<string, ts.MethodDeclaration>, source: ts.SourceFile): string[] {
+function callersOf(
+  name: string,
+  methods: Map<string, ts.MethodDeclaration>,
+  source: ts.SourceFile,
+): string[] {
   const callers: string[] = [];
   for (const [callerName, method] of methods) {
     if (callerName === name) continue;
-    if (new RegExp(`this\\.${name}\\s*\\(`).test(method.getText(source))) callers.push(callerName);
+    if (new RegExp(`this\\.${name}\\s*\\(`).test(method.getText(source)))
+      callers.push(callerName);
   }
   return callers;
 }
@@ -88,16 +99,25 @@ function callersOf(name: string, methods: Map<string, ts.MethodDeclaration>, sou
 function bypassedMethodNames(source: ts.SourceFile): Set<string> {
   const methods = methodsByName(source);
   const bypassed = new Set<string>();
-  for (const [name, method] of methods) if (declaresBypass(method)) bypassed.add(name);
+  for (const [name, method] of methods)
+    if (declaresBypass(method)) bypassed.add(name);
 
   for (let pass = 0; pass < methods.size; pass++) {
     let grew = false;
     for (const [name, method] of methods) {
       if (bypassed.has(name)) continue;
-      if (!(method.modifiers ?? []).some((m) => m.kind === ts.SyntaxKind.PrivateKeyword)) continue;
+      if (
+        !(method.modifiers ?? []).some(
+          (m) => m.kind === ts.SyntaxKind.PrivateKeyword,
+        )
+      )
+        continue;
 
       const callers = callersOf(name, methods, source);
-      if (callers.length > 0 && callers.every((caller) => bypassed.has(caller))) {
+      if (
+        callers.length > 0 &&
+        callers.every((caller) => bypassed.has(caller))
+      ) {
         bypassed.add(name);
         grew = true;
       }
@@ -108,27 +128,46 @@ function bypassedMethodNames(source: ts.SourceFile): Set<string> {
   return bypassed;
 }
 
-function whereInitializer(call: ts.CallExpression, source: ts.SourceFile): ts.Expression | undefined {
+function whereInitializer(
+  call: ts.CallExpression,
+  source: ts.SourceFile,
+): ts.Expression | undefined {
   const [arg] = call.arguments;
   if (!arg || !ts.isObjectLiteralExpression(arg)) return undefined;
 
   for (const property of arg.properties)
-    if (ts.isPropertyAssignment(property) && property.name.getText(source) === "where") return property.initializer;
+    if (
+      ts.isPropertyAssignment(property) &&
+      property.name.getText(source) === "where"
+    )
+      return property.initializer;
 
   return undefined;
 }
 
-function carriesCompanyId(where: ts.Expression | undefined, operation: string, source: ts.SourceFile): boolean {
+function carriesCompanyId(
+  where: ts.Expression | undefined,
+  operation: string,
+  source: ts.SourceFile,
+): boolean {
   if (!where || !ts.isObjectLiteralExpression(where)) return false;
 
   for (const property of where.properties) {
-    if (ts.isSpreadAssignment(property) && ACCESS_WHERE_HELPER.test(property.expression.getText(source))) return true;
+    if (
+      ts.isSpreadAssignment(property) &&
+      ACCESS_WHERE_HELPER.test(property.expression.getText(source))
+    )
+      return true;
 
     const name = property.name?.getText(source);
     if (name === "companyId") return true;
 
     const isCompoundSelector = operation === "upsert" && name?.includes("_");
-    if (isCompoundSelector && ts.isPropertyAssignment(property) && ts.isObjectLiteralExpression(property.initializer))
+    if (
+      isCompoundSelector &&
+      ts.isPropertyAssignment(property) &&
+      ts.isObjectLiteralExpression(property.initializer)
+    )
       for (const nested of property.initializer.properties)
         if (nested.name?.getText(source) === "companyId") return true;
   }
@@ -141,31 +180,56 @@ function writeSites(): WriteSite[] {
 
   for (const file of sourceFiles()) {
     const text = readFileSync(file, "utf8");
-    if (!WRITE_OPERATIONS.values().some((operation) => text.includes(`.${operation}(`))) continue;
+    if (
+      !WRITE_OPERATIONS.values().some((operation) =>
+        text.includes(`.${operation}(`),
+      )
+    )
+      continue;
 
-    const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true);
+    const source = ts.createSourceFile(
+      file,
+      text,
+      ts.ScriptTarget.Latest,
+      true,
+    );
     const bypassed = bypassedMethodNames(source);
 
     const visit = (node: ts.Node) => {
-      if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)) {
+      if (
+        ts.isCallExpression(node) &&
+        ts.isPropertyAccessExpression(node.expression)
+      ) {
         const operation = node.expression.name.text;
         const target = node.expression.expression.getText(source);
 
         const model = target.split(".").pop() ?? "";
 
-        if (WRITE_OPERATIONS.has(operation) && PRISMA_TARGET.test(target) && !GUARD_EXEMPT_MODELS.has(model)) {
+        if (
+          WRITE_OPERATIONS.has(operation) &&
+          PRISMA_TARGET.test(target) &&
+          !GUARD_EXEMPT_MODELS.has(model)
+        ) {
           const method = enclosingMethod(node);
           const methodName = method?.name.getText(source) ?? "";
           const relativePath = relative(REPO_ROOT, file);
-          const line = source.getLineAndCharacterOfPosition(node.getStart()).line + 1;
+          const line =
+            source.getLineAndCharacterOfPosition(node.getStart()).line + 1;
 
-          if (!bypassed.has(methodName) && !REACHED_ONLY_FROM_BYPASSED_CALLERS.has(`${relativePath}:${line}`))
+          if (
+            !bypassed.has(methodName) &&
+            !REACHED_ONLY_FROM_BYPASSED_CALLERS.has(`${relativePath}:${line}`)
+          )
             sites.push({
               file: relativePath,
               line,
               operation,
               method: method?.name.getText(source) ?? "(module scope)",
-              scoped: carriesCompanyId(whereInitializer(node, source), operation, source),
+              scoped: carriesCompanyId(
+                whereInitializer(node, source),
+                operation,
+                source,
+              ),
             });
         }
       }
@@ -182,13 +246,19 @@ function writeSites(): WriteSite[] {
 describe("tenant-scoped writes", () => {
   const sites = writeSites();
 
-  it.runIf(ENFORCED)("scopes every tenant-guarded update, updateMany and upsert by companyId in its where", () => {
-    const unscoped = sites
-      .filter((site) => !site.scoped)
-      .map((site) => `${site.file}:${site.line} ${site.operation} in ${site.method}`);
+  it.runIf(ENFORCED)(
+    "scopes every tenant-guarded update, updateMany and upsert by companyId in its where",
+    () => {
+      const unscoped = sites
+        .filter((site) => !site.scoped)
+        .map(
+          (site) =>
+            `${site.file}:${site.line} ${site.operation} in ${site.method}`,
+        );
 
-    expect(unscoped).toEqual([]);
-  });
+      expect(unscoped).toEqual([]);
+    },
+  );
 
   it("still finds the write sites it is meant to guard", () => {
     expect(sites.length).toBeGreaterThan(10);

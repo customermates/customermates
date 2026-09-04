@@ -62,4 +62,28 @@ describe("ResetPasswordInteractor (validation flow)", () => {
 
     expect(result).toEqual({ redirect: "/auth/forgot-password?info=RESET_LINK_INVALID" });
   });
+
+  it("uses intent-preserving success and error destinations", async () => {
+    const interactor = new ResetPasswordInteractor(authService as never);
+    const data = {
+      password: "ValidPass1!",
+      confirmPassword: "ValidPass1!",
+      token: "tok-123",
+    };
+
+    await expect(
+      interactor.invoke(data, {
+        error: "/auth/forgot-password?info=RESET_LINK_INVALID&intent=signed.intent",
+        success: "/auth/signin?intent=signed.intent",
+      }),
+    ).resolves.toEqual({ redirect: "/auth/signin?intent=signed.intent" });
+
+    authService.resetPassword.mockRejectedValueOnce(new Error("invalid token"));
+    await expect(
+      interactor.invoke(data, {
+        error: "/auth/forgot-password?info=RESET_LINK_INVALID&intent=signed.intent",
+        success: "/auth/signin?intent=signed.intent",
+      }),
+    ).resolves.toEqual({ redirect: "/auth/forgot-password?info=RESET_LINK_INVALID&intent=signed.intent" });
+  });
 });

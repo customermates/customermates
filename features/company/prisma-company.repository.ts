@@ -122,7 +122,14 @@ export class PrismaCompanyRepo
 
   @BypassTenantGuard
   async findTokenUnscoped(token: string) {
-    return this.prisma.inviteToken.findUnique({ where: { token } });
+    return this.prisma.inviteToken.findUnique({
+      where: { token },
+      select: {
+        companyId: true,
+        expiresAt: true,
+        createdBy: { select: { email: true, firstName: true, lastName: true } },
+      },
+    });
   }
 
   @BypassTenantGuard

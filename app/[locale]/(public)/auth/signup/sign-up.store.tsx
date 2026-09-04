@@ -8,8 +8,10 @@ import { continueWithGoogleAction, continueWithMicrosoftAction, signUpWithEmailA
 
 import { BaseFormStore } from "@/core/base/base-form.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 
 export class SignUpStore extends BaseFormStore<EmailSignUpData> {
+  invitationIntent?: string;
   showPassword = false;
 
   constructor(rootStore: RootStore) {
@@ -17,9 +19,11 @@ export class SignUpStore extends BaseFormStore<EmailSignUpData> {
 
     makeObservable(this, {
       showPassword: observable,
+      invitationIntent: observable,
 
       onSubmit: action,
       continueWithProvider: action,
+      setInvitationIntent: action,
       toggleShowPassword: action,
     });
   }
@@ -28,12 +32,16 @@ export class SignUpStore extends BaseFormStore<EmailSignUpData> {
     this.showPassword = !this.showPassword;
   };
 
+  setInvitationIntent = (invitationIntent?: string) => {
+    this.invitationIntent = invitationIntent;
+  };
+
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
     this.setIsLoading(true);
 
     try {
-      const res = await signUpWithEmailAction(toJS(this.form));
+      const res = await signUpWithEmailAction(toJS(this.form), this.invitationIntent);
 
       if (!res.ok) this.setError(res.error);
     } finally {
@@ -49,7 +57,13 @@ export class SignUpStore extends BaseFormStore<EmailSignUpData> {
 
     try {
       const action = provider === "google" ? continueWithGoogleAction : continueWithMicrosoftAction;
-      const res = await action(undefined, "/auth/signup");
+      const callbackURL = this.invitationIntent
+        ? pathWithOnboardingIntent("/auth/invitation", this.invitationIntent)
+        : "/onboarding";
+      const errorCallbackURL = this.invitationIntent
+        ? pathWithOnboardingIntent("/auth/signup", this.invitationIntent)
+        : "/auth/signup";
+      const res = await action(callbackURL, errorCallbackURL);
 
       if (!res.ok) toastZodErrorTree(res.error);
       else if (res.data.url) {

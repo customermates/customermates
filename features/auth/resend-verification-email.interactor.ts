@@ -6,11 +6,11 @@ import { SystemInteractor } from "@/core/decorators/system-interactor.decorator"
 export class ResendVerificationEmailInteractor {
   constructor(private readonly authService: AuthService) {}
 
-  async invoke(): Promise<{ ok: boolean }> {
+  async invoke(callbackURL?: string): Promise<{ ok: boolean }> {
     const session = await this.authService.getSession();
     if (!session?.user?.email) return { ok: false };
 
-    await this.authService.resendVerificationEmail(session.user.email, { keepSession: true });
+    await this.authService.resendVerificationEmail(session.user.email, { callbackURL, keepSession: true });
 
     return { ok: true };
   }

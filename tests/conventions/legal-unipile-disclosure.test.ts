@@ -552,7 +552,7 @@ describe("registration legal copy covers the DPA", () => {
     );
     const registration = readFileSync(join(REPO_ROOT, "features/user/register/register-user.interactor.ts"), "utf8");
 
-    expect(signInPage).toContain("getInviteTokenValidationInteractor");
+    expect(signInPage).toContain("resolveOnboardingIntent");
     expect(signInForm).toContain('appMode === "cloud" && !isInvited');
     expect(signUpForm).toContain('appMode === "cloud" && !isInvited');
     expect(onboarding).toContain('appMode === "cloud"');

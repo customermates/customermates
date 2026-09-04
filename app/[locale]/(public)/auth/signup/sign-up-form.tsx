@@ -1,11 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
 import { observer } from "mobx-react-lite";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import SignInProviderButton from "../signin/sign-in-provider-button";
 import { SocialErrorToast } from "../social-error-toast";
@@ -22,28 +21,40 @@ import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { Reveal } from "@/components/shared/reveal";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 
 type Props = {
-  isInvited: boolean;
+  invitationIntent?: string;
+  inviterName?: string;
   socialProviders: { google: boolean; microsoft: boolean };
 };
 
-export const SignUpForm = observer(({ isInvited, socialProviders }: Props) => {
+export const SignUpForm = observer(({ invitationIntent, inviterName, socialProviders }: Props) => {
   const t = useTranslations();
   const { signUpStore, appMode } = useRootStore();
+  useState(() => {
+    signUpStore.setInvitationIntent(invitationIntent);
+    signUpStore.setWithUnsavedChangesGuard(false);
+  });
   const { isLoading, form } = signUpStore;
+  const isInvited = Boolean(invitationIntent && inviterName);
 
   useEffect(() => {
-    signUpStore.setWithUnsavedChangesGuard(false);
-  }, []);
+    signUpStore.setInvitationIntent(invitationIntent);
+  }, [invitationIntent, signUpStore]);
 
   return (
     <AppForm store={signUpStore}>
       <AppCard className="max-w-lg">
         <CardHeroHeader
+          alt=""
           subtitle={t.rich("SignUpForm.switchToSignIn", {
             signInLink: (chunks) => (
-              <AppLink inheritSize appearance="inline" href="/auth/signin">
+              <AppLink
+                inheritSize
+                appearance="inline"
+                href={invitationIntent ? pathWithOnboardingIntent("/auth/signin", invitationIntent) : "/auth/signin"}
+              >
                 {chunks}
               </AppLink>
             ),
@@ -55,12 +66,12 @@ export const SignUpForm = observer(({ isInvited, socialProviders }: Props) => {
           <SocialErrorToast />
 
           {isInvited ? (
-            <Alert className="mb-4" color="success">
-              <p className="text-x-sm">{t("SignUpForm.inviteSubtitle")}</p>
+            <Alert className="mb-4" role="note">
+              <p className="text-x-sm">{t("SignUpForm.inviteSubtitle", { inviterName: inviterName ?? "" })}</p>
             </Alert>
           ) : appMode === "cloud" ? (
             <Alert className="mb-4" color="primary">
-              <p className="text-x-sm">{t("SignUpForm.newCompanySubtitle", { days: CLOUD_TRIAL.days })}</p>
+              <p className="text-x-sm">{t("SignUpForm.accountSubtitle")}</p>
             </Alert>
           ) : null}
 

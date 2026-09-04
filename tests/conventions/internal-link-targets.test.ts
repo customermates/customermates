@@ -89,6 +89,7 @@ const CODE_BACKED_ROUTE_FILES = {
   "/auth/pending": "app/[locale]/(public)/auth/pending/page.tsx",
   "/auth/error": "app/[locale]/(public)/auth/error/page.tsx",
   "/auth/verify-email": "app/[locale]/(public)/auth/verify-email/page.tsx",
+  "/auth/invitation": "app/[locale]/(public)/auth/invitation/page.tsx",
   "/invitation/:token": "app/[locale]/(public)/invitation/[token]/route.ts",
 } as const;
 const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/u;

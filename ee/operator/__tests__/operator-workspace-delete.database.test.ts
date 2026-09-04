@@ -101,6 +101,43 @@ async function createWorkspace(args: { domain: string; members: number; platform
   return { companyId, members };
 }
 
+async function createRawBoundIdentity(companyId: string) {
+  const authUserId = randomUUID();
+  const accountId = randomUUID();
+  const sessionId = randomUUID();
+  authUserIds.push(authUserId);
+
+  await runWithoutTenant(async () => {
+    await prisma.authUser.create({
+      data: {
+        id: authUserId,
+        companyId,
+        email: `orphan-${randomUUID()}@example.invalid`,
+        emailVerified: true,
+        name: "Raw Bound Identity",
+      },
+    });
+    await prisma.authAccount.create({
+      data: {
+        id: accountId,
+        accountId: `account-${randomUUID()}`,
+        providerId: "credential",
+        userId: authUserId,
+      },
+    });
+    await prisma.authSession.create({
+      data: {
+        id: sessionId,
+        expiresAt: new Date("2027-01-01T00:00:00.000Z"),
+        token: `token-${randomUUID()}`,
+        userId: authUserId,
+      },
+    });
+  });
+
+  return { accountId, authUserId, sessionId };
+}
+
 afterAll(async () => {
   await runWithoutTenant(async () => {
     await prisma.operatorAuditEvent.deleteMany({ where: { actorUserId: { in: actorIds } } });
@@ -115,6 +152,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
     const repo = new PrismaOperatorRepo();
     const { companyId, members } = await createWorkspace({ domain: "doomed.invalid", members: 2 });
     const survivor = await createWorkspace({ domain: "safe.invalid", members: 1 });
+    const rawBoundIdentity = await createRawBoundIdentity(companyId);
     const actor = operatorActor();
 
     const result = await runWithOperator(actor, () =>
@@ -139,6 +177,15 @@ describeDatabase("operator workspace deletion against a real database", { timeou
       expect(await prisma.authUser.count({ where: { email: { in: emails } } })).toBe(0);
       expect(await prisma.authSession.count({ where: { userId: { in: members.map((m) => m.authUserId) } } })).toBe(0);
 
+      expect(
+        await prisma.authUser.findUnique({
+          where: { id: rawBoundIdentity.authUserId },
+          select: { companyId: true },
+        }),
+      ).toEqual({ companyId: null });
+      expect(await prisma.authAccount.count({ where: { id: rawBoundIdentity.accountId } })).toBe(1);
+      expect(await prisma.authSession.count({ where: { id: rawBoundIdentity.sessionId } })).toBe(1);
+
       expect(await prisma.company.count({ where: { id: survivor.companyId } })).toBe(1);
       expect(await prisma.user.count({ where: { companyId: survivor.companyId } })).toBe(1);
       expect(await prisma.authUser.count({ where: { email: { in: survivor.members.map((m) => m.email) } } })).toBe(1);
@@ -148,7 +195,15 @@ describeDatabase("operator workspace deletion against a real database", { timeou
       expect(audit[0]?.action).toBe(OPERATOR_AUDIT_ACTION.workspaceDelete);
       expect(audit[0]?.targetCompanyId).toBe(companyId);
       expect(audit[0]?.reason).toBe("Spam signup");
-      expect((audit[0]?.metadata as { workspaceLabel?: string })?.workspaceLabel).toBe("doomed.invalid");
+      expect(
+        audit[0]?.metadata as {
+          clearedAuthIdentityCompanyCount?: number;
+          workspaceLabel?: string;
+        },
+      ).toMatchObject({
+        clearedAuthIdentityCompanyCount: 1,
+        workspaceLabel: "doomed.invalid",
+      });
     });
   });
 
@@ -185,6 +240,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
   it("refuses a mismatched confirmation label and leaves the workspace intact", async () => {
     const repo = new PrismaOperatorRepo();
     const { companyId } = await createWorkspace({ domain: "typo.invalid", members: 1 });
+    const rawBoundIdentity = await createRawBoundIdentity(companyId);
 
     const result = await runWithOperator(operatorActor(), () =>
       repo.deleteWorkspaceUnscoped({
@@ -198,6 +254,12 @@ describeDatabase("operator workspace deletion against a real database", { timeou
     await runWithoutTenant(async () => {
       expect(await prisma.company.count({ where: { id: companyId } })).toBe(1);
       expect(await prisma.user.count({ where: { companyId } })).toBe(1);
+      expect(
+        await prisma.authUser.findUnique({
+          where: { id: rawBoundIdentity.authUserId },
+          select: { companyId: true },
+        }),
+      ).toEqual({ companyId });
     });
   });
 

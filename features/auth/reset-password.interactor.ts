@@ -8,36 +8,63 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { redirectTo } from "./auth-outcome";
+import { callbackUrlSchema } from "./callback-url.schema";
 
-const Schema = z
-  .object({
-    password: zx.password(),
-    confirmPassword: z.string(),
-    token: z.string(),
-  })
-  .superRefine((data, ctx) => {
-    if (data.password !== data.confirmPassword) {
-      ctx.addIssue({
-        code: "custom",
-        params: { error: CustomErrorCode.passwordMismatch },
-        path: ["confirmPassword"],
-      });
-    }
-  });
-export type ResetPasswordData = Data<typeof Schema>;
+const PasswordFieldsSchema = z.object({
+  password: zx.password(),
+  confirmPassword: z.string(),
+  token: z.string(),
+});
+
+function validatePasswordMatch(data: { password: string; confirmPassword: string }, ctx: z.RefinementCtx) {
+  if (data.password !== data.confirmPassword) {
+    ctx.addIssue({
+      code: "custom",
+      params: { error: CustomErrorCode.passwordMismatch },
+      path: ["confirmPassword"],
+    });
+  }
+}
+
+export type ResetPasswordData = Data<typeof PasswordFieldsSchema>;
+
+type ResetPasswordRedirects = {
+  error: string;
+  success: string;
+};
+
+const InvocationSchema = PasswordFieldsSchema.extend({
+  errorRedirect: callbackUrlSchema,
+  successRedirect: callbackUrlSchema,
+}).superRefine(validatePasswordMatch);
+type ResetPasswordInvocation = Data<typeof InvocationSchema>;
 
 @SystemInteractor
 export class ResetPasswordInteractor {
   constructor(private readonly authService: AuthService) {}
 
-  @Validate(Schema)
-  async invoke(data: ResetPasswordData): Promise<Awaited<Validated<ResetPasswordData>> | Redirect> {
+  async invoke(
+    data: ResetPasswordData,
+    redirects: ResetPasswordRedirects = {
+      error: "/auth/forgot-password?info=RESET_LINK_INVALID",
+      success: "/auth/signin",
+    },
+  ): Promise<Awaited<Validated<ResetPasswordData>> | Redirect> {
+    return this.reset({
+      ...data,
+      errorRedirect: redirects.error,
+      successRedirect: redirects.success,
+    });
+  }
+
+  @Validate(InvocationSchema)
+  private async reset(data: ResetPasswordInvocation): Promise<Awaited<Validated<ResetPasswordData>> | Redirect> {
     try {
       await this.authService.resetPassword({ newPassword: data.password, token: data.token });
     } catch {
-      return redirectTo("/auth/forgot-password?info=RESET_LINK_INVALID");
+      return redirectTo(data.errorRedirect);
     }
 
-    return redirectTo("/auth/signin");
+    return redirectTo(data.successRedirect);
   }
 }

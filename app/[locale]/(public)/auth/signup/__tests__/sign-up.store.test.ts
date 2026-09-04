@@ -23,6 +23,35 @@ beforeEach(() => {
 });
 
 describe("SignUpStore social continuation", () => {
+  it("submits email signup with the active invitation intent", async () => {
+    authActions.signUpWithEmailAction.mockResolvedValue({ ok: true, data: null });
+    const store = new SignUpStore(rootStore);
+    store.setInvitationIntent("signed.intent");
+
+    await store.onSubmit();
+
+    expect(authActions.signUpWithEmailAction).toHaveBeenCalledWith(
+      expect.objectContaining({ email: "" }),
+      "signed.intent",
+    );
+  });
+
+  it("keeps the invitation in provider success and error callbacks", async () => {
+    authActions.continueWithGoogleAction.mockResolvedValue({
+      ok: true,
+      data: { url: "https://accounts.google.test/authorize" },
+    });
+    const store = new SignUpStore(rootStore);
+    store.setInvitationIntent("signed.intent");
+
+    await store.continueWithProvider("google");
+
+    expect(authActions.continueWithGoogleAction).toHaveBeenCalledWith(
+      "/auth/invitation?intent=signed.intent",
+      "/auth/signup?intent=signed.intent",
+    );
+  });
+
   it("keeps both providers locked after hard navigation starts", async () => {
     authActions.continueWithGoogleAction.mockResolvedValue({
       ok: true,
@@ -33,7 +62,7 @@ describe("SignUpStore social continuation", () => {
     await store.continueWithProvider("google");
     await store.continueWithProvider("google");
 
-    expect(authActions.continueWithGoogleAction).toHaveBeenCalledExactlyOnceWith(undefined, "/auth/signup");
+    expect(authActions.continueWithGoogleAction).toHaveBeenCalledExactlyOnceWith("/onboarding", "/auth/signup");
     expect(assign).toHaveBeenCalledExactlyOnceWith("https://accounts.google.test/authorize");
     expect(store.isLoading).toBe(true);
   });

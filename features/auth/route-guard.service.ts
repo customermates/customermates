@@ -98,9 +98,24 @@ export class RouteGuardService {
       };
     }
 
+    const authUserCompanyId = await this.userRepo.findAuthUserCompanyIdUnscoped(session.user.id);
+    if (authUserCompanyId === undefined) {
+      return {
+        state: "unauthenticated",
+        sessionUser: null,
+        user: null,
+        emailVerified: null,
+        legalStatus: null,
+        subscription: null,
+      };
+    }
+
     const user = await this.userRepo.findCurrentUserUnscoped(session.user.email);
     const emailVerified = session.user.emailVerified ?? false;
-    const sessionUser: AccountSessionUser = session.user;
+    const sessionUser: AccountSessionUser = {
+      ...session.user,
+      companyId: user?.companyId ?? authUserCompanyId,
+    };
     const base = {
       sessionUser,
       user,

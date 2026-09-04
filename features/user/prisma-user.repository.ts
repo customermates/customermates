@@ -512,13 +512,47 @@ export class PrismaUserRepo
   }
 
   @BypassTenantGuard
-  async findCompanyIdUnscoped(userId: string) {
+  async peekAuthUserCompanyIdUnscoped(userId: string) {
     const authUser = await this.prisma.authUser.findUnique({
       where: { id: userId },
       select: { companyId: true },
     });
+    return authUser?.companyId;
+  }
 
-    return authUser?.companyId ?? null;
+  @BypassTenantGuard
+  async lockCompanyForRegistrationUnscoped(companyId: string) {
+    await this.prisma.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${companyId}, 0))`;
+    const company = await this.prisma.company.findUnique({ where: { id: companyId }, select: { id: true } });
+    return Boolean(company);
+  }
+
+  @BypassTenantGuard
+  async findAuthUserCompanyIdUnscoped(userId: string) {
+    const authUser = await this.prisma.authUser.findUnique({
+      where: { id: userId },
+      select: { companyId: true },
+    });
+    if (!authUser) return undefined;
+    if (!authUser.companyId) return null;
+
+    const company = await this.prisma.company.findUnique({
+      where: { id: authUser.companyId },
+      select: { id: true },
+    });
+
+    return company?.id ?? null;
+  }
+
+  @BypassTenantGuard
+  async lockAuthUserCompanyIdForRegistrationUnscoped(userId: string) {
+    const [authUser] = await this.prisma.$queryRaw<Array<{ companyId: string | null }>>`
+      SELECT "companyId"
+      FROM "AuthUser"
+      WHERE id = ${userId}
+      FOR UPDATE
+    `;
+    return authUser?.companyId;
   }
 
   @BypassTenantGuard
@@ -712,6 +746,14 @@ export class PrismaUserRepo
         where: { id: userId, companyId },
         data: { status: Status.inactive, agentCreditActivatedAt: null },
       });
+    });
+  }
+
+  @BypassTenantGuard
+  async bindAuthUserToCompanyOrThrowUnscoped(args: { authUserId: string; companyId: string }) {
+    await this.prisma.authUser.update({
+      where: { id: args.authUserId },
+      data: { companyId: args.companyId },
     });
   }
 }

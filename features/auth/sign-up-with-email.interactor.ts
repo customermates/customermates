@@ -9,6 +9,7 @@ import { SystemInteractor } from "@/core/decorators/system-interactor.decorator"
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { redirectTo } from "./auth-outcome";
+import { callbackUrlSchema } from "./callback-url.schema";
 
 const Schema = z
   .object({
@@ -16,6 +17,7 @@ const Schema = z
     confirmEmail: z.email(),
     password: zx.password(),
     confirmPassword: z.string(),
+    callbackURL: callbackUrlSchema.optional(),
   })
   .superRefine((data, ctx) => {
     if (data.email !== data.confirmEmail) {
@@ -46,6 +48,7 @@ export class SignUpWithEmailInteractor {
       email: data.email,
       name: data.email,
       password: data.password,
+      callbackURL: data.callbackURL,
     });
 
     if (!res.ok) {
@@ -56,6 +59,6 @@ export class SignUpWithEmailInteractor {
         error,
       };
     }
-    return redirectTo("/onboarding/wizard");
+    return redirectTo(data.callbackURL ?? "/onboarding");
   }
 }
