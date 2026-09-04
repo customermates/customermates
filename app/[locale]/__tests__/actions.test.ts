@@ -1,11 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-  clearInviteTokenCookie: vi.fn(),
+  redirect: vi.fn(),
   serializeResult: vi.fn(async (result: unknown) => await result),
   signOut: vi.fn(),
   unused: vi.fn(),
 }));
+
+vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
+vi.mock("next-intl/server", () => ({ getLocale: () => Promise.resolve("en") }));
 
 vi.mock("@/core/di", () => ({
   getCaptureAdClickInteractor: () => ({ invoke: mocks.unused }),
@@ -16,26 +19,26 @@ vi.mock("@/core/di", () => ({
 }));
 vi.mock("@/core/utils/action-result", () => ({ serializeResult: mocks.serializeResult }));
 vi.mock("@/core/validation/validation.utils", () => ({ unwrapValidated: mocks.unused }));
-vi.mock("@/features/company/next/invite-token-cookie", () => ({
-  clearInviteTokenCookie: mocks.clearInviteTokenCookie,
-}));
-
-import { signOutAction } from "../actions";
+import { signOutAction, signOutForInvitationAction } from "../actions";
 
 describe("shared account actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.clearInviteTokenCookie.mockResolvedValue(undefined);
-    mocks.signOut.mockResolvedValue({ ok: true, data: null });
+    mocks.signOut.mockResolvedValue({ redirect: "/" });
   });
 
-  it("clears a legacy invitation before signing out", async () => {
+  it("delegates ordinary sign out to the interactor", async () => {
     await signOutAction();
 
-    expect(mocks.clearInviteTokenCookie).toHaveBeenCalledOnce();
-    expect(mocks.signOut).toHaveBeenCalledOnce();
-    expect(mocks.clearInviteTokenCookie.mock.invocationCallOrder[0]).toBeLessThan(
-      mocks.signOut.mock.invocationCallOrder[0],
-    );
+    expect(mocks.signOut).toHaveBeenCalledExactlyOnceWith();
+  });
+
+  it("localizes the invitation sign-out destination returned by the interactor", async () => {
+    mocks.signOut.mockResolvedValue({ redirect: "/auth/signup?intent=signed.intent" });
+
+    await signOutForInvitationAction("signed.intent");
+
+    expect(mocks.signOut).toHaveBeenCalledExactlyOnceWith({ invitationIntent: "signed.intent" });
+    expect(mocks.redirect).toHaveBeenCalledExactlyOnceWith("/en/auth/signup?intent=signed.intent");
   });
 });

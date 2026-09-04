@@ -20,8 +20,6 @@ import { getLocale } from "next-intl/server";
 
 import { serializeResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
-import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
-import { resolveOnboardingIntent } from "@/features/company/next/onboarding-intent";
 import { buildLocalePath } from "@/i18n/locale-registry";
 
 export async function signInWithEmailAction(data: EmailSignInData) {
@@ -68,61 +66,24 @@ export async function continueWithMicrosoftAction(callbackURL?: string, errorCal
 }
 
 export async function signUpWithEmailAction(data: EmailSignUpData, invitationIntent?: string) {
-  if (!invitationIntent) return serializeResult(getSignUpWithEmailInteractor().invoke(data));
-
-  const invitation = await resolveOnboardingIntent(invitationIntent);
-  if (invitation.status !== "valid" || invitation.type !== "invitation") {
-    const errorMessage = invitation.status === "invalid" ? invitation.errorMessage : "invalidOnboardingIntent";
-    return redirect(buildLocalePath(await getLocale(), `/auth/error?type=${errorMessage}`));
-  }
-
-  const callbackURL = pathWithOnboardingIntent("/auth/invitation", invitation.intent);
-  const result = await getSignUpWithEmailInteractor().invoke({ ...data, callbackURL });
-  if (isRedirect(result)) return redirect(buildLocalePath(await getLocale(), result.redirect));
+  const result = await getSignUpWithEmailInteractor().invoke(data, invitationIntent);
+  if (isRedirect(result)) redirect(buildLocalePath(await getLocale(), result.redirect));
 
   return serializeResult(result);
 }
 
 export async function requestPasswordResetAction(data: RequestPasswordResetData, onboardingIntentValue?: string) {
-  if (!onboardingIntentValue) return serializeResult(getRequestPasswordResetInteractor().invoke(data));
-
-  const onboardingIntent = await resolveOnboardingIntent(onboardingIntentValue);
-  if (onboardingIntent.status !== "valid") return serializeResult(getRequestPasswordResetInteractor().invoke(data));
-
-  return serializeResult(
-    getRequestPasswordResetInteractor().invoke(
-      data,
-      pathWithOnboardingIntent("/auth/reset-password", onboardingIntent.intent),
-    ),
-  );
+  return serializeResult(getRequestPasswordResetInteractor().invoke(data, onboardingIntentValue));
 }
 
 export async function resetPasswordAction(data: ResetPasswordData, onboardingIntentValue?: string) {
-  if (!onboardingIntentValue) return serializeResult(getResetPasswordInteractor().invoke(data));
-
-  const onboardingIntent = await resolveOnboardingIntent(onboardingIntentValue);
-  if (onboardingIntent.status !== "valid") return serializeResult(getResetPasswordInteractor().invoke(data));
-
-  return serializeResult(
-    getResetPasswordInteractor().invoke(data, {
-      error: pathWithOnboardingIntent("/auth/forgot-password?info=RESET_LINK_INVALID", onboardingIntent.intent),
-      success: pathWithOnboardingIntent("/auth/signin", onboardingIntent.intent),
-    }),
-  );
+  return serializeResult(getResetPasswordInteractor().invoke(data, onboardingIntentValue));
 }
 
 export async function resendVerificationEmailFromAuthAction(onboardingIntentValue?: string): Promise<{
   ok: boolean;
 }> {
-  if (!onboardingIntentValue) return await getResendVerificationEmailInteractor().invoke();
-
-  const onboardingIntent = await resolveOnboardingIntent(onboardingIntentValue);
-  if (onboardingIntent.status !== "valid") return await getResendVerificationEmailInteractor().invoke();
-
-  const destination = onboardingIntent.type === "invitation" ? "/auth/invitation" : "/onboarding/wizard";
-  return await getResendVerificationEmailInteractor().invoke(
-    pathWithOnboardingIntent(destination, onboardingIntent.intent),
-  );
+  return await getResendVerificationEmailInteractor().invoke(onboardingIntentValue);
 }
 
 export async function decideMcpConsentAction(data: DecideMcpConsentData) {

@@ -1,79 +1,37 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const mocks = vi.hoisted(() => ({
-  clearInviteTokenCookie: vi.fn(),
-  issueCreateCompanyOnboardingIntent: vi.fn(),
-  redirect: vi.fn(),
-  requireAccountState: vi.fn(),
-}));
+const mocks = vi.hoisted(() => ({ chooseWorkspace: vi.fn(), redirect: vi.fn() }));
 
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 vi.mock("next-intl/server", () => ({ getLocale: () => Promise.resolve("en") }));
-vi.mock("@/features/auth/next/require", () => ({
-  requireAccountState: mocks.requireAccountState,
-}));
-vi.mock("@/features/company/next/invite-token-cookie", () => ({
-  clearInviteTokenCookie: mocks.clearInviteTokenCookie,
-}));
-vi.mock("@/features/company/next/onboarding-intent", () => ({
-  issueCreateCompanyOnboardingIntent: mocks.issueCreateCompanyOnboardingIntent,
-}));
+vi.mock("@/core/di", () => ({ getChooseWorkspaceOnboardingInteractor: () => ({ invoke: mocks.chooseWorkspace }) }));
 
-import { chooseCreateWorkspaceAction, chooseJoinWorkspaceAction, chooseWorkspaceAction } from "../actions";
+import { chooseWorkspaceAction } from "../actions";
 
-describe("onboarding workspace choice actions", () => {
+describe("onboarding workspace choice action", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.requireAccountState.mockResolvedValue({
-      state: "unregistered",
-      sessionUser: { id: "user-one" },
-    });
-    mocks.clearInviteTokenCookie.mockResolvedValue(undefined);
-    mocks.issueCreateCompanyOnboardingIntent.mockReturnValue("signed-create-intent");
   });
 
-  it("binds an explicit create decision to the current identity and URL", async () => {
-    await chooseCreateWorkspaceAction();
-
-    expect(mocks.requireAccountState).toHaveBeenCalledWith("unregistered");
-    expect(mocks.clearInviteTokenCookie).toHaveBeenCalledOnce();
-    expect(mocks.issueCreateCompanyOnboardingIntent).toHaveBeenCalledWith("user-one");
-    expect(mocks.clearInviteTokenCookie.mock.invocationCallOrder[0]).toBeLessThan(
-      mocks.issueCreateCompanyOnboardingIntent.mock.invocationCallOrder[0],
-    );
-    expect(mocks.redirect).toHaveBeenCalledWith("/en/onboarding/wizard?intent=signed-create-intent");
-  });
-
-  it("clears ambient invitation state before showing join instructions", async () => {
-    await chooseJoinWorkspaceAction();
-
-    expect(mocks.requireAccountState).toHaveBeenCalledWith("unregistered");
-    expect(mocks.clearInviteTokenCookie).toHaveBeenCalledOnce();
-    expect(mocks.issueCreateCompanyOnboardingIntent).not.toHaveBeenCalled();
-    expect(mocks.redirect).toHaveBeenCalledWith("/en/onboarding/join");
-  });
-
-  it.each([
-    ["create", "/en/onboarding/wizard?intent=signed-create-intent"],
-    ["join", "/en/onboarding/join"],
-  ])("dispatches the %s form choice", async (choice, target) => {
+  it("adapts the submitted choice and localizes the interactor redirect", async () => {
+    mocks.chooseWorkspace.mockResolvedValue({ redirect: "/onboarding/join" });
     const formData = new FormData();
-    formData.set("workspaceChoice", choice);
+    formData.set("workspaceChoice", "join");
 
     await chooseWorkspaceAction(null, formData);
 
-    expect(mocks.redirect).toHaveBeenCalledWith(target);
+    expect(mocks.chooseWorkspace).toHaveBeenCalledExactlyOnceWith({ choice: "join" });
+    expect(mocks.redirect).toHaveBeenCalledExactlyOnceWith("/en/onboarding/join");
   });
 
-  it("ignores an unknown form choice", async () => {
+  it("returns without redirecting when the interactor rejects the choice", async () => {
+    mocks.chooseWorkspace.mockResolvedValue(null);
     const formData = new FormData();
     formData.set("workspaceChoice", "unknown");
 
     await expect(chooseWorkspaceAction(null, formData)).resolves.toBeNull();
 
-    expect(mocks.requireAccountState).not.toHaveBeenCalled();
-    expect(mocks.clearInviteTokenCookie).not.toHaveBeenCalled();
-    expect(mocks.issueCreateCompanyOnboardingIntent).not.toHaveBeenCalled();
+    expect(mocks.chooseWorkspace).toHaveBeenCalledExactlyOnceWith({ choice: "unknown" });
     expect(mocks.redirect).not.toHaveBeenCalled();
   });
 });

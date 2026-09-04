@@ -35,6 +35,7 @@ vi.mock("@/core/di", () => ({
 }));
 
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
+const { PrismaCompanyRepo } = await import("@/features/company/prisma-company.repository");
 const { RegisterUserInteractor } = await import("@/features/user/register/register-user.interactor");
 const { EventService } = await import("@/features/event/event.service");
 const { DomainEventListener } = await import("@/features/event/domain-event.listener");
@@ -309,6 +310,7 @@ describeDatabase("registration against a real database", () => {
       new PrismaUserRepo(),
       eventService,
       unregisteredRouteGuardService(authUserId, registrationEmail) as never,
+      new PrismaCompanyRepo(),
     );
 
     const result = await interactor.invoke(
@@ -465,6 +467,7 @@ describeDatabase("registration against a real database", () => {
       repo,
       eventService,
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
+      new PrismaCompanyRepo(),
     );
 
     const result = await interactor.invoke(
@@ -476,7 +479,7 @@ describeDatabase("registration against a real database", () => {
         agreeToTerms: true,
         avatarUrl: null,
       },
-      { target: { type: "legacyAuthBinding" } },
+      { target: { type: "existingAuthUserCompanyBinding" } },
     );
     expect(result).toEqual({ ok: true, data: { redirectTo: "/auth/pending" } });
 
@@ -532,6 +535,7 @@ describeDatabase("registration against a real database", () => {
       repo,
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
+      new PrismaCompanyRepo(),
     );
 
     const result = await interactor.invoke(
@@ -601,6 +605,7 @@ describeDatabase("registration against a real database", () => {
       repo,
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
+      new PrismaCompanyRepo(),
     );
 
     const result = await interactor.invoke(
@@ -645,6 +650,7 @@ describeDatabase("registration against a real database", () => {
       new PrismaUserRepo(),
       newEventService(),
       unregisteredRouteGuardService(authUserId, registrationEmail) as never,
+      new PrismaCompanyRepo(),
     );
 
     await expect(
@@ -684,6 +690,7 @@ describeDatabase("registration against a real database", () => {
       new PrismaUserRepo(),
       newEventService(),
       unregisteredRouteGuardService(authUserId, registrationEmail) as never,
+      new PrismaCompanyRepo(),
     );
 
     const result = await interactor.invoke(
@@ -695,7 +702,7 @@ describeDatabase("registration against a real database", () => {
         agreeToTerms: true,
         avatarUrl: null,
       },
-      { target: { type: "legacyAuthBinding" } },
+      { target: { type: "existingAuthUserCompanyBinding" } },
     );
 
     expect(result).toEqual({ redirect: "/onboarding" });
@@ -724,6 +731,7 @@ describeDatabase("registration against a real database", () => {
       repo,
       newEventService(),
       unregisteredRouteGuardService(missingAuthUserId, registrationEmail) as never,
+      new PrismaCompanyRepo(),
     );
 
     const result = await interactor.invoke(
@@ -786,6 +794,7 @@ describeDatabase("registration against a real database", () => {
       repo,
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
+      new PrismaCompanyRepo(),
     );
 
     const result = await interactor.invoke(
@@ -813,23 +822,10 @@ describeDatabase("registration against a real database", () => {
     ).toEqual({ companyId: currentWorkspaceAdmin.companyId });
   });
 
-  it("makes simultaneous invitation registrations for one identity idempotent", async () => {
+  it("makes simultaneous company-creation registrations for one identity idempotent", async () => {
     const suffix = randomUUID();
-    const setupRepo = new PrismaUserRepo();
-    const invitedWorkspaceAdmin = await runWithoutTenant(() =>
-      setupRepo.createCompanyAndUser({
-        email: `duplicate-target-${suffix}@duplicate-target.invalid`,
-        firstName: "Duplicate",
-        lastName: "Target",
-        country: "de",
-        agreeToTerms: true,
-        avatarUrl: null,
-      }),
-    );
-    companyIds.push(invitedWorkspaceAdmin.companyId);
-
     const authUserId = `auth-duplicate-${suffix}`;
-    const invitedEmail = `duplicate-member-${suffix}@example.invalid`;
+    const invitedEmail = `duplicate-owner-${suffix}@example.invalid`;
     await runWithoutTenant(() =>
       prisma.authUser.create({
         data: {
@@ -852,8 +848,8 @@ describeDatabase("registration against a real database", () => {
     });
 
     class FirstRegistrationPausingUserRepo extends PrismaUserRepo {
-      override async lockAuthUserCompanyIdForRegistrationUnscoped(userId: string) {
-        const companyId = await super.lockAuthUserCompanyIdForRegistrationUnscoped(userId);
+      override async findAuthUserCompanyIdForUpdateUnscoped(userId: string) {
+        const companyId = await super.findAuthUserCompanyIdForUpdateUnscoped(userId);
         const [connection] = await this.prisma.$queryRaw<Array<{ pid: number }>>`
           SELECT pg_backend_pid() AS pid
         `;
@@ -872,15 +868,14 @@ describeDatabase("registration against a real database", () => {
       agreeToTerms: true,
       avatarUrl: null,
     };
-    const registrationTarget = {
-      target: { type: "invitation" as const, companyId: invitedWorkspaceAdmin.companyId },
-    };
+    const registrationTarget = { target: { type: "createCompany" as const } };
     const authService = { sendNewUserNotificationEmail: vi.fn().mockResolvedValue(undefined) } as never;
     const firstRegistration = new RegisterUserInteractor(
       authService,
       new FirstRegistrationPausingUserRepo(),
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
+      new PrismaCompanyRepo(),
     ).invoke(registrationData, registrationTarget);
 
     const blockerPid = await authUserLocked;
@@ -889,6 +884,7 @@ describeDatabase("registration against a real database", () => {
       new PrismaUserRepo(),
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
+      new PrismaCompanyRepo(),
     ).invoke(registrationData, registrationTarget);
 
     const secondRegistrationBlocked = await waitForBlockedDatabaseSession(blockerPid);
@@ -896,24 +892,21 @@ describeDatabase("registration against a real database", () => {
 
     const [firstResult, secondResult] = await Promise.all([firstRegistration, secondRegistration]);
     expect(secondRegistrationBlocked).toBe(true);
-    expect(firstResult).toEqual({ ok: true, data: { redirectTo: "/auth/pending" } });
-    expect(secondResult).toEqual({ redirect: "/auth/pending" });
+    expect(firstResult).toEqual({ ok: true, data: { redirectTo: "/onboarding/wizard" } });
+    expect(secondResult).toEqual({ redirect: "/onboarding/wizard" });
 
     await runWithoutTenant(async () => {
       expect(await prisma.user.count({ where: { email: invitedEmail } })).toBe(1);
-      expect(
-        await prisma.user.count({
-          where: { email: invitedEmail, companyId: invitedWorkspaceAdmin.companyId },
-        }),
-      ).toBe(1);
       expect(
         await prisma.company.count({
           where: { users: { some: { email: invitedEmail } } },
         }),
       ).toBe(1);
+      const user = await prisma.user.findUniqueOrThrow({ where: { email: invitedEmail }, select: { companyId: true } });
+      companyIds.push(user.companyId);
       expect(
         await prisma.authUser.findUniqueOrThrow({ where: { id: authUserId }, select: { companyId: true } }),
-      ).toEqual({ companyId: invitedWorkspaceAdmin.companyId });
+      ).toEqual({ companyId: user.companyId });
     });
   });
 
@@ -966,8 +959,8 @@ describeDatabase("registration against a real database", () => {
     });
 
     class LockPausingUserRepo extends PrismaUserRepo {
-      override async lockAuthUserCompanyIdForRegistrationUnscoped(userId: string) {
-        const companyId = await super.lockAuthUserCompanyIdForRegistrationUnscoped(userId);
+      override async findAuthUserCompanyIdForUpdateUnscoped(userId: string) {
+        const companyId = await super.findAuthUserCompanyIdForUpdateUnscoped(userId);
         const [connection] = await this.prisma.$queryRaw<Array<{ pid: number }>>`
           SELECT pg_backend_pid() AS pid
         `;
@@ -983,6 +976,7 @@ describeDatabase("registration against a real database", () => {
       new LockPausingUserRepo(),
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
+      new PrismaCompanyRepo(),
     ).invoke(
       {
         email: invitedEmail,
@@ -1186,6 +1180,7 @@ describeDatabase("registration against a real database", () => {
       new PrismaUserRepo(),
       eventService,
       unregisteredRouteGuardService(authUserId, rollbackEmail) as never,
+      new PrismaCompanyRepo(),
     );
 
     await expect(

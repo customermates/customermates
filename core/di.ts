@@ -60,6 +60,8 @@ import { BackgroundTaskService } from "@/core/utils/background-task.service";
 import { CaptureAdClickInteractor } from "@/features/acquisition/capture-ad-click.interactor";
 import { DecideAdAttributionConsentInteractor } from "@/features/acquisition/decide-ad-attribution-consent.interactor";
 import { NextAdAttributionCookieRepo } from "@/features/acquisition/next/ad-attribution-cookie";
+import { NextInviteTokenCookieRepo } from "@/features/company/next/invite-token-cookie";
+import { OnboardingIntentService } from "@/features/company/onboarding-intent.service";
 import { ReadAdAttributionConsentInteractor } from "@/features/acquisition/read-ad-attribution-consent.interactor";
 import { WithdrawAdAttributionInteractor } from "@/features/acquisition/withdraw-ad-attribution.interactor";
 // Task Listeners
@@ -157,6 +159,7 @@ import { DeleteTaskInteractor } from "@/features/tasks/delete/delete-task.intera
 import { DeleteManyTasksInteractor } from "@/features/tasks/delete/delete-many-tasks.interactor";
 // User interactors
 import { RegisterUserInteractor } from "@/features/user/register/register-user.interactor";
+import { RegisterOnboardingProfileInteractor } from "@/features/user/register/register-onboarding-profile.interactor";
 import { UpdateUserDetailsInteractor } from "@/features/user/upsert/update-user-details.interactor";
 import { CompleteOnboardingWizardInteractor } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
 import { GetUserDetailsInteractor } from "@/features/user/get/get-user-details.interactor";
@@ -178,6 +181,8 @@ import { UpdateCompanySettingsInteractor } from "@/features/company/update-compa
 import { GetOrCreateInviteTokenInteractor } from "@/features/company/get-or-create-invite-token.interactor";
 import { InviteUsersByEmailInteractor } from "@/features/company/invite-users-by-email.interactor";
 import { InviteTokenValidationInteractor } from "@/features/company/invite-token-validation.interactor";
+import { ChooseWorkspaceOnboardingInteractor } from "@/features/company/choose-workspace-onboarding.interactor";
+import { env } from "@/env";
 // Role interactors
 import { UpsertRoleInteractor } from "@/features/role/upsert-role.interactor";
 import { GetRolesInteractor } from "@/features/role/get-roles.interactor";
@@ -394,6 +399,9 @@ export const getUserService = () => new UserService(getAuthService(), getUserRep
 export const getRouteGuardService = () =>
   new RouteGuardService(getAuthService(), getUserRepo(), getCompanyRepo(), getGetLegalStatusInteractor());
 export const getBackgroundTaskService = () => new BackgroundTaskService();
+export const getInviteTokenCookieRepo = () => new NextInviteTokenCookieRepo();
+export const getOnboardingIntentService = () =>
+  new OnboardingIntentService(getInviteTokenValidationInteractor(), env.BETTER_AUTH_SECRET);
 export const getUserPendingAuthorizationTaskListener = () => new UserPendingAuthorizationTaskListener(getTaskRepo());
 
 const EXPECTED_EVENT_LISTENERS = [
@@ -906,7 +914,21 @@ export const getDeleteManyTasksInteractor = () =>
 // --- User ---
 
 export const getRegisterUserInteractor = () =>
-  new RegisterUserInteractor(getAuthService(), getUserRepo(), getEventService(), getRouteGuardService());
+  new RegisterUserInteractor(
+    getAuthService(),
+    getUserRepo(),
+    getEventService(),
+    getRouteGuardService(),
+    getCompanyRepo(),
+  );
+
+export const getRegisterOnboardingProfileInteractor = () =>
+  new RegisterOnboardingProfileInteractor(
+    getAuthService(),
+    getOnboardingIntentService(),
+    getInviteTokenCookieRepo(),
+    getRegisterUserInteractor(),
+  );
 
 export const getAdAttributionCookieRepo = () => new NextAdAttributionCookieRepo();
 
@@ -950,18 +972,23 @@ export const getGetUsersApiInteractor = () =>
 
 export const getSignInWithEmailInteractor = () => new SignInWithEmailInteractor(getAuthService());
 
-export const getSignUpWithEmailInteractor = () => new SignUpWithEmailInteractor(getAuthService());
+export const getSignUpWithEmailInteractor = () =>
+  new SignUpWithEmailInteractor(getAuthService(), getOnboardingIntentService());
 
-export const getRequestPasswordResetInteractor = () => new RequestPasswordResetInteractor(getAuthService());
+export const getRequestPasswordResetInteractor = () =>
+  new RequestPasswordResetInteractor(getAuthService(), getOnboardingIntentService());
 
-export const getResetPasswordInteractor = () => new ResetPasswordInteractor(getAuthService());
+export const getResetPasswordInteractor = () =>
+  new ResetPasswordInteractor(getAuthService(), getOnboardingIntentService());
 
 export const getContinueWithSocialsInteractor = () =>
   new ContinueWithSocialsInteractor(getAuthService(), getUserRepo());
 
-export const getResendVerificationEmailInteractor = () => new ResendVerificationEmailInteractor(getAuthService());
+export const getResendVerificationEmailInteractor = () =>
+  new ResendVerificationEmailInteractor(getAuthService(), getOnboardingIntentService());
 
-export const getSignOutInteractor = () => new SignOutInteractor(getAuthService());
+export const getSignOutInteractor = () =>
+  new SignOutInteractor(getAuthService(), getOnboardingIntentService(), getInviteTokenCookieRepo());
 
 export const getDecideMcpConsentInteractor = () =>
   new DecideMcpConsentInteractor(getAuthService(), getRouteGuardService());
@@ -979,6 +1006,13 @@ export const getInviteUsersByEmailInteractor = () =>
   new InviteUsersByEmailInteractor(getEmailService(), getGetOrCreateInviteTokenInteractor());
 
 export const getInviteTokenValidationInteractor = () => new InviteTokenValidationInteractor(getCompanyRepo());
+
+export const getChooseWorkspaceOnboardingInteractor = () =>
+  new ChooseWorkspaceOnboardingInteractor(
+    getRouteGuardService(),
+    getOnboardingIntentService(),
+    getInviteTokenCookieRepo(),
+  );
 
 // --- Role ---
 

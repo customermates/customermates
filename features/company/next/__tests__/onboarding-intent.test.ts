@@ -1,47 +1,25 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const mocks = vi.hoisted(() => ({
-  readInviteTokenCookie: vi.fn(),
-  validateInvite: vi.fn(),
-}));
-
-vi.mock("@/core/di", () => ({
-  getInviteTokenValidationInteractor: () => ({ invoke: mocks.validateInvite }),
-}));
-vi.mock("@/env", () => ({ env: { BETTER_AUTH_SECRET: "resolver-test-secret" } }));
-vi.mock("../invite-token-cookie", () => ({
-  readInviteTokenCookie: mocks.readInviteTokenCookie,
-}));
-
-import {
-  issueCreateCompanyOnboardingIntent,
-  issueInvitationOnboardingIntent,
-  resolveOnboardingIntent,
-} from "../onboarding-intent";
 import { decodeOnboardingIntent, onboardingIntentSigningSecret } from "../../onboarding-intent-codec";
+import { OnboardingIntentService } from "../../onboarding-intent.service";
 
 const now = new Date("2026-09-04T12:00:00.000Z");
 const inviteExpiresAt = new Date(now.getTime() + 60 * 60_000);
+const validateInvite = vi.fn();
 
 function validInvitation(companyId = "company-a") {
-  return {
-    ok: true,
-    data: {
-      companyId,
-      expiresAt: inviteExpiresAt,
-      inviterName: `${companyId} Admin`,
-      valid: true,
-    },
-  };
+  return { ok: true, data: { companyId, expiresAt: inviteExpiresAt, inviterName: `${companyId} Admin`, valid: true } };
 }
 
-describe("resolveOnboardingIntent", () => {
+describe("OnboardingIntentService", () => {
+  let service: OnboardingIntentService;
+
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
     vi.setSystemTime(now);
-    mocks.readInviteTokenCookie.mockResolvedValue(undefined);
-    mocks.validateInvite.mockResolvedValue(validInvitation());
+    validateInvite.mockResolvedValue(validInvitation());
+    service = new OnboardingIntentService({ invoke: validateInvite } as never, "resolver-test-secret");
   });
 
   afterEach(() => {
@@ -49,11 +27,10 @@ describe("resolveOnboardingIntent", () => {
   });
 
   it("makes the explicit tab invitation authoritative over a legacy cookie", async () => {
-    mocks.readInviteTokenCookie.mockResolvedValue("invite-b");
-    const intent = issueInvitationOnboardingIntent("invite-a", inviteExpiresAt);
+    const intent = service.issueInvitation("invite-a", inviteExpiresAt);
     if (!intent) throw new Error("Expected invitation intent");
 
-    await expect(resolveOnboardingIntent(intent)).resolves.toMatchObject({
+    await expect(service.resolve(intent, "invite-b")).resolves.toMatchObject({
       companyId: "company-a",
       intent,
       source: "explicit",
@@ -61,56 +38,45 @@ describe("resolveOnboardingIntent", () => {
       token: "invite-a",
       type: "invitation",
     });
-    expect(mocks.validateInvite).toHaveBeenCalledWith({ token: "invite-a" });
-    expect(mocks.readInviteTokenCookie).not.toHaveBeenCalled();
+    expect(validateInvite).toHaveBeenCalledExactlyOnceWith({ token: "invite-a" });
   });
 
-  it.each(["", ["one", "two"]] as const)(
-    "fails closed for an empty or duplicate explicit query value",
-    async (value) => {
-      const queryValue: string | string[] = typeof value === "string" ? value : Array.from(value);
-      await expect(resolveOnboardingIntent(queryValue)).resolves.toEqual({
-        errorMessage: "invalidOnboardingIntent",
-        source: "explicit",
-        status: "invalid",
-      });
-      expect(mocks.readInviteTokenCookie).not.toHaveBeenCalled();
-      expect(mocks.validateInvite).not.toHaveBeenCalled();
-    },
-  );
-
-  it("fails closed for a tampered explicit value without reading the cookie", async () => {
-    const intent = issueCreateCompanyOnboardingIntent("auth-user-one");
-
-    await expect(resolveOnboardingIntent(`${intent}tampered`)).resolves.toEqual({
+  it.each(["", ["one", "two"]] as const)("fails closed for an invalid explicit value", async (value) => {
+    await expect(service.resolve(value, "legacy-invite")).resolves.toEqual({
       errorMessage: "invalidOnboardingIntent",
       source: "explicit",
       status: "invalid",
     });
-    expect(mocks.readInviteTokenCookie).not.toHaveBeenCalled();
+    expect(validateInvite).not.toHaveBeenCalled();
   });
 
-  it("fails closed for an expired explicit value without reading the cookie", async () => {
-    const intent = issueCreateCompanyOnboardingIntent("auth-user-one");
+  it("fails closed for a tampered explicit value", async () => {
+    const intent = service.issueCreateCompany("auth-user-one");
+
+    await expect(service.resolve(`${intent}tampered`, "legacy-invite")).resolves.toEqual({
+      errorMessage: "invalidOnboardingIntent",
+      source: "explicit",
+      status: "invalid",
+    });
+  });
+
+  it("fails closed for an expired explicit value", async () => {
+    const intent = service.issueCreateCompany("auth-user-one");
     vi.setSystemTime(new Date(now.getTime() + 2 * 60 * 60_000 + 1));
 
-    await expect(resolveOnboardingIntent(intent)).resolves.toEqual({
+    await expect(service.resolve(intent)).resolves.toEqual({
       errorMessage: "onboardingSessionExpired",
       source: "explicit",
       status: "invalid",
     });
-    expect(mocks.readInviteTokenCookie).not.toHaveBeenCalled();
   });
 
   it("revalidates an explicit invitation and rejects a revoked token", async () => {
-    const intent = issueInvitationOnboardingIntent("invite-a", inviteExpiresAt);
+    const intent = service.issueInvitation("invite-a", inviteExpiresAt);
     if (!intent) throw new Error("Expected invitation intent");
-    mocks.validateInvite.mockResolvedValue({
-      ok: true,
-      data: { errorMessage: "invalidInviteLink", valid: false },
-    });
+    validateInvite.mockResolvedValue({ ok: true, data: { errorMessage: "invalidInviteLink", valid: false } });
 
-    await expect(resolveOnboardingIntent(intent)).resolves.toEqual({
+    await expect(service.resolve(intent)).resolves.toEqual({
       errorMessage: "invalidInviteLink",
       source: "explicit",
       status: "invalid",
@@ -118,10 +84,9 @@ describe("resolveOnboardingIntent", () => {
   });
 
   it("converts the rollout cookie into a signed invitation", async () => {
-    mocks.readInviteTokenCookie.mockResolvedValue("legacy-invite");
-    mocks.validateInvite.mockResolvedValue(validInvitation("legacy-company"));
+    validateInvite.mockResolvedValue(validInvitation("legacy-company"));
 
-    const resolved = await resolveOnboardingIntent();
+    const resolved = await service.resolve(undefined, "legacy-invite");
 
     expect(resolved).toMatchObject({
       companyId: "legacy-company",
@@ -140,18 +105,12 @@ describe("resolveOnboardingIntent", () => {
   });
 
   it("fails closed if a rollout invitation expires during reissuance", async () => {
-    mocks.readInviteTokenCookie.mockResolvedValue("legacy-invite");
-    mocks.validateInvite.mockResolvedValue({
+    validateInvite.mockResolvedValue({
       ok: true,
-      data: {
-        companyId: "legacy-company",
-        expiresAt: now,
-        inviterName: "Legacy Admin",
-        valid: true,
-      },
+      data: { companyId: "legacy-company", expiresAt: now, inviterName: "Legacy Admin", valid: true },
     });
 
-    await expect(resolveOnboardingIntent()).resolves.toEqual({
+    await expect(service.resolve(undefined, "legacy-invite")).resolves.toEqual({
       errorMessage: "inviteLinkExpired",
       source: "legacy",
       status: "invalid",
@@ -159,20 +118,19 @@ describe("resolveOnboardingIntent", () => {
   });
 
   it("decodes a create decision without consulting invitation state", async () => {
-    const intent = issueCreateCompanyOnboardingIntent("auth-user-one");
+    const intent = service.issueCreateCompany("auth-user-one");
 
-    await expect(resolveOnboardingIntent(intent)).resolves.toEqual({
+    await expect(service.resolve(intent)).resolves.toEqual({
       authUserId: "auth-user-one",
       intent,
       source: "explicit",
       status: "valid",
       type: "createCompany",
     });
-    expect(mocks.readInviteTokenCookie).not.toHaveBeenCalled();
-    expect(mocks.validateInvite).not.toHaveBeenCalled();
+    expect(validateInvite).not.toHaveBeenCalled();
   });
 
-  it("reports absence only when neither URL nor rollout cookie contains an intent", async () => {
-    await expect(resolveOnboardingIntent()).resolves.toEqual({ status: "absent" });
+  it("reports absence only when neither source contains an intent", async () => {
+    await expect(service.resolve()).resolves.toEqual({ status: "absent" });
   });
 });

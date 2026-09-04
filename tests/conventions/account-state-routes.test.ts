@@ -51,19 +51,22 @@ describe("guarded account-state route contract", () => {
     const registerInteractor = source(
       "features/user/register/register-user.interactor.ts",
     );
+    const registrationBoundary = source(
+      "features/user/register/register-onboarding-profile.interactor.ts",
+    );
     const completeInteractor = source(
       "features/onboarding-wizard/complete-onboarding-wizard.interactor.ts",
     );
 
     expect(page).toMatch(/requireAccountState\(\s*\[\s*"unregistered",\s*"onboarding"\s*\](?:\s*,|\s*\))/);
     expect(actions).toMatch(
-      /getRegisterUserInteractor\(\)\.invoke\(\s*data,\s*\{\s*adAttribution,\s*target,?\s*\}\s*\)/,
+      /getRegisterOnboardingProfileInteractor\(\)\.invoke\(\s*data,\s*\{\s*adAttribution\s*\}\s*\)/,
     );
     expect(page).toContain("resolveOnboardingIntent(");
     expect(page).toContain("canCreateCompany");
-    expect(actions).toContain("resolveOnboardingIntent(onboardingIntentValue)");
-    expect(actions).toContain('target = { type: "invitation"');
-    expect(actions).toContain('target = { type: "createCompany" }');
+    expect(registrationBoundary).toContain("onboardingIntentService.resolve(");
+    expect(registrationBoundary).toContain('target = { type: "invitation"');
+    expect(registrationBoundary).toContain('target = { type: "createCompany" }');
     expect(actions).toContain(
       "getCompleteOnboardingWizardInteractor().invoke()",
     );

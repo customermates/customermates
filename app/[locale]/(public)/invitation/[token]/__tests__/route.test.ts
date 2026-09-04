@@ -1,13 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const auth = vi.hoisted(() => ({
-  getSession: vi.fn(),
-  validateInvite: vi.fn(),
-}));
+const auth = vi.hoisted(() => ({ getSession: vi.fn(), issueInvitation: vi.fn(), validateInvite: vi.fn() }));
 
 vi.mock("@/core/di", () => ({
   getAuthService: () => ({ getSession: auth.getSession }),
   getInviteTokenValidationInteractor: () => ({ invoke: auth.validateInvite }),
+  getOnboardingIntentService: () => ({ issueInvitation: auth.issueInvitation }),
 }));
 vi.mock("@/env", () => ({
   env: {
@@ -18,7 +16,11 @@ vi.mock("@/env", () => ({
 }));
 
 import { GET } from "../route";
-import { decodeOnboardingIntent, onboardingIntentSigningSecret } from "@/features/company/onboarding-intent-codec";
+import {
+  decodeOnboardingIntent,
+  encodeInvitationOnboardingIntent,
+  onboardingIntentSigningSecret,
+} from "@/features/company/onboarding-intent-codec";
 
 const expiresAt = new Date("2099-01-01T00:00:00.000Z");
 
@@ -39,14 +41,14 @@ describe("invitation route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     auth.getSession.mockResolvedValue(null);
+    auth.issueInvitation.mockImplementation((token: string, invitationExpiresAt: Date, now?: Date) => {
+      const secret = onboardingIntentSigningSecret("route-test-secret");
+      if (!secret) throw new Error("Missing test signing secret");
+      return encodeInvitationOnboardingIntent(token, invitationExpiresAt, secret, now);
+    });
     auth.validateInvite.mockResolvedValue({
       ok: true,
-      data: {
-        companyId: "invited-company",
-        expiresAt,
-        inviterName: "Invite Admin",
-        valid: true,
-      },
+      data: { companyId: "invited-company", expiresAt, inviterName: "Invite Admin", valid: true },
     });
   });
 
@@ -124,12 +126,7 @@ describe("invitation route", () => {
   it("fails closed if the invitation expires between validation and intent issuance", async () => {
     auth.validateInvite.mockResolvedValue({
       ok: true,
-      data: {
-        companyId: "invited-company",
-        expiresAt: new Date(0),
-        inviterName: "Invite Admin",
-        valid: true,
-      },
+      data: { companyId: "invited-company", expiresAt: new Date(0), inviterName: "Invite Admin", valid: true },
     });
 
     const response = await GET(new Request("https://feat-inbox.customermates.com/en/invitation/invite-token"), {

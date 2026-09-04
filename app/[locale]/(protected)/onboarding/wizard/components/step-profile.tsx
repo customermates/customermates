@@ -31,20 +31,15 @@ export const StepProfile = observer(
     const t = useTranslations();
     const { stepProfileStore: store, appMode } = useRootStore();
     useState(() => {
-      store.onInitOrRefresh({ email, firstName, lastName, avatarUrl });
-      store.setOnboardingIntent(onboardingIntent);
+      store.onInitOrRefresh({ email, firstName, lastName, avatarUrl, onboardingIntent });
       store.setWithUnsavedChangesGuard(false);
     });
     const { isLoading } = store;
 
     useEffect(
-      () => store.onInitOrRefresh({ email, firstName, lastName, avatarUrl }),
-      [avatarUrl, email, firstName, lastName, store],
+      () => store.onInitOrRefresh({ email, firstName, lastName, avatarUrl, onboardingIntent }),
+      [avatarUrl, email, firstName, lastName, onboardingIntent, store],
     );
-
-    useEffect(() => {
-      store.setOnboardingIntent(onboardingIntent);
-    }, [onboardingIntent, store]);
 
     const legalDocumentLinks = {
       dataPrivacyLink: (chunks: ReactNode) => (

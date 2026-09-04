@@ -1,5 +1,6 @@
 import type { AuthService } from "./auth.service";
 import type { Redirect } from "./auth-outcome";
+import type { OnboardingIntentService } from "@/features/company/onboarding-intent.service";
 
 import { z } from "zod";
 
@@ -9,6 +10,7 @@ import { SystemInteractor } from "@/core/decorators/system-interactor.decorator"
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { redirectTo } from "./auth-outcome";
 import { callbackUrlSchema } from "./callback-url.schema";
+import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 
 const PasswordFieldsSchema = z.object({
   password: zx.password(),
@@ -41,15 +43,29 @@ type ResetPasswordInvocation = Data<typeof InvocationSchema>;
 
 @SystemInteractor
 export class ResetPasswordInteractor {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly onboardingIntentService: OnboardingIntentService,
+  ) {}
 
   async invoke(
     data: ResetPasswordData,
-    redirects: ResetPasswordRedirects = {
+    onboardingIntentValue?: string,
+  ): Promise<Awaited<Validated<ResetPasswordData>> | Redirect> {
+    let redirects: ResetPasswordRedirects = {
       error: "/auth/forgot-password?info=RESET_LINK_INVALID",
       success: "/auth/signin",
-    },
-  ): Promise<Awaited<Validated<ResetPasswordData>> | Redirect> {
+    };
+    if (onboardingIntentValue !== undefined) {
+      const onboardingIntent = await this.onboardingIntentService.resolve(onboardingIntentValue);
+      if (onboardingIntent.status === "valid") {
+        redirects = {
+          error: pathWithOnboardingIntent("/auth/forgot-password?info=RESET_LINK_INVALID", onboardingIntent.intent),
+          success: pathWithOnboardingIntent("/auth/signin", onboardingIntent.intent),
+        };
+      }
+    }
+
     return this.reset({
       ...data,
       errorRedirect: redirects.error,

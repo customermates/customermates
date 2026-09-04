@@ -12,6 +12,7 @@ import type { RouteGuardSubscriptionRepo } from "@/features/auth/route-guard.ser
 import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
 import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement.service";
 import type { CreateAuthLinkSubscriptionRepo } from "@/ee/messaging/connect/create-auth-link.interactor";
+import type { RegisterUserCompanyRepo } from "@/features/user/register/register-user.interactor";
 
 import { ConversionEventType, SubscriptionStatus } from "@/generated/prisma";
 
@@ -34,7 +35,8 @@ export class PrismaCompanyRepo
     AdminUpdateUserSubscriptionRepo,
     RouteGuardSubscriptionRepo,
     EntitlementSubscriptionRepo,
-    CreateAuthLinkSubscriptionRepo
+    CreateAuthLinkSubscriptionRepo,
+    RegisterUserCompanyRepo
 {
   @Transaction
   async updateDetails(args: RepoArgs<UpdateCompanySettingsRepo, "updateDetails">) {
@@ -193,5 +195,14 @@ export class PrismaCompanyRepo
     });
 
     return subscription;
+  }
+
+  @BypassTenantGuard
+  async existsUnscoped(companyId: string) {
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      select: { id: true },
+    });
+    return Boolean(company);
   }
 }

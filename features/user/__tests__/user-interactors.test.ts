@@ -40,6 +40,7 @@ describe("RegisterUserInteractor", () => {
   let mockRepo: any;
   let mockEventService: any;
   let mockRouteGuardService: any;
+  let mockCompanyRepo: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -51,8 +52,7 @@ describe("RegisterUserInteractor", () => {
     mockRepo = {
       bindAuthUserToCompanyOrThrowUnscoped: vi.fn().mockResolvedValue(undefined),
       findCurrentUserUnscoped: vi.fn().mockResolvedValue(null),
-      lockAuthUserCompanyIdForRegistrationUnscoped: vi.fn().mockResolvedValue(null),
-      lockCompanyForRegistrationUnscoped: vi.fn().mockResolvedValue(true),
+      findAuthUserCompanyIdForUpdateUnscoped: vi.fn().mockResolvedValue(null),
       peekAuthUserCompanyIdUnscoped: vi.fn().mockResolvedValue(null),
       createCompanyAndUser: vi.fn().mockResolvedValue(mockTenantUser),
       registerExistingCompany: vi.fn().mockResolvedValue(mockTenantUser),
@@ -75,10 +75,17 @@ describe("RegisterUserInteractor", () => {
         subscription: null,
       }),
     };
+    mockCompanyRepo = { existsUnscoped: vi.fn().mockResolvedValue(true) };
   });
 
   function createInteractor() {
-    return new RegisterUserInteractor(mockAuthService, mockRepo, mockEventService, mockRouteGuardService);
+    return new RegisterUserInteractor(
+      mockAuthService,
+      mockRepo,
+      mockEventService,
+      mockRouteGuardService,
+      mockCompanyRepo,
+    );
   }
 
   it("publishes USER_REGISTERED event for new company", async () => {
@@ -179,12 +186,12 @@ describe("RegisterUserInteractor", () => {
     expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ adAttribution }));
 
     vi.clearAllMocks();
-    mockRepo.lockAuthUserCompanyIdForRegistrationUnscoped.mockResolvedValue("existing-company-id");
+    mockRepo.findAuthUserCompanyIdForUpdateUnscoped.mockResolvedValue("existing-company-id");
     mockRepo.peekAuthUserCompanyIdUnscoped.mockResolvedValue("existing-company-id");
     mockRepo.registerExistingCompany.mockResolvedValue(mockTenantUser);
     mockEventService.publish.mockResolvedValue(undefined);
     mockAuthService.sendNewUserNotificationEmail.mockResolvedValue(undefined);
-    await createInteractor().invoke(data, { adAttribution, target: { type: "legacyAuthBinding" } });
+    await createInteractor().invoke(data, { adAttribution, target: { type: "existingAuthUserCompanyBinding" } });
 
     const existingCompanyArgs = mockRepo.registerExistingCompany.mock.calls[0]?.[0];
     expect(existingCompanyArgs).toEqual({ ...data, companyId: "existing-company-id" });
@@ -243,7 +250,7 @@ describe("RegisterUserInteractor", () => {
   });
 
   it("publishes USER_REGISTERED with isNewCompany false for existing company", async () => {
-    mockRepo.lockAuthUserCompanyIdForRegistrationUnscoped.mockResolvedValue("existing-company-id");
+    mockRepo.findAuthUserCompanyIdForUpdateUnscoped.mockResolvedValue("existing-company-id");
     mockRepo.peekAuthUserCompanyIdUnscoped.mockResolvedValue("existing-company-id");
 
     const interactor = createInteractor();
@@ -256,7 +263,7 @@ describe("RegisterUserInteractor", () => {
         avatarUrl: null,
         agreeToTerms: false,
       },
-      { target: { type: "legacyAuthBinding" } },
+      { target: { type: "existingAuthUserCompanyBinding" } },
     );
 
     expect(mockEventService.publish).toHaveBeenCalledWith(
@@ -276,7 +283,7 @@ describe("RegisterUserInteractor", () => {
 
   it("rejects an unchecked invited cloud user before updating records", async () => {
     mutableEnv.APP_MODE = "cloud";
-    mockRepo.lockAuthUserCompanyIdForRegistrationUnscoped.mockResolvedValue("existing-company-id");
+    mockRepo.findAuthUserCompanyIdForUpdateUnscoped.mockResolvedValue("existing-company-id");
     mockRepo.peekAuthUserCompanyIdUnscoped.mockResolvedValue("existing-company-id");
 
     const result = await createInteractor().invoke(
@@ -288,7 +295,7 @@ describe("RegisterUserInteractor", () => {
         avatarUrl: null,
         agreeToTerms: false,
       },
-      { target: { type: "legacyAuthBinding" } },
+      { target: { type: "existingAuthUserCompanyBinding" } },
     );
 
     expect("ok" in result && result.ok).toBe(false);
@@ -298,7 +305,7 @@ describe("RegisterUserInteractor", () => {
 
   it("does not record managed-service acceptance for an invited cloud user", async () => {
     (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "demo" | "self-hosted" }).APP_MODE = "cloud";
-    mockRepo.lockAuthUserCompanyIdForRegistrationUnscoped.mockResolvedValue("existing-company-id");
+    mockRepo.findAuthUserCompanyIdForUpdateUnscoped.mockResolvedValue("existing-company-id");
     mockRepo.peekAuthUserCompanyIdUnscoped.mockResolvedValue("existing-company-id");
 
     const interactor = createInteractor();
@@ -311,7 +318,7 @@ describe("RegisterUserInteractor", () => {
         avatarUrl: null,
         agreeToTerms: true,
       },
-      { target: { type: "legacyAuthBinding" } },
+      { target: { type: "existingAuthUserCompanyBinding" } },
     );
 
     expect(mockRepo.registerExistingCompany).toHaveBeenCalledWith(
@@ -436,7 +443,7 @@ describe("RegisterUserInteractor", () => {
   });
 
   it("returns the pending destination for an invited user", async () => {
-    mockRepo.lockAuthUserCompanyIdForRegistrationUnscoped.mockResolvedValue("existing-company-id");
+    mockRepo.findAuthUserCompanyIdForUpdateUnscoped.mockResolvedValue("existing-company-id");
     mockRepo.peekAuthUserCompanyIdUnscoped.mockResolvedValue("existing-company-id");
     mockRepo.registerExistingCompany.mockResolvedValue({
       ...mockTenantUser,
@@ -452,7 +459,7 @@ describe("RegisterUserInteractor", () => {
         avatarUrl: null,
         agreeToTerms: true,
       },
-      { target: { type: "legacyAuthBinding" } },
+      { target: { type: "existingAuthUserCompanyBinding" } },
     );
 
     expect(result).toEqual({ ok: true, data: { redirectTo: "/auth/pending" } });
@@ -469,7 +476,7 @@ describe("RegisterUserInteractor", () => {
           avatarUrl: null,
           agreeToTerms: true,
         },
-        { target: { type: "legacyAuthBinding" } },
+        { target: { type: "existingAuthUserCompanyBinding" } },
       ),
     ).resolves.toEqual({ redirect: "/onboarding" });
     expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
@@ -479,7 +486,7 @@ describe("RegisterUserInteractor", () => {
   });
 
   it("fails closed when the cached session identity no longer exists", async () => {
-    mockRepo.lockAuthUserCompanyIdForRegistrationUnscoped.mockResolvedValue(undefined);
+    mockRepo.findAuthUserCompanyIdForUpdateUnscoped.mockResolvedValue(undefined);
 
     await expect(
       createInteractor().invoke(
@@ -527,7 +534,7 @@ describe("RegisterUserInteractor", () => {
   });
 
   it("gives the current invitation precedence over an older live identity binding", async () => {
-    mockRepo.lockAuthUserCompanyIdForRegistrationUnscoped.mockResolvedValue("older-company-id");
+    mockRepo.findAuthUserCompanyIdForUpdateUnscoped.mockResolvedValue("older-company-id");
     mockRepo.registerExistingCompany.mockResolvedValue({
       ...mockTenantUser,
       status: "pendingAuthorization",
@@ -556,7 +563,7 @@ describe("RegisterUserInteractor", () => {
   });
 
   it("fails cleanly when the invited workspace disappears before registration", async () => {
-    mockRepo.lockCompanyForRegistrationUnscoped.mockResolvedValue(false);
+    mockCompanyRepo.existsUnscoped.mockResolvedValue(false);
 
     await expect(
       createInteractor().invoke(
@@ -571,7 +578,7 @@ describe("RegisterUserInteractor", () => {
         { target: { type: "invitation", companyId: "deleted-company-id" } },
       ),
     ).resolves.toEqual({ redirect: "/auth/error?type=invalidInviteLink" });
-    expect(mockRepo.lockAuthUserCompanyIdForRegistrationUnscoped).not.toHaveBeenCalled();
+    expect(mockRepo.findAuthUserCompanyIdForUpdateUnscoped).not.toHaveBeenCalled();
     expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
     expect(mockRepo.bindAuthUserToCompanyOrThrowUnscoped).not.toHaveBeenCalled();
   });
@@ -596,10 +603,10 @@ describe("RegisterUserInteractor", () => {
           avatarUrl: null,
           agreeToTerms: true,
         },
-        { target: { type: "legacyAuthBinding" } },
+        { target: { type: "existingAuthUserCompanyBinding" } },
       ),
     ).resolves.toEqual({ redirect: "/auth/signin" });
-    expect(mockRepo.lockAuthUserCompanyIdForRegistrationUnscoped).not.toHaveBeenCalled();
+    expect(mockRepo.findAuthUserCompanyIdForUpdateUnscoped).not.toHaveBeenCalled();
     expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
     expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
     expect(mockEventService.publish).not.toHaveBeenCalled();
@@ -633,10 +640,10 @@ describe("RegisterUserInteractor", () => {
             avatarUrl: null,
             agreeToTerms: true,
           },
-          { target: { type: "legacyAuthBinding" } },
+          { target: { type: "existingAuthUserCompanyBinding" } },
         ),
       ).resolves.toEqual({ redirect: accountStateRedirect(state) ?? "/" });
-      expect(mockRepo.lockAuthUserCompanyIdForRegistrationUnscoped).not.toHaveBeenCalled();
+      expect(mockRepo.findAuthUserCompanyIdForUpdateUnscoped).not.toHaveBeenCalled();
       expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
       expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
       expect(mockEventService.publish).not.toHaveBeenCalled();

@@ -1,5 +1,6 @@
 import type { AuthService } from "./auth.service";
 import type { Redirect } from "./auth-outcome";
+import type { OnboardingIntentService } from "@/features/company/onboarding-intent.service";
 
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
@@ -10,6 +11,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { redirectTo } from "./auth-outcome";
 import { callbackUrlSchema } from "./callback-url.schema";
+import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 
 const Schema = z
   .object({
@@ -40,10 +42,30 @@ export type EmailSignUpData = Data<typeof Schema>;
 
 @SystemInteractor
 export class SignUpWithEmailInteractor {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private onboardingIntentService: OnboardingIntentService,
+  ) {}
+
+  async invoke(
+    data: EmailSignUpData,
+    onboardingIntentValue?: string,
+  ): Promise<Awaited<Validated<EmailSignUpData>> | Redirect> {
+    if (onboardingIntentValue !== undefined) {
+      const invitation = await this.onboardingIntentService.resolve(onboardingIntentValue);
+      if (invitation.status !== "valid" || invitation.type !== "invitation") {
+        const errorMessage = invitation.status === "invalid" ? invitation.errorMessage : "invalidOnboardingIntent";
+        return redirectTo(`/auth/error?type=${errorMessage}`);
+      }
+
+      return this.signUp({ ...data, callbackURL: pathWithOnboardingIntent("/auth/invitation", invitation.intent) });
+    }
+
+    return this.signUp(data);
+  }
 
   @Validate(Schema)
-  async invoke(data: EmailSignUpData): Promise<Awaited<Validated<EmailSignUpData>> | Redirect> {
+  private async signUp(data: EmailSignUpData): Promise<Awaited<Validated<EmailSignUpData>> | Redirect> {
     const res = await this.authService.registerWithEmail({
       email: data.email,
       name: data.email,

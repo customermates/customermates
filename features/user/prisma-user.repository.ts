@@ -521,13 +521,6 @@ export class PrismaUserRepo
   }
 
   @BypassTenantGuard
-  async lockCompanyForRegistrationUnscoped(companyId: string) {
-    await this.prisma.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${companyId}, 0))`;
-    const company = await this.prisma.company.findUnique({ where: { id: companyId }, select: { id: true } });
-    return Boolean(company);
-  }
-
-  @BypassTenantGuard
   async findAuthUserCompanyIdUnscoped(userId: string) {
     const authUser = await this.prisma.authUser.findUnique({
       where: { id: userId },
@@ -545,7 +538,7 @@ export class PrismaUserRepo
   }
 
   @BypassTenantGuard
-  async lockAuthUserCompanyIdForRegistrationUnscoped(userId: string) {
+  async findAuthUserCompanyIdForUpdateUnscoped(userId: string) {
     const [authUser] = await this.prisma.$queryRaw<Array<{ companyId: string | null }>>`
       SELECT "companyId"
       FROM "AuthUser"
