@@ -1492,13 +1492,8 @@
     "sharedAccountsRequiresCloud": "Gli account condivisi sono disponibili su Customermates Cloud (piano Business o superiore).",
     "sharedOffToast": "L'account è ora privato",
     "sharedOnToast": "Account condiviso con il tuo spazio di lavoro",
-    "signatureAccent": "Colore d'accento",
-    "signatureAccents": {
-      "blue": "Blu",
-      "green": "Verde",
-      "neutral": "Grigio",
-      "violet": "Viola"
-    },
+    "signatureAccent": "Colore dei link",
+    "signatureAccentLowContrast": "Contrasto basso: {light}:1 su chiaro, {dark}:1 su scuro. Alcuni destinatari faranno fatica a leggerlo.",
     "signatureExtra": "Righe aggiuntive",
     "signatureFields": {
       "company": "Azienda",
@@ -1509,6 +1504,8 @@
       "phone": "Telefono",
       "website": "Sito web"
     },
+    "signatureFontSize": "Dimensione del carattere",
+    "signatureFontWeight": "Spessore del nome",
     "signatureHint": "Markdown per ciò che i campi non coprono, come un indirizzo o una nota legale.",
     "signatureLogoDefault": "Usa il logo",
     "signatureLogoPlaceholder": "https://example.com/logo.png",
@@ -1523,6 +1520,12 @@
       "stacked": "Logo sopra"
     },
     "signatureUpdateFailed": "Impossibile salvare la firma",
+    "signatureWeights": {
+      "bold": "Grassetto",
+      "medium": "Medio",
+      "normal": "Normale",
+      "semibold": "Semigrassetto"
+    },
     "status": "Stato",
     "statusLabels": {
       "connecting": "Collegamento in corso",

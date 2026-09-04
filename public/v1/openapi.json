@@ -53252,14 +53252,25 @@
                       "sideBySide"
                     ]
                   },
-                  "accent": {
-                    "default": "violet",
+                  "accentHex": {
+                    "default": "#7161e8",
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$"
+                  },
+                  "fontSize": {
+                    "default": 13,
+                    "type": "integer",
+                    "minimum": 10,
+                    "maximum": 20
+                  },
+                  "fontWeight": {
+                    "default": "bold",
                     "type": "string",
                     "enum": [
-                      "neutral",
-                      "violet",
-                      "blue",
-                      "green"
+                      "normal",
+                      "medium",
+                      "semibold",
+                      "bold"
                     ]
                   },
                   "fullName": {
@@ -53308,7 +53319,9 @@
                 },
                 "required": [
                   "template",
-                  "accent",
+                  "accentHex",
+                  "fontSize",
+                  "fontWeight",
                   "fullName",
                   "jobTitle",
                   "company",

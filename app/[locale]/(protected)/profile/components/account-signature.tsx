@@ -13,8 +13,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EmailFrame } from "@/app/[locale]/(protected)/inbox/components/email-frame";
 import { renderSignature } from "@/ee/messaging/outbound/email-signature";
-import { SIGNATURE_LOGO_URL, SignatureAccent, SignatureTemplate } from "@/ee/messaging/signature-fields";
+import {
+  DEFAULT_ACCENT_HEX,
+  SIGNATURE_FONT_SIZE_MAX,
+  SIGNATURE_FONT_SIZE_MIN,
+  SIGNATURE_LOGO_URL,
+  SignatureTemplate,
+  SignatureWeight,
+} from "@/ee/messaging/signature-fields";
 
+import { SignatureColorField } from "./signature-color-field";
 import { SignatureTemplatePicker } from "./signature-template-picker";
 
 type Draft = { signature: string; fields: SignatureFields };
@@ -34,7 +42,9 @@ function initialDraft(account: ConnectedAccountDto): Draft {
     signature: account.signature ?? "",
     fields: account.signatureFields ?? {
       template: SignatureTemplate.stacked,
-      accent: SignatureAccent.violet,
+      accentHex: DEFAULT_ACCENT_HEX,
+      fontSize: 13,
+      fontWeight: SignatureWeight.bold,
       fullName: owner,
       jobTitle: "",
       company: "",
@@ -88,23 +98,39 @@ export function AccountSignature({ account, disabled = false, onSave }: Props) {
         ))}
 
         <div className="flex min-w-0 flex-col gap-1.5">
-          <Label className="text-subdued text-xs" htmlFor="signature-accent">
-            {t("ConnectedAccountsCard.signatureAccent")}
+          <Label className="text-subdued text-xs" htmlFor="signature-fontSize">
+            {t("ConnectedAccountsCard.signatureFontSize")}
+          </Label>
+
+          <Input
+            disabled={disabled}
+            id="signature-fontSize"
+            max={SIGNATURE_FONT_SIZE_MAX}
+            min={SIGNATURE_FONT_SIZE_MIN}
+            type="number"
+            value={draft.fields.fontSize}
+            onChange={(event) => setField("fontSize", Number(event.target.value))}
+          />
+        </div>
+
+        <div className="flex min-w-0 flex-col gap-1.5">
+          <Label className="text-subdued text-xs" htmlFor="signature-fontWeight">
+            {t("ConnectedAccountsCard.signatureFontWeight")}
           </Label>
 
           <Select
             disabled={disabled}
-            value={draft.fields.accent}
-            onValueChange={(next) => setField("accent", next as SignatureAccent)}
+            value={draft.fields.fontWeight}
+            onValueChange={(next) => setField("fontWeight", next as SignatureWeight)}
           >
-            <SelectTrigger id="signature-accent">
+            <SelectTrigger id="signature-fontWeight">
               <SelectValue />
             </SelectTrigger>
 
             <SelectContent>
-              {Object.values(SignatureAccent).map((accent) => (
-                <SelectItem key={accent} value={accent}>
-                  {t(`ConnectedAccountsCard.signatureAccents.${accent}`)}
+              {Object.values(SignatureWeight).map((weight) => (
+                <SelectItem key={weight} value={weight}>
+                  {t(`ConnectedAccountsCard.signatureWeights.${weight}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -138,6 +164,12 @@ export function AccountSignature({ account, disabled = false, onSave }: Props) {
           </div>
         </div>
       </div>
+
+      <SignatureColorField
+        disabled={disabled}
+        value={draft.fields.accentHex}
+        onValueChange={(next) => setField("accentHex", next)}
+      />
 
       <div className="flex flex-col gap-1.5">
         <Label className="text-subdued text-xs" htmlFor="connected-account-signature">

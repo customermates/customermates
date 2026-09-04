@@ -2,7 +2,7 @@ import type { SignatureFields } from "../signature-fields";
 
 import markdownit from "markdown-it";
 
-import { SignatureAccent, SignatureTemplate } from "../signature-fields";
+import { SIGNATURE_WEIGHT_VALUE, SignatureTemplate } from "../signature-fields";
 
 type SignatureTemplateDefinition = {
   logoPosition: "none" | "above" | "beside";
@@ -16,20 +16,20 @@ export const SIGNATURE_TEMPLATES: Record<SignatureTemplate, SignatureTemplateDef
   [SignatureTemplate.sideBySide]: { logoPosition: "beside", logoPx: 56, maxWidthPx: 520 },
 };
 
-const ACCENT_HEX: Record<SignatureAccent, string> = {
-  [SignatureAccent.neutral]: "#6e6e6e",
-  [SignatureAccent.violet]: "#7161e8",
-  [SignatureAccent.blue]: "#3d7dbf",
-  [SignatureAccent.green]: "#2ba449",
-};
-
 const NAME_COLOR = "#6e6e6e";
 const TEXT_COLOR = "#7a7a7a";
 const DIVIDER_COLOR = "#8a8a8a";
 const FONT_STACK = "Arial,Helvetica,sans-serif";
-const BODY_STYLE = `font-family:${FONT_STACK};font-size:13px;line-height:19px;mso-line-height-rule:exactly;color:${TEXT_COLOR};`;
-const NAME_STYLE = `font-family:${FONT_STACK};font-size:14px;line-height:20px;mso-line-height-rule:exactly;font-weight:bold;color:${NAME_COLOR};`;
 const WEBSITE_LABEL_MAX = 40;
+
+function bodyStyle(fontSize: number): string {
+  return `font-family:${FONT_STACK};font-size:${fontSize}px;line-height:${fontSize + 6}px;mso-line-height-rule:exactly;color:${TEXT_COLOR};`;
+}
+
+function nameStyle(fontSize: number, weight: number): string {
+  const size = fontSize + 1;
+  return `font-family:${FONT_STACK};font-size:${size}px;line-height:${size + 6}px;mso-line-height-rule:exactly;font-weight:${weight};color:${NAME_COLOR};`;
+}
 
 type MarkdownEnv = { accentHex?: string };
 
@@ -101,18 +101,19 @@ function row(style: string, inner: string): string {
 
 function textBlock(fields: SignatureFields, markdown: string, accentHex: string): string {
   const rows: string[] = [];
+  const body = bodyStyle(fields.fontSize);
 
-  if (fields.fullName) rows.push(row(NAME_STYLE, escapeHtml(fields.fullName)));
+  if (fields.fullName)
+    rows.push(row(nameStyle(fields.fontSize, SIGNATURE_WEIGHT_VALUE[fields.fontWeight]), escapeHtml(fields.fullName)));
 
   const role = [fields.jobTitle, fields.company].filter(Boolean).join(", ");
-  if (role) rows.push(row(BODY_STYLE, escapeHtml(role)));
+  if (role) rows.push(row(body, escapeHtml(role)));
 
-  if (fields.phone) rows.push(row(BODY_STYLE, link(`tel:${telHref(fields.phone)}`, fields.phone, accentHex)));
-  if (fields.email) rows.push(row(BODY_STYLE, link(`mailto:${fields.email}`, fields.email, accentHex)));
-  if (fields.website)
-    rows.push(row(BODY_STYLE, link(siteHref(fields.website), websiteLabel(fields.website), accentHex)));
+  if (fields.phone) rows.push(row(body, link(`tel:${telHref(fields.phone)}`, fields.phone, accentHex)));
+  if (fields.email) rows.push(row(body, link(`mailto:${fields.email}`, fields.email, accentHex)));
+  if (fields.website) rows.push(row(body, link(siteHref(fields.website), websiteLabel(fields.website), accentHex)));
 
-  if (markdown) rows.push(row(BODY_STYLE, signatureToHtml(markdown, accentHex)));
+  if (markdown) rows.push(row(body, signatureToHtml(markdown, accentHex)));
 
   return rows.join("");
 }
@@ -167,10 +168,10 @@ export function renderSignatureFields(
   if (!text) return null;
 
   const definition = SIGNATURE_TEMPLATES[fields.template];
-  const accentHex = ACCENT_HEX[fields.accent];
+  const accentHex = fields.accentHex;
   const showLogo = definition.logoPosition !== "none" && Boolean(fields.logoUrl);
   const body = textBlock(fields, markdown, accentHex);
-  const textCellStyle = `vertical-align:top;${BODY_STYLE}`;
+  const textCellStyle = `vertical-align:top;${bodyStyle(fields.fontSize)}`;
 
   const rows =
     showLogo && definition.logoPosition === "beside"

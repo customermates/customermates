@@ -2,14 +2,23 @@ import { describe, expect, it } from "vitest";
 
 import type { SignatureFields } from "../../signature-fields";
 
-import { SIGNATURE_LOGO_URL, SignatureAccent, SignatureFieldsSchema, SignatureTemplate } from "../../signature-fields";
+import {
+  DEFAULT_ACCENT_HEX,
+  SIGNATURE_ACCENT_PRESETS,
+  SIGNATURE_LOGO_URL,
+  SignatureFieldsSchema,
+  SignatureTemplate,
+  SignatureWeight,
+  contrastRatio,
+  parseSignatureFields,
+  signatureContrast,
+} from "../../signature-fields";
 import { composeEmailBodies, renderSignature } from "../email-signature";
 import { renderSignatureFields } from "../render-signature";
 
 function fields(overrides: Record<string, unknown> = {}): SignatureFields {
   return SignatureFieldsSchema.parse({
     template: SignatureTemplate.stacked,
-    accent: SignatureAccent.violet,
     fullName: "Benjamin Wagner",
     jobTitle: "Founder",
     company: "Customermates",
@@ -48,24 +57,42 @@ describe("renderSignatureFields", () => {
     expect(html).toContain('border="0"');
   });
 
-  it("keeps every declared colour readable on white and on a dark surface", () => {
+  it("keeps every colour it chooses itself readable on white and on a dark surface", () => {
     const { html } = rendered(fields());
     const hexes = [...html.matchAll(/#[0-9a-f]{6}/g)].map(([hex]) => hex);
 
-    const luminance = (hex: string) => {
-      const channel = (start: number) => {
-        const value = parseInt(hex.slice(start, start + 2), 16) / 255;
-        return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
-      };
-      return 0.2126 * channel(1) + 0.7152 * channel(3) + 0.0722 * channel(5);
-    };
-    const contrast = (a: number, b: number) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
-
     expect(hexes.length).toBeGreaterThan(0);
     for (const hex of hexes) {
-      expect(contrast(luminance(hex), luminance("#ffffff"))).toBeGreaterThanOrEqual(2.8);
-      expect(contrast(luminance(hex), luminance("#1f1f1f"))).toBeGreaterThanOrEqual(2.8);
+      expect(contrastRatio(hex, "#ffffff")).toBeGreaterThanOrEqual(2.8);
+      expect(contrastRatio(hex, "#1f1f1f")).toBeGreaterThanOrEqual(2.8);
     }
+  });
+
+  it("ships every offered accent preset above the readability floor", () => {
+    for (const preset of SIGNATURE_ACCENT_PRESETS) expect(signatureContrast(preset).readable).toBe(true);
+  });
+
+  it("flags a hand-picked accent that fails the floor rather than silently allowing it", () => {
+    expect(signatureContrast("#5e4ae3").readable).toBe(false);
+    expect(signatureContrast(DEFAULT_ACCENT_HEX).readable).toBe(true);
+  });
+
+  it("renders the chosen accent, font size and name weight", () => {
+    const { html } = rendered(fields({ accentHex: "#d23128", fontSize: 16, fontWeight: SignatureWeight.medium }));
+
+    expect(html).toContain("color:#d23128");
+    expect(html).toContain("font-size:16px");
+    expect(html).toContain("font-size:17px");
+    expect(html).toContain("font-weight:500");
+    expect(html).not.toContain(DEFAULT_ACCENT_HEX);
+  });
+
+  it("upgrades a signature stored with the old accent enum instead of dropping it", () => {
+    const upgraded = parseSignatureFields({ template: SignatureTemplate.plain, accent: "green", fullName: "Ben" });
+
+    expect(upgraded?.accentHex).toBe("#2ba449");
+    expect(upgraded?.fontSize).toBe(13);
+    expect(upgraded?.fontWeight).toBe(SignatureWeight.bold);
   });
 
   it("draws no logo cell for the text-only template", () => {

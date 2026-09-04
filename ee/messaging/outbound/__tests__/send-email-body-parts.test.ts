@@ -27,7 +27,7 @@ vi.mock("../../inbox/inbox.schema", async (importActual) => ({
 
 import { SendEmailInteractor } from "../send-email.interactor";
 import { MessagingProvider, MessagingMessageDirection } from "@/generated/prisma";
-import { SIGNATURE_LOGO_URL, SignatureAccent, SignatureFieldsSchema, SignatureTemplate } from "../../signature-fields";
+import { SIGNATURE_LOGO_URL, SignatureFieldsSchema, SignatureTemplate } from "../../signature-fields";
 
 const ACCOUNT_ID = "00000000-0000-4000-8000-000000000002";
 const THREAD_ID = "00000000-0000-4000-8000-000000000003";
@@ -55,7 +55,6 @@ function makeAccount(signature: string | null, signatureFields: unknown = null) 
 
 const structuredFields = SignatureFieldsSchema.parse({
   template: SignatureTemplate.sideBySide,
-  accent: SignatureAccent.violet,
   fullName: "Benjamin Wagner",
   jobTitle: "Founder",
   company: "Customermates",
