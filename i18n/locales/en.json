@@ -1494,6 +1494,8 @@
     "sharedOnToast": "Account shared with your workspace",
     "signature": "Email signature",
     "signatureHint": "Appended when you send from this account. Markdown is supported, so **bold** and [links](https://example.com) render in the email.",
+    "signaturePreview": "Preview",
+    "signaturePreviewEmpty": "Nothing to preview yet.",
     "signatureSave": "Save signature",
     "signatureSaved": "Signature saved",
     "signatureUpdateFailed": "Couldn'''t save the signature",
@@ -1514,7 +1516,7 @@
     "syncingTooltip": "Messages, emails and calendar events from this account are being imported in the background. This usually takes a few minutes, for large accounts up to an hour. You can keep working while it runs; new activity shows up as soon as it arrives.",
     "tabs": {
       "details": "Details",
-      "folders": "Folders",
+      "foldersCount": "Folders {shown}/{total}",
       "label": "Account sections",
       "signature": "Signature"
     },

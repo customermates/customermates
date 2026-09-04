@@ -13,7 +13,7 @@ import { AppModal, type AppModalActions } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { EmailFrame } from "@/app/[locale]/(protected)/inbox/components/email-frame";
-import { SanitizedHtml } from "@/app/[locale]/(protected)/inbox/components/sanitized-html";
+import { SanitizedHtml } from "@/components/shared/sanitized-html";
 import { sanitizeHtml } from "@/components/shared/sanitize-html";
 import { cn } from "@/core/utils/cn";
 import { isEmailProvider } from "@/ee/messaging/provider";

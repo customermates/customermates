@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { sanitizeHtml } from "@/components/shared/sanitize-html";
+import { sanitizeHtml } from "./sanitize-html";
 
 type Props = {
   html: string;

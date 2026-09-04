@@ -25,7 +25,7 @@ import { AttachmentRow } from "./attachment-row";
 import { EmailFrame } from "./email-frame";
 import { MessageAttachment } from "./message-attachment";
 import { MessageText } from "./message-text";
-import { SanitizedHtml } from "./sanitized-html";
+import { SanitizedHtml } from "@/components/shared/sanitized-html";
 
 type Props = {
   message: MessagingMessageDto;

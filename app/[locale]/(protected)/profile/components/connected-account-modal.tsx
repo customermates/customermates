@@ -135,7 +135,10 @@ export const ConnectedAccountModal = observer(() => {
 
               {showFoldersTab && (
                 <TabsTrigger id="connected-account-tab-folders" value="folders">
-                  {t("ConnectedAccountsCard.tabs.folders")}
+                  {t("ConnectedAccountsCard.tabs.foldersCount", {
+                    shown: shownFolders,
+                    total: account.folders.length,
+                  })}
                 </TabsTrigger>
               )}
             </TabsList>

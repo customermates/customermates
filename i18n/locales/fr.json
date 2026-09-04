@@ -1494,6 +1494,8 @@
     "sharedOnToast": "Compte partagé avec votre espace de travail",
     "signature": "Signature e-mail",
     "signatureHint": "Ajoutée lors de l'envoi depuis ce compte. Le Markdown est pris en charge : **gras** et [liens](https://example.com) sont rendus dans l'e-mail.",
+    "signaturePreview": "Aperçu",
+    "signaturePreviewEmpty": "Rien à prévisualiser pour le moment.",
     "signatureSave": "Enregistrer la signature",
     "signatureSaved": "Signature enregistrée",
     "signatureUpdateFailed": "Impossible d'''enregistrer la signature",
@@ -1514,7 +1516,7 @@
     "syncingTooltip": "Les messages, e-mails et évènements d'agenda de ce compte sont importés en arrière-plan. Cela prend généralement quelques minutes, jusqu'à une heure pour les gros comptes. Vous pouvez continuer à travailler pendant ce temps ; les nouvelles activités apparaissent dès leur arrivée.",
     "tabs": {
       "details": "Détails",
-      "folders": "Dossiers",
+      "foldersCount": "Dossiers {shown}/{total}",
       "label": "Sections du compte",
       "signature": "Signature"
     },

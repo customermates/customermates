@@ -1494,6 +1494,8 @@
     "sharedOnToast": "Account condiviso con il tuo spazio di lavoro",
     "signature": "Firma email",
     "signatureHint": "Aggiunta quando invii da questo account. Supporta Markdown, quindi **grassetto** e [link](https://example.com) vengono resi nell'email.",
+    "signaturePreview": "Anteprima",
+    "signaturePreviewEmpty": "Non c'è ancora nulla da visualizzare.",
     "signatureSave": "Salva firma",
     "signatureSaved": "Firma salvata",
     "signatureUpdateFailed": "Impossibile salvare la firma",
@@ -1514,7 +1516,7 @@
     "syncingTooltip": "I messaggi, le e-mail e gli eventi del calendario di questo account vengono importati in background. Di solito richiede qualche minuto, fino a un'ora per gli account di grandi dimensioni. Puoi continuare a lavorare nel frattempo; le nuove attività compaiono non appena arrivano.",
     "tabs": {
       "details": "Dettagli",
-      "folders": "Cartelle",
+      "foldersCount": "Cartelle {shown}/{total}",
       "label": "Sezioni dell'account",
       "signature": "Firma"
     },

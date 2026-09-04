@@ -7,7 +7,7 @@ import { IntlLink as Link } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { isEmailProvider } from "@/ee/messaging/provider";
 
-import { SanitizedHtml } from "./sanitized-html";
+import { SanitizedHtml } from "@/components/shared/sanitized-html";
 
 type Props = {
   connectedAccountId: string | null;
