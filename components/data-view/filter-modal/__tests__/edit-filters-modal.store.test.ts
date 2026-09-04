@@ -16,7 +16,7 @@ import { EditFiltersModalStore, FILTER_AUTO_APPLY_DELAY_MS } from "../edit-filte
 
 import { ActivityFiltersSchema } from "@/ee/messaging/activities/activities.schema";
 
-type SavedPreset = { id: string; name: string; filters: unknown };
+type SavedView = { id: string; name: string; state: { filters: unknown } };
 
 const FILTERABLE_FIELDS: FilterableField[] = [
   { field: "name", operators: ["contains", "equals", "isNull"] },
@@ -26,14 +26,14 @@ const FILTERABLE_FIELDS: FilterableField[] = [
 
 const A_CONTACT = "60000000-0000-4000-8000-000000000008";
 
-function tableStore(overrides: { filters?: Filter[]; savedFilterPresets?: SavedPreset[] } = {}) {
+function tableStore(overrides: { filters?: Filter[]; views?: SavedView[] } = {}) {
   return {
     customColumns: [],
     filterableFields: FILTERABLE_FIELDS,
     filters: overrides.filters ?? [],
     p13nId: "contacts",
-    savedFilterPresets: overrides.savedFilterPresets ?? [],
     setQueryOptions: vi.fn(),
+    views: overrides.views ?? [],
   };
 }
 
@@ -147,8 +147,8 @@ describe("EditFiltersModalStore auto-apply", () => {
 
   it("keeps unsaved named-preset edits guarded while still applying them", () => {
     const table = tableStore({
-      savedFilterPresets: [
-        { id: "preset-1", name: "Mine", filters: [{ field: "name", operator: "contains", value: "a" }] },
+      views: [
+        { id: "preset-1", name: "Mine", state: { filters: [{ field: "name", operator: "contains", value: "a" }] } },
       ],
     });
     const store = openedOn(table);
@@ -168,8 +168,8 @@ describe("EditFiltersModalStore auto-apply", () => {
 
   it("applies a selected named preset immediately", () => {
     const table = tableStore({
-      savedFilterPresets: [
-        { id: "preset-1", name: "Mine", filters: [{ field: "name", operator: "contains", value: "acme" }] },
+      views: [
+        { id: "preset-1", name: "Mine", state: { filters: [{ field: "name", operator: "contains", value: "acme" }] } },
       ],
     });
     const store = openedOn(table);
@@ -183,8 +183,8 @@ describe("EditFiltersModalStore auto-apply", () => {
     });
   });
 
-  it("survives a stored preset whose filters are not a usable array", () => {
-    const table = tableStore({ savedFilterPresets: [{ id: "preset-1", name: "Broken", filters: null }] });
+  it("survives a stored view whose filters are not a usable array", () => {
+    const table = tableStore({ views: [{ id: "preset-1", name: "Broken", state: { filters: null } }] });
     const store = openedOn(table);
 
     expect(() => store.onChange("presetId", "preset-1")).not.toThrow();

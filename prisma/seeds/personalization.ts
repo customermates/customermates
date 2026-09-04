@@ -24,7 +24,6 @@ import {
 import type { SeedContext } from "./context";
 import type { CustomFieldSeedData } from "./custom-fields";
 
-import { SYNTHETIC_DATA_VIEW_IDS } from "./data-view-ids";
 import { fixtureId } from "./helpers";
 
 export const SYNTHETIC_P13N_ID_PREFIX = "1f000000";
@@ -46,11 +45,6 @@ export const SYNTHETIC_P13N_IDS = {
   taskDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 15),
 } as const;
 
-export const SYNTHETIC_P13N_PRESET_IDS = {
-  directCustomer: fixtureId("1f100000", 1),
-  affiliatedCompany: fixtureId("1f100000", 2),
-} as const;
-
 export type SyntheticP13nFixture = Prisma.P13nCreateManyInput & { id: string };
 
 function inputJson(value: unknown): Prisma.InputJsonValue {
@@ -61,7 +55,7 @@ export function buildSyntheticP13nFixtures(
   context: Pick<SeedContext, "ids">,
   customFields: CustomFieldSeedData,
 ): SyntheticP13nFixture[] {
-  const { customColumnIds, customOptionIds } = customFields;
+  const { customColumnIds } = customFields;
   const { company, user } = context.ids;
   const userFilter = {
     field: "userIds",
@@ -112,7 +106,6 @@ export function buildSyntheticP13nFixtures(
       ],
       columnWidths: inputJson({ tasks: 133 }),
       filters: inputJson([userFilter]),
-      savedFilterPresets: inputJson([]),
       searchTerm: null,
       sortDescriptor: inputJson({ direction: "asc", field: "name" }),
       pagination: inputJson({ page: 1, pageSize: 100 }),
@@ -124,7 +117,6 @@ export function buildSyntheticP13nFixtures(
       columnOrder: [],
       columnWidths: inputJson({ role: 108 }),
       filters: inputJson([]),
-      savedFilterPresets: inputJson([]),
       searchTerm: null,
       sortDescriptor: inputJson({ direction: "desc", field: "name" }),
       pagination: inputJson({ page: 1, pageSize: 100 }),
@@ -136,7 +128,6 @@ export function buildSyntheticP13nFixtures(
       columnOrder: [customColumnIds.taskPriority, customColumnIds.taskStatus, "updatedAt", "createdAt", "users"],
       columnWidths: inputJson({}),
       filters: inputJson([userFilter]),
-      savedFilterPresets: inputJson([]),
       searchTerm: null,
       sortDescriptor: inputJson({ direction: "desc", field: "updatedAt" }),
       pagination: inputJson({ page: 1, pageSize: 100 }),
@@ -157,7 +148,6 @@ export function buildSyntheticP13nFixtures(
       columnOrder: [],
       columnWidths: inputJson({}),
       filters: inputJson([]),
-      savedFilterPresets: inputJson([]),
       searchTerm: null,
       sortDescriptor: inputJson({ direction: "asc", field: "type" }),
       pagination: inputJson({ page: 1, pageSize: 100 }),
@@ -169,7 +159,6 @@ export function buildSyntheticP13nFixtures(
       columnOrder: [],
       columnWidths: inputJson({}),
       filters: inputJson([]),
-      savedFilterPresets: inputJson([]),
       searchTerm: null,
       sortDescriptor: inputJson({ direction: "desc", field: "name" }),
       pagination: inputJson({ page: 1, pageSize: 100 }),
@@ -194,7 +183,6 @@ export function buildSyntheticP13nFixtures(
       ],
       columnWidths: inputJson({}),
       filters: inputJson([]),
-      savedFilterPresets: inputJson([]),
       searchTerm: null,
       sortDescriptor: inputJson({ direction: "desc", field: "name" }),
       pagination: inputJson({ page: 1, pageSize: 100 }),
@@ -215,7 +203,6 @@ export function buildSyntheticP13nFixtures(
       ],
       columnWidths: inputJson({}),
       filters: inputJson([]),
-      savedFilterPresets: inputJson([]),
       searchTerm: null,
       sortDescriptor: inputJson({ direction: "asc", field: "name" }),
       pagination: inputJson({ page: 1, pageSize: 100 }),
@@ -227,7 +214,6 @@ export function buildSyntheticP13nFixtures(
       columnOrder: ["event", "entityId", "createdAt", "user"],
       columnWidths: inputJson({ name: 302 }),
       filters: inputJson([]),
-      savedFilterPresets: inputJson([]),
       searchTerm: null,
       sortDescriptor: inputJson({ direction: "desc", field: "createdAt" }),
       pagination: inputJson({ page: 1, pageSize: 25 }),
@@ -239,7 +225,6 @@ export function buildSyntheticP13nFixtures(
       columnOrder: [],
       columnWidths: inputJson({}),
       filters: inputJson([]),
-      savedFilterPresets: inputJson([]),
       searchTerm: null,
       sortDescriptor: inputJson({ direction: "desc", field: "createdAt" }),
       pagination: inputJson({ page: 1, pageSize: 25 }),
@@ -248,7 +233,6 @@ export function buildSyntheticP13nFixtures(
       groupingColumnId: null,
     }),
     fixture(SYNTHETIC_P13N_IDS.organizations, "organizations-card-store", {
-      activeViewKey: SYNTHETIC_DATA_VIEW_IDS.directCustomer,
       columnOrder: [
         "contacts",
         "deals",
@@ -261,32 +245,6 @@ export function buildSyntheticP13nFixtures(
       ],
       columnWidths: inputJson({ deals: 227, tasks: 191 }),
       filters: inputJson([]),
-      savedFilterPresets: inputJson([
-        {
-          filters: [
-            {
-              field: customColumnIds.organizationType,
-              operator: "in",
-              value: [customOptionIds.organizationType.directCustomer],
-            },
-            userFilter,
-          ],
-          id: SYNTHETIC_P13N_PRESET_IDS.directCustomer,
-          name: "Direct customer",
-        },
-        {
-          filters: [
-            {
-              field: customColumnIds.organizationType,
-              operator: "in",
-              value: [customOptionIds.organizationType.affiliatedCompany],
-            },
-            userFilter,
-          ],
-          id: SYNTHETIC_P13N_PRESET_IDS.affiliatedCompany,
-          name: "Affiliated company",
-        },
-      ]),
       searchTerm: null,
       sortDescriptor: inputJson({ direction: "asc", field: "name" }),
       pagination: inputJson({ page: 1, pageSize: 100 }),

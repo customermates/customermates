@@ -8,13 +8,30 @@ import { describe, expect, it } from "vitest";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 const MIGRATION = "20260904120000_saved_data_views";
-const BACKFILL_MARKER = 'INSERT INTO "DataView" (';
+const BACKFILL_MARKER = 'INSERT INTO "DataViewOverride" (';
 const migrationsRoot = join(process.cwd(), "prisma/migrations");
 
 const COMPANY_ID = "co-backfill";
 const USER_ID = "user-backfill";
-const FIRST_PRESET_ID = "11111111-1111-4111-8111-111111111111";
-const SECOND_PRESET_ID = "22222222-2222-4222-8222-222222222222";
+const P13N_COLUMNS_AFTER_MIGRATION = [
+  "activeViewKey",
+  "columnOrder",
+  "columnWidths",
+  "companyId",
+  "createdAt",
+  "detailOptions",
+  "filters",
+  "groupingColumnId",
+  "hiddenColumns",
+  "id",
+  "p13nId",
+  "pagination",
+  "searchTerm",
+  "sortDescriptor",
+  "updatedAt",
+  "userId",
+  "viewMode",
+];
 
 function migrationNames() {
   return readdirSync(migrationsRoot, { withFileTypes: true })
@@ -61,7 +78,6 @@ async function withTemporaryDatabase<T>(databaseUrl: string, fn: (client: Client
 type LegacyP13n = {
   p13nId: string;
   filters?: unknown;
-  savedFilterPresets?: unknown;
   searchTerm?: string | null;
   sortDescriptor?: unknown;
   pagination?: unknown;
@@ -75,17 +91,16 @@ type LegacyP13n = {
 async function seedLegacy(client: Client, row: LegacyP13n) {
   await client.query(
     `INSERT INTO "P13n" (
-       "id", "userId", "companyId", "p13nId", "filters", "savedFilterPresets", "searchTerm",
+       "id", "userId", "companyId", "p13nId", "filters", "searchTerm",
        "sortDescriptor", "pagination", "columnOrder", "columnWidths", "hiddenColumns",
        "viewMode", "groupingColumnId", "updatedAt"
-     ) VALUES ($1, $2, $3, $4, $5::jsonb, $6::jsonb, $7, $8::jsonb, $9::jsonb, $10::text[], $11::jsonb, $12::text[], $13, $14, NOW())`,
+     ) VALUES ($1, $2, $3, $4, $5::jsonb, $6, $7::jsonb, $8::jsonb, $9::text[], $10::jsonb, $11::text[], $12, $13, NOW())`,
     [
       `p13n-${row.p13nId}`,
       USER_ID,
       COMPANY_ID,
       row.p13nId,
       row.filters === undefined ? null : JSON.stringify(row.filters),
-      row.savedFilterPresets === undefined ? null : JSON.stringify(row.savedFilterPresets),
       row.searchTerm ?? null,
       row.sortDescriptor === undefined ? null : JSON.stringify(row.sortDescriptor),
       row.pagination === undefined ? null : JSON.stringify(row.pagination),
@@ -109,11 +124,6 @@ async function seedFixtures(client: Client) {
   await seedLegacy(client, {
     p13nId: "contacts-card-store",
     filters: [{ field: "firstName", operator: "contains", value: "ada" }],
-    savedFilterPresets: [
-      { id: FIRST_PRESET_ID, name: "Direct customers", filters: [{ field: "type", operator: "is", value: "direct" }] },
-      { id: SECOND_PRESET_ID, name: "Cold leads", filters: [] },
-      { id: "33333333-3333-4333-8333-333333333333", filters: [] },
-    ],
     searchTerm: "ada",
     sortDescriptor: { column: "firstName", direction: "ascending" },
     pagination: { page: 3, pageSize: 100 },
@@ -162,7 +172,7 @@ function requiredDatabaseUrl() {
 }
 
 describeDatabase("saved data views backfill migration", { timeout: 180_000 }, () => {
-  it("lifts presets into views and list state into __all__ overrides", async () => {
+  it("lifts list state into __all__ overrides and creates no views", async () => {
     await withTemporaryDatabase(requiredDatabaseUrl(), async (client) => {
       const names = migrationNames();
       const cut = names.indexOf(MIGRATION);
@@ -173,28 +183,9 @@ describeDatabase("saved data views backfill migration", { timeout: 180_000 }, ()
 
       await applyMigrations(client, names.slice(cut));
 
-      const views = await rows<{
-        id: string;
-        name: string;
-        position: number;
-        surfaceKey: string;
-        visibility: string;
-        filters: unknown;
-      }>(
-        client,
-        `SELECT "id", "name", "position", "surfaceKey", "visibility"::text AS "visibility", "filters"
-           FROM "DataView" WHERE "companyId" = $1 ORDER BY "position"`,
-        [COMPANY_ID],
-      );
+      const views = await rows<{ id: string }>(client, `SELECT "id" FROM "DataView"`);
 
-      expect(views).toHaveLength(2);
-      expect(views.map((view) => [view.id, view.name, view.position])).toEqual([
-        [FIRST_PRESET_ID, "Direct customers", 0],
-        [SECOND_PRESET_ID, "Cold leads", 1],
-      ]);
-      expect(views.every((view) => view.surfaceKey === "contacts-card-store")).toBe(true);
-      expect(views.every((view) => view.visibility === "private")).toBe(true);
-      expect(views[0]?.filters).toEqual([{ field: "type", operator: "is", value: "direct" }]);
+      expect(views).toHaveLength(0);
 
       const overrides = await rows<{
         surfaceKey: string;
@@ -257,6 +248,13 @@ describeDatabase("saved data views backfill migration", { timeout: 180_000 }, ()
           WHERE "table_name" = 'DataViewOverride' AND "column_name" IN ('page', 'pagination')`,
       );
       expect(columns).toHaveLength(0);
+
+      const personalizationColumns = await rows<{ column_name: string }>(
+        client,
+        `SELECT "column_name" FROM information_schema.columns
+          WHERE "table_name" = 'P13n' ORDER BY "column_name"`,
+      );
+      expect(personalizationColumns.map(({ column_name }) => column_name)).toEqual(P13N_COLUMNS_AFTER_MIGRATION);
 
       const activeViewKey = await rows<{ activeViewKey: string | null }>(
         client,

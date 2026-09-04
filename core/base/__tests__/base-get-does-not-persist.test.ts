@@ -186,14 +186,7 @@ describe("a GET never persists what the user is looking at", () => {
 
 describe("a read with no surface key says nothing about views", () => {
   const undocumentedKeys = Object.keys(DataViewResultFields);
-  const documentedButSurfaceOnlyKeys = [
-    "columnOrder",
-    "columnWidths",
-    "hiddenColumns",
-    "viewMode",
-    "groupingColumnId",
-    "savedFilterPresets",
-  ];
+  const documentedButSurfaceOnlyKeys = ["columnOrder", "columnWidths", "hiddenColumns", "viewMode", "groupingColumnId"];
 
   it("emits none of the fields the documented REST result schema does not declare", async () => {
     const { data } = await invokeWith({ filters: storedFilters, searchTerm: "munich" });
@@ -201,7 +194,7 @@ describe("a read with no surface key says nothing about views", () => {
     expect(undocumentedKeys.filter((key) => key in data)).toEqual([]);
   });
 
-  it("emits no layout, view mode or preset projection either", async () => {
+  it("emits no layout or view mode projection either", async () => {
     const { data } = await invokeWith({ filters: storedFilters, viewMode: ViewMode.card });
 
     expect(documentedButSurfaceOnlyKeys.filter((key) => key in data)).toEqual([]);

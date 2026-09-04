@@ -289,7 +289,6 @@ model P13n {
   companyId          String
   p13nId             String
   filters            Json?
-  savedFilterPresets Json?
   searchTerm         String?
   sortDescriptor     Json?
   pagination         Json?

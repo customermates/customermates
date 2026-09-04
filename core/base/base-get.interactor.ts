@@ -16,7 +16,6 @@ import type {
   GroupedPaginationRequest,
   PaginationRequest,
   PaginationResponse,
-  SavedFilterPreset,
   SortDescriptor,
 } from "./base-get.schema";
 
@@ -45,7 +44,6 @@ export interface GetResult<T> {
   columnOrder?: string[];
   columnWidths?: Record<string, number>;
   hiddenColumns?: string[];
-  savedFilterPresets?: SavedFilterPreset[];
   viewMode?: ViewMode;
   groupingColumnId?: string;
   groupCounts?: Record<string, number>;
@@ -357,7 +355,6 @@ function viewResult(surfaceKey: string | undefined, resolved: ResolvedDataViewSt
     viewCanShare: isShareableSurface(surfaceKey) && context.isOwner,
     viewPersistable: env.APP_MODE !== "demo",
     viewUnavailable: context.unavailable,
-    savedFilterPresets: context.views.map(({ id, name, state }) => ({ id, name, filters: state.filters ?? [] })),
   };
 }
 

@@ -68,8 +68,8 @@ export class EditFiltersModalStore extends BaseModalStore<EditFiltersForm> {
   }
 
   get savedPresets() {
-    const presets = this.tableStore?.savedFilterPresets;
-    return Array.isArray(presets) ? presets : [];
+    const views = this.tableStore?.views;
+    return Array.isArray(views) ? views : [];
   }
 
   get isCreatingPreset() {
@@ -149,12 +149,15 @@ export class EditFiltersModalStore extends BaseModalStore<EditFiltersForm> {
       return;
     }
 
-    const preset = this.tableStore?.savedFilterPresets?.find((p) => p.id === presetId);
+    const preset = this.savedPresets.find((view) => view.id === presetId);
     if (!preset) return;
 
     this.cancelPendingAutoApply();
     this.form = {
-      filters: this.mergeFiltersWithFilterableFields(this.tableStore?.filterableFields ?? [], preset.filters),
+      filters: this.mergeFiltersWithFilterableFields(
+        this.tableStore?.filterableFields ?? [],
+        preset.state.filters ?? [],
+      ),
       presetId: presetId,
       p13nId: this.tableStore?.p13nId ?? "",
       name: preset.name,

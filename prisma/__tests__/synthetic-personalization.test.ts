@@ -3,12 +3,7 @@ import type { PrismaClient } from "@/generated/prisma";
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
-import {
-  FilterSchema,
-  PaginationRequestSchema,
-  SavedFilterPresetSchema,
-  SortDescriptorSchema,
-} from "@/core/base/base-get.schema";
+import { FilterSchema, PaginationRequestSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { EntityDetailOptionsSchema } from "@/features/p13n/p13n.schema";
 
@@ -20,7 +15,6 @@ import {
   persistSyntheticP13nFixtures,
   SYNTHETIC_P13N_IDS,
   SYNTHETIC_P13N_ID_PREFIX,
-  SYNTHETIC_P13N_PRESET_IDS,
   type SyntheticP13nFixture,
 } from "../seeds/personalization";
 
@@ -58,8 +52,6 @@ describe("synthetic personalization fixtures", () => {
     );
     for (const fixture of fixtures) {
       if (fixture.filters !== undefined) expect(z.array(FilterSchema).safeParse(fixture.filters).success).toBe(true);
-      if (fixture.savedFilterPresets !== undefined)
-        expect(z.array(SavedFilterPresetSchema).safeParse(fixture.savedFilterPresets).success).toBe(true);
       if (fixture.sortDescriptor !== undefined)
         expect(SortDescriptorSchema.safeParse(fixture.sortDescriptor).success).toBe(true);
       if (fixture.pagination !== undefined)
@@ -147,8 +139,7 @@ describe("synthetic personalization fixtures", () => {
       viewMode: "table",
     });
 
-    const organizations = byP13nId.get("organizations-card-store");
-    expect(organizations).toMatchObject({
+    expect(byP13nId.get("organizations-card-store")).toMatchObject({
       columnOrder: [
         "contacts",
         "deals",
@@ -163,32 +154,6 @@ describe("synthetic personalization fixtures", () => {
       hiddenColumns: ["createdAt"],
       viewMode: "table",
     });
-    expect(organizations?.savedFilterPresets).toEqual([
-      {
-        filters: [
-          {
-            field: SYNTHETIC_CUSTOM_COLUMN_IDS.organizationType,
-            operator: "in",
-            value: [SYNTHETIC_CUSTOM_OPTION_IDS.organizationType.directCustomer],
-          },
-          { field: "userIds", operator: "in", value: [SEED_IDS.user] },
-        ],
-        id: SYNTHETIC_P13N_PRESET_IDS.directCustomer,
-        name: "Direct customer",
-      },
-      {
-        filters: [
-          {
-            field: SYNTHETIC_CUSTOM_COLUMN_IDS.organizationType,
-            operator: "in",
-            value: [SYNTHETIC_CUSTOM_OPTION_IDS.organizationType.affiliatedCompany],
-          },
-          { field: "userIds", operator: "in", value: [SEED_IDS.user] },
-        ],
-        id: SYNTHETIC_P13N_PRESET_IDS.affiliatedCompany,
-        name: "Affiliated company",
-      },
-    ]);
 
     expect(byP13nId.get("users-card-store")).toMatchObject({
       columnWidths: { role: 108 },

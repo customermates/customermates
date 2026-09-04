@@ -4,7 +4,6 @@ import type { Filter, FilterableField, GroupValueSums, PaginationRequest, SortDe
 import type { GetResult } from "./base-get.interactor";
 import type { GetQueryParams, GroupedPaginationRequest } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { SavedFilterPreset } from "@/core/base/base-get.schema";
 import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
 import type { DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
 
@@ -83,7 +82,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   columnOrder: string[] = [];
   columnWidths: Record<string, number> = {};
   hiddenColumns: string[] = [];
-  savedFilterPresets?: SavedFilterPreset[] = undefined;
   views: DataViewChipDto[] = [];
   activeViewKey: string = ALL_VIEW_KEY;
   viewIsDirty = false;
@@ -137,7 +135,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       hiddenColumns: observable,
       columnOrder: observable,
       columnWidths: observable,
-      savedFilterPresets: observable,
       views: observable,
       activeViewKey: observable,
       viewIsDirty: observable,
@@ -535,7 +532,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.filters = this.withKnownFields(args.filters);
     this.columnWidths = args.columnWidths || {};
     this.hiddenColumns = (args.hiddenColumns ?? []).filter((uid) => uid !== "name");
-    this.savedFilterPresets = args.savedFilterPresets;
     this.columnOrder = (args.columnOrder ?? []).filter((uid) => uid !== "name");
     this.viewMode = args.viewMode ?? ViewMode.table;
     this.groupingColumnId = args.groupingColumnId;

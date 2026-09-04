@@ -1,3 +1,28 @@
+-- Saved views become first-class objects: DataView (a named state that can be shared with
+-- the workspace) and DataViewOverride (one user's uncommitted edit of one view), plus
+-- P13n."activeViewKey" to remember which view a user last had open.
+--
+-- Saved filter presets are removed rather than migrated. A preset carried a name and a
+-- filter list and nothing else, so it is recreated as a view in seconds, and a
+-- compatibility path is not worth the surface it costs. The backfill below therefore
+-- creates no DataView rows. It only lifts each user's current list state into their
+-- '__all__' override, so the filters, sort and layout they are looking at today survive.
+--
+-- DESTRUCTIVE: the DROP COLUMN below deletes P13n."savedFilterPresets" and its contents,
+-- so rolling this back is NOT merely dropping the objects it added. Reverse sequence:
+--   ALTER TABLE "P13n" ADD COLUMN "savedFilterPresets" JSONB;
+--   ALTER TABLE "P13n" DROP COLUMN "activeViewKey";
+--   DROP TABLE "DataViewOverride";
+--   DROP TABLE "DataView";
+--   DROP TYPE "DataViewVisibility";
+-- The ADD COLUMN is mandatory and comes first. Any build older than this migration lists
+-- "savedFilterPresets" explicitly in the SELECT it issues for every list surface, so
+-- without that column every list read fails with Postgres 42703 and no amount of
+-- redeploying the old build recovers it. Preset contents are gone; the column returns
+-- empty. The same exposure exists briefly on every normal deploy, because
+-- scripts/vercel-build.sh migrates before the new deployment is promoted and the previous
+-- one keeps serving until it is.
+
 CREATE TYPE "DataViewVisibility" AS ENUM ('private', 'workspace');
 
 CREATE TABLE "DataView" (
@@ -63,31 +88,8 @@ ALTER TABLE "DataViewOverride" ADD CONSTRAINT "DataViewOverride_viewKey_matches_
 
 ALTER TABLE "P13n" ADD COLUMN "activeViewKey" TEXT;
 
-INSERT INTO "DataView" (
-    "id", "companyId", "userId", "surfaceKey", "name", "visibility", "position",
-    "filters", "createdAt", "updatedAt"
-)
-SELECT
-    preset->>'id',
-    p."companyId",
-    p."userId",
-    p."p13nId",
-    preset->>'name',
-    'private',
-    (ordinality - 1)::int,
-    preset->'filters',
-    p."createdAt",
-    p."updatedAt"
-FROM "P13n" p
-CROSS JOIN LATERAL jsonb_array_elements(p."savedFilterPresets") WITH ORDINALITY AS t(preset, ordinality)
-WHERE jsonb_typeof(p."savedFilterPresets") = 'array'
-  AND jsonb_typeof(preset) = 'object'
-  AND preset ? 'id'
-  AND preset ? 'name'
-  AND length(preset->>'id') > 0
-  AND length(preset->>'name') > 0
-  AND jsonb_typeof(preset->'filters') = 'array'
-ON CONFLICT ("id") DO NOTHING;
+-- Destructive, and the first step of any rollback is to add this column back. See header.
+ALTER TABLE "P13n" DROP COLUMN "savedFilterPresets";
 
 INSERT INTO "DataViewOverride" (
     "id", "companyId", "userId", "surfaceKey", "viewKey", "viewId",

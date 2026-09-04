@@ -80,31 +80,9 @@ export function buildSyntheticDataViewFixtures(
   customFields: CustomFieldSeedData,
 ): SyntheticDataViewFixture[] {
   const { customColumnIds, customOptionIds } = customFields;
-  const { user, sofiaRossiUser } = context.ids;
-  const organizationTypeFilter = (optionId: string): Filter[] => [
-    { field: customColumnIds.organizationType, operator: FilterOperatorKey.in, value: [optionId] },
-    { field: "userIds", operator: FilterOperatorKey.in, value: [user] },
-  ];
+  const { sofiaRossiUser } = context.ids;
 
   return [
-    {
-      id: SYNTHETIC_DATA_VIEW_IDS.directCustomer,
-      userId: user,
-      surfaceKey: SURFACE.organizations,
-      name: "Direct customer",
-      visibility: "private",
-      position: 0,
-      state: { filters: organizationTypeFilter(customOptionIds.organizationType.directCustomer) },
-    },
-    {
-      id: SYNTHETIC_DATA_VIEW_IDS.affiliatedCompany,
-      userId: user,
-      surfaceKey: SURFACE.organizations,
-      name: "Affiliated company",
-      visibility: "private",
-      position: 1,
-      state: { filters: organizationTypeFilter(customOptionIds.organizationType.affiliatedCompany) },
-    },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.sharedOpenDeals,
       userId: sofiaRossiUser,

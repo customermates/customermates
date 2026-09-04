@@ -19,7 +19,7 @@ import {
   SYNTHETIC_DATA_VIEW_OVERRIDE_ID_PREFIX,
 } from "../seeds/data-views";
 import { fixtureId } from "../seeds/helpers";
-import { buildSyntheticP13nFixtures, SYNTHETIC_P13N_PRESET_IDS } from "../seeds/personalization";
+import { buildSyntheticP13nFixtures } from "../seeds/personalization";
 
 const customFields = {
   customColumnIds: SYNTHETIC_CUSTOM_COLUMN_IDS,
@@ -98,11 +98,11 @@ function createSeedPrisma(
 }
 
 describe("synthetic data view fixtures", () => {
-  it("seeds the migrated presets, one shared cross-user view, and one All override per list surface", () => {
+  it("seeds one shared cross-user view and one All override per list surface", () => {
     const viewFixtures = views();
     const overrideFixtures = overrides();
 
-    expect(viewFixtures).toHaveLength(3);
+    expect(viewFixtures).toHaveLength(1);
     expect(overrideFixtures).toHaveLength(10);
     expect(viewFixtures.map(({ id }) => id)).toEqual(Object.values(SYNTHETIC_DATA_VIEW_IDS));
     expect(viewFixtures.every(({ id }) => id.startsWith(`${SYNTHETIC_DATA_VIEW_ID_PREFIX}-`))).toBe(true);
@@ -110,12 +110,10 @@ describe("synthetic data view fixtures", () => {
       overrideFixtures.map((_, index) => fixtureId(SYNTHETIC_DATA_VIEW_OVERRIDE_ID_PREFIX, index + 1)),
     );
 
-    expect(SYNTHETIC_DATA_VIEW_IDS.directCustomer).toBe(SYNTHETIC_P13N_PRESET_IDS.directCustomer);
-    expect(SYNTHETIC_DATA_VIEW_IDS.affiliatedCompany).toBe(SYNTHETIC_P13N_PRESET_IDS.affiliatedCompany);
-
     expect(viewFixtures.filter(({ visibility }) => visibility === "workspace").map(({ name }) => name)).toEqual([
       "Open deals",
     ]);
+    expect(viewFixtures.every(({ userId }) => userId !== SEED_IDS.user)).toBe(true);
     expect(viewFixtures.find(({ name }) => name === "Open deals")).toMatchObject({
       id: SYNTHETIC_DATA_VIEW_IDS.sharedOpenDeals,
       position: 0,
@@ -132,22 +130,6 @@ describe("synthetic data view fixtures", () => {
         groupingColumnId: SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus,
         viewMode: "card",
       },
-    });
-    expect(
-      viewFixtures.filter(({ userId }) => userId === SEED_IDS.user).map(({ name, position }) => [name, position]),
-    ).toEqual([
-      ["Direct customer", 0],
-      ["Affiliated company", 1],
-    ]);
-    expect(viewFixtures.find(({ id }) => id === SYNTHETIC_DATA_VIEW_IDS.directCustomer)?.state).toEqual({
-      filters: [
-        {
-          field: SYNTHETIC_CUSTOM_COLUMN_IDS.organizationType,
-          operator: "in",
-          value: [SYNTHETIC_CUSTOM_OPTION_IDS.organizationType.directCustomer],
-        },
-        { field: "userIds", operator: "in", value: [SEED_IDS.user] },
-      ],
     });
 
     for (const fixture of [...viewFixtures, ...overrideFixtures]) {
