@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 
-import { PublicGoogleAdsConsent } from "@/components/acquisition/public-google-ads-consent";
+import { PublicAdAttributionConsentCard } from "@/components/acquisition/public-ad-attribution-consent";
 import { env } from "@/env";
 import { isContentLocale } from "@/i18n/locale-registry";
 import { routing } from "@/i18n/routing";
@@ -30,7 +30,7 @@ export default async function LocaleLayout({ children, params }: Props) {
     <>
       {children}
 
-      {env.APP_MODE === "cloud" && isContentLocale(locale) ? <PublicGoogleAdsConsent /> : null}
+      {env.APP_MODE === "cloud" && isContentLocale(locale) ? <PublicAdAttributionConsentCard /> : null}
     </>
   );
 }

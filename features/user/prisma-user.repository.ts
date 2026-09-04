@@ -17,13 +17,13 @@ import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
 import type { DeactivateUsersAfterSubscriptionGracePeriodRepo } from "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.interactor";
 import type { WebhookUserRepo } from "@/ee/messaging/webhooks/account/account-webhook.repo";
 import type { SendLegalDocumentNoticesRepo } from "@/ee/lifecycle/send-legal-document-notices.interactor";
-import type { ExpireGoogleAdsClickIdsRepo } from "@/ee/lifecycle/expire-google-ads-click-ids.interactor";
-import type { WithdrawGoogleAdsAttributionRepo } from "@/features/acquisition/withdraw-google-ads-attribution.interactor";
+import type { ExpireAdAttributionRepo } from "@/ee/lifecycle/expire-ad-attribution.interactor";
+import type { WithdrawAdAttributionRepo } from "@/features/acquisition/withdraw-ad-attribution.interactor";
 
 import { randomUUID } from "node:crypto";
 
 import { getTranslations } from "next-intl/server";
-import { CustomColumnType, EntityType, Status, SubscriptionStatus } from "@/generated/prisma";
+import { ConversionEventType, CustomColumnType, EntityType, Status, SubscriptionStatus } from "@/generated/prisma";
 
 import { type UserDto } from "./user.schema";
 
@@ -97,8 +97,8 @@ export class PrismaUserRepo
     CompleteOnboardingWizardRepo,
     WebhookUserRepo,
     SendLegalDocumentNoticesRepo,
-    ExpireGoogleAdsClickIdsRepo,
-    WithdrawGoogleAdsAttributionRepo
+    ExpireAdAttributionRepo,
+    WithdrawAdAttributionRepo
 {
   @BypassTenantGuard
   async findUserByIdOrThrowUnscoped(userId: string) {
@@ -376,13 +376,33 @@ export class PrismaUserRepo
         roleId: adminRole.id,
         lastActiveAt: new Date(),
         agentCreditActivatedAt: new Date(),
-        googleAdsClickId: args.googleAdsAttribution?.clickId ?? null,
-        googleAdsClickIdKind: args.googleAdsAttribution?.clickIdKind ?? null,
-        googleAdsClickIdCapturedAt: args.googleAdsAttribution?.capturedAt ?? null,
-        googleAdsAttributionConsentedAt: args.googleAdsAttribution?.consentedAt ?? null,
-        googleAdsClickIdExpiresAt: args.googleAdsAttribution?.expiresAt ?? null,
       },
     });
+
+    const attributions = args.adAttribution ?? [];
+
+    for (const attribution of attributions) {
+      await this.prisma.adAttribution.create({
+        data: {
+          companyId: company.id,
+          userId: user.id,
+          provider: attribution.provider,
+          identifierKind: attribution.identifierKind,
+          identifierValue: attribution.identifierValue,
+          clickedAt: attribution.clickedAt,
+          capturedAt: attribution.capturedAt,
+          consentedAt: attribution.consentedAt,
+          consentNoticeVersion: attribution.consentNoticeVersion,
+          expiresAt: attribution.expiresAt,
+        },
+      });
+    }
+
+    if (attributions.length > 0) {
+      await this.prisma.conversionEvent.create({
+        data: { companyId: company.id, type: ConversionEventType.signup, occurredAt: user.createdAt },
+      });
+    }
 
     const tenantUser = await this.prisma.user.findUniqueOrThrow({
       where: { id: user.id },
@@ -392,42 +412,16 @@ export class PrismaUserRepo
     return tenantUser;
   }
 
-  async clearGoogleAdsAttributionForUser(args: { userId: string }) {
-    const result = await this.prisma.user.updateMany({
-      where: {
-        id: args.userId,
-        companyId: this.companyId,
-        OR: [
-          { googleAdsClickId: { not: null } },
-          { googleAdsClickIdKind: { not: null } },
-          { googleAdsClickIdCapturedAt: { not: null } },
-          { googleAdsAttributionConsentedAt: { not: null } },
-          { googleAdsClickIdExpiresAt: { not: null } },
-        ],
-      },
-      data: {
-        googleAdsClickId: null,
-        googleAdsClickIdKind: null,
-        googleAdsClickIdCapturedAt: null,
-        googleAdsAttributionConsentedAt: null,
-        googleAdsClickIdExpiresAt: null,
-      },
+  async clearAdAttributionForUser(args: { userId: string }) {
+    const result = await this.prisma.adAttribution.deleteMany({
+      where: { userId: args.userId, companyId: this.companyId },
     });
-    return result.count === 1;
+    return result.count > 0;
   }
 
   @BypassTenantGuard
-  async expireGoogleAdsClickIdsUnscoped(now: Date) {
-    const result = await this.prisma.user.updateMany({
-      where: { googleAdsClickIdExpiresAt: { lte: now } },
-      data: {
-        googleAdsClickId: null,
-        googleAdsClickIdKind: null,
-        googleAdsClickIdCapturedAt: null,
-        googleAdsAttributionConsentedAt: null,
-        googleAdsClickIdExpiresAt: null,
-      },
-    });
+  async expireAdAttributionUnscoped(now: Date) {
+    const result = await this.prisma.adAttribution.deleteMany({ where: { expiresAt: { lte: now } } });
     return result.count;
   }
 

@@ -454,7 +454,7 @@ describe("entity detail section", () => {
             defaultCollapsedSectionIds: [],
             sectionIds: ["customFields"],
           },
-          customColumnIds: [],
+          customColumnIds: [firstId],
           persistenceScope: "user-1",
         },
         createElement(
@@ -462,7 +462,7 @@ describe("entity detail section", () => {
           null,
           createElement(EntityDetailCustomFieldsSection, {
             canManage: true,
-            columns: [],
+            columns: [{ id: firstId, entityType: EntityType.contact, label: "Industry", type: CustomColumnType.plain }],
             entityType: EntityType.contact,
             isEditing: true,
             sectionId: "customFields",

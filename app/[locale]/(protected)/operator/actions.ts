@@ -3,6 +3,7 @@
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 
 import {
+  getGetAdConversionExportInteractor,
   getGetOperatorAuditLogsInteractor,
   getGetOperatorUsersInteractor,
   getGetOperatorWorkspacesInteractor,
@@ -20,6 +21,10 @@ export async function getOperatorWorkspacesAction(params?: GetQueryParams) {
 
 export async function getOperatorAuditAction(params?: GetQueryParams) {
   return unwrapValidated(getGetOperatorAuditLogsInteractor().invoke(params));
+}
+
+export async function getAdConversionExportAction() {
+  return unwrapValidated(getGetAdConversionExportInteractor().invoke());
 }
 
 export async function getOperatorWorkspaceTagsAction() {

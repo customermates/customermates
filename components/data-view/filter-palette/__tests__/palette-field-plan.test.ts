@@ -66,7 +66,7 @@ const EXPECTED_STANDARD: Record<FilterFieldKey, Expected> = {
   [FilterFieldKey.createdAt]: RELATIVE_DATE,
   [FilterFieldKey.dealIds]: SELECT,
   [FilterFieldKey.event]: SELECT,
-  [FilterFieldKey.googleAdsClickId]: OPERATOR_ONLY,
+  [FilterFieldKey.adProvider]: SELECT,
   [FilterFieldKey.isPlatformOperator]: SELECT,
   [FilterFieldKey.lastActiveAt]: RELATIVE_DATE,
   [FilterFieldKey.organizationIds]: SELECT,

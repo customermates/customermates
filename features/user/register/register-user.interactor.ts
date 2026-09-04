@@ -23,9 +23,9 @@ import { zx } from "@/core/validation/validation.utils";
 import { accountStateRedirect } from "@/features/auth/account-state";
 import { redirectTo } from "@/features/auth/auth-outcome";
 import {
-  RegistrationGoogleAdsAttributionSchema,
-  type RegistrationGoogleAdsAttribution,
-} from "@/features/acquisition/google-ads-consent.schema";
+  RegistrationAdAttributionSchema,
+  type RegistrationAdAttribution,
+} from "@/features/acquisition/ad-attribution.schema";
 
 const Schema = z
   .object({
@@ -54,19 +54,19 @@ export type RegisterUserResult = Data<typeof OutputSchema>;
 
 const RegistrationSchema = Schema.extend({
   sessionUserId: z.string().min(1),
-  googleAdsAttribution: RegistrationGoogleAdsAttributionSchema.nullable(),
+  adAttribution: z.array(RegistrationAdAttributionSchema),
 });
 type RegistrationData = Data<typeof RegistrationSchema>;
 
 type RegistrationContext = {
-  googleAdsAttribution?: RegistrationGoogleAdsAttribution | null;
+  adAttribution?: RegistrationAdAttribution[];
 };
 
 export abstract class RegisterUserRepo {
   abstract findCompanyIdUnscoped(userId: string): Promise<string | null>;
   abstract createCompanyAndUser(
     args: RegisterUserData & {
-      googleAdsAttribution?: RegistrationGoogleAdsAttribution | null;
+      adAttribution?: RegistrationAdAttribution[];
     },
   ): Promise<TenantUser>;
   abstract registerExistingCompany(args: RegisterUserData & { companyId: string }): Promise<TenantUser>;
@@ -93,7 +93,7 @@ export class RegisterUserInteractor {
       ...data,
       email: resolution.sessionUser.email,
       sessionUserId: resolution.sessionUser.id,
-      googleAdsAttribution: context.googleAdsAttribution ?? null,
+      adAttribution: context.adAttribution ?? [],
     });
   }
 
@@ -101,14 +101,14 @@ export class RegisterUserInteractor {
   @Transaction
   @ValidateOutput(OutputSchema)
   private async register(data: RegistrationData): Promise<Awaited<Validated<RegisterUserResult>>> {
-    const { sessionUserId, googleAdsAttribution, ...registrationData } = data;
+    const { sessionUserId, adAttribution, ...registrationData } = data;
 
     const companyId = await this.repo.findCompanyIdUnscoped(sessionUserId);
     const isNewCloudCompany = env.APP_MODE === "cloud" && !companyId;
-    const eligibleGoogleAdsAttribution =
-      env.APP_MODE === "cloud" && googleAdsAttribution !== null && googleAdsAttribution.expiresAt.getTime() > Date.now()
-        ? googleAdsAttribution
-        : null;
+    const eligibleAdAttribution =
+      env.APP_MODE === "cloud"
+        ? adAttribution.filter((attribution) => attribution.expiresAt.getTime() > Date.now())
+        : [];
 
     const tenantUser = companyId
       ? await this.repo.registerExistingCompany({
@@ -117,7 +117,7 @@ export class RegisterUserInteractor {
         })
       : await this.repo.createCompanyAndUser({
           ...registrationData,
-          googleAdsAttribution: eligibleGoogleAdsAttribution,
+          adAttribution: eligibleAdAttribution,
         });
 
     await runWithTenant(tenantUser, async () => {

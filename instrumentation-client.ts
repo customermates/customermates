@@ -2,6 +2,7 @@ import * as Sentry from "@sentry/nextjs";
 
 import { errorDigest } from "@/core/errors/error-digest";
 import { isExpectedError } from "@/core/errors/app-errors";
+import { scrubAdIdentifiersFromEvent } from "@/core/errors/scrub-ad-identifiers";
 
 const sentryDsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
 const sentryEnabled = Boolean(sentryDsn);
@@ -23,7 +24,7 @@ if (sentryEnabled) {
       const digest = errorDigest(hint?.originalException);
       if (digest) event.tags = { ...event.tags, digest };
 
-      return event;
+      return scrubAdIdentifiersFromEvent(event);
     },
   });
 }

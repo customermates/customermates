@@ -57,7 +57,7 @@ const FILTERABLE_FIELDS: FilterableField[] = [
       FilterOperatorKey.inLastDays,
     ],
   },
-  { field: "googleAdsClickId", operators: [FilterOperatorKey.isNull, FilterOperatorKey.isNotNull] },
+  { field: "adProvider", operators: [FilterOperatorKey.in, FilterOperatorKey.notIn] },
   {
     field: CURRENCY_COLUMN,
     operators: [FilterOperatorKey.gte, FilterOperatorKey.lte, FilterOperatorKey.isNull],
@@ -172,7 +172,7 @@ describe("filter palette pages", () => {
     expect(render(table), "select page").toContain("cmdk-root");
 
     palette.pop();
-    palette.pickField("googleAdsClickId");
+    palette.pickField("adProvider");
     expect(render(table), "operator page").toContain("cmdk-root");
 
     palette.pop();

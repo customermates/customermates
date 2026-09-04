@@ -9,7 +9,8 @@
   },
   "AcquisitionConsent": {
     "allowAttribution": "Erlauben",
-    "description": "Es sieht so aus, als wärst du über eine Google-Anzeige zu uns gekommen. Mit deiner Erlaubnis merken wir uns diesen Anzeigenbesuch bis zu 90 Tage lang und verknüpfen ihn mit deinem Customermates-Konto, wenn du einen neuen Workspace erstellst. So verstehen wir besser, welche Anzeigen hilfreich sind.",
+    "description": "Sie sind über eine {provider}-Anzeige zu uns gekommen. Dürfen wir diesen Besuch bis zu {days} Tage speichern, ihn mit Ihrem Konto verknüpfen, falls Sie sich registrieren, und {provider} mitteilen, dass die Anzeige zu einer Registrierung oder einem kostenpflichtigen Abonnement geführt hat? {provider} erhält dabei nur die eigene Klickkennung aus dem Anzeigenlink zurück, nie Ihren Namen, Ihre E-Mail-Adresse oder etwas anderes, das Sie uns geben. Beide Auswahlmöglichkeiten speichern ein kleines Cookie; Sie können Ihre Entscheidung jederzeit unter „Datenschutzauswahl“ ändern.",
+    "descriptionGeneric": "Sie sind über eine Anzeige zu uns gekommen. Dürfen wir diesen Besuch speichern, ihn mit Ihrem Konto verknüpfen, falls Sie sich registrieren, und der Werbeplattform mitteilen, dass die Anzeige zu einer Registrierung oder einem kostenpflichtigen Abonnement geführt hat? Die Plattform erhält dabei nur die Klickkennung zurück, die sie selbst in den Link gesetzt hat, nie Ihren Namen, Ihre E-Mail-Adresse oder etwas anderes, das Sie uns geben. Beide Auswahlmöglichkeiten speichern ein kleines Cookie; Sie können Ihre Entscheidung jederzeit unter „Datenschutzauswahl“ ändern.",
     "necessaryOnly": "Nein, danke",
     "privacyLink": "Datenschutzdetails",
     "title": "Hilf uns zu verstehen, was funktioniert"
@@ -1156,12 +1157,12 @@
       "daysPreset": "{count, plural, =1 {1 Tag} other {# Tage}}",
       "daysSuffix": "Tage",
       "fields": {
+        "adProvider": "Anzeigen-Anbieter",
         "auditSource": "Quelle",
         "calendarId": "Kalender",
         "connectedAccountId": "Kanal",
         "createdAt": "Erstellt am",
         "event": "Ereignis",
-        "googleAdsClickId": "Google Ads Klick-ID",
         "isPlatformOperator": "Plattform-Operator",
         "lastActiveAt": "Zuletzt aktiv",
         "participants": "Teilnehmer",
@@ -1337,6 +1338,7 @@
         "action": "Aktion",
         "actions": "Aktionen",
         "actor": "Akteur",
+        "adProvider": "Anzeigen-Anbieter",
         "allowance": "Kontingent",
         "amount": "Betrag",
         "avatarUrl": "Avatar",
@@ -1358,7 +1360,6 @@
         "events": "Ereignisse",
         "expiresAt": "Läuft ab",
         "firstName": "Vorname",
-        "googleAdsClickId": "Google Ads Klick-ID",
         "id": "ID",
         "identifiers": "Kanäle",
         "isSystemRole": "Systemrolle",
@@ -1938,6 +1939,10 @@
       "serviceQuantity": "Summe der Mengen aller verknüpften Einträge in „{services}“. Ändere dort die Mengen, um den Wert zu aktualisieren.",
       "weightedValue": "{dealValue} × {percent} % Abschlusswahrscheinlichkeit der aktuellen Phase ({stage}). Ändere „{services}“, Mengen oder die Phase; bearbeite Phasenwahrscheinlichkeiten unter „{company}“.",
       "weightedValueUnconfigured": "{dealValue} × Abschlusswahrscheinlichkeit der ausgewählten Phase. Richte unter „{company}“ Phasenwahrscheinlichkeiten ein und wähle eine Phase; ändere „{services}“ oder Mengen."
+    },
+    "customFieldsEmpty": {
+      "body": "Benutzerdefinierte Felder enthalten die zusätzlichen Angaben, die dein Arbeitsbereich zu diesem Datensatztyp erfasst.",
+      "title": "Noch keine benutzerdefinierten Felder"
     },
     "donePersonalizing": "Fertig",
     "fields": {
@@ -2654,9 +2659,21 @@
     }
   },
   "OperatorOverview": {
+    "acquisition": {
+      "description": "Davon zahlen {paying}",
+      "label": "Workspaces aus Anzeigen"
+    },
     "activity": {
       "description": "Von insgesamt {total} Benutzern",
       "label": "Aktiv in 7 Tagen"
+    },
+    "adConversions": {
+      "description": "Anzeigenklicks, die zu einer Registrierung oder einem zahlenden Abonnement geführt haben, gefiltert auf die Meldefrist der jeweiligen Plattform. Über die Klickkennung der Plattform hinaus ist nichts enthalten: kein Name, keine E-Mail-Adresse, keine gehashte E-Mail-Adresse, keine Telefonnummer, keine IP-Adresse und kein User-Agent. Diese Kennung ist selbst ein personenbezogenes Datum, weil die Plattform sie mit der ausgelieferten Anzeige verknüpfen kann.",
+      "generate": "Conversion-Export erzeugen",
+      "googleAds": "Google-Ads-CSV",
+      "label": "Werbe-Conversions",
+      "rowCount": "{count} meldbare Conversions",
+      "withoutColumnCount": "Nicht in dieser Datei enthaltene Google-Conversions: {count}. Ihr Klick trug eine gbraid- oder wbraid-Kennung, für die Googles Upload-Vorlage keine Spalte hat."
     },
     "growth": {
       "description": "Dazu {workspaces} neue Arbeitsbereiche",

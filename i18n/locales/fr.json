@@ -9,7 +9,8 @@
   },
   "AcquisitionConsent": {
     "allowAttribution": "Autoriser",
-    "description": "Il semble que vous soyez arrivé via une annonce Google. Avec votre autorisation, nous mémoriserons cette visite pendant 90 jours au maximum et la relierons à votre compte Customermates si vous créez un nouvel espace de travail. Cela nous aide à comprendre quelles annonces sont utiles.",
+    "description": "Vous êtes arrivé via une annonce {provider}. Pouvons-nous mémoriser cette visite pendant {days} jours au maximum, la relier à votre compte si vous vous inscrivez, et indiquer à {provider} que son annonce a donné lieu à une inscription ou à un abonnement payant ? {provider} ne reçoit en retour que l'identifiant de clic qu'il a lui-même placé dans le lien, jamais votre nom, votre adresse e-mail ni quoi que ce soit d'autre que vous nous confiez. Les deux choix enregistrent un petit cookie ; vous pouvez changer d'avis à tout moment dans Choix de confidentialité.",
+    "descriptionGeneric": "Vous êtes arrivé via une annonce. Pouvons-nous mémoriser cette visite, la relier à votre compte si vous vous inscrivez, et indiquer à la régie publicitaire que son annonce a donné lieu à une inscription ou à un abonnement payant ? La régie ne reçoit en retour que l'identifiant de clic qu'elle a elle-même placé dans le lien, jamais votre nom, votre adresse e-mail ni quoi que ce soit d'autre que vous nous confiez. Les deux choix enregistrent un petit cookie ; vous pouvez changer d'avis à tout moment dans Choix de confidentialité.",
     "necessaryOnly": "Non merci",
     "privacyLink": "Détails de confidentialité",
     "title": "Aidez-nous à comprendre ce qui fonctionne"
@@ -1156,12 +1157,12 @@
       "daysPreset": "{count, plural, =1 {1 jour} other {# jours}}",
       "daysSuffix": "jours",
       "fields": {
+        "adProvider": "Régie publicitaire",
         "auditSource": "Source",
         "calendarId": "Calendrier",
         "connectedAccountId": "Canal",
         "createdAt": "Créé le",
         "event": "Évènement",
-        "googleAdsClickId": "ID de clic Google Ads",
         "isPlatformOperator": "Opérateur de plateforme",
         "lastActiveAt": "Dernière activité",
         "participants": "Participants",
@@ -1337,6 +1338,7 @@
         "action": "Action",
         "actions": "Actions",
         "actor": "Auteur",
+        "adProvider": "Régie publicitaire",
         "allowance": "Allocation",
         "amount": "Montant",
         "avatarUrl": "Avatar",
@@ -1358,7 +1360,6 @@
         "events": "Évènements",
         "expiresAt": "Expire le",
         "firstName": "Prénom",
-        "googleAdsClickId": "ID de clic Google Ads",
         "id": "ID",
         "identifiers": "Canaux",
         "isSystemRole": "Rôle système",
@@ -1938,6 +1939,10 @@
       "serviceQuantity": "Somme des quantités de tous les éléments liés dans « {services} ». Modifiez-y les quantités pour actualiser la valeur.",
       "weightedValue": "{dealValue} × probabilité de conclusion de {percent} % pour l’étape actuelle ({stage}). Modifiez « {services} », les quantités ou l’étape ; gérez les probabilités dans « {company} ».",
       "weightedValueUnconfigured": "{dealValue} × probabilité de conclusion de l’étape sélectionnée. Configurez les probabilités dans « {company} » et sélectionnez une étape ; modifiez « {services} » ou les quantités."
+    },
+    "customFieldsEmpty": {
+      "body": "Les champs personnalisés contiennent les informations supplémentaires que votre espace de travail suit pour ce type d’enregistrement.",
+      "title": "Aucun champ personnalisé pour le moment"
     },
     "donePersonalizing": "Terminé",
     "fields": {
@@ -2654,9 +2659,21 @@
     }
   },
   "OperatorOverview": {
+    "acquisition": {
+      "description": "Dont {paying} payants",
+      "label": "Espaces de travail issus des annonces"
+    },
     "activity": {
       "description": "Sur {total} utilisateurs au total",
       "label": "Actifs sur 7 jours"
+    },
+    "adConversions": {
+      "description": "Clics publicitaires ayant produit une inscription ou un abonnement payant, filtrés sur ceux encore dans le délai de déclaration de chaque plateforme. Rien n'est inclus au-delà de l'identifiant de clic de la plateforme elle-même : ni nom, ni adresse e-mail, ni adresse e-mail hachée, ni numéro de téléphone, ni adresse IP, ni agent utilisateur. Cet identifiant est lui-même une donnée personnelle, car la plateforme peut le relier à l'annonce qu'elle vous a servie.",
+      "generate": "Générer l'export de conversions",
+      "googleAds": "CSV Google Ads",
+      "label": "Conversions publicitaires",
+      "rowCount": "{count} conversions déclarables",
+      "withoutColumnCount": "Conversions Google absentes de ce fichier : {count}. Leur clic portait un identifiant gbraid ou wbraid, pour lequel le modèle d'import de Google n'a pas de colonne."
     },
     "growth": {
       "description": "Avec {workspaces} nouveaux espaces",

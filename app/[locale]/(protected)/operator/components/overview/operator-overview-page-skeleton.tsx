@@ -2,7 +2,7 @@ import { SkeletonShape as Shape } from "@/components/page-state/skeleton-shape";
 
 type Props = { animated?: boolean };
 
-const TILES = Array.from({ length: 8 }, (_, index) => index);
+const TILES = Array.from({ length: 9 }, (_, index) => index);
 
 export function OperatorOverviewPageSkeleton({ animated = true }: Props) {
   return (

@@ -7,7 +7,7 @@ import {
   getDeleteConnectedAccountsForExpiredTrialsInteractor,
   getDeleteConnectedAccountsForInactiveOwnersInteractor,
   getDeleteOrphanedUnipileAccountsInteractor,
-  getExpireGoogleAdsClickIdsInteractor,
+  getExpireAdAttributionInteractor,
   getSendLegalDocumentNoticesInteractor,
 } from "@/core/di";
 import { env } from "@/env";
@@ -31,7 +31,7 @@ export async function GET(req: Request) {
     getDeactivateUsersAfterSubscriptionGracePeriodInteractor().invoke(),
     getDeleteConnectedAccountsForExpiredTrialsInteractor().invoke(),
     getDeleteConnectedAccountsForInactiveOwnersInteractor().invoke(),
-    getExpireGoogleAdsClickIdsInteractor().invoke(),
+    getExpireAdAttributionInteractor().invoke(),
     getSendLegalDocumentNoticesInteractor().invoke(),
   ]);
 

@@ -2,6 +2,7 @@ import * as Sentry from "@sentry/nextjs";
 
 import { isExpectedError } from "@/core/errors/app-errors";
 import { env } from "@/env";
+import { scrubAdIdentifiersFromEvent } from "@/core/errors/scrub-ad-identifiers";
 
 export async function register() {
   if (env.NEXT_PUBLIC_SENTRY_DSN && (env.NEXT_RUNTIME === "nodejs" || env.NEXT_RUNTIME === "edge")) {
@@ -17,7 +18,7 @@ export async function register() {
           return null;
         }
 
-        return event;
+        return scrubAdIdentifiersFromEvent(event);
       },
     } satisfies Sentry.NodeOptions);
   }

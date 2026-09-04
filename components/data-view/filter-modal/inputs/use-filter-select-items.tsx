@@ -52,6 +52,7 @@ import {
 import { DomainEvent } from "@/features/event/domain-events";
 import { ACTIVITY_FILTER_VALUE_MAX, ActivityFilterSchema } from "@/ee/messaging/activities/activities.schema";
 import { activityEntityTypeForFilterField } from "@/ee/messaging/activities/activity-filterable-fields";
+import { AD_PROVIDER_ORDER, adProviderDisplayName } from "@/features/acquisition/ad-provider-registry";
 
 export type FilterSelectItem = {
   key: string;
@@ -311,7 +312,14 @@ export function filterOptionSources(
           })),
         })),
     },
-    [FilterFieldKey.googleAdsClickId]: NO_FILTER_OPTIONS,
+    [FilterFieldKey.adProvider]: {
+      items: () =>
+        AD_PROVIDER_ORDER.map((provider) => ({
+          key: provider,
+          value: provider,
+          textValue: adProviderDisplayName(provider),
+        })),
+    },
     [FilterFieldKey.auditSource]: {
       items: () => [
         {

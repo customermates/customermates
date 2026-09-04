@@ -13,7 +13,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 import { CONTENT_LOCALES, buildLocalePath, contentLocaleOrDefault, flagCodeFor } from "@/i18n/locale-registry";
 import { usePathname } from "@/i18n/navigation";
-import { preserveGoogleAdsClickInHref } from "@/features/acquisition/google-ads-consent.schema";
+import { preserveAdClickInHref } from "@/features/acquisition/ad-click-url";
 
 type Props = {
   align?: "start" | "end";
@@ -56,7 +56,7 @@ export const LocaleMenu = observer(({ align = "start", className, side = "bottom
   }, []);
 
   function handleSelect(event: ReactMouseEvent<HTMLAnchorElement>, locale: ContentLocale) {
-    const destination = preserveGoogleAdsClickInHref(buildLocalePath(locale, pathname), {
+    const destination = preserveAdClickInHref(buildLocalePath(locale, pathname), {
       search: window.location.search,
     });
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) {
@@ -74,7 +74,7 @@ export const LocaleMenu = observer(({ align = "start", className, side = "bottom
   }
 
   function preservePendingClick(event: ReactMouseEvent<HTMLAnchorElement>, locale: ContentLocale) {
-    event.currentTarget.href = preserveGoogleAdsClickInHref(buildLocalePath(locale, pathname), {
+    event.currentTarget.href = preserveAdClickInHref(buildLocalePath(locale, pathname), {
       search: window.location.search,
     });
   }
