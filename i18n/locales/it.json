@@ -9,7 +9,8 @@
   },
   "AcquisitionConsent": {
     "allowAttribution": "Consenti",
-    "description": "Sembra che tu abbia raggiunto il sito tramite un annuncio Google. Con il tuo consenso, ricorderemo questa visita per un massimo di 90 giorni e la collegheremo al tuo account Customermates se crei un nuovo workspace. Questo ci aiuta a capire quali annunci sono utili.",
+    "description": "Sei arrivato tramite un annuncio {provider}. Possiamo ricordare questa visita per un massimo di {days} giorni, collegarla al tuo account se ti registri e comunicare a {provider} che il suo annuncio ha portato a una registrazione o a un abbonamento a pagamento? {provider} riceve indietro solo l'identificatore di clic che ha inserito nel link stesso, mai il tuo nome, la tua email o qualsiasi altra cosa che ci fornisci. Entrambe le scelte salvano un piccolo cookie; puoi cambiare idea in qualsiasi momento in Scelte sulla privacy.",
+    "descriptionGeneric": "Sei arrivato tramite un annuncio. Possiamo ricordare questa visita, collegarla al tuo account se ti registri e comunicare alla piattaforma pubblicitaria che il suo annuncio ha portato a una registrazione o a un abbonamento a pagamento? La piattaforma riceve indietro solo l'identificatore di clic che ha inserito nel link stesso, mai il tuo nome, la tua email o qualsiasi altra cosa che ci fornisci. Entrambe le scelte salvano un piccolo cookie; puoi cambiare idea in qualsiasi momento in Scelte sulla privacy.",
     "necessaryOnly": "No, grazie",
     "privacyLink": "Dettagli sulla privacy",
     "title": "Aiutaci a capire cosa funziona"
@@ -1001,6 +1002,7 @@
       "operatorAllowanceMissing": "Questo spazio di lavoro non ha ancora un contingente Enterprise contrattuale, quindi i crediti non possono essere corretti. Imposta prima il contingente nell'elenco degli spazi di lavoro.",
       "operatorConflict": "La modifica è stata rifiutata. Il record potrebbe essere cambiato dal caricamento dell’elenco, oppure lo spazio di lavoro al momento non la consente. Ricarica e verifica lo stato attuale.",
       "operatorConnectedAccountsActive": "Questo spazio di lavoro ha ancora account di messaggistica collegati. Scollegali prima per liberare gli account del fornitore, poi elimina lo spazio di lavoro.",
+      "operatorTrialEndRequired": "La data di fine prova non può essere rimossa, solo spostata. Cancellarla lascerebbe l'area di lavoro su una prova che non scade mai.",
       "operatorUnavailable": "La correzione richiesta non è disponibile per la configurazione corrente dell’account.",
       "organizationNotFound": "ID organizzazione non trovato o non accessibile.",
       "passwordInvalid": "La password deve contenere almeno 8 caratteri e includere almeno una lettera maiuscola, una minuscola, un numero e un carattere speciale.",
@@ -1036,6 +1038,7 @@
       "termsNotAgreed": "Devi accettare i termini e le condizioni.",
       "threadNotFound": "ID conversazione non trovato o non accessibile.",
       "unipileDisconnectedAccount": "Il canale è scollegato. Ricollegalo e riprova.",
+      "unipileFeatureUnavailable": "Non è disponibile su questo canale. Riprovare non servirà; il team è stato avvisato.",
       "unipileInvalidRequest": "Il provider ha rifiutato la richiesta come non valida. Controlla gli identificativi e i parametri.",
       "unipileProviderError": "Il provider sta riscontrando problemi in questo momento. Riprova tra poco.",
       "unipileRateLimit": "Questo canale ha raggiunto il suo limite per ora. Puoi riprovare {retryAfter}. Maggiori informazioni su https://customermates.com/docs/messaging-rate-limits.",
@@ -1045,6 +1048,7 @@
       "unipileUnknown": "Il provider ha rifiutato questo messaggio. Riprova o contatta l'assistenza.",
       "userInactive": "Il tuo account utente è inattivo. Contatta un amministratore dello spazio di lavoro.",
       "userNotFound": "ID utente non trovato o non accessibile.",
+      "userPlatformOperatorStatusForbidden": "Questo account appartiene a un operatore della piattaforma e non può essere disattivato qui. Usa la console operatore.",
       "userSelfAdminUpdateForbidden": "Non puoi aggiornare il tuo account dall’amministrazione del team.",
       "webhookDeliveryNotFound": "ID consegna del webhook non trovato o non accessibile.",
       "webhookEventsRequired": "Seleziona almeno un evento.",
@@ -1120,6 +1124,9 @@
         "deleted": "Organizzazione eliminata",
         "updated": "Organizzazione aggiornata"
       },
+      "records": {
+        "exported": "Record esportati"
+      },
       "role": {
         "created": "Ruolo creato",
         "deleted": "Ruolo eliminato",
@@ -1152,12 +1159,12 @@
       "daysPreset": "{count, plural, =1 {1 giorno} other {# giorni}}",
       "daysSuffix": "giorni",
       "fields": {
+        "adProvider": "Provider pubblicitario",
         "auditSource": "Origine",
         "calendarId": "Calendario",
         "connectedAccountId": "Canale",
         "createdAt": "Creato il",
         "event": "Evento",
-        "googleAdsClickId": "ID clic Google Ads",
         "isPlatformOperator": "Operatore di piattaforma",
         "lastActiveAt": "Ultima attività",
         "participants": "Partecipanti",
@@ -1330,6 +1337,7 @@
         "action": "Azione",
         "actions": "Azioni",
         "actor": "Autore",
+        "adProvider": "Provider pubblicitario",
         "allowance": "Dotazione",
         "amount": "Importo",
         "avatarUrl": "Avatar",
@@ -1351,7 +1359,6 @@
         "events": "Eventi",
         "expiresAt": "Scade il",
         "firstName": "Nome",
-        "googleAdsClickId": "ID clic Google Ads",
         "id": "ID",
         "identifiers": "Canali",
         "isSystemRole": "Ruolo di sistema",
@@ -1485,6 +1492,7 @@
     "foldersShown": "{shown} di {total} sincronizzate",
     "foldersUpdateFailed": "Impossibile aggiornare le cartelle",
     "folderSynced": "Sincronizzata",
+    "folderToggleLabel": "Sincronizza la cartella {folder}",
     "invalidCredentialsToastDescription": "Le credenziali non sono state accettate. Controllale e riprova.",
     "invalidCredentialsToastTitle": "Credenziali non valide",
     "lastSynced": "Ultima sincronizzazione",
@@ -1690,6 +1698,59 @@
       "chart": "Grafico"
     }
   },
+  "DataTransfer": {
+    "export": {
+      "action": "Esporta",
+      "failed": "Non è stato possibile creare il file.",
+      "success": "{count, plural, one {# record esportato} other {# record esportati}}",
+      "truncated": "Sono stati esportati solo i primi {limit} record."
+    },
+    "import": {
+      "action": "Aggiungi da file",
+      "batchProgress": "Lotto {done} di {total}",
+      "channelOption": "{provider} (canale)",
+      "chooseFile": "Scegli file",
+      "commit": "Aggiungi record",
+      "description": "Abbina le colonne del foglio ai campi, controlla il risultato e aggiungi i record.",
+      "duplicateTargets": "{count, plural, one {# campo riceve dati da più colonne. Correggilo prima di continuare.} other {# campi ricevono dati da più colonne. Correggili prima di continuare.}}",
+      "fileHint": "Scegli un foglio di calcolo. Sono supportate le cartelle di lavoro Excel.",
+      "fileRejected": "Non è stato possibile leggere questo file.",
+      "groupChannels": "Canali",
+      "groupCustomFields": "Campi personalizzati",
+      "groupFields": "Campi",
+      "ignoreColumn": "Non aggiungere",
+      "issueCount": "{count, plural, one {# problema rilevato} other {# problemi rilevati}}",
+      "issues": {
+        "channelsNotUpdated": "I canali restano invariati su un record che esiste già",
+        "duplicateRecordId": "La riga {row} aggiorna già questo record",
+        "invalidChannelValue": "\"{value}\" non è un indirizzo {provider} valido",
+        "notANumber": "\"{value}\" non è un numero",
+        "notAPhoneNumber": "\"{value}\" non è un numero di telefono",
+        "relationAmbiguous": "\"{value}\" corrisponde a più di un record",
+        "relationNotFound": "\"{value}\" non è stato trovato",
+        "unknownOption": "\"{value}\" non è una delle opzioni di {column}",
+        "unknownProvider": "\"{value}\" non è un tipo di canale supportato"
+      },
+      "mappingHint": "{file}, {rows} righe",
+      "moreIssues": "e altri {count}",
+      "noIssues": "Nessun problema rilevato.",
+      "previewCounts": "{create} da aggiungere, {update} da aggiornare",
+      "progress": "Passaggio {current} di {total}",
+      "progressLabel": "Avanzamento",
+      "recordId": "ID del record",
+      "resultCounts": "{created} aggiunti, {updated} aggiornati",
+      "resultSkipped": "{count, plural, one {# riga saltata} other {# righe saltate}}",
+      "row": "Riga",
+      "rowsAffected": "{count, plural, one {# riga} other {# righe}}",
+      "skipInvalid": "{count, plural, one {Importa il resto e salta # riga} other {Importa il resto e salta # righe}}",
+      "stopped": "Interrotto alla riga {row}. {remaining} righe non sono state elaborate.",
+      "title": "Aggiungi record da un file",
+      "unnamedColumn": "Colonna senza nome",
+      "validate": "Controlla il file",
+      "warningCount": "{count, plural, one {# avviso} other {# avvisi}}"
+    },
+    "menu": "Importa ed esporta"
+  },
   "DataView": {
     "dragToReorder": "Trascina per riordinare",
     "editColumn": "Modifica colonna",
@@ -1839,6 +1900,10 @@
       "serviceQuantity": "Somma delle quantità di tutti gli elementi collegati in «{services}». Modifica lì le quantità per aggiornare il valore.",
       "weightedValue": "{dealValue} × probabilità di chiusura del {percent}% per la fase corrente ({stage}). Modifica «{services}», quantità o fase; gestisci le probabilità in «{company}».",
       "weightedValueUnconfigured": "{dealValue} × probabilità di chiusura della fase selezionata. Configura le probabilità in «{company}» e seleziona una fase; modifica «{services}» o quantità."
+    },
+    "customFieldsEmpty": {
+      "body": "I campi personalizzati contengono le informazioni aggiuntive che il tuo spazio di lavoro registra per questo tipo di record.",
+      "title": "Ancora nessun campo personalizzato"
     },
     "donePersonalizing": "Fine",
     "fields": {
@@ -2154,6 +2219,11 @@
     "fileTypePdf": "Documento PDF",
     "fileTypePowerpoint": "Presentazione PowerPoint",
     "fileTypeWord": "Documento Word",
+    "folders": {
+      "current": "In {folder}",
+      "hiddenTooltip": "In {folder}, che è nascosta nella tua posta in arrivo",
+      "none": "Nessuna cartella"
+    },
     "groupThread": "Gruppo ({count, plural, one {# membro} other {# membri}})",
     "hideQuotedText": "Nascondi il testo citato",
     "learnMore": "Scopri di più",
@@ -2264,8 +2334,14 @@
     "text": "Caricamento..."
   },
   "MassActions": {
+    "apply": "Applica alla selezione",
+    "clearField": "Svuota campo",
     "delete": "Elimina gli elementi selezionati",
+    "keepInView": "Mantieni solo le righe visibili",
+    "limitReached": "Puoi selezionare fino a {limit} record alla volta.",
     "noMatchingFields": "Nessun campo corrisponde alla tua ricerca.",
+    "offView": "{count, plural, one {# non nella vista corrente} other {# non nella vista corrente}}",
+    "scopeStale": "I filtri sono cambiati da quando hai fatto questa selezione.",
     "searchFieldPlaceholder": "Cerca tra i campi…",
     "selectedCount": "{count, plural, one {# elemento selezionato} other {# elementi selezionati}}",
     "update": "Aggiorna"
@@ -2545,9 +2621,21 @@
     }
   },
   "OperatorOverview": {
+    "acquisition": {
+      "description": "Di cui {paying} paganti",
+      "label": "Workspace da annunci"
+    },
     "activity": {
       "description": "Su {total} utenti totali",
       "label": "Attivi in 7 giorni"
+    },
+    "adConversions": {
+      "description": "Clic sugli annunci che hanno prodotto una registrazione o un abbonamento a pagamento, filtrati su quelli ancora entro la scadenza di comunicazione di ciascuna piattaforma. Non è incluso nulla oltre all'identificatore di clic della piattaforma stessa: nessun nome, nessuna email, nessuna email con hash, nessun numero di telefono, nessun indirizzo IP e nessun user agent. Quell'identificatore è esso stesso un dato personale, perché la piattaforma può collegarlo all'annuncio che ti ha mostrato.",
+      "generate": "Genera esportazione conversioni",
+      "googleAds": "CSV Google Ads",
+      "label": "Conversioni pubblicitarie",
+      "rowCount": "{count} conversioni comunicabili",
+      "withoutColumnCount": "Conversioni Google escluse da questo file: {count}. Il loro clic portava un identificatore gbraid o wbraid, per cui il modello di caricamento di Google non ha una colonna."
     },
     "growth": {
       "description": "Insieme a {workspaces} nuove aree",
@@ -2583,7 +2671,8 @@
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Correzione crediti con segno",
-      "deltaPlaceholder": "Ad esempio, 500 o -100"
+      "deltaPlaceholder": "Ad esempio, 500 o -100",
+      "expiresAt": "Questa correzione vale solo per il periodo corrente e decade il {date}."
     },
     "confirm": {
       "operator": "Impostare l’accesso operatore di piattaforma di {name} su {value}?",
@@ -2627,6 +2716,11 @@
   },
   "OperatorWorkspaces": {
     "allowance": {
+      "hintContract": "La tariffa Enterprise concordata, assegnata a ogni membro attivo ogni mese.",
+      "hintMissing": "Enterprise ricava la tariffa da un valore contrattuale, e non ne è impostato nessuno. Tutti i membri sono bloccati finché non ne imposti uno.",
+      "hintPlan": "{plan} include questi crediti per ogni membro attivo ogni mese.",
+      "hintTrial": "Durante una prova ogni membro attivo riceve questo, qualunque sia il piano.",
+      "hintUnavailable": "Questo abbonamento non concede crediti nel suo stato attuale.",
       "label": "Crediti per utente",
       "notSet": "Non impostato",
       "title": "Dotazione Enterprise",

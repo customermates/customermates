@@ -9,7 +9,8 @@
   },
   "AcquisitionConsent": {
     "allowAttribution": "Erlauben",
-    "description": "Es sieht so aus, als wärst du über eine Google-Anzeige zu uns gekommen. Mit deiner Erlaubnis merken wir uns diesen Anzeigenbesuch bis zu 90 Tage lang und verknüpfen ihn mit deinem Customermates-Konto, wenn du einen neuen Workspace erstellst. So verstehen wir besser, welche Anzeigen hilfreich sind.",
+    "description": "Sie sind über eine {provider}-Anzeige zu uns gekommen. Dürfen wir diesen Besuch bis zu {days} Tage speichern, ihn mit Ihrem Konto verknüpfen, falls Sie sich registrieren, und {provider} mitteilen, dass die Anzeige zu einer Registrierung oder einem kostenpflichtigen Abonnement geführt hat? {provider} erhält dabei nur die eigene Klickkennung aus dem Anzeigenlink zurück, nie Ihren Namen, Ihre E-Mail-Adresse oder etwas anderes, das Sie uns geben. Beide Auswahlmöglichkeiten speichern ein kleines Cookie; Sie können Ihre Entscheidung jederzeit unter „Datenschutzauswahl“ ändern.",
+    "descriptionGeneric": "Sie sind über eine Anzeige zu uns gekommen. Dürfen wir diesen Besuch speichern, ihn mit Ihrem Konto verknüpfen, falls Sie sich registrieren, und der Werbeplattform mitteilen, dass die Anzeige zu einer Registrierung oder einem kostenpflichtigen Abonnement geführt hat? Die Plattform erhält dabei nur die Klickkennung zurück, die sie selbst in den Link gesetzt hat, nie Ihren Namen, Ihre E-Mail-Adresse oder etwas anderes, das Sie uns geben. Beide Auswahlmöglichkeiten speichern ein kleines Cookie; Sie können Ihre Entscheidung jederzeit unter „Datenschutzauswahl“ ändern.",
     "necessaryOnly": "Nein, danke",
     "privacyLink": "Datenschutzdetails",
     "title": "Hilf uns zu verstehen, was funktioniert"
@@ -936,9 +937,9 @@
     },
     "errors": {
       "activityDuplicateFilterField": "Jedes Aktivitätsfilterfeld kann nur einmal konfiguriert werden.",
-      "activityPageOutOfRange": "Der Aktivitätsverlauf kann nicht so weit zurückblättern. Grenzen Sie stattdessen die Filter ein.",
+      "activityPageOutOfRange": "Der Aktivitätsverlauf kann nicht so weit zurückblättern. Grenze stattdessen die Filter ein.",
       "activityScopeTooManyIds": "Ein Aktivitätsbereich darf nicht mehr als 50 Datensätze eines Typs auswählen.",
-      "activitySourcesUnavailable": "Sie haben keinen Zugriff auf eine Quelle des Aktivitätsverlaufs.",
+      "activitySourcesUnavailable": "Du hast keinen Zugriff auf eine Quelle des Aktivitätsverlaufs.",
       "agentApprovalUnavailable": "Diese Freigabeanfrage ist nicht verfügbar oder abgelaufen.",
       "agentConversationNotFound": "Diese Unterhaltung wurde nicht gefunden oder ist nicht mehr zugänglich.",
       "agentLimitReached": "Es sind nicht genügend KI-Credits übrig, um eine weitere Anfrage zu starten.",
@@ -1001,6 +1002,7 @@
       "operatorAllowanceMissing": "Für diesen Workspace ist noch kein vertraglich vereinbartes Enterprise-Kontingent hinterlegt, daher lassen sich Credits nicht korrigieren. Hinterlege das Kontingent zuerst in der Workspace-Liste.",
       "operatorConflict": "Die Änderung wurde abgelehnt. Der Datensatz hat sich seit dem Laden der Liste möglicherweise geändert, oder der Workspace lässt sie derzeit nicht zu. Lade neu und prüfe den aktuellen Stand.",
       "operatorConnectedAccountsActive": "Dieser Workspace hat noch verbundene Messaging-Konten. Trenne sie zuerst, damit die Anbieterkonten freigegeben werden, und lösche den Workspace dann.",
+      "operatorTrialEndRequired": "Ein Testende kann nicht entfernt, sondern nur verschoben werden. Ein Löschen würde den Arbeitsbereich in einer Testphase belassen, die nie abläuft.",
       "operatorUnavailable": "Die gewünschte Korrektur ist für die aktuelle Kontokonfiguration nicht verfügbar.",
       "organizationNotFound": "Organisations-ID nicht gefunden oder nicht zugänglich.",
       "passwordInvalid": "Das Passwort muss mindestens 8 Zeichen lang sein und mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und ein Sonderzeichen enthalten.",
@@ -1036,6 +1038,7 @@
       "termsNotAgreed": "Du musst den Allgemeinen Geschäftsbedingungen zustimmen.",
       "threadNotFound": "Konversations-ID nicht gefunden oder nicht zugänglich.",
       "unipileDisconnectedAccount": "Der Kanal ist nicht verbunden. Verbinde ihn erneut und versuche es noch einmal.",
+      "unipileFeatureUnavailable": "Das ist auf diesem Kanal nicht verfügbar. Ein erneuter Versuch hilft nicht; das Team wurde benachrichtigt.",
       "unipileInvalidRequest": "Der Anbieter hat die Anfrage als ungültig abgelehnt. Bitte Kennungen und Parameter prüfen.",
       "unipileProviderError": "Der Anbieter hat aktuell Probleme. Bitte später erneut versuchen.",
       "unipileRateLimit": "Dieser Kanal hat sein Limit vorerst erreicht. Bitte {retryAfter} erneut versuchen. Mehr unter https://customermates.com/docs/messaging-rate-limits.",
@@ -1045,6 +1048,7 @@
       "unipileUnknown": "Der Anbieter hat diese Nachricht abgelehnt. Bitte erneut versuchen oder Support kontaktieren.",
       "userInactive": "Dein Benutzerkonto ist inaktiv. Wende dich an einen Workspace-Administrator.",
       "userNotFound": "Benutzer-ID nicht gefunden oder nicht zugänglich.",
+      "userPlatformOperatorStatusForbidden": "Dieses Konto gehört einem Plattform-Operator und kann hier nicht deaktiviert werden. Nutze die Operator-Konsole.",
       "userSelfAdminUpdateForbidden": "Du kannst dein eigenes Konto nicht über die Teamverwaltung aktualisieren.",
       "webhookDeliveryNotFound": "Webhook-Zustellungs-ID nicht gefunden oder nicht zugänglich.",
       "webhookEventsRequired": "Wähle mindestens ein Ereignis aus.",
@@ -1120,6 +1124,9 @@
         "deleted": "Organisation gelöscht",
         "updated": "Organisation aktualisiert"
       },
+      "records": {
+        "exported": "Datensätze exportiert"
+      },
       "role": {
         "created": "Rolle erstellt",
         "deleted": "Rolle gelöscht",
@@ -1152,12 +1159,12 @@
       "daysPreset": "{count, plural, =1 {1 Tag} other {# Tage}}",
       "daysSuffix": "Tage",
       "fields": {
+        "adProvider": "Anzeigen-Anbieter",
         "auditSource": "Quelle",
         "calendarId": "Kalender",
         "connectedAccountId": "Kanal",
         "createdAt": "Erstellt am",
         "event": "Ereignis",
-        "googleAdsClickId": "Google Ads Klick-ID",
         "isPlatformOperator": "Plattform-Operator",
         "lastActiveAt": "Zuletzt aktiv",
         "participants": "Teilnehmer",
@@ -1200,7 +1207,7 @@
         "none": "Kein Preset"
       },
       "searchLabel": "Suche",
-      "selectionLimit": "Sie können bis zu {count} Werte auswählen.",
+      "selectionLimit": "Du kannst bis zu {count} Werte auswählen.",
       "selectOperator": "Bedingung auswählen…",
       "unavailableValue": "Filter nicht verfügbar"
     },
@@ -1330,6 +1337,7 @@
         "action": "Aktion",
         "actions": "Aktionen",
         "actor": "Akteur",
+        "adProvider": "Anzeigen-Anbieter",
         "allowance": "Kontingent",
         "amount": "Betrag",
         "avatarUrl": "Avatar",
@@ -1351,7 +1359,6 @@
         "events": "Ereignisse",
         "expiresAt": "Läuft ab",
         "firstName": "Vorname",
-        "googleAdsClickId": "Google Ads Klick-ID",
         "id": "ID",
         "identifiers": "Kanäle",
         "isSystemRole": "Systemrolle",
@@ -1485,6 +1492,7 @@
     "foldersShown": "{shown} von {total} synchronisiert",
     "foldersUpdateFailed": "Ordner konnten nicht aktualisiert werden",
     "folderSynced": "Synchronisiert",
+    "folderToggleLabel": "Ordner {folder} synchronisieren",
     "invalidCredentialsToastDescription": "Die Anmeldedaten wurden nicht akzeptiert. Überprüfe sie und versuche es erneut.",
     "invalidCredentialsToastTitle": "Ungültige Anmeldedaten",
     "lastSynced": "Zuletzt synchronisiert",
@@ -1690,6 +1698,59 @@
       "chart": "Diagramm"
     }
   },
+  "DataTransfer": {
+    "export": {
+      "action": "Exportieren",
+      "failed": "Die Datei konnte nicht erstellt werden.",
+      "success": "{count, plural, one {# Datensatz exportiert} other {# Datensätze exportiert}}",
+      "truncated": "Es wurden nur die ersten {limit} Datensätze exportiert."
+    },
+    "import": {
+      "action": "Aus Datei hinzufügen",
+      "batchProgress": "Stapel {done} von {total}",
+      "channelOption": "{provider} (Kanal)",
+      "chooseFile": "Datei wählen",
+      "commit": "Datensätze hinzufügen",
+      "description": "Tabellenspalten den Feldern zuordnen, Ergebnis prüfen und Datensätze hinzufügen.",
+      "duplicateTargets": "{count, plural, one {# Feld wird von mehreren Spalten belegt. Bitte vor dem Fortfahren korrigieren.} other {# Felder werden von mehreren Spalten belegt. Bitte vor dem Fortfahren korrigieren.}}",
+      "fileHint": "Wähle eine Tabelle. Excel-Arbeitsmappen werden unterstützt.",
+      "fileRejected": "Diese Datei konnte nicht gelesen werden.",
+      "groupChannels": "Kanäle",
+      "groupCustomFields": "Benutzerdefinierte Felder",
+      "groupFields": "Felder",
+      "ignoreColumn": "Nicht hinzufügen",
+      "issueCount": "{count, plural, one {# Problem gefunden} other {# Probleme gefunden}}",
+      "issues": {
+        "channelsNotUpdated": "Kanäle bleiben unverändert, wenn der Datensatz bereits existiert",
+        "duplicateRecordId": "Zeile {row} aktualisiert diesen Datensatz bereits",
+        "invalidChannelValue": "\"{value}\" ist keine gültige {provider}-Adresse",
+        "notANumber": "\"{value}\" ist keine Zahl",
+        "notAPhoneNumber": "\"{value}\" ist keine Telefonnummer",
+        "relationAmbiguous": "\"{value}\" passt auf mehr als einen Datensatz",
+        "relationNotFound": "\"{value}\" wurde nicht gefunden",
+        "unknownOption": "\"{value}\" ist keine der Optionen für {column}",
+        "unknownProvider": "\"{value}\" ist kein unterstützter Kanaltyp"
+      },
+      "mappingHint": "{file}, {rows} Zeilen",
+      "moreIssues": "und {count} weitere",
+      "noIssues": "Keine Probleme gefunden.",
+      "previewCounts": "{create} hinzufügen, {update} aktualisieren",
+      "progress": "Schritt {current} von {total}",
+      "progressLabel": "Fortschritt",
+      "recordId": "Datensatz-ID",
+      "resultCounts": "{created} hinzugefügt, {updated} aktualisiert",
+      "resultSkipped": "{count, plural, one {# Zeile übersprungen} other {# Zeilen übersprungen}}",
+      "row": "Zeile",
+      "rowsAffected": "{count, plural, one {# Zeile} other {# Zeilen}}",
+      "skipInvalid": "{count, plural, one {Rest importieren und # Zeile überspringen} other {Rest importieren und # Zeilen überspringen}}",
+      "stopped": "Bei Zeile {row} gestoppt. {remaining} Zeilen wurden nicht verarbeitet.",
+      "title": "Datensätze aus einer Datei hinzufügen",
+      "unnamedColumn": "Unbenannte Spalte",
+      "validate": "Datei prüfen",
+      "warningCount": "{count, plural, one {# Hinweis} other {# Hinweise}}"
+    },
+    "menu": "Import und Export"
+  },
   "DataView": {
     "dragToReorder": "Zum Neuanordnen ziehen",
     "editColumn": "Spalte bearbeiten",
@@ -1839,6 +1900,10 @@
       "serviceQuantity": "Summe der Mengen aller verknüpften Einträge in „{services}“. Ändere dort die Mengen, um den Wert zu aktualisieren.",
       "weightedValue": "{dealValue} × {percent} % Abschlusswahrscheinlichkeit der aktuellen Phase ({stage}). Ändere „{services}“, Mengen oder die Phase; bearbeite Phasenwahrscheinlichkeiten unter „{company}“.",
       "weightedValueUnconfigured": "{dealValue} × Abschlusswahrscheinlichkeit der ausgewählten Phase. Richte unter „{company}“ Phasenwahrscheinlichkeiten ein und wähle eine Phase; ändere „{services}“ oder Mengen."
+    },
+    "customFieldsEmpty": {
+      "body": "Benutzerdefinierte Felder enthalten die zusätzlichen Angaben, die dein Arbeitsbereich zu diesem Datensatztyp erfasst.",
+      "title": "Noch keine benutzerdefinierten Felder"
     },
     "donePersonalizing": "Fertig",
     "fields": {
@@ -2154,6 +2219,11 @@
     "fileTypePdf": "PDF-Dokument",
     "fileTypePowerpoint": "PowerPoint-Präsentation",
     "fileTypeWord": "Word-Dokument",
+    "folders": {
+      "current": "In {folder}",
+      "hiddenTooltip": "In {folder}, der in Ihrem Posteingang ausgeblendet ist",
+      "none": "Kein Ordner"
+    },
     "groupThread": "Gruppe ({count, plural, one {# Mitglied} other {# Mitglieder}})",
     "hideQuotedText": "Zitierten Text ausblenden",
     "learnMore": "Mehr erfahren",
@@ -2264,8 +2334,14 @@
     "text": "Laden..."
   },
   "MassActions": {
+    "apply": "Auf Auswahl anwenden",
+    "clearField": "Feld leeren",
     "delete": "Ausgewählte löschen",
+    "keepInView": "Nur sichtbare Zeilen behalten",
+    "limitReached": "Du kannst höchstens {limit} Datensätze gleichzeitig auswählen.",
     "noMatchingFields": "Keine Felder entsprechen deiner Suche.",
+    "offView": "{count, plural, one {# nicht in der aktuellen Ansicht} other {# nicht in der aktuellen Ansicht}}",
+    "scopeStale": "Die Filter haben sich seit dieser Auswahl geändert.",
     "searchFieldPlaceholder": "Felder suchen…",
     "selectedCount": "{count, plural, one {# Element ausgewählt} other {# Elemente ausgewählt}}",
     "update": "Aktualisieren"
@@ -2503,7 +2579,7 @@
     }
   },
   "OperatorAudit": {
-    "emptyBody": "Passen Sie Suche oder Filter an, um das Protokoll zu erweitern.",
+    "emptyBody": "Passe Suche oder Filter an, um das Protokoll zu erweitern.",
     "emptyTitle": "Keine Audit-Ereignisse passen zu diesen Filtern",
     "navigation": "Audit-Protokoll",
     "searchPlaceholder": "Nach Aktion suchen",
@@ -2545,9 +2621,21 @@
     }
   },
   "OperatorOverview": {
+    "acquisition": {
+      "description": "Davon zahlen {paying}",
+      "label": "Workspaces aus Anzeigen"
+    },
     "activity": {
       "description": "Von insgesamt {total} Benutzern",
       "label": "Aktiv in 7 Tagen"
+    },
+    "adConversions": {
+      "description": "Anzeigenklicks, die zu einer Registrierung oder einem zahlenden Abonnement geführt haben, gefiltert auf die Meldefrist der jeweiligen Plattform. Über die Klickkennung der Plattform hinaus ist nichts enthalten: kein Name, keine E-Mail-Adresse, keine gehashte E-Mail-Adresse, keine Telefonnummer, keine IP-Adresse und kein User-Agent. Diese Kennung ist selbst ein personenbezogenes Datum, weil die Plattform sie mit der ausgelieferten Anzeige verknüpfen kann.",
+      "generate": "Conversion-Export erzeugen",
+      "googleAds": "Google-Ads-CSV",
+      "label": "Werbe-Conversions",
+      "rowCount": "{count} meldbare Conversions",
+      "withoutColumnCount": "Nicht in dieser Datei enthaltene Google-Conversions: {count}. Ihr Klick trug eine gbraid- oder wbraid-Kennung, für die Googles Upload-Vorlage keine Spalte hat."
     },
     "growth": {
       "description": "Dazu {workspaces} neue Arbeitsbereiche",
@@ -2583,7 +2671,8 @@
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Vorzeichenbehaftete Credit-Korrektur",
-      "deltaPlaceholder": "Zum Beispiel 500 oder -100"
+      "deltaPlaceholder": "Zum Beispiel 500 oder -100",
+      "expiresAt": "Diese Korrektur gilt nur für die aktuelle Periode und verfällt am {date}."
     },
     "confirm": {
       "operator": "Den Plattform-Operator-Zugriff für {name} auf {value} setzen?",
@@ -2603,7 +2692,7 @@
       "title": "Aktueller Credit-Stand",
       "unavailableDescription": "Der Arbeitsbereich benötigt eine gültige Berechtigung und einen Credit-Anker, bevor Credits korrigiert oder zurückgesetzt werden können."
     },
-    "emptyBody": "Passen Sie Suche oder Filter an, um das Verzeichnis zu erweitern.",
+    "emptyBody": "Passe Suche oder Filter an, um das Verzeichnis zu erweitern.",
     "emptyTitle": "Keine Benutzer passen zu diesen Filtern",
     "modal": {
       "access": "Zugriff",
@@ -2627,6 +2716,11 @@
   },
   "OperatorWorkspaces": {
     "allowance": {
+      "hintContract": "Der vertraglich vereinbarte Enterprise-Satz, jeden Monat pro aktivem Mitglied.",
+      "hintMissing": "Enterprise bezieht seinen Satz aus einem Vertragswert, und es ist keiner gesetzt. Alle Mitglieder sind blockiert, bis du einen setzt.",
+      "hintPlan": "{plan} enthält so viele Credits pro aktivem Mitglied und Monat.",
+      "hintTrial": "Während einer Testphase erhält das jedes aktive Mitglied, unabhängig vom Tarif.",
+      "hintUnavailable": "Dieses Abonnement gewährt in seinem aktuellen Zustand keine Credits.",
       "label": "Credits pro Benutzer",
       "notSet": "Nicht gesetzt",
       "title": "Enterprise-Kontingent",
@@ -2649,7 +2743,7 @@
       "title": "Diesen Workspace löschen",
       "warningDescription": "Beim Löschen von {name} werden der Workspace und {members, plural, =1 {sein einziges Mitgliedskonto} other {alle # Mitgliedskonten}} dauerhaft entfernt, samt Kontakten, Deals, Nachrichten, Anmeldedaten und Abrechnungsdaten. Dies kann nicht rückgängig gemacht werden."
     },
-    "emptyBody": "Passen Sie Suche oder Filter an, um die Liste zu erweitern.",
+    "emptyBody": "Passe Suche oder Filter an, um die Liste zu erweitern.",
     "emptyTitle": "Keine Arbeitsbereiche passen zu diesen Filtern",
     "modal": {
       "identity": "{domain} · {owner}",
@@ -2697,7 +2791,7 @@
   },
   "PageState": {
     "loading": "Seite wird geladen",
-    "notFoundDescription": "Dieser Datensatz wurde möglicherweise entfernt oder Sie haben keinen Zugriff darauf.",
+    "notFoundDescription": "Dieser Datensatz wurde möglicherweise entfernt oder du hast keinen Zugriff darauf.",
     "notFoundTitle": "Datensatz nicht gefunden"
   },
   "PendingCard": {
@@ -2885,7 +2979,7 @@
     "manageWithLemonSqueezy": "Verwalten mit Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# verbundenes Konto pro Nutzer} other {# verbundene Konten pro Nutzer}}",
-      "creditNote": "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Externe MCP-Clients nutzen Ihren eigenen KI-Anbieter und verbrauchen diese Credits nicht.",
+      "creditNote": "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Externe MCP-Clients nutzen deinen eigenen KI-Anbieter und verbrauchen diese Credits nicht.",
       "features": {
         "business": ["Alles aus Pro", "Geteilte Konten und priorisierter Support"],
         "pro": ["Alles aus Starter", "Zentraler Posteingang"],

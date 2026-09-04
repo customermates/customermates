@@ -12,6 +12,7 @@ import type { StartChatContactRepo } from "@/ee/messaging/outbound/start-chat.in
 import type { ActivityContactRepo } from "@/ee/messaging/activities/prisma-activities.repository";
 import type { ModifyRelationContactRepo } from "@/features/relations/modify-entity-relation.interactor";
 import type { ContactIdentifierOwnersRepo } from "./contact-identifier-owners.repo";
+import type { ExportPageParams, ExportRecordsRepo } from "@/core/base/base-export-records-page.interactor";
 
 import { EntityType, Resource } from "@/generated/prisma";
 
@@ -46,7 +47,8 @@ export class PrismaContactRepo
     StartChatContactRepo,
     ActivityContactRepo,
     ModifyRelationContactRepo,
-    ContactIdentifierOwnersRepo
+    ContactIdentifierOwnersRepo,
+    ExportRecordsRepo<ContactDto>
 {
   private get userScopedSelect() {
     return {
@@ -254,6 +256,29 @@ export class PrismaContactRepo
 
   async getCount(params: GetQueryParams) {
     const { where } = await this.buildQueryArgs(params, this.accessWhere("contact"));
+
+    return this.prisma.contact.count({ where });
+  }
+
+  private exportWhere(selectedIds?: string[]): Prisma.ContactWhereInput {
+    const scoped = this.accessWhere("contact");
+
+    return selectedIds && selectedIds.length > 0 ? { ...scoped, id: { in: selectedIds } } : scoped;
+  }
+
+  async exportItems(params: ExportPageParams) {
+    return this.list({
+      model: "contact",
+      baseWhere: this.exportWhere(params.selectedIds),
+      select: this.userScopedSelect,
+      params,
+      map: (contact: Prisma.ContactGetPayload<{ select: PrismaContactRepo["userScopedSelect"] }>) =>
+        this.toDto(contact),
+    });
+  }
+
+  async exportCount(params: ExportPageParams) {
+    const { where } = await this.buildQueryArgs(params, this.exportWhere(params.selectedIds));
 
     return this.prisma.contact.count({ where });
   }

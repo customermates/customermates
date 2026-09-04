@@ -72,12 +72,29 @@ import { WidgetGroupingService } from "@/features/widget/calculator/widget-group
 import { SubscriptionService } from "@/ee/subscription/subscription.service";
 import { EntitlementService } from "@/ee/subscription/entitlement.service";
 import { BackgroundTaskService } from "@/core/utils/background-task.service";
-import { WithdrawGoogleAdsAttributionInteractor } from "@/features/acquisition/withdraw-google-ads-attribution.interactor";
+import { CaptureAdClickInteractor } from "@/features/acquisition/capture-ad-click.interactor";
+import { DecideAdAttributionConsentInteractor } from "@/features/acquisition/decide-ad-attribution-consent.interactor";
+import { NextAdAttributionCookieRepo } from "@/features/acquisition/next/ad-attribution-cookie";
+import { ReadAdAttributionConsentInteractor } from "@/features/acquisition/read-ad-attribution-consent.interactor";
+import { WithdrawAdAttributionInteractor } from "@/features/acquisition/withdraw-ad-attribution.interactor";
 // Task Listeners
 import { UserPendingAuthorizationTaskListener } from "@/features/tasks/listener/user-pending-authorization-task.listener";
 import { DomainEvent } from "@/features/event/domain-events";
 // Contacts interactors
 import { GetContactsInteractor } from "@/features/contacts/get/get-contacts.interactor";
+// Data transfer interactors
+import { DryRunImportContactsInteractor } from "@/features/data-transfer/import/dry-run-import-contacts.interactor";
+import { DryRunImportDealsInteractor } from "@/features/data-transfer/import/dry-run-import-deals.interactor";
+import { DryRunImportOrganizationsInteractor } from "@/features/data-transfer/import/dry-run-import-organizations.interactor";
+import { DryRunImportServicesInteractor } from "@/features/data-transfer/import/dry-run-import-services.interactor";
+import { DryRunImportTasksInteractor } from "@/features/data-transfer/import/dry-run-import-tasks.interactor";
+import { ExportContactsPageInteractor } from "@/features/data-transfer/export/export-contacts-page.interactor";
+import { ExportDealsPageInteractor } from "@/features/data-transfer/export/export-deals-page.interactor";
+import { ExportOrganizationsPageInteractor } from "@/features/data-transfer/export/export-organizations-page.interactor";
+import { ExportServicesPageInteractor } from "@/features/data-transfer/export/export-services-page.interactor";
+import { ExportTasksPageInteractor } from "@/features/data-transfer/export/export-tasks-page.interactor";
+import { GetImportRelationIndexInteractor } from "@/features/data-transfer/import/get-import-relation-index.interactor";
+import { ImportRelationIndex } from "@/features/data-transfer/import/relation-index.service";
 import { GetContactsConfigurationInteractor } from "@/features/contacts/get/get-contacts-configuration.interactor";
 import { GetContactByIdInteractor } from "@/features/contacts/get/get-contact-by-id.interactor";
 import { CreateContactInteractor } from "@/features/contacts/upsert/create-contact.interactor";
@@ -302,7 +319,7 @@ import { DeleteConnectedAccountsForExpiredTrialsInteractor } from "@/ee/lifecycl
 import { DeleteConnectedAccountsForInactiveOwnersInteractor } from "@/ee/lifecycle/delete-connected-accounts-for-inactive-owners.interactor";
 import { DeleteOrphanedUnipileAccountsInteractor } from "@/ee/lifecycle/delete-orphaned-unipile-accounts.interactor";
 import { SendLegalDocumentNoticesInteractor } from "@/ee/lifecycle/send-legal-document-notices.interactor";
-import { ExpireGoogleAdsClickIdsInteractor } from "@/ee/lifecycle/expire-google-ads-click-ids.interactor";
+import { ExpireAdAttributionInteractor } from "@/ee/lifecycle/expire-ad-attribution.interactor";
 import { GetLegalStatusInteractor } from "@/features/legal/get-legal-status.interactor";
 import { AcceptLegalDocumentsInteractor } from "@/features/legal/accept-legal-documents.interactor";
 // Webhook delivery interactor (workflow task consumer)
@@ -343,10 +360,12 @@ import { UpdateOperatorUserStatusInteractor } from "@/ee/operator/update-operato
 import { GetOperatorAuditLogsInteractor } from "@/ee/operator/get/get-operator-audit-logs.interactor";
 import { GetOperatorUsersInteractor } from "@/ee/operator/get/get-operator-users.interactor";
 import { GetOperatorWorkspacesInteractor } from "@/ee/operator/get/get-operator-workspaces.interactor";
+import { GetAdConversionExportInteractor } from "@/ee/operator/get/get-ad-conversion-export.interactor";
 import { GetOperatorRiskSummaryInteractor } from "@/ee/operator/get/get-operator-risk-summary.interactor";
 import { PrismaOperatorUsersRepo } from "@/ee/operator/prisma-operator-users.repository";
 import { PrismaOperatorWorkspacesRepo } from "@/ee/operator/prisma-operator-workspaces.repository";
 import { PrismaOperatorAuditRepo } from "@/ee/operator/prisma-operator-audit.repository";
+import { PrismaAdConversionExportRepo } from "@/ee/operator/prisma-ad-conversion-export.repository";
 import { PrismaOperatorRiskSummaryRepo } from "@/ee/operator/prisma-operator-risk-summary.repository";
 import { UpdateOperatorUserPlatformAccessInteractor } from "@/ee/operator/update-operator-user-platform-access.interactor";
 import { CorrectOperatorSubscriptionSnapshotInteractor } from "@/ee/operator/correct-operator-subscription-snapshot.interactor";
@@ -916,8 +935,18 @@ export const getDeleteManyTasksInteractor = () =>
 export const getRegisterUserInteractor = () =>
   new RegisterUserInteractor(getAuthService(), getUserRepo(), getEventService(), getRouteGuardService());
 
-export const getWithdrawGoogleAdsAttributionInteractor = () =>
-  new WithdrawGoogleAdsAttributionInteractor(getRouteGuardService(), getUserRepo());
+export const getAdAttributionCookieRepo = () => new NextAdAttributionCookieRepo();
+
+export const getReadAdAttributionConsentInteractor = () =>
+  new ReadAdAttributionConsentInteractor(getAdAttributionCookieRepo());
+
+export const getDecideAdAttributionConsentInteractor = () =>
+  new DecideAdAttributionConsentInteractor(getAdAttributionCookieRepo());
+
+export const getCaptureAdClickInteractor = () => new CaptureAdClickInteractor(getAdAttributionCookieRepo());
+
+export const getWithdrawAdAttributionInteractor = () =>
+  new WithdrawAdAttributionInteractor(getRouteGuardService(), getUserRepo(), getAdAttributionCookieRepo());
 
 export const getUpdateUserDetailsInteractor = () => new UpdateUserDetailsInteractor(getUserRepo(), getEventService());
 
@@ -1266,6 +1295,7 @@ export const getProcessUnipileWebhookInteractor = () => {
     "calendar.event.update": calendarEventUpsert,
     "calendar.event.delete": getProcessCalendarEventDeleteWebhookInteractor(),
     "relation.new": relation,
+    "follower.new": ignoreEvent,
   };
 
   return new ProcessUnipileWebhookInteractor(getUnipileWebhookRepo(), handlers);
@@ -1517,7 +1547,7 @@ export const getDeleteOrphanedUnipileAccountsInteractor = () =>
 export const getSendLegalDocumentNoticesInteractor = () =>
   new SendLegalDocumentNoticesInteractor(getUserRepo(), getAuditLogRepo(), getEmailService(), getEventService());
 
-export const getExpireGoogleAdsClickIdsInteractor = () => new ExpireGoogleAdsClickIdsInteractor(getUserRepo());
+export const getExpireAdAttributionInteractor = () => new ExpireAdAttributionInteractor(getUserRepo());
 
 // --- Legal ---
 
@@ -1665,6 +1695,11 @@ export const getOperatorRiskSummaryRepo = () => new PrismaOperatorRiskSummaryRep
 export const getGetOperatorRiskSummaryInteractor = () =>
   new GetOperatorRiskSummaryInteractor(getOperatorRiskSummaryRepo());
 
+export const getAdConversionExportRepo = () => new PrismaAdConversionExportRepo();
+
+export const getGetAdConversionExportInteractor = () =>
+  new GetAdConversionExportInteractor(getAdConversionExportRepo());
+
 export const getUpdateOperatorUserPlatformAccessInteractor = () =>
   new UpdateOperatorUserPlatformAccessInteractor(getOperatorRepo());
 
@@ -1672,3 +1707,34 @@ export const getCorrectOperatorSubscriptionSnapshotInteractor = () =>
   new CorrectOperatorSubscriptionSnapshotInteractor(getOperatorRepo());
 
 export const getResetOperatorUserCreditsInteractor = () => new ResetOperatorUserCreditsInteractor(getOperatorRepo());
+
+// --- Data transfer ---
+
+export const getExportContactsPageInteractor = () =>
+  new ExportContactsPageInteractor(getContactRepo(), getEventService());
+
+export const getExportOrganizationsPageInteractor = () =>
+  new ExportOrganizationsPageInteractor(getOrganizationRepo(), getEventService());
+
+export const getExportDealsPageInteractor = () => new ExportDealsPageInteractor(getDealRepo(), getEventService());
+
+export const getExportServicesPageInteractor = () =>
+  new ExportServicesPageInteractor(getServiceRepo(), getEventService());
+
+export const getExportTasksPageInteractor = () => new ExportTasksPageInteractor(getTaskRepo(), getEventService());
+
+export const getDryRunImportContactsInteractor = () => new DryRunImportContactsInteractor(getContactWritePrecheck());
+
+export const getImportRelationIndex = () => new ImportRelationIndex();
+
+export const getGetImportRelationIndexInteractor = () =>
+  new GetImportRelationIndexInteractor(getImportRelationIndex(), getUserService());
+
+export const getDryRunImportOrganizationsInteractor = () =>
+  new DryRunImportOrganizationsInteractor(getOrganizationWritePrecheck());
+
+export const getDryRunImportDealsInteractor = () => new DryRunImportDealsInteractor(getDealWritePrecheck());
+
+export const getDryRunImportServicesInteractor = () => new DryRunImportServicesInteractor(getServiceWritePrecheck());
+
+export const getDryRunImportTasksInteractor = () => new DryRunImportTasksInteractor(getTaskWritePrecheck());

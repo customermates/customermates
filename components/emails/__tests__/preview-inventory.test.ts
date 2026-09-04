@@ -62,14 +62,6 @@ const CATALOGS = {
   it: itMessages,
 } as const;
 
-const LEGAL_DOCUMENT_DATES = {
-  de: "1. September 2026",
-  en: "September 1, 2026",
-  es: "1 de septiembre de 2026",
-  fr: "1 septembre 2026",
-  it: "1 settembre 2026",
-} satisfies Record<AppLocale, string>;
-
 function catalog(locale: AppLocale): typeof enMessages {
   return CATALOGS[locale] as unknown as typeof enMessages;
 }
@@ -515,7 +507,14 @@ describe("transactional email preview rendering", () => {
         expect(plainText.toLocaleLowerCase()).toContain(definition.expectedText(locale).toLocaleLowerCase());
 
         if (definition.sendSite === "legal-document-notice") {
-          expect(plainText).toContain(LEGAL_DOCUMENT_DATES[locale]);
+          const currentVersions = Object.values(LEGAL_DOCUMENT_VERSIONS);
+          const localizedVersions = currentVersions.map((version) => localizedDate(locale, version));
+
+          expect(
+            localizedVersions.some((date) => plainText.includes(date)),
+            `${definition.key}/${locale} renders no current version as a localized date`,
+          ).toBe(true);
+          for (const version of currentVersions) expect(plainText).not.toContain(version);
           expect(plainText).not.toContain("2026-08-07");
         }
       }

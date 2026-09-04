@@ -103,15 +103,53 @@ describe("legal documents describe only what the product does", () => {
     expect(present, `retired subjects still disclosed: ${present.join(", ")}`).toEqual([]);
   });
 
-  it.each(CONTENT_LOCALES)("privacy (%s) bounds the first-party Google Ads click attribution", (name) => {
+  it.each(CONTENT_LOCALES)("privacy (%s) bounds the first-party advertising attribution", (name) => {
     const privacy = legal(name, "privacy");
 
-    expect(privacy).toMatch(/Google.?Ads/i);
-    expect(privacy).toMatch(/gclid.*gbraid.*wbraid/is);
-    expect(privacy).toMatch(name === "en" ? /consent.*Privacy choices.*withdraw/is : /Einwilligung.*Datenschutzauswahl.*widerruf/is);
-    expect(privacy).toMatch(name === "en" ? /90 days/i : /90 Tage/i);
+    for (const kind of ["gclid", "gbraid", "wbraid", "oppref", "rdt_cid", "li_fat_id"])
+      expect(privacy, `${name}/privacy does not name ${kind}`).toContain(kind);
+
+    for (const recipient of ["Google", "OpenAI", "Reddit", "LinkedIn"])
+      expect(privacy, `${name}/privacy does not name ${recipient}`).toContain(recipient);
+
     expect(privacy).toMatch(
-      name === "en" ? /no Google tag.*conversion upload/is : /kein Google-Tag.*kein Conversion-Upload/is,
+      name === "en" ? /consent.*Privacy choices.*withdraw/is : /Einwilligung.*Datenschutzauswahl.*widerruf/is,
+    );
+    expect(privacy).toMatch(name === "en" ? /89 days.*30 days/is : /89 Tage.*30 Tage/is);
+    expect(privacy).toMatch(
+      name === "en"
+        ? /no directly identifying data is transmitted.*no hashed email address.*no IP address/is
+        : /keine unmittelbar identifizierenden Daten übermittelt.*keine gehashte E-Mail-Adresse.*keine IP-Adresse/is,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /Reporting is not automatic, and it has not begun/i
+        : /Rückmeldung erfolgt nicht automatisch, und sie hat noch nicht begonnen/i,
+    );
+    expect(privacy).toMatch(/cm_ad_attribution/);
+    for (const company of ["Google LLC", "Reddit, Inc.", "LinkedIn Corporation"])
+      expect(privacy, `${name}/privacy does not name the receiving company ${company}`).toContain(company);
+    expect(privacy, `${name}/privacy does not state the recipients' role`).toMatch(
+      name === "en" ? /independent controller/i : /eigenst\u00e4ndig Verantwortlich/i,
+    );
+    expect(privacy, `${name}/privacy does not state the transfer basis`).toMatch(
+      name === "en" ? /Data Privacy Framework/i : /Data Privacy Framework/i,
+    );
+    expect(privacy, `${name}/privacy no longer says nothing has been transmitted yet`).toMatch(
+      name === "en" ? /has received anything from this feature yet/i : /hat aus dieser Funktion bisher etwas erhalten/i,
+    );
+    expect(privacy, `${name}/privacy still claims a live Google reporting route`).not.toMatch(
+      /spreadsheet in a Customermates Google account|Tabelle in einem Google-Konto/i,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /standard contractual clauses/i
+        : /Standardvertragsklauseln/i,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /No advertising pixel, tag, measurement SDK/is
+        : /weder Werbepixel noch Tags oder Mess-SDKs/is,
     );
   });
 

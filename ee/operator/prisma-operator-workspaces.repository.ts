@@ -10,6 +10,8 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 
+import { workspaceAgentCreditRate } from "@/ee/agent-chat/agent-credit-policy";
+
 import { filterValues, negated } from "./operator-list-filters";
 
 type WorkspaceAggregate = {
@@ -34,6 +36,16 @@ export function partitionOperatorWorkspaceFilters(filters: Filter[] | undefined)
     if (filter.field === String(FilterFieldKey.workspaceId)) {
       const values = filterValues(filter);
       if (values.length > 0) baseWhere.id = negated(filter) ? { notIn: values } : { in: values };
+      continue;
+    }
+
+    if (filter.field === String(FilterFieldKey.adProvider)) {
+      const values = filterValues(filter);
+      if (values.length > 0) {
+        baseWhere.adAttributions = negated(filter)
+          ? { none: { provider: { in: values } } }
+          : { some: { provider: { in: values } } };
+      }
       continue;
     }
 
@@ -101,6 +113,7 @@ export class PrismaOperatorWorkspacesRepo
         FilterFieldKey.subscriptionStatus,
         FilterFieldKey.createdAt,
         FilterFieldKey.workspaceId,
+        FilterFieldKey.adProvider,
         FilterFieldKey.workspaceTags,
       ].map((field) => ({ field, operators: FILTER_FIELD_DEFAULT_OPERATORS[field] })),
     );
@@ -187,13 +200,16 @@ export class PrismaOperatorWorkspacesRepo
             updatedAt: true,
           },
         },
+        adAttributions: { select: { provider: true }, orderBy: { clickedAt: "desc" }, take: 1 },
       },
     });
 
     const aggregates = await this.aggregatesUnscoped(companies.map((company) => company.id));
+    const now = new Date();
 
     return companies.map((company) => {
       const aggregate = aggregates.get(company.id);
+      const subscription = company.subscription;
 
       return {
         id: company.id,
@@ -206,9 +222,19 @@ export class PrismaOperatorWorkspacesRepo
         subscriptionStatus: company.subscription?.status ?? null,
         seats: company.subscription?.quantity ?? null,
         enterpriseCreditsPerUser: company.subscription?.enterpriseAgentCreditsPerUser ?? null,
+        creditsPerUser: subscription
+          ? workspaceAgentCreditRate({
+              plan: subscription.plan,
+              status: subscription.status,
+              trialEndDate: subscription.trialEndDate,
+              enterpriseCreditsPerUser: subscription.enterpriseAgentCreditsPerUser,
+              now,
+            })
+          : null,
         trialEndDate: company.subscription?.trialEndDate ?? null,
         lemonSqueezyId: company.subscription?.lemonSqueezyId ?? null,
         subscriptionUpdatedAt: company.subscription?.updatedAt ?? null,
+        adProvider: company.adAttributions[0]?.provider ?? null,
         tags: company.tags,
         createdAt: company.createdAt,
       };

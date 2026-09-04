@@ -150,93 +150,96 @@ describeDatabase("registration against a real database", () => {
     expect(persistedUser).toEqual({ agreeToTerms: true });
   });
 
-  it("stores one owner click transactionally and clears it at bounded expiry", async () => {
+  it("stores one attribution row per provider transactionally and deletes them at each provider's expiry", async () => {
     const repo = new PrismaUserRepo();
+    const clickedAt = new Date("2026-08-31T09:55:00.000Z");
     const capturedAt = new Date("2026-08-31T10:00:00.000Z");
-    const expiresAt = new Date("2026-11-28T10:00:00.000Z");
+    const googleExpiresAt = new Date("2026-11-28T10:00:00.000Z");
+    const openAiExpiresAt = new Date("2026-09-30T10:00:00.000Z");
     const owner = await runWithoutTenant(() =>
       repo.createCompanyAndUser({
-        email: `google-click-${Date.now()}@example.com`,
-        firstName: "Google",
+        email: `ad-click-${Date.now()}@example.com`,
+        firstName: "Ad",
         lastName: "Click",
         country: "de",
         agreeToTerms: true,
         avatarUrl: null,
-        googleAdsAttribution: {
-          clickId: "Case-Sensitive_GCLID",
-          clickIdKind: "gclid",
-          capturedAt,
-          consentedAt: capturedAt,
-          expiresAt,
-        },
+        adAttribution: [
+          {
+            provider: "google_ads",
+            identifierKind: "gclid",
+            identifierValue: "Case-Sensitive_GCLID",
+            clickedAt,
+            capturedAt,
+            consentedAt: capturedAt,
+            consentNoticeVersion: "2026-09-02",
+            expiresAt: googleExpiresAt,
+          },
+          {
+            provider: "openai_ads",
+            identifierKind: "oppref",
+            identifierValue: "Opaque-OPPREF",
+            clickedAt,
+            capturedAt,
+            consentedAt: capturedAt,
+            consentNoticeVersion: "2026-09-02",
+            expiresAt: openAiExpiresAt,
+          },
+        ],
       }),
     );
     companyIds.push(owner.companyId);
 
     await expect(
       runWithoutTenant(() =>
-        prisma.user.findUniqueOrThrow({
-          where: { id: owner.id },
-          select: {
-            googleAdsClickId: true,
-            googleAdsClickIdKind: true,
-            googleAdsClickIdCapturedAt: true,
-            googleAdsAttributionConsentedAt: true,
-            googleAdsClickIdExpiresAt: true,
-            onboardingWizardCompletedAt: true,
-          },
+        prisma.adAttribution.findMany({
+          where: { companyId: owner.companyId },
+          orderBy: { provider: "asc" },
+          select: { provider: true, identifierKind: true, identifierValue: true, clickedAt: true, userId: true },
         }),
       ),
-    ).resolves.toEqual({
-      googleAdsClickId: "Case-Sensitive_GCLID",
-      googleAdsClickIdKind: "gclid",
-      googleAdsClickIdCapturedAt: capturedAt,
-      googleAdsAttributionConsentedAt: capturedAt,
-      googleAdsClickIdExpiresAt: expiresAt,
-      onboardingWizardCompletedAt: null,
-    });
+    ).resolves.toEqual([
+      {
+        provider: "google_ads",
+        identifierKind: "gclid",
+        identifierValue: "Case-Sensitive_GCLID",
+        clickedAt,
+        userId: owner.id,
+      },
+      {
+        provider: "openai_ads",
+        identifierKind: "oppref",
+        identifierValue: "Opaque-OPPREF",
+        clickedAt,
+        userId: owner.id,
+      },
+    ]);
 
-    await expect(repo.expireGoogleAdsClickIdsUnscoped(new Date("2026-11-28T09:59:59.000Z"))).resolves.toBe(0);
-    await expect(repo.expireGoogleAdsClickIdsUnscoped(expiresAt)).resolves.toBe(1);
     await expect(
       runWithoutTenant(() =>
-        prisma.user.findUniqueOrThrow({
-          where: { id: owner.id },
-          select: {
-            googleAdsClickId: true,
-            googleAdsClickIdKind: true,
-            googleAdsClickIdCapturedAt: true,
-            googleAdsAttributionConsentedAt: true,
-            googleAdsClickIdExpiresAt: true,
-          },
-        }),
+        prisma.conversionEvent.findMany({ where: { companyId: owner.companyId }, select: { type: true } }),
       ),
-    ).resolves.toEqual({
-      googleAdsClickId: null,
-      googleAdsClickIdKind: null,
-      googleAdsClickIdCapturedAt: null,
-      googleAdsAttributionConsentedAt: null,
-      googleAdsClickIdExpiresAt: null,
-    });
+    ).resolves.toEqual([{ type: "signup" }]);
 
-    const stableUpdatedAt = new Date("2026-11-28T10:01:00.000Z");
-    await runWithoutTenant(() =>
-      prisma.user.update({
-        where: { id: owner.id },
-        data: { updatedAt: stableUpdatedAt },
-      }),
-    );
-    await expect(runWithTenant(owner, () => repo.clearGoogleAdsAttributionForUser({ userId: owner.id }))).resolves.toBe(
-      false,
-    );
+    await expect(repo.expireAdAttributionUnscoped(new Date("2026-09-30T09:59:59.000Z"))).resolves.toBe(0);
+    await expect(repo.expireAdAttributionUnscoped(openAiExpiresAt)).resolves.toBe(1);
     await expect(
       runWithoutTenant(() =>
-        prisma.user.findUniqueOrThrow({
-          where: { id: owner.id },
-          select: { updatedAt: true },
-        }),
+        prisma.adAttribution.findMany({ where: { companyId: owner.companyId }, select: { provider: true } }),
       ),
-    ).resolves.toEqual({ updatedAt: stableUpdatedAt });
+    ).resolves.toEqual([{ provider: "google_ads" }]);
+
+    await expect(runWithTenant(owner, () => repo.clearAdAttributionForUser({ userId: owner.id }))).resolves.toBe(true);
+    await expect(
+      runWithoutTenant(() => prisma.adAttribution.count({ where: { companyId: owner.companyId } })),
+    ).resolves.toBe(0);
+    await expect(runWithTenant(owner, () => repo.clearAdAttributionForUser({ userId: owner.id }))).resolves.toBe(false);
+
+    await expect(
+      runWithoutTenant(() =>
+        prisma.user.findUniqueOrThrow({ where: { id: owner.id }, select: { onboardingWizardCompletedAt: true } }),
+      ),
+    ).resolves.toEqual({ onboardingWizardCompletedAt: null });
   });
 
   it("atomically creates a new cloud company and its initial legal audit evidence", async () => {

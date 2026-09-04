@@ -97,6 +97,7 @@ describe("WidgetsStore refresh compatibility", () => {
     updateWidgetLayoutsAction.mockRejectedValueOnce(error);
     const seen: unknown[] = [];
     const unregister = registerApplicationErrorHandler((reported) => seen.push(reported));
+    const before = JSON.parse(JSON.stringify(store.layouts)) as typeof store.layouts;
     const moved = {
       ...store.layouts,
       lg: [{ h: 2, i: FIRST_ID, w: 3, x: 1, y: 0 }],
@@ -106,8 +107,30 @@ describe("WidgetsStore refresh compatibility", () => {
 
     await vi.waitFor(() => expect(seen).toEqual([error]));
     expect(updateWidgetLayoutsAction).toHaveBeenCalledTimes(1);
-    expect(store.layouts).toEqual(moved);
+    expect(store.layouts).toEqual(before);
+    expect(store.layouts).not.toEqual(moved);
     expect(captureException).toHaveBeenCalledExactlyOnceWith(error);
     unregister();
+  });
+
+  it("reverts the layout when the server rejects the write without throwing", async () => {
+    const root = {
+      localeStore: { getTranslation: (key: string) => key },
+      loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
+    } as unknown as RootStore;
+    const store = new WidgetsStore(root);
+    const initial = widget(FIRST_ID, 0, 0);
+    refreshWidgetsAction.mockResolvedValueOnce([initial]);
+    await store.refresh();
+
+    updateWidgetLayoutsAction.mockResolvedValueOnce({ ok: false, error: { errors: ["nope"] } });
+    const before = JSON.parse(JSON.stringify(store.layouts)) as typeof store.layouts;
+    const moved = { ...store.layouts, lg: [{ h: 2, i: FIRST_ID, w: 3, x: 1, y: 0 }] };
+
+    store.onLayoutChange([], moved);
+
+    await vi.waitFor(() => expect(updateWidgetLayoutsAction).toHaveBeenCalledTimes(1));
+    await vi.waitFor(() => expect(store.layouts).toEqual(before));
+    expect(store.layouts).not.toEqual(moved);
   });
 });

@@ -10,6 +10,7 @@ const aliases = {
 const testEnvironment = {
   APP_MODE: "self-hosted",
   BASE_URL: "http://localhost:4000",
+  BETTER_AUTH_SECRET: "vitest-secret",
 };
 const domTestFiles = [
   "app/**/company/components/company-settings/__tests__/company-settings-form.test.ts",
@@ -22,11 +23,14 @@ const domTestFiles = [
   "app/components/navigation/__tests__/public-navbar-menu.test.ts",
   "core/base/__tests__/persist-view-options-rejection.test.ts",
   "core/utils/__tests__/clipboard.test.ts",
+  "features/data-transfer/__tests__/export-action-stability.test.ts",
+  "features/data-transfer/__tests__/export-requested-columns.test.ts",
   "core/utils/__tests__/use-is-truncated.test.ts",
   "components/data-view/__tests__/is-interactive-click.test.ts",
   "components/data-view/__tests__/data-view-url-sync.test.ts",
   "components/data-view/__tests__/use-data-view-sync.test.ts",
   "components/data-view/filter-modal/inputs/__tests__/filter-input-number.test.ts",
+  "components/entity-detail/__tests__/entity-detail-custom-fields-empty.test.ts",
   "components/entity-detail/__tests__/entity-detail-personalization.test.ts",
   "components/entity-detail/__tests__/entity-detail-summary.test.ts",
   "components/entity-detail/__tests__/entity-detail-visibility.test.tsx",
@@ -35,7 +39,7 @@ const domTestFiles = [
   "components/forms/__tests__/form-context.test.ts",
   "components/forms/__tests__/selection-command.test.ts",
   "components/modal/__tests__/delete-confirmation-modal.test.ts",
-  "components/acquisition/__tests__/public-google-ads-consent.test.ts",
+  "components/acquisition/__tests__/public-ad-attribution-consent.test.ts",
   "components/scroll/__tests__/messages-scroll-container.test.ts",
   "components/shared/__tests__/unexpected-error-toaster.test.ts",
   "core/stores/__tests__/root-store-provider.test.ts",

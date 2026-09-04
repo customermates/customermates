@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
+import { ConversionEventType, Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
+import { AdIdentifierKindSchema, AdProviderSchema } from "@/features/acquisition/ad-provider-registry";
 
 export const OperatorUserRowDtoSchema = z.object({
   id: z.uuid(),
@@ -20,8 +21,8 @@ export const OperatorUserRowDtoSchema = z.object({
   subscriptionStatus: z.enum(SubscriptionStatus).nullable(),
   subscriptionQuantity: z.number().nullable(),
   subscriptionUpdatedAt: z.date().nullable(),
-  googleAdsClickId: z.string().nullable(),
-  googleAdsClickIdKind: z.string().nullable(),
+  adProvider: z.string().nullable(),
+  adIdentifierKind: z.string().nullable(),
   creditsRemaining: z.number().nullable(),
   creditsLimit: z.number().nullable(),
   creditsBlockedReason: z.string().nullable(),
@@ -40,9 +41,11 @@ export const OperatorWorkspaceRowDtoSchema = z.object({
   subscriptionStatus: z.enum(SubscriptionStatus).nullable(),
   seats: z.number().nullable(),
   enterpriseCreditsPerUser: z.number().nullable(),
+  creditsPerUser: z.number().nullable(),
   trialEndDate: z.date().nullable(),
   lemonSqueezyId: z.string().nullable(),
   subscriptionUpdatedAt: z.date().nullable(),
+  adProvider: z.string().nullable(),
   tags: z.array(z.string()),
   createdAt: z.date(),
 });
@@ -76,6 +79,31 @@ export const OperatorRiskSummaryDtoSchema = z.object({
   activeUsersLastSevenDays: z.number(),
   newWorkspacesLastThirtyDays: z.number(),
   newUsersLastThirtyDays: z.number(),
+  attributedWorkspaces: z.number(),
+  attributedPaidWorkspaces: z.number(),
 });
 
 export type OperatorRiskSummaryDto = z.infer<typeof OperatorRiskSummaryDtoSchema>;
+
+export const AdConversionExportRowDtoSchema = z.object({
+  provider: AdProviderSchema,
+  identifierKind: AdIdentifierKindSchema,
+  identifierValue: z.string(),
+  conversionType: z.enum(ConversionEventType),
+  conversionAt: z.date(),
+  orderId: z.string(),
+  adUserData: z.enum(["Granted", "Denied"]),
+  adPersonalization: z.enum(["Granted", "Denied"]),
+});
+
+export type AdConversionExportRowDto = z.infer<typeof AdConversionExportRowDtoSchema>;
+
+export const AdConversionExportDtoSchema = z.object({
+  generatedAt: z.date(),
+  rows: z.array(AdConversionExportRowDtoSchema),
+  googleAdsCsv: z.string(),
+  googleAdsRowCount: z.number().int().nonnegative(),
+  googleAdsWithoutColumnCount: z.number().int().nonnegative(),
+});
+
+export type AdConversionExportDto = z.infer<typeof AdConversionExportDtoSchema>;

@@ -21,7 +21,14 @@ import { OPERATOR_AUDIT_ACTION } from "../operator.schema";
 import type { OperatorRefusal } from "../operator.repo";
 import { PrismaOperatorRepo } from "../prisma-operator.repository";
 
-const OPERATOR_REFUSALS: OperatorRefusal[] = ["conflict", "notFound", "unavailable"];
+const OPERATOR_REFUSALS: OperatorRefusal[] = [
+  "conflict",
+  "notFound",
+  "unavailable",
+  "allowanceMissing",
+  "connectedAccountsActive",
+  "trialEndRequired",
+];
 
 function assertAdmitted<T>(result: T | OperatorRefusal): asserts result is T {
   const refusal = OPERATOR_REFUSALS.find((candidate) => candidate === result);
@@ -768,6 +775,79 @@ describeDatabase("operator user administration against a real database", { timeo
       expect(second.previous?.lemonSqueezyId).toBe(providerId);
       expect(second.next?.lemonSqueezyId).toBeNull();
       expect(second.billingBindingCleared).toBe(true);
+    });
+  });
+
+  it("refuses to clear a trial end date that is already set, and leaves an absent one writable", async () => {
+    const repo = new PrismaOperatorRepo();
+    const companyId = await createCompany({ plan: "pro", status: "trial" });
+    const actor = operatorActor();
+
+    const refused = await runWithOperator(actor, () =>
+      repo.updateSubscriptionTermsUnscoped({ companyId, trialEndDate: null, lemonSqueezyId: null }, now),
+    );
+    expect(refused).toBe("trialEndRequired");
+
+    await runWithoutTenant(async () => {
+      const subscription = await prisma.subscription.findUniqueOrThrow({ where: { companyId } });
+      expect(subscription.trialEndDate).not.toBeNull();
+      expect(await prisma.operatorAuditEvent.count({ where: { actorUserId: actor.userId } })).toBe(0);
+    });
+
+    const perpetualId = await createCompany({ plan: "enterprise", status: "active" });
+    await runWithoutTenant(() =>
+      prisma.subscription.update({ where: { companyId: perpetualId }, data: { trialEndDate: null } }),
+    );
+
+    const stillWritable = await runWithOperator(actor, () =>
+      repo.updateSubscriptionTermsUnscoped({ companyId: perpetualId, trialEndDate: null, lemonSqueezyId: null }, now),
+    );
+    assertAdmitted(stillWritable);
+  });
+
+  it("refuses a credit reset whose operationId belongs to a different workspace", async () => {
+    const repo = new PrismaOperatorRepo();
+    const actor = operatorActor();
+
+    const companyA = await createCompany({ plan: "enterprise", status: "active", enterpriseCreditsPerUser: 10 });
+    const targetA = await createUser({ companyId: companyA, email: `replay-a-${randomUUID()}@example.invalid` });
+
+    const companyB = await createCompany({ plan: "enterprise", status: "active", enterpriseCreditsPerUser: 10 });
+    const targetB = await createUser({ companyId: companyB, email: `replay-b-${randomUUID()}@example.invalid` });
+
+    const foreignOperationId = randomUUID();
+    await runWithoutTenant(() =>
+      prisma.agentCreditAdjustment.create({
+        data: {
+          companyId: companyB,
+          userId: targetB.userId,
+          creditDelta: 99,
+          periodStart,
+          periodEnd,
+          reason: "Belongs to another workspace",
+          operationId: foreignOperationId,
+          createdByOperatorUserId: "fixture",
+        },
+      }),
+    );
+
+    const replayed = await runWithOperator(actor, () =>
+      repo.resetUserCreditsUnscoped(
+        { userId: targetA.userId, mode: "baseAllowance", operationId: foreignOperationId },
+        now,
+      ),
+    );
+
+    expect(replayed).toBe("conflict");
+
+    await runWithoutTenant(async () => {
+      const adjustments = await prisma.agentCreditAdjustment.findMany({ where: { companyId: companyA } });
+      expect(adjustments).toEqual([]);
+      const foreign = await prisma.agentCreditAdjustment.findUniqueOrThrow({
+        where: { operationId: foreignOperationId },
+      });
+      expect(foreign.companyId).toBe(companyB);
+      expect(foreign.creditDelta).toBe(99);
     });
   });
 });

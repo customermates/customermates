@@ -39,7 +39,13 @@ export const AccountFolders = observer(({ account, editable = false, onToggle }:
             <span className="min-w-0 flex-1 truncate text-sm">{folder.name?.trim() || t("Common.unnamed")}</span>
 
             {editable && onToggle ? (
-              <Switch checked={on} onCheckedChange={(next) => onToggle(folder.id, next)} />
+              <Switch
+                aria-label={t("ConnectedAccountsCard.folderToggleLabel", {
+                  folder: folder.name?.trim() || t("Common.unnamed"),
+                })}
+                checked={on}
+                onCheckedChange={(next) => onToggle(folder.id, next)}
+              />
             ) : (
               <span className={cn("shrink-0 text-[11px]", on ? "text-success" : "text-subdued")}>
                 {on ? t("ConnectedAccountsCard.folderSynced") : t("ConnectedAccountsCard.folderHidden")}

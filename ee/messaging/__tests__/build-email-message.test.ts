@@ -114,8 +114,13 @@ describe("buildEmailMessage", () => {
 
     expect(msg?.subject).toBe("Hello there");
     expect(msg?.bodyHtml).toBe("<p>hi</p>");
-    expect(msg?.bodyText).toBeNull();
+    expect(msg?.bodyText).toBe("hi");
     expect(msg?.unipileThreadId).toBe("t1");
+  });
+
+  it("leaves bodyText null when the html carries no readable text", () => {
+    expect(buildEmailMessage(v2Email({ body: "<style>a{color:red}</style>" }), account)?.bodyText).toBeNull();
+    expect(buildEmailMessage(v2Email({ body: "" }), account)?.bodyText).toBeNull();
   });
 
   it("falls back to the email id as the thread id when thread_id is blank", () => {

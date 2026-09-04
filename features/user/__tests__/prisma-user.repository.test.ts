@@ -13,10 +13,15 @@ const prismaMock = {
   user: {
     findFirst: vi.fn().mockResolvedValue(null),
     findMany: vi.fn().mockResolvedValue([]),
-    create: vi.fn().mockResolvedValue({ id: "user-1" }),
+    create: vi.fn().mockResolvedValue({ id: "user-1", createdAt: new Date("2026-09-02T10:00:00.000Z") }),
     updateMany: vi.fn().mockResolvedValue({ count: 1 }),
     findUniqueOrThrow: vi.fn().mockResolvedValue({ id: "user-1", email: "owner@example.com" }),
   },
+  adAttribution: {
+    create: vi.fn().mockResolvedValue({ id: "attribution-1" }),
+    deleteMany: vi.fn().mockResolvedValue({ count: 1 }),
+  },
+  conversionEvent: { create: vi.fn().mockResolvedValue({ id: "conversion-1" }) },
   company: {
     create: vi.fn().mockResolvedValue({ id: "company-1" }),
     update: vi.fn().mockResolvedValue({ id: "company-1" }),
@@ -134,75 +139,76 @@ describe("PrismaUserRepo.createCompanyAndUser", () => {
     expect(customColumnCreate).toHaveBeenCalledTimes(3);
   });
 
-  it("stores one consented Google Ads click on the initial owner user", async () => {
-    const googleAdsAttribution = {
-      clickId: "Case-Sensitive_GCLID",
-      clickIdKind: "gclid" as const,
-      capturedAt: new Date("2026-08-31T10:00:00.000Z"),
-      consentedAt: new Date("2026-08-31T10:00:00.000Z"),
-      expiresAt: new Date("2026-11-28T10:00:00.000Z"),
-    };
+  it("stores one consented ad attribution row per provider on the initial owner", async () => {
+    const adAttribution = [
+      {
+        provider: "google_ads" as const,
+        identifierKind: "gclid" as const,
+        identifierValue: "Case-Sensitive_GCLID",
+        clickedAt: new Date("2026-08-31T09:55:00.000Z"),
+        capturedAt: new Date("2026-08-31T10:00:00.000Z"),
+        consentedAt: new Date("2026-08-31T10:00:00.000Z"),
+        consentNoticeVersion: "2026-09-02",
+        expiresAt: new Date("2026-11-28T10:00:00.000Z"),
+      },
+      {
+        provider: "openai_ads" as const,
+        identifierKind: "oppref" as const,
+        identifierValue: "Opaque-OPPREF",
+        clickedAt: new Date("2026-08-31T09:55:00.000Z"),
+        capturedAt: new Date("2026-08-31T10:00:00.000Z"),
+        consentedAt: new Date("2026-08-31T10:00:00.000Z"),
+        consentNoticeVersion: "2026-09-02",
+        expiresAt: new Date("2026-09-30T10:00:00.000Z"),
+      },
+    ];
 
-    await new PrismaUserRepo().createCompanyAndUser({
-      ...registerArgs,
-      googleAdsAttribution,
-    });
+    await new PrismaUserRepo().createCompanyAndUser({ ...registerArgs, adAttribution });
 
-    expect(prismaMock.user.create).toHaveBeenCalledWith({
+    expect(prismaMock.adAttribution.create).toHaveBeenCalledTimes(2);
+    expect(prismaMock.adAttribution.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
-        googleAdsClickId: googleAdsAttribution.clickId,
-        googleAdsClickIdKind: googleAdsAttribution.clickIdKind,
-        googleAdsClickIdCapturedAt: googleAdsAttribution.capturedAt,
-        googleAdsAttributionConsentedAt: googleAdsAttribution.consentedAt,
-        googleAdsClickIdExpiresAt: googleAdsAttribution.expiresAt,
+        companyId: "company-1",
+        userId: "user-1",
+        provider: "google_ads",
+        identifierKind: "gclid",
+        identifierValue: "Case-Sensitive_GCLID",
+        clickedAt: adAttribution[0].clickedAt,
+        consentNoticeVersion: "2026-09-02",
       }),
     });
-  });
-
-  it("clears expired Google Ads click identifiers without touching account state", async () => {
-    const now = new Date("2026-11-29T10:00:00.000Z");
-
-    await expect(new PrismaUserRepo().expireGoogleAdsClickIdsUnscoped(now)).resolves.toBe(1);
-
-    expect(prismaMock.user.updateMany).toHaveBeenCalledWith({
-      where: { googleAdsClickIdExpiresAt: { lte: now } },
-      data: {
-        googleAdsClickId: null,
-        googleAdsClickIdKind: null,
-        googleAdsClickIdCapturedAt: null,
-        googleAdsAttributionConsentedAt: null,
-        googleAdsClickIdExpiresAt: null,
-      },
+    expect(prismaMock.conversionEvent.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ companyId: "company-1", type: "signup" }),
     });
   });
 
-  it("does not rewrite an already-cleared attribution during a withdrawal retry", async () => {
-    prismaMock.user.updateMany.mockResolvedValueOnce({ count: 0 });
+  it("records no attribution or conversion for an unattributed registration", async () => {
+    await new PrismaUserRepo().createCompanyAndUser({ ...registerArgs, adAttribution: [] });
+
+    expect(prismaMock.adAttribution.create).not.toHaveBeenCalled();
+    expect(prismaMock.conversionEvent.create).not.toHaveBeenCalled();
+  });
+
+  it("deletes expired attribution rows without touching account state", async () => {
+    const now = new Date("2026-11-29T10:00:00.000Z");
+    prismaMock.adAttribution.deleteMany.mockResolvedValueOnce({ count: 3 });
+
+    await expect(new PrismaUserRepo().expireAdAttributionUnscoped(now)).resolves.toBe(3);
+
+    expect(prismaMock.adAttribution.deleteMany).toHaveBeenCalledWith({ where: { expiresAt: { lte: now } } });
+    expect(prismaMock.user.updateMany).not.toHaveBeenCalled();
+  });
+
+  it("reports no change when a withdrawal retry finds nothing to delete", async () => {
+    prismaMock.adAttribution.deleteMany.mockResolvedValueOnce({ count: 0 });
     const user = createMockUser({ id: "user-1", companyId: "company-1" });
 
     await expect(
-      runWithTenant(user, () => new PrismaUserRepo().clearGoogleAdsAttributionForUser({ userId: user.id })),
+      runWithTenant(user, () => new PrismaUserRepo().clearAdAttributionForUser({ userId: user.id })),
     ).resolves.toBe(false);
 
-    expect(prismaMock.user.updateMany).toHaveBeenCalledWith({
-      where: {
-        id: "user-1",
-        companyId: "company-1",
-        OR: [
-          { googleAdsClickId: { not: null } },
-          { googleAdsClickIdKind: { not: null } },
-          { googleAdsClickIdCapturedAt: { not: null } },
-          { googleAdsAttributionConsentedAt: { not: null } },
-          { googleAdsClickIdExpiresAt: { not: null } },
-        ],
-      },
-      data: {
-        googleAdsClickId: null,
-        googleAdsClickIdKind: null,
-        googleAdsClickIdCapturedAt: null,
-        googleAdsAttributionConsentedAt: null,
-        googleAdsClickIdExpiresAt: null,
-      },
+    expect(prismaMock.adAttribution.deleteMany).toHaveBeenCalledWith({
+      where: { userId: "user-1", companyId: "company-1" },
     });
   });
 

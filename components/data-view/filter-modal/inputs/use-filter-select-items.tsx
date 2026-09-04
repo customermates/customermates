@@ -51,6 +51,7 @@ import {
 import { DomainEvent } from "@/features/event/domain-events";
 import { ACTIVITY_FILTER_VALUE_MAX, ActivityFilterSchema } from "@/ee/messaging/activities/activities.schema";
 import { activityEntityTypeForFilterField } from "@/ee/messaging/activities/activity-filterable-fields";
+import { AD_PROVIDER_ORDER, adProviderDisplayName } from "@/features/acquisition/ad-provider-registry";
 
 export type FilterSelectItem = {
   key: string;
@@ -97,6 +98,8 @@ function validActivityFilters(filters: Filter[] | undefined): NonNullable<Activi
     return parsed.success ? [parsed.data] : [];
   });
 }
+
+const SELF_IDENTIFYING_FILTER_FIELDS = new Set<FilterFieldKey>([FilterFieldKey.workspaceId]);
 
 export function useFilterSelectItems(
   filter: Filter,
@@ -255,12 +258,17 @@ export function useFilterSelectItems(
 
     if (!getItems) return undefined;
 
+    const selfIdentifyingField = SELF_IDENTIFYING_FILTER_FIELDS.has(fieldKey) ? fieldKey : null;
+
     return async (ids) => {
       const requested = new Set(ids);
-      const result = await getItems({});
+      const params: GetQueryParams = selfIdentifyingField
+        ? { filters: [{ field: selfIdentifyingField, operator: FilterOperatorKey.in, value: [...ids] }] }
+        : {};
+      const result = await getItems(params);
       return result.items.filter((item) => requested.has(item.key));
     };
-  }, [getItems, getSelectedItems]);
+  }, [fieldKey, getItems, getSelectedItems]);
 
   const [selectionAttempt, setSelectionAttempt] = useState(0);
   const selectionRequestKey =
@@ -425,6 +433,14 @@ export function useFilterSelectItems(
           { key: "true", value: "true", textValue: t("OperatorUsers.values.operator") },
           { key: "false", value: "false", textValue: t("OperatorUsers.platformAccess.revoked") },
         ];
+      }
+
+      case FilterFieldKey.adProvider: {
+        return AD_PROVIDER_ORDER.map((provider) => ({
+          key: provider,
+          value: provider,
+          textValue: adProviderDisplayName(provider),
+        }));
       }
 
       case FilterFieldKey.auditSource: {

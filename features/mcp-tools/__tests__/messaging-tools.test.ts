@@ -11,6 +11,7 @@ const mockUser = createMockUser();
 const spies = vi.hoisted(() => ({
   createAuthLink: vi.fn(),
   getActivities: vi.fn(),
+  getMessagingThread: vi.fn(),
 }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
@@ -19,6 +20,7 @@ vi.mock("@/core/di", () => ({
   ...createMockDiModule(() => mockUser),
   getCreateAuthLinkInteractor: () => ({ invoke: spies.createAuthLink }),
   getGetActivitiesApiInteractor: () => ({ invoke: spies.getActivities }),
+  getGetMessagingThreadInteractor: () => ({ invoke: spies.getMessagingThread }),
 }));
 
 import {
@@ -214,5 +216,69 @@ describe.each([
         filters: Array.from({ length: 51 }, () => filter),
       }).success,
     ).toBe(false);
+  });
+});
+
+describe("email body exposure", () => {
+  const message = {
+    id: "44444444-4444-4444-8444-444444444444",
+    direction: "inbound",
+    sender: { displayName: "Syften", identifier: "alerts@syften.com" },
+    subject: "Your filters have matched a new result",
+    bodyText: "New mention of Customermates (https://www.reddit.com/r/smallbusiness/comments/1abcd/)",
+    bodyHtml: '<p>New mention <a href="https://www.reddit.com/r/smallbusiness/comments/1abcd/">link</a></p>',
+    isDraft: false,
+    attachmentsMeta: [],
+    sentAt: new Date("2026-09-01T06:55:15.000Z"),
+    editedAt: null,
+  };
+
+  it("gives an agent the readable body of an html-only alert", async () => {
+    spies.getMessagingThread.mockResolvedValue({
+      ok: true,
+      data: {
+        thread: { id: "t1", participants: [], sharedToCrm: false, isOwner: true },
+        messages: [message],
+        total: 1,
+      },
+    });
+
+    const result = await getMessagingThreadsTool.execute(
+      getMessagingThreadsTool.inputSchema.parse({ threadId: "55555555-5555-4555-8555-555555555555" }),
+    );
+
+    const text = mcpToolResultText(result);
+    expect(text).toContain("New mention of Customermates");
+    expect(text).toContain("https://www.reddit.com/r/smallbusiness/comments/1abcd/");
+  });
+
+  it("does not ship raw email html through the activity timeline", async () => {
+    spies.getActivities.mockResolvedValue({
+      ok: true,
+      data: {
+        availableSources: [],
+        items: [
+          {
+            kind: "message",
+            id: "a1",
+            at: new Date("2026-09-01T06:55:15.000Z"),
+            message,
+            thread: { id: "t1" },
+            senderIsMine: false,
+            records: {},
+          },
+        ],
+        pageLimitReached: false,
+        scopeTruncated: false,
+        pagination: { total: 1 },
+      },
+    });
+
+    const result = await getActivitiesTool.execute(getActivitiesTool.inputSchema.parse({}));
+
+    const text = mcpToolResultText(result);
+    expect(text).not.toContain("<p>");
+    expect(text).not.toContain("<a href");
+    expect(text).toContain("New mention of Customermates");
   });
 });

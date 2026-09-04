@@ -256,3 +256,64 @@ describe("PrismaMessagingRepo thread dedupe on unipileThreadAltId", () => {
     expect(result.id).not.toBe("thread-existing");
   });
 });
+
+describe("PrismaMessagingRepo recovery after a folder move", () => {
+  function hiddenAfterMissedMove() {
+    fakeDb.messages.push({
+      id: "msg-existing",
+      companyId: COMPANY_ID,
+      messagingThreadId: "thread-existing",
+      connectedAccountId: CONNECTED_ACCOUNT_ID,
+      unipileMessageId: "id-while-in-inbox",
+      providerMessageId: "rfc-msg-1",
+      provider: "google",
+      direction: "outbound",
+      origin: "unipile",
+      folderIds: [],
+      isHidden: true,
+      sender: { attendeeId: "", displayName: null, identifier: "me@company.com" },
+    });
+  }
+
+  it("makes a message visible again once its folders come back", async () => {
+    hiddenAfterMissedMove();
+
+    await new PrismaMessagingRepo().ingestMessageUnscoped({
+      companyId: COMPANY_ID,
+      connectedAccountId: CONNECTED_ACCOUNT_ID,
+      message: outboundEmail({ unipileMessageId: "id-while-in-archive", folderIds: ["archive"] }) as never,
+      backfill: true,
+    });
+
+    expect(fakeDb.messages).toHaveLength(1);
+    expect(fakeDb.messages[0].folderIds).toEqual(["archive"]);
+    expect(fakeDb.messages[0].isHidden).toBe(false);
+  });
+
+  it("adopts the identifier the provider re-issued, rather than keeping a dangling one", async () => {
+    hiddenAfterMissedMove();
+
+    await new PrismaMessagingRepo().ingestMessageUnscoped({
+      companyId: COMPANY_ID,
+      connectedAccountId: CONNECTED_ACCOUNT_ID,
+      message: outboundEmail({ unipileMessageId: "id-while-in-archive", folderIds: ["archive"] }) as never,
+      backfill: true,
+    });
+
+    expect(fakeDb.messages[0].unipileMessageId).toBe("id-while-in-archive");
+  });
+
+  it("leaves a message hidden when it still belongs to no folder", async () => {
+    hiddenAfterMissedMove();
+
+    await new PrismaMessagingRepo().ingestMessageUnscoped({
+      companyId: COMPANY_ID,
+      connectedAccountId: CONNECTED_ACCOUNT_ID,
+      message: outboundEmail({ unipileMessageId: "id-still-nowhere", folderIds: [] }) as never,
+      backfill: true,
+    });
+
+    expect(fakeDb.messages[0].folderIds).toEqual([]);
+    expect(fakeDb.messages[0].isHidden).toBe(true);
+  });
+});

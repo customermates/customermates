@@ -182,6 +182,7 @@ export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData
       }
 
       this.markDraftApplied();
+      this.tableStore?.setQueryOptions({ forceRefresh: true, refreshMode: "background" });
       this.close();
     } catch (error) {
       reportApplicationError(error);

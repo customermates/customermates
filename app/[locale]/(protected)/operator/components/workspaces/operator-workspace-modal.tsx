@@ -6,7 +6,7 @@ import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { SubscriptionPlan as SubscriptionPlanEnum } from "@/generated/prisma";
 
@@ -19,7 +19,9 @@ import { ClickableChip } from "@/components/chip/clickable-chip";
 import { InfoRow } from "@/components/shared/info-row";
 import { Button } from "@/components/ui/button";
 import { FormInputChips } from "@/components/forms/form-input-chips";
+import { FormIsoDatePicker } from "@/components/forms/form-iso-date-picker";
 import { FormLabel } from "@/components/forms/form-label";
+import { FormNumberInput } from "@/components/forms/form-number-input";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
@@ -52,7 +54,7 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
   const options = useOperatorChipOptions();
   const [stats, setStats] = useState<OperatorWorkspaceStatsDto | null>(null);
   const [isLoadingStats, setIsLoadingStats] = useState(false);
-  const [allowance, setAllowance] = useState("");
+  const [allowance, setAllowance] = useState<number | undefined>(undefined);
   const [trialEnd, setTrialEnd] = useState("");
   const [billingId, setBillingId] = useState("");
   const [channelMonth, setChannelMonth] = useState("");
@@ -63,12 +65,21 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
 
   const companyId = workspace?.id ?? null;
 
+  function formatChannelMonth(month: string) {
+    const parsed = new Date(`${month}-01T00:00:00`);
+    return Number.isFinite(parsed.getTime()) ? intlStore.formatMonthYear(parsed) : month;
+  }
+
+  const workspaceRef = useRef(workspace);
+  workspaceRef.current = workspace;
+
   useEffect(() => {
+    const workspace = workspaceRef.current;
     if (!workspace) return;
 
     setStats(null);
     setChannelMonth("");
-    setAllowance(workspace.enterpriseCreditsPerUser === null ? "" : String(workspace.enterpriseCreditsPerUser));
+    setAllowance(workspace.enterpriseCreditsPerUser ?? undefined);
     setTrialEnd(toDateInput(workspace.trialEndDate));
     setBillingId(workspace.lemonSqueezyId ?? "");
     setTags(workspace.tags);
@@ -104,7 +115,7 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
     return () => {
       cancelled = true;
     };
-  }, [workspace, companyId]);
+  }, [companyId]);
 
   if (!workspace) return null;
 
@@ -121,8 +132,8 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
   );
 
   const saveAllowance = () => {
-    const creditsPerUser = Number(allowance);
-    if (!Number.isInteger(creditsPerUser) || creditsPerUser < 1) return;
+    const creditsPerUser = allowance;
+    if (creditsPerUser === undefined || !Number.isInteger(creditsPerUser) || creditsPerUser < 1) return;
 
     showConfirmation({
       title: t("OperatorConsole.confirm.title"),
@@ -315,14 +326,14 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
             </div>
 
             <div className="flex items-end gap-2">
-              <div className="flex-1 space-y-1.5">
-                <FormLabel htmlFor="operator-modal-trial">{t("OperatorWorkspaces.terms.trialEnd")}</FormLabel>
-
-                <Input
+              <div className="flex-1">
+                <FormIsoDatePicker
+                  clearable={false}
+                  containerClassName="flex-1"
                   id="operator-modal-trial"
-                  type="date"
+                  label={t("OperatorWorkspaces.terms.trialEnd")}
                   value={trialEnd}
-                  onChange={(event) => setTrialEnd(event.target.value)}
+                  onValueChange={(value) => setTrialEnd(value ?? "")}
                 />
               </div>
 
@@ -362,20 +373,16 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
                 </div>
 
                 <div className="flex items-end gap-2">
-                  <div className="flex-1 space-y-1.5">
-                    <FormLabel htmlFor="operator-modal-allowance">{t("OperatorWorkspaces.allowance.label")}</FormLabel>
+                  <FormNumberInput
+                    containerClassName="flex-1"
+                    id="operator-modal-allowance"
+                    label={t("OperatorWorkspaces.allowance.label")}
+                    min={1}
+                    value={allowance}
+                    onValueChange={setAllowance}
+                  />
 
-                    <Input
-                      id="operator-modal-allowance"
-                      inputMode="numeric"
-                      min={1}
-                      type="number"
-                      value={allowance}
-                      onChange={(event) => setAllowance(event.target.value)}
-                    />
-                  </div>
-
-                  <Button disabled={!allowance} size="sm" variant="secondary" onClick={saveAllowance}>
+                  <Button disabled={allowance === undefined} size="sm" variant="secondary" onClick={saveAllowance}>
                     {t("Common.actions.save")}
                   </Button>
                 </div>
@@ -465,7 +472,7 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
                     {stats.channelMonths.map((entry) => (
                       <SelectItem key={entry.month} textValue={entry.month} value={entry.month}>
                         {t("OperatorWorkspaces.channels.monthOption", {
-                          month: entry.month,
+                          month: formatChannelMonth(entry.month),
                           count: entry.peakConcurrent,
                         })}
                       </SelectItem>

@@ -21,7 +21,9 @@ export function formatDuration(seconds: number | null | undefined): string | nul
 
 const BYTE_UNITS = ["B", "KB", "MB", "GB", "TB"];
 
-export function formatBytes(size: number | null | undefined): string | null {
+export type FormatNumber = (value: number | undefined, options?: { maximumFractionDigits?: number }) => string;
+
+export function formatBytes(size: number | null | undefined, formatNumber?: FormatNumber): string | null {
   if (typeof size !== "number" || !Number.isFinite(size) || size <= 0) return null;
   let value = size;
   let unit = 0;
@@ -30,7 +32,8 @@ export function formatBytes(size: number | null | undefined): string | null {
     unit += 1;
   }
   const rounded = unit === 0 || value >= 100 ? Math.round(value) : Math.round(value * 10) / 10;
-  return `${rounded} ${BYTE_UNITS[unit]}`;
+  const formatted = formatNumber ? formatNumber(rounded, { maximumFractionDigits: 1 }) : String(rounded);
+  return `${formatted} ${BYTE_UNITS[unit]}`;
 }
 
 type FileDescriptor = { Icon: LucideIcon; typeLabelKey: string; accent: string };
@@ -56,9 +59,10 @@ export function describeFile(input: { mime?: string | null; fileName?: string | 
 export function attachmentSubtitle(
   t: InboxT,
   input: { mime?: string | null; fileName?: string | null; size?: number | null },
+  formatNumber?: FormatNumber,
 ): string {
   const { typeLabelKey } = describeFile(input);
-  const size = formatBytes(input.size);
+  const size = formatBytes(input.size, formatNumber);
   return size ? `${t(typeLabelKey)} · ${size}` : t(typeLabelKey);
 }
 

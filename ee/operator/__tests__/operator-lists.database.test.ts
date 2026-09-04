@@ -20,6 +20,7 @@ vi.mock("@/env", () => ({ env: operatorEnv }));
 
 import { PrismaOperatorAuditRepo } from "../prisma-operator-audit.repository";
 import { PrismaOperatorUsersRepo } from "../prisma-operator-users.repository";
+import { PrismaOperatorRiskSummaryRepo } from "../prisma-operator-risk-summary.repository";
 import { PrismaOperatorWorkspacesRepo } from "../prisma-operator-workspaces.repository";
 
 const { prisma } = await import("@/prisma/db");
@@ -27,7 +28,6 @@ const { prisma } = await import("@/prisma/db");
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 
 const inFilter = (field: string, value: string[]): Filter => ({ field, operator: FilterOperatorKey.in, value });
-const presenceFilter = (field: string, operator: FilterOperatorKey): Filter => ({ field, operator }) as Filter;
 const companyIds: string[] = [];
 
 async function seedWorkspace(args: {
@@ -37,8 +37,9 @@ async function seedWorkspace(args: {
   members: Array<{
     status?: "active" | "inactive";
     isPlatformOperator?: boolean;
-    googleAdsClickId?: string;
-    googleAdsClickIdKind?: string;
+    adProvider?: string;
+    adIdentifierKind?: string;
+    adIdentifierValue?: string;
   }>;
 }) {
   const companyId = randomUUID();
@@ -67,8 +68,24 @@ async function seedWorkspace(args: {
           lastName: `${index}`,
           status: member.status ?? "active",
           isPlatformOperator: member.isPlatformOperator ?? false,
-          googleAdsClickId: member.googleAdsClickId ?? null,
-          googleAdsClickIdKind: member.googleAdsClickIdKind ?? null,
+        },
+      });
+
+      if (!member.adProvider || !member.adIdentifierKind || !member.adIdentifierValue) continue;
+
+      const clickedAt = new Date("2026-08-31T10:00:00.000Z");
+      await prisma.adAttribution.create({
+        data: {
+          companyId,
+          userId,
+          provider: member.adProvider,
+          identifierKind: member.adIdentifierKind,
+          identifierValue: member.adIdentifierValue,
+          clickedAt,
+          capturedAt: clickedAt,
+          consentedAt: clickedAt,
+          consentNoticeVersion: "2026-09-02",
+          expiresAt: new Date("2026-11-28T10:00:00.000Z"),
         },
       });
     }
@@ -163,12 +180,12 @@ describeDatabase("operator user list against a real database", { timeout: 120_00
     expect(searched[0]?.companyId).toBe(beta.companyId);
   });
 
-  it("separates attributed from unattributed users by Google Ads click id presence", async () => {
+  it("separates users by advertising provider and surfaces the provider without the raw identifier", async () => {
     const marker = randomUUID().slice(0, 8);
-    const clicks = (["gclid", "gbraid", "wbraid"] as const).map((kind) => ({
-      googleAdsClickIdKind: kind,
-      googleAdsClickId: `${kind}-${marker}`,
-    }));
+    const clicks = [
+      { adProvider: "google_ads", adIdentifierKind: "gclid", adIdentifierValue: `gclid-${marker}` },
+      { adProvider: "openai_ads", adIdentifierKind: "oppref", adIdentifierValue: `oppref-${marker}` },
+    ];
     const workspace = await seedWorkspace({
       domain: `attribution-${marker}.invalid`,
       plan: "pro",
@@ -179,30 +196,77 @@ describeDatabase("operator user list against a real database", { timeout: 120_00
     const repo = new PrismaOperatorUsersRepo();
     const scoped = inFilter(FilterFieldKey.workspaceId, [workspace.companyId]);
 
-    const attributed = await runWithoutTenant(() =>
-      repo.getItems({
-        filters: [scoped, presenceFilter(FilterFieldKey.googleAdsClickId, FilterOperatorKey.isNotNull)],
-      }),
+    const google = await runWithoutTenant(() =>
+      repo.getItems({ filters: [scoped, inFilter(FilterFieldKey.adProvider, ["google_ads"])] }),
     );
-    expect(attributed).toHaveLength(clicks.length);
-    expect(attributed.map((row) => [row.googleAdsClickIdKind, row.googleAdsClickId]).sort()).toEqual(
-      clicks.map((click) => [click.googleAdsClickIdKind, click.googleAdsClickId]).sort(),
+    expect(google).toHaveLength(1);
+    expect(google[0]?.adProvider).toBe("google_ads");
+    expect(google[0]?.adIdentifierKind).toBe("gclid");
+
+    const openAi = await runWithoutTenant(() =>
+      repo.getItems({ filters: [scoped, inFilter(FilterFieldKey.adProvider, ["openai_ads"])] }),
     );
+    expect(openAi.map((row) => row.adIdentifierKind)).toEqual(["oppref"]);
+
+    const either = await runWithoutTenant(() =>
+      repo.getItems({ filters: [scoped, inFilter(FilterFieldKey.adProvider, ["google_ads", "openai_ads"])] }),
+    );
+    expect(either).toHaveLength(2);
 
     const unattributed = await runWithoutTenant(() =>
-      repo.getItems({ filters: [scoped, presenceFilter(FilterFieldKey.googleAdsClickId, FilterOperatorKey.isNull)] }),
+      repo.getItems({
+        filters: [
+          scoped,
+          { field: FilterFieldKey.adProvider, operator: FilterOperatorKey.notIn, value: ["google_ads", "openai_ads"] },
+        ],
+      }),
     );
     expect(unattributed).toHaveLength(2);
-    expect(unattributed.every((row) => row.googleAdsClickId === null)).toBe(true);
+    expect(unattributed.every((row) => row.adProvider === null)).toBe(true);
+
     await expect(
       runWithoutTenant(() =>
-        repo.getCount({ filters: [scoped, presenceFilter(FilterFieldKey.googleAdsClickId, FilterOperatorKey.isNull)] }),
+        repo.getCount({ filters: [scoped, inFilter(FilterFieldKey.adProvider, ["google_ads", "openai_ads"])] }),
       ),
     ).resolves.toBe(2);
+
+    expect(JSON.stringify(either)).not.toContain(`gclid-${marker}`);
+    expect(JSON.stringify(either)).not.toContain(`oppref-${marker}`);
   });
 });
 
 describeDatabase("operator workspace list against a real database", { timeout: 120_000 }, () => {
+  it("surfaces the attributed provider on the workspace row and filters by it", async () => {
+    const marker = randomUUID().slice(0, 8);
+    const attributed = await seedWorkspace({
+      domain: `ws-ads-${marker}.invalid`,
+      plan: "pro",
+      status: "active",
+      members: [{ adProvider: "reddit_ads", adIdentifierKind: "rdt_cid", adIdentifierValue: `rdt-${marker}` }, {}],
+    });
+    const organic = await seedWorkspace({
+      domain: `ws-organic-${marker}.invalid`,
+      plan: "pro",
+      status: "active",
+      members: [{}],
+    });
+
+    const repo = new PrismaOperatorWorkspacesRepo();
+    const scoped = inFilter(FilterFieldKey.workspaceId, [attributed.companyId, organic.companyId]);
+
+    const rows = await runWithoutTenant(() => repo.getItems({ filters: [scoped] }));
+    const byId = new Map(rows.map((row) => [row.id, row.adProvider]));
+    expect(byId.get(attributed.companyId)).toBe("reddit_ads");
+    expect(byId.get(organic.companyId)).toBeNull();
+
+    const filtered = await runWithoutTenant(() =>
+      repo.getItems({ filters: [scoped, inFilter(FilterFieldKey.adProvider, ["reddit_ads"])] }),
+    );
+    expect(filtered.map((row) => row.id)).toEqual([attributed.companyId]);
+
+    expect(JSON.stringify(rows)).not.toContain(`rdt-${marker}`);
+  });
+
   it("aggregates members, derives label and owner, and filters by plan", async () => {
     const marker = randomUUID().slice(0, 8);
     const alpha = await seedWorkspace({
@@ -350,5 +414,67 @@ describeDatabase("merged operator audit log against a real database", { timeout:
       await prisma.operatorAuditEvent.deleteMany({ where: { targetCompanyId: workspace.companyId } });
       await prisma.auditLog.deleteMany({ where: { companyId: workspace.companyId } });
     });
+  });
+
+  it("serves nothing beyond the audit paging window and never advertises a page it cannot serve", async () => {
+    const auditRepo = new PrismaOperatorAuditRepo();
+
+    const beyond = await runWithoutTenant(() => auditRepo.getItems({ skip: 10_001, take: 25 }));
+    expect(beyond).toEqual([]);
+
+    const atEdge = await runWithoutTenant(() => auditRepo.getItems({ skip: 10_000, take: 25 }));
+    expect(Array.isArray(atEdge)).toBe(true);
+
+    const advertised = await runWithoutTenant(() => auditRepo.getCount({ pagination: { page: 1, pageSize: 25 } }));
+    expect(advertised).toBeLessThanOrEqual(10_000 + 25);
+  });
+});
+
+describeDatabase("operator acquisition summary against a real database", { timeout: 120_000 }, () => {
+  it("counts attributed workspaces and the paying subset, ignoring organic ones", async () => {
+    const marker = randomUUID().slice(0, 8);
+    const paying = await seedWorkspace({
+      domain: `sum-paid-${marker}.invalid`,
+      plan: "pro",
+      status: "active",
+      members: [{ adProvider: "google_ads", adIdentifierKind: "gclid", adIdentifierValue: `g-${marker}` }],
+    });
+    const signupOnly = await seedWorkspace({
+      domain: `sum-signup-${marker}.invalid`,
+      plan: "pro",
+      status: "trial",
+      members: [{ adProvider: "openai_ads", adIdentifierKind: "oppref", adIdentifierValue: `o-${marker}` }],
+    });
+    await seedWorkspace({
+      domain: `sum-organic-${marker}.invalid`,
+      plan: "pro",
+      status: "active",
+      members: [{}],
+    });
+
+    await runWithoutTenant(() =>
+      prisma.conversionEvent.createMany({
+        data: [
+          { companyId: paying.companyId, type: "signup", occurredAt: new Date() },
+          { companyId: paying.companyId, type: "paid", occurredAt: new Date() },
+          { companyId: signupOnly.companyId, type: "signup", occurredAt: new Date() },
+        ],
+        skipDuplicates: true,
+      }),
+    );
+
+    const before = await runWithoutTenant(() => new PrismaOperatorRiskSummaryRepo().getRiskSummaryUnscoped());
+
+    expect(before.attributedWorkspaces).toBeGreaterThanOrEqual(2);
+    expect(before.attributedPaidWorkspaces).toBeGreaterThanOrEqual(1);
+
+    const paidCompanies = await runWithoutTenant(() =>
+      prisma.company.findMany({
+        where: { adAttributions: { some: {} }, conversionEvents: { some: { type: "paid" } } },
+        select: { id: true },
+      }),
+    );
+    expect(paidCompanies.map((company) => company.id)).toContain(paying.companyId);
+    expect(paidCompanies.map((company) => company.id)).not.toContain(signupOnly.companyId);
   });
 });

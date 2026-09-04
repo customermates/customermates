@@ -25,6 +25,7 @@ import {
 import { ACTIVITY_TYPE_VALUES } from "@/app/[locale]/(protected)/dashboard/components/activity-filter-form";
 import { socialErrorMessageKeys } from "@/app/[locale]/(public)/auth/social-error-keys";
 import { CHIP_COLORS } from "@/constants/chip-colors";
+import { IMPORT_ISSUE_CODES } from "@/features/data-transfer/import/import-plan";
 import { ALL_LEGAL_DOCUMENTS } from "@/constants/legal-documents";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
@@ -188,7 +189,7 @@ const TABLE_COLUMN_KEYS = [
   "Common.table.columns.events",
   "Common.table.columns.expiresAt",
   "Common.table.columns.firstName",
-  "Common.table.columns.googleAdsClickId",
+  "Common.table.columns.adProvider",
   "Common.table.columns.id",
   "Common.table.columns.identifiers",
   "Common.table.columns.isSystemRole",
@@ -231,6 +232,7 @@ const TABLE_COLUMN_KEYS = [
 ] as const;
 
 const PROVIDER_KEYS = Object.values(MessagingProvider).map((provider) => `Common.providers.${provider}`);
+const IMPORT_ISSUE_KEYS = IMPORT_ISSUE_CODES.map((code) => `DataTransfer.import.issues.${code}`);
 const USER_STATUS_KEYS = Object.values(Status).map((status) => `Common.userStatuses.${status}`);
 const LOCALE_KEYS = [...ROUTING_LOCALES, "system"].map((locale) => `Common.locales.${locale}`);
 const THEME_KEYS = Object.values(Theme).map((theme) => `Common.themes.${theme}`);
@@ -450,6 +452,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Common.locales.${*}", LOCALE_KEYS],
   ["LegalDocumentNotice.documents.${*}", LEGAL_DOCUMENT_KEYS],
   ["Common.providers.${*}", PROVIDER_KEYS],
+  ["DataTransfer.import.issues.${*}", IMPORT_ISSUE_KEYS],
   ["Common.themes.${*}", THEME_KEYS],
   ["Common.userStatuses.${*}", USER_STATUS_KEYS],
   ["ConnectedAccountsCard.statusLabels.${*}", CONNECTED_ACCOUNT_STATUS_KEYS],
@@ -538,6 +541,8 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Subscription.planNames.${plan}",
   "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Subscription.status.${status}",
   "app/[locale]/(protected)/company/components/audit-log/audit-log-modal.tsx :: t :: Common.events.${auditLog.event}",
+  "components/data-transfer/import-wizard.tsx :: t :: Common.providers.${provider}",
+  "components/data-transfer/import-wizard.tsx :: t :: DataTransfer.import.issues.${issue.code}",
   "app/[locale]/(protected)/company/components/audit-log/use-audit-log-columns.tsx :: t :: Common.events.${row.original.event}",
   "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",
   "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.title",
@@ -722,6 +727,8 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["app/components/app-topbar-crumbs.ts :: t :: route.labelKey", 2],
   ["app/components/app-topbar-crumbs.ts :: t :: subroute.labelKey", 1],
   ["components/card/form-actions.tsx :: t :: primaryButtonLabel", 1],
+  ["components/data-transfer/import-wizard.tsx :: t :: field.labelKey", 1],
+  ["components/data-transfer/import-wizard.tsx :: t :: labelKey", 1],
   ["components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: nameKey", 1],
   ["components/entity-detail/entity-detail.registry.tsx :: t :: key", 1],
   ["components/entity-detail/relation-fields.tsx :: t :: nameKey", 1],

@@ -182,6 +182,8 @@ function toUsageTotals(input: {
   };
 }
 
+const PLATFORM_OPERATOR_INVARIANT_LOCK = "customermates:platform-operator-invariant";
+
 export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
   private async createAudit(args: {
     action: AuditAction;
@@ -288,7 +290,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
     return new Map(
       users.map((user) => {
         const matches = byEmail.get(normalizeOperatorEmail(user.email)) ?? [];
-        const verified = matches.length === 1 && matches[0].emailVerified && matches[0].companyId === user.companyId;
+        const verified = matches.length === 1 && matches[0].emailVerified;
         return [user.id, verified];
       }),
     );
@@ -506,7 +508,6 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           FROM "User" AS domain_user
           JOIN "AuthUser" AS auth_user
             ON lower(auth_user."email") = lower(domain_user."email")
-            AND auth_user."companyId" = domain_user."companyId"
             AND auth_user."emailVerified" = true
           WHERE (
             SELECT COUNT(*)
@@ -557,6 +558,17 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
     return (await this.userDetail(userId, now)) ?? "notFound";
   }
 
+  private async lockPlatformOperatorInvariant() {
+    await this.prisma
+      .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${PLATFORM_OPERATOR_INVARIANT_LOCK}, 0))`;
+  }
+
+  private async otherActiveOperatorCount(excludedUserId: string) {
+    return this.prisma.user.count({
+      where: { id: { not: excludedUserId }, isPlatformOperator: true, status: Status.active },
+    });
+  }
+
   @BypassTenantGuard
   async updateUserStatusUnscoped(
     data: UpdateOperatorUserStatusData,
@@ -572,6 +584,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           where: { id: data.userId, companyId },
           select: {
             status: true,
+            isPlatformOperator: true,
             role: { select: { isSystemRole: true } },
             company: {
               select: {
@@ -591,6 +604,10 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         if (statusChanged && subscription?.lemonSqueezyId) return "conflict";
 
         const leavingActive = target.status === Status.active && data.status !== Status.active;
+        if (leavingActive && target.isPlatformOperator) {
+          await this.lockPlatformOperatorInvariant();
+          if ((await this.otherActiveOperatorCount(data.userId)) === 0) return "conflict";
+        }
         if (leavingActive && target.role?.isSystemRole) {
           const otherActiveSystemUsers = await this.prisma.user.count({
             where: {
@@ -660,24 +677,20 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           if (target.status !== Status.active) return "conflict";
 
           const email = normalizeOperatorEmail(target.email);
-          const domainUsers = await this.prisma.user.count({
-            where: { email: { equals: email, mode: "insensitive" } },
+          const resolvedMember = await this.prisma.user.findUnique({
+            where: { email },
+            select: { id: true },
           });
-          if (domainUsers !== 1) return "conflict";
+          if (resolvedMember?.id !== data.userId) return "conflict";
 
-          const authUsers = await this.prisma.authUser.findMany({
-            where: { email: { equals: email, mode: "insensitive" } },
-            take: 2,
-            select: { companyId: true, emailVerified: true },
+          const identity = await this.prisma.authUser.findUnique({
+            where: { email },
+            select: { emailVerified: true },
           });
-          if (authUsers.length !== 1) return "conflict";
-          if (!authUsers[0].emailVerified) return "conflict";
-          if (authUsers[0].companyId !== companyId) return "conflict";
+          if (!identity?.emailVerified) return "conflict";
         } else if (target.isPlatformOperator) {
-          const otherActiveOperators = await this.prisma.user.count({
-            where: { id: { not: data.userId }, isPlatformOperator: true, status: Status.active },
-          });
-          if (otherActiveOperators === 0) return "conflict";
+          await this.lockPlatformOperatorInvariant();
+          if ((await this.otherActiveOperatorCount(data.userId)) === 0) return "conflict";
         }
 
         await this.prisma.user.update({
@@ -940,6 +953,14 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           where: { operationId: data.operationId },
         });
         if (existing) {
+          if (
+            existing.companyId !== companyId ||
+            existing.userId !== data.userId ||
+            existing.reason !== reason ||
+            existing.createdByOperatorUserId !== actor.userId
+          )
+            return "conflict";
+
           return {
             adjustment: existing,
             user: await this.userDetailOrThrow(data.userId, now),
@@ -1061,7 +1082,9 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         let workflowRunIds: string[] = [];
         if (workflowSchema?.installed) {
           const workflowRuns = await this.prisma.$queryRaw<Array<{ id: string }>>`
-            SELECT "id" FROM "workflow"."workflow_runs" WHERE "input"->>'companyId' = ${data.companyId}
+            SELECT "id" FROM "workflow"."workflow_runs"
+            WHERE "input"->>'companyId' = ${data.companyId}
+               OR "input"->'tenant'->>'companyId' = ${data.companyId}
           `;
           workflowRunIds = workflowRuns.map((run) => run.id);
 
@@ -1121,6 +1144,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
 
         const trialEndDate = data.trialEndDate === null ? null : new Date(data.trialEndDate);
         if (trialEndDate && !Number.isFinite(trialEndDate.getTime())) return "conflict";
+        if (trialEndDate === null && subscription.trialEndDate !== null) return "trialEndRequired";
 
         const previous = {
           trialEndDate: subscription.trialEndDate?.toISOString() ?? null,

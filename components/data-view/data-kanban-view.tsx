@@ -27,6 +27,7 @@ import type { CustomColumnOption } from "@/features/custom-column/custom-column.
 import type { GroupValueSums } from "@/core/base/base-get.schema";
 import { KANBAN_EMPTY_GROUP_KEY } from "@/core/base/base-get.schema";
 import { DEAL_GROUP_SUM_FIELDS } from "@/features/deals/deal-weighting";
+import { visibleColumnDefs } from "./visible-column-defs";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import type { EntityType } from "@/generated/prisma";
@@ -283,8 +284,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
-  const hidden = new Set(store.hiddenColumns);
-  const visibleColumns = columns.filter((c) => !hidden.has((c as { id?: string }).id ?? ""));
+  const visibleColumns = visibleColumnDefs(columns, store.hiddenColumns);
 
   const table = useReactTable<E>({
     data: store.items,

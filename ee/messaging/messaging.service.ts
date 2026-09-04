@@ -42,6 +42,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { env } from "@/env";
 import { isEmailProvider } from "./provider";
 import { UnipileAccountSchema, UnipileAttachmentSchema, UnipileUserSchema } from "./unipile.schema";
+import { unipilePostIdForFetch } from "./posts/post-id";
 import {
   SocialPostSchema,
   SocialPostListSchema,
@@ -96,7 +97,7 @@ export class UnipileRequestError extends Error {
     readonly retryAfterSeconds: number | null = null,
     readonly url: string | null = null,
   ) {
-    super(`Unipile v2 request failed: ${status} ${bodyText}`);
+    super(`Unipile v2 request failed: ${status} ${redactUnipileBody(bodyText)}`);
     this.name = "UnipileRequestError";
   }
 }
@@ -120,14 +121,17 @@ const UNIPILE_ERROR_CODES: Record<string, CustomErrorCode> = {
   "provider/invalid_credentials": CustomErrorCode.unipileDisconnectedAccount,
   "provider/unknown_authentication_context": CustomErrorCode.unipileDisconnectedAccount,
   "api/account_restricted": CustomErrorCode.unipileDisconnectedAccount,
+  "provider/insufficient_permissions": CustomErrorCode.unipileResourceNotFound,
   "api/internal_error": CustomErrorCode.unipileServiceUnavailable,
   "api/proxy_error": CustomErrorCode.unipileServiceUnavailable,
   "api/proxy_timeout": CustomErrorCode.unipileServiceUnavailable,
   "api/proxy_auth_error": CustomErrorCode.unipileServiceUnavailable,
-  "api/inactive_subscription": CustomErrorCode.unipileServiceUnavailable,
-  "api/not_implemented": CustomErrorCode.unipileServiceUnavailable,
+  "api/inactive_subscription": CustomErrorCode.unipileFeatureUnavailable,
+  "api/not_implemented": CustomErrorCode.unipileFeatureUnavailable,
   "provider/invalid_parameters": CustomErrorCode.unipileInvalidRequest,
 };
+
+const UNIPILE_PERMANENT_TYPES = new Set(["api/not_implemented", "api/inactive_subscription"]);
 
 const UNIPILE_BAD_IMPL_TYPES = new Set([
   "api/invalid_parameters",
@@ -141,6 +145,41 @@ const UNIPILE_BAD_IMPL_TYPES = new Set([
 
 const UNIPILE_TRANSIENT_5XX_TYPES = new Set(["api/proxy_error", "api/proxy_timeout", "api/proxy_auth_error"]);
 
+const EMAIL_LIKE = /[\w.+-]+@[\w-]+\.[\w.-]+/g;
+const MAX_ERROR_BODY = 500;
+const TRAILING_PARTIAL_EMAIL = /[\w.+-]{1,64}@[\w.-]{0,64}$/;
+
+export function redactUnipileBody(bodyText: string): string {
+  return bodyText
+    .slice(0, MAX_ERROR_BODY)
+    .replace(EMAIL_LIKE, "[redacted]")
+    .replace(TRAILING_PARTIAL_EMAIL, "[redacted]");
+}
+
+function unipileBodyField(bodyText: string, field: "detail" | "req_id"): string | null {
+  try {
+    const parsed: unknown = JSON.parse(bodyText);
+    if (typeof parsed !== "object" || parsed === null) return null;
+    const value = (parsed as Record<string, unknown>)[field];
+
+    if (typeof value !== "string" || value.trim() === "") return null;
+
+    return value.replace(EMAIL_LIKE, "[redacted]").slice(0, 200);
+  } catch {
+    return null;
+  }
+}
+
+function unipileDiagnostics(err: UnipileRequestError): Record<string, string> {
+  return {
+    unipileStatus: String(err.status),
+    unipileErrorType: err.errorType || "none",
+    unipileEndpoint: endpointHint(err.url),
+    unipileDetail: unipileBodyField(err.bodyText, "detail") ?? "none",
+    unipileRequestId: unipileBodyField(err.bodyText, "req_id") ?? "none",
+  };
+}
+
 function endpointHint(url: string | null): string {
   if (!url) return "unknown";
   try {
@@ -152,9 +191,10 @@ function endpointHint(url: string | null): string {
   }
 }
 
-function unipileErrorCode(err: UnipileRequestError): CustomErrorCode {
+export function unipileErrorCode(err: UnipileRequestError): CustomErrorCode {
   const type = err.errorType ?? "";
 
+  if (err.status === 0) return CustomErrorCode.unipileRequestTimeout;
   if (err.status === 429) return CustomErrorCode.unipileRateLimit;
   if (type.endsWith("/resource_not_found")) return CustomErrorCode.unipileResourceNotFound;
   if (UNIPILE_ERROR_CODES[type]) return UNIPILE_ERROR_CODES[type];
@@ -167,8 +207,20 @@ export function getRetryAfterSeconds(err: unknown): number | null {
   return err instanceof UnipileRequestError ? err.retryAfterSeconds : null;
 }
 
-export function isUnipileTimeout(err: unknown): boolean {
+export function isUnipileTimeout(err: unknown): err is UnipileRequestError {
   return err instanceof UnipileRequestError && err.status === 0;
+}
+
+export function isUnipileProviderUnprocessable(err: unknown): err is UnipileRequestError {
+  if (!(err instanceof UnipileRequestError) || err.status !== 422) return false;
+
+  return (err.errorType ?? "").endsWith("/unprocessable_entity");
+}
+
+export function isUnipileSourceForbidden(err: unknown): err is UnipileRequestError {
+  if (!(err instanceof UnipileRequestError) || err.status !== 403) return false;
+
+  return (err.errorType ?? "").endsWith("/insufficient_permissions");
 }
 
 export function isUnipileCursorPaginationRequired(err: unknown): boolean {
@@ -351,18 +403,14 @@ export class MessagingService {
     if (source.status === 429 && type.startsWith("provider/")) {
       Sentry.captureMessage("Unipile provider rate limit reached; the dashboard limit may be too high", {
         level: "warning",
-        tags: { unipileErrorType: type },
+        tags: unipileDiagnostics(source),
       });
-    } else if (UNIPILE_BAD_IMPL_TYPES.has(type)) Sentry.captureException(source);
-    else if (source.status >= 500 && !UNIPILE_TRANSIENT_5XX_TYPES.has(type)) {
-      Sentry.captureException(source, {
-        tags: {
-          unipileStatus: String(source.status),
-          unipileErrorType: type || "none",
-          unipileEndpoint: endpointHint(source.url),
-        },
-      });
-    }
+    } else if (
+      UNIPILE_BAD_IMPL_TYPES.has(type) ||
+      UNIPILE_PERMANENT_TYPES.has(type) ||
+      (source.status >= 500 && !UNIPILE_TRANSIENT_5XX_TYPES.has(type))
+    )
+      Sentry.captureException(source, { tags: unipileDiagnostics(source) });
 
     const error = unipileErrorCode(source);
 
@@ -919,7 +967,9 @@ export class MessagingService {
   async getPost(input: { accountId: string; postId: string }): Promise<MessagingSendResult<SocialPost>> {
     try {
       const raw = await requestData(
-        this.sdk.posts.getPost({ path: { account_id: input.accountId, post_id: input.postId } }),
+        this.sdk.posts.getPost({
+          path: { account_id: input.accountId, post_id: unipilePostIdForFetch(input.postId) },
+        }),
       );
 
       return { ok: true, data: SocialPostSchema.parse(raw) };

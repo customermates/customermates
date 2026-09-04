@@ -57,6 +57,7 @@ import { DealDetailStore } from "@/app/[locale]/(protected)/deals/components/dea
 import { DealsStore } from "@/app/[locale]/(protected)/deals/components/deals.store";
 import { ResetPasswordStore } from "@/app/[locale]/(public)/auth/reset-password/reset-password.store";
 import { GlobalSearchModalStore } from "@/app/components/global-search-modal.store";
+import { ImportWizardStore } from "@/components/data-transfer/import-wizard.store";
 import { WebhookModalStore } from "@/app/[locale]/(protected)/company/components/webhook/webhook-modal.store";
 import { RoutinesStore } from "@/app/[locale]/(protected)/routines/components/routines.store";
 import { RoutineModalStore } from "@/app/[locale]/(protected)/routines/components/routine-modal.store";
@@ -145,6 +146,7 @@ export class RootStore {
   private _webhookModalStore?: WebhookModalStore;
   private _routineModalStore?: RoutineModalStore;
   private _routineRunChatStore?: AgentChatStore;
+  private _importWizardStore?: ImportWizardStore;
   private _widgetModalStore?: WidgetModalStore;
   private _auditLogModalStore?: AuditLogModalStore;
   private _feedbackModalStore?: FeedbackModalStore;
@@ -404,6 +406,10 @@ export class RootStore {
 
   get webhookModalStore() {
     return (this._webhookModalStore ??= new WebhookModalStore(this));
+  }
+
+  get importWizardStore() {
+    return (this._importWizardStore ??= new ImportWizardStore(this));
   }
 
   get webhooksStore() {

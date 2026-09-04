@@ -62,6 +62,7 @@ export enum CustomErrorCode {
   organizationNotFound = "organizationNotFound",
   userNotFound = "userNotFound",
   userSelfAdminUpdateForbidden = "userSelfAdminUpdateForbidden",
+  userPlatformOperatorStatusForbidden = "userPlatformOperatorStatusForbidden",
   dealNotFound = "dealNotFound",
   serviceNotFound = "serviceNotFound",
   contactNotFound = "contactNotFound",
@@ -116,6 +117,7 @@ export enum CustomErrorCode {
   unipileInvalidRequest = "unipileInvalidRequest",
   unipileRateLimit = "unipileRateLimit",
   unipileServiceUnavailable = "unipileServiceUnavailable",
+  unipileFeatureUnavailable = "unipileFeatureUnavailable",
   unipileRequestTimeout = "unipileRequestTimeout",
   unipileDisconnectedAccount = "unipileDisconnectedAccount",
   unipileUnknown = "unipileUnknown",
@@ -123,6 +125,7 @@ export enum CustomErrorCode {
   operatorUnavailable = "operatorUnavailable",
   operatorAllowanceMissing = "operatorAllowanceMissing",
   operatorConnectedAccountsActive = "operatorConnectedAccountsActive",
+  operatorTrialEndRequired = "operatorTrialEndRequired",
   generic = "generic",
 }
 

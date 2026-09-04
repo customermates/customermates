@@ -13,6 +13,10 @@ const HANDLE_URL_PATTERNS: Partial<Record<MessagingProvider, RegExp>> = {
 const HANDLE_CHARSET = /^[\p{L}\p{N}\p{M}_.@+=-]{1,160}$/u;
 const PHONE_CHARSET = /^\+?[\d\s\-()]{6,}$/;
 
+export function looksLikePhoneText(raw: string): boolean {
+  return PHONE_CHARSET.test(raw.trim());
+}
+
 export function parseChannelHandle(provider: MessagingProvider, raw: string): string {
   const value = raw.trim();
   const pattern = HANDLE_URL_PATTERNS[provider];
