@@ -33,7 +33,7 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
 
   const invitation = effectiveIntent?.type === "invitation" ? effectiveIntent : null;
   const hasExplicitCreateIntent = effectiveIntent?.type === "createCompany";
-  const isInvited = Boolean(invitation || (!hasExplicitCreateIntent && sessionUser.companyId));
+  const isInvited = Boolean(!user && (invitation || (!hasExplicitCreateIntent && sessionUser.companyId)));
   const canCreateCompany = Boolean(
     effectiveIntent?.type === "createCompany" && effectiveIntent.authUserId === sessionUser.id,
   );

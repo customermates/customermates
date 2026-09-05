@@ -23,7 +23,3 @@ const inviteTokenCookieRepo = new NextInviteTokenCookieRepo();
 export async function readInviteTokenCookie(): Promise<string | undefined> {
   return inviteTokenCookieRepo.read();
 }
-
-export async function clearInviteTokenCookie(): Promise<void> {
-  return inviteTokenCookieRepo.clear();
-}

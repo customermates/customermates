@@ -512,29 +512,12 @@ export class PrismaUserRepo
   }
 
   @BypassTenantGuard
-  async peekAuthUserCompanyIdUnscoped(userId: string) {
-    const authUser = await this.prisma.authUser.findUnique({
-      where: { id: userId },
-      select: { companyId: true },
-    });
-    return authUser?.companyId;
-  }
-
-  @BypassTenantGuard
   async findAuthUserCompanyIdUnscoped(userId: string) {
     const authUser = await this.prisma.authUser.findUnique({
       where: { id: userId },
       select: { companyId: true },
     });
-    if (!authUser) return undefined;
-    if (!authUser.companyId) return null;
-
-    const company = await this.prisma.company.findUnique({
-      where: { id: authUser.companyId },
-      select: { id: true },
-    });
-
-    return company?.id ?? null;
+    return authUser?.companyId;
   }
 
   @BypassTenantGuard

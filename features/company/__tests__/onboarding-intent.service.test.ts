@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { decodeOnboardingIntent, onboardingIntentSigningSecret } from "../../onboarding-intent-codec";
-import { OnboardingIntentService } from "../../onboarding-intent.service";
+import { decodeOnboardingIntent, onboardingIntentSigningSecret } from "../onboarding-intent-codec";
+import { OnboardingIntentService } from "../onboarding-intent.service";
 
 const now = new Date("2026-09-04T12:00:00.000Z");
 const inviteExpiresAt = new Date(now.getTime() + 60 * 60_000);

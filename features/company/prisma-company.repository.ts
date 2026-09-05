@@ -8,7 +8,7 @@ import type { SubscriptionRepo } from "@/ee/subscription/subscription.service";
 import type { GetSubscriptionRepo } from "@/ee/subscription/get-subscription.interactor";
 import type { RefreshSubscriptionRepo } from "@/ee/subscription/refresh-subscription.interactor";
 import type { CreateCheckoutCompanyRepo } from "@/ee/subscription/create-checkout-session.interactor";
-import type { RouteGuardSubscriptionRepo } from "@/features/auth/route-guard.service";
+import type { RouteGuardCompanyRepo } from "@/features/auth/route-guard.service";
 import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
 import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement.service";
 import type { CreateAuthLinkSubscriptionRepo } from "@/ee/messaging/connect/create-auth-link.interactor";
@@ -33,7 +33,7 @@ export class PrismaCompanyRepo
     RefreshSubscriptionRepo,
     CreateCheckoutCompanyRepo,
     AdminUpdateUserSubscriptionRepo,
-    RouteGuardSubscriptionRepo,
+    RouteGuardCompanyRepo,
     EntitlementSubscriptionRepo,
     CreateAuthLinkSubscriptionRepo,
     RegisterUserCompanyRepo

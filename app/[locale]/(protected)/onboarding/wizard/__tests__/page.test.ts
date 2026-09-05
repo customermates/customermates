@@ -25,6 +25,28 @@ describe("OnboardingWizardPage authentication detours", () => {
     vi.clearAllMocks();
   });
 
+  it.each([
+    { name: "registered creator", user: { companyId: "company-a" }, intent: null, isInvited: false },
+    { name: "explicit invitee", user: null, intent: { type: "invitation", intent: "signed.invite" }, isInvited: true },
+    { name: "pre-tenant binding", user: null, intent: null, isInvited: true },
+    {
+      name: "explicit creator with an old binding",
+      user: null,
+      intent: { type: "createCompany", authUserId: "user-a", intent: "signed.create" },
+      isInvited: false,
+    },
+  ])("uses the correct progress presentation for a $name", async ({ user, intent, isInvited }) => {
+    mocks.resolveOnboardingIntent.mockResolvedValue(intent ? { ...intent, status: "valid" } : { status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({
+      sessionUser: { id: "user-a", email: "owner@example.com", companyId: "company-a" },
+      user,
+    });
+
+    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+
+    expect(page.props.children.props).toMatchObject({ isInvited, profileCompleted: Boolean(user) });
+  });
+
   it("preserves an invitation when a cached session loses its identity", async () => {
     mocks.resolveOnboardingIntent.mockResolvedValue({
       companyId: "company-a",

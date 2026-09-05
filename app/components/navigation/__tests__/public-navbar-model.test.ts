@@ -3,6 +3,36 @@ import { describe, expect, it } from "vitest";
 import { resolvePublicNavbarActions } from "../public-navbar-model";
 
 describe("resolvePublicNavbarActions", () => {
+  it.each([
+    {
+      accountState: "unauthenticated" as const,
+      hasValidSession: false,
+      pathname: "/auth/signup",
+      target: "/auth/signin",
+    },
+    {
+      accountState: "unregistered" as const,
+      hasValidSession: true,
+      pathname: "/auth/invitation",
+      target: "/onboarding",
+    },
+  ])("preserves onboarding intent from $pathname", ({ target, ...context }) => {
+    expect(resolvePublicNavbarActions({ ...context, onboardingIntent: "signed+intent" }).cta?.href).toBe(
+      `${target}?intent=signed%2Bintent`,
+    );
+  });
+
+  it("does not attach onboarding intent to the dashboard", () => {
+    expect(
+      resolvePublicNavbarActions({
+        accountState: "allowed",
+        hasValidSession: true,
+        onboardingIntent: "signed.intent",
+        pathname: "/auth/invitation",
+      }).cta?.href,
+    ).toBe("/dashboard");
+  });
+
   it("offers sign-in and contact without a session", () => {
     expect(
       resolvePublicNavbarActions({

@@ -62,8 +62,8 @@ export class RegisterOnboardingProfileInteractor {
     });
 
     if (isRedirect(result) && onboardingIntent.status === "valid") {
-      if (result.redirect === "/auth/signin")
-        return redirectTo(pathWithOnboardingIntent("/auth/signin", onboardingIntent.intent));
+      if (result.redirect === "/auth/signin" || result.redirect === "/auth/verify-email")
+        return redirectTo(pathWithOnboardingIntent(result.redirect, onboardingIntent.intent));
 
       if (result.redirect === "/auth/signup" && onboardingIntent.type === "invitation")
         return redirectTo(pathWithOnboardingIntent("/auth/signup", onboardingIntent.intent));

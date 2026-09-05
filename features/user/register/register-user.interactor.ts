@@ -27,7 +27,7 @@ import {
   type RegistrationAdAttribution,
 } from "@/features/acquisition/ad-attribution.schema";
 
-export const RegisterUserSchema = z
+const RegisterUserSchema = z
   .object({
     email: z.email(),
     firstName: z.string().min(1),
@@ -72,7 +72,7 @@ type RegistrationContext = {
 };
 
 export abstract class RegisterUserRepo {
-  abstract peekAuthUserCompanyIdUnscoped(userId: string): Promise<string | null | undefined>;
+  abstract findAuthUserCompanyIdUnscoped(userId: string): Promise<string | null | undefined>;
   abstract findAuthUserCompanyIdForUpdateUnscoped(userId: string): Promise<string | null | undefined>;
   abstract findCurrentUserUnscoped(email: string): Promise<TenantUser | null>;
   abstract bindAuthUserToCompanyOrThrowUnscoped(args: { authUserId: string; companyId: string }): Promise<void>;
@@ -121,7 +121,7 @@ export class RegisterUserInteractor {
       data.target.type === "invitation"
         ? data.target.companyId
         : data.target.type === "existingAuthUserCompanyBinding"
-          ? await this.repo.peekAuthUserCompanyIdUnscoped(data.sessionUserId)
+          ? await this.repo.findAuthUserCompanyIdUnscoped(data.sessionUserId)
           : null;
 
     return runInTransaction(

@@ -340,6 +340,7 @@ export const PublicNavbar = observer(({ accountState, hasValidSession, onboardin
   const actions = resolvePublicNavbarActions({
     accountState,
     hasValidSession,
+    onboardingIntent,
     pathname,
   });
   const { cta } = actions;

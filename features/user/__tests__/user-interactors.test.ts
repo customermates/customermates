@@ -53,7 +53,7 @@ describe("RegisterUserInteractor", () => {
       bindAuthUserToCompanyOrThrowUnscoped: vi.fn().mockResolvedValue(undefined),
       findCurrentUserUnscoped: vi.fn().mockResolvedValue(null),
       findAuthUserCompanyIdForUpdateUnscoped: vi.fn().mockResolvedValue(null),
-      peekAuthUserCompanyIdUnscoped: vi.fn().mockResolvedValue(null),
+      findAuthUserCompanyIdUnscoped: vi.fn().mockResolvedValue(null),
       createCompanyAndUser: vi.fn().mockResolvedValue(mockTenantUser),
       registerExistingCompany: vi.fn().mockResolvedValue(mockTenantUser),
     };
@@ -187,7 +187,7 @@ describe("RegisterUserInteractor", () => {
 
     vi.clearAllMocks();
     mockRepo.findAuthUserCompanyIdForUpdateUnscoped.mockResolvedValue("existing-company-id");
-    mockRepo.peekAuthUserCompanyIdUnscoped.mockResolvedValue("existing-company-id");
+    mockRepo.findAuthUserCompanyIdUnscoped.mockResolvedValue("existing-company-id");
     mockRepo.registerExistingCompany.mockResolvedValue(mockTenantUser);
     mockEventService.publish.mockResolvedValue(undefined);
     mockAuthService.sendNewUserNotificationEmail.mockResolvedValue(undefined);
@@ -251,7 +251,7 @@ describe("RegisterUserInteractor", () => {
 
   it("publishes USER_REGISTERED with isNewCompany false for existing company", async () => {
     mockRepo.findAuthUserCompanyIdForUpdateUnscoped.mockResolvedValue("existing-company-id");
-    mockRepo.peekAuthUserCompanyIdUnscoped.mockResolvedValue("existing-company-id");
+    mockRepo.findAuthUserCompanyIdUnscoped.mockResolvedValue("existing-company-id");
 
     const interactor = createInteractor();
     await interactor.invoke(
@@ -284,7 +284,7 @@ describe("RegisterUserInteractor", () => {
   it("rejects an unchecked invited cloud user before updating records", async () => {
     mutableEnv.APP_MODE = "cloud";
     mockRepo.findAuthUserCompanyIdForUpdateUnscoped.mockResolvedValue("existing-company-id");
-    mockRepo.peekAuthUserCompanyIdUnscoped.mockResolvedValue("existing-company-id");
+    mockRepo.findAuthUserCompanyIdUnscoped.mockResolvedValue("existing-company-id");
 
     const result = await createInteractor().invoke(
       {
@@ -306,7 +306,7 @@ describe("RegisterUserInteractor", () => {
   it("does not record managed-service acceptance for an invited cloud user", async () => {
     (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "demo" | "self-hosted" }).APP_MODE = "cloud";
     mockRepo.findAuthUserCompanyIdForUpdateUnscoped.mockResolvedValue("existing-company-id");
-    mockRepo.peekAuthUserCompanyIdUnscoped.mockResolvedValue("existing-company-id");
+    mockRepo.findAuthUserCompanyIdUnscoped.mockResolvedValue("existing-company-id");
 
     const interactor = createInteractor();
     await interactor.invoke(
@@ -444,7 +444,7 @@ describe("RegisterUserInteractor", () => {
 
   it("returns the pending destination for an invited user", async () => {
     mockRepo.findAuthUserCompanyIdForUpdateUnscoped.mockResolvedValue("existing-company-id");
-    mockRepo.peekAuthUserCompanyIdUnscoped.mockResolvedValue("existing-company-id");
+    mockRepo.findAuthUserCompanyIdUnscoped.mockResolvedValue("existing-company-id");
     mockRepo.registerExistingCompany.mockResolvedValue({
       ...mockTenantUser,
       status: "pendingAuthorization",

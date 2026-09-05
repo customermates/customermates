@@ -158,6 +158,19 @@ describe("RegisterOnboardingProfileInteractor", () => {
     expect(inviteTokenCookieRepo.clear).not.toHaveBeenCalled();
   });
 
+  it.each([
+    invitation,
+    { authUserId: "user-one", intent: "signed-create", source: "explicit", status: "valid", type: "createCompany" },
+  ])("preserves $type intent when verification becomes overdue during profile entry", async (intent) => {
+    onboardingIntentService.resolve.mockResolvedValue(intent);
+    registerUserInteractor.invoke.mockResolvedValue({ redirect: "/auth/verify-email" });
+
+    await expect(createInteractor().invoke({ ...registration, onboardingIntent: intent.intent })).resolves.toEqual({
+      redirect: `/auth/verify-email?intent=${intent.intent}`,
+    });
+    expect(inviteTokenCookieRepo.clear).not.toHaveBeenCalled();
+  });
+
   it("preserves a create decision when its session needs to be restored", async () => {
     onboardingIntentService.resolve.mockResolvedValue({
       authUserId: "user-one",

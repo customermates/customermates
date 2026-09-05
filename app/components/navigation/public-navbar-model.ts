@@ -1,7 +1,9 @@
 import type { AccountState } from "@/features/auth/account-state";
 
+import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
+
 type PublicNavbarCta = {
-  href: "/auth/signin" | "/dashboard" | "/onboarding";
+  href: string;
   label: "signIn" | "openApp" | "continueSetup";
 };
 
@@ -14,15 +16,23 @@ type PublicNavbarActions = {
 export function resolvePublicNavbarActions({
   accountState,
   hasValidSession,
+  onboardingIntent,
   pathname,
 }: {
   accountState: AccountState;
   hasValidSession: boolean;
+  onboardingIntent?: string;
   pathname: string;
 }): PublicNavbarActions {
   if (!hasValidSession) {
     return {
-      cta: pathname === "/auth/signin" ? null : { href: "/auth/signin", label: "signIn" },
+      cta:
+        pathname === "/auth/signin"
+          ? null
+          : {
+              href: onboardingIntent ? pathWithOnboardingIntent("/auth/signin", onboardingIntent) : "/auth/signin",
+              label: "signIn",
+            },
       showContact: true,
       signOut: "hidden",
     };
@@ -32,7 +42,12 @@ export function resolvePublicNavbarActions({
     const onboardingPath = pathname === "/onboarding" || pathname.startsWith("/onboarding/");
 
     return {
-      cta: onboardingPath ? null : { href: "/onboarding", label: "continueSetup" },
+      cta: onboardingPath
+        ? null
+        : {
+            href: onboardingIntent ? pathWithOnboardingIntent("/onboarding", onboardingIntent) : "/onboarding",
+            label: "continueSetup",
+          },
       showContact: false,
       signOut: onboardingPath ? "setupEscape" : "hidden",
     };

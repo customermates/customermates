@@ -5,12 +5,10 @@ import { describe, expect, it } from "vitest";
 const root = process.cwd();
 const read = (path: string) => readFileSync(resolve(root, path), "utf8");
 const filesUnder = (directory: string): string[] =>
-  readdirSync(resolve(root, directory), { withFileTypes: true }).flatMap(
-    (entry) => {
-      const path = join(directory, entry.name);
-      return entry.isDirectory() ? filesUnder(path) : [path];
-    },
-  );
+  readdirSync(resolve(root, directory), { withFileTypes: true }).flatMap((entry) => {
+    const path = join(directory, entry.name);
+    return entry.isDirectory() ? filesUnder(path) : [path];
+  });
 
 const protectedRoot = "app/[locale]/(protected)";
 const protectedPages = filesUnder(protectedRoot)
@@ -18,9 +16,7 @@ const protectedPages = filesUnder(protectedRoot)
   .map((path) => path.slice(protectedRoot.length + 1))
   .filter((path) => !path.startsWith("test/"))
   .sort();
-const protectedLoaders = protectedPages.map((page) =>
-  join(protectedRoot, dirname(page), "loading.tsx"),
-);
+const protectedLoaders = protectedPages.map((page) => join(protectedRoot, dirname(page), "loading.tsx"));
 
 const collectionViews = [
   "app/[locale]/(protected)/contacts/components/contacts-page-view.tsx",
@@ -54,26 +50,11 @@ const featureSkeletons = [
 ] as const;
 
 const exhaustiveResourceOwners = [
-  [
-    "app/[locale]/(protected)/dashboard/components/dashboard-page-view.tsx",
-    "switch (pageState)",
-  ],
-  [
-    "app/[locale]/(protected)/profile/components/api-keys-page-view.tsx",
-    "switch (pageState)",
-  ],
-  [
-    "app/[locale]/(protected)/profile/components/connected-accounts-page-view.tsx",
-    "switch (pageState)",
-  ],
-  [
-    "app/[locale]/(protected)/inbox/components/inbox-list.tsx",
-    "switch (pageState)",
-  ],
-  [
-    "app/[locale]/(protected)/inbox/components/thread-panel.tsx",
-    "switch (pageState.status)",
-  ],
+  ["app/[locale]/(protected)/dashboard/components/dashboard-page-view.tsx", "switch (pageState)"],
+  ["app/[locale]/(protected)/profile/components/api-keys-page-view.tsx", "switch (pageState)"],
+  ["app/[locale]/(protected)/profile/components/connected-accounts-page-view.tsx", "switch (pageState)"],
+  ["app/[locale]/(protected)/inbox/components/inbox-list.tsx", "switch (pageState)"],
+  ["app/[locale]/(protected)/inbox/components/thread-panel.tsx", "switch (pageState.status)"],
   ["components/entity-detail/entity-drawer.tsx", "switch (drawerState)"],
 ] as const;
 
@@ -82,14 +63,9 @@ describe("page-state ownership", () => {
     expect(protectedLoaders).toHaveLength(31);
     for (const path of protectedLoaders) {
       expect(existsSync(resolve(root, path)), path).toBe(true);
-      expect(
-        existsSync(resolve(root, dirname(path), "page.tsx")),
-        `${path}:page`,
-      ).toBe(true);
+      expect(existsSync(resolve(root, dirname(path), "page.tsx")), `${path}:page`).toBe(true);
       const source = read(path);
-      expect(source, path).not.toMatch(
-        /\bRouteLoading\b|\bPageSkeleton\b|route-registry/,
-      );
+      expect(source, path).not.toMatch(/\bRouteLoading\b|\bPageSkeleton\b|route-registry/);
       expect(source, path).toMatch(/PageState|EntityDetailRouteLoading/);
       expect(source, path).toMatch(/Skeleton|EntityDetailRouteLoading/);
       expect(source, path).not.toMatch(/\bfixed\b|\binset-0\b|z-\d+/);
@@ -108,19 +84,11 @@ describe("page-state ownership", () => {
     for (const path of collectionViews) {
       const source = read(path);
       expect(source, path).toContain("switch (pageState)");
-      for (const state of [
-        "error",
-        "loading",
-        "filtered-empty",
-        "true-empty",
-        "content",
-      ]) {
+      for (const state of ["error", "loading", "filtered-empty", "true-empty", "content"]) {
         expect(source, `${path}:${state}`).toContain(`case "${state}"`);
       }
       expect(source, path).toContain("const exhaustive: never = pageState");
-      expect(source, path).not.toMatch(
-        /DataViewContainer|useState\(|useEffect\(/,
-      );
+      expect(source, path).not.toMatch(/DataViewContainer|useState\(|useEffect\(/);
     }
   });
 
@@ -130,37 +98,24 @@ describe("page-state ownership", () => {
       "components/page-state/page-skeleton.tsx",
       "components/page-state/route-loading.tsx",
       "components/page-state/route-registry.ts",
-    ])
-      expect(existsSync(resolve(root, path)), path).toBe(false);
+    ]) expect(existsSync(resolve(root, path)), path).toBe(false);
 
     const productionFiles = ["app", "components", "core", "features"]
       .flatMap(filesUnder)
       .filter((path) => path.endsWith(".ts") || path.endsWith(".tsx"))
-      .filter(
-        (path) =>
-          !path.includes("/__tests__/") &&
-          !path.endsWith(".test.ts") &&
-          !path.endsWith(".test.tsx"),
-      );
+      .filter((path) => !path.includes("/__tests__/") && !path.endsWith(".test.ts") && !path.endsWith(".test.tsx"));
     const legacyPattern =
       /\bDataViewContainer\b|\bPageSkeletonSpec\b|\bPageSkeleton\b|\bRouteLoading\b|\bPROTECTED_ROUTE_REGISTRY\b|\bgetProtectedRouteSpec\b/;
-    for (const path of productionFiles)
-      expect(read(path), path).not.toMatch(legacyPattern);
-    expect(read("components/page-state/page-state.tsx")).not.toMatch(
-      /\bskeleton[?:=]/,
-    );
-    expect(read("core/base/base-data-view.store.ts")).not.toContain(
-      "refreshError",
-    );
+    for (const path of productionFiles) expect(read(path), path).not.toMatch(legacyPattern);
+    expect(read("components/page-state/page-state.tsx")).not.toMatch(/\bskeleton[?:=]/);
+    expect(read("core/base/base-data-view.store.ts")).not.toContain("refreshError");
   });
 
   it("keeps skeleton composition server-compatible and side-effect free", () => {
     for (const path of pureSkeletons) {
       const source = read(path);
       expect(source, path).not.toContain('"use client"');
-      expect(source, path).not.toMatch(
-        /use(State|Effect|LayoutEffect|Reducer)|useRootStore|window\.|fetch\(|setTimeout|setInterval/,
-      );
+      expect(source, path).not.toMatch(/use(State|Effect|LayoutEffect|Reducer)|useRootStore|window\.|fetch\(|setTimeout|setInterval/);
       expect(source, path).toContain("data-page-skeleton-loading");
       expect(source, path).toContain("data-page-skeleton-empty");
     }
@@ -168,33 +123,22 @@ describe("page-state ownership", () => {
     for (const path of featureSkeletons) {
       const source = read(path);
       expect(source, path).not.toContain('"use client"');
-      expect(source, path).not.toMatch(
-        /use(State|Effect|LayoutEffect|Reducer)|useRootStore|window\.|fetch\(|setTimeout|setInterval/,
-      );
+      expect(source, path).not.toMatch(/use(State|Effect|LayoutEffect|Reducer)|useRootStore|window\.|fetch\(|setTimeout|setInterval/);
     }
   });
 
   it("does not start connected-account work behind locked surfaces", () => {
-    expect(
-      read(
-        "app/[locale]/(protected)/profile/components/connected-accounts-page-view.tsx",
-      ),
-    ).toContain("if (locked) return;");
-    expect(
-      read("app/[locale]/(protected)/inbox/components/inbox-list.tsx"),
-    ).toContain("if (locked) return;");
+    expect(read("app/[locale]/(protected)/profile/components/connected-accounts-page-view.tsx")).toContain(
+      "if (locked) return;",
+    );
+    expect(read("app/[locale]/(protected)/inbox/components/inbox-list.tsx")).toContain("if (locked) return;");
   });
 
   it("keeps the neutral public and internal-test loaders generic", () => {
-    for (const path of [
-      "app/[locale]/(public)/loading.tsx",
-      "app/[locale]/(protected)/test/loading.tsx",
-    ]) {
+    for (const path of ["app/[locale]/(public)/loading.tsx", "app/[locale]/(protected)/test/loading.tsx"]) {
       const source = read(path);
       expect(source, path).toContain("GenericPageLoading");
-      expect(source, path).not.toMatch(
-        /PageState|PageSkeleton|RouteLoading|<main|\bfixed\b/,
-      );
+      expect(source, path).not.toMatch(/PageState|PageSkeleton|RouteLoading|<main|\bfixed\b/);
     }
   });
 
@@ -207,13 +151,8 @@ describe("page-state ownership", () => {
     // get the same 404 as a route that does not exist, so nothing above such a layout may carry one
     // either. That is why the (protected) group has no catch-all loader: its only pages without a
     // direct loader are the internal test routes, which hold one of their own.
-    expect(
-      existsSync(resolve(root, "app/[locale]/loading.tsx")),
-      "app/[locale]/loading.tsx",
-    ).toBe(false);
-    const staticLoaders = filesUnder("app/[locale]/(static)").filter((path) =>
-      path.endsWith("loading.tsx"),
-    );
+    expect(existsSync(resolve(root, "app/[locale]/loading.tsx")), "app/[locale]/loading.tsx").toBe(false);
+    const staticLoaders = filesUnder("app/[locale]/(static)").filter((path) => path.endsWith("loading.tsx"));
     expect(staticLoaders, "loading.tsx under (static)").toEqual([]);
 
     const guardedLayouts = filesUnder("app")
@@ -224,10 +163,7 @@ describe("page-state ownership", () => {
       let segment = dirname(dirname(layout));
       while (segment.startsWith("app")) {
         const loader = join(segment, "loading.tsx");
-        expect(
-          existsSync(resolve(root, loader)),
-          `${loader} sits above ${layout}`,
-        ).toBe(false);
+        expect(existsSync(resolve(root, loader)), `${loader} sits above ${layout}`).toBe(false);
         if (segment === "app") break;
         segment = dirname(segment);
       }
@@ -236,12 +172,8 @@ describe("page-state ownership", () => {
 
   it("keeps loading motion shape-only and disabled for reduced motion", () => {
     const styles = read("styles/globals.css");
-    expect(styles).toContain(
-      "[data-page-skeleton-loading] [data-skeleton-motion]",
-    );
-    expect(styles).toContain(
-      "[data-page-skeleton-loading] [data-skeleton-breathe]",
-    );
+    expect(styles).toContain("[data-page-skeleton-loading] [data-skeleton-motion]");
+    expect(styles).toContain("[data-page-skeleton-loading] [data-skeleton-breathe]");
     expect(styles).toContain("[data-page-skeleton-empty]");
     expect(styles).toContain("@media (prefers-reduced-motion: reduce)");
     expect(styles).toContain("animation: none");

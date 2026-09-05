@@ -598,7 +598,8 @@ describeDatabase("registration against a real database", () => {
     authUserIds.push(authUserId);
     await runWithoutTenant(() => prisma.company.delete({ where: { id: deletedCompany.id } }));
 
-    expect(await runWithoutTenant(() => repo.findAuthUserCompanyIdUnscoped(authUserId))).toBeNull();
+    expect(await runWithoutTenant(() => repo.findAuthUserCompanyIdUnscoped(authUserId))).toBe(deletedCompany.id);
+    expect(await runWithoutTenant(() => new PrismaCompanyRepo().existsUnscoped(deletedCompany.id))).toBe(false);
 
     const interactor = new RegisterUserInteractor(
       { sendNewUserNotificationEmail: vi.fn().mockResolvedValue(undefined) } as never,
