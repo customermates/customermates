@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { usePathname, useRouter } from "@/i18n/navigation";
 
 import { ComposerSignature } from "./composer-signature";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -100,11 +101,21 @@ export const ThreadReplyComposer = observer(
     const t = useTranslations();
     const intlStore = useHydratedIntlStore();
     const rootStore = useRootStore();
+    const router = useRouter();
+    const pathname = usePathname();
     const { userStore, threadComposeStore, connectedAccountsStore } = rootStore;
     const fileInputRef = useRef<HTMLInputElement>(null);
     const emailEditorRef = useRef<EmailMarkdownEditorHandle>(null);
     const initializedThreadId = useRef<string | null>(null);
+    const mounted = useRef(false);
     const [emojiOpen, setEmojiOpen] = useState(false);
+
+    useEffect(() => {
+      mounted.current = true;
+      return () => {
+        mounted.current = false;
+      };
+    }, []);
 
     function insertEmoji(emoji: string) {
       if (threadComposeStore.isEmail) {
@@ -137,9 +148,19 @@ export const ThreadReplyComposer = observer(
       initializedThreadId.current = threadId;
       if (threadComposeStore.form.threadId === threadId) return;
       if (newThreadTarget) {
+        const sourcePathname = window.location.pathname;
         threadComposeStore.initializeNewThread({
           provider,
           ...newThreadTarget,
+          onSent: (sentThreadId) => {
+            if (!mounted.current || window.location.pathname !== sourcePathname) return;
+            const params = new URLSearchParams(window.location.search);
+            if (params.get("threadId") !== threadId) return;
+            if (sentThreadId) params.set("threadId", sentThreadId);
+            else params.delete("threadId");
+            const query = params.toString();
+            router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+          },
         });
         return;
       }
@@ -150,7 +171,17 @@ export const ThreadReplyComposer = observer(
         defaultRecipients,
         defaultCc,
       });
-    }, [threadComposeStore, provider, threadId, defaultSubject, defaultRecipients, defaultCc, newThreadTarget]);
+    }, [
+      threadComposeStore,
+      provider,
+      threadId,
+      defaultSubject,
+      defaultRecipients,
+      defaultCc,
+      newThreadTarget,
+      pathname,
+      router,
+    ]);
 
     function handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
       if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {

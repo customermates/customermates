@@ -7,7 +7,13 @@ import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ConnectedAccountStatus, MessagingProvider } from "@/generated/prisma";
-import { defaultEmailSettings, SignatureTemplate } from "@/ee/messaging/email-settings";
+import {
+  defaultEmailSettings,
+  SignatureDivider,
+  SignatureLogoSize,
+  SignatureSpacing,
+  SignatureTemplate,
+} from "@/ee/messaging/email-settings";
 
 const harness = vi.hoisted(() => ({
   rootStore: null as Record<string, unknown> | null,
@@ -104,7 +110,8 @@ vi.mock("@/components/ui/switch", () => ({
 }));
 
 vi.mock("@/components/modal", () => ({
-  AppModal: ({ children }: { children: ReactNode }) => createElement("div", null, children),
+  AppModal: ({ children, size }: { children: ReactNode; size: string }) =>
+    createElement("div", { "data-modal-size": size }, children),
 }));
 
 vi.mock("@/components/card/app-card", () => ({
@@ -171,12 +178,15 @@ import { AccountSignature } from "../account-signature";
 import { ConnectedAccountModal } from "../connected-account-modal";
 
 const roots = new Set<Root>();
+const rootsByContainer = new WeakMap<HTMLElement, Root>();
+const scrollIntoViewDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "scrollIntoView");
 
 function mount(element: ReactElement) {
   const container = document.createElement("div");
   document.body.append(container);
   const root = createRoot(container);
   roots.add(root);
+  rootsByContainer.set(container, root);
   act(() => root.render(element));
   return container;
 }
@@ -204,9 +214,59 @@ function setValue(element: HTMLInputElement | HTMLSelectElement | HTMLTextAreaEl
 
 async function click(element: HTMLElement) {
   await act(async () => {
+    element.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0 }));
+    element.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, button: 0 }));
     element.click();
     await Promise.resolve();
   });
+}
+
+async function chooseOption(container: HTMLElement, id: string, label: string) {
+  const trigger = requiredElement(container.querySelector<HTMLButtonElement>(`#${id}`));
+  await act(async () => {
+    trigger.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+    await Promise.resolve();
+  });
+  const option = requiredElement(
+    [...document.querySelectorAll<HTMLElement>('[role="option"]')].find((item) => item.textContent === label) ?? null,
+  );
+  await click(option);
+}
+
+function modalStore(account: ConnectedAccountDto) {
+  const store = {
+    close: vi.fn(),
+    form: account,
+    saveSignature: vi.fn(() => Promise.resolve(true)),
+    setEmailSettingsDirty: vi.fn(),
+    toggleFolder: vi.fn(),
+    toggleVisibility: vi.fn(),
+  };
+  harness.rootStore = {
+    appMode: "cloud",
+    connectedAccountModalStore: store,
+    connectedAccountsStore: {
+      disconnect: vi.fn(),
+      reconnect: vi.fn(),
+      resync: vi.fn(),
+    },
+    subscriptionStore: { subscription: { plan: "pro" } },
+    userModalStore: { loadById: vi.fn() },
+    userStore: { can: () => true },
+  };
+  return store;
+}
+
+function renderModalAgain(container: HTMLElement) {
+  const root = rootsByContainer.get(container);
+  if (!root) throw new Error("Expected an existing React root");
+  act(() => root.render(createElement(ConnectedAccountModal)));
+}
+
+function expectActiveTab(container: HTMLElement, tab: string, size: string) {
+  expect(container.querySelector(`#connected-account-tab-${tab}`)?.getAttribute("aria-selected")).toBe("true");
+  expect(container.querySelector("[data-modal-size]")?.getAttribute("data-modal-size")).toBe(size);
+  expect(container.querySelectorAll('[role="tab"][aria-selected="true"]')).toHaveLength(1);
 }
 
 function emailAccount(settings: EmailSettings = defaultEmailSettings()): ConnectedAccountDto {
@@ -249,6 +309,10 @@ function saveButton(container: HTMLElement) {
 
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+  Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
+    configurable: true,
+    value: vi.fn(),
+  });
   harness.rootStore = null;
 });
 
@@ -256,10 +320,127 @@ afterEach(() => {
   act(() => roots.forEach((root) => root.unmount()));
   roots.clear();
   document.body.replaceChildren();
+  if (scrollIntoViewDescriptor)
+    Object.defineProperty(HTMLElement.prototype, "scrollIntoView", scrollIntoViewDescriptor);
+  else Reflect.deleteProperty(HTMLElement.prototype, "scrollIntoView");
   vi.clearAllMocks();
 });
 
 describe("AccountSignature", () => {
+  it("saves selected logo size, divider, and spacing through the layout controls", async () => {
+    const settings = defaultEmailSettings();
+    settings.signature = {
+      ...settings.signature,
+      enabled: true,
+      template: SignatureTemplate.sideBySide,
+      logoUrl: "https://cdn.example.com/logo.png",
+    };
+    const onSave = vi.fn(() => Promise.resolve(true));
+    const onDirtyChange = vi.fn();
+    const container = mount(
+      createElement(AccountSignature, {
+        account: emailAccount(settings),
+        onDirtyChange,
+        onSave,
+      }),
+    );
+
+    await click(requiredElement(container.querySelector("summary")));
+    await chooseOption(container, "signature-logoSize", "ConnectedAccountsCard.emailLogoSizes.large");
+    await chooseOption(container, "signature-divider", "ConnectedAccountsCard.emailDividers.line");
+    await chooseOption(container, "signature-spacing", "ConnectedAccountsCard.emailSpacings.compact");
+    expect(saveButton(container).disabled).toBe(false);
+    expect(onDirtyChange).toHaveBeenLastCalledWith(true);
+
+    await click(saveButton(container));
+    expect(onSave).toHaveBeenCalledExactlyOnceWith("", {
+      ...settings,
+      signature: {
+        ...settings.signature,
+        logoSize: SignatureLogoSize.large,
+        divider: SignatureDivider.line,
+        spacing: SignatureSpacing.compact,
+      },
+    });
+    expect(onDirtyChange).toHaveBeenLastCalledWith(false);
+    expect(saveButton(container).disabled).toBe(true);
+  });
+
+  it("retains layout options and Markdown when their controls are hidden or the signature is disabled", async () => {
+    const settings = defaultEmailSettings();
+    settings.signature = {
+      ...settings.signature,
+      enabled: true,
+      template: SignatureTemplate.sideBySide,
+      logoUrl: "https://cdn.example.com/logo.png",
+    };
+    const onSave = vi.fn(() => Promise.resolve(true));
+    const container = mount(
+      createElement(AccountSignature, {
+        account: emailAccount(settings),
+        onDirtyChange: vi.fn(),
+        onSave,
+      }),
+    );
+    const enabled = requiredElement(container.querySelector<HTMLInputElement>("#email-signature-enabled"));
+    const editor = requiredElement(container.querySelector<HTMLTextAreaElement>("#connected-account-signature"));
+    setValue(editor, "**Custom signature**");
+    await click(requiredElement(container.querySelector("summary")));
+    await chooseOption(container, "signature-logoSize", "ConnectedAccountsCard.emailLogoSizes.large");
+    await chooseOption(container, "signature-divider", "ConnectedAccountsCard.emailDividers.line");
+    await chooseOption(container, "signature-spacing", "ConnectedAccountsCard.emailSpacings.compact");
+
+    const template = requiredElement(container.querySelector<HTMLSelectElement>('[aria-label="signature-template"]'));
+    setValue(template, SignatureTemplate.plain);
+    for (const id of ["signature-logoUrl", "signature-logoSize", "signature-divider", "signature-spacing"])
+      expect(container.querySelector(`#${id}`)).toBeNull();
+
+    await click(enabled);
+    expect(container.querySelector("#connected-account-signature")).toBeNull();
+    await click(saveButton(container));
+    const retained = {
+      ...settings.signature,
+      enabled: false,
+      template: SignatureTemplate.plain,
+      logoSize: SignatureLogoSize.large,
+      divider: SignatureDivider.line,
+      spacing: SignatureSpacing.compact,
+    };
+    expect(onSave).toHaveBeenLastCalledWith("**Custom signature**", {
+      ...settings,
+      signature: retained,
+    });
+
+    await click(enabled);
+    expect(requiredElement(container.querySelector<HTMLTextAreaElement>("#connected-account-signature")).value).toBe(
+      "**Custom signature**",
+    );
+    setValue(
+      requiredElement(container.querySelector<HTMLSelectElement>('[aria-label="signature-template"]')),
+      SignatureTemplate.sideBySide,
+    );
+    expect(container.querySelector("#signature-logoSize")?.textContent).toBe(
+      "ConnectedAccountsCard.emailLogoSizes.large",
+    );
+    expect(container.querySelector("#signature-divider")?.textContent).toBe("ConnectedAccountsCard.emailDividers.line");
+    expect(container.querySelector("#signature-spacing")?.textContent).toBe(
+      "ConnectedAccountsCard.emailSpacings.compact",
+    );
+    expect(requiredElement(container.querySelector<HTMLInputElement>("#signature-logoUrl")).value).toBe(
+      settings.signature.logoUrl,
+    );
+
+    await click(saveButton(container));
+    expect(onSave).toHaveBeenLastCalledWith("**Custom signature**", {
+      ...settings,
+      signature: {
+        ...retained,
+        enabled: true,
+        template: SignatureTemplate.sideBySide,
+      },
+    });
+  });
+
   it("validates custom hex colours, synchronizes the picker, and saves low-contrast choices", async () => {
     const onSave = vi.fn(() => Promise.resolve(true));
     const container = mount(
@@ -333,6 +514,7 @@ describe("AccountSignature", () => {
   it("shows signature fields only when enabled and validates logo URLs only for logo layouts", async () => {
     const settings = defaultEmailSettings();
     settings.signature = {
+      ...settings.signature,
       enabled: false,
       template: SignatureTemplate.sideBySide,
       logoUrl: "http://localhost/logo.png",
@@ -388,11 +570,11 @@ describe("AccountSignature", () => {
       "",
       expect.objectContaining({
         appearance: expect.objectContaining({ fontSize: 14 }),
-        signature: {
+        signature: expect.objectContaining({
           enabled: false,
           template: SignatureTemplate.sideBySide,
           logoUrl: "http://localhost/logo.png",
-        },
+        }),
       }),
     );
     expect(onDirtyChange).toHaveBeenLastCalledWith(false);
@@ -400,9 +582,65 @@ describe("AccountSignature", () => {
 });
 
 describe("ConnectedAccountModal email tab", () => {
+  it("returns to Details at xl when switching accounts instead of carrying Email state or its draft", async () => {
+    const settings = defaultEmailSettings();
+    settings.signature.enabled = true;
+    const accountA = emailAccount(settings);
+    const store = modalStore(accountA);
+    const container = mount(createElement(ConnectedAccountModal));
+    await click(requiredElement(container.querySelector<HTMLButtonElement>("#connected-account-tab-email")));
+    expectActiveTab(container, "email", "5xl");
+    const editorA = requiredElement(container.querySelector<HTMLTextAreaElement>("#connected-account-signature"));
+    setValue(editorA, "Account A unsaved draft");
+
+    store.form = {
+      ...emailAccount(settings),
+      id: "b7f2c558-d461-490e-8b9b-af1089a52643",
+      signature: "Account B saved",
+    };
+    renderModalAgain(container);
+    expectActiveTab(container, "details", "xl");
+    const editorB = requiredElement(container.querySelector<HTMLTextAreaElement>("#connected-account-signature"));
+    expect(editorB).not.toBe(editorA);
+    expect(editorB.value).toBe("Account B saved");
+
+    await click(requiredElement(container.querySelector<HTMLButtonElement>("#connected-account-tab-email")));
+    expectActiveTab(container, "email", "5xl");
+    expect(editorB.value).toBe("Account B saved");
+    expect(store.saveSignature).not.toHaveBeenCalled();
+  });
+
+  it.each(["email", "folders"])(
+    "falls back to Details at xl when the active %s tab becomes unavailable",
+    async (tab) => {
+      const account = emailAccount();
+      account.folders = [
+        {
+          id: "inbox",
+          name: "Inbox",
+          role: "INBOX",
+          totalCount: 0,
+          unreadCount: 0,
+        },
+      ];
+      const store = modalStore(account);
+      const container = mount(createElement(ConnectedAccountModal));
+      await click(requiredElement(container.querySelector<HTMLButtonElement>(`#connected-account-tab-${tab}`)));
+      expectActiveTab(container, tab, tab === "email" ? "5xl" : "xl");
+
+      store.form = tab === "email" ? { ...account, isOwner: false } : { ...account, folders: [] };
+      renderModalAgain(container);
+      expect(container.querySelector(`#connected-account-tab-${tab}`)).toBeNull();
+      expectActiveTab(container, "details", "xl");
+      expect(container.querySelector('[role="tabpanel"][data-state="active"]')?.textContent).toContain(
+        "ConnectedAccountsCard.provider",
+      );
+    },
+  );
+
   it("preserves an unsaved signature draft while switching to details and back", async () => {
     const settings = defaultEmailSettings();
-    settings.signature = { enabled: true, template: SignatureTemplate.plain, logoUrl: "" };
+    settings.signature = { ...settings.signature, enabled: true, template: SignatureTemplate.plain, logoUrl: "" };
     const account = emailAccount(settings);
     const saveSignature = vi.fn(() => Promise.resolve(true));
     const setEmailSettingsDirty = vi.fn();
@@ -431,16 +669,19 @@ describe("ConnectedAccountModal email tab", () => {
     const detailsTab = requiredElement(container.querySelector<HTMLButtonElement>("#connected-account-tab-details"));
 
     await click(emailTab);
+    expectActiveTab(container, "email", "5xl");
     const editor = requiredElement(container.querySelector<HTMLTextAreaElement>("#connected-account-signature"));
     setValue(editor, "**Unsaved signature**");
     expect(editor.value).toBe("**Unsaved signature**");
 
     await click(detailsTab);
+    expectActiveTab(container, "details", "xl");
     expect(container.querySelector("#connected-account-signature")).toBe(editor);
     expect(editor.value).toBe("**Unsaved signature**");
     expect(setEmailSettingsDirty).toHaveBeenLastCalledWith(true);
 
     await click(emailTab);
+    expectActiveTab(container, "email", "5xl");
     expect(container.querySelector("#connected-account-signature")).toBe(editor);
     expect(editor.value).toBe("**Unsaved signature**");
     expect(setEmailSettingsDirty).toHaveBeenLastCalledWith(true);

@@ -1465,6 +1465,11 @@
     "disconnectedToastTitle": "Account disconnected",
     "emailAppearanceDescription": "Applied to every email composed from this account.",
     "emailAppearanceTitle": "Appearance",
+    "emailDivider": "Divider",
+    "emailDividers": {
+      "line": "Thin line",
+      "none": "None"
+    },
     "emailFontFamilies": {
       "monospace": "Monospace (Courier New)",
       "sansSerif": "Sans serif (Arial)",
@@ -1472,6 +1477,7 @@
     },
     "emailFontFamily": "Font family",
     "emailFontSize": "Font size",
+    "emailLayoutOptions": "Layout options",
     "emailLinkColour": "Link colour",
     "emailLinkColourInvalid": "Enter # followed by 6 hexadecimal characters (0–9, A–F), for example #1A2B3C.",
     "emailLinkColourLowContrast": "Low contrast: {light}:1 on light, {dark}:1 on dark. Some recipients will struggle to read it.",
@@ -1484,6 +1490,12 @@
     },
     "emailLogoHint": "Use a public HTTPS image URL that recipients can access.",
     "emailLogoPlaceholder": "https://example.com/logo.png",
+    "emailLogoSize": "Logo size",
+    "emailLogoSizes": {
+      "large": "Large",
+      "medium": "Medium",
+      "small": "Small"
+    },
     "emailLogoUrl": "Logo URL",
     "emailPreviewDescription": "Appearance applies to the whole email; the signature is added below.",
     "emailPreviewLink": "Example link",
@@ -1498,6 +1510,11 @@
     "emailSignatureHint": "Supports email-safe Markdown for emphasis, links, lists, quotes and dividers.",
     "emailSignaturePlaceholder": "**Benjamin Wagner**\nFounder at Customermates",
     "emailSignatureTitle": "Signature",
+    "emailSpacing": "Spacing",
+    "emailSpacings": {
+      "comfortable": "Comfortable",
+      "compact": "Compact"
+    },
     "emptyState": "You haven't connected any channels yet.",
     "expiredLinkToastDescription": "This connection link has expired. Generate a new one from this page and try again.",
     "expiredLinkToastTitle": "Link expired",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { sanitizeHtml } from "@/components/shared/sanitize-html";
@@ -35,18 +35,11 @@ function frameDocumentHeight(iframe: HTMLIFrameElement): number {
   const document = iframe.contentDocument;
   if (!document?.body) return MIN_FRAME_HEIGHT;
 
-  return Math.min(
-    MAX_FRAME_HEIGHT,
-    Math.max(
-      MIN_FRAME_HEIGHT,
-      document.body.scrollHeight,
-      document.body.offsetHeight,
-      document.documentElement?.scrollHeight ?? 0,
-    ),
-  );
+  return Math.min(MAX_FRAME_HEIGHT, Math.max(MIN_FRAME_HEIGHT, document.body.scrollHeight, document.body.offsetHeight));
 }
 
 export function EmailFrame({ html, showRemoteImages = false }: Props) {
+  const frameRef = useRef<HTMLIFrameElement>(null);
   const [mounted, setMounted] = useState(false);
   const [showQuoted, setShowQuoted] = useState(false);
   const t = useTranslations();
@@ -64,20 +57,39 @@ export function EmailFrame({ html, showRemoteImages = false }: Props) {
     };
   }, [html, showRemoteImages, mounted, showQuoted]);
 
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame) return;
+    let observer: ResizeObserver | undefined;
+    const resize = () => {
+      frame.style.height = `${frameDocumentHeight(frame)}px`;
+    };
+    const observe = () => {
+      observer?.disconnect();
+      if (frame.contentDocument?.body) {
+        observer = new ResizeObserver(resize);
+        observer.observe(frame.contentDocument.body);
+      }
+      resize();
+    };
+    frame.addEventListener("load", observe);
+    observe();
+    return () => {
+      frame.removeEventListener("load", observe);
+      observer?.disconnect();
+    };
+  }, [srcDoc]);
+
   return (
     <>
       <iframe
         key={srcDoc}
+        ref={frameRef}
         className="block w-full bg-white"
         sandbox="allow-same-origin"
         srcDoc={srcDoc}
         style={{ height: `${MIN_FRAME_HEIGHT}px`, minHeight: `${MIN_FRAME_HEIGHT}px` }}
         title={t("Inbox.compose.emailContent")}
-        onLoad={(event) => {
-          event.currentTarget.style.height = `${MIN_FRAME_HEIGHT}px`;
-          const next = frameDocumentHeight(event.currentTarget);
-          event.currentTarget.style.height = `${next}px`;
-        }}
       />
 
       {hasQuote && (

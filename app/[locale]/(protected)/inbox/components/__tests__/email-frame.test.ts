@@ -21,6 +21,7 @@ import { EmailFrame } from "../email-frame";
 
 let root: Root | null = null;
 let container: HTMLDivElement | null = null;
+const observers: { resize: () => void; disconnect: ReturnType<typeof vi.fn> }[] = [];
 
 function render(html: string, showRemoteImages = false) {
   act(() => root?.render(createElement(EmailFrame, { html, showRemoteImages })));
@@ -30,6 +31,17 @@ function render(html: string, showRemoteImages = false) {
 }
 
 beforeEach(() => {
+  observers.length = 0;
+  vi.stubGlobal(
+    "ResizeObserver",
+    class {
+      disconnect = vi.fn();
+      observe = vi.fn();
+      constructor(resize: () => void) {
+        observers.push({ resize, disconnect: this.disconnect });
+      }
+    },
+  );
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   container = document.createElement("div");
   document.body.append(container);
@@ -41,9 +53,45 @@ afterEach(() => {
   root = null;
   container = null;
   document.body.replaceChildren();
+  vi.unstubAllGlobals();
 });
 
 describe("EmailFrame", () => {
+  it("resizes after a hidden tab becomes visible, image loads, or the viewport changes", () => {
+    const iframe = render("<p>Signature preview</p>");
+    let height = 0;
+    Object.defineProperty(iframe, "contentDocument", {
+      configurable: true,
+      value: {
+        body: {
+          get offsetHeight() {
+            return height;
+          },
+          get scrollHeight() {
+            return height;
+          },
+        },
+        documentElement: {
+          get scrollHeight() {
+            return Number.parseInt(iframe.style.height, 10);
+          },
+        },
+      },
+    });
+    act(() => {
+      iframe.dispatchEvent(new Event("load"));
+    });
+    const observer = observers.at(-1);
+    if (!observer) throw new Error("Expected a content resize observer");
+    expect(iframe.style.height).toBe("96px");
+    for (const next of [268, 400, 140, 1000, 50]) {
+      height = next;
+      act(() => observer.resize());
+      expect(iframe.style.height).toBe(`${Math.min(640, Math.max(96, next))}px`);
+    }
+    render("<p>Replacement</p>");
+    expect(observer.disconnect).toHaveBeenCalled();
+  });
   it("remounts when hydrated content changes and keeps remote images opt-in", () => {
     const first = render("<p>First</p>");
     expect(first.getAttribute("srcdoc")).toContain("<p>First</p>");

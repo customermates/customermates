@@ -130,6 +130,155 @@ describe("ThreadComposeStore draft lifecycle", () => {
     attachmentInputs.toAttachmentInput.mockResolvedValue({});
   });
 
+  it.each([
+    {
+      provider: MessagingProvider.google,
+      result: message({ provider: MessagingProvider.google, isDraft: false, messagingThreadId: OTHER_THREAD_ID }),
+      expected: OTHER_THREAD_ID,
+    },
+    { provider: MessagingProvider.google, result: null, expected: null },
+    { provider: MessagingProvider.linkedin, result: { threadId: OTHER_THREAD_ID }, expected: OTHER_THREAD_ID },
+    { provider: MessagingProvider.linkedin, result: { threadId: null }, expected: null },
+  ])(
+    "reports the canonical $provider thread after an unchanged cold draft is sent ($expected)",
+    async ({ provider, result, expected }) => {
+      const onSent = vi.fn();
+      const draft = message({ provider, messagingThreadId: DRAFT_THREAD_ID });
+      const { store } = makeHarness([draft]);
+      store.initializeNewThread({
+        provider,
+        connectedAccountId: ACCOUNT_ID,
+        recipients: [{ identifier: RECIPIENT, displayName: null }],
+        draftThreadId: DRAFT_THREAD_ID,
+        onSent,
+      });
+      store.loadDraft(draft);
+      const sendAction = provider === MessagingProvider.google ? actions.sendEmailAction : actions.startChatAction;
+      sendAction.mockResolvedValue({ ok: true, data: result });
+
+      await store.send();
+
+      expect(onSent).toHaveBeenCalledExactlyOnceWith(expected);
+      expect(store.hasUnsavedChanges).toBe(false);
+      expect(store.form.body).toBe("");
+      expect(store.form.recipients).toEqual([RECIPIENT]);
+      expect(store.editingDraftId).toBeNull();
+    },
+  );
+
+  it("does not complete a failed cold draft send", async () => {
+    const onSent = vi.fn();
+    const draft = message({ provider: MessagingProvider.google, messagingThreadId: DRAFT_THREAD_ID });
+    const { store } = makeHarness([draft]);
+    store.initializeNewThread({
+      provider: MessagingProvider.google,
+      connectedAccountId: ACCOUNT_ID,
+      recipients: [{ identifier: RECIPIENT, displayName: null }],
+      draftThreadId: DRAFT_THREAD_ID,
+      onSent,
+    });
+    store.loadDraft(draft);
+    actions.sendEmailAction.mockResolvedValue(failure);
+
+    await store.send();
+
+    expect(onSent).not.toHaveBeenCalled();
+    expect(store.form.body).toBe(draft.bodyText);
+    expect(store.hasUnsavedChanges).toBe(true);
+  });
+
+  it("does not navigate for a cold draft response after switching to an existing reply", async () => {
+    const onSent = vi.fn();
+    const sent = deferred<{ ok: true; data: MessagingMessageDto }>();
+    actions.sendEmailAction.mockReturnValue(sent.promise);
+    const draft = message({ provider: MessagingProvider.google, messagingThreadId: DRAFT_THREAD_ID });
+    const { store } = makeHarness([draft]);
+    store.initializeNewThread({
+      provider: MessagingProvider.google,
+      connectedAccountId: ACCOUNT_ID,
+      recipients: [{ identifier: RECIPIENT, displayName: null }],
+      draftThreadId: DRAFT_THREAD_ID,
+      onSent,
+    });
+    store.loadDraft(draft);
+    const sending = store.send();
+    store.initialize({ provider: MessagingProvider.google, threadId: THREAD_ID, defaultRecipients: [RECIPIENT] });
+    store.onChange("body", "Unsent existing reply");
+    sent.resolve({
+      ok: true,
+      data: message({ provider: MessagingProvider.google, isDraft: false, messagingThreadId: OTHER_THREAD_ID }),
+    });
+    await sending;
+
+    expect(onSent).not.toHaveBeenCalled();
+    expect(store.form.body).toBe("Unsent existing reply");
+    expect(store.form.threadId).toBe(THREAD_ID);
+    expect(store.hasUnsavedChanges).toBe(true);
+  });
+
+  it("marks a saved existing reply clean without clearing its recipients", async () => {
+    const draft = message({ provider: MessagingProvider.google });
+    const { store } = makeHarness([draft]);
+    store.initialize({
+      provider: MessagingProvider.google,
+      threadId: THREAD_ID,
+      defaultSubject: "Original subject",
+      defaultRecipients: [RECIPIENT],
+      defaultCc: ["copy@example.com"],
+    });
+    store.loadDraft(draft);
+    store.onChange("body", "Updated saved reply");
+    actions.saveDraftAction.mockResolvedValue({ ok: true, data: { ...draft, bodyText: "Updated saved reply" } });
+
+    await store.saveDraft();
+
+    expect(store.form).toMatchObject({ body: "", subject: "", cc: [], bcc: [], recipients: [RECIPIENT] });
+    expect(store.hasUnsavedChanges).toBe(false);
+    store.onChange("body", "Next unsent reply");
+    expect(store.hasUnsavedChanges).toBe(true);
+  });
+
+  it("does not treat saving a cold draft as sending it", async () => {
+    const onSent = vi.fn();
+    const draft = message({ provider: MessagingProvider.google, messagingThreadId: DRAFT_THREAD_ID });
+    const { store } = makeHarness([draft]);
+    store.initializeNewThread({
+      provider: MessagingProvider.google,
+      connectedAccountId: ACCOUNT_ID,
+      recipients: [{ identifier: RECIPIENT, displayName: null }],
+      draftThreadId: DRAFT_THREAD_ID,
+      onSent,
+    });
+    store.loadDraft(draft);
+    actions.saveDraftAction.mockResolvedValue({ ok: true, data: draft });
+
+    await store.saveDraft();
+
+    expect(onSent).not.toHaveBeenCalled();
+    expect(store.hasUnsavedChanges).toBe(false);
+  });
+
+  it("keeps edits made during a draft save dirty", async () => {
+    const saving = deferred<{ ok: true; data: MessagingMessageDto }>();
+    const draft = message({ provider: MessagingProvider.google });
+    const { store } = makeHarness([draft]);
+    store.initialize({
+      provider: MessagingProvider.google,
+      threadId: THREAD_ID,
+      defaultSubject: "Original",
+      defaultRecipients: [RECIPIENT],
+    });
+    store.loadDraft(draft);
+    actions.saveDraftAction.mockReturnValue(saving.promise);
+    const pending = store.saveDraft();
+    store.onChange("body", "Newer unsaved changes");
+    saving.resolve({ ok: true, data: draft });
+    await pending;
+
+    expect(store.form.body).toBe("Newer unsaved changes");
+    expect(store.hasUnsavedChanges).toBe(true);
+  });
+
   it("preserves derived reply recipients when a legacy draft has an empty to list", () => {
     const draft = message({
       provider: MessagingProvider.google,
@@ -361,6 +510,7 @@ describe("ThreadComposeStore draft lifecycle", () => {
     const sent = deferred<{ ok: true; data: null }>();
     actions.sendEmailAction.mockReturnValue(sent.promise);
     const onDone = vi.fn();
+    const onSent = vi.fn();
     const draft = message({ provider: MessagingProvider.google, messagingThreadId: DRAFT_THREAD_ID });
     const { store } = makeHarness([draft]);
     store.initializeNewThread({
@@ -369,6 +519,7 @@ describe("ThreadComposeStore draft lifecycle", () => {
       recipients: [{ identifier: RECIPIENT, displayName: null }],
       draftThreadId: DRAFT_THREAD_ID,
       onDone,
+      onSent,
     });
     store.loadDraft(draft);
 
@@ -389,6 +540,8 @@ describe("ThreadComposeStore draft lifecycle", () => {
     expect(store.editingDraftRevision).toBeNull();
     expect(store.newThreadTarget?.draftThreadId).toBeUndefined();
     expect(onDone).not.toHaveBeenCalled();
+    expect(onSent).not.toHaveBeenCalled();
+    expect(store.hasUnsavedChanges).toBe(true);
 
     actions.saveDraftAction.mockResolvedValue({
       ok: true,

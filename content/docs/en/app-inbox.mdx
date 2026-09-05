@@ -30,7 +30,15 @@ Open a thread's settings to manage everything that belongs to the conversation r
 
 ## Drafts and attachments
 
-Replies are drafted per thread and survive navigation: leave the thread and come back, and your text is still there. Discarding a draft removes the written content and cannot be undone. Supported incoming media opens inline, ordinary files download, and unsupported items are shown as unsupported. LinkedIn-post attachments open at their external source. Outgoing attachments go through the reply composer on channels that support them.
+Use **Save as draft** in the composer menu to keep a new conversation or a reply in the Inbox without sending it. Saved drafts survive reloads and can be edited, sent, or discarded. There is one saved draft per thread; saving again updates it. UI, REST, and MCP use the same draft queue. API clients must supply the saved message ID and its current `draftRevision` when sending or discarding that draft. Discarding removes the saved content and cannot be undone.
+
+Saved drafts store message text and email addressing, not outgoing attachments. Supported incoming media opens inline, ordinary files download, and unsupported items are shown as unsupported. LinkedIn-post attachments open at their external source. Outgoing attachments go through the reply composer on channels that support them.
+
+## Email appearance and signatures
+
+Open [Profile → Connected accounts](/docs/app-profile), select an email account you own, and use its **Email** tab. Font family, font size, link color, and link style apply to emails composed from plain text or Markdown, including new messages and replies. Write the signature in one Markdown block and enable or disable it without deleting its content. Choose text only, logo above, or logo beside; logo layouts offer small, medium, or large sizing, an optional thin divider, and compact or comfortable spacing. Logos keep their proportions and require a public HTTPS image URL. The live preview sits beside the settings on larger screens and below them on smaller screens.
+
+The enabled signature is appended when sending through the UI, REST API, or MCP; do not paste it into the draft body. Email Markdown supports basic formatting, links, lists, quotes, and dividers, not arbitrary HTML or every Markdown extension. API callers can specify `bodyFormat`; explicitly supplied HTML keeps the caller's body styling.
 
 ## Thread states
 

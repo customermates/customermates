@@ -56,6 +56,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   newThreadTarget: NewThreadTarget | null = null;
 
   private onNewThreadDone: (() => void) | null = null;
+  private onNewThreadSent: ((threadId: string | null) => void) | null = null;
   private retryDraftBindings = new Map<string, { messageId: string; revision: string }>();
   private composeGeneration = 0;
 
@@ -181,6 +182,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     this.draftAttachments = [];
     this.newThreadTarget = null;
     this.onNewThreadDone = null;
+    this.onNewThreadSent = null;
     this.onInitOrRefresh({
       provider: init.provider,
       threadId: init.threadId,
@@ -208,6 +210,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     recipients: Array<{ identifier: string; displayName: string | null }>;
     draftThreadId?: string;
     onDone?: () => void;
+    onSent?: (threadId: string | null) => void;
   }) => {
     this.composeGeneration += 1;
     this.showCcBcc = false;
@@ -216,6 +219,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     this.attachments = [];
     this.draftAttachments = [];
     this.onNewThreadDone = init.onDone ?? null;
+    this.onNewThreadSent = init.onSent ?? null;
     this.newThreadTarget = {
       connectedAccountId: init.connectedAccountId,
       recipients: init.recipients,
@@ -405,6 +409,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
 
     const generation = this.composeGeneration;
     const onDone = this.onNewThreadDone;
+    const onSent = this.onNewThreadSent;
     const draftBinding =
       this.editingDraftId && this.editingDraftRevision
         ? {
@@ -496,6 +501,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
           this.form.linkedinProduct = "classic";
           this.form.inmailSignature = "";
           this.attachments = [];
+          this.onInitOrRefresh(this.form);
         });
       }
 
@@ -516,7 +522,15 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       }
 
       this.toastSuccess("Inbox.compose.newThreadSent");
-      if (draftUnchanged) onDone?.();
+      if (draftUnchanged) {
+        const sentThreadId = result.data
+          ? "messagingThreadId" in result.data
+            ? result.data.messagingThreadId
+            : result.data.threadId
+          : null;
+        onSent?.(sentThreadId);
+        onDone?.();
+      }
     } catch {
       if (generation !== this.composeGeneration) return;
       this.toastError("Common.notifications.unexpectedError");
@@ -613,6 +627,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
           this.attachments = [];
           this.editingDraftId = null;
           this.editingDraftRevision = null;
+          this.onInitOrRefresh(this.form);
         }
       });
 

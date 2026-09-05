@@ -6,6 +6,22 @@ export enum SignatureTemplate {
   sideBySide = "sideBySide",
 }
 
+export enum SignatureLogoSize {
+  small = "small",
+  medium = "medium",
+  large = "large",
+}
+
+export enum SignatureDivider {
+  none = "none",
+  line = "line",
+}
+
+export enum SignatureSpacing {
+  compact = "compact",
+  comfortable = "comfortable",
+}
+
 export enum EmailFontFamily {
   sansSerif = "sansSerif",
   serif = "serif",
@@ -163,6 +179,9 @@ const EmailSignatureSchema = z.object({
   enabled: z.boolean(),
   template: z.enum(SignatureTemplate),
   logoUrl: z.string().max(500),
+  logoSize: z.enum(SignatureLogoSize).default(SignatureLogoSize.medium),
+  divider: z.enum(SignatureDivider).default(SignatureDivider.none),
+  spacing: z.enum(SignatureSpacing).default(SignatureSpacing.comfortable),
 });
 
 export const EmailSettingsSchema = z
@@ -200,6 +219,9 @@ export function defaultEmailSettings(): EmailSettings {
       enabled: false,
       template: SignatureTemplate.stacked,
       logoUrl: SIGNATURE_LOGO_URL,
+      logoSize: SignatureLogoSize.medium,
+      divider: SignatureDivider.none,
+      spacing: SignatureSpacing.comfortable,
     },
   };
 }
@@ -290,6 +312,7 @@ export function resolveStoredEmailSettings(markdown: string | null | undefined, 
     settings.appearance.fontSize = legacy.data.fontSize;
     settings.appearance.linkHex = legacy.data.accentHex;
     settings.signature = {
+      ...settings.signature,
       enabled: Boolean(converted),
       template: legacy.data.logoUrl ? legacy.data.template : SignatureTemplate.plain,
       logoUrl: legacy.data.logoUrl,

@@ -69,6 +69,7 @@ emailSettings.appearance = {
   linkStyle: EmailLinkStyle.plain,
 };
 emailSettings.signature = {
+  ...emailSettings.signature,
   enabled: true,
   template: SignatureTemplate.sideBySide,
   logoUrl: SIGNATURE_LOGO_URL,
@@ -181,7 +182,8 @@ describe("SendEmailInteractor body parts", () => {
     expect(sent.body).toContain("color:#d23128;text-decoration:none");
     expect(sent.body).toContain('<table role="presentation"');
     expect(sent.body).toContain(SIGNATURE_LOGO_URL);
-    expect(sent.body).toContain('width="56" height="56"');
+    expect(sent.body).toContain('width="56" alt=""');
+    expect(sent.body).toContain("height:auto");
   });
 
   it("persists exactly the rendered wire parts", async () => {

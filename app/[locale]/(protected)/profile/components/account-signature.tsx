@@ -27,6 +27,7 @@ import {
 
 import { EmailLinkColorField } from "./signature-color-field";
 import { SignatureTemplatePicker } from "./signature-template-picker";
+import { SignatureLayoutOptions } from "./signature-layout-options";
 
 type Draft = { signature: string; settings: EmailSettings };
 
@@ -107,177 +108,192 @@ export function AccountSignature({ account, disabled = false, onDirtyChange, onS
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <section aria-labelledby="email-appearance-heading" className="flex flex-col gap-3">
-        <div>
-          <h3 className="text-sm font-medium" id="email-appearance-heading">
-            {t("ConnectedAccountsCard.emailAppearanceTitle")}
-          </h3>
-
-          <p className="text-muted-foreground text-xs">{t("ConnectedAccountsCard.emailAppearanceDescription")}</p>
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <div className="flex min-w-0 flex-col gap-1.5">
-            <Label className="text-subdued text-xs" htmlFor="email-fontFamily">
-              {t("ConnectedAccountsCard.emailFontFamily")}
-            </Label>
-
-            <Select
-              disabled={controlsDisabled}
-              value={draft.settings.appearance.fontFamily}
-              onValueChange={(value) => setAppearance("fontFamily", value as EmailFontFamily)}
-            >
-              <SelectTrigger className="w-full" id="email-fontFamily">
-                <SelectValue />
-              </SelectTrigger>
-
-              <SelectContent>
-                <SelectItem value={EmailFontFamily.sansSerif}>
-                  {t("ConnectedAccountsCard.emailFontFamilies.sansSerif")}
-                </SelectItem>
-
-                <SelectItem value={EmailFontFamily.serif}>
-                  {t("ConnectedAccountsCard.emailFontFamilies.serif")}
-                </SelectItem>
-
-                <SelectItem value={EmailFontFamily.monospace}>
-                  {t("ConnectedAccountsCard.emailFontFamilies.monospace")}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex min-w-0 flex-col gap-1.5">
-            <Label className="text-subdued text-xs" htmlFor="email-fontSize">
-              {t("ConnectedAccountsCard.emailFontSize")}
-            </Label>
-
-            <Input
-              disabled={controlsDisabled}
-              id="email-fontSize"
-              max={EMAIL_FONT_SIZE_MAX}
-              min={EMAIL_FONT_SIZE_MIN}
-              type="number"
-              value={draft.settings.appearance.fontSize}
-              onChange={(event) => setAppearance("fontSize", Number(event.target.value))}
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <EmailLinkColorField
-            disabled={controlsDisabled}
-            value={draft.settings.appearance.linkHex}
-            onValueChange={(value) => setAppearance("linkHex", value)}
-          />
-
-          <div className="flex min-w-0 flex-col gap-1.5">
-            <Label className="text-subdued text-xs" htmlFor="email-linkStyle">
-              {t("ConnectedAccountsCard.emailLinkStyle")}
-            </Label>
-
-            <Select
-              disabled={controlsDisabled}
-              value={draft.settings.appearance.linkStyle}
-              onValueChange={(value) => setAppearance("linkStyle", value as EmailLinkStyle)}
-            >
-              <SelectTrigger className="w-full" id="email-linkStyle">
-                <SelectValue />
-              </SelectTrigger>
-
-              <SelectContent>
-                <SelectItem value={EmailLinkStyle.underlined}>
-                  {t("ConnectedAccountsCard.emailLinkStyles.underlined")}
-                </SelectItem>
-
-                <SelectItem value={EmailLinkStyle.plain}>{t("ConnectedAccountsCard.emailLinkStyles.plain")}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </section>
-
-      <section aria-labelledby="email-signature-heading" className="border-border flex flex-col gap-3 border-t pt-5">
-        <div className="flex items-center justify-between gap-4">
+    <div className="grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(17rem,0.9fr)]">
+      <div className="flex min-w-0 flex-col gap-6">
+        <section aria-labelledby="email-appearance-heading" className="flex flex-col gap-3">
           <div>
-            <h3 className="text-sm font-medium" id="email-signature-heading">
-              {t("ConnectedAccountsCard.emailSignatureTitle")}
+            <h3 className="text-sm font-medium" id="email-appearance-heading">
+              {t("ConnectedAccountsCard.emailAppearanceTitle")}
             </h3>
 
-            <p className="text-muted-foreground text-xs" id="email-signature-description">
-              {t("ConnectedAccountsCard.emailSignatureDescription")}
-            </p>
+            <p className="text-muted-foreground text-xs">{t("ConnectedAccountsCard.emailAppearanceDescription")}</p>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2">
-            <Label className="text-xs" htmlFor="email-signature-enabled">
-              {t("ConnectedAccountsCard.emailSignatureEnabled")}
-            </Label>
-
-            <Switch
-              aria-describedby="email-signature-description"
-              checked={draft.settings.signature.enabled}
-              disabled={controlsDisabled}
-              id="email-signature-enabled"
-              onCheckedChange={(value) => setSignatureSetting("enabled", value)}
-            />
-          </div>
-        </div>
-
-        {draft.settings.signature.enabled && (
-          <>
-            <SignatureTemplatePicker
-              disabled={controlsDisabled}
-              value={draft.settings.signature.template}
-              onValueChange={(template) => setSignatureSetting("template", template)}
-            />
-
-            {showLogo && (
-              <div className="flex min-w-0 flex-col gap-1.5">
-                <Label className="text-subdued text-xs" htmlFor="signature-logoUrl">
-                  {t("ConnectedAccountsCard.emailLogoUrl")}
-                </Label>
-
-                <Input
-                  aria-describedby="signature-logoUrl-hint"
-                  aria-invalid={logoInvalid}
-                  disabled={controlsDisabled}
-                  id="signature-logoUrl"
-                  placeholder={t("ConnectedAccountsCard.emailLogoPlaceholder")}
-                  value={draft.settings.signature.logoUrl}
-                  onChange={(event) => setSignatureSetting("logoUrl", event.target.value.trim())}
-                />
-
-                <p className="text-muted-foreground text-xs" id="signature-logoUrl-hint">
-                  {t("ConnectedAccountsCard.emailLogoHint")}
-                </p>
-              </div>
-            )}
-
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-subdued text-xs" htmlFor="connected-account-signature">
-                {t("ConnectedAccountsCard.emailSignatureContent")}
+          <div className="flex flex-col gap-3">
+            <div className="flex min-w-0 flex-col gap-1.5">
+              <Label className="text-subdued text-xs" htmlFor="email-fontFamily">
+                {t("ConnectedAccountsCard.emailFontFamily")}
               </Label>
 
-              <EmailMarkdownEditor
-                appearance={draft.settings.appearance}
-                ariaLabel={t("ConnectedAccountsCard.emailSignatureContent")}
-                className="min-h-32"
+              <Select
                 disabled={controlsDisabled}
-                id="connected-account-signature"
-                placeholder={t("ConnectedAccountsCard.emailSignaturePlaceholder")}
-                value={draft.signature}
-                onChange={(value) => setDraft((current) => ({ ...current, signature: value }))}
+                value={draft.settings.appearance.fontFamily}
+                onValueChange={(value) => setAppearance("fontFamily", value as EmailFontFamily)}
+              >
+                <SelectTrigger className="w-full" id="email-fontFamily">
+                  <SelectValue />
+                </SelectTrigger>
+
+                <SelectContent>
+                  <SelectItem value={EmailFontFamily.sansSerif}>
+                    {t("ConnectedAccountsCard.emailFontFamilies.sansSerif")}
+                  </SelectItem>
+
+                  <SelectItem value={EmailFontFamily.serif}>
+                    {t("ConnectedAccountsCard.emailFontFamilies.serif")}
+                  </SelectItem>
+
+                  <SelectItem value={EmailFontFamily.monospace}>
+                    {t("ConnectedAccountsCard.emailFontFamilies.monospace")}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex min-w-0 flex-col gap-1.5">
+              <Label className="text-subdued text-xs" htmlFor="email-fontSize">
+                {t("ConnectedAccountsCard.emailFontSize")}
+              </Label>
+
+              <Input
+                disabled={controlsDisabled}
+                id="email-fontSize"
+                max={EMAIL_FONT_SIZE_MAX}
+                min={EMAIL_FONT_SIZE_MIN}
+                type="number"
+                value={draft.settings.appearance.fontSize}
+                onChange={(event) => setAppearance("fontSize", Number(event.target.value))}
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <EmailLinkColorField
+              disabled={controlsDisabled}
+              value={draft.settings.appearance.linkHex}
+              onValueChange={(value) => setAppearance("linkHex", value)}
+            />
+
+            <div className="flex min-w-0 flex-col gap-1.5">
+              <Label className="text-subdued text-xs" htmlFor="email-linkStyle">
+                {t("ConnectedAccountsCard.emailLinkStyle")}
+              </Label>
+
+              <Select
+                disabled={controlsDisabled}
+                value={draft.settings.appearance.linkStyle}
+                onValueChange={(value) => setAppearance("linkStyle", value as EmailLinkStyle)}
+              >
+                <SelectTrigger className="w-full" id="email-linkStyle">
+                  <SelectValue />
+                </SelectTrigger>
+
+                <SelectContent>
+                  <SelectItem value={EmailLinkStyle.underlined}>
+                    {t("ConnectedAccountsCard.emailLinkStyles.underlined")}
+                  </SelectItem>
+
+                  <SelectItem value={EmailLinkStyle.plain}>
+                    {t("ConnectedAccountsCard.emailLinkStyles.plain")}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </section>
+
+        <section aria-labelledby="email-signature-heading" className="border-border flex flex-col gap-3 border-t pt-5">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h3 className="text-sm font-medium" id="email-signature-heading">
+                {t("ConnectedAccountsCard.emailSignatureTitle")}
+              </h3>
+
+              <p className="text-muted-foreground text-xs" id="email-signature-description">
+                {t("ConnectedAccountsCard.emailSignatureDescription")}
+              </p>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-2">
+              <Label className="text-xs" htmlFor="email-signature-enabled">
+                {t("ConnectedAccountsCard.emailSignatureEnabled")}
+              </Label>
+
+              <Switch
+                aria-describedby="email-signature-description"
+                checked={draft.settings.signature.enabled}
+                disabled={controlsDisabled}
+                id="email-signature-enabled"
+                onCheckedChange={(value) => setSignatureSetting("enabled", value)}
+              />
+            </div>
+          </div>
+
+          {draft.settings.signature.enabled && (
+            <>
+              <SignatureTemplatePicker
+                disabled={controlsDisabled}
+                value={draft.settings.signature.template}
+                onValueChange={(template) => setSignatureSetting("template", template)}
               />
 
-              <p className="text-muted-foreground text-xs">{t("ConnectedAccountsCard.emailSignatureHint")}</p>
-            </div>
-          </>
-        )}
-      </section>
+              {showLogo && (
+                <>
+                  <div className="flex min-w-0 flex-col gap-1.5">
+                    <Label className="text-subdued text-xs" htmlFor="signature-logoUrl">
+                      {t("ConnectedAccountsCard.emailLogoUrl")}
+                    </Label>
 
-      <section aria-labelledby="email-preview-heading" className="border-border flex flex-col gap-1.5 border-t pt-5">
+                    <Input
+                      aria-describedby="signature-logoUrl-hint"
+                      aria-invalid={logoInvalid}
+                      disabled={controlsDisabled}
+                      id="signature-logoUrl"
+                      placeholder={t("ConnectedAccountsCard.emailLogoPlaceholder")}
+                      value={draft.settings.signature.logoUrl}
+                      onChange={(event) => setSignatureSetting("logoUrl", event.target.value.trim())}
+                    />
+
+                    <p className="text-muted-foreground text-xs" id="signature-logoUrl-hint">
+                      {t("ConnectedAccountsCard.emailLogoHint")}
+                    </p>
+                  </div>
+
+                  <SignatureLayoutOptions
+                    disabled={controlsDisabled}
+                    value={draft.settings.signature}
+                    onChange={setSignatureSetting}
+                  />
+                </>
+              )}
+
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-subdued text-xs" htmlFor="connected-account-signature">
+                  {t("ConnectedAccountsCard.emailSignatureContent")}
+                </Label>
+
+                <EmailMarkdownEditor
+                  appearance={draft.settings.appearance}
+                  ariaLabel={t("ConnectedAccountsCard.emailSignatureContent")}
+                  className="min-h-32"
+                  disabled={controlsDisabled}
+                  id="connected-account-signature"
+                  placeholder={t("ConnectedAccountsCard.emailSignaturePlaceholder")}
+                  value={draft.signature}
+                  onChange={(value) => setDraft((current) => ({ ...current, signature: value }))}
+                />
+
+                <p className="text-muted-foreground text-xs">{t("ConnectedAccountsCard.emailSignatureHint")}</p>
+              </div>
+            </>
+          )}
+        </section>
+      </div>
+
+      <section
+        aria-labelledby="email-preview-heading"
+        className="border-border flex min-w-0 flex-col gap-1.5 border-t pt-5 lg:sticky lg:top-0 lg:border-t-0 lg:pt-0"
+      >
         <div>
           <h3 className="text-sm font-medium" id="email-preview-heading">
             {t("ConnectedAccountsCard.emailPreviewTitle")}
@@ -291,7 +307,7 @@ export function AccountSignature({ account, disabled = false, onDirtyChange, onS
         </div>
       </section>
 
-      <div className="flex justify-end">
+      <div className="flex justify-end lg:col-span-2">
         <Button
           disabled={disabled || saving || !isDirty || !isValid}
           size="sm"

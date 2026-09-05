@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Info, Loader2, Plug, RefreshCw, Trash2 } from "lucide-react";
@@ -40,9 +41,15 @@ export const ConnectedAccountModal = observer(() => {
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const canUpdate = userStore.can(Resource.inboxMessages, Action.update);
   const canDelete = userStore.can(Resource.inboxMessages, Action.delete);
+  const [tabState, setTabState] = useState({ accountId: account.id, tab: "details" });
 
   const showEmailTab = isEmailProvider(account.provider) && account.isOwner;
   const showFoldersTab = account.folders.length > 0;
+  const requestedTab = tabState.accountId === account.id ? tabState.tab : "details";
+  const activeTab =
+    (requestedTab === "email" && !showEmailTab) || (requestedTab === "folders" && !showFoldersTab)
+      ? "details"
+      : requestedTab;
   const tabCount = 1 + (showEmailTab ? 1 : 0) + (showFoldersTab ? 1 : 0);
 
   const title = account.displayName ?? getProviderDisplayLabel(account, t);
@@ -103,7 +110,12 @@ export const ConnectedAccountModal = observer(() => {
       : [];
 
   return (
-    <AppModal actions={modalActions} size="xl" store={connectedAccountModalStore} title={title}>
+    <AppModal
+      actions={modalActions}
+      size={showEmailTab && activeTab === "email" ? "5xl" : "xl"}
+      store={connectedAccountModalStore}
+      title={title}
+    >
       <AppCard>
         <AppCardHeader>
           <div className="flex min-w-0 items-center gap-2">
@@ -114,7 +126,11 @@ export const ConnectedAccountModal = observer(() => {
         </AppCardHeader>
 
         <AppCardBody>
-          <Tabs className="min-w-0" defaultValue="details">
+          <Tabs
+            className="min-w-0"
+            value={activeTab}
+            onValueChange={(tab) => setTabState({ accountId: account.id, tab })}
+          >
             <TabsList
               aria-label={t("ConnectedAccountsCard.tabs.label")}
               className={cn(

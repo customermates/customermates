@@ -1465,6 +1465,11 @@
     "disconnectedToastTitle": "Konto getrennt",
     "emailAppearanceDescription": "Gilt für jede E-Mail, die über dieses Konto verfasst wird.",
     "emailAppearanceTitle": "Darstellung",
+    "emailDivider": "Trennlinie",
+    "emailDividers": {
+      "line": "Dünne Linie",
+      "none": "Keine"
+    },
     "emailFontFamilies": {
       "monospace": "Nichtproportional (Courier New)",
       "sansSerif": "Serifenlos (Arial)",
@@ -1472,6 +1477,7 @@
     },
     "emailFontFamily": "Schriftart",
     "emailFontSize": "Schriftgrösse",
+    "emailLayoutOptions": "Layoutoptionen",
     "emailLinkColour": "Linkfarbe",
     "emailLinkColourInvalid": "Gib # gefolgt von 6 Hexadezimalzeichen (0–9, A–F) ein, zum Beispiel #1A2B3C.",
     "emailLinkColourLowContrast": "Geringer Kontrast: {light}:1 auf Hell, {dark}:1 auf Dunkel. Manche Empfänger können das kaum lesen.",
@@ -1484,6 +1490,12 @@
     },
     "emailLogoHint": "Nutze eine öffentliche HTTPS-Bild-URL, auf die Empfänger zugreifen können.",
     "emailLogoPlaceholder": "https://example.com/logo.png",
+    "emailLogoSize": "Logogröße",
+    "emailLogoSizes": {
+      "large": "Groß",
+      "medium": "Mittel",
+      "small": "Klein"
+    },
     "emailLogoUrl": "Logo-URL",
     "emailPreviewDescription": "Die Darstellung gilt für die gesamte E-Mail; die Signatur wird darunter angefügt.",
     "emailPreviewLink": "Beispiellink",
@@ -1498,6 +1510,11 @@
     "emailSignatureHint": "Unterstützt E-Mail-sicheres Markdown für Hervorhebungen, Links, Listen, Zitate und Trennlinien.",
     "emailSignaturePlaceholder": "**Benjamin Wagner**\nGründer bei Customermates",
     "emailSignatureTitle": "Signatur",
+    "emailSpacing": "Abstand",
+    "emailSpacings": {
+      "comfortable": "Großzügig",
+      "compact": "Kompakt"
+    },
     "emptyState": "Du hast noch keine Kanäle verbunden.",
     "expiredLinkToastDescription": "Dieser Verbindungslink ist abgelaufen. Erstelle auf dieser Seite einen neuen und versuche es erneut.",
     "expiredLinkToastTitle": "Link abgelaufen",

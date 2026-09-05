@@ -2,31 +2,40 @@ import type { EmailSettings } from "../email-settings";
 
 import markdownit from "markdown-it";
 
-import { EmailLinkStyle, EMAIL_FONT_STACK, SignatureTemplate } from "../email-settings";
+import {
+  EmailLinkStyle,
+  EMAIL_FONT_STACK,
+  SignatureTemplate,
+  SignatureLogoSize,
+  SignatureDivider,
+  SignatureSpacing,
+} from "../email-settings";
 import { htmlToPlainText } from "../email-body-text";
 
 type SignatureTemplateDefinition = {
   logoPosition: "none" | "above" | "beside";
-  logoPx: number;
   maxWidthPx: number;
 };
 
 export const SIGNATURE_TEMPLATES: Record<SignatureTemplate, SignatureTemplateDefinition> = {
   [SignatureTemplate.plain]: {
     logoPosition: "none",
-    logoPx: 0,
     maxWidthPx: 460,
   },
   [SignatureTemplate.stacked]: {
     logoPosition: "above",
-    logoPx: 48,
     maxWidthPx: 460,
   },
   [SignatureTemplate.sideBySide]: {
     logoPosition: "beside",
-    logoPx: 56,
     maxWidthPx: 520,
   },
+};
+
+const LOGO_WIDTH: Record<SignatureLogoSize, number> = {
+  [SignatureLogoSize.small]: 32,
+  [SignatureLogoSize.medium]: 56,
+  [SignatureLogoSize.large]: 80,
 };
 
 const TEXT_COLOR = "#1a1a1a";
@@ -115,10 +124,10 @@ export function renderEmailMarkdown(
   return { html, text: htmlToPlainText(plainTextHtml) ?? "" };
 }
 
-function logoCell(settings: EmailSettings, definition: SignatureTemplateDefinition, extraStyle: string): string {
-  const size = definition.logoPx;
+function logoCell(settings: EmailSettings, extraStyle: string): string {
+  const size = LOGO_WIDTH[settings.signature.logoSize];
   const cellStyle = `font-size:0;line-height:0;mso-line-height-rule:exactly;vertical-align:top;${extraStyle}`;
-  const img = `<img src="${escapeHtml(settings.signature.logoUrl)}" width="${size}" height="${size}" alt="" border="0" style="display:block;width:${size}px;height:${size}px;border:0;outline:none;text-decoration:none;">`;
+  const img = `<img src="${escapeHtml(settings.signature.logoUrl)}" width="${size}" alt="" border="0" style="display:block;width:${size}px;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;">`;
 
   return `<td valign="top" style="${cellStyle}">${img}</td>`;
 }
@@ -136,11 +145,21 @@ export function renderSignatureFields(
 
   const textCellStyle = `vertical-align:top;${emailTextStyle(settings.appearance)}`;
   const body = rendered.html;
+  const gap = settings.signature.spacing === SignatureSpacing.compact ? 8 : 16;
+  const divider = settings.signature.divider === SignatureDivider.line && Boolean(body);
+  const besideLogoStyle = body
+    ? `padding:0 ${gap}px 0 0;${divider ? `border-right:1px solid ${DIVIDER_COLOR};` : ""}`
+    : "";
+  const besideTextStyle = `${textCellStyle}${divider ? `padding-left:${gap}px;` : ""}`;
+  const aboveLogoStyle = body
+    ? `padding:0 0 ${gap}px 0;${divider ? `border-bottom:1px solid ${DIVIDER_COLOR};` : ""}`
+    : "";
+  const aboveTextStyle = `${textCellStyle}${divider ? `padding-top:${gap}px;` : ""}`;
   const rows =
     showLogo && definition.logoPosition === "beside"
-      ? `<tr>${logoCell(settings, definition, "padding:0 16px 0 0;")}${body ? `<td valign="top" style="${textCellStyle}">${body}</td>` : ""}</tr>`
+      ? `<tr>${logoCell(settings, besideLogoStyle)}${body ? `<td valign="top" style="${besideTextStyle}">${body}</td>` : ""}</tr>`
       : showLogo
-        ? `<tr>${logoCell(settings, definition, "padding:0 0 12px 0;")}</tr>${body ? `<tr><td valign="top" style="${textCellStyle}">${body}</td></tr>` : ""}`
+        ? `<tr>${logoCell(settings, aboveLogoStyle)}</tr>${body ? `<tr><td valign="top" style="${aboveTextStyle}">${body}</td></tr>` : ""}`
         : `<tr><td valign="top" style="${textCellStyle}">${body}</td></tr>`;
 
   const html = `<table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;max-width:${definition.maxWidthPx}px;">${rows}</table>`;

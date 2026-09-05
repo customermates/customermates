@@ -1465,6 +1465,11 @@
     "disconnectedToastTitle": "Account scollegato",
     "emailAppearanceDescription": "Si applica a ogni e-mail composta da questo account.",
     "emailAppearanceTitle": "Aspetto",
+    "emailDivider": "Separatore",
+    "emailDividers": {
+      "line": "Linea sottile",
+      "none": "Nessuno"
+    },
     "emailFontFamilies": {
       "monospace": "Monospaziato (Courier New)",
       "sansSerif": "Senza grazie (Arial)",
@@ -1472,6 +1477,7 @@
     },
     "emailFontFamily": "Carattere",
     "emailFontSize": "Dimensione del carattere",
+    "emailLayoutOptions": "Opzioni di layout",
     "emailLinkColour": "Colore dei link",
     "emailLinkColourInvalid": "Inserisci # seguito da 6 caratteri esadecimali (0–9, A–F), ad esempio #1A2B3C.",
     "emailLinkColourLowContrast": "Contrasto basso: {light}:1 su chiaro, {dark}:1 su scuro. Alcuni destinatari faranno fatica a leggerlo.",
@@ -1484,6 +1490,12 @@
     },
     "emailLogoHint": "Usa l'URL HTTPS pubblico di un'immagine accessibile ai destinatari.",
     "emailLogoPlaceholder": "https://example.com/logo.png",
+    "emailLogoSize": "Dimensione del logo",
+    "emailLogoSizes": {
+      "large": "Grande",
+      "medium": "Medio",
+      "small": "Piccolo"
+    },
     "emailLogoUrl": "URL del logo",
     "emailPreviewDescription": "L'aspetto si applica a tutta l'e-mail; la firma viene aggiunta sotto.",
     "emailPreviewLink": "Link di esempio",
@@ -1498,6 +1510,11 @@
     "emailSignatureHint": "Supporta Markdown sicuro per e-mail: enfasi, link, elenchi, citazioni e separatori.",
     "emailSignaturePlaceholder": "**Benjamin Wagner**\nFondatore di Customermates",
     "emailSignatureTitle": "Firma",
+    "emailSpacing": "Spaziatura",
+    "emailSpacings": {
+      "comfortable": "Ampia",
+      "compact": "Compatta"
+    },
     "emptyState": "Non hai ancora collegato alcun canale.",
     "expiredLinkToastDescription": "Questo link di collegamento è scaduto. Generane uno nuovo da questa pagina e riprova.",
     "expiredLinkToastTitle": "Link scaduto",

@@ -1465,6 +1465,11 @@
     "disconnectedToastTitle": "Cuenta desconectada",
     "emailAppearanceDescription": "Se aplica a todos los correos redactados desde esta cuenta.",
     "emailAppearanceTitle": "Apariencia",
+    "emailDivider": "Separador",
+    "emailDividers": {
+      "line": "Línea fina",
+      "none": "Ninguno"
+    },
     "emailFontFamilies": {
       "monospace": "Monoespaciada (Courier New)",
       "sansSerif": "Sin serifas (Arial)",
@@ -1472,6 +1477,7 @@
     },
     "emailFontFamily": "Tipo de letra",
     "emailFontSize": "Tamaño de fuente",
+    "emailLayoutOptions": "Opciones de diseño",
     "emailLinkColour": "Color de enlace",
     "emailLinkColourInvalid": "Introduce # seguido de 6 caracteres hexadecimales (0–9, A–F), por ejemplo #1A2B3C.",
     "emailLinkColourLowContrast": "Contraste bajo: {light}:1 en claro, {dark}:1 en oscuro. Algunos destinatarios apenas podrán leerlo.",
@@ -1484,6 +1490,12 @@
     },
     "emailLogoHint": "Usa una URL HTTPS pública de una imagen a la que puedan acceder los destinatarios.",
     "emailLogoPlaceholder": "https://example.com/logo.png",
+    "emailLogoSize": "Tamaño del logotipo",
+    "emailLogoSizes": {
+      "large": "Grande",
+      "medium": "Mediano",
+      "small": "Pequeño"
+    },
     "emailLogoUrl": "URL del logo",
     "emailPreviewDescription": "La apariencia se aplica a todo el correo; la firma se añade debajo.",
     "emailPreviewLink": "Enlace de ejemplo",
@@ -1498,6 +1510,11 @@
     "emailSignatureHint": "Admite Markdown seguro para correo: énfasis, enlaces, listas, citas y separadores.",
     "emailSignaturePlaceholder": "**Benjamin Wagner**\nFundador de Customermates",
     "emailSignatureTitle": "Firma",
+    "emailSpacing": "Espaciado",
+    "emailSpacings": {
+      "comfortable": "Amplio",
+      "compact": "Compacto"
+    },
     "emptyState": "Aún no has conectado ningún canal.",
     "expiredLinkToastDescription": "Este enlace de conexión ha caducado. Genera uno nuevo desde esta página e inténtalo de nuevo.",
     "expiredLinkToastTitle": "Enlace caducado",

@@ -9,6 +9,9 @@ import {
   EmailSettingsSchema,
   SIGNATURE_LOGO_URL,
   SignatureTemplate,
+  SignatureLogoSize,
+  SignatureDivider,
+  SignatureSpacing,
   defaultEmailSettings,
   emailLinkContrast,
   isEmailLinkHex,
@@ -32,6 +35,31 @@ function rendered(value: EmailSettings, markdown = "**Benjamin Wagner**  \nFound
 }
 
 describe("email settings", () => {
+  it("adds safe layout defaults to previously stored version-two settings", () => {
+    const original = settings();
+    const old = {
+      ...original,
+      signature: { enabled: true, template: SignatureTemplate.sideBySide, logoUrl: SIGNATURE_LOGO_URL },
+    };
+    const resolved = resolveStoredEmailSettings("**Name**", old);
+
+    expect(resolved.migratedLegacyFields).toBe(false);
+    expect(resolved.markdown).toBe("**Name**");
+    expect(resolved.settings.appearance).toEqual(original.appearance);
+    expect(resolved.settings.signature).toEqual({
+      ...old.signature,
+      logoSize: SignatureLogoSize.medium,
+      divider: SignatureDivider.none,
+      spacing: SignatureSpacing.comfortable,
+    });
+  });
+
+  it.each(["logoSize", "divider", "spacing"])("rejects unknown %s options", (key) => {
+    const value = settings();
+    expect(
+      EmailSettingsSchema.safeParse({ ...value, signature: { ...value.signature, [key]: "unexpected" } }).success,
+    ).toBe(false);
+  });
   it("accepts public HTTPS logo URLs without requiring a file extension", () => {
     expect(isPublicEmailImageUrl("https://images.example.com/assets/logo?id=42")).toBe(true);
     expect(isPublicEmailImageUrl("http://images.example.com/logo.png")).toBe(false);
@@ -204,12 +232,43 @@ describe("renderSignatureFields", () => {
     expect(html).not.toContain("<style");
   });
 
-  it("uses fixed inline logo sizing and an empty decorative alt", () => {
-    const { html } = rendered(settings());
+  it.each([
+    [SignatureLogoSize.small, 32],
+    [SignatureLogoSize.medium, 56],
+    [SignatureLogoSize.large, 80],
+  ])("renders %s logos without distorting their natural proportions", (logoSize, width) => {
+    const { html } = rendered(settings({ logoSize: logoSize }));
 
     expect(html).toContain(`src="${SIGNATURE_LOGO_URL}"`);
-    expect(html).toContain('width="48" height="48" alt=""');
-    expect(html).toContain("width:48px;height:48px");
+    expect(html).toContain(`width="${width}" alt=""`);
+    expect(html).toContain(`width:${width}px;max-width:100%;height:auto`);
+    expect(html).not.toContain('height="');
+  });
+
+  it.each([SignatureSpacing.compact, SignatureSpacing.comfortable])(
+    "applies %s spacing and an optional orientation-aware divider",
+    (spacing) => {
+      const gap = spacing === SignatureSpacing.compact ? 8 : 16;
+      const beside = rendered(
+        settings({ template: SignatureTemplate.sideBySide, divider: SignatureDivider.line, spacing }),
+      );
+      const above = rendered(
+        settings({ template: SignatureTemplate.stacked, divider: SignatureDivider.line, spacing }),
+      );
+      expect(beside.html).toContain(`padding:0 ${gap}px 0 0;border-right:1px solid`);
+      expect(beside.html).toContain(`padding-left:${gap}px`);
+      expect(above.html).toContain(`padding:0 0 ${gap}px 0;border-bottom:1px solid`);
+      expect(above.html).toContain(`padding-top:${gap}px`);
+      expect(beside.text).toBe(above.text);
+    },
+  );
+
+  it("ignores logo layout options in text-only and logo-only signatures", () => {
+    const plain = rendered(settings({ template: SignatureTemplate.plain, divider: SignatureDivider.line }));
+    const logoOnly = rendered(settings({ divider: SignatureDivider.line }), "");
+    expect(plain.html).not.toContain("<img");
+    expect(plain.html).not.toMatch(/border-(?:bottom|right):/);
+    expect(logoOnly.html).not.toMatch(/border-(?:bottom|right):/);
   });
 
   it("can render a logo-only signature when that is what the user configured", () => {
