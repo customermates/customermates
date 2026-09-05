@@ -555,6 +555,24 @@ function expectInvalidRecipients(result: any) {
 describe("SaveDraftInteractor cold-draft target binding", () => {
   beforeEach(() => vi.clearAllMocks());
 
+  it("renders email draft HTML before persistence while preserving editable Markdown", async () => {
+    const repo = saveDraftRepo();
+    const body = "**Review** [project](https://example.com)";
+    const result = await saveDraftInteractor(repo).invoke({
+      threadId: EMAIL_DRAFT_THREAD_ID,
+      body,
+    });
+
+    expect(result.ok).toBe(true);
+    expect(repo.upsertThreadDraftOrThrow).toHaveBeenCalledWith(
+      expect.objectContaining({
+        bodyText: body,
+        bodyHtml: expect.stringContaining("<strong>Review</strong>"),
+      }),
+    );
+    expect(repo.upsertThreadDraftOrThrow.mock.calls[0][0].bodyHtml).not.toContain("data-customermates-signature");
+  });
+
   it("rejects changing recipients on an existing cold-draft shell", async () => {
     const repo = saveDraftRepo();
 

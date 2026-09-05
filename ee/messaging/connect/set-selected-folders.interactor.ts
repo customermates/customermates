@@ -1,5 +1,5 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
-import type { ConnectedAccountDto } from "../messaging.schema";
+import type { ConnectedAccountDto, ConnectedAccountRecord } from "../messaging.schema";
 import type { EmailFolder } from "../email-folders";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
@@ -9,6 +9,7 @@ import { z } from "zod";
 import { Action, Resource } from "@/generated/prisma";
 
 import { ConnectedAccountAppDtoSchema } from "../messaging.schema";
+import { toConnectedAccountDto } from "./connected-account-dto";
 import { isSkippedEmailFolder } from "../email-folders";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -30,7 +31,10 @@ export abstract class SetSelectedFoldersRepo {
     selectedFolderIds: string[];
     sentFolderIds: string[];
   }>;
-  abstract setSelectedFoldersOrThrow(args: { id: string; selectedFolderIds: string[] }): Promise<ConnectedAccountDto>;
+  abstract setSelectedFoldersOrThrow(args: {
+    id: string;
+    selectedFolderIds: string[];
+  }): Promise<ConnectedAccountRecord>;
 }
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
@@ -64,7 +68,10 @@ export class SetSelectedFoldersInteractor extends AuthenticatedInteractor<SetSel
       });
     }
 
-    const updated = await this.repo.setSelectedFoldersOrThrow({ id: data.id, selectedFolderIds });
-    return { ok: true as const, data: updated };
+    const updated = await this.repo.setSelectedFoldersOrThrow({
+      id: data.id,
+      selectedFolderIds,
+    });
+    return { ok: true as const, data: toConnectedAccountDto(updated) };
   }
 }

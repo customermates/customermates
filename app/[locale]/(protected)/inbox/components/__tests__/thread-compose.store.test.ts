@@ -16,8 +16,10 @@ const actions = vi.hoisted(() => ({
 const attachmentInputs = vi.hoisted(() => ({
   toAttachmentInput: vi.fn(),
 }));
+const errors = vi.hoisted(() => ({ reportApplicationError: vi.fn() }));
 
 vi.mock("../../actions", () => actions);
+vi.mock("@/core/errors/report-application-error", () => errors);
 vi.mock("../attachment-input", () => ({
   MAX_ATTACHMENTS_BYTES: 25 * 1024 * 1024,
   toAttachmentInput: attachmentInputs.toAttachmentInput,
@@ -133,12 +135,24 @@ describe("ThreadComposeStore draft lifecycle", () => {
   it.each([
     {
       provider: MessagingProvider.google,
-      result: message({ provider: MessagingProvider.google, isDraft: false, messagingThreadId: OTHER_THREAD_ID }),
+      result: message({
+        provider: MessagingProvider.google,
+        isDraft: false,
+        messagingThreadId: OTHER_THREAD_ID,
+      }),
       expected: OTHER_THREAD_ID,
     },
     { provider: MessagingProvider.google, result: null, expected: null },
-    { provider: MessagingProvider.linkedin, result: { threadId: OTHER_THREAD_ID }, expected: OTHER_THREAD_ID },
-    { provider: MessagingProvider.linkedin, result: { threadId: null }, expected: null },
+    {
+      provider: MessagingProvider.linkedin,
+      result: { threadId: OTHER_THREAD_ID },
+      expected: OTHER_THREAD_ID,
+    },
+    {
+      provider: MessagingProvider.linkedin,
+      result: { threadId: null },
+      expected: null,
+    },
   ])(
     "reports the canonical $provider thread after an unchanged cold draft is sent ($expected)",
     async ({ provider, result, expected }) => {
@@ -168,7 +182,10 @@ describe("ThreadComposeStore draft lifecycle", () => {
 
   it("does not complete a failed cold draft send", async () => {
     const onSent = vi.fn();
-    const draft = message({ provider: MessagingProvider.google, messagingThreadId: DRAFT_THREAD_ID });
+    const draft = message({
+      provider: MessagingProvider.google,
+      messagingThreadId: DRAFT_THREAD_ID,
+    });
     const { store } = makeHarness([draft]);
     store.initializeNewThread({
       provider: MessagingProvider.google,
@@ -191,7 +208,10 @@ describe("ThreadComposeStore draft lifecycle", () => {
     const onSent = vi.fn();
     const sent = deferred<{ ok: true; data: MessagingMessageDto }>();
     actions.sendEmailAction.mockReturnValue(sent.promise);
-    const draft = message({ provider: MessagingProvider.google, messagingThreadId: DRAFT_THREAD_ID });
+    const draft = message({
+      provider: MessagingProvider.google,
+      messagingThreadId: DRAFT_THREAD_ID,
+    });
     const { store } = makeHarness([draft]);
     store.initializeNewThread({
       provider: MessagingProvider.google,
@@ -202,11 +222,19 @@ describe("ThreadComposeStore draft lifecycle", () => {
     });
     store.loadDraft(draft);
     const sending = store.send();
-    store.initialize({ provider: MessagingProvider.google, threadId: THREAD_ID, defaultRecipients: [RECIPIENT] });
+    store.initialize({
+      provider: MessagingProvider.google,
+      threadId: THREAD_ID,
+      defaultRecipients: [RECIPIENT],
+    });
     store.onChange("body", "Unsent existing reply");
     sent.resolve({
       ok: true,
-      data: message({ provider: MessagingProvider.google, isDraft: false, messagingThreadId: OTHER_THREAD_ID }),
+      data: message({
+        provider: MessagingProvider.google,
+        isDraft: false,
+        messagingThreadId: OTHER_THREAD_ID,
+      }),
     });
     await sending;
 
@@ -216,7 +244,7 @@ describe("ThreadComposeStore draft lifecycle", () => {
     expect(store.hasUnsavedChanges).toBe(true);
   });
 
-  it("marks a saved existing reply clean without clearing its recipients", async () => {
+  it("marks a saved existing reply clean and preserves its subject and recipients for the next send", async () => {
     const draft = message({ provider: MessagingProvider.google });
     const { store } = makeHarness([draft]);
     store.initialize({
@@ -228,19 +256,36 @@ describe("ThreadComposeStore draft lifecycle", () => {
     });
     store.loadDraft(draft);
     store.onChange("body", "Updated saved reply");
-    actions.saveDraftAction.mockResolvedValue({ ok: true, data: { ...draft, bodyText: "Updated saved reply" } });
+    actions.saveDraftAction.mockResolvedValue({
+      ok: true,
+      data: { ...draft, bodyText: "Updated saved reply" },
+    });
 
     await store.saveDraft();
 
-    expect(store.form).toMatchObject({ body: "", subject: "", cc: [], bcc: [], recipients: [RECIPIENT] });
+    expect(store.form).toMatchObject({
+      body: "",
+      subject: draft.subject,
+      cc: [],
+      bcc: [],
+      recipients: [RECIPIENT],
+    });
     expect(store.hasUnsavedChanges).toBe(false);
     store.onChange("body", "Next unsent reply");
     expect(store.hasUnsavedChanges).toBe(true);
+    actions.sendEmailAction.mockResolvedValue({ ok: false, error: {} });
+    await store.send();
+    expect(actions.sendEmailAction).toHaveBeenCalledWith(
+      expect.objectContaining({ subject: draft.subject, body: "Next unsent reply" }),
+    );
   });
 
   it("does not treat saving a cold draft as sending it", async () => {
     const onSent = vi.fn();
-    const draft = message({ provider: MessagingProvider.google, messagingThreadId: DRAFT_THREAD_ID });
+    const draft = message({
+      provider: MessagingProvider.google,
+      messagingThreadId: DRAFT_THREAD_ID,
+    });
     const { store } = makeHarness([draft]);
     store.initializeNewThread({
       provider: MessagingProvider.google,
@@ -440,7 +485,10 @@ describe("ThreadComposeStore draft lifecycle", () => {
     const attachment = deferred<Record<string, never>>();
     attachmentInputs.toAttachmentInput.mockReturnValueOnce(attachment.promise);
     actions.sendEmailAction.mockResolvedValue({ ok: true, data: null });
-    const failedMessage = message({ provider: MessagingProvider.google, isDraft: false });
+    const failedMessage = message({
+      provider: MessagingProvider.google,
+      isDraft: false,
+    });
     const { store } = makeHarness([failedMessage]);
     store.initialize({
       provider: MessagingProvider.google,
@@ -496,7 +544,10 @@ describe("ThreadComposeStore draft lifecycle", () => {
     await firstSending;
 
     expect(store.isLoading).toBe(true);
-    expect(store.form).toMatchObject({ subject: "Second subject", body: "Second message" });
+    expect(store.form).toMatchObject({
+      subject: "Second subject",
+      body: "Second message",
+    });
     expect(store.newThreadTarget?.connectedAccountId).toBe(OTHER_ACCOUNT_ID);
     expect(firstDone).not.toHaveBeenCalled();
     expect(secondDone).not.toHaveBeenCalled();
@@ -511,7 +562,10 @@ describe("ThreadComposeStore draft lifecycle", () => {
     actions.sendEmailAction.mockReturnValue(sent.promise);
     const onDone = vi.fn();
     const onSent = vi.fn();
-    const draft = message({ provider: MessagingProvider.google, messagingThreadId: DRAFT_THREAD_ID });
+    const draft = message({
+      provider: MessagingProvider.google,
+      messagingThreadId: DRAFT_THREAD_ID,
+    });
     const { store } = makeHarness([draft]);
     store.initializeNewThread({
       provider: MessagingProvider.google,
@@ -545,13 +599,19 @@ describe("ThreadComposeStore draft lifecycle", () => {
 
     actions.saveDraftAction.mockResolvedValue({
       ok: true,
-      data: message({ provider: MessagingProvider.google, messagingThreadId: OTHER_THREAD_ID }),
+      data: message({
+        provider: MessagingProvider.google,
+        messagingThreadId: OTHER_THREAD_ID,
+      }),
     });
     await store.saveDraft();
 
     const savedInput = actions.saveDraftAction.mock.calls[0]?.[0];
     expect(savedInput).toEqual(
-      expect.objectContaining({ connectedAccountId: ACCOUNT_ID, body: "Next unsent message" }),
+      expect.objectContaining({
+        connectedAccountId: ACCOUNT_ID,
+        body: "Next unsent message",
+      }),
     );
     expect(savedInput).not.toHaveProperty("threadId");
   });
@@ -575,7 +635,10 @@ describe("ThreadComposeStore draft lifecycle", () => {
       defaultRecipients: ["linkedin-recipient"],
     });
     store.onChange("body", "Second draft");
-    savedDraft.resolve({ ok: true, data: message({ provider: MessagingProvider.google }) });
+    savedDraft.resolve({
+      ok: true,
+      data: message({ provider: MessagingProvider.google }),
+    });
     await saving;
 
     expect(detail.messages).toEqual([]);
@@ -598,6 +661,79 @@ describe("ThreadComposeStore draft lifecycle", () => {
       draftRevision: DRAFT_REVISION,
     });
     expect(detail.messages).toEqual([draft]);
+  });
+
+  it("restores the optimistic draft and reports a rejected discard exactly once", async () => {
+    const failure = new Error("offline");
+    actions.discardDraftAction.mockRejectedValue(failure);
+    const draft = message({ provider: MessagingProvider.google });
+    const { detail, store } = makeHarness([draft]);
+
+    await expect(store.discardDraft(DRAFT_ID, DRAFT_REVISION)).resolves.toBeUndefined();
+
+    expect(detail.messages).toEqual([draft]);
+    expect(errors.reportApplicationError).toHaveBeenCalledExactlyOnceWith(failure);
+  });
+
+  it("does not restore an older failed discard into a newly opened thread", async () => {
+    let reject: (error: Error) => void = () => undefined;
+    actions.discardDraftAction.mockReturnValue(
+      new Promise((_resolve, fail) => {
+        reject = fail;
+      }),
+    );
+    const draft = message({ provider: MessagingProvider.google });
+    const { detail, store } = makeHarness([draft]);
+    const pending = store.discardDraft(DRAFT_ID, DRAFT_REVISION);
+    store.initialize({
+      provider: MessagingProvider.google,
+      threadId: OTHER_THREAD_ID,
+    });
+    const next = message({
+      provider: MessagingProvider.google,
+      id: "next",
+      messagingThreadId: OTHER_THREAD_ID,
+    });
+    detail.messages = [next];
+
+    reject(new Error("offline"));
+    await pending;
+
+    expect(detail.messages).toEqual([next]);
+    expect(errors.reportApplicationError).toHaveBeenCalledOnce();
+  });
+
+  it.each(["reply", "new", "retry"])("reports a rejected %s send once and keeps its recovery state", async (kind) => {
+    const failure = new Error("offline");
+    actions.sendEmailAction.mockRejectedValue(failure);
+    const draft = message({
+      provider: MessagingProvider.google,
+      isDraft: false,
+    });
+    const { detail, store } = makeHarness(kind === "retry" ? [draft] : []);
+    if (kind === "new") {
+      store.initializeNewThread({
+        provider: MessagingProvider.google,
+        connectedAccountId: ACCOUNT_ID,
+        recipients: [{ identifier: RECIPIENT, displayName: null }],
+      });
+    } else {
+      store.initialize({
+        provider: MessagingProvider.google,
+        threadId: THREAD_ID,
+        defaultRecipients: [RECIPIENT],
+      });
+    }
+
+    store.onChange("body", "Unsent content");
+
+    if (kind === "retry") await store.retrySend(DRAFT_ID);
+    else await store.send();
+
+    expect(errors.reportApplicationError).toHaveBeenCalledExactlyOnceWith(failure);
+    expect(store.isLoading).toBe(false);
+    if (kind === "new") expect(store.form.body).toBe("Unsent content");
+    else expect(Object.values(detail.messageStatus)).toEqual(["failed"]);
   });
 
   it.each([

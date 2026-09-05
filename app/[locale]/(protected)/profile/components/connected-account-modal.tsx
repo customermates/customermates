@@ -41,7 +41,10 @@ export const ConnectedAccountModal = observer(() => {
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const canUpdate = userStore.can(Resource.inboxMessages, Action.update);
   const canDelete = userStore.can(Resource.inboxMessages, Action.delete);
-  const [tabState, setTabState] = useState({ accountId: account.id, tab: "details" });
+  const [tabState, setTabState] = useState({
+    accountId: account.id,
+    tab: "details",
+  });
 
   const showEmailTab = isEmailProvider(account.provider) && account.isOwner;
   const showFoldersTab = account.folders.length > 0;
@@ -257,9 +260,7 @@ export const ConnectedAccountModal = observer(() => {
                 <AccountSignature
                   key={account.id}
                   account={account}
-                  disabled={!canUpdate}
-                  onDirtyChange={connectedAccountModalStore.setEmailSettingsDirty}
-                  onSave={connectedAccountModalStore.saveSignature}
+                  store={connectedAccountModalStore.signatureStore}
                 />
               </TabsContent>
             )}

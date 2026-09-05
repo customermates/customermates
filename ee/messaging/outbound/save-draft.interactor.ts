@@ -17,6 +17,8 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { isDraftThreadId, isEmailProvider } from "../provider";
+import { resolveStoredEmailSettings } from "../email-settings";
+import { renderEmailMarkdown } from "./render-signature";
 import { draftThreadRecipientSetsMatch, normalizeDraftThreadRecipients } from "../draft-thread";
 import { MessagingMessageDtoSchema, toMessagingMessageDto } from "../inbox/inbox.schema";
 import { EMPTY_ATTENDEE } from "../unipile.mappers";
@@ -36,7 +38,7 @@ export const BaseSaveDraftSchema = z.object({
     "Recipients to preserve with the draft. Required when threadId is omitted",
   ),
   subject: z.string().max(998).optional(),
-  body: z.string().min(1).max(100_000),
+  body: z.string().min(1).max(100_000).describe("Email drafts use Markdown; chat drafts use plain text"),
   cc: z.array(z.email()).max(100).optional(),
   bcc: z.array(z.email()).max(100).optional(),
 });
@@ -47,7 +49,9 @@ export const SaveReplyDraftBodySchema = BaseSaveDraftSchema.omit({
   recipients: true,
 }).strict();
 
-export const SaveNewThreadDraftSchema = BaseSaveDraftSchema.omit({ threadId: true })
+export const SaveNewThreadDraftSchema = BaseSaveDraftSchema.omit({
+  threadId: true,
+})
   .extend({
     connectedAccountId: z.uuid().describe("Connected account the future conversation will send from"),
     recipients: DraftRecipientsSchema.min(1),
@@ -55,11 +59,21 @@ export const SaveNewThreadDraftSchema = BaseSaveDraftSchema.omit({ threadId: tru
   .strict();
 
 export const SaveDraftSchema = BaseSaveDraftSchema.superRefine((d, ctx) => {
-  if (!d.threadId && !d.connectedAccountId)
-    ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.sendEmailTargetRequired }, path: ["threadId"] });
+  if (!d.threadId && !d.connectedAccountId) {
+    ctx.addIssue({
+      code: "custom",
+      params: { error: CustomErrorCode.sendEmailTargetRequired },
+      path: ["threadId"],
+    });
+  }
 
-  if (!d.threadId && !d.recipients?.length)
-    ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.invalidChannelValue }, path: ["recipients"] });
+  if (!d.threadId && !d.recipients?.length) {
+    ctx.addIssue({
+      code: "custom",
+      params: { error: CustomErrorCode.invalidChannelValue },
+      path: ["recipients"],
+    });
+  }
 });
 export type SaveDraftData = Data<typeof SaveDraftSchema>;
 
@@ -78,7 +92,12 @@ export abstract class SaveDraftRepo {
     sender: MessagingAttendee;
     subject: string | null;
     bodyText: string;
-    recipients: { to: MessagingAttendee[]; cc: MessagingAttendee[]; bcc: MessagingAttendee[] };
+    bodyHtml?: string | null;
+    recipients: {
+      to: MessagingAttendee[];
+      cc: MessagingAttendee[];
+      bcc: MessagingAttendee[];
+    };
   }): Promise<MessagingMessage>;
 }
 
@@ -113,8 +132,11 @@ export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, 
     const isEmail = isEmailProvider(thread.provider);
 
     let sender: MessagingAttendee;
+    let bodyHtml: string | null = null;
     if (isEmail) {
       const account = await this.accountRepo.findUsableAccountByIdOrThrow(thread.connectedAccountId);
+      const email = resolveStoredEmailSettings(account.signature, account.signatureFields);
+      bodyHtml = renderEmailMarkdown(data.body, email.settings.appearance).html;
       sender = {
         ...EMPTY_ATTENDEE,
         attendeeId: account.emailAddress ?? "",
@@ -122,7 +144,12 @@ export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, 
         displayName: account.displayName,
         isSelf: true,
       };
-    } else sender = (await this.repo.findSelfAttendeeForThread(thread.id)) ?? { ...EMPTY_ATTENDEE, isSelf: true };
+    } else {
+      sender = (await this.repo.findSelfAttendeeForThread(thread.id)) ?? {
+        ...EMPTY_ATTENDEE,
+        isSelf: true,
+      };
+    }
 
     const recipients = {
       to: resolved.recipients.map(draftRecipient),
@@ -137,6 +164,7 @@ export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, 
       sender,
       subject: isEmail ? (data.subject ?? null) : null,
       bodyText: data.body,
+      bodyHtml,
       recipients,
     });
 
@@ -150,23 +178,41 @@ export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, 
         .filter((participant) => !participant.isSelf && participant.identifier)
         .map((participant) => participant.identifier);
       const recipients = normalizeDraftThreadRecipients(thread.provider, data.recipients ?? fallbackRecipients);
-      if (!recipients) return { ok: false, failure: fail(CustomErrorCode.invalidChannelValue, ["recipients"]) };
+      if (!recipients) {
+        return {
+          ok: false,
+          failure: fail(CustomErrorCode.invalidChannelValue, ["recipients"]),
+        };
+      }
 
       if (
         isDraftThreadId(thread.unipileThreadId) &&
         !draftThreadRecipientSetsMatch(thread.provider, fallbackRecipients, recipients)
-      )
-        return { ok: false, failure: fail(CustomErrorCode.invalidChannelValue, ["recipients"]) };
+      ) {
+        return {
+          ok: false,
+          failure: fail(CustomErrorCode.invalidChannelValue, ["recipients"]),
+        };
+      }
 
       return { ok: true, thread, recipients };
     }
 
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId ?? "");
     const recipients = normalizeDraftThreadRecipients(account.provider, data.recipients ?? []);
-    if (!recipients) return { ok: false, failure: fail(CustomErrorCode.invalidChannelValue, ["recipients"]) };
+    if (!recipients) {
+      return {
+        ok: false,
+        failure: fail(CustomErrorCode.invalidChannelValue, ["recipients"]),
+      };
+    }
 
-    if (!isEmailProvider(account.provider) && recipients.length !== 1)
-      return { ok: false, failure: fail(CustomErrorCode.invalidChannelValue, ["recipients"]) };
+    if (!isEmailProvider(account.provider) && recipients.length !== 1) {
+      return {
+        ok: false,
+        failure: fail(CustomErrorCode.invalidChannelValue, ["recipients"]),
+      };
+    }
 
     const thread = await this.repo.findOrCreateDraftThread({
       connectedAccountId: account.id,

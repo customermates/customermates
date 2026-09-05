@@ -196,6 +196,39 @@
   color: inherit;
   font-family: inherit;
   font-size: inherit;
+  line-height: inherit;
+
+  p,
+  li p {
+    margin: 0 0 var(--email-block-gap);
+    padding: 0;
+  }
+
+  ul,
+  ol {
+    margin: 0 0 var(--email-block-gap);
+    padding: 0 0 0 var(--email-list-indent);
+  }
+
+  ul {
+    list-style-type: disc;
+  }
+  ol {
+    list-style-type: decimal;
+  }
+
+  blockquote {
+    margin: 0 0 var(--email-block-gap);
+    padding: 0 0 0 var(--email-quote-indent);
+    border-left: 2px solid var(--email-divider-color) !important;
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--email-divider-color);
+    margin: var(--email-block-gap) 0;
+    padding: 0;
+  }
 
   a {
     color: var(--email-link-color);

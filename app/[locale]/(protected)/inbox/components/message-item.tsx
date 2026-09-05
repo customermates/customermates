@@ -268,13 +268,15 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
                 >
                   {t("Inbox.compose.retry")}
                 </Button>
-              ) : canLoadRemoteImages ? (
+              ) : null}
+
+              {canLoadRemoteImages && (
                 <Button size="xs" type="button" variant="secondary" onClick={() => setShowRemoteImages(true)}>
                   <ImageOff className="size-3" />
 
                   {t("Inbox.compose.loadRemoteImages")}
                 </Button>
-              ) : null}
+              )}
             </div>
           )}
         </MessageSurface>

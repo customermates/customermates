@@ -1,5 +1,5 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
-import type { ConnectedAccountDto } from "../messaging.schema";
+import type { ConnectedAccountDto, ConnectedAccountRecord } from "../messaging.schema";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { EmailSettings } from "../email-settings";
 
@@ -8,17 +8,16 @@ import { z } from "zod";
 import { Action, Resource } from "@/generated/prisma";
 
 import { ConnectedAccountAppDtoSchema } from "../messaging.schema";
-import { EmailSettingsSchema } from "../email-settings";
+import { ConnectedAccountEmailSchema } from "../email-settings";
+import { toConnectedAccountDto } from "./connected-account-dto";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
-const Schema = z.object({
+const Schema = ConnectedAccountEmailSchema.extend({
   id: z.uuid(),
-  signature: z.string().max(2_000),
-  settings: EmailSettingsSchema,
 });
 export type SetConnectedAccountSignatureData = Data<typeof Schema>;
 
@@ -27,7 +26,7 @@ export abstract class SetConnectedAccountSignatureRepo {
     id: string;
     signature: string | null;
     settings: EmailSettings;
-  }): Promise<ConnectedAccountDto>;
+  }): Promise<ConnectedAccountRecord>;
 }
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
@@ -42,7 +41,7 @@ export class SetConnectedAccountSignatureInteractor extends AuthenticatedInterac
     super();
   }
 
-  @Enforce(Schema)
+  @Validate(Schema)
   @ValidateOutput(ConnectedAccountAppDtoSchema)
   async invoke(data: SetConnectedAccountSignatureData): Validated<ConnectedAccountDto> {
     const denied = await this.entitlements.require("messaging");
@@ -55,6 +54,6 @@ export class SetConnectedAccountSignatureInteractor extends AuthenticatedInterac
       settings: data.settings,
     });
 
-    return { ok: true as const, data: updated };
+    return { ok: true as const, data: toConnectedAccountDto(updated) };
   }
 }

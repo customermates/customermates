@@ -34350,7 +34350,8 @@
                   "body": {
                     "type": "string",
                     "minLength": 1,
-                    "maxLength": 100000
+                    "maxLength": 100000,
+                    "description": "Email drafts use Markdown; chat drafts use plain text"
                   },
                   "cc": {
                     "maxItems": 100,
@@ -35224,7 +35225,8 @@
                   "body": {
                     "type": "string",
                     "minLength": 1,
-                    "maxLength": 100000
+                    "maxLength": 100000,
+                    "description": "Email drafts use Markdown; chat drafts use plain text"
                   },
                   "cc": {
                     "maxItems": 100,

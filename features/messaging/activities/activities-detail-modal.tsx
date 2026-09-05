@@ -22,7 +22,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { AppModal, type AppModalActions } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
-import { EmailFrame } from "@/app/[locale]/(protected)/inbox/components/email-frame";
+import { EmailFrame } from "../email-frame";
 import { Button } from "@/components/ui/button";
 import { isEmailProvider } from "@/ee/messaging/provider";
 import { messageSenderName } from "@/ee/messaging/thread-display";

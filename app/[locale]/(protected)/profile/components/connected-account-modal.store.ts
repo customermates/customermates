@@ -5,14 +5,13 @@ import { ConnectedAccountStatus, MessagingProvider, Resource } from "@/generated
 import { BaseModalStore } from "@/core/base/base-modal.store";
 
 import type { ConnectedAccountDto } from "@/ee/messaging/messaging.schema";
-import type { EmailSettings } from "@/ee/messaging/email-settings";
-
-import { action, makeObservable, observable, override as mobxOverride } from "mobx";
+import { makeObservable, override as mobxOverride } from "mobx";
 
 import { defaultEmailSettings } from "@/ee/messaging/email-settings";
+import { AccountSignatureStore } from "./account-signature.store";
 
 export class ConnectedAccountModalStore extends BaseModalStore<ConnectedAccountDto> {
-  public emailSettingsDirty = false;
+  public readonly signatureStore: AccountSignatureStore;
 
   constructor(rootStore: RootStore) {
     super(
@@ -42,32 +41,22 @@ export class ConnectedAccountModalStore extends BaseModalStore<ConnectedAccountD
       Resource.inboxMessages,
     );
 
+    this.signatureStore = new AccountSignatureStore(rootStore);
     makeObservable(this, {
-      emailSettingsDirty: observable,
       hasUnsavedChanges: mobxOverride,
-      setEmailSettingsDirty: action,
     });
   }
 
   override get hasUnsavedChanges(): boolean {
-    return super.hasUnsavedChanges || this.emailSettingsDirty;
+    return (
+      super.hasUnsavedChanges ||
+      (this.signatureStore.accountId === this.form.id && this.signatureStore.hasUnsavedChanges)
+    );
   }
-
-  setEmailSettingsDirty = (dirty: boolean): void => {
-    this.emailSettingsDirty = dirty;
-  };
 
   toggleVisibility = async (shared: boolean): Promise<void> => {
     const updated = await this.rootStore.connectedAccountsStore.setVisibility(this.form.id, shared);
     if (updated) this.onInitOrRefresh(updated);
-  };
-
-  saveSignature = async (signature: string, settings: EmailSettings): Promise<boolean> => {
-    const updated = await this.rootStore.connectedAccountsStore.setSignature(this.form.id, signature, settings);
-    if (!updated) return false;
-
-    this.onInitOrRefresh(updated);
-    return true;
   };
 
   toggleFolder = async (folderId: string, on: boolean): Promise<void> => {
@@ -83,7 +72,7 @@ export class ConnectedAccountModalStore extends BaseModalStore<ConnectedAccountD
   };
 
   protected override prepareToClose(): boolean {
-    this.emailSettingsDirty = false;
+    this.signatureStore.resetSession();
     return true;
   }
 }

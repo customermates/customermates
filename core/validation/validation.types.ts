@@ -29,6 +29,7 @@ export enum CustomErrorCode {
   socialActionRequiresSocialAccount = "socialActionRequiresSocialAccount",
   salesNavigatorNotAvailable = "salesNavigatorNotAvailable",
   invalidUrl = "invalidUrl",
+  emailLinkColourInvalid = "emailLinkColourInvalid",
   legalNoticeNotDelivered = "legalNoticeNotDelivered",
   termsNotAgreed = "termsNotAgreed",
   customColumnNotFound = "customColumnNotFound",

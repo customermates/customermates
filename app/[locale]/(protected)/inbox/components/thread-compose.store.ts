@@ -20,6 +20,7 @@ import { isEmailProvider } from "@/ee/messaging/provider";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { defaultEmailSettings } from "@/ee/messaging/email-settings";
 import { composeEmailBodies } from "@/ee/messaging/outbound/email-signature";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 
 import { formatBytes } from "./attachment-classify";
 import { MAX_ATTACHMENTS_BYTES, toAttachmentInput } from "./attachment-input";
@@ -389,10 +390,10 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
         this.clearPending(tempId);
       });
       this.retryDraftBindings.delete(tempId);
-    } catch {
+    } catch (error) {
+      reportApplicationError(error);
       if (generation !== this.composeGeneration) return;
       runInAction(() => detail.setMessageStatus(tempId, "failed"));
-      this.toastError("Common.notifications.unexpectedError");
     } finally {
       if (generation === this.composeGeneration) runInAction(() => this.setIsLoading(false));
       else {
@@ -531,9 +532,8 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
         onSent?.(sentThreadId);
         onDone?.();
       }
-    } catch {
-      if (generation !== this.composeGeneration) return;
-      this.toastError("Common.notifications.unexpectedError");
+    } catch (error) {
+      reportApplicationError(error);
     } finally {
       if (generation === this.composeGeneration) runInAction(() => this.setIsLoading(false));
     }
@@ -620,7 +620,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
         }
         if (draftUnchanged) {
           this.form.body = "";
-          this.form.subject = "";
+          if (!threadId) this.form.subject = "";
           this.form.cc = [];
           this.form.bcc = [];
           this.draftAttachments = [...this.attachments];
@@ -676,13 +676,21 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       }
     });
 
-    const result = await discardDraftAction({ messageId, draftRevision });
-    if (!result.ok && generation === this.composeGeneration) {
-      runInAction(() => {
-        if (removed) detail.appendMessage(removed);
-      });
-      this.toastError("Inbox.compose.draftDiscardFailed");
-      return;
+    try {
+      const result = await discardDraftAction({ messageId, draftRevision });
+      if (!result.ok && generation === this.composeGeneration) {
+        runInAction(() => {
+          if (removed) detail.appendMessage(removed);
+        });
+        this.toastError("Inbox.compose.draftDiscardFailed");
+      }
+    } catch (error) {
+      if (generation === this.composeGeneration) {
+        runInAction(() => {
+          if (removed) detail.appendMessage(removed);
+        });
+      }
+      reportApplicationError(error);
     }
   };
 
@@ -751,10 +759,10 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
         this.clearPending(messageId);
       });
       this.retryDraftBindings.delete(messageId);
-    } catch {
+    } catch (error) {
+      reportApplicationError(error);
       if (generation !== this.composeGeneration) return;
       runInAction(() => detail.setMessageStatus(messageId, "failed"));
-      this.toastError("Common.notifications.unexpectedError");
     } finally {
       if (generation === this.composeGeneration) runInAction(() => this.setIsLoading(false));
       else {

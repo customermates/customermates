@@ -52,6 +52,10 @@ export const ConnectedAccountAppDtoSchema = ConnectedAccountDtoSchema.extend({
   signatureHtml: z.string().nullable().default(null),
 });
 export type ConnectedAccountDto = Data<typeof ConnectedAccountAppDtoSchema>;
+export type ConnectedAccountRecord = Data<typeof ConnectedAccountDtoSchema> & {
+  signature: string | null;
+  signatureFields: unknown;
+};
 
 export const MessagingAttendeeSchema = z.object({
   attendeeId: z.string(),

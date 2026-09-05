@@ -21,6 +21,7 @@ import {
   defaultEmailSettings,
 } from "../../email-settings";
 import { SendEmailInteractor } from "../send-email.interactor";
+import { composeEmailBodies } from "../email-signature";
 
 const mockUser = createMockUser();
 
@@ -193,6 +194,16 @@ describe("SendEmailInteractor body parts", () => {
     expect(persisted.message.bodyHtml).toBe(sent.body);
   });
 
+  it("sends exactly the HTML shown by settings and draft previews, with no forced separator", async () => {
+    const markdown = "**Hello**\n\n- One\n- Two\n\n> A quote\n\n---\n\n[Project](https://example.com)";
+    const preview = composeEmailBodies(markdown, signatureMarkdown, emailSettings, "markdown");
+    const { sent } = await send(signatureMarkdown, markdown, emailSettings, "markdown");
+    expect(sent.body).toBe(preview.html);
+    expect(sent.plainText).toBe(preview.plainText);
+    expect(sent.body).not.toContain("-- ");
+    expect(sent.body.match(/data-customermates-signature/g)).toHaveLength(1);
+  });
+
   it("escapes a plain-text body so it cannot be read as markup", async () => {
     const { sent } = await send(null, "a < b & c");
 
@@ -210,17 +221,10 @@ describe("SendEmailInteractor body parts", () => {
     expect(sent.body).not.toContain("<table");
   });
 
-  it("upgrades legacy structured fields before sending", async () => {
-    const legacy = {
-      template: SignatureTemplate.plain,
-      accent: "green",
-      fullName: "Benjamin Wagner",
-      website: "customermates.com",
-    };
-    const { sent } = await send(null, "Hello", legacy, "markdown");
+  it("does not append saved signature content when settings are missing", async () => {
+    const { sent } = await send("Saved footer", "Hello", null, "markdown");
 
-    expect(sent.plainText).toContain("Benjamin Wagner");
-    expect(sent.body).toContain("color:#2ba449");
-    expect(sent.body).toContain('href="https://customermates.com"');
+    expect(sent.plainText).toBe("Hello");
+    expect(sent.body).not.toContain("Saved footer");
   });
 });

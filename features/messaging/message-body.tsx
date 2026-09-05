@@ -6,8 +6,8 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 
-import { EmailFrame } from "@/app/[locale]/(protected)/inbox/components/email-frame";
-import { MessageText } from "@/app/[locale]/(protected)/inbox/components/message-text";
+import { EmailFrame } from "./email-frame";
+import { MessageText } from "./message-text";
 import { SanitizedHtml } from "@/components/shared/sanitized-html";
 import { cn } from "@/core/utils/cn";
 import { isPlainTextEmailBody, splitQuotedText } from "@/ee/messaging/email-quote";

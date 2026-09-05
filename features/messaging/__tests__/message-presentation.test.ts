@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { Root } from "react-dom/client";
 import type { MessagingMessageDto } from "@/ee/messaging/inbox/inbox.schema";
 import type { ActivityEntryDto } from "@/ee/messaging/activities/activities.schema";
+import type { EmailSettings } from "@/ee/messaging/email-settings";
 
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
@@ -15,15 +16,24 @@ const harness = vi.hoisted(() => ({
   retrySend: vi.fn(),
   messageStatus: {} as Record<string, string>,
   timelineEntry: null as ActivityEntryDto | null,
+  accounts: [] as Array<{
+    id: string;
+    signature: string;
+    emailSettings: EmailSettings;
+  }>,
 }));
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     messagingThreadDetailStore: { messageStatus: harness.messageStatus },
-    threadComposeStore: { ...harness, draftAttachments: [], pendingAttachments: {} },
+    threadComposeStore: {
+      ...harness,
+      draftAttachments: [],
+      pendingAttachments: {},
+    },
     threadParticipantsStore: { setOpen: vi.fn() },
-    connectedAccountsStore: { items: [] },
+    connectedAccountsStore: { items: harness.accounts },
     timelineDetailModalStore: {
       isOpen: true,
       form: { entry: harness.timelineEntry, customColumns: [] },
@@ -32,7 +42,10 @@ vi.mock("@/core/stores/root-store.provider", () => ({
   }),
 }));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
-  useHydratedIntlStore: () => ({ formatNumericalShortDateTime: () => "Date", formatTime: () => "Time" }),
+  useHydratedIntlStore: () => ({
+    formatNumericalShortDateTime: () => "Date",
+    formatTime: () => "Time",
+  }),
 }));
 vi.mock("@/core/errors/report-application-error", () => ({
   runUserAction: (action: () => unknown) => action(),
@@ -41,7 +54,9 @@ vi.mock("@/components/modal", () => ({
   AppModal: ({ children, title }: { children: ReactNode; title: string }) =>
     createElement("section", { "data-modal-title": title }, children),
 }));
-vi.mock("@/components/ui/avatar", () => ({ Avatar: () => createElement("span", { "data-avatar": true }) }));
+vi.mock("@/components/ui/avatar", () => ({
+  Avatar: () => createElement("span", { "data-avatar": true }),
+}));
 vi.mock("@/components/ui/tooltip", () => ({
   TooltipProvider: ({ children }: { children: ReactNode }) => children,
   Tooltip: ({ children }: { children: ReactNode }) => children,
@@ -62,6 +77,8 @@ import { MessageItem } from "@/app/[locale]/(protected)/inbox/components/message
 import { MessageDetail, TimelineDetailModal } from "../activities/activities-detail-modal";
 import { hasLoadableRemoteImages, MessageBody } from "../message-body";
 import { MessageSurface } from "../message-surface";
+import { defaultEmailSettings } from "@/ee/messaging/email-settings";
+import { composeEmailBodies } from "@/ee/messaging/outbound/email-signature";
 
 const BASE: MessagingMessageDto = {
   id: "00000000-0000-4000-8000-000000000001",
@@ -69,9 +86,20 @@ const BASE: MessagingMessageDto = {
   messagingThreadId: "00000000-0000-4000-8000-000000000004",
   provider: "google",
   direction: "outbound",
-  sender: { attendeeId: "sender", identifier: "sender@example.com", displayName: "Sender", isSelf: true },
+  sender: {
+    attendeeId: "sender",
+    identifier: "sender@example.com",
+    displayName: "Sender",
+    isSelf: true,
+  },
   recipients: {
-    to: [{ attendeeId: "recipient", identifier: "recipient@example.com", displayName: "Recipient" }],
+    to: [
+      {
+        attendeeId: "recipient",
+        identifier: "recipient@example.com",
+        displayName: "Recipient",
+      },
+    ],
     cc: [],
     bcc: [],
   },
@@ -121,6 +149,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   harness.messageStatus = {};
   harness.timelineEntry = null;
+  harness.accounts = [];
   vi.stubGlobal(
     "ResizeObserver",
     class {
@@ -141,6 +170,38 @@ afterEach(() => {
 });
 
 describe("shared message presentation", () => {
+  it("renders drafts with current account settings, matching send HTML, and permits logo opt-in", () => {
+    const settings = defaultEmailSettings();
+    settings.signature.enabled = true;
+    const account = observable({
+      id: BASE.connectedAccountId,
+      signature: "**Current footer**",
+      emailSettings: settings,
+    });
+    harness.accounts = [account];
+    const draft = {
+      ...BASE,
+      isDraft: true,
+      bodyText: "**Draft body**",
+      bodyHtml: "<p>Stale saved preview</p>",
+      draftRevision: "revision",
+    };
+    render(createElement(MessageItem, { message: draft, isMine: true, accountOwner: null }));
+    const expected = composeEmailBodies(draft.bodyText, account.signature, settings, "markdown").html;
+    expect(container.querySelector("iframe")?.getAttribute("srcdoc")).toContain("Current footer");
+    expect(container.querySelector("iframe")?.getAttribute("srcdoc")).not.toContain("Stale saved preview");
+    expect(expected).not.toContain("-- ");
+    expect(container.querySelector("iframe")?.getAttribute("srcdoc")).toContain("img-src data:;");
+    act(() => button("Inbox.compose.loadRemoteImages").click());
+    expect(container.querySelector("iframe")?.getAttribute("srcdoc")).toContain("img-src data: https:;");
+    act(() =>
+      runInAction(() => {
+        account.emailSettings.signature.enabled = false;
+      }),
+    );
+    expect(container.querySelector("iframe")?.getAttribute("srcdoc")).not.toContain("Current footer");
+  });
+
   it.each([false, true])("keeps an email surface neutral in either direction (outbound=%s)", (isOutbound) => {
     render(createElement(MessageSurface, { isEmail: true, isOutbound }, createElement("div", {}, "Email")));
     const surface = container.firstElementChild;
@@ -153,7 +214,10 @@ describe("shared message presentation", () => {
   it("keeps email HTML in its sanitized sandbox and remote content opt-in", () => {
     render(
       createElement(MessageBody, {
-        message: { ...BASE, bodyHtml: '<p>Hello</p><script>alert(1)</script><img src="https://example.com/logo.png">' },
+        message: {
+          ...BASE,
+          bodyHtml: '<p>Hello</p><script>alert(1)</script><img src="https://example.com/logo.png">',
+        },
       }),
     );
     const frame = container.querySelector("iframe");
@@ -211,7 +275,12 @@ describe("shared message presentation", () => {
   });
 
   it("updates observable chat text and deletion without depending on a parent store", () => {
-    const message = observable({ ...BASE, provider: "linkedin" as const, subject: null, bodyHtml: null });
+    const message = observable({
+      ...BASE,
+      provider: "linkedin" as const,
+      subject: null,
+      bodyHtml: null,
+    });
     render(createElement(MessageBody, { message }));
     expect(container.textContent).toBe("Hello");
     act(() =>
@@ -229,7 +298,11 @@ describe("shared message presentation", () => {
   });
 
   it("shows unsupported content only without attachments, reactions or pending files", () => {
-    const message = { ...BASE, bodyHtml: null, bodyText: "Unipile cannot display this type of message" };
+    const message = {
+      ...BASE,
+      bodyHtml: null,
+      bodyText: "Unipile cannot display this type of message",
+    };
     render(createElement(MessageBody, { message }));
     expect(container.textContent).toBe("Inbox.attachmentUnsupported");
     render(createElement(MessageBody, { message, hasSupplementaryContent: true }));
@@ -248,7 +321,11 @@ describe("Inbox and activity consumers", () => {
   it.each(["inbox", "activity"])("uses the shared neutral email surface in %s", (surface) => {
     render(
       surface === "inbox"
-        ? createElement(MessageItem, { message: BASE, isMine: true, accountOwner: null })
+        ? createElement(MessageItem, {
+            message: BASE,
+            isMine: true,
+            accountOwner: null,
+          })
         : createElement(MessageDetail, { entry: entry(BASE) }),
     );
     const frame = container.querySelector("iframe");
@@ -258,12 +335,19 @@ describe("Inbox and activity consumers", () => {
   });
 
   it("allows activity images explicitly and resets permission when another message opens", () => {
-    const message = { ...BASE, bodyHtml: '<p>Body</p><img src="https://example.com/logo.png" width="80">' };
+    const message = {
+      ...BASE,
+      bodyHtml: '<p>Body</p><img src="https://example.com/logo.png" width="80">',
+    };
     render(createElement(MessageDetail, { entry: entry(message) }));
     expect(container.querySelector("iframe")?.getAttribute("srcdoc")).toContain("img-src data:;");
     act(() => button("Inbox.compose.loadRemoteImages").click());
     expect(container.querySelector("iframe")?.getAttribute("srcdoc")).toContain("img-src data: https:;");
-    render(createElement(MessageDetail, { entry: entry({ ...message, id: "other-message" }) }));
+    render(
+      createElement(MessageDetail, {
+        entry: entry({ ...message, id: "other-message" }),
+      }),
+    );
     expect(container.querySelector("iframe")?.getAttribute("srcdoc")).toContain("img-src data:;");
   });
 
@@ -273,7 +357,13 @@ describe("Inbox and activity consumers", () => {
         entry: entry({
           ...BASE,
           isDeleted: true,
-          attachmentsMeta: [{ id: "attachment", name: "Deleted attachment", mime: "text/plain" }],
+          attachmentsMeta: [
+            {
+              id: "attachment",
+              name: "Deleted attachment",
+              mime: "text/plain",
+            },
+          ],
         }),
       }),
     );
@@ -285,7 +375,12 @@ describe("Inbox and activity consumers", () => {
   it("keeps a fallback for reaction-only activities because this surface does not render reactions", () => {
     render(
       createElement(MessageDetail, {
-        entry: entry({ ...BASE, bodyHtml: null, bodyText: null, reactions: [{ value: "👍" }] }),
+        entry: entry({
+          ...BASE,
+          bodyHtml: null,
+          bodyText: null,
+          reactions: [{ value: "👍" }],
+        }),
       }),
     );
     expect(container.textContent).toContain("Inbox.attachmentUnsupported");
@@ -318,7 +413,13 @@ describe("Inbox and activity consumers", () => {
 
   it("preserves Inbox failure styling and retry action", () => {
     harness.messageStatus[BASE.id] = "failed";
-    render(createElement(MessageItem, { message: BASE, isMine: true, accountOwner: null }));
+    render(
+      createElement(MessageItem, {
+        message: BASE,
+        isMine: true,
+        accountOwner: null,
+      }),
+    );
     expect(container.querySelector("iframe")?.parentElement?.classList.contains("ring-destructive/50")).toBe(true);
     act(() => button("Inbox.compose.retry").click());
     expect(harness.retrySend).toHaveBeenCalledWith(BASE.id);

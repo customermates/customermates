@@ -49,7 +49,7 @@ const domTestFiles = [
   "features/messaging/activities/__tests__/use-owned-activities-store.test.ts",
   "features/messaging/__tests__/message-presentation.test.ts",
   "app/[locale]/(protected)/profile/components/__tests__/account-signature-behavior.test.ts",
-  "app/[locale]/(protected)/inbox/components/__tests__/email-frame.test.ts",
+  "features/messaging/__tests__/email-frame.test.ts",
   "app/[locale]/(protected)/inbox/components/__tests__/thread-reply-composer-navigation.test.ts",
 ];
 

@@ -83,9 +83,9 @@ describe("EmailFrame", () => {
   });
 
   it("tracks the application theme for composers and keeps received-email paper unchanged", () => {
-    const style = vi
-      .spyOn(window, "getComputedStyle")
-      .mockReturnValue({ getPropertyValue: () => "rgb(20, 20, 20)" } as unknown as CSSStyleDeclaration);
+    const style = vi.spyOn(window, "getComputedStyle").mockReturnValue({
+      getPropertyValue: () => "rgb(20, 20, 20)",
+    } as unknown as CSSStyleDeclaration);
     expect(render("<p>Signature</p>", true, "composer").srcdoc).toContain("color: rgb(20, 20, 20) !important");
     theme.resolvedTheme = "dark";
     style.mockReturnValue({
@@ -103,11 +103,13 @@ describe("EmailFrame", () => {
   });
 
   it("picks up the theme class when next-themes applies it after the React effect", async () => {
-    const style = vi
-      .spyOn(window, "getComputedStyle")
-      .mockReturnValue({ getPropertyValue: () => "#fafafa" } as unknown as CSSStyleDeclaration);
+    const style = vi.spyOn(window, "getComputedStyle").mockReturnValue({
+      getPropertyValue: () => "#fafafa",
+    } as unknown as CSSStyleDeclaration);
     render("<p>Signature</p>", true, "composer");
-    style.mockReturnValue({ getPropertyValue: () => "#000000" } as unknown as CSSStyleDeclaration);
+    style.mockReturnValue({
+      getPropertyValue: () => "#000000",
+    } as unknown as CSSStyleDeclaration);
     await act(async () => {
       document.documentElement.classList.add("light");
       await Promise.resolve();

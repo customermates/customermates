@@ -1,6 +1,6 @@
 import type { DomNode, FormatCallback } from "html-to-text";
 
-import { convert } from "html-to-text";
+import { compile } from "html-to-text";
 
 const MAX_HTML_LENGTH = 1_000_000;
 const MAX_DEPTH = 64;
@@ -26,6 +26,7 @@ function visibleTextAlreadyNamesHref(text: string, href: string): boolean {
   if (href === text) return true;
   if (href.toLowerCase().startsWith("mailto:"))
     return href.slice("mailto:".length).toLowerCase() === text.trim().toLowerCase();
+
   if (href.toLowerCase().startsWith("tel:")) {
     const phone = (value: string) => value.replace(/[^\d+]/g, "");
     return phone(href.slice("tel:".length)) === phone(text);
@@ -34,7 +35,10 @@ function visibleTextAlreadyNamesHref(text: string, href: string): boolean {
 }
 
 const formatSafeAnchor: FormatCallback = (elem, walk, builder) => {
-  const node = elem as DomNode & { attribs?: Record<string, string>; children?: DomNode[] };
+  const node = elem as DomNode & {
+    attribs?: Record<string, string>;
+    children?: DomNode[];
+  };
   const href = node.attribs?.href ? safeUrl(node.attribs.href) : null;
 
   let text = "";
@@ -73,6 +77,8 @@ const CONVERT_OPTIONS = {
   ],
 };
 
+const convertEmailHtml = compile(CONVERT_OPTIONS);
+
 function collapse(value: string): string {
   return value
     .split("\n")
@@ -85,7 +91,7 @@ function collapse(value: string): string {
 export function htmlToPlainText(html: string | null | undefined): string | null {
   if (typeof html !== "string" || html.trim() === "") return null;
 
-  const text = collapse(convert(html, CONVERT_OPTIONS).replace(STRIPPED_CONTROLS, ""));
+  const text = collapse(convertEmailHtml(html).replace(STRIPPED_CONTROLS, ""));
 
   return text === "" ? null : text;
 }

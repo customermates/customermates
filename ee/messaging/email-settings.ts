@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { CustomErrorCode } from "@/core/validation/validation.types";
+
 export enum SignatureTemplate {
   plain = "plain",
   stacked = "stacked",
@@ -171,7 +173,7 @@ export function emailLinkContrast(hex: string): {
 const EmailAppearanceSchema = z.object({
   fontFamily: z.enum(EmailFontFamily),
   fontSize: z.number().int().min(EMAIL_FONT_SIZE_MIN).max(EMAIL_FONT_SIZE_MAX),
-  linkHex: z.string().regex(HEX_COLOR),
+  linkHex: z.string().refine(isEmailLinkHex, { params: { error: CustomErrorCode.emailLinkColourInvalid } }),
   linkStyle: z.enum(EmailLinkStyle),
 });
 
@@ -199,12 +201,17 @@ export const EmailSettingsSchema = z
       ctx.addIssue({
         code: "custom",
         path: ["signature", "logoUrl"],
-        message: "A public logo URL is required",
+        params: { error: CustomErrorCode.invalidUrl },
       });
     }
   });
 
 export type EmailSettings = z.infer<typeof EmailSettingsSchema>;
+
+export const ConnectedAccountEmailSchema = z.object({
+  signature: z.string().max(2_000),
+  settings: EmailSettingsSchema,
+});
 
 export function defaultEmailSettings(): EmailSettings {
   return {
@@ -226,104 +233,15 @@ export function defaultEmailSettings(): EmailSettings {
   };
 }
 
-const legacyLine = z.string().trim().max(120).catch("");
-const LegacySignatureFieldsSchema = z.object({
-  template: z.enum(SignatureTemplate).catch(SignatureTemplate.stacked),
-  accentHex: z.string().regex(HEX_COLOR).catch(DEFAULT_LINK_HEX),
-  fontSize: z.number().int().min(EMAIL_FONT_SIZE_MIN).max(EMAIL_FONT_SIZE_MAX).catch(13),
-  fontWeight: z.enum(["normal", "medium", "semibold", "bold"]).catch("bold"),
-  fullName: legacyLine,
-  jobTitle: legacyLine,
-  company: legacyLine,
-  email: legacyLine,
-  phone: legacyLine,
-  website: legacyLine,
-  logoUrl: z.union([z.literal(""), z.string().max(500).refine(isPublicEmailImageUrl)]).catch(""),
-});
-
-const LEGACY_ACCENT_HEX: Record<string, string> = {
-  neutral: "#6e6e6e",
-  violet: DEFAULT_LINK_HEX,
-  blue: "#3d7dbf",
-  green: "#2ba449",
-};
-
-function upgradeLegacyAccent(value: unknown): unknown {
-  if (!value || typeof value !== "object") return value;
-
-  const record = value as Record<string, unknown>;
-  if (typeof record.accentHex === "string" || typeof record.accent !== "string") return value;
-
-  const { accent, ...rest } = record;
-  return { ...rest, accentHex: LEGACY_ACCENT_HEX[accent] ?? DEFAULT_LINK_HEX };
-}
-
-function escapeMarkdownText(value: string): string {
-  return value.replace(/([\\`*_[\]<>])/g, "\\$1");
-}
-
-function telHref(phone: string): string {
-  return phone.replace(/[^\d+]/g, "");
-}
-
-function siteHref(website: string): string {
-  if (/^https:\/\//i.test(website)) return website;
-  if (/^http:\/\//i.test(website)) return `https://${website.slice("http://".length)}`;
-  return `https://${website}`;
-}
-
-function legacySignatureMarkdown(fields: z.infer<typeof LegacySignatureFieldsSchema>, markdown: string): string {
-  const role = [fields.jobTitle, fields.company].filter(Boolean).map(escapeMarkdownText).join(", ");
-  const name = escapeMarkdownText(fields.fullName);
-  const renderedName = ["semibold", "bold"].includes(fields.fontWeight) ? `**${name}**` : name;
-  const rows = [
-    fields.fullName ? renderedName : "",
-    role,
-    fields.phone ? `[${escapeMarkdownText(fields.phone)}](tel:${telHref(fields.phone)})` : "",
-    fields.email ? `[${escapeMarkdownText(fields.email)}](mailto:${fields.email})` : "",
-    fields.website ? `[${escapeMarkdownText(fields.website)}](${siteHref(fields.website)})` : "",
-    markdown.trim(),
-  ];
-
-  return rows.filter(Boolean).join("  \n");
-}
-
 export type ResolvedEmailSettings = {
   markdown: string;
   settings: EmailSettings;
-  migratedLegacyFields: boolean;
 };
 
 export function resolveStoredEmailSettings(markdown: string | null | undefined, value: unknown): ResolvedEmailSettings {
-  const source = markdown?.trim() ?? "";
   const parsed = EmailSettingsSchema.safeParse(value);
-  if (parsed.success) {
-    return {
-      markdown: source,
-      settings: parsed.data,
-      migratedLegacyFields: false,
-    };
-  }
-
-  const legacy = LegacySignatureFieldsSchema.safeParse(upgradeLegacyAccent(value));
-  if (legacy.success) {
-    const converted = legacySignatureMarkdown(legacy.data, source);
-    const settings = defaultEmailSettings();
-    settings.appearance.fontSize = legacy.data.fontSize;
-    settings.appearance.linkHex = legacy.data.accentHex;
-    settings.signature = {
-      ...settings.signature,
-      enabled: Boolean(converted),
-      template: legacy.data.logoUrl ? legacy.data.template : SignatureTemplate.plain,
-      logoUrl: legacy.data.logoUrl,
-    };
-
-    return { markdown: converted, settings, migratedLegacyFields: true };
-  }
-
-  const settings = defaultEmailSettings();
-  settings.signature.enabled = Boolean(source);
-  settings.signature.template = SignatureTemplate.plain;
-  settings.signature.logoUrl = "";
-  return { markdown: source, settings, migratedLegacyFields: Boolean(source) };
+  return {
+    markdown: markdown?.trim() ?? "",
+    settings: parsed.success ? parsed.data : defaultEmailSettings(),
+  };
 }

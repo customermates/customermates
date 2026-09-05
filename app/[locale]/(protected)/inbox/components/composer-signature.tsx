@@ -5,7 +5,7 @@ import { observer } from "mobx-react-lite";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { isEmailProvider } from "@/ee/messaging/provider";
 
-import { EmailFrame } from "./email-frame";
+import { EmailFrame } from "@/features/messaging/email-frame";
 
 type Props = {
   connectedAccountId: string | null;

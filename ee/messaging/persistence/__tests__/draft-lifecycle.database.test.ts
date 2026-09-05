@@ -269,6 +269,39 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
     expect(bodies).toContain(stored.rows[0].bodyText);
   });
 
+  it("persists interactor-rendered draft HTML and reuses its text for summary repair", async () => {
+    const recipient = `rendered-draft-${randomUUID()}@example.invalid`;
+    const repo = new PrismaMessagingRepo();
+    const thread = await runWithTenant(tenant, () =>
+      repo.findOrCreateDraftThread({
+        connectedAccountId: accountId,
+        provider: MessagingProvider.google,
+        recipients: [recipient],
+      }),
+    );
+    const bodyText = "**Review** [project](https://example.com)";
+    const bodyHtml = '<div><strong>Review</strong> <a href="https://example.com">project</a></div>';
+    const draft = await runWithTenant(tenant, () =>
+      repo.upsertThreadDraftOrThrow({
+        threadId: thread.id,
+        connectedAccountId: accountId,
+        provider: MessagingProvider.google,
+        sender: attendee(ownerEmail, true),
+        subject: "Rendered draft",
+        bodyText,
+        bodyHtml,
+        recipients: { to: [attendee(recipient)], cc: [], bcc: [] },
+      }),
+    );
+    expect(draft.bodyText).toBe(bodyText);
+    expect(draft.bodyHtml).toBe(bodyHtml);
+    await runWithTenant(tenant, () => repo.restoreDraftSummaryIfPresent({ messageId: draft.id }));
+    const summary = await client.query('SELECT "lastMessagePreview" FROM "MessagingThread" WHERE "id" = $1', [
+      thread.id,
+    ]);
+    expect(summary.rows).toEqual([{ lastMessagePreview: "Review project (https://example.com)" }]);
+  });
+
   it("upgrades a legacy randomized draft in place without creating a second draft", async () => {
     const recipient = `legacy-${randomUUID()}@example.invalid`;
     const repo = new PrismaMessagingRepo();

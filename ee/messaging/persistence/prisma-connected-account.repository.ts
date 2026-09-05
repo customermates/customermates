@@ -10,12 +10,10 @@ import type { SetConnectedAccountVisibilityRepo } from "../connect/set-connected
 import type { SetConnectedAccountSignatureRepo } from "../connect/set-connected-account-signature.interactor";
 import type { AccountWebhookRepo } from "../webhooks/account/account-webhook.repo";
 import type { WebhookActivityRepo } from "../webhooks/relation/relation-webhook.repo";
-import type { ConnectedAccountDto } from "../messaging.schema";
+import type { ConnectedAccountRecord } from "../messaging.schema";
 import type { EmailSettings } from "../email-settings";
 
 import { type EmailFolder, EmailFolderSchema } from "../email-folders";
-import { renderSignature } from "../outbound/email-signature";
-import { resolveStoredEmailSettings } from "../email-settings";
 import type { BackfillConnectedAccountRepo } from "../ingest/backfill/backfill.repo";
 import type { ClaimBackfillRepo } from "../ingest/claim-backfill.interactor";
 import type { ReleaseBackfillClaimRepo } from "../ingest/release-backfill-claim.interactor";
@@ -439,15 +437,10 @@ export class PrismaConnectedAccountRepo
       select: PrismaConnectedAccountRepo["dtoSelect"];
     }>,
     isOwner: boolean,
-  ): ConnectedAccountDto {
-    const { user, folders, signatureFields, ...account } = row;
-    const resolved = resolveStoredEmailSettings(account.signature, signatureFields);
-    const signature = resolved.markdown || null;
+  ): ConnectedAccountRecord {
+    const { user, folders, ...account } = row;
     return {
       ...account,
-      signature: isOwner || resolved.settings.signature.enabled ? signature : null,
-      emailSettings: resolved.settings,
-      signatureHtml: renderSignature(resolved.markdown, resolved.settings)?.html ?? null,
       folders: EmailFolderSchema.array().catch([]).parse(folders),
       owner: {
         userId: user.id,

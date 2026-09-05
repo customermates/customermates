@@ -39,11 +39,14 @@ describe("email settings", () => {
     const original = settings();
     const old = {
       ...original,
-      signature: { enabled: true, template: SignatureTemplate.sideBySide, logoUrl: SIGNATURE_LOGO_URL },
+      signature: {
+        enabled: true,
+        template: SignatureTemplate.sideBySide,
+        logoUrl: SIGNATURE_LOGO_URL,
+      },
     };
     const resolved = resolveStoredEmailSettings("**Name**", old);
 
-    expect(resolved.migratedLegacyFields).toBe(false);
     expect(resolved.markdown).toBe("**Name**");
     expect(resolved.settings.appearance).toEqual(original.appearance);
     expect(resolved.settings.signature).toEqual({
@@ -57,7 +60,10 @@ describe("email settings", () => {
   it.each(["logoSize", "divider", "spacing"])("rejects unknown %s options", (key) => {
     const value = settings();
     expect(
-      EmailSettingsSchema.safeParse({ ...value, signature: { ...value.signature, [key]: "unexpected" } }).success,
+      EmailSettingsSchema.safeParse({
+        ...value,
+        signature: { ...value.signature, [key]: "unexpected" },
+      }).success,
     ).toBe(false);
   });
   it("accepts public HTTPS logo URLs without requiring a file extension", () => {
@@ -122,56 +128,21 @@ describe("email settings", () => {
     },
   );
 
-  it("converts legacy structured fields into one Markdown signature", () => {
-    const result = resolveStoredEmailSettings("VAT **DE123**", {
-      template: SignatureTemplate.sideBySide,
-      accent: "green",
-      fontSize: 16,
-      fullName: "Benjamin Wagner",
-      jobTitle: "Founder",
-      company: "Customermates",
-      email: "mail@customermates.com",
-      phone: "+49 170 0000000",
-      website: "customermates.com",
-      logoUrl: SIGNATURE_LOGO_URL,
-    });
+  it.each([null, {}, { version: 1 }, { version: 3 }])(
+    "does not enable a signature for unsupported settings %j",
+    (value) => {
+      const result = resolveStoredEmailSettings("**Saved signature**", value);
+      expect(result.markdown).toBe("**Saved signature**");
+      expect(result.settings).toEqual(defaultEmailSettings());
+    },
+  );
 
-    expect(result.migratedLegacyFields).toBe(true);
-    expect(result.settings.signature.enabled).toBe(true);
-    expect(result.settings.signature.template).toBe(SignatureTemplate.sideBySide);
-    expect(result.settings.appearance.fontSize).toBe(16);
-    expect(result.settings.appearance.linkHex).toBe("#2ba449");
-    expect(result.markdown).toContain("**Benjamin Wagner**");
-    expect(result.markdown).toContain("[mail@customermates.com](mailto:mail@customermates.com)");
-    expect(result.markdown).toContain("[customermates.com](https://customermates.com)");
-    expect(result.markdown).toContain("VAT **DE123**");
-  });
-
-  it("falls back to text-only when a legacy logo is absent", () => {
-    const result = resolveStoredEmailSettings(null, {
-      fullName: "Ben",
-      template: SignatureTemplate.stacked,
-    });
-
-    expect(result.settings.signature.template).toBe(SignatureTemplate.plain);
-    expect(EmailSettingsSchema.safeParse(result.settings).success).toBe(true);
-  });
-
-  it("keeps a legacy normal-weight name unbolded", () => {
-    const result = resolveStoredEmailSettings(null, {
-      fullName: "Ben",
-      fontWeight: "normal",
-    });
-
-    expect(result.markdown).toBe("Ben");
-  });
-
-  it("does not add a logo to an old Markdown-only signature", () => {
-    const result = resolveStoredEmailSettings("**Ben**", null);
-
-    expect(result.settings.signature.enabled).toBe(true);
-    expect(result.settings.signature.template).toBe(SignatureTemplate.plain);
-    expect(result.settings.signature.logoUrl).toBe("");
+  it("does not re-enable a disabled signature when stored appearance is invalid", () => {
+    const value = settings({ enabled: false });
+    value.appearance.fontSize = 99;
+    const result = resolveStoredEmailSettings("**Saved signature**", value);
+    expect(result.settings.signature.enabled).toBe(false);
+    expect(result.markdown).toBe("**Saved signature**");
   });
 });
 
@@ -250,10 +221,18 @@ describe("renderSignatureFields", () => {
     (spacing) => {
       const gap = spacing === SignatureSpacing.compact ? 8 : 16;
       const beside = rendered(
-        settings({ template: SignatureTemplate.sideBySide, divider: SignatureDivider.line, spacing }),
+        settings({
+          template: SignatureTemplate.sideBySide,
+          divider: SignatureDivider.line,
+          spacing,
+        }),
       );
       const above = rendered(
-        settings({ template: SignatureTemplate.stacked, divider: SignatureDivider.line, spacing }),
+        settings({
+          template: SignatureTemplate.stacked,
+          divider: SignatureDivider.line,
+          spacing,
+        }),
       );
       expect(beside.html).toContain(`padding:0 ${gap}px 0 0;border-right:1px solid`);
       expect(beside.html).toContain(`padding-left:${gap}px`);
@@ -264,7 +243,12 @@ describe("renderSignatureFields", () => {
   );
 
   it("ignores logo layout options in text-only and logo-only signatures", () => {
-    const plain = rendered(settings({ template: SignatureTemplate.plain, divider: SignatureDivider.line }));
+    const plain = rendered(
+      settings({
+        template: SignatureTemplate.plain,
+        divider: SignatureDivider.line,
+      }),
+    );
     const logoOnly = rendered(settings({ divider: SignatureDivider.line }), "");
     expect(plain.html).not.toContain("<img");
     expect(plain.html).not.toMatch(/border-(?:bottom|right):/);
@@ -294,16 +278,16 @@ describe("renderSignatureFields", () => {
   });
 });
 
-describe("legacy compatibility", () => {
-  it("renders an old Markdown-only signature with safe defaults", () => {
-    const result = renderSignature("**Ben**", null);
+describe("explicit signature settings", () => {
+  it("renders Markdown only when the signature is enabled", () => {
+    const result = renderSignature("**Ben**", settings());
 
     expect(result?.html).toContain("<strong>Ben</strong>");
     expect(result?.text).toBe("Ben");
   });
 
-  it("still appends an old Markdown-only signature", () => {
-    const result = composeEmailBodies("Hello", "**Ben**");
+  it("appends the enabled signature", () => {
+    const result = composeEmailBodies("Hello", "**Ben**", settings());
 
     expect(result.plainText).toContain("Hello\n\n-- \nBen");
     expect(result.html).toContain('data-customermates-signature="true"');

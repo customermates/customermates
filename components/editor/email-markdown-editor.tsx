@@ -16,6 +16,7 @@ import type { EmailSettings } from "@/ee/messaging/email-settings";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
 import { EMAIL_FONT_STACK, EmailLinkStyle, normalizeEmailLinkUrl } from "@/ee/messaging/email-settings";
+import { EMAIL_STYLES } from "@/ee/messaging/email-styles";
 
 import { LinkPopover } from "./link-popover";
 
@@ -92,8 +93,7 @@ export const EmailMarkdownEditor = forwardRef<EmailMarkdownEditorHandle, Props>(
         "aria-label": ariaLabel,
         "aria-invalid": String(invalid),
         "aria-multiline": "true",
-        class:
-          "tiptap prose prose-sm max-w-none min-h-24 px-3 py-2.5 focus:outline-none prose-p:text-inherit prose-li:text-inherit prose-strong:text-inherit prose-em:text-inherit prose-blockquote:text-inherit prose-blockquote:border-border prose-ul:text-inherit prose-ol:text-inherit",
+        class: "tiptap max-w-none min-h-24 px-3 py-2.5 focus:outline-none",
         role: "textbox",
       },
       handleKeyDown: (_view, event) => {
@@ -182,8 +182,13 @@ export const EmailMarkdownEditor = forwardRef<EmailMarkdownEditorHandle, Props>(
   const editorStyle = {
     "--email-link-color": appearance.linkHex,
     "--email-link-decoration": appearance.linkStyle === EmailLinkStyle.underlined ? "underline" : "none",
+    "--email-block-gap": `${EMAIL_STYLES.blockGap}px`,
+    "--email-list-indent": `${EMAIL_STYLES.listIndent}px`,
+    "--email-quote-indent": `${EMAIL_STYLES.quoteIndent}px`,
+    "--email-divider-color": EMAIL_STYLES.dividerColor,
     fontFamily: EMAIL_FONT_STACK[appearance.fontFamily],
     fontSize: `${appearance.fontSize}px`,
+    lineHeight: `${appearance.fontSize + EMAIL_STYLES.lineHeightOffset}px`,
   } as CSSProperties;
 
   return (

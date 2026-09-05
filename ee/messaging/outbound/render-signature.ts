@@ -11,6 +11,7 @@ import {
   SignatureSpacing,
 } from "../email-settings";
 import { htmlToPlainText } from "../email-body-text";
+import { EMAIL_STYLES } from "../email-styles";
 
 type SignatureTemplateDefinition = {
   logoPosition: "none" | "above" | "beside";
@@ -38,8 +39,7 @@ const LOGO_WIDTH: Record<SignatureLogoSize, number> = {
   [SignatureLogoSize.large]: 80,
 };
 
-const TEXT_COLOR = "#1a1a1a";
-const DIVIDER_COLOR = "#8a8a8a";
+const DIVIDER_COLOR = EMAIL_STYLES.dividerColor;
 const SAFE_LINK_PROTOCOL = /^(?:https?:|mailto:|tel:)/i;
 
 type MarkdownEnv = { appearance?: EmailSettings["appearance"] };
@@ -78,24 +78,42 @@ emailMarkdown.renderer.rules.link_open = (tokens, idx, options, env, self) => {
 };
 
 emailMarkdown.renderer.rules.paragraph_open = (tokens, idx, options, env, self) => {
-  tokens[idx].attrSet("style", "margin:0 0 8px 0;padding:0;");
+  tokens[idx].hidden = false;
+  tokens[idx].attrSet("style", `margin:0 0 ${EMAIL_STYLES.blockGap}px 0;padding:0;`);
   return baseParagraphOpen(tokens, idx, options, env, self);
 };
 
+emailMarkdown.renderer.rules.paragraph_close = (tokens, idx, options, env, self) => {
+  tokens[idx].hidden = false;
+  return renderToken(tokens, idx, options, env, self);
+};
+
 emailMarkdown.renderer.rules.bullet_list_open = (tokens, idx, options, env, self) => {
-  tokens[idx].attrSet("style", "margin:0 0 8px 0;padding-left:20px;");
+  tokens[idx].attrSet(
+    "style",
+    `margin:0 0 ${EMAIL_STYLES.blockGap}px 0;padding:0 0 0 ${EMAIL_STYLES.listIndent}px;list-style-type:disc;`,
+  );
   return baseBulletListOpen(tokens, idx, options, env, self);
 };
 
 emailMarkdown.renderer.rules.ordered_list_open = (tokens, idx, options, env, self) => {
-  tokens[idx].attrSet("style", "margin:0 0 8px 0;padding-left:20px;");
+  tokens[idx].attrSet(
+    "style",
+    `margin:0 0 ${EMAIL_STYLES.blockGap}px 0;padding:0 0 0 ${EMAIL_STYLES.listIndent}px;list-style-type:decimal;`,
+  );
   return baseOrderedListOpen(tokens, idx, options, env, self);
 };
 
 emailMarkdown.renderer.rules.blockquote_open = (tokens, idx, options, env, self) => {
-  tokens[idx].attrSet("style", `margin:0 0 8px 0;padding-left:12px;border-left:2px solid ${DIVIDER_COLOR};`);
+  tokens[idx].attrSet(
+    "style",
+    `margin:0 0 ${EMAIL_STYLES.blockGap}px 0;padding:0 0 0 ${EMAIL_STYLES.quoteIndent}px;border-left:2px solid ${DIVIDER_COLOR};`,
+  );
   return baseBlockquoteOpen(tokens, idx, options, env, self);
 };
+
+emailMarkdown.renderer.rules.hr = () =>
+  `<hr style="border:0;border-top:1px solid ${DIVIDER_COLOR};margin:${EMAIL_STYLES.blockGap}px 0;padding:0;">`;
 
 emailMarkdown.renderer.rules.image = (tokens, idx) =>
   escapeHtml(tokens[idx].content || tokens[idx].attrGet("alt") || "");
@@ -108,7 +126,7 @@ export function escapeHtml(value: string): string {
 
 export function emailTextStyle(appearance: EmailSettings["appearance"]): string {
   const fontSize = appearance.fontSize;
-  return `font-family:${EMAIL_FONT_STACK[appearance.fontFamily]};font-size:${fontSize}px;line-height:${fontSize + 7}px;mso-line-height-rule:exactly;color:${TEXT_COLOR};`;
+  return `font-family:${EMAIL_FONT_STACK[appearance.fontFamily]};font-size:${fontSize}px;line-height:${fontSize + EMAIL_STYLES.lineHeightOffset}px;mso-line-height-rule:exactly;color:${EMAIL_STYLES.textColor};`;
 }
 
 export function renderEmailMarkdown(

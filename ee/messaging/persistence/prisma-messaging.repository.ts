@@ -43,9 +43,7 @@ import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operat
 import type { PreviewKind } from "../attachment-kind";
 
 import { classifyAttachment } from "../attachment-kind";
-import { defaultEmailSettings } from "../email-settings";
 import { htmlToPlainText } from "../email-body-text";
-import { renderEmailMarkdown } from "../outbound/render-signature";
 import { contactFullName } from "../thread-display";
 import {
   folderMessageWhere,
@@ -83,13 +81,6 @@ type ConvertDraftToSentArgs = {
 
 function draftMessageProviderId(threadId: string): string {
   return `draft_${threadId}`;
-}
-
-function draftPreview(body: string, provider: MessagingProvider): string | null {
-  const source = isEmailProvider(provider)
-    ? renderEmailMarkdown(body, defaultEmailSettings().appearance).text
-    : body.trim();
-  return source ? safeTruncate(source.replace(/\s+/g, " "), 200) : null;
 }
 
 export class PrismaMessagingRepo
@@ -826,8 +817,8 @@ export class PrismaMessagingRepo
     const { messages, participants, connectedAccount, lastMessagePreview, lastMessageIsSender, ...rest } = row;
     const last = messages[0];
     const previewSource =
-      last?.isDraft && isEmailProvider(row.provider)
-        ? draftPreview(last.bodyText ?? "", row.provider)
+      last?.isDraft && last.bodyHtml
+        ? htmlToPlainText(last.bodyHtml)
         : last?.bodyText?.trim() || htmlToPlainText(last?.bodyHtml);
     const derivedPreview = previewSource ? safeTruncate(previewSource.replace(/\s+/g, " "), 200) : null;
     const preview = last?.isDeleted
@@ -972,6 +963,7 @@ export class PrismaMessagingRepo
     sender: MessagingAttendee;
     subject: string | null;
     bodyText: string;
+    bodyHtml?: string | null;
     recipients: {
       to: MessagingAttendee[];
       cc: MessagingAttendee[];
@@ -995,7 +987,7 @@ export class PrismaMessagingRepo
         recipients: args.recipients,
         subject: args.subject,
         bodyText: args.bodyText,
-        bodyHtml: null,
+        bodyHtml: args.bodyHtml ?? null,
         isDraft: true,
         sentAt: now,
       } satisfies Prisma.MessagingMessageUpdateInput;
@@ -1052,7 +1044,8 @@ export class PrismaMessagingRepo
         where: { id: args.threadId, companyId: this.companyId },
         data: {
           lastMessageAt: now,
-          lastMessagePreview: draftPreview(args.bodyText, args.provider),
+          lastMessagePreview:
+            safeTruncate((htmlToPlainText(args.bodyHtml) || args.bodyText.trim()).replace(/\s+/g, " "), 200) || null,
           lastMessageIsSender: true,
           ...(isDraftThreadId(thread.unipileThreadId) ? { subject: args.subject } : {}),
         },
@@ -1325,7 +1318,9 @@ export class PrismaMessagingRepo
         orderBy: [{ sentAt: "desc" }, { id: "desc" }],
         select,
       }));
-    const preview = latest?.bodyText?.trim() || htmlToPlainText(latest?.bodyHtml) || null;
+    const preview = draft?.bodyHtml
+      ? htmlToPlainText(draft.bodyHtml)
+      : latest?.bodyText?.trim() || htmlToPlainText(latest?.bodyHtml) || null;
 
     await this.prisma.messagingThread.update({
       where: { id: threadId, companyId: this.companyId },
@@ -1754,8 +1749,7 @@ export class PrismaMessagingRepo
 
     const { unipileThreadId, threadType, previewText, ...messageFields } = safeMessage;
 
-    const previewSource =
-      previewText?.trim() || safeMessage.bodyText?.trim() || safeMessage.bodyHtml?.replace(/<[^>]*>/g, "").trim();
+    const previewSource = previewText?.trim() || safeMessage.bodyText?.trim() || htmlToPlainText(safeMessage.bodyHtml);
     const hidden = safeMessage.isHidden === true;
     const canonicalSentAt = existing?.sentAt ?? safeMessage.sentAt;
 
