@@ -19,17 +19,41 @@ describe("ForgotPasswordStore", () => {
     actions.requestPasswordResetAction.mockResolvedValue({ ok: true, data: null });
   });
 
+  it("refreshes, resets and clears intent within the submitted form snapshot", async () => {
+    actions.requestPasswordResetAction.mockResolvedValue({ ok: true, data: null });
+    const store = new ForgotPasswordStore(rootStore);
+    store.onInitOrRefresh({ onboardingIntent: "invite-a" });
+    store.onChange("email", "invited@example.com");
+    store.onInitOrRefresh({ onboardingIntent: "invite-b" });
+    store.onChange("onboardingIntent", "unsaved-intent");
+    store.resetForm();
+
+    await store.onSubmit();
+
+    expect(actions.requestPasswordResetAction).toHaveBeenLastCalledWith(
+      expect.objectContaining({ email: "invited@example.com", onboardingIntent: "invite-b" }),
+    );
+    store.onInitOrRefresh({ onboardingIntent: undefined });
+    await store.onSubmit();
+
+    expect(actions.requestPasswordResetAction).toHaveBeenLastCalledWith(
+      expect.objectContaining({ email: "invited@example.com", onboardingIntent: undefined }),
+    );
+    expect(store.savedState.onboardingIntent).toBeUndefined();
+  });
+
   it("submits the active onboarding intent with the email", async () => {
     const store = new ForgotPasswordStore(rootStore);
     store.onChange("email", "invited@example.com");
     store.onChange("confirmEmail", "invited@example.com");
-    store.setOnboardingIntent("signed.intent");
+    store.onInitOrRefresh({ onboardingIntent: "signed.intent" });
 
     await store.onSubmit();
 
-    expect(actions.requestPasswordResetAction).toHaveBeenCalledWith(
-      { confirmEmail: "invited@example.com", email: "invited@example.com" },
-      "signed.intent",
-    );
+    expect(actions.requestPasswordResetAction).toHaveBeenCalledWith({
+      confirmEmail: "invited@example.com",
+      email: "invited@example.com",
+      onboardingIntent: "signed.intent",
+    });
   });
 });

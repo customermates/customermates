@@ -2,11 +2,17 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const auth = vi.hoisted(() => ({ getSession: vi.fn(), issueInvitation: vi.fn(), validateInvite: vi.fn() }));
 
-vi.mock("@/core/di", () => ({
-  getAuthService: () => ({ getSession: auth.getSession }),
-  getInviteTokenValidationInteractor: () => ({ invoke: auth.validateInvite }),
-  getOnboardingIntentService: () => ({ issueInvitation: auth.issueInvitation }),
-}));
+vi.mock("@/core/di", async () => {
+  const { OpenInvitationInteractor } = await import("@/features/company/open-invitation.interactor");
+  return {
+    getOpenInvitationInteractor: () =>
+      new OpenInvitationInteractor(
+        { invoke: auth.validateInvite } as never,
+        { getSession: auth.getSession } as never,
+        { issueInvitation: auth.issueInvitation } as never,
+      ),
+  };
+});
 vi.mock("@/env", () => ({
   env: {
     AUTH_ALLOWED_HOSTS: ["customermates-git-feat-inbox-customermates.vercel.app", "*.customermates.com"],

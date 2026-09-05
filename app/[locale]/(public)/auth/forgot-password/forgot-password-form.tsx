@@ -31,13 +31,14 @@ export const ForgotPasswordForm = observer(({ inviterName, onboardingIntent }: P
 
   const { forgotPasswordStore } = useRootStore();
   useState(() => {
-    forgotPasswordStore.setOnboardingIntent(onboardingIntent);
+    forgotPasswordStore.onInitOrRefresh({ onboardingIntent });
     forgotPasswordStore.setWithUnsavedChangesGuard(false);
   });
   const { form, isLoading } = forgotPasswordStore;
 
   useEffect(() => {
-    forgotPasswordStore.setOnboardingIntent(onboardingIntent);
+    if (forgotPasswordStore.form.onboardingIntent !== onboardingIntent)
+      forgotPasswordStore.onInitOrRefresh({ onboardingIntent });
   }, [forgotPasswordStore, onboardingIntent]);
 
   return (

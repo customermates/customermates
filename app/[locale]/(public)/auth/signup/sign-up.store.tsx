@@ -11,19 +11,16 @@ import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 
 export class SignUpStore extends BaseFormStore<EmailSignUpData> {
-  invitationIntent?: string;
   showPassword = false;
 
   constructor(rootStore: RootStore) {
-    super(rootStore, { email: "", confirmEmail: "", password: "", confirmPassword: "" });
+    super(rootStore, { email: "", confirmEmail: "", password: "", confirmPassword: "", onboardingIntent: undefined });
 
     makeObservable(this, {
       showPassword: observable,
-      invitationIntent: observable,
 
       onSubmit: action,
       continueWithProvider: action,
-      setInvitationIntent: action,
       toggleShowPassword: action,
     });
   }
@@ -32,16 +29,12 @@ export class SignUpStore extends BaseFormStore<EmailSignUpData> {
     this.showPassword = !this.showPassword;
   };
 
-  setInvitationIntent = (invitationIntent?: string) => {
-    this.invitationIntent = invitationIntent;
-  };
-
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
     this.setIsLoading(true);
 
     try {
-      const res = await signUpWithEmailAction(toJS(this.form), this.invitationIntent);
+      const res = await signUpWithEmailAction(toJS(this.form));
 
       if (!res.ok) this.setError(res.error);
     } finally {
@@ -57,11 +50,11 @@ export class SignUpStore extends BaseFormStore<EmailSignUpData> {
 
     try {
       const action = provider === "google" ? continueWithGoogleAction : continueWithMicrosoftAction;
-      const callbackURL = this.invitationIntent
-        ? pathWithOnboardingIntent("/auth/invitation", this.invitationIntent)
+      const callbackURL = this.form.onboardingIntent
+        ? pathWithOnboardingIntent("/auth/invitation", this.form.onboardingIntent)
         : "/onboarding";
-      const errorCallbackURL = this.invitationIntent
-        ? pathWithOnboardingIntent("/auth/signup", this.invitationIntent)
+      const errorCallbackURL = this.form.onboardingIntent
+        ? pathWithOnboardingIntent("/auth/signup", this.form.onboardingIntent)
         : "/auth/signup";
       const res = await action(callbackURL, errorCallbackURL);
 

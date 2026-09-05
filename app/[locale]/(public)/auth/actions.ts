@@ -65,19 +65,19 @@ export async function continueWithMicrosoftAction(callbackURL?: string, errorCal
   return { ok: true as const, data: { url: null } };
 }
 
-export async function signUpWithEmailAction(data: EmailSignUpData, invitationIntent?: string) {
-  const result = await getSignUpWithEmailInteractor().invoke(data, invitationIntent);
+export async function signUpWithEmailAction(data: EmailSignUpData) {
+  const result = await getSignUpWithEmailInteractor().invoke(data);
   if (isRedirect(result)) redirect(buildLocalePath(await getLocale(), result.redirect));
 
   return serializeResult(result);
 }
 
-export async function requestPasswordResetAction(data: RequestPasswordResetData, onboardingIntentValue?: string) {
-  return serializeResult(getRequestPasswordResetInteractor().invoke(data, onboardingIntentValue));
+export async function requestPasswordResetAction(data: RequestPasswordResetData) {
+  return serializeResult(getRequestPasswordResetInteractor().invoke(data));
 }
 
-export async function resetPasswordAction(data: ResetPasswordData, onboardingIntentValue?: string) {
-  return serializeResult(getResetPasswordInteractor().invoke(data, onboardingIntentValue));
+export async function resetPasswordAction(data: ResetPasswordData) {
+  return serializeResult(getResetPasswordInteractor().invoke(data));
 }
 
 export async function resendVerificationEmailFromAuthAction(onboardingIntentValue?: string): Promise<{

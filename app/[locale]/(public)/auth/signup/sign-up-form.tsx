@@ -33,14 +33,15 @@ export const SignUpForm = observer(({ invitationIntent, inviterName, socialProvi
   const t = useTranslations();
   const { signUpStore, appMode } = useRootStore();
   useState(() => {
-    signUpStore.setInvitationIntent(invitationIntent);
+    signUpStore.onInitOrRefresh({ onboardingIntent: invitationIntent });
     signUpStore.setWithUnsavedChangesGuard(false);
   });
   const { isLoading, form } = signUpStore;
   const isInvited = Boolean(invitationIntent && inviterName);
 
   useEffect(() => {
-    signUpStore.setInvitationIntent(invitationIntent);
+    if (signUpStore.form.onboardingIntent !== invitationIntent)
+      signUpStore.onInitOrRefresh({ onboardingIntent: invitationIntent });
   }, [invitationIntent, signUpStore]);
 
   return (

@@ -78,12 +78,12 @@ describe("ResetPasswordInteractor (validation flow)", () => {
     });
     const data = { password: "ValidPass1!", confirmPassword: "ValidPass1!", token: "tok-123" };
 
-    await expect(interactor.invoke(data, "signed.intent")).resolves.toEqual({
+    await expect(interactor.invoke({ ...data, onboardingIntent: "signed.intent" })).resolves.toEqual({
       redirect: "/auth/signin?intent=signed.intent",
     });
 
     authService.resetPassword.mockRejectedValueOnce(new Error("invalid token"));
-    await expect(interactor.invoke(data, "signed.intent")).resolves.toEqual({
+    await expect(interactor.invoke({ ...data, onboardingIntent: "signed.intent" })).resolves.toEqual({
       redirect: "/auth/forgot-password?info=RESET_LINK_INVALID&intent=signed.intent",
     });
   });

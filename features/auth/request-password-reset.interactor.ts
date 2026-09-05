@@ -15,6 +15,7 @@ const Schema = z
   .object({
     email: z.email(),
     confirmEmail: z.email(),
+    onboardingIntent: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.email !== data.confirmEmail) {
@@ -36,10 +37,10 @@ export class RequestPasswordResetInteractor {
     private readonly onboardingIntentService: OnboardingIntentService,
   ) {}
 
-  async invoke(data: RequestPasswordResetData, onboardingIntentValue?: string): Validated<RequestPasswordResetData> {
+  async invoke(data: RequestPasswordResetData): Validated<RequestPasswordResetData> {
     let redirectTo: string | undefined;
-    if (onboardingIntentValue !== undefined) {
-      const onboardingIntent = await this.onboardingIntentService.resolve(onboardingIntentValue);
+    if (data?.onboardingIntent !== undefined) {
+      const onboardingIntent = await this.onboardingIntentService.resolve(data.onboardingIntent);
       if (onboardingIntent.status === "valid")
         redirectTo = pathWithOnboardingIntent("/auth/reset-password", onboardingIntent.intent);
     }

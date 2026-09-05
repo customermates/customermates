@@ -16,6 +16,7 @@ const PasswordFieldsSchema = z.object({
   password: zx.password(),
   confirmPassword: z.string(),
   token: z.string(),
+  onboardingIntent: z.string().optional(),
 });
 
 function validatePasswordMatch(data: { password: string; confirmPassword: string }, ctx: z.RefinementCtx) {
@@ -48,16 +49,13 @@ export class ResetPasswordInteractor {
     private readonly onboardingIntentService: OnboardingIntentService,
   ) {}
 
-  async invoke(
-    data: ResetPasswordData,
-    onboardingIntentValue?: string,
-  ): Promise<Awaited<Validated<ResetPasswordData>> | Redirect> {
+  async invoke(data: ResetPasswordData): Promise<Awaited<Validated<ResetPasswordData>> | Redirect> {
     let redirects: ResetPasswordRedirects = {
       error: "/auth/forgot-password?info=RESET_LINK_INVALID",
       success: "/auth/signin",
     };
-    if (onboardingIntentValue !== undefined) {
-      const onboardingIntent = await this.onboardingIntentService.resolve(onboardingIntentValue);
+    if (data?.onboardingIntent !== undefined) {
+      const onboardingIntent = await this.onboardingIntentService.resolve(data.onboardingIntent);
       if (onboardingIntent.status === "valid") {
         redirects = {
           error: pathWithOnboardingIntent("/auth/forgot-password?info=RESET_LINK_INVALID", onboardingIntent.intent),

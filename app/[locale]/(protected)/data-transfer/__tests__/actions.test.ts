@@ -1,80 +1,58 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
 import { EntityType } from "@/generated/prisma";
+import { createZodError } from "@/core/validation/validation.utils";
 
-const di = vi.hoisted(() => ({
-  getCreateManyContactsInteractor: vi.fn(),
-  getCreateManyDealsInteractor: vi.fn(),
-  getCreateManyOrganizationsInteractor: vi.fn(),
-  getCreateManyServicesInteractor: vi.fn(),
-  getCreateManyTasksInteractor: vi.fn(),
-  getDryRunImportContactsInteractor: vi.fn(),
-  getDryRunImportDealsInteractor: vi.fn(),
-  getDryRunImportOrganizationsInteractor: vi.fn(),
-  getDryRunImportServicesInteractor: vi.fn(),
-  getDryRunImportTasksInteractor: vi.fn(),
-  getGetImportRelationIndexInteractor: vi.fn(),
-  getUpdateManyContactsInteractor: vi.fn(),
-  getUpdateManyDealsInteractor: vi.fn(),
-  getUpdateManyOrganizationsInteractor: vi.fn(),
-  getUpdateManyServicesInteractor: vi.fn(),
-  getUpdateManyTasksInteractor: vi.fn(),
+const mocks = vi.hoisted(() => ({ commit: vi.fn(), dryRun: vi.fn(), relationIndex: vi.fn() }));
+vi.mock("@/core/di", () => ({
+  getCommitImportChunkInteractor: () => ({ invoke: mocks.commit }),
+  getDryRunImportChunkInteractor: () => ({ invoke: mocks.dryRun }),
+  getGetImportRelationIndexInteractor: () => ({ invoke: mocks.relationIndex }),
 }));
-
-vi.mock("@/core/di", () => di);
-
-import { commitImportChunkAction, dryRunImportChunkAction } from "../actions";
-
-function useInteractor(getter: ReturnType<typeof vi.fn>, result: unknown) {
-  const invoke = vi.fn().mockResolvedValue(result);
-  getter.mockReturnValue({ invoke });
-  return invoke;
-}
+import { commitImportChunkAction, dryRunImportChunkAction, getImportRelationIndexAction } from "../actions";
 
 describe("data transfer server actions", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("rejects an entity type outside the enum instead of dereferencing undefined", async () => {
-    const rows = [{ firstName: "Ada" }];
-
-    await expect(
-      commitImportChunkAction({ entityType: "companies" as EntityType, mode: "create", rows }),
-    ).rejects.toThrow("Unknown entity type");
-
-    await expect(
-      dryRunImportChunkAction({ entityType: "companies" as EntityType, mode: "create", rows }),
-    ).rejects.toThrow("Unknown entity type");
+  it("forwards commit input and serializes record ids", async () => {
+    const input = { entityType: EntityType.deal, mode: "create" as const, rows: [{ name: "Renewal" }] };
+    mocks.commit.mockResolvedValue({ ok: true, data: [{ id: "deal-1" }] });
+    await expect(commitImportChunkAction(input)).resolves.toEqual({ ok: true, ids: ["deal-1"] });
+    expect(mocks.commit).toHaveBeenCalledExactlyOnceWith(input);
   });
 
-  it("sends rows under the collection key the write interactor expects", async () => {
-    const invoke = useInteractor(di.getCreateManyDealsInteractor, { ok: true, data: [{ id: "deal-1" }] });
-    const rows = [{ name: "Renewal" }];
+  it("forwards update mode unchanged", async () => {
+    const input = {
+      entityType: EntityType.contact,
+      mode: "update" as const,
+      rows: [{ id: "contact-1", firstName: "Ada" }],
+    };
+    mocks.commit.mockResolvedValue({ ok: true, data: [{ id: "contact-1" }] });
+    await expect(commitImportChunkAction(input)).resolves.toEqual({ ok: true, ids: ["contact-1"] });
+    expect(mocks.commit).toHaveBeenCalledExactlyOnceWith(input);
+  });
 
-    await expect(commitImportChunkAction({ entityType: EntityType.deal, mode: "create", rows })).resolves.toEqual({
-      ok: true,
-      ids: ["deal-1"],
+  it("forwards a dry run and reports no created ids", async () => {
+    const input = { entityType: EntityType.task, mode: "update" as const, rows: [{ name: "Call" }] };
+    mocks.dryRun.mockResolvedValue({ ok: true, data: null });
+    await expect(dryRunImportChunkAction(input)).resolves.toEqual({ ok: true, ids: [] });
+    expect(mocks.dryRun).toHaveBeenCalledExactlyOnceWith(input);
+  });
+
+  it.each(["commit", "dryRun"] as const)("serializes %s validation failures without throwing", async (operation) => {
+    const error = createZodError("Invalid entity", ["entityType"]);
+    mocks[operation].mockResolvedValue({ ok: false, error });
+    const action = operation === "commit" ? commitImportChunkAction : dryRunImportChunkAction;
+    await expect(action({ entityType: "companies" as EntityType, mode: "create", rows: [{}] })).resolves.toMatchObject({
+      ok: false,
+      failure: { kind: "validation", issues: [{ path: ["entityType"], message: "Invalid entity" }] },
     });
-    expect(invoke).toHaveBeenCalledWith({ deals: rows });
   });
 
-  it("routes update mode to the update interactor", async () => {
-    const create = useInteractor(di.getCreateManyContactsInteractor, { ok: true, data: [] });
-    const update = useInteractor(di.getUpdateManyContactsInteractor, { ok: true, data: [{ id: "contact-1" }] });
-    const rows = [{ id: "contact-1", firstName: "Ada" }];
-
-    await expect(commitImportChunkAction({ entityType: EntityType.contact, mode: "update", rows })).resolves.toEqual({
-      ok: true,
-      ids: ["contact-1"],
-    });
-    expect(update).toHaveBeenCalledWith({ contacts: rows });
-    expect(create).not.toHaveBeenCalled();
-  });
-
-  it("reports a dry run success as no created ids", async () => {
-    useInteractor(di.getDryRunImportTasksInteractor, { ok: true, data: null });
-
-    await expect(
-      dryRunImportChunkAction({ entityType: EntityType.task, mode: "create", rows: [{ name: "Call" }] }),
-    ).resolves.toEqual({ ok: true, ids: [] });
+  it("forwards relation-index requests unchanged", async () => {
+    const input = { entityTypes: [EntityType.contact], includeUsers: true };
+    const data = { index: {}, truncated: [] };
+    mocks.relationIndex.mockResolvedValue({ ok: true, data });
+    await expect(getImportRelationIndexAction(input)).resolves.toEqual({ ok: true, data });
+    expect(mocks.relationIndex).toHaveBeenCalledExactlyOnceWith(input);
   });
 });

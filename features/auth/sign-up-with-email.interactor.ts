@@ -20,6 +20,7 @@ const Schema = z
     password: zx.password(),
     confirmPassword: z.string(),
     callbackURL: callbackUrlSchema.optional(),
+    onboardingIntent: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.email !== data.confirmEmail) {
@@ -47,12 +48,9 @@ export class SignUpWithEmailInteractor {
     private onboardingIntentService: OnboardingIntentService,
   ) {}
 
-  async invoke(
-    data: EmailSignUpData,
-    onboardingIntentValue?: string,
-  ): Promise<Awaited<Validated<EmailSignUpData>> | Redirect> {
-    if (onboardingIntentValue !== undefined) {
-      const invitation = await this.onboardingIntentService.resolve(onboardingIntentValue);
+  async invoke(data: EmailSignUpData): Promise<Awaited<Validated<EmailSignUpData>> | Redirect> {
+    if (data?.onboardingIntent !== undefined) {
+      const invitation = await this.onboardingIntentService.resolve(data.onboardingIntent);
       if (invitation.status !== "valid" || invitation.type !== "invitation") {
         const errorMessage = invitation.status === "invalid" ? invitation.errorMessage : "invalidOnboardingIntent";
         return redirectTo(`/auth/error?type=${errorMessage}`);

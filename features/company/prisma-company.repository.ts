@@ -13,6 +13,7 @@ import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/adm
 import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement.service";
 import type { CreateAuthLinkSubscriptionRepo } from "@/ee/messaging/connect/create-auth-link.interactor";
 import type { RegisterUserCompanyRepo } from "@/features/user/register/register-user.interactor";
+import type { GetDealWeightingColumnRepo } from "./get-deal-weighting-column.repo";
 
 import { ConversionEventType, SubscriptionStatus } from "@/generated/prisma";
 
@@ -36,7 +37,8 @@ export class PrismaCompanyRepo
     RouteGuardCompanyRepo,
     EntitlementSubscriptionRepo,
     CreateAuthLinkSubscriptionRepo,
-    RegisterUserCompanyRepo
+    RegisterUserCompanyRepo,
+    GetDealWeightingColumnRepo
 {
   @Transaction
   async updateDetails(args: RepoArgs<UpdateCompanySettingsRepo, "updateDetails">) {
@@ -55,6 +57,14 @@ export class PrismaCompanyRepo
     return await this.prisma.company.findUniqueOrThrow({ where: { id: companyId } });
   }
 
+  async getDealWeightingColumnId(): Promise<string | null> {
+    const company = await this.prisma.company.findUnique({
+      where: { id: this.companyId },
+      select: { dealWeightingColumnId: true },
+    });
+    return company?.dealWeightingColumnId ?? null;
+  }
+
   async getTerminology(): Promise<EntityTerminologyOverride[]> {
     const { companyId } = this.user;
 
@@ -67,16 +77,10 @@ export class PrismaCompanyRepo
 
   @Transaction
   async setDealStageWeights(entries: RepoArgs<UpdateCompanySettingsRepo, "setDealStageWeights">) {
-    const { companyId } = this.user;
+    const columnId = await this.getDealWeightingColumnId();
+    if (!columnId) return;
 
-    const company = await this.prisma.company.findUnique({
-      where: { id: companyId },
-      select: { dealWeightingColumnId: true },
-    });
-
-    if (!company?.dealWeightingColumnId) return;
-
-    await getCustomColumnRepo().setOptionWeights(company.dealWeightingColumnId, entries);
+    await getCustomColumnRepo().setOptionWeights(columnId, entries);
   }
 
   @Transaction

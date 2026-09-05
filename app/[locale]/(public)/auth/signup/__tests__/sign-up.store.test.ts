@@ -23,16 +23,54 @@ beforeEach(() => {
 });
 
 describe("SignUpStore social continuation", () => {
+  it("uses refreshed and cleared form intent for both provider callbacks", async () => {
+    authActions.continueWithMicrosoftAction.mockResolvedValue({ ok: true, data: { url: null } });
+    const store = new SignUpStore(rootStore);
+    store.onInitOrRefresh({ onboardingIntent: "invite-a" });
+    store.onInitOrRefresh({ onboardingIntent: "invite-b" });
+    await store.continueWithProvider("microsoft");
+    expect(authActions.continueWithMicrosoftAction).toHaveBeenLastCalledWith(
+      "/auth/invitation?intent=invite-b",
+      "/auth/signup?intent=invite-b",
+    );
+
+    store.onInitOrRefresh({ onboardingIntent: undefined });
+    await store.continueWithProvider("microsoft");
+    expect(authActions.continueWithMicrosoftAction).toHaveBeenLastCalledWith("/onboarding", "/auth/signup");
+  });
+
+  it("refreshes, resets and clears intent within the submitted form snapshot", async () => {
+    authActions.signUpWithEmailAction.mockResolvedValue({ ok: true, data: null });
+    const store = new SignUpStore(rootStore);
+    store.onInitOrRefresh({ onboardingIntent: "invite-a" });
+    store.onChange("email", "invited@example.com");
+    store.onInitOrRefresh({ onboardingIntent: "invite-b" });
+    store.onChange("onboardingIntent", "unsaved-intent");
+    store.resetForm();
+
+    await store.onSubmit();
+
+    expect(authActions.signUpWithEmailAction).toHaveBeenLastCalledWith(
+      expect.objectContaining({ email: "invited@example.com", onboardingIntent: "invite-b" }),
+    );
+    store.onInitOrRefresh({ onboardingIntent: undefined });
+    await store.onSubmit();
+
+    expect(authActions.signUpWithEmailAction).toHaveBeenLastCalledWith(
+      expect.objectContaining({ email: "invited@example.com", onboardingIntent: undefined }),
+    );
+    expect(store.savedState.onboardingIntent).toBeUndefined();
+  });
+
   it("submits email signup with the active invitation intent", async () => {
     authActions.signUpWithEmailAction.mockResolvedValue({ ok: true, data: null });
     const store = new SignUpStore(rootStore);
-    store.setInvitationIntent("signed.intent");
+    store.onInitOrRefresh({ onboardingIntent: "signed.intent" });
 
     await store.onSubmit();
 
     expect(authActions.signUpWithEmailAction).toHaveBeenCalledWith(
-      expect.objectContaining({ email: "" }),
-      "signed.intent",
+      expect.objectContaining({ email: "", onboardingIntent: "signed.intent" }),
     );
   });
 
@@ -42,7 +80,7 @@ describe("SignUpStore social continuation", () => {
       data: { url: "https://accounts.google.test/authorize" },
     });
     const store = new SignUpStore(rootStore);
-    store.setInvitationIntent("signed.intent");
+    store.onInitOrRefresh({ onboardingIntent: "signed.intent" });
 
     await store.continueWithProvider("google");
 

@@ -29,20 +29,17 @@ export const ResetPasswordForm = observer(({ inviterName, onboardingIntent }: Pr
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
   useState(() => {
-    resetPasswordStore.onInitOrRefresh({ confirmPassword: "", password: "", token });
-    resetPasswordStore.setOnboardingIntent(onboardingIntent);
+    resetPasswordStore.onInitOrRefresh({ confirmPassword: "", password: "", token, onboardingIntent });
     resetPasswordStore.setWithUnsavedChangesGuard(false);
   });
   const { isLoading, showPassword } = resetPasswordStore;
 
   useEffect(() => {
     if (resetPasswordStore.form.token !== token)
-      resetPasswordStore.onInitOrRefresh({ confirmPassword: "", password: "", token });
-  }, [resetPasswordStore, token]);
-
-  useEffect(() => {
-    resetPasswordStore.setOnboardingIntent(onboardingIntent);
-  }, [onboardingIntent, resetPasswordStore]);
+      resetPasswordStore.onInitOrRefresh({ confirmPassword: "", password: "", token, onboardingIntent });
+    else if (resetPasswordStore.form.onboardingIntent !== onboardingIntent)
+      resetPasswordStore.onInitOrRefresh({ token, onboardingIntent });
+  }, [onboardingIntent, resetPasswordStore, token]);
 
   return (
     <AppForm store={resetPasswordStore}>

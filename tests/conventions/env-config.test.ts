@@ -195,7 +195,12 @@ describe("environment configuration", () => {
     expect(authConfig).not.toContain('protocol: "auto"');
     expect(authConfig).not.toContain("AUTH_USE_SECURE_COOKIES");
     expect(invitationRoute).toContain("resolveRequestOrigin(request.url, env.AUTH_ALLOWED_HOSTS, env.BASE_URL)");
-    expect(invitationRoute).toContain("issueInvitationOnboardingIntent");
+    expect(invitationRoute).toContain("getOpenInvitationInteractor().invoke({ token })");
+    const openInvitation = readFileSync(
+      new URL("../../features/company/open-invitation.interactor.ts", import.meta.url),
+      "utf8",
+    );
+    expect(openInvitation).toContain("this.onboardingIntentService.issueInvitation(data.token, result.data.expiresAt)");
     expect(invitationRoute).toContain("response.cookies.delete(INVITE_TOKEN_COOKIE_NAME)");
     expect(authConfig).toContain("productionURL: env.OAUTH_PROXY_URL");
     expect(authConfig).toContain("secret: env.OAUTH_PROXY_SECRET");

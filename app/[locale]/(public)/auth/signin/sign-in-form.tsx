@@ -39,17 +39,17 @@ export const SignInForm = observer(({ callbackURL, inviterName, onboardingIntent
 
   const { signInStore, appMode } = useRootStore();
   const resolvedCallbackURL = callbackURL ?? searchParams.get("callbackURL") ?? undefined;
-  const errorCallbackURL = onboardingIntent ? pathWithOnboardingIntent("/auth/signin", onboardingIntent) : undefined;
   useState(() => {
-    signInStore.setCallbackURLs(resolvedCallbackURL, errorCallbackURL);
+    signInStore.onInitOrRefresh({ callbackURL: resolvedCallbackURL });
     signInStore.setWithUnsavedChangesGuard(false);
   });
   const { isLoading } = signInStore;
   const isInvited = Boolean(onboardingIntent && inviterName);
 
   useEffect(() => {
-    signInStore.setCallbackURLs(resolvedCallbackURL, errorCallbackURL);
-  }, [errorCallbackURL, resolvedCallbackURL, signInStore]);
+    if (signInStore.form.callbackURL !== resolvedCallbackURL)
+      signInStore.onInitOrRefresh({ callbackURL: resolvedCallbackURL });
+  }, [resolvedCallbackURL, signInStore]);
 
   return (
     <AppForm store={signInStore}>

@@ -50,7 +50,7 @@ vi.mock("@/features/user/user.service", () => ({
   },
 }));
 
-const { getCreateManyContactsInteractor } = await import("@/core/di");
+const { getCommitImportChunkInteractor, getDryRunImportChunkInteractor } = await import("@/core/di");
 const { prisma } = await import("@/prisma/db");
 const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { buildExportColumns, buildSchemaSheetRows } = await import("../workbook-columns");
@@ -167,9 +167,13 @@ describeDatabase("spreadsheet round trip against a real database", { timeout: 12
     expect(plan.create).toHaveLength(2);
     expect(plan.update).toHaveLength(0);
 
-    const result = await getCreateManyContactsInteractor().invoke({
-      contacts: plan.create.map((row) => row.payload),
-    } as never);
+    const chunk = {
+      entityType: EntityType.contact,
+      mode: "create" as const,
+      rows: plan.create.map((row) => row.payload),
+    };
+    expect((await getDryRunImportChunkInteractor().invoke(chunk)).ok).toBe(true);
+    const result = await getCommitImportChunkInteractor().invoke(chunk);
 
     expect(result.ok).toBe(true);
 
@@ -215,5 +219,14 @@ describeDatabase("spreadsheet round trip against a real database", { timeout: 12
     expect(plan.create).toHaveLength(0);
     expect(plan.update).toHaveLength(1);
     expect(plan.update[0].payload.id).toBe(existing?.id);
+    const chunk = {
+      entityType: EntityType.contact,
+      mode: "update" as const,
+      rows: plan.update.map((row) => row.payload),
+    };
+    expect((await getDryRunImportChunkInteractor().invoke(chunk)).ok).toBe(true);
+    expect((await getCommitImportChunkInteractor().invoke(chunk)).ok).toBe(true);
+    const count = await runWithoutTenant(() => prisma.contact.count({ where: { companyId: company } }));
+    expect(count).toBe(2);
   });
 });

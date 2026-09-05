@@ -81,6 +81,8 @@ import { ExportOrganizationsPageInteractor } from "@/features/data-transfer/expo
 import { ExportServicesPageInteractor } from "@/features/data-transfer/export/export-services-page.interactor";
 import { ExportTasksPageInteractor } from "@/features/data-transfer/export/export-tasks-page.interactor";
 import { GetImportRelationIndexInteractor } from "@/features/data-transfer/import/get-import-relation-index.interactor";
+import { DryRunImportChunkInteractor } from "@/features/data-transfer/import/dry-run-import-chunk.interactor";
+import { CommitImportChunkInteractor } from "@/features/data-transfer/import/commit-import-chunk.interactor";
 import { ImportRelationIndex } from "@/features/data-transfer/import/relation-index.service";
 import { GetContactsConfigurationInteractor } from "@/features/contacts/get/get-contacts-configuration.interactor";
 import { GetContactByIdInteractor } from "@/features/contacts/get/get-contact-by-id.interactor";
@@ -112,6 +114,8 @@ import { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck
 import { CheckChannelConflictInteractor } from "@/features/contacts/upsert/check-channel-conflict.interactor";
 import { CreateManyContactsInteractor } from "@/features/contacts/upsert/create-many-contacts.interactor";
 import { UpdateContactInteractor } from "@/features/contacts/upsert/update-contact.interactor";
+import { LinkContactIdentifierInteractor } from "@/features/contacts/upsert/link-contact-identifier.interactor";
+import { UnlinkContactIdentifierInteractor } from "@/features/contacts/upsert/unlink-contact-identifier.interactor";
 import { UpdateManyContactsInteractor } from "@/features/contacts/upsert/update-many-contacts.interactor";
 import { DeleteContactInteractor } from "@/features/contacts/delete/delete-contact.interactor";
 import { DeleteManyContactsInteractor } from "@/features/contacts/delete/delete-many-contacts.interactor";
@@ -140,6 +144,7 @@ import { GetServicesInteractor } from "@/features/services/get/get-services.inte
 import { GetServicesConfigurationInteractor } from "@/features/services/get/get-services-configuration.interactor";
 import { GetServiceByIdInteractor } from "@/features/services/get/get-service-by-id.interactor";
 import { CreateServiceInteractor } from "@/features/services/upsert/create-service.interactor";
+import { CreateServiceByNameInteractor } from "@/features/services/upsert/create-service-by-name.interactor";
 import { CreateManyServicesInteractor } from "@/features/services/upsert/create-many-services.interactor";
 import { UpdateServiceInteractor } from "@/features/services/upsert/update-service.interactor";
 import { UpdateManyServicesInteractor } from "@/features/services/upsert/update-many-services.interactor";
@@ -181,6 +186,7 @@ import { UpdateCompanySettingsInteractor } from "@/features/company/update-compa
 import { GetOrCreateInviteTokenInteractor } from "@/features/company/get-or-create-invite-token.interactor";
 import { InviteUsersByEmailInteractor } from "@/features/company/invite-users-by-email.interactor";
 import { InviteTokenValidationInteractor } from "@/features/company/invite-token-validation.interactor";
+import { OpenInvitationInteractor } from "@/features/company/open-invitation.interactor";
 import { ChooseWorkspaceOnboardingInteractor } from "@/features/company/choose-workspace-onboarding.interactor";
 import { env } from "@/env";
 // Role interactors
@@ -366,13 +372,13 @@ import { ResetOperatorUserCreditsInteractor } from "@/ee/operator/reset-operator
 
 export const getContactRepo = () => new PrismaContactRepo();
 export const getOrganizationRepo = () => new PrismaOrganizationRepo();
-export const getDealRepo = () => new PrismaDealRepo();
+export const getDealRepo = () => new PrismaDealRepo(getCompanyRepo());
 export const getServiceRepo = () => new PrismaServiceRepo();
 export const getTaskRepo = () => new PrismaTaskRepo();
 export const getUserRepo = () => new PrismaUserRepo();
 export const getCompanyRepo = () => new PrismaCompanyRepo();
 export const getRoleRepo = () => new PrismaRoleRepo();
-export const getCustomColumnRepo = () => new PrismaCustomColumnRepo();
+export const getCustomColumnRepo = () => new PrismaCustomColumnRepo(getCompanyRepo());
 export const getP13nRepo = () => new PrismaP13nRepo();
 export const getWidgetRepo = () => new PrismaWidgetRepo();
 
@@ -570,6 +576,12 @@ export const getCreateManyContactsInteractor = () =>
     getEventService(),
     getContactWritePrecheck(),
   );
+
+export const getLinkContactIdentifierInteractor = () =>
+  new LinkContactIdentifierInteractor(getGetContactByIdInteractor(), getUpdateContactInteractor());
+
+export const getUnlinkContactIdentifierInteractor = () =>
+  new UnlinkContactIdentifierInteractor(getGetContactByIdInteractor(), getUpdateContactInteractor());
 
 export const getUpdateContactInteractor = () =>
   new UpdateContactInteractor(
@@ -783,6 +795,8 @@ export const getCreateServiceInteractor = () =>
     getEventService(),
     getServiceWritePrecheck(),
   );
+
+export const getCreateServiceByNameInteractor = () => new CreateServiceByNameInteractor(getCreateServiceInteractor());
 
 export const getCreateManyServicesInteractor = () =>
   new CreateManyServicesInteractor(
@@ -1006,6 +1020,9 @@ export const getInviteUsersByEmailInteractor = () =>
   new InviteUsersByEmailInteractor(getEmailService(), getGetOrCreateInviteTokenInteractor());
 
 export const getInviteTokenValidationInteractor = () => new InviteTokenValidationInteractor(getCompanyRepo());
+
+export const getOpenInvitationInteractor = () =>
+  new OpenInvitationInteractor(getInviteTokenValidationInteractor(), getAuthService(), getOnboardingIntentService());
 
 export const getChooseWorkspaceOnboardingInteractor = () =>
   new ChooseWorkspaceOnboardingInteractor(
@@ -1696,6 +1713,29 @@ export const getExportTasksPageInteractor = () => new ExportTasksPageInteractor(
 export const getDryRunImportContactsInteractor = () => new DryRunImportContactsInteractor(getContactWritePrecheck());
 
 export const getImportRelationIndex = () => new ImportRelationIndex();
+
+export const getDryRunImportChunkInteractor = () =>
+  new DryRunImportChunkInteractor(
+    getDryRunImportContactsInteractor(),
+    getDryRunImportOrganizationsInteractor(),
+    getDryRunImportDealsInteractor(),
+    getDryRunImportServicesInteractor(),
+    getDryRunImportTasksInteractor(),
+  );
+
+export const getCommitImportChunkInteractor = () =>
+  new CommitImportChunkInteractor(
+    getCreateManyContactsInteractor(),
+    getUpdateManyContactsInteractor(),
+    getCreateManyOrganizationsInteractor(),
+    getUpdateManyOrganizationsInteractor(),
+    getCreateManyDealsInteractor(),
+    getUpdateManyDealsInteractor(),
+    getCreateManyServicesInteractor(),
+    getUpdateManyServicesInteractor(),
+    getCreateManyTasksInteractor(),
+    getUpdateManyTasksInteractor(),
+  );
 
 export const getGetImportRelationIndexInteractor = () =>
   new GetImportRelationIndexInteractor(getImportRelationIndex(), getUserService());

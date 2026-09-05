@@ -38,13 +38,34 @@ describe("onboarding authentication detours", () => {
       { requestPasswordReset } as unknown as AuthService,
       onboardingIntentService as never,
     );
-    const data = { email: "invited@example.com", confirmEmail: "invited@example.com" };
+    const data = {
+      email: "invited@example.com",
+      confirmEmail: "invited@example.com",
+      onboardingIntent: invitation.intent,
+    };
 
-    await expect(interactor.invoke(data, invitation.intent)).resolves.toEqual({ ok: true, data });
+    await expect(interactor.invoke(data)).resolves.toEqual({ ok: true, data });
     expect(requestPasswordReset).toHaveBeenCalledWith(
       "invited@example.com",
       "/auth/reset-password?intent=signed.intent",
     );
+  });
+
+  it.each([null, undefined])("returns validation failures for missing form data %j", async (data) => {
+    const auth = {
+      registerWithEmail: vi.fn(),
+      requestPasswordReset: vi.fn(),
+      resetPassword: vi.fn(),
+    };
+    const interactors = [
+      new SignUpWithEmailInteractor(auth as never, onboardingIntentService as never),
+      new RequestPasswordResetInteractor(auth as never, onboardingIntentService as never),
+      new ResetPasswordInteractor(auth as never, onboardingIntentService as never),
+    ];
+    for (const interactor of interactors)
+      await expect(interactor.invoke(data as never)).resolves.toMatchObject({ ok: false });
+    expect(onboardingIntentService.resolve).not.toHaveBeenCalled();
+    for (const method of Object.values(auth)) expect(method).not.toHaveBeenCalled();
   });
 
   it("derives both reset-password continuations from the validated intent", async () => {
@@ -55,7 +76,7 @@ describe("onboarding authentication detours", () => {
     );
     const data = { confirmPassword: "ValidPass1!", password: "ValidPass1!", token: "reset-token" };
 
-    await expect(interactor.invoke(data, invitation.intent)).resolves.toEqual({
+    await expect(interactor.invoke({ ...data, onboardingIntent: invitation.intent })).resolves.toEqual({
       redirect: "/auth/forgot-password?info=RESET_LINK_INVALID&intent=signed.intent",
     });
   });
@@ -89,7 +110,11 @@ describe("onboarding authentication detours", () => {
       onboardingIntentService as never,
     );
 
-    await interactor.invoke({ confirmEmail: "invited@example.com", email: "invited@example.com" }, "expired.intent");
+    await interactor.invoke({
+      confirmEmail: "invited@example.com",
+      email: "invited@example.com",
+      onboardingIntent: "expired.intent",
+    });
 
     expect(requestPasswordReset).toHaveBeenCalledWith("invited@example.com", undefined);
   });
@@ -107,7 +132,7 @@ describe("onboarding authentication detours", () => {
       password: "ValidPass1!",
     };
 
-    await expect(interactor.invoke(data, invitation.intent)).resolves.toEqual({
+    await expect(interactor.invoke({ ...data, onboardingIntent: invitation.intent })).resolves.toEqual({
       redirect: "/auth/invitation?intent=signed.intent",
     });
     expect(registerWithEmail).toHaveBeenCalledWith(
@@ -121,7 +146,7 @@ describe("onboarding authentication detours", () => {
       status: "valid",
       type: "createCompany",
     });
-    await expect(interactor.invoke(data, "signed.create")).resolves.toEqual({
+    await expect(interactor.invoke({ ...data, onboardingIntent: "signed.create" })).resolves.toEqual({
       redirect: "/auth/error?type=invalidOnboardingIntent",
     });
     expect(registerWithEmail).toHaveBeenCalledOnce();

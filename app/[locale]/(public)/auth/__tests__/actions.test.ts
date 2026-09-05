@@ -46,11 +46,12 @@ describe("authentication action adapters", () => {
       confirmPassword: "ValidPass1!",
       email: "user@example.com",
       password: "ValidPass1!",
+      onboardingIntent: "signed.intent",
     };
 
-    await signUpWithEmailAction(data, "signed.intent");
+    await signUpWithEmailAction(data);
 
-    expect(mocks.signUp).toHaveBeenCalledExactlyOnceWith(data, "signed.intent");
+    expect(mocks.signUp).toHaveBeenCalledExactlyOnceWith(data);
   });
 
   it("localizes a signup redirect returned by the interactor", async () => {
@@ -62,21 +63,26 @@ describe("authentication action adapters", () => {
     };
     mocks.signUp.mockResolvedValue({ redirect: "/auth/error?type=invalidOnboardingIntent" });
 
-    await signUpWithEmailAction(data, "invalid.intent");
+    await signUpWithEmailAction({ ...data, onboardingIntent: "invalid.intent" });
 
     expect(mocks.redirect).toHaveBeenCalledExactlyOnceWith("/en/auth/error?type=invalidOnboardingIntent");
   });
 
   it("passes password recovery data and onboarding intent to their interactors", async () => {
-    const request = { confirmEmail: "user@example.com", email: "user@example.com" };
-    const reset = { confirmPassword: "ValidPass1!", password: "ValidPass1!", token: "reset-token" };
+    const request = { confirmEmail: "user@example.com", email: "user@example.com", onboardingIntent: "signed.intent" };
+    const reset = {
+      confirmPassword: "ValidPass1!",
+      password: "ValidPass1!",
+      token: "reset-token",
+      onboardingIntent: "signed.intent",
+    };
 
-    await requestPasswordResetAction(request, "signed.intent");
-    await resetPasswordAction(reset, "signed.intent");
+    await requestPasswordResetAction(request);
+    await resetPasswordAction(reset);
     await resendVerificationEmailFromAuthAction("signed.intent");
 
-    expect(mocks.requestPasswordReset).toHaveBeenCalledExactlyOnceWith(request, "signed.intent");
-    expect(mocks.resetPassword).toHaveBeenCalledExactlyOnceWith(reset, "signed.intent");
+    expect(mocks.requestPasswordReset).toHaveBeenCalledExactlyOnceWith(request);
+    expect(mocks.resetPassword).toHaveBeenCalledExactlyOnceWith(reset);
     expect(mocks.resendVerification).toHaveBeenCalledExactlyOnceWith("signed.intent");
   });
 });

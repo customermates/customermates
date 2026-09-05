@@ -8,31 +8,22 @@ import { continueWithGoogleAction, continueWithMicrosoftAction, signInWithEmailA
 
 import { BaseFormStore } from "@/core/base/base-form.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { onboardingIntentFromPath, pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 
 export class SignInStore extends BaseFormStore<EmailSignInData> {
-  callbackURL?: string;
-  errorCallbackURL?: string;
   showPassword = false;
 
   constructor(rootStore: RootStore) {
-    super(rootStore, { email: "", password: "", rememberMe: true });
+    super(rootStore, { email: "", password: "", rememberMe: true, callbackURL: undefined });
 
     makeObservable(this, {
       showPassword: observable,
-      callbackURL: observable,
-      errorCallbackURL: observable,
 
       onSubmit: action,
       continueWithProvider: action,
       toggleShowPassword: action,
-      setCallbackURLs: action,
     });
   }
-
-  setCallbackURLs = (callbackURL?: string, errorCallbackURL?: string) => {
-    this.callbackURL = callbackURL;
-    this.errorCallbackURL = errorCallbackURL;
-  };
 
   toggleShowPassword = () => {
     this.showPassword = !this.showPassword;
@@ -46,10 +37,7 @@ export class SignInStore extends BaseFormStore<EmailSignInData> {
     let isNavigating = false;
 
     try {
-      const res = await signInWithEmailAction({
-        ...toJS(this.form),
-        callbackURL: this.callbackURL,
-      });
+      const res = await signInWithEmailAction(toJS(this.form));
 
       if (res.ok) {
         window.location.assign(res.data.url);
@@ -68,7 +56,10 @@ export class SignInStore extends BaseFormStore<EmailSignInData> {
 
     try {
       const action = provider === "google" ? continueWithGoogleAction : continueWithMicrosoftAction;
-      const res = await action(this.callbackURL, this.errorCallbackURL ?? "/auth/signin");
+      const intent = onboardingIntentFromPath(this.form.callbackURL);
+      const errorCallbackURL =
+        intent.status === "valid" ? pathWithOnboardingIntent("/auth/signin", intent.intent) : "/auth/signin";
+      const res = await action(this.form.callbackURL, errorCallbackURL);
 
       if (!res.ok) toastZodErrorTree(res.error);
       else if (res.data.url) {
