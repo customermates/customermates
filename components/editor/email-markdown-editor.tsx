@@ -119,7 +119,7 @@ export const EmailMarkdownEditor = forwardRef<EmailMarkdownEditorHandle, Props>(
   useEffect(() => {
     if (!editor) return;
     if (editor.isEditable === !disabled) return;
-    editor.setEditable(!disabled);
+    editor.setEditable(!disabled, false);
   }, [disabled, editor]);
 
   useEffect(() => {
