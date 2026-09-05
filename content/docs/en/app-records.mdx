@@ -29,11 +29,11 @@ Each record type has its own route and its own toolbar ids, prefixed with the ty
 
 Inside each display-options popover, the stable layout controls are:
 
-- Contacts: `#contacts-layout-table`, `#contacts-layout-cards`, `#contacts-layout-kanban`
-- Organizations: `#organizations-layout-table`, `#organizations-layout-cards`, `#organizations-layout-kanban`
-- Deals: `#deals-layout-table`, `#deals-layout-cards`, `#deals-layout-kanban`
-- Services: `#services-layout-table`, `#services-layout-cards`, `#services-layout-kanban`
-- Tasks: `#tasks-layout-table`, `#tasks-layout-cards`, `#tasks-layout-kanban`
+- Contacts: `#contacts-layout-table`, `#contacts-layout-board`
+- Organizations: `#organizations-layout-table`, `#organizations-layout-board`
+- Deals: `#deals-layout-table`, `#deals-layout-board`
+- Services: `#services-layout-table`, `#services-layout-board`
+- Tasks: `#tasks-layout-table`, `#tasks-layout-board`
 
 ## Saved views
 
@@ -70,15 +70,15 @@ All five share the same machinery: the same list views, the same drawer and deta
 
 ## Switching views
 
-Every list offers a table, a card grid, and a board. `#{type}-display-options` opens the switcher; the board additionally needs a `singleSelect` column to group by, and the group-by picker lists exactly those. Sorting, search, and filters live in the same toolbar (`#{type}-search`, `#{type}-filter`). View choices persist per user and survive reloads. Mate can open the display options and activate the stable table, cards, or kanban target. Dynamic grouping, sorting, search, and filter values remain under the user's direct control; Mate can highlight search and filter, or open display options for sorting and grouping.
+Every list offers a table and a board. `#{type}-display-options` opens the switcher; the board groups records by a field, and the group-by picker lists every groupable field: `singleSelect` custom columns, linked records, assigned users, and created or updated dates. A board with no grouping yet asks you to pick one and offers to create a `singleSelect` field on the spot. Sorting, search, and filters live in the same toolbar (`#{type}-search`, `#{type}-filter`). View choices persist per user and survive reloads. Mate can open the display options and activate the stable table or board target. Dynamic grouping, sorting, search, and filter values remain under the user's direct control; Mate can highlight search and filter, or open display options for sorting and grouping.
 
-The filter control opens a command palette. `#filter-palette-search` narrows the list of filterable fields as you type; picking a field opens its value page, and the value applies to the list as soon as you set it, with no separate apply step. `#filter-palette-back` returns to the field list, Escape steps back one page and closes the palette at the top level, and **Clear** removes every applied filter at once. Applied filters also appear as chips under the toolbar, where the condition and the value can be changed separately.
+The filter control opens a command palette. `#filter-palette-search` narrows the list of filterable fields as you type; picking a field opens its value page, and the value applies to the list as soon as you set it, with no separate apply step. `#filter-palette-back` returns to the field list, Escape steps back one page and closes the palette at the top level, and **Clear** removes every applied filter at once.
 
 ## Custom columns and the board view
 
 Any record type can carry user-defined custom columns. There are no fixed workflow fields baked into a type, so there is no product-level deal stage or task status. `get_record_schema` returns whatever columns a workspace has configured for each type.
 
-A `singleSelect` custom column can drive a board (kanban) view. `#{type}-display-options` switches the list between a table and a board grouped by a chosen `singleSelect` column. On the board, drag a record between columns to change that column's value; the equivalent in the drawer or detail form is to set the field and save. This applies to every record type that has at least one `singleSelect` column, not only to deals.
+A `singleSelect` custom column can drive a board (kanban) view. `#{type}-display-options` switches the list between a table and a board, and the board groups by the chosen field. When that field is a `singleSelect` column, drag a record between columns to change its value; the equivalent in the drawer or detail form is to set the field and save. This applies to every record type, not only to deals.
 
 The demo workspace ships example columns to illustrate the pattern, for instance a "Status" column on deals and "Status" and "Priority" columns on tasks. These are seeded examples, not fixed behavior. Rename them, change their options, add more, or remove them per workspace.
 

@@ -52,6 +52,8 @@ export function workspaceNavKeys(section: WorkspaceSection): string[] {
 
 export const TRANSFERABLE_SCOPES = new Set(["contacts", "organizations", "deals", "services", "tasks"]);
 
+export const SCOPES_WITHOUT_FILTER = new Set(["company-roles"]);
+
 export const TOOLBAR_SCOPES_WITH_ADD = TOOLBAR_PAGES_WITH_ADD.map((page) => page.scope);
 export const TOOLBAR_SCOPES_WITHOUT_ADD = TOOLBAR_PAGES_WITHOUT_ADD.map((page) => page.scope);
 export const FORM_SCOPES = FORM_PAGES.map((page) => page.scope);

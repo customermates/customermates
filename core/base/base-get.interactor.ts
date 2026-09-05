@@ -59,7 +59,6 @@ export interface GetResult<T> {
   columnWidths?: Record<string, number>;
   hiddenColumns?: string[];
   viewMode?: ViewMode;
-  groupingColumnId?: string;
   grouping?: GroupingResult;
   groupableFields?: GroupableFieldDto[];
   groupCounts?: Record<string, number>;
@@ -68,7 +67,6 @@ export interface GetResult<T> {
   views?: DataViewChipDto[];
   activeViewKey?: string;
   viewPersistable?: boolean;
-  viewUnavailable?: boolean;
 }
 
 export abstract class BaseGetRepo<T> {
@@ -129,7 +127,6 @@ type ViewContext = {
   views: DataViewChipDto[];
   view: DataViewChipDto | undefined;
   base: DataViewState | undefined;
-  unavailable: boolean;
 };
 
 export abstract class BaseGetInteractor<T> {
@@ -196,7 +193,7 @@ export abstract class BaseGetInteractor<T> {
 
     const baseQuery: BaseQuery = { filters, searchTerm: resolved.searchTerm, sortDescriptor };
     const requested = normaliseGroupingRequest(params, resolved);
-    const groupableSpecs = this.entityType ? await this.repo.getGroupableFields(customColumns) : [];
+    const groupableSpecs = await this.repo.getGroupableFields(customColumns);
     const resolvedGrouping = resolveGrouping(requested.grouping, groupableSpecs);
 
     const { items, total, grouping, groupCounts, groupValueSums } = resolvedGrouping
@@ -243,15 +240,14 @@ export abstract class BaseGetInteractor<T> {
   private async loadViewContext(surfaceKey: string, requestedViewId: string | undefined): Promise<ViewContext> {
     const surface = await this.viewStateRepo.loadSurfaceState(surfaceKey);
     const readable = new Map(surface.views.map((chip) => [chip.id, chip]));
-    const selection = selectActiveViewKey(requestedViewId, surface.activeViewKey, readable);
-    const view = selection.key === ALL_VIEW_KEY ? undefined : readable.get(selection.key);
+    const activeViewKey = selectActiveViewKey(requestedViewId, surface.activeViewKey, readable);
+    const view = activeViewKey === ALL_VIEW_KEY ? undefined : readable.get(activeViewKey);
 
     return {
-      activeViewKey: selection.key,
+      activeViewKey,
       views: surface.views,
       view,
       base: view ? view.state : surface.allState,
-      unavailable: selection.unavailable,
     };
   }
 
@@ -382,7 +378,6 @@ function emptyViewContext(): ViewContext {
     views: [],
     view: undefined,
     base: undefined,
-    unavailable: false,
   };
 }
 
@@ -414,19 +409,12 @@ function selectActiveViewKey(
   requestedViewId: string | undefined,
   rememberedViewKey: string | null,
   readable: Map<string, DataViewChipDto>,
-): { key: string; unavailable: boolean } {
-  if (requestedViewId === ALL_VIEW_KEY) return { key: ALL_VIEW_KEY, unavailable: false };
-
-  if (requestedViewId !== undefined) {
-    return readable.has(requestedViewId)
-      ? { key: requestedViewId, unavailable: false }
-      : { key: ALL_VIEW_KEY, unavailable: true };
-  }
+): string {
+  if (requestedViewId !== undefined) return readable.has(requestedViewId) ? requestedViewId : ALL_VIEW_KEY;
 
   const remembered = rememberedViewKey ?? ALL_VIEW_KEY;
-  const isResolvable = remembered === ALL_VIEW_KEY || readable.has(remembered);
 
-  return { key: isResolvable ? remembered : ALL_VIEW_KEY, unavailable: false };
+  return readable.has(remembered) ? remembered : ALL_VIEW_KEY;
 }
 
 function viewResult(resolved: ResolvedDataViewState, context: ViewContext) {
@@ -435,11 +423,9 @@ function viewResult(resolved: ResolvedDataViewState, context: ViewContext) {
     columnWidths: resolved.columnWidths,
     hiddenColumns: resolved.hiddenColumns,
     viewMode: resolved.viewMode,
-    groupingColumnId: resolved.grouping?.field,
     views: context.views,
     activeViewKey: context.activeViewKey,
     viewPersistable: env.APP_MODE !== "demo",
-    viewUnavailable: context.unavailable,
   };
 }
 

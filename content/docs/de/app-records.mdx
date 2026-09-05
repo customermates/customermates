@@ -29,11 +29,11 @@ Jeder Datensatztyp hat seine eigene Route und seine eigenen Toolbar-Ids, mit dem
 
 In jedem Display-options-Popover haben die Layout-Steuerelemente stabile Ids:
 
-- Contacts: `#contacts-layout-table`, `#contacts-layout-cards`, `#contacts-layout-kanban`
-- Organizations: `#organizations-layout-table`, `#organizations-layout-cards`, `#organizations-layout-kanban`
-- Deals: `#deals-layout-table`, `#deals-layout-cards`, `#deals-layout-kanban`
-- Services: `#services-layout-table`, `#services-layout-cards`, `#services-layout-kanban`
-- Tasks: `#tasks-layout-table`, `#tasks-layout-cards`, `#tasks-layout-kanban`
+- Contacts: `#contacts-layout-table`, `#contacts-layout-board`
+- Organizations: `#organizations-layout-table`, `#organizations-layout-board`
+- Deals: `#deals-layout-table`, `#deals-layout-board`
+- Services: `#services-layout-table`, `#services-layout-board`
+- Tasks: `#tasks-layout-table`, `#tasks-layout-board`
 
 ## Gespeicherte Ansichten
 
@@ -70,15 +70,15 @@ Alle fünf teilen dieselbe Maschinerie: dieselben Listenansichten, denselben Dra
 
 ## Ansichten wechseln
 
-Jede Liste bietet eine Tabelle, ein Kartenraster und ein Board. `#{type}-display-options` öffnet den Umschalter; das Board braucht zusätzlich eine `singleSelect`-Spalte zum Gruppieren, und die Gruppierungsauswahl listet genau diese. Sortierung, Suche und Filter liegen in derselben Toolbar (`#{type}-search`, `#{type}-filter`). Ansichtswahlen bleiben pro Nutzer erhalten und überstehen Reloads. Mate kann die Display-options öffnen und das stabile Tabellen-, Karten- oder Kanban-Ziel aktivieren. Dynamische Werte für Gruppierung, Sortierung, Suche und Filter bleiben unter direkter Kontrolle des Nutzers; Mate kann Suche und Filter hervorheben oder für Sortierung und Gruppierung die Display-options öffnen.
+Jede Liste bietet eine Tabelle und ein Board. `#{type}-display-options` öffnet den Umschalter; das Board gruppiert Datensätze nach einem Feld, und die Gruppierungsauswahl listet jedes gruppierbare Feld: `singleSelect`-Custom-Columns, verknüpfte Datensätze, zugewiesene Nutzer sowie Erstellungs- und Änderungsdatum. Ein Board ohne Gruppierung fragt nach einer und bietet an, direkt ein `singleSelect`-Feld anzulegen. Sortierung, Suche und Filter liegen in derselben Toolbar (`#{type}-search`, `#{type}-filter`). Ansichtswahlen bleiben pro Nutzer erhalten und überstehen Reloads. Mate kann die Display-options öffnen und das stabile Tabellen- oder Board-Ziel aktivieren. Dynamische Werte für Gruppierung, Sortierung, Suche und Filter bleiben unter direkter Kontrolle des Nutzers; Mate kann Suche und Filter hervorheben oder für Sortierung und Gruppierung die Display-options öffnen.
 
-Das Filter-Steuerelement öffnet eine Befehlspalette. `#filter-palette-search` grenzt die Liste der filterbaren Felder beim Tippen ein; die Auswahl eines Feldes öffnet dessen Werteseite, und der Wert wirkt sofort auf die Liste, ohne separaten Übernehmen-Schritt. `#filter-palette-back` führt zurück zur Feldliste, Escape geht eine Seite zurück und schließt die Palette auf der obersten Ebene, und **Clear** entfernt alle gesetzten Filter auf einmal. Gesetzte Filter erscheinen zusätzlich als Chips unter der Toolbar, wo Bedingung und Wert getrennt geändert werden können.
+Das Filter-Steuerelement öffnet eine Befehlspalette. `#filter-palette-search` grenzt die Liste der filterbaren Felder beim Tippen ein; die Auswahl eines Feldes öffnet dessen Werteseite, und der Wert wirkt sofort auf die Liste, ohne separaten Übernehmen-Schritt. `#filter-palette-back` führt zurück zur Feldliste, Escape geht eine Seite zurück und schließt die Palette auf der obersten Ebene, und **Clear** entfernt alle gesetzten Filter auf einmal.
 
 ## Custom Columns und die Board-Ansicht
 
 Jeder Datensatztyp kann benutzerdefinierte Custom Columns tragen. Es gibt keine fest im Typ verankerten Workflow-Felder, also weder eine produktseitige Deal-Stage noch einen produktseitigen Task-Status. `get_record_schema` gibt zurück, welche Columns ein Workspace für den jeweiligen Typ konfiguriert hat.
 
-Eine `singleSelect`-Custom-Column kann eine Board-Ansicht (Kanban) steuern. `#{type}-display-options` wechselt die Liste zwischen Tabelle und einem Board, gruppiert nach einer gewählten `singleSelect`-Column. Im Board ziehen Sie einen Datensatz zwischen den Spalten, um den Wert dieser Column zu ändern; das Pendant im Drawer oder Detail-Formular ist, das Feld zu setzen und zu speichern. Das gilt für jeden Datensatztyp mit mindestens einer `singleSelect`-Column, nicht nur für Deals.
+Eine `singleSelect`-Custom-Column kann eine Board-Ansicht (Kanban) steuern. `#{type}-display-options` wechselt die Liste zwischen Tabelle und Board, und das Board gruppiert nach dem gewählten Feld. Ist dieses Feld eine `singleSelect`-Column, ziehen Sie einen Datensatz zwischen den Spalten, um dessen Wert zu ändern; das Pendant im Drawer oder Detail-Formular ist, das Feld zu setzen und zu speichern. Das gilt für jeden Datensatztyp, nicht nur für Deals.
 
 Der Demo-Workspace bringt Beispiel-Columns mit, um das Muster zu zeigen, etwa eine "Status"-Column bei Deals sowie "Status"- und "Priority"-Columns bei Tasks. Das sind vorbefüllte Beispiele, kein festes Verhalten. Benennen Sie sie um, ändern Sie ihre Optionen, fügen Sie weitere hinzu oder entfernen Sie sie pro Workspace.
 

@@ -13,7 +13,6 @@ const resultCarryingViewFields = {
   views: [{ id: "a", name: "Hot leads" }],
   activeViewKey: "__all__",
   viewPersistable: true,
-  viewUnavailable: false,
 };
 
 describe("the documented REST result schema stays free of data view state", () => {

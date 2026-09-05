@@ -3,7 +3,7 @@ import type { GroupCountRow } from "./group-count";
 import type { GroupLabel } from "./group-labels";
 import type { GroupableFieldSpec } from "./groupable-field";
 
-import { MAX_AXIS_GROUPS, NO_VALUE_GROUP_KEY } from "./grouping.schema";
+import { DEFAULT_DATE_BUCKET, MAX_AXIS_GROUPS, NO_VALUE_GROUP_KEY } from "./grouping.schema";
 import { dateBucketLadder } from "./date-buckets";
 import { orderByOptionIndex } from "./option-order";
 
@@ -19,8 +19,6 @@ export type GroupAxisInput = {
   labels: Map<string, GroupLabel>;
   collator: Pick<Intl.Collator, "compare">;
 };
-
-const DEFAULT_DATE_BUCKET: DateBucket = "month";
 
 export function resolveGrouping(
   grouping: Grouping | undefined,

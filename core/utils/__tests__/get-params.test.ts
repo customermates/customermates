@@ -55,6 +55,18 @@ describe("filter URL parameters", () => {
     });
   });
 
+  it("ignores the retired sortField, sortDir and json filters parameters", () => {
+    const legacy = new URLSearchParams();
+    legacy.set("sortField", "name");
+    legacy.set("sortDir", "asc");
+    legacy.set("filters", JSON.stringify([{ f: "name", o: FilterOperatorKey.contains, v: "acme" }]));
+
+    const decoded = decodeGetParams(legacy);
+
+    expect(decoded.sortDescriptor).toBeUndefined();
+    expect(decoded.filters).toEqual([]);
+  });
+
   it("normalizes legacy filter objects before encoding", () => {
     const filters = [
       { field: FilterFieldKey.userIds, operator: FilterOperatorKey.hasNone, value: ["u1"] },

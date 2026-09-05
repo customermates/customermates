@@ -124,7 +124,7 @@ function SummaryRail({ items }: { items: EntityDetailSummaryField[] }) {
   return (
     <section
       data-entity-detail-summary
-      className="shrink-0 border-b border-border bg-background px-4"
+      className="shrink-0 border-b border-border bg-background px-4 ps-[calc(1rem+var(--safe-left,0px))] pe-[calc(1rem+var(--safe-right,0px))]"
       data-summary-variant="pinned-mini-cards"
     >
       <OverflowRail

@@ -120,8 +120,19 @@ describe("data view rail", () => {
     expect(countOf(html, "<a ")).toBe(4);
     expect(countOf(html, 'aria-current="page"')).toBe(1);
     expect(html).toMatch(/<a[^>]*aria-current="page"[^>]*>(?:(?!<\/a>).)*Open deals/s);
-    expect(tabs(html).filter((tab) => tab.includes("bg-foreground/10"))).toHaveLength(1);
-    expect(tabs(html).filter((tab) => tab.includes("bg-muted"))).toHaveLength(3);
+    const selected = tabs(html).filter((tab) => tab.includes("bg-selected"));
+    expect(selected).toHaveLength(1);
+    expect(selected[0]).toContain('aria-current="page"');
+    expect(selected[0]).toContain("text-foreground");
+    expect(selected[0]).not.toContain("text-muted-foreground");
+    expect(tabs(html).filter((tab) => tab.includes("text-muted-foreground"))).toHaveLength(3);
+    expect(selected[0]).toContain("hover:bg-selected");
+    expect(selected[0]).not.toContain("hover:bg-accent");
+    const unselected = tabs(html).filter((tab) => !tab.includes("bg-selected"));
+    expect(unselected).toHaveLength(3);
+    expect(unselected.every((tab) => tab.includes("hover:bg-accent"))).toBe(true);
+    expect(html).not.toContain("bg-muted");
+    expect(html).not.toContain("bg-foreground/10");
     expect(html).not.toContain('data-slot="badge"');
   });
 
@@ -200,6 +211,7 @@ describe("data view rail", () => {
     const html = render(store({ isReady: false, views: THREE_VIEWS }));
 
     expect(countOf(html, 'data-slot="skeleton"')).toBe(3);
+    expect(countOf(html, "h-8 w-20")).toBe(3);
     expect(tabs(html)).toHaveLength(0);
     expect(html).not.toContain('id="global-data-views-new"');
     expect(html).toContain('id="global-data-views"');

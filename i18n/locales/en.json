@@ -830,9 +830,8 @@
       "hidePassword": "Hide password",
       "selectOption": "Select an option",
       "showPassword": "Show password",
-      "switchToCardView": "Switch to card view",
-      "switchToKanbanView": "Switch to kanban view",
-      "switchToKanbanViewDisabled": "Add a single-select custom field to enable kanban view",
+      "switchToBoardView": "Switch to board view",
+      "switchToBoardViewDisabled": "This list has no field to group by",
       "switchToTableView": "Switch to table view",
       "themeSwitcher": "Theme switcher",
       "tooltipFields": "Appearance",
@@ -1750,6 +1749,12 @@
     "menu": "Import and export"
   },
   "DataView": {
+    "board": {
+      "chooseField": "Group by field",
+      "createField": "Create a single-select field",
+      "promptBody": "Pick a field to group by. Each value becomes a column on the board.",
+      "promptTitle": "Choose how to group this board"
+    },
     "collapseGroup": "Collapse group {group}",
     "dragToReorder": "Drag to reorder",
     "editColumn": "Edit column",
@@ -1759,7 +1764,6 @@
     "resizeColumn": "Resize {column} column. Drag or use arrow keys to resize; double-tap or press Enter to reset.",
     "resizeHint": "Drag to resize. Double-click to reset.",
     "selectAllRows": "Select all rows",
-    "selectGroupingColumn": "Select a grouping column to see the Kanban view.",
     "selectRow": "Select row {id}",
     "views": {
       "all": "All",
@@ -1777,8 +1781,7 @@
       "name": "Name",
       "namePlaceholder": "View name",
       "railLabel": "Saved views",
-      "recordCount": "{count, plural, one {# record} other {# records}}",
-      "unavailable": "View unavailable"
+      "recordCount": "{count, plural, one {# record} other {# records}}"
     }
   },
   "DealModal": {

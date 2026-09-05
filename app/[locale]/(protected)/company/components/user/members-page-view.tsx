@@ -38,7 +38,7 @@ export const MembersPageView = observer(function MembersPageView({ initialRoles,
 
   useLayoutEffect(() => rolesStore.setItems(initialRoles), [initialRoles, rolesStore]);
 
-  const view = resolveDataViewView(usersStore.viewMode, usersStore.isGrouped);
+  const view = resolveDataViewView(usersStore.viewMode, usersStore.canBoard);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery: Boolean(usersStore.searchTerm?.trim()) || (usersStore.filters?.length ?? 0) > 0,

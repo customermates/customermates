@@ -64,10 +64,13 @@ describe("data-view page state", () => {
     );
   });
 
-  it("maps the live table, card, and grouped card modes to matching geometry", () => {
-    expect(resolveDataViewView(ViewMode.table)).toBe("table");
-    expect(resolveDataViewView(ViewMode.card)).toBe("cards");
-    expect(resolveDataViewView(ViewMode.card, true)).toBe("board");
+  it("renders the board only for a card view mode on a surface that can board", () => {
     expect(resolveDataViewView(ViewMode.table, true)).toBe("table");
+    expect(resolveDataViewView(ViewMode.card, true)).toBe("board");
+  });
+
+  it("falls back to the table when the surface cannot board", () => {
+    expect(resolveDataViewView(ViewMode.card, false)).toBe("table");
+    expect(resolveDataViewView(ViewMode.table, false)).toBe("table");
   });
 });

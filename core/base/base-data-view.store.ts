@@ -87,7 +87,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   views: DataViewChipDto[] = [];
   activeViewKey: string = ALL_VIEW_KEY;
   viewPersistable = true;
-  viewUnavailable = false;
   viewMode: ViewMode = ViewMode.table;
   grouping?: Grouping | null;
   groupingResult?: GroupingResult;
@@ -141,7 +140,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       views: observable,
       activeViewKey: observable,
       viewPersistable: observable,
-      viewUnavailable: observable,
       viewMode: observable,
       grouping: observable,
       groupingResult: observable.ref,
@@ -171,10 +169,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       currentSelectionScopeKey: computed,
       isSelectionScopeStale: computed,
       massEditableCustomColumns: computed,
-      isKanbanMode: computed,
+      canBoard: computed,
       isGrouped: computed,
       groupingKey: computed,
-      groupingColumnId: computed,
       currentGroupableFieldId: computed,
 
       setViewOptions: action,
@@ -366,8 +363,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     }
   };
 
-  get isKanbanMode(): boolean {
-    return this.viewMode === ViewMode.card && Boolean(this.grouping);
+  get canBoard(): boolean {
+    return this.groupableFields.length > 0 || Boolean(this.entityType);
   }
 
   get isGrouped(): boolean {
@@ -376,10 +373,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   get groupingKey(): string {
     return this.grouping ? encodeGroupingToken(this.grouping) : "";
-  }
-
-  get groupingColumnId(): string | undefined {
-    return this.groupingResult?.columnId;
   }
 
   get currentGroupableFieldId(): string {
@@ -562,8 +555,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       return;
     }
 
-    const becameUnavailable = Boolean(args.viewUnavailable) && !this.viewUnavailable;
-
     this.requestGeneration += 1;
     this.items = args.items;
     this.customColumns = args.customColumns ?? [];
@@ -581,14 +572,11 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.groupingResult = args.grouping;
     this.groupableFields = args.groupableFields ?? [];
     this.views = args.views ?? [];
-    this.activeViewKey = args.viewUnavailable ? ALL_VIEW_KEY : (args.activeViewKey ?? ALL_VIEW_KEY);
+    this.activeViewKey = args.activeViewKey ?? ALL_VIEW_KEY;
     this.viewPersistable = args.viewPersistable ?? true;
-    this.viewUnavailable = args.viewUnavailable ?? false;
     this.groupCounts = args.groupCounts ?? {};
     this.groupValueSums = args.groupValueSums ?? {};
     this.requestState = { status: "ready" };
-
-    if (becameUnavailable) this.mountToast(() => this.toastError("DataView.views.unavailable"));
   }
 
   private mergeGroupPage(args: GetResult<Entity>): void {

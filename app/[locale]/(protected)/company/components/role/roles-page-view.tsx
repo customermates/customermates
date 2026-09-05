@@ -31,7 +31,7 @@ export const RolesPageView = observer(function RolesPageView({ initialRoles }: P
   const t = useTranslations();
   useLayoutEffect(() => rolesStore.setItems(initialRoles), [initialRoles, rolesStore]);
 
-  const view = resolveDataViewView(rolesStore.viewMode, rolesStore.isGrouped);
+  const view = resolveDataViewView(rolesStore.viewMode, rolesStore.canBoard);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery: (rolesStore.filters?.length ?? 0) > 0,

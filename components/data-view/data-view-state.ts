@@ -4,7 +4,7 @@ import { ViewMode } from "@/core/base/base-query-builder";
 
 export type DataViewPageState = "error" | "loading" | "filtered-empty" | "true-empty" | "content";
 
-export type DataViewView = "table" | "cards" | "board";
+export type DataViewView = "table" | "board";
 
 type ResolveDataViewPageStateInput = {
   request: DataViewRequestState;
@@ -32,7 +32,6 @@ export function resolveDataViewPageState({
   return "content";
 }
 
-export function resolveDataViewView(viewMode: ViewMode, hasGrouping?: boolean): DataViewView {
-  if (viewMode === ViewMode.table) return "table";
-  return hasGrouping ? "board" : "cards";
+export function resolveDataViewView(viewMode: ViewMode, canBoard: boolean): DataViewView {
+  return viewMode === ViewMode.card && canBoard ? "board" : "table";
 }

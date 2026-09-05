@@ -35,6 +35,7 @@ const domTestFiles = [
   "components/data-view/__tests__/data-table-grouping.test.tsx",
   "components/data-view/__tests__/data-kanban-order.test.tsx",
   "components/data-view/__tests__/board-drag-gating.test.tsx",
+  "components/data-view/__tests__/board-grouping-prompt.test.tsx",
   "components/data-view/__tests__/data-view-url-sync.test.ts",
   "components/data-view/__tests__/data-view-views-rail-interaction.test.ts",
   "components/data-view/__tests__/use-data-view-sync.test.ts",

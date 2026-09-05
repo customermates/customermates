@@ -30,7 +30,7 @@ export const WebhooksPageView = observer(function WebhooksPageView({ initialWebh
   useDataViewSync(webhooksStore, initialWebhooks);
   const columns = useWebhookColumns();
   const t = useTranslations();
-  const view = resolveDataViewView(webhooksStore.viewMode, webhooksStore.isGrouped);
+  const view = resolveDataViewView(webhooksStore.viewMode, webhooksStore.canBoard);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery: Boolean(webhooksStore.searchTerm?.trim()) || (webhooksStore.filters?.length ?? 0) > 0,

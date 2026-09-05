@@ -4,13 +4,25 @@ import type { DateBucket } from "./grouping.schema";
 
 import { z } from "zod";
 
-import { CustomColumnType, EntityType, TaskType } from "@/generated/prisma";
+import {
+  CustomColumnType,
+  EntityType,
+  Status,
+  SubscriptionPlan,
+  SubscriptionStatus,
+  TaskType,
+} from "@/generated/prisma";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { AUDIT_SOURCE_FILTER_VALUES } from "@/core/types/filter-field-value-kind";
 import { DATE_BUCKETS, GroupingSchema } from "./grouping.schema";
 
-export const GROUPABLE_MODELS = ["contact", "deal", "organization", "service", "task"] as const;
+export const ENTITY_GROUPABLE_MODELS = ["contact", "deal", "organization", "service", "task"] as const;
+export const OPERATOR_GROUPABLE_MODELS = ["user", "company", "operatorAudit"] as const;
+export const GROUPABLE_MODELS = [...ENTITY_GROUPABLE_MODELS, ...OPERATOR_GROUPABLE_MODELS] as const;
+export type EntityGroupableModel = (typeof ENTITY_GROUPABLE_MODELS)[number];
+export type OperatorGroupableModel = (typeof OPERATOR_GROUPABLE_MODELS)[number];
 export type GroupableModel = (typeof GROUPABLE_MODELS)[number];
-export type GroupingTargetModel = GroupableModel | "user";
+export type GroupingTargetModel = EntityGroupableModel | "user";
 
 export const ENTITY_CUSTOM_FIELD_RELATION = {
   [EntityType.contact]: "contact",
@@ -26,7 +38,7 @@ export const GROUPABLE_MODEL_BY_ENTITY_TYPE = {
   [EntityType.organization]: "organization",
   [EntityType.service]: "service",
   [EntityType.task]: "task",
-} satisfies Record<EntityType, GroupableModel>;
+} satisfies Record<EntityType, EntityGroupableModel>;
 
 export type GroupingKind = "customSingleSelect" | "enum" | "relation" | "dateBucket";
 
@@ -226,7 +238,26 @@ export const GROUPING_JOIN = {
       targetRelation: "user",
     },
   },
+  user: {},
+  company: {},
+  operatorAudit: {},
 } satisfies Record<GroupableModel, Readonly<Partial<Record<FilterFieldKey, RelationWiring>>>>;
+
+const SUBSCRIPTION_PLAN_WIRING: EnumWiring = {
+  column: "plan",
+  values: Object.values(SubscriptionPlan),
+  nullable: true,
+  labelKey: "Common.table.columns.plan",
+  valueLabelKey: (value: string) => `Subscription.planNames.${value}`,
+};
+
+const SUBSCRIPTION_STATUS_WIRING: EnumWiring = {
+  column: "subscriptionStatus",
+  values: Object.values(SubscriptionStatus),
+  nullable: true,
+  labelKey: "Common.table.columns.subscription",
+  valueLabelKey: (value: string) => `Subscription.status.${value}`,
+};
 
 export const GROUPING_ENUM = {
   contact: {},
@@ -240,6 +271,30 @@ export const GROUPING_ENUM = {
       nullable: false,
       labelKey: "Common.table.columns.type",
       valueLabelKey: (value: string) => `Common.taskTypes.${value}`,
+    },
+  },
+  user: {
+    status: {
+      column: "status",
+      values: Object.values(Status),
+      nullable: false,
+      labelKey: "Common.table.columns.status",
+      valueLabelKey: (value: string) => `Common.userStatuses.${value}`,
+    },
+    plan: SUBSCRIPTION_PLAN_WIRING,
+    subscriptionStatus: SUBSCRIPTION_STATUS_WIRING,
+  },
+  company: {
+    plan: SUBSCRIPTION_PLAN_WIRING,
+    subscriptionStatus: SUBSCRIPTION_STATUS_WIRING,
+  },
+  operatorAudit: {
+    auditSource: {
+      column: "auditSource",
+      values: AUDIT_SOURCE_FILTER_VALUES,
+      nullable: false,
+      labelKey: "Common.filters.fields.auditSource",
+      valueLabelKey: (value: string) => `OperatorAudit.values.source.${value}`,
     },
   },
 } satisfies Record<GroupableModel, Readonly<Record<string, EnumWiring>>>;

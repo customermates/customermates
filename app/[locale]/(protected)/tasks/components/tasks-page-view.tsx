@@ -38,7 +38,7 @@ export const TasksPageView = observer(function TasksPageView({ tasks }: Props) {
   const { singular } = useEntityTerminology();
   const t = useTranslations();
 
-  const view = resolveDataViewView(tasksStore.viewMode, tasksStore.isGrouped);
+  const view = resolveDataViewView(tasksStore.viewMode, tasksStore.canBoard);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery: Boolean(tasksStore.searchTerm?.trim()) || (tasksStore.filters?.length ?? 0) > 0,

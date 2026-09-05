@@ -1,44 +1,27 @@
-import type { Filter, GetQueryParams } from "@/core/base/base-get.schema";
-import type { OperatorAuditRowDto, OperatorAuditSource } from "./operator-lists.schema";
+import type { GetQueryParams } from "@/core/base/base-get.schema";
+import type { DateBucket } from "@/core/base/grouping/grouping.schema";
+import type { GroupCountRow } from "@/core/base/grouping/group-count";
+import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
+import type { OperatorAuditRowDto } from "./operator-lists.schema";
 import type { GetOperatorAuditLogsRepo } from "./get/get-operator-audit-logs.interactor";
 
 import type { Prisma } from "@/generated/prisma";
 
-import { startOfDay, subDays } from "date-fns";
-
 import { BaseRepository } from "@/core/base/base-repository";
+import { dateGroupables, enumGroupables } from "@/core/base/grouping/groupable-field";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
-import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 
 import { OPERATOR_AUDIT_SOURCE } from "./operator-lists.schema";
 import { OPERATOR_AUDIT_ACTION } from "./operator.schema";
-import { filterValues, negated, resolveWorkspaceLabels } from "./operator-list-filters";
-
-function createdAtFilter(filter: Filter): Prisma.DateTimeFilter | undefined {
-  const raw = (filter as { value?: unknown }).value;
-  const toDate = (value: unknown) => (typeof value === "string" || value instanceof Date ? new Date(value) : undefined);
-
-  switch (filter.operator) {
-    case FilterOperatorKey.inLastDays: {
-      const days = Number(raw);
-      return Number.isInteger(days) && days > 0 ? { gte: startOfDay(subDays(new Date(), days)) } : undefined;
-    }
-    case FilterOperatorKey.between:
-      return Array.isArray(raw) ? { gte: toDate(raw[0]), lte: toDate(raw[1]) } : undefined;
-    case FilterOperatorKey.gt:
-      return { gt: toDate(raw) };
-    case FilterOperatorKey.gte:
-      return { gte: toDate(raw) };
-    case FilterOperatorKey.lt:
-      return { lt: toDate(raw) };
-    case FilterOperatorKey.lte:
-      return { lte: toDate(raw) };
-    default:
-      return undefined;
-  }
-}
+import {
+  applyGroupScopeAsFilters,
+  countOperatorGroups,
+  operatorCollator,
+  planOperatorAuditFilters,
+  resolveWorkspaceLabels,
+} from "./operator-list-filters";
 
 const OPERATOR_READ_ACTIONS: string[] = [
   OPERATOR_AUDIT_ACTION.overviewRead,
@@ -66,31 +49,30 @@ export class PrismaOperatorAuditRepo extends BaseRepository implements GetOperat
     );
   }
 
+  getGroupableFields(): Promise<GroupableFieldSpec[]> {
+    return Promise.resolve([
+      ...enumGroupables("operatorAudit", { auditSource: true }),
+      ...dateGroupables("operatorAudit", { createdAt: true, updatedAt: false }),
+    ]);
+  }
+
+  collator() {
+    return operatorCollator();
+  }
+
+  countByGroup(args: {
+    spec: GroupableFieldSpec;
+    params: GetQueryParams;
+    bucket?: DateBucket;
+    now?: string;
+  }): Promise<GroupCountRow[]> {
+    return countOperatorGroups(args.spec, args.bucket, args.now, (groupScope) =>
+      this.countAuditUnscoped({ ...args.params, groupScope }),
+    );
+  }
+
   private plan(params: GetQueryParams) {
-    let sources: OperatorAuditSource[] = [OPERATOR_AUDIT_SOURCE.product, OPERATOR_AUDIT_SOURCE.operator];
-    let workspaceIds: string[] | null = null;
-    let createdAt: Prisma.DateTimeFilter | undefined;
-
-    for (const filter of params.filters ?? []) {
-      if (filter.field === String(FilterFieldKey.auditSource)) {
-        const values = filterValues(filter).filter(
-          (value): value is OperatorAuditSource =>
-            value === OPERATOR_AUDIT_SOURCE.product || value === OPERATOR_AUDIT_SOURCE.operator,
-        );
-        if (values.length === 0) continue;
-        sources = negated(filter) ? sources.filter((source) => !values.includes(source)) : values;
-        continue;
-      }
-
-      if (filter.field === String(FilterFieldKey.workspaceId)) {
-        const values = filterValues(filter);
-        if (values.length > 0 && !negated(filter)) workspaceIds = values;
-        continue;
-      }
-
-      if (filter.field === String(FilterFieldKey.createdAt)) createdAt = { ...createdAt, ...createdAtFilter(filter) };
-    }
-
+    const { sources, workspaceIds, createdAt } = planOperatorAuditFilters(params.filters);
     const take = params.take ?? params.pagination?.pageSize ?? 25;
     const page = params.pagination?.page ?? 1;
     const skip = Math.max(params.skip ?? (page - 1) * take, 0);
@@ -103,7 +85,7 @@ export class PrismaOperatorAuditRepo extends BaseRepository implements GetOperat
   private productWhere(plan: ReturnType<PrismaOperatorAuditRepo["plan"]>): Prisma.AuditLogWhereInput {
     return {
       ...(plan.workspaceIds ? { companyId: { in: plan.workspaceIds } } : {}),
-      ...(plan.createdAt ? { createdAt: plan.createdAt } : {}),
+      ...(plan.createdAt.length > 0 ? { AND: plan.createdAt.map((createdAt) => ({ createdAt })) } : {}),
       ...(plan.search ? { event: { contains: plan.search, mode: "insensitive" as const } } : {}),
     };
   }
@@ -111,7 +93,7 @@ export class PrismaOperatorAuditRepo extends BaseRepository implements GetOperat
   private operatorWhere(plan: ReturnType<PrismaOperatorAuditRepo["plan"]>): Prisma.OperatorAuditEventWhereInput {
     return {
       ...(plan.workspaceIds ? { targetCompanyId: { in: plan.workspaceIds } } : {}),
-      ...(plan.createdAt ? { createdAt: plan.createdAt } : {}),
+      ...(plan.createdAt.length > 0 ? { AND: plan.createdAt.map((createdAt) => ({ createdAt })) } : {}),
       action: {
         notIn: OPERATOR_READ_ACTIONS,
         ...(plan.search ? { contains: plan.search, mode: "insensitive" as const } : {}),
@@ -128,7 +110,10 @@ export class PrismaOperatorAuditRepo extends BaseRepository implements GetOperat
   }
 
   @BypassTenantGuard
-  private async listAuditUnscoped(params: GetQueryParams): Promise<OperatorAuditRowDto[]> {
+  private async listAuditUnscoped(scoped: GetQueryParams): Promise<OperatorAuditRowDto[]> {
+    const params = applyGroupScopeAsFilters(scoped);
+    if (!params) return [];
+
     const plan = this.plan(params);
     if (plan.sources.length === 0) return [];
     if (plan.beyondWindow) return [];
@@ -222,7 +207,10 @@ export class PrismaOperatorAuditRepo extends BaseRepository implements GetOperat
   }
 
   @BypassTenantGuard
-  private async countAuditUnscoped(params: GetQueryParams): Promise<number> {
+  private async countAuditUnscoped(scoped: GetQueryParams): Promise<number> {
+    const params = applyGroupScopeAsFilters(scoped);
+    if (!params) return 0;
+
     const plan = this.plan(params);
     if (plan.sources.length === 0) return 0;
 

@@ -56,8 +56,11 @@ describe("synthetic personalization fixtures", () => {
       if (fixture.filters !== undefined) expect(z.array(FilterSchema).safeParse(fixture.filters).success).toBe(true);
       if (fixture.sortDescriptor !== undefined)
         expect(SortDescriptorSchema.safeParse(fixture.sortDescriptor).success).toBe(true);
-      if (fixture.pagination !== undefined)
-        expect(PaginationRequestSchema.safeParse(fixture.pagination).success).toBe(true);
+      if (fixture.pagination !== undefined) {
+        expect(PaginationRequestSchema.pick({ pageSize: true }).strict().safeParse(fixture.pagination).success).toBe(
+          true,
+        );
+      }
       if (fixture.viewMode !== undefined && fixture.viewMode !== null)
         expect(z.enum(ViewMode).safeParse(fixture.viewMode).success).toBe(true);
       if (fixture.groupingColumnId !== undefined && fixture.groupingColumnId !== null)
@@ -92,7 +95,7 @@ describe("synthetic personalization fixtures", () => {
       columnWidths: { tasks: 133 },
       filters: [{ field: "userIds", operator: "in", value: [SEED_IDS.user] }],
       hiddenColumns: ["deals", "createdAt"],
-      pagination: { page: 1, pageSize: 100 },
+      pagination: { pageSize: 100 },
       sortDescriptor: { direction: "asc", field: "name" },
       viewMode: "table",
     });
@@ -171,29 +174,29 @@ describe("synthetic personalization fixtures", () => {
     expect(byP13nId.get("users-card-store")).toMatchObject({
       columnWidths: { role: 108 },
       hiddenColumns: ["email"],
-      pagination: { page: 1, pageSize: 100 },
+      pagination: { pageSize: 100 },
       sortDescriptor: { direction: "desc", field: "name" },
       viewMode: "table",
     });
     expect(byP13nId.get("roles-card-store")).toMatchObject({
-      pagination: { page: 1, pageSize: 100 },
+      pagination: { pageSize: 100 },
       sortDescriptor: { direction: "asc", field: "type" },
       viewMode: null,
     });
     expect(byP13nId.get("webhooks-card-store")).toMatchObject({
-      pagination: { page: 1, pageSize: 100 },
+      pagination: { pageSize: 100 },
       sortDescriptor: { direction: "desc", field: "name" },
-      viewMode: "card",
+      viewMode: "table",
     });
     expect(byP13nId.get("audit-logs-card-store")).toMatchObject({
       columnOrder: ["event", "entityId", "createdAt", "user"],
       hiddenColumns: ["entityId"],
-      pagination: { page: 1, pageSize: 25 },
+      pagination: { pageSize: 25 },
       sortDescriptor: { direction: "desc", field: "createdAt" },
       viewMode: "table",
     });
     expect(byP13nId.get("webhook-deliveries-card-store")).toMatchObject({
-      pagination: { page: 1, pageSize: 25 },
+      pagination: { pageSize: 25 },
       sortDescriptor: { direction: "desc", field: "createdAt" },
       viewMode: null,
     });

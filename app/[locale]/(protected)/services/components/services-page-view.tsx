@@ -38,7 +38,7 @@ export const ServicesPageView = observer(function ServicesPageView({ services }:
   const { singular } = useEntityTerminology();
   const t = useTranslations();
 
-  const view = resolveDataViewView(servicesStore.viewMode, servicesStore.isGrouped);
+  const view = resolveDataViewView(servicesStore.viewMode, servicesStore.canBoard);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery: Boolean(servicesStore.searchTerm?.trim()) || (servicesStore.filters?.length ?? 0) > 0,

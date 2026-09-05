@@ -163,7 +163,6 @@ describe("a GET never persists what the user is looking at", () => {
     expect(data.filters).toEqual(storedFilters);
     expect(data.pagination?.pageSize).toBe(25);
     expect(data.viewMode).toBe(ViewMode.table);
-    expect(data.viewUnavailable).toBe(false);
     expect(touched).toEqual(["loadSurfaceState"]);
   });
 
@@ -185,14 +184,13 @@ describe("a GET never persists what the user is looking at", () => {
     });
 
     expect(data.activeViewKey).toBe(ALL_VIEW_KEY);
-    expect(data.viewUnavailable).toBe(true);
     expect(touched).toEqual(["loadSurfaceState"]);
   });
 });
 
 describe("a read with no surface key says nothing about views", () => {
   const undocumentedKeys = Object.keys(DataViewResultFields);
-  const documentedButSurfaceOnlyKeys = ["columnOrder", "columnWidths", "hiddenColumns", "viewMode", "groupingColumnId"];
+  const documentedButSurfaceOnlyKeys = ["columnOrder", "columnWidths", "hiddenColumns", "viewMode"];
 
   it("emits none of the fields the documented REST result schema does not declare", async () => {
     const { data } = await invokeWith({ filters: storedFilters, searchTerm: "munich" });

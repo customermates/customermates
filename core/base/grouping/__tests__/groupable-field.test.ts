@@ -1,8 +1,8 @@
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { SummableModel } from "@/core/base/base-repository";
 import type {
+  EntityGroupableModel,
   GroupableFieldSpec,
-  GroupableModel,
   GroupableRelationField,
   GroupingTargetModel,
 } from "../groupable-field";
@@ -10,13 +10,17 @@ import type {
 import { describe, expect, it } from "vitest";
 
 import { CustomColumnType, EntityType } from "@/generated/prisma";
+import { AUDIT_SOURCE_FILTER_VALUES } from "@/core/types/filter-field-value-kind";
+import { OPERATOR_AUDIT_SOURCE } from "@/ee/operator/operator-lists.schema";
 
 import {
+  ENTITY_GROUPABLE_MODELS,
   GROUPABLE_DATE_FIELDS,
   GROUPABLE_MODELS,
   GROUPABLE_MODEL_BY_ENTITY_TYPE,
   GROUPING_ENUM,
   GROUPING_JOIN,
+  OPERATOR_GROUPABLE_MODELS,
   customSelectGroupables,
   dateGroupables,
   enumGroupable,
@@ -53,9 +57,10 @@ function singleSelect(id: string, entityType: EntityType, label: string): Custom
 describe("grouping wiring registries", () => {
   it("wires every groupable model, and only models the query engine can sum over", () => {
     expect(TARGET_MODELS_ARE_SUMMABLE).toBe(true);
+    expect([...GROUPABLE_MODELS]).toEqual([...ENTITY_GROUPABLE_MODELS, ...OPERATOR_GROUPABLE_MODELS]);
     expect(Object.keys(GROUPING_JOIN).sort()).toEqual([...GROUPABLE_MODELS].sort());
     expect(Object.keys(GROUPING_ENUM).sort()).toEqual([...GROUPABLE_MODELS].sort());
-    expect(Object.values(GROUPABLE_MODEL_BY_ENTITY_TYPE).sort()).toEqual([...GROUPABLE_MODELS].sort());
+    expect(Object.values(GROUPABLE_MODEL_BY_ENTITY_TYPE).sort()).toEqual([...ENTITY_GROUPABLE_MODELS].sort());
     expect(Object.keys(GROUPABLE_MODEL_BY_ENTITY_TYPE).sort()).toEqual(Object.values(EntityType).sort());
   });
 
@@ -66,7 +71,7 @@ describe("grouping wiring registries", () => {
         expect([model, field, wiring.joinModel.length > 0]).toEqual([model, field, true]);
         expect([model, field, wiring.keyColumn.endsWith("Id")]).toEqual([model, field, true]);
         expect([model, field, wiring.parentRelation]).toEqual([model, field, model]);
-        expect([model, field, GROUPABLE_MODELS.includes(wiring.targetModel as GroupableModel)]).toEqual([
+        expect([model, field, ENTITY_GROUPABLE_MODELS.includes(wiring.targetModel as EntityGroupableModel)]).toEqual([
           model,
           field,
           wiring.targetModel !== "user",
@@ -80,13 +85,23 @@ describe("grouping wiring registries", () => {
       for (const [field, wiring] of Object.entries(enums)) {
         expect([model, field, wiring.values.length > 0]).toEqual([model, field, true]);
         expect([model, field, wiring.labelKey.length > 0]).toEqual([model, field, true]);
-        expect([model, field, wiring.valueLabelKey(wiring.values[0])]).toEqual([
+        expect([model, field, wiring.valueLabelKey(wiring.values[0]).endsWith(`.${wiring.values[0]}`)]).toEqual([
           model,
           field,
-          `Common.taskTypes.${wiring.values[0]}`,
+          true,
         ]);
       }
     }
+  });
+
+  it("wires the operator lists with enums only, joined to nothing", () => {
+    for (const model of OPERATOR_GROUPABLE_MODELS) expect([model, GROUPING_JOIN[model]]).toEqual([model, {}]);
+
+    expect(Object.keys(GROUPING_ENUM.user)).toEqual(["status", "plan", "subscriptionStatus"]);
+    expect(Object.keys(GROUPING_ENUM.company)).toEqual(["plan", "subscriptionStatus"]);
+    expect(Object.keys(GROUPING_ENUM.operatorAudit)).toEqual(["auditSource"]);
+    expect(GROUPING_ENUM.user.plan).toBe(GROUPING_ENUM.company.plan);
+    expect(GROUPING_ENUM.user.subscriptionStatus).toBe(GROUPING_ENUM.company.subscriptionStatus);
   });
 });
 
@@ -149,6 +164,67 @@ describe("enum and date groupables", () => {
     expect(() => enumGroupable({ model: "deal", field: "type" as never })).toThrow(
       "No grouping enum wired for deal.type",
     );
+  });
+
+  it("builds the operator enums from their wirings, nullable only where the subscription can be missing", () => {
+    expect(enumGroupables("user", { status: true, plan: true, subscriptionStatus: true })).toEqual([
+      {
+        kind: "enum",
+        field: "status",
+        model: "user",
+        column: "status",
+        values: ["active", "inactive", "pendingAuthorization"],
+        nullable: false,
+        labelKey: "Common.table.columns.status",
+        valueLabelKey: GROUPING_ENUM.user.status.valueLabelKey,
+      },
+      {
+        kind: "enum",
+        field: "plan",
+        model: "user",
+        column: "plan",
+        values: ["starter", "pro", "business", "enterprise"],
+        nullable: true,
+        labelKey: "Common.table.columns.plan",
+        valueLabelKey: GROUPING_ENUM.user.plan.valueLabelKey,
+      },
+      {
+        kind: "enum",
+        field: "subscriptionStatus",
+        model: "user",
+        column: "subscriptionStatus",
+        values: ["trial", "active", "cancelled", "expired", "pastDue", "unPaid"],
+        nullable: true,
+        labelKey: "Common.table.columns.subscription",
+        valueLabelKey: GROUPING_ENUM.user.subscriptionStatus.valueLabelKey,
+      },
+    ]);
+    expect(enumGroupables("company", { plan: false, subscriptionStatus: true }).map(({ field }) => field)).toEqual([
+      "subscriptionStatus",
+    ]);
+    expect(enumGroupables("operatorAudit", { auditSource: true })).toEqual([
+      {
+        kind: "enum",
+        field: "auditSource",
+        model: "operatorAudit",
+        column: "auditSource",
+        values: ["product", "operator"],
+        nullable: false,
+        labelKey: "Common.filters.fields.auditSource",
+        valueLabelKey: GROUPING_ENUM.operatorAudit.auditSource.valueLabelKey,
+      },
+    ]);
+    expect(GROUPING_ENUM.user.status.valueLabelKey("active")).toBe("Common.userStatuses.active");
+    expect(GROUPING_ENUM.user.plan.valueLabelKey("pro")).toBe("Subscription.planNames.pro");
+    expect(GROUPING_ENUM.user.subscriptionStatus.valueLabelKey("pastDue")).toBe("Subscription.status.pastDue");
+    expect(GROUPING_ENUM.operatorAudit.auditSource.valueLabelKey("operator")).toBe(
+      "OperatorAudit.values.source.operator",
+    );
+  });
+
+  it("wires the audit source enum from the core filter registry, which the operator schema mirrors", () => {
+    expect(GROUPING_ENUM.operatorAudit.auditSource.values).toBe(AUDIT_SOURCE_FILTER_VALUES);
+    expect([...AUDIT_SOURCE_FILTER_VALUES]).toEqual(Object.values(OPERATOR_AUDIT_SOURCE));
   });
 
   it("builds the task type enum from its wiring", () => {

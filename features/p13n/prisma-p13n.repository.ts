@@ -8,7 +8,7 @@ import type { GetP13nRepo } from "./get-p13n.interactor";
 import { Prisma } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
-import { CLEARED_GROUPING, groupingShadowColumnId, readStoredGrouping } from "@/core/base/grouping/stored-grouping";
+import { groupingShadowColumnId, readStoredGrouping } from "@/core/base/grouping/stored-grouping";
 import { normalizeFilters } from "@/core/base/filter-compat";
 import { EntityDetailOptionsSchema, type EntityDetailOptions } from "./p13n.schema";
 
@@ -18,18 +18,23 @@ export interface P13nEntry {
   filters?: Filter[];
   searchTerm?: string;
   sortDescriptor?: SortDescriptor;
-  pagination?: PaginationRequest;
+  pagination?: Pick<PaginationRequest, "pageSize">;
   columnWidths?: Record<string, number>;
   columnOrder?: string[];
   hiddenColumns?: string[];
   viewMode?: ViewMode;
-  groupingColumnId?: string;
   grouping?: Grouping;
   detailOptions?: EntityDetailOptions;
 }
 
 function normalizeStoredFilters(value: unknown): Filter[] | undefined {
   return Array.isArray(value) ? normalizeFilters(value as unknown as Filter[]) : undefined;
+}
+
+function normalizeStoredPagination(value: unknown): Pick<PaginationRequest, "pageSize"> | undefined {
+  const pageSize = typeof value === "object" && value !== null ? (value as { pageSize?: unknown }).pageSize : undefined;
+
+  return typeof pageSize === "number" ? { pageSize: pageSize as PaginationRequest["pageSize"] } : undefined;
 }
 
 function normalizeDetailOptions(value: unknown): EntityDetailOptions | undefined {
@@ -60,7 +65,6 @@ export class PrismaP13nRepo extends BaseRepository implements GetP13nRepo, Upser
       columnWidths,
       hiddenColumns,
       viewMode,
-      groupingColumnId,
       grouping,
       detailOptions,
     } = res;
@@ -71,13 +75,12 @@ export class PrismaP13nRepo extends BaseRepository implements GetP13nRepo, Upser
       filters: normalizeStoredFilters(filters),
       searchTerm: searchTerm ?? undefined,
       sortDescriptor: (sortDescriptor as SortDescriptor | null) ?? undefined,
-      pagination: (pagination as PaginationRequest | null) ?? undefined,
+      pagination: normalizeStoredPagination(pagination),
       columnWidths: (columnWidths as Record<string, number> | null) ?? undefined,
       columnOrder,
       hiddenColumns,
       viewMode: (viewMode as ViewMode | null) ?? undefined,
-      groupingColumnId: groupingColumnId ?? undefined,
-      grouping: readStoredGrouping(grouping, groupingColumnId, viewMode) ?? undefined,
+      grouping: readStoredGrouping(grouping),
       detailOptions: normalizeDetailOptions(detailOptions),
     };
   }
@@ -99,7 +102,7 @@ export class PrismaP13nRepo extends BaseRepository implements GetP13nRepo, Upser
       hiddenColumns: data.hiddenColumns ?? [],
       viewMode: data.viewMode ?? null,
       groupingColumnId: groupingShadowColumnId(data.grouping),
-      grouping: data.grouping ?? Prisma.JsonNull,
+      grouping: data.grouping ?? Prisma.DbNull,
       detailOptions: data.detailOptions ?? Prisma.JsonNull,
     };
 
@@ -120,7 +123,7 @@ export class PrismaP13nRepo extends BaseRepository implements GetP13nRepo, Upser
     if (data.viewMode !== undefined) updateData.viewMode = data.viewMode ?? null;
     if (data.grouping !== undefined) {
       updateData.groupingColumnId = groupingShadowColumnId(data.grouping);
-      updateData.grouping = data.grouping ?? CLEARED_GROUPING;
+      updateData.grouping = data.grouping ?? Prisma.DbNull;
     }
     if (data.detailOptions !== undefined) updateData.detailOptions = data.detailOptions ?? Prisma.JsonNull;
 
@@ -139,13 +142,12 @@ export class PrismaP13nRepo extends BaseRepository implements GetP13nRepo, Upser
       filters: normalizeStoredFilters(row.filters),
       searchTerm: row.searchTerm ?? undefined,
       sortDescriptor: (row.sortDescriptor as SortDescriptor | null) ?? undefined,
-      pagination: (row.pagination as PaginationRequest | null) ?? undefined,
+      pagination: normalizeStoredPagination(row.pagination),
       columnWidths: (row.columnWidths as Record<string, number> | null) ?? undefined,
       columnOrder: row.columnOrder,
       hiddenColumns: row.hiddenColumns,
       viewMode: (row.viewMode as ViewMode | null) ?? undefined,
-      groupingColumnId: row.groupingColumnId ?? undefined,
-      grouping: readStoredGrouping(row.grouping, row.groupingColumnId, row.viewMode) ?? undefined,
+      grouping: readStoredGrouping(row.grouping),
       detailOptions: normalizeDetailOptions(row.detailOptions),
     };
   }

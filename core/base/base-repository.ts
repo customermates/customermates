@@ -3,7 +3,7 @@ import type { DateBucket } from "@/core/base/grouping/grouping.schema";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { GroupCountRow } from "@/core/base/grouping/group-count";
 import type { GroupLabel } from "@/core/base/grouping/group-labels";
-import type { GroupableFieldSpec, GroupingTargetModel } from "@/core/base/grouping/groupable-field";
+import type { GroupableFieldSpec, GroupableModel, GroupingTargetModel } from "@/core/base/grouping/groupable-field";
 
 import { Resource, Action } from "@/generated/prisma";
 
@@ -29,6 +29,13 @@ export type ModelWhereInputMap = {
 };
 
 export type SummableModel = keyof ModelWhereInputMap;
+
+function tenantModel(model: GroupableModel): SummableModel {
+  if (model === "company" || model === "operatorAudit")
+    throw new Error(`Grouping by ${model} has no tenant access scope; use an operator repository`);
+
+  return model;
+}
 
 export type NumericFieldSums<F extends string> = Partial<Record<F, number | null>>;
 
@@ -166,7 +173,7 @@ export abstract class BaseRepository<
     sumFields?: readonly string[];
     now?: string;
   }): Promise<GroupCountRow[]> {
-    const baseWhere = this.accessWhere(args.spec.model) as unknown as TWhereInput;
+    const baseWhere = this.accessWhere(tenantModel(args.spec.model)) as unknown as TWhereInput;
     const { where } = await this.buildQueryArgs(args.params, baseWhere);
 
     return this.countByGroupInScope({ ...args, where: where as Record<string, unknown> });

@@ -36,6 +36,7 @@ import type { EntityType } from "@/generated/prisma";
 import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
+import { BoardGroupingPrompt } from "./board-grouping-prompt";
 import { DataCardBody } from "./data-card-body";
 import { useGroupLabel, visibleGroups } from "./group-label";
 import {
@@ -301,8 +302,13 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
 
   const groups = visibleGroups(store.groupingResult, { keepEmptyNoValue: true });
 
-  if (!store.isGrouped)
-    return <div className="py-8 text-center text-sm text-muted-foreground">{t("DataView.selectGroupingColumn")}</div>;
+  if (!store.isGrouped) {
+    return (
+      <div className={cn("flex min-h-0 flex-1 flex-col", className)} data-slot="kanban-root">
+        <BoardGroupingPrompt store={store} />
+      </div>
+    );
+  }
 
   const rowsById = new Map(table.getRowModel().rows.map((row) => [row.id, row]));
   const itemsById = new Map(store.items.map((item) => [item.id, item]));

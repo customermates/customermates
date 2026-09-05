@@ -1,4 +1,7 @@
 import type { OperatorActor } from "@/core/decorators/operator-context";
+import type { Filter } from "@/core/base/base-get.schema";
+import type { DataViewState } from "@/core/data-view/data-view-state.schema";
+import type { OperatorUserRowDto } from "../operator-lists.schema";
 
 import { randomUUID } from "node:crypto";
 
@@ -13,10 +16,15 @@ import { runWithOperator } from "@/core/decorators/operator-context";
 import { runWithTenant, tenantStorage } from "@/core/decorators/tenant-context";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
+import { BaseGetInteractor } from "@/core/base/base-get.interactor";
+import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
+import { NO_VALUE_GROUP_KEY } from "@/core/base/grouping/grouping.schema";
 import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { PrismaDataViewRepo } from "@/features/data-view/prisma-data-view.repository";
 import { PrismaP13nRepo } from "@/features/p13n/prisma-p13n.repository";
 import { SaveDataViewStateInteractor } from "@/features/data-view/save-data-view-state.interactor";
+import { PrismaOperatorUsersRepo } from "../prisma-operator-users.repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -42,14 +50,29 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
   const actorB = actor(operatorIdB, companyIdB);
 
   const views = () => new PrismaDataViewRepo();
-  const saveAllTab = (userId: string, companyId: string, pageSize: 10 | 100) =>
+  const saveAllTab = (userId: string, companyId: string, state: DataViewState) =>
     runWithTenant(createMockUser({ id: userId, companyId }), () =>
       new SaveDataViewStateInteractor(views(), new PrismaP13nRepo()).invoke({
         surfaceKey: OPERATOR_SURFACE,
         viewKey: ALL_VIEW_KEY,
-        state: { pageSize },
+        state,
       }),
     );
+
+  class GroupedOperatorUsers extends BaseGetInteractor<OperatorUserRowDto> {
+    constructor() {
+      super(new PrismaOperatorUsersRepo(), views(), "interactive", undefined, {
+        sortDescriptor: { field: "createdAt", direction: "desc" },
+        pagination: { pageSize: 25, page: 1 },
+      });
+    }
+  }
+
+  const ownWorkspaces = (): Filter => ({
+    field: FilterFieldKey.workspaceId,
+    operator: FilterOperatorKey.in,
+    value: [companyIdA, companyIdB],
+  });
 
   beforeAll(async () => {
     await import("@/core/di");
@@ -124,8 +147,8 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
   });
 
   it("keys the personal All tab state by the acting operator's own workspace", async () => {
-    expect((await saveAllTab(operatorIdA, companyIdA, 10)).ok).toBe(true);
-    expect((await saveAllTab(operatorIdB, companyIdB, 100)).ok).toBe(true);
+    expect((await saveAllTab(operatorIdA, companyIdA, { pageSize: 10 })).ok).toBe(true);
+    expect((await saveAllTab(operatorIdB, companyIdB, { pageSize: 100 })).ok).toBe(true);
 
     const seenByA = await runWithOperator(actorA, () => views().loadSurfaceState(OPERATOR_SURFACE));
     const seenByB = await runWithOperator(actorB, () => views().loadSurfaceState(OPERATOR_SURFACE));
@@ -141,5 +164,75 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
       { companyId: companyIdA, userId: operatorIdA, pagination: { pageSize: 10 } },
       { companyId: companyIdB, userId: operatorIdB, pagination: { pageSize: 100 } },
     ]);
+  });
+
+  it("serves a grouped operator request under runWithOperator with no ambient tenant frame", async () => {
+    expect(tenantStorage.getStore()).toBeUndefined();
+
+    const result = await runWithOperator(actorA, () =>
+      new GroupedOperatorUsers().invoke({
+        p13nId: OPERATOR_SURFACE,
+        filters: [ownWorkspaces()],
+        viewMode: ViewMode.card,
+        grouping: { field: "status" },
+      }),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data.groupableFields?.map(({ id }) => id)).toEqual([
+      "status",
+      "plan",
+      "subscriptionStatus",
+      "createdAt:day",
+      "createdAt:week",
+      "createdAt:month",
+      "updatedAt:day",
+      "updatedAt:week",
+      "updatedAt:month",
+    ]);
+    expect(result.data.grouping?.groups.map(({ key, count }) => [key, count])).toEqual([
+      ["active", 2],
+      ["inactive", 0],
+      ["pendingAuthorization", 0],
+    ]);
+    expect(result.data.items.map(({ id }) => id).sort()).toEqual([operatorIdA, operatorIdB].sort());
+    expect(result.data.viewMode).toBe(ViewMode.card);
+    expect(tenantStorage.getStore()).toBeUndefined();
+  });
+
+  it("applies the grouping persisted in the operator's own All tab and puts unsubscribed workspaces in the no-value group", async () => {
+    expect(
+      (
+        await saveAllTab(operatorIdA, companyIdA, {
+          pageSize: 10,
+          viewMode: ViewMode.card,
+          grouping: { field: "plan" },
+        })
+      ).ok,
+    ).toBe(true);
+
+    const result = await runWithOperator(actorA, () =>
+      new GroupedOperatorUsers().invoke({ p13nId: OPERATOR_SURFACE, filters: [ownWorkspaces()] }),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data.grouping?.grouping).toEqual({ field: "plan" });
+    expect(result.data.grouping?.groups.map(({ key, count }) => [key, count])).toEqual([
+      ["starter", 0],
+      ["pro", 0],
+      ["business", 0],
+      ["enterprise", 0],
+      [NO_VALUE_GROUP_KEY, 2],
+    ]);
+    expect(result.data.grouping?.groups.at(-1)?.itemIds.sort()).toEqual([operatorIdA, operatorIdB].sort());
+
+    const seenByB = await runWithOperator(actorB, () =>
+      new GroupedOperatorUsers().invoke({ p13nId: OPERATOR_SURFACE, filters: [ownWorkspaces()] }),
+    );
+    expect(seenByB.ok).toBe(true);
+    if (!seenByB.ok) return;
+    expect(seenByB.data.grouping).toBeUndefined();
   });
 });

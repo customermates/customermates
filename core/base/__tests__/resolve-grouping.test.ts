@@ -30,7 +30,10 @@ class FailClosedRepo extends BaseGetRepo<Item> {
   axisCalls = 0;
   itemCalls: GetQueryParams[] = [];
 
-  constructor(private readonly relations: boolean) {
+  constructor(
+    private readonly relations: boolean,
+    private readonly declares = true,
+  ) {
     super();
   }
 
@@ -60,6 +63,8 @@ class FailClosedRepo extends BaseGetRepo<Item> {
   }
 
   async getGroupableFields(): Promise<GroupableFieldSpec[]> {
+    if (!this.declares) return [];
+
     return [
       ...customSelectGroupables(EntityType.deal, await this.getCustomColumns()),
       ...(this.relations
@@ -118,7 +123,7 @@ async function run(
   params: GetQueryParams,
   options: { relations?: boolean; ungroupable?: boolean } = {},
 ): Promise<{ repo: FailClosedRepo; data: Awaited<ReturnType<GroupedSurface["invoke"]>> }> {
-  const repo = new FailClosedRepo(options.relations ?? false);
+  const repo = new FailClosedRepo(options.relations ?? false, !options.ungroupable);
   const interactor = options.ungroupable ? new UngroupableSurface(repo) : new GroupedSurface(repo);
   const data = await interactor.invoke({ viewMode: ViewMode.card, ...params });
 
@@ -166,7 +171,7 @@ describe("an unresolvable grouping descriptor degrades to a flat read", () => {
     expect(repo.axisCalls).toBe(0);
   });
 
-  it("offers and resolves nothing at all on a surface that declares no entity type", async () => {
+  it("offers and resolves nothing at all on a surface whose repository declares no groupable field", async () => {
     const { repo, data } = await run({ grouping: { field: LIVE_COLUMN_ID } }, { ungroupable: true });
 
     expect(grouped(data).grouping).toBeUndefined();

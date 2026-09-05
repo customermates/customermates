@@ -38,7 +38,7 @@ export const DealsPageView = observer(function DealsPageView({ deals }: Props) {
   const { singular } = useEntityTerminology();
   const t = useTranslations();
 
-  const view = resolveDataViewView(dealsStore.viewMode, dealsStore.isGrouped);
+  const view = resolveDataViewView(dealsStore.viewMode, dealsStore.canBoard);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery: Boolean(dealsStore.searchTerm?.trim()) || (dealsStore.filters?.length ?? 0) > 0,

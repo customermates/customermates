@@ -138,6 +138,6 @@ describe("clearing the grouping outlives the refresh it triggers", () => {
 
     expect(store.requestedParams[0]?.grouping).toEqual({ field: other });
     expect(store.grouping).toEqual({ field: other });
-    expect(store.groupingColumnId).toBe(other);
+    expect(store.groupingResult?.columnId).toBe(other);
   });
 });

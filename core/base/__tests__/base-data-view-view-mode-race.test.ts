@@ -146,6 +146,6 @@ describe("view mode survives the refresh that races its own persistence", () => 
 
     expect(store.viewMode).toBe(ViewMode.card);
     expect(store.grouping).toEqual({ field: GROUPING_COLUMN_ID });
-    expect(store.groupingColumnId).toBe(GROUPING_COLUMN_ID);
+    expect(store.groupingResult?.columnId).toBe(GROUPING_COLUMN_ID);
   });
 });

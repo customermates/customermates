@@ -251,7 +251,7 @@ describeDatabase("saved data views migration", { timeout: 180_000 }, () => {
         pagination: { page: 1, pageSize: 25 },
         viewMode: "card",
         groupingColumnId: "44444444-4444-4444-8444-444444444444",
-        grouping: null,
+        grouping: { field: "44444444-4444-4444-8444-444444444444" },
         activeViewKey: null,
       });
       expect(personalization[0]).toMatchObject({ columnOrder: ["identifiers"], activeViewKey: null });

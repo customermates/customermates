@@ -2,11 +2,14 @@
 
 import type { KeyboardEventHandler, MouseEventHandler, ReactNode } from "react";
 
+import { buttonVariants } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/core/utils/cn";
 
-export const VIEW_TAB_CLASS =
-  "inline-flex h-7 max-w-36 flex-none items-center rounded-md px-2.5 text-[13px] font-medium whitespace-nowrap sm:max-w-56";
+export const VIEW_TAB_CLASS = cn(
+  buttonVariants({ variant: "ghost", size: "sm" }),
+  "max-w-36 flex-none text-muted-foreground sm:max-w-56",
+);
 
 type Props = {
   href: string;
@@ -25,11 +28,7 @@ export function ViewChip({ href, id, isActive, label, preview, tabIndex, onKeyDo
       <TooltipTrigger asChild>
         <a
           aria-current={isActive ? "page" : undefined}
-          className={cn(
-            VIEW_TAB_CLASS,
-            "outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50 motion-reduce:transition-none",
-            isActive ? "bg-foreground/10 text-foreground" : "bg-muted text-muted-foreground hover:text-foreground",
-          )}
+          className={cn(VIEW_TAB_CLASS, isActive && "bg-selected text-foreground hover:bg-selected")}
           data-view-chip=""
           href={href}
           id={id}

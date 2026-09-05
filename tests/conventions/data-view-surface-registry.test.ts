@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { DATA_VIEW_SURFACES, SURFACE } from "@/core/data-view/data-view-keys";
+import { DATA_VIEW_SURFACE_KEYS, SURFACE } from "@/core/data-view/data-view-keys";
 
 const root = process.cwd();
 const read = (path: string) => readFileSync(resolve(root, path), "utf8");
@@ -15,7 +15,7 @@ const filesUnder = (directory: string): string[] =>
 
 const pageFiles = filesUnder("app").filter((path) => path.endsWith("/page.tsx"));
 
-const surfaceKeys = new Set<string>(Object.keys(DATA_VIEW_SURFACES));
+const surfaceKeys = new Set<string>(DATA_VIEW_SURFACE_KEYS);
 const surfaceNames = new Map<string, string>(Object.entries(SURFACE).map(([name, key]) => [name, key]));
 
 // A page hands the read path a surface through readSurfaceParams, and nothing else may invent a key.
@@ -23,7 +23,7 @@ describe("data view surface registry", () => {
   it("declares every surface key exactly once", () => {
     const values = Object.values(SURFACE);
     expect(new Set(values).size).toBe(values.length);
-    expect(new Set(Object.keys(DATA_VIEW_SURFACES))).toEqual(new Set(values));
+    expect(surfaceKeys).toEqual(new Set(values));
   });
 
   it("keeps every p13nId literal in a page file inside the registry", () => {
@@ -35,7 +35,7 @@ describe("data view surface registry", () => {
     expect(offenders).toEqual([]);
   });
 
-  it("reaches every linkable surface from a readSurfaceParams call site in a page", () => {
+  it("reaches every page surface from a readSurfaceParams call site in a page", () => {
     const reached = new Set<string>();
 
     for (const path of pageFiles) {
@@ -54,7 +54,5 @@ describe("data view surface registry", () => {
     expect(read("features/messaging/activities/activities.store.ts")).toContain(
       `export const ACTIVITIES_P13N_ID = "${SURFACE.entityTimeline}"`,
     );
-    expect(DATA_VIEW_SURFACES[SURFACE.entityTimeline].kind).toBe("embedded");
-    expect(DATA_VIEW_SURFACES[SURFACE.entityTimeline].linkable).toBe(false);
   });
 });

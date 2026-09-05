@@ -32,7 +32,7 @@ export const OperatorUsersPageView = observer(function OperatorUsersPageView({ i
   useDataViewSync(operatorUsersStore, initialUsers);
   const columns = useOperatorUserColumns();
   const t = useTranslations();
-  const view = resolveDataViewView(operatorUsersStore.viewMode, operatorUsersStore.isGrouped);
+  const view = resolveDataViewView(operatorUsersStore.viewMode, operatorUsersStore.canBoard);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery: Boolean(operatorUsersStore.searchTerm?.trim()) || (operatorUsersStore.filters?.length ?? 0) > 0,

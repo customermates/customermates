@@ -168,7 +168,6 @@ describe("GetActivitiesInteractor", () => {
     expect(result.data.views).toEqual([A_TIMELINE_VIEW]);
     expect(result.data.activeViewKey).toBe("__all__");
     expect(result.data.viewPersistable).toBe(true);
-    expect(result.data.viewUnavailable).toBe(false);
   });
 
   it("keeps the full known filter contract in API precheck after messaging permission loss", async () => {

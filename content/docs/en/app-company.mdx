@@ -27,7 +27,7 @@ All app routes are locale-prefixed (example: https://customermates.com/en/compan
 | Search / filter members | Members toolbar | `#company-members-search` / `#company-members-filter` / `#company-members-display-options` | List controls |
 | Roles tab | Sidebar sub-item | `#nav-company-roles` | Permission sets |
 | Add role | Roles toolbar | `#company-roles-add` | Opens the role editor |
-| Roles list controls | Roles toolbar | `#company-roles-search` / `#company-roles-filter` / `#company-roles-display-options` | List controls |
+| Roles list controls | Roles toolbar | `#company-roles-search` / `#company-roles-display-options` | List controls (roles have no filterable fields, so no filter control renders) |
 | Webhooks tab | Sidebar sub-item | `#nav-company-webhooks` | Outbound event subscriptions |
 | Create webhook | Webhooks toolbar | `#company-webhooks-add` | Opens the webhook modal |
 | Save webhook | Webhook modal footer | `#webhook-modal-save` / `#webhook-modal-reset` | Subscribes the URL to events |
@@ -39,11 +39,11 @@ All app routes are locale-prefixed (example: https://customermates.com/en/compan
 
 The display-options popovers expose these stable layout controls:
 
-- Members: `#company-members-layout-table`, `#company-members-layout-cards`, `#company-members-layout-kanban`
-- Roles: `#company-roles-layout-table`, `#company-roles-layout-cards`, `#company-roles-layout-kanban`
-- Webhooks: `#company-webhooks-layout-table`, `#company-webhooks-layout-cards`, `#company-webhooks-layout-kanban`
-- Deliveries: `#company-webhook-deliveries-layout-table`, `#company-webhook-deliveries-layout-cards`, `#company-webhook-deliveries-layout-kanban`
-- Audit logs: `#company-audit-logs-layout-table`, `#company-audit-logs-layout-cards`, `#company-audit-logs-layout-kanban`
+- Members: `#company-members-layout-table`, `#company-members-layout-board`
+- Roles: `#company-roles-layout-table`, `#company-roles-layout-board`
+- Webhooks: `#company-webhooks-layout-table`, `#company-webhooks-layout-board`
+- Deliveries: `#company-webhook-deliveries-layout-table`, `#company-webhook-deliveries-layout-board`
+- Audit logs: `#company-audit-logs-layout-table`, `#company-audit-logs-layout-board`
 
 ## Tips for agents
 

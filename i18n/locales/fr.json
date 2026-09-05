@@ -830,9 +830,8 @@
       "hidePassword": "Masquer le mot de passe",
       "selectOption": "Sélectionner une option",
       "showPassword": "Afficher le mot de passe",
-      "switchToCardView": "Passer à la vue cartes",
-      "switchToKanbanView": "Passer à la vue kanban",
-      "switchToKanbanViewDisabled": "Ajoutez un champ personnalisé à choix unique pour activer la vue kanban",
+      "switchToBoardView": "Passer à la vue kanban",
+      "switchToBoardViewDisabled": "Cette liste ne contient aucun champ de regroupement",
       "switchToTableView": "Passer à la vue tableau",
       "themeSwitcher": "Sélecteur de thème",
       "tooltipFields": "Apparence",
@@ -1750,6 +1749,12 @@
     "menu": "Importer et exporter"
   },
   "DataView": {
+    "board": {
+      "chooseField": "Regrouper par champ",
+      "createField": "Créer un champ à choix unique",
+      "promptBody": "Choisissez un champ de regroupement. Chaque valeur devient une colonne du kanban.",
+      "promptTitle": "Choisissez comment regrouper ce kanban"
+    },
     "collapseGroup": "Réduire le groupe {group}",
     "dragToReorder": "Faire glisser pour réorganiser",
     "editColumn": "Modifier la colonne",
@@ -1759,7 +1764,6 @@
     "resizeColumn": "Redimensionnez la colonne « {column} ». Faites glisser ou utilisez les touches fléchées ; touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
     "resizeHint": "Faites glisser pour redimensionner. Double-cliquez pour réinitialiser.",
     "selectAllRows": "Sélectionner toutes les lignes",
-    "selectGroupingColumn": "Sélectionnez une colonne de regroupement pour afficher la vue kanban.",
     "selectRow": "Sélectionner la ligne {id}",
     "views": {
       "all": "Toutes",
@@ -1777,8 +1781,7 @@
       "name": "Nom",
       "namePlaceholder": "Nom de la vue",
       "railLabel": "Vues enregistrées",
-      "recordCount": "{count, plural, one {# enregistrement} other {# enregistrements}}",
-      "unavailable": "Vue indisponible"
+      "recordCount": "{count, plural, one {# enregistrement} other {# enregistrements}}"
     }
   },
   "DealModal": {

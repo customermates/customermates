@@ -47,7 +47,7 @@ describe("data-view URL synchronization", () => {
     vi.useRealTimers();
   });
 
-  it("synchronizes an initial active query and accepts an equivalent legacy URL", () => {
+  it("synchronizes an initial active query and accepts an equivalent URL in another parameter order", () => {
     const { state, store } = createStore();
     state.searchTerm = "acme";
     state.sortDescriptor = { direction: "asc", field: "name" };
@@ -59,7 +59,7 @@ describe("data-view URL synchronization", () => {
     expect(replaceState).toHaveBeenCalledWith(null, "", "/en/contacts?searchTerm=acme&sort=name%3Aasc");
     cleanup();
 
-    window.history.replaceState(null, "", "/en/contacts?searchTerm=acme&sortField=name&sortDir=asc");
+    window.history.replaceState(null, "", "/en/contacts?sort=name%3Aasc&searchTerm=acme");
     replaceState.mockClear();
     const equivalentCleanup = connectDataViewUrlSync(store);
     expect(replaceState).not.toHaveBeenCalled();

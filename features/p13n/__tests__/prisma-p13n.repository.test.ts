@@ -35,7 +35,7 @@ import { PrismaP13nRepo } from "../prisma-p13n.repository";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { CLEARED_GROUPING } from "@/core/base/grouping/stored-grouping";
+import { Prisma } from "@/generated/prisma";
 
 describe("PrismaP13nRepo legacy filter normalization", () => {
   beforeEach(() => {
@@ -250,11 +250,13 @@ describe("PrismaP13nRepo grouping storage", () => {
     expect(dated.update.grouping).toEqual({ field: "createdAt", bucket: "month" });
   });
 
-  it("writes the cleared sentinel rather than json null so a later read cannot lift the legacy column", async () => {
+  it("writes a database null for a cleared grouping and clears the shadow with it", async () => {
     const args = await write(null);
 
+    expect(args.create.groupingColumnId).toBeNull();
+    expect(args.create.grouping).toBe(Prisma.DbNull);
     expect(args.update.groupingColumnId).toBeNull();
-    expect(args.update.grouping).toEqual(CLEARED_GROUPING);
+    expect(args.update.grouping).toBe(Prisma.DbNull);
   });
 
   it("leaves both fields out of the update entirely when the caller says nothing about grouping", async () => {
@@ -266,7 +268,7 @@ describe("PrismaP13nRepo grouping storage", () => {
     expect(Object.keys(args.update)).not.toContain("groupingColumnId");
   });
 
-  it("reads the descriptor back and keeps the shadow it was stored with", async () => {
+  it("reads the descriptor back and never exposes the shadow column", async () => {
     p13nFindUnique.mockResolvedValue(
       storedRow({ p13nId: "deals", grouping: { field: A_COLUMN_ID }, groupingColumnId: A_COLUMN_ID }),
     );
@@ -274,6 +276,14 @@ describe("PrismaP13nRepo grouping storage", () => {
     const read = await runWithTenant(mockUser, () => new PrismaP13nRepo().getP13n("deals"));
 
     expect(read?.grouping).toEqual({ field: A_COLUMN_ID });
-    expect(read?.groupingColumnId).toBe(A_COLUMN_ID);
+    expect(read).not.toHaveProperty("groupingColumnId");
+  });
+
+  it("reads a legacy shadow column without a descriptor as no grouping at all", async () => {
+    p13nFindUnique.mockResolvedValue(storedRow({ p13nId: "deals", groupingColumnId: A_COLUMN_ID, viewMode: "card" }));
+
+    const read = await runWithTenant(mockUser, () => new PrismaP13nRepo().getP13n("deals"));
+
+    expect(read?.grouping).toBeUndefined();
   });
 });

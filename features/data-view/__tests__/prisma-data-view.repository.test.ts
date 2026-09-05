@@ -46,6 +46,8 @@ vi.mock("@/prisma/db", () => ({
   },
 }));
 
+import { Prisma } from "@/generated/prisma";
+
 import { PrismaDataViewRepo } from "../prisma-data-view.repository";
 import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
@@ -241,7 +243,7 @@ describe("PrismaDataViewRepo scoping", () => {
       filters: [],
       searchTerm: "",
       sortDescriptor: {},
-      grouping: {},
+      grouping: Prisma.DbNull,
       groupingColumnId: null,
     });
   });
@@ -335,16 +337,16 @@ describe("PrismaDataViewRepo stored state", () => {
     });
   });
 
-  it("reads a cleared sort descriptor and a cleared grouping as present nulls", async () => {
-    dataViewFindMany.mockResolvedValue([storedView({ sortDescriptor: {}, grouping: {} })]);
+  it("reads a cleared sort descriptor as a present null and a null grouping as absent", async () => {
+    dataViewFindMany.mockResolvedValue([storedView({ sortDescriptor: {}, grouping: null })]);
 
     const surface = await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
 
-    expect(surface.views[0].state).toEqual({ sortDescriptor: null, grouping: null });
+    expect(surface.views[0].state).toEqual({ sortDescriptor: null });
     expect("sortDescriptor" in surface.views[0].state).toBe(true);
   });
 
-  it("lifts a legacy grouping column into a descriptor only on a stored board", async () => {
+  it("never lifts the shadow column into a descriptor, whatever the stored layout", async () => {
     dataViewFindMany.mockResolvedValue([
       storedView({ groupingColumnId: A_GROUPING_COLUMN, viewMode: "card" }),
       { ...storedView({ groupingColumnId: A_GROUPING_COLUMN, viewMode: "table" }), id: A_SECOND_VIEW_ID },
@@ -352,7 +354,7 @@ describe("PrismaDataViewRepo stored state", () => {
 
     const surface = await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
 
-    expect(surface.views[0].state.grouping).toEqual({ field: A_GROUPING_COLUMN });
+    expect(surface.views[0].state).not.toHaveProperty("grouping");
     expect(surface.views[1].state).not.toHaveProperty("grouping");
   });
 

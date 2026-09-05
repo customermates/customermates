@@ -32,7 +32,7 @@ export const OperatorWorkspacesPageView = observer(function OperatorWorkspacesPa
   useDataViewSync(operatorWorkspacesStore, initialWorkspaces);
   const columns = useOperatorWorkspaceColumns();
   const t = useTranslations();
-  const view = resolveDataViewView(operatorWorkspacesStore.viewMode, operatorWorkspacesStore.isGrouped);
+  const view = resolveDataViewView(operatorWorkspacesStore.viewMode, operatorWorkspacesStore.canBoard);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery:

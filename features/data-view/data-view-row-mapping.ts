@@ -6,7 +6,7 @@ import type { ViewMode } from "@/core/base/base-query-builder";
 import { Prisma } from "@/generated/prisma";
 
 import { DATA_VIEW_PAGE_SIZES, DATA_VIEW_STATE_FIELDS } from "@/core/data-view/data-view-state.schema";
-import { CLEARED_GROUPING, groupingShadowColumnId, readStoredGrouping } from "@/core/base/grouping/stored-grouping";
+import { groupingShadowColumnId, readStoredGrouping } from "@/core/base/grouping/stored-grouping";
 import { normalizeFilters } from "@/core/base/filter-compat";
 
 type NullableJson = Prisma.InputJsonValue | typeof Prisma.DbNull;
@@ -88,7 +88,7 @@ export function readStoredState(row: StoredStateRow): DataViewState {
     state.sortDescriptor = isClearedSortDescriptor(row.sortDescriptor) ? null : (row.sortDescriptor as SortDescriptor);
   if (row.pageSize !== null) state.pageSize = row.pageSize as DataViewState["pageSize"];
   if (row.viewMode !== null) state.viewMode = row.viewMode as ViewMode;
-  const grouping = readStoredGrouping(row.grouping, row.groupingColumnId, row.viewMode);
+  const grouping = readStoredGrouping(row.grouping);
   if (grouping !== undefined) state.grouping = grouping;
   if (Array.isArray(row.columnOrder)) state.columnOrder = row.columnOrder as string[];
   if (isPlainObject(row.columnWidths)) state.columnWidths = row.columnWidths as Record<string, number>;
@@ -111,7 +111,7 @@ export function writeStoredState(state: DataViewState): DataViewStateColumns {
     sortDescriptor: json(state.sortDescriptor === null ? CLEARED_SORT_DESCRIPTOR : state.sortDescriptor),
     viewMode: state.viewMode === undefined ? null : state.viewMode,
     groupingColumnId: state.grouping === undefined ? null : groupingShadowColumnId(state.grouping),
-    grouping: json(state.grouping === null ? CLEARED_GROUPING : state.grouping),
+    grouping: json(state.grouping ?? undefined),
     columnOrder: json(state.columnOrder),
     columnWidths: json(state.columnWidths),
     hiddenColumns: json(state.hiddenColumns),

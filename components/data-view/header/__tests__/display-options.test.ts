@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { BaseDataViewStore } from "@/core/base/base-data-view.store";
+import type * as TabsModule from "@/components/ui/tabs";
 
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -8,6 +9,21 @@ import { describe, expect, it, vi } from "vitest";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { ViewMode } from "@/core/base/base-query-builder";
 
+const harness = vi.hoisted(() => ({
+  onLayoutChange: undefined as ((value: string) => void) | undefined,
+}));
+
+vi.mock("@/components/ui/tabs", async (importOriginal) => {
+  const actual = await importOriginal<typeof TabsModule>();
+
+  return {
+    ...actual,
+    Tabs: (props: Parameters<typeof actual.Tabs>[0]) => {
+      harness.onLayoutChange = props.onValueChange;
+      return createElement(actual.Tabs, props);
+    },
+  };
+});
 vi.mock("mobx-react-lite", () => ({ observer: <T>(component: T) => component }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("next/navigation", () => ({ usePathname: () => "/en/deals" }));
@@ -37,6 +53,7 @@ type Item = { id: string };
 function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewStore<Item> {
   return {
     activeViewKey: ALL_VIEW_KEY,
+    canBoard: true,
     columnsDefinition: [],
     currentGroupableFieldId: "",
     customColumns: [],
@@ -51,11 +68,22 @@ function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewSt
   } as unknown as BaseDataViewStore<Item>;
 }
 
-function render(value: BaseDataViewStore<Item>): string {
+function render(value: BaseDataViewStore<Item>, anchorScope?: string): string {
   return renderToStaticMarkup(
-    createElement(DataViewDisplayOptions<Item>, { store: value } as { store: BaseDataViewStore<Item> }) as ReactNode,
+    createElement(DataViewDisplayOptions<Item>, { anchorScope, store: value } as {
+      anchorScope?: string;
+      store: BaseDataViewStore<Item>;
+    }) as ReactNode,
   );
 }
+
+const STAGE = {
+  id: "stage",
+  grouping: { field: "stage" },
+  kind: "customSingleSelect",
+  label: "Stage",
+  supportsDragWriteBack: true,
+} as const;
 
 const DOT = 'class="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-primary"';
 
@@ -126,5 +154,48 @@ describe("display options", () => {
 
   it("hides the group-by control on a surface that declares no groupable field", () => {
     expect(render(store({ viewMode: ViewMode.table }))).not.toContain("Common.table.groupBy");
+  });
+
+  it("renders exactly the table and board layout controls as a segmented list under the anchor scope", () => {
+    const html = render(store(), "deals");
+
+    expect(html).toContain('data-variant="segmented"');
+    expect(html).toContain('id="deals-layout-table"');
+    expect(html).toContain('id="deals-layout-board"');
+    expect(html).not.toContain("deals-layout-cards");
+    expect(html).not.toContain("deals-layout-kanban");
+    expect(html).not.toContain("bg-primary data-[state=active]");
+    expect(html).toContain("Common.ariaLabels.switchToBoardView");
+    expect(html).not.toContain('disabled=""');
+  });
+
+  it("disables the board control when the store cannot board", () => {
+    const html = render(store({ canBoard: false }), "company-roles");
+
+    expect(html).toMatch(
+      /id="company-roles-layout-board"[^>]*disabled=""|disabled=""[^>]*id="company-roles-layout-board"/,
+    );
+  });
+
+  it("shows the table as active for a stored card mode the surface cannot board", () => {
+    const html = render(store({ canBoard: false, viewMode: ViewMode.card }), "deals");
+
+    expect(html).toMatch(
+      /id="deals-layout-table"[^>]*data-state="active"|data-state="active"[^>]*id="deals-layout-table"/,
+    );
+  });
+
+  it("switches to the board without picking a grouping and keeps an active grouping", () => {
+    const setViewOptions = vi.fn();
+    render(store({ groupableFields: [STAGE], setViewOptions }));
+    harness.onLayoutChange?.("board");
+
+    expect(setViewOptions).toHaveBeenCalledWith({ viewMode: ViewMode.card });
+
+    setViewOptions.mockClear();
+    render(store({ grouping: STAGE.grouping, groupableFields: [STAGE], setViewOptions, viewMode: ViewMode.card }));
+    harness.onLayoutChange?.("table");
+
+    expect(setViewOptions).toHaveBeenCalledWith({ viewMode: ViewMode.table });
   });
 });

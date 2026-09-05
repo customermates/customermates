@@ -9,7 +9,6 @@ import type { DataViewView } from "./data-view-state";
 
 import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
 
-import { DataCardView } from "./data-card-view";
 import { DataKanbanView } from "./data-kanban-view";
 import { DataTable } from "./data-table";
 
@@ -52,20 +51,8 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
     );
   }
 
-  if (view === "board") {
-    return (
-      <DataKanbanView
-        cardHref={rowHref}
-        className="animate-page-result-in motion-reduce:animate-none"
-        columns={resolvedColumns}
-        store={store}
-        onCardClick={onRowClick}
-      />
-    );
-  }
-
   return (
-    <DataCardView
+    <DataKanbanView
       cardHref={rowHref}
       className="animate-page-result-in motion-reduce:animate-none"
       columns={resolvedColumns}

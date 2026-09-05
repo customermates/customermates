@@ -3,7 +3,7 @@ import type { DateBucket } from "./grouping.schema";
 import type { GroupTargetWhere } from "./group-scope";
 import type { GroupableFieldSpec } from "./groupable-field";
 
-import { MAX_AXIS_GROUPS, NO_VALUE_GROUP_KEY } from "./grouping.schema";
+import { DEFAULT_DATE_BUCKET, MAX_AXIS_GROUPS, NO_VALUE_GROUP_KEY } from "./grouping.schema";
 import { ENTITY_CUSTOM_FIELD_RELATION } from "./groupable-field";
 import { orderByOptionIndex } from "./option-order";
 import { dateBucketLadder } from "./date-buckets";
@@ -140,7 +140,10 @@ export async function countGroupRows(runtime: GroupCountRuntime, request: GroupC
     }
 
     case "dateBucket": {
-      const ladder = dateBucketLadder(request.bucket ?? "month", request.now ? new Date(request.now) : new Date());
+      const ladder = dateBucketLadder(
+        request.bucket ?? DEFAULT_DATE_BUCKET,
+        request.now ? new Date(request.now) : new Date(),
+      );
       const counts = await Promise.all(ladder.map((entry) => scopedCount(entry.key)));
 
       return ladder.map((entry, index) => ({ key: entry.key, count: counts[index] }));

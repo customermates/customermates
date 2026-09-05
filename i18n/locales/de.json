@@ -830,9 +830,8 @@
       "hidePassword": "Passwort ausblenden",
       "selectOption": "Option auswählen",
       "showPassword": "Passwort anzeigen",
-      "switchToCardView": "Zur Kartenansicht wechseln",
-      "switchToKanbanView": "Zur Kanban-Ansicht wechseln",
-      "switchToKanbanViewDisabled": "Füge ein Einzelauswahl-Feld hinzu, um die Kanban-Ansicht zu aktivieren",
+      "switchToBoardView": "Zur Board-Ansicht wechseln",
+      "switchToBoardViewDisabled": "Diese Liste hat kein Feld zum Gruppieren",
       "switchToTableView": "Zur Tabellenansicht wechseln",
       "themeSwitcher": "Darstellungsmodus-Umschalter",
       "tooltipFields": "Darstellung",
@@ -1750,6 +1749,12 @@
     "menu": "Import und Export"
   },
   "DataView": {
+    "board": {
+      "chooseField": "Nach Feld gruppieren",
+      "createField": "Einzelauswahl-Feld erstellen",
+      "promptBody": "Wähle ein Feld zum Gruppieren. Jeder Wert wird zu einer Spalte auf dem Board.",
+      "promptTitle": "Wähle, wie dieses Board gruppiert wird"
+    },
     "collapseGroup": "Gruppe {group} einklappen",
     "dragToReorder": "Zum Neuanordnen ziehen",
     "editColumn": "Spalte bearbeiten",
@@ -1759,7 +1764,6 @@
     "resizeColumn": "Größe der Spalte „{column}“ ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
     "resizeHint": "Zum Ändern der Größe ziehen. Zum Zurücksetzen doppelklicken.",
     "selectAllRows": "Alle Zeilen auswählen",
-    "selectGroupingColumn": "Wähle eine Gruppierungsspalte aus, um die Kanban-Ansicht anzuzeigen.",
     "selectRow": "Zeile {id} auswählen",
     "views": {
       "all": "Alle",
@@ -1777,8 +1781,7 @@
       "name": "Name",
       "namePlaceholder": "Name der Ansicht",
       "railLabel": "Gespeicherte Ansichten",
-      "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}",
-      "unavailable": "Ansicht nicht verfügbar"
+      "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}"
     }
   },
   "DealModal": {

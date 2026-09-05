@@ -30,7 +30,7 @@ export const OperatorAuditPageView = observer(function OperatorAuditPageView({ i
   useDataViewSync(operatorAuditStore, initialAudit);
   const columns = useOperatorAuditColumns();
   const t = useTranslations();
-  const view = resolveDataViewView(operatorAuditStore.viewMode, operatorAuditStore.isGrouped);
+  const view = resolveDataViewView(operatorAuditStore.viewMode, operatorAuditStore.canBoard);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery: Boolean(operatorAuditStore.searchTerm?.trim()) || (operatorAuditStore.filters?.length ?? 0) > 0,

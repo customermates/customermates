@@ -1,7 +1,7 @@
 import type { DateBucket } from "./grouping.schema";
 import type { GroupableFieldSpec, GroupingTargetModel } from "./groupable-field";
 
-import { NO_VALUE_GROUP_KEY } from "./grouping.schema";
+import { DEFAULT_DATE_BUCKET, NO_VALUE_GROUP_KEY } from "./grouping.schema";
 import { dateBucketEntry } from "./date-buckets";
 
 export type GroupTargetWhere = (model: GroupingTargetModel) => Record<string, unknown>;
@@ -45,7 +45,11 @@ export function groupScopeFragment(scope: GroupScope, targetWhere: GroupTargetWh
     }
 
     case "dateBucket": {
-      const entry = dateBucketEntry(key, scope.bucket ?? "month", scope.now ? new Date(scope.now) : new Date());
+      const entry = dateBucketEntry(
+        key,
+        scope.bucket ?? DEFAULT_DATE_BUCKET,
+        scope.now ? new Date(scope.now) : new Date(),
+      );
       if (!entry) return MATCHES_NOTHING;
 
       const range = {

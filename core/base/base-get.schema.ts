@@ -8,13 +8,7 @@ import { normalizeFilterInput } from "./filter-compat";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { CustomColumnDtoSchema } from "@/features/custom-column/custom-column.schema";
-import {
-  GROUP_PAGE_SIZE_DEFAULT,
-  GROUP_PAGE_SIZE_MAX,
-  GroupPageRequestSchema,
-  GroupingSchema,
-  NO_VALUE_GROUP_KEY,
-} from "@/core/base/grouping/grouping.schema";
+import { GROUP_PAGE_SIZE_MAX, GroupPageRequestSchema, GroupingSchema } from "@/core/base/grouping/grouping.schema";
 
 import type { GroupScope } from "@/core/base/grouping/group-scope";
 
@@ -110,14 +104,10 @@ export const PaginationResponseSchema = PaginationRequestSchema.extend({
 });
 export type PaginationResponse = Data<typeof PaginationResponseSchema>;
 
-const KANBAN_PER_GROUP_MAX = GROUP_PAGE_SIZE_MAX;
-export const KANBAN_PER_GROUP_DEFAULT = GROUP_PAGE_SIZE_DEFAULT;
-export const KANBAN_EMPTY_GROUP_KEY = NO_VALUE_GROUP_KEY;
-
 export const GroupedPaginationRequestSchema = z.object({
   groupingColumnId: z.string(),
-  perGroup: z.number().int().min(1).max(KANBAN_PER_GROUP_MAX),
-  overrides: z.record(z.string(), z.number().int().min(1).max(KANBAN_PER_GROUP_MAX)).optional(),
+  perGroup: z.number().int().min(1).max(GROUP_PAGE_SIZE_MAX),
+  overrides: z.record(z.string(), z.number().int().min(1).max(GROUP_PAGE_SIZE_MAX)).optional(),
 });
 export type GroupedPaginationRequest = Data<typeof GroupedPaginationRequestSchema>;
 
@@ -189,7 +179,6 @@ export const DataViewResultFields = {
   views: z.array(z.any()).optional(),
   activeViewKey: z.string().optional(),
   viewPersistable: z.boolean().optional(),
-  viewUnavailable: z.boolean().optional(),
 };
 
 export function createApiGetResultSchema<T extends z.ZodSchema>(itemSchema: T) {
@@ -213,7 +202,6 @@ export function createApiGetResultSchema<T extends z.ZodSchema>(itemSchema: T) {
     columnWidths: z.record(z.string(), z.number()).optional(),
     hiddenColumns: z.array(z.string()).optional(),
     viewMode: z.string().optional(),
-    groupingColumnId: z.string().optional(),
     groupCounts: z.record(z.string(), z.number()).optional(),
     groupValueSums: z.record(z.string(), GroupValueSumsSchema).optional(),
     valueSums: GroupValueSumsSchema.optional(),

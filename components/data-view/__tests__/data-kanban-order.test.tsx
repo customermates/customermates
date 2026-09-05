@@ -24,7 +24,18 @@ vi.mock("@/components/ui/tooltip", () => ({
   TooltipTrigger: ({ children }: { children: ReactNode }) => children,
 }));
 vi.mock("@/core/stores/root-store.provider", () => ({
-  useRootStore: () => ({ customColumnModalStore: { openWithColumn: vi.fn() } }),
+  useRootStore: () => ({ customColumnModalStore: { openForCreate: vi.fn(), openWithColumn: vi.fn() } }),
+}));
+vi.mock("@/components/entity-terminology/use-filter-field-label", () => ({
+  useFilterFieldLabel: () => (field: string) => field,
+}));
+vi.mock("@/components/ui/select", () => ({
+  Select: ({ children }: { children: ReactNode }) => createElement("div", { "data-slot": "select" }, children),
+  SelectContent: ({ children }: { children: ReactNode }) => createElement("div", null, children),
+  SelectItem: ({ children, value }: { children: ReactNode; value: string }) =>
+    createElement("div", { "data-value": value }, children),
+  SelectTrigger: ({ children }: { children: ReactNode }) => createElement("div", null, children),
+  SelectValue: () => null,
 }));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({
@@ -198,9 +209,21 @@ describe("board column order and labels", () => {
     ]);
   });
 
-  it("falls back to the placeholder when the server resolved no grouping", () => {
-    const host = renderBoard(boardStore({ isGrouped: false, groupingResult: undefined }));
+  it("falls back to the grouping prompt when the server resolved no grouping", () => {
+    const host = renderBoard(
+      boardStore({
+        canManage: true,
+        currentGroupableFieldId: "",
+        groupableFields: [],
+        groupingResult: undefined,
+        isGrouped: false,
+        setViewOptions: vi.fn(),
+      }),
+    );
 
-    expect(host.textContent).toBe("DataView.selectGroupingColumn");
+    expect(host.querySelector('[data-slot="kanban-root"] [data-slot="empty-state"]')).not.toBeNull();
+    expect(host.textContent).toContain("DataView.board.promptTitle");
+    expect(host.textContent).toContain("DataView.board.createField");
+    expect(host.querySelector('[data-slot="kanban-root"] [data-slot="select"]')).toBeNull();
   });
 });

@@ -6,7 +6,13 @@ import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT, walkFiles } from "./walk";
 
-import { GROUPABLE_DATE_FIELDS, GROUPING_ENUM, GROUPING_JOIN, type GroupableModel } from "@/core/base/grouping/groupable-field";
+import {
+  GROUPABLE_DATE_FIELDS,
+  GROUPING_ENUM,
+  GROUPING_JOIN,
+  OPERATOR_GROUPABLE_MODELS,
+  type GroupableModel,
+} from "@/core/base/grouping/groupable-field";
 import { FILTER_FIELD_TERMINOLOGY } from "@/features/entity-terminology/entity-terminology.constants";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
 
@@ -136,8 +142,20 @@ const declarations = sourceFiles().flatMap((path) => {
 });
 
 describe("groupable field declarations", () => {
-  it("declares grouping only on the five entity type surfaces", () => {
+  it("declares grouping on exactly the wired models: the five entity surfaces and the three operator lists", () => {
     expect(declarations.map(({ model }) => model).sort()).toEqual(Object.keys(GROUPING_JOIN).sort());
+  });
+
+  it("declares the operator models only from operator repositories, through the enum and date factories", () => {
+    const operatorModels = new Set<string>(OPERATOR_GROUPABLE_MODELS);
+    const operatorDeclarations = declarations.filter(({ model }) => operatorModels.has(model));
+
+    expect(operatorDeclarations.map(({ model }) => model).sort()).toEqual([...OPERATOR_GROUPABLE_MODELS].sort());
+    for (const { file, model, claims } of operatorDeclarations) {
+      expect([file, file.startsWith("ee/operator/")]).toEqual([file, true]);
+      expect([file, Object.keys(claims).sort()]).toEqual([file, [DATE_FACTORY, ENUM_FACTORY].sort()]);
+      expect([file, Object.keys(GROUPING_JOIN[model as GroupableModel])]).toEqual([file, []]);
+    }
   });
 
   it("builds every spec through a factory, never through an object literal carrying a kind", () => {

@@ -30,7 +30,7 @@ export const WebhookDeliveriesPageView = observer(function WebhookDeliveriesPage
   useDataViewSync(webhookDeliveriesStore, initialDeliveries);
   const columns = useWebhookDeliveryColumns();
   const t = useTranslations();
-  const view = resolveDataViewView(webhookDeliveriesStore.viewMode, webhookDeliveriesStore.isGrouped);
+  const view = resolveDataViewView(webhookDeliveriesStore.viewMode, webhookDeliveriesStore.canBoard);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery:

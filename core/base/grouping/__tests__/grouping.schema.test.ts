@@ -11,8 +11,6 @@ import {
   groupingForField,
   sameGrouping,
 } from "../grouping.schema";
-import { KANBAN_EMPTY_GROUP_KEY, KANBAN_PER_GROUP_DEFAULT } from "@/core/base/base-get.schema";
-import { GROUP_PAGE_SIZE_DEFAULT } from "../grouping.schema";
 
 const A_COLUMN_ID = "8f1c1a4e-0b2d-4a9e-9d7c-1f2a3b4c5d6e";
 
@@ -50,10 +48,8 @@ describe("GroupingSchema", () => {
 });
 
 describe("grouping constants", () => {
-  it("keeps the kanban aliases pointing at the same values so persisted keys do not move", () => {
-    expect(KANBAN_EMPTY_GROUP_KEY).toBe(NO_VALUE_GROUP_KEY);
+  it("keeps the persisted no-value key stable", () => {
     expect(NO_VALUE_GROUP_KEY).toBe("__empty__");
-    expect(KANBAN_PER_GROUP_DEFAULT).toBe(GROUP_PAGE_SIZE_DEFAULT);
   });
 });
 

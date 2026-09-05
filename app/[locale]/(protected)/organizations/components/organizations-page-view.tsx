@@ -40,7 +40,7 @@ export const OrganizationsPageView = observer(function OrganizationsPageView({ o
   const { singular } = useEntityTerminology();
   const t = useTranslations();
 
-  const view = resolveDataViewView(organizationsStore.viewMode, organizationsStore.isGrouped);
+  const view = resolveDataViewView(organizationsStore.viewMode, organizationsStore.canBoard);
   const hasActiveQuery =
     Boolean(organizationsStore.searchTerm?.trim()) || (organizationsStore.filters?.length ?? 0) > 0;
   const pageState = resolveDataViewPageState({

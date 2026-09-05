@@ -698,7 +698,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["components/card/form-actions.tsx :: t :: primaryButtonLabel", 1],
   ["components/data-transfer/import-wizard.tsx :: t :: field.labelKey", 1],
   ["components/data-view/group-label.ts :: t :: group.labelKey", 1],
-  ["components/data-view/header/display-options.tsx :: t :: field.labelKey", 1],
+  ["components/data-view/use-groupable-field-label.ts :: t :: field.labelKey", 1],
   ["components/data-transfer/import-wizard.tsx :: t :: labelKey", 1],
   ["components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: nameKey", 1],
   ["components/entity-detail/entity-detail.registry.tsx :: t :: key", 1],

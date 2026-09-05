@@ -27172,9 +27172,6 @@
                     "viewMode": {
                       "type": "string"
                     },
-                    "groupingColumnId": {
-                      "type": "string"
-                    },
                     "groupCounts": {
                       "type": "object",
                       "propertyNames": {
@@ -53895,9 +53892,6 @@
             }
           },
           "viewMode": {
-            "type": "string"
-          },
-          "groupingColumnId": {
             "type": "string"
           },
           "groupCounts": {

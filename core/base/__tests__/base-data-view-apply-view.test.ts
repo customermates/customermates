@@ -164,40 +164,6 @@ describe("BaseDataViewStore.applyView", () => {
     expect(store.requestedParams[0]).toEqual({ p13nId: SURFACE.deals, viewId: ALL_VIEW_KEY });
   });
 
-  it("applies the All tab and toasts once, after render, when the server reports the requested view unavailable", () => {
-    vi.useFakeTimers();
-    const store = new TestStore(rootStore());
-    const unavailable = {
-      items: [],
-      p13nId: SURFACE.deals,
-      filterableFields: FILTERABLE_FIELDS,
-      views: [],
-      activeViewKey: VIEW_ID,
-      viewUnavailable: true,
-    };
-
-    store.setItems(unavailable);
-
-    expect(store.activeViewKey).toBe(ALL_VIEW_KEY);
-    expect(store.viewUnavailable).toBe(true);
-    expect(toast.error).not.toHaveBeenCalled();
-
-    vi.runAllTimers();
-    expect(toast.error).toHaveBeenCalledExactlyOnceWith("DataView.views.unavailable", expect.anything());
-
-    store.setItems(unavailable);
-    vi.runAllTimers();
-    expect(toast.error).toHaveBeenCalledTimes(1);
-
-    store.setItems({ ...unavailable, activeViewKey: ALL_VIEW_KEY, viewUnavailable: false });
-    expect(store.viewUnavailable).toBe(false);
-
-    store.setItems(unavailable);
-    vi.runAllTimers();
-    expect(toast.error).toHaveBeenCalledTimes(2);
-    vi.useRealTimers();
-  });
-
   it("does not select a view when the surface cannot persist", () => {
     const store = hydrated();
     store.viewPersistable = false;

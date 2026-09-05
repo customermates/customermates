@@ -1,10 +1,14 @@
 import type { GetQueryParams } from "@/core/base/base-get.schema";
+import type { DateBucket } from "@/core/base/grouping/grouping.schema";
+import type { GroupCountRow } from "@/core/base/grouping/group-count";
+import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 import type { OperatorUserRowDto } from "./operator-lists.schema";
 import type { GetOperatorUsersRepo } from "./get/get-operator-users.interactor";
 
 import type { Prisma, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
+import { dateGroupables, enumGroupables } from "@/core/base/grouping/groupable-field";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
@@ -13,7 +17,14 @@ import { resolveAgentCreditEntitlement } from "@/ee/agent-chat/agent-credit-poli
 import { env } from "@/env";
 import { Status } from "@/generated/prisma";
 
-import { partitionOperatorUserFilters, resolveWorkspaceLabels, resolveWorkspaceOwners } from "./operator-list-filters";
+import {
+  applyGroupScopeAsFilters,
+  countOperatorGroups,
+  operatorCollator,
+  partitionOperatorUserFilters,
+  resolveWorkspaceLabels,
+  resolveWorkspaceOwners,
+} from "./operator-list-filters";
 
 export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInput> implements GetOperatorUsersRepo {
   getSearchableFields() {
@@ -38,10 +49,33 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
         FilterFieldKey.isPlatformOperator,
         FilterFieldKey.lastActiveAt,
         FilterFieldKey.createdAt,
+        FilterFieldKey.updatedAt,
         FilterFieldKey.workspaceId,
         FilterFieldKey.adProvider,
         FilterFieldKey.workspaceTags,
       ].map((field) => ({ field, operators: FILTER_FIELD_DEFAULT_OPERATORS[field] })),
+    );
+  }
+
+  getGroupableFields(): Promise<GroupableFieldSpec[]> {
+    return Promise.resolve([
+      ...enumGroupables("user", { status: true, plan: true, subscriptionStatus: true }),
+      ...dateGroupables("user", { createdAt: true, updatedAt: true }),
+    ]);
+  }
+
+  collator() {
+    return operatorCollator();
+  }
+
+  countByGroup(args: {
+    spec: GroupableFieldSpec;
+    params: GetQueryParams;
+    bucket?: DateBucket;
+    now?: string;
+  }): Promise<GroupCountRow[]> {
+    return countOperatorGroups(args.spec, args.bucket, args.now, (groupScope) =>
+      this.countRowsUnscoped({ ...args.params, groupScope }),
     );
   }
 
@@ -54,7 +88,10 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
   }
 
   @BypassTenantGuard
-  private async listRowsUnscoped(params: GetQueryParams, now = new Date()): Promise<OperatorUserRowDto[]> {
+  private async listRowsUnscoped(scoped: GetQueryParams, now = new Date()): Promise<OperatorUserRowDto[]> {
+    const params = applyGroupScopeAsFilters(scoped);
+    if (!params) return [];
+
     const { baseWhere, passthrough } = partitionOperatorUserFilters(params.filters);
     const args = await this.buildQueryArgs({ ...params, filters: passthrough }, baseWhere);
 
@@ -234,7 +271,10 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
   }
 
   @BypassTenantGuard
-  private async countRowsUnscoped(params: GetQueryParams): Promise<number> {
+  private async countRowsUnscoped(scoped: GetQueryParams): Promise<number> {
+    const params = applyGroupScopeAsFilters(scoped);
+    if (!params) return 0;
+
     const { baseWhere, passthrough } = partitionOperatorUserFilters(params.filters);
     const { where } = await this.buildQueryArgs({ ...params, filters: passthrough }, baseWhere);
 

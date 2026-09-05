@@ -15,8 +15,6 @@ export const GET_PARAM_KEYS = [
   "pageSize",
   "searchTerm",
   "sort",
-  "sortDir",
-  "sortField",
   "view",
   "viewMode",
 ] as const;
@@ -93,7 +91,6 @@ export function decodeGetParams(
     return usp;
   })();
 
-  const filtersParam = source.get("filters");
   const searchTerm = source.get("searchTerm") || undefined;
 
   let sortDescriptor: SortDescriptor | undefined = undefined;
@@ -110,13 +107,6 @@ export function decodeGetParams(
     }
   }
 
-  if (!sortDescriptor) {
-    const sortField = source.get("sortField") || undefined;
-    const sortDir = source.get("sortDir") as SortDescriptor["direction"] | null;
-
-    if (sortField && sortDir) sortDescriptor = { field: sortField, direction: sortDir };
-  }
-
   const page = source.get("page");
   const pageSize = source.get("pageSize");
 
@@ -125,18 +115,6 @@ export function decodeGetParams(
   const tokens = source.getAll("filters");
 
   if (tokens.length > 0) filters = tokens.map(decodeFilterToken).filter(Boolean) as Filter[];
-  else if (filtersParam) {
-    try {
-      const raw = JSON.parse(filtersParam) as Array<{
-        f: string;
-        o: FilterOperatorKey;
-        v: unknown;
-        c?: string;
-      }>;
-
-      filters = raw.map((r) => ({ field: r.f, operator: r.o, value: r.v })) as Filter[] | undefined;
-    } catch {}
-  }
 
   const parsedPageSize = pageSize === null ? undefined : Number(pageSize);
   const decodedViewMode = source.get("viewMode");

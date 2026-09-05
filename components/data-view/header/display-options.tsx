@@ -3,12 +3,11 @@
 import type { DragEndEvent } from "@dnd-kit/core";
 import type { Prisma } from "@/generated/prisma";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
-import type { GroupableFieldDto } from "@/core/base/grouping/groupable-field";
 
 import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ArrowDownAZ, ArrowUpAZ, GripVertical, LayoutGrid, LayoutList, SlidersHorizontal, Table } from "lucide-react";
+import { ArrowDownAZ, ArrowUpAZ, GripVertical, LayoutList, SlidersHorizontal, Table } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
@@ -23,13 +22,12 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
-import { useFilterFieldLabel } from "@/components/entity-terminology/use-filter-field-label";
-import { useDateBucketLabel } from "@/components/data-view/group-label";
+import { useGroupableFieldLabel } from "@/components/data-view/use-groupable-field-label";
 import { cn } from "@/core/utils/cn";
 
 import { PopoverSection as Section } from "./popover-section";
 
-type DataViewMode = "table" | "grid" | "kanban";
+type DataViewMode = "table" | "board";
 
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
@@ -100,8 +98,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   const t = useTranslations();
   const [isOpen, setIsOpen] = useState(false);
   const columnLabel = useColumnLabel();
-  const filterFieldLabel = useFilterFieldLabel();
-  const dateBucketLabel = useDateBucketLabel();
+  const groupableLabel = useGroupableFieldLabel();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor),
@@ -110,7 +107,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   const orderedColumns = store.orderedColumns;
   const hiddenSet = new Set(store.hiddenColumns);
   const sortable = store.columnsDefinition.filter((col) => col.sortable);
-  const canUseKanban = store.groupableFields.length > 0;
+  const canBoard = store.canBoard;
 
   const currentSortField = store.sortDescriptor?.field ?? "";
   const currentSortDirection = store.sortDescriptor?.direction ?? "asc";
@@ -119,27 +116,11 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   const currentGroupingId = store.currentGroupableFieldId;
   const hasActiveOption = Boolean(currentSortField) || Boolean(store.grouping) || store.hiddenColumns.length > 0;
 
-  const currentLayout: DataViewMode = store.viewMode === ViewMode.table ? "table" : store.grouping ? "kanban" : "grid";
+  const currentLayout: DataViewMode = store.viewMode === ViewMode.card && canBoard ? "board" : "table";
 
   function handleLayoutChange(next: string) {
     if (!next) return;
-    switch (next as DataViewMode) {
-      case "table":
-        store.setViewOptions({ viewMode: ViewMode.table });
-        break;
-      case "grid":
-        store.setViewOptions({
-          viewMode: ViewMode.card,
-          grouping: null,
-        });
-        break;
-      case "kanban":
-        store.setViewOptions({
-          viewMode: ViewMode.card,
-          grouping: store.grouping ?? store.groupableFields[0]?.grouping ?? null,
-        });
-        break;
-    }
+    store.setViewOptions({ viewMode: (next as DataViewMode) === "board" ? ViewMode.card : ViewMode.table });
   }
 
   function handleSortFieldChange(next: string) {
@@ -165,19 +146,6 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   function handleGroupingChange(next: string) {
     const entry = store.groupableFields.find((field) => field.id === next);
     store.setViewOptions({ grouping: next === "__none__" ? null : (entry?.grouping ?? null) });
-  }
-
-  function groupableFieldName(field: GroupableFieldDto): string {
-    if (field.label) return field.label;
-    if (field.kind === "relation" || field.kind === "dateBucket") return filterFieldLabel(field.grouping.field);
-
-    return field.labelKey ? t(field.labelKey) : columnLabel(field.grouping.field);
-  }
-
-  function groupableLabel(field: GroupableFieldDto): string {
-    const base = groupableFieldName(field);
-
-    return field.bucket ? `${base} \u00b7 ${dateBucketLabel(field.bucket)}` : base;
   }
 
   function handleToggle(uid: string, visible: boolean) {
@@ -228,69 +196,50 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
     >
       <TooltipProvider>
         <div className="flex flex-col">
-          {
-            <Section label={t("Common.table.layout")}>
-              <Tabs value={currentLayout} onValueChange={handleLayoutChange}>
-                <TabsList className="w-full border border-input bg-transparent">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="flex-1">
-                        <TabsTrigger
-                          aria-label={t("Common.ariaLabels.switchToTableView")}
-                          className="w-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
-                          id={anchorScope ? `${anchorScope}-layout-table` : undefined}
-                          value="table"
-                        >
-                          <Table className="size-3.5" />
-                        </TabsTrigger>
-                      </span>
-                    </TooltipTrigger>
+          <Section label={t("Common.table.layout")}>
+            <Tabs value={currentLayout} onValueChange={handleLayoutChange}>
+              <TabsList className="w-full" variant="segmented">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="flex-1">
+                      <TabsTrigger
+                        aria-label={t("Common.ariaLabels.switchToTableView")}
+                        className="w-full"
+                        id={anchorScope ? `${anchorScope}-layout-table` : undefined}
+                        value="table"
+                      >
+                        <Table className="size-3.5" />
+                      </TabsTrigger>
+                    </span>
+                  </TooltipTrigger>
 
-                    <TooltipContent>{t("Common.ariaLabels.switchToTableView")}</TooltipContent>
-                  </Tooltip>
+                  <TooltipContent>{t("Common.ariaLabels.switchToTableView")}</TooltipContent>
+                </Tooltip>
 
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="flex-1">
-                        <TabsTrigger
-                          aria-label={t("Common.ariaLabels.switchToCardView")}
-                          className="w-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
-                          id={anchorScope ? `${anchorScope}-layout-cards` : undefined}
-                          value="grid"
-                        >
-                          <LayoutGrid className="size-3.5" />
-                        </TabsTrigger>
-                      </span>
-                    </TooltipTrigger>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="flex-1">
+                      <TabsTrigger
+                        aria-label={t("Common.ariaLabels.switchToBoardView")}
+                        className="w-full"
+                        disabled={!canBoard}
+                        id={anchorScope ? `${anchorScope}-layout-board` : undefined}
+                        value="board"
+                      >
+                        <LayoutList className="size-3.5" />
+                      </TabsTrigger>
+                    </span>
+                  </TooltipTrigger>
 
-                    <TooltipContent>{t("Common.ariaLabels.switchToCardView")}</TooltipContent>
-                  </Tooltip>
-
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="flex-1">
-                        <TabsTrigger
-                          aria-label={t("Common.ariaLabels.switchToKanbanView")}
-                          className="w-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
-                          disabled={!canUseKanban}
-                          id={anchorScope ? `${anchorScope}-layout-kanban` : undefined}
-                          value="kanban"
-                        >
-                          <LayoutList className="size-3.5" />
-                        </TabsTrigger>
-                      </span>
-                    </TooltipTrigger>
-
-                    <TooltipContent>
-                      {canUseKanban
-                        ? t("Common.ariaLabels.switchToKanbanView")
-                        : t("Common.ariaLabels.switchToKanbanViewDisabled")}
-                    </TooltipContent>
-                  </Tooltip>
-                </TabsList>
-              </Tabs>
-            </Section>
-          }
+                  <TooltipContent>
+                    {canBoard
+                      ? t("Common.ariaLabels.switchToBoardView")
+                      : t("Common.ariaLabels.switchToBoardViewDisabled")}
+                  </TooltipContent>
+                </Tooltip>
+              </TabsList>
+            </Tabs>
+          </Section>
 
           {sortable.length > 0 && (
             <>

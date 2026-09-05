@@ -30,7 +30,7 @@ export const AuditLogsPageView = observer(function AuditLogsPageView({ initialAu
   useDataViewSync(auditLogsStore, initialAuditLogs);
   const columns = useAuditLogColumns();
   const t = useTranslations();
-  const view = resolveDataViewView(auditLogsStore.viewMode, auditLogsStore.isGrouped);
+  const view = resolveDataViewView(auditLogsStore.viewMode, auditLogsStore.canBoard);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery: Boolean(auditLogsStore.searchTerm?.trim()) || (auditLogsStore.filters?.length ?? 0) > 0,

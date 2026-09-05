@@ -20,7 +20,7 @@ type MenuProps = {
   onSelect: (operator: FilterOperatorKey) => void;
 };
 
-export function FilterOperatorMenu({ operators, current, onSelect }: MenuProps) {
+export function PaletteOperatorMenu({ operators, current, onSelect }: MenuProps) {
   const t = useTranslations();
   const operatorLabel = useFilterOperatorLabel();
 

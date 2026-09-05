@@ -12,7 +12,7 @@ import { AppForm } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
 import { Command, CommandInput } from "@/components/ui/command";
 import { FilterOperatorKey as OperatorKey, isStandaloneOperator } from "@/core/base/base-query-builder";
-import { FilterOperatorMenu } from "@/components/data-view/header/filter-chip-operator-menu";
+import { PaletteOperatorMenu } from "@/components/data-view/filter-palette/palette-operator-menu";
 import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
 import { resolveFilterValueClass } from "@/components/data-view/filter-modal/filter-value-class";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -146,7 +146,7 @@ export const FilterPalette = observer(function FilterPalette({ store }: Props) {
               <ChevronLeftIcon />
             </Button>
 
-            <FilterOperatorMenu current={operator} operators={declaredOperators} onSelect={handleHeaderOperator} />
+            <PaletteOperatorMenu current={operator} operators={declaredOperators} onSelect={handleHeaderOperator} />
           </div>
         )}
 

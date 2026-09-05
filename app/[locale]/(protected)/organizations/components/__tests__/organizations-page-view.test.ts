@@ -99,6 +99,7 @@ vi.mock("@/components/data-view/data-view-content", () => ({
 import { OrganizationsPageView } from "../organizations-page-view";
 
 type StoreState = {
+  canBoard?: boolean;
   canManage?: boolean;
   filters?: unknown[];
   hasGrouping?: boolean;
@@ -118,6 +119,7 @@ const initialOrganizations = {
 
 function renderState(state: StoreState = {}) {
   const organizationsStore = {
+    canBoard: state.canBoard ?? true,
     canManage: state.canManage ?? true,
     dataRequest:
       state.isReady === false
@@ -159,7 +161,6 @@ describe("OrganizationsPageView", () => {
 
   it.each([
     [ViewMode.table, false, "table"],
-    [ViewMode.card, false, "cards"],
     [ViewMode.card, true, "board"],
   ] as const)("renders one accessible animated %s loading branch", (viewMode, hasGrouping, view) => {
     const { html } = renderState({ hasGrouping, isReady: false, viewMode });
@@ -203,7 +204,6 @@ describe("OrganizationsPageView", () => {
 
   it.each([
     [ViewMode.table, false, "table"],
-    [ViewMode.card, false, "cards"],
     [ViewMode.card, true, "board"],
   ] as const)("uses one static inert %s background for true empty", (viewMode, hasGrouping, view) => {
     const { html } = renderState({ hasGrouping, total: 0, viewMode });
@@ -225,7 +225,6 @@ describe("OrganizationsPageView", () => {
 
   it.each([
     [ViewMode.table, false, "table"],
-    [ViewMode.card, false, "cards"],
     [ViewMode.card, true, "board"],
   ] as const)("renders loaded %s content", (viewMode, hasGrouping, view) => {
     const { html } = renderState({ hasGrouping, itemCount: 1, total: 1, viewMode });
@@ -234,6 +233,13 @@ describe("OrganizationsPageView", () => {
     expect(html).toContain(`data-view="${view}"`);
     expect(html).toContain(`data-show-pagination="${view !== "board"}"`);
     expect(html).not.toContain("data-page-state");
+  });
+
+  it("keeps a stored card view mode on the table when the surface cannot board", () => {
+    const { html } = renderState({ canBoard: false, itemCount: 1, total: 1, viewMode: ViewMode.card });
+
+    expect(html).toContain('data-view="table"');
+    expect(html).toContain('data-show-pagination="true"');
   });
 
   it("keeps the Organizations topbar primary, body action secondary, and linked-store wiring", () => {

@@ -284,6 +284,8 @@ describe("data view rail interaction", () => {
     const draft = host.querySelector<HTMLElement>("[data-view-draft]");
     expect(draft?.textContent).toBe("DataView.views.createTitle");
     expect(draft?.className).toContain("border-dashed");
+    expect(draft?.className).toContain("border-input");
+    expect(draft?.className).not.toContain("border-border");
     expect(chips(host)).toHaveLength(4);
 
     const input = host.querySelector<HTMLInputElement>("#view-editor-name");

@@ -98,6 +98,7 @@ vi.mock("@/components/data-view/data-view-content", () => ({
 import { ContactsPageView } from "../contacts-page-view";
 
 type StoreState = {
+  canBoard?: boolean;
   canManage?: boolean;
   filters?: unknown[];
   hasGrouping?: boolean;
@@ -117,6 +118,7 @@ const initialContacts = {
 
 function renderState(state: StoreState = {}) {
   const contactsStore = {
+    canBoard: state.canBoard ?? true,
     canManage: state.canManage ?? true,
     dataRequest:
       state.isReady === false
@@ -159,7 +161,6 @@ describe("ContactsPageView", () => {
 
   it.each([
     [ViewMode.table, false, "table"],
-    [ViewMode.card, false, "cards"],
     [ViewMode.card, true, "board"],
   ] as const)("renders one accessible animated %s loading branch", (viewMode, hasGrouping, view) => {
     const html = renderState({ hasGrouping, isReady: false, viewMode });
@@ -211,7 +212,6 @@ describe("ContactsPageView", () => {
 
   it.each([
     [ViewMode.table, false, "table"],
-    [ViewMode.card, false, "cards"],
     [ViewMode.card, true, "board"],
   ] as const)("uses one static inert %s background for true empty", (viewMode, hasGrouping, view) => {
     const html = renderState({ hasGrouping, itemCount: 0, total: 0, viewMode });
@@ -237,7 +237,6 @@ describe("ContactsPageView", () => {
 
   it.each([
     [ViewMode.table, false, "table"],
-    [ViewMode.card, false, "cards"],
     [ViewMode.card, true, "board"],
   ] as const)("renders loaded %s content through the presentational content owner", (viewMode, hasGrouping, view) => {
     const html = renderState({
@@ -251,6 +250,13 @@ describe("ContactsPageView", () => {
     expect(html).toContain(`data-view="${view}"`);
     expect(html).toContain(`data-show-pagination="${view !== "board"}"`);
     expect(html).not.toContain("data-page-state");
+  });
+
+  it("keeps a stored card view mode on the table when the surface cannot board", () => {
+    const html = renderState({ canBoard: false, itemCount: 1, total: 1, viewMode: ViewMode.card });
+
+    expect(html).toContain('data-view="table"');
+    expect(html).toContain('data-show-pagination="true"');
   });
 
   it("keeps the Contacts topbar action primary while the body action remains secondary", () => {

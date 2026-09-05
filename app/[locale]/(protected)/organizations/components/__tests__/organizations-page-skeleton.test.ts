@@ -17,7 +17,7 @@ describe("OrganizationsPageSkeleton", () => {
     expect(html).toContain("data-skeleton-pagination");
   });
 
-  it.each(["cards", "board"] as const)("matches the active %s view with text identity geometry", (view) => {
+  it.each(["board"] as const)("matches the active %s view with text identity geometry", (view) => {
     const html = renderToStaticMarkup(createElement(OrganizationsPageSkeleton, { view }));
 
     expect(html).toContain(`data-skeleton-view="${view}"`);
@@ -27,11 +27,11 @@ describe("OrganizationsPageSkeleton", () => {
   });
 
   it("reuses identical surfaces as a static, motionless empty background", () => {
-    const loading = renderToStaticMarkup(createElement(OrganizationsPageSkeleton, { view: "cards" }));
+    const loading = renderToStaticMarkup(createElement(OrganizationsPageSkeleton, { view: "board" }));
     const empty = renderToStaticMarkup(
       createElement(OrganizationsPageSkeleton, {
         animated: false,
-        view: "cards",
+        view: "board",
       }),
     );
     const surfaceClasses = /(?:rounded-xl bg-card[^"]*|data-skeleton-scroll-owner="[^"]+")/g;

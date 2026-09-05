@@ -830,9 +830,8 @@
       "hidePassword": "Nascondi password",
       "selectOption": "Seleziona un'opzione",
       "showPassword": "Mostra password",
-      "switchToCardView": "Passa alla vista schede",
-      "switchToKanbanView": "Passa alla vista kanban",
-      "switchToKanbanViewDisabled": "Aggiungi un campo personalizzato a scelta singola per attivare la vista kanban",
+      "switchToBoardView": "Passa alla vista board",
+      "switchToBoardViewDisabled": "Questo elenco non ha alcun campo per cui raggruppare",
       "switchToTableView": "Passa alla vista tabella",
       "themeSwitcher": "Selettore del tema",
       "tooltipFields": "Aspetto",
@@ -1750,6 +1749,12 @@
     "menu": "Importa ed esporta"
   },
   "DataView": {
+    "board": {
+      "chooseField": "Raggruppa per campo",
+      "createField": "Crea un campo a scelta singola",
+      "promptBody": "Scegli un campo per cui raggruppare. Ogni valore diventa una colonna della board.",
+      "promptTitle": "Scegli come raggruppare questa board"
+    },
     "collapseGroup": "Comprimi il gruppo {group}",
     "dragToReorder": "Trascina per riordinare",
     "editColumn": "Modifica colonna",
@@ -1759,7 +1764,6 @@
     "resizeColumn": "Ridimensiona la colonna «{column}». Trascina o usa i tasti freccia; tocca due volte o premi Invio per ripristinare.",
     "resizeHint": "Trascina per ridimensionare. Fai doppio clic per ripristinare.",
     "selectAllRows": "Seleziona tutte le righe",
-    "selectGroupingColumn": "Seleziona una colonna di raggruppamento per visualizzare la vista kanban.",
     "selectRow": "Seleziona la riga {id}",
     "views": {
       "all": "Tutte",
@@ -1777,8 +1781,7 @@
       "name": "Nome",
       "namePlaceholder": "Nome della vista",
       "railLabel": "Viste salvate",
-      "recordCount": "{count, plural, one {# record} other {# record}}",
-      "unavailable": "Vista non disponibile"
+      "recordCount": "{count, plural, one {# record} other {# record}}"
     }
   },
   "DealModal": {

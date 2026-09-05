@@ -830,9 +830,8 @@
       "hidePassword": "Ocultar contraseña",
       "selectOption": "Selecciona una opción",
       "showPassword": "Mostrar contraseña",
-      "switchToCardView": "Cambiar a la vista de tarjetas",
-      "switchToKanbanView": "Cambiar a la vista kanban",
-      "switchToKanbanViewDisabled": "Añade un campo personalizado de selección única para activar la vista kanban",
+      "switchToBoardView": "Cambiar a la vista de tablero",
+      "switchToBoardViewDisabled": "Esta lista no tiene ningún campo por el que agrupar",
       "switchToTableView": "Cambiar a la vista de tabla",
       "themeSwitcher": "Selector de tema",
       "tooltipFields": "Apariencia",
@@ -1750,6 +1749,12 @@
     "menu": "Importar y exportar"
   },
   "DataView": {
+    "board": {
+      "chooseField": "Agrupar por campo",
+      "createField": "Crear un campo de selección única",
+      "promptBody": "Elige un campo por el que agrupar. Cada valor se convierte en una columna del tablero.",
+      "promptTitle": "Elige cómo agrupar este tablero"
+    },
     "collapseGroup": "Contraer el grupo {group}",
     "dragToReorder": "Arrastrar para reordenar",
     "editColumn": "Editar columna",
@@ -1759,7 +1764,6 @@
     "resizeColumn": "Redimensiona la columna {column}. Arrastra o usa las teclas de flecha; toca dos veces o pulsa Intro para restablecer.",
     "resizeHint": "Arrastra para redimensionar. Haz doble clic para restablecer.",
     "selectAllRows": "Seleccionar todas las filas",
-    "selectGroupingColumn": "Selecciona una columna de agrupación para ver la vista kanban.",
     "selectRow": "Seleccionar fila {id}",
     "views": {
       "all": "Todas",
@@ -1777,8 +1781,7 @@
       "name": "Nombre",
       "namePlaceholder": "Nombre de la vista",
       "railLabel": "Vistas guardadas",
-      "recordCount": "{count, plural, one {# registro} other {# registros}}",
-      "unavailable": "Vista no disponible"
+      "recordCount": "{count, plural, one {# registro} other {# registros}}"
     }
   },
   "DealModal": {

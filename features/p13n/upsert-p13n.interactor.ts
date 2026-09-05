@@ -18,12 +18,11 @@ const Schema = z.object({
   filters: z.array(FilterSchema).nullish(),
   searchTerm: z.string().nullish(),
   sortDescriptor: SortDescriptorSchema.nullish(),
-  pagination: PaginationRequestSchema.partial({ page: true }).nullish(),
+  pagination: PaginationRequestSchema.pick({ pageSize: true }).nullish(),
   columnOrder: z.array(z.string()).nullish(),
   columnWidths: z.record(z.string(), z.number()).nullish(),
   hiddenColumns: z.array(z.string()).optional(),
   viewMode: z.enum(ViewMode).nullish(),
-  groupingColumnId: z.uuid().nullish(),
   grouping: GroupingSchema.nullish(),
   detailOptions: EntityDetailOptionsSchema.nullish(),
 });
