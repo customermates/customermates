@@ -8,10 +8,12 @@ import type { SubscriptionRepo } from "@/ee/subscription/subscription.service";
 import type { GetSubscriptionRepo } from "@/ee/subscription/get-subscription.interactor";
 import type { RefreshSubscriptionRepo } from "@/ee/subscription/refresh-subscription.interactor";
 import type { CreateCheckoutCompanyRepo } from "@/ee/subscription/create-checkout-session.interactor";
-import type { RouteGuardSubscriptionRepo } from "@/features/auth/route-guard.service";
+import type { RouteGuardCompanyRepo } from "@/features/auth/route-guard.service";
 import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
 import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement.service";
 import type { CreateAuthLinkSubscriptionRepo } from "@/ee/messaging/connect/create-auth-link.interactor";
+import type { RegisterUserCompanyRepo } from "@/features/user/register/register-user.interactor";
+import type { GetDealWeightingColumnRepo } from "./get-deal-weighting-column.repo";
 
 import { ConversionEventType, SubscriptionStatus } from "@/generated/prisma";
 
@@ -32,9 +34,11 @@ export class PrismaCompanyRepo
     RefreshSubscriptionRepo,
     CreateCheckoutCompanyRepo,
     AdminUpdateUserSubscriptionRepo,
-    RouteGuardSubscriptionRepo,
+    RouteGuardCompanyRepo,
     EntitlementSubscriptionRepo,
-    CreateAuthLinkSubscriptionRepo
+    CreateAuthLinkSubscriptionRepo,
+    RegisterUserCompanyRepo,
+    GetDealWeightingColumnRepo
 {
   @Transaction
   async updateDetails(args: RepoArgs<UpdateCompanySettingsRepo, "updateDetails">) {
@@ -53,6 +57,14 @@ export class PrismaCompanyRepo
     return await this.prisma.company.findUniqueOrThrow({ where: { id: companyId } });
   }
 
+  async getDealWeightingColumnId(): Promise<string | null> {
+    const company = await this.prisma.company.findUnique({
+      where: { id: this.companyId },
+      select: { dealWeightingColumnId: true },
+    });
+    return company?.dealWeightingColumnId ?? null;
+  }
+
   async getTerminology(): Promise<EntityTerminologyOverride[]> {
     const { companyId } = this.user;
 
@@ -65,16 +77,10 @@ export class PrismaCompanyRepo
 
   @Transaction
   async setDealStageWeights(entries: RepoArgs<UpdateCompanySettingsRepo, "setDealStageWeights">) {
-    const { companyId } = this.user;
+    const columnId = await this.getDealWeightingColumnId();
+    if (!columnId) return;
 
-    const company = await this.prisma.company.findUnique({
-      where: { id: companyId },
-      select: { dealWeightingColumnId: true },
-    });
-
-    if (!company?.dealWeightingColumnId) return;
-
-    await getCustomColumnRepo().setOptionWeights(company.dealWeightingColumnId, entries);
+    await getCustomColumnRepo().setOptionWeights(columnId, entries);
   }
 
   @Transaction
@@ -122,7 +128,14 @@ export class PrismaCompanyRepo
 
   @BypassTenantGuard
   async findTokenUnscoped(token: string) {
-    return this.prisma.inviteToken.findUnique({ where: { token } });
+    return this.prisma.inviteToken.findUnique({
+      where: { token },
+      select: {
+        companyId: true,
+        expiresAt: true,
+        createdBy: { select: { email: true, firstName: true, lastName: true } },
+      },
+    });
   }
 
   @BypassTenantGuard
@@ -186,5 +199,14 @@ export class PrismaCompanyRepo
     });
 
     return subscription;
+  }
+
+  @BypassTenantGuard
+  async existsUnscoped(companyId: string) {
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      select: { id: true },
+    });
+    return Boolean(company);
   }
 }

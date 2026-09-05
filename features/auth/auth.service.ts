@@ -139,10 +139,10 @@ export class AuthService {
     }
   }
 
-  async requestPasswordReset(email: string): Promise<void> {
+  async requestPasswordReset(email: string, redirectTo = "/auth/reset-password"): Promise<void> {
     await auth.api.requestPasswordReset({
       headers: await headers(),
-      body: { email, redirectTo: "/auth/reset-password" },
+      body: { email, redirectTo },
     });
   }
 
@@ -150,10 +150,13 @@ export class AuthService {
     await auth.api.resetPassword({ headers: await headers(), body: args });
   }
 
-  async resendVerificationEmail(email: string, options?: { keepSession?: boolean }): Promise<void> {
+  async resendVerificationEmail(
+    email: string,
+    options?: { callbackURL?: string; keepSession?: boolean },
+  ): Promise<void> {
     await auth.api.sendVerificationEmail({
       headers: await headers(),
-      body: { email, callbackURL: "/" },
+      body: { email, callbackURL: options?.callbackURL ?? "/" },
     });
 
     if (!options?.keepSession) await auth.api.signOut({ headers: await headers() });

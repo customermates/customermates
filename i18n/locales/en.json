@@ -2027,7 +2027,9 @@
     "demoModeError": "Saving, deleting and changing data is not available in demo mode. <link>Start for free now</link> to access all features.",
     "inactiveUser": "Your account is currently inactive. Please contact your administrator to reactivate your account.",
     "invalidInviteLink": "The invitation link you used is not valid or may have been altered. Please reach out to your administrator to request a new, valid invitation link so you can proceed with your registration.",
+    "invalidOnboardingIntent": "This onboarding link is not valid. Return to onboarding or reopen the original invitation link.",
     "inviteLinkExpired": "The invitation link you tried to use has expired and can no longer be used. Please contact your administrator and ask them to generate a fresh invitation link for you to complete your account setup.",
+    "onboardingSessionExpired": "This onboarding session has expired. Reopen the original invitation link or choose how to get started again.",
     "retry": "Try again",
     "subtitle": "Oops! Something went wrong",
     "title": "Well, that's awkward",
@@ -2267,6 +2269,39 @@
     },
     "youPrefix": "You:"
   },
+  "InvitationCard": {
+    "inviter": "Invitation from {inviterName}",
+    "joinAction": "Continue",
+    "joinBody": "Continue to set up your profile and request access. A workspace administrator must approve you before you can join.",
+    "joinSubtitle": "You are signed in as {email}",
+    "joinTitle": "Accept your invitation",
+    "switchBody": "This account already belongs to a workspace. Sign out to continue with a different account.",
+    "switchSubtitle": "You are signed in as {email}",
+    "switchTitle": "You are already signed in"
+  },
+  "JoinWorkspace": {
+    "backAction": "Back to choices",
+    "emailLabel": "Email address to invite",
+    "safeBody": "You can safely leave this page and return when you receive an invitation.",
+    "safeTitle": "No workspace has been created",
+    "steps": {
+      "complete": {
+        "body": "Then wait for a workspace administrator to approve your access.",
+        "title": "Complete your profile"
+      },
+      "open": {
+        "body": "Use the link from the invitation email, or a directly shared invitation link, in this browser.",
+        "title": "Open the invitation link"
+      },
+      "request": {
+        "body": "Send this email address to a workspace administrator.",
+        "title": "Request an invitation"
+      }
+    },
+    "stepsTitle": "How to join",
+    "subtitle": "A workspace administrator needs to invite {email}.",
+    "title": "Join an existing workspace"
+  },
   "LegalDocumentNotice": {
     "contractBody": "We updated the legal documents listed below. Please review them for the business customer and arrange electronic acceptance by an authorised system administrator.",
     "contractDeadlineLabel": "Objection and acceptance deadline",
@@ -2417,8 +2452,26 @@
     "subtitle": "This page went on vacation without telling us",
     "title": "Oops! You've entered the void"
   },
+  "OnboardingChoice": {
+    "create": {
+      "description": "Set up a separate workspace for a company you own or manage.",
+      "note": "Free for {days} days",
+      "title": "Create a new workspace"
+    },
+    "footnote": "No workspace is created until you choose Create and complete your profile.",
+    "join": {
+      "description": "Join a team that already uses Customermates. You will need an invitation from a workspace administrator.",
+      "note": "No workspace will be created",
+      "title": "Join an existing workspace"
+    },
+    "optionsLabel": "Workspace setup choices",
+    "signedInAs": "Signed in as {email}",
+    "subtitle": "Create a workspace for your company or join a team that already uses Customermates.",
+    "title": "Choose how to get started"
+  },
   "OnboardingForm": {
     "agreeToTerms": "I am authorised to act for the business customer and accept the <termsOfServiceLink>Terms</termsOfServiceLink> and <dpaLink>DPA</dpaLink>. I have read the <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
+    "invitationFrom": "Invitation from {inviterName}",
     "invitedAgreeToTerms": "I agree to comply with the <termsOfServiceLink>Terms</termsOfServiceLink> and have read the <dpaLink>DPA</dpaLink> and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>."
   },
   "OnboardingWizard": {
@@ -2550,6 +2603,7 @@
         "title": "Invite your team"
       },
       "profile": {
+        "invitedSubtitle": "Complete your profile to request access to the invited workspace.",
         "subtitle": "Tell us who you are so we can set up your workspace.",
         "title": "Your profile"
       }
@@ -2830,6 +2884,7 @@
     "agreeToTerms": "By continuing, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and acknowledge our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>. See our <dpaLink>DPA</dpaLink>.",
     "buttonLabel": "Continue with {provider}",
     "forgotPassword": "Forgot password?",
+    "inviteSubtitle": "{inviterName} invited you to join their workspace. Sign in to review the invitation.",
     "or": "OR",
     "rememberMe": "Remember me",
     "signInCta": "Sign In",
@@ -2837,12 +2892,12 @@
     "switchToSignUp": "Don't have an account? <registerLink>Register</registerLink>"
   },
   "SignUpForm": {
-    "acceptInviteCta": "Accept invitation",
+    "acceptInviteCta": "Continue",
+    "accountSubtitle": "Create your account first. Next, choose whether to create a new workspace or join an existing one.",
     "agreeToTerms": "By continuing, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and acknowledge our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>. See our <dpaLink>DPA</dpaLink>.",
     "buttonLabel": "Register with {provider}",
-    "inviteSubtitle": "You have been invited to join a team on Customermates. Choose your sign-in method to accept the invitation.",
+    "inviteSubtitle": "{inviterName} invited you to join their workspace on Customermates. Choose how you want to create your account.",
     "inviteTitle": "Accept Company Invitation",
-    "newCompanySubtitle": "Register a new company and test Customermates for free for {days} days. No credit card required.",
     "or": "OR",
     "signUpCta": "Create account",
     "switchToSignIn": "Already have an account? <signInLink>Sign in</signInLink>",
@@ -3004,6 +3059,7 @@
   "VerifyEmailCard": {
     "body": "We've sent you a verification email. Please check your inbox and click the link to verify your email address.",
     "ctaLabel": "Resend verification email",
+    "invitationFrom": "Invitation from {inviterName}",
     "resendSuccess": "Verification email sent successfully.",
     "subtitle": "Verify your email address to continue.",
     "title": "Email Verification"

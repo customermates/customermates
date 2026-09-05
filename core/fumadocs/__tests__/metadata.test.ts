@@ -4,6 +4,8 @@ vi.mock("../route-source-map", () => {
   const pages = new Map([
     ["pricing|en", { data: { description: "Plans and pricing", title: "Pricing" } }],
     ["pricing|de", { data: { description: "Pläne und Preise", title: "Preise" } }],
+    ["auth/signup|en", { data: { description: "Create an account", title: "Sign up" } }],
+    ["docs/openapi/contacts|en", { data: { description: "Contacts API", title: "Contacts" } }],
     ["best-crm|en", { data: { description: "", title: "Best CRM" } }],
     ["untitled|en", { data: { description: "Body without a title", title: "   " } }],
   ]);
@@ -15,6 +17,8 @@ vi.mock("../route-source-map", () => {
   return {
     ROUTE_SOURCE_MAP: {
       "/blog/:slug": { path: [":slug"], source },
+      "/auth/signup": { path: ["auth", "signup"], source },
+      "/docs/openapi/:slug": { path: ["docs", "openapi", ":slug"], source },
       "/imprint": { path: ["imprint"], source },
       "/pricing": { path: ["pricing"], source },
     },
@@ -137,6 +141,15 @@ describe("generateMetadataFromMeta", () => {
     ).toThrow(/NEXT_HTTP_ERROR_FALLBACK;404/);
   });
 
+  it("uses default-locale metadata for a noindex app route in a routing-only locale", () => {
+    const metadata = generateMetadataFromMeta({ locale: "fr", route: "/auth/signup" });
+
+    expect(metadata.title).toBe("Sign up");
+    expect(metadata.description).toBe("Create an account");
+    expect(metadata.alternates).toEqual({ canonical: `${BASE_URL}/fr/auth/signup` });
+    expect(metadata.robots).toEqual({ follow: true, index: false });
+  });
+
   it("refuses a page whose title is blank", () => {
     expect(() =>
       generateMetadataFromMeta({
@@ -145,5 +158,15 @@ describe("generateMetadataFromMeta", () => {
         route: "/blog/:slug",
       }),
     ).toThrow(/has no title/);
+  });
+
+  it("does not fall back to English for noindex content in an application-only locale", () => {
+    expect(() =>
+      generateMetadataFromMeta({
+        locale: "fr",
+        params: { slug: "contacts" },
+        route: "/docs/openapi/:slug",
+      }),
+    ).toThrow(/NEXT_HTTP_ERROR_FALLBACK;404/);
   });
 });

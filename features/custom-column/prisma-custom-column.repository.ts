@@ -1,4 +1,5 @@
 import type { RepoArgs } from "@/core/utils/types";
+import type { GetDealWeightingColumnRepo } from "@/features/company/get-deal-weighting-column.repo";
 import type { UpsertCustomColumnRepo } from "./upsert-custom-column.interactor";
 import type { GetCustomColumnsRepo } from "./get-custom-columns.interactor";
 import type { GetCustomColumnsByEntityTypeRepo } from "./get-custom-columns-by-entity-type.interactor";
@@ -37,6 +38,10 @@ export class PrismaCustomColumnRepo
     ServiceCustomColumnRepo,
     TaskCustomColumnRepo
 {
+  constructor(private readonly companyRepo: GetDealWeightingColumnRepo) {
+    super();
+  }
+
   private get baseSelect() {
     return {
       id: true,
@@ -196,12 +201,7 @@ export class PrismaCustomColumnRepo
   async delete(id: string) {
     const { companyId } = this.user;
 
-    const company = await this.prisma.company.findUnique({
-      where: { id: companyId },
-      select: { dealWeightingColumnId: true },
-    });
-
-    const wasWeightingColumn = company?.dealWeightingColumnId === id;
+    const wasWeightingColumn = (await this.companyRepo.getDealWeightingColumnId()) === id;
 
     await Promise.all([
       this.prisma.widget.deleteMany({
@@ -290,14 +290,7 @@ export class PrismaCustomColumnRepo
   }
 
   private async recalculateDealsWhenWeightingColumn(columnId: string) {
-    const { companyId } = this.user;
-
-    const company = await this.prisma.company.findUnique({
-      where: { id: companyId },
-      select: { dealWeightingColumnId: true },
-    });
-
-    if (company?.dealWeightingColumnId !== columnId) return;
+    if ((await this.companyRepo.getDealWeightingColumnId()) !== columnId) return;
 
     await getDealRepo().recalculateWeightedValuesForCompany();
   }

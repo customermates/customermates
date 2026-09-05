@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({
   appMode: "cloud" as "cloud" | "demo",
   pathname: "/dashboard",
+  searchParams: {} as Record<string, string[]>,
   refresh: vi.fn(),
   currentUser: null as { id: string } | null,
   navigationRenderActive: false,
@@ -23,7 +24,7 @@ state.setUser.mockImplementation((user: { id: string } | null) => {
 });
 
 vi.mock("next/navigation", () => ({
-  useSearchParams: () => ({ getAll: () => [] }),
+  useSearchParams: () => ({ getAll: (key: string) => state.searchParams[key] ?? [] }),
 }));
 vi.mock("@/i18n/navigation", () => ({
   usePathname: () => state.pathname,
@@ -60,7 +61,8 @@ vi.mock("@/app/components/app-topbar", () => ({
     }),
 }));
 vi.mock("@/app/components/public-navbar", () => ({
-  PublicNavbar: () => jsx("div", { "data-public-navbar": true }),
+  PublicNavbar: ({ onboardingIntent }: { onboardingIntent?: string }) =>
+    jsx("div", { "data-onboarding-intent": onboardingIntent, "data-public-navbar": true }),
 }));
 vi.mock("@/app/components/shell-header", () => ({ ShellHeader: () => null }));
 vi.mock("@/app/[locale]/(static)/docs/components/docs-sidebar", () => ({
@@ -164,6 +166,7 @@ beforeEach(() => {
   state.renderPhaseUserWrites = [];
   state.appMode = "cloud";
   state.pathname = "/dashboard";
+  state.searchParams = {};
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -340,5 +343,23 @@ describe("NavigationSwitch account-state refresh", () => {
       );
     });
     expect(scrollport?.scrollTop).toBe(0);
+  });
+
+  it("passes one unambiguous onboarding intent to the public navbar", () => {
+    state.pathname = "/styleguide";
+    state.searchParams = { intent: ["signed.intent"] };
+
+    act(() => {
+      root.render(jsx(NavigationSwitch, { ...allowedProps(), children: "page" }));
+    });
+    expect(container.querySelector("[data-public-navbar]")?.getAttribute("data-onboarding-intent")).toBe(
+      "signed.intent",
+    );
+
+    state.searchParams = { intent: ["signed.intent", "second.intent"] };
+    act(() => {
+      root.render(jsx(NavigationSwitch, { ...allowedProps(), children: "page" }));
+    });
+    expect(container.querySelector("[data-public-navbar]")?.hasAttribute("data-onboarding-intent")).toBe(false);
   });
 });

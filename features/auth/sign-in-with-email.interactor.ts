@@ -11,6 +11,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { createZodError } from "@/core/validation/validation.utils";
+import { onboardingIntentFromPath, pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 
 const Schema = z.object({
   email: z.email(),
@@ -36,7 +37,15 @@ export class SignInWithEmailInteractor {
     if (isRedirect(res)) return res;
 
     if (!res.ok) {
-      if (res.error === CustomErrorCode.emailNotVerified) return redirectTo("/auth/verify-email");
+      if (res.error === CustomErrorCode.emailNotVerified) {
+        const onboardingIntent = onboardingIntentFromPath(data.callbackURL);
+        if (onboardingIntent.status === "invalid") return redirectTo("/auth/error?type=invalidOnboardingIntent");
+        return redirectTo(
+          onboardingIntent.status === "valid"
+            ? pathWithOnboardingIntent("/auth/verify-email", onboardingIntent.intent)
+            : "/auth/verify-email",
+        );
+      }
       const t = await getTranslations();
       const error = createZodError<EmailSignInData>(t(`Common.errors.${res.error}`));
 

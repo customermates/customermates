@@ -11,6 +11,7 @@ import { tenantStorage } from "@/core/decorators/tenant-context";
 export type { TenantUser } from "./user.schema";
 
 export abstract class FindUserRepo {
+  abstract findAuthUserCompanyIdUnscoped(userId: string): Promise<string | null | undefined>;
   abstract findCurrentUserUnscoped(email: string): Promise<TenantUser | null>;
   abstract findCurrentUserOrThrowUnscoped(email: string): Promise<TenantUser>;
   abstract findUserByIdOrThrowUnscoped(userId: string): Promise<TenantUser>;
