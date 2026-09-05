@@ -38,7 +38,9 @@ const FieldError = observer(({ id }: { id: string }) => {
 
 export const AccountSignature = observer(({ account, store }: Props) => {
   const t = useTranslations();
-  useState(() => store.hydrate(account));
+  useState(() => {
+    if (store.accountId !== account.id) store.hydrate(account);
+  });
   const { form, isDisabled } = store;
   const settings = form.settings;
   const previewMarkdown = `${t("ConnectedAccountsCard.emailPreviewSample")}\n\n[${t("ConnectedAccountsCard.emailPreviewLink")}](https://example.com)`;

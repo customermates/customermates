@@ -4,6 +4,7 @@ import type { ConnectedAccountDto } from "@/ee/messaging/messaging.schema";
 import type { SetConnectedAccountSignatureData } from "@/ee/messaging/connect/set-connected-account-signature.interactor";
 
 import { action, makeObservable, observable, override as mobxOverride, toJS } from "mobx";
+import { cloneDeep } from "lodash";
 
 import { BaseFormStore } from "@/core/base/base-form.store";
 import { defaultEmailSettings } from "@/ee/messaging/email-settings";
@@ -43,7 +44,7 @@ export class AccountSignatureStore extends BaseFormStore<AccountSignatureForm> {
     this.isOwner = account.isOwner;
     this.onInitOrRefresh({
       signature: account.signature ?? "",
-      settings: account.emailSettings,
+      settings: cloneDeep(account.emailSettings),
     });
   };
 

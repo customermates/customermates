@@ -367,7 +367,7 @@ function mountSignature(settings = defaultEmailSettings()) {
   const account = emailAccount(settings);
   const modal = modalStore(account);
   const store = modal.signatureStore;
-  const container = mount(createElement(AccountSignature, { account, store }));
+  const container = mount(createElement(AccountSignature, { account: modal.form, store }));
   return { container, store, modal };
 }
 
@@ -558,6 +558,73 @@ describe("AccountSignature shared form", () => {
 });
 
 describe("ConnectedAccountModal email form lifecycle", () => {
+  it("keeps unsaved nested settings separate from connected-account presentation", () => {
+    const settings = defaultEmailSettings();
+    settings.signature.enabled = true;
+    const originalColour = settings.appearance.linkHex;
+    const { store, modal } = mountSignature(settings);
+    act(() => store.onChange("settings.appearance.linkHex", "#123456"));
+    expect(store.form.settings.appearance.linkHex).toBe("#123456");
+    expect(modal.form.emailSettings.appearance.linkHex).toBe(originalColour);
+    expect(settings.appearance.linkHex).toBe(originalColour);
+    expect(store.savedState.settings.appearance.linkHex).toBe(originalColour);
+    expect(store.hasUnsavedChanges).toBe(true);
+  });
+
+  it("preserves the complete dirty form when a responsive overlay remounts its content", () => {
+    const settings = defaultEmailSettings();
+    settings.signature.enabled = true;
+    const { container, store, modal } = mountSignature(settings);
+    setValue(field<HTMLTextAreaElement>(container, "signature"), "Unsaved responsive signature");
+    setValue(field<HTMLInputElement>(container, "settings.appearance.linkHex"), "#123456");
+    const root = [...roots].at(-1);
+    if (!root) throw new Error("Expected a mounted root");
+    act(() => root.unmount());
+    roots.delete(root);
+    const remounted = mount(createElement(AccountSignature, { account: modal.form, store }));
+    expect(field<HTMLTextAreaElement>(remounted, "signature").value).toBe("Unsaved responsive signature");
+    expect(field<HTMLInputElement>(remounted, "settings.appearance.linkHex").value).toBe("#123456");
+    expect(store.savedState.signature).toBe("");
+    expect(store.hasUnsavedChanges).toBe(true);
+    expect(modal.hasUnsavedChanges).toBe(true);
+    expect(harness.saveAction).not.toHaveBeenCalled();
+  });
+
+  it("retains an in-flight save through a responsive remount and adopts its normalized result", async () => {
+    let finish: ((value: unknown) => void) | undefined;
+    harness.saveAction.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    );
+    const settings = defaultEmailSettings();
+    settings.signature.enabled = true;
+    const { container, store, modal } = mountSignature(settings);
+    setValue(field<HTMLTextAreaElement>(container, "signature"), "  Saved after resize  ");
+    let pending: Promise<void> = Promise.resolve();
+    act(() => {
+      pending = store.onSubmit();
+    });
+    const root = [...roots].at(-1);
+    if (!root) throw new Error("Expected a mounted root");
+    act(() => root.unmount());
+    roots.delete(root);
+    const remounted = mount(createElement(AccountSignature, { account: modal.form, store }));
+    expect(store.isLoading).toBe(true);
+    expect(store.hasUnsavedChanges).toBe(true);
+    expect(saveButton(remounted).disabled).toBe(true);
+    await act(async () => {
+      finish?.({ ok: true, data: { ...modal.form, signature: "Saved after resize" } });
+      await pending;
+    });
+    expect(field<HTMLTextAreaElement>(remounted, "signature").value).toBe("Saved after resize");
+    expect(store.savedState.signature).toBe("Saved after resize");
+    expect(store.isLoading).toBe(false);
+    expect(store.hasUnsavedChanges).toBe(false);
+    expect(harness.saveAction).toHaveBeenCalledOnce();
+  });
+
   it("preserves an unsaved signature through Details, Folders and server updates to other settings", async () => {
     const settings = defaultEmailSettings();
     settings.signature = {
