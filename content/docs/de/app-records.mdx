@@ -37,17 +37,14 @@ In jedem Display-options-Popover haben die Layout-Steuerelemente stabile Ids:
 
 ## Gespeicherte Ansichten
 
-Die Leiste der gespeicherten Ansichten sitzt direkt unter dem Header jeder Listenoberfläche und trägt überall dieselben Ids, deshalb haben diese Ids kein Datensatztyp-Präfix.
+Die Tabs der gespeicherten Ansichten sitzen direkt unter dem Header jeder Listenoberfläche und tragen überall dieselben Ids, deshalb haben diese Ids kein Datensatztyp-Präfix. Eine Ansicht ist persönlich für den Nutzer, der sie angelegt hat, und merkt sich die gesamte Liste: Filter, Suche, Sortierung, Seitengröße, Layout, Gruppierung, Spaltenreihenfolge, Spaltenbreiten und ausgeblendete Spalten. Jede Änderung wird sofort in der aktiven Ansicht gespeichert; auf dem Tab „Alle“ wird sie als Ihr persönlicher Zustand dieser Liste gespeichert. Es gibt nichts von Hand zurückzusetzen oder zu speichern.
 
-- `#global-data-views` ist die Leiste selbst, ein Navigations-Landmark.
-- `#global-data-views-all` ist der eingebaute All-Chip, der die aktive Ansicht aufhebt.
+- `#global-data-views` ist die Tab-Leiste selbst, ein Navigations-Landmark.
+- `#global-data-views-all` ist der eingebaute Tab „Alle“, der die aktive Ansicht aufhebt.
 - `#global-data-views-new` öffnet das Overlay zum Anlegen einer Ansicht.
-- `#global-data-views-menu` öffnet das Aktionsmenü der aktiven Ansicht.
-- `#global-data-views-picker` öffnet die vollständige Liste der gespeicherten Ansichten.
-- `#global-data-views-reset` verwirft Ihre ungespeicherten Änderungen an der aktiven Ansicht.
-- `#global-data-views-save` schreibt diese Änderungen in die Ansicht zurück.
+- `#global-data-views-menu` öffnet das Aktionsmenü der aktiven Ansicht: bearbeiten, duplizieren, verschieben, Link kopieren und löschen.
 
-Eine Ansicht wird über den Query-Parameter `view` adressiert, zum Beispiel `/deals?view=<id>`; ohne Parameter gilt All. Die Chips selbst tragen keine Ids, wechseln Sie Ansichten also über die URL statt über einen per Id gesuchten Chip.
+Eine Ansicht wird über den Query-Parameter `view` adressiert, zum Beispiel `/deals?view=<id>`; ohne Parameter gilt der Tab „Alle“. Die Tabs selbst tragen keine Ids, wechseln Sie Ansichten also über die URL statt über einen per Id gesuchten Tab.
 
 ## Drawer- und Detail-Aktionen
 

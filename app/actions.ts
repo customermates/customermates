@@ -6,9 +6,9 @@ import type { GetCustomColumnsByEntityTypeData } from "@/features/custom-column/
 import type { GetP13nData } from "@/features/p13n/get-p13n.interactor";
 import type { UpsertP13nData } from "@/features/p13n/upsert-p13n.interactor";
 import type {
-  ApplyDataViewOverrideData,
   DeleteDataViewData,
   GetDataViewsData,
+  SaveDataViewStateData,
   SelectDataViewData,
   UpsertDataViewData,
 } from "@/features/data-view/data-view.schema";
@@ -39,7 +39,7 @@ import {
   getGetDataViewsInteractor,
   getUpsertDataViewInteractor,
   getDeleteDataViewInteractor,
-  getApplyDataViewOverrideInteractor,
+  getSaveDataViewStateInteractor,
   getSelectDataViewInteractor,
   getGetCompanySettingsInteractor,
 } from "@/core/di";
@@ -82,8 +82,8 @@ export async function deleteDataViewAction(data: DeleteDataViewData) {
   return serializeResult(getDeleteDataViewInteractor().invoke(data));
 }
 
-export async function applyDataViewOverrideAction(data: ApplyDataViewOverrideData) {
-  return serializeResult(getApplyDataViewOverrideInteractor().invoke(data));
+export async function saveDataViewStateAction(data: SaveDataViewStateData) {
+  return serializeResult(getSaveDataViewStateInteractor().invoke(data));
 }
 
 export async function selectDataViewAction(data: SelectDataViewData) {

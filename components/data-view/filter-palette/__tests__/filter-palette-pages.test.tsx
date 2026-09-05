@@ -119,6 +119,9 @@ function tableStore(filters: Filter[] = []) {
     filterableFields: FILTERABLE_FIELDS,
     filters,
     p13nId: "deals",
+    removeFilterAt: vi.fn((index: number) => {
+      table.setQueryOptions({ filters: table.filters.filter((_, position) => position !== index) });
+    }),
     setQueryOptions: vi.fn((args: { filters?: Filter[] }) => {
       if (args.filters) table.filters = args.filters;
     }),
@@ -212,6 +215,23 @@ afterEach(() => {
 });
 
 describe("filter palette root page", () => {
+  it("removes exactly the addressed filter from the root list without opening it", () => {
+    const alpha = { field: "name", operator: FilterOperatorKey.contains, value: "alpha" } as Filter;
+    const beta = { field: "name", operator: FilterOperatorKey.contains, value: "beta" } as Filter;
+    const table = tableStore([alpha, beta]);
+    const palette = openPalette(table);
+    const container = mountPalette(table);
+
+    expect(container.querySelectorAll("[data-filter-index]")).toHaveLength(2);
+    expect(container.querySelectorAll("[aria-label='Common.filters.palette.removeFilter']")).toHaveLength(2);
+
+    click(container.querySelector("[data-palette-remove-filter='0']") as Element);
+
+    expect(table.removeFilterAt).toHaveBeenCalledExactlyOnceWith(0);
+    expect(table.filters).toEqual([beta]);
+    expect(palette.page.kind).toBe("root");
+  });
+
   it("renders the documented search anchor id in the dom", () => {
     const table = tableStore();
     openPalette(table);

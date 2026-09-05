@@ -1,11 +1,11 @@
 import type { Filter, SortDescriptor } from "@/core/base/base-get.schema";
 import type { DataViewState } from "@/core/data-view/data-view-state.schema";
+import type { Grouping } from "@/core/base/grouping/grouping.schema";
 import type { ViewMode } from "@/core/base/base-query-builder";
-import type { DataViewVisibility } from "@/generated/prisma";
 
 import { Prisma } from "@/generated/prisma";
 
-import { DATA_VIEW_STATE_FIELDS } from "@/core/data-view/data-view-state.schema";
+import { DATA_VIEW_PAGE_SIZES, DATA_VIEW_STATE_FIELDS } from "@/core/data-view/data-view-state.schema";
 import { CLEARED_GROUPING, groupingShadowColumnId, readStoredGrouping } from "@/core/base/grouping/stored-grouping";
 import { normalizeFilters } from "@/core/base/filter-compat";
 
@@ -41,12 +41,25 @@ export type StoredStateRow = {
 
 export type StoredViewRow = StoredStateRow & {
   id: string;
-  userId: string;
   surfaceKey: string;
   name: string;
-  visibility: DataViewVisibility;
   position: number;
-  user?: { firstName: string | null; lastName: string | null } | null;
+};
+
+export type StoredPersonalizationRow = Omit<StoredStateRow, "pageSize"> & {
+  pagination: unknown;
+};
+
+export type PersonalizationStateWrite = {
+  filters?: Filter[];
+  searchTerm?: string;
+  sortDescriptor?: SortDescriptor | null;
+  pagination?: { pageSize: NonNullable<DataViewState["pageSize"]> };
+  viewMode?: ViewMode;
+  grouping?: Grouping | null;
+  columnOrder?: string[];
+  columnWidths?: Record<string, number>;
+  hiddenColumns?: string[];
 };
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -55,6 +68,15 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 
 function isClearedSortDescriptor(value: unknown): boolean {
   return isPlainObject(value) && Object.keys(value).length === 0;
+}
+
+function storedPageSize(pagination: unknown): number | null {
+  if (!isPlainObject(pagination)) return null;
+  const pageSize = pagination.pageSize;
+
+  return typeof pageSize === "number" && (DATA_VIEW_PAGE_SIZES as readonly number[]).includes(pageSize)
+    ? pageSize
+    : null;
 }
 
 export function readStoredState(row: StoredStateRow): DataViewState {
@@ -73,6 +95,10 @@ export function readStoredState(row: StoredStateRow): DataViewState {
   if (Array.isArray(row.hiddenColumns)) state.hiddenColumns = row.hiddenColumns as string[];
 
   return state;
+}
+
+export function readStoredPersonalizationState({ pagination, ...columns }: StoredPersonalizationRow): DataViewState {
+  return readStoredState({ ...columns, pageSize: storedPageSize(pagination) });
 }
 
 export function writeStoredState(state: DataViewState): DataViewStateColumns {
@@ -104,4 +130,20 @@ export function writePartialStoredState(state: DataViewState): Partial<DataViewS
   if (Object.prototype.hasOwnProperty.call(declared, "grouping")) columns.groupingColumnId = written.groupingColumnId;
 
   return columns as Partial<DataViewStateColumns>;
+}
+
+export function writePersonalizationState(state: DataViewState): PersonalizationStateWrite {
+  const write: PersonalizationStateWrite = {};
+
+  if (state.filters !== undefined) write.filters = state.filters;
+  if (state.searchTerm !== undefined) write.searchTerm = state.searchTerm;
+  if (state.sortDescriptor !== undefined) write.sortDescriptor = state.sortDescriptor;
+  if (state.pageSize !== undefined) write.pagination = { pageSize: state.pageSize };
+  if (state.viewMode !== undefined) write.viewMode = state.viewMode;
+  if (state.grouping !== undefined) write.grouping = state.grouping;
+  if (state.columnOrder !== undefined) write.columnOrder = state.columnOrder;
+  if (state.columnWidths !== undefined) write.columnWidths = state.columnWidths;
+  if (state.hiddenColumns !== undefined) write.hiddenColumns = state.hiddenColumns;
+
+  return write;
 }

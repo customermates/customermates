@@ -19,7 +19,6 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 vi.mock("next-intl/server", () => ({ getTranslations: () => Promise.resolve({ raw: (key: string) => key }) }));
 
-import { ApplyDataViewOverrideInteractor } from "../apply-data-view-override.interactor";
 import { DeleteDataViewInteractor } from "../delete-data-view.interactor";
 import { UpsertDataViewInteractor } from "../upsert-data-view.interactor";
 import { interactorFailureKind } from "@/core/validation/validation.utils";
@@ -32,25 +31,11 @@ const FOREIGN_VIEW_ID = "3a7b2c11-5d4e-4f60-8a91-2b3c4d5e6f70";
 const MISSING_VIEW_ID = "11111111-2222-4333-8444-555555555555";
 const OWN_VIEW_ID = "9a7b2c11-5d4e-4f60-8a91-2b3c4d5e6f70";
 
-const foreignView: DataViewDto = {
-  id: FOREIGN_VIEW_ID,
-  name: "Sofia's pipeline",
-  visibility: "workspace",
-  position: 0,
-  isOwner: false,
-  ownerName: "Sofia Rossi",
-  surfaceKey: SURFACE,
-  state: {},
-};
-
 function ownedView(overrides: Partial<DataViewDto> = {}): DataViewDto {
   return {
     id: OWN_VIEW_ID,
     name: "Open deals",
-    visibility: "workspace",
     position: 0,
-    isOwner: true,
-    ownerName: "Max Mustermann",
     surfaceKey: SURFACE,
     state: { filters: [], viewMode: ViewMode.card },
     ...overrides,
@@ -60,32 +45,26 @@ function ownedView(overrides: Partial<DataViewDto> = {}): DataViewDto {
 function upsertDoubles(owned: DataViewDto | null) {
   const repo = {
     findOwnedOrNull: vi.fn().mockResolvedValue(owned),
-    nextPosition: vi.fn().mockResolvedValue(0),
+    nextPosition: vi.fn().mockResolvedValue(3),
     createView: vi.fn((args: Record<string, unknown>) =>
-      Promise.resolve({ ...foreignView, ...args, isOwner: true, id: MISSING_VIEW_ID }),
+      Promise.resolve({ ...ownedView(), ...args, id: MISSING_VIEW_ID }),
     ),
-    updateOwned: vi.fn((args: { name?: string; visibility?: DataViewDto["visibility"]; state?: DataViewState }) =>
+    updateOwned: vi.fn((args: { name?: string; position?: number; state?: DataViewState }) =>
       Promise.resolve(
         owned
           ? {
               ...owned,
               ...(args.name === undefined ? {} : { name: args.name }),
-              ...(args.visibility === undefined ? {} : { visibility: args.visibility }),
+              ...(args.position === undefined ? {} : { position: args.position }),
               ...(args.state === undefined ? {} : { state: { ...owned.state, ...args.state } }),
             }
           : null,
       ),
     ),
   };
-  const overrides = { upsertOverride: vi.fn(), deleteOverride: vi.fn().mockResolvedValue(true) };
   const personalization = { upsertP13n: vi.fn().mockResolvedValue(undefined) };
 
-  return {
-    repo,
-    overrides,
-    personalization,
-    interactor: new UpsertDataViewInteractor(repo, overrides, personalization),
-  };
+  return { repo, personalization, interactor: new UpsertDataViewInteractor(repo, personalization) };
 }
 
 function failureCode(result: { ok: boolean; error?: unknown }) {
@@ -97,7 +76,7 @@ function failureCode(result: { ok: boolean; error?: unknown }) {
 describe("data view ownership", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("refuses an update of a workspace view owned by someone else, exactly as it refuses a missing id", async () => {
+  it("refuses an update of a view owned by someone else, exactly as it refuses a missing id", async () => {
     const foreign = upsertDoubles(null);
     const missing = upsertDoubles(null);
 
@@ -112,25 +91,7 @@ describe("data view ownership", () => {
     expect(failureCode(onForeign)).toEqual({ code: CustomErrorCode.dataViewNotFound, kind: "not_found" });
     expect(failureCode(onForeign)).toEqual(failureCode(onMissing));
     expect(foreign.repo.updateOwned).not.toHaveBeenCalled();
-    expect(foreign.overrides.deleteOverride).not.toHaveBeenCalled();
-  });
-
-  it("refuses a save-from-override on a view the caller does not own", async () => {
-    const { interactor, repo, overrides } = upsertDoubles(null);
-
-    const result = await runWithTenant(mockUser, () =>
-      interactor.invoke({
-        id: FOREIGN_VIEW_ID,
-        surfaceKey: SURFACE,
-        name: "Sofia's pipeline",
-        state: { pageSize: 10 },
-        commitFromOverride: true,
-      }),
-    );
-
-    expect(result.ok).toBe(false);
-    expect(repo.updateOwned).not.toHaveBeenCalled();
-    expect(overrides.deleteOverride).not.toHaveBeenCalled();
+    expect(foreign.personalization.upsertP13n).not.toHaveBeenCalled();
   });
 
   it("refuses a delete of a view the caller does not own and records no write", async () => {
@@ -144,83 +105,41 @@ describe("data view ownership", () => {
     expect(failureCode(result)).toEqual({ code: CustomErrorCode.dataViewNotFound, kind: "not_found" });
   });
 
-  it("coerces a workspace visibility on an operator surface to private", async () => {
-    const { interactor, repo } = upsertDoubles(null);
+  it("creates a view at the caller's next position and points the surface at it", async () => {
+    const { interactor, repo, personalization } = upsertDoubles(null);
 
-    await runWithTenant(mockUser, () =>
-      interactor.invoke({ surfaceKey: OPERATOR_SURFACE, name: "Escalations", visibility: "workspace", state: {} }),
+    const result = await runWithTenant(mockUser, () =>
+      interactor.invoke({ surfaceKey: SURFACE, name: "Hot leads", state: { pageSize: 10 } }),
     );
 
-    expect(repo.createView.mock.calls[0][0].visibility).toBe("private");
-  });
-
-  it("keeps a workspace visibility on a shareable surface", async () => {
-    const { interactor, repo } = upsertDoubles(null);
-
-    await runWithTenant(mockUser, () =>
-      interactor.invoke({ surfaceKey: SURFACE, name: "Shared", visibility: "workspace", state: {} }),
-    );
-
-    expect(repo.createView.mock.calls[0][0].visibility).toBe("workspace");
-  });
-
-  it("lets anyone duplicate a readable view, clearing their override on the source and pointing the chip at the copy", async () => {
-    const { interactor, repo, overrides, personalization } = upsertDoubles(null);
-
-    await runWithTenant(mockUser, () =>
-      interactor.invoke({
-        surfaceKey: SURFACE,
-        name: "Sofia's pipeline copy",
-        state: { pageSize: 10 },
-        fromViewKey: FOREIGN_VIEW_ID,
-      }),
-    );
-
-    expect(repo.createView).toHaveBeenCalled();
-    expect(overrides.deleteOverride).toHaveBeenCalledWith({ surfaceKey: SURFACE, viewKey: FOREIGN_VIEW_ID });
+    expect(result.ok && result.data.id).toBe(MISSING_VIEW_ID);
+    expect(repo.createView).toHaveBeenCalledWith({
+      surfaceKey: SURFACE,
+      name: "Hot leads",
+      position: 3,
+      state: { pageSize: 10 },
+    });
     expect(personalization.upsertP13n).toHaveBeenCalledWith({ p13nId: SURFACE, activeViewKey: MISSING_VIEW_ID });
   });
 
-  it("leaves a workspace view shared when the save carries no visibility", async () => {
-    const { interactor, repo } = upsertDoubles(ownedView());
+  it("renames and moves an owned view without touching the remembered tab", async () => {
+    const { interactor, repo, personalization } = upsertDoubles(ownedView());
 
     const result = await runWithTenant(mockUser, () =>
-      interactor.invoke({ id: OWN_VIEW_ID, surfaceKey: SURFACE, name: "Open deals", state: { filters: [] } }),
+      interactor.invoke({ id: OWN_VIEW_ID, surfaceKey: SURFACE, name: "Renamed", position: 2, state: {} }),
     );
 
-    expect(repo.updateOwned.mock.calls[0][0].visibility).toBeUndefined();
-    expect(result.ok && result.data.visibility).toBe("workspace");
-  });
-
-  it("writes the visibility the owner explicitly asked for", async () => {
-    const { interactor, repo } = upsertDoubles(ownedView());
-
-    const result = await runWithTenant(mockUser, () =>
-      interactor.invoke({
-        id: OWN_VIEW_ID,
-        surfaceKey: SURFACE,
-        name: "Open deals",
-        visibility: "private",
-        state: {},
-      }),
-    );
-
-    expect(repo.updateOwned.mock.calls[0][0].visibility).toBe("private");
-    expect(result.ok && result.data.visibility).toBe("private");
+    expect(result.ok && result.data).toMatchObject({ id: OWN_VIEW_ID, name: "Renamed", position: 2 });
+    expect(repo.updateOwned).toHaveBeenCalledWith({ id: OWN_VIEW_ID, name: "Renamed", position: 2, state: {} });
+    expect(personalization.upsertP13n).not.toHaveBeenCalled();
   });
 
   it("refuses an update that names a surface the stored view does not live on", async () => {
-    const stored = upsertDoubles(ownedView({ surfaceKey: OPERATOR_SURFACE, visibility: "private" }));
+    const stored = upsertDoubles(ownedView({ surfaceKey: OPERATOR_SURFACE }));
     const missing = upsertDoubles(null);
 
     const onMismatch = await runWithTenant(mockUser, () =>
-      stored.interactor.invoke({
-        id: OWN_VIEW_ID,
-        surfaceKey: SURFACE,
-        name: "Escalations",
-        visibility: "workspace",
-        state: {},
-      }),
+      stored.interactor.invoke({ id: OWN_VIEW_ID, surfaceKey: SURFACE, name: "Escalations", state: {} }),
     );
     const onMissing = await runWithTenant(mockUser, () =>
       missing.interactor.invoke({ id: MISSING_VIEW_ID, surfaceKey: SURFACE, name: "Escalations", state: {} }),
@@ -229,40 +148,16 @@ describe("data view ownership", () => {
     expect(onMismatch.ok).toBe(false);
     expect(failureCode(onMismatch)).toEqual(failureCode(onMissing));
     expect(stored.repo.updateOwned).not.toHaveBeenCalled();
-    expect(stored.overrides.deleteOverride).not.toHaveBeenCalled();
   });
 
-  it("forces a view on a non-shareable surface back to private on every update", async () => {
-    const { interactor, repo } = upsertDoubles(ownedView({ surfaceKey: OPERATOR_SURFACE, visibility: "private" }));
+  it("rejects a visibility key on the wire now that every view is personal", async () => {
+    const { interactor, repo } = upsertDoubles(null);
 
-    await runWithTenant(mockUser, () =>
-      interactor.invoke({
-        id: OWN_VIEW_ID,
-        surfaceKey: OPERATOR_SURFACE,
-        name: "Escalations",
-        visibility: "workspace",
-        state: {},
-      }),
+    const result = await runWithTenant(mockUser, () =>
+      interactor.invoke({ surfaceKey: SURFACE, name: "Shared", visibility: "workspace", state: {} } as never),
     );
 
-    expect(repo.updateOwned.mock.calls[0][0].visibility).toBe("private");
-  });
-
-  it("gives the override writer no way to name, rename or share a view", async () => {
-    const views = { findViewById: vi.fn().mockResolvedValue(foreignView) };
-    const overrides = { upsertOverride: vi.fn(), deleteOverride: vi.fn().mockResolvedValue(true) };
-
-    await expect(
-      runWithTenant(mockUser, () =>
-        new ApplyDataViewOverrideInteractor(views, overrides).invoke({
-          surfaceKey: SURFACE,
-          viewKey: FOREIGN_VIEW_ID,
-          mode: "save",
-          state: {},
-          name: "Stolen",
-          visibility: "private",
-        } as never),
-      ),
-    ).rejects.toThrow();
+    expect(result.ok).toBe(false);
+    expect(repo.createView).not.toHaveBeenCalled();
   });
 });

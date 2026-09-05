@@ -5,7 +5,6 @@ import { z } from "zod";
 import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
 import { GroupingSchema } from "@/core/base/grouping/grouping.schema";
 import { ViewMode } from "@/core/base/base-query-builder";
-import { DataViewVisibility } from "@/generated/prisma";
 
 import { ALL_VIEW_KEY, DATA_VIEW_SURFACE_KEYS } from "./data-view-keys";
 
@@ -58,10 +57,7 @@ export const SurfaceKeySchema = z.enum(DATA_VIEW_SURFACE_KEYS);
 export const DataViewChipDtoSchema = z.object({
   id: z.string(),
   name: z.string(),
-  visibility: z.enum(DataViewVisibility),
   position: z.number().int(),
-  isOwner: z.boolean(),
-  ownerName: z.string().optional(),
   state: DataViewStateSchema,
 });
 export type DataViewChipDto = Data<typeof DataViewChipDtoSchema>;

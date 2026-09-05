@@ -98,10 +98,7 @@ class MockActivitiesRepo extends GetActivitiesRepo {
 const A_TIMELINE_VIEW = {
   id: "7d2c1b90-4a3e-4f51-8c62-0a1b2c3d4e5f",
   name: "Emails only",
-  visibility: "private" as const,
   position: 0,
-  isOwner: true,
-  ownerName: "Max Mustermann",
   state: {},
 };
 
@@ -109,7 +106,7 @@ function makeInteractor(repo: MockActivitiesRepo, denied = false, surfaceViews =
   return new GetActivitiesInteractor(
     repo,
     {
-      loadSurfaceState: vi.fn().mockResolvedValue({ activeViewKey: null, views: surfaceViews, overrides: new Map() }),
+      loadSurfaceState: vi.fn().mockResolvedValue({ activeViewKey: null, views: surfaceViews, allState: {} }),
     },
     "interactive",
     {} as never,
@@ -122,7 +119,7 @@ function makeInteractor(repo: MockActivitiesRepo, denied = false, surfaceViews =
 function makeApiInteractor(repo: MockActivitiesRepo, precheck: { invoke: ReturnType<typeof vi.fn> }) {
   return new GetActivitiesInteractor(
     repo,
-    { loadSurfaceState: vi.fn().mockResolvedValue({ activeViewKey: null, views: [], overrides: new Map() }) },
+    { loadSurfaceState: vi.fn().mockResolvedValue({ activeViewKey: null, views: [], allState: {} }) },
     "api",
     precheck as never,
     { require: vi.fn().mockResolvedValue({ ok: false }) } as never,
@@ -170,8 +167,6 @@ describe("GetActivitiesInteractor", () => {
     if (!result.ok) return;
     expect(result.data.views).toEqual([A_TIMELINE_VIEW]);
     expect(result.data.activeViewKey).toBe("__all__");
-    expect(result.data.viewIsDirty).toBe(false);
-    expect(result.data.viewCanShare).toBe(false);
     expect(result.data.viewPersistable).toBe(true);
     expect(result.data.viewUnavailable).toBe(false);
   });

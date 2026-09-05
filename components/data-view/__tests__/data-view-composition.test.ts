@@ -23,7 +23,6 @@ vi.mock("@/core/stores/root-store.provider", () => ({
 vi.mock("../data-card-view", () => ({ DataCardView: harness.card }));
 vi.mock("../data-kanban-view", () => ({ DataKanbanView: harness.kanban }));
 vi.mock("../data-table", () => ({ DataTable: harness.table }));
-vi.mock("../header/active-filters-bar", () => ({ DataViewActiveFiltersBar: () => null }));
 vi.mock("../header/pagination", () => ({ DataViewPagination: harness.pagination }));
 vi.mock("../mass-actions-bar", () => ({ MassActionsBar: () => null }));
 vi.mock("../views/data-view-views-rail", () => ({ DataViewViewsRail: () => "views-rail" }));

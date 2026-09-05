@@ -7,7 +7,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock("@/app/actions", () => ({
-  applyDataViewOverrideAction: vi.fn(),
+  saveDataViewStateAction: vi.fn(),
   selectDataViewAction: vi.fn(),
   bulkDeleteEntitiesAction: vi.fn(),
   bulkUpdateCustomFieldValuesAction: vi.fn(),

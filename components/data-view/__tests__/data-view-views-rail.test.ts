@@ -32,11 +32,9 @@ type Item = { id: string };
 
 function view(overrides: Partial<DataViewChipDto> & { id: string }): DataViewChipDto {
   return {
-    isOwner: true,
     name: `View ${overrides.id}`,
     position: 0,
     state: {},
-    visibility: "private",
     ...overrides,
   };
 }
@@ -44,14 +42,7 @@ function view(overrides: Partial<DataViewChipDto> & { id: string }): DataViewChi
 const THREE_VIEWS = [
   view({ id: "v-c", name: "Closing", position: 2 }),
   view({ id: "v-a", name: "Ada", position: 0 }),
-  view({
-    id: "v-b",
-    isOwner: false,
-    name: "Open deals",
-    ownerName: "Sofia Rossi",
-    position: 1,
-    visibility: "workspace",
-  }),
+  view({ id: "v-b", name: "Open deals", position: 1 }),
 ];
 
 function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewStore<Item> {
@@ -64,7 +55,6 @@ function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewSt
     p13nId: "deals-card-store",
     pagination: { page: 1, pageSize: 25, total: 42 },
     views: [],
-    viewIsDirty: false,
     ...overrides,
   } as unknown as BaseDataViewStore<Item>;
 }
@@ -82,19 +72,11 @@ function countOf(html: string, needle: string): number {
   return html.split(needle).length - 1;
 }
 
-function countChips(html: string, variant: string): number {
-  return (html.match(new RegExp(`<a [^>]*data-variant="${variant}"`, "g")) ?? []).length;
+function tabs(html: string): string[] {
+  return html.match(/<a [^>]*data-view-chip=""[^>]*>/g) ?? [];
 }
 
-const ANCHOR_IDS = [
-  "global-data-views",
-  "global-data-views-all",
-  "global-data-views-menu",
-  "global-data-views-new",
-  "global-data-views-picker",
-  "global-data-views-reset",
-  "global-data-views-save",
-];
+const ANCHOR_IDS = ["global-data-views", "global-data-views-all", "global-data-views-menu", "global-data-views-new"];
 
 describe("data view rail", () => {
   beforeEach(() => {
@@ -118,158 +100,87 @@ describe("data view rail", () => {
     expect(harness.joinedContent).toHaveBeenCalledWith(false);
   });
 
-  it("renders All and the create control on an empty workspace", () => {
+  it("renders the All tab and the create control on an empty workspace", () => {
     const html = render(store());
 
     expect(html).toContain('id="global-data-views-all"');
     expect(html).toContain("DataView.views.all");
     expect(html).toContain('id="global-data-views-new"');
-    expect(html).not.toContain('id="global-data-views-picker"');
-    expect(html).not.toContain('id="global-data-views-reset"');
-    expect(html).not.toContain('id="global-data-views-save"');
     expect(html).not.toContain('id="global-data-views-menu"');
+    expect(countOf(html, 'id="global-data-views')).toBe(3);
   });
 
-  it("orders your own chips by position ahead of the shared ones and marks only the active one", () => {
+  it("renders every view as a tab in position order and marks only the active one", () => {
     const html = render(store({ activeViewKey: "v-b", views: THREE_VIEWS }));
-    const order = ["DataView.views.all", "Ada", "Closing", "Open deals"].map((label) => html.indexOf(label));
+    const order = ["DataView.views.all", "Ada", "Open deals", "Closing"].map((label) => html.indexOf(label));
 
     expect(order.every((index) => index >= 0)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
-    expect(countOf(html, 'data-slot="badge"')).toBe(4);
+    expect(tabs(html)).toHaveLength(4);
+    expect(countOf(html, "<a ")).toBe(4);
     expect(countOf(html, 'aria-current="page"')).toBe(1);
-    expect(countChips(html, "default")).toBe(1);
-    expect(countChips(html, "secondary")).toBe(3);
     expect(html).toMatch(/<a[^>]*aria-current="page"[^>]*>(?:(?!<\/a>).)*Open deals/s);
+    expect(tabs(html).filter((tab) => tab.includes("bg-foreground/10"))).toHaveLength(1);
+    expect(tabs(html).filter((tab) => tab.includes("bg-muted"))).toHaveLength(3);
+    expect(html).not.toContain('data-slot="badge"');
   });
 
-  it("renders every chip as a real link to its own view url", () => {
+  it("renders every tab as a real link to its own view url", () => {
     const html = render(store({ activeViewKey: "v-b", views: THREE_VIEWS }));
 
-    expect(countOf(html, "<a ")).toBe(4);
-    expect(countOf(html, 'data-slot="badge"')).toBe(4);
-    expect(countOf(html, "<span data-view-chip")).toBe(0);
     expect(html).toContain('href="/en/deals"');
     for (const id of ["v-a", "v-b", "v-c"]) expect(html).toContain(`href="/en/deals?view=${id}"`);
   });
 
-  it("keeps exactly one chip tabbable and points it at the active view", () => {
+  it("keeps exactly one tab tabbable and points it at the active view", () => {
     const active = render(store({ activeViewKey: "v-b", views: THREE_VIEWS }));
     expect(countOf(active, 'tabindex="0"')).toBe(1);
     expect(active).toMatch(/<a[^>]*tabindex="0"[^>]*>(?:(?!<\/a>).)*Open deals/s);
+    expect(countOf(active, 'tabindex="-1"')).toBe(3);
 
     const all = render(store({ views: THREE_VIEWS }));
     expect(countOf(all, 'tabindex="0"')).toBe(1);
     expect(all).toMatch(/<a[^>]*id="global-data-views-all"[^>]*tabindex="0"/);
   });
 
-  it("offers save into the view only on a dirty view you own", () => {
-    const own = render(store({ activeViewKey: "v-a", viewIsDirty: true, views: THREE_VIEWS }));
-    expect(own).toContain('id="global-data-views-reset"');
-    expect(own).toContain('id="global-data-views-save"');
-    expect(own).toContain("DataView.views.saveChanges");
-    expect(own).not.toContain("DataView.views.saveAsNew");
-    expect(own).toContain('id="global-data-views-menu"');
-
-    const foreign = render(store({ activeViewKey: "v-b", viewIsDirty: true, views: THREE_VIEWS }));
-    expect(foreign).toContain('id="global-data-views-reset"');
-    expect(foreign).toContain('id="global-data-views-save"');
-    expect(foreign).toContain("DataView.views.saveAsNew");
-    expect(foreign).not.toContain("DataView.views.saveChanges");
-
-    const all = render(store({ viewIsDirty: true, views: THREE_VIEWS }));
-    expect(all).toContain('id="global-data-views-reset"');
-    expect(all).toContain("DataView.views.saveAsNew");
-    expect(all).not.toContain('id="global-data-views-menu"');
-  });
-
-  it("keeps a clean rail free of the dirty controls", () => {
+  it("renders exactly the four reserved anchor ids once each on a populated rail", () => {
     const html = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
 
-    expect(html).not.toContain('id="global-data-views-reset"');
-    expect(html).not.toContain('id="global-data-views-save"');
-    expect(html).toContain('id="global-data-views-menu"');
-  });
-
-  it("gives a read only user the same rail as a manager", () => {
-    const managed = render(store({ activeViewKey: "v-a", viewIsDirty: true, views: THREE_VIEWS }));
-    const readOnly = render(store({ activeViewKey: "v-a", isDisabled: true, viewIsDirty: true, views: THREE_VIEWS }));
-
-    expect(readOnly).toBe(managed);
-    for (const id of ANCHOR_IDS) expect(readOnly).toContain(`id="${id}"`);
-  });
-
-  it("drops every write control in demo mode and keeps the read controls", () => {
-    harness.appMode.current = "demo";
-    const html = render(store({ activeViewKey: "v-a", viewIsDirty: true, views: THREE_VIEWS }));
-
-    expect(html).toContain('id="global-data-views-all"');
-    expect(html).toContain('id="global-data-views-reset"');
-    expect(html).toContain('id="global-data-views-picker"');
-    expect(html).toContain("Open deals");
-    expect(html).not.toContain('id="global-data-views-new"');
-    expect(html).not.toContain('id="global-data-views-menu"');
-    expect(html).not.toContain('id="global-data-views-save"');
-  });
-
-  it("renders each reserved anchor id exactly once in a fully populated rail", () => {
-    const html = render(store({ activeViewKey: "v-a", viewIsDirty: true, views: THREE_VIEWS }));
-
     for (const id of ANCHOR_IDS) expect(countOf(html, `id="${id}"`), id).toBe(1);
+    expect(countOf(html, 'id="global-data-views')).toBe(ANCHOR_IDS.length);
     expect(html).toContain("data-data-view-rail=");
   });
 
-  it("counts the overflow into the picker trigger once the cap is reached", () => {
-    const many = Array.from({ length: 20 }, (_, index) => view({ id: `v${index}`, position: index }));
-    const html = render(store({ views: many }));
-
-    expect(html).toContain('id="global-data-views-picker"');
-    expect(html).toContain("+9");
-    expect(countOf(html, 'data-slot="badge"')).toBe(12);
+  it("offers the menu only on an active saved view", () => {
+    expect(render(store({ activeViewKey: "v-a", views: THREE_VIEWS }))).toContain('id="global-data-views-menu"');
+    expect(render(store({ views: THREE_VIEWS }))).not.toContain('id="global-data-views-menu"');
   });
 
-  it("shows the tombstone in the active slot without touching the query", () => {
-    const value = store({ activeViewKey: "deleted-view", views: THREE_VIEWS });
-    const html = render(value);
+  it("gives a read only user the same rail as a manager", () => {
+    const managed = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
+    const readOnly = render(store({ activeViewKey: "v-a", isDisabled: true, views: THREE_VIEWS }));
 
-    expect(html).toContain("DataView.views.unavailable");
-    expect(countOf(html, 'data-slot="badge"')).toBe(5);
-    expect(countOf(html, "<a ")).toBe(4);
-    expect(html).toContain('data-variant="outline"');
-    expect(html).toContain('id="global-data-views-reset"');
-    expect(html).toContain("DataView.views.saveAsNew");
-    expect(html).not.toContain('aria-current="page"');
+    expect(readOnly).toBe(managed);
+  });
+
+  it("drops every write control in demo mode and keeps the tabs", () => {
+    harness.appMode.current = "demo";
+    const html = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
+
+    expect(tabs(html)).toHaveLength(4);
+    expect(html).toContain('id="global-data-views-all"');
+    expect(html).toContain("Open deals");
+    expect(html).not.toContain('id="global-data-views-new"');
     expect(html).not.toContain('id="global-data-views-menu"');
-    expect(value.activeViewKey).toBe("deleted-view");
-    expect(value.views).toBe(THREE_VIEWS);
-    expect(html).toContain("DataView.views.applied(DataView.views.unavailable)");
   });
 
-  it("keeps the recovery overlay reachable when the orphaned view was the last one", () => {
-    const html = render(store({ activeViewKey: "deleted-view", views: [] }));
+  it("falls back to the All tab for an active key that matches no view", () => {
+    const html = render(store({ activeViewKey: "gone", views: THREE_VIEWS }));
 
-    expect(html).toContain("DataView.views.unavailable");
-    expect(html).toContain('id="global-data-views-picker"');
-    expect(html).toContain('id="global-data-views-reset"');
-  });
-
-  it("states workspace sharing in text beside the icon", () => {
-    const html = render(store({ activeViewKey: "v-b", views: THREE_VIEWS }));
-
-    expect(html).toContain("DataView.views.sharedState");
-    expect(countOf(html, "DataView.views.sharedState")).toBe(1);
-  });
-
-  it("shows the tombstone when the server reports the active view was lost", () => {
-    const value = store({ viewLost: true, views: THREE_VIEWS } as Partial<BaseDataViewStore<Item>>);
-    const html = render(value);
-
-    expect(html).toContain("DataView.views.unavailable");
-    expect(html).not.toContain('aria-current="page"');
-    expect(html).toContain('id="global-data-views-reset"');
-    expect(html).toContain("DataView.views.saveAsNew");
+    expect(tabs(html)).toHaveLength(4);
+    expect(html).toMatch(/<a[^>]*aria-current="page"[^>]*id="global-data-views-all"/);
     expect(html).not.toContain('id="global-data-views-menu"');
-    expect(html).toContain("DataView.views.applied(DataView.views.unavailable)");
+    expect(html).toContain("DataView.views.applied(DataView.views.all)");
   });
 
   it("announces the active view through the live region", () => {
@@ -285,11 +196,11 @@ describe("data view rail", () => {
     expect(render(store({ views: THREE_VIEWS }))).not.toContain("hidden md:flex");
   });
 
-  it("renders placeholders instead of chips until the store is hydrated", () => {
+  it("renders placeholders instead of tabs until the store is hydrated", () => {
     const html = render(store({ isReady: false, views: THREE_VIEWS }));
 
     expect(countOf(html, 'data-slot="skeleton"')).toBe(3);
-    expect(html).not.toContain('data-slot="badge"');
+    expect(tabs(html)).toHaveLength(0);
     expect(html).not.toContain('id="global-data-views-new"');
     expect(html).toContain('id="global-data-views"');
   });

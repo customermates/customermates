@@ -61,7 +61,7 @@ class StubRepo extends BaseGetRepo<Item> {
 
 class ProbeInteractor extends BaseGetInteractor<Item> {}
 
-const emptySurface: SurfaceViewState = { activeViewKey: null, views: [], overrides: new Map() };
+const emptySurface: SurfaceViewState = { activeViewKey: null, views: [], allState: {} };
 
 function probe(mode: "interactive" | "api") {
   const repo = new StubRepo();

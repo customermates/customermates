@@ -81,7 +81,7 @@ class GroupingInteractor extends BaseGetInteractor<Item> {
   constructor(repo: StubRepo) {
     super(
       repo,
-      { loadSurfaceState: vi.fn().mockResolvedValue({ activeViewKey: null, views: [], overrides: new Map() }) },
+      { loadSurfaceState: vi.fn().mockResolvedValue({ activeViewKey: null, views: [], allState: {} }) },
       "interactive",
       EntityType.deal,
     );

@@ -5,14 +5,16 @@ import type { GetQueryParams, Filter, FilterableField } from "../base-get.schema
 import type { DataViewChipDto } from "@/core/data-view/data-view-state.schema";
 import type { RootStore } from "@/core/stores/root.store";
 
-const { applyDataViewOverrideAction, selectDataViewAction } = vi.hoisted(() => ({
-  applyDataViewOverrideAction: vi.fn(),
+const { saveDataViewStateAction, selectDataViewAction } = vi.hoisted(() => ({
+  saveDataViewStateAction: vi.fn(),
   selectDataViewAction: vi.fn(),
 }));
 
-vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
+const { toast } = vi.hoisted(() => ({ toast: { error: vi.fn(), success: vi.fn() } }));
+
+vi.mock("sonner", () => ({ toast }));
 vi.mock("@/app/actions", () => ({
-  applyDataViewOverrideAction,
+  saveDataViewStateAction,
   selectDataViewAction,
   bulkDeleteEntitiesAction: vi.fn(),
   bulkUpdateCustomFieldValuesAction: vi.fn(),
@@ -60,10 +62,7 @@ function chip(overrides: Partial<DataViewChipDto> = {}): DataViewChipDto {
   return {
     id: VIEW_ID,
     name: "Open work",
-    visibility: "private",
     position: 0,
-    isOwner: true,
-    ownerName: "Max",
     state: { filters: [filter("stage", "open")] },
     ...overrides,
   } as DataViewChipDto;
@@ -86,12 +85,13 @@ function hydrated(view: DataViewChipDto = chip()): TestStore {
 
 describe("BaseDataViewStore.applyView", () => {
   beforeEach(() => {
-    applyDataViewOverrideAction.mockReset();
+    saveDataViewStateAction.mockReset();
     selectDataViewAction.mockReset();
     selectDataViewAction.mockResolvedValue({ ok: true, data: { activeViewKey: VIEW_ID } });
+    toast.error.mockClear();
   });
 
-  it("issues exactly one refetch carrying only the surface key and the view id, and writes no override", async () => {
+  it("issues exactly one refetch carrying only the surface key and the view id, and writes no state", async () => {
     const store = hydrated();
 
     store.applyView(VIEW_ID);
@@ -101,7 +101,7 @@ describe("BaseDataViewStore.applyView", () => {
     expect(store.requestedParams).toHaveLength(1);
     expect(store.requestedParams[0]).toEqual({ p13nId: SURFACE.deals, viewId: VIEW_ID });
     expect(Object.keys(store.requestedParams[0] ?? {}).sort()).toEqual(["p13nId", "viewId"]);
-    expect(applyDataViewOverrideAction).not.toHaveBeenCalled();
+    expect(saveDataViewStateAction).not.toHaveBeenCalled();
     expect(selectDataViewAction).toHaveBeenCalledExactlyOnceWith({
       surfaceKey: SURFACE.deals,
       viewKey: VIEW_ID,
@@ -130,7 +130,6 @@ describe("BaseDataViewStore.applyView", () => {
     expect(store.columnWidths).toEqual({ stage: 180 });
     expect(store.pagination?.page).toBe(1);
     expect(store.groupedTakeOverrides).toEqual({});
-    expect(store.viewIsDirty).toBe(false);
   });
 
   it("sanitises a stored view that names the name column or a filter field the surface no longer offers", () => {
@@ -165,40 +164,38 @@ describe("BaseDataViewStore.applyView", () => {
     expect(store.requestedParams[0]).toEqual({ p13nId: SURFACE.deals, viewId: ALL_VIEW_KEY });
   });
 
-  it("reports the active view as lost only when it disappears while you are on it", () => {
-    const store = hydrated();
-    store.applyView(VIEW_ID);
-
-    store.setItems({
+  it("applies the All tab and toasts once, after render, when the server reports the requested view unavailable", () => {
+    vi.useFakeTimers();
+    const store = new TestStore(rootStore());
+    const unavailable = {
       items: [],
       p13nId: SURFACE.deals,
       filterableFields: FILTERABLE_FIELDS,
       views: [],
-      activeViewKey: ALL_VIEW_KEY,
+      activeViewKey: VIEW_ID,
       viewUnavailable: true,
-    });
+    };
+
+    store.setItems(unavailable);
 
     expect(store.activeViewKey).toBe(ALL_VIEW_KEY);
-    expect(store.viewLost).toBe(true);
-
-    store.applyView(ALL_VIEW_KEY);
-    expect(store.viewLost).toBe(false);
-  });
-
-  it("keeps a stale view link in the address bar silent on a first paint", () => {
-    const store = new TestStore(rootStore());
-
-    store.setItems({
-      items: [],
-      p13nId: SURFACE.deals,
-      filterableFields: FILTERABLE_FIELDS,
-      views: [],
-      activeViewKey: ALL_VIEW_KEY,
-      viewUnavailable: true,
-    });
-
     expect(store.viewUnavailable).toBe(true);
-    expect(store.viewLost).toBe(false);
+    expect(toast.error).not.toHaveBeenCalled();
+
+    vi.runAllTimers();
+    expect(toast.error).toHaveBeenCalledExactlyOnceWith("DataView.views.unavailable", expect.anything());
+
+    store.setItems(unavailable);
+    vi.runAllTimers();
+    expect(toast.error).toHaveBeenCalledTimes(1);
+
+    store.setItems({ ...unavailable, activeViewKey: ALL_VIEW_KEY, viewUnavailable: false });
+    expect(store.viewUnavailable).toBe(false);
+
+    store.setItems(unavailable);
+    vi.runAllTimers();
+    expect(toast.error).toHaveBeenCalledTimes(2);
+    vi.useRealTimers();
   });
 
   it("does not select a view when the surface cannot persist", () => {

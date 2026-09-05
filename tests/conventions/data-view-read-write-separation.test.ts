@@ -8,12 +8,12 @@ import { REPO_ROOT } from "./walk";
 
 const READ_PATH_FILE = "core/base/base-get.interactor.ts";
 const STATE_REPO_FILE = "core/data-view/data-view-state.repo.ts";
-const OVERRIDE_SCHEMA_FILE = "features/data-view/data-view.schema.ts";
-const OVERRIDE_WRITE_FILE = "features/data-view/prisma-data-view-override.repository.ts";
+const STATE_SCHEMA_FILE = "features/data-view/data-view.schema.ts";
+const STATE_WRITE_FILE = "features/data-view/save-data-view-state.interactor.ts";
 const OPERATOR_DECORATOR_FILE = "core/decorators/operator-interactor.decorator.ts";
 
 const WRITE_VERB = /^(upsert|update|delete)/i;
-const VIEW_MUTATION_KEYS = ["id", "name", "visibility"];
+const VIEW_MUTATION_KEYS = ["id", "name", "position", "activeViewKey"];
 
 function parse(relativePath: string): ts.SourceFile {
   const path = join(REPO_ROOT, relativePath);
@@ -95,18 +95,18 @@ describe("data view read and write separation", () => {
     expect(declaration.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.AbstractKeyword)).toBe(true);
   });
 
-  it("denies the personal override writer any key that could mutate a shared view", () => {
-    const keys = findObjectLiteralKeys(parse(OVERRIDE_SCHEMA_FILE), "ApplyDataViewOverrideSchema");
+  it("denies the autosave writer any key that could name, move or switch a view", () => {
+    const keys = findObjectLiteralKeys(parse(STATE_SCHEMA_FILE), "SaveDataViewStateSchema");
 
-    expect(keys).toEqual(["surfaceKey", "viewKey", "mode", "state"]);
+    expect(keys).toEqual(["surfaceKey", "viewKey", "state"]);
     for (const forbidden of VIEW_MUTATION_KEYS) expect(keys).not.toContain(forbidden);
   });
 
-  it("keeps the override writer off the DataView table", () => {
-    const source = parse(OVERRIDE_WRITE_FILE);
+  it("keeps the autosave writer away from a view's identity and from the remembered tab", () => {
+    const source = parse(STATE_WRITE_FILE);
+    const identifiers = new Set([...collectIdentifiers(source), ...propertyAccessNames(source)]);
 
-    expect(propertyAccessNames(source)).not.toContain("dataView");
-    expect(source.text).not.toMatch(/prisma\.dataView(?![A-Za-z])/);
+    for (const forbidden of VIEW_MUTATION_KEYS.filter((key) => key !== "id")) expect(identifiers).not.toContain(forbidden);
   });
 
   it("leaves the operator decorator establishing an operator frame only", () => {

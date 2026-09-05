@@ -16,9 +16,6 @@ const {
   dataViewFindFirst,
   dataViewFindMany,
   dataViewUpdateMany,
-  overrideDeleteMany,
-  overrideFindMany,
-  overrideUpsert,
   p13nFindUnique,
 } = vi.hoisted(() => ({
   dataViewAggregate: vi.fn(),
@@ -27,9 +24,6 @@ const {
   dataViewFindFirst: vi.fn(),
   dataViewFindMany: vi.fn(),
   dataViewUpdateMany: vi.fn(),
-  overrideDeleteMany: vi.fn(),
-  overrideFindMany: vi.fn(),
-  overrideUpsert: vi.fn(),
   p13nFindUnique: vi.fn(),
 }));
 
@@ -48,19 +42,11 @@ vi.mock("@/prisma/db", () => ({
       findMany: dataViewFindMany,
       updateMany: dataViewUpdateMany,
     },
-    dataViewOverride: {
-      deleteMany: overrideDeleteMany,
-      findMany: overrideFindMany,
-      upsert: overrideUpsert,
-    },
     p13n: { findUnique: p13nFindUnique },
   },
 }));
 
-import { Prisma } from "@/generated/prisma";
-
 import { PrismaDataViewRepo } from "../prisma-data-view.repository";
-import { PrismaDataViewOverrideRepo } from "../prisma-data-view-override.repository";
 import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { runWithTenant } from "@/core/decorators/tenant-context";
@@ -70,13 +56,36 @@ const A_VIEW_ID = "3a7b2c11-5d4e-4f60-8a91-2b3c4d5e6f70";
 const A_SECOND_VIEW_ID = "3a7b2c11-5d4e-4f60-8a91-2b3c4d5e6f71";
 const A_GROUPING_COLUMN = "8f1c1a4e-0b2d-4a9e-9d7c-1f2a3b4c5d6e";
 
+const TOTAL_STATE = {
+  filters: [],
+  searchTerm: "",
+  sortDescriptor: null,
+  pageSize: 25 as const,
+  viewMode: ViewMode.card,
+  grouping: null,
+  columnOrder: [],
+  columnWidths: {},
+  hiddenColumns: [],
+};
+
+const EVERY_STATE_COLUMN = [
+  "columnOrder",
+  "columnWidths",
+  "filters",
+  "grouping",
+  "groupingColumnId",
+  "hiddenColumns",
+  "pageSize",
+  "searchTerm",
+  "sortDescriptor",
+  "viewMode",
+];
+
 function storedView(overrides: Record<string, unknown> = {}) {
   return {
     id: A_VIEW_ID,
-    userId: mockUser.id,
     surfaceKey: SURFACE,
     name: "Hot leads",
-    visibility: "private",
     position: 0,
     filters: null,
     searchTerm: null,
@@ -88,7 +97,23 @@ function storedView(overrides: Record<string, unknown> = {}) {
     columnWidths: null,
     hiddenColumns: null,
     pageSize: null,
-    user: { firstName: "Test", lastName: "User" },
+    ...overrides,
+  };
+}
+
+function storedPersonalization(overrides: Record<string, unknown> = {}) {
+  return {
+    activeViewKey: null,
+    filters: null,
+    searchTerm: null,
+    sortDescriptor: null,
+    pagination: null,
+    viewMode: null,
+    groupingColumnId: null,
+    grouping: null,
+    columnOrder: [],
+    columnWidths: null,
+    hiddenColumns: [],
     ...overrides,
   };
 }
@@ -97,48 +122,45 @@ function asTenant<T>(fn: () => Promise<T>) {
   return runWithTenant(mockUser, fn);
 }
 
+const ownerWhere = { companyId: mockUser.companyId, surfaceKey: SURFACE, userId: mockUser.id };
+
 describe("PrismaDataViewRepo scoping", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     dataViewFindMany.mockResolvedValue([]);
-    overrideFindMany.mockResolvedValue([]);
     p13nFindUnique.mockResolvedValue(null);
     dataViewFindFirst.mockResolvedValue(null);
     dataViewAggregate.mockResolvedValue({ _max: { position: null } });
     dataViewUpdateMany.mockResolvedValue({ count: 0 });
     dataViewDeleteMany.mockResolvedValue({ count: 0 });
-    overrideDeleteMany.mockResolvedValue({ count: 0 });
-    overrideUpsert.mockResolvedValue({});
     dataViewCreate.mockResolvedValue(storedView());
   });
 
-  it("lists the caller's own views and every workspace-visible view of the surface", async () => {
+  it("lists only the caller's own views of the surface", async () => {
     await asTenant(() => new PrismaDataViewRepo().listDataViews(SURFACE));
 
-    expect(dataViewFindMany).toHaveBeenCalledWith(
+    expect(dataViewFindMany).toHaveBeenCalledWith(expect.objectContaining({ where: ownerWhere }));
+  });
+
+  it("loads the surface from the caller's own views and the caller's own personalization row", async () => {
+    await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
+
+    expect(dataViewFindMany).toHaveBeenCalledWith(expect.objectContaining({ where: ownerWhere }));
+    expect(p13nFindUnique).toHaveBeenCalledWith(
       expect.objectContaining({
         where: {
+          companyId_userId_p13nId: { companyId: mockUser.companyId, userId: mockUser.id, p13nId: SURFACE },
           companyId: mockUser.companyId,
-          surfaceKey: SURFACE,
-          OR: [{ userId: mockUser.id }, { visibility: "workspace" }],
         },
       }),
     );
   });
 
-  it("resolves a view id with findFirst so an unreadable id returns null rather than leaking existence", async () => {
-    const found = await asTenant(() => new PrismaDataViewRepo().findViewById(A_VIEW_ID));
+  it("selects no owner join, because a view is only ever shown to the user who made it", async () => {
+    await asTenant(() => new PrismaDataViewRepo().listDataViews(SURFACE));
 
-    expect(found).toBeNull();
-    expect(dataViewFindFirst).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: {
-          id: A_VIEW_ID,
-          companyId: mockUser.companyId,
-          OR: [{ userId: mockUser.id }, { visibility: "workspace" }],
-        },
-      }),
-    );
+    expect(dataViewFindMany.mock.calls[0][0].select).not.toHaveProperty("user");
+    expect(dataViewFindMany.mock.calls[0][0].select).not.toHaveProperty("visibility");
   });
 
   it("scopes the owner-only lookup, update and delete by both companyId and userId", async () => {
@@ -171,41 +193,67 @@ describe("PrismaDataViewRepo scoping", () => {
   });
 
   it("writes every state column when the save carries a total state", async () => {
+    await asTenant(() => new PrismaDataViewRepo().updateOwned({ id: A_VIEW_ID, state: TOTAL_STATE }));
+
+    expect(Object.keys(dataViewUpdateMany.mock.calls[0][0].data).sort()).toEqual(EVERY_STATE_COLUMN);
+  });
+
+  it("autosaves a view's state into the caller's own row on the named surface and reports ownership", async () => {
+    dataViewUpdateMany.mockResolvedValue({ count: 1 });
+
+    const saved = await asTenant(() =>
+      new PrismaDataViewRepo().updateOwnedState({ id: A_VIEW_ID, surfaceKey: SURFACE, state: TOTAL_STATE }),
+    );
+
+    expect(saved).toBe(true);
+    expect(dataViewUpdateMany.mock.calls[0][0].where).toEqual({
+      id: A_VIEW_ID,
+      companyId: mockUser.companyId,
+      userId: mockUser.id,
+      surfaceKey: SURFACE,
+    });
+    expect(Object.keys(dataViewUpdateMany.mock.calls[0][0].data).sort()).toEqual(EVERY_STATE_COLUMN);
+    expect(dataViewFindFirst).not.toHaveBeenCalled();
+  });
+
+  it("autosaves only the keys the payload carries, so an omitted key leaves its column alone", async () => {
+    dataViewUpdateMany.mockResolvedValue({ count: 1 });
+
     await asTenant(() =>
-      new PrismaDataViewRepo().updateOwned({
+      new PrismaDataViewRepo().updateOwnedState({ id: A_VIEW_ID, surfaceKey: SURFACE, state: { pageSize: 10 } }),
+    );
+
+    expect(dataViewUpdateMany.mock.calls[0][0].data).toEqual({ pageSize: 10 });
+  });
+
+  it("autosaves a cleared value as a present value rather than leaving the column alone", async () => {
+    dataViewUpdateMany.mockResolvedValue({ count: 1 });
+
+    await asTenant(() =>
+      new PrismaDataViewRepo().updateOwnedState({
         id: A_VIEW_ID,
-        state: {
-          filters: [],
-          searchTerm: "",
-          sortDescriptor: null,
-          pageSize: 25,
-          viewMode: ViewMode.card,
-          grouping: null,
-          columnOrder: [],
-          columnWidths: {},
-          hiddenColumns: [],
-        },
+        surfaceKey: SURFACE,
+        state: { filters: [], searchTerm: "", sortDescriptor: null, grouping: null },
       }),
     );
 
-    expect(Object.keys(dataViewUpdateMany.mock.calls[0][0].data).sort()).toEqual([
-      "columnOrder",
-      "columnWidths",
-      "filters",
-      "grouping",
-      "groupingColumnId",
-      "hiddenColumns",
-      "pageSize",
-      "searchTerm",
-      "sortDescriptor",
-      "viewMode",
-    ]);
+    expect(dataViewUpdateMany.mock.calls[0][0].data).toEqual({
+      filters: [],
+      searchTerm: "",
+      sortDescriptor: {},
+      grouping: {},
+      groupingColumnId: null,
+    });
   });
 
-  it("leaves visibility out of the update when the save carries none", async () => {
-    await asTenant(() => new PrismaDataViewRepo().updateOwned({ id: A_VIEW_ID, name: "Hot leads" }));
+  it("reports an autosave onto a foreign or missing view as not owned", async () => {
+    dataViewUpdateMany.mockResolvedValue({ count: 0 });
 
-    expect(dataViewUpdateMany.mock.calls[0][0].data).not.toHaveProperty("visibility");
+    const saved = await asTenant(() =>
+      new PrismaDataViewRepo().updateOwnedState({ id: A_VIEW_ID, surfaceKey: SURFACE, state: TOTAL_STATE }),
+    );
+
+    expect(saved).toBe(false);
   });
 
   it("carries companyId in data on create", async () => {
@@ -213,7 +261,6 @@ describe("PrismaDataViewRepo scoping", () => {
       new PrismaDataViewRepo().createView({
         surfaceKey: SURFACE,
         name: "Hot leads",
-        visibility: "private",
         position: 0,
         state: { filters: [] },
       }),
@@ -225,6 +272,7 @@ describe("PrismaDataViewRepo scoping", () => {
       surfaceKey: SURFACE,
       filters: [],
     });
+    expect(dataViewCreate.mock.calls[0][0].data).not.toHaveProperty("visibility");
   });
 
   it("starts positions at zero and continues from the caller's own highest position", async () => {
@@ -243,32 +291,32 @@ describe("PrismaDataViewRepo scoping", () => {
 describe("PrismaDataViewRepo stored state", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    overrideFindMany.mockResolvedValue([]);
+    dataViewFindMany.mockResolvedValue([]);
     p13nFindUnique.mockResolvedValue(null);
   });
 
-  it("normalizes legacy relation filters on a view and on an override alike", async () => {
+  it("normalizes legacy relation filters on a view and on the All tab alike", async () => {
     const legacy = [{ field: FilterFieldKey.dealIds, operator: FilterOperatorKey.hasNone, value: ["d1"] }];
     dataViewFindMany.mockResolvedValue([storedView({ filters: legacy })]);
-    overrideFindMany.mockResolvedValue([{ ...storedView({ filters: legacy }), viewKey: "__all__" }]);
+    p13nFindUnique.mockResolvedValue(storedPersonalization({ filters: legacy }));
 
     const surface = await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
 
     const normalized = [{ field: FilterFieldKey.dealIds, operator: FilterOperatorKey.notIn, value: ["d1"] }];
     expect(surface.views[0].state.filters).toEqual(normalized);
-    expect(surface.overrides.get("__all__")?.filters).toEqual(normalized);
+    expect(surface.allState.filters).toEqual(normalized);
   });
 
-  it("reads a view holding a malformed stored filter entry without throwing", async () => {
+  it("reads a malformed stored filter entry without throwing", async () => {
     const malformed = [null, { field: FilterFieldKey.dealIds, operator: FilterOperatorKey.hasSome, value: ["d2"] }];
     dataViewFindMany.mockResolvedValue([storedView({ filters: malformed })]);
-    overrideFindMany.mockResolvedValue([{ ...storedView({ filters: malformed }), viewKey: "__all__" }]);
+    p13nFindUnique.mockResolvedValue(storedPersonalization({ filters: malformed }));
 
     const surface = await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
 
     const tolerated = [null, { field: FilterFieldKey.dealIds, operator: FilterOperatorKey.in, value: ["d2"] }];
     expect(surface.views[0].state.filters).toEqual(tolerated);
-    expect(surface.overrides.get("__all__")?.filters).toEqual(tolerated);
+    expect(surface.allState.filters).toEqual(tolerated);
   });
 
   it("distinguishes an unset column from a cleared value", async () => {
@@ -308,143 +356,54 @@ describe("PrismaDataViewRepo stored state", () => {
     expect(surface.views[1].state).not.toHaveProperty("grouping");
   });
 
-  it("drops an override whose view key is neither the All key nor a readable view", async () => {
-    dataViewFindMany.mockResolvedValue([storedView()]);
-    overrideFindMany.mockResolvedValue([
-      { ...storedView(), viewKey: "__all__" },
-      { ...storedView(), viewKey: A_VIEW_ID },
-      { ...storedView(), viewKey: "22222222-2222-4222-8222-222222222222" },
-    ]);
-
+  it("reads an empty All tab state when the caller has no personalization row yet", async () => {
     const surface = await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
 
-    expect([...surface.overrides.keys()].sort()).toEqual([A_VIEW_ID, "__all__"].sort());
+    expect(surface).toEqual({ activeViewKey: null, views: [], allState: {} });
   });
 
-  it("marks a colleague's workspace view as not owned and names its owner", async () => {
-    dataViewFindMany.mockResolvedValue([
-      storedView({ userId: "someone-else", visibility: "workspace", user: { firstName: "Sofia", lastName: "Rossi" } }),
-    ]);
+  it("reads the All tab state from the personalization list columns through the shared mapping", async () => {
+    p13nFindUnique.mockResolvedValue(
+      storedPersonalization({
+        activeViewKey: A_VIEW_ID,
+        filters: [{ field: "firstName", operator: FilterOperatorKey.contains, value: "ada" }],
+        searchTerm: "acme",
+        sortDescriptor: { field: "createdAt", direction: "desc" },
+        pagination: { page: 3, pageSize: 25 },
+        viewMode: "card",
+        groupingColumnId: A_GROUPING_COLUMN,
+        grouping: { field: A_GROUPING_COLUMN },
+        columnOrder: ["firstName", "lastName"],
+        columnWidths: { firstName: 220 },
+        hiddenColumns: ["createdAt"],
+      }),
+    );
 
     const surface = await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
 
-    expect(surface.views[0]).toMatchObject({ isOwner: false, ownerName: "Sofia Rossi" });
-  });
-
-  it("reads the remembered chip from the caller's own personalization row", async () => {
-    dataViewFindMany.mockResolvedValue([]);
-    p13nFindUnique.mockResolvedValue({ activeViewKey: "__all__" });
-
-    const surface = await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
-
-    expect(surface.activeViewKey).toBe("__all__");
-    expect(p13nFindUnique).toHaveBeenCalledWith({
-      where: {
-        companyId_userId_p13nId: { companyId: mockUser.companyId, userId: mockUser.id, p13nId: SURFACE },
-        companyId: mockUser.companyId,
-      },
-      select: { activeViewKey: true },
+    expect(surface.activeViewKey).toBe(A_VIEW_ID);
+    expect(surface.allState).toEqual({
+      filters: [{ field: "firstName", operator: FilterOperatorKey.contains, value: "ada" }],
+      searchTerm: "acme",
+      sortDescriptor: { field: "createdAt", direction: "desc" },
+      pageSize: 25,
+      viewMode: "card",
+      grouping: { field: A_GROUPING_COLUMN },
+      columnOrder: ["firstName", "lastName"],
+      columnWidths: { firstName: 220 },
+      hiddenColumns: ["createdAt"],
     });
-  });
-});
-
-describe("PrismaDataViewOverrideRepo", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    overrideUpsert.mockResolvedValue({});
-    overrideDeleteMany.mockResolvedValue({ count: 1 });
+    expect(surface.allState).not.toHaveProperty("page");
   });
 
-  it("carries companyId in the compound key, as a sibling, in create and in update", async () => {
-    await asTenant(() =>
-      new PrismaDataViewOverrideRepo().upsertOverride({
-        surfaceKey: SURFACE,
-        viewKey: "__all__",
-        delta: { columnWidths: { name: 200 } },
-      }),
-    );
+  it("lifts only a supported page size out of the personalization pagination", async () => {
+    p13nFindUnique.mockResolvedValueOnce(storedPersonalization({ pagination: { page: 2, pageSize: 50 } }));
+    const unsupported = await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
 
-    const args = overrideUpsert.mock.calls[0][0];
+    p13nFindUnique.mockResolvedValueOnce(storedPersonalization({ pagination: { pageSize: 10 } }));
+    const supported = await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
 
-    expect(args.where.companyId_userId_surfaceKey_viewKey.companyId).toBe(mockUser.companyId);
-    expect(args.where.companyId).toBe(mockUser.companyId);
-    expect(args.create.companyId).toBe(mockUser.companyId);
-    expect(args.update.companyId).toBe(mockUser.companyId);
-  });
-
-  it("derives viewId from viewKey server side and never from the caller", async () => {
-    const repo = new PrismaDataViewOverrideRepo();
-
-    await asTenant(() => repo.upsertOverride({ surfaceKey: SURFACE, viewKey: "__all__", delta: { pageSize: 25 } }));
-    await asTenant(() => repo.upsertOverride({ surfaceKey: SURFACE, viewKey: A_VIEW_ID, delta: { pageSize: 25 } }));
-
-    expect(overrideUpsert.mock.calls[0][0].create.viewId).toBeNull();
-    expect(overrideUpsert.mock.calls[0][0].update.viewId).toBeNull();
-    expect(overrideUpsert.mock.calls[1][0].create.viewId).toBe(A_VIEW_ID);
-    expect(overrideUpsert.mock.calls[1][0].update.viewId).toBe(A_VIEW_ID);
-  });
-
-  it("replaces the whole row so a key that left the delta stops overriding", async () => {
-    await asTenant(() =>
-      new PrismaDataViewOverrideRepo().upsertOverride({
-        surfaceKey: SURFACE,
-        viewKey: "__all__",
-        delta: { columnWidths: { name: 200 } },
-      }),
-    );
-
-    const { create, update } = overrideUpsert.mock.calls[0][0];
-
-    expect(create.columnWidths).toEqual({ name: 200 });
-    expect(create.filters).toBe(Prisma.DbNull);
-    expect(update.filters).toBe(Prisma.DbNull);
-    expect(create.searchTerm).toBeNull();
-    expect(create.pageSize).toBeNull();
-  });
-
-  it("writes an explicit cleared value rather than skipping the column", async () => {
-    await asTenant(() =>
-      new PrismaDataViewOverrideRepo().upsertOverride({
-        surfaceKey: SURFACE,
-        viewKey: A_VIEW_ID,
-        delta: {
-          filters: [],
-          searchTerm: "",
-          sortDescriptor: null,
-          grouping: null,
-          viewMode: ViewMode.card,
-        },
-      }),
-    );
-
-    const { create } = overrideUpsert.mock.calls[0][0];
-
-    expect(create.filters).toEqual([]);
-    expect(create.searchTerm).toBe("");
-    expect(create.sortDescriptor).toEqual({});
-    expect(create.grouping).toEqual({});
-    expect(create.groupingColumnId).toBeNull();
-    expect(create.viewMode).toBe("card");
-  });
-
-  it("keeps a set grouping descriptor verbatim and derives the shadow column", async () => {
-    await asTenant(() =>
-      new PrismaDataViewOverrideRepo().upsertOverride({
-        surfaceKey: SURFACE,
-        viewKey: A_VIEW_ID,
-        delta: { grouping: { field: A_GROUPING_COLUMN } },
-      }),
-    );
-
-    expect(overrideUpsert.mock.calls[0][0].create.grouping).toEqual({ field: A_GROUPING_COLUMN });
-    expect(overrideUpsert.mock.calls[0][0].create.groupingColumnId).toBe(A_GROUPING_COLUMN);
-  });
-
-  it("deletes only the caller's own row for one surface and view key", async () => {
-    await asTenant(() => new PrismaDataViewOverrideRepo().deleteOverride({ surfaceKey: SURFACE, viewKey: "__all__" }));
-
-    expect(overrideDeleteMany).toHaveBeenCalledWith({
-      where: { companyId: mockUser.companyId, userId: mockUser.id, surfaceKey: SURFACE, viewKey: "__all__" },
-    });
+    expect(unsupported.allState).not.toHaveProperty("pageSize");
+    expect(supported.allState.pageSize).toBe(10);
   });
 });

@@ -1151,8 +1151,6 @@
       }
     },
     "filters": {
-      "clearAll": "Alle entfernen",
-      "clearSearch": "Suche löschen",
       "daysPlaceholder": "Tage",
       "daysPreset": "{count, plural, =1 {1 Tag} other {# Tage}}",
       "daysSuffix": "Tage",
@@ -1210,13 +1208,11 @@
         "dateOnOrAfter": "Ab…",
         "dateOnOrBefore": "Bis…",
         "editOperator": "Bedingung ändern",
-        "editValue": "Wert ändern",
         "fieldsGroup": "Filtern nach",
         "limitReached": "Du kannst bis zu {count} Filter anwenden.",
         "removeFilter": "Filter entfernen",
         "title": "Filter"
       },
-      "searchLabel": "Suche",
       "selectionLimit": "Du kannst bis zu {count} Werte auswählen.",
       "selectOperator": "Bedingung auswählen…",
       "unavailableValue": "Filter nicht verfügbar"
@@ -1771,34 +1767,18 @@
       "copyLink": "Link kopieren",
       "createTitle": "Neue Ansicht",
       "delete": "Ansicht löschen",
-      "dirty": "Nicht gespeicherte Änderungen",
       "duplicate": "Als neue Ansicht duplizieren",
       "duplicateName": "{name} Kopie",
       "editTitle": "Ansicht bearbeiten",
-      "empty": "Noch keine gespeicherten Ansichten",
-      "emptyHint": "Filtere die Liste und speichere sie als Ansicht.",
       "linkCopied": "Link kopiert",
       "menu": "Ansichtsaktionen",
-      "menuFor": "Aktionen für {name}",
       "moveLeft": "Nach links verschieben",
       "moveRight": "Nach rechts verschieben",
       "name": "Name",
       "namePlaceholder": "Name der Ansicht",
-      "ownedBy": "Geteilt von {name}",
-      "pickerTitle": "Alle gespeicherten Ansichten",
       "railLabel": "Gespeicherte Ansichten",
       "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}",
-      "saveAsNew": "Als neue Ansicht speichern",
-      "saveChanges": "Änderungen in dieser Ansicht speichern",
-      "saveShared": "Diese Ansicht ist mit deinem Workspace geteilt. Beim Speichern ändert sie sich für alle, die sie verwenden.",
-      "searchPlaceholder": "Ansichten suchen",
-      "shared": "Mit Workspace teilen",
-      "sharedState": "Mit dem Workspace geteilt",
-      "sharedWithYou": "Mit dir geteilt",
-      "unavailable": "Ansicht nicht verfügbar",
-      "unavailableBody": "Diese Ansicht wurde gelöscht oder ist nicht mehr mit dir geteilt. Deine aktuellen Filter bleiben aktiv.",
-      "unshareWarning": "Diese Ansicht wird in deinem Workspace verwendet. Wenn du sie privat machst, verlieren alle anderen den Zugriff.",
-      "yours": "Deine Ansichten"
+      "unavailable": "Ansicht nicht verfügbar"
     }
   },
   "DealModal": {

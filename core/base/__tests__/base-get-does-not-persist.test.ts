@@ -91,24 +91,17 @@ const storedFilters: Filter[] = [{ field: "firstName", operator: FilterOperatorK
 const chip: DataViewChipDto = {
   id: A_VIEW_ID,
   name: "Hot leads",
-  visibility: "private",
   position: 0,
-  isOwner: true,
-  ownerName: "Max Mustermann",
   state: { filters: [], searchTerm: "berlin", viewMode: ViewMode.card },
 };
 
-const allOverride: DataViewState = { filters: storedFilters, pageSize: 25 };
+const allState: DataViewState = { filters: storedFilters, pageSize: 25 };
 
-function surfaceWithViewAndOverride(): SurfaceViewState {
-  return {
-    activeViewKey: null,
-    views: [chip],
-    overrides: new Map<string, DataViewState>([[ALL_VIEW_KEY, allOverride]]),
-  };
+function surfaceWithViewAndAllState(): SurfaceViewState {
+  return { activeViewKey: null, views: [chip], allState };
 }
 
-async function invokeWith(params: GetQueryParams, surface = surfaceWithViewAndOverride()) {
+async function invokeWith(params: GetQueryParams, surface = surfaceWithViewAndAllState()) {
   const { repo: viewStateRepo, touched } = viewStateRepoRecordingEveryTouchedMember(surface);
   const repo = new StubRepo();
   const result = await new ProbeInteractor(viewStateRepo, repo).invoke(params);
@@ -153,7 +146,7 @@ describe("a GET never persists what the user is looking at", () => {
     expect(interactorSource).not.toMatch(/\bupsert|\bupdate\w*\(|\bdelete\w*\(/i);
   });
 
-  it("keeps the stored override filters and the surface default sort when only a page is requested", async () => {
+  it("keeps the personal All tab filters and the surface default sort when only a page is requested", async () => {
     const { data, repo } = await invokeWith({ p13nId: "contacts-card-store", page: 2 });
 
     expect(data.filters).toEqual(storedFilters);
@@ -163,12 +156,25 @@ describe("a GET never persists what the user is looking at", () => {
     expect(repo.itemCalls[0]?.pagination).toEqual({ page: 2, pageSize: 25 });
   });
 
-  it("reports the override as dirty without writing anything to clear or confirm it", async () => {
+  it("resolves the All tab against the personal state read from personalization and writes nothing", async () => {
     const { data, touched } = await invokeWith({ p13nId: "contacts-card-store" });
 
     expect(data.activeViewKey).toBe(ALL_VIEW_KEY);
-    expect(data.viewIsDirty).toBe(true);
+    expect(data.filters).toEqual(storedFilters);
+    expect(data.pagination?.pageSize).toBe(25);
+    expect(data.viewMode).toBe(ViewMode.table);
     expect(data.viewUnavailable).toBe(false);
+    expect(touched).toEqual(["loadSurfaceState"]);
+  });
+
+  it("resolves a named view against its own state alone, never against the All tab state", async () => {
+    const { data, touched } = await invokeWith({ p13nId: "contacts-card-store", viewId: A_VIEW_ID });
+
+    expect(data.activeViewKey).toBe(A_VIEW_ID);
+    expect(data.filters).toEqual([]);
+    expect(data.searchTerm).toBe("berlin");
+    expect(data.viewMode).toBe(ViewMode.card);
+    expect(data.pagination?.pageSize).toBe(100);
     expect(touched).toEqual(["loadSurfaceState"]);
   });
 

@@ -3,7 +3,7 @@ import type { DataViewChipDto, DataViewState } from "./data-view-state.schema";
 export type SurfaceViewState = {
   activeViewKey: string | null;
   views: DataViewChipDto[];
-  overrides: Map<string, DataViewState>;
+  allState: DataViewState;
 };
 
 export abstract class DataViewStateRepo {

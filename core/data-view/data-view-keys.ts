@@ -40,13 +40,11 @@ export type DataViewSurfaceKey = (typeof DATA_VIEW_SURFACE_KEYS)[number];
 
 export type DataViewSurfaceDescriptor = {
   kind: "list" | "embedded";
-  shareable: boolean;
   linkable: boolean;
 };
 
-const LIST_SURFACE: DataViewSurfaceDescriptor = { kind: "list", shareable: true, linkable: true };
-const OPERATOR_SURFACE: DataViewSurfaceDescriptor = { kind: "list", shareable: false, linkable: true };
-const EMBEDDED_SURFACE: DataViewSurfaceDescriptor = { kind: "embedded", shareable: true, linkable: false };
+const LIST_SURFACE: DataViewSurfaceDescriptor = { kind: "list", linkable: true };
+const EMBEDDED_SURFACE: DataViewSurfaceDescriptor = { kind: "embedded", linkable: false };
 
 export const DATA_VIEW_SURFACES: Readonly<Record<DataViewSurfaceKey, DataViewSurfaceDescriptor>> = Object.freeze({
   [SURFACE.contacts]: LIST_SURFACE,
@@ -61,17 +59,13 @@ export const DATA_VIEW_SURFACES: Readonly<Record<DataViewSurfaceKey, DataViewSur
   [SURFACE.auditLogs]: LIST_SURFACE,
   [SURFACE.messagingThreads]: LIST_SURFACE,
   [SURFACE.entityTimeline]: EMBEDDED_SURFACE,
-  [SURFACE.operatorUsers]: OPERATOR_SURFACE,
-  [SURFACE.operatorWorkspaces]: OPERATOR_SURFACE,
-  [SURFACE.operatorAudit]: OPERATOR_SURFACE,
+  [SURFACE.operatorUsers]: LIST_SURFACE,
+  [SURFACE.operatorWorkspaces]: LIST_SURFACE,
+  [SURFACE.operatorAudit]: LIST_SURFACE,
 });
 
 export function isDataViewSurfaceKey(key: string | undefined): key is DataViewSurfaceKey {
   return key !== undefined && key in DATA_VIEW_SURFACES;
-}
-
-export function isShareableSurface(key: string | undefined): boolean {
-  return isDataViewSurfaceKey(key) && DATA_VIEW_SURFACES[key].shareable;
 }
 
 export function isLinkableSurface(key: string | undefined): boolean {

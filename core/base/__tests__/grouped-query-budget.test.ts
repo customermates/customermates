@@ -105,7 +105,7 @@ class BudgetInteractor extends BaseGetInteractor<Item> {
   constructor(repo: SpyRepo, sumFields: readonly string[] = ["totalValue"]) {
     super(
       repo,
-      { loadSurfaceState: vi.fn().mockResolvedValue({ activeViewKey: null, views: [], overrides: new Map() }) },
+      { loadSurfaceState: vi.fn().mockResolvedValue({ activeViewKey: null, views: [], allState: {} }) },
       "interactive",
       EntityType.deal,
       undefined,

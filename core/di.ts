@@ -31,7 +31,6 @@ import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
 import { PrismaCustomColumnRepo } from "@/features/custom-column/prisma-custom-column.repository";
 import { PrismaP13nRepo } from "@/features/p13n/prisma-p13n.repository";
 import { PrismaDataViewRepo } from "@/features/data-view/prisma-data-view.repository";
-import { PrismaDataViewOverrideRepo } from "@/features/data-view/prisma-data-view-override.repository";
 import { PrismaWidgetRepo } from "@/features/widget/prisma-widget.repository";
 import { PrismaWidgetCalculatorRepo } from "@/features/widget/calculator/prisma-widget-calculator.repository";
 import { PrismaWebhookRepo } from "@/features/webhook/prisma-webhook.repository";
@@ -285,7 +284,7 @@ import { UpsertP13nInteractor } from "@/features/p13n/upsert-p13n.interactor";
 import { GetDataViewsInteractor } from "@/features/data-view/get-data-views.interactor";
 import { UpsertDataViewInteractor } from "@/features/data-view/upsert-data-view.interactor";
 import { DeleteDataViewInteractor } from "@/features/data-view/delete-data-view.interactor";
-import { ApplyDataViewOverrideInteractor } from "@/features/data-view/apply-data-view-override.interactor";
+import { SaveDataViewStateInteractor } from "@/features/data-view/save-data-view-state.interactor";
 import { SelectDataViewInteractor } from "@/features/data-view/select-data-view.interactor";
 import { GetP13nInteractor } from "@/features/p13n/get-p13n.interactor";
 // Feedback interactor
@@ -376,7 +375,6 @@ export const getCustomColumnRepo = () => new PrismaCustomColumnRepo();
 export const getP13nRepo = () => new PrismaP13nRepo();
 export const getDataViewRepo = () => new PrismaDataViewRepo();
 export const getDataViewStateRepo = () => new PrismaDataViewRepo();
-export const getDataViewOverrideRepo = () => new PrismaDataViewOverrideRepo();
 export const getWidgetRepo = () => new PrismaWidgetRepo();
 
 export const getActivitiesRepo = () => new PrismaActivitiesRepo();
@@ -1482,13 +1480,11 @@ export const getGetP13nInteractor = () => new GetP13nInteractor(getP13nRepo());
 
 export const getGetDataViewsInteractor = () => new GetDataViewsInteractor(getDataViewRepo());
 
-export const getUpsertDataViewInteractor = () =>
-  new UpsertDataViewInteractor(getDataViewRepo(), getDataViewOverrideRepo(), getP13nRepo());
+export const getUpsertDataViewInteractor = () => new UpsertDataViewInteractor(getDataViewRepo(), getP13nRepo());
 
 export const getDeleteDataViewInteractor = () => new DeleteDataViewInteractor(getDataViewRepo());
 
-export const getApplyDataViewOverrideInteractor = () =>
-  new ApplyDataViewOverrideInteractor(getDataViewRepo(), getDataViewOverrideRepo());
+export const getSaveDataViewStateInteractor = () => new SaveDataViewStateInteractor(getDataViewRepo(), getP13nRepo());
 
 export const getSelectDataViewInteractor = () => new SelectDataViewInteractor(getP13nRepo());
 

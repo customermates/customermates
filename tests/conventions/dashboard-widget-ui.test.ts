@@ -175,11 +175,7 @@ describe("dashboard widget UI", () => {
     const autoApplying = widgetEditorFiles.filter((file) => {
       const source = readFileSync(file, "utf8");
 
-      return (
-        source.includes("filter-palette") ||
-        source.includes("FilterChipOperatorMenu") ||
-        source.includes("FILTER_AUTO_APPLY_DELAY_MS")
-      );
+      return source.includes("filter-palette") || source.includes("FILTER_AUTO_APPLY_DELAY_MS");
     });
 
     expect(widgetEditorFiles.length).toBeGreaterThan(10);

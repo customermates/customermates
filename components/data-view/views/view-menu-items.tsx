@@ -6,7 +6,7 @@ import type { ViewMenuItem, ViewMenuItemId } from "./view-rail-model";
 
 import { useTranslations } from "next-intl";
 
-import { DropdownMenuCheckboxItem, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 type Props = {
   commands: ViewCommands;
@@ -31,12 +31,6 @@ export function ViewMenuItems({ commands, items, view }: Props) {
         return t("DataView.views.moveLeft");
       case "moveRight":
         return t("DataView.views.moveRight");
-      case "saveAsNew":
-        return t("DataView.views.saveAsNew");
-      case "saveChanges":
-        return t("DataView.views.saveChanges");
-      case "share":
-        return t("DataView.views.shared");
     }
   }
 
@@ -54,38 +48,21 @@ export function ViewMenuItems({ commands, items, view }: Props) {
         return commands.move(view, -1);
       case "moveRight":
         return commands.move(view, 1);
-      case "saveAsNew":
-        return commands.create();
-      case "saveChanges":
-        return commands.saveChanges(view);
-      case "share":
-        return commands.toggleShare(view);
     }
   }
 
   return (
     <>
-      {items.map((item) =>
-        item.kind === "checkbox" ? (
-          <DropdownMenuCheckboxItem
-            key={item.id}
-            checked={item.isChecked}
-            disabled={item.isDisabled}
-            onSelect={() => invoke(item.id)}
-          >
-            {label(item.id)}
-          </DropdownMenuCheckboxItem>
-        ) : (
-          <DropdownMenuItem
-            key={item.id}
-            disabled={item.isDisabled}
-            variant={item.isDestructive ? "destructive" : "default"}
-            onSelect={() => invoke(item.id)}
-          >
-            {label(item.id)}
-          </DropdownMenuItem>
-        ),
-      )}
+      {items.map((item) => (
+        <DropdownMenuItem
+          key={item.id}
+          disabled={item.isDisabled}
+          variant={item.isDestructive ? "destructive" : "default"}
+          onSelect={() => invoke(item.id)}
+        >
+          {label(item.id)}
+        </DropdownMenuItem>
+      ))}
     </>
   );
 }

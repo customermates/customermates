@@ -21,7 +21,7 @@ const domTestFiles = [
   "app/components/__tests__/shell-header.test.ts",
   "app/components/navigation/__tests__/navigation-switch.test.ts",
   "app/components/navigation/__tests__/public-navbar-menu.test.ts",
-  "core/base/__tests__/data-view-override-persistence.test.ts",
+  "core/base/__tests__/data-view-autosave.test.ts",
   "core/base/__tests__/base-data-view-clear-grouping.test.ts",
   "core/base/__tests__/grouped-merge.test.ts",
   "core/base/__tests__/base-data-view-view-mode-race.test.ts",

@@ -23,7 +23,7 @@ import { BaseStore } from "./base.store";
 
 import { GROUP_PAGE_SIZE_DEFAULT, encodeGroupingToken, sameGrouping } from "@/core/base/grouping/grouping.schema";
 import {
-  applyDataViewOverrideAction,
+  saveDataViewStateAction,
   selectDataViewAction,
   getCustomColumnsByEntityTypeAction,
   bulkDeleteEntitiesAction,
@@ -86,12 +86,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   hiddenColumns: string[] = [];
   views: DataViewChipDto[] = [];
   activeViewKey: string = ALL_VIEW_KEY;
-  viewIsDirty = false;
-  viewIsOwner = false;
-  viewCanShare = false;
   viewPersistable = true;
   viewUnavailable = false;
-  viewLost = false;
   viewMode: ViewMode = ViewMode.table;
   grouping?: Grouping | null;
   groupingResult?: GroupingResult;
@@ -110,7 +106,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   private persistViewStateTimer?: number;
   private pendingGroupOnly?: string;
-  private overrideWrites = 0;
   private requestGeneration = 0;
   private backgroundRefreshRunning = false;
   private backgroundRefreshQueued = false;
@@ -145,12 +140,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       columnWidths: observable,
       views: observable,
       activeViewKey: observable,
-      viewIsDirty: observable,
-      viewIsOwner: observable,
-      viewCanShare: observable,
       viewPersistable: observable,
       viewUnavailable: observable,
-      viewLost: observable,
       viewMode: observable,
       grouping: observable,
       groupingResult: observable.ref,
@@ -571,7 +562,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       return;
     }
 
-    const previousViewKey = this.activeViewKey;
+    const becameUnavailable = Boolean(args.viewUnavailable) && !this.viewUnavailable;
 
     this.requestGeneration += 1;
     this.items = args.items;
@@ -590,16 +581,14 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.groupingResult = args.grouping;
     this.groupableFields = args.groupableFields ?? [];
     this.views = args.views ?? [];
-    this.activeViewKey = args.activeViewKey ?? ALL_VIEW_KEY;
-    this.viewIsDirty = args.viewIsDirty ?? false;
-    this.viewIsOwner = args.viewIsOwner ?? false;
-    this.viewCanShare = args.viewCanShare ?? false;
+    this.activeViewKey = args.viewUnavailable ? ALL_VIEW_KEY : (args.activeViewKey ?? ALL_VIEW_KEY);
     this.viewPersistable = args.viewPersistable ?? true;
     this.viewUnavailable = args.viewUnavailable ?? false;
-    this.viewLost = this.viewUnavailable && previousViewKey !== ALL_VIEW_KEY;
     this.groupCounts = args.groupCounts ?? {};
     this.groupValueSums = args.groupValueSums ?? {};
     this.requestState = { status: "ready" };
+
+    if (becameUnavailable) this.mountToast(() => this.toastError("DataView.views.unavailable"));
   }
 
   private mergeGroupPage(args: GetResult<Entity>): void {
@@ -904,6 +893,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   };
 
   applyView = (viewKey: string): void => {
+    const flushed = this.flushPendingViewState();
     const chip = this.views.find((view) => view.id === viewKey);
     const key = chip ? chip.id : ALL_VIEW_KEY;
     const state: DataViewState = chip?.state ?? {};
@@ -921,8 +911,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       this.pagination = this.pagination ? { ...this.pagination, page: 1 } : this.pagination;
       this.groupedTakeOverrides = {};
       this.collapsedGroupKeys.clear();
-      this.viewIsDirty = false;
-      this.viewLost = false;
     });
 
     if (this.p13nId && this.viewPersistable) {
@@ -931,28 +919,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       );
     }
 
-    this.refreshResolvedInBackground();
-  };
-
-  resetView = async (): Promise<void> => {
-    if (!this.p13nId || !this.viewPersistable) return;
-
-    this.cancelPendingPersist();
-    const viewKey = this.activeViewKey;
-    const result = await applyDataViewOverrideAction({
-      surfaceKey: this.p13nId as DataViewSurfaceKey,
-      viewKey,
-      mode: "reset",
-    });
-    if (result.ok && this.activeViewKey === viewKey) this.setViewIsDirty(result.data.hasOverride);
-    this.refreshResolvedInBackground();
-  };
-
-  private setViewIsDirty = (isDirty: boolean): void => {
-    runInAction(() => {
-      this.overrideWrites += 1;
-      this.viewIsDirty = isDirty;
-    });
+    if (flushed) void flushed.then(this.refreshResolvedInBackground);
+    else this.refreshResolvedInBackground();
   };
 
   private withKnownFields(filters: Filter[] | undefined): Filter[] {
@@ -983,7 +951,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     resolveFromServer = false,
   ): Promise<void> => {
     const generation = ++this.requestGeneration;
-    const overrideWritesAtStart = this.overrideWrites;
     const wasInitialized = this.isReady;
     const groupPage = this.buildGroupPageRequest();
     const params: GetQueryParams = resolveFromServer
@@ -1041,9 +1008,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     if (discardIfStale()) return;
 
     runInAction(() => {
-      const dirtyBeforeResult = this.viewIsDirty;
       this.setItems(result);
-      if (this.overrideWrites !== overrideWritesAtStart) this.viewIsDirty = dirtyBeforeResult;
     });
   };
 
@@ -1160,11 +1125,22 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return Promise.reject(new Error("refreshAction must be implemented by entity stores"));
   }
 
-  private cancelPendingPersist = () => {
-    if (this.persistViewStateTimer === undefined) return;
+  discardPendingViewState = (): void => {
+    this.cancelPendingPersist();
+  };
+
+  private cancelPendingPersist = (): boolean => {
+    if (this.persistViewStateTimer === undefined) return false;
 
     clearTimeout(this.persistViewStateTimer);
     this.persistViewStateTimer = undefined;
+    return true;
+  };
+
+  private flushPendingViewState = (): Promise<void> | undefined => {
+    if (!this.cancelPendingPersist()) return undefined;
+
+    return this.writeViewState();
   };
 
   private persistViewState = () => {
@@ -1174,32 +1150,40 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
     this.persistViewStateTimer = window.setTimeout(() => {
       this.persistViewStateTimer = undefined;
-      const viewKey = this.activeViewKey;
-      void applyDataViewOverrideAction({
-        surfaceKey: this.p13nId as DataViewSurfaceKey,
-        viewKey,
-        mode: "save",
-        state: {
-          filters: toJS(this.filters) ?? [],
-          searchTerm: this.searchTerm ?? "",
-          sortDescriptor: toJS(this.sortDescriptor) ?? null,
-          pageSize: this.pagination?.pageSize,
-          viewMode: toJS(this.viewMode),
-          grouping: toJS(this.grouping) ?? null,
-          columnOrder: toJS(this.columnOrder),
-          columnWidths: toJS(this.columnWidths),
-          hiddenColumns: toJS(this.hiddenColumns),
-        },
-      })
-        .then((res) => {
-          if (!res.ok) {
-            toastZodErrorTree(res.error);
-            return;
-          }
-          if (this.activeViewKey === viewKey) this.setViewIsDirty(res.data.hasOverride);
-        })
-        .catch(reportApplicationError);
+      void this.writeViewState();
     }, 1000);
+  };
+
+  private writeViewState = (): Promise<void> => {
+    const viewKey = this.activeViewKey;
+    const state: DataViewState = {
+      filters: toJS(this.filters) ?? [],
+      searchTerm: this.searchTerm ?? "",
+      sortDescriptor: toJS(this.sortDescriptor) ?? null,
+      pageSize: this.pagination?.pageSize,
+      viewMode: toJS(this.viewMode),
+      grouping: toJS(this.grouping) ?? null,
+      columnOrder: toJS(this.columnOrder),
+      columnWidths: toJS(this.columnWidths),
+      hiddenColumns: toJS(this.hiddenColumns),
+    };
+
+    return saveDataViewStateAction({ surfaceKey: this.p13nId as DataViewSurfaceKey, viewKey, state })
+      .then((res) => {
+        if (!res.ok) {
+          toastZodErrorTree(res.error);
+          return;
+        }
+
+        this.rememberViewState(viewKey, state);
+      })
+      .catch(reportApplicationError);
+  };
+
+  private rememberViewState = (viewKey: string, state: DataViewState): void => {
+    runInAction(() => {
+      this.views = this.views.map((view) => (view.id === viewKey ? { ...view, state } : view));
+    });
   };
 
   private resetPaginationPage = () => {

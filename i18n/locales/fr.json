@@ -1151,8 +1151,6 @@
       }
     },
     "filters": {
-      "clearAll": "Tout effacer",
-      "clearSearch": "Effacer la recherche",
       "daysPlaceholder": "Jours",
       "daysPreset": "{count, plural, =1 {1 jour} other {# jours}}",
       "daysSuffix": "jours",
@@ -1210,13 +1208,11 @@
         "dateOnOrAfter": "À partir du…",
         "dateOnOrBefore": "Jusqu'au…",
         "editOperator": "Modifier la condition",
-        "editValue": "Modifier la valeur",
         "fieldsGroup": "Filtrer par",
         "limitReached": "Vous pouvez appliquer jusqu'à {count} filtres.",
         "removeFilter": "Retirer le filtre",
         "title": "Filtres"
       },
-      "searchLabel": "Rechercher",
       "selectionLimit": "Vous pouvez sélectionner jusqu'à {count} valeurs.",
       "selectOperator": "Sélectionner une condition…",
       "unavailableValue": "Filtre non disponible"
@@ -1771,34 +1767,18 @@
       "copyLink": "Copier le lien",
       "createTitle": "Nouvelle vue",
       "delete": "Supprimer la vue",
-      "dirty": "Modifications non enregistrées",
       "duplicate": "Dupliquer comme nouvelle vue",
       "duplicateName": "{name} copie",
       "editTitle": "Modifier la vue",
-      "empty": "Aucune vue enregistrée pour le moment",
-      "emptyHint": "Filtrez la liste, puis enregistrez-la comme vue.",
       "linkCopied": "Lien copié",
       "menu": "Actions de la vue",
-      "menuFor": "Actions pour {name}",
       "moveLeft": "Déplacer vers la gauche",
       "moveRight": "Déplacer vers la droite",
       "name": "Nom",
       "namePlaceholder": "Nom de la vue",
-      "ownedBy": "Partagée par {name}",
-      "pickerTitle": "Toutes les vues enregistrées",
       "railLabel": "Vues enregistrées",
       "recordCount": "{count, plural, one {# enregistrement} other {# enregistrements}}",
-      "saveAsNew": "Enregistrer comme nouvelle vue",
-      "saveChanges": "Enregistrer les modifications dans cette vue",
-      "saveShared": "Cette vue est partagée avec votre espace de travail. L’enregistrer la modifie pour toutes les personnes qui l’utilisent.",
-      "searchPlaceholder": "Rechercher des vues",
-      "shared": "Partager avec l’espace de travail",
-      "sharedState": "Partagée avec l’espace de travail",
-      "sharedWithYou": "Partagées avec vous",
-      "unavailable": "Vue indisponible",
-      "unavailableBody": "Cette vue a été supprimée ou n’est plus partagée avec vous. Vos filtres actuels restent appliqués.",
-      "unshareWarning": "Cette vue est utilisée par votre espace de travail. La rendre privée la retire à toutes les autres personnes.",
-      "yours": "Vos vues"
+      "unavailable": "Vue indisponible"
     }
   },
   "DealModal": {

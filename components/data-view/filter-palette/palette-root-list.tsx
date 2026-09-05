@@ -4,9 +4,11 @@ import type { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import type { Filter } from "@/core/base/base-get.schema";
 import type { FilterOperatorKey } from "@/core/base/base-query-builder";
 
+import { XIcon } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
+import { Button } from "@/components/ui/button";
 import { CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import { FilterChipValue } from "@/components/data-view/filter-modal/filter-chip-display";
 import { useFilterFieldLabel } from "@/components/entity-terminology/use-filter-field-label";
@@ -52,7 +54,7 @@ export const PaletteRootList = observer(function PaletteRootList({
                 value={`${label} ${operator} ${index}`}
                 onSelect={() => onPickFilter(index)}
               >
-                <span className="truncate">
+                <span className="min-w-0 flex-1 truncate">
                   <FilterChipValue
                     customColumns={store.customColumns}
                     filter={filter}
@@ -60,6 +62,21 @@ export const PaletteRootList = observer(function PaletteRootList({
                     operator={operator}
                   />
                 </span>
+
+                <Button
+                  aria-label={t("Common.filters.palette.removeFilter")}
+                  className="ml-auto size-5 shrink-0 text-muted-foreground hover:text-foreground"
+                  data-palette-remove-filter={index}
+                  size="icon-xs"
+                  type="button"
+                  variant="ghost"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    store.removeFilterAt(index);
+                  }}
+                >
+                  <XIcon aria-hidden />
+                </Button>
               </CommandItem>
             );
           })}

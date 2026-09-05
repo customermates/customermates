@@ -18,7 +18,7 @@ const Schema = z.object({
   filters: z.array(FilterSchema).nullish(),
   searchTerm: z.string().nullish(),
   sortDescriptor: SortDescriptorSchema.nullish(),
-  pagination: PaginationRequestSchema.nullish(),
+  pagination: PaginationRequestSchema.partial({ page: true }).nullish(),
   columnOrder: z.array(z.string()).nullish(),
   columnWidths: z.record(z.string(), z.number()).nullish(),
   hiddenColumns: z.array(z.string()).optional(),

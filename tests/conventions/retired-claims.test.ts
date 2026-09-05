@@ -181,6 +181,17 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
     authority: "package.json, app/",
   },
   {
+    id: "shared-team-views",
+    pattern:
+      /\b(?:shared|team[- ]wide|workspace[- ]wide|collaborative|gemeinsame\w*|geteilte\w*|teamweite\w*)[^.!?;|]{0,20}\b(?:saved )?(?:views?|filters?|Ansichten?|Filter)\b/iu,
+    permittedContext: [
+      ...NO_OR_EXTERNAL,
+      /\b(?:personal|private|per[- ]user|persönlich\w*|privat\w*|je Nutzer)\b/iu,
+    ],
+    why: "Saved view configurations are personal, not shared team objects",
+    authority: "features/views",
+  },
+  {
     id: "field-level-permissions",
     pattern:
       /\b(?:field[- ]level|per[- ]field|column[- ]level|feldebene|feldbasiert\w*|spaltenbasiert\w*)[^.!?;|]{0,20}\b(?:permissions?|access|security|Berechtigungen?|Zugriff)\b/iu,

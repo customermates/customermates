@@ -7,7 +7,6 @@ import {
   DATA_VIEW_SURFACE_KEYS,
   SURFACE,
   isLinkableSurface,
-  isShareableSurface,
 } from "../data-view-keys";
 
 describe("data view keys", () => {
@@ -23,22 +22,25 @@ describe("data view keys", () => {
     expect([...DATA_VIEW_SURFACE_KEYS].sort()).toEqual([...Object.values(SURFACE)].sort());
   });
 
-  it("marks every operator surface as not shareable", () => {
+  it("marks every operator surface as a linkable list", () => {
     for (const key of [SURFACE.operatorUsers, SURFACE.operatorWorkspaces, SURFACE.operatorAudit]) {
-      expect(DATA_VIEW_SURFACES[key].shareable).toBe(false);
-      expect(isShareableSurface(key)).toBe(false);
+      expect(DATA_VIEW_SURFACES[key]).toEqual({ kind: "list", linkable: true });
       expect(isLinkableSurface(key)).toBe(true);
     }
   });
 
   it("marks the entity timeline as embedded and not linkable", () => {
-    expect(DATA_VIEW_SURFACES[SURFACE.entityTimeline]).toMatchObject({ kind: "embedded", linkable: false });
+    expect(DATA_VIEW_SURFACES[SURFACE.entityTimeline]).toEqual({ kind: "embedded", linkable: false });
     expect(isLinkableSurface(SURFACE.entityTimeline)).toBe(false);
-    expect(isShareableSurface(SURFACE.entityTimeline)).toBe(true);
   });
 
-  it("treats an unknown key as neither shareable nor linkable", () => {
-    expect(isShareableSurface("contact-detail")).toBe(false);
+  it("describes every surface with a kind and a link flag and nothing else", () => {
+    for (const descriptor of Object.values(DATA_VIEW_SURFACES))
+      expect(Object.keys(descriptor).sort()).toEqual(["kind", "linkable"]);
+  });
+
+  it("treats an unknown key as not linkable", () => {
+    expect(isLinkableSurface("contact-detail")).toBe(false);
     expect(isLinkableSurface(undefined)).toBe(false);
   });
 });

@@ -9,7 +9,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MessagingProvider, MessagingThreadState, MessagingThreadType } from "@/generated/prisma";
 
 const harness = vi.hoisted(() => ({
-  activeFiltersProps: vi.fn(),
   emptyStateProps: vi.fn(),
   ensureLoaded: vi.fn(),
   getRootStore: vi.fn(),
@@ -52,13 +51,6 @@ vi.mock("@/components/data-view/use-data-view-sync", () => ({ useDataViewSync: v
 
 vi.mock("@/components/data-view/data-view-toolbar", () => ({
   DataViewToolbar: () => createElement("div", { "data-data-view-toolbar": true }),
-}));
-
-vi.mock("@/components/data-view/header/active-filters-bar", () => ({
-  DataViewActiveFiltersBar: (props: Record<string, unknown>) => {
-    harness.activeFiltersProps(props);
-    return createElement("div", { "data-active-filters": true });
-  },
 }));
 
 vi.mock("@/components/data-view/header/pagination", () => ({
@@ -266,11 +258,11 @@ describe("Inbox page-state owners", () => {
     expect(content).toContain("animate-page-result-in");
   });
 
-  it("mounts the saved view rail above the filters bar as a pane, not a joined header strip", () => {
+  it("mounts the saved view rail above the list as a pane, not a joined header strip", () => {
     const content = renderInboxList("ready", { withItem: true });
 
     expect(content).toContain('data-data-view-rail="true"');
-    expect(content.indexOf("data-data-view-rail")).toBeLessThan(content.indexOf("data-active-filters"));
+    expect(content.indexOf("data-data-view-rail")).toBeLessThan(content.indexOf('id="inbox-thread-list"'));
     expect(harness.viewsRailProps).toHaveBeenCalledWith(
       expect.objectContaining({ store: harness.getRootStore().messagingThreadsStore }),
     );

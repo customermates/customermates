@@ -1151,8 +1151,6 @@
       }
     },
     "filters": {
-      "clearAll": "Cancella tutto",
-      "clearSearch": "Cancella la ricerca",
       "daysPlaceholder": "Giorni",
       "daysPreset": "{count, plural, =1 {1 giorno} other {# giorni}}",
       "daysSuffix": "giorni",
@@ -1210,13 +1208,11 @@
         "dateOnOrAfter": "Dal…",
         "dateOnOrBefore": "Fino al…",
         "editOperator": "Modifica condizione",
-        "editValue": "Modifica valore",
         "fieldsGroup": "Filtra per",
         "limitReached": "Puoi applicare fino a {count} filtri.",
         "removeFilter": "Rimuovi filtro",
         "title": "Filtri"
       },
-      "searchLabel": "Cerca",
       "selectionLimit": "Puoi selezionare fino a {count} valori.",
       "selectOperator": "Seleziona una condizione…",
       "unavailableValue": "Filtro non disponibile"
@@ -1771,34 +1767,18 @@
       "copyLink": "Copia link",
       "createTitle": "Nuova vista",
       "delete": "Elimina vista",
-      "dirty": "Modifiche non salvate",
       "duplicate": "Duplica come nuova vista",
       "duplicateName": "{name} copia",
       "editTitle": "Modifica vista",
-      "empty": "Nessuna vista salvata",
-      "emptyHint": "Filtra la lista e salvala come vista.",
       "linkCopied": "Link copiato",
       "menu": "Azioni vista",
-      "menuFor": "Azioni per {name}",
       "moveLeft": "Sposta a sinistra",
       "moveRight": "Sposta a destra",
       "name": "Nome",
       "namePlaceholder": "Nome della vista",
-      "ownedBy": "Condivisa da {name}",
-      "pickerTitle": "Tutte le viste salvate",
       "railLabel": "Viste salvate",
       "recordCount": "{count, plural, one {# record} other {# record}}",
-      "saveAsNew": "Salva come nuova vista",
-      "saveChanges": "Salva le modifiche in questa vista",
-      "saveShared": "Questa vista è condivisa con il tuo spazio di lavoro. Salvandola cambia per tutti quelli che la usano.",
-      "searchPlaceholder": "Cerca viste",
-      "shared": "Condividi con lo spazio di lavoro",
-      "sharedState": "Condivisa con lo spazio di lavoro",
-      "sharedWithYou": "Condivise con te",
-      "unavailable": "Vista non disponibile",
-      "unavailableBody": "Questa vista è stata eliminata oppure non è più condivisa con te. I tuoi filtri attuali restano applicati.",
-      "unshareWarning": "Questa vista è in uso nel tuo spazio di lavoro. Renderla privata la rimuove per tutti gli altri.",
-      "yours": "Le tue viste"
+      "unavailable": "Vista non disponibile"
     }
   },
   "DealModal": {

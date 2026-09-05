@@ -8,7 +8,6 @@ const {
   client,
   companyFindUnique,
   customColumnDeleteMany,
-  dataViewOverrideUpdateMany,
   dataViewUpdateMany,
   p13nDeleteMany,
   p13nUpdateMany,
@@ -17,7 +16,6 @@ const {
   const mocks = {
     companyFindUnique: vi.fn(),
     customColumnDeleteMany: vi.fn(),
-    dataViewOverrideUpdateMany: vi.fn(),
     dataViewUpdateMany: vi.fn(),
     p13nDeleteMany: vi.fn(),
     p13nUpdateMany: vi.fn(),
@@ -33,7 +31,6 @@ const {
       company: { findUnique: mocks.companyFindUnique },
       customColumn: { deleteMany: mocks.customColumnDeleteMany },
       dataView: { updateMany: mocks.dataViewUpdateMany },
-      dataViewOverride: { updateMany: mocks.dataViewOverrideUpdateMany },
       p13n: { deleteMany: mocks.p13nDeleteMany, updateMany: mocks.p13nUpdateMany },
       widget: { deleteMany: mocks.widgetDeleteMany },
     },
@@ -66,14 +63,13 @@ describe("deleting a custom column that surfaces group state", () => {
     companyFindUnique.mockResolvedValue({ dealWeightingColumnId: null });
   });
 
-  it("clears the grouping on every table that stores it and deletes no personalization row", async () => {
+  it("clears the grouping on both tables that store it and deletes no personalization row", async () => {
     await runWithTenant(mockUser, () => new PrismaCustomColumnRepo().delete(A_COLUMN_ID));
 
     const where = { companyId: mockUser.companyId, groupingColumnId: A_COLUMN_ID };
 
     expect(p13nUpdateMany).toHaveBeenCalledWith({ where, data: CLEARED });
     expect(dataViewUpdateMany).toHaveBeenCalledWith({ where, data: CLEARED });
-    expect(dataViewOverrideUpdateMany).toHaveBeenCalledWith({ where, data: CLEARED });
     expect(p13nDeleteMany).not.toHaveBeenCalled();
   });
 
@@ -90,7 +86,7 @@ describe("deleting a custom column that surfaces group state", () => {
   it("scopes every clear by a top level companyId so the tenant guard accepts it", async () => {
     await runWithTenant(mockUser, () => new PrismaCustomColumnRepo().delete(A_COLUMN_ID));
 
-    for (const call of [p13nUpdateMany, dataViewUpdateMany, dataViewOverrideUpdateMany])
+    for (const call of [p13nUpdateMany, dataViewUpdateMany])
       expect(call.mock.calls[0][0].where.companyId).toBe(mockUser.companyId);
   });
 

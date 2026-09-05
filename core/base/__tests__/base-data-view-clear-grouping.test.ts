@@ -6,14 +6,14 @@ import type { Grouping, GroupingResult } from "@/core/base/grouping/grouping.sch
 import type { GetQueryParams } from "../base-get.schema";
 import type { RootStore } from "@/core/stores/root.store";
 
-const { applyDataViewOverrideAction, selectDataViewAction } = vi.hoisted(() => ({
-  applyDataViewOverrideAction: vi.fn(),
+const { saveDataViewStateAction, selectDataViewAction } = vi.hoisted(() => ({
+  saveDataViewStateAction: vi.fn(),
   selectDataViewAction: vi.fn(),
 }));
 
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock("@/app/actions", () => ({
-  applyDataViewOverrideAction,
+  saveDataViewStateAction,
   selectDataViewAction,
   bulkDeleteEntitiesAction: vi.fn(),
   bulkUpdateCustomFieldValuesAction: vi.fn(),
@@ -45,7 +45,7 @@ const GROUPING_COLUMN_ID = "5b4c2ad0-52b1-4a9f-9d3a-1c5f2f5c9a01";
 
 class TestStore extends BaseDataViewStore<Item> {
   requestedParams: (GetQueryParams | undefined)[] = [];
-  storedOverride: DataViewState = { viewMode: ViewMode.card, grouping: { field: GROUPING_COLUMN_ID } };
+  storedState: DataViewState = { viewMode: ViewMode.card, grouping: { field: GROUPING_COLUMN_ID } };
 
   get columnsDefinition() {
     return [{ uid: "name" }, { uid: "stage" }];
@@ -56,7 +56,7 @@ class TestStore extends BaseDataViewStore<Item> {
 
     const resolved = resolveDataViewState({
       params: params as Parameters<typeof resolveDataViewState>[0]["params"],
-      override: this.storedOverride,
+      base: this.storedState,
     });
 
     return Promise.resolve({
@@ -79,7 +79,7 @@ function rootStore() {
   } as unknown as RootStore;
 }
 
-function groupedByTheOverride(): TestStore {
+function groupedByTheStoredState(): TestStore {
   const store = new TestStore(rootStore());
   store.setItems({
     items: [],
@@ -98,8 +98,8 @@ function groupedByTheOverride(): TestStore {
 describe("clearing the grouping outlives the refresh it triggers", () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    applyDataViewOverrideAction.mockReset();
-    applyDataViewOverrideAction.mockResolvedValue({ ok: true, data: { hasOverride: true } });
+    saveDataViewStateAction.mockReset();
+    saveDataViewStateAction.mockResolvedValue({ ok: true, data: { viewKey: ALL_VIEW_KEY } });
     selectDataViewAction.mockReset();
     selectDataViewAction.mockResolvedValue({ ok: true, data: { activeViewKey: ALL_VIEW_KEY } });
   });
@@ -108,8 +108,8 @@ describe("clearing the grouping outlives the refresh it triggers", () => {
     vi.useRealTimers();
   });
 
-  it("sends the cleared grouping as null so the stored override cannot resurrect it", async () => {
-    const store = groupedByTheOverride();
+  it("sends the cleared grouping as null so the stored state cannot resurrect it", async () => {
+    const store = groupedByTheStoredState();
 
     expect(store.grouping).toEqual({ field: GROUPING_COLUMN_ID });
 
@@ -123,13 +123,13 @@ describe("clearing the grouping outlives the refresh it triggers", () => {
 
     await vi.advanceTimersByTimeAsync(1000);
 
-    expect(applyDataViewOverrideAction).toHaveBeenCalledTimes(1);
-    expect(applyDataViewOverrideAction.mock.calls[0]?.[0]?.state?.grouping).toBeNull();
+    expect(saveDataViewStateAction).toHaveBeenCalledTimes(1);
+    expect(saveDataViewStateAction.mock.calls[0]?.[0]?.state?.grouping).toBeNull();
     expect(store.grouping).toBeNull();
   });
 
   it("still sends a live grouping the user picked, so the layout switch is not a no-op in the other direction", async () => {
-    const store = groupedByTheOverride();
+    const store = groupedByTheStoredState();
     const other = "7c1d3ee0-52b1-4a9f-9d3a-1c5f2f5c9a02";
 
     store.setViewOptions({ viewMode: ViewMode.card, grouping: { field: other } });

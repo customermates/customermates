@@ -1,88 +1,45 @@
 "use client";
 
-import type { FC, KeyboardEventHandler, MouseEventHandler, ReactNode, SVGProps } from "react";
+import type { KeyboardEventHandler, MouseEventHandler, ReactNode } from "react";
 
-import { UsersIcon } from "lucide-react";
-import { useTranslations } from "next-intl";
-
-import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/core/utils/cn";
 
-import { RAIL_HIT_AREA } from "./view-rail-model";
+export const VIEW_TAB_CLASS =
+  "inline-flex h-7 max-w-36 flex-none items-center rounded-md px-2.5 text-[13px] font-medium whitespace-nowrap sm:max-w-56";
 
 type Props = {
-  href?: string;
-  icon?: FC<SVGProps<SVGSVGElement>>;
+  href: string;
   id?: string;
   isActive: boolean;
-  isDirty: boolean;
-  isShared: boolean;
   label: string;
   preview: ReactNode;
   tabIndex: 0 | -1;
-  variant?: "default" | "outline" | "secondary";
   onKeyDown?: KeyboardEventHandler<HTMLAnchorElement>;
   onSelect?: MouseEventHandler<HTMLAnchorElement>;
 };
 
-export function ViewChip({
-  href,
-  icon: Icon,
-  id,
-  isActive,
-  isDirty,
-  isShared,
-  label,
-  preview,
-  tabIndex,
-  variant = "secondary",
-  onKeyDown,
-  onSelect,
-}: Props) {
-  const t = useTranslations();
-
-  const body = (
-    <>
-      {Icon && <Icon aria-hidden className={cn("size-3", !isActive && "opacity-70")} />}
-
-      <span className="truncate">{label}</span>
-
-      {isShared && <UsersIcon aria-hidden className="size-3 opacity-60" />}
-
-      {isShared && <span className="sr-only">, {t("DataView.views.sharedState")}</span>}
-
-      {isDirty && <span aria-hidden className="ml-0.5 size-1.5 shrink-0 rounded-full bg-current" />}
-
-      {isDirty && <span className="sr-only">, {t("DataView.views.dirty")}</span>}
-    </>
-  );
-
-  const className = cn("h-[22px] max-w-36 flex-none overflow-visible px-1.5 sm:max-w-56", RAIL_HIT_AREA);
-
-  const chip = href ? (
-    <Badge asChild interactive className={className} data-slot="badge" variant={variant}>
-      <a
-        aria-current={isActive ? "page" : undefined}
-        data-view-chip=""
-        href={href}
-        id={id}
-        tabIndex={tabIndex}
-        onClick={onSelect}
-        onKeyDown={onKeyDown}
-      >
-        {body}
-      </a>
-    </Badge>
-  ) : (
-    <Badge className={className} data-slot="badge" data-view-chip="" id={id} variant={variant}>
-      {body}
-    </Badge>
-  );
-
+export function ViewChip({ href, id, isActive, label, preview, tabIndex, onKeyDown, onSelect }: Props) {
   return (
     <Tooltip>
-      <TooltipTrigger asChild>{chip}</TooltipTrigger>
+      <TooltipTrigger asChild>
+        <a
+          aria-current={isActive ? "page" : undefined}
+          className={cn(
+            VIEW_TAB_CLASS,
+            "outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50 motion-reduce:transition-none",
+            isActive ? "bg-foreground/10 text-foreground" : "bg-muted text-muted-foreground hover:text-foreground",
+          )}
+          data-view-chip=""
+          href={href}
+          id={id}
+          tabIndex={tabIndex}
+          onClick={onSelect}
+          onKeyDown={onKeyDown}
+        >
+          <span className="truncate">{label}</span>
+        </a>
+      </TooltipTrigger>
 
       <TooltipContent className="max-w-xs">{preview}</TooltipContent>
     </Tooltip>

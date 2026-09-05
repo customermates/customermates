@@ -96,7 +96,7 @@ class GroupedSurface extends BaseGetInteractor<Item> {
   constructor(repo: FailClosedRepo) {
     super(
       repo,
-      { loadSurfaceState: vi.fn().mockResolvedValue({ activeViewKey: null, views: [], overrides: new Map() }) },
+      { loadSurfaceState: vi.fn().mockResolvedValue({ activeViewKey: null, views: [], allState: {} }) },
       "interactive",
       EntityType.deal,
     );
@@ -107,7 +107,7 @@ class UngroupableSurface extends BaseGetInteractor<Item> {
   constructor(repo: FailClosedRepo) {
     super(
       repo,
-      { loadSurfaceState: vi.fn().mockResolvedValue({ activeViewKey: null, views: [], overrides: new Map() }) },
+      { loadSurfaceState: vi.fn().mockResolvedValue({ activeViewKey: null, views: [], allState: {} }) },
       "interactive",
       undefined,
     );

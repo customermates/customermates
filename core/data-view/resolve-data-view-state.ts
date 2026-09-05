@@ -2,8 +2,6 @@ import type { Filter, SortDescriptor } from "@/core/base/base-get.schema";
 import type { Grouping } from "@/core/base/grouping/grouping.schema";
 import type { DataViewState } from "./data-view-state.schema";
 
-import deepEqual from "fast-deep-equal/es6";
-
 import { ViewMode } from "@/core/base/base-query-builder";
 
 import { DATA_VIEW_STATE_FIELDS } from "./data-view-state.schema";
@@ -51,8 +49,7 @@ export type ResolvedDataViewState = {
 
 export type ResolveDataViewStateArgs = {
   params?: DataViewParamsLayer;
-  override?: DataViewState;
-  view?: DataViewState;
+  base?: DataViewState;
   defaults?: DataViewDefaultsLayer;
 };
 
@@ -62,23 +59,15 @@ function has(layer: Layer, key: string): boolean {
   return layer !== undefined && Object.prototype.hasOwnProperty.call(layer, key) && layer[key] !== undefined;
 }
 
-export function resolveDataViewState({
-  params,
-  override,
-  view,
-  defaults,
-}: ResolveDataViewStateArgs): ResolvedDataViewState {
+export function resolveDataViewState({ params, base, defaults }: ResolveDataViewStateArgs): ResolvedDataViewState {
   const paramsLayer = params as Layer;
-  const overrideLayer = override as Layer;
-  const viewLayer = view as Layer;
+  const baseLayer = base as Layer;
   const defaultsLayer = defaults as Layer;
 
   const out: Record<string, unknown> = {};
 
   for (const key of DATA_VIEW_STATE_FIELDS) {
-    const layers = PARAM_CARRIED_FIELDS.has(key)
-      ? [paramsLayer, overrideLayer, viewLayer, defaultsLayer]
-      : [overrideLayer, viewLayer, defaultsLayer];
+    const layers = PARAM_CARRIED_FIELDS.has(key) ? [paramsLayer, baseLayer, defaultsLayer] : [baseLayer, defaultsLayer];
 
     for (const layer of layers) {
       if (has(layer, key)) {
@@ -101,24 +90,4 @@ export function resolveDataViewState({
     columnWidths: (out.columnWidths as Record<string, number> | undefined) ?? {},
     hiddenColumns: (out.hiddenColumns as string[] | undefined) ?? [],
   };
-}
-
-function comparable(key: keyof DataViewState, value: unknown): unknown {
-  if (key === "sortDescriptor" || key === "grouping") return value ?? null;
-  if (key === "searchTerm") return value === "" ? undefined : value;
-  return value;
-}
-
-export function diffDataViewState(incoming: DataViewState, base: ResolvedDataViewState): DataViewState {
-  const incomingLayer = incoming as Record<string, unknown>;
-  const baseLayer = base as unknown as Record<string, unknown>;
-  const delta: Record<string, unknown> = {};
-
-  for (const key of DATA_VIEW_STATE_FIELDS) {
-    if (!has(incomingLayer, key)) continue;
-    const next = incomingLayer[key];
-    if (!deepEqual(comparable(key, next), comparable(key, baseLayer[key]))) delta[key] = next;
-  }
-
-  return delta as DataViewState;
 }

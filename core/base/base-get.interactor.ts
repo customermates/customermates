@@ -42,7 +42,7 @@ import {
 import { groupableFieldDtos } from "@/core/base/grouping/groupable-field";
 import { resolveGroupAxis, resolveGrouping } from "@/core/base/grouping/group-axis";
 import type { ViewMode } from "./base-query-builder";
-import { ALL_VIEW_KEY, isShareableSurface } from "@/core/data-view/data-view-keys";
+import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { resolveDataViewState } from "@/core/data-view/resolve-data-view-state";
 import { runPrecheck } from "../validation/run-precheck";
 
@@ -67,9 +67,6 @@ export interface GetResult<T> {
   valueSums?: GroupValueSums;
   views?: DataViewChipDto[];
   activeViewKey?: string;
-  viewIsDirty?: boolean;
-  viewIsOwner?: boolean;
-  viewCanShare?: boolean;
   viewPersistable?: boolean;
   viewUnavailable?: boolean;
 }
@@ -131,8 +128,7 @@ type ViewContext = {
   activeViewKey: string;
   views: DataViewChipDto[];
   view: DataViewChipDto | undefined;
-  override: DataViewState | undefined;
-  isOwner: boolean;
+  base: DataViewState | undefined;
   unavailable: boolean;
 };
 
@@ -156,8 +152,7 @@ export abstract class BaseGetInteractor<T> {
 
     const resolved = resolveDataViewState({
       params: toParamsLayer(params),
-      override: context.override,
-      view: context.view?.state,
+      base: context.base,
       defaults: interactive ? this.defaultState : defaultsForUnsurfacedRequest(params, this.defaultState),
     });
 
@@ -231,7 +226,7 @@ export abstract class BaseGetInteractor<T> {
           totalPages: Math.max(1, Math.ceil(total / pageSize)),
           total,
         } as PaginationResponse,
-        ...(interactive ? viewResult(surfaceKey, resolved, context) : {}),
+        ...(interactive ? viewResult(resolved, context) : {}),
       },
     };
   }
@@ -255,8 +250,7 @@ export abstract class BaseGetInteractor<T> {
       activeViewKey: selection.key,
       views: surface.views,
       view,
-      override: surface.overrides.get(selection.key),
-      isOwner: view?.isOwner ?? false,
+      base: view ? view.state : surface.allState,
       unavailable: selection.unavailable,
     };
   }
@@ -387,8 +381,7 @@ function emptyViewContext(): ViewContext {
     activeViewKey: ALL_VIEW_KEY,
     views: [],
     view: undefined,
-    override: undefined,
-    isOwner: false,
+    base: undefined,
     unavailable: false,
   };
 }
@@ -436,7 +429,7 @@ function selectActiveViewKey(
   return { key: isResolvable ? remembered : ALL_VIEW_KEY, unavailable: false };
 }
 
-function viewResult(surfaceKey: string | undefined, resolved: ResolvedDataViewState, context: ViewContext) {
+function viewResult(resolved: ResolvedDataViewState, context: ViewContext) {
   return {
     columnOrder: resolved.columnOrder,
     columnWidths: resolved.columnWidths,
@@ -445,9 +438,6 @@ function viewResult(surfaceKey: string | undefined, resolved: ResolvedDataViewSt
     groupingColumnId: resolved.grouping?.field,
     views: context.views,
     activeViewKey: context.activeViewKey,
-    viewIsDirty: context.override !== undefined,
-    viewIsOwner: context.isOwner,
-    viewCanShare: isShareableSurface(surfaceKey) && context.isOwner,
     viewPersistable: env.APP_MODE !== "demo",
     viewUnavailable: context.unavailable,
   };

@@ -2,10 +2,10 @@ import type { RootStore } from "@/core/stores/root.store";
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-const applyDataViewOverrideAction = vi.fn();
+const saveDataViewStateAction = vi.fn();
 
 vi.mock("@/app/actions", () => ({
-  applyDataViewOverrideAction: (...args: unknown[]) => applyDataViewOverrideAction(...args),
+  saveDataViewStateAction: (...args: unknown[]) => saveDataViewStateAction(...args),
   selectDataViewAction: vi.fn(),
 }));
 
@@ -48,9 +48,9 @@ describe("persistViewState rejection handling", () => {
     vi.useRealTimers();
   });
 
-  it("routes a rejected override write to the application error handler instead of leaving it unhandled", async () => {
+  it("routes a rejected autosave to the application error handler instead of leaving it unhandled", async () => {
     const demoError = new Error("Saving is not available in demo mode.");
-    applyDataViewOverrideAction.mockRejectedValue(demoError);
+    saveDataViewStateAction.mockRejectedValue(demoError);
 
     const seen: unknown[] = [];
     const unregister = registerApplicationErrorHandler((error) => seen.push(error));
@@ -61,14 +61,14 @@ describe("persistViewState rejection handling", () => {
     await vi.advanceTimersByTimeAsync(1500);
     await Promise.resolve();
 
-    expect(applyDataViewOverrideAction).toHaveBeenCalledTimes(1);
+    expect(saveDataViewStateAction).toHaveBeenCalledTimes(1);
     expect(seen).toEqual([demoError]);
 
     unregister();
   });
 
   it("keeps the optimistic column width applied even though the write failed", async () => {
-    applyDataViewOverrideAction.mockRejectedValue(new Error("Saving is not available in demo mode."));
+    saveDataViewStateAction.mockRejectedValue(new Error("Saving is not available in demo mode."));
     const unregister = registerApplicationErrorHandler(() => {});
 
     const store = makeStore();
@@ -82,7 +82,7 @@ describe("persistViewState rejection handling", () => {
   });
 
   it("does not report anything when the write succeeds", async () => {
-    applyDataViewOverrideAction.mockResolvedValue({ ok: true, data: { hasOverride: true } });
+    saveDataViewStateAction.mockResolvedValue({ ok: true, data: { viewKey: ALL_VIEW_KEY } });
 
     const seen: unknown[] = [];
     const unregister = registerApplicationErrorHandler((error) => seen.push(error));
@@ -92,23 +92,22 @@ describe("persistViewState rejection handling", () => {
 
     await vi.advanceTimersByTimeAsync(1500);
 
-    expect(applyDataViewOverrideAction).toHaveBeenCalledTimes(1);
+    expect(saveDataViewStateAction).toHaveBeenCalledTimes(1);
     expect(seen).toEqual([]);
 
     unregister();
   });
 
   it("sends a total state for the active view key, and stays silent when the surface cannot persist", async () => {
-    applyDataViewOverrideAction.mockResolvedValue({ ok: true, data: { hasOverride: true } });
+    saveDataViewStateAction.mockResolvedValue({ ok: true, data: { viewKey: ALL_VIEW_KEY } });
 
     const store = makeStore();
     store.setViewOptions({ columnWidth: { uid: "title", width: 300 } });
     await vi.advanceTimersByTimeAsync(1500);
 
-    expect(applyDataViewOverrideAction).toHaveBeenCalledExactlyOnceWith({
+    expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith({
       surfaceKey: SURFACE.tasks,
       viewKey: ALL_VIEW_KEY,
-      mode: "save",
       state: {
         filters: [],
         searchTerm: "",
@@ -122,13 +121,13 @@ describe("persistViewState rejection handling", () => {
       },
     });
 
-    applyDataViewOverrideAction.mockClear();
+    saveDataViewStateAction.mockClear();
     const demoStore = makeStore();
     demoStore.viewPersistable = false;
     demoStore.setViewOptions({ columnWidth: { uid: "title", width: 320 } });
     await vi.advanceTimersByTimeAsync(1500);
 
-    expect(applyDataViewOverrideAction).not.toHaveBeenCalled();
+    expect(saveDataViewStateAction).not.toHaveBeenCalled();
     expect(demoStore.columnWidths.title).toBe(320);
   });
 });

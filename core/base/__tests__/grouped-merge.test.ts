@@ -5,14 +5,14 @@ import type { GetQueryParams } from "../base-get.schema";
 import type { DataViewGroup, GroupingResult } from "@/core/base/grouping/grouping.schema";
 import type { RootStore } from "@/core/stores/root.store";
 
-const { applyDataViewOverrideAction, selectDataViewAction } = vi.hoisted(() => ({
-  applyDataViewOverrideAction: vi.fn(),
+const { saveDataViewStateAction, selectDataViewAction } = vi.hoisted(() => ({
+  saveDataViewStateAction: vi.fn(),
   selectDataViewAction: vi.fn(),
 }));
 
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock("@/app/actions", () => ({
-  applyDataViewOverrideAction,
+  saveDataViewStateAction,
   selectDataViewAction,
   bulkDeleteEntitiesAction: vi.fn(),
   bulkUpdateCustomFieldValuesAction: vi.fn(),
@@ -112,8 +112,8 @@ function hydrated(): TestStore {
 describe("a focused group page merges into the axis it belongs to", () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    applyDataViewOverrideAction.mockReset();
-    applyDataViewOverrideAction.mockResolvedValue({ ok: true, data: { hasOverride: true } });
+    saveDataViewStateAction.mockReset();
+    saveDataViewStateAction.mockResolvedValue({ ok: true, data: { viewKey: ALL_VIEW_KEY } });
   });
 
   afterEach(() => {

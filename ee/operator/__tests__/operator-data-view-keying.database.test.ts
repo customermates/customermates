@@ -13,11 +13,10 @@ import { runWithOperator } from "@/core/decorators/operator-context";
 import { runWithTenant, tenantStorage } from "@/core/decorators/tenant-context";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
-import { SURFACE } from "@/core/data-view/data-view-keys";
+import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import { PrismaDataViewRepo } from "@/features/data-view/prisma-data-view.repository";
-import { PrismaDataViewOverrideRepo } from "@/features/data-view/prisma-data-view-override.repository";
 import { PrismaP13nRepo } from "@/features/p13n/prisma-p13n.repository";
-import { UpsertDataViewInteractor } from "@/features/data-view/upsert-data-view.interactor";
+import { SaveDataViewStateInteractor } from "@/features/data-view/save-data-view-state.interactor";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -43,7 +42,14 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
   const actorB = actor(operatorIdB, companyIdB);
 
   const views = () => new PrismaDataViewRepo();
-  const overrides = () => new PrismaDataViewOverrideRepo();
+  const saveAllTab = (userId: string, companyId: string, pageSize: 10 | 100) =>
+    runWithTenant(createMockUser({ id: userId, companyId }), () =>
+      new SaveDataViewStateInteractor(views(), new PrismaP13nRepo()).invoke({
+        surfaceKey: OPERATOR_SURFACE,
+        viewKey: ALL_VIEW_KEY,
+        state: { pageSize },
+      }),
+    );
 
   beforeAll(async () => {
     await import("@/core/di");
@@ -69,7 +75,6 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
 
   afterAll(async () => {
     const ids = [companyIdA, companyIdB];
-    await client.query('DELETE FROM "DataViewOverride" WHERE "companyId" = ANY($1)', [ids]);
     await client.query('DELETE FROM "DataView" WHERE "companyId" = ANY($1)', [ids]);
     await client.query('DELETE FROM "P13n" WHERE "companyId" = ANY($1)', [ids]);
     await client.query('DELETE FROM "User" WHERE "companyId" = ANY($1)', [ids]);
@@ -82,7 +87,7 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
 
     const surface = await runWithOperator(actorA, () => views().loadSurfaceState(OPERATOR_SURFACE));
 
-    expect(surface).toEqual({ activeViewKey: null, views: [], overrides: new Map() });
+    expect(surface).toEqual({ activeViewKey: null, views: [], allState: {} });
     expect(tenantStorage.getStore()).toBeUndefined();
   });
 
@@ -91,7 +96,6 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
       views().createView({
         surfaceKey: OPERATOR_SURFACE,
         name: "Inactive accounts",
-        visibility: "private",
         position: 0,
         state: { pageSize: 10 },
       }),
@@ -100,7 +104,6 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
       views().createView({
         surfaceKey: OPERATOR_SURFACE,
         name: "Recent signups",
-        visibility: "private",
         position: 0,
         state: { pageSize: 100 },
       }),
@@ -111,53 +114,32 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
 
     expect(seenByA.views.map((view) => view.id)).toEqual([ownA.id]);
     expect(seenByB.views.map((view) => view.id)).toEqual([ownB.id]);
-    expect(await runWithOperator(actorB, () => views().findViewById(ownA.id))).toBeNull();
     expect(await runWithOperator(actorB, () => views().findOwnedOrNull(ownA.id))).toBeNull();
+    expect(
+      await runWithOperator(actorB, () =>
+        views().updateOwnedState({ id: ownA.id, surfaceKey: OPERATOR_SURFACE, state: { pageSize: 100 } }),
+      ),
+    ).toBe(false);
     expect(await runWithOperator(actorB, () => views().deleteOwned(ownA.id))).toBe(false);
   });
 
-  it("keys the personal override by the acting operator's own workspace", async () => {
-    await runWithOperator(actorA, () =>
-      overrides().upsertOverride({ surfaceKey: OPERATOR_SURFACE, viewKey: "__all__", delta: { pageSize: 10 } }),
-    );
-    await runWithOperator(actorB, () =>
-      overrides().upsertOverride({ surfaceKey: OPERATOR_SURFACE, viewKey: "__all__", delta: { pageSize: 100 } }),
-    );
+  it("keys the personal All tab state by the acting operator's own workspace", async () => {
+    expect((await saveAllTab(operatorIdA, companyIdA, 10)).ok).toBe(true);
+    expect((await saveAllTab(operatorIdB, companyIdB, 100)).ok).toBe(true);
 
     const seenByA = await runWithOperator(actorA, () => views().loadSurfaceState(OPERATOR_SURFACE));
     const seenByB = await runWithOperator(actorB, () => views().loadSurfaceState(OPERATOR_SURFACE));
 
-    expect(seenByA.overrides.get("__all__")).toEqual({ pageSize: 10 });
-    expect(seenByB.overrides.get("__all__")).toEqual({ pageSize: 100 });
+    expect(seenByA.allState).toMatchObject({ pageSize: 10 });
+    expect(seenByB.allState).toMatchObject({ pageSize: 100 });
 
     const rows = await client.query(
-      'SELECT "companyId", "userId", "pageSize" FROM "DataViewOverride" WHERE "surfaceKey" = $1 AND "companyId" = ANY($2) ORDER BY "pageSize" ASC',
+      'SELECT "companyId", "userId", "pagination" FROM "P13n" WHERE "p13nId" = $1 AND "companyId" = ANY($2) ORDER BY ("pagination"->>\'pageSize\')::int ASC',
       [OPERATOR_SURFACE, [companyIdA, companyIdB]],
     );
     expect(rows.rows).toEqual([
-      { companyId: companyIdA, userId: operatorIdA, pageSize: 10 },
-      { companyId: companyIdB, userId: operatorIdB, pageSize: 100 },
+      { companyId: companyIdA, userId: operatorIdA, pagination: { pageSize: 10 } },
+      { companyId: companyIdB, userId: operatorIdB, pagination: { pageSize: 100 } },
     ]);
-  });
-
-  it("coerces a workspace-visible operator view to private", async () => {
-    const operatorUser = createMockUser({ id: operatorIdA, companyId: companyIdA });
-    const interactor = new UpsertDataViewInteractor(views(), overrides(), new PrismaP13nRepo());
-
-    const result = await runWithTenant(operatorUser, () =>
-      interactor.invoke({
-        surfaceKey: OPERATOR_SURFACE,
-        name: "Shared attempt",
-        visibility: "workspace",
-        state: {},
-      }),
-    );
-
-    expect(result.ok).toBe(true);
-    if (!result.ok) return;
-    expect(result.data.visibility).toBe("private");
-
-    const stored = await client.query('SELECT "visibility" FROM "DataView" WHERE "id" = $1', [result.data.id]);
-    expect(stored.rows[0]?.visibility).toBe("private");
   });
 });

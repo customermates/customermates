@@ -9,7 +9,6 @@ import { useTranslations } from "next-intl";
 import { ScrollReturnButton } from "@/components/scroll/scroll-return-button";
 import { useScrollReturn } from "@/components/scroll/use-scroll-return";
 
-import { DataViewActiveFiltersBar } from "./header/active-filters-bar";
 import { DataViewPagination } from "./header/pagination";
 import { MassActionsBar } from "./mass-actions-bar";
 import { DataViewViewsRail } from "./views/data-view-views-rail";
@@ -41,8 +40,6 @@ export function DataViewLayout<E extends HasId>({ children, showPagination, stor
       <DataViewViewsRail joinsTopBar store={store} />
 
       <MassActionsBar store={store} />
-
-      <DataViewActiveFiltersBar store={store} />
 
       <div
         ref={scrollHostRef}

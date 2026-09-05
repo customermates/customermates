@@ -9,12 +9,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 
-type ConfirmationData = { message: string; onConfirm: () => Promise<boolean>; title: string };
-
 const harness = vi.hoisted(() => ({
   appMode: { current: "cloud" as "cloud" | "demo" | "self-hosted" },
   calls: [] as string[],
-  confirmations: [] as { entityName?: string; message: string; onConfirm: () => Promise<boolean>; title: string }[],
+  confirmations: [] as { entityName?: string; onConfirm: () => Promise<boolean> }[],
   deleteDataViewAction: vi.fn(),
   upsertDataViewAction: vi.fn(),
 }));
@@ -42,9 +40,8 @@ vi.mock("@/app/actions", () => ({
 }));
 vi.mock("@/components/modal/hooks/use-delete-confirmation", () => ({
   useDeleteConfirmation: () => ({
-    showConfirmation: (data: ConfirmationData) => harness.confirmations.push(data),
     showDeleteConfirmation: (onConfirm: () => Promise<boolean>, entityName?: string) =>
-      harness.confirmations.push({ entityName, message: "delete", onConfirm, title: "delete" }),
+      harness.confirmations.push({ entityName, onConfirm }),
   }),
 }));
 vi.mock("@/components/modal/responsive-overlay", () => ({
@@ -71,9 +68,8 @@ vi.mock("@/components/modal/responsive-overlay", () => ({
 }));
 vi.mock("@/components/ui/dropdown-menu", () => ({
   DropdownMenu: ({ children }: { children: ReactNode }) => createElement("div", null, children),
-  DropdownMenuCheckboxItem: ({ children, onSelect }: { children: ReactNode; onSelect: () => void }) =>
-    createElement("button", { onClick: onSelect, type: "button" }, children),
-  DropdownMenuContent: ({ children }: { children: ReactNode }) => createElement("div", null, children),
+  DropdownMenuContent: ({ children }: { children: ReactNode }) =>
+    createElement("div", { "data-view-menu": "" }, children),
   DropdownMenuItem: ({
     children,
     disabled,
@@ -92,33 +88,30 @@ type Item = { id: string };
 
 function view(overrides: Partial<DataViewChipDto> & { id: string }): DataViewChipDto {
   return {
-    isOwner: true,
     name: `View ${overrides.id}`,
     position: 0,
     state: {},
-    visibility: "private",
     ...overrides,
   };
 }
 
-const MINE = view({ id: "v-a", name: "Ada", position: 0 });
-const SHARED_MINE = view({ id: "v-c", name: "Closing", position: 2, visibility: "workspace" });
-const THEIRS = view({
-  id: "v-b",
-  isOwner: false,
-  name: "Open deals",
-  ownerName: "Sofia Rossi",
-  position: 1,
-  visibility: "workspace",
-});
-const VIEWS = [MINE, THEIRS, SHARED_MINE];
+const ADA = view({ id: "v-a", name: "Ada", position: 0 });
+const OPEN = view({ id: "v-b", name: "Open deals", position: 1 });
+const CLOSING = view({ id: "v-c", name: "Closing", position: 2, state: { hiddenColumns: ["email"] } });
+const VIEWS = [ADA, OPEN, CLOSING];
 
 function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewStore<Item> {
   return {
     activeViewKey: ALL_VIEW_KEY,
     applyView: vi.fn(() => harness.calls.push("applyView")),
+    discardPendingViewState: vi.fn(() => harness.calls.push("discardPendingViewState")),
+    columnOrder: [],
+    columnWidths: {},
     entityType: "DEAL",
+    filters: [],
+    grouping: null,
     hasSelection: false,
+    hiddenColumns: [],
     isDisabled: false,
     isReady: true,
     p13nId: "deals-card-store",
@@ -127,9 +120,10 @@ function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewSt
       harness.calls.push("refresh");
       return Promise.resolve();
     }),
-    resetView: vi.fn(() => Promise.resolve()),
+    searchTerm: "",
+    sortDescriptor: undefined,
+    viewMode: "table",
     views: VIEWS,
-    viewIsDirty: false,
     ...overrides,
   } as unknown as BaseDataViewStore<Item>;
 }
@@ -153,6 +147,12 @@ function chips(host: HTMLElement): HTMLAnchorElement[] {
   return [...host.querySelectorAll<HTMLAnchorElement>("a[data-view-chip]")];
 }
 
+function menuLabels(host: HTMLElement): string[] {
+  return [...host.querySelectorAll<HTMLButtonElement>("[data-view-menu] button")].map(
+    (button) => button.textContent?.trim() ?? "",
+  );
+}
+
 function byText(host: HTMLElement, text: string): HTMLButtonElement {
   const found = [...host.querySelectorAll<HTMLButtonElement>("button")].find(
     (button) => button.textContent?.trim() === text,
@@ -165,6 +165,22 @@ function byText(host: HTMLElement, text: string): HTMLButtonElement {
 const setNativeInputValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set as
   | ((this: HTMLInputElement, value: string) => void)
   | undefined;
+
+function typeInto(input: HTMLInputElement | null, value: string): void {
+  act(() => {
+    if (input) setNativeInputValue?.call(input, value);
+    input?.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+}
+
+async function submitMetaForm(host: HTMLElement): Promise<void> {
+  await act(async () => {
+    host
+      .querySelector<HTMLFormElement>("#view-editor-form")
+      ?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+    await Promise.resolve();
+  });
+}
 
 function press(target: HTMLElement, key: string): void {
   act(() => {
@@ -207,12 +223,13 @@ afterEach(() => {
 });
 
 describe("data view rail interaction", () => {
-  it("moves focus across the chips with the arrow keys and keeps one tab stop", () => {
+  it("moves focus across the tabs with the arrow keys and keeps one tab stop", () => {
     const host = render(store({ activeViewKey: "v-a" }));
     const links = chips(host);
 
     expect(links).toHaveLength(4);
     expect(host.querySelectorAll('[tabindex="0"]')).toHaveLength(1);
+    expect(links[1].getAttribute("tabindex")).toBe("0");
 
     links[1].focus();
     press(links[1], "ArrowRight");
@@ -253,95 +270,111 @@ describe("data view rail interaction", () => {
     expect(pushState).toHaveBeenCalledOnce();
   });
 
-  it("creates a view from the current query and then activates it", async () => {
-    const value = store();
+  it("shows a draft tab while creating, then saves the current query as a view and activates it", async () => {
+    const value = store({ filters: [{ field: "stage", operator: "in", value: ["open"] }] } as unknown as Partial<
+      BaseDataViewStore<Item>
+    >);
     const host = render(value);
     const pushState = vi.spyOn(window.history, "pushState");
 
+    expect(host.querySelector("[data-view-draft]")).toBeNull();
+
     act(() => host.querySelector<HTMLButtonElement>("#global-data-views-new")?.click());
+
+    const draft = host.querySelector<HTMLElement>("[data-view-draft]");
+    expect(draft?.textContent).toBe("DataView.views.createTitle");
+    expect(draft?.className).toContain("border-dashed");
+    expect(chips(host)).toHaveLength(4);
 
     const input = host.querySelector<HTMLInputElement>("#view-editor-name");
     expect(input).not.toBeNull();
+    typeInto(input, "Hot leads");
+    expect(host.querySelector("[data-view-draft]")?.textContent).toBe("DataView.views.createTitle");
 
-    act(() => {
-      if (input) setNativeInputValue?.call(input, "Hot leads");
-      input?.dispatchEvent(new Event("input", { bubbles: true }));
+    await submitMetaForm(host);
+
+    expect(harness.upsertDataViewAction).toHaveBeenCalledExactlyOnceWith({
+      name: "Hot leads",
+      state: {
+        columnOrder: [],
+        columnWidths: {},
+        filters: [{ field: "stage", operator: "in", value: ["open"] }],
+        grouping: null,
+        hiddenColumns: [],
+        pageSize: 25,
+        searchTerm: "",
+        sortDescriptor: null,
+        viewMode: "table",
+      },
+      surfaceKey: "deals-card-store",
     });
-
-    await act(async () => {
-      host
-        .querySelector<HTMLFormElement>("#view-editor-form")
-        ?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
-      await Promise.resolve();
-    });
-
-    expect(harness.upsertDataViewAction).toHaveBeenCalledExactlyOnceWith(
-      expect.objectContaining({ fromViewKey: ALL_VIEW_KEY, name: "Hot leads", visibility: "private" }),
-    );
     expect(harness.calls).toEqual(["upsertDataViewAction", "refresh", "applyView"]);
     expect(value.applyView).toHaveBeenCalledExactlyOnceWith("v-new");
     expect(pushState).toHaveBeenCalledExactlyOnceWith(null, "", "/en/deals?view=v-new");
+    expect(host.querySelector("[data-view-draft]")).toBeNull();
   });
 
-  it("confirms before writing the current query into a shared view", async () => {
-    const value = store({ activeViewKey: "v-c", viewIsDirty: true });
+  it("keeps the create overlay open when the write is refused", async () => {
+    harness.upsertDataViewAction.mockResolvedValue({ error: { errors: ["nope"] }, ok: false });
+    const value = store();
     const host = render(value);
 
-    act(() => host.querySelector<HTMLButtonElement>("#global-data-views-save")?.click());
+    act(() => host.querySelector<HTMLButtonElement>("#global-data-views-new")?.click());
+    typeInto(host.querySelector<HTMLInputElement>("#view-editor-name"), "Hot leads");
+    await submitMetaForm(host);
 
-    expect(harness.upsertDataViewAction).not.toHaveBeenCalled();
-    expect(harness.confirmations).toHaveLength(1);
-    expect(harness.confirmations[0].message).toBe("DataView.views.saveShared");
-
-    await act(async () => {
-      await harness.confirmations[0].onConfirm();
-    });
-
-    expect(harness.upsertDataViewAction).toHaveBeenCalledExactlyOnceWith(
-      expect.objectContaining({ commitFromOverride: true, id: "v-c", visibility: "workspace" }),
-    );
+    expect(harness.upsertDataViewAction).toHaveBeenCalledOnce();
+    expect(value.applyView).not.toHaveBeenCalled();
+    expect(host.querySelector("#view-editor-name")).not.toBeNull();
+    expect(host.querySelector("[data-view-draft]")).not.toBeNull();
   });
 
-  it("writes straight through when the dirty view is private", () => {
-    const value = store({ activeViewKey: "v-a", viewIsDirty: true });
+  it("offers edit, duplicate, move, copy link and delete on the active view, in that order", () => {
+    const host = render(store({ activeViewKey: "v-b" }));
+
+    expect(menuLabels(host)).toEqual([
+      "DataView.views.editTitle",
+      "DataView.views.duplicate",
+      "DataView.views.moveLeft",
+      "DataView.views.moveRight",
+      "DataView.views.copyLink",
+      "DataView.views.delete",
+    ]);
+    expect(host.querySelector("[data-view-menu]")?.textContent).not.toContain("Common.actions.save");
+  });
+
+  it("renames the active view through the edit overlay with the store's live state", async () => {
+    const value = store({ activeViewKey: "v-c" });
     const host = render(value);
 
-    act(() => host.querySelector<HTMLButtonElement>("#global-data-views-save")?.click());
+    act(() => byText(host, "DataView.views.editTitle").click());
 
-    expect(harness.confirmations).toHaveLength(0);
-    expect(harness.upsertDataViewAction).toHaveBeenCalledExactlyOnceWith(
-      expect.objectContaining({ commitFromOverride: true, id: "v-a" }),
-    );
-  });
+    const input = host.querySelector<HTMLInputElement>("#view-editor-name");
+    expect(input?.value).toBe("Closing");
+    expect(host.querySelector("[data-view-draft]")).toBeNull();
 
-  it("confirms before taking a shared view private and writes straight through when sharing", async () => {
-    const host = render(store({ activeViewKey: "v-c" }));
+    typeInto(input, "Closed");
+    await submitMetaForm(host);
 
-    act(() => byText(host, "DataView.views.shared").click());
-
-    expect(harness.upsertDataViewAction).not.toHaveBeenCalled();
-    expect(harness.confirmations).toHaveLength(1);
-    expect(harness.confirmations[0].message).toBe("DataView.views.unshareWarning");
-
-    await act(async () => {
-      await harness.confirmations[0].onConfirm();
+    expect(harness.upsertDataViewAction).toHaveBeenCalledExactlyOnceWith({
+      id: "v-c",
+      name: "Closed",
+      position: undefined,
+      state: {
+        columnOrder: [],
+        columnWidths: {},
+        filters: [],
+        grouping: null,
+        hiddenColumns: [],
+        pageSize: 25,
+        searchTerm: "",
+        sortDescriptor: null,
+        viewMode: "table",
+      },
+      surfaceKey: "deals-card-store",
     });
-
-    expect(harness.upsertDataViewAction).toHaveBeenCalledExactlyOnceWith(
-      expect.objectContaining({ id: "v-c", visibility: "private" }),
-    );
-
-    act(() => root?.unmount());
-    harness.upsertDataViewAction.mockClear();
-    harness.confirmations.length = 0;
-
-    const privateHost = render(store({ activeViewKey: "v-a" }));
-    act(() => byText(privateHost, "DataView.views.shared").click());
-
-    expect(harness.confirmations).toHaveLength(0);
-    expect(harness.upsertDataViewAction).toHaveBeenCalledExactlyOnceWith(
-      expect.objectContaining({ id: "v-a", visibility: "workspace" }),
-    );
+    expect(harness.calls).toEqual(["upsertDataViewAction", "refresh"]);
+    expect(host.querySelector("#view-editor-name")).toBeNull();
   });
 
   it("deletes through the shared confirmation, falls back to All and returns focus to it", async () => {
@@ -364,107 +397,7 @@ describe("data view rail interaction", () => {
     expect(document.activeElement).toBe(host.querySelector("#global-data-views-all"));
   });
 
-  it("reports a refused write as a failure instead of a success", async () => {
-    harness.upsertDataViewAction.mockResolvedValue({ error: { errors: ["nope"] }, ok: false });
-
-    const host = render(store({ activeViewKey: "v-c", viewIsDirty: true }));
-
-    act(() => byText(host, "DataView.views.shared").click());
-    expect(harness.confirmations).toHaveLength(1);
-    await act(async () => {
-      expect(await harness.confirmations[0].onConfirm()).toBe(false);
-    });
-
-    act(() => host.querySelector<HTMLButtonElement>("#global-data-views-save")?.click());
-    expect(harness.confirmations).toHaveLength(2);
-    await act(async () => {
-      expect(await harness.confirmations[1].onConfirm()).toBe(false);
-    });
-  });
-
-  it("confirms before an edit takes a shared view private and leaves the overlay open on a refusal", async () => {
-    const value = store({ activeViewKey: "v-c" });
-    const host = render(value);
-
-    act(() => byText(host, "DataView.views.editTitle").click());
-
-    const share = host.querySelector<HTMLButtonElement>("#view-editor-share");
-    expect(share?.getAttribute("aria-checked")).toBe("true");
-    act(() => share?.click());
-
-    await act(async () => {
-      host
-        .querySelector<HTMLFormElement>("#view-editor-form")
-        ?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
-      await Promise.resolve();
-    });
-
-    expect(harness.upsertDataViewAction).not.toHaveBeenCalled();
-    expect(harness.confirmations).toHaveLength(1);
-    expect(harness.confirmations[0].message).toBe("DataView.views.unshareWarning");
-
-    harness.upsertDataViewAction.mockResolvedValue({ error: { errors: ["nope"] }, ok: false });
-    await act(async () => {
-      expect(await harness.confirmations[0].onConfirm()).toBe(false);
-    });
-
-    expect(harness.upsertDataViewAction).toHaveBeenCalledExactlyOnceWith(
-      expect.objectContaining({ id: "v-c", visibility: "private" }),
-    );
-    expect(value.refresh).not.toHaveBeenCalled();
-    expect(host.querySelector("#view-editor-name")).not.toBeNull();
-  });
-
-  it("names every picker row menu after its own view and states sharing in text", () => {
-    const host = render(store({ activeViewKey: "v-c" }));
-
-    act(() => host.querySelector<HTMLButtonElement>("#global-data-views-picker")?.click());
-
-    const picker = host.querySelector<HTMLElement>("[data-data-view-picker]");
-    const labels = [...(picker?.querySelectorAll("button[aria-label]") ?? [])].map((button) =>
-      button.getAttribute("aria-label"),
-    );
-
-    expect(labels).toEqual([
-      "DataView.views.menuFor(Ada)",
-      "DataView.views.menuFor(Closing)",
-      "DataView.views.menuFor(Open deals)",
-    ]);
-    expect(new Set(labels).size).toBe(labels.length);
-    expect(picker?.textContent).toContain("DataView.views.sharedState");
-  });
-
-  it("separates an empty workspace from a search that matches nothing", () => {
-    const many = Array.from({ length: 9 }, (_, index) =>
-      view({ id: `v${index}`, name: `View ${index}`, position: index }),
-    );
-    const host = render(store({ views: many }));
-
-    act(() => host.querySelector<HTMLButtonElement>("#global-data-views-picker")?.click());
-
-    const search = host.querySelector<HTMLInputElement>('input[placeholder="DataView.views.searchPlaceholder"]');
-    expect(search).not.toBeNull();
-
-    act(() => {
-      if (search) setNativeInputValue?.call(search, "zzz");
-      search?.dispatchEvent(new Event("input", { bubbles: true }));
-    });
-
-    const picker = host.querySelector<HTMLElement>("[data-data-view-picker]");
-    expect(picker?.textContent).toContain("Common.inputs.emptyContent");
-    expect(picker?.textContent).not.toContain("DataView.views.emptyHint");
-
-    act(() => root?.unmount());
-
-    const orphanHost = render(store({ activeViewKey: "gone", views: [] }));
-    act(() => orphanHost.querySelector<HTMLButtonElement>("#global-data-views-picker")?.click());
-
-    const orphanPicker = orphanHost.querySelector<HTMLElement>("[data-data-view-picker]");
-    expect(orphanPicker?.textContent).toContain("DataView.views.emptyHint");
-    expect(orphanPicker?.textContent).not.toContain("Common.inputs.emptyContent");
-  });
-
-  it("swaps positions with the neighbouring view you own when reordering", async () => {
+  it("swaps positions with the neighbouring view when reordering", async () => {
     const value = store({ activeViewKey: "v-c" });
     const host = render(value);
 
@@ -474,7 +407,8 @@ describe("data view rail interaction", () => {
     });
 
     expect(harness.upsertDataViewAction).toHaveBeenCalledTimes(2);
-    expect(harness.upsertDataViewAction.mock.calls[0][0]).toMatchObject({ id: "v-c", position: 0 });
-    expect(harness.upsertDataViewAction.mock.calls[1][0]).toMatchObject({ id: "v-a", position: 2 });
+    expect(harness.upsertDataViewAction.mock.calls[0][0]).toMatchObject({ id: "v-c", position: 1 });
+    expect(harness.upsertDataViewAction.mock.calls[1][0]).toMatchObject({ id: "v-b", position: 2 });
+    expect(byText(host, "DataView.views.moveRight").disabled).toBe(true);
   });
 });

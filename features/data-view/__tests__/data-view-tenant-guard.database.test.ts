@@ -11,7 +11,6 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { prisma } from "@/prisma/db";
 
 import { PrismaDataViewRepo } from "../prisma-data-view.repository";
-import { PrismaDataViewOverrideRepo } from "../prisma-data-view-override.repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -44,7 +43,6 @@ describeDatabase("data view tenant guard on PostgreSQL", () => {
       new PrismaDataViewRepo().createView({
         surfaceKey: SURFACE,
         name: "Guarded",
-        visibility: "private",
         position: 0,
         state: { pageSize: 25 },
       }),
@@ -53,8 +51,8 @@ describeDatabase("data view tenant guard on PostgreSQL", () => {
   });
 
   afterAll(async () => {
-    await client.query('DELETE FROM "DataViewOverride" WHERE "companyId" = ANY($1)', [[companyId, foreignCompanyId]]);
     await client.query('DELETE FROM "DataView" WHERE "companyId" = ANY($1)', [[companyId, foreignCompanyId]]);
+    await client.query('DELETE FROM "P13n" WHERE "companyId" = ANY($1)', [[companyId, foreignCompanyId]]);
     await client.query('DELETE FROM "User" WHERE "companyId" = ANY($1)', [[companyId, foreignCompanyId]]);
     await client.query('DELETE FROM "Company" WHERE "id" = ANY($1)', [[companyId, foreignCompanyId]]);
     await client.end();
@@ -84,54 +82,26 @@ describeDatabase("data view tenant guard on PostgreSQL", () => {
     );
   });
 
-  it("rejects an override upsert that omits companyId from the update payload", async () => {
+  it("rejects a state autosave whose where names a foreign company", async () => {
     await expect(
       asTenant(() =>
-        prisma.dataViewOverride.upsert({
-          where: {
-            companyId_userId_surfaceKey_viewKey: { companyId, userId, surfaceKey: SURFACE, viewKey: "__all__" },
-            companyId,
-          },
-          create: { companyId, userId, surfaceKey: SURFACE, viewKey: "__all__", viewId: null },
-          update: { userId, surfaceKey: SURFACE, viewKey: "__all__", viewId: null } as never,
+        prisma.dataView.updateMany({
+          where: { id: viewId, companyId: foreignCompanyId, userId, surfaceKey: SURFACE },
+          data: { pageSize: 10 },
         }),
       ),
-    ).rejects.toThrow("companyId must be set in update");
-  });
-
-  it("rejects an override upsert whose compound key names a foreign company", async () => {
-    await expect(
-      asTenant(() =>
-        prisma.dataViewOverride.upsert({
-          where: {
-            companyId_userId_surfaceKey_viewKey: {
-              companyId: foreignCompanyId,
-              userId,
-              surfaceKey: SURFACE,
-              viewKey: "__all__",
-            },
-            companyId: foreignCompanyId,
-          },
-          create: { companyId: foreignCompanyId, userId, surfaceKey: SURFACE, viewKey: "__all__", viewId: null },
-          update: { companyId: foreignCompanyId, userId, surfaceKey: SURFACE, viewKey: "__all__", viewId: null },
-        }),
-      ),
-    ).rejects.toThrow("companyId does not match tenant");
+    ).rejects.toThrow("companyId does not match tenant in where");
   });
 
   it("accepts the shapes the repository itself writes", async () => {
-    await expect(
-      asTenant(() =>
-        new PrismaDataViewOverrideRepo().upsertOverride({
-          surfaceKey: SURFACE,
-          viewKey: "__all__",
-          delta: { pageSize: 10 },
-        }),
+    expect(
+      await asTenant(() =>
+        new PrismaDataViewRepo().updateOwnedState({ id: viewId, surfaceKey: SURFACE, state: { pageSize: 10 } }),
       ),
-    ).resolves.toBeUndefined();
-
+    ).toBe(true);
     expect(await asTenant(() => new PrismaDataViewRepo().updateOwned({ id: viewId, name: "Renamed" }))).toMatchObject({
       name: "Renamed",
+      state: { pageSize: 10 },
     });
     expect(await asTenant(() => new PrismaDataViewRepo().deleteOwned(viewId))).toBe(true);
   });

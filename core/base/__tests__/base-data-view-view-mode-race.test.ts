@@ -5,14 +5,14 @@ import type { GetQueryParams } from "../base-get.schema";
 import type { Grouping, GroupingResult } from "@/core/base/grouping/grouping.schema";
 import type { RootStore } from "@/core/stores/root.store";
 
-const { applyDataViewOverrideAction, selectDataViewAction } = vi.hoisted(() => ({
-  applyDataViewOverrideAction: vi.fn(),
+const { saveDataViewStateAction, selectDataViewAction } = vi.hoisted(() => ({
+  saveDataViewStateAction: vi.fn(),
   selectDataViewAction: vi.fn(),
 }));
 
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock("@/app/actions", () => ({
-  applyDataViewOverrideAction,
+  saveDataViewStateAction,
   selectDataViewAction,
   bulkDeleteEntitiesAction: vi.fn(),
   bulkUpdateCustomFieldValuesAction: vi.fn(),
@@ -91,8 +91,8 @@ function hydrated(): TestStore {
 describe("view mode survives the refresh that races its own persistence", () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    applyDataViewOverrideAction.mockReset();
-    applyDataViewOverrideAction.mockResolvedValue({ ok: true, data: { hasOverride: true } });
+    saveDataViewStateAction.mockReset();
+    saveDataViewStateAction.mockResolvedValue({ ok: true, data: { viewKey: ALL_VIEW_KEY } });
     selectDataViewAction.mockReset();
     selectDataViewAction.mockResolvedValue({ ok: true, data: { activeViewKey: ALL_VIEW_KEY } });
   });
@@ -101,12 +101,12 @@ describe("view mode survives the refresh that races its own persistence", () => 
     vi.useRealTimers();
   });
 
-  it("sends the live view mode on the refresh that fires before the override write lands", async () => {
+  it("sends the live view mode on the refresh that fires before the autosave lands", async () => {
     const store = hydrated();
 
     store.setViewOptions({ viewMode: ViewMode.card, grouping: { field: GROUPING_COLUMN_ID } });
 
-    expect(applyDataViewOverrideAction).not.toHaveBeenCalled();
+    expect(saveDataViewStateAction).not.toHaveBeenCalled();
 
     await vi.advanceTimersByTimeAsync(0);
 
@@ -118,8 +118,8 @@ describe("view mode survives the refresh that races its own persistence", () => 
 
     await vi.advanceTimersByTimeAsync(1000);
 
-    expect(applyDataViewOverrideAction).toHaveBeenCalledTimes(1);
-    expect(applyDataViewOverrideAction.mock.calls[0]?.[0]?.state).toMatchObject({
+    expect(saveDataViewStateAction).toHaveBeenCalledTimes(1);
+    expect(saveDataViewStateAction.mock.calls[0]?.[0]?.state).toMatchObject({
       viewMode: ViewMode.card,
       grouping: { field: GROUPING_COLUMN_ID },
     });

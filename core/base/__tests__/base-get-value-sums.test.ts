@@ -58,7 +58,7 @@ class SummingInteractor extends BaseGetInteractor<Item> {
   constructor(repo: StubRepo, fields: readonly string[]) {
     super(
       repo,
-      { loadSurfaceState: vi.fn().mockResolvedValue({ activeViewKey: null, views: [], overrides: new Map() }) },
+      { loadSurfaceState: vi.fn().mockResolvedValue({ activeViewKey: null, views: [], allState: {} }) },
       "interactive",
       EntityType.deal,
       undefined,

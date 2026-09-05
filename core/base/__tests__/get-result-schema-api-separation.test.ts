@@ -12,9 +12,6 @@ const resultCarryingViewFields = {
   items: [{ id: "one" }],
   views: [{ id: "a", name: "Hot leads" }],
   activeViewKey: "__all__",
-  viewIsDirty: true,
-  viewIsOwner: true,
-  viewCanShare: true,
   viewPersistable: true,
   viewUnavailable: false,
 };

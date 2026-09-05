@@ -16,6 +16,5 @@ export async function clearGroupingForDeletedColumn(
   await Promise.all([
     client.p13n.updateMany({ where: { companyId, groupingColumnId: columnId }, data: cleared }),
     client.dataView.updateMany({ where: { companyId, groupingColumnId: columnId }, data: cleared }),
-    client.dataViewOverride.updateMany({ where: { companyId, groupingColumnId: columnId }, data: cleared }),
   ]);
 }

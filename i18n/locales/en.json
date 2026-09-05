@@ -1151,8 +1151,6 @@
       }
     },
     "filters": {
-      "clearAll": "Clear All",
-      "clearSearch": "Clear search",
       "daysPlaceholder": "Days",
       "daysPreset": "{count, plural, =1 {1 day} other {# days}}",
       "daysSuffix": "days",
@@ -1210,13 +1208,11 @@
         "dateOnOrAfter": "On or after…",
         "dateOnOrBefore": "On or before…",
         "editOperator": "Change condition",
-        "editValue": "Change value",
         "fieldsGroup": "Filter by",
         "limitReached": "You can apply up to {count} filters.",
         "removeFilter": "Remove filter",
         "title": "Filters"
       },
-      "searchLabel": "Search",
       "selectionLimit": "You can select up to {count} values.",
       "selectOperator": "Select a condition…",
       "unavailableValue": "Filter not available"
@@ -1771,34 +1767,18 @@
       "copyLink": "Copy link",
       "createTitle": "New view",
       "delete": "Delete view",
-      "dirty": "Unsaved changes",
       "duplicate": "Duplicate as new view",
       "duplicateName": "{name} copy",
       "editTitle": "Edit view",
-      "empty": "No saved views yet",
-      "emptyHint": "Filter the list, then save it as a view.",
       "linkCopied": "Link copied",
       "menu": "View actions",
-      "menuFor": "Actions for {name}",
       "moveLeft": "Move left",
       "moveRight": "Move right",
       "name": "Name",
       "namePlaceholder": "View name",
-      "ownedBy": "Shared by {name}",
-      "pickerTitle": "All saved views",
       "railLabel": "Saved views",
       "recordCount": "{count, plural, one {# record} other {# records}}",
-      "saveAsNew": "Save as new view",
-      "saveChanges": "Save changes to this view",
-      "saveShared": "This view is shared with your workspace. Saving changes it for everyone who uses it.",
-      "searchPlaceholder": "Search views",
-      "shared": "Share with workspace",
-      "sharedState": "Shared with workspace",
-      "sharedWithYou": "Shared with you",
-      "unavailable": "View unavailable",
-      "unavailableBody": "This view was deleted or is no longer shared with you. Your current filters are still applied.",
-      "unshareWarning": "This view is in use by your workspace. Making it private removes it from everyone else.",
-      "yours": "Your views"
+      "unavailable": "View unavailable"
     }
   },
   "DealModal": {

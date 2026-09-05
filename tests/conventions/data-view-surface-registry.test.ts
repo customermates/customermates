@@ -57,10 +57,4 @@ describe("data view surface registry", () => {
     expect(DATA_VIEW_SURFACES[SURFACE.entityTimeline].kind).toBe("embedded");
     expect(DATA_VIEW_SURFACES[SURFACE.entityTimeline].linkable).toBe(false);
   });
-
-  it("keeps every operator surface out of workspace sharing", () => {
-    for (const key of [SURFACE.operatorUsers, SURFACE.operatorWorkspaces, SURFACE.operatorAudit]) {
-      expect(DATA_VIEW_SURFACES[key].shareable).toBe(false);
-    }
-  });
 });

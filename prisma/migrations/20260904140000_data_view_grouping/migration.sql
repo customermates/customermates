@@ -1,5 +1,5 @@
 -- Grouping stops being a bare custom-column uuid and becomes a descriptor: { field, bucket? }.
--- The descriptor is the only authority. "groupingColumnId" stays on all three tables as a
+-- The descriptor is the only authority. "groupingColumnId" stays on both tables as a
 -- derived, indexable shadow of that descriptor: it is written only when the descriptor names
 -- a custom column, and it is what the custom-column delete path matches on, because a JSON
 -- path cannot be matched by an indexed equality predicate.
@@ -10,7 +10,6 @@
 -- groupingColumnId was never cleared on the switch back from a board into a grouped table.
 --
 -- Reverse sequence:
---   ALTER TABLE "DataViewOverride" DROP COLUMN "grouping";
 --   ALTER TABLE "DataView" DROP COLUMN "grouping";
 --   ALTER TABLE "P13n" DROP COLUMN "grouping";
 -- Nothing else has to move: every row that grouped by a custom column before this migration
@@ -18,4 +17,3 @@
 
 ALTER TABLE "P13n" ADD COLUMN "grouping" JSONB;
 ALTER TABLE "DataView" ADD COLUMN "grouping" JSONB;
-ALTER TABLE "DataViewOverride" ADD COLUMN "grouping" JSONB;

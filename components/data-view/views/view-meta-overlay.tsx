@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ResponsiveOverlay } from "@/components/modal/responsive-overlay";
-import { Switch } from "@/components/ui/switch";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 export type ViewMetaMode = "create" | "duplicate" | "edit";
@@ -18,28 +17,16 @@ const FORM_ID = "view-editor-form";
 const NAME_LIMIT = 60;
 
 type Props = {
-  canShareViews: boolean;
-  isShared: boolean;
   mode: ViewMetaMode;
   name: string;
   open: boolean;
   trigger: ReactNode;
-  onChange: (draft: { isShared?: boolean; name?: string }) => void;
+  onChange: (draft: { name: string }) => void;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (draft: { isShared: boolean; name: string }) => Promise<void>;
+  onSubmit: (draft: { name: string }) => Promise<void>;
 };
 
-export function ViewMetaOverlay({
-  canShareViews,
-  isShared,
-  mode,
-  name,
-  open,
-  trigger,
-  onChange,
-  onOpenChange,
-  onSubmit,
-}: Props) {
+export function ViewMetaOverlay({ mode, name, open, trigger, onChange, onOpenChange, onSubmit }: Props) {
   const t = useTranslations();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const trimmed = name.trim();
@@ -51,7 +38,7 @@ export function ViewMetaOverlay({
     setIsSubmitting(true);
     runUserAction(async () => {
       try {
-        await onSubmit({ isShared, name: trimmed });
+        await onSubmit({ name: trimmed });
       } finally {
         setIsSubmitting(false);
       }
@@ -94,20 +81,6 @@ export function ViewMetaOverlay({
             onChange={(event) => onChange({ name: event.target.value })}
           />
         </div>
-
-        {canShareViews && (
-          <div className="flex items-center justify-between gap-3">
-            <Label className="font-normal" htmlFor="view-editor-share">
-              {t("DataView.views.shared")}
-            </Label>
-
-            <Switch
-              checked={isShared}
-              id="view-editor-share"
-              onCheckedChange={(checked) => onChange({ isShared: checked })}
-            />
-          </div>
-        )}
       </form>
     </ResponsiveOverlay>
   );
