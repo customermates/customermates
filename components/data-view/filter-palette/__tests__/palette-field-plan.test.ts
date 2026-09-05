@@ -12,10 +12,11 @@ import { PrismaCustomColumnRepo } from "@/features/custom-column/prisma-custom-c
 import { resolveFilterValueClass } from "@/components/data-view/filter-modal/filter-value-class";
 
 import { PALETTE_OPERATOR_PREFERENCE, palettePlan } from "../palette-field-plan";
+import { PrismaCompanyRepo } from "@/features/company/prisma-company.repository";
 
 type Expected = { impliedOperator: FilterOperatorKey | undefined; pageKind: PalettePageKind };
 
-const CUSTOM_COLUMN_OPERATORS = new PrismaCustomColumnRepo().operatorsByType;
+const CUSTOM_COLUMN_OPERATORS = new PrismaCustomColumnRepo(new PrismaCompanyRepo()).operatorsByType;
 
 const CUSTOM_COLUMN_IDS: Record<CustomColumnType, string> = {
   [CustomColumnType.currency]: "11111111-1111-4111-8111-111111111111",

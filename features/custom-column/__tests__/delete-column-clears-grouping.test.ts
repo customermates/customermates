@@ -52,6 +52,7 @@ import { Prisma } from "@/generated/prisma";
 
 import { PrismaCustomColumnRepo } from "../prisma-custom-column.repository";
 import { runWithTenant } from "@/core/decorators/tenant-context";
+import { PrismaCompanyRepo } from "@/features/company/prisma-company.repository";
 
 const A_COLUMN_ID = "8f1c1a4e-0b2d-4a9e-9d7c-1f2a3b4c5d6e";
 
@@ -64,7 +65,7 @@ describe("deleting a custom column that surfaces group state", () => {
   });
 
   it("clears the grouping on both tables that store it and deletes no personalization row", async () => {
-    await runWithTenant(mockUser, () => new PrismaCustomColumnRepo().delete(A_COLUMN_ID));
+    await runWithTenant(mockUser, () => new PrismaCustomColumnRepo(new PrismaCompanyRepo()).delete(A_COLUMN_ID));
 
     const where = { companyId: mockUser.companyId, groupingColumnId: A_COLUMN_ID };
 
@@ -74,7 +75,7 @@ describe("deleting a custom column that surfaces group state", () => {
   });
 
   it("leaves every other personalization field alone, which the old deleteMany did not", async () => {
-    await runWithTenant(mockUser, () => new PrismaCustomColumnRepo().delete(A_COLUMN_ID));
+    await runWithTenant(mockUser, () => new PrismaCustomColumnRepo(new PrismaCompanyRepo()).delete(A_COLUMN_ID));
 
     const written = Object.keys(p13nUpdateMany.mock.calls[0][0].data).sort();
 
@@ -84,14 +85,14 @@ describe("deleting a custom column that surfaces group state", () => {
   });
 
   it("scopes every clear by a top level companyId so the tenant guard accepts it", async () => {
-    await runWithTenant(mockUser, () => new PrismaCustomColumnRepo().delete(A_COLUMN_ID));
+    await runWithTenant(mockUser, () => new PrismaCustomColumnRepo(new PrismaCompanyRepo()).delete(A_COLUMN_ID));
 
     for (const call of [p13nUpdateMany, dataViewUpdateMany])
       expect(call.mock.calls[0][0].where.companyId).toBe(mockUser.companyId);
   });
 
   it("still deletes the column itself and the widgets grouped by it", async () => {
-    await runWithTenant(mockUser, () => new PrismaCustomColumnRepo().delete(A_COLUMN_ID));
+    await runWithTenant(mockUser, () => new PrismaCustomColumnRepo(new PrismaCompanyRepo()).delete(A_COLUMN_ID));
 
     expect(customColumnDeleteMany).toHaveBeenCalledWith({
       where: { id: A_COLUMN_ID, companyId: mockUser.companyId },

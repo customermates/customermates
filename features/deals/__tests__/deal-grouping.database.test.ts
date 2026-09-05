@@ -18,6 +18,7 @@ import { resolveGroupAxis } from "@/core/base/grouping/group-axis";
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import { prisma } from "@/prisma/db";
 import { runWithTenant } from "@/core/decorators/tenant-context";
+import { PrismaCompanyRepo } from "@/features/company/prisma-company.repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -79,7 +80,7 @@ describeDatabase("grouped deal reads on PostgreSQL", () => {
 
   async function axisAndPages(user: TenantUser, spec: GroupableFieldSpec, bucket?: "day" | "week" | "month") {
     return runWithTenant(user, async () => {
-      const repo = new PrismaDealRepo();
+      const repo = new PrismaDealRepo(new PrismaCompanyRepo());
       const now = new Date().toISOString();
       const rows = await repo.countByGroup({ spec, params: {}, bucket, now });
 
@@ -262,7 +263,9 @@ describeDatabase("grouped deal reads on PostgreSQL", () => {
       companyId,
     };
 
-    const fields = await runWithTenant(dealsOnly, () => new PrismaDealRepo().getGroupableFields());
+    const fields = await runWithTenant(dealsOnly, () =>
+      new PrismaDealRepo(new PrismaCompanyRepo()).getGroupableFields(),
+    );
 
     expect(fields.map((field) => field.field)).not.toContain(FilterFieldKey.userIds);
   });
@@ -355,7 +358,7 @@ describeDatabase("a relation axis wider than the cap", () => {
     const spec = relationGroupable({ model: "deal", field: FilterFieldKey.userIds });
 
     const axis = await runWithTenant(readAll, async () => {
-      const repo = new PrismaDealRepo();
+      const repo = new PrismaDealRepo(new PrismaCompanyRepo());
       const rows = await repo.countByGroup({ spec, params: {} });
       const labels = await repo.resolveGroupLabels(
         spec,
