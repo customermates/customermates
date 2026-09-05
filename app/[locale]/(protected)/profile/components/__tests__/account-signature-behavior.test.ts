@@ -6,6 +6,7 @@ import type { Root } from "react-dom/client";
 
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
+import { action, observable, runInAction } from "mobx";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ConnectedAccountStatus, MessagingProvider } from "@/generated/prisma";
 import {
@@ -632,7 +633,58 @@ describe("ConnectedAccountModal email form lifecycle", () => {
     expectActiveTab(container, "details", "xl");
   });
 
-  it("resets the owned form when closing and rejects saves without update permission", async () => {
+  it("keeps closing controls stable while invalidating saves until the next account is hydrated", async () => {
+    const settings = defaultEmailSettings();
+    settings.signature.enabled = true;
+    settings.signature.template = SignatureTemplate.sideBySide;
+    const warning = vi.spyOn(console, "warn");
+    try {
+      const { store, modal } = mountSignature(settings);
+      act(() => modal.close());
+      expect(store.accountId).toBe("");
+      expect(store.isReadOnly).toBe(false);
+      act(() => store.onChange("signature", "Cannot save a closed form"));
+      await store.onSubmit();
+      expect(harness.saveAction).not.toHaveBeenCalled();
+      expect(warning.mock.calls.filter((args) => String(args[0]).includes("Select is changing"))).toEqual([]);
+    } finally {
+      warning.mockRestore();
+    }
+  });
+
+  it("disables an observed form when the current user's update permission is revoked", async () => {
+    const settings = defaultEmailSettings();
+    settings.signature.enabled = true;
+    const account = emailAccount(settings);
+    const modal = modalStore(account);
+    const userStore = observable(
+      {
+        user: { canUpdate: true },
+        can() {
+          return this.user.canUpdate;
+        },
+      },
+      { can: action },
+    );
+    if (!harness.rootStore) throw new Error("Expected a root store");
+    harness.rootStore.userStore = userStore;
+    const store = modal.signatureStore;
+    const container = mount(createElement(AccountSignature, { account, store }));
+    const signature = field<HTMLTextAreaElement>(container, "signature");
+    setValue(signature, "Pending edit");
+    expect(signature.disabled).toBe(false);
+    act(() =>
+      runInAction(() => {
+        userStore.user = { canUpdate: false };
+      }),
+    );
+    expect(signature.disabled).toBe(true);
+    expect(store.isReadOnly).toBe(true);
+    await store.onSubmit();
+    expect(harness.saveAction).not.toHaveBeenCalled();
+  });
+
+  it("resets the owned form when closing and rejects saves for a non-owner", async () => {
     const { store, modal } = mountSignature();
     act(() => store.onChange("signature", "Unsaved"));
     expect(modal.hasUnsavedChanges).toBe(true);

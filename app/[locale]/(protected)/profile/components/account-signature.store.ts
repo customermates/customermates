@@ -33,6 +33,7 @@ export class AccountSignatureStore extends BaseFormStore<AccountSignatureForm> {
   }
 
   override get isReadOnly(): boolean {
+    void this.rootStore.userStore.user;
     return !this.isOwner || !this.rootStore.userStore.can(Resource.inboxMessages, Action.update);
   }
 
@@ -49,7 +50,6 @@ export class AccountSignatureStore extends BaseFormStore<AccountSignatureForm> {
   resetSession = (): void => {
     this.generation += 1;
     this.accountId = "";
-    this.isOwner = false;
     this.resetForm();
     this.setError(undefined);
     this.setIsLoading(false);
