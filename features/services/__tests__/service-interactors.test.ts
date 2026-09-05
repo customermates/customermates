@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { createMockUser } from "@/tests/helpers/mock-user";
+import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
+import { runWithTenant } from "@/core/decorators/tenant-context";
 import {
   MOCK_ENV_MODULE,
   createMockDiModule,
@@ -15,6 +16,7 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 import { CreateServiceInteractor } from "../upsert/create-service.interactor";
+import { CreateServiceByNameInteractor } from "../upsert/create-service-by-name.interactor";
 import { UpdateServiceInteractor } from "../upsert/update-service.interactor";
 import { DeleteServiceInteractor } from "../delete/delete-service.interactor";
 import { CreateManyServicesInteractor } from "../upsert/create-many-services.interactor";
@@ -113,6 +115,58 @@ describe("CreateServiceInteractor", () => {
       makeServiceWritePrecheck(),
     );
   }
+
+  describe("quick-create by name", () => {
+    it.each(["00000000-0000-4000-8000-000000000099", null, undefined])(
+      "applies defaults for user %s",
+      async (userId) => {
+        const service = makeServiceDto({ name: "Quick service", amount: 100 });
+        mockCreateRepo.createServiceOrThrow.mockResolvedValue(service);
+        const result = await new CreateServiceByNameInteractor(createInteractor()).invoke({
+          name: "Quick service",
+          userId,
+        });
+        expect(result).toEqual({ ok: true, data: service });
+        expect(mockCreateRepo.createServiceOrThrow).toHaveBeenCalledWith({
+          name: "Quick service",
+          amount: 100,
+          notes: null,
+          userIds: userId ? [userId] : [],
+          dealIds: [],
+          taskIds: [],
+          customFieldValues: [],
+        });
+        expect(mockEventService.publish).toHaveBeenCalledWith(DomainEvent.SERVICE_CREATED, {
+          entityId: SERVICE_ID,
+          payload: service,
+        });
+      },
+    );
+
+    it.each([{ name: "   " }, { name: "Quick service", userId: "invalid-user-id" }])(
+      "preserves creation validation for %j",
+      async (data) => {
+        const result = await new CreateServiceByNameInteractor(createInteractor()).invoke(data);
+        expect(result.ok).toBe(false);
+        expect(mockCreateRepo.createServiceOrThrow).not.toHaveBeenCalled();
+        expect(mockEventService.publish).not.toHaveBeenCalled();
+      },
+    );
+
+    it("enforces create permission before delegating", async () => {
+      const interactor = new CreateServiceByNameInteractor(createInteractor());
+      await expect(
+        runWithTenant(createMockUserWithPermissions([]), () => interactor.invoke({ name: "Quick service" })),
+      ).rejects.toThrow("Access denied");
+      expect(mockCreateRepo.createServiceOrThrow).not.toHaveBeenCalled();
+    });
+
+    it.each([null, undefined])("returns validation failures for missing quick-create data %j", async (data) => {
+      const result = await new CreateServiceByNameInteractor(createInteractor()).invoke(data as never);
+      expect(result.ok).toBe(false);
+      expect(mockCreateRepo.createServiceOrThrow).not.toHaveBeenCalled();
+    });
+  });
 
   it("publishes SERVICE_CREATED event with correct entityId and payload", async () => {
     const interactor = createInteractor();

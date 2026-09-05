@@ -31,7 +31,9 @@ export function CardHeroHeader({ alt, subtitle, title, isLoading }: Props) {
 
       <h1 className="text-x-2xl mt-4">{title}</h1>
 
-      {subtitle && <span className="text-x-sm text-subdued">{subtitle}</span>}
+      {subtitle && (
+        <span className="text-x-sm text-subdued min-w-0 max-w-full [overflow-wrap:anywhere]">{subtitle}</span>
+      )}
     </AppCardHeader>
   );
 }

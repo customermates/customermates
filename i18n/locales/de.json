@@ -2068,7 +2068,9 @@
     "demoModeError": "Speichern, Löschen und Ändern von Daten ist im Demo-Modus nicht verfügbar. <link>Jetzt kostenlos starten</link>, um auf alle Funktionen zuzugreifen.",
     "inactiveUser": "Dein Konto ist derzeit inaktiv. Kontaktiere deinen Administrator, um dein Konto zu reaktivieren.",
     "invalidInviteLink": "Der Einladungslink, den du verwendet hast, ist ungültig oder wurde möglicherweise manipuliert. Kontaktiere deinen Administrator, um einen neuen, gültigen Einladungslink zu erhalten und deine Registrierung fortzusetzen.",
+    "invalidOnboardingIntent": "Dieser Onboarding-Link ist ungültig. Kehre zum Onboarding zurück oder öffne den ursprünglichen Einladungslink erneut.",
     "inviteLinkExpired": "Der Einladungslink, den du verwendet hast, ist abgelaufen und kann nicht mehr verwendet werden. Kontaktiere deinen Administrator und bitte ihn, einen neuen Einladungslink für dich zu erstellen, damit du deine Kontoeinrichtung abschließen kannst.",
+    "onboardingSessionExpired": "Diese Onboarding-Sitzung ist abgelaufen. Öffne den ursprünglichen Einladungslink erneut oder wähle noch einmal aus, wie du starten möchtest.",
     "retry": "Erneut versuchen",
     "subtitle": "Ups! Etwas ist schiefgelaufen",
     "title": "Das ist jetzt peinlich",
@@ -2308,6 +2310,39 @@
     },
     "youPrefix": "Du:"
   },
+  "InvitationCard": {
+    "inviter": "Einladung von {inviterName}",
+    "joinAction": "Weiter",
+    "joinBody": "Richte dein Profil ein und beantrage den Zugang. Ein Workspace-Administrator muss dich freigeben, bevor du beitreten kannst.",
+    "joinSubtitle": "Du bist als {email} angemeldet",
+    "joinTitle": "Einladung annehmen",
+    "switchBody": "Dieses Konto gehört bereits zu einem Workspace. Melde dich ab, um mit einem anderen Konto fortzufahren.",
+    "switchSubtitle": "Du bist als {email} angemeldet",
+    "switchTitle": "Du bist bereits angemeldet"
+  },
+  "JoinWorkspace": {
+    "backAction": "Zurück zur Auswahl",
+    "emailLabel": "E-Mail-Adresse für die Einladung",
+    "safeBody": "Du kannst diese Seite schließen und zurückkehren, sobald du eine Einladung erhalten hast.",
+    "safeTitle": "Es wurde kein Workspace erstellt",
+    "steps": {
+      "complete": {
+        "body": "Warte anschließend auf die Freigabe durch einen Workspace-Administrator.",
+        "title": "Profil vervollständigen"
+      },
+      "open": {
+        "body": "Nutze dazu den Link aus der Einladungs-E-Mail oder einen direkt geteilten Einladungslink in diesem Browser.",
+        "title": "Einladungslink öffnen"
+      },
+      "request": {
+        "body": "Sende diese E-Mail-Adresse an einen Administrator des Workspaces.",
+        "title": "Einladung anfordern"
+      }
+    },
+    "stepsTitle": "So trittst du bei",
+    "subtitle": "Ein Workspace-Administrator muss {email} einladen.",
+    "title": "Bestehendem Workspace beitreten"
+  },
   "LegalDocumentNotice": {
     "contractBody": "Wir haben die unten aufgeführten Rechtsdokumente aktualisiert. Bitte prüfen Sie diese für den Geschäftskunden und veranlassen Sie die elektronische Annahme durch einen berechtigten Systemadministrator.",
     "contractDeadlineLabel": "Widerspruchs- und Annahmefrist",
@@ -2458,8 +2493,26 @@
     "subtitle": "Diese Seite ist ohne uns zu informieren in den Urlaub gefahren",
     "title": "Huch! Sie haben die Leere betreten"
   },
+  "OnboardingChoice": {
+    "create": {
+      "description": "Richte einen eigenen Workspace für ein Unternehmen ein, das du führst oder verwaltest.",
+      "note": "{days} Tage kostenlos testen",
+      "title": "Neuen Workspace erstellen"
+    },
+    "footnote": "Ein Workspace wird erst erstellt, wenn du Erstellen wählst und dein Profil abschließt.",
+    "join": {
+      "description": "Tritt einem Team bei, das Customermates bereits nutzt. Dafür brauchst du eine Einladung von einem Workspace-Administrator.",
+      "note": "Es wird kein Workspace erstellt",
+      "title": "Bestehendem Workspace beitreten"
+    },
+    "optionsLabel": "Auswahl für die Workspace-Einrichtung",
+    "signedInAs": "Angemeldet als {email}",
+    "subtitle": "Erstelle einen Workspace für dein Unternehmen oder tritt einem Team bei, das Customermates bereits nutzt.",
+    "title": "Wie möchtest du starten?"
+  },
   "OnboardingForm": {
     "agreeToTerms": "Ich bin berechtigt, für den Geschäftskunden zu handeln, und stimme den <termsOfServiceLink>AGB</termsOfServiceLink> sowie dem <dpaLink>AVV</dpaLink> zu. Die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> habe ich gelesen.",
+    "invitationFrom": "Einladung von {inviterName}",
     "invitedAgreeToTerms": "Ich verpflichte mich, die <termsOfServiceLink>AGB</termsOfServiceLink> einzuhalten, und habe den <dpaLink>AVV</dpaLink> sowie die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> gelesen."
   },
   "OnboardingWizard": {
@@ -2591,6 +2644,7 @@
         "title": "Team einladen"
       },
       "profile": {
+        "invitedSubtitle": "Vervollständige dein Profil, um Zugang zum eingeladenen Workspace anzufordern.",
         "subtitle": "Erzähle uns, wer du bist, damit wir deinen Workspace einrichten können.",
         "title": "Dein Profil"
       }
@@ -2871,6 +2925,7 @@
     "agreeToTerms": "Mit dem Fortfahren stimmst du unseren <termsOfServiceLink>AGB</termsOfServiceLink> zu und nimmst unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> zur Kenntnis. Siehe unseren <dpaLink>AVV</dpaLink>.",
     "buttonLabel": "Anmelden mit {provider}",
     "forgotPassword": "Passwort vergessen?",
+    "inviteSubtitle": "{inviterName} hat dich in einen Workspace eingeladen. Melde dich an, um die Einladung zu prüfen.",
     "or": "ODER",
     "rememberMe": "Angemeldet bleiben",
     "signInCta": "Anmelden",
@@ -2878,12 +2933,12 @@
     "switchToSignUp": "Noch kein Konto? <registerLink>Registrieren</registerLink>"
   },
   "SignUpForm": {
-    "acceptInviteCta": "Einladung annehmen",
+    "acceptInviteCta": "Weiter",
+    "accountSubtitle": "Erstelle zuerst dein Konto. Anschließend entscheidest du, ob du einen neuen Workspace erstellst oder einem bestehenden beitrittst.",
     "agreeToTerms": "Mit dem Fortfahren stimmst du unseren <termsOfServiceLink>AGB</termsOfServiceLink> zu und nimmst unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> zur Kenntnis. Siehe unseren <dpaLink>AVV</dpaLink>.",
     "buttonLabel": "Registrieren mit {provider}",
-    "inviteSubtitle": "Du wurdest eingeladen, einem Team auf Customermates beizutreten. Wähle deine Anmeldemethode, um die Einladung anzunehmen.",
+    "inviteSubtitle": "{inviterName} hat dich in einen Workspace auf Customermates eingeladen. Wähle aus, wie du dein Konto erstellen möchtest.",
     "inviteTitle": "Firmeneinladung annehmen",
-    "newCompanySubtitle": "Registriere ein neues Unternehmen und teste Customermates kostenlos für {days} Tage. Keine Kreditkarte erforderlich.",
     "or": "ODER",
     "signUpCta": "Konto erstellen",
     "switchToSignIn": "Bereits ein Konto? <signInLink>Anmelden</signInLink>",
@@ -3045,6 +3100,7 @@
   "VerifyEmailCard": {
     "body": "Wir haben dir eine Verifizierungs-E-Mail gesendet. Bitte überprüfe dein Postfach und klicke auf den Link, um deine E-Mail-Adresse zu verifizieren.",
     "ctaLabel": "Verifizierungs-E-Mail erneut senden",
+    "invitationFrom": "Einladung von {inviterName}",
     "resendSuccess": "Verifizierungs-E-Mail wurde erfolgreich gesendet.",
     "subtitle": "Verifiziere deine E-Mail-Adresse, um fortzufahren.",
     "title": "E-Mail-Verifizierung"

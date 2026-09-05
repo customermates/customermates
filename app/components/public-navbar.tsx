@@ -53,10 +53,10 @@ import {
 } from "@/components/ui/sheet";
 import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 import { cn } from "@/core/utils/cn";
-import { signOutAction } from "@/app/[locale]/actions";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { resolvePublicNavbarActions } from "./navigation/public-navbar-model";
+import { signOutFromPublicNavbar } from "./navigation/public-navbar-sign-out";
 import {
   isPrimaryPublicNavLink,
   PublicNavLinkIcon,
@@ -70,12 +70,13 @@ import { MarketingContainer } from "@/components/marketing/marketing-container";
 type Props = {
   accountState: AccountState;
   hasValidSession: boolean;
+  onboardingIntent?: string;
 };
 
 const mobileOverviewRowClassName =
   "flex min-h-14 w-full items-center justify-between gap-4 rounded-md py-4 text-left text-base font-medium text-sidebar-foreground no-underline transition-all outline-none hover:no-underline focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50";
 
-export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) => {
+export const PublicNavbar = observer(({ accountState, hasValidSession, onboardingIntent }: Props) => {
   const t = useTranslations();
   const { layoutStore } = useRootStore();
   const pathname = usePathname();
@@ -339,6 +340,7 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
   const actions = resolvePublicNavbarActions({
     accountState,
     hasValidSession,
+    onboardingIntent,
     pathname,
   });
   const { cta } = actions;
@@ -366,8 +368,8 @@ export const PublicNavbar = observer(({ accountState, hasValidSession }: Props) 
     if (isSigningOut) return;
     setIsSigningOut(true);
     try {
-      const result = await signOutAction();
-      if (result.ok) return;
+      const result = await signOutFromPublicNavbar(onboardingIntent);
+      if (!result || result.ok) return;
 
       toastZodErrorTree(result.error);
       setIsSigningOut(false);

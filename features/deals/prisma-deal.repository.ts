@@ -1,5 +1,6 @@
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { RepoArgs } from "@/core/utils/types";
+import type { GetDealWeightingColumnRepo } from "@/features/company/get-deal-weighting-column.repo";
 import type { GetWidgetFilterableFieldsDealRepo } from "../widget/get-widget-filterable-fields.interactor";
 import type { GetCompanyWideDealRepo } from "./get-company-wide-deal.repo";
 import type { CreateDealRepo } from "./upsert/create-deal.repo";
@@ -47,6 +48,10 @@ export class PrismaDealRepo
     ModifyRelationDealRepo,
     ExportRecordsRepo<DealDto>
 {
+  constructor(private readonly companyRepo: GetDealWeightingColumnRepo) {
+    super();
+  }
+
   private get userScopedSelect() {
     return {
       id: true,
@@ -619,15 +624,11 @@ export class PrismaDealRepo
   }
 
   private async resolveDealWeighting(companyId: string) {
-    const company = await this.prisma.company.findUnique({
-      where: { id: companyId },
-      select: { dealWeightingColumnId: true },
-    });
-
-    if (!company?.dealWeightingColumnId) return null;
+    const columnId = await this.companyRepo.getDealWeightingColumnId();
+    if (!columnId) return null;
 
     const column = await this.prisma.customColumn.findFirst({
-      where: { id: company.dealWeightingColumnId, companyId, entityType: EntityType.deal },
+      where: { id: columnId, companyId, entityType: EntityType.deal },
       select: { id: true, options: true },
     });
 

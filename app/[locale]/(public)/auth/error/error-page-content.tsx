@@ -4,7 +4,12 @@ import { useTranslations } from "next-intl";
 
 import { ErrorPageView } from "@/components/shared/error-page-view";
 
-export type ErrorPageKey = "inactiveUser" | "invalidInviteLink" | "inviteLinkExpired";
+export type ErrorPageKey =
+  | "inactiveUser"
+  | "invalidInviteLink"
+  | "invalidOnboardingIntent"
+  | "inviteLinkExpired"
+  | "onboardingSessionExpired";
 
 export function ErrorPageContent({ errorKey, isInactive }: { errorKey: ErrorPageKey | null; isInactive: boolean }) {
   const t = useTranslations();

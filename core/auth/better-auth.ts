@@ -8,6 +8,7 @@ import * as Sentry from "@sentry/nextjs";
 import { prisma } from "@/prisma/db";
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
 import { env } from "@/env";
+import { callbackUrlSchema } from "@/features/auth/callback-url.schema";
 import { API_KEY_MAX_EXPIRATION_DAYS, API_KEY_MIN_EXPIRATION_DAYS } from "@/features/api-key/api-key-expiration";
 
 const socialProviders = {
@@ -68,31 +69,6 @@ export const auth = betterAuth({
   }),
 
   databaseHooks: {
-    user: {
-      create: {
-        before: async (data, ctx) => {
-          const inviteToken = ctx?.getCookie("inviteToken");
-
-          if (!inviteToken) return { data };
-
-          const { getInviteTokenValidationInteractor } = await import("@/core/di");
-          const result = await getInviteTokenValidationInteractor().invoke({ token: inviteToken });
-
-          if (!result.ok) return { data };
-
-          const res = result.data;
-
-          if (!res.valid && res.errorMessage === "inviteLinkExpired") {
-            const { redirect } = await import("next/navigation");
-            redirect("/auth/error?type=inviteLinkExpired");
-          }
-
-          return {
-            data: res.valid ? { ...data, companyId: res.companyId } : { ...data },
-          };
-        },
-      },
-    },
     session: {
       create: {
         after: async (session) => {
@@ -156,7 +132,9 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }) => {
       const verificationUrl = new URL(url);
-      verificationUrl.searchParams.set("callbackURL", "/onboarding/wizard");
+      const callbackURL = verificationUrl.searchParams.get("callbackURL");
+      if (!callbackURL || callbackURL === "/" || !callbackUrlSchema.safeParse(callbackURL).success)
+        verificationUrl.searchParams.set("callbackURL", "/onboarding");
 
       const { getAuthService } = await import("@/core/di");
       await getAuthService().sendVerificationEmail({ to: user.email, url: verificationUrl.toString() });

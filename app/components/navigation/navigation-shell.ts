@@ -18,7 +18,7 @@ export function resolveNavigationShell({
   if (pathname === "/docs" || pathname.startsWith("/docs/")) return "docs";
   if (!isRegistered) return "public";
   if (accountState === "unauthenticated" || accountState === "unregistered") return "public";
-  if (pathname.startsWith("/auth/") || pathname === "/onboarding/wizard" || pathname.startsWith("/onboarding/wizard/"))
+  if (pathname.startsWith("/auth/") || pathname === "/onboarding" || pathname.startsWith("/onboarding/"))
     return "public";
 
   return "app";
