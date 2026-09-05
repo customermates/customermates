@@ -18,6 +18,7 @@ describe("accountStateForPath", () => {
   it.each([
     ["/auth/verify-email", "overdueVerification"],
     ["/auth/pending", "pending"],
+    ["/onboarding", "onboarding"],
     ["/onboarding/wizard", "onboarding"],
     ["/legal-update", "legal"],
     ["/subscription-expired", "subscription"],

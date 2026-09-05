@@ -43,7 +43,7 @@ export function IconContainer({
   const iconColorClass = color === "primary" ? "text-primary dark:text-primary" : "text-foreground";
 
   return (
-    <div className={cn(iconContainerVariants({ size, color }), className)}>
+    <div aria-hidden className={cn(iconContainerVariants({ size, color }), className)}>
       <Icon className={cn(iconColorClass, iconClassName)} icon={icon} size={iconSize} />
     </div>
   );

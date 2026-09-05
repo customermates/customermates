@@ -9,7 +9,7 @@ import { requestPasswordResetAction } from "@/app/[locale]/(public)/auth/actions
 
 export class ForgotPasswordStore extends BaseFormStore<RequestPasswordResetData> {
   constructor(rootStore: RootStore) {
-    super(rootStore, { email: "", confirmEmail: "" });
+    super(rootStore, { email: "", confirmEmail: "", onboardingIntent: undefined });
 
     makeObservable(this, {
       onSubmit: action,

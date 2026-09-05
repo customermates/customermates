@@ -4,6 +4,10 @@ import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+const theme = vi.hoisted(() => ({ resolvedTheme: "light" }));
+
+vi.mock("next-themes", () => ({ useTheme: () => theme }));
+
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
@@ -21,16 +25,20 @@ import { EmailFrame } from "../email-frame";
 
 let root: Root | null = null;
 let container: HTMLDivElement | null = null;
-const observers: { resize: () => void; disconnect: ReturnType<typeof vi.fn> }[] = [];
+const observers: {
+  resize: () => void;
+  disconnect: ReturnType<typeof vi.fn>;
+}[] = [];
 
-function render(html: string, showRemoteImages = false) {
-  act(() => root?.render(createElement(EmailFrame, { html, showRemoteImages })));
+function render(html: string, showRemoteImages = false, presentation: "email" | "composer" = "email") {
+  act(() => root?.render(createElement(EmailFrame, { html, showRemoteImages, presentation })));
   const iframe = container?.querySelector("iframe");
   if (!iframe) throw new Error("Expected an email iframe");
   return iframe;
 }
 
 beforeEach(() => {
+  theme.resolvedTheme = "light";
   observers.length = 0;
   vi.stubGlobal(
     "ResizeObserver",
@@ -54,9 +62,72 @@ afterEach(() => {
   container = null;
   document.body.replaceChildren();
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
 describe("EmailFrame", () => {
+  it("integrates a composer signature without changing authored typography, links or remote-image privacy", () => {
+    vi.spyOn(window, "getComputedStyle").mockReturnValue({
+      getPropertyValue: () => "rgb(240, 240, 240)",
+    } as unknown as CSSStyleDeclaration);
+    const html =
+      '<table style="color:#1a1a1a;font-family:Georgia;font-size:15px"><tr><td><a style="color:#d23128;text-decoration:none" href="https://example.com">Signature</a></td></tr></table>';
+    const iframe = render(html, false, "composer");
+    expect(iframe.className).toContain("bg-transparent");
+    expect(iframe.style.minHeight).toBe("24px");
+    expect(iframe.srcdoc).toContain("padding: 0; background: transparent");
+    expect(iframe.srcdoc).toContain("color: rgb(240, 240, 240) !important");
+    expect(iframe.srcdoc).toContain(html);
+    expect(iframe.srcdoc).toContain("img-src data:;");
+    expect(iframe.getAttribute("sandbox")).toBe("allow-same-origin");
+  });
+
+  it("tracks the application theme for composers and keeps received-email paper unchanged", () => {
+    const style = vi
+      .spyOn(window, "getComputedStyle")
+      .mockReturnValue({ getPropertyValue: () => "rgb(20, 20, 20)" } as unknown as CSSStyleDeclaration);
+    expect(render("<p>Signature</p>", true, "composer").srcdoc).toContain("color: rgb(20, 20, 20) !important");
+    theme.resolvedTheme = "dark";
+    style.mockReturnValue({
+      getPropertyValue: () => "rgb(240, 240, 240)",
+    } as unknown as CSSStyleDeclaration);
+    const dark = render("<p>Signature</p>", true, "composer");
+    expect(dark.srcdoc).toContain("color: rgb(240, 240, 240) !important");
+    expect(dark.srcdoc).toContain("color-scheme: dark");
+    expect(dark.srcdoc).toContain("img-src data: https:;");
+    const email = render("<p>Received email</p>");
+    expect(email.className).toContain("bg-white");
+    expect(email.srcdoc).not.toContain("background: transparent");
+    expect(email.srcdoc).not.toContain("!important");
+    expect(email.style.minHeight).toBe("96px");
+  });
+
+  it("picks up the theme class when next-themes applies it after the React effect", async () => {
+    const style = vi
+      .spyOn(window, "getComputedStyle")
+      .mockReturnValue({ getPropertyValue: () => "#fafafa" } as unknown as CSSStyleDeclaration);
+    render("<p>Signature</p>", true, "composer");
+    style.mockReturnValue({ getPropertyValue: () => "#000000" } as unknown as CSSStyleDeclaration);
+    await act(async () => {
+      document.documentElement.classList.add("light");
+      await Promise.resolve();
+    });
+    expect(container?.querySelector("iframe")?.srcdoc).toContain("color: #000000 !important");
+    document.documentElement.classList.remove("light");
+  });
+
+  it("fits a short composer signature without a reserved footer-sized area", () => {
+    const iframe = render("<p>Regards</p>", false, "composer");
+    Object.defineProperty(iframe, "contentDocument", {
+      configurable: true,
+      value: { body: { offsetHeight: 30, scrollHeight: 30 } },
+    });
+    act(() => {
+      iframe.dispatchEvent(new Event("load"));
+    });
+    expect(iframe.style.height).toBe("30px");
+  });
+
   it("resizes after a hidden tab becomes visible, image loads, or the viewport changes", () => {
     const iframe = render("<p>Signature preview</p>");
     let height = 0;

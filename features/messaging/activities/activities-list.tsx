@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { MessagingMessageDto } from "@/ee/messaging/inbox/inbox.schema";
 import type { ActivityEntryDto } from "@/ee/messaging/activities/activities.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
@@ -11,7 +10,6 @@ import { ArrowLeft, ArrowRight, Calendar as CalendarIcon, Clock, Plus } from "lu
 import { MessagingProvider } from "@/generated/prisma";
 
 import { Icon } from "@/components/shared/icon";
-import { sanitizeHtml } from "@/components/shared/sanitize-html";
 import { classifyAttachment, PREVIEW_KIND_LABEL } from "@/ee/messaging/attachment-kind";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { isUnipileUnsupportedBody, messageSenderName } from "@/ee/messaging/thread-display";
@@ -33,6 +31,7 @@ import {
   resolveMessageTitle,
 } from "./activity-row-labels";
 import { activityEntryKey } from "./activity-entry-key";
+import { messagePreview } from "../message-preview";
 
 type Props = {
   items: ActivityEntryDto[];
@@ -41,20 +40,6 @@ type Props = {
   loading: boolean;
   onLoadOlder: () => void;
 };
-
-function messagePreview(message: MessagingMessageDto): string | null {
-  const subject = message.subject?.trim();
-  if (subject) return subject;
-
-  if (message.bodyHtml) {
-    const text = sanitizeHtml(message.bodyHtml, { ALLOWED_TAGS: [] }).replace(/\s+/g, " ").trim();
-    return text || null;
-  }
-
-  if (message.bodyText) return message.bodyText.replace(/\s+/g, " ").trim() || null;
-
-  return null;
-}
 
 export const ActivitiesList = observer(({ customColumns, hasMore, items, loading, onLoadOlder }: Props) => {
   const t = useTranslations();
@@ -166,8 +151,11 @@ export const ActivitiesList = observer(({ customColumns, hasMore, items, loading
             const rawPreview = messagePreview(message);
             const preview = resolveMessagePreview(rawPreview, isUnipileUnsupportedBody(rawPreview));
             const firstAttachment = message.attachmentsMeta[0];
-            const attachmentKindLabel =
-              !preview && firstAttachment ? t(PREVIEW_KIND_LABEL[classifyAttachment(firstAttachment)]) : null;
+            const attachmentKindLabel = message.isDeleted
+              ? t("Inbox.messageDeleted")
+              : !preview && firstAttachment
+                ? t(PREVIEW_KIND_LABEL[classifyAttachment(firstAttachment)])
+                : null;
             const subtitleModel = buildMessageSubtitle({
               preview,
               isGroup,

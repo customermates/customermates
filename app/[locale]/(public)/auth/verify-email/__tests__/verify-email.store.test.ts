@@ -60,4 +60,13 @@ describe("VerifyEmailStore", () => {
 
     expect(store.isSent).toBe(false);
   });
+
+  it("resends verification with the active onboarding intent", async () => {
+    const store = new VerifyEmailStore(rootStore);
+    store.activate("invited@example.test", "signed.intent");
+
+    await store.resend();
+
+    expect(authActions.resendVerificationEmailFromAuthAction).toHaveBeenCalledWith("signed.intent");
+  });
 });

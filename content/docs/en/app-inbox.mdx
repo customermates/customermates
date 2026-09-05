@@ -40,6 +40,8 @@ Open [Profile → Connected accounts](/docs/app-profile), select an email accoun
 
 The enabled signature is appended when sending through the UI, REST API, or MCP; do not paste it into the draft body. Email Markdown supports basic formatting, links, lists, quotes, and dividers, not arbitrary HTML or every Markdown extension. API callers can specify `bodyFormat`; explicitly supplied HTML keeps the caller's body styling.
 
+The signature toggle belongs to the sending account, not to a transport: turning it off omits the signature for UI, REST, and MCP sends while keeping the account's email appearance. The inline composer adapts signature text to the app's light or dark theme; this display adaptation does not change the outgoing email.
+
 ## Thread states
 
 A thread is **unread** until someone opens it, **open** while it needs attention, **closed** when it is done, and **spam** to keep a sender out of the way. Setting a state never sends anything to the other side; it only organizes your inbox. The hosted Mate capability is release-gated and is not required for this workflow.

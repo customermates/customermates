@@ -42,6 +42,8 @@ describe("Alert", () => {
     );
 
     expect(markup).toMatch(/data-slot="alert-description"[^>]*><p>Plain description<\/p><\/div>/);
-    expect(markup).toContain('<div class="col-start-2 min-w-0"><button type="button">Act</button></div>');
+    expect(markup).toContain(
+      '<div class="col-start-2 min-w-0 [overflow-wrap:anywhere]"><button type="button">Act</button></div>',
+    );
   });
 });

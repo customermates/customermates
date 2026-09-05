@@ -240,7 +240,9 @@ const ENTITY_TIMELINE_TYPE_KEYS = [
 const ERROR_CARD_DYNAMIC_KEYS = [
   "ErrorCard.inactiveUser",
   "ErrorCard.invalidInviteLink",
+  "ErrorCard.invalidOnboardingIntent",
   "ErrorCard.inviteLinkExpired",
+  "ErrorCard.onboardingSessionExpired",
 ] as const;
 const AUTH_SOCIAL_ERROR_KEYS = socialErrorMessageKeys();
 const HOMEPAGE_PRICING_VARIABLE_KEYS = [

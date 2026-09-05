@@ -40,6 +40,7 @@ describe("RegisterUserInteractor", () => {
   let mockRepo: any;
   let mockEventService: any;
   let mockRouteGuardService: any;
+  let mockCompanyRepo: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -49,7 +50,10 @@ describe("RegisterUserInteractor", () => {
       sendNewUserNotificationEmail: vi.fn().mockResolvedValue(undefined),
     };
     mockRepo = {
-      findCompanyIdUnscoped: vi.fn().mockResolvedValue(null),
+      bindAuthUserToCompanyOrThrowUnscoped: vi.fn().mockResolvedValue(undefined),
+      findCurrentUserUnscoped: vi.fn().mockResolvedValue(null),
+      findAuthUserCompanyIdForUpdateUnscoped: vi.fn().mockResolvedValue(null),
+      findAuthUserCompanyIdUnscoped: vi.fn().mockResolvedValue(null),
       createCompanyAndUser: vi.fn().mockResolvedValue(mockTenantUser),
       registerExistingCompany: vi.fn().mockResolvedValue(mockTenantUser),
     };
@@ -71,22 +75,32 @@ describe("RegisterUserInteractor", () => {
         subscription: null,
       }),
     };
+    mockCompanyRepo = { existsUnscoped: vi.fn().mockResolvedValue(true) };
   });
 
   function createInteractor() {
-    return new RegisterUserInteractor(mockAuthService, mockRepo, mockEventService, mockRouteGuardService);
+    return new RegisterUserInteractor(
+      mockAuthService,
+      mockRepo,
+      mockEventService,
+      mockRouteGuardService,
+      mockCompanyRepo,
+    );
   }
 
   it("publishes USER_REGISTERED event for new company", async () => {
     const interactor = createInteractor();
-    await interactor.invoke({
-      email: "jane@example.com",
-      firstName: "Jane",
-      lastName: "Doe",
-      country: "de",
-      avatarUrl: null,
-      agreeToTerms: true,
-    });
+    await interactor.invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: true,
+      },
+      { target: { type: "createCompany" } },
+    );
 
     expect(mockEventService.publish).toHaveBeenCalledWith(
       DomainEvent.USER_REGISTERED,
@@ -99,19 +113,26 @@ describe("RegisterUserInteractor", () => {
         }),
       }),
     );
+    expect(mockRepo.bindAuthUserToCompanyOrThrowUnscoped).toHaveBeenCalledWith({
+      authUserId: USER_ID,
+      companyId: mockTenantUser.companyId,
+    });
   });
 
   it("records current company-wide legal acceptance for a new cloud company", async () => {
     (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "demo" | "self-hosted" }).APP_MODE = "cloud";
     const interactor = createInteractor();
-    await interactor.invoke({
-      email: "jane@example.com",
-      firstName: "Jane",
-      lastName: "Doe",
-      country: "de",
-      avatarUrl: null,
-      agreeToTerms: true,
-    });
+    await interactor.invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: true,
+      },
+      { target: { type: "createCompany" } },
+    );
 
     expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ agreeToTerms: true }));
     expect(mockEventService.publish).toHaveBeenNthCalledWith(
@@ -161,15 +182,16 @@ describe("RegisterUserInteractor", () => {
       agreeToTerms: true,
     };
 
-    await createInteractor().invoke(data, { adAttribution });
+    await createInteractor().invoke(data, { adAttribution, target: { type: "createCompany" } });
     expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ adAttribution }));
 
     vi.clearAllMocks();
-    mockRepo.findCompanyIdUnscoped.mockResolvedValue("existing-company-id");
+    mockRepo.findAuthUserCompanyIdForUpdateUnscoped.mockResolvedValue("existing-company-id");
+    mockRepo.findAuthUserCompanyIdUnscoped.mockResolvedValue("existing-company-id");
     mockRepo.registerExistingCompany.mockResolvedValue(mockTenantUser);
     mockEventService.publish.mockResolvedValue(undefined);
     mockAuthService.sendNewUserNotificationEmail.mockResolvedValue(undefined);
-    await createInteractor().invoke(data, { adAttribution });
+    await createInteractor().invoke(data, { adAttribution, target: { type: "existingAuthUserCompanyBinding" } });
 
     const existingCompanyArgs = mockRepo.registerExistingCompany.mock.calls[0]?.[0];
     expect(existingCompanyArgs).toEqual({ ...data, companyId: "existing-company-id" });
@@ -200,6 +222,7 @@ describe("RegisterUserInteractor", () => {
             expiresAt: new Date("2026-01-02T00:00:00.000Z"),
           },
         ],
+        target: { type: "createCompany" },
       },
     );
 
@@ -209,14 +232,17 @@ describe("RegisterUserInteractor", () => {
   it("rejects an unchecked new cloud company before creating records", async () => {
     (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "demo" | "self-hosted" }).APP_MODE = "cloud";
 
-    const result = await createInteractor().invoke({
-      email: "jane@example.com",
-      firstName: "Jane",
-      lastName: "Doe",
-      country: "de",
-      avatarUrl: null,
-      agreeToTerms: false,
-    });
+    const result = await createInteractor().invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: false,
+      },
+      { target: { type: "createCompany" } },
+    );
 
     expect("ok" in result && result.ok).toBe(false);
     expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
@@ -224,17 +250,21 @@ describe("RegisterUserInteractor", () => {
   });
 
   it("publishes USER_REGISTERED with isNewCompany false for existing company", async () => {
-    mockRepo.findCompanyIdUnscoped.mockResolvedValue("existing-company-id");
+    mockRepo.findAuthUserCompanyIdForUpdateUnscoped.mockResolvedValue("existing-company-id");
+    mockRepo.findAuthUserCompanyIdUnscoped.mockResolvedValue("existing-company-id");
 
     const interactor = createInteractor();
-    await interactor.invoke({
-      email: "jane@example.com",
-      firstName: "Jane",
-      lastName: "Doe",
-      country: "de",
-      avatarUrl: null,
-      agreeToTerms: false,
-    });
+    await interactor.invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: false,
+      },
+      { target: { type: "existingAuthUserCompanyBinding" } },
+    );
 
     expect(mockEventService.publish).toHaveBeenCalledWith(
       DomainEvent.USER_REGISTERED,
@@ -253,16 +283,20 @@ describe("RegisterUserInteractor", () => {
 
   it("rejects an unchecked invited cloud user before updating records", async () => {
     mutableEnv.APP_MODE = "cloud";
-    mockRepo.findCompanyIdUnscoped.mockResolvedValue("existing-company-id");
+    mockRepo.findAuthUserCompanyIdForUpdateUnscoped.mockResolvedValue("existing-company-id");
+    mockRepo.findAuthUserCompanyIdUnscoped.mockResolvedValue("existing-company-id");
 
-    const result = await createInteractor().invoke({
-      email: "jane@example.com",
-      firstName: "Jane",
-      lastName: "Doe",
-      country: "de",
-      avatarUrl: null,
-      agreeToTerms: false,
-    });
+    const result = await createInteractor().invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: false,
+      },
+      { target: { type: "existingAuthUserCompanyBinding" } },
+    );
 
     expect("ok" in result && result.ok).toBe(false);
     expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
@@ -271,17 +305,21 @@ describe("RegisterUserInteractor", () => {
 
   it("does not record managed-service acceptance for an invited cloud user", async () => {
     (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "demo" | "self-hosted" }).APP_MODE = "cloud";
-    mockRepo.findCompanyIdUnscoped.mockResolvedValue("existing-company-id");
+    mockRepo.findAuthUserCompanyIdForUpdateUnscoped.mockResolvedValue("existing-company-id");
+    mockRepo.findAuthUserCompanyIdUnscoped.mockResolvedValue("existing-company-id");
 
     const interactor = createInteractor();
-    await interactor.invoke({
-      email: "jane@example.com",
-      firstName: "Jane",
-      lastName: "Doe",
-      country: "de",
-      avatarUrl: null,
-      agreeToTerms: true,
-    });
+    await interactor.invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: true,
+      },
+      { target: { type: "existingAuthUserCompanyBinding" } },
+    );
 
     expect(mockRepo.registerExistingCompany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -294,28 +332,34 @@ describe("RegisterUserInteractor", () => {
 
   it("does not represent self-hosted onboarding as acceptance of the managed-service documents", async () => {
     const interactor = createInteractor();
-    await interactor.invoke({
-      email: "jane@example.com",
-      firstName: "Jane",
-      lastName: "Doe",
-      country: "de",
-      avatarUrl: null,
-      agreeToTerms: false,
-    });
+    await interactor.invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: false,
+      },
+      { target: { type: "createCompany" } },
+    );
 
     expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ agreeToTerms: false }));
     expect(mockEventService.publish).not.toHaveBeenCalledWith(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, expect.anything());
   });
 
   it("preserves a submitted self-hosted acknowledgement without creating managed-service acceptance", async () => {
-    await createInteractor().invoke({
-      email: "jane@example.com",
-      firstName: "Jane",
-      lastName: "Doe",
-      country: "de",
-      avatarUrl: null,
-      agreeToTerms: true,
-    });
+    await createInteractor().invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: true,
+      },
+      { target: { type: "createCompany" } },
+    );
 
     expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ agreeToTerms: true }));
     expect(mockEventService.publish).not.toHaveBeenCalledWith(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, expect.anything());
@@ -325,14 +369,17 @@ describe("RegisterUserInteractor", () => {
     (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "demo" | "self-hosted" }).APP_MODE = "demo";
 
     expect(() =>
-      createInteractor().invoke({
-        email: "jane@example.com",
-        firstName: "Jane",
-        lastName: "Doe",
-        country: "de",
-        avatarUrl: null,
-        agreeToTerms: true,
-      }),
+      createInteractor().invoke(
+        {
+          email: "jane@example.com",
+          firstName: "Jane",
+          lastName: "Doe",
+          country: "de",
+          avatarUrl: null,
+          agreeToTerms: true,
+        },
+        { target: { type: "createCompany" } },
+      ),
     ).toThrow(DemoModeError);
 
     expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
@@ -341,14 +388,17 @@ describe("RegisterUserInteractor", () => {
 
   it("calls authService.sendNewUserNotificationEmail", async () => {
     const interactor = createInteractor();
-    await interactor.invoke({
-      email: "jane@example.com",
-      firstName: "Jane",
-      lastName: "Doe",
-      country: "de",
-      avatarUrl: null,
-      agreeToTerms: true,
-    });
+    await interactor.invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: true,
+      },
+      { target: { type: "createCompany" } },
+    );
 
     expect(mockAuthService.sendNewUserNotificationEmail).toHaveBeenCalledWith({
       email: "jane@example.com",
@@ -358,28 +408,34 @@ describe("RegisterUserInteractor", () => {
 
   it("returns the onboarding destination for a new active administrator", async () => {
     const interactor = createInteractor();
-    const result: any = await interactor.invoke({
-      email: "jane@example.com",
-      firstName: "Jane",
-      lastName: "Doe",
-      country: "de",
-      avatarUrl: null,
-      agreeToTerms: true,
-    });
+    const result: any = await interactor.invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: true,
+      },
+      { target: { type: "createCompany" } },
+    );
 
     expect(result.ok).toBe(true);
     expect(result.data).toEqual({ redirectTo: "/onboarding/wizard" });
   });
 
   it("uses the authenticated email instead of a forged submitted email", async () => {
-    const result: any = await createInteractor().invoke({
-      email: "not-an-email",
-      firstName: "Jane",
-      lastName: "Doe",
-      country: "de",
-      avatarUrl: null,
-      agreeToTerms: true,
-    });
+    const result: any = await createInteractor().invoke(
+      {
+        email: "not-an-email",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: true,
+      },
+      { target: { type: "createCompany" } },
+    );
 
     expect(result).toMatchObject({ ok: true });
     expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ email: "jane@example.com" }));
@@ -387,22 +443,144 @@ describe("RegisterUserInteractor", () => {
   });
 
   it("returns the pending destination for an invited user", async () => {
-    mockRepo.findCompanyIdUnscoped.mockResolvedValue("existing-company-id");
+    mockRepo.findAuthUserCompanyIdForUpdateUnscoped.mockResolvedValue("existing-company-id");
+    mockRepo.findAuthUserCompanyIdUnscoped.mockResolvedValue("existing-company-id");
     mockRepo.registerExistingCompany.mockResolvedValue({
       ...mockTenantUser,
       status: "pendingAuthorization",
     });
 
-    const result: any = await createInteractor().invoke({
-      email: "jane@example.com",
-      firstName: "Jane",
-      lastName: "Doe",
-      country: "de",
-      avatarUrl: null,
-      agreeToTerms: true,
-    });
+    const result: any = await createInteractor().invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: true,
+      },
+      { target: { type: "existingAuthUserCompanyBinding" } },
+    );
 
     expect(result).toEqual({ ok: true, data: { redirectTo: "/auth/pending" } });
+  });
+
+  it("requires an explicit create decision when no workspace invitation exists", async () => {
+    await expect(
+      createInteractor().invoke(
+        {
+          email: "jane@example.com",
+          firstName: "Jane",
+          lastName: "Doe",
+          country: "de",
+          avatarUrl: null,
+          agreeToTerms: true,
+        },
+        { target: { type: "existingAuthUserCompanyBinding" } },
+      ),
+    ).resolves.toEqual({ redirect: "/onboarding" });
+    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
+    expect(mockEventService.publish).not.toHaveBeenCalled();
+    expect(mockAuthService.sendNewUserNotificationEmail).not.toHaveBeenCalled();
+  });
+
+  it("fails closed when the cached session identity no longer exists", async () => {
+    mockRepo.findAuthUserCompanyIdForUpdateUnscoped.mockResolvedValue(undefined);
+
+    await expect(
+      createInteractor().invoke(
+        {
+          email: "jane@example.com",
+          firstName: "Jane",
+          lastName: "Doe",
+          country: "de",
+          avatarUrl: null,
+          agreeToTerms: true,
+        },
+        { target: { type: "invitation", companyId: "invited-company-id" } },
+      ),
+    ).resolves.toEqual({ redirect: "/auth/signup" });
+    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
+    expect(mockEventService.publish).not.toHaveBeenCalled();
+    expect(mockAuthService.sendNewUserNotificationEmail).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["pendingAuthorization", "/auth/pending"],
+    ["active", "/onboarding/wizard"],
+    ["inactive", "/auth/error?type=inactiveUser"],
+  ] as const)("makes a repeated registration for an existing %s user idempotent", async (status, redirect) => {
+    mockRepo.findCurrentUserUnscoped.mockResolvedValue({ ...mockTenantUser, status });
+
+    await expect(
+      createInteractor().invoke(
+        {
+          email: "jane@example.com",
+          firstName: "Jane",
+          lastName: "Doe",
+          country: "de",
+          avatarUrl: null,
+          agreeToTerms: true,
+        },
+        { target: { type: "invitation", companyId: "invited-company-id" } },
+      ),
+    ).resolves.toEqual({ redirect });
+    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
+    expect(mockRepo.bindAuthUserToCompanyOrThrowUnscoped).not.toHaveBeenCalled();
+    expect(mockEventService.publish).not.toHaveBeenCalled();
+  });
+
+  it("gives the current invitation precedence over an older live identity binding", async () => {
+    mockRepo.findAuthUserCompanyIdForUpdateUnscoped.mockResolvedValue("older-company-id");
+    mockRepo.registerExistingCompany.mockResolvedValue({
+      ...mockTenantUser,
+      status: "pendingAuthorization",
+    });
+
+    await createInteractor().invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: true,
+      },
+      { target: { type: "invitation", companyId: "current-invited-company-id" } },
+    );
+
+    expect(mockRepo.registerExistingCompany).toHaveBeenCalledWith(
+      expect.objectContaining({ companyId: "current-invited-company-id" }),
+    );
+    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRepo.bindAuthUserToCompanyOrThrowUnscoped).toHaveBeenCalledWith({
+      authUserId: USER_ID,
+      companyId: mockTenantUser.companyId,
+    });
+  });
+
+  it("fails cleanly when the invited workspace disappears before registration", async () => {
+    mockCompanyRepo.existsUnscoped.mockResolvedValue(false);
+
+    await expect(
+      createInteractor().invoke(
+        {
+          email: "jane@example.com",
+          firstName: "Jane",
+          lastName: "Doe",
+          country: "de",
+          avatarUrl: null,
+          agreeToTerms: true,
+        },
+        { target: { type: "invitation", companyId: "deleted-company-id" } },
+      ),
+    ).resolves.toEqual({ redirect: "/auth/error?type=invalidInviteLink" });
+    expect(mockRepo.findAuthUserCompanyIdForUpdateUnscoped).not.toHaveBeenCalled();
+    expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
+    expect(mockRepo.bindAuthUserToCompanyOrThrowUnscoped).not.toHaveBeenCalled();
   });
 
   it("rejects a missing authenticated session before any write", async () => {
@@ -416,16 +594,19 @@ describe("RegisterUserInteractor", () => {
     });
 
     await expect(
-      createInteractor().invoke({
-        email: "jane@example.com",
-        firstName: "Jane",
-        lastName: "Doe",
-        country: "de",
-        avatarUrl: null,
-        agreeToTerms: true,
-      }),
+      createInteractor().invoke(
+        {
+          email: "jane@example.com",
+          firstName: "Jane",
+          lastName: "Doe",
+          country: "de",
+          avatarUrl: null,
+          agreeToTerms: true,
+        },
+        { target: { type: "existingAuthUserCompanyBinding" } },
+      ),
     ).resolves.toEqual({ redirect: "/auth/signin" });
-    expect(mockRepo.findCompanyIdUnscoped).not.toHaveBeenCalled();
+    expect(mockRepo.findAuthUserCompanyIdForUpdateUnscoped).not.toHaveBeenCalled();
     expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
     expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
     expect(mockEventService.publish).not.toHaveBeenCalled();
@@ -450,16 +631,19 @@ describe("RegisterUserInteractor", () => {
       });
 
       await expect(
-        createInteractor().invoke({
-          email: "jane@example.com",
-          firstName: "Jane",
-          lastName: "Doe",
-          country: "de",
-          avatarUrl: null,
-          agreeToTerms: true,
-        }),
+        createInteractor().invoke(
+          {
+            email: "jane@example.com",
+            firstName: "Jane",
+            lastName: "Doe",
+            country: "de",
+            avatarUrl: null,
+            agreeToTerms: true,
+          },
+          { target: { type: "existingAuthUserCompanyBinding" } },
+        ),
       ).resolves.toEqual({ redirect: accountStateRedirect(state) ?? "/" });
-      expect(mockRepo.findCompanyIdUnscoped).not.toHaveBeenCalled();
+      expect(mockRepo.findAuthUserCompanyIdForUpdateUnscoped).not.toHaveBeenCalled();
       expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
       expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
       expect(mockEventService.publish).not.toHaveBeenCalled();

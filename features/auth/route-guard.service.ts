@@ -21,7 +21,8 @@ export type AccessOptions = {
   resource?: Resource;
 };
 
-export abstract class RouteGuardSubscriptionRepo {
+export abstract class RouteGuardCompanyRepo {
+  abstract existsUnscoped(companyId: string): Promise<boolean>;
   abstract getSubscriptionOrThrowUnscoped(companyId: string): Promise<Subscription>;
 }
 
@@ -81,7 +82,7 @@ export class RouteGuardService {
   constructor(
     private authService: AuthService,
     private userRepo: FindUserRepo,
-    private subscriptionRepo: RouteGuardSubscriptionRepo,
+    private companyRepo: RouteGuardCompanyRepo,
     private getLegalStatusInteractor: GetLegalStatusInteractor,
   ) {}
 
@@ -98,9 +99,27 @@ export class RouteGuardService {
       };
     }
 
+    const authUserCompanyId = await this.userRepo.findAuthUserCompanyIdUnscoped(session.user.id);
+    if (authUserCompanyId === undefined) {
+      return {
+        state: "unauthenticated",
+        sessionUser: null,
+        user: null,
+        emailVerified: null,
+        legalStatus: null,
+        subscription: null,
+      };
+    }
+
     const user = await this.userRepo.findCurrentUserUnscoped(session.user.email);
+    let companyId = user?.companyId ?? null;
+    if (!user && authUserCompanyId && (await this.companyRepo.existsUnscoped(authUserCompanyId)))
+      companyId = authUserCompanyId;
     const emailVerified = session.user.emailVerified ?? false;
-    const sessionUser: AccountSessionUser = session.user;
+    const sessionUser: AccountSessionUser = {
+      ...session.user,
+      companyId,
+    };
     const base = {
       sessionUser,
       user,
@@ -131,7 +150,7 @@ export class RouteGuardService {
 
     let subscription: Subscription | null = null;
     if (env.APP_MODE !== "demo") {
-      subscription = await this.subscriptionRepo.getSubscriptionOrThrowUnscoped(user.companyId);
+      subscription = await this.companyRepo.getSubscriptionOrThrowUnscoped(user.companyId);
       if (isSubscriptionExpired(subscription)) return { state: "subscription", ...base, legalStatus, subscription };
     }
 

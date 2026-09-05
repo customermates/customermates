@@ -2,7 +2,7 @@
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -22,35 +22,51 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { Alert } from "@/components/shared/alert";
+import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 
 type Props = {
-  isInvited: boolean;
+  callbackURL?: string;
+  inviterName?: string;
+  onboardingIntent?: string;
   socialProviders: { google: boolean; microsoft: boolean };
 };
 
-export const SignInForm = observer(({ isInvited, socialProviders }: Props) => {
+export const SignInForm = observer(({ callbackURL, inviterName, onboardingIntent, socialProviders }: Props) => {
   const searchParams = useSearchParams();
 
   const t = useTranslations();
 
   const { signInStore, appMode } = useRootStore();
-  const { isLoading } = signInStore;
-
-  useEffect(() => {
-    signInStore.setCallbackURL(searchParams.get("callbackURL") ?? undefined);
-  }, [searchParams]);
-
-  useEffect(() => {
+  const resolvedCallbackURL = callbackURL ?? searchParams.get("callbackURL") ?? undefined;
+  useState(() => {
+    signInStore.onInitOrRefresh({ callbackURL: resolvedCallbackURL });
     signInStore.setWithUnsavedChangesGuard(false);
-  }, []);
+  });
+  const { isLoading } = signInStore;
+  const isInvited = Boolean(onboardingIntent && inviterName);
+
+  useEffect(() => {
+    if (signInStore.form.callbackURL !== resolvedCallbackURL)
+      signInStore.onInitOrRefresh({ callbackURL: resolvedCallbackURL });
+  }, [resolvedCallbackURL, signInStore]);
 
   return (
     <AppForm store={signInStore}>
       <AppCard className="max-w-lg">
         <CardHeroHeader
+          alt=""
           subtitle={t.rich("SignInForm.switchToSignUp", {
             registerLink: (chunks) => (
-              <AppLink inheritSize appearance="inline" href="/auth/signup">
+              <AppLink
+                inheritSize
+                appearance="inline"
+                href={
+                  isInvited && onboardingIntent
+                    ? pathWithOnboardingIntent("/auth/signup", onboardingIntent)
+                    : "/auth/signup"
+                }
+              >
                 {chunks}
               </AppLink>
             ),
@@ -60,6 +76,12 @@ export const SignInForm = observer(({ isInvited, socialProviders }: Props) => {
 
         <AppCardBody>
           <SocialErrorToast />
+
+          {isInvited ? (
+            <Alert className="mb-4" role="note">
+              <p className="text-x-sm">{t("SignInForm.inviteSubtitle", { inviterName: inviterName ?? "" })}</p>
+            </Alert>
+          ) : null}
 
           {(socialProviders.google || socialProviders.microsoft) && (
             <>
@@ -109,7 +131,15 @@ export const SignInForm = observer(({ isInvited, socialProviders }: Props) => {
           <div className="flex w-full justify-between items-start gap-3">
             <FormCheckbox id="rememberMe" label={t("SignInForm.rememberMe")} />
 
-            <AppLink href="/auth/forgot-password">{t("SignInForm.forgotPassword")}</AppLink>
+            <AppLink
+              href={
+                onboardingIntent
+                  ? pathWithOnboardingIntent("/auth/forgot-password", onboardingIntent)
+                  : "/auth/forgot-password"
+              }
+            >
+              {t("SignInForm.forgotPassword")}
+            </AppLink>
           </div>
         </AppCardBody>
 

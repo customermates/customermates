@@ -12,7 +12,7 @@ export class ResetPasswordStore extends BaseFormStore<ResetPasswordData> {
   showPassword = false;
 
   constructor(rootStore: RootStore) {
-    super(rootStore, { password: "", confirmPassword: "", token: "" });
+    super(rootStore, { password: "", confirmPassword: "", token: "", onboardingIntent: undefined });
 
     makeObservable(this, {
       showPassword: observable,

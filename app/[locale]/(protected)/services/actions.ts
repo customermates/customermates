@@ -10,6 +10,7 @@ import {
   getGetServicesInteractor,
   getGetServiceByIdInteractor,
   getCreateServiceInteractor,
+  getCreateServiceByNameInteractor,
   getUpdateServiceInteractor,
   getDeleteServiceInteractor,
 } from "@/core/di";
@@ -38,15 +39,5 @@ export async function getServiceByIdAction(data: GetServiceByIdData) {
 }
 
 export async function createServiceByNameAction(name: string, userId: string | null | undefined) {
-  const result = await createServiceAction({
-    name,
-    amount: 100,
-    notes: null,
-    userIds: userId ? [userId] : [],
-    dealIds: [],
-    taskIds: [],
-    customFieldValues: [],
-  });
-
-  return result;
+  return serializeResult(getCreateServiceByNameInteractor().invoke({ name, userId }));
 }

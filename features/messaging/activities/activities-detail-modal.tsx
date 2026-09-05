@@ -4,7 +4,17 @@ import type { ActivityEntryDto } from "@/ee/messaging/activities/activities.sche
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, ArrowRight, Calendar as CalendarIcon, ExternalLink, MapPin, Plus, Users } from "lucide-react";
+import { useState } from "react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Calendar as CalendarIcon,
+  ExternalLink,
+  ImageOff,
+  MapPin,
+  Plus,
+  Users,
+} from "lucide-react";
 
 import { MessagingProvider } from "@/generated/prisma";
 
@@ -13,9 +23,7 @@ import { AppModal, type AppModalActions } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { EmailFrame } from "@/app/[locale]/(protected)/inbox/components/email-frame";
-import { SanitizedHtml } from "@/components/shared/sanitized-html";
-import { sanitizeHtml } from "@/components/shared/sanitize-html";
-import { cn } from "@/core/utils/cn";
+import { Button } from "@/components/ui/button";
 import { isEmailProvider } from "@/ee/messaging/provider";
 import { messageSenderName } from "@/ee/messaging/thread-display";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -23,6 +31,8 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { AuditDetail } from "./audit-detail";
 import { calendarEventTitle } from "./activity-labels";
 import { DetailHeader, IdentityAvatar, TypeBadge } from "./activities-row";
+import { hasLoadableRemoteImages, MessageBody } from "../message-body";
+import { MessageSurface } from "../message-surface";
 
 const RESPONSE_LABEL_KEYS: Record<string, string> = {
   yes: "ContactHistory.calendarResponseYes",
@@ -40,16 +50,19 @@ function payloadString(payload: Record<string, unknown>, key: string): string | 
   return typeof value === "string" && value.trim() ? value : null;
 }
 
-const MessageDetail = observer(({ entry }: { entry: Extract<ActivityEntryDto, { kind: "message" }> }) => {
+export const MessageDetail = observer(({ entry }: { entry: Extract<ActivityEntryDto, { kind: "message" }> }) => {
   const intlStore = useHydratedIntlStore();
   const t = useTranslations();
   const { message, thread, senderIsMine } = entry;
+  const [imagesVisibleFor, setImagesVisibleFor] = useState<string | null>(null);
   const isOutbound = message.direction === "outbound";
   const senderName =
     messageSenderName(message) || (senderIsMine ? t("Inbox.senderYou") : t("Inbox.senderUnknownSender"));
   const title = thread.type !== "single" ? thread.label?.trim() || senderName : senderName;
   const isEmail = isEmailProvider(message.provider) && Boolean(message.bodyHtml);
-  const sanitized = !isEmail && message.bodyHtml ? sanitizeHtml(message.bodyHtml) : null;
+  const showRemoteImages = imagesVisibleFor === message.id;
+  const canLoadRemoteImages =
+    isEmail && !message.isDeleted && !showRemoteImages && hasLoadableRemoteImages(message.bodyHtml ?? "");
   const DirectionIcon = isOutbound ? ArrowRight : ArrowLeft;
   const directionLabel = isOutbound ? t("Inbox.statusSent") : t("Inbox.statusReceived");
 
@@ -72,28 +85,30 @@ const MessageDetail = observer(({ entry }: { entry: Extract<ActivityEntryDto, { 
       />
 
       <AppCardBody className="space-y-3">
-        {message.subject && <h3 className="text-base font-semibold">{message.subject}</h3>}
+        {!message.isDeleted && isEmailProvider(message.provider) && message.subject && (
+          <h3 className="text-base font-semibold">{message.subject}</h3>
+        )}
 
-        <div>
-          {isEmail ? (
-            <div
-              className={cn(
-                "w-full rounded-2xl p-1.5 shadow-xs",
-                isOutbound ? "bg-primary rounded-tr-sm" : "bg-muted rounded-tl-sm",
-              )}
-            >
-              <EmailFrame html={message.bodyHtml ?? ""} />
+        <MessageSurface isEmail={isEmail} isOutbound={isOutbound}>
+          <MessageBody
+            key={message.id}
+            hasSupplementaryContent={message.attachmentsMeta.length > 0}
+            message={message}
+            showRemoteImages={showRemoteImages}
+          />
+
+          {canLoadRemoteImages && (
+            <div className="flex flex-wrap items-center gap-2 px-3 py-1.5">
+              <Button size="xs" type="button" variant="secondary" onClick={() => setImagesVisibleFor(message.id)}>
+                <ImageOff className="size-3" />
+
+                {t("Inbox.compose.loadRemoteImages")}
+              </Button>
             </div>
-          ) : sanitized ? (
-            <SanitizedHtml className="prose-sm max-w-none [&_a]:underline" html={message.bodyHtml ?? ""} />
-          ) : message.bodyText ? (
-            <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.bodyText}</p>
-          ) : (
-            <p className="text-muted-foreground text-sm italic">{t("Inbox.attachmentUnsupported")}</p>
           )}
-        </div>
+        </MessageSurface>
 
-        {message.attachmentsMeta.length > 0 && (
+        {!message.isDeleted && message.attachmentsMeta.length > 0 && (
           <p className="text-muted-foreground text-xs">
             {`${t("Inbox.attachmentCount", { count: message.attachmentsMeta.length })} ${message.attachmentsMeta.map((a) => a.name).join(", ")}`}
           </p>
@@ -244,9 +259,11 @@ export const TimelineDetailModal = observer(() => {
   const title = !entry
     ? ""
     : entry.kind === "message"
-      ? (entry.message.subject ??
-        messageSenderName(entry.message) ??
-        (entry.senderIsMine ? t("Inbox.senderYou") : t("Inbox.senderUnknownSender")))
+      ? entry.message.isDeleted
+        ? t("Inbox.messageDeleted")
+        : (entry.message.subject ??
+          messageSenderName(entry.message) ??
+          (entry.senderIsMine ? t("Inbox.senderYou") : t("Inbox.senderUnknownSender")))
       : entry.kind === "calendar_event"
         ? calendarEventTitle(entry.event.title, t("ContactHistory.calendarNoTitle"))
         : entry.kind === "audit"

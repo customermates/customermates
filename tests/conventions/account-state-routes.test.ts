@@ -11,8 +11,19 @@ function source(path: string): string {
 
 describe("guarded account-state route contract", () => {
   it.each([
-    ["app/[locale]/(public)/auth/verify-email/page.tsx", /requireAccountState\(\s*"overdueVerification"\s*\)/],
+    [
+      "app/[locale]/(public)/auth/verify-email/page.tsx",
+      /requireAccountState\(\s*\[\s*"overdueVerification",\s*"unregistered"\s*\](?:\s*,|\s*\))/,
+    ],
     ["app/[locale]/(public)/auth/pending/page.tsx", /requireAccountState\(\s*"pending"\s*\)/],
+    [
+      "app/[locale]/(protected)/onboarding/page.tsx",
+      /requireAccountState\(\s*"unregistered"(?:\s*,|\s*\))/,
+    ],
+    [
+      "app/[locale]/(protected)/onboarding/join/page.tsx",
+      /requireAccountState\(\s*"unregistered"(?:\s*,|\s*\))/,
+    ],
     ["app/[locale]/(protected)/legal-update/page.tsx", /requireAccountState\(\s*\[\s*"allowed",\s*"legal"\s*\]\s*\)/],
     [
       "app/[locale]/(protected)/subscription-expired/page.tsx",
@@ -27,10 +38,18 @@ describe("guarded account-state route contract", () => {
     const page = source("app/[locale]/(protected)/onboarding/wizard/page.tsx");
     const actions = source("app/[locale]/(protected)/onboarding/wizard/actions.ts");
     const registerInteractor = source("features/user/register/register-user.interactor.ts");
+    const registrationBoundary = source("features/user/register/register-onboarding-profile.interactor.ts");
     const completeInteractor = source("features/onboarding-wizard/complete-onboarding-wizard.interactor.ts");
 
-    expect(page).toContain('requireAccountState(["unregistered", "onboarding"])');
-    expect(actions).toContain("getRegisterUserInteractor().invoke(data, { adAttribution })");
+    expect(page).toMatch(/requireAccountState\(\s*\[\s*"unregistered",\s*"onboarding"\s*\](?:\s*,|\s*\))/);
+    expect(actions).toMatch(
+      /getRegisterOnboardingProfileInteractor\(\)\.invoke\(\s*data,\s*\{\s*adAttribution\s*\}\s*\)/,
+    );
+    expect(page).toContain("resolveOnboardingIntent(");
+    expect(page).toContain("canCreateCompany");
+    expect(registrationBoundary).toContain("onboardingIntentService.resolve(");
+    expect(registrationBoundary).toContain('target = { type: "invitation"');
+    expect(registrationBoundary).toContain('target = { type: "createCompany" }');
     expect(actions).toContain("getCompleteOnboardingWizardInteractor().invoke()");
     expect(actions.match(/serializeResult\(/g)).toHaveLength(2);
     expect(actions).toContain("redirect(result.data.redirectTo)");

@@ -24,7 +24,7 @@ export function accountStateForPath({
   if (!isRegistered) return accountState;
   if (pathname === "/auth/pending") return "pending";
   if (pathname === "/auth/error" && isInactiveError) return "inactive";
-  if (pathname === "/onboarding/wizard" || pathname.startsWith("/onboarding/wizard/")) return "onboarding";
+  if (pathname === "/onboarding" || pathname.startsWith("/onboarding/")) return "onboarding";
   if (pathname === "/legal-update") return "legal";
   if (pathname === "/subscription-expired") return "subscription";
 

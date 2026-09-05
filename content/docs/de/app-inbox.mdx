@@ -40,6 +40,8 @@ Gespeicherte Entwürfe enthalten Nachrichtentext und E-Mail-Empfängerangaben, a
 
 Die aktivierte Signatur wird beim Senden über UI, REST-API oder MCP angehängt; fügen Sie sie nicht in den Entwurfstext ein. E-Mail-Markdown unterstützt grundlegende Formatierung, Links, Listen, Zitate und Trennlinien, nicht beliebiges HTML oder jede Markdown-Erweiterung. API-Clients können `bodyFormat` angeben; explizit übergebenes HTML behält die vom Client bestimmte Gestaltung des Nachrichtentexts.
 
+Der Signaturschalter gehört zum sendenden Konto, nicht zum Übertragungsweg: Wenn Sie ihn ausschalten, entfällt die Signatur beim Senden über UI, REST und MCP; die E-Mail-Darstellung des Kontos bleibt erhalten. Im Composer passt sich der Signaturtext an den hellen oder dunklen App-Modus an. Diese Anzeigeanpassung verändert die ausgehende E-Mail nicht.
+
 ## Thread-Status
 
 Ein Thread ist **unread**, bis ihn jemand öffnet, **open**, solange er Aufmerksamkeit braucht, **closed**, wenn er erledigt ist, und **spam**, um einen Absender aus dem Weg zu halten. Ein Statuswechsel sendet nie etwas an die Gegenseite; er ordnet nur Ihren Posteingang. Die gehostete Mate-Funktion ist freigabegebunden und für diesen Ablauf nicht erforderlich.
