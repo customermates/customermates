@@ -4,9 +4,7 @@ import { useTranslations } from "next-intl";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { EMAIL_LINK_COLOR_PRESETS, emailLinkContrast } from "@/ee/messaging/email-settings";
-import { cn } from "@/core/utils/cn";
+import { DEFAULT_LINK_HEX, emailLinkContrast, isEmailLinkHex } from "@/ee/messaging/email-settings";
 
 type Props = {
   disabled?: boolean;
@@ -17,7 +15,13 @@ type Props = {
 export function EmailLinkColorField({ disabled = false, value, onValueChange }: Props) {
   const t = useTranslations();
   const normalized = value.toLowerCase();
-  const contrast = /^#[0-9a-f]{6}$/.test(normalized) ? emailLinkContrast(normalized) : null;
+  const valid = isEmailLinkHex(value);
+  const contrast = valid ? emailLinkContrast(normalized) : null;
+  const descriptionId = !valid
+    ? "email-linkHex-error"
+    : contrast && !contrast.readable
+      ? "email-linkHex-contrast"
+      : undefined;
 
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
@@ -25,51 +29,39 @@ export function EmailLinkColorField({ disabled = false, value, onValueChange }: 
         {t("ConnectedAccountsCard.emailLinkColour")}
       </Label>
 
-      <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-        {EMAIL_LINK_COLOR_PRESETS.map((preset) => (
-          <Tooltip key={preset}>
-            <TooltipTrigger asChild>
-              <button
-                aria-label={preset}
-                aria-pressed={normalized === preset}
-                className={cn(
-                  "size-6 shrink-0 rounded-md border transition-all",
-                  "focus-visible:ring-ring/50 outline-none focus-visible:ring-[3px]",
-                  normalized === preset ? "border-ring ring-ring/40 ring-2" : "border-border",
-                  disabled ? "pointer-events-none opacity-50" : "hover:scale-110",
-                )}
-                disabled={disabled}
-                style={{ backgroundColor: preset }}
-                type="button"
-                onClick={() => onValueChange(preset)}
-              />
-            </TooltipTrigger>
-
-            <TooltipContent>{preset}</TooltipContent>
-          </Tooltip>
-        ))}
-
+      <div className="flex min-w-0 items-center gap-2">
         <Input
-          className="w-28 shrink-0 font-mono text-xs"
+          aria-describedby={descriptionId}
+          aria-invalid={!valid}
+          autoComplete="off"
+          className="flex-1 font-mono"
           disabled={disabled}
           id="email-linkHex"
           maxLength={7}
+          placeholder={t("ConnectedAccountsCard.emailLinkColourPlaceholder")}
+          spellCheck={false}
           value={value}
           onChange={(event) => onValueChange(event.target.value.trim())}
         />
 
         <input
-          aria-label={t("ConnectedAccountsCard.emailLinkColour")}
-          className="border-border size-8 shrink-0 cursor-pointer rounded-md border bg-transparent p-0.5 disabled:pointer-events-none disabled:opacity-50"
+          aria-label={t("ConnectedAccountsCard.emailLinkColourPicker")}
+          className="border-input bg-input-background focus-visible:ring-ring/50 size-9 shrink-0 cursor-pointer rounded-md border p-1 outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
           disabled={disabled}
           type="color"
-          value={/^#[0-9a-f]{6}$/.test(normalized) ? normalized : "#000000"}
+          value={valid ? normalized : DEFAULT_LINK_HEX}
           onChange={(event) => onValueChange(event.target.value)}
         />
       </div>
 
+      {!valid && (
+        <p aria-live="polite" className="text-destructive text-xs" id="email-linkHex-error">
+          {t("ConnectedAccountsCard.emailLinkColourInvalid")}
+        </p>
+      )}
+
       {contrast && !contrast.readable && (
-        <p aria-live="polite" className="text-warning text-xs">
+        <p aria-live="polite" className="text-warning text-xs" id="email-linkHex-contrast">
           {t("ConnectedAccountsCard.emailLinkColourLowContrast", {
             light: contrast.light.toFixed(1),
             dark: contrast.dark.toFixed(1),

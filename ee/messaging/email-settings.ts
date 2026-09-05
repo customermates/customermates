@@ -26,21 +26,16 @@ export const EMAIL_FONT_STACK: Record<EmailFontFamily, string> = {
 export const SIGNATURE_LOGO_URL = "https://customermates.com/images/email/customermates-icon@2x.png";
 export const DEFAULT_LINK_HEX = "#7161e8";
 
-export const EMAIL_LINK_COLOR_PRESETS = [
-  DEFAULT_LINK_HEX,
-  "#3d7dbf",
-  "#2ba449",
-  "#d27b00",
-  "#d23128",
-  "#6e6e6e",
-] as const;
-
 export const EMAIL_FONT_SIZE_MIN = 10;
 export const EMAIL_FONT_SIZE_MAX = 20;
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 const EXPLICIT_URL_SCHEME = /^[a-z][a-z0-9+.-]*:/i;
 const SAFE_EMAIL_LINK_SCHEME = /^(?:https?:|mailto:|tel:)/i;
+
+export function isEmailLinkHex(value: string): boolean {
+  return HEX_COLOR.test(value);
+}
 
 export function normalizeEmailLinkUrl(value: string): string | null {
   const source = value.trim();

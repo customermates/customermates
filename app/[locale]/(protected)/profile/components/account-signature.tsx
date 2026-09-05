@@ -117,7 +117,7 @@ export function AccountSignature({ account, disabled = false, onDirtyChange, onS
           <p className="text-muted-foreground text-xs">{t("ConnectedAccountsCard.emailAppearanceDescription")}</p>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="flex flex-col gap-3">
           <div className="flex min-w-0 flex-col gap-1.5">
             <Label className="text-subdued text-xs" htmlFor="email-fontFamily">
               {t("ConnectedAccountsCard.emailFontFamily")}
@@ -128,7 +128,7 @@ export function AccountSignature({ account, disabled = false, onDirtyChange, onS
               value={draft.settings.appearance.fontFamily}
               onValueChange={(value) => setAppearance("fontFamily", value as EmailFontFamily)}
             >
-              <SelectTrigger id="email-fontFamily">
+              <SelectTrigger className="w-full" id="email-fontFamily">
                 <SelectValue />
               </SelectTrigger>
 
@@ -165,7 +165,7 @@ export function AccountSignature({ account, disabled = false, onDirtyChange, onS
           </div>
         </div>
 
-        <div className="grid items-end gap-3 sm:grid-cols-[minmax(0,1fr)_11rem]">
+        <div className="flex flex-col gap-3">
           <EmailLinkColorField
             disabled={controlsDisabled}
             value={draft.settings.appearance.linkHex}
@@ -182,7 +182,7 @@ export function AccountSignature({ account, disabled = false, onDirtyChange, onS
               value={draft.settings.appearance.linkStyle}
               onValueChange={(value) => setAppearance("linkStyle", value as EmailLinkStyle)}
             >
-              <SelectTrigger id="email-linkStyle">
+              <SelectTrigger className="w-full" id="email-linkStyle">
                 <SelectValue />
               </SelectTrigger>
 

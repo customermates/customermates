@@ -4,7 +4,6 @@ import type { EmailSettings } from "../../email-settings";
 
 import {
   DEFAULT_LINK_HEX,
-  EMAIL_LINK_COLOR_PRESETS,
   EmailFontFamily,
   EmailLinkStyle,
   EmailSettingsSchema,
@@ -12,6 +11,7 @@ import {
   SignatureTemplate,
   defaultEmailSettings,
   emailLinkContrast,
+  isEmailLinkHex,
   isPublicEmailImageUrl,
   normalizeEmailLinkUrl,
   resolveStoredEmailSettings,
@@ -69,11 +69,30 @@ describe("email settings", () => {
     expect(EmailSettingsSchema.safeParse(missing).success).toBe(true);
   });
 
-  it("ships every link-colour preset above the readability floor", () => {
-    for (const preset of EMAIL_LINK_COLOR_PRESETS) expect(emailLinkContrast(preset).readable).toBe(true);
+  it("keeps contrast advisory without restricting valid custom colours", () => {
     expect(emailLinkContrast("#5e4ae3").readable).toBe(false);
     expect(emailLinkContrast(DEFAULT_LINK_HEX).readable).toBe(true);
+    const custom = settings();
+    custom.appearance.linkHex = "#ffffff";
+    expect(EmailSettingsSchema.safeParse(custom).success).toBe(true);
   });
+
+  it.each(["#abcdef", "#ABCDEF", "#1a2B3c", "#000000", "#ffffff"])("accepts the custom colour %s", (hex) => {
+    const custom = settings();
+    custom.appearance.linkHex = hex;
+    expect(isEmailLinkHex(hex)).toBe(true);
+    expect(EmailSettingsSchema.safeParse(custom).success).toBe(true);
+  });
+
+  it.each(["", "#", "#abc", "abcdef", "#gg0000", "#1234567", " #123456", "red", "#123456;outline:0"])(
+    "rejects malformed custom colour %s in both the control and saved settings",
+    (hex) => {
+      const custom = settings();
+      custom.appearance.linkHex = hex;
+      expect(isEmailLinkHex(hex)).toBe(false);
+      expect(EmailSettingsSchema.safeParse(custom).success).toBe(false);
+    },
+  );
 
   it("converts legacy structured fields into one Markdown signature", () => {
     const result = resolveStoredEmailSettings("VAT **DE123**", {
@@ -173,15 +192,15 @@ describe("renderEmailMarkdown", () => {
 
 describe("renderSignatureFields", () => {
   it.each([
-    [SignatureTemplate.plain, false, null],
-    [SignatureTemplate.stacked, true, "border-top:1px solid"],
-    [SignatureTemplate.sideBySide, true, "border-right:1px solid"],
-  ])("renders the %s layout", (template, hasLogo, divider) => {
+    [SignatureTemplate.plain, false],
+    [SignatureTemplate.stacked, true],
+    [SignatureTemplate.sideBySide, true],
+  ])("renders the %s layout without a fixed divider", (template, hasLogo) => {
     const { html } = rendered(settings({ template }));
 
     expect(html.startsWith('<table role="presentation"')).toBe(true);
     expect(html.includes("<img")).toBe(hasLogo);
-    if (divider) expect(html).toContain(divider);
+    expect(html).not.toMatch(/border-(?:top|right|bottom|left):/);
     expect(html).not.toContain("<style");
   });
 

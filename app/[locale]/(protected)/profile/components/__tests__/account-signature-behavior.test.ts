@@ -57,24 +57,6 @@ vi.mock("@/core/errors/report-application-error", () => ({
   runUserAction: (action: () => unknown) => action(),
 }));
 
-vi.mock("../signature-color-field", () => ({
-  EmailLinkColorField: ({
-    disabled,
-    onValueChange,
-    value,
-  }: {
-    disabled?: boolean;
-    onValueChange: (value: string) => void;
-    value: string;
-  }) =>
-    createElement("input", {
-      disabled,
-      id: "email-linkHex",
-      value,
-      onChange: (event: { currentTarget: { value: string } }) => onValueChange(event.currentTarget.value),
-    }),
-}));
-
 vi.mock("../signature-template-picker", () => ({
   SignatureTemplatePicker: ({
     disabled,
@@ -278,6 +260,46 @@ afterEach(() => {
 });
 
 describe("AccountSignature", () => {
+  it("validates custom hex colours, synchronizes the picker, and saves low-contrast choices", async () => {
+    const onSave = vi.fn(() => Promise.resolve(true));
+    const container = mount(
+      createElement(AccountSignature, { account: emailAccount(), onDirtyChange: vi.fn(), onSave }),
+    );
+    const hex = requiredElement(container.querySelector<HTMLInputElement>("#email-linkHex"));
+    const picker = requiredElement(container.querySelector<HTMLInputElement>('input[type="color"]'));
+
+    expect(container.querySelector("button[aria-pressed]")).toBeNull();
+    expect(picker.getAttribute("aria-label")).toBe("ConnectedAccountsCard.emailLinkColourPicker");
+
+    for (const invalid of ["", "#abc", "123456", "#gg0000"]) {
+      setValue(hex, invalid);
+      expect(hex.getAttribute("aria-invalid")).toBe("true");
+      expect(hex.getAttribute("aria-describedby")).toBe("email-linkHex-error");
+      expect(container.querySelector("#email-linkHex-error")?.textContent).toBe(
+        "ConnectedAccountsCard.emailLinkColourInvalid",
+      );
+      expect(saveButton(container).disabled).toBe(true);
+    }
+
+    setValue(hex, "#Ab12Cd");
+    expect(hex.getAttribute("aria-invalid")).toBe("false");
+    expect(container.querySelector("#email-linkHex-error")).toBeNull();
+    expect(picker.value).toBe("#ab12cd");
+    expect(saveButton(container).disabled).toBe(false);
+
+    setValue(picker, "#ffffff");
+    expect(hex.value).toBe("#ffffff");
+    expect(hex.getAttribute("aria-describedby")).toBe("email-linkHex-contrast");
+    expect(container.querySelector("#email-linkHex-contrast")).not.toBeNull();
+    expect(saveButton(container).disabled).toBe(false);
+
+    await click(saveButton(container));
+    expect(onSave).toHaveBeenCalledWith(
+      "",
+      expect.objectContaining({ appearance: expect.objectContaining({ linkHex: "#ffffff" }) }),
+    );
+  });
+
   it("locks settings while a save is in flight", async () => {
     let finishSave: ((saved: boolean) => void) | undefined;
     const onSave = vi.fn(

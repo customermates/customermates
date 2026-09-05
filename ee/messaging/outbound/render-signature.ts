@@ -138,9 +138,9 @@ export function renderSignatureFields(
   const body = rendered.html;
   const rows =
     showLogo && definition.logoPosition === "beside"
-      ? `<tr>${logoCell(settings, definition, `padding:0 14px 0 0;border-right:1px solid ${DIVIDER_COLOR};`)}${body ? `<td valign="top" style="${textCellStyle}padding:0 0 0 14px;">${body}</td>` : ""}</tr>`
+      ? `<tr>${logoCell(settings, definition, "padding:0 16px 0 0;")}${body ? `<td valign="top" style="${textCellStyle}">${body}</td>` : ""}</tr>`
       : showLogo
-        ? `<tr>${logoCell(settings, definition, "padding:0 0 10px 0;")}</tr>${body ? `<tr><td valign="top" style="${textCellStyle}border-top:1px solid ${DIVIDER_COLOR};padding:10px 0 0 0;">${body}</td></tr>` : ""}`
+        ? `<tr>${logoCell(settings, definition, "padding:0 0 12px 0;")}</tr>${body ? `<tr><td valign="top" style="${textCellStyle}">${body}</td></tr>` : ""}`
         : `<tr><td valign="top" style="${textCellStyle}">${body}</td></tr>`;
 
   const html = `<table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;max-width:${definition.maxWidthPx}px;">${rows}</table>`;

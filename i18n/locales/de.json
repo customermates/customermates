@@ -1473,7 +1473,10 @@
     "emailFontFamily": "Schriftart",
     "emailFontSize": "Schriftgrösse",
     "emailLinkColour": "Linkfarbe",
+    "emailLinkColourInvalid": "Gib # gefolgt von 6 Hexadezimalzeichen (0–9, A–F) ein, zum Beispiel #1A2B3C.",
     "emailLinkColourLowContrast": "Geringer Kontrast: {light}:1 auf Hell, {dark}:1 auf Dunkel. Manche Empfänger können das kaum lesen.",
+    "emailLinkColourPicker": "Linkfarbe auswählen",
+    "emailLinkColourPlaceholder": "#RRGGBB",
     "emailLinkStyle": "Linkstil",
     "emailLinkStyles": {
       "plain": "Nicht unterstrichen",

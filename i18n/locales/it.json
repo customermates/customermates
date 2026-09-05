@@ -1473,7 +1473,10 @@
     "emailFontFamily": "Carattere",
     "emailFontSize": "Dimensione del carattere",
     "emailLinkColour": "Colore dei link",
+    "emailLinkColourInvalid": "Inserisci # seguito da 6 caratteri esadecimali (0–9, A–F), ad esempio #1A2B3C.",
     "emailLinkColourLowContrast": "Contrasto basso: {light}:1 su chiaro, {dark}:1 su scuro. Alcuni destinatari faranno fatica a leggerlo.",
+    "emailLinkColourPicker": "Scegli il colore dei link",
+    "emailLinkColourPlaceholder": "#RRGGBB",
     "emailLinkStyle": "Stile dei link",
     "emailLinkStyles": {
       "plain": "Senza sottolineatura",
