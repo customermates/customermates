@@ -4,11 +4,12 @@ import { z } from "zod";
 
 import { AuthError, ForbiddenError } from "@/core/errors/app-errors";
 
-const interactors = vi.hoisted(() => ({ send: vi.fn(), save: vi.fn(), discard: vi.fn() }));
+const interactors = vi.hoisted(() => ({ send: vi.fn(), save: vi.fn(), reply: vi.fn(), discard: vi.fn() }));
 
 vi.mock("@/core/di", () => ({
   getSendEmailInteractor: () => ({ invoke: interactors.send }),
-  getSaveDraftInteractor: () => ({ invoke: interactors.save }),
+  getSaveNewThreadDraftInteractor: () => ({ invoke: interactors.save }),
+  getSaveReplyDraftInteractor: () => ({ invoke: interactors.reply }),
   getDiscardDraftInteractor: () => ({ invoke: interactors.discard }),
 }));
 
@@ -58,6 +59,7 @@ beforeEach(() => {
   vi.resetAllMocks();
   interactors.send.mockResolvedValue({ ok: true, data: { id: "sent-message", messagingThreadId: THREAD_ID } });
   interactors.save.mockResolvedValue({ ok: true, data: draftDto });
+  interactors.reply.mockResolvedValue({ ok: true, data: draftDto });
   interactors.discard.mockResolvedValue({ ok: true, data: { threadId: THREAD_ID } });
 });
 
@@ -99,30 +101,42 @@ describe("messaging REST draft/send adapters", () => {
       params: Promise.resolve({ id: THREAD_ID }),
     });
 
-    expect(interactors.save).toHaveBeenCalledExactlyOnceWith({ ...replyDraft, threadId: THREAD_ID });
+    expect(interactors.reply).toHaveBeenCalledExactlyOnceWith({ threadId: THREAD_ID, draft: replyDraft });
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual(draftDto);
     expect(interactors.send).not.toHaveBeenCalled();
   });
 
   it.each([{ threadId: THREAD_ID }, { connectedAccountId: ACCOUNT_ID }, { recipients: ["other@example.com"] }])(
-    "rejects target overrides in the reply-draft body: %j",
+    "leaves reply target-override validation to the interactor: %j",
     async (override) => {
+      interactors.reply.mockResolvedValue({
+        ok: false,
+        error: new z.ZodError([{ code: "custom", path: ["draft"], message: "Invalid reply target" }]),
+      });
       const response = await saveReplyDraft(request(`threads/${THREAD_ID}/drafts`, { ...replyDraft, ...override }), {
         params: Promise.resolve({ id: THREAD_ID }),
       });
 
       expect(response.status).toBe(400);
+      expect(interactors.reply).toHaveBeenCalledExactlyOnceWith({
+        threadId: THREAD_ID,
+        draft: { ...replyDraft, ...override },
+      });
       expect(interactors.save).not.toHaveBeenCalled();
     },
   );
 
   it.each([{ ...newDraft, recipients: [] }, { ...newDraft, threadId: THREAD_ID }, { body: BODY }])(
-    "rejects malformed cold-draft targets before invoking the interactor: %j",
+    "forwards malformed cold-draft targets to the interactor for validation: %j",
     async (body) => {
+      interactors.save.mockResolvedValue({
+        ok: false,
+        error: new z.ZodError([{ code: "custom", path: [], message: "Invalid new-draft target" }]),
+      });
       const response = await saveNewDraft(request("drafts", body));
       expect(response.status).toBe(400);
-      expect(interactors.save).not.toHaveBeenCalled();
+      expect(interactors.save).toHaveBeenCalledExactlyOnceWith(body);
     },
   );
 
@@ -164,7 +178,7 @@ const routes = [
       saveReplyDraft(request(`threads/${THREAD_ID}/drafts`, replyDraft), {
         params: Promise.resolve({ id: THREAD_ID }),
       }),
-    spy: interactors.save,
+    spy: interactors.reply,
   },
   {
     name: "discard draft",

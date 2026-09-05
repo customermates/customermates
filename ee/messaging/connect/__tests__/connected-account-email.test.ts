@@ -2,7 +2,7 @@ import type { ConnectedAccountRecord } from "../../messaging.schema";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createMockUser } from "@/tests/helpers/mock-user";
+import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
 import {
   MOCK_ENV_MODULE,
@@ -11,7 +11,7 @@ import {
   createMockDiModule,
 } from "@/tests/helpers/interactor-test-setup";
 
-const mockUser = createMockUser();
+let mockUser = createMockUser();
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
@@ -20,8 +20,11 @@ vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 import { defaultEmailSettings } from "../../email-settings";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { GetMyConnectedAccountsInteractor } from "../get-my-connected-accounts.interactor";
+import { GetMyConnectedAccountsApiInteractor } from "../get-my-connected-accounts-api.interactor";
 import { SetConnectedAccountSignatureInteractor } from "../set-connected-account-signature.interactor";
 import { toConnectedAccountDto } from "../connected-account-dto";
+import { ForbiddenError } from "@/core/errors/app-errors";
+import { Action, Resource } from "@/generated/prisma";
 
 function account(isOwner = true): ConnectedAccountRecord {
   return {
@@ -53,7 +56,50 @@ function account(isOwner = true): ConnectedAccountRecord {
 }
 
 describe("connected-account email presentation at the interactor boundary", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUser = createMockUser();
+  });
+
+  it.each([true, false])(
+    "validates the public account output without exposing email presentation (owner=%s)",
+    async (isOwner) => {
+      const record = account(isOwner);
+      const result = await new GetMyConnectedAccountsApiInteractor({
+        listAccounts: vi.fn().mockResolvedValue([{ ...record, signatureHtml: "private HTML" }]),
+      }).invoke();
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0]).toMatchObject({ id: record.id, emailAddress: record.emailAddress, isOwner });
+      for (const key of ["signature", "signatureFields", "signatureHtml", "emailSettings"])
+        expect(result.data[0]).not.toHaveProperty(key);
+
+      expect(record.signature).toBe("**Saved footer**");
+    },
+  );
+
+  it("rejects malformed public DTO data at the interactor output boundary", async () => {
+    const interactor = new GetMyConnectedAccountsApiInteractor({
+      listAccounts: vi.fn().mockResolvedValue([{ ...account(), id: "invalid-id" }]),
+    });
+    await expect(interactor.invoke()).rejects.toMatchObject({ name: "ZodError" });
+  });
+
+  it.each([Action.readOwn, Action.readAll])("allows the public list with %s permission", async (action) => {
+    mockUser = createMockUserWithPermissions([{ resource: Resource.inboxMessages, action }]);
+    const repo = { listAccounts: vi.fn().mockResolvedValue([account()]) };
+    const result = await new GetMyConnectedAccountsApiInteractor(repo).invoke();
+    expect(result.ok).toBe(true);
+    expect(repo.listAccounts).toHaveBeenCalledOnce();
+  });
+
+  it("checks list permission before reading public account records", async () => {
+    mockUser = createMockUserWithPermissions([]);
+    const repo = { listAccounts: vi.fn() };
+    await expect(new GetMyConnectedAccountsApiInteractor(repo).invoke()).rejects.toBeInstanceOf(ForbiddenError);
+    expect(repo.listAccounts).not.toHaveBeenCalled();
+  });
 
   it("keeps the owner's disabled content editable without rendering or leaking it to shared users", () => {
     expect(toConnectedAccountDto(account())).toMatchObject({

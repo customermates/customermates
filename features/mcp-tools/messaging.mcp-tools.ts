@@ -27,7 +27,6 @@ import { BaseSendChatMessageSchema } from "@/ee/messaging/outbound/send-chat-mes
 import { BaseStartChatInputSchema, StartChatInputSchema } from "@/ee/messaging/outbound/start-chat.interactor";
 import { SaveDraftSchema } from "@/ee/messaging/outbound/save-draft.interactor";
 import { DiscardDraftSchema } from "@/ee/messaging/outbound/discard-draft.interactor";
-import { hasCompleteDraftBinding } from "@/ee/messaging/draft-thread";
 import type { ThreadFolderContext } from "@/ee/messaging/inbox/get-messaging-thread.interactor";
 
 import { UpdateThreadSchema } from "@/ee/messaging/thread-state/update-thread.interactor";
@@ -427,16 +426,7 @@ const SendChatMessageToolSchema = BaseSendChatMessageSchema.omit({
       connectedAccountId: true,
       attendeeIdentifiers: true,
     }).shape,
-  )
-  .superRefine((data, ctx) => {
-    if (!hasCompleteDraftBinding(data)) {
-      ctx.addIssue({
-        code: "custom",
-        params: { error: CustomErrorCode.draftMessageNotFound },
-        path: [data.draftMessageId ? "draftRevision" : "draftMessageId"],
-      });
-    }
-  });
+  );
 
 export const sendChatMessageTool = {
   name: "send_chat_message",
