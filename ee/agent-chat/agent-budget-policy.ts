@@ -91,3 +91,16 @@ export function resolveAgentToolResultMaxChars(configured: number) {
   if (!Number.isFinite(configured) || configured <= 0) return 1;
   return Math.min(Math.floor(configured), AGENT_MAX_TOOL_RESULT_CHARS);
 }
+
+export const AGENT_TOOL_RESULT_TRUNCATED_MARK = "[truncated:";
+
+function truncationNotice(kept: number, total: number) {
+  return `\n${AGENT_TOOL_RESULT_TRUNCATED_MARK} first ${kept} of ${total} characters. The rest was not read: report partial data and re-run with fewer ids, a smaller pageSize, or a narrower filter.]`;
+}
+
+export function agentToolResultText(result: string, maxChars: number) {
+  if (result.length <= maxChars) return result;
+  const budget = maxChars - truncationNotice(maxChars, result.length).length;
+  if (budget < 1) return result.slice(0, maxChars);
+  return `${result.slice(0, budget)}${truncationNotice(budget, result.length)}`;
+}

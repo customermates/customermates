@@ -11,6 +11,7 @@ import {
 import { RequestSupportSchema } from "@/features/mcp-tools/support.mcp-tools";
 import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 
+import { agentToolResultText } from "./agent-budget-policy";
 import { isReadOnlyTool, requiresApproval } from "./gated-tools";
 import { toAgentUiCommandInput } from "./agent-ui-command";
 import { type AgentToolCancellation as AgentToolCancellationValue } from "./agent-tool-cancellation";
@@ -98,7 +99,7 @@ async function runGated<T>(
 }
 
 function agentToolResult(outcome: McpToolExecutionResult, maxChars: number) {
-  return { ok: outcome.ok, result: outcome.result.slice(0, maxChars) };
+  return { ok: outcome.ok, result: agentToolResultText(outcome.result, maxChars) };
 }
 
 async function runSafely<T>(
@@ -239,7 +240,7 @@ function panelInput(toolName: string, input: unknown): Record<string, unknown> {
 function uiTools(deps: AgentToolDeps): ToolSet {
   const runUiCommand = async (toolCallId: string, name: string, input: Record<string, unknown>) => {
     const outcome = await deps.runUiCommand(toolCallId, name, input);
-    return { ...outcome, result: outcome.result.slice(0, deps.resultMaxChars) };
+    return { ...outcome, result: agentToolResultText(outcome.result, deps.resultMaxChars) };
   };
 
   return {
@@ -368,7 +369,7 @@ export async function normalizeAgentAiToolInput(
     ok: false,
     result:
       result.error instanceof z.ZodError
-        ? validationError(result.error).slice(0, maxChars)
+        ? agentToolResultText(validationError(result.error), maxChars)
         : "The tool input does not match its required schema.",
   };
 }

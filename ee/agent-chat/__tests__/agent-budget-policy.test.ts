@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   AGENT_RESERVATION_ROUNDS_AHEAD,
+  AGENT_TOOL_RESULT_TRUNCATED_MARK,
   agentContextTokensToBytes,
+  agentToolResultText,
   agentRoundWorstCaseCredits,
   isAgentContextWithinBudget,
   resolveAgentTurnBudget,
@@ -118,5 +120,30 @@ describe("agent turn credit budget", () => {
     );
     expect(isAgentStepContextWithinBudget(providerContext, stepMessages, maxContextBytes)).toBe(false);
     expect(isAgentStepContextWithinBudget(providerContext, providerContext.messages, maxContextBytes)).toBe(true);
+  });
+});
+
+describe("tool result truncation is never silent", () => {
+  it("marks a cut result so the model cannot mistake it for the whole answer", () => {
+    const full = "record ".repeat(2_000);
+    const cut = agentToolResultText(full, 512);
+    expect(cut.length).toBeLessThanOrEqual(512);
+    expect(cut).toContain(AGENT_TOOL_RESULT_TRUNCATED_MARK);
+    expect(cut).toContain(`of ${full.length} characters`);
+  });
+
+  it("leaves a result that fits completely untouched", () => {
+    expect(agentToolResultText("23 open deals", 512)).toBe("23 open deals");
+  });
+
+  it("never exceeds the cap, including at the degenerate single-character budget", () => {
+    for (const cap of [1, 2, 40, 120, 511, 512, 6_000])
+      expect(agentToolResultText("y".repeat(50_000), cap).length, `cap ${cap}`).toBeLessThanOrEqual(cap);
+  });
+
+  it("tells the model how to recover rather than only that it failed", () => {
+    const cut = agentToolResultText("z".repeat(10_000), 600);
+    expect(cut).toMatch(/report partial data/);
+    expect(cut).toMatch(/fewer ids, a smaller pageSize, or a narrower filter/);
   });
 });

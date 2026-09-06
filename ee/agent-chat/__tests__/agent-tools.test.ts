@@ -35,7 +35,11 @@ vi.mock("next-intl/server", () => ({
 import { searchDocsTool } from "@/features/mcp-tools/docs.mcp-tools";
 import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
 
-import { agentContextTokensToBytes, resolveAgentTurnBudget } from "../agent-budget-policy";
+import {
+  AGENT_TOOL_RESULT_TRUNCATED_MARK,
+  agentContextTokensToBytes,
+  resolveAgentTurnBudget,
+} from "../agent-budget-policy";
 import { conservativeAgentInitialContextBytes } from "../agent-provider-context";
 import { MODEL_CATALOG } from "../model-catalog";
 import { buildAgentSystemPrompt } from "../system-prompt";
@@ -398,14 +402,15 @@ describe("agent tools", () => {
     expect(runUiCommand).toHaveBeenCalledWith("call-1", name, input);
   });
 
-  it("caps browser command results to the admitted per-tool context budget", async () => {
+  it("caps browser command results to the admitted per-tool context budget and says it truncated", async () => {
     const runUiCommand = vi.fn().mockResolvedValue({ ok: true, result: "x".repeat(1000) });
     const tools = getAgentAiTools(deps({ runUiCommand, resultMaxChars: 512 }));
 
-    await expect(execute(tools.navigate, { targetId: "nav-contacts" })).resolves.toEqual({
-      ok: true,
-      result: "x".repeat(512),
-    });
+    const outcome = (await execute(tools.navigate, { targetId: "nav-contacts" })) as { ok: boolean; result: string };
+    expect(outcome.ok).toBe(true);
+    expect(outcome.result.length).toBeLessThanOrEqual(512);
+    expect(outcome.result).toContain(AGENT_TOOL_RESULT_TRUNCATED_MARK);
+    expect(outcome.result).toContain("of 1000 characters");
   });
 
   it("preserves Zod defaults while sending a provider-safe JSON schema", async () => {
@@ -688,8 +693,14 @@ describe("agent tools", () => {
       ok: true,
       result: "done",
     });
-    const failed = await execute(tools.search_docs, { query: "contacts", locale: "en", source: "docs" });
-    expect(failed).toEqual({ ok: false, result: "x".repeat(512) });
+
+    const failed = (await execute(tools.search_docs, { query: "contacts", locale: "en", source: "docs" })) as {
+      ok: boolean;
+      result: string;
+    };
+    expect(failed.ok).toBe(false);
+    expect(failed.result.length).toBeLessThanOrEqual(512);
+    expect(failed.result).toContain(AGENT_TOOL_RESULT_TRUNCATED_MARK);
     expect(JSON.stringify(failed).length).toBeLessThan(600);
   });
 
