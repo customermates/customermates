@@ -2,10 +2,16 @@ import { z } from "zod";
 import { asSchema, tool, jsonSchema, type ToolSet } from "ai";
 
 import { ALL_MCP_TOOLS, MCP_TOOL_GROUPS } from "@/features/mcp-tools/tool-registry";
-import { executeMcpTool, expectedMcpToolFailure, type McpToolExecutionResult } from "@/features/mcp-tools/mcp-tool";
+import {
+  executeMcpTool,
+  expectedMcpToolFailure,
+  validationError,
+  type McpToolExecutionResult,
+} from "@/features/mcp-tools/mcp-tool";
 import { RequestSupportSchema } from "@/features/mcp-tools/support.mcp-tools";
 import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 
+import { agentToolResultText } from "./agent-budget-policy";
 import { isReadOnlyTool, requiresApproval } from "./gated-tools";
 import { toAgentUiCommandInput } from "./agent-ui-command";
 import { type AgentToolCancellation as AgentToolCancellationValue } from "./agent-tool-cancellation";
@@ -20,6 +26,8 @@ import { AgentTourSchema } from "./agent-tours";
 import { OpenRecordSchema } from "./ui-operations";
 import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
 import { internalToolIdentity } from "./tool-identity";
+import { providerWireInputSchema } from "./provider-safe-json-schema";
+import type { AgentToolInputResult } from "./agent-tool-input";
 
 export { isAgentToolCancellation, type AgentToolCancellation } from "./agent-tool-cancellation";
 
@@ -91,7 +99,7 @@ async function runGated<T>(
 }
 
 function agentToolResult(outcome: McpToolExecutionResult, maxChars: number) {
-  return { ok: outcome.ok, result: outcome.result.slice(0, maxChars) };
+  return { ok: outcome.ok, result: agentToolResultText(outcome.result, maxChars) };
 }
 
 async function runSafely<T>(
@@ -232,7 +240,7 @@ function panelInput(toolName: string, input: unknown): Record<string, unknown> {
 function uiTools(deps: AgentToolDeps): ToolSet {
   const runUiCommand = async (toolCallId: string, name: string, input: Record<string, unknown>) => {
     const outcome = await deps.runUiCommand(toolCallId, name, input);
-    return { ...outcome, result: outcome.result.slice(0, deps.resultMaxChars) };
+    return { ...outcome, result: agentToolResultText(outcome.result, deps.resultMaxChars) };
   };
 
   return {
@@ -318,12 +326,15 @@ export type AgentAiToolDefinition = {
   inputSchema: unknown;
 };
 
-export function describeAgentAiTools(tools: ToolSet): AgentAiToolDefinition[] {
+export function describeAgentAiTools(tools: ToolSet, servingProvider?: string): AgentAiToolDefinition[] {
   return Object.entries(tools).map(([name, agentTool]) => ({
     name,
     description:
       "description" in agentTool && typeof agentTool.description === "string" ? agentTool.description : undefined,
-    inputSchema: "inputSchema" in agentTool ? asSchema(agentTool.inputSchema).jsonSchema : undefined,
+    inputSchema:
+      "inputSchema" in agentTool
+        ? providerWireInputSchema(asSchema(agentTool.inputSchema).jsonSchema, servingProvider)
+        : undefined,
   }));
 }
 
@@ -337,6 +348,28 @@ const TOOL_DEFINITION_DEPS: AgentToolDeps = {
   resultMaxChars: 1,
 };
 
-export function getAgentAiToolDefinitions(): AgentAiToolDefinition[] {
-  return describeAgentAiTools(getAgentAiTools(TOOL_DEFINITION_DEPS));
+export function getAgentAiToolDefinitions(servingProvider?: string): AgentAiToolDefinition[] {
+  return describeAgentAiTools(getAgentAiTools(TOOL_DEFINITION_DEPS), servingProvider);
+}
+
+export async function normalizeAgentAiToolInput(
+  toolName: string,
+  input: unknown,
+  maxChars: number,
+): Promise<AgentToolInputResult> {
+  const tools = getAgentAiTools(TOOL_DEFINITION_DEPS);
+  if (!Object.hasOwn(tools, toolName)) return { ok: false, result: "The requested tool is not available." };
+  const agentTool = tools[toolName];
+  const schema = asSchema(agentTool.inputSchema);
+  if (!schema.validate) throw new Error("The agent tool has no authoritative input validator.");
+  const result = await schema.validate(input);
+  if (result.success) return { ok: true, input: result.value };
+
+  return {
+    ok: false,
+    result:
+      result.error instanceof z.ZodError
+        ? agentToolResultText(validationError(result.error), maxChars)
+        : "The tool input does not match its required schema.",
+  };
 }

@@ -13,6 +13,7 @@ import { createHook, getWritable, sleep } from "workflow";
 import { isStepCount, jsonSchema } from "ai";
 
 import { AgentTurnTranscript } from "@/ee/agent-chat/agent-turn-transcript";
+import { approvalWindowMsForSurface, isUnattendedSurface } from "@/ee/agent-chat/agent-surface-policy";
 import { isAgentTurnTerminalError } from "@/ee/agent-chat/agent-turn-request";
 import {
   agentApprovalHookToken,
@@ -35,7 +36,11 @@ import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
 import { agentCreditsForStartedProviderCost } from "@/ee/agent-chat/agent-credit-policy";
 import { createAgentSupportTicket } from "@/ee/agent-chat/agent-support-ticket";
 import { describeAgentTool } from "@/ee/agent-chat/agent-activity";
-import { agentToolOutcomeStatus, AGENT_TRANSCRIPT_FORWARDED_EVENTS } from "@/ee/agent-chat/agent-durable-stream";
+import {
+  agentToolOutcomeStatus,
+  unwrapToolOutput,
+  AGENT_TRANSCRIPT_FORWARDED_EVENTS,
+} from "@/ee/agent-chat/agent-durable-stream";
 import {
   agentContinuationLimits,
   toAgentContinuationStep,
@@ -50,17 +55,19 @@ import { isAgentStepContextWithinBudget } from "@/ee/agent-chat/agent-provider-c
 import { getAgentChatRepo } from "@/core/di";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
-import { requiresApproval } from "@/ee/agent-chat/gated-tools";
+import { isReadOnlyTool, requiresApproval } from "@/ee/agent-chat/gated-tools";
+import { isAgentToolCancellation } from "@/ee/agent-chat/agent-tool-cancellation";
+import { createAgentToolInputResolver, type AgentToolInputResult } from "@/ee/agent-chat/agent-tool-input";
 import { resolveAgentApprovalContext } from "@/ee/agent-chat/agent-external-approval-context";
 import { resolveAgentToolResultMaxChars } from "@/ee/agent-chat/agent-budget-policy";
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
+import { runInRoutineContext } from "@/core/decorators/routine-context";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 
 import { reportFailure, toWorkflowFailure, type WorkflowFailure } from "./capture-failure";
 
 const WORKFLOW_NAME = "agent-turn";
 
-export const AGENT_APPROVAL_WINDOW_MS = 30 * 60 * 1000;
 export const AGENT_UI_COMMAND_WINDOW_MS = 30 * 1000;
 export const AGENT_SEGMENT_ROUNDS = 32;
 
@@ -76,7 +83,10 @@ export type AgentTurnWorkflowPayload = {
   messages: ReplayMessage[];
   turnBudget: AgentTurnBudget;
   tenant: WorkflowTenant;
+  surface?: AgentTurnSurface;
 };
+
+export type AgentTurnSurface = "chat" | "routine";
 
 type AgentToolShell = {
   name: string;
@@ -132,7 +142,10 @@ function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprov
 
   return {
     resultMaxChars: resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars),
-    runInCallerContext: (run) => runAsBackgroundTenant(payload.userId, run),
+    runInCallerContext: (run) =>
+      runAsBackgroundTenant(payload.userId, () =>
+        runInRoutineContext(payload.surface === "routine" ? { causationDepth: 1 } : null, run),
+      ),
     resolveApprovalContext: resolveAgentApprovalContext,
     requestApproval: () => Promise.resolve(toolApprovalDecisionForGrant(grant)),
     runUiCommand: () =>
@@ -191,19 +204,24 @@ async function canStartNextHostedAiProviderRound(payload: AgentTurnWorkflowPaylo
 }
 canStartNextHostedAiProviderRound.maxRetries = 0;
 
-async function loadAgentToolShells(): Promise<AgentToolShell[]> {
+async function loadAgentToolShells(surface: AgentTurnSurface, servingProvider: string): Promise<AgentToolShell[]> {
   "use step";
   const { getAgentAiToolDefinitions } = await import("@/ee/agent-chat/agent-tools");
   const { ALL_MCP_TOOLS } = await import("@/features/mcp-tools/tool-registry");
+  const { AGENT_UI_TOOL_NAMES } = await import("@/ee/agent-chat/agent-ui-command");
   const gatedByName = new Map(ALL_MCP_TOOLS.map((mcp) => [mcp.name, mcp.annotations]));
+  const unattended = isUnattendedSurface(surface);
+  const panelToolNames = new Set<string>(AGENT_UI_TOOL_NAMES);
 
-  return getAgentAiToolDefinitions().map((definition) => ({
-    name: definition.name,
-    description: definition.description,
-    inputSchema: definition.inputSchema,
-    annotations: gatedByName.get(definition.name),
-    gated: gatedByName.has(definition.name),
-  }));
+  return getAgentAiToolDefinitions(servingProvider)
+    .filter((definition) => !unattended || !panelToolNames.has(definition.name))
+    .map((definition) => ({
+      name: definition.name,
+      description: definition.description,
+      inputSchema: definition.inputSchema,
+      annotations: gatedByName.get(definition.name),
+      gated: gatedByName.has(definition.name),
+    }));
 }
 
 async function executeAgentTool(
@@ -227,6 +245,19 @@ async function executeAgentTool(
   return execute(input, { toolCallId, messages: [] });
 }
 executeAgentTool.maxRetries = 0;
+
+async function normalizeAgentToolInput(
+  payload: AgentTurnWorkflowPayload,
+  toolName: string,
+  input: unknown,
+): Promise<AgentToolInputResult> {
+  "use step";
+  const { normalizeAgentAiToolInput } = await import("@/ee/agent-chat/agent-tools");
+  return runAsBackgroundTenant(payload.userId, () =>
+    normalizeAgentAiToolInput(toolName, input, resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars)),
+  );
+}
+normalizeAgentToolInput.maxRetries = 0;
 
 async function publishTranscriptEvents(events: AgentTranscriptEvent[]): Promise<void> {
   "use step";
@@ -343,9 +374,18 @@ async function ensureTurnReservation(
   );
 }
 
+function isSuccessfulToolOutcome(outcome: unknown): boolean {
+  if (typeof outcome !== "object" || outcome === null) return false;
+  const record = outcome as Record<string, unknown>;
+  if (record.ok === false) return false;
+  return !isAgentToolCancellation(outcome);
+}
+
 type AgentRunnerMessageKind =
   | "safetyLimit"
+  | "safetyLimitNoWrite"
   | "creditLimit"
+  | "creditLimitNoWrite"
   | "hostedAiUnavailable"
   | "outputLimit"
   | "turnError"
@@ -358,6 +398,8 @@ async function resolveRunnerMessage(locale: string, kind: AgentRunnerMessageKind
   const t = await getTranslator(appLocaleOrDefault(locale));
 
   if (kind === "creditLimit") return t("AgentChat.runner.creditLimit");
+  if (kind === "creditLimitNoWrite") return t("AgentChat.runner.creditLimitNoWrite");
+  if (kind === "safetyLimitNoWrite") return t("AgentChat.runner.safetyLimitNoWrite");
   if (kind === "hostedAiUnavailable") return t("AgentChat.runner.hostedAiUnavailable");
   if (kind === "outputLimit") return t("AgentChat.runner.outputLimit");
   if (kind === "turnError") return t("AgentChat.runner.turnError");
@@ -513,6 +555,17 @@ async function closeTurnStreamAfterFailure(): Promise<void> {
 }
 closeTurnStreamAfterFailure.maxRetries = 0;
 
+async function reconcileFailedTurn(payload: AgentTurnWorkflowPayload): Promise<void> {
+  "use step";
+  await getAgentChatRepo().reconcileInterruptedAgentTurnUnscoped({
+    turnRequestId: payload.turnRequestId,
+    conversationId: payload.conversationId,
+    companyId: payload.companyId,
+    userId: payload.userId,
+    runId: payload.runId,
+  });
+}
+
 async function finalizeTurn(
   payload: AgentTurnWorkflowPayload,
   outcome: {
@@ -609,7 +662,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       await closeTurnStream();
       return;
     }
-    const shells = await loadAgentToolShells();
+    const surface: AgentTurnSurface = payload.surface ?? "chat";
+    const approvalWindowMs = approvalWindowMsForSurface(surface);
+    const shells = await loadAgentToolShells(surface, payload.turnBudget.servingProvider);
     const writable = getWritable();
 
     const queued: AgentTranscriptEvent[] = [];
@@ -621,6 +676,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       userName: payload.userName,
       appBaseUrl: payload.appBaseUrl,
       locale: payload.locale,
+      surface,
     });
     const providerContext = buildAgentProviderContext(systemPrompt, payload.messages, []);
 
@@ -631,7 +687,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let finishReason = "unknown";
     const ledger: RoundLedgerEntry[] = [];
     const grants = new Map<string, ToolApprovalGrant>();
+    const resolveToolInput = createAgentToolInputResolver((toolName, input) =>
+      normalizeAgentToolInput(payload, toolName, input),
+    );
     const completedTools: ({ toolCallId: string; toolName: string } & ({ output: unknown } | { threw: true }))[] = [];
+    let performedWrite = false;
 
     const continuationSteps: AgentContinuationStep[] = [];
     let deferredRound: {
@@ -662,6 +722,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       const pending = deferredRound;
       deferredRound = null;
       recordContinuationRound(pending.step, [...pending.outcomes, ...resumed]);
+    };
+
+    const appendDeferredOutcomes = (outcomes: readonly AgentToolOutcome[]) => {
+      if (deferredRound) deferredRound.outcomes.push(...outcomes);
     };
 
     const settleToolOutcome = (toolCallId: string, toolName: string | undefined, output: unknown) => {
@@ -778,28 +842,42 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             {
               description: shell.description,
               inputSchema: jsonSchema(shell.inputSchema as never),
-              needsApproval: shell.gated
-                ? (input: unknown) =>
-                    requiresApproval(internalToolIdentity(shell.name), { annotations: shell.annotations }, input)
-                : false,
+              needsApproval: async (input: unknown, options: { toolCallId: string }) => {
+                const prepared = await resolveToolInput(shell.name, options.toolCallId, input);
+                return (
+                  prepared.ok &&
+                  shell.gated &&
+                  requiresApproval(internalToolIdentity(shell.name), { annotations: shell.annotations }, prepared.input)
+                );
+              },
               ...(isAgentPanelTool(shell.name)
                 ? {}
                 : {
-                    execute: (input: unknown, options: { toolCallId: string }) =>
-                      executeAgentTool(
+                    execute: async (input: unknown, options: { toolCallId: string }) => {
+                      const prepared = await resolveToolInput(shell.name, options.toolCallId, input);
+                      if (!prepared.ok) return prepared;
+                      const outcome = await executeAgentTool(
                         payload,
                         shell.name,
                         options.toolCallId,
-                        input,
+                        prepared.input,
                         grants.get(options.toolCallId) ?? "not-required",
-                      ),
+                      );
+                      if (!isReadOnlyTool({ annotations: shell.annotations }) && isSuccessfulToolOutcome(outcome))
+                        performedWrite = true;
+                      return outcome;
+                    },
                   }),
             },
           ]),
         ),
         maxOutputTokens: payload.turnBudget.maxOutputTokens,
         providerOptions: {
-          gateway: { only: [payload.turnBudget.servingProvider] },
+          gateway: {
+            only: [payload.turnBudget.servingProvider],
+            zeroDataRetention: true,
+            disallowPromptTraining: true,
+          },
           openai: { parallelToolCalls: false },
         },
         prepareStep: async () => {
@@ -847,14 +925,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         if (message.role !== "tool" || typeof message.content === "string") continue;
         for (const part of message.content) {
           if (part.type !== "tool-result") continue;
-          const output = part.output as { value?: unknown } | undefined;
-          settleToolOutcome(part.toolCallId, part.toolName, output && "value" in output ? output.value : output);
+          settleToolOutcome(part.toolCallId, part.toolName, unwrapToolOutput(part.output));
         }
       }
 
       if (abandoned) break;
 
-      const pending = pendingApprovalCalls(result.messages);
+      let pending = pendingApprovalCalls(result.messages);
       if (pending.length === 0) {
         if (finishReason === "stop") break;
         if (cancelled || budgetStop || safetyStop !== null || roundFailure !== null) break;
@@ -880,6 +957,28 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         continue;
       }
 
+      const preparedPending = await Promise.all(
+        pending.map(async (call) => ({
+          call,
+          prepared: await resolveToolInput(call.toolName, call.toolCallId, call.input),
+        })),
+      );
+      const invalidResults = preparedPending.flatMap(({ call, prepared }) =>
+        prepared.ok ? [] : [{ toolCallId: call.toolCallId, toolName: call.toolName, output: prepared }],
+      );
+      let resumableMessages = withToolResults(result.messages, invalidResults);
+      for (const outcome of invalidResults) settleToolOutcome(outcome.toolCallId, outcome.toolName, outcome.output);
+      appendDeferredOutcomes(invalidResults);
+      pending = preparedPending.flatMap(({ call, prepared }) =>
+        prepared.ok ? [{ ...call, input: prepared.input }] : [],
+      );
+      if (pending.length === 0) {
+        resolveDeferredRound([]);
+        await publishTranscriptEvents(queued.splice(0));
+        messages = resumableMessages;
+        continue;
+      }
+
       const panelCalls = pending.filter((call) => isAgentPanelTool(call.toolName));
       if (panelCalls.length > 0) {
         const commands = panelCalls.map((call) => ({
@@ -901,12 +1000,21 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
         cancelled = await readCancellation(payload);
         const resumed = await readUiCommandResults(payload, commands);
-        resolveDeferredRound(resumed.map((entry) => ({ ...entry })));
         for (const outcome of resumed) settleToolOutcome(outcome.toolCallId, outcome.toolName, outcome.output);
         await publishTranscriptEvents(queued.splice(0));
 
-        messages = withToolResults(result.messages, resumed);
-        continue;
+        resumableMessages = withToolResults(resumableMessages, resumed);
+        if (cancelled) {
+          resolveDeferredRound(resumed.map((entry) => ({ ...entry })));
+          break;
+        }
+        pending = pending.filter((call) => !isAgentPanelTool(call.toolName));
+        if (pending.length === 0) {
+          resolveDeferredRound(resumed.map((entry) => ({ ...entry })));
+          messages = resumableMessages;
+          continue;
+        }
+        appendDeferredOutcomes(resumed);
       }
 
       const requests: PendingApproval[] = pending.map((call) => ({
@@ -916,10 +1024,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         input: call.input,
       }));
 
-      const hook = createHook<AgentApprovalWake>({
-        token: agentApprovalHookToken(payload.conversationId),
-      });
-      await openApprovalRequests(payload, requests, AGENT_APPROVAL_WINDOW_MS);
+      const hook =
+        approvalWindowMs > 0
+          ? createHook<AgentApprovalWake>({ token: agentApprovalHookToken(payload.conversationId) })
+          : null;
+      await openApprovalRequests(payload, requests, approvalWindowMs);
       for (const request of requests) {
         transcript.beginApproval(
           request.requestId,
@@ -928,14 +1037,16 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       }
       await publishTranscriptEvents(queued.splice(0));
 
-      const requestIds = new Set(requests.map((request) => request.requestId));
-      await Promise.race([
-        (async () => {
-          for await (const wake of hook) if (isRelevantAgentApprovalWake(wake, requestIds)) return;
-        })(),
-        sleep(AGENT_APPROVAL_WINDOW_MS),
-      ]);
-      hook.dispose();
+      if (hook) {
+        const requestIds = new Set(requests.map((request) => request.requestId));
+        await Promise.race([
+          (async () => {
+            for await (const wake of hook) if (isRelevantAgentApprovalWake(wake, requestIds)) return;
+          })(),
+          sleep(approvalWindowMs),
+        ]);
+        hook.dispose();
+      }
 
       cancelled = await readCancellation(payload);
       const outcomes = await readApprovalDecisions(payload, requests);
@@ -975,7 +1086,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           },
         })),
       );
-      messages = withApprovalResponses(result.messages, outcomes);
+      messages = withApprovalResponses(resumableMessages, outcomes);
     }
 
     if (abandoned) {
@@ -989,11 +1100,15 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const stopKind: AgentRunnerMessageKind | null = hostedAiStop
       ? "hostedAiUnavailable"
       : budgetStop
-        ? "creditLimit"
+        ? performedWrite
+          ? "creditLimit"
+          : "creditLimitNoWrite"
         : roundFailure
           ? "turnError"
           : safetyStop
-            ? "safetyLimit"
+            ? performedWrite
+              ? "safetyLimit"
+              : "safetyLimitNoWrite"
             : finishReason === "length"
               ? "outputLimit"
               : null;
@@ -1026,8 +1141,22 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     });
     await closeTurnStream();
   } catch (error) {
-    await reportFailure(WORKFLOW_NAME, toWorkflowFailure(error), payload.tenant);
-    await closeTurnStreamAfterFailure();
+    const failures = [error];
+    try {
+      await reconcileFailedTurn(payload);
+    } catch (cleanupError) {
+      failures.push(cleanupError);
+    }
+    try {
+      await closeTurnStreamAfterFailure();
+    } catch (closeError) {
+      failures.push(closeError);
+    }
+    for (const failure of failures) {
+      try {
+        await reportFailure(WORKFLOW_NAME, toWorkflowFailure(failure), payload.tenant);
+      } catch {}
+    }
     throw error;
   }
 }

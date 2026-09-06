@@ -108,7 +108,7 @@ export const ConversationHistory = observer(function ConversationHistory() {
             <div
               key={conversation.id}
               className={cn(
-                "group flex items-center gap-1 rounded-lg",
+                "group flex items-center gap-1 overflow-hidden rounded-lg border",
                 conversation.id === store.conversationId && "bg-muted",
               )}
               role="listitem"

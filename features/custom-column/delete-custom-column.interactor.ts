@@ -13,6 +13,8 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Write } from "@/core/decorators/write.decorator";
 import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { failConflict } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const Schema = z.object({
   id: z.uuid(),
@@ -24,10 +26,15 @@ export abstract class DeleteCustomColumnRepo {
   abstract delete(id: string): Promise<{ id: string }>;
 }
 
+export abstract class DeleteCustomColumnRoutineRepo {
+  abstract hasRoutineFilterReference(field: string): Promise<boolean>;
+}
+
 @TenantInteractor()
 export class DeleteCustomColumnInteractor extends AuthenticatedInteractor<DeleteCustomColumnData, string> {
   constructor(
     private repo: DeleteCustomColumnRepo,
+    private routineRepo: DeleteCustomColumnRoutineRepo,
     private userService: UserService,
     private eventService: EventService,
     private validator: ValidateCustomColumnIdsInteractor,
@@ -45,16 +52,28 @@ export class DeleteCustomColumnInteractor extends AuthenticatedInteractor<Delete
     const customColumn = await this.repo.findByIdOrThrow(data.id);
 
     const entityTypePermissionMap: Record<EntityType, { resource: Resource; action: Action }> = {
-      [EntityType.contact]: { resource: Resource.contacts, action: Action.delete },
-      [EntityType.organization]: { resource: Resource.organizations, action: Action.delete },
+      [EntityType.contact]: {
+        resource: Resource.contacts,
+        action: Action.delete,
+      },
+      [EntityType.organization]: {
+        resource: Resource.organizations,
+        action: Action.delete,
+      },
       [EntityType.deal]: { resource: Resource.deals, action: Action.delete },
-      [EntityType.service]: { resource: Resource.services, action: Action.delete },
+      [EntityType.service]: {
+        resource: Resource.services,
+        action: Action.delete,
+      },
       [EntityType.task]: { resource: Resource.tasks, action: Action.delete },
     };
 
     const permission = entityTypePermissionMap[customColumn.entityType];
 
     await this.userService.hasPermissionOrThrow(permission.resource, permission.action);
+
+    if (await this.routineRepo.hasRoutineFilterReference(customColumn.id))
+      return failConflict(CustomErrorCode.customColumnUsedByRoutineCannotDelete, ["id"]);
 
     await Promise.all([
       this.repo.delete(data.id),

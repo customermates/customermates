@@ -14,7 +14,7 @@ const manualPricingRowSchema = z.object({
 
 const catalogPricingRowSchema = z.object({
   label: z.string(),
-  catalogFact: z.enum(["monthlyPrice", "messaging", "includedAccountsPerUser", "sharedAccounts"]),
+  catalogFact: z.enum(["monthlyPrice", "messaging", "includedAccountsPerUser", "includedRoutines", "sharedAccounts"]),
 });
 
 const pricingRowSchema = z.union([manualPricingRowSchema, catalogPricingRowSchema]);

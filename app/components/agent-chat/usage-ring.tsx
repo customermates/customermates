@@ -4,12 +4,12 @@ import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useAgentChatStore } from "./agent-chat-store-context";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export const UsageRing = observer(function UsageRing() {
-  const { agentChatStore: store } = useRootStore();
+  const store = useAgentChatStore();
   const intlStore = useHydratedIntlStore();
   const t = useTranslations();
   const [open, setOpen] = useState(false);

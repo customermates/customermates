@@ -1,11 +1,14 @@
 import type { EntitlementFeature } from "@/ee/subscription/entitlements";
 import type { SubscriptionStatus, SubscriptionPlan } from "@/generated/prisma";
+import type { AppLocale } from "@/i18n/locale-registry";
 
 import type { z } from "zod";
 import { getTranslations } from "next-intl/server";
 
 import { createZodError } from "@/core/validation/validation.utils";
 import { getEntitlements, isSubscriptionUsable } from "@/ee/subscription/entitlements";
+import { getTranslator } from "@/i18n/get-translator";
+import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 import { env } from "@/env";
 
 type PlanSummary = { status: SubscriptionStatus; trialEndDate: Date | null; plan: SubscriptionPlan };
@@ -27,6 +30,16 @@ export type EntitlementDenialCode =
 export type EntitlementDenial = { ok: false; error: z.ZodError; code: EntitlementDenialCode };
 type Translator = Awaited<ReturnType<typeof getTranslations>>;
 
+async function resolveEntitlementTranslator(locale?: AppLocale): Promise<Translator> {
+  if (locale) return (await getTranslator(locale)) as Translator;
+
+  try {
+    return await getTranslations();
+  } catch {
+    return (await getTranslator(DEFAULT_LOCALE)) as Translator;
+  }
+}
+
 const FEATURE_DENIALS: Record<EntitlementFeature, { cloud: EntitlementDenialCode; plan: EntitlementDenialCode }> = {
   agentChat: { cloud: "agentChatRequiresCloud", plan: "agentChatRequiresPlan" },
   messaging: { cloud: "messagingRequiresCloud", plan: "messagingRequiresPro" },
@@ -36,8 +49,8 @@ const FEATURE_DENIALS: Record<EntitlementFeature, { cloud: EntitlementDenialCode
 export class EntitlementService {
   constructor(private repo: EntitlementSubscriptionRepo) {}
 
-  async require(feature: EntitlementFeature): Promise<EntitlementDenial | null> {
-    const t = await getTranslations();
+  async require(feature: EntitlementFeature, locale?: AppLocale): Promise<EntitlementDenial | null> {
+    const t = await resolveEntitlementTranslator(locale);
 
     if (feature === "agentChat" && env.AGENT_CHAT_DISABLED) return this.denial(t, "agentChatDisabled");
     if (env.APP_MODE === "self-hosted") return this.denial(t, FEATURE_DENIALS[feature].cloud);

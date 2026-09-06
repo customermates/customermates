@@ -1,8 +1,11 @@
 import { describe, it, expect } from "vitest";
 
 import {
+  accessibleFolderStatesWhere,
   accountActivityAccessWhere,
   calendarEventAccessWhere,
+  inboxThreadVisibilityWhere,
+  messageVisibilityWhere,
   threadAccessWhere,
   threadHasActivityWhere,
 } from "../messaging-access";
@@ -31,6 +34,52 @@ describe("messaging-access", () => {
     expect(threadAccessWhere(COMPANY, USER)).toEqual({
       companyId: COMPANY,
       OR: [{ connectedAccount: { is: ownedOrSharedAccount } }, { sharedToCrm: true }],
+    });
+  });
+
+  it("loads folder state for every account that can contribute an inbox thread", () => {
+    expect(accessibleFolderStatesWhere(COMPANY, USER)).toEqual({
+      companyId: COMPANY,
+      OR: [{ userId: USER }, { shared: true }, { threads: { some: { sharedToCrm: true } } }],
+      foldersSyncedAt: { not: null },
+    });
+  });
+
+  it("uses one hidden-and-folder predicate for direct and aggregate message reads", () => {
+    expect(messageVisibilityWhere([])).toEqual({ isHidden: false });
+    expect(messageVisibilityWhere([{ id: "account-1", visibleSet: ["inbox"] }])).toEqual({
+      isHidden: false,
+      OR: [
+        { connectedAccountId: { notIn: ["account-1"] } },
+        {
+          connectedAccountId: "account-1",
+          OR: [{ folderIds: { isEmpty: true } }, { folderIds: { hasSome: ["inbox"] } }],
+        },
+      ],
+    });
+  });
+
+  it("combines thread access, activity, and selected-folder membership for inbox visibility", () => {
+    expect(inboxThreadVisibilityWhere(COMPANY, USER, [{ id: "account-1", visibleSet: ["inbox"] }])).toEqual({
+      companyId: COMPANY,
+      OR: [{ connectedAccount: { is: ownedOrSharedAccount } }, { sharedToCrm: true }],
+      AND: [
+        { OR: [{ lastMessageAt: { not: null } }, { messages: { some: { isDraft: true } } }] },
+        {
+          OR: [
+            { connectedAccountId: { notIn: ["account-1"] } },
+            {
+              connectedAccountId: "account-1",
+              messages: {
+                some: {
+                  isHidden: false,
+                  OR: [{ folderIds: { isEmpty: true } }, { folderIds: { hasSome: ["inbox"] } }],
+                },
+              },
+            },
+          ],
+        },
+      ],
     });
   });
 

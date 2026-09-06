@@ -75,6 +75,7 @@ const REQUIRED_TRANSLATION_FRAGMENTS: Record<string, Record<string, readonly str
 };
 
 const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
+  "fr:Subscription.picker.routines",
   "de:OperatorUsers.modal.identity",
   "es:OperatorUsers.modal.identity",
   "fr:OperatorUsers.modal.identity",

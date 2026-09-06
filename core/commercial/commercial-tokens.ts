@@ -56,12 +56,20 @@ function resolvePriceToken(parts: string[], locale: string): string {
   return formatCommercialAmount(amountMinor, locale, offer.currency);
 }
 
+const COUNTED_ENTITLEMENTS = ["includedAccountsPerUser", "includedRoutines"] as const;
+
+type CountedEntitlement = (typeof COUNTED_ENTITLEMENTS)[number];
+
+function isCountedEntitlement(value: string): value is CountedEntitlement {
+  return (COUNTED_ENTITLEMENTS as readonly string[]).includes(value);
+}
+
 function resolveEntitlementToken(parts: string[], locale: string): string {
   const [, rawPlan, entitlement] = parts;
-  if (parts.length !== 3 || !rawPlan || !isPlanId(rawPlan) || entitlement !== "includedAccountsPerUser")
+  if (parts.length !== 3 || !rawPlan || !isPlanId(rawPlan) || !entitlement || !isCountedEntitlement(entitlement))
     throw new Error(`Invalid commercial entitlement token: ${parts.join(".")}`);
 
-  const value = getPlanDefinition(rawPlan).entitlements.includedAccountsPerUser;
+  const value = getPlanDefinition(rawPlan).entitlements[entitlement];
   return value === "unlimited" ? localizedUnlimited(locale) : String(value);
 }
 

@@ -184,7 +184,7 @@ function functionSource(file: string, functionName: string) {
 
 const APP_MODAL_HEADER = /<AppCardHeader\b[^>]*>[\s\S]*?<\/AppCardHeader>/g;
 const INTERACTIVE_HEADER_DESCENDANT =
-  /<(?:AppModalAction|Button|button|a|Link|IntlLink|Checkbox|Switch|[A-Z][A-Za-z]+Trigger)\b/;
+  /<(?:AppModalAction|Button|button|a|Link|IntlLink|Checkbox|Switch|Form[A-Z][A-Za-z]+|[A-Z][A-Za-z]+Trigger)\b/;
 
 function appModalHeaderActionViolations(sources: { file: string; text: string }[]) {
   const found: string[] = [];

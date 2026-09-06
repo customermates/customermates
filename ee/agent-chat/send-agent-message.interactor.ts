@@ -11,6 +11,7 @@ import { env } from "@/env";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { resolveUserLocale } from "@/i18n/user-locale";
+import { AgentConversationOrigin } from "@/generated/prisma";
 
 import {
   SendAgentMessageSchema,
@@ -26,11 +27,8 @@ import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { AGENT_RUN_LEASE_MS, decideAgentTurnAdmission, type AgentTurnRequestSnapshot } from "./agent-turn-request";
 import { buildAgentSystemPrompt } from "./system-prompt";
 import { getAgentAiToolDefinitions } from "./agent-tools";
-import {
-  AGENT_REPLAY_COUNT,
-  AGENT_REPLAY_MAX_CHARS,
-  conservativeAgentInitialContextBytes,
-} from "./agent-provider-context";
+import { conservativeAgentInitialContextBytes } from "./agent-provider-context";
+import { AGENT_REPLAY_COUNT, budgetAgentReplayHistory } from "./agent-replay-budget";
 import { isAgentModelKey, resolveAgentModel } from "./model-catalog";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import { fail, failConflict, failNotFound, failRateLimit } from "@/core/validation/interactor-failure-server";
@@ -78,6 +76,20 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     tx: false,
   })
   async invoke(data: SendAgentMessageData): Validated<SendAgentMessageResult> {
+    return this.invokeScoped(data, AgentConversationOrigin.user);
+  }
+
+  async invokeRoutine(data: SendAgentMessageData): Validated<SendAgentMessageResult> {
+    const denied = await this.entitlements.require("agentChat");
+    if (denied) return denied;
+
+    return this.invokeScoped(data, AgentConversationOrigin.routine);
+  }
+
+  private async invokeScoped(
+    data: SendAgentMessageData,
+    scope: AgentConversationOrigin,
+  ): Validated<SendAgentMessageResult> {
     const user = this.user;
     const now = new Date();
     const model = resolveAgentModel();
@@ -160,13 +172,21 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       };
     }
 
-    const conversation =
-      decision.disposition === "retry"
-        ? await this.repo.findConversation(decision.turn.conversationId)
-        : data.conversationId
-          ? await this.repo.findConversation(data.conversationId)
-          : null;
+    if (scope === AgentConversationOrigin.routine && decision.disposition === "retry")
+      return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+    if (scope === AgentConversationOrigin.routine && !data.conversationId)
+      return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+
+    const requestedConversationId =
+      decision.disposition === "retry" ? decision.turn.conversationId : data.conversationId;
+    const conversation = requestedConversationId
+      ? scope === AgentConversationOrigin.routine
+        ? await this.repo.findConversation(requestedConversationId)
+        : await this.repo.findUserConversation(requestedConversationId)
+      : null;
     if ((decision.disposition === "retry" || data.conversationId) && !conversation)
+      return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+    if (scope === AgentConversationOrigin.routine && conversation?.origin !== AgentConversationOrigin.routine)
       return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     const requestedModelKey = conversation?.modelKey ?? data.modelKey ?? null;
@@ -181,6 +201,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         userName,
         appBaseUrl: env.BASE_URL,
         locale,
+        surface: conversation?.origin === AgentConversationOrigin.routine ? "routine" : "chat",
       }),
       currentText: data.text,
       pageRoute,
@@ -191,6 +212,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     const creditAdmission = await this.usageService.prepareTurn(user.id, now, {
       model: turnModel,
       requiredContextBytes,
+      creditCeiling: conversation?.creditCeiling ?? null,
     });
     const reservation = creditAdmission.reservation;
     if (!reservation) return failRateLimit(CustomErrorCode.agentLimitReached);
@@ -274,14 +296,18 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       });
 
       const pageContext = data.pageContext ? `<page_context route="${data.pageContext.route}"/>\n` : "";
-      const messages = admission.recentMessages
-        .map((message) => {
-          const text = partsToText(message.parts);
-          return {
-            role: message.role as string,
-            text: message.id === userMessageId ? `${pageContext}${text}` : text.slice(0, AGENT_REPLAY_MAX_CHARS),
-          };
-        })
+      const replayInputs = admission.recentMessages.map((message) => {
+        const text = partsToText(message.parts);
+        const current = message.id === userMessageId;
+        return {
+          role: message.role as string,
+          text: current ? `${pageContext}${text}` : text,
+          budgeted: !current,
+        };
+      });
+      const budgeted = budgetAgentReplayHistory(replayInputs);
+      const messages = replayInputs
+        .map((message, index) => ({ role: message.role, text: budgeted[index] }))
         .filter((message) => message.text);
 
       const externalRunId = await this.backgroundTaskService.dispatchTracked("agent-turn", {
@@ -296,8 +322,9 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         messages,
         turnBudget: reservation.budget,
         tenant: { userId: user.id, companyId: user.companyId },
+        surface: conversation?.origin === "routine" ? "routine" : "chat",
       });
-      await this.repo.recordAgentTurnExternalRun(turnRequestId, externalRunId);
+      await this.repo.recordAgentTurnExternalRun(turnRequestId, runId, externalRunId);
 
       return {
         ok: true as const,

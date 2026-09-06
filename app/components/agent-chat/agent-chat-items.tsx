@@ -15,7 +15,7 @@ import {
 
 import { useActivityGroupState } from "./use-activity-group-state";
 import { useSteadyLabel } from "./use-steady-label";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useAgentChatStore } from "./agent-chat-store-context";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { Button } from "@/components/ui/button";
@@ -37,10 +37,12 @@ export function useAgentActivityTerminology(): Partial<Record<AgentActivityResou
 
 export const AgentChatItemView = observer(function AgentChatItemView({
   item,
+  readOnly = false,
 }: {
   item: Exclude<AgentChatItem, { kind: "activity" }>;
+  readOnly?: boolean;
 }) {
-  const { agentChatStore: store } = useRootStore();
+  const store = useAgentChatStore();
   const t = useTranslations();
   const copyToClipboard = useCopyToClipboard();
   const terminology = useAgentActivityTerminology();
@@ -96,6 +98,18 @@ export const AgentChatItemView = observer(function AgentChatItemView({
     );
   }
 
+  if (item.kind === "turn_interrupted") {
+    return (
+      <div
+        className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs"
+        data-testid="agent-turn-interrupted"
+        role="alert"
+      >
+        {t("AgentChat.ui.turnInterrupted")}
+      </div>
+    );
+  }
+
   if (item.kind === "turn_error") {
     const copy = chatUiCopy(t);
     return (
@@ -105,18 +119,20 @@ export const AgentChatItemView = observer(function AgentChatItemView({
       >
         <span>{copy.turnFailed}</span>
 
-        <Button
-          className="shrink-0"
-          disabled={store.isWorking || Boolean(store.usage?.blockedReason) || !store.canRetryFailedTurn(item)}
-          size="sm"
-          variant="secondary"
-          onClick={() => {
-            store.retryFailedTurn(item);
-            focusAgentComposer();
-          }}
-        >
-          {copy.retryTurn}
-        </Button>
+        {!readOnly && (
+          <Button
+            className="shrink-0"
+            disabled={store.isWorking || Boolean(store.usage?.blockedReason) || !store.canRetryFailedTurn(item)}
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              store.retryFailedTurn(item);
+              focusAgentComposer();
+            }}
+          >
+            {copy.retryTurn}
+          </Button>
+        )}
       </div>
     );
   }
@@ -139,7 +155,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
 
           {t("AgentChat.approval.resuming")}
         </p>
-      ) : (
+      ) : readOnly ? null : (
         <div className="mt-3 space-y-2">
           {item.retryDecision && <p className="text-xs text-muted-foreground">{t("AgentChat.approval.retryResume")}</p>}
 

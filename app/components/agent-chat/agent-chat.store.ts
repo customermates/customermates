@@ -2,13 +2,16 @@ import { makeObservable, observable, action, computed, reaction, runInAction } f
 
 import type { RootStore } from "@/core/stores/root.store";
 import type { AgentUsageSummary } from "@/ee/agent-chat/agent-usage.service";
+import type { AgentMessageTurn } from "@/ee/agent-chat/agent-history";
 import {
   clientSafeAgentMessageParts,
+  hasRenderableAgentMessageParts,
   type AgentConversationSummary,
   type AgentDataCounts,
   type AgentMessagePart,
 } from "@/ee/agent-chat/agent-chat.schema";
 import { AgentTourSchema } from "@/ee/agent-chat/agent-tours";
+import { stripRoutineTriggerBlock } from "@/ee/routines/routine-prompt";
 import { OpenRecordSchema } from "@/ee/agent-chat/ui-operations";
 import {
   AgentActivityDescriptorSchema,
@@ -38,6 +41,7 @@ import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 
 export type AgentChatItem =
   | { kind: "user"; id: string; messageId: string; text: string; at?: Date }
+  | { kind: "turn_interrupted"; id: string; messageId: string; at?: Date }
   | {
       kind: "assistant";
       id: string;
@@ -86,6 +90,8 @@ export type AgentStreamStatus =
   | "finalizing";
 
 export type AgentRouteSyncStatus = "idle" | "queued" | "waiting" | "refreshing";
+
+export type AgentProgressPhase = "starting" | "working" | "preparing_action";
 
 let itemSeq = 0;
 const nextItemId = () => `item-${++itemSeq}`;
@@ -167,6 +173,7 @@ export class AgentChatStore extends BaseStore {
   usage: AgentUsageSummary | null = null;
   counts: AgentDataCounts | null = null;
   conversationId: string | null = null;
+  private readonly persistOpenState: boolean;
   conversations: AgentConversationSummary[] = [];
   archivedConversations: AgentConversationSummary[] = [];
   lastArchivedConversation: AgentConversationSummary | null = null;
@@ -187,6 +194,8 @@ export class AgentChatStore extends BaseStore {
   queuedPromptNeedsAttention = false;
   routeRefreshRevision = 0;
   streamStatus: AgentStreamStatus = "idle";
+  progressPhase: AgentProgressPhase | null = null;
+  progressStartedAt: number | null = null;
   routeSyncStatus: AgentRouteSyncStatus = "idle";
   autoOpenedPages = new Set<string>();
   isWorking = false;
@@ -222,8 +231,9 @@ export class AgentChatStore extends BaseStore {
   private openStorageKey: string | null;
   private openPreference: boolean | null;
 
-  constructor(rootStore: RootStore) {
+  constructor(rootStore: RootStore, options: { persistOpenState?: boolean } = {}) {
     super(rootStore);
+    this.persistOpenState = options.persistOpenState ?? true;
     this.openOverride = readAgentChatOpenOverride();
     this.openStorageKey = agentChatOpenStorageKey(rootStore);
     this.openPreference = readAgentChatOpenPreference(this.openStorageKey);
@@ -258,6 +268,8 @@ export class AgentChatStore extends BaseStore {
         routeRefreshRevision: observable,
         consumedRouteRefreshRevision: observable,
         streamStatus: observable,
+        progressPhase: observable,
+        progressStartedAt: observable,
         routeSyncStatus: observable,
         isWorking: observable,
         hasInSessionTerminalResult: observable,
@@ -390,6 +402,7 @@ export class AgentChatStore extends BaseStore {
   private setOpenState(isOpen: boolean) {
     this.syncOpenPreferenceScope();
     this.isOpen = isOpen;
+    if (!this.persistOpenState) return;
     if (this.openOverride !== null) return;
     this.openPreference = isOpen;
     writeAgentChatOpenPreference(this.openStorageKey, isOpen);
@@ -508,6 +521,8 @@ export class AgentChatStore extends BaseStore {
     this.isWorking = false;
     this.hasInSessionTerminalResult = false;
     this.streamStatus = "idle";
+    this.progressPhase = null;
+    this.progressStartedAt = null;
     this.activeTurnNextStreamIndex = 0;
     this.activeTurnAdmissionConfirmed = false;
     this.activeTurnStopRequested = false;
@@ -559,7 +574,12 @@ export class AgentChatStore extends BaseStore {
         this.appendMessages(data.messages);
       });
 
-      if (data.activeTurn) void this.reattachStream(id, loadVersion);
+      if (data.activeTurn) {
+        const activeMessage = data.messages.findLast(
+          (message) => message.role === "user" && message.turn?.status === "running",
+        );
+        void this.reattachStream(id, loadVersion, undefined, activeMessage?.turn?.clientRequestId);
+      }
     } catch {
       if (loadVersion !== this.conversationLoadVersion) return;
       runInAction(() => {
@@ -605,6 +625,7 @@ export class AgentChatStore extends BaseStore {
       role: string;
       parts: unknown;
       createdAt?: Date | string | null;
+      turn?: AgentMessageTurn | null;
     }[],
   ) {
     for (const message of messages) {
@@ -621,8 +642,19 @@ export class AgentChatStore extends BaseStore {
         activity?: unknown;
       }[];
       for (const part of parts) this.appendPart(message.role, part, at, message.id);
+      if (message.role === "user" && message.turn?.status === "uncertain") this.appendInterruptedTurn(message.id, at);
       if (message.role === "assistant") this.persistedAssistantMessageIds.add(message.id);
     }
+  }
+
+  private appendInterruptedTurn(messageId: string, at?: Date) {
+    if (this.items.some((item) => item.kind === "turn_interrupted" && item.messageId === messageId)) return;
+    this.items.push({
+      kind: "turn_interrupted",
+      id: nextItemId(),
+      messageId,
+      at,
+    });
   }
 
   private appendPart(
@@ -646,7 +678,7 @@ export class AgentChatStore extends BaseStore {
           kind: "user",
           id,
           messageId: messageId ?? id,
-          text: part.text,
+          text: stripRoutineTriggerBlock(part.text),
           at,
         });
       } else {
@@ -761,6 +793,7 @@ export class AgentChatStore extends BaseStore {
     activeController?.abort();
     runInAction(() => {
       this.streamStatus = "stopping";
+      this.progressPhase = null;
     });
   };
 
@@ -804,6 +837,8 @@ export class AgentChatStore extends BaseStore {
   }
 
   private clearStreaming = () => {
+    this.progressPhase = null;
+    this.progressStartedAt = null;
     for (const item of this.items) if (item.kind === "assistant") item.streaming = false;
   };
 
@@ -1190,8 +1225,10 @@ export class AgentChatStore extends BaseStore {
             descriptionKey:
               typeof message === "string" && response.status === 429 ? "AgentChat.errors.limitReached" : undefined,
           });
-        } else if (disposition === "uncertain" || disposition === "conflict")
+        } else if (disposition === "uncertain" || disposition === "conflict") {
+          if (disposition === "uncertain") runInAction(() => this.appendInterruptedTurn(messageId, new Date()));
           this.toastError("AgentChat.errors.sendFailed");
+        }
         return;
       }
 
@@ -1201,6 +1238,7 @@ export class AgentChatStore extends BaseStore {
 
       await this.followActiveTurn({
         conversationId: this.conversationId ?? conversationId,
+        clientRequestId: messageId,
         generation: turnGeneration,
         initialBody: response.body,
         loadVersion: this.conversationLoadVersion,
@@ -1215,6 +1253,7 @@ export class AgentChatStore extends BaseStore {
       ) {
         await this.followActiveTurn({
           conversationId: recoveryConversationId,
+          clientRequestId: messageId,
           generation: turnGeneration,
           initialBody: null,
           loadVersion: this.conversationLoadVersion,
@@ -1329,14 +1368,14 @@ export class AgentChatStore extends BaseStore {
       this.conversationId !== conversationId
     )
       return;
-    await this.reattachStream(conversationId, loadVersion, generation);
+    await this.reattachStream(conversationId, loadVersion, generation, resend.messageId);
     if (
       generation !== this.activeTurnGeneration ||
       loadVersion !== this.conversationLoadVersion ||
       this.conversationId !== conversationId
     )
       return;
-    if (this.abortController || this.isWorking) return;
+    if (this.abortController || this.isWorking || this.activeTurnDisposition === "uncertain") return;
     void this.sendMessage(resend.text, {
       appendUser: false,
       conversationId,
@@ -1347,7 +1386,12 @@ export class AgentChatStore extends BaseStore {
     });
   };
 
-  private reattachStream = async (conversationId: string, loadVersion: number, existingGeneration?: number) => {
+  private reattachStream = async (
+    conversationId: string,
+    loadVersion: number,
+    existingGeneration?: number,
+    clientRequestId?: string,
+  ) => {
     if (this.abortController) return;
 
     const generation = existingGeneration ?? this.beginActiveTurnMutationTracking();
@@ -1359,6 +1403,7 @@ export class AgentChatStore extends BaseStore {
     try {
       await this.followActiveTurn({
         conversationId,
+        clientRequestId,
         generation,
         initialBody: null,
         loadVersion,
@@ -1381,11 +1426,13 @@ export class AgentChatStore extends BaseStore {
 
   private followActiveTurn = async ({
     conversationId,
+    clientRequestId,
     generation,
     initialBody,
     loadVersion,
   }: {
     conversationId: string | null;
+    clientRequestId?: string;
     generation: number;
     initialBody: ReadableStream<Uint8Array> | null;
     loadVersion: number;
@@ -1435,11 +1482,48 @@ export class AgentChatStore extends BaseStore {
 
       if (!reconnectImmediately) {
         const snapshot = await getAgentConversationAction(conversationId).catch(() => null);
+        if (generation !== this.activeTurnGeneration || loadVersion !== this.conversationLoadVersion) return;
         if (snapshot && !snapshot.activeTurn) {
           runInAction(() => {
+            const userMessage = snapshot.messages.findLast(
+              (message) =>
+                message.role === "user" &&
+                Boolean(clientRequestId) &&
+                message.turn?.clientRequestId === clientRequestId,
+            );
+            const turn = userMessage?.turn;
+            const assistantMessage = snapshot.messages.find(
+              (message) => message.role === "assistant" && message.id === turn?.assistantMessageId,
+            );
+            const replayable =
+              turn?.status === "completed" &&
+              turn.terminalCode !== null &&
+              assistantMessage &&
+              hasRenderableAgentMessageParts(clientSafeAgentMessageParts(assistantMessage.parts));
+            const userIndex = this.items.findLastIndex(
+              (item) =>
+                item.kind === "user" &&
+                (item.messageId === userMessage?.id || item.messageId === (clientRequestId ?? turn?.clientRequestId)),
+            );
+            const canReplaceCurrentTurn =
+              userIndex >= 0 && !this.items.slice(userIndex + 1).some((item) => item.kind === "user");
+            if (replayable && canReplaceCurrentTurn) {
+              this.items = this.items.slice(0, userIndex + 1);
+              this.loadedMessageIds.delete(assistantMessage.id);
+              this.persistedAssistantMessageIds.delete(assistantMessage.id);
+              this.recordReplayedMutations(clientSafeAgentMessageParts(assistantMessage.parts));
+              this.appendMessages([assistantMessage]);
+            } else {
+              const noticeMessageId =
+                userIndex >= 0
+                  ? (this.items[userIndex] as Extract<AgentChatItem, { kind: "user" }>).messageId
+                  : (clientRequestId ?? this.items.findLast((item) => item.kind === "user")?.messageId);
+              if (noticeMessageId) this.appendInterruptedTurn(noticeMessageId, new Date());
+            }
             this.activeTurnCompleted = true;
-            this.activeTurnFailed = true;
-            this.activeTurnDisposition = "uncertain";
+            this.activeTurnFailed = !replayable || !canReplaceCurrentTurn || turn.terminalCode !== "completed";
+            this.activeTurnDisposition = replayable && canReplaceCurrentTurn ? "stream" : "uncertain";
+            this.hasInSessionTerminalResult = Boolean(replayable && canReplaceCurrentTurn);
             this.clearStreaming();
             this.requestRouteRefreshForActiveTurn(null, true);
           });
@@ -1620,12 +1704,27 @@ export class AgentChatStore extends BaseStore {
   private handleEvent = (event: { seq: number; type: string } & Record<string, unknown>) => {
     runInAction(() => {
       switch (event.type) {
+        case "progress": {
+          if (
+            this.activeTurnCompleted ||
+            this.activeTurnFailed ||
+            this.activeTurnStopRequested ||
+            !this.isAwaitingAssistantResponse ||
+            (event.phase !== "working" && event.phase !== "preparing_action")
+          )
+            break;
+          this.progressPhase = event.phase;
+          this.streamStatus = "working";
+          break;
+        }
         case "delta": {
+          this.progressPhase = null;
           if (!this.activeTurnStopRequested) this.streamStatus = "working";
           this.currentAssistantItem().text += String(event.text ?? "");
           break;
         }
         case "message_replay": {
+          this.progressPhase = null;
           const messageId = typeof event.messageId === "string" ? event.messageId : null;
           const parts = clientSafeAgentMessageParts(event.parts);
           this.recordReplayedMutations(parts);
@@ -1650,6 +1749,7 @@ export class AgentChatStore extends BaseStore {
           if (!this.activeTurnStopRequested) this.streamStatus = "working";
           const activity = AgentActivityDescriptorSchema.safeParse(event.activity);
           if (!activity.success) break;
+          this.progressPhase = null;
           const providerCallId = String(event.id);
           const existing = this.items.findLast(
             (item): item is Extract<AgentChatItem, { kind: "activity" }> =>
@@ -1704,6 +1804,7 @@ export class AgentChatStore extends BaseStore {
         case "approval_request": {
           const activity = AgentActivityDescriptorSchema.safeParse(event.activity);
           if (!activity.success) break;
+          this.progressPhase = null;
           const requestId = String(event.requestId);
           const existing = this.items.find(
             (item): item is Extract<AgentChatItem, { kind: "approval" }> =>
@@ -1785,6 +1886,7 @@ export class AgentChatStore extends BaseStore {
   private beginActiveTurnMutationTracking() {
     this.activeTurnGeneration += 1;
     this.activeTurnCompleted = false;
+    this.activeTurnFailed = false;
     this.hasInSessionTerminalResult = false;
     this.activeTurnHasSuccessfulMutation = false;
     this.activeTurnRefreshRequested = false;
@@ -1794,6 +1896,8 @@ export class AgentChatStore extends BaseStore {
     this.activeTurnStopPromise = null;
     this.activeStreamKey = `stream-${++this.streamSequence}`;
     this.streamStatus = "working";
+    this.progressPhase = "starting";
+    this.progressStartedAt = Date.now();
     return this.activeTurnGeneration;
   }
 

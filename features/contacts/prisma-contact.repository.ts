@@ -139,6 +139,16 @@ export class PrismaContactRepo
 
     const filterFields = [];
 
+    filterFields.push({
+      field: FilterFieldKey.firstName,
+      operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.firstName],
+    });
+
+    filterFields.push({
+      field: FilterFieldKey.lastName,
+      operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.lastName],
+    });
+
     if (this.canAccess(Resource.organizations)) {
       filterFields.push({
         field: FilterFieldKey.organizationIds,

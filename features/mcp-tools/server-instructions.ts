@@ -1,4 +1,7 @@
-export const MCP_SERVER_INSTRUCTIONS = `Customermates CRM. Five record types (contacts, organizations, deals, services, tasks), all with user-defined custom columns. Deal stage and task status are singleSelect custom columns, not fixed fields. Flow: call get_record_schema first (fields and custom-column ids vary per workspace), find ids with search_records or list_records, write with the per-entity create_*/update_* tools. Relations change ONLY via manage_record_links; update_* never touches them. Confirm with the user before delete_records or any send_* tool.
+export const TOOL_APPROVAL_INSTRUCTION =
+  "Approval is requested by calling the tool: the call itself raises whatever confirmation the action needs, and nothing happens until that confirmation is granted. Never ask for permission in a message and then wait for a reply instead of calling the tool.";
+
+export const MCP_SERVER_INSTRUCTIONS = `Customermates CRM. Five record types (contacts, organizations, deals, services, tasks), all with user-defined custom columns. Deal stage and task status are singleSelect custom columns, not fixed fields. Flow: call get_record_schema first (fields and custom-column ids vary per workspace), find ids with search_records or list_records, write with the per-entity create_*/update_* tools. Relations change ONLY via manage_record_links; update_* never touches them. ${TOOL_APPROVAL_INSTRUCTION} delete_records and the send_* tools take effect immediately and cannot be undone from here, so name the exact records or recipients in the same message as the call.
 
 Conventions:
 - Contact ids: a UUID, or a channel the contact owns: an email, a phone, or 'provider:handle' (linkedin, telegram, instagram).
@@ -13,4 +16,4 @@ export const GET_STARTED_PROMPT = `Connected to my Customermates CRM via MCP.
 
 First ask me: my name and role, and what I mainly use the CRM for.
 Then call get_workspace_context and get_record_schema, summarize my workspace in one short paragraph, and ask what to focus on.
-Confirm with me before any delete or send action.`;
+${TOOL_APPROVAL_INSTRUCTION} Name exactly which records or recipients a delete or send will affect in the same message as the call.`;

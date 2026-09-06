@@ -20,11 +20,12 @@ export type AppTopbarCrumb = {
 const GROUP_MAP: Record<string, { group: "overview" | "crm" | "settings" | null; labelKey: string }> = {
   dashboard: { group: "overview", labelKey: "dashboard" },
   inbox: { group: "overview", labelKey: "inbox" },
-  tasks: { group: "overview", labelKey: "tasks" },
+  routines: { group: "overview", labelKey: "routines" },
   contacts: { group: "crm", labelKey: "contacts" },
   organizations: { group: "crm", labelKey: "organizations" },
   deals: { group: "crm", labelKey: "deals" },
   services: { group: "crm", labelKey: "services" },
+  tasks: { group: "crm", labelKey: "tasks" },
   settings: { group: "settings", labelKey: "settings" },
   profile: { group: "settings", labelKey: "profile" },
   company: { group: "settings", labelKey: "company" },

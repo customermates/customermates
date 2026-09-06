@@ -40,10 +40,20 @@ describe("agent model budget boundary", () => {
     expect(matchingProductionFiles(PROVIDER_FACTORY_PATTERN)).toEqual([]);
   });
 
+  it("keeps routine cleanup deterministic and free of model or provider calls", () => {
+    const analyzer = readFileSync(`${REPO_ROOT}/workflows/analyze-routine-loops.ts`, "utf8");
+
+    expect(analyzer).not.toMatch(MODEL_CALL_PATTERN);
+    expect(analyzer).not.toMatch(/\bfrom ["']ai["']|MODEL_CATALOG|servingProvider|providerOptions/);
+    expect(analyzer).toContain("findings: []");
+  });
+
   it("addresses models by gateway id from the catalog rather than by a hardcoded string", () => {
     const workflow = readFileSync(`${REPO_ROOT}/workflows/agent-turn.ts`, "utf8");
 
     expect(workflow).toContain("model: payload.turnBudget.modelSpec");
-    expect(workflow).toContain("gateway: { only: [payload.turnBudget.servingProvider] }");
+    expect(workflow).toMatch(
+      /gateway:\s*\{\s*only: \[payload\.turnBudget\.servingProvider\],\s*zeroDataRetention: true,\s*disallowPromptTraining: true,/,
+    );
   });
 });

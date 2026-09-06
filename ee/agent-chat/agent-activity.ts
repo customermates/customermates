@@ -344,7 +344,7 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
   if (toolName === "get_messaging_threads" || toolName === "get_activities" || toolName === "get_calendars")
     return descriptor("messages.read", "messages", "read");
   if (toolName === "send_email") {
-    return descriptor("messages.send", "messages", "sensitive", ["messages"], {
+    return descriptor("messages.send", "messages", "write", ["messages"], {
       action: "email.send",
       target: safeStringList(details.to),
       subject: safeText(details.subject, 200),
@@ -353,7 +353,7 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
     });
   }
   if (toolName === "send_chat_message") {
-    return descriptor("messages.send", "messages", "sensitive", ["messages"], {
+    return descriptor("messages.send", "messages", "write", ["messages"], {
       action: "chat.send",
       target: safeText(details.chatName, 120) ?? safeStringList(details.attendeeIdentifiers),
       subject: safeText(details.inmailSubject, 200),

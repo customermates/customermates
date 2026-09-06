@@ -11,7 +11,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { clientSafeAgentMessageParts } from "./agent-chat.schema";
 import { sanitizeAgentConversationTitle } from "./agent-output-safety";
-import { AgentMessagePageSchema, type AgentMessagePageData } from "./agent-history";
+import { AgentMessagePageSchema, AgentMessageTurnSchema, type AgentMessagePageData } from "./agent-history";
 import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
@@ -28,6 +28,7 @@ const OutputSchema = z.object({
       role: z.string(),
       parts: z.array(z.any()),
       createdAt: z.date(),
+      turn: AgentMessageTurnSchema.nullable(),
     }),
   ),
   nextCursor: z.string().nullable(),
@@ -71,6 +72,15 @@ export class GetAgentConversationInteractor extends AuthenticatedInteractor<
         stripLegacyUserContext: message.role === "user",
       }),
       createdAt: message.createdAt,
+      turn:
+        message.role === "user" && message.turnRequest
+          ? {
+              clientRequestId: message.turnRequest.clientRequestId,
+              status: message.turnRequest.status,
+              assistantMessageId: message.turnRequest.assistantMessageId,
+              terminalCode: message.turnRequest.terminalCode,
+            }
+          : null,
     }));
     return {
       ok: true as const,

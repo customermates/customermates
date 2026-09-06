@@ -46,6 +46,25 @@ describe("AppModalAction", () => {
     expect(html).toContain('data-slot="tooltip-content">Refresh</span>');
   });
 
+  it("keeps an explanatory tooltip reachable when an action is disabled", () => {
+    const html = renderAction({
+      id: "test-trigger",
+      icon: RefreshCw,
+      label: "Test trigger",
+      tooltip: "Event-triggered routines need real event data.",
+      disabled: true,
+      onClick: vi.fn(),
+    });
+
+    expect(html).toContain('aria-label="Test trigger"');
+    expect(html).toContain('aria-disabled="true"');
+    expect(html).toContain('data-slot="app-modal-action-disabled-trigger"');
+    expect(html).toContain('role="button"');
+    expect(html).toContain('tabindex="0"');
+    expect(html).toContain("disabled");
+    expect(html).toContain('data-slot="tooltip-content">Event-triggered routines need real event data.</span>');
+  });
+
   it("keeps destructive styling semantic without changing the shared footprint", () => {
     const html = renderAction({
       id: "delete",
@@ -71,6 +90,7 @@ describe("AppModalAction", () => {
     });
 
     expect(html).toContain('aria-busy="true"');
+    expect(html).toMatch(/<span[^>]*aria-busy="true"[^>]*data-slot="app-modal-action-disabled-trigger"/);
     expect(html).toContain("disabled");
     expect(html).toContain("animate-spin");
   });

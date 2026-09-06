@@ -1,4 +1,4 @@
-import { resumeHook, start } from "workflow/api";
+import { getRun, resumeHook, start } from "workflow/api";
 import { HookNotFoundError } from "workflow/errors";
 
 import type { WorkflowId, WorkflowPayload } from "@/workflows/registry";
@@ -31,6 +31,11 @@ export class BackgroundTaskService {
 
   async dispatchTracked<TId extends WorkflowId>(id: TId, payload: WorkflowPayload<TId>): Promise<string> {
     return this.startWorkflow(id, payload);
+  }
+
+  async isWorkflowTerminal(externalRunId: string): Promise<boolean> {
+    const status = await getRun(externalRunId).status;
+    return status === "completed" || status === "failed" || status === "cancelled";
   }
 
   async resume(token: string, payload: Record<string, unknown>): Promise<boolean> {

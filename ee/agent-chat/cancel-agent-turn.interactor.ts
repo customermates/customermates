@@ -34,13 +34,37 @@ export class CancelAgentTurnInteractor extends AuthenticatedInteractor<CancelAge
     const denied = await this.entitlements.require("agentChat");
     if (denied) return denied;
 
-    const conversation = await this.repo.findConversation(data.conversationId);
+    const conversation = await this.repo.findUserConversation(data.conversationId);
     if (!conversation) return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     const cancelling = await this.repo.requestAgentTurnCancellation({ conversationId: data.conversationId });
-    if (cancelling) await this.wakeSuspendedRun(data.conversationId);
+    if (cancelling && !(await this.reconcileTerminatedRun(data.conversationId)))
+      await this.wakeSuspendedRun(data.conversationId);
 
     return { ok: true as const, data: { cancelling } };
+  }
+
+  private async reconcileTerminatedRun(conversationId: string): Promise<boolean> {
+    const turn = await this.repo.findRunningAgentTurnForCancellation(conversationId);
+    if (!turn?.externalRunId) return false;
+
+    let terminal: boolean;
+    try {
+      terminal = await this.backgroundTaskService.isWorkflowTerminal(turn.externalRunId);
+    } catch {
+      return false;
+    }
+    if (!terminal) return false;
+
+    const result = await this.repo.reconcileInterruptedAgentTurnUnscoped({
+      turnRequestId: turn.id,
+      conversationId: turn.conversationId,
+      companyId: turn.companyId,
+      userId: turn.userId,
+      runId: turn.runId,
+      externalRunId: turn.externalRunId,
+    });
+    return result.reconciled;
   }
 
   private async wakeSuspendedRun(conversationId: string) {

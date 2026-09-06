@@ -25,7 +25,7 @@ const conversationId = "00000000-0000-4000-8000-000000000001";
 describe("CreateChatSupportTicketInteractor", () => {
   it("emails the support details with the recent Assistant transcript", async () => {
     const repo = {
-      findConversation: vi.fn().mockResolvedValue({ id: conversationId }),
+      findUserConversation: vi.fn().mockResolvedValue({ id: conversationId }),
       listRecentMessages: vi.fn().mockResolvedValue([
         {
           role: "user",
@@ -52,7 +52,7 @@ describe("CreateChatSupportTicketInteractor", () => {
 
   it("does not send an email for an inaccessible conversation", async () => {
     const repo = {
-      findConversation: vi.fn().mockResolvedValue(null),
+      findUserConversation: vi.fn().mockResolvedValue(null),
       listRecentMessages: vi.fn(),
     };
     const feedbackCreator = { create: vi.fn() };
@@ -72,7 +72,7 @@ describe("CreateChatSupportTicketInteractor", () => {
 
   it("propagates a rejected support email", async () => {
     const repo = {
-      findConversation: vi.fn().mockResolvedValue({ id: conversationId }),
+      findUserConversation: vi.fn().mockResolvedValue({ id: conversationId }),
       listRecentMessages: vi.fn().mockResolvedValue([]),
     };
     const feedbackCreator = {

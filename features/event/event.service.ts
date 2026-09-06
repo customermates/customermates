@@ -1,12 +1,17 @@
 import type { DomainEventMap, DomainEvent } from "./domain-events";
+
 import type { DomainEventListener } from "./domain-event.listener";
 
 import { AUDIT_LOG_EXCLUDED_EVENTS } from "./domain-events";
 import type { CreateWebhookDeliveryRepo } from "@/features/webhook/create-webhook-delivery.repo";
 import type { ChangeRecord } from "@/core/utils/calculate-changes";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
+import type { TriggerRoutinesRepo } from "@/ee/routines/trigger-routines.repo";
+import type { RoutineEventAccess } from "@/ee/routines/routine-event-access";
 
 import { UserAccessor } from "@/core/base/user-accessor";
+import { currentRoutineContext } from "@/core/decorators/routine-context";
+import { carriesChangedFields, changedFieldsOf, matchesChangedFields } from "@/ee/routines/routine-event-filter";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { env } from "@/env";
 
@@ -33,6 +38,7 @@ export type PublishResult = {
   skipped: "no-op-update" | null;
   listenerHandlers: number;
   webhookDeliveries: number;
+  routineRuns: number;
 };
 
 function isNoOpUpdate(data: { payload: unknown }): boolean {
@@ -49,6 +55,8 @@ export class EventService extends UserAccessor {
     private webhookDeliveryRepo: CreateWebhookDeliveryRepo,
     private auditLogRepo: CreateAuditLogRepo,
     private backgroundTaskService: BackgroundTaskService,
+    private routineRepo: TriggerRoutinesRepo,
+    private routineEventAccess: RoutineEventAccess,
   ) {
     super();
   }
@@ -58,8 +66,15 @@ export class EventService extends UserAccessor {
     data: ScopedEventData<E>,
     opts?: { systemCompanyId?: string; systemUserId?: string },
   ): Promise<PublishResult> {
-    if (isNoOpUpdate(data))
-      return this.logAndReturn({ event, skipped: "no-op-update", listenerHandlers: 0, webhookDeliveries: 0 });
+    if (isNoOpUpdate(data)) {
+      return this.logAndReturn({
+        event,
+        skipped: "no-op-update",
+        listenerHandlers: 0,
+        webhookDeliveries: 0,
+        routineRuns: 0,
+      });
+    }
 
     const system = opts?.systemCompanyId !== undefined;
     const companyId = opts?.systemCompanyId ?? this.user.companyId;
@@ -67,10 +82,11 @@ export class EventService extends UserAccessor {
     const eventData = { ...data, userId, companyId } as DomainEventMap[E];
     const matchingListeners = system ? [] : this.eventListeners.filter((l) => l.handles(event));
 
-    const [, , webhookDeliveries] = await Promise.all([
+    const [, , webhookDeliveries, routineRuns] = await Promise.all([
       Promise.all(matchingListeners.map((listener) => listener.handle(event, eventData))),
       this.createAuditLog(event, eventData, system),
       this.createWebhookDeliveries(event, eventData, companyId, system),
+      this.createRoutineRuns(event, eventData, companyId),
     ]);
 
     return this.logAndReturn({
@@ -78,13 +94,16 @@ export class EventService extends UserAccessor {
       skipped: null,
       listenerHandlers: matchingListeners.length,
       webhookDeliveries,
+      routineRuns,
     });
   }
 
   private logAndReturn(result: PublishResult): PublishResult {
     if (env.NODE_ENV !== "production") {
-      const { event, skipped, listenerHandlers, webhookDeliveries } = result;
-      const suffix = skipped ? ` skipped=${skipped}` : ` listeners=${listenerHandlers} webhooks=${webhookDeliveries}`;
+      const { event, skipped, listenerHandlers, webhookDeliveries, routineRuns } = result;
+      const suffix = skipped
+        ? ` skipped=${skipped}`
+        : ` listeners=${listenerHandlers} webhooks=${webhookDeliveries} routines=${routineRuns}`;
       // eslint-disable-next-line no-console
       console.log(`[event] ${event}${suffix}`);
     }
@@ -110,6 +129,68 @@ export class EventService extends UserAccessor {
       eventData: payload as Record<string, unknown>,
       entityId: payload.entityId,
     });
+  }
+
+  private async createRoutineRuns(
+    event: DomainEvent,
+    payload: DomainEventMap[DomainEvent],
+    companyId: string,
+  ): Promise<number> {
+    if (!WebhookEventSchema.options.some((option) => option === event)) return 0;
+
+    const subscribed = await this.routineRepo.findEventRoutinesUnscoped(companyId, event);
+    if (subscribed.length === 0) return 0;
+
+    const changed = changedFieldsOf(payload);
+    const changedFieldMatches = carriesChangedFields(payload)
+      ? subscribed.filter((routine) => matchesChangedFields(routine.changedFields, changed))
+      : subscribed;
+    const routines = (
+      await Promise.all(
+        changedFieldMatches.map(async (routine) => ({
+          routine,
+          matches: await this.routineEventAccess.matchesUserUnscoped({
+            companyId,
+            userId: routine.ownerUserId,
+            event,
+            entityId: payload.entityId,
+            triggerPayload: payload,
+            filters: routine.triggerFilters,
+          }),
+        })),
+      )
+    ).flatMap(({ routine, matches }) => (matches ? [routine] : []));
+    if (routines.length === 0) return 0;
+
+    if (currentRoutineContext()) {
+      await this.routineRepo.countSuppressedRoutineEventsUnscoped(routines.map((routine) => routine.id));
+      return 0;
+    }
+
+    const admitted = await this.routineRepo.admitEventRoutineRunsUnscoped({
+      companyId,
+      event,
+      entityId: payload.entityId,
+      triggerPayload: payload,
+      routines: routines.map((routine) => ({
+        id: routine.id,
+        ownerUserId: routine.ownerUserId,
+        updatedAt: routine.updatedAt,
+      })),
+      now: new Date(),
+    });
+
+    await Promise.all(
+      admitted.map((run) =>
+        this.backgroundTaskService.dispatch("run-routine", {
+          routineRunId: run.id,
+          companyId,
+          ownerUserId: run.executedByUserId,
+        }),
+      ),
+    );
+
+    return admitted.length;
   }
 
   private async createWebhookDeliveries(

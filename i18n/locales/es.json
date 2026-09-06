@@ -305,7 +305,7 @@
       "resuming": "Decisión guardada — Mate continúa…",
       "retryResume": "Mate aún no pudo continuar. Reintenta la misma decisión.",
       "timeout": "Tiempo agotado sin respuesta",
-      "title": "El asistente quiere ejecutar:"
+      "title": "Mate quiere ejecutar:"
     },
     "askAi": "Preguntar a la IA",
     "askAiWorking": "Mate está trabajando",
@@ -327,9 +327,9 @@
     "errors": {
       "approvalFailed": "No se pudo enviar la aprobación.",
       "limitReached": "No quedan suficientes créditos de IA para iniciar otra solicitud.",
-      "sendFailed": "El asistente no ha podido procesar su mensaje.",
+      "sendFailed": "Mate no ha podido procesar su mensaje.",
       "stopFailed": "No se pudo detener a Mate. Se está reconectando para que puedas intentarlo de nuevo.",
-      "turnFailed": "Se ha producido un error en el asistente."
+      "turnFailed": "Se ha producido un error en Mate."
     },
     "greeting": {
       "headline": "Hola, soy Mate",
@@ -340,10 +340,12 @@
     "runner": {
       "cancelled": "Esta respuesta se ha detenido.",
       "creditLimit": "He completado parte de esta solicitud, pero me he detenido porque se han agotado tus créditos del Asistente. El trabajo completado se mantiene; los créditos se restablecen al inicio de tu siguiente periodo.",
+      "creditLimitNoWrite": "Me he detenido antes de hacer ningún cambio porque tus créditos de Assistant se han agotado. No se ha creado, actualizado ni enviado nada. Los créditos se restablecen al inicio de tu siguiente periodo.",
       "emptyReply": "No he podido generar una respuesta. Inténtalo de nuevo.",
       "hostedAiUnavailable": "La IA alojada no está disponible temporalmente. Inténtalo de nuevo más tarde.",
       "outputLimit": "He completado parte de esta respuesta, pero he alcanzado el límite de salida de este turno. Pídeme que continúe y terminaré a partir del trabajo ya completado.",
       "safetyLimit": "He completado parte de esta solicitud, pero me he detenido porque los últimos pasos se repetían, fallaban o alcanzaron un límite de seguridad. El trabajo completado se conserva; revisa los pasos anteriores antes de pedirme que siga.",
+      "safetyLimitNoWrite": "Me he detenido antes de hacer ningún cambio porque los últimos pasos se repetían, fallaban o alcanzaron un límite de seguridad. No se ha creado, actualizado ni enviado nada.",
       "turnError": "No he podido completar esa solicitud. Inténtalo de nuevo."
     },
     "send": "Enviar",
@@ -653,7 +655,7 @@
       "archive": "Archivar el chat",
       "archived": "Archivado",
       "archivedChats": "Chats archivados",
-      "assistantWorking": "El asistente está respondiendo",
+      "assistantWorking": "Mate está respondiendo",
       "back": "Volver al chat",
       "cancel": "Cancelar",
       "chats": "Chats",
@@ -675,6 +677,7 @@
       "newChat": "Nuevo chat",
       "noChats": "Aún no hay chats",
       "noChatsBody": "Inicie un chat para volver más tarde a sus preguntas y al trabajo completado.",
+      "preparingAction": "Preparando la siguiente acción…",
       "queued": "A continuación",
       "reconnecting": "Reconectando con Mate…",
       "refreshHistoryFailed": "No se ha podido actualizar el historial de chats. Sus chats existentes siguen visibles.",
@@ -684,13 +687,17 @@
       "retryTurn": "Reintentar",
       "routeSyncRefreshing": "Actualizando la página…",
       "routeSyncWaiting": "La actualización de la página espera a que termines tus cambios…",
+      "startingRequest": "Iniciando…",
       "stepsTook": "{steps, plural, one {# paso} other {# pasos}} · {seconds}s",
       "stopping": "Deteniendo a Mate…",
       "tableCopied": "Tabla copiada",
       "thinking": "Pensando",
       "turnFailed": "No se ha podido completar esta respuesta.",
+      "turnInterrupted": "La respuesta se ha interrumpido. Es posible que ya se hayan aplicado cambios. Revisa los registros actuales antes de enviar una nueva solicitud.",
       "undo": "Deshacer",
-      "untitled": "Nuevo chat"
+      "untitled": "Nuevo chat",
+      "waitElapsed": "{seconds} s transcurridos",
+      "workingOnRequest": "Procesando tu solicitud…"
     }
   },
   "AgplGithubBadge": {
@@ -956,6 +963,7 @@
       "customColumnIdNotFound": "ID de columna personalizada no encontrado o no accesible.",
       "customColumnNotFound": "ID de columna personalizada no encontrado o no accesible. Columnas disponibles: {validValues}.",
       "customColumnTypeMismatch": "Esta columna personalizada es de tipo {actualType}, no {expectedType}. Establece el tipo en {actualType} para actualizarla.",
+      "customColumnUsedByRoutineCannotDelete": "Esta columna personalizada se usa en uno o varios filtros de rutinas. Quítala de esas rutinas antes de eliminarla.",
       "customFieldInvalidCurrency": "El valor de moneda no es válido. Debe ser un número válido.",
       "customFieldInvalidDate": "La fecha no es válida. Debe estar en formato ISO 8601 (por ejemplo 2024-01-15) o en formato fecha-hora ISO 8601 (por ejemplo 2024-01-15T00:00:00Z).",
       "customFieldInvalidDateRange": "El intervalo de fechas no es válido. Debe contener dos fechas ISO 8601 separadas por una coma, con el inicio anterior o igual al fin (por ejemplo 2024-01-15,2024-01-22).",
@@ -1015,6 +1023,21 @@
       "roleSelfEditForbidden": "No puedes cambiar los permisos del rol que tienes asignado.",
       "roleSystemImmutable": "Los roles del sistema no se pueden editar.",
       "roleSystemRequired": "Al menos un usuario debe ser administrador del sistema.",
+      "routineAdminRequired": "Solo un administrador de la empresa puede pausar o eliminar rutinas.",
+      "routineDeleteHasRunningRun": "Espera a que termine la ejecución activa antes de eliminar esta rutina.",
+      "routineEditNotOwner": "Solo el propietario puede cambiar la configuración o activación de esta rutina.",
+      "routineLimitReached": "Tu plan incluye {limit} rutinas. Cambia a Business para tener rutinas ilimitadas.",
+      "routineNotFound": "ID de rutina no encontrado o no accesible.",
+      "routineOwnerIneligible": "El propietario de la rutina debe ser un miembro activo de esta empresa.",
+      "routineRunNotOwner": "Solo quien posee esta rutina puede ejecutarla, porque consume sus créditos de IA.",
+      "routineRunNowRequiresSchedule": "Solo las rutinas programadas se pueden probar manualmente.",
+      "routineScheduleInvalid": "Esa programación no es una expresión cron válida.",
+      "routineScheduleRequired": "Elige una programación o una fecha única para esta rutina.",
+      "routineScheduleTooFrequent": "Esta programación se ejecuta con demasiada frecuencia. Las rutinas pueden ejecutarse como máximo cada 15 minutos.",
+      "routinesRequirePaidPlan": "Las rutinas están disponibles a partir de Pro. Cambia de plan para crear una.",
+      "routineTestRequiresEnabled": "Activa la rutina antes de probarla.",
+      "routineTimeZoneInvalid": "Esa zona horaria no es compatible.",
+      "routineTriggerEventsRequired": "Selecciona al menos un evento para esta rutina.",
       "salesNavigatorNotAvailable": "Esta cuenta de LinkedIn no tiene Sales Navigator conectado.",
       "salesNavigatorRequiresLinkedin": "Sales Navigator requiere una cuenta de LinkedIn conectada, pero esta cuenta es {provider}.",
       "sendEmailTargetRequired": "Selecciona una conversación o una cuenta desde la que enviar.",
@@ -1156,8 +1179,11 @@
         "connectedAccountId": "Canal",
         "createdAt": "Creado el",
         "event": "Evento",
+        "firstName": "Nombre",
         "isPlatformOperator": "Operador de plataforma",
         "lastActiveAt": "Última actividad",
+        "lastName": "Apellidos",
+        "name": "Nombre",
         "participants": "Participantes",
         "plan": "Plan",
         "provider": "Proveedor",
@@ -1189,7 +1215,8 @@
         "isNull": "está vacío",
         "lt": "<",
         "lte": "≤",
-        "notIn": "no es uno de"
+        "notIn": "no es uno de",
+        "startsWith": "Empieza por"
       },
       "presets": {
         "add": "Guardar como preajuste…",
@@ -1212,6 +1239,7 @@
       "aggregationType": "Métrica",
       "amount": "Importe",
       "avatarUrl": "URL del avatar",
+      "changedFields": "Campos modificados",
       "company": "Empresa",
       "confirmEmail": "Confirmar el correo",
       "confirmPassword": "Confirmar la contraseña",
@@ -1231,6 +1259,7 @@
       "email": "Correo electrónico",
       "emails": "Correos electrónicos",
       "emptyContent": "Sin resultados",
+      "enabled": "Activa",
       "entityType": "Elemento",
       "events": "Eventos",
       "feedback": "Comentarios",
@@ -1250,10 +1279,17 @@
         "lastOption": "Una selección única necesita al menos una opción"
       },
       "password": "Contraseña",
+      "prompt": "Instrucciones",
       "roleId": "Rol",
+      "scheduleDayOfMonth": "Día del mes",
+      "schedulePreset": "Se repite",
+      "scheduleWeekday": "Día de la semana",
       "secret": "Secreto",
       "status": "Estado",
       "theme": "Tema",
+      "triggerEvents": "Eventos",
+      "triggerFilters": "Filtros de registro",
+      "triggerKind": "Disparador",
       "type": "Tipo",
       "unavailableSelection": "Selección no disponible",
       "url": "URL",
@@ -1348,8 +1384,10 @@
         "lastActiveAt": "Última actividad",
         "lastName": "Apellidos",
         "lastRequest": "Último uso",
+        "lastRun": "Última ejecución",
         "members": "Miembros",
         "name": "Nombre",
+        "nextRunAt": "Próxima ejecución",
         "notes": "Notas",
         "operator": "Operador",
         "options": "Opciones",
@@ -1372,6 +1410,7 @@
         "totalQuantity": "Cantidad de servicios",
         "totalValue": "Valor de la oportunidad",
         "trialEnd": "Fin de prueba",
+        "trigger": "Disparador",
         "type": "Tipo",
         "updatedAt": "Actualizado el",
         "url": "URL",
@@ -1787,6 +1826,7 @@
     "appOnboarding": "Asistente de configuración",
     "appProfile": "Perfil",
     "appRecords": "Registros",
+    "appRoutines": "Rutinas",
     "appSearch": "Búsqueda global",
     "architectureSecurity": "Arquitectura y seguridad",
     "concepts": "Conceptos clave",
@@ -2441,6 +2481,7 @@
       "taskManagement": "Gestión de tareas",
       "unifiedInbox": "Bandeja unificada"
     },
+    "routines": "Rutinas",
     "search": "Buscar",
     "settings": "Ajustes",
     "subscription": "Suscripción",
@@ -2877,6 +2918,108 @@
     "system": "Sistema",
     "title": "Roles"
   },
+  "RoutineAdministration": {
+    "help": "Como administrador de la empresa, puedes pausar o eliminar esta rutina, pero no editarla, probarla ni ejecutarla.",
+    "pause": "Pausar rutina",
+    "pauseConfirmation": "¿Pausar «{name}»? Las ejecuciones en cola se omitirán.",
+    "pauseTitle": "Pausar rutina",
+    "title": "Controles de administración"
+  },
+  "RoutineDetail": {
+    "credits": "Créditos",
+    "disabledAdminPaused": "Un administrador de la empresa pausó esta rutina.",
+    "disabledGeneric": "Esta rutina está pausada y no se ejecutará hasta que su propietario la active.",
+    "disabledOwnerPaused": "El propietario pausó esta rutina.",
+    "disabledOwnerUnavailable": "Esta rutina se pausó porque su propietario ya no está disponible. Permanece en modo de solo lectura y un administrador de la empresa puede eliminarla.",
+    "disabledRepeatedFailures": "Mate ha pausado esta rutina porque sus tres últimas ejecuciones fallaron. Corrige las instrucciones y vuelve a activarla.",
+    "disabledRepeatedFailuresReadOnly": "Mate pausó esta rutina porque sus tres últimas ejecuciones fallaron. Su propietario debe corregir las instrucciones y volver a activarla.",
+    "disabledTitle": "Rutina pausada",
+    "never": "Nunca",
+    "noRuns": "Esta rutina aún no se ha ejecutado.",
+    "owner": "Propietario",
+    "ownerOnlyEdit": "Esta rutina es de solo lectura para ti. Solo se ejecuta como {owner}, quien puede editarla o pausarla. Los administradores de la empresa solo pueden pausarla o eliminarla.",
+    "ownerUnavailable": "Propietario no disponible",
+    "ownerUnavailableReadOnly": "Esta rutina ya no tiene un propietario disponible, por lo que permanece en pausa y en modo de solo lectura. Un administrador de la empresa puede eliminarla.",
+    "ranAs": "Ejecutada como {owner}",
+    "readOnlyTitle": "Acceso de solo lectura",
+    "runs": "Ejecuciones",
+    "testTrigger": "Probar disparador",
+    "testTriggerEnableFirst": "Activa esta rutina antes de probarla.",
+    "testTriggerEventUnavailable": "Los disparadores de eventos necesitan datos reales. Genera un evento coincidente en el espacio de trabajo para probar esta rutina.",
+    "testTriggerSaveFirst": "Guarda los cambios antes de probar esta rutina.",
+    "testTriggerWarning": "Ejecuta esta rutina ahora. Usará tus créditos de IA y puede realizar las acciones indicadas en sus instrucciones.",
+    "transcriptOwnerOnly": "Solo {owner}, que ejecutó esta rutina, puede abrir la transcripción completa."
+  },
+  "RoutineModal": {
+    "at": "a las",
+    "changedFieldsHelp": "Déjalo vacío para ejecutar en cada cambio. Acotar ahorra créditos.",
+    "customSchedule": "Esta rutina usa una programación personalizada: {expression}",
+    "detailsTab": "Detalles",
+    "disabled": "En pausa",
+    "enabled": "Activa",
+    "enabledHelp": "Las rutinas en pausa conservan su programación, pero no se ejecutan.",
+    "eventSuppressionNote": "Los eventos causados por rutinas no activan rutinas.",
+    "onMinute": "en el minuto",
+    "promptExampleEvent": "Lee el registro que ha cambiado y responde con una frase sobre lo que significa.",
+    "promptExampleSchedule": "Resume lo que ha cambiado desde ayer y responde con una lista breve.",
+    "scheduleTimeZone": "Las horas se muestran en {timezone}.",
+    "title": "Rutina",
+    "triggerFiltersHelp": "Déjalo vacío para ejecutar con cualquier registro.",
+    "useSchedulePreset": "Cambiar a una frecuencia predefinida"
+  },
+  "RoutineRunReason": {
+    "adminPaused": "Un administrador de la empresa pausó la rutina",
+    "filtersNotMatched": "El registro no coincidió con los filtros",
+    "hourlyRunLimit": "Se alcanzó el límite de ejecuciones por hora",
+    "ownerInactive": "La cuenta del propietario de la rutina ya no está activa",
+    "ownerPaused": "El propietario pausó la rutina",
+    "ownerRunLimit": "Ya había otra ejecución en curso",
+    "ownerUnavailable": "El propietario de la rutina ya no está disponible",
+    "routineDisabled": "La rutina estaba en pausa",
+    "startAbandoned": "La ejecución se interrumpió antes de empezar",
+    "startFailed": "No se pudo iniciar la ejecución",
+    "unknownFailure": "No se pudo completar la ejecución"
+  },
+  "RoutineRunStatus": {
+    "blocked": "Bloqueada",
+    "failed": "Fallida",
+    "partial": "Parcial",
+    "queued": "En cola",
+    "running": "En ejecución",
+    "skipped": "Omitida",
+    "succeeded": "Correcta"
+  },
+  "RoutinesCard": {
+    "emptyBody": "Mate puede trabajar mientras no estás. Por ejemplo: resumir cada mañana laborable lo que ha cambiado, o redactar un correo de agradecimiento cuando algo se gana.",
+    "emptyTitle": "Aún no hay rutinas"
+  },
+  "RoutineSchedule": {
+    "daily": "Todos los días a las {time}",
+    "hourly": "Cada hora a los :{minute}",
+    "monthly": "El día {day} de cada mes a las {time}",
+    "weekly": "Cada {weekday} a las {time}"
+  },
+  "RoutineSchedulePreset": {
+    "daily": "Cada día",
+    "every15Minutes": "Cada 15 minutos",
+    "every30Minutes": "Cada 30 minutos",
+    "hourly": "Cada hora",
+    "monthly": "Cada mes",
+    "weekly": "Cada semana"
+  },
+  "RoutineTriggerKind": {
+    "event": "Cuando algo cambia",
+    "schedule": "Según un horario"
+  },
+  "RoutineWeekday": {
+    "friday": "Viernes",
+    "monday": "Lunes",
+    "saturday": "Sábado",
+    "sunday": "Domingo",
+    "thursday": "Jueves",
+    "tuesday": "Martes",
+    "wednesday": "Miércoles"
+  },
   "ServiceModal": {
     "title": "Servicio"
   },
@@ -2946,7 +3089,9 @@
       },
       "hostedAiCredits": "{credits, number} créditos de IA alojada por usuario activo / mes",
       "mostPopular": "El más popular",
-      "perUserMonth": "por usuario / mes"
+      "perUserMonth": "por usuario / mes",
+      "routines": "{routines, plural, one {# rutina} other {# rutinas}}",
+      "unlimitedRoutines": "Rutinas ilimitadas"
     },
     "plan": "Plan",
     "planNames": {

@@ -44,7 +44,7 @@ export class CreateChatSupportTicketInteractor extends AuthenticatedInteractor<
     tx: false,
   })
   async invoke(data: CreateChatSupportTicketData): Validated<SupportRequestResult> {
-    const conversation = await this.repo.findConversation(data.conversationId);
+    const conversation = await this.repo.findUserConversation(data.conversationId);
     if (!conversation) return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     const messages = await this.repo.listRecentMessages(conversation.id, SUPPORT_TRANSCRIPT_MESSAGE_LIMIT);

@@ -73,6 +73,9 @@ export const DEFAULT_FILTER_VALUE_KIND: Record<FilterFieldKey, FilterValueKind> 
   [FilterFieldKey.adProvider]: { kind: "enum", values: AD_PROVIDER_ORDER },
   [FilterFieldKey.auditSource]: { kind: "enum", values: AUDIT_SOURCE_FILTER_VALUES },
   [FilterFieldKey.workspaceTags]: { kind: "string" },
+  [FilterFieldKey.name]: { kind: "string" },
+  [FilterFieldKey.firstName]: { kind: "string" },
+  [FilterFieldKey.lastName]: { kind: "string" },
 };
 
 export const filterValueKind = (field: string): FilterValueKind | undefined =>

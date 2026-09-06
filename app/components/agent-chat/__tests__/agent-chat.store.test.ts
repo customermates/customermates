@@ -443,6 +443,96 @@ describe("AgentChatStore", () => {
     expect(store.isAwaitingAssistantResponse).toBe(false);
   });
 
+  it("keeps lifecycle progress transient and resets it for a new turn", () => {
+    const store = new AgentChatStore(root() as never);
+    const internal = store as unknown as {
+      beginActiveTurnMutationTracking: () => number;
+      handleEvent: (event: Record<string, unknown>) => void;
+      resetConversation: (id: string | null) => void;
+    };
+    store.items = [{ kind: "user", id: "u1", messageId: "u1", text: "Long request" }];
+    store.isWorking = true;
+    internal.beginActiveTurnMutationTracking();
+    expect(store.progressPhase).toBe("starting");
+    expect(store.progressStartedAt).toEqual(expect.any(Number));
+    internal.handleEvent({ seq: 0, type: "progress", phase: "working", secret: "not copied" });
+    expect(store.progressPhase).toBe("working");
+    internal.handleEvent({ seq: 1, type: "progress", phase: "preparing_action" });
+    expect(store.progressPhase).toBe("preparing_action");
+    internal.handleEvent({ seq: 2, type: "progress", phase: "untrusted" });
+    expect(store.progressPhase).toBe("preparing_action");
+    expect(store.items).toEqual([{ kind: "user", id: "u1", messageId: "u1", text: "Long request" }]);
+    internal.handleEvent({ seq: 3, type: "delta", text: "Answer" });
+    expect(store.progressPhase).toBeNull();
+    internal.handleEvent({ seq: 4, type: "progress", phase: "working" });
+    expect(store.progressPhase).toBeNull();
+    internal.resetConversation(null);
+    expect(store.progressStartedAt).toBeNull();
+    internal.beginActiveTurnMutationTracking();
+    expect(store.progressPhase).toBe("starting");
+  });
+
+  it.each(["turn_done", "error", "stop"])("does not resurrect progress after %s", (terminal) => {
+    const store = new AgentChatStore(root() as never);
+    const internal = store as unknown as {
+      handleEvent: (event: Record<string, unknown>) => void;
+      activeTurnStopRequested: boolean;
+    };
+    store.items = [{ kind: "user", id: "u1", messageId: "u1", text: "Long request" }];
+    store.isWorking = true;
+    store.progressPhase = "working";
+    if (terminal === "stop") {
+      internal.activeTurnStopRequested = true;
+      store.progressPhase = null;
+      store.streamStatus = "stopping";
+    } else internal.handleEvent({ seq: 0, type: terminal });
+    internal.handleEvent({ seq: 1, type: "progress", phase: "working" });
+    expect(store.progressPhase).toBeNull();
+    if (terminal === "stop") expect(store.streamStatus).toBe("stopping");
+  });
+
+  it("accepts progress when reattaching after a failed turn", () => {
+    const store = new AgentChatStore(root() as never);
+    const internal = store as unknown as {
+      beginActiveTurnMutationTracking: () => number;
+      handleEvent: (event: Record<string, unknown>) => void;
+    };
+    store.items = [{ kind: "user", id: "failed-user", messageId: "failed-user", text: "Previous request" }];
+    store.isWorking = true;
+    internal.beginActiveTurnMutationTracking();
+    internal.handleEvent({ seq: 0, type: "error" });
+    expect(store.progressPhase).toBeNull();
+
+    store.items = [{ kind: "user", id: "running-user", messageId: "running-user", text: "Another running request" }];
+    internal.beginActiveTurnMutationTracking();
+    store.streamStatus = "reconnecting";
+    internal.handleEvent({ seq: 0, type: "progress", phase: "working" });
+    expect(store.progressPhase).toBe("working");
+    expect(store.streamStatus).toBe("working");
+  });
+
+  it("deduplicates replayed progress and ignores a previous turn's stream", async () => {
+    const store = new AgentChatStore(root() as never);
+    const internal = store as unknown as {
+      beginActiveTurnMutationTracking: () => number;
+      readStream: (stream: ReadableStream<Uint8Array>, generation: number) => Promise<void>;
+    };
+    store.items = [{ kind: "user", id: "u1", messageId: "u1", text: "Long request" }];
+    store.isWorking = true;
+    const generation = internal.beginActiveTurnMutationTracking();
+    const stream = new Response(
+      'data: {"seq":0,"type":"progress","phase":"working"}\n\ndata: {"seq":0,"type":"progress","phase":"preparing_action"}\n\n',
+    ).body;
+    if (!stream) throw new Error("Missing synthetic stream");
+    await internal.readStream(stream, generation);
+    expect(store.progressPhase).toBe("working");
+    internal.beginActiveTurnMutationTracking();
+    const oldStream = new Response('data: {"seq":1,"type":"progress","phase":"preparing_action"}\n\n').body;
+    if (!oldStream) throw new Error("Missing synthetic stream");
+    await internal.readStream(oldStream, generation);
+    expect(store.progressPhase).toBe("starting");
+  });
+
   it("shows explicit continuation progress after an approval is acknowledged", () => {
     const store = new AgentChatStore(root() as never);
     store.isWorking = true;
@@ -519,6 +609,32 @@ describe("AgentChatStore", () => {
 
     expect(store.conversationId).toBe(secondId);
     expect(store.items).toMatchObject([{ kind: "assistant", text: "Second chat" }]);
+  });
+
+  it("hides the routine trigger envelope when replaying a routine run", async () => {
+    const conversationId = "00000000-0000-4000-8000-0000000000a1";
+    const prompt = "Read the deal that changed and reply with a one sentence summary.";
+    actionsMock.getAgentConversationAction.mockResolvedValue({
+      id: conversationId,
+      title: "Routine run",
+      messages: [
+        {
+          id: "m1",
+          role: "user",
+          parts: [
+            {
+              type: "text",
+              text: `<routine_trigger event="deal.updated" entityId="abc" />\n${prompt}`,
+            },
+          ],
+        },
+      ],
+    });
+    const store = new AgentChatStore(root() as never);
+
+    await store.selectConversation(conversationId);
+
+    expect(store.items).toMatchObject([{ kind: "user", text: prompt }]);
   });
 
   it("keeps the current transcript and exposes a retry state when history loading fails", async () => {
@@ -2656,6 +2772,413 @@ describe("AgentChatStore", () => {
     expect(store.routeRefreshRevision).toBe(1);
     expect(store.routeSyncStatus).toBe("waiting");
     expect(store.streamStatus).toBe("idle");
+    expect(store.items.filter((item) => item.kind === "turn_interrupted")).toHaveLength(1);
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    fetchMock.mockRestore();
+  });
+
+  it("shows a durable non-retry notice for an uncertain turn with no saved assistant response", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000111";
+    const clientRequestId = "00000000-0000-4000-8000-000000000112";
+    const userMessage = {
+      id: "persisted-user-uncertain",
+      role: "user",
+      parts: [{ type: "text", text: "Check my deals" }],
+      createdAt: new Date(0),
+      turn: {
+        clientRequestId,
+        status: "uncertain",
+        assistantMessageId: null,
+        terminalCode: null,
+      },
+    };
+    actionsMock.getAgentConversationAction.mockResolvedValue({
+      id: conversationId,
+      activeTurn: false,
+      messages: [userMessage],
+      nextCursor: null,
+    });
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response("", {
+        headers: {
+          "content-type": "text/event-stream",
+          "x-conversation-id": conversationId,
+        },
+      }),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    await store.sendMessage("Check my deals", { messageId: clientRequestId });
+
+    expect(store.items.filter((item) => item.kind === "turn_interrupted")).toEqual([
+      expect.objectContaining({ messageId: clientRequestId }),
+    ]);
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "assistant" }));
+    expect(store.hasInSessionTerminalResult).toBe(false);
+    expect(store.isWorking).toBe(false);
+    expect(fetchMock).toHaveBeenCalledOnce();
+
+    const reloaded = new AgentChatStore(root() as never);
+    await reloaded.selectConversation(conversationId);
+    expect(reloaded.items.filter((item) => item.kind === "turn_interrupted")).toEqual([
+      expect.objectContaining({ messageId: userMessage.id }),
+    ]);
+    expect(reloaded.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    expect(fetchMock).toHaveBeenCalledOnce();
+
+    reloaded.newConversation();
+    expect(reloaded.items).toEqual([]);
+    expect(reloaded.conversationId).toBeNull();
+    expect(fetchMock).toHaveBeenCalledOnce();
+    fetchMock.mockRestore();
+  });
+
+  it.each(["completed", "partial", "cancelled"])(
+    "restores a saved %s result when its terminal stream event was lost",
+    async (terminalCode) => {
+      const conversationId = "00000000-0000-4000-8000-000000000113";
+      const clientRequestId = "00000000-0000-4000-8000-000000000114";
+      actionsMock.getAgentConversationAction.mockResolvedValue({
+        id: conversationId,
+        activeTurn: false,
+        messages: [
+          {
+            id: "persisted-user-completed",
+            role: "user",
+            parts: [{ type: "text", text: "Check my deals" }],
+            turn: {
+              clientRequestId,
+              status: "completed",
+              assistantMessageId: "saved-assistant",
+              terminalCode,
+            },
+          },
+          {
+            id: "saved-assistant",
+            role: "assistant",
+            parts: [{ type: "text", text: "The saved result." }],
+          },
+        ],
+        nextCursor: null,
+      });
+      const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+        new Response('data: {"seq":1,"type":"delta","text":"Incomplete streamed result"}\n\n', {
+          headers: {
+            "content-type": "text/event-stream",
+            "x-conversation-id": conversationId,
+          },
+        }),
+      );
+      const store = new AgentChatStore(root() as never);
+
+      await store.sendMessage("Check my deals", { messageId: clientRequestId });
+
+      expect(store.items.filter((item) => item.kind === "assistant")).toEqual([
+        expect.objectContaining({
+          messageId: "saved-assistant",
+          text: "The saved result.",
+          streaming: false,
+        }),
+      ]);
+      expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_interrupted" }));
+      expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+      expect((store as unknown as { activeTurnFailed: boolean }).activeTurnFailed).toBe(terminalCode !== "completed");
+      expect(store.isWorking).toBe(false);
+      expect(fetchMock).toHaveBeenCalledOnce();
+      fetchMock.mockRestore();
+    },
+  );
+
+  it.each(["missing-answer", "different-request"])(
+    "does not treat %s metadata as a confirmed successful response",
+    async (scenario) => {
+      const conversationId = "00000000-0000-4000-8000-000000000115";
+      const clientRequestId = "00000000-0000-4000-8000-000000000116";
+      actionsMock.getAgentConversationAction.mockResolvedValue({
+        id: conversationId,
+        activeTurn: false,
+        messages: [
+          {
+            id: "persisted-user-unconfirmed",
+            role: "user",
+            parts: [{ type: "text", text: "Check my deals" }],
+            turn: {
+              clientRequestId: scenario === "different-request" ? "another-request" : clientRequestId,
+              status: "completed",
+              assistantMessageId: "saved-assistant",
+              terminalCode: "completed",
+            },
+          },
+          ...(scenario === "different-request"
+            ? [
+                {
+                  id: "saved-assistant",
+                  role: "assistant",
+                  parts: [{ type: "text", text: "Another request's answer" }],
+                },
+              ]
+            : []),
+        ],
+        nextCursor: null,
+      });
+      const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+        new Response("", {
+          headers: {
+            "content-type": "text/event-stream",
+            "x-conversation-id": conversationId,
+          },
+        }),
+      );
+      const store = new AgentChatStore(root() as never);
+
+      await store.sendMessage("Check my deals", { messageId: clientRequestId });
+
+      expect(store.items.filter((item) => item.kind === "turn_interrupted")).toHaveLength(1);
+      expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "assistant" }));
+      expect(store.hasInSessionTerminalResult).toBe(false);
+      expect(fetchMock).toHaveBeenCalledOnce();
+      fetchMock.mockRestore();
+    },
+  );
+
+  it("does not apply a late recovery snapshot after navigation to a new conversation", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000117";
+    let resolveSnapshot!: (snapshot: { activeTurn: boolean; messages: never[]; nextCursor: null }) => void;
+    actionsMock.getAgentConversationAction.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveSnapshot = resolve;
+        }),
+    );
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response("", {
+        headers: {
+          "content-type": "text/event-stream",
+          "x-conversation-id": conversationId,
+        },
+      }),
+    );
+    const store = new AgentChatStore(root() as never);
+    const sending = store.sendMessage("Check my deals");
+    await vi.waitFor(() => expect(actionsMock.getAgentConversationAction).toHaveBeenCalled());
+
+    (store as unknown as { beginNewConversation: () => void }).beginNewConversation();
+    resolveSnapshot({ activeTurn: false, messages: [], nextCursor: null });
+    await sending;
+
+    expect(store.conversationId).toBeNull();
+    expect(store.items).toEqual([]);
+    expect(store.routeRefreshRevision).toBe(0);
+    expect(store.isWorking).toBe(false);
+    expect(fetchMock).toHaveBeenCalledOnce();
+    fetchMock.mockRestore();
+  });
+
+  it("keeps the exact request identity and does not re-submit an uncertain busy-turn recovery", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000120";
+    const clientRequestId = "00000000-0000-4000-8000-000000000121";
+    actionsMock.getAgentConversationAction.mockResolvedValue({
+      id: conversationId,
+      activeTurn: false,
+      nextCursor: null,
+      messages: [
+        {
+          id: "another-user",
+          role: "user",
+          parts: [{ type: "text", text: "Another question" }],
+          turn: {
+            clientRequestId: "another-request",
+            status: "completed",
+            assistantMessageId: "another-assistant",
+            terminalCode: "completed",
+          },
+        },
+        { id: "another-assistant", role: "assistant", parts: [{ type: "text", text: "Another answer" }] },
+      ],
+    });
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ disposition: "running", conversationId, clientRequestId }), {
+          status: 409,
+          headers: { "content-type": "application/json", "x-conversation-id": conversationId },
+        }),
+      )
+      .mockResolvedValueOnce(new Response("", { headers: { "content-type": "text/event-stream" } }));
+    const store = new AgentChatStore(root() as never);
+
+    await store.sendMessage("Check my deals", { messageId: clientRequestId });
+    await vi.waitFor(() => expect(store.items).toContainEqual(expect.objectContaining({ kind: "turn_interrupted" })));
+    await Promise.resolve();
+
+    expect(store.items.filter((item) => item.kind === "turn_interrupted")).toEqual([
+      expect.objectContaining({ messageId: clientRequestId }),
+    ]);
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "assistant" }));
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    expect(store.hasInSessionTerminalResult).toBe(false);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls.filter((call) => call[1]?.method === "POST")).toHaveLength(1);
+    fetchMock.mockRestore();
+  });
+
+  it("does not replay a completed history result when a reattached stream has no known request identity", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000122";
+    actionsMock.getAgentConversationAction.mockResolvedValue({
+      id: conversationId,
+      activeTurn: false,
+      nextCursor: null,
+      messages: [
+        {
+          id: "unknown-user",
+          role: "user",
+          parts: [{ type: "text", text: "Unknown question" }],
+          turn: {
+            clientRequestId: "unknown-request",
+            status: "completed",
+            assistantMessageId: "unknown-assistant",
+            terminalCode: "completed",
+          },
+        },
+        { id: "unknown-assistant", role: "assistant", parts: [{ type: "text", text: "Unconfirmed answer" }] },
+      ],
+    });
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response("", {
+        headers: { "content-type": "text/event-stream" },
+      }),
+    );
+    const store = new AgentChatStore(root() as never);
+    store.conversationId = conversationId;
+    store.items = [{ kind: "user", id: "local-user", messageId: "local-request", text: "Check my deals" }];
+
+    await (store as unknown as { reattachStream: (id: string, version: number) => Promise<void> }).reattachStream(
+      conversationId,
+      0,
+    );
+
+    expect(store.items.filter((item) => item.kind === "turn_interrupted")).toEqual([
+      expect.objectContaining({ messageId: "local-request" }),
+    ]);
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "assistant" }));
+    expect(store.hasInSessionTerminalResult).toBe(false);
+    expect(fetchMock).toHaveBeenCalledOnce();
+    fetchMock.mockRestore();
+  });
+
+  it("shows an interrupted notice when admission reports an already uncertain request", async () => {
+    const clientRequestId = "00000000-0000-4000-8000-000000000123";
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ disposition: "uncertain" }), {
+        status: 409,
+        headers: { "content-type": "application/json" },
+      }),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    await store.sendMessage("Check my deals", { messageId: clientRequestId });
+
+    expect(store.items.filter((item) => item.kind === "turn_interrupted")).toEqual([
+      expect.objectContaining({ messageId: clientRequestId }),
+    ]);
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    expect(fetchMock).toHaveBeenCalledOnce();
+    fetchMock.mockRestore();
+  });
+
+  it("shows the interruption notice after reattaching a persisted active turn", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000118";
+    const userMessage = {
+      id: "persisted-user-reattached",
+      role: "user",
+      parts: [{ type: "text", text: "Check my deals" }],
+      turn: {
+        clientRequestId: "reattached-request",
+        status: "running",
+        assistantMessageId: null,
+        terminalCode: null,
+      },
+    };
+    actionsMock.getAgentConversationAction
+      .mockResolvedValueOnce({
+        id: conversationId,
+        activeTurn: true,
+        messages: [userMessage],
+        nextCursor: null,
+      })
+      .mockResolvedValue({
+        id: conversationId,
+        activeTurn: false,
+        messages: [
+          {
+            ...userMessage,
+            turn: { ...userMessage.turn, status: "uncertain" },
+          },
+        ],
+        nextCursor: null,
+      });
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response("", {
+        headers: { "content-type": "text/event-stream" },
+      }),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    await store.selectConversation(conversationId);
+    await vi.waitFor(() => expect(store.isWorking).toBe(false));
+
+    expect(store.items.filter((item) => item.kind === "turn_interrupted")).toEqual([
+      expect.objectContaining({ messageId: userMessage.id }),
+    ]);
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(fetchMock.mock.calls[0]?.[0]).toContain(`/api/agent/conversations/${conversationId}/stream`);
+    fetchMock.mockRestore();
+  });
+
+  it("hydrates uncertain notices in older history without duplicating them or retrying the turn", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000119";
+    actionsMock.getAgentConversationAction
+      .mockResolvedValueOnce({
+        id: conversationId,
+        activeTurn: false,
+        nextCursor: "50",
+        messages: [
+          {
+            id: "newer-user",
+            role: "user",
+            parts: [{ type: "text", text: "A later question" }],
+          },
+        ],
+      })
+      .mockResolvedValue({
+        id: conversationId,
+        activeTurn: false,
+        nextCursor: "40",
+        messages: [
+          {
+            id: "older-user",
+            role: "user",
+            parts: [{ type: "text", text: "An older question" }],
+            turn: {
+              clientRequestId: "older-request",
+              status: "uncertain",
+              assistantMessageId: null,
+              terminalCode: null,
+            },
+          },
+        ],
+      });
+    const fetchMock = vi.spyOn(globalThis, "fetch");
+    const store = new AgentChatStore(root() as never);
+
+    await store.selectConversation(conversationId);
+    await store.loadOlderMessages();
+    await store.loadOlderMessages();
+
+    expect(store.items.map((item) => item.kind)).toEqual(["user", "turn_interrupted", "user"]);
+    expect(fetchMock).not.toHaveBeenCalled();
     fetchMock.mockRestore();
   });
 

@@ -14,6 +14,8 @@ import type { TaskCustomColumnRepo } from "@/features/tasks/get/get-task-by-id.i
 
 import { CustomColumnType, EntityType } from "@/generated/prisma";
 
+import { canonicalIsoDateTime, isIsoDateTime } from "@/core/validation/iso-date-time";
+
 import type { Prisma } from "@/generated/prisma";
 
 import { type CustomColumnDto } from "./custom-column.schema";
@@ -21,7 +23,25 @@ import { type CustomColumnDto } from "./custom-column.schema";
 import { BaseRepository } from "@/core/base/base-repository";
 import { getDealRepo } from "@/core/di";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { FilterOperatorKey } from "@/core/base/base-query-builder";
+import { CUSTOM_COLUMN_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
+
+const DATE_LIKE_CUSTOM_COLUMN_TYPES: ReadonlySet<CustomColumnType> = new Set([
+  CustomColumnType.date,
+  CustomColumnType.dateTime,
+  CustomColumnType.dateRange,
+  CustomColumnType.dateTimeRange,
+]);
+
+function canonicalIsoDateTimeParts(value: string | null | undefined) {
+  if (typeof value !== "string") return value;
+  return value
+    .split(",")
+    .map((part) => {
+      const trimmed = part.trim();
+      return isIsoDateTime(trimmed) ? canonicalIsoDateTime(trimmed) : part;
+    })
+    .join(",");
+}
 
 export class PrismaCustomColumnRepo
   extends BaseRepository
@@ -60,85 +80,7 @@ export class PrismaCustomColumnRepo
     [EntityType.task]: "taskId",
   };
 
-  readonly operatorsByType: Record<CustomColumnType, FilterOperatorKey[]> = {
-    [CustomColumnType.singleSelect]: [
-      FilterOperatorKey.in,
-      FilterOperatorKey.notIn,
-      FilterOperatorKey.isNull,
-      FilterOperatorKey.isNotNull,
-    ],
-    [CustomColumnType.currency]: [
-      FilterOperatorKey.equals,
-      FilterOperatorKey.gt,
-      FilterOperatorKey.gte,
-      FilterOperatorKey.lt,
-      FilterOperatorKey.lte,
-      FilterOperatorKey.isNull,
-      FilterOperatorKey.isNotNull,
-    ],
-    [CustomColumnType.date]: [
-      FilterOperatorKey.gt,
-      FilterOperatorKey.gte,
-      FilterOperatorKey.lt,
-      FilterOperatorKey.lte,
-      FilterOperatorKey.between,
-      FilterOperatorKey.isNull,
-      FilterOperatorKey.isNotNull,
-    ],
-    [CustomColumnType.dateTime]: [
-      FilterOperatorKey.gt,
-      FilterOperatorKey.gte,
-      FilterOperatorKey.lt,
-      FilterOperatorKey.lte,
-      FilterOperatorKey.between,
-      FilterOperatorKey.isNull,
-      FilterOperatorKey.isNotNull,
-    ],
-    [CustomColumnType.dateRange]: [
-      FilterOperatorKey.contains,
-      FilterOperatorKey.gt,
-      FilterOperatorKey.gte,
-      FilterOperatorKey.lt,
-      FilterOperatorKey.lte,
-      FilterOperatorKey.between,
-      FilterOperatorKey.isNull,
-      FilterOperatorKey.isNotNull,
-    ],
-    [CustomColumnType.dateTimeRange]: [
-      FilterOperatorKey.contains,
-      FilterOperatorKey.gt,
-      FilterOperatorKey.gte,
-      FilterOperatorKey.lt,
-      FilterOperatorKey.lte,
-      FilterOperatorKey.between,
-      FilterOperatorKey.isNull,
-      FilterOperatorKey.isNotNull,
-    ],
-    [CustomColumnType.email]: [
-      FilterOperatorKey.equals,
-      FilterOperatorKey.contains,
-      FilterOperatorKey.isNull,
-      FilterOperatorKey.isNotNull,
-    ],
-    [CustomColumnType.phone]: [
-      FilterOperatorKey.equals,
-      FilterOperatorKey.contains,
-      FilterOperatorKey.isNull,
-      FilterOperatorKey.isNotNull,
-    ],
-    [CustomColumnType.plain]: [
-      FilterOperatorKey.equals,
-      FilterOperatorKey.contains,
-      FilterOperatorKey.isNull,
-      FilterOperatorKey.isNotNull,
-    ],
-    [CustomColumnType.link]: [
-      FilterOperatorKey.equals,
-      FilterOperatorKey.contains,
-      FilterOperatorKey.isNull,
-      FilterOperatorKey.isNotNull,
-    ],
-  };
+  readonly operatorsByType = CUSTOM_COLUMN_DEFAULT_OPERATORS;
 
   async findByIdOrThrow(id: string) {
     const { companyId } = this.user;
@@ -365,10 +307,12 @@ export class PrismaCustomColumnRepo
       const typeByColumnId = new Map(columns.map((c) => [c.id, c.type]));
 
       const data = nonEmptyValues.reduce<Array<Prisma.CustomFieldValueCreateManyInput>>((acc, v) => {
-        const { columnId, value } = v;
+        const { columnId } = v;
         const type = typeByColumnId.get(columnId);
 
         if (!type) return acc;
+
+        const value = DATE_LIKE_CUSTOM_COLUMN_TYPES.has(type) ? canonicalIsoDateTimeParts(v.value) : v.value;
 
         const numericValue =
           type === CustomColumnType.currency && value != null && value !== "" && !Number.isNaN(Number(value))
