@@ -1,4 +1,4 @@
-import type { P13nRepo } from "@/core/base/base-get.interactor";
+import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { OperatorUserRowDto } from "../operator-lists.schema";
 
@@ -14,8 +14,8 @@ export abstract class GetOperatorUsersRepo extends BaseGetRepo<OperatorUserRowDt
 
 @OperatorInteractor
 export class GetOperatorUsersInteractor extends BaseGetInteractor<OperatorUserRowDto> {
-  constructor(repo: GetOperatorUsersRepo, p13nRepo: P13nRepo) {
-    super(repo, p13nRepo, "interactive", undefined, {
+  constructor(repo: GetOperatorUsersRepo, viewStateRepo: DataViewStateRepo) {
+    super(repo, viewStateRepo, "interactive", undefined, {
       sortDescriptor: { field: "createdAt", direction: "desc" },
       pagination: { pageSize: 25, page: 1 },
     });

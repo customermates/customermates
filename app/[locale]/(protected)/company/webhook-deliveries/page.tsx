@@ -4,7 +4,8 @@ import { WebhookDeliveriesPageView } from "../components/webhook/webhook-deliver
 
 import { getGetWebhookDeliveriesInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
-import { decodeGetParams } from "@/core/utils/get-params";
+import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
+import { SURFACE } from "@/core/data-view/data-view-keys";
 import { PageContainer } from "@/components/shared/page-container";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
@@ -15,15 +16,9 @@ type Props = {
 export default async function CompanyWebhookDeliveriesPage({ searchParams }: Props) {
   await requireAccess({ resource: Resource.api });
 
-  const params = await searchParams;
-  const deliveryParams = decodeGetParams(params);
+  const deliveryParams = await readSurfaceParams(SURFACE.webhookDeliveries, searchParams);
 
-  const deliveries = await unwrapValidated(
-    getGetWebhookDeliveriesInteractor().invoke({
-      ...deliveryParams,
-      p13nId: "webhook-deliveries-card-store",
-    }),
-  );
+  const deliveries = await unwrapValidated(getGetWebhookDeliveriesInteractor().invoke(deliveryParams));
 
   return (
     <PageContainer padded={false}>

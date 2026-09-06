@@ -6,6 +6,7 @@ import { join } from "node:path";
 import {
   FORM_SCOPES,
   NAV_KEYS,
+  SCOPES_WITHOUT_FILTER,
   TOOLBAR_SCOPES_WITH_ADD,
   TOOLBAR_SCOPES_WITHOUT_ADD,
   TRANSFERABLE_SCOPES,
@@ -66,11 +67,10 @@ function codeIds(): Set<string> {
       const scope = match[1];
       if (TOOLBAR_SCOPES_WITH_ADD.includes(scope) || TOOLBAR_SCOPES_WITHOUT_ADD.includes(scope)) {
         ids.add(`${scope}-search`);
-        ids.add(`${scope}-filter`);
+        if (!SCOPES_WITHOUT_FILTER.has(scope)) ids.add(`${scope}-filter`);
         ids.add(`${scope}-display-options`);
         ids.add(`${scope}-layout-table`);
-        ids.add(`${scope}-layout-cards`);
-        ids.add(`${scope}-layout-kanban`);
+        ids.add(`${scope}-layout-board`);
         if (TOOLBAR_SCOPES_WITH_ADD.includes(scope)) ids.add(`${scope}-add`);
         if (TRANSFERABLE_SCOPES.has(scope)) ids.add(`${scope}-transfer`);
       }
@@ -84,29 +84,23 @@ function codeIds(): Set<string> {
   return ids;
 }
 
+function toolbarSuffixes(scope: string, hasAdd: boolean): string[] {
+  return [
+    ...(hasAdd ? ["-add"] : []),
+    "-search",
+    ...(SCOPES_WITHOUT_FILTER.has(scope) ? [] : ["-filter"]),
+    "-display-options",
+    "-layout-table",
+    "-layout-board",
+  ];
+}
+
 function expectedDocumentedIds(): Set<string> {
   const ids = new Set<string>();
   for (const scope of TOOLBAR_SCOPES_WITH_ADD)
-    for (const suffix of [
-      "-add",
-      "-search",
-      "-filter",
-      "-display-options",
-      "-layout-table",
-      "-layout-cards",
-      "-layout-kanban",
-    ])
-      ids.add(`${scope}${suffix}`);
+    for (const suffix of toolbarSuffixes(scope, true)) ids.add(`${scope}${suffix}`);
   for (const scope of TOOLBAR_SCOPES_WITHOUT_ADD)
-    for (const suffix of [
-      "-search",
-      "-filter",
-      "-display-options",
-      "-layout-table",
-      "-layout-cards",
-      "-layout-kanban",
-    ])
-      ids.add(`${scope}${suffix}`);
+    for (const suffix of toolbarSuffixes(scope, false)) ids.add(`${scope}${suffix}`);
   for (const scope of FORM_SCOPES) for (const suffix of ["-save", "-reset"]) ids.add(`${scope}${suffix}`);
   for (const key of NAV_KEYS) ids.add(`nav-${key}`);
   for (const file of sourceFiles()) {

@@ -30,10 +30,11 @@ export const WebhooksPageView = observer(function WebhooksPageView({ initialWebh
   useDataViewSync(webhooksStore, initialWebhooks);
   const columns = useWebhookColumns();
   const t = useTranslations();
-  const view = resolveDataViewView(webhooksStore.viewMode, webhooksStore.groupingColumnId);
+  const view = resolveDataViewView(webhooksStore.viewMode, webhooksStore.canBoard);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery: Boolean(webhooksStore.searchTerm?.trim()) || (webhooksStore.filters?.length ?? 0) > 0,
+    isGrouped: webhooksStore.isGrouped,
     itemCount: webhooksStore.items.length,
     request: webhooksStore.dataRequest,
     total: webhooksStore.pagination?.total,
@@ -116,7 +117,10 @@ export const WebhooksPageView = observer(function WebhooksPageView({ initialWebh
     }
   }
   return (
-    <DataViewLayout showPagination={pageState === "content" && view !== "board"} store={webhooksStore}>
+    <DataViewLayout
+      showPagination={pageState === "content" && view !== "board" && !webhooksStore.isGrouped}
+      store={webhooksStore}
+    >
       {body}
     </DataViewLayout>
   );

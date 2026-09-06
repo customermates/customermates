@@ -90,10 +90,10 @@ class MockActivitiesRepo extends GetActivitiesRepo {
   }
 }
 
-function makeApiInteractor(p13n: { getP13n: ReturnType<typeof vi.fn>; upsertP13n: ReturnType<typeof vi.fn> }) {
+function makeApiInteractor(viewState: { loadSurfaceState: ReturnType<typeof vi.fn> }) {
   return new GetActivitiesInteractor(
     new MockActivitiesRepo(),
-    p13n as never,
+    viewState as never,
     "api",
     { invoke: vi.fn() } as never,
     {
@@ -109,20 +109,19 @@ describe("activity search API interactor", () => {
   });
 
   it("resolves the active user exactly once per request", async () => {
-    const result = await makeApiInteractor({ getP13n: vi.fn(), upsertP13n: vi.fn() }).invoke({});
+    const result = await makeApiInteractor({ loadSurfaceState: vi.fn() }).invoke({});
 
     expect(result.ok).toBe(true);
     expect(getActiveUserOrThrow).toHaveBeenCalledTimes(1);
   });
 
   it("ignores the interactive-only p13nId like every sibling API endpoint", async () => {
-    const p13n = { getP13n: vi.fn(), upsertP13n: vi.fn() };
+    const viewState = { loadSurfaceState: vi.fn() };
 
-    const result = await makeApiInteractor(p13n).invoke({ p13nId: "dashboard" });
+    const result = await makeApiInteractor(viewState).invoke({ p13nId: "dashboard" });
 
     expect(result.ok).toBe(true);
-    expect(p13n.getP13n).not.toHaveBeenCalled();
-    expect(p13n.upsertP13n).not.toHaveBeenCalled();
+    expect(viewState.loadSurfaceState).not.toHaveBeenCalled();
   });
 });
 

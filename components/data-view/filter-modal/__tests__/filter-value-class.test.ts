@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { Filter } from "@/core/base/base-get.schema";
+import type { FilterValueClass } from "../filter-value-class";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
 import {
@@ -9,6 +10,7 @@ import {
   shouldPreserveFilterValue,
 } from "../filter-value-class";
 
+import { FilterSchema } from "@/core/base/base-get.schema";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
@@ -56,7 +58,7 @@ function filter(field: string, operator: FilterOperatorKey | undefined, value: u
   return { field, operator, value } as unknown as Filter;
 }
 
-function valueFor(kind: string): unknown {
+function valueFor(kind: FilterValueClass): unknown {
   if (kind === "stringArray") return ["30000000-0000-4000-8000-000000000001"];
   if (kind === "numericString") return "1000";
   if (kind === "isoDate") return "2026-08-19T00:00:00.000Z";
@@ -108,9 +110,54 @@ describe("filter value class", () => {
   });
 
   it("splits date fields by operator", () => {
-    expect(resolveFilterValueClass(FilterFieldKey.createdAt, FilterOperatorKey.gt)).toBe("isoDate");
-    expect(resolveFilterValueClass(FilterFieldKey.createdAt, FilterOperatorKey.between)).toBe("isoRange");
-    expect(resolveFilterValueClass(FilterFieldKey.createdAt, FilterOperatorKey.inLastDays)).toBe("daysCount");
+    for (const field of [FilterFieldKey.createdAt, FilterFieldKey.startsAt]) {
+      expect(resolveFilterValueClass(field, FilterOperatorKey.gt)).toBe("isoDate");
+      expect(resolveFilterValueClass(field, FilterOperatorKey.lte)).toBe("isoDate");
+      expect(resolveFilterValueClass(field, FilterOperatorKey.between)).toBe("isoRange");
+      expect(resolveFilterValueClass(field, FilterOperatorKey.inLastDays)).toBe("daysCount");
+    }
+  });
+
+  it("gives a scalar-select field the multi-select for both of its operators", () => {
+    expect(resolveFilterValueClass(FilterFieldKey.calendarId, FilterOperatorKey.in)).toBe("stringArray");
+    expect(resolveFilterValueClass(FilterFieldKey.calendarId, FilterOperatorKey.notIn)).toBe("stringArray");
+  });
+
+  it("resolves every declared field and operator pair to a value the wire accepts", () => {
+    for (const [field, operators] of Object.entries(FILTER_FIELD_DEFAULT_OPERATORS)) {
+      expect(operators.length, field).toBeGreaterThan(0);
+
+      for (const operator of operators) {
+        const valueClass = resolveFilterValueClass(field, operator);
+        const candidate =
+          valueClass === "none" ? { field, operator } : { field, operator, value: valueFor(valueClass) };
+        const parsed = FilterSchema.safeParse(candidate);
+
+        expect(valueClass, `${field} ${operator}`).not.toBe("unavailable");
+        expect(
+          parsed.success,
+          `${field} ${operator} renders ${valueClass}: ${JSON.stringify(parsed.error?.issues)}`,
+        ).toBe(true);
+      }
+    }
+  });
+
+  it("rejects a value class that mismatches the operator, so the wire check above is load-bearing", () => {
+    expect(
+      FilterSchema.safeParse({ field: FilterFieldKey.calendarId, operator: FilterOperatorKey.in, value: "cal-1" })
+        .success,
+    ).toBe(false);
+    expect(
+      FilterSchema.safeParse({
+        field: FilterFieldKey.startsAt,
+        operator: FilterOperatorKey.between,
+        value: "2026-08-19",
+      }).success,
+    ).toBe(false);
+    expect(
+      FilterSchema.safeParse({ field: FilterFieldKey.startsAt, operator: FilterOperatorKey.inLastDays, value: "acme" })
+        .success,
+    ).toBe(false);
   });
 
   it("uses day granularity only for the date-only custom column types", () => {
@@ -196,11 +243,10 @@ describe("preserving a filter value across an operator change", () => {
     expect(shouldPreserveFilterValue(unparseableAmount, FilterOperatorKey.lt, column("currency"))).toBe(false);
   });
 
-  it("clears when the field renders a text input but the wire wants a list", () => {
-    const calendarField = filter(FilterFieldKey.calendarId, FilterOperatorKey.in, ["cal-1"]);
+  it("keeps a calendar selection when flipping between in and notIn", () => {
+    const calendarField = filter(FilterFieldKey.calendarId, FilterOperatorKey.in, valueFor("stringArray"));
 
-    expect(resolveFilterValueClass(FilterFieldKey.calendarId, FilterOperatorKey.in)).toBe("text");
-    expect(shouldPreserveFilterValue(calendarField, FilterOperatorKey.notIn)).toBe(false);
+    expect(shouldPreserveFilterValue(calendarField, FilterOperatorKey.notIn)).toBe(true);
   });
 
   it("clears every remaining reachable transition on a custom column", () => {

@@ -4,7 +4,8 @@ import { OperatorAuditPageView } from "../components/audit/operator-audit-page-v
 
 import { getGetOperatorAuditLogsInteractor } from "@/core/di";
 import { appErrorDetails } from "@/core/errors/app-errors";
-import { decodeGetParams } from "@/core/utils/get-params";
+import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
+import { SURFACE } from "@/core/data-view/data-view-keys";
 import { PageContainer } from "@/components/shared/page-container";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
@@ -13,8 +14,7 @@ type Props = {
 };
 
 export default async function OperatorAuditPage({ searchParams }: Props) {
-  const params = await searchParams;
-  const auditParams = decodeGetParams(params);
+  const auditParams = await readSurfaceParams(SURFACE.operatorAudit, searchParams);
 
   try {
     const audit = await unwrapValidated(getGetOperatorAuditLogsInteractor().invoke(auditParams));

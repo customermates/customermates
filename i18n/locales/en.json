@@ -830,9 +830,8 @@
       "hidePassword": "Hide password",
       "selectOption": "Select an option",
       "showPassword": "Show password",
-      "switchToCardView": "Switch to card view",
-      "switchToKanbanView": "Switch to kanban view",
-      "switchToKanbanViewDisabled": "Add a single-select custom field to enable kanban view",
+      "switchToBoardView": "Switch to board view",
+      "switchToBoardViewDisabled": "This list has no field to group by",
       "switchToTableView": "Switch to table view",
       "themeSwitcher": "Theme switcher",
       "tooltipFields": "Appearance",
@@ -864,6 +863,13 @@
     "customFieldHelp": {
       "immutableType": "Field type is fixed after creation. Create a new custom field to use another type.",
       "probabilityPermission": "Stage probabilities are managed in {company}. Ask a workspace administrator for permission to update them."
+    },
+    "dateBuckets": {
+      "day": "Day",
+      "earlier": "Earlier",
+      "later": "Later",
+      "month": "Month",
+      "week": "Week"
     },
     "datePresets": {
       "endTime": "End time",
@@ -965,6 +971,7 @@
       "customFieldInvalidPhone": "The phone value is invalid. Must be in E.164 format (e.g., +491234567890). For multiple phone numbers, separate by comma (e.g., +491234567890, +499876543210).",
       "customFieldInvalidSingleSelect": "The single select value is invalid. Must be one of the allowed options: {validValues}.",
       "customFieldInvalidUrl": "The URL value is invalid. Must be a valid URL format (e.g., https://example.com). For multiple URLs, separate by comma (e.g., https://example.com, https://example.org).",
+      "dataViewNotFound": "This saved view was not found.",
       "dealNotFound": "Deal ID not found or not accessible.",
       "demoMode": "This action is not available in demo mode. Sign in to access all features.",
       "draftMessageNotFound": "That draft could not be found. It may have already been sent or discarded.",
@@ -1008,7 +1015,6 @@
       "passwordInvalid": "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
       "passwordMismatch": "Passwords must match.",
       "permissionDenied": "This action is not available with your current permissions.",
-      "presetNotFound": "This saved filter preset was not found.",
       "relationNotAllowed": "Relation '{relation}' is not allowed on {entity}. Allowed relations: {allowed}.",
       "roleAssignedCannotDelete": "A role assigned to users cannot be deleted.",
       "roleNotFound": "Role ID not found or not accessible.",
@@ -1144,8 +1150,6 @@
       }
     },
     "filters": {
-      "clearAll": "Clear All",
-      "clearSearch": "Clear search",
       "daysPlaceholder": "Days",
       "daysPreset": "{count, plural, =1 {1 day} other {# days}}",
       "daysSuffix": "days",
@@ -1191,13 +1195,24 @@
         "lte": "≤",
         "notIn": "not in"
       },
-      "presets": {
-        "add": "Save as preset…",
-        "label": "Preset",
-        "namePlaceholder": "Preset name",
-        "none": "No preset"
+      "palette": {
+        "activeGroup": "Active filters",
+        "addFilter": "Add filter…",
+        "appliedCount": "{count, plural, =1 {1 filter} other {# filters}}",
+        "dateAfter": "After…",
+        "dateBefore": "Before…",
+        "dateBetween": "Between…",
+        "dateCustom": "Custom range…",
+        "dateIncludes": "Includes…",
+        "dateOnOrAfter": "On or after…",
+        "dateOnOrBefore": "On or before…",
+        "editOperator": "Change condition",
+        "editOperatorNamed": "Change condition: {operator}",
+        "fieldsGroup": "Filter by",
+        "limitReached": "You can apply up to {count} filters.",
+        "removeFilter": "Remove filter",
+        "title": "Filters"
       },
-      "searchLabel": "Search",
       "selectionLimit": "You can select up to {count} values.",
       "selectOperator": "Select a condition…",
       "unavailableValue": "Filter not available"
@@ -1380,13 +1395,22 @@
         "weightedValue": "Weighted Value",
         "workspace": "Workspace"
       },
+      "fields": "Fields",
       "groupBy": "Group By",
       "layout": "Layout",
+      "layouts": {
+        "board": "Board",
+        "table": "Table"
+      },
       "nextPage": "Next page",
       "paginationEmpty": "0 of 0",
       "paginationRange": "{from}-{to} of {total}",
       "previousPage": "Previous page",
       "search": "Search..."
+    },
+    "taskTypes": {
+      "custom": "Custom",
+      "userPendingAuthorization": "Pending authorization"
     },
     "themes": {
       "dark": "Dark",
@@ -1731,14 +1755,41 @@
     "menu": "Import and export"
   },
   "DataView": {
+    "board": {
+      "chooseField": "Group by field",
+      "createField": "Create a single-select field",
+      "promptBody": "Pick a field to group by. Each value becomes a column on the board.",
+      "promptTitle": "Choose how to group this board"
+    },
+    "collapseGroup": "Collapse group {group}",
     "dragToReorder": "Drag to reorder",
     "editColumn": "Edit column",
+    "expandGroup": "Expand group {group}",
+    "groupOverflow": "Only {count} groups are shown",
     "noValue": "No value",
     "resizeColumn": "Resize {column} column. Drag or use arrow keys to resize; double-tap or press Enter to reset.",
     "resizeHint": "Drag to resize. Double-click to reset.",
     "selectAllRows": "Select all rows",
-    "selectGroupingColumn": "Select a grouping column to see the Kanban view.",
-    "selectRow": "Select row {id}"
+    "selectGroup": "Select group {group}",
+    "selectRow": "Select row {id}",
+    "views": {
+      "all": "All",
+      "applied": "Showing {name}",
+      "copyLink": "Copy link",
+      "createTitle": "New view",
+      "delete": "Delete view",
+      "duplicate": "Duplicate as new view",
+      "duplicateName": "{name} copy",
+      "editTitle": "Edit view",
+      "linkCopied": "Link copied",
+      "menu": "View actions",
+      "moveLeft": "Move left",
+      "moveRight": "Move right",
+      "name": "Name",
+      "namePlaceholder": "View name",
+      "railLabel": "Saved views",
+      "recordCount": "{count, plural, one {# record} other {# records}}"
+    }
   },
   "DealModal": {
     "noServicesAdded": "No {entity} added yet",

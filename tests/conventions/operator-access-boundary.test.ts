@@ -89,6 +89,25 @@ describe("operator access boundary", () => {
     }
   });
 
+  it("counts operator groups through the guarded Unscoped counts and never through prisma directly", () => {
+    const listRepositories = [
+      "ee/operator/prisma-operator-users.repository.ts",
+      "ee/operator/prisma-operator-workspaces.repository.ts",
+      "ee/operator/prisma-operator-audit.repository.ts",
+    ];
+
+    for (const path of listRepositories) {
+      const source = read(path);
+      const countByGroup = /\n  countByGroup\([\s\S]*?\n  \}\n/.exec(source)?.[0] ?? "";
+
+      expect(source, path).toContain("getGroupableFields()");
+      expect(source, path).toContain("return operatorCollator();");
+      expect(countByGroup, path).toContain("countOperatorGroups(");
+      expect(countByGroup, path).toMatch(/this\.[A-Za-z]+Unscoped\(/);
+      expect(countByGroup, path).not.toMatch(/\bprisma\b/);
+    }
+  });
+
   it("names every cross-tenant operator repository method Unscoped and guards it", () => {
     const repositories = walkFiles(join(REPO_ROOT, "ee", "operator"), (path) => path.endsWith(".repository.ts")).map(
       (path) => relative(REPO_ROOT, path),

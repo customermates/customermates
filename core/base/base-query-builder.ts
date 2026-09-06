@@ -6,12 +6,14 @@ import type {
   SortDescriptor,
 } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { GroupableFieldSpec, GroupingTargetModel } from "@/core/base/grouping/groupable-field";
 
 import { startOfDay, subDays } from "date-fns";
 import { CustomColumnType } from "@/generated/prisma";
 
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { isCustomField } from "@/core/utils/custom-field";
+import { groupScopeFragment } from "@/core/base/grouping/group-scope";
 import { normalizeFilter } from "@/core/base/filter-compat";
 
 export interface SortableField {
@@ -108,8 +110,16 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     return Promise.resolve([]);
   }
 
+  getGroupableFields(_customColumns?: readonly CustomColumnDto[]): Promise<Array<GroupableFieldSpec>> {
+    return Promise.resolve([]);
+  }
+
+  protected groupTargetWhere(_model: GroupingTargetModel): Record<string, unknown> {
+    return {};
+  }
+
   async buildQueryArgs(params: GetQueryParams, baseWhere: TWhereInput = {} as TWhereInput) {
-    const where = await this.buildWhereClause(params.filters, params.searchTerm, baseWhere);
+    const where = await this.buildWhereClause(params, baseWhere);
     const customColumns = await this.getCustomColumns();
     const customSort = resolveCustomSort(params.sortDescriptor, customColumns);
     const orderBy = customSort ? [] : this.buildOrderBy({ sortDescriptor: params.sortDescriptor });
@@ -158,22 +168,28 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
   }
 
   private async buildWhereClause(
-    filters: Filter[] | undefined,
-    searchTerm?: string | null,
+    params: GetQueryParams,
     baseWhere: TWhereInput = {} as TWhereInput,
   ): Promise<TWhereInput> {
     const where = { ...baseWhere } as WithDynamicFields<TWhereInput> & WithLogicalOperators<TWhereInput>;
     const filterableFields = await this.getFilterableFields();
-    const validFilters = this.validateFilters({ filters, filterableFields });
+    const validFilters = this.validateFilters({ filters: params.filters, filterableFields });
 
     const customColumns = validFilters.some((f) => isCustomField(f.field)) ? await this.getCustomColumns() : [];
     const customColumnTypeById = new Map(customColumns.map((c) => [c.id, c.type]));
 
     for (const filter of validFilters) this.applyFieldFilter(where, filter, filterableFields, customColumnTypeById);
 
-    const searchGroup = this.buildSearchGroup(searchTerm);
+    const searchGroup = this.buildSearchGroup(params.searchTerm);
 
     if (searchGroup) where.AND = [...(where.AND ?? []), searchGroup];
+
+    if (params.groupScope) {
+      where.AND = [
+        ...(where.AND ?? []),
+        groupScopeFragment(params.groupScope, (model) => this.groupTargetWhere(model)) as TWhereInput,
+      ];
+    }
 
     return where;
   }

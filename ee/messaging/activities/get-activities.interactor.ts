@@ -1,5 +1,5 @@
 import type { ActivityScope } from "./activity-scope.schema";
-import type { P13nRepo } from "@/core/base/base-get.interactor";
+import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
@@ -10,7 +10,7 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { BaseGetInteractor, BaseGetRepo } from "@/core/base/base-get.interactor";
 
 import type { ActivityEntryDto, ActivitiesParams, ActivityKind } from "./activities.schema";
-import { ActivitiesParamsSchema, ActivitiesResultSchema } from "./activities.schema";
+import { ActivitiesParamsSchema, ActivitiesViewResultSchema } from "./activities.schema";
 import { ACTIVITY_MAX_PAGE } from "./activity-scope.schema";
 import { activityFilterableFieldsRetainedForFailClosedCompilation } from "./activity-filterable-fields";
 
@@ -27,14 +27,14 @@ export abstract class GetActivitiesRepo extends BaseGetRepo<ActivityEntryDto> {
 export class GetActivitiesInteractor extends BaseGetInteractor<ActivityEntryDto> {
   constructor(
     private activitiesRepo: GetActivitiesRepo,
-    p13nRepo: P13nRepo,
+    viewStateRepo: DataViewStateRepo,
     mode: "interactive" | "api",
     queryParamsPrecheck: QueryParamsPrecheckInteractor,
     private entitlements: EntitlementService,
   ) {
     super(
       activitiesRepo,
-      p13nRepo,
+      viewStateRepo,
       mode,
       undefined,
       { sortDescriptor: { field: "at", direction: "desc" } },
@@ -44,7 +44,7 @@ export class GetActivitiesInteractor extends BaseGetInteractor<ActivityEntryDto>
   }
 
   @Validate(ActivitiesParamsSchema)
-  @ValidateOutput(ActivitiesResultSchema)
+  @ValidateOutput(ActivitiesViewResultSchema)
   async invoke(params: ActivitiesParams = {}) {
     const canReadMessagingSources = this.activitiesRepo.canReadMessagingSources();
     const entitlementDenied = canReadMessagingSources ? await this.entitlements.require("messaging") : null;

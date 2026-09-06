@@ -4,7 +4,8 @@ import { OperatorWorkspacesPageView } from "../components/workspaces/operator-wo
 
 import { getGetOperatorWorkspacesInteractor } from "@/core/di";
 import { appErrorDetails } from "@/core/errors/app-errors";
-import { decodeGetParams } from "@/core/utils/get-params";
+import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
+import { SURFACE } from "@/core/data-view/data-view-keys";
 import { PageContainer } from "@/components/shared/page-container";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
@@ -13,8 +14,7 @@ type Props = {
 };
 
 export default async function OperatorWorkspacesPage({ searchParams }: Props) {
-  const params = await searchParams;
-  const workspaceParams = decodeGetParams(params);
+  const workspaceParams = await readSurfaceParams(SURFACE.operatorWorkspaces, searchParams);
 
   try {
     const workspaces = await unwrapValidated(getGetOperatorWorkspacesInteractor().invoke(workspaceParams));

@@ -1,6 +1,7 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 
 import { Inbox } from "lucide-react";
 
@@ -15,11 +16,19 @@ type Props = {
   icon?: LucideIcon;
   title: string;
   body?: string;
+  children?: ReactNode;
   primaryAction?: EmptyStateAction;
   secondaryAction?: EmptyStateAction;
 };
 
-export function DataViewEmptyState({ icon: Icon = Inbox, title, body, primaryAction, secondaryAction }: Props) {
+export function DataViewEmptyState({
+  icon: Icon = Inbox,
+  title,
+  body,
+  children,
+  primaryAction,
+  secondaryAction,
+}: Props) {
   return (
     <div
       className="text-muted-foreground flex flex-1 flex-col items-center justify-center gap-3 px-6 py-10 text-center"
@@ -33,6 +42,8 @@ export function DataViewEmptyState({ icon: Icon = Inbox, title, body, primaryAct
 
         {body && <p className="text-sm">{body}</p>}
       </div>
+
+      {children}
 
       {(primaryAction || secondaryAction) && (
         <div className="flex flex-wrap items-center justify-center gap-2 pt-1">

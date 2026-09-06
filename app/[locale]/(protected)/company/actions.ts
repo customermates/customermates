@@ -63,7 +63,8 @@ export async function updateCompanyAction(data: UpdateCompanySettingsData) {
 
 export async function getDealStageValueSumsAction(columnId: string) {
   const result = await getGetDealsInteractor().invoke({
-    groupedPagination: { groupingColumnId: columnId, perGroup: 1 },
+    grouping: { field: columnId },
+    groupPage: { perGroup: 1 },
   });
 
   if (!result.ok) return { ok: false as const, error: z.treeifyError(result.error) };

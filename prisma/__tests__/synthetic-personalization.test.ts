@@ -3,14 +3,11 @@ import type { PrismaClient } from "@/generated/prisma";
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
-import {
-  FilterSchema,
-  PaginationRequestSchema,
-  SavedFilterPresetSchema,
-  SortDescriptorSchema,
-} from "@/core/base/base-get.schema";
+import { FilterSchema, PaginationRequestSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { EntityDetailOptionsSchema } from "@/features/p13n/p13n.schema";
+import { GroupingSchema } from "@/core/base/grouping/grouping.schema";
+import { groupingShadowColumnId } from "@/core/base/grouping/stored-grouping";
 
 import { SEED_IDS } from "../seeds/context";
 import { SYNTHETIC_CUSTOM_COLUMN_IDS, SYNTHETIC_CUSTOM_OPTION_IDS } from "../seeds/custom-fields";
@@ -20,7 +17,6 @@ import {
   persistSyntheticP13nFixtures,
   SYNTHETIC_P13N_IDS,
   SYNTHETIC_P13N_ID_PREFIX,
-  SYNTHETIC_P13N_PRESET_IDS,
   type SyntheticP13nFixture,
 } from "../seeds/personalization";
 
@@ -58,16 +54,28 @@ describe("synthetic personalization fixtures", () => {
     );
     for (const fixture of fixtures) {
       if (fixture.filters !== undefined) expect(z.array(FilterSchema).safeParse(fixture.filters).success).toBe(true);
-      if (fixture.savedFilterPresets !== undefined)
-        expect(z.array(SavedFilterPresetSchema).safeParse(fixture.savedFilterPresets).success).toBe(true);
       if (fixture.sortDescriptor !== undefined)
         expect(SortDescriptorSchema.safeParse(fixture.sortDescriptor).success).toBe(true);
-      if (fixture.pagination !== undefined)
-        expect(PaginationRequestSchema.safeParse(fixture.pagination).success).toBe(true);
+      if (fixture.pagination !== undefined) {
+        expect(PaginationRequestSchema.pick({ pageSize: true }).strict().safeParse(fixture.pagination).success).toBe(
+          true,
+        );
+      }
       if (fixture.viewMode !== undefined && fixture.viewMode !== null)
         expect(z.enum(ViewMode).safeParse(fixture.viewMode).success).toBe(true);
       if (fixture.groupingColumnId !== undefined && fixture.groupingColumnId !== null)
         expect(z.uuid().safeParse(fixture.groupingColumnId).success).toBe(true);
+      const grouping = GroupingSchema.safeParse(fixture.grouping);
+      expect([fixture.p13nId, grouping.success]).toEqual([
+        fixture.p13nId,
+        fixture.groupingColumnId !== undefined && fixture.groupingColumnId !== null,
+      ]);
+      if (grouping.success) {
+        expect([fixture.p13nId, groupingShadowColumnId(grouping.data)]).toEqual([
+          fixture.p13nId,
+          fixture.groupingColumnId,
+        ]);
+      }
       if (fixture.detailOptions !== undefined)
         expect(EntityDetailOptionsSchema.safeParse(fixture.detailOptions).success).toBe(true);
     }
@@ -87,7 +95,7 @@ describe("synthetic personalization fixtures", () => {
       columnWidths: { tasks: 133 },
       filters: [{ field: "userIds", operator: "in", value: [SEED_IDS.user] }],
       hiddenColumns: ["deals", "createdAt"],
-      pagination: { page: 1, pageSize: 100 },
+      pagination: { pageSize: 100 },
       sortDescriptor: { direction: "asc", field: "name" },
       viewMode: "table",
     });
@@ -147,8 +155,7 @@ describe("synthetic personalization fixtures", () => {
       viewMode: "table",
     });
 
-    const organizations = byP13nId.get("organizations-card-store");
-    expect(organizations).toMatchObject({
+    expect(byP13nId.get("organizations-card-store")).toMatchObject({
       columnOrder: [
         "contacts",
         "deals",
@@ -163,59 +170,33 @@ describe("synthetic personalization fixtures", () => {
       hiddenColumns: ["createdAt"],
       viewMode: "table",
     });
-    expect(organizations?.savedFilterPresets).toEqual([
-      {
-        filters: [
-          {
-            field: SYNTHETIC_CUSTOM_COLUMN_IDS.organizationType,
-            operator: "in",
-            value: [SYNTHETIC_CUSTOM_OPTION_IDS.organizationType.directCustomer],
-          },
-          { field: "userIds", operator: "in", value: [SEED_IDS.user] },
-        ],
-        id: SYNTHETIC_P13N_PRESET_IDS.directCustomer,
-        name: "Direct customer",
-      },
-      {
-        filters: [
-          {
-            field: SYNTHETIC_CUSTOM_COLUMN_IDS.organizationType,
-            operator: "in",
-            value: [SYNTHETIC_CUSTOM_OPTION_IDS.organizationType.affiliatedCompany],
-          },
-          { field: "userIds", operator: "in", value: [SEED_IDS.user] },
-        ],
-        id: SYNTHETIC_P13N_PRESET_IDS.affiliatedCompany,
-        name: "Affiliated company",
-      },
-    ]);
 
     expect(byP13nId.get("users-card-store")).toMatchObject({
       columnWidths: { role: 108 },
       hiddenColumns: ["email"],
-      pagination: { page: 1, pageSize: 100 },
+      pagination: { pageSize: 100 },
       sortDescriptor: { direction: "desc", field: "name" },
       viewMode: "table",
     });
     expect(byP13nId.get("roles-card-store")).toMatchObject({
-      pagination: { page: 1, pageSize: 100 },
+      pagination: { pageSize: 100 },
       sortDescriptor: { direction: "asc", field: "type" },
       viewMode: null,
     });
     expect(byP13nId.get("webhooks-card-store")).toMatchObject({
-      pagination: { page: 1, pageSize: 100 },
+      pagination: { pageSize: 100 },
       sortDescriptor: { direction: "desc", field: "name" },
-      viewMode: "card",
+      viewMode: "table",
     });
     expect(byP13nId.get("audit-logs-card-store")).toMatchObject({
       columnOrder: ["event", "entityId", "createdAt", "user"],
       hiddenColumns: ["entityId"],
-      pagination: { page: 1, pageSize: 25 },
+      pagination: { pageSize: 25 },
       sortDescriptor: { direction: "desc", field: "createdAt" },
       viewMode: "table",
     });
     expect(byP13nId.get("webhook-deliveries-card-store")).toMatchObject({
-      pagination: { page: 1, pageSize: 25 },
+      pagination: { pageSize: 25 },
       sortDescriptor: { direction: "desc", field: "createdAt" },
       viewMode: null,
     });

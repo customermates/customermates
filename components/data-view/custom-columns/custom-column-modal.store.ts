@@ -13,8 +13,16 @@ import { deleteCustomColumnAction, upsertCustomColumnAction } from "@/app/action
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
+type OpenForCreateParams = {
+  type: CustomColumnType;
+  entityType: EntityType;
+  onSaved?: (column: CustomColumnDto) => void;
+};
+
 export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnData> {
   pendingFocusOptionValue?: string;
+  isTypeLocked = false;
+  private onSaved?: (column: CustomColumnDto) => void;
 
   constructor(rootStore: RootStore) {
     super(rootStore, {
@@ -26,9 +34,11 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
 
     makeObservable(this, {
       pendingFocusOptionValue: observable,
+      isTypeLocked: observable,
       canDeleteOption: computed,
       onSubmit: action,
       initialize: action,
+      openForCreate: action,
       openWithColumn: action,
       addOption: action,
       clearPendingFocusOptionValue: action,
@@ -100,10 +110,21 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
   }
 
   initialize = (type: CustomColumnType, entityType: EntityType) => {
+    this.onSaved = undefined;
+    this.isTypeLocked = false;
     this.onInitOrRefresh(this.createFormData({ type, entityType }));
   };
 
+  openForCreate = ({ type, entityType, onSaved }: OpenForCreateParams) => {
+    this.initialize(type, entityType);
+    this.onSaved = onSaved;
+    this.isTypeLocked = true;
+    this.open();
+  };
+
   openWithColumn = (column: CustomColumnDto) => {
+    this.onSaved = undefined;
+    this.isTypeLocked = false;
     this.openWith(
       this.createFormData({
         type: column.type,
@@ -131,6 +152,8 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
   };
 
   changeType = (type: CustomColumnType) => {
+    if (this.isTypeLocked) return;
+
     this.form = this.createFormData({
       type,
       entityType: this.form.entityType,
@@ -258,8 +281,11 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
     try {
       const res = await upsertCustomColumnAction(toJS(this.form));
       if (res.ok) {
+        const onSaved = this.onSaved;
+        this.onSaved = undefined;
         await this.refresh();
         this.close();
+        onSaved?.(res.data);
       } else this.setError(res.error);
     } finally {
       this.setIsLoading(false);
@@ -273,7 +299,7 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
     const wasEditing = modalStore.isEditingCustomField;
 
     await tableStore.refresh();
-    const restored = entityId ? await modalStore.loadById(entityId) : await modalStore.add();
+    const restored = entityId ? await modalStore.loadById(entityId) : modalStore.isOpen && (await modalStore.add());
 
     if (restored && wasEditing) modalStore.setIsEditingCustomField(true);
   };

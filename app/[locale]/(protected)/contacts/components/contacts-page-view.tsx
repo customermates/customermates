@@ -40,11 +40,12 @@ export const ContactsPageView = observer(function ContactsPageView({ contacts }:
   const { singular } = useEntityTerminology();
   const t = useTranslations();
 
-  const view = resolveDataViewView(contactsStore.viewMode, contactsStore.groupingColumnId);
+  const view = resolveDataViewView(contactsStore.viewMode, contactsStore.canBoard);
   const hasActiveQuery = Boolean(contactsStore.searchTerm?.trim()) || (contactsStore.filters?.length ?? 0) > 0;
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery,
+    isGrouped: contactsStore.isGrouped,
     itemCount: contactsStore.items.length,
     request: contactsStore.dataRequest,
     total: contactsStore.pagination?.total,
@@ -120,7 +121,10 @@ export const ContactsPageView = observer(function ContactsPageView({ contacts }:
   }
 
   return (
-    <DataViewLayout showPagination={pageState === "content" && view !== "board"} store={contactsStore}>
+    <DataViewLayout
+      showPagination={pageState === "content" && view !== "board" && !contactsStore.isGrouped}
+      store={contactsStore}
+    >
       {body}
     </DataViewLayout>
   );

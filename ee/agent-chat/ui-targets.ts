@@ -4,6 +4,7 @@ import { WORKSPACE_SECTIONS } from "@/app/components/navigation/workspace-sectio
 
 import {
   PRIMARY_NAV_PAGES,
+  SCOPES_WITHOUT_FILTER,
   STATIC_NAV_PAGES,
   TOOLBAR_PAGES_WITH_ADD,
   TOOLBAR_PAGES_WITHOUT_ADD,
@@ -85,21 +86,25 @@ function toolbarTargets(page: AnchorPage, hasAdd: boolean): AgentUiTarget[] {
           },
         ]
       : []),
-    {
-      id: `${page.scope}-filter`,
-      route: page.route,
-      description: `Filter popover for ${page.label}`,
-    },
+    ...(SCOPES_WITHOUT_FILTER.has(page.scope)
+      ? []
+      : [
+          {
+            id: `${page.scope}-filter`,
+            route: page.route,
+            description: `Filter popover for ${page.label}`,
+          },
+        ]),
     {
       id: `${page.scope}-display-options`,
       route: page.route,
       description: `Display options (columns, sort) for ${page.label}`,
       activation: { kind: "expanded" },
     },
-    ...(["table", "cards", "kanban"] as const).map((layout) => ({
+    ...(["table", "board"] as const).map((layout) => ({
       id: `${page.scope}-layout-${layout}`,
       route: page.route,
-      description: `${layout} layout control for ${page.label} (open ${page.scope}-display-options first)`,
+      description: `${layout === "board" ? "board (kanban)" : layout} layout control for ${page.label} (open ${page.scope}-display-options first)`,
       activation: {
         kind: "selected" as const,
         prerequisite: `${page.scope}-display-options`,

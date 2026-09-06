@@ -612,7 +612,7 @@ describe("AgentChatStore", () => {
       type: "ui_command",
       commandId: "layout",
       name: "click_ui_target",
-      input: { targetId: "contacts-layout-cards" },
+      input: { targetId: "contacts-layout-board" },
     });
 
     await vi.waitFor(() => expect(clickTarget).toHaveBeenCalledOnce());

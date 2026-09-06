@@ -1,7 +1,23 @@
-import type { Filter, GetQueryParams, PaginationRequest, SortDescriptor } from "@/core/base/base-get.schema";
+import type { Filter, GetQueryParams, SortDescriptor } from "@/core/base/base-get.schema";
 
-import { FilterOperatorKey } from "../base/base-query-builder";
+import { FilterOperatorKey, ViewMode } from "../base/base-query-builder";
+import { decodeGroupingToken, encodeGroupingToken } from "../base/grouping/grouping.schema";
 import { normalizeFilter } from "../base/filter-compat";
+
+const DEFAULT_PAGE = 1;
+const DEFAULT_PAGE_SIZE = 25;
+const VALID_PAGE_SIZES = [5, 10, 25, 100];
+
+export const GET_PARAM_KEYS = [
+  "filters",
+  "groupBy",
+  "page",
+  "pageSize",
+  "searchTerm",
+  "sort",
+  "view",
+  "viewMode",
+] as const;
 
 export function encodeGetParams(params: GetQueryParams = {}): URLSearchParams {
   const sp = new URLSearchParams();
@@ -15,14 +31,15 @@ export function encodeGetParams(params: GetQueryParams = {}): URLSearchParams {
     sp.set("sort", sortValue);
   }
 
-  if (params.pagination) {
-    const defaultPageSize = 25;
-    const defaultPage = 1;
+  const page = params.pagination?.page ?? params.page;
+  const pageSize = params.pagination?.pageSize ?? params.pageSize;
 
-    if (params.pagination.page && params.pagination.page > defaultPage) sp.set("page", String(params.pagination.page));
-    if (params.pagination.pageSize && params.pagination.pageSize !== defaultPageSize)
-      sp.set("pageSize", String(params.pagination.pageSize));
-  }
+  if (page && page > DEFAULT_PAGE) sp.set("page", String(page));
+  if (pageSize && pageSize !== DEFAULT_PAGE_SIZE) sp.set("pageSize", String(pageSize));
+
+  if (params.viewId) sp.set("view", params.viewId);
+  if (params.viewMode && params.viewMode !== ViewMode.table) sp.set("viewMode", params.viewMode);
+  if (params.grouping) sp.set("groupBy", encodeGroupingToken(params.grouping));
 
   if (params.filters && params.filters.length > 0) {
     for (const candidate of params.filters) {
@@ -74,7 +91,6 @@ export function decodeGetParams(
     return usp;
   })();
 
-  const filtersParam = source.get("filters");
   const searchTerm = source.get("searchTerm") || undefined;
 
   let sortDescriptor: SortDescriptor | undefined = undefined;
@@ -91,13 +107,6 @@ export function decodeGetParams(
     }
   }
 
-  if (!sortDescriptor) {
-    const sortField = source.get("sortField") || undefined;
-    const sortDir = source.get("sortDir") as SortDescriptor["direction"] | null;
-
-    if (sortField && sortDir) sortDescriptor = { field: sortField, direction: sortDir };
-  }
-
   const page = source.get("page");
   const pageSize = source.get("pageSize");
 
@@ -106,29 +115,24 @@ export function decodeGetParams(
   const tokens = source.getAll("filters");
 
   if (tokens.length > 0) filters = tokens.map(decodeFilterToken).filter(Boolean) as Filter[];
-  else if (filtersParam) {
-    try {
-      const raw = JSON.parse(filtersParam) as Array<{
-        f: string;
-        o: FilterOperatorKey;
-        v: unknown;
-        c?: string;
-      }>;
 
-      filters = raw.map((r) => ({ field: r.f, operator: r.o, value: r.v })) as Filter[] | undefined;
-    } catch {}
-  }
+  const parsedPageSize = pageSize === null ? undefined : Number(pageSize);
+  const decodedViewMode = source.get("viewMode");
+  const decodedGroupBy = source.get("groupBy");
 
-  const validPageSizes = [5, 10, 25, 100];
-  const parsedPageSize = pageSize ? Number(pageSize) : 100;
-  const validPageSize = validPageSizes.includes(parsedPageSize)
-    ? (parsedPageSize as PaginationRequest["pageSize"])
-    : 100;
-
-  const pagination: PaginationRequest | undefined =
-    page || pageSize ? { page: Number(page || 1), pageSize: validPageSize } : undefined;
-
-  return { filters, searchTerm, sortDescriptor, pagination };
+  return {
+    filters,
+    searchTerm,
+    sortDescriptor,
+    page: page === null ? undefined : Math.max(1, Number(page) || 1),
+    pageSize:
+      parsedPageSize !== undefined && VALID_PAGE_SIZES.includes(parsedPageSize)
+        ? (parsedPageSize as 5 | 10 | 25 | 100)
+        : undefined,
+    viewId: source.get("view") || undefined,
+    viewMode: decodedViewMode === ViewMode.card || decodedViewMode === ViewMode.table ? decodedViewMode : undefined,
+    grouping: decodeGroupingToken(decodedGroupBy),
+  };
 }
 
 function serializeFilterValue(op: FilterOperatorKey, value: unknown): string | undefined {

@@ -830,9 +830,8 @@
       "hidePassword": "Passwort ausblenden",
       "selectOption": "Option auswählen",
       "showPassword": "Passwort anzeigen",
-      "switchToCardView": "Zur Kartenansicht wechseln",
-      "switchToKanbanView": "Zur Kanban-Ansicht wechseln",
-      "switchToKanbanViewDisabled": "Füge ein Einzelauswahl-Feld hinzu, um die Kanban-Ansicht zu aktivieren",
+      "switchToBoardView": "Zur Board-Ansicht wechseln",
+      "switchToBoardViewDisabled": "Diese Liste hat kein Feld zum Gruppieren",
       "switchToTableView": "Zur Tabellenansicht wechseln",
       "themeSwitcher": "Darstellungsmodus-Umschalter",
       "tooltipFields": "Darstellung",
@@ -864,6 +863,13 @@
     "customFieldHelp": {
       "immutableType": "Der Feldtyp ist nach dem Erstellen festgelegt. Erstelle ein neues benutzerdefiniertes Feld, um einen anderen Typ zu verwenden.",
       "probabilityPermission": "Phasenwahrscheinlichkeiten werden unter „{company}“ verwaltet. Bitte einen Administrator um die Berechtigung, sie zu ändern."
+    },
+    "dateBuckets": {
+      "day": "Tag",
+      "earlier": "Früher",
+      "later": "Später",
+      "month": "Monat",
+      "week": "Woche"
     },
     "datePresets": {
       "endTime": "Endzeit",
@@ -965,6 +971,7 @@
       "customFieldInvalidPhone": "Der Telefonwert ist ungültig. Muss im E.164-Format sein (z.B. +491234567890). Bei mehreren Telefonnummern durch Komma trennen (z.B. +491234567890, +499876543210).",
       "customFieldInvalidSingleSelect": "Der Single-Select-Wert ist ungültig. Muss eine der erlaubten Optionen sein: {validValues}.",
       "customFieldInvalidUrl": "Der URL-Wert ist ungültig. Muss ein gültiges URL-Format haben (z.B. https://example.com). Bei mehreren URLs durch Komma trennen (z.B. https://example.com, https://example.org).",
+      "dataViewNotFound": "Diese gespeicherte Ansicht wurde nicht gefunden.",
       "dealNotFound": "Deal-ID nicht gefunden oder nicht zugänglich.",
       "demoMode": "Diese Aktion ist im Demo-Modus nicht verfügbar. Melde dich an, um alle Funktionen zu nutzen.",
       "draftMessageNotFound": "Dieser Entwurf wurde nicht gefunden. Möglicherweise wurde er bereits gesendet oder verworfen.",
@@ -1008,7 +1015,6 @@
       "passwordInvalid": "Das Passwort muss mindestens 8 Zeichen lang sein und mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und ein Sonderzeichen enthalten.",
       "passwordMismatch": "Passwörter müssen übereinstimmen.",
       "permissionDenied": "Diese Aktion ist mit deinen aktuellen Berechtigungen nicht verfügbar.",
-      "presetNotFound": "Diese gespeicherte Filtervoreinstellung wurde nicht gefunden.",
       "relationNotAllowed": "Die Beziehung '{relation}' ist für {entity} nicht erlaubt. Erlaubte Beziehungen: {allowed}.",
       "roleAssignedCannotDelete": "Eine Nutzern zugewiesene Rolle kann nicht gelöscht werden.",
       "roleNotFound": "Rollen-ID nicht gefunden oder nicht zugänglich.",
@@ -1144,8 +1150,6 @@
       }
     },
     "filters": {
-      "clearAll": "Alle entfernen",
-      "clearSearch": "Suche löschen",
       "daysPlaceholder": "Tage",
       "daysPreset": "{count, plural, =1 {1 Tag} other {# Tage}}",
       "daysSuffix": "Tage",
@@ -1191,13 +1195,24 @@
         "lte": "≤",
         "notIn": "ist nicht in"
       },
-      "presets": {
-        "add": "Als Preset speichern…",
-        "label": "Preset",
-        "namePlaceholder": "Preset-Name",
-        "none": "Kein Preset"
+      "palette": {
+        "activeGroup": "Aktive Filter",
+        "addFilter": "Filter hinzufügen…",
+        "appliedCount": "{count, plural, =1 {1 Filter} other {# Filter}}",
+        "dateAfter": "Nach…",
+        "dateBefore": "Vor…",
+        "dateBetween": "Zwischen…",
+        "dateCustom": "Eigener Zeitraum…",
+        "dateIncludes": "Enthält…",
+        "dateOnOrAfter": "Ab…",
+        "dateOnOrBefore": "Bis…",
+        "editOperator": "Bedingung ändern",
+        "editOperatorNamed": "Bedingung ändern: {operator}",
+        "fieldsGroup": "Filtern nach",
+        "limitReached": "Du kannst bis zu {count} Filter anwenden.",
+        "removeFilter": "Filter entfernen",
+        "title": "Filter"
       },
-      "searchLabel": "Suche",
       "selectionLimit": "Du kannst bis zu {count} Werte auswählen.",
       "selectOperator": "Bedingung auswählen…",
       "unavailableValue": "Filter nicht verfügbar"
@@ -1380,13 +1395,22 @@
         "weightedValue": "Gewichteter Wert",
         "workspace": "Arbeitsbereich"
       },
+      "fields": "Felder",
       "groupBy": "Gruppieren nach",
       "layout": "Ansicht",
+      "layouts": {
+        "board": "Board",
+        "table": "Tabelle"
+      },
       "nextPage": "Nächste Seite",
       "paginationEmpty": "0 von 0",
       "paginationRange": "{from}-{to} von {total}",
       "previousPage": "Vorherige Seite",
       "search": "Suchen..."
+    },
+    "taskTypes": {
+      "custom": "Benutzerdefiniert",
+      "userPendingAuthorization": "Autorisierung ausstehend"
     },
     "themes": {
       "dark": "Dunkel",
@@ -1731,14 +1755,41 @@
     "menu": "Import und Export"
   },
   "DataView": {
+    "board": {
+      "chooseField": "Nach Feld gruppieren",
+      "createField": "Einzelauswahl-Feld erstellen",
+      "promptBody": "Wähle ein Feld zum Gruppieren. Jeder Wert wird zu einer Spalte auf dem Board.",
+      "promptTitle": "Wähle, wie dieses Board gruppiert wird"
+    },
+    "collapseGroup": "Gruppe {group} einklappen",
     "dragToReorder": "Zum Neuanordnen ziehen",
     "editColumn": "Spalte bearbeiten",
+    "expandGroup": "Gruppe {group} ausklappen",
+    "groupOverflow": "Es werden nur {count} Gruppen angezeigt",
     "noValue": "Kein Wert",
     "resizeColumn": "Größe der Spalte „{column}“ ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
     "resizeHint": "Zum Ändern der Größe ziehen. Zum Zurücksetzen doppelklicken.",
     "selectAllRows": "Alle Zeilen auswählen",
-    "selectGroupingColumn": "Wähle eine Gruppierungsspalte aus, um die Kanban-Ansicht anzuzeigen.",
-    "selectRow": "Zeile {id} auswählen"
+    "selectGroup": "Gruppe {group} auswählen",
+    "selectRow": "Zeile {id} auswählen",
+    "views": {
+      "all": "Alle",
+      "applied": "{name} wird angezeigt",
+      "copyLink": "Link kopieren",
+      "createTitle": "Neue Ansicht",
+      "delete": "Ansicht löschen",
+      "duplicate": "Als neue Ansicht duplizieren",
+      "duplicateName": "{name} Kopie",
+      "editTitle": "Ansicht bearbeiten",
+      "linkCopied": "Link kopiert",
+      "menu": "Ansichtsaktionen",
+      "moveLeft": "Nach links verschieben",
+      "moveRight": "Nach rechts verschieben",
+      "name": "Name",
+      "namePlaceholder": "Name der Ansicht",
+      "railLabel": "Gespeicherte Ansichten",
+      "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}"
+    }
   },
   "DealModal": {
     "noServicesAdded": "Noch keine {entity} hinzugefügt",

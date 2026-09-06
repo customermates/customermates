@@ -830,9 +830,8 @@
       "hidePassword": "Ocultar contraseña",
       "selectOption": "Selecciona una opción",
       "showPassword": "Mostrar contraseña",
-      "switchToCardView": "Cambiar a la vista de tarjetas",
-      "switchToKanbanView": "Cambiar a la vista kanban",
-      "switchToKanbanViewDisabled": "Añade un campo personalizado de selección única para activar la vista kanban",
+      "switchToBoardView": "Cambiar a la vista de tablero",
+      "switchToBoardViewDisabled": "Esta lista no tiene ningún campo por el que agrupar",
       "switchToTableView": "Cambiar a la vista de tabla",
       "themeSwitcher": "Selector de tema",
       "tooltipFields": "Apariencia",
@@ -864,6 +863,13 @@
     "customFieldHelp": {
       "immutableType": "El tipo de campo queda fijo después de crearlo. Crea un nuevo campo personalizado para usar otro tipo.",
       "probabilityPermission": "Las probabilidades de etapa se gestionan en «{company}». Solicita a un administrador permiso para actualizarlas."
+    },
+    "dateBuckets": {
+      "day": "Día",
+      "earlier": "Anterior",
+      "later": "Posterior",
+      "month": "Mes",
+      "week": "Semana"
     },
     "datePresets": {
       "endTime": "Hora de fin",
@@ -965,6 +971,7 @@
       "customFieldInvalidPhone": "El número de teléfono no es válido. Debe estar en formato E.164 (por ejemplo +491234567890). Para varios números, sepáralos con una coma (por ejemplo +491234567890, +499876543210).",
       "customFieldInvalidSingleSelect": "El valor de selección única no es válido. Debe ser una de las opciones permitidas: {validValues}.",
       "customFieldInvalidUrl": "La URL no es válida. Debe respetar el formato de una URL (por ejemplo https://example.com). Para varias URL, sepáralas con una coma (por ejemplo https://example.com, https://example.org).",
+      "dataViewNotFound": "No se encontró esta vista guardada.",
       "dealNotFound": "ID de oportunidad no encontrado o no accesible.",
       "demoMode": "Esta acción no está disponible en el modo de demostración. Inicia sesión para acceder a todas las funciones.",
       "draftMessageNotFound": "No se ha encontrado ese borrador. Puede que ya se haya enviado o descartado.",
@@ -1008,7 +1015,6 @@
       "passwordInvalid": "La contraseña debe tener al menos 8 caracteres e incluir al menos una mayúscula, una minúscula, un número y un carácter especial.",
       "passwordMismatch": "Las contraseñas deben coincidir.",
       "permissionDenied": "Esta acción no está disponible con tus permisos actuales.",
-      "presetNotFound": "No se encontró este filtro guardado.",
       "relationNotAllowed": "La relación '{relation}' no está permitida en {entity}. Relaciones permitidas: {allowed}.",
       "roleAssignedCannotDelete": "No se puede eliminar un rol asignado a usuarios.",
       "roleNotFound": "ID de rol no encontrado o no accesible.",
@@ -1144,8 +1150,6 @@
       }
     },
     "filters": {
-      "clearAll": "Borrar todo",
-      "clearSearch": "Borrar la búsqueda",
       "daysPlaceholder": "Días",
       "daysPreset": "{count, plural, =1 {1 día} other {# días}}",
       "daysSuffix": "días",
@@ -1191,13 +1195,24 @@
         "lte": "≤",
         "notIn": "no es uno de"
       },
-      "presets": {
-        "add": "Guardar como preajuste…",
-        "label": "Preajuste",
-        "namePlaceholder": "Nombre del preajuste",
-        "none": "Sin preajuste"
+      "palette": {
+        "activeGroup": "Filtros activos",
+        "addFilter": "Añadir filtro…",
+        "appliedCount": "{count, plural, =1 {1 filtro} other {# filtros}}",
+        "dateAfter": "Después de…",
+        "dateBefore": "Antes de…",
+        "dateBetween": "Entre…",
+        "dateCustom": "Intervalo personalizado…",
+        "dateIncludes": "Incluye…",
+        "dateOnOrAfter": "Desde…",
+        "dateOnOrBefore": "Hasta…",
+        "editOperator": "Cambiar condición",
+        "editOperatorNamed": "Cambiar condición: {operator}",
+        "fieldsGroup": "Filtrar por",
+        "limitReached": "Puedes aplicar hasta {count} filtros.",
+        "removeFilter": "Quitar filtro",
+        "title": "Filtros"
       },
-      "searchLabel": "Buscar",
       "selectionLimit": "Puedes seleccionar hasta {count} valores.",
       "selectOperator": "Selecciona una condición…",
       "unavailableValue": "Filtro no disponible"
@@ -1380,13 +1395,22 @@
         "weightedValue": "Valor ponderado",
         "workspace": "Espacio de trabajo"
       },
+      "fields": "Campos",
       "groupBy": "Agrupar por",
       "layout": "Disposición",
+      "layouts": {
+        "board": "Tablero",
+        "table": "Tabla"
+      },
       "nextPage": "Página siguiente",
       "paginationEmpty": "0 de 0",
       "paginationRange": "{from}-{to} de {total}",
       "previousPage": "Página anterior",
       "search": "Buscar..."
+    },
+    "taskTypes": {
+      "custom": "Personalizada",
+      "userPendingAuthorization": "Autorización pendiente"
     },
     "themes": {
       "dark": "Oscuro",
@@ -1731,14 +1755,41 @@
     "menu": "Importar y exportar"
   },
   "DataView": {
+    "board": {
+      "chooseField": "Agrupar por campo",
+      "createField": "Crear un campo de selección única",
+      "promptBody": "Elige un campo por el que agrupar. Cada valor se convierte en una columna del tablero.",
+      "promptTitle": "Elige cómo agrupar este tablero"
+    },
+    "collapseGroup": "Contraer el grupo {group}",
     "dragToReorder": "Arrastrar para reordenar",
     "editColumn": "Editar columna",
+    "expandGroup": "Expandir el grupo {group}",
+    "groupOverflow": "Solo se muestran {count} grupos",
     "noValue": "Sin valor",
     "resizeColumn": "Redimensiona la columna {column}. Arrastra o usa las teclas de flecha; toca dos veces o pulsa Intro para restablecer.",
     "resizeHint": "Arrastra para redimensionar. Haz doble clic para restablecer.",
     "selectAllRows": "Seleccionar todas las filas",
-    "selectGroupingColumn": "Selecciona una columna de agrupación para ver la vista kanban.",
-    "selectRow": "Seleccionar fila {id}"
+    "selectGroup": "Seleccionar el grupo {group}",
+    "selectRow": "Seleccionar fila {id}",
+    "views": {
+      "all": "Todas",
+      "applied": "Mostrando {name}",
+      "copyLink": "Copiar enlace",
+      "createTitle": "Nueva vista",
+      "delete": "Eliminar vista",
+      "duplicate": "Duplicar como vista nueva",
+      "duplicateName": "{name} copia",
+      "editTitle": "Editar vista",
+      "linkCopied": "Enlace copiado",
+      "menu": "Acciones de vista",
+      "moveLeft": "Mover a la izquierda",
+      "moveRight": "Mover a la derecha",
+      "name": "Nombre",
+      "namePlaceholder": "Nombre de la vista",
+      "railLabel": "Vistas guardadas",
+      "recordCount": "{count, plural, one {# registro} other {# registros}}"
+    }
   },
   "DealModal": {
     "noServicesAdded": "Aún no se ha añadido ningún elemento «{entity}»",

@@ -4,7 +4,8 @@ import { OperatorUsersPageView } from "../components/users/operator-users-page-v
 
 import { getGetOperatorUsersInteractor } from "@/core/di";
 import { appErrorDetails } from "@/core/errors/app-errors";
-import { decodeGetParams } from "@/core/utils/get-params";
+import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
+import { SURFACE } from "@/core/data-view/data-view-keys";
 import { PageContainer } from "@/components/shared/page-container";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
@@ -13,8 +14,7 @@ type Props = {
 };
 
 export default async function OperatorUsersPage({ searchParams }: Props) {
-  const params = await searchParams;
-  const userParams = decodeGetParams(params);
+  const userParams = await readSurfaceParams(SURFACE.operatorUsers, searchParams);
 
   try {
     const users = await unwrapValidated(getGetOperatorUsersInteractor().invoke(userParams));

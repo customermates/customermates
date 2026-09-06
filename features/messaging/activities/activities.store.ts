@@ -12,6 +12,7 @@ import { action, makeObservable, observable, runInAction } from "mobx";
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 
 import { getActivitiesAction } from "@/app/[locale]/(protected)/actions";
+import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { ACTIVITIES_PAGE_SIZE, computeHasMore } from "./activities-paging";
 import { activityEntryKey } from "./activity-entry-key";
 import { ActivityFiltersSchema } from "@/ee/messaging/activities/activities.schema";
@@ -104,13 +105,18 @@ export class ActivitiesStore extends BaseDataViewStore<ActivityEntryDto> {
     void this.refresh().catch(() => this.toastError("Common.notifications.unexpectedError"));
   };
 
-  private async fetchPage(extra: { filters?: Filter[]; p13nId?: string; page: number }) {
+  private get requestViewId(): string | undefined {
+    return this.activeViewKey === ALL_VIEW_KEY ? undefined : this.activeViewKey;
+  }
+
+  private async fetchPage(extra: { filters?: Filter[]; p13nId?: string; page: number; viewId?: string }) {
     const filters = extra.filters ? ActivityFiltersSchema.parse(extra.filters) : undefined;
     const effectiveP13nId = extra.p13nId ?? this.p13nId ?? this.defaultP13nId;
     return getActivitiesAction({
       scope: this.scope,
       filters,
       p13nId: effectiveP13nId,
+      viewId: extra.viewId,
       pagination: { page: extra.page, pageSize: this.pageSize },
     });
   }
@@ -123,6 +129,7 @@ export class ActivitiesStore extends BaseDataViewStore<ActivityEntryDto> {
     const response = await this.fetchPage({
       filters: params?.filters,
       p13nId: params?.p13nId ?? this.p13nId ?? this.defaultP13nId,
+      viewId: params?.viewId ?? this.requestViewId,
       page: 1,
     }).catch(() => null);
 
@@ -144,6 +151,7 @@ export class ActivitiesStore extends BaseDataViewStore<ActivityEntryDto> {
     const response = await this.fetchPage({
       filters: this.filters,
       p13nId: this.p13nId ?? this.defaultP13nId,
+      viewId: this.requestViewId,
       page: nextPage,
     }).catch(() => null);
 

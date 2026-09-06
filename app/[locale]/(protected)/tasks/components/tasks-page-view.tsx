@@ -38,10 +38,11 @@ export const TasksPageView = observer(function TasksPageView({ tasks }: Props) {
   const { singular } = useEntityTerminology();
   const t = useTranslations();
 
-  const view = resolveDataViewView(tasksStore.viewMode, tasksStore.groupingColumnId);
+  const view = resolveDataViewView(tasksStore.viewMode, tasksStore.canBoard);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery: Boolean(tasksStore.searchTerm?.trim()) || (tasksStore.filters?.length ?? 0) > 0,
+    isGrouped: tasksStore.isGrouped,
     itemCount: tasksStore.items.length,
     request: tasksStore.dataRequest,
     total: tasksStore.pagination?.total,
@@ -114,7 +115,10 @@ export const TasksPageView = observer(function TasksPageView({ tasks }: Props) {
   }
 
   return (
-    <DataViewLayout showPagination={pageState === "content" && view !== "board"} store={tasksStore}>
+    <DataViewLayout
+      showPagination={pageState === "content" && view !== "board" && !tasksStore.isGrouped}
+      store={tasksStore}
+    >
       {body}
     </DataViewLayout>
   );

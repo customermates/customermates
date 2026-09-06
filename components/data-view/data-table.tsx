@@ -1,17 +1,18 @@
 "use client";
 
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
-import type { ColumnDef, SortingState, VisibilityState } from "@tanstack/react-table";
-import type { KeyboardEvent, PointerEvent } from "react";
+import type { ColumnDef, Row, SortingState, VisibilityState } from "@tanstack/react-table";
+import type { KeyboardEvent, PointerEvent, ReactNode } from "react";
 
-import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, ChevronsUpDown } from "lucide-react";
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { observer } from "mobx-react-lite";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { AppChip } from "@/components/chip/app-chip";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
@@ -19,6 +20,7 @@ import type { Prisma } from "@/generated/prisma";
 import { cn } from "@/core/utils/cn";
 
 import { isInteractiveClick } from "./is-interactive-click";
+import { useGroupLabel, visibleGroups } from "./group-label";
 import {
   beginColumnResize,
   columnResizeLabel,
@@ -54,6 +56,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
 }: Props<E>) {
   const t = useTranslations();
   const navigateToHref = useNavigateToHref();
+  const groupLabel = useGroupLabel(store.groupingResult);
   const [resizeSession, setResizeSession] = useState<ColumnResizeSession>();
   const activeResizeRef = useRef<{
     handle: HTMLButtonElement;
@@ -255,6 +258,79 @@ export const DataTable = observer(function DataTable<E extends HasId>({
     },
   });
 
+  function renderRow(row: Row<E>): ReactNode {
+    return (
+      <TableRow
+        key={row.id}
+        className={cn((onRowClick || onRowHref) && "cursor-pointer")}
+        data-state={store.selectedIds.has(row.original.id) ? "selected" : undefined}
+        onClick={(e) => {
+          if (isInteractiveClick(e)) return;
+          if (store.selectedIds.size > 0 && canBulkAct) {
+            store.toggleItemSelection(row.original.id);
+            return;
+          }
+          if (onRowClick) {
+            onRowClick(row.original);
+            return;
+          }
+          const href = onRowHref?.(row.original);
+          if (href) navigateToHref(href);
+        }}
+      >
+        {row.getVisibleCells().map((cell) => {
+          const columnId = cell.column.id;
+          const isSelectionCell = columnId === "__select";
+          const isNameCell = columnId === "name";
+          const liveWidth = getColumnWidth(columnId);
+          const content = flexRender(cell.column.columnDef.cell, cell.getContext());
+          const rowHref = onRowHref?.(row.original);
+          const wrapped =
+            isNameCell && rowHref ? (
+              <a
+                className="block truncate text-inherit [&:hover_span:not([data-slot])]:underline"
+                href={rowHref}
+                onClick={(e) => {
+                  if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+                  if (store.selectedIds.size > 0 && canBulkAct) {
+                    e.preventDefault();
+                    return;
+                  }
+                  e.preventDefault();
+                  if (onRowClick) onRowClick(row.original);
+                  else navigateToHref(rowHref);
+                }}
+              >
+                {content}
+              </a>
+            ) : (
+              content
+            );
+          return (
+            <TableCell
+              key={cell.id}
+              className={isSelectionCell ? "w-10" : undefined}
+              style={liveWidth != null && !isSelectionCell ? fixedWidthStyle(liveWidth) : undefined}
+            >
+              {liveWidth != null && !isSelectionCell ? (
+                <div className="truncate" style={{ width: Math.max(0, liveWidth - 24) }}>
+                  {wrapped}
+                </div>
+              ) : (
+                wrapped
+              )}
+            </TableCell>
+          );
+        })}
+      </TableRow>
+    );
+  }
+
+  const rowsById = new Map(table.getRowModel().rows.map((row) => [row.original.id, row]));
+  const leafColumnCount = table.getVisibleLeafColumns().length;
+  const groups = visibleGroups(store.groupingResult);
+  const overflow = store.groupingResult?.overflow;
+
   return (
     <Table className={className}>
       <TableHeader>
@@ -377,73 +453,97 @@ export const DataTable = observer(function DataTable<E extends HasId>({
       </TableHeader>
 
       <TableBody>
-        {table.getRowModel().rows.length === 0
-          ? null
-          : table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                className={cn((onRowClick || onRowHref) && "cursor-pointer")}
-                data-state={store.selectedIds.has(row.original.id) ? "selected" : undefined}
-                onClick={(e) => {
-                  if (isInteractiveClick(e)) return;
-                  if (store.selectedIds.size > 0 && canBulkAct) {
-                    store.toggleItemSelection(row.original.id);
-                    return;
-                  }
-                  if (onRowClick) {
-                    onRowClick(row.original);
-                    return;
-                  }
-                  const href = onRowHref?.(row.original);
-                  if (href) navigateToHref(href);
-                }}
-              >
-                {row.getVisibleCells().map((cell) => {
-                  const columnId = cell.column.id;
-                  const isSelectionCell = columnId === "__select";
-                  const isNameCell = columnId === "name";
-                  const liveWidth = getColumnWidth(columnId);
-                  const content = flexRender(cell.column.columnDef.cell, cell.getContext());
-                  const rowHref = onRowHref?.(row.original);
-                  const wrapped =
-                    isNameCell && rowHref ? (
-                      <a
-                        className="block truncate text-inherit [&:hover_span:not([data-slot])]:underline"
-                        href={rowHref}
-                        onClick={(e) => {
-                          if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
-                          if (store.selectedIds.size > 0 && canBulkAct) {
-                            e.preventDefault();
-                            return;
+        {!store.isGrouped
+          ? table.getRowModel().rows.map(renderRow)
+          : groups.map((group) => {
+              const collapsed = store.isGroupCollapsed(group.key);
+              const label = groupLabel(group);
+              const groupRows = group.itemIds.flatMap((id) => {
+                const row = rowsById.get(id);
+                return row ? [row] : [];
+              });
+              const selectable = groupRows.filter((row) => store.isItemSelectable(row.original));
+              const allSelected =
+                selectable.length > 0 && selectable.every((row) => store.selectedIds.has(row.original.id));
+              const someSelected = !allSelected && selectable.some((row) => store.selectedIds.has(row.original.id));
+
+              return (
+                <Fragment key={group.key}>
+                  <TableRow
+                    className="bg-muted/40 hover:bg-muted/40 has-aria-expanded:bg-muted/40"
+                    data-slot="group-header-row"
+                  >
+                    <TableCell colSpan={leafColumnCount}>
+                      <div className="flex min-w-0 items-center gap-2">
+                        {canBulkAct && (
+                          <Checkbox
+                            aria-label={t("DataView.selectGroup", { group: label })}
+                            checked={allSelected ? true : someSelected ? "indeterminate" : false}
+                            disabled={selectable.length === 0}
+                            onCheckedChange={(checked) => store.setGroupSelection(group.key, checked === true)}
+                          />
+                        )}
+
+                        <button
+                          aria-expanded={!collapsed}
+                          aria-label={
+                            collapsed
+                              ? t("DataView.expandGroup", { group: label })
+                              : t("DataView.collapseGroup", { group: label })
                           }
-                          e.preventDefault();
-                          if (onRowClick) onRowClick(row.original);
-                          else navigateToHref(rowHref);
-                        }}
-                      >
-                        {content}
-                      </a>
-                    ) : (
-                      content
-                    );
-                  return (
-                    <TableCell
-                      key={cell.id}
-                      className={isSelectionCell ? "w-10" : undefined}
-                      style={liveWidth != null && !isSelectionCell ? fixedWidthStyle(liveWidth) : undefined}
-                    >
-                      {liveWidth != null && !isSelectionCell ? (
-                        <div className="truncate" style={{ width: Math.max(0, liveWidth - 24) }}>
-                          {wrapped}
-                        </div>
-                      ) : (
-                        wrapped
-                      )}
+                          className="flex size-5 shrink-0 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          data-slot="group-disclosure"
+                          type="button"
+                          onClick={() => store.toggleGroupCollapsed(group.key)}
+                        >
+                          {collapsed ? <ChevronRight className="size-3.5" /> : <ChevronDown className="size-3.5" />}
+                        </button>
+
+                        {group.color ? (
+                          <AppChip size="sm" variant={group.color}>
+                            <span className="truncate">{label}</span>
+                          </AppChip>
+                        ) : (
+                          <span className="min-w-0 truncate text-sm font-medium">{label}</span>
+                        )}
+
+                        <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{group.count}</span>
+
+                        {group.weight !== undefined && (
+                          <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{group.weight}%</span>
+                        )}
+                      </div>
                     </TableCell>
-                  );
-                })}
-              </TableRow>
-            ))}
+                  </TableRow>
+
+                  {!collapsed && groupRows.map(renderRow)}
+
+                  {!collapsed && group.hasMore && (
+                    <TableRow data-slot="group-load-more">
+                      <TableCell colSpan={leafColumnCount}>
+                        <Button
+                          disabled={store.isRefreshing}
+                          size="sm"
+                          type="button"
+                          variant="ghost"
+                          onClick={() => store.loadMoreInGroup(group.key)}
+                        >
+                          {t("Common.actions.loadMore")}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </Fragment>
+              );
+            })}
+
+        {store.isGrouped && overflow && (
+          <TableRow data-slot="group-overflow">
+            <TableCell className="text-xs text-muted-foreground" colSpan={leafColumnCount}>
+              {t("DataView.groupOverflow", { count: overflow.shown })}
+            </TableCell>
+          </TableRow>
+        )}
       </TableBody>
     </Table>
   );

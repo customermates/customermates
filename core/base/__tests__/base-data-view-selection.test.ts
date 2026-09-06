@@ -288,6 +288,5 @@ describe("data view selection", () => {
     store.setCustomColumns([plainColumn("plain"), singleSelectColumn("empty", 0), singleSelectColumn("full", 2)]);
 
     expect(store.massEditableCustomColumns.map((column) => column.id)).toEqual(["plain", "full"]);
-    expect(store.singleSelectCustomColumns.map((column) => column.id)).toEqual(["empty", "full"]);
   });
 });

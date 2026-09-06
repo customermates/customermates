@@ -9,7 +9,6 @@ import { useTranslations } from "next-intl";
 import { Clock } from "lucide-react";
 
 import { FilterPopover } from "@/components/data-view/header/filter-popover";
-import { DataViewActiveFiltersBar } from "@/components/data-view/header/active-filters-bar";
 import { PageState } from "@/components/page-state/page-state";
 
 import { ActivitiesList, TimelineEmptyState, TimelineNotice } from "./activities-list";
@@ -86,8 +85,6 @@ export const EntityTimelinePanel = observer(({ entityType, entityId, initial }: 
             <FilterPopover compact store={store} />
           </div>
         </div>
-
-        <DataViewActiveFiltersBar noBorder store={store} />
 
         <div className="min-h-0 flex-1 overflow-auto px-2 pb-4">
           {store.scopeTruncated && store.items.length > 0 && (

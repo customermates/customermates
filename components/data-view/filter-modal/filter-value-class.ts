@@ -1,8 +1,9 @@
 import type { Filter } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { FilterValueKind } from "@/core/types/filter-field-value-kind";
 
 import { hasValidFilterConfiguration, isCustomField } from "@/components/data-view/table-view.utils";
-import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { filterValueKind } from "@/core/types/filter-field-value-kind";
 import { FilterOperatorKey, isStandaloneOperator } from "@/core/base/base-query-builder";
 
 export type FilterValueClass =
@@ -17,44 +18,53 @@ export type FilterValueClass =
 
 export type FilterDateGranularity = "day" | "minute";
 
-const RELATION_FILTER_FIELDS = [
-  FilterFieldKey.userIds,
-  FilterFieldKey.contactIds,
-  FilterFieldKey.participantContactId,
-  FilterFieldKey.serviceIds,
-  FilterFieldKey.dealIds,
-  FilterFieldKey.organizationIds,
-  FilterFieldKey.taskIds,
-  FilterFieldKey.event,
-  FilterFieldKey.status,
-  FilterFieldKey.provider,
-  FilterFieldKey.state,
-  FilterFieldKey.timelineKind,
-  FilterFieldKey.timelineThreadId,
-  FilterFieldKey.connectedAccountId,
-  FilterFieldKey.participants,
-  FilterFieldKey.plan,
-  FilterFieldKey.subscriptionStatus,
-  FilterFieldKey.isPlatformOperator,
-  FilterFieldKey.workspaceId,
-  FilterFieldKey.auditSource,
-  FilterFieldKey.adProvider,
-  FilterFieldKey.workspaceTags,
-];
-
-const DATE_FILTER_FIELDS = [
-  FilterFieldKey.updatedAt,
-  FilterFieldKey.createdAt,
-  FilterFieldKey.lastActiveAt,
-  FilterFieldKey.startsAt,
-];
-
 const DAY_GRANULARITY_COLUMN_TYPES = ["date", "dateRange"];
 
 function dateValueClass(operator: FilterOperatorKey): FilterValueClass {
   if (operator === FilterOperatorKey.inLastDays) return "daysCount";
 
   return operator === FilterOperatorKey.between ? "isoRange" : "isoDate";
+}
+
+function comparisonValueClass(kind: FilterValueKind["kind"] | undefined): FilterValueClass {
+  switch (kind) {
+    case "date":
+      return "isoDate";
+    case "entityId":
+    case "enum":
+    case "event":
+    case "string":
+    case "linkStatus":
+    case undefined:
+      return "text";
+  }
+}
+
+function standardValueClass(field: string, operator: FilterOperatorKey): FilterValueClass {
+  switch (operator) {
+    case FilterOperatorKey.in:
+    case FilterOperatorKey.notIn:
+      return "stringArray";
+    case FilterOperatorKey.between:
+      return "isoRange";
+    case FilterOperatorKey.inLastDays:
+      return "daysCount";
+    case FilterOperatorKey.gt:
+    case FilterOperatorKey.gte:
+    case FilterOperatorKey.lt:
+    case FilterOperatorKey.lte:
+      return comparisonValueClass(filterValueKind(field)?.kind);
+    case FilterOperatorKey.equals:
+    case FilterOperatorKey.contains:
+      return "text";
+    case FilterOperatorKey.isNull:
+    case FilterOperatorKey.isNotNull:
+    case FilterOperatorKey.hasNone:
+    case FilterOperatorKey.hasSome:
+    case FilterOperatorKey.hasUnset:
+    case FilterOperatorKey.allSet:
+      return "none";
+  }
 }
 
 export function resolveFilterValueClass(
@@ -88,10 +98,7 @@ export function resolveFilterValueClass(
     return "text";
   }
 
-  if (RELATION_FILTER_FIELDS.includes(field as FilterFieldKey)) return "stringArray";
-  if (DATE_FILTER_FIELDS.includes(field as FilterFieldKey)) return dateValueClass(operator);
-
-  return "text";
+  return standardValueClass(field, operator);
 }
 
 export function resolveFilterDateGranularity(field: string, customColumns?: CustomColumnDto[]): FilterDateGranularity {

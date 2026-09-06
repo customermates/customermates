@@ -17,7 +17,7 @@ export enum CustomErrorCode {
   enterpriseCheckoutUnavailable = "enterpriseCheckoutUnavailable",
   passwordMismatch = "passwordMismatch",
   passwordInvalid = "passwordInvalid",
-  presetNotFound = "presetNotFound",
+  dataViewNotFound = "dataViewNotFound",
   emailNotVerified = "emailNotVerified",
   invalidCredentials = "invalidCredentials",
   invalidCallbackUrl = "invalidCallbackUrl",

@@ -8,7 +8,8 @@ import {
   GetQueryParamsApiSchema,
   GetQueryParamsSchema,
   PaginationRequestSchema,
-  createGetResultSchema,
+  createApiGetResultSchema,
+  DataViewResultFields,
 } from "@/core/base/base-get.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
@@ -239,6 +240,7 @@ export const ActivitiesParamsSchema = GetQueryParamsSchema.pick({
   filters: true,
   sortDescriptor: true,
   p13nId: true,
+  viewId: true,
 })
   .extend({
     filters: ActivityFiltersSchema.optional(),
@@ -261,12 +263,14 @@ export const ActivitiesApiParamsSchema = GetQueryParamsApiSchema.pick({
   .superRefine(refineActivityPage);
 export type ActivitiesApiParams = z.infer<typeof ActivitiesApiParamsSchema>;
 
-export const ActivitiesResultSchema = createGetResultSchema(ActivityEntryDtoSchema).extend({
+export const ActivitiesResultSchema = createApiGetResultSchema(ActivityEntryDtoSchema).extend({
   filters: ActivityFiltersSchema.optional(),
   availableSources: z.array(z.enum(ACTIVITY_KINDS)),
   pageLimitReached: z.boolean(),
   scopeTruncated: z.boolean(),
 });
+
+export const ActivitiesViewResultSchema = ActivitiesResultSchema.extend(DataViewResultFields);
 export type ActivitiesResult = GetResult<ActivityEntryDto> & {
   availableSources: ActivityKind[];
   pageLimitReached: boolean;
