@@ -11,21 +11,34 @@ import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { Alert } from "@/components/shared/alert";
 
-export const VerifyEmailCard = observer(({ email }: { email?: string }) => {
+type Props = {
+  email?: string;
+  inviterName?: string;
+  onboardingIntent?: string;
+};
+
+export const VerifyEmailCard = observer(({ email, inviterName, onboardingIntent }: Props) => {
   const t = useTranslations();
   const { verifyEmailStore } = useRootStore();
 
   useLayoutEffect(() => {
-    verifyEmailStore.activate(email);
+    verifyEmailStore.activate(email, onboardingIntent);
     return () => verifyEmailStore.deactivate(email);
-  }, [email, verifyEmailStore]);
+  }, [email, onboardingIntent, verifyEmailStore]);
 
   return (
     <AppCard className="max-w-md">
-      <CardHeroHeader subtitle={t("VerifyEmailCard.subtitle")} title={t("VerifyEmailCard.title")} />
+      <CardHeroHeader alt="" subtitle={t("VerifyEmailCard.subtitle")} title={t("VerifyEmailCard.title")} />
 
       <AppCardBody>
+        {inviterName ? (
+          <Alert role="note">
+            <p className="text-x-sm">{t("VerifyEmailCard.invitationFrom", { inviterName })}</p>
+          </Alert>
+        ) : null}
+
         <p className="text-x-sm text-center">{t("VerifyEmailCard.body")}</p>
       </AppCardBody>
 

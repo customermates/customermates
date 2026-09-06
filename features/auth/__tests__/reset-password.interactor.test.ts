@@ -3,9 +3,7 @@ import { MOCK_ENV_MODULE, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-tes
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
-vi.mock("@/core/decorators/system-interactor.decorator", () => ({
-  SystemInteractor: (target: unknown) => target,
-}));
+vi.mock("@/core/decorators/system-interactor.decorator", () => ({ SystemInteractor: (target: unknown) => target }));
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve((key: string) => key),
   getLocale: () => Promise.resolve("en"),
@@ -16,13 +14,16 @@ import { isRedirect } from "../auth-outcome";
 
 describe("ResetPasswordInteractor (validation flow)", () => {
   let authService: { resetPassword: ReturnType<typeof vi.fn> };
+  const onboardingIntentService = { resolve: vi.fn() };
 
   beforeEach(() => {
+    vi.clearAllMocks();
     authService = { resetPassword: vi.fn().mockResolvedValue(undefined) };
+    onboardingIntentService.resolve.mockResolvedValue({ status: "absent" });
   });
 
   it("returns ok:false zod error when passwords do not match — NOT a Redirect", async () => {
-    const interactor = new ResetPasswordInteractor(authService as never);
+    const interactor = new ResetPasswordInteractor(authService as never, onboardingIntentService as never);
 
     const result = await interactor.invoke({
       password: "ValidPass1!",
@@ -38,7 +39,7 @@ describe("ResetPasswordInteractor (validation flow)", () => {
   });
 
   it("returns Redirect to /auth/signin on successful reset", async () => {
-    const interactor = new ResetPasswordInteractor(authService as never);
+    const interactor = new ResetPasswordInteractor(authService as never, onboardingIntentService as never);
 
     const result = await interactor.invoke({
       password: "ValidPass1!",
@@ -52,7 +53,7 @@ describe("ResetPasswordInteractor (validation flow)", () => {
 
   it("returns Redirect to forgot-password when auth service throws (invalid token)", async () => {
     authService.resetPassword.mockRejectedValueOnce(new Error("invalid token"));
-    const interactor = new ResetPasswordInteractor(authService as never);
+    const interactor = new ResetPasswordInteractor(authService as never, onboardingIntentService as never);
 
     const result = await interactor.invoke({
       password: "ValidPass1!",
@@ -61,5 +62,29 @@ describe("ResetPasswordInteractor (validation flow)", () => {
     });
 
     expect(result).toEqual({ redirect: "/auth/forgot-password?info=RESET_LINK_INVALID" });
+  });
+
+  it("uses intent-preserving success and error destinations", async () => {
+    const interactor = new ResetPasswordInteractor(authService as never, onboardingIntentService as never);
+    onboardingIntentService.resolve.mockResolvedValue({
+      companyId: "company-a",
+      expiresAt: new Date("2099-01-01T00:00:00.000Z"),
+      intent: "signed.intent",
+      inviterName: "Invite Admin",
+      source: "explicit",
+      status: "valid",
+      token: "invite-a",
+      type: "invitation",
+    });
+    const data = { password: "ValidPass1!", confirmPassword: "ValidPass1!", token: "tok-123" };
+
+    await expect(interactor.invoke({ ...data, onboardingIntent: "signed.intent" })).resolves.toEqual({
+      redirect: "/auth/signin?intent=signed.intent",
+    });
+
+    authService.resetPassword.mockRejectedValueOnce(new Error("invalid token"));
+    await expect(interactor.invoke({ ...data, onboardingIntent: "signed.intent" })).resolves.toEqual({
+      redirect: "/auth/forgot-password?info=RESET_LINK_INVALID&intent=signed.intent",
+    });
   });
 });

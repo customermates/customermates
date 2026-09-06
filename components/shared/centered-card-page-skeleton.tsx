@@ -2,7 +2,7 @@ import { SkeletonShape as Shape } from "@/components/page-state/skeleton-shape";
 import { cn } from "@/core/utils/cn";
 import type { ReactNode } from "react";
 
-type Props = { animated?: boolean; children?: ReactNode; maxWidth?: "2xl" | "3xl" };
+type Props = { animated?: boolean; children?: ReactNode; maxWidth?: "lg" | "2xl" | "3xl" };
 
 export function CenteredCardPageSkeleton({ animated = true, children, maxWidth = "2xl" }: Props) {
   return (
@@ -16,8 +16,8 @@ export function CenteredCardPageSkeleton({ animated = true, children, maxWidth =
       <div className="flex min-h-full w-full items-center justify-center p-4">
         <div
           className={cn(
-            "flex w-full flex-col gap-0 rounded-xl border border-border bg-card py-0 shadow-xs",
-            maxWidth === "3xl" ? "max-w-3xl" : "max-w-2xl",
+            "flex w-full flex-col gap-0 rounded-xl border border-border bg-background py-0 shadow-xs",
+            maxWidth === "3xl" ? "max-w-3xl" : maxWidth === "lg" ? "max-w-lg" : "max-w-2xl",
           )}
           data-skeleton-group="0"
         >

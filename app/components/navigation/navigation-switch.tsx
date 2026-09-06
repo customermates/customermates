@@ -29,6 +29,7 @@ import { AppLocalePreferenceSync } from "@/components/shared/app-locale-preferen
 import { ProtectedEnhancementsProvider } from "./protected-enhancements-context";
 import { accountStateForPath } from "./account-state-for-path";
 import { resolveNavigationShell } from "./navigation-shell";
+import { ONBOARDING_INTENT_QUERY_PARAM } from "@/features/company/onboarding-intent-url";
 
 type NavigationSwitchProps = {
   accountState: AccountState;
@@ -71,6 +72,8 @@ export function NavigationSwitch({
   const router = useRouter();
   const searchParams = useSearchParams();
   const errorTypes = searchParams.getAll("type");
+  const onboardingIntents = searchParams.getAll(ONBOARDING_INTENT_QUERY_PARAM);
+  const onboardingIntent = onboardingIntents.length === 1 && onboardingIntents[0] ? onboardingIntents[0] : undefined;
   const hasValidSession = accountState !== "unauthenticated";
   const isRegistered = sidebarUser !== null;
   const currentAccountState = accountStateForPath({
@@ -142,7 +145,11 @@ export function NavigationSwitch({
         className="relative flex h-svh flex-col overflow-y-auto bg-background [--table-sticky-top:4rem] [--toc-sticky-top:4rem] [--toc-anchor-offset:5rem] xl:[--table-sticky-top:3.5rem] xl:[--toc-sticky-top:3.5rem] xl:[--toc-anchor-offset:4.5rem]"
       >
         <header className="sticky top-0 z-50 flex shrink-0 flex-col bg-background/90 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
-          <PublicNavbar accountState={currentAccountState} hasValidSession={hasValidSession} />
+          <PublicNavbar
+            accountState={currentAccountState}
+            hasValidSession={hasValidSession}
+            onboardingIntent={onboardingIntent}
+          />
         </header>
 
         <main className="relative flex min-w-0 flex-1 flex-col">

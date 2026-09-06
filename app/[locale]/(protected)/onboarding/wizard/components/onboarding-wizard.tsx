@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -17,6 +17,8 @@ import { StepInvite } from "./step-invite";
 
 type Props = {
   profileCompleted: boolean;
+  onboardingIntent?: string;
+  inviterName?: string;
   isInvited?: boolean;
   sessionEmail?: string;
   sessionFirstName?: string;
@@ -27,6 +29,8 @@ type Props = {
 export const OnboardingWizard = observer(
   ({
     profileCompleted,
+    onboardingIntent,
+    inviterName,
     isInvited = false,
     sessionEmail = "",
     sessionFirstName,
@@ -35,13 +39,24 @@ export const OnboardingWizard = observer(
   }: Props) => {
     const t = useTranslations();
     const { onboardingWizardStore } = useRootStore();
-    const { currentStep, currentStepIndex, totalSteps, isFirstStep, isSubmitting, next, back } = onboardingWizardStore;
+    const initialStepIndex = profileCompleted ? 1 : 0;
+    const [initializedProfileCompleted, setInitializedProfileCompleted] = useState<boolean | null>(null);
+    const isStepSynchronized = initializedProfileCompleted === profileCompleted;
+    const currentStep = isStepSynchronized
+      ? onboardingWizardStore.currentStep
+      : profileCompleted
+        ? "invite"
+        : "profile";
+    const currentStepIndex = isStepSynchronized ? onboardingWizardStore.currentStepIndex : initialStepIndex;
+    const isFirstStep = isStepSynchronized ? onboardingWizardStore.isFirstStep : true;
+    const { totalSteps, isSubmitting, next, back } = onboardingWizardStore;
     const headingRef = useRef<HTMLHeadingElement>(null);
     const previousStep = useRef(currentStep);
 
     useEffect(() => {
-      onboardingWizardStore.setInitialStep(profileCompleted ? 1 : 0);
-    }, [onboardingWizardStore, profileCompleted]);
+      onboardingWizardStore.setInitialStep(initialStepIndex);
+      setInitializedProfileCompleted(profileCompleted);
+    }, [initialStepIndex, onboardingWizardStore, profileCompleted]);
 
     useEffect(() => {
       if (previousStep.current !== currentStep) headingRef.current?.focus();
@@ -56,8 +71,10 @@ export const OnboardingWizard = observer(
               avatarUrl={sessionAvatarUrl}
               email={sessionEmail}
               firstName={sessionFirstName}
+              inviterName={inviterName}
               isInvited={isInvited}
               lastName={sessionLastName}
+              onboardingIntent={onboardingIntent}
             />
           );
         case "ai":
@@ -86,7 +103,11 @@ export const OnboardingWizard = observer(
               {t(`OnboardingWizard.steps.${currentStep}.title`)}
             </h1>
 
-            <p className="text-sm text-muted-foreground">{t(`OnboardingWizard.steps.${currentStep}.subtitle`)}</p>
+            <p className="text-sm text-muted-foreground">
+              {currentStep === "profile" && isInvited
+                ? t("OnboardingWizard.steps.profile.invitedSubtitle")
+                : t(`OnboardingWizard.steps.${currentStep}.subtitle`)}
+            </p>
           </div>
 
           {!isInvited && (

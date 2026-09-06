@@ -15,7 +15,7 @@ export type AccountState = (typeof ACCOUNT_STATES)[number];
 const ACCOUNT_STATE_REDIRECTS: Record<AccountState, string | null> = {
   unauthenticated: "/auth/signin",
   overdueVerification: "/auth/verify-email",
-  unregistered: "/onboarding/wizard",
+  unregistered: "/onboarding",
   inactive: "/auth/error?type=inactiveUser",
   pending: "/auth/pending",
   onboarding: "/onboarding/wizard",

@@ -1,25 +1,27 @@
 "use server";
 
-import type { RegisterUserData } from "@/features/user/register/register-user.interactor";
+import type { RegisterOnboardingProfileData } from "@/features/user/register/register-onboarding-profile.interactor";
 
 import { refresh } from "next/cache";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
 
-import { getCompleteOnboardingWizardInteractor, getRegisterUserInteractor } from "@/core/di";
+import { getCompleteOnboardingWizardInteractor, getRegisterOnboardingProfileInteractor } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
+import { isRedirect } from "@/features/auth/auth-outcome";
 import {
   clearRegisteredAdClicksFromCookie,
   readRegistrationAdAttribution,
 } from "@/features/acquisition/next/ad-attribution-cookie";
+import { buildLocalePath } from "@/i18n/locale-registry";
 
-export async function registerProfileAction(data: RegisterUserData) {
+export async function registerProfileAction(data: RegisterOnboardingProfileData) {
   const adAttribution = await readRegistrationAdAttribution();
-  const result = await serializeResult(getRegisterUserInteractor().invoke(data, { adAttribution }));
+  const registrationResult = await getRegisterOnboardingProfileInteractor().invoke(data, { adAttribution });
+  if (isRedirect(registrationResult)) redirect(buildLocalePath(await getLocale(), registrationResult.redirect));
+  const result = await serializeResult(registrationResult);
   if (result.ok) {
     await clearRegisteredAdClicksFromCookie();
-    const cookieStore = await cookies();
-    cookieStore.delete("inviteToken");
     refresh();
     redirect(result.data.redirectTo);
   }

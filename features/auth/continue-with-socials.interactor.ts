@@ -11,6 +11,7 @@ import { redirectTo } from "./auth-outcome";
 import { callbackUrlSchema } from "./callback-url.schema";
 
 import { mustVerifyEmail } from "./email-verification-grace";
+import { onboardingIntentFromPath, pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 
 const Schema = z.object({
   provider: z.enum(["google", "microsoft"]),
@@ -41,7 +42,15 @@ export class ContinueWithSocialsInteractor {
         });
       }
 
-      if (mustVerifyEmail(res.user)) return redirectTo("/auth/verify-email");
+      if (mustVerifyEmail(res.user)) {
+        const onboardingIntent = onboardingIntentFromPath(data.callbackURL);
+        if (onboardingIntent.status === "invalid") return redirectTo("/auth/error?type=invalidOnboardingIntent");
+        return redirectTo(
+          onboardingIntent.status === "valid"
+            ? pathWithOnboardingIntent("/auth/verify-email", onboardingIntent.intent)
+            : "/auth/verify-email",
+        );
+      }
     }
 
     if (res.redirect) return redirectTo(res.url ?? data.callbackURL ?? "/");

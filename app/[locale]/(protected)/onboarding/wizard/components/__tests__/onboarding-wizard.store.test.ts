@@ -52,6 +52,17 @@ describe("OnboardingWizardStore", () => {
     expect(store.currentStep).toBe("ai");
   });
 
+  it("resets progress when a different account starts at an earlier step", () => {
+    const store = new OnboardingWizardStore(rootStore);
+    store.setInitialStep(1);
+    store.next();
+
+    store.setInitialStep(0);
+
+    expect(store.currentStep).toBe("profile");
+    expect(store.isFirstStep).toBe(true);
+  });
+
   it("preserves the existing completion action", async () => {
     const store = new OnboardingWizardStore(rootStore);
 

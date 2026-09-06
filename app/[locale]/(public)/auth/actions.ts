@@ -15,8 +15,12 @@ import {
   getResendVerificationEmailInteractor,
   getDecideMcpConsentInteractor,
 } from "@/core/di";
+import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
+
 import { serializeResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
+import { buildLocalePath } from "@/i18n/locale-registry";
 
 export async function signInWithEmailAction(data: EmailSignInData) {
   const result = await getSignInWithEmailInteractor().invoke(data);
@@ -62,7 +66,10 @@ export async function continueWithMicrosoftAction(callbackURL?: string, errorCal
 }
 
 export async function signUpWithEmailAction(data: EmailSignUpData) {
-  return serializeResult(getSignUpWithEmailInteractor().invoke(data));
+  const result = await getSignUpWithEmailInteractor().invoke(data);
+  if (isRedirect(result)) redirect(buildLocalePath(await getLocale(), result.redirect));
+
+  return serializeResult(result);
 }
 
 export async function requestPasswordResetAction(data: RequestPasswordResetData) {
@@ -73,10 +80,10 @@ export async function resetPasswordAction(data: ResetPasswordData) {
   return serializeResult(getResetPasswordInteractor().invoke(data));
 }
 
-export async function resendVerificationEmailFromAuthAction(): Promise<{
+export async function resendVerificationEmailFromAuthAction(onboardingIntentValue?: string): Promise<{
   ok: boolean;
 }> {
-  return await getResendVerificationEmailInteractor().invoke();
+  return await getResendVerificationEmailInteractor().invoke(onboardingIntentValue);
 }
 
 export async function decideMcpConsentAction(data: DecideMcpConsentData) {

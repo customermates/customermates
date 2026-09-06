@@ -55,7 +55,7 @@ export function Alert({ className, color = "default", title, description, icon, 
         </AlertDescription>
       )}
 
-      {children && <div className="col-start-2 min-w-0">{children}</div>}
+      {children && <div className="col-start-2 min-w-0 [overflow-wrap:anywhere]">{children}</div>}
     </UiAlert>
   );
 }

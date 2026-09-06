@@ -1072,7 +1072,6 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           where: { identifier: { in: memberEmails, mode: "insensitive" } },
         });
         await this.prisma.authUser.deleteMany({ where: { id: { in: identityIds } } });
-
         await this.prisma.messagingInboundEvent.deleteMany({ where: { companyId: data.companyId } });
 
         const [workflowSchema] = await this.prisma.$queryRaw<Array<{ installed: boolean }>>`
@@ -1102,6 +1101,10 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         }
 
         await this.prisma.company.delete({ where: { id: data.companyId } });
+        const clearedAuthIdentityCompanies = await this.prisma.authUser.updateMany({
+          where: { companyId: data.companyId },
+          data: { companyId: null },
+        });
 
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.workspaceDelete,
@@ -1111,6 +1114,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             workspaceLabel,
             deletedMemberCount: memberIds.length,
             deletedAuthIdentityCount: identityIds.length,
+            clearedAuthIdentityCompanyCount: clearedAuthIdentityCompanies.count,
             deletedWorkflowRunCount: workflowRunIds.length,
             plan: company.subscription?.plan ?? null,
             subscriptionStatus: company.subscription?.status ?? null,

@@ -49,4 +49,32 @@ describe("SignInWithEmailInteractor", () => {
     if ("ok" in result && !result.ok) expect(result.error.issues[0].message).toBe("Common.errors.invalidCallbackUrl");
     expect(signInWithEmail).not.toHaveBeenCalled();
   });
+
+  it("preserves onboarding intent when an unverified account must verify first", async () => {
+    const signInWithEmail = vi.fn().mockResolvedValue({ ok: false, error: "emailNotVerified" });
+    const interactor = new SignInWithEmailInteractor({ signInWithEmail } as unknown as AuthService);
+
+    const result = await interactor.invoke({
+      callbackURL: "/auth/invitation?intent=signed.intent",
+      email: "synthetic@example.com",
+      password: "local-demo-password",
+      rememberMe: true,
+    });
+
+    expect(result).toEqual({ redirect: "/auth/verify-email?intent=signed.intent" });
+  });
+
+  it("fails closed when an unverified sign-in callback contains duplicate intents", async () => {
+    const signInWithEmail = vi.fn().mockResolvedValue({ ok: false, error: "emailNotVerified" });
+    const interactor = new SignInWithEmailInteractor({ signInWithEmail } as unknown as AuthService);
+
+    await expect(
+      interactor.invoke({
+        callbackURL: "/auth/invitation?intent=one&intent=two",
+        email: "synthetic@example.com",
+        password: "local-demo-password",
+        rememberMe: true,
+      }),
+    ).resolves.toEqual({ redirect: "/auth/error?type=invalidOnboardingIntent" });
+  });
 });
