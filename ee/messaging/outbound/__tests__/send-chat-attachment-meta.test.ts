@@ -17,7 +17,10 @@ vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 vi.mock("next-intl/server", () => ({
-  getTranslations: () => Promise.resolve((key: string) => key),
+  getTranslations: () => {
+    const t = (key: string) => key;
+    return Promise.resolve(Object.assign(t, { raw: t }));
+  },
   getLocale: () => Promise.resolve("en"),
 }));
 vi.mock("../../inbox/inbox.schema", async (importActual) => ({
@@ -33,6 +36,8 @@ import { MessagingProvider, MessagingThreadType } from "@/generated/prisma";
 const THREAD_ID = "00000000-0000-4000-8000-000000000001";
 const ACCOUNT_ID = "00000000-0000-4000-8000-000000000002";
 const DRAFT_ID = "00000000-0000-4000-8000-000000000003";
+
+const DRAFT_REVISION = "2026-09-04T10:00:00.000Z";
 
 const thread = {
   id: THREAD_ID,
@@ -72,6 +77,7 @@ function baseRepo(overrides: Record<string, unknown> = {}) {
     findSelfAttendeeForThread: vi.fn().mockResolvedValue(null),
     persistOutboundMessageOrThrow: vi.fn().mockResolvedValue({ id: "new-1", attachmentsMeta: [] }),
     convertDraftToSent: vi.fn().mockResolvedValue({ id: "converted-1", attachmentsMeta: [] }),
+    restoreDraftSummaryIfPresent: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
 }
@@ -105,11 +111,21 @@ describe("outbound chat attachment metadata", () => {
 
   it("persists the same empty metadata when converting a draft, so both send paths agree", async () => {
     const service = { sendChatMessage: vi.fn().mockResolvedValue({ ok: true, data: { messageId: "m-1" } }) };
-    const repo = baseRepo({ findDraftById: vi.fn().mockResolvedValue({ id: DRAFT_ID, messagingThreadId: THREAD_ID }) });
+    const repo = baseRepo({
+      findDraftById: vi.fn().mockResolvedValue({
+        id: DRAFT_ID,
+        messagingThreadId: THREAD_ID,
+        connectedAccountId: ACCOUNT_ID,
+        unipileThreadId: "chat-1",
+        recipientIdentifiers: [],
+        updatedAt: new Date(DRAFT_REVISION),
+      }),
+    });
 
     const result: any = await makeInteractor(repo, service).invoke({
       threadId: THREAD_ID,
       draftMessageId: DRAFT_ID,
+      draftRevision: DRAFT_REVISION,
       text: "here you go",
       attachments,
     });
@@ -117,6 +133,36 @@ describe("outbound chat attachment metadata", () => {
     expect(result.ok).toBe(true);
     expect(repo.convertDraftToSent).toHaveBeenCalledTimes(1);
     expect(repo.convertDraftToSent.mock.calls[0][0].attachmentsMeta).toEqual([]);
+    expect(repo.convertDraftToSent).toHaveBeenCalledWith(
+      expect.objectContaining({ expectedUpdatedAt: new Date(DRAFT_REVISION) }),
+    );
+  });
+
+  it("rejects a stale draft revision before sending to the provider", async () => {
+    const service = {
+      sendChatMessage: vi.fn().mockResolvedValue({ ok: true, data: { messageId: "m-1" } }),
+    };
+    const repo = baseRepo({
+      findDraftById: vi.fn().mockResolvedValue({
+        id: DRAFT_ID,
+        messagingThreadId: THREAD_ID,
+        connectedAccountId: ACCOUNT_ID,
+        unipileThreadId: "chat-1",
+        recipientIdentifiers: [],
+        updatedAt: new Date(DRAFT_REVISION),
+      }),
+    });
+
+    const result = await makeInteractor(repo, service).invoke({
+      threadId: THREAD_ID,
+      draftMessageId: DRAFT_ID,
+      draftRevision: "2026-09-04T09:59:00.000Z",
+      text: "here you go",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(service.sendChatMessage).not.toHaveBeenCalled();
+    expect(repo.convertDraftToSent).not.toHaveBeenCalled();
   });
 
   it("still forwards the attachments to the provider", async () => {

@@ -28,11 +28,12 @@ export function splitQuotedText(text: string): { visible: string; quoted: string
   return { visible, quoted: quoted || null };
 }
 
-const HTML_TAG_RE =
-  /<\/?(?:a|b|i|u|s|p|br|hr|div|span|img|table|tbody|thead|tr|td|th|ul|ol|li|h[1-6]|blockquote|font|strong|em|small|big|pre|code|style|link|head|body|html|meta|title|center)\b[^>]*>/i;
+const HTML_DOCUMENT_RE = /<!doctype\s+html\b/i;
+const HTML_PAIRED_TAG_RE = /<([a-z][a-z0-9-]*)\b[^>]*>[\s\S]*<\/\1\s*>/i;
+const HTML_VOID_TAG_RE = /<(?:area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)\b[^>]*\/?\s*>/i;
 
 export function isPlainTextEmailBody(html: string): boolean {
-  return !HTML_TAG_RE.test(html);
+  return !HTML_DOCUMENT_RE.test(html) && !HTML_PAIRED_TAG_RE.test(html) && !HTML_VOID_TAG_RE.test(html);
 }
 
 export const HTML_QUOTE_SELECTORS =

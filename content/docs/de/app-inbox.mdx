@@ -30,7 +30,19 @@ In den Einstellungen eines Threads verwalten Sie alles, was zur Konversation sta
 
 ## Entwürfe und Anhänge
 
-Antworten werden pro Thread als Entwurf gehalten und überstehen Navigation: Verlassen Sie den Thread und kommen Sie zurück, steht Ihr Text noch da. Das Verwerfen eines Entwurfs entfernt den geschriebenen Inhalt und lässt sich nicht rückgängig machen. Unterstützte eingehende Medien öffnen sich inline, gewöhnliche Dateien werden heruntergeladen und nicht unterstützte Elemente werden als nicht unterstützt gekennzeichnet. Anhänge aus LinkedIn-Posts öffnen sich an ihrer externen Quelle. Ausgehende Anhänge laufen über den Antwort-Composer auf Kanälen, die sie unterstützen.
+Mit **Als Entwurf speichern** im Menü des Antwort-Composers behalten Sie eine Antwort in der Inbox, ohne sie zu senden. Für eine komplett neue Unterhaltung gibt es in der Inbox keinen Composer: Starten Sie sie über das Senden-Symbol an einem Kanal des Kontakts oder mit `save_message_draft` über MCP bzw. `POST /v1/messaging/drafts`; sie erscheint danach als Entwurf in der Inbox. Gespeicherte Entwürfe bleiben nach dem Neuladen erhalten und lassen sich bearbeiten, senden oder verwerfen. Pro Thread gibt es einen gespeicherten Entwurf; erneutes Speichern aktualisiert ihn. UI, REST und MCP verwenden dieselbe Entwurfsablage. API-Clients müssen beim Senden oder Verwerfen die gespeicherte Nachrichten-ID und die aktuelle `draftRevision` angeben. Das Verwerfen entfernt den gespeicherten Inhalt und lässt sich nicht rückgängig machen.
+
+Gespeicherte Entwürfe enthalten Nachrichtentext und E-Mail-Empfängerangaben, aber keine ausgehenden Anhänge. Unterstützte eingehende Medien öffnen sich inline, gewöhnliche Dateien werden heruntergeladen und nicht unterstützte Elemente werden als nicht unterstützt gekennzeichnet. Anhänge aus LinkedIn-Posts öffnen sich an ihrer externen Quelle. Ausgehende Anhänge laufen über den Antwort-Composer auf Kanälen, die sie unterstützen.
+
+## E-Mail-Darstellung und Signaturen
+
+Öffnen Sie [Profil → Verbundene Konten](/docs/app-profile), wählen Sie ein eigenes E-Mail-Konto und wechseln Sie zum Tab **E-Mail**. Schriftart, Schriftgröße, Linkfarbe und Linkstil gelten für E-Mails, die Sie aus Klartext oder Markdown verfassen, einschließlich neuer Nachrichten und Antworten. Schreiben Sie die Signatur in einem Markdown-Block und aktivieren oder deaktivieren Sie sie, ohne den Inhalt zu löschen. Wählen Sie nur Text, Logo darüber oder Logo daneben; Logo-Layouts bieten die Größen klein, mittel und groß, eine optionale dünne Trennlinie sowie kompakte oder großzügige Abstände. Logos behalten ihre Proportionen und benötigen eine öffentlich erreichbare HTTPS-Bild-URL. Auf größeren Bildschirmen steht die Live-Vorschau neben den Einstellungen, auf kleineren darunter.
+
+Die aktivierte Signatur wird beim Senden über UI, REST-API oder MCP angehängt; fügen Sie sie nicht in den Entwurfstext ein. E-Mail-Markdown unterstützt grundlegende Formatierung, Links, Listen, Zitate und Trennlinien, nicht beliebiges HTML oder jede Markdown-Erweiterung. API-Clients können `bodyFormat` angeben; explizit übergebenes HTML behält die vom Client bestimmte Gestaltung des Nachrichtentexts.
+
+Der Signaturschalter gehört zum sendenden Konto, nicht zum Übertragungsweg: Wenn Sie ihn ausschalten, entfällt die Signatur beim Senden über UI, REST und MCP; die E-Mail-Darstellung des Kontos bleibt erhalten. Im Composer passt sich der Signaturtext an den hellen oder dunklen App-Modus an. Diese Anzeigeanpassung verändert die ausgehende E-Mail nicht.
+
+Entwurfsvorschau und Versand verwenden denselben E-Mail-Renderer und die aktuellen Kontoeinstellungen. Im erzeugten HTML trennt Abstand die Signatur ab, und die Klartextalternative verwendet den üblichen Signaturtrenner. E-Mail-Programme der Empfänger können Farben, Schriftarten oder die Anzeige externer Bilder dennoch anpassen. Gespeicherte Entwürfe behalten bearbeitbares Markdown und daraus abgeleitetes HTML des Nachrichtentexts, niemals eine bereits angehängte Signatur.
 
 ## Thread-Status
 

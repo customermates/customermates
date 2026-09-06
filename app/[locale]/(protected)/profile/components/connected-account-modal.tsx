@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Info, Loader2, Plug, RefreshCw, Trash2 } from "lucide-react";
@@ -9,6 +10,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AppModal, type AppModalActionProps, type AppModalActions } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
@@ -21,9 +23,13 @@ import { InfoRow } from "@/components/shared/info-row";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { getEffectiveEntitlements } from "@/ee/subscription/entitlements";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { cn } from "@/core/utils/cn";
 
 import { accountStatusChipColor, getProviderDisplayLabel } from "./account-status-color";
+import { isEmailProvider } from "@/ee/messaging/provider";
+
 import { AccountFolders } from "./account-folders";
+import { AccountSignature } from "./account-signature";
 
 export const ConnectedAccountModal = observer(() => {
   const t = useTranslations();
@@ -35,6 +41,19 @@ export const ConnectedAccountModal = observer(() => {
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const canUpdate = userStore.can(Resource.inboxMessages, Action.update);
   const canDelete = userStore.can(Resource.inboxMessages, Action.delete);
+  const [tabState, setTabState] = useState({
+    accountId: account.id,
+    tab: "details",
+  });
+
+  const showEmailTab = isEmailProvider(account.provider) && account.isOwner;
+  const showFoldersTab = account.folders.length > 0;
+  const requestedTab = tabState.accountId === account.id ? tabState.tab : "details";
+  const activeTab =
+    (requestedTab === "email" && !showEmailTab) || (requestedTab === "folders" && !showFoldersTab)
+      ? "details"
+      : requestedTab;
+  const tabCount = 1 + (showEmailTab ? 1 : 0) + (showFoldersTab ? 1 : 0);
 
   const title = account.displayName ?? getProviderDisplayLabel(account, t);
   const statusLabel = t(`ConnectedAccountsCard.statusLabels.${account.status}`);
@@ -94,7 +113,12 @@ export const ConnectedAccountModal = observer(() => {
       : [];
 
   return (
-    <AppModal actions={modalActions} store={connectedAccountModalStore} title={title}>
+    <AppModal
+      actions={modalActions}
+      size={showEmailTab && activeTab === "email" ? "5xl" : "xl"}
+      store={connectedAccountModalStore}
+      title={title}
+    >
       <AppCard>
         <AppCardHeader>
           <div className="flex min-w-0 items-center gap-2">
@@ -105,102 +129,154 @@ export const ConnectedAccountModal = observer(() => {
         </AppCardHeader>
 
         <AppCardBody>
-          <div className="flex flex-col gap-2">
-            <InfoRow label={t("ConnectedAccountsCard.provider")}>{providerLabel}</InfoRow>
-
-            <InfoRow label={t("ConnectedAccountsCard.status")}>
-              {account.syncing ? (
-                <AppChip
-                  endContent={<Info />}
-                  startContent={<Loader2 className="animate-spin" />}
-                  tooltip={t("ConnectedAccountsCard.syncingTooltip")}
-                  variant="info"
-                >
-                  {t("ConnectedAccountsCard.syncing")}
-                </AppChip>
-              ) : (
-                <AppChip variant={accountStatusChipColor(account.status)}>{statusLabel}</AppChip>
+          <Tabs
+            className="min-w-0"
+            value={activeTab}
+            onValueChange={(tab) => setTabState({ accountId: account.id, tab })}
+          >
+            <TabsList
+              aria-label={t("ConnectedAccountsCard.tabs.label")}
+              className={cn(
+                "grid w-full",
+                tabCount === 3 ? "grid-cols-3" : tabCount === 2 ? "grid-cols-2" : "grid-cols-1",
               )}
-            </InfoRow>
+              variant="segmented"
+            >
+              <TabsTrigger id="connected-account-tab-details" value="details">
+                {t("ConnectedAccountsCard.tabs.details")}
+              </TabsTrigger>
 
-            <InfoRow label={t("ConnectedAccountsCard.visibility")}>
-              {account.isOwner ? (
-                <div className="flex items-center gap-2">
-                  <Label className="text-subdued text-xs" htmlFor="connected-account-visibility">
-                    {account.shared
-                      ? t("ConnectedAccountsCard.visibilityShared")
-                      : t("ConnectedAccountsCard.visibilityPrivate")}
-                  </Label>
+              {showEmailTab && (
+                <TabsTrigger id="connected-account-tab-email" value="email">
+                  {t("ConnectedAccountsCard.tabs.email")}
+                </TabsTrigger>
+              )}
 
-                  {canShareAccounts ? (
-                    <Switch
-                      checked={account.shared}
-                      disabled={!canUpdate}
-                      id="connected-account-visibility"
-                      onCheckedChange={(next) => runUserAction(() => connectedAccountModalStore.toggleVisibility(next))}
-                    />
+              {showFoldersTab && (
+                <TabsTrigger id="connected-account-tab-folders" value="folders">
+                  {t("ConnectedAccountsCard.tabs.foldersCount", {
+                    shown: shownFolders,
+                    total: account.folders.length,
+                  })}
+                </TabsTrigger>
+              )}
+            </TabsList>
+
+            <TabsContent className="pt-5" value="details">
+              <div className="flex flex-col gap-2">
+                <InfoRow label={t("ConnectedAccountsCard.provider")}>{providerLabel}</InfoRow>
+
+                <InfoRow label={t("ConnectedAccountsCard.status")}>
+                  {account.syncing ? (
+                    <AppChip
+                      endContent={<Info />}
+                      startContent={<Loader2 className="animate-spin" />}
+                      tooltip={t("ConnectedAccountsCard.syncingTooltip")}
+                      variant="info"
+                    >
+                      {t("ConnectedAccountsCard.syncing")}
+                    </AppChip>
                   ) : (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span>
-                          <Switch disabled checked={false} id="connected-account-visibility" />
-                        </span>
-                      </TooltipTrigger>
-
-                      <TooltipContent>{t("ConnectedAccountsCard.sharedAccountsRequiresBusiness")}</TooltipContent>
-                    </Tooltip>
+                    <AppChip variant={accountStatusChipColor(account.status)}>{statusLabel}</AppChip>
                   )}
-                </div>
-              ) : (
-                <AppChip variant={account.shared ? "info" : "secondary"}>
-                  {account.shared
-                    ? t("ConnectedAccountsCard.visibilityShared")
-                    : t("ConnectedAccountsCard.visibilityPrivate")}
-                </AppChip>
-              )}
-            </InfoRow>
+                </InfoRow>
 
-            <InfoRow label={t("ConnectedAccountsCard.ownerLabel")}>
-              <AvatarStack
-                items={[
-                  {
-                    id: account.owner.userId,
-                    firstName: account.owner.firstName,
-                    lastName: account.owner.lastName,
-                    avatarUrl: account.owner.avatarUrl,
-                  },
-                ]}
-                onAvatarClick={(user) => runUserAction(() => userModalStore.loadById(user.id))}
-              />
-            </InfoRow>
+                <InfoRow label={t("ConnectedAccountsCard.visibility")}>
+                  {account.isOwner ? (
+                    <div className="flex items-center gap-2">
+                      <Label className="text-subdued text-xs" htmlFor="connected-account-visibility">
+                        {account.shared
+                          ? t("ConnectedAccountsCard.visibilityShared")
+                          : t("ConnectedAccountsCard.visibilityPrivate")}
+                      </Label>
 
-            {account.folders.length > 0 && (
-              <InfoRow label={t("ConnectedAccountsCard.folders")}>
-                {t("ConnectedAccountsCard.foldersShown", {
-                  shown: shownFolders,
-                  total: account.folders.length,
-                })}
-              </InfoRow>
+                      {canShareAccounts ? (
+                        <Switch
+                          checked={account.shared}
+                          disabled={!canUpdate}
+                          id="connected-account-visibility"
+                          onCheckedChange={(next) =>
+                            runUserAction(() => connectedAccountModalStore.toggleVisibility(next))
+                          }
+                        />
+                      ) : (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span>
+                              <Switch disabled checked={false} id="connected-account-visibility" />
+                            </span>
+                          </TooltipTrigger>
+
+                          <TooltipContent>{t("ConnectedAccountsCard.sharedAccountsRequiresBusiness")}</TooltipContent>
+                        </Tooltip>
+                      )}
+                    </div>
+                  ) : (
+                    <AppChip variant={account.shared ? "info" : "secondary"}>
+                      {account.shared
+                        ? t("ConnectedAccountsCard.visibilityShared")
+                        : t("ConnectedAccountsCard.visibilityPrivate")}
+                    </AppChip>
+                  )}
+                </InfoRow>
+
+                <InfoRow label={t("ConnectedAccountsCard.ownerLabel")}>
+                  <AvatarStack
+                    items={[
+                      {
+                        id: account.owner.userId,
+                        firstName: account.owner.firstName,
+                        lastName: account.owner.lastName,
+                        avatarUrl: account.owner.avatarUrl,
+                      },
+                    ]}
+                    onAvatarClick={(user) => runUserAction(() => userModalStore.loadById(user.id))}
+                  />
+                </InfoRow>
+
+                {account.folders.length > 0 && (
+                  <InfoRow label={t("ConnectedAccountsCard.folders")}>
+                    {t("ConnectedAccountsCard.foldersShown", {
+                      shown: shownFolders,
+                      total: account.folders.length,
+                    })}
+                  </InfoRow>
+                )}
+
+                <InfoRow label={t("ConnectedAccountsCard.connectedAt")}>
+                  {intlStore.formatNumericalShortDateTime(account.createdAt)}
+                </InfoRow>
+
+                {account.lastSyncedAt && (
+                  <InfoRow label={t("ConnectedAccountsCard.lastSynced")}>
+                    {intlStore.formatNumericalShortDateTime(account.lastSyncedAt)}
+                  </InfoRow>
+                )}
+              </div>
+            </TabsContent>
+
+            {showEmailTab && (
+              <TabsContent forceMount className="pt-5 data-[state=inactive]:hidden" value="email">
+                <AccountSignature
+                  key={account.id}
+                  account={account}
+                  store={connectedAccountModalStore.signatureStore}
+                />
+              </TabsContent>
             )}
 
-            <InfoRow label={t("ConnectedAccountsCard.connectedAt")}>
-              {intlStore.formatNumericalShortDateTime(account.createdAt)}
-            </InfoRow>
-
-            {account.lastSyncedAt && (
-              <InfoRow label={t("ConnectedAccountsCard.lastSynced")}>
-                {intlStore.formatNumericalShortDateTime(account.lastSyncedAt)}
-              </InfoRow>
+            {showFoldersTab && (
+              <TabsContent className="pt-5" value="folders">
+                <AccountFolders
+                  account={account}
+                  editable={account.isOwner && canUpdate}
+                  onToggle={(folderId, on) =>
+                    runUserAction(() => connectedAccountModalStore.toggleFolder(folderId, on))
+                  }
+                />
+              </TabsContent>
             )}
-          </div>
-
-          {account.folders.length > 0 && (
-            <AccountFolders
-              account={account}
-              editable={account.isOwner && canUpdate}
-              onToggle={(folderId, on) => runUserAction(() => connectedAccountModalStore.toggleFolder(folderId, on))}
-            />
-          )}
+          </Tabs>
         </AppCardBody>
       </AppCard>
     </AppModal>

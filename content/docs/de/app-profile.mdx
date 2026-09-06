@@ -30,7 +30,16 @@ URLs sind locale-präfixiert, zum Beispiel `https://customermates.com/en/profile
 | Tab Verbundene Konten | Sidebar-Unterpunkt | `#nav-profile-connected-accounts` | Messaging-Konten für die Inbox |
 | Konto verbinden | Karten-Header | `#profile-connected-accounts-connect` | Öffnet das Hosted-Auth-Fenster (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) |
 | Konto aus einem leeren Profil verbinden | Zentrierter Leerzustand | `#profile-connected-accounts-connect-empty` | Öffnet dasselbe Hosted-Auth-Fenster, wenn noch kein Konto vorhanden ist |
-| Konto / Ordner verwalten | Klick auf Konto-Zeile | none | Öffnet das Konto-Modal (Ordnerauswahl, Resync) |
+| Konto verwalten | Klick auf Konto-Zeile | none | Öffnet das Konto-Modal auf dem Tab Details |
+| Tab Details | Konto-Modal | `#connected-account-tab-details` | Provider, Status, Sichtbarkeit, Besitzer, Ordneranzahl und Sync-Zeiten |
+| Tab E-Mail | Konto-Modal | `#connected-account-tab-email` | E-Mail-Darstellung und Signatur; erscheint nur bei einem eigenen E-Mail-Konto |
+| Tab Ordner | Konto-Modal | `#connected-account-tab-folders` | Auswahl der Provider-Ordner, die synchronisiert werden; erscheint nur, wenn das Konto Ordner bereitstellt |
+
+### E-Mail-Darstellung und Signatur
+
+Der Tab **E-Mail** legt fest, wie jede aus diesem Konto gesendete Nachricht aussieht. Die Darstellung umfasst Schriftart, Basis-Schriftgröße, Linkfarbe und Linkstil und gilt für die gesamte E-Mail. Die Linkfarbe erwartet einen sechsstelligen Hex-Wert mit Farbwähler daneben, prüft die Eingabe sofort und weist auf zu geringen Kontrast hin, ohne zu blockieren.
+
+Die Signatur darunter ist ein einzelner Markdown-Block mit Ein/Aus-Schalter, das Ausschalten behält den gespeicherten Text also für später. Wählen Sie ein Layout aus Nur Text, Logo oben oder Logo daneben, geben Sie eine öffentliche HTTPS-Logo-URL an und passen Sie unter **Layout-Optionen** Logogröße, Trennlinie und Abstand an. Eine Live-Vorschau zeigt das Ergebnis. Gespeicherte Darstellung und Signatur gelten für jede aus diesem Konto gesendete E-Mail, ob aus der Inbox, über die REST-API oder ein MCP-Tool. Agents dürfen die Signatur daher nicht zusätzlich in den Nachrichtentext schreiben.
 
 ## Tipps für Agents
 

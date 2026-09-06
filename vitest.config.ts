@@ -39,6 +39,7 @@ const domTestFiles = [
   "components/entity-detail/__tests__/use-entity-detail-server-snapshot.test.ts",
   "components/forms/__tests__/form-context.test.ts",
   "components/forms/__tests__/selection-command.test.ts",
+  "components/editor/__tests__/email-markdown-editor.test.ts",
   "components/modal/__tests__/delete-confirmation-modal.test.ts",
   "components/acquisition/__tests__/public-ad-attribution-consent.test.ts",
   "components/scroll/__tests__/messages-scroll-container.test.ts",
@@ -46,6 +47,10 @@ const domTestFiles = [
   "core/stores/__tests__/root-store-provider.test.ts",
   "core/stores/__tests__/use-hydrated-intl-store.test.ts",
   "features/messaging/activities/__tests__/use-owned-activities-store.test.ts",
+  "features/messaging/__tests__/message-presentation.test.ts",
+  "app/[locale]/(protected)/profile/components/__tests__/account-signature-behavior.test.ts",
+  "features/messaging/__tests__/email-frame.test.ts",
+  "app/[locale]/(protected)/inbox/components/__tests__/thread-reply-composer-navigation.test.ts",
 ];
 
 export default defineConfig({

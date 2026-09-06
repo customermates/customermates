@@ -204,12 +204,14 @@ import { GetWidgetFilterableFieldsInteractor } from "@/features/widget/get-widge
 // Messaging interactors
 import { CreateAuthLinkInteractor } from "@/ee/messaging/connect/create-auth-link.interactor";
 import { GetMyConnectedAccountsInteractor } from "@/ee/messaging/connect/get-my-connected-accounts.interactor";
+import { GetMyConnectedAccountsApiInteractor } from "@/ee/messaging/connect/get-my-connected-accounts-api.interactor";
 import { RefreshInboxInteractor } from "@/ee/messaging/inbox/refresh-inbox.interactor";
 import { DeleteConnectedAccountInteractor } from "@/ee/messaging/connect/delete-connected-account.interactor";
 import { ResyncConnectedAccountInteractor } from "@/ee/messaging/connect/resync-connected-account.interactor";
 import { ResyncThreadInteractor } from "@/ee/messaging/inbox/resync-thread.interactor";
 import { ReconnectConnectedAccountInteractor } from "@/ee/messaging/connect/reconnect-connected-account.interactor";
 import { SetConnectedAccountVisibilityInteractor } from "@/ee/messaging/connect/set-connected-account-visibility.interactor";
+import { SetConnectedAccountSignatureInteractor } from "@/ee/messaging/connect/set-connected-account-signature.interactor";
 import { SetSelectedFoldersInteractor } from "@/ee/messaging/connect/set-selected-folders.interactor";
 import { DeleteAccountForBillingService } from "@/ee/messaging/connect/delete-account-for-billing.service";
 import { DeleteAccountsForPlanInteractor } from "@/ee/messaging/connect/delete-accounts-for-plan.interactor";
@@ -243,6 +245,8 @@ import { BackfillCalendarsInteractor } from "@/ee/messaging/ingest/backfill/back
 import { SendChatMessageInteractor } from "@/ee/messaging/outbound/send-chat-message.interactor";
 import { SendEmailInteractor } from "@/ee/messaging/outbound/send-email.interactor";
 import { SaveDraftInteractor } from "@/ee/messaging/outbound/save-draft.interactor";
+import { SaveNewThreadDraftInteractor } from "@/ee/messaging/outbound/save-new-thread-draft.interactor";
+import { SaveReplyDraftInteractor } from "@/ee/messaging/outbound/save-reply-draft.interactor";
 import { DiscardDraftInteractor } from "@/ee/messaging/outbound/discard-draft.interactor";
 import { StartChatInteractor } from "@/ee/messaging/outbound/start-chat.interactor";
 import { ResolveProviderProfileInteractor } from "@/ee/messaging/outbound/resolve-provider-profile.interactor";
@@ -1135,6 +1139,9 @@ export const getCreateAuthLinkInteractor = () =>
 export const getGetMyConnectedAccountsInteractor = () =>
   new GetMyConnectedAccountsInteractor(getConnectedAccountRepo());
 
+export const getGetMyConnectedAccountsApiInteractor = () =>
+  new GetMyConnectedAccountsApiInteractor(getConnectedAccountRepo());
+
 export const getDeleteConnectedAccountInteractor = () =>
   new DeleteConnectedAccountInteractor(getConnectedAccountRepo(), getMessagingService(), getEventService());
 
@@ -1345,8 +1352,15 @@ export const getSendEmailInteractor = () =>
     getEntitlementService(),
   );
 
+export const getSetConnectedAccountSignatureInteractor = () =>
+  new SetConnectedAccountSignatureInteractor(getConnectedAccountRepo(), getEntitlementService());
+
 export const getSaveDraftInteractor = () =>
   new SaveDraftInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEntitlementService());
+
+export const getSaveNewThreadDraftInteractor = () => new SaveNewThreadDraftInteractor(getSaveDraftInteractor());
+
+export const getSaveReplyDraftInteractor = () => new SaveReplyDraftInteractor(getSaveDraftInteractor());
 
 export const getDiscardDraftInteractor = () => new DiscardDraftInteractor(getMessagingRepo(), getEntitlementService());
 

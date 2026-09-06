@@ -153,7 +153,7 @@ export class QueryParamsPrecheckInteractor {
 
     const path = ["filters", filterIndex, "value"];
     const valueKind = filterValueKind(filter.field);
-    if (!valueKind || valueKind.kind === "linkStatus") return;
+    if (!valueKind || valueKind.kind === "linkStatus" || valueKind.kind === "draftStatus") return;
 
     switch (valueKind.kind) {
       case "entityId": {

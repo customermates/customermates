@@ -3,6 +3,7 @@ import type { Data } from "@/core/validation/validation.utils";
 import { z } from "zod";
 
 import { EmailFolderSchema } from "./email-folders";
+import { defaultEmailSettings, EmailSettingsSchema } from "./email-settings";
 
 import {
   ConnectedAccountStatus,
@@ -44,7 +45,17 @@ export const ConnectedAccountDtoSchema = z.object({
   foldersSyncedAt: z.date().nullable(),
   linkedinProducts: z.array(z.string()).default([]),
 });
-export type ConnectedAccountDto = Data<typeof ConnectedAccountDtoSchema>;
+
+export const ConnectedAccountAppDtoSchema = ConnectedAccountDtoSchema.extend({
+  signature: z.string().nullable().default(null),
+  emailSettings: EmailSettingsSchema.default(defaultEmailSettings),
+  signatureHtml: z.string().nullable().default(null),
+});
+export type ConnectedAccountDto = Data<typeof ConnectedAccountAppDtoSchema>;
+export type ConnectedAccountRecord = Data<typeof ConnectedAccountDtoSchema> & {
+  signature: string | null;
+  signatureFields: unknown;
+};
 
 export const MessagingAttendeeSchema = z.object({
   attendeeId: z.string(),

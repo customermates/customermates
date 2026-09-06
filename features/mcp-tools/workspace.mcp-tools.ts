@@ -16,7 +16,7 @@ import { filterFieldsHint } from "@/core/types/filter-field-value-kind";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import {
   getGetCompanySettingsInteractor,
-  getGetMyConnectedAccountsInteractor,
+  getGetMyConnectedAccountsApiInteractor,
   getGetRolesApiInteractor,
   getGetUserDetailsInteractor,
   getGetUsersApiInteractor,
@@ -63,7 +63,7 @@ export const getWorkspaceContextTool = {
       getGetUserDetailsInteractor().invoke(),
       getGetCompanySettingsInteractor().invoke(),
       getGetRolesApiInteractor().invoke({ pagination: { page: 1, pageSize: 100 } }),
-      getGetMyConnectedAccountsInteractor().invoke(),
+      getGetMyConnectedAccountsApiInteractor().invoke(),
     ]);
     if (!rolesResult.ok) return mcpInteractorFailure(rolesResult.error);
     if (!accountsResult.ok) return mcpInteractorFailure(accountsResult.error);
