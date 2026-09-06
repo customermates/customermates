@@ -134,11 +134,12 @@ export const FilterPalette = observer(function FilterPalette({ store }: Props) {
     <AppForm store={palette}>
       <div className="flex min-h-0 flex-col" onKeyDownCapture={handleKeyDownCapture}>
         {!isRoot && (
-          <div className="flex shrink-0 items-center gap-1 px-2 pt-2">
+          <div className="flex shrink-0 items-center gap-1.5 px-2 pt-2 pb-1">
             <Button
               aria-label={t("Common.actions.back")}
+              className="text-muted-foreground hover:text-foreground"
               id="filter-palette-back"
-              size="icon-xs"
+              size="icon-sm"
               type="button"
               variant="ghost"
               onClick={palette.pop}

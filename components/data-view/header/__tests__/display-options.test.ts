@@ -34,8 +34,8 @@ vi.mock("@/components/entity-terminology/use-filter-field-label", () => ({
     field === "organizationIds" ? "Account" : `Common.filters.fields.${field}`,
 }));
 vi.mock("@/components/modal", () => ({
-  ResponsiveOverlay: ({ children, trigger }: { children: ReactNode; trigger: ReactNode }) =>
-    createElement("div", null, trigger, children),
+  ResponsiveOverlay: ({ children, title, trigger }: { children: ReactNode; title: ReactNode; trigger: ReactNode }) =>
+    createElement("div", null, trigger, createElement("h2", { "data-slot": "overlay-title" }, title), children),
 }));
 vi.mock("@/components/ui/select", () => ({
   Select: ({ children }: { children: ReactNode }) => createElement("div", { "data-slot": "select" }, children),
@@ -150,6 +150,49 @@ describe("display options", () => {
     expect(html).toContain("Account");
     expect(html).not.toContain("Common.filters.fields.organizationIds");
     expect(html).toContain("Common.filters.fields.createdAt \u00b7 Common.dateBuckets.month");
+  });
+
+  it("orders the sections layout, group by, sort by, fields and draws no rule between them", () => {
+    const html = render(
+      store({
+        columnsDefinition: [{ uid: "name", label: "Name", sortable: true }],
+        groupableFields: [STAGE],
+        orderedColumns: [{ uid: "name", label: "Name" }],
+      }),
+    );
+
+    const layout = html.indexOf("Common.table.layout");
+    const groupBy = html.indexOf("Common.table.groupBy");
+    const sortBy = html.indexOf("Common.sort.field");
+    const fields = html.indexOf("Common.table.fields");
+
+    expect(Math.min(layout, groupBy, sortBy, fields)).toBeGreaterThan(-1);
+    expect(layout).toBeLessThan(groupBy);
+    expect(groupBy).toBeLessThan(sortBy);
+    expect(sortBy).toBeLessThan(fields);
+    expect(html).not.toContain('data-slot="separator"');
+  });
+
+  it("heads the fields section with a label the overlay title never repeats", () => {
+    const html = render(
+      store({
+        columnsDefinition: [{ uid: "name", label: "Name", sortable: true }],
+        groupableFields: [STAGE],
+        orderedColumns: [{ uid: "name", label: "Name" }],
+      }),
+    );
+
+    const title = /<h2 data-slot="overlay-title">([^<]+)<\/h2>/.exec(html)?.[1] ?? "";
+    const sectionLabels = [...html.matchAll(/uppercase[^>]*>([^<]+)</g)].map((match) => match[1]);
+
+    expect(title).toBe("Common.ariaLabels.tooltipFields");
+    expect(sectionLabels).toEqual([
+      "Common.table.layout",
+      "Common.table.groupBy",
+      "Common.sort.field",
+      "Common.table.fields",
+    ]);
+    expect(sectionLabels).not.toContain(title);
   });
 
   it("hides the group-by control on a surface that declares no groupable field", () => {

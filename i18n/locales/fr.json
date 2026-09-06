@@ -1207,6 +1207,7 @@
         "dateOnOrAfter": "À partir du…",
         "dateOnOrBefore": "Jusqu'au…",
         "editOperator": "Modifier la condition",
+        "editOperatorNamed": "Modifier la condition : {operator}",
         "fieldsGroup": "Filtrer par",
         "limitReached": "Vous pouvez appliquer jusqu'à {count} filtres.",
         "removeFilter": "Retirer le filtre",
@@ -1394,6 +1395,7 @@
         "weightedValue": "Valeur pondérée",
         "workspace": "Espace de travail"
       },
+      "fields": "Champs",
       "groupBy": "Grouper par",
       "layout": "Disposition",
       "layouts": {

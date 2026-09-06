@@ -1207,6 +1207,7 @@
         "dateOnOrAfter": "Ab…",
         "dateOnOrBefore": "Bis…",
         "editOperator": "Bedingung ändern",
+        "editOperatorNamed": "Bedingung ändern: {operator}",
         "fieldsGroup": "Filtern nach",
         "limitReached": "Du kannst bis zu {count} Filter anwenden.",
         "removeFilter": "Filter entfernen",
@@ -1394,6 +1395,7 @@
         "weightedValue": "Gewichteter Wert",
         "workspace": "Arbeitsbereich"
       },
+      "fields": "Felder",
       "groupBy": "Gruppieren nach",
       "layout": "Ansicht",
       "layouts": {

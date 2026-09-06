@@ -2,7 +2,7 @@
 
 import type { FilterOperatorKey } from "@/core/base/base-query-builder";
 
-import { CheckIcon } from "lucide-react";
+import { CheckIcon, ChevronDownIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -23,20 +23,27 @@ type MenuProps = {
 export function PaletteOperatorMenu({ operators, current, onSelect }: MenuProps) {
   const t = useTranslations();
   const operatorLabel = useFilterOperatorLabel();
+  const currentLabel = current ? operatorLabel(current) : undefined;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           data-palette-operator-trigger
-          aria-label={t("Common.filters.palette.editOperator")}
-          className="h-6 min-w-0 px-1.5 text-xs font-normal"
+          aria-label={
+            currentLabel
+              ? t("Common.filters.palette.editOperatorNamed", { operator: currentLabel })
+              : t("Common.filters.palette.editOperator")
+          }
+          className="min-w-0 shrink font-normal"
           disabled={operators.length === 0}
-          size="xs"
+          size="sm"
           type="button"
-          variant="ghost"
+          variant="field"
         >
-          <span className="truncate">{current ? operatorLabel(current) : t("Common.filters.selectOperator")}</span>
+          <span className="truncate">{currentLabel ?? t("Common.filters.selectOperator")}</span>
+
+          <ChevronDownIcon aria-hidden className="size-3.5 opacity-60" />
         </Button>
       </DropdownMenuTrigger>
 

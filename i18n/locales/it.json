@@ -1207,6 +1207,7 @@
         "dateOnOrAfter": "Dal…",
         "dateOnOrBefore": "Fino al…",
         "editOperator": "Modifica condizione",
+        "editOperatorNamed": "Modifica condizione: {operator}",
         "fieldsGroup": "Filtra per",
         "limitReached": "Puoi applicare fino a {count} filtri.",
         "removeFilter": "Rimuovi filtro",
@@ -1394,6 +1395,7 @@
         "weightedValue": "Valore ponderato",
         "workspace": "Area di lavoro"
       },
+      "fields": "Campi",
       "groupBy": "Raggruppa per",
       "layout": "Disposizione",
       "layouts": {

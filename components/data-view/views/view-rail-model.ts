@@ -52,3 +52,7 @@ export function viewMenuItems(ctx: ViewMenuContext): ViewMenuItem[] {
     actionItem("delete", { isDestructive: true }),
   ];
 }
+
+export function allViewMenuItems(): ViewMenuItem[] {
+  return [actionItem("duplicate"), actionItem("copyLink")];
+}

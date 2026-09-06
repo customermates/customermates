@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 
-import { orderChips, viewMenuItems } from "../view-rail-model";
+import { allViewMenuItems, orderChips, viewMenuItems } from "../view-rail-model";
 
 function chip(overrides: Partial<DataViewChipDto> & { id: string }): DataViewChipDto {
   return {
@@ -72,6 +72,20 @@ describe("view rail model", () => {
     expect(items.map((item) => item.id)).toEqual(["edit", "duplicate", "moveLeft", "moveRight", "copyLink", "delete"]);
     expect(items.filter((item) => item.isDestructive).map((item) => item.id)).toEqual(["delete"]);
     expect(items.every((item) => !item.isDisabled)).toBe(true);
+  });
+
+  it("offers only duplicate and copy link on the All tab, since it has no row and no position", () => {
+    const items = allViewMenuItems();
+
+    expect(items.map((item) => item.id)).toEqual(["duplicate", "copyLink"]);
+    expect(items.some((item) => item.isDestructive)).toBe(false);
+    expect(items.some((item) => item.isDisabled)).toBe(false);
+    for (const id of ["edit", "delete", "moveLeft", "moveRight"]) {
+      expect(
+        items.map((item) => item.id),
+        id,
+      ).not.toContain(id);
+    }
   });
 
   it("disables each move at its end of the list", () => {

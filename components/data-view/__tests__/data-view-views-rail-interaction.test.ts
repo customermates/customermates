@@ -351,6 +351,55 @@ describe("data view rail interaction", () => {
     expect(host.querySelector("[data-view-menu]")?.textContent).not.toContain("Common.actions.save");
   });
 
+  it("offers only duplicate and copy link on the All tab", () => {
+    const host = render(store());
+
+    expect(menuLabels(host)).toEqual(["DataView.views.duplicate", "DataView.views.copyLink"]);
+    for (const absent of [
+      "DataView.views.editTitle",
+      "DataView.views.delete",
+      "DataView.views.moveLeft",
+      "DataView.views.moveRight",
+    ])
+      expect(menuLabels(host), absent).not.toContain(absent);
+  });
+
+  it("duplicates the All tab into a new view built from the current state", async () => {
+    const value = store({ filters: [{ field: "stage", operator: "in", value: ["open"] }] } as unknown as Partial<
+      BaseDataViewStore<Item>
+    >);
+    const host = render(value);
+
+    act(() => byText(host, "DataView.views.duplicate").click());
+
+    const input = host.querySelector<HTMLInputElement>("#view-editor-name");
+    expect(input?.value).toBe("DataView.views.duplicateName(DataView.views.all)");
+    expect(host.querySelector("[data-view-draft]")?.textContent).toBe("DataView.views.createTitle");
+
+    await submitMetaForm(host);
+
+    expect(harness.upsertDataViewAction).toHaveBeenCalledExactlyOnceWith({
+      name: "DataView.views.duplicateName(DataView.views.all)",
+      state: {
+        columnOrder: [],
+        columnWidths: {},
+        filters: [{ field: "stage", operator: "in", value: ["open"] }],
+        grouping: null,
+        hiddenColumns: [],
+        pageSize: 25,
+        searchTerm: "",
+        sortDescriptor: null,
+        viewMode: "table",
+      },
+      surfaceKey: "deals-card-store",
+    });
+    expect(harness.upsertDataViewAction.mock.calls[0][0]).not.toHaveProperty("id");
+    expect(harness.calls).toEqual(["upsertDataViewAction", "refresh", "applyView"]);
+    expect(harness.deleteDataViewAction).not.toHaveBeenCalled();
+    expect(value.applyView).toHaveBeenCalledExactlyOnceWith("v-new");
+    expect(host.querySelector("[data-view-draft]")).toBeNull();
+  });
+
   it("renames the active view through the edit overlay with the store's live state", async () => {
     const value = store({ activeViewKey: "v-c" });
     const host = render(value);

@@ -2,6 +2,7 @@
 
 import type { MouseEvent, ReactNode } from "react";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
+import type { DataViewChipDto } from "@/core/data-view/data-view-state.schema";
 import type { ViewMetaDraft } from "./use-view-commands";
 
 import { ChevronDownIcon, PlusIcon } from "lucide-react";
@@ -20,10 +21,10 @@ import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 
-import { VIEW_TAB_CLASS, ViewChip } from "./view-chip";
+import { VIEW_SURFACE_CLASS, VIEW_TAB_CLASS, ViewChip } from "./view-chip";
 import { ViewMenuItems } from "./view-menu-items";
 import { ViewMetaOverlay } from "./view-meta-overlay";
-import { orderChips, sortViewsByPosition, viewMenuItems } from "./view-rail-model";
+import { allViewMenuItems, orderChips, sortViewsByPosition, viewMenuItems } from "./view-rail-model";
 import { viewHref } from "./view-actions";
 import { useRovingFocus } from "./use-roving-focus";
 import { useViewCommands } from "./use-view-commands";
@@ -74,6 +75,18 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
   const activeName = activeView?.name ?? t("DataView.views.all");
   const ordered = sortViewsByPosition(store.views);
   const isDrafting = meta !== null && meta.mode !== "edit";
+  const menuTarget: DataViewChipDto = activeView ?? {
+    id: ALL_VIEW_KEY,
+    name: t("DataView.views.all"),
+    position: -1,
+    state: store.allViewState,
+  };
+  const menuItems = activeView
+    ? viewMenuItems({
+        index: ordered.findIndex((candidate) => candidate.id === activeView.id),
+        total: ordered.length,
+      })
+    : allViewMenuItems();
 
   const previewFor = (name: string, isActive: boolean): ReactNode => (
     <>
@@ -175,7 +188,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
               trigger={
                 <Button
                   aria-label={t("DataView.views.createTitle")}
-                  className="size-7 rounded-full"
+                  className={cn(VIEW_SURFACE_CLASS, "size-7 rounded-full")}
                   id="global-data-views-new"
                   size="icon-sm"
                   variant="ghost"
@@ -191,12 +204,12 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
         </OverflowRail>
       </TooltipProvider>
 
-      {store.isReady && canWriteViews && activeView && (
+      {store.isReady && canWriteViews && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               aria-label={t("DataView.views.menu")}
-              className="size-7 rounded-full"
+              className={cn(VIEW_SURFACE_CLASS, "size-7 rounded-full")}
               id="global-data-views-menu"
               size="icon-sm"
               variant="ghost"
@@ -206,14 +219,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
           </DropdownMenuTrigger>
 
           <DropdownMenuContent align="end">
-            <ViewMenuItems
-              commands={commands}
-              items={viewMenuItems({
-                index: ordered.findIndex((candidate) => candidate.id === activeView.id),
-                total: ordered.length,
-              })}
-              view={activeView}
-            />
+            <ViewMenuItems commands={commands} items={menuItems} view={menuTarget} />
           </DropdownMenuContent>
         </DropdownMenu>
       )}

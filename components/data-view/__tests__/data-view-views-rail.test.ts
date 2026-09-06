@@ -102,14 +102,14 @@ describe("data view rail", () => {
     expect(harness.joinedContent).toHaveBeenCalledWith(false);
   });
 
-  it("renders the All tab and the create control on an empty workspace", () => {
+  it("renders the All tab, the create control and the view menu on an empty workspace", () => {
     const html = render(store());
 
     expect(html).toContain('id="global-data-views-all"');
     expect(html).toContain("DataView.views.all");
     expect(html).toContain('id="global-data-views-new"');
-    expect(html).not.toContain('id="global-data-views-menu"');
-    expect(countOf(html, 'id="global-data-views')).toBe(3);
+    expect(html).toContain('id="global-data-views-menu"');
+    expect(countOf(html, 'id="global-data-views')).toBe(4);
   });
 
   it("renders every view as a tab in position order and marks only the active one", () => {
@@ -155,8 +155,11 @@ describe("data view rail", () => {
     }
   });
 
-  it("sizes the rail icon controls like the tabs and leaves them transparent at rest", () => {
+  it("gives the rail icon controls the pill geometry and the same resting surface as an inactive tab", () => {
     const html = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
+    const inactive = tabs(html).filter((tab) => !tab.includes("bg-selected"));
+
+    expect(inactive).toHaveLength(3);
 
     for (const id of ["global-data-views-new", "global-data-views-menu"]) {
       const control = html.match(new RegExp(`<button[^>]*id="${id}"[^>]*>`))?.[0] ?? "";
@@ -164,7 +167,20 @@ describe("data view rail", () => {
       expect(control, id).toContain("size-7");
       expect(control, id).toContain("rounded-full");
       expect(control, id).not.toContain("size-8");
-      expect(control, id).not.toContain("bg-muted");
+      expect(control, id).not.toContain("rounded-md");
+      expect(control, id).toContain("border border-border");
+      expect(control, id).toContain("bg-muted/50");
+      expect(control, id).toContain("text-muted-foreground");
+      expect(control, id).toContain("hover:bg-muted hover:text-foreground");
+      expect(control, id).not.toContain("hover:bg-accent");
+      expect(control, id).not.toContain("max-w-36");
+      expect(control, id).toContain("shrink-0");
+      for (const token of ["border border-border", "bg-muted/50", "hover:bg-muted hover:text-foreground"]) {
+        expect(
+          inactive.every((tab) => tab.includes(token)),
+          `${id} ${token}`,
+        ).toBe(true);
+      }
     }
   });
 
@@ -202,16 +218,19 @@ describe("data view rail", () => {
   });
 
   it("renders exactly the four reserved anchor ids once each on a populated rail", () => {
-    const html = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
+    for (const activeViewKey of ["v-a", ALL_VIEW_KEY]) {
+      const html = render(store({ activeViewKey, views: THREE_VIEWS }));
 
-    for (const id of ANCHOR_IDS) expect(countOf(html, `id="${id}"`), id).toBe(1);
-    expect(countOf(html, 'id="global-data-views')).toBe(ANCHOR_IDS.length);
-    expect(html).toContain("data-data-view-rail=");
+      for (const id of ANCHOR_IDS) expect(countOf(html, `id="${id}"`), `${activeViewKey} ${id}`).toBe(1);
+      expect(countOf(html, 'id="global-data-views'), activeViewKey).toBe(ANCHOR_IDS.length);
+      expect(html).toContain("data-data-view-rail=");
+    }
   });
 
-  it("offers the menu only on an active saved view", () => {
+  it("offers the menu on every tab a writer can act on, All included", () => {
     expect(render(store({ activeViewKey: "v-a", views: THREE_VIEWS }))).toContain('id="global-data-views-menu"');
-    expect(render(store({ views: THREE_VIEWS }))).not.toContain('id="global-data-views-menu"');
+    expect(render(store({ views: THREE_VIEWS }))).toContain('id="global-data-views-menu"');
+    expect(render(store())).toContain('id="global-data-views-menu"');
   });
 
   it("gives a read only user the same rail as a manager", () => {
@@ -237,7 +256,7 @@ describe("data view rail", () => {
 
     expect(tabs(html)).toHaveLength(4);
     expect(html).toMatch(/<a[^>]*aria-current="page"[^>]*id="global-data-views-all"/);
-    expect(html).not.toContain('id="global-data-views-menu"');
+    expect(html).toContain('id="global-data-views-menu"');
     expect(html).toContain("DataView.views.applied(DataView.views.all)");
   });
 

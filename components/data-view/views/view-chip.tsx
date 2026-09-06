@@ -6,10 +6,13 @@ import { buttonVariants } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/core/utils/cn";
 
+export const VIEW_SURFACE_CLASS =
+  "border border-border bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground";
+
 export const VIEW_TAB_CLASS = cn(
   buttonVariants({ variant: "ghost", size: "sm" }),
   "h-7 max-w-36 flex-none rounded-full px-2.5 text-xs font-medium sm:max-w-56",
-  "border border-border bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground",
+  VIEW_SURFACE_CLASS,
 );
 
 type Props = {

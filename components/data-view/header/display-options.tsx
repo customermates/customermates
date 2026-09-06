@@ -17,7 +17,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ResponsiveOverlay } from "@/components/modal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ViewMode } from "@/core/base/base-query-builder";
@@ -252,104 +251,92 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
             </Tabs>
           </Section>
 
-          {sortable.length > 0 && (
-            <>
-              <Separator />
+          {store.groupableFields.length > 0 && (
+            <Section label={t("Common.table.groupBy")}>
+              <Select value={currentGroupingId || "__none__"} onValueChange={handleGroupingChange}>
+                <SelectTrigger className="h-8 w-full" size="sm">
+                  <SelectValue />
+                </SelectTrigger>
 
-              <Section label={t("Common.sort.field")}>
-                <div className="flex gap-1 w-full">
-                  <Select value={currentSortField} onValueChange={handleSortFieldChange}>
-                    <SelectTrigger className="h-8 flex-1" size="sm">
-                      <SelectValue />
-                    </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">{t("Common.none")}</SelectItem>
 
-                    <SelectContent>
-                      {sortable.map((col) => (
-                        <SelectItem key={col.uid} value={col.uid}>
-                          {col.label || columnLabel(col.uid)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  {currentSortField && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          aria-label={currentSortDirectionLabel}
-                          className="h-8 shrink-0"
-                          size="icon"
-                          variant="secondary"
-                          onClick={() => handleSortDirectionChange(currentSortDirection === "asc" ? "desc" : "asc")}
-                        >
-                          {currentSortDirection === "asc" ? (
-                            <ArrowUpAZ className="size-3.5" />
-                          ) : (
-                            <ArrowDownAZ className="size-3.5" />
-                          )}
-                        </Button>
-                      </TooltipTrigger>
-
-                      <TooltipContent>{currentSortDirectionLabel}</TooltipContent>
-                    </Tooltip>
-                  )}
-                </div>
-              </Section>
-            </>
+                  {store.groupableFields.map((field) => (
+                    <SelectItem key={field.id} value={field.id}>
+                      {groupableLabel(field)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Section>
           )}
 
-          {store.groupableFields.length > 0 && (
-            <>
-              <Separator />
-
-              <Section label={t("Common.table.groupBy")}>
-                <Select value={currentGroupingId || "__none__"} onValueChange={handleGroupingChange}>
-                  <SelectTrigger className="h-8 w-full" size="sm">
+          {sortable.length > 0 && (
+            <Section label={t("Common.sort.field")}>
+              <div className="flex gap-1 w-full">
+                <Select value={currentSortField} onValueChange={handleSortFieldChange}>
+                  <SelectTrigger className="h-8 flex-1" size="sm">
                     <SelectValue />
                   </SelectTrigger>
 
                   <SelectContent>
-                    <SelectItem value="__none__">{t("Common.none")}</SelectItem>
-
-                    {store.groupableFields.map((field) => (
-                      <SelectItem key={field.id} value={field.id}>
-                        {groupableLabel(field)}
+                    {sortable.map((col) => (
+                      <SelectItem key={col.uid} value={col.uid}>
+                        {col.label || columnLabel(col.uid)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-              </Section>
-            </>
+
+                {currentSortField && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        aria-label={currentSortDirectionLabel}
+                        className="h-8 shrink-0"
+                        size="icon"
+                        variant="secondary"
+                        onClick={() => handleSortDirectionChange(currentSortDirection === "asc" ? "desc" : "asc")}
+                      >
+                        {currentSortDirection === "asc" ? (
+                          <ArrowUpAZ className="size-3.5" />
+                        ) : (
+                          <ArrowDownAZ className="size-3.5" />
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+
+                    <TooltipContent>{currentSortDirectionLabel}</TooltipContent>
+                  </Tooltip>
+                )}
+              </div>
+            </Section>
           )}
 
           {orderedColumns.length > 0 && (
-            <>
-              <Separator />
-
-              <Section label={t("Common.ariaLabels.tooltipFields")}>
-                <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={handleDragEnd}>
-                  <SortableContext items={orderedColumns.map((c) => c.uid)} strategy={verticalListSortingStrategy}>
-                    <div className="flex flex-col gap-0.5">
-                      {orderedColumns.map((col) => {
-                        const isPinned = col.uid === "name";
-                        const isVisible = !hiddenSet.has(col.uid);
-                        const label = col.label || columnLabel(col.uid);
-                        return (
-                          <FieldRow
-                            key={col.uid}
-                            isPinned={isPinned}
-                            isVisible={isVisible}
-                            label={label}
-                            uid={col.uid}
-                            onToggle={(v) => handleToggle(col.uid, v)}
-                          />
-                        );
-                      })}
-                    </div>
-                  </SortableContext>
-                </DndContext>
-              </Section>
-            </>
+            <Section label={t("Common.table.fields")}>
+              <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={handleDragEnd}>
+                <SortableContext items={orderedColumns.map((c) => c.uid)} strategy={verticalListSortingStrategy}>
+                  <div className="flex flex-col gap-0.5">
+                    {orderedColumns.map((col) => {
+                      const isPinned = col.uid === "name";
+                      const isVisible = !hiddenSet.has(col.uid);
+                      const label = col.label || columnLabel(col.uid);
+                      return (
+                        <FieldRow
+                          key={col.uid}
+                          isPinned={isPinned}
+                          isVisible={isVisible}
+                          label={label}
+                          uid={col.uid}
+                          onToggle={(v) => handleToggle(col.uid, v)}
+                        />
+                      );
+                    })}
+                  </div>
+                </SortableContext>
+              </DndContext>
+            </Section>
           )}
         </div>
       </TooltipProvider>

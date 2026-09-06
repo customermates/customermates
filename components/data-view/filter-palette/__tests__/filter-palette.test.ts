@@ -6,6 +6,8 @@ import type { RootStore } from "@/core/stores/root.store";
 
 import { createElement } from "react";
 import { describe, expect, it, vi } from "vitest";
+import { join } from "node:path";
+import { readFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import { CustomColumnType, EntityType } from "@/generated/prisma";
@@ -14,7 +16,16 @@ import { FilterOperatorKey } from "@/core/base/base-query-builder";
 const harness = vi.hoisted(() => ({ palette: { current: null as unknown } }));
 
 vi.mock("mobx-react-lite", () => ({ observer: <T>(component: T) => component }));
-vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+function formatValues(values: Record<string, unknown>) {
+  return Object.entries(values)
+    .map(([name, value]) => `${name}=${String(value)}`)
+    .join(",");
+}
+
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string, values?: Record<string, unknown>) =>
+    values ? `${key}(${formatValues(values)})` : key,
+}));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     filterPaletteStore: harness.palette.current,
@@ -97,6 +108,94 @@ function render(table: ReturnType<typeof tableStore>) {
 
 function occurrences(markup: string, needle: string) {
   return markup.split(needle).length - 1;
+}
+
+function openingTag(markup: string, needle: string) {
+  const at = markup.indexOf(needle);
+
+  return at < 0 ? "" : markup.slice(markup.lastIndexOf("<", at), markup.indexOf(">", at) + 1);
+}
+
+function between(markup: string, from: string, to: string) {
+  const start = markup.indexOf(from);
+
+  return start < 0 ? "" : markup.slice(start, markup.indexOf(to, start));
+}
+
+type Rgb = [number, number, number];
+
+const THEME_TOKENS = readThemeTokens();
+
+function readThemeTokens() {
+  const css = readFileSync(join(process.cwd(), "styles/globals.css"), "utf8");
+
+  return { light: declarationsAfter(css, "\n:root,\n.light,"), dark: declarationsAfter(css, "\n.dark,\n") };
+}
+
+function declarationsAfter(css: string, opener: string) {
+  const start = css.indexOf(opener);
+  const block = start < 0 ? "" : css.slice(start, css.indexOf("\n}", start));
+  const tokens = new Map<string, string>();
+
+  for (const [, name, value] of block.matchAll(/^\s*(--[\w-]+):\s*([^;]+);/gm)) tokens.set(name, value.trim());
+
+  return tokens;
+}
+
+function tokenValue(tokens: Map<string, string>, name: string) {
+  let value = tokens.get(name);
+
+  for (let hop = 0; hop < 4 && value?.startsWith("var("); hop += 1) value = tokens.get(value.slice(4, -1).trim());
+
+  return value ?? "";
+}
+
+function fillToken(tag: string, variant: string) {
+  const classes = /class="([^"]*)"/.exec(tag)?.[1].split(/\s+/) ?? [];
+  const prefix = variant ? `${variant}:bg-` : "bg-";
+  const match = classes.find((name) => name.startsWith(prefix) && (variant !== "" || !name.includes(":")));
+
+  return match ? `--${match.slice(prefix.length)}` : "";
+}
+
+function composite(tokens: Map<string, string>, token: string, ground: Rgb): Rgb {
+  if (token === "") return ground;
+
+  const value = tokenValue(tokens, token);
+  const hex = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(value);
+  if (hex) return [parseInt(hex[1], 16), parseInt(hex[2], 16), parseInt(hex[3], 16)];
+
+  const wash = /^rgb\(\s*(\d+)\s+(\d+)\s+(\d+)\s*\/\s*([\d.]+)%\s*\)$/.exec(value);
+  if (!wash) throw new Error(`unreadable colour for ${token}: ${value}`);
+
+  const alpha = Number(wash[4]) / 100;
+
+  return ground.map((base, channel) => Number(wash[channel + 1]) * alpha + base * (1 - alpha)) as Rgb;
+}
+
+function luminance(rgb: Rgb) {
+  const [r, g, b] = rgb.map((channel) => {
+    const ratio = channel / 255;
+
+    return ratio <= 0.04045 ? ratio / 12.92 : ((ratio + 0.055) / 1.055) ** 2.4;
+  });
+
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function contrast(one: Rgb, other: Rgb) {
+  const [high, low] = [luminance(one), luminance(other)].sort((left, right) => right - left);
+
+  return (high + 0.05) / (low + 0.05);
+}
+
+function cursorStep(theme: "light" | "dark", tag: string) {
+  const tokens = THEME_TOKENS[theme];
+  const ground = composite(tokens, "--popover", [0, 0, 0]);
+  const resting = composite(tokens, fillToken(tag, ""), ground);
+  const selected = composite(tokens, fillToken(tag, "data-[selected=true]"), ground);
+
+  return { resting, selected, step: contrast(resting, selected) };
 }
 
 describe("filter palette pages", () => {
@@ -207,6 +306,125 @@ describe("filter palette pages", () => {
     expect(markup).toContain("data-palette-operator-trigger");
     expect(markup).toContain('id="filter-palette-back"');
     expect(markup).toContain("Common.filters.operators.in");
+  });
+
+  it("dresses the operator as a bordered dropdown with a chevron, never as a caption", () => {
+    const table = tableStore();
+    const palette = openPalette(table);
+
+    palette.pickField("status");
+    const markup = render(table);
+    const trigger = openingTag(markup, "data-palette-operator-trigger");
+
+    expect(trigger).toContain('data-variant="field"');
+    expect(trigger).toContain("border border-input");
+    expect(trigger).toContain("bg-input-background");
+    expect(trigger).not.toContain("text-xs");
+    expect(between(markup, "data-palette-operator-trigger", "</button>")).toContain("lucide-chevron-down");
+  });
+
+  it("sizes the back control to match the operator so the header reads as one control row", () => {
+    const table = tableStore();
+    const palette = openPalette(table);
+
+    palette.pickField("status");
+    const markup = render(table);
+
+    expect(openingTag(markup, 'id="filter-palette-back"')).toContain('data-size="icon-sm"');
+    expect(openingTag(markup, "data-palette-operator-trigger")).toContain('data-size="sm"');
+  });
+
+  it("still disables the operator control on a field that declares no operator", () => {
+    const table = tableStore();
+    const palette = openPalette(table);
+
+    palette.pickField("retired");
+    const trigger = openingTag(render(table), "data-palette-operator-trigger");
+
+    expect(trigger).toContain("disabled=");
+    expect(trigger).toContain("disabled:opacity-100");
+  });
+
+  it("shapes an applied filter as a chip that no plain field row ever takes", () => {
+    const table = tableStore([{ field: "status", operator: FilterOperatorKey.in, value: ["open"] } as Filter]);
+    openPalette(table);
+
+    const markup = render(table);
+    const applied = openingTag(markup, "data-filter-index=");
+    const field = openingTag(markup, 'data-palette-field="status"');
+
+    expect(applied).toContain("border border-input");
+    expect(applied).toContain("rounded-md");
+    expect(applied).toContain("py-2");
+    expect(fillToken(applied, "")).toBe("");
+    expect(field).not.toContain("border border-input");
+    expect(field).toContain("rounded-sm");
+    expect(between(markup, "data-palette-remove-filter=", "</button>")).toContain("size-3.5 text-current");
+  });
+
+  it("moves an applied chip's fill under the cursor at least as far as a plain field row moves", () => {
+    const table = tableStore([{ field: "status", operator: FilterOperatorKey.in, value: ["open"] } as Filter]);
+    openPalette(table);
+
+    const markup = render(table);
+    const applied = openingTag(markup, "data-filter-index=");
+    const field = openingTag(markup, 'data-palette-field="status"');
+
+    expect(applied).toContain("data-[selected=true]:border-border-strong");
+    expect(applied).not.toContain("data-[selected=true]:bg-accent");
+    expect(field).not.toContain("data-[selected=true]:bg-accent");
+
+    for (const theme of ["light", "dark"] as const) {
+      const chip = cursorStep(theme, applied);
+      const row = cursorStep(theme, field);
+
+      const towardsForeground =
+        theme === "light"
+          ? luminance(chip.selected) < luminance(chip.resting)
+          : luminance(chip.selected) > luminance(chip.resting);
+
+      expect(chip.step).toBeGreaterThan(1.1);
+      expect(chip.step).toBeGreaterThanOrEqual(row.step - 0.001);
+      expect(towardsForeground).toBe(true);
+    }
+  });
+
+  it("never rests an applied chip below the popover it sits on", () => {
+    const table = tableStore([{ field: "status", operator: FilterOperatorKey.in, value: ["open"] } as Filter]);
+    openPalette(table);
+
+    const applied = openingTag(render(table), "data-filter-index=");
+
+    for (const theme of ["light", "dark"] as const) {
+      const ground = luminance(composite(THEME_TOKENS[theme], "--popover", [0, 0, 0]));
+      const resting = luminance(cursorStep(theme, applied).resting);
+
+      if (theme === "light") expect(resting).toBeGreaterThanOrEqual(ground);
+      else expect(resting).toBeLessThanOrEqual(ground);
+    }
+  });
+
+  it("names the operator control by its purpose and the condition it currently holds", () => {
+    const table = tableStore();
+    const palette = openPalette(table);
+
+    palette.pickField("status");
+    const trigger = openingTag(render(table), "data-palette-operator-trigger");
+
+    expect(trigger).toContain('aria-label="Common.filters.palette.editOperatorNamed(operator=');
+    expect(trigger).toContain("Common.filters.operators.in)");
+    expect(trigger).not.toContain('aria-label="Common.filters.palette.editOperator"');
+  });
+
+  it("labels both zones with the section typography the app uses elsewhere", () => {
+    const table = tableStore([{ field: "status", operator: FilterOperatorKey.in, value: ["open"] } as Filter]);
+    openPalette(table);
+
+    const markup = render(table);
+
+    expect(occurrences(markup, "**:[[cmdk-group-heading]]:uppercase")).toBe(2);
+    expect(occurrences(markup, "**:[[cmdk-group-heading]]:text-[11px]")).toBe(2);
+    expect(markup).not.toContain("**:[[cmdk-group-heading]]:text-xs");
   });
 });
 

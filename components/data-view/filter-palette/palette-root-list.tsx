@@ -14,6 +14,12 @@ import { FilterChipValue } from "@/components/data-view/filter-modal/filter-chip
 import { useFilterFieldLabel } from "@/components/entity-terminology/use-filter-field-label";
 import { useFilterOperatorLabel } from "@/components/data-view/filter-modal/use-filter-operator-label";
 
+const APPLIED_FILTER_CLASS =
+  "mb-1 rounded-md border border-input py-2 data-[selected=true]:border-border-strong data-[selected=true]:bg-selected";
+
+const PALETTE_GROUP_CLASS =
+  "**:[[cmdk-group-heading]]:text-[11px] **:[[cmdk-group-heading]]:tracking-wide **:[[cmdk-group-heading]]:uppercase";
+
 type Props = {
   store: BaseDataViewStore<any>;
   filters: Filter[];
@@ -41,7 +47,7 @@ export const PaletteRootList = observer(function PaletteRootList({
       <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>
 
       {filters.length > 0 && (
-        <CommandGroup heading={t("Common.filters.palette.activeGroup")}>
+        <CommandGroup className={PALETTE_GROUP_CLASS} heading={t("Common.filters.palette.activeGroup")}>
           {filters.map((filter, index) => {
             const label = fieldLabel(filter.field, store.customColumns);
             const operator = operatorLabel(filter.operator as FilterOperatorKey);
@@ -49,6 +55,7 @@ export const PaletteRootList = observer(function PaletteRootList({
             return (
               <CommandItem
                 key={`${filter.field}-${index}`}
+                className={APPLIED_FILTER_CLASS}
                 data-filter-index={index}
                 keywords={[label]}
                 value={`${label} ${operator} ${index}`}
@@ -75,7 +82,7 @@ export const PaletteRootList = observer(function PaletteRootList({
                     store.removeFilterAt(index);
                   }}
                 >
-                  <XIcon aria-hidden />
+                  <XIcon aria-hidden className="size-3.5 text-current" />
                 </Button>
               </CommandItem>
             );
@@ -83,7 +90,7 @@ export const PaletteRootList = observer(function PaletteRootList({
         </CommandGroup>
       )}
 
-      <CommandGroup heading={t("Common.filters.palette.fieldsGroup")}>
+      <CommandGroup className={PALETTE_GROUP_CLASS} heading={t("Common.filters.palette.fieldsGroup")}>
         {store.filterableFields.map((field, index) => {
           const label = fieldLabel(field.field, store.customColumns);
           const applied = appliedPerField.get(field.field) ?? 0;
@@ -91,6 +98,7 @@ export const PaletteRootList = observer(function PaletteRootList({
           return (
             <CommandItem
               key={field.field}
+              className="data-[selected=true]:bg-selected"
               data-palette-field={field.field}
               disabled={isAtLimit}
               keywords={[label]}
