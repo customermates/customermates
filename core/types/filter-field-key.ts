@@ -27,4 +27,7 @@ export enum FilterFieldKey {
   adProvider = "adProvider",
   auditSource = "auditSource",
   workspaceTags = "workspaceTags",
+  name = "name",
+  firstName = "firstName",
+  lastName = "lastName",
 }

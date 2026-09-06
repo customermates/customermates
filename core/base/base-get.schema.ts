@@ -18,6 +18,7 @@ export const FilterSchema = z.preprocess(
         operator: z.union([
           z.literal(FilterOperatorKey.equals).meta({ title: "equals" }),
           z.literal(FilterOperatorKey.contains).meta({ title: "contains" }),
+          z.literal(FilterOperatorKey.startsWith).meta({ title: "startsWith" }),
           z.literal(FilterOperatorKey.gt).meta({ title: "gt" }),
           z.literal(FilterOperatorKey.gte).meta({ title: "gte" }),
           z.literal(FilterOperatorKey.lt).meta({ title: "lt" }),

@@ -1179,8 +1179,11 @@
         "connectedAccountId": "Channel",
         "createdAt": "Created at",
         "event": "Event",
+        "firstName": "First name",
         "isPlatformOperator": "Platform operator",
         "lastActiveAt": "Last active",
+        "lastName": "Last name",
+        "name": "Name",
         "participants": "Participants",
         "plan": "Plan",
         "provider": "Provider",
@@ -1212,7 +1215,8 @@
         "isNull": "is empty",
         "lt": "<",
         "lte": "≤",
-        "notIn": "not in"
+        "notIn": "not in",
+        "startsWith": "Starts with"
       },
       "presets": {
         "add": "Save as preset…",

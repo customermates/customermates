@@ -1179,8 +1179,11 @@
         "connectedAccountId": "Kanal",
         "createdAt": "Erstellt am",
         "event": "Ereignis",
+        "firstName": "Vorname",
         "isPlatformOperator": "Plattform-Operator",
         "lastActiveAt": "Zuletzt aktiv",
+        "lastName": "Nachname",
+        "name": "Name",
         "participants": "Teilnehmer",
         "plan": "Tarif",
         "provider": "Anbieter",
@@ -1212,7 +1215,8 @@
         "isNull": "ist leer",
         "lt": "<",
         "lte": "≤",
-        "notIn": "ist nicht in"
+        "notIn": "ist nicht in",
+        "startsWith": "Beginnt mit"
       },
       "presets": {
         "add": "Als Preset speichern…",

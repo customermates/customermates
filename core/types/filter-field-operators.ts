@@ -23,6 +23,7 @@ const dateOperators = [
 const scalarSelectOperators = [FilterOperatorKey.in, FilterOperatorKey.notIn];
 
 const stringOperators = [FilterOperatorKey.equals, FilterOperatorKey.contains];
+const textFieldOperators = [FilterOperatorKey.equals, FilterOperatorKey.startsWith, FilterOperatorKey.contains];
 
 const nullableOperators = [FilterOperatorKey.isNull, FilterOperatorKey.isNotNull];
 const customComparisonOperators = [
@@ -76,4 +77,7 @@ export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperat
   [FilterFieldKey.adProvider]: scalarSelectOperators,
   [FilterFieldKey.auditSource]: scalarSelectOperators,
   [FilterFieldKey.workspaceTags]: scalarSelectOperators,
+  [FilterFieldKey.name]: textFieldOperators,
+  [FilterFieldKey.firstName]: textFieldOperators,
+  [FilterFieldKey.lastName]: textFieldOperators,
 };

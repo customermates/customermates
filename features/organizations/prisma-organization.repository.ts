@@ -109,6 +109,11 @@ export class PrismaOrganizationRepo
 
     const filterFields = [];
 
+    filterFields.push({
+      field: FilterFieldKey.name,
+      operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.name],
+    });
+
     if (this.canAccess(Resource.contacts)) {
       filterFields.push({
         field: FilterFieldKey.contactIds,

@@ -1179,8 +1179,11 @@
         "connectedAccountId": "Canal",
         "createdAt": "Creado el",
         "event": "Evento",
+        "firstName": "Nombre",
         "isPlatformOperator": "Operador de plataforma",
         "lastActiveAt": "Última actividad",
+        "lastName": "Apellidos",
+        "name": "Nombre",
         "participants": "Participantes",
         "plan": "Plan",
         "provider": "Proveedor",
@@ -1212,7 +1215,8 @@
         "isNull": "está vacío",
         "lt": "<",
         "lte": "≤",
-        "notIn": "no es uno de"
+        "notIn": "no es uno de",
+        "startsWith": "Empieza por"
       },
       "presets": {
         "add": "Guardar como preajuste…",

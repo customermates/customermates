@@ -1179,8 +1179,11 @@
         "connectedAccountId": "Canal",
         "createdAt": "Créé le",
         "event": "Évènement",
+        "firstName": "Prénom",
         "isPlatformOperator": "Opérateur de plateforme",
         "lastActiveAt": "Dernière activité",
+        "lastName": "Nom de famille",
+        "name": "Nom",
         "participants": "Participants",
         "plan": "Forfait",
         "provider": "Fournisseur",
@@ -1212,7 +1215,8 @@
         "isNull": "est vide",
         "lt": "<",
         "lte": "≤",
-        "notIn": "hors de"
+        "notIn": "hors de",
+        "startsWith": "Commence par"
       },
       "presets": {
         "add": "Enregistrer comme préréglage…",

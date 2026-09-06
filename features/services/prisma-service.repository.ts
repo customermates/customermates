@@ -97,6 +97,11 @@ export class PrismaServiceRepo
 
     const filterFields = [];
 
+    filterFields.push({
+      field: FilterFieldKey.name,
+      operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.name],
+    });
+
     if (this.canAccess(Resource.deals)) {
       filterFields.push({
         field: FilterFieldKey.dealIds,
