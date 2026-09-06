@@ -36,7 +36,11 @@ import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
 import { agentCreditsForStartedProviderCost } from "@/ee/agent-chat/agent-credit-policy";
 import { createAgentSupportTicket } from "@/ee/agent-chat/agent-support-ticket";
 import { describeAgentTool } from "@/ee/agent-chat/agent-activity";
-import { agentToolOutcomeStatus, AGENT_TRANSCRIPT_FORWARDED_EVENTS } from "@/ee/agent-chat/agent-durable-stream";
+import {
+  agentToolOutcomeStatus,
+  unwrapToolOutput,
+  AGENT_TRANSCRIPT_FORWARDED_EVENTS,
+} from "@/ee/agent-chat/agent-durable-stream";
 import {
   agentContinuationLimits,
   toAgentContinuationStep,
@@ -921,8 +925,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         if (message.role !== "tool" || typeof message.content === "string") continue;
         for (const part of message.content) {
           if (part.type !== "tool-result") continue;
-          const output = part.output as { value?: unknown } | undefined;
-          settleToolOutcome(part.toolCallId, part.toolName, output && "value" in output ? output.value : output);
+          settleToolOutcome(part.toolCallId, part.toolName, unwrapToolOutput(part.output));
         }
       }
 

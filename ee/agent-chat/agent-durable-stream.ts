@@ -24,16 +24,27 @@ export type AgentClientEvent = {
   payload: Record<string, unknown>;
 };
 
+const TOOL_ERROR_OUTPUT_TYPES: ReadonlySet<string> = new Set(["error-text", "error-json"]);
+
+export function isAgentToolErrorOutput(output: unknown): boolean {
+  if (!output || typeof output !== "object" || Array.isArray(output)) return false;
+  const type = (output as { type?: unknown }).type;
+  return typeof type === "string" && TOOL_ERROR_OUTPUT_TYPES.has(type);
+}
+
 export function agentToolOutcomeStatus(output: unknown): {
   status: AgentActivityStatus;
   failed: boolean;
 } {
   if (isAgentToolCancellation(output)) return { status: "cancelled", failed: false };
-  const failed = Boolean(output && typeof output === "object" && (output as { ok?: unknown }).ok === false);
+  if (isAgentToolErrorOutput(output)) return { status: "error", failed: true };
+  const unwrapped = unwrapToolOutput(output);
+  const failed = Boolean(unwrapped && typeof unwrapped === "object" && (unwrapped as { ok?: unknown }).ok === false);
   return { status: failed ? "error" : "done", failed };
 }
 
-function unwrapToolOutput(output: unknown) {
+export function unwrapToolOutput(output: unknown) {
+  if (isAgentToolErrorOutput(output)) return output;
   return output && typeof output === "object" && "value" in output ? (output as { value: unknown }).value : output;
 }
 
@@ -70,7 +81,7 @@ export class AgentDurableStreamReader {
     }
 
     if (part.type === "tool-result" && part.toolCallId) {
-      const { status, failed } = agentToolOutcomeStatus(unwrapToolOutput(part.output));
+      const { status, failed } = agentToolOutcomeStatus(part.output);
       return {
         type: "activity_result",
         payload: { id: part.toolCallId, isError: failed, status },

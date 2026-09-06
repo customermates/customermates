@@ -4,6 +4,7 @@ import {
   AGENT_TRANSCRIPT_FORWARDED_EVENTS,
   AgentDurableStreamReader,
   agentToolOutcomeStatus,
+  unwrapToolOutput,
 } from "../agent-durable-stream";
 
 function read(chunks: unknown[]) {
@@ -226,6 +227,45 @@ describe("agent durable stream reader", () => {
     ).toEqual({
       status: "cancelled",
       failed: false,
+    });
+  });
+});
+
+describe("runtime-rejected tool calls", () => {
+  it("classifies an AI SDK error envelope as a failure instead of a silent success", () => {
+    for (const type of ["error-text", "error-json"]) {
+      const outcome = agentToolOutcomeStatus({ type, value: "Validation error: page must be a number" });
+      expect(outcome, type).toEqual({ status: "error", failed: true });
+    }
+  });
+
+  it("keeps the error envelope intact through the shared unwrap", () => {
+    const envelope = { type: "error-text", value: "rejected" };
+    expect(unwrapToolOutput(envelope)).toBe(envelope);
+    expect(unwrapToolOutput({ type: "json", value: { ok: true } })).toEqual({ ok: true });
+  });
+
+  it("still classifies an ok:false result as a failure after unwrapping", () => {
+    expect(agentToolOutcomeStatus({ type: "json", value: { ok: false, result: "denied" } })).toEqual({
+      status: "error",
+      failed: true,
+    });
+    expect(agentToolOutcomeStatus({ type: "json", value: { ok: true, result: "done" } })).toEqual({
+      status: "done",
+      failed: false,
+    });
+  });
+
+  it("reports a rejected call to the client as an error", () => {
+    const reader = new AgentDurableStreamReader();
+    const event = reader.read({
+      type: "tool-result",
+      toolCallId: "call-1",
+      output: { type: "error-text", value: "Validation error" },
+    });
+    expect(event).toEqual({
+      type: "activity_result",
+      payload: { id: "call-1", isError: true, status: "error" },
     });
   });
 });
