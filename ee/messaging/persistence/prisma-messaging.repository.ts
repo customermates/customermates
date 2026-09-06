@@ -454,7 +454,7 @@ export class PrismaMessagingRepo
     const unipileThreadId = await this.resolveThreadIdByAlt(args.connectedAccountId, args.unipileThreadId);
     const preview =
       typeof args.lastMessagePreview === "string"
-        ? safeTruncate(args.lastMessagePreview.replace(/\s+/g, " "), 200)
+        ? threadPreviewFrom(args.lastMessagePreview)
         : args.lastMessagePreview;
 
     if (args.unipileThreadAltId) {
@@ -819,8 +819,8 @@ export class PrismaMessagingRepo
     const previewSource =
       last?.isDraft && last.bodyHtml
         ? htmlToPlainText(last.bodyHtml)
-        : last?.bodyText?.trim() || htmlToPlainText(last?.bodyHtml);
-    const derivedPreview = previewSource ? safeTruncate(previewSource.replace(/\s+/g, " "), 200) : null;
+        : last?.bodyText?.trim() || htmlToPlainText(htmlWithoutSignature(last?.bodyHtml));
+    const derivedPreview = threadPreviewFrom(previewSource);
     const preview = last?.isDeleted
       ? null
       : last?.isDraft && isEmailProvider(row.provider)
@@ -1044,8 +1044,9 @@ export class PrismaMessagingRepo
         where: { id: args.threadId, companyId: this.companyId },
         data: {
           lastMessageAt: now,
-          lastMessagePreview:
-            safeTruncate((htmlToPlainText(args.bodyHtml) || args.bodyText.trim()).replace(/\s+/g, " "), 200) || null,
+          lastMessagePreview: threadPreviewFrom(
+            htmlToPlainText(htmlWithoutSignature(args.bodyHtml)) || args.bodyText.trim(),
+          ),
           lastMessageIsSender: true,
           ...(isDraftThreadId(thread.unipileThreadId) ? { subject: args.subject } : {}),
         },
@@ -1318,9 +1319,15 @@ export class PrismaMessagingRepo
         orderBy: [{ sentAt: "desc" }, { id: "desc" }],
         select,
       }));
-    const preview = draft?.bodyHtml
-      ? htmlToPlainText(draft.bodyHtml)
-      : latest?.bodyText?.trim() || htmlToPlainText(latest?.bodyHtml) || null;
+    const latestOutboundBody =
+      latest && latest.direction === MessagingMessageDirection.outbound
+        ? htmlToPlainText(htmlWithoutSignature(latest.bodyHtml))
+        : null;
+    const preview = threadPreviewFrom(
+      draft?.bodyHtml
+        ? htmlToPlainText(draft.bodyHtml)
+        : latestOutboundBody?.trim() || latest?.bodyText?.trim() || htmlToPlainText(latest?.bodyHtml),
+    );
 
     await this.prisma.messagingThread.update({
       where: { id: threadId, companyId: this.companyId },
@@ -1749,7 +1756,15 @@ export class PrismaMessagingRepo
 
     const { unipileThreadId, threadType, previewText, ...messageFields } = safeMessage;
 
-    const previewSource = previewText?.trim() || safeMessage.bodyText?.trim() || htmlToPlainText(safeMessage.bodyHtml);
+    const outboundBody =
+      safeMessage.direction === MessagingMessageDirection.outbound
+        ? htmlToPlainText(htmlWithoutSignature(safeMessage.bodyHtml))
+        : null;
+    const previewSource =
+      outboundBody?.trim() ||
+      previewText?.trim() ||
+      safeMessage.bodyText?.trim() ||
+      htmlToPlainText(safeMessage.bodyHtml);
     const hidden = safeMessage.isHidden === true;
     const canonicalSentAt = existing?.sentAt ?? safeMessage.sentAt;
 
@@ -2121,6 +2136,29 @@ function dedupeParticipants<T extends { attendeeId: string }>(participants: T[])
 function cleanString<T extends string | null | undefined>(s: T): T {
   if (s == null) return s;
   return s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "").toWellFormed() as T;
+}
+
+const PLAIN_TEXT_SIGNATURE_DELIMITER = /(?:^|\n)-{2}[ \t]*(?:\r?\n|$)/;
+const HTML_SIGNATURE_BLOCK = /<div[^>]*data-customermates-signature[^>]*>[\s\S]*$/i;
+
+function htmlWithoutSignature(html: string | null | undefined): string | null | undefined {
+  if (!html) return html;
+
+  return html.replace(HTML_SIGNATURE_BLOCK, "");
+}
+
+function plainTextWithoutSignature(text: string): string {
+  const match = PLAIN_TEXT_SIGNATURE_DELIMITER.exec(text);
+  if (!match) return text;
+
+  const body = text.slice(0, match.index).trim();
+  return body || text;
+}
+
+function threadPreviewFrom(text: string | null | undefined): string | null {
+  if (!text) return null;
+
+  return safeTruncate(plainTextWithoutSignature(text).replace(/\s+/g, " "), 200) || null;
 }
 
 function safeTruncate(s: string, maxLen: number): string {

@@ -30,6 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/core/utils/cn";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { usePathname, useRouter } from "@/i18n/navigation";
 
@@ -374,7 +375,10 @@ export const ThreadReplyComposer = observer(
             ref={emailEditorRef}
             appearance={emailSettings.appearance}
             ariaLabel={t("Inbox.compose.writeReply")}
-            className="rounded-none border-0 bg-transparent shadow-none focus-within:ring-0 [&_.ProseMirror]:max-h-[calc(0.4*var(--viewport-block))] [&_.ProseMirror]:min-h-[72px] [&_.ProseMirror]:overflow-y-auto"
+            className={cn(
+              "rounded-none border-0 bg-transparent shadow-none focus-within:ring-0 [&_.ProseMirror]:max-h-[calc(0.4*var(--viewport-block))] [&_.ProseMirror]:overflow-y-auto",
+              emailAccount?.signatureHtml ? "[&_.ProseMirror]:min-h-0" : "[&_.ProseMirror]:min-h-[72px]",
+            )}
             disabled={isLoading}
             invalid={Boolean(threadComposeStore.getError("body"))}
             placeholder={t("Inbox.compose.writeReply")}

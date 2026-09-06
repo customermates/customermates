@@ -235,3 +235,7 @@
     text-decoration: var(--email-link-decoration);
   }
 }
+
+.email-markdown-editor .tiptap > :last-child {
+  margin-bottom: 0;
+}

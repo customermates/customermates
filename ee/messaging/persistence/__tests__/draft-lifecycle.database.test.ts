@@ -269,6 +269,48 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
     expect(bodies).toContain(stored.rows[0].bodyText);
   });
 
+  it("keeps the appended signature out of the thread preview", async () => {
+    const recipient = `signature-preview-${randomUUID()}@example.invalid`;
+    const repo = new PrismaMessagingRepo();
+    const unipileThreadId = `thread-${randomUUID()}`;
+    const bodyText = "Short message body.\n\n-- \nAda Lovelace\nHead of Engineering, Example\nada@example.invalid";
+    const bodyHtml =
+      '<div data-customermates-email-body="true">Short message body.</div>' +
+      '<div data-customermates-signature="true"><strong>Ada Lovelace</strong><br>Head of Engineering, Example</div>';
+    await runWithTenant(tenant, () =>
+      repo.persistOutboundMessageOrThrow({
+        connectedAccountId: accountId,
+        message: {
+          unipileMessageId: `sent-${randomUUID()}`,
+          providerMessageId: null,
+          provider: MessagingProvider.google,
+          direction: "outbound",
+          origin: "unipile",
+          sender: attendee(ownerEmail, true),
+          recipients: { to: [attendee(recipient)], cc: [], bcc: [] },
+          subject: "Signature preview",
+          bodyText,
+          bodyHtml,
+          attachmentsMeta: [],
+          isEvent: false,
+          isDeleted: false,
+          isHidden: false,
+          sentAt: new Date(),
+          reactions: [],
+          unipileThreadId,
+          threadType: "single",
+        },
+      }),
+    );
+
+    const summary = await client.query(
+      'SELECT "lastMessagePreview" FROM "MessagingThread" WHERE "unipileThreadId" = $1',
+      [unipileThreadId],
+    );
+
+    expect(summary.rows).toEqual([{ lastMessagePreview: "Short message body." }]);
+  });
+
   it("persists interactor-rendered draft HTML and reuses its text for summary repair", async () => {
     const recipient = `rendered-draft-${randomUUID()}@example.invalid`;
     const repo = new PrismaMessagingRepo();

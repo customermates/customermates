@@ -20,7 +20,7 @@ export const ComposerSignature = observer(({ connectedAccountId }: Props) => {
   if (!account || !isEmailProvider(account.provider) || !account.signatureHtml) return null;
 
   return (
-    <div className="mx-3 mt-1 mb-2 overflow-x-auto">
+    <div className="mx-3 mt-1.5 mb-2 overflow-x-auto">
       <EmailFrame html={account.signatureHtml} presentation="composer" showRemoteImages={account.isOwner} />
     </div>
   );
