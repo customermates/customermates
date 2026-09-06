@@ -340,10 +340,12 @@
     "runner": {
       "cancelled": "Cette réponse a été arrêtée.",
       "creditLimit": "J'ai traité une partie de cette demande, puis je me suis arrêté car vos crédits Assistant sont épuisés. Le travail effectué est conservé ; les crédits sont réinitialisés au début de votre prochaine période.",
+      "creditLimitNoWrite": "Je me suis arrêté avant toute modification car vos crédits Assistant sont épuisés. Rien n'a été créé, mis à jour ni envoyé. Les crédits sont réinitialisés au début de votre prochaine période.",
       "emptyReply": "Je n'ai pas pu générer de réponse. Veuillez réessayer.",
       "hostedAiUnavailable": "L’IA hébergée est temporairement indisponible. Veuillez réessayer plus tard.",
       "outputLimit": "J’ai rédigé une partie de cette réponse, mais j’ai atteint la limite de sortie de ce tour. Demandez-moi de continuer et je terminerai à partir du travail déjà effectué.",
       "safetyLimit": "J’ai réalisé une partie de cette demande, mais je me suis arrêté parce que les dernières étapes se répétaient, échouaient ou avaient atteint une limite de sécurité. Le travail terminé reste en place ; vérifiez les étapes ci-dessus avant de me demander de poursuivre.",
+      "safetyLimitNoWrite": "Je me suis arrêté avant toute modification car les dernières étapes se répétaient, échouaient ou ont atteint une limite de sécurité. Rien n'a été créé, mis à jour ni envoyé.",
       "turnError": "Je n'ai pas pu traiter cette demande. Veuillez réessayer."
     },
     "send": "Envoyer",

@@ -340,10 +340,12 @@
     "runner": {
       "cancelled": "This response was stopped.",
       "creditLimit": "I completed part of this request, but stopped because your Assistant credits ran out. Completed work remains in place; credits reset at the start of your next period.",
+      "creditLimitNoWrite": "I stopped before making any changes because your Assistant credits ran out. Nothing was created, updated, or sent. Credits reset at the start of your next period.",
       "emptyReply": "I couldn't produce a response. Please try again.",
       "hostedAiUnavailable": "Hosted AI is temporarily unavailable. Please try again later.",
       "outputLimit": "I completed part of this response, but reached this turn's output limit. Ask me to continue and I'll finish from the completed work.",
       "safetyLimit": "I completed part of this request, but stopped because the latest steps were repeating, failing, or reached a safety limit. Completed work remains in place; review the steps above before asking me to proceed.",
+      "safetyLimitNoWrite": "I stopped before making any changes because the latest steps were repeating, failing, or reached a safety limit. Nothing was created, updated, or sent.",
       "turnError": "I couldn't complete that request. Please try again."
     },
     "send": "Send",

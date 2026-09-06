@@ -51,7 +51,8 @@ import { isAgentStepContextWithinBudget } from "@/ee/agent-chat/agent-provider-c
 import { getAgentChatRepo } from "@/core/di";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
-import { requiresApproval } from "@/ee/agent-chat/gated-tools";
+import { isReadOnlyTool, requiresApproval } from "@/ee/agent-chat/gated-tools";
+import { isAgentToolCancellation } from "@/ee/agent-chat/agent-tool-cancellation";
 import { createAgentToolInputResolver, type AgentToolInputResult } from "@/ee/agent-chat/agent-tool-input";
 import { resolveAgentApprovalContext } from "@/ee/agent-chat/agent-external-approval-context";
 import { resolveAgentToolResultMaxChars } from "@/ee/agent-chat/agent-budget-policy";
@@ -369,9 +370,18 @@ async function ensureTurnReservation(
   );
 }
 
+function isSuccessfulToolOutcome(outcome: unknown): boolean {
+  if (typeof outcome !== "object" || outcome === null) return false;
+  const record = outcome as Record<string, unknown>;
+  if (record.ok === false) return false;
+  return !isAgentToolCancellation(outcome);
+}
+
 type AgentRunnerMessageKind =
   | "safetyLimit"
+  | "safetyLimitNoWrite"
   | "creditLimit"
+  | "creditLimitNoWrite"
   | "hostedAiUnavailable"
   | "outputLimit"
   | "turnError"
@@ -384,6 +394,8 @@ async function resolveRunnerMessage(locale: string, kind: AgentRunnerMessageKind
   const t = await getTranslator(appLocaleOrDefault(locale));
 
   if (kind === "creditLimit") return t("AgentChat.runner.creditLimit");
+  if (kind === "creditLimitNoWrite") return t("AgentChat.runner.creditLimitNoWrite");
+  if (kind === "safetyLimitNoWrite") return t("AgentChat.runner.safetyLimitNoWrite");
   if (kind === "hostedAiUnavailable") return t("AgentChat.runner.hostedAiUnavailable");
   if (kind === "outputLimit") return t("AgentChat.runner.outputLimit");
   if (kind === "turnError") return t("AgentChat.runner.turnError");
@@ -674,6 +686,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       normalizeAgentToolInput(payload, toolName, input),
     );
     const completedTools: ({ toolCallId: string; toolName: string } & ({ output: unknown } | { threw: true }))[] = [];
+    let performedWrite = false;
 
     const continuationSteps: AgentContinuationStep[] = [];
     let deferredRound: {
@@ -838,13 +851,16 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                     execute: async (input: unknown, options: { toolCallId: string }) => {
                       const prepared = await resolveToolInput(shell.name, options.toolCallId, input);
                       if (!prepared.ok) return prepared;
-                      return executeAgentTool(
+                      const outcome = await executeAgentTool(
                         payload,
                         shell.name,
                         options.toolCallId,
                         prepared.input,
                         grants.get(options.toolCallId) ?? "not-required",
                       );
+                      if (!isReadOnlyTool({ annotations: shell.annotations }) && isSuccessfulToolOutcome(outcome))
+                        performedWrite = true;
+                      return outcome;
                     },
                   }),
             },
@@ -1080,11 +1096,15 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const stopKind: AgentRunnerMessageKind | null = hostedAiStop
       ? "hostedAiUnavailable"
       : budgetStop
-        ? "creditLimit"
+        ? performedWrite
+          ? "creditLimit"
+          : "creditLimitNoWrite"
         : roundFailure
           ? "turnError"
           : safetyStop
-            ? "safetyLimit"
+            ? performedWrite
+              ? "safetyLimit"
+              : "safetyLimitNoWrite"
             : finishReason === "length"
               ? "outputLimit"
               : null;

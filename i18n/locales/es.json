@@ -340,10 +340,12 @@
     "runner": {
       "cancelled": "Esta respuesta se ha detenido.",
       "creditLimit": "He completado parte de esta solicitud, pero me he detenido porque se han agotado tus créditos del Asistente. El trabajo completado se mantiene; los créditos se restablecen al inicio de tu siguiente periodo.",
+      "creditLimitNoWrite": "Me he detenido antes de hacer ningún cambio porque tus créditos de Assistant se han agotado. No se ha creado, actualizado ni enviado nada. Los créditos se restablecen al inicio de tu siguiente periodo.",
       "emptyReply": "No he podido generar una respuesta. Inténtalo de nuevo.",
       "hostedAiUnavailable": "La IA alojada no está disponible temporalmente. Inténtalo de nuevo más tarde.",
       "outputLimit": "He completado parte de esta respuesta, pero he alcanzado el límite de salida de este turno. Pídeme que continúe y terminaré a partir del trabajo ya completado.",
       "safetyLimit": "He completado parte de esta solicitud, pero me he detenido porque los últimos pasos se repetían, fallaban o alcanzaron un límite de seguridad. El trabajo completado se conserva; revisa los pasos anteriores antes de pedirme que siga.",
+      "safetyLimitNoWrite": "Me he detenido antes de hacer ningún cambio porque los últimos pasos se repetían, fallaban o alcanzaron un límite de seguridad. No se ha creado, actualizado ni enviado nada.",
       "turnError": "No he podido completar esa solicitud. Inténtalo de nuevo."
     },
     "send": "Enviar",

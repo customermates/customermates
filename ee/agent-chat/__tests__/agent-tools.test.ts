@@ -244,9 +244,8 @@ describe("agent tools", () => {
     const contextLimitBytes = agentContextTokensToBytes(model.maxContextTokens);
     expect(requiredContextBytes).not.toBeNull();
     expect(requiredContextBytes).toBeLessThan(contextLimitBytes);
-    // A turn whose envelope exceeds the limit surfaces to every user as configuration_unavailable,
-    // so guard the headroom rather than only the cliff. Measured 160509/198000 on 2026-09-06.
-    expect(contextLimitBytes - (requiredContextBytes ?? 0)).toBeGreaterThan(20_000);
+    const contextHeadroomFloorBytes = 20_000;
+    expect(contextLimitBytes - (requiredContextBytes ?? 0)).toBeGreaterThan(contextHeadroomFloorBytes);
     const funded = resolveAgentTurnBudget({
       model,
       availableCredits: 1,

@@ -340,10 +340,12 @@
     "runner": {
       "cancelled": "Questa risposta è stata interrotta.",
       "creditLimit": "Ho completato una parte di questa richiesta, ma mi sono fermato perché i tuoi crediti Assistant sono esauriti. Il lavoro completato resta valido; i crediti si azzerano all'inizio del prossimo periodo.",
+      "creditLimitNoWrite": "Mi sono fermato prima di apportare modifiche perché i tuoi crediti Assistant sono esauriti. Non è stato creato, aggiornato o inviato nulla. I crediti si azzerano all'inizio del tuo prossimo periodo.",
       "emptyReply": "Non sono riuscito a generare una risposta. Riprova.",
       "hostedAiUnavailable": "L’IA ospitata è temporaneamente non disponibile. Riprova più tardi.",
       "outputLimit": "Ho completato parte della risposta, ma ho raggiunto il limite di output di questo turno. Chiedimi di continuare e terminerò dal lavoro già completato.",
       "safetyLimit": "Ho completato parte della richiesta, ma mi sono fermato perché gli ultimi passaggi si ripetevano, non riuscivano o avevano raggiunto un limite di sicurezza. Il lavoro completato resta invariato; controlla i passaggi precedenti prima di chiedermi di procedere.",
+      "safetyLimitNoWrite": "Mi sono fermato prima di apportare modifiche perché gli ultimi passaggi si ripetevano, fallivano o hanno raggiunto un limite di sicurezza. Non è stato creato, aggiornato o inviato nulla.",
       "turnError": "Non sono riuscito a completare la richiesta. Riprova."
     },
     "send": "Invia",
