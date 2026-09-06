@@ -924,6 +924,55 @@ describe("agent access", () => {
     expect(result.ok && result.data.activeTurn).toBe(false);
   });
 
+  it.each(["uncertain", "completed", "running"])(
+    "returns safe %s turn metadata with its user message",
+    async (status) => {
+      const turn = {
+        clientRequestId: CLIENT_REQUEST_ID,
+        status,
+        assistantMessageId: status === "completed" ? "assistant-1" : null,
+        terminalCode: status === "completed" ? "completed" : null,
+      };
+      const repo = {
+        findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID, title: "Result" }),
+        hasRunningTurn: vi.fn().mockResolvedValue(status === "running"),
+        listMessagePage: vi.fn().mockResolvedValue(
+          messagePage([
+            {
+              id: MESSAGE_ID,
+              role: "user",
+              parts: [{ type: "text", text: "Check my deals" }],
+              createdAt: new Date(0),
+              turnRequest: {
+                ...turn,
+                externalRunId: "private-workflow-id",
+                text: "private-server-context",
+                modelSpec: "private-model",
+              },
+            },
+            {
+              id: "assistant-1",
+              role: "assistant",
+              parts: [{ type: "text", text: "Saved answer" }],
+              createdAt: new Date(0),
+              turnRequest: turn,
+            },
+          ]),
+        ),
+      };
+
+      const result = await new GetAgentConversationInteractor(repo as never, mockEntitlementService()).invoke({
+        conversationId: CONVERSATION_ID,
+      });
+
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+      expect(result.data.messages[0]?.turn).toEqual(turn);
+      expect(result.data.messages[1]?.turn).toBeNull();
+      expect(JSON.stringify(result.data)).not.toContain("private-");
+    },
+  );
+
   it("records UI feedback only for an owned conversation", async () => {
     const repo = {
       findUserConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),

@@ -2,7 +2,12 @@ import { z } from "zod";
 import { asSchema, tool, jsonSchema, type ToolSet } from "ai";
 
 import { ALL_MCP_TOOLS, MCP_TOOL_GROUPS } from "@/features/mcp-tools/tool-registry";
-import { executeMcpTool, expectedMcpToolFailure, type McpToolExecutionResult } from "@/features/mcp-tools/mcp-tool";
+import {
+  executeMcpTool,
+  expectedMcpToolFailure,
+  validationError,
+  type McpToolExecutionResult,
+} from "@/features/mcp-tools/mcp-tool";
 import { RequestSupportSchema } from "@/features/mcp-tools/support.mcp-tools";
 import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 
@@ -20,6 +25,7 @@ import { AgentTourSchema } from "./agent-tours";
 import { OpenRecordSchema } from "./ui-operations";
 import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
 import { internalToolIdentity } from "./tool-identity";
+import type { AgentToolInputResult } from "./agent-tool-input";
 
 export { isAgentToolCancellation, type AgentToolCancellation } from "./agent-tool-cancellation";
 
@@ -339,4 +345,26 @@ const TOOL_DEFINITION_DEPS: AgentToolDeps = {
 
 export function getAgentAiToolDefinitions(): AgentAiToolDefinition[] {
   return describeAgentAiTools(getAgentAiTools(TOOL_DEFINITION_DEPS));
+}
+
+export async function normalizeAgentAiToolInput(
+  toolName: string,
+  input: unknown,
+  maxChars: number,
+): Promise<AgentToolInputResult> {
+  const tools = getAgentAiTools(TOOL_DEFINITION_DEPS);
+  if (!Object.hasOwn(tools, toolName)) return { ok: false, result: "The requested tool is not available." };
+  const agentTool = tools[toolName];
+  const schema = asSchema(agentTool.inputSchema);
+  if (!schema.validate) throw new Error("The agent tool has no authoritative input validator.");
+  const result = await schema.validate(input);
+  if (result.success) return { ok: true, input: result.value };
+
+  return {
+    ok: false,
+    result:
+      result.error instanceof z.ZodError
+        ? validationError(result.error).slice(0, maxChars)
+        : "The tool input does not match its required schema.",
+  };
 }

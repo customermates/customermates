@@ -98,6 +98,18 @@ export const AgentChatItemView = observer(function AgentChatItemView({
     );
   }
 
+  if (item.kind === "turn_interrupted") {
+    return (
+      <div
+        className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs"
+        data-testid="agent-turn-interrupted"
+        role="alert"
+      >
+        {t("AgentChat.ui.turnInterrupted")}
+      </div>
+    );
+  }
+
   if (item.kind === "turn_error") {
     const copy = chatUiCopy(t);
     return (

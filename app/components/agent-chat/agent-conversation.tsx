@@ -12,8 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { runUserAction } from "@/core/errors/report-application-error";
 
-import { ActionTooltip, chatUiCopy, TypingDots } from "./chat-ui";
+import { ActionTooltip, chatUiCopy } from "./chat-ui";
 import { AgentActivity, AgentChatItemView, consecutiveActivityItems } from "./agent-chat-items";
+import { AgentInitialProgress } from "./agent-status-announcer";
 import { CreditBlockedNotice } from "./credit-blocked-notice";
 import { QueuedPrompt } from "./queued-prompt";
 import { UsageRing } from "./usage-ring";
@@ -64,11 +65,7 @@ export const AgentConversationLog = observer(function AgentConversationLog({
           );
         })}
 
-        {store.isAwaitingAssistantResponse && (
-          <div aria-hidden="true" className="flex items-center gap-1 py-1">
-            <TypingDots />
-          </div>
-        )}
+        <AgentInitialProgress />
       </div>
     </MessagesScrollContainer>
   );

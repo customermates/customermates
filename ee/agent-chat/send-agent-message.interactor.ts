@@ -322,7 +322,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         tenant: { userId: user.id, companyId: user.companyId },
         surface: conversation?.origin === "routine" ? "routine" : "chat",
       });
-      await this.repo.recordAgentTurnExternalRun(turnRequestId, externalRunId);
+      await this.repo.recordAgentTurnExternalRun(turnRequestId, runId, externalRunId);
 
       return {
         ok: true as const,

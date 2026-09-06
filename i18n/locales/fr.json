@@ -675,6 +675,7 @@
       "newChat": "Nouvelle discussion",
       "noChats": "Aucun chat pour l’instant",
       "noChatsBody": "Démarrez une discussion pour retrouver plus tard vos questions et le travail effectué.",
+      "preparingAction": "Préparation de la prochaine action…",
       "queued": "À suivre",
       "reconnecting": "Reconnexion à Mate…",
       "refreshHistoryFailed": "L’historique des discussions n’a pas pu être actualisé. Vos discussions existantes restent visibles.",
@@ -684,13 +685,17 @@
       "retryTurn": "Réessayer",
       "routeSyncRefreshing": "Actualisation de la page…",
       "routeSyncWaiting": "La mise à jour de la page attend la fin de vos modifications…",
+      "startingRequest": "Démarrage…",
       "stepsTook": "{steps, plural, one {# étape} other {# étapes}} · {seconds}s",
       "stopping": "Arrêt de Mate…",
       "tableCopied": "Tableau copié",
       "thinking": "Réflexion",
       "turnFailed": "Cette réponse n’a pas pu être terminée.",
+      "turnInterrupted": "La réponse a été interrompue. Des modifications ont peut-être déjà été appliquées. Vérifiez les données actuelles avant d’envoyer une nouvelle demande.",
       "undo": "Annuler",
-      "untitled": "Nouvelle discussion"
+      "untitled": "Nouvelle discussion",
+      "waitElapsed": "{seconds} s écoulées",
+      "workingOnRequest": "Traitement de votre demande…"
     }
   },
   "AgplGithubBadge": {

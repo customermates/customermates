@@ -52,6 +52,8 @@ describe("agent model budget boundary", () => {
     const workflow = readFileSync(`${REPO_ROOT}/workflows/agent-turn.ts`, "utf8");
 
     expect(workflow).toContain("model: payload.turnBudget.modelSpec");
-    expect(workflow).toContain("gateway: { only: [payload.turnBudget.servingProvider] }");
+    expect(workflow).toMatch(
+      /gateway:\s*\{\s*only: \[payload\.turnBudget\.servingProvider\],\s*zeroDataRetention: true,\s*disallowPromptTraining: true,/,
+    );
   });
 });

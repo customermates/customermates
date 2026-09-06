@@ -467,6 +467,9 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
             status: "running",
             runId: args.runId,
             attemptCount: { increment: 1 },
+            externalRunId: null,
+            cancellationRequestedAt: null,
+            heartbeatAt: null,
             terminalAt: null,
             terminalCode: null,
             modelSpec: args.modelSpec,
@@ -703,6 +706,17 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       },
       orderBy: { sequence: "desc" },
       take: AGENT_MESSAGE_PAGE_SIZE + 1,
+      include: {
+        turnRequest: {
+          where: { companyId: this.companyId, userId: this.userId, conversationId },
+          select: {
+            clientRequestId: true,
+            status: true,
+            assistantMessageId: true,
+            terminalCode: true,
+          },
+        },
+      },
     });
     const pageRows = rows.slice(0, AGENT_MESSAGE_PAGE_SIZE);
     const oldest = pageRows.at(-1);
@@ -932,14 +946,15 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     now: Date,
     model: string,
     requireLease: boolean,
+    scope: { companyId: string; userId: string } = { companyId: this.companyId, userId: this.userId },
   ): Promise<"failed" | "uncertain"> {
     const nextStatus = row.providerStartedAt ? "uncertain" : "failed";
     if (nextStatus === "uncertain") {
       const reservation = await this.prisma.agentUsageEvent.findFirst({
         where: {
           turnRequestId: row.id,
-          companyId: this.companyId,
-          userId: this.userId,
+          companyId: scope.companyId,
+          userId: scope.userId,
           state: "reserved",
         },
         select: { id: true, reservedCredits: true },
@@ -948,8 +963,8 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       const settled = await this.prisma.agentUsageEvent.updateMany({
         where: {
           id: reservation.id,
-          companyId: this.companyId,
-          userId: this.userId,
+          companyId: scope.companyId,
+          userId: scope.userId,
           state: "reserved",
         },
         data: {
@@ -966,9 +981,10 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       const released = await this.prisma.agentUsageEvent.updateMany({
         where: {
           turnRequestId: row.id,
-          companyId: this.companyId,
-          userId: this.userId,
+          companyId: scope.companyId,
+          userId: scope.userId,
           state: "reserved",
+          providerStartedAt: null,
         },
         data: { state: "released", chargedCredits: 0, settledAt: now },
       });
@@ -978,8 +994,9 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     const updated = await this.prisma.agentTurnRequest.updateMany({
       where: {
         id: row.id,
-        companyId: this.companyId,
-        userId: this.userId,
+        conversationId: row.conversationId,
+        companyId: scope.companyId,
+        userId: scope.userId,
         runId: row.runId,
         status: "running",
       },
@@ -994,13 +1011,43 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
 
     const deleted = await this.prisma.agentRunLease.deleteMany({
       where: {
-        companyId: this.companyId,
-        userId: this.userId,
+        conversationId: row.conversationId,
+        companyId: scope.companyId,
+        userId: scope.userId,
         runId: row.runId,
       },
     });
     if (requireLease && deleted.count !== 1) throw new Error("Interrupted agent run lease could not be reconciled.");
     return nextStatus;
+  }
+
+  @BypassTenantGuard
+  async reconcileInterruptedAgentTurnUnscoped(args: {
+    turnRequestId: string;
+    conversationId: string;
+    companyId: string;
+    userId: string;
+    runId: string;
+    externalRunId?: string;
+  }): Promise<{ reconciled: boolean }> {
+    return this.withCompanyTransaction(args.companyId, async () => {
+      const turn = await this.prisma.agentTurnRequest.findFirst({
+        where: {
+          id: args.turnRequestId,
+          conversationId: args.conversationId,
+          companyId: args.companyId,
+          userId: args.userId,
+          runId: args.runId,
+          ...(args.externalRunId ? { externalRunId: args.externalRunId } : {}),
+          status: "running",
+        },
+        select: this.agentTurnSelect,
+      });
+      if (!turn) return { reconciled: false };
+
+      await this.settleInterruptedTurn(turn, new Date(), turn.modelSpec ?? "unknown", false, args);
+      return { reconciled: true };
+    });
   }
 
   async normalizeExpiredAgentRunLease(now: Date, model: string) {
@@ -1414,6 +1461,26 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     });
   }
 
+  async findRunningAgentTurnForCancellation(conversationId: string) {
+    return this.prisma.agentTurnRequest.findFirst({
+      where: {
+        conversationId,
+        companyId: this.companyId,
+        userId: this.userId,
+        status: "running",
+        cancellationRequestedAt: { not: null },
+      },
+      select: {
+        id: true,
+        conversationId: true,
+        companyId: true,
+        userId: true,
+        runId: true,
+        externalRunId: true,
+      },
+    });
+  }
+
   async requestAgentTurnCancellation(args: { conversationId: string }): Promise<boolean> {
     const requested = await this.prisma.agentTurnRequest.updateMany({
       where: {
@@ -1449,12 +1516,14 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     return Boolean(turn?.cancellationRequestedAt);
   }
 
-  async recordAgentTurnExternalRun(turnRequestId: string, externalRunId: string): Promise<void> {
+  async recordAgentTurnExternalRun(turnRequestId: string, runId: string, externalRunId: string): Promise<void> {
     await this.prisma.agentTurnRequest.updateMany({
       where: {
         id: turnRequestId,
         companyId: this.companyId,
         userId: this.userId,
+        runId,
+        externalRunId: null,
       },
       data: { externalRunId },
     });

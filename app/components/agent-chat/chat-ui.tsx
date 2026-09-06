@@ -2,6 +2,7 @@
 
 import { observer } from "mobx-react-lite";
 import type { useTranslations } from "next-intl";
+import type { AgentProgressPhase } from "./agent-chat.store";
 
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -17,6 +18,12 @@ export function ActionTooltip({ children, label }: { children: React.ReactNode; 
 }
 
 export type ChatTranslator = ReturnType<typeof useTranslations>;
+
+export function agentProgressLabel(phase: AgentProgressPhase | null, t: ChatTranslator) {
+  if (phase === "starting") return t("AgentChat.ui.startingRequest");
+  if (phase === "preparing_action") return t("AgentChat.ui.preparingAction");
+  return t("AgentChat.ui.workingOnRequest");
+}
 
 export function chatUiCopy(t: ChatTranslator) {
   return {

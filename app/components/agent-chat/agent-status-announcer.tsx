@@ -3,13 +3,14 @@
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import type { AgentChatItem } from "./agent-chat.store";
 
 import { agentActivityCopy } from "@/ee/agent-chat/agent-activity";
 
 import { useAgentChatStore } from "./agent-chat-store-context";
-import { chatUiCopy } from "./chat-ui";
+import { agentProgressLabel, chatUiCopy, TypingDots } from "./chat-ui";
 import { useAgentActivityTerminology } from "./agent-chat-items";
 
 export const AgentStatusAnnouncer = observer(function AgentStatusAnnouncer() {
@@ -31,7 +32,9 @@ export const AgentStatusAnnouncer = observer(function AgentStatusAnnouncer() {
   else if (store.isWorking && latestTurnActivity?.status === "running") {
     const activity = agentActivityCopy(latestTurnActivity.activity, t, terminology);
     status = activity.running;
-  } else if (store.isWorking) status = copy.assistantWorking;
+  } else if (store.isAwaitingAssistantResponse && store.streamStatus === "working")
+    status = agentProgressLabel(store.progressPhase, t);
+  else if (store.isWorking) status = copy.assistantWorking;
   else if (store.routeSyncStatus === "refreshing") status = copy.routeSyncRefreshing;
   else if (store.routeSyncStatus === "waiting") status = copy.routeSyncWaiting;
   else if (store.streamStatus === "finalizing") status = copy.finalizing;
@@ -49,6 +52,43 @@ export const AgentStatusAnnouncer = observer(function AgentStatusAnnouncer() {
     <span aria-atomic="true" aria-live="polite" className="sr-only" role="status">
       {status}
     </span>
+  );
+});
+
+export const AgentInitialProgress = observer(function AgentInitialProgress() {
+  const store = useAgentChatStore();
+  const t = useTranslations();
+  const startedAt = store.progressStartedAt;
+  const [clock, setClock] = useState<{
+    startedAt: number;
+    seconds: number;
+  } | null>(null);
+  const visible = store.isAwaitingAssistantResponse && store.streamStatus === "working" && store.progressPhase !== null;
+
+  useEffect(() => {
+    if (!visible || startedAt === null) return;
+    const timer = setInterval(() => {
+      setClock({
+        startedAt,
+        seconds: Math.max(0, Math.floor((Date.now() - startedAt) / 1000)),
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [visible, startedAt]);
+
+  if (!visible) return null;
+  const seconds = clock?.startedAt === startedAt ? (clock?.seconds ?? 0) : 0;
+
+  return (
+    <div className="flex items-center gap-2 py-1 text-xs text-muted-foreground" data-testid="agent-initial-progress">
+      <span aria-hidden="true">
+        <TypingDots />
+      </span>
+
+      <span>{agentProgressLabel(store.progressPhase, t)}</span>
+
+      {seconds >= 5 && <span className="tabular-nums">{t("AgentChat.ui.waitElapsed", { seconds })}</span>}
+    </div>
   );
 });
 
@@ -74,7 +114,7 @@ export const AgentProgressStatus = observer(function AgentProgressStatus() {
 
   return (
     <div className="flex items-center gap-2 px-4 py-1 text-xs text-muted-foreground">
-      <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
+      <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" />
 
       <span>{label}</span>
     </div>

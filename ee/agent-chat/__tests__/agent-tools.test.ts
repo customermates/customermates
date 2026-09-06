@@ -46,6 +46,7 @@ import {
   hasNonTransactionalEffect,
   getAgentAiToolDefinitions,
   getAgentAiTools,
+  normalizeAgentAiToolInput,
   isAgentToolCancellation,
   type AgentToolDeps,
 } from "../agent-tools";
@@ -409,6 +410,93 @@ describe("agent tools", () => {
     expect(result).toEqual({
       success: true,
       value: { query: "contacts", locale: "en", source: "docs" },
+    });
+  });
+
+  it.each([
+    ["list_users", { searchTerm: "Sofia" }, { searchTerm: "Sofia", page: 1, pageSize: 100 }],
+    [
+      "list_users",
+      { searchTerm: "Sofia", page: "2", pageSize: " 10 " },
+      { searchTerm: "Sofia", page: 2, pageSize: 10 },
+    ],
+    ["list_records", { entity: "contact" }, { entity: "contact", page: 1, pageSize: 10 }],
+    [
+      "get_records",
+      { items: [{ entity: "contact", id: "record-1" }] },
+      { items: [{ entity: "contact", id: "record-1", include: "masterData" }] },
+    ],
+    ["search_docs", { query: "contacts" }, { query: "contacts", locale: "en", source: "docs" }],
+  ])("restores authoritative defaults and coercions for durable %s input", async (name, input, expected) => {
+    const serialized = JSON.parse(JSON.stringify(input));
+    await expect(normalizeAgentAiToolInput(name, serialized, 6000)).resolves.toEqual({
+      ok: true,
+      input: expected,
+    });
+    expect(serialized).toEqual(input);
+  });
+
+  it("applies panel refinements and transforms before a command can be emitted", async () => {
+    await expect(normalizeAgentAiToolInput("navigate", {}, 6000)).resolves.toMatchObject({ ok: false });
+    await expect(
+      normalizeAgentAiToolInput(
+        "start_tour",
+        {
+          steps: [
+            { targetId: "nav-contacts", note: " Contacts " },
+            { targetId: "contacts-add", note: " Add " },
+          ],
+        },
+        6000,
+      ),
+    ).resolves.toEqual({
+      ok: true,
+      input: {
+        steps: [
+          { targetId: "nav-contacts", note: "Contacts" },
+          { targetId: "contacts-add", note: "Add" },
+        ],
+      },
+    });
+    await expect(
+      normalizeAgentAiToolInput(
+        "start_tour",
+        {
+          steps: [
+            { targetId: "nav-contacts", note: "   " },
+            { targetId: "contacts-add", note: " Add " },
+          ],
+        },
+        6000,
+      ),
+    ).resolves.toMatchObject({ ok: false });
+  });
+
+  it.each(["not-a-tool", "__proto__", "constructor"])("rejects unknown tool identity %s", async (name) => {
+    await expect(normalizeAgentAiToolInput(name, {}, 6000)).resolves.toEqual({
+      ok: false,
+      result: "The requested tool is not available.",
+    });
+  });
+
+  it("returns bounded validation failures without executing a mutation", async () => {
+    const target = ALL_MCP_TOOLS.find((item) => item.name === "create_contacts");
+    if (!target) throw new Error("Missing create_contacts tool.");
+    const mutation = vi.spyOn(target, "execute");
+    const result = await normalizeAgentAiToolInput("create_contacts", { contacts: [{ firstName: "Only" }] }, 32);
+
+    expect(result).toMatchObject({ ok: false });
+    if (result.ok) throw new Error("Invalid tool input passed.");
+    expect(result.result.length).toBeLessThanOrEqual(32);
+    expect(mutation).not.toHaveBeenCalled();
+    mutation.mockRestore();
+  });
+
+  it("rejects a nonblank-text refinement before a write can execute", async () => {
+    await expect(
+      normalizeAgentAiToolInput("create_contacts", { contacts: [{ firstName: "   ", lastName: "Test" }] }, 6000),
+    ).resolves.toMatchObject({
+      ok: false,
     });
   });
 

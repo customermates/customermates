@@ -459,6 +459,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         status: "running",
         runId: "run-2",
         attemptCount: { increment: 1 },
+        externalRunId: null,
+        cancellationRequestedAt: null,
+        heartbeatAt: null,
         terminalAt: null,
         terminalCode: null,
         modelSpec: "openai/gpt-5.6-luna",
@@ -720,6 +723,17 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       },
       orderBy: { sequence: "desc" },
       take: 51,
+      include: {
+        turnRequest: {
+          where: { companyId: user.companyId, userId: user.id, conversationId: "conversation-1" },
+          select: {
+            clientRequestId: true,
+            status: true,
+            assistantMessageId: true,
+            terminalCode: true,
+          },
+        },
+      },
     });
   });
 
@@ -1632,6 +1646,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         companyId: user.companyId,
         userId: user.id,
         state: "reserved",
+        providerStartedAt: null,
       },
       data: { state: "released", chargedCredits: 0, settledAt: now },
     });
