@@ -169,6 +169,21 @@ describe("display options", () => {
     expect(html).not.toContain('disabled=""');
   });
 
+  it("draws each layout as a labelled card rather than a bare icon", () => {
+    const html = render(store(), "deals");
+
+    expect(html).toContain("Common.table.layouts.table");
+    expect(html).toContain("Common.table.layouts.board");
+    expect(html).toContain("grid-cols-2");
+    for (const id of ["deals-layout-table", "deals-layout-board"]) {
+      const trigger = html.match(new RegExp(`<button[^>]*id="${id}"[^>]*>`))?.[0] ?? "";
+
+      expect(trigger, id).toContain("min-h-16");
+      expect(trigger, id).toContain("flex-col");
+      expect(trigger, id).toContain("data-[state=active]:border-primary/60");
+    }
+  });
+
   it("disables the board control when the store cannot board", () => {
     const html = render(store({ canBoard: false }), "company-roles");
 

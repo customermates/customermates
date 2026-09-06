@@ -1396,6 +1396,10 @@
       },
       "groupBy": "Raggruppa per",
       "layout": "Disposizione",
+      "layouts": {
+        "board": "Board",
+        "table": "Tabella"
+      },
       "nextPage": "Pagina successiva",
       "paginationEmpty": "0 di 0",
       "paginationRange": "{from}-{to} di {total}",
@@ -1764,6 +1768,7 @@
     "resizeColumn": "Ridimensiona la colonna «{column}». Trascina o usa i tasti freccia; tocca due volte o premi Invio per ripristinare.",
     "resizeHint": "Trascina per ridimensionare. Fai doppio clic per ripristinare.",
     "selectAllRows": "Seleziona tutte le righe",
+    "selectGroup": "Seleziona il gruppo {group}",
     "selectRow": "Seleziona la riga {id}",
     "views": {
       "all": "Tutte",

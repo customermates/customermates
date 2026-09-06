@@ -1396,6 +1396,10 @@
       },
       "groupBy": "Gruppieren nach",
       "layout": "Ansicht",
+      "layouts": {
+        "board": "Board",
+        "table": "Tabelle"
+      },
       "nextPage": "Nächste Seite",
       "paginationEmpty": "0 von 0",
       "paginationRange": "{from}-{to} von {total}",
@@ -1764,6 +1768,7 @@
     "resizeColumn": "Größe der Spalte „{column}“ ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
     "resizeHint": "Zum Ändern der Größe ziehen. Zum Zurücksetzen doppelklicken.",
     "selectAllRows": "Alle Zeilen auswählen",
+    "selectGroup": "Gruppe {group} auswählen",
     "selectRow": "Zeile {id} auswählen",
     "views": {
       "all": "Alle",

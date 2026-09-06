@@ -66,6 +66,7 @@ export interface GetResult<T> {
   valueSums?: GroupValueSums;
   views?: DataViewChipDto[];
   activeViewKey?: string;
+  allState?: DataViewState;
   viewPersistable?: boolean;
 }
 
@@ -127,6 +128,7 @@ type ViewContext = {
   views: DataViewChipDto[];
   view: DataViewChipDto | undefined;
   base: DataViewState | undefined;
+  allState: DataViewState;
 };
 
 export abstract class BaseGetInteractor<T> {
@@ -248,6 +250,7 @@ export abstract class BaseGetInteractor<T> {
       views: surface.views,
       view,
       base: view ? view.state : surface.allState,
+      allState: surface.allState,
     };
   }
 
@@ -378,6 +381,7 @@ function emptyViewContext(): ViewContext {
     views: [],
     view: undefined,
     base: undefined,
+    allState: {},
   };
 }
 
@@ -425,6 +429,7 @@ function viewResult(resolved: ResolvedDataViewState, context: ViewContext) {
     viewMode: resolved.viewMode,
     views: context.views,
     activeViewKey: context.activeViewKey,
+    allState: context.allState,
     viewPersistable: env.APP_MODE !== "demo",
   };
 }

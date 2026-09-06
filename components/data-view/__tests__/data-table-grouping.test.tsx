@@ -203,6 +203,25 @@ describe("grouped table rows", () => {
     expect(setGroupSelection).toHaveBeenCalledWith("won", true);
   });
 
+  it("paints the group header with the muted wash in every state, never the selection wash", () => {
+    const header = render(store()).querySelector('[data-slot="group-header-row"]') as HTMLTableRowElement;
+
+    expect(header.className).toContain("has-aria-expanded:bg-muted/40");
+    expect(header.className).not.toContain("has-aria-expanded:bg-selected");
+    expect(header.getAttribute("data-state")).toBeNull();
+    expect(header.querySelector('[data-slot="group-disclosure"]')?.getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("leads the group header with its checkbox so it aligns with the record rows", () => {
+    const cell = render(store()).querySelector('[data-slot="group-header-row"] td > div') as HTMLDivElement;
+    const first = cell.firstElementChild as HTMLElement;
+
+    expect(first.getAttribute("role")).toBe("checkbox");
+    expect(first.className).not.toContain("translate-y-0.5");
+    expect(first.getAttribute("aria-label")).toBe("DataView.selectGroup:New");
+    expect((cell.children[1] as HTMLElement).dataset.slot).toBe("group-disclosure");
+  });
+
   it("keeps the resize contract intact under grouping", () => {
     const source = readFileSync(resolve(process.cwd(), "components/data-view/data-table.tsx"), "utf8");
 

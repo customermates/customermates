@@ -178,6 +178,7 @@ export const GroupingResultFields = {
 export const DataViewResultFields = {
   views: z.array(z.any()).optional(),
   activeViewKey: z.string().optional(),
+  allState: z.any().optional(),
   viewPersistable: z.boolean().optional(),
 };
 

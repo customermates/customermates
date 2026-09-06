@@ -830,7 +830,7 @@
       "hidePassword": "Masquer le mot de passe",
       "selectOption": "Sélectionner une option",
       "showPassword": "Afficher le mot de passe",
-      "switchToBoardView": "Passer à la vue kanban",
+      "switchToBoardView": "Passer à la vue board",
       "switchToBoardViewDisabled": "Cette liste ne contient aucun champ de regroupement",
       "switchToTableView": "Passer à la vue tableau",
       "themeSwitcher": "Sélecteur de thème",
@@ -1396,6 +1396,10 @@
       },
       "groupBy": "Grouper par",
       "layout": "Disposition",
+      "layouts": {
+        "board": "Board",
+        "table": "Tableau"
+      },
       "nextPage": "Page suivante",
       "paginationEmpty": "0 sur 0",
       "paginationRange": "{from}-{to} sur {total}",
@@ -1752,8 +1756,8 @@
     "board": {
       "chooseField": "Regrouper par champ",
       "createField": "Créer un champ à choix unique",
-      "promptBody": "Choisissez un champ de regroupement. Chaque valeur devient une colonne du kanban.",
-      "promptTitle": "Choisissez comment regrouper ce kanban"
+      "promptBody": "Choisissez un champ de regroupement. Chaque valeur devient une colonne du board.",
+      "promptTitle": "Choisissez comment regrouper ce board"
     },
     "collapseGroup": "Réduire le groupe {group}",
     "dragToReorder": "Faire glisser pour réorganiser",
@@ -1764,6 +1768,7 @@
     "resizeColumn": "Redimensionnez la colonne « {column} ». Faites glisser ou utilisez les touches fléchées ; touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
     "resizeHint": "Faites glisser pour redimensionner. Double-cliquez pour réinitialiser.",
     "selectAllRows": "Sélectionner toutes les lignes",
+    "selectGroup": "Sélectionner le groupe {group}",
     "selectRow": "Sélectionner la ligne {id}",
     "views": {
       "all": "Toutes",

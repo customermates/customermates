@@ -286,6 +286,12 @@ describe("data view rail interaction", () => {
     expect(draft?.className).toContain("border-dashed");
     expect(draft?.className).toContain("border-input");
     expect(draft?.className).not.toContain("border-border");
+    expect(draft?.className).toContain("h-7");
+    expect(draft?.className).toContain("rounded-full");
+    expect(draft?.className).toContain("px-2.5");
+    expect(draft?.className).toContain("bg-transparent");
+    expect(draft?.className).not.toContain("bg-muted/50");
+    expect(draft?.className).not.toContain("rounded-md");
     expect(chips(host)).toHaveLength(4);
 
     const input = host.querySelector<HTMLInputElement>("#view-editor-name");

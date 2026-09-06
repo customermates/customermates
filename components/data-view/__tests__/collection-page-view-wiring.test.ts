@@ -391,6 +391,11 @@ describe("migrated collection page wiring", () => {
         request: { status: "uninitialized" },
       },
       {
+        expected: 'data-page-state="loading"',
+        items: [{ id: "row" }],
+        request: { status: "refreshing" },
+      },
+      {
         expected: 'data-page-state="error"',
         request: { status: "refresh-error", error: new Error("failed") },
       },
@@ -456,6 +461,20 @@ describe("migrated collection page wiring", () => {
     expectOnlyTransferButtons(readOnlyHtml);
     expectOnlyTransferButtons(readOnlyTopBar);
     expect(readOnlyTopBar.includes("data-transfer-menu")).toBe(TRANSFERABLE_VIEWS.has(fixture.name));
+  });
+
+  it("keeps the board and its grouping prompt off screen while a view switch is in flight", () => {
+    const item = { id: "row" };
+    const value = store([item]);
+    value.dataRequest = { status: "refreshing" } as never;
+    value.viewMode = ViewMode.card;
+    (value as unknown as { canBoard: boolean }).canBoard = true;
+    const html = fixtures.find(({ name }) => name === "Deals")?.render(value, result([item])) ?? "";
+
+    expect(html).toContain('data-page-state="loading"');
+    expect(html).toContain('data-skeleton-view="board"');
+    expect(html).not.toContain('data-data-view-content="true"');
+    expect(harness.contentProps).not.toHaveBeenCalled();
   });
 
   it("keeps Roles off URL sync and makes its rejected retry caller-safe", () => {

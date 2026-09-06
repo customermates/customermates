@@ -7,7 +7,7 @@ import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store"
 import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ArrowDownAZ, ArrowUpAZ, GripVertical, LayoutList, SlidersHorizontal, Table } from "lucide-react";
+import { ArrowDownAZ, ArrowUpAZ, GripVertical, SlidersHorizontal } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
@@ -25,9 +25,13 @@ import { useColumnLabel } from "@/components/entity-terminology/use-column-label
 import { useGroupableFieldLabel } from "@/components/data-view/use-groupable-field-label";
 import { cn } from "@/core/utils/cn";
 
+import { LayoutIllustration } from "./layout-illustration";
 import { PopoverSection as Section } from "./popover-section";
 
 type DataViewMode = "table" | "board";
+
+const LAYOUT_CARD_CLASS =
+  "interactive-surface h-auto min-h-16 w-full flex-col items-center gap-1.5 rounded-md border border-input bg-input-background px-2 py-2.5 shadow-xs data-[state=active]:border-primary/60";
 
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
@@ -198,17 +202,22 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
         <div className="flex flex-col">
           <Section label={t("Common.table.layout")}>
             <Tabs value={currentLayout} onValueChange={handleLayoutChange}>
-              <TabsList className="w-full" variant="segmented">
+              <TabsList
+                className="grid h-auto w-full grid-cols-2 gap-1.5 border-0 bg-transparent p-0 shadow-none group-data-[orientation=horizontal]/tabs:h-auto"
+                variant="segmented"
+              >
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className="flex-1">
+                    <span className="block min-w-0">
                       <TabsTrigger
                         aria-label={t("Common.ariaLabels.switchToTableView")}
-                        className="w-full"
+                        className={LAYOUT_CARD_CLASS}
                         id={anchorScope ? `${anchorScope}-layout-table` : undefined}
                         value="table"
                       >
-                        <Table className="size-3.5" />
+                        <LayoutIllustration layout="table" />
+
+                        <span className="text-xs font-medium">{t("Common.table.layouts.table")}</span>
                       </TabsTrigger>
                     </span>
                   </TooltipTrigger>
@@ -218,15 +227,17 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
 
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className="flex-1">
+                    <span className="block min-w-0">
                       <TabsTrigger
                         aria-label={t("Common.ariaLabels.switchToBoardView")}
-                        className="w-full"
+                        className={LAYOUT_CARD_CLASS}
                         disabled={!canBoard}
                         id={anchorScope ? `${anchorScope}-layout-board` : undefined}
                         value="board"
                       >
-                        <LayoutList className="size-3.5" />
+                        <LayoutIllustration layout="board" />
+
+                        <span className="text-xs font-medium">{t("Common.table.layouts.board")}</span>
                       </TabsTrigger>
                     </span>
                   </TooltipTrigger>

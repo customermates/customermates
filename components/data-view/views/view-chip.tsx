@@ -8,7 +8,8 @@ import { cn } from "@/core/utils/cn";
 
 export const VIEW_TAB_CLASS = cn(
   buttonVariants({ variant: "ghost", size: "sm" }),
-  "max-w-36 flex-none text-muted-foreground sm:max-w-56",
+  "h-7 max-w-36 flex-none rounded-full px-2.5 text-xs font-medium sm:max-w-56",
+  "border border-border bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground",
 );
 
 type Props = {
@@ -28,7 +29,10 @@ export function ViewChip({ href, id, isActive, label, preview, tabIndex, onKeyDo
       <TooltipTrigger asChild>
         <a
           aria-current={isActive ? "page" : undefined}
-          className={cn(VIEW_TAB_CLASS, isActive && "bg-selected text-foreground hover:bg-selected")}
+          className={cn(
+            VIEW_TAB_CLASS,
+            isActive && "border-border-strong bg-selected text-foreground hover:bg-selected",
+          )}
           data-view-chip=""
           href={href}
           id={id}

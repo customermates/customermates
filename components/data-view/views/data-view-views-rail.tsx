@@ -111,7 +111,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
           className="min-w-0 flex-1"
           focusable={false}
           observedKey={chips.length}
-          railClassName="items-center gap-1 py-2"
+          railClassName="items-center gap-1 py-2.5"
           railProps={{
             "aria-label": t("DataView.views.railLabel"),
             "aria-orientation": "horizontal",
@@ -120,7 +120,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
           }}
         >
           {!store.isReady &&
-            [0, 1, 2].map((index) => <Skeleton key={index} className="h-8 w-20 shrink-0 rounded-md" />)}
+            [0, 1, 2].map((index) => <Skeleton key={index} className="h-7 w-20 shrink-0 rounded-full" />)}
 
           {store.isReady &&
             chips.map((chip, index) => {
@@ -159,7 +159,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
               aria-hidden
               className={cn(
                 VIEW_TAB_CLASS,
-                "border border-dashed border-input text-muted-foreground hover:bg-transparent",
+                "border-dashed border-input bg-transparent text-muted-foreground hover:bg-transparent",
               )}
               data-view-draft=""
             >
@@ -175,6 +175,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
               trigger={
                 <Button
                   aria-label={t("DataView.views.createTitle")}
+                  className="size-7 rounded-full"
                   id="global-data-views-new"
                   size="icon-sm"
                   variant="ghost"
@@ -193,7 +194,13 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
       {store.isReady && canWriteViews && activeView && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button aria-label={t("DataView.views.menu")} id="global-data-views-menu" size="icon-sm" variant="ghost">
+            <Button
+              aria-label={t("DataView.views.menu")}
+              className="size-7 rounded-full"
+              id="global-data-views-menu"
+              size="icon-sm"
+              variant="ghost"
+            >
               <ChevronDownIcon aria-hidden />
             </Button>
           </DropdownMenuTrigger>

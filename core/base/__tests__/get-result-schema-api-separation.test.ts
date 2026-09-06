@@ -12,6 +12,7 @@ const resultCarryingViewFields = {
   items: [{ id: "one" }],
   views: [{ id: "a", name: "Hot leads" }],
   activeViewKey: "__all__",
+  allState: { viewMode: "card" },
   viewPersistable: true,
 };
 
@@ -32,6 +33,7 @@ describe("the documented REST result schema stays free of data view state", () =
     const parsed = createGetResultSchema(ItemSchema).parse(resultCarryingViewFields);
 
     expect(DATA_VIEW_KEYS.filter((key) => key in parsed).sort()).toEqual([...DATA_VIEW_KEYS].sort());
+    expect(parsed.allState).toEqual({ viewMode: "card" });
   });
 
   it("keeps the same separation on the two activity result schemas", () => {

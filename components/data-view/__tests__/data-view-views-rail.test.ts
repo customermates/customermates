@@ -4,6 +4,8 @@ import type { DataViewChipDto } from "@/core/data-view/data-view-state.schema";
 
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
@@ -127,13 +129,58 @@ describe("data view rail", () => {
     expect(selected[0]).not.toContain("text-muted-foreground");
     expect(tabs(html).filter((tab) => tab.includes("text-muted-foreground"))).toHaveLength(3);
     expect(selected[0]).toContain("hover:bg-selected");
-    expect(selected[0]).not.toContain("hover:bg-accent");
+    expect(selected[0]).not.toContain("hover:bg-muted");
     const unselected = tabs(html).filter((tab) => !tab.includes("bg-selected"));
     expect(unselected).toHaveLength(3);
-    expect(unselected.every((tab) => tab.includes("hover:bg-accent"))).toBe(true);
-    expect(html).not.toContain("bg-muted");
+    expect(unselected.every((tab) => tab.includes("bg-muted/50"))).toBe(true);
+    expect(unselected.every((tab) => tab.includes("hover:bg-muted hover:text-foreground"))).toBe(true);
+    expect(unselected.every((tab) => !tab.includes("hover:bg-accent"))).toBe(true);
+    expect(selected[0]).toContain("border-border-strong");
     expect(html).not.toContain("bg-foreground/10");
     expect(html).not.toContain('data-slot="badge"');
+  });
+
+  it("gives every tab the pill geometry and a visible boundary", () => {
+    const html = render(store({ activeViewKey: "v-b", views: THREE_VIEWS }));
+
+    expect(tabs(html)).toHaveLength(4);
+    for (const tab of tabs(html)) {
+      expect(tab).toContain("h-7");
+      expect(tab).toContain("rounded-full");
+      expect(tab).toContain("px-2.5");
+      expect(tab).toContain("text-xs");
+      expect(tab).toContain("border ");
+      expect(tab).not.toContain("h-8");
+      expect(tab).not.toContain("rounded-md");
+    }
+  });
+
+  it("sizes the rail icon controls like the tabs and leaves them transparent at rest", () => {
+    const html = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
+
+    for (const id of ["global-data-views-new", "global-data-views-menu"]) {
+      const control = html.match(new RegExp(`<button[^>]*id="${id}"[^>]*>`))?.[0] ?? "";
+
+      expect(control, id).toContain("size-7");
+      expect(control, id).toContain("rounded-full");
+      expect(control, id).not.toContain("size-8");
+      expect(control, id).not.toContain("bg-muted");
+    }
+  });
+
+  it("keeps the rail 48px tall so it still lines up with the mass actions bar", () => {
+    const html = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
+    const items = html.match(/<[^>]*data-data-view-rail-items[^>]*>/)?.[0] ?? "";
+
+    expect(items).toContain("py-2.5");
+    expect(tabs(html).every((tab) => tab.includes("h-7"))).toBe(true);
+
+    const massActionsBar = readFileSync(resolve(process.cwd(), "components/data-view/mass-actions-bar.tsx"), "utf8");
+    const bar = massActionsBar.match(/<div className="([^"]*border-b border-border[^"]*)"/)?.[1] ?? "";
+
+    expect(bar).toContain("py-2");
+    expect(bar).not.toContain("py-2.5");
+    expect(massActionsBar).toContain('className="h-8"');
   });
 
   it("renders every tab as a real link to its own view url", () => {
@@ -211,7 +258,8 @@ describe("data view rail", () => {
     const html = render(store({ isReady: false, views: THREE_VIEWS }));
 
     expect(countOf(html, 'data-slot="skeleton"')).toBe(3);
-    expect(countOf(html, "h-8 w-20")).toBe(3);
+    expect(countOf(html, "h-7 w-20")).toBe(3);
+    expect(countOf(html, "rounded-full")).toBe(3);
     expect(tabs(html)).toHaveLength(0);
     expect(html).not.toContain('id="global-data-views-new"');
     expect(html).toContain('id="global-data-views"');

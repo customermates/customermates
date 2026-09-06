@@ -177,6 +177,12 @@ describe("a GET never persists what the user is looking at", () => {
     expect(touched).toEqual(["loadSurfaceState"]);
   });
 
+  it("carries the personal All tab state alongside a named view so the client can switch back without a blank frame", async () => {
+    const { data } = await invokeWith({ p13nId: "contacts-card-store", viewId: A_VIEW_ID });
+
+    expect(data.allState).toEqual(allState);
+  });
+
   it("degrades an unreadable view id to the All chip without writing the correction back", async () => {
     const { data, touched } = await invokeWith({
       p13nId: "contacts-card-store",

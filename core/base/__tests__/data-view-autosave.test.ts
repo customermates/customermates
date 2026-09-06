@@ -45,6 +45,7 @@ const VIEW: DataViewChipDto = {
 
 class TestStore extends BaseDataViewStore<Item> {
   requestedParams: (GetQueryParams | undefined)[] = [];
+  nextRefresh?: () => Promise<GetResult<Item>>;
 
   get columnsDefinition() {
     return [{ uid: "name" }, { uid: "stage" }];
@@ -52,8 +53,17 @@ class TestStore extends BaseDataViewStore<Item> {
 
   protected refreshAction(params?: GetQueryParams): Promise<GetResult<Item>> {
     this.requestedParams.push(params);
-    return Promise.resolve(serverEcho(params));
+    return this.nextRefresh ? this.nextRefresh() : Promise.resolve(serverEcho(params));
   }
+}
+
+function deferred<T>(): { promise: Promise<T>; resolve: (value: T) => void } {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((res) => {
+    resolve = res;
+  });
+
+  return { promise, resolve };
 }
 
 let echoPersistable = true;
@@ -147,6 +157,22 @@ describe("data view autosave", () => {
     });
   });
 
+  it("remembers a written All tab state so switching back to All applies it instead of defaults", async () => {
+    const store = hydrated();
+
+    store.setQueryOptions({ filters: [filter("open")], searchTerm: "acme" });
+    await vi.advanceTimersByTimeAsync(1000);
+
+    store.applyView(VIEW_ID);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(store.filters).toEqual([filter("open")]);
+
+    store.applyView(ALL_VIEW_KEY);
+
+    expect(store.filters).toEqual([filter("open")]);
+    expect(store.searchTerm).toBe("acme");
+  });
+
   it("writes into the active saved view once one is applied", async () => {
     const store = hydrated();
 
@@ -188,6 +214,98 @@ describe("data view autosave", () => {
 
     expect(saveDataViewStateAction).toHaveBeenCalledTimes(1);
     expect(store.requestedParams.at(-1)).toMatchObject({ viewId: ALL_VIEW_KEY });
+  });
+
+  it("asks the server for the incoming view without waiting for the write into the view being left", async () => {
+    const store = hydrated();
+    store.applyView(VIEW_ID);
+    await vi.advanceTimersByTimeAsync(0);
+
+    store.setQueryOptions({ filters: [filter("won")] });
+    await vi.advanceTimersByTimeAsync(500);
+    store.requestedParams = [];
+
+    store.applyView(ALL_VIEW_KEY);
+
+    expect(store.dataRequest).toEqual({ status: "refreshing" });
+    expect(store.requestedParams).toEqual([{ p13nId: SURFACE.tasks, viewId: ALL_VIEW_KEY }]);
+  });
+
+  it("shows the loading state at once while a write into the same view is flushed first", async () => {
+    const store = hydrated();
+    store.applyView(VIEW_ID);
+    await vi.advanceTimersByTimeAsync(0);
+
+    store.setQueryOptions({ filters: [filter("won")] });
+    await vi.advanceTimersByTimeAsync(500);
+    store.requestedParams = [];
+
+    store.applyView(VIEW_ID);
+
+    expect(store.dataRequest).toEqual({ status: "refreshing" });
+    expect(store.requestedParams).toEqual([]);
+
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(store.requestedParams).toEqual([{ p13nId: SURFACE.tasks, viewId: VIEW_ID }]);
+    expect(store.dataRequest).toEqual({ status: "ready" });
+  });
+
+  it("discards a response from before the switch while the pending write is still flushing", async () => {
+    const store = hydrated();
+    store.applyView(VIEW_ID);
+    await vi.advanceTimersByTimeAsync(0);
+
+    const inFlight = deferred<GetResult<Item>>();
+    store.nextRefresh = () => inFlight.promise;
+    store.setQueryOptions({ filters: [filter("won")] });
+
+    const save = deferred<{ ok: true; data: { viewKey: string } }>();
+    saveDataViewStateAction.mockReturnValue(save.promise);
+    await vi.advanceTimersByTimeAsync(500);
+
+    store.applyView(VIEW_ID);
+    store.nextRefresh = () => deferred<GetResult<Item>>().promise;
+
+    inFlight.resolve(serverEcho({ viewId: VIEW_ID, filters: [filter("won")] }));
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(store.dataRequest).toEqual({ status: "refreshing" });
+    expect(store.filters).toEqual([filter("open")]);
+  });
+
+  it("keeps a locally written All snapshot when a response computed before that write lands after it", async () => {
+    const store = hydrated();
+    const pending = deferred<GetResult<Item>>();
+    store.nextRefresh = () => pending.promise;
+
+    store.setQueryOptions({ filters: [filter("open")], searchTerm: "acme" });
+    await vi.advanceTimersByTimeAsync(1000);
+
+    expect(store.allViewState).toMatchObject({ filters: [filter("open")], searchTerm: "acme" });
+
+    pending.resolve({ ...serverEcho({ viewId: ALL_VIEW_KEY }), allState: {} });
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(store.allViewState).toMatchObject({ filters: [filter("open")], searchTerm: "acme" });
+  });
+
+  it("keeps a locally written saved view snapshot when a response computed before that write lands after it", async () => {
+    const store = hydrated();
+    store.applyView(VIEW_ID);
+    await vi.advanceTimersByTimeAsync(0);
+
+    const pending = deferred<GetResult<Item>>();
+    store.nextRefresh = () => pending.promise;
+    store.setQueryOptions({ filters: [filter("won")] });
+    await vi.advanceTimersByTimeAsync(1000);
+
+    expect(store.views[0].state).toMatchObject({ filters: [filter("won")] });
+
+    pending.resolve(serverEcho({ p13nId: SURFACE.tasks, viewId: VIEW_ID }));
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(store.views[0].state).toMatchObject({ filters: [filter("won")] });
   });
 
   it("drops a pending write when the caller discards it", async () => {

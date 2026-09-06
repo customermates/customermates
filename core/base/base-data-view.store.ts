@@ -85,6 +85,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   columnWidths: Record<string, number> = {};
   hiddenColumns: string[] = [];
   views: DataViewChipDto[] = [];
+  allViewState: DataViewState = {};
   activeViewKey: string = ALL_VIEW_KEY;
   viewPersistable = true;
   viewMode: ViewMode = ViewMode.table;
@@ -106,6 +107,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   private persistViewStateTimer?: number;
   private pendingGroupOnly?: string;
   private requestGeneration = 0;
+  private viewStateWrites = new Map<string, number>();
+  private viewStateWriteSeq = 0;
   private backgroundRefreshRunning = false;
   private backgroundRefreshQueued = false;
   private requestState: DataViewRequestState = { status: "uninitialized" };
@@ -138,6 +141,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       columnOrder: observable,
       columnWidths: observable,
       views: observable,
+      allViewState: observable,
       activeViewKey: observable,
       viewPersistable: observable,
       viewMode: observable,
@@ -572,6 +576,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.groupingResult = args.grouping;
     this.groupableFields = args.groupableFields ?? [];
     this.views = args.views ?? [];
+    this.allViewState = args.allState ?? this.allViewState;
     this.activeViewKey = args.activeViewKey ?? ALL_VIEW_KEY;
     this.viewPersistable = args.viewPersistable ?? true;
     this.groupCounts = args.groupCounts ?? {};
@@ -881,12 +886,15 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   };
 
   applyView = (viewKey: string): void => {
+    const previousKey = this.activeViewKey;
     const flushed = this.flushPendingViewState();
     const chip = this.views.find((view) => view.id === viewKey);
     const key = chip ? chip.id : ALL_VIEW_KEY;
-    const state: DataViewState = chip?.state ?? {};
+    const state: DataViewState = chip?.state ?? this.allViewState;
 
     runInAction(() => {
+      this.requestGeneration += 1;
+      if (this.isReady) this.requestState = { status: "refreshing" };
       this.activeViewKey = key;
       this.filters = this.withKnownFields(state.filters);
       this.searchTerm = state.searchTerm;
@@ -896,7 +904,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       this.columnOrder = (state.columnOrder ?? []).filter((uid) => uid !== "name");
       this.columnWidths = state.columnWidths ?? {};
       this.hiddenColumns = (state.hiddenColumns ?? []).filter((uid) => uid !== "name");
-      this.pagination = this.pagination ? { ...this.pagination, page: 1 } : this.pagination;
+      this.pagination = this.pagination
+        ? { ...this.pagination, page: 1, pageSize: state.pageSize ?? this.pagination.pageSize }
+        : this.pagination;
       this.groupedTakeOverrides = {};
       this.collapsedGroupKeys.clear();
     });
@@ -907,7 +917,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       );
     }
 
-    if (flushed) void flushed.then(this.refreshResolvedInBackground);
+    if (flushed && key === previousKey) void flushed.then(this.refreshResolvedInBackground);
     else this.refreshResolvedInBackground();
   };
 
@@ -940,6 +950,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   ): Promise<void> => {
     const generation = ++this.requestGeneration;
     const wasInitialized = this.isReady;
+    const writeSeqBeforeRequest = this.viewStateWriteSeq;
     const groupPage = this.buildGroupPageRequest();
     const params: GetQueryParams = resolveFromServer
       ? {
@@ -996,7 +1007,11 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     if (discardIfStale()) return;
 
     runInAction(() => {
+      const localAllState = this.allViewState;
+      const localViews = this.views;
+
       this.setItems(result);
+      this.restoreViewStateWrittenDuringRequest(writeSeqBeforeRequest, localAllState, localViews);
     });
   };
 
@@ -1078,7 +1093,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   };
 
   private refreshResolvedInBackground = (): void => {
-    void this.executeRefresh("background", undefined, true).catch(() => undefined);
+    void this.executeRefresh(this.isReady ? "visible" : "background", undefined, true).catch(() => undefined);
   };
 
   refreshInBackground = (): void => {
@@ -1170,8 +1185,34 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   private rememberViewState = (viewKey: string, state: DataViewState): void => {
     runInAction(() => {
+      this.viewStateWriteSeq += 1;
+      this.viewStateWrites.set(viewKey, this.viewStateWriteSeq);
+
+      if (viewKey === ALL_VIEW_KEY) {
+        this.allViewState = state;
+        return;
+      }
+
       this.views = this.views.map((view) => (view.id === viewKey ? { ...view, state } : view));
     });
+  };
+
+  private restoreViewStateWrittenDuringRequest = (
+    writeSeq: number,
+    localAllState: DataViewState,
+    localViews: DataViewChipDto[],
+  ): void => {
+    for (const [viewKey, seq] of this.viewStateWrites) {
+      if (seq <= writeSeq) continue;
+
+      if (viewKey === ALL_VIEW_KEY) {
+        this.allViewState = localAllState;
+        continue;
+      }
+
+      const local = localViews.find((view) => view.id === viewKey);
+      if (local) this.views = this.views.map((view) => (view.id === viewKey ? { ...view, state: local.state } : view));
+    }
   };
 
   private resetPaginationPage = () => {

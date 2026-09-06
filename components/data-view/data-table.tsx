@@ -469,9 +469,21 @@ export const DataTable = observer(function DataTable<E extends HasId>({
 
               return (
                 <Fragment key={group.key}>
-                  <TableRow className="bg-muted/40 hover:bg-muted/40" data-slot="group-header-row">
+                  <TableRow
+                    className="bg-muted/40 hover:bg-muted/40 has-aria-expanded:bg-muted/40"
+                    data-slot="group-header-row"
+                  >
                     <TableCell colSpan={leafColumnCount}>
                       <div className="flex min-w-0 items-center gap-2">
+                        {canBulkAct && (
+                          <Checkbox
+                            aria-label={t("DataView.selectGroup", { group: label })}
+                            checked={allSelected ? true : someSelected ? "indeterminate" : false}
+                            disabled={selectable.length === 0}
+                            onCheckedChange={(checked) => store.setGroupSelection(group.key, checked === true)}
+                          />
+                        )}
+
                         <button
                           aria-expanded={!collapsed}
                           aria-label={
@@ -486,15 +498,6 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                         >
                           {collapsed ? <ChevronRight className="size-3.5" /> : <ChevronDown className="size-3.5" />}
                         </button>
-
-                        {canBulkAct && (
-                          <Checkbox
-                            aria-label={t("DataView.selectAllRows")}
-                            checked={allSelected ? true : someSelected ? "indeterminate" : false}
-                            disabled={selectable.length === 0}
-                            onCheckedChange={(checked) => store.setGroupSelection(group.key, checked === true)}
-                          />
-                        )}
 
                         {group.color ? (
                           <AppChip size="sm" variant={group.color}>

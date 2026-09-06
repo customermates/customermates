@@ -1396,6 +1396,10 @@
       },
       "groupBy": "Group By",
       "layout": "Layout",
+      "layouts": {
+        "board": "Board",
+        "table": "Table"
+      },
       "nextPage": "Next page",
       "paginationEmpty": "0 of 0",
       "paginationRange": "{from}-{to} of {total}",
@@ -1764,6 +1768,7 @@
     "resizeColumn": "Resize {column} column. Drag or use arrow keys to resize; double-tap or press Enter to reset.",
     "resizeHint": "Drag to resize. Double-click to reset.",
     "selectAllRows": "Select all rows",
+    "selectGroup": "Select group {group}",
     "selectRow": "Select row {id}",
     "views": {
       "all": "All",
