@@ -672,6 +672,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       userName: payload.userName,
       appBaseUrl: payload.appBaseUrl,
       locale: payload.locale,
+      surface,
     });
     const providerContext = buildAgentProviderContext(systemPrompt, payload.messages, []);
 

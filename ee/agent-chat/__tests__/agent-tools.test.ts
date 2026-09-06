@@ -229,6 +229,7 @@ describe("agent tools", () => {
       userName: "Ada Lovelace",
       appBaseUrl: "https://app.example.com",
       locale: "en",
+      surface: "chat",
     });
     const definitions = getAgentAiToolDefinitions();
     expect(definitions).toEqual(describeAgentAiTools(getAgentAiTools(deps())));
@@ -741,6 +742,7 @@ describe("agent tools", () => {
       userName: "Ada",
       appBaseUrl: "https://app.example.com",
       locale: "en",
+      surface: "chat",
     });
 
     expect(prompt).not.toMatch(/Always allow/i);
@@ -755,7 +757,7 @@ describe("agent tools", () => {
     expect(prompt).toContain("team invitations");
     expect(prompt).toContain("webhook delivery resends");
     expect(prompt).toContain("If an approval is declined or times out, nothing changed");
-    expect(prompt).toContain("A support email is sent only after the user explicitly confirms");
+    expect(prompt).toContain("A support email is sent only after that approval is granted");
     expect(prompt).toContain("use the available tools directly");
     expect(prompt).toContain("batch each entity's records into one write call");
     expect(prompt).toContain("one focused search_docs call");
@@ -776,11 +778,13 @@ describe("system prompt reply language", () => {
       userName: "Ada",
       appBaseUrl: "https://app.example.com",
       locale: "de",
+      surface: "chat",
     });
     const english = buildAgentSystemPrompt({
       userName: "Ada",
       appBaseUrl: "https://app.example.com",
       locale: "en",
+      surface: "chat",
     });
 
     expect(german).toContain("Write every reply in German");

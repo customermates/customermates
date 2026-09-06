@@ -204,6 +204,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         userName,
         appBaseUrl: env.BASE_URL,
         locale,
+        surface: conversation?.origin === AgentConversationOrigin.routine ? "routine" : "chat",
       }),
       currentText: data.text,
       pageRoute,
