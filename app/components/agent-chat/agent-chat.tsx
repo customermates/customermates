@@ -20,9 +20,9 @@ import { IconContainer } from "@/components/shared/icon-container";
 import { OVERLAY_SCROLL_REGION } from "@/components/ui/overlay-contract";
 import { cn } from "@/core/utils/cn";
 
-import { ActionTooltip, chatUiCopy, TypingDots } from "./chat-ui";
+import { ActionTooltip, chatUiCopy } from "./chat-ui";
 import { AgentActivity, AgentChatItemView, consecutiveActivityItems } from "./agent-chat-items";
-import { AgentProgressStatus, AgentStatusAnnouncer } from "./agent-status-announcer";
+import { AgentInitialProgress, AgentProgressStatus, AgentStatusAnnouncer } from "./agent-status-announcer";
 import { ArchiveUndo, ConversationHistory } from "./conversation-history";
 import { CreditBlockedNotice } from "./credit-blocked-notice";
 import { QueuedPrompt } from "./queued-prompt";
@@ -321,11 +321,7 @@ const AgentChatPanel = observer(function AgentChatPanel() {
               );
             })}
 
-            {store.isAwaitingAssistantResponse && (
-              <div aria-hidden="true" className="flex items-center gap-1 py-1">
-                <TypingDots />
-              </div>
-            )}
+            <AgentInitialProgress />
           </div>
         </MessagesScrollContainer>
       )}

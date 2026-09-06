@@ -297,7 +297,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         turnBudget: reservation.budget,
         tenant: { userId: user.id, companyId: user.companyId },
       });
-      await this.repo.recordAgentTurnExternalRun(turnRequestId, externalRunId);
+      await this.repo.recordAgentTurnExternalRun(turnRequestId, runId, externalRunId);
 
       return {
         ok: true as const,

@@ -675,6 +675,7 @@
       "newChat": "New chat",
       "noChats": "No chats yet",
       "noChatsBody": "Start a chat to return to your questions and completed work later.",
+      "preparingAction": "Preparing the next action…",
       "queued": "Up next",
       "reconnecting": "Reconnecting to Mate…",
       "refreshHistoryFailed": "Chat history couldn’t be refreshed. Your existing chats remain visible.",
@@ -684,13 +685,17 @@
       "retryTurn": "Try again",
       "routeSyncRefreshing": "Refreshing the page…",
       "routeSyncWaiting": "Page update waiting for your edits to finish…",
+      "startingRequest": "Starting…",
       "stepsTook": "{steps, plural, one {# step} other {# steps}} · {seconds}s",
       "stopping": "Stopping Mate…",
       "tableCopied": "Table copied",
       "thinking": "Thinking",
       "turnFailed": "This response couldn’t be completed.",
+      "turnInterrupted": "The response was interrupted. Changes may already have been applied. Check current records before sending a new request.",
       "undo": "Undo",
-      "untitled": "New chat"
+      "untitled": "New chat",
+      "waitElapsed": "{seconds}s elapsed",
+      "workingOnRequest": "Working on your request…"
     }
   },
   "AgplGithubBadge": {

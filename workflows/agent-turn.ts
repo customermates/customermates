@@ -51,6 +51,7 @@ import { getAgentChatRepo } from "@/core/di";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
 import { requiresApproval } from "@/ee/agent-chat/gated-tools";
+import { createAgentToolInputResolver, type AgentToolInputResult } from "@/ee/agent-chat/agent-tool-input";
 import { resolveAgentApprovalContext } from "@/ee/agent-chat/agent-external-approval-context";
 import { resolveAgentToolResultMaxChars } from "@/ee/agent-chat/agent-budget-policy";
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
@@ -227,6 +228,19 @@ async function executeAgentTool(
   return execute(input, { toolCallId, messages: [] });
 }
 executeAgentTool.maxRetries = 0;
+
+async function normalizeAgentToolInput(
+  payload: AgentTurnWorkflowPayload,
+  toolName: string,
+  input: unknown,
+): Promise<AgentToolInputResult> {
+  "use step";
+  const { normalizeAgentAiToolInput } = await import("@/ee/agent-chat/agent-tools");
+  return runAsBackgroundTenant(payload.userId, () =>
+    normalizeAgentAiToolInput(toolName, input, resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars)),
+  );
+}
+normalizeAgentToolInput.maxRetries = 0;
 
 async function publishTranscriptEvents(events: AgentTranscriptEvent[]): Promise<void> {
   "use step";
@@ -513,6 +527,17 @@ async function closeTurnStreamAfterFailure(): Promise<void> {
 }
 closeTurnStreamAfterFailure.maxRetries = 0;
 
+async function reconcileFailedTurn(payload: AgentTurnWorkflowPayload): Promise<void> {
+  "use step";
+  await getAgentChatRepo().reconcileInterruptedAgentTurnUnscoped({
+    turnRequestId: payload.turnRequestId,
+    conversationId: payload.conversationId,
+    companyId: payload.companyId,
+    userId: payload.userId,
+    runId: payload.runId,
+  });
+}
+
 async function finalizeTurn(
   payload: AgentTurnWorkflowPayload,
   outcome: {
@@ -631,6 +656,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let finishReason = "unknown";
     const ledger: RoundLedgerEntry[] = [];
     const grants = new Map<string, ToolApprovalGrant>();
+    const resolveToolInput = createAgentToolInputResolver((toolName, input) =>
+      normalizeAgentToolInput(payload, toolName, input),
+    );
     const completedTools: ({ toolCallId: string; toolName: string } & ({ output: unknown } | { threw: true }))[] = [];
 
     const continuationSteps: AgentContinuationStep[] = [];
@@ -662,6 +690,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       const pending = deferredRound;
       deferredRound = null;
       recordContinuationRound(pending.step, [...pending.outcomes, ...resumed]);
+    };
+
+    const appendDeferredOutcomes = (outcomes: readonly AgentToolOutcome[]) => {
+      if (deferredRound) deferredRound.outcomes.push(...outcomes);
     };
 
     const settleToolOutcome = (toolCallId: string, toolName: string | undefined, output: unknown) => {
@@ -778,28 +810,39 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             {
               description: shell.description,
               inputSchema: jsonSchema(shell.inputSchema as never),
-              needsApproval: shell.gated
-                ? (input: unknown) =>
-                    requiresApproval(internalToolIdentity(shell.name), { annotations: shell.annotations }, input)
-                : false,
+              needsApproval: async (input: unknown, options: { toolCallId: string }) => {
+                const prepared = await resolveToolInput(shell.name, options.toolCallId, input);
+                return (
+                  prepared.ok &&
+                  shell.gated &&
+                  requiresApproval(internalToolIdentity(shell.name), { annotations: shell.annotations }, prepared.input)
+                );
+              },
               ...(isAgentPanelTool(shell.name)
                 ? {}
                 : {
-                    execute: (input: unknown, options: { toolCallId: string }) =>
-                      executeAgentTool(
+                    execute: async (input: unknown, options: { toolCallId: string }) => {
+                      const prepared = await resolveToolInput(shell.name, options.toolCallId, input);
+                      if (!prepared.ok) return prepared;
+                      return executeAgentTool(
                         payload,
                         shell.name,
                         options.toolCallId,
-                        input,
+                        prepared.input,
                         grants.get(options.toolCallId) ?? "not-required",
-                      ),
+                      );
+                    },
                   }),
             },
           ]),
         ),
         maxOutputTokens: payload.turnBudget.maxOutputTokens,
         providerOptions: {
-          gateway: { only: [payload.turnBudget.servingProvider] },
+          gateway: {
+            only: [payload.turnBudget.servingProvider],
+            zeroDataRetention: true,
+            disallowPromptTraining: true,
+          },
           openai: { parallelToolCalls: false },
         },
         prepareStep: async () => {
@@ -854,7 +897,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
       if (abandoned) break;
 
-      const pending = pendingApprovalCalls(result.messages);
+      let pending = pendingApprovalCalls(result.messages);
       if (pending.length === 0) {
         if (finishReason === "stop") break;
         if (cancelled || budgetStop || safetyStop !== null || roundFailure !== null) break;
@@ -880,6 +923,28 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         continue;
       }
 
+      const preparedPending = await Promise.all(
+        pending.map(async (call) => ({
+          call,
+          prepared: await resolveToolInput(call.toolName, call.toolCallId, call.input),
+        })),
+      );
+      const invalidResults = preparedPending.flatMap(({ call, prepared }) =>
+        prepared.ok ? [] : [{ toolCallId: call.toolCallId, toolName: call.toolName, output: prepared }],
+      );
+      let resumableMessages = withToolResults(result.messages, invalidResults);
+      for (const outcome of invalidResults) settleToolOutcome(outcome.toolCallId, outcome.toolName, outcome.output);
+      appendDeferredOutcomes(invalidResults);
+      pending = preparedPending.flatMap(({ call, prepared }) =>
+        prepared.ok ? [{ ...call, input: prepared.input }] : [],
+      );
+      if (pending.length === 0) {
+        resolveDeferredRound([]);
+        await publishTranscriptEvents(queued.splice(0));
+        messages = resumableMessages;
+        continue;
+      }
+
       const panelCalls = pending.filter((call) => isAgentPanelTool(call.toolName));
       if (panelCalls.length > 0) {
         const commands = panelCalls.map((call) => ({
@@ -901,12 +966,21 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
         cancelled = await readCancellation(payload);
         const resumed = await readUiCommandResults(payload, commands);
-        resolveDeferredRound(resumed.map((entry) => ({ ...entry })));
         for (const outcome of resumed) settleToolOutcome(outcome.toolCallId, outcome.toolName, outcome.output);
         await publishTranscriptEvents(queued.splice(0));
 
-        messages = withToolResults(result.messages, resumed);
-        continue;
+        resumableMessages = withToolResults(resumableMessages, resumed);
+        if (cancelled) {
+          resolveDeferredRound(resumed.map((entry) => ({ ...entry })));
+          break;
+        }
+        pending = pending.filter((call) => !isAgentPanelTool(call.toolName));
+        if (pending.length === 0) {
+          resolveDeferredRound(resumed.map((entry) => ({ ...entry })));
+          messages = resumableMessages;
+          continue;
+        }
+        appendDeferredOutcomes(resumed);
       }
 
       const requests: PendingApproval[] = pending.map((call) => ({
@@ -975,7 +1049,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           },
         })),
       );
-      messages = withApprovalResponses(result.messages, outcomes);
+      messages = withApprovalResponses(resumableMessages, outcomes);
     }
 
     if (abandoned) {
@@ -1026,8 +1100,22 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     });
     await closeTurnStream();
   } catch (error) {
-    await reportFailure(WORKFLOW_NAME, toWorkflowFailure(error), payload.tenant);
-    await closeTurnStreamAfterFailure();
+    const failures = [error];
+    try {
+      await reconcileFailedTurn(payload);
+    } catch (cleanupError) {
+      failures.push(cleanupError);
+    }
+    try {
+      await closeTurnStreamAfterFailure();
+    } catch (closeError) {
+      failures.push(closeError);
+    }
+    for (const failure of failures) {
+      try {
+        await reportFailure(WORKFLOW_NAME, toWorkflowFailure(failure), payload.tenant);
+      } catch {}
+    }
     throw error;
   }
 }
