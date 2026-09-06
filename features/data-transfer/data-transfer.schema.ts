@@ -49,6 +49,9 @@ export const DryRunImportSchema = z.object({
 });
 export type DryRunImportData = Data<typeof DryRunImportSchema>;
 
+export const ImportChunkSchema = DryRunImportSchema.extend({ entityType: z.enum(EntityType) });
+export type ImportChunkData = Data<typeof ImportChunkSchema>;
+
 export const RELATION_INDEX_LIMIT = 5000;
 
 export const RELATION_INDEX_PAGE_SIZE = 500;

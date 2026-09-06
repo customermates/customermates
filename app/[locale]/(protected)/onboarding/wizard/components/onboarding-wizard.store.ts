@@ -31,7 +31,7 @@ export class OnboardingWizardStore {
 
   setInitialStep = (index: number) => {
     this.minStepIndex = index;
-    if (this.currentStepIndex < index) this.currentStepIndex = index;
+    this.currentStepIndex = index;
   };
 
   setMinStepIndex = (index: number) => {

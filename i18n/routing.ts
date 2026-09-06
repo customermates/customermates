@@ -64,6 +64,7 @@ export const PUBLIC_ROUTES = [
   "/auth/pending",
   "/auth/error",
   "/auth/verify-email",
+  "/auth/invitation",
   "/invitation/:token",
   "/docs/openapi/:slug",
   "/docs/openapi",

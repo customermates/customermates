@@ -8,12 +8,13 @@ import { continueWithGoogleAction, continueWithMicrosoftAction, signUpWithEmailA
 
 import { BaseFormStore } from "@/core/base/base-form.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 
 export class SignUpStore extends BaseFormStore<EmailSignUpData> {
   showPassword = false;
 
   constructor(rootStore: RootStore) {
-    super(rootStore, { email: "", confirmEmail: "", password: "", confirmPassword: "" });
+    super(rootStore, { email: "", confirmEmail: "", password: "", confirmPassword: "", onboardingIntent: undefined });
 
     makeObservable(this, {
       showPassword: observable,
@@ -49,7 +50,13 @@ export class SignUpStore extends BaseFormStore<EmailSignUpData> {
 
     try {
       const action = provider === "google" ? continueWithGoogleAction : continueWithMicrosoftAction;
-      const res = await action(undefined, "/auth/signup");
+      const callbackURL = this.form.onboardingIntent
+        ? pathWithOnboardingIntent("/auth/invitation", this.form.onboardingIntent)
+        : "/onboarding";
+      const errorCallbackURL = this.form.onboardingIntent
+        ? pathWithOnboardingIntent("/auth/signup", this.form.onboardingIntent)
+        : "/auth/signup";
+      const res = await action(callbackURL, errorCallbackURL);
 
       if (!res.ok) toastZodErrorTree(res.error);
       else if (res.data.url) {

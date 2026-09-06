@@ -419,7 +419,7 @@
   --popover: var(--card);
   --popover-foreground: #fafafa;
   --primary: #7c6df2;
-  --primary-foreground: #ffffff;
+  --primary-foreground: var(--background);
   --secondary: var(--card);
   --secondary-foreground: #fafafa;
   --selected: rgb(255 255 255 / 5.5%);

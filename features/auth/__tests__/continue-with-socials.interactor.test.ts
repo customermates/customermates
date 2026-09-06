@@ -141,4 +141,54 @@ describe("ContinueWithSocialsInteractor callback validation", () => {
 
     await expect(interactor.invoke({ provider: "google" })).resolves.toEqual({ redirect: "/auth/verify-email" });
   });
+
+  it("preserves onboarding intent across social email verification", async () => {
+    const interactor = new ContinueWithSocialsInteractor(
+      {
+        continueWithSocials: vi.fn().mockResolvedValue({
+          redirect: false,
+          user: {
+            createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+            email: "unverified@example.com",
+            emailVerified: false,
+            name: "Unverified User",
+          },
+        }),
+        sendNewUserNotificationEmail: vi.fn(),
+      } as unknown as AuthService,
+      { findCurrentUserUnscoped: vi.fn().mockResolvedValue({ id: "user-id" }) } as unknown as FindUserRepo,
+    );
+
+    await expect(
+      interactor.invoke({
+        callbackURL: "/auth/invitation?intent=signed.intent",
+        provider: "microsoft",
+      }),
+    ).resolves.toEqual({ redirect: "/auth/verify-email?intent=signed.intent" });
+  });
+
+  it("fails closed when a social verification callback contains duplicate intents", async () => {
+    const interactor = new ContinueWithSocialsInteractor(
+      {
+        continueWithSocials: vi.fn().mockResolvedValue({
+          redirect: false,
+          user: {
+            createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+            email: "unverified@example.com",
+            emailVerified: false,
+            name: "Unverified User",
+          },
+        }),
+        sendNewUserNotificationEmail: vi.fn(),
+      } as unknown as AuthService,
+      { findCurrentUserUnscoped: vi.fn().mockResolvedValue({ id: "user-id" }) } as unknown as FindUserRepo,
+    );
+
+    await expect(
+      interactor.invoke({
+        callbackURL: "/auth/invitation?intent=one&intent=two",
+        provider: "microsoft",
+      }),
+    ).resolves.toEqual({ redirect: "/auth/error?type=invalidOnboardingIntent" });
+  });
 });

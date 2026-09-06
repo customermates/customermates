@@ -2027,7 +2027,9 @@
     "demoModeError": "En el modo demo no se puede guardar, eliminar ni modificar datos. <link>Empieza gratis ahora</link> para acceder a todas las funciones.",
     "inactiveUser": "Tu cuenta está inactiva actualmente. Contacta con tu administrador para reactivarla.",
     "invalidInviteLink": "El enlace de invitación que has usado no es válido o puede haber sido alterado. Contacta con tu administrador para solicitar un enlace nuevo y válido y continuar con tu registro.",
+    "invalidOnboardingIntent": "Este enlace de incorporación no es válido. Vuelve a la incorporación o abre de nuevo el enlace de invitación original.",
     "inviteLinkExpired": "El enlace de invitación que has intentado usar ha caducado y ya no se puede utilizar. Contacta con tu administrador y pídele que genere uno nuevo para completar la configuración de tu cuenta.",
+    "onboardingSessionExpired": "Esta sesión de incorporación ha caducado. Abre de nuevo el enlace de invitación original o vuelve a elegir cómo quieres empezar.",
     "retry": "Inténtalo de nuevo",
     "subtitle": "¡Vaya! Algo ha fallado",
     "title": "Qué incómodo",
@@ -2267,6 +2269,39 @@
     },
     "youPrefix": "Tú:"
   },
+  "InvitationCard": {
+    "inviter": "Invitación de {inviterName}",
+    "joinAction": "Continuar",
+    "joinBody": "Configura tu perfil y solicita acceso. Un administrador del espacio de trabajo debe aprobarte antes de que puedas unirte.",
+    "joinSubtitle": "Has iniciado sesión como {email}",
+    "joinTitle": "Acepta tu invitación",
+    "switchBody": "Esta cuenta ya pertenece a un espacio de trabajo. Cierra sesión para continuar con otra cuenta.",
+    "switchSubtitle": "Has iniciado sesión como {email}",
+    "switchTitle": "Ya has iniciado sesión"
+  },
+  "JoinWorkspace": {
+    "backAction": "Volver a las opciones",
+    "emailLabel": "Dirección de correo que deben invitar",
+    "safeBody": "Puedes salir de esta página y volver cuando recibas una invitación.",
+    "safeTitle": "No se ha creado ningún espacio de trabajo",
+    "steps": {
+      "complete": {
+        "body": "Después, espera a que un administrador del espacio de trabajo apruebe tu acceso.",
+        "title": "Completa tu perfil"
+      },
+      "open": {
+        "body": "Usa en este navegador el enlace del correo de invitación o un enlace de invitación compartido directamente.",
+        "title": "Abre el enlace de invitación"
+      },
+      "request": {
+        "body": "Envía esta dirección de correo a un administrador del espacio de trabajo.",
+        "title": "Solicita una invitación"
+      }
+    },
+    "stepsTitle": "Cómo unirte",
+    "subtitle": "Un administrador del espacio de trabajo debe invitar a {email}.",
+    "title": "Unirte a un espacio de trabajo existente"
+  },
   "LegalDocumentNotice": {
     "contractBody": "Hemos actualizado los documentos legales que se indican a continuación. Revísalos en nombre del cliente empresarial y organiza su aceptación electrónica por parte de un administrador del sistema autorizado.",
     "contractDeadlineLabel": "Fecha límite de objeción y aceptación",
@@ -2417,8 +2452,26 @@
     "subtitle": "Esta página se fue de vacaciones sin avisarnos",
     "title": "¡Vaya! Has entrado en el vacío"
   },
+  "OnboardingChoice": {
+    "create": {
+      "description": "Configura un espacio de trabajo independiente para una empresa que poseas o gestiones.",
+      "note": "Gratis durante {days} días",
+      "title": "Crear un espacio de trabajo nuevo"
+    },
+    "footnote": "No se crea ningún espacio de trabajo hasta que eliges Crear y completas tu perfil.",
+    "join": {
+      "description": "Únete a un equipo que ya usa Customermates. Necesitarás una invitación de un administrador.",
+      "note": "No se creará ningún espacio de trabajo",
+      "title": "Unirte a un espacio de trabajo existente"
+    },
+    "optionsLabel": "Opciones de configuración del espacio de trabajo",
+    "signedInAs": "Sesión iniciada como {email}",
+    "subtitle": "Crea un espacio de trabajo para tu empresa o únete a un equipo que ya usa Customermates.",
+    "title": "¿Cómo quieres empezar?"
+  },
   "OnboardingForm": {
     "agreeToTerms": "Estoy autorizado para actuar en nombre del cliente empresarial y acepto los <termsOfServiceLink>Términos</termsOfServiceLink> y el <dpaLink>DPA</dpaLink>. He leído la <dataPrivacyLink>Política de privacidad</dataPrivacyLink>.",
+    "invitationFrom": "Invitación de {inviterName}",
     "invitedAgreeToTerms": "Acepto cumplir los <termsOfServiceLink>Términos</termsOfServiceLink> y he leído el <dpaLink>DPA</dpaLink> y la <dataPrivacyLink>Política de privacidad</dataPrivacyLink>."
   },
   "OnboardingWizard": {
@@ -2550,6 +2603,7 @@
         "title": "Invita a tu equipo"
       },
       "profile": {
+        "invitedSubtitle": "Completa tu perfil para solicitar acceso al espacio de trabajo de la invitación.",
         "subtitle": "Cuéntanos quién eres para que podamos configurar tu espacio de trabajo.",
         "title": "Tu perfil"
       }
@@ -2830,6 +2884,7 @@
     "agreeToTerms": "Al continuar, aceptas nuestros <termsOfServiceLink>Términos</termsOfServiceLink> y reconoces haber leído nuestra <dataPrivacyLink>Política de privacidad</dataPrivacyLink>. Consulta nuestro <dpaLink>DPA</dpaLink>.",
     "buttonLabel": "Continuar con {provider}",
     "forgotPassword": "¿Has olvidado tu contraseña?",
+    "inviteSubtitle": "{inviterName} te ha invitado a unirte a su espacio de trabajo. Inicia sesión para revisar la invitación.",
     "or": "O",
     "rememberMe": "Recordarme",
     "signInCta": "Iniciar sesión",
@@ -2837,12 +2892,12 @@
     "switchToSignUp": "¿No tienes cuenta? <registerLink>Regístrate</registerLink>"
   },
   "SignUpForm": {
-    "acceptInviteCta": "Aceptar la invitación",
+    "acceptInviteCta": "Continuar",
+    "accountSubtitle": "Crea primero tu cuenta. Después elige si quieres crear un espacio de trabajo nuevo o unirte a uno existente.",
     "agreeToTerms": "Al continuar, aceptas nuestros <termsOfServiceLink>Términos</termsOfServiceLink> y reconoces haber leído nuestra <dataPrivacyLink>Política de privacidad</dataPrivacyLink>. Consulta nuestro <dpaLink>DPA</dpaLink>.",
     "buttonLabel": "Regístrate con {provider}",
-    "inviteSubtitle": "Te han invitado a unirte a un equipo en Customermates. Elige tu método de inicio de sesión para aceptar la invitación.",
+    "inviteSubtitle": "{inviterName} te ha invitado a unirte a su espacio de trabajo en Customermates. Elige cómo quieres crear tu cuenta.",
     "inviteTitle": "Aceptar la invitación de la empresa",
-    "newCompanySubtitle": "Registra una empresa nueva y prueba Customermates gratis durante {days} días. Sin tarjeta de crédito.",
     "or": "O",
     "signUpCta": "Crear una cuenta",
     "switchToSignIn": "¿Ya tienes una cuenta? <signInLink>Inicia sesión</signInLink>",
@@ -3004,6 +3059,7 @@
   "VerifyEmailCard": {
     "body": "Te hemos enviado un correo de verificación. Revisa tu bandeja de entrada y haz clic en el enlace para verificar tu dirección de correo.",
     "ctaLabel": "Reenviar el correo de verificación",
+    "invitationFrom": "Invitación de {inviterName}",
     "resendSuccess": "Correo de verificación enviado correctamente.",
     "subtitle": "Verifica tu dirección de correo para continuar.",
     "title": "Verificación del correo"

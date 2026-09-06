@@ -23,6 +23,28 @@ beforeEach(() => {
 });
 
 describe("SignInStore", () => {
+  it("refreshes and clears callbacks in the form and provider continuation together", async () => {
+    authActions.continueWithGoogleAction.mockResolvedValue({ ok: true, data: { url: null } });
+    const store = new SignInStore(rootStore);
+    store.onInitOrRefresh({ callbackURL: "/auth/invitation?intent=invite-a" });
+    store.onChange("email", "invited@example.com");
+    store.onInitOrRefresh({ callbackURL: "/auth/invitation?intent=invite-b" });
+    store.onChange("callbackURL", "/unsaved");
+    store.resetForm();
+    await store.continueWithProvider("google");
+
+    expect(authActions.continueWithGoogleAction).toHaveBeenLastCalledWith(
+      "/auth/invitation?intent=invite-b",
+      "/auth/signin?intent=invite-b",
+    );
+    expect(store.form.email).toBe("invited@example.com");
+
+    store.onInitOrRefresh({ callbackURL: undefined });
+    await store.continueWithProvider("google");
+    expect(authActions.continueWithGoogleAction).toHaveBeenLastCalledWith(undefined, "/auth/signin");
+    expect(store.savedState.callbackURL).toBeUndefined();
+  });
+
   it("hard-navigates to the validated callback after the session cookie is committed", async () => {
     authActions.signInWithEmailAction.mockResolvedValue({
       ok: true,
@@ -31,7 +53,7 @@ describe("SignInStore", () => {
     const store = new SignInStore(rootStore);
     store.onChange("email", "synthetic@example.com");
     store.onChange("password", "local-demo-password");
-    store.setCallbackURL("/en/onboarding/wizard");
+    store.onInitOrRefresh({ callbackURL: "/en/onboarding/wizard" });
 
     await store.onSubmit();
 
@@ -68,7 +90,7 @@ describe("SignInStore", () => {
       data: { url: "https://accounts.google.test/authorize" },
     });
     const store = new SignInStore(rootStore);
-    store.setCallbackURL("/en/dashboard");
+    store.onInitOrRefresh({ callbackURL: "/en/dashboard" });
 
     await store.continueWithProvider("google");
     await store.continueWithProvider("google");
@@ -76,6 +98,22 @@ describe("SignInStore", () => {
     expect(authActions.continueWithGoogleAction).toHaveBeenCalledExactlyOnceWith("/en/dashboard", "/auth/signin");
     expect(assign).toHaveBeenCalledExactlyOnceWith("https://accounts.google.test/authorize");
     expect(store.isLoading).toBe(true);
+  });
+
+  it("preserves the onboarding intent in a provider error callback", async () => {
+    authActions.continueWithGoogleAction.mockResolvedValue({
+      ok: true,
+      data: { url: "https://accounts.google.test/authorize" },
+    });
+    const store = new SignInStore(rootStore);
+    store.onInitOrRefresh({ callbackURL: "/auth/invitation?intent=signed.intent" });
+
+    await store.continueWithProvider("google");
+
+    expect(authActions.continueWithGoogleAction).toHaveBeenCalledWith(
+      "/auth/invitation?intent=signed.intent",
+      "/auth/signin?intent=signed.intent",
+    );
   });
 
   it("releases the social-provider lock when the action fails before navigation", async () => {
