@@ -150,8 +150,8 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
     await client.connect();
     await client.query('INSERT INTO "Company" ("id","updatedAt") VALUES ($1,CURRENT_TIMESTAMP)', [companyId]);
     await client.query(
-      `INSERT INTO "User" ("id","email","firstName","lastName","companyId","updatedAt")
-       VALUES ($1,$2,'Interruption','Fixture',$3,CURRENT_TIMESTAMP)`,
+      `INSERT INTO "User" ("id","email","firstName","lastName","companyId","status","updatedAt")
+       VALUES ($1,$2,'Interruption','Fixture',$3,'active',CURRENT_TIMESTAMP)`,
       [userId, `${userId}@example.invalid`, companyId],
     );
     await client.query(
