@@ -42,7 +42,7 @@ The enabled signature is appended when sending through the UI, REST API, or MCP;
 
 The signature toggle belongs to the sending account, not to a transport: turning it off omits the signature for UI, REST, and MCP sends while keeping the account's email appearance. The inline composer adapts signature text to the app's light or dark theme; this display adaptation does not change the outgoing email.
 
-Draft previews and sending use the same email renderer and current account settings. Generated HTML separates the signature with whitespace, not a forced `--` line; the plain-text alternative retains the conventional signature delimiter. Recipient mail clients may still adjust colors, fonts, or remote-image visibility. Saved drafts retain editable Markdown and a body-only HTML derivative, never a pre-appended signature.
+Draft previews and sending use the same email renderer and current account settings. Generated HTML separates the signature with spacing, and the plain-text alternative uses the conventional signature delimiter. Recipient mail clients may still adjust colors, fonts, or remote-image visibility. Saved drafts retain editable Markdown and a body-only HTML derivative, never a pre-appended signature.
 
 ## Thread states
 
