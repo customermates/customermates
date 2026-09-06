@@ -204,7 +204,7 @@ async function canStartNextHostedAiProviderRound(payload: AgentTurnWorkflowPaylo
 }
 canStartNextHostedAiProviderRound.maxRetries = 0;
 
-async function loadAgentToolShells(surface: AgentTurnSurface): Promise<AgentToolShell[]> {
+async function loadAgentToolShells(surface: AgentTurnSurface, servingProvider: string): Promise<AgentToolShell[]> {
   "use step";
   const { getAgentAiToolDefinitions } = await import("@/ee/agent-chat/agent-tools");
   const { ALL_MCP_TOOLS } = await import("@/features/mcp-tools/tool-registry");
@@ -213,7 +213,7 @@ async function loadAgentToolShells(surface: AgentTurnSurface): Promise<AgentTool
   const unattended = isUnattendedSurface(surface);
   const panelToolNames = new Set<string>(AGENT_UI_TOOL_NAMES);
 
-  return getAgentAiToolDefinitions()
+  return getAgentAiToolDefinitions(servingProvider)
     .filter((definition) => !unattended || !panelToolNames.has(definition.name))
     .map((definition) => ({
       name: definition.name,
@@ -664,7 +664,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     }
     const surface: AgentTurnSurface = payload.surface ?? "chat";
     const approvalWindowMs = approvalWindowMsForSurface(surface);
-    const shells = await loadAgentToolShells(surface);
+    const shells = await loadAgentToolShells(surface, payload.turnBudget.servingProvider);
     const writable = getWritable();
 
     const queued: AgentTranscriptEvent[] = [];

@@ -25,6 +25,7 @@ import { AgentTourSchema } from "./agent-tours";
 import { OpenRecordSchema } from "./ui-operations";
 import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
 import { internalToolIdentity } from "./tool-identity";
+import { providerWireInputSchema } from "./provider-safe-json-schema";
 import type { AgentToolInputResult } from "./agent-tool-input";
 
 export { isAgentToolCancellation, type AgentToolCancellation } from "./agent-tool-cancellation";
@@ -324,12 +325,15 @@ export type AgentAiToolDefinition = {
   inputSchema: unknown;
 };
 
-export function describeAgentAiTools(tools: ToolSet): AgentAiToolDefinition[] {
+export function describeAgentAiTools(tools: ToolSet, servingProvider?: string): AgentAiToolDefinition[] {
   return Object.entries(tools).map(([name, agentTool]) => ({
     name,
     description:
       "description" in agentTool && typeof agentTool.description === "string" ? agentTool.description : undefined,
-    inputSchema: "inputSchema" in agentTool ? asSchema(agentTool.inputSchema).jsonSchema : undefined,
+    inputSchema:
+      "inputSchema" in agentTool
+        ? providerWireInputSchema(asSchema(agentTool.inputSchema).jsonSchema, servingProvider)
+        : undefined,
   }));
 }
 
@@ -343,8 +347,8 @@ const TOOL_DEFINITION_DEPS: AgentToolDeps = {
   resultMaxChars: 1,
 };
 
-export function getAgentAiToolDefinitions(): AgentAiToolDefinition[] {
-  return describeAgentAiTools(getAgentAiTools(TOOL_DEFINITION_DEPS));
+export function getAgentAiToolDefinitions(servingProvider?: string): AgentAiToolDefinition[] {
+  return describeAgentAiTools(getAgentAiTools(TOOL_DEFINITION_DEPS), servingProvider);
 }
 
 export async function normalizeAgentAiToolInput(
