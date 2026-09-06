@@ -27,11 +27,8 @@ import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { AGENT_RUN_LEASE_MS, decideAgentTurnAdmission, type AgentTurnRequestSnapshot } from "./agent-turn-request";
 import { buildAgentSystemPrompt } from "./system-prompt";
 import { getAgentAiToolDefinitions } from "./agent-tools";
-import {
-  AGENT_REPLAY_COUNT,
-  AGENT_REPLAY_MAX_CHARS,
-  conservativeAgentInitialContextBytes,
-} from "./agent-provider-context";
+import { conservativeAgentInitialContextBytes } from "./agent-provider-context";
+import { AGENT_REPLAY_COUNT, budgetAgentReplayHistory } from "./agent-replay-budget";
 import { isAgentModelKey, resolveAgentModel } from "./model-catalog";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import { fail, failConflict, failNotFound, failRateLimit } from "@/core/validation/interactor-failure-server";
@@ -299,14 +296,18 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       });
 
       const pageContext = data.pageContext ? `<page_context route="${data.pageContext.route}"/>\n` : "";
-      const messages = admission.recentMessages
-        .map((message) => {
-          const text = partsToText(message.parts);
-          return {
-            role: message.role as string,
-            text: message.id === userMessageId ? `${pageContext}${text}` : text.slice(0, AGENT_REPLAY_MAX_CHARS),
-          };
-        })
+      const replayInputs = admission.recentMessages.map((message) => {
+        const text = partsToText(message.parts);
+        const current = message.id === userMessageId;
+        return {
+          role: message.role as string,
+          text: current ? `${pageContext}${text}` : text,
+          budgeted: !current,
+        };
+      });
+      const budgeted = budgetAgentReplayHistory(replayInputs);
+      const messages = replayInputs
+        .map((message, index) => ({ role: message.role, text: budgeted[index] }))
         .filter((message) => message.text);
 
       const externalRunId = await this.backgroundTaskService.dispatchTracked("agent-turn", {

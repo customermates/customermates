@@ -184,7 +184,7 @@ describe("agent access", () => {
 
     expect(result.ok).toBe(true);
     if (!result.ok || result.data.disposition !== "run") return;
-    expect(result.data.messages[0]?.text).toHaveLength(1200);
+    expect(result.data.messages[0]?.text).toHaveLength(2000);
     expect(result.data.messages[1]?.text).toBe(`<page_context route="/en/contacts"/>\n${currentText}`);
     expect(result.data.locale).toBe("de");
     expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
