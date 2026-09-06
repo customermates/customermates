@@ -18,8 +18,6 @@ import { z } from "zod";
 import { randomUUID } from "node:crypto";
 import { getLocale } from "next-intl/server";
 
-import * as Sentry from "@sentry/node";
-
 import { Resource, Action, MessagingMessageDirection, MessagingMessageOrigin } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -175,7 +173,7 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
       });
 
       if (converted) {
-        await this.restoreDraftSummarySafely(draft.id);
+        await this.repo.restoreDraftSummaryIfPresent({ messageId: draft.id });
         return { ok: true as const, data: toMessagingMessageDto(converted) };
       }
     }
@@ -203,16 +201,8 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
         threadType: thread.type,
       },
     });
-    if (draft) await this.restoreDraftSummarySafely(draft.id);
+    if (draft) await this.repo.restoreDraftSummaryIfPresent({ messageId: draft.id });
 
     return { ok: true as const, data: toMessagingMessageDto(persisted) };
-  }
-
-  private async restoreDraftSummarySafely(messageId: string): Promise<void> {
-    try {
-      await this.repo.restoreDraftSummaryIfPresent({ messageId });
-    } catch (err) {
-      Sentry.captureException(err);
-    }
   }
 }

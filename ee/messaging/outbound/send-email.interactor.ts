@@ -259,8 +259,16 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
 
     if (!thread) {
       const adopted = await this.adoptSentEmail(account, res.data.id);
-      if (draft && data.draftRevision)
-        await this.discardDraftSafely(draft.id, draftUpdatedAtFromRevision(data.draftRevision));
+      if (draft && data.draftRevision) {
+        try {
+          await this.repo.discardDraftAfterSend({
+            messageId: draft.id,
+            expectedUpdatedAt: draftUpdatedAtFromRevision(data.draftRevision),
+          });
+        } catch (err) {
+          Sentry.captureException(err, { tags: { kind: "draft-discard-failure" } });
+        }
+      }
       return adopted;
     }
 
@@ -304,7 +312,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
       });
 
       if (converted) {
-        await this.restoreDraftSummarySafely(draft.id);
+        await this.repo.restoreDraftSummaryIfPresent({ messageId: draft.id });
         return { ok: true as const, data: toMessagingMessageDto(converted) };
       }
     }
@@ -332,7 +340,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
         threadType: thread.type,
       },
     });
-    if (draft) await this.restoreDraftSummarySafely(draft.id);
+    if (draft) await this.repo.restoreDraftSummaryIfPresent({ messageId: draft.id });
 
     return { ok: true as const, data: toMessagingMessageDto(persisted) };
   }
@@ -377,22 +385,6 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
         emailId,
         timeoutMs: ADOPT_EMAIL_TIMEOUT_MS,
       });
-    }
-  }
-
-  private async discardDraftSafely(messageId: string, expectedUpdatedAt: Date): Promise<void> {
-    try {
-      await this.repo.discardDraftAfterSend({ messageId, expectedUpdatedAt });
-    } catch (err) {
-      Sentry.captureException(err);
-    }
-  }
-
-  private async restoreDraftSummarySafely(messageId: string): Promise<void> {
-    try {
-      await this.repo.restoreDraftSummaryIfPresent({ messageId });
-    } catch (err) {
-      Sentry.captureException(err);
     }
   }
 }

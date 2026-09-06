@@ -202,46 +202,51 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
 
     if (!res.ok) return fail(res.error, [], { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) });
 
-    if (!res.data.chatId) {
-      if (draft && data.draftRevision)
-        await this.discardDraftSafely(draft.id, draftUpdatedAtFromRevision(data.draftRevision));
-      return { ok: true as const, data: { threadId: null } };
+    let threadId: string | null = null;
+
+    if (res.data.chatId) {
+      try {
+        const persisted = await this.threadRepo.persistOutboundMessageOrThrow({
+          connectedAccountId: account.id,
+          message: {
+            unipileMessageId: res.data.messageId ?? `sent_${randomUUID()}`,
+            providerMessageId: null,
+            provider: account.provider,
+            direction: MessagingMessageDirection.outbound,
+            origin: MessagingMessageOrigin.unipile,
+            sender: { ...EMPTY_ATTENDEE, displayName: account.displayName, isSelf: true },
+            recipients: { to: attendees.attendees, cc: [], bcc: [] },
+            subject: product === "classic" ? null : (data.inmailSubject ?? null),
+            bodyText: data.text,
+            bodyHtml: null,
+            attachmentsMeta: [],
+            isEvent: false,
+            isDeleted: false,
+            isHidden: false,
+            sentAt: new Date(),
+            reactions: [],
+            unipileThreadId: res.data.chatId,
+            threadType: attendees.attendees.length > 1 ? MessagingThreadType.group : MessagingThreadType.single,
+          },
+        });
+        threadId = persisted.messagingThreadId;
+      } catch (err) {
+        Sentry.captureException(err);
+      }
     }
 
-    try {
-      const persisted = await this.threadRepo.persistOutboundMessageOrThrow({
-        connectedAccountId: account.id,
-        message: {
-          unipileMessageId: res.data.messageId ?? `sent_${randomUUID()}`,
-          providerMessageId: null,
-          provider: account.provider,
-          direction: MessagingMessageDirection.outbound,
-          origin: MessagingMessageOrigin.unipile,
-          sender: { ...EMPTY_ATTENDEE, displayName: account.displayName, isSelf: true },
-          recipients: { to: attendees.attendees, cc: [], bcc: [] },
-          subject: product === "classic" ? null : (data.inmailSubject ?? null),
-          bodyText: data.text,
-          bodyHtml: null,
-          attachmentsMeta: [],
-          isEvent: false,
-          isDeleted: false,
-          isHidden: false,
-          sentAt: new Date(),
-          reactions: [],
-          unipileThreadId: res.data.chatId,
-          threadType: attendees.attendees.length > 1 ? MessagingThreadType.group : MessagingThreadType.single,
-        },
-      });
-
-      if (draft && data.draftRevision)
-        await this.discardDraftSafely(draft.id, draftUpdatedAtFromRevision(data.draftRevision));
-      return { ok: true as const, data: { threadId: persisted.messagingThreadId } };
-    } catch (err) {
-      Sentry.captureException(err);
-      if (draft && data.draftRevision)
-        await this.discardDraftSafely(draft.id, draftUpdatedAtFromRevision(data.draftRevision));
-      return { ok: true as const, data: { threadId: null } };
+    if (draft && data.draftRevision) {
+      try {
+        await this.threadRepo.discardDraftAfterSend({
+          messageId: draft.id,
+          expectedUpdatedAt: draftUpdatedAtFromRevision(data.draftRevision),
+        });
+      } catch (err) {
+        Sentry.captureException(err, { tags: { kind: "draft-discard-failure" } });
+      }
     }
+
+    return { ok: true as const, data: { threadId } };
   }
 
   private async precheck(data: StartChatData, ctx: z.RefinementCtx) {
@@ -277,17 +282,6 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
       }
       data.attendeeIdentifiers[index] = normalized;
     });
-  }
-
-  private async discardDraftSafely(messageId: string, expectedUpdatedAt: Date): Promise<void> {
-    try {
-      await this.threadRepo.discardDraftAfterSend({
-        messageId,
-        expectedUpdatedAt,
-      });
-    } catch (err) {
-      Sentry.captureException(err);
-    }
   }
 
   private buildSpecifics(data: StartChatData): StartChatSpecifics | undefined {

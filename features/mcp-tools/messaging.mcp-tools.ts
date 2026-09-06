@@ -477,6 +477,8 @@ export const sendEmailTool = {
     "Required: to, subject, body, and at least one of threadId (reply; takes precedence if both given) or connectedAccountId (new email). " +
     "Optional: cc, bcc. cc/bcc are plain email strings (not the {identifier} object form used by to). " +
     "When sending a saved draft, pass both draftMessageId and its opaque draftRevision from save_message_draft or get_messaging_threads. " +
+    "The connected account's enabled signature is appended automatically and its email appearance is applied, " +
+    "so never write a sign-off or signature into body. " +
     "When replying into a thread, an identical body sent to that thread within about a minute is rejected as a duplicate. " +
     "connectedAccountId is get_workspace_context.connectedAccounts[].id (check its status is ok first); threadId is get_messaging_threads.items[].id.",
   annotations: {
@@ -507,6 +509,8 @@ export const saveMessageDraftTool = {
     "brand-new conversation that exists only as a draft, so outreach to someone you have never messaged can be prepared without " +
     "sending anything; recipients takes email addresses, or one linkedin, telegram or instagram handle. " +
     "send_email and send_chat_message deliver immediately, never use them when asked to draft. " +
+    "A draft stores only the body; the sending account's enabled signature is appended when it is sent, " +
+    "so never write a sign-off or signature into body. " +
     "A thread has at most one draft, saving again replaces it. subject, cc, and bcc apply to email only. " +
     "Drafts show up in get_messaging_threads and can be isolated there with the draft filter. " +
     "Returns the draft message id, its opaque revision token for later send/discard, and its thread id.",

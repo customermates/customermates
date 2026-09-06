@@ -30,7 +30,7 @@ Open a thread's settings to manage everything that belongs to the conversation r
 
 ## Drafts and attachments
 
-Use **Save as draft** in the composer menu to keep a new conversation or a reply in the Inbox without sending it. Saved drafts survive reloads and can be edited, sent, or discarded. There is one saved draft per thread; saving again updates it. UI, REST, and MCP use the same draft queue. API clients must supply the saved message ID and its current `draftRevision` when sending or discarding that draft. Discarding removes the saved content and cannot be undone.
+Use **Save as draft** in the reply composer's menu to keep a reply in the Inbox without sending it. The Inbox has no composer for a brand-new conversation: start one from the send icon on a contact's channel, or with `save_message_draft` over MCP or `POST /v1/messaging/drafts`, and it then appears in the Inbox as a draft. Saved drafts survive reloads and can be edited, sent, or discarded. There is one saved draft per thread; saving again updates it. UI, REST, and MCP use the same draft queue. API clients must supply the saved message ID and its current `draftRevision` when sending or discarding that draft. Discarding removes the saved content and cannot be undone.
 
 Saved drafts store message text and email addressing, not outgoing attachments. Supported incoming media opens inline, ordinary files download, and unsupported items are shown as unsupported. LinkedIn-post attachments open at their external source. Outgoing attachments go through the reply composer on channels that support them.
 

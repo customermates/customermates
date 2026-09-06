@@ -293,6 +293,19 @@ describe("SendEmailInteractor draft target binding", () => {
     });
   });
 
+  it("reports a delivered cold send as sent when its draft shell cannot be discarded", async () => {
+    const repo = emailRepo({
+      discardDraftAfterSend: vi.fn().mockRejectedValue(new Error("database unavailable")),
+    });
+    const service = emailService();
+
+    const result = await emailInteractor(repo, service).invoke(coldEmailInput);
+
+    expect(result.ok).toBe(true);
+    expect(service.sendEmail).toHaveBeenCalledTimes(1);
+    expect(repo.discardDraftAfterSend).toHaveBeenCalledTimes(1);
+  });
+
   it("rejects a stale client revision before provider send", async () => {
     const repo = emailRepo();
     const service = emailService();
@@ -432,6 +445,19 @@ describe("StartChatInteractor cold-draft target binding", () => {
     expect(repo.persistOutboundMessageOrThrow.mock.invocationCallOrder[0]).toBeLessThan(
       repo.discardDraftAfterSend.mock.invocationCallOrder[0],
     );
+  });
+
+  it("reports a delivered cold chat as sent when its draft shell cannot be discarded", async () => {
+    const repo = chatRepo({
+      discardDraftAfterSend: vi.fn().mockRejectedValue(new Error("database unavailable")),
+    });
+    const service = chatService();
+
+    const result = await chatInteractor(repo, service).invoke(coldChatInput);
+
+    expect(result).toEqual({ ok: true, data: { threadId: PERSISTED_CHAT_THREAD_ID } });
+    expect(service.startChat).toHaveBeenCalledTimes(1);
+    expect(repo.discardDraftAfterSend).toHaveBeenCalledTimes(1);
   });
 
   it("rejects a same-account cold draft when the chat targets another recipient", async () => {

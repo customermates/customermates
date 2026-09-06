@@ -30,7 +30,16 @@ URLs are locale-prefixed. For example `https://customermates.com/en/profile/sett
 | Connected accounts tab | Sidebar sub-item | `#nav-profile-connected-accounts` | Messaging accounts for the Inbox |
 | Connect an account | Card header | `#profile-connected-accounts-connect` | Opens the hosted-auth window (email, LinkedIn, WhatsApp, Instagram, Telegram) |
 | Connect an account from an empty profile | Centered empty state | `#profile-connected-accounts-connect-empty` | Opens the same hosted-auth window when no account exists |
-| Manage account / folders | Account row click | none | Opens the account modal (folder selection, resync) |
+| Manage an account | Account row click | none | Opens the account modal on its Details tab |
+| Account details tab | Account modal | `#connected-account-tab-details` | Provider, status, visibility, owner, folder count and sync times |
+| Email tab | Account modal | `#connected-account-tab-email` | Email appearance and signature; appears only for an email account you own |
+| Folders tab | Account modal | `#connected-account-tab-folders` | Choose which provider folders sync; appears only when the account exposes folders |
+
+### Email appearance and signature
+
+The **Email** tab sets how every message sent from that account looks. Appearance covers the font family, base font size, link colour and link style, and applies to the whole email. The link colour takes a six-digit hex value with a colour picker beside it, validates as you type, and warns about low contrast without blocking you.
+
+The signature below it is a single Markdown block with an on/off toggle, so switching it off keeps the saved text for later. Pick a layout of text only, logo above or logo beside, give a public HTTPS logo URL, and adjust logo size, divider and spacing under **Layout options**. A live preview shows the result. Saved appearance and signature apply to every email sent from that account, whether it is sent from the Inbox, the REST API or an MCP tool, so agents must not repeat the signature in the message body.
 
 ## Tips for agents
 
