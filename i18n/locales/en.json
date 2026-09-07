@@ -3088,6 +3088,11 @@
   },
   "RoutineRunReason": {
     "adminPaused": "A company administrator paused the routine",
+    "agentAlreadyCompleted": "This run had already finished",
+    "agentAlreadyRunning": "The assistant was already busy with another run",
+    "agentTurnConflict": "Another run claimed the assistant first",
+    "agentTurnFailed": "The assistant could not start the run",
+    "agentTurnUncertain": "The assistant could not confirm the run had started",
     "filtersNotMatched": "The record did not match the filters",
     "hourlyRunLimit": "The hourly run limit was reached",
     "ownerInactive": "The routine owner's account is no longer active",

@@ -3088,6 +3088,11 @@
   },
   "RoutineRunReason": {
     "adminPaused": "Un amministratore aziendale ha sospeso la routine",
+    "agentAlreadyCompleted": "Questa esecuzione era già terminata",
+    "agentAlreadyRunning": "L’assistente era già impegnato con un’altra esecuzione",
+    "agentTurnConflict": "Un’altra esecuzione ha occupato per prima l’assistente",
+    "agentTurnFailed": "L’assistente non è riuscito ad avviare l’esecuzione",
+    "agentTurnUncertain": "L’assistente non è riuscito a confermare l’avvio dell’esecuzione",
     "filtersNotMatched": "Il record non corrispondeva ai filtri",
     "hourlyRunLimit": "È stato raggiunto il limite orario di esecuzioni",
     "ownerInactive": "L’account del proprietario della routine non è più attivo",

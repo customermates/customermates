@@ -15,6 +15,18 @@ export const ROUTINE_RUN_REASONS = [
   "startAbandoned",
   "ownerInactive",
   "startFailed",
+  "agentAlreadyCompleted",
+  "agentAlreadyRunning",
+  "agentTurnFailed",
+  "agentTurnUncertain",
+  "agentTurnConflict",
+] as const;
+
+export const ROUTINE_RUN_ERROR_CODES = [
+  "agentConversationNotFound",
+  "agentModelUnavailable",
+  "agentLimitReached",
+  "agentTurnAlreadyRunning",
 ] as const;
 
 export function routineRunDetail(
@@ -29,8 +41,8 @@ export function routineRunDetail(
 
   const reason = run.error;
   if (reason && (ROUTINE_RUN_REASONS as readonly string[]).includes(reason)) return t(`RoutineRunReason.${reason}`);
-  if (reason) return reason;
-  if (run.status === RoutineRunStatus.failed) return t("RoutineRunReason.unknownFailure");
+  if (reason && (ROUTINE_RUN_ERROR_CODES as readonly string[]).includes(reason)) return t(`Common.errors.${reason}`);
+  if (reason || run.status === RoutineRunStatus.failed) return t("RoutineRunReason.unknownFailure");
 
   return "";
 }

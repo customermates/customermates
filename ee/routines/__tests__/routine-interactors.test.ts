@@ -835,11 +835,19 @@ describe("StartRoutineRunInteractor", () => {
     expect(conversations.deleteUnusedAgentConversation).not.toHaveBeenCalled();
   });
 
-  it("records a blocked run when the agent refuses to start", async () => {
+  it("records a blocked run under the error code the agent failed with", async () => {
     const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
     sendAgentMessage.invokeRoutine.mockResolvedValue({
       ok: false,
-      error: { issues: [{ message: "You have used all your AI credits." }] },
+      error: {
+        issues: [
+          {
+            code: "custom",
+            message: "You have used all your AI credits.",
+            params: { error: CustomErrorCode.agentLimitReached },
+          },
+        ],
+      },
     });
     const interactor = new StartRoutineRunInteractor(
       repo as never,
@@ -850,15 +858,48 @@ describe("StartRoutineRunInteractor", () => {
 
     const result = await interactor.invoke({ routineRunId: RUN_ID });
 
-    expect(result).toEqual({
-      ok: true,
-      data: { started: false, reason: "You have used all your AI credits." },
-    });
+    expect(result).toEqual({ ok: true, data: { started: false, reason: "agentLimitReached" } });
     expect(repo.settleRoutineRunUnscoped).toHaveBeenCalledWith(
-      expect.objectContaining({
-        status: "blocked",
-        error: "You have used all your AI credits.",
-      }),
+      expect.objectContaining({ status: "blocked", error: "agentLimitReached" }),
+    );
+  });
+
+  it("never stores a rendered sentence when the failure carries no code", async () => {
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
+    sendAgentMessage.invokeRoutine.mockResolvedValue({
+      ok: false,
+      error: { issues: [{ code: "custom", message: "Routines require a paid plan." }] },
+    });
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
+
+    const result = await interactor.invoke({ routineRunId: RUN_ID });
+
+    expect(result).toEqual({ ok: true, data: { started: false, reason: "startFailed" } });
+    expect(repo.settleRoutineRunUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "blocked", error: "startFailed" }),
+    );
+  });
+
+  it("records a skipped run under a translatable reason when the agent declines the turn", async () => {
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
+    sendAgentMessage.invokeRoutine.mockResolvedValue({ ok: true, data: { disposition: "running" } });
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
+
+    const result = await interactor.invoke({ routineRunId: RUN_ID });
+
+    expect(result).toEqual({ ok: true, data: { started: false, reason: "agentAlreadyRunning" } });
+    expect(repo.settleRoutineRunUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "skipped", error: "agentAlreadyRunning" }),
     );
   });
 });

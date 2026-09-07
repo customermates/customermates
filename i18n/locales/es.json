@@ -3088,6 +3088,11 @@
   },
   "RoutineRunReason": {
     "adminPaused": "Un administrador de la empresa pausó la rutina",
+    "agentAlreadyCompleted": "Esta ejecución ya había terminado",
+    "agentAlreadyRunning": "El asistente ya estaba ocupado con otra ejecución",
+    "agentTurnConflict": "Otra ejecución ocupó el asistente primero",
+    "agentTurnFailed": "El asistente no pudo iniciar la ejecución",
+    "agentTurnUncertain": "El asistente no pudo confirmar que la ejecución había empezado",
     "filtersNotMatched": "El registro no coincidió con los filtros",
     "hourlyRunLimit": "Se alcanzó el límite de ejecuciones por hora",
     "ownerInactive": "La cuenta del propietario de la rutina ya no está activa",

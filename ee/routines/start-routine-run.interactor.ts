@@ -14,10 +14,28 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
 
 import { composeRoutinePrompt } from "./routine-prompt";
+import { ROUTINE_RUN_ERROR_CODES } from "./routine-run-outcome";
 
 export const ROUTINE_MAX_IN_FLIGHT_RUNS_PER_OWNER = 1;
 
 const Schema = z.object({ routineRunId: z.uuid() });
+
+const AGENT_DISPOSITION_REASONS: Record<string, string> = {
+  completedReplay: "agentAlreadyCompleted",
+  running: "agentAlreadyRunning",
+  failed: "agentTurnFailed",
+  uncertain: "agentTurnUncertain",
+  conflict: "agentTurnConflict",
+};
+
+function startFailureReason(error: z.ZodError): string {
+  for (const issue of error.issues) {
+    const code = issue.code === "custom" ? issue.params?.error : undefined;
+    if (typeof code === "string" && (ROUTINE_RUN_ERROR_CODES as readonly string[]).includes(code)) return code;
+  }
+
+  return "startFailed";
+}
 
 export type StartRoutineRunData = Data<typeof Schema>;
 
@@ -192,35 +210,33 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
 
     if (!sent.ok) {
       await this.conversations.deleteUnusedAgentConversation(conversationId);
-      const message = sent.error.issues[0]?.message ?? "The routine could not start.";
+      const reason = startFailureReason(sent.error);
       await this.repo.settleRoutineRunUnscoped({
         routineRunId: run.id,
         routineId: routine.id,
         expectedStatus: RoutineRunStatus.running,
         status: RoutineRunStatus.blocked,
-        error: message,
+        error: reason,
         now,
       });
 
-      return { ok: true as const, data: { started: false, reason: message } };
+      return { ok: true as const, data: { started: false, reason } };
     }
 
     if (sent.data.disposition !== "run") {
+      const reason = AGENT_DISPOSITION_REASONS[sent.data.disposition] ?? "startFailed";
       await this.repo.settleRoutineRunUnscoped({
         routineRunId: run.id,
         routineId: routine.id,
         expectedStatus: RoutineRunStatus.running,
         status: RoutineRunStatus.skipped,
-        error: `agentDisposition:${sent.data.disposition}`,
+        error: reason,
         now,
       });
 
       await this.conversations.deleteUnusedAgentConversation(conversationId);
 
-      return {
-        ok: true as const,
-        data: { started: false, reason: sent.data.disposition },
-      };
+      return { ok: true as const, data: { started: false, reason } };
     }
 
     const linked = await this.repo.markRoutineRunStartedUnscoped({

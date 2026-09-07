@@ -3088,6 +3088,11 @@
   },
   "RoutineRunReason": {
     "adminPaused": "Ein Unternehmensadmin hat die Routine pausiert",
+    "agentAlreadyCompleted": "Dieser Lauf war bereits abgeschlossen",
+    "agentAlreadyRunning": "Der Assistent war bereits mit einem anderen Lauf beschäftigt",
+    "agentTurnConflict": "Ein anderer Lauf hat den Assistenten zuerst belegt",
+    "agentTurnFailed": "Der Assistent konnte den Lauf nicht starten",
+    "agentTurnUncertain": "Der Assistent konnte den Start des Laufs nicht bestätigen",
     "filtersNotMatched": "Der Datensatz passte nicht zu den Filtern",
     "hourlyRunLimit": "Das Stundenlimit für Läufe war erreicht",
     "ownerInactive": "Das Konto der Routine-Eigentümerin oder des Eigentümers ist nicht mehr aktiv",

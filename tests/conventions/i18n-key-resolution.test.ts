@@ -585,6 +585,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/routines/components/routine-modal.tsx :: t :: RoutineSchedulePreset.${value}",
   "app/[locale]/(protected)/routines/components/routine-modal.tsx :: t :: RoutineWeekday.${key}",
   "ee/routines/routine-run-outcome.ts :: t :: RoutineRunReason.${reason}",
+  "ee/routines/routine-run-outcome.ts :: t :: Common.errors.${reason}",
   "ee/routines/routine-schedule-preset.ts :: t :: RoutineSchedulePreset.${schedule.preset}",
   "ee/routines/routine-schedule-preset.ts :: t :: RoutineWeekday.${ROUTINE_WEEKDAY_KEYS[schedule.weekday]}",
   "app/[locale]/(protected)/routines/components/use-routine-columns.tsx :: t :: RoutineRunStatus.${row.original.lastRunStatus}",
