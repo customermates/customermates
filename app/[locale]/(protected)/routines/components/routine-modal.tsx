@@ -12,7 +12,6 @@ import type { AppModalActionProps, AppModalActions } from "@/components/modal";
 import { AppModal } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
-import { AppCardFooter } from "@/components/card/app-card-footer";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
@@ -626,14 +625,12 @@ export const RoutineModal = observer(() => {
                       </div>
                     )}
                   </AppCardBody>
-
-                  <AppCardFooter>
-                    <FormActions showInitially anchorScope="routine-modal" store={routineModalStore} />
-                  </AppCardFooter>
                 </RoutineTabPanel>
               )}
             </Tabs>
           )}
+
+          {!openRun && <FormActions showInitially anchorScope="routine-modal" store={routineModalStore} />}
         </AppCard>
       </AppForm>
     </AppModal>
