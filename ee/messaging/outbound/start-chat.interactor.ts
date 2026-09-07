@@ -1,4 +1,4 @@
-import { fail } from "@/core/validation/interactor-failure-server";
+import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import type { ConnectedAccount } from "@/generated/prisma";
@@ -24,7 +24,21 @@ import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { normalizeChannelValue } from "@/features/contacts/channel-value";
-import { LINKEDIN_PRODUCTS, LINKEDIN_PRODUCT_PRIMARY_INBOX, isHandleProvider, type LinkedinProduct } from "../provider";
+import {
+  LINKEDIN_PRODUCTS,
+  LINKEDIN_PRODUCT_PRIMARY_INBOX,
+  isDraftThreadId,
+  isHandleProvider,
+  type LinkedinProduct,
+} from "../provider";
+import {
+  DraftRevisionSchema,
+  draftRevisionMatches,
+  draftThreadRecipientSetsMatch,
+  draftUpdatedAtFromRevision,
+  hasCompleteDraftBinding,
+  type DraftThreadTarget,
+} from "../draft-thread";
 import { formatRetryAfter } from "../retry-after";
 import { EMPTY_ATTENDEE, buildChatAttendee } from "../unipile.mappers";
 import { UnipileInboxSchema } from "../unipile.schema";
@@ -53,9 +67,20 @@ export const BaseStartChatInputSchema = z.object({
     .describe("Subject line of the InMail. Required for sales_navigator and recruiter"),
   inmailSignature: z.string().max(998).optional().describe("Sender signature. Required for recruiter"),
   attachments: z.array(SendAttachmentSchema).max(20).optional(),
+  draftMessageId: z.uuid().optional().describe("Saved new-conversation draft to reconcile after delivery"),
+  draftRevision: DraftRevisionSchema.optional().describe(
+    "Opaque revision returned with the saved draft; required whenever draftMessageId is provided",
+  ),
 });
 
 export const StartChatInputSchema = BaseStartChatInputSchema.superRefine((d, ctx) => {
+  if (!hasCompleteDraftBinding(d)) {
+    ctx.addIssue({
+      code: "custom",
+      params: { error: CustomErrorCode.draftMessageNotFound },
+      path: [d.draftMessageId ? "draftRevision" : "draftMessageId"],
+    });
+  }
   if (!d.text.trim() && !d.attachments?.length) {
     ctx.addIssue({
       code: "custom",
@@ -97,6 +122,8 @@ export abstract class StartChatContactRepo {
 }
 
 export abstract class StartChatThreadRepo {
+  abstract findDraftById(args: { messageId: string }): Promise<DraftThreadTarget | null>;
+  abstract discardDraftAfterSend(args: { messageId: string; expectedUpdatedAt: Date }): Promise<void>;
   abstract persistOutboundMessageOrThrow(args: {
     connectedAccountId: string;
     message: IngestMessage;
@@ -135,6 +162,17 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
     if (denied) return denied;
 
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
+    const draft = data.draftMessageId ? await this.threadRepo.findDraftById({ messageId: data.draftMessageId }) : null;
+    if (data.draftMessageId && !draft) return failNotFound(CustomErrorCode.draftMessageNotFound);
+    if (draft && (!data.draftRevision || !draftRevisionMatches(draft.updatedAt, data.draftRevision)))
+      return failNotFound(CustomErrorCode.draftMessageNotFound);
+    if (
+      draft &&
+      (draft.connectedAccountId !== account.id ||
+        !isDraftThreadId(draft.unipileThreadId) ||
+        !draftThreadRecipientSetsMatch(account.provider, draft.recipientIdentifiers, data.attendeeIdentifiers))
+    )
+      return failNotFound(CustomErrorCode.draftMessageNotFound);
 
     const attendees = isHandleProvider(account.provider)
       ? await this.resolveAttendees(account, data.attendeeIdentifiers)
@@ -164,38 +202,51 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
 
     if (!res.ok) return fail(res.error, [], { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) });
 
-    if (!res.data.chatId) return { ok: true as const, data: { threadId: null } };
+    let threadId: string | null = null;
 
-    try {
-      const persisted = await this.threadRepo.persistOutboundMessageOrThrow({
-        connectedAccountId: account.id,
-        message: {
-          unipileMessageId: res.data.messageId ?? `sent_${randomUUID()}`,
-          providerMessageId: null,
-          provider: account.provider,
-          direction: MessagingMessageDirection.outbound,
-          origin: MessagingMessageOrigin.unipile,
-          sender: { ...EMPTY_ATTENDEE, displayName: account.displayName, isSelf: true },
-          recipients: { to: attendees.attendees, cc: [], bcc: [] },
-          subject: product === "classic" ? null : (data.inmailSubject ?? null),
-          bodyText: data.text,
-          bodyHtml: null,
-          attachmentsMeta: [],
-          isEvent: false,
-          isDeleted: false,
-          isHidden: false,
-          sentAt: new Date(),
-          reactions: [],
-          unipileThreadId: res.data.chatId,
-          threadType: attendees.attendees.length > 1 ? MessagingThreadType.group : MessagingThreadType.single,
-        },
-      });
-
-      return { ok: true as const, data: { threadId: persisted.messagingThreadId } };
-    } catch (err) {
-      Sentry.captureException(err);
-      return { ok: true as const, data: { threadId: null } };
+    if (res.data.chatId) {
+      try {
+        const persisted = await this.threadRepo.persistOutboundMessageOrThrow({
+          connectedAccountId: account.id,
+          message: {
+            unipileMessageId: res.data.messageId ?? `sent_${randomUUID()}`,
+            providerMessageId: null,
+            provider: account.provider,
+            direction: MessagingMessageDirection.outbound,
+            origin: MessagingMessageOrigin.unipile,
+            sender: { ...EMPTY_ATTENDEE, displayName: account.displayName, isSelf: true },
+            recipients: { to: attendees.attendees, cc: [], bcc: [] },
+            subject: product === "classic" ? null : (data.inmailSubject ?? null),
+            bodyText: data.text,
+            bodyHtml: null,
+            attachmentsMeta: [],
+            isEvent: false,
+            isDeleted: false,
+            isHidden: false,
+            sentAt: new Date(),
+            reactions: [],
+            unipileThreadId: res.data.chatId,
+            threadType: attendees.attendees.length > 1 ? MessagingThreadType.group : MessagingThreadType.single,
+          },
+        });
+        threadId = persisted.messagingThreadId;
+      } catch (err) {
+        Sentry.captureException(err);
+      }
     }
+
+    if (draft && data.draftRevision) {
+      try {
+        await this.threadRepo.discardDraftAfterSend({
+          messageId: draft.id,
+          expectedUpdatedAt: draftUpdatedAtFromRevision(data.draftRevision),
+        });
+      } catch (err) {
+        Sentry.captureException(err, { tags: { kind: "draft-discard-failure" } });
+      }
+    }
+
+    return { ok: true as const, data: { threadId } };
   }
 
   private async precheck(data: StartChatData, ctx: z.RefinementCtx) {

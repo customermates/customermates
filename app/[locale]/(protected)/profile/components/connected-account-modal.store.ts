@@ -5,8 +5,14 @@ import { ConnectedAccountStatus, MessagingProvider, Resource } from "@/generated
 import { BaseModalStore } from "@/core/base/base-modal.store";
 
 import type { ConnectedAccountDto } from "@/ee/messaging/messaging.schema";
+import { makeObservable, override as mobxOverride } from "mobx";
+
+import { defaultEmailSettings } from "@/ee/messaging/email-settings";
+import { AccountSignatureStore } from "./account-signature.store";
 
 export class ConnectedAccountModalStore extends BaseModalStore<ConnectedAccountDto> {
+  public readonly signatureStore: AccountSignatureStore;
+
   constructor(rootStore: RootStore) {
     super(
       rootStore,
@@ -28,8 +34,23 @@ export class ConnectedAccountModalStore extends BaseModalStore<ConnectedAccountD
         selectedFolderIds: [],
         foldersSyncedAt: null,
         linkedinProducts: [],
+        signature: null,
+        emailSettings: defaultEmailSettings(),
+        signatureHtml: null,
       },
       Resource.inboxMessages,
+    );
+
+    this.signatureStore = new AccountSignatureStore(rootStore);
+    makeObservable(this, {
+      hasUnsavedChanges: mobxOverride,
+    });
+  }
+
+  override get hasUnsavedChanges(): boolean {
+    return (
+      super.hasUnsavedChanges ||
+      (this.signatureStore.accountId === this.form.id && this.signatureStore.hasUnsavedChanges)
     );
   }
 
@@ -49,4 +70,9 @@ export class ConnectedAccountModalStore extends BaseModalStore<ConnectedAccountD
     const updated = await this.rootStore.connectedAccountsStore.setSelectedFolders(this.form.id, selectedFolderIds);
     if (updated) this.onInitOrRefresh(updated);
   };
+
+  protected override prepareToClose(): boolean {
+    this.signatureStore.resetSession();
+    return true;
+  }
 }

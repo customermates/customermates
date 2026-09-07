@@ -18,7 +18,10 @@ function v2Email(over: Record<string, unknown> = {}) {
   });
 }
 
-const account = { provider: MessagingProvider.google, emailAddress: "owner@example.com" };
+const account = {
+  provider: MessagingProvider.google,
+  emailAddress: "owner@example.com",
+};
 
 describe("buildEmailMessage", () => {
   it("marks an email from the account address outbound and flags the sender self", () => {
@@ -123,6 +126,16 @@ describe("buildEmailMessage", () => {
     expect(buildEmailMessage(v2Email({ body: "" }), account)?.bodyText).toBeNull();
   });
 
+  it.each(["Contact <support@example.com>", "Use <customer> as the template placeholder"])(
+    "preserves plain provider body %s without treating its snippet as full text",
+    (body) => {
+      const msg = buildEmailMessage(v2Email({ body, snippet: "Short preview" }), account);
+      expect(msg?.bodyHtml).toBe(body);
+      expect(msg?.bodyText).toBe(body);
+      expect(msg?.previewText).toBe("Short preview");
+    },
+  );
+
   it("falls back to the email id as the thread id when thread_id is blank", () => {
     const msg = buildEmailMessage(v2Email({ thread_id: "   " }), account);
 
@@ -132,7 +145,14 @@ describe("buildEmailMessage", () => {
   it("maps attachments to the attachment meta shape", () => {
     const msg = buildEmailMessage(
       v2Email({
-        attachments: [{ id: "att-1", filename: "doc.pdf", mimetype: "application/pdf", file_size: 4096 }],
+        attachments: [
+          {
+            id: "att-1",
+            filename: "doc.pdf",
+            mimetype: "application/pdf",
+            file_size: 4096,
+          },
+        ],
       }),
       account,
     );

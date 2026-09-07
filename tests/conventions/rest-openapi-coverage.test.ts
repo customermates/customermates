@@ -12,6 +12,8 @@ const ENFORCED = true;
 const SPEC_EXEMPT_PATHS = new Set(["/v1/mcp", "/v1/openapi"]);
 const HTTP_VERBS = new Set(["get", "post", "put", "patch", "delete", "head", "options"]);
 const HTTP_HANDLER_NAMES = new Set(["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]);
+const SCHEMA_PARSE_METHOD_NAMES = new Set(["parse", "safeParse", "parseAsync", "safeParseAsync"]);
+const NATIVE_PARSE_RECEIVER_NAMES = new Set(["JSON", "Date", "URL"]);
 const ROUTE_MODULE_PATTERN = /\/route\.(?:js|jsx|ts|tsx)$/;
 const BODY_VERBS = new Set(["post", "put", "patch"]);
 const SAFE_REQUEST_METADATA_MEMBERS = new Set([
@@ -566,6 +568,21 @@ function inspectRouteSource(path: string, text: string): Map<string, RouteOperat
     if (ts.isIdentifier(node) && node.text === "eval" && !isPropertyName(node)) {
       addSourceError(undefined, node, "must not use eval in a REST route module");
     }
+    const accessedMember = ts.isPropertyAccessExpression(node)
+      ? node.name.text
+      : ts.isElementAccessExpression(node) && node.argumentExpression && ts.isStringLiteralLike(node.argumentExpression)
+        ? node.argumentExpression.text
+        : undefined;
+    const accessedReceiver =
+      ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node) ? node.expression : undefined;
+    const isNativeParse =
+      accessedMember === "parse" &&
+      accessedReceiver &&
+      ts.isIdentifier(accessedReceiver) &&
+      NATIVE_PARSE_RECEIVER_NAMES.has(accessedReceiver.text);
+    if (accessedMember && SCHEMA_PARSE_METHOD_NAMES.has(accessedMember) && !isNativeParse) {
+      addSourceError(undefined, node, "must keep schema parsing in interactors, not REST route modules");
+    }
     ts.forEachChild(node, auditSource);
   };
   auditSource(source);
@@ -794,9 +811,53 @@ describe("REST route analyzer self-tests", () => {
         }),
       specs: { post: "json" } as const,
     },
+    {
+      name: "native JSON, Date, and URL parsers rather than domain schemas",
+      source: `export function GET() { return Response.json({ payload: JSON.parse("{}"), timestamp: Date.parse("2026-09-05"), url: URL["parse"]("https://example.com") }); }`,
+      specs: { get: "none" } as const,
+    },
+    {
+      name: "interactor validation failures formatted at the transport boundary",
+      source:
+        ROUTE_IMPORTS +
+        canonicalHandler("POST", {
+          after: `const result = await getExampleInteractor().invoke(data); if (!result.ok) return Response.json(z.prettifyError(result.error), { status: 400 }); return Response.json(result.data);`,
+        }),
+      specs: { post: "json" } as const,
+    },
   ])("accepts $name", ({ source, specs }) => {
     expect(syntheticViolations(source, specs)).toEqual([]);
   });
+
+  it.each(["parse", "safeParse", "parseAsync", "safeParseAsync"])(
+    "keeps schema %s methods out of REST input and output adapters",
+    (method) => {
+      const sources = [
+        {
+          source: ROUTE_IMPORTS + canonicalHandler("POST", { after: `return InputSchema.${method}(data);` }),
+          specs: { post: "json" } as const,
+        },
+        {
+          source: `export async function GET() { return OutputSchema.array()["${method}"]([]); }`,
+          specs: { get: "none" } as const,
+        },
+        {
+          source:
+            ROUTE_IMPORTS +
+            canonicalHandler("POST", {
+              after: `const validate = InputSchema.${method}; return validate(data);`,
+            }),
+          specs: { post: "json" } as const,
+        },
+      ];
+
+      for (const { source, specs } of sources) {
+        expect(syntheticViolations(source, specs).join("\n")).toContain(
+          "must keep schema parsing in interactors, not REST route modules",
+        );
+      }
+    },
+  );
 
   it.each([
     {

@@ -92,3 +92,9 @@ export function getProviderProfileUrl(provider: MessagingProvider, value: string
       return null;
   }
 }
+
+export const DRAFT_THREAD_PREFIX = "draft_";
+
+export function isDraftThreadId(unipileThreadId: string): boolean {
+  return unipileThreadId.startsWith(DRAFT_THREAD_PREFIX);
+}

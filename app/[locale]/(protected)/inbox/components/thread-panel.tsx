@@ -17,13 +17,31 @@ import { MessageItem } from "./message-item";
 import { MessageDateSeparator, isSameDay } from "./message-date-separator";
 import { MessagesScrollContainer } from "@/components/scroll/messages-scroll-container";
 import { ThreadAutoMarkRead } from "./thread-auto-mark-read";
+import type { NewThreadTarget } from "./thread-compose.store";
+
 import { ThreadTopBar } from "./thread-topbar";
 import { ThreadReplyComposer } from "./thread-reply-composer";
+import { isDraftThreadId } from "@/ee/messaging/provider";
 
 type Props = {
   threadDetail: ThreadDetail | null;
   locked?: boolean;
 };
+
+function draftThreadTarget(thread: MessagingThread): NewThreadTarget | null {
+  if (!isDraftThreadId(thread.unipileThreadId)) return null;
+
+  const recipients = thread.participants
+    .filter((participant) => !participant.isSelf && participant.identifier)
+    .map((participant) => ({ identifier: participant.identifier, displayName: participant.displayName }));
+  if (recipients.length === 0) return null;
+
+  return {
+    connectedAccountId: thread.connectedAccountId,
+    recipients,
+    draftThreadId: thread.id,
+  };
+}
 
 type ThreadPanelPageState =
   | { status: "locked" }
@@ -152,6 +170,7 @@ export const ThreadPanel = observer(({ threadDetail, locked = false }: Props) =>
             defaultCc={replyRecipients.cc}
             defaultRecipients={replyRecipients.to}
             defaultSubject={thread.subject}
+            newThreadTarget={draftThreadTarget(thread)}
             provider={thread.provider}
             threadId={thread.id}
           />

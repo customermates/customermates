@@ -11,6 +11,7 @@ import {
 import * as Sentry from "@sentry/node";
 
 import { htmlToPlainText } from "./email-body-text";
+import { isPlainTextEmailBody } from "./email-quote";
 
 export const EMPTY_ATTENDEE: MessagingAttendee = {
   attendeeId: "",
@@ -120,7 +121,10 @@ const MESSAGING_PROVIDERS = new Set<MessagingProvider>([
 
 const CALENDAR_PROVIDERS = new Set<MessagingProvider>([MessagingProvider.google, MessagingProvider.outlook]);
 
-export function deriveAccountFeatures(account: UnipileAccount): { hasMessaging: boolean; hasCalendar: boolean } {
+export function deriveAccountFeatures(account: UnipileAccount): {
+  hasMessaging: boolean;
+  hasCalendar: boolean;
+} {
   const raw = account.provider?.toLowerCase();
   if (!raw || !(raw in PROVIDER_TO_PROVIDER)) {
     Sentry.captureMessage(`Unipile account with unsupported provider "${account.provider}"; skipping backfill`, {
@@ -175,7 +179,11 @@ export function toAttachmentsMeta(attachments: UnipileAttachment[] | null | unde
 
 export function buildEmailMessage(
   email: UnipileEmail,
-  account: { provider: MessagingProvider; emailAddress: string | null; sentFolderIds?: string[] },
+  account: {
+    provider: MessagingProvider;
+    emailAddress: string | null;
+    sentFolderIds?: string[];
+  },
 ): IngestMessage | null {
   const unipileMessageId = email.id;
   if (!unipileMessageId) return null;
@@ -208,7 +216,7 @@ export function buildEmailMessage(
     origin: MessagingMessageOrigin.external,
     subject: email.subject ?? null,
     bodyHtml: email.body ?? null,
-    bodyText: htmlToPlainText(email.body),
+    bodyText: email.body && isPlainTextEmailBody(email.body) ? email.body.trim() || null : htmlToPlainText(email.body),
     previewText: email.snippet ?? null,
     sender: { ...sender, isSelf: senderIsSelf },
     recipients: { to, cc, bcc },

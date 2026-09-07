@@ -76,7 +76,7 @@ import { getCalendarEventsOperation } from "@/ee/calendar/get-calendar-events.op
 import { getCalendarEventByIdOperation } from "@/ee/calendar/get-calendar-event-by-id.openapi";
 import { sendEmailOperation } from "@/ee/messaging/outbound/send-email.openapi";
 import { startChatOperation } from "@/ee/messaging/outbound/start-chat.openapi";
-import { saveDraftOperation } from "@/ee/messaging/outbound/save-draft.openapi";
+import { saveDraftOperation, saveNewThreadDraftOperation } from "@/ee/messaging/outbound/save-draft.openapi";
 import { discardDraftOperation } from "@/ee/messaging/outbound/discard-draft.openapi";
 import { getSocialPostsOperation } from "@/ee/messaging/posts/list-social-posts.openapi";
 import { getSocialPostEngagementOperation } from "@/ee/messaging/posts/list-social-post-comments.openapi";
@@ -331,6 +331,9 @@ export function generateOpenApiSpec() {
       },
       "/v1/messaging/threads/{id}/drafts": {
         post: saveDraftOperation,
+      },
+      "/v1/messaging/drafts": {
+        post: saveNewThreadDraftOperation,
       },
       "/v1/messaging/drafts/{id}": {
         delete: discardDraftOperation,

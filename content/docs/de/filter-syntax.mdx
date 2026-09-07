@@ -39,8 +39,8 @@ Regeln sind UND-verknüpft. Für ODER: zwei Queries laufen lassen und client-sei
 | `inLastDays` | einen Wert (Ganzzahl) | Daten | `30` |
 | `isNull` | kein Value | beliebig | (keins) |
 | `isNotNull` | kein Value | beliebig | (keins) |
-| `hasNone` | kein Value | Relationship-Arrays | (keins) |
-| `hasSome` | kein Value | Relationship-Arrays | (keins) |
+| `hasNone` | kein Value | Relationship-Arrays, Draft-Status von Messaging-Threads | (keins) |
+| `hasSome` | kein Value | Relationship-Arrays, Draft-Status von Messaging-Threads | (keins) |
 | `hasUnset` | kein Value | Messaging-Thread-Teilnehmer | (keins) |
 | `allSet` | kein Value | Messaging-Thread-Teilnehmer | (keins) |
 
@@ -50,7 +50,7 @@ Datumsfelder wie `createdAt` und `updatedAt` akzeptieren `gt`, `gte`, `lt`, `lte
 
 ### Relationship- und Teilnehmer-Operatoren
 
-Relationship-Arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`, `serviceIds`, `taskIds`) akzeptieren `in`, `notIn`, `hasNone` und `hasSome`. Das Teilnehmer-Verknüpfungsfeld auf `get_messaging_threads` nutzt `hasUnset` und `allSet`, um Threads danach zu filtern, ob ihre Teilnehmer mit Datensätzen verknüpft sind.
+Relationship-Arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`, `serviceIds`, `taskIds`) akzeptieren `in`, `notIn`, `hasNone` und `hasSome`. Das Teilnehmer-Verknüpfungsfeld auf `get_messaging_threads` nutzt `hasUnset` und `allSet`, um Threads danach zu filtern, ob ihre Teilnehmer mit Datensätzen verknüpft sind. Das Feld `draft` desselben Tools akzeptiert die wertlosen Operatoren `hasSome` (der Thread enthält einen ungesendeten Draft) und `hasNone` (er enthält keinen), womit sich Drafts auflisten oder ausschließen lassen.
 
 ## Feldnamen
 

@@ -49,6 +49,11 @@ describe("isPlainTextEmailBody", () => {
     ).toBe(true);
   });
 
+  it("recognizes paired custom html tags and ignores a bare tag name in prose", () => {
+    expect(isPlainTextEmailBody("<section>Hello</section>")).toBe(false);
+    expect(isPlainTextEmailBody("Write <div> literally")).toBe(true);
+  });
+
   it("recognizes real html bodies", () => {
     expect(isPlainTextEmailBody('<div dir="ltr">Hello<br></div>')).toBe(false);
     expect(isPlainTextEmailBody("<html><body>Hi</body></html>")).toBe(false);
