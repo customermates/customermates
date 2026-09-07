@@ -1,6 +1,16 @@
 import type { MessagingProvider, Prisma, PrismaClient } from "@/generated/prisma";
 
+import type { EmailSettings } from "@/ee/messaging/email-settings";
+
 import { SYNTHETIC_COMPANY_USERS } from "@/core/config/synthetic-seed-user";
+import {
+  DEFAULT_LINK_HEX,
+  EmailFontFamily,
+  EmailLinkStyle,
+  SignatureTemplate,
+  defaultEmailSettings,
+} from "@/ee/messaging/email-settings";
+import { composeEmailBodies } from "@/ee/messaging/outbound/email-signature";
 
 import { SYNTHETIC_AVATAR_URLS } from "../avatars";
 import { fixtureId } from "../helpers";
@@ -44,12 +54,61 @@ function isEmailFixtureProvider(provider: MessagingProvider): provider is EmailF
   return provider === "google" || provider === "outlook";
 }
 
-function emailHtml(text: string): string {
-  const escaped = text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-  return escaped
-    .split("\n\n")
-    .map((paragraph) => `<p>${paragraph}</p>`)
-    .join("");
+const MARKDOWN_LINE_BREAK = "\\\n";
+
+function workspaceSignature(seedUserEmail: string): string {
+  return [
+    `**${SYNTHETIC_COMPANY_USERS.maxBergmann.name}**`,
+    "Customer Success, Customermates",
+    `[${seedUserEmail}](mailto:${seedUserEmail})`,
+    "<https://customermates.com>",
+  ].join(MARKDOWN_LINE_BREAK);
+}
+
+function workspaceEmailSettings(): EmailSettings {
+  const base = defaultEmailSettings();
+  return {
+    ...base,
+    appearance: {
+      ...base.appearance,
+      fontFamily: EmailFontFamily.sansSerif,
+      fontSize: 14,
+      linkHex: DEFAULT_LINK_HEX,
+      linkStyle: EmailLinkStyle.underlined,
+    },
+    signature: { ...base.signature, enabled: true, template: SignatureTemplate.plain },
+  };
+}
+
+function correspondentEmailSettings(): EmailSettings {
+  const base = defaultEmailSettings();
+  return {
+    ...base,
+    appearance: {
+      ...base.appearance,
+      fontFamily: EmailFontFamily.serif,
+      fontSize: 14,
+      linkHex: "#2f6fd0",
+      linkStyle: EmailLinkStyle.plain,
+    },
+    signature: { ...base.signature, enabled: true, template: SignatureTemplate.plain },
+  };
+}
+
+function correspondentSignature(personKey: PersonKey): string | null {
+  const person = people[personKey];
+  if (!person.email) return null;
+
+  const role = person.occupation ?? person.headline;
+  return [`**${person.displayName}**`, ...(role ? [role] : []), `[${person.email}](mailto:${person.email})`].join(
+    MARKDOWN_LINE_BREAK,
+  );
+}
+
+function emailBodies(text: string, sender: ThreadFixture["messages"][number]["sender"], seedUserEmail: string) {
+  return sender === "self"
+    ? composeEmailBodies(text, workspaceSignature(seedUserEmail), workspaceEmailSettings(), "markdown")
+    : composeEmailBodies(text, correspondentSignature(sender), correspondentEmailSettings(), "markdown");
 }
 
 function providerFor(account: ThreadFixture["account"]): ThreadFixture["account"] {
@@ -306,6 +365,12 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
       folders: inputJson(account.folders),
       selectedFolderIds: account.selectedFolderIds,
       foldersSyncedAt: isEmailFixtureProvider(account.provider) ? new Date(anchor.getTime() - 5 * MINUTE) : null,
+      ...(isEmailFixtureProvider(account.provider)
+        ? {
+            signature: workspaceSignature(context.seedUserEmail),
+            signatureFields: inputJson(workspaceEmailSettings()),
+          }
+        : {}),
       linkedinProducts: account.linkedinProducts,
       shared: false,
       syncing: false,
@@ -648,6 +713,9 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
           : personAttendee(message.reaction.sender, provider)
         : null;
       const unipileMessageId = `demo-fixture-message-${messageIndex}`;
+      const composedBodies = isEmailFixtureProvider(provider)
+        ? emailBodies(message.text, message.sender, context.seedUserEmail)
+        : null;
       const data = {
         companyId: context.companyId,
         connectedAccountId,
@@ -672,8 +740,8 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
             : [],
         ),
         subject: fixture.subject,
-        bodyText: message.text,
-        bodyHtml: isEmailFixtureProvider(provider) ? emailHtml(message.text) : null,
+        bodyText: composedBodies ? composedBodies.plainText : message.text,
+        bodyHtml: composedBodies ? composedBodies.html : null,
         attachmentsMeta: inputJson([]),
         folderIds: emailFolderIds(provider, message.sender === "self"),
         isEvent: false,
