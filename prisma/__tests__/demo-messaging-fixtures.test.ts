@@ -3,6 +3,13 @@ import type { PrismaClient } from "@/generated/prisma";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { SYNTHETIC_COMPANY_USERS } from "@/core/config/synthetic-seed-user";
+import {
+  EmailSettingsSchema,
+  SIGNATURE_LOGO_URL,
+  SignatureTemplate,
+  emailLinkContrast,
+} from "@/ee/messaging/email-settings";
+import { SIGNATURE_DELIMITER } from "@/ee/messaging/outbound/email-signature";
 
 import { seedDemoMessagingFixtures } from "../seeds/messaging/seed";
 import {
@@ -230,6 +237,22 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
       expect(call.where).toEqual({
         unipileAccountId: call.create.unipileAccountId,
       });
+    }
+
+    for (const account of accounts) {
+      const isEmailAccount = account.provider === "google" || account.provider === "outlook";
+      if (!isEmailAccount) {
+        expect(account.signature).toBeUndefined();
+        expect(account.signatureFields).toBeUndefined();
+        continue;
+      }
+
+      expect(String(account.signature)).toContain(String(context.seedUserEmail));
+      const settings = EmailSettingsSchema.safeParse(account.signatureFields);
+      expect(settings.success).toBe(true);
+      expect(settings.data?.signature.template).toBe(SignatureTemplate.plain);
+      expect(settings.data?.signature.enabled).toBe(true);
+      expect(emailLinkContrast(String(settings.data?.appearance.linkHex)).readable).toBe(true);
     }
     for (const call of records.contactIdentifiers) {
       expect(call.where).toEqual({
@@ -679,7 +702,17 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
 
       if (message.provider === "google" || message.provider === "outlook") {
         const folderPrefix = message.provider === "google" ? "google" : "outlook";
-        expect(String(message.bodyHtml)).toContain("<p>");
+        expect(String(message.bodyHtml)).toContain('data-customermates-email-markdown="true"');
+        expect(String(message.bodyHtml).match(/data-customermates-signature/g)).toHaveLength(1);
+        expect(String(message.bodyHtml)).not.toMatch(/<img/i);
+        expect(String(message.bodyHtml)).not.toContain(SIGNATURE_LOGO_URL);
+
+        const linkHexes = [...String(message.bodyHtml).matchAll(/<a[^>]*color:(#[0-9a-f]{6})/gi)].map(
+          (match) => match[1],
+        );
+        expect(linkHexes.length).toBeGreaterThan(0);
+        for (const hex of linkHexes) expect(emailLinkContrast(hex).readable).toBe(true);
+
         expect(message.folderIds).toEqual(
           message.direction === "outbound" ? [`demo-${folderPrefix}-sent`] : [`demo-${folderPrefix}-inbox`],
         );
@@ -699,8 +732,13 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
         .toSorted((left, right) => (left.sentAt as Date).getTime() - (right.sentAt as Date).getTime())
         .at(-1);
       expect(latest?.sentAt).toEqual(thread.lastMessageAt);
-      expect(latest?.bodyText).toBe(thread.lastMessagePreview);
+      expect(String(latest?.bodyText).split(SIGNATURE_DELIMITER)[0]).toBe(thread.lastMessagePreview);
       expect(latest?.direction === "outbound").toBe(thread.lastMessageIsSender);
+
+      const orderedBodies = threadMessages
+        .toSorted((left, right) => (left.sentAt as Date).getTime() - (right.sentAt as Date).getTime())
+        .map((message) => String(message.bodyText).split(SIGNATURE_DELIMITER)[0]);
+      expect(orderedBodies).toEqual(threadFixtures[threadIndex].messages.map((message) => message.text));
     }
 
     const resetContracts = [
