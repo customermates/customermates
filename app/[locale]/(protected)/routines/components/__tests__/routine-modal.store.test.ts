@@ -25,6 +25,10 @@ const routineActions = vi.hoisted(() => ({
 
 vi.mock("../../actions", () => routineActions);
 
+const sonner = vi.hoisted(() => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+
+vi.mock("sonner", () => sonner);
+
 import { RoutineModalStore } from "../routine-modal.store";
 
 const OWNER_ID = "30000000-0000-4000-8000-000000000010";
@@ -76,6 +80,7 @@ function makeStore(
     },
     routinesStore: { upsertItem: vi.fn(), removeItem: vi.fn() },
     routineRunChatStore: chat,
+    localeStore: { getTranslation: (key: string) => key },
   } as unknown as RootStore);
 }
 
@@ -402,5 +407,31 @@ describe("RoutineModalStore", () => {
     await adminViewerStore.runNow();
 
     expect(routineActions.runRoutineNowAction).not.toHaveBeenCalled();
+  });
+
+  it("opens the runs tab and confirms once a test run is queued", async () => {
+    routineActions.runRoutineNowAction.mockResolvedValue({ ok: true, data: "queued-run" });
+    const store = makeStore();
+    await store.openForEdit(makeRoutine());
+
+    expect(store.activeTab).toBe("details");
+
+    await store.runNow();
+
+    expect(routineActions.runRoutineNowAction).toHaveBeenCalledTimes(1);
+    expect(store.activeTab).toBe("runs");
+    expect(routineActions.getRoutineRunsAction).toHaveBeenCalled();
+    expect(sonner.toast.success).toHaveBeenCalledWith("RoutineDetail.testTriggerStarted", expect.anything());
+  });
+
+  it("stays on the details tab and stays silent when the test run is refused", async () => {
+    routineActions.runRoutineNowAction.mockResolvedValue({ ok: false, error: { errors: [] } });
+    const store = makeStore();
+    await store.openForEdit(makeRoutine());
+
+    await store.runNow();
+
+    expect(store.activeTab).toBe("details");
+    expect(sonner.toast.success).not.toHaveBeenCalled();
   });
 });

@@ -3088,6 +3088,7 @@
     "testTriggerEnableFirst": "Aktiviere diese Routine, bevor du sie testest.",
     "testTriggerEventUnavailable": "Ereignis-Auslöser benötigen echte Ereignisdaten. Löse zum Testen dieser Routine ein passendes Ereignis im Arbeitsbereich aus.",
     "testTriggerSaveFirst": "Speichere deine Änderungen, bevor du diese Routine testest.",
+    "testTriggerStarted": "Testlauf gestartet.",
     "testTriggerWarning": "Führe diese Routine jetzt aus. Das verbraucht deine KI-Guthaben und kann die in den Anweisungen genannten Aktionen ausführen.",
     "transcriptOwnerOnly": "Nur {owner}, unter dessen Identität die Routine lief, kann das vollständige Protokoll öffnen.",
     "trigger": "Auslöser",

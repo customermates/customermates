@@ -3088,6 +3088,7 @@
     "testTriggerEnableFirst": "Activate this routine before testing it.",
     "testTriggerEventUnavailable": "Event triggers need real event data. Trigger a matching event in your workspace to test this routine.",
     "testTriggerSaveFirst": "Save your changes before testing this routine.",
+    "testTriggerStarted": "Test run started.",
     "testTriggerWarning": "Run this routine now. This uses your AI credits and can perform the actions in its instructions.",
     "transcriptOwnerOnly": "Only {owner}, who ran this routine, can open the full transcript.",
     "trigger": "Trigger",

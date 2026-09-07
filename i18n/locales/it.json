@@ -3088,6 +3088,7 @@
     "testTriggerEnableFirst": "Attiva questa routine prima di testarla.",
     "testTriggerEventUnavailable": "Le attivazioni basate su eventi richiedono dati reali. Genera un evento corrispondente nell'area di lavoro per testare questa routine.",
     "testTriggerSaveFirst": "Salva le modifiche prima di testare questa routine.",
+    "testTriggerStarted": "Esecuzione di prova avviata.",
     "testTriggerWarning": "Esegui subito questa routine. Utilizza i tuoi crediti IA e può svolgere le azioni indicate nelle istruzioni.",
     "transcriptOwnerOnly": "Solo {owner}, che ha eseguito questa routine, può aprire la trascrizione completa.",
     "trigger": "Attivatore",

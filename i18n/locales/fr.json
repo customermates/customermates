@@ -3088,6 +3088,7 @@
     "testTriggerEnableFirst": "Activez cette routine avant de la tester.",
     "testTriggerEventUnavailable": "Les déclencheurs d'évènements ont besoin de données réelles. Déclenchez un évènement correspondant dans l'espace de travail pour tester cette routine.",
     "testTriggerSaveFirst": "Enregistrez vos modifications avant de tester cette routine.",
+    "testTriggerStarted": "Exécution de test lancée.",
     "testTriggerWarning": "Exécutez cette routine maintenant. Elle utilise vos crédits d’IA et peut effectuer les actions indiquées dans ses instructions.",
     "transcriptOwnerOnly": "Seul {owner}, qui a exécuté cette routine, peut ouvrir la transcription complète.",
     "trigger": "Déclencheur",

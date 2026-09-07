@@ -380,7 +380,11 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
         return;
       }
 
+      runInAction(() => {
+        this.activeTab = "runs";
+      });
       await this.loadRuns(routineId);
+      this.toastSuccess("RoutineDetail.testTriggerStarted");
     } finally {
       runInAction(() => {
         this.isStartingRun = false;

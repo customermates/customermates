@@ -3088,6 +3088,7 @@
     "testTriggerEnableFirst": "Activa esta rutina antes de probarla.",
     "testTriggerEventUnavailable": "Los disparadores de eventos necesitan datos reales. Genera un evento coincidente en el espacio de trabajo para probar esta rutina.",
     "testTriggerSaveFirst": "Guarda los cambios antes de probar esta rutina.",
+    "testTriggerStarted": "Ejecución de prueba iniciada.",
     "testTriggerWarning": "Ejecuta esta rutina ahora. Usará tus créditos de IA y puede realizar las acciones indicadas en sus instrucciones.",
     "transcriptOwnerOnly": "Solo {owner}, que ejecutó esta rutina, puede abrir la transcripción completa.",
     "trigger": "Activador",
