@@ -114,7 +114,6 @@ describe("synthetic data view fixtures", () => {
   it("shows a pipeline on every surface that can group, and filters the one that cannot", () => {
     const grouped = views().filter(({ state }) => state.grouping);
 
-    expect(grouped.every(({ state }) => state.viewMode === ViewMode.card)).toBe(true);
     expect(new Set(grouped.map(({ surfaceKey }) => surfaceKey))).toEqual(
       new Set([
         "contacts-card-store",
@@ -130,6 +129,47 @@ describe("synthetic data view fixtures", () => {
     expect(inbox.every(({ state }) => !state.grouping)).toBe(true);
     expect(inbox.every(({ state }) => (state.filters ?? []).length > 0)).toBe(true);
     expect(inbox.some(({ state }) => (state.filters ?? []).some((filter) => filter.field === DRAFT_FIELD))).toBe(true);
+  });
+
+  it("varies the appearance, so the demo shows boards, grouped tables and plain tables", () => {
+    const all = views();
+    const boards = all.filter(({ state }) => state.viewMode === ViewMode.card);
+    const groupedTables = all.filter(({ state }) => state.viewMode === ViewMode.table && state.grouping);
+    const plainTables = all.filter(({ state }) => state.viewMode === ViewMode.table && !state.grouping);
+
+    expect(boards.every(({ state }) => Boolean(state.grouping))).toBe(true);
+    expect(boards.length).toBeGreaterThan(4);
+    expect(groupedTables.length).toBeGreaterThan(0);
+    expect(plainTables.length).toBeGreaterThan(4);
+
+    const kinds = new Set(
+      all.flatMap(({ state }) => (state.grouping ? [state.grouping.bucket ? "dateBucket" : "field"] : [])),
+    );
+
+    expect(kinds).toEqual(new Set(["field", "dateBucket"]));
+  });
+
+  it("curates the columns on every board, so a card is not a dump of every field", () => {
+    const boards = views().filter(({ state }) => state.viewMode === ViewMode.card);
+
+    expect(boards.length).toBeGreaterThan(4);
+    for (const boardView of boards) {
+      expect((boardView.state.hiddenColumns ?? []).length, boardView.name).toBeGreaterThan(3);
+      const groupingField = boardView.state.grouping?.field;
+      if (groupingField && !groupingField.endsWith("Ids"))
+        expect(boardView.state.hiddenColumns, boardView.name).toContain(groupingField);
+    }
+  });
+
+  it("carries real column settings, not just filters", () => {
+    const all = views();
+
+    expect(all.some(({ state }) => (state.columnOrder ?? []).length > 0)).toBe(true);
+    expect(all.some(({ state }) => (state.hiddenColumns ?? []).length > 0)).toBe(true);
+    expect(all.some(({ state }) => Object.keys(state.columnWidths ?? {}).length > 0)).toBe(true);
+    expect(all.some(({ state }) => state.sortDescriptor)).toBe(true);
+    expect(all.some(({ state }) => state.pageSize)).toBe(true);
+    expect(all.every(({ state }) => !(state.hiddenColumns ?? []).includes("name"))).toBe(true);
   });
 
   it("converges on a second run and removes only stale deterministic rows", async () => {

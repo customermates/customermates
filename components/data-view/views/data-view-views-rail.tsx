@@ -17,7 +17,6 @@ import { OverflowRail } from "@/components/shared/overflow-rail";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
-import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 
 import { VIEW_SURFACE_CLASS, VIEW_TAB_CLASS, ViewChip } from "./view-chip";
@@ -50,7 +49,6 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
 }: Props<E>) {
   const t = useTranslations();
   const pathname = usePathname();
-  const { appMode } = useRootStore();
   const [meta, setMeta] = useState<ViewMetaDraft | null>(null);
   const offersViews = Boolean(store.p13nId);
 
@@ -68,7 +66,6 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
 
   if (!offersViews) return null;
 
-  const canWriteViews = appMode !== "demo";
   const activeName = activeView?.name ?? t("DataView.views.all");
   const ordered = sortViewsByPosition(store.views);
   const isDrafting = meta !== null && meta.mode !== "edit";
@@ -165,7 +162,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
               );
             })}
 
-          {store.isReady && canWriteViews && (
+          {store.isReady && (
             <ViewMetaOverlay
               mode={meta?.mode ?? "create"}
               name={meta?.name ?? ""}
@@ -192,7 +189,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
         </OverflowRail>
       </TooltipProvider>
 
-      {store.isReady && canWriteViews && (
+      {store.isReady && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
