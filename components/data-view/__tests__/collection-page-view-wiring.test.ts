@@ -18,6 +18,8 @@ const harness = vi.hoisted(() => ({
   roleAdd: vi.fn(),
   roleOpen: vi.fn(),
   roleSet: vi.fn(),
+  routineCreate: vi.fn(),
+  routineEdit: vi.fn(),
   setTopBarActions: vi.fn(),
   sync: vi.fn(),
   toolbarProps: vi.fn(),
@@ -114,6 +116,9 @@ vi.mock("@/app/[locale]/(protected)/company/components/webhook/use-webhook-colum
 vi.mock("@/app/[locale]/(protected)/company/components/webhook/use-webhook-delivery-columns", () => ({
   useWebhookDeliveryColumns: () => [],
 }));
+vi.mock("@/app/[locale]/(protected)/routines/components/use-routine-columns", () => ({
+  useRoutineColumns: () => [],
+}));
 
 vi.mock("@/app/[locale]/(protected)/company/components/role/role-modal", () => ({
   RoleModal: () => createElement("div", { "data-role-modal": true }),
@@ -125,6 +130,7 @@ import { MembersPageView } from "@/app/[locale]/(protected)/company/components/u
 import { WebhookDeliveriesPageView } from "@/app/[locale]/(protected)/company/components/webhook/webhook-deliveries-page-view";
 import { WebhooksPageView } from "@/app/[locale]/(protected)/company/components/webhook/webhooks-page-view";
 import { DealsPageView } from "@/app/[locale]/(protected)/deals/components/deals-page-view";
+import { RoutinesPageView } from "@/app/[locale]/(protected)/routines/components/routines-page-view";
 import { ServicesPageView } from "@/app/[locale]/(protected)/services/components/services-page-view";
 import { TasksPageView } from "@/app/[locale]/(protected)/tasks/components/tasks-page-view";
 
@@ -193,6 +199,7 @@ function setRoot(key: string, value: Store, extras: Record<string, unknown> = {}
       onInitOrRefresh: harness.webhookDeliveryInit,
       open: harness.webhookDeliveryOpen,
     },
+    routineModalStore: { openForCreate: harness.routineCreate, openForEdit: harness.routineEdit },
     webhookModalStore: { openWith: harness.webhookOpen },
     [key]: value,
     ...extras,
@@ -346,6 +353,21 @@ const fixtures: Fixture[] = [
       (props.onRowClick as (value: typeof item) => void)(item);
       expect(harness.webhookDeliveryInit).toHaveBeenCalledWith(item);
       expect(harness.webhookDeliveryOpen).toHaveBeenCalledTimes(1);
+    },
+    verifySync: (value, initial) => expect(harness.sync).toHaveBeenCalledWith(value, initial),
+  },
+  {
+    creator: true,
+    name: "Routines",
+    render: (value, initial) => {
+      setRoot("routinesStore", value);
+      return renderToStaticMarkup(createElement(RoutinesPageView, { initialRoutines: initial as never }));
+    },
+    verifyAdd: () => expect(harness.routineCreate).toHaveBeenCalledTimes(1),
+    verifyRow: (props) => {
+      const item = { id: "row", name: "Weekly digest" };
+      (props.onRowClick as (value: typeof item) => void)(item);
+      expect(harness.routineEdit).toHaveBeenCalledWith(item);
     },
     verifySync: (value, initial) => expect(harness.sync).toHaveBeenCalledWith(value, initial),
   },
