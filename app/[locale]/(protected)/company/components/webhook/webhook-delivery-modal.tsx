@@ -81,7 +81,7 @@ export const WebhookDeliveryModal = observer(() => {
 
           <CodeBlockAccordion
             code={JSON.stringify(delivery.requestBody, null, 2)}
-            title={t("WebhookDeliveryModal.requestBody")}
+            title={t("WebhookDeliveryModal.eventPayload")}
           />
         </AppCardBody>
       </AppCard>

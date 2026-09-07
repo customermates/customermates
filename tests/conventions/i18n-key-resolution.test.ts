@@ -117,6 +117,7 @@ const FORM_FIELD_INPUT_KEYS = [
   "Common.inputs.emails",
   "Common.inputs.events",
   "Common.inputs.feedback",
+  "Common.inputs.headers",
   "Common.inputs.firstName",
   "Common.inputs.lastName",
   "Common.inputs.message",

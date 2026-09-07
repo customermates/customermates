@@ -9,11 +9,12 @@ import { deleteWebhookAction, upsertWebhookAction } from "../../actions";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import { formatWebhookHeaderLines, parseWebhookHeaderLines } from "@/features/webhook/webhook-headers";
+import { parseWebhookHeaderLines } from "@/features/webhook/webhook-headers";
 
-export class WebhookModalStore extends BaseModalStore<UpsertWebhookData> {
+export type WebhookFormData = Omit<UpsertWebhookData, "headers"> & { headers?: string };
+
+export class WebhookModalStore extends BaseModalStore<WebhookFormData> {
   showSecret = false;
-  headersDraft = "";
 
   constructor(rootStore: RootStore) {
     super(
@@ -23,7 +24,7 @@ export class WebhookModalStore extends BaseModalStore<UpsertWebhookData> {
         description: undefined,
         events: [],
         secret: undefined,
-        headers: undefined,
+        headers: "",
         bodyTemplate: undefined,
         enabled: true,
       },
@@ -32,24 +33,12 @@ export class WebhookModalStore extends BaseModalStore<UpsertWebhookData> {
 
     makeObservable(this, {
       showSecret: observable,
-      headersDraft: observable,
 
       delete: action,
       onSubmit: action,
       toggleShowSecret: action,
-      setHeadersDraft: action,
     });
   }
-
-  openWith = (initial: Partial<UpsertWebhookData>) => {
-    this.onInitOrRefresh(initial);
-    this.headersDraft = formatWebhookHeaderLines(initial.headers);
-    this.open();
-  };
-
-  setHeadersDraft = (value: string) => {
-    this.headersDraft = value;
-  };
 
   toggleShowSecret = () => {
     this.showSecret = !this.showSecret;
@@ -80,10 +69,11 @@ export class WebhookModalStore extends BaseModalStore<UpsertWebhookData> {
     this.setIsLoading(true);
 
     try {
-      const headers = parseWebhookHeaderLines(this.headersDraft);
+      const { headers, ...form } = toJS(this.form);
+      const parsed = parseWebhookHeaderLines(headers ?? "");
       const res = await upsertWebhookAction({
-        ...toJS(this.form),
-        headers: Object.keys(headers).length > 0 ? headers : null,
+        ...form,
+        headers: Object.keys(parsed).length > 0 ? parsed : null,
       });
 
       if (res.ok) {

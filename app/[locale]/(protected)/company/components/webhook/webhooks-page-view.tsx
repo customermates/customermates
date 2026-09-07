@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { WebhookDto } from "@/features/webhook/webhook.schema";
 
+import { formatWebhookHeaderLines } from "@/features/webhook/webhook-headers";
 import { observer } from "mobx-react-lite";
 import { useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
@@ -47,7 +48,7 @@ export const WebhooksPageView = observer(function WebhooksPageView({ initialWebh
         description: undefined,
         events: [],
         secret: undefined,
-        headers: undefined,
+        headers: "",
         bodyTemplate: undefined,
         enabled: true,
       }),
@@ -114,7 +115,7 @@ export const WebhooksPageView = observer(function WebhooksPageView({ initialWebh
               description: item.description ?? undefined,
               events: item.events,
               secret: item.secret ?? undefined,
-              headers: item.headers ?? undefined,
+              headers: formatWebhookHeaderLines(item.headers),
               bodyTemplate: item.bodyTemplate ?? undefined,
               enabled: item.enabled,
             })

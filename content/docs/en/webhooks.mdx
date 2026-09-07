@@ -29,7 +29,7 @@ Webhooks let other systems react to CRM changes without polling.
 }
 ```
 
-The URL must be HTTPS. HTTP is rejected.
+Use an HTTPS endpoint. An `http://` URL is accepted for local testing, but a webhook that carries custom headers must be `https://`, because headers usually carry a credential.
 
 ## What you receive
 
@@ -88,26 +88,6 @@ Example, `contact.updated`:
 
 The record fields depend on the entity type. Custom columns appear under `customFieldValues` as `columnId` and `value` pairs. Use `get_record_schema` to see the columns configured for a given entity in your workspace.
 
-## Custom headers and body templates
-
-Some receivers will not accept the standard delivery. Two optional settings cover that.
-
-**Custom headers** are sent with every delivery, for endpoints that require their own authentication. Set them in the UI one per line as `Name: value`, or pass a `headers` object through MCP and the API. Values are write-only: they are never returned by a read, which reports `headerNames` instead.
-
-`Content-Type`, `Host` and `X-Webhook-Signature` are set by Customermates and cannot be overridden. Header names must be valid HTTP tokens and values may not contain line breaks. Because headers usually carry a credential, a webhook that has them must use an HTTPS endpoint; a cleartext delivery fails instead of leaking the credential.
-
-**A body template** replaces the standard envelope for endpoints that expect a fixed shape, such as Slack, Discord, or an automation endpoint that reads a single field. Write a JSON document and reference envelope values with placeholders:
-
-```json
-{ "text": "{{event}} for {{data.entityId}}" }
-```
-
-Available placeholders are `{{event}}`, `{{timestamp}}` and any path under `{{data}}`, including `{{data.entityId}}`, `{{data.companyId}}`, `{{data.userId}}` and `{{data.payload}}`. A placeholder that resolves to an object is inserted as a JSON string; a missing path becomes an empty string. Substituted values are escaped, so record content cannot alter the structure of the document.
-
-The template must produce a JSON object. It is checked when you save the webhook, and a delivery whose template fails to render is recorded as failed rather than sent. The signature is always computed over the body that is actually sent.
-
-Leave both settings empty and delivery is unchanged.
-
 ## The `changes` object
 
 `changes` is present only on `*.updated` events. Each key is a record field whose value moved. `previous` is the value before the write, `current` is the value after.
@@ -115,6 +95,96 @@ Leave both settings empty and delivery is unchanged.
 Arrays of related records compare by id. Objects compare by deep equality. Scalar fields compare by value. `createdAt` and `updatedAt` are never reported as changes.
 
 If a write does not change any field, the event is suppressed. No-op `*.updated` events are not delivered.
+
+## Custom headers and body templates
+
+Some receivers will not accept the standard delivery. Two optional settings cover that, and a webhook that sets neither delivers exactly as described above.
+
+**Custom headers** are sent with every delivery, for endpoints that require their own authentication. Set them in the UI one per line as `Name: value`, or pass a `headers` object through MCP and the API. `Content-Type`, `Host` and `X-Webhook-Signature` are set by Customermates and cannot be overridden; header names must be valid HTTP tokens, and values must be Latin-1 text without line breaks. Because headers usually carry a credential, a webhook that has them must use an HTTPS endpoint.
+
+Header values are never returned by the REST API or by MCP, which report `headerNames` instead. The webhook form in Customermates does still show them, so anyone who can manage webhooks in the workspace can read them, the same as the signing secret. An API or MCP update that omits `headers` keeps the stored values, and one that passes `null` clears them.
+
+**A body template** replaces the standard envelope for endpoints that expect a fixed shape. Write a JSON document and reference envelope values with placeholders:
+
+```json
+{ "text": "{{event}} for {{data.entityId}}" }
+```
+
+Available placeholders are `{{event}}`, `{{timestamp}}` and any path under `{{data}}`, including `{{data.entityId}}`, `{{data.companyId}}`, `{{data.userId}}` and `{{data.payload}}`. A placeholder must sit inside a JSON string; `{"count": {{data.payload.count}}}` is rejected. A placeholder that resolves to an object is inserted as a JSON string, and a missing path becomes an empty string. Substituted values are escaped, so record content cannot alter the structure of the document.
+
+The template must produce a JSON object. It is checked when you save the webhook, and a delivery whose template fails to render is recorded as failed rather than sent. The signature is always computed over the body actually sent, so verify it against the rendered body rather than the envelope.
+
+**One URL, one configuration.** Headers and body templates are matched to a delivery by workspace and URL, not by webhook. If two webhooks in the same workspace point at the same URL and either one carries headers or a body template, every delivery to that URL fails and is not retried, including deliveries from the webhook that has no overrides. Give each subscription its own URL, by adding a path or a query string, before adding headers or a template.
+
+Deliveries are recorded with the event payload rather than the rendered body, so the delivery detail shows the event that fired and not the exact bytes sent.
+
+## Sending to a specific service
+
+Each recipe is the URL, the custom headers, and the body template to paste into **Company → Webhooks → New**. Set a signing secret in every case; a receiver that cannot verify it simply ignores the header.
+
+### Claude Code routines
+
+Start a Claude Code routine when a record changes. Create the routine at [claude.ai/code/routines](https://claude.ai/code/routines) first.
+
+<Steps>
+<Step title="Add an API trigger">
+Open the routine, click **Add another trigger**, choose **API**, then **Generate token**. Copy the URL and the token; the token is shown once and cannot be retrieved later.
+</Step>
+<Step title="Create the webhook">
+Paste the URL, select your events, and add the headers and template below.
+</Step>
+<Step title="Reference the payload in the routine prompt">
+The text arrives wrapped in a `routine-fire-payload` block that the routine treats as untrusted data. The routine's own prompt has to refer to it, for example "act on the event described in the routine-fire-payload block", or the text is ignored.
+</Step>
+</Steps>
+
+The URL is `https://api.anthropic.com/v1/claude_code/routines/<routine-id>/fire`, and the routine id is prefixed `trig_`.
+
+```
+Authorization: Bearer <routine-token>
+anthropic-beta: experimental-cc-routine-2026-04-01
+anthropic-version: 2023-06-01
+```
+
+```json
+{ "text": "{{event}} for {{data.entityId}}" }
+```
+
+The endpoint reads only `text` and ignores every other field, so the template is required; without it the routine starts with no context. Every delivery starts a separate run against your routine allowance, and a retry starts another, so subscribe to the narrowest set of events that does the job.
+
+### Slack
+
+Post to a channel with an incoming webhook. The URL carries the authentication, so no custom headers are needed.
+
+Use the incoming webhook URL from **Slack → Apps → Incoming Webhooks**.
+
+```json
+{ "text": "{{event}} for {{data.entityId}}" }
+```
+
+### Discord
+
+The same shape under a different key.
+
+Use the webhook URL from **Channel → Edit Channel → Integrations → Webhooks**.
+
+```json
+{ "content": "{{event}} for {{data.entityId}}" }
+```
+
+### n8n
+
+An n8n Webhook node accepts the standard envelope, so leave both settings empty unless the node uses header authentication. If it does, add the header the node expects and leave the template empty:
+
+```
+X-N8N-Header-Auth: <value>
+```
+
+See [n8n](/docs/n8n) for the full pattern.
+
+### Anything else
+
+A receiver that needs neither its own authentication nor a fixed body needs neither setting. Leave both empty and verify the signature as described below.
 
 ## Signature verification
 

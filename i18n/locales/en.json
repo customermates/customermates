@@ -3217,7 +3217,7 @@
     },
     "entity": "Element",
     "event": "Event",
-    "requestBody": "Request Body",
+    "eventPayload": "Event payload",
     "resend": "Resend",
     "responseMessage": "Response Message",
     "statusCode": "Status Code",

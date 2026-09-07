@@ -3217,7 +3217,7 @@
     },
     "entity": "Elemento",
     "event": "Evento",
-    "requestBody": "Cuerpo de la solicitud",
+    "eventPayload": "Carga útil del evento",
     "resend": "Reenviar",
     "responseMessage": "Mensaje de respuesta",
     "statusCode": "Código de estado",
