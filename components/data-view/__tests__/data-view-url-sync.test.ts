@@ -3,18 +3,37 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 
+import type { Grouping } from "@/core/base/grouping/grouping.schema";
+
 import { connectDataViewUrlSync } from "../data-view-url-sync";
+import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
+import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
+
+const A_VIEW_ID = "7c1f2b3a-4d5e-4f60-8a71-9b2c3d4e5f60";
+const A_GROUPING_COLUMN_ID = "1a2b3c4d-5e6f-4071-8293-a4b5c6d7e8f9";
 
 function createStore() {
+  const applyView = vi.fn((viewKey: string) => {
+    runInAction(() => {
+      state.activeViewKey = viewKey;
+    });
+  });
   const state = observable({
-    filters: [],
+    activeViewKey: ALL_VIEW_KEY as string,
+    applyView,
+    filters: [] as { field: string; operator: FilterOperatorKey; value?: unknown }[],
+    grouping: undefined as Grouping | null | undefined,
+    get groupingKey() {
+      return this.grouping ? `${this.grouping.field}:${this.grouping.bucket ?? ""}` : "";
+    },
     isRefreshing: false,
     pagination: { page: 1, pageSize: 25 },
     searchTerm: undefined as string | undefined,
     sortDescriptor: undefined as { direction: "asc" | "desc"; field: string } | undefined,
     sortableColumnIds: new Set(["name"]),
+    viewMode: ViewMode.table as ViewMode,
   });
-  return { state, store: state as unknown as BaseDataViewStore<HasId> };
+  return { applyView, state, store: state as unknown as BaseDataViewStore<HasId> };
 }
 
 describe("data-view URL synchronization", () => {
@@ -28,7 +47,7 @@ describe("data-view URL synchronization", () => {
     vi.useRealTimers();
   });
 
-  it("synchronizes an initial active query and accepts an equivalent legacy URL", () => {
+  it("synchronizes an initial active query and accepts an equivalent URL in another parameter order", () => {
     const { state, store } = createStore();
     state.searchTerm = "acme";
     state.sortDescriptor = { direction: "asc", field: "name" };
@@ -40,7 +59,7 @@ describe("data-view URL synchronization", () => {
     expect(replaceState).toHaveBeenCalledWith(null, "", "/en/contacts?searchTerm=acme&sort=name%3Aasc");
     cleanup();
 
-    window.history.replaceState(null, "", "/en/contacts?searchTerm=acme&sortField=name&sortDir=asc");
+    window.history.replaceState(null, "", "/en/contacts?sort=name%3Aasc&searchTerm=acme");
     replaceState.mockClear();
     const equivalentCleanup = connectDataViewUrlSync(store);
     expect(replaceState).not.toHaveBeenCalled();
@@ -113,6 +132,191 @@ describe("data-view URL synchronization", () => {
     vi.advanceTimersByTime(100);
     expect(replaceState).not.toHaveBeenCalled();
     cleanupNext();
+  });
+
+  it("writes the active view id, the card mode and the grouping column, and drops them again on All", () => {
+    const { state, store } = createStore();
+    const replaceState = vi.spyOn(window.history, "replaceState");
+    const cleanup = connectDataViewUrlSync(store);
+
+    runInAction(() => {
+      state.activeViewKey = A_VIEW_ID;
+      state.viewMode = ViewMode.card;
+      state.grouping = { field: A_GROUPING_COLUMN_ID };
+    });
+    vi.advanceTimersByTime(100);
+
+    expect(replaceState).toHaveBeenCalledOnce();
+    expect(window.location.search).toBe(`?view=${A_VIEW_ID}&viewMode=card&groupBy=${A_GROUPING_COLUMN_ID}`);
+
+    runInAction(() => {
+      state.activeViewKey = ALL_VIEW_KEY;
+      state.viewMode = ViewMode.table;
+      state.grouping = null;
+    });
+    vi.advanceTimersByTime(100);
+
+    expect(window.location.search).toBe("");
+    cleanup();
+  });
+
+  it("keeps the grouping in the URL while the view mode is table, because a table groups too", () => {
+    const { state, store } = createStore();
+    const cleanup = connectDataViewUrlSync(store);
+
+    runInAction(() => {
+      state.searchTerm = "acme";
+      state.grouping = { field: "createdAt", bucket: "month" };
+    });
+    vi.advanceTimersByTime(100);
+
+    expect(window.location.search).toBe("?searchTerm=acme&groupBy=createdAt%3Amonth");
+    cleanup();
+  });
+
+  it("normalises a pasted All link out of the address bar once, leaving the applied query alone", () => {
+    window.history.replaceState(null, "", `/en/contacts?view=${ALL_VIEW_KEY}&searchTerm=acme`);
+    const { state, store } = createStore();
+    state.searchTerm = "acme";
+    const replaceState = vi.spyOn(window.history, "replaceState");
+
+    const cleanup = connectDataViewUrlSync(store);
+
+    expect(replaceState).toHaveBeenCalledOnce();
+    expect(window.location.search).toBe("?searchTerm=acme");
+    expect(store.searchTerm).toBe("acme");
+    expect(store.activeViewKey).toBe(ALL_VIEW_KEY);
+
+    vi.advanceTimersByTime(200);
+    expect(replaceState).toHaveBeenCalledOnce();
+    cleanup();
+  });
+
+  it("leaves a pasted link that already names the active view untouched", () => {
+    window.history.replaceState(null, "", `/en/contacts?view=${A_VIEW_ID}`);
+    const { state, store } = createStore();
+    state.activeViewKey = A_VIEW_ID;
+    state.searchTerm = "acme";
+    const replaceState = vi.spyOn(window.history, "replaceState");
+
+    const cleanup = connectDataViewUrlSync(store);
+
+    expect(replaceState).toHaveBeenCalledOnce();
+    expect(window.location.search).toBe(`?searchTerm=acme&view=${A_VIEW_ID}`);
+    cleanup();
+  });
+
+  it("writes the active view beside the encoded filters and sort", () => {
+    const { state, store } = createStore();
+    const cleanup = connectDataViewUrlSync(store);
+
+    runInAction(() => {
+      state.filters = [{ field: "name", operator: FilterOperatorKey.contains, value: "acme" }];
+      state.sortDescriptor = { direction: "asc", field: "name" };
+      state.activeViewKey = A_VIEW_ID;
+    });
+    vi.advanceTimersByTime(100);
+
+    expect(window.location.search).toBe(`?sort=name%3Aasc&view=${A_VIEW_ID}&filters=name%3Acontains%3Aacme`);
+    cleanup();
+  });
+
+  it("drops the view parameter again when All becomes active", () => {
+    window.history.replaceState(null, "", `/en/contacts?view=${A_VIEW_ID}`);
+    const { state, store } = createStore();
+    state.activeViewKey = A_VIEW_ID;
+    const cleanup = connectDataViewUrlSync(store);
+
+    runInAction(() => {
+      state.activeViewKey = ALL_VIEW_KEY;
+    });
+    vi.advanceTimersByTime(100);
+
+    expect(window.location.search).toBe("");
+    cleanup();
+  });
+
+  it("leaves a URL that already carries the active view untouched", () => {
+    window.history.replaceState(null, "", `/en/contacts?searchTerm=acme&view=${A_VIEW_ID}`);
+    const { state, store } = createStore();
+    state.activeViewKey = A_VIEW_ID;
+    state.searchTerm = "acme";
+    const replaceState = vi.spyOn(window.history, "replaceState");
+
+    const cleanup = connectDataViewUrlSync(store);
+    expect(replaceState).not.toHaveBeenCalled();
+
+    runInAction(() => {
+      state.isRefreshing = true;
+      state.isRefreshing = false;
+    });
+    vi.advanceTimersByTime(100);
+
+    expect(replaceState).not.toHaveBeenCalled();
+    expect(window.location.search).toBe(`?searchTerm=acme&view=${A_VIEW_ID}`);
+    cleanup();
+  });
+
+  it("restores the view a history entry names without pushing a new one", () => {
+    window.history.replaceState(null, "", `/en/contacts?view=${A_VIEW_ID}`);
+    const { applyView, state, store } = createStore();
+    state.activeViewKey = A_VIEW_ID;
+    const pushState = vi.spyOn(window.history, "pushState");
+    const replaceState = vi.spyOn(window.history, "replaceState");
+    const cleanup = connectDataViewUrlSync(store);
+
+    window.history.replaceState(null, "", "/en/contacts");
+    replaceState.mockClear();
+    window.dispatchEvent(new PopStateEvent("popstate"));
+
+    expect(applyView).toHaveBeenCalledExactlyOnceWith(ALL_VIEW_KEY);
+    expect(store.activeViewKey).toBe(ALL_VIEW_KEY);
+    expect(pushState).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(100);
+    expect(replaceState).not.toHaveBeenCalled();
+
+    window.dispatchEvent(new PopStateEvent("popstate"));
+    expect(applyView).toHaveBeenCalledOnce();
+
+    cleanup();
+    window.dispatchEvent(new PopStateEvent("popstate"));
+    expect(applyView).toHaveBeenCalledOnce();
+  });
+
+  it("keeps a query parameter it does not own while it writes its own", () => {
+    window.history.replaceState(null, "", "/en/contacts?threadId=abc");
+    const { state, store } = createStore();
+    state.activeViewKey = A_VIEW_ID;
+    const replaceState = vi.spyOn(window.history, "replaceState");
+
+    const cleanup = connectDataViewUrlSync(store);
+
+    expect(replaceState).toHaveBeenCalledOnce();
+    expect(window.location.search).toBe(`?threadId=abc&view=${A_VIEW_ID}`);
+
+    runInAction(() => {
+      state.searchTerm = "acme";
+    });
+    vi.advanceTimersByTime(100);
+
+    expect(window.location.search).toBe(`?threadId=abc&searchTerm=acme&view=${A_VIEW_ID}`);
+    cleanup();
+  });
+
+  it("drops only its own parameters when the query is cleared, leaving a foreign one in place", () => {
+    window.history.replaceState(null, "", "/en/contacts?threadId=abc&searchTerm=stale");
+    const { state, store } = createStore();
+    state.searchTerm = "stale";
+    const cleanup = connectDataViewUrlSync(store);
+
+    runInAction(() => {
+      state.searchTerm = undefined;
+    });
+    vi.advanceTimersByTime(100);
+
+    expect(window.location.search).toBe("?threadId=abc");
+    cleanup();
   });
 
   it("does not leak duplicate reactions across a strict remount", () => {

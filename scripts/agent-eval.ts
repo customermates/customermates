@@ -329,7 +329,7 @@ describeEval("agent live eval", () => {
     const commands = frames.filter((frame) => frame.type === "ui_command");
     const targets = commands.map((frame) => (frame.input as { targetId?: string })?.targetId).filter(Boolean);
 
-    expect(targets, JSON.stringify(frames)).toContain("deals-layout-kanban");
+    expect(targets, JSON.stringify(frames)).toContain("deals-layout-board");
     for (const target of targets) expect(AGENT_UI_TARGET_IDS).toContain(target);
     expect(frames.at(-1)).toMatchObject({ type: "turn_done", terminalCode: "completed" });
   });

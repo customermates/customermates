@@ -1,10 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { GetResult } from "../base-get.interactor";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { RootStore } from "@/core/stores/root.store";
 
-import { CustomColumnType, EntityType } from "@/generated/prisma";
+import { EntityType } from "@/generated/prisma";
 
 import { BaseDataViewStore } from "../base-data-view.store";
 
@@ -51,6 +50,14 @@ function rootStore() {
 function groupedResult(): GetResult<Item> {
   return {
     items: [{ id: "deal-1", totalValue: 300, weightedValue: 90 }],
+    grouping: {
+      grouping: { field: GROUPING_COLUMN_ID },
+      kind: "customSingleSelect",
+      supportsDragWriteBack: true,
+      columnId: GROUPING_COLUMN_ID,
+      groups: [],
+      total: 3,
+    },
     groupCounts: { won: 2, lost: 1 },
     groupValueSums: { won: { totalValue: 1000, weightedValue: 400 }, lost: { totalValue: 300 } },
   };
@@ -59,9 +66,6 @@ function groupedResult(): GetResult<Item> {
 function createStore() {
   const store = new TestStore(rootStore());
   store.setItems(groupedResult());
-  store.setCustomColumns([
-    { id: GROUPING_COLUMN_ID, type: CustomColumnType.singleSelect } as unknown as CustomColumnDto,
-  ]);
   return store;
 }
 
@@ -75,7 +79,6 @@ function move(
   return store.moveItemBetweenGroups({
     item,
     optimisticItem: item,
-    columnId: GROUPING_COLUMN_ID,
     fromGroupKey,
     toGroupKey,
     value: toGroupKey,

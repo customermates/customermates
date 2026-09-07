@@ -1,4 +1,4 @@
-import type { P13nRepo } from "@/core/base/base-get.interactor";
+import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
@@ -29,12 +29,12 @@ export abstract class GetMessagingThreadsRepo extends BaseGetRepo<MessagingThrea
 export class GetMessagingThreadsInteractor extends BaseGetInteractor<MessagingThread> {
   constructor(
     repo: GetMessagingThreadsRepo,
-    p13nRepo: P13nRepo,
+    viewStateRepo: DataViewStateRepo,
     mode: "interactive" | "api",
     queryParamsPrecheck: QueryParamsPrecheckInteractor,
     private entitlements: EntitlementService,
   ) {
-    super(repo, p13nRepo, mode, undefined, { pagination: { page: 1, pageSize: 25 } }, queryParamsPrecheck);
+    super(repo, viewStateRepo, mode, undefined, { pagination: { page: 1, pageSize: 25 } }, queryParamsPrecheck);
   }
 
   @Validate(GetQueryParamsSchema)

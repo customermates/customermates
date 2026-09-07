@@ -40,12 +40,13 @@ export const OrganizationsPageView = observer(function OrganizationsPageView({ o
   const { singular } = useEntityTerminology();
   const t = useTranslations();
 
-  const view = resolveDataViewView(organizationsStore.viewMode, organizationsStore.groupingColumnId);
+  const view = resolveDataViewView(organizationsStore.viewMode, organizationsStore.canBoard);
   const hasActiveQuery =
     Boolean(organizationsStore.searchTerm?.trim()) || (organizationsStore.filters?.length ?? 0) > 0;
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery,
+    isGrouped: organizationsStore.isGrouped,
     itemCount: organizationsStore.items.length,
     request: organizationsStore.dataRequest,
     total: organizationsStore.pagination?.total,
@@ -132,7 +133,10 @@ export const OrganizationsPageView = observer(function OrganizationsPageView({ o
   }
 
   return (
-    <DataViewLayout showPagination={pageState === "content" && view !== "board"} store={organizationsStore}>
+    <DataViewLayout
+      showPagination={pageState === "content" && view !== "board" && !organizationsStore.isGrouped}
+      store={organizationsStore}
+    >
       {body}
     </DataViewLayout>
   );

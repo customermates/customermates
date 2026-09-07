@@ -1,5 +1,9 @@
 import type { TenantUser } from "@/features/user/user.schema";
+import type { DateBucket } from "@/core/base/grouping/grouping.schema";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
+import type { GroupCountRow } from "@/core/base/grouping/group-count";
+import type { GroupLabel } from "@/core/base/grouping/group-labels";
+import type { GroupableFieldSpec, GroupableModel, GroupingTargetModel } from "@/core/base/grouping/groupable-field";
 
 import { Resource, Action } from "@/generated/prisma";
 
@@ -10,6 +14,8 @@ import { runInTransaction } from "../decorators/transaction-runner";
 import { isTenantGuardBypassed, getTenantUser } from "../decorators/tenant-context";
 
 import { BaseQueryBuilder, compareCustomFieldValues } from "@/core/base/base-query-builder";
+import { LABEL_SELECT, toGroupLabel } from "@/core/base/grouping/group-labels";
+import { countGroupRows } from "@/core/base/grouping/group-count";
 import { prisma, type AppPrismaClient } from "@/prisma/db";
 import { resolveUserFormattingTag, resolveUserLocale } from "@/i18n/user-locale";
 
@@ -23,6 +29,13 @@ export type ModelWhereInputMap = {
 };
 
 export type SummableModel = keyof ModelWhereInputMap;
+
+function tenantModel(model: GroupableModel): SummableModel {
+  if (model === "company" || model === "operatorAudit")
+    throw new Error(`Grouping by ${model} has no tenant access scope; use an operator repository`);
+
+  return model;
+}
 
 export type NumericFieldSums<F extends string> = Partial<Record<F, number | null>>;
 
@@ -115,6 +128,71 @@ export abstract class BaseRepository<
     task: (companyId, userId) => ({ companyId, users: { some: { userId } } }),
   };
 
+  collator(): Pick<Intl.Collator, "compare"> {
+    return new Intl.Collator(resolveUserFormattingTag(this.user, resolveUserLocale(this.user)));
+  }
+
+  protected override groupTargetWhere(model: GroupingTargetModel): Record<string, unknown> {
+    return this.accessWhere(model) as Record<string, unknown>;
+  }
+
+  private modelDelegate(model: string) {
+    return (
+      this.prisma as unknown as Record<
+        string,
+        {
+          count: (args: unknown) => Promise<number>;
+          groupBy: (args: unknown) => Promise<Array<Record<string, unknown>>>;
+          findMany: (args: unknown) => Promise<Array<Record<string, unknown>>>;
+        }
+      >
+    )[model];
+  }
+
+  async countByGroupInScope(args: {
+    spec: GroupableFieldSpec;
+    where: Record<string, unknown>;
+    bucket?: DateBucket;
+    sumFields?: readonly string[];
+    now?: string;
+  }): Promise<GroupCountRow[]> {
+    return countGroupRows(
+      {
+        delegate: (model) => this.modelDelegate(model),
+        companyId: this.companyId,
+        targetWhere: (model) => this.groupTargetWhere(model),
+      },
+      args,
+    );
+  }
+
+  async countByGroup(args: {
+    spec: GroupableFieldSpec;
+    params: GetQueryParams;
+    bucket?: DateBucket;
+    sumFields?: readonly string[];
+    now?: string;
+  }): Promise<GroupCountRow[]> {
+    const baseWhere = this.accessWhere(tenantModel(args.spec.model)) as unknown as TWhereInput;
+    const { where } = await this.buildQueryArgs(args.params, baseWhere);
+
+    return this.countByGroupInScope({ ...args, where: where as Record<string, unknown> });
+  }
+
+  async resolveGroupLabels(spec: GroupableFieldSpec, keys: readonly string[]): Promise<Map<string, GroupLabel>> {
+    if (spec.kind !== "relation" || keys.length === 0) return new Map();
+
+    const rows = await this.modelDelegate(spec.targetModel).findMany({
+      where: {
+        companyId: this.companyId,
+        AND: [{ id: { in: [...keys] } }, this.accessWhere(spec.targetModel)],
+      },
+      select: LABEL_SELECT[spec.targetModel],
+    });
+
+    return new Map(rows.map((row) => [row.id as string, toGroupLabel(spec.targetModel, row)]));
+  }
+
   async sumNumericFields<F extends string>(opts: {
     model: SummableModel;
     fields: readonly F[];
@@ -167,8 +245,7 @@ export abstract class BaseRepository<
       }>;
 
       const { direction, columnType } = args.customSort;
-      const formattingTag = resolveUserFormattingTag(this.user, resolveUserLocale(this.user));
-      const collator = new Intl.Collator(formattingTag);
+      const collator = this.collator();
       candidates.sort((a, b) =>
         compareCustomFieldValues(
           a.customFieldValues[0]?.value,

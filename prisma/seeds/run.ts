@@ -7,6 +7,7 @@ import type { TaskSeedData } from "./tasks";
 
 import { seedContacts } from "./contacts";
 import { seedCustomFields } from "./custom-fields";
+import { seedDataViews } from "./data-views";
 import { seedDeals } from "./deals";
 import {
   seedHostedAiOperatorFixtures,
@@ -51,6 +52,7 @@ export async function runSyntheticSeed(
 
   const customFieldData = await seedCustomFields(context, entities);
   await seedWidgets(context, customFieldData);
+  await seedDataViews(context, customFieldData);
   await seedPersonalization(context, customFieldData);
   await seedRelationships(context, entities);
   await seedWebhooks(context);

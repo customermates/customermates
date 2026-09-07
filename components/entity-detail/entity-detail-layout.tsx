@@ -15,7 +15,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { Action, EntityType, Resource } from "@/generated/prisma";
 
-import { useSetTopBarActions, useSetTopBarJoinedContent } from "@/app/components/topbar-actions-context";
+import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { AppForm } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -125,7 +125,6 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   const showEditFieldsAction = !canPersonalize && canManage && !isEditingCustomField;
   const showEditFieldsActiveActions = canManage && isEditingCustomField;
   const hasSummary = Boolean(summary) && (!canPersonalize || starredFieldIds.length > 0);
-  const joinsTopBar = hasSummary && (pageState === "loading" || pageState === "content");
 
   useEffect(() => {
     const key = `${ENTITY_URL_SEGMENT[entityType]}:${entityId}`;
@@ -307,7 +306,6 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   );
 
   useSetTopBarActions(topBarActions);
-  useSetTopBarJoinedContent(joinsTopBar);
 
   switch (pageState) {
     case "loading":

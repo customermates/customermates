@@ -47,7 +47,7 @@ export class PrismaWidgetCalculatorRepo extends BaseRepository {
       const customColumn = await getCustomColumnRepo().findById(groupByCustomColumnId);
       if (!customColumn || customColumn.type !== "singleSelect") return [];
 
-      const counts = await getWidgetDataFetcher().countByCustomColumn(entityType, entityFilters, groupByCustomColumnId);
+      const counts = await getWidgetDataFetcher().countByCustomColumn(entityType, entityFilters, customColumn);
       return getWidgetGroupingService().buildCustomColumnPoints(counts, customColumn);
     }
 

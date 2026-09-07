@@ -34,7 +34,7 @@ An approval card names the action and its consequence. Decline it or let it time
 
 ## Operating the interface
 
-Mate navigates by stable interface ids and activates a narrow allowlist of reversible display controls in the DOM. It can open display options and switch a list between table, cards, and kanban, with success reported only after the selected or expanded DOM state is visible. It can highlight the stable search and filter controls, or open display options for sorting and grouping, but it does not type into them or bind directly to page stores. Kanban needs a single-select field to group by; if the layout control is disabled, Mate explains that prerequisite.
+Mate navigates by stable interface ids and activates a narrow allowlist of reversible display controls in the DOM. It can open display options and switch a list between table and board, with success reported only after the selected or expanded DOM state is visible. It can highlight the stable search and filter controls, or open display options for sorting and grouping, but it does not type into them or bind directly to page stores. A board groups records by a field; on a list with nothing to group by the board control is disabled, and Mate explains that prerequisite.
 
 When you ask Mate to change data, it uses the matching MCP-backed tool directly and tells you what changed. When you would rather enter or refine something in the interface, it opens the right control and points at what you need, and **you** type, select, and save. Mate never sends arbitrary selectors or clicks save, send, or delete controls, so your own unsaved edits are never overwritten.
 

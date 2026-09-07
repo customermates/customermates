@@ -4,7 +4,8 @@ import { MembersPageView } from "../components/user/members-page-view";
 
 import { getGetRolesInteractor, getGetUsersInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
-import { decodeGetParams } from "@/core/utils/get-params";
+import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
+import { SURFACE } from "@/core/data-view/data-view-keys";
 import { PageContainer } from "@/components/shared/page-container";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
@@ -15,12 +16,11 @@ type Props = {
 export default async function CompanyUsersPage({ searchParams }: Props) {
   await requireAccess({ resource: Resource.users });
 
-  const params = await searchParams;
-  const userParams = decodeGetParams(params);
+  const userParams = await readSurfaceParams(SURFACE.users, searchParams);
 
   const [users, roles] = await Promise.all([
-    unwrapValidated(getGetUsersInteractor().invoke({ ...userParams, p13nId: "users-card-store" })),
-    unwrapValidated(getGetRolesInteractor().invoke({ p13nId: "roles-card-store" })),
+    unwrapValidated(getGetUsersInteractor().invoke(userParams)),
+    unwrapValidated(getGetRolesInteractor().invoke({ p13nId: SURFACE.roles })),
   ]);
 
   return (

@@ -66,9 +66,9 @@ describe("AgentUiControlStore.clickTarget", () => {
   it("requires the display-options prerequisite before a layout control can be used", async () => {
     mount({});
 
-    await expect(controlStore().clickTarget("deals-layout-kanban")).resolves.toEqual({
+    await expect(controlStore().clickTarget("deals-layout-board")).resolves.toEqual({
       ok: false,
-      result: "Target deals-layout-kanban is not available. Open deals-display-options first.",
+      result: "Target deals-layout-board is not available. Open deals-display-options first.",
     });
   });
 
@@ -151,14 +151,14 @@ describe("AgentUiControlStore.clickTarget", () => {
     vi.useFakeTimers();
     const target = new FakeElement();
     target.setAttribute("data-state", "inactive");
-    mount({ "deals-layout-cards": target });
+    mount({ "deals-layout-board": target });
 
-    const outcome = controlStore().clickTarget("deals-layout-cards");
+    const outcome = controlStore().clickTarget("deals-layout-board");
     await vi.advanceTimersByTimeAsync(1100);
 
     await expect(outcome).resolves.toEqual({
       ok: false,
-      result: "Target deals-layout-cards did not activate.",
+      result: "Target deals-layout-board did not activate.",
     });
     expect(target.click).toHaveBeenCalledOnce();
   });

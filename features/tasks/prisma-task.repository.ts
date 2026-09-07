@@ -1,3 +1,4 @@
+import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { GetWidgetFilterableFieldsTaskRepo } from "../widget/get-widget-filterable-fields.interactor";
 import type { TaskRepo as TaskWorkerRepo } from "./listener/user-pending-authorization-task.listener";
 import type { GetTasksRepo } from "@/features/tasks/get/get-tasks.interactor";
@@ -22,6 +23,12 @@ import { BaseRepository } from "@/core/base/base-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
+import {
+  customSelectGroupables,
+  dateGroupables,
+  enumGroupables,
+  relationGroupables,
+} from "@/core/base/grouping/groupable-field";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { getCustomColumnRepo } from "@/core/di";
 import { type RepoArgs } from "@/core/utils/types";
@@ -163,6 +170,23 @@ export class PrismaTaskRepo
       },
       { field: FilterFieldKey.updatedAt, operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.updatedAt] },
       { field: FilterFieldKey.createdAt, operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.createdAt] },
+    ];
+  }
+
+  async getGroupableFields(customColumns?: readonly CustomColumnDto[]) {
+    if (!this.canAccess(Resource.tasks)) return [];
+
+    return [
+      ...customSelectGroupables(EntityType.task, customColumns ?? (await this.getCustomColumns())),
+      ...relationGroupables("task", {
+        contactIds: this.canAccess(Resource.contacts),
+        dealIds: this.canAccess(Resource.deals),
+        organizationIds: this.canAccess(Resource.organizations),
+        serviceIds: this.canAccess(Resource.services),
+        userIds: this.canAccess(Resource.users),
+      }),
+      ...enumGroupables("task", { type: true }),
+      ...dateGroupables("task", { createdAt: true, updatedAt: true }),
     ];
   }
 

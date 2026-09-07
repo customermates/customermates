@@ -23,7 +23,7 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
   return useMemo<ColumnDef<OperatorWorkspaceRowDto>[]>(
     () => [
       {
-        id: "workspace",
+        id: "name",
         header: t("Common.table.columns.workspace"),
         cell: ({ row }) => <span className="text-sm font-medium">{row.original.workspaceLabel}</span>,
       },
@@ -111,17 +111,6 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
         },
       },
       {
-        id: "trialEnd",
-        header: t("Common.table.columns.trialEnd"),
-        cell: ({ row }) => (
-          <span className="text-sm">
-            {row.original.trialEndDate
-              ? intlStore.formatNumericalShortDate(row.original.trialEndDate)
-              : t("OperatorWorkspaces.terms.noTrial")}
-          </span>
-        ),
-      },
-      {
         accessorKey: "adProvider",
         id: "adProvider",
         header: t("Common.table.columns.adProvider"),
@@ -131,6 +120,17 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
 
           return <span className="truncate text-sm">{adProviderDisplayName(provider)}</span>;
         },
+      },
+      {
+        id: "trialEnd",
+        header: t("Common.table.columns.trialEnd"),
+        cell: ({ row }) => (
+          <span className="text-sm">
+            {row.original.trialEndDate
+              ? intlStore.formatNumericalShortDate(row.original.trialEndDate)
+              : t("OperatorWorkspaces.terms.noTrial")}
+          </span>
+        ),
       },
       {
         accessorKey: "createdAt",

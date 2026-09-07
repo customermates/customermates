@@ -7,27 +7,23 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import {
-  FilterSchema,
-  SortDescriptorSchema,
-  SavedFilterPresetSchema,
-  PaginationRequestSchema,
-} from "@/core/base/base-get.schema";
+import { FilterSchema, SortDescriptorSchema, PaginationRequestSchema } from "@/core/base/base-get.schema";
 import { ViewMode } from "@/core/base/base-query-builder";
+import { GroupingSchema } from "@/core/base/grouping/grouping.schema";
 import { EntityDetailOptionsSchema, P13nEntrySchema } from "./p13n.schema";
 
 const Schema = z.object({
   p13nId: z.string().min(1),
+  activeViewKey: z.string().nullish(),
   filters: z.array(FilterSchema).nullish(),
-  savedFilterPresets: z.array(SavedFilterPresetSchema).nullish(),
   searchTerm: z.string().nullish(),
   sortDescriptor: SortDescriptorSchema.nullish(),
-  pagination: PaginationRequestSchema.nullish(),
+  pagination: PaginationRequestSchema.pick({ pageSize: true }).nullish(),
   columnOrder: z.array(z.string()).nullish(),
   columnWidths: z.record(z.string(), z.number()).nullish(),
   hiddenColumns: z.array(z.string()).optional(),
   viewMode: z.enum(ViewMode).nullish(),
-  groupingColumnId: z.uuid().nullish(),
+  grouping: GroupingSchema.nullish(),
   detailOptions: EntityDetailOptionsSchema.nullish(),
 });
 export type UpsertP13nData = Data<typeof Schema>;

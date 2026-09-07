@@ -2,10 +2,14 @@ import { randomUUID } from "node:crypto";
 
 import { afterAll, describe, expect, it, vi } from "vitest";
 
-import type { Filter } from "@/core/base/base-get.schema";
+import type { Filter, GetQueryParams } from "@/core/base/base-get.schema";
+import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
+import type { GroupCountRow } from "@/core/base/grouping/group-count";
 
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
+import { dateBucketLadder } from "@/core/base/grouping/date-buckets";
+import { NO_VALUE_GROUP_KEY } from "@/core/base/grouping/grouping.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
@@ -28,7 +32,48 @@ const { prisma } = await import("@/prisma/db");
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 
 const inFilter = (field: string, value: string[]): Filter => ({ field, operator: FilterOperatorKey.in, value });
+const notInFilter = (field: string, value: string[]): Filter => ({ field, operator: FilterOperatorKey.notIn, value });
 const companyIds: string[] = [];
+
+type GroupableRepo = {
+  getGroupableFields(): Promise<GroupableFieldSpec[]>;
+  countByGroup(args: {
+    spec: GroupableFieldSpec;
+    params: GetQueryParams;
+    bucket?: "day" | "week" | "month";
+    now?: string;
+  }): Promise<GroupCountRow[]>;
+};
+
+async function groupableSpec(repo: GroupableRepo, field: string): Promise<GroupableFieldSpec> {
+  const spec = (await repo.getGroupableFields()).find((candidate) => candidate.field === field);
+  if (!spec) throw new Error(`${field} is not groupable on this repository`);
+  return spec;
+}
+
+const countsByKey = (rows: GroupCountRow[]) => Object.fromEntries(rows.map(({ key, count }) => [key, count]));
+
+async function seedWorkspaceWithoutSubscription(domain: string) {
+  const companyId = randomUUID();
+  companyIds.push(companyId);
+  const userId = randomUUID();
+
+  await runWithoutTenant(async () => {
+    await prisma.company.create({ data: { id: companyId } });
+    await prisma.user.create({
+      data: {
+        id: userId,
+        companyId,
+        email: `orphan-${randomUUID()}@${domain}`,
+        firstName: "Orphan",
+        lastName: "0",
+        status: "active",
+      },
+    });
+  });
+
+  return { companyId, userIds: [userId] };
+}
 
 async function seedWorkspace(args: {
   domain: string;
@@ -180,6 +225,123 @@ describeDatabase("operator user list against a real database", { timeout: 120_00
     expect(searched[0]?.companyId).toBe(beta.companyId);
   });
 
+  it("groups users by status, plan and subscription status, and lands users without a subscription in the no-value group", async () => {
+    const marker = randomUUID().slice(0, 8);
+    const alpha = await seedWorkspace({
+      domain: `grp-alpha-${marker}.invalid`,
+      plan: "enterprise",
+      status: "active",
+      members: [{}, {}, { status: "inactive" }],
+    });
+    const beta = await seedWorkspace({
+      domain: `grp-beta-${marker}.invalid`,
+      plan: "starter",
+      status: "pastDue",
+      members: [{}],
+    });
+    const orphan = await seedWorkspaceWithoutSubscription(`grp-orphan-${marker}.invalid`);
+
+    const repo = new PrismaOperatorUsersRepo();
+    const scoped = inFilter(FilterFieldKey.workspaceId, [alpha.companyId, beta.companyId, orphan.companyId]);
+    const params = { filters: [scoped] };
+
+    expect((await repo.getGroupableFields()).map(({ field }) => field)).toEqual([
+      "status",
+      "plan",
+      "subscriptionStatus",
+      "createdAt",
+      "updatedAt",
+    ]);
+
+    const byStatus = await runWithoutTenant(async () =>
+      repo.countByGroup({ spec: await groupableSpec(repo, "status"), params }),
+    );
+    expect(countsByKey(byStatus)).toEqual({ active: 4, inactive: 1, pendingAuthorization: 0 });
+
+    const byPlan = await runWithoutTenant(async () =>
+      repo.countByGroup({ spec: await groupableSpec(repo, "plan"), params }),
+    );
+    expect(countsByKey(byPlan)).toEqual({ starter: 1, pro: 0, business: 0, enterprise: 3, [NO_VALUE_GROUP_KEY]: 1 });
+
+    const bySubscription = await runWithoutTenant(async () =>
+      repo.countByGroup({ spec: await groupableSpec(repo, "subscriptionStatus"), params }),
+    );
+    expect(countsByKey(bySubscription)).toEqual({
+      trial: 0,
+      active: 3,
+      cancelled: 0,
+      expired: 0,
+      pastDue: 1,
+      unPaid: 0,
+      [NO_VALUE_GROUP_KEY]: 1,
+    });
+
+    const notStarter = { filters: [scoped, notInFilter(FilterFieldKey.plan, ["starter"])] };
+    const byPlanWithoutStarter = await runWithoutTenant(async () =>
+      repo.countByGroup({ spec: await groupableSpec(repo, "plan"), params: notStarter }),
+    );
+    expect(countsByKey(byPlanWithoutStarter)).toEqual({
+      starter: 0,
+      pro: 0,
+      business: 0,
+      enterprise: 3,
+      [NO_VALUE_GROUP_KEY]: 1,
+    });
+    expect(byPlanWithoutStarter.reduce((sum, row) => sum + row.count, 0)).toBe(
+      await runWithoutTenant(() => repo.getCount(notStarter)),
+    );
+
+    const plan = await groupableSpec(repo, "plan");
+    const noPlan = await runWithoutTenant(() =>
+      repo.getItems({ ...params, groupScope: { spec: plan, key: NO_VALUE_GROUP_KEY }, take: 10, skip: 0 }),
+    );
+    expect(noPlan.map((row) => row.companyId)).toEqual([orphan.companyId]);
+    expect(noPlan[0]?.plan).toBeNull();
+
+    const enterprise = await runWithoutTenant(() =>
+      repo.getItems({ ...params, groupScope: { spec: plan, key: "enterprise" }, take: 10, skip: 0 }),
+    );
+    expect(enterprise).toHaveLength(3);
+    expect(enterprise.every((row) => row.companyId === alpha.companyId)).toBe(true);
+
+    await expect(
+      runWithoutTenant(() => repo.getItems({ ...params, groupScope: { spec: plan, key: "gold" }, take: 10, skip: 0 })),
+    ).resolves.toEqual([]);
+    await expect(
+      runWithoutTenant(() => repo.getCount({ ...params, groupScope: { spec: plan, key: "gold" } })),
+    ).resolves.toBe(0);
+
+    const now = new Date().toISOString();
+    const createdAt = await groupableSpec(repo, "createdAt");
+    const ladder = dateBucketLadder("month", new Date(now));
+    const thisMonth = ladder[1];
+    const byMonth = await runWithoutTenant(() => repo.countByGroup({ spec: createdAt, params, bucket: "month", now }));
+    expect(byMonth.map(({ key }) => key)).toEqual(ladder.map(({ key }) => key));
+    expect(countsByKey(byMonth)[thisMonth.key]).toBe(5);
+    expect(byMonth.reduce((sum, row) => sum + row.count, 0)).toBe(5);
+
+    const createdThisMonth = await runWithoutTenant(() =>
+      repo.getItems({
+        ...params,
+        groupScope: { spec: createdAt, key: thisMonth.key, bucket: "month", now },
+        take: 10,
+        skip: 0,
+      }),
+    );
+    expect(createdThisMonth).toHaveLength(5);
+    await expect(
+      runWithoutTenant(() =>
+        repo.getCount({ ...params, groupScope: { spec: createdAt, key: "earlier", bucket: "month", now } }),
+      ),
+    ).resolves.toBe(0);
+
+    const updatedAt = await groupableSpec(repo, "updatedAt");
+    const byUpdatedMonth = await runWithoutTenant(() =>
+      repo.countByGroup({ spec: updatedAt, params, bucket: "month", now }),
+    );
+    expect(countsByKey(byUpdatedMonth)[thisMonth.key]).toBe(5);
+  });
+
   it("separates users by advertising provider and surfaces the provider without the raw identifier", async () => {
     const marker = randomUUID().slice(0, 8);
     const clicks = [
@@ -265,6 +427,77 @@ describeDatabase("operator workspace list against a real database", { timeout: 1
     expect(filtered.map((row) => row.id)).toEqual([attributed.companyId]);
 
     expect(JSON.stringify(rows)).not.toContain(`rdt-${marker}`);
+  });
+
+  it("groups workspaces by plan and subscription status and scopes rows to one group", async () => {
+    const marker = randomUUID().slice(0, 8);
+    const alpha = await seedWorkspace({
+      domain: `ws-grp-alpha-${marker}.invalid`,
+      plan: "business",
+      status: "active",
+      members: [{}, {}],
+    });
+    const beta = await seedWorkspace({
+      domain: `ws-grp-beta-${marker}.invalid`,
+      plan: "starter",
+      status: "trial",
+      members: [{}],
+    });
+    const orphan = await seedWorkspaceWithoutSubscription(`ws-grp-orphan-${marker}.invalid`);
+
+    const repo = new PrismaOperatorWorkspacesRepo();
+    const params = {
+      filters: [inFilter(FilterFieldKey.workspaceId, [alpha.companyId, beta.companyId, orphan.companyId])],
+    };
+
+    expect((await repo.getGroupableFields()).map(({ field }) => field)).toEqual([
+      "plan",
+      "subscriptionStatus",
+      "createdAt",
+      "updatedAt",
+    ]);
+
+    const plan = await groupableSpec(repo, "plan");
+    const subscriptionStatus = await groupableSpec(repo, "subscriptionStatus");
+
+    expect(countsByKey(await runWithoutTenant(() => repo.countByGroup({ spec: plan, params })))).toEqual({
+      starter: 1,
+      pro: 0,
+      business: 1,
+      enterprise: 0,
+      [NO_VALUE_GROUP_KEY]: 1,
+    });
+    expect(countsByKey(await runWithoutTenant(() => repo.countByGroup({ spec: subscriptionStatus, params })))).toEqual({
+      trial: 1,
+      active: 1,
+      cancelled: 0,
+      expired: 0,
+      pastDue: 0,
+      unPaid: 0,
+      [NO_VALUE_GROUP_KEY]: 1,
+    });
+
+    const noSubscription = await runWithoutTenant(() =>
+      repo.getItems({ ...params, groupScope: { spec: plan, key: NO_VALUE_GROUP_KEY }, take: 10, skip: 0 }),
+    );
+    expect(noSubscription.map((row) => row.id)).toEqual([orphan.companyId]);
+    expect(noSubscription[0]?.workspaceLabel).toBe(`ws-grp-orphan-${marker}.invalid`);
+
+    const onTrial = await runWithoutTenant(() =>
+      repo.getItems({ ...params, groupScope: { spec: subscriptionStatus, key: "trial" }, take: 10, skip: 0 }),
+    );
+    expect(onTrial.map((row) => row.id)).toEqual([beta.companyId]);
+
+    await expect(
+      runWithoutTenant(() => repo.getCount({ ...params, groupScope: { spec: plan, key: "business" } })),
+    ).resolves.toBe(1);
+
+    const now = new Date().toISOString();
+    const createdAt = await groupableSpec(repo, "createdAt");
+    const thisMonth = dateBucketLadder("month", new Date(now))[1];
+    const byMonth = await runWithoutTenant(() => repo.countByGroup({ spec: createdAt, params, bucket: "month", now }));
+    expect(countsByKey(byMonth)[thisMonth.key]).toBe(3);
+    expect(byMonth.reduce((sum, row) => sum + row.count, 0)).toBe(3);
   });
 
   it("aggregates members, derives label and owner, and filters by plan", async () => {
@@ -409,6 +642,127 @@ describeDatabase("merged operator audit log against a real database", { timeout:
     expect(secondPage).toHaveLength(2);
     expect(secondPage.map((row) => row.id)).not.toEqual(all.slice(0, 2).map((row) => row.id));
     expect(secondPage.map((row) => row.id)).toEqual(all.slice(2, 4).map((row) => row.id));
+
+    await runWithoutTenant(async () => {
+      await prisma.operatorAuditEvent.deleteMany({ where: { targetCompanyId: workspace.companyId } });
+      await prisma.auditLog.deleteMany({ where: { companyId: workspace.companyId } });
+    });
+  });
+
+  it("splits the in-memory union by source and by created month, with hasMore approximate near the paging window", async () => {
+    const marker = randomUUID().slice(0, 8);
+    const workspace = await seedWorkspace({
+      domain: `audit-grp-${marker}.invalid`,
+      plan: "pro",
+      status: "active",
+      members: [{}],
+    });
+    const actorId = workspace.userIds[0];
+
+    await runWithoutTenant(async () => {
+      for (let index = 0; index < 3; index += 1) {
+        await prisma.auditLog.create({
+          data: {
+            companyId: workspace.companyId,
+            userId: actorId,
+            event: `deal.created.${marker}`,
+            eventData: {},
+            entityId: randomUUID(),
+            createdAt: new Date(`2026-0${index === 2 ? 7 : 8}-1${index}T10:00:00.000Z`),
+          },
+        });
+      }
+      await prisma.operatorAuditEvent.create({
+        data: {
+          actorUserId: actorId,
+          action: "operator.users.list",
+          targetCompanyId: workspace.companyId,
+          createdAt: new Date("2026-08-20T10:00:00.000Z"),
+        },
+      });
+      for (let index = 0; index < 2; index += 1) {
+        await prisma.operatorAuditEvent.create({
+          data: {
+            actorUserId: actorId,
+            action: `operator.user_status.update.${marker}`,
+            targetCompanyId: workspace.companyId,
+            targetUserId: actorId,
+            reason: "Exercise grouped audit",
+            createdAt: new Date(`2026-08-2${index + 1}T10:00:00.000Z`),
+          },
+        });
+      }
+    });
+
+    const repo = new PrismaOperatorAuditRepo();
+    const params = { filters: [inFilter(FilterFieldKey.workspaceId, [workspace.companyId])] };
+
+    expect((await repo.getGroupableFields()).map(({ field }) => field)).toEqual(["auditSource", "createdAt"]);
+
+    const auditSource = await groupableSpec(repo, "auditSource");
+    expect(await runWithoutTenant(() => repo.countByGroup({ spec: auditSource, params }))).toEqual([
+      { key: "product", count: 3 },
+      { key: "operator", count: 2 },
+    ]);
+
+    const withoutProduct = { filters: [...params.filters, notInFilter(FilterFieldKey.auditSource, ["product"])] };
+    expect(await runWithoutTenant(() => repo.countByGroup({ spec: auditSource, params: withoutProduct }))).toEqual([
+      { key: "product", count: 0 },
+      { key: "operator", count: 2 },
+    ]);
+    await expect(runWithoutTenant(() => repo.getCount(withoutProduct))).resolves.toBe(2);
+
+    const operatorOnly = await runWithoutTenant(() =>
+      repo.getItems({ ...params, groupScope: { spec: auditSource, key: "operator" }, take: 11, skip: 0 }),
+    );
+    expect(operatorOnly).toHaveLength(2);
+    expect(operatorOnly.every((row) => row.source === "operator")).toBe(true);
+    expect(operatorOnly.some((row) => row.action === "operator.users.list")).toBe(false);
+
+    const productOnly = await runWithoutTenant(() =>
+      repo.getItems({ ...params, groupScope: { spec: auditSource, key: "product" }, take: 2, skip: 0 }),
+    );
+    expect(productOnly.map((row) => row.source)).toEqual(["product", "product"]);
+
+    await expect(
+      runWithoutTenant(() =>
+        repo.getItems({ ...params, groupScope: { spec: auditSource, key: "system" }, take: 11, skip: 0 }),
+      ),
+    ).resolves.toEqual([]);
+
+    const now = "2026-08-25T12:00:00.000Z";
+    const createdAt = await groupableSpec(repo, "createdAt");
+    const ladder = dateBucketLadder("month", new Date(now));
+    const byMonth = await runWithoutTenant(() => repo.countByGroup({ spec: createdAt, params, bucket: "month", now }));
+    expect(byMonth.map(({ key }) => key)).toEqual(ladder.map(({ key }) => key));
+    expect(countsByKey(byMonth)[ladder[1].key]).toBe(4);
+    expect(countsByKey(byMonth)[ladder[2].key]).toBe(1);
+    expect(byMonth.reduce((sum, row) => sum + row.count, 0)).toBe(5);
+
+    const july = await runWithoutTenant(() =>
+      repo.getItems({
+        ...params,
+        groupScope: { spec: createdAt, key: ladder[2].key, bucket: "month", now },
+        take: 11,
+        skip: 0,
+      }),
+    );
+    expect(july.map((row) => row.createdAt.toISOString())).toEqual(["2026-07-12T10:00:00.000Z"]);
+
+    const since: Filter = {
+      field: FilterFieldKey.createdAt,
+      operator: FilterOperatorKey.gte,
+      value: "2026-08-15T00:00:00.000Z",
+    };
+    const sinceMidAugust = { filters: [...params.filters, since] };
+    const byMonthSinceMidAugust = await runWithoutTenant(() =>
+      repo.countByGroup({ spec: createdAt, params: sinceMidAugust, bucket: "month", now }),
+    );
+    expect(countsByKey(byMonthSinceMidAugust)[ladder[1].key]).toBe(2);
+    expect(countsByKey(byMonthSinceMidAugust)[ladder[2].key]).toBe(0);
+    expect(byMonthSinceMidAugust.reduce((sum, row) => sum + row.count, 0)).toBe(
+      await runWithoutTenant(() => repo.getCount(sinceMidAugust)),
+    );
 
     await runWithoutTenant(async () => {
       await prisma.operatorAuditEvent.deleteMany({ where: { targetCompanyId: workspace.companyId } });

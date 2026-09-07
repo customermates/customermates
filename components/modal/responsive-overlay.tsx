@@ -32,6 +32,7 @@ type Props = {
   onOpenChange: (open: boolean) => void;
   align?: "start" | "center" | "end";
   popoverClassName?: string;
+  onEscapeKeyDown?: (event: KeyboardEvent) => void;
 };
 
 export function ResponsiveOverlay({
@@ -43,6 +44,7 @@ export function ResponsiveOverlay({
   onOpenChange,
   align = "start",
   popoverClassName,
+  onEscapeKeyDown,
 }: Props) {
   const isWide = useIsWiderThan("md");
 
@@ -58,6 +60,7 @@ export function ResponsiveOverlay({
           "flex max-h-(--radix-popover-content-available-height) flex-col overflow-hidden p-0",
           popoverClassName,
         )}
+        onEscapeKeyDown={onEscapeKeyDown}
       >
         <PopoverHeader className="shrink-0 p-3">
           <PopoverTitle>{title}</PopoverTitle>
@@ -74,7 +77,7 @@ export function ResponsiveOverlay({
         {trigger}
       </DrawerTrigger>
 
-      <DrawerContent>
+      <DrawerContent onEscapeKeyDown={onEscapeKeyDown}>
         <DrawerHeader>
           <DrawerTitle className="min-w-0 truncate">{title}</DrawerTitle>
         </DrawerHeader>

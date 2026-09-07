@@ -289,7 +289,7 @@ describe("agent tools", () => {
     const validate = schemaOf(getAgentAiTools(deps()).click_ui_target).validate;
 
     expect(await validate?.({ targetId: "deals-display-options" })).toMatchObject({ success: true });
-    expect(await validate?.({ targetId: "deals-layout-kanban" })).toMatchObject({ success: true });
+    expect(await validate?.({ targetId: "deals-layout-board" })).toMatchObject({ success: true });
     for (const targetId of ["#deals-display-options", "nav-contacts", "company-settings-save", "deals-filter"])
       expect(await validate?.({ targetId }), targetId).toMatchObject({ success: false });
   });
@@ -313,8 +313,8 @@ describe("agent tools", () => {
       expect(result).toContain("\nend");
     }
 
-    const layout = String(await execute(tools.list_ui_targets, { query: "deals-layout-kanban" }));
-    expect(layout).toContain("deals-layout-kanban|/deals|nhc|>deals-display-options");
+    const layout = String(await execute(tools.list_ui_targets, { query: "deals-layout-board" }));
+    expect(layout).toContain("deals-layout-board|/deals|nhc|>deals-display-options");
 
     const seen: string[] = [];
     let cursor: number | undefined;

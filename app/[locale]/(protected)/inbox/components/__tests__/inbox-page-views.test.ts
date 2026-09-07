@@ -3,13 +3,14 @@ import type { PageStateProps } from "@/components/page-state/page-state";
 import type { MessagingThread } from "@/ee/messaging/messaging.schema";
 import type { ReactElement, ReactNode } from "react";
 
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MessagingProvider, MessagingThreadState, MessagingThreadType } from "@/generated/prisma";
 
 const harness = vi.hoisted(() => ({
-  activeFiltersProps: vi.fn(),
   emptyStateProps: vi.fn(),
   ensureLoaded: vi.fn(),
   getRootStore: vi.fn(),
@@ -20,6 +21,7 @@ const harness = vi.hoisted(() => ({
   setQueryOptions: vi.fn(),
   setTopBarActions: vi.fn(),
   threadRowProps: vi.fn(),
+  viewsRailProps: vi.fn(),
 }));
 
 vi.mock("next-intl", () => ({
@@ -53,15 +55,15 @@ vi.mock("@/components/data-view/data-view-toolbar", () => ({
   DataViewToolbar: () => createElement("div", { "data-data-view-toolbar": true }),
 }));
 
-vi.mock("@/components/data-view/header/active-filters-bar", () => ({
-  DataViewActiveFiltersBar: (props: Record<string, unknown>) => {
-    harness.activeFiltersProps(props);
-    return createElement("div", { "data-active-filters": true });
-  },
-}));
-
 vi.mock("@/components/data-view/header/pagination", () => ({
   DataViewPagination: () => createElement("div", { "data-pagination": true }),
+}));
+
+vi.mock("@/components/data-view/views/data-view-views-rail", () => ({
+  DataViewViewsRail: (props: Record<string, unknown>) => {
+    harness.viewsRailProps(props);
+    return createElement("div", { "data-data-view-rail": true });
+  },
 }));
 
 vi.mock("@/components/data-view/data-view-empty-state", async (importOriginal) => {
@@ -256,6 +258,26 @@ describe("Inbox page-state owners", () => {
     expect(content).toContain(`data-thread-row="${thread.id}"`);
     expect(content).toContain('data-pagination="true"');
     expect(content).toContain("animate-page-result-in");
+  });
+
+  it("leaves the saved view rail to the surface, so the inbox joins the top bar like every other list", () => {
+    const content = renderInboxList("ready", { withItem: true });
+
+    expect(content).not.toContain("data-data-view-rail");
+    expect(harness.viewsRailProps).not.toHaveBeenCalled();
+
+    const surface = readFileSync(
+      resolve(process.cwd(), "app/[locale]/(protected)/inbox/components/inbox-surface.tsx"),
+      "utf8",
+    );
+
+    expect(surface).toContain("<DataViewViewsRail joinsTopBar store={messagingThreadsStore} />");
+    expect(surface).toContain("useDataViewSync(messagingThreadsStore, threads)");
+
+    const page = readFileSync(resolve(process.cwd(), "app/[locale]/(protected)/inbox/page.tsx"), "utf8");
+
+    expect(page.indexOf("<InboxSurface")).toBeLessThan(page.indexOf("<InboxList"));
+    expect(page).not.toContain("DataViewViewsRail");
   });
 
   it("wires retry, clear, selection, and retained-content refresh failure", () => {

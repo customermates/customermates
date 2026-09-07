@@ -1,4 +1,4 @@
-import type { P13nRepo } from "@/core/base/base-get.interactor";
+import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 
 import { EntityType, Resource, Action } from "@/generated/prisma";
@@ -26,13 +26,13 @@ export abstract class GetServicesRepo extends BaseGetRepo<ServiceDto> {}
 export class GetServicesInteractor extends BaseGetInteractor<ServiceDto> {
   constructor(
     repo: GetServicesRepo,
-    p13nRepo: P13nRepo,
+    viewStateRepo: DataViewStateRepo,
     mode: "interactive" | "api",
     queryParamsPrecheck: QueryParamsPrecheckInteractor,
   ) {
     super(
       repo,
-      p13nRepo,
+      viewStateRepo,
       mode,
       EntityType.service,
       { sortDescriptor: { field: "name", direction: "asc" } },

@@ -23,6 +23,7 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft-foreground: var(--primary-soft-foreground);
   --color-secondary: var(--secondary);
   --color-selected: var(--selected);
   --color-tooltip: var(--tooltip);
@@ -355,6 +356,12 @@
   --popover-foreground: #000000;
   --primary: #5e4ae3;
   --primary-foreground: #ffffff;
+  /* The label on a soft-primary fill. --primary itself reads 4.09:1 on a bg-primary/20 tint
+     over the page ground in light and 3.95:1 in dark, both under the 4.5:1 body-text floor.
+     This is color-mix(in oklab, --primary 85%, --foreground): 85 parts of the theme's own
+     --primary to 15 parts of its --foreground, which keeps the hue and most of the chroma
+     while clearing the floor in both themes, at 5.62:1 light and 5.01:1 dark. */
+  --primary-soft-foreground: #4a3ab7;
   --secondary: var(--card);
   --secondary-foreground: #000000;
   --selected: rgb(0 0 0 / 5.5%);
@@ -420,6 +427,7 @@
   --popover-foreground: #fafafa;
   --primary: #7c6df2;
   --primary-foreground: var(--background);
+  --primary-soft-foreground: #8c84f5;
   --secondary: var(--card);
   --secondary-foreground: #fafafa;
   --selected: rgb(255 255 255 / 5.5%);

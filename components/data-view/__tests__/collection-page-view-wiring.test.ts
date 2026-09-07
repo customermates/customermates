@@ -150,8 +150,11 @@ function store(items: Array<Record<string, unknown>>, canManage = true) {
     dataRequest: { status: "ready" as const },
     entityType: undefined,
     filters: [],
-    groupingColumnId: null,
+    groupableFields: [],
+    grouping: null,
+    groupingResult: undefined,
     isDisabled: !canManage,
+    isGrouped: false,
     isReady: true,
     items,
     pagination: { page: 1, pageSize: 25, total: items.length, totalPages: items.length ? 1 : 0 },
@@ -360,14 +363,25 @@ describe("migrated collection page wiring", () => {
     value.dataRequest = { status: "refresh-error", error: new Error("retained") } as never;
     const html = fixture.render(value, initial);
     const content = harness.contentProps.mock.lastCall?.[0] as Record<string, unknown>;
-    const layout = harness.layoutProps.mock.lastCall?.[0] as { showPagination: boolean };
+    const layout = harness.layoutProps.mock.lastCall?.[0] as { showPagination: boolean; store: unknown };
 
     expect(html).toContain('data-data-view-content="true"');
     expect(content.store).toBe(value);
     expect(content.view).toBe("table");
     expect(layout.showPagination).toBe(true);
+    expect(layout.store).toBe(value);
     fixture.verifySync(value, initial);
     fixture.verifyRow(content);
+  });
+
+  it.each(fixtures)("hands $name pagination back to the group rows once the surface is grouped", (fixture) => {
+    const item = { id: "row" };
+    const value = store([item]);
+    value.isGrouped = true;
+    fixture.render(value, result([item]));
+    const layout = harness.layoutProps.mock.lastCall?.[0] as { showPagination: boolean };
+
+    expect(layout.showPagination).toBe(false);
   });
 
   it.each(fixtures)("renders the complete $name page-state contract", (fixture) => {
@@ -375,6 +389,11 @@ describe("migrated collection page wiring", () => {
       {
         expected: 'data-page-state="loading"',
         request: { status: "uninitialized" },
+      },
+      {
+        expected: 'data-page-state="loading"',
+        items: [{ id: "row" }],
+        request: { status: "refreshing" },
       },
       {
         expected: 'data-page-state="error"',
@@ -419,6 +438,8 @@ describe("migrated collection page wiring", () => {
     const topBar = renderToStaticMarkup(harness.setTopBarActions.mock.lastCall?.[0] as ReactElement);
     const toolbar = harness.toolbarProps.mock.lastCall?.[0] as { onAdd?: () => void };
 
+    expect(html, `${fixture.name}: the view rail is layout owned, not page owned`).not.toContain("data-data-view-rail");
+
     if (fixture.creator) {
       expect(html).toContain('data-variant="secondary"');
       expect(topBar).toContain('data-variant="default"');
@@ -434,9 +455,26 @@ describe("migrated collection page wiring", () => {
     const readOnly = store([], false);
     const readOnlyHtml = fixture.render(readOnly, initial);
     const readOnlyTopBar = renderToStaticMarkup(harness.setTopBarActions.mock.lastCall?.[0] as ReactElement);
+    expect(readOnlyHtml, `${fixture.name}: the view rail is layout owned, not page owned`).not.toContain(
+      "data-data-view-rail",
+    );
     expectOnlyTransferButtons(readOnlyHtml);
     expectOnlyTransferButtons(readOnlyTopBar);
     expect(readOnlyTopBar.includes("data-transfer-menu")).toBe(TRANSFERABLE_VIEWS.has(fixture.name));
+  });
+
+  it("keeps the board and its grouping prompt off screen while a view switch is in flight", () => {
+    const item = { id: "row" };
+    const value = store([item]);
+    value.dataRequest = { status: "refreshing" } as never;
+    value.viewMode = ViewMode.card;
+    (value as unknown as { canBoard: boolean }).canBoard = true;
+    const html = fixtures.find(({ name }) => name === "Deals")?.render(value, result([item])) ?? "";
+
+    expect(html).toContain('data-page-state="loading"');
+    expect(html).toContain('data-skeleton-view="board"');
+    expect(html).not.toContain('data-data-view-content="true"');
+    expect(harness.contentProps).not.toHaveBeenCalled();
   });
 
   it("keeps Roles off URL sync and makes its rejected retry caller-safe", () => {
