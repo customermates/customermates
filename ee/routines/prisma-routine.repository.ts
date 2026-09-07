@@ -644,6 +644,7 @@ export class PrismaRoutineRepo
       const claimed = await this.prisma.routine.updateMany({
         where: {
           id: args.routineId,
+          companyId: identity.companyId,
           enabled: true,
           ownerUserId: routine.ownerUserId,
           owner: { status: Status.active },
@@ -736,7 +737,7 @@ export class PrismaRoutineRepo
         run.routine.owner?.status !== Status.active
       ) {
         await this.prisma.routineRun.updateMany({
-          where: { id: args.routineRunId, status: RoutineRunStatus.queued },
+          where: { id: args.routineRunId, companyId: identity.companyId, status: RoutineRunStatus.queued },
           data: {
             status: RoutineRunStatus.skipped,
             error: "routineDisabled",
@@ -754,7 +755,7 @@ export class PrismaRoutineRepo
               !matchesChangedFields(run.routine.changedFields, changedFieldsOf(run.triggerPayload)))));
       if (triggerChanged) {
         const skipped = await this.prisma.routineRun.updateMany({
-          where: { id: args.routineRunId, status: RoutineRunStatus.queued },
+          where: { id: args.routineRunId, companyId: identity.companyId, status: RoutineRunStatus.queued },
           data: {
             status: RoutineRunStatus.skipped,
             error: "startAbandoned",
@@ -787,7 +788,7 @@ export class PrismaRoutineRepo
       });
       if (inFlight >= args.maxInFlight) {
         await this.prisma.routineRun.updateMany({
-          where: { id: args.routineRunId, status: RoutineRunStatus.queued },
+          where: { id: args.routineRunId, companyId: identity.companyId, status: RoutineRunStatus.queued },
           data: {
             status: RoutineRunStatus.skipped,
             error: "ownerRunLimit",
@@ -811,6 +812,7 @@ export class PrismaRoutineRepo
       const claimed = await this.prisma.routineRun.updateMany({
         where: {
           id: args.routineRunId,
+          companyId: identity.companyId,
           status: RoutineRunStatus.queued,
           executedByUserId: args.executedByUserId,
           routine: {
@@ -911,9 +913,17 @@ export class PrismaRoutineRepo
 
   @BypassTenantGuard
   async disableRoutineUnscoped(routineId: string, reason: string, executedByUserId: string) {
-    await this.prisma.routine.updateMany({
-      where: { id: routineId, ownerUserId: executedByUserId },
-      data: { enabled: false, disabledReason: reason, nextRunAt: null },
+    const identity = await this.prisma.routine.findUnique({
+      where: { id: routineId },
+      select: { companyId: true },
+    });
+    if (!identity) return;
+
+    await this.withCompanyTransaction(identity.companyId, async () => {
+      await this.prisma.routine.updateMany({
+        where: { id: routineId, companyId: identity.companyId, ownerUserId: executedByUserId },
+        data: { enabled: false, disabledReason: reason, nextRunAt: null },
+      });
     });
   }
 
@@ -953,11 +963,11 @@ export class PrismaRoutineRepo
   }
 
   @BypassTenantGuard
-  async countSuppressedRoutineEventsUnscoped(routineIds: string[]) {
+  async countSuppressedRoutineEventsUnscoped(companyId: string, routineIds: string[]) {
     if (routineIds.length === 0) return;
 
     await this.prisma.routine.updateMany({
-      where: { id: { in: routineIds } },
+      where: { id: { in: routineIds }, companyId },
       data: { suppressedEventCount: { increment: 1 } },
     });
   }
@@ -1256,6 +1266,7 @@ export class PrismaRoutineRepo
       await this.prisma.routineRun.updateMany({
         where: {
           id: run.id,
+          companyId: run.companyId,
           status: RoutineRunStatus.running,
           turnRequestId: null,
         },

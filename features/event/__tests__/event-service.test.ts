@@ -420,7 +420,7 @@ describe("EventService routine triggers", () => {
     expect(result.routineRuns).toBe(0);
     expect(routineRepo.admitEventRoutineRunsUnscoped).not.toHaveBeenCalled();
     expect(backgroundTaskService.dispatch).not.toHaveBeenCalledWith("run-routine", expect.anything());
-    expect(routineRepo.countSuppressedRoutineEventsUnscoped).toHaveBeenCalledWith([ROUTINE_ID]);
+    expect(routineRepo.countSuppressedRoutineEventsUnscoped).toHaveBeenCalledWith(mockUser.companyId, [ROUTINE_ID]);
   });
 
   it("skips a routine whose required fields did not change", async () => {

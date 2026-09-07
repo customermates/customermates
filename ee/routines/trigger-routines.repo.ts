@@ -16,7 +16,7 @@ export type AdmittedRoutineRun = {
 
 export abstract class TriggerRoutinesRepo {
   abstract findEventRoutinesUnscoped(companyId: string, event: string): Promise<EventRoutineCandidate[]>;
-  abstract countSuppressedRoutineEventsUnscoped(routineIds: string[]): Promise<void>;
+  abstract countSuppressedRoutineEventsUnscoped(companyId: string, routineIds: string[]): Promise<void>;
   abstract admitEventRoutineRunsUnscoped(args: {
     companyId: string;
     event: string;

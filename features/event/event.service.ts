@@ -163,7 +163,10 @@ export class EventService extends UserAccessor {
     if (routines.length === 0) return 0;
 
     if (currentRoutineContext()) {
-      await this.routineRepo.countSuppressedRoutineEventsUnscoped(routines.map((routine) => routine.id));
+      await this.routineRepo.countSuppressedRoutineEventsUnscoped(
+        companyId,
+        routines.map((routine) => routine.id),
+      );
       return 0;
     }
 
