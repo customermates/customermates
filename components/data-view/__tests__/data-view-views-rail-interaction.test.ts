@@ -14,6 +14,7 @@ const harness = vi.hoisted(() => ({
   calls: [] as string[],
   confirmations: [] as { entityName?: string; onConfirm: () => Promise<boolean> }[],
   deleteDataViewAction: vi.fn(),
+  menuCloseAutoFocus: { current: undefined as ((event: Event) => void) | undefined },
   upsertDataViewAction: vi.fn(),
 }));
 
@@ -68,8 +69,17 @@ vi.mock("@/components/modal/responsive-overlay", () => ({
 }));
 vi.mock("@/components/ui/dropdown-menu", () => ({
   DropdownMenu: ({ children }: { children: ReactNode }) => createElement("div", null, children),
-  DropdownMenuContent: ({ children }: { children: ReactNode }) =>
-    createElement("div", { "data-view-menu": "" }, children),
+  DropdownMenuContent: ({
+    children,
+    onCloseAutoFocus,
+  }: {
+    children: ReactNode;
+    onCloseAutoFocus?: (event: Event) => void;
+  }) => {
+    harness.menuCloseAutoFocus.current = onCloseAutoFocus;
+
+    return createElement("div", { "data-view-menu": "" }, children);
+  },
   DropdownMenuItem: ({
     children,
     disabled,
@@ -402,6 +412,38 @@ describe("data view rail interaction", () => {
     expect(harness.deleteDataViewAction).not.toHaveBeenCalled();
     expect(value.applyView).toHaveBeenCalledExactlyOnceWith("v-new");
     expect(host.querySelector("[data-view-draft]")).toBeNull();
+  });
+
+  it("keeps the closing menu from dismissing the overlay it just opened, and lands focus in the name field", () => {
+    const host = render(store());
+
+    act(() => byText(host, "DataView.views.duplicate").click());
+
+    const input = host.querySelector<HTMLInputElement>("#view-editor-name");
+    expect(input).not.toBeNull();
+
+    const close = harness.menuCloseAutoFocus.current;
+    expect(
+      close,
+      "the menu must handle its own close focus, or Radix returns focus to the trigger and dismisses the overlay",
+    ).toBeTypeOf("function");
+
+    const event = new Event("closeAutoFocus", { cancelable: true });
+    act(() => close?.(event));
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(input);
+  });
+
+  it("returns focus to the menu control when the chosen item opens no overlay", () => {
+    const host = render(store({ activeViewKey: "v-b" }));
+
+    const close = harness.menuCloseAutoFocus.current;
+    const event = new Event("closeAutoFocus", { cancelable: true });
+    act(() => close?.(event));
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(host.querySelector("#global-data-views-menu"));
   });
 
   it("renames the active view through the edit overlay with the store's live state", async () => {

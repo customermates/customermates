@@ -23,7 +23,7 @@ import { cn } from "@/core/utils/cn";
 
 import { VIEW_SURFACE_CLASS, VIEW_TAB_CLASS, ViewChip } from "./view-chip";
 import { ViewMenuItems } from "./view-menu-items";
-import { ViewMetaOverlay } from "./view-meta-overlay";
+import { VIEW_META_NAME_INPUT_ID, ViewMetaOverlay } from "./view-meta-overlay";
 import { allViewMenuItems, orderChips, sortViewsByPosition, viewMenuItems } from "./view-rail-model";
 import { viewHref } from "./view-actions";
 import { useRovingFocus } from "./use-roving-focus";
@@ -208,7 +208,15 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
             </Button>
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent
+            align="end"
+            onCloseAutoFocus={(event) => {
+              event.preventDefault();
+              const nameInput = document.getElementById(VIEW_META_NAME_INPUT_ID);
+              if (nameInput) nameInput.focus();
+              else document.getElementById("global-data-views-menu")?.focus();
+            }}
+          >
             <ViewMenuItems commands={commands} items={menuItems} view={menuTarget} />
           </DropdownMenuContent>
         </DropdownMenu>

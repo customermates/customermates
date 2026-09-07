@@ -14,6 +14,8 @@ import { runUserAction } from "@/core/errors/report-application-error";
 export type ViewMetaMode = "create" | "duplicate" | "edit";
 
 const FORM_ID = "view-editor-form";
+
+export const VIEW_META_NAME_INPUT_ID = "view-editor-name";
 const NAME_LIMIT = 60;
 
 type Props = {
@@ -69,12 +71,12 @@ export function ViewMetaOverlay({ mode, name, open, trigger, onChange, onOpenCha
     >
       <form className="flex flex-col gap-3 p-3" id={FORM_ID} onSubmit={handleSubmit}>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="view-editor-name">{t("DataView.views.name")}</Label>
+          <Label htmlFor={VIEW_META_NAME_INPUT_ID}>{t("DataView.views.name")}</Label>
 
           <Input
             autoFocus
             required
-            id="view-editor-name"
+            id={VIEW_META_NAME_INPUT_ID}
             maxLength={NAME_LIMIT}
             placeholder={t("DataView.views.namePlaceholder")}
             value={name}
