@@ -9,7 +9,7 @@ export const startChatOperation: ZodOpenApiOperationObject = {
   operationId: "startChat",
   summary: "Start a chat",
   description:
-    "Starts a new chat thread (LinkedIn, WhatsApp, etc.) with one or more attendees from a connected account and sends the first message. This delivers a real message as a side effect.",
+    "Starts a new chat thread (LinkedIn, WhatsApp, etc.) with one or more attendees from a connected account and sends the first message. This delivers a real message as a side effect. When delivering a saved draft, pass both draftMessageId and its opaque draftRevision so a newer edit cannot be consumed.",
   tags: ["messaging"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {

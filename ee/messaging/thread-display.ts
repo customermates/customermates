@@ -1,7 +1,8 @@
 import type { MessagingProvider, MessagingThreadType } from "@/generated/prisma";
 import type { MessagingAttendee } from "./messaging.schema";
 
-import { getProviderProfileUrl, isEmailProvider, isPhoneProvider } from "./provider";
+import { getProviderProfileUrl, isEmailProvider, isHandleProvider, isPhoneProvider } from "./provider";
+import { parseChannelHandle } from "@/features/contacts/channel-value";
 
 export function contactFullName(contact: { firstName: string; lastName: string } | null | undefined): string {
   return contact ? `${contact.firstName} ${contact.lastName}`.trim() : "";
@@ -79,7 +80,7 @@ export function messageSenderName(message: {
   return (
     contactFullName(message.sender.contact) ||
     message.sender.displayName?.trim() ||
-    displayableIdentifier(message.provider, message.sender.identifier) ||
+    identifierLabel(message.provider, message.sender.identifier) ||
     null
   );
 }
@@ -106,6 +107,15 @@ export function displayableIdentifier(
   return null;
 }
 
+export function identifierLabel(provider: MessagingProvider, identifier: string | null | undefined): string | null {
+  const id = identifier?.trim();
+
+  if (!id) return null;
+  if (isHandleProvider(provider)) return parseChannelHandle(provider, id) || id;
+
+  return displayableIdentifier(provider, id);
+}
+
 function isPhoneLikeLabel(label: string, identifier: string | null | undefined): boolean {
   const labelDigits = label.replace(/\D/g, "");
 
@@ -123,7 +133,7 @@ export function participantLabel(
   const displayName = participant.displayName?.trim();
   if (displayName && !isPhoneLikeLabel(displayName, participant.identifier)) return displayName;
 
-  return displayableIdentifier(provider, participant.identifier) || displayName || fallback;
+  return identifierLabel(provider, participant.identifier) || displayName || fallback;
 }
 
 export function threadCounterpart<T extends { isSelf?: boolean | null }>(participants: T[]): T | null {

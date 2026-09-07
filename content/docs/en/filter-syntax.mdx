@@ -39,8 +39,8 @@ Rules are AND-combined. For OR logic, run two queries and merge client-side, or 
 | `inLastDays` | single (integer) | dates | `30` |
 | `isNull` | no value | any | (none) |
 | `isNotNull` | no value | any | (none) |
-| `hasNone` | no value | relationship arrays | (none) |
-| `hasSome` | no value | relationship arrays | (none) |
+| `hasNone` | no value | relationship arrays, messaging-thread draft status | (none) |
+| `hasSome` | no value | relationship arrays, messaging-thread draft status | (none) |
 | `hasUnset` | no value | messaging-thread participants | (none) |
 | `allSet` | no value | messaging-thread participants | (none) |
 
@@ -50,7 +50,7 @@ Date fields such as `createdAt` and `updatedAt` accept `gt`, `gte`, `lt`, `lte`,
 
 ### Relationship and participant operators
 
-Relationship arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`, `serviceIds`, `taskIds`) accept `in`, `notIn`, `hasNone`, and `hasSome`. The participants link-status field on `get_messaging_threads` uses `hasUnset` and `allSet` to filter threads by whether their participants are linked to records.
+Relationship arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`, `serviceIds`, `taskIds`) accept `in`, `notIn`, `hasNone`, and `hasSome`. The participants link-status field on `get_messaging_threads` uses `hasUnset` and `allSet` to filter threads by whether their participants are linked to records. The `draft` field on the same tool takes the value-less `hasSome` (the thread holds an unsent draft) and `hasNone` (it does not), which is how you list or exclude drafts.
 
 ## Field names
 

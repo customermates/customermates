@@ -15,14 +15,17 @@ type Props = {
   editor: Editor;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  normalizeUrl?: (url: string) => string | null;
+  disabled?: boolean;
 };
 
-export function LinkPopover({ editor, open, onOpenChange }: Props) {
+export function LinkPopover({ editor, open, onOpenChange, normalizeUrl, disabled = false }: Props) {
   const t = useTranslations();
   const [url, setUrl] = useState("");
 
   const isActive = editor.isActive("link");
-  const canSet = url.trim() !== "";
+  const normalizedUrl = url.trim() ? (normalizeUrl?.(url) ?? (normalizeUrl ? null : url.trim())) : "";
+  const canSet = normalizedUrl !== null && normalizedUrl !== "";
 
   useEffect(() => {
     if (open) {
@@ -32,8 +35,9 @@ export function LinkPopover({ editor, open, onOpenChange }: Props) {
   }, [open, editor]);
 
   function setLink() {
-    if (url === "") editor.chain().focus().extendMarkRange("link").unsetLink().run();
-    else editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+    if (disabled || normalizedUrl === null) return;
+    if (normalizedUrl === "") editor.chain().focus().extendMarkRange("link").unsetLink().run();
+    else editor.chain().focus().extendMarkRange("link").setLink({ href: normalizedUrl }).run();
 
     onOpenChange(false);
   }
@@ -56,6 +60,7 @@ export function LinkPopover({ editor, open, onOpenChange }: Props) {
         <Button
           aria-label={t("Editor.link")}
           className={cn(isActive && "bg-accent text-accent-foreground")}
+          disabled={disabled}
           size="icon-sm"
           type="button"
           variant="ghost"
@@ -68,6 +73,8 @@ export function LinkPopover({ editor, open, onOpenChange }: Props) {
         <div className="flex w-full items-center gap-1">
           <Input
             autoFocus
+            aria-invalid={normalizedUrl === null}
+            disabled={disabled}
             placeholder={t("Editor.urlPlaceholder")}
             type="url"
             value={url}
@@ -77,7 +84,7 @@ export function LinkPopover({ editor, open, onOpenChange }: Props) {
 
           <Button
             aria-label={t("Editor.confirm")}
-            disabled={!canSet}
+            disabled={disabled || !canSet}
             size="icon-sm"
             type="button"
             variant="default"
@@ -89,6 +96,7 @@ export function LinkPopover({ editor, open, onOpenChange }: Props) {
           {isActive && (
             <Button
               aria-label={t("Editor.removeLink")}
+              disabled={disabled}
               size="icon-sm"
               type="button"
               variant="destructive"

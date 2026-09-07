@@ -8,7 +8,8 @@
     margin-bottom: 0.5rem;
   }
 
-  h1, h2 {
+  h1,
+  h2 {
     margin-top: 1rem;
     margin-bottom: 0.5rem;
   }
@@ -36,7 +37,7 @@
     }
   }
 
-  ul[data-type='taskList'] {
+  ul[data-type="taskList"] {
     list-style: none;
     margin-left: 0;
     padding: 0;
@@ -62,7 +63,7 @@
       }
     }
 
-    input[type='checkbox'] {
+    input[type="checkbox"] {
       cursor: pointer;
       accent-color: var(--primary);
       appearance: none;
@@ -80,7 +81,7 @@
         border-color: var(--primary);
 
         &::after {
-          content: '';
+          content: "";
           position: absolute;
           left: 4px;
           top: 1px;
@@ -93,12 +94,12 @@
       }
     }
 
-    ul[data-type='taskList'] {
+    ul[data-type="taskList"] {
       margin: 0;
     }
   }
 
-   p.is-editor-empty:first-child::before {
+  p.is-editor-empty:first-child::before {
     color: var(--muted-foreground);
     content: attr(data-placeholder);
     float: left;
@@ -116,7 +117,7 @@
 
   blockquote > p::before,
   blockquote > p::after {
-    content: '';
+    content: "";
   }
 
   hr {
@@ -165,7 +166,7 @@
 
     .selectedCell::after {
       background: var(--primary);
-      content: '';
+      content: "";
       inset: 0;
       opacity: 0.1;
       pointer-events: none;
@@ -189,4 +190,52 @@
     text-decoration: underline;
     word-break: break-all;
   }
+}
+
+.email-markdown-editor .tiptap {
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+
+  p,
+  li p {
+    margin: 0 0 var(--email-block-gap);
+    padding: 0;
+  }
+
+  ul,
+  ol {
+    margin: 0 0 var(--email-block-gap);
+    padding: 0 0 0 var(--email-list-indent);
+  }
+
+  ul {
+    list-style-type: disc;
+  }
+  ol {
+    list-style-type: decimal;
+  }
+
+  blockquote {
+    margin: 0 0 var(--email-block-gap);
+    padding: 0 0 0 var(--email-quote-indent);
+    border-left: 2px solid var(--email-divider-color) !important;
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--email-divider-color);
+    margin: var(--email-block-gap) 0;
+    padding: 0;
+  }
+
+  a {
+    color: var(--email-link-color);
+    text-decoration: var(--email-link-decoration);
+  }
+}
+
+.email-markdown-editor .tiptap > :last-child {
+  margin-bottom: 0;
 }

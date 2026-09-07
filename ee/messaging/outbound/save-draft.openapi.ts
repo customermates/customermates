@@ -2,7 +2,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import { z } from "zod";
 
-import { SaveDraftSchema } from "@/ee/messaging/outbound/save-draft.interactor";
+import { SaveNewThreadDraftSchema, SaveReplyDraftBodySchema } from "@/ee/messaging/outbound/save-draft.interactor";
 import { MessagingMessageDtoSchema } from "@/ee/messaging/inbox/inbox.schema";
 import { CommonApiResponses } from "@/core/api/interactor-handler";
 
@@ -20,7 +20,35 @@ export const saveDraftOperation: ZodOpenApiOperationObject = {
     required: true,
     content: {
       "application/json": {
-        schema: SaveDraftSchema.omit({ threadId: true }),
+        schema: SaveReplyDraftBodySchema,
+      },
+    },
+  },
+  responses: {
+    "200": {
+      description: "The draft was saved.",
+      content: {
+        "application/json": {
+          schema: MessagingMessageDtoSchema,
+        },
+      },
+    },
+    ...CommonApiResponses,
+  },
+};
+
+export const saveNewThreadDraftOperation: ZodOpenApiOperationObject = {
+  operationId: "saveNewThreadDraft",
+  summary: "Save a draft for a new conversation",
+  description:
+    "Saves a draft for a conversation that does not exist yet, so it can be reviewed and sent from the inbox. Provide connectedAccountId and recipients; a local draft thread is created and appears in the inbox with the draft filter. Local only; nothing is delivered, and the provider conversation is created when the draft is sent. subject, cc, and bcc apply to email accounts. Reusing the same account and recipient updates the existing draft instead of creating a second one.",
+  tags: ["messaging"],
+  security: [{ apiKeyAuth: [] }],
+  requestBody: {
+    required: true,
+    content: {
+      "application/json": {
+        schema: SaveNewThreadDraftSchema,
       },
     },
   },
