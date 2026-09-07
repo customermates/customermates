@@ -21,6 +21,7 @@ import { seedSyntheticAuditLogs } from "./audit-logs";
 import { seedOrganizations } from "./organizations";
 import { seedPersonalization } from "./personalization";
 import { seedRelationships } from "./relationships";
+import { seedRoutines } from "./routines";
 import { seedServices } from "./services";
 import { seedTasks } from "./tasks";
 import { seedWebhooks } from "./webhooks";
@@ -64,6 +65,7 @@ export async function runSyntheticSeed(
   });
   await seedSyntheticAuditLogs(context, entities);
   await seedAgentConversations(context);
+  await seedRoutines(context);
 
   return entities;
 }
