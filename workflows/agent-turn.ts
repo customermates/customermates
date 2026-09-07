@@ -13,7 +13,11 @@ import { createHook, getWritable, sleep } from "workflow";
 import { isStepCount, jsonSchema } from "ai";
 
 import { AgentTurnTranscript } from "@/ee/agent-chat/agent-turn-transcript";
-import { approvalWindowMsForSurface, isUnattendedSurface } from "@/ee/agent-chat/agent-surface-policy";
+import {
+  approvalWindowMsForSurface,
+  isToolAvailableOnSurface,
+  isUnattendedSurface,
+} from "@/ee/agent-chat/agent-surface-policy";
 import { isAgentTurnTerminalError } from "@/ee/agent-chat/agent-turn-request";
 import {
   agentApprovalHookToken,
@@ -215,6 +219,7 @@ async function loadAgentToolShells(surface: AgentTurnSurface, servingProvider: s
 
   return getAgentAiToolDefinitions(servingProvider)
     .filter((definition) => !unattended || !panelToolNames.has(definition.name))
+    .filter((definition) => isToolAvailableOnSurface(surface, definition.name))
     .map((definition) => ({
       name: definition.name,
       description: definition.description,

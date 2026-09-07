@@ -171,6 +171,7 @@ describe("gated-tools", () => {
       docs: 2,
       "custom-columns": 1,
       widgets: 1,
+      routines: 1,
       webhooks: 1,
       admin: 2,
       support: 1,

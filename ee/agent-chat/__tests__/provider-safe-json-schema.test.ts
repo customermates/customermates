@@ -450,23 +450,23 @@ describe("the shipped tool catalog on the Google wire", () => {
     const changes = changesForShippedCatalog();
 
     expect(summarizeGoogleSchemaChanges(changes)).toEqual({
-      "$schema:removed": 52,
-      "additionalProperties:removed": 54,
-      "anyOf:collapsed": 40,
+      "$schema:removed": 53,
+      "additionalProperties:removed": 55,
+      "anyOf:collapsed": 45,
       "const:removed": 1,
-      "const:rewritten": 202,
-      "enum:removed": 24,
-      "exclusiveMinimum:rewritten": 10,
+      "const:rewritten": 219,
+      "enum:removed": 25,
+      "exclusiveMinimum:rewritten": 11,
       "nullable:collapsed": 10,
-      "nullable:rewritten": 20,
-      "oneOf:rewritten": 17,
+      "nullable:rewritten": 25,
+      "oneOf:rewritten": 18,
     });
     expect(summarizeGoogleSchemaChanges(changes.filter((change) => change.loosened))).toEqual({
-      "additionalProperties:removed": 54,
+      "additionalProperties:removed": 55,
       "const:removed": 1,
-      "enum:removed": 24,
+      "enum:removed": 25,
       "exclusiveMinimum:rewritten": 2,
-      "oneOf:rewritten": 17,
+      "oneOf:rewritten": 18,
     });
   });
 

@@ -1675,6 +1675,9 @@ export const getSendAgentMessageInteractor = () =>
 export const getGetRoutinesInteractor = () =>
   new GetRoutinesInteractor(getRoutineRepo(), getDataViewStateRepo(), "interactive", getQueryParamsPrecheck());
 
+export const getGetRoutinesApiInteractor = () =>
+  new GetRoutinesInteractor(getRoutineRepo(), getDataViewStateRepo(), "api", getQueryParamsPrecheck());
+
 export const getGetRoutineRunsInteractor = () => new GetRoutineRunsInteractor(getRoutineRepo());
 
 export const getUpsertRoutineInteractor = () => new UpsertRoutineInteractor(getRoutineRepo(), getCompanyRepo());
