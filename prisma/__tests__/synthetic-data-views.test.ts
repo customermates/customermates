@@ -4,6 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
 import { FilterSchema } from "@/core/base/base-get.schema";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { ViewMode } from "@/core/base/base-query-builder";
 import { DataViewStateSchema } from "@/core/data-view/data-view-state.schema";
 
 import { SEED_IDS } from "../seeds/context";
@@ -22,6 +24,8 @@ const customFields = {
 };
 
 const views = () => buildSyntheticDataViewFixtures({ ids: SEED_IDS }, customFields);
+
+const DRAFT_FIELD: string = FilterFieldKey.draft;
 
 type StoredRow = {
   id: string;
@@ -66,39 +70,66 @@ function createSeedPrisma(recorder: ReturnType<typeof createViewRecorder>): Pick
 }
 
 describe("synthetic data view fixtures", () => {
-  it("seeds exactly one personal view, owned by the demo user, and no other view rows", () => {
+  it("seeds personal views across every demo surface, owned by the demo user", () => {
     const fixtures = views();
 
-    expect(fixtures).toHaveLength(1);
     expect(fixtures.map(({ id }) => id)).toEqual(Object.values(SYNTHETIC_DATA_VIEW_IDS));
     expect(fixtures.every(({ id }) => id.startsWith(`${SYNTHETIC_DATA_VIEW_ID_PREFIX}-`))).toBe(true);
     expect(fixtures.every(({ userId }) => userId === SEED_IDS.user)).toBe(true);
     expect(fixtures.every((fixture) => !("visibility" in fixture))).toBe(true);
+    expect(fixtures.every(({ name }) => name.trim().length > 0)).toBe(true);
 
-    expect(fixtures[0]).toEqual({
-      id: SYNTHETIC_DATA_VIEW_IDS.openDeals,
-      userId: SEED_IDS.user,
-      name: "Open deals",
-      position: 0,
-      surfaceKey: "deals-card-store",
-      state: {
-        filters: [
-          {
-            field: SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus,
-            operator: "in",
-            value: [SYNTHETIC_CUSTOM_OPTION_IDS.dealStatus.open],
-          },
-        ],
-        grouping: { field: SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus },
-        viewMode: "card",
-      },
-    });
+    expect(new Set(fixtures.map(({ surfaceKey }) => surfaceKey))).toEqual(
+      new Set([
+        "contacts-card-store",
+        "organizations-card-store",
+        "deals-card-store",
+        "services-card-store",
+        "tasks-card-store",
+        "messaging-threads-card-store",
+      ]),
+    );
 
     for (const fixture of fixtures) {
-      expect(DataViewStateSchema.safeParse(fixture.state).success).toBe(true);
+      expect(DataViewStateSchema.safeParse(fixture.state).success, fixture.name).toBe(true);
       if (fixture.state.filters !== undefined)
-        expect(z.array(FilterSchema).safeParse(fixture.state.filters).success).toBe(true);
+        expect(z.array(FilterSchema).safeParse(fixture.state.filters).success, fixture.name).toBe(true);
     }
+  });
+
+  it("gives every surface its own contiguous tab order", () => {
+    const bySurface = new Map<string, number[]>();
+    for (const { surfaceKey, position } of views())
+      bySurface.set(surfaceKey, [...(bySurface.get(surfaceKey) ?? []), position]);
+
+    for (const [surfaceKey, positions] of bySurface) {
+      expect(positions.length, surfaceKey).toBeGreaterThan(1);
+      expect(
+        [...positions].sort((left, right) => left - right),
+        surfaceKey,
+      ).toEqual(positions.map((_, index) => index));
+    }
+  });
+
+  it("shows a pipeline on every surface that can group, and filters the one that cannot", () => {
+    const grouped = views().filter(({ state }) => state.grouping);
+
+    expect(grouped.every(({ state }) => state.viewMode === ViewMode.card)).toBe(true);
+    expect(new Set(grouped.map(({ surfaceKey }) => surfaceKey))).toEqual(
+      new Set([
+        "contacts-card-store",
+        "organizations-card-store",
+        "deals-card-store",
+        "services-card-store",
+        "tasks-card-store",
+      ]),
+    );
+
+    const inbox = views().filter(({ surfaceKey }) => surfaceKey === "messaging-threads-card-store");
+
+    expect(inbox.every(({ state }) => !state.grouping)).toBe(true);
+    expect(inbox.every(({ state }) => (state.filters ?? []).length > 0)).toBe(true);
+    expect(inbox.some(({ state }) => (state.filters ?? []).some((filter) => filter.field === DRAFT_FIELD))).toBe(true);
   });
 
   it("converges on a second run and removes only stale deterministic rows", async () => {
