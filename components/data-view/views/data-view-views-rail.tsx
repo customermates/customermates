@@ -5,7 +5,7 @@ import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store"
 import type { DataViewChipDto } from "@/core/data-view/data-view-state.schema";
 import type { ViewMetaDraft } from "./use-view-commands";
 
-import { ChevronDownIcon, PlusIcon } from "lucide-react";
+import { ChevronDownIcon } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
@@ -167,19 +167,6 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
               );
             })}
 
-          {isDrafting && (
-            <span
-              aria-hidden
-              className={cn(
-                VIEW_TAB_CLASS,
-                "border-dashed border-input bg-transparent text-muted-foreground hover:bg-transparent",
-              )}
-              data-view-draft=""
-            >
-              <span className="truncate">{t("DataView.views.createTitle")}</span>
-            </span>
-          )}
-
           {store.isReady && canWriteViews && (
             <ViewMetaOverlay
               mode={meta?.mode ?? "create"}
@@ -187,13 +174,16 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
               open={meta !== null}
               trigger={
                 <Button
-                  aria-label={t("DataView.views.createTitle")}
-                  className={cn(VIEW_SURFACE_CLASS, "size-7 rounded-full")}
+                  className={cn(
+                    VIEW_TAB_CLASS,
+                    "border-dashed border-input bg-transparent text-muted-foreground shadow-none hover:bg-transparent",
+                  )}
+                  data-view-draft={isDrafting ? "" : undefined}
                   id="global-data-views-new"
-                  size="icon-sm"
+                  size="sm"
                   variant="ghost"
                 >
-                  <PlusIcon aria-hidden />
+                  <span className="truncate">{t("DataView.views.createTitle")}</span>
                 </Button>
               }
               onChange={(draft) => setMeta((current) => (current ? { ...current, ...draft } : current))}

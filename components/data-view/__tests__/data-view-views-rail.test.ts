@@ -78,6 +78,22 @@ function tabs(html: string): string[] {
   return html.match(/<a [^>]*data-view-chip=""[^>]*>/g) ?? [];
 }
 
+function classesOf(markup: string): string[] {
+  return (markup.match(/class="([^"]*)"/)?.[1] ?? "").split(/\s+/).filter(Boolean);
+}
+
+function controlOf(html: string, id: string): string {
+  const open = html.match(new RegExp(`<button[^>]*id="${id}"[^>]*>`))?.[0] ?? "";
+  if (open === "") return "";
+
+  const start = html.indexOf(open);
+  return html.slice(start, html.indexOf("</button>", start));
+}
+
+function restingTabs(html: string): string[] {
+  return tabs(html).filter((tab) => !classesOf(tab).includes("bg-primary/20"));
+}
+
 const ANCHOR_IDS = ["global-data-views", "global-data-views-all", "global-data-views-menu", "global-data-views-new"];
 
 describe("data view rail", () => {
@@ -110,6 +126,8 @@ describe("data view rail", () => {
     expect(html).toContain('id="global-data-views-new"');
     expect(html).toContain('id="global-data-views-menu"');
     expect(countOf(html, 'id="global-data-views')).toBe(4);
+    expect(controlOf(html, "global-data-views-new")).toContain("DataView.views.createTitle");
+    expect(controlOf(html, "global-data-views-new")).not.toContain("aria-label");
   });
 
   it("renders every view as a tab in position order and marks only the active one", () => {
@@ -122,20 +140,20 @@ describe("data view rail", () => {
     expect(countOf(html, "<a ")).toBe(4);
     expect(countOf(html, 'aria-current="page"')).toBe(1);
     expect(html).toMatch(/<a[^>]*aria-current="page"[^>]*>(?:(?!<\/a>).)*Open deals/s);
-    const selected = tabs(html).filter((tab) => tab.includes("bg-selected"));
+    const selected = tabs(html).filter((tab) => classesOf(tab).includes("bg-primary/20"));
     expect(selected).toHaveLength(1);
     expect(selected[0]).toContain('aria-current="page"');
-    expect(selected[0]).toContain("text-foreground");
-    expect(selected[0]).not.toContain("text-muted-foreground");
-    expect(tabs(html).filter((tab) => tab.includes("text-muted-foreground"))).toHaveLength(3);
-    expect(selected[0]).toContain("hover:bg-selected");
-    expect(selected[0]).not.toContain("hover:bg-muted");
-    const unselected = tabs(html).filter((tab) => !tab.includes("bg-selected"));
+    expect(classesOf(selected[0])).toContain("text-primary-soft-foreground");
+    expect(classesOf(selected[0])).toContain("border-primary/40");
+    expect(classesOf(selected[0])).not.toContain("text-muted-foreground");
+    expect(tabs(html).filter((tab) => classesOf(tab).includes("text-muted-foreground"))).toHaveLength(3);
+    const unselected = restingTabs(html);
     expect(unselected).toHaveLength(3);
-    expect(unselected.every((tab) => tab.includes("bg-muted/50"))).toBe(true);
-    expect(unselected.every((tab) => tab.includes("hover:bg-muted hover:text-foreground"))).toBe(true);
-    expect(unselected.every((tab) => !tab.includes("hover:bg-accent"))).toBe(true);
-    expect(selected[0]).toContain("border-border-strong");
+    expect(unselected.every((tab) => classesOf(tab).includes("bg-secondary"))).toBe(true);
+    expect(unselected.every((tab) => tab.includes("hover:bg-accent hover:text-foreground"))).toBe(true);
+    expect(unselected.every((tab) => classesOf(tab).includes("shadow-xs"))).toBe(true);
+    expect(html).not.toContain("bg-selected");
+    expect(html).not.toContain("bg-muted/50");
     expect(html).not.toContain("bg-foreground/10");
     expect(html).not.toContain('data-slot="badge"');
   });
@@ -155,33 +173,95 @@ describe("data view rail", () => {
     }
   });
 
-  it("gives the rail icon controls the pill geometry and the same resting surface as an inactive tab", () => {
-    const html = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
-    const inactive = tabs(html).filter((tab) => !tab.includes("bg-selected"));
+  it("gives the resting tab the header toolbar button's background, border and shadow", () => {
+    const html = render(store({ activeViewKey: "v-b", views: THREE_VIEWS }));
+    const button = readFileSync(resolve(process.cwd(), "components/ui/button.tsx"), "utf8");
+    const secondary = (button.match(/secondary:\s*"([^"]*)"/)?.[1] ?? "").split(/\s+/).filter(Boolean);
 
-    expect(inactive).toHaveLength(3);
+    expect(secondary).toContain("bg-secondary");
 
-    for (const id of ["global-data-views-new", "global-data-views-menu"]) {
-      const control = html.match(new RegExp(`<button[^>]*id="${id}"[^>]*>`))?.[0] ?? "";
-
-      expect(control, id).toContain("size-7");
-      expect(control, id).toContain("rounded-full");
-      expect(control, id).not.toContain("size-8");
-      expect(control, id).not.toContain("rounded-md");
-      expect(control, id).toContain("border border-border");
-      expect(control, id).toContain("bg-muted/50");
-      expect(control, id).toContain("text-muted-foreground");
-      expect(control, id).toContain("hover:bg-muted hover:text-foreground");
-      expect(control, id).not.toContain("hover:bg-accent");
-      expect(control, id).not.toContain("max-w-36");
-      expect(control, id).toContain("shrink-0");
-      for (const token of ["border border-border", "bg-muted/50", "hover:bg-muted hover:text-foreground"]) {
-        expect(
-          inactive.every((tab) => tab.includes(token)),
-          `${id} ${token}`,
-        ).toBe(true);
-      }
+    for (const token of ["border", "border-border", "bg-secondary", "shadow-xs", "hover:bg-accent"]) {
+      expect(secondary, token).toContain(token);
+      expect(
+        restingTabs(html).every((tab) => classesOf(tab).includes(token)),
+        token,
+      ).toBe(true);
     }
+
+    expect(restingTabs(html).every((tab) => classesOf(tab).includes("text-muted-foreground"))).toBe(true);
+  });
+
+  it("holds the active tab's soft primary fill, rim and label through hover", () => {
+    const html = render(store({ activeViewKey: "v-b", views: THREE_VIEWS }));
+    const active = classesOf(tabs(html).filter((tab) => classesOf(tab).includes("bg-primary/20"))[0] ?? "");
+
+    expect(active).toContain("hover:bg-primary/20");
+    expect(active).toContain("hover:text-primary-soft-foreground");
+    expect(active).not.toContain("hover:bg-accent");
+    expect(active).not.toContain("hover:text-foreground");
+    expect(active).not.toContain("hover:text-accent-foreground");
+    expect(active).not.toContain("bg-primary");
+    expect(active).not.toContain("hover:bg-primary/35");
+  });
+
+  it("declares the active tab's label colour once per theme", () => {
+    const css = readFileSync(resolve(process.cwd(), "styles/globals.css"), "utf8");
+    const themes = css.split(/^\.dark,$/mu);
+    const declared = themes.map((block) => block.match(/--primary-soft-foreground:\s*(#[0-9a-f]{6});/u)?.[1]);
+
+    expect(themes).toHaveLength(2);
+    expect(css).toContain("--color-primary-soft-foreground: var(--primary-soft-foreground);");
+    expect(declared[0]).toBeDefined();
+    expect(declared[1]).toBeDefined();
+    expect(declared[0]).not.toBe(declared[1]);
+  });
+
+  it("gives the view menu control the icon geometry, its chevron and an inactive tab's resting surface", () => {
+    const html = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
+    const control = controlOf(html, "global-data-views-menu");
+    const classes = classesOf(control);
+
+    expect(restingTabs(html)).toHaveLength(3);
+    expect(control).toContain("lucide-chevron-down");
+    expect(classes).toContain("size-7");
+    expect(classes).toContain("rounded-full");
+    expect(classes).not.toContain("size-8");
+    expect(classes).not.toContain("rounded-md");
+    expect(classes).not.toContain("max-w-36");
+    expect(control).toContain("hover:bg-accent hover:text-foreground");
+
+    for (const token of ["border", "border-border", "bg-secondary", "text-muted-foreground", "shadow-xs"]) {
+      expect(classes, token).toContain(token);
+      expect(
+        restingTabs(html).every((tab) => classesOf(tab).includes(token)),
+        token,
+      ).toBe(true);
+    }
+  });
+
+  it("renders the create control as a dashed New view pill with no plus icon", () => {
+    const html = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
+    const control = controlOf(html, "global-data-views-new");
+    const classes = classesOf(control);
+
+    expect(control).toContain("DataView.views.createTitle");
+    expect(control).not.toContain("lucide-plus");
+    expect(control).not.toContain("aria-label");
+    expect(control).not.toContain("data-view-draft");
+    expect(html).not.toContain("data-view-draft");
+    expect(classes).toContain("border-dashed");
+    expect(classes).toContain("border-input");
+    expect(classes).not.toContain("border-border");
+    expect(classes).toContain("bg-transparent");
+    expect(classes).not.toContain("bg-secondary");
+    expect(classes).toContain("shadow-none");
+    expect(classes).not.toContain("shadow-xs");
+    expect(classes).toContain("h-7");
+    expect(classes).toContain("rounded-full");
+    expect(classes).toContain("px-2.5");
+    expect(classes).toContain("flex-none");
+    expect(classes).not.toContain("size-7");
+    expect(classes).not.toContain("rounded-md");
   });
 
   it("keeps the rail 48px tall so it still lines up with the mass actions bar", () => {

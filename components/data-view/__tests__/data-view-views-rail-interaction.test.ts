@@ -278,10 +278,13 @@ describe("data view rail interaction", () => {
     const pushState = vi.spyOn(window.history, "pushState");
 
     expect(host.querySelector("[data-view-draft]")).toBeNull();
+    expect(host.querySelector("#global-data-views-new")).not.toBeNull();
 
     act(() => host.querySelector<HTMLButtonElement>("#global-data-views-new")?.click());
 
     const draft = host.querySelector<HTMLElement>("[data-view-draft]");
+    expect(draft).toBe(host.querySelector("#global-data-views-new"));
+    expect(host.querySelectorAll("[data-view-draft]")).toHaveLength(1);
     expect(draft?.textContent).toBe("DataView.views.createTitle");
     expect(draft?.className).toContain("border-dashed");
     expect(draft?.className).toContain("border-input");
@@ -290,7 +293,8 @@ describe("data view rail interaction", () => {
     expect(draft?.className).toContain("rounded-full");
     expect(draft?.className).toContain("px-2.5");
     expect(draft?.className).toContain("bg-transparent");
-    expect(draft?.className).not.toContain("bg-muted/50");
+    expect(draft?.className).not.toContain("bg-secondary");
+    expect(draft?.className).toContain("shadow-none");
     expect(draft?.className).not.toContain("rounded-md");
     expect(chips(host)).toHaveLength(4);
 

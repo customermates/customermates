@@ -7,7 +7,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { cn } from "@/core/utils/cn";
 
 export const VIEW_SURFACE_CLASS =
-  "border border-border bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground";
+  "border border-border bg-secondary text-muted-foreground shadow-xs hover:bg-accent hover:text-foreground";
 
 export const VIEW_TAB_CLASS = cn(
   buttonVariants({ variant: "ghost", size: "sm" }),
@@ -34,7 +34,8 @@ export function ViewChip({ href, id, isActive, label, preview, tabIndex, onKeyDo
           aria-current={isActive ? "page" : undefined}
           className={cn(
             VIEW_TAB_CLASS,
-            isActive && "border-border-strong bg-selected text-foreground hover:bg-selected",
+            isActive &&
+              "border-primary/40 bg-primary/20 text-primary-soft-foreground hover:bg-primary/20 hover:text-primary-soft-foreground",
           )}
           data-view-chip=""
           href={href}
