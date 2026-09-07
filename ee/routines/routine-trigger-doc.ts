@@ -1,6 +1,6 @@
 import type { RoutineTriggerEntityKind } from "./routine-event-filter";
 
-import { ROUTINE_TRIGGER_EVENTS } from "./routine.schema";
+import { ROUTINE_TRIGGER_EVENTS } from "./routine-trigger-events";
 
 type TriggerGuideEntry = {
   kind: RoutineTriggerEntityKind;

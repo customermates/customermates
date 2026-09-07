@@ -7,7 +7,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { FilterSchema } from "@/core/base/base-get.schema";
-import { DomainEvent } from "@/features/event/domain-events";
+import { ROUTINE_TRIGGER_EVENTS, RoutineTriggerEventSchema } from "./routine-trigger-events";
 import { ROUTINE_TRIGGER_FIELD_LIMIT } from "./routine-run-trigger-context";
 import {
   DEFAULT_ROUTINE_TIMEZONE,
@@ -22,11 +22,8 @@ export const ROUTINE_NAME_MAX_CHARS = 120;
 
 export const RoutineTriggerKindSchema = z.enum(RoutineTriggerKind);
 export const RoutineRunStatusSchema = z.enum(RoutineRunStatus);
-export const RoutineTriggerEventSchema = WebhookEventSchema.exclude([
-  DomainEvent.MESSAGING_EMAIL_DELETED,
-  DomainEvent.MESSAGING_CHAT_DELETED,
-]);
-export const ROUTINE_TRIGGER_EVENTS = RoutineTriggerEventSchema.options;
+
+export { ROUTINE_TRIGGER_EVENTS, RoutineTriggerEventSchema };
 
 export const RoutineOwnerDtoSchema = z.object({
   id: z.uuid(),
