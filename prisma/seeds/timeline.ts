@@ -1,8 +1,28 @@
 const MINUTE = 60_000;
 const DAY = 24 * 60 * MINUTE;
+const WEEK = 7 * DAY;
+
+// The fixtures below tell a fixed one-year story ending on AUTHORED_END. Left alone it ages: once
+// real time passes that end, every record falls outside the rolling windows the app groups by (the
+// week ladder only ever spans the current week and the six before it), so a demo workspace shows a
+// single "Earlier" bucket. Translating the whole story by a whole number of weeks keeps every
+// interval, ordering and weekday intact while landing the newest record inside the current week.
+const AUTHORED_END_ISO = "2026-08-04T14:00:00.000Z";
+const AUTHORED_END = Date.parse(AUTHORED_END_ISO);
+
+function timelineShift(): number {
+  const elapsed = Date.now() - AUTHORED_END;
+  return elapsed < WEEK ? 0 : Math.floor(elapsed / WEEK) * WEEK;
+}
+
+export const SYNTHETIC_TIMELINE_SHIFT_MS = timelineShift();
+
+function moment(iso: string): Date {
+  return new Date(Date.parse(iso) + SYNTHETIC_TIMELINE_SHIFT_MS);
+}
 
 function timestamp(start: string, index: number, step = 30 * MINUTE): Date {
-  return new Date(Date.parse(start) + index * step);
+  return new Date(Date.parse(start) + SYNTHETIC_TIMELINE_SHIFT_MS + index * step);
 }
 
 function nextDay(createdAt: Date): Date {
@@ -23,12 +43,12 @@ const customColumnUpdates = new Set<number>(SYNTHETIC_CUSTOM_COLUMN_UPDATE_INDEX
 
 export const SYNTHETIC_SEED_TIMELINE = {
   company: {
-    createdAt: new Date("2025-08-06T08:00:00.000Z"),
-    updatedAt: new Date("2025-08-06T08:00:00.000Z"),
+    createdAt: moment("2025-08-06T08:00:00.000Z"),
+    updatedAt: moment("2025-08-06T08:00:00.000Z"),
   },
   systemRole: {
-    createdAt: new Date("2025-08-06T08:05:00.000Z"),
-    updatedAt: new Date("2025-08-06T08:05:00.000Z"),
+    createdAt: moment("2025-08-06T08:05:00.000Z"),
+    updatedAt: moment("2025-08-06T08:05:00.000Z"),
   },
   customRole: (index: number) => ({
     createdAt: timestamp("2025-08-06T09:30:00.000Z", index),
@@ -38,9 +58,9 @@ export const SYNTHETIC_SEED_TIMELINE = {
     createdAt: timestamp("2025-08-07T09:00:00.000Z", index, 8 * 60 * MINUTE),
     updatedAt:
       index === 1
-        ? new Date("2025-08-08T09:30:00.000Z")
+        ? moment("2025-08-08T09:30:00.000Z")
         : index === 2
-          ? new Date("2025-08-08T17:00:00.000Z")
+          ? moment("2025-08-08T17:00:00.000Z")
           : timestamp("2025-08-07T09:00:00.000Z", index, 8 * 60 * MINUTE),
   }),
   customColumn: (index: number) => {
@@ -58,7 +78,7 @@ export const SYNTHETIC_SEED_TIMELINE = {
     };
   },
   contact: (index: number) => {
-    const createdAt = timestamp("2025-10-12T09:00:00.000Z", index, 2 * DAY);
+    const createdAt = timestamp("2025-10-12T09:00:00.000Z", index, 10 * DAY);
     return {
       createdAt,
       updatedAt: contactUpdates.has(index) ? nextDay(createdAt) : createdAt,
@@ -66,7 +86,7 @@ export const SYNTHETIC_SEED_TIMELINE = {
   },
   service: (index: number) => ({
     createdAt: timestamp("2025-12-12T09:00:00.000Z", index, 2 * DAY),
-    updatedAt: timestamp("2025-12-12T09:00:00.000Z", index, 2 * DAY),
+    updatedAt: timestamp("2026-06-23T09:00:00.000Z", index, DAY),
   }),
   deal: (index: number) => {
     const createdAt = timestamp("2026-03-10T09:00:00.000Z", index, 8 * DAY);
@@ -87,8 +107,8 @@ export const SYNTHETIC_SEED_TIMELINE = {
     updatedAt: timestamp("2026-07-20T08:00:00.000Z", index, 4 * DAY),
   }),
   webhook: {
-    createdAt: new Date("2026-08-01T10:00:00.000Z"),
-    updatedAt: new Date("2026-08-04T14:00:00.000Z"),
+    createdAt: moment("2026-08-01T10:00:00.000Z"),
+    updatedAt: moment(AUTHORED_END_ISO),
   },
   webhookDelivery: (index: number): Date => timestamp("2026-08-01T10:15:00.000Z", index, 5 * 60 * MINUTE),
 } as const;

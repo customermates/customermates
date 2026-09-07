@@ -7,6 +7,7 @@ export type SenderKey = PersonKey | "self";
 export type MessageFixture = {
   sender: SenderKey;
   text: string;
+  draft?: boolean;
   reaction?: { sender: SenderKey; value: string };
 };
 
@@ -220,6 +221,11 @@ const threadFixtures: ThreadFixture[] = [
         sender: "anna",
         text: "The invite is in and both pilot owners confirmed. I will bring the open data questions so we can close them on Tuesday.",
       },
+      {
+        draft: true,
+        sender: "self",
+        text: "Perfect. I will send the data questions ahead of Tuesday so nobody has to answer them cold in the room. One is about the retention window,",
+      },
     ],
     name: null,
     participants: ["anna"],
@@ -285,6 +291,11 @@ const threadFixtures: ThreadFixture[] = [
       {
         sender: "yasmin",
         text: "The signed copy just came back. Friday is confirmed, and I have invited the implementation leads.",
+      },
+      {
+        draft: true,
+        sender: "self",
+        text: "Thanks Yasmin. Before Friday I want to confirm who signs off the renewal language, because that was the only open",
       },
     ],
     name: null,
@@ -443,6 +454,11 @@ const threadFixtures: ThreadFixture[] = [
       {
         sender: "amin",
         text: "Excellent. That gives us a clean baseline for Friday's customer experience review.",
+      },
+      {
+        draft: true,
+        sender: "self",
+        text: "Agreed. I will bring the weekly trend next to the baseline so the review can see whether the improvement is holding, and",
       },
     ],
     name: null,

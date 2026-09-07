@@ -7,7 +7,7 @@ import { threads } from "../seeds/messaging/fixtures";
 import { SYNTHETIC_ORGANIZATION_DEFINITIONS } from "../seeds/organizations";
 import { SYNTHETIC_SERVICE_NAMES } from "../seeds/services";
 import { SYNTHETIC_TASK_NAMES } from "../seeds/tasks";
-import { SYNTHETIC_SEED_TIMELINE } from "../seeds/timeline";
+import { SYNTHETIC_SEED_TIMELINE, SYNTHETIC_TIMELINE_SHIFT_MS } from "../seeds/timeline";
 
 const DAY = 24 * 60 * 60 * 1_000;
 const MINUTES_PER_DAY = 24 * 60;
@@ -37,11 +37,18 @@ describe("synthetic activity chronology", () => {
     ];
     const earliest = Math.min(...dates.map((date) => date.getTime()));
     const latest = Math.max(...dates.map((date) => date.getTime()));
+    const authored = (moment: number) => new Date(moment - SYNTHETIC_TIMELINE_SHIFT_MS).toISOString();
 
-    expect(new Date(earliest).toISOString()).toBe("2025-08-06T08:00:00.000Z");
-    expect(new Date(latest).toISOString()).toBe("2026-08-04T14:00:00.000Z");
+    expect(authored(earliest)).toBe("2025-08-06T08:00:00.000Z");
+    expect(authored(latest)).toBe("2026-08-04T14:00:00.000Z");
     expect((latest - earliest) / DAY).toBeGreaterThanOrEqual(360);
-    expect(latest).toBeLessThan(Date.parse("2026-08-06T00:00:00.000Z"));
+  });
+
+  it("keeps the newest fixture inside the current week so rolling date buckets stay populated", () => {
+    const newest = SYNTHETIC_SEED_TIMELINE.webhook.updatedAt.getTime();
+
+    expect(newest).toBeLessThanOrEqual(Date.now());
+    expect(Date.now() - newest).toBeLessThan(7 * DAY);
   });
 
   it("keeps messages ordered from minutes ago through roughly eleven months ago", () => {
