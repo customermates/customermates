@@ -20,6 +20,7 @@ const EXTENSIONS = [".ts", ".tsx", ".mts", ".cts", ".js", ".mjs", ".cjs"];
 const WORKFLOW_BODY_MODULES = [
   "ee/agent-chat/system-prompt.ts",
   "ee/agent-chat/agent-surface-policy.ts",
+  "ee/agent-chat/gated-tools.ts",
   "ee/routines/routine-trigger-doc.ts",
 ];
 
