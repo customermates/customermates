@@ -1,4 +1,6 @@
-import type { Prisma, PrismaClient } from "@/generated/prisma";
+import type { PrismaClient } from "@/generated/prisma";
+
+import { Prisma } from "@/generated/prisma";
 
 import {
   CONTACT_DETAIL_FIELD,
@@ -45,11 +47,6 @@ export const SYNTHETIC_P13N_IDS = {
   taskDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 15),
 } as const;
 
-export const SYNTHETIC_P13N_PRESET_IDS = {
-  directCustomer: fixtureId("1f100000", 1),
-  affiliatedCompany: fixtureId("1f100000", 2),
-} as const;
-
 export type SyntheticP13nFixture = Prisma.P13nCreateManyInput & { id: string };
 
 function inputJson(value: unknown): Prisma.InputJsonValue {
@@ -60,7 +57,7 @@ export function buildSyntheticP13nFixtures(
   context: Pick<SeedContext, "ids">,
   customFields: CustomFieldSeedData,
 ): SyntheticP13nFixture[] {
-  const { customColumnIds, customOptionIds } = customFields;
+  const { customColumnIds } = customFields;
   const { company, user } = context.ids;
   const userFilter = {
     field: "userIds",
@@ -111,34 +108,33 @@ export function buildSyntheticP13nFixtures(
       ],
       columnWidths: inputJson({ tasks: 133 }),
       filters: inputJson([userFilter]),
-      savedFilterPresets: inputJson([]),
       searchTerm: null,
       sortDescriptor: inputJson({ direction: "asc", field: "name" }),
-      pagination: inputJson({ page: 1, pageSize: 100 }),
+      pagination: inputJson({ pageSize: 100 }),
       hiddenColumns: ["deals", "createdAt"],
       viewMode: "table",
       groupingColumnId: null,
+      grouping: Prisma.DbNull,
     }),
     fixture(SYNTHETIC_P13N_IDS.users, "users-card-store", {
       columnOrder: [],
       columnWidths: inputJson({ role: 108 }),
       filters: inputJson([]),
-      savedFilterPresets: inputJson([]),
       searchTerm: null,
       sortDescriptor: inputJson({ direction: "desc", field: "name" }),
-      pagination: inputJson({ page: 1, pageSize: 100 }),
+      pagination: inputJson({ pageSize: 100 }),
       hiddenColumns: ["email"],
       viewMode: "table",
       groupingColumnId: null,
+      grouping: Prisma.DbNull,
     }),
     fixture(SYNTHETIC_P13N_IDS.tasks, "tasks-card-store", {
       columnOrder: [customColumnIds.taskPriority, customColumnIds.taskStatus, "updatedAt", "createdAt", "users"],
       columnWidths: inputJson({}),
       filters: inputJson([userFilter]),
-      savedFilterPresets: inputJson([]),
       searchTerm: null,
       sortDescriptor: inputJson({ direction: "desc", field: "updatedAt" }),
-      pagination: inputJson({ page: 1, pageSize: 100 }),
+      pagination: inputJson({ pageSize: 100 }),
       hiddenColumns: [
         customColumnIds.taskStatus,
         "createdAt",
@@ -151,30 +147,31 @@ export function buildSyntheticP13nFixtures(
       ],
       viewMode: "card",
       groupingColumnId: customColumnIds.taskStatus,
+      grouping: inputJson({ field: customColumnIds.taskStatus }),
     }),
     fixture(SYNTHETIC_P13N_IDS.roles, "roles-card-store", {
       columnOrder: [],
       columnWidths: inputJson({}),
       filters: inputJson([]),
-      savedFilterPresets: inputJson([]),
       searchTerm: null,
       sortDescriptor: inputJson({ direction: "asc", field: "type" }),
-      pagination: inputJson({ page: 1, pageSize: 100 }),
+      pagination: inputJson({ pageSize: 100 }),
       hiddenColumns: [],
       viewMode: null,
       groupingColumnId: null,
+      grouping: Prisma.DbNull,
     }),
     fixture(SYNTHETIC_P13N_IDS.webhooks, "webhooks-card-store", {
       columnOrder: [],
       columnWidths: inputJson({}),
       filters: inputJson([]),
-      savedFilterPresets: inputJson([]),
       searchTerm: null,
       sortDescriptor: inputJson({ direction: "desc", field: "name" }),
-      pagination: inputJson({ page: 1, pageSize: 100 }),
+      pagination: inputJson({ pageSize: 100 }),
       hiddenColumns: [],
-      viewMode: "card",
+      viewMode: "table",
       groupingColumnId: null,
+      grouping: Prisma.DbNull,
     }),
     fixture(SYNTHETIC_P13N_IDS.deals, "deals-card-store", {
       columnOrder: [
@@ -193,13 +190,13 @@ export function buildSyntheticP13nFixtures(
       ],
       columnWidths: inputJson({}),
       filters: inputJson([]),
-      savedFilterPresets: inputJson([]),
       searchTerm: null,
       sortDescriptor: inputJson({ direction: "desc", field: "name" }),
-      pagination: inputJson({ page: 1, pageSize: 100 }),
+      pagination: inputJson({ pageSize: 100 }),
       hiddenColumns: ["contacts", "updatedAt", "createdAt", "tasks"],
       viewMode: "card",
       groupingColumnId: customColumnIds.dealStatus,
+      grouping: inputJson({ field: customColumnIds.dealStatus }),
     }),
     fixture(SYNTHETIC_P13N_IDS.services, "services-card-store", {
       columnOrder: [
@@ -214,37 +211,37 @@ export function buildSyntheticP13nFixtures(
       ],
       columnWidths: inputJson({}),
       filters: inputJson([]),
-      savedFilterPresets: inputJson([]),
       searchTerm: null,
       sortDescriptor: inputJson({ direction: "asc", field: "name" }),
-      pagination: inputJson({ page: 1, pageSize: 100 }),
+      pagination: inputJson({ pageSize: 100 }),
       hiddenColumns: ["createdAt", "tasks"],
       viewMode: "table",
       groupingColumnId: null,
+      grouping: Prisma.DbNull,
     }),
     fixture(SYNTHETIC_P13N_IDS.auditLogs, "audit-logs-card-store", {
       columnOrder: ["event", "entityId", "createdAt", "user"],
       columnWidths: inputJson({ name: 302 }),
       filters: inputJson([]),
-      savedFilterPresets: inputJson([]),
       searchTerm: null,
       sortDescriptor: inputJson({ direction: "desc", field: "createdAt" }),
-      pagination: inputJson({ page: 1, pageSize: 25 }),
+      pagination: inputJson({ pageSize: 25 }),
       hiddenColumns: ["entityId"],
       viewMode: "table",
       groupingColumnId: null,
+      grouping: Prisma.DbNull,
     }),
     fixture(SYNTHETIC_P13N_IDS.webhookDeliveries, "webhook-deliveries-card-store", {
       columnOrder: [],
       columnWidths: inputJson({}),
       filters: inputJson([]),
-      savedFilterPresets: inputJson([]),
       searchTerm: null,
       sortDescriptor: inputJson({ direction: "desc", field: "createdAt" }),
-      pagination: inputJson({ page: 1, pageSize: 25 }),
+      pagination: inputJson({ pageSize: 25 }),
       hiddenColumns: [],
       viewMode: null,
       groupingColumnId: null,
+      grouping: Prisma.DbNull,
     }),
     fixture(SYNTHETIC_P13N_IDS.organizations, "organizations-card-store", {
       columnOrder: [
@@ -259,38 +256,13 @@ export function buildSyntheticP13nFixtures(
       ],
       columnWidths: inputJson({ deals: 227, tasks: 191 }),
       filters: inputJson([]),
-      savedFilterPresets: inputJson([
-        {
-          filters: [
-            {
-              field: customColumnIds.organizationType,
-              operator: "in",
-              value: [customOptionIds.organizationType.directCustomer],
-            },
-            userFilter,
-          ],
-          id: SYNTHETIC_P13N_PRESET_IDS.directCustomer,
-          name: "Direct customer",
-        },
-        {
-          filters: [
-            {
-              field: customColumnIds.organizationType,
-              operator: "in",
-              value: [customOptionIds.organizationType.affiliatedCompany],
-            },
-            userFilter,
-          ],
-          id: SYNTHETIC_P13N_PRESET_IDS.affiliatedCompany,
-          name: "Affiliated company",
-        },
-      ]),
       searchTerm: null,
       sortDescriptor: inputJson({ direction: "asc", field: "name" }),
-      pagination: inputJson({ page: 1, pageSize: 100 }),
+      pagination: inputJson({ pageSize: 100 }),
       hiddenColumns: ["createdAt"],
       viewMode: "table",
       groupingColumnId: null,
+      grouping: Prisma.DbNull,
     }),
     detailFixture(
       SYNTHETIC_P13N_IDS.contactDetail,

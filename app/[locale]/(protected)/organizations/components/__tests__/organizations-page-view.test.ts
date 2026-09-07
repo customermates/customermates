@@ -99,9 +99,10 @@ vi.mock("@/components/data-view/data-view-content", () => ({
 import { OrganizationsPageView } from "../organizations-page-view";
 
 type StoreState = {
+  canBoard?: boolean;
   canManage?: boolean;
   filters?: unknown[];
-  groupingColumnId?: string | null;
+  hasGrouping?: boolean;
   isReady?: boolean;
   isRefreshing?: boolean;
   itemCount?: number;
@@ -118,6 +119,7 @@ const initialOrganizations = {
 
 function renderState(state: StoreState = {}) {
   const organizationsStore = {
+    canBoard: state.canBoard ?? true,
     canManage: state.canManage ?? true,
     dataRequest:
       state.isReady === false
@@ -129,7 +131,7 @@ function renderState(state: StoreState = {}) {
             : { status: "ready" },
     entityType: EntityType.organization,
     filters: state.filters ?? [],
-    groupingColumnId: state.groupingColumnId ?? null,
+    isGrouped: state.hasGrouping ?? false,
     isDisabled: !(state.canManage ?? true),
     isReady: state.isReady ?? true,
     isRefreshing: state.isRefreshing ?? false,
@@ -158,11 +160,10 @@ describe("OrganizationsPageView", () => {
   });
 
   it.each([
-    [ViewMode.table, null, "table"],
-    [ViewMode.card, null, "cards"],
-    [ViewMode.card, "organization-type", "board"],
-  ] as const)("renders one accessible animated %s loading branch", (viewMode, groupingColumnId, view) => {
-    const { html } = renderState({ groupingColumnId, isReady: false, viewMode });
+    [ViewMode.table, false, "table"],
+    [ViewMode.card, true, "board"],
+  ] as const)("renders one accessible animated %s loading branch", (viewMode, hasGrouping, view) => {
+    const { html } = renderState({ hasGrouping, isReady: false, viewMode });
 
     expect(html).toContain('data-page-state="loading"');
     expect(html).toContain('data-organizations-page-skeleton="true"');
@@ -202,11 +203,10 @@ describe("OrganizationsPageView", () => {
   });
 
   it.each([
-    [ViewMode.table, null, "table"],
-    [ViewMode.card, null, "cards"],
-    [ViewMode.card, "organization-type", "board"],
-  ] as const)("uses one static inert %s background for true empty", (viewMode, groupingColumnId, view) => {
-    const { html } = renderState({ groupingColumnId, total: 0, viewMode });
+    [ViewMode.table, false, "table"],
+    [ViewMode.card, true, "board"],
+  ] as const)("uses one static inert %s background for true empty", (viewMode, hasGrouping, view) => {
+    const { html } = renderState({ hasGrouping, total: 0, viewMode });
 
     expect(html).toContain(`data-skeleton-view="${view}"`);
     expect(html).toContain('data-page-state-background="true"');
@@ -224,16 +224,22 @@ describe("OrganizationsPageView", () => {
   });
 
   it.each([
-    [ViewMode.table, null, "table"],
-    [ViewMode.card, null, "cards"],
-    [ViewMode.card, "organization-type", "board"],
-  ] as const)("renders loaded %s content", (viewMode, groupingColumnId, view) => {
-    const { html } = renderState({ groupingColumnId, itemCount: 1, total: 1, viewMode });
+    [ViewMode.table, false, "table"],
+    [ViewMode.card, true, "board"],
+  ] as const)("renders loaded %s content", (viewMode, hasGrouping, view) => {
+    const { html } = renderState({ hasGrouping, itemCount: 1, total: 1, viewMode });
 
     expect(html).toContain('data-data-view-content="true"');
     expect(html).toContain(`data-view="${view}"`);
     expect(html).toContain(`data-show-pagination="${view !== "board"}"`);
     expect(html).not.toContain("data-page-state");
+  });
+
+  it("keeps a stored card view mode on the table when the surface cannot board", () => {
+    const { html } = renderState({ canBoard: false, itemCount: 1, total: 1, viewMode: ViewMode.card });
+
+    expect(html).toContain('data-view="table"');
+    expect(html).toContain('data-show-pagination="true"');
   });
 
   it("keeps the Organizations topbar primary, body action secondary, and linked-store wiring", () => {

@@ -65,6 +65,7 @@ describe("technical-id loading contract", () => {
     const options = read("components/data-view/filter-modal/inputs/use-filter-select-items.tsx");
     const filterSelect = read("components/data-view/filter-modal/inputs/filter-input-select.tsx");
     const autocomplete = read("components/forms/form-autocomplete.tsx");
+    const paletteSelect = read("components/data-view/filter-palette/palette-value-select.tsx");
 
     expect(options).toContain("SELF_IDENTIFYING_FILTER_FIELDS");
     expect(options).toContain("const selfIdentifyingField = SELF_IDENTIFYING_FILTER_FIELDS.has(fieldKey)");
@@ -74,6 +75,7 @@ describe("technical-id loading contract", () => {
     expect(options).not.toContain("filters: [{ field, operator: FilterOperatorKey.in, value: ids }]");
     expect(options).not.toMatch(/field: fieldKey, operator: FilterOperatorKey\.in/);
     expect(options).not.toMatch(/pagination|pageSize/);
+    expect(paletteSelect).not.toMatch(/pagination|pageSize/);
     expect(options).toContain('status: "error"');
     expect(filterSelect).toContain("optionError");
     expect(filterSelect).toContain('t("ErrorCard.retry")');
@@ -85,6 +87,8 @@ describe("technical-id loading contract", () => {
   it("keeps internal IDs as keys while removing them from customer-facing fallbacks", () => {
     expect(read("components/data-view/data-table.tsx")).toContain("row.index + 1");
     expect(read("components/data-view/data-kanban-view.tsx")).not.toContain("option?.label ?? key");
+    expect(read("components/data-view/data-kanban-view.tsx")).not.toContain("options.options");
+    expect(read("components/data-view/data-kanban-view.tsx")).not.toContain("KANBAN_EMPTY_GROUP_KEY");
     expect(read("app/[locale]/(protected)/dashboard/components/widget-label.ts")).toContain("UUID_LABEL.test");
     expect(read("app/[locale]/(protected)/profile/components/account-folders.tsx")).not.toContain(
       "folder.name ?? folder.id",

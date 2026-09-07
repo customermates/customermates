@@ -1,5 +1,4 @@
 import {
-  DATA_CARD_GRID_CLASS_NAME,
   DATA_KANBAN_CARDS_CLASS_NAME,
   DATA_KANBAN_COLUMN_CLASS_NAME,
   DATA_KANBAN_HEADER_CLASS_NAME,
@@ -15,7 +14,7 @@ export type DataViewSkeletonSpec =
       view: "table";
       tableVariant: "contact" | "entity" | "member" | "plain";
     }
-  | { identity: "avatar" | "text"; view: "cards" | "board" };
+  | { identity: "avatar" | "text"; view: "board" };
 
 type Props = ComponentProps<"div"> & {
   animated?: boolean;
@@ -25,7 +24,6 @@ type Props = ComponentProps<"div"> & {
 const TABLE_ROWS = Array.from({ length: 18 }, (_, index) => index);
 const TABLE_HEADERS = Array.from({ length: 4 }, (_, index) => index);
 const TABLE_COLUMNS = Array.from({ length: 3 }, (_, index) => index);
-const CARDS = Array.from({ length: 8 }, (_, index) => index);
 const CARD_ROWS = Array.from({ length: 4 }, (_, index) => index);
 const BOARD_COLUMNS = Array.from({ length: 3 }, (_, index) => index);
 const BOARD_CARDS = Array.from({ length: 3 }, (_, index) => index);
@@ -130,26 +128,6 @@ function TableSkeleton({
   );
 }
 
-function CardsSkeleton({ animated, identity }: { animated: boolean; identity: "avatar" | "text" }) {
-  return (
-    <div className="h-full min-h-0 overflow-y-auto" data-skeleton-scroll-owner="cards">
-      <div className={DATA_CARD_GRID_CLASS_NAME}>
-        {CARDS.map((card) => (
-          <div
-            key={card}
-            className="relative flex flex-col gap-3 rounded-xl border border-border bg-card py-4 shadow-xs"
-            data-skeleton-group={card % 4}
-          >
-            <div className="px-4">
-              <CardBodySkeleton animated={animated} identity={identity} rows={card % 3 === 0 ? 3 : 4} />
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function BoardSkeleton({ animated, identity }: { animated: boolean; identity: "avatar" | "text" }) {
   return (
     <div
@@ -213,8 +191,6 @@ export function DataViewSkeleton({ animated = true, className, spec, ...props }:
       <div className="min-h-0 flex-1">
         {spec.view === "table" ? (
           <TableSkeleton animated={animated} variant={spec.tableVariant} />
-        ) : spec.view === "cards" ? (
-          <CardsSkeleton animated={animated} identity={spec.identity} />
         ) : (
           <BoardSkeleton animated={animated} identity={spec.identity} />
         )}

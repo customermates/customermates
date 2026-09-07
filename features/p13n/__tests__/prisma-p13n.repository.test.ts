@@ -9,6 +9,7 @@ import {
 } from "@/tests/helpers/interactor-test-setup";
 
 const mockUser = createMockUser();
+const A_VIEW_KEY = "9c1f0a7e-0b6a-4b1d-9a4e-2d3f5b6c7a81";
 const { p13nFindUnique, p13nUpsert } = vi.hoisted(() => ({
   p13nFindUnique: vi.fn(),
   p13nUpsert: vi.fn(),
@@ -28,39 +29,30 @@ vi.mock("@/prisma/db", () => ({
   },
 }));
 
+import type { Grouping } from "@/core/base/grouping/grouping.schema";
+
 import { PrismaP13nRepo } from "../prisma-p13n.repository";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { Prisma } from "@/generated/prisma";
 
 describe("PrismaP13nRepo legacy filter normalization", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("preserves active and preset relation filter behavior on read", async () => {
+  it("preserves legacy relation filter behavior on read", async () => {
     p13nFindUnique.mockResolvedValue({
       companyId: mockUser.companyId,
       userId: mockUser.id,
       p13nId: "organizations",
+      activeViewKey: null,
       filters: [
         {
           field: FilterFieldKey.dealIds,
           operator: FilterOperatorKey.hasNone,
           value: ["d1"],
-        },
-      ],
-      savedFilterPresets: [
-        {
-          id: "preset-1",
-          name: "Linked deals",
-          filters: [
-            {
-              field: FilterFieldKey.dealIds,
-              operator: FilterOperatorKey.hasSome,
-              value: ["d2"],
-            },
-          ],
         },
       ],
       searchTerm: null,
@@ -71,6 +63,7 @@ describe("PrismaP13nRepo legacy filter normalization", () => {
       hiddenColumns: [],
       viewMode: null,
       groupingColumnId: null,
+      grouping: null,
     });
 
     const result = await runWithTenant(mockUser, () => new PrismaP13nRepo().getP13n("organizations"));
@@ -82,22 +75,14 @@ describe("PrismaP13nRepo legacy filter normalization", () => {
         value: ["d1"],
       },
     ]);
-    expect(result?.savedFilterPresets?.[0].filters).toEqual([
-      {
-        field: FilterFieldKey.dealIds,
-        operator: FilterOperatorKey.in,
-        value: ["d2"],
-      },
-    ]);
   });
 
-  it("reads personalization holding a malformed preset entry without throwing", async () => {
-    p13nFindUnique.mockResolvedValue({
+  it("reads the remembered active view key and reports an unset one as undefined", async () => {
+    const baseRow = {
       companyId: mockUser.companyId,
       userId: mockUser.id,
       p13nId: "organizations",
       filters: null,
-      savedFilterPresets: [null, { id: "p1", name: "Mine", filters: [] }],
       searchTerm: null,
       sortDescriptor: null,
       pagination: null,
@@ -106,12 +91,19 @@ describe("PrismaP13nRepo legacy filter normalization", () => {
       hiddenColumns: [],
       viewMode: null,
       groupingColumnId: null,
-    });
+      grouping: null,
+    };
+    p13nFindUnique.mockResolvedValueOnce({ ...baseRow, activeViewKey: A_VIEW_KEY });
 
-    const result = await runWithTenant(mockUser, () => new PrismaP13nRepo().getP13n("organizations"));
+    const remembered = await runWithTenant(mockUser, () => new PrismaP13nRepo().getP13n("organizations"));
 
-    expect(result?.savedFilterPresets).toHaveLength(2);
-    expect(result?.savedFilterPresets?.[1].id).toBe("p1");
+    expect(remembered?.activeViewKey).toBe(A_VIEW_KEY);
+
+    p13nFindUnique.mockResolvedValueOnce({ ...baseRow, activeViewKey: null });
+
+    const unset = await runWithTenant(mockUser, () => new PrismaP13nRepo().getP13n("organizations"));
+
+    expect(unset?.activeViewKey).toBeUndefined();
   });
 
   it("reads valid entity detail options and ignores malformed options", async () => {
@@ -120,7 +112,6 @@ describe("PrismaP13nRepo legacy filter normalization", () => {
       userId: mockUser.id,
       p13nId: "contact-detail",
       filters: null,
-      savedFilterPresets: null,
       searchTerm: null,
       sortDescriptor: null,
       pagination: null,
@@ -129,6 +120,7 @@ describe("PrismaP13nRepo legacy filter normalization", () => {
       hiddenColumns: [],
       viewMode: null,
       groupingColumnId: null,
+      grouping: null,
     };
     p13nFindUnique.mockResolvedValueOnce({
       ...baseRow,
@@ -163,8 +155,8 @@ describe("PrismaP13nRepo legacy filter normalization", () => {
       collapsedSectionIds: ["notes"],
     };
     p13nUpsert.mockResolvedValue({
+      activeViewKey: A_VIEW_KEY,
       filters: null,
-      savedFilterPresets: null,
       searchTerm: "existing",
       sortDescriptor: null,
       pagination: null,
@@ -173,12 +165,14 @@ describe("PrismaP13nRepo legacy filter normalization", () => {
       hiddenColumns: [],
       viewMode: null,
       groupingColumnId: null,
+      grouping: null,
       detailOptions,
     });
 
     const result = await runWithTenant(mockUser, () =>
       new PrismaP13nRepo().upsertP13n({
         p13nId: "contact-detail",
+        activeViewKey: A_VIEW_KEY,
         columnOrder: ["custom-column"],
         detailOptions,
       }),
@@ -190,11 +184,106 @@ describe("PrismaP13nRepo legacy filter normalization", () => {
           companyId: mockUser.companyId,
           userId: mockUser.id,
           p13nId: "contact-detail",
+          activeViewKey: A_VIEW_KEY,
           columnOrder: ["custom-column"],
           detailOptions,
         },
       }),
     );
+    expect(result.activeViewKey).toBe(A_VIEW_KEY);
     expect(result.detailOptions).toEqual(detailOptions);
+  });
+});
+
+describe("PrismaP13nRepo grouping storage", () => {
+  const A_COLUMN_ID = "3f0d2c6b-8b1a-4c5e-9d7f-1a2b3c4d5e6f";
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  function storedRow(overrides: Record<string, unknown> = {}) {
+    return {
+      activeViewKey: null,
+      filters: null,
+      searchTerm: null,
+      sortDescriptor: null,
+      pagination: null,
+      columnOrder: [],
+      columnWidths: null,
+      hiddenColumns: [],
+      viewMode: null,
+      groupingColumnId: null,
+      grouping: null,
+      detailOptions: null,
+      ...overrides,
+    };
+  }
+
+  async function write(grouping: Grouping | null) {
+    p13nUpsert.mockResolvedValue(storedRow());
+    await runWithTenant(mockUser, () => new PrismaP13nRepo().upsertP13n({ p13nId: "deals", grouping }));
+
+    return p13nUpsert.mock.lastCall?.[0] as {
+      create: Record<string, unknown>;
+      update: Record<string, unknown>;
+    };
+  }
+
+  it("derives the indexed shadow from a custom column descriptor", async () => {
+    const args = await write({ field: A_COLUMN_ID });
+
+    expect(args.create.groupingColumnId).toBe(A_COLUMN_ID);
+    expect(args.update.groupingColumnId).toBe(A_COLUMN_ID);
+    expect(args.update.grouping).toEqual({ field: A_COLUMN_ID });
+  });
+
+  it("stores a non custom column descriptor with a null shadow rather than a bogus uuid", async () => {
+    const relation = await write({ field: "userIds" });
+
+    expect(relation.update.groupingColumnId).toBeNull();
+    expect(relation.update.grouping).toEqual({ field: "userIds" });
+
+    const dated = await write({ field: "createdAt", bucket: "month" });
+
+    expect(dated.update.groupingColumnId).toBeNull();
+    expect(dated.update.grouping).toEqual({ field: "createdAt", bucket: "month" });
+  });
+
+  it("writes a database null for a cleared grouping and clears the shadow with it", async () => {
+    const args = await write(null);
+
+    expect(args.create.groupingColumnId).toBeNull();
+    expect(args.create.grouping).toBe(Prisma.DbNull);
+    expect(args.update.groupingColumnId).toBeNull();
+    expect(args.update.grouping).toBe(Prisma.DbNull);
+  });
+
+  it("leaves both fields out of the update entirely when the caller says nothing about grouping", async () => {
+    p13nUpsert.mockResolvedValue(storedRow());
+    await runWithTenant(mockUser, () => new PrismaP13nRepo().upsertP13n({ p13nId: "deals", searchTerm: "acme" }));
+    const args = p13nUpsert.mock.lastCall?.[0] as { update: Record<string, unknown> };
+
+    expect(Object.keys(args.update)).not.toContain("grouping");
+    expect(Object.keys(args.update)).not.toContain("groupingColumnId");
+  });
+
+  it("reads the descriptor back and never exposes the shadow column", async () => {
+    p13nFindUnique.mockResolvedValue(
+      storedRow({ p13nId: "deals", grouping: { field: A_COLUMN_ID }, groupingColumnId: A_COLUMN_ID }),
+    );
+
+    const read = await runWithTenant(mockUser, () => new PrismaP13nRepo().getP13n("deals"));
+
+    expect(read?.grouping).toEqual({ field: A_COLUMN_ID });
+    expect(read).not.toHaveProperty("groupingColumnId");
+  });
+
+  it("reads a legacy shadow column without a descriptor as no grouping at all", async () => {
+    p13nFindUnique.mockResolvedValue(storedRow({ p13nId: "deals", groupingColumnId: A_COLUMN_ID, viewMode: "card" }));
+
+    const read = await runWithTenant(mockUser, () => new PrismaP13nRepo().getP13n("deals"));
+
+    expect(read?.grouping).toBeUndefined();
   });
 });

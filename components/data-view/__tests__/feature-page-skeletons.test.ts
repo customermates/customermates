@@ -33,16 +33,13 @@ const CASES: Array<[string, Skeleton, string, string]> = [
 ];
 
 describe("feature-owned collection skeletons", () => {
-  it.each(CASES)("binds %s to its table and card identity geometry", (name, SkeletonComponent, table, identity) => {
+  it.each(CASES)("binds %s to its table and board identity geometry", (name, SkeletonComponent, table, identity) => {
     const tableHtml = renderToStaticMarkup(createElement(SkeletonComponent));
-    const cardsHtml = renderToStaticMarkup(createElement(SkeletonComponent, { view: "cards" }));
     const boardHtml = renderToStaticMarkup(createElement(SkeletonComponent, { view: "board" }));
 
     expect(tableHtml).toContain(`data-${name}-page-skeleton="true"`);
     expect(tableHtml).toContain('data-skeleton-view="table"');
     expect(tableHtml).toContain(`data-skeleton-variant="${table}"`);
-    expect(cardsHtml).toContain('data-skeleton-view="cards"');
-    expect(cardsHtml).toContain(`data-skeleton-variant="${identity}"`);
     expect(boardHtml).toContain('data-skeleton-view="board"');
     expect(boardHtml).toContain(`data-skeleton-variant="${identity}"`);
   });

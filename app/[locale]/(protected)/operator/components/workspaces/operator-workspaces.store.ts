@@ -39,7 +39,7 @@ export class OperatorWorkspacesStore extends BaseDataViewStore<OperatorWorkspace
 
   get columnsDefinition(): TableColumn[] {
     return [
-      { uid: "workspace" },
+      { uid: "name" },
       { uid: "owner" },
       { uid: "plan" },
       { uid: "subscription" },

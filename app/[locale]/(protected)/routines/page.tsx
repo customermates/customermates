@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import { getGetRoutinesInteractor } from "@/core/di";
 import { env } from "@/env";
 import { requireAccess } from "@/features/auth/next/require";
-import { decodeGetParams } from "@/core/utils/get-params";
+import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
+import { SURFACE } from "@/core/data-view/data-view-keys";
 import { PageContainer } from "@/components/shared/page-container";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
@@ -17,15 +18,9 @@ export default async function RoutinesPage({ searchParams }: Props) {
   await requireAccess();
   if (env.APP_MODE === "self-hosted") redirect("/dashboard");
 
-  const params = await searchParams;
-  const routineParams = decodeGetParams(params);
+  const routineParams = await readSurfaceParams(SURFACE.routines, searchParams);
 
-  const routines = await unwrapValidated(
-    getGetRoutinesInteractor().invoke({
-      ...routineParams,
-      p13nId: "routines-card-store",
-    }),
-  );
+  const routines = await unwrapValidated(getGetRoutinesInteractor().invoke(routineParams));
 
   return (
     <PageContainer padded={false}>

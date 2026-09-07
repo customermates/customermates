@@ -4,7 +4,8 @@ import { WebhooksPageView } from "../components/webhook/webhooks-page-view";
 
 import { getGetWebhooksInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
-import { decodeGetParams } from "@/core/utils/get-params";
+import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
+import { SURFACE } from "@/core/data-view/data-view-keys";
 import { PageContainer } from "@/components/shared/page-container";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
@@ -15,12 +16,9 @@ type Props = {
 export default async function CompanyWebhooksPage({ searchParams }: Props) {
   await requireAccess({ resource: Resource.api });
 
-  const params = await searchParams;
-  const webhookParams = decodeGetParams(params);
+  const webhookParams = await readSurfaceParams(SURFACE.webhooks, searchParams);
 
-  const webhooks = await unwrapValidated(
-    getGetWebhooksInteractor().invoke({ ...webhookParams, p13nId: "webhooks-card-store" }),
-  );
+  const webhooks = await unwrapValidated(getGetWebhooksInteractor().invoke(webhookParams));
 
   return (
     <PageContainer padded={false}>

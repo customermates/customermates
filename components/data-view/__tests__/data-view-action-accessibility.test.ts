@@ -17,6 +17,10 @@ vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
 vi.mock("../header/display-options", () => ({
   DataViewDisplayOptions: () => null,
 }));
+vi.mock("../group-label", () => ({
+  useGroupLabel: () => (group: { key: string }) => group.key,
+  visibleGroups: () => [],
+}));
 vi.mock("../header/filter-popover", () => ({ FilterPopover: () => null }));
 vi.mock("../header/search", () => ({ DataViewSearch: () => null }));
 

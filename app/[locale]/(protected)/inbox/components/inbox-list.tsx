@@ -16,9 +16,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 
 import { cn } from "@/core/utils/cn";
 import { Button } from "@/components/ui/button";
-import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
 import { DataViewToolbar } from "@/components/data-view/data-view-toolbar";
-import { DataViewActiveFiltersBar } from "@/components/data-view/header/active-filters-bar";
 import { DataViewPagination } from "@/components/data-view/header/pagination";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
@@ -48,8 +46,6 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { messagingThreadsStore, connectedAccountsStore } = useRootStore();
-
-  useDataViewSync(messagingThreadsStore, threads);
 
   useEffect(() => {
     if (locked) return;
@@ -127,17 +123,6 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
     const params = new URLSearchParams(searchParams.toString());
     params.set("threadId", threadId);
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  }
-
-  function clearSelectedThread() {
-    if (!selectedThreadId) return;
-
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("threadId");
-    const query = params.toString();
-    router.replace(query ? `${pathname}?${query}` : pathname, {
-      scroll: false,
-    });
   }
 
   const listRef = useRef<HTMLDivElement>(null);
@@ -255,8 +240,6 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
 
   return (
     <div className="flex h-full flex-col">
-      <DataViewActiveFiltersBar store={messagingThreadsStore} onEditFilters={clearSelectedThread} />
-
       <div
         ref={listRef}
         className={cn(

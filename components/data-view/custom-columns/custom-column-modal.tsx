@@ -298,7 +298,7 @@ export const CustomColumnModal = observer(() => {
                   </FormFieldHelp>
                 ) : undefined
               }
-              readOnly={Boolean(form.id)}
+              readOnly={Boolean(form.id) || store.isTypeLocked}
               onValueChange={(next) => store.changeType(next as CustomColumnType)}
             />
 

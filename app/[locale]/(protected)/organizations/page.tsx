@@ -4,7 +4,8 @@ import { OrganizationsPageView } from "./components/organizations-page-view";
 
 import { getGetOrganizationsInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
-import { decodeGetParams } from "@/core/utils/get-params";
+import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
+import { SURFACE } from "@/core/data-view/data-view-keys";
 import { PageContainer } from "@/components/shared/page-container";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
@@ -17,15 +18,9 @@ type Props = {
 export default async function OrganizationsPage({ searchParams }: Props) {
   await requireAccess({ resource: Resource.organizations });
 
-  const params = await searchParams;
-  const organizationParams = decodeGetParams(params);
+  const organizationParams = await readSurfaceParams(SURFACE.organizations, searchParams);
 
-  const organizations = await unwrapValidated(
-    getGetOrganizationsInteractor().invoke({
-      ...organizationParams,
-      p13nId: "organizations-card-store",
-    }),
-  );
+  const organizations = await unwrapValidated(getGetOrganizationsInteractor().invoke(organizationParams));
 
   return (
     <PageContainer padded={false}>

@@ -1,6 +1,7 @@
 import { Action, Resource } from "@/generated/prisma";
 
 import { InboxList } from "./components/inbox-list";
+import { InboxSurface } from "./components/inbox-surface";
 import { ThreadPanel } from "./components/thread-panel";
 
 import {
@@ -10,7 +11,8 @@ import {
   getUserService,
 } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
-import { decodeGetParams } from "@/core/utils/get-params";
+import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
+import { SURFACE } from "@/core/data-view/data-view-keys";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { PageContainer } from "@/components/shared/page-container";
@@ -37,7 +39,7 @@ export default async function InboxPage({ searchParams }: Props) {
 
   const { threadId: threadIdRaw, ...listParams } = await searchParams;
   const threadId = !locked && typeof threadIdRaw === "string" ? threadIdRaw : null;
-  const threadParams = decodeGetParams(listParams);
+  const threadParams = await readSurfaceParams(SURFACE.messagingThreads, listParams);
 
   const threadResult = threadId ? await getGetMessagingThreadInteractor().invoke({ threadId }) : null;
 
@@ -45,22 +47,22 @@ export default async function InboxPage({ searchParams }: Props) {
 
   const threads = locked
     ? { items: [] }
-    : await unwrapValidated(
-        getGetMessagingThreadsInteractor().invoke({ ...threadParams, p13nId: "messaging-threads-card-store" }),
-      );
+    : await unwrapValidated(getGetMessagingThreadsInteractor().invoke(threadParams));
 
   const threadDetail = threadResult?.ok ? threadResult.data : null;
 
   const content = (
-    <div className="flex h-full min-h-0 flex-1 lg:grid lg:grid-cols-[380px_1fr]">
-      <div className={cn("min-h-0 min-w-0 flex-1 lg:border-r lg:border-border", threadId && "hidden lg:block")}>
-        <InboxList canConnect={!locked && canConnect} locked={locked} selectedThreadId={threadId} threads={threads} />
-      </div>
+    <InboxSurface threads={threads}>
+      <div className="flex min-h-0 flex-1 lg:grid lg:grid-cols-[380px_1fr]">
+        <div className={cn("min-h-0 min-w-0 flex-1 lg:border-r lg:border-border", threadId && "hidden lg:block")}>
+          <InboxList canConnect={!locked && canConnect} locked={locked} selectedThreadId={threadId} threads={threads} />
+        </div>
 
-      <div className={cn("min-h-0 min-w-0 flex-1", !threadId && "hidden lg:block")}>
-        <ThreadPanel locked={locked} threadDetail={threadDetail} />
+        <div className={cn("min-h-0 min-w-0 flex-1", !threadId && "hidden lg:block")}>
+          <ThreadPanel locked={locked} threadDetail={threadDetail} />
+        </div>
       </div>
-    </div>
+    </InboxSurface>
   );
 
   if (!locked) return <PageContainer padded={false}>{content}</PageContainer>;

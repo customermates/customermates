@@ -31,7 +31,7 @@ export const RoutinesPageView = observer(function RoutinesPageView({ initialRout
   useDataViewSync(routinesStore, initialRoutines);
   const columns = useRoutineColumns();
   const t = useTranslations();
-  const view = resolveDataViewView(routinesStore.viewMode, routinesStore.groupingColumnId);
+  const view = resolveDataViewView(routinesStore.viewMode, routinesStore.canBoard);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery: Boolean(routinesStore.searchTerm?.trim()) || (routinesStore.filters?.length ?? 0) > 0,

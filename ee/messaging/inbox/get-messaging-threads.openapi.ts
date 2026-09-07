@@ -2,7 +2,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import { MessagingThreadSchema } from "@/ee/messaging/messaging.schema";
 
-import { GetQueryParamsApiSchema, createGetResultSchema } from "@/core/base/base-get.schema";
+import { GetQueryParamsApiSchema, createApiGetResultSchema } from "@/core/base/base-get.schema";
 import { CommonApiResponses } from "@/core/api/interactor-handler";
 
 export const getMessagingThreadsOperation: ZodOpenApiOperationObject = {
@@ -24,7 +24,7 @@ export const getMessagingThreadsOperation: ZodOpenApiOperationObject = {
       description: "The messaging threads were retrieved successfully.",
       content: {
         "application/json": {
-          schema: createGetResultSchema(MessagingThreadSchema),
+          schema: createApiGetResultSchema(MessagingThreadSchema),
         },
       },
     },

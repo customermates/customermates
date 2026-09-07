@@ -17,7 +17,7 @@ describe("ContactsPageSkeleton", () => {
     expect(html).toContain("data-skeleton-pagination");
   });
 
-  it.each(["cards", "board"] as const)("matches the active %s view with contact identity geometry", (view) => {
+  it.each(["board"] as const)("matches the active %s view with contact identity geometry", (view) => {
     const html = renderToStaticMarkup(createElement(ContactsPageSkeleton, { view }));
 
     expect(html).toContain(`data-skeleton-view="${view}"`);
@@ -27,11 +27,11 @@ describe("ContactsPageSkeleton", () => {
   });
 
   it("reuses identical surfaces as a static, motionless empty background", () => {
-    const loading = renderToStaticMarkup(createElement(ContactsPageSkeleton, { view: "cards" }));
+    const loading = renderToStaticMarkup(createElement(ContactsPageSkeleton, { view: "board" }));
     const empty = renderToStaticMarkup(
       createElement(ContactsPageSkeleton, {
         animated: false,
-        view: "cards",
+        view: "board",
       }),
     );
     const surfaceClasses = /(?:rounded-xl bg-card[^"]*|data-skeleton-scroll-owner="[^"]+")/g;

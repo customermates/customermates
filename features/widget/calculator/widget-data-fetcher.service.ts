@@ -1,20 +1,15 @@
 import type { WidgetForCalculation, EntityForGrouping, DealRecord } from "./widget-calculator.types";
+import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { Filter } from "@/core/base/base-get.schema";
 
-import { EntityType } from "@/generated/prisma";
+import { CustomColumnType, EntityType } from "@/generated/prisma";
 
 import type { Prisma } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
+import { GROUPABLE_MODEL_BY_ENTITY_TYPE, customSelectGroupable } from "@/core/base/grouping/groupable-field";
+import { NO_VALUE_GROUP_KEY } from "@/core/base/grouping/grouping.schema";
 import { getContactRepo, getOrganizationRepo, getDealRepo, getServiceRepo, getTaskRepo } from "@/core/di";
-
-const CUSTOM_FIELD_RELATION: Record<EntityType, keyof Prisma.CustomFieldValueWhereInput> = {
-  [EntityType.contact]: "contact",
-  [EntityType.organization]: "organization",
-  [EntityType.deal]: "deal",
-  [EntityType.service]: "service",
-  [EntityType.task]: "task",
-};
 
 export class WidgetDataFetcher extends BaseRepository {
   async getEntityCount(entityType: EntityType, filters: Filter[] | undefined): Promise<number> {
@@ -134,55 +129,21 @@ export class WidgetDataFetcher extends BaseRepository {
   async countByCustomColumn(
     entityType: EntityType,
     filters: Filter[] | undefined,
-    columnId: string,
+    column: CustomColumnDto,
   ): Promise<Array<{ value: string | null; count: number }>> {
-    const entityWhere = await this.entityWhere(entityType, filters);
-    const relation = CUSTOM_FIELD_RELATION[entityType];
+    if (column.type !== CustomColumnType.singleSelect) return [];
 
-    const grouped = await this.prisma.customFieldValue.groupBy({
-      by: ["value"],
-      where: {
-        companyId: this.companyId,
-        columnId,
-        entityType,
-        [relation]: entityWhere,
-      } as Prisma.CustomFieldValueWhereInput,
-      _count: { _all: true },
+    const where = await this.entityWhere(entityType, filters);
+    const rows = await this.countByGroupInScope({
+      spec: customSelectGroupable({ column, model: GROUPABLE_MODEL_BY_ENTITY_TYPE[entityType], entityType }),
+      where,
     });
 
-    const noValueCount = await this.countEntitiesWithoutColumn(entityType, entityWhere, columnId);
+    return rows.flatMap((row): Array<{ value: string | null; count: number }> => {
+      if (row.key !== NO_VALUE_GROUP_KEY) return [{ value: row.key, count: row.count }];
 
-    const result = grouped.map((g) => ({ value: g.value, count: g._count._all }));
-    if (noValueCount > 0) result.push({ value: null, count: noValueCount });
-
-    return result;
-  }
-
-  private async countEntitiesWithoutColumn(
-    entityType: EntityType,
-    entityWhere: Record<string, unknown>,
-    columnId: string,
-  ): Promise<number> {
-    const customFieldValues = { none: { columnId } };
-
-    switch (entityType) {
-      case EntityType.contact:
-        return this.prisma.contact.count({
-          where: { ...(entityWhere as Prisma.ContactWhereInput), customFieldValues },
-        });
-      case EntityType.organization:
-        return this.prisma.organization.count({
-          where: { ...(entityWhere as Prisma.OrganizationWhereInput), customFieldValues },
-        });
-      case EntityType.deal:
-        return this.prisma.deal.count({ where: { ...(entityWhere as Prisma.DealWhereInput), customFieldValues } });
-      case EntityType.service:
-        return this.prisma.service.count({
-          where: { ...(entityWhere as Prisma.ServiceWhereInput), customFieldValues },
-        });
-      case EntityType.task:
-        return this.prisma.task.count({ where: { ...(entityWhere as Prisma.TaskWhereInput), customFieldValues } });
-    }
+      return row.count > 0 ? [{ value: null, count: row.count }] : [];
+    });
   }
 
   async getEntitiesForGrouping(entityType: EntityType, filters: Filter[] | undefined): Promise<EntityForGrouping[]> {

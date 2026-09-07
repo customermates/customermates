@@ -1,7 +1,7 @@
 import type { Filter } from "@/core/base/base-get.schema";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { RoutineFilterMatcher } from "./routine-filter-matcher";
 
+import { toCustomColumnDtos } from "@/features/custom-column/custom-column.dto";
 import { Action, EntityType, Resource, Status } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
@@ -121,10 +121,12 @@ export class PrismaRoutineEventAccess extends BaseRepository implements RoutineE
   }
 
   private async filterScope(user: RoutineEventUser, entityType: EntityType) {
-    const customColumns = (await this.prisma.customColumn.findMany({
-      where: { companyId: user.companyId, entityType },
-      select: { id: true, label: true, type: true, entityType: true, options: true },
-    })) as unknown as CustomColumnDto[];
+    const customColumns = toCustomColumnDtos(
+      await this.prisma.customColumn.findMany({
+        where: { companyId: user.companyId, entityType },
+        select: { id: true, label: true, type: true, entityType: true, options: true },
+      }),
+    );
     const relationFields = RELATED_FILTER_FIELDS[entityType]
       .filter(({ resource }) => this.readAccess(user, resource))
       .map(({ field }) => ({ field, operators: FILTER_FIELD_DEFAULT_OPERATORS[field] }));

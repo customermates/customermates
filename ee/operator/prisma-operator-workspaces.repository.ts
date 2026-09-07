@@ -1,18 +1,26 @@
-import type { Filter, GetQueryParams } from "@/core/base/base-get.schema";
+import type { GetQueryParams } from "@/core/base/base-get.schema";
+import type { DateBucket } from "@/core/base/grouping/grouping.schema";
+import type { GroupCountRow } from "@/core/base/grouping/group-count";
+import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 import type { OperatorWorkspaceRowDto } from "./operator-lists.schema";
 import type { GetOperatorWorkspacesRepo } from "./get/get-operator-workspaces.interactor";
 
 import type { Prisma } from "@/generated/prisma";
-import { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
+import { dateGroupables, enumGroupables } from "@/core/base/grouping/groupable-field";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 
 import { workspaceAgentCreditRate } from "@/ee/agent-chat/agent-credit-policy";
 
-import { filterValues, negated } from "./operator-list-filters";
+import {
+  applyGroupScopeAsFilters,
+  countOperatorGroups,
+  operatorCollator,
+  partitionOperatorWorkspaceFilters,
+} from "./operator-list-filters";
 
 type WorkspaceAggregate = {
   companyId: string;
@@ -22,77 +30,6 @@ type WorkspaceAggregate = {
   owner: string | null;
   ownerId: string | null;
 };
-
-export function partitionOperatorWorkspaceFilters(filters: Filter[] | undefined): {
-  baseWhere: Prisma.CompanyWhereInput;
-  passthrough: Filter[];
-} {
-  const passthrough: Filter[] = [];
-  const subscription: Prisma.SubscriptionWhereInput = {};
-  const baseWhere: Prisma.CompanyWhereInput = {};
-  let hasPositiveSubscriptionCondition = false;
-
-  for (const filter of filters ?? []) {
-    if (filter.field === String(FilterFieldKey.workspaceId)) {
-      const values = filterValues(filter);
-      if (values.length > 0) baseWhere.id = negated(filter) ? { notIn: values } : { in: values };
-      continue;
-    }
-
-    if (filter.field === String(FilterFieldKey.adProvider)) {
-      const values = filterValues(filter);
-      if (values.length > 0) {
-        baseWhere.adAttributions = negated(filter)
-          ? { none: { provider: { in: values } } }
-          : { some: { provider: { in: values } } };
-      }
-      continue;
-    }
-
-    if (filter.field === String(FilterFieldKey.workspaceTags)) {
-      const values = filterValues(filter);
-      if (values.length > 0) {
-        if (negated(filter)) baseWhere.NOT = { tags: { hasSome: values } };
-        else baseWhere.tags = { hasSome: values };
-      }
-      continue;
-    }
-
-    if (filter.field !== String(FilterFieldKey.plan) && filter.field !== String(FilterFieldKey.subscriptionStatus)) {
-      passthrough.push(filter);
-      continue;
-    }
-
-    const values = filterValues(filter);
-    if (values.length === 0) continue;
-
-    if (filter.field === String(FilterFieldKey.plan)) {
-      const plans = values.filter((value): value is SubscriptionPlan =>
-        Object.values(SubscriptionPlan).includes(value as SubscriptionPlan),
-      );
-      if (plans.length > 0) {
-        subscription.plan = negated(filter) ? { notIn: plans } : { in: plans };
-        if (!negated(filter)) hasPositiveSubscriptionCondition = true;
-      }
-      continue;
-    }
-
-    const statuses = values.filter((value): value is SubscriptionStatus =>
-      Object.values(SubscriptionStatus).includes(value as SubscriptionStatus),
-    );
-    if (statuses.length > 0) {
-      subscription.status = negated(filter) ? { notIn: statuses } : { in: statuses };
-      if (!negated(filter)) hasPositiveSubscriptionCondition = true;
-    }
-  }
-
-  if (Object.keys(subscription).length > 0) {
-    if (hasPositiveSubscriptionCondition) baseWhere.subscription = { is: subscription };
-    else baseWhere.OR = [{ subscription: { is: subscription } }, { subscription: { is: null } }];
-  }
-
-  return { baseWhere, passthrough };
-}
 
 export class PrismaOperatorWorkspacesRepo
   extends BaseRepository<Prisma.CompanyWhereInput>
@@ -112,10 +49,33 @@ export class PrismaOperatorWorkspacesRepo
         FilterFieldKey.plan,
         FilterFieldKey.subscriptionStatus,
         FilterFieldKey.createdAt,
+        FilterFieldKey.updatedAt,
         FilterFieldKey.workspaceId,
         FilterFieldKey.adProvider,
         FilterFieldKey.workspaceTags,
       ].map((field) => ({ field, operators: FILTER_FIELD_DEFAULT_OPERATORS[field] })),
+    );
+  }
+
+  getGroupableFields(): Promise<GroupableFieldSpec[]> {
+    return Promise.resolve([
+      ...enumGroupables("company", { plan: true, subscriptionStatus: true }),
+      ...dateGroupables("company", { createdAt: true, updatedAt: true }),
+    ]);
+  }
+
+  collator() {
+    return operatorCollator();
+  }
+
+  countByGroup(args: {
+    spec: GroupableFieldSpec;
+    params: GetQueryParams;
+    bucket?: DateBucket;
+    now?: string;
+  }): Promise<GroupCountRow[]> {
+    return countOperatorGroups(args.spec, args.bucket, args.now, (groupScope) =>
+      this.countWorkspacesUnscoped({ ...args.params, groupScope }),
     );
   }
 
@@ -179,7 +139,10 @@ export class PrismaOperatorWorkspacesRepo
   }
 
   @BypassTenantGuard
-  private async listWorkspacesUnscoped(params: GetQueryParams): Promise<OperatorWorkspaceRowDto[]> {
+  private async listWorkspacesUnscoped(scoped: GetQueryParams): Promise<OperatorWorkspaceRowDto[]> {
+    const params = applyGroupScopeAsFilters(scoped);
+    if (!params) return [];
+
     const { baseWhere, passthrough } = partitionOperatorWorkspaceFilters(params.filters);
     const args = await this.buildQueryArgs({ ...params, filters: passthrough }, baseWhere);
 
@@ -242,7 +205,10 @@ export class PrismaOperatorWorkspacesRepo
   }
 
   @BypassTenantGuard
-  private async countWorkspacesUnscoped(params: GetQueryParams): Promise<number> {
+  private async countWorkspacesUnscoped(scoped: GetQueryParams): Promise<number> {
+    const params = applyGroupScopeAsFilters(scoped);
+    if (!params) return 0;
+
     const { baseWhere, passthrough } = partitionOperatorWorkspaceFilters(params.filters);
     const { where } = await this.buildQueryArgs({ ...params, filters: passthrough }, baseWhere);
 

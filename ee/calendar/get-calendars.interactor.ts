@@ -1,4 +1,5 @@
-import type { GetResult, P13nRepo } from "@/core/base/base-get.interactor";
+import type { GetResult } from "@/core/base/base-get.interactor";
+import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
@@ -28,14 +29,14 @@ export abstract class GetCalendarsRepo extends BaseGetRepo<CalendarDto> {}
 export class GetCalendarsInteractor extends BaseGetInteractor<CalendarDto> {
   constructor(
     repo: GetCalendarsRepo,
-    p13nRepo: P13nRepo,
+    viewStateRepo: DataViewStateRepo,
     mode: "interactive" | "api",
     queryParamsPrecheck: QueryParamsPrecheckInteractor,
     private entitlements: EntitlementService,
   ) {
     super(
       repo,
-      p13nRepo,
+      viewStateRepo,
       mode,
       undefined,
       { sortDescriptor: { field: "name", direction: "asc" } },

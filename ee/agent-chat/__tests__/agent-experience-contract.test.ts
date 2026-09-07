@@ -211,7 +211,7 @@ describe("agent experience contract", () => {
 
   it("classifies an allowlisted DOM activation without retaining its target", () => {
     const activity = describeInternalTool("click_ui_target", {
-      targetId: "deals-layout-kanban",
+      targetId: "deals-layout-board",
       selector: "#private-record-00000000-0000-4000-8000-000000000002",
     });
 
@@ -220,7 +220,7 @@ describe("agent experience contract", () => {
       affectedResources: [],
       risk: "read",
     });
-    expect(JSON.stringify(activity)).not.toContain("deals-layout-kanban");
+    expect(JSON.stringify(activity)).not.toContain("deals-layout-board");
     expect(JSON.stringify(activity)).not.toContain("private-record");
     expect(agentActivityCopy(activity, enT).done).toBe("Activated the control");
     expect(agentActivityCopy(activity, deT).done).toBe("Steuerelement aktiviert");

@@ -18,9 +18,9 @@ import { canonicalIsoDateTime, isIsoDateTime } from "@/core/validation/iso-date-
 
 import type { Prisma } from "@/generated/prisma";
 
-import { type CustomColumnDto } from "./custom-column.schema";
-
 import { BaseRepository } from "@/core/base/base-repository";
+import { toCustomColumnDto, toCustomColumnDtos } from "./custom-column.dto";
+import { clearGroupingForDeletedColumn } from "@/core/base/grouping/clear-grouping";
 import { getDealRepo } from "@/core/di";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { CUSTOM_COLUMN_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
@@ -90,7 +90,7 @@ export class PrismaCustomColumnRepo
       select: this.baseSelect,
     });
 
-    return column as CustomColumnDto;
+    return toCustomColumnDto(column);
   }
 
   async findById(id: string) {
@@ -101,7 +101,7 @@ export class PrismaCustomColumnRepo
       select: this.baseSelect,
     });
 
-    return column as CustomColumnDto | null;
+    return column === null ? null : toCustomColumnDto(column);
   }
 
   async findIds(ids: Set<string>) {
@@ -126,17 +126,19 @@ export class PrismaCustomColumnRepo
       orderBy: [{ entityType: "asc" }, { label: "asc" }],
     });
 
-    return columns as CustomColumnDto[];
+    return toCustomColumnDtos(columns);
   }
 
   async findByEntityType(entityType: EntityType) {
     const { companyId } = this.user;
 
-    return (await this.prisma.customColumn.findMany({
-      where: { companyId, entityType },
-      select: this.baseSelect,
-      orderBy: [{ label: "asc" }],
-    })) as CustomColumnDto[];
+    return (
+      await this.prisma.customColumn.findMany({
+        where: { companyId, entityType },
+        select: this.baseSelect,
+        orderBy: [{ label: "asc" }],
+      })
+    ).map(toCustomColumnDto);
   }
 
   @Transaction
@@ -149,9 +151,7 @@ export class PrismaCustomColumnRepo
       this.prisma.widget.deleteMany({
         where: { groupByCustomColumnId: id, companyId },
       }),
-      this.prisma.p13n.deleteMany({
-        where: { groupingColumnId: id, companyId },
-      }),
+      clearGroupingForDeletedColumn(this.prisma, { columnId: id, companyId }),
       this.prisma.customColumn.deleteMany({
         where: { id, companyId },
       }),
@@ -202,7 +202,7 @@ export class PrismaCustomColumnRepo
 
     await this.recalculateDealsWhenWeightingColumn(column.id);
 
-    return column as CustomColumnDto;
+    return toCustomColumnDto(column);
   }
 
   @Transaction

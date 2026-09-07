@@ -97,6 +97,7 @@ export function EntityDetailPageSkeleton({
           <div
             data-entity-detail-skeleton-summary
             className="shrink-0 overflow-hidden border-b border-border px-4"
+            data-joins-top-bar=""
             data-summary-variant="pinned-mini-cards"
           >
             <div className="-mx-4 overflow-hidden px-4">
