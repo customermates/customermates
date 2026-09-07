@@ -337,7 +337,7 @@ const GetCalendarsToolSchema = z.object({
     .uuid()
     .optional()
     .describe(
-      "Calendar event id (the entityId of a messaging.calendar.event.changed webhook event). When set, returns that event's detail",
+      "Calendar event id (the entityId of a messaging.calendar_event.changed webhook event). When set, returns that event's detail",
     ),
   searchTerm: GetQueryParamsSchema.shape.searchTerm.describe(
     "Free-text search against the calendar name or event title",
@@ -357,7 +357,7 @@ export const getCalendarsTool = {
   title: "Get calendars and events",
   description:
     'Reads synced calendars of connected accounts. list: "calendars" returns the accessible calendars (ids match the entityId of messaging.calendar.changed webhook events); list: "events" returns calendar events ordered by start time (filter by calendarId or a startsAt range for agenda windows). ' +
-    "With eventId set, returns that event's detail including organizer and attendees (ids match the entityId of messaging.calendar.event.changed webhook events). " +
+    "With eventId set, returns that event's detail including organizer and attendees (ids match the entityId of messaging.calendar_event.changed webhook events). " +
     "Optional: searchTerm, filters, sortDescriptor, page, pageSize.",
   annotations: {
     readOnlyHint: true,

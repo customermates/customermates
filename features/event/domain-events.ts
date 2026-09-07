@@ -378,6 +378,7 @@ export type DomainEventMap = {
       connectedAccountId: string;
       provider: MessagingProvider;
       providerThreadId: string;
+      threadId: string;
     };
   };
   [DomainEvent.MESSAGING_CHAT_DELETED]: {
@@ -388,6 +389,7 @@ export type DomainEventMap = {
       connectedAccountId: string;
       provider: MessagingProvider;
       providerThreadId: string;
+      threadId: string;
     };
   };
   [DomainEvent.MESSAGING_CALENDAR_CHANGED]: {

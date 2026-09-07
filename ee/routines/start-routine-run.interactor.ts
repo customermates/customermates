@@ -14,6 +14,8 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
 
 import { composeRoutinePrompt } from "./routine-prompt";
+import { changedFieldsOf } from "./routine-event-filter";
+import { isCustomField } from "@/core/utils/custom-field";
 import { ROUTINE_RUN_ERROR_CODES } from "./routine-run-outcome";
 
 export const ROUTINE_MAX_IN_FLIGHT_RUNS_PER_OWNER = 1;
@@ -27,6 +29,10 @@ const AGENT_DISPOSITION_REASONS: Record<string, string> = {
   uncertain: "agentTurnUncertain",
   conflict: "agentTurnConflict",
 };
+
+function customFieldIds(triggerPayload: unknown): string[] {
+  return changedFieldsOf(triggerPayload).filter((field) => isCustomField(field));
+}
 
 function startFailureReason(error: z.ZodError): string {
   for (const issue of error.issues) {
@@ -59,6 +65,7 @@ export abstract class StartRoutineRunRepo {
     now: Date;
   }): Promise<{ routine: RoutineDto } | "ownerRunLimit" | "runNotQueued" | "triggerChanged">;
   abstract countRecentRoutineRunsUnscoped(routineId: string, since: Date): Promise<number>;
+  abstract findCustomColumnLabelsUnscoped(companyId: string, columnIds: string[]): Promise<Record<string, string>>;
   abstract markRoutineRunStartedUnscoped(args: {
     routineRunId: string;
     executedByUserId: string;
@@ -97,6 +104,12 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
     private eventAccess: RoutineEventAccess,
   ) {
     super();
+  }
+
+  private async resolveChangedFieldLabels(companyId: string, triggerPayload: unknown): Promise<Record<string, string>> {
+    const columnIds = customFieldIds(triggerPayload);
+
+    return columnIds.length > 0 ? this.repo.findCustomColumnLabelsUnscoped(companyId, columnIds) : {};
   }
 
   @Validate(Schema)
@@ -200,6 +213,7 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
           triggerEvent: run.triggerEvent,
           triggerEntityId: run.triggerEntityId,
           triggerPayload: run.triggerPayload,
+          changedFieldLabels: await this.resolveChangedFieldLabels(run.companyId, run.triggerPayload),
         }),
         retry: false,
       });

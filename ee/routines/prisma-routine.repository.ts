@@ -961,6 +961,18 @@ export class PrismaRoutineRepo
   }
 
   @BypassTenantGuard
+  async findCustomColumnLabelsUnscoped(companyId: string, columnIds: string[]): Promise<Record<string, string>> {
+    if (columnIds.length === 0) return {};
+
+    const columns = await this.prisma.customColumn.findMany({
+      where: { companyId, id: { in: columnIds } },
+      select: { id: true, label: true },
+    });
+
+    return Object.fromEntries(columns.map((column) => [column.id, column.label]));
+  }
+
+  @BypassTenantGuard
   async findEventRoutinesUnscoped(companyId: string, event: string) {
     const routines = await this.prisma.routine.findMany({
       where: {

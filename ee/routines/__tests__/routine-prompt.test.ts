@@ -26,8 +26,47 @@ describe("routine prompt composition", () => {
         triggerPayload: { payload: { changes: { name: {}, notes: {} } } },
       }),
     ).toBe(
-      '<routine_trigger event="deal.updated" entity="deal" entityId="deal-1" changedFields="name,notes" />\nCheck it',
+      '<routine_trigger event="deal.updated" entity="deal" entityId="deal-1" changedFields="name,notes" changedFieldLabels="name,notes" />\nCheck it',
     );
+  });
+
+  it("labels a changed custom column so the agent is not handed a bare uuid", () => {
+    const columnId = "8f1c1a4e-0b2d-4a9e-9d7c-1f2a3b4c5d6e";
+
+    expect(
+      composeRoutinePrompt("Check it", {
+        routineName: "Deal watch",
+        triggerEvent: "deal.updated",
+        triggerEntityId: "deal-1",
+        triggerPayload: { payload: { changes: { [columnId]: {} } } },
+        changedFieldLabels: { [columnId]: "Deal stage" },
+      }),
+    ).toBe(
+      `<routine_trigger event="deal.updated" entity="deal" entityId="deal-1" changedFields="${columnId}" changedFieldLabels="Deal stage" />\nCheck it`,
+    );
+  });
+
+  it("says how many fields changed when the list is capped", () => {
+    const changes = Object.fromEntries(Array.from({ length: 30 }, (_, index) => [`field${index}`, {}]));
+    const composed = composeRoutinePrompt("Go", {
+      routineName: "Deal watch",
+      triggerEvent: "deal.updated",
+      triggerEntityId: "deal-1",
+      triggerPayload: { payload: { changes } },
+    });
+
+    expect(composed).toContain('changedFieldCount="30"');
+  });
+
+  it("names a record that a deletion has already removed", () => {
+    const composed = composeRoutinePrompt("Clean up", {
+      routineName: "Deal watch",
+      triggerEvent: "deal.deleted",
+      triggerEntityId: "deal-1",
+      triggerPayload: { payload: { id: "deal-1", name: "Digital Customer Platform" } },
+    });
+
+    expect(composed).toContain('entityName="Digital Customer Platform"');
   });
 
   it("hands a messaging trigger the thread the message belongs to", () => {
@@ -38,7 +77,9 @@ describe("routine prompt composition", () => {
         triggerEntityId: "message-1",
         triggerPayload: { payload: { threadId: "thread-9" } },
       }),
-    ).toBe('<routine_trigger event="messaging.message.received" entityId="message-1" threadId="thread-9" />\nReply');
+    ).toBe(
+      '<routine_trigger event="messaging.message.received" entity="message" entityId="message-1" threadId="thread-9" />\nReply',
+    );
   });
 
   it("escapes anything that could close the element early", () => {

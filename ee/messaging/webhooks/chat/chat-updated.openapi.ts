@@ -8,6 +8,7 @@ const PayloadSchema = z.object({
   connectedAccountId: z.uuid(),
   provider: z.enum(MessagingProvider),
   providerThreadId: z.string(),
+  threadId: z.string(),
 });
 
 export const WebhookMessagingChatUpdatedSchema = z.object({

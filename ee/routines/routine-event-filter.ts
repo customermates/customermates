@@ -14,6 +14,26 @@ export function entityTypeForEvent(event: string): EntityType | null {
   return ENTITY_TYPE_BY_EVENT_PREFIX[event.split(".")[0]] ?? null;
 }
 
+const MESSAGING_ENTITY_KIND: Record<string, RoutineTriggerEntityKind> = {
+  "messaging.message.received": "message",
+  "messaging.message.updated": "message",
+  "messaging.message.deleted": "message",
+  "messaging.message.reaction": "message",
+  "messaging.email.received": "message",
+  "messaging.email.deleted": "message",
+  "messaging.chat.updated": "thread",
+  "messaging.chat.deleted": "thread",
+  "messaging.calendar.changed": "calendar",
+  "messaging.calendar_event.changed": "calendarEvent",
+  "messaging.relation.created": "activity",
+};
+
+export type RoutineTriggerEntityKind = EntityType | "message" | "thread" | "calendar" | "calendarEvent" | "activity";
+
+export function entityKindForEvent(event: string): RoutineTriggerEntityKind | null {
+  return entityTypeForEvent(event) ?? MESSAGING_ENTITY_KIND[event] ?? null;
+}
+
 export function entityTypeForEvents(events: readonly string[]): EntityType | null {
   const resolved = events.map(entityTypeForEvent);
   if (resolved.some((type) => type === null)) return null;

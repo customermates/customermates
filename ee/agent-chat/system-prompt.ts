@@ -1,6 +1,7 @@
 import type { AgentSurface } from "./agent-surface-policy";
 
 import { TOOL_APPROVAL_INSTRUCTION } from "@/features/mcp-tools/server-instructions";
+import { routineTriggerGuide } from "@/ee/routines/routine-trigger-doc";
 
 export type SystemPromptContext = {
   userName: string;
@@ -49,6 +50,8 @@ export function buildAgentSystemPrompt(context: SystemPromptContext) {
       ? [
           "",
           "Unattended run: nobody is watching this turn, so an action that needs approval will be declined automatically rather than granted. Do the work that runs without approval, and when a step would need one, stop and report exactly what remains and why, instead of asking a question no one will read.",
+          "",
+          routineTriggerGuide(),
         ]
       : []),
   ].join("\n");

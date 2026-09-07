@@ -1,4 +1,5 @@
-import { changedFieldsOf, entityTypeForEvent, threadIdOf } from "./routine-event-filter";
+import { changedFieldsOf, entityKindForEvent, entityTypeForEvent, threadIdOf } from "./routine-event-filter";
+import { getEntityName } from "@/features/event/entity-name.utils";
 import { ROUTINE_TRIGGER_FIELD_LIMIT } from "./routine-run-trigger-context";
 
 export type RoutineTriggerContext = {
@@ -6,6 +7,7 @@ export type RoutineTriggerContext = {
   triggerEvent?: string | null;
   triggerEntityId?: string | null;
   triggerPayload?: unknown;
+  changedFieldLabels?: Record<string, string>;
 };
 
 function attributeValue(value: string): string {
@@ -22,16 +24,27 @@ function attribute(name: string, value: string | null | undefined): string | nul
   return value ? `${name}="${attributeValue(value)}"` : null;
 }
 
+function recordName(context: RoutineTriggerContext): string | null {
+  if (!context.triggerEvent || !entityTypeForEvent(context.triggerEvent)) return null;
+
+  return getEntityName(context.triggerEvent as never, context.triggerPayload as never) ?? null;
+}
+
 export function composeRoutinePrompt(prompt: string, context: RoutineTriggerContext): string {
   if (!context.triggerEvent) return prompt;
 
-  const fields = changedFieldsOf(context.triggerPayload).slice(0, ROUTINE_TRIGGER_FIELD_LIMIT);
+  const changed = changedFieldsOf(context.triggerPayload);
+  const fields = changed.slice(0, ROUTINE_TRIGGER_FIELD_LIMIT);
+  const labels = fields.map((field) => context.changedFieldLabels?.[field] ?? field);
   const attributes = [
     attribute("event", context.triggerEvent),
-    attribute("entity", entityTypeForEvent(context.triggerEvent)),
+    attribute("entity", entityKindForEvent(context.triggerEvent)),
     attribute("entityId", context.triggerEntityId),
+    attribute("entityName", recordName(context)),
     attribute("threadId", threadIdOf(context.triggerPayload)),
     attribute("changedFields", fields.length > 0 ? fields.join(",") : null),
+    attribute("changedFieldLabels", fields.length > 0 ? labels.join(",") : null),
+    attribute("changedFieldCount", changed.length > fields.length ? String(changed.length) : null),
   ].filter((entry): entry is string => entry !== null);
 
   return `<routine_trigger ${attributes.join(" ")} />\n${prompt}`;
