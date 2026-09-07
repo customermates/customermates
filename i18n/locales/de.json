@@ -3055,6 +3055,7 @@
     "disabledRepeatedFailures": "Mate hat diese Routine pausiert, weil die letzten drei Läufe fehlgeschlagen sind. Passe die Anweisungen an und schalte sie wieder ein.",
     "disabledRepeatedFailuresReadOnly": "Mate hat diese Routine pausiert, weil die letzten drei Läufe fehlgeschlagen sind. Die Eigentümerin oder der Eigentümer muss die Anweisungen anpassen und sie wieder aktivieren.",
     "disabledTitle": "Routine pausiert",
+    "instruction": "An den Assistenten gesendete Anweisung",
     "never": "Nie",
     "noRuns": "Diese Routine wurde noch nicht ausgeführt.",
     "owner": "Eigentümer/in",
@@ -3069,7 +3070,12 @@
     "testTriggerEventUnavailable": "Ereignis-Auslöser benötigen echte Ereignisdaten. Löse zum Testen dieser Routine ein passendes Ereignis im Arbeitsbereich aus.",
     "testTriggerSaveFirst": "Speichere deine Änderungen, bevor du diese Routine testest.",
     "testTriggerWarning": "Führe diese Routine jetzt aus. Das verbraucht deine KI-Guthaben und kann die in den Anweisungen genannten Aktionen ausführen.",
-    "transcriptOwnerOnly": "Nur {owner}, unter dessen Identität die Routine lief, kann das vollständige Protokoll öffnen."
+    "transcriptOwnerOnly": "Nur {owner}, unter dessen Identität die Routine lief, kann das vollständige Protokoll öffnen.",
+    "trigger": "Auslöser",
+    "triggerChangedFields": "Geänderte Felder",
+    "triggerChangedFieldsMore": "und weitere",
+    "triggerRecord": "Datensatz",
+    "triggerThread": "Unterhaltung"
   },
   "RoutineModal": {
     "at": "um",

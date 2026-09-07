@@ -3055,6 +3055,7 @@
     "disabledRepeatedFailures": "Mate a mis cette routine en pause car ses trois dernières exécutions ont échoué. Corrigez les instructions, puis réactivez-la.",
     "disabledRepeatedFailuresReadOnly": "Mate a suspendu cette routine car ses trois dernières exécutions ont échoué. Son propriétaire doit corriger les instructions, puis la réactiver.",
     "disabledTitle": "Routine suspendue",
+    "instruction": "Instruction envoyée à l’assistant",
     "never": "Jamais",
     "noRuns": "Cette routine n'a pas encore été exécutée.",
     "owner": "Propriétaire",
@@ -3069,7 +3070,12 @@
     "testTriggerEventUnavailable": "Les déclencheurs d'évènements ont besoin de données réelles. Déclenchez un évènement correspondant dans l'espace de travail pour tester cette routine.",
     "testTriggerSaveFirst": "Enregistrez vos modifications avant de tester cette routine.",
     "testTriggerWarning": "Exécutez cette routine maintenant. Elle utilise vos crédits d’IA et peut effectuer les actions indiquées dans ses instructions.",
-    "transcriptOwnerOnly": "Seul {owner}, qui a exécuté cette routine, peut ouvrir la transcription complète."
+    "transcriptOwnerOnly": "Seul {owner}, qui a exécuté cette routine, peut ouvrir la transcription complète.",
+    "trigger": "Déclencheur",
+    "triggerChangedFields": "Champs modifiés",
+    "triggerChangedFieldsMore": "et plus",
+    "triggerRecord": "Enregistrement",
+    "triggerThread": "Conversation"
   },
   "RoutineModal": {
     "at": "à",

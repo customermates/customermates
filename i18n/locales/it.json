@@ -3055,6 +3055,7 @@
     "disabledRepeatedFailures": "Mate ha messo in pausa questa routine perché le ultime tre esecuzioni sono fallite. Correggi le istruzioni e riattivala.",
     "disabledRepeatedFailuresReadOnly": "Mate ha sospeso questa routine perché le ultime tre esecuzioni sono fallite. Il proprietario deve correggere le istruzioni e riattivarla.",
     "disabledTitle": "Routine sospesa",
+    "instruction": "Istruzione inviata all’assistente",
     "never": "Mai",
     "noRuns": "Questa routine non è ancora stata eseguita.",
     "owner": "Proprietario",
@@ -3069,7 +3070,12 @@
     "testTriggerEventUnavailable": "Le attivazioni basate su eventi richiedono dati reali. Genera un evento corrispondente nell'area di lavoro per testare questa routine.",
     "testTriggerSaveFirst": "Salva le modifiche prima di testare questa routine.",
     "testTriggerWarning": "Esegui subito questa routine. Utilizza i tuoi crediti IA e può svolgere le azioni indicate nelle istruzioni.",
-    "transcriptOwnerOnly": "Solo {owner}, che ha eseguito questa routine, può aprire la trascrizione completa."
+    "transcriptOwnerOnly": "Solo {owner}, che ha eseguito questa routine, può aprire la trascrizione completa.",
+    "trigger": "Attivatore",
+    "triggerChangedFields": "Campi modificati",
+    "triggerChangedFieldsMore": "e altri",
+    "triggerRecord": "Record",
+    "triggerThread": "Conversazione"
   },
   "RoutineModal": {
     "at": "alle",

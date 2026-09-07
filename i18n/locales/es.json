@@ -3055,6 +3055,7 @@
     "disabledRepeatedFailures": "Mate ha pausado esta rutina porque sus tres últimas ejecuciones fallaron. Corrige las instrucciones y vuelve a activarla.",
     "disabledRepeatedFailuresReadOnly": "Mate pausó esta rutina porque sus tres últimas ejecuciones fallaron. Su propietario debe corregir las instrucciones y volver a activarla.",
     "disabledTitle": "Rutina pausada",
+    "instruction": "Instrucción enviada al asistente",
     "never": "Nunca",
     "noRuns": "Esta rutina aún no se ha ejecutado.",
     "owner": "Propietario",
@@ -3069,7 +3070,12 @@
     "testTriggerEventUnavailable": "Los disparadores de eventos necesitan datos reales. Genera un evento coincidente en el espacio de trabajo para probar esta rutina.",
     "testTriggerSaveFirst": "Guarda los cambios antes de probar esta rutina.",
     "testTriggerWarning": "Ejecuta esta rutina ahora. Usará tus créditos de IA y puede realizar las acciones indicadas en sus instrucciones.",
-    "transcriptOwnerOnly": "Solo {owner}, que ejecutó esta rutina, puede abrir la transcripción completa."
+    "transcriptOwnerOnly": "Solo {owner}, que ejecutó esta rutina, puede abrir la transcripción completa.",
+    "trigger": "Activador",
+    "triggerChangedFields": "Campos modificados",
+    "triggerChangedFieldsMore": "y más",
+    "triggerRecord": "Registro",
+    "triggerThread": "Conversación"
   },
   "RoutineModal": {
     "at": "a las",

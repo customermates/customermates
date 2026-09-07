@@ -1,4 +1,5 @@
 import { changedFieldsOf, entityTypeForEvent, threadIdOf } from "./routine-event-filter";
+import { ROUTINE_TRIGGER_FIELD_LIMIT } from "./routine-run-trigger-context";
 
 export type RoutineTriggerContext = {
   routineName: string;
@@ -6,8 +7,6 @@ export type RoutineTriggerContext = {
   triggerEntityId?: string | null;
   triggerPayload?: unknown;
 };
-
-const TRIGGER_FIELD_LIMIT = 24;
 
 function attributeValue(value: string): string {
   return value
@@ -26,7 +25,7 @@ function attribute(name: string, value: string | null | undefined): string | nul
 export function composeRoutinePrompt(prompt: string, context: RoutineTriggerContext): string {
   if (!context.triggerEvent) return prompt;
 
-  const fields = changedFieldsOf(context.triggerPayload).slice(0, TRIGGER_FIELD_LIMIT);
+  const fields = changedFieldsOf(context.triggerPayload).slice(0, ROUTINE_TRIGGER_FIELD_LIMIT);
   const attributes = [
     attribute("event", context.triggerEvent),
     attribute("entity", entityTypeForEvent(context.triggerEvent)),

@@ -22,8 +22,10 @@ import { useAgentChatStore } from "./agent-chat-store-context";
 
 export const AgentConversationLog = observer(function AgentConversationLog({
   readOnly = false,
+  userLabel,
 }: {
   readOnly?: boolean;
+  userLabel?: string;
 }) {
   const store = useAgentChatStore();
   const t = useTranslations();
@@ -59,7 +61,7 @@ export const AgentConversationLog = observer(function AgentConversationLog({
                   <ActivityGroup index={index} />
                 )
               ) : (
-                <AgentChatItemView item={item} readOnly={readOnly} />
+                <AgentChatItemView item={item} readOnly={readOnly} userLabel={userLabel} />
               )}
             </Fragment>
           );

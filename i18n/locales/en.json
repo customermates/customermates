@@ -3055,6 +3055,7 @@
     "disabledRepeatedFailures": "Mate paused this routine because its last three runs all failed. Fix the instructions, then switch it back on.",
     "disabledRepeatedFailuresReadOnly": "Mate paused this routine because its last three runs all failed. Its owner needs to fix the instructions and activate it again.",
     "disabledTitle": "Routine paused",
+    "instruction": "Instruction sent to the assistant",
     "never": "Never",
     "noRuns": "This routine has not run yet.",
     "owner": "Owner",
@@ -3069,7 +3070,12 @@
     "testTriggerEventUnavailable": "Event triggers need real event data. Trigger a matching event in your workspace to test this routine.",
     "testTriggerSaveFirst": "Save your changes before testing this routine.",
     "testTriggerWarning": "Run this routine now. This uses your AI credits and can perform the actions in its instructions.",
-    "transcriptOwnerOnly": "Only {owner}, who ran this routine, can open the full transcript."
+    "transcriptOwnerOnly": "Only {owner}, who ran this routine, can open the full transcript.",
+    "trigger": "Trigger",
+    "triggerChangedFields": "Changed fields",
+    "triggerChangedFieldsMore": "and more",
+    "triggerRecord": "Record",
+    "triggerThread": "Conversation"
   },
   "RoutineModal": {
     "at": "at",

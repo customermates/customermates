@@ -208,10 +208,11 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   }
 
   get customColumns(): CustomColumnDto[] {
-    const entityType = this.triggerEntityType;
-
-    return entityType ? (this.customColumnsByEntityType[entityType] ?? []) : [];
+    return this.customColumnsFor(this.triggerEntityType);
   }
+
+  customColumnsFor = (entityType: EntityType | null): CustomColumnDto[] =>
+    entityType ? (this.customColumnsByEntityType[entityType] ?? []) : [];
 
   get openRun_(): RoutineRunDto | null {
     return this.runs.find((run) => run.id === this.openRunId) ?? null;

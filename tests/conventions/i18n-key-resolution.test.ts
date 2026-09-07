@@ -581,6 +581,8 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/routines/components/routine-modal.tsx :: t :: RoutineRunStatus.${run.status}",
   "app/[locale]/(protected)/routines/components/routine-modal.tsx :: t :: Common.events.${item.key}",
   "app/[locale]/(protected)/routines/components/routine-modal.tsx :: t :: Common.events.${run.triggerEvent}",
+  "app/[locale]/(protected)/routines/components/routine-run-trigger-card.tsx :: t :: Common.events.${run.triggerEvent}",
+  "app/[locale]/(protected)/routines/components/routine-run-trigger-card.tsx :: t :: RoutineTriggerKind.${run.triggerKind}",
   "app/[locale]/(protected)/routines/components/routine-modal.tsx :: t :: RoutineTriggerKind.${run.triggerKind}",
   "app/[locale]/(protected)/routines/components/routine-modal.tsx :: t :: RoutineSchedulePreset.${value}",
   "app/[locale]/(protected)/routines/components/routine-modal.tsx :: t :: RoutineWeekday.${key}",

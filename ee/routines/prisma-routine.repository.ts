@@ -30,6 +30,7 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { FilterSchema, type Filter, type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { routineRunTriggerContext } from "./routine-run-trigger-context";
 import { dateGroupables, relationGroupables } from "@/core/base/grouping/groupable-field";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 
@@ -101,6 +102,7 @@ const ROUTINE_RUN_SELECT = {
   triggerKind: true,
   triggerEvent: true,
   triggerEntityId: true,
+  triggerPayload: true,
   scheduledFor: true,
   startedAt: true,
   finishedAt: true,
@@ -121,6 +123,14 @@ function storedRoutineFilters(value: unknown): Filter[] | null {
 
   const parsed = FilterSchema.array().safeParse(value);
   return parsed.success ? parsed.data : null;
+}
+
+type RoutineRunRow = Omit<RoutineRunDto, "triggerContext"> & { triggerPayload: unknown };
+
+function routineRunDto(row: RoutineRunRow): RoutineRunDto {
+  const { triggerPayload, ...run } = row;
+
+  return { ...run, triggerContext: routineRunTriggerContext(run.triggerEvent, triggerPayload) };
 }
 
 function routineDto(row: unknown): RoutineDto {
@@ -331,7 +341,7 @@ export class PrismaRoutineRepo
       take: limit + 1,
     });
 
-    const runs = rows.slice(0, limit) as RoutineRunDto[];
+    const runs = rows.slice(0, limit).map((row) => routineRunDto(row as RoutineRunRow));
     const last = runs.at(-1);
 
     return {

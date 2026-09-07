@@ -38,9 +38,11 @@ export function useAgentActivityTerminology(): Partial<Record<AgentActivityResou
 export const AgentChatItemView = observer(function AgentChatItemView({
   item,
   readOnly = false,
+  userLabel,
 }: {
   item: Exclude<AgentChatItem, { kind: "activity" }>;
   readOnly?: boolean;
+  userLabel?: string;
 }) {
   const store = useAgentChatStore();
   const t = useTranslations();
@@ -56,8 +58,10 @@ export const AgentChatItemView = observer(function AgentChatItemView({
 
   if (item.kind === "user") {
     return (
-      <article aria-label={t("Inbox.senderYou")} className="group/message flex justify-end">
+      <article aria-label={userLabel ?? t("Inbox.senderYou")} className="group/message flex justify-end">
         <div className="flex max-w-[85%] flex-col items-end gap-1">
+          {userLabel && <span className="text-subdued text-xs">{userLabel}</span>}
+
           <div className="w-fit min-w-16 rounded-xl rounded-br-md bg-muted px-3.5 py-2 text-sm whitespace-pre-wrap shadow-xs dark:bg-accent/60">
             {item.text}
           </div>

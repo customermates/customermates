@@ -11,17 +11,39 @@ import {
 import { DomainEvent } from "@/features/event/domain-events";
 
 import { fixtureId, upsertFixturesById } from "./helpers";
+import { composeRoutinePrompt } from "@/ee/routines/routine-prompt";
+import { nextCronOccurrence, parseCronExpression } from "@/ee/routines/routine-schedule";
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
+
+function nextScheduledRun(cron: string): Date | null {
+  const parsed = parseCronExpression(cron);
+  return parsed.ok ? nextCronOccurrence(parsed.cron, new Date(), ROUTINE_TIMEZONE) : null;
+}
 
 export const ROUTINE_TIMEZONE = "Europe/Berlin";
 
 type SeedOwner = "user" | "sofiaRossiUser" | "elenaHoffmannUser";
 
+type SeedTriggerRefs = {
+  dealId: string;
+  organizationId: string;
+  serviceId: string;
+  contactId: string;
+  statusColumnId: string | null;
+  thread: { id: string; connectedAccountId: string } | null;
+};
+
 type SeedTrigger =
-  | { kind: "schedule"; cron: string; nextRunInHours: number }
-  | { kind: "event"; events: DomainEvent[]; changedFields?: string[]; debounceSeconds: number };
+  | { kind: "schedule"; cron: string }
+  | {
+      kind: "event";
+      events: DomainEvent[];
+      changedFields?: string[];
+      debounceSeconds: number;
+      sample?: (refs: SeedTriggerRefs) => { entityId: string; payload: Record<string, unknown> } | null;
+    };
 
 type SeedRun = {
   status: RoutineRunStatus;
@@ -30,11 +52,6 @@ type SeedRun = {
   chargedCredits: number;
   summary?: string;
   error?: string;
-};
-
-const RUN_TRANSCRIPT_OPENER: Record<string, string> = {
-  schedule: "Scheduled run started.",
-  event: "Triggered by a record change.",
 };
 
 const runFailureNote = (error: string) =>
@@ -64,14 +81,14 @@ export const SYNTHETIC_ROUTINES: SeedRoutine[] = [
     enabled: true,
     maxCreditsPerRun: 40,
     maxRunsPerHour: 1,
-    trigger: { kind: "schedule", cron: "30 7 * * 1", nextRunInHours: 6 },
+    trigger: { kind: "schedule", cron: "30 7 * * 1" },
     runs: [
       {
         status: RoutineRunStatus.succeeded,
         startedHoursAgo: 20,
         durationSeconds: 74,
         chargedCredits: 12,
-        summary: "Reviewed 3 open deals and filed 1 follow-up task.",
+        summary: "Reported 3 open deals worth 118k weighted, 2 of them overdue.",
       },
     ],
   },
@@ -84,7 +101,7 @@ export const SYNTHETIC_ROUTINES: SeedRoutine[] = [
     enabled: true,
     maxCreditsPerRun: 45,
     maxRunsPerHour: 1,
-    trigger: { kind: "schedule", cron: "0 8 * * *", nextRunInHours: 15 },
+    trigger: { kind: "schedule", cron: "0 8 * * *" },
     runs: [
       {
         status: RoutineRunStatus.succeeded,
@@ -115,6 +132,16 @@ export const SYNTHETIC_ROUTINES: SeedRoutine[] = [
       kind: "event",
       events: [DomainEvent.DEAL_UPDATED],
       debounceSeconds: 900,
+      sample: (refs) => ({
+        entityId: refs.dealId,
+        payload: {
+          deal: { id: refs.dealId, name: "Data & Analytics Transformation" },
+          changes: {
+            ...(refs.statusColumnId ? { [refs.statusColumnId]: { from: "Open", to: "Won" } } : {}),
+            totalValue: { from: 180000, to: 210000 },
+          },
+        },
+      }),
     },
     runs: [
       {
@@ -149,7 +176,7 @@ export const SYNTHETIC_ROUTINES: SeedRoutine[] = [
     enabled: true,
     maxCreditsPerRun: 40,
     maxRunsPerHour: 1,
-    trigger: { kind: "schedule", cron: "15 7 * * 1", nextRunInHours: 33 },
+    trigger: { kind: "schedule", cron: "15 7 * * 1" },
     runs: [
       {
         status: RoutineRunStatus.blocked,
@@ -189,6 +216,13 @@ export const SYNTHETIC_ROUTINES: SeedRoutine[] = [
       kind: "event",
       events: [DomainEvent.ORGANIZATION_CREATED, DomainEvent.ORGANIZATION_UPDATED],
       debounceSeconds: 900,
+      sample: (refs) => ({
+        entityId: refs.organizationId,
+        payload: {
+          organization: { id: refs.organizationId, name: "PwC" },
+          changes: { website: { from: null, to: "https://www.pwc.de" } },
+        },
+      }),
     },
     runs: [
       {
@@ -220,6 +254,16 @@ export const SYNTHETIC_ROUTINES: SeedRoutine[] = [
       kind: "event",
       events: [DomainEvent.MESSAGING_EMAIL_RECEIVED],
       debounceSeconds: 300,
+      sample: (refs) =>
+        refs.thread && {
+          entityId: fixtureId("35000000", 1),
+          payload: {
+            connectedAccountId: refs.thread.connectedAccountId,
+            provider: "google",
+            providerMessageId: "demo-provider-message-1",
+            threadId: refs.thread.id,
+          },
+        },
     },
     runs: [
       {
@@ -258,6 +302,16 @@ export const SYNTHETIC_ROUTINES: SeedRoutine[] = [
       kind: "event",
       events: [DomainEvent.MESSAGING_MESSAGE_RECEIVED],
       debounceSeconds: 900,
+      sample: (refs) =>
+        refs.thread && {
+          entityId: fixtureId("35000000", 2),
+          payload: {
+            connectedAccountId: refs.thread.connectedAccountId,
+            provider: "whatsapp",
+            providerMessageId: "demo-provider-message-2",
+            threadId: refs.thread.id,
+          },
+        },
     },
     runs: [
       {
@@ -278,7 +332,7 @@ export const SYNTHETIC_ROUTINES: SeedRoutine[] = [
     enabled: true,
     maxCreditsPerRun: 40,
     maxRunsPerHour: 1,
-    trigger: { kind: "schedule", cron: "45 7 * * *", nextRunInHours: 33 },
+    trigger: { kind: "schedule", cron: "45 7 * * *" },
     runs: [
       {
         status: RoutineRunStatus.succeeded,
@@ -298,7 +352,7 @@ export const SYNTHETIC_ROUTINES: SeedRoutine[] = [
     enabled: true,
     maxCreditsPerRun: 40,
     maxRunsPerHour: 1,
-    trigger: { kind: "schedule", cron: "45 7 * * *", nextRunInHours: 42 },
+    trigger: { kind: "schedule", cron: "45 7 * * *" },
     runs: [
       {
         status: RoutineRunStatus.succeeded,
@@ -312,7 +366,7 @@ export const SYNTHETIC_ROUTINES: SeedRoutine[] = [
         startedHoursAgo: 50,
         durationSeconds: 63,
         chargedCredits: 9,
-        summary: "Linked 2 records and appended 2 notes.",
+        summary: "Briefed 3 open deals, 2 blocked tasks and today's two meetings.",
       },
     ],
   },
@@ -325,7 +379,7 @@ export const SYNTHETIC_ROUTINES: SeedRoutine[] = [
     enabled: true,
     maxCreditsPerRun: 40,
     maxRunsPerHour: 1,
-    trigger: { kind: "schedule", cron: "0 16 * * 5", nextRunInHours: 6 },
+    trigger: { kind: "schedule", cron: "0 16 * * 5" },
     runs: [
       {
         status: RoutineRunStatus.succeeded,
@@ -379,6 +433,15 @@ export const SYNTHETIC_ROUTINES: SeedRoutine[] = [
       kind: "event",
       events: [DomainEvent.MESSAGING_RELATION_CREATED],
       debounceSeconds: 900,
+      sample: (refs) =>
+        refs.thread && {
+          entityId: fixtureId("35000000", 3),
+          payload: {
+            connectedAccountId: refs.thread.connectedAccountId,
+            provider: "linkedin",
+            providerUserId: "demo-provider-user-1",
+          },
+        },
     },
     runs: [
       {
@@ -399,7 +462,7 @@ export const SYNTHETIC_ROUTINES: SeedRoutine[] = [
     enabled: true,
     maxCreditsPerRun: 35,
     maxRunsPerHour: 1,
-    trigger: { kind: "schedule", cron: "15 8 * * 1", nextRunInHours: 33 },
+    trigger: { kind: "schedule", cron: "15 8 * * 1" },
     runs: [
       {
         status: RoutineRunStatus.succeeded,
@@ -426,7 +489,7 @@ export const SYNTHETIC_ROUTINES: SeedRoutine[] = [
     enabled: true,
     maxCreditsPerRun: 45,
     maxRunsPerHour: 1,
-    trigger: { kind: "schedule", cron: "0 8 * * 1", nextRunInHours: 42 },
+    trigger: { kind: "schedule", cron: "0 8 * * 1" },
     runs: [
       {
         status: RoutineRunStatus.succeeded,
@@ -464,6 +527,13 @@ export const SYNTHETIC_ROUTINES: SeedRoutine[] = [
       kind: "event",
       events: [DomainEvent.SERVICE_UPDATED, DomainEvent.DEAL_UPDATED],
       debounceSeconds: 900,
+      sample: (refs) => ({
+        entityId: refs.serviceId,
+        payload: {
+          service: { id: refs.serviceId, name: "Implementation" },
+          changes: { price: { from: 1200, to: 1350 } },
+        },
+      }),
     },
     runs: [
       {
@@ -484,7 +554,7 @@ export const SYNTHETIC_ROUTINES: SeedRoutine[] = [
     enabled: false,
     maxCreditsPerRun: 35,
     maxRunsPerHour: 1,
-    trigger: { kind: "schedule", cron: "0 9 1 */3 *", nextRunInHours: 15 },
+    trigger: { kind: "schedule", cron: "0 9 1 */3 *" },
     runs: [
       {
         status: RoutineRunStatus.succeeded,
@@ -510,8 +580,34 @@ const OWNER_NAMES: Record<SeedOwner, string> = {
   elenaHoffmannUser: "Elena Hoffmann",
 };
 
+async function resolveTriggerRefs(context: SeedContext): Promise<SeedTriggerRefs> {
+  const companyId = context.ids.company;
+
+  const [statusColumn, thread] = await Promise.all([
+    context.prisma.customColumn.findFirst({
+      where: { companyId, entityType: "deal", label: "Status" },
+      select: { id: true },
+    }),
+    context.prisma.messagingThread.findFirst({
+      where: { companyId },
+      orderBy: { createdAt: "asc" },
+      select: { id: true, connectedAccountId: true },
+    }),
+  ]);
+
+  return {
+    dealId: fixtureId("80000000", 1),
+    organizationId: fixtureId("70000000", 1),
+    serviceId: fixtureId("90000000", 1),
+    contactId: fixtureId("60000000", 1),
+    statusColumnId: statusColumn?.id ?? null,
+    thread,
+  };
+}
+
 export async function seedRoutines(context: SeedContext): Promise<void> {
   const now = Date.now();
+  const refs = await resolveTriggerRefs(context);
 
   const fixtures = SYNTHETIC_ROUTINES.map((routine) => ({ id: routineId(routine.index), routine }));
 
@@ -520,6 +616,10 @@ export async function seedRoutines(context: SeedContext): Promise<void> {
     const schedule = routine.trigger.kind === "schedule" ? routine.trigger : undefined;
     const event = routine.trigger.kind === "event" ? routine.trigger : undefined;
     const lastRun = routine.runs.at(0);
+    const sample = event?.sample?.(refs) ?? null;
+    const triggerPayload = sample
+      ? { companyId: context.ids.company, userId: ownerUserId, entityId: sample.entityId, payload: sample.payload }
+      : null;
 
     const data = {
       companyId: context.ids.company,
@@ -537,7 +637,7 @@ export async function seedRoutines(context: SeedContext): Promise<void> {
       debounceSeconds: event?.debounceSeconds ?? 300,
       maxRunsPerHour: routine.maxRunsPerHour,
       maxCreditsPerRun: routine.maxCreditsPerRun,
-      nextRunAt: schedule && routine.enabled ? new Date(now + schedule.nextRunInHours * HOUR) : null,
+      nextRunAt: schedule && routine.enabled ? nextScheduledRun(schedule.cron) : null,
       lastRunAt: lastRun ? new Date(now - lastRun.startedHoursAgo * HOUR) : null,
       lastRunStatus: lastRun?.status ?? null,
       disabledReason: null,
@@ -572,7 +672,15 @@ export async function seedRoutines(context: SeedContext): Promise<void> {
         });
 
         const transcript = [
-          { role: "user" as const, text: RUN_TRANSCRIPT_OPENER[schedule ? "schedule" : "event"] },
+          {
+            role: "user" as const,
+            text: composeRoutinePrompt(routine.prompt, {
+              routineName: routine.name,
+              triggerEvent: event?.events[0] ?? null,
+              triggerEntityId: sample?.entityId ?? null,
+              triggerPayload,
+            }),
+          },
           { role: "assistant" as const, text: run.summary ?? runFailureNote(run.error ?? "") },
         ];
 
@@ -603,7 +711,8 @@ export async function seedRoutines(context: SeedContext): Promise<void> {
           triggerKind: schedule ? RoutineTriggerKind.schedule : RoutineTriggerKind.event,
           triggerEvent: event?.events[0] ?? null,
           conversationId,
-          triggerEntityId: null,
+          triggerEntityId: sample?.entityId ?? null,
+          triggerPayload: (triggerPayload ?? undefined) as Prisma.InputJsonValue | undefined,
           scheduledFor: startedAt,
           startedAt,
           finishedAt,

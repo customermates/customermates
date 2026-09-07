@@ -21,6 +21,7 @@ import { FormSelect } from "@/components/forms/form-select";
 import { FormLabel } from "@/components/forms/form-label";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormActions } from "@/components/card/form-actions";
+import { RoutineRunTriggerCard } from "./routine-run-trigger-card";
 import { AppChip } from "@/components/chip/app-chip";
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
@@ -210,8 +211,13 @@ export const RoutineModal = observer(() => {
                   </span>
                 </div>
 
+                <RoutineRunTriggerCard
+                  customColumns={routineModalStore.customColumnsFor(openRun.triggerContext?.entityType ?? null)}
+                  run={openRun}
+                />
+
                 {openRun.conversationId && routineModalStore.canOpenRun(openRun) ? (
-                  <AgentConversationLog readOnly />
+                  <AgentConversationLog readOnly userLabel={t("RoutineDetail.instruction")} />
                 ) : (
                   <div className="flex flex-1 items-center justify-center p-6">
                     <p className="text-subdued text-center text-sm">

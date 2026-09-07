@@ -2,12 +2,13 @@ import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
-import { RoutineRunStatus, RoutineTriggerKind, AgentTurnTerminalCode, Status } from "@/generated/prisma";
+import { EntityType, RoutineRunStatus, RoutineTriggerKind, AgentTurnTerminalCode, Status } from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { FilterSchema } from "@/core/base/base-get.schema";
 import { DomainEvent } from "@/features/event/domain-events";
+import { ROUTINE_TRIGGER_FIELD_LIMIT } from "./routine-run-trigger-context";
 import {
   DEFAULT_ROUTINE_TIMEZONE,
   MIN_ROUTINE_INTERVAL_MINUTES,
@@ -66,6 +67,13 @@ export const RoutineDtoSchema = z.object({
 
 export type RoutineDto = Data<typeof RoutineDtoSchema>;
 
+export const RoutineRunTriggerContextSchema = z.object({
+  entityType: z.enum(EntityType).nullable(),
+  threadId: z.string().nullable(),
+  changedFields: z.array(z.string()).max(ROUTINE_TRIGGER_FIELD_LIMIT),
+  changedFieldsTruncated: z.boolean(),
+});
+
 export const RoutineRunDtoSchema = z.object({
   id: z.uuid(),
   routineId: z.uuid(),
@@ -77,6 +85,7 @@ export const RoutineRunDtoSchema = z.object({
   triggerKind: RoutineTriggerKindSchema,
   triggerEvent: z.string().nullable(),
   triggerEntityId: z.string().nullable(),
+  triggerContext: RoutineRunTriggerContextSchema.nullable(),
   scheduledFor: z.date(),
   startedAt: z.date().nullable(),
   finishedAt: z.date().nullable(),

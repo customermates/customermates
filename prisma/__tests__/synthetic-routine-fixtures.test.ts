@@ -59,6 +59,32 @@ describe("synthetic routine fixtures", () => {
     }
   });
 
+  it("gives a sample trigger to every event routine whose prompt reads the trigger block", () => {
+    for (const routine of SYNTHETIC_ROUTINES) {
+      if (routine.trigger.kind !== "event") continue;
+      if (!routine.prompt.includes("routine_trigger")) continue;
+      if (routine.runs.length === 0) continue;
+
+      expect(typeof routine.trigger.sample, `${routine.name} reads the trigger block but seeds no sample`).toBe(
+        "function",
+      );
+    }
+  });
+
+  it("never claims a write in the summary of a run whose routine forbids writing", () => {
+    const writes = /\b(created|filed|linked|appended|updated|drafted)\b/i;
+
+    for (const routine of SYNTHETIC_ROUTINES) {
+      if (!/read-only report/i.test(routine.prompt)) continue;
+
+      for (const run of routine.runs) {
+        expect(writes.test(run.summary ?? ""), `${routine.name} is read-only but a run summary claims a write`).toBe(
+          false,
+        );
+      }
+    }
+  });
+
   it("never instructs the demo agent to delete records or send outbound messages", () => {
     const forbidden = ["delete_records", "send_email(", "send_chat_message("];
 
