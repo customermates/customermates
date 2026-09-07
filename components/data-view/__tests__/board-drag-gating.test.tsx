@@ -13,6 +13,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const { dndSpy } = vi.hoisted(() => ({
   dndSpy: {
     onDragEnd: undefined as ((event: DragEndEvent) => void) | undefined,
+    contextIds: [] as (string | undefined)[],
     sensorCounts: [] as number[],
     droppables: [] as { id: string; disabled: boolean }[],
     draggables: [] as { id: string; disabled: boolean }[],
@@ -48,8 +49,17 @@ vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
   useEntityTerminology: () => ({ singular: () => "deal", plural: () => "deals" }),
 }));
 vi.mock("@dnd-kit/core", () => ({
-  DndContext: ({ children, onDragEnd }: { children: ReactNode; onDragEnd: (event: DragEndEvent) => void }) => {
+  DndContext: ({
+    children,
+    id,
+    onDragEnd,
+  }: {
+    children: ReactNode;
+    id?: string;
+    onDragEnd: (event: DragEndEvent) => void;
+  }) => {
     dndSpy.onDragEnd = onDragEnd;
+    dndSpy.contextIds.push(id);
     return createElement("div", null, children);
   },
   PointerSensor: function PointerSensor() {},
@@ -139,6 +149,7 @@ function render(value: BaseDataViewStore<Item>): void {
 
 beforeEach(() => {
   dndSpy.onDragEnd = undefined;
+  dndSpy.contextIds = [];
   dndSpy.sensorCounts = [];
   dndSpy.droppables = [];
   dndSpy.draggables = [];
@@ -163,6 +174,16 @@ async function drop(activeId: string, overId: string, groupKey: string): Promise
 }
 
 describe("board drag gating", () => {
+  it("names its drag context from a render-stable id, so the server and client agree on the card descriptions", () => {
+    render(store({ kind: "customSingleSelect", supportsDragWriteBack: true }));
+    render(store({ kind: "customSingleSelect", supportsDragWriteBack: true }));
+
+    expect(dndSpy.contextIds).toHaveLength(2);
+    for (const id of dndSpy.contextIds) expect(typeof id).toBe("string");
+    expect(dndSpy.contextIds.every((id) => (id ?? "").length > 0)).toBe(true);
+    expect(dndSpy.contextIds.some((id) => /^DndDescribedBy-|^\d+$/.test(id ?? ""))).toBe(false);
+  });
+
   it("registers no sensor and no live drop target on a kind that cannot write back", async () => {
     const moveItemBetweenGroups = vi.fn();
     render(store({ kind: "relation", supportsDragWriteBack: false, columnId: undefined }, moveItemBetweenGroups));

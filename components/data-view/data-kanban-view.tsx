@@ -4,6 +4,8 @@ import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store"
 import type { ColumnDef } from "@tanstack/react-table";
 import type { ReactNode } from "react";
 
+import { useId } from "react";
+
 import { observer } from "mobx-react-lite";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { CustomColumnType } from "@/generated/prisma";
@@ -280,6 +282,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
   className,
 }: Props<E>) {
   const t = useTranslations();
+  const dndContextId = useId();
   const { customColumnModalStore } = useRootStore();
   const groupLabel = useGroupLabel(store.groupingResult);
   const supportsDragWriteBack = store.groupingResult?.supportsDragWriteBack ?? false;
@@ -341,7 +344,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
   const overflow = store.groupingResult?.overflow;
 
   return (
-    <DndContext sensors={sensors} onDragEnd={(event) => runUserAction(() => handleDragEnd(event))}>
+    <DndContext id={dndContextId} sensors={sensors} onDragEnd={(event) => runUserAction(() => handleDragEnd(event))}>
       <div className={cn(DATA_KANBAN_ROOT_CLASS_NAME, className)} data-slot="kanban-root">
         <div className={DATA_KANBAN_TRACK_CLASS_NAME}>
           {groups.map((group) => {
