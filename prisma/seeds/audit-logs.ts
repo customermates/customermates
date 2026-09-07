@@ -9,6 +9,7 @@ import type { ServiceDto } from "@/features/services/service.schema";
 import type { TaskDto } from "@/features/tasks/task.schema";
 import type { WebhookDto } from "@/features/webhook/webhook.schema";
 
+import { toWebhookEventPayload } from "@/features/webhook/webhook-event-payload";
 import { ContactDtoSchema } from "@/features/contacts/contact.schema";
 import { CustomColumnDtoSchema } from "@/features/custom-column/custom-column.schema";
 import { DealDtoSchema } from "@/features/deals/deal.schema";
@@ -482,11 +483,13 @@ export function buildSyntheticAuditLogFixtures(args: {
     );
   }
 
-  const createdWebhook = creationState(snapshot.webhook, {
-    description: null,
-    enabled: true,
-  });
-  const updatedWebhook = updateState(snapshot.webhook);
+  const createdWebhook = toWebhookEventPayload(
+    creationState(snapshot.webhook, {
+      description: null,
+      enabled: true,
+    }),
+  );
+  const updatedWebhook = toWebhookEventPayload(updateState(snapshot.webhook));
   push(DomainEvent.WEBHOOK_CREATED, createdWebhook.id, createdWebhook, createdWebhook.createdAt);
   push(
     DomainEvent.WEBHOOK_UPDATED,
@@ -733,6 +736,8 @@ async function loadSyntheticAuditSnapshot(
         description: true,
         events: true,
         secret: true,
+        headers: true,
+        bodyTemplate: true,
         enabled: true,
         createdAt: true,
         updatedAt: true,

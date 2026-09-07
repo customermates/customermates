@@ -71,6 +71,7 @@ export const AGENT_CONSEQUENCE_ACTIONS = [
   "draft.save",
   "draft.discard",
   "thread.update",
+  "thread.move",
   "support.request",
   "team.invite",
   "team.update",
@@ -145,6 +146,7 @@ const TOOL_RESOURCE: Record<string, AgentActivityResource | undefined> = {
   save_message_draft: "messages",
   discard_message_draft: "messages",
   update_messaging_thread: "messages",
+  move_email_thread: "messages",
 };
 
 function entityResource(input: unknown): AgentActivityResource | undefined {
@@ -379,6 +381,9 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
       state: safeText(details.state, 80),
     });
   }
+  if (toolName === "move_email_thread")
+    return descriptor("messages.triage", "messages", "sensitive", ["messages"], { action: "thread.move" });
+
   if (
     toolName === "get_record_schema" ||
     toolName === "list_records" ||
@@ -475,6 +480,8 @@ function agentConsequenceDetail(
       return compact([t("AgentChat.activity.consequence.draftSave"), subject, preview]);
     case "draft.discard":
       return t("AgentChat.activity.consequence.draftDiscard");
+    case "thread.move":
+      return t("AgentChat.activity.consequence.threadMove");
     case "thread.update":
       return consequence.state
         ? t("AgentChat.activity.consequence.threadUpdateState", {

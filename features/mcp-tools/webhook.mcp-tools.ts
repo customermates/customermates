@@ -50,6 +50,20 @@ const CreateWebhookSchema = z.object({
     .min(1)
     .describe(`Event types to subscribe to. Each value ${enumHint(WebhookEventSchema.options)}`),
   secret: z.string().optional().describe("Shared secret used to sign outgoing requests"),
+  headers: z
+    .record(z.string(), z.string())
+    .nullable()
+    .optional()
+    .describe(
+      "Extra HTTP headers sent with every delivery, for receivers that require their own authentication. create: optional object. update: omit to keep the current headers, pass null to clear them, pass an object to replace them. Values are write-only and never returned; get reports headerNames. Content-Type, Host and X-Webhook-Signature cannot be overridden, and a webhook carrying headers must use an HTTPS endpoint.",
+    ),
+  bodyTemplate: z
+    .string()
+    .nullable()
+    .optional()
+    .describe(
+      "JSON template for the request body, for receivers that need a fixed shape. Use {{event}}, {{timestamp}}, {{data.entityId}}, {{data.companyId}}, {{data.userId}} or {{data.payload}} placeholders; substituted values are JSON-escaped and a placeholder must sit inside a JSON string. Must render to a JSON object. update: omit to keep, pass null to clear. Omit to send the default envelope.",
+    ),
   enabled: z.boolean().default(true),
 });
 
@@ -67,6 +81,20 @@ const UpdateWebhookSchema = z.object({
     .nullable()
     .optional()
     .describe("Omit to keep the current secret. Pass null to clear it. Pass a string to set a new one."),
+  headers: z
+    .record(z.string(), z.string())
+    .nullable()
+    .optional()
+    .describe(
+      "Extra HTTP headers sent with every delivery, for receivers that require their own authentication. create: optional object. update: omit to keep the current headers, pass null to clear them, pass an object to replace them. Values are write-only and never returned; get reports headerNames. Content-Type, Host and X-Webhook-Signature cannot be overridden, and a webhook carrying headers must use an HTTPS endpoint.",
+    ),
+  bodyTemplate: z
+    .string()
+    .nullable()
+    .optional()
+    .describe(
+      "JSON template for the request body, for receivers that need a fixed shape. Use {{event}}, {{timestamp}}, {{data.entityId}}, {{data.companyId}}, {{data.userId}} or {{data.payload}} placeholders; substituted values are JSON-escaped and a placeholder must sit inside a JSON string. Must render to a JSON object. update: omit to keep, pass null to clear. Omit to send the default envelope.",
+    ),
   enabled: z.boolean().optional(),
 });
 
@@ -123,6 +151,20 @@ const ManageWebhooksSchema = z.object({
     .describe(
       "Shared secret used to sign outgoing requests. create: optional string. update: omit to keep the current secret, pass null to clear it, pass a string to set a new one.",
     ),
+  headers: z
+    .record(z.string(), z.string())
+    .nullable()
+    .optional()
+    .describe(
+      "Extra HTTP headers sent with every delivery, for receivers that require their own authentication. create: optional object. update: omit to keep the current headers, pass null to clear them, pass an object to replace them. Values are write-only and never returned; get reports headerNames. Content-Type, Host and X-Webhook-Signature cannot be overridden, and a webhook carrying headers must use an HTTPS endpoint.",
+    ),
+  bodyTemplate: z
+    .string()
+    .nullable()
+    .optional()
+    .describe(
+      "JSON template for the request body, for receivers that need a fixed shape. Use {{event}}, {{timestamp}}, {{data.entityId}}, {{data.companyId}}, {{data.userId}} or {{data.payload}} placeholders; substituted values are JSON-escaped and a placeholder must sit inside a JSON string. Must render to a JSON object. update: omit to keep, pass null to clear. Omit to send the default envelope.",
+    ),
   enabled: z.boolean().optional().describe("create (default true) and update."),
   searchTerm: z
     .string()
@@ -171,7 +213,7 @@ export const manageWebhooksTool = {
     "action create requires url and events. " +
     "action update requires id; events REPLACES the full subscription list; secret: omit to keep, null to clear, string to set. " +
     "action delete is IRREVERSIBLE. " +
-    "action get returns one webhook (the signing secret itself is never returned). " +
+    "action get returns one webhook (the signing secret and header values are never returned; get reports headerNames instead). " +
     "action list supports searchTerm, filters, sort, paging. " +
     "action list_deliveries returns delivery attempts newest first; without `id` it spans the whole workspace, with `id` it is scoped to that webhook's CURRENT url (deliveries made while a different url was configured are not matched); narrow further with searchTerm or filters. " +
     "action resend_delivery re-sends a past delivery as a NEW delivery record; pass the delivery id from list_deliveries.",
@@ -222,6 +264,8 @@ export const manageWebhooksTool = {
           description: parsed.data.description,
           events: parsed.data.events,
           secret: parsed.data.secret,
+          headers: parsed.data.headers,
+          bodyTemplate: parsed.data.bodyTemplate,
           enabled: parsed.data.enabled,
         }),
         (data) =>
@@ -251,6 +295,8 @@ export const manageWebhooksTool = {
           createdAt: webhook.createdAt,
           updatedAt: webhook.updatedAt,
           hasSecret: webhook.secret != null && webhook.secret !== "",
+          headerNames: Object.keys(webhook.headers ?? {}),
+          bodyTemplate: webhook.bodyTemplate,
         }),
       );
     }

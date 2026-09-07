@@ -9,8 +9,11 @@ import { deleteWebhookAction, upsertWebhookAction } from "../../actions";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { parseWebhookHeaderLines } from "@/features/webhook/webhook-headers";
 
-export class WebhookModalStore extends BaseModalStore<UpsertWebhookData> {
+export type WebhookFormData = Omit<UpsertWebhookData, "headers"> & { headers?: string };
+
+export class WebhookModalStore extends BaseModalStore<WebhookFormData> {
   showSecret = false;
 
   constructor(rootStore: RootStore) {
@@ -21,6 +24,8 @@ export class WebhookModalStore extends BaseModalStore<UpsertWebhookData> {
         description: undefined,
         events: [],
         secret: undefined,
+        headers: "",
+        bodyTemplate: undefined,
         enabled: true,
       },
       Resource.api,
@@ -64,7 +69,12 @@ export class WebhookModalStore extends BaseModalStore<UpsertWebhookData> {
     this.setIsLoading(true);
 
     try {
-      const res = await upsertWebhookAction(toJS(this.form));
+      const { headers, ...form } = toJS(this.form);
+      const parsed = parseWebhookHeaderLines(headers ?? "");
+      const res = await upsertWebhookAction({
+        ...form,
+        headers: Object.keys(parsed).length > 0 ? parsed : null,
+      });
 
       if (res.ok) {
         await this.rootStore.webhooksStore.upsertItem(res.data);

@@ -318,6 +318,8 @@ const fixtures: Fixture[] = [
         description: undefined,
         events: [],
         secret: undefined,
+        headers: "",
+        bodyTemplate: undefined,
         enabled: true,
       }),
     verifyRow: (props) => {
@@ -336,6 +338,8 @@ const fixtures: Fixture[] = [
         description: undefined,
         events: [],
         secret: undefined,
+        headers: "",
+        bodyTemplate: undefined,
         enabled: true,
       });
     },

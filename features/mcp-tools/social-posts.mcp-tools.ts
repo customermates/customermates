@@ -284,7 +284,7 @@ export const getSocialPostsTool = {
     "Pass get_social_posts.items[].id as postId to fetch a single post instead. " +
     "Returns id, share_url, created_at, title, text, and reaction, comment and repost counters. " +
     "For the first page omit cursor and offset. When next_cursor is returned, repeat the same connectedAccountId, authorIdentifier and limit, pass next_cursor unchanged as cursor, and omit offset. Stop when next_cursor is null. Use a positive cumulative offset only for providers that return offset-based pages. LinkedIn user posts use cursors. " +
-    "A nonexistent post id can surface as a generic provider error rather than a not-found message.",
+    "Pass id values exactly as returned; they are opaque and must not be decoded or split.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   inputSchema: GetSocialPostsToolSchema,
   outputSchema: GetSocialPostsOutputSchema,

@@ -14,6 +14,8 @@ import {
 } from "./utils";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { threadFolder } from "./thread-folder";
+import { MoveEmailThreadSchema } from "@/ee/messaging/inbox/move-email-thread.interactor";
 
 import { GetQueryParamsSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
 import { filterFieldsHint } from "@/core/types/filter-field-value-kind";
@@ -27,7 +29,6 @@ import { BaseSendChatMessageSchema } from "@/ee/messaging/outbound/send-chat-mes
 import { BaseStartChatInputSchema, StartChatInputSchema } from "@/ee/messaging/outbound/start-chat.interactor";
 import { SaveDraftSchema } from "@/ee/messaging/outbound/save-draft.interactor";
 import { DiscardDraftSchema } from "@/ee/messaging/outbound/discard-draft.interactor";
-import type { ThreadFolderContext } from "@/ee/messaging/inbox/get-messaging-thread.interactor";
 
 import { UpdateThreadSchema } from "@/ee/messaging/thread-state/update-thread.interactor";
 import {
@@ -43,6 +44,7 @@ import {
   getSaveDraftInteractor,
   getDiscardDraftInteractor,
   getUpdateThreadInteractor,
+  getMoveEmailThreadInteractor,
   getCreateAuthLinkInteractor,
 } from "@/core/di";
 
@@ -138,6 +140,17 @@ const SendEmailOutputSchema = z.object({ sent: z.literal(true), threadId: z.stri
 const SaveDraftOutputSchema = z.object({ draftMessageId: z.string(), draftRevision: z.string(), threadId: z.string() });
 const DiscardDraftOutputSchema = z.object({ discarded: z.boolean(), threadId: z.string().nullable() });
 const UpdateMessagingThreadOutputSchema = z.object({ threadId: z.string(), state: z.string() });
+const MoveEmailThreadOutputSchema = z.object({
+  threadId: z.string(),
+  folderId: z.string(),
+  folderName: z.string(),
+  movedCount: z.number(),
+  skippedCount: z.number(),
+  failedCount: z.number(),
+  hiddenFromInbox: z.boolean(),
+  rateLimited: z.boolean(),
+  retryAfter: z.string().optional(),
+});
 const ConnectMessagingAccountOutputSchema = z.object({
   url: z.string().describe("Single-use hosted auth link, expires in 30 minutes"),
 });
@@ -190,7 +203,7 @@ export const getMessagingThreadsTool = {
               })),
               sharedToCrm: data.thread.sharedToCrm,
               isOwner: data.thread.isOwner,
-              folder: threadFolder(data.folderContext),
+              folder: threadFolder(data.folderContext, data.thread.provider),
             },
             messages: data.messages.map((message) => ({
               id: message.id,
@@ -317,17 +330,6 @@ export const getActivitiesTool = {
     ),
 };
 
-function threadFolder(context: ThreadFolderContext | null): { name: string; hiddenFromInbox: boolean } | null {
-  if (!context || context.currentFolderIds.length === 0) return null;
-
-  const byId = new Map(context.folders.map((folder) => [folder.id, folder]));
-  const names = context.currentFolderIds.map((id) => byId.get(id)?.name?.trim() || "Unnamed").sort();
-
-  return {
-    name: names.join(", "),
-    hiddenFromInbox: !context.currentFolderIds.some((id) => context.selectedFolderIds.includes(id)),
-  };
-}
 const GetCalendarsToolSchema = z.object({
   list: z
     .enum(["calendars", "events"])
@@ -617,4 +619,27 @@ export const connectMessagingAccountTool = {
     const result = await getCreateAuthLinkInteractor().invoke(params);
     return isRedirect(result) ? toonResult({ url: result.redirect }) : mcpInteractorFailure(result.error);
   },
+};
+
+export const moveEmailThreadTool = {
+  name: "move_email_thread",
+  title: "Move email thread to a folder",
+  description:
+    "Files an email conversation into another folder AT THE PROVIDER, so it moves in the real mailbox too. " +
+    "Required: threadId, folderId. Both come from get_messaging_threads; read thread.folder.moveTargets for the ids you may use. " +
+    "Only email threads can be moved, and only into a listed target: Sent and Drafts are never targets. " +
+    "Moving into a folder the workspace does not watch, such as Archive, removes the conversation from the inbox list; the result reports this as hiddenFromInbox.",
+  annotations: { readOnlyHint: false, idempotentHint: true, destructiveHint: false, openWorldHint: true },
+  inputSchema: MoveEmailThreadSchema,
+  outputSchema: MoveEmailThreadOutputSchema,
+  execute: (params: z.infer<typeof MoveEmailThreadSchema>) =>
+    runInteractor(
+      getMoveEmailThreadInteractor().invoke(params),
+      (data) =>
+        `Moved ${data.movedCount} message(s) of thread ${params.threadId} to ${data.folderName}` +
+        (data.failedCount > 0 ? `; ${data.failedCount} could not be moved` : "") +
+        (data.skippedCount > 0 ? `; ${data.skippedCount} left in place` : "") +
+        (data.rateLimited ? "; stopped early on a provider rate limit, retry the rest later" : ""),
+      (data) => data,
+    ),
 };

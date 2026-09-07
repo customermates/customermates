@@ -6,9 +6,9 @@ import type { FindWebhooksByIdsRepo } from "./find-webhooks-by-ids.repo";
 import type { WebhookDto } from "./webhook.schema";
 import type { GetWebhooksForEventRepo } from "@/features/event/event.service";
 import type { GetWebhookByIdRepo } from "./get-webhook-by-id.interactor";
-import type { DeliverWebhookSecretRepo } from "./deliver-webhook.interactor";
+import type { DeliverWebhookConfigRepo } from "./deliver-webhook.interactor";
 
-import type { Prisma } from "@/generated/prisma";
+import { Prisma } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { transactionStorage } from "@/core/decorators/transaction-context";
@@ -17,6 +17,7 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
+import { parseStoredWebhookHeaders } from "./webhook-headers";
 
 export class PrismaWebhookRepo
   extends BaseRepository<Prisma.WebhookWhereInput>
@@ -27,7 +28,7 @@ export class PrismaWebhookRepo
     GetWebhooksForEventRepo,
     FindWebhooksByIdsRepo,
     GetWebhookByIdRepo,
-    DeliverWebhookSecretRepo
+    DeliverWebhookConfigRepo
 {
   private get baseSelect() {
     return {
@@ -36,10 +37,18 @@ export class PrismaWebhookRepo
       description: true,
       events: true,
       secret: true,
+      headers: true,
+      bodyTemplate: true,
       enabled: true,
       createdAt: true,
       updatedAt: true,
     } as const;
+  }
+
+  private toWebhookDto(row: { headers: unknown }): WebhookDto {
+    const headers = parseStoredWebhookHeaders(row.headers);
+
+    return { ...row, headers: Object.keys(headers).length > 0 ? headers : null } as WebhookDto;
   }
 
   getSearchableFields() {
@@ -69,7 +78,7 @@ export class PrismaWebhookRepo
       select: this.baseSelect,
     });
 
-    return webhooks as WebhookDto[];
+    return webhooks.map((webhook) => this.toWebhookDto(webhook));
   }
 
   async getCount(params: GetQueryParams) {
@@ -93,6 +102,8 @@ export class PrismaWebhookRepo
           events: webhookData.events,
           description: webhookData.description,
           secret: webhookData.secret,
+          headers: webhookData.headers === undefined ? undefined : (webhookData.headers ?? Prisma.DbNull),
+          bodyTemplate: webhookData.bodyTemplate,
           enabled: webhookData.enabled,
         },
       });
@@ -107,6 +118,8 @@ export class PrismaWebhookRepo
         events: webhookData.events as WebhookDto["events"],
         description: webhookData.description ?? null,
         secret: webhookData.secret ?? null,
+        headers: webhookData.headers ?? Prisma.DbNull,
+        bodyTemplate: webhookData.bodyTemplate ?? null,
         enabled: webhookData.enabled ?? true,
       },
       select: { id: true },
@@ -128,7 +141,7 @@ export class PrismaWebhookRepo
       where: { id, companyId },
     });
 
-    return webhook as WebhookDto;
+    return this.toWebhookDto(webhook);
   }
 
   async getWebhooksForEvent(event: string) {
@@ -153,15 +166,27 @@ export class PrismaWebhookRepo
   }
 
   @BypassTenantGuard
-  async getSecretUnscoped(args: RepoArgs<DeliverWebhookSecretRepo, "getSecretUnscoped">) {
+  async getDeliveryConfigUnscoped(args: RepoArgs<DeliverWebhookConfigRepo, "getDeliveryConfigUnscoped">) {
     const { companyId, url } = args;
 
-    const webhook = await this.prisma.webhook.findFirst({
+    const webhooks = await this.prisma.webhook.findMany({
       where: { companyId, url },
-      select: { secret: true },
+      select: { secret: true, headers: true, bodyTemplate: true },
+      orderBy: { createdAt: "asc" },
     });
 
-    return webhook?.secret ?? null;
+    const webhook = webhooks[0];
+    const carriesDeliveryOverrides = webhooks.some(
+      (candidate) =>
+        candidate.bodyTemplate !== null || Object.keys(parseStoredWebhookHeaders(candidate.headers)).length > 0,
+    );
+
+    return {
+      secret: webhook?.secret ?? null,
+      headers: parseStoredWebhookHeaders(webhook?.headers),
+      bodyTemplate: webhook?.bodyTemplate ?? null,
+      ambiguous: webhooks.length > 1 && carriesDeliveryOverrides,
+    };
   }
 
   async getWebhookByIdOrThrow(id: string) {
@@ -172,7 +197,7 @@ export class PrismaWebhookRepo
       select: this.baseSelect,
     });
 
-    return webhook as WebhookDto;
+    return this.toWebhookDto(webhook);
   }
 
   async getWebhookById(id: string) {
@@ -183,7 +208,7 @@ export class PrismaWebhookRepo
       select: this.baseSelect,
     });
 
-    return webhook as WebhookDto | null;
+    return webhook ? this.toWebhookDto(webhook) : null;
   }
 
   async findIds(ids: Set<string>) {

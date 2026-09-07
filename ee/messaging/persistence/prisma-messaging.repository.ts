@@ -17,6 +17,7 @@ import type {
 
 import type { GetMessagingThreadRepo } from "../inbox/get-messaging-thread.interactor";
 import type { ResyncThreadRepo } from "../inbox/resync-thread.interactor";
+import type { MoveEmailThreadRepo } from "../inbox/move-email-thread.interactor";
 import type { GetUnreadThreadCountRepo } from "../inbox/get-unread-thread-count.interactor";
 import type { UpdateThreadRepo } from "../thread-state/update-thread.interactor";
 import type { MessagingIngestRepo } from "../ingest/messaging-ingest.repo";
@@ -88,6 +89,7 @@ export class PrismaMessagingRepo
   implements
     GetMessagingThreadRepo,
     ResyncThreadRepo,
+    MoveEmailThreadRepo,
     GetMessagingThreadsRepo,
     GetUnreadThreadCountRepo,
     UpdateThreadRepo,
@@ -1451,6 +1453,48 @@ export class PrismaMessagingRepo
       fileName: att?.fileName ?? null,
       size: att?.size ?? null,
     };
+  }
+
+  async findThreadForMoveOrThrow(threadId: string) {
+    const row = await this.prisma.messagingThread.findFirstOrThrow({
+      where: {
+        id: threadId,
+        ...threadAccessWhere(this.companyId, this.userId),
+      },
+      select: {
+        id: true,
+        connectedAccountId: true,
+        provider: true,
+        companyId: true,
+        connectedAccount: { select: { unipileAccountId: true } },
+      },
+    });
+
+    const { connectedAccount, ...rest } = row;
+
+    return { ...rest, unipileAccountId: connectedAccount.unipileAccountId };
+  }
+
+  async listThreadMovableMessages(threadId: string) {
+    const accessibleThread = await this.prisma.messagingThread.findFirst({
+      where: {
+        id: threadId,
+        ...threadAccessWhere(this.companyId, this.userId),
+      },
+      select: { id: true },
+    });
+    if (!accessibleThread) return [];
+
+    return this.prisma.messagingMessage.findMany({
+      where: {
+        messagingThreadId: threadId,
+        companyId: this.companyId,
+        isDraft: false,
+        isHidden: false,
+      },
+      select: { id: true, unipileMessageId: true, folderIds: true },
+      orderBy: { sentAt: "asc" },
+    });
   }
 
   async listThreadFolderPlacements(threadId: string) {

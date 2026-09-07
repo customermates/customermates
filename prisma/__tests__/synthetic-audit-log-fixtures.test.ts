@@ -213,6 +213,8 @@ function syntheticSnapshot(): SyntheticAuditSnapshot {
         DomainEvent.ORGANIZATION_UPDATED,
       ],
       secret: null,
+      headers: null,
+      bodyTemplate: null,
       enabled: false,
       ...SYNTHETIC_SEED_TIMELINE.webhook,
     },
@@ -550,8 +552,11 @@ describe("synthetic audit-log fixtures", () => {
       id: fixtureId("22000000", 1),
       enabled: true,
       description: null,
-      secret: null,
+      hasSecret: false,
+      headerNames: [],
     });
+    expect(eventPayload(created)).not.toHaveProperty("secret");
+    expect(eventPayload(created)).not.toHaveProperty("headers");
     expect(eventPayload(updated)).toMatchObject({
       webhook: {
         enabled: false,

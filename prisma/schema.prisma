@@ -852,16 +852,18 @@ model RolePermission {
 }
 
 model Webhook {
-  id          String   @id @default(uuid())
-  url         String
-  description String?
-  events      String[]
-  secret      String?
-  enabled     Boolean  @default(true)
-  companyId   String
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(uuid())
+  url          String
+  description  String?
+  events       String[]
+  secret       String?
+  headers      Json?
+  bodyTemplate String?
+  enabled      Boolean  @default(true)
+  companyId    String
+  company      Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@index([companyId])
 }

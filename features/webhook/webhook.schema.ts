@@ -13,6 +13,8 @@ export const WebhookDtoSchema = z.object({
   description: z.string().nullable(),
   events: z.array(WebhookEventSchema),
   secret: z.string().nullable(),
+  headers: z.record(z.string(), z.string()).nullable(),
+  bodyTemplate: z.string().nullable(),
   enabled: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -22,6 +24,8 @@ export type WebhookDto = Data<typeof WebhookDtoSchema>;
 
 export const WebhookPublicDtoSchema = WebhookDtoSchema.omit({
   secret: true,
+  headers: true,
 }).extend({
   hasSecret: z.boolean(),
+  headerNames: z.array(z.string()),
 });
