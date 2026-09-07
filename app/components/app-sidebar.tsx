@@ -192,7 +192,7 @@ const FullAppSidebar = observer(
               title: t("NavigationBar.routines"),
               href: "/routines",
               icon: Repeat,
-              visible: rootStore.appMode !== "self-hosted",
+              visible: rootStore.appMode !== "self-hosted" && canAccess(Resource.routines),
             },
           ].filter((i) => i.visible),
         },

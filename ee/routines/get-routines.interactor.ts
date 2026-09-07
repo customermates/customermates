@@ -3,6 +3,8 @@ import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 import type { Validated } from "@/core/validation/validation.utils";
 
+import { Action, Resource } from "@/generated/prisma";
+
 import { type RoutineDto, RoutineDtoSchema } from "./routine.schema";
 
 import { BaseGetRepo, BaseGetInteractor } from "@/core/base/base-get.interactor";
@@ -15,7 +17,13 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 export abstract class GetRoutinesRepo extends BaseGetRepo<RoutineDto> {}
 
 @AllowInDemoMode
-@TenantInteractor()
+@TenantInteractor({
+  permissions: [
+    { resource: Resource.routines, action: Action.readAll },
+    { resource: Resource.routines, action: Action.readOwn },
+  ],
+  condition: "OR",
+})
 export class GetRoutinesInteractor extends BaseGetInteractor<RoutineDto> {
   constructor(
     repo: GetRoutinesRepo,

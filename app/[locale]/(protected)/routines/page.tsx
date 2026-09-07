@@ -2,6 +2,8 @@ import { RoutinesPageView } from "./components/routines-page-view";
 
 import { redirect } from "next/navigation";
 
+import { Resource } from "@/generated/prisma";
+
 import { getGetRoutinesInteractor } from "@/core/di";
 import { env } from "@/env";
 import { requireAccess } from "@/features/auth/next/require";
@@ -15,7 +17,7 @@ type Props = {
 };
 
 export default async function RoutinesPage({ searchParams }: Props) {
-  await requireAccess();
+  await requireAccess({ resource: Resource.routines });
   if (env.APP_MODE === "self-hosted") redirect("/dashboard");
 
   const routineParams = await readSurfaceParams(SURFACE.routines, searchParams);

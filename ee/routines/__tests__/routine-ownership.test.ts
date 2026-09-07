@@ -3,6 +3,8 @@ import type { RoutineDto } from "../routine.schema";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { Action, Resource } from "@/generated/prisma";
+
 import { createMockUser } from "@/tests/helpers/mock-user";
 import {
   MOCK_ENV_MODULE,
@@ -44,7 +46,11 @@ function member(id = OWNER_ID): TenantUser {
       id: "member-role",
       name: "Member",
       isSystemRole: false,
-      permissions: [],
+      permissions: [Action.create, Action.readAll, Action.update, Action.delete].map((action, index) => ({
+        id: `routines-${index}`,
+        resource: Resource.routines,
+        action,
+      })),
     },
   });
 }

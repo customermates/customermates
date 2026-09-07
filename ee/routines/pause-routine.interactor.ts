@@ -1,6 +1,8 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { RoutineDto } from "./routine.schema";
 
+import { Action, Resource } from "@/generated/prisma";
+
 import { z } from "zod";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -20,7 +22,7 @@ export abstract class PauseRoutineRepo {
   abstract pauseRoutineOrThrow(routineId: string, now: Date): Promise<RoutineDto>;
 }
 
-@TenantInteractor()
+@TenantInteractor({ resource: Resource.routines, action: Action.delete })
 export class PauseRoutineInteractor extends AuthenticatedInteractor<PauseRoutineData, RoutineDto> {
   constructor(private repo: PauseRoutineRepo) {
     super();

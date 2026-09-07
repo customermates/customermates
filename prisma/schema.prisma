@@ -955,6 +955,7 @@ enum Resource {
   api
   auditLog
   inboxMessages
+  routines
 }
 
 enum MessagingThreadState {

@@ -47,6 +47,7 @@ const salesManagerGrants = [
   [Resource.services, [Action.readAll]],
   [Resource.users, [Action.readAll]],
   [Resource.auditLog, [Action.readAll]],
+  [Resource.routines, manageAll],
   [Resource.company, companyVisibility],
 ] as const satisfies readonly RoleGrant[];
 
@@ -58,6 +59,7 @@ const customerSuccessGrants = [
   [Resource.deals, [Action.readAll]],
   [Resource.services, [Action.readAll]],
   [Resource.users, [Action.readOwn]],
+  [Resource.routines, [Action.readOwn]],
   [Resource.company, companyVisibility],
 ] as const satisfies readonly RoleGrant[];
 
@@ -84,7 +86,7 @@ export const SYNTHETIC_ROLE_DEFINITIONS = [
     description: "Manages customer relationships, follow-ups, and shared conversations",
     isSystemRole: false,
     name: "Customer Success",
-    permissions: permissionFixtures(SEED_IDS.customerSuccessRole, 26, customerSuccessGrants),
+    permissions: permissionFixtures(SEED_IDS.customerSuccessRole, 30, customerSuccessGrants),
   },
 ] satisfies readonly SyntheticRoleDefinition[];
 

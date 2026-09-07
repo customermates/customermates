@@ -212,9 +212,7 @@ export class PrismaRoutineRepo
   }
 
   async getItems(params: GetQueryParams) {
-    const args = await this.buildQueryArgs(params, {
-      companyId: this.companyId,
-    });
+    const args = await this.buildQueryArgs(params, this.accessWhere("routine"));
 
     const routines = await this.prisma.routine.findMany({
       ...args,
@@ -225,9 +223,7 @@ export class PrismaRoutineRepo
   }
 
   async getCount(params: GetQueryParams) {
-    const { where } = await this.buildQueryArgs(params, {
-      companyId: this.companyId,
-    });
+    const { where } = await this.buildQueryArgs(params, this.accessWhere("routine"));
 
     return this.prisma.routine.count({ where });
   }
@@ -297,6 +293,7 @@ export class PrismaRoutineRepo
       where: {
         routineId,
         companyId: this.companyId,
+        routine: this.accessWhere("routine"),
         ...(decoded
           ? {
               OR: [{ createdAt: { lt: decoded.createdAt } }, { createdAt: decoded.createdAt, id: { lt: decoded.id } }],

@@ -3,7 +3,7 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { RoutineDto } from "./routine.schema";
 
 import { z } from "zod";
-import { RoutineTriggerKind } from "@/generated/prisma";
+import { Action, Resource, RoutineTriggerKind } from "@/generated/prisma";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { failAuthorization, failConflict } from "@/core/validation/interactor-failure-server";
@@ -25,7 +25,7 @@ export abstract class RunRoutineNowRepo {
   ): Promise<{ id: string; companyId: string; executedByUserId: string }>;
 }
 
-@TenantInteractor()
+@TenantInteractor({ resource: Resource.routines, action: Action.update })
 export class RunRoutineNowInteractor extends AuthenticatedInteractor<RunRoutineNowData, string> {
   constructor(
     private repo: RunRoutineNowRepo,

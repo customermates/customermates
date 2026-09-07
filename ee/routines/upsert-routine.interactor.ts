@@ -2,7 +2,7 @@ import type { RoutineDto, UpsertRoutineData } from "./routine.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
-import { RoutineTriggerKind } from "@/generated/prisma";
+import { Action, Resource, RoutineTriggerKind } from "@/generated/prisma";
 
 import { RoutineDtoSchema, UpsertRoutineSchema, validateRoutineFinalState } from "./routine.schema";
 
@@ -71,7 +71,13 @@ export abstract class UpsertRoutineSubscriptionRepo {
   }>;
 }
 
-@TenantInteractor()
+@TenantInteractor({
+  permissions: [
+    { resource: Resource.routines, action: Action.create },
+    { resource: Resource.routines, action: Action.update },
+  ],
+  condition: "AND",
+})
 export class UpsertRoutineInteractor extends AuthenticatedInteractor<UpsertRoutineData, RoutineDto> {
   constructor(
     private repo: UpsertRoutineRepo,

@@ -1,6 +1,8 @@
 import type { RoutineDto } from "./routine.schema";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
+import { Action, Resource } from "@/generated/prisma";
+
 import { z } from "zod";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -18,7 +20,7 @@ export abstract class DeleteRoutineRepo {
   abstract deleteRoutineOrThrow(id: string): Promise<RoutineDto | null>;
 }
 
-@TenantInteractor()
+@TenantInteractor({ resource: Resource.routines, action: Action.delete })
 export class DeleteRoutineInteractor extends AuthenticatedInteractor<DeleteRoutineData, string> {
   constructor(private repo: DeleteRoutineRepo) {
     super();

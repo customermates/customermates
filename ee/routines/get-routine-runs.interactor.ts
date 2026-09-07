@@ -1,6 +1,8 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { RoutineRunPage } from "./routine-history";
 
+import { Action, Resource } from "@/generated/prisma";
+
 import { z } from "zod";
 
 import { ROUTINE_RUN_PAGE_SIZE, RoutineRunPageSchema } from "./routine-history";
@@ -23,7 +25,13 @@ export abstract class GetRoutineRunsRepo {
 }
 
 @AllowInDemoMode
-@TenantInteractor()
+@TenantInteractor({
+  permissions: [
+    { resource: Resource.routines, action: Action.readAll },
+    { resource: Resource.routines, action: Action.readOwn },
+  ],
+  condition: "OR",
+})
 export class GetRoutineRunsInteractor extends AuthenticatedInteractor<GetRoutineRunsData, RoutineRunPage> {
   constructor(private repo: GetRoutineRunsRepo) {
     super();

@@ -7,7 +7,7 @@ import type { RoutineRunStatus as RoutineRunStatusType } from "@/generated/prism
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 
-import { RoutineRunStatus } from "@/generated/prisma";
+import { Action, Resource, RoutineRunStatus } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -88,7 +88,7 @@ export abstract class StartRoutineConversationRepo {
   abstract deleteUnusedAgentConversation(conversationId: string): Promise<void>;
 }
 
-@TenantInteractor()
+@TenantInteractor({ resource: Resource.routines, action: Action.update })
 export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRoutineRunData, StartRoutineRunOutcome> {
   constructor(
     private repo: StartRoutineRunRepo,

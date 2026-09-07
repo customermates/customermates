@@ -7,6 +7,9 @@ CREATE TYPE "RoutineTriggerKind" AS ENUM ('schedule', 'event');
 -- CreateEnum
 CREATE TYPE "RoutineRunStatus" AS ENUM ('queued', 'running', 'succeeded', 'partial', 'failed', 'skipped', 'blocked');
 
+-- AlterEnum
+ALTER TYPE "Resource" ADD VALUE 'routines';
+
 -- AlterTable
 ALTER TABLE "AgentConversation" ADD COLUMN     "creditCeiling" INTEGER,
 ADD COLUMN     "origin" "AgentConversationOrigin" NOT NULL DEFAULT 'user';
