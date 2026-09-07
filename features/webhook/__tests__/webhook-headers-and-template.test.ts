@@ -76,6 +76,16 @@ describe("WebhookHeadersSchema", () => {
     );
   });
 
+  it("reports issues at the field root so the form can mark it invalid", () => {
+    const result = WebhookHeadersSchema.safeParse({ "Content-Type": "text/plain", "X-Trace": "ok\r\nevil" });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.length).toBeGreaterThan(0);
+      for (const issue of result.error.issues) expect(issue.path).toEqual([]);
+    }
+  });
+
   it("drops unusable entries when reading stored headers", () => {
     const parsed = parseStoredWebhookHeaders({
       "X-Keep": "kept",

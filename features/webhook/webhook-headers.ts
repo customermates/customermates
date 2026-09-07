@@ -47,22 +47,21 @@ export const WebhookHeadersSchema = z.record(z.string(), z.string()).superRefine
     total += name.length + value.length;
 
     if (name.length === 0 || name.length > WEBHOOK_HEADER_NAME_MAX_CHARS || !HEADER_NAME_PATTERN.test(name)) {
-      ctx.addIssue({ code: "custom", path: [name], params: { error: CustomErrorCode.webhookHeaderNameInvalid } });
+      ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.webhookHeaderNameInvalid } });
       continue;
     }
 
     if (isReservedWebhookHeader(name)) {
-      ctx.addIssue({ code: "custom", path: [name], params: { error: CustomErrorCode.webhookHeaderNameReserved } });
+      ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.webhookHeaderNameReserved } });
       continue;
     }
 
     const lowered = name.toLowerCase();
-    if (seen.has(lowered))
-      ctx.addIssue({ code: "custom", path: [name], params: { error: CustomErrorCode.duplicateWebhookHeaders } });
+    if (seen.has(lowered)) ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.duplicateWebhookHeaders } });
     seen.add(lowered);
 
     if (value.length > WEBHOOK_HEADER_VALUE_MAX_CHARS || !HEADER_VALUE_PATTERN.test(value))
-      ctx.addIssue({ code: "custom", path: [name], params: { error: CustomErrorCode.webhookHeaderValueInvalid } });
+      ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.webhookHeaderValueInvalid } });
   }
 
   if (total > WEBHOOK_HEADER_TOTAL_MAX_CHARS)
