@@ -349,6 +349,37 @@ describe("overlay contract", () => {
     ).toEqual([]);
   });
 
+  it("keeps the scroll chain unbroken between an overlay card and its body", () => {
+    // AppCard bounds itself with in-data-overlay-surface:min-h-0/flex-1/overflow-hidden and
+    // AppCardBody scrolls with min-h-0/flex-1/overflow-y-auto. Anything rendered between the
+    // two is a flex item that must pass the bound along, or the body never receives a height,
+    // never scrolls, and its content spills past the surface where nothing can reach it.
+    const violations: string[] = [];
+
+    for (const file of sourceFiles()) {
+      const text = readFileSync(file, "utf8");
+      if (!text.includes("<AppCardBody")) continue;
+
+      // Only a wrapper breaks the chain. Tabs rendered inside the body are already bounded by it,
+      // so compare against the first AppCardBody: earlier means wrapping, later means nested.
+      const bodyAt = text.indexOf("<AppCardBody");
+
+      for (const match of text.matchAll(/<(Tabs|TabsContent)(\s[^>]*?)?>/g)) {
+        if (match.index === undefined || match.index > bodyAt) continue;
+
+        const attributes = match[2] ?? "";
+        if (attributes.includes("min-h-0") && attributes.includes("flex-1")) continue;
+
+        violations.push(`${relative(REPO_ROOT, file)}: <${match[1]}> wraps AppCardBody without min-h-0 flex-1`);
+      }
+    }
+
+    expect(
+      violations,
+      `An element between the overlay card and its scrolling body must carry the flex bound:\n${violations.join("\n")}`,
+    ).toEqual([]);
+  });
+
   it("keeps delegated sheet card footers above the bottom safe area", () => {
     const appCardFooter = readFileSync(join(REPO_ROOT, "components/card/app-card-footer.tsx"), "utf8");
 

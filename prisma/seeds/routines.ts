@@ -1,6 +1,13 @@
 import type { SeedContext } from "./context";
 
-import { AgentTurnTerminalCode, RoutineRunStatus, RoutineTriggerKind } from "@/generated/prisma";
+import type { Prisma } from "@/generated/prisma";
+
+import {
+  AgentConversationOrigin,
+  AgentTurnTerminalCode,
+  RoutineRunStatus,
+  RoutineTriggerKind,
+} from "@/generated/prisma";
 import { DomainEvent } from "@/features/event/domain-events";
 
 import { fixtureId, upsertFixturesById } from "./helpers";
@@ -24,6 +31,16 @@ type SeedRun = {
   summary?: string;
   error?: string;
 };
+
+const RUN_TRANSCRIPT_OPENER: Record<string, string> = {
+  schedule: "Scheduled run started.",
+  event: "Triggered by a record change.",
+};
+
+const runFailureNote = (error: string) =>
+  error === "providerUnavailable"
+    ? "I could not reach the model provider on this attempt, so I stopped before reading or changing anything. Nothing was modified. The next scheduled run will pick this up."
+    : "I stopped before doing any work because this run would have exceeded the credit ceiling set on the routine. Nothing was read or changed.";
 
 export type SeedRoutine = {
   index: number;
@@ -482,6 +499,10 @@ export const SYNTHETIC_ROUTINES: SeedRoutine[] = [
 
 const routineId = (index: number) => fixtureId("31000000", index);
 const routineRunId = (routineIndex: number, runIndex: number) => fixtureId("32000000", routineIndex * 100 + runIndex);
+const runConversationId = (routineIndex: number, runIndex: number) =>
+  fixtureId("33000000", routineIndex * 100 + runIndex);
+const runMessageId = (routineIndex: number, runIndex: number, messageIndex: number) =>
+  fixtureId("34000000", routineIndex * 10000 + runIndex * 100 + messageIndex);
 
 const OWNER_NAMES: Record<SeedOwner, string> = {
   user: "Max Bergmann",
@@ -530,6 +551,49 @@ export async function seedRoutines(context: SeedContext): Promise<void> {
       async ({ id: runId, run }) => {
         const startedAt = new Date(now - run.startedHoursAgo * HOUR);
         const finishedAt = new Date(startedAt.getTime() + run.durationSeconds * 1000);
+        const runIndex = routine.runs.indexOf(run);
+        const conversationId = runConversationId(routine.index, runIndex);
+
+        const conversation = {
+          companyId: context.ids.company,
+          userId: ownerUserId,
+          origin: AgentConversationOrigin.routine,
+          title: routine.name,
+          archivedAt: null,
+          selectedAt: null,
+          createdAt: startedAt,
+          updatedAt: finishedAt,
+        };
+
+        await context.prisma.agentConversation.upsert({
+          where: { id: conversationId },
+          create: { id: conversationId, ...conversation },
+          update: conversation,
+        });
+
+        const transcript = [
+          { role: "user" as const, text: RUN_TRANSCRIPT_OPENER[schedule ? "schedule" : "event"] },
+          { role: "assistant" as const, text: run.summary ?? runFailureNote(run.error ?? "") },
+        ];
+
+        for (const [messageIndex, message] of transcript.entries()) {
+          const messageId = runMessageId(routine.index, runIndex, messageIndex);
+          const messageRow = {
+            conversationId,
+            companyId: context.ids.company,
+            role: message.role,
+            parts: [{ type: "text", text: message.text }] as Prisma.InputJsonValue,
+            sequence: BigInt(500_000 + routine.index * 1_000 + runIndex * 10 + messageIndex),
+            createdAt: new Date(startedAt.getTime() + messageIndex * 1_000),
+          };
+
+          await context.prisma.agentMessage.upsert({
+            where: { id: messageId },
+            create: { id: messageId, ...messageRow },
+            update: messageRow,
+          });
+        }
+
         const runData = {
           companyId: context.ids.company,
           routineId: id,
@@ -538,6 +602,7 @@ export async function seedRoutines(context: SeedContext): Promise<void> {
           status: run.status,
           triggerKind: schedule ? RoutineTriggerKind.schedule : RoutineTriggerKind.event,
           triggerEvent: event?.events[0] ?? null,
+          conversationId,
           triggerEntityId: null,
           scheduledFor: startedAt,
           startedAt,

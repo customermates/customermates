@@ -12,6 +12,7 @@ import type { AppModalActionProps, AppModalActions } from "@/components/modal";
 import { AppModal } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
+import { AppCardFooter } from "@/components/card/app-card-footer";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
@@ -72,7 +73,7 @@ function RoutineTabPanel({
   if (!enabled) return <>{children}</>;
 
   return (
-    <TabsContent className="mt-0" value={value}>
+    <TabsContent className="mt-0 flex min-h-0 flex-1 flex-col" value={value}>
       {children}
     </TabsContent>
   );
@@ -227,7 +228,7 @@ export const RoutineModal = observer(() => {
             </AgentChatStoreProvider>
           ) : (
             <Tabs
-              className="gap-0"
+              className="flex min-h-0 flex-1 flex-col gap-0"
               value={routineModalStore.activeTab}
               onValueChange={(value) => routineModalStore.setActiveTab(value as "details" | "runs")}
             >
@@ -626,7 +627,9 @@ export const RoutineModal = observer(() => {
                     )}
                   </AppCardBody>
 
-                  <FormActions showInitially anchorScope="routine-modal" store={routineModalStore} />
+                  <AppCardFooter>
+                    <FormActions showInitially anchorScope="routine-modal" store={routineModalStore} />
+                  </AppCardFooter>
                 </RoutineTabPanel>
               )}
             </Tabs>
