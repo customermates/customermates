@@ -10,6 +10,7 @@ describe("draft conversion contracts", () => {
   it("declares attachmentsMeta on the chat side, because one implementation serves both", () => {
     const chat: ChatArgs = {
       messageId: "m1",
+      expectedUpdatedAt: new Date(),
       unipileMessageId: "u1",
       providerMessageId: null,
       sender: { attendeeId: "a", displayName: "a", identifier: "a", isSelf: true } as never,
@@ -27,6 +28,7 @@ describe("draft conversion contracts", () => {
   it("keeps the two contracts aligned on the fields the shared implementation reads", () => {
     const email: EmailArgs = {
       messageId: "m1",
+      expectedUpdatedAt: new Date(),
       unipileMessageId: "u1",
       providerMessageId: null,
       sender: { attendeeId: "a", displayName: "a", identifier: "a", isSelf: true } as never,

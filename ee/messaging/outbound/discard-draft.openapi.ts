@@ -3,15 +3,18 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 import { z } from "zod";
 
 import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { DraftRevisionSchema } from "@/ee/messaging/draft-thread";
 
 export const discardDraftOperation: ZodOpenApiOperationObject = {
   operationId: "discardDraft",
   summary: "Discard a message draft",
-  description: "Deletes a draft message by its id. Only draft messages can be discarded; sent messages are unaffected.",
+  description:
+    "Deletes exactly the saved draft revision identified by id and draftRevision. A newer edit is never discarded; sent messages are unaffected.",
   tags: ["messaging"],
   security: [{ apiKeyAuth: [] }],
   requestParams: {
     path: z.object({ id: z.uuid().describe("The draft message id to discard") }),
+    query: z.object({ draftRevision: DraftRevisionSchema }),
   },
   responses: {
     "200": {

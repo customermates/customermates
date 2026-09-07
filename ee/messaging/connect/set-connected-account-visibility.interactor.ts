@@ -1,5 +1,5 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
-import type { ConnectedAccountDto } from "../messaging.schema";
+import type { ConnectedAccountDto, ConnectedAccountRecord } from "../messaging.schema";
 import type { EventService } from "@/features/event/event.service";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
@@ -7,7 +7,8 @@ import { z } from "zod";
 
 import { Action, Resource } from "@/generated/prisma";
 
-import { ConnectedAccountDtoSchema } from "../messaging.schema";
+import { ConnectedAccountAppDtoSchema } from "../messaging.schema";
+import { toConnectedAccountDto } from "./connected-account-dto";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
@@ -22,8 +23,8 @@ const Schema = z.object({
 type SetConnectedAccountVisibilityData = Data<typeof Schema>;
 
 export abstract class SetConnectedAccountVisibilityRepo {
-  abstract getAccountByIdOrThrow(id: string): Promise<ConnectedAccountDto>;
-  abstract setAccountSharedOrThrow(args: { id: string; shared: boolean }): Promise<ConnectedAccountDto>;
+  abstract getAccountByIdOrThrow(id: string): Promise<ConnectedAccountRecord>;
+  abstract setAccountSharedOrThrow(args: { id: string; shared: boolean }): Promise<ConnectedAccountRecord>;
 }
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
@@ -40,16 +41,19 @@ export class SetConnectedAccountVisibilityInteractor extends AuthenticatedIntera
   }
 
   @Enforce(Schema)
-  @ValidateOutput(ConnectedAccountDtoSchema)
+  @ValidateOutput(ConnectedAccountAppDtoSchema)
   async invoke(data: SetConnectedAccountVisibilityData): Validated<ConnectedAccountDto> {
     const denied = await this.entitlements.require("sharedAccounts");
     if (denied) return denied;
 
     const existing = await this.repo.getAccountByIdOrThrow(data.id);
 
-    if (existing.shared === data.shared) return { ok: true as const, data: existing };
+    if (existing.shared === data.shared) return { ok: true as const, data: toConnectedAccountDto(existing) };
 
-    const updated = await this.repo.setAccountSharedOrThrow({ id: data.id, shared: data.shared });
+    const updated = await this.repo.setAccountSharedOrThrow({
+      id: data.id,
+      shared: data.shared,
+    });
 
     await this.eventService.publish(DomainEvent.CONNECTED_ACCOUNT_UPDATED, {
       entityId: data.id,
@@ -68,6 +72,6 @@ export class SetConnectedAccountVisibilityInteractor extends AuthenticatedIntera
       },
     });
 
-    return { ok: true as const, data: updated };
+    return { ok: true as const, data: toConnectedAccountDto(updated) };
   }
 }

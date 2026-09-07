@@ -1,4 +1,4 @@
-import type { Prisma, MessagingProvider } from "@/generated/prisma";
+import type { MessagingProvider, Prisma } from "@/generated/prisma";
 
 import type { GetMyConnectedAccountsRepo } from "../connect/get-my-connected-accounts.interactor";
 import type { CreateHostedAuthLinkRepo } from "../connect/create-auth-link.interactor";
@@ -7,9 +7,11 @@ import type { DeleteConnectedAccountRepo } from "../connect/delete-connected-acc
 import type { ResyncConnectedAccountRepo } from "../connect/resync-connected-account.interactor";
 import type { ReconnectConnectedAccountRepo } from "../connect/reconnect-connected-account.interactor";
 import type { SetConnectedAccountVisibilityRepo } from "../connect/set-connected-account-visibility.interactor";
+import type { SetConnectedAccountSignatureRepo } from "../connect/set-connected-account-signature.interactor";
 import type { AccountWebhookRepo } from "../webhooks/account/account-webhook.repo";
 import type { WebhookActivityRepo } from "../webhooks/relation/relation-webhook.repo";
-import type { ConnectedAccountDto } from "../messaging.schema";
+import type { ConnectedAccountRecord } from "../messaging.schema";
+import type { EmailSettings } from "../email-settings";
 
 import { type EmailFolder, EmailFolderSchema } from "../email-folders";
 import type { BackfillConnectedAccountRepo } from "../ingest/backfill/backfill.repo";
@@ -46,6 +48,7 @@ export class PrismaConnectedAccountRepo
     ResyncConnectedAccountRepo,
     ReconnectConnectedAccountRepo,
     SetConnectedAccountVisibilityRepo,
+    SetConnectedAccountSignatureRepo,
     AccountWebhookRepo,
     BackfillConnectedAccountRepo,
     ClaimBackfillRepo,
@@ -270,7 +273,14 @@ export class PrismaConnectedAccountRepo
   async listActiveAccountsForCompanyUnscoped(companyId: string) {
     return this.prisma.connectedAccount.findMany({
       where: { companyId, status: { not: ConnectedAccountStatus.deleted } },
-      select: { id: true, userId: true, createdAt: true, provider: true, displayName: true, emailAddress: true },
+      select: {
+        id: true,
+        userId: true,
+        createdAt: true,
+        provider: true,
+        displayName: true,
+        emailAddress: true,
+      },
     });
   }
 
@@ -280,7 +290,12 @@ export class PrismaConnectedAccountRepo
     const rows = await this.prisma.connectedAccount.findMany({
       where: {
         status: { not: ConnectedAccountStatus.deleted },
-        company: { subscription: { status: SubscriptionStatus.trial, trialEndDate: { lt: before } } },
+        company: {
+          subscription: {
+            status: SubscriptionStatus.trial,
+            trialEndDate: { lt: before },
+          },
+        },
       },
       select: { id: true },
     });
@@ -319,7 +334,9 @@ export class PrismaConnectedAccountRepo
         status: { not: ConnectedAccountStatus.deleted },
         company: {
           subscription: {
-            status: { in: [SubscriptionStatus.unPaid, SubscriptionStatus.expired] },
+            status: {
+              in: [SubscriptionStatus.unPaid, SubscriptionStatus.expired],
+            },
             updatedAt: { lte: before },
           },
         },
@@ -362,7 +379,10 @@ export class PrismaConnectedAccountRepo
 
   async findFolderContextById(accountId: string) {
     const row = await this.prisma.connectedAccount.findFirst({
-      where: { id: accountId, ...accessibleConnectedAccountWhere(this.companyId, this.userId) },
+      where: {
+        id: accountId,
+        ...accessibleConnectedAccountWhere(this.companyId, this.userId),
+      },
       select: { folders: true, selectedFolderIds: true, foldersSyncedAt: true },
     });
     if (!row || row.foldersSyncedAt === null) return null;
@@ -377,7 +397,10 @@ export class PrismaConnectedAccountRepo
     if (ids.size === 0) return new Set();
 
     const rows = await this.prisma.connectedAccount.findMany({
-      where: { id: { in: [...ids] }, ...accessibleConnectedAccountWhere(this.companyId, this.userId) },
+      where: {
+        id: { in: [...ids] },
+        ...accessibleConnectedAccountWhere(this.companyId, this.userId),
+      },
       select: { id: true },
     });
 
@@ -401,19 +424,30 @@ export class PrismaConnectedAccountRepo
       selectedFolderIds: true,
       foldersSyncedAt: true,
       linkedinProducts: true,
-      user: { select: { id: true, firstName: true, lastName: true, avatarUrl: true } },
+      signature: true,
+      signatureFields: true,
+      user: {
+        select: { id: true, firstName: true, lastName: true, avatarUrl: true },
+      },
     } as const;
   }
 
   private toDto(
-    row: Prisma.ConnectedAccountGetPayload<{ select: PrismaConnectedAccountRepo["dtoSelect"] }>,
+    row: Prisma.ConnectedAccountGetPayload<{
+      select: PrismaConnectedAccountRepo["dtoSelect"];
+    }>,
     isOwner: boolean,
-  ): ConnectedAccountDto {
+  ): ConnectedAccountRecord {
     const { user, folders, ...account } = row;
     return {
       ...account,
       folders: EmailFolderSchema.array().catch([]).parse(folders),
-      owner: { userId: user.id, firstName: user.firstName, lastName: user.lastName, avatarUrl: user.avatarUrl },
+      owner: {
+        userId: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        avatarUrl: user.avatarUrl,
+      },
       isOwner,
     };
   }
@@ -482,7 +516,13 @@ export class PrismaConnectedAccountRepo
   async getAccountFolderContextOrThrow(id: string) {
     const row = await this.prisma.connectedAccount.findFirstOrThrow({
       where: { id, companyId: this.companyId, userId: this.userId },
-      select: { id: true, unipileAccountId: true, folders: true, selectedFolderIds: true, sentFolderIds: true },
+      select: {
+        id: true,
+        unipileAccountId: true,
+        folders: true,
+        selectedFolderIds: true,
+        sentFolderIds: true,
+      },
     });
 
     return {
@@ -503,7 +543,18 @@ export class PrismaConnectedAccountRepo
     return this.getAccountByIdOrThrow(args.id);
   }
 
+  async setAccountSignatureOrThrow(args: { id: string; signature: string | null; settings: EmailSettings }) {
+    await this.prisma.connectedAccount.updateMany({
+      where: { id: args.id, companyId: this.companyId, userId: this.userId },
+      data: { signature: args.signature, signatureFields: args.settings },
+    });
+
+    return this.getAccountByIdOrThrow(args.id);
+  }
+
   async deleteAccount(id: string) {
-    await this.prisma.connectedAccount.deleteMany({ where: { id, companyId: this.companyId, userId: this.userId } });
+    await this.prisma.connectedAccount.deleteMany({
+      where: { id, companyId: this.companyId, userId: this.userId },
+    });
   }
 }

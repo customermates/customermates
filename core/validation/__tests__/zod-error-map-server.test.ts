@@ -24,6 +24,7 @@ vi.mock("@/i18n/locale-registry", async (importOriginal) => {
 
 import { getZodParseContext } from "../zod-error-map-server";
 import { APP_LOCALES } from "@/i18n/locale-registry";
+import { ConnectedAccountEmailSchema, defaultEmailSettings } from "@/ee/messaging/email-settings";
 
 afterEach(() => {
   registry.locale = "en";
@@ -32,6 +33,22 @@ afterEach(() => {
 });
 
 describe("getZodParseContext", () => {
+  it.each(APP_LOCALES)("localizes email colour validation for %s fields and toasts", async (locale) => {
+    registry.locale = locale;
+    const settings = defaultEmailSettings();
+    settings.appearance.linkHex = "#zzzzzz";
+    const result = ConnectedAccountEmailSchema.safeParse({ signature: "", settings }, await getZodParseContext());
+
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.error.issues).toEqual([
+      expect.objectContaining({
+        path: ["settings", "appearance", "linkHex"],
+        message: `${locale}:Common.errors.emailLinkColourInvalid`,
+      }),
+    ]);
+  });
+
   it.each(APP_LOCALES)("uses application copy for common %s format errors", async (locale) => {
     registry.locale = locale;
     const context = await getZodParseContext();

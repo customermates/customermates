@@ -899,6 +899,7 @@ export class MessagingService {
     bcc?: EmailAttendee[];
     subject: string;
     body: string;
+    plainText?: string;
     inReplyTo?: string;
     attachments?: MessageFile[];
   }): Promise<MessagingSendResult<{ id: string; messageId: string | null }>> {
@@ -913,6 +914,7 @@ export class MessagingService {
             ...(input.bcc ? { bcc: input.bcc } : {}),
             subject: input.subject,
             html: input.body,
+            ...(input.plainText ? { plain_text: input.plainText } : {}),
             ...(input.inReplyTo
               ? {
                   custom_headers: [

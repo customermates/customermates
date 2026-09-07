@@ -56,6 +56,7 @@ const persistedRow = {
   isEvent: false,
   isDeleted: false,
   isHidden: false,
+  draftRevision: null,
   sentAt: new Date(),
   editedAt: null,
   reactions: [],

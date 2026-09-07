@@ -18,6 +18,7 @@ import { hubSchema } from "./schemas/hub";
 import { legalSchema } from "./schemas/legal";
 import { pricingSchema } from "./schemas/pricing";
 import { commercialTokens } from "./commercial-tokens";
+import { createGitLastModifiedResolver } from "./git-last-modified";
 
 export const blog = defineCollections({
   type: "doc",
@@ -140,5 +141,5 @@ export const affiliate = defineCollections({
 });
 
 export default defineConfig({
-  plugins: [commercialTokens(), jsonSchema(), lastModified()],
+  plugins: [commercialTokens(), jsonSchema(), lastModified({ versionControl: createGitLastModifiedResolver() })],
 });

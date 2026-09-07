@@ -172,7 +172,9 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
       }
 
       if (res.code === "upgradeToBusinessForMoreAccounts") {
-        this.rootStore.connectUpsellModalStore.openWith({ message: res.error.errors[0] ?? "" });
+        this.rootStore.connectUpsellModalStore.openWith({
+          message: res.error.errors[0] ?? "",
+        });
         return;
       }
 

@@ -9,7 +9,10 @@ import { handleError } from "@/core/api/interactor-handler";
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const result = await getDiscardDraftInteractor().invoke({ messageId: id });
+    const result = await getDiscardDraftInteractor().invoke({
+      messageId: id,
+      draftRevision: request.nextUrl.searchParams.get("draftRevision") ?? "",
+    });
 
     if (!result.ok) return NextResponse.json(z.prettifyError(result.error), { status: 400 });
 

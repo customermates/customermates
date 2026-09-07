@@ -26,7 +26,8 @@ export type FilterValueKind =
   | { kind: "date" }
   | { kind: "event" }
   | { kind: "string" }
-  | { kind: "linkStatus" };
+  | { kind: "linkStatus" }
+  | { kind: "draftStatus" };
 
 const enumValues = (e: Record<string, string>): readonly string[] => Object.values(e);
 
@@ -62,6 +63,7 @@ export const DEFAULT_FILTER_VALUE_KIND: Record<FilterFieldKey, FilterValueKind> 
   [FilterFieldKey.state]: { kind: "enum", values: enumValues(MessagingThreadState) },
   [FilterFieldKey.timelineKind]: { kind: "enum", values: TIMELINE_KIND_FILTER_VALUES },
   [FilterFieldKey.participants]: { kind: "linkStatus" },
+  [FilterFieldKey.draft]: { kind: "draftStatus" },
   [FilterFieldKey.connectedAccountId]: { kind: "entityId", entity: "connectedAccount" },
   [FilterFieldKey.calendarId]: { kind: "string" },
   [FilterFieldKey.startsAt]: { kind: "date" },
@@ -94,6 +96,8 @@ export function describeFilterFieldValue(field: FilterFieldKey): string {
       return `${field} (a text value; operators: ${ops})`;
     case "linkStatus":
       return `${field} (CRM-link status; value-less operators: allSet = all participants linked, hasUnset = at least one unlinked)`;
+    case "draftStatus":
+      return `${field} (draft status; value-less operators: hasSome = thread holds an unsent draft, hasNone = it does not)`;
   }
 }
 

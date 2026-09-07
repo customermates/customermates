@@ -10,7 +10,7 @@ export const sendChatMessageOperation: ZodOpenApiOperationObject = {
   operationId: "sendChatMessage",
   summary: "Send a chat message",
   description:
-    "Sends a real message into an existing chat thread (LinkedIn, WhatsApp, etc.). This delivers a real message as a side effect.",
+    "Sends a real message into an existing chat thread (LinkedIn, WhatsApp, etc.). This delivers a real message as a side effect. When delivering a saved draft, pass both draftMessageId and its opaque draftRevision so a newer edit cannot be consumed.",
   tags: ["messaging"],
   security: [{ apiKeyAuth: [] }],
   requestParams: { path: z.object({ id: z.uuid() }) },

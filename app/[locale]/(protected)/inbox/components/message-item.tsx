@@ -13,19 +13,19 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { isEmailProvider } from "@/ee/messaging/provider";
-import { isPlainTextEmailBody, splitQuotedText } from "@/ee/messaging/email-quote";
-import { deriveMessageSender, displayableIdentifier, isUnipileUnsupportedBody } from "@/ee/messaging/thread-display";
+import { deriveMessageSender, displayableIdentifier } from "@/ee/messaging/thread-display";
 import { cn } from "@/core/utils/cn";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { defaultEmailSettings } from "@/ee/messaging/email-settings";
+import { composeEmailBodies } from "@/ee/messaging/outbound/email-signature";
 
 import { attachmentSubtitle, classifyAttachment, describeFile, downloadLocalFile } from "./attachment-classify";
 import { AttachmentRow } from "./attachment-row";
-import { EmailFrame } from "./email-frame";
 import { MessageAttachment } from "./message-attachment";
-import { MessageText } from "./message-text";
-import { SanitizedHtml } from "./sanitized-html";
+import { hasLoadableRemoteImages, MessageBody } from "@/features/messaging/message-body";
+import { MessageSurface } from "@/features/messaging/message-surface";
 
 type Props = {
   message: MessagingMessageDto;
@@ -34,65 +34,14 @@ type Props = {
   isMine: boolean;
 };
 
-function hasLoadableRemoteImages(html: string): boolean {
-  if (!html) return false;
-  if (/url\(\s*["']?https?:/i.test(html)) return true;
-
-  return (html.match(/<img\b[^>]*>/gi) ?? []).some((tag) => {
-    if (!/\bsrc\s*=\s*["']https?:/i.test(tag)) return false;
-
-    const width = tag.match(/\bwidth\s*=\s*["']?(\d+)/i);
-    const height = tag.match(/\bheight\s*=\s*["']?(\d+)/i);
-    const tiny =
-      (width ? Number(width[1]) <= 2 : false) ||
-      (height ? Number(height[1]) <= 2 : false) ||
-      /(?:width|height)\s*:\s*[012](?:px)?\b/i.test(tag);
-    const hidden = /display\s*:\s*none|visibility\s*:\s*hidden/i.test(tag);
-
-    return !tiny && !hidden;
-  });
-}
-
-function TextWithQuote({ visible, quoted, onPaper }: { visible: string; quoted: string | null; onPaper?: boolean }) {
-  const t = useTranslations();
-  const [showQuoted, setShowQuoted] = useState(false);
-
-  return (
-    <>
-      <MessageText text={visible} />
-
-      {quoted && (
-        <>
-          <button
-            className={cn(
-              "mt-1 text-xs underline underline-offset-2",
-              onPaper ? "text-neutral-500 hover:text-neutral-800" : "text-muted-foreground hover:text-foreground",
-            )}
-            type="button"
-            onClick={() => setShowQuoted((prev) => !prev)}
-          >
-            {showQuoted ? t("Inbox.hideQuotedText") : t("Inbox.showQuotedText")}
-          </button>
-
-          {showQuoted && (
-            <div
-              className={cn(
-                "mt-1 border-l-2 pl-2",
-                onPaper ? "border-neutral-300 text-neutral-500" : "border-border text-muted-foreground",
-              )}
-            >
-              <MessageText text={quoted} />
-            </div>
-          )}
-        </>
-      )}
-    </>
-  );
-}
-
 export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, isMine }: Props) => {
   const t = useTranslations();
-  const { messagingThreadDetailStore: detail, threadComposeStore: compose, threadParticipantsStore } = useRootStore();
+  const {
+    messagingThreadDetailStore: detail,
+    threadComposeStore: compose,
+    threadParticipantsStore,
+    connectedAccountsStore,
+  } = useRootStore();
   const intlStore = useHydratedIntlStore();
   const [showRemoteImages, setShowRemoteImages] = useState(false);
 
@@ -124,31 +73,25 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
   const avatarName = sender.avatarName;
   const pictureUrl = sender.avatarUrl;
 
-  const isEmail = isEmailProvider(message.provider) && Boolean(message.bodyHtml);
-  const emailPlainBody = isEmail && isPlainTextEmailBody(message.bodyHtml ?? "") ? (message.bodyHtml ?? "") : null;
-  const inlineHtml = !isEmail && !isDeleted ? message.bodyHtml : null;
-  const isUnsupportedBody = isUnipileUnsupportedBody(message.bodyText);
-  const rawDisplayText = isUnsupportedBody ? null : message.bodyText;
-  const quoteSource = isEmail ? emailPlainBody : isEmailProvider(message.provider) ? rawDisplayText : null;
-  const quoteSplit = quoteSource ? splitQuotedText(quoteSource) : { visible: "", quoted: null };
-  const displayText = !isEmail && quoteSource ? quoteSplit.visible : rawDisplayText;
-  const chatSubject =
-    !isEmail && !isDeleted && message.provider === "linkedin" ? message.subject?.trim() || null : null;
+  const providerIsEmail = isEmailProvider(message.provider);
+  const account = connectedAccountsStore.items.find((item) => item.id === message.connectedAccountId);
+  const renderedEmailHtml =
+    providerIsEmail && isDraft
+      ? composeEmailBodies(
+          message.bodyText ?? "",
+          account?.signature,
+          account?.emailSettings ?? defaultEmailSettings(),
+          "markdown",
+        ).html
+      : (message.bodyHtml ?? "");
+  const isEmail = providerIsEmail && Boolean(renderedEmailHtml);
 
   const reactionTotals = new Map<string, number>();
   for (const r of message.reactions) reactionTotals.set(r.value, (reactionTotals.get(r.value) ?? 0) + 1);
 
   const hasAttachments = message.attachmentsMeta.length > 0;
   const hasReactions = reactionTotals.size > 0;
-  const showUnsupported =
-    !hasAttachments &&
-    !hasReactions &&
-    !inlineHtml &&
-    !displayText &&
-    !chatSubject &&
-    !isEmail &&
-    pendingFiles.length === 0;
-  const canLoadRemoteImages = isEmail && !showRemoteImages && hasLoadableRemoteImages(message.bodyHtml ?? "");
+  const canLoadRemoteImages = isEmail && !isDeleted && !showRemoteImages && hasLoadableRemoteImages(renderedEmailHtml);
   const recipientRows = (
     [
       ["Inbox.compose.toLabel", message.recipients.to],
@@ -191,58 +134,39 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
           isOutbound ? "items-end" : "items-start",
         )}
       >
-        <div
+        <MessageSurface
           className={cn(
-            "bg-card flex flex-col overflow-hidden rounded-xl text-sm shadow-xs",
-            isOutbound ? "rounded-br-md" : "rounded-bl-md",
-            isEmail ? "w-full" : "w-fit max-w-full",
             isDraft && "border-primary/30 border border-dashed",
             isSending && "opacity-60",
             isFailed && "ring-destructive/50 ring-1",
           )}
+          isEmail={isEmail}
+          isOutbound={isOutbound}
         >
-          {isDeleted ? (
-            <div className="text-muted-foreground px-3.5 py-2 italic">{t("Inbox.messageDeleted")}</div>
-          ) : isEmail ? (
-            <>
-              {recipientRows.length > 0 && (
-                <div className="border-border text-muted-foreground flex flex-col gap-1 border-b px-3.5 py-2 text-xs">
-                  {recipientRows.map(([labelKey, list]) => (
-                    <div key={labelKey} className="flex flex-wrap items-center gap-1">
-                      <span className="font-medium">{t(labelKey)}:</span>
+          {!isDeleted && isEmail && recipientRows.length > 0 && (
+            <div className="border-border text-muted-foreground flex flex-col gap-1 border-b px-3.5 py-2 text-xs">
+              {recipientRows.map(([labelKey, list]) => (
+                <div key={labelKey} className="flex flex-wrap items-center gap-1">
+                  <span className="font-medium">{t(labelKey)}:</span>
 
-                      {list.map((r, index) => {
-                        const label = r.identifier?.trim() || r.displayName;
-                        if (!label) return null;
+                  {list.map((r, index) => {
+                    const label = r.identifier?.trim() || r.displayName;
+                    if (!label) return null;
 
-                        return <AppChip key={`${labelKey}:${label}:${index}`}>{label}</AppChip>;
-                      })}
-                    </div>
-                  ))}
+                    return <AppChip key={`${labelKey}:${label}:${index}`}>{label}</AppChip>;
+                  })}
                 </div>
-              )}
-
-              {emailPlainBody ? (
-                <div className="bg-white px-4 py-3 leading-normal text-neutral-900 wrap-anywhere">
-                  <TextWithQuote quoted={quoteSplit.quoted} visible={quoteSplit.visible} onPaper />
-                </div>
-              ) : (
-                <EmailFrame html={message.bodyHtml ?? ""} showRemoteImages={showRemoteImages} />
-              )}
-            </>
-          ) : showUnsupported ? (
-            <div className="text-muted-foreground px-3.5 py-2 italic">{t("Inbox.attachmentUnsupported")}</div>
-          ) : inlineHtml || displayText || chatSubject ? (
-            <div className={cn("px-3.5 pt-2 pb-1 leading-relaxed wrap-anywhere", fullBleedMedia && "w-min min-w-full")}>
-              {chatSubject && <div className="pb-0.5 font-medium">{chatSubject}</div>}
-
-              {inlineHtml ? (
-                <SanitizedHtml className="prose-sm max-w-none wrap-anywhere [&_a]:underline" html={inlineHtml} />
-              ) : displayText ? (
-                <TextWithQuote quoted={quoteSplit.quoted} visible={displayText} />
-              ) : null}
+              ))}
             </div>
-          ) : null}
+          )}
+
+          <MessageBody
+            emailHtml={renderedEmailHtml}
+            fullBleedMedia={fullBleedMedia}
+            hasSupplementaryContent={hasAttachments || hasReactions || pendingFiles.length > 0}
+            message={message}
+            showRemoteImages={showRemoteImages}
+          />
 
           {!isDeleted && hasAttachments && (
             <div className={cn("flex flex-col gap-1.5", !fullBleedMedia && "p-1.5")}>
@@ -305,10 +229,15 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
                     <TooltipTrigger asChild>
                       <Button
                         aria-label={t("Inbox.compose.draftDiscard")}
+                        disabled={!message.draftRevision}
                         size="icon-xs"
                         type="button"
                         variant="softDestructive"
-                        onClick={() => runUserAction(() => compose.discardDraft(message.id))}
+                        onClick={() => {
+                          const draftRevision = message.draftRevision;
+                          if (!draftRevision) return;
+                          runUserAction(() => compose.discardDraft(message.id, draftRevision));
+                        }}
                       >
                         <Trash2 />
                       </Button>
@@ -339,16 +268,18 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
                 >
                   {t("Inbox.compose.retry")}
                 </Button>
-              ) : canLoadRemoteImages ? (
+              ) : null}
+
+              {canLoadRemoteImages && (
                 <Button size="xs" type="button" variant="secondary" onClick={() => setShowRemoteImages(true)}>
                   <ImageOff className="size-3" />
 
                   {t("Inbox.compose.loadRemoteImages")}
                 </Button>
-              ) : null}
+              )}
             </div>
           )}
-        </div>
+        </MessageSurface>
 
         {!isDraft && (
           <div className="flex items-center gap-1.5 px-1">

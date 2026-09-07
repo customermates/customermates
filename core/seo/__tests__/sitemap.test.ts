@@ -129,6 +129,16 @@ describe("sitemap page dates", () => {
     );
     expect(resolvePageLastModified({ blogPost: { date: "not-a-date" } })).toBeUndefined();
   });
+
+  it("keeps the publication fallback explicit when a Git date is unavailable or invalid", () => {
+    for (const lastModified of [undefined, null, new Date("not-a-date")]) {
+      expect(resolvePageLastModified({ lastModified, blogPost: { date: "2026-03-01" } })?.toISOString()).toBe(
+        "2026-03-01T00:00:00.000Z",
+      );
+      expect(resolvePageLastModified({ lastModified })).toBeUndefined();
+      expect(resolvePageLastModified({ lastModified, blogPost: { date: "not-a-date" } })).toBeUndefined();
+    }
+  });
 });
 
 describe("alternate languages", () => {

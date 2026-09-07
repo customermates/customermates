@@ -54,9 +54,13 @@ export const ContactChannels = observer(({ contactId, emptyHint, headingEndAddon
     threadComposeStore.initializeNewThread({
       provider: identifier.provider,
       connectedAccountId: first?.id ?? "",
-      recipientIdentifier: identifier.messagingId ?? identifier.value,
-      recipientDisplayName: identifier.displayName ?? null,
-      onSent: () => setComposeKey(null),
+      recipients: [
+        {
+          identifier: identifier.messagingId ?? identifier.value,
+          displayName: identifier.displayName ?? null,
+        },
+      ],
+      onDone: () => setComposeKey(null),
     });
     setComposeKey(key);
   }

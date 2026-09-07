@@ -30,7 +30,19 @@ Open a thread's settings to manage everything that belongs to the conversation r
 
 ## Drafts and attachments
 
-Replies are drafted per thread and survive navigation: leave the thread and come back, and your text is still there. Discarding a draft removes the written content and cannot be undone. Supported incoming media opens inline, ordinary files download, and unsupported items are shown as unsupported. LinkedIn-post attachments open at their external source. Outgoing attachments go through the reply composer on channels that support them.
+Use **Save as draft** in the reply composer's menu to keep a reply in the Inbox without sending it. The Inbox has no composer for a brand-new conversation: start one from the send icon on a contact's channel, or with `save_message_draft` over MCP or `POST /v1/messaging/drafts`, and it then appears in the Inbox as a draft. Saved drafts survive reloads and can be edited, sent, or discarded. There is one saved draft per thread; saving again updates it. UI, REST, and MCP use the same draft queue. API clients must supply the saved message ID and its current `draftRevision` when sending or discarding that draft. Discarding removes the saved content and cannot be undone.
+
+Saved drafts store message text and email addressing, not outgoing attachments. Supported incoming media opens inline, ordinary files download, and unsupported items are shown as unsupported. LinkedIn-post attachments open at their external source. Outgoing attachments go through the reply composer on channels that support them.
+
+## Email appearance and signatures
+
+Open [Profile → Connected accounts](/docs/app-profile), select an email account you own, and use its **Email** tab. Font family, font size, link color, and link style apply to emails composed from plain text or Markdown, including new messages and replies. Write the signature in one Markdown block and enable or disable it without deleting its content. Choose text only, logo above, or logo beside; logo layouts offer small, medium, or large sizing, an optional thin divider, and compact or comfortable spacing. Logos keep their proportions and require a public HTTPS image URL. The live preview sits beside the settings on larger screens and below them on smaller screens.
+
+The enabled signature is appended when sending through the UI, REST API, or MCP; do not paste it into the draft body. Email Markdown supports basic formatting, links, lists, quotes, and dividers, not arbitrary HTML or every Markdown extension. API callers can specify `bodyFormat`; explicitly supplied HTML keeps the caller's body styling.
+
+The signature toggle belongs to the sending account, not to a transport: turning it off omits the signature for UI, REST, and MCP sends while keeping the account's email appearance. The inline composer adapts signature text to the app's light or dark theme; this display adaptation does not change the outgoing email.
+
+Draft previews and sending use the same email renderer and current account settings. Generated HTML separates the signature with spacing, and the plain-text alternative uses the conventional signature delimiter. Recipient mail clients may still adjust colors, fonts, or remote-image visibility. Saved drafts retain editable Markdown and a body-only HTML derivative, never a pre-appended signature.
 
 ## Thread states
 
