@@ -736,6 +736,8 @@ async function loadSyntheticAuditSnapshot(
         description: true,
         events: true,
         secret: true,
+        headers: true,
+        bodyTemplate: true,
         enabled: true,
         createdAt: true,
         updatedAt: true,
