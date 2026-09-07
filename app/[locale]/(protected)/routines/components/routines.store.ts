@@ -13,8 +13,9 @@ export class RoutinesStore extends BaseDataViewStore<RoutineDto> {
       { uid: "owner", sortable: false },
       { uid: "trigger", sortable: false },
       { uid: "status", sortable: false },
-      { uid: "lastRun", sortable: false },
+      { uid: "lastRunAt", sortable: true },
       { uid: "nextRunAt", sortable: true },
+      { uid: "createdAt", sortable: true },
     ];
   }
 

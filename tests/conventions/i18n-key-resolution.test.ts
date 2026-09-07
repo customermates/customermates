@@ -177,7 +177,7 @@ const TABLE_COLUMN_KEYS = [
   "Common.table.columns.trialEnd",
   "Common.table.columns.amount",
   "Common.table.columns.trigger",
-  "Common.table.columns.lastRun",
+  "Common.table.columns.lastRunAt",
   "Common.table.columns.nextRunAt",
   "Common.table.columns.weightedValue",
   "Common.table.columns.avatarUrl",

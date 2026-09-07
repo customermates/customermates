@@ -1402,7 +1402,7 @@
         "lastActiveAt": "Dernière activité",
         "lastName": "Nom",
         "lastRequest": "Dernière utilisation",
-        "lastRun": "Dernière exécution",
+        "lastRunAt": "Dernière exécution",
         "members": "Membres",
         "name": "Nom",
         "nextRunAt": "Prochaine exécution",

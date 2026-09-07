@@ -73,8 +73,9 @@ export function useRoutineColumns(): ColumnDef<RoutineDto>[] {
           ),
       },
       {
-        id: "lastRun",
-        header: t("Common.table.columns.lastRun"),
+        accessorKey: "lastRunAt",
+        id: "lastRunAt",
+        header: t("Common.table.columns.lastRunAt"),
         cell: ({ row }) =>
           row.original.lastRunStatus ? (
             <AppChip size="sm" variant={ROUTINE_RUN_STATUS_CHIP_COLOR[row.original.lastRunStatus]}>
@@ -92,6 +93,14 @@ export function useRoutineColumns(): ColumnDef<RoutineDto>[] {
           <span className="text-sm">
             {row.original.nextRunAt ? intlStore.formatNumericalShortDateTime(row.original.nextRunAt) : "—"}
           </span>
+        ),
+      },
+      {
+        accessorKey: "createdAt",
+        id: "createdAt",
+        header: t("Common.table.columns.createdAt"),
+        cell: ({ row }) => (
+          <span className="text-sm">{intlStore.formatNumericalShortDateTime(row.original.createdAt)}</span>
         ),
       },
     ],
