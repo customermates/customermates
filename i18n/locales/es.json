@@ -2329,6 +2329,7 @@
       "movedHidden": "Movido a {folder}. Ya no aparece en tu bandeja de entrada.",
       "moveNothing": "No hay nada que mover a {folder}.",
       "movePartial": "Se movió parte de esta conversación a {folder}. {failed} mensaje(s) no se pudieron mover.",
+      "moveRateLimited": "Se detuvo el archivado en {folder} porque el proveedor limita la tasa. Intenta el resto de nuevo {retryAfter}.",
       "none": "Sin carpeta"
     },
     "groupThread": "Grupo ({count, plural, one {# miembro} other {# miembros}})",

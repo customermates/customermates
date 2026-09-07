@@ -309,3 +309,64 @@ describe("MoveEmailThreadInteractor safety", () => {
     }
   });
 });
+
+describe("MoveEmailThreadInteractor provider back-pressure", () => {
+  it("stops filing the moment the provider rate limits, instead of hammering it for every message", async () => {
+    const parts = setup({
+      messages: [
+        { id: "a", unipileMessageId: "a", folderIds: ["inbox"] },
+        { id: "b", unipileMessageId: "b", folderIds: ["inbox"] },
+        { id: "c", unipileMessageId: "c", folderIds: ["inbox"] },
+        { id: "d", unipileMessageId: "d", folderIds: ["inbox"] },
+      ],
+      moveResults: [
+        { ok: true, data: { id: "new-a", folderIds: ["archive"] } },
+        { ok: false, error: CustomErrorCode.unipileRateLimit, retryAfterSeconds: 30 },
+      ],
+    });
+
+    const result = await invoke(parts);
+
+    expect(parts.messagingService.moveEmail).toHaveBeenCalledTimes(2);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.rateLimited).toBe(true);
+      expect(result.data.movedCount).toBe(1);
+    }
+  });
+
+  it("keeps going past an ordinary per-message failure, which is not back-pressure", async () => {
+    const parts = setup({
+      messages: [
+        { id: "a", unipileMessageId: "a", folderIds: ["inbox"] },
+        { id: "b", unipileMessageId: "b", folderIds: ["inbox"] },
+        { id: "c", unipileMessageId: "c", folderIds: ["inbox"] },
+      ],
+      moveResults: [
+        { ok: true, data: { id: "new-a", folderIds: ["archive"] } },
+        { ok: false, error: CustomErrorCode.unipileResourceNotFound },
+        { ok: true, data: { id: "new-c", folderIds: ["archive"] } },
+      ],
+    });
+
+    const result = await invoke(parts);
+
+    expect(parts.messagingService.moveEmail).toHaveBeenCalledTimes(3);
+    if (result.ok) {
+      expect(result.data.rateLimited).toBe(false);
+      expect(result.data.movedCount).toBe(2);
+      expect(result.data.failedCount).toBe(1);
+    }
+  });
+
+  it("reports a first-message rate limit as an outright failure, not a partial move", async () => {
+    const parts = setup({
+      messages: [{ id: "a", unipileMessageId: "a", folderIds: ["inbox"] }],
+      moveResults: [{ ok: false, error: CustomErrorCode.unipileRateLimit, retryAfterSeconds: 30 }],
+    });
+
+    const result = await invoke(parts);
+
+    expect(result.ok).toBe(false);
+  });
+});

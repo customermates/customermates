@@ -2329,6 +2329,7 @@
       "movedHidden": "Nach {folder} verschoben. Die Konversation erscheint nicht mehr im Posteingang.",
       "moveNothing": "Nichts nach {folder} zu verschieben.",
       "movePartial": "Ein Teil dieser Konversation wurde nach {folder} verschoben. {failed} Nachricht(en) konnten nicht verschoben werden.",
+      "moveRateLimited": "Ablegen in {folder} gestoppt, weil der Anbieter die Rate begrenzt. Versuche den Rest erneut {retryAfter}.",
       "none": "Kein Ordner"
     },
     "groupThread": "Gruppe ({count, plural, one {# Mitglied} other {# Mitglieder}})",

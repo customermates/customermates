@@ -1,9 +1,11 @@
 import type { MessagingService } from "../messaging.service";
+import type { EmailFolder } from "../email-folders";
 import type { MessagingProvider } from "@/generated/prisma";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
+import * as Sentry from "@sentry/node";
 import { getLocale } from "next-intl/server";
 
 import { Action, Resource } from "@/generated/prisma";
@@ -15,16 +17,20 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 
-import type { ThreadAccountOwnersRepo } from "./get-messaging-thread.interactor";
-
 import { isFileableEmailProvider } from "../provider";
 import { isEmailMoveTarget, isMovableEmailFolder } from "../email-folders";
 import { formatRetryAfter } from "../retry-after";
 
-const Schema = z.object({ threadId: z.uuid(), folderId: z.string().min(1) });
-type MoveEmailThreadData = Data<typeof Schema>;
+export const MoveEmailThreadSchema = z.object({
+  threadId: z.uuid().describe("Email thread id from get_messaging_threads.items[].id"),
+  folderId: z
+    .string()
+    .min(1)
+    .describe("Target folder id from get_messaging_threads thread.folder.moveTargets[].id. Never a folder name"),
+});
+export type MoveEmailThreadData = Data<typeof MoveEmailThreadSchema>;
 
-const ResultSchema = z.object({
+export const MoveEmailThreadResultSchema = z.object({
   threadId: z.string(),
   folderId: z.string(),
   folderName: z.string(),
@@ -32,18 +38,10 @@ const ResultSchema = z.object({
   skippedCount: z.number(),
   failedCount: z.number(),
   hiddenFromInbox: z.boolean(),
+  rateLimited: z.boolean(),
+  retryAfter: z.string().optional(),
 });
-
-type MoveEmailThreadResult = {
-  threadId: string;
-  folderId: string;
-  folderName: string;
-  movedCount: number;
-  skippedCount: number;
-  failedCount: number;
-  hiddenFromInbox: boolean;
-  retryAfter?: string;
-};
+export type MoveEmailThreadResult = Data<typeof MoveEmailThreadResultSchema>;
 
 type MoveThread = {
   id: string;
@@ -58,6 +56,12 @@ type MovableMessage = {
   unipileMessageId: string;
   folderIds: string[];
 };
+
+export abstract class MoveEmailThreadAccountRepo {
+  abstract findFolderContextById(
+    accountId: string,
+  ): Promise<{ folders: EmailFolder[]; selectedFolderIds: string[] } | null>;
+}
 
 export abstract class MoveEmailThreadRepo {
   abstract findThreadForMoveOrThrow(threadId: string): Promise<MoveThread>;
@@ -75,15 +79,15 @@ export abstract class MoveEmailThreadRepo {
 export class MoveEmailThreadInteractor extends AuthenticatedInteractor<MoveEmailThreadData, MoveEmailThreadResult> {
   constructor(
     private repo: MoveEmailThreadRepo,
-    private accountRepo: ThreadAccountOwnersRepo,
+    private accountRepo: MoveEmailThreadAccountRepo,
     private messagingService: MessagingService,
     private entitlements: EntitlementService,
   ) {
     super();
   }
 
-  @Validate(Schema)
-  @ValidateOutput(ResultSchema)
+  @Validate(MoveEmailThreadSchema)
+  @ValidateOutput(MoveEmailThreadResultSchema)
   async invoke(data: MoveEmailThreadData): Validated<MoveEmailThreadResult> {
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;
@@ -112,6 +116,9 @@ export class MoveEmailThreadInteractor extends AuthenticatedInteractor<MoveEmail
 
     let movedCount = 0;
     let failedCount = 0;
+    let rateLimited = false;
+    let retryAfter: string | undefined;
+
     for (const message of pending) {
       const moved = await this.messagingService.moveEmail({
         accountId: thread.unipileAccountId,
@@ -121,24 +128,40 @@ export class MoveEmailThreadInteractor extends AuthenticatedInteractor<MoveEmail
 
       if (!moved.ok) {
         if (movedCount === 0 && failedCount === 0) {
-          return fail(moved.error, ["folderId"], {
+          return fail(moved.error, [], {
             retryAfter: formatRetryAfter(await getLocale(), moved.retryAfterSeconds),
           });
         }
 
         failedCount += 1;
+
+        if (moved.error === CustomErrorCode.unipileRateLimit) {
+          rateLimited = true;
+          retryAfter = formatRetryAfter(await getLocale(), moved.retryAfterSeconds);
+          break;
+        }
+
         continue;
       }
 
-      const applied = await this.repo
-        .moveEmailMessageUnscoped({
+      let applied: { id: string } | null = null;
+      try {
+        applied = await this.repo.moveEmailMessageUnscoped({
           companyId: thread.companyId,
           connectedAccountId: thread.connectedAccountId,
           unipileMessageId: message.unipileMessageId,
           newUnipileMessageId: moved.data.id,
           folderIds: moved.data.folderIds,
-        })
-        .catch(() => null);
+        });
+      } catch (err) {
+        Sentry.captureException(err, {
+          tags: {
+            unipileAccountId: thread.unipileAccountId,
+            companyId: thread.companyId,
+            connectedAccountId: thread.connectedAccountId,
+          },
+        });
+      }
 
       if (applied) movedCount += 1;
       else failedCount += 1;
@@ -153,11 +176,10 @@ export class MoveEmailThreadInteractor extends AuthenticatedInteractor<MoveEmail
         movedCount,
         skippedCount: messages.length - pending.length,
         failedCount,
+        rateLimited,
+        ...(retryAfter ? { retryAfter } : {}),
         hiddenFromInbox: movedCount > 0 && !context.selectedFolderIds.includes(target.id),
       },
     };
   }
 }
-
-export type { MoveEmailThreadData, MoveEmailThreadResult, MoveThread, MovableMessage };
-export { Schema as MoveEmailThreadSchema };

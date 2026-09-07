@@ -2329,6 +2329,7 @@
       "movedHidden": "Moved to {folder}. It no longer appears in your inbox.",
       "moveNothing": "Nothing to move to {folder}.",
       "movePartial": "Moved part of this conversation to {folder}. {failed} message(s) could not be moved.",
+      "moveRateLimited": "Stopped filing into {folder} because the provider is rate limiting. Try the rest again {retryAfter}.",
       "none": "No folder"
     },
     "groupThread": "Group ({count, plural, one {# member} other {# members}})",

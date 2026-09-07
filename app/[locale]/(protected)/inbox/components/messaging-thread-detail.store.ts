@@ -125,6 +125,14 @@ export class MessagingThreadDetailStore extends BaseStore {
         return;
       }
 
+      if (result.data.rateLimited) {
+        this.toastError("Inbox.folders.moveRateLimited", {
+          values: { folder: result.data.folderName, retryAfter: result.data.retryAfter ?? "" },
+        });
+        await this.refresh();
+        return;
+      }
+
       if (result.data.failedCount > 0) {
         this.toastError("Inbox.folders.movePartial", {
           values: { folder: result.data.folderName, failed: String(result.data.failedCount) },

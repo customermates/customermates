@@ -15,6 +15,7 @@ import {
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { threadFolder } from "./thread-folder";
+import { MoveEmailThreadSchema } from "@/ee/messaging/inbox/move-email-thread.interactor";
 
 import { GetQueryParamsSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
 import { filterFieldsHint } from "@/core/types/filter-field-value-kind";
@@ -147,6 +148,8 @@ const MoveEmailThreadOutputSchema = z.object({
   skippedCount: z.number(),
   failedCount: z.number(),
   hiddenFromInbox: z.boolean(),
+  rateLimited: z.boolean(),
+  retryAfter: z.string().optional(),
 });
 const ConnectMessagingAccountOutputSchema = z.object({
   url: z.string().describe("Single-use hosted auth link, expires in 30 minutes"),
@@ -618,13 +621,6 @@ export const connectMessagingAccountTool = {
   },
 };
 
-const MoveEmailThreadToolSchema = z.object({
-  threadId: z.string().describe("Email thread id from get_messaging_threads.items[].id"),
-  folderId: z
-    .string()
-    .describe("Target folder id from get_messaging_threads thread.folder.moveTargets[].id. Never a folder name"),
-});
-
 export const moveEmailThreadTool = {
   name: "move_email_thread",
   title: "Move email thread to a folder",
@@ -634,15 +630,16 @@ export const moveEmailThreadTool = {
     "Only email threads can be moved, and only into a listed target: Sent and Drafts are never targets. " +
     "Moving into a folder the workspace does not watch, such as Archive, removes the conversation from the inbox list; the result reports this as hiddenFromInbox.",
   annotations: { readOnlyHint: false, idempotentHint: true, destructiveHint: false, openWorldHint: true },
-  inputSchema: MoveEmailThreadToolSchema,
+  inputSchema: MoveEmailThreadSchema,
   outputSchema: MoveEmailThreadOutputSchema,
-  execute: (params: z.infer<typeof MoveEmailThreadToolSchema>) =>
+  execute: (params: z.infer<typeof MoveEmailThreadSchema>) =>
     runInteractor(
       getMoveEmailThreadInteractor().invoke(params),
       (data) =>
         `Moved ${data.movedCount} message(s) of thread ${params.threadId} to ${data.folderName}` +
         (data.failedCount > 0 ? `; ${data.failedCount} could not be moved` : "") +
-        (data.skippedCount > 0 ? `; ${data.skippedCount} left in place` : ""),
+        (data.skippedCount > 0 ? `; ${data.skippedCount} left in place` : "") +
+        (data.rateLimited ? "; stopped early on a provider rate limit, retry the rest later" : ""),
       (data) => data,
     ),
 };

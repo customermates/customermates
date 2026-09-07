@@ -2329,6 +2329,7 @@
       "movedHidden": "Spostato in {folder}. Non appare più nella tua posta in arrivo.",
       "moveNothing": "Niente da spostare in {folder}.",
       "movePartial": "Parte di questa conversazione è stata spostata in {folder}. {failed} messaggio/i non è stato possibile spostarli.",
+      "moveRateLimited": "Archiviazione in {folder} interrotta perché il provider limita le richieste. Riprova il resto {retryAfter}.",
       "none": "Nessuna cartella"
     },
     "groupThread": "Gruppo ({count, plural, one {# membro} other {# membri}})",

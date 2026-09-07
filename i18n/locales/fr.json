@@ -2329,6 +2329,7 @@
       "movedHidden": "Déplacé vers {folder}. La conversation n'apparaît plus dans votre boîte de réception.",
       "moveNothing": "Rien à déplacer vers {folder}.",
       "movePartial": "Une partie de cette conversation a été déplacée vers {folder}. {failed} message(s) n'ont pas pu être déplacés.",
+      "moveRateLimited": "Classement dans {folder} interrompu car le fournisseur limite le débit. Réessayez le reste {retryAfter}.",
       "none": "Aucun dossier"
     },
     "groupThread": "Groupe ({count, plural, one {# membre} other {# membres}})",
