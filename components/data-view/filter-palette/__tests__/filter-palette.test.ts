@@ -345,62 +345,61 @@ describe("filter palette pages", () => {
     expect(trigger).toContain("disabled:opacity-100");
   });
 
-  it("shapes an applied filter as a chip that no plain field row ever takes", () => {
+  it("shapes an applied filter as a wrapping chip, never as a full-width row", () => {
     const table = tableStore([{ field: "status", operator: FilterOperatorKey.in, value: ["open"] } as Filter]);
     openPalette(table);
 
     const markup = render(table);
+    const zone = openingTag(markup, "data-palette-active-filters");
     const applied = openingTag(markup, "data-filter-index=");
     const field = openingTag(markup, 'data-palette-field="status"');
 
-    expect(applied).toContain("border border-input");
-    expect(applied).toContain("rounded-md");
-    expect(applied).toContain("py-2");
-    expect(fillToken(applied, "")).toBe("");
-    expect(field).not.toContain("border border-input");
-    expect(field).toContain("rounded-sm");
-    expect(between(markup, "data-palette-remove-filter=", "</button>")).toContain("size-3.5 text-current");
+    expect(zone).not.toBe("");
+    expect(between(markup, "data-palette-active-filters", "data-filter-index=")).toContain("flex flex-wrap");
+    expect(applied).toContain('data-slot="badge"');
+    expect(applied).not.toContain("cmdk-item");
+    expect(applied).toContain("w-auto");
+    expect(markup.indexOf("data-palette-active-filters")).toBeLessThan(markup.indexOf("cmdk-list"));
+    expect(field).toContain("cmdk-item");
   });
 
-  it("moves an applied chip's fill under the cursor at least as far as a plain field row moves", () => {
-    const table = tableStore([{ field: "status", operator: FilterOperatorKey.in, value: ["open"] } as Filter]);
-    openPalette(table);
-
-    const markup = render(table);
-    const applied = openingTag(markup, "data-filter-index=");
-    const field = openingTag(markup, 'data-palette-field="status"');
-
-    expect(applied).toContain("data-[selected=true]:border-border-strong");
-    expect(applied).not.toContain("data-[selected=true]:bg-accent");
-    expect(field).not.toContain("data-[selected=true]:bg-accent");
-
-    for (const theme of ["light", "dark"] as const) {
-      const chip = cursorStep(theme, applied);
-      const row = cursorStep(theme, field);
-
-      const towardsForeground =
-        theme === "light"
-          ? luminance(chip.selected) < luminance(chip.resting)
-          : luminance(chip.selected) > luminance(chip.resting);
-
-      expect(chip.step).toBeGreaterThan(1.1);
-      expect(chip.step).toBeGreaterThanOrEqual(row.step - 0.001);
-      expect(towardsForeground).toBe(true);
-    }
-  });
-
-  it("never rests an applied chip below the popover it sits on", () => {
+  it("keeps an applied chip readable on its own tint", () => {
     const table = tableStore([{ field: "status", operator: FilterOperatorKey.in, value: ["open"] } as Filter]);
     openPalette(table);
 
     const applied = openingTag(render(table), "data-filter-index=");
 
-    for (const theme of ["light", "dark"] as const) {
-      const ground = luminance(composite(THEME_TOKENS[theme], "--popover", [0, 0, 0]));
-      const resting = luminance(cursorStep(theme, applied).resting);
+    expect(applied).toContain("bg-primary/20");
+    expect(applied).toContain("text-primary-soft-foreground");
 
-      if (theme === "light") expect(resting).toBeGreaterThanOrEqual(ground);
-      else expect(resting).toBeLessThanOrEqual(ground);
+    for (const theme of ["light", "dark"] as const) {
+      const tokens = THEME_TOKENS[theme];
+      const ground = composite(tokens, "--popover", [0, 0, 0]);
+      const fill = composite(tokens, "--primary", ground.map(() => 0) as Rgb);
+      const tint = ground.map((base, channel) => fill[channel] * 0.2 + base * 0.8) as Rgb;
+      const label = composite(tokens, "--primary-soft-foreground", ground);
+
+      expect(contrast(label, tint)).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it("keeps the keyboard cursor perceptible on a plain field row", () => {
+    const table = tableStore([{ field: "status", operator: FilterOperatorKey.in, value: ["open"] } as Filter]);
+    openPalette(table);
+
+    const field = openingTag(render(table), 'data-palette-field="status"');
+
+    expect(field).not.toContain("data-[selected=true]:bg-accent");
+
+    for (const theme of ["light", "dark"] as const) {
+      const row = cursorStep(theme, field);
+      const towardsForeground =
+        theme === "light"
+          ? luminance(row.selected) < luminance(row.resting)
+          : luminance(row.selected) > luminance(row.resting);
+
+      expect(row.step).toBeGreaterThan(1.1);
+      expect(towardsForeground).toBe(true);
     }
   });
 
@@ -422,8 +421,11 @@ describe("filter palette pages", () => {
 
     const markup = render(table);
 
-    expect(occurrences(markup, "**:[[cmdk-group-heading]]:uppercase")).toBe(2);
-    expect(occurrences(markup, "**:[[cmdk-group-heading]]:text-[11px]")).toBe(2);
+    expect(occurrences(markup, "**:[[cmdk-group-heading]]:uppercase")).toBe(1);
+    expect(occurrences(markup, "**:[[cmdk-group-heading]]:text-[11px]")).toBe(1);
+    expect(openingTag(markup, "data-palette-active-filters")).not.toBe("");
+    expect(between(markup, "data-palette-active-filters", "flex flex-wrap")).toContain("text-[11px]");
+    expect(between(markup, "data-palette-active-filters", "flex flex-wrap")).toContain("uppercase");
     expect(markup).not.toContain("**:[[cmdk-group-heading]]:text-xs");
   });
 });

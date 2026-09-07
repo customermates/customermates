@@ -3,6 +3,8 @@ import type { PageStateProps } from "@/components/page-state/page-state";
 import type { MessagingThread } from "@/ee/messaging/messaging.schema";
 import type { ReactElement, ReactNode } from "react";
 
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -258,15 +260,24 @@ describe("Inbox page-state owners", () => {
     expect(content).toContain("animate-page-result-in");
   });
 
-  it("mounts the saved view rail above the list as a pane, not a joined header strip", () => {
+  it("leaves the saved view rail to the surface, so the inbox joins the top bar like every other list", () => {
     const content = renderInboxList("ready", { withItem: true });
 
-    expect(content).toContain('data-data-view-rail="true"');
-    expect(content.indexOf("data-data-view-rail")).toBeLessThan(content.indexOf('id="inbox-thread-list"'));
-    expect(harness.viewsRailProps).toHaveBeenCalledWith(
-      expect.objectContaining({ store: harness.getRootStore().messagingThreadsStore }),
+    expect(content).not.toContain("data-data-view-rail");
+    expect(harness.viewsRailProps).not.toHaveBeenCalled();
+
+    const surface = readFileSync(
+      resolve(process.cwd(), "app/[locale]/(protected)/inbox/components/inbox-surface.tsx"),
+      "utf8",
     );
-    expect(harness.viewsRailProps.mock.lastCall?.[0]).not.toHaveProperty("joinsTopBar");
+
+    expect(surface).toContain("<DataViewViewsRail joinsTopBar store={messagingThreadsStore} />");
+    expect(surface).toContain("useDataViewSync(messagingThreadsStore, threads)");
+
+    const page = readFileSync(resolve(process.cwd(), "app/[locale]/(protected)/inbox/page.tsx"), "utf8");
+
+    expect(page.indexOf("<InboxSurface")).toBeLessThan(page.indexOf("<InboxList"));
+    expect(page).not.toContain("DataViewViewsRail");
   });
 
   it("wires retry, clear, selection, and retained-content refresh failure", () => {

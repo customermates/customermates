@@ -111,7 +111,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
     <nav
       aria-label={t("DataView.views.railLabel")}
       className={cn(
-        "flex shrink-0 items-center gap-1.5 border-b border-border bg-background px-4 ps-[calc(1rem+var(--safe-left,0px))] pe-[calc(1rem+var(--safe-right,0px))]",
+        "flex shrink-0 items-start gap-1.5 border-b border-border bg-background px-4 ps-[calc(1rem+var(--safe-left,0px))] pe-[calc(1rem+var(--safe-right,0px))]",
         store.hasSelection && store.entityType && "hidden md:flex",
       )}
       data-data-view-rail=""
@@ -124,7 +124,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
           className="min-w-0 flex-1"
           focusable={false}
           observedKey={chips.length}
-          railClassName="items-center gap-1 py-2.5"
+          railClassName="items-center gap-1 pt-0 pb-4"
           railProps={{
             "aria-label": t("DataView.views.railLabel"),
             "aria-orientation": "horizontal",

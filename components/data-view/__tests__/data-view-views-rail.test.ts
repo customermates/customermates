@@ -264,19 +264,28 @@ describe("data view rail", () => {
     expect(classes).not.toContain("rounded-md");
   });
 
-  it("keeps the rail 48px tall so it still lines up with the mass actions bar", () => {
+  it("sits flush under the top bar, on the rhythm the entity detail summary rail uses", () => {
     const html = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
     const items = html.match(/<[^>]*data-data-view-rail-items[^>]*>/)?.[0] ?? "";
 
-    expect(items).toContain("py-2.5");
+    expect(items).toContain("pt-0");
+    expect(items).toContain("pb-4");
+    expect(items).not.toContain("py-2.5");
     expect(tabs(html).every((tab) => tab.includes("h-7"))).toBe(true);
 
-    const massActionsBar = readFileSync(resolve(process.cwd(), "components/data-view/mass-actions-bar.tsx"), "utf8");
-    const bar = massActionsBar.match(/<div className="([^"]*border-b border-border[^"]*)"/)?.[1] ?? "";
+    const summary = readFileSync(resolve(process.cwd(), "components/entity-detail/entity-detail-summary.tsx"), "utf8");
+    const summaryRail = summary.match(/railClassName="([^"]*)"/)?.[1] ?? "";
 
-    expect(bar).toContain("py-2");
-    expect(bar).not.toContain("py-2.5");
-    expect(massActionsBar).toContain('className="h-8"');
+    expect(summaryRail).toContain("pt-0");
+    expect(summaryRail).toContain("pb-4");
+  });
+
+  it("starts its controls at the top edge so the actions control lines up with the tabs", () => {
+    const html = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
+    const nav = html.match(/<nav[^>]*id="global-data-views"[^>]*>/)?.[0] ?? "";
+
+    expect(nav).toContain("items-start");
+    expect(nav).not.toContain("items-center");
   });
 
   it("renders every tab as a real link to its own view url", () => {

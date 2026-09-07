@@ -1,6 +1,7 @@
 import { Action, Resource } from "@/generated/prisma";
 
 import { InboxList } from "./components/inbox-list";
+import { InboxSurface } from "./components/inbox-surface";
 import { ThreadPanel } from "./components/thread-panel";
 
 import {
@@ -51,15 +52,17 @@ export default async function InboxPage({ searchParams }: Props) {
   const threadDetail = threadResult?.ok ? threadResult.data : null;
 
   const content = (
-    <div className="flex h-full min-h-0 flex-1 lg:grid lg:grid-cols-[380px_1fr]">
-      <div className={cn("min-h-0 min-w-0 flex-1 lg:border-r lg:border-border", threadId && "hidden lg:block")}>
-        <InboxList canConnect={!locked && canConnect} locked={locked} selectedThreadId={threadId} threads={threads} />
-      </div>
+    <InboxSurface threads={threads}>
+      <div className="flex min-h-0 flex-1 lg:grid lg:grid-cols-[380px_1fr]">
+        <div className={cn("min-h-0 min-w-0 flex-1 lg:border-r lg:border-border", threadId && "hidden lg:block")}>
+          <InboxList canConnect={!locked && canConnect} locked={locked} selectedThreadId={threadId} threads={threads} />
+        </div>
 
-      <div className={cn("min-h-0 min-w-0 flex-1", !threadId && "hidden lg:block")}>
-        <ThreadPanel locked={locked} threadDetail={threadDetail} />
+        <div className={cn("min-h-0 min-w-0 flex-1", !threadId && "hidden lg:block")}>
+          <ThreadPanel locked={locked} threadDetail={threadDetail} />
+        </div>
       </div>
-    </div>
+    </InboxSurface>
   );
 
   if (!locked) return <PageContainer padded={false}>{content}</PageContainer>;

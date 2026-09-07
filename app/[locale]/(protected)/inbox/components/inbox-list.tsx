@@ -16,9 +16,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 
 import { cn } from "@/core/utils/cn";
 import { Button } from "@/components/ui/button";
-import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
 import { DataViewToolbar } from "@/components/data-view/data-view-toolbar";
-import { DataViewViewsRail } from "@/components/data-view/views/data-view-views-rail";
 import { DataViewPagination } from "@/components/data-view/header/pagination";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
@@ -48,8 +46,6 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { messagingThreadsStore, connectedAccountsStore } = useRootStore();
-
-  useDataViewSync(messagingThreadsStore, threads);
 
   useEffect(() => {
     if (locked) return;
@@ -244,8 +240,6 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
 
   return (
     <div className="flex h-full flex-col">
-      <DataViewViewsRail store={messagingThreadsStore} />
-
       <div
         ref={listRef}
         className={cn(
