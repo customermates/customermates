@@ -6,16 +6,16 @@ import { useTranslations } from "next-intl";
 
 import { isCustomField } from "@/core/utils/custom-field";
 
-import { useColumnLabel } from "./use-column-label";
+import { useCanonicalColumnLabel } from "./use-column-label";
 
 export function useChangeFieldLabel() {
   const t = useTranslations();
-  const columnLabel = useColumnLabel();
+  const canonicalLabel = useCanonicalColumnLabel();
 
   return (field: string, customColumns?: CustomColumnDto[]) => {
     if (isCustomField(field))
       return customColumns?.find((column) => column.id === field)?.label ?? t("Common.filters.unavailableValue");
 
-    return columnLabel(field);
+    return canonicalLabel(field);
   };
 }

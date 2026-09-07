@@ -7,6 +7,17 @@ import {
   smallestIntervalMinutes,
 } from "@/ee/routines/routine-schedule";
 import { ROUTINE_TIMEZONE, SYNTHETIC_ROUTINES } from "../seeds/routines";
+import { isCustomField } from "@/core/utils/custom-field";
+import enMessages from "@/i18n/locales/en.json";
+
+const TRIGGER_REFS = {
+  dealId: "80000000-0000-4000-8000-000000000001",
+  organizationId: "70000000-0000-4000-8000-000000000001",
+  serviceId: "90000000-0000-4000-8000-000000000001",
+  contactId: "60000000-0000-4000-8000-000000000001",
+  statusColumnId: null,
+  thread: { id: "thread-1", connectedAccountId: "account-1" },
+};
 
 const scheduled = SYNTHETIC_ROUTINES.filter((routine) => routine.trigger.kind === "schedule");
 const evented = SYNTHETIC_ROUTINES.filter((routine) => routine.trigger.kind === "event");
@@ -83,6 +94,29 @@ describe("synthetic routine fixtures", () => {
         );
       }
     }
+  });
+
+  it("never seeds a changed field that would render as a raw translation key", () => {
+    const columns = new Set(Object.keys(enMessages.Common.table.columns));
+    const auditFields = new Set(Object.keys(enMessages.AuditLogModal.fields));
+
+    // Mirrors useCanonicalColumnLabel: a catalogued key is translated, anything else is
+    // humanised. A field name carrying a dot would survive humanising as a key-looking
+    // string, which is the shape the run detail used to display.
+    const rendersAsKey = (field: string) =>
+      !isCustomField(field) && !columns.has(field) && !auditFields.has(field) && field.includes(".");
+
+    const offenders: string[] = [];
+
+    for (const routine of evented) {
+      if (routine.trigger.kind !== "event") continue;
+      const sample = routine.trigger.sample?.(TRIGGER_REFS);
+      const changes = (sample?.payload as { changes?: Record<string, unknown> } | undefined)?.changes ?? {};
+
+      for (const field of Object.keys(changes)) if (rendersAsKey(field)) offenders.push(`${routine.name}: ${field}`);
+    }
+
+    expect(offenders, offenders.join("\n")).toEqual([]);
   });
 
   it("never instructs the demo agent to delete records or send outbound messages", () => {

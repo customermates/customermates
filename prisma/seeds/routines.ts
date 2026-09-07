@@ -531,7 +531,7 @@ export const SYNTHETIC_ROUTINES: SeedRoutine[] = [
         entityId: refs.serviceId,
         payload: {
           service: { id: refs.serviceId, name: "Implementation" },
-          changes: { price: { from: 1200, to: 1350 } },
+          changes: { amount: { from: 1200, to: 1350 } },
         },
       }),
     },
