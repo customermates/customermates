@@ -47,8 +47,6 @@ import { StartRoutineRunInteractor } from "@/ee/routines/start-routine-run.inter
 import { FailRoutineRunInteractor } from "@/ee/routines/fail-routine-run.interactor";
 import { SweepDueRoutinesInteractor } from "@/ee/routines/sweep-due-routines.interactor";
 import { ReconcileRoutineRunsInteractor } from "@/ee/routines/reconcile-routine-runs.interactor";
-import { RecordRoutineRiskFindingsInteractor } from "@/ee/routines/record-routine-risk-findings.interactor";
-import { AnalyzeCompanyRoutinesInteractor } from "@/ee/routines/analyze-company-routines.interactor";
 import { PruneRoutineRunsInteractor } from "@/ee/routines/prune-routine-runs.interactor";
 import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-delivery.repository";
 import { PrismaAuditLogRepo } from "@/features/audit-log/prisma-audit-log.repository";
@@ -1679,8 +1677,7 @@ export const getGetRoutinesInteractor = () =>
 
 export const getGetRoutineRunsInteractor = () => new GetRoutineRunsInteractor(getRoutineRepo());
 
-export const getUpsertRoutineInteractor = () =>
-  new UpsertRoutineInteractor(getRoutineRepo(), getCompanyRepo(), getBackgroundTaskService());
+export const getUpsertRoutineInteractor = () => new UpsertRoutineInteractor(getRoutineRepo(), getCompanyRepo());
 
 export const getDeleteRoutineInteractor = () => new DeleteRoutineInteractor(getRoutineRepo());
 
@@ -1703,11 +1700,6 @@ export const getSweepDueRoutinesInteractor = () =>
   new SweepDueRoutinesInteractor(getRoutineRepo(), getBackgroundTaskService());
 
 export const getReconcileRoutineRunsInteractor = () => new ReconcileRoutineRunsInteractor(getRoutineRepo());
-
-export const getRecordRoutineRiskFindingsInteractor = () => new RecordRoutineRiskFindingsInteractor(getRoutineRepo());
-
-export const getAnalyzeCompanyRoutinesInteractor = () =>
-  new AnalyzeCompanyRoutinesInteractor(getRoutineRepo(), getBackgroundTaskService());
 
 export const getPruneRoutineRunsInteractor = () => new PruneRoutineRunsInteractor(getRoutineRepo());
 

@@ -1174,7 +1174,6 @@ describe("routine plan allowance", () => {
     const interactor = new UpsertRoutineInteractor(
       repo as never,
       { getSubscriptionOrThrow: () => Promise.resolve({ plan }) } as never,
-      { dispatch: vi.fn() } as never,
     );
 
     const result = await interactor.invoke({
@@ -1236,7 +1235,6 @@ describe("routine plan allowance", () => {
       {
         getSubscriptionOrThrow: () => Promise.reject(new Error("must not read the plan on edit")),
       } as never,
-      { dispatch: vi.fn() } as never,
     );
 
     const result = await interactor.invoke({ id: ROUTINE_ID, name: "Renamed" });
@@ -1260,12 +1258,7 @@ describe("routine plan allowance", () => {
       isEligibleRoutineOwner: vi.fn().mockResolvedValue(true),
       upsertRoutineOrThrow: vi.fn(),
     };
-    const background = { dispatch: vi.fn() };
-    const interactor = new UpsertRoutineInteractor(
-      repo as never,
-      { getSubscriptionOrThrow: vi.fn() } as never,
-      background as never,
-    );
+    const interactor = new UpsertRoutineInteractor(repo as never, { getSubscriptionOrThrow: vi.fn() } as never);
 
     const result = await interactor.invoke({
       id: ROUTINE_ID,
@@ -1279,45 +1272,5 @@ describe("routine plan allowance", () => {
       params: { error: CustomErrorCode.routineScheduleRequired },
     });
     expect(repo.upsertRoutineOrThrow).not.toHaveBeenCalled();
-    expect(background.dispatch).not.toHaveBeenCalled();
-  });
-
-  it("dispatches stale-risk cleanup when the last event routine becomes scheduled", async () => {
-    const previous = routineFixture({
-      triggerKind: "event",
-      cronExpression: null,
-      timezone: null,
-      runOnceAt: null,
-      triggerEvents: ["deal.updated"],
-    });
-    const repo = {
-      countRoutines: vi.fn(),
-      getRoutineByIdOrThrow: vi.fn().mockResolvedValue(previous),
-      isEligibleRoutineOwner: vi.fn().mockResolvedValue(true),
-      upsertRoutineOrThrow: vi.fn().mockResolvedValue(
-        routineFixture({
-          triggerKind: "schedule",
-          cronExpression: "0 9 * * *",
-          triggerEvents: ["deal.updated"],
-        }),
-      ),
-    };
-    const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
-    const interactor = new UpsertRoutineInteractor(
-      repo as never,
-      { getSubscriptionOrThrow: vi.fn() } as never,
-      background as never,
-    );
-
-    const result = await interactor.invoke({
-      id: ROUTINE_ID,
-      triggerKind: "schedule",
-      cronExpression: "0 9 * * *",
-    });
-
-    expect(result.ok).toBe(true);
-    expect(background.dispatch).toHaveBeenCalledWith("analyze-routine-loops", {
-      companyId: mockUser.companyId,
-    });
   });
 });

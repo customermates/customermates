@@ -1,6 +1,5 @@
 import type { RoutineDto, UpsertRoutineData } from "./routine.schema";
 import type { Validated } from "@/core/validation/validation.utils";
-import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
 import { RoutineTriggerKind } from "@/generated/prisma";
@@ -72,23 +71,11 @@ export abstract class UpsertRoutineSubscriptionRepo {
   }>;
 }
 
-function analysisInputsChanged(previous: RoutineDto | null, next: RoutineDto): boolean {
-  if (!previous) return true;
-
-  return (
-    previous.prompt !== next.prompt ||
-    previous.enabled !== next.enabled ||
-    previous.triggerKind !== next.triggerKind ||
-    previous.triggerEvents.join("|") !== next.triggerEvents.join("|")
-  );
-}
-
 @TenantInteractor()
 export class UpsertRoutineInteractor extends AuthenticatedInteractor<UpsertRoutineData, RoutineDto> {
   constructor(
     private repo: UpsertRoutineRepo,
     private subscriptionRepo: UpsertRoutineSubscriptionRepo,
-    private backgroundTaskService: BackgroundTaskService,
   ) {
     super();
   }
@@ -122,15 +109,6 @@ export class UpsertRoutineInteractor extends AuthenticatedInteractor<UpsertRouti
         ["name"],
         { limit: error.limit },
       );
-    }
-
-    if (
-      (previous?.triggerKind === RoutineTriggerKind.event || routine.triggerKind === RoutineTriggerKind.event) &&
-      analysisInputsChanged(previous, routine)
-    ) {
-      await this.backgroundTaskService.dispatch("analyze-routine-loops", {
-        companyId: this.user.companyId,
-      });
     }
 
     return { ok: true as const, data: routine };

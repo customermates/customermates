@@ -266,7 +266,6 @@ model Company {
   agentUiCommandResults       AgentUiCommandResult[]
   routines                    Routine[]
   routineRuns                 RoutineRun[]
-  routineRiskFindings         RoutineRiskFinding[]
 }
 
 model EntityTerminology {
@@ -2006,7 +2005,6 @@ model Routine {
   company              Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
   owner                User?                @relation(fields: [ownerUserId], references: [id], onDelete: SetNull)
   runs                 RoutineRun[]
-  riskFindings         RoutineRiskFinding[]
 
   @@index([companyId])
   @@index([companyId, enabled])
@@ -2046,36 +2044,6 @@ model RoutineRun {
   @@index([routineId, status])
   @@index([executedByUserId, status])
   @@index([conversationId])
-}
-
-enum RoutineRiskKind {
-  selfLoop
-  mutualLoop
-}
-
-enum RoutineRiskSeverity {
-  info
-  warning
-}
-
-model RoutineRiskFinding {
-  id            String              @id @default(uuid())
-  companyId     String
-  routineId     String
-  peerRoutineId String?
-  kind          RoutineRiskKind
-  severity      RoutineRiskSeverity @default(warning)
-  triggerEvent  String
-  confidence    String
-  resolvedAt    DateTime?
-  detectedAt    DateTime            @default(now())
-  company       Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  routine       Routine             @relation(fields: [routineId], references: [id], onDelete: Cascade)
-
-  @@unique([routineId, kind, triggerEvent, peerRoutineId])
-  @@index([companyId])
-  @@index([companyId, resolvedAt])
-  @@index([routineId, resolvedAt])
 }
 
 model AdAttribution {

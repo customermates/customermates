@@ -111,16 +111,12 @@ describe("routine ownership writes", () => {
     const subscriptions = {
       getSubscriptionOrThrow: vi.fn().mockResolvedValue({ plan: "enterprise" }),
     };
-    const background = { dispatch: vi.fn() };
-
-    const result = await new UpsertRoutineInteractor(repo as never, subscriptions as never, background as never).invoke(
-      {
-        name: "Daily deal digest",
-        prompt: "Summarise the open pipeline.",
-        triggerKind: "schedule",
-        cronExpression: "0 9 * * *",
-      },
-    );
+    const result = await new UpsertRoutineInteractor(repo as never, subscriptions as never).invoke({
+      name: "Daily deal digest",
+      prompt: "Summarise the open pipeline.",
+      triggerKind: "schedule",
+      cronExpression: "0 9 * * *",
+    });
 
     expect(result.ok).toBe(true);
     expect(repo.upsertRoutineOrThrow).toHaveBeenCalledOnce();
@@ -137,7 +133,6 @@ describe("routine ownership writes", () => {
     const result = await new UpsertRoutineInteractor(
       repo as never,
       { getSubscriptionOrThrow: vi.fn() } as never,
-      { dispatch: vi.fn() } as never,
     ).invoke({ id: ROUTINE_ID, name: "Renamed" });
 
     expect(result.ok).toBe(true);
@@ -158,7 +153,6 @@ describe("routine ownership writes", () => {
     const result = await new UpsertRoutineInteractor(
       repo as never,
       { getSubscriptionOrThrow: vi.fn() } as never,
-      { dispatch: vi.fn() } as never,
     ).invoke({ id: ROUTINE_ID, enabled: false });
 
     expect(result).toEqual({ ok: true, data: paused });
@@ -177,7 +171,6 @@ describe("routine ownership writes", () => {
     const result = await new UpsertRoutineInteractor(
       repo as never,
       { getSubscriptionOrThrow: vi.fn() } as never,
-      { dispatch: vi.fn() } as never,
     ).invoke({ id: ROUTINE_ID, enabled: true });
 
     expectAuthorizationFailure(result, CustomErrorCode.routineEditNotOwner);
@@ -196,7 +189,6 @@ describe("routine ownership writes", () => {
     const result = await new UpsertRoutineInteractor(
       repo as never,
       { getSubscriptionOrThrow: vi.fn() } as never,
-      { dispatch: vi.fn() } as never,
     ).invoke({ id: ROUTINE_ID, name: "Not mine" });
 
     expectAuthorizationFailure(result, CustomErrorCode.routineEditNotOwner);
@@ -214,7 +206,6 @@ describe("routine ownership writes", () => {
     const result = await new UpsertRoutineInteractor(
       repo as never,
       { getSubscriptionOrThrow: vi.fn() } as never,
-      { dispatch: vi.fn() } as never,
     ).invoke({ id: ROUTINE_ID, enabled: true });
 
     expectAuthorizationFailure(result, CustomErrorCode.routineOwnerIneligible);
