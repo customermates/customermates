@@ -35,6 +35,7 @@ export const RoutinesPageView = observer(function RoutinesPageView({ initialRout
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery: Boolean(routinesStore.searchTerm?.trim()) || (routinesStore.filters?.length ?? 0) > 0,
+    isGrouped: routinesStore.isGrouped,
     itemCount: routinesStore.items.length,
     request: routinesStore.dataRequest,
     total: routinesStore.pagination?.total,
@@ -107,7 +108,10 @@ export const RoutinesPageView = observer(function RoutinesPageView({ initialRout
   }
 
   return (
-    <DataViewLayout showPagination={pageState === "content" && view !== "board"} store={routinesStore}>
+    <DataViewLayout
+      showPagination={pageState === "content" && view !== "board" && !routinesStore.isGrouped}
+      store={routinesStore}
+    >
       {body}
     </DataViewLayout>
   );
