@@ -1,9 +1,7 @@
-import type { Root } from "react-dom/client";
-
 import { createElement } from "react";
-import { flushSync } from "react-dom";
-import { createRoot } from "react-dom/client";
+import { readFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
+import { resolve } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/components/ui/separator", () => ({
@@ -14,69 +12,44 @@ vi.mock("@/components/ui/sidebar", () => ({
 }));
 
 import { ShellHeader } from "../shell-header";
-import { TopBarActionsProvider, useSetTopBarJoinedContent, useTopBarActions } from "../topbar-actions-context";
 
-function headerClasses(joinedContentBelow?: boolean) {
-  const markup = renderToStaticMarkup(
-    createElement(ShellHeader, { joinedContentBelow }, createElement("span", null, "Entity")),
-  );
+const JOINED_STRIPS = [
+  "components/data-view/views/data-view-views-rail.tsx",
+  "components/entity-detail/entity-detail-summary.tsx",
+  "components/entity-detail/entity-detail-page-skeleton.tsx",
+];
+
+function source(path: string) {
+  return readFileSync(resolve(process.cwd(), path), "utf8");
+}
+
+function headerClasses() {
+  const markup = renderToStaticMarkup(createElement(ShellHeader, null, createElement("span", null, "Entity")));
 
   return markup.match(/<header class="([^"]+)"/)?.[1].split(" ") ?? [];
 }
 
-function JoinedHeader() {
-  const { joinedContentBelow } = useTopBarActions();
-  return createElement(ShellHeader, { joinedContentBelow }, createElement("span", null, "Entity"));
-}
-
-function JoinedContent({ joined }: { joined: boolean }) {
-  useSetTopBarJoinedContent(joined);
-  return null;
-}
-
-function LifecycleHarness({ joined, showContent }: { joined: boolean; showContent: boolean }) {
-  return createElement(
-    TopBarActionsProvider,
-    null,
-    createElement(JoinedHeader),
-    showContent ? createElement(JoinedContent, { joined }) : null,
-  );
-}
-
-function renderLifecycle(root: Root, joined: boolean, showContent: boolean) {
-  flushSync(() => root.render(createElement(LifecycleHarness, { joined, showContent })));
-}
-
 describe("ShellHeader", () => {
-  it("keeps its normal lower boundary by default", () => {
+  it("always draws its own lower boundary", () => {
     expect(headerClasses()).toContain("border-b");
+    expect(headerClasses()).toContain("border-border");
   });
 
-  it("lets joined content own the single lower boundary", () => {
-    const classes = headerClasses(true);
+  it("lets the shell drop that boundary through CSS when a joined strip follows it", () => {
+    const shell = source("app/components/navigation/navigation-switch.tsx");
 
-    expect(classes).toContain("border-border");
-    expect(classes).not.toContain("border-b");
+    expect(shell).toContain("[&:has([data-joins-top-bar])>header]:border-b-0");
   });
 
-  it("updates the real provider boundary before paint across mount, state changes, and cleanup", () => {
-    const container = document.createElement("div");
-    const root = createRoot(container);
+  it("decides the joined boundary in the server markup rather than after hydration", () => {
+    const context = source("app/components/topbar-actions-context.tsx");
 
-    try {
-      renderLifecycle(root, true, true);
-      expect(container.querySelector("header")?.classList.contains("border-b")).toBe(false);
+    expect(context).not.toContain("joinedContentBelow");
+    expect(context).not.toContain("useSetTopBarJoinedContent");
+    expect(source("app/components/shell-header.tsx")).not.toContain("joinedContentBelow");
+  });
 
-      renderLifecycle(root, false, true);
-      expect(container.querySelector("header")?.classList.contains("border-b")).toBe(true);
-
-      renderLifecycle(root, true, true);
-      expect(container.querySelector("header")?.classList.contains("border-b")).toBe(false);
-
-      renderLifecycle(root, true, false);
-      expect(container.querySelector("header")?.classList.contains("border-b")).toBe(true);
-    } finally {
-      flushSync(() => root.unmount());
-    }
+  it("has every strip that joins the top bar mark itself", () => {
+    for (const path of JOINED_STRIPS) expect(source(path), path).toContain("data-joins-top-bar");
   });
 });

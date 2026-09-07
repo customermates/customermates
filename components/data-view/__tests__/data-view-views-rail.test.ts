@@ -12,7 +12,6 @@ import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 
 const harness = vi.hoisted(() => ({
   appMode: { current: "cloud" as "cloud" | "demo" | "self-hosted" },
-  joinedContent: vi.fn(),
 }));
 
 vi.mock("mobx-react-lite", () => ({ observer: <T>(component: T) => component }));
@@ -24,9 +23,7 @@ vi.mock("next-intl", () => ({
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({ appMode: harness.appMode.current }),
 }));
-vi.mock("@/app/components/topbar-actions-context", () => ({
-  useSetTopBarJoinedContent: harness.joinedContent,
-}));
+vi.mock("@/app/components/topbar-actions-context", () => ({}));
 
 import { DataViewViewsRail } from "../views/data-view-views-rail";
 
@@ -102,20 +99,15 @@ describe("data view rail", () => {
     harness.appMode.current = "cloud";
   });
 
-  it("renders nothing and unjoins the header on a surface that offers no views", () => {
+  it("renders nothing on a surface that offers no views", () => {
     const html = render(store({ p13nId: undefined } as Partial<BaseDataViewStore<Item>>));
 
     expect(html).toBe("");
-    expect(harness.joinedContent).toHaveBeenCalledWith(false);
   });
 
-  it("joins the header only when the mount point asks for it", () => {
-    render(store());
-    expect(harness.joinedContent).toHaveBeenCalledWith(true);
-
-    vi.clearAllMocks();
-    render(store(), false);
-    expect(harness.joinedContent).toHaveBeenCalledWith(false);
+  it("marks itself as joined in the server markup, so the header boundary never double-draws", () => {
+    expect(render(store())).toContain("data-joins-top-bar");
+    expect(render(store(), false)).not.toContain("data-joins-top-bar");
   });
 
   it("renders the All tab, the create control and the view menu on an empty workspace", () => {

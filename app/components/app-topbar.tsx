@@ -40,7 +40,7 @@ export const AppTopBar = observer(({ operatorConsoleVisible }: { operatorConsole
   const inboxThreadId = searchParams.get("threadId");
   const rootStore = useRootStore();
   const { layoutStore, userStore, terminologyStore } = rootStore;
-  const { actions, joinedContentBelow, override } = useTopBarActions();
+  const { actions, override } = useTopBarActions();
   const { plural } = useEntityTerminology();
 
   const entityLabels: Record<string, string> = {
@@ -75,10 +75,10 @@ export const AppTopBar = observer(({ operatorConsoleVisible }: { operatorConsole
     ],
   );
 
-  if (crumbs.length === 0) return <ShellHeader actions={override ?? actions} joinedContentBelow={joinedContentBelow} />;
+  if (crumbs.length === 0) return <ShellHeader actions={override ?? actions} />;
 
   return (
-    <ShellHeader actions={override ?? actions} joinedContentBelow={joinedContentBelow}>
+    <ShellHeader actions={override ?? actions}>
       <Breadcrumb aria-label={t("Common.ariaLabels.breadcrumb")} className="min-w-0">
         <BreadcrumbList className="flex-nowrap">
           {crumbs.map((c, i) => {

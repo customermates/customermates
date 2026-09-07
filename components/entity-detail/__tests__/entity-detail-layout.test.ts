@@ -9,7 +9,6 @@ const harness = vi.hoisted(() => ({
   loadById: vi.fn(),
   pageStateProps: vi.fn(),
   setTopBarActions: vi.fn(),
-  setTopBarJoinedContent: vi.fn(),
   canReadHistory: false,
   personalizationEnabled: false,
   isPersonalizing: false,
@@ -23,7 +22,6 @@ vi.mock("next-intl", () => ({
 
 vi.mock("@/app/components/topbar-actions-context", () => ({
   useSetTopBarActions: harness.setTopBarActions,
-  useSetTopBarJoinedContent: harness.setTopBarJoinedContent,
 }));
 
 vi.mock("@/components/forms/form-context", () => ({
@@ -217,32 +215,6 @@ describe("EntityDetailLayout", () => {
     expect(html).toContain("EntityDetail.sections.notes");
     expect(html).toContain("EntityTimeline.types.activities");
     expect(html).toContain("@6xl/detail:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_360px]");
-  });
-
-  it.each([
-    ["loading", true],
-    ["content", true],
-    ["not-found", false],
-    ["error", false],
-  ] as const)("joins a visible pinned-field row to the top bar in the %s state", (state, expected) => {
-    harness.personalizationEnabled = true;
-    harness.starredFieldIds = ["name"];
-
-    renderState(state, {
-      summary: createElement("div", { "data-summary": true }),
-    });
-
-    expect(harness.setTopBarJoinedContent).toHaveBeenLastCalledWith(expected);
-  });
-
-  it("keeps the ordinary top-bar boundary when no pinned fields are visible", () => {
-    harness.personalizationEnabled = true;
-
-    renderState("content", {
-      summary: createElement("div", { "data-summary": true }),
-    });
-
-    expect(harness.setTopBarJoinedContent).toHaveBeenLastCalledWith(false);
   });
 
   it("uses one Customize control to enter personalization and field editing together", () => {

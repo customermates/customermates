@@ -189,7 +189,7 @@ export function NavigationSwitch({
 
         <SidebarInset className="min-w-0 overflow-x-clip">
           <TopBarActionsProvider>
-            <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-clip overflow-y-auto [--table-sticky-top:4rem]">
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-clip overflow-y-auto [--table-sticky-top:4rem] [&:has([data-joins-top-bar])>header]:border-b-0">
               <AppTopBar operatorConsoleVisible={operatorConsoleVisible} />
 
               <div className="flex min-h-0 min-w-0 flex-1 flex-col">{children}</div>

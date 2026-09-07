@@ -11,7 +11,6 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 
-import { useSetTopBarJoinedContent } from "@/app/components/topbar-actions-context";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { OverflowRail } from "@/components/shared/overflow-rail";
@@ -67,8 +66,6 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
   const tabbableIndex = chips.findIndex((chip) => chip.isActive);
   const { onKeyDownAt, tabIndexAt } = useRovingFocus(chips.length, Math.max(tabbableIndex, 0));
 
-  useSetTopBarJoinedContent(joinsTopBar && offersViews);
-
   if (!offersViews) return null;
 
   const canWriteViews = appMode !== "demo";
@@ -115,6 +112,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
         store.hasSelection && store.entityType && "hidden md:flex",
       )}
       data-data-view-rail=""
+      data-joins-top-bar={joinsTopBar ? "" : undefined}
       id="global-data-views"
     >
       <TooltipProvider>

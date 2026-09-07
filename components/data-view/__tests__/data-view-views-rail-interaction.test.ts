@@ -27,7 +27,6 @@ vi.mock("next-intl", () => ({
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({ appMode: harness.appMode.current }),
 }));
-vi.mock("@/app/components/topbar-actions-context", () => ({ useSetTopBarJoinedContent: vi.fn() }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock("@/app/actions", () => ({
   deleteDataViewAction: (...args: unknown[]) => {
