@@ -2,17 +2,21 @@ import type { EmailFolder } from "@/ee/messaging/email-folders";
 
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, string>) =>
     values ? `${key}:${Object.values(values).join(",")}` : key,
 }));
 
+const harness = vi.hoisted(() => ({ canUpdate: false }));
+
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     intlStore: { collator: new Intl.Collator("en") },
+    userStore: { can: () => harness.canUpdate },
     messagingThreadDetailStore: {
+      thread: { provider: "mail" },
       folderContext: {
         currentFolderIds: ["inbox"],
         folders: [
@@ -50,5 +54,29 @@ describe("ThreadFolderChip layout, through the real AppChip", () => {
   it("renders a folder icon", () => {
     expect(markup).toContain("lucide-folder");
     expect(markup).not.toContain("lucide-eye-off");
+  });
+});
+
+describe("ThreadFolderChip picker layout, for someone who can file mail", () => {
+  afterEach(() => {
+    harness.canUpdate = false;
+  });
+
+  it("keeps the same 2rem square below sm, and hides the select chevron there", () => {
+    harness.canUpdate = true;
+    const markup = renderToStaticMarkup(createElement(ThreadFolderChip));
+    const classes = (/class="([^"]*)"/.exec(markup)?.[1] ?? "")
+      .replaceAll("&amp;", "&")
+      .replaceAll("&gt;", ">")
+      .replaceAll("&#x27;", "'")
+      .split(/\s+/);
+
+    const square = classes.includes("size-8") || (classes.includes("h-8!") && classes.includes("w-8"));
+    expect(square, `expected a 2rem square, got: ${classes.join(" ")}`).toBe(true);
+    expect(classes).toContain("px-0");
+    expect(classes).toContain("gap-0");
+    expect(classes).toContain("sm:w-auto");
+    expect(classes).toContain("sm:px-2");
+    expect(classes).toContain("[&>svg:last-child]:hidden");
   });
 });

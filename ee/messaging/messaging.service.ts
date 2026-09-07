@@ -42,7 +42,6 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { env } from "@/env";
 import { isEmailProvider } from "./provider";
 import { UnipileAccountSchema, UnipileAttachmentSchema, UnipileUserSchema } from "./unipile.schema";
-import { unipilePostIdForFetch } from "./posts/post-id";
 import {
   SocialPostSchema,
   SocialPostListSchema,
@@ -966,11 +965,31 @@ export class MessagingService {
     }
   }
 
+  async moveEmail(input: {
+    accountId: string;
+    emailId: string;
+    folderId: string;
+  }): Promise<MessagingSendResult<{ id: string; folderIds: string[] }>> {
+    try {
+      const raw = await requestData(
+        this.sdk.emails.modifyEmail({
+          path: { account_id: input.accountId, email_id: input.emailId },
+          body: { folders_ids: [input.folderId] },
+        }),
+      );
+      const data = z.looseObject({ id: z.string().min(1), folders: z.array(z.string()).nullish() }).parse(raw);
+
+      return { ok: true, data: { id: data.id, folderIds: data.folders ?? [input.folderId] } };
+    } catch (err) {
+      return this.mapError(err);
+    }
+  }
+
   async getPost(input: { accountId: string; postId: string }): Promise<MessagingSendResult<SocialPost>> {
     try {
       const raw = await requestData(
         this.sdk.posts.getPost({
-          path: { account_id: input.accountId, post_id: unipilePostIdForFetch(input.postId) },
+          path: { account_id: input.accountId, post_id: input.postId },
         }),
       );
 

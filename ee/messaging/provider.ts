@@ -6,6 +6,12 @@ export function isEmailProvider(provider: MessagingProvider): boolean {
   return EMAIL_PROVIDERS.includes(provider);
 }
 
+export const FILEABLE_EMAIL_PROVIDERS: ReadonlyArray<MessagingProvider> = ["mail", "outlook"];
+
+export function isFileableEmailProvider(provider: MessagingProvider): boolean {
+  return FILEABLE_EMAIL_PROVIDERS.includes(provider);
+}
+
 export const PHONE_PROVIDERS: ReadonlyArray<MessagingProvider> = ["whatsapp"];
 
 export function isPhoneProvider(provider: MessagingProvider): boolean {

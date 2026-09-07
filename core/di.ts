@@ -210,6 +210,7 @@ import { RefreshInboxInteractor } from "@/ee/messaging/inbox/refresh-inbox.inter
 import { DeleteConnectedAccountInteractor } from "@/ee/messaging/connect/delete-connected-account.interactor";
 import { ResyncConnectedAccountInteractor } from "@/ee/messaging/connect/resync-connected-account.interactor";
 import { ResyncThreadInteractor } from "@/ee/messaging/inbox/resync-thread.interactor";
+import { MoveEmailThreadInteractor } from "@/ee/messaging/inbox/move-email-thread.interactor";
 import { ReconnectConnectedAccountInteractor } from "@/ee/messaging/connect/reconnect-connected-account.interactor";
 import { SetConnectedAccountVisibilityInteractor } from "@/ee/messaging/connect/set-connected-account-visibility.interactor";
 import { SetConnectedAccountSignatureInteractor } from "@/ee/messaging/connect/set-connected-account-signature.interactor";
@@ -1187,6 +1188,14 @@ export const getDeleteAccountsForPlanInteractor = () =>
 
 export const getResyncThreadInteractor = () =>
   new ResyncThreadInteractor(getMessagingRepo(), getMessagingService(), getEntitlementService());
+
+export const getMoveEmailThreadInteractor = () =>
+  new MoveEmailThreadInteractor(
+    getMessagingRepo(),
+    getConnectedAccountRepo(),
+    getMessagingService(),
+    getEntitlementService(),
+  );
 
 export const getSetConnectedAccountVisibilityInteractor = () =>
   new SetConnectedAccountVisibilityInteractor(getConnectedAccountRepo(), getEventService(), getEntitlementService());

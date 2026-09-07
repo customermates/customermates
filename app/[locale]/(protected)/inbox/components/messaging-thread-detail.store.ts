@@ -6,7 +6,7 @@ import type { MessagingMessageDto } from "@/ee/messaging/inbox/inbox.schema";
 
 import { action, makeObservable, observable, runInAction } from "mobx";
 
-import { getMessagingThreadAction, updateThreadAction, resyncThreadAction } from "../actions";
+import { getMessagingThreadAction, updateThreadAction, resyncThreadAction, moveEmailThreadAction } from "../actions";
 import { MESSAGING_RATE_LIMITS_DOCS_PATH } from "./lazy-media";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
@@ -38,6 +38,7 @@ export class MessagingThreadDetailStore extends BaseStore {
       hydrate: action,
       refresh: action,
       setState: action,
+      moveToFolder: action,
       markRead: action,
       toggleSharing: action,
       resyncThread: action,
@@ -109,6 +110,47 @@ export class MessagingThreadDetailStore extends BaseStore {
       }
 
       this.applyState(thread.id, next);
+    });
+  };
+
+  moveToFolder = async (folderId: string): Promise<void> => {
+    const thread = this.thread;
+    const context = this.folderContext;
+    if (!thread || !context || context.currentFolderIds.includes(folderId)) return;
+
+    await this.rootStore.loadingOverlayStore.withLoading(async () => {
+      const result = await moveEmailThreadAction({ threadId: thread.id, folderId });
+      if (!result.ok) {
+        toastZodErrorTree(result.error);
+        return;
+      }
+
+      if (result.data.rateLimited) {
+        this.toastError("Inbox.folders.moveRateLimited", {
+          values: { folder: result.data.folderName, retryAfter: result.data.retryAfter ?? "" },
+        });
+        await this.refresh();
+        return;
+      }
+
+      if (result.data.failedCount > 0) {
+        this.toastError("Inbox.folders.movePartial", {
+          values: { folder: result.data.folderName, failed: String(result.data.failedCount) },
+        });
+        await this.refresh();
+        return;
+      }
+
+      if (result.data.movedCount === 0) {
+        this.toastError("Inbox.folders.moveNothing", { values: { folder: result.data.folderName } });
+        return;
+      }
+
+      this.folderContext = { ...context, currentFolderIds: [result.data.folderId] };
+
+      this.toastSuccess(result.data.hiddenFromInbox ? "Inbox.folders.movedHidden" : "Inbox.folders.moved", {
+        values: { folder: result.data.folderName },
+      });
     });
   };
 

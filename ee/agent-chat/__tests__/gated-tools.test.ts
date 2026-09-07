@@ -49,6 +49,11 @@ describe("gated-tools", () => {
     }
   });
 
+  it("keeps the mailbox folder move behind approval, unlike inbox-only thread triage", () => {
+    expect(approvalNeeded(toolByName("move_email_thread"), {})).toBe(true);
+    expect(approvalNeeded(toolByName("update_messaging_thread"), {})).toBe(false);
+  });
+
   it("fails closed: a tool without annotations is not read-only", () => {
     for (const tool of ALL_MCP_TOOLS.filter((tool) => !tool.annotations)) expect(isReadOnlyTool(tool)).toBe(false);
   });
@@ -162,7 +167,7 @@ describe("gated-tools", () => {
     expect(groupSizes).toEqual({
       records: 17,
       workspace: 2,
-      messaging: 9,
+      messaging: 10,
       social: 8,
       docs: 2,
       "custom-columns": 1,

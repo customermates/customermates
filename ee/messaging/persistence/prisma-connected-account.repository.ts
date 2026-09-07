@@ -3,6 +3,7 @@ import type { MessagingProvider, Prisma } from "@/generated/prisma";
 import type { GetMyConnectedAccountsRepo } from "../connect/get-my-connected-accounts.interactor";
 import type { CreateHostedAuthLinkRepo } from "../connect/create-auth-link.interactor";
 import type { ThreadAccountOwnersRepo } from "../inbox/get-messaging-thread.interactor";
+import type { MoveEmailThreadAccountRepo } from "../inbox/move-email-thread.interactor";
 import type { DeleteConnectedAccountRepo } from "../connect/delete-connected-account.interactor";
 import type { ResyncConnectedAccountRepo } from "../connect/resync-connected-account.interactor";
 import type { ReconnectConnectedAccountRepo } from "../connect/reconnect-connected-account.interactor";
@@ -56,6 +57,7 @@ export class PrismaConnectedAccountRepo
     FindUsableAccountRepo,
     FindAccountByUnipileIdUnscopedRepo,
     ThreadAccountOwnersRepo,
+    MoveEmailThreadAccountRepo,
     WebhookActivityRepo,
     DeleteAccountForBillingRepo,
     DeleteAccountsForPlanConnectedAccountRepo,

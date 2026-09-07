@@ -71,7 +71,7 @@ export const getSocialPostsOperation: ZodOpenApiOperationObject = {
             description: "Use data[].id from a previous post-list response as postId.",
             value: {
               connectedAccountId: EXAMPLE_CONNECTED_ACCOUNT_ID,
-              postId: "urn:li:activity:example-post-id",
+              postId: "WyJhY3Rpdml0eTo3NDQ3MjYwMjQ1OTUwNjQ4MzIwIiwidWdjUG9zdDo3NDQ3MjYwMTgwOTM0Nzg3MDc0Il0=",
             },
           },
         },

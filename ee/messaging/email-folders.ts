@@ -1,4 +1,8 @@
+import type { MessagingProvider } from "@/generated/prisma";
+
 import { z } from "zod";
+
+import { isFileableEmailProvider } from "./provider";
 
 export const EmailFolderSchema = z.object({
   id: z.string(),
@@ -99,6 +103,21 @@ export function defaultSelectedFolderIds(folders: FolderLike[]): string[] {
 
 export function isMovableEmailFolder(folder: { role?: string | null; name?: string | null }): boolean {
   return !isSentEmailFolder(folder) && !isDraftEmailFolder(folder);
+}
+
+export function isEmailMoveTarget(folder: { role?: string | null; name?: string | null }): boolean {
+  return isMovableEmailFolder(folder) && !isSkippedEmailFolder(folder);
+}
+
+export function emailMoveTargets(folders: EmailFolder[], provider: MessagingProvider): EmailFolder[] {
+  if (!isFileableEmailProvider(provider)) return [];
+
+  return folders.filter(isEmailMoveTarget).toSorted((left, right) => {
+    const leftName = left.name ?? "";
+    const rightName = right.name ?? "";
+
+    return leftName < rightName ? -1 : leftName > rightName ? 1 : 0;
+  });
 }
 
 export function threadEmailFolderIds(

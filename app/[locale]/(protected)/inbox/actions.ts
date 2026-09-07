@@ -12,6 +12,7 @@ import type { SaveDraftData } from "@/ee/messaging/outbound/save-draft.interacto
 import type { DiscardDraftData } from "@/ee/messaging/outbound/discard-draft.interactor";
 import type { StartChatData } from "@/ee/messaging/outbound/start-chat.interactor";
 import type { ResolveProviderProfileData } from "@/ee/messaging/outbound/resolve-provider-profile.interactor";
+import type { MoveEmailThreadData } from "@/ee/messaging/inbox/move-email-thread.interactor";
 
 import {
   getGetMessagingThreadsInteractor,
@@ -20,6 +21,7 @@ import {
   getUnlinkContactIdentifierInteractor,
   getUpdateThreadInteractor,
   getResyncThreadInteractor,
+  getMoveEmailThreadInteractor,
   getSendChatMessageInteractor,
   getSendEmailInteractor,
   getSaveDraftInteractor,
@@ -58,6 +60,10 @@ export async function updateThreadAction(data: UpdateThreadData) {
 
 export async function resyncThreadAction(threadId: string) {
   return serializeResult(getResyncThreadInteractor().invoke({ threadId }));
+}
+
+export async function moveEmailThreadAction(data: MoveEmailThreadData) {
+  return serializeResult(getMoveEmailThreadInteractor().invoke(data));
 }
 
 export async function sendChatMessageAction(data: SendChatMessageData) {
