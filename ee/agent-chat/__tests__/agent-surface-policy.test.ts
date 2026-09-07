@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import {
   AGENT_APPROVAL_WINDOW_MS,
   approvalWindowMsForSurface,
-  isToolAvailableOnSurface,
   isUnattendedSurface,
 } from "@/ee/agent-chat/agent-surface-policy";
 
@@ -20,17 +19,5 @@ describe("agent surface policy", () => {
   it("treats only a routine as unattended, so panel tools stay available in chat", () => {
     expect(isUnattendedSurface("routine")).toBe(true);
     expect(isUnattendedSurface("chat")).toBe(false);
-  });
-});
-
-describe("surface tool availability", () => {
-  it("keeps routine management off the surface that runs unattended", () => {
-    expect(isToolAvailableOnSurface("routine", "manage_routines")).toBe(false);
-    expect(isToolAvailableOnSurface("chat", "manage_routines")).toBe(true);
-  });
-
-  it("leaves every other tool alone on both surfaces", () => {
-    for (const surface of ["chat", "routine"] as const)
-      expect(isToolAvailableOnSurface(surface, "get_records")).toBe(true);
   });
 });

@@ -26,10 +26,7 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
     readOnlyActions: ["list", "get", "list_deliveries"],
   },
   manage_widgets: { approvalFreeActions: ["list", "get", "create", "update"], readOnlyActions: ["list", "get"] },
-  manage_routines: {
-    approvalFreeActions: ["list", "runs", "create", "update", "pause", "run_now", "delete"],
-    readOnlyActions: ["list", "runs"],
-  },
+  manage_routines: { approvalFreeActions: ["list", "runs", "create", "update"], readOnlyActions: ["list", "runs"] },
   linkedin_manage_sales_lists: {
     approvalFreeActions: ["list", "browse"],
     readOnlyActions: ["list", "browse"],

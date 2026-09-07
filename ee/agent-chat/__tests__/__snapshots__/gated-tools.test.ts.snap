@@ -78,9 +78,6 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
     "runs",
     "create",
     "update",
-    "pause",
-    "run_now",
-    "delete",
   ],
   "manage_social_relations": [
     "list",
