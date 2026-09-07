@@ -23,7 +23,11 @@ import { SEED_IDS } from "../seeds/context";
 import { SYNTHETIC_CUSTOM_COLUMN_IDS } from "../seeds/custom-fields";
 import { fixtureId } from "../seeds/helpers";
 import { SYNTHETIC_CUSTOM_ROLES } from "../seeds/roles";
-import { SYNTHETIC_CUSTOM_COLUMN_UPDATE_INDEXES, SYNTHETIC_SEED_TIMELINE } from "../seeds/timeline";
+import {
+  SYNTHETIC_CUSTOM_COLUMN_UPDATE_INDEXES,
+  SYNTHETIC_SEED_TIMELINE,
+  SYNTHETIC_TIMELINE_SHIFT_MS,
+} from "../seeds/timeline";
 import { SYNTHETIC_WEBHOOK_DESCRIPTION, SYNTHETIC_WEBHOOK_URL } from "../seeds/webhooks";
 
 const primaryUserReference = {
@@ -33,7 +37,7 @@ const primaryUserReference = {
   lastName: SYNTHETIC_COMPANY_USERS.maxBergmann.lastName,
   avatarUrl: "https://customermates.com/demo/avatars/photos/max-bergmann.png",
 };
-const messagingSyncAt = new Date("2026-08-06T00:00:00.000Z");
+const messagingSyncAt = new Date(Date.parse("2026-08-06T00:00:00.000Z") + SYNTHETIC_TIMELINE_SHIFT_MS);
 
 function syntheticSnapshot(): SyntheticAuditSnapshot {
   const users = [
@@ -283,7 +287,7 @@ describe("synthetic audit-log fixtures", () => {
     const timestamps = fixtures.map(({ createdAt }) => createdAt.getTime());
     const earliest = Math.min(...timestamps);
     const latest = Math.max(...timestamps);
-    const reference = Date.parse("2026-08-06T00:00:00.000Z");
+    const reference = messagingSyncAt.getTime();
     const coveredMonths = new Set(
       fixtures.map(({ createdAt }) => `${createdAt.getUTCFullYear()}-${createdAt.getUTCMonth()}`),
     );

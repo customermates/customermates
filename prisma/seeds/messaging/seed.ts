@@ -11,6 +11,7 @@ import {
   defaultEmailSettings,
 } from "@/ee/messaging/email-settings";
 import { composeEmailBodies } from "@/ee/messaging/outbound/email-signature";
+import { renderEmailMarkdown } from "@/ee/messaging/outbound/render-signature";
 
 import { SYNTHETIC_AVATAR_URLS } from "../avatars";
 import { fixtureId } from "../helpers";
@@ -109,6 +110,12 @@ function emailBodies(text: string, sender: ThreadFixture["messages"][number]["se
   return sender === "self"
     ? composeEmailBodies(text, workspaceSignature(seedUserEmail), workspaceEmailSettings(), "markdown")
     : composeEmailBodies(text, correspondentSignature(sender), correspondentEmailSettings(), "markdown");
+}
+
+function draftBodies(text: string) {
+  const rendered = renderEmailMarkdown(text, workspaceEmailSettings().appearance);
+
+  return { plainText: text, html: rendered.html };
 }
 
 function providerFor(account: ThreadFixture["account"]): ThreadFixture["account"] {
@@ -701,12 +708,17 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
       }
     }
 
-    for (const [localMessageIndex, message] of fixture.messages.entries()) {
+    const sentMessageCount = fixture.messages.filter((entry) => entry.draft !== true).length;
+    let sentSoFar = 0;
+
+    for (const message of fixture.messages) {
       messageIndex += 1;
       const messageId = fixtureId("19000000", messageIndex);
       const sender = message.sender === "self" ? self : personAttendee(message.sender, provider);
       const recipientAttendees = attendees.filter((attendee) => attendee.attendeeId !== sender.attendeeId);
-      const sentAt = new Date(latestAt.getTime() - (fixture.messages.length - 1 - localMessageIndex) * 45 * MINUTE);
+      const sentPosition = message.draft === true ? sentMessageCount - 1 : sentSoFar;
+      if (message.draft !== true) sentSoFar += 1;
+      const sentAt = new Date(latestAt.getTime() - (sentMessageCount - 1 - sentPosition) * 45 * MINUTE);
       const reactionSender = message.reaction
         ? message.reaction.sender === "self"
           ? self
@@ -714,7 +726,9 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
         : null;
       const unipileMessageId = `demo-fixture-message-${messageIndex}`;
       const composedBodies = isEmailFixtureProvider(provider)
-        ? emailBodies(message.text, message.sender, context.seedUserEmail)
+        ? message.draft === true
+          ? draftBodies(message.text)
+          : emailBodies(message.text, message.sender, context.seedUserEmail)
         : null;
       const data = {
         companyId: context.companyId,
@@ -747,7 +761,7 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
         isEvent: false,
         isDeleted: false,
         isHidden: false,
-        isDraft: false,
+        isDraft: message.draft === true,
         sentAt,
         editedAt: null,
         unipileMessageId,

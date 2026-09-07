@@ -321,15 +321,25 @@ describe("data view rail", () => {
     expect(readOnly).toBe(managed);
   });
 
-  it("drops every write control in demo mode and keeps the tabs", () => {
+  it("shows every write control in demo mode, because the interactor refuses the write and the toast explains it", () => {
     harness.appMode.current = "demo";
     const html = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
 
     expect(tabs(html)).toHaveLength(4);
     expect(html).toContain('id="global-data-views-all"');
     expect(html).toContain("Open deals");
-    expect(html).not.toContain('id="global-data-views-new"');
-    expect(html).not.toContain('id="global-data-views-menu"');
+    expect(html).toContain('id="global-data-views-new"');
+    expect(html).toContain('id="global-data-views-menu"');
+  });
+
+  it("renders the rail identically whatever the app mode, so demo hides nothing", () => {
+    harness.appMode.current = "cloud";
+    const cloud = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
+
+    harness.appMode.current = "demo";
+    const demo = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
+
+    expect(demo).toBe(cloud);
   });
 
   it("falls back to the All tab for an active key that matches no view", () => {

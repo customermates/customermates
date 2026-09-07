@@ -1,10 +1,11 @@
 import type { DataViewState } from "@/core/data-view/data-view-state.schema";
+import type { DateBucket } from "@/core/base/grouping/grouping.schema";
 import type { PrismaClient } from "@/generated/prisma";
 
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { MessagingThreadState } from "@/generated/prisma";
+import { MessagingProvider, MessagingThreadState } from "@/generated/prisma";
 import { writeStoredState } from "@/features/data-view/data-view-row-mapping";
 
 import type { SeedContext } from "./context";
@@ -30,14 +31,16 @@ export function buildSyntheticDataViewFixtures(
   const { customColumnIds, customOptionIds } = customFields;
   const { user } = context.ids;
 
-  const board = (field: string): Pick<DataViewState, "viewMode" | "grouping"> => ({
+  const board = (field: string, bucket?: DateBucket): Pick<DataViewState, "viewMode" | "grouping"> => ({
     viewMode: ViewMode.card,
-    grouping: { field },
+    grouping: bucket ? { field, bucket } : { field },
   });
 
   const selected = (field: string, values: string[]): DataViewState["filters"] => [
     { field, operator: FilterOperatorKey.in, value: values },
   ];
+
+  const sorted = (field: string, direction: "asc" | "desc"): DataViewState["sortDescriptor"] => ({ field, direction });
 
   return [
     {
@@ -49,6 +52,16 @@ export function buildSyntheticDataViewFixtures(
       state: {
         filters: selected(customColumnIds.dealStatus, [customOptionIds.dealStatus.open]),
         ...board(customColumnIds.dealStatus),
+        hiddenColumns: [
+          customColumnIds.dealStatus,
+          "contacts",
+          "services",
+          "tasks",
+          "totalQuantity",
+          "users",
+          "createdAt",
+          "updatedAt",
+        ],
       },
     },
     {
@@ -57,7 +70,46 @@ export function buildSyntheticDataViewFixtures(
       surfaceKey: SURFACE.deals,
       name: "Sales pipeline",
       position: 1,
-      state: board(customColumnIds.dealStatus),
+      state: {
+        ...board(customColumnIds.dealStatus),
+        sortDescriptor: sorted("totalValue", "desc"),
+        hiddenColumns: [
+          customColumnIds.dealStatus,
+          "contacts",
+          "services",
+          "tasks",
+          "totalQuantity",
+          "users",
+          "createdAt",
+          "updatedAt",
+        ],
+      },
+    },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.dealForecast,
+      userId: user,
+      surfaceKey: SURFACE.deals,
+      name: "Forecast review",
+      position: 2,
+      state: {
+        viewMode: ViewMode.table,
+        sortDescriptor: sorted("weightedValue", "desc"),
+        pageSize: 25,
+        columnOrder: ["totalValue", "weightedValue", customColumnIds.dealStatus, "organizations", "users"],
+        columnWidths: { totalValue: 160, weightedValue: 180 },
+        hiddenColumns: ["contacts", "services", "tasks", "totalQuantity", "createdAt", "updatedAt"],
+      },
+    },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.dealsByAccount,
+      userId: user,
+      surfaceKey: SURFACE.deals,
+      name: "By account",
+      position: 3,
+      state: {
+        ...board("organizationIds"),
+        hiddenColumns: ["organizations", "contacts", "tasks", "totalQuantity", "users", "createdAt", "updatedAt"],
+      },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.contactPipeline,
@@ -65,7 +117,18 @@ export function buildSyntheticDataViewFixtures(
       surfaceKey: SURFACE.contacts,
       name: "Lead pipeline",
       position: 0,
-      state: board(customColumnIds.contactSalesPipeline),
+      state: {
+        ...board(customColumnIds.contactSalesPipeline),
+        hiddenColumns: [
+          customColumnIds.contactSalesPipeline,
+          customColumnIds.contactPhone,
+          "channels",
+          "tasks",
+          "users",
+          "createdAt",
+          "updatedAt",
+        ],
+      },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.contactsInPlay,
@@ -80,6 +143,23 @@ export function buildSyntheticDataViewFixtures(
           customOptionIds.contactSalesPipeline.inProgress,
         ]),
         viewMode: ViewMode.table,
+        sortDescriptor: sorted("updatedAt", "desc"),
+        columnOrder: [customColumnIds.contactSalesPipeline, "organizations", "deals", "users"],
+        hiddenColumns: ["channels", "tasks", "createdAt"],
+      },
+    },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.contactsRecentlyAdded,
+      userId: user,
+      surfaceKey: SURFACE.contacts,
+      name: "Added by month",
+      position: 2,
+      state: {
+        viewMode: ViewMode.table,
+        grouping: { field: "createdAt", bucket: "month" },
+        sortDescriptor: sorted("createdAt", "desc"),
+        pageSize: 25,
+        hiddenColumns: ["channels", "tasks", "updatedAt"],
       },
     },
     {
@@ -88,7 +168,17 @@ export function buildSyntheticDataViewFixtures(
       surfaceKey: SURFACE.organizations,
       name: "Accounts by type",
       position: 0,
-      state: board(customColumnIds.organizationType),
+      state: {
+        ...board(customColumnIds.organizationType),
+        hiddenColumns: [
+          customColumnIds.organizationType,
+          customColumnIds.organizationWebsite,
+          "tasks",
+          "users",
+          "createdAt",
+          "updatedAt",
+        ],
+      },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.directCustomers,
@@ -99,6 +189,10 @@ export function buildSyntheticDataViewFixtures(
       state: {
         filters: selected(customColumnIds.organizationType, [customOptionIds.organizationType.directCustomer]),
         viewMode: ViewMode.table,
+        sortDescriptor: sorted("name", "asc"),
+        columnOrder: [customColumnIds.organizationType, "deals", "contacts", "users"],
+        columnWidths: { name: 260 },
+        hiddenColumns: ["tasks", "createdAt"],
       },
     },
     {
@@ -107,7 +201,10 @@ export function buildSyntheticDataViewFixtures(
       surfaceKey: SURFACE.services,
       name: "Catalogue by pricing",
       position: 0,
-      state: board(customColumnIds.servicePricing),
+      state: {
+        ...board(customColumnIds.servicePricing),
+        hiddenColumns: [customColumnIds.servicePricing, "tasks", "users", "createdAt", "updatedAt"],
+      },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.hardwareServices,
@@ -118,6 +215,22 @@ export function buildSyntheticDataViewFixtures(
       state: {
         filters: selected(customColumnIds.serviceType, [customOptionIds.serviceType.hardware]),
         viewMode: ViewMode.table,
+        sortDescriptor: sorted("amount", "desc"),
+        columnOrder: ["amount", customColumnIds.servicePricing, "deals"],
+        hiddenColumns: ["tasks", "users", "createdAt", "updatedAt"],
+      },
+    },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.servicesRecentlyUpdated,
+      userId: user,
+      surfaceKey: SURFACE.services,
+      name: "Updated by week",
+      position: 2,
+      state: {
+        viewMode: ViewMode.table,
+        grouping: { field: "updatedAt", bucket: "week" },
+        sortDescriptor: sorted("updatedAt", "desc"),
+        hiddenColumns: ["tasks", "createdAt"],
       },
     },
     {
@@ -126,7 +239,10 @@ export function buildSyntheticDataViewFixtures(
       surfaceKey: SURFACE.tasks,
       name: "Delivery board",
       position: 0,
-      state: board(customColumnIds.taskStatus),
+      state: {
+        ...board(customColumnIds.taskStatus),
+        hiddenColumns: [customColumnIds.taskStatus, "contacts", "services", "users", "createdAt", "updatedAt"],
+      },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.highPriorityTasks,
@@ -137,6 +253,23 @@ export function buildSyntheticDataViewFixtures(
       state: {
         filters: selected(customColumnIds.taskPriority, [customOptionIds.taskPriority.high]),
         viewMode: ViewMode.table,
+        sortDescriptor: sorted("updatedAt", "desc"),
+        columnOrder: [customColumnIds.taskPriority, customColumnIds.taskStatus, "deals", "users"],
+        hiddenColumns: ["contacts", "organizations", "services", "createdAt"],
+      },
+    },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.tasksByPriority,
+      userId: user,
+      surfaceKey: SURFACE.tasks,
+      name: "Priority list",
+      position: 2,
+      state: {
+        viewMode: ViewMode.table,
+        grouping: { field: customColumnIds.taskPriority },
+        sortDescriptor: sorted("name", "asc"),
+        columnOrder: [customColumnIds.taskStatus, "deals", "organizations"],
+        hiddenColumns: ["contacts", "services", "users", "createdAt", "updatedAt"],
       },
     },
     {
@@ -158,6 +291,17 @@ export function buildSyntheticDataViewFixtures(
       position: 1,
       state: {
         filters: selected(FilterFieldKey.state, [MessagingThreadState.unread]),
+        viewMode: ViewMode.table,
+      },
+    },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.inboxWhatsApp,
+      userId: user,
+      surfaceKey: SURFACE.messagingThreads,
+      name: "WhatsApp",
+      position: 2,
+      state: {
+        filters: selected(FilterFieldKey.provider, [MessagingProvider.whatsapp]),
         viewMode: ViewMode.table,
       },
     },
