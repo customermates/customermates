@@ -49960,12 +49960,16 @@
                   },
                   "providerThreadId": {
                     "type": "string"
+                  },
+                  "threadId": {
+                    "type": "string"
                   }
                 },
                 "required": [
                   "connectedAccountId",
                   "provider",
-                  "providerThreadId"
+                  "providerThreadId",
+                  "threadId"
                 ]
               }
             },
@@ -50033,12 +50037,16 @@
                   },
                   "providerThreadId": {
                     "type": "string"
+                  },
+                  "threadId": {
+                    "type": "string"
                   }
                 },
                 "required": [
                   "connectedAccountId",
                   "provider",
-                  "providerThreadId"
+                  "providerThreadId",
+                  "threadId"
                 ]
               }
             },
