@@ -165,6 +165,7 @@ export function filterOptionSources(
     },
     [FilterFieldKey.contactIds]: { getItems: contactItems },
     [FilterFieldKey.participantContactId]: { getItems: contactItems },
+    [FilterFieldKey.draft]: NO_FILTER_OPTIONS,
     [FilterFieldKey.participants]: NO_FILTER_OPTIONS,
     [FilterFieldKey.timelineKind]: {
       items: () =>

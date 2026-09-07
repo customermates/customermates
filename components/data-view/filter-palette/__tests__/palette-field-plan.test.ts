@@ -66,6 +66,7 @@ const EXPECTED_STANDARD: Record<FilterFieldKey, Expected> = {
   [FilterFieldKey.contactIds]: SELECT,
   [FilterFieldKey.createdAt]: RELATIVE_DATE,
   [FilterFieldKey.dealIds]: SELECT,
+  [FilterFieldKey.draft]: OPERATOR_ONLY,
   [FilterFieldKey.event]: SELECT,
   [FilterFieldKey.adProvider]: SELECT,
   [FilterFieldKey.isPlatformOperator]: SELECT,

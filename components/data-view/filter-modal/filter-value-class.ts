@@ -35,6 +35,7 @@ function comparisonValueClass(kind: FilterValueKind["kind"] | undefined): Filter
     case "event":
     case "string":
     case "linkStatus":
+    case "draftStatus":
     case undefined:
       return "text";
   }
