@@ -9,6 +9,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const harness = vi.hoisted(() => ({
   chipProps: vi.fn(),
   folderContext: null as unknown,
+  canUpdate: false,
+  provider: "mail" as string,
 }));
 
 vi.mock("next-intl", () => ({
@@ -19,7 +21,12 @@ vi.mock("next-intl", () => ({
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     intlStore: { collator: new Intl.Collator("en") },
-    messagingThreadDetailStore: { folderContext: harness.folderContext },
+    userStore: { can: () => harness.canUpdate },
+    messagingThreadDetailStore: {
+      folderContext: harness.folderContext,
+      thread: { provider: harness.provider },
+      moveToFolder: vi.fn(),
+    },
   }),
 }));
 
@@ -51,7 +58,14 @@ function chipProps() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  harness.canUpdate = false;
+  harness.provider = "mail";
 });
+
+function renderAsEditor(context: unknown) {
+  harness.canUpdate = true;
+  return render(context);
+}
 
 describe("ThreadFolderChip", () => {
   it("renders nothing for a thread with no folder context, such as a chat", () => {
@@ -138,5 +152,58 @@ describe("ThreadFolderChip", () => {
 
     expect(chipProps()["aria-label"]).toBe("Inbox.folders.hiddenTooltip:Trash");
     expect(chipProps().tooltip).toBe("Inbox.folders.hiddenTooltip:Trash");
+  });
+});
+
+describe("ThreadFolderChip move picker", () => {
+  const catalog = {
+    currentFolderIds: ["inbox"],
+    folders: [
+      folder("inbox", "INBOX"),
+      folder("archive", "Archive"),
+      folder("sent", "Sent Mail"),
+      { id: "trash", name: "Trash", role: "TRASH", totalCount: null, unreadCount: null },
+    ],
+    selectedFolderIds: ["inbox"],
+  };
+
+  it("stays a read-only chip for someone who cannot update the inbox", () => {
+    const markup = render(catalog);
+
+    expect(harness.chipProps).toHaveBeenCalled();
+    expect(markup).not.toContain("inbox-thread-folder");
+  });
+
+  it("offers a picker to someone who can update the inbox", () => {
+    const markup = renderAsEditor(catalog);
+
+    expect(harness.chipProps).not.toHaveBeenCalled();
+    expect(markup).toContain("inbox-thread-folder");
+  });
+
+  it("keeps the folder explanation on the picker, not only on the read-only chip", () => {
+    const markup = renderAsEditor(catalog);
+
+    expect(markup).toContain('aria-label="Inbox.folders.current:INBOX"');
+    expect(markup).toContain('title="Inbox.folders.current:INBOX"');
+  });
+
+  it("shows a read-only chip on a provider whose mail cannot be filed", () => {
+    harness.provider = "google";
+    const markup = renderAsEditor(catalog);
+
+    expect(harness.chipProps).toHaveBeenCalled();
+    expect(markup).not.toContain("inbox-thread-folder");
+  });
+
+  it("treats Sent as unmovable, falling back to the read-only chip when it is the only folder", () => {
+    const markup = renderAsEditor({
+      currentFolderIds: ["sent"],
+      folders: [folder("sent", "Sent Mail")],
+      selectedFolderIds: ["sent"],
+    });
+
+    expect(harness.chipProps).toHaveBeenCalled();
+    expect(markup).not.toContain("inbox-thread-folder");
   });
 });

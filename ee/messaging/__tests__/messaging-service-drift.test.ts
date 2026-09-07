@@ -456,6 +456,45 @@ describe("Unipile failure diagnostics reach Sentry", () => {
     req_id: "req-63hr",
   };
 
+  it("sends one folder id to modify and returns the replacement email id the provider mints", async () => {
+    stubFetch({ object: "Email", id: "BAAAALHABmpBcmNoaXZl", folders: ["scAGakFyY2hpdmU="] });
+
+    const result = await new MessagingService().moveEmail({
+      accountId: "acc_1",
+      emailId: "IQAAALHABmpJTkJPWA==",
+      folderId: "scAGakFyY2hpdmU=",
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toEqual({ id: "BAAAALHABmpBcmNoaXZl", folderIds: ["scAGakFyY2hpdmU="] });
+    expect(decodeURIComponent(firstRequestUrl().pathname)).toBe("/v2/acc_1/emails/IQAAALHABmpJTkJPWA==/modify");
+  });
+
+  it("rejects a modify response that omits the email id rather than inventing one", async () => {
+    stubFetch({ object: "Email", folders: ["scAGakFyY2hpdmU="] });
+
+    await expect(
+      new MessagingService().moveEmail({ accountId: "acc_1", emailId: "e1", folderId: "f1" }),
+    ).rejects.toThrow();
+  });
+
+  it("falls back to the requested folder when the provider omits the folder list", async () => {
+    stubFetch({ object: "Email", id: "new-id" });
+
+    const result = await new MessagingService().moveEmail({ accountId: "acc_1", emailId: "e1", folderId: "f1" });
+
+    if (result.ok) expect(result.data.folderIds).toEqual(["f1"]);
+  });
+
+  it("sends a composite LinkedIn post id to Get a Post byte for byte", async () => {
+    const compositeId = "WyJhY3Rpdml0eTo3NDQ3MjYwMjQ1OTUwNjQ4MzIwIiwidWdjUG9zdDo3NDQ3MjYwMTgwOTM0Nzg3MDc0Il0=";
+    stubFetch({ object: "Post", id: compositeId, date: "2026-04-07T12:33:26.039Z" });
+
+    await new MessagingService().getPost({ accountId: "acc_1", postId: compositeId });
+
+    expect(decodeURIComponent(firstRequestUrl().pathname)).toBe(`/v2/acc_1/posts/${compositeId}`);
+  });
+
   it("reports a permanent provider limitation with its raw status, type, detail and req_id", async () => {
     stubFetch(notImplemented, 501);
 

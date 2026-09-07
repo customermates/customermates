@@ -40,6 +40,7 @@
         "teamInvite": "Enviar correos de invitación a las personas seleccionadas",
         "teamInviteTarget": "Enviar {count} correo(s) de invitación a: {target}",
         "teamUpdate": "Cambiar el rol o el estado del miembro del equipo seleccionado",
+        "threadMove": "Mover la conversación a otra carpeta del buzón",
         "threadUpdate": "Cambiar el estado de la conversación seleccionada",
         "threadUpdateState": "Establecer el estado de la conversación en «{state}»",
         "webhookCreate": "Crear un webhook",
@@ -980,6 +981,9 @@
       "duplicateOutboundSuppressed": "Hace un momento se envió un mensaje idéntico a esta conversación. Cambia el texto o espera un minuto antes de reintentar.",
       "duplicateWebhookEvents": "No se permiten eventos duplicados.",
       "emailAlreadyExists": "Ya existe una cuenta con este correo.",
+      "emailFolderMoveUnsupported": "El correo de esta cuenta no se puede archivar desde Customermates.",
+      "emailFolderNotFound": "Carpeta no encontrada para esta cuenta.",
+      "emailFolderNotMovable": "Esta carpeta no puede recibir correo movido.",
       "emailLinkColourInvalid": "Introduce # seguido de 6 caracteres hexadecimales (0–9, A–F), por ejemplo #1A2B3C.",
       "emailMismatch": "Las direcciones de correo deben coincidir.",
       "emailNotVerified": "Correo no verificado.",
@@ -2321,6 +2325,10 @@
     "folders": {
       "current": "En {folder}",
       "hiddenTooltip": "En {folder}, que está oculta en tu bandeja de entrada",
+      "moved": "Movido a {folder}.",
+      "movedHidden": "Movido a {folder}. Ya no aparece en tu bandeja de entrada.",
+      "moveNothing": "No hay nada que mover a {folder}.",
+      "movePartial": "Se movió parte de esta conversación a {folder}. {failed} mensaje(s) no se pudieron mover.",
       "none": "Sin carpeta"
     },
     "groupThread": "Grupo ({count, plural, one {# miembro} other {# miembros}})",

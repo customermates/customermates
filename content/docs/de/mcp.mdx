@@ -152,6 +152,7 @@ Messaging-basierte Tools sind im Cloud-Modus ab dem Pro-Tarif verfügbar. `get_a
 | `save_message_draft` |  |  | Nachricht zur Durchsicht vorbereiten: Der Draft erscheint in der Inbox, und Sie senden ihn selbst. Mit `threadId` entsteht eine Antwort, mit `connectedAccountId` plus `recipients` eine komplett neue Unterhaltung, die zunächst nur als Draft existiert. Gibt Message-ID und undurchsichtiges Revision-Token zurück; erneutes Speichern aktualisiert den einen Draft des Threads. Die Signatur wird beim Senden des Drafts angehängt, schreiben Sie daher keine Grußformel in den Text. |
 | `discard_message_draft` |  | ✓ | Die exakte gespeicherte Draft-Version per Message-ID und undurchsichtigem Revision-Token löschen. |
 | `update_messaging_thread` |  |  | Thread-State setzen: unread, open, closed oder spam. |
+| `move_email_thread` |  |  | Eine E-Mail-Konversation beim Anbieter in einen anderen Postfachordner verschieben. |
 | `connect_messaging_account` |  |  | Erzeugt einen Link, den der User im Browser öffnet, um einen Kanal zu verbinden (WhatsApp, LinkedIn, E-Mail, Instagram, Telegram). Sie geben den Link zurück; der User schließt die Auth dort ab. Läuft nach 30 Minuten ab. |
 {/* /mcp-catalog */}
 

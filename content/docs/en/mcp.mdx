@@ -152,6 +152,7 @@ Messaging-backed tools are available from the Pro tier in cloud mode. `get_activ
 | `save_message_draft` |  |  | Prepare a message for review: the draft shows up in the inbox and the user sends it. With `threadId` it drafts a reply; with `connectedAccountId` plus `recipients` it prepares a brand-new conversation that exists only as a draft. Returns the message id and opaque revision token; saving again updates the thread's one draft. The signature is appended when the draft is sent, so never write a sign-off into the body. |
 | `discard_message_draft` |  | ✓ | Delete the exact saved draft revision using its message id and opaque revision token. |
 | `update_messaging_thread` |  |  | Set the thread state: unread, open, closed, or spam. |
+| `move_email_thread` |  |  | Move an email conversation into another mailbox folder at the provider. |
 | `connect_messaging_account` |  |  | Generate a link the user opens in a browser to connect a channel (WhatsApp, LinkedIn, email, Instagram, Telegram). You return the link; the user finishes auth there. Expires in 30 minutes. |
 {/* /mcp-catalog */}
 

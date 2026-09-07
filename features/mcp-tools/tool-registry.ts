@@ -30,6 +30,7 @@ import {
   sendChatMessageTool,
   sendEmailTool,
   updateMessagingThreadTool,
+  moveEmailThreadTool,
 } from "@/features/mcp-tools/messaging.mcp-tools";
 import {
   getSocialPostEngagementTool,
@@ -76,6 +77,7 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
     saveMessageDraftTool,
     discardMessageDraftTool,
     updateMessagingThreadTool,
+    moveEmailThreadTool,
     connectMessagingAccountTool,
   ],
   social: [

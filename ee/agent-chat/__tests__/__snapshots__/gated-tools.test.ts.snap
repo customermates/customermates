@@ -55,6 +55,7 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "delete_records",
   "discard_message_draft",
   "manage_team",
+  "move_email_thread",
   "request_support",
   "send_chat_message",
   "send_email",
