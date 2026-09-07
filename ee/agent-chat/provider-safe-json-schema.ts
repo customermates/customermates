@@ -233,6 +233,11 @@ export function googleSafeJsonSchema(document: unknown): GoogleSafeSchemaResult 
     const value = draft.const;
     delete draft.const;
     if (typeof value === "string" && draft.enum === undefined) {
+      if (value.length === 0) {
+        record(pointer, "const", "removed", "dropped an empty const; a Google enum member may not be empty", true);
+        describeValues(draft, [value]);
+        return;
+      }
       draft.enum = [value];
       record(pointer, "const", "rewritten", `const ${JSON.stringify(value)} became a single-value enum`, false);
       return;

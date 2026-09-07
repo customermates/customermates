@@ -280,7 +280,7 @@ describe("the Google function-declaration dialect", () => {
     expect(result.schema).toEqual({
       anyOf: [
         { type: "string", nullable: true, pattern: "^x" },
-        { type: "string", enum: [""] },
+        { type: "string", nullable: true },
       ],
     });
     expect(new Ajv().compile(result.schema as never)(null)).toBe(true);
@@ -453,7 +453,8 @@ describe("the shipped tool catalog on the Google wire", () => {
       "$schema:removed": 52,
       "additionalProperties:removed": 54,
       "anyOf:collapsed": 40,
-      "const:rewritten": 203,
+      "const:removed": 1,
+      "const:rewritten": 202,
       "enum:removed": 24,
       "exclusiveMinimum:rewritten": 10,
       "nullable:collapsed": 10,
@@ -462,6 +463,7 @@ describe("the shipped tool catalog on the Google wire", () => {
     });
     expect(summarizeGoogleSchemaChanges(changes.filter((change) => change.loosened))).toEqual({
       "additionalProperties:removed": 54,
+      "const:removed": 1,
       "enum:removed": 24,
       "exclusiveMinimum:rewritten": 2,
       "oneOf:rewritten": 17,
@@ -535,5 +537,33 @@ describe("the transform on the wire", () => {
     expect(source).toContain("getAgentAiToolDefinitions(servingProvider)");
     expect(source).toContain("loadAgentToolShells(surface, payload.turnBudget.servingProvider)");
     expect(source).not.toContain("getAgentAiToolDefinitions()");
+  });
+});
+
+describe("empty enum members, which Google rejects outright", () => {
+  it("emits no empty enum member anywhere in the shipped catalog", () => {
+    const offenders: string[] = [];
+    const walk = (node: unknown, path: string) => {
+      if (Array.isArray(node)) return node.forEach((value, index) => walk(value, `${path}[${index}]`));
+      if (!node || typeof node !== "object") return;
+      const record = node as Record<string, unknown>;
+      if (Array.isArray(record.enum) && record.enum.some((value) => value === "")) offenders.push(path);
+      for (const [key, value] of Object.entries(record)) walk(value, `${path}.${key}`);
+    };
+    for (const definition of getAgentAiToolDefinitions("vertex")) walk(definition.inputSchema, definition.name);
+    expect(offenders).toEqual([]);
+  });
+
+  it("keeps accepting the empty string it used to enumerate", () => {
+    const ajv = new Ajv({ strict: false });
+    const before = getAgentAiToolDefinitions().find((d) => d.name === "update_workspace_settings");
+    const after = getAgentAiToolDefinitions("vertex").find((d) => d.name === "update_workspace_settings");
+    if (!before || !after) throw new Error("update_workspace_settings must exist on both wires");
+    const accepts = ajv.compile(after.inputSchema as object);
+    const probe = { target: "company", avatarUrl: "" };
+    expect(ajv.compile(before.inputSchema as object)(probe)).toBe(true);
+    expect(accepts(probe), "the transform must never tighten").toBe(true);
+    expect(accepts({ target: "company", avatarUrl: "https://example.invalid/a.png" })).toBe(true);
+    expect(accepts({ target: "company", avatarUrl: null })).toBe(true);
   });
 });
