@@ -14,14 +14,23 @@ import type { RoutineDto, RoutineRunDto } from "./routine.schema";
 import type { DeleteCustomColumnRoutineRepo } from "@/features/custom-column/delete-custom-column.interactor";
 
 import type { AgentTurnTerminalCode } from "@/generated/prisma";
+import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 
-import { AgentConversationOrigin, Prisma, RoutineRunStatus, RoutineTriggerKind, Status } from "@/generated/prisma";
+import {
+  AgentConversationOrigin,
+  Prisma,
+  Resource,
+  RoutineRunStatus,
+  RoutineTriggerKind,
+  Status,
+} from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { FilterSchema, type Filter, type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { dateGroupables, relationGroupables } from "@/core/base/grouping/groupable-field";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 
 import { DEFAULT_ROUTINE_TIMEZONE, nextCronOccurrence, parseCronExpression } from "./routine-schedule";
@@ -200,6 +209,14 @@ export class PrismaRoutineRepo
 
   getFilterableFields() {
     return Promise.resolve([
+      ...(this.canAccess(Resource.users)
+        ? [
+            {
+              field: FilterFieldKey.ownerUserId,
+              operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.ownerUserId],
+            },
+          ]
+        : []),
       {
         field: FilterFieldKey.createdAt,
         operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.createdAt],
@@ -208,6 +225,15 @@ export class PrismaRoutineRepo
         field: FilterFieldKey.updatedAt,
         operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.updatedAt],
       },
+    ]);
+  }
+
+  getGroupableFields(): Promise<GroupableFieldSpec[]> {
+    if (!this.canAccess(Resource.routines)) return Promise.resolve([]);
+
+    return Promise.resolve([
+      ...relationGroupables("routine", { ownerUserId: this.canAccess(Resource.users) }),
+      ...dateGroupables("routine", { createdAt: true, updatedAt: true }),
     ]);
   }
 

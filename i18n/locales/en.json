@@ -1191,6 +1191,7 @@
         "lastActiveAt": "Last active",
         "lastName": "Last name",
         "name": "Name",
+        "ownerUserId": "Owner",
         "participants": "Participants",
         "plan": "Plan",
         "provider": "Provider",

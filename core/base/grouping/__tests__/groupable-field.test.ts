@@ -14,6 +14,7 @@ import { AUDIT_SOURCE_FILTER_VALUES } from "@/core/types/filter-field-value-kind
 import { OPERATOR_AUDIT_SOURCE } from "@/ee/operator/operator-lists.schema";
 
 import {
+  AUTOMATION_GROUPABLE_MODELS,
   ENTITY_GROUPABLE_MODELS,
   GROUPABLE_DATE_FIELDS,
   GROUPABLE_MODELS,
@@ -57,7 +58,11 @@ function singleSelect(id: string, entityType: EntityType, label: string): Custom
 describe("grouping wiring registries", () => {
   it("wires every groupable model, and only models the query engine can sum over", () => {
     expect(TARGET_MODELS_ARE_SUMMABLE).toBe(true);
-    expect([...GROUPABLE_MODELS]).toEqual([...ENTITY_GROUPABLE_MODELS, ...OPERATOR_GROUPABLE_MODELS]);
+    expect([...GROUPABLE_MODELS]).toEqual([
+      ...ENTITY_GROUPABLE_MODELS,
+      ...OPERATOR_GROUPABLE_MODELS,
+      ...AUTOMATION_GROUPABLE_MODELS,
+    ]);
     expect(Object.keys(GROUPING_JOIN).sort()).toEqual([...GROUPABLE_MODELS].sort());
     expect(Object.keys(GROUPING_ENUM).sort()).toEqual([...GROUPABLE_MODELS].sort());
     expect(Object.values(GROUPABLE_MODEL_BY_ENTITY_TYPE).sort()).toEqual([...ENTITY_GROUPABLE_MODELS].sort());
@@ -67,10 +72,16 @@ describe("grouping wiring registries", () => {
   it("names a join model, key column and target for every wired relation", () => {
     for (const [model, relations] of Object.entries(GROUPING_JOIN)) {
       for (const [field, wiring] of Object.entries(relations)) {
-        expect([model, field, wiring.collection.length > 0]).toEqual([model, field, true]);
-        expect([model, field, wiring.joinModel.length > 0]).toEqual([model, field, true]);
-        expect([model, field, wiring.keyColumn.endsWith("Id")]).toEqual([model, field, true]);
-        expect([model, field, wiring.parentRelation]).toEqual([model, field, model]);
+        if (wiring.via === "column") {
+          expect([model, field, wiring.column.endsWith("Id")]).toEqual([model, field, true]);
+          expect([model, field, wiring.targetRelation.length > 0]).toEqual([model, field, true]);
+        } else {
+          expect([model, field, wiring.collection.length > 0]).toEqual([model, field, true]);
+          expect([model, field, wiring.joinModel.length > 0]).toEqual([model, field, true]);
+          expect([model, field, wiring.keyColumn.endsWith("Id")]).toEqual([model, field, true]);
+          expect([model, field, wiring.parentRelation]).toEqual([model, field, model]);
+        }
+
         expect([model, field, ENTITY_GROUPABLE_MODELS.includes(wiring.targetModel as EntityGroupableModel)]).toEqual([
           model,
           field,

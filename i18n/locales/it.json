@@ -1191,6 +1191,7 @@
         "lastActiveAt": "Ultima attività",
         "lastName": "Cognome",
         "name": "Nome",
+        "ownerUserId": "Proprietario",
         "participants": "Partecipanti",
         "plan": "Piano",
         "provider": "Provider",

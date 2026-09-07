@@ -1191,6 +1191,7 @@
         "lastActiveAt": "Zuletzt aktiv",
         "lastName": "Nachname",
         "name": "Name",
+        "ownerUserId": "Inhaber",
         "participants": "Teilnehmer",
         "plan": "Tarif",
         "provider": "Anbieter",

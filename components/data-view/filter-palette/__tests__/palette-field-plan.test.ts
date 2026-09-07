@@ -73,6 +73,7 @@ const EXPECTED_STANDARD: Record<FilterFieldKey, Expected> = {
   [FilterFieldKey.lastActiveAt]: RELATIVE_DATE,
   [FilterFieldKey.organizationIds]: SELECT,
   [FilterFieldKey.participantContactId]: SELECT,
+  [FilterFieldKey.ownerUserId]: SELECT,
   [FilterFieldKey.participants]: OPERATOR_ONLY,
   [FilterFieldKey.plan]: SELECT,
   [FilterFieldKey.provider]: SELECT,

@@ -133,6 +133,20 @@ export function filterOptionSources(
           }),
         })),
     },
+    [FilterFieldKey.ownerUserId]: {
+      getItems: (params) =>
+        getUsersAction(params).then((res) => ({
+          items: res.items.map((user) => {
+            const name = `${user.firstName} ${user.lastName}`.trim();
+            return {
+              key: user.id,
+              value: user.id,
+              textValue: name,
+              startContent: renderAvatar(name, user.avatarUrl ?? undefined),
+            };
+          }),
+        })),
+    },
     [FilterFieldKey.serviceIds]: {
       getItems: (params) =>
         getServicesAction(params).then((res) => ({

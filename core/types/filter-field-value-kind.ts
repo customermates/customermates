@@ -53,6 +53,7 @@ export const DEFAULT_FILTER_VALUE_KIND: Record<FilterFieldKey, FilterValueKind> 
   [FilterFieldKey.contactIds]: { kind: "entityId", entity: "contact" },
   [FilterFieldKey.taskIds]: { kind: "entityId", entity: "task" },
   [FilterFieldKey.participantContactId]: { kind: "entityId", entity: "contact" },
+  [FilterFieldKey.ownerUserId]: { kind: "entityId", entity: "user" },
   [FilterFieldKey.timelineThreadId]: { kind: "entityId", entity: "thread" },
   [FilterFieldKey.updatedAt]: { kind: "date" },
   [FilterFieldKey.createdAt]: { kind: "date" },
