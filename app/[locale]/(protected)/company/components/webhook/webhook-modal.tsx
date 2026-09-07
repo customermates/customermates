@@ -24,6 +24,9 @@ const WEBHOOK_EVENTS = WebhookEventSchema.options.map((event) => ({
   key: event,
 }));
 
+const HEADERS_PLACEHOLDER = "Authorization: Bearer your-token";
+const BODY_TEMPLATE_PLACEHOLDER = '{"text": "{{event}} for {{data.entityId}}"}';
+
 export const WebhookModal = observer(() => {
   const t = useTranslations();
   const { webhookModalStore } = useRootStore();
@@ -84,6 +87,18 @@ export const WebhookModal = observer(() => {
               />
 
               <p className="text-subdued text-xs">{t("WebhookModal.secretDescription")}</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <FormTextarea id="headers" placeholder={HEADERS_PLACEHOLDER} rows={3} />
+
+              <p className="text-subdued text-xs">{t("WebhookModal.headersDescription")}</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <FormTextarea id="bodyTemplate" placeholder={BODY_TEMPLATE_PLACEHOLDER} rows={3} />
+
+              <p className="text-subdued text-xs">{t("WebhookModal.bodyTemplateDescription")}</p>
             </div>
 
             <FormCheckbox id="enabled" label={t("WebhookModal.enabled")} />

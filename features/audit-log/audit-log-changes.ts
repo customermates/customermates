@@ -32,7 +32,7 @@ type Changes = DomainEventMap[DomainEvent.DEAL_UPDATED]["payload"]["changes"];
 
 const IGNORED_FIELDS = new Set(["id", "createdAt", "updatedAt", "avatarUrl", "roleId"]);
 
-const REDACTED_FIELDS = new Set(["secret"]);
+const REDACTED_FIELDS = new Set(["secret", "headers"]);
 
 const IDENTITY_FIELDS = new Set(["name", "firstName", "lastName", "label", "displayName"]);
 

@@ -29,7 +29,7 @@ Webhooks lassen andere Systeme auf CRM-Änderungen reagieren, ohne zu pollen.
 }
 ```
 
-Die URL muss HTTPS sein. HTTP wird abgelehnt.
+Verwenden Sie einen HTTPS-Endpunkt. Eine `http://`-URL wird für lokale Tests akzeptiert, ein Webhook mit eigenen Headern muss aber `https://` verwenden, da Header in der Regel ein Credential tragen.
 
 ## Was Sie bekommen
 
@@ -95,6 +95,96 @@ Die Record-Felder hängen vom Entity-Typ ab. Custom-Columns erscheinen unter `cu
 Arrays verknüpfter Records werden per id verglichen. Objekte per Deep-Equal. Skalare Felder per Wert. `createdAt` und `updatedAt` werden nie als Änderung gemeldet.
 
 Wenn ein Write kein Feld ändert, wird das Event unterdrückt. No-op-`*.updated`-Events werden nicht zugestellt.
+
+## Eigene Header und Body-Vorlagen
+
+Manche Empfänger akzeptieren die Standardzustellung nicht. Dafür gibt es zwei optionale Einstellungen; ein Webhook, der keine davon setzt, stellt genau wie oben beschrieben zu.
+
+**Eigene Header** werden bei jeder Zustellung mitgesendet, für Endpunkte mit eigener Authentifizierung. In der Oberfläche tragen Sie sie zeilenweise als `Name: Wert` ein, über MCP und API als `headers`-Objekt. `Content-Type`, `Host` und `X-Webhook-Signature` setzt Customermates selbst und lassen sich nicht überschreiben; Header-Namen müssen gültige HTTP-Tokens sein, Werte müssen Latin-1-Text ohne Zeilenumbrüche sein. Da Header in der Regel ein Credential tragen, muss ein Webhook mit Headern einen HTTPS-Endpunkt verwenden.
+
+Header-Werte werden von der REST-API und von MCP nie zurückgegeben, beide liefern stattdessen `headerNames`. Das Webhook-Formular in Customermates zeigt sie weiterhin an, sodass jede Person, die Webhooks im Workspace verwalten darf, sie lesen kann, genau wie das Signaturgeheimnis. Eine Aktualisierung über API oder MCP ohne `headers` behält die gespeicherten Werte, eine mit `null` löscht sie.
+
+**Eine Body-Vorlage** ersetzt den Standardumschlag für Endpunkte mit fester Struktur. Schreiben Sie ein JSON-Dokument und verweisen Sie über Platzhalter auf Werte des Umschlags:
+
+```json
+{ "text": "{{event}} for {{data.entityId}}" }
+```
+
+Verfügbar sind `{{event}}`, `{{timestamp}}` sowie jeder Pfad unterhalb von `{{data}}`, darunter `{{data.entityId}}`, `{{data.companyId}}`, `{{data.userId}}` und `{{data.payload}}`. Ein Platzhalter muss innerhalb eines JSON-Strings stehen; `{"count": {{data.payload.count}}}` wird abgelehnt. Ein Platzhalter, der ein Objekt liefert, wird als JSON-String eingesetzt, ein fehlender Pfad wird zu einem leeren String. Eingesetzte Werte werden escaped, sodass Datensatzinhalte die Struktur des Dokuments nicht verändern können.
+
+Die Vorlage muss ein JSON-Objekt ergeben. Sie wird beim Speichern geprüft, und eine Zustellung, deren Vorlage nicht gerendert werden kann, wird als fehlgeschlagen erfasst statt gesendet. Die Signatur wird immer über den tatsächlich gesendeten Body berechnet, prüfen Sie sie also gegen den gerenderten Body und nicht gegen den Umschlag.
+
+**Eine URL, eine Konfiguration.** Header und Body-Vorlagen werden einer Zustellung über Workspace und URL zugeordnet, nicht über den Webhook. Zeigen zwei Webhooks desselben Workspace auf dieselbe URL und trägt einer von ihnen Header oder eine Body-Vorlage, schlägt jede Zustellung an diese URL fehl und wird nicht wiederholt, auch die des Webhooks ohne Überschreibungen. Geben Sie jeder Subscription eine eigene URL, etwa über einen Pfad oder einen Query-String, bevor Sie Header oder eine Vorlage hinzufügen.
+
+Zustellungen werden mit dem Ereignis-Payload erfasst, nicht mit dem gerenderten Body. Das Zustellungsdetail zeigt also das ausgelöste Ereignis und nicht die exakt gesendeten Bytes.
+
+## Zustellung an einen bestimmten Dienst
+
+Jedes Rezept nennt die URL, die eigenen Header und die Body-Vorlage zum Einfügen unter **Unternehmen → Webhooks → Neu**. Setzen Sie in jedem Fall ein Signaturgeheimnis; ein Empfänger, der es nicht prüfen kann, ignoriert den Header einfach.
+
+### Claude-Code-Routinen
+
+Startet eine Claude-Code-Routine, wenn sich ein Datensatz ändert. Legen Sie die Routine zuerst unter [claude.ai/code/routines](https://claude.ai/code/routines) an.
+
+<Steps>
+<Step title="API-Trigger hinzufügen">
+Öffnen Sie die Routine, klicken Sie auf **Add another trigger**, wählen Sie **API** und dann **Generate token**. Kopieren Sie URL und Token; das Token wird nur einmal angezeigt und lässt sich später nicht erneut abrufen.
+</Step>
+<Step title="Webhook anlegen">
+Fügen Sie die URL ein, wählen Sie Ihre Ereignisse und tragen Sie die Header und die Vorlage unten ein.
+</Step>
+<Step title="Payload im Routinen-Prompt referenzieren">
+Der Text kommt in einem `routine-fire-payload`-Block an, den die Routine als nicht vertrauenswürdige Daten behandelt. Der Prompt der Routine muss ihn ausdrücklich referenzieren, etwa "handle das im routine-fire-payload-Block beschriebene Ereignis ab", sonst bleibt der Text unbeachtet.
+</Step>
+</Steps>
+
+Die URL lautet `https://api.anthropic.com/v1/claude_code/routines/<routine-id>/fire`, die Routinen-ID beginnt mit `trig_`.
+
+```
+Authorization: Bearer <routine-token>
+anthropic-beta: experimental-cc-routine-2026-04-01
+anthropic-version: 2023-06-01
+```
+
+```json
+{ "text": "{{event}} for {{data.entityId}}" }
+```
+
+Der Endpunkt liest ausschließlich `text` und ignoriert jedes andere Feld. Die Vorlage ist deshalb zwingend; ohne sie startet die Routine ohne Kontext. Jede Zustellung startet einen eigenen Lauf auf Ihr Routinen-Kontingent, ein Retry einen weiteren. Abonnieren Sie deshalb möglichst wenige Ereignisse.
+
+### Slack
+
+Beitrag über einen Incoming Webhook in einen Kanal posten. Die URL trägt die Authentifizierung, eigene Header sind nicht nötig.
+
+Verwenden Sie die Incoming-Webhook-URL aus **Slack → Apps → Incoming Webhooks**.
+
+```json
+{ "text": "{{event}} for {{data.entityId}}" }
+```
+
+### Discord
+
+Dieselbe Struktur unter einem anderen Schlüssel.
+
+Verwenden Sie die Webhook-URL aus **Kanal → Kanal bearbeiten → Integrationen → Webhooks**.
+
+```json
+{ "content": "{{event}} for {{data.entityId}}" }
+```
+
+### n8n
+
+Ein n8n-Webhook-Node akzeptiert den Standardumschlag. Lassen Sie beide Einstellungen leer, sofern der Node keine Header-Authentifizierung verwendet. Tut er das, tragen Sie den erwarteten Header ein und lassen die Vorlage leer:
+
+```
+X-N8N-Header-Auth: <Wert>
+```
+
+Das vollständige Muster steht unter [n8n](/docs/n8n).
+
+### Alles andere
+
+Ein Empfänger, der weder eigene Authentifizierung noch eine feste Body-Struktur braucht, benötigt keine der beiden Einstellungen. Lassen Sie beide leer und prüfen Sie die Signatur wie unten beschrieben.
 
 ## Signatur-Verifikation
 

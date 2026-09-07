@@ -82,6 +82,8 @@ function makeWebhookDto(overrides: Record<string, unknown> = {}) {
     description: null,
     events: ["contact.created"],
     secret: null,
+    headers: null,
+    bodyTemplate: null,
     enabled: true,
     createdAt: new Date("2025-01-01"),
     updatedAt: new Date("2025-01-01"),
@@ -99,6 +101,7 @@ describe("UpsertWebhookInteractor (create)", () => {
     mockRepo = {
       upsertWebhookOrThrow: vi.fn().mockResolvedValue(makeWebhookDto()),
       getWebhookByIdOrThrow: vi.fn().mockResolvedValue(makeWebhookDto()),
+      getWebhookById: vi.fn().mockResolvedValue(makeWebhookDto()),
     };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
@@ -108,6 +111,31 @@ describe("UpsertWebhookInteractor (create)", () => {
   function createInteractor() {
     return new UpsertWebhookInteractor(mockRepo, mockEventService, new ValidateWebhookIdsInteractor(getWebhookRepo()));
   }
+
+  it("never publishes the secret or header values in the event payload", async () => {
+    const withCredentials = makeWebhookDto({
+      secret: "super-secret",
+      headers: { Authorization: "Bearer leaked-if-published", "X-Trace": "t" },
+    });
+    mockRepo.upsertWebhookOrThrow = vi.fn().mockResolvedValue(withCredentials);
+
+    const interactor = createInteractor();
+    await interactor.invoke({
+      url: "https://example.com/webhook",
+      events: ["contact.created"],
+      enabled: true,
+    });
+
+    const [, event] = mockEventService.publish.mock.calls[0];
+    const serialised = JSON.stringify(event.payload);
+
+    expect(serialised).not.toContain("super-secret");
+    expect(serialised).not.toContain("Bearer leaked-if-published");
+    expect(event.payload).not.toHaveProperty("secret");
+    expect(event.payload).not.toHaveProperty("headers");
+    expect(event.payload.hasSecret).toBe(true);
+    expect(event.payload.headerNames).toEqual(["Authorization", "X-Trace"]);
+  });
 
   it("publishes WEBHOOK_CREATED event when no id is provided", async () => {
     const interactor = createInteractor();
@@ -152,6 +180,7 @@ describe("UpsertWebhookInteractor (update)", () => {
     mockRepo = {
       upsertWebhookOrThrow: vi.fn().mockResolvedValue(updatedWebhook),
       getWebhookByIdOrThrow: vi.fn().mockResolvedValue(previousWebhook),
+      getWebhookById: vi.fn().mockResolvedValue(previousWebhook),
     };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
@@ -161,6 +190,24 @@ describe("UpsertWebhookInteractor (update)", () => {
   function createInteractor() {
     return new UpsertWebhookInteractor(mockRepo, mockEventService, new ValidateWebhookIdsInteractor(getWebhookRepo()));
   }
+
+  it.each([
+    ["headers added to a webhook already on http", { id: WEBHOOK_ID, headers: { Authorization: "Bearer x" } }],
+    ["url downgraded to http while headers are stored", { id: WEBHOOK_ID, url: "http://example.com/webhook" }],
+  ])("refuses %s", async (_label, input) => {
+    const stored = makeWebhookDto({
+      url: "http://example.com/webhook",
+      headers: { Authorization: "Bearer stored" },
+    });
+    mockRepo.getWebhookById = vi.fn().mockResolvedValue(stored);
+    mockRepo.getWebhookByIdOrThrow = vi.fn().mockResolvedValue(stored);
+
+    const interactor = createInteractor();
+    const result: any = await interactor.invoke(input as never);
+
+    expect(result.ok).toBe(false);
+    expect(mockRepo.upsertWebhookOrThrow).not.toHaveBeenCalled();
+  });
 
   it("publishes WEBHOOK_UPDATED event when id is provided", async () => {
     const interactor = createInteractor();

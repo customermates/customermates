@@ -9,7 +9,7 @@ export const createWebhookOperation: ZodOpenApiOperationObject = {
   operationId: "createWebhook",
   summary: "Create a webhook subscription",
   description:
-    "Subscribes an endpoint to the given events (url and events are required). Deliveries are signed with HMAC-SHA-256 in the X-Webhook-Signature header when a secret is set. The signing secret is never returned. Providing an existing id updates that subscription instead.",
+    "Subscribes an endpoint to the given events (url and events are required). Deliveries are signed with HMAC-SHA-256 in the X-Webhook-Signature header when a secret is set. The signing secret is never returned. Optional headers are sent with every delivery for endpoints that require their own authentication; their values are never returned, the response reports headerNames instead, Content-Type, Host and X-Webhook-Signature cannot be overridden, and an endpoint carrying headers must use HTTPS. An optional bodyTemplate replaces the standard envelope for endpoints that expect a fixed shape, and the signature is computed over the rendered body. Providing an existing id updates that subscription instead.",
   tags: ["webhooks"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {

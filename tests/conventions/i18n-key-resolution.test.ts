@@ -106,6 +106,7 @@ const ENTITLEMENT_DENIAL_KEYS = [
 const FORM_FIELD_INPUT_KEYS = [
   "Common.inputs.amount",
   "Common.inputs.avatarUrl",
+  "Common.inputs.bodyTemplate",
   "Common.inputs.company",
   "Common.inputs.confirmEmail",
   "Common.inputs.confirmPassword",
@@ -116,6 +117,7 @@ const FORM_FIELD_INPUT_KEYS = [
   "Common.inputs.emails",
   "Common.inputs.events",
   "Common.inputs.feedback",
+  "Common.inputs.headers",
   "Common.inputs.firstName",
   "Common.inputs.lastName",
   "Common.inputs.message",
