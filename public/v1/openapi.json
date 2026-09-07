@@ -26249,7 +26249,7 @@
       "post": {
         "operationId": "createWebhook",
         "summary": "Create a webhook subscription",
-        "description": "Subscribes an endpoint to the given events (url and events are required). Deliveries are signed with HMAC-SHA-256 in the X-Webhook-Signature header when a secret is set. The signing secret is never returned. Providing an existing id updates that subscription instead.",
+        "description": "Subscribes an endpoint to the given events (url and events are required). Deliveries are signed with HMAC-SHA-256 in the X-Webhook-Signature header when a secret is set. The signing secret is never returned. Optional headers are sent with every delivery for endpoints that require their own authentication; their values are never returned, the response reports headerNames instead, Content-Type, Host and X-Webhook-Signature cannot be overridden, and an endpoint carrying headers must use HTTPS. An optional bodyTemplate replaces the standard envelope for endpoints that expect a fixed shape, and the signature is computed over the rendered body. Providing an existing id updates that subscription instead.",
         "tags": [
           "webhooks"
         ],
@@ -26332,6 +26332,33 @@
                       }
                     ]
                   },
+                  "headers": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "bodyTemplate": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 8192
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "enabled": {
                     "type": "boolean"
                   }
@@ -26401,6 +26428,16 @@
                         ]
                       }
                     },
+                    "bodyTemplate": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "enabled": {
                       "type": "boolean"
                     },
@@ -26412,6 +26449,12 @@
                     },
                     "hasSecret": {
                       "type": "boolean"
+                    },
+                    "headerNames": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "required": [
@@ -26419,10 +26462,12 @@
                     "url",
                     "description",
                     "events",
+                    "bodyTemplate",
                     "enabled",
                     "createdAt",
                     "updatedAt",
-                    "hasSecret"
+                    "hasSecret",
+                    "headerNames"
                   ],
                   "additionalProperties": false
                 }
@@ -26560,6 +26605,16 @@
                             ]
                           }
                         },
+                        "bodyTemplate": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
                         "enabled": {
                           "type": "boolean"
                         },
@@ -26571,6 +26626,12 @@
                         },
                         "hasSecret": {
                           "type": "boolean"
+                        },
+                        "headerNames": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
                         }
                       },
                       "required": [
@@ -26578,10 +26639,12 @@
                         "url",
                         "description",
                         "events",
+                        "bodyTemplate",
                         "enabled",
                         "createdAt",
                         "updatedAt",
-                        "hasSecret"
+                        "hasSecret",
+                        "headerNames"
                       ],
                       "additionalProperties": false
                     },

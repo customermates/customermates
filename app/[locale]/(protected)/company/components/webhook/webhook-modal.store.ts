@@ -9,9 +9,11 @@ import { deleteWebhookAction, upsertWebhookAction } from "../../actions";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { formatWebhookHeaderLines, parseWebhookHeaderLines } from "@/features/webhook/webhook-headers";
 
 export class WebhookModalStore extends BaseModalStore<UpsertWebhookData> {
   showSecret = false;
+  headersDraft = "";
 
   constructor(rootStore: RootStore) {
     super(
@@ -21,6 +23,8 @@ export class WebhookModalStore extends BaseModalStore<UpsertWebhookData> {
         description: undefined,
         events: [],
         secret: undefined,
+        headers: undefined,
+        bodyTemplate: undefined,
         enabled: true,
       },
       Resource.api,
@@ -28,12 +32,24 @@ export class WebhookModalStore extends BaseModalStore<UpsertWebhookData> {
 
     makeObservable(this, {
       showSecret: observable,
+      headersDraft: observable,
 
       delete: action,
       onSubmit: action,
       toggleShowSecret: action,
+      setHeadersDraft: action,
     });
   }
+
+  openWith = (initial: Partial<UpsertWebhookData>) => {
+    this.onInitOrRefresh(initial);
+    this.headersDraft = formatWebhookHeaderLines(initial.headers);
+    this.open();
+  };
+
+  setHeadersDraft = (value: string) => {
+    this.headersDraft = value;
+  };
 
   toggleShowSecret = () => {
     this.showSecret = !this.showSecret;
@@ -64,7 +80,11 @@ export class WebhookModalStore extends BaseModalStore<UpsertWebhookData> {
     this.setIsLoading(true);
 
     try {
-      const res = await upsertWebhookAction(toJS(this.form));
+      const headers = parseWebhookHeaderLines(this.headersDraft);
+      const res = await upsertWebhookAction({
+        ...toJS(this.form),
+        headers: Object.keys(headers).length > 0 ? headers : null,
+      });
 
       if (res.ok) {
         await this.rootStore.webhooksStore.upsertItem(res.data);

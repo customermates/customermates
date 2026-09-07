@@ -19,10 +19,15 @@ import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { AppChip } from "@/components/chip/app-chip";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { AppCardHeader } from "@/components/card/app-card-header";
+import { FormLabel } from "@/components/forms/form-label";
+import { Textarea } from "@/components/ui/textarea";
 
 const WEBHOOK_EVENTS = WebhookEventSchema.options.map((event) => ({
   key: event,
 }));
+
+const HEADERS_PLACEHOLDER = "Authorization: Bearer your-token";
+const BODY_TEMPLATE_PLACEHOLDER = '{"text": "{{event}} for {{data.entityId}}"}';
 
 export const WebhookModal = observer(() => {
   const t = useTranslations();
@@ -84,6 +89,27 @@ export const WebhookModal = observer(() => {
               />
 
               <p className="text-subdued text-xs">{t("WebhookModal.secretDescription")}</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <FormLabel htmlFor="webhook-headers">{t("Common.inputs.headers")}</FormLabel>
+
+              <Textarea
+                disabled={isDisabled}
+                id="webhook-headers"
+                placeholder={HEADERS_PLACEHOLDER}
+                rows={3}
+                value={webhookModalStore.headersDraft}
+                onChange={(event) => webhookModalStore.setHeadersDraft(event.target.value)}
+              />
+
+              <p className="text-subdued text-xs">{t("WebhookModal.headersDescription")}</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <FormTextarea id="bodyTemplate" placeholder={BODY_TEMPLATE_PLACEHOLDER} rows={3} />
+
+              <p className="text-subdued text-xs">{t("WebhookModal.bodyTemplateDescription")}</p>
             </div>
 
             <FormCheckbox id="enabled" label={t("WebhookModal.enabled")} />

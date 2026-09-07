@@ -88,6 +88,26 @@ Beispiel, `contact.updated`:
 
 Die Record-Felder hängen vom Entity-Typ ab. Custom-Columns erscheinen unter `customFieldValues` als `columnId`- und `value`-Paare. Mit `get_record_schema` sehen Sie die Columns, die für einen Entity-Typ in Ihrem Workspace konfiguriert sind.
 
+## Eigene Header und Body-Vorlagen
+
+Manche Empfänger akzeptieren die Standardzustellung nicht. Dafür gibt es zwei optionale Einstellungen.
+
+**Eigene Header** werden bei jeder Zustellung mitgesendet, für Endpunkte mit eigener Authentifizierung. In der Oberfläche tragen Sie sie zeilenweise als `Name: Wert` ein, über MCP und API als `headers`-Objekt. Die Werte sind write-only: Sie werden beim Lesen nie zurückgegeben, stattdessen liefert die Antwort `headerNames`.
+
+`Content-Type`, `Host` und `X-Webhook-Signature` setzt Customermates selbst, sie lassen sich nicht überschreiben. Header-Namen müssen gültige HTTP-Tokens sein, Werte dürfen keine Zeilenumbrüche enthalten. Da Header in der Regel ein Credential tragen, muss ein Webhook mit Headern einen HTTPS-Endpunkt verwenden; eine Zustellung im Klartext schlägt fehl, statt das Credential preiszugeben.
+
+**Eine Body-Vorlage** ersetzt den Standardumschlag für Endpunkte mit fester Struktur, etwa Slack, Discord oder einen Automatisierungsendpunkt, der nur ein Feld liest. Schreiben Sie ein JSON-Dokument und verweisen Sie über Platzhalter auf Werte des Umschlags:
+
+```json
+{ "text": "{{event}} for {{data.entityId}}" }
+```
+
+Verfügbar sind `{{event}}`, `{{timestamp}}` sowie jeder Pfad unterhalb von `{{data}}`, darunter `{{data.entityId}}`, `{{data.companyId}}`, `{{data.userId}}` und `{{data.payload}}`. Ein Platzhalter, der ein Objekt liefert, wird als JSON-String eingesetzt; ein fehlender Pfad wird zu einem leeren String. Eingesetzte Werte werden escaped, sodass Datensatzinhalte die Struktur des Dokuments nicht verändern können.
+
+Die Vorlage muss ein JSON-Objekt ergeben. Sie wird beim Speichern geprüft, und eine Zustellung, deren Vorlage nicht gerendert werden kann, wird als fehlgeschlagen erfasst statt gesendet. Die Signatur wird immer über den tatsächlich gesendeten Body berechnet.
+
+Bleiben beide Einstellungen leer, ändert sich an der Zustellung nichts.
+
 ## Das `changes`-Objekt
 
 `changes` existiert nur bei `*.updated`-Events. Jeder Key ist ein Record-Feld, dessen Wert sich geändert hat. `previous` ist der Wert vor dem Write, `current` der Wert danach.

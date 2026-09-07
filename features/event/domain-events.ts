@@ -4,7 +4,7 @@ import type { DealDto } from "@/features/deals/deal.schema";
 import type { ServiceDto } from "@/features/services/service.schema";
 import type { TaskDto } from "@/features/tasks/task.schema";
 import type { RoleDto } from "@/features/role/role.schema";
-import type { WebhookDto } from "@/features/webhook/webhook.schema";
+import type { WebhookEventPayload } from "@/features/webhook/webhook-event-payload";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { LegalAcceptanceAuditPayload, LegalNoticeAuditPayload } from "@/features/legal/legal-audit.schema";
 
@@ -233,14 +233,14 @@ export type DomainEventMap = {
     userId: string;
     companyId: string;
     entityId: string;
-    payload: WebhookDto;
+    payload: WebhookEventPayload;
   };
   [DomainEvent.WEBHOOK_UPDATED]: {
     userId: string;
     companyId: string;
     entityId: string;
     payload: {
-      webhook: WebhookDto;
+      webhook: WebhookEventPayload;
       changes: Record<string, { previous: unknown; current: unknown }>;
     };
   };
@@ -248,7 +248,7 @@ export type DomainEventMap = {
     userId: string;
     companyId: string;
     entityId: string;
-    payload: WebhookDto;
+    payload: WebhookEventPayload;
   };
   [DomainEvent.CUSTOM_COLUMN_CREATED]: {
     userId: string;

@@ -14,9 +14,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     if (!result.ok) return NextResponse.json(z.prettifyError(result.error), { status: 400 });
     if (!result.data) return NextResponse.json(null, { status: 200 });
 
-    const { secret, ...webhook } = result.data;
+    const { secret, headers, ...webhook } = result.data;
 
-    return NextResponse.json({ ...webhook, hasSecret: secret != null && secret !== "" }, { status: 200 });
+    return NextResponse.json(
+      { ...webhook, hasSecret: secret != null && secret !== "", headerNames: Object.keys(headers ?? {}) },
+      { status: 200 },
+    );
   } catch (error) {
     return handleError(error);
   }

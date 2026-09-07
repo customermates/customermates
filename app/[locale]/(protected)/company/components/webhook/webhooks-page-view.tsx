@@ -41,7 +41,16 @@ export const WebhooksPageView = observer(function WebhooksPageView({ initialWebh
   });
   const descriptor = { title: t("WebhooksCard.emptyTitle"), body: t("WebhooksCard.emptyBody") };
   const handleAdd = useCallback(
-    () => webhookModalStore.openWith({ url: "", description: undefined, events: [], secret: undefined, enabled: true }),
+    () =>
+      webhookModalStore.openWith({
+        url: "",
+        description: undefined,
+        events: [],
+        secret: undefined,
+        headers: undefined,
+        bodyTemplate: undefined,
+        enabled: true,
+      }),
     [webhookModalStore],
   );
   const topBarNode = useMemo(
@@ -105,6 +114,8 @@ export const WebhooksPageView = observer(function WebhooksPageView({ initialWebh
               description: item.description ?? undefined,
               events: item.events,
               secret: item.secret ?? undefined,
+              headers: item.headers ?? undefined,
+              bodyTemplate: item.bodyTemplate ?? undefined,
               enabled: item.enabled,
             })
           }

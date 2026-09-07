@@ -3,6 +3,9 @@ import { z } from "zod";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 
+import { renderWebhookBody } from "./webhook-body-template";
+import { allowsCredentialedHeaders } from "./webhook-headers";
+
 const HTTP_TIMEOUT_MS = 5000;
 
 const Schema = z.object({
@@ -13,8 +16,17 @@ const Schema = z.object({
 });
 export type DeliverWebhookPayload = z.infer<typeof Schema>;
 
-export abstract class DeliverWebhookSecretRepo {
-  abstract getSecretUnscoped(args: { companyId: string; url: string }): Promise<string | null>;
+export const WEBHOOK_PREFLIGHT_FAILURE_STATUS = 422;
+
+export type WebhookDeliveryConfig = {
+  secret: string | null;
+  headers: Record<string, string>;
+  bodyTemplate: string | null;
+  ambiguous: boolean;
+};
+
+export abstract class DeliverWebhookConfigRepo {
+  abstract getDeliveryConfigUnscoped(args: { companyId: string; url: string }): Promise<WebhookDeliveryConfig>;
 }
 
 export abstract class DeliverWebhookRepo {
@@ -42,13 +54,63 @@ type DeliveryOutcome = {
 export class DeliverWebhookInteractor {
   constructor(
     private readonly repo: DeliverWebhookRepo,
-    private readonly webhookRepo: DeliverWebhookSecretRepo,
+    private readonly webhookRepo: DeliverWebhookConfigRepo,
   ) {}
 
   @Enforce(Schema)
   async invoke(payload: DeliverWebhookPayload): Promise<DeliveryOutcome> {
-    const secret = await this.webhookRepo.getSecretUnscoped({ companyId: payload.companyId, url: payload.url });
-    const result = await this.postWebhook({ url: payload.url, secret, requestBody: payload.requestBody });
+    const { secret, headers, bodyTemplate, ambiguous } = await this.webhookRepo.getDeliveryConfigUnscoped({
+      companyId: payload.companyId,
+      url: payload.url,
+    });
+
+    if (ambiguous) {
+      const responseMessage = "Several webhooks share this URL, so custom headers and body templates are ambiguous";
+
+      await this.repo.markFailedUnscoped({
+        id: payload.deliveryId,
+        companyId: payload.companyId,
+        statusCode: WEBHOOK_PREFLIGHT_FAILURE_STATUS,
+        responseMessage,
+      });
+
+      return { status: "failed", statusCode: WEBHOOK_PREFLIGHT_FAILURE_STATUS, responseMessage };
+    }
+
+    if (Object.keys(headers).length > 0 && !allowsCredentialedHeaders(payload.url)) {
+      const responseMessage = "Custom headers require an HTTPS endpoint";
+
+      await this.repo.markFailedUnscoped({
+        id: payload.deliveryId,
+        companyId: payload.companyId,
+        statusCode: WEBHOOK_PREFLIGHT_FAILURE_STATUS,
+        responseMessage,
+      });
+
+      return { status: "failed", statusCode: WEBHOOK_PREFLIGHT_FAILURE_STATUS, responseMessage };
+    }
+
+    const rendered = bodyTemplate ? renderWebhookBody(bodyTemplate, payload.requestBody) : null;
+
+    if (rendered && !rendered.ok) {
+      const responseMessage = `Body template could not be rendered (${rendered.reason})`;
+
+      await this.repo.markFailedUnscoped({
+        id: payload.deliveryId,
+        companyId: payload.companyId,
+        statusCode: WEBHOOK_PREFLIGHT_FAILURE_STATUS,
+        responseMessage,
+      });
+
+      return { status: "failed", statusCode: WEBHOOK_PREFLIGHT_FAILURE_STATUS, responseMessage };
+    }
+
+    const result = await this.postWebhook({
+      url: payload.url,
+      secret,
+      headers,
+      requestBody: rendered ? rendered.body : payload.requestBody,
+    });
 
     if (result.success) {
       await this.repo.markSuccessUnscoped({
@@ -70,7 +132,12 @@ export class DeliverWebhookInteractor {
     return { status: "failed", statusCode: result.statusCode, responseMessage: result.responseMessage };
   }
 
-  private async postWebhook(args: { url: string; secret: string | null; requestBody: unknown }): Promise<{
+  private async postWebhook(args: {
+    url: string;
+    secret: string | null;
+    headers: Record<string, string>;
+    requestBody: unknown;
+  }): Promise<{
     success: boolean;
     statusCode: number | null;
     responseMessage: string | null;
@@ -86,6 +153,7 @@ export class DeliverWebhookInteractor {
         method: "POST",
         signal: controller.signal,
         headers: {
+          ...args.headers,
           "Content-Type": "application/json",
           ...(signature && { "X-Webhook-Signature": signature }),
         },

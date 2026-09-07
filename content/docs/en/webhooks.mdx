@@ -88,6 +88,26 @@ Example, `contact.updated`:
 
 The record fields depend on the entity type. Custom columns appear under `customFieldValues` as `columnId` and `value` pairs. Use `get_record_schema` to see the columns configured for a given entity in your workspace.
 
+## Custom headers and body templates
+
+Some receivers will not accept the standard delivery. Two optional settings cover that.
+
+**Custom headers** are sent with every delivery, for endpoints that require their own authentication. Set them in the UI one per line as `Name: value`, or pass a `headers` object through MCP and the API. Values are write-only: they are never returned by a read, which reports `headerNames` instead.
+
+`Content-Type`, `Host` and `X-Webhook-Signature` are set by Customermates and cannot be overridden. Header names must be valid HTTP tokens and values may not contain line breaks. Because headers usually carry a credential, a webhook that has them must use an HTTPS endpoint; a cleartext delivery fails instead of leaking the credential.
+
+**A body template** replaces the standard envelope for endpoints that expect a fixed shape, such as Slack, Discord, or an automation endpoint that reads a single field. Write a JSON document and reference envelope values with placeholders:
+
+```json
+{ "text": "{{event}} for {{data.entityId}}" }
+```
+
+Available placeholders are `{{event}}`, `{{timestamp}}` and any path under `{{data}}`, including `{{data.entityId}}`, `{{data.companyId}}`, `{{data.userId}}` and `{{data.payload}}`. A placeholder that resolves to an object is inserted as a JSON string; a missing path becomes an empty string. Substituted values are escaped, so record content cannot alter the structure of the document.
+
+The template must produce a JSON object. It is checked when you save the webhook, and a delivery whose template fails to render is recorded as failed rather than sent. The signature is always computed over the body that is actually sent.
+
+Leave both settings empty and delivery is unchanged.
+
 ## The `changes` object
 
 `changes` is present only on `*.updated` events. Each key is a record field whose value moved. `previous` is the value before the write, `current` is the value after.

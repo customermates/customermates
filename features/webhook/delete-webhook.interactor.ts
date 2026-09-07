@@ -3,6 +3,7 @@ import type { EventService } from "@/features/event/event.service";
 import type { Data } from "@/core/validation/validation.utils";
 import type { ValidateWebhookIdsInteractor } from "@/core/validation/validators/validate-webhook-ids.interactor";
 
+import { toWebhookEventPayload } from "./webhook-event-payload";
 import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
 
@@ -41,7 +42,7 @@ export class DeleteWebhookInteractor extends AuthenticatedInteractor<DeleteWebho
 
     await this.eventService.publish(DomainEvent.WEBHOOK_DELETED, {
       entityId: webhook.id,
-      payload: webhook,
+      payload: toWebhookEventPayload(webhook),
     });
 
     return { ok: true as const, data: data.id };

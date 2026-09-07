@@ -14,9 +14,12 @@ export async function POST(request: NextRequest) {
 
     if (!result.ok) return NextResponse.json(z.prettifyError(result.error), { status: 400 });
 
-    const { secret, ...webhook } = result.data;
+    const { secret, headers, ...webhook } = result.data;
 
-    return NextResponse.json({ ...webhook, hasSecret: secret != null && secret !== "" }, { status: 201 });
+    return NextResponse.json(
+      { ...webhook, hasSecret: secret != null && secret !== "", headerNames: Object.keys(headers ?? {}) },
+      { status: 201 },
+    );
   } catch (error) {
     return handleError(error);
   }
