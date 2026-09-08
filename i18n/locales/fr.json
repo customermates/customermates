@@ -3087,9 +3087,9 @@
           "messageReaction": "Ajoutez une réaction à un message d’une conversation connectée.",
           "messageReceived": "Recevez un nouveau message entrant non dupliqué via un compte connecté.",
           "messageUpdated": "Modifiez un message chez le fournisseur de messagerie connecté.",
-          "recordCreated": "Créez {entity} dans Customermates.",
-          "recordDeleted": "Supprimez {entity} dans Customermates.",
-          "recordUpdated": "Apportez une véritable modification à {entity} dans Customermates.",
+          "recordCreated": "Créez un enregistrement dans Customermates : {entity}.",
+          "recordDeleted": "Supprimez un enregistrement dans Customermates : {entity}.",
+          "recordUpdated": "Apportez une véritable modification à un enregistrement dans Customermates : {entity}.",
           "relationCreated": "Faites accepter une demande de connexion LinkedIn via un compte connecté."
         },
         "conditions": {

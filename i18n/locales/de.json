@@ -3087,9 +3087,9 @@
           "messageReaction": "Füge einer Nachricht in einer verbundenen Unterhaltung eine Reaktion hinzu.",
           "messageReceived": "Empfange eine neue, nicht doppelte eingehende Nachricht über ein verbundenes Konto.",
           "messageUpdated": "Bearbeite eine Nachricht beim verbundenen Messaging-Anbieter.",
-          "recordCreated": "Erstelle {entity} in Customermates.",
-          "recordDeleted": "Lösche {entity} in Customermates.",
-          "recordUpdated": "Nimm eine echte Änderung an {entity} in Customermates vor.",
+          "recordCreated": "Erstelle einen Datensatz in Customermates: {entity}.",
+          "recordDeleted": "Lösche einen Datensatz in Customermates: {entity}.",
+          "recordUpdated": "Nimm eine echte Änderung an einem Datensatz in Customermates vor: {entity}.",
           "relationCreated": "Lass eine LinkedIn-Kontaktanfrage über ein verbundenes Konto annehmen."
         },
         "conditions": {

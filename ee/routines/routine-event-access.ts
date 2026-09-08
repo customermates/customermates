@@ -1,4 +1,4 @@
-import type { Filter } from "@/core/base/base-get.schema";
+import type { Filter, FilterableField } from "@/core/base/base-get.schema";
 import type { RoutineFilterMatcher } from "./routine-filter-matcher";
 
 import { toCustomColumnDtos } from "@/features/custom-column/custom-column.dto";
@@ -62,6 +62,43 @@ const RELATED_FILTER_FIELDS: Record<EntityType, Array<{ field: FilterFieldKey; r
   ],
 };
 
+const INTRINSIC_FILTER_FIELDS = {
+  [EntityType.contact]: [
+    {
+      field: FilterFieldKey.firstName,
+      operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.firstName],
+    },
+    {
+      field: FilterFieldKey.lastName,
+      operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.lastName],
+    },
+  ],
+  [EntityType.organization]: [
+    {
+      field: FilterFieldKey.name,
+      operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.name],
+    },
+  ],
+  [EntityType.deal]: [
+    {
+      field: FilterFieldKey.name,
+      operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.name],
+    },
+  ],
+  [EntityType.service]: [
+    {
+      field: FilterFieldKey.name,
+      operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.name],
+    },
+  ],
+  [EntityType.task]: [
+    {
+      field: FilterFieldKey.name,
+      operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.name],
+    },
+  ],
+} satisfies Record<EntityType, FilterableField[]>;
+
 const MESSAGE_EVENTS = new Set<string>([
   DomainEvent.MESSAGING_MESSAGE_RECEIVED,
   DomainEvent.MESSAGING_MESSAGE_UPDATED,
@@ -75,7 +112,11 @@ const CHAT_EVENTS = new Set<string>([DomainEvent.MESSAGING_CHAT_UPDATED, DomainE
 export abstract class RoutineEventAccess {
   abstract matchesCurrentUser(args: RoutineEventAccessArgs & { filters: Filter[] }): Promise<boolean>;
   abstract matchesUserUnscoped(
-    args: RoutineEventAccessArgs & { companyId: string; userId: string; filters: Filter[] },
+    args: RoutineEventAccessArgs & {
+      companyId: string;
+      userId: string;
+      filters: Filter[];
+    },
   ): Promise<boolean>;
   abstract canUserAccessUnscoped(
     args: RoutineEventAccessArgs & { companyId: string; userId: string },
@@ -99,7 +140,11 @@ export class PrismaRoutineEventAccess extends BaseRepository implements RoutineE
 
   @BypassTenantGuard
   async matchesUserUnscoped(
-    args: RoutineEventAccessArgs & { companyId: string; userId: string; filters: Filter[] },
+    args: RoutineEventAccessArgs & {
+      companyId: string;
+      userId: string;
+      filters: Filter[];
+    },
   ): Promise<boolean> {
     const user = await this.findActiveEventUser(args.companyId, args.userId);
     if (!user) return false;
@@ -124,13 +169,23 @@ export class PrismaRoutineEventAccess extends BaseRepository implements RoutineE
     const customColumns = toCustomColumnDtos(
       await this.prisma.customColumn.findMany({
         where: { companyId: user.companyId, entityType },
-        select: { id: true, label: true, type: true, entityType: true, options: true },
+        select: {
+          id: true,
+          label: true,
+          type: true,
+          entityType: true,
+          options: true,
+        },
       }),
     );
     const relationFields = RELATED_FILTER_FIELDS[entityType]
       .filter(({ resource }) => this.readAccess(user, resource))
-      .map(({ field }) => ({ field, operators: FILTER_FIELD_DEFAULT_OPERATORS[field] }));
+      .map(({ field }) => ({
+        field,
+        operators: FILTER_FIELD_DEFAULT_OPERATORS[field],
+      }));
     const filterableFields = [
+      ...INTRINSIC_FILTER_FIELDS[entityType],
       ...relationFields,
       ...customColumns.map((column) => ({
         field: column.id,
@@ -153,7 +208,12 @@ export class PrismaRoutineEventAccess extends BaseRepository implements RoutineE
     const access = this.readAccess(user, this.resourceFor(entityType));
     const readOwnUserId = access === "all" ? null : user.id;
 
-    return { companyId: user.companyId, readOwnUserId, filterableFields, customColumns };
+    return {
+      companyId: user.companyId,
+      readOwnUserId,
+      filterableFields,
+      customColumns,
+    };
   }
 
   private async canUserAccess(user: RoutineEventUser, args: RoutineEventAccessArgs): Promise<boolean> {
@@ -270,7 +330,10 @@ export class PrismaRoutineEventAccess extends BaseRepository implements RoutineE
   private async canAccessConnectedAccount(user: RoutineEventUser, connectedAccountId: string): Promise<boolean> {
     return (
       (await this.prisma.connectedAccount.count({
-        where: { id: connectedAccountId, ...accessibleConnectedAccountWhere(user.companyId, user.id) },
+        where: {
+          id: connectedAccountId,
+          ...accessibleConnectedAccountWhere(user.companyId, user.id),
+        },
       })) > 0
     );
   }
@@ -329,14 +392,22 @@ export class PrismaRoutineEventAccess extends BaseRepository implements RoutineE
 
   private async findActiveEventUser(companyId: string, userId: string): Promise<RoutineEventUser | null> {
     return this.prisma.user.findFirst({
-      where: { id: userId, companyId, status: Status.active, role: { companyId } },
+      where: {
+        id: userId,
+        companyId,
+        status: Status.active,
+        role: { companyId },
+      },
       select: {
         id: true,
         companyId: true,
         role: {
           select: {
             isSystemRole: true,
-            permissions: { where: { companyId }, select: { resource: true, action: true } },
+            permissions: {
+              where: { companyId },
+              select: { resource: true, action: true },
+            },
           },
         },
       },

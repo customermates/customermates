@@ -55,7 +55,10 @@ describeDatabase("routine event access against PostgreSQL", () => {
       companyId,
       userId: assignedOwnerId,
       entityId,
-      payload: { contact: { id: entityId }, changes: { firstName: { previous: "A", current: "B" } } },
+      payload: {
+        contact: { id: entityId },
+        changes: { firstName: { previous: "A", current: "B" } },
+      },
     },
     filters,
   });
@@ -164,7 +167,11 @@ describeDatabase("routine event access against PostgreSQL", () => {
 
   it("keeps record access authoritative when an assignment filter matches", async () => {
     const filters: Filter[] = [
-      { field: FilterFieldKey.userIds, operator: FilterOperatorKey.in, value: [assignedOwnerId] },
+      {
+        field: FilterFieldKey.userIds,
+        operator: FilterOperatorKey.in,
+        value: [assignedOwnerId],
+      },
     ];
 
     await expect(access.matchesUserUnscoped(argsFor(assignedOwnerId, assignedContactId, filters))).resolves.toBe(true);
@@ -175,25 +182,68 @@ describeDatabase("routine event access against PostgreSQL", () => {
     await expect(
       access.matchesUserUnscoped(
         argsFor(readAllOwnerId, assignedContactId, [
-          { field: FilterFieldKey.userIds, operator: FilterOperatorKey.in, value: [readAllOwnerId] },
+          {
+            field: FilterFieldKey.userIds,
+            operator: FilterOperatorKey.in,
+            value: [readAllOwnerId],
+          },
         ]),
       ),
     ).resolves.toBe(false);
     await expect(
       access.matchesUserUnscoped(
         argsFor(assignedOwnerId, assignedContactId, [
-          { field: FilterFieldKey.organizationIds, operator: FilterOperatorKey.in, value: [randomUUID()] },
+          {
+            field: FilterFieldKey.organizationIds,
+            operator: FilterOperatorKey.in,
+            value: [randomUUID()],
+          },
         ]),
       ),
     ).resolves.toBe(false);
   });
 
+  it("matches built-in record filters with the explicit owner scope", async () => {
+    const matchingFilter: Filter[] = [
+      {
+        field: FilterFieldKey.firstName,
+        operator: FilterOperatorKey.equals,
+        value: "Assigned",
+      },
+    ];
+    const nonMatchingFilter: Filter[] = [
+      {
+        field: FilterFieldKey.firstName,
+        operator: FilterOperatorKey.equals,
+        value: "Other",
+      },
+    ];
+
+    await expect(access.matchesUserUnscoped(argsFor(assignedOwnerId, assignedContactId, matchingFilter))).resolves.toBe(
+      true,
+    );
+    await expect(access.matchesUserUnscoped(argsFor(readAllOwnerId, assignedContactId, matchingFilter))).resolves.toBe(
+      true,
+    );
+    await expect(
+      access.matchesUserUnscoped(argsFor(assignedOwnerId, assignedContactId, nonMatchingFilter)),
+    ).resolves.toBe(false);
+  });
+
   it("matches live relation and custom filters with explicit owner scope and fails closed on schema drift", async () => {
     const relationFilter: Filter[] = [
-      { field: FilterFieldKey.organizationIds, operator: FilterOperatorKey.in, value: [organizationId] },
+      {
+        field: FilterFieldKey.organizationIds,
+        operator: FilterOperatorKey.in,
+        value: [organizationId],
+      },
     ];
     const customFilter: Filter[] = [
-      { field: customColumnId, operator: FilterOperatorKey.contains, value: "enterprise" },
+      {
+        field: customColumnId,
+        operator: FilterOperatorKey.contains,
+        value: "enterprise",
+      },
     ];
 
     await expect(access.matchesUserUnscoped(argsFor(readAllOwnerId, assignedContactId, relationFilter))).resolves.toBe(
@@ -208,7 +258,11 @@ describeDatabase("routine event access against PostgreSQL", () => {
     await expect(
       access.matchesUserUnscoped(
         argsFor(assignedOwnerId, assignedContactId, [
-          { field: crossCompanyCustomColumnId, operator: FilterOperatorKey.contains, value: "enterprise" },
+          {
+            field: crossCompanyCustomColumnId,
+            operator: FilterOperatorKey.contains,
+            value: "enterprise",
+          },
         ]),
       ),
     ).resolves.toBe(false);
@@ -257,7 +311,10 @@ describeDatabase("routine event access against PostgreSQL", () => {
 
     await expect(
       access.matchesUserUnscoped(
-        deletedArgs(assignedOwnerId, { id: deletedContactId, users: [{ id: assignedOwnerId }] }),
+        deletedArgs(assignedOwnerId, {
+          id: deletedContactId,
+          users: [{ id: assignedOwnerId }],
+        }),
       ),
     ).resolves.toBe(true);
     await expect(
@@ -272,7 +329,11 @@ describeDatabase("routine event access against PostgreSQL", () => {
     await expect(
       access.matchesUserUnscoped(
         deletedArgs(readAllOwnerId, { id: deletedContactId, users: [] }, [
-          { field: FilterFieldKey.userIds, operator: FilterOperatorKey.in, value: [assignedOwnerId] },
+          {
+            field: FilterFieldKey.userIds,
+            operator: FilterOperatorKey.in,
+            value: [assignedOwnerId],
+          },
         ]),
       ),
     ).resolves.toBe(true);

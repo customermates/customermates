@@ -392,7 +392,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       }
     };
 
-    if (typeof requestAnimationFrame === "function") requestAnimationFrame(focus);
+    if (typeof requestAnimationFrame === "function") requestAnimationFrame(() => requestAnimationFrame(focus));
     else queueMicrotask(focus);
   }
 

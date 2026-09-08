@@ -265,14 +265,16 @@ describe("RoutineModalStore", () => {
   it("restores keyboard focus to the selected row after closing its drilldown", async () => {
     const detailFocus = vi.fn();
     const rowFocus = vi.fn();
+    const frames: FrameRequestCallback[] = [];
+    let rowMounted = false;
     vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
-      callback(0);
-      return 1;
+      frames.push(callback);
+      return frames.length;
     });
     vi.stubGlobal("document", {
       getElementById: vi.fn((id: string) => {
         if (id === "routine-run-detail-heading") return { focus: detailFocus };
-        if (id === "routine-run-50000000-0000-4000-8000-000000000001") return { focus: rowFocus };
+        if (id === "routine-run-50000000-0000-4000-8000-000000000001" && rowMounted) return { focus: rowFocus };
         return null;
       }),
     });
@@ -286,8 +288,20 @@ describe("RoutineModalStore", () => {
       });
       await store.openRun(run);
 
+      expect(frames).toHaveLength(1);
+      frames.shift()?.(0);
+      expect(frames).toHaveLength(1);
+      frames.shift()?.(0);
       expect(detailFocus).toHaveBeenCalledWith({ preventScroll: true });
+
       store.closeRun();
+
+      expect(frames).toHaveLength(1);
+      frames.shift()?.(0);
+      expect(rowFocus).not.toHaveBeenCalled();
+      rowMounted = true;
+      expect(frames).toHaveLength(1);
+      frames.shift()?.(0);
       expect(rowFocus).toHaveBeenCalledWith({ preventScroll: true });
     } finally {
       vi.unstubAllGlobals();
@@ -733,7 +747,10 @@ describe("RoutineModalStore", () => {
 
   it("reports a failed Test refresh and the following failed poll only once", async () => {
     vi.useFakeTimers();
-    routineActions.runRoutineNowAction.mockResolvedValue({ ok: true, data: "queued-run" });
+    routineActions.runRoutineNowAction.mockResolvedValue({
+      ok: true,
+      data: "queued-run",
+    });
     routineActions.getRoutineRunsAction
       .mockResolvedValueOnce({ runs: [], nextCursor: null })
       .mockRejectedValueOnce(new Error("refresh offline"))
@@ -757,8 +774,14 @@ describe("RoutineModalStore", () => {
 
   it("keeps polling briefly after Test until the queued run appears", async () => {
     vi.useFakeTimers();
-    routineActions.runRoutineNowAction.mockResolvedValue({ ok: true, data: "queued-run" });
-    routineActions.getRoutineRunsAction.mockResolvedValue({ runs: [], nextCursor: null });
+    routineActions.runRoutineNowAction.mockResolvedValue({
+      ok: true,
+      data: "queued-run",
+    });
+    routineActions.getRoutineRunsAction.mockResolvedValue({
+      runs: [],
+      nextCursor: null,
+    });
     const store = makeStore();
 
     await store.openForEdit(makeRoutine());
@@ -782,7 +805,10 @@ describe("RoutineModalStore", () => {
       terminalCode: null,
       finishedAt: null,
     });
-    routineActions.getRoutineRunsAction.mockResolvedValue({ runs: [active], nextCursor: null });
+    routineActions.getRoutineRunsAction.mockResolvedValue({
+      runs: [active],
+      nextCursor: null,
+    });
     const store = makeStore();
 
     await store.openForEdit(makeRoutine());

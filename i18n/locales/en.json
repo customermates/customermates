@@ -3087,9 +3087,9 @@
           "messageReaction": "Add a reaction to a message in a connected conversation.",
           "messageReceived": "Receive a new, non-duplicate incoming message through a connected account.",
           "messageUpdated": "Edit a message in the connected messaging provider.",
-          "recordCreated": "Create a {entity} in Customermates.",
-          "recordDeleted": "Delete a {entity} in Customermates.",
-          "recordUpdated": "Make a real change to a {entity} in Customermates.",
+          "recordCreated": "Create a record in Customermates: {entity}.",
+          "recordDeleted": "Delete a record in Customermates: {entity}.",
+          "recordUpdated": "Make a real change to a record in Customermates: {entity}.",
           "relationCreated": "Have a LinkedIn connection request accepted through a connected account."
         },
         "conditions": {

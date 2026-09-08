@@ -3087,9 +3087,9 @@
           "messageReaction": "Añade una reacción a un mensaje de una conversación conectada.",
           "messageReceived": "Recibe un mensaje entrante nuevo que no sea un duplicado mediante una cuenta conectada.",
           "messageUpdated": "Edita un mensaje en el proveedor de mensajería conectado.",
-          "recordCreated": "Crea {entity} en Customermates.",
-          "recordDeleted": "Elimina {entity} en Customermates.",
-          "recordUpdated": "Realiza un cambio efectivo en {entity} en Customermates.",
+          "recordCreated": "Crea un registro en Customermates: {entity}.",
+          "recordDeleted": "Elimina un registro en Customermates: {entity}.",
+          "recordUpdated": "Realiza un cambio efectivo en un registro de Customermates: {entity}.",
           "relationCreated": "Haz que se acepte una solicitud de conexión de LinkedIn mediante una cuenta conectada."
         },
         "conditions": {
