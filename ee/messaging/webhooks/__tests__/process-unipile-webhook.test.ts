@@ -29,7 +29,7 @@ function build(row: unknown, handlers: Record<string, { invoke: ReturnType<typeo
   const events = {
     findWebhookEventByIdOrThrowUnscoped: vi.fn().mockResolvedValue(row),
     markWebhookEventProcessedUnscoped: vi.fn().mockResolvedValue(undefined),
-    markWebhookEventFailedUnscoped: vi.fn().mockResolvedValue(undefined),
+    markWebhookEventFailedUnscoped: vi.fn().mockResolvedValue({ attemptCount: 1 }),
   };
   const interactor = new ProcessUnipileWebhookInteractor(events as any, handlers as any);
 
@@ -129,6 +129,96 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
     );
   });
 
+  it.each([
+    [429, "api/too_many_requests"],
+    [500, "api/internal_error"],
+  ])("retries a known webhook provider failure (%i %s) without reporting it", async (status, errorType) => {
+    const providerError = new UnipileRequestError(status, errorType, '{"detail":"retry later"}');
+    const handler = { invoke: vi.fn().mockRejectedValue(providerError) };
+    const { interactor, events } = build(row({ type: "email.folder.update", account_id: "acc_1", payload: {} }), {
+      "email.folder.update": handler,
+    });
+
+    await invoke(interactor);
+
+    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith({
+      id: EVENT_ID,
+      error: providerError.message,
+      terminal: false,
+    });
+    expect(events.markWebhookEventProcessedUnscoped).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    [429, "api/too_many_requests"],
+    [500, "api/internal_error"],
+  ])("reports an exhausted known provider failure once (%i %s)", async (status, errorType) => {
+    const providerError = new UnipileRequestError(status, errorType, '{"detail":"retry later"}');
+    const handler = { invoke: vi.fn().mockRejectedValue(providerError) };
+    const { interactor, events } = build(row({ type: "email.folder.update", account_id: "acc_1", payload: {} }), {
+      "email.folder.update": handler,
+    });
+    events.markWebhookEventFailedUnscoped.mockResolvedValue({ attemptCount: 10 });
+
+    await invoke(interactor);
+
+    expect(Sentry.captureException).toHaveBeenCalledExactlyOnceWith(providerError, {
+      tags: {
+        eventType: "email.folder.update",
+        webhookEventId: EVENT_ID,
+        webhookRetryExhausted: "true",
+      },
+    });
+    expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith({
+      id: EVENT_ID,
+      error: providerError.message,
+      terminal: false,
+    });
+    expect(events.markWebhookEventProcessedUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("does not report an exhausted provider failure again after another concurrent increment", async () => {
+    const providerError = new UnipileRequestError(429, "api/too_many_requests", '{"detail":"retry later"}');
+    const handler = { invoke: vi.fn().mockRejectedValue(providerError) };
+    const { interactor, events } = build(row({ type: "email.folder.update", account_id: "acc_1", payload: {} }), {
+      "email.folder.update": handler,
+    });
+    events.markWebhookEventFailedUnscoped
+      .mockResolvedValueOnce({ attemptCount: 10 })
+      .mockResolvedValueOnce({ attemptCount: 11 });
+
+    await Promise.all([invoke(interactor), invoke(interactor)]);
+
+    expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledTimes(2);
+    expect(Sentry.captureException).toHaveBeenCalledExactlyOnceWith(providerError, {
+      tags: {
+        eventType: "email.folder.update",
+        webhookEventId: EVENT_ID,
+        webhookRetryExhausted: "true",
+      },
+    });
+  });
+
+  it("reports an exhausted deferred webhook once", async () => {
+    const deferred = new DeferredWebhookError("burst");
+    const handler = { invoke: vi.fn().mockRejectedValue(deferred) };
+    const { interactor, events } = build(row({ type: "email.delete", account_id: "acc_1", payload: {} }), {
+      "email.delete": handler,
+    });
+    events.markWebhookEventFailedUnscoped.mockResolvedValue({ attemptCount: 10 });
+
+    await invoke(interactor);
+
+    expect(Sentry.captureException).toHaveBeenCalledExactlyOnceWith(deferred, {
+      tags: {
+        eventType: "email.delete",
+        webhookEventId: EVENT_ID,
+        webhookRetryExhausted: "true",
+      },
+    });
+  });
+
   it("still reports an unrelated Unipile rejection", async () => {
     const serverError = new UnipileRequestError(500, "api/unknown", '{"detail":"boom"}');
     const handler = { invoke: vi.fn().mockRejectedValue(serverError) };
@@ -139,6 +229,25 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
     await invoke(interactor);
 
     expect(Sentry.captureException).toHaveBeenCalledOnce();
+  });
+
+  it("still reports an unrelated error with a 429-shaped status", async () => {
+    const unrelated = Object.assign(new Error("another dependency returned 429"), { status: 429 });
+    const handler = { invoke: vi.fn().mockRejectedValue(unrelated) };
+    const { interactor, events } = build(row({ type: "email.folder.update", account_id: "acc_1", payload: {} }), {
+      "email.folder.update": handler,
+    });
+
+    await invoke(interactor);
+
+    expect(Sentry.captureException).toHaveBeenCalledExactlyOnceWith(unrelated, {
+      tags: { webhookEventId: EVENT_ID, eventType: "email.folder.update" },
+    });
+    expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith({
+      id: EVENT_ID,
+      error: unrelated.message,
+      terminal: false,
+    });
   });
 
   it("marks a transient handler error non-terminal, captures it once, and does not rethrow", async () => {

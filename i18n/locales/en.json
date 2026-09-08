@@ -1022,6 +1022,7 @@
       "passwordInvalid": "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
       "passwordMismatch": "Passwords must match.",
       "permissionDenied": "This action is not available with your current permissions.",
+      "privacyAcknowledgementRequired": "Please confirm that you have read the Privacy Policy.",
       "relationNotAllowed": "Relation '{relation}' is not allowed on {entity}. Allowed relations: {allowed}.",
       "roleAssignedCannotDelete": "A role assigned to users cannot be deleted.",
       "roleNotFound": "Role ID not found or not accessible.",

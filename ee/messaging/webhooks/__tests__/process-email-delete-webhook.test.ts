@@ -161,56 +161,31 @@ describe("ProcessEmailDeleteWebhookInteractor", () => {
     expect(eventService.publish).toHaveBeenCalledTimes(1);
   });
 
-  it("still runs the single-call search during a burst and deletes a message that really went away", async () => {
+  it("defers an unchanged row during a burst, then reconciles it after the burst", async () => {
     vi.useFakeTimers();
-    const { interactor, ingest, eventService, messagingService } = build({ recentDeletes: 50 });
-
-    const run = interactor.invoke(envelope);
-    await vi.runAllTimersAsync();
-    await run;
-    vi.useRealTimers();
-
-    expect(messagingService.listEmails).toHaveBeenCalledTimes(1);
-    expect(messagingService.listFolderEmails).not.toHaveBeenCalled();
-    expect(ingest.deleteMessageUnscoped).toHaveBeenCalled();
-    expect(eventService.publish).toHaveBeenCalledTimes(1);
-  });
-
-  it("defers instead of destroying when a burst leaves the relocation unverifiable", async () => {
-    vi.useFakeTimers();
-    const { interactor, ingest, eventService, messagingService } = build({
+    const { interactor, ingest, eventService, messagingService, events } = build({
       recentDeletes: 50,
-      listEmails: () => Promise.reject(new UnipileRequestError(501, "api/not_implemented", "")),
+      listEmails: () => Promise.resolve({ data: [relocatedEmail] }),
     });
+    events.countRecentEmailDeletesUnscoped.mockResolvedValueOnce(50).mockResolvedValueOnce(1);
 
     const run = interactor.invoke(envelope).catch((err: unknown) => err);
     await vi.runAllTimersAsync();
     await expect(run).resolves.toBeInstanceOf(DeferredWebhookError);
-    vi.useRealTimers();
 
+    expect(messagingService.listEmails).not.toHaveBeenCalled();
     expect(messagingService.listFolderEmails).not.toHaveBeenCalled();
     expect(ingest.moveEmailMessageUnscoped).not.toHaveBeenCalled();
     expect(ingest.deleteMessageUnscoped).not.toHaveBeenCalled();
     expect(eventService.publish).not.toHaveBeenCalled();
-  });
 
-  it("relocates during a burst when the single-call search finds the message", async () => {
-    vi.useFakeTimers();
-    const { interactor, ingest, messagingService } = build({
-      recentDeletes: 50,
-      listEmails: () => Promise.resolve({ data: [relocatedEmail] }),
-    });
-
-    const run = interactor.invoke(envelope);
-    await vi.runAllTimersAsync();
-    await run;
     vi.useRealTimers();
+    await interactor.invoke(envelope);
 
-    expect(messagingService.listFolderEmails).not.toHaveBeenCalled();
-    expect(ingest.moveEmailMessageUnscoped).toHaveBeenCalledWith(
-      expect.objectContaining({ newUnipileMessageId: "NEW_ID_ARCHIVE", folderIds: ["F_ARCHIVE"] }),
-    );
+    expect(messagingService.listEmails).toHaveBeenCalledOnce();
+    expect(ingest.moveEmailMessageUnscoped).toHaveBeenCalledOnce();
     expect(ingest.deleteMessageUnscoped).not.toHaveBeenCalled();
+    expect(eventService.publish).not.toHaveBeenCalled();
   });
 
   it("does not destroy a row during a burst when the relocation adopted it under a new identifier", async () => {
@@ -226,6 +201,24 @@ describe("ProcessEmailDeleteWebhookInteractor", () => {
     expect(ingest.deleteMessageUnscoped).not.toHaveBeenCalled();
     expect(messagingService.listEmails).not.toHaveBeenCalled();
     expect(messagingService.listFolderEmails).not.toHaveBeenCalled();
+  });
+
+  it("defers a burst row whose relocation cannot be correlated", async () => {
+    vi.useFakeTimers();
+    const { interactor, ingest, eventService, messagingService } = build({
+      existing: { ...existingRow, providerMessageId: null },
+      recentDeletes: 50,
+    });
+
+    const run = interactor.invoke(envelope).catch((err: unknown) => err);
+    await vi.runAllTimersAsync();
+    await expect(run).resolves.toBeInstanceOf(DeferredWebhookError);
+    vi.useRealTimers();
+
+    expect(messagingService.listEmails).not.toHaveBeenCalled();
+    expect(messagingService.listFolderEmails).not.toHaveBeenCalled();
+    expect(ingest.deleteMessageUnscoped).not.toHaveBeenCalled();
+    expect(eventService.publish).not.toHaveBeenCalled();
   });
 
   it("skips verification when the stored row has no rfc822 message id", async () => {

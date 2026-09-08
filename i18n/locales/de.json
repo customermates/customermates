@@ -1022,6 +1022,7 @@
       "passwordInvalid": "Das Passwort muss mindestens 8 Zeichen lang sein und mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und ein Sonderzeichen enthalten.",
       "passwordMismatch": "Passwörter müssen übereinstimmen.",
       "permissionDenied": "Diese Aktion ist mit deinen aktuellen Berechtigungen nicht verfügbar.",
+      "privacyAcknowledgementRequired": "Bitte bestätigen Sie, dass Sie die Datenschutzerklärung gelesen haben.",
       "relationNotAllowed": "Die Beziehung '{relation}' ist für {entity} nicht erlaubt. Erlaubte Beziehungen: {allowed}.",
       "roleAssignedCannotDelete": "Eine Nutzern zugewiesene Rolle kann nicht gelöscht werden.",
       "roleNotFound": "Rollen-ID nicht gefunden oder nicht zugänglich.",

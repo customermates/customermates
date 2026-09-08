@@ -1022,6 +1022,7 @@
       "passwordInvalid": "La contraseña debe tener al menos 8 caracteres e incluir al menos una mayúscula, una minúscula, un número y un carácter especial.",
       "passwordMismatch": "Las contraseñas deben coincidir.",
       "permissionDenied": "Esta acción no está disponible con tus permisos actuales.",
+      "privacyAcknowledgementRequired": "Confirma que has leído la Política de privacidad.",
       "relationNotAllowed": "La relación '{relation}' no está permitida en {entity}. Relaciones permitidas: {allowed}.",
       "roleAssignedCannotDelete": "No se puede eliminar un rol asignado a usuarios.",
       "roleNotFound": "ID de rol no encontrado o no accesible.",
