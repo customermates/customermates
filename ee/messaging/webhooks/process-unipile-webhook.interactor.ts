@@ -4,7 +4,7 @@ import { Enforce } from "@/core/decorators/enforce.decorator";
 import { z } from "zod";
 import * as Sentry from "@sentry/node";
 
-import type { WebhookEventRepo } from "./webhook-event.repo";
+import { WEBHOOK_REPROCESS_MAX_ATTEMPTS, type WebhookEventRepo } from "./webhook-event.repo";
 import type { UnipileWebhookEnvelope } from "../unipile.schema";
 
 import { UnipileWebhookEnvelopeSchema } from "../unipile.schema";
@@ -82,7 +82,7 @@ export class ProcessUnipileWebhookInteractor {
       }
 
       if (err instanceof DeferredWebhookError) {
-        await this.events.markWebhookEventFailedUnscoped({ id, error: err.message, terminal: false });
+        await this.markRetryableFailure({ id, eventType: envelope.type, err });
 
         return;
       }
@@ -94,11 +94,7 @@ export class ProcessUnipileWebhookInteractor {
       }
 
       if (isUnipileTimeout(err) || isUnipileProviderUnprocessable(err) || isRetryableUnipileWebhookError(err)) {
-        await this.events.markWebhookEventFailedUnscoped({
-          id,
-          error: err instanceof Error ? err.message : String(err),
-          terminal: false,
-        });
+        await this.markRetryableFailure({ id, eventType: envelope.type, err });
 
         return;
       }
@@ -110,5 +106,22 @@ export class ProcessUnipileWebhookInteractor {
         terminal: err instanceof z.ZodError,
       });
     }
+  }
+
+  private async markRetryableFailure(args: { id: string; eventType: string; err: unknown }): Promise<void> {
+    const result = await this.events.markWebhookEventFailedUnscoped({
+      id: args.id,
+      error: args.err instanceof Error ? args.err.message : String(args.err),
+      terminal: false,
+    });
+    if (result.attemptCount !== WEBHOOK_REPROCESS_MAX_ATTEMPTS) return;
+
+    Sentry.captureException(args.err, {
+      tags: {
+        eventType: args.eventType,
+        webhookEventId: args.id,
+        webhookRetryExhausted: "true",
+      },
+    });
   }
 }

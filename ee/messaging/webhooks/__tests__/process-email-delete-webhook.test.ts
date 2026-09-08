@@ -161,18 +161,29 @@ describe("ProcessEmailDeleteWebhookInteractor", () => {
     expect(eventService.publish).toHaveBeenCalledTimes(1);
   });
 
-  it("defers an unchanged row during a burst without calling Unipile", async () => {
+  it("defers an unchanged row during a burst, then reconciles it after the burst", async () => {
     vi.useFakeTimers();
-    const { interactor, ingest, eventService, messagingService } = build({ recentDeletes: 50 });
+    const { interactor, ingest, eventService, messagingService, events } = build({
+      recentDeletes: 50,
+      listEmails: () => Promise.resolve({ data: [relocatedEmail] }),
+    });
+    events.countRecentEmailDeletesUnscoped.mockResolvedValueOnce(50).mockResolvedValueOnce(1);
 
     const run = interactor.invoke(envelope).catch((err: unknown) => err);
     await vi.runAllTimersAsync();
     await expect(run).resolves.toBeInstanceOf(DeferredWebhookError);
-    vi.useRealTimers();
 
     expect(messagingService.listEmails).not.toHaveBeenCalled();
     expect(messagingService.listFolderEmails).not.toHaveBeenCalled();
     expect(ingest.moveEmailMessageUnscoped).not.toHaveBeenCalled();
+    expect(ingest.deleteMessageUnscoped).not.toHaveBeenCalled();
+    expect(eventService.publish).not.toHaveBeenCalled();
+
+    vi.useRealTimers();
+    await interactor.invoke(envelope);
+
+    expect(messagingService.listEmails).toHaveBeenCalledOnce();
+    expect(ingest.moveEmailMessageUnscoped).toHaveBeenCalledOnce();
     expect(ingest.deleteMessageUnscoped).not.toHaveBeenCalled();
     expect(eventService.publish).not.toHaveBeenCalled();
   });
