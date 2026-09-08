@@ -115,7 +115,7 @@ export class PrismaWikiPageRepo
     const recoverable = await this.prisma.agentTurnRequest.findFirst({
       where: {
         ...setupWhere,
-        status: { in: ["running", "failed", "uncertain"] },
+        status: "running",
       },
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       select: { clientRequestId: true },

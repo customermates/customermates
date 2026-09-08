@@ -15,15 +15,15 @@ function rootStore(appMode: "cloud" | "demo", canManage: boolean): RootStore {
 }
 
 describe("WikiPageStore", () => {
-  it("instantiates with the inherited permission computed value", () => {
+  it("uses the inherited resource permission", () => {
     const store = new WikiPageStore(rootStore("cloud", true), null, vi.fn());
 
     expect(store.canManage).toBe(true);
   });
 
-  it("keeps demo Wiki pages read-only", () => {
+  it("does not duplicate the server's demo-mode write guard in the client", () => {
     const store = new WikiPageStore(rootStore("demo", true), null, vi.fn());
 
-    expect(store.canManage).toBe(false);
+    expect(store.canManage).toBe(true);
   });
 });

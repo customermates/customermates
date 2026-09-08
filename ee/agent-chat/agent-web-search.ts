@@ -1,7 +1,5 @@
 import { openai } from "@ai-sdk/openai";
 
-import { sanitizeAgentVisibleText } from "./agent-output-safety";
-
 export const AGENT_WEB_SEARCH_TOOL_NAME = "web_search";
 const AGENT_WEB_SOURCE_LIMIT = 8;
 const AGENT_WEB_SOURCE_MAX_LENGTH = 1_000;
@@ -29,8 +27,7 @@ function canonicalHttpsSource(value: unknown): string | null {
     const url = new URL(value);
     if (url.protocol !== "https:" || url.username || url.password) return null;
     url.hash = "";
-    const canonical = url.toString();
-    return sanitizeAgentVisibleText(canonical) === canonical ? canonical : null;
+    return url.toString();
   } catch {
     return null;
   }

@@ -84,7 +84,7 @@ describe("native Agent web search", () => {
     expect(collectAgentWebSources(messages)).toEqual([]);
   });
 
-  it("drops source URLs that the existing visible-output safety boundary would rewrite", () => {
+  it("preserves provider source URLs whose public paths contain UUIDs", () => {
     expect(
       collectAgentWebSources([
         {
@@ -97,7 +97,7 @@ describe("native Agent web search", () => {
           ],
         },
       ]),
-    ).toEqual([]);
+    ).toEqual(["https://example.com/00000000-0000-4000-8000-000000000001"]);
   });
 
   it("caps a deterministic Markdown footer at eight deduplicated HTTPS links", () => {

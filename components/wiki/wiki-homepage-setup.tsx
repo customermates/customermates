@@ -34,6 +34,7 @@ export function WikiHomepageSetup({ onAccepted, onSkip }: Props) {
       });
       if (!result.ok) {
         toastZodErrorTree(result.error);
+        setClientRequestId(crypto.randomUUID());
         return;
       }
 

@@ -138,7 +138,7 @@ describe("WikiHomepageSetup", () => {
     expect(harness.action.mock.calls[1][0].clientRequestId).not.toBe(firstRequestId);
   });
 
-  it("shows structured failures, keeps a stable retry id, and renews it after an edit", async () => {
+  it("shows structured failures and uses a fresh request id for each accepted retry", async () => {
     const error = { errors: ["Invalid homepage"] };
     harness.action.mockResolvedValue({ ok: false, error });
     typeHomepage("bad.example");
@@ -157,14 +157,15 @@ describe("WikiHomepageSetup", () => {
     expect(harness.toast).toHaveBeenCalledTimes(2);
     expect(harness.toast).toHaveBeenLastCalledWith(error);
     expect(onAccepted).not.toHaveBeenCalled();
-    expect(harness.action.mock.calls[1][0].clientRequestId).toBe(firstRequestId);
+    expect(harness.action.mock.calls[1][0].clientRequestId).not.toBe(firstRequestId);
     expect(startButton().disabled).toBe(false);
 
+    const secondRequestId = harness.action.mock.calls[1][0].clientRequestId;
     typeHomepage("example.com");
     await act(async () => {
       submit();
       await Promise.resolve();
     });
-    expect(harness.action.mock.calls[2][0].clientRequestId).not.toBe(firstRequestId);
+    expect(harness.action.mock.calls[2][0].clientRequestId).not.toBe(secondRequestId);
   });
 });
