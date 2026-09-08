@@ -208,7 +208,7 @@ describe("AgentChatStore", () => {
     expect(store.isOpen).toBe(false);
   });
 
-  it("auto-opens after onboarding on a widget-empty dashboard and persists that default", async () => {
+  it("keeps Mate closed on an empty dashboard until a starter action is chosen", async () => {
     const stored = stubBrowser("/en/dashboard");
     actionsMock.getAgentConfigAction.mockResolvedValue({
       ok: true,
@@ -227,8 +227,8 @@ describe("AgentChatStore", () => {
 
     await store.loadConfig();
 
-    expect(store.isOpen).toBe(true);
-    expect([...stored.values()]).toEqual(["true"]);
+    expect(store.isOpen).toBe(false);
+    expect(stored.size).toBe(0);
   });
 
   it("does not auto-open a dashboard that already has a widget", async () => {
@@ -245,6 +245,20 @@ describe("AgentChatStore", () => {
     expect(stored.size).toBe(0);
   });
 
+  it("opens the composer with a starter prompt without submitting it", () => {
+    const stored = stubBrowser("/en/contacts");
+    const store = new AgentChatStore(root() as never);
+    store.isHistoryOpen = true;
+
+    store.openWithDraft("Help me create my first contact.");
+
+    expect(store.isOpen).toBe(true);
+    expect(store.isHistoryOpen).toBe(false);
+    expect(store.composerDraft).toBe("Help me create my first contact.");
+    expect(store.items).toEqual([]);
+    expect([...stored.values()]).toEqual(["true"]);
+  });
+
   it("keeps an explicitly closed Assistant closed on an empty page", async () => {
     stubBrowser("/en/dashboard");
     const first = new AgentChatStore(root() as never);
@@ -259,7 +273,7 @@ describe("AgentChatStore", () => {
   });
 
   it("uses an open URL override without changing the saved closed preference", async () => {
-    const storageKey = "customermates:agentChat:open:v1:company-1:user-1";
+    const storageKey = "customermates:agentChat:open:v2:company-1:user-1";
     const values = new Map([[storageKey, "false"]]);
     stubBrowser("/en/dashboard", { search: "?agentChat=open", values });
     const store = new AgentChatStore(root() as never);
@@ -276,7 +290,7 @@ describe("AgentChatStore", () => {
   });
 
   it("uses a closed URL override without changing the saved open preference or auto-opening", async () => {
-    const storageKey = "customermates:agentChat:open:v1:company-1:user-1";
+    const storageKey = "customermates:agentChat:open:v2:company-1:user-1";
     const values = new Map([[storageKey, "true"]]);
     stubBrowser("/en/dashboard", {
       hostname: "demo.customermates.test",
@@ -299,6 +313,19 @@ describe("AgentChatStore", () => {
       values,
     });
     expect(new AgentChatStore(root() as never).isOpen).toBe(true);
+  });
+
+  it("ignores a legacy open preference written by empty-page auto-open", async () => {
+    const legacyStorageKey = "customermates:agentChat:open:v1:company-1:user-1";
+    const values = new Map([[legacyStorageKey, "true"]]);
+    stubBrowser("/en/dashboard", { values });
+    const store = new AgentChatStore(root() as never);
+
+    await store.loadConfig();
+
+    expect(store.isOpen).toBe(false);
+    expect(values.get(legacyStorageKey)).toBe("true");
+    expect(values.has("customermates:agentChat:open:v2:company-1:user-1")).toBe(false);
   });
 
   it.each(["?agentChat=", "?agentChat=OPEN", "?agentChat=open&agentChat=closed"])(

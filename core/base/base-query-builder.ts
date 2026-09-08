@@ -116,6 +116,19 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     return Promise.resolve([]);
   }
 
+  private memoCustomColumns?: Promise<Array<CustomColumnDto>>;
+  private memoFilterableFields?: Promise<Array<FilterableField>>;
+
+  customColumnsOnce(): Promise<Array<CustomColumnDto>> {
+    this.memoCustomColumns ??= this.getCustomColumns();
+    return this.memoCustomColumns;
+  }
+
+  filterableFieldsOnce(): Promise<Array<FilterableField>> {
+    this.memoFilterableFields ??= this.getFilterableFields();
+    return this.memoFilterableFields;
+  }
+
   getGroupableFields(_customColumns?: readonly CustomColumnDto[]): Promise<Array<GroupableFieldSpec>> {
     return Promise.resolve([]);
   }
@@ -126,7 +139,7 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
 
   async buildQueryArgs(params: GetQueryParams, baseWhere: TWhereInput = {} as TWhereInput) {
     const where = await this.buildWhereClause(params, baseWhere);
-    const customColumns = await this.getCustomColumns();
+    const customColumns = await this.customColumnsOnce();
     const customSort = resolveCustomSort(params.sortDescriptor, customColumns);
     const orderBy = customSort ? [] : this.buildOrderBy({ sortDescriptor: params.sortDescriptor });
     const pagination =
@@ -178,10 +191,10 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     baseWhere: TWhereInput = {} as TWhereInput,
   ): Promise<TWhereInput> {
     const where = { ...baseWhere } as WithDynamicFields<TWhereInput> & WithLogicalOperators<TWhereInput>;
-    const filterableFields = await this.getFilterableFields();
+    const filterableFields = await this.filterableFieldsOnce();
     const validFilters = this.validateFilters({ filters: params.filters, filterableFields });
 
-    const customColumns = validFilters.some((f) => isCustomField(f.field)) ? await this.getCustomColumns() : [];
+    const customColumns = validFilters.some((f) => isCustomField(f.field)) ? await this.customColumnsOnce() : [];
     const customColumnTypeById = new Map(customColumns.map((c) => [c.id, c.type]));
 
     for (const filter of validFilters) this.applyFieldFilter(where, filter, filterableFields, customColumnTypeById);

@@ -77,6 +77,12 @@ export abstract class BaseGetRepo<T> {
   abstract getSearchableFields(): SearchableField[];
   abstract getFilterableFields(): Promise<FilterableField[]>;
   abstract getCustomColumns(): Promise<CustomColumnDto[]>;
+  customColumnsOnce(): Promise<CustomColumnDto[]> {
+    return this.getCustomColumns();
+  }
+  filterableFieldsOnce(): Promise<FilterableField[]> {
+    return this.getFilterableFields();
+  }
   getGroupableFields(_customColumns?: readonly CustomColumnDto[]): Promise<GroupableFieldSpec[]> {
     return Promise.resolve([]);
   }
@@ -160,8 +166,8 @@ export abstract class BaseGetInteractor<T> {
     const pagination: PaginationRequest = { page, pageSize };
 
     const [filterableFields, customColumns] = await Promise.all([
-      this.repo.getFilterableFields(),
-      this.repo.getCustomColumns(),
+      this.repo.filterableFieldsOnce(),
+      this.repo.customColumnsOnce(),
     ]);
     const sortableFields = this.repo.getSortableFields();
 
@@ -297,7 +303,9 @@ export abstract class BaseGetInteractor<T> {
     });
 
     const collapsed = new Set(page.collapsed ?? []);
-    const materialised = axis.groups.filter((group) => !collapsed.has(group.key)).slice(0, MAX_MATERIALISED_GROUPS);
+    const materialised = axis.groups
+      .filter((group) => !collapsed.has(group.key) && group.count > 0)
+      .slice(0, MAX_MATERIALISED_GROUPS);
     const wantsSums = page.includeValueSums !== false && this.groupValueSumFields.length > 0 && spec.kind !== "enum";
 
     const pages = await Promise.all(

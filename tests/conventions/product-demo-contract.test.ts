@@ -179,7 +179,7 @@ describe("seeded public product demo", () => {
     expect(componentRegistry).toMatch(/\n\s*ProductDemo,\n/u);
   });
 
-  it("keeps disclosure, accessibility and lazy sandboxing in the shared component", () => {
+  it("keeps disclosure, accessibility, bounded preloading and sandboxing in the shared component", () => {
     const demo = read("components/marketing/product-demo.tsx");
     const frame = read("components/marketing/browser-frame.tsx");
     const proxy = read("proxy.ts");
@@ -215,7 +215,15 @@ describe("seeded public product demo", () => {
     expect(frame).toContain('size?: "article" | "full"');
     expect(frame).toContain('article: "h-[420px] sm:h-[520px] lg:h-[600px]"');
     expect(frame).toContain("IntersectionObserver");
-    expect(frame).toContain('loading="lazy"');
+    expect(frame).toContain('loadAhead?: boolean');
+    expect(frame).toContain('const LOAD_AHEAD_MARGIN = "400px 0px"');
+    expect(frame).toContain("loadAhead ? { rootMargin: LOAD_AHEAD_MARGIN } : undefined");
+    expect(frame).toContain("prefetchDNS(origin)");
+    expect(frame).toContain("preconnect(origin)");
+    expect(frame).toContain('loading={loadAhead ? "eager" : "lazy"}');
+    expect(read("app/[locale]/(static)/components/hero-demo-iframe.tsx")).toContain(
+      "<BrowserFrame loadAhead",
+    );
     expect(frame).toContain(
       'sandbox="allow-scripts allow-same-origin allow-popups allow-forms"',
     );

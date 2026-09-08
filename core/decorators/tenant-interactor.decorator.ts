@@ -3,6 +3,7 @@ import type { Resource, Action } from "@/generated/prisma";
 import { isAllowedInDemoMode } from "./allow-in-demo-mode.decorator";
 
 import { runWithTenant, tenantStorage } from "@/core/decorators/tenant-context";
+import { resolveActiveTenantUser } from "@/core/decorators/resolve-tenant-user";
 import { env } from "@/env";
 import { DemoModeError, ForbiddenError } from "@/core/errors/app-errors";
 
@@ -42,7 +43,7 @@ export function TenantInteractor<T extends { new (...args: any[]): object }>(
       if (!user) {
         const { getUserService } = await import("@/core/di");
 
-        user = await getUserService().getActiveUserOrThrow();
+        user = await resolveActiveTenantUser(() => getUserService().getActiveUserOrThrow());
       }
 
       if (normalizedRequirement) {

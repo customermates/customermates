@@ -10,6 +10,7 @@ import { useTranslations } from "next-intl";
 import { EntityType } from "@/generated/prisma";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { AgentStarterActions } from "@/app/components/agent-chat/suggested-questions";
 import { DataViewContent } from "@/components/data-view/data-view-content";
 import { DataViewEmpty } from "@/components/data-view/data-view-empty";
 import { DataViewLayout } from "@/components/data-view/data-view-layout";
@@ -103,6 +104,20 @@ export const ContactsPageView = observer(function ContactsPageView({ contacts }:
     case "true-empty":
       body = (
         <DataViewEmpty
+          action={
+            <AgentStarterActions
+              fallback={
+                contactsStore.canManage ? (
+                  <Button size="sm" variant="secondary" onClick={handleAdd}>
+                    {emptyActionLabel}
+                  </Button>
+                ) : undefined
+              }
+              pageId="contacts"
+              state="empty"
+              surface="page"
+            />
+          }
           actionLabel={emptyActionLabel}
           background={<ContactsPageSkeleton animated={false} view={view} />}
           reason="true-empty"

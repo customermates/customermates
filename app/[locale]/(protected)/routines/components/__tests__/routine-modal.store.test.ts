@@ -549,6 +549,36 @@ describe("RoutineModalStore", () => {
     expect(sonner.toast.success).toHaveBeenCalledWith("RoutineDetail.testTriggerStarted", expect.anything());
   });
 
+  it("ignores a Test trigger response after switching routines", async () => {
+    const pendingRun = deferred<{ ok: true; data: string }>();
+    routineActions.runRoutineNowAction.mockReturnValue(pendingRun.promise);
+    const firstRoutine = makeRoutine();
+    const secondRoutine = makeRoutine({
+      id: "30000000-0000-4000-8000-000000000002",
+      name: "Second",
+    });
+    const store = makeStore();
+    await store.openForEdit(firstRoutine);
+    await settlePromises();
+
+    const runPromise = store.runNow();
+    expect(store.isStartingRun).toBe(true);
+
+    store.close();
+    await store.openForEdit(secondRoutine);
+    await settlePromises();
+    const runPageRequestsAfterSwitch = routineActions.getRoutineRunsAction.mock.calls.length;
+
+    pendingRun.resolve({ ok: true, data: "queued-run" });
+    await runPromise;
+
+    expect(store.form.id).toBe(secondRoutine.id);
+    expect(store.activeTab).toBe("details");
+    expect(store.isStartingRun).toBe(false);
+    expect(routineActions.getRoutineRunsAction).toHaveBeenCalledTimes(runPageRequestsAfterSwitch);
+    expect(sonner.toast.success).not.toHaveBeenCalled();
+  });
+
   it("stays on the details tab and stays silent when the test run is refused", async () => {
     routineActions.runRoutineNowAction.mockResolvedValue({
       ok: false,

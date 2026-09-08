@@ -288,6 +288,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     this.runsNextCursor = null;
     this.runsRequestState = "idle";
     this.isLoadingMoreRuns = false;
+    this.isStartingRun = false;
     this.runsPollFailureNotified = false;
     this.openRunId = null;
     this.rootStore.routineRunChatStore.newConversation();
@@ -578,8 +579,11 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
 
   runNow = async () => {
     const routineId = this.form.id;
+    const generation = this.runsSessionGeneration;
     if (
       !routineId ||
+      !this.ownsRunsSession(generation, routineId) ||
+      this.isStartingRun ||
       !this.isOwner ||
       !this.form.enabled ||
       this.form.triggerKind !== RoutineTriggerKind.schedule ||
@@ -591,6 +595,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
 
     try {
       const res = await runRoutineNowAction({ routineId });
+      if (!this.ownsRunsSession(generation, routineId)) return;
       if (!res.ok) {
         toastZodErrorTree(res.error);
         return;
@@ -601,11 +606,14 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       });
       this.startRunsPolling(routineId, ROUTINE_RUN_POLL_GRACE_MS);
       await this.refreshRunPage(routineId);
+      if (!this.ownsRunsSession(generation, routineId)) return;
       this.toastSuccess("RoutineDetail.testTriggerStarted");
     } finally {
-      runInAction(() => {
-        this.isStartingRun = false;
-      });
+      if (this.ownsRunsSession(generation, routineId)) {
+        runInAction(() => {
+          this.isStartingRun = false;
+        });
+      }
     }
   };
 

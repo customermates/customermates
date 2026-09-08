@@ -18,7 +18,7 @@ export function HeroDemoIframe({ className, size = "full", src }: Props) {
 
   return (
     <div className={cn("mx-auto w-full", className)}>
-      <BrowserFrame size={size} src={demoSrc} title={t("BrowserFrame.liveDemoTitle")} />
+      <BrowserFrame loadAhead size={size} src={demoSrc} title={t("BrowserFrame.liveDemoTitle")} />
     </div>
   );
 }
