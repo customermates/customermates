@@ -11,6 +11,7 @@ import { Cable, RefreshCw } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
+import { AgentStarterActions } from "@/app/components/agent-chat/suggested-questions";
 import { IntlLink as Link, useRouter, usePathname } from "@/i18n/navigation";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 
@@ -203,15 +204,22 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
       listBody = (
         <PageState
           action={
-            canConnect ? (
-              <Button asChild size="sm" variant="secondary">
-                <Link href="/profile/connected-accounts">
-                  <Cable className="size-3.5" />
+            <AgentStarterActions
+              fallback={
+                canConnect ? (
+                  <Button asChild size="sm" variant="secondary">
+                    <Link href="/profile/connected-accounts">
+                      <Cable className="size-3.5" />
 
-                  {t("ConnectedAccountsCard.title")}
-                </Link>
-              </Button>
-            ) : undefined
+                      {t("ConnectedAccountsCard.title")}
+                    </Link>
+                  </Button>
+                ) : undefined
+              }
+              pageId="inbox"
+              state="empty"
+              surface="page"
+            />
           }
           background={<InboxPageSkeleton animated={false} view="list" />}
           className="h-full"

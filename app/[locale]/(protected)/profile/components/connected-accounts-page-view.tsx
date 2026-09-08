@@ -11,6 +11,7 @@ import { Cable, Info, Loader2 } from "lucide-react";
 import { useEffect, useLayoutEffect, useMemo } from "react";
 import { Action, Resource } from "@/generated/prisma";
 
+import { AgentStarterActions } from "@/app/components/agent-chat/suggested-questions";
 import { Alert } from "@/components/shared/alert";
 import { AppChip } from "@/components/chip/app-chip";
 import { AvatarStack } from "@/components/shared/avatar-stack";
@@ -225,7 +226,16 @@ export const ConnectedAccountsPageView = observer(({ accounts, locked = false }:
       body = (
         <PageState
           action={
-            canConnect ? <ConnectAction id="profile-connected-accounts-connect-empty" variant="secondary" /> : undefined
+            <AgentStarterActions
+              fallback={
+                canConnect ? (
+                  <ConnectAction id="profile-connected-accounts-connect-empty" variant="secondary" />
+                ) : undefined
+              }
+              pageId="connected-accounts"
+              state="empty"
+              surface="page"
+            />
           }
           background={<ConnectedAccountsPageSkeleton animated={false} />}
           description={t("ConnectedAccountsCard.emptyState")}

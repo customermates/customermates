@@ -2,7 +2,7 @@
 
 import type { LucideIcon } from "lucide-react";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 
 import { Inbox } from "lucide-react";
 import { observer } from "mobx-react-lite";
@@ -23,6 +23,7 @@ export type EmptyStateDescriptor = {
 };
 
 type SharedProps<E extends HasId> = {
+  action?: ReactNode;
   store: BaseDataViewStore<E>;
   onAdd?: () => void;
   descriptor?: EmptyStateDescriptor;
@@ -45,6 +46,7 @@ export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({
   reason,
   background,
   actionLabel,
+  action,
 }: Props<E>) {
   const t = useTranslations();
   const { singular, plural } = useEntityTerminology();
@@ -92,11 +94,12 @@ export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({
   return (
     <PageState
       action={
-        canCreate ? (
+        action ??
+        (canCreate ? (
           <Button size="sm" variant="secondary" onClick={() => onAdd?.()}>
             {resolvedActionLabel}
           </Button>
-        ) : undefined
+        ) : undefined)
       }
       background={background}
       description={description}

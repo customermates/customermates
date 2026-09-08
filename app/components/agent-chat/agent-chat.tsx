@@ -73,10 +73,6 @@ export const AgentChat = observer(function AgentChat() {
   }, [pathname]);
 
   useEffect(() => {
-    store.openForEmptyPage(pathname);
-  }, [pathname, store, store.counts, store.enabled]);
-
-  useEffect(() => {
     agentUiControlStore.registerNavigate(async (path) => {
       const targetPathname = path.split("?")[0];
       if (pathnameRef.current === path) return "navigated";
