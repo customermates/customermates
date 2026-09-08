@@ -271,7 +271,7 @@ describe("Inbox page-state owners", () => {
       "utf8",
     );
 
-    expect(surface).toContain("<DataViewViewsRail joinsTopBar store={messagingThreadsStore} />");
+    expect(surface).toContain('<DataViewViewsRail joinsTopBar detailParam="threadId" store={messagingThreadsStore} />');
     expect(surface).toContain("useDataViewSync(messagingThreadsStore, threads)");
 
     const page = readFileSync(resolve(process.cwd(), "app/[locale]/(protected)/inbox/page.tsx"), "utf8");

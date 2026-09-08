@@ -9,7 +9,8 @@ import { ChevronDownIcon } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useRouter, usePathname as useLocalePathname } from "@/i18n/navigation";
 
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -29,6 +30,7 @@ import { useViewCommands } from "./use-view-commands";
 
 type Props<E extends HasId> = {
   joinsTopBar?: boolean;
+  detailParam?: string;
   store: BaseDataViewStore<E>;
 };
 
@@ -45,10 +47,14 @@ function isPlainClick(event: MouseEvent<HTMLAnchorElement>): boolean {
 
 export const DataViewViewsRail = observer(function DataViewViewsRail<E extends HasId>({
   joinsTopBar = false,
+  detailParam,
   store,
 }: Props<E>) {
   const t = useTranslations();
   const pathname = usePathname();
+  const localePathname = useLocalePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [meta, setMeta] = useState<ViewMetaDraft | null>(null);
   const offersViews = Boolean(store.p13nId);
 
@@ -98,6 +104,12 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
     if (!isPlainClick(event)) return;
 
     event.preventDefault();
+
+    if (detailParam && searchParams.get(detailParam)) {
+      router.push(viewHref(localePathname, viewKey));
+      return;
+    }
+
     commands.select(viewKey);
   };
 

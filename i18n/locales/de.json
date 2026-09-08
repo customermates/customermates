@@ -2323,6 +2323,7 @@
       "updateDraft": "Entwurf aktualisieren",
       "writeReply": "Antwort schreiben…"
     },
+    "conversationRegion": "Konversation",
     "dateToday": "Heute",
     "dateYesterday": "Gestern",
     "edited": "(bearbeitet)",
@@ -2344,6 +2345,7 @@
     },
     "groupThread": "Gruppe ({count, plural, one {# Mitglied} other {# Mitglieder}})",
     "hideQuotedText": "Zitierten Text ausblenden",
+    "jumpToLatest": "Zum neuesten springen",
     "learnMore": "Mehr erfahren",
     "linkedinContact": "LinkedIn-Kontakt",
     "loadMedia": "Medien laden",

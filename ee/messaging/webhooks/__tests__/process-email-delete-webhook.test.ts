@@ -16,6 +16,7 @@ vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 import { ProcessEmailDeleteWebhookInteractor } from "../email/process-email-delete-webhook.interactor";
 import { UnipileRequestError } from "../../messaging.service";
+import { DeferredWebhookError } from "@/core/errors/app-errors";
 
 const account = {
   id: "acc-1",
@@ -160,15 +161,71 @@ describe("ProcessEmailDeleteWebhookInteractor", () => {
     expect(eventService.publish).toHaveBeenCalledTimes(1);
   });
 
-  it("skips verification during delete bursts and deletes directly", async () => {
+  it("still runs the single-call search during a burst and deletes a message that really went away", async () => {
+    vi.useFakeTimers();
     const { interactor, ingest, eventService, messagingService } = build({ recentDeletes: 50 });
 
-    await interactor.invoke(envelope);
+    const run = interactor.invoke(envelope);
+    await vi.runAllTimersAsync();
+    await run;
+    vi.useRealTimers();
 
-    expect(messagingService.listEmails).not.toHaveBeenCalled();
+    expect(messagingService.listEmails).toHaveBeenCalledTimes(1);
     expect(messagingService.listFolderEmails).not.toHaveBeenCalled();
     expect(ingest.deleteMessageUnscoped).toHaveBeenCalled();
     expect(eventService.publish).toHaveBeenCalledTimes(1);
+  });
+
+  it("defers instead of destroying when a burst leaves the relocation unverifiable", async () => {
+    vi.useFakeTimers();
+    const { interactor, ingest, eventService, messagingService } = build({
+      recentDeletes: 50,
+      listEmails: () => Promise.reject(new UnipileRequestError(501, "api/not_implemented", "")),
+    });
+
+    const run = interactor.invoke(envelope).catch((err: unknown) => err);
+    await vi.runAllTimersAsync();
+    await expect(run).resolves.toBeInstanceOf(DeferredWebhookError);
+    vi.useRealTimers();
+
+    expect(messagingService.listFolderEmails).not.toHaveBeenCalled();
+    expect(ingest.moveEmailMessageUnscoped).not.toHaveBeenCalled();
+    expect(ingest.deleteMessageUnscoped).not.toHaveBeenCalled();
+    expect(eventService.publish).not.toHaveBeenCalled();
+  });
+
+  it("relocates during a burst when the single-call search finds the message", async () => {
+    vi.useFakeTimers();
+    const { interactor, ingest, messagingService } = build({
+      recentDeletes: 50,
+      listEmails: () => Promise.resolve({ data: [relocatedEmail] }),
+    });
+
+    const run = interactor.invoke(envelope);
+    await vi.runAllTimersAsync();
+    await run;
+    vi.useRealTimers();
+
+    expect(messagingService.listFolderEmails).not.toHaveBeenCalled();
+    expect(ingest.moveEmailMessageUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ newUnipileMessageId: "NEW_ID_ARCHIVE", folderIds: ["F_ARCHIVE"] }),
+    );
+    expect(ingest.deleteMessageUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("does not destroy a row during a burst when the relocation adopted it under a new identifier", async () => {
+    vi.useFakeTimers();
+    const { interactor, ingest, messagingService } = build({ recentDeletes: 50 });
+    ingest.findMessageByUnipileIdUnscoped.mockResolvedValueOnce(existingRow).mockResolvedValueOnce(null);
+
+    const run = interactor.invoke(envelope);
+    await vi.runAllTimersAsync();
+    await run;
+    vi.useRealTimers();
+
+    expect(ingest.deleteMessageUnscoped).not.toHaveBeenCalled();
+    expect(messagingService.listEmails).not.toHaveBeenCalled();
+    expect(messagingService.listFolderEmails).not.toHaveBeenCalled();
   });
 
   it("skips verification when the stored row has no rfc822 message id", async () => {

@@ -1,5 +1,6 @@
 const APP_ERROR_BRAND = Symbol.for("customermates.appError");
 const UNMAPPABLE_WEBHOOK_PAYLOAD_BRAND = Symbol.for("customermates.unmappableWebhookPayload");
+const DEFERRED_WEBHOOK_BRAND = Symbol.for("customermates.deferredWebhook");
 
 export enum AppErrorCode {
   unauthenticated = "unauthenticated",
@@ -114,6 +115,18 @@ export class UnmappableWebhookPayloadError extends Error {
 
   static [Symbol.hasInstance](value: unknown): value is UnmappableWebhookPayloadError {
     return hasBrand(value, UNMAPPABLE_WEBHOOK_PAYLOAD_BRAND);
+  }
+}
+
+export class DeferredWebhookError extends Error {
+  constructor(reason: string) {
+    super(`Unipile webhook deferred for a later attempt: ${reason}`);
+    this.name = "DeferredWebhookError";
+    (this as Record<symbol, unknown>)[DEFERRED_WEBHOOK_BRAND] = true;
+  }
+
+  static [Symbol.hasInstance](value: unknown): value is DeferredWebhookError {
+    return hasBrand(value, DEFERRED_WEBHOOK_BRAND);
   }
 }
 
