@@ -16,7 +16,6 @@ import {
   describeAgentTool,
   type AgentActivityDescriptor,
 } from "@/ee/agent-chat/agent-activity";
-import { agentPageState, agentActionPageFromPathname } from "@/ee/agent-chat/agent-page-actions";
 
 import { isDemoEnvironment, reportApplicationError } from "@/core/errors/report-application-error";
 
@@ -93,7 +92,7 @@ const UI_COMMAND_NAMES = ["navigate", "highlight_element", "start_tour", "click_
 const AGENT_CONFIG_LOAD_TIMEOUT_MS = 15000;
 const AGENT_STREAM_RECONNECT_DELAYS_MS = [250, 500, 1000, 2000, 5000] as const;
 const AGENT_CANCEL_RETRY_DELAYS_MS = [0, 500, 1500, 4000] as const;
-const AGENT_CHAT_OPEN_STORAGE_PREFIX = "customermates:agentChat:open:v1";
+const AGENT_CHAT_OPEN_STORAGE_PREFIX = "customermates:agentChat:open:v2";
 type UiCommandName = (typeof UI_COMMAND_NAMES)[number];
 export type AgentConfigLoadStatus = "ready" | "disabled" | "retry";
 
@@ -188,7 +187,6 @@ export class AgentChatStore extends BaseStore {
   routeRefreshRevision = 0;
   streamStatus: AgentStreamStatus = "idle";
   routeSyncStatus: AgentRouteSyncStatus = "idle";
-  autoOpenedPages = new Set<string>();
   isWorking = false;
   hasInSessionTerminalResult = false;
   private abortController: AbortController | null = null;
@@ -270,12 +268,12 @@ export class AgentChatStore extends BaseStore {
         canInterrupt: computed,
         hasPendingRouteReload: computed,
         open: action,
+        openWithDraft: action,
         close: action,
         toggle: action,
         toggleExpanded: action,
         setComposerDraft: action,
         submitDraft: action,
-        openForEmptyPage: action,
         editQueuedPrompt: action,
         removeQueuedPrompt: action,
         retryFailedTurn: action,
@@ -296,6 +294,12 @@ export class AgentChatStore extends BaseStore {
   open = () => {
     this.setOpenState(true);
     void this.loadConfig();
+  };
+
+  openWithDraft = (value: string) => {
+    this.isHistoryOpen = false;
+    this.composerDraft = value;
+    this.open();
   };
 
   get conversationTitle() {
@@ -401,28 +405,8 @@ export class AgentChatStore extends BaseStore {
     this.openStorageKey = storageKey;
     this.openPreference = readAgentChatOpenPreference(storageKey);
     this.isOpen = this.openOverride ?? this.openPreference === true;
-    this.autoOpenedPages.clear();
     this.demoAutoOpened = false;
   }
-
-  openForEmptyPage = (pathname: string) => {
-    this.syncOpenPreferenceScope();
-    if (
-      this.openOverride !== null ||
-      !this.enabled ||
-      this.isOpen ||
-      this.openPreference === false ||
-      this.autoOpenedPages.has(pathname)
-    )
-      return;
-    if (!this.counts) return;
-
-    const page = agentActionPageFromPathname(pathname);
-    if (!page || agentPageState(page, this.counts) !== "empty") return;
-
-    this.autoOpenedPages.add(pathname);
-    this.setOpenState(true);
-  };
 
   setComposerDraft = (value: string) => {
     this.composerDraft = value;
@@ -863,7 +847,6 @@ export class AgentChatStore extends BaseStore {
           this.historyRefreshError = false;
         }
       });
-      if (typeof window !== "undefined") this.openForEmptyPage(window.location.pathname);
       if (!this.conversationId && !this.isDraftConversationSelected && config.conversationId)
         await this.loadConversation(config.conversationId);
       if (

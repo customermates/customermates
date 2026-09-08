@@ -15,6 +15,7 @@ import { useTranslations } from "next-intl";
 
 import "@/styles/react-grid-layout.css";
 
+import { AgentStarterActions } from "@/app/components/agent-chat/suggested-questions";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { PageState } from "@/components/page-state/page-state";
 import { resolveResourcePageState } from "@/components/page-state/resource-page-state";
@@ -158,15 +159,22 @@ export const DashboardPageView = observer(function DashboardPageView({
       body = (
         <PageState
           action={
-            canAddWidget ? (
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => widgetModalStore.add(t("Dashboard.activityWidget.title"))}
-              >
-                {t("Dashboard.addCard")}
-              </Button>
-            ) : undefined
+            <AgentStarterActions
+              fallback={
+                canAddWidget ? (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => widgetModalStore.add(t("Dashboard.activityWidget.title"))}
+                  >
+                    {t("Dashboard.addCard")}
+                  </Button>
+                ) : undefined
+              }
+              pageId="dashboard"
+              state="empty"
+              surface="page"
+            />
           }
           background={<DashboardPageSkeleton animated={false} />}
           description={t("Common.emptyState.dashboardBody")}
