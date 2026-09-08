@@ -4,6 +4,7 @@ import { ConnectedAccountStatus, Status, SubscriptionPlan, SubscriptionStatus, T
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { getOperatorActor } from "@/core/decorators/operator-context";
+import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { AGENT_CREDIT_MICROCENTS, resolveAgentCreditEntitlement } from "@/ee/agent-chat/agent-credit-policy";
 import { env } from "@/env";
@@ -1129,7 +1130,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           deletedAuthIdentityCount: identityIds.length,
         };
       },
-      { companyId: data.companyId },
+      { ...BULK_WRITE_TRANSACTION, companyId: data.companyId },
     );
   }
 

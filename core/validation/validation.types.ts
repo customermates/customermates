@@ -32,6 +32,7 @@ export enum CustomErrorCode {
   emailLinkColourInvalid = "emailLinkColourInvalid",
   legalNoticeNotDelivered = "legalNoticeNotDelivered",
   termsNotAgreed = "termsNotAgreed",
+  privacyAcknowledgementRequired = "privacyAcknowledgementRequired",
   customColumnNotFound = "customColumnNotFound",
   customColumnIdNotFound = "customColumnIdNotFound",
   customColumnTypeMismatch = "customColumnTypeMismatch",

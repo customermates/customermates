@@ -39,7 +39,7 @@ export class PrismaUnipileWebhookRepo extends BaseRepository implements WebhookE
 
   @BypassTenantGuard
   async markWebhookEventFailedUnscoped(args: RepoArgs<WebhookEventRepo, "markWebhookEventFailedUnscoped">) {
-    await this.prisma.messagingInboundEvent.update({
+    return this.prisma.messagingInboundEvent.update({
       where: { id: args.id },
       data: {
         processed: args.terminal,
@@ -49,6 +49,7 @@ export class PrismaUnipileWebhookRepo extends BaseRepository implements WebhookE
         attemptCount: { increment: 1 },
         ...(args.unipileMessageId != null ? { unipileMessageId: args.unipileMessageId } : {}),
       },
+      select: { attemptCount: true },
     });
   }
 

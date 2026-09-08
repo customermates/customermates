@@ -151,7 +151,7 @@ export class ProcessEmailDeleteWebhookInteractor {
     envelope: Payload,
     burst: boolean,
   ): Promise<Relocation> {
-    if (!providerMessageId) return { status: "absent" };
+    if (!providerMessageId) return { status: burst ? "unsearchable" : "absent" };
 
     const folders = parseFolderCatalog(account.folders);
     const originFolderId = envelope.payload.folder_id ?? null;
@@ -186,6 +186,8 @@ export class ProcessEmailDeleteWebhookInteractor {
     const after = new Date(sentAt.getTime() - SEARCH_WINDOW_MS).toISOString();
     const before = new Date(sentAt.getTime() + SEARCH_WINDOW_MS).toISOString();
 
+    if (burst) return null;
+
     try {
       const page = await this.messagingService.listEmails({
         accountId: unipileAccountId,
@@ -199,8 +201,6 @@ export class ProcessEmailDeleteWebhookInteractor {
     } catch (err) {
       if (getUnipileStatus(err) !== 501) throw err;
     }
-
-    if (burst) return null;
 
     const candidates: Candidate[] = [];
     for (const folder of folders) {

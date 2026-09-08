@@ -5,6 +5,8 @@ import { describe, expect, it } from "vitest";
 
 import { SendContactInquirySchema } from "@/features/contact/send-contact-inquiry.schema";
 import { REGISTERED_LOCALES } from "@/i18n/locale-registry";
+import { createErrorHandler } from "@/core/validation/validation.utils";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { REPO_ROOT } from "./walk";
 
 const validInquiry = {
@@ -20,12 +22,28 @@ function source(path: string) {
 
 describe("contact privacy acknowledgement", () => {
   it("requires acknowledgement at the server validation boundary", () => {
-    expect(
-      SendContactInquirySchema.safeParse({
+    const rejected = SendContactInquirySchema.safeParse(
+      {
         ...validInquiry,
         privacyAcknowledged: false,
-      }).success,
-    ).toBe(false);
+      },
+      {
+        error: createErrorHandler({
+          [CustomErrorCode.privacyAcknowledgementRequired]: "Privacy acknowledgement is required",
+        }),
+      },
+    );
+
+    expect(rejected.success).toBe(false);
+    if (!rejected.success)
+      expect(rejected.error.issues).toEqual([
+        expect.objectContaining({
+          code: "custom",
+          message: "Privacy acknowledgement is required",
+          params: { error: CustomErrorCode.privacyAcknowledgementRequired },
+          path: ["privacyAcknowledged"],
+        }),
+      ]);
     expect(
       SendContactInquirySchema.safeParse({
         ...validInquiry,

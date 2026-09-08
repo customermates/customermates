@@ -1,6 +1,7 @@
 import { type MessagingInboundEvent, MessagingInboundEventSource } from "@/generated/prisma";
 
 export const WEBHOOK_INBOUND_SOURCE = MessagingInboundEventSource.webhook;
+export const WEBHOOK_REPROCESS_MAX_ATTEMPTS = 10;
 
 type InboundEventRow = Pick<MessagingInboundEvent, "id" | "payload" | "processed">;
 
@@ -16,7 +17,7 @@ export abstract class WebhookEventRepo {
     error: string;
     terminal: boolean;
     unipileMessageId?: string | null;
-  }): Promise<void>;
+  }): Promise<Pick<MessagingInboundEvent, "attemptCount">>;
   abstract findReprocessableEventIdsUnscoped(args: {
     olderThan: Date;
     maxAgeDays: number;
