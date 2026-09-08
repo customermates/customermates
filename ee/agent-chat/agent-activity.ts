@@ -26,6 +26,7 @@ export const AGENT_ACTIVITY_KINDS = [
   "widgets.configure",
   "docs.search",
   "docs.read",
+  "web.search",
   "records.read",
   "records.create",
   "records.update",
@@ -60,6 +61,7 @@ export const AGENT_ACTIVITY_RESOURCES = [
   "widgets",
   "terminology",
   "messages",
+  "wiki",
 ] as const;
 
 export type AgentActivityResource = (typeof AGENT_ACTIVITY_RESOURCES)[number];
@@ -233,6 +235,11 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
   if (toolName === "click_ui_target" || toolName === "configure_view")
     return descriptor("interface.interact", undefined, "read");
   if (toolName === "start_tour") return descriptor("interface.tour", undefined, "read");
+  if (toolName === "web_search") return descriptor("web.search", undefined, "read");
+  if (toolName === "manage_wiki_pages") {
+    const risk = isMultiplexedRead(toolName, details) ? "read" : multiplexedRisk(toolName, details);
+    return descriptor(risk === "read" ? "workspace.read" : "workspace.configure", "wiki", risk);
+  }
   if (toolName === "request_support") {
     return descriptor("support.escalate", undefined, "sensitive", [], {
       action: "support.request",

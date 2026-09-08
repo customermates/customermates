@@ -459,6 +459,7 @@ describe("agent access", () => {
       clientRequestId: CLIENT_REQUEST_ID,
       text: "retry this",
       pageRoute: null,
+      wikiHomepageSetupDomain: "example.com",
       status: "failed",
       runId: "run-1",
       attemptCount: 1,
@@ -497,12 +498,13 @@ describe("agent access", () => {
         ],
       }),
     };
+    const tasks = backgroundTasks();
 
     const result = await new SendAgentMessageInteractor(
       repo as never,
       usageService() as never,
       mockEntitlementService(),
-      backgroundTasks() as never,
+      tasks as never,
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "retry this",
@@ -523,6 +525,64 @@ describe("agent access", () => {
       }),
     );
     expect(result.ok && result.data.disposition === "run" && result.data.userMessageId).toBe(MESSAGE_ID);
+    expect(tasks.dispatchTracked).toHaveBeenCalledWith(
+      "agent-turn",
+      expect.objectContaining({
+        wikiHomepageSetupDomain: "example.com",
+      }),
+    );
+  });
+
+  it("rejects attempts to mutate durable retry tool metadata before budget or persistence work", async () => {
+    const usage = usageService();
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue({
+        snapshot: {
+          id: "turn-1",
+          conversationId: CONVERSATION_ID,
+          clientRequestId: CLIENT_REQUEST_ID,
+          text: "retry this",
+          pageRoute: null,
+          wikiHomepageSetupDomain: "example.com",
+          status: "failed",
+          runId: "run-1",
+          attemptCount: 1,
+          providerStartedAt: null,
+          userMessageId: MESSAGE_ID,
+          assistantMessageId: null,
+          terminalCode: null,
+          affectedResources: [],
+          hasLaterMessages: false,
+        },
+        assistantMessage: null,
+      }),
+      claimAgentRunLease: vi.fn(),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
+      admitAgentTurnOrThrow: vi.fn(),
+    };
+    const tasks = backgroundTasks();
+
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      tasks as never,
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "retry this",
+      retry: true,
+      wikiHomepageSetupDomain: "other.com",
+    });
+
+    expect(result.ok && result.data.disposition).toBe("conflict");
+    expect(usage.prepareTurn).not.toHaveBeenCalled();
+    expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
+    expect(repo.admitAgentTurnOrThrow).not.toHaveBeenCalled();
+    expect(tasks.dispatchTracked).not.toHaveBeenCalled();
   });
 
   it("returns a conflict for reused request data without touching budget or persistence", async () => {

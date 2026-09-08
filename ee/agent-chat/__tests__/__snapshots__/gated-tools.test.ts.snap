@@ -38,6 +38,7 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "manage_social_relations",
   "manage_webhooks",
   "manage_widgets",
+  "manage_wiki_pages",
   "save_message_draft",
   "update_contacts",
   "update_deals",
@@ -87,6 +88,13 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   ],
   "manage_widgets": [
     "list",
+    "get",
+    "create",
+    "update",
+  ],
+  "manage_wiki_pages": [
+    "list",
+    "search",
     "get",
     "create",
     "update",

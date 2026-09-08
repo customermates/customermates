@@ -137,6 +137,14 @@ All create and update tools take custom-column values via customFieldValues; cal
 | `list_users` | ✓ |  | Team members with id, name, email, roleId, and status. |
 {/* /mcp-catalog */}
 
+### Workspace Wiki
+
+{/* mcp-catalog:wiki */}
+| Tool | Read | Destructive | Purpose |
+|---|---|---|---|
+| `manage_wiki_pages` |  | ✓ | List, search, read, create, update, or permanently delete Workspace Wiki pages. Updates and deletes require the latest updatedAt value; create can atomically require an empty Wiki. |
+{/* /mcp-catalog */}
+
 ### Messaging
 
 Messaging-backed tools are available from the Pro tier in cloud mode. `get_activities` can still return audit-log changes without the messaging entitlement when the caller has Audit Log permission. Its messaging, connected-account, and calendar sources require Inbox permission plus the messaging entitlement.

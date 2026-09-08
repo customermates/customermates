@@ -17,7 +17,12 @@ import { env } from "@/env";
 import type { AgentUsageRepo } from "./agent-usage.service";
 import { AGENT_CONVERSATION_PAGE_SIZE, AGENT_MESSAGE_PAGE_SIZE, type AgentConversationPage } from "./agent-history";
 import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "./agent-run-limits";
-import { clientSafeAgentMessageParts, hasRenderableAgentMessageParts, partsToText } from "./agent-chat.schema";
+import {
+  WikiHomepageSetupDomainSchema,
+  clientSafeAgentMessageParts,
+  hasRenderableAgentMessageParts,
+  partsToText,
+} from "./agent-chat.schema";
 import {
   isPendingAgentApprovalToolName,
   parsePendingAgentApprovalToolName,
@@ -46,6 +51,7 @@ type StoredAgentTurnRow = {
   clientRequestId: string;
   text: string;
   pageRoute: string | null;
+  wikiHomepageSetupDomain: unknown;
   status: string;
   runId: string;
   attemptCount: number;
@@ -106,6 +112,7 @@ type AgentTurnAdmissionArgs = {
         clientRequestId: string;
         text: string;
         pageRoute: string | null;
+        wikiHomepageSetupDomain: string | null;
         userMessageId: string;
       }
     | {
@@ -118,6 +125,7 @@ type AgentTurnAdmissionArgs = {
 };
 
 const TURN_STATUSES = new Set<AgentTurnRequestStatus>(["running", "completed", "failed", "uncertain"]);
+const WIKI_HOMEPAGE_SETUP_DOMAIN_SCHEMA = WikiHomepageSetupDomainSchema.nullable();
 
 function encodeConversationCursor(updatedAt: Date, id: string) {
   return Buffer.from(JSON.stringify({ updatedAt: updatedAt.toISOString(), id }), "utf8").toString("base64url");
@@ -146,6 +154,12 @@ function turnStatus(value: string): AgentTurnRequestStatus {
 function assertTurnDate(value: Date | null, description: string) {
   if (value !== null && (!(value instanceof Date) || !Number.isFinite(value.getTime())))
     throw new Error(`${description} is invalid.`);
+}
+
+function wikiHomepageSetupDomain(value: unknown): string | null {
+  const parsed = WIKI_HOMEPAGE_SETUP_DOMAIN_SCHEMA.safeParse(value);
+  if (!parsed.success || parsed.data !== value) throw new Error("Agent turn Wiki homepage setup domain is invalid.");
+  return parsed.data;
 }
 
 function sumCommittedAgentCredits(
@@ -251,6 +265,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
 
   private turnSnapshot(row: StoredAgentTurnRow, hasLaterMessages: boolean): AgentTurnRequestSnapshot {
     const status = turnStatus(row.status);
+    const storedWikiHomepageSetupDomain = wikiHomepageSetupDomain(row.wikiHomepageSetupDomain);
     assertTurnDate(row.providerStartedAt, "Agent provider-start timestamp");
     if (!Number.isSafeInteger(row.attemptCount) || row.attemptCount < 1)
       throw new Error("Stored agent turn attempt count is invalid.");
@@ -265,6 +280,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       clientRequestId: row.clientRequestId,
       text: row.text,
       pageRoute: row.pageRoute,
+      wikiHomepageSetupDomain: storedWikiHomepageSetupDomain,
       status,
       runId: row.runId,
       attemptCount: row.attemptCount,
@@ -435,6 +451,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         });
         if (retried.count !== 1) throw new Error("The assistant retry could not be started.");
       } else {
+        const storedWikiHomepageSetupDomain = wikiHomepageSetupDomain(args.turn.wikiHomepageSetupDomain);
         await this.prisma.agentTurnRequest.create({
           data: {
             id: args.turn.turnRequestId,
@@ -444,6 +461,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
             clientRequestId: args.turn.clientRequestId,
             text: args.turn.text,
             pageRoute: args.turn.pageRoute,
+            wikiHomepageSetupDomain: storedWikiHomepageSetupDomain,
             status: "running",
             runId: args.runId,
             attemptCount: 1,
@@ -871,6 +889,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       clientRequestId: true,
       text: true,
       pageRoute: true,
+      wikiHomepageSetupDomain: true,
       status: true,
       runId: true,
       attemptCount: true,

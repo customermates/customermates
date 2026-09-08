@@ -67,7 +67,8 @@
         "services": "services",
         "tasks": "tasks",
         "terminology": "workspace terminology",
-        "widgets": "dashboard widgets"
+        "widgets": "dashboard widgets",
+        "wiki": "Wiki pages"
       },
       "resourceSingular": {
         "contacts": "contact",
@@ -77,7 +78,8 @@
         "services": "service",
         "tasks": "task",
         "terminology": "workspace term",
-        "widgets": "dashboard widget"
+        "widgets": "dashboard widget",
+        "wiki": "Wiki page"
       },
       "state": {
         "accounts": {
@@ -231,6 +233,13 @@
             "done": "Changed team access",
             "error": "Couldn’t change team access",
             "running": "Ready to change team access"
+          }
+        },
+        "web": {
+          "search": {
+            "done": "Searched the web",
+            "error": "Couldn’t search the web",
+            "running": "Searching the web"
           }
         },
         "webhooks": {
@@ -737,6 +746,7 @@
       "effectiveAt": "Effective from",
       "emails": "Email addresses",
       "isNewCompany": "First user in the workspace",
+      "markdown": "Markdown",
       "postalCode": "Postal code",
       "recipientEmail": "Sent to",
       "street": "Street",
@@ -1074,7 +1084,10 @@
       "widgetKindImmutable": "A widget's type cannot be changed after it is created.",
       "widgetNotFound": "Widget ID not found or not accessible.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Tasks can only be grouped by custom columns, not by element types.",
-      "widgetWeightedValueNotAllowedForService": "Weighted value aggregation is not allowed for Service element type."
+      "widgetWeightedValueNotAllowedForService": "Weighted value aggregation is not allowed for Service element type.",
+      "wikiNotEmpty": "Workspace Wiki setup can only run when the Wiki is empty.",
+      "wikiPageConflict": "This Wiki page changed after you opened it. Reload it and try again.",
+      "wikiPageNotFound": "Wiki page not found or not accessible."
     },
     "events": {
       "company": {
@@ -1162,6 +1175,11 @@
         "created": "Webhook Created",
         "deleted": "Webhook Deleted",
         "updated": "Webhook Updated"
+      },
+      "wiki_page": {
+        "created": "Wiki Page Created",
+        "deleted": "Wiki Page Deleted",
+        "updated": "Wiki Page Updated"
       }
     },
     "filters": {
@@ -2585,6 +2603,7 @@
     "search": "Search",
     "settings": "Settings",
     "subscription": "Subscription",
+    "wiki": "Wiki",
     "workspace": "Workspace"
   },
   "NotFoundPage": {
@@ -2747,6 +2766,10 @@
         "invitedSubtitle": "Complete your profile to request access to the invited workspace.",
         "subtitle": "Tell us who you are so we can set up your workspace.",
         "title": "Your profile"
+      },
+      "wiki": {
+        "subtitle": "Add company context from your public homepage, or skip this optional step.",
+        "title": "Set up your Workspace Wiki"
       }
     }
   },
@@ -3005,7 +3028,8 @@
       "organizations": "Organizations",
       "services": "Services",
       "tasks": "Tasks",
-      "users": "Users & Roles"
+      "users": "Users & Roles",
+      "wiki": "Workspace Wiki"
     },
     "systemAlert": "This is a system role and cannot be edited or deleted.",
     "systemDescription": "Full access to all features and settings. Cannot be modified or deleted.",
@@ -3240,5 +3264,31 @@
     "emptyBody": "Add a webhook to send workspace events to your systems.",
     "emptyTitle": "No webhooks yet",
     "title": "Webhooks"
+  },
+  "Wiki": {
+    "cancel": "Cancel",
+    "delete": "Delete page",
+    "edit": "Edit",
+    "emptyBody": "Create a page manually or let Mate set up five starter pages from your homepage.",
+    "emptyBodyManual": "Create your first Wiki page.",
+    "emptyBodyReadOnly": "No Wiki pages have been created yet.",
+    "emptyTitle": "Your Workspace Wiki is empty",
+    "newPage": "New page",
+    "next": "Next",
+    "page": "Page {current} of {total}",
+    "pagesLabel": "Wiki pages",
+    "pageTitle": "Page title",
+    "previous": "Previous",
+    "save": "Save",
+    "title": "Workspace Wiki"
+  },
+  "WikiSetup": {
+    "description": "Mate researches only this public site and creates five editable starter pages. You can continue while it works.",
+    "homepageLabel": "Company homepage (optional)",
+    "homepagePlaceholder": "https://example.com",
+    "skip": "Skip",
+    "start": "Set up with Mate",
+    "startFailed": "Mate could not start the Wiki setup. Please try again.",
+    "unavailable": "Mate setup is not available right now. You can create Wiki pages later from Wiki."
   }
 }

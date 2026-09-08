@@ -31,6 +31,7 @@ describe("agent turn credit budget", () => {
           maxOutputTokens: model.maxOutputTokens,
           maxContextTokens: model.maxContextTokens,
           maxContextBytes: agentContextTokensToBytes(model.maxContextTokens),
+          webSearchEnabled: true,
         }),
       );
     }

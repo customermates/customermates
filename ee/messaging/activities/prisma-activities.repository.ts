@@ -40,6 +40,7 @@ import {
 import { TERMINOLOGY_ENTITY_RESOURCE } from "@/features/entity-terminology/entity-terminology.constants";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { toMessagingMessageDto } from "../inbox/inbox.schema";
+import { WIKI_PAGE_AUDIT_EVENTS } from "@/features/wiki/wiki-audit-events";
 
 type UnresolvedRecordRef = { entityType: EntityType; id: string };
 
@@ -506,7 +507,12 @@ export class PrismaActivitiesRepo
 
     const idsFor = (entityType: EntityType) => [...(byType.get(entityType) ?? [])];
     const record = (entityType: EntityType, rows: Array<{ id: string } & ResolvedRecord>) => {
-      for (const row of rows) out.set(recordRefKey(entityType, row.id), { label: row.label, avatarUrl: row.avatarUrl });
+      for (const row of rows) {
+        out.set(recordRefKey(entityType, row.id), {
+          label: row.label,
+          avatarUrl: row.avatarUrl,
+        });
+      }
     };
 
     const [contacts, organizations, deals, services, tasks] = await Promise.all([
@@ -546,7 +552,11 @@ export class PrismaActivitiesRepo
 
     const rows = await this.findNamedRows(model, ids);
 
-    return rows.map((row) => ({ id: row.id, label: row.name ?? "", avatarUrl: null }));
+    return rows.map((row) => ({
+      id: row.id,
+      label: row.name ?? "",
+      avatarUrl: null,
+    }));
   }
 
   private accessibleAuditEntityIds(entityType: EntityType): Promise<string[] | undefined> {
@@ -812,7 +822,9 @@ export class PrismaActivitiesRepo
       : EMPTY_CALENDAR_WHERE;
     const calendarNegative: Prisma.CalendarEventWhereInput = emails.length ? { NOT: calendar } : {};
     const thread: Prisma.MessagingThreadWhereInput = identifierGroups.length
-      ? { OR: [participantThread, { messages: { some: { OR: senderTargets } } }] }
+      ? {
+          OR: [participantThread, { messages: { some: { OR: senderTargets } } }],
+        }
       : EMPTY_THREAD_WHERE;
 
     return {
@@ -824,7 +836,9 @@ export class PrismaActivitiesRepo
       calendarNegative,
       thread,
       threadNegative: identifierGroups.length
-        ? { AND: [{ NOT: participantThread }, { messages: { some: senderNegative } }] }
+        ? {
+            AND: [{ NOT: participantThread }, { messages: { some: senderNegative } }],
+          }
         : {},
     };
   }
@@ -1084,7 +1098,16 @@ export class PrismaActivitiesRepo
   }
 
   private auditLogWhere(auditWhere: Prisma.AuditLogWhereInput | undefined): Prisma.AuditLogWhereInput {
-    return { companyId: this.companyId, ...(auditWhere ?? {}) };
+    const wikiVisibility = this.hasPermission(Resource.wiki, Action.readAll)
+      ? undefined
+      : { event: { notIn: [...WIKI_PAGE_AUDIT_EVENTS] } };
+    const predicates = [wikiVisibility, auditWhere].filter(
+      (value): value is Prisma.AuditLogWhereInput => value !== undefined,
+    );
+    return {
+      companyId: this.companyId,
+      ...(predicates.length > 0 ? { AND: predicates } : {}),
+    };
   }
 
   private async messageWhere(args: {

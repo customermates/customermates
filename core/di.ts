@@ -36,6 +36,7 @@ import { PrismaWidgetCalculatorRepo } from "@/features/widget/calculator/prisma-
 import { PrismaWebhookRepo } from "@/features/webhook/prisma-webhook.repository";
 import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-delivery.repository";
 import { PrismaAuditLogRepo } from "@/features/audit-log/prisma-audit-log.repository";
+import { PrismaWikiPageRepo } from "@/features/wiki/prisma-wiki-page.repository";
 import { PrismaMessagingRepo } from "@/ee/messaging/persistence/prisma-messaging.repository";
 import { PrismaConnectedAccountRepo } from "@/ee/messaging/persistence/prisma-connected-account.repository";
 import { PrismaUnipileWebhookRepo } from "@/ee/messaging/persistence/prisma-unipile-webhook.repository";
@@ -287,6 +288,13 @@ import { GetWebhookDeliveriesInteractor } from "@/features/webhook/get-webhook-d
 import { ResendWebhookDeliveryInteractor } from "@/features/webhook/resend-webhook-delivery.interactor";
 import { GetWebhookByIdInteractor } from "@/features/webhook/get-webhook-by-id.interactor";
 import { ModifyEntityRelationInteractor } from "@/features/relations/modify-entity-relation.interactor";
+import { GetWikiPagesInteractor } from "@/features/wiki/get-wiki-pages.interactor";
+import { SearchWikiPagesInteractor } from "@/features/wiki/search-wiki-pages.interactor";
+import { GetWikiPageInteractor } from "@/features/wiki/get-wiki-page.interactor";
+import { CreateWikiPagesInteractor } from "@/features/wiki/create-wiki-pages.interactor";
+import { UpdateWikiPageInteractor } from "@/features/wiki/update-wiki-page.interactor";
+import { DeleteWikiPageInteractor } from "@/features/wiki/delete-wiki-page.interactor";
+import { StartWikiHomepageSetupInteractor } from "@/features/wiki/start-wiki-homepage-setup.interactor";
 // Custom Column interactors
 import { GetCustomColumnsInteractor } from "@/features/custom-column/get-custom-columns.interactor";
 import { GetCustomColumnsByEntityTypeInteractor } from "@/features/custom-column/get-custom-columns-by-entity-type.interactor";
@@ -398,6 +406,7 @@ export const getWidgetCalculatorRepo = () => new PrismaWidgetCalculatorRepo();
 export const getWebhookRepo = () => new PrismaWebhookRepo();
 export const getWebhookDeliveryRepo = () => new PrismaWebhookDeliveryRepo();
 export const getAuditLogRepo = () => new PrismaAuditLogRepo();
+export const getWikiPageRepo = () => new PrismaWikiPageRepo();
 export const getMessagingRepo = () => new PrismaMessagingRepo();
 export const getConnectedAccountRepo = () => new PrismaConnectedAccountRepo();
 export const getUnipileWebhookRepo = () => new PrismaUnipileWebhookRepo();
@@ -1090,6 +1099,15 @@ export const getGetWidgetFilterableFieldsInteractor = () =>
     getActivitiesRepo(),
     getEntitlementService(),
   );
+
+export const getGetWikiPagesInteractor = () => new GetWikiPagesInteractor(getWikiPageRepo());
+export const getSearchWikiPagesInteractor = () => new SearchWikiPagesInteractor(getWikiPageRepo());
+export const getGetWikiPageInteractor = () => new GetWikiPageInteractor(getWikiPageRepo());
+export const getCreateWikiPagesInteractor = () => new CreateWikiPagesInteractor(getWikiPageRepo(), getEventService());
+export const getUpdateWikiPageInteractor = () => new UpdateWikiPageInteractor(getWikiPageRepo(), getEventService());
+export const getDeleteWikiPageInteractor = () => new DeleteWikiPageInteractor(getWikiPageRepo(), getEventService());
+export const getStartWikiHomepageSetupInteractor = () =>
+  new StartWikiHomepageSetupInteractor(getWikiPageRepo(), getSendAgentMessageInteractor());
 
 // --- Webhook ---
 

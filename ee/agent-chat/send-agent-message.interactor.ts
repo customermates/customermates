@@ -31,7 +31,7 @@ import {
   AGENT_REPLAY_MAX_CHARS,
   conservativeAgentInitialContextBytes,
 } from "./agent-provider-context";
-import { isAgentModelKey, resolveAgentModel } from "./model-catalog";
+import { isAgentModelKey, isAgentModelWebSearchEnabled, resolveAgentModel } from "./model-catalog";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import { fail, failConflict, failNotFound, failRateLimit } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -90,6 +90,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       conversationId: data.conversationId,
       text: data.text,
       pageRoute,
+      wikiHomepageSetupDomain: data.wikiHomepageSetupDomain,
       retry: data.retry,
     });
 
@@ -160,6 +161,11 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       };
     }
 
+    const wikiHomepageSetupDomain =
+      decision.disposition === "retry"
+        ? (decision.turn.wikiHomepageSetupDomain ?? undefined)
+        : data.wikiHomepageSetupDomain;
+
     const conversation =
       decision.disposition === "retry"
         ? await this.repo.findConversation(decision.turn.conversationId)
@@ -173,6 +179,9 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     if (requestedModelKey !== null && !isAgentModelKey(requestedModelKey))
       return fail(CustomErrorCode.agentModelUnavailable, ["modelKey"]);
     const turnModel = resolveAgentModel(requestedModelKey);
+    const webSearchEnabled = isAgentModelWebSearchEnabled(turnModel);
+    if (wikiHomepageSetupDomain && !webSearchEnabled)
+      return fail(CustomErrorCode.agentModelUnavailable, ["wikiHomepageSetupDomain"]);
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
     const locale = data.locale ?? resolveUserLocale(user);
@@ -181,10 +190,15 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         userName,
         appBaseUrl: env.BASE_URL,
         locale,
+        wikiHomepageSetupDomain,
+        webSearchEnabled,
       }),
       currentText: data.text,
       pageRoute,
-      toolDefinitions: getAgentAiToolDefinitions(),
+      toolDefinitions: getAgentAiToolDefinitions({
+        webSearchEnabled,
+        wikiHomepageSetupDomain,
+      }),
     });
     if (requiredContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");
 
@@ -206,7 +220,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           if (await this.repo.isAtAgentRunLimit(phaseOneAt)) return "unavailable" as const;
           await this.repo.createAgentConversationForRun({
             conversationId,
-            title: data.text,
+            title: wikiHomepageSetupDomain ? "Set up Workspace Wiki" : data.text,
             modelKey: requestedModelKey,
             now: phaseOneAt,
           });
@@ -269,6 +283,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
                 clientRequestId: data.clientRequestId,
                 text: data.text,
                 pageRoute,
+                wikiHomepageSetupDomain: wikiHomepageSetupDomain ?? null,
                 userMessageId,
               },
       });
@@ -295,6 +310,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         appBaseUrl: env.BASE_URL,
         messages,
         turnBudget: reservation.budget,
+        wikiHomepageSetupDomain,
         tenant: { userId: user.id, companyId: user.companyId },
       });
       await this.repo.recordAgentTurnExternalRun(turnRequestId, externalRunId);

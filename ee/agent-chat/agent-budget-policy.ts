@@ -3,6 +3,7 @@ import type { AgentModelEntry } from "./model-catalog";
 import {
   AGENT_CONTEXT_BYTES_PER_TOKEN,
   AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS,
+  isAgentModelWebSearchEnabled,
   isAgentModelWithinBudgetEnvelope,
 } from "./model-catalog";
 import { resolveModelPricing } from "./model-pricing";
@@ -22,6 +23,7 @@ export type AgentTurnBudget = {
   maxContextTokens: number;
   maxContextBytes: number;
   maxToolResultChars: number;
+  webSearchEnabled: boolean;
 };
 
 export function agentContextBytesToTokens(bytes: number) {
@@ -70,6 +72,7 @@ export function resolveAgentTurnBudget(args: {
     maxContextTokens: entry.maxContextTokens,
     maxContextBytes: agentContextTokensToBytes(entry.maxContextTokens),
     maxToolResultChars: Math.min(entry.maxToolResultChars, AGENT_MAX_TOOL_RESULT_CHARS),
+    webSearchEnabled: isAgentModelWebSearchEnabled(entry),
   };
 }
 

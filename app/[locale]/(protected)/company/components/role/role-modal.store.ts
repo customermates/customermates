@@ -22,6 +22,7 @@ function defaultRolePermissions() {
     api: { canManage: "no", readAccess: "none" },
     tasks: { canManage: "no", readAccess: "own" },
     inboxMessages: { canManage: "no", readAccess: "none" },
+    wiki: { canManage: "no", readAccess: "all" },
     auditLog: { readAccess: "none" },
   } as const;
 }
@@ -127,12 +128,14 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
       api: { canManage: "no", readAccess: "none" },
       tasks: { canManage: "no", readAccess: "none" },
       inboxMessages: { canManage: "no", readAccess: "none" },
+      wiki: { canManage: "no", readAccess: "none" },
       auditLog: { readAccess: "none" },
     };
 
     if (role.isSystemRole) {
       Object.keys(permissions).forEach((resourceKey) => {
         const resource = permissions[resourceKey as keyof typeof permissions];
+        if (!resource) return;
         if ("canManage" in resource) resource.canManage = "yes";
         if ("readAccess" in resource) resource.readAccess = "all";
       });
@@ -157,6 +160,8 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
           else if (permission.action === Action.readOwn && resource.readAccess === "none") resource.readAccess = "own";
         }
       });
+      const wiki = permissions.wiki;
+      if (wiki?.canManage === "yes") wiki.readAccess = "all";
     }
 
     this.onInitOrRefresh({
@@ -188,4 +193,9 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
       this.setIsLoading(false);
     }
   };
+
+  protected override afterChange(id: string, value: unknown): void {
+    const wiki = this.form.permissions.wiki;
+    if (id === "permissions.wiki.canManage" && value === "yes" && wiki) wiki.readAccess = "all";
+  }
 }

@@ -121,5 +121,21 @@ describe("agent durable stream reader", () => {
       status: "cancelled",
       failed: false,
     });
+    expect(agentToolOutcomeStatus({ type: "error-json", value: { message: "provider failed" } })).toEqual({
+      status: "error",
+      failed: true,
+    });
+    expect(agentToolOutcomeStatus({ type: "error-text", value: "provider failed" })).toEqual({
+      status: "error",
+      failed: true,
+    });
+    expect(agentToolOutcomeStatus({ type: "execution-denied", reason: "policy" })).toEqual({
+      status: "cancelled",
+      failed: false,
+    });
+    expect(agentToolOutcomeStatus({ type: "json", value: { ok: true, sources: [] } })).toEqual({
+      status: "done",
+      failed: false,
+    });
   });
 });

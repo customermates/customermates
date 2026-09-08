@@ -263,6 +263,19 @@ model Company {
   agentTurnRequests           AgentTurnRequest[]
   agentApprovals              AgentApproval[]
   agentUiCommandResults       AgentUiCommandResult[]
+  wikiPages                   WikiPage[]
+}
+
+model WikiPage {
+  id        String   @id @default(uuid())
+  companyId String
+  title     String
+  markdown  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, createdAt, id])
 }
 
 model EntityTerminology {
@@ -954,6 +967,7 @@ enum Resource {
   api
   auditLog
   inboxMessages
+  wiki
 }
 
 enum MessagingThreadState {
@@ -1803,6 +1817,7 @@ model AgentTurnRequest {
   clientRequestId         String
   text                    String
   pageRoute               String?
+  wikiHomepageSetupDomain String?
   status                  AgentTurnStatus
   runId                   String
   externalRunId           String?

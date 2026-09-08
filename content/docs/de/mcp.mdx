@@ -137,6 +137,14 @@ Alle Create- und Update-Tools nehmen Custom-Column-Werte über customFieldValues
 | `list_users` | ✓ |  | Teammitglieder mit ID, Name, E-Mail, roleId und Status. |
 {/* /mcp-catalog */}
 
+### Workspace-Wiki
+
+{/* mcp-catalog:wiki */}
+| Tool | Read | Destructive | Zweck |
+|---|---|---|---|
+| `manage_wiki_pages` |  | ✓ | Workspace-Wiki-Seiten auflisten, suchen, lesen, anlegen, aktualisieren oder dauerhaft löschen. Updates und Löschungen benötigen den neuesten updatedAt-Wert; Create kann atomar ein leeres Wiki voraussetzen. |
+{/* /mcp-catalog */}
+
 ### Messaging
 
 Messaging-basierte Tools sind im Cloud-Modus ab dem Pro-Tarif verfügbar. `get_activities` kann ohne Messaging-Berechtigung weiterhin Änderungen aus dem Audit-Log liefern, wenn der aufrufende User die Audit-Log-Berechtigung hat. Nachrichten, Aktivitäten verbundener Accounts und Kalenderquellen erfordern zusätzlich die Berechtigung für den Posteingang und Messaging.

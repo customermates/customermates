@@ -1,5 +1,5 @@
 import type { Prisma } from "@/generated/prisma";
-import type { AgentToolDeps } from "@/ee/agent-chat/agent-tools";
+import type { AgentAiToolDefinition, AgentToolDeps } from "@/ee/agent-chat/agent-tools";
 import type { AgentTurnBudget } from "@/ee/agent-chat/agent-budget-policy";
 import type { AgentActivityResource } from "@/ee/agent-chat/agent-activity";
 import type { AgentTranscriptEvent } from "@/ee/agent-chat/agent-turn-transcript";
@@ -10,7 +10,7 @@ import type { WorkflowTenant } from "./workflow-tenant";
 
 import { WorkflowAgent } from "@ai-sdk/workflow";
 import { createHook, getWritable, sleep } from "workflow";
-import { isStepCount, jsonSchema } from "ai";
+import { isStepCount, jsonSchema, tool } from "ai";
 
 import { AgentTurnTranscript } from "@/ee/agent-chat/agent-turn-transcript";
 import { isAgentTurnTerminalError } from "@/ee/agent-chat/agent-turn-request";
@@ -55,6 +55,11 @@ import { resolveAgentApprovalContext } from "@/ee/agent-chat/agent-external-appr
 import { resolveAgentToolResultMaxChars } from "@/ee/agent-chat/agent-budget-policy";
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
+import {
+  AGENT_WEB_SEARCH_TOOL_NAME,
+  agentWebSourcesFooter,
+  collectAgentWebSources,
+} from "@/ee/agent-chat/agent-web-search";
 
 import { reportFailure, toWorkflowFailure, type WorkflowFailure } from "./capture-failure";
 
@@ -75,13 +80,11 @@ export type AgentTurnWorkflowPayload = {
   appBaseUrl: string;
   messages: ReplayMessage[];
   turnBudget: AgentTurnBudget;
+  wikiHomepageSetupDomain?: string;
   tenant: WorkflowTenant;
 };
 
-type AgentToolShell = {
-  name: string;
-  description: string | undefined;
-  inputSchema: unknown;
+type AgentToolShell = AgentAiToolDefinition & {
   annotations: Record<string, boolean> | undefined;
   gated: boolean;
 };
@@ -95,6 +98,13 @@ type PendingApproval = {
 
 type AgentRoundResult = {
   content: unknown[];
+  toolResults?: Array<{
+    type: "tool-result";
+    toolCallId: string;
+    toolName: string;
+    output: unknown;
+    providerExecuted?: boolean;
+  }>;
   finishReason: string;
   usage: Parameters<typeof usageToTokenCounts>[0] & {
     outputTokenDetails?: { reasoningTokens?: number };
@@ -125,6 +135,21 @@ function addTokens(left: TokenCounts, right: TokenCounts): TokenCounts {
     cacheReadTokens: left.cacheReadTokens + right.cacheReadTokens,
     cacheWriteTokens: left.cacheWriteTokens + right.cacheWriteTokens,
   };
+}
+
+function hasNativeWebSearchExecution(step: AgentRoundResult): boolean {
+  return [...step.content, ...(step.toolResults ?? [])].some((raw) => {
+    const part = raw as {
+      type?: unknown;
+      toolName?: unknown;
+      providerExecuted?: unknown;
+    };
+    return (
+      (part.type === "tool-call" || part.type === "tool-result" || part.type === "tool-error") &&
+      part.toolName === AGENT_WEB_SEARCH_TOOL_NAME &&
+      part.providerExecuted === true
+    );
+  });
 }
 
 function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprovalGrant): AgentToolDeps {
@@ -191,16 +216,20 @@ async function canStartNextHostedAiProviderRound(payload: AgentTurnWorkflowPaylo
 }
 canStartNextHostedAiProviderRound.maxRetries = 0;
 
-async function loadAgentToolShells(): Promise<AgentToolShell[]> {
+async function loadAgentToolShells(
+  wikiHomepageSetupDomain: string | undefined,
+  webSearchEnabled: boolean,
+): Promise<AgentToolShell[]> {
   "use step";
   const { getAgentAiToolDefinitions } = await import("@/ee/agent-chat/agent-tools");
   const { ALL_MCP_TOOLS } = await import("@/features/mcp-tools/tool-registry");
   const gatedByName = new Map(ALL_MCP_TOOLS.map((mcp) => [mcp.name, mcp.annotations]));
 
-  return getAgentAiToolDefinitions().map((definition) => ({
-    name: definition.name,
-    description: definition.description,
-    inputSchema: definition.inputSchema,
+  return getAgentAiToolDefinitions({
+    webSearchEnabled,
+    wikiHomepageSetupDomain,
+  }).map((definition) => ({
+    ...definition,
     annotations: gatedByName.get(definition.name),
     gated: gatedByName.has(definition.name),
   }));
@@ -215,7 +244,10 @@ async function executeAgentTool(
 ): Promise<unknown> {
   "use step";
   const { getAgentAiTools } = await import("@/ee/agent-chat/agent-tools");
-  const tools = getAgentAiTools(backgroundToolDeps(payload, grant)) as Record<
+  const tools = getAgentAiTools(backgroundToolDeps(payload, grant), {
+    webSearchEnabled: payload.turnBudget.webSearchEnabled,
+    wikiHomepageSetupDomain: payload.wikiHomepageSetupDomain,
+  }) as Record<
     string,
     {
       execute?: (input: unknown, options: { toolCallId: string; messages: [] }) => Promise<unknown>;
@@ -609,7 +641,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       await closeTurnStream();
       return;
     }
-    const shells = await loadAgentToolShells();
+    const shells = await loadAgentToolShells(payload.wikiHomepageSetupDomain, payload.turnBudget.webSearchEnabled);
     const writable = getWritable();
 
     const queued: AgentTranscriptEvent[] = [];
@@ -621,8 +653,27 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       userName: payload.userName,
       appBaseUrl: payload.appBaseUrl,
       locale: payload.locale,
+      wikiHomepageSetupDomain: payload.wikiHomepageSetupDomain,
+      webSearchEnabled: payload.turnBudget.webSearchEnabled,
     });
-    const providerContext = buildAgentProviderContext(systemPrompt, payload.messages, []);
+    const toolDefinitions: AgentAiToolDefinition[] = shells.map((shell) =>
+      shell.type === "provider"
+        ? {
+            name: shell.name,
+            description: shell.description,
+            inputSchema: shell.inputSchema,
+            type: "provider",
+            isProviderExecuted: true,
+            id: shell.id,
+            args: shell.args,
+          }
+        : {
+            name: shell.name,
+            description: shell.description,
+            inputSchema: shell.inputSchema,
+          },
+    );
+    const providerContext = buildAgentProviderContext(systemPrompt, payload.messages, toolDefinitions);
 
     let tokens = emptyTokens();
     let cancelled = await readCancellation(payload);
@@ -647,6 +698,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let reservedCredits = payload.turnBudget.reservedCredits;
     let roundFailure: WorkflowFailure | null = null;
     const settledToolCallIds = new Set<string>();
+    const webSources = new Set<string>();
+    const providerToolNames = new Set(shells.filter((shell) => shell.type === "provider").map((shell) => shell.name));
 
     const recordContinuationRound = (step: AgentRoundResult, outcomes: AgentToolOutcome[]) => {
       continuationSteps.push(toAgentContinuationStep(step, outcomes));
@@ -680,7 +733,15 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const applyRound = async (step: AgentRoundResult) => {
       appliedThisCall += 1;
 
+      const charge = readAgentProviderCharge(step.providerMetadata, payload.turnBudget.servingProvider);
+      if (hasNativeWebSearchExecution(step) && charge.outcome !== "measured") {
+        const reason =
+          charge.outcome === "unreadable" ? charge.reason : "the gateway reported no successful provider attempt";
+        throw new Error(`Native web search requires authoritative Gateway cost metadata: ${reason}.`);
+      }
+
       try {
+        for (const source of collectAgentWebSources([{ content: step.content }])) webSources.add(source);
         for (const raw of step.content) {
           const part = raw as {
             type?: string;
@@ -701,6 +762,57 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         transcript.finishTextSegment();
 
         const outcomes: AgentToolOutcome[] = completedTools.splice(0);
+        const outcomeIds = new Set(outcomes.map((outcome) => outcome.toolCallId));
+        const providerOutcomes = new Map<string, AgentToolOutcome>();
+        for (const result of step.toolResults ?? []) {
+          if (!providerToolNames.has(result.toolName)) continue;
+          providerOutcomes.set(result.toolCallId, {
+            toolCallId: result.toolCallId,
+            toolName: result.toolName,
+            output: result.output,
+            providerExecuted: true,
+          });
+        }
+        for (const raw of step.content) {
+          const part = raw as {
+            type?: string;
+            toolCallId?: string;
+            toolName?: string;
+            error?: unknown;
+          };
+          if (part.type === "tool-error" && part.toolCallId && part.toolName && providerToolNames.has(part.toolName)) {
+            providerOutcomes.set(part.toolCallId, {
+              toolCallId: part.toolCallId,
+              toolName: part.toolName,
+              output: {
+                type: typeof part.error === "string" ? "error-text" : "error-json",
+                value: part.error,
+                ok: false,
+              },
+              providerExecuted: true,
+            });
+          }
+        }
+        for (const raw of step.content) {
+          const part = raw as {
+            type?: string;
+            toolCallId?: string;
+            toolName?: string;
+          };
+          if (
+            part.type === "tool-call" &&
+            part.toolCallId &&
+            part.toolName &&
+            providerToolNames.has(part.toolName) &&
+            !outcomeIds.has(part.toolCallId)
+          ) {
+            const providerOutcome = providerOutcomes.get(part.toolCallId);
+            if (providerOutcome) {
+              outcomes.push(providerOutcome);
+              outcomeIds.add(part.toolCallId);
+            }
+          }
+        }
         for (const completed of outcomes) {
           if ("threw" in completed) {
             settledToolCallIds.add(completed.toolCallId);
@@ -712,7 +824,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         }
 
         const roundTokens = usageToTokenCounts(step.usage);
-        const charge = readAgentProviderCharge(step.providerMetadata, payload.turnBudget.servingProvider);
         const costMicrocents =
           charge.outcome === "measured"
             ? charge.charge.costMicrocents
@@ -750,7 +861,12 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         const settledIds = new Set(outcomes.map((outcome) => outcome.toolCallId));
         const hasPausedCall = step.content.some((raw) => {
           const part = raw as { type?: string; toolCallId?: string };
-          return part.type === "tool-call" && Boolean(part.toolCallId) && !settledIds.has(part.toolCallId as string);
+          return (
+            part.type === "tool-call" &&
+            Boolean(part.toolCallId) &&
+            !providerToolNames.has(String((part as { toolName?: unknown }).toolName ?? "")) &&
+            !settledIds.has(part.toolCallId as string)
+          );
         });
 
         if (hasPausedCall) {
@@ -773,34 +889,53 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         model: payload.turnBudget.modelSpec,
         instructions,
         tools: Object.fromEntries(
-          shells.map((shell) => [
-            shell.name,
-            {
-              description: shell.description,
-              inputSchema: jsonSchema(shell.inputSchema as never),
-              needsApproval: shell.gated
-                ? (input: unknown) =>
-                    requiresApproval(internalToolIdentity(shell.name), { annotations: shell.annotations }, input)
-                : false,
-              ...(isAgentPanelTool(shell.name)
-                ? {}
-                : {
-                    execute: (input: unknown, options: { toolCallId: string }) =>
-                      executeAgentTool(
-                        payload,
-                        shell.name,
-                        options.toolCallId,
-                        input,
-                        grants.get(options.toolCallId) ?? "not-required",
-                      ),
-                  }),
-            },
-          ]),
+          shells.map((shell) => {
+            if (shell.type === "provider") {
+              return [
+                shell.name,
+                tool({
+                  type: "provider" as const,
+                  id: shell.id,
+                  args: shell.args,
+                  isProviderExecuted: true,
+                  inputSchema: jsonSchema(shell.inputSchema as never),
+                }),
+              ];
+            }
+
+            return [
+              shell.name,
+              {
+                description: shell.description,
+                inputSchema: jsonSchema(shell.inputSchema as never),
+                needsApproval: shell.gated
+                  ? (input: unknown) =>
+                      requiresApproval(internalToolIdentity(shell.name), { annotations: shell.annotations }, input)
+                  : false,
+                ...(isAgentPanelTool(shell.name)
+                  ? {}
+                  : {
+                      execute: (input: unknown, options: { toolCallId: string }) =>
+                        executeAgentTool(
+                          payload,
+                          shell.name,
+                          options.toolCallId,
+                          input,
+                          grants.get(options.toolCallId) ?? "not-required",
+                        ),
+                    }),
+              },
+            ];
+          }),
         ),
         maxOutputTokens: payload.turnBudget.maxOutputTokens,
         providerOptions: {
-          gateway: { only: [payload.turnBudget.servingProvider] },
-          openai: { parallelToolCalls: false },
+          gateway: {
+            only: [payload.turnBudget.servingProvider],
+            zeroDataRetention: true,
+            disallowPromptTraining: true,
+          },
+          openai: { parallelToolCalls: false, store: false },
         },
         prepareStep: async () => {
           if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
@@ -831,7 +966,12 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       appliedThisCall = 0;
       let result;
       try {
-        result = await agent.stream({ messages, writable, preventClose: true, sendFinish: false });
+        result = await agent.stream({
+          messages,
+          writable,
+          preventClose: true,
+          sendFinish: false,
+        });
       } catch (error) {
         if (error === hostedAiPaused) {
           hostedAiStop = true;
@@ -844,13 +984,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       for (const step of (result.steps as unknown as AgentRoundResult[]).slice(appliedThisCall)) await applyRound(step);
 
       for (const message of result.messages) {
-        if (message.role !== "tool" || typeof message.content === "string") continue;
+        if (typeof message.content === "string") continue;
         for (const part of message.content) {
           if (part.type !== "tool-result") continue;
-          const output = part.output as { value?: unknown } | undefined;
-          settleToolOutcome(part.toolCallId, part.toolName, output && "value" in output ? output.value : output);
+          settleToolOutcome(part.toolCallId, part.toolName, part.output);
         }
       }
+      for (const source of collectAgentWebSources(result.messages)) webSources.add(source);
 
       if (abandoned) break;
 
@@ -1004,10 +1144,15 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       await publishAssistantText(trailing);
     }
     transcript.failUnfinishedTools(cancelled ? "cancelled" : "error", true);
-    if (transcript.replyParts.length === 0) {
+    if (!transcript.replyText.trim()) {
       const message = await resolveRunnerMessage(payload.locale, "emptyReply");
       transcript.appendText(message);
       await publishAssistantText(message);
+    }
+    const sourcesFooter = agentWebSourcesFooter([...webSources]);
+    if (sourcesFooter) {
+      transcript.appendText(sourcesFooter);
+      await publishAssistantText(sourcesFooter);
     }
     await publishTranscriptEvents(queued.splice(0));
 

@@ -28,6 +28,7 @@ import {
   TrendingUp,
   UserCircle,
   Users,
+  BookOpen,
 } from "lucide-react";
 import { Resource, Theme as ThemeEnum } from "@/generated/prisma";
 
@@ -185,6 +186,13 @@ const FullAppSidebar = observer(
               icon: Inbox,
               visible: canAccess(Resource.inboxMessages) && rootStore.appMode !== "self-hosted",
               badge: unreadThreadCount,
+            },
+            {
+              key: "wiki",
+              title: t("NavigationBar.wiki"),
+              href: "/wiki",
+              icon: BookOpen,
+              visible: canAccess(Resource.wiki),
             },
             {
               key: "tasks",

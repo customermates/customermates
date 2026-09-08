@@ -67,7 +67,8 @@
         "services": "Leistungen",
         "tasks": "Aufgaben",
         "terminology": "Workspace-Begriffe",
-        "widgets": "Dashboard-Widgets"
+        "widgets": "Dashboard-Widgets",
+        "wiki": "Wiki-Seiten"
       },
       "resourceSingular": {
         "contacts": "Kontakt",
@@ -77,7 +78,8 @@
         "services": "Leistung",
         "tasks": "Aufgabe",
         "terminology": "Workspace-Begriff",
-        "widgets": "Dashboard-Widget"
+        "widgets": "Dashboard-Widget",
+        "wiki": "Wiki-Seite"
       },
       "state": {
         "accounts": {
@@ -231,6 +233,13 @@
             "done": "Teamzugriff wurde geändert",
             "error": "Teamzugriff konnte nicht geändert werden",
             "running": "Teamzugriff ist zum Ändern bereit"
+          }
+        },
+        "web": {
+          "search": {
+            "done": "Web wurde durchsucht",
+            "error": "Web konnte nicht durchsucht werden",
+            "running": "Web wird durchsucht"
           }
         },
         "webhooks": {
@@ -737,6 +746,7 @@
       "effectiveAt": "Gültig ab",
       "emails": "E-Mail-Adressen",
       "isNewCompany": "Erste Person im Workspace",
+      "markdown": "Markdown",
       "postalCode": "Postleitzahl",
       "recipientEmail": "Gesendet an",
       "street": "Straße",
@@ -1074,7 +1084,10 @@
       "widgetKindImmutable": "Der Typ eines Widgets kann nach dem Erstellen nicht geändert werden.",
       "widgetNotFound": "Widget-ID nicht gefunden oder nicht zugänglich.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Aufgaben können nur nach benutzerdefinierten Spalten gruppiert werden, nicht nach Elementtypen.",
-      "widgetWeightedValueNotAllowedForService": "Gewichtete Wert-Aggregation ist für den Elementtyp Service nicht erlaubt."
+      "widgetWeightedValueNotAllowedForService": "Gewichtete Wert-Aggregation ist für den Elementtyp Service nicht erlaubt.",
+      "wikiNotEmpty": "Die Einrichtung des Workspace-Wikis kann nur ausgeführt werden, wenn das Wiki leer ist.",
+      "wikiPageConflict": "Diese Wiki-Seite wurde geändert, nachdem du sie geöffnet hast. Lade sie neu und versuche es erneut.",
+      "wikiPageNotFound": "Wiki-Seite nicht gefunden oder nicht zugänglich."
     },
     "events": {
       "company": {
@@ -1162,6 +1175,11 @@
         "created": "Webhook erstellt",
         "deleted": "Webhook gelöscht",
         "updated": "Webhook aktualisiert"
+      },
+      "wiki_page": {
+        "created": "Wiki-Seite erstellt",
+        "deleted": "Wiki-Seite gelöscht",
+        "updated": "Wiki-Seite aktualisiert"
       }
     },
     "filters": {
@@ -2585,6 +2603,7 @@
     "search": "Suchen",
     "settings": "Einstellungen",
     "subscription": "Abonnement",
+    "wiki": "Wiki",
     "workspace": "Workspace"
   },
   "NotFoundPage": {
@@ -2747,6 +2766,10 @@
         "invitedSubtitle": "Vervollständige dein Profil, um Zugang zum eingeladenen Workspace anzufordern.",
         "subtitle": "Erzähle uns, wer du bist, damit wir deinen Workspace einrichten können.",
         "title": "Dein Profil"
+      },
+      "wiki": {
+        "subtitle": "Füge Kontext aus deiner öffentlichen Homepage hinzu oder überspringe diesen optionalen Schritt.",
+        "title": "Workspace-Wiki einrichten"
       }
     }
   },
@@ -3005,7 +3028,8 @@
       "organizations": "Organisationen",
       "services": "Services",
       "tasks": "Aufgaben",
-      "users": "Benutzer & Rollen"
+      "users": "Benutzer & Rollen",
+      "wiki": "Workspace-Wiki"
     },
     "systemAlert": "Dies ist eine System-Rolle und kann nicht bearbeitet oder gelöscht werden.",
     "systemDescription": "Voller Zugriff auf alle Funktionen und Einstellungen. Kann nicht geändert oder gelöscht werden.",
@@ -3240,5 +3264,31 @@
     "emptyBody": "Füge einen Webhook hinzu, um Workspace-Ereignisse an deine Systeme zu senden.",
     "emptyTitle": "Noch keine Webhooks",
     "title": "Webhooks"
+  },
+  "Wiki": {
+    "cancel": "Abbrechen",
+    "delete": "Seite löschen",
+    "edit": "Bearbeiten",
+    "emptyBody": "Erstelle eine Seite manuell oder lass Mate fünf Startseiten aus deiner Homepage einrichten.",
+    "emptyBodyManual": "Erstelle deine erste Wiki-Seite.",
+    "emptyBodyReadOnly": "Es wurden noch keine Wiki-Seiten erstellt.",
+    "emptyTitle": "Dein Workspace-Wiki ist leer",
+    "newPage": "Neue Seite",
+    "next": "Weiter",
+    "page": "Seite {current} von {total}",
+    "pagesLabel": "Wiki-Seiten",
+    "pageTitle": "Seitentitel",
+    "previous": "Zurück",
+    "save": "Speichern",
+    "title": "Workspace-Wiki"
+  },
+  "WikiSetup": {
+    "description": "Mate recherchiert nur auf dieser öffentlichen Website und erstellt fünf bearbeitbare Startseiten. Du kannst währenddessen fortfahren.",
+    "homepageLabel": "Unternehmens-Homepage (optional)",
+    "homepagePlaceholder": "https://beispiel.de",
+    "skip": "Überspringen",
+    "start": "Mit Mate einrichten",
+    "startFailed": "Mate konnte die Wiki-Einrichtung nicht starten. Bitte versuche es erneut.",
+    "unavailable": "Die Einrichtung mit Mate ist derzeit nicht verfügbar. Du kannst später im Wiki Seiten erstellen."
   }
 }

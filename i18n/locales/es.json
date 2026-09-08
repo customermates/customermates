@@ -67,7 +67,8 @@
         "services": "servicios",
         "tasks": "tareas",
         "terminology": "terminología del espacio de trabajo",
-        "widgets": "widgets del Dashboard"
+        "widgets": "widgets del Dashboard",
+        "wiki": "páginas wiki"
       },
       "resourceSingular": {
         "contacts": "contacto",
@@ -77,7 +78,8 @@
         "services": "servicio",
         "tasks": "tarea",
         "terminology": "término del espacio de trabajo",
-        "widgets": "widget del dashboard"
+        "widgets": "widget del dashboard",
+        "wiki": "página wiki"
       },
       "state": {
         "accounts": {
@@ -231,6 +233,13 @@
             "done": "Acceso del equipo modificado",
             "error": "No se pudo cambiar el acceso del equipo",
             "running": "Listo para cambiar el acceso del equipo"
+          }
+        },
+        "web": {
+          "search": {
+            "done": "Búsqueda web completada",
+            "error": "No se pudo buscar en la web",
+            "running": "Buscando en la web"
           }
         },
         "webhooks": {
@@ -737,6 +746,7 @@
       "effectiveAt": "Vigente desde",
       "emails": "Direcciones de correo",
       "isNewCompany": "Primera persona del espacio",
+      "markdown": "Markdown",
       "postalCode": "Código postal",
       "recipientEmail": "Enviado a",
       "street": "Calle",
@@ -1074,7 +1084,10 @@
       "widgetKindImmutable": "El tipo de un widget no se puede cambiar después de crearlo.",
       "widgetNotFound": "ID de widget no encontrado o no accesible.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Las tareas solo se pueden agrupar por columnas personalizadas, no por tipos de elemento.",
-      "widgetWeightedValueNotAllowedForService": "La agregación de valor ponderado no está permitida para el tipo de elemento Servicio."
+      "widgetWeightedValueNotAllowedForService": "La agregación de valor ponderado no está permitida para el tipo de elemento Servicio.",
+      "wikiNotEmpty": "La configuración de la wiki del espacio de trabajo solo puede ejecutarse cuando la wiki está vacía.",
+      "wikiPageConflict": "Esta página de la wiki cambió después de que la abrieras. Vuelve a cargarla e inténtalo de nuevo.",
+      "wikiPageNotFound": "Página de la wiki no encontrada o no accesible."
     },
     "events": {
       "company": {
@@ -1162,6 +1175,11 @@
         "created": "Webhook creado",
         "deleted": "Webhook eliminado",
         "updated": "Webhook actualizado"
+      },
+      "wiki_page": {
+        "created": "Página wiki creada",
+        "deleted": "Página wiki eliminada",
+        "updated": "Página wiki actualizada"
       }
     },
     "filters": {
@@ -2585,6 +2603,7 @@
     "search": "Buscar",
     "settings": "Ajustes",
     "subscription": "Suscripción",
+    "wiki": "Wiki",
     "workspace": "Espacio de trabajo"
   },
   "NotFoundPage": {
@@ -2747,6 +2766,10 @@
         "invitedSubtitle": "Completa tu perfil para solicitar acceso al espacio de trabajo de la invitación.",
         "subtitle": "Cuéntanos quién eres para que podamos configurar tu espacio de trabajo.",
         "title": "Tu perfil"
+      },
+      "wiki": {
+        "subtitle": "Añade contexto desde el sitio web público de tu empresa u omite este paso opcional.",
+        "title": "Configura la wiki de tu espacio"
       }
     }
   },
@@ -3005,7 +3028,8 @@
       "organizations": "Organizaciones",
       "services": "Servicios",
       "tasks": "Tareas",
-      "users": "Usuarios y roles"
+      "users": "Usuarios y roles",
+      "wiki": "Wiki del espacio de trabajo"
     },
     "systemAlert": "Este es un rol del sistema y no se puede editar ni eliminar.",
     "systemDescription": "Acceso completo a todas las funciones y ajustes. No se puede modificar ni eliminar.",
@@ -3240,5 +3264,31 @@
     "emptyBody": "Añade un webhook para enviar los eventos del espacio de trabajo a tus sistemas.",
     "emptyTitle": "Aún no hay webhooks",
     "title": "Webhooks"
+  },
+  "Wiki": {
+    "cancel": "Cancelar",
+    "delete": "Eliminar página",
+    "edit": "Editar",
+    "emptyBody": "Crea una página manualmente o deja que Mate configure cinco páginas iniciales desde tu sitio web.",
+    "emptyBodyManual": "Crea tu primera página de la wiki.",
+    "emptyBodyReadOnly": "Aún no se han creado páginas de la wiki.",
+    "emptyTitle": "La wiki de tu espacio de trabajo está vacía",
+    "newPage": "Nueva página",
+    "next": "Siguiente",
+    "page": "Página {current} de {total}",
+    "pagesLabel": "Páginas de la wiki",
+    "pageTitle": "Título de la página",
+    "previous": "Anterior",
+    "save": "Guardar",
+    "title": "Wiki del espacio de trabajo"
+  },
+  "WikiSetup": {
+    "description": "Mate investiga únicamente este sitio público y crea cinco páginas iniciales editables. Puedes continuar mientras trabaja.",
+    "homepageLabel": "Sitio web de la empresa (opcional)",
+    "homepagePlaceholder": "https://ejemplo.com",
+    "skip": "Omitir",
+    "start": "Configurar con Mate",
+    "startFailed": "Mate no pudo iniciar la configuración de la wiki. Inténtalo de nuevo.",
+    "unavailable": "La configuración con Mate no está disponible ahora. Puedes crear páginas más adelante desde la wiki."
   }
 }

@@ -8,7 +8,10 @@ export function isReadOnlyTool(tool: { annotations?: Record<string, boolean> }) 
 
 type AgentApprovalPolicy =
   | { approvalFree: true }
-  | { approvalFreeActions: readonly string[]; readOnlyActions?: readonly string[] };
+  | {
+      approvalFreeActions: readonly string[];
+      readOnlyActions?: readonly string[];
+    };
 
 const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   connect_messaging_account: { approvalFree: true },
@@ -17,15 +20,28 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   create_organizations: { approvalFree: true },
   create_services: { approvalFree: true },
   create_tasks: { approvalFree: true },
-  manage_custom_columns: { approvalFreeActions: ["list", "upsert"], readOnlyActions: ["list"] },
+  manage_custom_columns: {
+    approvalFreeActions: ["list", "upsert"],
+    readOnlyActions: ["list"],
+  },
   manage_record_links: { approvalFree: true },
-  manage_social_relations: { approvalFreeActions: ["list"], readOnlyActions: ["list"] },
+  manage_social_relations: {
+    approvalFreeActions: ["list"],
+    readOnlyActions: ["list"],
+  },
   manage_team: { approvalFreeActions: ["update_member"] },
   manage_webhooks: {
     approvalFreeActions: ["list", "get", "list_deliveries", "create", "update"],
     readOnlyActions: ["list", "get", "list_deliveries"],
   },
-  manage_widgets: { approvalFreeActions: ["list", "get", "create", "update"], readOnlyActions: ["list", "get"] },
+  manage_wiki_pages: {
+    approvalFreeActions: ["list", "search", "get", "create", "update"],
+    readOnlyActions: ["list", "search", "get"],
+  },
+  manage_widgets: {
+    approvalFreeActions: ["list", "get", "create", "update"],
+    readOnlyActions: ["list", "get"],
+  },
   linkedin_manage_sales_lists: {
     approvalFreeActions: ["list", "browse"],
     readOnlyActions: ["list", "browse"],

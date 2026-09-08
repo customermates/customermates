@@ -70,6 +70,7 @@ const escalatingPermissions = (): UpsertRoleData["permissions"] => ({
   api: { canManage: "yes", readAccess: "all" },
   tasks: { canManage: "yes", readAccess: "all" },
   inboxMessages: { canManage: "yes", readAccess: "all" },
+  wiki: { canManage: "yes", readAccess: "all" },
   auditLog: { readAccess: "all" },
 });
 
@@ -81,7 +82,9 @@ const payload = (id?: string): UpsertRoleData => ({
 });
 
 const invoke = (repo: MockRepo, data: UpsertRoleData) => {
-  const eventService = { publish: vi.fn().mockResolvedValue(undefined) } as unknown as EventService;
+  const eventService = {
+    publish: vi.fn().mockResolvedValue(undefined),
+  } as unknown as EventService;
   const validator = { invoke: vi.fn() } as unknown as ValidateRoleIdsInteractor;
 
   return runWithTenant(mockUser, () => new UpsertRoleInteractor(repo, eventService, validator).invoke(data));
@@ -124,5 +127,35 @@ describe("UpsertRoleInteractor self-escalation guard", () => {
 
     expect(result.ok).toBe(true);
     expect(repo.upsertRoleOrThrow).toHaveBeenCalledOnce();
+  });
+
+  it("defaults an omitted Wiki permission to Read when an older caller creates a role", async () => {
+    const repo = new MockRepo();
+    const data = payload(undefined);
+    const permissions = { ...data.permissions };
+    delete permissions.wiki;
+
+    const result = await invoke(repo, { ...data, permissions } as UpsertRoleData);
+
+    expect(result.ok).toBe(true);
+    expect(repo.upsertRoleOrThrow).toHaveBeenCalledWith({
+      ...data,
+      permissions: {
+        ...permissions,
+        wiki: { canManage: "no", readAccess: "all" },
+      },
+    });
+  });
+
+  it("leaves an omitted Wiki permission unchanged when an older caller updates a role", async () => {
+    const repo = new MockRepo();
+    const data = payload(OTHER_ROLE_ID);
+    const permissions = { ...data.permissions };
+    delete permissions.wiki;
+
+    const result = await invoke(repo, { ...data, permissions });
+
+    expect(result.ok).toBe(true);
+    expect(repo.upsertRoleOrThrow).toHaveBeenCalledWith({ ...data, permissions });
   });
 });
