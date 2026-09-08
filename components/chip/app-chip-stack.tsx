@@ -11,6 +11,29 @@ import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-d
 
 import { AppChip } from "./app-chip";
 
+const moreWidthCache = new Map<string, number>();
+
+function digitsNeeded(itemCount: number): number[] {
+  const max = String(Math.max(1, itemCount)).length;
+
+  return Array.from({ length: max }, (_, index) => index + 1);
+}
+
+function moreWidthKey(size: string | null | undefined, variant: string | null | undefined, digits: number): string {
+  return `${size}|${variant}|${digits}`;
+}
+
+function itemsStamp<T extends ChipStackItem>(
+  items: T[],
+  size: string | null | undefined,
+  variant: string | null | undefined,
+): string {
+  let stamp = `${size}|${variant}`;
+  for (const item of items) stamp += `|${item.id}\u0000${item.label}`;
+
+  return stamp;
+}
+
 type ChipStackItem = {
   id: string;
   label: string;
@@ -43,7 +66,7 @@ export function AppChipStack<T extends ChipStackItem>({
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const measurerRef = useRef<HTMLDivElement | null>(null);
-  const moreMeasurerRef = useRef<HTMLSpanElement | null>(null);
+  const moreMeasureRefs = useRef<Map<number, HTMLSpanElement>>(new Map());
   const chipMeasureRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const [visibleCount, setVisibleCount] = useState<number>(items.length);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -51,13 +74,13 @@ export function AppChipStack<T extends ChipStackItem>({
   const singleVisibleMaxWidthRef = useRef<number | null>(null);
   const widthsRef = useRef<number[]>([]);
   const stampRef = useRef<string>("");
-  const moreWidthByDigitsRef = useRef<Record<number, number>>({});
   const lastDimsRef = useRef<{ width: number; itemCount: number }>({
     width: 0,
     itemCount: 0,
   });
   const rafIdRef = useRef<number | null>(null);
 
+  const needsOverflowHandling = items.length > 1;
   const ensuredVisibleCount = Math.max(1, visibleCount);
   const ensuredHiddenItems = items.slice(ensuredVisibleCount);
   const isSingleVisibleWithOverflow = ensuredVisibleCount === 1 && ensuredHiddenItems.length > 0;
@@ -74,15 +97,11 @@ export function AppChipStack<T extends ChipStackItem>({
 
   const measureMoreChipWidth = useCallback(
     (hiddenCount: number): number => {
-      const el = moreMeasurerRef.current;
+      const digits = Math.max(1, String(hiddenCount).length);
 
-      if (!el) return 0;
-      el.textContent = moreLabel(hiddenCount);
-      const rect = el.getBoundingClientRect();
-
-      return Math.ceil(rect.width);
+      return moreWidthCache.get(moreWidthKey(size, variant, digits)) ?? 0;
     },
-    [moreLabel],
+    [size, variant],
   );
 
   const recalc = useCallback(() => {
@@ -98,20 +117,7 @@ export function AppChipStack<T extends ChipStackItem>({
     while (low <= high) {
       const mid = Math.floor((low + high) / 2);
       const hiddenCount = items.length - mid;
-      const digits = hiddenCount > 0 ? String(hiddenCount).length : 0;
-      let moreWidth = 0;
-
-      if (hiddenCount > 0) {
-        if (moreWidthByDigitsRef.current[digits] == null) {
-          const widestLabel = moreLabel(Number("9".repeat(digits)) || 0);
-
-          if (moreMeasurerRef.current) {
-            moreMeasurerRef.current.textContent = widestLabel;
-            moreWidthByDigitsRef.current[digits] = Math.ceil(moreMeasurerRef.current.getBoundingClientRect().width);
-          } else moreWidthByDigitsRef.current[digits] = measureMoreChipWidth(hiddenCount);
-        }
-        moreWidth = moreWidthByDigitsRef.current[digits] || 0;
-      }
+      const moreWidth = hiddenCount > 0 ? measureMoreChipWidth(hiddenCount) : 0;
 
       let chipsWidth = 0;
 
@@ -145,29 +151,36 @@ export function AppChipStack<T extends ChipStackItem>({
       singleVisibleMaxWidthRef.current = null;
       setSingleVisibleMaxWidth(null);
     }
-  }, [items, measureMoreChipWidth, moreLabel, visibleCount]);
+  }, [items, measureMoreChipWidth, visibleCount]);
 
   useLayoutEffect(() => {
-    const stamp = JSON.stringify(items.map((i) => [i.id, i.label])) + `|${size}|${variant}`;
+    if (!needsOverflowHandling) return;
+
+    for (const digits of digitsNeeded(items.length)) {
+      const key = moreWidthKey(size, variant, digits);
+
+      if (moreWidthCache.has(key)) continue;
+      const el = moreMeasureRefs.current.get(digits);
+
+      if (el) moreWidthCache.set(key, Math.ceil(el.offsetWidth));
+    }
+
+    const stamp = itemsStamp(items, size, variant);
 
     if (stampRef.current !== stamp) {
       stampRef.current = stamp;
       widthsRef.current = items.map((it) => {
         const el = chipMeasureRefs.current.get(it.id);
 
-        if (!el) return 0;
-        const ow = (el as HTMLElement).offsetWidth;
-
-        return Math.ceil(ow || el.getBoundingClientRect().width) || 0;
+        return el ? Math.ceil(el.offsetWidth) : 0;
       });
-      moreWidthByDigitsRef.current = {};
     }
 
     recalc();
-  }, [items, size, variant, recalc]);
+  }, [items, size, variant, recalc, needsOverflowHandling]);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || !needsOverflowHandling) return;
     const ro = new ResizeObserver(() => {
       if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
       rafIdRef.current = requestAnimationFrame(() => {
@@ -187,7 +200,7 @@ export function AppChipStack<T extends ChipStackItem>({
       if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
       ro.disconnect();
     };
-  }, [items.length, recalc]);
+  }, [items.length, recalc, needsOverflowHandling]);
 
   if (!items?.length) return null;
 
@@ -197,36 +210,46 @@ export function AppChipStack<T extends ChipStackItem>({
       className="relative flex min-w-0 overflow-hidden flex-nowrap whitespace-nowrap"
       style={{ gap: GAP_PX, maxWidth }}
     >
-      <div aria-hidden className="absolute left-0 top-0 -z-50 opacity-0 pointer-events-none">
-        <div
-          ref={measurerRef}
-          className="flex flex-nowrap"
-          style={{ gap: GAP_PX }}
-          tabIndex={-1}
-          onFocus={(e) => e.target.blur()}
-        >
-          {items.map((item) => (
-            <div key={item.id} ref={setChipMeasureRef(item.id)} className="flex-none">
-              <AppChip
-                className="max-w-full cursor-pointer"
-                size={size}
-                startContent={item.startContent}
-                variant={variant}
-              >
-                <span className="truncate whitespace-nowrap">{item.label}</span>
-              </AppChip>
-            </div>
-          ))}
+      {needsOverflowHandling && (
+        <div aria-hidden className="absolute left-0 top-0 -z-50 opacity-0 pointer-events-none">
+          <div
+            ref={measurerRef}
+            className="flex flex-nowrap"
+            style={{ gap: GAP_PX }}
+            tabIndex={-1}
+            onFocus={(e) => e.target.blur()}
+          >
+            {items.map((item) => (
+              <div key={item.id} ref={setChipMeasureRef(item.id)} className="flex-none">
+                <AppChip
+                  className="max-w-full cursor-pointer"
+                  size={size}
+                  startContent={item.startContent}
+                  variant={variant}
+                >
+                  <span className="truncate whitespace-nowrap">{item.label}</span>
+                </AppChip>
+              </div>
+            ))}
 
-          <div className="flex-none">
-            <AppChip className="max-w-full" size={size} variant={variant}>
-              <span ref={moreMeasurerRef} className="truncate whitespace-nowrap">
-                +0
-              </span>
-            </AppChip>
+            {digitsNeeded(items.length).map((digits) => (
+              <div key={digits} className="flex-none">
+                <AppChip className="max-w-full" size={size} variant={variant}>
+                  <span
+                    ref={(el) => {
+                      if (el) moreMeasureRefs.current.set(digits, el);
+                      else moreMeasureRefs.current.delete(digits);
+                    }}
+                    className="truncate whitespace-nowrap"
+                  >
+                    {`+${"9".repeat(digits)}`}
+                  </span>
+                </AppChip>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
+      )}
 
       <TooltipProvider>
         {items.slice(0, ensuredVisibleCount).map((item) => {
