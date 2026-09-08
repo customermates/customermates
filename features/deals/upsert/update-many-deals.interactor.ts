@@ -88,12 +88,15 @@ export class UpdateManyDealsInteractor extends AuthenticatedInteractor<UpdateMan
 
     const deals = await Promise.all(data.deals.map((dealData) => this.dealsRepo.updateDealOrThrow(dealData)));
 
-    const [currentOrganizations, currentContacts, currentServices, currentTasks] = await Promise.all([
-      this.organizationsRepo.getManyOrThrowCompanyWide(relatedOrganizationIds),
-      this.contactsRepo.getManyOrThrowCompanyWide(relatedContactIds),
-      this.servicesRepo.getManyOrThrowCompanyWide(relatedServiceIds),
-      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
-    ]);
+    const [currentCompanyWideDeals, currentOrganizations, currentContacts, currentServices, currentTasks] =
+      await Promise.all([
+        this.dealsRepo.getManyOrThrowCompanyWide(deals.map((deal) => deal.id)),
+        this.organizationsRepo.getManyOrThrowCompanyWide(relatedOrganizationIds),
+        this.contactsRepo.getManyOrThrowCompanyWide(relatedContactIds),
+        this.servicesRepo.getManyOrThrowCompanyWide(relatedServiceIds),
+        this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
+      ]);
+    const currentCompanyWideDealsMap = new Map(currentCompanyWideDeals.map((deal) => [deal.id, deal]));
 
     await Promise.all([
       ...buildRelationChangePublishes(previousOrganizations, currentOrganizations, "deals", (organization, changes) =>
@@ -133,7 +136,10 @@ export class UpdateManyDealsInteractor extends AuthenticatedInteractor<UpdateMan
         }),
       ),
       ...deals.map((deal) => {
-        const changes = calculateChanges(previousDealsMap.get(deal.id), deal);
+        const currentCompanyWideDeal = currentCompanyWideDealsMap.get(deal.id);
+        if (!currentCompanyWideDeal) throw new Error(`Updated deal ${deal.id} missing from company-wide snapshot`);
+
+        const changes = calculateChanges(previousDealsMap.get(deal.id), currentCompanyWideDeal);
 
         return this.eventService.publish(DomainEvent.DEAL_UPDATED, {
           entityId: deal.id,

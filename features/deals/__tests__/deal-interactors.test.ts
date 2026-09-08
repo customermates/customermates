@@ -61,6 +61,8 @@ const DEAL_ID_2 = "00000000-0000-4000-8000-000000000002";
 const ORG_ID_1 = "00000000-0000-4000-8000-000000000010";
 const CONTACT_ID_1 = "00000000-0000-4000-8000-000000000020";
 const SERVICE_ID_1 = "00000000-0000-4000-8000-000000000030";
+const USER_ID_1 = "00000000-0000-4000-8000-000000000040";
+const USER_ID_2 = "00000000-0000-4000-8000-000000000041";
 
 function makeDealDto(overrides: Record<string, unknown> = {}) {
   return {
@@ -114,6 +116,16 @@ function makeServiceDto(id: string) {
     users: [],
     tasks: [],
     customFieldValues: [],
+  };
+}
+
+function makeUserDto(id: string) {
+  return {
+    id,
+    firstName: `User ${id.slice(-2)}`,
+    lastName: "Example",
+    avatarUrl: null,
+    email: `user-${id.slice(-2)}@example.com`,
   };
 }
 
@@ -404,6 +416,35 @@ describe("UpdateDealInteractor", () => {
         }),
       }),
     );
+  });
+
+  it("diffs the company-wide result without reporting hidden users as removed", async () => {
+    const visibleUser = makeUserDto(USER_ID_1);
+    const hiddenUser = makeUserDto(USER_ID_2);
+    const previousWideDeal = makeDealDto({ name: "Before", users: [visibleUser, hiddenUser] });
+    const scopedUpdatedDeal = makeDealDto({ name: "After", users: [visibleUser] });
+    const currentWideDeal = makeDealDto({ name: "After", users: [visibleUser, hiddenUser] });
+
+    mockUpdateRepo.getOrThrowCompanyWide
+      .mockReset()
+      .mockResolvedValueOnce(previousWideDeal)
+      .mockResolvedValueOnce(currentWideDeal);
+    mockUpdateRepo.updateDealOrThrow.mockResolvedValue(scopedUpdatedDeal);
+
+    const result: any = await createInteractor().invoke({ id: DEAL_ID, name: "After" });
+    const dealUpdate = mockEventService.publish.mock.calls.find(
+      ([event]: [DomainEvent]) => event === DomainEvent.DEAL_UPDATED,
+    );
+
+    expect(mockUpdateRepo.getOrThrowCompanyWide).toHaveBeenNthCalledWith(2, DEAL_ID);
+    expect(dealUpdate?.[1]).toEqual({
+      entityId: DEAL_ID,
+      payload: {
+        deal: scopedUpdatedDeal,
+        changes: { name: { previous: "Before", current: "After" } },
+      },
+    });
+    expect(result).toEqual({ ok: true, data: scopedUpdatedDeal });
   });
 
   it("publishes related entity update events with payload", async () => {
@@ -827,6 +868,58 @@ describe("UpdateManyDealsInteractor", () => {
         }),
       }),
     );
+  });
+
+  it("diffs bulk company-wide results by id without reporting hidden users as removed", async () => {
+    const visibleUser = makeUserDto(USER_ID_1);
+    const hiddenUser = makeUserDto(USER_ID_2);
+    const previousWideDeal1 = makeDealDto({ name: "Before One", users: [visibleUser, hiddenUser] });
+    const previousWideDeal2 = makeDealDto({ id: DEAL_ID_2, name: "Before Two", users: [visibleUser, hiddenUser] });
+    const scopedDeal1 = makeDealDto({ name: "After One", users: [visibleUser] });
+    const scopedDeal2 = makeDealDto({ id: DEAL_ID_2, name: "After Two", users: [visibleUser] });
+    const currentWideDeal1 = makeDealDto({ name: "After One", users: [visibleUser, hiddenUser] });
+    const currentWideDeal2 = makeDealDto({ id: DEAL_ID_2, name: "After Two", users: [visibleUser, hiddenUser] });
+
+    mockUpdateRepo.getManyOrThrowCompanyWide
+      .mockReset()
+      .mockResolvedValueOnce([previousWideDeal1, previousWideDeal2])
+      .mockResolvedValueOnce([currentWideDeal2, currentWideDeal1]);
+    mockUpdateRepo.updateDealOrThrow.mockReset().mockResolvedValueOnce(scopedDeal1).mockResolvedValueOnce(scopedDeal2);
+
+    const result: any = await createInteractor().invoke({
+      deals: [
+        { id: DEAL_ID, name: "After One" },
+        { id: DEAL_ID_2, name: "After Two" },
+      ],
+    });
+    const dealUpdates = mockEventService.publish.mock.calls.filter(
+      ([event]: [DomainEvent]) => event === DomainEvent.DEAL_UPDATED,
+    );
+
+    expect(mockUpdateRepo.getManyOrThrowCompanyWide).toHaveBeenNthCalledWith(2, [DEAL_ID, DEAL_ID_2]);
+    expect(dealUpdates).toEqual([
+      [
+        DomainEvent.DEAL_UPDATED,
+        {
+          entityId: DEAL_ID,
+          payload: {
+            deal: scopedDeal1,
+            changes: { name: { previous: "Before One", current: "After One" } },
+          },
+        },
+      ],
+      [
+        DomainEvent.DEAL_UPDATED,
+        {
+          entityId: DEAL_ID_2,
+          payload: {
+            deal: scopedDeal2,
+            changes: { name: { previous: "Before Two", current: "After Two" } },
+          },
+        },
+      ],
+    ]);
+    expect(result).toEqual({ ok: true, data: [scopedDeal1, scopedDeal2] });
   });
 
   it("publishes ORGANIZATION_UPDATED events with payload when deals have linked organizations", async () => {

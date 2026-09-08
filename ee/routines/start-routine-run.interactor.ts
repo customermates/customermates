@@ -95,7 +95,13 @@ export abstract class StartRoutineConversationRepo {
   abstract deleteUnusedAgentConversation(conversationId: string): Promise<void>;
 }
 
-@TenantInteractor({ resource: Resource.routines, action: Action.update })
+@TenantInteractor({
+  permissions: [
+    { resource: Resource.routines, action: Action.readAll },
+    { resource: Resource.routines, action: Action.readOwn },
+  ],
+  condition: "OR",
+})
 export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRoutineRunData, StartRoutineRunOutcome> {
   constructor(
     private repo: StartRoutineRunRepo,

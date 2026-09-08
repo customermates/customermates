@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { createMockUser } from "@/tests/helpers/mock-user";
+import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
+import { Action, Resource } from "@/generated/prisma";
 import {
   MOCK_ENV_MODULE,
   createMockDiModule,
@@ -36,9 +37,19 @@ import { PruneRoutineRunsInteractor } from "../prune-routine-runs.interactor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { RoutineLimitExceededError, type RoutineCountLimit } from "../routine-run-limits";
+import { runWithTenant } from "@/core/decorators/tenant-context";
+import { ForbiddenError } from "@/core/errors/app-errors";
 
 const ROUTINE_ID = "00000000-0000-4000-8000-000000000001";
 const RUN_ID = "00000000-0000-4000-8000-000000000002";
+
+function readOwnRoutineUser() {
+  return {
+    ...createMockUserWithPermissions([{ resource: Resource.routines, action: Action.readOwn }]),
+    id: mockUser.id,
+    companyId: mockUser.companyId,
+  };
+}
 
 function issuesOf(input: unknown) {
   const result = UpsertRoutineSchema.safeParse(input);
@@ -263,6 +274,18 @@ describe("RunRoutineNowInteractor", () => {
     });
   });
 
+  it("keeps manual tests update-gated for a read-own routine owner", async () => {
+    const { repo, background } = fixtures();
+
+    await expect(
+      runWithTenant(readOwnRoutineUser(), () =>
+        new RunRoutineNowInteractor(repo as never, background as never).invoke({ routineId: ROUTINE_ID }),
+      ),
+    ).rejects.toThrow(ForbiddenError);
+    expect(repo.createManualRoutineRunOrThrow).not.toHaveBeenCalled();
+    expect(background.dispatch).not.toHaveBeenCalled();
+  });
+
   it("rejects a context-free manual test for an event routine", async () => {
     const { repo, background } = fixtures({ triggerKind: "event" });
 
@@ -474,6 +497,21 @@ describe("StartRoutineRunInteractor", () => {
     expect(sendAgentMessage.invokeRoutine).toHaveBeenCalledWith(expect.objectContaining({ clientRequestId: RUN_ID }));
     expect(conversations.createAndLinkRoutineConversationForRun).toHaveBeenCalledBefore(sendAgentMessage.invokeRoutine);
     expect(repo.markRoutineRunStartedUnscoped).toHaveBeenCalled();
+  });
+
+  it("lets a read-own routine owner start an admitted background run", async () => {
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
+
+    const result = await runWithTenant(readOwnRoutineUser(), () => interactor.invoke({ routineRunId: RUN_ID }));
+
+    expect(result).toEqual({ ok: true, data: { started: true } });
+    expect(sendAgentMessage.invokeRoutine).toHaveBeenCalledOnce();
   });
 
   it("does not send when the run cannot be atomically linked to its routine conversation", async () => {

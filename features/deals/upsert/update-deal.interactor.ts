@@ -77,14 +77,16 @@ export class UpdateDealInteractor extends AuthenticatedInteractor<UpdateDealData
 
     const deal = await this.dealsRepo.updateDealOrThrow(data);
 
-    const [currentOrganizations, currentContacts, currentServices, currentTasks] = await Promise.all([
-      this.organizationsRepo.getManyOrThrowCompanyWide(relatedOrganizationIds),
-      this.contactsRepo.getManyOrThrowCompanyWide(relatedContactIds),
-      this.servicesRepo.getManyOrThrowCompanyWide(relatedServiceIds),
-      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
-    ]);
+    const [currentCompanyWideDeal, currentOrganizations, currentContacts, currentServices, currentTasks] =
+      await Promise.all([
+        this.dealsRepo.getOrThrowCompanyWide(deal.id),
+        this.organizationsRepo.getManyOrThrowCompanyWide(relatedOrganizationIds),
+        this.contactsRepo.getManyOrThrowCompanyWide(relatedContactIds),
+        this.servicesRepo.getManyOrThrowCompanyWide(relatedServiceIds),
+        this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
+      ]);
 
-    const changes = calculateChanges(previousDeal, deal);
+    const changes = calculateChanges(previousDeal, currentCompanyWideDeal);
 
     await Promise.all([
       ...buildRelationChangePublishes(previousOrganizations, currentOrganizations, "deals", (organization, changes) =>
