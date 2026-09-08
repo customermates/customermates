@@ -6,10 +6,11 @@ import type { RoutineSchedulePreset } from "@/ee/routines/routine-schedule-prese
 import type { Filter, FilterableField } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { RoutineRunDto } from "@/ee/routines/routine.schema";
+import type { RoutineRunPage } from "@/ee/routines/routine-history";
 
 import { action, computed, makeObservable, observable, runInAction, toJS } from "mobx";
 import type { EntityType } from "@/generated/prisma";
-import { RoutineTriggerKind } from "@/generated/prisma";
+import { RoutineRunStatus, RoutineTriggerKind } from "@/generated/prisma";
 
 import {
   deleteRoutineAction,
@@ -33,6 +34,12 @@ import {
 } from "@/ee/routines/routine-schedule-preset";
 import { entityTypeForEvents, isRecordChangeEvent } from "@/ee/routines/routine-event-filter";
 import { routineChangeFields } from "@/ee/routines/routine-change-fields";
+
+export const ROUTINE_RUN_POLL_INTERVAL_MS = 2_000;
+export const ROUTINE_RUN_POLL_GRACE_MS = 30_000;
+export const ROUTINE_RUN_POLL_MAX_MS = 10 * 60 * 1_000;
+
+export type RoutineRunsRequestState = "idle" | "loading" | "ready" | "error";
 
 function mergeFilters(filterableFields: FilterableField[], current: Filter[]): Filter[] {
   const existing = new Map<string, Filter>();
@@ -124,12 +131,26 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   openRunId: string | null = null;
   disabledReason: string | null = null;
   runsNextCursor: string | null = null;
+  runsRequestState: RoutineRunsRequestState = "idle";
   isLoadingMoreRuns = false;
-  isRunsLoading = false;
   isStartingRun = false;
   filterableFieldsByEntityType: Partial<Record<EntityType, FilterableField[]>> = {};
   customColumnsByEntityType: Partial<Record<EntityType, CustomColumnDto[]>> = {};
   private filterFieldsLoaded = false;
+  private filterFieldsLoadPromise: Promise<void> | null = null;
+  private runsSessionGeneration = 0;
+  private runsRoutineId: string | null = null;
+  private firstPageRequest: {
+    key: string;
+    promise: Promise<RoutineRunPage>;
+  } | null = null;
+  private loadedAdditionalRunPages = false;
+  private runsPollTimer: ReturnType<typeof setTimeout> | null = null;
+  private runsPollDeadline = 0;
+  private runsPollGraceDeadline = 0;
+  private runsPollFailureNotified = false;
+  private runsPollGeneration = 0;
+  private runsPollingActive = false;
 
   constructor(rootStore: RootStore) {
     super(rootStore, EMPTY_ROUTINE_FORM);
@@ -140,8 +161,8 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       openRunId: observable,
       disabledReason: observable,
       runsNextCursor: observable,
+      runsRequestState: observable,
       isLoadingMoreRuns: observable,
-      isRunsLoading: observable,
       isStartingRun: observable,
       filterableFieldsByEntityType: observable,
       customColumnsByEntityType: observable,
@@ -152,6 +173,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       changeFields: computed,
       filterableFields: computed,
       customColumns: computed,
+      hasActiveRuns: computed,
       isOwner: computed,
       hasAvailableOwner: computed,
       isAdmin: computed,
@@ -167,6 +189,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       openRun: action,
       closeRun: action,
       loadRuns: action,
+      retryLoadRuns: action,
       loadMoreRuns: action,
       runNow: action,
       pause: action,
@@ -218,6 +241,10 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     return this.runs.find((run) => run.id === this.openRunId) ?? null;
   }
 
+  get hasActiveRuns(): boolean {
+    return this.runs.some((run) => run.status === RoutineRunStatus.queued || run.status === RoutineRunStatus.running);
+  }
+
   get isOwner(): boolean {
     if (!this.form.id) return true;
 
@@ -246,14 +273,40 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
 
   canOpenRun = (run: RoutineRunDto): boolean => run.executedByUserId === this.rootStore.userStore.user?.id;
 
+  protected override prepareToClose(): boolean {
+    this.beginRunsSession(null);
+    return true;
+  }
+
+  private beginRunsSession(routineId: string | null): number {
+    this.stopRunsPolling();
+    this.runsSessionGeneration += 1;
+    this.runsRoutineId = routineId;
+    this.firstPageRequest = null;
+    this.loadedAdditionalRunPages = false;
+    this.runs = [];
+    this.runsNextCursor = null;
+    this.runsRequestState = "idle";
+    this.isLoadingMoreRuns = false;
+    this.runsPollFailureNotified = false;
+    this.openRunId = null;
+    this.rootStore.routineRunChatStore.newConversation();
+
+    return this.runsSessionGeneration;
+  }
+
+  private ownsRunsSession(generation: number, routineId: string): boolean {
+    return generation === this.runsSessionGeneration && routineId === this.runsRoutineId;
+  }
+
   openForCreate = async () => {
+    const generation = this.beginRunsSession(null);
     await this.loadFilterFields();
+    if (generation !== this.runsSessionGeneration) return;
+
     runInAction(() => {
       this.activeTab = "details";
-      this.openRunId = null;
       this.disabledReason = null;
-      this.runs = [];
-      this.runsNextCursor = null;
       this.openWith(
         this.withMergedFilterRows({
           ...EMPTY_ROUTINE_FORM,
@@ -264,12 +317,13 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   };
 
   openForEdit = async (routine: RoutineDto) => {
+    const generation = this.beginRunsSession(routine.id);
     await this.loadFilterFields();
+    if (!this.ownsRunsSession(generation, routine.id)) return;
+
     runInAction(() => {
       this.activeTab = "details";
-      this.openRunId = null;
       this.disabledReason = routine.enabled ? null : routine.disabledReason;
-      this.runsNextCursor = null;
       this.openWith(this.withMergedFilterRows(routineFormFor(routine)));
     });
     void this.loadRuns(routine.id);
@@ -277,86 +331,248 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
 
   setActiveTab = (tab: "details" | "runs") => {
     this.activeTab = tab;
-    if (tab === "runs" && this.form.id) void this.loadRuns(this.form.id);
+    if (tab === "runs" && this.form.id && this.runsRequestState === "idle") void this.loadRuns(this.form.id);
   };
 
   openRun = async (run: RoutineRunDto) => {
     if (run.conversationId && !this.canOpenRun(run)) return;
 
+    const routineId = this.form.id;
+    const generation = this.runsSessionGeneration;
+    if (!routineId || !this.ownsRunsSession(generation, routineId)) return;
+
     runInAction(() => {
+      this.activeTab = "runs";
       this.openRunId = run.id;
     });
+    this.focusAfterRender("routine-run-detail-heading");
 
-    let conversationId = run.conversationId;
-    if (!conversationId && this.form.id) conversationId = await this.refreshRun(this.form.id, run.id);
+    if (!run.conversationId) this.rootStore.routineRunChatStore.newConversation();
+    if (!run.conversationId) await this.refreshRun(routineId, run.id, generation);
+    if (!this.ownsRunsSession(generation, routineId) || this.openRunId !== run.id) return;
 
-    if (conversationId && this.canOpenRun(run))
-      await this.rootStore.routineRunChatStore.selectConversation(conversationId);
-    else this.rootStore.routineRunChatStore.newConversation();
+    const current = this.openRun_;
+    if (current?.conversationId && this.canOpenRun(current))
+      await this.rootStore.routineRunChatStore.selectConversationForReadOnlyViewer(current.conversationId);
   };
 
-  private refreshRun = async (routineId: string, runId: string): Promise<string | null> => {
+  private refreshRun = async (routineId: string, runId: string, generation: number): Promise<void> => {
     try {
-      const page = await getRoutineRunsAction({ routineId });
-      const fresh = page.runs.find((candidate) => candidate.id === runId);
-      if (!fresh) return null;
+      const page = await this.requestFirstRunPage(routineId, generation);
+      if (!this.ownsRunsSession(generation, routineId) || this.openRunId !== runId) return;
 
       runInAction(() => {
-        this.runs = this.runs.map((candidate) => (candidate.id === runId ? fresh : candidate));
+        this.mergeFreshRunPage(page);
+        this.runsRequestState = "ready";
       });
-
-      return fresh.conversationId;
+      this.runsPollFailureNotified = false;
     } catch (error) {
-      reportApplicationError(error);
-      return null;
+      if (!this.ownsRunsSession(generation, routineId)) return;
+      if (this.runsPollingActive) this.reportRunsBackgroundError(error);
+      else reportApplicationError(error);
     }
   };
 
   closeRun = () => {
+    const runId = this.openRunId;
     this.openRunId = null;
+    if (runId) this.focusAfterRender(`routine-run-${runId}`, "routine-runs-heading", "routine-tab-runs");
   };
 
-  loadRuns = async (routineId: string) => {
-    this.isRunsLoading = true;
+  private focusAfterRender(...ids: string[]): void {
+    if (typeof document === "undefined") return;
+
+    const focus = () => {
+      for (const id of ids) {
+        const target = document.getElementById(id);
+        if (!target) continue;
+        target.focus({ preventScroll: true });
+        return;
+      }
+    };
+
+    if (typeof requestAnimationFrame === "function") requestAnimationFrame(focus);
+    else queueMicrotask(focus);
+  }
+
+  private requestFirstRunPage = async (routineId: string, generation: number): Promise<RoutineRunPage> => {
+    const key = `${generation}:${routineId}`;
+    if (this.firstPageRequest?.key === key) return this.firstPageRequest.promise;
+
+    const promise = getRoutineRunsAction({ routineId });
+    this.firstPageRequest = { key, promise };
 
     try {
-      const page = await getRoutineRunsAction({ routineId });
+      return await promise;
+    } finally {
+      if (this.firstPageRequest?.promise === promise) this.firstPageRequest = null;
+    }
+  };
+
+  private normalizedRunCursor(cursor: unknown, previous?: string): string | null {
+    return typeof cursor === "string" && cursor.length > 0 && cursor.length <= 500 && cursor !== previous
+      ? cursor
+      : null;
+  }
+
+  private deduplicatedRuns(runs: readonly RoutineRunDto[]): RoutineRunDto[] {
+    const byId = new Map<string, RoutineRunDto>();
+    for (const run of runs) if (!byId.has(run.id)) byId.set(run.id, run);
+
+    return [...byId.values()];
+  }
+
+  private mergeFreshRunPage(page: RoutineRunPage): void {
+    this.runs = this.deduplicatedRuns([...page.runs, ...this.runs]);
+    if (!this.loadedAdditionalRunPages) this.runsNextCursor = this.normalizedRunCursor(page.nextCursor);
+  }
+
+  private replaceRunPage(page: RoutineRunPage): void {
+    this.runs = this.deduplicatedRuns(page.runs);
+    this.runsNextCursor = this.normalizedRunCursor(page.nextCursor);
+    this.loadedAdditionalRunPages = false;
+  }
+
+  private openRunConversationAfterRefresh(previousConversationId: string | null): void {
+    const run = this.openRun_;
+    if (!run?.conversationId || run.conversationId === previousConversationId || !this.canOpenRun(run)) return;
+    void this.rootStore.routineRunChatStore.selectConversationForReadOnlyViewer(run.conversationId);
+  }
+
+  loadRuns = async (routineId: string, force = false) => {
+    const generation = this.runsSessionGeneration;
+    if (!this.ownsRunsSession(generation, routineId)) return;
+    if (!force && (this.runsRequestState === "loading" || this.runsRequestState === "ready")) return;
+
+    runInAction(() => {
+      this.runsRequestState = "loading";
+    });
+
+    try {
+      const page = await this.requestFirstRunPage(routineId, generation);
+      if (!this.ownsRunsSession(generation, routineId)) return;
 
       runInAction(() => {
-        this.runs = page.runs;
-        this.runsNextCursor = page.nextCursor;
+        this.replaceRunPage(page);
+        this.runsRequestState = "ready";
       });
+      this.runsPollFailureNotified = false;
+      if (this.hasActiveRuns) this.startRunsPolling(routineId);
     } catch (error) {
-      reportApplicationError(error);
-    } finally {
+      if (!this.ownsRunsSession(generation, routineId)) return;
       runInAction(() => {
-        this.isRunsLoading = false;
+        this.runsRequestState = "error";
       });
+      reportApplicationError(error);
     }
+  };
+
+  retryLoadRuns = async (): Promise<void> => {
+    const routineId = this.form.id;
+    if (!routineId) return;
+    await this.loadRuns(routineId, true);
   };
 
   loadMoreRuns = async () => {
     const routineId = this.form?.id;
     if (!routineId || !this.runsNextCursor || this.isLoadingMoreRuns) return;
 
+    const generation = this.runsSessionGeneration;
+    const cursor = this.runsNextCursor;
+    if (!this.ownsRunsSession(generation, routineId)) return;
+
     this.isLoadingMoreRuns = true;
 
     try {
       const page = await getRoutineRunsAction({
         routineId,
-        cursor: this.runsNextCursor,
+        cursor,
       });
+      if (!this.ownsRunsSession(generation, routineId) || this.runsNextCursor !== cursor) return;
 
       runInAction(() => {
-        this.runs = [...this.runs, ...page.runs];
-        this.runsNextCursor = page.nextCursor;
+        this.runs = this.deduplicatedRuns([...this.runs, ...page.runs]);
+        this.runsNextCursor = this.normalizedRunCursor(page.nextCursor, cursor);
+        this.loadedAdditionalRunPages = true;
       });
     } catch (error) {
+      if (!this.ownsRunsSession(generation, routineId)) return;
       reportApplicationError(error);
     } finally {
+      if (this.ownsRunsSession(generation, routineId)) {
+        runInAction(() => {
+          this.isLoadingMoreRuns = false;
+        });
+      }
+    }
+  };
+
+  private startRunsPolling(routineId: string, graceMs = 0): void {
+    const generation = this.runsSessionGeneration;
+    if (!this.ownsRunsSession(generation, routineId) || !this.isOpen) return;
+
+    this.stopRunsPolling();
+    const pollGeneration = ++this.runsPollGeneration;
+    const now = Date.now();
+    this.runsPollingActive = true;
+    this.runsPollFailureNotified = false;
+    this.runsPollDeadline = now + ROUTINE_RUN_POLL_MAX_MS;
+    this.runsPollGraceDeadline = now + graceMs;
+    this.scheduleNextRunsPoll(routineId, generation, pollGeneration);
+  }
+
+  private stopRunsPolling(): void {
+    this.runsPollingActive = false;
+    this.runsPollGeneration += 1;
+    if (!this.runsPollTimer) return;
+    clearTimeout(this.runsPollTimer);
+    this.runsPollTimer = null;
+  }
+
+  private ownsRunsPoll(routineId: string, generation: number, pollGeneration: number): boolean {
+    return (
+      this.runsPollingActive &&
+      this.isOpen &&
+      pollGeneration === this.runsPollGeneration &&
+      this.ownsRunsSession(generation, routineId)
+    );
+  }
+
+  private scheduleNextRunsPoll(routineId: string, generation: number, pollGeneration: number): void {
+    if (!this.ownsRunsPoll(routineId, generation, pollGeneration)) return;
+
+    const now = Date.now();
+    if (now >= this.runsPollDeadline || (!this.hasActiveRuns && now >= this.runsPollGraceDeadline)) {
+      this.stopRunsPolling();
+      return;
+    }
+
+    this.runsPollTimer = setTimeout(
+      () => void this.runRunsPoll(routineId, generation, pollGeneration),
+      ROUTINE_RUN_POLL_INTERVAL_MS,
+    );
+  }
+
+  private runRunsPoll = async (routineId: string, generation: number, pollGeneration: number): Promise<void> => {
+    if (!this.ownsRunsPoll(routineId, generation, pollGeneration)) return;
+    this.runsPollTimer = null;
+    const previousConversationId = this.openRun_?.conversationId ?? null;
+
+    try {
+      const page = await this.requestFirstRunPage(routineId, generation);
+      if (!this.ownsRunsPoll(routineId, generation, pollGeneration)) return;
+
       runInAction(() => {
-        this.isLoadingMoreRuns = false;
+        this.mergeFreshRunPage(page);
+        this.runsRequestState = "ready";
       });
+      this.runsPollFailureNotified = false;
+      this.openRunConversationAfterRefresh(previousConversationId);
+    } catch (error) {
+      if (!this.ownsRunsPoll(routineId, generation, pollGeneration)) return;
+      this.reportRunsBackgroundError(error);
+    } finally {
+      this.scheduleNextRunsPoll(routineId, generation, pollGeneration);
     }
   };
 
@@ -383,7 +599,8 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       runInAction(() => {
         this.activeTab = "runs";
       });
-      await this.loadRuns(routineId);
+      this.startRunsPolling(routineId, ROUTINE_RUN_POLL_GRACE_MS);
+      await this.refreshRunPage(routineId);
       this.toastSuccess("RoutineDetail.testTriggerStarted");
     } finally {
       runInAction(() => {
@@ -391,6 +608,37 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       });
     }
   };
+
+  private refreshRunPage = async (routineId: string): Promise<void> => {
+    const generation = this.runsSessionGeneration;
+    if (!this.ownsRunsSession(generation, routineId)) return;
+    const previousConversationId = this.openRun_?.conversationId ?? null;
+
+    try {
+      const page = await this.requestFirstRunPage(routineId, generation);
+      if (!this.ownsRunsSession(generation, routineId)) return;
+      runInAction(() => {
+        this.mergeFreshRunPage(page);
+        this.runsRequestState = "ready";
+      });
+      this.runsPollFailureNotified = false;
+      this.openRunConversationAfterRefresh(previousConversationId);
+    } catch (error) {
+      if (!this.ownsRunsSession(generation, routineId)) return;
+      if (this.runsRequestState !== "ready") {
+        runInAction(() => {
+          this.runsRequestState = "error";
+        });
+      }
+      this.reportRunsBackgroundError(error);
+    }
+  };
+
+  private reportRunsBackgroundError(error: unknown): void {
+    if (this.runsPollFailureNotified) return;
+    this.runsPollFailureNotified = true;
+    reportApplicationError(error);
+  }
 
   pause = async (): Promise<boolean> => {
     if (!this.form.id || !this.canAdministerOtherRoutine || this.hasUnsavedChanges) return false;
@@ -430,16 +678,25 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
 
   loadFilterFields = async () => {
     if (this.filterFieldsLoaded) return;
-    this.filterFieldsLoaded = true;
+    if (this.filterFieldsLoadPromise) return this.filterFieldsLoadPromise;
 
-    const { filterableFields, customColumns } = await getRoutineFilterFieldsAction();
-    const byEntityType: Partial<Record<EntityType, CustomColumnDto[]>> = {};
-    for (const column of customColumns) (byEntityType[column.entityType] ??= []).push(column);
+    const promise = getRoutineFilterFieldsAction().then(({ filterableFields, customColumns }) => {
+      const byEntityType: Partial<Record<EntityType, CustomColumnDto[]>> = {};
+      for (const column of customColumns) (byEntityType[column.entityType] ??= []).push(column);
 
-    runInAction(() => {
-      this.filterableFieldsByEntityType = filterableFields;
-      this.customColumnsByEntityType = byEntityType;
+      runInAction(() => {
+        this.filterableFieldsByEntityType = filterableFields;
+        this.customColumnsByEntityType = byEntityType;
+      });
+      this.filterFieldsLoaded = true;
     });
+    this.filterFieldsLoadPromise = promise;
+
+    try {
+      await promise;
+    } finally {
+      if (this.filterFieldsLoadPromise === promise) this.filterFieldsLoadPromise = null;
+    }
   };
 
   get compiledCron(): string {

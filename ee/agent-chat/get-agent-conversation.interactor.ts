@@ -12,6 +12,7 @@ import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { clientSafeAgentMessageParts } from "./agent-chat.schema";
 import { sanitizeAgentConversationTitle } from "./agent-output-safety";
 import { AgentMessagePageSchema, AgentMessageTurnSchema, type AgentMessagePageData } from "./agent-history";
+import { isAgentTurnStopReason } from "./agent-turn-request";
 import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
@@ -64,24 +65,31 @@ export class GetAgentConversationInteractor extends AuthenticatedInteractor<
       this.repo.hasRunningTurn(conversation.id),
     ]);
     const messages = page.messages;
-    const safeMessages = messages.map((message) => ({
-      id: message.id,
-      role: message.role,
-      parts: clientSafeAgentMessageParts(message.parts, {
-        sanitizeText: message.role !== "user",
-        stripLegacyUserContext: message.role === "user",
-      }),
-      createdAt: message.createdAt,
-      turn:
-        message.role === "user" && message.turnRequest
-          ? {
-              clientRequestId: message.turnRequest.clientRequestId,
-              status: message.turnRequest.status,
-              assistantMessageId: message.turnRequest.assistantMessageId,
-              terminalCode: message.turnRequest.terminalCode,
-            }
-          : null,
-    }));
+    const safeMessages = messages.map((message) => {
+      const storedStopReason = message.turnRequest?.stopReason ?? null;
+      if (storedStopReason !== null && !isAgentTurnStopReason(storedStopReason))
+        throw new Error("Stored agent turn stop reason is invalid.");
+
+      return {
+        id: message.id,
+        role: message.role,
+        parts: clientSafeAgentMessageParts(message.parts, {
+          sanitizeText: message.role !== "user",
+          stripLegacyUserContext: message.role === "user",
+        }),
+        createdAt: message.createdAt,
+        turn:
+          message.role === "user" && message.turnRequest
+            ? {
+                clientRequestId: message.turnRequest.clientRequestId,
+                status: message.turnRequest.status,
+                assistantMessageId: message.turnRequest.assistantMessageId,
+                terminalCode: message.turnRequest.terminalCode,
+                stopReason: storedStopReason,
+              }
+            : null,
+      };
+    });
     return {
       ok: true as const,
       data: {

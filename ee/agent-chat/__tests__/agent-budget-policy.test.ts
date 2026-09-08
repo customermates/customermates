@@ -4,9 +4,11 @@ import { describe, expect, it } from "vitest";
 import {
   AGENT_RESERVATION_ROUNDS_AHEAD,
   AGENT_TOOL_RESULT_TRUNCATED_MARK,
+  agentContextBytesToWorstCaseProviderTokens,
   agentContextTokensToBytes,
   agentToolResultText,
   agentRoundWorstCaseCredits,
+  agentRoundWorstCaseCreditsForContextBytes,
   isAgentContextWithinBudget,
   resolveAgentTurnBudget,
   serializedAgentContextBytes,
@@ -54,16 +56,17 @@ describe("agent turn credit budget", () => {
   });
 
   it("never reserves more than the user actually has left", () => {
-    const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 1 });
+    const perRound = agentRoundWorstCaseCredits(BALANCED);
+    const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: perRound });
 
-    expect(budget?.reservedCredits).toBe(1);
+    expect(budget?.reservedCredits).toBe(perRound);
   });
 
-  it("admits a user with a single credit left, who tops up as the turn proceeds", () => {
-    const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 1 });
+  it("refuses to start a provider round that cannot be fully reserved", () => {
+    const perRound = agentRoundWorstCaseCredits(BALANCED);
 
-    expect(budget).not.toBeNull();
-    expect(budget?.reservedCredits).toBeGreaterThanOrEqual(1);
+    expect(resolveAgentTurnBudget({ model: BALANCED, availableCredits: perRound - 1 })).toBeNull();
+    expect(resolveAgentTurnBudget({ model: BALANCED, availableCredits: perRound })).not.toBeNull();
   });
 
   it("refuses a user with no credits at all", () => {
@@ -101,6 +104,26 @@ describe("agent turn credit budget", () => {
     expect(isAgentContextWithinBudget({ value: "x".repeat(200) }, 100)).toBe(false);
   });
 
+  it("prices every byte admitted from a dense serialized context within the reserved round", () => {
+    const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 500 });
+    expect(budget).not.toBeNull();
+    if (!budget) return;
+
+    const denseContext = {
+      messages: [{ role: "user", content: "!@#$%^&*()[]{}<>?/\\|~`".repeat(2_500) }],
+    };
+    const denseBytes = serializedAgentContextBytes(denseContext);
+    expect(denseBytes).not.toBeNull();
+    if (denseBytes === null) return;
+
+    expect(isAgentContextWithinBudget(denseContext, budget.maxContextBytes)).toBe(true);
+    const admittedTokenCeiling = agentContextBytesToWorstCaseProviderTokens(denseBytes);
+    expect(admittedTokenCeiling).toBeLessThanOrEqual(BALANCED.maxContextTokens);
+    expect(agentRoundWorstCaseCreditsForContextBytes(BALANCED, denseBytes)).toBeLessThanOrEqual(
+      budget.roundReserveCredits,
+    );
+  });
+
   it("measures a step against the provider context plus that step's own messages", () => {
     const providerContext = buildAgentProviderContext(
       "system prompt",
@@ -120,6 +143,37 @@ describe("agent turn credit budget", () => {
     );
     expect(isAgentStepContextWithinBudget(providerContext, stepMessages, maxContextBytes)).toBe(false);
     expect(isAgentStepContextWithinBudget(providerContext, providerContext.messages, maxContextBytes)).toBe(true);
+  });
+
+  it("counts tool schemas when a continuation is near the context boundary", () => {
+    const messages = [{ role: "user", content: "x".repeat(900) }] as ModelMessage[];
+    const withoutTools = buildAgentProviderContext("system", [], []);
+    const withTools = buildAgentProviderContext(
+      "system",
+      [],
+      [
+        {
+          name: "manage_records",
+          description: "Create, update, and delete records.",
+          inputSchema: {
+            type: "object",
+            properties: Object.fromEntries(
+              Array.from({ length: 20 }, (_, index) => [`field_${index}`, { type: "string", description: "value" }]),
+            ),
+          },
+        },
+      ],
+    );
+    const messageOnlyBytes = serializedAgentContextBytes({ ...withoutTools, messages });
+    const withToolsBytes = serializedAgentContextBytes({ ...withTools, messages });
+
+    expect(messageOnlyBytes).not.toBeNull();
+    expect(withToolsBytes).not.toBeNull();
+    if (messageOnlyBytes === null || withToolsBytes === null) return;
+
+    expect(withToolsBytes).toBeGreaterThan(messageOnlyBytes);
+    expect(isAgentStepContextWithinBudget(withoutTools, messages, messageOnlyBytes)).toBe(true);
+    expect(isAgentStepContextWithinBudget(withTools, messages, messageOnlyBytes)).toBe(false);
   });
 });
 

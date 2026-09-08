@@ -2,6 +2,7 @@ import { lowestModelPromptTierBoundary, resolveModelPricing } from "./model-pric
 
 export const AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS = 2_500;
 export const AGENT_CONTEXT_BYTES_PER_TOKEN = 3;
+export const AGENT_MIN_BYTES_PER_PROVIDER_TOKEN = 1;
 
 export type AgentModelEntry = {
   modelId: string;
@@ -39,7 +40,9 @@ export function isAgentModelKey(value: string): value is AgentModelKey {
 }
 
 export function agentModelWorstCasePromptTokens(entry: AgentModelEntry) {
-  return entry.maxContextTokens + AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS;
+  const maxSerializedBytes = entry.maxContextTokens * AGENT_CONTEXT_BYTES_PER_TOKEN;
+  const serializedTokenCeiling = Math.ceil(maxSerializedBytes / AGENT_MIN_BYTES_PER_PROVIDER_TOKEN);
+  return serializedTokenCeiling + AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS;
 }
 
 export function isAgentModelWithinBudgetEnvelope(entry: AgentModelEntry) {

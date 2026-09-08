@@ -544,6 +544,16 @@ export class AgentChatStore extends BaseStore {
     await this.loadConversation(id);
   };
 
+  selectConversationForReadOnlyViewer = async (id: string) => {
+    if (this.conversationId === id && !this.conversationLoadError) {
+      runInAction(() => {
+        this.isHistoryOpen = false;
+      });
+      return;
+    }
+    await this.loadConversation(id);
+  };
+
   private loadConversation = async (id: string) => {
     runInAction(() => {
       this.conversationLoadVersion += 1;

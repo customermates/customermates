@@ -421,6 +421,7 @@ describe("agent access", () => {
           userMessageId: MESSAGE_ID,
           assistantMessageId: "assistant-1",
           terminalCode: "completed",
+          stopReason: null,
           affectedResources: ["contacts"],
           hasLaterMessages: false,
         },
@@ -451,6 +452,7 @@ describe("agent access", () => {
     expect(result.ok && result.data.disposition).toBe("completedReplay");
     if (!result.ok || result.data.disposition !== "completedReplay") return;
     expect(result.data.assistantMessage.parts).toEqual([{ type: "text", text: "Done " }]);
+    expect(result.data.stopReason).toBeNull();
     expect(usage.prepareTurn).not.toHaveBeenCalled();
     expect(usage.reserveUsage).not.toHaveBeenCalled();
     expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
@@ -932,6 +934,7 @@ describe("agent access", () => {
         status,
         assistantMessageId: status === "completed" ? "assistant-1" : null,
         terminalCode: status === "completed" ? "completed" : null,
+        stopReason: null,
       };
       const repo = {
         findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID, title: "Result" }),

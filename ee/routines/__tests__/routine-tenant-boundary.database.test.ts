@@ -853,7 +853,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
         runId: agentRunId,
         reservationId: usageId,
         modelSpec: "openai/gpt-5.6-luna",
-        servingProvider: "openai",
+        servingProvider: "azure",
         recentMessageLimit: 8,
         turn: {
           kind: "create",
@@ -917,7 +917,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
           runId: agentRunId,
           reservationId: usageId,
           modelSpec: "openai/gpt-5.6-luna",
-          servingProvider: "openai",
+          servingProvider: "azure",
           recentMessageLimit: 8,
           turn: {
             kind: "create",
@@ -1121,7 +1121,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
         runId: agentRunId,
         reservationId: usageId,
         modelSpec: "openai/gpt-5.6-luna",
-        servingProvider: "openai",
+        servingProvider: "azure",
         recentMessageLimit: 8,
         turn: {
           kind: "create",

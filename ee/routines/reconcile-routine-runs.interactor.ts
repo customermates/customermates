@@ -1,4 +1,5 @@
 import type { AgentTurnTerminalCode, RoutineRunStatus as RoutineRunStatusType } from "@/generated/prisma";
+import type { AgentTurnStopReason } from "@/ee/agent-chat/agent-turn-request";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
@@ -27,6 +28,7 @@ export abstract class ReconcileRoutineRunsRepo {
   abstract readTurnOutcomeUnscoped(turnRequestId: string): Promise<{
     status: RoutineRunStatusType;
     terminalCode: AgentTurnTerminalCode | null;
+    stopReason: AgentTurnStopReason | null;
     settled: boolean;
     chargedCredits: number;
     summary: string | null;

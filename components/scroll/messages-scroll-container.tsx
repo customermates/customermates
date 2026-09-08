@@ -16,6 +16,7 @@ type Props = {
   jumpToLatestLabel?: string;
   latestItemKey?: string;
   loadOlderLabel?: string;
+  scrollable?: boolean;
   scrollRegionLabel?: string;
   scrollKey: string;
   onTopReach?: () => Promise<void>;
@@ -27,6 +28,7 @@ export function MessagesScrollContainer({
   jumpToLatestLabel,
   latestItemKey,
   loadOlderLabel,
+  scrollable = true,
   scrollRegionLabel,
   scrollKey,
   onTopReach,
@@ -44,6 +46,7 @@ export function MessagesScrollContainer({
   const [isLoadingOlder, setIsLoadingOlder] = useState(false);
 
   useEffect(() => {
+    if (!scrollable) return;
     const el = ref.current;
     if (!el) return;
 
@@ -53,16 +56,18 @@ export function MessagesScrollContainer({
     setIsAwayFromLatest(false);
     setIsLoadingOlder(false);
     el.scrollTop = el.scrollHeight;
-  }, [scrollKey]);
+  }, [scrollKey, scrollable]);
 
   useLayoutEffect(() => {
+    if (!scrollable) return;
     const el = ref.current;
     if (!el || latestItemKey === undefined || !stickToBottom.current) return;
 
     el.scrollTop = el.scrollHeight;
-  }, [latestItemKey]);
+  }, [latestItemKey, scrollable]);
 
   useEffect(() => {
+    if (!scrollable) return;
     const el = ref.current;
     const content = contentRef.current;
     if (!el || !content) return;
@@ -99,7 +104,7 @@ export function MessagesScrollContainer({
       el.removeEventListener("touchmove", releaseFollow);
       el.removeEventListener("keydown", releaseFollow);
     };
-  }, []);
+  }, [scrollable]);
 
   const loadOlder = () => {
     const el = ref.current;
@@ -164,12 +169,12 @@ export function MessagesScrollContainer({
     <div className="relative flex min-h-0 flex-1">
       <div
         ref={ref}
-        aria-label={scrollRegionLabel}
-        className={cn("min-h-0 flex-1 overflow-y-auto overscroll-contain py-3", className)}
-        role="region"
+        aria-label={scrollable ? scrollRegionLabel : undefined}
+        className={cn("min-h-0 flex-1 py-3", scrollable && "overflow-y-auto overscroll-contain", className)}
+        role={scrollable ? "region" : undefined}
         // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-        tabIndex={0}
-        onScroll={handleScroll}
+        tabIndex={scrollable ? 0 : undefined}
+        onScroll={scrollable ? handleScroll : undefined}
       >
         <div ref={contentRef}>
           {loadOlderLabel && onTopReach && (
@@ -192,7 +197,7 @@ export function MessagesScrollContainer({
         </div>
       </div>
 
-      {jumpToLatestLabel && (
+      {scrollable && jumpToLatestLabel && (
         <ScrollReturnButton
           className="right-5"
           direction="bottom"

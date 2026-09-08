@@ -9,7 +9,6 @@ import {
   decideAgentContinuationLoop,
   serializeAgentContinuationCheckpoint,
   summarizeAgentContinuationStep,
-  type AgentContinuationLimits,
   type AgentContinuationStep,
 } from "../agent-continuation";
 
@@ -76,32 +75,19 @@ function step(
   };
 }
 
-const limits: AgentContinuationLimits = {
-  maxProviderSteps: 20,
-  maxWriteActivities: 40,
-  maxErrors: 4,
-  maxNoProgressSteps: 2,
-  maxRepeatedActivityCalls: 4,
-  maxWallTimeMs: 240_000,
-};
-
 function advance(
   steps: AgentContinuationStep[],
-  overrides: Partial<AgentContinuationLimits> = {},
   options: {
     completedAtMs?: number;
     pendingApproval?: boolean;
   } = {},
 ) {
-  return decideAgentContinuationLoop(
-    {
-      startedAtMs: 1_000,
-      steps,
-      observedAtMs: options.completedAtMs ?? 2_000,
-      pendingApproval: options.pendingApproval,
-    },
-    { ...limits, ...overrides },
-  );
+  return decideAgentContinuationLoop({
+    startedAtMs: 1_000,
+    steps,
+    observedAtMs: options.completedAtMs ?? 2_000,
+    pendingApproval: options.pendingApproval,
+  });
 }
 
 describe("agent continuation context compaction", () => {
@@ -330,141 +316,42 @@ describe("agent continuation decisions", () => {
     expect(agentContinuationShouldStop(decision)).toBe(true);
   });
 
-  it("pauses for approval before applying ordinary continuation limits", () => {
-    const decision = advance(
-      [
-        step([
-          {
-            name: "request_support",
-            input: { subject: "Help", body: "Please help" },
-            status: "pending",
-          },
-        ]),
-      ],
-      { maxProviderSteps: 1 },
-    );
+  it("pauses only for an unresolved approval", () => {
+    const decision = advance([
+      step([
+        {
+          name: "request_support",
+          input: { subject: "Help", body: "Please help" },
+          status: "pending",
+        },
+      ]),
+    ]);
 
     expect(decision).toMatchObject({ action: "pause", reason: "approval" });
   });
 
-  it("stops after consecutive steps with no successful activity", () => {
-    const noProgress = step([], "tool-calls");
-    const decision = advance([noProgress, noProgress], {
-      maxNoProgressSteps: 2,
-    });
-
-    expect(decision).toMatchObject({ action: "error", reason: "no_progress" });
-  });
-
-  it("stops a repeated semantic call even when opaque tool-call ids differ", () => {
-    const decision = advance(
-      [step([{ name: "get_workspace_context" }, { name: "get_workspace_context" }, { name: "get_workspace_context" }])],
-      { maxRepeatedActivityCalls: 3 },
+  it("continues through repeated calls, errors, and no-progress rounds", () => {
+    const repeated = Array.from({ length: 40 }, () =>
+      step([{ name: "create_contacts", input: [{}], status: "error" }]),
     );
-
-    expect(decision).toMatchObject({
-      action: "error",
-      reason: "repeated_activity",
-    });
-  });
-
-  it("stops the same exact call when a loop interleaves other activity", () => {
-    const decision = advance(
-      [
-        step([{ name: "get_workspace_context" }]),
-        step([{ name: "get_record_schema", input: { entity: "contact" } }]),
-        step([{ name: "get_workspace_context" }]),
-        step([{ name: "get_record_schema", input: { entity: "organization" } }]),
-        step([{ name: "get_workspace_context" }]),
-      ],
-      { maxRepeatedActivityCalls: 3 },
-    );
-
-    expect(decision).toMatchObject({
-      action: "error",
-      reason: "repeated_activity",
-      accounting: { repeatedActivityCalls: 3 },
-    });
-  });
-
-  it("does not confuse distinct calls that share the same safe activity descriptor", () => {
-    const decision = advance(
-      [
-        step([
-          {
-            name: "manage_custom_columns",
-            input: { action: "upsert", entity: "contact", label: "Region" },
-          },
-          {
-            name: "manage_custom_columns",
-            input: { action: "upsert", entity: "contact", label: "Source" },
-          },
-          {
-            name: "manage_custom_columns",
-            input: { action: "upsert", entity: "contact", label: "Tier" },
-          },
-          {
-            name: "manage_custom_columns",
-            input: { action: "upsert", entity: "contact", label: "Owner" },
-          },
-        ]),
-      ],
-      { maxRepeatedActivityCalls: 3 },
-    );
+    const noProgress = Array.from({ length: 40 }, () => step([], "tool-calls"));
+    const decision = advance([...repeated, ...noProgress], { completedAtMs: Number.MAX_SAFE_INTEGER - 1 });
 
     expect(decision).toMatchObject({
       action: "continue",
-      accounting: { repeatedActivityCalls: 1 },
-    });
-  });
-
-  it("stops at the structured tool-error limit", () => {
-    const decision = advance(
-      [
-        step([
-          { name: "create_contacts", input: [{}], status: "error" },
-          { name: "create_organizations", input: [{}], status: "error" },
-        ]),
-      ],
-      { maxErrors: 2, maxNoProgressSteps: 10 },
-    );
-
-    expect(decision).toMatchObject({ action: "error", reason: "error_limit" });
-  });
-
-  it.each([
-    {
-      name: "wall time",
-      steps: [step([{ name: "get_workspace_context" }])],
-      overrides: { maxWallTimeMs: 1_000 },
-      options: { completedAtMs: 2_000 },
-      reason: "wall_time_limit",
-    },
-    {
-      name: "provider steps",
-      steps: [step([{ name: "get_workspace_context" }]), step([{ name: "get_workspace_context" }])],
-      overrides: { maxProviderSteps: 2 },
-      options: {},
-      reason: "step_limit",
-    },
-    {
-      name: "writes",
-      steps: [step([{ name: "create_contacts", input: [{}] }])],
-      overrides: { maxWriteActivities: 1 },
-      options: {},
-      reason: "write_limit",
-    },
-  ])("stops at the overall $name limit", ({ steps, overrides, options, reason }) => {
-    expect(advance(steps, overrides, options)).toMatchObject({
-      action: "error",
-      reason,
+      accounting: {
+        providerSteps: 80,
+        errors: 40,
+        noProgressSteps: 80,
+        repeatedActivityCalls: 40,
+      },
     });
   });
 
   it("recomputes full single-stream accounting without double-counting prior stop checks", () => {
     const steps = [step([{ name: "create_contacts", input: [{}] }]), step([{ name: "create_contacts", input: [{}] }])];
-    const first = decideAgentContinuationLoop({ startedAtMs: 1_000, steps, observedAtMs: 3_000 }, limits);
-    const second = decideAgentContinuationLoop({ startedAtMs: 1_000, steps, observedAtMs: 3_000 }, limits);
+    const first = decideAgentContinuationLoop({ startedAtMs: 1_000, steps, observedAtMs: 3_000 });
+    const second = decideAgentContinuationLoop({ startedAtMs: 1_000, steps, observedAtMs: 3_000 });
 
     expect(first.accounting).toEqual(second.accounting);
     expect(first).toMatchObject({
@@ -477,15 +364,15 @@ describe("agent continuation decisions", () => {
     });
   });
 
+  it("continues after an output-length finish", () => {
+    expect(advance([step([], "length")])).toMatchObject({ action: "continue" });
+  });
+
   it.each([
-    ["length", "length"],
     ["content-filter", "content_filter"],
     ["error", "provider_error"],
     ["other", "provider_error"],
-  ] as const)("maps the %s finish reason to a bounded %s error", (finishReason, reason) => {
-    expect(advance([step([], finishReason)], { maxNoProgressSteps: 10 })).toMatchObject({
-      action: "error",
-      reason,
-    });
+  ] as const)("maps the %s finish reason to the technical %s stop", (finishReason, reason) => {
+    expect(advance([step([], finishReason)])).toMatchObject({ action: "error", reason });
   });
 });

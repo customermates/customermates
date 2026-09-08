@@ -340,13 +340,13 @@
     "placeholder": "Frag dein CRM…",
     "runner": {
       "cancelled": "Diese Antwort wurde gestoppt.",
+      "contentFilter": "Der KI-Anbieter hat einen Teil dieser Antwort blockiert. Es wurde nichts weiter geändert. Formuliere die Anfrage anders.",
       "creditLimit": "Ich habe einen Teil dieser Anfrage erledigt, dann aber gestoppt, weil deine Assistant-Credits aufgebraucht sind. Erledigte Arbeit bleibt bestehen; die Credits werden zu Beginn deiner nächsten Periode zurückgesetzt.",
       "creditLimitNoWrite": "Ich habe gestoppt, bevor etwas geändert wurde, weil deine Assistant-Credits aufgebraucht sind. Es wurde nichts erstellt, geändert oder gesendet. Die Credits werden zu Beginn deiner nächsten Periode zurückgesetzt.",
       "emptyReply": "Ich konnte keine Antwort erstellen. Bitte versuche es erneut.",
       "hostedAiUnavailable": "Die gehostete KI ist vorübergehend nicht verfügbar. Bitte versuche es später erneut.",
-      "outputLimit": "Ich habe einen Teil dieser Antwort erstellt, aber die Ausgabegrenze für diesen Durchlauf erreicht. Bitte mich, weiterzumachen; ich setze bei der bereits erledigten Arbeit fort.",
-      "safetyLimit": "Ich habe einen Teil dieser Anfrage erledigt, aber gestoppt, weil sich die letzten Schritte wiederholt haben, fehlgeschlagen sind oder eine Sicherheitsgrenze erreicht wurde. Die erledigte Arbeit bleibt bestehen; prüfe die Schritte oben, bevor du mich bittest fortzufahren.",
-      "safetyLimitNoWrite": "Ich habe gestoppt, bevor etwas geändert wurde, weil sich die letzten Schritte wiederholt haben, fehlgeschlagen sind oder ein Sicherheitslimit erreicht wurde. Es wurde nichts erstellt, geändert oder gesendet.",
+      "policyBreach": "Der KI-Anbieter hat das reservierte Credit-Budget überschritten, daher wurde der Lauf gestoppt. Es wurde keine weitere Anbieterarbeit gestartet.",
+      "providerError": "Der KI-Anbieter hat einen Fehler zurückgegeben, bevor ich fertig war. Es wurde nichts weiter geändert. Bitte versuche es erneut.",
       "turnError": "Ich konnte diese Anfrage nicht abschließen. Bitte versuche es erneut."
     },
     "send": "Senden",
@@ -3076,16 +3076,58 @@
     "disabledRepeatedFailures": "Mate hat diese Routine pausiert, weil die letzten drei Läufe fehlgeschlagen sind. Passe die Anweisungen an und schalte sie wieder ein.",
     "disabledRepeatedFailuresReadOnly": "Mate hat diese Routine pausiert, weil die letzten drei Läufe fehlgeschlagen sind. Die Eigentümerin oder der Eigentümer muss die Anweisungen anpassen und sie wieder aktivieren.",
     "disabledTitle": "Routine pausiert",
+    "empty": {
+      "event": {
+        "actions": {
+          "calendarChanged": "Erstelle, bearbeite oder lösche im externen Kalenderdienst, der mit Customermates verbunden ist, einen Kalender.",
+          "calendarEventChanged": "Erstelle, bearbeite oder lösche im externen Kalenderdienst, der mit Customermates verbunden ist, einen Kalendertermin.",
+          "chatUpdated": "Ändere den Namen, die Beschreibung oder den Typ einer verbundenen Unterhaltung.",
+          "emailReceived": "Empfange eine neue, nicht doppelte E-Mail in einem verbundenen Postfach.",
+          "messageDeleted": "Lösche eine Nachricht beim verbundenen Messaging-Anbieter.",
+          "messageReaction": "Füge einer Nachricht in einer verbundenen Unterhaltung eine Reaktion hinzu.",
+          "messageReceived": "Empfange eine neue, nicht doppelte eingehende Nachricht über ein verbundenes Konto.",
+          "messageUpdated": "Bearbeite eine Nachricht beim verbundenen Messaging-Anbieter.",
+          "recordCreated": "Erstelle {entity} in Customermates.",
+          "recordDeleted": "Lösche {entity} in Customermates.",
+          "recordUpdated": "Nimm eine echte Änderung an {entity} in Customermates vor.",
+          "relationCreated": "Lass eine LinkedIn-Kontaktanfrage über ein verbundenes Konto annehmen."
+        },
+        "conditions": {
+          "filters": "Der Datensatz muss außerdem alle konfigurierten Filter erfüllen.",
+          "filtersWithDeletion": "Konfigurierte Filter gelten für erstellte und aktualisierte Datensätze. Gelöschte Datensätze verwenden ihren Lösch-Schnappschuss und umgehen diese Filter.",
+          "ownerAccess": "Die Eigentümerin oder der Eigentümer der Routine muss weiterhin aktiv sein und auf das verbundene Konto oder den Datensatz zugreifen können.",
+          "paused": "Aktiviere und speichere diese Routine, bevor du ein Ereignis auslöst.",
+          "suppression": "Ereignisse, die von einer Routine verursacht werden, lösen keine Routinen aus.",
+          "unsaved": "Speichere diese Änderungen zuerst. Bis dahin verwenden Ereignisse die zuletzt gespeicherte Konfiguration.",
+          "watchedFields": "Bei Aktualisierungsereignissen muss sich mindestens eines der beobachteten Felder wirklich ändern: {fields}."
+        },
+        "description": "Ereignis-Routinen können nicht manuell gestartet werden. Führe eine der folgenden echten Aktionen aus, um die benötigten Ereignisdaten zu erzeugen.",
+        "instructionsLabel": "Möglichkeiten, diese Routine auszulösen"
+      },
+      "schedule": {
+        "activateFirst": "Aktiviere und speichere die Routine, bevor du „Auslöser testen“ verwendest.",
+        "description": "Sie wird nach diesem Zeitplan ausgeführt:",
+        "ownerOnly": "Nur die Eigentümerin oder der Eigentümer kann „Auslöser testen“ verwenden. Der Zeitplan läuft automatisch, solange die Routine aktiv ist.",
+        "saveFirst": "Speichere diese Änderungen, bevor du „Auslöser testen“ verwendest.",
+        "testNow": "Starte mit „Auslöser testen“ jetzt einen Lauf oder warte auf den nächsten geplanten Zeitpunkt."
+      },
+      "title": "Noch keine Läufe"
+    },
     "instruction": "An den Assistenten gesendete Anweisung",
     "never": "Nie",
-    "noRuns": "Diese Routine wurde noch nicht ausgeführt.",
     "owner": "Eigentümer/in",
     "ownerOnlyEdit": "Diese Routine ist für dich schreibgeschützt. Sie wird nur als {owner} ausgeführt und kann von dieser Person bearbeitet oder pausiert werden. Unternehmensadmins können sie nur pausieren oder löschen.",
     "ownerUnavailable": "Eigentümer/in nicht verfügbar",
     "ownerUnavailableReadOnly": "Für diese Routine ist keine Eigentümerin und kein Eigentümer mehr verfügbar. Sie bleibt pausiert und schreibgeschützt; ein Unternehmensadmin kann sie löschen.",
     "ranAs": "Ausgeführt als {owner}",
     "readOnlyTitle": "Schreibgeschützter Zugriff",
+    "runDetails": "Details zum Lauf",
+    "runNoTranscript": "Für diesen Lauf ist kein Protokoll verfügbar.",
+    "runQueued": "Dieser Lauf wartet in der Warteschlange. Das Protokoll erscheint, sobald der Assistent beginnt.",
     "runs": "Läufe",
+    "runsLoadErrorDescription": "Der Verlauf der Läufe konnte nicht geladen werden. Versuche es erneut.",
+    "runsLoadErrorTitle": "Läufe konnten nicht geladen werden",
+    "runStarting": "Dieser Lauf wird gestartet. Das Protokoll erscheint in Kürze.",
     "testTrigger": "Auslöser testen",
     "testTriggerEnableFirst": "Aktiviere diese Routine, bevor du sie testest.",
     "testTriggerEventUnavailable": "Ereignis-Auslöser benötigen echte Ereignisdaten. Löse zum Testen dieser Routine ein passendes Ereignis im Arbeitsbereich aus.",
@@ -3102,6 +3144,7 @@
   "RoutineModal": {
     "at": "um",
     "changedFieldsHelp": "Leer lassen, um bei jeder Änderung zu laufen. Eingrenzen spart Guthaben.",
+    "configurationHeading": "Konfiguration",
     "customSchedule": "Diese Routine nutzt einen eigenen Zeitplan: {expression}",
     "detailsTab": "Details",
     "disabled": "Pausiert",
@@ -3112,6 +3155,7 @@
     "promptExampleEvent": "Lies den geänderten Datensatz und antworte mit einem Satz dazu, was das bedeutet.",
     "promptExampleSchedule": "Fasse zusammen, was sich seit gestern bewegt hat, und antworte mit einer kurzen Liste.",
     "scheduleTimeZone": "Zeiten werden in {timezone} angezeigt.",
+    "tabsLabel": "Bereiche der Routine",
     "title": "Routine",
     "triggerFiltersHelp": "Leer lassen, um für jeden Datensatz zu laufen.",
     "useSchedulePreset": "Zu einem Muster wechseln"
@@ -3142,6 +3186,15 @@
     "running": "Läuft",
     "skipped": "Übersprungen",
     "succeeded": "Erfolgreich"
+  },
+  "RoutineRunStopReason": {
+    "cancelled": "Der Lauf wurde abgebrochen.",
+    "contentFilter": "Der KI-Anbieter hat einen Teil dieses Laufs blockiert. Es wurden keine weiteren Änderungen vorgenommen.",
+    "creditLimit": "Der Lauf wurde beendet, weil das verfügbare Assistenten-Guthaben aufgebraucht war.",
+    "hostedAiUnavailable": "Die gehostete KI war nicht mehr verfügbar, bevor der Lauf abgeschlossen werden konnte.",
+    "policyBreach": "Der KI-Anbieter hat das reservierte Guthabenbudget überschritten; deshalb wurde der Lauf beendet.",
+    "providerError": "Der KI-Anbieter hat vor Abschluss des Laufs einen Fehler zurückgegeben.",
+    "turnError": "Der Assistent konnte diesen Lauf nicht abschließen."
   },
   "RoutinesCard": {
     "emptyBody": "Mate kann arbeiten, während du weg bist. Zum Beispiel: jeden Werktagmorgen zusammenfassen, was sich bewegt hat, oder eine Dankesmail entwerfen, sobald etwas gewonnen ist.",

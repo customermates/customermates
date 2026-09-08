@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   areAgentTurnAffectedResources,
+  AGENT_TURN_STOP_REASONS,
   decideAgentTurnAdmission,
+  isAgentTurnStopReason,
   isAgentTurnTerminalError,
   isAgentTurnTerminalCode,
   terminalAgentTurnStatus,
@@ -22,6 +24,7 @@ const turn: AgentTurnRequestSnapshot = {
   userMessageId: "user-message-1",
   assistantMessageId: null,
   terminalCode: null,
+  stopReason: null,
   affectedResources: [],
   hasLaterMessages: false,
 };
@@ -147,6 +150,20 @@ describe("agent turn terminal classification", () => {
     expect(areAgentTurnAffectedResources(["contacts", "widgets"])).toBe(true);
     expect(areAgentTurnAffectedResources(["contacts", "contacts"])).toBe(false);
     expect(areAgentTurnAffectedResources(["contacts", "private-table"])).toBe(false);
+  });
+
+  it("accepts exactly the public terminal stop-reason contract", () => {
+    expect(AGENT_TURN_STOP_REASONS).toEqual([
+      "credit_limit",
+      "provider_error",
+      "content_filter",
+      "hosted_ai_unavailable",
+      "cancelled",
+      "turn_error",
+      "policy_breach",
+    ]);
+    expect(AGENT_TURN_STOP_REASONS.every(isAgentTurnStopReason)).toBe(true);
+    expect(isAgentTurnStopReason("write_limit")).toBe(false);
   });
 
   it("uses one live-and-replay error classification for every terminal code", () => {

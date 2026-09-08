@@ -340,13 +340,13 @@
     "placeholder": "Pregunte a su CRM…",
     "runner": {
       "cancelled": "Esta respuesta se ha detenido.",
+      "contentFilter": "El proveedor de IA bloqueó parte de esta respuesta. No se cambió nada más. Prueba a reformular la solicitud.",
       "creditLimit": "He completado parte de esta solicitud, pero me he detenido porque se han agotado tus créditos del Asistente. El trabajo completado se mantiene; los créditos se restablecen al inicio de tu siguiente periodo.",
       "creditLimitNoWrite": "Me he detenido antes de hacer ningún cambio porque tus créditos de Assistant se han agotado. No se ha creado, actualizado ni enviado nada. Los créditos se restablecen al inicio de tu siguiente periodo.",
       "emptyReply": "No he podido generar una respuesta. Inténtalo de nuevo.",
       "hostedAiUnavailable": "La IA alojada no está disponible temporalmente. Inténtalo de nuevo más tarde.",
-      "outputLimit": "He completado parte de esta respuesta, pero he alcanzado el límite de salida de este turno. Pídeme que continúe y terminaré a partir del trabajo ya completado.",
-      "safetyLimit": "He completado parte de esta solicitud, pero me he detenido porque los últimos pasos se repetían, fallaban o alcanzaron un límite de seguridad. El trabajo completado se conserva; revisa los pasos anteriores antes de pedirme que siga.",
-      "safetyLimitNoWrite": "Me he detenido antes de hacer ningún cambio porque los últimos pasos se repetían, fallaban o alcanzaron un límite de seguridad. No se ha creado, actualizado ni enviado nada.",
+      "policyBreach": "El proveedor de IA superó el presupuesto de créditos reservado, por lo que se detuvo la ejecución. No se inició ningún trabajo adicional del proveedor.",
+      "providerError": "El proveedor de IA devolvió un error antes de que pudiera terminar. No se cambió nada más. Inténtalo de nuevo.",
       "turnError": "No he podido completar esa solicitud. Inténtalo de nuevo."
     },
     "send": "Enviar",
@@ -3076,16 +3076,58 @@
     "disabledRepeatedFailures": "Mate ha pausado esta rutina porque sus tres últimas ejecuciones fallaron. Corrige las instrucciones y vuelve a activarla.",
     "disabledRepeatedFailuresReadOnly": "Mate pausó esta rutina porque sus tres últimas ejecuciones fallaron. Su propietario debe corregir las instrucciones y volver a activarla.",
     "disabledTitle": "Rutina pausada",
+    "empty": {
+      "event": {
+        "actions": {
+          "calendarChanged": "En el servicio de calendario externo conectado a Customermates, crea, edita o elimina un calendario.",
+          "calendarEventChanged": "En el servicio de calendario externo conectado a Customermates, crea, edita o elimina un evento del calendario.",
+          "chatUpdated": "Cambia el nombre, la descripción o el tipo de una conversación conectada.",
+          "emailReceived": "Recibe un correo nuevo que no sea un duplicado en un buzón conectado.",
+          "messageDeleted": "Elimina un mensaje en el proveedor de mensajería conectado.",
+          "messageReaction": "Añade una reacción a un mensaje de una conversación conectada.",
+          "messageReceived": "Recibe un mensaje entrante nuevo que no sea un duplicado mediante una cuenta conectada.",
+          "messageUpdated": "Edita un mensaje en el proveedor de mensajería conectado.",
+          "recordCreated": "Crea {entity} en Customermates.",
+          "recordDeleted": "Elimina {entity} en Customermates.",
+          "recordUpdated": "Realiza un cambio efectivo en {entity} en Customermates.",
+          "relationCreated": "Haz que se acepte una solicitud de conexión de LinkedIn mediante una cuenta conectada."
+        },
+        "conditions": {
+          "filters": "El registro también debe cumplir todos los filtros configurados.",
+          "filtersWithDeletion": "Los filtros configurados se aplican a los registros creados y actualizados. Los registros eliminados usan su instantánea de eliminación y omiten estos filtros.",
+          "ownerAccess": "El propietario de la rutina debe seguir activo y poder acceder a la cuenta conectada o al registro.",
+          "paused": "Activa y guarda esta rutina antes de generar un evento.",
+          "suppression": "Los eventos causados por una rutina no activan rutinas.",
+          "unsaved": "Guarda primero estos cambios. Hasta entonces, los eventos usarán la última configuración guardada.",
+          "watchedFields": "En los eventos de actualización debe cambiar realmente al menos uno de los campos observados: {fields}."
+        },
+        "description": "Las rutinas por evento no se pueden iniciar manualmente. Realiza una de las acciones reales siguientes para generar los datos que necesita esta rutina.",
+        "instructionsLabel": "Formas de activar esta rutina"
+      },
+      "schedule": {
+        "activateFirst": "Activa y guarda la rutina antes de usar «Probar disparador».",
+        "description": "Se ejecutará con esta programación:",
+        "ownerOnly": "Solo el propietario puede usar «Probar disparador». La programación se ejecuta automáticamente mientras la rutina esté activa.",
+        "saveFirst": "Guarda estos cambios antes de usar «Probar disparador».",
+        "testNow": "Usa «Probar disparador» para iniciar una ejecución ahora o espera a la siguiente hora programada."
+      },
+      "title": "Aún no hay ejecuciones"
+    },
     "instruction": "Instrucción enviada al asistente",
     "never": "Nunca",
-    "noRuns": "Esta rutina aún no se ha ejecutado.",
     "owner": "Propietario",
     "ownerOnlyEdit": "Esta rutina es de solo lectura para ti. Solo se ejecuta como {owner}, quien puede editarla o pausarla. Los administradores de la empresa solo pueden pausarla o eliminarla.",
     "ownerUnavailable": "Propietario no disponible",
     "ownerUnavailableReadOnly": "Esta rutina ya no tiene un propietario disponible, por lo que permanece en pausa y en modo de solo lectura. Un administrador de la empresa puede eliminarla.",
     "ranAs": "Ejecutada como {owner}",
     "readOnlyTitle": "Acceso de solo lectura",
+    "runDetails": "Detalles de la ejecución",
+    "runNoTranscript": "No hay ninguna transcripción disponible para esta ejecución.",
+    "runQueued": "Esta ejecución está en cola. La transcripción aparecerá cuando se inicie el asistente.",
     "runs": "Ejecuciones",
+    "runsLoadErrorDescription": "No se pudo cargar el historial de ejecuciones. Inténtalo de nuevo.",
+    "runsLoadErrorTitle": "No se pudieron cargar las ejecuciones",
+    "runStarting": "Esta ejecución se está iniciando. La transcripción aparecerá en breve.",
     "testTrigger": "Probar disparador",
     "testTriggerEnableFirst": "Activa esta rutina antes de probarla.",
     "testTriggerEventUnavailable": "Los disparadores de eventos necesitan datos reales. Genera un evento coincidente en el espacio de trabajo para probar esta rutina.",
@@ -3102,6 +3144,7 @@
   "RoutineModal": {
     "at": "a las",
     "changedFieldsHelp": "Déjalo vacío para ejecutar en cada cambio. Acotar ahorra créditos.",
+    "configurationHeading": "Configuración",
     "customSchedule": "Esta rutina usa una programación personalizada: {expression}",
     "detailsTab": "Detalles",
     "disabled": "En pausa",
@@ -3112,6 +3155,7 @@
     "promptExampleEvent": "Lee el registro que ha cambiado y responde con una frase sobre lo que significa.",
     "promptExampleSchedule": "Resume lo que ha cambiado desde ayer y responde con una lista breve.",
     "scheduleTimeZone": "Las horas se muestran en {timezone}.",
+    "tabsLabel": "Secciones de la rutina",
     "title": "Rutina",
     "triggerFiltersHelp": "Déjalo vacío para ejecutar con cualquier registro.",
     "useSchedulePreset": "Cambiar a una frecuencia predefinida"
@@ -3142,6 +3186,15 @@
     "running": "En ejecución",
     "skipped": "Omitida",
     "succeeded": "Correcta"
+  },
+  "RoutineRunStopReason": {
+    "cancelled": "La ejecución se canceló.",
+    "contentFilter": "El proveedor de IA bloqueó parte de esta ejecución, por lo que no se realizaron más cambios.",
+    "creditLimit": "La ejecución se detuvo porque se agotaron sus créditos de Asistente disponibles.",
+    "hostedAiUnavailable": "La IA alojada dejó de estar disponible antes de que terminara la ejecución.",
+    "policyBreach": "El proveedor de IA superó el presupuesto de créditos reservado, por lo que se detuvo la ejecución.",
+    "providerError": "El proveedor de IA devolvió un error antes de que terminara la ejecución.",
+    "turnError": "El asistente no pudo completar esta ejecución."
   },
   "RoutinesCard": {
     "emptyBody": "Mate puede trabajar mientras no estás. Por ejemplo: resumir cada mañana laborable lo que ha cambiado, o redactar un correo de agradecimiento cuando algo se gana.",

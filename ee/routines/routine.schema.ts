@@ -7,6 +7,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { FilterSchema } from "@/core/base/base-get.schema";
+import { AGENT_TURN_STOP_REASONS } from "@/ee/agent-chat/agent-turn-request";
 import { ROUTINE_TRIGGER_EVENTS, RoutineTriggerEventSchema } from "./routine-trigger-events";
 import { ROUTINE_TRIGGER_FIELD_LIMIT } from "./routine-run-trigger-context";
 import {
@@ -87,6 +88,7 @@ export const RoutineRunDtoSchema = z.object({
   startedAt: z.date().nullable(),
   finishedAt: z.date().nullable(),
   terminalCode: z.enum(AgentTurnTerminalCode).nullable(),
+  stopReason: z.enum(AGENT_TURN_STOP_REASONS).nullable(),
   chargedCredits: z.number().int(),
   summary: z.string().nullable(),
   error: z.string().nullable(),

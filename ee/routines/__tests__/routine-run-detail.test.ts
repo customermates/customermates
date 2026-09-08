@@ -2,31 +2,53 @@ import { describe, expect, it } from "vitest";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RoutineRunStatus } from "@/generated/prisma";
-import { ROUTINE_RUN_ERROR_CODES, ROUTINE_RUN_REASONS, routineRunDetail } from "@/ee/routines/routine-run-outcome";
+import { AGENT_TURN_STOP_REASONS } from "@/ee/agent-chat/agent-turn-request";
+import {
+  ROUTINE_RUN_ERROR_CODES,
+  ROUTINE_RUN_REASONS,
+  routineRunDetail,
+  routineRunStopReason,
+} from "@/ee/routines/routine-run-outcome";
 
 const t = (key: string) => key;
 
 describe("routineRunDetail", () => {
   it("prefers the summary when the run produced one", () => {
-    const run = { status: RoutineRunStatus.succeeded, summary: "30", error: null };
+    const run = {
+      status: RoutineRunStatus.succeeded,
+      summary: "30",
+      error: null,
+    };
 
     expect(routineRunDetail(run, t)).toBe("30");
   });
 
   it("translates a known skip reason rather than leaking the enum", () => {
-    const run = { status: RoutineRunStatus.skipped, summary: null, error: "ownerRunLimit" };
+    const run = {
+      status: RoutineRunStatus.skipped,
+      summary: null,
+      error: "ownerRunLimit",
+    };
 
     expect(routineRunDetail(run, t)).toBe("RoutineRunReason.ownerRunLimit");
   });
 
   it("translates a stored agent error code through the shared error catalog", () => {
-    const run = { status: RoutineRunStatus.blocked, summary: null, error: "agentLimitReached" };
+    const run = {
+      status: RoutineRunStatus.blocked,
+      summary: null,
+      error: "agentLimitReached",
+    };
 
     expect(routineRunDetail(run, t)).toBe("Common.errors.agentLimitReached");
   });
 
   it("never shows a stored token it does not recognise", () => {
-    const run = { status: RoutineRunStatus.skipped, summary: null, error: "agentDisposition:running" };
+    const run = {
+      status: RoutineRunStatus.skipped,
+      summary: null,
+      error: "agentDisposition:running",
+    };
 
     expect(routineRunDetail(run, t)).toBe("RoutineRunReason.unknownFailure");
   });
@@ -55,5 +77,20 @@ describe("routineRunDetail", () => {
     const known = new Set<string>(Object.values(CustomErrorCode));
 
     expect(ROUTINE_RUN_ERROR_CODES.filter((code) => !known.has(code))).toEqual([]);
+  });
+
+  it("translates every typed terminal stop reason without exposing its stored token", () => {
+    const expectedKeys = [
+      "RoutineRunStopReason.creditLimit",
+      "RoutineRunStopReason.providerError",
+      "RoutineRunStopReason.contentFilter",
+      "RoutineRunStopReason.hostedAiUnavailable",
+      "RoutineRunStopReason.cancelled",
+      "RoutineRunStopReason.turnError",
+      "RoutineRunStopReason.policyBreach",
+    ];
+
+    expect(AGENT_TURN_STOP_REASONS.map((stopReason) => routineRunStopReason({ stopReason }, t))).toEqual(expectedKeys);
+    expect(routineRunStopReason({ stopReason: null }, t)).toBe("");
   });
 });

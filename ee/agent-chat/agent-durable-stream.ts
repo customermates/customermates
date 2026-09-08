@@ -1,6 +1,7 @@
+import { describeAgentTool, type AgentActivityResource } from "./agent-activity";
+import type { AgentTurnStopReason, AgentTurnTerminalCode } from "./agent-turn-request";
 import type { AgentActivityStatus } from "./agent-turn-transcript";
 
-import { describeAgentTool } from "./agent-activity";
 import { internalToolIdentity } from "./tool-identity";
 import { isAgentToolCancellation } from "./agent-tool-cancellation";
 
@@ -106,7 +107,23 @@ export class AgentDurableStreamReader {
   }
 }
 
-export type AgentTurnTerminalEvent = {
-  type: "message_committed" | "turn_done";
-  payload: Record<string, unknown>;
-};
+export type AgentTurnTerminalEvent =
+  | {
+      type: "message_committed";
+      payload: { messageId: string };
+    }
+  | {
+      type: "turn_done";
+      payload: {
+        isError: boolean;
+        terminalCode: AgentTurnTerminalCode;
+        stopReason: AgentTurnStopReason | null;
+        assistantMessageId: string;
+        affectedResources: AgentActivityResource[];
+        hasSuccessfulMutation: boolean;
+        creditsUsed: number;
+        numTurns: number;
+        errorMessage: string | null;
+        replayed: boolean;
+      };
+    };

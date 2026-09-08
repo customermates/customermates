@@ -594,7 +594,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       reasoningTokens: 4,
       costMicrocents: 4_400,
       modelSpec: "openai/gpt-5.6-luna",
-      servingProvider: "openai",
+      servingProvider: "azure",
     };
 
     await runWithoutTenant(() =>
@@ -669,7 +669,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         reasoningTokens: 0,
         costMicrocents: 1,
         modelSpec: "openai/gpt-5.6-luna",
-        servingProvider: "openai",
+        servingProvider: "azure",
       }),
     );
 

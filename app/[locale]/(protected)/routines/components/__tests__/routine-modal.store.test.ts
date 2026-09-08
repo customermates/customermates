@@ -1,11 +1,12 @@
 import type { RootStore } from "@/core/stores/root.store";
-import type { RoutineDto } from "@/ee/routines/routine.schema";
+import type { RoutineDto, RoutineRunDto } from "@/ee/routines/routine.schema";
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { autorun, runInAction } from "mobx";
 
-import { RoutineTriggerKind } from "@/generated/prisma";
+import { RoutineRunStatus, RoutineTriggerKind } from "@/generated/prisma";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
+import { registerApplicationErrorHandler } from "@/core/errors/report-application-error";
 
 const routineActions = vi.hoisted(() => ({
   deleteRoutineAction: vi.fn(),
@@ -17,7 +18,9 @@ const routineActions = vi.hoisted(() => ({
       customColumns: [],
     }),
   ),
-  getRoutineRunsAction: vi.fn(() => Promise.resolve({ runs: [], nextCursor: null })),
+  getRoutineRunsAction: vi.fn<
+    (input: { routineId: string; cursor?: string }) => Promise<{ runs: RoutineRunDto[]; nextCursor: string | null }>
+  >(() => Promise.resolve({ runs: [], nextCursor: null })),
   pauseRoutineAction: vi.fn(),
   runRoutineNowAction: vi.fn(),
   upsertRoutineAction: vi.fn(),
@@ -25,11 +28,18 @@ const routineActions = vi.hoisted(() => ({
 
 vi.mock("../../actions", () => routineActions);
 
-const sonner = vi.hoisted(() => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+const sonner = vi.hoisted(() => ({
+  toast: { success: vi.fn(), error: vi.fn() },
+}));
 
 vi.mock("sonner", () => sonner);
 
-import { RoutineModalStore } from "../routine-modal.store";
+import {
+  ROUTINE_RUN_POLL_GRACE_MS,
+  ROUTINE_RUN_POLL_INTERVAL_MS,
+  ROUTINE_RUN_POLL_MAX_MS,
+  RoutineModalStore,
+} from "../routine-modal.store";
 
 const OWNER_ID = "30000000-0000-4000-8000-000000000010";
 const OTHER_ID = "30000000-0000-4000-8000-000000000011";
@@ -60,12 +70,55 @@ function makeRoutine(overrides: Partial<RoutineDto> = {}): RoutineDto {
   } as unknown as RoutineDto;
 }
 
+function makeRun(overrides: Partial<RoutineRunDto> = {}): RoutineRunDto {
+  return {
+    id: "50000000-0000-4000-8000-000000000001",
+    routineId: "30000000-0000-4000-8000-000000000001",
+    executedByUserId: OWNER_ID,
+    executedByName: "Mara Owner",
+    conversationId: null,
+    turnRequestId: null,
+    status: RoutineRunStatus.succeeded,
+    triggerKind: RoutineTriggerKind.schedule,
+    triggerEvent: null,
+    triggerEntityId: null,
+    triggerContext: null,
+    scheduledFor: new Date("2026-09-08T09:00:00Z"),
+    startedAt: new Date("2026-09-08T09:00:01Z"),
+    finishedAt: new Date("2026-09-08T09:00:02Z"),
+    terminalCode: "completed",
+    stopReason: null,
+    chargedCredits: 1,
+    summary: "Done",
+    error: null,
+    createdAt: new Date("2026-09-08T09:00:00Z"),
+    updatedAt: new Date("2026-09-08T09:00:02Z"),
+    ...overrides,
+  } as RoutineRunDto;
+}
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (error: unknown) => void;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+
+  return { promise, reject, resolve };
+}
+
+async function settlePromises(): Promise<void> {
+  await Promise.resolve();
+  await Promise.resolve();
+}
+
 function makeStore(
   chat: {
-    selectConversation: () => Promise<void>;
+    selectConversationForReadOnlyViewer: () => Promise<void>;
     newConversation: () => void;
   } = {
-    selectConversation: vi.fn(() => Promise.resolve()),
+    selectConversationForReadOnlyViewer: vi.fn(() => Promise.resolve()),
     newConversation: vi.fn(),
   },
   options: { userId?: string; admin?: boolean } = {},
@@ -85,7 +138,22 @@ function makeStore(
 }
 
 describe("RoutineModalStore", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.useRealTimers();
+    vi.resetAllMocks();
+    routineActions.getRoutineFilterFieldsAction.mockResolvedValue({
+      filterableFields: {
+        organization: [{ field: "name" }, { field: "type" }],
+      },
+      customColumns: [],
+    });
+    routineActions.getRoutineRunsAction.mockResolvedValue({
+      runs: [],
+      nextCursor: null,
+    });
+  });
+
+  afterEach(() => vi.useRealTimers());
 
   it("keeps async modal setup inside MobX actions", async () => {
     const store = makeStore();
@@ -150,26 +218,80 @@ describe("RoutineModalStore", () => {
 
   it("clears the viewer instead of showing the previous run's transcript", async () => {
     const chat = {
-      selectConversation: vi.fn(() => Promise.resolve()),
+      selectConversationForReadOnlyViewer: vi.fn(() => Promise.resolve()),
       newConversation: vi.fn(),
     };
     const store = makeStore(chat);
-
-    await store.openRun({
+    const firstRun = {
       id: "run-1",
       conversationId: "conv-1",
       executedByUserId: OWNER_ID,
-    } as never);
-    expect(chat.selectConversation).toHaveBeenCalledWith("conv-1");
-
-    await store.openRun({
+    } as never;
+    const secondRun = {
       id: "run-2",
       conversationId: null,
       executedByUserId: OWNER_ID,
-    } as never);
+    } as never;
+
+    await store.openForEdit(makeRoutine());
+    runInAction(() => {
+      store.runs = [firstRun, secondRun];
+    });
+
+    await store.openRun(firstRun);
+    expect(chat.selectConversationForReadOnlyViewer).toHaveBeenCalledWith("conv-1");
+
+    await store.openRun(secondRun);
 
     expect(chat.newConversation).toHaveBeenCalled();
-    expect(chat.selectConversation).toHaveBeenCalledTimes(1);
+    expect(chat.selectConversationForReadOnlyViewer).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the runs tab selected so resize-back can restore focus to the run row", async () => {
+    const store = makeStore();
+    const run = makeRun();
+
+    await store.openForEdit(makeRoutine());
+    runInAction(() => {
+      store.runs = [run];
+    });
+
+    await store.openRun(run);
+
+    expect(store.activeTab).toBe("runs");
+    expect(store.openRunId).toBe(run.id);
+  });
+
+  it("restores keyboard focus to the selected row after closing its drilldown", async () => {
+    const detailFocus = vi.fn();
+    const rowFocus = vi.fn();
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
+      callback(0);
+      return 1;
+    });
+    vi.stubGlobal("document", {
+      getElementById: vi.fn((id: string) => {
+        if (id === "routine-run-detail-heading") return { focus: detailFocus };
+        if (id === "routine-run-50000000-0000-4000-8000-000000000001") return { focus: rowFocus };
+        return null;
+      }),
+    });
+    const store = makeStore();
+    const run = makeRun({ conversationId: "conversation-1" });
+
+    try {
+      await store.openForEdit(makeRoutine());
+      runInAction(() => {
+        store.runs = [run];
+      });
+      await store.openRun(run);
+
+      expect(detailFocus).toHaveBeenCalledWith({ preventScroll: true });
+      store.closeRun();
+      expect(rowFocus).toHaveBeenCalledWith({ preventScroll: true });
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it("fills in the record filters once a trigger event names an entity", async () => {
@@ -327,7 +449,7 @@ describe("RoutineModalStore", () => {
 
   it("opens full transcripts only for the snapshotted executor", async () => {
     const chat = {
-      selectConversation: vi.fn(() => Promise.resolve()),
+      selectConversationForReadOnlyViewer: vi.fn(() => Promise.resolve()),
       newConversation: vi.fn(),
     };
     const store = makeStore(chat, { userId: OTHER_ID });
@@ -340,7 +462,7 @@ describe("RoutineModalStore", () => {
     } as never);
 
     expect(store.openRunId).toBeNull();
-    expect(chat.selectConversation).not.toHaveBeenCalled();
+    expect(chat.selectConversationForReadOnlyViewer).not.toHaveBeenCalled();
   });
 
   it("applies an administrative pause without closing the details", async () => {
@@ -410,7 +532,10 @@ describe("RoutineModalStore", () => {
   });
 
   it("opens the runs tab and confirms once a test run is queued", async () => {
-    routineActions.runRoutineNowAction.mockResolvedValue({ ok: true, data: "queued-run" });
+    routineActions.runRoutineNowAction.mockResolvedValue({
+      ok: true,
+      data: "queued-run",
+    });
     const store = makeStore();
     await store.openForEdit(makeRoutine());
 
@@ -425,7 +550,10 @@ describe("RoutineModalStore", () => {
   });
 
   it("stays on the details tab and stays silent when the test run is refused", async () => {
-    routineActions.runRoutineNowAction.mockResolvedValue({ ok: false, error: { errors: [] } });
+    routineActions.runRoutineNowAction.mockResolvedValue({
+      ok: false,
+      error: { errors: [] },
+    });
     const store = makeStore();
     await store.openForEdit(makeRoutine());
 
@@ -433,5 +561,231 @@ describe("RoutineModalStore", () => {
 
     expect(store.activeTab).toBe("details");
     expect(sonner.toast.success).not.toHaveBeenCalled();
+  });
+
+  it("rejects a stale first page after switching routines", async () => {
+    const first = deferred<{
+      runs: RoutineRunDto[];
+      nextCursor: string | null;
+    }>();
+    const second = deferred<{
+      runs: RoutineRunDto[];
+      nextCursor: string | null;
+    }>();
+    const firstRoutine = makeRoutine();
+    const secondRoutine = makeRoutine({
+      id: "30000000-0000-4000-8000-000000000002",
+      name: "Second",
+    });
+    const firstRun = makeRun();
+    const secondRun = makeRun({
+      id: "50000000-0000-4000-8000-000000000002",
+      routineId: secondRoutine.id,
+    });
+    routineActions.getRoutineRunsAction.mockImplementation(({ routineId }: { routineId: string }) =>
+      routineId === firstRoutine.id ? first.promise : second.promise,
+    );
+    const store = makeStore();
+
+    await store.openForEdit(firstRoutine);
+    await store.openForEdit(secondRoutine);
+    second.resolve({ runs: [secondRun], nextCursor: null });
+    await settlePromises();
+    first.resolve({ runs: [firstRun], nextCursor: null });
+    await settlePromises();
+
+    expect(store.form.id).toBe(secondRoutine.id);
+    expect(store.runs.map(({ id }) => id)).toEqual([secondRun.id]);
+  });
+
+  it("coalesces duplicate first-page loads for one routine", async () => {
+    const page = deferred<{
+      runs: RoutineRunDto[];
+      nextCursor: string | null;
+    }>();
+    routineActions.getRoutineRunsAction.mockReturnValue(page.promise);
+    const store = makeStore();
+    const routine = makeRoutine();
+
+    await store.openForEdit(routine);
+    const duplicateA = store.loadRuns(routine.id, true);
+    const duplicateB = store.loadRuns(routine.id, true);
+
+    expect(routineActions.getRoutineRunsAction).toHaveBeenCalledTimes(1);
+    page.resolve({ runs: [], nextCursor: null });
+    await Promise.all([duplicateA, duplicateB]);
+    expect(store.runsRequestState).toBe("ready");
+  });
+
+  it("deduplicates pages and rejects repeated or oversized cursors", async () => {
+    const firstRun = makeRun();
+    const secondRun = makeRun({ id: "50000000-0000-4000-8000-000000000002" });
+    routineActions.getRoutineRunsAction
+      .mockResolvedValueOnce({
+        runs: [firstRun, firstRun],
+        nextCursor: "page-2",
+      })
+      .mockResolvedValueOnce({
+        runs: [firstRun, secondRun],
+        nextCursor: "page-2",
+      });
+    const store = makeStore();
+
+    await store.openForEdit(makeRoutine());
+    await settlePromises();
+    expect(store.runs).toHaveLength(1);
+    expect(store.runsNextCursor).toBe("page-2");
+
+    await store.loadMoreRuns();
+    expect(store.runs.map(({ id }) => id)).toEqual([firstRun.id, secondRun.id]);
+    expect(store.runsNextCursor).toBeNull();
+
+    routineActions.getRoutineRunsAction.mockResolvedValueOnce({
+      runs: [],
+      nextCursor: "x".repeat(501),
+    });
+    await store.openForEdit(makeRoutine({ id: "30000000-0000-4000-8000-000000000003" }));
+    await settlePromises();
+    expect(store.runsNextCursor).toBeNull();
+  });
+
+  it("shows an initial load error and recovers through retry", async () => {
+    routineActions.getRoutineRunsAction
+      .mockRejectedValueOnce(new Error("offline"))
+      .mockResolvedValueOnce({ runs: [makeRun()], nextCursor: null });
+    const store = makeStore();
+
+    await store.openForEdit(makeRoutine());
+    await settlePromises();
+    expect(store.runsRequestState).toBe("error");
+    expect(store.runs).toEqual([]);
+
+    await store.retryLoadRuns();
+    expect(store.runsRequestState).toBe("ready");
+    expect(store.runs).toHaveLength(1);
+  });
+
+  it("retains rows and reports only once per background polling failure streak", async () => {
+    vi.useFakeTimers();
+    const active = makeRun({
+      status: RoutineRunStatus.running,
+      terminalCode: null,
+      finishedAt: null,
+    });
+    routineActions.getRoutineRunsAction
+      .mockResolvedValueOnce({ runs: [active], nextCursor: null })
+      .mockRejectedValueOnce(new Error("first"))
+      .mockRejectedValueOnce(new Error("second"))
+      .mockResolvedValueOnce({ runs: [active], nextCursor: null })
+      .mockRejectedValueOnce(new Error("third"));
+    const errors = vi.fn();
+    const unregister = registerApplicationErrorHandler(errors);
+    const store = makeStore();
+
+    try {
+      await store.openForEdit(makeRoutine());
+      await settlePromises();
+
+      await vi.advanceTimersByTimeAsync(2_000);
+      await vi.advanceTimersByTimeAsync(2_000);
+      expect(errors).toHaveBeenCalledTimes(1);
+      expect(store.runs).toEqual([active]);
+
+      await vi.advanceTimersByTimeAsync(2_000);
+      await vi.advanceTimersByTimeAsync(2_000);
+      expect(errors).toHaveBeenCalledTimes(2);
+      expect(store.runs).toEqual([active]);
+    } finally {
+      unregister();
+      store.close();
+    }
+  });
+
+  it("reports a failed Test refresh and the following failed poll only once", async () => {
+    vi.useFakeTimers();
+    routineActions.runRoutineNowAction.mockResolvedValue({ ok: true, data: "queued-run" });
+    routineActions.getRoutineRunsAction
+      .mockResolvedValueOnce({ runs: [], nextCursor: null })
+      .mockRejectedValueOnce(new Error("refresh offline"))
+      .mockRejectedValueOnce(new Error("poll offline"));
+    const errors = vi.fn();
+    const unregister = registerApplicationErrorHandler(errors);
+    const store = makeStore();
+
+    try {
+      await store.openForEdit(makeRoutine());
+      await settlePromises();
+      await store.runNow();
+      await vi.advanceTimersByTimeAsync(ROUTINE_RUN_POLL_INTERVAL_MS);
+
+      expect(errors).toHaveBeenCalledTimes(1);
+    } finally {
+      unregister();
+      store.close();
+    }
+  });
+
+  it("keeps polling briefly after Test until the queued run appears", async () => {
+    vi.useFakeTimers();
+    routineActions.runRoutineNowAction.mockResolvedValue({ ok: true, data: "queued-run" });
+    routineActions.getRoutineRunsAction.mockResolvedValue({ runs: [], nextCursor: null });
+    const store = makeStore();
+
+    await store.openForEdit(makeRoutine());
+    await settlePromises();
+    await store.runNow();
+    const initialRequests = routineActions.getRoutineRunsAction.mock.calls.length;
+
+    await vi.advanceTimersByTimeAsync(ROUTINE_RUN_POLL_GRACE_MS + ROUTINE_RUN_POLL_INTERVAL_MS);
+    const requestsAfterGrace = routineActions.getRoutineRunsAction.mock.calls.length;
+    await vi.advanceTimersByTimeAsync(ROUTINE_RUN_POLL_INTERVAL_MS * 5);
+
+    expect(requestsAfterGrace).toBeGreaterThan(initialRequests);
+    expect(routineActions.getRoutineRunsAction).toHaveBeenCalledTimes(requestsAfterGrace);
+    store.close();
+  });
+
+  it("stops polling an active run at the ten-minute boundary", async () => {
+    vi.useFakeTimers();
+    const active = makeRun({
+      status: RoutineRunStatus.running,
+      terminalCode: null,
+      finishedAt: null,
+    });
+    routineActions.getRoutineRunsAction.mockResolvedValue({ runs: [active], nextCursor: null });
+    const store = makeStore();
+
+    await store.openForEdit(makeRoutine());
+    await settlePromises();
+    await vi.advanceTimersByTimeAsync(ROUTINE_RUN_POLL_MAX_MS + ROUTINE_RUN_POLL_INTERVAL_MS);
+    const requestsAtBoundary = routineActions.getRoutineRunsAction.mock.calls.length;
+    await vi.advanceTimersByTimeAsync(ROUTINE_RUN_POLL_INTERVAL_MS * 5);
+
+    expect(requestsAtBoundary).toBeGreaterThan(1);
+    expect(routineActions.getRoutineRunsAction).toHaveBeenCalledTimes(requestsAtBoundary);
+    store.close();
+  });
+
+  it("stops polling when an active run becomes terminal", async () => {
+    vi.useFakeTimers();
+    const active = makeRun({
+      status: RoutineRunStatus.queued,
+      terminalCode: null,
+      finishedAt: null,
+    });
+    const finished = makeRun();
+    routineActions.getRoutineRunsAction
+      .mockResolvedValueOnce({ runs: [active], nextCursor: null })
+      .mockResolvedValueOnce({ runs: [finished], nextCursor: null });
+    const store = makeStore();
+
+    await store.openForEdit(makeRoutine());
+    await settlePromises();
+    await vi.advanceTimersByTimeAsync(2_000);
+    await vi.advanceTimersByTimeAsync(10_000);
+
+    expect(store.runs).toEqual([finished]);
+    expect(routineActions.getRoutineRunsAction).toHaveBeenCalledTimes(2);
+    store.close();
   });
 });

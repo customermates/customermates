@@ -37,6 +37,7 @@ import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
 
 import {
   AGENT_TOOL_RESULT_TRUNCATED_MARK,
+  agentRoundWorstCaseCredits,
   agentContextTokensToBytes,
   resolveAgentTurnBudget,
 } from "../agent-budget-policy";
@@ -253,7 +254,7 @@ describe("agent tools", () => {
     expect(contextLimitBytes - (requiredContextBytes ?? 0)).toBeGreaterThan(contextHeadroomFloorBytes);
     const funded = resolveAgentTurnBudget({
       model,
-      availableCredits: 1,
+      availableCredits: agentRoundWorstCaseCredits(model),
       requiredContextBytes: requiredContextBytes ?? 0,
     });
     expect(funded?.maxContextBytes).toBeGreaterThanOrEqual(requiredContextBytes ?? Number.POSITIVE_INFINITY);

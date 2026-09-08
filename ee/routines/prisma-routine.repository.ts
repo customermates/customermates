@@ -34,6 +34,7 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { routineRunTriggerContext } from "./routine-run-trigger-context";
 import { dateGroupables, relationGroupables } from "@/core/base/grouping/groupable-field";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
+import { isAgentTurnStopReason } from "@/ee/agent-chat/agent-turn-request";
 
 import { DEFAULT_ROUTINE_TIMEZONE, nextCronOccurrence, parseCronExpression } from "./routine-schedule";
 import {
@@ -113,6 +114,11 @@ const ROUTINE_RUN_SELECT = {
   error: true,
   createdAt: true,
   updatedAt: true,
+  conversation: {
+    select: {
+      turnRequests: { select: { id: true, stopReason: true } },
+    },
+  },
 } as const;
 
 function ownerName(owner: { firstName: string; lastName: string }): string {
@@ -126,12 +132,22 @@ function storedRoutineFilters(value: unknown): Filter[] | null {
   return parsed.success ? parsed.data : null;
 }
 
-type RoutineRunRow = Omit<RoutineRunDto, "triggerContext"> & { triggerPayload: unknown };
+type RoutineRunRow = Omit<RoutineRunDto, "triggerContext" | "stopReason"> & {
+  triggerPayload: unknown;
+  conversation: { turnRequests: { id: string; stopReason: string | null }[] } | null;
+};
 
 function routineRunDto(row: RoutineRunRow): RoutineRunDto {
-  const { triggerPayload, ...run } = row;
+  const { triggerPayload, conversation, ...run } = row;
+  const storedStopReason = conversation?.turnRequests.find((turn) => turn.id === run.turnRequestId)?.stopReason ?? null;
+  if (storedStopReason !== null && !isAgentTurnStopReason(storedStopReason))
+    throw new Error("Stored agent turn stop reason is invalid.");
 
-  return { ...run, triggerContext: routineRunTriggerContext(run.triggerEvent, triggerPayload) };
+  return {
+    ...run,
+    stopReason: storedStopReason,
+    triggerContext: routineRunTriggerContext(run.triggerEvent, triggerPayload),
+  };
 }
 
 function routineDto(row: unknown): RoutineDto {
@@ -1428,6 +1444,7 @@ export class PrismaRoutineRepo
         id: true,
         status: true,
         terminalCode: true,
+        stopReason: true,
         conversationId: true,
       },
     });
@@ -1444,9 +1461,13 @@ export class PrismaRoutineRepo
       orderBy: { sequence: "desc" },
     });
 
+    if (turn.stopReason !== null && !isAgentTurnStopReason(turn.stopReason))
+      throw new Error("Stored agent turn stop reason is invalid.");
+
     return {
       status: routineRunStatusFor(turn.status, turn.terminalCode),
       terminalCode: turn.terminalCode,
+      stopReason: turn.stopReason,
       settled: turn.status !== "running" && turn.status !== "waitingBudget",
       chargedCredits: usage?.state === "settled" ? usage.chargedCredits : (usage?.chargedCredits ?? 0),
       summary: summarizeAssistantParts(assistantMessage?.parts),

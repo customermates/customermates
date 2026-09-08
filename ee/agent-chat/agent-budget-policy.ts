@@ -2,6 +2,7 @@ import type { AgentModelEntry } from "./model-catalog";
 
 import {
   AGENT_CONTEXT_BYTES_PER_TOKEN,
+  AGENT_MIN_BYTES_PER_PROVIDER_TOKEN,
   AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS,
   isAgentModelWithinBudgetEnvelope,
 } from "./model-catalog";
@@ -32,6 +33,10 @@ export function agentContextTokensToBytes(tokens: number) {
   return tokens * AGENT_CONTEXT_BYTES_PER_TOKEN;
 }
 
+export function agentContextBytesToWorstCaseProviderTokens(bytes: number) {
+  return Math.ceil(bytes / AGENT_MIN_BYTES_PER_PROVIDER_TOKEN);
+}
+
 function stepWorstCaseUsd(entry: AgentModelEntry, contextTokens: number, outputTokens: number) {
   const promptTokens = contextTokens + AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS;
   const pricing = resolveModelPricing(entry.modelId, promptTokens, entry.servingProvider);
@@ -40,9 +45,17 @@ function stepWorstCaseUsd(entry: AgentModelEntry, contextTokens: number, outputT
   return (promptTokens * maxInputRate) / 1_000_000 + (outputTokens * pricing.outputPerMTok) / 1_000_000;
 }
 
-export function agentRoundWorstCaseCredits(entry: AgentModelEntry) {
-  const roundUsd = stepWorstCaseUsd(entry, entry.maxContextTokens, entry.maxOutputTokens);
+export function agentRoundWorstCaseCreditsForContextBytes(entry: AgentModelEntry, contextBytes: number) {
+  const roundUsd = stepWorstCaseUsd(
+    entry,
+    agentContextBytesToWorstCaseProviderTokens(contextBytes),
+    entry.maxOutputTokens,
+  );
   return Math.max(1, Math.ceil(roundUsd / USD_PER_AGENT_CREDIT));
+}
+
+export function agentRoundWorstCaseCredits(entry: AgentModelEntry) {
+  return agentRoundWorstCaseCreditsForContextBytes(entry, agentContextTokensToBytes(entry.maxContextTokens));
 }
 
 export function resolveAgentTurnBudget(args: {
@@ -60,6 +73,7 @@ export function resolveAgentTurnBudget(args: {
   if (agentContextBytesToTokens(requiredContextBytes) > entry.maxContextTokens) return null;
 
   const roundReserveCredits = agentRoundWorstCaseCredits(entry);
+  if (args.availableCredits < roundReserveCredits) return null;
 
   return {
     modelSpec: entry.modelId,

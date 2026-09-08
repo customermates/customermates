@@ -7,6 +7,7 @@ import type { AgentTurnTerminalEvent } from "@/ee/agent-chat/agent-durable-strea
 import type { ReplayMessage } from "@/ee/agent-chat/agent-stream-utils";
 import type { TokenCounts } from "@/ee/agent-chat/model-pricing";
 import type { WorkflowTenant } from "./workflow-tenant";
+import type { ModelMessage } from "ai";
 
 import { WorkflowAgent } from "@ai-sdk/workflow";
 import { createHook, getWritable, sleep } from "workflow";
@@ -14,7 +15,7 @@ import { isStepCount, jsonSchema } from "ai";
 
 import { AgentTurnTranscript } from "@/ee/agent-chat/agent-turn-transcript";
 import { approvalWindowMsForSurface, isUnattendedSurface } from "@/ee/agent-chat/agent-surface-policy";
-import { isAgentTurnTerminalError } from "@/ee/agent-chat/agent-turn-request";
+import { isAgentTurnTerminalError, type AgentTurnStopReason } from "@/ee/agent-chat/agent-turn-request";
 import {
   agentApprovalHookToken,
   agentApprovalRequestId,
@@ -41,12 +42,9 @@ import {
   unwrapToolOutput,
   AGENT_TRANSCRIPT_FORWARDED_EVENTS,
 } from "@/ee/agent-chat/agent-durable-stream";
+import { toAgentContinuationStep, type AgentToolOutcome } from "@/ee/agent-chat/agent-run-limits";
 import {
-  agentContinuationLimits,
-  toAgentContinuationStep,
-  type AgentToolOutcome,
-} from "@/ee/agent-chat/agent-run-limits";
-import {
+  AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS,
   compactAgentContinuationContext,
   decideAgentContinuationLoop,
   type AgentContinuationStep,
@@ -59,7 +57,7 @@ import { isReadOnlyTool, requiresApproval } from "@/ee/agent-chat/gated-tools";
 import { isAgentToolCancellation } from "@/ee/agent-chat/agent-tool-cancellation";
 import { createAgentToolInputResolver, type AgentToolInputResult } from "@/ee/agent-chat/agent-tool-input";
 import { resolveAgentApprovalContext } from "@/ee/agent-chat/agent-external-approval-context";
-import { resolveAgentToolResultMaxChars } from "@/ee/agent-chat/agent-budget-policy";
+import { isAgentContextWithinBudget, resolveAgentToolResultMaxChars } from "@/ee/agent-chat/agent-budget-policy";
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
 import { runInRoutineContext } from "@/core/decorators/routine-context";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
@@ -70,6 +68,18 @@ const WORKFLOW_NAME = "agent-turn";
 
 export const AGENT_UI_COMMAND_WINDOW_MS = 30 * 1000;
 export const AGENT_SEGMENT_ROUNDS = 32;
+
+const AGENT_OUTPUT_CONTINUATION_PROMPT =
+  "<agent_output_continuation>Continue directly from the partial assistant response above. Do not repeat completed text. Finish the user's request.</agent_output_continuation>";
+const AGENT_CONTEXT_COMPACTION_REQUIRED = new Error(
+  "Agent context requires compaction before the next provider round.",
+);
+const AGENT_LOCAL_TERMINATION_REQUIRED = new Error(
+  "Agent execution reached a local terminal condition before the next provider round.",
+);
+const AI_API_CALL_ERROR_MARKER = Symbol.for("vercel.ai.error.AI_APICallError");
+const AI_GATEWAY_ERROR_MARKER = Symbol.for("vercel.ai.gateway.error");
+const AI_RETRY_ERROR_MARKER = Symbol.for("vercel.ai.error.AI_RetryError");
 
 export type AgentTurnWorkflowPayload = {
   turnRequestId: string;
@@ -118,6 +128,69 @@ type RoundLedgerEntry = {
   measured: boolean;
   unreadableReason?: string;
 };
+
+type AgentTurnUsageOutcome = {
+  tokens: TokenCounts;
+  ledger: RoundLedgerEntry[];
+  reservedCredits: number;
+  providerStarted?: boolean;
+};
+
+type AgentTurnFinalizationOutcome = AgentTurnUsageOutcome & {
+  parts: unknown;
+  terminalCode: "completed" | "partial" | "cancelled";
+  stopReason: AgentTurnStopReason | null;
+  affectedResources: AgentActivityResource[];
+  hasSuccessfulMutation: boolean;
+};
+
+function nextAgentSegmentMessages(args: {
+  messages: readonly ModelMessage[];
+  finishReason: string;
+  lastStep: AgentContinuationStep | undefined;
+}): ModelMessage[] {
+  const messages = args.messages.filter((message) => message.role !== "system");
+  if (args.finishReason !== "length") return messages;
+
+  return [
+    ...messages,
+    ...(args.lastStep?.response.messages ?? []),
+    { role: "user", content: AGENT_OUTPUT_CONTINUATION_PROMPT },
+  ];
+}
+
+function hasErrorMarker(error: unknown, marker: symbol) {
+  return typeof error === "object" && error !== null && marker in error && error[marker as keyof typeof error] === true;
+}
+
+function isAgentProviderFailure(error: unknown): boolean {
+  if (hasErrorMarker(error, AI_API_CALL_ERROR_MARKER) || hasErrorMarker(error, AI_GATEWAY_ERROR_MARKER)) return true;
+  if (hasErrorMarker(error, AI_RETRY_ERROR_MARKER)) return true;
+  if (typeof error !== "object" || error === null || !("cause" in error)) return false;
+  return isAgentProviderFailure(error.cause);
+}
+
+function usageSettlementForTurn(payload: AgentTurnWorkflowPayload, outcome: AgentTurnUsageOutcome) {
+  if (outcome.providerStarted === false) return null;
+
+  const measured = outcome.ledger.every((entry) => entry.measured);
+  const unreadableReason = outcome.ledger.find((entry) => entry.unreadableReason)?.unreadableReason ?? null;
+  return buildAgentUsageSettlement({
+    model: payload.turnBudget.modelSpec,
+    tokens: outcome.tokens,
+    provider: payload.turnBudget.servingProvider,
+    reservedCredits: outcome.reservedCredits,
+    providerCharge: {
+      billed: outcome.ledger.length > 0,
+      measuredCostMicrocents:
+        measured && outcome.ledger.length > 0
+          ? outcome.ledger.reduce((total, entry) => total + entry.costMicrocents, 0)
+          : null,
+      stepTokens: outcome.ledger.map((entry) => entry.tokens),
+      unreadableReason,
+    },
+  });
+}
 
 function emptyTokens(): TokenCounts {
   return {
@@ -359,10 +432,7 @@ async function publishAssistantText(text: string): Promise<void> {
   }
 }
 
-async function ensureTurnReservation(
-  payload: AgentTurnWorkflowPayload,
-  requiredCredits: number,
-): Promise<number | null> {
+async function ensureTurnReservation(payload: AgentTurnWorkflowPayload, requiredCredits: number) {
   "use step";
   return runAsBackgroundTenant(payload.userId, () =>
     getAgentChatRepo().extendUsageReservationUnscoped({
@@ -382,12 +452,13 @@ function isSuccessfulToolOutcome(outcome: unknown): boolean {
 }
 
 type AgentRunnerMessageKind =
-  | "safetyLimit"
-  | "safetyLimitNoWrite"
+  | "cancelled"
+  | "providerError"
+  | "contentFilter"
   | "creditLimit"
   | "creditLimitNoWrite"
   | "hostedAiUnavailable"
-  | "outputLimit"
+  | "policyBreach"
   | "turnError"
   | "emptyReply";
 
@@ -399,13 +470,15 @@ async function resolveRunnerMessage(locale: string, kind: AgentRunnerMessageKind
 
   if (kind === "creditLimit") return t("AgentChat.runner.creditLimit");
   if (kind === "creditLimitNoWrite") return t("AgentChat.runner.creditLimitNoWrite");
-  if (kind === "safetyLimitNoWrite") return t("AgentChat.runner.safetyLimitNoWrite");
   if (kind === "hostedAiUnavailable") return t("AgentChat.runner.hostedAiUnavailable");
-  if (kind === "outputLimit") return t("AgentChat.runner.outputLimit");
   if (kind === "turnError") return t("AgentChat.runner.turnError");
+  if (kind === "providerError") return t("AgentChat.runner.providerError");
+  if (kind === "contentFilter") return t("AgentChat.runner.contentFilter");
+  if (kind === "policyBreach") return t("AgentChat.runner.policyBreach");
+  if (kind === "cancelled") return t("AgentChat.runner.cancelled");
   if (kind === "emptyReply") return t("AgentChat.runner.emptyReply");
 
-  return t("AgentChat.runner.safetyLimit");
+  return kind satisfies never;
 }
 
 async function readCancellation(payload: AgentTurnWorkflowPayload): Promise<boolean> {
@@ -572,22 +645,8 @@ async function settleRoutineRunStep(ownerUserId: string): Promise<void> {
 }
 settleRoutineRunStep.maxRetries = 0;
 
-async function finalizeTurn(
-  payload: AgentTurnWorkflowPayload,
-  outcome: {
-    parts: unknown;
-    terminalCode: "completed" | "partial" | "cancelled";
-    affectedResources: AgentActivityResource[];
-    hasSuccessfulMutation: boolean;
-    tokens: TokenCounts;
-    ledger: RoundLedgerEntry[];
-    reservedCredits: number;
-    providerStarted?: boolean;
-  },
-): Promise<void> {
+async function finalizeTurn(payload: AgentTurnWorkflowPayload, outcome: AgentTurnFinalizationOutcome): Promise<void> {
   "use step";
-  const measured = outcome.ledger.every((entry) => entry.measured);
-  const unreadableReason = outcome.ledger.find((entry) => entry.unreadableReason)?.unreadableReason ?? null;
 
   const committed = await runAsBackgroundTenant(payload.userId, () =>
     getAgentChatRepo().finalizeAgentTurnOrThrowUnscoped({
@@ -598,25 +657,9 @@ async function finalizeTurn(
       runId: payload.runId,
       parts: outcome.parts as Prisma.InputJsonValue,
       terminalCode: outcome.terminalCode,
+      stopReason: outcome.stopReason,
       affectedResources: outcome.affectedResources,
-      usageSettlement:
-        outcome.providerStarted === false
-          ? null
-          : buildAgentUsageSettlement({
-              model: payload.turnBudget.modelSpec,
-              tokens: outcome.tokens,
-              provider: payload.turnBudget.servingProvider,
-              reservedCredits: outcome.reservedCredits,
-              providerCharge: {
-                billed: outcome.ledger.length > 0,
-                measuredCostMicrocents:
-                  measured && outcome.ledger.length > 0
-                    ? outcome.ledger.reduce((total, entry) => total + entry.costMicrocents, 0)
-                    : null,
-                stepTokens: outcome.ledger.map((entry) => entry.tokens),
-                unreadableReason,
-              },
-            }),
+      usageSettlement: usageSettlementForTurn(payload, outcome),
     }),
   );
 
@@ -631,6 +674,7 @@ async function finalizeTurn(
       payload: {
         isError: isAgentTurnTerminalError(committed.terminalCode),
         terminalCode: committed.terminalCode,
+        stopReason: committed.stopReason,
         assistantMessageId: committed.assistantMessage.id,
         affectedResources: committed.affectedResources,
         hasSuccessfulMutation: outcome.hasSuccessfulMutation,
@@ -658,6 +702,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       await finalizeTurn(payload, {
         parts: transcript.replyParts,
         terminalCode: "partial",
+        stopReason: "hosted_ai_unavailable",
         affectedResources: [],
         hasSuccessfulMutation: false,
         tokens: emptyTokens(),
@@ -684,7 +729,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       locale: payload.locale,
       surface,
     });
-    const providerContext = buildAgentProviderContext(systemPrompt, payload.messages, []);
+    const toolDefinitions = shells.map(({ name, description, inputSchema }) => ({ name, description, inputSchema }));
+    const providerContext = buildAgentProviderContext(systemPrompt, payload.messages, toolDefinitions);
 
     let tokens = emptyTokens();
     let cancelled = await readCancellation(payload);
@@ -704,8 +750,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       step: AgentRoundResult;
       outcomes: AgentToolOutcome[];
     } | null = null;
-    const continuationLimits = agentContinuationLimits(Number.MAX_SAFE_INTEGER);
-    let safetyStop: string | null = null;
+    let providerStop: Extract<AgentTurnStopReason, "provider_error" | "content_filter"> | null = null;
+    let providerFailure: WorkflowFailure | null = null;
     let budgetStop = false;
     let hostedAiStop = false;
     const hostedAiPaused = new Error("Hosted AI provider work is paused.");
@@ -716,11 +762,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
     const recordContinuationRound = (step: AgentRoundResult, outcomes: AgentToolOutcome[]) => {
       continuationSteps.push(toAgentContinuationStep(step, outcomes));
-      const loop = decideAgentContinuationLoop(
-        { startedAtMs: 0, steps: continuationSteps, observedAtMs: 0 },
-        continuationLimits,
-      );
-      if (loop.action === "error" && loop.reason !== "step_limit") safetyStop = loop.reason;
+      const loop = decideAgentContinuationLoop({ startedAtMs: 0, steps: continuationSteps, observedAtMs: 0 });
+      if (loop.action === "error") providerStop = loop.reason;
+      else if (!["stop", "length", "tool-calls"].includes(step.finishReason)) providerStop = "provider_error";
     };
 
     const resolveDeferredRound = (resumed: readonly AgentToolOutcome[]) => {
@@ -809,12 +853,23 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         await publishTranscriptEvents(queued.splice(0));
 
         const accruedMicrocents = ledger.reduce((total, entry) => total + entry.costMicrocents, 0);
+        const needsAnotherProviderRound =
+          !cancelled &&
+          !abandoned &&
+          !budgetStop &&
+          !hostedAiStop &&
+          providerStop === null &&
+          roundFailure === null &&
+          (step.finishReason === "length" || step.finishReason === "tool-calls");
         const requiredCredits =
-          agentCreditsForStartedProviderCost(accruedMicrocents) + payload.turnBudget.roundReserveCredits;
+          agentCreditsForStartedProviderCost(accruedMicrocents) +
+          (needsAnotherProviderRound ? payload.turnBudget.roundReserveCredits : 0);
         if (requiredCredits > reservedCredits) {
-          const extended = await ensureTurnReservation(payload, requiredCredits);
-          if (extended === null) budgetStop = true;
-          else reservedCredits = extended;
+          const extension = await ensureTurnReservation(payload, requiredCredits);
+          if (extension.disposition === "extended") reservedCredits = extension.reservedCredits;
+          else if (extension.disposition === "credit_limit") budgetStop = true;
+          else if (extension.disposition === "hosted_ai_unavailable") hostedAiStop = true;
+          else roundFailure ??= toWorkflowFailure(new Error("Agent usage reservation is no longer available."));
         }
 
         const settledIds = new Set(outcomes.map((outcome) => outcome.toolCallId));
@@ -836,8 +891,50 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
     let messages = providerContext.messages;
     let instructions = systemPrompt;
+    let compactedContinuationCount = -1;
+    let compactedRetainedResponseSteps = AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS + 1;
 
-    while (!abandoned && !cancelled && !budgetStop && !hostedAiStop && safetyStop === null && roundFailure === null) {
+    const compactForNextSegment = (continueOutput: boolean): boolean => {
+      const minimumRetainedSteps = continueOutput ? 1 : 0;
+      const maximumRetainedSteps =
+        compactedContinuationCount === continuationSteps.length
+          ? compactedRetainedResponseSteps - 1
+          : AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS;
+
+      for (
+        let retainedResponseSteps = Math.min(maximumRetainedSteps, continuationSteps.length);
+        retainedResponseSteps >= minimumRetainedSteps;
+        retainedResponseSteps -= 1
+      ) {
+        const compacted = compactAgentContinuationContext({
+          system: systemPrompt,
+          initialMessages: providerContext.messages,
+          steps: continuationSteps,
+          retainedResponseSteps,
+        });
+        const candidateMessages = continueOutput
+          ? [...compacted.messages, { role: "user" as const, content: AGENT_OUTPUT_CONTINUATION_PROMPT }]
+          : [...compacted.messages];
+        if (
+          !isAgentStepContextWithinBudget(
+            { ...providerContext, system: compacted.system },
+            candidateMessages,
+            payload.turnBudget.maxContextBytes,
+          )
+        )
+          continue;
+
+        instructions = compacted.system;
+        messages = candidateMessages;
+        compactedContinuationCount = continuationSteps.length;
+        compactedRetainedResponseSteps = retainedResponseSteps;
+        return true;
+      }
+
+      return false;
+    };
+
+    while (!abandoned && !cancelled && !budgetStop && !hostedAiStop && providerStop === null && roundFailure === null) {
       const agent = new WorkflowAgent({
         id: WORKFLOW_NAME,
         model: payload.turnBudget.modelSpec,
@@ -886,13 +983,22 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           },
           openai: { parallelToolCalls: false },
         },
-        prepareStep: async () => {
+        prepareStep: async ({ messages: stepMessages }) => {
+          if (abandoned || cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null)
+            throw AGENT_LOCAL_TERMINATION_REQUIRED;
+          if (
+            !isAgentContextWithinBudget(
+              { messages: stepMessages, tools: toolDefinitions },
+              payload.turnBudget.maxContextBytes,
+            )
+          )
+            throw AGENT_CONTEXT_COMPACTION_REQUIRED;
           if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
           return {};
         },
         stopWhen: [
           isStepCount(AGENT_SEGMENT_ROUNDS),
-          () => abandoned || cancelled || budgetStop || hostedAiStop || safetyStop !== null || roundFailure !== null,
+          () => abandoned || cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null,
         ],
         onToolExecutionEnd: (event) => {
           completedTools.push(
@@ -917,15 +1023,34 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       try {
         result = await agent.stream({ messages, writable, preventClose: true, sendFinish: false });
       } catch (error) {
+        if (error === AGENT_LOCAL_TERMINATION_REQUIRED) break;
         if (error === hostedAiPaused) {
           hostedAiStop = true;
           break;
         }
-        throw error;
+        if (error === AGENT_CONTEXT_COMPACTION_REQUIRED) {
+          const continueOutput = continuationSteps.at(-1)?.finishReason === "length";
+          if (continuationSteps.length === 0 || !compactForNextSegment(continueOutput)) {
+            roundFailure = toWorkflowFailure(
+              new Error("Agent context could not be compacted within its provider budget."),
+            );
+            break;
+          }
+          continue;
+        }
+        const failure = toWorkflowFailure(error);
+        if (isAgentProviderFailure(error)) {
+          providerFailure = failure;
+          providerStop = "provider_error";
+        } else roundFailure = failure;
+        break;
       }
       finishReason = result.finishReason;
 
       for (const step of (result.steps as unknown as AgentRoundResult[]).slice(appliedThisCall)) await applyRound(step);
+
+      if (finishReason === "content-filter") providerStop = "content_filter";
+      else if (!["stop", "length", "tool-calls"].includes(finishReason)) providerStop = "provider_error";
 
       for (const message of result.messages) {
         if (message.role !== "tool" || typeof message.content === "string") continue;
@@ -936,13 +1061,18 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       }
 
       if (abandoned) break;
+      if (cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null) break;
 
       let pending = pendingApprovalCalls(result.messages);
       if (pending.length === 0) {
         if (finishReason === "stop") break;
-        if (cancelled || budgetStop || safetyStop !== null || roundFailure !== null) break;
+        if (cancelled || budgetStop || providerStop !== null || roundFailure !== null) break;
 
-        const carried = result.messages.filter((message) => message.role !== "system");
+        const carried = nextAgentSegmentMessages({
+          messages: result.messages,
+          finishReason,
+          lastStep: continuationSteps.at(-1),
+        });
         const fitsWhole = isAgentStepContextWithinBudget(
           { ...providerContext, system: instructions },
           carried,
@@ -953,13 +1083,12 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           continue;
         }
 
-        const compacted = compactAgentContinuationContext({
-          system: systemPrompt,
-          initialMessages: providerContext.messages,
-          steps: continuationSteps,
-        });
-        instructions = compacted.system;
-        messages = [...compacted.messages];
+        if (!compactForNextSegment(finishReason === "length")) {
+          roundFailure = toWorkflowFailure(
+            new Error("Agent context could not be compacted within its provider budget."),
+          );
+          break;
+        }
         continue;
       }
 
@@ -1102,22 +1231,37 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
     transcript.finishTextSegment();
     if (roundFailure) await reportFailure(WORKFLOW_NAME, roundFailure, payload.tenant);
+    if (providerFailure) await reportFailure(WORKFLOW_NAME, providerFailure, payload.tenant);
 
-    const stopKind: AgentRunnerMessageKind | null = hostedAiStop
-      ? "hostedAiUnavailable"
-      : budgetStop
-        ? performedWrite
-          ? "creditLimit"
-          : "creditLimitNoWrite"
-        : roundFailure
-          ? "turnError"
-          : safetyStop
+    const stopReason: AgentTurnStopReason | null = cancelled
+      ? "cancelled"
+      : hostedAiStop
+        ? "hosted_ai_unavailable"
+        : budgetStop
+          ? "credit_limit"
+          : roundFailure
+            ? "turn_error"
+            : providerStop;
+    const policyBreach = usageSettlementForTurn(payload, { tokens, ledger, reservedCredits })?.policyBreach === true;
+    const effectiveStopReason: AgentTurnStopReason | null = policyBreach ? "policy_breach" : stopReason;
+    const stopKind: AgentRunnerMessageKind | null =
+      effectiveStopReason === "cancelled"
+        ? "cancelled"
+        : effectiveStopReason === "hosted_ai_unavailable"
+          ? "hostedAiUnavailable"
+          : effectiveStopReason === "credit_limit"
             ? performedWrite
-              ? "safetyLimit"
-              : "safetyLimitNoWrite"
-            : finishReason === "length"
-              ? "outputLimit"
-              : null;
+              ? "creditLimit"
+              : "creditLimitNoWrite"
+            : effectiveStopReason === "turn_error"
+              ? "turnError"
+              : effectiveStopReason === "provider_error"
+                ? "providerError"
+                : effectiveStopReason === "content_filter"
+                  ? "contentFilter"
+                  : effectiveStopReason === "policy_breach"
+                    ? "policyBreach"
+                    : null;
     if (stopKind) {
       const message = await resolveRunnerMessage(payload.locale, stopKind);
       const trailing = transcript.replyText.trim() ? `\n\n${message}` : message;
@@ -1134,11 +1278,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
     await finalizeTurn(payload, {
       parts: transcript.replyParts,
-      terminalCode: cancelled
-        ? "cancelled"
-        : hostedAiStop || safetyStop || roundFailure || finishReason !== "stop"
-          ? "partial"
-          : "completed",
+      stopReason,
+      terminalCode: stopReason === "cancelled" ? "cancelled" : stopReason === null ? "completed" : "partial",
       affectedResources: transcript.affectedResources,
       hasSuccessfulMutation: transcript.hasSuccessfulMutation,
       tokens,

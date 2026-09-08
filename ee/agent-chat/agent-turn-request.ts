@@ -2,10 +2,20 @@ import { AGENT_ACTIVITY_RESOURCES, type AgentActivityResource } from "./agent-ac
 
 export const AGENT_TURN_REQUEST_STATUSES = ["running", "completed", "failed", "uncertain"] as const;
 export const AGENT_TURN_TERMINAL_CODES = ["completed", "partial", "error", "cancelled", "policyBreach"] as const;
+export const AGENT_TURN_STOP_REASONS = [
+  "credit_limit",
+  "provider_error",
+  "content_filter",
+  "hosted_ai_unavailable",
+  "cancelled",
+  "turn_error",
+  "policy_breach",
+] as const;
 export const AGENT_RUN_LEASE_MS = 330_000;
 
 export type AgentTurnRequestStatus = (typeof AGENT_TURN_REQUEST_STATUSES)[number];
 export type AgentTurnTerminalCode = (typeof AGENT_TURN_TERMINAL_CODES)[number];
+export type AgentTurnStopReason = (typeof AGENT_TURN_STOP_REASONS)[number];
 
 export type AgentTurnRequestSnapshot = {
   id: string;
@@ -20,6 +30,7 @@ export type AgentTurnRequestSnapshot = {
   userMessageId: string;
   assistantMessageId: string | null;
   terminalCode: AgentTurnTerminalCode | null;
+  stopReason: AgentTurnStopReason | null;
   affectedResources: AgentActivityResource[];
   hasLaterMessages: boolean;
 };
@@ -71,6 +82,10 @@ export function decideAgentTurnAdmission(
 
 export function isAgentTurnTerminalCode(value: unknown): value is AgentTurnTerminalCode {
   return typeof value === "string" && AGENT_TURN_TERMINAL_CODES.some((code) => code === value);
+}
+
+export function isAgentTurnStopReason(value: unknown): value is AgentTurnStopReason {
+  return typeof value === "string" && AGENT_TURN_STOP_REASONS.some((reason) => reason === value);
 }
 
 export function areAgentTurnAffectedResources(value: unknown): value is AgentActivityResource[] {

@@ -1,4 +1,5 @@
 import type { AgentTurnStatus, AgentTurnTerminalCode } from "@/generated/prisma";
+import type { AgentTurnStopReason } from "@/ee/agent-chat/agent-turn-request";
 
 import { RoutineRunStatus } from "@/generated/prisma";
 
@@ -45,6 +46,35 @@ export function routineRunDetail(
   if (reason || run.status === RoutineRunStatus.failed) return t("RoutineRunReason.unknownFailure");
 
   return "";
+}
+
+export function routineRunStopReason(
+  run: { stopReason?: AgentTurnStopReason | null },
+  t: (key: string) => string,
+): string {
+  switch (run.stopReason) {
+    case "credit_limit":
+      return t("RoutineRunStopReason.creditLimit");
+    case "provider_error":
+      return t("RoutineRunStopReason.providerError");
+    case "content_filter":
+      return t("RoutineRunStopReason.contentFilter");
+    case "hosted_ai_unavailable":
+      return t("RoutineRunStopReason.hostedAiUnavailable");
+    case "cancelled":
+      return t("RoutineRunStopReason.cancelled");
+    case "turn_error":
+      return t("RoutineRunStopReason.turnError");
+    case "policy_breach":
+      return t("RoutineRunStopReason.policyBreach");
+    case null:
+    case undefined:
+      return "";
+    default: {
+      const exhaustive: never = run.stopReason;
+      return exhaustive;
+    }
+  }
 }
 
 export function isTerminalTurnStatus(status: AgentTurnStatus): boolean {

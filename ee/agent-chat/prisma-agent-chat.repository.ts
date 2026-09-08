@@ -34,9 +34,11 @@ import {
 import {
   areAgentTurnAffectedResources,
   AGENT_RUN_LEASE_MS,
+  isAgentTurnStopReason,
   isAgentTurnTerminalCode,
   type AgentTurnRequestSnapshot,
   type AgentTurnRequestStatus,
+  type AgentTurnStopReason,
   type AgentTurnTerminalCode,
 } from "./agent-turn-request";
 import type { AgentUsageSettlement } from "./agent-usage-settlement";
@@ -55,6 +57,7 @@ type StoredAgentTurnRow = {
   userMessageId: string;
   assistantMessageId: string | null;
   terminalCode: string | null;
+  stopReason: string | null;
   modelSpec: string | null;
   affectedResources: unknown;
 };
@@ -88,6 +91,7 @@ export type AgentTurnReplay = {
 export type FinalizedAgentTurn = {
   assistantMessage: { id: string; parts: unknown; createdAt: Date };
   terminalCode: AgentTurnTerminalCode;
+  stopReason: AgentTurnStopReason | null;
   affectedResources: AgentTurnRequestSnapshot["affectedResources"];
   costMicrocents: number;
   chargedCredits: number;
@@ -167,6 +171,12 @@ function sumCommittedAgentCredits(
   }
   return total;
 }
+
+export type AgentUsageReservationExtension =
+  | { disposition: "extended"; reservedCredits: number }
+  | { disposition: "credit_limit" }
+  | { disposition: "hosted_ai_unavailable" }
+  | { disposition: "turn_error" };
 
 export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRepo {
   private async resolveCurrentAgentCreditEntitlement(user: AgentUsageUser, now: Date) {
@@ -258,6 +268,8 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       throw new Error("Stored agent turn attempt count is invalid.");
     if (row.terminalCode !== null && !isAgentTurnTerminalCode(row.terminalCode))
       throw new Error("Stored agent turn terminal code is invalid.");
+    if (row.stopReason !== null && !isAgentTurnStopReason(row.stopReason))
+      throw new Error("Stored agent turn stop reason is invalid.");
     if (!areAgentTurnAffectedResources(row.affectedResources))
       throw new Error("Stored agent turn resources are invalid.");
 
@@ -274,6 +286,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       userMessageId: row.userMessageId,
       assistantMessageId: row.assistantMessageId,
       terminalCode: row.terminalCode,
+      stopReason: row.stopReason,
       affectedResources: row.affectedResources,
       hasLaterMessages,
     };
@@ -472,6 +485,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
             heartbeatAt: null,
             terminalAt: null,
             terminalCode: null,
+            stopReason: null,
             modelSpec: args.modelSpec,
             servingProvider: args.servingProvider,
             affectedResources: [],
@@ -714,6 +728,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
             status: true,
             assistantMessageId: true,
             terminalCode: true,
+            stopReason: true,
           },
         },
       },
@@ -937,6 +952,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       assistantMessageId: true,
       modelSpec: true,
       terminalCode: true,
+      stopReason: true,
       affectedResources: true,
     };
   }
@@ -1004,6 +1020,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         status: nextStatus,
         terminalAt: now,
         terminalCode: null,
+        stopReason: "turn_error",
         affectedResources: [],
       },
     });
@@ -1178,7 +1195,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       });
       if (!lease) {
         const status = await this.settleInterruptedTurn(row, now, model, false);
-        reconciledRow = { ...row, status };
+        reconciledRow = { ...row, status, stopReason: "turn_error" };
       }
     }
 
@@ -1223,6 +1240,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           status: "uncertain",
           assistantMessageId: assistantMessageIsRenderable ? reconciledRow.assistantMessageId : null,
           terminalCode: null,
+          stopReason: "turn_error",
           affectedResources: [],
           terminalAt: now,
         },
@@ -1233,6 +1251,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         status: "uncertain",
         assistantMessageId: assistantMessageIsRenderable ? reconciledRow.assistantMessageId : null,
         terminalCode: null,
+        stopReason: "turn_error",
         affectedResources: [],
       };
     }
@@ -1750,10 +1769,21 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     runId: string;
     parts: Prisma.InputJsonValue;
     terminalCode: AgentTurnTerminalCode;
+    stopReason: AgentTurnStopReason | null;
     affectedResources: AgentTurnRequestSnapshot["affectedResources"];
     usageSettlement: AgentUsageSettlement | null;
   }): Promise<FinalizedAgentTurn> {
     if (!isAgentTurnTerminalCode(args.terminalCode)) throw new Error("Agent turn terminal code is invalid.");
+    if (args.stopReason !== null && !isAgentTurnStopReason(args.stopReason))
+      throw new Error("Agent turn stop reason is invalid.");
+    if (args.terminalCode === "completed" && args.stopReason !== null)
+      throw new Error("A completed agent turn cannot have a stop reason.");
+    if (args.terminalCode !== "completed" && args.stopReason === null)
+      throw new Error("A non-completed agent turn requires a stop reason.");
+    if (args.terminalCode === "cancelled" && args.stopReason !== "cancelled")
+      throw new Error("A cancelled agent turn requires the cancelled stop reason.");
+    if (args.terminalCode === "policyBreach" && args.stopReason !== "policy_breach")
+      throw new Error("A policy-breach agent turn requires the policy-breach stop reason.");
     if (!areAgentTurnAffectedResources(args.affectedResources)) throw new Error("Agent turn resources are invalid.");
     const safeParts = clientSafeAgentMessageParts(args.parts, {
       sanitizeText: true,
@@ -1864,6 +1894,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       }
 
       const terminalCode = settlement?.policyBreach ? "policyBreach" : args.terminalCode;
+      const stopReason = settlement?.policyBreach ? "policy_breach" : args.stopReason;
       const assistantMessage = await this.prisma.agentMessage.create({
         data: {
           id: randomUUID(),
@@ -1900,6 +1931,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           status: "completed",
           assistantMessageId: assistantMessage.id,
           terminalCode,
+          stopReason,
           affectedResources: args.affectedResources,
           terminalAt: committedAt,
         },
@@ -1918,6 +1950,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       return {
         assistantMessage,
         terminalCode,
+        stopReason,
         affectedResources: args.affectedResources,
         costMicrocents: settlement?.costMicrocents ?? 0,
         chargedCredits: settlement?.chargedCredits ?? 0,
@@ -2165,7 +2198,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     companyId: string;
     userId: string;
     requiredCredits: number;
-  }): Promise<number | null> {
+  }): Promise<AgentUsageReservationExtension> {
     if (!Number.isSafeInteger(args.requiredCredits) || args.requiredCredits < 1)
       throw new Error("Agent credit reservation extension is invalid.");
 
@@ -2190,20 +2223,21 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           },
         },
       });
-      if (!reservation) return null;
-      if (!reservation.turnRequest) return null;
+      if (!reservation) return { disposition: "turn_error" };
+      if (!reservation.turnRequest) return { disposition: "turn_error" };
       const creditCeiling = reservation.turnRequest.conversation.creditCeiling;
       if (
         creditCeiling !== null &&
         (reservation.reservedCredits > creditCeiling || args.requiredCredits > creditCeiling)
       )
-        return null;
-      if (reservation.reservedCredits >= args.requiredCredits) return reservation.reservedCredits;
+        return { disposition: "credit_limit" };
+      if (reservation.reservedCredits >= args.requiredCredits)
+        return { disposition: "extended", reservedCredits: reservation.reservedCredits };
 
       const now = new Date();
       const user = await this.findUserForUsageUnscoped(args.userId);
       if (!user || user.companyId !== args.companyId || user.status !== Status.active || !user.subscription)
-        return null;
+        return { disposition: "hosted_ai_unavailable" };
       const entitlement = await this.resolveCurrentAgentCreditEntitlement(user, now);
       if (
         !entitlement ||
@@ -2211,7 +2245,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         entitlement.start.getTime() !== reservation.periodStart.getTime() ||
         entitlement.resetAt.getTime() !== reservation.periodEnd.getTime()
       )
-        return null;
+        return { disposition: "hosted_ai_unavailable" };
 
       const others = await this.prisma.agentUsageEvent.findMany({
         where: {
@@ -2225,7 +2259,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         select: { state: true, reservedCredits: true, chargedCredits: true },
       });
       const committedElsewhere = sumCommittedAgentCredits(others);
-      if (committedElsewhere + args.requiredCredits > entitlement.limit) return null;
+      if (committedElsewhere + args.requiredCredits > entitlement.limit) return { disposition: "credit_limit" };
 
       if (
         !(await this.admitsHostedAiGlobalSpend({
@@ -2234,7 +2268,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           additionalReservedCredits: args.requiredCredits,
         }))
       )
-        return null;
+        return { disposition: "hosted_ai_unavailable" };
 
       const extended = await this.prisma.agentUsageEvent.updateMany({
         where: {
@@ -2249,7 +2283,9 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           subscriptionStatusSnapshot: user.subscription.status,
         },
       });
-      return extended.count === 1 ? args.requiredCredits : null;
+      return extended.count === 1
+        ? { disposition: "extended", reservedCredits: args.requiredCredits }
+        : { disposition: "turn_error" };
     });
   }
 

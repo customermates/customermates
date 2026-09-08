@@ -22,9 +22,11 @@ import { useAgentChatStore } from "./agent-chat-store-context";
 
 export const AgentConversationLog = observer(function AgentConversationLog({
   readOnly = false,
+  scrollable = true,
   userLabel,
 }: {
   readOnly?: boolean;
+  scrollable?: boolean;
   userLabel?: string;
 }) {
   const store = useAgentChatStore();
@@ -39,6 +41,7 @@ export const AgentConversationLog = observer(function AgentConversationLog({
       loadOlderLabel={copy.loadOlderMessages}
       scrollKey={store.conversationId ?? "new"}
       scrollRegionLabel={t("AgentChat.title")}
+      scrollable={scrollable}
       onTopReach={store.olderMessagesCursor ? store.loadOlderMessages : undefined}
     >
       <div aria-atomic="false" aria-busy={store.isWorking} aria-live="off" className="space-y-3" role="log">

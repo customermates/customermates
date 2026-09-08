@@ -1825,6 +1825,7 @@ model AgentTurnRequest {
   terminalCode            AgentTurnTerminalCode?
   affectedResources       Json                   @default("[]")
   terminalAt              DateTime?
+  stopReason              String?
   createdAt               DateTime               @default(now())
   updatedAt               DateTime               @updatedAt
   conversation            AgentConversation      @relation(fields: [conversationId], references: [id], onDelete: Cascade)

@@ -340,13 +340,13 @@
     "placeholder": "Ask your CRM…",
     "runner": {
       "cancelled": "This response was stopped.",
+      "contentFilter": "The AI provider blocked part of this response. Nothing further was changed. Try rephrasing the request.",
       "creditLimit": "I completed part of this request, but stopped because your Assistant credits ran out. Completed work remains in place; credits reset at the start of your next period.",
       "creditLimitNoWrite": "I stopped before making any changes because your Assistant credits ran out. Nothing was created, updated, or sent. Credits reset at the start of your next period.",
       "emptyReply": "I couldn't produce a response. Please try again.",
       "hostedAiUnavailable": "Hosted AI is temporarily unavailable. Please try again later.",
-      "outputLimit": "I completed part of this response, but reached this turn's output limit. Ask me to continue and I'll finish from the completed work.",
-      "safetyLimit": "I completed part of this request, but stopped because the latest steps were repeating, failing, or reached a safety limit. Completed work remains in place; review the steps above before asking me to proceed.",
-      "safetyLimitNoWrite": "I stopped before making any changes because the latest steps were repeating, failing, or reached a safety limit. Nothing was created, updated, or sent.",
+      "policyBreach": "The AI provider exceeded the reserved credit budget, so the run was stopped. No further provider work was started.",
+      "providerError": "The AI provider returned an error before I could finish. Nothing further was changed. Please try again.",
       "turnError": "I couldn't complete that request. Please try again."
     },
     "send": "Send",
@@ -3076,16 +3076,58 @@
     "disabledRepeatedFailures": "Mate paused this routine because its last three runs all failed. Fix the instructions, then switch it back on.",
     "disabledRepeatedFailuresReadOnly": "Mate paused this routine because its last three runs all failed. Its owner needs to fix the instructions and activate it again.",
     "disabledTitle": "Routine paused",
+    "empty": {
+      "event": {
+        "actions": {
+          "calendarChanged": "In the external calendar service connected to Customermates, create, edit, or delete a calendar.",
+          "calendarEventChanged": "In the external calendar service connected to Customermates, create, edit, or delete a calendar event.",
+          "chatUpdated": "Change a connected conversation’s name, description, or type.",
+          "emailReceived": "Receive a new, non-duplicate email in a connected mailbox.",
+          "messageDeleted": "Delete a message in the connected messaging provider.",
+          "messageReaction": "Add a reaction to a message in a connected conversation.",
+          "messageReceived": "Receive a new, non-duplicate incoming message through a connected account.",
+          "messageUpdated": "Edit a message in the connected messaging provider.",
+          "recordCreated": "Create a {entity} in Customermates.",
+          "recordDeleted": "Delete a {entity} in Customermates.",
+          "recordUpdated": "Make a real change to a {entity} in Customermates.",
+          "relationCreated": "Have a LinkedIn connection request accepted through a connected account."
+        },
+        "conditions": {
+          "filters": "The record must also match every configured filter.",
+          "filtersWithDeletion": "Configured filters apply to created and updated records. Deleted records use their deletion snapshot and bypass these filters.",
+          "ownerAccess": "The routine owner must still be active and able to access the connected account or record.",
+          "paused": "Activate and save this routine before triggering an event.",
+          "suppression": "Events caused by a routine do not trigger routines.",
+          "unsaved": "Save these changes first. Until then, events use the last saved configuration.",
+          "watchedFields": "For update events, at least one watched field must really change: {fields}."
+        },
+        "description": "Event routines cannot be started manually. Perform one of the real actions below to create the event data this routine needs.",
+        "instructionsLabel": "Ways to trigger this routine"
+      },
+      "schedule": {
+        "activateFirst": "Activate and save the routine before using Test trigger.",
+        "description": "It will run on this schedule:",
+        "ownerOnly": "Only the routine owner can use Test trigger. The schedule still runs automatically while the routine is active.",
+        "saveFirst": "Save these changes before using Test trigger.",
+        "testNow": "Use Test trigger to start a run now, or wait for the next scheduled time."
+      },
+      "title": "No runs yet"
+    },
     "instruction": "Instruction sent to the assistant",
     "never": "Never",
-    "noRuns": "This routine has not run yet.",
     "owner": "Owner",
     "ownerOnlyEdit": "This routine is read-only for you. It runs only as {owner}, who can edit or pause it. Company administrators can only pause or delete it.",
     "ownerUnavailable": "Owner unavailable",
     "ownerUnavailableReadOnly": "This routine has no available owner, so it stays paused and read-only. A company administrator can delete it.",
     "ranAs": "Ran as {owner}",
     "readOnlyTitle": "Read-only access",
+    "runDetails": "Run details",
+    "runNoTranscript": "No transcript is available for this run.",
+    "runQueued": "This run is queued. Its transcript will appear when the assistant starts.",
     "runs": "Runs",
+    "runsLoadErrorDescription": "The run history could not be loaded. Try again.",
+    "runsLoadErrorTitle": "Could not load runs",
+    "runStarting": "This run is starting. Its transcript will appear shortly.",
     "testTrigger": "Test trigger",
     "testTriggerEnableFirst": "Activate this routine before testing it.",
     "testTriggerEventUnavailable": "Event triggers need real event data. Trigger a matching event in your workspace to test this routine.",
@@ -3102,6 +3144,7 @@
   "RoutineModal": {
     "at": "at",
     "changedFieldsHelp": "Leave empty to run on every change. Narrowing saves credits.",
+    "configurationHeading": "Configuration",
     "customSchedule": "This routine uses a custom schedule: {expression}",
     "detailsTab": "Details",
     "disabled": "Paused",
@@ -3112,6 +3155,7 @@
     "promptExampleEvent": "Read the record that changed and reply with one sentence on what it means.",
     "promptExampleSchedule": "Summarise the deals that moved since yesterday and reply with a short list.",
     "scheduleTimeZone": "Times are shown in {timezone}.",
+    "tabsLabel": "Routine sections",
     "title": "Routine",
     "triggerFiltersHelp": "Leave empty to run for every record.",
     "useSchedulePreset": "Switch to a preset"
@@ -3142,6 +3186,15 @@
     "running": "Running",
     "skipped": "Skipped",
     "succeeded": "Succeeded"
+  },
+  "RoutineRunStopReason": {
+    "cancelled": "The run was cancelled.",
+    "contentFilter": "The AI provider blocked part of this run, so no further changes were made.",
+    "creditLimit": "The run stopped because its available Assistant credits ran out.",
+    "hostedAiUnavailable": "Hosted AI became unavailable before the run could finish.",
+    "policyBreach": "The AI provider exceeded the reserved credit budget, so the run was stopped.",
+    "providerError": "The AI provider returned an error before the run could finish.",
+    "turnError": "The assistant could not complete this run."
   },
   "RoutinesCard": {
     "emptyBody": "Mate can work while you are away. For example: summarise the deals that moved every weekday morning, or draft a thank-you email when one is won.",

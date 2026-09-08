@@ -74,25 +74,7 @@ export type AgentContinuationAccounting = {
   repeatedActivityCalls: number;
 };
 
-export type AgentContinuationLimits = {
-  maxProviderSteps: number;
-  maxWriteActivities: number;
-  maxErrors: number;
-  maxNoProgressSteps: number;
-  maxRepeatedActivityCalls: number;
-  maxWallTimeMs: number;
-};
-
-export type AgentContinuationErrorReason =
-  | "step_limit"
-  | "write_limit"
-  | "error_limit"
-  | "no_progress"
-  | "repeated_activity"
-  | "wall_time_limit"
-  | "length"
-  | "content_filter"
-  | "provider_error";
+export type AgentContinuationErrorReason = "content_filter" | "provider_error";
 
 export type AgentContinuationDecision =
   | { action: "continue"; accounting: AgentContinuationAccounting }
@@ -326,19 +308,6 @@ export function compactAgentContinuationContext(args: {
   };
 }
 
-function assertPositiveSafeInteger(value: number, label: string) {
-  if (!Number.isSafeInteger(value) || value < 1) throw new Error(`${label} is invalid.`);
-}
-
-function validateLimits(limits: AgentContinuationLimits) {
-  assertPositiveSafeInteger(limits.maxProviderSteps, "Agent continuation step limit");
-  assertPositiveSafeInteger(limits.maxWriteActivities, "Agent continuation write limit");
-  assertPositiveSafeInteger(limits.maxErrors, "Agent continuation error limit");
-  assertPositiveSafeInteger(limits.maxNoProgressSteps, "Agent continuation no-progress limit");
-  assertPositiveSafeInteger(limits.maxRepeatedActivityCalls, "Agent continuation repeated-activity limit");
-  assertPositiveSafeInteger(limits.maxWallTimeMs, "Agent continuation wall-time limit");
-}
-
 function toolCallSignatures(step: AgentContinuationStep) {
   return step.content.flatMap((rawPart) => {
     const part = record(rawPart);
@@ -390,11 +359,7 @@ function errorDecision(
   return { action: "error", reason, accounting };
 }
 
-export function decideAgentContinuationLoop(
-  run: AgentContinuationRun,
-  limits: AgentContinuationLimits,
-): AgentContinuationDecision {
-  validateLimits(limits);
+export function decideAgentContinuationLoop(run: AgentContinuationRun): AgentContinuationDecision {
   if (!Number.isSafeInteger(run.startedAtMs) || run.startedAtMs < 0)
     throw new Error("Agent continuation start time is invalid.");
   if (!Number.isSafeInteger(run.observedAtMs) || run.observedAtMs < run.startedAtMs)
@@ -406,25 +371,12 @@ export function decideAgentContinuationLoop(
   const pendingApproval =
     run.pendingApproval === true || (stepActivities.at(-1)?.some((activity) => activity.status === "pending") ?? false);
 
-  if (accounting.providerSteps > limits.maxProviderSteps) return errorDecision(accounting, "step_limit");
-  if (accounting.writeActivities > limits.maxWriteActivities) return errorDecision(accounting, "write_limit");
-  if (accounting.errors > limits.maxErrors) return errorDecision(accounting, "error_limit");
-  if (run.observedAtMs - accounting.startedAtMs >= limits.maxWallTimeMs)
-    return errorDecision(accounting, "wall_time_limit");
   if (pendingApproval) return { action: "pause", reason: "approval", accounting };
 
   if (lastStep?.finishReason === "stop") return { action: "complete", accounting };
   if (lastStep?.finishReason === "content-filter") return errorDecision(accounting, "content_filter");
   if (lastStep?.finishReason === "error" || lastStep?.finishReason === "other" || !lastStep)
     return errorDecision(accounting, "provider_error");
-  if (lastStep.finishReason === "length") return errorDecision(accounting, "length");
-
-  if (accounting.providerSteps >= limits.maxProviderSteps) return errorDecision(accounting, "step_limit");
-  if (accounting.writeActivities >= limits.maxWriteActivities) return errorDecision(accounting, "write_limit");
-  if (accounting.errors >= limits.maxErrors) return errorDecision(accounting, "error_limit");
-  if (accounting.noProgressSteps >= limits.maxNoProgressSteps) return errorDecision(accounting, "no_progress");
-  if (accounting.repeatedActivityCalls >= limits.maxRepeatedActivityCalls)
-    return errorDecision(accounting, "repeated_activity");
   return { action: "continue", accounting };
 }
 

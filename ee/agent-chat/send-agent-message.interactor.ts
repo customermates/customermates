@@ -49,6 +49,7 @@ export type SendAgentMessageResult =
         createdAt: Date;
       };
       terminalCode: NonNullable<AgentTurnRequestSnapshot["terminalCode"]>;
+      stopReason: AgentTurnRequestSnapshot["stopReason"];
       affectedResources: AgentTurnRequestSnapshot["affectedResources"];
     }
   | {
@@ -139,6 +140,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
             createdAt: assistantMessage.createdAt,
           },
           terminalCode,
+          stopReason: decision.turn.stopReason,
           affectedResources: decision.turn.affectedResources,
         },
       };

@@ -17,7 +17,6 @@ describe("agent runner stop copy", () => {
   it("branches the stop message on whether the turn actually wrote", () => {
     const workflow = read("workflows/agent-turn.ts");
     expect(workflow).toMatch(/performedWrite\s*\?\s*"creditLimit"\s*:\s*"creditLimitNoWrite"/);
-    expect(workflow).toMatch(/performedWrite\s*\?\s*"safetyLimit"\s*:\s*"safetyLimitNoWrite"/);
   });
 
   it("sets performedWrite only for a successful call to a tool that is not read-only", () => {
@@ -30,7 +29,7 @@ describe("agent runner stop copy", () => {
   it("offers a no-write variant of every stop message that claims completed work", () => {
     for (const locale of APP_LOCALES) {
       const copy = runnerCopy(locale);
-      expect(Object.keys(copy), locale).toEqual(expect.arrayContaining(["creditLimitNoWrite", "safetyLimitNoWrite"]));
+      expect(Object.keys(copy), locale).toContain("creditLimitNoWrite");
     }
   });
 
@@ -39,7 +38,6 @@ describe("agent runner stop copy", () => {
     for (const locale of APP_LOCALES) {
       const copy = runnerCopy(locale);
       expect(copy.creditLimitNoWrite, `${locale} creditLimitNoWrite`).not.toMatch(claims);
-      expect(copy.safetyLimitNoWrite, `${locale} safetyLimitNoWrite`).not.toMatch(claims);
     }
   });
 

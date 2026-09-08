@@ -132,13 +132,15 @@ describe("dashboard widget UI", () => {
 
     // Routine event triggers are a filter family in the same sense, so the routines modal is an
     // admitted caller and is asserted here rather than exempted.
-    const routineModal = read("app/[locale]/(protected)/routines/components/routine-modal.tsx");
+    const routineConfiguration = read(
+      "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx",
+    );
 
-    expect(between(routineModal, 'baseId="triggerFilters"', "/>")).toContain('variant="grouped"');
+    expect(between(routineConfiguration, 'baseId="triggerFilters"', "/>")).toContain('variant="grouped"');
     expect(groupedCallers.map((file) => relative(REPO_ROOT, file)).sort()).toEqual([
       "app/[locale]/(protected)/dashboard/components/activity-filter-fields.tsx",
       "app/[locale]/(protected)/dashboard/components/widget-modal.tsx",
-      "app/[locale]/(protected)/routines/components/routine-modal.tsx",
+      "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx",
     ]);
   });
 

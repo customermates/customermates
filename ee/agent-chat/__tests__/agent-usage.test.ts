@@ -13,6 +13,7 @@ vi.mock("@/env", () => ({
 }));
 
 import { AgentUsageService, type AgentUsageRepo } from "../agent-usage.service";
+import { agentRoundWorstCaseCredits } from "../agent-budget-policy";
 import { buildAgentUsageSettlement } from "../agent-usage-settlement";
 import { computeCostMicrocents, promptTokensOf } from "../model-pricing";
 import { MODEL_CATALOG } from "../model-catalog";
@@ -225,13 +226,25 @@ describe("AgentUsageService summary", () => {
 });
 
 describe("AgentUsageService admission and ledger", () => {
-  it("admits and bounds a final one-credit turn", async () => {
-    const service = new AgentUsageService(makeRepo({ usedCredits: 499 }));
+  it("admits and bounds a final fully reservable turn", async () => {
+    const requiredCredits = agentRoundWorstCaseCredits(MODEL);
+    const service = new AgentUsageService(makeRepo({ usedCredits: 500 - requiredCredits }));
 
     const admission = await service.prepareTurn("user-1", NOW, { model: MODEL });
 
-    expect(admission.summary.creditsRemaining).toBe(1);
-    expect(admission.reservation?.reservedCredits).toBe(1);
+    expect(admission.summary.creditsRemaining).toBe(requiredCredits);
+    expect(admission.reservation?.reservedCredits).toBe(requiredCredits);
+  });
+
+  it("does not start a round when the remaining credits cannot cover its hard provider ceiling", async () => {
+    const requiredCredits = agentRoundWorstCaseCredits(MODEL);
+    const service = new AgentUsageService(makeRepo({ usedCredits: 500 - requiredCredits + 1 }));
+
+    const admission = await service.prepareTurn("user-1", NOW, { model: MODEL });
+
+    expect(admission.summary.creditsRemaining).toBe(requiredCredits - 1);
+    expect(admission.summary.blockedReason).toBe("credits_exhausted");
+    expect(admission.reservation).toBeNull();
   });
 
   it("does not reserve when the allowance is exhausted", async () => {

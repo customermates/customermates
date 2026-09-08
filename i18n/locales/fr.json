@@ -340,13 +340,13 @@
     "placeholder": "Interrogez votre CRM…",
     "runner": {
       "cancelled": "Cette réponse a été arrêtée.",
+      "contentFilter": "Le fournisseur d'IA a bloqué une partie de cette réponse. Rien d'autre n'a été modifié. Essayez de reformuler la demande.",
       "creditLimit": "J'ai traité une partie de cette demande, puis je me suis arrêté car vos crédits Assistant sont épuisés. Le travail effectué est conservé ; les crédits sont réinitialisés au début de votre prochaine période.",
       "creditLimitNoWrite": "Je me suis arrêté avant toute modification car vos crédits Assistant sont épuisés. Rien n'a été créé, mis à jour ni envoyé. Les crédits sont réinitialisés au début de votre prochaine période.",
       "emptyReply": "Je n'ai pas pu générer de réponse. Veuillez réessayer.",
       "hostedAiUnavailable": "L’IA hébergée est temporairement indisponible. Veuillez réessayer plus tard.",
-      "outputLimit": "J’ai rédigé une partie de cette réponse, mais j’ai atteint la limite de sortie de ce tour. Demandez-moi de continuer et je terminerai à partir du travail déjà effectué.",
-      "safetyLimit": "J’ai réalisé une partie de cette demande, mais je me suis arrêté parce que les dernières étapes se répétaient, échouaient ou avaient atteint une limite de sécurité. Le travail terminé reste en place ; vérifiez les étapes ci-dessus avant de me demander de poursuivre.",
-      "safetyLimitNoWrite": "Je me suis arrêté avant toute modification car les dernières étapes se répétaient, échouaient ou ont atteint une limite de sécurité. Rien n'a été créé, mis à jour ni envoyé.",
+      "policyBreach": "Le fournisseur d’IA a dépassé le budget de crédits réservé ; l’exécution a donc été arrêtée. Aucun autre traitement du fournisseur n’a été lancé.",
+      "providerError": "Le fournisseur d'IA a renvoyé une erreur avant que je puisse terminer. Rien d'autre n'a été modifié. Veuillez réessayer.",
       "turnError": "Je n'ai pas pu traiter cette demande. Veuillez réessayer."
     },
     "send": "Envoyer",
@@ -3076,16 +3076,58 @@
     "disabledRepeatedFailures": "Mate a mis cette routine en pause car ses trois dernières exécutions ont échoué. Corrigez les instructions, puis réactivez-la.",
     "disabledRepeatedFailuresReadOnly": "Mate a suspendu cette routine car ses trois dernières exécutions ont échoué. Son propriétaire doit corriger les instructions, puis la réactiver.",
     "disabledTitle": "Routine suspendue",
+    "empty": {
+      "event": {
+        "actions": {
+          "calendarChanged": "Dans le service de calendrier externe connecté à Customermates, créez, modifiez ou supprimez un calendrier.",
+          "calendarEventChanged": "Dans le service de calendrier externe connecté à Customermates, créez, modifiez ou supprimez un évènement du calendrier.",
+          "chatUpdated": "Modifiez le nom, la description ou le type d’une conversation connectée.",
+          "emailReceived": "Recevez un nouvel e-mail non dupliqué dans une boîte aux lettres connectée.",
+          "messageDeleted": "Supprimez un message chez le fournisseur de messagerie connecté.",
+          "messageReaction": "Ajoutez une réaction à un message d’une conversation connectée.",
+          "messageReceived": "Recevez un nouveau message entrant non dupliqué via un compte connecté.",
+          "messageUpdated": "Modifiez un message chez le fournisseur de messagerie connecté.",
+          "recordCreated": "Créez {entity} dans Customermates.",
+          "recordDeleted": "Supprimez {entity} dans Customermates.",
+          "recordUpdated": "Apportez une véritable modification à {entity} dans Customermates.",
+          "relationCreated": "Faites accepter une demande de connexion LinkedIn via un compte connecté."
+        },
+        "conditions": {
+          "filters": "L’enregistrement doit également correspondre à tous les filtres configurés.",
+          "filtersWithDeletion": "Les filtres configurés s’appliquent aux enregistrements créés et modifiés. Les enregistrements supprimés utilisent leur instantané de suppression et ignorent ces filtres.",
+          "ownerAccess": "Le propriétaire de la routine doit toujours être actif et pouvoir accéder au compte connecté ou à l’enregistrement.",
+          "paused": "Activez et enregistrez cette routine avant de déclencher un évènement.",
+          "suppression": "Les évènements provoqués par une routine ne déclenchent aucune routine.",
+          "unsaved": "Enregistrez d’abord ces modifications. D’ici là, les évènements utilisent la dernière configuration enregistrée.",
+          "watchedFields": "Pour les évènements de modification, au moins un champ surveillé doit réellement changer : {fields}."
+        },
+        "description": "Les routines déclenchées par un évènement ne peuvent pas être démarrées manuellement. Effectuez l’une des actions réelles ci-dessous pour créer les données nécessaires.",
+        "instructionsLabel": "Façons de déclencher cette routine"
+      },
+      "schedule": {
+        "activateFirst": "Activez et enregistrez la routine avant d’utiliser « Tester le déclencheur ».",
+        "description": "Elle s’exécutera selon cette planification :",
+        "ownerOnly": "Seul le propriétaire peut utiliser « Tester le déclencheur ». La planification s’exécute automatiquement tant que la routine est active.",
+        "saveFirst": "Enregistrez ces modifications avant d’utiliser « Tester le déclencheur ».",
+        "testNow": "Utilisez « Tester le déclencheur » pour lancer une exécution maintenant, ou attendez la prochaine heure planifiée."
+      },
+      "title": "Aucune exécution pour le moment"
+    },
     "instruction": "Instruction envoyée à l’assistant",
     "never": "Jamais",
-    "noRuns": "Cette routine n'a pas encore été exécutée.",
     "owner": "Propriétaire",
     "ownerOnlyEdit": "Cette routine est en lecture seule pour vous. Elle s’exécute uniquement sous l’identité de {owner}, qui peut la modifier ou la suspendre. Les administrateurs de l’entreprise peuvent uniquement la suspendre ou la supprimer.",
     "ownerUnavailable": "Propriétaire indisponible",
     "ownerUnavailableReadOnly": "Cette routine n’a plus de propriétaire disponible ; elle reste donc suspendue et en lecture seule. Un administrateur de l’entreprise peut la supprimer.",
     "ranAs": "Exécutée en tant que {owner}",
     "readOnlyTitle": "Accès en lecture seule",
+    "runDetails": "Détails de l’exécution",
+    "runNoTranscript": "Aucune transcription n’est disponible pour cette exécution.",
+    "runQueued": "Cette exécution est en attente. Sa transcription apparaîtra au démarrage de l’assistant.",
     "runs": "Exécutions",
+    "runsLoadErrorDescription": "Impossible de charger l’historique des exécutions. Réessayez.",
+    "runsLoadErrorTitle": "Impossible de charger les exécutions",
+    "runStarting": "Cette exécution démarre. Sa transcription apparaîtra bientôt.",
     "testTrigger": "Tester le déclencheur",
     "testTriggerEnableFirst": "Activez cette routine avant de la tester.",
     "testTriggerEventUnavailable": "Les déclencheurs d'évènements ont besoin de données réelles. Déclenchez un évènement correspondant dans l'espace de travail pour tester cette routine.",
@@ -3102,6 +3144,7 @@
   "RoutineModal": {
     "at": "à",
     "changedFieldsHelp": "Laissez vide pour s’exécuter à chaque changement. Restreindre économise des crédits.",
+    "configurationHeading": "Paramètres",
     "customSchedule": "Cette routine utilise une planification personnalisée : {expression}",
     "detailsTab": "Détails",
     "disabled": "En pause",
@@ -3112,6 +3155,7 @@
     "promptExampleEvent": "Lis l’enregistrement modifié et réponds en une phrase sur ce que cela signifie.",
     "promptExampleSchedule": "Résume ce qui a bougé depuis hier et réponds par une courte liste.",
     "scheduleTimeZone": "Les heures sont affichées en {timezone}.",
+    "tabsLabel": "Sections de la routine",
     "title": "Routine",
     "triggerFiltersHelp": "Laissez vide pour s’exécuter pour chaque enregistrement.",
     "useSchedulePreset": "Utiliser une fréquence prédéfinie"
@@ -3142,6 +3186,15 @@
     "running": "En cours",
     "skipped": "Ignorée",
     "succeeded": "Réussie"
+  },
+  "RoutineRunStopReason": {
+    "cancelled": "L’exécution a été annulée.",
+    "contentFilter": "Le fournisseur d’IA a bloqué une partie de cette exécution ; aucune autre modification n’a donc été effectuée.",
+    "creditLimit": "L’exécution s’est arrêtée faute de crédits Assistant disponibles.",
+    "hostedAiUnavailable": "L’IA hébergée est devenue indisponible avant la fin de l’exécution.",
+    "policyBreach": "Le fournisseur d’IA a dépassé le budget de crédits réservé ; l’exécution a donc été arrêtée.",
+    "providerError": "Le fournisseur d’IA a renvoyé une erreur avant la fin de l’exécution.",
+    "turnError": "L’assistant n’a pas pu terminer cette exécution."
   },
   "RoutinesCard": {
     "emptyBody": "Mate peut travailler en votre absence. Par exemple : résumer chaque matin de semaine ce qui a bougé, ou rédiger un e-mail de remerciement dès qu’une affaire est gagnée.",

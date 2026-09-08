@@ -660,6 +660,31 @@ describe("AgentChatStore", () => {
     expect(store.conversationLoadPendingId).toBeNull();
   });
 
+  it("switches a read-only transcript viewer even while the previous run is active", async () => {
+    const nextId = "00000000-0000-4000-8000-000000000002";
+    actionsMock.getAgentConversationAction.mockResolvedValue({
+      id: nextId,
+      title: "Next run",
+      messages: [
+        {
+          id: "next-message",
+          role: "assistant",
+          parts: [{ type: "text", text: "Next transcript" }],
+        },
+      ],
+    });
+    const store = new AgentChatStore(root() as never);
+    store.conversationId = "00000000-0000-4000-8000-000000000001";
+    store.isWorking = true;
+    store.items = [{ kind: "assistant", id: "old", text: "Old transcript", streaming: true }];
+
+    await store.selectConversationForReadOnlyViewer(nextId);
+
+    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledWith(nextId);
+    expect(store.conversationId).toBe(nextId);
+    expect(store.items).toMatchObject([{ kind: "assistant", text: "Next transcript" }]);
+  });
+
   it("posts the command id and exact browser result back to the owning conversation", async () => {
     const navigate = vi.fn().mockResolvedValue({ ok: false, result: "Navigation did not finish." });
     const store = new AgentChatStore(root({ navigate }) as never);
