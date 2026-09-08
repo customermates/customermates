@@ -22,6 +22,8 @@ import { DeleteRoutineInteractor } from "../delete-routine.interactor";
 import { FailRoutineRunInteractor } from "../fail-routine-run.interactor";
 import { PauseRoutineInteractor } from "../pause-routine.interactor";
 import { PrismaRoutineRepo } from "../prisma-routine.repository";
+import { ReconcileRoutineRunsInteractor } from "../reconcile-routine-runs.interactor";
+import { ReleaseOwnerRoutinesInteractor } from "../release-owner-routines.interactor";
 import { RoutineLimitExceededError } from "../routine-run-limits";
 
 const databaseUrl = getLocalDatabaseTestUrl();
@@ -519,7 +521,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       }>('SELECT "ownerUserId", "enabled" FROM "Routine" WHERE "id" = $1', [guardedRoutineId]);
       expect(stored.rows[0]).toEqual({
         ownerUserId: activeOwnerId,
-        enabled: false,
+        enabled: true,
       });
     } finally {
       await client.query('DELETE FROM "RoutineRun" WHERE "companyId" = $1', [eligibilityCompanyId]);
@@ -710,6 +712,12 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     }
 
     await client.query(`UPDATE "User" SET "status" = 'inactive' WHERE "id" = $1`, [inactiveOwnerId]);
+
+    const releaseRepo = new PrismaRoutineRepo();
+    await new ReleaseOwnerRoutinesInteractor(releaseRepo, new ReconcileRoutineRunsInteractor(releaseRepo)).invoke({
+      companyId,
+      ownerUserId: inactiveOwnerId,
+    });
 
     const routine = await client.query<{
       enabled: boolean;
