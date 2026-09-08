@@ -986,6 +986,26 @@ describe("SweepDueRoutinesInteractor", () => {
 describe("ReconcileRoutineRunsInteractor", () => {
   beforeEach(() => vi.clearAllMocks());
 
+  it("leaves the global orphan sweep to the unscoped cron pass", async () => {
+    const repo = {
+      findRunningRoutineRunsUnscoped: vi.fn().mockResolvedValue([]),
+      readTurnOutcomeUnscoped: vi.fn(),
+      findOrphanedRunningRoutineRunsUnscoped: vi.fn().mockResolvedValue([]),
+      readRecentRoutineRunOutcomesUnscoped: vi.fn().mockResolvedValue([]),
+      disableRoutineUnscoped: vi.fn().mockResolvedValue(undefined),
+      settleRoutineRunUnscoped: vi.fn().mockResolvedValue(true),
+    };
+
+    await new ReconcileRoutineRunsInteractor(repo as never).invoke({ ownerUserId: mockUser.id });
+
+    expect(repo.findRunningRoutineRunsUnscoped).toHaveBeenCalledWith(expect.any(Number), mockUser.id);
+    expect(repo.findOrphanedRunningRoutineRunsUnscoped).not.toHaveBeenCalled();
+
+    await new ReconcileRoutineRunsInteractor(repo as never).invoke();
+
+    expect(repo.findOrphanedRunningRoutineRunsUnscoped).toHaveBeenCalledTimes(1);
+  });
+
   it("settles a run whose turn reached a terminal state", async () => {
     const repo = {
       findRunningRoutineRunsUnscoped: vi.fn().mockResolvedValue([

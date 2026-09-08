@@ -26,6 +26,7 @@ const state = vi.hoisted(() => ({
   readApproval: vi.fn(),
   takeUiResult: vi.fn(),
   readCancellation: vi.fn(),
+  dispatch: vi.fn(),
 }));
 
 vi.mock("@ai-sdk/workflow", () => ({
@@ -95,6 +96,7 @@ vi.mock("@/core/di", () => ({
     discardPendingApprovalRequestUnscoped: vi.fn().mockResolvedValue(undefined),
     takeUiCommandResultUnscoped: state.takeUiResult,
   }),
+  getBackgroundTaskService: () => ({ dispatch: state.dispatch }),
 }));
 
 vi.mock("@/ee/agent-chat/agent-tools", () => ({
@@ -165,6 +167,7 @@ beforeEach(() => {
   state.readApproval.mockReset();
   state.takeUiResult.mockReset().mockResolvedValue({ ok: true, result: "shown" });
   state.readCancellation.mockReset().mockResolvedValue(false);
+  state.dispatch.mockReset().mockResolvedValue(undefined);
   state.reconcile.mockReset().mockResolvedValue({ reconciled: true });
   state.close.mockReset().mockResolvedValue(undefined);
   state.reportFailure.mockReset().mockResolvedValue(undefined);
@@ -459,5 +462,39 @@ describe("agent-turn authoritative tool inputs", () => {
       valid ? 1 : 0,
     );
     expect(state.reportFailure).not.toHaveBeenCalled();
+  });
+});
+
+describe("routine run settlement", () => {
+  it("asks for the owner's routine runs to be settled once a routine turn ends", async () => {
+    state.gateResults = [true, true];
+
+    await runAgentTurn({ ...payload, surface: "routine" });
+
+    expect(state.dispatch).toHaveBeenCalledWith("reconcile-routine-runs", { ownerUserId: payload.userId });
+  });
+
+  it("settles the owner's routine runs even when the turn throws", async () => {
+    state.gateResults = [true, true];
+    state.markProviderStarted.mockRejectedValue(new Error("admission interrupted"));
+
+    await expect(runAgentTurn({ ...payload, surface: "routine" })).rejects.toThrow("admission interrupted");
+
+    expect(state.dispatch).toHaveBeenCalledWith("reconcile-routine-runs", { ownerUserId: payload.userId });
+  });
+
+  it("leaves a chat turn alone", async () => {
+    state.gateResults = [true, true];
+
+    await runAgentTurn(payload);
+
+    expect(state.dispatch).not.toHaveBeenCalled();
+  });
+
+  it("never lets a failed settlement dispatch mask the turn outcome", async () => {
+    state.gateResults = [true, true];
+    state.dispatch.mockRejectedValue(new Error("dispatch unavailable"));
+
+    await expect(runAgentTurn({ ...payload, surface: "routine" })).resolves.toBeUndefined();
   });
 });

@@ -52,7 +52,7 @@ import {
   type AgentContinuationStep,
 } from "@/ee/agent-chat/agent-continuation";
 import { isAgentStepContextWithinBudget } from "@/ee/agent-chat/agent-provider-context";
-import { getAgentChatRepo } from "@/core/di";
+import { getAgentChatRepo, getBackgroundTaskService } from "@/core/di";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
 import { isReadOnlyTool, requiresApproval } from "@/ee/agent-chat/gated-tools";
@@ -565,6 +565,12 @@ async function reconcileFailedTurn(payload: AgentTurnWorkflowPayload): Promise<v
     runId: payload.runId,
   });
 }
+
+async function settleRoutineRunStep(ownerUserId: string): Promise<void> {
+  "use step";
+  await getBackgroundTaskService().dispatch("reconcile-routine-runs", { ownerUserId });
+}
+settleRoutineRunStep.maxRetries = 0;
 
 async function finalizeTurn(
   payload: AgentTurnWorkflowPayload,
@@ -1158,5 +1164,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       } catch {}
     }
     throw error;
+  } finally {
+    if (payload.surface === "routine") {
+      try {
+        await settleRoutineRunStep(payload.userId);
+      } catch {}
+    }
   }
 }

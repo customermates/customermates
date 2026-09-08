@@ -82,6 +82,8 @@ export class ReconcileRoutineRunsInteractor {
       if (outcome.status === "failed") await this.disableIfFailingRepeatedly(run.routineId, run.executedByUserId);
     }
 
+    if (args.ownerUserId) return { settled };
+
     const orphaned = await this.repo.findOrphanedRunningRoutineRunsUnscoped(
       new Date(now.getTime() - ORPHANED_RUN_GRACE_MS),
       RECONCILE_BATCH_LIMIT,
