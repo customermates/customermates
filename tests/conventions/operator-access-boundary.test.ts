@@ -89,6 +89,15 @@ describe("operator access boundary", () => {
     }
   });
 
+  it("gives destructive workspace deletion the bulk-write transaction budget", () => {
+    const repository = read("ee/operator/prisma-operator.repository.ts");
+    const deletion =
+      /async deleteWorkspaceUnscoped\([\s\S]*?\n  \}\n\n  @BypassTenantGuard/u.exec(repository)?.[0] ?? "";
+
+    expect(repository).toContain('import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator"');
+    expect(deletion).toContain("{ ...BULK_WRITE_TRANSACTION, companyId: data.companyId }");
+  });
+
   it("counts operator groups through the guarded Unscoped counts and never through prisma directly", () => {
     const listRepositories = [
       "ee/operator/prisma-operator-users.repository.ts",

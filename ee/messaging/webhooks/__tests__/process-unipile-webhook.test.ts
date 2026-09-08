@@ -129,6 +129,27 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
     );
   });
 
+  it.each([
+    [429, "api/too_many_requests"],
+    [500, "api/internal_error"],
+  ])("retries a known webhook provider failure (%i %s) without reporting it", async (status, errorType) => {
+    const providerError = new UnipileRequestError(status, errorType, '{"detail":"retry later"}');
+    const handler = { invoke: vi.fn().mockRejectedValue(providerError) };
+    const { interactor, events } = build(row({ type: "email.folder.update", account_id: "acc_1", payload: {} }), {
+      "email.folder.update": handler,
+    });
+
+    await invoke(interactor);
+
+    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith({
+      id: EVENT_ID,
+      error: providerError.message,
+      terminal: false,
+    });
+    expect(events.markWebhookEventProcessedUnscoped).not.toHaveBeenCalled();
+  });
+
   it("still reports an unrelated Unipile rejection", async () => {
     const serverError = new UnipileRequestError(500, "api/unknown", '{"detail":"boom"}');
     const handler = { invoke: vi.fn().mockRejectedValue(serverError) };
@@ -139,6 +160,25 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
     await invoke(interactor);
 
     expect(Sentry.captureException).toHaveBeenCalledOnce();
+  });
+
+  it("still reports an unrelated error with a 429-shaped status", async () => {
+    const unrelated = Object.assign(new Error("another dependency returned 429"), { status: 429 });
+    const handler = { invoke: vi.fn().mockRejectedValue(unrelated) };
+    const { interactor, events } = build(row({ type: "email.folder.update", account_id: "acc_1", payload: {} }), {
+      "email.folder.update": handler,
+    });
+
+    await invoke(interactor);
+
+    expect(Sentry.captureException).toHaveBeenCalledExactlyOnceWith(unrelated, {
+      tags: { webhookEventId: EVENT_ID, eventType: "email.folder.update" },
+    });
+    expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith({
+      id: EVENT_ID,
+      error: unrelated.message,
+      terminal: false,
+    });
   });
 
   it("marks a transient handler error non-terminal, captures it once, and does not rethrow", async () => {
