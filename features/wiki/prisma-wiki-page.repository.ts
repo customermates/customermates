@@ -169,8 +169,6 @@ export class PrismaWikiPageRepo
       data: {
         title,
         markdown,
-        // PostgreSQL stores this field at millisecond precision. Keep the
-        // concurrency token monotonic even for two very fast explicit saves.
         updatedAt: new Date(Math.max(Date.now(), previous.updatedAt.getTime() + 1)),
       },
     });

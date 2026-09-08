@@ -1098,15 +1098,10 @@ export class PrismaActivitiesRepo
   }
 
   private auditLogWhere(auditWhere: Prisma.AuditLogWhereInput | undefined): Prisma.AuditLogWhereInput {
-    const wikiVisibility = this.hasPermission(Resource.wiki, Action.readAll)
-      ? undefined
-      : { event: { notIn: [...WIKI_PAGE_AUDIT_EVENTS] } };
-    const predicates = [wikiVisibility, auditWhere].filter(
-      (value): value is Prisma.AuditLogWhereInput => value !== undefined,
-    );
+    if (this.hasPermission(Resource.wiki, Action.readAll)) return { companyId: this.companyId, ...(auditWhere ?? {}) };
     return {
       companyId: this.companyId,
-      ...(predicates.length > 0 ? { AND: predicates } : {}),
+      AND: [{ event: { notIn: [...WIKI_PAGE_AUDIT_EVENTS] } }, ...(auditWhere ? [auditWhere] : [])],
     };
   }
 
