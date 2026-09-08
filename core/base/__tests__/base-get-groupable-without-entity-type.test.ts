@@ -97,7 +97,7 @@ describe("a repository without an entity type but with groupable specs", () => {
     expect(result.data.grouping).toBeUndefined();
   });
 
-  it("resolves a grouped request against those specs and scopes every group fetch", async () => {
+  it("resolves a grouped request against those specs and fetches rows only for non-empty groups", async () => {
     const repo = new OperatorLikeRepo();
     const result = await new OperatorLikeInteractor(repo).invoke({ grouping: { field: "status" } });
 
@@ -109,11 +109,7 @@ describe("a repository without an entity type but with groupable specs", () => {
       ["pendingAuthorization", 0, []],
     ]);
     expect(result.data.groupCounts).toEqual({ active: 2, inactive: 1, pendingAuthorization: 0 });
-    expect(repo.getItems.mock.calls.map(([params]) => params.groupScope?.key)).toEqual([
-      "active",
-      "inactive",
-      "pendingAuthorization",
-    ]);
+    expect(repo.getItems.mock.calls.map(([params]) => params.groupScope?.key)).toEqual(["active", "inactive"]);
   });
 
   it("still keeps value sums behind the entity type", async () => {
