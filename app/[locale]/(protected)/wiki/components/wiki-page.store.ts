@@ -2,7 +2,7 @@ import type { FormEvent } from "react";
 import type { RootStore } from "@/core/stores/root.store";
 import type { WikiPageDto } from "@/features/wiki/wiki.schema";
 
-import { action, computed, makeObservable, observable } from "mobx";
+import { action, makeObservable, observable, override as mobxOverride } from "mobx";
 import { Resource } from "@/generated/prisma";
 
 import { BaseFormStore } from "@/core/base/base-form.store";
@@ -38,7 +38,7 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
     super(rootStore, pageForm(page), Resource.wiki);
     makeObservable(this, {
       editing: observable,
-      canManage: computed,
+      canManage: mobxOverride,
       load: action,
       startCreate: action,
       startEdit: action,
