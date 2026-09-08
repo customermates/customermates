@@ -31,17 +31,40 @@ describe("routine modal accessibility contract", () => {
     expect(configuration).toContain("RoutineDetail.disabledOwnerUnavailable");
   });
 
-  it("uses a wide split without a wide tablist and retains a single body scroll owner", () => {
+  it("uses a divider-free wide split and full-modal run drilldown", () => {
     const modal = read("routine-modal.tsx");
+    const runsPane = read("routine-runs-pane.tsx");
     const runDetail = read("routine-run-detail.tsx");
     const bodyTag = "<App" + "CardBody";
 
     expect(modal).toContain('size={isExistingRoutine && wide ? "5xl" : "lg"}');
     expect(modal).toContain('data-routine-layout="wide"');
-    expect(modal).toContain("lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.9fr)]");
+    expect(modal).toContain("gap-6 lg:min-h-[36rem] lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.9fr)]");
+    expect(modal).toContain('data-routine-layout="run"');
+    expect(modal).toContain("{!openRun && <FormActions");
     expect(modal.split(bodyTag)).toHaveLength(5);
-    expect(modal).not.toContain("overflow-y-auto");
-    expect(runDetail).toContain("scrollable={false}");
+    expect(modal).not.toContain("border-l");
+    expect(modal).not.toContain("overflow-y-hidden!");
+    expect(runsPane).not.toContain("sticky top-0");
+    expect(runsPane).not.toContain("border-b");
+    expect(runDetail).toContain("<AgentConversationLog");
+    expect(modal).toContain("scrollContainerRef={runScrollRef}");
+    expect(runDetail).toContain("scrollContainerRef={scrollContainerRef}");
+    expect(runDetail).toContain("scrollFooterRef={composerContainerRef}");
+    expect(runDetail).toContain("sticky bottom-0 z-10 bg-card");
+    expect(runDetail).not.toContain('aria-labelledby="routine-run-detail-heading"');
+    expect(modal).toContain("startRefreshTransition(() => router.refresh())");
+    expect(modal).toContain("routineRunChatStore.markRouteSyncComplete()");
+    expect(runDetail).toContain("<AgentComposer");
+    expect(runDetail).toContain('composerId: "routine-run-agent-composer"');
+    expect(runDetail).toContain('usageId: "routine-run-agent-usage"');
+    expect(runDetail).toContain("run.status !== RoutineRunStatus.queued");
+    expect(runDetail).toContain("run.status !== RoutineRunStatus.running");
+    expect(runDetail).toContain("transcriptLoading ?");
+    expect(runDetail).toContain(": transcriptFailed ?");
+    expect(runDetail).toContain("store.openRun(run)");
+    expect(runDetail).toContain("RoutineDetail.transcriptOwnerOnly");
+    expect(runDetail).toContain("useAgentChatConfig(routineRunChatStore, transcriptSelected)");
     expect(modal.indexOf("isExistingRoutine && wide")).toBeLessThan(modal.indexOf("<Tabs"));
   });
 

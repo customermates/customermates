@@ -687,7 +687,7 @@ describe("AgentChatStore", () => {
     expect(store.conversationLoadPendingId).toBeNull();
   });
 
-  it("switches a read-only transcript viewer even while the previous run is active", async () => {
+  it("keeps the active embedded transcript selected until its run finishes", async () => {
     const nextId = "00000000-0000-4000-8000-000000000002";
     actionsMock.getAgentConversationAction.mockResolvedValue({
       id: nextId,
@@ -705,11 +705,11 @@ describe("AgentChatStore", () => {
     store.isWorking = true;
     store.items = [{ kind: "assistant", id: "old", text: "Old transcript", streaming: true }];
 
-    await store.selectConversationForReadOnlyViewer(nextId);
+    await store.selectConversationForEmbeddedViewer(nextId);
 
-    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledWith(nextId);
-    expect(store.conversationId).toBe(nextId);
-    expect(store.items).toMatchObject([{ kind: "assistant", text: "Next transcript" }]);
+    expect(actionsMock.getAgentConversationAction).not.toHaveBeenCalled();
+    expect(store.conversationId).toBe("00000000-0000-4000-8000-000000000001");
+    expect(store.items).toMatchObject([{ kind: "assistant", text: "Old transcript" }]);
   });
 
   it("posts the command id and exact browser result back to the owning conversation", async () => {
@@ -2281,6 +2281,21 @@ describe("AgentChatStore", () => {
     });
 
     expect(store.routeRefreshRevision).toBe(1);
+    expect(store.routeSyncStatus).toBe("queued");
+  });
+
+  it("completes a soft route refresh without clearing a newer queued refresh", () => {
+    const store = new AgentChatStore(root() as never);
+
+    store.markRouteSyncRefreshing();
+    store.markRouteSyncComplete();
+    expect(store.routeSyncStatus).toBe("idle");
+
+    store.markRouteSyncRefreshing();
+    runInAction(() => {
+      store.routeSyncStatus = "queued";
+    });
+    store.markRouteSyncComplete();
     expect(store.routeSyncStatus).toBe("queued");
   });
 

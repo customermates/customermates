@@ -273,6 +273,11 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
 
   canOpenRun = (run: RoutineRunDto): boolean => run.executedByUserId === this.rootStore.userStore.user?.id;
 
+  isRunSelectionBlockedByActiveChat = (run: RoutineRunDto): boolean => {
+    const chatStore = this.rootStore.routineRunChatStore;
+    return chatStore.isWorking && chatStore.conversationId !== run.conversationId;
+  };
+
   protected override prepareToClose(): boolean {
     this.beginRunsSession(null);
     return true;
@@ -336,7 +341,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   };
 
   openRun = async (run: RoutineRunDto) => {
-    if (run.conversationId && !this.canOpenRun(run)) return;
+    if ((run.conversationId && !this.canOpenRun(run)) || this.isRunSelectionBlockedByActiveChat(run)) return;
 
     const routineId = this.form.id;
     const generation = this.runsSessionGeneration;
@@ -354,7 +359,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
 
     const current = this.openRun_;
     if (current?.conversationId && this.canOpenRun(current))
-      await this.rootStore.routineRunChatStore.selectConversationForReadOnlyViewer(current.conversationId);
+      await this.rootStore.routineRunChatStore.selectConversationForEmbeddedViewer(current.conversationId);
   };
 
   private refreshRun = async (routineId: string, runId: string, generation: number): Promise<void> => {
@@ -437,7 +442,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   private openRunConversationAfterRefresh(previousConversationId: string | null): void {
     const run = this.openRun_;
     if (!run?.conversationId || run.conversationId === previousConversationId || !this.canOpenRun(run)) return;
-    void this.rootStore.routineRunChatStore.selectConversationForReadOnlyViewer(run.conversationId);
+    void this.rootStore.routineRunChatStore.selectConversationForEmbeddedViewer(run.conversationId);
   }
 
   loadRuns = async (routineId: string, force = false) => {

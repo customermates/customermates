@@ -115,10 +115,14 @@ async function settlePromises(): Promise<void> {
 
 function makeStore(
   chat: {
-    selectConversationForReadOnlyViewer: () => Promise<void>;
+    conversationId?: string | null;
+    isWorking?: boolean;
+    selectConversationForEmbeddedViewer: (id: string) => Promise<void>;
     newConversation: () => void;
   } = {
-    selectConversationForReadOnlyViewer: vi.fn(() => Promise.resolve()),
+    conversationId: null,
+    isWorking: false,
+    selectConversationForEmbeddedViewer: vi.fn(() => Promise.resolve()),
     newConversation: vi.fn(),
   },
   options: { userId?: string; admin?: boolean } = {},
@@ -218,7 +222,9 @@ describe("RoutineModalStore", () => {
 
   it("clears the viewer instead of showing the previous run's transcript", async () => {
     const chat = {
-      selectConversationForReadOnlyViewer: vi.fn(() => Promise.resolve()),
+      conversationId: null,
+      isWorking: false,
+      selectConversationForEmbeddedViewer: vi.fn(() => Promise.resolve()),
       newConversation: vi.fn(),
     };
     const store = makeStore(chat);
@@ -239,12 +245,35 @@ describe("RoutineModalStore", () => {
     });
 
     await store.openRun(firstRun);
-    expect(chat.selectConversationForReadOnlyViewer).toHaveBeenCalledWith("conv-1");
+    expect(chat.selectConversationForEmbeddedViewer).toHaveBeenCalledWith("conv-1");
 
     await store.openRun(secondRun);
 
     expect(chat.newConversation).toHaveBeenCalled();
-    expect(chat.selectConversationForReadOnlyViewer).toHaveBeenCalledTimes(1);
+    expect(chat.selectConversationForEmbeddedViewer).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the active embedded chat selected until its turn finishes", async () => {
+    const chat = {
+      conversationId: "conv-1",
+      isWorking: true,
+      selectConversationForEmbeddedViewer: vi.fn(() => Promise.resolve()),
+      newConversation: vi.fn(),
+    };
+    const store = makeStore(chat);
+    const activeRun = makeRun({ id: "run-1", conversationId: "conv-1" });
+    const otherRun = makeRun({ id: "run-2", conversationId: "conv-2" });
+
+    await store.openForEdit(makeRoutine());
+    runInAction(() => {
+      store.runs = [activeRun, otherRun];
+    });
+    await store.openRun(activeRun);
+    await store.openRun(otherRun);
+
+    expect(store.openRunId).toBe(activeRun.id);
+    expect(store.isRunSelectionBlockedByActiveChat(otherRun)).toBe(true);
+    expect(chat.selectConversationForEmbeddedViewer).toHaveBeenCalledTimes(1);
   });
 
   it("keeps the runs tab selected so resize-back can restore focus to the run row", async () => {
@@ -463,7 +492,9 @@ describe("RoutineModalStore", () => {
 
   it("opens full transcripts only for the snapshotted executor", async () => {
     const chat = {
-      selectConversationForReadOnlyViewer: vi.fn(() => Promise.resolve()),
+      conversationId: null,
+      isWorking: false,
+      selectConversationForEmbeddedViewer: vi.fn(() => Promise.resolve()),
       newConversation: vi.fn(),
     };
     const store = makeStore(chat, { userId: OTHER_ID });
@@ -476,7 +507,7 @@ describe("RoutineModalStore", () => {
     } as never);
 
     expect(store.openRunId).toBeNull();
-    expect(chat.selectConversationForReadOnlyViewer).not.toHaveBeenCalled();
+    expect(chat.selectConversationForEmbeddedViewer).not.toHaveBeenCalled();
   });
 
   it("applies an administrative pause without closing the details", async () => {

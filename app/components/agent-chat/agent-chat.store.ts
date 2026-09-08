@@ -295,6 +295,7 @@ export class AgentChatStore extends BaseStore {
         markRouteSyncWaiting: action,
         markRouteSyncQueued: action,
         markRouteSyncRefreshing: action,
+        markRouteSyncComplete: action,
       },
     );
     reaction(
@@ -370,6 +371,10 @@ export class AgentChatStore extends BaseStore {
 
   markRouteSyncRefreshing = () => {
     this.routeSyncStatus = "refreshing";
+  };
+
+  markRouteSyncComplete = () => {
+    if (this.routeSyncStatus === "refreshing") this.routeSyncStatus = "idle";
   };
 
   close = () => {
@@ -528,7 +533,8 @@ export class AgentChatStore extends BaseStore {
     await this.loadConversation(id);
   };
 
-  selectConversationForReadOnlyViewer = async (id: string) => {
+  selectConversationForEmbeddedViewer = async (id: string) => {
+    if ((this.isWorking || this.historyMutationPending) && this.conversationId !== id) return;
     if (this.conversationId === id && !this.conversationLoadError) {
       runInAction(() => {
         this.isHistoryOpen = false;

@@ -3113,7 +3113,6 @@
       },
       "title": "Aún no hay ejecuciones"
     },
-    "instruction": "Instrucción enviada al asistente",
     "never": "Nunca",
     "owner": "Propietario",
     "ownerOnlyEdit": "Esta rutina es de solo lectura para ti. Solo se ejecuta como {owner}, quien puede editarla o pausarla. Los administradores de la empresa solo pueden pausarla o eliminarla.",

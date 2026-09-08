@@ -781,6 +781,9 @@ describe("agent tools", () => {
     expect(prompt).toContain("top-level selectOptions");
     expect(prompt).toContain("retry that tool once");
     expect(prompt).toContain("Never print or imitate tool-call syntax as text");
+    expect(prompt).toContain("keep working while credits remain");
+    expect(prompt).toContain("a credit limit, provider error, content filter, hosted-AI unavailability");
+    expect(prompt).not.toContain("time, approval, output, or no-progress bound");
   });
 });
 

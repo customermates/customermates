@@ -3113,7 +3113,6 @@
       },
       "title": "Nessuna esecuzione"
     },
-    "instruction": "Istruzione inviata all’assistente",
     "never": "Mai",
     "owner": "Proprietario",
     "ownerOnlyEdit": "Questa routine è di sola lettura per te. Viene eseguita solo con l’identità di {owner}, che può modificarla o sospenderla. Gli amministratori aziendali possono solo sospenderla o eliminarla.",

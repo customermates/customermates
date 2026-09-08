@@ -3113,7 +3113,6 @@
       },
       "title": "Noch keine Läufe"
     },
-    "instruction": "An den Assistenten gesendete Anweisung",
     "never": "Nie",
     "owner": "Eigentümer/in",
     "ownerOnlyEdit": "Diese Routine ist für dich schreibgeschützt. Sie wird nur als {owner} ausgeführt und kann von dieser Person bearbeitet oder pausiert werden. Unternehmensadmins können sie nur pausieren oder löschen.",

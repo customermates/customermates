@@ -114,11 +114,6 @@ const ROUTINE_RUN_SELECT = {
   error: true,
   createdAt: true,
   updatedAt: true,
-  conversation: {
-    select: {
-      turnRequests: { select: { id: true, stopReason: true } },
-    },
-  },
 } as const;
 
 function ownerName(owner: { firstName: string; lastName: string }): string {
@@ -134,12 +129,10 @@ function storedRoutineFilters(value: unknown): Filter[] | null {
 
 type RoutineRunRow = Omit<RoutineRunDto, "triggerContext" | "stopReason"> & {
   triggerPayload: unknown;
-  conversation: { turnRequests: { id: string; stopReason: string | null }[] } | null;
 };
 
-function routineRunDto(row: RoutineRunRow): RoutineRunDto {
-  const { triggerPayload, conversation, ...run } = row;
-  const storedStopReason = conversation?.turnRequests.find((turn) => turn.id === run.turnRequestId)?.stopReason ?? null;
+function routineRunDto(row: RoutineRunRow, storedStopReason: string | null): RoutineRunDto {
+  const { triggerPayload, ...run } = row;
   if (storedStopReason !== null && !isAgentTurnStopReason(storedStopReason))
     throw new Error("Stored agent turn stop reason is invalid.");
 
@@ -359,7 +352,27 @@ export class PrismaRoutineRepo
       take: limit + 1,
     });
 
-    const runs = rows.slice(0, limit).map((row) => routineRunDto(row as RoutineRunRow));
+    const pageRows = rows.slice(0, limit);
+    const turnRequestIds = [
+      ...new Set(pageRows.flatMap((row) => (row.turnRequestId === null ? [] : [row.turnRequestId]))),
+    ];
+    const linkedTurns =
+      turnRequestIds.length === 0
+        ? []
+        : await this.prisma.agentTurnRequest.findMany({
+            where: { id: { in: turnRequestIds }, companyId: this.companyId },
+            select: { id: true, conversationId: true, userId: true, stopReason: true },
+          });
+    const linkedTurnsById = new Map(linkedTurns.map((turn) => [turn.id, turn]));
+    const runs = pageRows.map((row) => {
+      const linkedTurn = row.turnRequestId === null ? null : linkedTurnsById.get(row.turnRequestId);
+      const storedStopReason =
+        linkedTurn?.conversationId === row.conversationId && linkedTurn.userId === row.executedByUserId
+          ? linkedTurn.stopReason
+          : null;
+
+      return routineRunDto(row as RoutineRunRow, storedStopReason);
+    });
     const last = runs.at(-1);
 
     return {

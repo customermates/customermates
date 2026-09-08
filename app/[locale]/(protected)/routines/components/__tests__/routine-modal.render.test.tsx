@@ -22,8 +22,17 @@ vi.mock("@/hooks/use-media-query", () => ({
     return harness.wide;
   },
 }));
+vi.mock("@/i18n/navigation", () => ({
+  useRouter: () => ({ refresh: vi.fn() }),
+}));
 vi.mock("@/core/stores/root-store.provider", () => ({
-  useRootStore: () => ({ routineModalStore: harness.store }),
+  useRootStore: () => ({ routineModalStore: harness.store, routineRunChatStore: {} }),
+}));
+vi.mock("@/app/components/agent-chat/agent-chat-store-context", () => ({
+  AgentChatStoreProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
+}));
+vi.mock("@/app/components/agent-chat/agent-route-reload", () => ({
+  AgentRouteReloadBridge: () => null,
 }));
 vi.mock("@/components/modal/hooks/use-delete-confirmation", () => ({
   useDeleteConfirmation: () => ({ showConfirmation: vi.fn(), showDeleteConfirmation: vi.fn() }),
@@ -72,19 +81,17 @@ vi.mock("../routine-configuration-pane", () => ({
   RoutineConfigurationPane: () => <div data-configuration-pane>configuration</div>,
 }));
 vi.mock("../routine-run-detail", () => ({
+  ROUTINE_RUN_CHAT_UI_TARGETS: {},
   RoutineRunDetail: ({ run }: { run: { id: string } }) => <div data-run-detail={run.id}>detail</div>,
 }));
 vi.mock("../routine-runs-pane", () => ({
-  RoutineRunsPane: ({ store, wide }: { store: TestRoutineStore; wide: boolean }) =>
-    wide && store.openRun_ ? (
-      <div data-run-detail={store.openRun_.id}>detail</div>
-    ) : (
-      <div data-runs-pane={wide ? "wide" : "compact"}>
-        <button id="routine-run-run-1" type="button">
-          run
-        </button>
-      </div>
-    ),
+  RoutineRunsPane: () => (
+    <div data-runs-pane>
+      <button id="routine-run-run-1" type="button">
+        run
+      </button>
+    </div>
+  ),
 }));
 
 import { RoutineModal } from "../routine-modal";
@@ -146,14 +153,17 @@ afterEach(() => {
 });
 
 describe("RoutineModal responsive rendering", () => {
-  it("renders existing routines as a 5xl split with no desktop tablist", () => {
+  it("renders existing routines as a divider-free 5xl split with no desktop tablist", () => {
     render();
 
     expect(harness.breakpoint).toBe("lg");
     expect(container.querySelector("[data-modal-size='5xl']")).not.toBeNull();
-    expect(container.querySelector("[data-routine-layout='wide']")).not.toBeNull();
+    const layout = container.querySelector("[data-routine-layout='wide']");
+    expect(layout).not.toBeNull();
+    expect(layout?.className).toContain("gap-6");
+    expect(layout?.className).not.toContain("divide-");
     expect(container.querySelector("[data-configuration-pane]")).not.toBeNull();
-    expect(container.querySelector("[data-runs-pane='wide']")).not.toBeNull();
+    expect(container.querySelector("[data-runs-pane]")).not.toBeNull();
     expect(container.querySelector("[role='tablist']")).toBeNull();
     expectUniqueIds();
   });
@@ -177,25 +187,32 @@ describe("RoutineModal responsive rendering", () => {
     expectUniqueIds();
   });
 
-  it("preserves a selected run across resize and returns to compact Runs", () => {
+  it("renders a selected run as the full modal across resize and returns to compact Runs", () => {
     harness.store.openRun_ = { id: "run-1" };
     harness.store.activeTab = "runs";
     render();
-    expect(container.querySelector("[data-configuration-pane]")).not.toBeNull();
+    expect(container.querySelector("[data-routine-layout='run']")).not.toBeNull();
+    expect(container.querySelectorAll('[role="region"][aria-label="RoutineDetail.runDetails"]')).toHaveLength(1);
+    expect(container.querySelector("[data-configuration-pane]")).toBeNull();
+    expect(container.querySelector("[data-runs-pane]")).toBeNull();
     expect(container.querySelector("[data-run-detail='run-1']")).not.toBeNull();
+    expect(container.querySelector("[data-form-actions]")).toBeNull();
+    expect(container.querySelector("[data-modal-actions]")?.children).toHaveLength(1);
 
     harness.wide = false;
     render();
     expect(harness.store.openRun_?.id).toBe("run-1");
-    expect(container.querySelector("[data-routine-layout='compact-run']")).not.toBeNull();
+    expect(container.querySelector("[data-routine-layout='run']")).not.toBeNull();
     expect(container.querySelector("[data-configuration-pane]")).toBeNull();
+    expect(container.querySelector("[role='tablist']")).toBeNull();
     expectUniqueIds();
 
     act(() => container.querySelector<HTMLButtonElement>("#routine-run-back")?.click());
     render();
     expect(harness.store.openRun_).toBeNull();
     expect(harness.store.activeTab).toBe("runs");
-    expect(container.querySelector("[data-runs-pane='compact']")).not.toBeNull();
+    expect(container.querySelector("[data-runs-pane]")).not.toBeNull();
+    expect(container.querySelector("[data-form-actions]")).not.toBeNull();
     expectUniqueIds();
   });
 });

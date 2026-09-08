@@ -1,5 +1,7 @@
 "use client";
 
+import type { RefObject } from "react";
+
 import { observer } from "mobx-react-lite";
 import { Fragment } from "react";
 import { useTranslations } from "next-intl";
@@ -18,14 +20,18 @@ import { AgentInitialProgress } from "./agent-status-announcer";
 import { CreditBlockedNotice } from "./credit-blocked-notice";
 import { QueuedPrompt } from "./queued-prompt";
 import { UsageRing } from "./usage-ring";
-import { useAgentChatStore } from "./agent-chat-store-context";
+import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-context";
 
 export const AgentConversationLog = observer(function AgentConversationLog({
   readOnly = false,
+  scrollContainerRef,
+  scrollFooterRef,
   scrollable = true,
   userLabel,
 }: {
   readOnly?: boolean;
+  scrollContainerRef?: RefObject<HTMLElement | null>;
+  scrollFooterRef?: RefObject<HTMLElement | null>;
   scrollable?: boolean;
   userLabel?: string;
 }) {
@@ -39,6 +45,8 @@ export const AgentConversationLog = observer(function AgentConversationLog({
       jumpToLatestLabel={copy.jumpToLatest}
       latestItemKey={store.items.at(-1)?.id}
       loadOlderLabel={copy.loadOlderMessages}
+      scrollContainerRef={scrollContainerRef}
+      scrollFooterRef={scrollFooterRef}
       scrollKey={store.conversationId ?? "new"}
       scrollRegionLabel={t("AgentChat.title")}
       scrollable={scrollable}
@@ -78,6 +86,7 @@ export const AgentConversationLog = observer(function AgentConversationLog({
 
 export const AgentComposer = observer(function AgentComposer() {
   const store = useAgentChatStore();
+  const uiTargets = useAgentChatUiTargets();
   const t = useTranslations();
   const usage = store.usage;
   const blocked = usage?.blockedReason ?? null;
@@ -100,7 +109,7 @@ export const AgentComposer = observer(function AgentComposer() {
               aria-label={t("AgentChat.placeholder")}
               className="max-h-40 min-h-9 flex-1 resize-none border-0 bg-transparent px-1 py-1.5 shadow-none focus-visible:border-0 focus-visible:ring-0"
               data-testid="agent-composer"
-              id="agent-composer"
+              id={uiTargets.composerId}
               placeholder={t("AgentChat.placeholder")}
               rows={2}
               value={store.composerDraft}

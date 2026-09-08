@@ -32,10 +32,6 @@ vi.mock("@/components/ui/tooltip", () => ({
 vi.mock("../routine-empty-state", () => ({
   RoutineEmptyState: () => <div data-routine-runs-empty="true">No runs yet</div>,
 }));
-vi.mock("../routine-run-detail", () => ({
-  RoutineRunDetail: ({ run }: { run: RoutineRunDto }) => <div data-run-detail={run.id}>detail</div>,
-}));
-
 import { RoutineRunsPane } from "../routine-runs-pane";
 
 const OWNER_ID = "30000000-0000-4000-8000-000000000010";
@@ -70,10 +66,10 @@ function makeRun(overrides: Partial<RoutineRunDto> = {}): RoutineRunDto {
 function makeStore(overrides: Record<string, unknown> = {}) {
   return {
     canOpenRun: (run: RoutineRunDto) => run.executedByUserId === OWNER_ID,
+    isRunSelectionBlockedByActiveChat: () => false,
     isLoadingMoreRuns: false,
     loadMoreRuns: vi.fn(),
     openRun: vi.fn(),
-    openRun_: null,
     retryLoadRuns: vi.fn(),
     runs: [] as RoutineRunDto[],
     runsNextCursor: null as string | null,
@@ -85,8 +81,8 @@ function makeStore(overrides: Record<string, unknown> = {}) {
 let container: HTMLDivElement;
 let root: Root;
 
-function render(store: ReturnType<typeof makeStore>, wide = false) {
-  act(() => root.render(<RoutineRunsPane store={store as never} wide={wide} />));
+function render(store: ReturnType<typeof makeStore>) {
+  act(() => root.render(<RoutineRunsPane store={store as never} />));
 }
 
 beforeEach(() => {
@@ -145,11 +141,21 @@ describe("RoutineRunsPane rendered states", () => {
     expect(container.querySelector("#routine-run-run-2")?.getAttribute("aria-disabled")).toBe("true");
   });
 
-  it("replaces only the wide history pane with the selected run", () => {
-    const run = makeRun();
-    render(makeStore({ openRun_: run, runs: [run] }), true);
+  it("blocks switching to another run while the embedded chat is working", () => {
+    const active = makeRun();
+    const blocked = makeRun({ id: "run-2", conversationId: "conversation-2" });
+    const openRun = vi.fn();
+    render(
+      makeStore({
+        isRunSelectionBlockedByActiveChat: (run: RoutineRunDto) => run.id === blocked.id,
+        openRun,
+        runs: [active, blocked],
+      }),
+    );
 
-    expect(container.querySelector("[data-run-detail='run-1']")).not.toBeNull();
-    expect(container.querySelector("#routine-runs-heading")).toBeNull();
+    act(() => container.querySelector<HTMLButtonElement>("#routine-run-run-1")?.click());
+    expect(openRun).toHaveBeenCalledWith(active);
+    expect(container.querySelector("#routine-run-run-2")?.getAttribute("aria-disabled")).toBe("true");
+    expect(container.textContent).toContain("AgentChat.ui.assistantWorking");
   });
 });

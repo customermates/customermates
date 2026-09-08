@@ -105,6 +105,7 @@ type AgentTurnAdmissionArgs = {
   modelSpec: string;
   servingProvider: string;
   recentMessageLimit: number;
+  routineRunId?: string;
   turn:
     | {
         kind: "create";
@@ -124,6 +125,13 @@ type AgentTurnAdmissionArgs = {
 };
 
 const TURN_STATUSES = new Set<AgentTurnRequestStatus>(["running", "completed", "failed", "uncertain"]);
+const TERMINAL_ROUTINE_RUN_STATUSES = [
+  RoutineRunStatus.succeeded,
+  RoutineRunStatus.partial,
+  RoutineRunStatus.failed,
+  RoutineRunStatus.skipped,
+  RoutineRunStatus.blocked,
+] as const;
 
 function encodeConversationCursor(updatedAt: Date, id: string) {
   return Buffer.from(JSON.stringify({ updatedAt: updatedAt.toISOString(), id }), "utf8").toString("base64url");
@@ -327,6 +335,30 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     });
   }
 
+  async findInteractiveConversation(id: string, retryTurnRequestId?: string) {
+    return this.prisma.agentConversation.findFirst({
+      where: {
+        id,
+        companyId: this.companyId,
+        userId: this.userId,
+        archivedAt: null,
+        OR: [
+          { origin: AgentConversationOrigin.user },
+          {
+            origin: AgentConversationOrigin.routine,
+            routineRuns: {
+              some: {
+                executedByUserId: this.userId,
+                status: { in: [...TERMINAL_ROUTINE_RUN_STATUSES] },
+              },
+            },
+          },
+        ],
+        ...(retryTurnRequestId ? { routineRuns: { none: { turnRequestId: retryTurnRequestId } } } : {}),
+      },
+    });
+  }
+
   async hasRunningTurn(conversationId: string): Promise<boolean> {
     const turn = await this.prisma.agentTurnRequest.findFirst({
       where: {
@@ -443,12 +475,15 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       });
       if (!conversation) throw new Error("Conversation not found.");
 
-      if (conversation.origin === AgentConversationOrigin.routine) {
-        if (args.turn.kind !== "create") throw new Error("Routine turns cannot be retried.");
+      if (args.routineRunId) {
+        if (conversation.origin !== AgentConversationOrigin.routine || args.turn.kind !== "create")
+          throw new Error("Routine run admission requires a new turn in a routine conversation.");
+        if (args.turn.clientRequestId !== args.routineRunId)
+          throw new Error("Routine run admission does not match its client request.");
 
         const linkedRun = await this.prisma.routineRun.updateMany({
           where: {
-            id: args.turn.clientRequestId,
+            id: args.routineRunId,
             companyId,
             executedByUserId: userId,
             status: RoutineRunStatus.running,
@@ -2218,14 +2253,24 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           allowanceCreditsSnapshot: true,
           turnRequest: {
             select: {
-              conversation: { select: { creditCeiling: true } },
+              conversation: {
+                select: {
+                  creditCeiling: true,
+                  routineRuns: {
+                    where: { turnRequestId: args.turnRequestId },
+                    select: { id: true },
+                    take: 1,
+                  },
+                },
+              },
             },
           },
         },
       });
       if (!reservation) return { disposition: "turn_error" };
       if (!reservation.turnRequest) return { disposition: "turn_error" };
-      const creditCeiling = reservation.turnRequest.conversation.creditCeiling;
+      const conversation = reservation.turnRequest.conversation;
+      const creditCeiling = conversation.routineRuns.length > 0 ? conversation.creditCeiling : null;
       if (
         creditCeiling !== null &&
         (reservation.reservedCredits > creditCeiling || args.requiredCredits > creditCeiling)

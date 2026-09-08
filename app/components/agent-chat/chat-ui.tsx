@@ -3,6 +3,7 @@
 import { observer } from "mobx-react-lite";
 import type { useTranslations } from "next-intl";
 import type { AgentProgressPhase } from "./agent-chat.store";
+import type { AgentChatUiTargets } from "./agent-chat-store-context";
 
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -68,9 +69,14 @@ export function chatUiCopy(t: ChatTranslator) {
   };
 }
 
-export function focusAgentComposer() {
+export function focusAgentComposer(
+  targets: Pick<AgentChatUiTargets, "composerId" | "fallbackFocusId"> = {
+    composerId: "agent-composer",
+    fallbackFocusId: "agent-panel-dialog",
+  },
+) {
   requestAnimationFrame(() => {
-    const target = document.getElementById("agent-composer") ?? document.getElementById("agent-panel-dialog");
+    const target = document.getElementById(targets.composerId) ?? document.getElementById(targets.fallbackFocusId);
     target?.focus();
   });
 }

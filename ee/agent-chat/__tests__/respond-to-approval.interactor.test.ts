@@ -29,7 +29,7 @@ const requestId = "turn-1:tool-1";
 
 function repoWith(resolved: object | null, order: string[] = []) {
   return {
-    findUserConversation: vi.fn().mockResolvedValue({ id: conversationId }),
+    findInteractiveConversation: vi.fn().mockResolvedValue({ id: conversationId }),
     resolvePendingApprovalRequest: vi.fn().mockImplementation(() => {
       order.push("resolve");
       return Promise.resolve(resolved);

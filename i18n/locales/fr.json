@@ -3113,7 +3113,6 @@
       },
       "title": "Aucune exécution pour le moment"
     },
-    "instruction": "Instruction envoyée à l’assistant",
     "never": "Jamais",
     "owner": "Propriétaire",
     "ownerOnlyEdit": "Cette routine est en lecture seule pour vous. Elle s’exécute uniquement sous l’identité de {owner}, qui peut la modifier ou la suspendre. Les administrateurs de l’entreprise peuvent uniquement la suspendre ou la supprimer.",

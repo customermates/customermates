@@ -18,12 +18,13 @@ import { ROUTINE_RUN_STATUS_CHIP_COLOR } from "@/ee/routines/routine-run-chip-co
 import { routineRunDetail, routineRunStopReason } from "@/ee/routines/routine-run-outcome";
 
 import { RoutineEmptyState } from "./routine-empty-state";
-import { RoutineRunDetail } from "./routine-run-detail";
 
 function RoutineRunRow({ run, store }: { run: RoutineRunDto; store: RoutineModalStore }) {
   const t = useTranslations();
   const intlStore = useHydratedIntlStore();
   const transcriptRestricted = Boolean(run.conversationId) && !store.canOpenRun(run);
+  const chatSwitchRestricted = store.isRunSelectionBlockedByActiveChat(run);
+  const selectionRestricted = transcriptRestricted || chatSwitchRestricted;
   const detail = routineRunDetail(run, t) || routineRunStopReason(run, t);
   const content = (
     <span className="flex w-full min-w-0 items-start gap-3">
@@ -63,7 +64,7 @@ function RoutineRunRow({ run, store }: { run: RoutineRunDto; store: RoutineModal
 
   return (
     <div className="group flex items-center gap-1 overflow-hidden rounded-lg border" role="listitem">
-      {transcriptRestricted ? (
+      {selectionRestricted ? (
         <Tooltip>
           <TooltipTrigger asChild>
             <span
@@ -78,9 +79,11 @@ function RoutineRunRow({ run, store }: { run: RoutineRunDto; store: RoutineModal
           </TooltipTrigger>
 
           <TooltipContent>
-            {t("RoutineDetail.transcriptOwnerOnly", {
-              owner: run.executedByName,
-            })}
+            {transcriptRestricted
+              ? t("RoutineDetail.transcriptOwnerOnly", {
+                  owner: run.executedByName,
+                })
+              : t("AgentChat.ui.assistantWorking")}
           </TooltipContent>
         </Tooltip>
       ) : (
@@ -98,15 +101,12 @@ function RoutineRunRow({ run, store }: { run: RoutineRunDto; store: RoutineModal
   );
 }
 
-export const RoutineRunsPane = observer(({ store, wide }: { store: RoutineModalStore; wide: boolean }) => {
+export const RoutineRunsPane = observer(({ store }: { store: RoutineModalStore }) => {
   const t = useTranslations();
-  const openRun = store.openRun_;
-
-  if (wide && openRun) return <RoutineRunDetail showBack run={openRun} store={store} />;
 
   return (
-    <section aria-labelledby="routine-runs-heading" className="min-w-0">
-      <div className="sticky top-0 z-10 border-b bg-background py-2.5">
+    <section aria-labelledby="routine-runs-heading" className="min-w-0 space-y-3">
+      <div>
         <h3 className="text-sm font-semibold outline-none" id="routine-runs-heading" tabIndex={-1}>
           {t("RoutineDetail.runs")}
         </h3>
@@ -134,7 +134,7 @@ export const RoutineRunsPane = observer(({ store, wide }: { store: RoutineModalS
         <RoutineEmptyState store={store} />
       ) : (
         <>
-          <div className="space-y-1 py-3" role="list">
+          <div className="space-y-1" role="list">
             {store.runs.map((run) => (
               <RoutineRunRow key={run.id} run={run} store={store} />
             ))}

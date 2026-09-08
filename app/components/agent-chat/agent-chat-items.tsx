@@ -15,7 +15,7 @@ import {
 
 import { useActivityGroupState } from "./use-activity-group-state";
 import { useSteadyLabel } from "./use-steady-label";
-import { useAgentChatStore } from "./agent-chat-store-context";
+import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-context";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
   userLabel?: string;
 }) {
   const store = useAgentChatStore();
+  const uiTargets = useAgentChatUiTargets();
   const t = useTranslations();
   const copyToClipboard = useCopyToClipboard();
   const terminology = useAgentActivityTerminology();
@@ -53,7 +54,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
     decision: "approve" | "reject",
   ) => {
     await store.respondToApproval(approval, decision);
-    if (approval.submittedDecision || approval.resolution) focusAgentComposer();
+    if (approval.submittedDecision || approval.resolution) focusAgentComposer(uiTargets);
   };
 
   if (item.kind === "user") {
@@ -131,7 +132,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
             variant="secondary"
             onClick={() => {
               store.retryFailedTurn(item);
-              focusAgentComposer();
+              focusAgentComposer(uiTargets);
             }}
           >
             {copy.retryTurn}

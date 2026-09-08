@@ -4,12 +4,13 @@ import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { useAgentChatStore } from "./agent-chat-store-context";
+import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-context";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export const UsageRing = observer(function UsageRing() {
   const store = useAgentChatStore();
+  const uiTargets = useAgentChatUiTargets();
   const intlStore = useHydratedIntlStore();
   const t = useTranslations();
   const [open, setOpen] = useState(false);
@@ -26,7 +27,7 @@ export const UsageRing = observer(function UsageRing() {
         aria-label={t("AgentChat.credits.usage", { pct })}
         className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
         data-testid="agent-usage"
-        id="agent-usage"
+        id={uiTargets.usageId}
         onMouseEnter={() => setOpen(true)}
       >
         <svg className="-rotate-90 size-5" viewBox="0 0 18 18">

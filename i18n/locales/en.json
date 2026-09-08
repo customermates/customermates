@@ -3113,7 +3113,6 @@
       },
       "title": "No runs yet"
     },
-    "instruction": "Instruction sent to the assistant",
     "never": "Never",
     "owner": "Owner",
     "ownerOnlyEdit": "This routine is read-only for you. It runs only as {owner}, who can edit or pause it. Company administrators can only pause or delete it.",

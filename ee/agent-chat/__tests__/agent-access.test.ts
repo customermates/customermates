@@ -263,7 +263,7 @@ describe("agent access", () => {
       createAgentConversationForRun: vi.fn(),
       deleteUnusedAgentConversation: vi.fn(),
       recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
-      findUserConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID, origin: "user" }),
+      findInteractiveConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID, origin: "user" }),
       listRecentMessages: vi.fn().mockResolvedValue([]),
       admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
         Promise.resolve({
@@ -293,7 +293,7 @@ describe("agent access", () => {
     });
 
     expect(result.ok && result.data.disposition).toBe("run");
-    expect(repo.findUserConversation).toHaveBeenCalledWith(CONVERSATION_ID);
+    expect(repo.findInteractiveConversation).toHaveBeenCalledWith(CONVERSATION_ID, undefined);
     expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
       expect.objectContaining({ conversationId: CONVERSATION_ID }),
     );
@@ -301,6 +301,7 @@ describe("agent access", () => {
 
   it("admits the initial routine message only through the internal routine path", async () => {
     const background = backgroundTasks();
+    const usage = usageService();
     const repo = {
       normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
       findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
@@ -333,7 +334,7 @@ describe("agent access", () => {
     const result = await runWithTenant(mockUser, () =>
       new SendAgentMessageInteractor(
         repo as never,
-        usageService() as never,
+        usage as never,
         mockEntitlementService(),
         background as never,
       ).invokeRoutine({
@@ -346,9 +347,80 @@ describe("agent access", () => {
 
     expect(result.ok && result.data.disposition).toBe("run");
     expect(repo.findConversation).toHaveBeenCalledWith(CONVERSATION_ID);
+    expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
+      model: MODEL_CATALOG.balanced,
+      requiredContextBytes: expect.any(Number),
+      creditCeiling: 2,
+    });
+    expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversationId: CONVERSATION_ID,
+        routineRunId: CLIENT_REQUEST_ID,
+      }),
+    );
     expect(background.dispatchTracked).toHaveBeenCalledWith(
       "agent-turn",
       expect.objectContaining({ surface: "routine", conversationId: CONVERSATION_ID }),
+    );
+  });
+
+  it("continues a terminal owned routine conversation as an interactive chat turn", async () => {
+    const background = backgroundTasks();
+    const usage = usageService();
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+      claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
+      findInteractiveConversation: vi.fn().mockResolvedValue({
+        id: CONVERSATION_ID,
+        origin: "routine",
+        modelKey: null,
+        creditCeiling: 2,
+      }),
+      admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
+        Promise.resolve({
+          conversationId: CONVERSATION_ID,
+          userMessageId: args.turn.userMessageId,
+          recentMessages: [
+            {
+              id: args.turn.userMessageId,
+              role: "user",
+              parts: [{ type: "text", text: "Continue the investigation" }],
+            },
+          ],
+        }),
+      ),
+    };
+
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      background as never,
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      conversationId: CONVERSATION_ID,
+      text: "Continue the investigation",
+      retry: false,
+    });
+
+    expect(result.ok && result.data.disposition).toBe("run");
+    expect(repo.findInteractiveConversation).toHaveBeenCalledWith(CONVERSATION_ID, undefined);
+    expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
+      model: MODEL_CATALOG.balanced,
+      requiredContextBytes: expect.any(Number),
+      creditCeiling: null,
+    });
+    expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
+      expect.not.objectContaining({ routineRunId: expect.anything() }),
+    );
+    expect(background.dispatchTracked).toHaveBeenCalledWith(
+      "agent-turn",
+      expect.objectContaining({ surface: "chat", conversationId: CONVERSATION_ID }),
     );
   });
 
@@ -361,7 +433,7 @@ describe("agent access", () => {
       createAgentConversationForRun: vi.fn(),
       deleteUnusedAgentConversation: vi.fn(),
       recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
-      findUserConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID, origin: "user" }),
+      findInteractiveConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID, origin: "user" }),
       listRecentMessages: vi.fn(),
       admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
         Promise.resolve({
@@ -534,7 +606,7 @@ describe("agent access", () => {
       createAgentConversationForRun: vi.fn(),
       deleteUnusedAgentConversation: vi.fn(),
       recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
-      findUserConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID, origin: "user" }),
+      findInteractiveConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID, origin: "user" }),
       listRecentMessages: vi.fn().mockResolvedValue([
         {
           id: MESSAGE_ID,
@@ -567,6 +639,7 @@ describe("agent access", () => {
     });
 
     expect(result.ok && result.data.disposition).toBe("run");
+    expect(repo.findInteractiveConversation).toHaveBeenCalledWith(CONVERSATION_ID, "turn-1");
     expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
       expect.objectContaining({
         conversationId: CONVERSATION_ID,
@@ -638,7 +711,7 @@ describe("agent access", () => {
       createAgentConversationForRun: vi.fn(),
       deleteUnusedAgentConversation: vi.fn(),
       recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
-      findUserConversation: vi.fn().mockResolvedValue(null),
+      findInteractiveConversation: vi.fn().mockResolvedValue(null),
       admitAgentTurnOrThrow: vi.fn(),
     };
 
@@ -978,7 +1051,7 @@ describe("agent access", () => {
 
   it("records UI feedback only for an owned conversation", async () => {
     const repo = {
-      findUserConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
+      findInteractiveConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
       recordUiCommandResult: vi.fn().mockResolvedValue(undefined),
     };
 

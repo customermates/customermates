@@ -9,7 +9,6 @@ import { AgentTourOverlay } from "./agent-tour-overlay";
 
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { reportApplicationError } from "@/core/errors/report-application-error";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { IconContainer } from "@/components/shared/icon-container";
@@ -22,6 +21,7 @@ import { AgentProgressStatus, AgentStatusAnnouncer } from "./agent-status-announ
 import { ArchiveUndo, ConversationHistory } from "./conversation-history";
 import { SuggestedQuestions } from "./suggested-questions";
 import { AgentRouteReloadBridge } from "./agent-route-reload";
+import { useAgentChatConfig } from "./use-agent-chat-config";
 
 export const AgentChat = observer(function AgentChat() {
   const { agentChatStore: store, agentUiControlStore } = useRootStore();
@@ -38,23 +38,7 @@ export const AgentChat = observer(function AgentChat() {
   pathnameRef.current = pathname;
   routerRef.current = router;
 
-  useEffect(() => {
-    let cancelled = false;
-    let timer: ReturnType<typeof setTimeout> | null = null;
-    let attempt = 0;
-    const load = async () => {
-      const status = await store.loadConfig();
-      if (cancelled || status !== "retry") return;
-      const wait = Math.min(30000, 1000 * 2 ** attempt++);
-      timer = setTimeout(() => void load().catch(reportApplicationError), wait);
-    };
-
-    if (store.enabled === null) void load().catch(reportApplicationError);
-    return () => {
-      cancelled = true;
-      if (timer) clearTimeout(timer);
-    };
-  }, [store]);
+  useAgentChatConfig(store);
 
   useEffect(() => {
     const pending = pendingNavigationRef.current;

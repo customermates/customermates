@@ -20,7 +20,7 @@ export function RoutineRunTriggerCard({ run, customColumns }: Props) {
   const context = run.triggerContext;
 
   return (
-    <div className="space-y-1.5 border-b px-6 py-3">
+    <div className="space-y-1.5 rounded-lg border p-4">
       <InfoRow label={t("RoutineDetail.trigger")}>
         <AppChip size="sm" variant="secondary">
           {run.triggerEvent ? t(`Common.events.${run.triggerEvent}`) : t(`RoutineTriggerKind.${run.triggerKind}`)}

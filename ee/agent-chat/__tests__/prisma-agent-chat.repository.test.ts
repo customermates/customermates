@@ -142,6 +142,36 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
   });
 
+  it("allows interactive access to owned user chats and terminal routine runs, but not retrying the linked routine turn", async () => {
+    prismaMock.agentConversation.findFirst.mockResolvedValue(null);
+
+    await runWithTenant(user, () => new PrismaAgentChatRepo().findInteractiveConversation("conversation-1", "turn-1"));
+
+    expect(prismaMock.agentConversation.findFirst).toHaveBeenCalledWith({
+      where: {
+        id: "conversation-1",
+        companyId: user.companyId,
+        userId: user.id,
+        archivedAt: null,
+        OR: [
+          { origin: "user" },
+          {
+            origin: "routine",
+            routineRuns: {
+              some: {
+                executedByUserId: user.id,
+                status: {
+                  in: ["succeeded", "partial", "failed", "skipped", "blocked"],
+                },
+              },
+            },
+          },
+        ],
+        routineRuns: { none: { turnRequestId: "turn-1" } },
+      },
+    });
+  });
+
   it("sanitizes the title of the conversation it opens for a run", async () => {
     prismaMock.agentConversation.create.mockResolvedValue({
       id: "conversation-1",
@@ -171,7 +201,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
   });
 
   it("atomically creates and prelinks a routine conversation to its running run", async () => {
-    prismaMock.agentConversation.create.mockResolvedValue({ id: "conversation-1" });
+    prismaMock.agentConversation.create.mockResolvedValue({
+      id: "conversation-1",
+    });
     prismaMock.routineRun.updateMany.mockResolvedValue({ count: 1 });
     const now = new Date("2026-09-04T12:00:00.000Z");
 
@@ -214,7 +246,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
   });
 
   it("rolls back a routine conversation when its run cannot be prelinked", async () => {
-    prismaMock.agentConversation.create.mockResolvedValue({ id: "conversation-1" });
+    prismaMock.agentConversation.create.mockResolvedValue({
+      id: "conversation-1",
+    });
     prismaMock.routineRun.updateMany.mockResolvedValue({ count: 0 });
 
     await expect(
@@ -477,9 +511,14 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
   it("verifies the prelinked routine conversation before admitting its agent turn", async () => {
     prismaMock.agentRunLease.updateMany.mockResolvedValue({ count: 1 });
-    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({ id: "reservation-1" });
+    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
+      id: "reservation-1",
+    });
     prismaMock.agentUsageEvent.updateMany.mockResolvedValue({ count: 1 });
-    prismaMock.agentConversation.findFirst.mockResolvedValue({ id: "conversation-1", origin: "routine" });
+    prismaMock.agentConversation.findFirst.mockResolvedValue({
+      id: "conversation-1",
+      origin: "routine",
+    });
     prismaMock.routineRun.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.agentConversation.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.agentMessage.findMany.mockResolvedValue([]);
@@ -493,6 +532,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         modelSpec: "openai/gpt-5.6-luna",
         servingProvider: "azure",
         recentMessageLimit: 8,
+        routineRunId: "routine-run-1",
         turn: {
           kind: "create",
           turnRequestId: "turn-1",
@@ -523,8 +563,13 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
   it("rolls back routine admission when lifecycle policy already settled the run", async () => {
     prismaMock.agentRunLease.updateMany.mockResolvedValue({ count: 1 });
-    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({ id: "reservation-1" });
-    prismaMock.agentConversation.findFirst.mockResolvedValue({ id: "conversation-1", origin: "routine" });
+    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
+      id: "reservation-1",
+    });
+    prismaMock.agentConversation.findFirst.mockResolvedValue({
+      id: "conversation-1",
+      origin: "routine",
+    });
     prismaMock.routineRun.updateMany.mockResolvedValue({ count: 0 });
 
     await expect(
@@ -537,6 +582,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           modelSpec: "openai/gpt-5.6-luna",
           servingProvider: "azure",
           recentMessageLimit: 8,
+          routineRunId: "routine-run-1",
           turn: {
             kind: "create",
             turnRequestId: "turn-1",
@@ -552,6 +598,49 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     expect(prismaMock.agentTurnRequest.create).not.toHaveBeenCalled();
     expect(prismaMock.agentMessage.create).not.toHaveBeenCalled();
     expect(prismaMock.agentUsageEvent.updateMany).not.toHaveBeenCalled();
+  });
+
+  it("admits an interactive continuation in a routine conversation without relinking its Routine run", async () => {
+    prismaMock.agentRunLease.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
+      id: "reservation-1",
+    });
+    prismaMock.agentUsageEvent.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.agentConversation.findFirst.mockResolvedValue({
+      id: "conversation-1",
+      origin: "routine",
+    });
+    prismaMock.agentConversation.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.agentMessage.findMany.mockResolvedValue([]);
+
+    await runWithTenant(user, () =>
+      new PrismaAgentChatRepo().admitAgentTurnOrThrow({
+        conversationId: "conversation-1",
+        title: "Continue CRM hygiene",
+        runId: "agent-run-2",
+        reservationId: "reservation-1",
+        modelSpec: "openai/gpt-5.6-luna",
+        servingProvider: "azure",
+        recentMessageLimit: 8,
+        turn: {
+          kind: "create",
+          turnRequestId: "turn-2",
+          clientRequestId: "request-2",
+          text: "Continue the investigation",
+          pageRoute: null,
+          userMessageId: "user-message-2",
+        },
+      }),
+    );
+
+    expect(prismaMock.routineRun.updateMany).not.toHaveBeenCalled();
+    expect(prismaMock.agentTurnRequest.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        id: "turn-2",
+        conversationId: "conversation-1",
+        clientRequestId: "request-2",
+      }),
+    });
   });
 
   it("scopes retry message lookup through the owning active conversation", async () => {
@@ -644,7 +733,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     await runWithTenant(user, () => new PrismaAgentChatRepo().listConversationPage({ archived: false }));
 
     expect(prismaMock.agentConversation.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: expect.objectContaining({ origin: "user" }) }),
+      expect.objectContaining({
+        where: expect.objectContaining({ origin: "user" }),
+      }),
     );
   });
 
@@ -654,7 +745,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     await runWithTenant(user, () => new PrismaAgentChatRepo().findMyConversation());
 
     expect(prismaMock.agentConversation.findFirst).toHaveBeenCalledWith(
-      expect.objectContaining({ where: expect.objectContaining({ origin: "user" }) }),
+      expect.objectContaining({
+        where: expect.objectContaining({ origin: "user" }),
+      }),
     );
   });
 
@@ -727,7 +820,11 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       take: 51,
       include: {
         turnRequest: {
-          where: { companyId: user.companyId, userId: user.id, conversationId: "conversation-1" },
+          where: {
+            companyId: user.companyId,
+            userId: user.id,
+            conversationId: "conversation-1",
+          },
           select: {
             clientRequestId: true,
             status: true,
@@ -1223,7 +1320,10 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
     expect(prismaMock.agentTurnRequest.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ status: "failed", stopReason: "turn_error" }),
+        data: expect.objectContaining({
+          status: "failed",
+          stopReason: "turn_error",
+        }),
       }),
     );
   });
@@ -1525,9 +1625,15 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       runId: "run-1",
       expiresAt: new Date("2026-08-06T10:05:00.000Z"),
     });
-    prismaMock.agentConversation.findFirst.mockResolvedValue({ updatedAt: new Date() });
+    prismaMock.agentConversation.findFirst.mockResolvedValue({
+      updatedAt: new Date(),
+    });
     prismaMock.agentUsageEvent.updateMany.mockResolvedValue({ count: 1 });
-    prismaMock.agentMessage.create.mockResolvedValue({ id: "assistant-message-1", parts: [], createdAt: new Date() });
+    prismaMock.agentMessage.create.mockResolvedValue({
+      id: "assistant-message-1",
+      parts: [],
+      createdAt: new Date(),
+    });
     prismaMock.agentConversation.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.agentTurnRequest.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.agentRunLease.deleteMany.mockResolvedValue({ count: 1 });
@@ -1557,10 +1663,16 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       },
     });
 
-    expect(result).toMatchObject({ terminalCode: "policyBreach", stopReason: "policy_breach" });
+    expect(result).toMatchObject({
+      terminalCode: "policyBreach",
+      stopReason: "policy_breach",
+    });
     expect(prismaMock.agentTurnRequest.updateMany).toHaveBeenLastCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ terminalCode: "policyBreach", stopReason: "policy_breach" }),
+        data: expect.objectContaining({
+          terminalCode: "policyBreach",
+          stopReason: "policy_breach",
+        }),
       }),
     );
   });
@@ -2018,7 +2130,12 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       periodStart: new Date("2026-07-15T10:30:00.000Z"),
       periodEnd: new Date("2026-08-15T10:30:00.000Z"),
       allowanceCreditsSnapshot: 500,
-      turnRequest: { conversation: { creditCeiling: 2 } },
+      turnRequest: {
+        conversation: {
+          creditCeiling: 2,
+          routineRuns: [{ id: "routine-run-1" }],
+        },
+      },
     });
 
     await expect(
@@ -2045,7 +2162,12 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       periodStart: new Date("2026-07-15T10:30:00.000Z"),
       periodEnd: new Date("2026-08-15T10:30:00.000Z"),
       allowanceCreditsSnapshot: 500,
-      turnRequest: { conversation: { creditCeiling: 2 } },
+      turnRequest: {
+        conversation: {
+          creditCeiling: 2,
+          routineRuns: [{ id: "routine-run-1" }],
+        },
+      },
     });
     prismaMock.user.findUnique.mockResolvedValue({
       id: user.id,
@@ -2081,12 +2203,16 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     }
 
     expect(prismaMock.agentUsageEvent.updateMany).toHaveBeenCalledWith({
-      where: { id: "reservation-routine", companyId: user.companyId, state: "reserved" },
+      where: {
+        id: "reservation-routine",
+        companyId: user.companyId,
+        state: "reserved",
+      },
       data: expect.objectContaining({ reservedCredits: 2 }),
     });
   });
 
-  it("continues to extend an ordinary chat reservation with no conversation ceiling", async () => {
+  it("does not apply a routine conversation ceiling to an interactive follow-up turn", async () => {
     const now = new Date("2026-08-06T10:00:00.000Z");
     vi.useFakeTimers();
     vi.setSystemTime(now);
@@ -2096,7 +2222,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       periodStart: new Date("2026-07-15T10:30:00.000Z"),
       periodEnd: new Date("2026-08-15T10:30:00.000Z"),
       allowanceCreditsSnapshot: 500,
-      turnRequest: { conversation: { creditCeiling: null } },
+      turnRequest: { conversation: { creditCeiling: 2, routineRuns: [] } },
     });
     prismaMock.user.findUnique.mockResolvedValue({
       id: user.id,
@@ -2124,16 +2250,20 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           turnRequestId: "turn-chat",
           companyId: user.companyId,
           userId: user.id,
-          requiredCredits: 2,
+          requiredCredits: 3,
         }),
-      ).resolves.toEqual({ disposition: "extended", reservedCredits: 2 });
+      ).resolves.toEqual({ disposition: "extended", reservedCredits: 3 });
     } finally {
       vi.useRealTimers();
     }
 
     expect(prismaMock.agentUsageEvent.updateMany).toHaveBeenCalledWith({
-      where: { id: "reservation-chat", companyId: user.companyId, state: "reserved" },
-      data: expect.objectContaining({ reservedCredits: 2 }),
+      where: {
+        id: "reservation-chat",
+        companyId: user.companyId,
+        state: "reserved",
+      },
+      data: expect.objectContaining({ reservedCredits: 3 }),
     });
   });
 
@@ -2149,7 +2279,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       periodStart: new Date("2026-07-15T10:30:00.000Z"),
       periodEnd: new Date("2026-08-15T10:30:00.000Z"),
       allowanceCreditsSnapshot: 500,
-      turnRequest: { conversation: { creditCeiling: null } },
+      turnRequest: { conversation: { creditCeiling: null, routineRuns: [] } },
     });
     prismaMock.user.findUnique.mockResolvedValue({
       id: user.id,

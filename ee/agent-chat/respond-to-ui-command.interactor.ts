@@ -39,7 +39,7 @@ export class RespondToUiCommandInteractor extends AuthenticatedInteractor<Respon
     const denied = await this.entitlements.require("agentChat");
     if (denied) return denied;
 
-    const conversation = await this.repo.findUserConversation(data.conversationId);
+    const conversation = await this.repo.findInteractiveConversation(data.conversationId);
     if (!conversation) return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     await this.repo.recordUiCommandResult(data);
