@@ -21,6 +21,7 @@ import * as Sentry from "@sentry/node";
 import { ProcessUnipileWebhookInteractor } from "../process-unipile-webhook.interactor";
 import { UnmappableWebhookPayloadError } from "@/core/errors/app-errors";
 import { UnipileRequestError } from "../../messaging.service";
+import { DeferredWebhookError } from "@/core/errors/app-errors";
 
 const EVENT_ID = "11111111-1111-4111-8111-111111111111";
 
@@ -108,6 +109,21 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
     await invoke(interactor);
 
     expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ id: EVENT_ID, terminal: false }),
+    );
+  });
+
+  it("retries a deferred webhook without reporting it", async () => {
+    const handler = { invoke: vi.fn().mockRejectedValue(new DeferredWebhookError("burst")) };
+    const { interactor, events } = build(row({ type: "email.delete", account_id: "acc_1", payload: {} }), {
+      "email.delete": handler,
+    });
+
+    await invoke(interactor);
+
+    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(events.markWebhookEventProcessedUnscoped).not.toHaveBeenCalled();
     expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ id: EVENT_ID, terminal: false }),
     );

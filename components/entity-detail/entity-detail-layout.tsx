@@ -371,7 +371,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
                 >
                   <TabsTrigger
                     aria-controls={`${formId}-details-panel`}
-                    className="h-full rounded-none px-4 after:-bottom-px after:z-10"
+                    className="h-full rounded-none px-4 after:z-10 group-data-[orientation=horizontal]/tabs:after:-bottom-px"
                     id={`${formId}-details-tab`}
                     value="details"
                   >
@@ -381,7 +381,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
                   {showNotesPanel && (
                     <TabsTrigger
                       aria-controls={`${formId}-notes-panel`}
-                      className="h-full rounded-none px-4 after:-bottom-px after:z-10"
+                      className="h-full rounded-none px-4 after:z-10 group-data-[orientation=horizontal]/tabs:after:-bottom-px"
                       id={`${formId}-notes-tab`}
                       value="notes"
                     >
@@ -392,7 +392,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
                   {canSeeHistory && (
                     <TabsTrigger
                       aria-controls={`${formId}-activities-panel`}
-                      className="h-full rounded-none px-4 after:-bottom-px after:z-10"
+                      className="h-full rounded-none px-4 after:z-10 group-data-[orientation=horizontal]/tabs:after:-bottom-px"
                       id={`${formId}-activities-tab`}
                       value="activities"
                     >

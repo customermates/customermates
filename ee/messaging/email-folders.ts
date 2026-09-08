@@ -106,7 +106,7 @@ export function isMovableEmailFolder(folder: { role?: string | null; name?: stri
 }
 
 export function isEmailMoveTarget(folder: { role?: string | null; name?: string | null }): boolean {
-  return isMovableEmailFolder(folder) && !isSkippedEmailFolder(folder);
+  return isMovableEmailFolder(folder);
 }
 
 export function emailMoveTargets(folders: EmailFolder[], provider: MessagingProvider): EmailFolder[] {

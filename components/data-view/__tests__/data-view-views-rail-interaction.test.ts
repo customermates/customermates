@@ -15,11 +15,20 @@ const harness = vi.hoisted(() => ({
   confirmations: [] as { entityName?: string; onConfirm: () => Promise<boolean> }[],
   deleteDataViewAction: vi.fn(),
   menuCloseAutoFocus: { current: undefined as ((event: Event) => void) | undefined },
+  routerPush: vi.fn(),
+  searchParams: { current: "" },
   upsertDataViewAction: vi.fn(),
 }));
 
 vi.mock("mobx-react-lite", () => ({ observer: <T>(component: T) => component }));
-vi.mock("next/navigation", () => ({ usePathname: () => "/en/deals" }));
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/en/deals",
+  useSearchParams: () => new URLSearchParams(harness.searchParams.current),
+}));
+vi.mock("@/i18n/navigation", () => ({
+  useRouter: () => ({ push: harness.routerPush }),
+  usePathname: () => "/deals",
+}));
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
     values ? `${key}(${Object.values(values).join(",")})` : key,
@@ -140,13 +149,16 @@ function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewSt
 let root: ReactRoot | undefined;
 let container: HTMLDivElement | undefined;
 
-function render(value: BaseDataViewStore<Item>): HTMLDivElement {
+function render(value: BaseDataViewStore<Item>, detailParam?: string): HTMLDivElement {
   container = document.createElement("div");
   document.body.appendChild(container);
   root = createRoot(container);
   act(() => {
     root?.render(
-      createElement(DataViewViewsRail<Item>, { store: value } as { store: BaseDataViewStore<Item> }) as ReactNode,
+      createElement(DataViewViewsRail<Item>, { detailParam, store: value } as {
+        detailParam?: string;
+        store: BaseDataViewStore<Item>;
+      }) as ReactNode,
     );
   });
   return container;
@@ -207,6 +219,8 @@ beforeEach(() => {
   harness.calls.length = 0;
   harness.confirmations.length = 0;
   harness.deleteDataViewAction.mockReset().mockResolvedValue({ data: { id: "v-a" }, ok: true });
+  harness.routerPush.mockReset();
+  harness.searchParams.current = "";
   harness.upsertDataViewAction.mockReset().mockResolvedValue({ data: view({ id: "v-new", name: "Hot" }), ok: true });
   window.history.replaceState(null, "", "/en/deals");
   document.addEventListener("click", swallowNavigation);
@@ -277,6 +291,30 @@ describe("data view rail interaction", () => {
 
     expect(value.applyView).toHaveBeenCalledOnce();
     expect(pushState).toHaveBeenCalledOnce();
+  });
+
+  it("closes an open detail by routing, and routes without the locale the router adds back", () => {
+    harness.searchParams.current = "threadId=t-1";
+    const value = store();
+    const host = render(value, "threadId");
+    const pushState = vi.spyOn(window.history, "pushState");
+
+    act(() => chips(host)[1].click());
+
+    expect(harness.routerPush).toHaveBeenCalledExactlyOnceWith("/deals?view=v-a");
+    expect(value.applyView).not.toHaveBeenCalled();
+    expect(pushState).not.toHaveBeenCalled();
+  });
+
+  it("selects in place when no detail is open", () => {
+    harness.searchParams.current = "";
+    const value = store();
+    const host = render(value, "threadId");
+
+    act(() => chips(host)[1].click());
+
+    expect(harness.routerPush).not.toHaveBeenCalled();
+    expect(value.applyView).toHaveBeenCalledExactlyOnceWith("v-a");
   });
 
   it("shows a draft tab while creating, then saves the current query as a view and activates it", async () => {

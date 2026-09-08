@@ -123,8 +123,10 @@ describe("homepage visual-system adoption", () => {
     expect(hero).not.toMatch(/HomepageAgentRecordVisual|GoogleCalendar|OutlookCalendar|Messenger|XTwitter/u);
     expect(englishHomepage).toContain("title: The open-source CRM");
     expect(englishHomepage).toContain("titleAccent: for AI agents.");
-    expect(hero).toContain("heroSection.useCaseEyebrow");
+    expect(hero).not.toContain("useCaseEyebrow");
     expect(hero).toContain("heroSection.useCase");
+    expect(hero).toContain("order-last");
+    expect(hero).toContain("sm:order-none");
   });
 
   it("rotates a width-reserved, accessible hero reel only while motion is appropriate", () => {
@@ -191,8 +193,12 @@ describe("homepage visual-system adoption", () => {
     ]) {
       expect(germanHomepage).toContain(`    - ${label}`);
     }
-    expect(englishHomepage).toContain("useCaseEyebrow: A real workflow");
-    expect(germanHomepage).toContain("useCaseEyebrow: Ein konkreter Ablauf");
+    expect(englishHomepage).not.toContain("useCaseEyebrow");
+    expect(germanHomepage).not.toContain("useCaseEyebrow");
+    expect(englishHomepage).toContain("  useCase: Ask ChatGPT");
+    expect(germanHomepage).toContain("  useCase: Lassen Sie ChatGPT");
+    expect(englishHomepage).not.toContain("\u2014");
+    expect(germanHomepage).not.toContain("\u2014");
   });
 
   it("keeps the live workspace on-page and gives the walkthrough the contrasting story band", () => {

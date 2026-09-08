@@ -2364,6 +2364,7 @@
       "updateDraft": "Actualizar el borrador",
       "writeReply": "Escribe una respuesta..."
     },
+    "conversationRegion": "Conversación",
     "dateToday": "Hoy",
     "dateYesterday": "Ayer",
     "edited": "(editado)",
@@ -2385,6 +2386,7 @@
     },
     "groupThread": "Grupo ({count, plural, one {# miembro} other {# miembros}})",
     "hideQuotedText": "Ocultar el texto citado",
+    "jumpToLatest": "Ir a lo más reciente",
     "learnMore": "Saber más",
     "linkedinContact": "Contacto de LinkedIn",
     "loadMedia": "Cargar el contenido multimedia",

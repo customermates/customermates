@@ -146,7 +146,9 @@ export class MessagingThreadDetailStore extends BaseStore {
         return;
       }
 
-      this.folderContext = { ...context, currentFolderIds: [result.data.folderId] };
+      runInAction(() => {
+        this.folderContext = { ...context, currentFolderIds: [result.data.folderId] };
+      });
 
       this.toastSuccess(result.data.hiddenFromInbox ? "Inbox.folders.movedHidden" : "Inbox.folders.moved", {
         values: { folder: result.data.folderName },

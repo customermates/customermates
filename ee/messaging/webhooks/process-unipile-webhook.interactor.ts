@@ -8,7 +8,7 @@ import type { WebhookEventRepo } from "./webhook-event.repo";
 import type { UnipileWebhookEnvelope } from "../unipile.schema";
 
 import { UnipileWebhookEnvelopeSchema } from "../unipile.schema";
-import { UnmappableWebhookPayloadError } from "@/core/errors/app-errors";
+import { DeferredWebhookError, UnmappableWebhookPayloadError } from "@/core/errors/app-errors";
 import { isUnipileDisconnectedAccount, isUnipileProviderUnprocessable, isUnipileTimeout } from "../messaging.service";
 
 export type UnipileWebhookHandlerMap = Partial<
@@ -65,6 +65,12 @@ export class ProcessUnipileWebhookInteractor {
           terminal: true,
           unipileMessageId: err.unipileMessageId,
         });
+
+        return;
+      }
+
+      if (err instanceof DeferredWebhookError) {
+        await this.events.markWebhookEventFailedUnscoped({ id, error: err.message, terminal: false });
 
         return;
       }

@@ -138,7 +138,13 @@ export const ThreadPanel = observer(({ threadDetail, locked = false }: Props) =>
 
           <ThreadTopBar thread={thread} />
 
-          <MessagesScrollContainer scrollKey={`thread:${thread.id}`} onTopReach={store.loadOlderMessages}>
+          <MessagesScrollContainer
+            jumpToLatestLabel={t("Inbox.jumpToLatest")}
+            latestItemKey={store.messages.at(-1)?.id}
+            scrollKey={`thread:${thread.id}`}
+            scrollRegionLabel={t("Inbox.conversationRegion")}
+            onTopReach={store.loadOlderMessages}
+          >
             <div className="flex flex-col gap-1">
               {store.loadingOlder ? (
                 <div className="flex justify-center py-2">

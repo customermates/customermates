@@ -15,7 +15,11 @@ const harness = vi.hoisted(() => ({
 }));
 
 vi.mock("mobx-react-lite", () => ({ observer: <T>(component: T) => component }));
-vi.mock("next/navigation", () => ({ usePathname: () => "/en/deals" }));
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/en/deals",
+  useSearchParams: () => new URLSearchParams(),
+}));
+vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => "/deals" }));
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
     values ? `${key}(${Object.values(values).join(",")})` : key,

@@ -22,7 +22,7 @@ export const InboxSurface = observer(function InboxSurface({ children, threads }
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <DataViewViewsRail joinsTopBar store={messagingThreadsStore} />
+      <DataViewViewsRail joinsTopBar detailParam="threadId" store={messagingThreadsStore} />
 
       {children}
     </div>
