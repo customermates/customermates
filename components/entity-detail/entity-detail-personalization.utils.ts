@@ -22,6 +22,7 @@ export function resolveSingleOpenSectionId(
   const collapsed = new Set(reconcileAvailableIds(collapsedSectionIds, availableSectionIds));
   const openSectionIds = availableSectionIds.filter((id) => !collapsed.has(id));
   if (openSectionIds.length === 1) return openSectionIds[0];
+  if (openSectionIds.length === 0) return undefined;
 
   const defaultCollapsed = new Set(reconcileAvailableIds(defaultCollapsedSectionIds, availableSectionIds));
   const defaultOpenSectionIds = availableSectionIds.filter((id) => !defaultCollapsed.has(id));
@@ -33,7 +34,8 @@ export function collapsedSectionIdsForOpenSection(
   openSectionId: string | undefined,
 ): string[] {
   const availableSectionIds = uniqueIds(sectionIds ?? []);
-  if (!openSectionId || !availableSectionIds.includes(openSectionId)) return [];
+  if (openSectionId === undefined) return availableSectionIds;
+  if (!availableSectionIds.includes(openSectionId)) return [];
   return availableSectionIds.filter((id) => id !== openSectionId);
 }
 

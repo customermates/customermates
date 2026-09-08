@@ -31,7 +31,7 @@ export function HomepageHero({ heroSection }: Props) {
       <GridPattern className="z-0" fade="bottom" />
 
       <MarketingContainer className="relative z-10">
-        <div className="flex flex-col items-center py-16 text-center sm:py-20 lg:py-28">
+        <div className="flex flex-col items-center py-12 text-center sm:py-16 lg:py-20">
           <AgplGithubBadge />
 
           <h1 className="text-hero mt-7 max-w-6xl">
@@ -58,18 +58,16 @@ export function HomepageHero({ heroSection }: Props) {
             </span>
           </h1>
 
-          <div className="mt-10 w-full max-w-[820px] rounded-card border border-border bg-card p-5 text-left shadow-[0_20px_70px_-48px_rgba(0,0,0,0.7)] sm:p-6">
-            <p className="text-eyebrow">{heroSection.useCaseEyebrow}</p>
-
-            <p className="mt-3 max-w-[700px] text-base leading-relaxed font-medium text-foreground sm:text-lg">
+          <div className="order-last mt-8 w-full max-w-[820px] rounded-card border border-border bg-card p-5 text-left shadow-[0_20px_70px_-48px_rgba(0,0,0,0.7)] sm:order-none sm:p-6">
+            <p className="max-w-[700px] text-base leading-relaxed font-medium text-foreground sm:text-lg">
               {heroSection.useCase}
             </p>
 
-            <p className="mt-4 max-w-[700px] text-[15px] leading-relaxed text-muted-foreground sm:text-base">
+            <p className="mt-3 max-w-[700px] text-[15px] leading-relaxed text-muted-foreground sm:text-base">
               {heroSection.subtitle}
             </p>
 
-            <div className="mt-7">
+            <div className="mt-6">
               <ul className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-2.5">
                 {SUPPORTED_INBOX_PROVIDERS.map((provider) => (
                   <li
@@ -107,7 +105,7 @@ export function HomepageHero({ heroSection }: Props) {
             </Button>
           </div>
 
-          <p className="text-meta mt-5">{heroSection.startFree}</p>
+          <p className="text-meta mt-4">{heroSection.startFree}</p>
         </div>
       </MarketingContainer>
     </section>

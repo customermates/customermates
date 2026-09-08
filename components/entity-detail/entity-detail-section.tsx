@@ -21,13 +21,12 @@ export function EntityDetailSectionGroup({ children, className }: GroupProps) {
 
   return (
     <Accordion
+      collapsible
       data-detail-section-group
       className={cn("-mx-4 -mt-4 flex w-auto flex-col", className)}
       type="single"
-      value={openSectionId}
-      onValueChange={(sectionId) => {
-        if (sectionId) setOpenSection(sectionId);
-      }}
+      value={openSectionId ?? ""}
+      onValueChange={(sectionId) => setOpenSection(sectionId || undefined)}
     >
       {children}
     </Accordion>
@@ -42,10 +41,12 @@ export function EntityDetailSection({ sectionId, label, children, className }: P
       value={sectionId}
     >
       <AccordionTrigger
-        className="group w-full cursor-pointer items-center gap-4 rounded-none p-4 text-left text-sm font-medium outline-none transition-colors hover:no-underline hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50 aria-disabled:cursor-default [&_svg]:motion-reduce:transition-none"
+        className="group w-full cursor-pointer items-center gap-4 rounded-none p-4 text-left text-sm font-medium outline-none transition-colors hover:bg-accent hover:no-underline focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50 [&_svg]:motion-reduce:transition-none"
         data-detail-section-trigger={sectionId}
       >
-        <span className="text-sm font-medium text-foreground/85">{label}</span>
+        <span className="text-sm font-medium text-foreground/85 transition-colors group-hover:text-foreground motion-reduce:transition-none">
+          {label}
+        </span>
       </AccordionTrigger>
 
       <AccordionContent className="flex flex-col gap-4 px-4 pb-4" data-detail-section-content={sectionId}>
