@@ -210,7 +210,9 @@ describe("EntityDetailLayout", () => {
     expect(html).toContain('data-detail-panel="notes"');
     const switcherClasses = html.match(/data-detail-panel-switcher="true" class="([^"]+)"/)?.[1].split(" ");
     expect(switcherClasses).not.toContain("border-t");
-    expect(html).toContain("after:-bottom-px");
+    const tabClasses = html.match(/role="tab"[^>]*class="([^"]+)"/)?.[1].split(" ") ?? [];
+    expect(tabClasses).toContain("group-data-[orientation=horizontal]/tabs:after:-bottom-px");
+    expect(tabClasses).not.toContain("group-data-[orientation=horizontal]/tabs:after:bottom-[-5px]");
     expect(html).toContain("Common.details");
     expect(html).toContain("EntityDetail.sections.notes");
     expect(html).toContain("EntityTimeline.types.activities");

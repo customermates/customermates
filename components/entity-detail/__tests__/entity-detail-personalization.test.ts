@@ -204,7 +204,6 @@ describe("entity detail custom field order", () => {
 describe("entity detail single-open section state", () => {
   it("defaults legacy ambiguous section preferences to Base data", () => {
     expect(resolveSingleOpenSectionId(detailSectionIds, [], defaultCollapsedSectionIds)).toBe("base");
-    expect(resolveSingleOpenSectionId(detailSectionIds, detailSectionIds, defaultCollapsedSectionIds)).toBe("base");
     expect(resolveSingleOpenSectionId(detailSectionIds, ["relations"], defaultCollapsedSectionIds)).toBe("base");
     expect(reconcileSingleOpenSections(detailSectionIds, [], defaultCollapsedSectionIds)).toEqual(
       defaultCollapsedSectionIds,
@@ -216,6 +215,20 @@ describe("entity detail single-open section state", () => {
       "relations",
     );
     expect(collapsedSectionIdsForOpenSection(detailSectionIds, "relations")).toEqual(["base", "customFields"]);
+  });
+
+  it("keeps every section closed once the reader collapses the last open one", () => {
+    expect(resolveSingleOpenSectionId(detailSectionIds, detailSectionIds, defaultCollapsedSectionIds)).toBeUndefined();
+    expect(collapsedSectionIdsForOpenSection(detailSectionIds, undefined)).toEqual(detailSectionIds);
+    expect(reconcileSingleOpenSections(detailSectionIds, detailSectionIds, defaultCollapsedSectionIds)).toEqual(
+      detailSectionIds,
+    );
+  });
+
+  it("still opens the default section for a reader who has never chosen one", () => {
+    expect(resolveSingleOpenSectionId(detailSectionIds, defaultCollapsedSectionIds, defaultCollapsedSectionIds)).toBe(
+      "base",
+    );
   });
 });
 
@@ -376,8 +389,7 @@ describe("entity detail section", () => {
     expect(trigger?.querySelector("span")?.className).not.toContain("uppercase");
     expect(trigger?.getAttribute("aria-label")).toBeNull();
     expect(trigger?.getAttribute("aria-expanded")).toBe("true");
-    expect(trigger?.getAttribute("aria-disabled")).toBe("true");
-    expect(trigger?.className).toContain("aria-disabled:cursor-default");
+    expect(trigger?.getAttribute("aria-disabled")).toBeNull();
     expect(trigger?.getAttribute("aria-controls")).toBe(content?.id);
     expect(content?.getAttribute("aria-labelledby")).toBe(trigger?.id);
     expect(content?.getAttribute("role")).toBe("region");
@@ -386,10 +398,20 @@ describe("entity detail section", () => {
 
     act(() => trigger?.click());
 
-    expect(trigger?.getAttribute("aria-expanded")).toBe("true");
+    expect(trigger?.getAttribute("aria-expanded")).toBe("false");
   });
 
-  it("opens exactly one section and does not let the active section close", () => {
+  it("answers a pointer over the header row with a visible surface and label change", () => {
+    const { container } = mountNode(sectionView());
+    const trigger = container.querySelector<HTMLButtonElement>('[data-detail-section-trigger="base"]');
+    const label = trigger?.querySelector("span");
+
+    expect(trigger?.className).toContain("group");
+    expect(trigger?.className).toContain("hover:bg-accent");
+    expect(label?.className).toContain("group-hover:text-foreground");
+  });
+
+  it("opens one section at a time and lets the reader close the open one", () => {
     const stored: P13nEntry = {
       p13nId: "contact-detail",
       columnOrder: [],
@@ -401,21 +423,24 @@ describe("entity detail section", () => {
     const customFields = container.querySelector<HTMLButtonElement>('[data-detail-section-trigger="customFields"]');
 
     expect(base?.getAttribute("aria-expanded")).toBe("true");
-    expect(base?.getAttribute("aria-disabled")).toBe("true");
     expect(relations?.getAttribute("aria-expanded")).toBe("false");
     expect(customFields?.getAttribute("aria-expanded")).toBe("false");
 
     act(() => relations?.click());
 
     expect(base?.getAttribute("aria-expanded")).toBe("false");
-    expect(base?.getAttribute("aria-disabled")).toBeNull();
     expect(relations?.getAttribute("aria-expanded")).toBe("true");
-    expect(relations?.getAttribute("aria-disabled")).toBe("true");
     expect(customFields?.getAttribute("aria-expanded")).toBe("false");
 
     act(() => relations?.click());
 
-    expect(relations?.getAttribute("aria-expanded")).toBe("true");
+    expect(base?.getAttribute("aria-expanded")).toBe("false");
+    expect(relations?.getAttribute("aria-expanded")).toBe("false");
+    expect(customFields?.getAttribute("aria-expanded")).toBe("false");
+
+    act(() => customFields?.click());
+
+    expect(customFields?.getAttribute("aria-expanded")).toBe("true");
   });
 
   it("supports arrow-key navigation between section triggers", () => {

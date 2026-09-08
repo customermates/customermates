@@ -44,7 +44,7 @@ type EntityDetailPersonalizationValue = {
   setIsPersonalizing: (value: boolean) => void;
   toggleStarredField: (fieldId: string) => void;
   toggleFieldVisibility: (fieldId: string) => void;
-  setOpenSection: (sectionId: string) => void;
+  setOpenSection: (sectionId: string | undefined) => void;
   moveColumn: (columnId: string, direction: MoveDirection) => void;
   setPreviewFieldValue: (fieldId: string, items: EntityDetailPreviewItem[]) => void;
 };
@@ -261,9 +261,9 @@ export function EntityDetailPersonalizationProvider({
   );
 
   const setOpenSection = useCallback(
-    (sectionId: string) => {
+    (sectionId: string | undefined) => {
       const sectionIds = sectionStamp === undefined ? undefined : sectionStamp.split("|");
-      if (!sectionIds?.includes(sectionId)) return;
+      if (sectionId !== undefined && !sectionIds?.includes(sectionId)) return;
       setCollapsedSectionIds((current) => {
         const next = collapsedSectionIdsForOpenSection(sectionIds, sectionId);
         return next.length === current.length && next.every((id, index) => id === current[index]) ? current : next;
