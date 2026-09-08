@@ -23,14 +23,26 @@ const CATALOG = [
 ];
 
 describe("emailMoveTargets", () => {
-  it("offers only folders a conversation may actually be filed into", () => {
-    expect(emailMoveTargets(CATALOG, "mail").map((entry) => entry.id)).toEqual(["archive", "inbox"]);
+  it("offers every folder a conversation may be filed into, ordered by name", () => {
+    expect(emailMoveTargets(CATALOG, "mail").map((entry) => entry.id)).toEqual([
+      "archive",
+      "inbox",
+      "junk",
+      "spam",
+      "trash",
+    ]);
   });
 
-  it("never offers Trash, Junk or Spam, whose relocation hard-deletes the local record", () => {
+  it("offers Trash, Junk and Spam, which people file into deliberately", () => {
     const ids = emailMoveTargets(CATALOG, "mail").map((entry) => entry.id);
 
-    for (const excluded of ["trash", "junk", "spam"]) expect(ids).not.toContain(excluded);
+    for (const target of ["trash", "junk", "spam"]) expect(ids).toContain(target);
+  });
+
+  it("offers a custom folder whose name merely reads like a system one", () => {
+    const custom = [folder("a", "Archive", "ARCHIVE"), folder("d", "Deleted projects", null)];
+
+    expect(emailMoveTargets(custom, "mail").map((entry) => entry.id)).toContain("d");
   });
 
   it("never offers Sent or Drafts", () => {
@@ -48,9 +60,10 @@ describe("emailMoveTargets", () => {
     expect(emailMoveTargets(CATALOG, "whatsapp")).toEqual([]);
   });
 
-  it("recognises a skipped folder by name when the provider reports no role", () => {
-    const byName = [folder("a", "Archive", null), folder("t", "Deleted Items", null)];
+  it("still refuses Sent and Drafts by role", () => {
+    const ids = emailMoveTargets(CATALOG, "mail").map((entry) => entry.id);
 
-    expect(emailMoveTargets(byName, "mail").map((entry) => entry.id)).toEqual(["a"]);
+    expect(ids).not.toContain("sent");
+    expect(ids).not.toContain("drafts");
   });
 });

@@ -30,17 +30,10 @@ const context: ThreadFolderContext = {
 };
 
 describe("threadFolder move targets offered to an agent", () => {
-  it("offers only folders a move may actually land in", () => {
+  it("offers every folder a move may land in, including the ones filed into deliberately", () => {
     const names = threadFolder(context, "mail")?.moveTargets.map((entry) => entry.name);
 
-    expect(names).toEqual(["Archive", "INBOX"]);
-  });
-
-  it("never offers Trash or Junk, whose relocation hard-deletes the local record", () => {
-    const ids = threadFolder(context, "mail")?.moveTargets.map((entry) => entry.id) ?? [];
-
-    expect(ids).not.toContain("trash");
-    expect(ids).not.toContain("junk");
+    expect(names).toEqual(["Archive", "INBOX", "Junk", "Trash"]);
   });
 
   it("never offers Sent or Drafts", () => {

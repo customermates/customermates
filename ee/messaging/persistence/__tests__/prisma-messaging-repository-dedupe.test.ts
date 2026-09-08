@@ -303,6 +303,61 @@ describe("PrismaMessagingRepo recovery after a folder move", () => {
     expect(fakeDb.messages[0].unipileMessageId).toBe("id-while-in-archive");
   });
 
+  it("files a relocated message where the provider says it is, not where it also used to be", async () => {
+    fakeDb.messages.push({
+      id: "msg-existing",
+      companyId: COMPANY_ID,
+      messagingThreadId: "thread-existing",
+      connectedAccountId: CONNECTED_ACCOUNT_ID,
+      unipileMessageId: "id-while-in-inbox",
+      providerMessageId: "rfc-msg-1",
+      provider: "google",
+      direction: "outbound",
+      origin: "unipile",
+      folderIds: ["inbox"],
+      isHidden: false,
+      sender: { attendeeId: "", displayName: null, identifier: "me@company.com" },
+    });
+
+    await new PrismaMessagingRepo().ingestMessageUnscoped({
+      companyId: COMPANY_ID,
+      connectedAccountId: CONNECTED_ACCOUNT_ID,
+      message: outboundEmail({ unipileMessageId: "id-in-archive", folderIds: ["archive"] }) as never,
+      backfill: false,
+    });
+
+    expect(fakeDb.messages).toHaveLength(1);
+    expect(fakeDb.messages[0].folderIds).toEqual(["archive"]);
+    expect(fakeDb.messages[0].unipileMessageId).toBe("id-in-archive");
+  });
+
+  it("accumulates folders across a backfill that walks one folder at a time", async () => {
+    fakeDb.messages.push({
+      id: "msg-existing",
+      companyId: COMPANY_ID,
+      messagingThreadId: "thread-existing",
+      connectedAccountId: CONNECTED_ACCOUNT_ID,
+      unipileMessageId: "id-seen-in-inbox",
+      providerMessageId: "rfc-msg-1",
+      provider: "google",
+      direction: "outbound",
+      origin: "unipile",
+      folderIds: ["inbox"],
+      isHidden: false,
+      sender: { attendeeId: "", displayName: null, identifier: "me@company.com" },
+    });
+
+    await new PrismaMessagingRepo().ingestMessageUnscoped({
+      companyId: COMPANY_ID,
+      connectedAccountId: CONNECTED_ACCOUNT_ID,
+      message: outboundEmail({ unipileMessageId: "id-seen-in-sent", folderIds: ["sent"] }) as never,
+      backfill: true,
+    });
+
+    expect(fakeDb.messages).toHaveLength(1);
+    expect(fakeDb.messages[0].folderIds.toSorted()).toEqual(["inbox", "sent"]);
+  });
+
   it("leaves a message hidden when it still belongs to no folder", async () => {
     hiddenAfterMissedMove();
 

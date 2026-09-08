@@ -110,6 +110,7 @@ export const ThreadReplyComposer = observer(
     const initializedThreadId = useRef<string | null>(null);
     const mounted = useRef(false);
     const [emojiOpen, setEmojiOpen] = useState(false);
+    const [expanded, setExpanded] = useState(false);
 
     useEffect(() => {
       mounted.current = true;
@@ -117,6 +118,10 @@ export const ThreadReplyComposer = observer(
         mounted.current = false;
       };
     }, []);
+
+    useEffect(() => {
+      setExpanded(false);
+    }, [threadId]);
 
     function insertEmoji(emoji: string) {
       if (threadComposeStore.isEmail) {
@@ -215,6 +220,14 @@ export const ThreadReplyComposer = observer(
       if (name && account.emailAddress && name !== account.emailAddress) return `${name} · ${account.emailAddress}`;
       return account.emailAddress ?? name ?? t("Common.unnamed");
     };
+
+    const hasWorkInProgress =
+      Boolean(threadComposeStore.form.body?.trim()) ||
+      attachments.length > 0 ||
+      Boolean(editingDraftId) ||
+      isNewThread ||
+      isLoading;
+    const isOpen = expanded || hasWorkInProgress;
 
     const form = (
       <AppForm className="flex flex-col" store={threadComposeStore} onSubmit={threadComposeStore.send}>
@@ -544,7 +557,26 @@ export const ThreadReplyComposer = observer(
     return (
       <div className="bg-background shrink-0 px-4 pt-2 pb-4">
         <div className="bg-input-background focus-within:ring-ring/50 flex flex-col rounded-xl border border-input shadow-xs transition-[color,box-shadow] focus-within:ring-[3px] focus-within:ring-inset">
-          {form}
+          {isOpen ? (
+            form
+          ) : (
+            <button
+              aria-expanded={false}
+              className="group text-muted-foreground hover:text-foreground/90 focus-visible:ring-ring/50 flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-inset motion-reduce:transition-none"
+              id="inbox-reply-expand"
+              type="button"
+              onClick={() => setExpanded(true)}
+            >
+              <span className="truncate">
+                {isEmail ? t("Inbox.compose.writeReply") : t("Inbox.compose.typeMessage")}
+              </span>
+
+              <Send
+                aria-hidden
+                className="text-muted-foreground/70 group-hover:text-primary ml-auto size-4 shrink-0 transition-colors motion-reduce:transition-none"
+              />
+            </button>
+          )}
         </div>
       </div>
     );

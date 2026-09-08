@@ -1778,7 +1778,11 @@ export class PrismaMessagingRepo
       if (duplicate) {
         const duplicateSender = duplicate.sender as unknown as MessagingAttendee;
         const upgradeSender = hasLetter(safeMessage.sender.displayName) && !hasLetter(duplicateSender.displayName);
-        const folderIds = [...new Set([...duplicate.folderIds, ...(safeMessage.folderIds ?? [])])];
+        const incomingFolderIds = safeMessage.folderIds ?? [];
+        const folderIds =
+          backfill || incomingFolderIds.length === 0
+            ? [...new Set([...duplicate.folderIds, ...incomingFolderIds])]
+            : incomingFolderIds;
 
         await this.prisma.messagingMessage.update({
           where: { id: duplicate.id },

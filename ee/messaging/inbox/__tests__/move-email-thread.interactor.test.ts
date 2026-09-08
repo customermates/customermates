@@ -241,10 +241,22 @@ describe("MoveEmailThreadInteractor", () => {
 });
 
 describe("MoveEmailThreadInteractor safety", () => {
-  it("refuses Trash as a destination, because relocation there hard-deletes the local record", async () => {
-    const parts = setup({ messages: [{ id: "a", unipileMessageId: "old-a", folderIds: ["inbox"] }] });
+  it("accepts Trash as a destination, which people file into deliberately", async () => {
+    const parts = setup({
+      messages: [{ id: "a", unipileMessageId: "old-a", folderIds: ["inbox"] }],
+      moveResults: [{ ok: true, data: { id: "new-a", folderIds: ["trash"] } }],
+    });
 
     const result = await invoke(parts, { threadId: THREAD_ID, folderId: "trash" });
+
+    expect(result.ok).toBe(true);
+    expect(parts.messagingService.moveEmail).toHaveBeenCalledWith(expect.objectContaining({ folderId: "trash" }));
+  });
+
+  it("still refuses Sent as a destination", async () => {
+    const parts = setup({ messages: [{ id: "a", unipileMessageId: "old-a", folderIds: ["inbox"] }] });
+
+    const result = await invoke(parts, { threadId: THREAD_ID, folderId: "sent" });
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(JSON.stringify(result.error)).toContain(CustomErrorCode.emailFolderNotMovable);
