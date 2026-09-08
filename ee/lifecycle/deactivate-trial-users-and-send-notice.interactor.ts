@@ -1,4 +1,5 @@
 import type { EmailService } from "@/features/email/email.service";
+import type { ReleaseOwnerRoutinesInteractor } from "@/ee/routines/release-owner-routines.interactor";
 
 import type { User } from "@/generated/prisma";
 
@@ -21,6 +22,7 @@ export class DeactivateTrialUsersAndSendNoticeInteractor {
   constructor(
     private repo: DeactivateTrialUsersAndSendNoticeRepo,
     private emailService: EmailService,
+    private releaseOwnerRoutines: ReleaseOwnerRoutinesInteractor,
   ) {}
 
   async invoke(): Promise<void> {
@@ -31,6 +33,7 @@ export class DeactivateTrialUsersAndSendNoticeInteractor {
       if (!claimed) continue;
 
       await this.repo.deactivateUserOrThrow(user.id);
+      await this.releaseOwnerRoutines.invoke({ companyId: user.companyId, ownerUserId: user.id });
 
       const locale = resolveUserLocale(user);
       const contactHref = `${env.BASE_URL}/contact`;

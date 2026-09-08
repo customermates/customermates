@@ -54,6 +54,7 @@ function harness(previousStatus: Status) {
     getSubscriptionOrThrow: vi.fn().mockResolvedValue({ plan: SubscriptionPlan.enterprise }),
   };
   const countUsersRepo = { countActiveUsers: vi.fn() };
+  const releaseOwnerRoutines = { invoke: vi.fn().mockResolvedValue({ blocked: 0, disabled: 0 }) };
 
   const interactor = new AdminUpdateUserDetailsInteractor(
     userRepo as never,
@@ -62,6 +63,7 @@ function harness(previousStatus: Status) {
     subscriptionService as never,
     subscriptionRepo as never,
     countUsersRepo as never,
+    releaseOwnerRoutines as never,
   );
 
   const invoke = (status: "active" | "inactive") =>

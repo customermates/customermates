@@ -47,6 +47,7 @@ import { StartRoutineRunInteractor } from "@/ee/routines/start-routine-run.inter
 import { FailRoutineRunInteractor } from "@/ee/routines/fail-routine-run.interactor";
 import { SweepDueRoutinesInteractor } from "@/ee/routines/sweep-due-routines.interactor";
 import { ReconcileRoutineRunsInteractor } from "@/ee/routines/reconcile-routine-runs.interactor";
+import { ReleaseOwnerRoutinesInteractor } from "@/ee/routines/release-owner-routines.interactor";
 import { PruneRoutineRunsInteractor } from "@/ee/routines/prune-routine-runs.interactor";
 import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-delivery.repository";
 import { PrismaAuditLogRepo } from "@/features/audit-log/prisma-audit-log.repository";
@@ -1018,6 +1019,7 @@ export const getAdminUpdateUserDetailsInteractor = () =>
     getSubscriptionService(),
     getCompanyRepo(),
     getUserRepo(),
+    getReleaseOwnerRoutinesInteractor(),
   );
 
 export const getGetUsersInteractor = () =>
@@ -1635,10 +1637,18 @@ export const getSendTrialInactivationReminderInteractor = () =>
   new SendTrialInactivationReminderInteractor(getUserRepo(), getEmailService());
 
 export const getDeactivateTrialUsersAndSendNoticeInteractor = () =>
-  new DeactivateTrialUsersAndSendNoticeInteractor(getUserRepo(), getEmailService());
+  new DeactivateTrialUsersAndSendNoticeInteractor(
+    getUserRepo(),
+    getEmailService(),
+    getReleaseOwnerRoutinesInteractor(),
+  );
 
 export const getDeactivateUsersAfterSubscriptionGracePeriodInteractor = () =>
-  new DeactivateUsersAfterSubscriptionGracePeriodInteractor(getUserRepo(), getEmailService());
+  new DeactivateUsersAfterSubscriptionGracePeriodInteractor(
+    getUserRepo(),
+    getEmailService(),
+    getReleaseOwnerRoutinesInteractor(),
+  );
 
 export const getDeleteConnectedAccountsForExpiredTrialsInteractor = () =>
   new DeleteConnectedAccountsForExpiredTrialsInteractor(getConnectedAccountRepo(), getDeleteAccountForBillingService());
@@ -1713,6 +1723,9 @@ export const getSweepDueRoutinesInteractor = () =>
 
 export const getReconcileRoutineRunsInteractor = () => new ReconcileRoutineRunsInteractor(getRoutineRepo());
 
+export const getReleaseOwnerRoutinesInteractor = () =>
+  new ReleaseOwnerRoutinesInteractor(getRoutineRepo(), getReconcileRoutineRunsInteractor());
+
 export const getPruneRoutineRunsInteractor = () => new PruneRoutineRunsInteractor(getRoutineRepo());
 
 export const getGetAgentConfigInteractor = () =>
@@ -1778,7 +1791,8 @@ export const getGetOperatorUserSummaryInteractor = () => new GetOperatorUserSumm
 
 export const getGetOperatorUserDetailInteractor = () => new GetOperatorUserDetailInteractor(getOperatorRepo());
 
-export const getUpdateOperatorUserStatusInteractor = () => new UpdateOperatorUserStatusInteractor(getOperatorRepo());
+export const getUpdateOperatorUserStatusInteractor = () =>
+  new UpdateOperatorUserStatusInteractor(getOperatorRepo(), getReleaseOwnerRoutinesInteractor());
 
 export const getOperatorUsersRepo = () => new PrismaOperatorUsersRepo();
 

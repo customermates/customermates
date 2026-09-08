@@ -9,6 +9,7 @@ import type { RunRoutineNowRepo } from "./run-routine-now.interactor";
 import type { StartRoutineRunRepo } from "./start-routine-run.interactor";
 import type { SweepDueRoutinesRepo } from "./sweep-due-routines.interactor";
 import type { ReconcileRoutineRunsRepo } from "./reconcile-routine-runs.interactor";
+import type { ReleaseOwnerRoutinesRepo } from "./release-owner-routines.interactor";
 import type { RoutineRunPage } from "./routine-history";
 import type { RoutineDto, RoutineRunDto } from "./routine.schema";
 import type { DeleteCustomColumnRoutineRepo } from "@/features/custom-column/delete-custom-column.interactor";
@@ -196,6 +197,7 @@ export class PrismaRoutineRepo
     StartRoutineRunRepo,
     SweepDueRoutinesRepo,
     ReconcileRoutineRunsRepo,
+    ReleaseOwnerRoutinesRepo,
     TriggerRoutinesRepo,
     DeleteCustomColumnRoutineRepo
 {
@@ -941,6 +943,42 @@ export class PrismaRoutineRepo
       });
 
       return true;
+    });
+  }
+
+  @BypassTenantGuard
+  async blockPendingRoutineRunsForOwnerUnscoped(args: { companyId: string; ownerUserId: string; now: Date }) {
+    return this.withCompanyTransaction(args.companyId, async () => {
+      const { count } = await this.prisma.routineRun.updateMany({
+        where: {
+          companyId: args.companyId,
+          executedByUserId: args.ownerUserId,
+          status: { in: [RoutineRunStatus.queued, RoutineRunStatus.running] },
+        },
+        data: {
+          status: RoutineRunStatus.blocked,
+          error: ROUTINE_DISABLED_REASON_OWNER_UNAVAILABLE,
+          finishedAt: args.now,
+        },
+      });
+
+      return count;
+    });
+  }
+
+  @BypassTenantGuard
+  async disableRoutinesForOwnerUnscoped(args: { companyId: string; ownerUserId: string; now: Date }) {
+    return this.withCompanyTransaction(args.companyId, async () => {
+      const { count } = await this.prisma.routine.updateMany({
+        where: { companyId: args.companyId, ownerUserId: args.ownerUserId },
+        data: {
+          enabled: false,
+          nextRunAt: null,
+          disabledReason: ROUTINE_DISABLED_REASON_OWNER_UNAVAILABLE,
+        },
+      });
+
+      return count;
     });
   }
 

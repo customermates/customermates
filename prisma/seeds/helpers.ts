@@ -20,8 +20,14 @@ export async function reconcileDomainUserId(context: SeedContext, id: string, em
 
   if (!existingByEmail || existingByEmail.id === id) return;
 
-  if (existingById) await context.prisma.user.delete({ where: { id: existingByEmail.id } });
-  else await context.prisma.user.update({ where: { id: existingByEmail.id }, data: { id } });
+  if (existingById) {
+    // Routine_enabled_requires_owner rejects the SetNull that a delete performs on an enabled routine.
+    await context.prisma.routine.updateMany({
+      where: { ownerUserId: existingByEmail.id },
+      data: { enabled: false, nextRunAt: null, disabledReason: "ownerUnavailable" },
+    });
+    await context.prisma.user.delete({ where: { id: existingByEmail.id } });
+  } else await context.prisma.user.update({ where: { id: existingByEmail.id }, data: { id } });
 }
 
 export function fixtureId(group: string, index: number): string {
