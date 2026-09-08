@@ -51,7 +51,8 @@ describe("routine modal accessibility contract", () => {
     expect(modal).toContain("scrollContainerRef={runScrollRef}");
     expect(runDetail).toContain("scrollContainerRef={scrollContainerRef}");
     expect(runDetail).toContain("scrollFooterRef={composerContainerRef}");
-    expect(runDetail).toContain("sticky bottom-0 z-10 bg-card");
+    expect(runDetail).toContain('"sticky bottom-0 z-10 bg-background"');
+    expect(runDetail).not.toContain("sticky bottom-0 z-10 bg-card");
     expect(runDetail).not.toContain('aria-labelledby="routine-run-detail-heading"');
     expect(modal).toContain("startRefreshTransition(() => router.refresh())");
     expect(modal).toContain("routineRunChatStore.markRouteSyncComplete()");

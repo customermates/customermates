@@ -105,7 +105,9 @@ export const RoutineRunDetail = observer(({ run, scrollContainerRef, store }: Pr
           <div
             ref={composerContainerRef}
             className={
-              continuationEligible && routineRunChatStore.enabled === true ? "sticky bottom-0 z-10 bg-card" : undefined
+              continuationEligible && routineRunChatStore.enabled === true
+                ? "sticky bottom-0 z-10 bg-background"
+                : undefined
             }
           >
             {continuationEligible && routineRunChatStore.enabled === true ? (

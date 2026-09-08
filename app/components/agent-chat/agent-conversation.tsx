@@ -98,7 +98,7 @@ export const AgentComposer = observer(function AgentComposer() {
 
   return (
     <div className="px-3 pt-2 pb-3">
-      <div className="rounded-xl border border-input bg-card p-2 shadow-xs transition-[color,box-shadow] focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-inset">
+      <div className="rounded-xl border border-input bg-input-background p-2 shadow-xs transition-[color,box-shadow] focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-inset">
         {store.queuedPrompt && <QueuedPrompt />}
 
         {blocked && usage ? (
