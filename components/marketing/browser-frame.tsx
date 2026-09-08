@@ -4,13 +4,17 @@ import { useEffect, useRef, useState } from "react";
 
 import { ArrowUpRight } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { preconnect, prefetchDNS } from "react-dom";
 
 type Props = {
   fallbackMessage?: string;
+  loadAhead?: boolean;
   src: string;
   title: string;
   size?: "article" | "full";
 };
+
+const LOAD_AHEAD_MARGIN = "400px 0px";
 
 const FRAME_HEIGHT_CLASS = {
   article: "h-[420px] sm:h-[520px] lg:h-[600px]",
@@ -25,13 +29,27 @@ function getHostname(src: string): string {
   }
 }
 
-export function BrowserFrame({ fallbackMessage, size = "full", src, title }: Props) {
+function getOrigin(src: string): string | null {
+  try {
+    return new URL(src).origin;
+  } catch {
+    return null;
+  }
+}
+
+export function BrowserFrame({ fallbackMessage, loadAhead = false, size = "full", src, title }: Props) {
   const t = useTranslations();
   const [loaded, setLoaded] = useState(false);
   const [shouldMount, setShouldMount] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
   const frameRef = useRef<HTMLDivElement | null>(null);
   const hostname = getHostname(src);
+  const origin = getOrigin(src);
+
+  if (loadAhead && origin) {
+    prefetchDNS(origin);
+    preconnect(origin);
+  }
 
   useEffect(() => {
     const el = frameRef.current;
@@ -39,15 +57,18 @@ export function BrowserFrame({ fallbackMessage, size = "full", src, title }: Pro
       setShouldMount(true);
       return;
     }
-    const observer = new IntersectionObserver((entries) => {
-      if (entries.some((e) => e.isIntersecting)) {
-        setShouldMount(true);
-        observer.disconnect();
-      }
-    });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setShouldMount(true);
+          observer.disconnect();
+        }
+      },
+      loadAhead ? { rootMargin: LOAD_AHEAD_MARGIN } : undefined,
+    );
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [loadAhead]);
 
   useEffect(() => {
     if (!fallbackMessage || !shouldMount || loaded) return;
@@ -129,7 +150,7 @@ export function BrowserFrame({ fallbackMessage, size = "full", src, title }: Pro
           {shouldMount ? (
             <iframe
               className={`block size-full border-0 bg-background transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
-              loading="lazy"
+              loading={loadAhead ? "eager" : "lazy"}
               referrerPolicy="strict-origin-when-cross-origin"
               sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
               src={src}
