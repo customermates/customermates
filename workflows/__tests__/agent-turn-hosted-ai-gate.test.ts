@@ -8,8 +8,10 @@ const state = vi.hoisted(() => ({
   messages: [] as unknown[],
   steps: [] as unknown[],
   writes: [] as unknown[],
+  lifecycle: [] as string[],
   markProviderStarted: vi.fn<() => Promise<boolean>>(),
   finalize: vi.fn(),
+  extendReservation: vi.fn(),
 }));
 
 vi.mock("@ai-sdk/workflow", () => ({
@@ -17,17 +19,29 @@ vi.mock("@ai-sdk/workflow", () => ({
     constructor(
       private readonly options: {
         prepareStep: () => Promise<unknown>;
+        onStepEnd: (step: unknown) => Promise<void>;
       },
     ) {
       state.agentOptions.push(options as unknown as Record<string, unknown>);
     }
 
     async stream() {
-      await this.options.prepareStep();
-      state.providerCalls += 1;
+      const startProviderRound = async () => {
+        await this.options.prepareStep();
+        state.providerCalls += 1;
+        state.lifecycle.push(`provider:${state.providerCalls}`);
+      };
 
-      await this.options.prepareStep();
-      state.providerCalls += 1;
+      await startProviderRound();
+
+      if (state.steps.length === 0) await startProviderRound();
+      else {
+        for (const step of state.steps as { finishReason?: string }[]) {
+          await this.options.onStepEnd(step);
+          if (step.finishReason !== "tool-calls") break;
+          await startProviderRound();
+        }
+      }
 
       return {
         finishReason: "stop",
@@ -71,6 +85,7 @@ vi.mock("@/core/di", () => ({
     isAgentTurnCancellationRequestedUnscoped: vi.fn().mockResolvedValue(false),
     markAgentTurnProviderStartedUnscoped: state.markProviderStarted,
     recordAgentRunRoundUnscoped: vi.fn().mockResolvedValue(undefined),
+    extendUsageReservationUnscoped: state.extendReservation,
   }),
 }));
 
@@ -149,7 +164,9 @@ beforeEach(() => {
   state.messages = [];
   state.steps = [];
   state.writes = [];
+  state.lifecycle = [];
   state.markProviderStarted.mockReset().mockResolvedValue(true);
+  state.extendReservation.mockReset().mockResolvedValue(null);
   state.finalize.mockReset().mockImplementation((args) =>
     Promise.resolve({
       assistantMessage: { id: "assistant-1" },
@@ -181,6 +198,180 @@ describe("agent-turn hosted-AI provider gates", () => {
     expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "partial" }));
     expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.hostedAiUnavailable");
     expect(JSON.stringify(state.writes)).not.toMatch(/operator_paused|global_spend_cap/u);
+  });
+
+  it("does not start another provider round when its reservation extension is rejected", async () => {
+    state.gateResults = [true, true];
+    state.steps = [
+      {
+        content: [{ type: "text", text: "Working." }],
+        toolResults: [],
+        finishReason: "tool-calls",
+        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+        providerMetadata: {},
+      },
+    ];
+
+    await runAgentTurn({
+      ...payload,
+      turnBudget: {
+        ...payload.turnBudget,
+        reservedCredits: 1,
+        roundReserveCredits: 2,
+      },
+    });
+
+    expect(state.providerCalls).toBe(1);
+    expect(state.extendReservation).toHaveBeenCalledWith(expect.objectContaining({ requiredCredits: 3 }));
+    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "partial" }));
+    expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.creditLimit");
+  });
+
+  it("does not start another provider round when its reservation extension fails", async () => {
+    state.gateResults = [true, true];
+    state.extendReservation.mockRejectedValueOnce(new Error("reservation unavailable"));
+    state.steps = [
+      {
+        content: [{ type: "text", text: "Working." }],
+        toolResults: [],
+        finishReason: "tool-calls",
+        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+        providerMetadata: {},
+      },
+    ];
+
+    await runAgentTurn({
+      ...payload,
+      turnBudget: {
+        ...payload.turnBudget,
+        reservedCredits: 1,
+        roundReserveCredits: 2,
+      },
+    });
+
+    expect(state.providerCalls).toBe(1);
+    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "partial" }));
+    expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.turnError");
+  });
+
+  it("commits a reservation extension before starting another provider round", async () => {
+    state.gateResults = [true, true];
+    state.extendReservation.mockImplementationOnce(() => {
+      state.lifecycle.push("reservation:extended");
+      return Promise.resolve(3);
+    });
+    state.steps = [
+      {
+        content: [{ type: "text", text: "Working." }],
+        toolResults: [],
+        finishReason: "tool-calls",
+        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+        providerMetadata: {},
+      },
+    ];
+
+    await runAgentTurn({
+      ...payload,
+      turnBudget: {
+        ...payload.turnBudget,
+        reservedCredits: 1,
+        roundReserveCredits: 2,
+      },
+    });
+
+    expect(state.providerCalls).toBe(2);
+    expect(state.lifecycle).toEqual(["provider:1", "reservation:extended", "provider:2"]);
+  });
+
+  it("does not reserve a future round after a terminal response", async () => {
+    state.gateResults = [true];
+    state.steps = [
+      {
+        content: [{ type: "text", text: "Done." }],
+        toolResults: [],
+        finishReason: "stop",
+        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+        providerMetadata: {},
+      },
+    ];
+
+    await runAgentTurn({
+      ...payload,
+      turnBudget: {
+        ...payload.turnBudget,
+        reservedCredits: 1,
+        roundReserveCredits: 2,
+      },
+    });
+
+    expect(state.providerCalls).toBe(1);
+    expect(state.extendReservation).not.toHaveBeenCalled();
+    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    expect(JSON.stringify(state.writes)).not.toContain("localized:AgentChat.runner.creditLimit");
+  });
+
+  it("does not reserve a future round after an output-length stop", async () => {
+    state.gateResults = [true];
+    state.steps = [
+      {
+        content: [{ type: "text", text: "Partial." }],
+        toolResults: [],
+        finishReason: "length",
+        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+        providerMetadata: {},
+      },
+    ];
+
+    await runAgentTurn({
+      ...payload,
+      turnBudget: {
+        ...payload.turnBudget,
+        reservedCredits: 1,
+        roundReserveCredits: 2,
+      },
+    });
+
+    expect(state.providerCalls).toBe(1);
+    expect(state.extendReservation).not.toHaveBeenCalled();
+    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "partial" }));
+    expect(JSON.stringify(state.writes)).not.toContain("localized:AgentChat.runner.creditLimit");
+  });
+
+  it("evaluates the current safety limit before reserving another round", async () => {
+    state.gateResults = [true, true, true];
+    state.extendReservation.mockResolvedValueOnce(4);
+    state.steps = [
+      {
+        content: [{ type: "text", text: "Working." }],
+        toolResults: [],
+        finishReason: "tool-calls",
+        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+        providerMetadata: measuredAzureProviderMetadata("0.011"),
+      },
+      {
+        content: [{ type: "text", text: "Still working." }],
+        toolResults: [],
+        finishReason: "tool-calls",
+        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+        providerMetadata: measuredAzureProviderMetadata("0.011"),
+      },
+    ];
+
+    await runAgentTurn({
+      ...payload,
+      turnBudget: {
+        ...payload.turnBudget,
+        reservedCredits: 1,
+        roundReserveCredits: 2,
+      },
+    });
+
+    expect(state.providerCalls).toBe(2);
+    expect(state.extendReservation).toHaveBeenCalledTimes(1);
+    expect(state.extendReservation).toHaveBeenCalledWith(expect.objectContaining({ requiredCredits: 4 }));
+    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "partial" }));
+    expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.safetyLimit");
+    expect(JSON.stringify(state.writes)).not.toContain("localized:AgentChat.runner.creditLimit");
   });
 
   it("reconstructs native web search with its provider metadata and pins Azure with ZDR", async () => {

@@ -70,6 +70,10 @@ export const AGENT_APPROVAL_WINDOW_MS = 30 * 60 * 1000;
 export const AGENT_UI_COMMAND_WINDOW_MS = 30 * 1000;
 export const AGENT_SEGMENT_ROUNDS = 32;
 
+const AGENT_LOCAL_TERMINATION_REQUIRED = new Error(
+  "Agent execution reached a local terminal condition before the next provider round.",
+);
+
 export type AgentTurnWorkflowPayload = {
   turnRequestId: string;
   conversationId: string;
@@ -850,15 +854,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         abandoned ||= roundOutcome.leaseLost;
         await publishTranscriptEvents(queued.splice(0));
 
-        const accruedMicrocents = ledger.reduce((total, entry) => total + entry.costMicrocents, 0);
-        const requiredCredits =
-          agentCreditsForStartedProviderCost(accruedMicrocents) + payload.turnBudget.roundReserveCredits;
-        if (requiredCredits > reservedCredits) {
-          const extended = await ensureTurnReservation(payload, requiredCredits);
-          if (extended === null) budgetStop = true;
-          else reservedCredits = extended;
-        }
-
         const settledIds = new Set(outcomes.map((outcome) => outcome.toolCallId));
         const hasPausedCall = step.content.some((raw) => {
           const part = raw as { type?: string; toolCallId?: string };
@@ -869,13 +864,27 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             !settledIds.has(part.toolCallId as string)
           );
         });
+        if (!hasPausedCall) recordContinuationRound(step, outcomes);
 
-        if (hasPausedCall) {
-          deferredRound = { step, outcomes };
-          return;
+        const accruedMicrocents = ledger.reduce((total, entry) => total + entry.costMicrocents, 0);
+        const needsAnotherProviderRound =
+          !cancelled &&
+          !abandoned &&
+          !budgetStop &&
+          !hostedAiStop &&
+          safetyStop === null &&
+          roundFailure === null &&
+          step.finishReason === "tool-calls";
+        const requiredCredits =
+          agentCreditsForStartedProviderCost(accruedMicrocents) +
+          (needsAnotherProviderRound ? payload.turnBudget.roundReserveCredits : 0);
+        if (requiredCredits > reservedCredits) {
+          const extended = await ensureTurnReservation(payload, requiredCredits);
+          if (extended === null) budgetStop = true;
+          else reservedCredits = extended;
         }
 
-        recordContinuationRound(step, outcomes);
+        if (hasPausedCall) deferredRound = { step, outcomes };
       } catch (error) {
         roundFailure ??= toWorkflowFailure(error);
       }
@@ -932,6 +941,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         maxOutputTokens: payload.turnBudget.maxOutputTokens,
         providerOptions: getAgentProviderOptions(payload.turnBudget.servingProvider),
         prepareStep: async () => {
+          if (abandoned || cancelled || budgetStop || hostedAiStop || safetyStop !== null || roundFailure !== null)
+            throw AGENT_LOCAL_TERMINATION_REQUIRED;
           if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
           return {};
         },
@@ -967,6 +978,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           sendFinish: false,
         });
       } catch (error) {
+        if (error === AGENT_LOCAL_TERMINATION_REQUIRED) break;
         if (error === hostedAiPaused) {
           hostedAiStop = true;
           break;
