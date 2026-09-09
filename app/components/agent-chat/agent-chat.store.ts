@@ -108,10 +108,12 @@ const AGENT_RECONNECT_TIMEOUT_MS = 15000;
 const AGENT_TERMINAL_RECONCILE_TIMEOUT_MS = 5000;
 const AGENT_CANCEL_ATTEMPT_TIMEOUT_MS = 5000;
 const AGENT_APPROVAL_ATTEMPT_TIMEOUT_MS = 5000;
+const AGENT_UI_COMMAND_ATTEMPT_TIMEOUT_MS = 3000;
 const AGENT_STREAM_INACTIVITY_TIMEOUT_MS = 60000;
 const AGENT_RECONNECT_SNAPSHOT_FAILURE_LIMIT = 2;
 const AGENT_STREAM_RECONNECT_DELAYS_MS = [250, 500, 1000, 2000, 5000] as const;
 const AGENT_CANCEL_RETRY_DELAYS_MS = [0, 500, 1500, 4000] as const;
+const AGENT_UI_COMMAND_RETRY_DELAYS_MS = [0, 500, 1500, 3000] as const;
 const AGENT_CHAT_OPEN_STORAGE_PREFIX = "customermates:agentChat:open:v2";
 type UiCommandName = (typeof UI_COMMAND_NAMES)[number];
 export type AgentConfigLoadStatus = "ready" | "disabled" | "retry";
@@ -2488,14 +2490,33 @@ export class AgentChatStore extends BaseStore {
           result: "The interface action could not be completed.",
         };
       }
-      try {
-        await respondToUiCommandAction({
-          conversationId,
-          commandId: command.commandId,
-          name: command.name as UiCommandName,
-          ...outcome,
-        });
-      } catch {}
+      let delivered = false;
+      let lastError: unknown = null;
+      for (const delay of AGENT_UI_COMMAND_RETRY_DELAYS_MS) {
+        if (delay > 0) await waitFor(delay);
+        try {
+          const result = await withDeadline(
+            respondToUiCommandAction({
+              conversationId,
+              commandId: command.commandId,
+              name: command.name as UiCommandName,
+              ...outcome,
+            }),
+            AGENT_UI_COMMAND_ATTEMPT_TIMEOUT_MS,
+          );
+          if (result?.ok && result.data.resumed) {
+            delivered = true;
+            break;
+          }
+        } catch (error) {
+          lastError = error;
+        }
+      }
+      if (!delivered) {
+        reportApplicationError(
+          lastError instanceof Error ? lastError : new Error("The assistant interface result could not be delivered."),
+        );
+      }
     };
 
     this.uiCommandQueue = this.uiCommandQueue.then(execute, execute);

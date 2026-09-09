@@ -112,7 +112,6 @@ describe("routine ownership writes", () => {
       getRoutineByIdOrThrow: vi.fn(),
       upsertRoutineOrThrow: vi.fn().mockResolvedValue(routine()),
       isEligibleRoutineOwner: vi.fn().mockResolvedValue(true),
-      countRoutines: vi.fn().mockResolvedValue(0),
     };
     const subscriptions = {
       getSubscriptionOrThrow: vi.fn().mockResolvedValue({ plan: "enterprise" }),
@@ -133,7 +132,6 @@ describe("routine ownership writes", () => {
       getRoutineByIdOrThrow: vi.fn().mockResolvedValue(routine()),
       upsertRoutineOrThrow: vi.fn().mockResolvedValue(routine()),
       isEligibleRoutineOwner: vi.fn().mockResolvedValue(true),
-      countRoutines: vi.fn(),
     };
 
     const result = await new UpsertRoutineInteractor(
@@ -153,7 +151,6 @@ describe("routine ownership writes", () => {
       getRoutineByIdOrThrow: vi.fn().mockResolvedValue(routine()),
       upsertRoutineOrThrow: vi.fn().mockResolvedValue(paused),
       isEligibleRoutineOwner: vi.fn().mockResolvedValue(true),
-      countRoutines: vi.fn(),
     };
 
     const result = await new UpsertRoutineInteractor(
@@ -171,7 +168,6 @@ describe("routine ownership writes", () => {
       getRoutineByIdOrThrow: vi.fn().mockResolvedValue(routine()),
       upsertRoutineOrThrow: vi.fn(),
       isEligibleRoutineOwner: vi.fn().mockResolvedValue(true),
-      countRoutines: vi.fn(),
     };
 
     const result = await new UpsertRoutineInteractor(
@@ -189,7 +185,6 @@ describe("routine ownership writes", () => {
       getRoutineByIdOrThrow: vi.fn().mockResolvedValue(routine()),
       upsertRoutineOrThrow: vi.fn(),
       isEligibleRoutineOwner: vi.fn().mockResolvedValue(true),
-      countRoutines: vi.fn(),
     };
 
     const result = await new UpsertRoutineInteractor(
@@ -206,7 +201,6 @@ describe("routine ownership writes", () => {
       getRoutineByIdOrThrow: vi.fn(),
       upsertRoutineOrThrow: vi.fn(),
       isEligibleRoutineOwner: vi.fn().mockResolvedValue(false),
-      countRoutines: vi.fn(),
     };
 
     const result = await new UpsertRoutineInteractor(

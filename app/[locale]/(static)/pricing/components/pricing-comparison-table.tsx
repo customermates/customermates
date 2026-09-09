@@ -43,8 +43,8 @@ export function pricingComparisonPresentation({
             const allowance = definition.entitlements.includedAccountsPerUser;
             return allowance === "unlimited" ? unlimitedValue : String(allowance);
           }
-          case "includedRoutines": {
-            const allowance = definition.entitlements.includedRoutines;
+          case "includedRoutinesPerUser": {
+            const allowance = definition.entitlements.includedRoutinesPerUser;
             return allowance === "unlimited" ? unlimitedValue : String(allowance);
           }
           case "sharedAccounts":

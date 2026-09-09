@@ -109,7 +109,7 @@ export const manageRoutinesTool = {
     "action pause disables a routine and settles its queued runs to skipped; re-enabling restores the schedule but never those runs. " +
     "action run_now starts a scheduled routine immediately and is rejected for an event routine. " +
     "action delete removes the routine and its history and is IRREVERSIBLE. " +
-    "A routine whose owner has been deactivated cannot be enabled, and creating one may be refused when the workspace plan's routine allowance is already used.",
+    "A routine whose owner has been deactivated cannot be enabled, and creating one may be refused when the owner has used their plan's per-user routine allowance.",
   annotations: {
     readOnlyHint: false,
     destructiveHint: true,

@@ -1240,13 +1240,13 @@ describe("PruneRoutineRunsInteractor", () => {
   });
 });
 
-describe("routine plan allowance", () => {
-  const allowanceFor = async (plan: string, existing: number) => {
+describe("per-user routine plan allowance", () => {
+  const allowanceFor = async (plan: string, existingOwnedRoutines: number) => {
     const repo = {
       getRoutineByIdOrThrow: vi.fn(),
       isEligibleRoutineOwner: vi.fn().mockResolvedValue(true),
       upsertRoutineOrThrow: vi.fn().mockImplementation((_data: unknown, limit?: RoutineCountLimit) => {
-        if (limit !== undefined && limit !== "unlimited" && existing >= limit)
+        if (limit !== undefined && limit !== "unlimited" && existingOwnedRoutines >= limit)
           return Promise.reject(new RoutineLimitExceededError(limit));
         return Promise.resolve(routineFixture());
       }),
@@ -1266,30 +1266,39 @@ describe("routine plan allowance", () => {
     return { repo, result };
   };
 
-  it("refuses a starter workspace its first routine", async () => {
-    const { result } = await allowanceFor("starter", 0);
-
-    expect(result.ok).toBe(false);
-    if (result.ok) throw new Error("Expected the starter routine to be rejected");
-    const issue = result.error.issues[0];
-    expect(issue?.code === "custom" ? issue.params?.error : undefined).toBe(CustomErrorCode.routinesRequirePaidPlan);
-  });
-
-  it("lets a pro workspace create up to three", async () => {
-    const { repo, result } = await allowanceFor("pro", 2);
+  it("lets a Starter user create their first routine", async () => {
+    const { repo, result } = await allowanceFor("starter", 0);
 
     expect(result.ok).toBe(true);
+    expect(repo.upsertRoutineOrThrow).toHaveBeenCalledWith(expect.anything(), 1);
+  });
+
+  it("stops a Starter user from creating a second routine", async () => {
+    const { repo, result } = await allowanceFor("starter", 1);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("Expected the second Starter routine to be rejected");
+    const issue = result.error.issues[0];
+    expect(issue?.code === "custom" ? issue.params?.error : undefined).toBe(CustomErrorCode.routineLimitReached);
+    expect(issue?.code === "custom" ? issue.params?.limit : undefined).toBe(1);
     expect(repo.upsertRoutineOrThrow).toHaveBeenCalledOnce();
   });
 
-  it("stops a pro workspace at its fourth", async () => {
-    const { repo, result } = await allowanceFor("pro", 3);
+  it("lets a Pro user create their fifth routine", async () => {
+    const { repo, result } = await allowanceFor("pro", 4);
+
+    expect(result.ok).toBe(true);
+    expect(repo.upsertRoutineOrThrow).toHaveBeenCalledWith(expect.anything(), 5);
+  });
+
+  it("stops a Pro user from creating a sixth routine", async () => {
+    const { repo, result } = await allowanceFor("pro", 5);
 
     expect(result.ok).toBe(false);
-    if (result.ok) throw new Error("Expected the fourth Pro routine to be rejected");
+    if (result.ok) throw new Error("Expected the sixth Pro routine to be rejected");
     const issue = result.error.issues[0];
     expect(issue?.code === "custom" ? issue.params?.error : undefined).toBe(CustomErrorCode.routineLimitReached);
-    expect(issue?.code === "custom" ? issue.params?.limit : undefined).toBe(3);
+    expect(issue?.code === "custom" ? issue.params?.limit : undefined).toBe(5);
     expect(repo.upsertRoutineOrThrow).toHaveBeenCalledOnce();
   });
 
@@ -1325,7 +1334,6 @@ describe("routine plan allowance", () => {
 
   it("rejects an event-to-schedule partial update without a new schedule", async () => {
     const repo = {
-      countRoutines: vi.fn(),
       getRoutineByIdOrThrow: vi.fn().mockResolvedValue(
         routineFixture({
           triggerKind: "event",

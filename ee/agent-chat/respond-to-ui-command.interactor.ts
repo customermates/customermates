@@ -22,10 +22,16 @@ const Schema = z.object({
 
 export type RespondToUiCommandData = Data<typeof Schema>;
 
-const OutputSchema = z.object({ resolved: z.literal(true) });
+const OutputSchema = z.object({
+  resolved: z.literal(true),
+  resumed: z.boolean(),
+});
 
 @TenantInteractor()
-export class RespondToUiCommandInteractor extends AuthenticatedInteractor<RespondToUiCommandData, { resolved: true }> {
+export class RespondToUiCommandInteractor extends AuthenticatedInteractor<
+  RespondToUiCommandData,
+  { resolved: true; resumed: boolean }
+> {
   constructor(
     private repo: PrismaAgentChatRepo,
     private entitlements: EntitlementService,
@@ -35,7 +41,7 @@ export class RespondToUiCommandInteractor extends AuthenticatedInteractor<Respon
   }
 
   @Write({ input: Schema, output: OutputSchema, tx: false })
-  async invoke(data: RespondToUiCommandData): Validated<{ resolved: true }> {
+  async invoke(data: RespondToUiCommandData): Validated<{ resolved: true; resumed: boolean }> {
     const denied = await this.entitlements.require("agentChat");
     if (denied) return denied;
 
@@ -43,10 +49,10 @@ export class RespondToUiCommandInteractor extends AuthenticatedInteractor<Respon
     if (!conversation) return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     await this.repo.recordUiCommandResult(data);
-    await this.backgroundTaskService.resume(agentUiCommandHookToken(data.conversationId), {
+    const resumed = await this.backgroundTaskService.resume(agentUiCommandHookToken(data.conversationId), {
       commandId: data.commandId,
     });
 
-    return { ok: true as const, data: { resolved: true } };
+    return { ok: true as const, data: { resolved: true, resumed } };
   }
 }

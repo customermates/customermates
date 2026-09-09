@@ -76,7 +76,6 @@ const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   "es:ConnectedAccountsCard.emailLogoPlaceholder",
   "fr:ConnectedAccountsCard.emailLogoPlaceholder",
   "it:ConnectedAccountsCard.emailLogoPlaceholder",
-  "fr:Subscription.picker.routines",
   "de:OperatorUsers.modal.identity",
   "es:OperatorUsers.modal.identity",
   "fr:OperatorUsers.modal.identity",

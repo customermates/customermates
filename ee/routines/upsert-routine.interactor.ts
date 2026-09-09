@@ -103,18 +103,14 @@ export class UpsertRoutineInteractor extends AuthenticatedInteractor<UpsertRouti
 
     const routineLimit = data.id
       ? undefined
-      : getEntitlements((await this.subscriptionRepo.getSubscriptionOrThrow()).plan).includedRoutines;
+      : getEntitlements((await this.subscriptionRepo.getSubscriptionOrThrow()).plan).includedRoutinesPerUser;
 
     let routine: RoutineDto;
     try {
       routine = await this.repo.upsertRoutineOrThrow(data, routineLimit);
     } catch (error) {
       if (!(error instanceof RoutineLimitExceededError)) throw error;
-      return failConflict(
-        error.limit === 0 ? CustomErrorCode.routinesRequirePaidPlan : CustomErrorCode.routineLimitReached,
-        ["name"],
-        { limit: error.limit },
-      );
+      return failConflict(CustomErrorCode.routineLimitReached, ["name"], { limit: error.limit });
     }
 
     return { ok: true as const, data: routine };

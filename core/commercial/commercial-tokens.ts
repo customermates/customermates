@@ -56,7 +56,7 @@ function resolvePriceToken(parts: string[], locale: string): string {
   return formatCommercialAmount(amountMinor, locale, offer.currency);
 }
 
-const COUNTED_ENTITLEMENTS = ["includedAccountsPerUser", "includedRoutines"] as const;
+const COUNTED_ENTITLEMENTS = ["includedAccountsPerUser", "includedRoutinesPerUser"] as const;
 
 type CountedEntitlement = (typeof COUNTED_ENTITLEMENTS)[number];
 

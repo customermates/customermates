@@ -16,7 +16,7 @@ export type PlanEntitlements = {
   agentChat: boolean;
   messaging: boolean;
   includedAccountsPerUser: number | "unlimited";
-  includedRoutines: number | "unlimited";
+  includedRoutinesPerUser: number | "unlimited";
   sharedAccounts: boolean;
   hostedAiCreditsPerActiveUser: number | "contract" | null;
 };
@@ -68,7 +68,7 @@ export const PLAN_CATALOG = {
       agentChat: true,
       messaging: false,
       includedAccountsPerUser: 0,
-      includedRoutines: 0,
+      includedRoutinesPerUser: 1,
       sharedAccounts: false,
       hostedAiCreditsPerActiveUser: 200,
     },
@@ -92,7 +92,7 @@ export const PLAN_CATALOG = {
       agentChat: true,
       messaging: true,
       includedAccountsPerUser: 1,
-      includedRoutines: 3,
+      includedRoutinesPerUser: 5,
       sharedAccounts: false,
       hostedAiCreditsPerActiveUser: 500,
     },
@@ -116,7 +116,7 @@ export const PLAN_CATALOG = {
       agentChat: true,
       messaging: true,
       includedAccountsPerUser: 3,
-      includedRoutines: "unlimited",
+      includedRoutinesPerUser: "unlimited",
       sharedAccounts: true,
       hostedAiCreditsPerActiveUser: 1_200,
     },
@@ -140,7 +140,7 @@ export const PLAN_CATALOG = {
       agentChat: true,
       messaging: true,
       includedAccountsPerUser: "unlimited",
-      includedRoutines: "unlimited",
+      includedRoutinesPerUser: "unlimited",
       sharedAccounts: true,
       hostedAiCreditsPerActiveUser: "contract",
     },

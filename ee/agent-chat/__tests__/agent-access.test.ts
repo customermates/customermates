@@ -37,6 +37,7 @@ vi.mock("@sentry/nextjs", () => ({
 import { GetAgentConversationInteractor } from "../get-agent-conversation.interactor";
 import { RespondToUiCommandInteractor } from "../respond-to-ui-command.interactor";
 import { SendAgentMessageInteractor } from "../send-agent-message.interactor";
+import { agentUiCommandHookToken } from "../agent-ui-command";
 
 const CONVERSATION_ID = "00000000-0000-4000-8000-000000000001";
 const MESSAGE_ID = "00000000-0000-4000-8000-000000000002";
@@ -1055,10 +1056,11 @@ describe("agent access", () => {
       recordUiCommandResult: vi.fn().mockResolvedValue(undefined),
     };
 
+    const tasks = backgroundTasks();
     const result = await new RespondToUiCommandInteractor(
       repo as never,
       mockEntitlementService(),
-      backgroundTasks() as never,
+      tasks as never,
     ).invoke({
       conversationId: CONVERSATION_ID,
       commandId: "command-1",
@@ -1068,6 +1070,10 @@ describe("agent access", () => {
     });
 
     expect(result.ok).toBe(true);
+    expect(result.ok && result.data).toEqual({ resolved: true, resumed: true });
     expect(repo.recordUiCommandResult).toHaveBeenCalledOnce();
+    expect(tasks.resume).toHaveBeenCalledWith(agentUiCommandHookToken(CONVERSATION_ID), {
+      commandId: "command-1",
+    });
   });
 });

@@ -171,7 +171,7 @@ describe("AgentChatStore", () => {
     });
     actionsMock.respondToUiCommandAction.mockResolvedValue({
       ok: true,
-      data: { resolved: true },
+      data: { resolved: true, resumed: true },
     });
     actionsMock.listAgentConversationsAction.mockResolvedValue({
       active: { conversations: [], nextCursor: null },
@@ -1756,7 +1756,7 @@ describe("AgentChatStore", () => {
       });
     actionsMock.respondToUiCommandAction.mockImplementation(({ commandId }: { commandId: string }) => {
       order.push(`${commandId}:acknowledged`);
-      return Promise.resolve({ ok: true, data: { resolved: true } });
+      return Promise.resolve({ ok: true, data: { resolved: true, resumed: true } });
     });
     const store = new AgentChatStore(root({ clickTarget }) as never);
     store.conversationId = "00000000-0000-4000-8000-000000000001";
@@ -1788,6 +1788,58 @@ describe("AgentChatStore", () => {
     await vi.waitFor(() => expect(clickTarget).toHaveBeenCalledTimes(2));
     expect(order.slice(0, 3)).toEqual(["display:start", "display:acknowledged", "layout:start"]);
     await vi.waitFor(() => expect(actionsMock.respondToUiCommandAction).toHaveBeenCalledTimes(2));
+  });
+
+  it("bounds and retries a stuck browser-command acknowledgement without blocking later commands", async () => {
+    vi.useFakeTimers();
+    const order: string[] = [];
+    const clickTarget = vi.fn((targetId: string) => {
+      order.push(targetId);
+      return { ok: true, result: "Control activated." };
+    });
+    actionsMock.respondToUiCommandAction
+      .mockImplementationOnce(() => new Promise(() => undefined))
+      .mockResolvedValueOnce({ ok: true, data: { resolved: true, resumed: false } })
+      .mockResolvedValue({ ok: true, data: { resolved: true, resumed: true } });
+    const store = new AgentChatStore(root({ clickTarget }) as never);
+    store.conversationId = "00000000-0000-4000-8000-000000000001";
+    const handleEvent = (
+      store as unknown as {
+        handleEvent: (event: Record<string, unknown>) => void;
+      }
+    ).handleEvent;
+
+    handleEvent({
+      seq: 1,
+      type: "ui_command",
+      commandId: "display",
+      name: "click_ui_target",
+      input: { targetId: "contacts-display-options" },
+    });
+    handleEvent({
+      seq: 2,
+      type: "ui_command",
+      commandId: "layout",
+      name: "click_ui_target",
+      input: { targetId: "contacts-layout-board" },
+    });
+
+    await vi.advanceTimersByTimeAsync(3000);
+    expect(clickTarget).toHaveBeenCalledOnce();
+    await vi.advanceTimersByTimeAsync(500);
+    expect(actionsMock.respondToUiCommandAction).toHaveBeenCalledTimes(2);
+    expect(clickTarget).toHaveBeenCalledOnce();
+    await vi.advanceTimersByTimeAsync(1500);
+    await vi.waitFor(() => expect(clickTarget).toHaveBeenCalledTimes(2));
+    await vi.waitFor(() => expect(actionsMock.respondToUiCommandAction).toHaveBeenCalledTimes(4));
+
+    expect(actionsMock.respondToUiCommandAction.mock.calls.slice(0, 3).map(([value]) => value.commandId)).toEqual([
+      "display",
+      "display",
+      "display",
+    ]);
+    expect(actionsMock.respondToUiCommandAction.mock.calls[3]?.[0].commandId).toBe("layout");
+    expect(reportApplicationErrorMock).not.toHaveBeenCalled();
   });
 
   it("keeps an awaited browser outcome bound to the conversation that requested it", async () => {

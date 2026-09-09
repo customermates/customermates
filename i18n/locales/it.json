@@ -1040,7 +1040,7 @@
       "routineAdminRequired": "Solo un amministratore aziendale può sospendere o eliminare le routine.",
       "routineDeleteHasRunningRun": "Attendi il completamento dell’esecuzione attiva prima di eliminare questa routine.",
       "routineEditNotOwner": "Solo il proprietario può modificare la configurazione o l’attivazione di questa routine.",
-      "routineLimitReached": "Il tuo piano include {limit} routine. Passa a Business per routine illimitate.",
+      "routineLimitReached": "Il tuo piano include {limit} routine per utente. Passa a un piano con un limite più alto.",
       "routineNotFound": "ID routine non trovato o non accessibile.",
       "routineOwnerIneligible": "Il proprietario della routine deve essere un membro attivo di questa azienda.",
       "routineRunNotOwner": "Solo chi possiede questa routine può eseguirla, perché consuma i suoi crediti IA.",
@@ -1048,7 +1048,6 @@
       "routineScheduleInvalid": "Questa pianificazione non è un'espressione cron valida.",
       "routineScheduleRequired": "Scegli una pianificazione o una data singola per questa routine.",
       "routineScheduleTooFrequent": "Questa pianificazione viene eseguita troppo spesso. Le routine possono essere eseguite al massimo ogni 15 minuti.",
-      "routinesRequirePaidPlan": "Le routine sono disponibili da Pro in su. Cambia piano per crearne una.",
       "routineTestRequiresEnabled": "Attiva la routine prima di testarla.",
       "routineTimeZoneInvalid": "Questo fuso orario non è supportato.",
       "routineTriggerEventsRequired": "Seleziona almeno un evento per questa routine.",
@@ -3297,8 +3296,8 @@
       "hostedAiCredits": "{credits, number} crediti IA in hosting per utente attivo / mese",
       "mostPopular": "Il più scelto",
       "perUserMonth": "per utente / mese",
-      "routines": "{routines, plural, one {# routine} other {# routine}}",
-      "unlimitedRoutines": "Routine illimitate"
+      "routinesPerUser": "{routines, plural, one {# routine per utente} other {# routine per utente}}",
+      "unlimitedRoutinesPerUser": "Routine illimitate per utente"
     },
     "plan": "Piano",
     "planNames": {

@@ -18,7 +18,7 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppModal } from "@/components/modal/app-modal";
-import { OVERLAY_SCROLL_REGION } from "@/components/ui/overlay-contract";
+import { OVERLAY_SCROLL_REGION, OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
 import { cn } from "@/core/utils/cn";
 
 import { ActionTooltip, chatUiCopy } from "./chat-ui";
@@ -351,6 +351,7 @@ export const ArchivedConversationList = observer(function ArchivedConversationLi
       </div>
 
       <AppModal
+        layerClassName={OVERLAY_TOPMOST_LAYER_CLASS}
         open={Boolean(deleteCandidate)}
         size="sm"
         title={copy.deleteChatTitle}

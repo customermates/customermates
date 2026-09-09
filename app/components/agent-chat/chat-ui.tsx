@@ -7,13 +7,14 @@ import type { AgentChatUiTargets } from "./agent-chat-store-context";
 
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
 
 export function ActionTooltip({ children, label }: { children: React.ReactNode; label: string }) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>{children}</TooltipTrigger>
 
-      <TooltipContent>{label}</TooltipContent>
+      <TooltipContent className={OVERLAY_TOPMOST_LAYER_CLASS}>{label}</TooltipContent>
     </Tooltip>
   );
 }

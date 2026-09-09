@@ -1040,7 +1040,7 @@
       "routineAdminRequired": "Nur ein Unternehmensadmin kann Routinen pausieren oder löschen.",
       "routineDeleteHasRunningRun": "Warte, bis der aktive Lauf beendet ist, bevor du diese Routine löschst.",
       "routineEditNotOwner": "Nur die Eigentümerin oder der Eigentümer kann Einrichtung und Aktivierung dieser Routine ändern.",
-      "routineLimitReached": "Dein Tarif enthält {limit} Routinen. Wechsle zu Business für unbegrenzte Routinen.",
+      "routineLimitReached": "Dein Tarif enthält {limit} Routinen pro Nutzer. Wechsle deinen Tarif für ein höheres Kontingent.",
       "routineNotFound": "Routinen-ID nicht gefunden oder nicht zugänglich.",
       "routineOwnerIneligible": "Die Eigentümerin oder der Eigentümer der Routine muss ein aktives Mitglied dieses Unternehmens sein.",
       "routineRunNotOwner": "Nur wer diese Routine besitzt, kann sie ausführen, da sie dessen KI-Guthaben verbraucht.",
@@ -1048,7 +1048,6 @@
       "routineScheduleInvalid": "Dieser Zeitplan ist kein gültiger Cron-Ausdruck.",
       "routineScheduleRequired": "Wähle einen Zeitplan oder ein einmaliges Datum für diese Routine.",
       "routineScheduleTooFrequent": "Dieser Zeitplan läuft zu häufig. Routinen können höchstens alle 15 Minuten laufen.",
-      "routinesRequirePaidPlan": "Routinen gibt es ab Pro. Wechsle deinen Tarif, um eine anzulegen.",
       "routineTestRequiresEnabled": "Aktiviere die Routine, bevor du sie testest.",
       "routineTimeZoneInvalid": "Diese Zeitzone wird nicht unterstützt.",
       "routineTriggerEventsRequired": "Wähle mindestens ein Ereignis für diese Routine aus.",
@@ -3297,8 +3296,8 @@
       "hostedAiCredits": "{credits, number} Credits für den gehosteten KI-Assistenten pro aktivem Nutzer / Monat",
       "mostPopular": "Am beliebtesten",
       "perUserMonth": "pro Nutzer / Monat",
-      "routines": "{routines, plural, one {# Routine} other {# Routinen}}",
-      "unlimitedRoutines": "Unbegrenzte Routinen"
+      "routinesPerUser": "{routines, plural, one {# Routine pro Nutzer} other {# Routinen pro Nutzer}}",
+      "unlimitedRoutinesPerUser": "Unbegrenzte Routinen pro Nutzer"
     },
     "plan": "Plan",
     "planNames": {

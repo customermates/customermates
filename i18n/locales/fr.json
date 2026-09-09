@@ -1040,7 +1040,7 @@
       "routineAdminRequired": "Seul un administrateur de l’entreprise peut suspendre ou supprimer des routines.",
       "routineDeleteHasRunningRun": "Attendez la fin de l’exécution active avant de supprimer cette routine.",
       "routineEditNotOwner": "Seul le propriétaire peut modifier la configuration ou l’activation de cette routine.",
-      "routineLimitReached": "Votre forfait inclut {limit} routines. Passez à Business pour des routines illimitées.",
+      "routineLimitReached": "Votre forfait inclut {limit} routines par utilisateur. Changez de forfait pour augmenter cette limite.",
       "routineNotFound": "ID de routine introuvable ou inaccessible.",
       "routineOwnerIneligible": "Le propriétaire de la routine doit être un membre actif de cette entreprise.",
       "routineRunNotOwner": "Seule la personne qui possède cette routine peut l'exécuter, car elle consomme ses crédits IA.",
@@ -1048,7 +1048,6 @@
       "routineScheduleInvalid": "Cette planification n'est pas une expression cron valide.",
       "routineScheduleRequired": "Choisissez une planification ou une date unique pour cette routine.",
       "routineScheduleTooFrequent": "Cette planification s'exécute trop souvent. Les routines peuvent s'exécuter au maximum toutes les 15 minutes.",
-      "routinesRequirePaidPlan": "Les routines sont disponibles à partir de Pro. Changez de forfait pour en créer une.",
       "routineTestRequiresEnabled": "Activez la routine avant de la tester.",
       "routineTimeZoneInvalid": "Ce fuseau horaire n'est pas pris en charge.",
       "routineTriggerEventsRequired": "Sélectionnez au moins un évènement pour cette routine.",
@@ -3297,8 +3296,8 @@
       "hostedAiCredits": "{credits, number} crédits IA hébergés par utilisateur actif / mois",
       "mostPopular": "Le plus populaire",
       "perUserMonth": "par utilisateur / mois",
-      "routines": "{routines, plural, one {# routine} other {# routines}}",
-      "unlimitedRoutines": "Routines illimitées"
+      "routinesPerUser": "{routines, plural, one {# routine par utilisateur} other {# routines par utilisateur}}",
+      "unlimitedRoutinesPerUser": "Routines illimitées par utilisateur"
     },
     "plan": "Formule",
     "planNames": {

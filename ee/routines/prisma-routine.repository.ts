@@ -330,10 +330,6 @@ export class PrismaRoutineRepo
     );
   }
 
-  async countRoutines(): Promise<number> {
-    return this.prisma.routine.count({ where: { companyId: this.companyId } });
-  }
-
   async getRoutineRuns(routineId: string, limit: number, cursor?: string | null): Promise<RoutineRunPage> {
     const decoded = cursor ? decodeRoutineRunCursor(cursor) : null;
     const rows = await this.prisma.routineRun.findMany({
@@ -485,7 +481,10 @@ export class PrismaRoutineRepo
       return this.getRoutineByIdOrThrow(id);
     }
 
-    if (routineLimit !== "unlimited" && (await this.prisma.routine.count({ where: { companyId } })) >= routineLimit)
+    if (
+      routineLimit !== "unlimited" &&
+      (await this.prisma.routine.count({ where: { companyId, ownerUserId: userId } })) >= routineLimit
+    )
       throw new RoutineLimitExceededError(routineLimit);
 
     const triggerKind = input.triggerKind as RoutineTriggerKind;

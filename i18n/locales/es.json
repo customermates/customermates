@@ -1040,7 +1040,7 @@
       "routineAdminRequired": "Solo un administrador de la empresa puede pausar o eliminar rutinas.",
       "routineDeleteHasRunningRun": "Espera a que termine la ejecución activa antes de eliminar esta rutina.",
       "routineEditNotOwner": "Solo el propietario puede cambiar la configuración o activación de esta rutina.",
-      "routineLimitReached": "Tu plan incluye {limit} rutinas. Cambia a Business para tener rutinas ilimitadas.",
+      "routineLimitReached": "Tu plan incluye {limit} rutinas por usuario. Cambia de plan para obtener un límite mayor.",
       "routineNotFound": "ID de rutina no encontrado o no accesible.",
       "routineOwnerIneligible": "El propietario de la rutina debe ser un miembro activo de esta empresa.",
       "routineRunNotOwner": "Solo quien posee esta rutina puede ejecutarla, porque consume sus créditos de IA.",
@@ -1048,7 +1048,6 @@
       "routineScheduleInvalid": "Esa programación no es una expresión cron válida.",
       "routineScheduleRequired": "Elige una programación o una fecha única para esta rutina.",
       "routineScheduleTooFrequent": "Esta programación se ejecuta con demasiada frecuencia. Las rutinas pueden ejecutarse como máximo cada 15 minutos.",
-      "routinesRequirePaidPlan": "Las rutinas están disponibles a partir de Pro. Cambia de plan para crear una.",
       "routineTestRequiresEnabled": "Activa la rutina antes de probarla.",
       "routineTimeZoneInvalid": "Esa zona horaria no es compatible.",
       "routineTriggerEventsRequired": "Selecciona al menos un evento para esta rutina.",
@@ -3297,8 +3296,8 @@
       "hostedAiCredits": "{credits, number} créditos de IA alojada por usuario activo / mes",
       "mostPopular": "El más popular",
       "perUserMonth": "por usuario / mes",
-      "routines": "{routines, plural, one {# rutina} other {# rutinas}}",
-      "unlimitedRoutines": "Rutinas ilimitadas"
+      "routinesPerUser": "{routines, plural, one {# rutina por usuario} other {# rutinas por usuario}}",
+      "unlimitedRoutinesPerUser": "Rutinas ilimitadas por usuario"
     },
     "plan": "Plan",
     "planNames": {

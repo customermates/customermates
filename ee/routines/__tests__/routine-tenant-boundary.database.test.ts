@@ -422,47 +422,123 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     expect(due.map((routine) => routine.id)).not.toContain(corruptedEventRoutineId);
   });
 
-  it("serializes concurrent creates so a company cannot exceed its routine allowance", async () => {
+  it("serializes concurrent creates so one owner cannot exceed their routine allowance", async () => {
     const quotaCompanyId = randomUUID();
-    const firstOwnerId = randomUUID();
-    const secondOwnerId = randomUUID();
+    const quotaOwnerId = randomUUID();
     await client.query('INSERT INTO "Company" ("id", "updatedAt") VALUES ($1, CURRENT_TIMESTAMP)', [quotaCompanyId]);
-    for (const [id, email] of [
-      [firstOwnerId, `routine-${firstOwnerId}@example.invalid`],
-      [secondOwnerId, `routine-${secondOwnerId}@example.invalid`],
-    ] as const) {
-      await client.query(
-        `INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "status", "updatedAt")
-         VALUES ($1, $2, 'Routine', 'Owner', $3, 'active', CURRENT_TIMESTAMP)`,
-        [id, email, quotaCompanyId],
-      );
-    }
+    await client.query(
+      `INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "status", "updatedAt")
+       VALUES ($1, $2, 'Routine', 'Owner', $3, 'active', CURRENT_TIMESTAMP)`,
+      [quotaOwnerId, `routine-${quotaOwnerId}@example.invalid`, quotaCompanyId],
+    );
 
-    try {
-      const results = await Promise.allSettled(
-        [firstOwnerId, secondOwnerId].map((id, index) =>
-          runWithTenant(tenant(id, quotaCompanyId), () =>
-            new PrismaRoutineRepo().upsertRoutineOrThrow(
-              {
-                name: `Concurrent routine ${index + 1}`,
-                prompt: "Do something",
-                triggerKind: "event",
-                triggerEvents: ["deal.updated"],
-              },
-              1,
-            ),
-          ),
+    const createRoutine = (name: string, limit: number | "unlimited") =>
+      runWithTenant(tenant(quotaOwnerId, quotaCompanyId), () =>
+        new PrismaRoutineRepo().upsertRoutineOrThrow(
+          {
+            name,
+            prompt: "Do something",
+            triggerKind: "event",
+            triggerEvents: ["deal.updated"],
+          },
+          limit,
         ),
       );
+
+    try {
+      for (let index = 1; index <= 4; index += 1) await createRoutine(`Existing Pro routine ${index}`, "unlimited");
+
+      const results = await Promise.allSettled([
+        createRoutine("Concurrent fifth Pro routine A", 5),
+        createRoutine("Concurrent fifth Pro routine B", 5),
+      ]);
 
       expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(1);
       const rejected = results.find((result): result is PromiseRejectedResult => result.status === "rejected");
       expect(rejected?.reason).toBeInstanceOf(RoutineLimitExceededError);
+      expect((rejected?.reason as RoutineLimitExceededError | undefined)?.limit).toBe(5);
       const stored = await client.query<{ count: string }>(
-        'SELECT COUNT(*)::TEXT AS "count" FROM "Routine" WHERE "companyId" = $1',
+        'SELECT COUNT(*)::TEXT AS "count" FROM "Routine" WHERE "companyId" = $1 AND "ownerUserId" = $2',
+        [quotaCompanyId, quotaOwnerId],
+      );
+      expect(stored.rows[0].count).toBe("5");
+    } finally {
+      await client.query('DELETE FROM "Routine" WHERE "companyId" = $1', [quotaCompanyId]);
+      await client.query('DELETE FROM "User" WHERE "companyId" = $1', [quotaCompanyId]);
+      await client.query('DELETE FROM "Company" WHERE "id" = $1', [quotaCompanyId]);
+    }
+  });
+
+  it("gives users independent allowances and does not cap unlimited plans", async () => {
+    const quotaCompanyId = randomUUID();
+    const firstOwnerId = randomUUID();
+    const secondOwnerId = randomUUID();
+    await client.query('INSERT INTO "Company" ("id", "updatedAt") VALUES ($1, CURRENT_TIMESTAMP)', [quotaCompanyId]);
+    for (const id of [firstOwnerId, secondOwnerId]) {
+      await client.query(
+        `INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "status", "updatedAt")
+         VALUES ($1, $2, 'Routine', 'Owner', $3, 'active', CURRENT_TIMESTAMP)`,
+        [id, `routine-${id}@example.invalid`, quotaCompanyId],
+      );
+    }
+
+    try {
+      for (let index = 1; index <= 5; index += 1) {
+        await runWithTenant(tenant(firstOwnerId, quotaCompanyId), () =>
+          new PrismaRoutineRepo().upsertRoutineOrThrow(
+            {
+              name: `First owner's Pro routine ${index}`,
+              prompt: "Do something",
+              triggerKind: "event",
+              triggerEvents: ["deal.updated"],
+            },
+            5,
+          ),
+        );
+      }
+
+      await expect(
+        runWithTenant(tenant(secondOwnerId, quotaCompanyId), () =>
+          new PrismaRoutineRepo().upsertRoutineOrThrow(
+            {
+              name: "Second owner's first Pro routine",
+              prompt: "Do something",
+              triggerKind: "event",
+              triggerEvents: ["deal.updated"],
+            },
+            5,
+          ),
+        ),
+      ).resolves.toMatchObject({ ownerUserId: secondOwnerId });
+
+      await expect(
+        runWithTenant(tenant(firstOwnerId, quotaCompanyId), () =>
+          new PrismaRoutineRepo().upsertRoutineOrThrow(
+            {
+              name: "First owner's sixth Business routine",
+              prompt: "Do something",
+              triggerKind: "event",
+              triggerEvents: ["deal.updated"],
+            },
+            "unlimited",
+          ),
+        ),
+      ).resolves.toMatchObject({ ownerUserId: firstOwnerId });
+
+      const stored = await client.query<{ ownerUserId: string; count: string }>(
+        `SELECT "ownerUserId", COUNT(*)::TEXT AS "count"
+         FROM "Routine"
+         WHERE "companyId" = $1
+         GROUP BY "ownerUserId"
+         ORDER BY "ownerUserId"`,
         [quotaCompanyId],
       );
-      expect(stored.rows[0].count).toBe("1");
+      expect(new Map(stored.rows.map((row) => [row.ownerUserId, row.count]))).toEqual(
+        new Map([
+          [firstOwnerId, "6"],
+          [secondOwnerId, "1"],
+        ]),
+      );
     } finally {
       await client.query('DELETE FROM "Routine" WHERE "companyId" = $1', [quotaCompanyId]);
       await client.query('DELETE FROM "User" WHERE "companyId" = $1', [quotaCompanyId]);

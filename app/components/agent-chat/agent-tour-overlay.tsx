@@ -9,6 +9,8 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { MessageResponse } from "@/components/ai-elements/message";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverAnchor, PopoverContent, PopoverTitle } from "@/components/ui/popover";
+import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
+import { cn } from "@/core/utils/cn";
 import { findAgentTargetElement } from "./ui-control.store";
 
 export function AgentTourNote({ note }: { note: string }) {
@@ -58,7 +60,7 @@ export const AgentTourOverlay = observer(function AgentTourOverlay() {
   return (
     <>
       <div
-        className="pointer-events-none fixed z-50 rounded-lg border-2 border-primary"
+        className={cn("pointer-events-none fixed rounded-lg border-2 border-primary", OVERLAY_TOPMOST_LAYER_CLASS)}
         style={{
           top: rect.top - 4,
           left: rect.left - 4,
@@ -79,7 +81,7 @@ export const AgentTourOverlay = observer(function AgentTourOverlay() {
 
           <PopoverContent
             align="start"
-            className="w-80 p-3"
+            className={cn("w-80 p-3", OVERLAY_TOPMOST_LAYER_CLASS)}
             side="bottom"
             onEscapeKeyDown={store.end}
             onOpenAutoFocus={() => nextButtonRef.current?.focus({ preventScroll: true })}

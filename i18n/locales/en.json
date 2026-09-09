@@ -1040,7 +1040,7 @@
       "routineAdminRequired": "Only a company administrator can pause or delete routines.",
       "routineDeleteHasRunningRun": "Wait for the active run to finish before deleting this routine.",
       "routineEditNotOwner": "Only the routine owner can change its setup or activation.",
-      "routineLimitReached": "Your plan includes {limit} routines. Upgrade to Business for unlimited routines.",
+      "routineLimitReached": "Your plan includes {limit} routines per user. Upgrade your plan for a higher allowance.",
       "routineNotFound": "Routine ID not found or not accessible.",
       "routineOwnerIneligible": "The routine owner must be an active member of this company.",
       "routineRunNotOwner": "Only the person who owns this routine can run it, because it spends their AI credits.",
@@ -1048,7 +1048,6 @@
       "routineScheduleInvalid": "That schedule is not a valid cron expression.",
       "routineScheduleRequired": "Choose a schedule or a one-off date for this routine.",
       "routineScheduleTooFrequent": "This schedule runs too often. Routines can run at most once every 15 minutes.",
-      "routinesRequirePaidPlan": "Routines are available on Pro and above. Upgrade your plan to create one.",
       "routineTestRequiresEnabled": "Activate the routine before testing it.",
       "routineTimeZoneInvalid": "That time zone is not supported.",
       "routineTriggerEventsRequired": "Select at least one event for this routine.",
@@ -3297,8 +3296,8 @@
       "hostedAiCredits": "{credits, number} hosted AI credits per active user / month",
       "mostPopular": "Most popular",
       "perUserMonth": "per user / month",
-      "routines": "{routines, plural, one {# routine} other {# routines}}",
-      "unlimitedRoutines": "Unlimited routines"
+      "routinesPerUser": "{routines, plural, one {# routine per user} other {# routines per user}}",
+      "unlimitedRoutinesPerUser": "Unlimited routines per user"
     },
     "plan": "Plan",
     "planNames": {

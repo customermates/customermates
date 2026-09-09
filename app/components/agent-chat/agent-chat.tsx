@@ -12,7 +12,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { IconContainer } from "@/components/shared/icon-container";
-import { OVERLAY_SCROLL_REGION } from "@/components/ui/overlay-contract";
+import { OVERLAY_RAISED_PANEL_LAYER_CLASS, OVERLAY_SCROLL_REGION } from "@/components/ui/overlay-contract";
 import { cn } from "@/core/utils/cn";
 
 import { ActionTooltip, chatUiCopy } from "./chat-ui";
@@ -137,7 +137,8 @@ const AgentChatPanel = observer(function AgentChatPanel() {
     <div
       aria-label={t("AgentChat.title")}
       className={cn(
-        "fixed z-40 flex flex-col overflow-hidden rounded-2xl border bg-card",
+        "fixed flex flex-col overflow-hidden rounded-2xl border bg-card",
+        OVERLAY_RAISED_PANEL_LAYER_CLASS,
         "shadow-2xl shadow-black/25 dark:shadow-black/80 dark:ring-1 dark:ring-white/10",
         store.isExpanded
           ? "h-[85dvh] w-[720px] max-w-[calc(100dvw-2rem)]"
