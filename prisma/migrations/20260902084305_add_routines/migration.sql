@@ -14,6 +14,24 @@ ALTER TYPE "Resource" ADD VALUE 'routines';
 ALTER TABLE "AgentConversation" ADD COLUMN     "creditCeiling" INTEGER,
 ADD COLUMN     "origin" "AgentConversationOrigin" NOT NULL DEFAULT 'user';
 
+-- AlterTable
+ALTER TABLE "AgentTurnRequest" ADD COLUMN     "stopReason" TEXT;
+
+ALTER TABLE "AgentTurnRequest"
+ADD CONSTRAINT "AgentTurnRequest_stopReason_check"
+CHECK (
+  "stopReason" IS NULL OR
+  "stopReason" IN (
+    'credit_limit',
+    'provider_error',
+    'content_filter',
+    'hosted_ai_unavailable',
+    'cancelled',
+    'turn_error',
+    'policy_breach'
+  )
+);
+
 -- CreateTable
 CREATE TABLE "Routine" (
     "id" TEXT NOT NULL,

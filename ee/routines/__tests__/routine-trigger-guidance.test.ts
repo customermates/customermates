@@ -76,6 +76,7 @@ describe("routine trigger empty-state guidance", () => {
     messageAt(messages, "RoutineDetail.empty.title");
     messageAt(messages, "RoutineDetail.empty.event.description");
     messageAt(messages, "RoutineDetail.empty.event.instructionsLabel");
+    messageAt(messages, "RoutineDetail.ownerPermissionReadOnly");
 
     for (const event of ROUTINE_TRIGGER_EVENTS) messageAt(messages, `Common.events.${event}`);
     for (const action of ROUTINE_TRIGGER_GUIDANCE_ACTIONS) {

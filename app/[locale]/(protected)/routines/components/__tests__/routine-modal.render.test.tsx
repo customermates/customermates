@@ -73,12 +73,25 @@ vi.mock("@/components/card/app-card-body", () => ({
     </div>
   ),
 }));
-vi.mock("@/components/card/form-actions", () => ({ FormActions: () => <div data-form-actions /> }));
+vi.mock("@/components/card/form-actions", () => ({
+  FormActions: ({ store }: { store: { canManage: boolean } }) =>
+    store.canManage ? (
+      <div data-form-actions>
+        <button id="routine-modal-save" type="submit">
+          save
+        </button>
+      </div>
+    ) : null,
+}));
 vi.mock("@/components/forms/form-context", () => ({
   AppForm: ({ children }: { children: ReactNode }) => <form>{children}</form>,
 }));
 vi.mock("../routine-configuration-pane", () => ({
-  RoutineConfigurationPane: () => <div data-configuration-pane>configuration</div>,
+  RoutineConfigurationPane: ({ store }: { store: { isReadOnly: boolean } }) => (
+    <div data-configuration-pane data-read-only={store.isReadOnly}>
+      configuration
+    </div>
+  ),
 }));
 vi.mock("../routine-run-detail", () => ({
   ROUTINE_RUN_CHAT_UI_TARGETS: {},
@@ -108,8 +121,13 @@ class TestRoutineStore {
   hasUnsavedChanges = false;
   isOwner = true;
   isAdmin = false;
+  canManage = true;
   isLoading = false;
   isStartingRun = false;
+
+  get isReadOnly() {
+    return !this.canManage;
+  }
 
   setActiveTab = (value: "details" | "runs") => {
     this.activeTab = value;
@@ -153,6 +171,37 @@ afterEach(() => {
 });
 
 describe("RoutineModal responsive rendering", () => {
+  it("keeps a read-own owner read-only without Save, Test, or Delete controls", () => {
+    harness.store.canManage = false;
+
+    render();
+
+    expect(container.querySelector("[data-configuration-pane]")?.getAttribute("data-read-only")).toBe("true");
+    expect(container.querySelector("#routine-modal-save")).toBeNull();
+    expect(container.querySelector("#routines-run-now")).toBeNull();
+    expect(container.querySelector("#delete-routine")).toBeNull();
+  });
+
+  it("keeps Test for a manage-capable owner and adds Delete only for a system administrator", () => {
+    render();
+
+    expect(container.querySelector("#routines-run-now")).not.toBeNull();
+    expect(container.querySelector("#routine-modal-save")).not.toBeNull();
+    expect(container.querySelector("#delete-routine")).toBeNull();
+
+    harness.store.isAdmin = true;
+    render();
+    expect(container.querySelector("#routines-run-now")).not.toBeNull();
+    expect(container.querySelector("#delete-routine")).not.toBeNull();
+
+    harness.store.isOwner = false;
+    harness.store.canManage = false;
+    render();
+    expect(container.querySelector("#routine-modal-save")).toBeNull();
+    expect(container.querySelector("#routines-run-now")).toBeNull();
+    expect(container.querySelector("#delete-routine")).not.toBeNull();
+  });
+
   it("renders existing routines as a divider-free 5xl split with no desktop tablist", () => {
     render();
 

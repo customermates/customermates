@@ -625,25 +625,6 @@ describe("StartRoutineRunInteractor", () => {
     expect(sendAgentMessage.invokeRoutine).not.toHaveBeenCalled();
   });
 
-  it("leaves chat capacity for the owner by capping in-flight routine runs", async () => {
-    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
-    repo.claimQueuedRoutineRunForOwnerUnscoped.mockResolvedValue("ownerRunLimit");
-    const interactor = new StartRoutineRunInteractor(
-      repo as never,
-      conversations as never,
-      sendAgentMessage as never,
-      filterMatcher as never,
-    );
-
-    const result = await interactor.invoke({ routineRunId: RUN_ID });
-
-    expect(result).toEqual({
-      ok: true,
-      data: { started: false, reason: "ownerRunLimit" },
-    });
-    expect(sendAgentMessage.invokeRoutine).not.toHaveBeenCalled();
-  });
-
   it("enforces the hourly run ceiling", async () => {
     const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
     repo.countRecentRoutineRunsUnscoped.mockResolvedValue(5);

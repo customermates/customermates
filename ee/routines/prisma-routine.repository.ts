@@ -768,9 +768,8 @@ export class PrismaRoutineRepo
   async claimQueuedRoutineRunForOwnerUnscoped(args: {
     routineRunId: string;
     executedByUserId: string;
-    maxInFlight: number;
     now: Date;
-  }): Promise<{ routine: RoutineDto } | "ownerRunLimit" | "runNotQueued" | "triggerChanged"> {
+  }): Promise<{ routine: RoutineDto } | "runNotQueued" | "triggerChanged"> {
     const identity = await this.prisma.routineRun.findUnique({
       where: { id: args.routineRunId },
       select: { companyId: true },
@@ -778,9 +777,6 @@ export class PrismaRoutineRepo
     if (!identity) return "runNotQueued";
 
     return this.withCompanyTransaction(identity.companyId, async () => {
-      await this.prisma
-        .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`routine-owner:${args.executedByUserId}`}, 0))`;
-
       const run = await this.prisma.routineRun.findUnique({
         where: { id: args.routineRunId },
         select: {
@@ -841,36 +837,6 @@ export class PrismaRoutineRepo
         }
 
         return "triggerChanged";
-      }
-
-      const inFlight = await this.prisma.routineRun.count({
-        where: {
-          id: { not: args.routineRunId },
-          executedByUserId: args.executedByUserId,
-          status: RoutineRunStatus.running,
-        },
-      });
-      if (inFlight >= args.maxInFlight) {
-        await this.prisma.routineRun.updateMany({
-          where: { id: args.routineRunId, companyId: identity.companyId, status: RoutineRunStatus.queued },
-          data: {
-            status: RoutineRunStatus.skipped,
-            error: "ownerRunLimit",
-            finishedAt: args.now,
-          },
-        });
-        await this.prisma.routine.updateMany({
-          where: {
-            id: run.routineId,
-            companyId: identity.companyId,
-            OR: [{ lastRunAt: null }, { lastRunAt: { lte: args.now } }],
-          },
-          data: {
-            lastRunStatus: RoutineRunStatus.skipped,
-            lastRunAt: args.now,
-          },
-        });
-        return "ownerRunLimit";
       }
 
       const claimed = await this.prisma.routineRun.updateMany({

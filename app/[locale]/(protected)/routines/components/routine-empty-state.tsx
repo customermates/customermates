@@ -73,8 +73,10 @@ export const RoutineEmptyState = observer(({ store }: { store: RoutineModalStore
     const scheduleDescription = scheduleHasClockTime(store.compiledCron)
       ? `${schedule} · ${t("RoutineModal.scheduleTimeZone", { timezone: form.timezone ?? "" })}`
       : schedule;
-    const testDescription = !store.isOwner
-      ? t("RoutineDetail.empty.schedule.ownerOnly")
+    const testDescription = !store.canManage
+      ? store.isOwner
+        ? t("RoutineDetail.ownerPermissionReadOnly")
+        : t("RoutineDetail.empty.schedule.ownerOnly")
       : !form.enabled
         ? t("RoutineDetail.empty.schedule.activateFirst")
         : store.hasUnsavedChanges

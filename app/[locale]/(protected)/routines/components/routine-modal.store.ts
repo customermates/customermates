@@ -10,7 +10,7 @@ import type { RoutineRunPage } from "@/ee/routines/routine-history";
 
 import { action, computed, makeObservable, observable, runInAction, toJS } from "mobx";
 import type { EntityType } from "@/generated/prisma";
-import { RoutineRunStatus, RoutineTriggerKind } from "@/generated/prisma";
+import { Resource, RoutineRunStatus, RoutineTriggerKind } from "@/generated/prisma";
 
 import {
   deleteRoutineAction,
@@ -153,7 +153,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   private runsPollingActive = false;
 
   constructor(rootStore: RootStore) {
-    super(rootStore, EMPTY_ROUTINE_FORM);
+    super(rootStore, EMPTY_ROUTINE_FORM, Resource.routines);
 
     makeObservable(this, {
       activeTab: observable,
@@ -264,11 +264,11 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   }
 
   get canManage(): boolean {
-    return this.isOwner;
+    return this.isOwner && super.canManage;
   }
 
   get isReadOnly(): boolean {
-    return !this.isOwner;
+    return !this.canManage;
   }
 
   canOpenRun = (run: RoutineRunDto): boolean => run.executedByUserId === this.rootStore.userStore.user?.id;
@@ -589,7 +589,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       !routineId ||
       !this.ownsRunsSession(generation, routineId) ||
       this.isStartingRun ||
-      !this.isOwner ||
+      !this.canManage ||
       !this.form.enabled ||
       this.form.triggerKind !== RoutineTriggerKind.schedule ||
       this.hasUnsavedChanges

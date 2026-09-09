@@ -55,7 +55,7 @@ export const RoutineModal = observer(() => {
     busy: routineModalStore.isStartingRun,
     disabled:
       eventTriggered ||
-      !routineModalStore.isOwner ||
+      !routineModalStore.canManage ||
       !form.enabled ||
       routineModalStore.isLoading ||
       routineModalStore.hasUnsavedChanges,
@@ -77,7 +77,7 @@ export const RoutineModal = observer(() => {
   };
   const routineActions: AppModalActions = !isExistingRoutine
     ? []
-    : routineModalStore.isOwner
+    : routineModalStore.canManage
       ? routineModalStore.isAdmin
         ? [testAction, deleteAction]
         : [testAction]

@@ -65,7 +65,7 @@ export const RoutineConfigurationPane = observer(({ store, onPause }: Props) => 
   const ownerAvailable = store.hasAvailableOwner;
   const disabledReasonCopy =
     store.disabledReason === "repeatedFailures"
-      ? store.isOwner
+      ? store.canManage
         ? t("RoutineDetail.disabledRepeatedFailures")
         : ownerAvailable
           ? t("RoutineDetail.disabledRepeatedFailuresReadOnly")
@@ -108,13 +108,15 @@ export const RoutineConfigurationPane = observer(({ store, onPause }: Props) => 
             </div>
           </div>
 
-          {!store.isOwner && (
+          {store.isReadOnly && (
             <Alert
               color="default"
               description={
-                ownerAvailable && ownerName
-                  ? t("RoutineDetail.ownerOnlyEdit", { owner: ownerName })
-                  : t("RoutineDetail.ownerUnavailableReadOnly")
+                store.isOwner && !store.canManage
+                  ? t("RoutineDetail.ownerPermissionReadOnly")
+                  : ownerAvailable && ownerName
+                    ? t("RoutineDetail.ownerOnlyEdit", { owner: ownerName })
+                    : t("RoutineDetail.ownerUnavailableReadOnly")
               }
               title={t("RoutineDetail.readOnlyTitle")}
             />
@@ -147,7 +149,7 @@ export const RoutineConfigurationPane = observer(({ store, onPause }: Props) => 
       )}
 
       <div className="bg-muted/40 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 rounded-lg border px-4 py-3">
-        {store.isOwner ? (
+        {store.canManage ? (
           <FormSwitch
             containerClassName="shrink-0"
             id="enabled"

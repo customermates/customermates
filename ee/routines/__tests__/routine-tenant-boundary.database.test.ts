@@ -562,47 +562,55 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     });
   });
 
-  it("atomically starts at most one concurrent run for the same executor", async () => {
+  it("claims concurrent runs for two matching routines owned by the same executor", async () => {
+    const secondRoutineId = randomUUID();
     const firstRunId = randomUUID();
     const secondRunId = randomUUID();
-    for (const id of [firstRunId, secondRunId]) {
-      await client.query(
-        `INSERT INTO "RoutineRun"
-           ("id", "companyId", "routineId", "executedByUserId", "executedByName", "status", "triggerKind",
-            "triggerEvent", "scheduledFor", "updatedAt")
-         VALUES ($1, $2, $3, $4, 'Routine Tester', 'queued', 'event', 'contact.updated', CURRENT_TIMESTAMP,
-                 CURRENT_TIMESTAMP)`,
-        [id, companyId, routineId, ownerId],
-      );
-    }
 
-    const outcomes = await Promise.all(
-      [firstRunId, secondRunId].map((routineRunId) =>
-        runWithTenant(tenant(ownerId), () =>
-          new PrismaRoutineRepo().claimQueuedRoutineRunForOwnerUnscoped({
-            routineRunId,
-            executedByUserId: ownerId,
-            maxInFlight: 1,
-            now: new Date(),
-          }),
+    try {
+      await insertRoutine(secondRoutineId);
+      for (const [id, matchedRoutineId] of [
+        [firstRunId, routineId],
+        [secondRunId, secondRoutineId],
+      ] as const) {
+        await client.query(
+          `INSERT INTO "RoutineRun"
+             ("id", "companyId", "routineId", "executedByUserId", "executedByName", "status", "triggerKind",
+              "triggerEvent", "scheduledFor", "updatedAt")
+           VALUES ($1, $2, $3, $4, 'Routine Tester', 'queued', 'event', 'contact.updated', CURRENT_TIMESTAMP,
+                   CURRENT_TIMESTAMP)`,
+          [id, companyId, matchedRoutineId, ownerId],
+        );
+      }
+
+      const outcomes = await Promise.all(
+        [firstRunId, secondRunId].map((routineRunId) =>
+          runWithTenant(tenant(ownerId), () =>
+            new PrismaRoutineRepo().claimQueuedRoutineRunForOwnerUnscoped({
+              routineRunId,
+              executedByUserId: ownerId,
+              now: new Date(),
+            }),
+          ),
         ),
-      ),
-    );
+      );
 
-    expect(outcomes.map((outcome) => (typeof outcome === "string" ? outcome : "claimed")).sort()).toEqual([
-      "claimed",
-      "ownerRunLimit",
-    ]);
-    const rows = await client.query<{ status: string; error: string | null }>(
-      `SELECT "status", "error" FROM "RoutineRun" WHERE "id" = ANY($1) ORDER BY "status"`,
-      [[firstRunId, secondRunId]],
-    );
-    expect(rows.rows).toEqual([
-      { status: "running", error: null },
-      { status: "skipped", error: "ownerRunLimit" },
-    ]);
-
-    await client.query(`DELETE FROM "RoutineRun" WHERE "id" = ANY($1)`, [[firstRunId, secondRunId]]);
+      expect(outcomes.map((outcome) => (typeof outcome === "string" ? outcome : "claimed"))).toEqual([
+        "claimed",
+        "claimed",
+      ]);
+      const rows = await client.query<{ status: string; error: string | null }>(
+        `SELECT "status", "error" FROM "RoutineRun" WHERE "id" = ANY($1) ORDER BY "id"`,
+        [[firstRunId, secondRunId]],
+      );
+      expect(rows.rows).toEqual([
+        { status: "running", error: null },
+        { status: "running", error: null },
+      ]);
+    } finally {
+      await client.query(`DELETE FROM "RoutineRun" WHERE "id" = ANY($1)`, [[firstRunId, secondRunId]]);
+      await client.query(`DELETE FROM "Routine" WHERE "id" = $1`, [secondRoutineId]);
+    }
   });
 
   it("settles queued event runs whose trigger configuration no longer matches their snapshot", async () => {
@@ -628,7 +636,6 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
         new PrismaRoutineRepo().claimQueuedRoutineRunForOwnerUnscoped({
           routineRunId,
           executedByUserId: ownerId,
-          maxInFlight: 1,
           now: new Date(),
         }),
       );

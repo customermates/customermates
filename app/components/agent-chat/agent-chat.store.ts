@@ -96,6 +96,14 @@ let itemSeq = 0;
 const nextItemId = () => `item-${++itemSeq}`;
 const UI_COMMAND_NAMES = ["navigate", "highlight_element", "start_tour", "click_ui_target", "open_record"] as const;
 const AGENT_CONFIG_LOAD_TIMEOUT_MS = 15000;
+const AGENT_CONVERSATION_LOAD_TIMEOUT_MS = 15000;
+const AGENT_ADMISSION_TIMEOUT_MS = 15000;
+const AGENT_RECONNECT_TIMEOUT_MS = 15000;
+const AGENT_TERMINAL_RECONCILE_TIMEOUT_MS = 5000;
+const AGENT_CANCEL_ATTEMPT_TIMEOUT_MS = 5000;
+const AGENT_APPROVAL_ATTEMPT_TIMEOUT_MS = 5000;
+const AGENT_STREAM_INACTIVITY_TIMEOUT_MS = 60000;
+const AGENT_RECONNECT_SNAPSHOT_FAILURE_LIMIT = 2;
 const AGENT_STREAM_RECONNECT_DELAYS_MS = [250, 500, 1000, 2000, 5000] as const;
 const AGENT_CANCEL_RETRY_DELAYS_MS = [0, 500, 1500, 4000] as const;
 const AGENT_CHAT_OPEN_STORAGE_PREFIX = "customermates:agentChat:open:v2";
@@ -142,6 +150,50 @@ async function withDeadline<T>(work: Promise<T>, timeoutMs: number): Promise<T> 
       work,
       new Promise<never>((_resolve, reject) => {
         timer = setTimeout(() => reject(new Error("The assistant configuration request timed out.")), timeoutMs);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function fetchWithDeadline(
+  input: RequestInfo | URL,
+  init: RequestInit,
+  controller: AbortController,
+  timeoutMs: number,
+): Promise<Response> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      fetch(input, { ...init, signal: controller.signal }),
+      new Promise<never>((_resolve, reject) => {
+        timer = setTimeout(() => {
+          const error = new Error("The assistant request timed out.");
+          error.name = "AgentFetchDeadlineError";
+          reject(error);
+          controller.abort();
+        }, timeoutMs);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function readWithInactivityDeadline(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+): Promise<ReadableStreamReadResult<Uint8Array>> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      reader.read(),
+      new Promise<never>((_resolve, reject) => {
+        timer = setTimeout(() => {
+          const error = new Error("The assistant stream became inactive.");
+          error.name = "AgentStreamInactivityError";
+          reject(error);
+        }, AGENT_STREAM_INACTIVITY_TIMEOUT_MS);
       }),
     ]);
   } finally {
@@ -211,10 +263,12 @@ export class AgentChatStore extends BaseStore {
   private activeTurnAdmissionConfirmed = false;
   private activeTurnStopRequested = false;
   private activeTurnStopPromise: Promise<void> | null = null;
+  private activeTurnTerminalReconciliation: Promise<void> | null = null;
   private activeTurnDisposition: "stream" | "running" | "failed" | "uncertain" | "conflict" | "transport" = "stream";
   private consumedRouteRefreshRevision = 0;
   private routeRefreshAssistantMessageIds = new Set<string>();
   private persistedAssistantMessageIds = new Set<string>();
+  private replayedAssistantMessageIds = new Set<string>();
   private loadedMessageIds = new Set<string>();
   private historyRefreshVersion = 0;
   private queuedPromptMessageId: string | null = null;
@@ -222,6 +276,9 @@ export class AgentChatStore extends BaseStore {
   private queuedPromptPageRoute: string | null = null;
   private activeStreamKey = "stream-0";
   private streamSequence = 0;
+  private activeTurnClientRequestId: string | null = null;
+  private activeTurnPageRoute: string | null = null;
+  private activeTurnDetachedLoadVersion: number | null = null;
   private retryingApprovalRequestIds = new Set<string>();
   private uiCommandQueue: Promise<void> = Promise.resolve();
   private demoAutoOpened = false;
@@ -469,16 +526,7 @@ export class AgentChatStore extends BaseStore {
   retryFailedTurn = (item: Extract<AgentChatItem, { kind: "turn_error" }>) => {
     if (this.isWorking || this.usage?.blockedReason) return;
     if (!this.canRetryFailedTurn(item)) return;
-    let userIndex = -1;
-    for (let index = this.items.length - 1; index >= 0; index -= 1) {
-      const candidate = this.items[index];
-      if (candidate?.kind === "user" && candidate.messageId === item.messageId) {
-        userIndex = index;
-        break;
-      }
-    }
-    this.items =
-      userIndex >= 0 ? this.items.slice(0, userIndex + 1) : this.items.filter((candidate) => candidate.id !== item.id);
+    this.prepareCurrentTurnForReplay(item.messageId, item.id);
     void this.sendMessage(item.text, {
       appendUser: false,
       messageId: item.messageId,
@@ -488,6 +536,28 @@ export class AgentChatStore extends BaseStore {
   };
 
   canRetryFailedTurn = (item: Extract<AgentChatItem, { kind: "turn_error" }>) => this.items.at(-1)?.id === item.id;
+
+  private prepareCurrentTurnForReplay(clientRequestId: string, fallbackItemId?: string) {
+    const userIndex = this.items.findLastIndex(
+      (candidate) =>
+        candidate.kind === "user" &&
+        (candidate.messageId === clientRequestId || this.activeTurnClientRequestId === clientRequestId),
+    );
+    this.items =
+      userIndex >= 0
+        ? this.items.slice(0, userIndex + 1)
+        : this.items.filter((candidate) => candidate.id !== fallbackItemId);
+    const retainedAssistantMessageIds = new Set(
+      this.items.flatMap((candidate) =>
+        candidate.kind === "assistant" && candidate.messageId ? [candidate.messageId] : [],
+      ),
+    );
+    for (const messageId of this.persistedAssistantMessageIds)
+      if (!retainedAssistantMessageIds.has(messageId)) this.persistedAssistantMessageIds.delete(messageId);
+
+    for (const messageId of this.replayedAssistantMessageIds)
+      if (!retainedAssistantMessageIds.has(messageId)) this.replayedAssistantMessageIds.delete(messageId);
+  }
 
   private stopStream() {
     this.abortController?.abort();
@@ -501,6 +571,7 @@ export class AgentChatStore extends BaseStore {
     this.conversationId = id;
     this.items = [];
     this.persistedAssistantMessageIds.clear();
+    this.replayedAssistantMessageIds.clear();
     this.loadedMessageIds.clear();
     this.queuedPrompt = null;
     this.queuedPromptNeedsAttention = false;
@@ -516,6 +587,10 @@ export class AgentChatStore extends BaseStore {
     this.activeTurnAdmissionConfirmed = false;
     this.activeTurnStopRequested = false;
     this.activeTurnStopPromise = null;
+    this.activeTurnTerminalReconciliation = null;
+    this.activeTurnClientRequestId = null;
+    this.activeTurnPageRoute = null;
+    this.activeTurnDetachedLoadVersion = null;
     this.conversationLoadPendingId = null;
     this.conversationLoadError = false;
     this.olderMessagesCursor = null;
@@ -534,20 +609,34 @@ export class AgentChatStore extends BaseStore {
   };
 
   selectConversationForEmbeddedViewer = async (id: string) => {
-    if ((this.isWorking || this.historyMutationPending) && this.conversationId !== id) return;
-    if (this.conversationId === id && !this.conversationLoadError) {
-      runInAction(() => {
-        this.isHistoryOpen = false;
-      });
-      return;
-    }
+    if (this.historyMutationPending || (this.isWorking && this.conversationId !== id)) return;
+    if (this.isWorking && !this.activeTurnAdmissionConfirmed) return;
     await this.loadConversation(id);
   };
 
   private loadConversation = async (id: string) => {
+    const shouldPreserveActiveTurn =
+      this.conversationId === id && this.isWorking && this.activeTurnAdmissionConfirmed && !this.activeTurnCompleted;
+    const shouldResumeActiveTurn = shouldPreserveActiveTurn && !this.activeTurnStopRequested;
+    const shouldPreserveStoppingTurn = shouldPreserveActiveTurn && this.activeTurnStopRequested;
+    const resumeClientRequestId = this.activeTurnClientRequestId ?? undefined;
+    const resumePageRoute = this.activeTurnPageRoute;
     runInAction(() => {
       this.conversationLoadVersion += 1;
+      if (!shouldPreserveStoppingTurn) this.activeTurnGeneration += 1;
       this.stopStream();
+      this.activeTurnTerminalReconciliation = null;
+      this.activeTurnDetachedLoadVersion = shouldPreserveActiveTurn ? this.conversationLoadVersion : null;
+      this.isWorking = shouldPreserveActiveTurn;
+      this.streamStatus = shouldPreserveStoppingTurn ? "stopping" : shouldResumeActiveTurn ? "reconnecting" : "idle";
+      if (shouldPreserveActiveTurn) {
+        this.progressPhase = null;
+        this.progressStartedAt = null;
+      } else this.clearStreaming();
+      if (!shouldPreserveActiveTurn) {
+        this.activeTurnClientRequestId = null;
+        this.activeTurnPageRoute = null;
+      } else this.activeTurnPageRoute = resumePageRoute;
       this.conversationLoadPendingId = id;
       this.conversationLoadError = false;
       this.hasInSessionTerminalResult = false;
@@ -557,28 +646,57 @@ export class AgentChatStore extends BaseStore {
     const loadVersion = this.conversationLoadVersion;
 
     try {
-      const data = await getAgentConversationAction(id);
+      const data = await withDeadline(getAgentConversationAction(id), AGENT_CONVERSATION_LOAD_TIMEOUT_MS);
       if (!data) throw new Error("Conversation could not be loaded.");
       if (loadVersion !== this.conversationLoadVersion || this.conversationLoadPendingId !== id) return;
+      const activeMessage = data.activeTurn
+        ? data.messages.findLast((message) => message.role === "user" && message.turn?.status === "running")
+        : undefined;
+      const preservesLoadedActiveTurn = Boolean(
+        shouldPreserveActiveTurn &&
+          activeMessage?.turn?.clientRequestId &&
+          activeMessage.turn.clientRequestId === resumeClientRequestId,
+      );
 
       runInAction(() => {
+        const stopSettlementPending = shouldPreserveActiveTurn && this.activeTurnStopRequested;
         this.conversationId = id;
-        this.items = [];
-        this.persistedAssistantMessageIds.clear();
-        this.loadedMessageIds.clear();
-        this.isWorking = false;
+        if (!preservesLoadedActiveTurn) {
+          this.items = [];
+          this.persistedAssistantMessageIds.clear();
+          this.replayedAssistantMessageIds.clear();
+          this.loadedMessageIds.clear();
+          this.appendMessages(data.messages);
+        }
+        this.isWorking = Boolean(data.activeTurn || stopSettlementPending);
         this.isDraftConversationSelected = false;
         this.conversationLoadPendingId = null;
         this.isHistoryOpen = false;
         this.olderMessagesCursor = data.nextCursor;
-        this.appendMessages(data.messages);
+        if (!data.activeTurn) {
+          const latestTurn = data.messages.findLast((message) => message.role === "user" && message.turn)?.turn;
+          this.activeTurnCompleted = stopSettlementPending || latestTurn?.status === "completed";
+          this.activeTurnFailed = Boolean(latestTurn && latestTurn.terminalCode !== "completed");
+          if (!stopSettlementPending) {
+            this.activeTurnAdmissionConfirmed = false;
+            this.activeTurnDetachedLoadVersion = null;
+          }
+        }
       });
 
+      if (this.activeTurnStopRequested) return;
       if (data.activeTurn) {
-        const activeMessage = data.messages.findLast(
-          (message) => message.role === "user" && message.turn?.status === "running",
+        void this.reattachStream(
+          id,
+          loadVersion,
+          preservesLoadedActiveTurn ? this.activeTurnGeneration : undefined,
+          activeMessage?.turn?.clientRequestId ?? resumeClientRequestId,
+          resumePageRoute,
+          true,
         );
-        void this.reattachStream(id, loadVersion, undefined, activeMessage?.turn?.clientRequestId);
+      } else if (this.queuedPrompt) {
+        const generation = this.activeTurnGeneration;
+        void this.loadConfig().then(() => this.settleQueuedPromptAfterReattach(id, generation, loadVersion));
       }
     } catch {
       if (loadVersion !== this.conversationLoadVersion) return;
@@ -586,6 +704,16 @@ export class AgentChatStore extends BaseStore {
         this.conversationLoadPendingId = null;
         this.conversationLoadError = true;
       });
+      if (shouldPreserveActiveTurn && !this.activeTurnStopRequested) {
+        void this.reattachStream(
+          id,
+          loadVersion,
+          this.activeTurnGeneration,
+          resumeClientRequestId,
+          resumePageRoute,
+          true,
+        );
+      }
     }
   };
 
@@ -761,7 +889,13 @@ export class AgentChatStore extends BaseStore {
     this.activeTurnStopRequested = true;
     this.activeTurnStopPromise = this.requestActiveTurnCancellation(conversationId, generation).then((outcome) => {
       if (generation !== this.activeTurnGeneration) return;
+      let settledDetachedCancellation = false;
+      let resumeDetachedTurn = false;
+      let resumeLoadVersion = this.conversationLoadVersion;
       runInAction(() => {
+        const detachedLoadVersion = this.activeTurnDetachedLoadVersion;
+        const isDetachedReload =
+          detachedLoadVersion !== null && detachedLoadVersion === this.conversationLoadVersion && !this.abortController;
         if (outcome === "cancelling") {
           if (!this.activeTurnCompleted) {
             this.markActiveTurnStopped();
@@ -782,12 +916,63 @@ export class AgentChatStore extends BaseStore {
               }
             }
           }
+          if (isDetachedReload) {
+            if (this.activeTurnCompleted) {
+              this.activeTurnDetachedLoadVersion = null;
+              this.activeTurnAdmissionConfirmed = false;
+              this.activeTurnStopRequested = false;
+              this.hasInSessionTerminalResult = true;
+              this.isWorking = false;
+              this.activeTurnStopPromise = null;
+              if (this.queuedPrompt) this.queuedPromptNeedsAttention = true;
+              if (this.queuedPrompt && this.hasPendingRouteReload) this.routeSyncStatus = "waiting";
+              this.streamStatus = "idle";
+              settledDetachedCancellation = true;
+            } else {
+              if (this.conversationLoadPendingId) this.conversationLoadVersion += 1;
+              this.conversationLoadPendingId = null;
+              this.conversationLoadError = false;
+              this.activeTurnDetachedLoadVersion = null;
+              this.isWorking = true;
+              this.streamStatus = "stopping";
+              resumeLoadVersion = this.conversationLoadVersion;
+              resumeDetachedTurn = true;
+            }
+          }
           return;
         }
 
         this.activeTurnStopRequested = false;
-        this.streamStatus = this.activeTurnCompleted ? "finalizing" : "reconnecting";
+        if (isDetachedReload && this.activeTurnCompleted) {
+          this.activeTurnDetachedLoadVersion = null;
+          this.activeTurnAdmissionConfirmed = false;
+          this.activeTurnStopPromise = null;
+          this.isWorking = false;
+          if (this.queuedPrompt) this.queuedPromptNeedsAttention = true;
+          if (this.queuedPrompt && this.hasPendingRouteReload) this.routeSyncStatus = "waiting";
+          this.streamStatus = "idle";
+          settledDetachedCancellation = true;
+        } else {
+          this.streamStatus = this.activeTurnCompleted ? "finalizing" : "reconnecting";
+          resumeLoadVersion = this.conversationLoadVersion;
+          resumeDetachedTurn =
+            isDetachedReload && this.conversationLoadPendingId === null && this.isWorking && !this.activeTurnCompleted;
+        }
       });
+      if (settledDetachedCancellation) {
+        void this.loadConfig();
+        if (!this.hasPendingRouteReload) void this.refreshConversations();
+      }
+      if (resumeDetachedTurn) {
+        void this.reattachStream(
+          conversationId,
+          resumeLoadVersion,
+          this.activeTurnGeneration,
+          this.activeTurnClientRequestId ?? undefined,
+          this.activeTurnPageRoute,
+          true,
+        );
+      }
       if (outcome === "failed") this.toastError("AgentChat.errors.stopFailed");
     });
     activeController?.abort();
@@ -802,7 +987,7 @@ export class AgentChatStore extends BaseStore {
       if (delay > 0) await waitFor(delay);
       if (generation !== this.activeTurnGeneration || this.activeTurnCompleted) return "inactive" as const;
       try {
-        const result = await cancelAgentTurnAction({ conversationId });
+        const result = await withDeadline(cancelAgentTurnAction({ conversationId }), AGENT_CANCEL_ATTEMPT_TIMEOUT_MS);
         if (result?.ok) return result.data.cancelling ? ("cancelling" as const) : ("inactive" as const);
       } catch {}
     }
@@ -1148,22 +1333,28 @@ export class AgentChatStore extends BaseStore {
     this.abortController = controller;
     this.activeTurnFailed = false;
     this.activeTurnDisposition = "stream";
-    const turnGeneration = this.beginActiveTurnMutationTracking();
+    let admissionDeadlineExpired = false;
+    const turnGeneration = this.beginActiveTurnMutationTracking(messageId, pageRoute);
+    const turnLoadVersion = this.conversationLoadVersion;
 
     try {
-      const response = await fetch("/api/agent/messages", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          conversationId: conversationId ?? undefined,
-          clientRequestId: messageId,
-          text: trimmed,
-          pageContext: { route: pageRoute },
-          locale: appLocaleOrDefault(this.rootStore.localeStore.locale),
-          retry: Boolean(options.retry),
-        }),
-        signal: controller.signal,
-      });
+      const response = await fetchWithDeadline(
+        "/api/agent/messages",
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            conversationId: conversationId ?? undefined,
+            clientRequestId: messageId,
+            text: trimmed,
+            pageContext: { route: pageRoute },
+            locale: appLocaleOrDefault(this.rootStore.localeStore.locale),
+            retry: Boolean(options.retry),
+          }),
+        },
+        controller,
+        AGENT_ADMISSION_TIMEOUT_MS,
+      );
 
       const responseConversationId = response.headers.get("x-conversation-id");
       if (responseConversationId) {
@@ -1240,10 +1431,11 @@ export class AgentChatStore extends BaseStore {
         clientRequestId: messageId,
         generation: turnGeneration,
         initialBody: response.body,
-        loadVersion: this.conversationLoadVersion,
+        loadVersion: turnLoadVersion,
       });
     } catch (error) {
-      if (turnGeneration !== this.activeTurnGeneration) return;
+      if (turnGeneration !== this.activeTurnGeneration || turnLoadVersion !== this.conversationLoadVersion) return;
+      admissionDeadlineExpired = (error as Error)?.name === "AgentFetchDeadlineError";
       const recoveryConversationId = this.conversationId ?? conversationId;
       if (
         recoveryConversationId &&
@@ -1255,7 +1447,7 @@ export class AgentChatStore extends BaseStore {
           clientRequestId: messageId,
           generation: turnGeneration,
           initialBody: null,
-          loadVersion: this.conversationLoadVersion,
+          loadVersion: turnLoadVersion,
         });
       } else if ((error as Error)?.name === "AbortError" && this.activeTurnStopRequested)
         this.activeTurnCompleted = true;
@@ -1265,12 +1457,14 @@ export class AgentChatStore extends BaseStore {
         this.toastError("AgentChat.errors.sendFailed");
       }
     } finally {
-      if (turnGeneration !== this.activeTurnGeneration) return;
+      if (turnGeneration !== this.activeTurnGeneration || turnLoadVersion !== this.conversationLoadVersion) return;
 
-      const queued = this.queuedPrompt;
-      const queuedConversationId = this.queuedPromptConversationId;
-      const queuedMessageId = this.queuedPromptMessageId;
-      const queuedPageRoute = this.queuedPromptPageRoute;
+      let queued = this.queuedPrompt;
+      let queuedConversationId = this.queuedPromptConversationId;
+      let queuedMessageId = this.queuedPromptMessageId;
+      let queuedPageRoute = this.queuedPromptPageRoute;
+      const stopSettlementRequest = this.activeTurnStopPromise;
+      let stopOwnsQueuedPrompt = Boolean(stopSettlementRequest);
       const runningConversationId = this.activeTurnDisposition === "running" ? this.conversationId : null;
       runInAction(() => {
         if (!this.activeTurnCompleted && this.activeTurnHasSuccessfulMutation)
@@ -1278,7 +1472,7 @@ export class AgentChatStore extends BaseStore {
         this.clearStreaming();
         if (
           this.activeTurnFailed &&
-          !controller.signal.aborted &&
+          (!controller.signal.aborted || admissionDeadlineExpired) &&
           (this.activeTurnDisposition === "failed" || this.activeTurnDisposition === "transport") &&
           !this.items.some((item) => item.kind === "turn_error" && item.messageId === messageId)
         ) {
@@ -1294,7 +1488,6 @@ export class AgentChatStore extends BaseStore {
         }
         this.abortController = null;
         this.isWorking = Boolean(runningConversationId);
-        this.activeTurnStopPromise = null;
         this.streamStatus = runningConversationId
           ? "reconnecting"
           : this.hasPendingRouteReload || queued
@@ -1304,10 +1497,26 @@ export class AgentChatStore extends BaseStore {
 
       const configRequest = this.loadConfig();
       if (!this.hasPendingRouteReload) void this.refreshConversations();
+      await stopSettlementRequest;
+      if (turnGeneration !== this.activeTurnGeneration || turnLoadVersion !== this.conversationLoadVersion) return;
+      runInAction(() => {
+        if (this.activeTurnStopPromise === stopSettlementRequest) this.activeTurnStopPromise = null;
+      });
       if (!queued && !runningConversationId) return;
 
       await configRequest;
-      if (turnGeneration !== this.activeTurnGeneration) return;
+      if (turnGeneration !== this.activeTurnGeneration || turnLoadVersion !== this.conversationLoadVersion) return;
+      const lateStopSettlementRequest = this.activeTurnStopPromise;
+      await lateStopSettlementRequest;
+      if (turnGeneration !== this.activeTurnGeneration || turnLoadVersion !== this.conversationLoadVersion) return;
+      runInAction(() => {
+        if (this.activeTurnStopPromise === lateStopSettlementRequest) this.activeTurnStopPromise = null;
+      });
+      stopOwnsQueuedPrompt ||= Boolean(lateStopSettlementRequest);
+      queued = this.queuedPrompt;
+      queuedConversationId = this.queuedPromptConversationId;
+      queuedMessageId = this.queuedPromptMessageId;
+      queuedPageRoute = this.queuedPromptPageRoute;
 
       const queuedPromptIsCurrent = Boolean(
         queued &&
@@ -1322,6 +1531,7 @@ export class AgentChatStore extends BaseStore {
           queuedPageRoute &&
           this.activeTurnCompleted &&
           !this.activeTurnFailed &&
+          !stopOwnsQueuedPrompt &&
           !this.usage?.blockedReason,
       );
       runInAction(() => {
@@ -1331,7 +1541,7 @@ export class AgentChatStore extends BaseStore {
           this.queuedPromptMessageId = null;
           this.queuedPromptConversationId = null;
           this.queuedPromptPageRoute = null;
-        } else if (!runningConversationId) {
+        } else if (!runningConversationId || stopOwnsQueuedPrompt) {
           if (queuedPromptIsCurrent) this.queuedPromptNeedsAttention = true;
           if (queuedPromptIsCurrent && this.hasPendingRouteReload) this.routeSyncStatus = "waiting";
           this.streamStatus = "idle";
@@ -1345,11 +1555,15 @@ export class AgentChatStore extends BaseStore {
         });
       }
       if (runningConversationId) {
-        void this.rejoinBusyConversation(runningConversationId, {
-          text: trimmed,
-          messageId,
-          pageRoute,
-        });
+        void this.rejoinBusyConversation(
+          runningConversationId,
+          {
+            text: trimmed,
+            messageId,
+            pageRoute,
+          },
+          !stopOwnsQueuedPrompt,
+        );
       }
     }
   };
@@ -1357,6 +1571,7 @@ export class AgentChatStore extends BaseStore {
   private rejoinBusyConversation = async (
     conversationId: string,
     resend: { text: string; messageId: string; pageRoute: string },
+    resendAfterReattach = true,
   ) => {
     const loadVersion = this.conversationLoadVersion;
     const generation = this.activeTurnGeneration;
@@ -1374,7 +1589,9 @@ export class AgentChatStore extends BaseStore {
       this.conversationId !== conversationId
     )
       return;
+    if (!resendAfterReattach) return;
     if (this.abortController || this.isWorking || this.activeTurnDisposition === "uncertain") return;
+    runInAction(() => this.prepareCurrentTurnForReplay(resend.messageId));
     void this.sendMessage(resend.text, {
       appendUser: false,
       conversationId,
@@ -1390,10 +1607,12 @@ export class AgentChatStore extends BaseStore {
     loadVersion: number,
     existingGeneration?: number,
     clientRequestId?: string,
+    pageRoute: string | null = null,
+    ownsQueuedContinuation = existingGeneration === undefined,
   ) => {
     if (this.abortController) return;
 
-    const generation = existingGeneration ?? this.beginActiveTurnMutationTracking();
+    const generation = existingGeneration ?? this.beginActiveTurnMutationTracking(clientRequestId, pageRoute);
     runInAction(() => {
       this.activeTurnAdmissionConfirmed = true;
       this.isWorking = true;
@@ -1411,15 +1630,77 @@ export class AgentChatStore extends BaseStore {
       if (loadVersion !== this.conversationLoadVersion) return;
     } finally {
       if (generation === this.activeTurnGeneration && loadVersion === this.conversationLoadVersion) {
+        const stopSettlementRequest = this.activeTurnStopPromise;
+        const stopOwnsQueuedPrompt = Boolean(stopSettlementRequest);
         runInAction(() => {
           this.abortController = null;
           this.isWorking = false;
-          this.streamStatus = this.hasPendingRouteReload ? "finalizing" : "idle";
-          this.activeTurnStopPromise = null;
+          this.conversationLoadError = false;
+          this.activeTurnDetachedLoadVersion = null;
+          this.streamStatus = this.hasPendingRouteReload || this.queuedPrompt ? "finalizing" : "idle";
         });
-        void this.loadConfig();
+        const configRequest = this.loadConfig();
         if (!this.hasPendingRouteReload) void this.refreshConversations();
+        await stopSettlementRequest;
+        if (generation !== this.activeTurnGeneration || loadVersion !== this.conversationLoadVersion) return;
+        runInAction(() => {
+          if (this.activeTurnStopPromise === stopSettlementRequest) this.activeTurnStopPromise = null;
+        });
+        if (ownsQueuedContinuation) {
+          await configRequest;
+          this.settleQueuedPromptAfterReattach(conversationId, generation, loadVersion, !stopOwnsQueuedPrompt);
+        }
       }
+    }
+  };
+
+  private settleQueuedPromptAfterReattach = (
+    conversationId: string,
+    generation: number,
+    loadVersion: number,
+    allowSend = true,
+  ) => {
+    if (
+      generation !== this.activeTurnGeneration ||
+      loadVersion !== this.conversationLoadVersion ||
+      conversationId !== this.conversationId
+    )
+      return;
+    const queued = this.queuedPrompt;
+    const queuedConversationId = this.queuedPromptConversationId;
+    const queuedMessageId = this.queuedPromptMessageId;
+    const queuedPageRoute = this.queuedPromptPageRoute;
+    if (!queued || !queuedMessageId || !queuedPageRoute) return;
+
+    const queuedPromptIsCurrent =
+      this.queuedPrompt === queued &&
+      this.queuedPromptConversationId === queuedConversationId &&
+      this.queuedPromptMessageId === queuedMessageId &&
+      this.queuedPromptPageRoute === queuedPageRoute;
+    const shouldSend =
+      allowSend &&
+      queuedPromptIsCurrent &&
+      this.activeTurnCompleted &&
+      !this.activeTurnFailed &&
+      !this.usage?.blockedReason;
+    runInAction(() => {
+      if (shouldSend) {
+        this.queuedPrompt = null;
+        this.queuedPromptNeedsAttention = false;
+        this.queuedPromptMessageId = null;
+        this.queuedPromptConversationId = null;
+        this.queuedPromptPageRoute = null;
+      } else if (queuedPromptIsCurrent) {
+        this.queuedPromptNeedsAttention = true;
+        this.streamStatus = "idle";
+      }
+    });
+    if (shouldSend) {
+      void this.sendMessage(queued, {
+        conversationId: queuedConversationId ?? conversationId,
+        messageId: queuedMessageId,
+        pageRoute: queuedPageRoute,
+      });
     }
   };
 
@@ -1440,8 +1721,16 @@ export class AgentChatStore extends BaseStore {
     let reconnectAttempt = 0;
     let reconnectImmediately = initialBody === null;
     let reconnectFailureReported = false;
+    let reconnectSnapshotRequest: ReturnType<typeof getAgentConversationAction> | null = null;
+    let reconnectSnapshotFailures = 0;
+    let reconnectSnapshotRetryAt = 0;
     const reportReconnectFailure = (error: unknown) => {
-      if ((error as Error)?.name === "AbortError" || reconnectFailureReported) return;
+      if (
+        (error as Error)?.name === "AbortError" ||
+        (error as Error)?.name === "AgentStreamInactivityError" ||
+        reconnectFailureReported
+      )
+        return;
       reconnectFailureReported = true;
       reportApplicationError(error);
     };
@@ -1461,9 +1750,14 @@ export class AgentChatStore extends BaseStore {
           reportReconnectFailure(error);
         }
         body = null;
-        if (this.activeTurnCompleted) return;
+        if (this.activeTurnCompleted) {
+          await this.activeTurnTerminalReconciliation;
+          return;
+        }
         if (this.activeTurnNextStreamIndex > indexBeforeRead) {
           reconnectAttempt = 0;
+          reconnectSnapshotFailures = 0;
+          reconnectSnapshotRetryAt = 0;
           if (!readFailed) reconnectFailureReported = false;
         }
       }
@@ -1479,8 +1773,33 @@ export class AgentChatStore extends BaseStore {
       await this.activeTurnStopPromise;
       if (generation !== this.activeTurnGeneration || loadVersion !== this.conversationLoadVersion) return;
 
-      if (!reconnectImmediately) {
-        const snapshot = await getAgentConversationAction(conversationId).catch(() => null);
+      if (
+        !reconnectImmediately &&
+        reconnectSnapshotFailures < AGENT_RECONNECT_SNAPSHOT_FAILURE_LIMIT &&
+        Date.now() >= reconnectSnapshotRetryAt
+      ) {
+        let snapshot: Awaited<ReturnType<typeof getAgentConversationAction>> | null = null;
+        try {
+          reconnectSnapshotRequest ??= getAgentConversationAction(conversationId);
+          const loadedSnapshot = await withDeadline(reconnectSnapshotRequest, AGENT_CONVERSATION_LOAD_TIMEOUT_MS);
+          reconnectSnapshotRequest = null;
+          if (!loadedSnapshot) throw new Error("The assistant conversation could not be recovered.");
+          snapshot = loadedSnapshot;
+          reconnectSnapshotFailures = 0;
+          reconnectSnapshotRetryAt = 0;
+        } catch {
+          reconnectSnapshotRequest = null;
+          reconnectSnapshotFailures += 1;
+          if (reconnectSnapshotFailures >= AGENT_RECONNECT_SNAPSHOT_FAILURE_LIMIT) {
+            runInAction(() => this.markActiveTurnRecoveryFailed(clientRequestId));
+            return;
+          }
+          reconnectSnapshotRetryAt =
+            Date.now() +
+            (AGENT_STREAM_RECONNECT_DELAYS_MS[
+              Math.min(reconnectSnapshotFailures - 1, AGENT_STREAM_RECONNECT_DELAYS_MS.length - 1)
+            ] ?? 5000);
+        }
         if (generation !== this.activeTurnGeneration || loadVersion !== this.conversationLoadVersion) return;
         if (snapshot && !snapshot.activeTurn) {
           runInAction(() => {
@@ -1521,6 +1840,7 @@ export class AgentChatStore extends BaseStore {
             }
             this.activeTurnCompleted = true;
             this.activeTurnFailed = !replayable || !canReplaceCurrentTurn || turn.terminalCode !== "completed";
+            this.activeTurnStopRequested = false;
             this.activeTurnDisposition = replayable && canReplaceCurrentTurn ? "stream" : "uncertain";
             this.hasInSessionTerminalResult = Boolean(replayable && canReplaceCurrentTurn);
             this.clearStreaming();
@@ -1546,11 +1866,17 @@ export class AgentChatStore extends BaseStore {
       const controller = new AbortController();
       this.abortController = controller;
       try {
-        const response = await fetch(
+        const response = await fetchWithDeadline(
           `/api/agent/conversations/${conversationId}/stream?startIndex=${this.activeTurnNextStreamIndex}`,
-          { signal: controller.signal },
+          {},
+          controller,
+          AGENT_RECONNECT_TIMEOUT_MS,
         );
         if (!response.ok || !response.body) throw new Error("The assistant run could not be rejoined.");
+        runInAction(() => {
+          this.conversationLoadError = false;
+          this.activeTurnDetachedLoadVersion = null;
+        });
         body = response.body;
       } catch (error) {
         if (generation !== this.activeTurnGeneration || loadVersion !== this.conversationLoadVersion) return;
@@ -1565,7 +1891,14 @@ export class AgentChatStore extends BaseStore {
     let buffer = "";
 
     while (true) {
-      const { done, value } = await reader.read();
+      let chunk: ReadableStreamReadResult<Uint8Array>;
+      try {
+        chunk = await readWithInactivityDeadline(reader);
+      } catch (error) {
+        void reader.cancel().catch(() => undefined);
+        throw error;
+      }
+      const { done, value } = chunk;
       if (done) break;
       if (generation !== this.activeTurnGeneration) {
         await reader.cancel();
@@ -1589,9 +1922,113 @@ export class AgentChatStore extends BaseStore {
         if (sequence < this.activeTurnNextStreamIndex) continue;
         this.handleEvent(event as { seq: number; type: string } & Record<string, unknown>);
         this.activeTurnNextStreamIndex = sequence + 1;
+        if (this.activeTurnCompleted) {
+          void reader.cancel().catch(() => undefined);
+          return;
+        }
       }
     }
   };
+
+  private reconcileTerminalAssistant = (assistantMessageId: string, terminalCode: unknown) => {
+    const conversationId = this.conversationId;
+    if (!conversationId) return;
+    const generation = this.activeTurnGeneration;
+    const loadVersion = this.conversationLoadVersion;
+    const reconciliation = this.loadTerminalAssistant({
+      assistantMessageId,
+      conversationId,
+      generation,
+      loadVersion,
+      allowRecoveryError: terminalCode !== "cancelled",
+    });
+    this.activeTurnTerminalReconciliation = reconciliation;
+    const clearReconciliation = () => {
+      if (this.activeTurnTerminalReconciliation === reconciliation) this.activeTurnTerminalReconciliation = null;
+    };
+    void reconciliation.then(clearReconciliation, clearReconciliation);
+  };
+
+  private loadTerminalAssistant = async ({
+    assistantMessageId,
+    conversationId,
+    generation,
+    loadVersion,
+    allowRecoveryError,
+  }: {
+    assistantMessageId: string;
+    conversationId: string;
+    generation: number;
+    loadVersion: number;
+    allowRecoveryError: boolean;
+  }) => {
+    const snapshot = await withDeadline(
+      getAgentConversationAction(conversationId),
+      AGENT_TERMINAL_RECONCILE_TIMEOUT_MS,
+    ).catch(() => null);
+    if (
+      generation !== this.activeTurnGeneration ||
+      loadVersion !== this.conversationLoadVersion ||
+      conversationId !== this.conversationId
+    )
+      return;
+
+    const assistantMessage = snapshot?.messages.find(
+      (message) => message.role === "assistant" && message.id === assistantMessageId,
+    );
+    const parts = assistantMessage ? clientSafeAgentMessageParts(assistantMessage.parts) : [];
+    if (assistantMessage && hasRenderableAgentMessageParts(parts)) {
+      runInAction(() => {
+        const userIndex = this.items.findLastIndex((item) => item.kind === "user");
+        if (userIndex < 0) return;
+        this.items = this.items.slice(0, userIndex + 1);
+        this.loadedMessageIds.delete(assistantMessage.id);
+        this.persistedAssistantMessageIds.delete(assistantMessage.id);
+        this.recordReplayedMutations(parts);
+        this.appendMessages([assistantMessage]);
+        this.clearStreaming();
+      });
+      return;
+    }
+
+    if (!allowRecoveryError) return;
+
+    runInAction(() => this.markActiveTurnRecoveryFailed());
+  };
+
+  private markActiveTurnRecoveryFailed(clientRequestId?: string) {
+    const userIndex = this.items.findLastIndex((item) => item.kind === "user");
+    const user = this.items[userIndex];
+    this.requestRouteRefreshForActiveTurn(null, this.activeTurnHasSuccessfulMutation);
+    this.activeTurnCompleted = true;
+    this.activeTurnFailed = true;
+    this.activeTurnAdmissionConfirmed = false;
+    this.activeTurnStopRequested = false;
+    this.activeTurnDisposition = "transport";
+    this.hasInSessionTerminalResult = false;
+    this.clearStreaming();
+    for (const item of this.items.slice(userIndex + 1)) {
+      if (item.kind === "activity" && item.status === "running") item.status = "error";
+      if (item.kind === "approval" && item.resolution === null) {
+        item.pendingDecision = null;
+        item.submittedDecision = null;
+        item.retryDecision = null;
+        item.resolution = "timeout";
+      }
+    }
+    if (!user || user.kind !== "user") return;
+    const requestId = clientRequestId ?? this.activeTurnClientRequestId ?? user.messageId;
+    if (this.items.some((item) => item.kind === "turn_error" && item.messageId === requestId)) return;
+    this.items.push({
+      kind: "turn_error",
+      id: nextItemId(),
+      messageId: requestId,
+      text: user.text,
+      pageRoute: this.activeTurnPageRoute ?? (typeof window === "undefined" ? "/" : window.location.pathname),
+      retry: false,
+      at: new Date(),
+    });
+  }
 
   respondToApproval = async (item: Extract<AgentChatItem, { kind: "approval" }>, decision: "approve" | "reject") => {
     if (
@@ -1608,11 +2045,14 @@ export class AgentChatStore extends BaseStore {
         item.pendingDecision = decision;
         item.retryDecision = null;
       });
-      const result = await respondToApprovalAction({
-        conversationId: this.conversationId,
-        requestId: item.requestId,
-        decision,
-      });
+      const result = await withDeadline(
+        respondToApprovalAction({
+          conversationId: this.conversationId,
+          requestId: item.requestId,
+          decision,
+        }),
+        AGENT_APPROVAL_ATTEMPT_TIMEOUT_MS,
+      );
       if (!result?.ok) {
         runInAction(() => {
           item.pendingDecision = null;
@@ -1665,11 +2105,14 @@ export class AgentChatStore extends BaseStore {
         )
           return;
         try {
-          const result = await respondToApprovalAction({
-            conversationId,
-            requestId: item.requestId,
-            decision,
-          });
+          const result = await withDeadline(
+            respondToApprovalAction({
+              conversationId,
+              requestId: item.requestId,
+              decision,
+            }),
+            AGENT_APPROVAL_ATTEMPT_TIMEOUT_MS,
+          );
           if (result?.ok && result.data.resumed) return;
         } catch {}
       }
@@ -1727,7 +2170,9 @@ export class AgentChatStore extends BaseStore {
           const messageId = typeof event.messageId === "string" ? event.messageId : null;
           const parts = clientSafeAgentMessageParts(event.parts);
           this.recordReplayedMutations(parts);
-          if (!messageId || this.persistedAssistantMessageIds.has(messageId)) break;
+          if (!messageId) break;
+          this.replayedAssistantMessageIds.add(messageId);
+          if (this.persistedAssistantMessageIds.has(messageId)) break;
           this.persistedAssistantMessageIds.add(messageId);
           const at = typeof event.createdAt === "string" ? new Date(event.createdAt) : new Date();
           for (const part of parts) this.appendPart("assistant", part, at, messageId);
@@ -1845,10 +2290,23 @@ export class AgentChatStore extends BaseStore {
           break;
         }
         case "turn_done": {
+          const assistantMessageId = typeof event.assistantMessageId === "string" ? event.assistantMessageId : null;
           this.activeTurnCompleted = true;
           this.activeTurnFailed = Boolean(event.isError);
+          this.activeTurnStopRequested = false;
           this.hasInSessionTerminalResult = true;
           this.streamStatus = "finalizing";
+          const activityStatus = event.terminalCode === "cancelled" ? "cancelled" : event.isError ? "error" : "done";
+          const currentTurnStart = this.items.findLastIndex((item) => item.kind === "user");
+          for (const item of this.items.slice(currentTurnStart + 1)) {
+            if (item.kind === "activity" && item.status === "running") item.status = activityStatus;
+            if (item.kind === "approval" && item.resolution === null) {
+              item.pendingDecision = null;
+              item.submittedDecision = null;
+              item.retryDecision = null;
+              item.resolution = event.terminalCode === "cancelled" ? "cancelled" : "timeout";
+            }
+          }
           this.clearStreaming();
           const resources = Array.isArray(event.affectedResources)
             ? event.affectedResources.filter((resource) =>
@@ -1856,9 +2314,11 @@ export class AgentChatStore extends BaseStore {
               )
             : [];
           this.requestRouteRefreshForActiveTurn(
-            typeof event.assistantMessageId === "string" ? event.assistantMessageId : null,
+            assistantMessageId,
             event.hasSuccessfulMutation === true || resources.length > 0,
           );
+          if (assistantMessageId && !this.replayedAssistantMessageIds.has(assistantMessageId))
+            this.reconcileTerminalAssistant(assistantMessageId, event.terminalCode);
           if (event.isError && event.errorMessage && event.terminalCode !== "partial")
             this.toastError("AgentChat.errors.turnFailed");
           break;
@@ -1882,7 +2342,7 @@ export class AgentChatStore extends BaseStore {
     });
   };
 
-  private beginActiveTurnMutationTracking() {
+  private beginActiveTurnMutationTracking(clientRequestId?: string, pageRoute: string | null = null) {
     this.activeTurnGeneration += 1;
     this.activeTurnCompleted = false;
     this.activeTurnFailed = false;
@@ -1893,6 +2353,10 @@ export class AgentChatStore extends BaseStore {
     this.activeTurnAdmissionConfirmed = false;
     this.activeTurnStopRequested = false;
     this.activeTurnStopPromise = null;
+    this.activeTurnTerminalReconciliation = null;
+    this.activeTurnClientRequestId = clientRequestId ?? null;
+    this.activeTurnPageRoute = pageRoute;
+    this.activeTurnDetachedLoadVersion = null;
     this.activeStreamKey = `stream-${++this.streamSequence}`;
     this.streamStatus = "working";
     this.progressPhase = "starting";

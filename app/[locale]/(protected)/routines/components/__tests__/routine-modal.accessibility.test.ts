@@ -22,13 +22,23 @@ describe("routine modal accessibility contract", () => {
 
   it("uses owner status and viewer role for read-only guidance", () => {
     const configuration = read("routine-configuration-pane.tsx");
+    const emptyState = read("routine-empty-state.tsx");
     const store = read("routine-modal.store.ts");
 
     expect(store).toContain('this.form.owner?.status === "active"');
     expect(configuration).toContain("USER_STATUS_COLORS_MAP[form.owner.status]");
     expect(configuration).toContain("RoutineDetail.ownerUnavailableReadOnly");
+    expect(configuration).toContain("RoutineDetail.ownerPermissionReadOnly");
     expect(configuration).toContain("RoutineDetail.disabledRepeatedFailuresReadOnly");
     expect(configuration).toContain("RoutineDetail.disabledOwnerUnavailable");
+    expect(configuration).toContain('store.disabledReason === "repeatedFailures"\n      ? store.canManage');
+    expect(configuration).toContain("{store.isReadOnly && (");
+    expect(configuration).toContain("store.isOwner && !store.canManage");
+    expect(configuration).toContain("{store.canManage ? (");
+    expect(configuration).not.toContain("{store.isOwner ? (");
+    expect(emptyState).toContain("const testDescription = !store.canManage");
+    expect(emptyState).toContain("RoutineDetail.ownerPermissionReadOnly");
+    expect(emptyState).not.toContain("const testDescription = !store.isOwner");
   });
 
   it("uses a divider-free wide split and full-modal run drilldown", () => {

@@ -18,8 +18,6 @@ import { changedFieldsOf } from "./routine-event-filter";
 import { isCustomField } from "@/core/utils/custom-field";
 import { ROUTINE_RUN_ERROR_CODES } from "./routine-run-outcome";
 
-export const ROUTINE_MAX_IN_FLIGHT_RUNS_PER_OWNER = 1;
-
 const Schema = z.object({ routineRunId: z.uuid() });
 
 const AGENT_DISPOSITION_REASONS: Record<string, string> = {
@@ -61,9 +59,8 @@ export abstract class StartRoutineRunRepo {
   abstract claimQueuedRoutineRunForOwnerUnscoped(args: {
     routineRunId: string;
     executedByUserId: string;
-    maxInFlight: number;
     now: Date;
-  }): Promise<{ routine: RoutineDto } | "ownerRunLimit" | "runNotQueued" | "triggerChanged">;
+  }): Promise<{ routine: RoutineDto } | "runNotQueued" | "triggerChanged">;
   abstract countRecentRoutineRunsUnscoped(routineId: string, since: Date): Promise<number>;
   abstract findCustomColumnLabelsUnscoped(companyId: string, columnIds: string[]): Promise<Record<string, string>>;
   abstract markRoutineRunStartedUnscoped(args: {
@@ -145,15 +142,8 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
     const claim = await this.repo.claimQueuedRoutineRunForOwnerUnscoped({
       routineRunId: run.id,
       executedByUserId: run.executedByUserId,
-      maxInFlight: ROUTINE_MAX_IN_FLIGHT_RUNS_PER_OWNER,
       now,
     });
-    if (claim === "ownerRunLimit") {
-      return {
-        ok: true as const,
-        data: { started: false, reason: "ownerRunLimit" },
-      };
-    }
     if (claim === "runNotQueued") {
       return {
         ok: true as const,

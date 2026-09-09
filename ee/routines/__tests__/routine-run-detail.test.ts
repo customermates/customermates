@@ -27,10 +27,10 @@ describe("routineRunDetail", () => {
     const run = {
       status: RoutineRunStatus.skipped,
       summary: null,
-      error: "ownerRunLimit",
+      error: "hourlyRunLimit",
     };
 
-    expect(routineRunDetail(run, t)).toBe("RoutineRunReason.ownerRunLimit");
+    expect(routineRunDetail(run, t)).toBe("RoutineRunReason.hourlyRunLimit");
   });
 
   it("translates a stored agent error code through the shared error catalog", () => {

@@ -125,7 +125,7 @@ function makeStore(
     selectConversationForEmbeddedViewer: vi.fn(() => Promise.resolve()),
     newConversation: vi.fn(),
   },
-  options: { userId?: string; admin?: boolean } = {},
+  options: { userId?: string; admin?: boolean; canManage?: boolean } = {},
 ): RoutineModalStore {
   return new RoutineModalStore({
     registerModalStore: vi.fn(),
@@ -134,6 +134,7 @@ function makeStore(
         id: options.userId ?? OWNER_ID,
         role: { isSystemRole: options.admin ?? false },
       },
+      canManage: vi.fn(() => options.canManage ?? true),
     },
     routinesStore: { upsertItem: vi.fn(), removeItem: vi.fn() },
     routineRunChatStore: chat,
@@ -443,7 +444,7 @@ describe("RoutineModalStore", () => {
     expect(store.payload.timezone).toBe(Intl.DateTimeFormat().resolvedOptions().timeZone);
   });
 
-  it("lets every member create but only the owner edit an existing routine", async () => {
+  it("lets a manage-capable member create but only a manage-capable owner edit an existing routine", async () => {
     const ownerStore = makeStore();
     await ownerStore.openForCreate();
     expect(ownerStore.canManage).toBe(true);
@@ -454,6 +455,24 @@ describe("RoutineModalStore", () => {
     await viewerStore.openForEdit(makeRoutine());
     expect(viewerStore.canManage).toBe(false);
     expect(viewerStore.isReadOnly).toBe(true);
+  });
+
+  it("keeps a read-own owner read-only and never dispatches configuration or manual-test writes", async () => {
+    const store = makeStore(undefined, { canManage: false });
+
+    await store.openForEdit(makeRoutine());
+
+    expect(store.isOwner).toBe(true);
+    expect(store.canManage).toBe(false);
+    expect(store.isReadOnly).toBe(true);
+
+    await store.onSubmit();
+    await store.runNow();
+    await store.delete();
+
+    expect(routineActions.upsertRoutineAction).not.toHaveBeenCalled();
+    expect(routineActions.runRoutineNowAction).not.toHaveBeenCalled();
+    expect(routineActions.deleteRoutineAction).not.toHaveBeenCalled();
   });
 
   it("uses the owner's current status to determine whether ownership is available", async () => {

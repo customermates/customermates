@@ -10,7 +10,6 @@ export const ROUTINE_RUN_REASONS = [
   "routineDisabled",
   "ownerPaused",
   "ownerUnavailable",
-  "ownerRunLimit",
   "hourlyRunLimit",
   "filtersNotMatched",
   "startAbandoned",
