@@ -1,0 +1,62 @@
+diff --git a/node_modules/@ai-sdk/workflow/dist/index.js b/node_modules/@ai-sdk/workflow/dist/index.js
+index 954fb39..3cd4093 100644
+--- a/node_modules/@ai-sdk/workflow/dist/index.js
++++ b/node_modules/@ai-sdk/workflow/dist/index.js
+@@ -762,9 +762,10 @@ async function* streamTextIterator({
+       lastStep = step;
+       lastStepWasToolCalls = false;
+       const finishReason = finish == null ? void 0 : finish.finishReason;
++      const providerToolResultsEndStep = finishReason === "stop" && providerExecutedToolResults.size > 0;
+       if (hasTerminalError) {
+         done = true;
+-      } else if (finishReason === "tool-calls") {
++      } else if (finishReason === "tool-calls" || providerToolResultsEndStep) {
+         lastStepWasToolCalls = true;
+         const assistantContent = getAssistantMessageContent(step);
+         const includedToolCallIds = new Set(
+@@ -792,7 +793,9 @@ async function* streamTextIterator({
+           role: "tool",
+           content: toolResults
+         });
+-        if (stopConditions) {
++        if (providerToolResultsEndStep) {
++          done = true;
++        } else if (stopConditions) {
+           const stopConditionList = Array.isArray(stopConditions) ? stopConditions : [stopConditions];
+           if (stopConditionList.some((test) => test({ steps }))) {
+             done = true;
+diff --git a/node_modules/@ai-sdk/workflow/src/stream-text-iterator.ts b/node_modules/@ai-sdk/workflow/src/stream-text-iterator.ts
+index b311675..4a45d62 100644
+--- a/node_modules/@ai-sdk/workflow/src/stream-text-iterator.ts
++++ b/node_modules/@ai-sdk/workflow/src/stream-text-iterator.ts
+@@ -411,13 +411,18 @@ export async function* streamTextIterator({
+       lastStepWasToolCalls = false;
+
+       const finishReason = finish?.finishReason;
++      const providerToolResultsEndStep =
++        finishReason === 'stop' && providerExecutedToolResults.size > 0;
+
+       if (hasTerminalError) {
+         // The error crossed the durable step boundary as data. End the loop
+         // without throwing so WorkflowAgent can preserve the existing
+         // resolved-result contract and expose the original value.
+         done = true;
+-      } else if (finishReason === 'tool-calls') {
++      } else if (
++        finishReason === 'tool-calls' ||
++        providerToolResultsEndStep
++      ) {
+         lastStepWasToolCalls = true;
+
+         const assistantContent = getAssistantMessageContent(step);
+@@ -462,7 +467,9 @@ export async function* streamTextIterator({
+           content: toolResults,
+         });
+
+-        if (stopConditions) {
++        if (providerToolResultsEndStep) {
++          done = true;
++        } else if (stopConditions) {
+           const stopConditionList = Array.isArray(stopConditions)
+             ? stopConditions
+             : [stopConditions];

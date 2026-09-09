@@ -28,10 +28,10 @@ const clientRequestId = "00000000-0000-4000-8000-000000000001";
 const conversationId = "00000000-0000-4000-8000-000000000002";
 const userMessageId = "00000000-0000-4000-8000-000000000003";
 
-function request() {
+function request(overrides: Record<string, unknown> = {}) {
   return new Request("https://app.example.com/api/agent/messages", {
     method: "POST",
-    body: JSON.stringify({ clientRequestId, text: "Hello", retry: false }),
+    body: JSON.stringify({ clientRequestId, text: "Hello", retry: false, ...overrides }),
     headers: { "content-type": "application/json" },
   }) as NextRequest;
 }
@@ -41,6 +41,18 @@ beforeEach(() => {
 });
 
 describe("agent message admission route", () => {
+  it("strips the internal-only Wiki setup field at the public API boundary", async () => {
+    invoke.mockResolvedValue({
+      ok: true,
+      data: { disposition: "conflict", clientRequestId, retryAllowed: false },
+    });
+
+    const response = await POST(request({ wikiHomepageSetupDomain: "example.com" }));
+
+    expect(response.status).toBe(409);
+    expect(invoke).toHaveBeenCalledWith({ clientRequestId, text: "Hello", retry: false });
+  });
+
   it("maps an exhausted allowance to a safe 429 response", async () => {
     invoke.mockResolvedValue({
       ok: false,

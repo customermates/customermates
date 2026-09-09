@@ -9,7 +9,11 @@ import { agentTurnSseStream } from "@/ee/agent-chat/agent-turn-stream";
 import { sse } from "@/ee/agent-chat/agent-stream-utils";
 import type { SendAgentMessageResult } from "@/ee/agent-chat/send-agent-message.interactor";
 import { isAgentTurnTerminalError } from "@/ee/agent-chat/agent-turn-request";
-import { clientSafeAgentMessageParts, hasSuccessfulAgentMutation } from "@/ee/agent-chat/agent-chat.schema";
+import {
+  clientSafeAgentMessageParts,
+  hasSuccessfulAgentMutation,
+  PublicSendAgentMessageSchema,
+} from "@/ee/agent-chat/agent-chat.schema";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -54,7 +58,9 @@ export async function POST(request: NextRequest) {
   if (env.AGENT_CHAT_DISABLED) return new Response(null, { status: 404 });
 
   try {
-    const data = await request.json();
+    const parsed = PublicSendAgentMessageSchema.safeParse(await request.json());
+    if (!parsed.success) return NextResponse.json(z.prettifyError(parsed.error), { status: 400 });
+    const data = parsed.data;
     const result = await getSendAgentMessageInteractor().invoke(data);
     if (!result.ok) {
       const status = interactorFailureStatus(result.error);

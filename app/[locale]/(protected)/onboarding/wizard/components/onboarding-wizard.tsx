@@ -14,9 +14,12 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { StepProfile } from "./step-profile";
 import { StepAi, StepAiFooter } from "./step-ai";
 import { StepInvite } from "./step-invite";
+import { StepWiki } from "./step-wiki";
 
 type Props = {
   profileCompleted: boolean;
+  canSetupWithMate?: boolean;
+  wikiCompleted?: boolean;
   onboardingIntent?: string;
   inviterName?: string;
   isInvited?: boolean;
@@ -29,6 +32,8 @@ type Props = {
 export const OnboardingWizard = observer(
   ({
     profileCompleted,
+    canSetupWithMate = false,
+    wikiCompleted = false,
     onboardingIntent,
     inviterName,
     isInvited = false,
@@ -39,13 +44,15 @@ export const OnboardingWizard = observer(
   }: Props) => {
     const t = useTranslations();
     const { onboardingWizardStore } = useRootStore();
-    const initialStepIndex = profileCompleted ? 1 : 0;
+    const initialStepIndex = profileCompleted ? (isInvited || wikiCompleted ? 2 : 1) : 0;
     const [initializedProfileCompleted, setInitializedProfileCompleted] = useState<boolean | null>(null);
     const isStepSynchronized = initializedProfileCompleted === profileCompleted;
     const currentStep = isStepSynchronized
       ? onboardingWizardStore.currentStep
       : profileCompleted
-        ? "invite"
+        ? isInvited || wikiCompleted
+          ? "invite"
+          : "wiki"
         : "profile";
     const currentStepIndex = isStepSynchronized ? onboardingWizardStore.currentStepIndex : initialStepIndex;
     const isFirstStep = isStepSynchronized ? onboardingWizardStore.isFirstStep : true;
@@ -79,12 +86,14 @@ export const OnboardingWizard = observer(
           );
         case "ai":
           return <StepAi />;
+        case "wiki":
+          return <StepWiki canSetupWithMate={canSetupWithMate} />;
         case "invite":
           return <StepInvite />;
       }
     };
 
-    const showFooterNav = currentStep !== "profile" && currentStep !== "ai";
+    const showFooterNav = currentStep === "invite";
 
     return (
       <AppCard className="max-w-2xl">

@@ -13,6 +13,7 @@ export type AgentTurnRequestSnapshot = {
   clientRequestId: string;
   text: string;
   pageRoute: string | null;
+  wikiHomepageSetupDomain: string | null;
   status: AgentTurnRequestStatus;
   runId: string;
   attemptCount: number;
@@ -29,6 +30,7 @@ export type AgentTurnRequestInput = {
   conversationId?: string;
   text: string;
   pageRoute: string | null;
+  wikiHomepageSetupDomain?: string;
   retry: boolean;
 };
 
@@ -47,6 +49,7 @@ function sameRequest(turn: AgentTurnRequestSnapshot, input: AgentTurnRequestInpu
     turn.clientRequestId === input.clientRequestId &&
     turn.text === input.text &&
     turn.pageRoute === input.pageRoute &&
+    (input.wikiHomepageSetupDomain === undefined || turn.wikiHomepageSetupDomain === input.wikiHomepageSetupDomain) &&
     (!input.conversationId || turn.conversationId === input.conversationId)
   );
 }

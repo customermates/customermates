@@ -90,6 +90,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       conversationId: data.conversationId,
       text: data.text,
       pageRoute,
+      wikiHomepageSetupDomain: data.wikiHomepageSetupDomain,
       retry: data.retry,
     });
 
@@ -160,6 +161,11 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       };
     }
 
+    const wikiHomepageSetupDomain =
+      decision.disposition === "retry"
+        ? (decision.turn.wikiHomepageSetupDomain ?? undefined)
+        : data.wikiHomepageSetupDomain;
+
     const conversation =
       decision.disposition === "retry"
         ? await this.repo.findConversation(decision.turn.conversationId)
@@ -176,24 +182,42 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
     const locale = data.locale ?? resolveUserLocale(user);
-    const requiredContextBytes = conservativeAgentInitialContextBytes({
-      systemPrompt: buildAgentSystemPrompt({
-        userName,
-        appBaseUrl: env.BASE_URL,
-        locale,
-      }),
-      currentText: data.text,
-      pageRoute,
-      toolDefinitions: getAgentAiToolDefinitions(),
-    });
-    if (requiredContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");
+    const measureContext = (webSearchEnabled: boolean) =>
+      conservativeAgentInitialContextBytes({
+        systemPrompt: buildAgentSystemPrompt({
+          userName,
+          appBaseUrl: env.BASE_URL,
+          locale,
+          wikiHomepageSetupDomain,
+          webSearchEnabled,
+        }),
+        currentText: data.text,
+        pageRoute,
+        toolDefinitions: getAgentAiToolDefinitions({
+          webSearchEnabled,
+          wikiHomepageSetupDomain,
+        }),
+      });
+    const setupRequiresWeb = Boolean(wikiHomepageSetupDomain);
+    const initialContextBytes = measureContext(setupRequiresWeb);
+    if (initialContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");
 
-    const creditAdmission = await this.usageService.prepareTurn(user.id, now, {
+    let creditAdmission = await this.usageService.prepareTurn(user.id, now, {
       model: turnModel,
-      requiredContextBytes,
+      requiredContextBytes: initialContextBytes,
     });
+    if (!setupRequiresWeb && creditAdmission.reservation?.budget.webSearchEnabled) {
+      const webContextBytes = measureContext(true);
+      if (webContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");
+      creditAdmission = await this.usageService.prepareTurn(user.id, now, {
+        model: turnModel,
+        requiredContextBytes: webContextBytes,
+      });
+    }
     const reservation = creditAdmission.reservation;
     if (!reservation) return failRateLimit(CustomErrorCode.agentLimitReached);
+    if (setupRequiresWeb && !reservation.budget.webSearchEnabled)
+      return failRateLimit(CustomErrorCode.agentLimitReached);
 
     const runId = randomUUID();
     const reservationId = randomUUID();
@@ -206,7 +230,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           if (await this.repo.isAtAgentRunLimit(phaseOneAt)) return "unavailable" as const;
           await this.repo.createAgentConversationForRun({
             conversationId,
-            title: data.text,
+            title: wikiHomepageSetupDomain ? "Set up Workspace Wiki" : data.text,
             modelKey: requestedModelKey,
             now: phaseOneAt,
           });
@@ -269,6 +293,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
                 clientRequestId: data.clientRequestId,
                 text: data.text,
                 pageRoute,
+                wikiHomepageSetupDomain: wikiHomepageSetupDomain ?? null,
                 userMessageId,
               },
       });
@@ -295,6 +320,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         appBaseUrl: env.BASE_URL,
         messages,
         turnBudget: reservation.budget,
+        wikiHomepageSetupDomain,
         tenant: { userId: user.id, companyId: user.companyId },
       });
       await this.repo.recordAgentTurnExternalRun(turnRequestId, externalRunId);

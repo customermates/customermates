@@ -19,7 +19,6 @@ const EndpointSchema = z.object({
   contextLength: z.number().int().positive(),
   maxCompletionTokens: z.number().int().positive().nullable(),
   requestUsd: UsdRateSchema,
-  webSearchUsdPerThousandCalls: UsdRateSchema,
   prompt: z.array(TierSchema).min(1),
   completion: z.array(TierSchema).min(1),
   inputCacheRead: z.array(TierSchema).min(1),
@@ -94,6 +93,7 @@ function findEndpoint(model: string, provider?: string) {
   }
   if (matches.length > 1)
     throw new Error(`Pinned pricing for model "${model}" is ambiguous across providers. Pass an explicit provider.`);
+
   return matches[0];
 }
 
@@ -126,12 +126,19 @@ export function modelPromptTierBoundaries(model: string, provider?: string): num
   return [...new Set(boundaries)].sort((a, b) => a - b);
 }
 
+export function modelProviderContextLength(model: string, provider?: string) {
+  return findEndpoint(model, provider).contextLength;
+}
+
 export function lowestModelPromptTierBoundary(model: string, provider?: string): number | null {
   return modelPromptTierBoundaries(model, provider)[0] ?? null;
 }
 
 export function pinnedModelEndpoints() {
-  return SNAPSHOT.endpoints.map((endpoint) => ({ modelId: endpoint.modelId, provider: endpoint.provider }));
+  return SNAPSHOT.endpoints.map((endpoint) => ({
+    modelId: endpoint.modelId,
+    provider: endpoint.provider,
+  }));
 }
 
 export function assertValidTokenCounts(tokens: TokenCounts) {

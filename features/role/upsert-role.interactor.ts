@@ -55,6 +55,12 @@ const Schema = z.object({
       canManage: z.enum(["yes", "no"]),
       readAccess: z.enum(["none", "all"]),
     }),
+    wiki: z
+      .object({
+        canManage: z.enum(["yes", "no"]),
+        readAccess: z.enum(["none", "all"]),
+      })
+      .optional(),
     auditLog: z.object({
       readAccess: z.enum(["none", "all"]),
     }),
@@ -91,7 +97,17 @@ export class UpsertRoleInteractor extends AuthenticatedInteractor<UpsertRoleData
   })
   async invoke(data: UpsertRoleData): Validated<RoleDto> {
     const previousRole = data.id ? await this.repo.getRoleByIdOrThrow(data.id) : undefined;
-    const role = await this.repo.upsertRoleOrThrow(data);
+    const normalized =
+      !data.id && data.permissions.wiki === undefined
+        ? {
+            ...data,
+            permissions: {
+              ...data.permissions,
+              wiki: { canManage: "no" as const, readAccess: "all" as const },
+            },
+          }
+        : data;
+    const role = await this.repo.upsertRoleOrThrow(normalized);
 
     const eventPromise = previousRole
       ? this.eventService.publish(DomainEvent.ROLE_UPDATED, {
@@ -112,11 +128,21 @@ export class UpsertRoleInteractor extends AuthenticatedInteractor<UpsertRoleData
   }
 
   private async precheck(data: UpsertRoleData, ctx: z.RefinementCtx) {
-    if (data.id && data.id === this.user.roleId)
-      ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.roleSelfEditForbidden }, path: ["id"] });
+    if (data.id && data.id === this.user.roleId) {
+      ctx.addIssue({
+        code: "custom",
+        params: { error: CustomErrorCode.roleSelfEditForbidden },
+        path: ["id"],
+      });
+    }
 
-    if (data.id && (await this.repo.isSystemRoleOrThrow(data.id)))
-      ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.roleSystemImmutable }, path: ["id"] });
+    if (data.id && (await this.repo.isSystemRoleOrThrow(data.id))) {
+      ctx.addIssue({
+        code: "custom",
+        params: { error: CustomErrorCode.roleSystemImmutable },
+        path: ["id"],
+      });
+    }
 
     await this.validator.invoke([{ ids: data.id, path: ["id"] }], ctx);
   }

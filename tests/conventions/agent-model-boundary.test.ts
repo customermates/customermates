@@ -42,8 +42,14 @@ describe("agent model budget boundary", () => {
 
   it("addresses models by gateway id from the catalog rather than by a hardcoded string", () => {
     const workflow = readFileSync(`${REPO_ROOT}/workflows/agent-turn.ts`, "utf8");
+    const providerOptions = readFileSync(`${REPO_ROOT}/ee/agent-chat/agent-provider-options.ts`, "utf8");
 
     expect(workflow).toContain("model: payload.turnBudget.modelSpec");
-    expect(workflow).toContain("gateway: { only: [payload.turnBudget.servingProvider] }");
+    expect(workflow).toContain("getAgentProviderOptions(payload.turnBudget.servingProvider)");
+    expect(providerOptions).toContain('AGENT_SERVING_PROVIDER = "azure"');
+    expect(providerOptions).toContain("only: [servingProvider]");
+    expect(providerOptions).toContain("zeroDataRetention: true");
+    expect(providerOptions).toContain("disallowPromptTraining: true");
   });
+
 });

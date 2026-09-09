@@ -19,16 +19,25 @@ export const AGENT_CLIENT_PASSTHROUGH_EVENTS = [
   "turn_done",
 ] as const;
 
-export type AgentClientEvent = { type: string; payload: Record<string, unknown> };
+export type AgentClientEvent = {
+  type: string;
+  payload: Record<string, unknown>;
+};
 
-export function agentToolOutcomeStatus(output: unknown): { status: AgentActivityStatus; failed: boolean } {
+export function agentToolOutcomeStatus(output: unknown): {
+  status: AgentActivityStatus;
+  failed: boolean;
+} {
+  if (output && typeof output === "object") {
+    const envelope = output as { type?: unknown; value?: unknown };
+    if (envelope.type === "error-json" || envelope.type === "error-text") return { status: "error", failed: true };
+    if (envelope.type === "execution-denied") return { status: "cancelled", failed: false };
+    if ((envelope.type === "json" || envelope.type === "text") && "value" in envelope)
+      return agentToolOutcomeStatus(envelope.value);
+  }
   if (isAgentToolCancellation(output)) return { status: "cancelled", failed: false };
   const failed = Boolean(output && typeof output === "object" && (output as { ok?: unknown }).ok === false);
   return { status: failed ? "error" : "done", failed };
-}
-
-function unwrapToolOutput(output: unknown) {
-  return output && typeof output === "object" && "value" in output ? (output as { value: unknown }).value : output;
 }
 
 export class AgentDurableStreamReader {
@@ -60,15 +69,26 @@ export class AgentDurableStreamReader {
     }
 
     if (part.type === "tool-result" && part.toolCallId) {
-      const { status, failed } = agentToolOutcomeStatus(unwrapToolOutput(part.output));
-      return { type: "activity_result", payload: { id: part.toolCallId, isError: failed, status } };
+      const { status, failed } = agentToolOutcomeStatus(part.output);
+      return {
+        type: "activity_result",
+        payload: { id: part.toolCallId, isError: failed, status },
+      };
     }
 
-    if (part.type === "tool-error" && part.toolCallId)
-      return { type: "activity_result", payload: { id: part.toolCallId, isError: true, status: "error" } };
+    if (part.type === "tool-error" && part.toolCallId) {
+      return {
+        type: "activity_result",
+        payload: { id: part.toolCallId, isError: true, status: "error" },
+      };
+    }
 
-    if (part.type === "tool-output-denied" && part.toolCallId)
-      return { type: "activity_result", payload: { id: part.toolCallId, isError: false, status: "cancelled" } };
+    if (part.type === "tool-output-denied" && part.toolCallId) {
+      return {
+        type: "activity_result",
+        payload: { id: part.toolCallId, isError: false, status: "cancelled" },
+      };
+    }
 
     return null;
   }

@@ -182,6 +182,7 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
           />
         );
       case "notes":
+      case "markdown":
         try {
           const markdown = typeof value === "string" ? value : serializeJSONToMarkdown(value as object);
           return (
@@ -450,7 +451,8 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
     if (change.snapshot)
       return <div className="min-w-0 break-words">{renderValue(change.key, change.current, change.customColumn)}</div>;
 
-    if (change.key === "notes") return <NotesDiff current={change.current} previous={change.previous} />;
+    if (change.key === "notes" || change.key === "markdown")
+      return <NotesDiff current={change.current} previous={change.previous} />;
 
     if (change.key === "customFieldValues" && !change.customColumn)
       return <p className="text-subdued italic">{t("AuditLogModal.deletedFieldChanged")}</p>;
@@ -471,7 +473,12 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
   const renderRow = (change: (typeof changes)[number], index: number) => {
     const key = `${entry.id}-${change.field}-${index}`;
 
-    if (!change.snapshot && change.key === "notes" && !hasNotesDiff(change.previous, change.current)) return null;
+    if (
+      !change.snapshot &&
+      (change.key === "notes" || change.key === "markdown") &&
+      !hasNotesDiff(change.previous, change.current)
+    )
+      return null;
 
     if (
       !change.snapshot &&

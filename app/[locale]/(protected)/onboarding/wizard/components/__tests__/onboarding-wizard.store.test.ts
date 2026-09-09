@@ -21,29 +21,32 @@ beforeEach(() => {
 });
 
 describe("OnboardingWizardStore", () => {
-  it("contains exactly Profile, Invite, and AI", () => {
+  it("contains Profile, Wiki, Invite, and AI in order", () => {
     const store = new OnboardingWizardStore(rootStore);
 
-    expect(WIZARD_STEPS).toEqual(["profile", "invite", "ai"]);
-    expect(store.totalSteps).toBe(3);
+    expect(WIZARD_STEPS).toEqual(["profile", "wiki", "invite", "ai"]);
+    expect(store.totalSteps).toBe(4);
     expect(store.currentStep).toBe("profile");
     expect("terminology" in store).toBe(false);
   });
 
-  it("starts registered owners at Invite and prevents returning to Profile", () => {
+  it("starts registered owners at Wiki and prevents returning to Profile", () => {
     const store = new OnboardingWizardStore(rootStore);
 
     store.setInitialStep(1);
-    expect(store.currentStep).toBe("invite");
+    expect(store.currentStep).toBe("wiki");
     expect(store.isFirstStep).toBe(true);
 
     store.back();
-    expect(store.currentStep).toBe("invite");
+    expect(store.currentStep).toBe("wiki");
   });
 
-  it("advances Invite to the terminal AI step", () => {
+  it("advances Wiki through Invite to the terminal AI step", () => {
     const store = new OnboardingWizardStore(rootStore);
     store.setInitialStep(1);
+
+    store.next();
+    expect(store.currentStep).toBe("invite");
 
     store.next();
     expect(store.currentStep).toBe("ai");

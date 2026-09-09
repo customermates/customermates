@@ -296,8 +296,10 @@ const DEFAULT_DATA_OPTION_KEYS = [
   "Common.defaultData.task.options.onHold",
   "Common.defaultData.task.options.open",
 ] as const;
-const ONBOARDING_STEP_TITLE_KEYS = ["profile", "invite", "ai"].map((step) => `OnboardingWizard.steps.${step}.title`);
-const ONBOARDING_STEP_SUBTITLE_KEYS = ["profile", "invite", "ai"].map(
+const ONBOARDING_STEP_TITLE_KEYS = ["profile", "wiki", "invite", "ai"].map(
+  (step) => `OnboardingWizard.steps.${step}.title`,
+);
+const ONBOARDING_STEP_SUBTITLE_KEYS = ["profile", "wiki", "invite", "ai"].map(
   (step) => `OnboardingWizard.steps.${step}.subtitle`,
 );
 const ONBOARDING_CHOICE_KEYS = [
@@ -332,6 +334,7 @@ const AGENT_ACTIVITY_RESOURCE_KEYS = [
   "AgentChat.activity.resource.tasks",
   "AgentChat.activity.resource.terminology",
   "AgentChat.activity.resource.widgets",
+  "AgentChat.activity.resource.wiki",
 ];
 const AGENT_ACTIVITY_LABEL_KEYS = [
   "AgentChat.activity.label.preview",
@@ -354,6 +357,7 @@ const AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS = [
   "AgentChat.activity.resourceSingular.tasks",
   "AgentChat.activity.resourceSingular.terminology",
   "AgentChat.activity.resourceSingular.widgets",
+  "AgentChat.activity.resourceSingular.wiki",
 ];
 const AGENT_ACTIVITY_STATE_KEYS = AGENT_ACTIVITY_KINDS.flatMap((kind) =>
   (["done", "error", "running"] as const).map((state) => `AgentChat.activity.state.${kind}.${state}`),

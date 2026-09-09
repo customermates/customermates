@@ -83,6 +83,7 @@ function storedTurn(overrides: Record<string, unknown> = {}) {
     clientRequestId: "request-1",
     text: "Create a contact",
     pageRoute: "/en/contacts",
+    wikiHomepageSetupDomain: null,
     status: "running",
     runId: "run-1",
     attemptCount: 1,
@@ -182,6 +183,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           clientRequestId: "request-1",
           text: "Import failed",
           pageRoute: "/en/contacts",
+          wikiHomepageSetupDomain: "example.com",
           userMessageId: "user-message-1",
         },
       }),
@@ -216,6 +218,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         clientRequestId: "request-1",
         runId: "run-1",
         userMessageId: "user-message-1",
+        wikiHomepageSetupDomain: "example.com",
       }),
     });
     expect(prismaMock.agentMessage.findMany).toHaveBeenCalledWith({
@@ -257,6 +260,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
             clientRequestId: "request-expired",
             text: "Hello",
             pageRoute: null,
+            wikiHomepageSetupDomain: null,
             userMessageId: "message-expired",
           },
         }),
@@ -289,6 +293,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
             clientRequestId: "request-missing",
             text: "Hello",
             pageRoute: null,
+            wikiHomepageSetupDomain: null,
             userMessageId: "message-missing",
           },
         }),
@@ -357,6 +362,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
     expect(prismaMock.agentTurnRequest.create).not.toHaveBeenCalled();
     expect(prismaMock.agentMessage.create).not.toHaveBeenCalled();
+    expect(prismaMock.agentTurnRequest.updateMany.mock.calls[0]?.[0]?.data).not.toHaveProperty(
+      "wikiHomepageSetupDomain",
+    );
   });
 
   it("scopes retry message lookup through the owning active conversation", async () => {
@@ -901,6 +909,45 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
     expect(claimed).toBe("atUserLimit");
     expect(prismaMock.agentRunLease.createMany).not.toHaveBeenCalled();
+  });
+
+  it("returns durable internal tool metadata from the tenant-scoped replay lookup", async () => {
+    const now = new Date("2026-08-06T10:00:00.000Z");
+    prismaMock.agentTurnRequest.findFirst.mockResolvedValue(
+      storedTurn({
+        status: "failed",
+        wikiHomepageSetupDomain: "example.com",
+      }),
+    );
+    prismaMock.agentMessage.findFirst
+      .mockResolvedValueOnce({
+        id: "user-message-1",
+        conversationId: "conversation-1",
+        role: "user",
+        parts: [{ type: "text", text: "Create a contact" }],
+        createdAt: new Date("2026-08-06T09:59:00.000Z"),
+        sequence: 1n,
+        turnRequestId: "turn-1",
+      })
+      .mockResolvedValueOnce(null);
+
+    const replay = await runWithTenant(user, () =>
+      new PrismaAgentChatRepo().findAgentTurnRequestForAdmission("request-1", now, "claude-test"),
+    );
+
+    expect(replay?.snapshot).toMatchObject({
+      wikiHomepageSetupDomain: "example.com",
+    });
+    expect(prismaMock.agentTurnRequest.findFirst).toHaveBeenCalledWith({
+      where: {
+        companyId: user.companyId,
+        userId: user.id,
+        clientRequestId: "request-1",
+      },
+      select: expect.objectContaining({
+        wikiHomepageSetupDomain: true,
+      }),
+    });
   });
 
   it("durably downgrades a completed turn whose terminal code is missing", async () => {

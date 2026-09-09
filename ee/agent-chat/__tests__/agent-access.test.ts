@@ -42,7 +42,7 @@ const MESSAGE_ID = "00000000-0000-4000-8000-000000000002";
 const CLIENT_REQUEST_ID = "00000000-0000-4000-8000-000000000003";
 const messagePage = (messages: unknown[]) => ({ messages, nextCursor: null });
 
-function usageService() {
+function usageService(webSearchEnabled = true) {
   const summary = {
     creditsUsed: 0,
     creditsRemaining: 500,
@@ -69,6 +69,7 @@ function usageService() {
           maxOutputTokens: 2048,
           maxContextBytes: 200_000,
           maxToolResultChars: 6_000,
+          webSearchEnabled,
         },
       },
     }),
@@ -253,6 +254,39 @@ describe("agent access", () => {
     expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
   });
 
+  it("rejects homepage setup before persistence when web search is not funded", async () => {
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+      claimAgentRunLease: vi.fn(),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
+    };
+    const usage = usageService(false);
+
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      backgroundTasks() as never,
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "Set up the Workspace Wiki from example.com.",
+      wikiHomepageSetupDomain: "example.com",
+      retry: false,
+    });
+
+    expect(result).toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: "agentLimitReached" } }] },
+    });
+    expect(usage.prepareTurn).toHaveBeenCalledOnce();
+    expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
+    expect(repo.createAgentConversationForRun).not.toHaveBeenCalled();
+  });
+
   it("continues only an explicitly owned conversation and never silently switches chats", async () => {
     const repo = {
       normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
@@ -346,6 +380,10 @@ describe("agent access", () => {
       model: MODEL_CATALOG.balanced,
       requiredContextBytes: expect.any(Number),
     });
+    expect(usage.prepareTurn).toHaveBeenCalledTimes(2);
+    expect(usage.prepareTurn.mock.calls[1][2].requiredContextBytes).toBeGreaterThan(
+      usage.prepareTurn.mock.calls[0][2].requiredContextBytes,
+    );
   });
 
   it("replays a completed turn before budget, lease, reservation, or provider work", async () => {
@@ -459,6 +497,7 @@ describe("agent access", () => {
       clientRequestId: CLIENT_REQUEST_ID,
       text: "retry this",
       pageRoute: null,
+      wikiHomepageSetupDomain: "example.com",
       status: "failed",
       runId: "run-1",
       attemptCount: 1,
@@ -497,12 +536,13 @@ describe("agent access", () => {
         ],
       }),
     };
+    const tasks = backgroundTasks();
 
     const result = await new SendAgentMessageInteractor(
       repo as never,
       usageService() as never,
       mockEntitlementService(),
-      backgroundTasks() as never,
+      tasks as never,
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "retry this",
@@ -523,6 +563,64 @@ describe("agent access", () => {
       }),
     );
     expect(result.ok && result.data.disposition === "run" && result.data.userMessageId).toBe(MESSAGE_ID);
+    expect(tasks.dispatchTracked).toHaveBeenCalledWith(
+      "agent-turn",
+      expect.objectContaining({
+        wikiHomepageSetupDomain: "example.com",
+      }),
+    );
+  });
+
+  it("rejects attempts to mutate durable retry tool metadata before budget or persistence work", async () => {
+    const usage = usageService();
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue({
+        snapshot: {
+          id: "turn-1",
+          conversationId: CONVERSATION_ID,
+          clientRequestId: CLIENT_REQUEST_ID,
+          text: "retry this",
+          pageRoute: null,
+          wikiHomepageSetupDomain: "example.com",
+          status: "failed",
+          runId: "run-1",
+          attemptCount: 1,
+          providerStartedAt: null,
+          userMessageId: MESSAGE_ID,
+          assistantMessageId: null,
+          terminalCode: null,
+          affectedResources: [],
+          hasLaterMessages: false,
+        },
+        assistantMessage: null,
+      }),
+      claimAgentRunLease: vi.fn(),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
+      admitAgentTurnOrThrow: vi.fn(),
+    };
+    const tasks = backgroundTasks();
+
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      tasks as never,
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "retry this",
+      retry: true,
+      wikiHomepageSetupDomain: "other.com",
+    });
+
+    expect(result.ok && result.data.disposition).toBe("conflict");
+    expect(usage.prepareTurn).not.toHaveBeenCalled();
+    expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
+    expect(repo.admitAgentTurnOrThrow).not.toHaveBeenCalled();
+    expect(tasks.dispatchTracked).not.toHaveBeenCalled();
   });
 
   it("returns a conflict for reused request data without touching budget or persistence", async () => {

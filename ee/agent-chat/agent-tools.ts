@@ -4,6 +4,7 @@ import { asSchema, tool, jsonSchema, type ToolSet } from "ai";
 import { ALL_MCP_TOOLS, MCP_TOOL_GROUPS } from "@/features/mcp-tools/tool-registry";
 import { executeMcpTool, expectedMcpToolFailure, type McpToolExecutionResult } from "@/features/mcp-tools/mcp-tool";
 import { RequestSupportSchema } from "@/features/mcp-tools/support.mcp-tools";
+import { WikiHomepageSetupCreateSchema } from "@/features/mcp-tools/wiki.mcp-tools";
 import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 
 import { isReadOnlyTool, requiresApproval } from "./gated-tools";
@@ -20,11 +21,16 @@ import { AgentTourSchema } from "./agent-tours";
 import { OpenRecordSchema } from "./ui-operations";
 import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
 import { internalToolIdentity } from "./tool-identity";
+import { AGENT_WEB_SEARCH_TOOL_NAME, getAgentWebSearchTool } from "./agent-web-search";
 
 export { isAgentToolCancellation, type AgentToolCancellation } from "./agent-tool-cancellation";
 
 export type ApprovalDecision = "approve" | "reject" | "timeout";
 export type AgentUiCommandOutcome = { ok: boolean; result: string };
+export type AgentToolCatalogOptions = {
+  webSearchEnabled?: boolean;
+  wikiHomepageSetupDomain?: string;
+};
 
 export { AGENT_UI_TOOL_NAMES } from "./agent-ui-command";
 
@@ -140,7 +146,9 @@ function providerSafeSchema<TSchema extends z.ZodType>(inputSchema: TSchema) {
   );
 }
 
-const NavigateSchema = z.object({ targetId: NavigationUiTargetIdSchema.describe("A routable target id.") });
+const NavigateSchema = z.object({
+  targetId: NavigationUiTargetIdSchema.describe("A routable target id."),
+});
 const HighlightElementSchema = z.object({
   targetId: UiTargetIdSchema.describe("A target id from list_ui_targets."),
 });
@@ -204,20 +212,26 @@ function listUiTargets(input: z.infer<typeof ListUiTargetsSchema>, resultMaxChar
   return `${header}${lines.join("\n")}\n${footer}`;
 }
 
-function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
+function crmTool(
+  mcp: (typeof ALL_MCP_TOOLS)[number],
+  deps: AgentToolDeps,
+  override?: { inputSchema: z.ZodType; description: string },
+) {
+  const inputSchema = override?.inputSchema ?? mcp.inputSchema;
   return tool({
-    description: mcp.description,
-    inputSchema: providerSafeSchema(mcp.inputSchema),
+    description: override?.description ?? mcp.description,
+    inputSchema: providerSafeSchema(inputSchema),
     execute: async (input: unknown, { toolCallId }) => {
+      const executionInput = override ? await inputSchema.parseAsync(input) : input;
       const execute = async () => {
-        const outcome = await executeMcpTool(mcp, [input]);
+        const outcome = await executeMcpTool(mcp, [executionInput]);
         return agentToolResult(outcome, deps.resultMaxChars);
       };
       const enrollable = !isReadOnlyTool(mcp) && !hasNonTransactionalEffect(mcp.name);
       const run = enrollable ? () => deps.runExactlyOnce(toolCallId, mcp.name, execute) : execute;
       return runSafely(async () => {
-        if (!requiresApproval(internalToolIdentity(mcp.name), mcp, input)) return run();
-        const approvalContext = await deps.resolveApprovalContext(mcp.name, input);
+        if (!requiresApproval(internalToolIdentity(mcp.name), mcp, executionInput)) return run();
+        const approvalContext = await deps.resolveApprovalContext(mcp.name, executionInput);
         if (!approvalContext.ok) return { ok: false, result: approvalContext.result };
         return runGated(deps, toolCallId, mcp.name, approvalContext.input, run);
       }, deps.resultMaxChars);
@@ -284,7 +298,28 @@ function uiTools(deps: AgentToolDeps): ToolSet {
   };
 }
 
-export function getAgentAiTools(deps: AgentToolDeps): ToolSet {
+export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolCatalogOptions = {}): ToolSet {
+  if (options.wikiHomepageSetupDomain) {
+    if (!options.webSearchEnabled) throw new Error("Wiki homepage setup requires available native web search.");
+
+    const wiki = ALL_MCP_TOOLS.find((mcp) => mcp.name === "manage_wiki_pages");
+    if (!wiki) throw new Error("The Workspace Wiki tool is not registered.");
+
+    return withCallerContext(
+      {
+        [AGENT_WEB_SEARCH_TOOL_NAME]: getAgentWebSearchTool({
+          allowedDomains: [options.wikiHomepageSetupDomain],
+        }),
+        manage_wiki_pages: crmTool(wiki, deps, {
+          inputSchema: WikiHomepageSetupCreateSchema,
+          description:
+            "Create exactly five Workspace Wiki pages in one atomic call. This setup-only capability requires action=create and requireEmpty=true, and refuses the entire batch when the Wiki is not empty.",
+        }),
+      } as unknown as ToolSet,
+      deps,
+    );
+  }
+
   const crm = ALL_MCP_TOOLS.filter((mcp) => mcp.name !== "request_support").map(
     (mcp) => [mcp.name, crmTool(mcp, deps)] as const,
   );
@@ -292,6 +327,7 @@ export function getAgentAiTools(deps: AgentToolDeps): ToolSet {
     {
       ...Object.fromEntries(crm),
       ...uiTools(deps),
+      ...(options.webSearchEnabled ? { [AGENT_WEB_SEARCH_TOOL_NAME]: getAgentWebSearchTool() } : {}),
       request_support: tool({
         description:
           "Email a support request to the Customermates team. Use when the user asks for a human, reports a bug, or you cannot help after a genuine attempt. The recent Assistant conversation is included, and the team replies to the email address on the user's account.",
@@ -312,19 +348,53 @@ export function getAgentAiTools(deps: AgentToolDeps): ToolSet {
   );
 }
 
-export type AgentAiToolDefinition = {
+type FunctionAgentAiToolDefinition = {
   name: string;
   description: string | undefined;
   inputSchema: unknown;
+  type?: undefined;
 };
 
+type ProviderAgentAiToolDefinition = {
+  name: string;
+  description: string | undefined;
+  inputSchema: unknown;
+  type: "provider";
+  isProviderExecuted: true;
+  id: `${string}.${string}`;
+  args: Record<string, unknown>;
+};
+
+export type AgentAiToolDefinition = FunctionAgentAiToolDefinition | ProviderAgentAiToolDefinition;
+
 export function describeAgentAiTools(tools: ToolSet): AgentAiToolDefinition[] {
-  return Object.entries(tools).map(([name, agentTool]) => ({
-    name,
-    description:
-      "description" in agentTool && typeof agentTool.description === "string" ? agentTool.description : undefined,
-    inputSchema: "inputSchema" in agentTool ? asSchema(agentTool.inputSchema).jsonSchema : undefined,
-  }));
+  return Object.entries(tools).map(([name, agentTool]) => {
+    const definition: FunctionAgentAiToolDefinition = {
+      name,
+      description:
+        "description" in agentTool && typeof agentTool.description === "string" ? agentTool.description : undefined,
+      inputSchema: "inputSchema" in agentTool ? asSchema(agentTool.inputSchema).jsonSchema : undefined,
+    };
+    const provider = agentTool as {
+      type?: string;
+      isProviderExecuted?: boolean;
+      id?: `${string}.${string}`;
+      args?: Record<string, unknown>;
+    };
+    if (provider.type === "provider") {
+      if (provider.isProviderExecuted !== true || !provider.id || !provider.args)
+        throw new Error(`Provider tool ${name} is missing its execution metadata.`);
+
+      return {
+        ...definition,
+        type: "provider" as const,
+        isProviderExecuted: true as const,
+        id: provider.id,
+        args: provider.args,
+      };
+    }
+    return definition;
+  });
 }
 
 const TOOL_DEFINITION_DEPS: AgentToolDeps = {
@@ -337,6 +407,6 @@ const TOOL_DEFINITION_DEPS: AgentToolDeps = {
   resultMaxChars: 1,
 };
 
-export function getAgentAiToolDefinitions(): AgentAiToolDefinition[] {
-  return describeAgentAiTools(getAgentAiTools(TOOL_DEFINITION_DEPS));
+export function getAgentAiToolDefinitions(options: AgentToolCatalogOptions = {}): AgentAiToolDefinition[] {
+  return describeAgentAiTools(getAgentAiTools(TOOL_DEFINITION_DEPS, options));
 }
