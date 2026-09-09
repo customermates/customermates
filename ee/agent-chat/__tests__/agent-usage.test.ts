@@ -225,13 +225,16 @@ describe("AgentUsageService summary", () => {
 });
 
 describe("AgentUsageService admission and ledger", () => {
-  it("admits and bounds a final one-credit turn", async () => {
+  it("admits and bounds a final one-credit turn without web search", async () => {
     const service = new AgentUsageService(makeRepo({ usedCredits: 499 }));
 
     const admission = await service.prepareTurn("user-1", NOW, { model: MODEL });
 
     expect(admission.summary.creditsRemaining).toBe(1);
-    expect(admission.reservation?.reservedCredits).toBe(1);
+    expect(admission.reservation).toMatchObject({
+      reservedCredits: 1,
+      budget: { webSearchEnabled: false },
+    });
   });
 
   it("does not reserve when the allowance is exhausted", async () => {

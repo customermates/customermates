@@ -19,7 +19,6 @@ const EndpointSchema = z.object({
   contextLength: z.number().int().positive(),
   maxCompletionTokens: z.number().int().positive().nullable(),
   requestUsd: UsdRateSchema,
-  webSearchUsdPerThousandCalls: UsdRateSchema.optional(),
   prompt: z.array(TierSchema).min(1),
   completion: z.array(TierSchema).min(1),
   inputCacheRead: z.array(TierSchema).min(1),
@@ -127,6 +126,10 @@ export function modelPromptTierBoundaries(model: string, provider?: string): num
   return [...new Set(boundaries)].sort((a, b) => a - b);
 }
 
+export function modelProviderContextLength(model: string, provider?: string) {
+  return findEndpoint(model, provider).contextLength;
+}
+
 export function lowestModelPromptTierBoundary(model: string, provider?: string): number | null {
   return modelPromptTierBoundaries(model, provider)[0] ?? null;
 }
@@ -136,13 +139,6 @@ export function pinnedModelEndpoints() {
     modelId: endpoint.modelId,
     provider: endpoint.provider,
   }));
-}
-
-export function isWebSearchCoveredByProviderCharge(model: string, provider: string) {
-  const endpoint = findEndpoint(model, provider);
-  return (
-    endpoint.webSearchUsdPerThousandCalls !== undefined && /^0+(\.0+)?$/u.test(endpoint.webSearchUsdPerThousandCalls)
-  );
 }
 
 export function assertValidTokenCounts(tokens: TokenCounts) {

@@ -31,7 +31,7 @@ import {
   AGENT_REPLAY_MAX_CHARS,
   conservativeAgentInitialContextBytes,
 } from "./agent-provider-context";
-import { isAgentModelKey, isAgentModelWebSearchEnabled, resolveAgentModel } from "./model-catalog";
+import { isAgentModelKey, resolveAgentModel } from "./model-catalog";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import { fail, failConflict, failNotFound, failRateLimit } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -179,35 +179,45 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     if (requestedModelKey !== null && !isAgentModelKey(requestedModelKey))
       return fail(CustomErrorCode.agentModelUnavailable, ["modelKey"]);
     const turnModel = resolveAgentModel(requestedModelKey);
-    const webSearchEnabled = isAgentModelWebSearchEnabled(turnModel);
-    if (wikiHomepageSetupDomain && !webSearchEnabled)
-      return fail(CustomErrorCode.agentModelUnavailable, ["wikiHomepageSetupDomain"]);
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
     const locale = data.locale ?? resolveUserLocale(user);
-    const requiredContextBytes = conservativeAgentInitialContextBytes({
-      systemPrompt: buildAgentSystemPrompt({
-        userName,
-        appBaseUrl: env.BASE_URL,
-        locale,
-        wikiHomepageSetupDomain,
-        webSearchEnabled,
-      }),
-      currentText: data.text,
-      pageRoute,
-      toolDefinitions: getAgentAiToolDefinitions({
-        webSearchEnabled,
-        wikiHomepageSetupDomain,
-      }),
-    });
-    if (requiredContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");
+    const measureContext = (webSearchEnabled: boolean) =>
+      conservativeAgentInitialContextBytes({
+        systemPrompt: buildAgentSystemPrompt({
+          userName,
+          appBaseUrl: env.BASE_URL,
+          locale,
+          wikiHomepageSetupDomain,
+          webSearchEnabled,
+        }),
+        currentText: data.text,
+        pageRoute,
+        toolDefinitions: getAgentAiToolDefinitions({
+          webSearchEnabled,
+          wikiHomepageSetupDomain,
+        }),
+      });
+    const setupRequiresWeb = Boolean(wikiHomepageSetupDomain);
+    const initialContextBytes = measureContext(setupRequiresWeb);
+    if (initialContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");
 
-    const creditAdmission = await this.usageService.prepareTurn(user.id, now, {
+    let creditAdmission = await this.usageService.prepareTurn(user.id, now, {
       model: turnModel,
-      requiredContextBytes,
+      requiredContextBytes: initialContextBytes,
     });
+    if (!setupRequiresWeb && creditAdmission.reservation?.budget.webSearchEnabled) {
+      const webContextBytes = measureContext(true);
+      if (webContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");
+      creditAdmission = await this.usageService.prepareTurn(user.id, now, {
+        model: turnModel,
+        requiredContextBytes: webContextBytes,
+      });
+    }
     const reservation = creditAdmission.reservation;
     if (!reservation) return failRateLimit(CustomErrorCode.agentLimitReached);
+    if (setupRequiresWeb && !reservation.budget.webSearchEnabled)
+      return failRateLimit(CustomErrorCode.agentLimitReached);
 
     const runId = randomUUID();
     const reservationId = randomUUID();

@@ -3,10 +3,10 @@ import type { AgentModelEntry } from "./model-catalog";
 import {
   AGENT_CONTEXT_BYTES_PER_TOKEN,
   AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS,
-  isAgentModelWebSearchEnabled,
   isAgentModelWithinBudgetEnvelope,
 } from "./model-catalog";
-import { resolveModelPricing } from "./model-pricing";
+import { modelProviderContextLength, resolveModelPricing } from "./model-pricing";
+import { AGENT_WEB_SEARCH_MAX_TOOL_CALLS_PER_ROUND, AGENT_WEB_SEARCH_MAX_USD_PER_CALL } from "./agent-web-search";
 
 export const AGENT_RESERVATION_ROUNDS_AHEAD = 4;
 export const AGENT_MAX_TOOL_RESULT_CHARS = 6000;
@@ -34,8 +34,7 @@ export function agentContextTokensToBytes(tokens: number) {
   return tokens * AGENT_CONTEXT_BYTES_PER_TOKEN;
 }
 
-function stepWorstCaseUsd(entry: AgentModelEntry, contextTokens: number, outputTokens: number) {
-  const promptTokens = contextTokens + AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS;
+function tokenWorstCaseUsd(entry: AgentModelEntry, promptTokens: number, outputTokens: number) {
   const pricing = resolveModelPricing(entry.modelId, promptTokens, entry.servingProvider);
   const maxInputRate = Math.max(pricing.inputPerMTok, pricing.cacheReadPerMTok, pricing.cacheWritePerMTok);
 
@@ -43,8 +42,16 @@ function stepWorstCaseUsd(entry: AgentModelEntry, contextTokens: number, outputT
 }
 
 export function agentRoundWorstCaseCredits(entry: AgentModelEntry) {
-  const roundUsd = stepWorstCaseUsd(entry, entry.maxContextTokens, entry.maxOutputTokens);
+  const promptTokens = modelProviderContextLength(entry.modelId, entry.servingProvider);
+  const roundUsd =
+    tokenWorstCaseUsd(entry, promptTokens, entry.maxOutputTokens) +
+    AGENT_WEB_SEARCH_MAX_USD_PER_CALL * AGENT_WEB_SEARCH_MAX_TOOL_CALLS_PER_ROUND;
   return Math.max(1, Math.ceil(roundUsd / USD_PER_AGENT_CREDIT));
+}
+
+function agentNonWebRoundWorstCaseCredits(entry: AgentModelEntry) {
+  const promptTokens = entry.maxContextTokens + AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS;
+  return Math.max(1, Math.ceil(tokenWorstCaseUsd(entry, promptTokens, entry.maxOutputTokens) / USD_PER_AGENT_CREDIT));
 }
 
 export function resolveAgentTurnBudget(args: {
@@ -61,18 +68,21 @@ export function resolveAgentTurnBudget(args: {
   if (!Number.isSafeInteger(requiredContextBytes) || requiredContextBytes < 1) return null;
   if (agentContextBytesToTokens(requiredContextBytes) > entry.maxContextTokens) return null;
 
-  const roundReserveCredits = agentRoundWorstCaseCredits(entry);
+  const webRoundReserveCredits = agentRoundWorstCaseCredits(entry);
+  const webSearchEnabled = args.availableCredits >= webRoundReserveCredits;
+  const roundReserveCredits = webSearchEnabled ? webRoundReserveCredits : agentNonWebRoundWorstCaseCredits(entry);
+  const initialReservationRounds = webSearchEnabled ? 1 : AGENT_RESERVATION_ROUNDS_AHEAD;
 
   return {
     modelSpec: entry.modelId,
     servingProvider: entry.servingProvider,
-    reservedCredits: Math.min(args.availableCredits, roundReserveCredits * AGENT_RESERVATION_ROUNDS_AHEAD),
+    reservedCredits: Math.min(args.availableCredits, roundReserveCredits * initialReservationRounds),
     roundReserveCredits,
     maxOutputTokens: entry.maxOutputTokens,
     maxContextTokens: entry.maxContextTokens,
     maxContextBytes: agentContextTokensToBytes(entry.maxContextTokens),
     maxToolResultChars: Math.min(entry.maxToolResultChars, AGENT_MAX_TOOL_RESULT_CHARS),
-    webSearchEnabled: isAgentModelWebSearchEnabled(entry),
+    webSearchEnabled,
   };
 }
 

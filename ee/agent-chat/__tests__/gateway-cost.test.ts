@@ -90,17 +90,17 @@ describe("gateway provider charge", () => {
     });
   });
 
-  it("prefers the inference cost over the surcharged total", () => {
+  it("uses the authoritative total cost, including provider-tool charges", () => {
     const reading = readAgentProviderCharge(
       billedMetadata({ cost: "0.00400000", inferenceCost: "0.00331309" }),
       "openai",
     );
 
-    expect(reading).toMatchObject({ outcome: "measured", charge: { costMicrocents: 331_309 } });
+    expect(reading).toMatchObject({ outcome: "measured", charge: { costMicrocents: 400_000 } });
   });
 
   it("rounds a cost finer than one microcent up rather than dropping it", () => {
-    expect(readAgentProviderCharge(billedMetadata({ inferenceCost: "0.000000005" }), "openai")).toMatchObject({
+    expect(readAgentProviderCharge(billedMetadata({ cost: "0.000000005" }), "openai")).toMatchObject({
       outcome: "measured",
       charge: { costMicrocents: 1 },
     });
@@ -128,7 +128,7 @@ describe("gateway provider charge", () => {
     ["an unpinned serving provider", billedMetadata({}, { finalProvider: "azure" })],
     ["an unpriced service tier", billedMetadata({ serviceTier: "flex" })],
     ["an unattributable upstream cost", billedMetadata({ upstreamInferenceCost: "0.0001" })],
-    ["no usable cost figure", billedMetadata({ cost: undefined, inferenceCost: undefined })],
+    ["no usable cost figure", billedMetadata({ cost: undefined })],
     ["no gateway metadata at all", { openai: {} }],
   ])("refuses to price %s", (_case, metadata) => {
     const reading = readAgentProviderCharge(metadata, "openai");

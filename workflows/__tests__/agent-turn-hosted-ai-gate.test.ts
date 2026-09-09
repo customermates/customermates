@@ -125,7 +125,7 @@ const payload: AgentTurnWorkflowPayload = {
   tenant: { userId: "user-1", companyId: "company-1" },
 };
 
-function measuredAzureProviderMetadata(inferenceCost: unknown = "0.000041") {
+function measuredAzureProviderMetadata(cost: unknown = "0.000041") {
   return {
     gateway: {
       routing: {
@@ -136,7 +136,7 @@ function measuredAzureProviderMetadata(inferenceCost: unknown = "0.000041") {
           },
         ],
       },
-      inferenceCost,
+      cost,
     },
   };
 }
@@ -215,7 +215,7 @@ describe("agent-turn hosted-AI provider gates", () => {
           zeroDataRetention: true,
           disallowPromptTraining: true,
         },
-        openai: { parallelToolCalls: false, store: false },
+        openai: { parallelToolCalls: false, store: false, maxToolCalls: 1 },
       },
     });
   });

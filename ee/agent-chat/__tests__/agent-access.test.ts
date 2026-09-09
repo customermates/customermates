@@ -42,7 +42,7 @@ const MESSAGE_ID = "00000000-0000-4000-8000-000000000002";
 const CLIENT_REQUEST_ID = "00000000-0000-4000-8000-000000000003";
 const messagePage = (messages: unknown[]) => ({ messages, nextCursor: null });
 
-function usageService() {
+function usageService(webSearchEnabled = true) {
   const summary = {
     creditsUsed: 0,
     creditsRemaining: 500,
@@ -69,6 +69,7 @@ function usageService() {
           maxOutputTokens: 2048,
           maxContextBytes: 200_000,
           maxToolResultChars: 6_000,
+          webSearchEnabled,
         },
       },
     }),
@@ -253,6 +254,39 @@ describe("agent access", () => {
     expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
   });
 
+  it("rejects homepage setup before persistence when web search is not funded", async () => {
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+      claimAgentRunLease: vi.fn(),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
+    };
+    const usage = usageService(false);
+
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      backgroundTasks() as never,
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "Set up the Workspace Wiki from example.com.",
+      wikiHomepageSetupDomain: "example.com",
+      retry: false,
+    });
+
+    expect(result).toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: "agentLimitReached" } }] },
+    });
+    expect(usage.prepareTurn).toHaveBeenCalledOnce();
+    expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
+    expect(repo.createAgentConversationForRun).not.toHaveBeenCalled();
+  });
+
   it("continues only an explicitly owned conversation and never silently switches chats", async () => {
     const repo = {
       normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
@@ -346,6 +380,10 @@ describe("agent access", () => {
       model: MODEL_CATALOG.balanced,
       requiredContextBytes: expect.any(Number),
     });
+    expect(usage.prepareTurn).toHaveBeenCalledTimes(2);
+    expect(usage.prepareTurn.mock.calls[1][2].requiredContextBytes).toBeGreaterThan(
+      usage.prepareTurn.mock.calls[0][2].requiredContextBytes,
+    );
   });
 
   it("replays a completed turn before budget, lease, reservation, or provider work", async () => {

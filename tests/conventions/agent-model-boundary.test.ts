@@ -42,17 +42,14 @@ describe("agent model budget boundary", () => {
 
   it("addresses models by gateway id from the catalog rather than by a hardcoded string", () => {
     const workflow = readFileSync(`${REPO_ROOT}/workflows/agent-turn.ts`, "utf8");
+    const providerOptions = readFileSync(`${REPO_ROOT}/ee/agent-chat/agent-provider-options.ts`, "utf8");
 
     expect(workflow).toContain("model: payload.turnBudget.modelSpec");
-    expect(workflow).toContain("only: [payload.turnBudget.servingProvider]");
-    expect(workflow).toContain("zeroDataRetention: true");
-    expect(workflow).toContain("disallowPromptTraining: true");
+    expect(workflow).toContain("getAgentProviderOptions(payload.turnBudget.servingProvider)");
+    expect(providerOptions).toContain('AGENT_SERVING_PROVIDER = "azure"');
+    expect(providerOptions).toContain("only: [servingProvider]");
+    expect(providerOptions).toContain("zeroDataRetention: true");
+    expect(providerOptions).toContain("disallowPromptTraining: true");
   });
 
-  it("never defaults missing Gateway web-search pricing to zero", () => {
-    const refresh = readFileSync(`${REPO_ROOT}/scripts/refresh-agent-model-pricing.ts`, "utf8");
-
-    expect(refresh).toContain('webSearchUsdPerThousandCalls: requiredPrice(pricing, "web_search")');
-    expect(refresh).not.toMatch(/webSearchUsdPerThousandCalls:\s*[^\n]*\?\?\s*["']0["']/u);
-  });
 });

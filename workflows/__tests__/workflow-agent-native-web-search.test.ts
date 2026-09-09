@@ -3,6 +3,8 @@ import { jsonSchema, tool } from "ai";
 import { convertArrayToReadableStream, MockLanguageModelV4 } from "ai/test";
 import { describe, expect, it } from "vitest";
 
+import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
+
 type MockStreamResult = Awaited<ReturnType<MockLanguageModelV4["doStream"]>>;
 type MockStreamPart = MockStreamResult extends { stream: ReadableStream<infer Part> } ? Part : never;
 
@@ -38,14 +40,7 @@ async function runWebSearchResponse(streamParts: MockStreamPart[]) {
         inputSchema: jsonSchema({ type: "object", properties: {}, additionalProperties: false }),
       }),
     },
-    providerOptions: {
-      gateway: {
-        only: ["azure"],
-        zeroDataRetention: true,
-        disallowPromptTraining: true,
-      },
-      openai: { parallelToolCalls: false, store: false },
-    },
+    providerOptions: getAgentProviderOptions("azure"),
   });
 
   const result = await agent.stream({
@@ -125,7 +120,7 @@ describe("WorkflowAgent native web search contract", () => {
           zeroDataRetention: true,
           disallowPromptTraining: true,
         },
-        openai: { parallelToolCalls: false, store: false },
+        openai: { parallelToolCalls: false, store: false, maxToolCalls: 1 },
       },
     });
     expect(result.steps).toHaveLength(1);

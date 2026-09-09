@@ -1,8 +1,11 @@
 import { openai } from "@ai-sdk/openai";
 
 export const AGENT_WEB_SEARCH_TOOL_NAME = "web_search";
+export const AGENT_WEB_SEARCH_CONTEXT_SIZE = "low";
+export const AGENT_WEB_SEARCH_MAX_TOOL_CALLS_PER_ROUND = 1;
+export const AGENT_WEB_SEARCH_MAX_USD_PER_CALL = 0.014;
 const AGENT_WEB_SOURCE_LIMIT = 8;
-const AGENT_WEB_SOURCE_MAX_LENGTH = 1_000;
+export const AGENT_WEB_SOURCE_MAX_LENGTH = 1_000;
 
 export type AgentWebSearchOptions = {
   allowedDomains?: readonly string[];
@@ -11,7 +14,7 @@ export type AgentWebSearchOptions = {
 export function getAgentWebSearchTool(options: AgentWebSearchOptions = {}) {
   return openai.tools.webSearch({
     externalWebAccess: true,
-    searchContextSize: "low",
+    searchContextSize: AGENT_WEB_SEARCH_CONTEXT_SIZE,
     ...(options.allowedDomains?.length ? { filters: { allowedDomains: [...options.allowedDomains] } } : {}),
   });
 }

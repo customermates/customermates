@@ -1,8 +1,4 @@
-import {
-  isWebSearchCoveredByProviderCharge,
-  lowestModelPromptTierBoundary,
-  resolveModelPricing,
-} from "./model-pricing";
+import { lowestModelPromptTierBoundary, resolveModelPricing } from "./model-pricing";
 
 export const AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS = 2_500;
 export const AGENT_CONTEXT_BYTES_PER_TOKEN = 3;
@@ -59,10 +55,6 @@ function assertServable(key: AgentModelKey) {
       `Agent model "${key}" reserves ${agentModelWorstCasePromptTokens(entry)} prompt tokens, which crosses a pricing tier boundary of "${entry.modelId}". Lower its context envelope or price every tier it can reach.`,
     );
   }
-}
-
-export function isAgentModelWebSearchEnabled(entry: AgentModelEntry) {
-  return isWebSearchCoveredByProviderCharge(entry.modelId, entry.servingProvider);
 }
 
 for (const key of CATALOG_KEYS) assertServable(key);

@@ -66,7 +66,7 @@ export function readAgentProviderCharge(metadata: unknown, expectedProvider: str
   if (gateway.upstreamInferenceCost !== undefined && !isZeroDecimal(gateway.upstreamInferenceCost))
     return { outcome: "unreadable", reason: "the gateway reported an upstream cost this platform cannot attribute" };
 
-  const costMicrocents = decimalUsdToMicrocents(gateway.inferenceCost ?? gateway.cost);
+  const costMicrocents = decimalUsdToMicrocents(gateway.cost);
   if (costMicrocents === null) return { outcome: "unreadable", reason: "the gateway reported no usable cost figure" };
 
   return {

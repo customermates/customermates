@@ -50,6 +50,7 @@ import { isAgentStepContextWithinBudget } from "@/ee/agent-chat/agent-provider-c
 import { getAgentChatRepo } from "@/core/di";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
+import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
 import { requiresApproval } from "@/ee/agent-chat/gated-tools";
 import { resolveAgentApprovalContext } from "@/ee/agent-chat/agent-external-approval-context";
 import { resolveAgentToolResultMaxChars } from "@/ee/agent-chat/agent-budget-policy";
@@ -929,14 +930,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           }),
         ),
         maxOutputTokens: payload.turnBudget.maxOutputTokens,
-        providerOptions: {
-          gateway: {
-            only: [payload.turnBudget.servingProvider],
-            zeroDataRetention: true,
-            disallowPromptTraining: true,
-          },
-          openai: { parallelToolCalls: false, store: false },
-        },
+        providerOptions: getAgentProviderOptions(payload.turnBudget.servingProvider),
         prepareStep: async () => {
           if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
           return {};

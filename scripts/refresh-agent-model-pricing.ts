@@ -90,7 +90,6 @@ async function main() {
       maxCompletionTokens:
         (served.max_completion_tokens as number | null) ?? null,
       requestUsd: requiredPrice(pricing, "request"),
-      webSearchUsdPerThousandCalls: requiredPrice(pricing, "web_search"),
       prompt: tiers(pricing, "prompt", "prompt_tiers"),
       completion: tiers(pricing, "completion", "completion_tiers"),
       inputCacheRead: tiers(

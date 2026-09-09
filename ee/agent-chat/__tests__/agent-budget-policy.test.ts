@@ -10,7 +10,8 @@ import {
   serializedAgentContextBytes,
 } from "../agent-budget-policy";
 import { buildAgentProviderContext, isAgentStepContextWithinBudget } from "../agent-provider-context";
-import { MODEL_CATALOG, isAgentModelWithinBudgetEnvelope } from "../model-catalog";
+import { MODEL_CATALOG, agentModelWorstCasePromptTokens, isAgentModelWithinBudgetEnvelope } from "../model-catalog";
+import { modelProviderContextLength, resolveModelPricing } from "../model-pricing";
 
 const BALANCED = MODEL_CATALOG.balanced;
 const FAST = MODEL_CATALOG.fast;
@@ -37,12 +38,40 @@ describe("agent turn credit budget", () => {
     }
   });
 
-  it("reserves a few rounds ahead rather than a whole worst-case turn", () => {
-    const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 500 });
-    const perRound = agentRoundWorstCaseCredits(BALANCED);
+  it("reserves a few rounds ahead for ordinary chat", () => {
+    const budget = resolveAgentTurnBudget({
+      model: BALANCED,
+      availableCredits: agentRoundWorstCaseCredits(BALANCED) - 1,
+    });
 
-    expect(budget?.roundReserveCredits).toBe(perRound);
-    expect(budget?.reservedCredits).toBe(perRound * AGENT_RESERVATION_ROUNDS_AHEAD);
+    expect(budget?.webSearchEnabled).toBe(false);
+    expect(budget?.reservedCredits).toBe((budget?.roundReserveCredits ?? 0) * AGENT_RESERVATION_ROUNDS_AHEAD);
+  });
+
+  it("reserves one web round initially because continuation extends before another provider round", () => {
+    const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 500 });
+
+    expect(budget?.webSearchEnabled).toBe(true);
+    expect(budget?.reservedCredits).toBe(budget?.roundReserveCredits);
+  });
+
+  it("reserves more than token-only exposure because every round may perform one web search", () => {
+    const promptTokens = agentModelWorstCasePromptTokens(BALANCED);
+    const pricing = resolveModelPricing(BALANCED.modelId, promptTokens, BALANCED.servingProvider);
+    const tokenOnlyCredits = Math.ceil(
+      ((promptTokens * Math.max(pricing.inputPerMTok, pricing.cacheReadPerMTok, pricing.cacheWritePerMTok)) /
+        1_000_000 +
+        (BALANCED.maxOutputTokens * pricing.outputPerMTok) / 1_000_000) /
+        0.01,
+    );
+
+    expect(agentRoundWorstCaseCredits(BALANCED)).toBeGreaterThan(tokenOnlyCredits);
+  });
+
+  it("reserves the full provider context because low search context is not an exact token cap", () => {
+    expect(modelProviderContextLength(BALANCED.modelId, BALANCED.servingProvider)).toBe(1_050_000);
+    expect(agentRoundWorstCaseCredits(BALANCED)).toBe(55);
+    expect(agentRoundWorstCaseCredits(FAST)).toBe(4);
   });
 
   it("reserves strictly less for the cheaper model at the same envelope", () => {
@@ -53,16 +82,22 @@ describe("agent turn credit budget", () => {
   });
 
   it("never reserves more than the user actually has left", () => {
-    const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 1 });
+    const perRound = agentRoundWorstCaseCredits(BALANCED);
+    const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: perRound });
 
-    expect(budget?.reservedCredits).toBe(1);
+    expect(budget?.reservedCredits).toBe(perRound);
   });
 
-  it("admits a user with a single credit left, who tops up as the turn proceeds", () => {
-    const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 1 });
+  it("keeps low-credit chat available without exposing an unaffordable web search", () => {
+    const perRound = agentRoundWorstCaseCredits(BALANCED);
 
-    expect(budget).not.toBeNull();
-    expect(budget?.reservedCredits).toBeGreaterThanOrEqual(1);
+    expect(resolveAgentTurnBudget({ model: BALANCED, availableCredits: perRound - 1 })).toMatchObject({
+      webSearchEnabled: false,
+    });
+    expect(resolveAgentTurnBudget({ model: BALANCED, availableCredits: perRound })).toMatchObject({
+      webSearchEnabled: true,
+      roundReserveCredits: perRound,
+    });
   });
 
   it("refuses a user with no credits at all", () => {
