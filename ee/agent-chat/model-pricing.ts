@@ -16,6 +16,7 @@ const EndpointSchema = z.object({
   modelId: z.string().min(1),
   providerNativeModelId: z.string().min(1),
   provider: z.string().min(1),
+  inferenceRegion: z.enum(["eu", "us"]).nullable(),
   contextLength: z.number().int().positive(),
   maxCompletionTokens: z.number().int().positive().nullable(),
   requestUsd: UsdRateSchema,
@@ -51,6 +52,8 @@ export type TokenCounts = {
 type Tier = z.infer<typeof TierSchema>;
 type Endpoint = z.infer<typeof EndpointSchema>;
 
+export type ModelInferenceRegion = NonNullable<Endpoint["inferenceRegion"]>;
+
 const RATE_SCALE_DECIMALS = 12;
 const RATE_SCALE_PER_MICROCENT = 10_000;
 const RATE_SCALE_PER_MILLION_TOKENS = 1_000_000;
@@ -81,15 +84,16 @@ function usdPerMillionTokens(tier: Tier) {
   return scaledRatePerToken(tier.costUsdPerToken) / RATE_SCALE_PER_MILLION_TOKENS;
 }
 
-function findEndpoint(model: string, provider?: string) {
+function findEndpoint(model: string, provider?: string, inferenceRegion?: ModelInferenceRegion | null) {
   const matches = SNAPSHOT.endpoints.filter(
     (endpoint) =>
       (endpoint.modelId === model || endpoint.providerNativeModelId === model) &&
-      (provider === undefined || endpoint.provider === provider),
+      (provider === undefined || endpoint.provider === provider) &&
+      (inferenceRegion === undefined || endpoint.inferenceRegion === inferenceRegion),
   );
   if (matches.length === 0) {
     throw new Error(
-      `No pinned pricing for model "${model}"${provider ? ` on provider "${provider}"` : ""}. Add it to the pricing snapshot before serving it.`,
+      `No pinned pricing for model "${model}"${provider ? ` on provider "${provider}"` : ""}${inferenceRegion ? ` in region "${inferenceRegion}"` : inferenceRegion === null ? " with global routing" : ""}. Add it to the pricing snapshot before serving it.`,
     );
   }
   if (matches.length > 1)
@@ -97,11 +101,16 @@ function findEndpoint(model: string, provider?: string) {
   return matches[0];
 }
 
-export function resolveModelPricing(model: string, promptTokens = 0, provider?: string): ModelPricing {
+export function resolveModelPricing(
+  model: string,
+  promptTokens = 0,
+  provider?: string,
+  inferenceRegion?: ModelInferenceRegion | null,
+): ModelPricing {
   if (!Number.isSafeInteger(promptTokens) || promptTokens < 0)
     throw new Error("Prompt token count must be a non-negative whole number.");
 
-  const endpoint = findEndpoint(model, provider);
+  const endpoint = findEndpoint(model, provider, inferenceRegion);
 
   return {
     inputPerMTok: usdPerMillionTokens(selectTier(endpoint.prompt, promptTokens)),
@@ -111,8 +120,12 @@ export function resolveModelPricing(model: string, promptTokens = 0, provider?: 
   };
 }
 
-export function modelPromptTierBoundaries(model: string, provider?: string): number[] {
-  const endpoint = findEndpoint(model, provider);
+export function modelPromptTierBoundaries(
+  model: string,
+  provider?: string,
+  inferenceRegion?: ModelInferenceRegion | null,
+): number[] {
+  const endpoint = findEndpoint(model, provider, inferenceRegion);
   const dimensions: (keyof Pick<Endpoint, "prompt" | "completion" | "inputCacheRead" | "inputCacheWrite">)[] = [
     "prompt",
     "completion",
@@ -126,12 +139,20 @@ export function modelPromptTierBoundaries(model: string, provider?: string): num
   return [...new Set(boundaries)].sort((a, b) => a - b);
 }
 
-export function lowestModelPromptTierBoundary(model: string, provider?: string): number | null {
-  return modelPromptTierBoundaries(model, provider)[0] ?? null;
+export function lowestModelPromptTierBoundary(
+  model: string,
+  provider?: string,
+  inferenceRegion?: ModelInferenceRegion | null,
+): number | null {
+  return modelPromptTierBoundaries(model, provider, inferenceRegion)[0] ?? null;
 }
 
 export function pinnedModelEndpoints() {
-  return SNAPSHOT.endpoints.map((endpoint) => ({ modelId: endpoint.modelId, provider: endpoint.provider }));
+  return SNAPSHOT.endpoints.map((endpoint) => ({
+    modelId: endpoint.modelId,
+    provider: endpoint.provider,
+    inferenceRegion: endpoint.inferenceRegion,
+  }));
 }
 
 export function assertValidTokenCounts(tokens: TokenCounts) {
@@ -143,10 +164,15 @@ export function promptTokensOf(tokens: TokenCounts) {
   return tokens.inputTokens + tokens.cacheReadTokens + tokens.cacheWriteTokens;
 }
 
-export function computeCostMicrocents(model: string, tokens: TokenCounts, provider?: string) {
+export function computeCostMicrocents(
+  model: string,
+  tokens: TokenCounts,
+  provider?: string,
+  inferenceRegion?: ModelInferenceRegion | null,
+) {
   assertValidTokenCounts(tokens);
   const promptTokens = promptTokensOf(tokens);
-  const endpoint = findEndpoint(model, provider);
+  const endpoint = findEndpoint(model, provider, inferenceRegion);
   const rate = (dimension: readonly Tier[]) => scaledRatePerToken(selectTier(dimension, promptTokens).costUsdPerToken);
 
   const scaled =

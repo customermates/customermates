@@ -187,8 +187,9 @@ const payload: AgentTurnWorkflowPayload = {
   appBaseUrl: "http://localhost:4000",
   messages: [{ role: "user", text: "Hello" }],
   turnBudget: {
-    modelSpec: "openai/gpt-5-nano",
-    servingProvider: "azure",
+    modelSpec: "google/gemini-3.5-flash-lite",
+    servingProvider: "vertex",
+    inferenceRegion: "eu",
     reservedCredits: 10,
     roundReserveCredits: 2,
     maxOutputTokens: 100,
@@ -284,6 +285,7 @@ describe("agent-turn hosted-AI provider gates", () => {
     expect(state.providerOptions).toEqual({
       gateway: {
         only: [payload.turnBudget.servingProvider],
+        inferenceRegion: { scope: "zone", geoRegion: "eu" },
         zeroDataRetention: true,
         disallowPromptTraining: true,
       },

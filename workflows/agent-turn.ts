@@ -179,6 +179,7 @@ function usageSettlementForTurn(payload: AgentTurnWorkflowPayload, outcome: Agen
     model: payload.turnBudget.modelSpec,
     tokens: outcome.tokens,
     provider: payload.turnBudget.servingProvider,
+    inferenceRegion: payload.turnBudget.inferenceRegion,
     reservedCredits: outcome.reservedCredits,
     providerCharge: {
       billed: outcome.ledger.length > 0,
@@ -843,7 +844,12 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         const costMicrocents =
           charge.outcome === "measured"
             ? charge.charge.costMicrocents
-            : computeCostMicrocents(payload.turnBudget.modelSpec, roundTokens, payload.turnBudget.servingProvider);
+            : computeCostMicrocents(
+                payload.turnBudget.modelSpec,
+                roundTokens,
+                payload.turnBudget.servingProvider,
+                payload.turnBudget.inferenceRegion,
+              );
 
         tokens = addTokens(tokens, roundTokens);
         ledger.push({
@@ -991,6 +997,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         providerOptions: {
           gateway: {
             only: [payload.turnBudget.servingProvider],
+            inferenceRegion: payload.turnBudget.inferenceRegion
+              ? { scope: "zone", geoRegion: payload.turnBudget.inferenceRegion }
+              : { scope: "global" },
             zeroDataRetention: true,
             disallowPromptTraining: true,
           },

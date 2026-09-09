@@ -17,6 +17,7 @@ const USD_PER_AGENT_CREDIT = 0.01;
 export type AgentTurnBudget = {
   modelSpec: string;
   servingProvider: string;
+  inferenceRegion: AgentModelEntry["inferenceRegion"];
   reservedCredits: number;
   roundReserveCredits: number;
   maxOutputTokens: number;
@@ -39,7 +40,7 @@ export function agentContextBytesToWorstCaseProviderTokens(bytes: number) {
 
 function stepWorstCaseUsd(entry: AgentModelEntry, contextTokens: number, outputTokens: number) {
   const promptTokens = contextTokens + AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS;
-  const pricing = resolveModelPricing(entry.modelId, promptTokens, entry.servingProvider);
+  const pricing = resolveModelPricing(entry.modelId, promptTokens, entry.servingProvider, entry.inferenceRegion);
   const maxInputRate = Math.max(pricing.inputPerMTok, pricing.cacheReadPerMTok, pricing.cacheWritePerMTok);
 
   return (promptTokens * maxInputRate) / 1_000_000 + (outputTokens * pricing.outputPerMTok) / 1_000_000;
@@ -78,6 +79,7 @@ export function resolveAgentTurnBudget(args: {
   return {
     modelSpec: entry.modelId,
     servingProvider: entry.servingProvider,
+    inferenceRegion: entry.inferenceRegion,
     reservedCredits: Math.min(args.availableCredits, roundReserveCredits * AGENT_RESERVATION_ROUNDS_AHEAD),
     roundReserveCredits,
     maxOutputTokens: entry.maxOutputTokens,

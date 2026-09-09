@@ -1,4 +1,4 @@
-import { lowestModelPromptTierBoundary, resolveModelPricing } from "./model-pricing";
+import { lowestModelPromptTierBoundary, resolveModelPricing, type ModelInferenceRegion } from "./model-pricing";
 
 export const AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS = 2_500;
 export const AGENT_CONTEXT_BYTES_PER_TOKEN = 3;
@@ -7,6 +7,7 @@ export const AGENT_MIN_BYTES_PER_PROVIDER_TOKEN = 1;
 export type AgentModelEntry = {
   modelId: string;
   servingProvider: string;
+  inferenceRegion: ModelInferenceRegion | null;
   maxOutputTokens: number;
   maxContextTokens: number;
   maxToolResultChars: number;
@@ -16,13 +17,15 @@ export const MODEL_CATALOG = {
   fast: {
     modelId: "openai/gpt-5-nano",
     servingProvider: "azure",
+    inferenceRegion: null,
     maxOutputTokens: 8192,
     maxContextTokens: 66_000,
     maxToolResultChars: 6000,
   },
   balanced: {
-    modelId: "openai/gpt-5.6-luna",
-    servingProvider: "azure",
+    modelId: "google/gemini-3.5-flash-lite",
+    servingProvider: "vertex",
+    inferenceRegion: "eu",
     maxOutputTokens: 2048,
     maxContextTokens: 66_000,
     maxToolResultChars: 6000,
@@ -46,13 +49,18 @@ export function agentModelWorstCasePromptTokens(entry: AgentModelEntry) {
 }
 
 export function isAgentModelWithinBudgetEnvelope(entry: AgentModelEntry) {
-  const boundary = lowestModelPromptTierBoundary(entry.modelId, entry.servingProvider);
+  const boundary = lowestModelPromptTierBoundary(entry.modelId, entry.servingProvider, entry.inferenceRegion);
   return boundary === null || agentModelWorstCasePromptTokens(entry) < boundary;
 }
 
 function assertServable(key: AgentModelKey) {
   const entry = MODEL_CATALOG[key];
-  resolveModelPricing(entry.modelId, agentModelWorstCasePromptTokens(entry), entry.servingProvider);
+  resolveModelPricing(
+    entry.modelId,
+    agentModelWorstCasePromptTokens(entry),
+    entry.servingProvider,
+    entry.inferenceRegion,
+  );
   if (!isAgentModelWithinBudgetEnvelope(entry)) {
     throw new Error(
       `Agent model "${key}" reserves ${agentModelWorstCasePromptTokens(entry)} prompt tokens, which crosses a pricing tier boundary of "${entry.modelId}". Lower its context envelope or price every tier it can reach.`,

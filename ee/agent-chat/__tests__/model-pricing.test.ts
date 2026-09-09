@@ -13,15 +13,18 @@ const GATEWAY_ID = "openai/gpt-5.6-luna";
 const NATIVE_ID = "gpt-5.6-luna";
 const PROVIDER = "azure";
 const BOUNDARY = 272_000;
+const REGIONAL_GATEWAY_ID = "google/gemini-3.5-flash-lite";
 
 describe("pinned pricing snapshot", () => {
   it("validates at module load and pins the configured endpoint", () => {
-    expect(pinnedModelEndpoints()).toEqual(expect.arrayContaining([{ modelId: GATEWAY_ID, provider: PROVIDER }]));
+    expect(pinnedModelEndpoints()).toEqual(
+      expect.arrayContaining([{ modelId: GATEWAY_ID, provider: PROVIDER, inferenceRegion: null }]),
+    );
     expect(
       pinnedModelEndpoints()
         .map((endpoint) => endpoint.modelId)
         .toSorted(),
-    ).toEqual(["openai/gpt-5-nano", "openai/gpt-5.6-luna"]);
+    ).toEqual(["google/gemini-3.5-flash-lite", "openai/gpt-5-nano", "openai/gpt-5.6-luna"]);
   });
 
   it("resolves by gateway id and by provider-native id alike", () => {
@@ -35,6 +38,16 @@ describe("pinned pricing snapshot", () => {
   it("exposes the model's own tier boundaries so the budget envelope can be derived per model", () => {
     expect(modelPromptTierBoundaries(GATEWAY_ID)).toEqual([BOUNDARY]);
     expect(lowestModelPromptTierBoundary(GATEWAY_ID)).toBe(BOUNDARY);
+  });
+
+  it("pins Gemini to the EU Vertex rate and refuses an unpriced regional substitute", () => {
+    expect(resolveModelPricing(REGIONAL_GATEWAY_ID, 0, "vertex", "eu")).toEqual({
+      inputPerMTok: 0.33,
+      outputPerMTok: 2.75,
+      cacheReadPerMTok: 0.033,
+      cacheWritePerMTok: 0,
+    });
+    expect(() => resolveModelPricing(REGIONAL_GATEWAY_ID, 0, "vertex", "us")).toThrow(/No pinned pricing/);
   });
 });
 

@@ -8,6 +8,8 @@ import { tenantStorage } from "@/core/decorators/tenant-context";
 import { transactionStorage } from "@/core/decorators/transaction-context";
 import { WORKFLOW_REGISTRY } from "@/workflows/registry";
 
+export const VERCEL_WORKFLOW_REGION = "fra1";
+
 function currentTenant(): WorkflowTenant | undefined {
   const user = tenantStorage.getStore()?.user;
 
@@ -52,7 +54,7 @@ export class BackgroundTaskService {
     const tenant = currentTenant();
     const stamped = tenant ? { ...payload, tenant } : payload;
     const workflow = WORKFLOW_REGISTRY[id] as (payload: unknown) => Promise<unknown>;
-    const run = await start(workflow, [stamped]);
+    const run = await start(workflow, [stamped], { region: VERCEL_WORKFLOW_REGION });
 
     return run.runId;
   }

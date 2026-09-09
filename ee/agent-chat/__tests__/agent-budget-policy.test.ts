@@ -20,8 +20,14 @@ const BALANCED = MODEL_CATALOG.balanced;
 const FAST = MODEL_CATALOG.fast;
 
 describe("agent turn credit budget", () => {
-  it("pins every shipped model to the ZDR-compatible Azure provider", () => {
-    expect([FAST.servingProvider, BALANCED.servingProvider]).toEqual(["azure", "azure"]);
+  it("pins every shipped model to its ZDR-compatible provider and configured inference region", () => {
+    expect([
+      { provider: FAST.servingProvider, region: FAST.inferenceRegion },
+      { provider: BALANCED.servingProvider, region: BALANCED.inferenceRegion },
+    ]).toEqual([
+      { provider: "azure", region: null },
+      { provider: "vertex", region: "eu" },
+    ]);
   });
 
   it("gives every model its own full envelope, because affordability is no longer a smaller envelope", () => {
@@ -32,6 +38,7 @@ describe("agent turn credit budget", () => {
         expect.objectContaining({
           modelSpec: model.modelId,
           servingProvider: model.servingProvider,
+          inferenceRegion: model.inferenceRegion,
           maxOutputTokens: model.maxOutputTokens,
           maxContextTokens: model.maxContextTokens,
           maxContextBytes: agentContextTokensToBytes(model.maxContextTokens),
@@ -90,12 +97,19 @@ describe("agent turn credit budget", () => {
   });
 
   it("measures the pricing-tier envelope in prompt tokens, per model", () => {
+    const tiered = {
+      ...BALANCED,
+      modelId: "openai/gpt-5.6-luna",
+      servingProvider: "azure",
+      inferenceRegion: null,
+    };
+
     expect(isAgentModelWithinBudgetEnvelope(FAST)).toBe(true);
     expect(isAgentModelWithinBudgetEnvelope(BALANCED)).toBe(true);
-    expect(isAgentModelWithinBudgetEnvelope({ ...BALANCED, maxContextTokens: 400_000 })).toBe(false);
+    expect(isAgentModelWithinBudgetEnvelope({ ...tiered, maxContextTokens: 400_000 })).toBe(false);
     expect(resolveAgentTurnBudget({ model: BALANCED, availableCredits: 0 })).toBeNull();
     expect(
-      resolveAgentTurnBudget({ model: { ...BALANCED, maxContextTokens: 400_000 }, availableCredits: 500 }),
+      resolveAgentTurnBudget({ model: { ...tiered, maxContextTokens: 400_000 }, availableCredits: 500 }),
     ).toBeNull();
   });
 

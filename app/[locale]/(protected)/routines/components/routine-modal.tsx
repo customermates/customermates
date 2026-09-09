@@ -112,6 +112,7 @@ export const RoutineModal = observer(() => {
 
       <AppModal
         actions={modalActions}
+        description={(form.name ?? "").trim() || t("RoutineModal.title")}
         size={isExistingRoutine && wide ? "5xl" : "lg"}
         store={routineModalStore}
         title={t("RoutineModal.title")}

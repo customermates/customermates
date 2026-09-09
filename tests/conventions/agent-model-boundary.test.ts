@@ -45,7 +45,7 @@ describe("agent model budget boundary", () => {
 
     expect(workflow).toContain("model: payload.turnBudget.modelSpec");
     expect(workflow).toMatch(
-      /gateway:\s*\{\s*only: \[payload\.turnBudget\.servingProvider\],\s*zeroDataRetention: true,\s*disallowPromptTraining: true,/,
+      /gateway:\s*\{\s*only: \[payload\.turnBudget\.servingProvider\],\s*inferenceRegion: payload\.turnBudget\.inferenceRegion\s*\? \{ scope: "zone", geoRegion: payload\.turnBudget\.inferenceRegion \}\s*: \{ scope: "global" \},\s*zeroDataRetention: true,\s*disallowPromptTraining: true,/,
     );
   });
 });
