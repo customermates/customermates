@@ -94,7 +94,7 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
 
       const page = Array.isArray(result.data) ? result.data[0] : result.data;
       this.onInitOrRefresh(pageForm(page));
-      this.editing = false;
+      this.setEditing(false);
       this.onChanged(page.id);
     } finally {
       this.setIsLoading(false);

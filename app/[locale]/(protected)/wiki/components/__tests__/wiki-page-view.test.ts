@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
+import type { Root as ReactRoot } from "react-dom/client";
 
-import { createElement } from "react";
+import { act, createElement } from "react";
+import { hydrateRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const harness = vi.hoisted(() => ({
   rootStore: {} as Record<string, unknown>,
@@ -63,8 +65,10 @@ vi.mock("../wiki-page.store", () => ({
 import { WikiPageView } from "../wiki-page-view";
 
 const listPage = { items: [], total: 0, page: 1, pageSize: 25 };
+const mountedRoots: ReactRoot[] = [];
+const mountedContainers: HTMLElement[] = [];
 
-function render(canManage: boolean, agentChatEnabled: boolean, agentEnabled = agentChatEnabled) {
+function configure(canManage: boolean, agentChatEnabled: boolean, agentEnabled: boolean | null = agentChatEnabled) {
   harness.store = {
     canManage,
     editing: false,
@@ -83,15 +87,56 @@ function render(canManage: boolean, agentChatEnabled: boolean, agentEnabled = ag
     },
     navigationGuard: { tryNavigate: harness.tryNavigate },
   };
+}
+
+function render(canManage: boolean, agentChatEnabled: boolean, agentEnabled: boolean | null = agentChatEnabled) {
+  configure(canManage, agentChatEnabled, agentEnabled);
 
   return renderToStaticMarkup(createElement(WikiPageView, { initialPage: null, listPage }));
 }
 
+async function hydrate(
+  canManage: boolean,
+  agentChatEnabled: boolean,
+  serverAgentEnabled: boolean | null = agentChatEnabled,
+  clientAgentEnabled: boolean | null = serverAgentEnabled,
+) {
+  configure(canManage, agentChatEnabled, serverAgentEnabled);
+  const view = createElement(WikiPageView, { initialPage: null, listPage });
+  const serverHtml = renderToStaticMarkup(view);
+  const container = document.createElement("div");
+  container.innerHTML = serverHtml;
+  document.body.append(container);
+  mountedContainers.push(container);
+
+  configure(canManage, agentChatEnabled, clientAgentEnabled);
+  const recoverableErrors: unknown[] = [];
+  let root: ReactRoot | undefined;
+  await act(async () => {
+    root = hydrateRoot(container, view, {
+      onRecoverableError: (error) => recoverableErrors.push(error),
+    });
+    await Promise.resolve();
+  });
+  if (!root) throw new Error("Expected hydration to create a React root");
+  mountedRoots.push(root);
+
+  return { container, recoverableErrors, serverHtml };
+}
+
 beforeEach(() => {
+  (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   vi.clearAllMocks();
   harness.setupProps = null;
   harness.loadConfig.mockResolvedValue("ready");
   harness.selectConversation.mockResolvedValue(undefined);
+});
+
+afterEach(() => {
+  act(() => {
+    for (const root of mountedRoots.splice(0)) root.unmount();
+  });
+  for (const container of mountedContainers.splice(0)) container.remove();
 });
 
 describe("Wiki empty state", () => {
@@ -114,11 +159,14 @@ describe("Wiki empty state", () => {
   });
 
   it("offers both Mate setup and manual creation to managers when Agent is available", async () => {
-    const html = render(true, true);
+    const { container, recoverableErrors, serverHtml } = await hydrate(true, true, null, true);
 
-    expect(html).toContain("Wiki.emptyBody");
-    expect(html).toContain("data-wiki-homepage-setup");
-    expect(html).toContain("Wiki.newPage");
+    expect(serverHtml).toContain("Wiki.emptyBodyManual");
+    expect(serverHtml).not.toContain("data-wiki-homepage-setup");
+    expect(recoverableErrors).toEqual([]);
+    expect(container.innerHTML).toContain("Wiki.emptyBody");
+    expect(container.innerHTML).toContain("data-wiki-homepage-setup");
+    expect(container.innerHTML).toContain("Wiki.newPage");
     expect(harness.setupProps).not.toBeNull();
 
     await harness.setupProps?.onAccepted("conversation-1");
@@ -128,8 +176,17 @@ describe("Wiki empty state", () => {
     expect(harness.selectConversation).toHaveBeenCalledExactlyOnceWith("conversation-1");
   });
 
-  it("requires both the deployment flag and tenant Agent entitlement for Mate setup", () => {
-    expect(render(true, false, true)).not.toContain("data-wiki-homepage-setup");
-    expect(render(true, true, false)).not.toContain("data-wiki-homepage-setup");
-  });
+  it.each([
+    [false, true],
+    [true, false],
+  ])(
+    "requires both deployment=%s and tenant=%s Agent availability for Mate setup",
+    async (agentChatEnabled, agentEnabled) => {
+      const { container, recoverableErrors } = await hydrate(true, agentChatEnabled, agentEnabled);
+
+      expect(recoverableErrors).toEqual([]);
+      expect(container.innerHTML).toContain("Wiki.emptyBodyManual");
+      expect(container.innerHTML).not.toContain("data-wiki-homepage-setup");
+    },
+  );
 });

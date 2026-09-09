@@ -2,7 +2,7 @@
 
 import type { WikiPageListResult, WikiPageDto } from "@/features/wiki/wiki.schema";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { FileText, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -39,6 +39,7 @@ export const WikiPageView = observer(({ initialPage, listPage }: Props) => {
   const rootStore = useRootStore();
   const router = useRouter();
   const { showDeleteConfirmation } = useDeleteConfirmation();
+  const [hasMounted, setHasMounted] = useState(false);
   const listPageQuery = listPage.page > 1 ? `&listPage=${listPage.page}` : "";
   const store = useMemo(
     () =>
@@ -50,11 +51,13 @@ export const WikiPageView = observer(({ initialPage, listPage }: Props) => {
   );
 
   useEffect(() => store.load(initialPage), [initialPage, store]);
+  useEffect(() => setHasMounted(true), []);
 
   const document = useMemo(() => editorDocument(store.form.markdown), [store.form.markdown]);
   const pageCount = Math.max(1, Math.ceil(listPage.total / listPage.pageSize));
   const selectedId = store.editing && store.form.id === null ? null : initialPage?.id;
-  const canSetupWithMate = store.canManage && rootStore.agentChatEnabled && rootStore.agentChatStore.enabled === true;
+  const canSetupWithMate =
+    hasMounted && store.canManage && rootStore.agentChatEnabled && rootStore.agentChatStore.enabled === true;
   const emptyBody = !store.canManage
     ? t("Wiki.emptyBodyReadOnly")
     : canSetupWithMate
