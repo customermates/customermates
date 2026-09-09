@@ -616,6 +616,99 @@ describe("AgentChatStore", () => {
     expect(store.progressPhase).toBe("starting");
   });
 
+  it("coalesces adjacent text frames from one network chunk without delaying ordered events", async () => {
+    const store = new AgentChatStore(root() as never);
+    const internal = store as unknown as {
+      activeTurnNextStreamIndex: number;
+      beginActiveTurnMutationTracking: () => number;
+      handleEvent: (event: { seq: number; type: string } & Record<string, unknown>) => void;
+      readStream: (stream: ReadableStream<Uint8Array>, generation: number) => Promise<void>;
+    };
+    store.items = [{ kind: "user", id: "u1", messageId: "u1", text: "Stream quickly" }];
+    store.isWorking = true;
+    const generation = internal.beginActiveTurnMutationTracking();
+    const handled = vi.spyOn(internal, "handleEvent");
+    const stream = new Response(
+      [
+        'data: {"seq":0,"type":"delta","text":"Hel"}',
+        'data: {"seq":0,"type":"delta","text":"duplicate"}',
+        'data: {"seq":2,"type":"delta","text":"lo"}',
+        'data: {"seq":3,"type":"progress","phase":"working"}',
+        'data: {"seq":5,"type":"delta","text":"!"}',
+        "",
+      ].join("\n\n"),
+    ).body;
+    if (!stream) throw new Error("Missing synthetic stream");
+
+    await internal.readStream(stream, generation);
+
+    expect(handled.mock.calls.map(([event]) => event)).toEqual([
+      { seq: 2, type: "delta", text: "Hello" },
+      { seq: 3, type: "progress", phase: "working" },
+      { seq: 5, type: "delta", text: "!" },
+    ]);
+    expect(store.items).toContainEqual(expect.objectContaining({ kind: "assistant", text: "Hello!" }));
+    expect(internal.activeTurnNextStreamIndex).toBe(6);
+  });
+
+  it("rolls a retried model step back to its latest durable stream checkpoint", () => {
+    const store = new AgentChatStore(root() as never);
+    const internal = store as unknown as {
+      beginActiveTurnMutationTracking: () => number;
+      handleEvent: (event: Record<string, unknown>) => void;
+    };
+    store.items = [{ kind: "user", id: "u1", messageId: "u1", text: "Survive a retry" }];
+    store.isWorking = true;
+    internal.beginActiveTurnMutationTracking();
+    internal.handleEvent({ seq: 0, type: "stream_step_reset" });
+    internal.handleEvent({
+      seq: 1,
+      type: "activity",
+      id: "stable-read",
+      activity: {
+        kind: "records.read",
+        resource: "contacts",
+        affectedResources: ["contacts"],
+        risk: "read",
+      },
+    });
+    internal.handleEvent({ seq: 2, type: "activity_result", id: "stable-read", isError: false, status: "done" });
+    internal.handleEvent({ seq: 3, type: "stream_step_start" });
+    internal.handleEvent({ seq: 4, type: "delta", text: "Stable answer." });
+    internal.handleEvent({ seq: 5, type: "stream_checkpoint" });
+    internal.handleEvent({ seq: 6, type: "delta", text: " Duplicated attempt." });
+    internal.handleEvent({
+      seq: 7,
+      type: "activity",
+      id: "discarded-read",
+      activity: {
+        kind: "records.read",
+        resource: "deals",
+        affectedResources: ["deals"],
+        risk: "read",
+      },
+    });
+    const stableActivity = store.items.find(
+      (item): item is Extract<(typeof store.items)[number], { kind: "activity" }> =>
+        item.kind === "activity" && item.providerCallId === "stable-read",
+    );
+    if (!stableActivity) throw new Error("Expected stable activity");
+    stableActivity.status = "error";
+
+    internal.handleEvent({ seq: 8, type: "stream_step_reset" });
+    internal.handleEvent({ seq: 9, type: "delta", text: " Continued once." });
+
+    expect(store.items).toContainEqual(
+      expect.objectContaining({ kind: "assistant", text: "Stable answer. Continued once." }),
+    );
+    expect(store.items).toContainEqual(
+      expect.objectContaining({ kind: "activity", providerCallId: "stable-read", status: "done" }),
+    );
+    expect(store.items).not.toContainEqual(
+      expect.objectContaining({ kind: "activity", providerCallId: "discarded-read" }),
+    );
+  });
+
   it("shows explicit continuation progress after an approval is acknowledged", () => {
     const store = new AgentChatStore(root() as never);
     store.isWorking = true;

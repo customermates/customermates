@@ -65,7 +65,6 @@ describe("agent durable stream reader", () => {
       },
       { type: "model-call-response-metadata", modelId: "gpt-5.6-luna" },
       { type: "finish-step", usage: { outputTokens: 20 } },
-      { type: "reset-step" },
       { type: "tool-input-delta", delta: '{"entity"' },
     ]);
 
@@ -97,6 +96,20 @@ describe("agent durable stream reader", () => {
       { type: "progress", payload: { phase: "preparing_action" } },
     ]);
     expect(JSON.stringify(events)).not.toMatch(/private|secret/);
+  });
+
+  it("forwards only sanitized lifecycle markers needed to recover a retried stream step", () => {
+    const events = read([
+      { type: "reset-step", providerMetadata: { secret: "hidden" } },
+      { type: "start-step", usage: { outputTokens: 20 } },
+      { type: "finish-step", providerMetadata: { secret: "hidden" } },
+    ]);
+
+    expect(events).toEqual([
+      { type: "stream_step_reset", payload: {} },
+      { type: "stream_step_start", payload: {} },
+    ]);
+    expect(JSON.stringify(events)).not.toMatch(/hidden|outputTokens/u);
   });
 
   it("reports a structured tool failure as an error the user can see", () => {
@@ -179,6 +192,7 @@ describe("agent durable stream reader", () => {
           type: "ui_command",
           payload: { commandId: "call-9", name: "navigate", input: {} },
         },
+        { type: "stream_checkpoint", payload: {} },
         { type: "delta", payload: { text: "Stopped early." } },
         {
           type: "activity_result",
@@ -192,6 +206,7 @@ describe("agent durable stream reader", () => {
       "approval_resolved",
       "activity_superseded",
       "ui_command",
+      "stream_checkpoint",
       "delta",
       "activity_result",
       "turn_done",

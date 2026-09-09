@@ -15,6 +15,7 @@ export const AGENT_CLIENT_PASSTHROUGH_EVENTS = [
   ...AGENT_TRANSCRIPT_FORWARDED_EVENTS,
   "delta",
   "activity_result",
+  "stream_checkpoint",
   "ui_command",
   "message_committed",
   "turn_done",
@@ -64,6 +65,10 @@ export class AgentDurableStreamReader {
 
     if (part.type && (AGENT_CLIENT_PASSTHROUGH_EVENTS as readonly string[]).includes(part.type) && part.payload)
       return { type: part.type, payload: part.payload ?? {} };
+
+    if (part.type === "reset-step") return { type: "stream_step_reset", payload: {} };
+
+    if (part.type === "start-step") return { type: "stream_step_start", payload: {} };
 
     if (part.type === "text-delta" && part.text) return { type: "delta", payload: { text: part.text } };
 

@@ -323,6 +323,7 @@ describe("agent-turn credit-bounded continuation", () => {
     await runAgentTurn(payload);
 
     expect(state.providerCalls).toBe(2);
+    expect(state.writes.filter((event) => (event as { type?: string }).type === "stream_checkpoint")).toHaveLength(2);
     expect(JSON.stringify(seenMessages[1])).toContain("First half.");
     expect(JSON.stringify(seenMessages[1])).toContain("agent_output_continuation");
     expect(JSON.stringify(seenMessages[1]).match(/Hello/g)).toHaveLength(1);

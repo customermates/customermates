@@ -618,6 +618,19 @@ async function closeTurnStream(): Promise<void> {
   await getWritable().close();
 }
 
+async function publishStreamCheckpoint(): Promise<void> {
+  "use step";
+  const writer = getWritable<{
+    type: "stream_checkpoint";
+    payload: Record<string, never>;
+  }>().getWriter();
+  try {
+    await writer.write({ type: "stream_checkpoint", payload: {} });
+  } finally {
+    writer.releaseLock();
+  }
+}
+
 async function closeTurnStreamAfterFailure(): Promise<void> {
   "use step";
   try {
@@ -1045,6 +1058,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         } else roundFailure = failure;
         break;
       }
+      await publishStreamCheckpoint();
       finishReason = result.finishReason;
 
       for (const step of (result.steps as unknown as AgentRoundResult[]).slice(appliedThisCall)) await applyRound(step);

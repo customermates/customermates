@@ -79,6 +79,12 @@ export type AgentChatItem =
       at?: Date;
     };
 
+type AgentStreamStepCheckpoint = {
+  anchorItemId: string | null;
+  items: AgentChatItem[];
+  hasSuccessfulMutation: boolean;
+};
+
 export type AgentStreamStatus =
   | "idle"
   | "working"
@@ -213,6 +219,19 @@ function appendDistinctConversations(
   return [...existing, ...additions.filter((conversation) => !existingIds.has(conversation.id))];
 }
 
+function cloneAgentChatItem(item: AgentChatItem): AgentChatItem {
+  if (item.kind !== "activity" && item.kind !== "approval") return { ...item };
+
+  return {
+    ...item,
+    activity: {
+      ...item.activity,
+      affectedResources: [...item.activity.affectedResources],
+      ...(item.activity.consequence ? { consequence: { ...item.activity.consequence } } : {}),
+    },
+  };
+}
+
 function isUiCommandName(value: string): value is UiCommandName {
   return UI_COMMAND_NAMES.some((name) => name === value);
 }
@@ -260,6 +279,7 @@ export class AgentChatStore extends BaseStore {
   private activeTurnRefreshRequested = false;
   private activeTurnGeneration = 0;
   private activeTurnNextStreamIndex = 0;
+  private activeTurnStepCheckpoint: AgentStreamStepCheckpoint | null = null;
   private activeTurnAdmissionConfirmed = false;
   private activeTurnStopRequested = false;
   private activeTurnStopPromise: Promise<void> | null = null;
@@ -584,6 +604,7 @@ export class AgentChatStore extends BaseStore {
     this.progressPhase = null;
     this.progressStartedAt = null;
     this.activeTurnNextStreamIndex = 0;
+    this.activeTurnStepCheckpoint = null;
     this.activeTurnAdmissionConfirmed = false;
     this.activeTurnStopRequested = false;
     this.activeTurnStopPromise = null;
@@ -1908,6 +1929,16 @@ export class AgentChatStore extends BaseStore {
       buffer += decoder.decode(value, { stream: true });
       const frames = buffer.split("\n\n");
       buffer = frames.pop() ?? "";
+      let nextStreamIndex = this.activeTurnNextStreamIndex;
+      let pendingDeltaSequence: number | null = null;
+      let pendingDeltaText = "";
+      const flushPendingDelta = () => {
+        if (pendingDeltaSequence === null) return;
+        this.handleEvent({ seq: pendingDeltaSequence, type: "delta", text: pendingDeltaText });
+        this.activeTurnNextStreamIndex = pendingDeltaSequence + 1;
+        pendingDeltaSequence = null;
+        pendingDeltaText = "";
+      };
 
       for (const frame of frames) {
         const line = frame.split("\n").find((candidate) => candidate.startsWith("data: "));
@@ -1916,10 +1947,19 @@ export class AgentChatStore extends BaseStore {
           seq?: unknown;
           type?: unknown;
         } & Record<string, unknown>;
-        if (!Number.isInteger(event.seq) || typeof event.type !== "string")
+        if (!Number.isInteger(event.seq) || typeof event.type !== "string") {
+          flushPendingDelta();
           throw new Error("The assistant stream contained an invalid event.");
+        }
         const sequence = Number(event.seq);
-        if (sequence < this.activeTurnNextStreamIndex) continue;
+        if (sequence < nextStreamIndex) continue;
+        nextStreamIndex = sequence + 1;
+        if (event.type === "delta") {
+          pendingDeltaSequence = sequence;
+          pendingDeltaText += String(event.text ?? "");
+          continue;
+        }
+        flushPendingDelta();
         this.handleEvent(event as { seq: number; type: string } & Record<string, unknown>);
         this.activeTurnNextStreamIndex = sequence + 1;
         if (this.activeTurnCompleted) {
@@ -1927,6 +1967,7 @@ export class AgentChatStore extends BaseStore {
           return;
         }
       }
+      flushPendingDelta();
     }
   };
 
@@ -2165,6 +2206,15 @@ export class AgentChatStore extends BaseStore {
           this.currentAssistantItem().text += String(event.text ?? "");
           break;
         }
+        case "stream_step_reset": {
+          this.restoreActiveTurnStepCheckpoint();
+          break;
+        }
+        case "stream_step_start":
+        case "stream_checkpoint": {
+          this.captureActiveTurnStepCheckpoint();
+          break;
+        }
         case "message_replay": {
           this.progressPhase = null;
           const messageId = typeof event.messageId === "string" ? event.messageId : null;
@@ -2321,6 +2371,7 @@ export class AgentChatStore extends BaseStore {
             this.reconcileTerminalAssistant(assistantMessageId, event.terminalCode);
           if (event.isError && event.errorMessage && event.terminalCode !== "partial")
             this.toastError("AgentChat.errors.turnFailed");
+          this.activeTurnStepCheckpoint = null;
           break;
         }
         case "ui_command": {
@@ -2335,6 +2386,7 @@ export class AgentChatStore extends BaseStore {
         case "error": {
           this.activeTurnFailed = true;
           this.clearStreaming();
+          this.activeTurnStepCheckpoint = null;
           this.toastError("AgentChat.errors.turnFailed");
           break;
         }
@@ -2350,6 +2402,7 @@ export class AgentChatStore extends BaseStore {
     this.activeTurnHasSuccessfulMutation = false;
     this.activeTurnRefreshRequested = false;
     this.activeTurnNextStreamIndex = 0;
+    this.activeTurnStepCheckpoint = null;
     this.activeTurnAdmissionConfirmed = false;
     this.activeTurnStopRequested = false;
     this.activeTurnStopPromise = null;
@@ -2361,7 +2414,38 @@ export class AgentChatStore extends BaseStore {
     this.streamStatus = "working";
     this.progressPhase = "starting";
     this.progressStartedAt = Date.now();
+    this.captureActiveTurnStepCheckpoint();
     return this.activeTurnGeneration;
+  }
+
+  private captureActiveTurnStepCheckpoint() {
+    const anchorIndex = this.items.findLastIndex((item) => item.kind === "user");
+    this.activeTurnStepCheckpoint = {
+      anchorItemId: anchorIndex >= 0 ? (this.items[anchorIndex]?.id ?? null) : null,
+      items: this.items.slice(anchorIndex + 1).map(cloneAgentChatItem),
+      hasSuccessfulMutation: this.activeTurnHasSuccessfulMutation,
+    };
+  }
+
+  private restoreActiveTurnStepCheckpoint() {
+    const checkpoint = this.activeTurnStepCheckpoint;
+    if (!checkpoint) {
+      this.captureActiveTurnStepCheckpoint();
+      return;
+    }
+
+    const anchorIndex = checkpoint.anchorItemId
+      ? this.items.findIndex((item) => item.id === checkpoint.anchorItemId)
+      : -1;
+    if (checkpoint.anchorItemId && anchorIndex < 0) {
+      this.captureActiveTurnStepCheckpoint();
+      return;
+    }
+
+    this.items = [...this.items.slice(0, anchorIndex + 1), ...checkpoint.items.map(cloneAgentChatItem)];
+    this.activeTurnHasSuccessfulMutation = checkpoint.hasSuccessfulMutation;
+    this.progressPhase = this.items.at(-1)?.kind === "user" ? "working" : null;
+    if (!this.activeTurnStopRequested) this.streamStatus = "working";
   }
 
   private recordReplayedMutations(parts: AgentMessagePart[]) {
