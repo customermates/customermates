@@ -15,7 +15,7 @@ import type { BackgroundTaskService } from "@/core/utils/background-task.service
 const Schema = z.object({
   conversationId: z.uuid(),
   commandId: z.string().min(1).max(200),
-  name: z.enum(["navigate", "highlight_element", "start_tour", "click_ui_target", "open_record"]),
+  name: z.enum(["navigate", "highlight_element", "start_tour", "open_record"]),
   ok: z.boolean(),
   result: z.string().min(1).max(1000),
 });

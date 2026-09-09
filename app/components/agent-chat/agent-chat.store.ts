@@ -100,7 +100,7 @@ export type AgentProgressPhase = "starting" | "working" | "preparing_action";
 
 let itemSeq = 0;
 const nextItemId = () => `item-${++itemSeq}`;
-const UI_COMMAND_NAMES = ["navigate", "highlight_element", "start_tour", "click_ui_target", "open_record"] as const;
+const UI_COMMAND_NAMES = ["navigate", "highlight_element", "start_tour", "open_record"] as const;
 const AGENT_CONFIG_LOAD_TIMEOUT_MS = 15000;
 const AGENT_CONVERSATION_LOAD_TIMEOUT_MS = 15000;
 const AGENT_ADMISSION_TIMEOUT_MS = 15000;
@@ -2531,8 +2531,6 @@ export class AgentChatStore extends BaseStore {
     const ui = this.rootStore.agentUiControlStore;
 
     if (command.name === "navigate") return ui.navigate(String(command.input.targetId ?? ""));
-
-    if (command.name === "click_ui_target") return ui.clickTarget(String(command.input.targetId ?? ""));
 
     if (command.name === "open_record") {
       const input = OpenRecordSchema.safeParse(command.input);

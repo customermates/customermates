@@ -143,8 +143,23 @@ function routineRunDto(row: RoutineRunRow, storedStopReason: string | null): Rou
   };
 }
 
+function routineTriggerFiltersDto(value: unknown): Filter[] | null {
+  const isSerializedPrismaNull =
+    typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value).length === 0;
+  if (value === null || value === Prisma.DbNull || value === Prisma.JsonNull || isSerializedPrismaNull) return null;
+
+  const parsed = FilterSchema.array().safeParse(value);
+  if (!parsed.success) throw new Error("Stored Routine trigger filters are invalid.");
+
+  return parsed.data;
+}
+
 function routineDto(row: unknown): RoutineDto {
-  const routine = row as RoutineDto;
+  const stored = row as Omit<RoutineDto, "triggerFilters"> & { triggerFilters: unknown };
+  const routine: RoutineDto = {
+    ...stored,
+    triggerFilters: routineTriggerFiltersDto(stored.triggerFilters),
+  };
   if (routine.owner?.status === Status.active) return routine;
 
   return {

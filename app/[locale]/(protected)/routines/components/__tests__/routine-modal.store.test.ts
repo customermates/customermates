@@ -125,7 +125,16 @@ function makeStore(
     selectConversationForEmbeddedViewer: vi.fn(() => Promise.resolve()),
     newConversation: vi.fn(),
   },
-  options: { userId?: string; admin?: boolean; canManage?: boolean } = {},
+  options: {
+    userId?: string;
+    admin?: boolean;
+    canManage?: boolean;
+    routinesStore?: {
+      upsertItem: ReturnType<typeof vi.fn>;
+      removeItem: ReturnType<typeof vi.fn>;
+      refresh: ReturnType<typeof vi.fn>;
+    };
+  } = {},
 ): RoutineModalStore {
   return new RoutineModalStore({
     registerModalStore: vi.fn(),
@@ -136,7 +145,11 @@ function makeStore(
       },
       canManage: vi.fn(() => options.canManage ?? true),
     },
-    routinesStore: { upsertItem: vi.fn(), removeItem: vi.fn() },
+    routinesStore: options.routinesStore ?? {
+      upsertItem: vi.fn(() => Promise.resolve()),
+      removeItem: vi.fn(() => Promise.resolve()),
+      refresh: vi.fn(() => Promise.resolve()),
+    },
     routineRunChatStore: chat,
     localeStore: { getTranslation: (key: string) => key },
   } as unknown as RootStore);
@@ -530,7 +543,16 @@ describe("RoutineModalStore", () => {
   });
 
   it("applies an administrative pause without closing the details", async () => {
-    const store = makeStore(undefined, { userId: OTHER_ID, admin: true });
+    const routinesStore = {
+      upsertItem: vi.fn(() => Promise.resolve()),
+      removeItem: vi.fn(() => Promise.resolve()),
+      refresh: vi.fn(() => Promise.resolve()),
+    };
+    const store = makeStore(undefined, {
+      userId: OTHER_ID,
+      admin: true,
+      routinesStore,
+    });
     const paused = makeRoutine({
       enabled: false,
       disabledReason: "adminPaused",
@@ -549,6 +571,58 @@ describe("RoutineModalStore", () => {
     expect(store.form.enabled).toBe(false);
     expect(store.disabledReason).toBe("adminPaused");
     expect(store.isOpen).toBe(true);
+    expect(routinesStore.upsertItem).toHaveBeenCalledWith(paused);
+    expect(routinesStore.refresh).toHaveBeenCalledOnce();
+  });
+
+  it.each(["create", "update"] as const)(
+    "canonically refreshes the grouped list after a successful %s",
+    async (mode) => {
+      const saved = makeRoutine({
+        ...(mode === "create" ? { id: "30000000-0000-4000-8000-000000000009" } : {}),
+        name: `${mode}d routine`,
+      });
+      const routinesStore = {
+        upsertItem: vi.fn(() => Promise.resolve()),
+        removeItem: vi.fn(() => Promise.resolve()),
+        refresh: vi.fn(() => Promise.resolve()),
+      };
+      routineActions.upsertRoutineAction.mockResolvedValue({
+        ok: true,
+        data: saved,
+      });
+      const store = makeStore(undefined, { routinesStore });
+
+      if (mode === "create") await store.openForCreate();
+      else await store.openForEdit(makeRoutine());
+      store.onChange("name", saved.name);
+      store.onChange("prompt", saved.prompt);
+      await store.onSubmit();
+
+      expect(routinesStore.upsertItem).toHaveBeenCalledWith(saved);
+      expect(routinesStore.refresh).toHaveBeenCalledOnce();
+      expect(store.isOpen).toBe(false);
+    },
+  );
+
+  it("canonically refreshes the grouped list after deletion", async () => {
+    const routinesStore = {
+      upsertItem: vi.fn(() => Promise.resolve()),
+      removeItem: vi.fn(() => Promise.resolve()),
+      refresh: vi.fn(() => Promise.resolve()),
+    };
+    routineActions.deleteRoutineAction.mockResolvedValue({
+      ok: true,
+      data: "30000000-0000-4000-8000-000000000001",
+    });
+    const store = makeStore(undefined, { admin: true, routinesStore });
+    await store.openForEdit(makeRoutine());
+
+    await expect(store.delete()).resolves.toBe(true);
+
+    expect(routinesStore.removeItem).toHaveBeenCalledWith("30000000-0000-4000-8000-000000000001");
+    expect(routinesStore.refresh).toHaveBeenCalledOnce();
+    expect(store.isOpen).toBe(false);
   });
 
   it("keeps owner controls and administrator overrides separate", async () => {

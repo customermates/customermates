@@ -1,6 +1,7 @@
 import type { PrismaClient } from "@/generated/prisma";
 
 import { Prisma } from "@/generated/prisma";
+import { SURFACE } from "@/core/data-view/data-view-keys";
 
 import {
   CONTACT_DETAIL_FIELD,
@@ -45,6 +46,12 @@ export const SYNTHETIC_P13N_IDS = {
   dealDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 13),
   serviceDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 14),
   taskDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 15),
+  routines: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 16),
+} as const;
+
+export const SYNTHETIC_TEAM_ROUTINE_P13N_IDS = {
+  sofiaRossi: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 17),
+  elenaHoffmann: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 18),
 } as const;
 
 export type SyntheticP13nFixture = Prisma.P13nCreateManyInput & { id: string };
@@ -264,6 +271,18 @@ export function buildSyntheticP13nFixtures(
       groupingColumnId: null,
       grouping: Prisma.DbNull,
     }),
+    fixture(SYNTHETIC_P13N_IDS.routines, SURFACE.routines, {
+      columnOrder: [],
+      columnWidths: inputJson({}),
+      filters: inputJson([]),
+      searchTerm: null,
+      sortDescriptor: inputJson({ direction: "desc", field: "createdAt" }),
+      pagination: inputJson({ pageSize: 100 }),
+      hiddenColumns: [],
+      viewMode: "table",
+      groupingColumnId: "ownerUserId",
+      grouping: inputJson({ field: "ownerUserId" }),
+    }),
     detailFixture(
       SYNTHETIC_P13N_IDS.contactDetail,
       CONTACT_DETAIL_P13N_ID,
@@ -347,4 +366,16 @@ export async function persistSyntheticP13nFixtures(
 export async function seedPersonalization(context: SeedContext, customFields: CustomFieldSeedData): Promise<void> {
   const fixtures = buildSyntheticP13nFixtures(context, customFields);
   await persistSyntheticP13nFixtures(context.prisma, context.ids.company, context.ids.user, fixtures);
+
+  const routineTemplate = fixtures.find(({ p13nId }) => p13nId === SURFACE.routines);
+  if (!routineTemplate) throw new Error("The synthetic Routine personalization fixture is missing.");
+
+  for (const [id, userId] of [
+    [SYNTHETIC_TEAM_ROUTINE_P13N_IDS.sofiaRossi, context.ids.sofiaRossiUser],
+    [SYNTHETIC_TEAM_ROUTINE_P13N_IDS.elenaHoffmann, context.ids.elenaHoffmannUser],
+  ] as const) {
+    await persistSyntheticP13nFixtures(context.prisma, context.ids.company, userId, [
+      { ...routineTemplate, id, userId },
+    ]);
+  }
 }

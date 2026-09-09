@@ -44,7 +44,7 @@ import {
 import { conservativeAgentInitialContextBytes } from "../agent-provider-context";
 import { MODEL_CATALOG } from "../model-catalog";
 import { buildAgentSystemPrompt } from "../system-prompt";
-import { AGENT_CLICK_TARGETS, AGENT_UI_TARGETS } from "../ui-targets";
+import { AGENT_UI_TARGETS } from "../ui-targets";
 import {
   AGENT_UI_TOOL_NAMES,
   describeAgentAiTools,
@@ -155,6 +155,7 @@ describe("agent tools", () => {
     expect(names.toSorted()).toEqual([...expected].toSorted());
     expect(names).toContain("search");
     expect(names).toContain("fetch");
+    expect(names).not.toContain("click_ui_target");
     expect(names.filter((name) => name === "request_support")).toHaveLength(1);
     expect(names.every((name) => !name.startsWith("discover_"))).toBe(true);
   });
@@ -295,28 +296,20 @@ describe("agent tools", () => {
     });
   });
 
-  it("allows only reversible display controls through click_ui_target", async () => {
-    const validate = schemaOf(getAgentAiTools(deps()).click_ui_target).validate;
-
-    expect(await validate?.({ targetId: "deals-display-options" })).toMatchObject({ success: true });
-    expect(await validate?.({ targetId: "deals-layout-board" })).toMatchObject({ success: true });
-    for (const targetId of ["#deals-display-options", "nav-contacts", "company-settings-save", "deals-filter"])
-      expect(await validate?.({ targetId }), targetId).toMatchObject({ success: false });
-  });
-
   it("keeps the complete UI target catalog within the tool-result budget", async () => {
     const result = String(await execute(getAgentAiTools(deps()).list_ui_targets, {}));
 
     expect(result.length).toBeLessThanOrEqual(6000);
-    expect(result).toContain("actions n=navigate,h=highlight,c=click");
+    expect(result).toContain("actions n=navigate,h=highlight");
+    expect(result).not.toContain("c=click");
     expect(result).toContain("\nend");
     for (const target of AGENT_UI_TARGETS) expect(result).toContain(target.id);
   });
 
-  it("keeps every click target discoverable through bounded queries and pages", async () => {
+  it("keeps every highlight target discoverable through bounded queries and pages", async () => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 512 }));
 
-    for (const target of AGENT_CLICK_TARGETS) {
+    for (const target of AGENT_UI_TARGETS) {
       const result = String(await execute(tools.list_ui_targets, { query: target.id }));
       expect(result.length).toBeLessThanOrEqual(512);
       expect(result).toContain(target.id);
@@ -324,7 +317,7 @@ describe("agent tools", () => {
     }
 
     const layout = String(await execute(tools.list_ui_targets, { query: "deals-layout-board" }));
-    expect(layout).toContain("deals-layout-board|/deals|nhc|>deals-display-options");
+    expect(layout).toContain("deals-layout-board|/deals|nh|>deals-display-options");
 
     const seen: string[] = [];
     let cursor: number | undefined;
@@ -375,15 +368,11 @@ describe("agent tools", () => {
     expect(
       await schemaOf(tools.highlight_element).validate?.({ targetId: "profile-connected-accounts-connect" }),
     ).toMatchObject({ success: true });
-    expect(
-      await schemaOf(tools.click_ui_target).validate?.({ targetId: "profile-connected-accounts-connect" }),
-    ).toMatchObject({ success: false });
   });
 
   it.each([
     ["navigate", { targetId: "nav-contacts" }, "navigation failed"],
     ["highlight_element", { targetId: "contacts-add" }, "highlight failed"],
-    ["click_ui_target", { targetId: "contacts-display-options" }, "activation failed"],
     [
       "start_tour",
       {
@@ -761,6 +750,7 @@ describe("agent tools", () => {
     expect(prompt).not.toContain("onboarding copilot");
     expect(prompt).not.toContain("Do not attempt heavy multi-step automation");
     expect(prompt).toContain("complete hosted Customermates tool catalog");
+    expect(prompt).toContain("up front");
     expect(prompt).toContain("current page is context, never a capability boundary");
     expect(prompt).toContain("Never infer that a capability is unavailable");
     expect(prompt).toContain("Ordinary CRM work also runs immediately");
@@ -776,6 +766,7 @@ describe("agent tools", () => {
     expect(prompt).toContain("query set to the exact detail");
     expect(prompt).toContain("Make one focused list_ui_targets query");
     expect(prompt).toContain("A tour navigates to each step itself");
+    expect(prompt).toContain("never click or activate interface controls");
     expect(prompt).toContain("asks to walk them through or show them how to connect an account");
     expect(prompt).toContain("action=upsert, intent=create, and no id");
     expect(prompt).toContain("top-level selectOptions");

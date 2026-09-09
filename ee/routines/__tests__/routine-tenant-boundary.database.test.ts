@@ -25,6 +25,7 @@ import { PrismaRoutineRepo } from "../prisma-routine.repository";
 import { ReconcileRoutineRunsInteractor } from "../reconcile-routine-runs.interactor";
 import { ReleaseOwnerRoutinesInteractor } from "../release-owner-routines.interactor";
 import { RoutineLimitExceededError } from "../routine-run-limits";
+import { UpsertRoutineInteractor } from "../upsert-routine.interactor";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -311,6 +312,33 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       timezone: null,
       runOnceAt: null,
       nextRunAt: null,
+    });
+  });
+
+  it("normalizes database-null trigger filters when a scheduled routine is updated", async () => {
+    const scheduledRoutineId = randomUUID();
+    await client.query(
+      `INSERT INTO "Routine"
+         ("id", "companyId", "ownerUserId", "name", "prompt", "enabled", "triggerKind", "cronExpression",
+          "timezone", "triggerEvents", "triggerFilters", "updatedAt")
+       VALUES ($1, $2, $3, 'Scheduled routine', 'Do something', true, 'schedule', '0 9 * * *', 'UTC',
+               ARRAY[]::TEXT[], NULL, CURRENT_TIMESTAMP)`,
+      [scheduledRoutineId, companyId, ownerId],
+    );
+
+    const result = await runWithTenant(tenant(ownerId), () =>
+      new UpsertRoutineInteractor(new PrismaRoutineRepo(), {
+        getSubscriptionOrThrow: vi.fn(),
+      }).invoke({ id: scheduledRoutineId, name: "Renamed scheduled routine" }),
+    );
+
+    expect(result).toMatchObject({
+      ok: true,
+      data: {
+        id: scheduledRoutineId,
+        name: "Renamed scheduled routine",
+        triggerFilters: null,
+      },
     });
   });
 

@@ -24,11 +24,44 @@ const evented = SYNTHETIC_ROUTINES.filter((routine) => routine.trigger.kind === 
 
 describe("synthetic routine fixtures", () => {
   it("seeds a demo set with both trigger kinds", () => {
-    expect(SYNTHETIC_ROUTINES.length).toBeGreaterThanOrEqual(12);
+    expect(SYNTHETIC_ROUTINES).toHaveLength(15);
     expect(scheduled.length).toBeGreaterThan(0);
     expect(evented.length).toBeGreaterThan(0);
     expect(new Set(SYNTHETIC_ROUTINES.map((routine) => routine.index)).size).toBe(SYNTHETIC_ROUTINES.length);
     expect(new Set(SYNTHETIC_ROUTINES.map((routine) => routine.name)).size).toBe(SYNTHETIC_ROUTINES.length);
+  });
+
+  it("keeps every seeded Pro owner at the five-Routine allowance", () => {
+    const perOwner = Object.groupBy(SYNTHETIC_ROUTINES, ({ owner }) => owner);
+
+    expect(Object.fromEntries(Object.entries(perOwner).map(([owner, routines]) => [owner, routines?.length]))).toEqual({
+      user: 5,
+      sofiaRossiUser: 5,
+      elenaHoffmannUser: 5,
+    });
+  });
+
+  it("uses concise, distinct names that read like common use cases", () => {
+    const names = SYNTHETIC_ROUTINES.map(({ name }) => name);
+
+    expect(names).toEqual([
+      "Weekly pipeline summary",
+      "Follow up on stale deals",
+      "Check deal line items",
+      "Find duplicate CRM records",
+      "Enrich new contacts",
+      "Complete organization profiles",
+      "Draft replies to new emails",
+      "Flag messages from unknown contacts",
+      "Daily inbox summary and reply drafts",
+      "Weekly sales report",
+      "Log deal stage changes",
+      "Research new LinkedIn connections",
+      "Weekly workspace health check",
+      "Find similar prospects on LinkedIn",
+      "Check service pricing and deal totals",
+    ]);
+    expect(names.every((name) => name.length <= 45)).toBe(true);
   });
 
   it("stays inside every field limit the schema enforces", () => {

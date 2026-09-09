@@ -1741,24 +1741,24 @@ describe("AgentChatStore", () => {
   it("serializes dependent browser commands through their acknowledgements", async () => {
     let resolveFirst!: (value: { ok: true; result: string }) => void;
     const order: string[] = [];
-    const clickTarget = vi
+    const navigate = vi
       .fn()
       .mockImplementationOnce(
         () =>
           new Promise((resolve) => {
-            order.push("display:start");
+            order.push("contacts:start");
             resolveFirst = resolve;
           }),
       )
       .mockImplementationOnce(() => {
-        order.push("layout:start");
-        return { ok: true, result: "Cards layout selected." };
+        order.push("deals:start");
+        return { ok: true, result: "Navigated to deals." };
       });
     actionsMock.respondToUiCommandAction.mockImplementation(({ commandId }: { commandId: string }) => {
       order.push(`${commandId}:acknowledged`);
       return Promise.resolve({ ok: true, data: { resolved: true, resumed: true } });
     });
-    const store = new AgentChatStore(root({ clickTarget }) as never);
+    const store = new AgentChatStore(root({ navigate }) as never);
     store.conversationId = "00000000-0000-4000-8000-000000000001";
     const handleEvent = (
       store as unknown as {
@@ -1769,39 +1769,39 @@ describe("AgentChatStore", () => {
     handleEvent({
       seq: 1,
       type: "ui_command",
-      commandId: "display",
-      name: "click_ui_target",
-      input: { targetId: "contacts-display-options" },
+      commandId: "contacts",
+      name: "navigate",
+      input: { targetId: "nav-contacts" },
     });
     handleEvent({
       seq: 2,
       type: "ui_command",
-      commandId: "layout",
-      name: "click_ui_target",
-      input: { targetId: "contacts-layout-board" },
+      commandId: "deals",
+      name: "navigate",
+      input: { targetId: "nav-deals" },
     });
 
-    await vi.waitFor(() => expect(clickTarget).toHaveBeenCalledOnce());
-    expect(order).toEqual(["display:start"]);
-    resolveFirst({ ok: true, result: "Display options opened." });
+    await vi.waitFor(() => expect(navigate).toHaveBeenCalledOnce());
+    expect(order).toEqual(["contacts:start"]);
+    resolveFirst({ ok: true, result: "Navigated to contacts." });
 
-    await vi.waitFor(() => expect(clickTarget).toHaveBeenCalledTimes(2));
-    expect(order.slice(0, 3)).toEqual(["display:start", "display:acknowledged", "layout:start"]);
+    await vi.waitFor(() => expect(navigate).toHaveBeenCalledTimes(2));
+    expect(order.slice(0, 3)).toEqual(["contacts:start", "contacts:acknowledged", "deals:start"]);
     await vi.waitFor(() => expect(actionsMock.respondToUiCommandAction).toHaveBeenCalledTimes(2));
   });
 
   it("bounds and retries a stuck browser-command acknowledgement without blocking later commands", async () => {
     vi.useFakeTimers();
     const order: string[] = [];
-    const clickTarget = vi.fn((targetId: string) => {
+    const navigate = vi.fn((targetId: string) => {
       order.push(targetId);
-      return { ok: true, result: "Control activated." };
+      return { ok: true, result: "Navigation completed." };
     });
     actionsMock.respondToUiCommandAction
       .mockImplementationOnce(() => new Promise(() => undefined))
       .mockResolvedValueOnce({ ok: true, data: { resolved: true, resumed: false } })
       .mockResolvedValue({ ok: true, data: { resolved: true, resumed: true } });
-    const store = new AgentChatStore(root({ clickTarget }) as never);
+    const store = new AgentChatStore(root({ navigate }) as never);
     store.conversationId = "00000000-0000-4000-8000-000000000001";
     const handleEvent = (
       store as unknown as {
@@ -1812,33 +1812,33 @@ describe("AgentChatStore", () => {
     handleEvent({
       seq: 1,
       type: "ui_command",
-      commandId: "display",
-      name: "click_ui_target",
-      input: { targetId: "contacts-display-options" },
+      commandId: "contacts",
+      name: "navigate",
+      input: { targetId: "nav-contacts" },
     });
     handleEvent({
       seq: 2,
       type: "ui_command",
-      commandId: "layout",
-      name: "click_ui_target",
-      input: { targetId: "contacts-layout-board" },
+      commandId: "deals",
+      name: "navigate",
+      input: { targetId: "nav-deals" },
     });
 
     await vi.advanceTimersByTimeAsync(3000);
-    expect(clickTarget).toHaveBeenCalledOnce();
+    expect(navigate).toHaveBeenCalledOnce();
     await vi.advanceTimersByTimeAsync(500);
     expect(actionsMock.respondToUiCommandAction).toHaveBeenCalledTimes(2);
-    expect(clickTarget).toHaveBeenCalledOnce();
+    expect(navigate).toHaveBeenCalledOnce();
     await vi.advanceTimersByTimeAsync(1500);
-    await vi.waitFor(() => expect(clickTarget).toHaveBeenCalledTimes(2));
+    await vi.waitFor(() => expect(navigate).toHaveBeenCalledTimes(2));
     await vi.waitFor(() => expect(actionsMock.respondToUiCommandAction).toHaveBeenCalledTimes(4));
 
     expect(actionsMock.respondToUiCommandAction.mock.calls.slice(0, 3).map(([value]) => value.commandId)).toEqual([
-      "display",
-      "display",
-      "display",
+      "contacts",
+      "contacts",
+      "contacts",
     ]);
-    expect(actionsMock.respondToUiCommandAction.mock.calls[3]?.[0].commandId).toBe("layout");
+    expect(actionsMock.respondToUiCommandAction.mock.calls[3]?.[0].commandId).toBe("deals");
     expect(reportApplicationErrorMock).not.toHaveBeenCalled();
   });
 
@@ -1880,7 +1880,7 @@ describe("AgentChatStore", () => {
     );
   });
 
-  it("never acknowledges an unknown UI command", async () => {
+  it("never acknowledges the removed UI-click command", async () => {
     const store = new AgentChatStore(root() as never);
     store.conversationId = "00000000-0000-4000-8000-000000000001";
 
@@ -1892,8 +1892,8 @@ describe("AgentChatStore", () => {
       seq: 1,
       type: "ui_command",
       commandId: "command-2",
-      name: "open_external_url",
-      input: { path: "https://example.com" },
+      name: "click_ui_target",
+      input: { targetId: "contacts-display-options" },
     });
     await Promise.resolve();
 

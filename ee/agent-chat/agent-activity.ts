@@ -230,8 +230,7 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
   if (toolName === "get_workspace_context") return descriptor("workspace.inspect", undefined, "read");
   if (toolName === "navigate" || toolName === "highlight_element" || toolName === "open_record")
     return descriptor("interface.navigate", undefined, "read");
-  if (toolName === "click_ui_target" || toolName === "configure_view")
-    return descriptor("interface.interact", undefined, "read");
+  if (toolName === "configure_view") return descriptor("interface.interact", undefined, "read");
   if (toolName === "start_tour") return descriptor("interface.tour", undefined, "read");
   if (toolName === "request_support") {
     return descriptor("support.escalate", undefined, "sensitive", [], {

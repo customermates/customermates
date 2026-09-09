@@ -450,7 +450,7 @@ describe("the shipped tool catalog on the Google wire", () => {
     const changes = changesForShippedCatalog();
 
     expect(summarizeGoogleSchemaChanges(changes)).toEqual({
-      "$schema:removed": 54,
+      "$schema:removed": 53,
       "additionalProperties:removed": 56,
       "anyOf:collapsed": 47,
       "const:removed": 1,

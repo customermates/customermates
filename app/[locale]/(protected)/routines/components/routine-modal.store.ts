@@ -677,6 +677,15 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       this.disabledReason = routine.enabled ? null : routine.disabledReason;
       this.onInitOrRefresh(this.withMergedFilterRows(routineFormFor(routine)));
     });
+    await this.refreshRoutineList();
+  };
+
+  private refreshRoutineList = async (): Promise<void> => {
+    try {
+      await this.rootStore.routinesStore.refresh();
+    } catch (error) {
+      reportApplicationError(error);
+    }
   };
 
   private withMergedFilterRows = (form: RoutineModalForm): RoutineModalForm => {
@@ -764,6 +773,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
 
       await this.rootStore.routinesStore.removeItem(res.data);
       this.close();
+      await this.refreshRoutineList();
       return true;
     } finally {
       this.setIsLoading(false);
@@ -781,6 +791,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       if (res.ok) {
         await this.rootStore.routinesStore.upsertItem(res.data);
         this.close();
+        await this.refreshRoutineList();
       } else this.setError(res.error);
     } finally {
       this.setIsLoading(false);

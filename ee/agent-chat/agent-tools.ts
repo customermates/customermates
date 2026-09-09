@@ -15,13 +15,7 @@ import { agentToolResultText } from "./agent-budget-policy";
 import { isReadOnlyTool, requiresApproval } from "./gated-tools";
 import { toAgentUiCommandInput } from "./agent-ui-command";
 import { type AgentToolCancellation as AgentToolCancellationValue } from "./agent-tool-cancellation";
-import {
-  AGENT_UI_TARGETS,
-  ClickUiTargetIdSchema,
-  NavigationUiTargetIdSchema,
-  UiTargetIdSchema,
-  type AgentUiTarget,
-} from "./ui-targets";
+import { AGENT_UI_TARGETS, NavigationUiTargetIdSchema, UiTargetIdSchema, type AgentUiTarget } from "./ui-targets";
 import { AgentTourSchema } from "./agent-tours";
 import { OpenRecordSchema } from "./ui-operations";
 import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
@@ -99,7 +93,10 @@ async function runGated<T>(
 }
 
 function agentToolResult(outcome: McpToolExecutionResult, maxChars: number) {
-  return { ok: outcome.ok, result: agentToolResultText(outcome.result, maxChars) };
+  return {
+    ok: outcome.ok,
+    result: agentToolResultText(outcome.result, maxChars),
+  };
 }
 
 async function runSafely<T>(
@@ -148,14 +145,12 @@ function providerSafeSchema<TSchema extends z.ZodType>(inputSchema: TSchema) {
   );
 }
 
-const NavigateSchema = z.object({ targetId: NavigationUiTargetIdSchema.describe("A routable target id.") });
+const NavigateSchema = z.object({
+  targetId: NavigationUiTargetIdSchema.describe("A routable target id."),
+});
 const HighlightElementSchema = z.object({
   targetId: UiTargetIdSchema.describe("A target id from list_ui_targets."),
 });
-const ClickUiTargetSchema = z.object({
-  targetId: ClickUiTargetIdSchema.describe("An activatable target id from list_ui_targets."),
-});
-
 const ListUiTargetsSchema = z.object({
   query: z
     .string()
@@ -170,8 +165,8 @@ const ListUiTargetsSchema = z.object({
 });
 
 function compactUiTarget(target: AgentUiTarget) {
-  const actions = [...(target.route.startsWith("/") ? ["n"] : []), "h", ...(target.activation ? ["c"] : [])].join("");
-  const prerequisite = target.activation?.kind === "selected" ? `|>${target.activation.prerequisite}` : "";
+  const actions = [...(target.route.startsWith("/") ? ["n"] : []), "h"].join("");
+  const prerequisite = target.prerequisite ? `|>${target.prerequisite}` : "";
   return `${target.id}|${target.route}|${actions}${prerequisite}`;
 }
 
@@ -191,7 +186,7 @@ function listUiTargets(input: z.infer<typeof ListUiTargetsSchema>, resultMaxChar
     : AGENT_UI_TARGETS;
   const targets = matched.length > 0 ? matched : AGENT_UI_TARGETS;
   const cursor = Math.min(input.cursor ?? 0, targets.length);
-  const header = "actions n=navigate,h=highlight,c=click; >target is a prerequisite\n";
+  const header = "actions n=navigate,h=highlight; >target is a prerequisite the user must open\n";
 
   const lines: string[] = [];
   let nextCursor = cursor;
@@ -240,13 +235,16 @@ function panelInput(toolName: string, input: unknown): Record<string, unknown> {
 function uiTools(deps: AgentToolDeps): ToolSet {
   const runUiCommand = async (toolCallId: string, name: string, input: Record<string, unknown>) => {
     const outcome = await deps.runUiCommand(toolCallId, name, input);
-    return { ...outcome, result: agentToolResultText(outcome.result, deps.resultMaxChars) };
+    return {
+      ...outcome,
+      result: agentToolResultText(outcome.result, deps.resultMaxChars),
+    };
   };
 
   return {
     list_ui_targets: tool({
       description:
-        "List exact stable interface target ids before using an interface tool. Make one focused query with the workflow or page phrase and reuse every relevant id it returns instead of querying ids one by one. Results use action codes n=navigate, h=highlight, c=click and >target for a prerequisite; continue only when nextCursor is present.",
+        "List exact stable interface target ids before using an interface tool. Make one focused query with the workflow or page phrase and reuse every relevant id it returns instead of querying ids one by one. Results use action codes n=navigate and h=highlight; >target names a prerequisite the user must open. Continue only when nextCursor is present.",
       inputSchema: providerSafeSchema(ListUiTargetsSchema),
       execute: (input) => listUiTargets(input, deps.resultMaxChars),
     }),
@@ -271,16 +269,6 @@ function uiTools(deps: AgentToolDeps): ToolSet {
       inputSchema: providerSafeSchema(AgentTourSchema),
       execute: (input, { toolCallId }) =>
         runSafely(() => runUiCommand(toolCallId, "start_tour", panelInput("start_tour", input)), deps.resultMaxChars),
-    }),
-    click_ui_target: tool({
-      description:
-        "Activate one reversible display control by its exact id from list_ui_targets. Navigate to the target first. Layout controls require opening the matching display-options target first. A successful result means the browser verified the control is expanded or selected.",
-      inputSchema: providerSafeSchema(ClickUiTargetSchema),
-      execute: (input, { toolCallId }) =>
-        runSafely(
-          () => runUiCommand(toolCallId, "click_ui_target", panelInput("click_ui_target", input)),
-          deps.resultMaxChars,
-        ),
     }),
     open_record: tool({
       description:
