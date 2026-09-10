@@ -212,7 +212,6 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         routineRunId: "routine-run-1",
         conversationId: "conversation-1",
         title: "CRM hygiene",
-        modelKey: "openai/gpt-5.6-luna",
         now,
         creditCeiling: 3,
       }),
@@ -224,7 +223,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         companyId: user.companyId,
         userId: user.id,
         title: "CRM hygiene",
-        modelKey: "openai/gpt-5.6-luna",
+        modelKey: null,
         origin: "routine",
         creditCeiling: 3,
         selectedAt: now,
@@ -261,6 +260,40 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         }),
       ),
     ).rejects.toThrow("Routine run changed before its conversation could be linked");
+  });
+
+  it("atomically returns an unstarted capacity-limited routine conversation to the queue", async () => {
+    prismaMock.routineRun.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.agentConversation.deleteMany.mockResolvedValue({ count: 1 });
+
+    await runWithTenant(user, () =>
+      new PrismaAgentChatRepo().releaseUnstartedRoutineConversationForRetry({
+        routineRunId: "routine-run-1",
+        conversationId: "conversation-1",
+      }),
+    );
+
+    expect(prismaMock.routineRun.updateMany).toHaveBeenCalledWith({
+      where: {
+        id: "routine-run-1",
+        companyId: user.companyId,
+        executedByUserId: user.id,
+        status: "running",
+        conversationId: "conversation-1",
+        turnRequestId: null,
+      },
+      data: { status: "queued", conversationId: null, startedAt: null },
+    });
+    expect(prismaMock.agentConversation.deleteMany).toHaveBeenCalledWith({
+      where: {
+        id: "conversation-1",
+        companyId: user.companyId,
+        userId: user.id,
+        origin: "routine",
+        messages: { none: {} },
+        turnRequests: { none: {} },
+      },
+    });
   });
 
   it("atomically admits a fenced turn into the conversation that already holds its lease", async () => {

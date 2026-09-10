@@ -1,3 +1,4 @@
+import { Client } from "pg";
 import { describe, expect, it } from "vitest";
 
 import { ROUTINE_NAME_MAX_CHARS, ROUTINE_PROMPT_MAX_CHARS, ROUTINE_TRIGGER_EVENTS } from "@/ee/routines/routine.schema";
@@ -8,7 +9,11 @@ import {
 } from "@/ee/routines/routine-schedule";
 import { ROUTINE_TIMEZONE, SYNTHETIC_ROUTINES } from "../seeds/routines";
 import { isCustomField } from "@/core/utils/custom-field";
+import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import enMessages from "@/i18n/locales/en.json";
+
+const databaseUrl = getLocalDatabaseTestUrl();
+const itDatabase = databaseUrl ? it : it.skip;
 
 const TRIGGER_REFS = {
   dealId: "80000000-0000-4000-8000-000000000001",
@@ -69,10 +74,6 @@ describe("synthetic routine fixtures", () => {
       expect(routine.name.length, routine.name).toBeLessThanOrEqual(ROUTINE_NAME_MAX_CHARS);
       expect(routine.prompt.length, routine.name).toBeLessThanOrEqual(ROUTINE_PROMPT_MAX_CHARS);
       expect(routine.prompt.trim().length, routine.name).toBeGreaterThan(0);
-      expect(routine.maxCreditsPerRun).toBeGreaterThanOrEqual(1);
-      expect(routine.maxCreditsPerRun).toBeLessThanOrEqual(500);
-      expect(routine.maxRunsPerHour).toBeGreaterThanOrEqual(1);
-      expect(routine.maxRunsPerHour).toBeLessThanOrEqual(60);
     }
   });
 
@@ -164,6 +165,24 @@ describe("synthetic routine fixtures", () => {
 
         expect(mentioned && !negated, `${routine.name} may only mention ${tool} to forbid it`).toBe(false);
       }
+    }
+  });
+
+  itDatabase("keeps the message sequence ahead of explicitly numbered Routine transcripts", async () => {
+    const client = new Client({ connectionString: databaseUrl ?? undefined });
+    await client.connect();
+
+    try {
+      const result = await client.query<{ lastValue: string; maxSequence: string }>(
+        `SELECT
+           (SELECT last_value FROM "AgentMessage_sequence_seq")::TEXT AS "lastValue",
+           COALESCE(MAX("sequence"), 1)::TEXT AS "maxSequence"
+         FROM "AgentMessage"`,
+      );
+
+      expect(BigInt(result.rows[0]?.lastValue ?? 0)).toBeGreaterThanOrEqual(BigInt(result.rows[0]?.maxSequence ?? 1));
+    } finally {
+      await client.end();
     }
   });
 });

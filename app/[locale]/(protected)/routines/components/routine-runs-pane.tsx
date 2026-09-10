@@ -8,7 +8,6 @@ import { useTranslations } from "next-intl";
 import { CircleAlert, Loader2 } from "lucide-react";
 
 import { AppChip } from "@/components/chip/app-chip";
-import { MessageResponse } from "@/components/ai-elements/message";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -45,9 +44,7 @@ function RoutineRunRow({ run, store }: { run: RoutineRunDto; store: RoutineModal
           {t("RoutineDetail.ranAs", { owner: run.executedByName })}
         </span>
 
-        {detail && (
-          <MessageResponse className="text-subdued mt-0.5 line-clamp-2 text-xs font-normal">{detail}</MessageResponse>
-        )}
+        {detail && <p className="text-subdued mt-0.5 line-clamp-2 text-xs font-normal">{detail}</p>}
       </span>
 
       <span className="flex shrink-0 flex-col items-end gap-1.5">

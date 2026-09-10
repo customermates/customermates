@@ -65,35 +65,16 @@ export type AgentContinuationContext = {
   retainedResponseSteps: number;
 };
 
-export type AgentContinuationAccounting = {
-  startedAtMs: number;
-  providerSteps: number;
-  writeActivities: number;
-  errors: number;
-  noProgressSteps: number;
-  repeatedActivityCalls: number;
-};
-
 export type AgentContinuationErrorReason = "content_filter" | "provider_error";
 
 export type AgentContinuationDecision =
-  | { action: "continue"; accounting: AgentContinuationAccounting }
-  | { action: "complete"; accounting: AgentContinuationAccounting }
-  | {
-      action: "pause";
-      reason: "approval";
-      accounting: AgentContinuationAccounting;
-    }
-  | {
-      action: "error";
-      reason: AgentContinuationErrorReason;
-      accounting: AgentContinuationAccounting;
-    };
+  | { action: "continue" }
+  | { action: "complete" }
+  | { action: "pause"; reason: "approval" }
+  | { action: "error"; reason: AgentContinuationErrorReason };
 
 export type AgentContinuationRun = {
-  startedAtMs: number;
   steps: readonly AgentContinuationStep[];
-  observedAtMs: number;
   pendingApproval?: boolean;
 };
 
@@ -308,78 +289,17 @@ export function compactAgentContinuationContext(args: {
   };
 }
 
-function toolCallSignatures(step: AgentContinuationStep) {
-  return step.content.flatMap((rawPart) => {
-    const part = record(rawPart);
-    const toolName = part?.type === "tool-call" ? stringValue(part.toolName) : null;
-    if (!toolName) return [];
-    try {
-      return [JSON.stringify({ toolName, input: part?.input })];
-    } catch {
-      return [];
-    }
-  });
-}
-
-function accountActivities(
-  startedAtMs: number,
-  steps: readonly AgentContinuationStep[],
-  stepActivities: readonly AgentContinuationActivitySummary[][],
-): AgentContinuationAccounting {
-  let noProgressSteps = 0;
-  let repeatedActivityCalls = 0;
-  const toolCallCounts = new Map<string, number>();
-
-  for (const [index, step] of steps.entries()) {
-    const activities = stepActivities[index] ?? [];
-    const madeProgress = activities.some((activity) => activity.status === "done");
-    noProgressSteps = madeProgress ? 0 : noProgressSteps + 1;
-    for (const signature of toolCallSignatures(step)) {
-      const count = (toolCallCounts.get(signature) ?? 0) + 1;
-      toolCallCounts.set(signature, count);
-      repeatedActivityCalls = Math.max(repeatedActivityCalls, count);
-    }
-  }
-
-  const activities = stepActivities.flat();
-  return {
-    startedAtMs,
-    providerSteps: steps.length,
-    writeActivities: activities.filter((activity) => activity.status === "done" && activity.risk !== "read").length,
-    errors: activities.filter((activity) => activity.status === "error").length,
-    noProgressSteps,
-    repeatedActivityCalls,
-  };
-}
-
-function errorDecision(
-  accounting: AgentContinuationAccounting,
-  reason: AgentContinuationErrorReason,
-): AgentContinuationDecision {
-  return { action: "error", reason, accounting };
-}
-
 export function decideAgentContinuationLoop(run: AgentContinuationRun): AgentContinuationDecision {
-  if (!Number.isSafeInteger(run.startedAtMs) || run.startedAtMs < 0)
-    throw new Error("Agent continuation start time is invalid.");
-  if (!Number.isSafeInteger(run.observedAtMs) || run.observedAtMs < run.startedAtMs)
-    throw new Error("Agent continuation observation time is invalid.");
-
-  const stepActivities = summarizeAgentContinuationSteps(run.steps);
-  const accounting = accountActivities(run.startedAtMs, run.steps, stepActivities);
   const lastStep = run.steps.at(-1);
   const pendingApproval =
-    run.pendingApproval === true || (stepActivities.at(-1)?.some((activity) => activity.status === "pending") ?? false);
+    run.pendingApproval === true ||
+    (lastStep ? summarizeAgentContinuationStep(lastStep).some((activity) => activity.status === "pending") : false);
 
-  if (pendingApproval) return { action: "pause", reason: "approval", accounting };
+  if (pendingApproval) return { action: "pause", reason: "approval" };
 
-  if (lastStep?.finishReason === "stop") return { action: "complete", accounting };
-  if (lastStep?.finishReason === "content-filter") return errorDecision(accounting, "content_filter");
+  if (lastStep?.finishReason === "stop") return { action: "complete" };
+  if (lastStep?.finishReason === "content-filter") return { action: "error", reason: "content_filter" };
   if (lastStep?.finishReason === "error" || lastStep?.finishReason === "other" || !lastStep)
-    return errorDecision(accounting, "provider_error");
-  return { action: "continue", accounting };
-}
-
-export function agentContinuationShouldStop(decision: AgentContinuationDecision) {
-  return decision.action !== "continue";
+    return { action: "error", reason: "provider_error" };
+  return { action: "continue" };
 }

@@ -4,7 +4,6 @@ import { describe, expect, it } from "vitest";
 import {
   AGENT_CONTINUATION_CHECKPOINT_MAX_BYTES,
   AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS,
-  agentContinuationShouldStop,
   compactAgentContinuationContext,
   decideAgentContinuationLoop,
   serializeAgentContinuationCheckpoint,
@@ -75,19 +74,8 @@ function step(
   };
 }
 
-function advance(
-  steps: AgentContinuationStep[],
-  options: {
-    completedAtMs?: number;
-    pendingApproval?: boolean;
-  } = {},
-) {
-  return decideAgentContinuationLoop({
-    startedAtMs: 1_000,
-    steps,
-    observedAtMs: options.completedAtMs ?? 2_000,
-    pendingApproval: options.pendingApproval,
-  });
+function advance(steps: AgentContinuationStep[]) {
+  return decideAgentContinuationLoop({ steps });
 }
 
 describe("agent continuation context compaction", () => {
@@ -302,18 +290,13 @@ describe("agent continuation decisions", () => {
   it("continues an incomplete segment that made bounded progress", () => {
     const decision = advance([step([{ name: "get_workspace_context" }])]);
 
-    expect(decision).toMatchObject({
-      action: "continue",
-      accounting: { providerSteps: 1, noProgressSteps: 0 },
-    });
-    expect(agentContinuationShouldStop(decision)).toBe(false);
+    expect(decision).toEqual({ action: "continue" });
   });
 
   it("completes when the model naturally stops", () => {
     const decision = advance([step([], "stop")]);
 
     expect(decision.action).toBe("complete");
-    expect(agentContinuationShouldStop(decision)).toBe(true);
   });
 
   it("pauses only for an unresolved approval", () => {
@@ -335,33 +318,9 @@ describe("agent continuation decisions", () => {
       step([{ name: "create_contacts", input: [{}], status: "error" }]),
     );
     const noProgress = Array.from({ length: 40 }, () => step([], "tool-calls"));
-    const decision = advance([...repeated, ...noProgress], { completedAtMs: Number.MAX_SAFE_INTEGER - 1 });
+    const decision = advance([...repeated, ...noProgress]);
 
-    expect(decision).toMatchObject({
-      action: "continue",
-      accounting: {
-        providerSteps: 80,
-        errors: 40,
-        noProgressSteps: 80,
-        repeatedActivityCalls: 40,
-      },
-    });
-  });
-
-  it("recomputes full single-stream accounting without double-counting prior stop checks", () => {
-    const steps = [step([{ name: "create_contacts", input: [{}] }]), step([{ name: "create_contacts", input: [{}] }])];
-    const first = decideAgentContinuationLoop({ startedAtMs: 1_000, steps, observedAtMs: 3_000 });
-    const second = decideAgentContinuationLoop({ startedAtMs: 1_000, steps, observedAtMs: 3_000 });
-
-    expect(first.accounting).toEqual(second.accounting);
-    expect(first).toMatchObject({
-      action: "continue",
-      accounting: {
-        providerSteps: 2,
-        writeActivities: 2,
-        repeatedActivityCalls: 2,
-      },
-    });
+    expect(decision).toEqual({ action: "continue" });
   });
 
   it("continues after an output-length finish", () => {

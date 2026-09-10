@@ -29,6 +29,13 @@ export const ROUTINE_RUN_ERROR_CODES = [
   "agentTurnAlreadyRunning",
 ] as const;
 
+export type RoutineRunReason = (typeof ROUTINE_RUN_REASONS)[number];
+export type RoutineRunErrorCode = (typeof ROUTINE_RUN_ERROR_CODES)[number];
+
+export function isRoutineRunErrorCode(value: string): value is RoutineRunErrorCode {
+  return ROUTINE_RUN_ERROR_CODES.some((code) => code === value);
+}
+
 export function routineRunDetail(
   run: {
     status: RoutineRunStatus;

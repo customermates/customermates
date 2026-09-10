@@ -2,12 +2,18 @@ import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
-import { EntityType, RoutineRunStatus, RoutineTriggerKind, AgentTurnTerminalCode, Status } from "@/generated/prisma";
+import {
+  AgentTurnStopReason,
+  AgentTurnTerminalCode,
+  EntityType,
+  RoutineRunStatus,
+  RoutineTriggerKind,
+  Status,
+} from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { FilterSchema } from "@/core/base/base-get.schema";
-import { AGENT_TURN_STOP_REASONS } from "@/ee/agent-chat/agent-turn-request";
 import { ROUTINE_TRIGGER_EVENTS, RoutineTriggerEventSchema } from "./routine-trigger-events";
 import { ROUTINE_TRIGGER_FIELD_LIMIT } from "./routine-run-trigger-context";
 import {
@@ -42,23 +48,18 @@ export const RoutineDtoSchema = z.object({
   owner: RoutineOwnerDtoSchema.nullable(),
   name: z.string(),
   prompt: z.string(),
-  modelKey: z.string().nullable(),
   enabled: z.boolean(),
   triggerKind: RoutineTriggerKindSchema,
   cronExpression: z.string().nullable(),
   timezone: z.string().nullable(),
-  runOnceAt: z.date().nullable(),
   triggerEvents: z.array(WebhookEventSchema),
   changedFields: z.array(z.string()),
-  triggerFilters: z.array(FilterSchema).nullable(),
+  triggerFilters: z.array(FilterSchema),
   debounceSeconds: z.number().int(),
-  maxRunsPerHour: z.number().int(),
-  maxCreditsPerRun: z.number().int(),
   nextRunAt: z.date().nullable(),
   lastRunAt: z.date().nullable(),
   lastRunStatus: RoutineRunStatusSchema.nullable(),
   disabledReason: z.string().nullable(),
-  suppressedEventCount: z.number().int(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -81,14 +82,14 @@ export const RoutineRunDtoSchema = z.object({
   turnRequestId: z.uuid().nullable(),
   status: RoutineRunStatusSchema,
   triggerKind: RoutineTriggerKindSchema,
-  triggerEvent: z.string().nullable(),
+  triggerEvent: RoutineTriggerEventSchema.nullable(),
   triggerEntityId: z.string().nullable(),
   triggerContext: RoutineRunTriggerContextSchema.nullable(),
   scheduledFor: z.date(),
   startedAt: z.date().nullable(),
   finishedAt: z.date().nullable(),
   terminalCode: z.enum(AgentTurnTerminalCode).nullable(),
-  stopReason: z.enum(AGENT_TURN_STOP_REASONS).nullable(),
+  stopReason: z.enum(AgentTurnStopReason).nullable(),
   chargedCredits: z.number().int(),
   summary: z.string().nullable(),
   error: z.string().nullable(),
@@ -102,18 +103,14 @@ const UpsertRoutineFieldsSchema = z.object({
   id: z.uuid().optional(),
   name: zx.nonBlankText(ROUTINE_NAME_MAX_CHARS).optional(),
   prompt: zx.nonBlankText(ROUTINE_PROMPT_MAX_CHARS).optional(),
-  modelKey: z.string().min(1).max(64).nullable().optional(),
   enabled: z.boolean().optional(),
   triggerKind: RoutineTriggerKindSchema.optional(),
   cronExpression: z.string().min(1).max(120).nullable().optional(),
   timezone: z.string().min(1).max(64).nullable().optional(),
-  runOnceAt: z.coerce.date().nullable().optional(),
   triggerEvents: z.array(RoutineTriggerEventSchema).optional(),
   changedFields: z.array(z.string()).optional(),
-  triggerFilters: z.array(FilterSchema).nullable().optional(),
+  triggerFilters: z.array(FilterSchema).optional(),
   debounceSeconds: z.number().int().min(0).max(86_400).optional(),
-  maxRunsPerHour: z.number().int().min(1).max(60).optional(),
-  maxCreditsPerRun: z.number().int().min(1).max(500).optional(),
 });
 
 export type RoutineValidationData = z.output<typeof UpsertRoutineFieldsSchema>;
@@ -151,7 +148,7 @@ export function validateRoutineFinalState(data: RoutineValidationData, ctx: z.Re
     });
   }
 
-  if (data.triggerKind === RoutineTriggerKind.schedule && creating && !data.cronExpression && !data.runOnceAt) {
+  if (data.triggerKind === RoutineTriggerKind.schedule && creating && !data.cronExpression) {
     ctx.addIssue({
       code: "custom",
       path: ["cronExpression"],

@@ -25,7 +25,6 @@ import { PrismaRoutineRepo } from "../prisma-routine.repository";
 import { ReconcileRoutineRunsInteractor } from "../reconcile-routine-runs.interactor";
 import { ReleaseOwnerRoutinesInteractor } from "../release-owner-routines.interactor";
 import { RoutineLimitExceededError } from "../routine-run-limits";
-import { UpsertRoutineInteractor } from "../upsert-routine.interactor";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -189,8 +188,9 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     await client.end();
   });
 
-  it("detects a routine filter dependency only inside the caller's company without mutating filters", async () => {
+  it("detects routine filter and watched-field dependencies only inside the caller's company", async () => {
     const referencedField = randomUUID();
+    const watchedField = randomUUID();
     const otherCompanyField = randomUUID();
     const liveFilter = { field: "assignedUserIds", operator: "isNotNull" };
     const companyFilters = [{ field: referencedField, operator: "isNotNull" }, liveFilter];
@@ -204,15 +204,18 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       JSON.stringify(otherCompanyFilters),
       otherRoutineId,
     ]);
+    await client.query('UPDATE "Routine" SET "changedFields" = ARRAY[$1] WHERE "id" = $2', [watchedField, routineId]);
 
-    const [referenced, crossTenantReference] = await runWithTenant(tenant(ownerId), () =>
+    const [referenced, watched, crossTenantReference] = await runWithTenant(tenant(ownerId), () =>
       Promise.all([
-        new PrismaRoutineRepo().hasRoutineFilterReference(referencedField),
-        new PrismaRoutineRepo().hasRoutineFilterReference(otherCompanyField),
+        new PrismaRoutineRepo().hasRoutineFieldReference(referencedField),
+        new PrismaRoutineRepo().hasRoutineFieldReference(watchedField),
+        new PrismaRoutineRepo().hasRoutineFieldReference(otherCompanyField),
       ]),
     );
 
     expect(referenced).toBe(true);
+    expect(watched).toBe(true);
     expect(crossTenantReference).toBe(false);
 
     const mine = await client.query('SELECT "triggerFilters" FROM "Routine" WHERE "id" = $1', [routineId]);
@@ -279,10 +282,9 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     await client.query(
       `INSERT INTO "Routine"
          ("id", "companyId", "ownerUserId", "name", "prompt", "enabled", "triggerKind", "cronExpression",
-          "timezone", "runOnceAt", "triggerEvents", "nextRunAt", "updatedAt")
+          "timezone", "triggerEvents", "nextRunAt", "updatedAt")
        VALUES ($1, $2, $3, 'Scheduled routine', 'Do something', true, 'schedule', '0 9 * * *', 'UTC',
-               CURRENT_TIMESTAMP + INTERVAL '2 days', ARRAY[]::TEXT[], CURRENT_TIMESTAMP + INTERVAL '1 day',
-               CURRENT_TIMESTAMP)`,
+               ARRAY[]::TEXT[], CURRENT_TIMESTAMP + INTERVAL '1 day', CURRENT_TIMESTAMP)`,
       [scheduledRoutineId, companyId, ownerId],
     );
 
@@ -298,10 +300,9 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       triggerKind: string;
       cronExpression: string | null;
       timezone: string | null;
-      runOnceAt: Date | null;
       nextRunAt: Date | null;
     }>(
-      `SELECT "triggerKind", "cronExpression", "timezone", "runOnceAt", "nextRunAt"
+      `SELECT "triggerKind", "cronExpression", "timezone", "nextRunAt"
        FROM "Routine"
        WHERE "id" = $1`,
       [scheduledRoutineId],
@@ -310,35 +311,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       triggerKind: "event",
       cronExpression: null,
       timezone: null,
-      runOnceAt: null,
       nextRunAt: null,
-    });
-  });
-
-  it("normalizes database-null trigger filters when a scheduled routine is updated", async () => {
-    const scheduledRoutineId = randomUUID();
-    await client.query(
-      `INSERT INTO "Routine"
-         ("id", "companyId", "ownerUserId", "name", "prompt", "enabled", "triggerKind", "cronExpression",
-          "timezone", "triggerEvents", "triggerFilters", "updatedAt")
-       VALUES ($1, $2, $3, 'Scheduled routine', 'Do something', true, 'schedule', '0 9 * * *', 'UTC',
-               ARRAY[]::TEXT[], NULL, CURRENT_TIMESTAMP)`,
-      [scheduledRoutineId, companyId, ownerId],
-    );
-
-    const result = await runWithTenant(tenant(ownerId), () =>
-      new UpsertRoutineInteractor(new PrismaRoutineRepo(), {
-        getSubscriptionOrThrow: vi.fn(),
-      }).invoke({ id: scheduledRoutineId, name: "Renamed scheduled routine" }),
-    );
-
-    expect(result).toMatchObject({
-      ok: true,
-      data: {
-        id: scheduledRoutineId,
-        name: "Renamed scheduled routine",
-        triggerFilters: null,
-      },
     });
   });
 

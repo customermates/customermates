@@ -66,6 +66,8 @@ export async function runSyntheticSeed(
   await seedSyntheticAuditLogs(context, entities);
   await seedAgentConversations(context);
   await seedRoutines(context);
+  await context.prisma
+    .$executeRaw`SELECT setval(pg_get_serial_sequence('"AgentMessage"', 'sequence'), (SELECT COALESCE(MAX(sequence), 1) FROM "AgentMessage"))`;
 
   return entities;
 }

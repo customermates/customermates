@@ -23,7 +23,6 @@ import { runInRoutineContext } from "@/core/decorators/routine-context";
 function routineTriggerRepoStub() {
   return {
     findEventRoutinesUnscoped: () => Promise.resolve([]),
-    countSuppressedRoutineEventsUnscoped: () => Promise.resolve(),
     admitEventRoutineRunsUnscoped: () => Promise.resolve([]),
   };
 }
@@ -274,7 +273,6 @@ describe("EventService routine triggers", () => {
 
   let routineRepo: {
     findEventRoutinesUnscoped: ReturnType<typeof vi.fn>;
-    countSuppressedRoutineEventsUnscoped: ReturnType<typeof vi.fn>;
     admitEventRoutineRunsUnscoped: ReturnType<typeof vi.fn>;
   };
   let backgroundTaskService: { dispatch: ReturnType<typeof vi.fn> };
@@ -285,7 +283,6 @@ describe("EventService routine triggers", () => {
     vi.clearAllMocks();
     routineRepo = {
       findEventRoutinesUnscoped: vi.fn().mockResolvedValue([routineCandidate()]),
-      countSuppressedRoutineEventsUnscoped: vi.fn().mockResolvedValue(undefined),
       admitEventRoutineRunsUnscoped: vi
         .fn()
         .mockResolvedValue([{ id: RUN_ID, routineId: ROUTINE_ID, executedByUserId: mockUser.id }]),
@@ -418,9 +415,10 @@ describe("EventService routine triggers", () => {
     const result = await runInRoutineContext({ causationDepth: 1 }, () => publishContactUpdate());
 
     expect(result.routineRuns).toBe(0);
+    expect(routineRepo.findEventRoutinesUnscoped).not.toHaveBeenCalled();
+    expect(routineEventAccess.matchesUserUnscoped).not.toHaveBeenCalled();
     expect(routineRepo.admitEventRoutineRunsUnscoped).not.toHaveBeenCalled();
     expect(backgroundTaskService.dispatch).not.toHaveBeenCalledWith("run-routine", expect.anything());
-    expect(routineRepo.countSuppressedRoutineEventsUnscoped).toHaveBeenCalledWith(mockUser.companyId, [ROUTINE_ID]);
   });
 
   it("skips a routine whose required fields did not change", async () => {

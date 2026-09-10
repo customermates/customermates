@@ -218,23 +218,18 @@ function routineFixture(overrides: Record<string, unknown> = {}) {
     },
     name: "Daily digest",
     prompt: "Summarise yesterday",
-    modelKey: null,
     enabled: true,
     triggerKind: "schedule",
     cronExpression: "0 9 * * *",
     timezone: "UTC",
-    runOnceAt: null,
     triggerEvents: [],
     changedFields: [],
     triggerFilters: [],
     debounceSeconds: 300,
-    maxRunsPerHour: 4,
-    maxCreditsPerRun: 10,
     nextRunAt: null,
     lastRunAt: null,
     lastRunStatus: null,
     disabledReason: null,
-    suppressedEventCount: 0,
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,
@@ -446,11 +441,11 @@ function startFixtures(
     }),
     countRecentRoutineRunsUnscoped: vi.fn().mockResolvedValue(0),
     claimQueuedRoutineRunForOwnerUnscoped: vi.fn().mockResolvedValue({ routine: claimedRoutine }),
-    markRoutineRunStartedUnscoped: vi.fn().mockResolvedValue(true),
     settleRoutineRunUnscoped: vi.fn().mockResolvedValue(true),
   };
   const conversations = {
     createAndLinkRoutineConversationForRun: vi.fn().mockResolvedValue(undefined),
+    releaseUnstartedRoutineConversationForRetry: vi.fn().mockResolvedValue(undefined),
     deleteUnusedAgentConversation: vi.fn().mockResolvedValue(undefined),
   };
   const filterMatcher = {
@@ -496,7 +491,6 @@ describe("StartRoutineRunInteractor", () => {
     );
     expect(sendAgentMessage.invokeRoutine).toHaveBeenCalledWith(expect.objectContaining({ clientRequestId: RUN_ID }));
     expect(conversations.createAndLinkRoutineConversationForRun).toHaveBeenCalledBefore(sendAgentMessage.invokeRoutine);
-    expect(repo.markRoutineRunStartedUnscoped).toHaveBeenCalled();
   });
 
   it("lets a read-own routine owner start an admitted background run", async () => {
@@ -536,13 +530,11 @@ describe("StartRoutineRunInteractor", () => {
         routine: routineFixture({
           name: "Old name",
           prompt: "Old prompt",
-          maxCreditsPerRun: 99,
         }),
       },
       routine: {
         name: "Claimed name",
         prompt: "Claimed prompt",
-        maxCreditsPerRun: 3,
       },
     });
     const interactor = new StartRoutineRunInteractor(
@@ -555,7 +547,7 @@ describe("StartRoutineRunInteractor", () => {
     await interactor.invoke({ routineRunId: RUN_ID });
 
     expect(conversations.createAndLinkRoutineConversationForRun).toHaveBeenCalledWith(
-      expect.objectContaining({ title: "Claimed name", creditCeiling: 3 }),
+      expect.objectContaining({ title: "Claimed name", creditCeiling: 10 }),
     );
     expect(sendAgentMessage.invokeRoutine).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -683,10 +675,8 @@ describe("StartRoutineRunInteractor", () => {
     expect(sendAgentMessage.invokeRoutine).not.toHaveBeenCalled();
   });
 
-  it("caps the turn budget with the routine's per-run credit ceiling", async () => {
-    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures({
-      routine: { maxCreditsPerRun: 3 },
-    });
+  it("caps every routine turn with the platform credit ceiling", async () => {
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
     const interactor = new StartRoutineRunInteractor(
       repo as never,
       conversations as never,
@@ -697,8 +687,31 @@ describe("StartRoutineRunInteractor", () => {
     await interactor.invoke({ routineRunId: RUN_ID });
 
     expect(conversations.createAndLinkRoutineConversationForRun).toHaveBeenCalledWith(
-      expect.objectContaining({ creditCeiling: 3 }),
+      expect.objectContaining({ creditCeiling: 10 }),
     );
+  });
+
+  it("returns a capacity-limited run to the queue instead of skipping it", async () => {
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
+    sendAgentMessage.invokeRoutine.mockResolvedValue({
+      ok: true,
+      data: { disposition: "atCapacity", conversationId: "00000000-0000-4000-8000-000000000009", retryAllowed: true },
+    });
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
+
+    const result = await interactor.invoke({ routineRunId: RUN_ID });
+
+    expect(result).toEqual({ ok: true, data: { started: false, reason: "agentAtCapacity" } });
+    expect(conversations.releaseUnstartedRoutineConversationForRetry).toHaveBeenCalledWith({
+      routineRunId: RUN_ID,
+      conversationId: expect.any(String),
+    });
+    expect(repo.settleRoutineRunUnscoped).not.toHaveBeenCalled();
   });
 
   it("skips a run whose record no longer matches the routine's conditions", async () => {
@@ -829,28 +842,6 @@ describe("StartRoutineRunInteractor", () => {
 
     await interactor.invoke({ routineRunId: RUN_ID });
 
-    expect(conversations.deleteUnusedAgentConversation).not.toHaveBeenCalled();
-  });
-
-  it("does not report a start when owner lifecycle cleanup wins the post-admission linkage race", async () => {
-    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
-    repo.markRoutineRunStartedUnscoped.mockResolvedValue(false);
-    const interactor = new StartRoutineRunInteractor(
-      repo as never,
-      conversations as never,
-      sendAgentMessage as never,
-      filterMatcher as never,
-    );
-
-    const result = await interactor.invoke({ routineRunId: RUN_ID });
-
-    expect(result).toEqual({
-      ok: true,
-      data: { started: false, reason: "runNoLongerRunning" },
-    });
-    expect(repo.markRoutineRunStartedUnscoped).toHaveBeenCalledWith(
-      expect.objectContaining({ executedByUserId: mockUser.id }),
-    );
     expect(conversations.deleteUnusedAgentConversation).not.toHaveBeenCalled();
   });
 
@@ -1339,7 +1330,6 @@ describe("per-user routine plan allowance", () => {
           triggerKind: "event",
           cronExpression: null,
           timezone: null,
-          runOnceAt: null,
           triggerEvents: ["deal.updated"],
         }),
       ),

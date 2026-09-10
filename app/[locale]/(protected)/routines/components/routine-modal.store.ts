@@ -83,7 +83,6 @@ export const EMPTY_ROUTINE_FORM: RoutineModalForm = {
   id: undefined,
   ownerUserId: null,
   owner: null,
-  modelKey: undefined,
   name: "",
   prompt: "",
   enabled: true,
@@ -109,13 +108,12 @@ export function routineFormFor(routine: RoutineDto): RoutineModalForm {
     owner: routine.owner,
     name: routine.name,
     prompt: routine.prompt,
-    modelKey: routine.modelKey,
     enabled: routine.enabled,
     triggerKind: routine.triggerKind,
     timezone: routine.timezone ?? DEFAULT_ROUTINE_TIMEZONE,
     triggerEvents: routine.triggerEvents,
     changedFields: routine.changedFields,
-    triggerFilters: routine.triggerFilters ?? [],
+    triggerFilters: routine.triggerFilters,
     schedulePreset: schedule.preset,
     scheduleHour: String(schedule.hour),
     scheduleMinute: String(schedule.minute),
@@ -136,7 +134,6 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   isStartingRun = false;
   filterableFieldsByEntityType: Partial<Record<EntityType, FilterableField[]>> = {};
   customColumnsByEntityType: Partial<Record<EntityType, CustomColumnDto[]>> = {};
-  private filterFieldsLoaded = false;
   private filterFieldsLoadPromise: Promise<void> | null = null;
   private runsSessionGeneration = 0;
   private runsRoutineId: string | null = null;
@@ -699,7 +696,6 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   };
 
   loadFilterFields = async () => {
-    if (this.filterFieldsLoaded) return;
     if (this.filterFieldsLoadPromise) return this.filterFieldsLoadPromise;
 
     const promise = getRoutineFilterFieldsAction().then(({ filterableFields, customColumns }) => {
@@ -710,7 +706,6 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
         this.filterableFieldsByEntityType = filterableFields;
         this.customColumnsByEntityType = byEntityType;
       });
-      this.filterFieldsLoaded = true;
     });
     this.filterFieldsLoadPromise = promise;
 

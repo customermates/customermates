@@ -1330,7 +1330,6 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     routineRunId: string;
     conversationId: string;
     title: string | null;
-    modelKey?: string | null;
     now: Date;
     creditCeiling?: number | null;
   }) {
@@ -1340,7 +1339,6 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       await this.createAgentConversationForRun({
         conversationId: args.conversationId,
         title: args.title,
-        modelKey: args.modelKey,
         now: args.now,
         origin: AgentConversationOrigin.routine,
         creditCeiling: args.creditCeiling,
@@ -1358,6 +1356,41 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         data: { conversationId: args.conversationId },
       });
       if (linked.count !== 1) throw new Error("Routine run changed before its conversation could be linked.");
+    });
+  }
+
+  async releaseUnstartedRoutineConversationForRetry(args: { routineRunId: string; conversationId: string }) {
+    const companyId = this.companyId;
+    const userId = this.userId;
+    await this.withCompanyTransaction(companyId, async () => {
+      const released = await this.prisma.routineRun.updateMany({
+        where: {
+          id: args.routineRunId,
+          companyId,
+          executedByUserId: userId,
+          status: RoutineRunStatus.running,
+          conversationId: args.conversationId,
+          turnRequestId: null,
+        },
+        data: {
+          status: RoutineRunStatus.queued,
+          conversationId: null,
+          startedAt: null,
+        },
+      });
+      if (released.count !== 1) throw new Error("Routine run changed before capacity retry could be scheduled.");
+
+      const deleted = await this.prisma.agentConversation.deleteMany({
+        where: {
+          id: args.conversationId,
+          companyId,
+          userId,
+          origin: AgentConversationOrigin.routine,
+          messages: { none: {} },
+          turnRequests: { none: {} },
+        },
+      });
+      if (deleted.count !== 1) throw new Error("Unused Routine conversation could not be released for retry.");
     });
   }
 

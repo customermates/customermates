@@ -365,6 +365,39 @@ describe("agent access", () => {
     );
   });
 
+  it("reports temporary capacity pressure separately for a queued routine", async () => {
+    const usage = usageService();
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+      claimAgentRunLease: vi.fn().mockResolvedValue("atUserLimit"),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(true),
+      findConversation: vi
+        .fn()
+        .mockResolvedValue({ id: CONVERSATION_ID, origin: "routine", modelKey: null, creditCeiling: 10 }),
+    };
+
+    const result = await runWithTenant(mockUser, () =>
+      new SendAgentMessageInteractor(
+        repo as never,
+        usage as never,
+        mockEntitlementService(),
+        backgroundTasks() as never,
+      ).invokeRoutine({
+        clientRequestId: CLIENT_REQUEST_ID,
+        conversationId: CONVERSATION_ID,
+        text: "Inspect the changed deal",
+        retry: false,
+      }),
+    );
+
+    expect(result).toMatchObject({
+      ok: true,
+      data: { disposition: "atCapacity", conversationId: CONVERSATION_ID, retryAllowed: true },
+    });
+    expect(usage.reserveUsage).not.toHaveBeenCalled();
+  });
+
   it("continues a terminal owned routine conversation as an interactive chat turn", async () => {
     const background = backgroundTasks();
     const usage = usageService();

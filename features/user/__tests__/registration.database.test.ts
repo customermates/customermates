@@ -13,7 +13,6 @@ import messages from "@/i18n/locales/en.json";
 function routineTriggerRepoStub() {
   return {
     findEventRoutinesUnscoped: () => Promise.resolve([]),
-    countSuppressedRoutineEventsUnscoped: () => Promise.resolve(),
     admitEventRoutineRunsUnscoped: () => Promise.resolve([]),
   };
 }

@@ -27,7 +27,7 @@ export abstract class DeleteCustomColumnRepo {
 }
 
 export abstract class DeleteCustomColumnRoutineRepo {
-  abstract hasRoutineFilterReference(field: string): Promise<boolean>;
+  abstract hasRoutineFieldReference(field: string): Promise<boolean>;
 }
 
 @TenantInteractor()
@@ -72,7 +72,7 @@ export class DeleteCustomColumnInteractor extends AuthenticatedInteractor<Delete
 
     await this.userService.hasPermissionOrThrow(permission.resource, permission.action);
 
-    if (await this.routineRepo.hasRoutineFilterReference(customColumn.id))
+    if (await this.routineRepo.hasRoutineFieldReference(customColumn.id))
       return failConflict(CustomErrorCode.customColumnUsedByRoutineCannotDelete, ["id"]);
 
     await Promise.all([

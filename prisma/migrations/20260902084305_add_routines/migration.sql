@@ -7,6 +7,9 @@ CREATE TYPE "RoutineTriggerKind" AS ENUM ('schedule', 'event');
 -- CreateEnum
 CREATE TYPE "RoutineRunStatus" AS ENUM ('queued', 'running', 'succeeded', 'partial', 'failed', 'skipped', 'blocked');
 
+-- CreateEnum
+CREATE TYPE "AgentTurnStopReason" AS ENUM ('credit_limit', 'provider_error', 'content_filter', 'hosted_ai_unavailable', 'cancelled', 'turn_error', 'policy_breach');
+
 -- AlterEnum
 ALTER TYPE "Resource" ADD VALUE 'routines';
 
@@ -15,22 +18,7 @@ ALTER TABLE "AgentConversation" ADD COLUMN     "creditCeiling" INTEGER,
 ADD COLUMN     "origin" "AgentConversationOrigin" NOT NULL DEFAULT 'user';
 
 -- AlterTable
-ALTER TABLE "AgentTurnRequest" ADD COLUMN     "stopReason" TEXT;
-
-ALTER TABLE "AgentTurnRequest"
-ADD CONSTRAINT "AgentTurnRequest_stopReason_check"
-CHECK (
-  "stopReason" IS NULL OR
-  "stopReason" IN (
-    'credit_limit',
-    'provider_error',
-    'content_filter',
-    'hosted_ai_unavailable',
-    'cancelled',
-    'turn_error',
-    'policy_breach'
-  )
-);
+ALTER TABLE "AgentTurnRequest" ADD COLUMN     "stopReason" "AgentTurnStopReason";
 
 -- CreateTable
 CREATE TABLE "Routine" (
@@ -39,23 +27,18 @@ CREATE TABLE "Routine" (
     "ownerUserId" TEXT,
     "name" TEXT NOT NULL,
     "prompt" TEXT NOT NULL,
-    "modelKey" TEXT,
     "enabled" BOOLEAN NOT NULL DEFAULT true,
     "triggerKind" "RoutineTriggerKind" NOT NULL,
     "cronExpression" TEXT,
     "timezone" TEXT,
-    "runOnceAt" TIMESTAMP(3),
     "triggerEvents" TEXT[],
     "changedFields" TEXT[],
-    "triggerFilters" JSONB,
+    "triggerFilters" JSONB NOT NULL DEFAULT '[]',
     "debounceSeconds" INTEGER NOT NULL DEFAULT 300,
-    "maxRunsPerHour" INTEGER NOT NULL DEFAULT 4,
-    "maxCreditsPerRun" INTEGER NOT NULL DEFAULT 10,
     "nextRunAt" TIMESTAMP(3),
     "lastRunAt" TIMESTAMP(3),
     "lastRunStatus" "RoutineRunStatus",
     "disabledReason" TEXT,
-    "suppressedEventCount" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

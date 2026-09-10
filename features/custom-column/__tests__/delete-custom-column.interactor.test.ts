@@ -42,7 +42,7 @@ function makeInteractor(referenced: boolean) {
     delete: vi.fn().mockResolvedValue({ id: CUSTOM_COLUMN_ID }),
   };
   const routineRepo = {
-    hasRoutineFilterReference: vi.fn().mockResolvedValue(referenced),
+    hasRoutineFieldReference: vi.fn().mockResolvedValue(referenced),
   };
   const userService = {
     hasPermissionOrThrow: vi.fn().mockResolvedValue(undefined),
@@ -81,7 +81,7 @@ describe("DeleteCustomColumnInteractor routine dependencies", () => {
         kind: "conflict",
       },
     });
-    expect(routineRepo.hasRoutineFilterReference).toHaveBeenCalledWith(CUSTOM_COLUMN_ID);
+    expect(routineRepo.hasRoutineFieldReference).toHaveBeenCalledWith(CUSTOM_COLUMN_ID);
     expect(repo.delete).not.toHaveBeenCalled();
     expect(eventService.publish).not.toHaveBeenCalled();
   });
@@ -94,7 +94,7 @@ describe("DeleteCustomColumnInteractor routine dependencies", () => {
       data: CUSTOM_COLUMN_ID,
     });
 
-    expect(routineRepo.hasRoutineFilterReference).toHaveBeenCalledWith(CUSTOM_COLUMN_ID);
+    expect(routineRepo.hasRoutineFieldReference).toHaveBeenCalledWith(CUSTOM_COLUMN_ID);
     expect(repo.delete).toHaveBeenCalledWith(CUSTOM_COLUMN_ID);
     expect(eventService.publish).toHaveBeenCalledWith(DomainEvent.CUSTOM_COLUMN_DELETED, {
       entityId: CUSTOM_COLUMN_ID,

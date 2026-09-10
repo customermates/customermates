@@ -137,6 +137,7 @@ export class EventService extends UserAccessor {
     companyId: string,
   ): Promise<number> {
     if (!WebhookEventSchema.options.some((option) => option === event)) return 0;
+    if (currentRoutineContext()) return 0;
 
     const subscribed = await this.routineRepo.findEventRoutinesUnscoped(companyId, event);
     if (subscribed.length === 0) return 0;
@@ -161,14 +162,6 @@ export class EventService extends UserAccessor {
       )
     ).flatMap(({ routine, matches }) => (matches ? [routine] : []));
     if (routines.length === 0) return 0;
-
-    if (currentRoutineContext()) {
-      await this.routineRepo.countSuppressedRoutineEventsUnscoped(
-        companyId,
-        routines.map((routine) => routine.id),
-      );
-      return 0;
-    }
 
     const admitted = await this.routineRepo.admitEventRoutineRunsUnscoped({
       companyId,

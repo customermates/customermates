@@ -64,8 +64,6 @@ function makeRoutine(overrides: Partial<RoutineDto> = {}): RoutineDto {
     triggerEvents: [],
     changedFields: [],
     triggerFilters: [],
-    maxRunsPerHour: 6,
-    maxCreditsPerRun: 10,
     ...overrides,
   } as unknown as RoutineDto;
 }
@@ -362,6 +360,20 @@ describe("RoutineModalStore", () => {
     await Promise.resolve();
 
     expect(store.form.triggerFilters).toHaveLength(2);
+  });
+
+  it("refreshes custom-field metadata whenever the editor is opened", async () => {
+    const store = makeStore();
+    await store.openForCreate();
+
+    routineActions.getRoutineFilterFieldsAction.mockResolvedValue({
+      filterableFields: { organization: [{ field: "new-field" }] },
+      customColumns: [],
+    });
+    await store.openForCreate();
+
+    expect(routineActions.getRoutineFilterFieldsAction).toHaveBeenCalledTimes(2);
+    expect(store.filterableFieldsByEntityType.organization).toEqual([{ field: "new-field" }]);
   });
 
   it("offers change fields only once a selected event reports changes", async () => {

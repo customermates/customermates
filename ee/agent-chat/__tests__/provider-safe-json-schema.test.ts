@@ -452,13 +452,13 @@ describe("the shipped tool catalog on the Google wire", () => {
     expect(summarizeGoogleSchemaChanges(changes)).toEqual({
       "$schema:removed": 53,
       "additionalProperties:removed": 56,
-      "anyOf:collapsed": 47,
+      "anyOf:collapsed": 45,
       "const:removed": 1,
       "const:rewritten": 219,
       "enum:removed": 25,
       "exclusiveMinimum:rewritten": 11,
       "nullable:collapsed": 10,
-      "nullable:rewritten": 27,
+      "nullable:rewritten": 25,
       "propertyNames:removed": 1,
       "oneOf:rewritten": 18,
     });

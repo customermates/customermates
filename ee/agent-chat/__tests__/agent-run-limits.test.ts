@@ -14,7 +14,7 @@ function round(toolName: string, input: unknown, output: unknown) {
 }
 
 function decide(steps: ReturnType<typeof round>[]) {
-  return decideAgentContinuationLoop({ startedAtMs: 0, steps, observedAtMs: 0 });
+  return decideAgentContinuationLoop({ steps });
 }
 
 describe("credit-bounded durable continuation", () => {
@@ -54,14 +54,14 @@ describe("credit-bounded durable continuation", () => {
     const failing = () => round("create_contacts", { name: "x" }, { ok: false, result: "not allowed" });
     const steps = Array.from({ length: 40 }, failing);
 
-    expect(decide(steps)).toMatchObject({ action: "continue", accounting: { errors: 40 } });
+    expect(decide(steps)).toEqual({ action: "continue" });
   });
 
   it("continues when a model keeps making the same call", () => {
     const repeat = () => round("list_records", { entity: "contact" }, { ok: true, result: "items" });
     const steps = Array.from({ length: 40 }, repeat);
 
-    expect(decide(steps)).toMatchObject({ action: "continue", accounting: { repeatedActivityCalls: 40 } });
+    expect(decide(steps)).toEqual({ action: "continue" });
   });
 
   it("continues past 32 provider rounds and 16 successful writes", () => {
@@ -69,19 +69,12 @@ describe("credit-bounded durable continuation", () => {
       round("create_contacts", { firstName: `Contact ${index}` }, { ok: true, result: `created ${index}` }),
     );
 
-    expect(decide(steps)).toMatchObject({
-      action: "continue",
-      accounting: { providerSteps: 40, writeActivities: 40 },
-    });
+    expect(decide(steps)).toEqual({ action: "continue" });
   });
 
   it("never stops a durable run for taking too long, which is the point of durability", () => {
     const steps = [round("list_records", { entity: "contact" }, { ok: true, result: "items" })];
-    const decision = decideAgentContinuationLoop({
-      startedAtMs: 0,
-      steps,
-      observedAtMs: Number.MAX_SAFE_INTEGER - 1,
-    });
+    const decision = decideAgentContinuationLoop({ steps });
 
     expect(decision.action).toBe("continue");
   });

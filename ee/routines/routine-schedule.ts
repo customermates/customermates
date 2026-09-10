@@ -4,7 +4,7 @@ import { addDays } from "date-fns";
 export const MIN_ROUTINE_INTERVAL_MINUTES = 15;
 export const DEFAULT_ROUTINE_TIMEZONE = "UTC";
 
-const MAX_SEARCH_DAYS = 400;
+const MAX_SEARCH_DAYS = 8 * 366;
 const INTERVAL_SAMPLE_COUNT = 12;
 
 const FIELD_RANGES = {
@@ -127,6 +127,7 @@ export function nextCronOccurrence(cron: ParsedCron, after: Date, timeZone: stri
             minute,
             timeZone,
           );
+          if (occurrence.getHours() !== hour || occurrence.getMinutes() !== minute) continue;
           if (occurrence.getTime() > after.getTime()) return new Date(occurrence.getTime());
         }
       }

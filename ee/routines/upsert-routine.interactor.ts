@@ -24,7 +24,6 @@ function mergeRoutineFinalState(previous: RoutineDto, update: UpsertRoutineData)
   return {
     name: update.name ?? previous.name,
     prompt: update.prompt ?? previous.prompt,
-    modelKey: update.modelKey === undefined ? previous.modelKey : update.modelKey,
     enabled: update.enabled ?? previous.enabled,
     triggerKind,
     cronExpression: scheduled
@@ -41,19 +40,10 @@ function mergeRoutineFinalState(previous: RoutineDto, update: UpsertRoutineData)
           : previous.timezone
         : update.timezone
       : null,
-    runOnceAt: scheduled
-      ? update.runOnceAt === undefined
-        ? switchingToSchedule
-          ? null
-          : previous.runOnceAt
-        : update.runOnceAt
-      : null,
     triggerEvents: update.triggerEvents ?? previous.triggerEvents,
     changedFields: update.changedFields ?? previous.changedFields,
-    triggerFilters: update.triggerFilters === undefined ? previous.triggerFilters : update.triggerFilters,
+    triggerFilters: update.triggerFilters ?? previous.triggerFilters,
     debounceSeconds: update.debounceSeconds ?? previous.debounceSeconds,
-    maxRunsPerHour: update.maxRunsPerHour ?? previous.maxRunsPerHour,
-    maxCreditsPerRun: update.maxCreditsPerRun ?? previous.maxCreditsPerRun,
   };
 }
 

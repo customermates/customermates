@@ -38,7 +38,6 @@ import { isAgentTurnStopReason } from "@/ee/agent-chat/agent-turn-request";
 
 import { DEFAULT_ROUTINE_TIMEZONE, nextCronOccurrence, parseCronExpression } from "./routine-schedule";
 import {
-  DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN,
   DEFAULT_ROUTINE_MAX_RUNS_PER_HOUR,
   RoutineLimitExceededError,
   type RoutineCountLimit,
@@ -72,23 +71,18 @@ const ROUTINE_SELECT = {
   owner: { select: ROUTINE_OWNER_SELECT },
   name: true,
   prompt: true,
-  modelKey: true,
   enabled: true,
   triggerKind: true,
   cronExpression: true,
   timezone: true,
-  runOnceAt: true,
   triggerEvents: true,
   changedFields: true,
   triggerFilters: true,
   debounceSeconds: true,
-  maxRunsPerHour: true,
-  maxCreditsPerRun: true,
   nextRunAt: true,
   lastRunAt: true,
   lastRunStatus: true,
   disabledReason: true,
-  suppressedEventCount: true,
   createdAt: true,
   updatedAt: true,
 } as const;
@@ -120,11 +114,11 @@ function ownerName(owner: { firstName: string; lastName: string }): string {
   return `${owner.firstName} ${owner.lastName}`.trim();
 }
 
-function storedRoutineFilters(value: unknown): Filter[] | null {
-  if (value === null) return [];
-
+function storedRoutineFilters(value: unknown): Filter[] {
   const parsed = FilterSchema.array().safeParse(value);
-  return parsed.success ? parsed.data : null;
+  if (!parsed.success) throw new Error("Stored Routine trigger filters are invalid.");
+
+  return parsed.data;
 }
 
 type RoutineRunRow = Omit<RoutineRunDto, "triggerContext" | "stopReason"> & {
@@ -143,22 +137,11 @@ function routineRunDto(row: RoutineRunRow, storedStopReason: string | null): Rou
   };
 }
 
-function routineTriggerFiltersDto(value: unknown): Filter[] | null {
-  const isSerializedPrismaNull =
-    typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value).length === 0;
-  if (value === null || value === Prisma.DbNull || value === Prisma.JsonNull || isSerializedPrismaNull) return null;
-
-  const parsed = FilterSchema.array().safeParse(value);
-  if (!parsed.success) throw new Error("Stored Routine trigger filters are invalid.");
-
-  return parsed.data;
-}
-
 function routineDto(row: unknown): RoutineDto {
   const stored = row as Omit<RoutineDto, "triggerFilters"> & { triggerFilters: unknown };
   const routine: RoutineDto = {
     ...stored,
-    triggerFilters: routineTriggerFiltersDto(stored.triggerFilters),
+    triggerFilters: storedRoutineFilters(stored.triggerFilters),
   };
   if (routine.owner?.status === Status.active) return routine;
 
@@ -173,7 +156,6 @@ export function resolveNextRunAt(
   routine: {
     cronExpression: string | null;
     timezone: string | null;
-    runOnceAt: Date | null;
   },
   after: Date,
 ): Date | null {
@@ -183,8 +165,6 @@ export function resolveNextRunAt(
 
     return nextCronOccurrence(parsed.cron, after, routine.timezone ?? DEFAULT_ROUTINE_TIMEZONE);
   }
-
-  if (routine.runOnceAt && routine.runOnceAt.getTime() > after.getTime()) return routine.runOnceAt;
 
   return null;
 }
@@ -329,19 +309,15 @@ export class PrismaRoutineRepo
     );
   }
 
-  async hasRoutineFilterReference(field: string): Promise<boolean> {
+  async hasRoutineFieldReference(field: string): Promise<boolean> {
     const routines = await this.prisma.routine.findMany({
-      where: {
-        companyId: this.companyId,
-        triggerFilters: { not: Prisma.DbNull },
-      },
-      select: { triggerFilters: true },
+      where: { companyId: this.companyId },
+      select: { changedFields: true, triggerFilters: true },
     });
 
     return routines.some(
-      ({ triggerFilters }) =>
-        Array.isArray(triggerFilters) &&
-        triggerFilters.some((filter) => (filter as { field?: unknown } | null)?.field === field),
+      ({ changedFields, triggerFilters }) =>
+        changedFields.includes(field) || storedRoutineFilters(triggerFilters).some((filter) => filter.field === field),
     );
   }
 
@@ -430,15 +406,7 @@ export class PrismaRoutineRepo
             : existing.timezone
           : input.timezone
         : null;
-      const runOnceAt = scheduled
-        ? input.runOnceAt === undefined
-          ? switchingToSchedule
-            ? null
-            : existing.runOnceAt
-          : input.runOnceAt
-        : null;
-      if (scheduled && !cronExpression && !runOnceAt)
-        throw new Error("Scheduled routines require a cron expression or a one-off date");
+      if (scheduled && !cronExpression) throw new Error("Scheduled routines require a cron expression");
       const enabled = input.enabled ?? existing.enabled;
       const triggerEvents = input.triggerEvents ?? existing.triggerEvents;
       if (triggerKind === RoutineTriggerKind.event && triggerEvents.length === 0)
@@ -458,12 +426,10 @@ export class PrismaRoutineRepo
         data: {
           name: input.name,
           prompt: input.prompt,
-          modelKey: input.modelKey,
           enabled: input.enabled,
           triggerKind,
           cronExpression,
           timezone,
-          runOnceAt,
           triggerEvents: input.triggerEvents,
           changedFields: watchesRecordChanges
             ? recordTypeChanged
@@ -471,17 +437,9 @@ export class PrismaRoutineRepo
               : input.changedFields
             : [],
           triggerFilters:
-            triggerEntityType === null
-              ? Prisma.DbNull
-              : recordTypeChanged
-                ? (input.triggerFilters ?? Prisma.DbNull)
-                : input.triggerFilters === undefined
-                  ? undefined
-                  : (input.triggerFilters ?? Prisma.DbNull),
+            triggerEntityType === null ? [] : recordTypeChanged ? (input.triggerFilters ?? []) : input.triggerFilters,
           debounceSeconds: input.debounceSeconds,
-          maxRunsPerHour: input.maxRunsPerHour,
-          maxCreditsPerRun: input.maxCreditsPerRun,
-          nextRunAt: enabled && scheduled ? resolveNextRunAt({ cronExpression, timezone, runOnceAt }, now) : null,
+          nextRunAt: enabled && scheduled ? resolveNextRunAt({ cronExpression, timezone }, now) : null,
           disabledReason:
             input.enabled === true
               ? null
@@ -506,9 +464,7 @@ export class PrismaRoutineRepo
     const scheduled = triggerKind === RoutineTriggerKind.schedule;
     const cronExpression = scheduled ? (input.cronExpression ?? null) : null;
     const timezone = scheduled ? (input.timezone ?? DEFAULT_ROUTINE_TIMEZONE) : null;
-    const runOnceAt = scheduled ? (input.runOnceAt ?? null) : null;
-    if (scheduled && !cronExpression && !runOnceAt)
-      throw new Error("Scheduled routines require a cron expression or a one-off date");
+    if (scheduled && !cronExpression) throw new Error("Scheduled routines require a cron expression");
     const triggerEvents = input.triggerEvents ?? [];
     if (triggerKind === RoutineTriggerKind.event && triggerEvents.length === 0)
       throw new Error("Event routines require at least one trigger event");
@@ -519,20 +475,15 @@ export class PrismaRoutineRepo
         ownerUserId: userId,
         name: input.name as string,
         prompt: input.prompt as string,
-        modelKey: input.modelKey ?? null,
         enabled: input.enabled ?? true,
         triggerKind,
         cronExpression,
         timezone,
-        runOnceAt,
         triggerEvents,
         changedFields: triggerEntityType && triggerEvents.some(isRecordChangeEvent) ? (input.changedFields ?? []) : [],
-        triggerFilters: triggerEntityType ? (input.triggerFilters ?? Prisma.DbNull) : Prisma.DbNull,
+        triggerFilters: triggerEntityType ? (input.triggerFilters ?? []) : [],
         debounceSeconds: input.debounceSeconds ?? 300,
-        maxRunsPerHour: input.maxRunsPerHour ?? DEFAULT_ROUTINE_MAX_RUNS_PER_HOUR,
-        maxCreditsPerRun: input.maxCreditsPerRun ?? DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN,
-        nextRunAt:
-          (input.enabled ?? true) && scheduled ? resolveNextRunAt({ cronExpression, timezone, runOnceAt }, now) : null,
+        nextRunAt: (input.enabled ?? true) && scheduled ? resolveNextRunAt({ cronExpression, timezone }, now) : null,
       },
       select: { id: true },
     });
@@ -701,7 +652,6 @@ export class PrismaRoutineRepo
         select: {
           cronExpression: true,
           timezone: true,
-          runOnceAt: true,
           triggerKind: true,
           companyId: true,
           enabled: true,
@@ -873,37 +823,6 @@ export class PrismaRoutineRepo
   }
 
   @BypassTenantGuard
-  async markRoutineRunStartedUnscoped(args: {
-    routineRunId: string;
-    executedByUserId: string;
-    conversationId: string;
-    turnRequestId: string;
-    now: Date;
-  }): Promise<boolean> {
-    const identity = await this.prisma.routineRun.findUnique({
-      where: { id: args.routineRunId },
-      select: { companyId: true },
-    });
-    if (!identity) return false;
-
-    return this.withCompanyTransaction(identity.companyId, async () => {
-      const linked = await this.prisma.routineRun.updateMany({
-        where: {
-          id: args.routineRunId,
-          companyId: identity.companyId,
-          executedByUserId: args.executedByUserId,
-          status: RoutineRunStatus.running,
-          conversationId: args.conversationId,
-          turnRequestId: args.turnRequestId,
-        },
-        data: { startedAt: args.now },
-      });
-
-      return linked.count === 1;
-    });
-  }
-
-  @BypassTenantGuard
   async settleRoutineRunUnscoped(args: {
     routineRunId: string;
     routineId: string;
@@ -1055,16 +974,6 @@ export class PrismaRoutineRepo
   }
 
   @BypassTenantGuard
-  async countSuppressedRoutineEventsUnscoped(companyId: string, routineIds: string[]) {
-    if (routineIds.length === 0) return;
-
-    await this.prisma.routine.updateMany({
-      where: { id: { in: routineIds }, companyId },
-      data: { suppressedEventCount: { increment: 1 } },
-    });
-  }
-
-  @BypassTenantGuard
   async admitEventRoutineRunsUnscoped(args: {
     companyId: string;
     event: string;
@@ -1092,7 +1001,6 @@ export class PrismaRoutineRepo
           changedFields: true,
           triggerFilters: true,
           debounceSeconds: true,
-          maxRunsPerHour: true,
           updatedAt: true,
         },
       });
@@ -1147,7 +1055,7 @@ export class PrismaRoutineRepo
             status: { not: RoutineRunStatus.skipped },
           },
         });
-        if (hourlyCount >= routine.maxRunsPerHour) continue;
+        if (hourlyCount >= DEFAULT_ROUTINE_MAX_RUNS_PER_HOUR) continue;
 
         const run = await this.prisma.routineRun.create({
           data: {

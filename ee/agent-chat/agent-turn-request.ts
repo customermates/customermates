@@ -1,21 +1,14 @@
 import { AGENT_ACTIVITY_RESOURCES, type AgentActivityResource } from "./agent-activity";
+import { AgentTurnStopReason as AgentTurnStopReasonValue } from "@/generated/prisma";
 
 export const AGENT_TURN_REQUEST_STATUSES = ["running", "completed", "failed", "uncertain"] as const;
 export const AGENT_TURN_TERMINAL_CODES = ["completed", "partial", "error", "cancelled", "policyBreach"] as const;
-export const AGENT_TURN_STOP_REASONS = [
-  "credit_limit",
-  "provider_error",
-  "content_filter",
-  "hosted_ai_unavailable",
-  "cancelled",
-  "turn_error",
-  "policy_breach",
-] as const;
+export const AGENT_TURN_STOP_REASONS = Object.values(AgentTurnStopReasonValue);
 export const AGENT_RUN_LEASE_MS = 330_000;
 
 export type AgentTurnRequestStatus = (typeof AGENT_TURN_REQUEST_STATUSES)[number];
 export type AgentTurnTerminalCode = (typeof AGENT_TURN_TERMINAL_CODES)[number];
-export type AgentTurnStopReason = (typeof AGENT_TURN_STOP_REASONS)[number];
+export type AgentTurnStopReason = AgentTurnStopReasonValue;
 
 export type AgentTurnRequestSnapshot = {
   id: string;

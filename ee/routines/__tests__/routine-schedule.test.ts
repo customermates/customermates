@@ -94,6 +94,18 @@ describe("next occurrence", () => {
   it("returns null for an unreachable expression", () => {
     expect(nextCronOccurrence(parseOrThrow("0 9 30 2 *"), new Date("2026-09-01T00:00:00Z"), "UTC")).toBeNull();
   });
+
+  it("finds a leap-day schedule beyond the old one-year search window", () => {
+    const next = nextCronOccurrence(parseOrThrow("0 9 29 2 *"), new Date("2026-09-01T00:00:00Z"), "UTC");
+
+    expect(next?.toISOString()).toBe("2028-02-29T09:00:00.000Z");
+  });
+
+  it("skips a local wall-clock time that does not exist during the spring DST transition", () => {
+    const next = nextCronOccurrence(parseOrThrow("30 2 * * *"), new Date("2026-03-28T12:00:00Z"), "Europe/Berlin");
+
+    expect(next?.toISOString()).toBe("2026-03-30T00:30:00.000Z");
+  });
 });
 
 describe("interval floor", () => {

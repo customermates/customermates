@@ -1,9 +1,9 @@
 import { z } from "zod";
+import { AgentTurnStopReason } from "@/generated/prisma";
 
 import type { Data } from "@/core/validation/validation.utils";
 
 import { AgentConversationSummarySchema } from "./agent-chat.schema";
-import { AGENT_TURN_STOP_REASONS } from "./agent-turn-request";
 
 export const AGENT_CONVERSATION_PAGE_SIZE = 25;
 export const AGENT_MESSAGE_PAGE_SIZE = 50;
@@ -13,7 +13,7 @@ export const AgentMessageTurnSchema = z.object({
   status: z.enum(["running", "waitingBudget", "needsAttention", "completed", "failed", "uncertain"]),
   assistantMessageId: z.string().nullable(),
   terminalCode: z.enum(["completed", "partial", "error", "cancelled", "policyBreach"]).nullable(),
-  stopReason: z.enum(AGENT_TURN_STOP_REASONS).nullable(),
+  stopReason: z.enum(AgentTurnStopReason).nullable(),
 });
 
 export type AgentMessageTurn = Data<typeof AgentMessageTurnSchema>;

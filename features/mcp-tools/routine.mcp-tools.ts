@@ -50,11 +50,6 @@ const ManageRoutinesSchema = z.object({
     .optional()
     .describe(`Five-field cron. Runs may be no closer together than ${MIN_ROUTINE_INTERVAL_MINUTES} minutes.`),
   timezone: z.string().min(1).max(64).nullable().optional().describe("IANA zone the cron is read in."),
-  runOnceAt: z
-    .string()
-    .nullable()
-    .optional()
-    .describe("ISO timestamp for a one-off run. A time in the past validates but never fires."),
   triggerEvents: z
     .array(RoutineTriggerEventSchema)
     .optional()
@@ -69,14 +64,11 @@ const ManageRoutinesSchema = z.object({
     ),
   triggerFilters: z
     .array(FilterSchema)
-    .nullable()
     .optional()
     .describe(
       "Restricts an event routine to records matching these filters. Dropped unless every event shares one entity type.",
     ),
   debounceSeconds: z.number().int().min(0).max(86_400).optional(),
-  maxRunsPerHour: z.number().int().min(1).max(60).optional(),
-  maxCreditsPerRun: z.number().int().min(1).max(500).optional(),
 });
 
 const ManageRoutinesOutputSchema = z
@@ -101,9 +93,9 @@ export const manageRoutinesTool = {
   title: "Manage routines",
   description:
     "Use this to read, create, change or remove routines: saved instructions the assistant runs on a schedule or when a CRM event fires. " +
-    "action list returns every routine with its prompt, trigger and limits, and takes page, pageSize and searchTerm for pagination. " +
+    "action list returns every routine with its prompt and trigger, and takes page, pageSize and searchTerm for pagination. " +
     "action runs returns one routine's run history newest first, paginated by cursor, each with its status, summary and trigger. " +
-    "action create needs name, prompt and triggerKind, plus cronExpression or runOnceAt for a schedule, or triggerEvents for an event. " +
+    "action create needs name, prompt and triggerKind, plus cronExpression for a schedule, or triggerEvents for an event. " +
     "Omitting enabled on create produces a routine that is immediately LIVE and will start running, so pass enabled false to draft one. " +
     "action update changes only the fields supplied, but a change of triggerKind must arrive with that kind's schedule or events or validation fails. " +
     "action pause disables a routine and settles its queued runs to skipped; re-enabling restores the schedule but never those runs. " +
@@ -141,6 +133,11 @@ export const manageRoutinesTool = {
     }
 
     if (params.action === "create" || params.action === "update") {
+      if (params.action === "update") {
+        const parsed = IdSchema.safeParse(params);
+        if (!parsed.success) return mcpValidationFailure(parsed.error);
+      }
+
       return runInteractor(
         getUpsertRoutineInteractor().invoke({
           id: params.action === "create" ? undefined : params.id,
@@ -150,15 +147,10 @@ export const manageRoutinesTool = {
           triggerKind: params.triggerKind,
           cronExpression: params.cronExpression,
           timezone: params.timezone,
-          ...(params.runOnceAt === undefined
-            ? {}
-            : { runOnceAt: params.runOnceAt === null ? null : new Date(params.runOnceAt) }),
           triggerEvents: params.triggerEvents,
           changedFields: params.changedFields,
           triggerFilters: params.triggerFilters,
           debounceSeconds: params.debounceSeconds,
-          maxRunsPerHour: params.maxRunsPerHour,
-          maxCreditsPerRun: params.maxCreditsPerRun,
         }),
         (routine) => toonResult({ id: routine.id, name: routine.name, enabled: routine.enabled }),
       );

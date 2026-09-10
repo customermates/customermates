@@ -54,7 +54,7 @@ export type SendAgentMessageResult =
       affectedResources: AgentTurnRequestSnapshot["affectedResources"];
     }
   | {
-      disposition: "running" | "failed" | "uncertain" | "conflict";
+      disposition: "running" | "atCapacity" | "failed" | "uncertain" | "conflict";
       clientRequestId: string;
       conversationId?: string;
       userMessageId?: string;
@@ -230,7 +230,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       const claimed = await runInTransaction(async () => {
         const phaseOneAt = new Date();
         if (conversationIsNew) {
-          if (await this.repo.isAtAgentRunLimit(phaseOneAt)) return "unavailable" as const;
+          if (await this.repo.isAtAgentRunLimit(phaseOneAt)) return "at-user-limit" as const;
           await this.repo.createAgentConversationForRun({
             conversationId,
             title: data.text,
@@ -245,7 +245,8 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           expiresAt: new Date(phaseOneAt.getTime() + AGENT_RUN_LEASE_MS),
           now: phaseOneAt,
         });
-        if (lease !== "claimed") return "unavailable" as const;
+        if (lease === "atUserLimit") return "at-user-limit" as const;
+        if (lease === "conversationBusy") return "conversation-busy" as const;
 
         const admitted = await this.usageService.reserveUsage({
           reservationId,
@@ -258,7 +259,30 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         return "claimed" as const;
       });
       if (claimed === "not-admitted") return failRateLimit(CustomErrorCode.agentLimitReached);
-      if (claimed !== "claimed") {
+      if (claimed === "at-user-limit") {
+        if (mode === "routine") {
+          return {
+            ok: true as const,
+            data: {
+              disposition: "atCapacity",
+              clientRequestId: data.clientRequestId,
+              conversationId,
+              retryAllowed: true,
+            },
+          };
+        }
+        if (conversationIsNew) return failConflict(CustomErrorCode.agentTurnAlreadyRunning);
+        return {
+          ok: true as const,
+          data: {
+            disposition: "running",
+            clientRequestId: data.clientRequestId,
+            conversationId,
+            retryAllowed: false,
+          },
+        };
+      }
+      if (claimed === "conversation-busy") {
         if (conversationIsNew) return failConflict(CustomErrorCode.agentTurnAlreadyRunning);
         return {
           ok: true as const,

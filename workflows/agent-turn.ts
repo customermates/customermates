@@ -776,7 +776,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
     const recordContinuationRound = (step: AgentRoundResult, outcomes: AgentToolOutcome[]) => {
       continuationSteps.push(toAgentContinuationStep(step, outcomes));
-      const loop = decideAgentContinuationLoop({ startedAtMs: 0, steps: continuationSteps, observedAtMs: 0 });
+      const loop = decideAgentContinuationLoop({ steps: continuationSteps });
       if (loop.action === "error") providerStop = loop.reason;
       else if (!["stop", "length", "tool-calls"].includes(step.finishReason)) providerStop = "provider_error";
     };
