@@ -204,6 +204,11 @@ export function consecutiveActivityItems(items: AgentChatItem[], start: number) 
   return activities;
 }
 
+export function isWorkingActivityGroup(items: AgentChatItem[], start: number, isWorking: boolean) {
+  if (!isWorking) return false;
+  return start > items.findLastIndex((item) => item.kind === "user");
+}
+
 export const AgentActivity = observer(function AgentActivity({
   isWorking,
   isTrailing,
@@ -219,10 +224,12 @@ export const AgentActivity = observer(function AgentActivity({
   const hasRunning = items.some((item) => item.status === "running");
   const isPending = isWorking && isTrailing;
   const hasError = items.some((item) => item.status === "error");
+  const isRecovering = isWorking && hasError;
+  const isActive = hasRunning || isRecovering || isPending;
   const hasCancelled = items.some((item) => item.status === "cancelled");
   const { open, setOpen, elapsedSeconds } = useActivityGroupState({
-    hasError,
-    hasRunning: hasRunning || isPending,
+    hasError: hasError && !isRecovering,
+    hasRunning: isActive,
     isWorking,
     startedAt: items[0]?.at,
   });
@@ -239,13 +246,13 @@ export const AgentActivity = observer(function AgentActivity({
           items.map((item) => item.status),
           t,
         );
-  const runningItem = items.find((item) => item.status === "running");
+  const runningItem = items.findLast((item) => item.status === "running" || (isRecovering && item.status === "error"));
   const runningLabel = runningItem ? agentActivityCopy(runningItem.activity, t, terminology).running : uiCopy.thinking;
   const liveSummary =
     !hasError && !hasCancelled && elapsedSeconds !== null
       ? uiCopy.stepsTook(items.length, elapsedSeconds)
       : settledSummary;
-  const summary = useSteadyLabel(hasRunning || isPending ? runningLabel : liveSummary);
+  const summary = useSteadyLabel(isActive ? runningLabel : liveSummary);
 
   return (
     <details
@@ -256,7 +263,7 @@ export const AgentActivity = observer(function AgentActivity({
       onToggle={(event) => setOpen(event.currentTarget.open)}
     >
       <summary className="flex cursor-pointer list-none items-center gap-2 text-xs text-muted-foreground transition-colors select-none hover:text-foreground [&::-webkit-details-marker]:hidden">
-        {hasRunning || isPending ? (
+        {isActive ? (
           <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
         ) : hasError ? (
           <X aria-hidden="true" className="size-3.5 text-destructive" />
@@ -274,12 +281,13 @@ export const AgentActivity = observer(function AgentActivity({
       <div className="mt-3 space-y-3 pl-4 [&>*]:fade-in-0 [&>*]:slide-in-from-top-2 [&>*]:animate-in [&>*]:duration-300 [&>*]:motion-reduce:animate-none">
         {items.map((item) => {
           const copy = agentActivityCopy(item.activity, t, terminology);
+          const status = isRecovering && item.status === "error" ? "running" : item.status;
           const label =
-            item.status === "running"
+            status === "running"
               ? copy.running
-              : item.status === "error"
+              : status === "error"
                 ? copy.error
-                : item.status === "cancelled"
+                : status === "cancelled"
                   ? copy.cancelled
                   : copy.done;
 
@@ -291,14 +299,14 @@ export const AgentActivity = observer(function AgentActivity({
                 "before:absolute before:top-0 before:-left-4 before:h-[calc(100%+0.75rem)] before:w-px before:bg-border",
                 "before:origin-top before:animate-timeline-grow before:motion-reduce:animate-none",
                 "last:before:h-full",
-                item.status === "error" && "text-destructive",
+                status === "error" && "text-destructive",
               )}
             >
-              {item.status === "running" ? (
+              {status === "running" ? (
                 <Loader2 aria-hidden="true" className="mt-0.5 size-3.5 shrink-0 animate-spin" />
-              ) : item.status === "error" ? (
+              ) : status === "error" ? (
                 <X aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
-              ) : item.status === "cancelled" ? (
+              ) : status === "cancelled" ? (
                 <Square aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
               ) : (
                 <Check aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />

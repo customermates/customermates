@@ -563,6 +563,36 @@
             }
           }
         },
+        "routines": {
+          "data": {
+            "create-routine": {
+              "label": "Crear una rutina",
+              "prompt": "Ayúdame a crear una rutina. Pregunta qué quiero automatizar y luego recomienda si debería ejecutarse según una programación o activarse por un evento."
+            },
+            "routine-health": {
+              "label": "Revisar mis rutinas",
+              "prompt": "Revisa mis rutinas y señala solapamientos, carencias, rutinas pausadas y ejecuciones fallidas recientes. No hagas ningún cambio."
+            },
+            "routines-tour-data": {
+              "label": "Explicar mis rutinas",
+              "prompt": "Explica qué hace cada una de mis rutinas, cuándo se ejecuta y a qué registros o mensajes puede afectar."
+            }
+          },
+          "empty": {
+            "first-routine": {
+              "label": "Crear mi primera rutina",
+              "prompt": "Ayúdame a crear mi primera rutina. Pregunta qué quiero automatizar y luego recomienda si debería ejecutarse según una programación o activarse por un evento."
+            },
+            "routine-ideas": {
+              "label": "Sugerir rutinas útiles",
+              "prompt": "Revisa mi espacio de trabajo y sugiere tres rutinas útiles para tareas recurrentes. No crees nada todavía."
+            },
+            "routines-tour": {
+              "label": "Aprender cómo funcionan",
+              "prompt": "Guíame por la página Rutinas y explica las programaciones, los eventos desencadenantes, las pruebas, los créditos y el historial de ejecuciones. No hagas ningún cambio."
+            }
+          }
+        },
         "services": {
           "data": {
             "create-service": {

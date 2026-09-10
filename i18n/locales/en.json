@@ -563,6 +563,36 @@
             }
           }
         },
+        "routines": {
+          "data": {
+            "create-routine": {
+              "label": "Create a routine",
+              "prompt": "Help me create a routine. Ask what I want to automate, then recommend whether it should run on a schedule or an event."
+            },
+            "routine-health": {
+              "label": "Review my routines",
+              "prompt": "Review my routines and point out overlaps, gaps, paused routines, and recent failed runs. Do not make any changes."
+            },
+            "routines-tour-data": {
+              "label": "Explain my routines",
+              "prompt": "Explain what each of my routines does, when it runs, and which records or messages it can affect."
+            }
+          },
+          "empty": {
+            "first-routine": {
+              "label": "Create my first routine",
+              "prompt": "Help me create my first routine. Ask what I want to automate, then recommend whether it should run on a schedule or an event."
+            },
+            "routine-ideas": {
+              "label": "Suggest useful routines",
+              "prompt": "Review my workspace and suggest three useful routines for recurring work. Do not create anything yet."
+            },
+            "routines-tour": {
+              "label": "Learn how routines work",
+              "prompt": "Show me around the Routines page and explain schedules, event triggers, testing, credits, and run history. Do not make any changes."
+            }
+          }
+        },
         "services": {
           "data": {
             "create-service": {

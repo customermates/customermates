@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 import { ActionTooltip, chatUiCopy } from "./chat-ui";
-import { AgentActivity, AgentChatItemView, consecutiveActivityItems } from "./agent-chat-items";
+import { AgentActivity, AgentChatItemView, consecutiveActivityItems, isWorkingActivityGroup } from "./agent-chat-items";
 import { AgentInitialProgress } from "./agent-status-announcer";
 import { CreditBlockedNotice } from "./credit-blocked-notice";
 import { QueuedPrompt } from "./queued-prompt";
@@ -162,6 +162,10 @@ const ActivityGroup = observer(function ActivityGroup({ index }: { index: number
   const items = consecutiveActivityItems(store.items, index);
 
   return (
-    <AgentActivity isTrailing={index + items.length === store.items.length} isWorking={store.isWorking} items={items} />
+    <AgentActivity
+      isTrailing={index + items.length === store.items.length}
+      isWorking={isWorkingActivityGroup(store.items, index, store.isWorking)}
+      items={items}
+    />
   );
 });

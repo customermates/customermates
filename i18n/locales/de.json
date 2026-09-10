@@ -563,6 +563,36 @@
             }
           }
         },
+        "routines": {
+          "data": {
+            "create-routine": {
+              "label": "Routine erstellen",
+              "prompt": "Hilf mir, eine Routine zu erstellen. Frage, was ich automatisieren möchte, und empfiehl dann, ob sie nach Zeitplan oder durch ein Ereignis ausgelöst werden soll."
+            },
+            "routine-health": {
+              "label": "Meine Routinen prüfen",
+              "prompt": "Prüfe meine Routinen und weise auf Überschneidungen, Lücken, pausierte Routinen und kürzlich fehlgeschlagene Ausführungen hin. Nimm keine Änderungen vor."
+            },
+            "routines-tour-data": {
+              "label": "Meine Routinen erklären",
+              "prompt": "Erkläre, was jede meiner Routinen tut, wann sie ausgeführt wird und welche Datensätze oder Nachrichten sie beeinflussen kann."
+            }
+          },
+          "empty": {
+            "first-routine": {
+              "label": "Meine erste Routine erstellen",
+              "prompt": "Hilf mir, meine erste Routine zu erstellen. Frage, was ich automatisieren möchte, und empfiehl dann, ob sie nach Zeitplan oder durch ein Ereignis ausgelöst werden soll."
+            },
+            "routine-ideas": {
+              "label": "Nützliche Routinen vorschlagen",
+              "prompt": "Prüfe meinen Arbeitsbereich und schlage drei nützliche Routinen für wiederkehrende Aufgaben vor. Erstelle noch nichts."
+            },
+            "routines-tour": {
+              "label": "Routinen kennenlernen",
+              "prompt": "Führe mich durch die Routinen-Seite und erkläre Zeitpläne, Ereignisauslöser, Tests, Credits und den Ausführungsverlauf. Nimm keine Änderungen vor."
+            }
+          }
+        },
         "services": {
           "data": {
             "create-service": {

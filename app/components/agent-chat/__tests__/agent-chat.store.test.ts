@@ -54,6 +54,7 @@ const CONFIG = {
     deals: false,
     services: false,
     tasks: false,
+    routines: false,
     widgets: false,
     connectedAccounts: false,
   },

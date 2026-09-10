@@ -563,6 +563,36 @@
             }
           }
         },
+        "routines": {
+          "data": {
+            "create-routine": {
+              "label": "Crea una routine",
+              "prompt": "Aiutami a creare una routine. Chiedimi che cosa voglio automatizzare, poi consiglia se deve essere eseguita secondo una pianificazione o attivata da un evento."
+            },
+            "routine-health": {
+              "label": "Controlla le mie routine",
+              "prompt": "Controlla le mie routine e segnala sovrapposizioni, lacune, routine in pausa ed esecuzioni recenti non riuscite. Non apportare modifiche."
+            },
+            "routines-tour-data": {
+              "label": "Spiega le mie routine",
+              "prompt": "Spiega che cosa fa ciascuna delle mie routine, quando viene eseguita e quali record o messaggi può influenzare."
+            }
+          },
+          "empty": {
+            "first-routine": {
+              "label": "Crea la mia prima routine",
+              "prompt": "Aiutami a creare la mia prima routine. Chiedimi che cosa voglio automatizzare, poi consiglia se deve essere eseguita secondo una pianificazione o attivata da un evento."
+            },
+            "routine-ideas": {
+              "label": "Suggerisci routine utili",
+              "prompt": "Esamina il mio spazio di lavoro e suggerisci tre routine utili per attività ricorrenti. Non creare ancora nulla."
+            },
+            "routines-tour": {
+              "label": "Scopri come funzionano",
+              "prompt": "Guidami nella pagina Routine e spiega pianificazioni, eventi di attivazione, test, crediti e cronologia delle esecuzioni. Non apportare modifiche."
+            }
+          }
+        },
         "services": {
           "data": {
             "create-service": {

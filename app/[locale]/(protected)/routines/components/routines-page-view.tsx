@@ -9,6 +9,7 @@ import { useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { AgentStarterActions } from "@/app/components/agent-chat/suggested-questions";
 import { DataViewContent } from "@/components/data-view/data-view-content";
 import { DataViewEmpty } from "@/components/data-view/data-view-empty";
 import { DataViewLayout } from "@/components/data-view/data-view-layout";
@@ -82,6 +83,20 @@ export const RoutinesPageView = observer(function RoutinesPageView({ initialRout
     case "true-empty":
       body = (
         <DataViewEmpty
+          action={
+            <AgentStarterActions
+              fallback={
+                routinesStore.canManage ? (
+                  <Button size="sm" variant="secondary" onClick={handleAdd}>
+                    {t("Common.actions.add")}
+                  </Button>
+                ) : undefined
+              }
+              pageId="routines"
+              state="empty"
+              surface="page"
+            />
+          }
           actionLabel={t("Common.actions.add")}
           background={<RoutinesPageSkeleton animated={false} view={view} />}
           descriptor={descriptor}

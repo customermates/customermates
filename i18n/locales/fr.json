@@ -563,6 +563,36 @@
             }
           }
         },
+        "routines": {
+          "data": {
+            "create-routine": {
+              "label": "Créer une routine",
+              "prompt": "Aide-moi à créer une routine. Demande-moi ce que je souhaite automatiser, puis recommande un déclenchement planifié ou par événement."
+            },
+            "routine-health": {
+              "label": "Examiner mes routines",
+              "prompt": "Examine mes routines et signale les chevauchements, les lacunes, les routines en pause et les échecs récents. N’effectue aucune modification."
+            },
+            "routines-tour-data": {
+              "label": "Expliquer mes routines",
+              "prompt": "Explique ce que fait chacune de mes routines, quand elle s’exécute et quels enregistrements ou messages elle peut affecter."
+            }
+          },
+          "empty": {
+            "first-routine": {
+              "label": "Créer ma première routine",
+              "prompt": "Aide-moi à créer ma première routine. Demande-moi ce que je souhaite automatiser, puis recommande un déclenchement planifié ou par événement."
+            },
+            "routine-ideas": {
+              "label": "Suggérer des routines utiles",
+              "prompt": "Examine mon espace de travail et suggère trois routines utiles pour les tâches récurrentes. Ne crée encore rien."
+            },
+            "routines-tour": {
+              "label": "Découvrir les routines",
+              "prompt": "Guide-moi dans la page Routines et explique les planifications, les déclencheurs d’événements, les tests, les crédits et l’historique des exécutions. N’effectue aucune modification."
+            }
+          }
+        },
         "services": {
           "data": {
             "create-service": {
