@@ -186,11 +186,12 @@ export abstract class BaseFormStore<T extends object = object> extends BaseStore
     }
     if (parent == null || typeof parent !== "object") return;
 
+    const previousValue = (parent as Record<string, unknown>)[leaf];
     (parent as Record<string, unknown>)[leaf] = value;
-    this.afterChange(id, value);
+    this.afterChange(id, value, previousValue);
   };
 
-  protected afterChange(_id: string, _value: unknown): void {}
+  protected afterChange(_id: string, _value: unknown, _previousValue: unknown): void {}
 
   private normalizeJsonPath(id: string): string {
     if (id.startsWith("$")) return id;

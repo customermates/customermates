@@ -1,4 +1,6 @@
-import { z } from "zod";
+import type { z } from "zod";
+
+import { isIsoDateTime } from "@/core/validation/iso-date-time";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
@@ -15,7 +17,7 @@ export function validateCustomFieldDateTimeRange(value: string, ctx: z.Refinemen
   }
 
   for (const part of parts) {
-    if (!z.iso.datetime().safeParse(part).success) {
+    if (!isIsoDateTime(part)) {
       ctx.addIssue({
         code: "custom",
         params: { error: CustomErrorCode.customFieldInvalidDateTimeRange },

@@ -233,6 +233,14 @@ Für ein Unternehmen rufen Sie `get_social_profile` mit `profileType=company` un
 | `manage_widgets` |  | ✓ | Ein Tool mit `action`-Schalter: list, get, create, update, delete. Ohne `kind` bleibt create abwärtskompatibel ein `chart`. Ein Aktivitätsverlauf akzeptiert beim Erstellen `name`, optionale `timelineFilters` und optional `showFilters`; jedes Aktivitätsfilterfeld darf nur einmal vorkommen. Update leitet den unveränderlichen gespeicherten Typ ab, erhält ausgelassene Felder und leert Filter mit `timelineFilters: []`. Create weist neue, unzugängliche Beziehungs-UUIDs zurück. Update darf eine nicht verfügbare Beziehungs-UUID nur beibehalten oder entfernen, wenn genau diese UUID bereits im Widget gespeichert ist; weitere unzugängliche UUIDs werden abgelehnt. list/get/create/update liefern jeweils `kind`; get liefert zusätzlich Diagrammdaten für Charts und direkt wiederverwendbare `timelineFilters` für Aktivitätsverläufe. Chart- und Aktivitätsfelder dürfen nicht gemischt werden. |
 {/* /mcp-catalog */}
 
+### Routinen
+
+{/* mcp-catalog:routines */}
+| Tool | Read | Destructive | Zweck |
+|---|---|---|---|
+| `manage_routines` |  | ✓ | Ein Tool mit einem `action`-Schalter: list, runs, create, update, pause, run_now, delete. Eine Routine sind gespeicherte Anweisungen, die der Assistent nach Zeitplan oder bei einem CRM-Ereignis ausführt. Ohne `enabled` erzeugt create eine LIVE-Routine; für einen Entwurf `enabled: false` übergeben. Ein Wechsel von `triggerKind` muss den Zeitplan oder die Ereignisse der neuen Art mitbringen. pause deaktiviert die Routine und setzt wartende Läufe auf übersprungen, was ein erneutes Aktivieren nicht rückgängig macht. run_now gilt nur für geplante Routinen. Läufe werden über `cursor` paginiert und enthalten Status, Zusammenfassung und Auslöser. |
+{/* /mcp-catalog */}
+
 ### Webhooks
 
 {/* mcp-catalog:webhooks */}
@@ -266,7 +274,7 @@ Alle [[derived.mcp.tools.total]] Tools sind standardmäßig an. Um nur einen Tei
 https://customermates.com/api/v1/mcp?toolsets=records,messaging
 ```
 
-Keys: records, workspace, messaging, social, docs, custom-columns, widgets, webhooks, admin, support. Kein Parameter heißt alles; unbekannte Keys werden ignoriert. `search` und `fetch` sind immer an, damit Deep-Research-Connectors auch auf einer eingegrenzten Oberfläche funktionieren.
+Keys: records, workspace, messaging, social, docs, custom-columns, widgets, routines, webhooks, admin, support. Kein Parameter heißt alles; unbekannte Keys werden ignoriert. `search` und `fetch` sind immer an, damit Deep-Research-Connectors auch auf einer eingegrenzten Oberfläche funktionieren.
 
 ### Wenn ein Aufruf abgelehnt wird
 

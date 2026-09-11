@@ -113,6 +113,7 @@ const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   "de:RoleModal.resources.api",
   "de:Subscription.planStatusLabel",
   "fr:AgplGithubBadge.label",
+  "fr:RoutineDetail.triggerThread",
   "fr:Common.defaultData.deal.options.qualification",
   "fr:Common.inputs.defaultOption",
   "fr:Common.filters.fields.participants",

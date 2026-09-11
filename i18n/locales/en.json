@@ -306,7 +306,7 @@
       "resuming": "Decision saved — Mate is continuing…",
       "retryResume": "Mate could not resume yet. Retry the same decision.",
       "timeout": "Timed out without a response",
-      "title": "The assistant wants to run:"
+      "title": "Mate wants to run:"
     },
     "askAi": "Ask AI",
     "askAiWorking": "Mate is working",
@@ -328,9 +328,9 @@
     "errors": {
       "approvalFailed": "The approval could not be delivered.",
       "limitReached": "Not enough AI credits remain to start another request.",
-      "sendFailed": "The assistant could not process your message.",
+      "sendFailed": "Mate could not process your message.",
       "stopFailed": "Mate could not be stopped. It is reconnecting so you can try again.",
-      "turnFailed": "The assistant ran into an error."
+      "turnFailed": "Mate ran into an error."
     },
     "greeting": {
       "headline": "Hey, I'm Mate",
@@ -340,11 +340,13 @@
     "placeholder": "Ask your CRM…",
     "runner": {
       "cancelled": "This response was stopped.",
+      "contentFilter": "The AI provider blocked part of this response. Nothing further was changed. Try rephrasing the request.",
       "creditLimit": "I completed part of this request, but stopped because your Assistant credits ran out. Completed work remains in place; credits reset at the start of your next period.",
+      "creditLimitNoWrite": "I stopped before making any changes because your Assistant credits ran out. Nothing was created, updated, or sent. Credits reset at the start of your next period.",
       "emptyReply": "I couldn't produce a response. Please try again.",
       "hostedAiUnavailable": "Hosted AI is temporarily unavailable. Please try again later.",
-      "outputLimit": "I completed part of this response, but reached this turn's output limit. Ask me to continue and I'll finish from the completed work.",
-      "safetyLimit": "I completed part of this request, but stopped because the latest steps were repeating, failing, or reached a safety limit. Completed work remains in place; review the steps above before asking me to proceed.",
+      "policyBreach": "The AI provider exceeded the reserved credit budget, so the run was stopped. No further provider work was started.",
+      "providerError": "The AI provider returned an error before I could finish. Nothing further was changed. Please try again.",
       "turnError": "I couldn't complete that request. Please try again."
     },
     "send": "Send",
@@ -561,6 +563,36 @@
             }
           }
         },
+        "routines": {
+          "data": {
+            "create-routine": {
+              "label": "Create a routine",
+              "prompt": "Help me create a routine. Ask what I want to automate, then recommend whether it should run on a schedule or an event."
+            },
+            "routine-health": {
+              "label": "Review my routines",
+              "prompt": "Review my routines and point out overlaps, gaps, paused routines, and recent failed runs. Do not make any changes."
+            },
+            "routines-tour-data": {
+              "label": "Explain my routines",
+              "prompt": "Explain what each of my routines does, when it runs, and which records or messages it can affect."
+            }
+          },
+          "empty": {
+            "first-routine": {
+              "label": "Create my first routine",
+              "prompt": "Help me create my first routine. Ask what I want to automate, then recommend whether it should run on a schedule or an event."
+            },
+            "routine-ideas": {
+              "label": "Suggest useful routines",
+              "prompt": "Review my workspace and suggest three useful routines for recurring work. Do not create anything yet."
+            },
+            "routines-tour": {
+              "label": "Learn how routines work",
+              "prompt": "Show me around the Routines page and explain schedules, event triggers, testing, credits, and run history. Do not make any changes."
+            }
+          }
+        },
         "services": {
           "data": {
             "create-service": {
@@ -654,7 +686,7 @@
       "archive": "Archive chat",
       "archived": "Archived",
       "archivedChats": "Archived chats",
-      "assistantWorking": "Assistant is responding",
+      "assistantWorking": "Mate is responding",
       "back": "Back to chat",
       "cancel": "Cancel",
       "chats": "Chats",
@@ -676,6 +708,7 @@
       "newChat": "New chat",
       "noChats": "No chats yet",
       "noChatsBody": "Start a chat to return to your questions and completed work later.",
+      "preparingAction": "Preparing the next action…",
       "queued": "Up next",
       "reconnecting": "Reconnecting to Mate…",
       "refreshHistoryFailed": "Chat history couldn’t be refreshed. Your existing chats remain visible.",
@@ -685,13 +718,17 @@
       "retryTurn": "Try again",
       "routeSyncRefreshing": "Refreshing the page…",
       "routeSyncWaiting": "Page update waiting for your edits to finish…",
+      "startingRequest": "Starting…",
       "stepsTook": "{steps, plural, one {# step} other {# steps}} · {seconds}s",
       "stopping": "Stopping Mate…",
       "tableCopied": "Table copied",
       "thinking": "Thinking",
       "turnFailed": "This response couldn’t be completed.",
+      "turnInterrupted": "The response was interrupted. Changes may already have been applied. Check current records before sending a new request.",
       "undo": "Undo",
-      "untitled": "New chat"
+      "untitled": "New chat",
+      "waitElapsed": "{seconds}s elapsed",
+      "workingOnRequest": "Working on your request…"
     }
   },
   "AgplGithubBadge": {
@@ -963,6 +1000,7 @@
       "customColumnIdNotFound": "Custom column ID not found or not accessible.",
       "customColumnNotFound": "Custom column ID not found or not accessible. Available columns: {validValues}.",
       "customColumnTypeMismatch": "This custom column is type {actualType}, not {expectedType}. Set type to {actualType} to update it.",
+      "customColumnUsedByRoutineCannotDelete": "This custom column is used in one or more routine filters. Remove it from those routines before deleting it.",
       "customFieldInvalidCurrency": "The currency value is invalid. Must be a valid number.",
       "customFieldInvalidDate": "The date value is invalid. Must be in ISO 8601 date format (e.g., 2024-01-15) or ISO 8601 datetime format (e.g., 2024-01-15T00:00:00Z).",
       "customFieldInvalidDateRange": "The date range is invalid. Must be two ISO 8601 dates separated by a comma, with start on or before end (e.g., 2024-01-15,2024-01-22).",
@@ -1029,6 +1067,20 @@
       "roleSelfEditForbidden": "You cannot change the permissions of the role assigned to you.",
       "roleSystemImmutable": "System roles cannot be edited.",
       "roleSystemRequired": "At least one user must be a system administrator.",
+      "routineAdminRequired": "Only a company administrator can pause or delete routines.",
+      "routineDeleteHasRunningRun": "Wait for the active run to finish before deleting this routine.",
+      "routineEditNotOwner": "Only the routine owner can change its setup or activation.",
+      "routineLimitReached": "Your plan includes {limit} routines per user. Upgrade your plan for a higher allowance.",
+      "routineNotFound": "Routine ID not found or not accessible.",
+      "routineOwnerIneligible": "The routine owner must be an active member of this company.",
+      "routineRunNotOwner": "Only the person who owns this routine can run it, because it spends their AI credits.",
+      "routineRunNowRequiresSchedule": "Only scheduled routines can be tested manually.",
+      "routineScheduleInvalid": "That schedule is not a valid cron expression.",
+      "routineScheduleRequired": "Choose a schedule or a one-off date for this routine.",
+      "routineScheduleTooFrequent": "This schedule runs too often. Routines can run at most once every 15 minutes.",
+      "routineTestRequiresEnabled": "Activate the routine before testing it.",
+      "routineTimeZoneInvalid": "That time zone is not supported.",
+      "routineTriggerEventsRequired": "Select at least one event for this routine.",
       "salesNavigatorNotAvailable": "This LinkedIn account doesn't have Sales Navigator connected.",
       "salesNavigatorRequiresLinkedin": "Sales Navigator requires a connected LinkedIn account, but this account is {provider}.",
       "sendEmailTargetRequired": "Select a thread or an account to send from.",
@@ -1176,8 +1228,12 @@
         "createdAt": "Created at",
         "draft": "Draft",
         "event": "Event",
+        "firstName": "First name",
         "isPlatformOperator": "Platform operator",
         "lastActiveAt": "Last active",
+        "lastName": "Last name",
+        "name": "Name",
+        "ownerUserId": "Owner",
         "participants": "Participants",
         "plan": "Plan",
         "provider": "Provider",
@@ -1209,7 +1265,8 @@
         "isNull": "is empty",
         "lt": "<",
         "lte": "≤",
-        "notIn": "not in"
+        "notIn": "not in",
+        "startsWith": "Starts with"
       },
       "palette": {
         "activeGroup": "Active filters",
@@ -1244,6 +1301,7 @@
       "amount": "Amount",
       "avatarUrl": "Avatar URL",
       "bodyTemplate": "Body template",
+      "changedFields": "Changed fields",
       "company": "Company",
       "confirmEmail": "Confirm Email",
       "confirmPassword": "Confirm Password",
@@ -1263,6 +1321,7 @@
       "email": "Email",
       "emails": "Emails",
       "emptyContent": "No results found",
+      "enabled": "Active",
       "entityType": "Element",
       "events": "Events",
       "feedback": "Feedback",
@@ -1283,10 +1342,17 @@
         "lastOption": "A single select needs at least one option"
       },
       "password": "Password",
+      "prompt": "Instructions",
       "roleId": "Role",
+      "scheduleDayOfMonth": "Day of month",
+      "schedulePreset": "Repeats",
+      "scheduleWeekday": "Weekday",
       "secret": "Secret",
       "status": "Status",
       "theme": "Theme",
+      "triggerEvents": "Events",
+      "triggerFilters": "Record filters",
+      "triggerKind": "Trigger",
       "type": "Type",
       "unavailableSelection": "Selection unavailable",
       "url": "URL",
@@ -1381,8 +1447,10 @@
         "lastActiveAt": "Last active",
         "lastName": "Last Name",
         "lastRequest": "Last used",
+        "lastRunAt": "Last run",
         "members": "Members",
         "name": "Name",
+        "nextRunAt": "Next run",
         "notes": "Notes",
         "operator": "Operator",
         "options": "Options",
@@ -1405,6 +1473,7 @@
         "totalQuantity": "Service Quantity",
         "totalValue": "Deal Value",
         "trialEnd": "Trial ends",
+        "trigger": "Trigger",
         "type": "Type",
         "updatedAt": "Updated at",
         "url": "URL",
@@ -1918,6 +1987,7 @@
     "appOnboarding": "Onboarding Wizard",
     "appProfile": "Profile",
     "appRecords": "Records",
+    "appRoutines": "Routines",
     "appSearch": "Global Search",
     "architectureSecurity": "Architecture & Security",
     "concepts": "Core Concepts",
@@ -2582,6 +2652,7 @@
       "taskManagement": "Task management",
       "unifiedInbox": "Unified inbox"
     },
+    "routines": "Routines",
     "search": "Search",
     "settings": "Settings",
     "subscription": "Subscription",
@@ -3003,6 +3074,7 @@
       "deals": "Deals",
       "inboxMessages": "Inbox messages",
       "organizations": "Organizations",
+      "routines": "Routines",
       "services": "Services",
       "tasks": "Tasks",
       "users": "Users & Roles"
@@ -3017,6 +3089,172 @@
     "custom": "Custom",
     "system": "System",
     "title": "Roles"
+  },
+  "RoutineAdministration": {
+    "help": "As a company administrator, you can pause or delete this routine, but you cannot edit, test, or run it.",
+    "pause": "Pause routine",
+    "pauseConfirmation": "Pause “{name}”? Any queued runs will be skipped.",
+    "pauseTitle": "Pause routine",
+    "title": "Administrator controls"
+  },
+  "RoutineDetail": {
+    "credits": "Credits",
+    "disabledAdminPaused": "A company administrator paused this routine.",
+    "disabledGeneric": "This routine is paused and will not run until its owner activates it.",
+    "disabledOwnerPaused": "The owner paused this routine.",
+    "disabledOwnerUnavailable": "This routine was paused because its owner is no longer available. It stays read-only, and a company administrator can delete it.",
+    "disabledRepeatedFailures": "Mate paused this routine because its last three runs all failed. Fix the instructions, then switch it back on.",
+    "disabledRepeatedFailuresReadOnly": "Mate paused this routine because its last three runs all failed. Its owner needs to fix the instructions and activate it again.",
+    "disabledTitle": "Routine paused",
+    "empty": {
+      "event": {
+        "actions": {
+          "calendarChanged": "In the external calendar service connected to Customermates, create, edit, or delete a calendar.",
+          "calendarEventChanged": "In the external calendar service connected to Customermates, create, edit, or delete a calendar event.",
+          "chatUpdated": "Change a connected conversation’s name, description, or type.",
+          "emailReceived": "Receive a new, non-duplicate email in a connected mailbox.",
+          "messageDeleted": "Delete a message in the connected messaging provider.",
+          "messageReaction": "Add a reaction to a message in a connected conversation.",
+          "messageReceived": "Receive a new, non-duplicate incoming message through a connected account.",
+          "messageUpdated": "Edit a message in the connected messaging provider.",
+          "recordCreated": "Create a record in Customermates: {entity}.",
+          "recordDeleted": "Delete a record in Customermates: {entity}.",
+          "recordUpdated": "Make a real change to a record in Customermates: {entity}.",
+          "relationCreated": "Have a LinkedIn connection request accepted through a connected account."
+        },
+        "conditions": {
+          "filters": "The record must also match every configured filter.",
+          "filtersWithDeletion": "Configured filters apply to created and updated records. Deleted records use their deletion snapshot and bypass these filters.",
+          "ownerAccess": "The routine owner must still be active and able to access the connected account or record.",
+          "paused": "Activate and save this routine before triggering an event.",
+          "suppression": "Events caused by a routine do not trigger routines.",
+          "unsaved": "Save these changes first. Until then, events use the last saved configuration.",
+          "watchedFields": "For update events, at least one watched field must really change: {fields}."
+        },
+        "description": "Event routines cannot be started manually. Perform one of the real actions below to create the event data this routine needs.",
+        "instructionsLabel": "Ways to trigger this routine"
+      },
+      "schedule": {
+        "activateFirst": "Activate and save the routine before using Test trigger.",
+        "description": "It will run on this schedule:",
+        "ownerOnly": "Only the routine owner can use Test trigger. The schedule still runs automatically while the routine is active.",
+        "saveFirst": "Save these changes before using Test trigger.",
+        "testNow": "Use Test trigger to start a run now, or wait for the next scheduled time."
+      },
+      "title": "No runs yet"
+    },
+    "never": "Never",
+    "owner": "Owner",
+    "ownerOnlyEdit": "This routine is read-only for you. It runs only as {owner}, who can edit or pause it. Company administrators can only pause or delete it.",
+    "ownerPermissionReadOnly": "Your role lets you view this routine and its runs, but not change or test it.",
+    "ownerUnavailable": "Owner unavailable",
+    "ownerUnavailableReadOnly": "This routine has no available owner, so it stays paused and read-only. A company administrator can delete it.",
+    "ranAs": "Ran as {owner}",
+    "readOnlyTitle": "Read-only access",
+    "runDetails": "Run details",
+    "runNoTranscript": "No transcript is available for this run.",
+    "runQueued": "This run is queued. Its transcript will appear when the assistant starts.",
+    "runs": "Runs",
+    "runsLoadErrorDescription": "The run history could not be loaded. Try again.",
+    "runsLoadErrorTitle": "Could not load runs",
+    "runStarting": "This run is starting. Its transcript will appear shortly.",
+    "testTrigger": "Test trigger",
+    "testTriggerEnableFirst": "Activate this routine before testing it.",
+    "testTriggerEventUnavailable": "Event triggers need real event data. Trigger a matching event in your workspace to test this routine.",
+    "testTriggerSaveFirst": "Save your changes before testing this routine.",
+    "testTriggerStarted": "Test run started.",
+    "testTriggerWarning": "Run this routine now. This uses your AI credits and can perform the actions in its instructions.",
+    "transcriptOwnerOnly": "Only {owner}, who ran this routine, can open the full transcript.",
+    "trigger": "Trigger",
+    "triggerChangedFields": "Changed fields",
+    "triggerChangedFieldsMore": "and more",
+    "triggerRecord": "Record",
+    "triggerThread": "Conversation"
+  },
+  "RoutineModal": {
+    "at": "at",
+    "changedFieldsHelp": "Leave empty to run on every change. Narrowing saves credits.",
+    "configurationHeading": "Configuration",
+    "customSchedule": "This routine uses a custom schedule: {expression}",
+    "detailsTab": "Details",
+    "disabled": "Paused",
+    "enabled": "Active",
+    "enabledHelp": "Paused routines keep their schedule but do not run.",
+    "eventSuppressionNote": "Events caused by routines do not trigger routines.",
+    "onMinute": "at minute",
+    "promptExampleEvent": "Read the record that changed and reply with one sentence on what it means.",
+    "promptExampleSchedule": "Summarise the deals that moved since yesterday and reply with a short list.",
+    "scheduleTimeZone": "Times are shown in {timezone}.",
+    "tabsLabel": "Routine sections",
+    "title": "Routine",
+    "triggerFiltersHelp": "Leave empty to run for every record.",
+    "useSchedulePreset": "Switch to a preset"
+  },
+  "RoutineRunReason": {
+    "adminPaused": "A company administrator paused the routine",
+    "agentAlreadyCompleted": "This run had already finished",
+    "agentAlreadyRunning": "The assistant was already busy with another run",
+    "agentTurnConflict": "Another run claimed the assistant first",
+    "agentTurnFailed": "The assistant could not start the run",
+    "agentTurnUncertain": "The assistant could not confirm the run had started",
+    "filtersNotMatched": "The record did not match the filters",
+    "hourlyRunLimit": "The hourly run limit was reached",
+    "ownerInactive": "The routine owner's account is no longer active",
+    "ownerPaused": "The owner paused the routine",
+    "ownerUnavailable": "The routine owner is no longer available",
+    "routineDisabled": "The routine was paused",
+    "startAbandoned": "The run was interrupted before it started",
+    "startFailed": "The run could not be started",
+    "unknownFailure": "The run could not be completed"
+  },
+  "RoutineRunStatus": {
+    "blocked": "Blocked",
+    "failed": "Failed",
+    "partial": "Partial",
+    "queued": "Queued",
+    "running": "Running",
+    "skipped": "Skipped",
+    "succeeded": "Succeeded"
+  },
+  "RoutineRunStopReason": {
+    "cancelled": "The run was cancelled.",
+    "contentFilter": "The AI provider blocked part of this run, so no further changes were made.",
+    "creditLimit": "The run stopped because its available Assistant credits ran out.",
+    "hostedAiUnavailable": "Hosted AI became unavailable before the run could finish.",
+    "policyBreach": "The AI provider exceeded the reserved credit budget, so the run was stopped.",
+    "providerError": "The AI provider returned an error before the run could finish.",
+    "turnError": "The assistant could not complete this run."
+  },
+  "RoutinesCard": {
+    "emptyBody": "Mate can work while you are away. For example: summarise the deals that moved every weekday morning, or draft a thank-you email when one is won.",
+    "emptyTitle": "No routines yet"
+  },
+  "RoutineSchedule": {
+    "daily": "Every day at {time}",
+    "hourly": "Every hour at :{minute}",
+    "monthly": "Day {day} of every month at {time}",
+    "weekly": "Every {weekday} at {time}"
+  },
+  "RoutineSchedulePreset": {
+    "daily": "Every day",
+    "every15Minutes": "Every 15 minutes",
+    "every30Minutes": "Every 30 minutes",
+    "hourly": "Every hour",
+    "monthly": "Every month",
+    "weekly": "Every week"
+  },
+  "RoutineTriggerKind": {
+    "event": "When something changes",
+    "schedule": "On a schedule"
+  },
+  "RoutineWeekday": {
+    "friday": "Friday",
+    "monday": "Monday",
+    "saturday": "Saturday",
+    "sunday": "Sunday",
+    "thursday": "Thursday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday"
   },
   "ServiceModal": {
     "title": "Service"
@@ -3087,7 +3325,9 @@
       },
       "hostedAiCredits": "{credits, number} hosted AI credits per active user / month",
       "mostPopular": "Most popular",
-      "perUserMonth": "per user / month"
+      "perUserMonth": "per user / month",
+      "routinesPerUser": "{routines, plural, one {# routine per user} other {# routines per user}}",
+      "unlimitedRoutinesPerUser": "Unlimited routines per user"
     },
     "plan": "Plan",
     "planNames": {

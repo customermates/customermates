@@ -3,6 +3,7 @@ import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
+import { runWithTenant } from "@/core/decorators/tenant-context";
 import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
 import {
   createMockDiModule,
@@ -36,6 +37,7 @@ vi.mock("@sentry/nextjs", () => ({
 import { GetAgentConversationInteractor } from "../get-agent-conversation.interactor";
 import { RespondToUiCommandInteractor } from "../respond-to-ui-command.interactor";
 import { SendAgentMessageInteractor } from "../send-agent-message.interactor";
+import { agentUiCommandHookToken } from "../agent-ui-command";
 
 const CONVERSATION_ID = "00000000-0000-4000-8000-000000000001";
 const MESSAGE_ID = "00000000-0000-4000-8000-000000000002";
@@ -183,7 +185,7 @@ describe("agent access", () => {
 
     expect(result.ok).toBe(true);
     if (!result.ok || result.data.disposition !== "run") return;
-    expect(result.data.messages[0]?.text).toHaveLength(1200);
+    expect(result.data.messages[0]?.text).toHaveLength(2000);
     expect(result.data.messages[1]?.text).toBe(`<page_context route="/en/contacts"/>\n${currentText}`);
     expect(result.data.locale).toBe("de");
     expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
@@ -262,7 +264,7 @@ describe("agent access", () => {
       createAgentConversationForRun: vi.fn(),
       deleteUnusedAgentConversation: vi.fn(),
       recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
-      findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
+      findInteractiveConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID, origin: "user" }),
       listRecentMessages: vi.fn().mockResolvedValue([]),
       admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
         Promise.resolve({
@@ -292,9 +294,167 @@ describe("agent access", () => {
     });
 
     expect(result.ok && result.data.disposition).toBe("run");
-    expect(repo.findConversation).toHaveBeenCalledWith(CONVERSATION_ID);
+    expect(repo.findInteractiveConversation).toHaveBeenCalledWith(CONVERSATION_ID, undefined);
     expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
       expect.objectContaining({ conversationId: CONVERSATION_ID }),
+    );
+  });
+
+  it("admits the initial routine message only through the internal routine path", async () => {
+    const background = backgroundTasks();
+    const usage = usageService();
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+      claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
+      findConversation: vi.fn().mockResolvedValue({
+        id: CONVERSATION_ID,
+        origin: "routine",
+        modelKey: null,
+        creditCeiling: 2,
+      }),
+      admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
+        Promise.resolve({
+          conversationId: CONVERSATION_ID,
+          userMessageId: args.turn.userMessageId,
+          recentMessages: [
+            {
+              id: args.turn.userMessageId,
+              role: "user",
+              parts: [{ type: "text", text: "Inspect the changed deal" }],
+            },
+          ],
+        }),
+      ),
+    };
+
+    const result = await runWithTenant(mockUser, () =>
+      new SendAgentMessageInteractor(
+        repo as never,
+        usage as never,
+        mockEntitlementService(),
+        background as never,
+      ).invokeRoutine({
+        clientRequestId: CLIENT_REQUEST_ID,
+        conversationId: CONVERSATION_ID,
+        text: "Inspect the changed deal",
+        retry: false,
+      }),
+    );
+
+    expect(result.ok && result.data.disposition).toBe("run");
+    expect(repo.findConversation).toHaveBeenCalledWith(CONVERSATION_ID);
+    expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
+      model: MODEL_CATALOG.balanced,
+      requiredContextBytes: expect.any(Number),
+      creditCeiling: 2,
+    });
+    expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversationId: CONVERSATION_ID,
+        routineRunId: CLIENT_REQUEST_ID,
+      }),
+    );
+    expect(background.dispatchTracked).toHaveBeenCalledWith(
+      "agent-turn",
+      expect.objectContaining({ surface: "routine", conversationId: CONVERSATION_ID }),
+    );
+  });
+
+  it("reports temporary capacity pressure separately for a queued routine", async () => {
+    const usage = usageService();
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+      claimAgentRunLease: vi.fn().mockResolvedValue("atUserLimit"),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(true),
+      findConversation: vi
+        .fn()
+        .mockResolvedValue({ id: CONVERSATION_ID, origin: "routine", modelKey: null, creditCeiling: 10 }),
+    };
+
+    const result = await runWithTenant(mockUser, () =>
+      new SendAgentMessageInteractor(
+        repo as never,
+        usage as never,
+        mockEntitlementService(),
+        backgroundTasks() as never,
+      ).invokeRoutine({
+        clientRequestId: CLIENT_REQUEST_ID,
+        conversationId: CONVERSATION_ID,
+        text: "Inspect the changed deal",
+        retry: false,
+      }),
+    );
+
+    expect(result).toMatchObject({
+      ok: true,
+      data: { disposition: "atCapacity", conversationId: CONVERSATION_ID, retryAllowed: true },
+    });
+    expect(usage.reserveUsage).not.toHaveBeenCalled();
+  });
+
+  it("continues a terminal owned routine conversation as an interactive chat turn", async () => {
+    const background = backgroundTasks();
+    const usage = usageService();
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+      claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
+      findInteractiveConversation: vi.fn().mockResolvedValue({
+        id: CONVERSATION_ID,
+        origin: "routine",
+        modelKey: null,
+        creditCeiling: 2,
+      }),
+      admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
+        Promise.resolve({
+          conversationId: CONVERSATION_ID,
+          userMessageId: args.turn.userMessageId,
+          recentMessages: [
+            {
+              id: args.turn.userMessageId,
+              role: "user",
+              parts: [{ type: "text", text: "Continue the investigation" }],
+            },
+          ],
+        }),
+      ),
+    };
+
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      background as never,
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      conversationId: CONVERSATION_ID,
+      text: "Continue the investigation",
+      retry: false,
+    });
+
+    expect(result.ok && result.data.disposition).toBe("run");
+    expect(repo.findInteractiveConversation).toHaveBeenCalledWith(CONVERSATION_ID, undefined);
+    expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
+      model: MODEL_CATALOG.balanced,
+      requiredContextBytes: expect.any(Number),
+      creditCeiling: null,
+    });
+    expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
+      expect.not.objectContaining({ routineRunId: expect.anything() }),
+    );
+    expect(background.dispatchTracked).toHaveBeenCalledWith(
+      "agent-turn",
+      expect.objectContaining({ surface: "chat", conversationId: CONVERSATION_ID }),
     );
   });
 
@@ -307,7 +467,7 @@ describe("agent access", () => {
       createAgentConversationForRun: vi.fn(),
       deleteUnusedAgentConversation: vi.fn(),
       recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
-      findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
+      findInteractiveConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID, origin: "user" }),
       listRecentMessages: vi.fn(),
       admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
         Promise.resolve({
@@ -345,6 +505,7 @@ describe("agent access", () => {
     expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
       model: MODEL_CATALOG.balanced,
       requiredContextBytes: expect.any(Number),
+      creditCeiling: null,
     });
   });
 
@@ -366,6 +527,7 @@ describe("agent access", () => {
           userMessageId: MESSAGE_ID,
           assistantMessageId: "assistant-1",
           terminalCode: "completed",
+          stopReason: null,
           affectedResources: ["contacts"],
           hasLaterMessages: false,
         },
@@ -396,6 +558,7 @@ describe("agent access", () => {
     expect(result.ok && result.data.disposition).toBe("completedReplay");
     if (!result.ok || result.data.disposition !== "completedReplay") return;
     expect(result.data.assistantMessage.parts).toEqual([{ type: "text", text: "Done " }]);
+    expect(result.data.stopReason).toBeNull();
     expect(usage.prepareTurn).not.toHaveBeenCalled();
     expect(usage.reserveUsage).not.toHaveBeenCalled();
     expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
@@ -477,7 +640,7 @@ describe("agent access", () => {
       createAgentConversationForRun: vi.fn(),
       deleteUnusedAgentConversation: vi.fn(),
       recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
-      findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
+      findInteractiveConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID, origin: "user" }),
       listRecentMessages: vi.fn().mockResolvedValue([
         {
           id: MESSAGE_ID,
@@ -510,6 +673,7 @@ describe("agent access", () => {
     });
 
     expect(result.ok && result.data.disposition).toBe("run");
+    expect(repo.findInteractiveConversation).toHaveBeenCalledWith(CONVERSATION_ID, "turn-1");
     expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
       expect.objectContaining({
         conversationId: CONVERSATION_ID,
@@ -581,7 +745,7 @@ describe("agent access", () => {
       createAgentConversationForRun: vi.fn(),
       deleteUnusedAgentConversation: vi.fn(),
       recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
-      findConversation: vi.fn().mockResolvedValue(null),
+      findInteractiveConversation: vi.fn().mockResolvedValue(null),
       admitAgentTurnOrThrow: vi.fn(),
     };
 
@@ -869,16 +1033,67 @@ describe("agent access", () => {
     expect(result.ok && result.data.activeTurn).toBe(false);
   });
 
+  it.each(["uncertain", "completed", "running"])(
+    "returns safe %s turn metadata with its user message",
+    async (status) => {
+      const turn = {
+        clientRequestId: CLIENT_REQUEST_ID,
+        status,
+        assistantMessageId: status === "completed" ? "assistant-1" : null,
+        terminalCode: status === "completed" ? "completed" : null,
+        stopReason: null,
+      };
+      const repo = {
+        findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID, title: "Result" }),
+        hasRunningTurn: vi.fn().mockResolvedValue(status === "running"),
+        listMessagePage: vi.fn().mockResolvedValue(
+          messagePage([
+            {
+              id: MESSAGE_ID,
+              role: "user",
+              parts: [{ type: "text", text: "Check my deals" }],
+              createdAt: new Date(0),
+              turnRequest: {
+                ...turn,
+                externalRunId: "private-workflow-id",
+                text: "private-server-context",
+                modelSpec: "private-model",
+              },
+            },
+            {
+              id: "assistant-1",
+              role: "assistant",
+              parts: [{ type: "text", text: "Saved answer" }],
+              createdAt: new Date(0),
+              turnRequest: turn,
+            },
+          ]),
+        ),
+      };
+
+      const result = await new GetAgentConversationInteractor(repo as never, mockEntitlementService()).invoke({
+        conversationId: CONVERSATION_ID,
+      });
+
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+      expect(result.data.messages[0]?.turn).toEqual(turn);
+      expect(result.data.messages[1]?.turn).toBeNull();
+      expect(JSON.stringify(result.data)).not.toContain("private-");
+    },
+  );
+
   it("records UI feedback only for an owned conversation", async () => {
     const repo = {
-      findConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
+      findInteractiveConversation: vi.fn().mockResolvedValue({ id: CONVERSATION_ID }),
       recordUiCommandResult: vi.fn().mockResolvedValue(undefined),
     };
 
+    const tasks = backgroundTasks();
     const result = await new RespondToUiCommandInteractor(
       repo as never,
       mockEntitlementService(),
-      backgroundTasks() as never,
+      tasks as never,
     ).invoke({
       conversationId: CONVERSATION_ID,
       commandId: "command-1",
@@ -888,6 +1103,10 @@ describe("agent access", () => {
     });
 
     expect(result.ok).toBe(true);
+    expect(result.ok && result.data).toEqual({ resolved: true, resumed: true });
     expect(repo.recordUiCommandResult).toHaveBeenCalledOnce();
+    expect(tasks.resume).toHaveBeenCalledWith(agentUiCommandHookToken(CONVERSATION_ID), {
+      commandId: "command-1",
+    });
   });
 });

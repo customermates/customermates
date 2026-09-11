@@ -47,10 +47,10 @@ import { classifyAttachment } from "../attachment-kind";
 import { htmlToPlainText } from "../email-body-text";
 import { contactFullName } from "../thread-display";
 import {
-  folderMessageWhere,
+  accessibleFolderStatesWhere,
+  inboxThreadVisibilityWhere,
+  messageVisibilityWhere,
   threadAccessWhere,
-  threadFolderMembershipWhere,
-  threadHasActivityWhere,
 } from "../messaging-access";
 import { channelClass, classWhere, isDraftThreadId, isEmailProvider, isHandleProvider } from "../provider";
 import {
@@ -397,11 +397,7 @@ export class PrismaMessagingRepo
 
   private async loadAccessibleFolderStates() {
     const rows = await this.prisma.connectedAccount.findMany({
-      where: {
-        companyId: this.companyId,
-        OR: [{ userId: this.userId }, { shared: true }],
-        foldersSyncedAt: { not: null },
-      },
+      where: accessibleFolderStatesWhere(this.companyId, this.userId),
       select: { id: true, selectedFolderIds: true },
     });
 
@@ -412,13 +408,10 @@ export class PrismaMessagingRepo
   }
 
   async getItems(params: GetQueryParams) {
-    const folderMembership = threadFolderMembershipWhere(await this.loadAccessibleFolderStates());
+    const folderStates = await this.loadAccessibleFolderStates();
     const threads = await this.list({
       model: "messagingThread",
-      baseWhere: {
-        ...threadAccessWhere(this.companyId, this.userId),
-        AND: [threadHasActivityWhere(), ...(folderMembership ? [folderMembership] : [])],
-      },
+      baseWhere: inboxThreadVisibilityWhere(this.companyId, this.userId, folderStates),
       select: this.threadSelect,
       params: {
         ...params,
@@ -438,11 +431,11 @@ export class PrismaMessagingRepo
   }
 
   async getCount(params: GetQueryParams) {
-    const folderMembership = threadFolderMembershipWhere(await this.loadAccessibleFolderStates());
-    const { where } = await this.buildQueryArgs(params, {
-      ...threadAccessWhere(this.companyId, this.userId),
-      AND: [threadHasActivityWhere(), ...(folderMembership ? [folderMembership] : [])],
-    });
+    const folderStates = await this.loadAccessibleFolderStates();
+    const { where } = await this.buildQueryArgs(
+      params,
+      inboxThreadVisibilityWhere(this.companyId, this.userId, folderStates),
+    );
 
     return this.prisma.messagingThread.count({ where });
   }
@@ -1533,6 +1526,7 @@ export class PrismaMessagingRepo
       },
       select: {
         id: true,
+        connectedAccountId: true,
         provider: true,
         name: true,
         type: true,
@@ -1545,12 +1539,15 @@ export class PrismaMessagingRepo
     if (!accessibleThread) return { messages: [] as MessagingMessage[], total: 0 };
 
     const account = accessibleThread.connectedAccount;
-    const folderWhere = account.foldersSyncedAt !== null ? folderMessageWhere(account.selectedFolderIds) : {};
+    const folderStates =
+      account.foldersSyncedAt !== null
+        ? [{ id: accessibleThread.connectedAccountId, visibleSet: account.selectedFolderIds }]
+        : [];
     const where = {
       messagingThreadId: threadId,
+      connectedAccountId: accessibleThread.connectedAccountId,
       companyId: this.companyId,
-      isHidden: false,
-      ...folderWhere,
+      ...messageVisibilityWhere(folderStates),
     };
     const pageSize = opts?.pageSize;
 

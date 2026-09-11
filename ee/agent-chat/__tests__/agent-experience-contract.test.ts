@@ -39,6 +39,7 @@ const EMPTY_COUNTS = {
   deals: false,
   services: false,
   tasks: false,
+  routines: false,
   widgets: false,
   connectedAccounts: false,
 };
@@ -51,11 +52,13 @@ describe("agent experience contract", () => {
 
     const populated = { ...EMPTY_COUNTS, contacts: true };
     expect(agentPageState("contacts", populated)).toBe("data");
+    expect(agentPageState("routines", EMPTY_COUNTS)).toBe("empty");
+    expect(agentPageState("routines", { ...EMPTY_COUNTS, routines: true })).toBe("data");
     expect(agentPageActions("contacts", "data", enT, "en").map((action) => action.id)).not.toEqual(
       agentPageActions("contacts", "empty", enT, "en").map((action) => action.id),
     );
 
-    for (const page of ["dashboard", "tasks", "contacts", "organizations", "deals", "services"] as const) {
+    for (const page of ["dashboard", "tasks", "contacts", "organizations", "deals", "services", "routines"] as const) {
       for (const state of ["empty", "data"] as const) {
         expect(agentPageActions(page, state, enT, "en")).toHaveLength(3);
         expect(agentPageActions(page, state, deT, "de")).toHaveLength(3);
@@ -207,23 +210,6 @@ describe("agent experience contract", () => {
       expect(agentActivityCopy(activity, enT).running).toBeTruthy();
       expect(agentActivityCopy(activity, deT).running).toBeTruthy();
     }
-  });
-
-  it("classifies an allowlisted DOM activation without retaining its target", () => {
-    const activity = describeInternalTool("click_ui_target", {
-      targetId: "deals-layout-board",
-      selector: "#private-record-00000000-0000-4000-8000-000000000002",
-    });
-
-    expect(activity).toEqual({
-      kind: "interface.interact",
-      affectedResources: [],
-      risk: "read",
-    });
-    expect(JSON.stringify(activity)).not.toContain("deals-layout-board");
-    expect(JSON.stringify(activity)).not.toContain("private-record");
-    expect(agentActivityCopy(activity, enT).done).toBe("Activated the control");
-    expect(agentActivityCopy(activity, deT).done).toBe("Steuerelement aktiviert");
   });
 
   it("gives workspace, documentation, and interface reads distinct localized activity names", () => {

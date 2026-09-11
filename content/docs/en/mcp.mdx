@@ -233,6 +233,14 @@ For a company, call `get_social_profile` with `profileType=company` and an `iden
 | `manage_widgets` |  | ✓ | One tool with an `action` switch: list, get, create, update, delete. Omitted create `kind` remains `chart`. Activity creation accepts `name`, optional `timelineFilters`, and optional `showFilters`; each activity filter field may appear once. Update infers the immutable stored kind, preserves omitted fields, and clears filters with `timelineFilters: []`. Create rejects newly inaccessible relationship UUIDs. Update may retain or remove an unavailable relationship UUID only when that UUID is already stored on the widget; adding another inaccessible UUID is rejected. list/get/create/update all return `kind`; get also returns chart data for charts and reusable `timelineFilters` for activity widgets. Chart-only and activity-only fields cannot be mixed. |
 {/* /mcp-catalog */}
 
+### Routines
+
+{/* mcp-catalog:routines */}
+| Tool | Read | Destructive | Purpose |
+|---|---|---|---|
+| `manage_routines` |  | ✓ | One tool with an `action` switch: list, runs, create, update, pause, run_now, delete. A routine is saved instructions the assistant runs on a cron schedule or when a CRM event fires. Omitting `enabled` on create produces a LIVE routine, so pass `enabled: false` to draft one. A change of `triggerKind` must arrive with that kind's schedule or events. pause disables the routine and settles its queued runs to skipped, which re-enabling does not undo. run_now applies to scheduled routines only. Runs are paginated by `cursor` and carry status, summary and trigger. |
+{/* /mcp-catalog */}
+
 ### Webhooks
 
 {/* mcp-catalog:webhooks */}
@@ -266,7 +274,7 @@ All [[derived.mcp.tools.total]] tools are on by default. To expose only part of 
 https://customermates.com/api/v1/mcp?toolsets=records,messaging
 ```
 
-Keys: records, workspace, messaging, social, docs, custom-columns, widgets, webhooks, admin, support. No parameter means everything; unknown keys are ignored. `search` and `fetch` are always on so deep-research connectors keep working on any narrowed surface.
+Keys: records, workspace, messaging, social, docs, custom-columns, widgets, routines, webhooks, admin, support. No parameter means everything; unknown keys are ignored. `search` and `fetch` are always on so deep-research connectors keep working on any narrowed surface.
 
 ### When a call is refused
 

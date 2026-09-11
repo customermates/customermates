@@ -1,4 +1,6 @@
-import { z } from "zod";
+import type { z } from "zod";
+
+import { isIsoDateTime } from "@/core/validation/iso-date-time";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
@@ -11,7 +13,7 @@ export function validateCustomFieldDateTime(
   const isArray = Array.isArray(value);
 
   for (let i = 0; i < values.length; i++) {
-    const datetimeOk = z.iso.datetime().safeParse(values[i]).success;
+    const datetimeOk = isIsoDateTime(values[i]);
     if (datetimeOk) continue;
 
     ctx.addIssue({

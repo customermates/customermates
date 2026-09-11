@@ -1,14 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  AGENT_MAX_ERRORS,
-  AGENT_MAX_REPEATED_ACTIVITY_CALLS,
-  agentContinuationLimits,
-  toAgentContinuationStep,
-} from "../agent-run-limits";
+import { toAgentContinuationStep } from "../agent-run-limits";
 import { decideAgentContinuationLoop, summarizeAgentContinuationStep } from "../agent-continuation";
-
-const limits = agentContinuationLimits(200);
 
 function round(toolName: string, input: unknown, output: unknown) {
   return toAgentContinuationStep(
@@ -21,10 +14,10 @@ function round(toolName: string, input: unknown, output: unknown) {
 }
 
 function decide(steps: ReturnType<typeof round>[]) {
-  return decideAgentContinuationLoop({ startedAtMs: 0, steps, observedAtMs: 0 }, limits);
+  return decideAgentContinuationLoop({ steps });
 }
 
-describe("durable continuation limits", () => {
+describe("credit-bounded durable continuation", () => {
   it("reads a succeeded tool as done, because the durable step carries no result of its own", () => {
     const step = round("list_records", { entity: "contact" }, { ok: true, result: "items" });
 
@@ -57,34 +50,31 @@ describe("durable continuation limits", () => {
     expect(summarizeAgentContinuationStep(step)[0]?.status).toBe("error");
   });
 
-  it("stops a model that keeps failing the same way", () => {
+  it("continues when a model keeps failing the same way", () => {
     const failing = () => round("create_contacts", { name: "x" }, { ok: false, result: "not allowed" });
-    const steps = Array.from({ length: AGENT_MAX_ERRORS }, failing);
+    const steps = Array.from({ length: 40 }, failing);
 
-    expect(decide(steps)).toMatchObject({ action: "error", reason: "error_limit" });
+    expect(decide(steps)).toEqual({ action: "continue" });
   });
 
-  it("stops a model that keeps making the same call", () => {
+  it("continues when a model keeps making the same call", () => {
     const repeat = () => round("list_records", { entity: "contact" }, { ok: true, result: "items" });
-    const steps = Array.from({ length: AGENT_MAX_REPEATED_ACTIVITY_CALLS }, repeat);
+    const steps = Array.from({ length: 40 }, repeat);
 
-    expect(decide(steps)).toMatchObject({ action: "error", reason: "repeated_activity" });
+    expect(decide(steps)).toEqual({ action: "continue" });
   });
 
-  it("lets genuine progress continue well past any request-bound ceiling", () => {
-    const steps = Array.from({ length: 60 }, (_, index) =>
-      round("list_records", { entity: "contact", page: index }, { ok: true, result: `page ${index}` }),
+  it("continues past 32 provider rounds and 16 successful writes", () => {
+    const steps = Array.from({ length: 40 }, (_, index) =>
+      round("create_contacts", { firstName: `Contact ${index}` }, { ok: true, result: `created ${index}` }),
     );
 
-    expect(decide(steps).action).toBe("continue");
+    expect(decide(steps)).toEqual({ action: "continue" });
   });
 
   it("never stops a durable run for taking too long, which is the point of durability", () => {
     const steps = [round("list_records", { entity: "contact" }, { ok: true, result: "items" })];
-    const decision = decideAgentContinuationLoop(
-      { startedAtMs: 0, steps, observedAtMs: Number.MAX_SAFE_INTEGER - 1 },
-      limits,
-    );
+    const decision = decideAgentContinuationLoop({ steps });
 
     expect(decision.action).toBe("continue");
   });

@@ -24,7 +24,6 @@ Nur Aktionen, die sich nicht rückgängig machen lassen oder den Workspace verla
 | Einträge löschen                                     | Endgültiges Löschen, nicht umkehrbar               |
 | Eigenes Feld, Widget oder Webhook löschen            | Zerstört Konfiguration und gespeicherte Werte      |
 | Nachrichtenentwurf verwerfen                         | Entfernt geschriebene Inhalte                      |
-| E-Mail oder Chat-Nachricht senden                    | Erreicht eine echte Person außerhalb des Workspace |
 | Team-Einladung senden                                | Sendet eine echte Einladungs-E-Mail                |
 | Webhook-Zustellung erneut senden                     | Sendet eine neue externe Webhook-Anfrage           |
 | Social-Verknüpfung oder Sales-Navigator-Liste ändern | Ändert Daten in einem verbundenen externen Konto   |
@@ -32,11 +31,13 @@ Nur Aktionen, die sich nicht rückgängig machen lassen oder den Workspace verla
 
 Die Freigabekarte nennt die Aktion und ihre Konsequenz. Lehnen Sie ab oder läuft die Anfrage ab, hat sich nichts geändert. Es gibt keine Dauerfreigabe: Jede dieser Aktionen fragt beim nächsten Mal erneut.
 
+Das Senden einer E-Mail oder Chat-Nachricht steht bewusst nicht auf dieser Liste: Diese Werkzeuge stellen sofort zu, sobald der Assistent sie aufruft. Bitten Sie um einen Entwurf, wenn Sie den Wortlaut vorher prüfen möchten. Ein Entwurf wartet in Ihrem Postfach, bis Sie ihn selbst senden.
+
 ## Die Oberfläche bedienen
 
-Mate navigiert über stabile Oberflächen-Ids und aktiviert eine enge Allowlist umkehrbarer Darstellungs-Controls im DOM. Es kann die Display-options öffnen und eine Liste zwischen Tabelle und Board umschalten. Erfolg meldet es erst, wenn der gewählte oder geöffnete DOM-Zustand sichtbar ist. Die stabilen Such- und Filter-Controls kann Mate hervorheben; für Sortierung und Gruppierung öffnet es die Display-options. Es tippt nichts ein und bindet sich nicht direkt an Page-Stores. Ein Board gruppiert Datensätze nach einem Feld; hat eine Liste nichts zum Gruppieren, ist das Board-Control deaktiviert, und Mate erklärt diese Voraussetzung.
+Mate navigiert über stabile Oberflächen-IDs, hebt Controls hervor und kann Sie durch einen Ablauf führen. Es klickt oder aktiviert keine Controls, tippt nichts in Formulare ein und ändert keine Display-options, Filter, Sortierungen, Gruppierungen oder Layouts. Liegt ein Control in einem anderen Panel, nennt Mate die Voraussetzung, die Sie zuerst öffnen müssen, und hebt danach das nächste Control hervor. Ein Board gruppiert Datensätze nach einem Feld; hat eine Liste nichts zum Gruppieren, erklärt Mate diese Voraussetzung.
 
-Wenn Sie Mate bitten, Daten zu ändern, nutzt es das passende MCP-gestützte Werkzeug direkt und sagt Ihnen, was sich geändert hat. Wollen Sie etwas lieber in der Oberfläche eingeben oder verfeinern, öffnet Mate das passende Control und zeigt auf die nötigen Stellen, und **Sie** tippen, wählen und speichern. Mate sendet keine beliebigen Selektoren und klickt nicht auf Speichern, Senden oder Löschen. Ihre eigenen ungespeicherten Änderungen werden deshalb nicht überschrieben.
+Wenn Sie Mate bitten, Daten zu ändern, nutzt es das passende MCP-gestützte Werkzeug direkt und sagt Ihnen, was sich geändert hat. Wollen Sie etwas lieber in der Oberfläche eingeben oder verfeinern, zeigt Mate auf das passende Control, und **Sie** öffnen es, tippen, wählen und speichern. Mate sendet keine beliebigen Selektoren und klickt auf keine Oberflächen-Controls. Ihre eigenen ungespeicherten Änderungen werden deshalb nicht überschrieben.
 
 ## Geführte Touren
 

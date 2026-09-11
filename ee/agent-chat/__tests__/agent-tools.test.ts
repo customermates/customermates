@@ -35,17 +35,23 @@ vi.mock("next-intl/server", () => ({
 import { searchDocsTool } from "@/features/mcp-tools/docs.mcp-tools";
 import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
 
-import { agentContextTokensToBytes, resolveAgentTurnBudget } from "../agent-budget-policy";
+import {
+  AGENT_TOOL_RESULT_TRUNCATED_MARK,
+  agentRoundWorstCaseCredits,
+  agentContextTokensToBytes,
+  resolveAgentTurnBudget,
+} from "../agent-budget-policy";
 import { conservativeAgentInitialContextBytes } from "../agent-provider-context";
 import { MODEL_CATALOG } from "../model-catalog";
 import { buildAgentSystemPrompt } from "../system-prompt";
-import { AGENT_CLICK_TARGETS, AGENT_UI_TARGETS } from "../ui-targets";
+import { AGENT_UI_TARGETS } from "../ui-targets";
 import {
   AGENT_UI_TOOL_NAMES,
   describeAgentAiTools,
   hasNonTransactionalEffect,
   getAgentAiToolDefinitions,
   getAgentAiTools,
+  normalizeAgentAiToolInput,
   isAgentToolCancellation,
   type AgentToolDeps,
 } from "../agent-tools";
@@ -149,6 +155,7 @@ describe("agent tools", () => {
     expect(names.toSorted()).toEqual([...expected].toSorted());
     expect(names).toContain("search");
     expect(names).toContain("fetch");
+    expect(names).not.toContain("click_ui_target");
     expect(names.filter((name) => name === "request_support")).toHaveLength(1);
     expect(names.every((name) => !name.startsWith("discover_"))).toBe(true);
   });
@@ -228,6 +235,7 @@ describe("agent tools", () => {
       userName: "Ada Lovelace",
       appBaseUrl: "https://app.example.com",
       locale: "en",
+      surface: "chat",
     });
     const definitions = getAgentAiToolDefinitions();
     expect(definitions).toEqual(describeAgentAiTools(getAgentAiTools(deps())));
@@ -240,11 +248,14 @@ describe("agent tools", () => {
     });
 
     const model = MODEL_CATALOG.balanced;
+    const contextLimitBytes = agentContextTokensToBytes(model.maxContextTokens);
     expect(requiredContextBytes).not.toBeNull();
-    expect(requiredContextBytes).toBeLessThan(agentContextTokensToBytes(model.maxContextTokens));
+    expect(requiredContextBytes).toBeLessThan(contextLimitBytes);
+    const contextHeadroomFloorBytes = 20_000;
+    expect(contextLimitBytes - (requiredContextBytes ?? 0)).toBeGreaterThan(contextHeadroomFloorBytes);
     const funded = resolveAgentTurnBudget({
       model,
-      availableCredits: 1,
+      availableCredits: agentRoundWorstCaseCredits(model),
       requiredContextBytes: requiredContextBytes ?? 0,
     });
     expect(funded?.maxContextBytes).toBeGreaterThanOrEqual(requiredContextBytes ?? Number.POSITIVE_INFINITY);
@@ -285,28 +296,20 @@ describe("agent tools", () => {
     });
   });
 
-  it("allows only reversible display controls through click_ui_target", async () => {
-    const validate = schemaOf(getAgentAiTools(deps()).click_ui_target).validate;
-
-    expect(await validate?.({ targetId: "deals-display-options" })).toMatchObject({ success: true });
-    expect(await validate?.({ targetId: "deals-layout-board" })).toMatchObject({ success: true });
-    for (const targetId of ["#deals-display-options", "nav-contacts", "company-settings-save", "deals-filter"])
-      expect(await validate?.({ targetId }), targetId).toMatchObject({ success: false });
-  });
-
   it("keeps the complete UI target catalog within the tool-result budget", async () => {
     const result = String(await execute(getAgentAiTools(deps()).list_ui_targets, {}));
 
     expect(result.length).toBeLessThanOrEqual(6000);
-    expect(result).toContain("actions n=navigate,h=highlight,c=click");
+    expect(result).toContain("actions n=navigate,h=highlight");
+    expect(result).not.toContain("c=click");
     expect(result).toContain("\nend");
     for (const target of AGENT_UI_TARGETS) expect(result).toContain(target.id);
   });
 
-  it("keeps every click target discoverable through bounded queries and pages", async () => {
+  it("keeps every highlight target discoverable through bounded queries and pages", async () => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 512 }));
 
-    for (const target of AGENT_CLICK_TARGETS) {
+    for (const target of AGENT_UI_TARGETS) {
       const result = String(await execute(tools.list_ui_targets, { query: target.id }));
       expect(result.length).toBeLessThanOrEqual(512);
       expect(result).toContain(target.id);
@@ -314,7 +317,7 @@ describe("agent tools", () => {
     }
 
     const layout = String(await execute(tools.list_ui_targets, { query: "deals-layout-board" }));
-    expect(layout).toContain("deals-layout-board|/deals|nhc|>deals-display-options");
+    expect(layout).toContain("deals-layout-board|/deals|nh|>deals-display-options");
 
     const seen: string[] = [];
     let cursor: number | undefined;
@@ -365,15 +368,11 @@ describe("agent tools", () => {
     expect(
       await schemaOf(tools.highlight_element).validate?.({ targetId: "profile-connected-accounts-connect" }),
     ).toMatchObject({ success: true });
-    expect(
-      await schemaOf(tools.click_ui_target).validate?.({ targetId: "profile-connected-accounts-connect" }),
-    ).toMatchObject({ success: false });
   });
 
   it.each([
     ["navigate", { targetId: "nav-contacts" }, "navigation failed"],
     ["highlight_element", { targetId: "contacts-add" }, "highlight failed"],
-    ["click_ui_target", { targetId: "contacts-display-options" }, "activation failed"],
     [
       "start_tour",
       {
@@ -393,14 +392,15 @@ describe("agent tools", () => {
     expect(runUiCommand).toHaveBeenCalledWith("call-1", name, input);
   });
 
-  it("caps browser command results to the admitted per-tool context budget", async () => {
+  it("caps browser command results to the admitted per-tool context budget and says it truncated", async () => {
     const runUiCommand = vi.fn().mockResolvedValue({ ok: true, result: "x".repeat(1000) });
     const tools = getAgentAiTools(deps({ runUiCommand, resultMaxChars: 512 }));
 
-    await expect(execute(tools.navigate, { targetId: "nav-contacts" })).resolves.toEqual({
-      ok: true,
-      result: "x".repeat(512),
-    });
+    const outcome = (await execute(tools.navigate, { targetId: "nav-contacts" })) as { ok: boolean; result: string };
+    expect(outcome.ok).toBe(true);
+    expect(outcome.result.length).toBeLessThanOrEqual(512);
+    expect(outcome.result).toContain(AGENT_TOOL_RESULT_TRUNCATED_MARK);
+    expect(outcome.result).toContain("of 1000 characters");
   });
 
   it("preserves Zod defaults while sending a provider-safe JSON schema", async () => {
@@ -409,6 +409,93 @@ describe("agent tools", () => {
     expect(result).toEqual({
       success: true,
       value: { query: "contacts", locale: "en", source: "docs" },
+    });
+  });
+
+  it.each([
+    ["list_users", { searchTerm: "Sofia" }, { searchTerm: "Sofia", page: 1, pageSize: 100 }],
+    [
+      "list_users",
+      { searchTerm: "Sofia", page: "2", pageSize: " 10 " },
+      { searchTerm: "Sofia", page: 2, pageSize: 10 },
+    ],
+    ["list_records", { entity: "contact" }, { entity: "contact", page: 1, pageSize: 10 }],
+    [
+      "get_records",
+      { items: [{ entity: "contact", id: "record-1" }] },
+      { items: [{ entity: "contact", id: "record-1", include: "masterData" }] },
+    ],
+    ["search_docs", { query: "contacts" }, { query: "contacts", locale: "en", source: "docs" }],
+  ])("restores authoritative defaults and coercions for durable %s input", async (name, input, expected) => {
+    const serialized = JSON.parse(JSON.stringify(input));
+    await expect(normalizeAgentAiToolInput(name, serialized, 6000)).resolves.toEqual({
+      ok: true,
+      input: expected,
+    });
+    expect(serialized).toEqual(input);
+  });
+
+  it("applies panel refinements and transforms before a command can be emitted", async () => {
+    await expect(normalizeAgentAiToolInput("navigate", {}, 6000)).resolves.toMatchObject({ ok: false });
+    await expect(
+      normalizeAgentAiToolInput(
+        "start_tour",
+        {
+          steps: [
+            { targetId: "nav-contacts", note: " Contacts " },
+            { targetId: "contacts-add", note: " Add " },
+          ],
+        },
+        6000,
+      ),
+    ).resolves.toEqual({
+      ok: true,
+      input: {
+        steps: [
+          { targetId: "nav-contacts", note: "Contacts" },
+          { targetId: "contacts-add", note: "Add" },
+        ],
+      },
+    });
+    await expect(
+      normalizeAgentAiToolInput(
+        "start_tour",
+        {
+          steps: [
+            { targetId: "nav-contacts", note: "   " },
+            { targetId: "contacts-add", note: " Add " },
+          ],
+        },
+        6000,
+      ),
+    ).resolves.toMatchObject({ ok: false });
+  });
+
+  it.each(["not-a-tool", "__proto__", "constructor"])("rejects unknown tool identity %s", async (name) => {
+    await expect(normalizeAgentAiToolInput(name, {}, 6000)).resolves.toEqual({
+      ok: false,
+      result: "The requested tool is not available.",
+    });
+  });
+
+  it("returns bounded validation failures without executing a mutation", async () => {
+    const target = ALL_MCP_TOOLS.find((item) => item.name === "create_contacts");
+    if (!target) throw new Error("Missing create_contacts tool.");
+    const mutation = vi.spyOn(target, "execute");
+    const result = await normalizeAgentAiToolInput("create_contacts", { contacts: [{ firstName: "Only" }] }, 32);
+
+    expect(result).toMatchObject({ ok: false });
+    if (result.ok) throw new Error("Invalid tool input passed.");
+    expect(result.result.length).toBeLessThanOrEqual(32);
+    expect(mutation).not.toHaveBeenCalled();
+    mutation.mockRestore();
+  });
+
+  it("rejects a nonblank-text refinement before a write can execute", async () => {
+    await expect(
+      normalizeAgentAiToolInput("create_contacts", { contacts: [{ firstName: "   ", lastName: "Test" }] }, 6000),
+    ).resolves.toMatchObject({
+      ok: false,
     });
   });
 
@@ -492,8 +579,6 @@ describe("agent tools", () => {
 
   it.each([
     ["delete_records", {}],
-    ["send_email", {}],
-    ["send_chat_message", {}],
     ["discard_message_draft", {}],
     ["manage_custom_columns", { action: "delete" }],
     ["manage_widgets", { action: "delete" }],
@@ -598,8 +683,14 @@ describe("agent tools", () => {
       ok: true,
       result: "done",
     });
-    const failed = await execute(tools.search_docs, { query: "contacts", locale: "en", source: "docs" });
-    expect(failed).toEqual({ ok: false, result: "x".repeat(512) });
+
+    const failed = (await execute(tools.search_docs, { query: "contacts", locale: "en", source: "docs" })) as {
+      ok: boolean;
+      result: string;
+    };
+    expect(failed.ok).toBe(false);
+    expect(failed.result.length).toBeLessThanOrEqual(512);
+    expect(failed.result).toContain(AGENT_TOOL_RESULT_TRUNCATED_MARK);
     expect(JSON.stringify(failed).length).toBeLessThan(600);
   });
 
@@ -652,12 +743,14 @@ describe("agent tools", () => {
       userName: "Ada",
       appBaseUrl: "https://app.example.com",
       locale: "en",
+      surface: "chat",
     });
 
     expect(prompt).not.toMatch(/Always allow/i);
     expect(prompt).not.toContain("onboarding copilot");
     expect(prompt).not.toContain("Do not attempt heavy multi-step automation");
     expect(prompt).toContain("complete hosted Customermates tool catalog");
+    expect(prompt).toContain("up front");
     expect(prompt).toContain("current page is context, never a capability boundary");
     expect(prompt).toContain("Never infer that a capability is unavailable");
     expect(prompt).toContain("Ordinary CRM work also runs immediately");
@@ -666,18 +759,22 @@ describe("agent tools", () => {
     expect(prompt).toContain("team invitations");
     expect(prompt).toContain("webhook delivery resends");
     expect(prompt).toContain("If an approval is declined or times out, nothing changed");
-    expect(prompt).toContain("A support email is sent only after the user explicitly confirms");
+    expect(prompt).toContain("A support email is sent only after that approval is granted");
     expect(prompt).toContain("use the available tools directly");
     expect(prompt).toContain("batch each entity's records into one write call");
     expect(prompt).toContain("one focused search_docs call");
     expect(prompt).toContain("query set to the exact detail");
     expect(prompt).toContain("Make one focused list_ui_targets query");
     expect(prompt).toContain("A tour navigates to each step itself");
+    expect(prompt).toContain("never click or activate interface controls");
     expect(prompt).toContain("asks to walk them through or show them how to connect an account");
     expect(prompt).toContain("action=upsert, intent=create, and no id");
     expect(prompt).toContain("top-level selectOptions");
     expect(prompt).toContain("retry that tool once");
     expect(prompt).toContain("Never print or imitate tool-call syntax as text");
+    expect(prompt).toContain("keep working while credits remain");
+    expect(prompt).toContain("a credit limit, provider error, content filter, hosted-AI unavailability");
+    expect(prompt).not.toContain("time, approval, output, or no-progress bound");
   });
 });
 
@@ -687,11 +784,13 @@ describe("system prompt reply language", () => {
       userName: "Ada",
       appBaseUrl: "https://app.example.com",
       locale: "de",
+      surface: "chat",
     });
     const english = buildAgentSystemPrompt({
       userName: "Ada",
       appBaseUrl: "https://app.example.com",
       locale: "en",
+      surface: "chat",
     });
 
     expect(german).toContain("Write every reply in German");

@@ -135,6 +135,7 @@ describe("agent message admission route", () => {
           createdAt: new Date("2026-08-06T10:00:00.000Z"),
         },
         terminalCode: "partial",
+        stopReason: "provider_error",
         affectedResources: ["contacts"],
       },
     });
@@ -148,6 +149,7 @@ describe("agent message admission route", () => {
     expect(body).toContain('"messageId":"assistant-1"');
     expect(body).toContain('"type":"turn_done"');
     expect(body).toContain('"terminalCode":"partial"');
+    expect(body).toContain('"stopReason":"provider_error"');
     expect(body).toContain('"isError":true');
     expect(body).toContain('"hasSuccessfulMutation":true');
   });

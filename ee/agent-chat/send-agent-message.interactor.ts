@@ -11,6 +11,7 @@ import { env } from "@/env";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { resolveUserLocale } from "@/i18n/user-locale";
+import { AgentConversationOrigin } from "@/generated/prisma";
 
 import {
   SendAgentMessageSchema,
@@ -26,17 +27,15 @@ import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { AGENT_RUN_LEASE_MS, decideAgentTurnAdmission, type AgentTurnRequestSnapshot } from "./agent-turn-request";
 import { buildAgentSystemPrompt } from "./system-prompt";
 import { getAgentAiToolDefinitions } from "./agent-tools";
-import {
-  AGENT_REPLAY_COUNT,
-  AGENT_REPLAY_MAX_CHARS,
-  conservativeAgentInitialContextBytes,
-} from "./agent-provider-context";
+import { conservativeAgentInitialContextBytes } from "./agent-provider-context";
+import { AGENT_REPLAY_COUNT, budgetAgentReplayHistory } from "./agent-replay-budget";
 import { isAgentModelKey, resolveAgentModel } from "./model-catalog";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import { fail, failConflict, failNotFound, failRateLimit } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 type AdmittedAgentRun = { disposition: "run"; externalRunId: string } & Omit<AgentRunContext, "appBaseUrl">;
+type AgentInvocationMode = "interactive" | "routine";
 
 export type SendAgentMessageResult =
   | AdmittedAgentRun
@@ -51,10 +50,11 @@ export type SendAgentMessageResult =
         createdAt: Date;
       };
       terminalCode: NonNullable<AgentTurnRequestSnapshot["terminalCode"]>;
+      stopReason: AgentTurnRequestSnapshot["stopReason"];
       affectedResources: AgentTurnRequestSnapshot["affectedResources"];
     }
   | {
-      disposition: "running" | "failed" | "uncertain" | "conflict";
+      disposition: "running" | "atCapacity" | "failed" | "uncertain" | "conflict";
       clientRequestId: string;
       conversationId?: string;
       userMessageId?: string;
@@ -78,6 +78,17 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     tx: false,
   })
   async invoke(data: SendAgentMessageData): Validated<SendAgentMessageResult> {
+    return this.invokeScoped(data, "interactive");
+  }
+
+  async invokeRoutine(data: SendAgentMessageData): Validated<SendAgentMessageResult> {
+    const denied = await this.entitlements.require("agentChat");
+    if (denied) return denied;
+
+    return this.invokeScoped(data, "routine");
+  }
+
+  private async invokeScoped(data: SendAgentMessageData, mode: AgentInvocationMode): Validated<SendAgentMessageResult> {
     const user = this.user;
     const now = new Date();
     const model = resolveAgentModel();
@@ -127,6 +138,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
             createdAt: assistantMessage.createdAt,
           },
           terminalCode,
+          stopReason: decision.turn.stopReason,
           affectedResources: decision.turn.affectedResources,
         },
       };
@@ -160,14 +172,27 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       };
     }
 
-    const conversation =
-      decision.disposition === "retry"
-        ? await this.repo.findConversation(decision.turn.conversationId)
-        : data.conversationId
-          ? await this.repo.findConversation(data.conversationId)
-          : null;
+    if (mode === "routine" && decision.disposition === "retry")
+      return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+    if (mode === "routine" && !data.conversationId)
+      return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+
+    const requestedConversationId =
+      decision.disposition === "retry" ? decision.turn.conversationId : data.conversationId;
+    const conversation = requestedConversationId
+      ? mode === "routine"
+        ? await this.repo.findConversation(requestedConversationId)
+        : await this.repo.findInteractiveConversation(
+            requestedConversationId,
+            decision.disposition === "retry" ? decision.turn.id : undefined,
+          )
+      : null;
     if ((decision.disposition === "retry" || data.conversationId) && !conversation)
       return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+    if (mode === "routine" && conversation?.origin !== AgentConversationOrigin.routine)
+      return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+
+    const surface = mode === "routine" ? "routine" : "chat";
 
     const requestedModelKey = conversation?.modelKey ?? data.modelKey ?? null;
     if (requestedModelKey !== null && !isAgentModelKey(requestedModelKey))
@@ -181,6 +206,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         userName,
         appBaseUrl: env.BASE_URL,
         locale,
+        surface,
       }),
       currentText: data.text,
       pageRoute,
@@ -191,6 +217,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     const creditAdmission = await this.usageService.prepareTurn(user.id, now, {
       model: turnModel,
       requiredContextBytes,
+      creditCeiling: mode === "routine" ? (conversation?.creditCeiling ?? null) : null,
     });
     const reservation = creditAdmission.reservation;
     if (!reservation) return failRateLimit(CustomErrorCode.agentLimitReached);
@@ -203,7 +230,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       const claimed = await runInTransaction(async () => {
         const phaseOneAt = new Date();
         if (conversationIsNew) {
-          if (await this.repo.isAtAgentRunLimit(phaseOneAt)) return "unavailable" as const;
+          if (await this.repo.isAtAgentRunLimit(phaseOneAt)) return "at-user-limit" as const;
           await this.repo.createAgentConversationForRun({
             conversationId,
             title: data.text,
@@ -218,7 +245,8 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           expiresAt: new Date(phaseOneAt.getTime() + AGENT_RUN_LEASE_MS),
           now: phaseOneAt,
         });
-        if (lease !== "claimed") return "unavailable" as const;
+        if (lease === "atUserLimit") return "at-user-limit" as const;
+        if (lease === "conversationBusy") return "conversation-busy" as const;
 
         const admitted = await this.usageService.reserveUsage({
           reservationId,
@@ -231,7 +259,30 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         return "claimed" as const;
       });
       if (claimed === "not-admitted") return failRateLimit(CustomErrorCode.agentLimitReached);
-      if (claimed !== "claimed") {
+      if (claimed === "at-user-limit") {
+        if (mode === "routine") {
+          return {
+            ok: true as const,
+            data: {
+              disposition: "atCapacity",
+              clientRequestId: data.clientRequestId,
+              conversationId,
+              retryAllowed: true,
+            },
+          };
+        }
+        if (conversationIsNew) return failConflict(CustomErrorCode.agentTurnAlreadyRunning);
+        return {
+          ok: true as const,
+          data: {
+            disposition: "running",
+            clientRequestId: data.clientRequestId,
+            conversationId,
+            retryAllowed: false,
+          },
+        };
+      }
+      if (claimed === "conversation-busy") {
         if (conversationIsNew) return failConflict(CustomErrorCode.agentTurnAlreadyRunning);
         return {
           ok: true as const,
@@ -254,6 +305,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         modelSpec: reservation.budget.modelSpec,
         servingProvider: reservation.budget.servingProvider,
         recentMessageLimit: AGENT_REPLAY_COUNT,
+        ...(mode === "routine" ? { routineRunId: data.clientRequestId } : {}),
         turn:
           decision.disposition === "retry"
             ? {
@@ -274,14 +326,21 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       });
 
       const pageContext = data.pageContext ? `<page_context route="${data.pageContext.route}"/>\n` : "";
-      const messages = admission.recentMessages
-        .map((message) => {
-          const text = partsToText(message.parts);
-          return {
-            role: message.role as string,
-            text: message.id === userMessageId ? `${pageContext}${text}` : text.slice(0, AGENT_REPLAY_MAX_CHARS),
-          };
-        })
+      const replayInputs = admission.recentMessages.map((message) => {
+        const text = partsToText(message.parts);
+        const current = message.id === userMessageId;
+        return {
+          role: message.role as string,
+          text: current ? `${pageContext}${text}` : text,
+          budgeted: !current,
+        };
+      });
+      const budgeted = budgetAgentReplayHistory(replayInputs);
+      const messages = replayInputs
+        .map((message, index) => ({
+          role: message.role,
+          text: budgeted[index],
+        }))
         .filter((message) => message.text);
 
       const externalRunId = await this.backgroundTaskService.dispatchTracked("agent-turn", {
@@ -296,8 +355,9 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         messages,
         turnBudget: reservation.budget,
         tenant: { userId: user.id, companyId: user.companyId },
+        surface,
       });
-      await this.repo.recordAgentTurnExternalRun(turnRequestId, externalRunId);
+      await this.repo.recordAgentTurnExternalRun(turnRequestId, runId, externalRunId);
 
       return {
         ok: true as const,

@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 
 import { observer } from "mobx-react-lite";
+import { useSyncExternalStore } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Compass, Link2, Plus, Search, Sparkles } from "lucide-react";
 import { Action, EntityType, Resource } from "@/generated/prisma";
@@ -12,6 +13,7 @@ import { agentPageActions, agentPageState } from "@/ee/agent-chat/agent-page-act
 
 import { usePathname } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
+
 import { Button } from "@/components/ui/button";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 
@@ -35,9 +37,20 @@ type Props = {
   surface?: "chat" | "page";
 };
 
+const subscribeToHydration = () => () => undefined;
+const clientHydrationSnapshot = () => true;
+const serverHydrationSnapshot = () => false;
+
 export const AgentStarterActions = observer(function AgentStarterActions({ fallback, ...props }: Props) {
   const { agentChatStore: store, userStore } = useRootStore();
-  if (store?.enabled !== true || store.usage?.blockedReason || !userStore || (!props.state && !store.counts))
+  const hydrated = useSyncExternalStore(subscribeToHydration, clientHydrationSnapshot, serverHydrationSnapshot);
+  if (
+    !hydrated ||
+    store?.enabled !== true ||
+    store.usage?.blockedReason ||
+    !userStore ||
+    (!props.state && !store.counts)
+  )
     return fallback ?? null;
 
   return <AvailableAgentStarterActions {...props} />;
@@ -66,7 +79,9 @@ const AvailableAgentStarterActions = observer(function AvailableAgentStarterActi
             ? Resource.services
             : pageId === "tasks"
               ? Resource.tasks
-              : null;
+              : pageId === "routines"
+                ? Resource.routines
+                : null;
   const canSetupWorkspace =
     [Resource.contacts, Resource.organizations, Resource.deals, Resource.services, Resource.tasks].every(
       (resource) => userStore.can(resource, Action.create) && userStore.can(resource, Action.readAll),

@@ -29,6 +29,7 @@ const COUNTS = {
   deals: true,
   services: false,
   tasks: true,
+  routines: true,
   widgets: false,
   connectedAccounts: false,
 };
@@ -93,7 +94,7 @@ describe("GetAgentConfigInteractor", () => {
     ).invoke();
     await vi.waitFor(() => expect(repo.normalizeExpiredAgentRunLease).toHaveBeenCalledTimes(1));
 
-    expect(repo.normalizeExpiredAgentRunLease).toHaveBeenCalledWith(expect.any(Date), "openai/gpt-5.6-luna");
+    expect(repo.normalizeExpiredAgentRunLease).toHaveBeenCalledWith(expect.any(Date), "google/gemini-3.5-flash-lite");
     expect(usageService.getUsageSummary).not.toHaveBeenCalled();
     expect(repo.getSuggestionSignals).not.toHaveBeenCalled();
     expect(repo.findMyConversation).not.toHaveBeenCalled();

@@ -33,6 +33,7 @@ export enum ViewMode {
 export enum FilterOperatorKey {
   equals = "equals",
   contains = "contains",
+  startsWith = "startsWith",
   in = "in",
   notIn = "notIn",
   gt = "gt",
@@ -80,6 +81,7 @@ const RELATION_FIELD_MAPPING: Record<FilterFieldKey, string> = {
   [FilterFieldKey.state]: "state",
   [FilterFieldKey.draft]: "draft",
   [FilterFieldKey.participantContactId]: "participantContactId",
+  [FilterFieldKey.ownerUserId]: "ownerUserId",
   [FilterFieldKey.participants]: "participants",
   [FilterFieldKey.connectedAccountId]: "connectedAccountId",
   [FilterFieldKey.calendarId]: "calendarId",
@@ -92,6 +94,9 @@ const RELATION_FIELD_MAPPING: Record<FilterFieldKey, string> = {
   [FilterFieldKey.adProvider]: "adProvider",
   [FilterFieldKey.auditSource]: "auditSource",
   [FilterFieldKey.workspaceTags]: "tags",
+  [FilterFieldKey.name]: "name",
+  [FilterFieldKey.firstName]: "firstName",
+  [FilterFieldKey.lastName]: "lastName",
 };
 
 export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknown>> {
@@ -411,6 +416,8 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
         return filter.value;
       case FilterOperatorKey.contains:
         return { contains: filter.value, mode: "insensitive" };
+      case FilterOperatorKey.startsWith:
+        return { startsWith: filter.value, mode: "insensitive" };
       case FilterOperatorKey.in:
         return { in: filter.value };
       case FilterOperatorKey.notIn:

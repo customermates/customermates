@@ -230,8 +230,7 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
   if (toolName === "get_workspace_context") return descriptor("workspace.inspect", undefined, "read");
   if (toolName === "navigate" || toolName === "highlight_element" || toolName === "open_record")
     return descriptor("interface.navigate", undefined, "read");
-  if (toolName === "click_ui_target" || toolName === "configure_view")
-    return descriptor("interface.interact", undefined, "read");
+  if (toolName === "configure_view") return descriptor("interface.interact", undefined, "read");
   if (toolName === "start_tour") return descriptor("interface.tour", undefined, "read");
   if (toolName === "request_support") {
     return descriptor("support.escalate", undefined, "sensitive", [], {
@@ -346,7 +345,7 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
   if (toolName === "get_messaging_threads" || toolName === "get_activities" || toolName === "get_calendars")
     return descriptor("messages.read", "messages", "read");
   if (toolName === "send_email") {
-    return descriptor("messages.send", "messages", "sensitive", ["messages"], {
+    return descriptor("messages.send", "messages", "write", ["messages"], {
       action: "email.send",
       target: safeStringList(details.to),
       subject: safeText(details.subject, 200),
@@ -355,7 +354,7 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
     });
   }
   if (toolName === "send_chat_message") {
-    return descriptor("messages.send", "messages", "sensitive", ["messages"], {
+    return descriptor("messages.send", "messages", "write", ["messages"], {
       action: "chat.send",
       target: safeText(details.chatName, 120) ?? safeStringList(details.attendeeIdentifiers),
       subject: safeText(details.inmailSubject, 200),

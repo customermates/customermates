@@ -13,17 +13,11 @@ import {
   TRANSFERABLE_SCOPES,
 } from "./ui-anchors";
 
-export type AgentUiTargetActivation = { kind: "expanded" } | { kind: "selected"; prerequisite: string };
-
 export type AgentUiTarget = {
   id: string;
   route: string;
   description: string;
-  activation?: AgentUiTargetActivation;
-};
-
-export type AgentUiClickTarget = AgentUiTarget & {
-  activation: AgentUiTargetActivation;
+  prerequisite?: string;
 };
 
 function navTargets(): AgentUiTarget[] {
@@ -82,7 +76,6 @@ function toolbarTargets(page: AnchorPage, hasAdd: boolean): AgentUiTarget[] {
             id: `${page.scope}-transfer`,
             route: page.route,
             description: `Menu that exports ${page.label} to a spreadsheet or adds them from one`,
-            activation: { kind: "expanded" as const },
           },
         ]
       : []),
@@ -99,16 +92,12 @@ function toolbarTargets(page: AnchorPage, hasAdd: boolean): AgentUiTarget[] {
       id: `${page.scope}-display-options`,
       route: page.route,
       description: `Display options (columns, sort) for ${page.label}`,
-      activation: { kind: "expanded" },
     },
     ...(["table", "board"] as const).map((layout) => ({
       id: `${page.scope}-layout-${layout}`,
       route: page.route,
       description: `${layout === "board" ? "board (kanban)" : layout} layout control for ${page.label} (open ${page.scope}-display-options first)`,
-      activation: {
-        kind: "selected" as const,
-        prerequisite: `${page.scope}-display-options`,
-      },
+      prerequisite: `${page.scope}-display-options`,
     })),
   ];
 }
@@ -146,13 +135,6 @@ export const AGENT_NAV_TARGET_IDS = AGENT_UI_TARGETS.filter((target) => target.r
 ) as [string, ...string[]];
 export const NavigationUiTargetIdSchema = exactTargetIdSchema(AGENT_NAV_TARGET_IDS, "navigation");
 
-export const AGENT_CLICK_TARGETS = AGENT_UI_TARGETS.filter(
-  (target): target is AgentUiClickTarget => target.activation !== undefined,
-);
-
-export const AGENT_CLICK_TARGET_IDS = AGENT_CLICK_TARGETS.map((target) => target.id) as [string, ...string[]];
-export const ClickUiTargetIdSchema = exactTargetIdSchema(AGENT_CLICK_TARGET_IDS, "activatable interface");
-
 export function findAgentUiTarget(targetId: string) {
   return AGENT_UI_TARGETS.find((target) => target.id === targetId) ?? null;
 }
@@ -160,8 +142,4 @@ export function findAgentUiTarget(targetId: string) {
 export function findAgentNavigationTarget(targetId: string) {
   const target = findAgentUiTarget(targetId);
   return target?.route.startsWith("/") ? target : null;
-}
-
-export function findAgentClickTarget(targetId: string) {
-  return AGENT_CLICK_TARGETS.find((target) => target.id === targetId) ?? null;
 }

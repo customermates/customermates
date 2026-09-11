@@ -55,6 +55,7 @@ export class ProcessChatUpdateWebhookInteractor {
           connectedAccountId: account.id,
           provider: account.provider,
           providerThreadId: envelope.payload.id,
+          threadId: thread.id,
         },
       },
       { systemCompanyId: account.companyId },

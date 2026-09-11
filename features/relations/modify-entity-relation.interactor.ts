@@ -159,8 +159,13 @@ export class ModifyEntityRelationInteractor extends AuthenticatedInteractor<
     const field = WRITE_FIELD[entity][relation];
     if (!field) throw new Error(`No write field for ${entity}.${relation}`);
 
-    const result = await this.writeRelation(entity, sourceId, field, next);
-    if (!result.ok) return result;
+    const currentIds = new Set(current);
+    const unchanged = next.length === currentIds.size && next.every((id) => currentIds.has(id));
+
+    if (!unchanged) {
+      const result = await this.writeRelation(entity, sourceId, field, next);
+      if (!result.ok) return result;
+    }
 
     return {
       ok: true as const,
@@ -181,9 +186,11 @@ export class ModifyEntityRelationInteractor extends AuthenticatedInteractor<
       for (const id of ids) if (!existing.has(id)) existing.set(id, 1);
     } else for (const id of ids) existing.delete(id);
 
-    const services = [...existing.entries()].map(([serviceId, quantity]) => ({ serviceId, quantity }));
-    const result = await this.updateDeals.invoke({ deals: [{ id: sourceId, services }] });
-    if (!result.ok) return result;
+    if (existing.size !== before) {
+      const services = [...existing.entries()].map(([serviceId, quantity]) => ({ serviceId, quantity }));
+      const result = await this.updateDeals.invoke({ deals: [{ id: sourceId, services }] });
+      if (!result.ok) return result;
+    }
 
     return {
       ok: true as const,

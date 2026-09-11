@@ -30,7 +30,7 @@ describe("synthetic personalization fixtures", () => {
     const fixtures = buildSyntheticP13nFixtures({ ids: SEED_IDS }, customFields);
     const byP13nId = new Map(fixtures.map((fixture) => [fixture.p13nId, fixture]));
 
-    expect(fixtures).toHaveLength(15);
+    expect(fixtures).toHaveLength(16);
     expect(fixtures.map(({ p13nId }) => p13nId)).toEqual([
       "contacts-card-store",
       "users-card-store",
@@ -42,6 +42,7 @@ describe("synthetic personalization fixtures", () => {
       "audit-logs-card-store",
       "webhook-deliveries-card-store",
       "organizations-card-store",
+      "routines-card-store",
       "contact-detail",
       "organization-detail",
       "deal-detail",
@@ -63,17 +64,23 @@ describe("synthetic personalization fixtures", () => {
       }
       if (fixture.viewMode !== undefined && fixture.viewMode !== null)
         expect(z.enum(ViewMode).safeParse(fixture.viewMode).success).toBe(true);
-      if (fixture.groupingColumnId !== undefined && fixture.groupingColumnId !== null)
-        expect(z.uuid().safeParse(fixture.groupingColumnId).success).toBe(true);
+      if (fixture.groupingColumnId !== undefined && fixture.groupingColumnId !== null) {
+        expect(fixture.groupingColumnId === "ownerUserId" || z.uuid().safeParse(fixture.groupingColumnId).success).toBe(
+          true,
+        );
+      }
       const grouping = GroupingSchema.safeParse(fixture.grouping);
       expect([fixture.p13nId, grouping.success]).toEqual([
         fixture.p13nId,
         fixture.groupingColumnId !== undefined && fixture.groupingColumnId !== null,
       ]);
       if (grouping.success) {
+        const expectedShadowColumnId = z.uuid().safeParse(fixture.groupingColumnId).success
+          ? fixture.groupingColumnId
+          : null;
         expect([fixture.p13nId, groupingShadowColumnId(grouping.data)]).toEqual([
           fixture.p13nId,
-          fixture.groupingColumnId,
+          expectedShadowColumnId,
         ]);
       }
       if (fixture.detailOptions !== undefined)
@@ -168,6 +175,15 @@ describe("synthetic personalization fixtures", () => {
       ],
       columnWidths: { deals: 227, tasks: 191 },
       hiddenColumns: ["createdAt"],
+      viewMode: "table",
+    });
+    expect(byP13nId.get("routines-card-store")).toMatchObject({
+      filters: [],
+      groupingColumnId: "ownerUserId",
+      grouping: { field: "ownerUserId" },
+      hiddenColumns: [],
+      pagination: { pageSize: 100 },
+      sortDescriptor: { direction: "desc", field: "createdAt" },
       viewMode: "table",
     });
 
@@ -348,12 +364,12 @@ describe("synthetic personalization fixtures", () => {
     await persistSyntheticP13nFixtures(prisma, SEED_IDS.company, SEED_IDS.user, fixtures);
     await persistSyntheticP13nFixtures(prisma, SEED_IDS.company, SEED_IDS.user, fixtures);
 
-    expect(rows).toHaveLength(16);
+    expect(rows).toHaveLength(17);
     expect(rows.has("unrelated-p13n-row")).toBe(true);
     expect(rows.has(fixtureId(SYNTHETIC_P13N_ID_PREFIX, 999))).toBe(false);
 
     await persistSyntheticP13nFixtures(prisma, SEED_IDS.company, SEED_IDS.user, fixtures.slice(0, -1));
-    expect(rows).toHaveLength(15);
+    expect(rows).toHaveLength(16);
     expect(rows.has(fixtures.at(-1)?.id ?? "")).toBe(false);
     expect(rows.has("unrelated-p13n-row")).toBe(true);
   });

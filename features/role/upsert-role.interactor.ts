@@ -58,6 +58,10 @@ const Schema = z.object({
     auditLog: z.object({
       readAccess: z.enum(["none", "all"]),
     }),
+    routines: z.object({
+      canManage: z.enum(["yes", "no"]),
+      readAccess: z.enum(["none", "own", "all"]),
+    }),
   }),
 });
 export type UpsertRoleData = Data<typeof Schema>;

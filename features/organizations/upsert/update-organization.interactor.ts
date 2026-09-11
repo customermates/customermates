@@ -70,13 +70,14 @@ export class UpdateOrganizationInteractor extends AuthenticatedInteractor<Update
 
     const organization = await this.organizationsRepo.updateOrganizationOrThrow(data);
 
-    const [currentContacts, currentDeals, currentTasks] = await Promise.all([
+    const [currentOrganizationCompanyWide, currentContacts, currentDeals, currentTasks] = await Promise.all([
+      this.organizationsRepo.getOrThrowCompanyWide(organization.id),
       this.contactsRepo.getManyOrThrowCompanyWide(relatedContactIds),
       this.dealsRepo.getManyOrThrowCompanyWide(relatedDealIds),
       this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
-    const changes = calculateChanges(previousOrganization, organization);
+    const changes = calculateChanges(previousOrganization, currentOrganizationCompanyWide);
 
     await Promise.all([
       ...buildRelationChangePublishes(previousContacts, currentContacts, "organizations", (contact, changes) =>

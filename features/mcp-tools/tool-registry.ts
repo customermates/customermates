@@ -10,6 +10,7 @@ import { manageCustomColumnsTool } from "@/features/mcp-tools/custom-column.mcp-
 import { manageTeamTool, updateWorkspaceSettingsTool } from "@/features/mcp-tools/admin.mcp-tools";
 import { manageWebhooksTool } from "@/features/mcp-tools/webhook.mcp-tools";
 import { manageWidgetsTool } from "@/features/mcp-tools/widget.mcp-tools";
+import { manageRoutinesTool } from "@/features/mcp-tools/routine.mcp-tools";
 import { requestSupportTool } from "@/features/mcp-tools/support.mcp-tools";
 import {
   deleteRecordsTool,
@@ -93,6 +94,7 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
   docs: [searchDocsTool, getDocsPageTool],
   "custom-columns": [manageCustomColumnsTool],
   widgets: [manageWidgetsTool],
+  routines: [manageRoutinesTool],
   webhooks: [manageWebhooksTool],
   admin: [updateWorkspaceSettingsTool, manageTeamTool],
   support: [requestSupportTool],

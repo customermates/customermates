@@ -122,7 +122,7 @@ describe("model catalog + pricing coverage", () => {
   it("addresses every catalog model by its gateway-namespaced id", () => {
     expect(Object.values(MODEL_CATALOG).map((entry) => entry.modelId)).toEqual([
       "openai/gpt-5-nano",
-      "openai/gpt-5.6-luna",
+      "google/gemini-3.5-flash-lite",
     ]);
   });
 
@@ -131,6 +131,18 @@ describe("model catalog + pricing coverage", () => {
   });
 
   it("prices the configured agent model from the pinned snapshot", () => {
-    expect(resolveModelPricing(MODEL_CATALOG.balanced.modelId).cacheWritePerMTok).toBe(0.25);
+    expect(
+      resolveModelPricing(
+        MODEL_CATALOG.balanced.modelId,
+        0,
+        MODEL_CATALOG.balanced.servingProvider,
+        MODEL_CATALOG.balanced.inferenceRegion,
+      ),
+    ).toEqual({
+      inputPerMTok: 0.33,
+      outputPerMTok: 2.75,
+      cacheReadPerMTok: 0.033,
+      cacheWritePerMTok: 0,
+    });
   });
 });

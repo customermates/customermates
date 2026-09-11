@@ -100,6 +100,64 @@ describe("ModifyEntityRelationInteractor", () => {
     });
   });
 
+  it("add of an already linked id writes nothing", async () => {
+    contactRepo.getOrThrowCompanyWide.mockResolvedValue({ id: CONTACT, organizations: [{ id: ORG_EXISTING }] });
+    const result: any = await createInteractor().invoke({
+      entity: "contact",
+      sourceId: CONTACT,
+      relation: "organizations",
+      mode: "add",
+      ids: [ORG_EXISTING],
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.data).toMatchObject({ before: 1, after: 1 });
+    expect(updateContacts.invoke).not.toHaveBeenCalled();
+  });
+
+  it("remove of an id that is not linked writes nothing", async () => {
+    contactRepo.getOrThrowCompanyWide.mockResolvedValue({ id: CONTACT, organizations: [{ id: ORG_EXISTING }] });
+    const result: any = await createInteractor().invoke({
+      entity: "contact",
+      sourceId: CONTACT,
+      relation: "organizations",
+      mode: "remove",
+      ids: [ORG_NEW],
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.data).toMatchObject({ before: 1, after: 1 });
+    expect(updateContacts.invoke).not.toHaveBeenCalled();
+  });
+
+  it("still writes when the set genuinely changes", async () => {
+    contactRepo.getOrThrowCompanyWide.mockResolvedValue({ id: CONTACT, organizations: [{ id: ORG_EXISTING }] });
+    await createInteractor().invoke({
+      entity: "contact",
+      sourceId: CONTACT,
+      relation: "organizations",
+      mode: "add",
+      ids: [ORG_NEW],
+    });
+
+    expect(updateContacts.invoke).toHaveBeenCalledTimes(1);
+  });
+
+  it("deal->services add of an already linked service writes nothing", async () => {
+    dealRepo.getOrThrowCompanyWide.mockResolvedValue({ id: DEAL, services: [{ id: SVC_EXISTING, quantity: 5 }] });
+    const result: any = await createInteractor().invoke({
+      entity: "deal",
+      sourceId: DEAL,
+      relation: "services",
+      mode: "add",
+      ids: [SVC_EXISTING],
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.data).toMatchObject({ before: 1, after: 1 });
+    expect(updateDeals.invoke).not.toHaveBeenCalled();
+  });
+
   it("deal->services add preserves existing quantities and defaults new services to 1", async () => {
     dealRepo.getOrThrowCompanyWide.mockResolvedValue({ id: DEAL, services: [{ id: SVC_EXISTING, quantity: 5 }] });
     const result: any = await createInteractor().invoke({

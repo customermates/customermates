@@ -35,7 +35,7 @@ vi.mock("@/app/components/navigation/protected-enhancements-context", () => ({
   useProtectedEnhancementsAllowed: () => state.protectedEnhancementsAllowed,
 }));
 
-vi.mock("@/components/data-transfer/import-wizard", () => ({ ImportWizard: () => null }));
+vi.mock("@/components/data-transfer/import-wizard", () => ({ ImportWizard: () => "import-wizard" }));
 vi.mock("../company/components/feedback/feedback-modal", () => ({
   FeedbackModal: () => "feedback-modal",
 }));
@@ -50,6 +50,9 @@ vi.mock("../company/components/audit-log/audit-log-modal", () => ({
 }));
 vi.mock("../company/components/webhook/webhook-delivery-modal", () => ({
   WebhookDeliveryModal: () => "webhook-delivery-modal",
+}));
+vi.mock("../routines/components/routine-modal", () => ({
+  RoutineModal: () => "routine-modal",
 }));
 vi.mock("../company/components/webhook/webhook-modal", () => ({
   WebhookModal: () => "webhook-modal",
@@ -142,6 +145,8 @@ describe("ProtectedLayout account-state boundary", () => {
     expect(container.textContent).not.toContain("global-search-modal");
     expect(container.textContent).not.toContain("company-user-modal");
     expect(container.textContent).not.toContain("entity-drawer");
+    expect(container.textContent).not.toContain("routine-modal");
+    expect(container.textContent).not.toContain("import-wizard");
     expect(container.textContent).not.toContain("agent-chat");
     expect(state.getGlobalSearchStore).not.toHaveBeenCalled();
     expect(state.getAgentChatStore).not.toHaveBeenCalled();
@@ -158,6 +163,8 @@ describe("ProtectedLayout account-state boundary", () => {
     expect(container.textContent).toContain("global-search-modal");
     expect(container.textContent).toContain("company-user-modal");
     expect(container.textContent).toContain("entity-drawer");
+    expect(container.textContent).toContain("routine-modal");
+    expect(container.textContent).toContain("import-wizard");
     expect(container.textContent).not.toContain("agent-chat");
     expect(state.getGlobalSearchStore).toHaveBeenCalledOnce();
     expect(state.getAgentChatStore).not.toHaveBeenCalled();

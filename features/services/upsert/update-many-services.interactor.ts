@@ -76,10 +76,12 @@ export class UpdateManyServicesInteractor extends AuthenticatedInteractor<Update
       data.services.map((serviceData) => this.servicesRepo.updateServiceOrThrow(serviceData)),
     );
 
-    const [currentDeals, currentTasks] = await Promise.all([
+    const [currentCompanyWideServices, currentDeals, currentTasks] = await Promise.all([
+      this.servicesRepo.getManyOrThrowCompanyWide(services.map((service) => service.id)),
       this.dealsRepo.getManyOrThrowCompanyWide(relatedDealIds),
       this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
+    const currentCompanyWideServicesMap = new Map(currentCompanyWideServices.map((service) => [service.id, service]));
 
     await Promise.all([
       ...buildRelationChangePublishes(
@@ -106,7 +108,11 @@ export class UpdateManyServicesInteractor extends AuthenticatedInteractor<Update
         }),
       ),
       ...services.map((service) => {
-        const changes = calculateChanges(previousServicesMap.get(service.id), service);
+        const currentCompanyWideService = currentCompanyWideServicesMap.get(service.id);
+        if (!currentCompanyWideService)
+          throw new Error(`Updated service ${service.id} missing from company-wide snapshot`);
+
+        const changes = calculateChanges(previousServicesMap.get(service.id), currentCompanyWideService);
 
         return this.eventService.publish(DomainEvent.SERVICE_UPDATED, {
           entityId: service.id,

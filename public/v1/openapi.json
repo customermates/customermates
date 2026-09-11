@@ -1158,6 +1158,11 @@
                                 },
                                 {
                                   "type": "string",
+                                  "const": "startsWith",
+                                  "title": "startsWith"
+                                },
+                                {
+                                  "type": "string",
                                   "const": "gt",
                                   "title": "gt"
                                 },
@@ -2207,6 +2212,11 @@
                                   },
                                   {
                                     "type": "string",
+                                    "const": "startsWith",
+                                    "title": "startsWith"
+                                  },
+                                  {
+                                    "type": "string",
                                     "const": "gt",
                                     "title": "gt"
                                   },
@@ -2458,6 +2468,7 @@
                               "enum": [
                                 "equals",
                                 "contains",
+                                "startsWith",
                                 "in",
                                 "notIn",
                                 "gt",
@@ -3602,6 +3613,7 @@
                               "enum": [
                                 "equals",
                                 "contains",
+                                "startsWith",
                                 "in",
                                 "notIn",
                                 "gt",
@@ -6353,6 +6365,11 @@
                                 },
                                 {
                                   "type": "string",
+                                  "const": "startsWith",
+                                  "title": "startsWith"
+                                },
+                                {
+                                  "type": "string",
                                   "const": "gt",
                                   "title": "gt"
                                 },
@@ -7402,6 +7419,11 @@
                                   },
                                   {
                                     "type": "string",
+                                    "const": "startsWith",
+                                    "title": "startsWith"
+                                  },
+                                  {
+                                    "type": "string",
                                     "const": "gt",
                                     "title": "gt"
                                   },
@@ -7653,6 +7675,7 @@
                               "enum": [
                                 "equals",
                                 "contains",
+                                "startsWith",
                                 "in",
                                 "notIn",
                                 "gt",
@@ -8729,6 +8752,7 @@
                               "enum": [
                                 "equals",
                                 "contains",
+                                "startsWith",
                                 "in",
                                 "notIn",
                                 "gt",
@@ -11436,6 +11460,11 @@
                                 },
                                 {
                                   "type": "string",
+                                  "const": "startsWith",
+                                  "title": "startsWith"
+                                },
+                                {
+                                  "type": "string",
                                   "const": "gt",
                                   "title": "gt"
                                 },
@@ -12485,6 +12514,11 @@
                                   },
                                   {
                                     "type": "string",
+                                    "const": "startsWith",
+                                    "title": "startsWith"
+                                  },
+                                  {
+                                    "type": "string",
                                     "const": "gt",
                                     "title": "gt"
                                   },
@@ -12736,6 +12770,7 @@
                               "enum": [
                                 "equals",
                                 "contains",
+                                "startsWith",
                                 "in",
                                 "notIn",
                                 "gt",
@@ -13861,6 +13896,7 @@
                               "enum": [
                                 "equals",
                                 "contains",
+                                "startsWith",
                                 "in",
                                 "notIn",
                                 "gt",
@@ -16448,6 +16484,11 @@
                                 },
                                 {
                                   "type": "string",
+                                  "const": "startsWith",
+                                  "title": "startsWith"
+                                },
+                                {
+                                  "type": "string",
                                   "const": "gt",
                                   "title": "gt"
                                 },
@@ -17497,6 +17538,11 @@
                                   },
                                   {
                                     "type": "string",
+                                    "const": "startsWith",
+                                    "title": "startsWith"
+                                  },
+                                  {
+                                    "type": "string",
                                     "const": "gt",
                                     "title": "gt"
                                   },
@@ -17748,6 +17794,7 @@
                               "enum": [
                                 "equals",
                                 "contains",
+                                "startsWith",
                                 "in",
                                 "notIn",
                                 "gt",
@@ -18791,6 +18838,7 @@
                               "enum": [
                                 "equals",
                                 "contains",
+                                "startsWith",
                                 "in",
                                 "notIn",
                                 "gt",
@@ -21352,6 +21400,11 @@
                                 },
                                 {
                                   "type": "string",
+                                  "const": "startsWith",
+                                  "title": "startsWith"
+                                },
+                                {
+                                  "type": "string",
                                   "const": "gt",
                                   "title": "gt"
                                 },
@@ -22401,6 +22454,11 @@
                                   },
                                   {
                                     "type": "string",
+                                    "const": "startsWith",
+                                    "title": "startsWith"
+                                  },
+                                  {
+                                    "type": "string",
                                     "const": "gt",
                                     "title": "gt"
                                   },
@@ -22652,6 +22710,7 @@
                               "enum": [
                                 "equals",
                                 "contains",
+                                "startsWith",
                                 "in",
                                 "notIn",
                                 "gt",
@@ -23754,6 +23813,7 @@
                               "enum": [
                                 "equals",
                                 "contains",
+                                "startsWith",
                                 "in",
                                 "notIn",
                                 "gt",
@@ -25485,6 +25545,11 @@
                                 },
                                 {
                                   "type": "string",
+                                  "const": "startsWith",
+                                  "title": "startsWith"
+                                },
+                                {
+                                  "type": "string",
                                   "const": "gt",
                                   "title": "gt"
                                 },
@@ -26888,6 +26953,11 @@
                                   "type": "string",
                                   "const": "contains",
                                   "title": "contains"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "startsWith",
+                                  "title": "startsWith"
                                 },
                                 {
                                   "type": "string",
@@ -28407,6 +28477,11 @@
                                 },
                                 {
                                   "type": "string",
+                                  "const": "startsWith",
+                                  "title": "startsWith"
+                                },
+                                {
+                                  "type": "string",
                                   "const": "gt",
                                   "title": "gt"
                                 },
@@ -29456,6 +29531,11 @@
                                   },
                                   {
                                     "type": "string",
+                                    "const": "startsWith",
+                                    "title": "startsWith"
+                                  },
+                                  {
+                                    "type": "string",
                                     "const": "gt",
                                     "title": "gt"
                                   },
@@ -29707,6 +29787,7 @@
                               "enum": [
                                 "equals",
                                 "contains",
+                                "startsWith",
                                 "in",
                                 "notIn",
                                 "gt",
@@ -30055,6 +30136,11 @@
                                   "type": "string",
                                   "const": "contains",
                                   "title": "contains"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "startsWith",
+                                  "title": "startsWith"
                                 },
                                 {
                                   "type": "string",
@@ -31107,6 +31193,11 @@
                                   },
                                   {
                                     "type": "string",
+                                    "const": "startsWith",
+                                    "title": "startsWith"
+                                  },
+                                  {
+                                    "type": "string",
                                     "const": "gt",
                                     "title": "gt"
                                   },
@@ -31358,6 +31449,7 @@
                               "enum": [
                                 "equals",
                                 "contains",
+                                "startsWith",
                                 "in",
                                 "notIn",
                                 "gt",
@@ -49931,12 +50023,16 @@
                   },
                   "providerThreadId": {
                     "type": "string"
+                  },
+                  "threadId": {
+                    "type": "string"
                   }
                 },
                 "required": [
                   "connectedAccountId",
                   "provider",
-                  "providerThreadId"
+                  "providerThreadId",
+                  "threadId"
                 ]
               }
             },
@@ -50004,12 +50100,16 @@
                   },
                   "providerThreadId": {
                     "type": "string"
+                  },
+                  "threadId": {
+                    "type": "string"
                   }
                 },
                 "required": [
                   "connectedAccountId",
                   "provider",
-                  "providerThreadId"
+                  "providerThreadId",
+                  "threadId"
                 ]
               }
             },

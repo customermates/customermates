@@ -1,0 +1,267 @@
+import type { ReactNode } from "react";
+import type { Root } from "react-dom/client";
+
+import { act } from "react";
+import { createRoot } from "react-dom/client";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { RoutineTriggerKind } from "@/generated/prisma";
+
+const harness = vi.hoisted(() => ({
+  breakpoint: "",
+  store: null as unknown as TestRoutineStore,
+  wide: true,
+}));
+
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => key,
+}));
+vi.mock("@/hooks/use-media-query", () => ({
+  useIsWiderThan: (breakpoint: string) => {
+    harness.breakpoint = breakpoint;
+    return harness.wide;
+  },
+}));
+vi.mock("@/i18n/navigation", () => ({
+  useRouter: () => ({ refresh: vi.fn() }),
+}));
+vi.mock("@/core/stores/root-store.provider", () => ({
+  useRootStore: () => ({ routineModalStore: harness.store, routineRunChatStore: {} }),
+}));
+vi.mock("@/app/components/agent-chat/agent-chat-store-context", () => ({
+  AgentChatStoreProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
+}));
+vi.mock("@/app/components/agent-chat/agent-route-reload", () => ({
+  AgentRouteReloadBridge: () => null,
+}));
+vi.mock("@/components/modal/hooks/use-delete-confirmation", () => ({
+  useDeleteConfirmation: () => ({ showConfirmation: vi.fn(), showDeleteConfirmation: vi.fn() }),
+}));
+vi.mock("@/components/modal", () => ({
+  AppModal: ({
+    actions = [],
+    children,
+    size,
+  }: {
+    actions?: { id: string; label: string; onClick: () => unknown }[];
+    children: ReactNode;
+    size: string;
+  }) => (
+    <div data-modal-size={size}>
+      <div data-modal-actions>
+        {actions.map((action) => (
+          <button key={action.id} id={action.id} type="button" onClick={() => void action.onClick()}>
+            {action.label}
+          </button>
+        ))}
+      </div>
+
+      {children}
+    </div>
+  ),
+}));
+vi.mock("@/components/card/app-card", () => ({
+  AppCard: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+}));
+vi.mock("@/components/card/app-card-header", () => ({
+  AppCardHeader: ({ children }: { children: ReactNode }) => <header>{children}</header>,
+}));
+vi.mock("@/components/card/app-card-body", () => ({
+  AppCardBody: ({ children, ...props }: { children: ReactNode; [key: string]: unknown }) => (
+    <div data-app-card-body {...props}>
+      {children}
+    </div>
+  ),
+}));
+vi.mock("@/components/card/form-actions", () => ({
+  FormActions: ({ store }: { store: { canManage: boolean } }) =>
+    store.canManage ? (
+      <div data-form-actions>
+        <button id="routine-modal-save" type="submit">
+          save
+        </button>
+      </div>
+    ) : null,
+}));
+vi.mock("@/components/forms/form-context", () => ({
+  AppForm: ({ children }: { children: ReactNode }) => <form>{children}</form>,
+}));
+vi.mock("../routine-configuration-pane", () => ({
+  RoutineConfigurationPane: ({ store }: { store: { isReadOnly: boolean } }) => (
+    <div data-configuration-pane data-read-only={store.isReadOnly}>
+      configuration
+    </div>
+  ),
+}));
+vi.mock("../routine-run-detail", () => ({
+  ROUTINE_RUN_CHAT_UI_TARGETS: {},
+  RoutineRunDetail: ({ run }: { run: { id: string } }) => <div data-run-detail={run.id}>detail</div>,
+}));
+vi.mock("../routine-runs-pane", () => ({
+  RoutineRunsPane: () => (
+    <div data-runs-pane>
+      <button id="routine-run-run-1" type="button">
+        run
+      </button>
+    </div>
+  ),
+}));
+
+import { RoutineModal } from "../routine-modal";
+
+class TestRoutineStore {
+  activeTab: "details" | "runs" = "details";
+  form = {
+    id: "routine-1" as string | undefined,
+    name: "Daily digest",
+    enabled: true,
+    triggerKind: RoutineTriggerKind.schedule,
+  };
+  openRun_: { id: string } | null = null;
+  hasUnsavedChanges = false;
+  isOwner = true;
+  isAdmin = false;
+  canManage = true;
+  isLoading = false;
+  isStartingRun = false;
+
+  get isReadOnly() {
+    return !this.canManage;
+  }
+
+  setActiveTab = (value: "details" | "runs") => {
+    this.activeTab = value;
+  };
+  closeRun = () => {
+    this.openRun_ = null;
+  };
+  runNow = vi.fn();
+  delete = vi.fn();
+  pause = vi.fn();
+}
+
+let container: HTMLDivElement;
+let root: Root;
+let renderVersion = 0;
+
+function render() {
+  renderVersion += 1;
+  act(() => root.render(<RoutineModal key={renderVersion} />));
+}
+
+function expectUniqueIds() {
+  const ids = [...container.querySelectorAll<HTMLElement>("[id]")].map(({ id }) => id);
+  expect(new Set(ids).size).toBe(ids.length);
+}
+
+beforeEach(() => {
+  (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+  harness.store = new TestRoutineStore();
+  harness.wide = true;
+  harness.breakpoint = "";
+  renderVersion = 0;
+  container = document.createElement("div");
+  document.body.append(container);
+  root = createRoot(container);
+});
+
+afterEach(() => {
+  act(() => root.unmount());
+  container.remove();
+});
+
+describe("RoutineModal responsive rendering", () => {
+  it("keeps a read-own owner read-only without Save, Test, or Delete controls", () => {
+    harness.store.canManage = false;
+
+    render();
+
+    expect(container.querySelector("[data-configuration-pane]")?.getAttribute("data-read-only")).toBe("true");
+    expect(container.querySelector("#routine-modal-save")).toBeNull();
+    expect(container.querySelector("#routines-run-now")).toBeNull();
+    expect(container.querySelector("#delete-routine")).toBeNull();
+  });
+
+  it("keeps Test for a manage-capable owner and adds Delete only for a system administrator", () => {
+    render();
+
+    expect(container.querySelector("#routines-run-now")).not.toBeNull();
+    expect(container.querySelector("#routine-modal-save")).not.toBeNull();
+    expect(container.querySelector("#delete-routine")).toBeNull();
+
+    harness.store.isAdmin = true;
+    render();
+    expect(container.querySelector("#routines-run-now")).not.toBeNull();
+    expect(container.querySelector("#delete-routine")).not.toBeNull();
+
+    harness.store.isOwner = false;
+    harness.store.canManage = false;
+    render();
+    expect(container.querySelector("#routine-modal-save")).toBeNull();
+    expect(container.querySelector("#routines-run-now")).toBeNull();
+    expect(container.querySelector("#delete-routine")).not.toBeNull();
+  });
+
+  it("renders existing routines as a divider-free 5xl split with no desktop tablist", () => {
+    render();
+
+    expect(harness.breakpoint).toBe("lg");
+    expect(container.querySelector("[data-modal-size='5xl']")).not.toBeNull();
+    const layout = container.querySelector("[data-routine-layout='wide']");
+    expect(layout).not.toBeNull();
+    expect(layout?.className).toContain("gap-6");
+    expect(layout?.className).not.toContain("divide-");
+    expect(container.querySelector("[data-configuration-pane]")).not.toBeNull();
+    expect(container.querySelector("[data-runs-pane]")).not.toBeNull();
+    expect(container.querySelector("[role='tablist']")).toBeNull();
+    expectUniqueIds();
+  });
+
+  it("renders compact Details/Runs tabs and keeps create configuration-only", () => {
+    harness.wide = false;
+    render();
+
+    expect(container.querySelector("[data-modal-size='lg']")).not.toBeNull();
+    expect(container.querySelector("[role='tablist']")).not.toBeNull();
+    expect(container.querySelector("#routine-tab-details")).not.toBeNull();
+    expect(container.querySelector("#routine-tab-runs")).not.toBeNull();
+    expectUniqueIds();
+
+    harness.store.form.id = undefined;
+    render();
+    expect(container.querySelector("[data-routine-layout='create']")).not.toBeNull();
+    expect(container.querySelector("[data-configuration-pane]")).not.toBeNull();
+    expect(container.querySelector("[role='tablist']")).toBeNull();
+    expect(container.querySelector("[data-runs-pane]")).toBeNull();
+    expectUniqueIds();
+  });
+
+  it("renders a selected run as the full modal across resize and returns to compact Runs", () => {
+    harness.store.openRun_ = { id: "run-1" };
+    harness.store.activeTab = "runs";
+    render();
+    expect(container.querySelector("[data-routine-layout='run']")).not.toBeNull();
+    expect(container.querySelectorAll('[role="region"][aria-label="RoutineDetail.runDetails"]')).toHaveLength(1);
+    expect(container.querySelector("[data-configuration-pane]")).toBeNull();
+    expect(container.querySelector("[data-runs-pane]")).toBeNull();
+    expect(container.querySelector("[data-run-detail='run-1']")).not.toBeNull();
+    expect(container.querySelector("[data-form-actions]")).toBeNull();
+    expect(container.querySelector("[data-modal-actions]")?.children).toHaveLength(1);
+
+    harness.wide = false;
+    render();
+    expect(harness.store.openRun_?.id).toBe("run-1");
+    expect(container.querySelector("[data-routine-layout='run']")).not.toBeNull();
+    expect(container.querySelector("[data-configuration-pane]")).toBeNull();
+    expect(container.querySelector("[role='tablist']")).toBeNull();
+    expectUniqueIds();
+
+    act(() => container.querySelector<HTMLButtonElement>("#routine-run-back")?.click());
+    render();
+    expect(harness.store.openRun_).toBeNull();
+    expect(harness.store.activeTab).toBe("runs");
+    expect(container.querySelector("[data-runs-pane]")).not.toBeNull();
+    expect(container.querySelector("[data-form-actions]")).not.toBeNull();
+    expectUniqueIds();
+  });
+});

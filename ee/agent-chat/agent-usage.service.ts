@@ -6,7 +6,7 @@ import { env } from "@/env";
 import type { Data } from "@/core/validation/validation.utils";
 
 import { resolveAgentCreditEntitlement } from "./agent-credit-policy";
-import { resolveAgentTurnBudget, type AgentTurnBudget } from "./agent-budget-policy";
+import { agentRoundWorstCaseCredits, resolveAgentTurnBudget, type AgentTurnBudget } from "./agent-budget-policy";
 import type { AgentModelEntry } from "./model-catalog";
 
 export abstract class AgentUsageRepo {
@@ -189,7 +189,7 @@ export class AgentUsageService {
   async prepareTurn(
     userId: string,
     now: Date,
-    options: { model: AgentModelEntry; requiredContextBytes?: number },
+    options: { model: AgentModelEntry; requiredContextBytes?: number; creditCeiling?: number | null },
   ): Promise<{
     summary: AgentUsageSummary;
     reservation: AgentTurnCreditReservation | null;
@@ -206,16 +206,22 @@ export class AgentUsageService {
       };
     }
 
+    const availableCredits = options.creditCeiling
+      ? Math.min(state.summary.creditsRemaining, options.creditCeiling)
+      : state.summary.creditsRemaining;
     const budget = resolveAgentTurnBudget({
       model: options.model,
-      availableCredits: state.summary.creditsRemaining,
+      availableCredits,
       requiredContextBytes: options.requiredContextBytes,
     });
     if (!budget) {
       return {
         summary: {
           ...state.summary,
-          blockedReason: "configuration_unavailable",
+          blockedReason:
+            availableCredits < agentRoundWorstCaseCredits(options.model)
+              ? "credits_exhausted"
+              : "configuration_unavailable",
         },
         reservation: null,
       };

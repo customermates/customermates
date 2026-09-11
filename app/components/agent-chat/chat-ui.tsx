@@ -2,21 +2,30 @@
 
 import { observer } from "mobx-react-lite";
 import type { useTranslations } from "next-intl";
+import type { AgentProgressPhase } from "./agent-chat.store";
+import type { AgentChatUiTargets } from "./agent-chat-store-context";
 
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
 
 export function ActionTooltip({ children, label }: { children: React.ReactNode; label: string }) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>{children}</TooltipTrigger>
 
-      <TooltipContent>{label}</TooltipContent>
+      <TooltipContent className={OVERLAY_TOPMOST_LAYER_CLASS}>{label}</TooltipContent>
     </Tooltip>
   );
 }
 
 export type ChatTranslator = ReturnType<typeof useTranslations>;
+
+export function agentProgressLabel(phase: AgentProgressPhase | null, t: ChatTranslator) {
+  if (phase === "starting") return t("AgentChat.ui.startingRequest");
+  if (phase === "preparing_action") return t("AgentChat.ui.preparingAction");
+  return t("AgentChat.ui.workingOnRequest");
+}
 
 export function chatUiCopy(t: ChatTranslator) {
   return {
@@ -61,9 +70,14 @@ export function chatUiCopy(t: ChatTranslator) {
   };
 }
 
-export function focusAgentComposer() {
+export function focusAgentComposer(
+  targets: Pick<AgentChatUiTargets, "composerId" | "fallbackFocusId"> = {
+    composerId: "agent-composer",
+    fallbackFocusId: "agent-panel-dialog",
+  },
+) {
   requestAnimationFrame(() => {
-    const target = document.getElementById("agent-composer") ?? document.getElementById("agent-panel-dialog");
+    const target = document.getElementById(targets.composerId) ?? document.getElementById(targets.fallbackFocusId);
     target?.focus();
   });
 }

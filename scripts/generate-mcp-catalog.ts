@@ -16,6 +16,7 @@ export const CATALOG_SECTIONS: Record<string, McpTool[]> = {
   docs: [...MCP_TOOL_GROUPS.docs, ...MCP_ALWAYS_ON_TOOLS],
   "custom-columns": MCP_TOOL_GROUPS["custom-columns"],
   widgets: MCP_TOOL_GROUPS.widgets,
+  routines: MCP_TOOL_GROUPS.routines,
   webhooks: MCP_TOOL_GROUPS.webhooks,
   admin: MCP_TOOL_GROUPS.admin,
   support: MCP_TOOL_GROUPS.support,

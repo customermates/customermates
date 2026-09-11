@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import type { RefObject } from "react";
+
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
@@ -16,6 +18,9 @@ type Props = {
   jumpToLatestLabel?: string;
   latestItemKey?: string;
   loadOlderLabel?: string;
+  scrollContainerRef?: RefObject<HTMLElement | null>;
+  scrollFooterRef?: RefObject<HTMLElement | null>;
+  scrollable?: boolean;
   scrollRegionLabel?: string;
   scrollKey: string;
   onTopReach?: () => Promise<void>;
@@ -27,6 +32,9 @@ export function MessagesScrollContainer({
   jumpToLatestLabel,
   latestItemKey,
   loadOlderLabel,
+  scrollContainerRef,
+  scrollFooterRef,
+  scrollable = true,
   scrollRegionLabel,
   scrollKey,
   onTopReach,
@@ -42,9 +50,13 @@ export function MessagesScrollContainer({
   const scrollVersion = useRef(0);
   const [isAwayFromLatest, setIsAwayFromLatest] = useState(false);
   const [isLoadingOlder, setIsLoadingOlder] = useState(false);
+  const [scrollFooterHeight, setScrollFooterHeight] = useState(0);
+  const getScrollElement = useCallback(() => scrollContainerRef?.current ?? ref.current, [scrollContainerRef]);
+  const usesExternalScroll = scrollable && Boolean(scrollContainerRef);
 
   useEffect(() => {
-    const el = ref.current;
+    if (!scrollable) return;
+    const el = getScrollElement();
     if (!el) return;
 
     stickToBottom.current = true;
@@ -53,19 +65,27 @@ export function MessagesScrollContainer({
     setIsAwayFromLatest(false);
     setIsLoadingOlder(false);
     el.scrollTop = el.scrollHeight;
-  }, [scrollKey]);
+  }, [getScrollElement, scrollKey, scrollable]);
 
   useLayoutEffect(() => {
-    const el = ref.current;
+    if (!scrollable) return;
+    const el = getScrollElement();
     if (!el || latestItemKey === undefined || !stickToBottom.current) return;
 
     el.scrollTop = el.scrollHeight;
-  }, [latestItemKey]);
+  }, [getScrollElement, latestItemKey, scrollable]);
 
   useEffect(() => {
-    const el = ref.current;
+    if (!scrollable) return;
+    const el = getScrollElement();
     const content = contentRef.current;
+    const footer = usesExternalScroll ? scrollFooterRef?.current : null;
     if (!el || !content) return;
+
+    const syncFooterHeight = () => {
+      const nextHeight = footer?.getBoundingClientRect().height ?? 0;
+      setScrollFooterHeight((currentHeight) => (currentHeight === nextHeight ? currentHeight : nextHeight));
+    };
 
     const releaseFollow = () => {
       autoFollowing.current = false;
@@ -84,10 +104,14 @@ export function MessagesScrollContainer({
       el.scrollTo({ behavior: "smooth", top: el.scrollHeight });
     };
     const observer = new ResizeObserver(() => {
+      syncFooterHeight();
       if (stickToBottom.current) followBottom();
     });
 
+    syncFooterHeight();
     observer.observe(content);
+    if (el !== content) observer.observe(el);
+    if (footer && footer !== content && footer !== el) observer.observe(footer);
     el.addEventListener("wheel", releaseFollow, { passive: true });
     el.addEventListener("touchmove", releaseFollow, { passive: true });
     el.addEventListener("keydown", releaseFollow);
@@ -99,10 +123,10 @@ export function MessagesScrollContainer({
       el.removeEventListener("touchmove", releaseFollow);
       el.removeEventListener("keydown", releaseFollow);
     };
-  }, []);
+  }, [getScrollElement, scrollable, scrollFooterRef, usesExternalScroll]);
 
-  const loadOlder = () => {
-    const el = ref.current;
+  const loadOlder = useCallback(() => {
+    const el = getScrollElement();
     if (!el || !onTopReach || topReachInFlight.current) return;
     const restoreRegionFocus = document.activeElement === loadOlderButtonRef.current;
     topReachInFlight.current = true;
@@ -114,7 +138,7 @@ export function MessagesScrollContainer({
     void onTopReach()
       .finally(() => {
         requestAnimationFrame(() => {
-          if (version !== scrollVersion.current || ref.current !== el) {
+          if (version !== scrollVersion.current || getScrollElement() !== el) {
             setIsLoadingOlder(false);
             return;
           }
@@ -129,10 +153,10 @@ export function MessagesScrollContainer({
         });
       })
       .catch(reportApplicationError);
-  };
+  }, [getScrollElement, onTopReach]);
 
-  const handleScroll = () => {
-    const el = ref.current;
+  const handleScroll = useCallback(() => {
+    const el = getScrollElement();
     if (!el) return;
     const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 120;
 
@@ -147,10 +171,18 @@ export function MessagesScrollContainer({
     setIsAwayFromLatest(!isNearBottom);
 
     if (el.scrollTop < 100) loadOlder();
-  };
+  }, [getScrollElement, loadOlder]);
 
-  const jumpToLatest = () => {
-    const el = ref.current;
+  useEffect(() => {
+    if (!scrollable || !scrollContainerRef) return;
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", handleScroll, { passive: true });
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, [handleScroll, scrollContainerRef, scrollable]);
+
+  const jumpToLatest = useCallback(() => {
+    const el = getScrollElement();
     if (!el) return;
 
     stickToBottom.current = true;
@@ -158,18 +190,38 @@ export function MessagesScrollContainer({
     setIsAwayFromLatest(false);
     scrollToAnchor(el, "bottom");
     requestAnimationFrame(() => el.focus({ preventScroll: true }));
-  };
+  }, [getScrollElement]);
 
   return (
-    <div className="relative flex min-h-0 flex-1">
+    <div className={cn("relative flex-1", !usesExternalScroll && "flex min-h-0")}>
+      {usesExternalScroll && jumpToLatestLabel && (
+        <div
+          className="pointer-events-none sticky z-20 h-0"
+          style={{ top: `calc(100% - 3rem - ${scrollFooterHeight}px)` }}
+        >
+          <ScrollReturnButton
+            className="pointer-events-auto top-0 right-2 bottom-auto"
+            direction="bottom"
+            isAway={isAwayFromLatest}
+            label={jumpToLatestLabel}
+            onReturn={jumpToLatest}
+          />
+        </div>
+      )}
+
       <div
         ref={ref}
-        aria-label={scrollRegionLabel}
-        className={cn("min-h-0 flex-1 overflow-y-auto overscroll-contain py-3", className)}
-        role="region"
+        aria-label={scrollable && !usesExternalScroll ? scrollRegionLabel : undefined}
+        className={cn(
+          "py-3",
+          !usesExternalScroll && "min-h-0 flex-1",
+          scrollable && !usesExternalScroll && "overflow-y-auto overscroll-contain",
+          className,
+        )}
+        role={scrollable && !usesExternalScroll ? "region" : undefined}
         // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-        tabIndex={0}
-        onScroll={handleScroll}
+        tabIndex={scrollable && !usesExternalScroll ? 0 : undefined}
+        onScroll={scrollable && !usesExternalScroll ? handleScroll : undefined}
       >
         <div ref={contentRef}>
           {loadOlderLabel && onTopReach && (
@@ -192,7 +244,7 @@ export function MessagesScrollContainer({
         </div>
       </div>
 
-      {jumpToLatestLabel && (
+      {scrollable && !usesExternalScroll && jumpToLatestLabel && (
         <ScrollReturnButton
           className="right-5"
           direction="bottom"

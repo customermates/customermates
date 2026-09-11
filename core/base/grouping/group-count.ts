@@ -118,23 +118,32 @@ export async function countGroupRows(runtime: GroupCountRuntime, request: GroupC
     }
 
     case "relation": {
+      const column = spec.via === "column" ? spec.column : spec.keyColumn;
       const [rows, noValue] = await Promise.all([
-        runtime.delegate(spec.joinModel).groupBy({
-          by: [spec.keyColumn],
-          where: {
-            companyId: runtime.companyId,
-            [spec.parentRelation]: where,
-            [spec.targetRelation]: runtime.targetWhere(spec.targetModel),
-          },
-          _count: { _all: true },
-          orderBy: { _count: { [spec.keyColumn]: "desc" } },
-          take: MAX_AXIS_GROUPS + 1,
-        }),
+        spec.via === "column"
+          ? runtime.delegate(spec.model).groupBy({
+              by: [spec.column],
+              where: withFragment(where, { [spec.targetRelation]: runtime.targetWhere(spec.targetModel) }),
+              _count: { _all: true },
+              orderBy: { _count: { [spec.column]: "desc" } },
+              take: MAX_AXIS_GROUPS + 1,
+            })
+          : runtime.delegate(spec.joinModel).groupBy({
+              by: [spec.keyColumn],
+              where: {
+                companyId: runtime.companyId,
+                [spec.parentRelation]: where,
+                [spec.targetRelation]: runtime.targetWhere(spec.targetModel),
+              },
+              _count: { _all: true },
+              orderBy: { _count: { [spec.keyColumn]: "desc" } },
+              take: MAX_AXIS_GROUPS + 1,
+            }),
         runtime.delegate(spec.model).count({ where: withFragment(where, noValueScope()) }),
       ]);
 
       return [
-        ...rows.map((row) => ({ key: String(row[spec.keyColumn]), count: rowCount(row) })),
+        ...rows.map((row) => ({ key: String(row[column]), count: rowCount(row) })),
         ...(noValue > 0 ? [{ key: NO_VALUE_GROUP_KEY, count: noValue }] : []),
       ];
     }
