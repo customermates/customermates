@@ -1,4 +1,10 @@
 {
+  "AccountRemovalReason": {
+    "ownerInactive": "Owner deactivated",
+    "planDowngrade": "Plan downgrade",
+    "subscriptionLapsed": "Subscription lapsed",
+    "trialExpired": "Trial ended"
+  },
   "AccountsRemovedNotice": {
     "body": "Your plan changed to {plan}, so I removed the following connected account(s) to stay within your plan's limit: {accounts}. Your messages and contacts are all still there. Reconnect anytime from your connected accounts page.",
     "cta": "View connected accounts",
@@ -782,6 +788,7 @@
       "postalCode": "Postal code",
       "prompt": "Instructions",
       "recipientEmail": "Sent to",
+      "removalReason": "Removal reason",
       "street": "Street",
       "terminology": "Record naming",
       "timezone": "Time zone",

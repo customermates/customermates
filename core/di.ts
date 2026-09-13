@@ -485,7 +485,7 @@ export const getSubscriptionService = () => new SubscriptionService(getCompanyRe
 export const getEntitlementService = () => new EntitlementService(getCompanyRepo());
 export const getMessagingService = () => new MessagingService();
 export const getDeleteAccountForBillingService = () =>
-  new DeleteAccountForBillingService(getConnectedAccountRepo(), getMessagingService());
+  new DeleteAccountForBillingService(getConnectedAccountRepo(), getMessagingService(), getEventService());
 export const getIngestUnipileWebhookInteractor = () =>
   new IngestUnipileWebhookInteractor(getUnipileWebhookRepo(), getProcessUnipileWebhookInteractor());
 
