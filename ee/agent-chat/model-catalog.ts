@@ -4,7 +4,7 @@ import { lowestModelPromptTierBoundary, resolveModelPricing, type ModelInference
 
 export const AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS = 2_500;
 export const AGENT_CONTEXT_BYTES_PER_TOKEN = 3;
-export const AGENT_MIN_BYTES_PER_PROVIDER_TOKEN = 1;
+export const AGENT_MIN_BYTES_PER_PROVIDER_TOKEN = 2;
 
 export const AGENT_REASONING_EFFORTS = ["none", "minimal", "low", "medium", "high", "xhigh"] as const;
 export const AGENT_THINKING_LEVELS = ["minimal", "low", "medium", "high"] as const;

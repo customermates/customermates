@@ -66,7 +66,7 @@ import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
 import { runInRoutineContext } from "@/core/decorators/routine-context";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 
-import { reportFailure, toWorkflowFailure, type WorkflowFailure } from "./capture-failure";
+import { reportFailure, reportWarning, toWorkflowFailure, type WorkflowFailure } from "./capture-failure";
 
 const WORKFLOW_NAME = "agent-turn";
 
@@ -182,6 +182,13 @@ function usageSettlementForTurn(payload: AgentTurnWorkflowPayload, outcome: Agen
 
   const measured = outcome.ledger.every((entry) => entry.measured);
   const unreadableReason = outcome.ledger.find((entry) => entry.unreadableReason)?.unreadableReason ?? null;
+  if (!measured && outcome.ledger.length > 0) {
+    void reportWarning(
+      WORKFLOW_NAME,
+      `Agent usage settled from modelled cost because the provider charge was unreadable (${unreadableReason ?? "no reason"}) for ${outcome.ledger.filter((entry) => !entry.measured).length} of ${outcome.ledger.length} rounds on ${payload.turnBudget.modelSpec}.`,
+      payload.tenant,
+    );
+  }
   return buildAgentUsageSettlement({
     model: payload.turnBudget.modelSpec,
     tokens: outcome.tokens,
@@ -948,6 +955,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           initialMessages: providerContext.messages,
           steps: continuationSteps,
           retainedResponseSteps,
+          resultDigest: runtime.resultDigest,
         });
         const candidateMessages = continueOutput
           ? [...compacted.messages, { role: "user" as const, content: AGENT_OUTPUT_CONTINUATION_PROMPT }]
@@ -1028,6 +1036,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
               : { scope: "global" },
             zeroDataRetention: true,
             disallowPromptTraining: true,
+            ...(runtime.cachingAuto ? { caching: "auto" as const } : {}),
           },
           openai: { parallelToolCalls: false },
           ...googleThinkingProviderOptions(payload.turnBudget),

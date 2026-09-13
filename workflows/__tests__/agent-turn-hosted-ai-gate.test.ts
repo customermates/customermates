@@ -178,6 +178,7 @@ vi.mock("@/i18n/get-translator", () => ({
 vi.mock("@/i18n/locale-registry", () => ({ appLocaleOrDefault: (locale: string) => locale }));
 vi.mock("../capture-failure", () => ({
   reportFailure: state.reportFailure,
+  reportWarning: () => Promise.resolve(),
   toWorkflowFailure: (error: unknown) => error,
 }));
 
@@ -295,6 +296,7 @@ describe("agent-turn hosted-AI provider gates", () => {
         inferenceRegion: { scope: "zone", geoRegion: "eu" },
         zeroDataRetention: true,
         disallowPromptTraining: true,
+        caching: "auto",
       },
       openai: { parallelToolCalls: false },
     });
