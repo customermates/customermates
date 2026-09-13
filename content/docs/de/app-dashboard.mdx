@@ -66,7 +66,7 @@ Neue Accounts landen im Onboarding-Wizard unter `/onboarding/wizard`, bevor sie 
 ## Tipps für Agents
 
 - Finden Sie Controls über die stabilen Ids oben, nicht über sichtbaren Text. CSS-Selektor-Beispiel: `#dashboard-add-widget`.
-- Zeilen tragen nie Ids. Öffnen Sie Datensätze über ihre URL oder den Drawer-Deep-Link `?open=<entityType>:<id>` (nur auf Entitäts-Seiten). Mehrere Einträge stapeln Sie mit Kommas, zum Beispiel `?open=contact:abc,deal:xyz`.
+- Zeilen tragen nie Ids. Öffnen Sie einen Datensatz über seine Seiten-URL `/{type}/{id}`. Der Drawer-Deep-Link `?open={entityType}:new` legt einen Datensatz an und funktioniert nur auf Entitäts-Seiten.
 - Bevorzugen Sie [MCP](/docs/mcp)-Tools statt Klicks, wenn es ein Tool gibt. CRM-Daten lesen und schreiben geht über Tools schneller und sicherer als über die UI.
 
 ## Verwandte Seiten

@@ -92,8 +92,8 @@ const ACCEPTED_TODAY: [string, unknown][] = [
   ["update_workspace_settings", { target: "profile", avatarUrl: null }],
   ["update_workspace_settings", { target: "profile", avatarUrl: "" }],
   ["update_workspace_settings", { target: "profile", avatarUrl: "https://example.com/a.png" }],
-  ["open_record", { entity: "contact", recordId: "new" }],
-  ["open_record", { entity: "contact", recordId: UUID, presentation: "drawer" }],
+  ["navigate", { targetId: "nav-deals" }],
+  ["navigate", { entity: "contact", recordId: UUID }],
   ["linkedin_search_sales_leads", { connectedAccountId: UUID, filters: { network_distance: [1, 2, "GROUP"] } }],
   [
     "linkedin_search_sales_leads",
@@ -114,7 +114,8 @@ const ACCEPTED_TODAY: [string, unknown][] = [
 const REJECTED_TODAY: [string, unknown][] = [
   ["list_records", {}],
   ["list_records", { entity: "spaceship" }],
-  ["open_record", { entity: "contact" }],
+  ["navigate", { entity: "contact", recordId: "new" }],
+  ["navigate", { entity: "spaceship", recordId: UUID }],
   ["create_contacts", { contacts: [] }],
   ["manage_webhooks", { action: "detonate" }],
   ["update_contacts", { contacts: [{ id: UUID, customFieldValues: [{ columnId: UUID, value: 5 }] }] }],
@@ -450,11 +451,11 @@ describe("the shipped tool catalog on the Google wire", () => {
     const changes = changesForShippedCatalog();
 
     expect(summarizeGoogleSchemaChanges(changes)).toEqual({
-      "$schema:removed": 53,
+      "$schema:removed": 52,
       "additionalProperties:removed": 56,
       "anyOf:collapsed": 45,
       "const:removed": 1,
-      "const:rewritten": 219,
+      "const:rewritten": 218,
       "enum:removed": 25,
       "exclusiveMinimum:rewritten": 11,
       "nullable:collapsed": 10,

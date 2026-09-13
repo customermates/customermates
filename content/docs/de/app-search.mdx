@@ -9,7 +9,7 @@ Die globale Suche ist ein Modal, keine Seite: Sie öffnet überall in der App mi
 
 Das Modal durchsucht **Contacts, Organizations, Deals und Services** nach Name und verwandten Feldern und zeigt vor der Eingabe eine Gruppe **Zuletzt geöffnet**. Tasks sind nicht Teil der globalen Suche: Sie finden sich auf `/tasks` über die Listensuche und Filter oder über das MCP-Tool `list_records`.
 
-Die Auswahl eines Ergebnisses öffnet den Drawer des Records über der aktuellen Seite, der Kontext darunter bleibt erhalten. Das Deep-Link-Äquivalent ist das Muster `?open={entityType}:{id}` aus [CRM Records](/docs/app-records).
+Die Auswahl eines Ergebnisses öffnet die Detailseite des Records. Um stattdessen einen Datensatz anzulegen, nutzen Sie das **Add**-Steuerelement seiner Listenseite oder den Deep-Link `?open={entityType}:new` aus [CRM Records](/docs/app-records).
 
 ## Stabile Ids
 
@@ -30,6 +30,6 @@ Tasks sind nicht Teil der globalen Suche. Sie finden sich in der Task-Liste übe
 Cmd+K auf macOS, sonst Ctrl+K, überall in der App. Der Sidebar-Trigger `#nav-search` öffnet dasselbe Modal.
 </FaqItem>
 <FaqItem question="Wo öffnen sich Ergebnisse?">
-Im Drawer des Records über der aktuellen Seite, der Kontext darunter bleibt erhalten. Derselbe Drawer ist direkt über den Deep-Link `?open={entityType}:{id}` aus [CRM Records](/docs/app-records) erreichbar.
+Auf der Detailseite des Records unter `/{type}/{id}`, dokumentiert in [CRM Records](/docs/app-records).
 </FaqItem>
 </Faq>

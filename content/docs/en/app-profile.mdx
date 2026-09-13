@@ -44,7 +44,7 @@ The signature below it is a single Markdown block with an on/off toggle, so swit
 ## Tips for agents
 
 - Locate controls via the stable ids above. For example, the CSS selector `#profile-api-keys-generate` finds the generate button. The ids are stable; visible labels and layout are not.
-- Rows never carry ids. Open records via their URL, or via the drawer deep-link `?open=<entityType>:{id}` on entity pages. The Profile tabs are plain routes, so navigate by tab URL and act on rows via their visible buttons (e.g. **Revoke**) or by clicking the row.
+- Rows never carry ids. Open records via their page URL `/{type}/{id}`. The Profile tabs are plain routes, so navigate by tab URL and act on rows via their visible buttons (e.g. **Revoke**) or by clicking the row.
 - Prefer MCP tools over clicking when a tool exists. See [MCP](/docs/mcp). Driving the UI is for the few actions with no tool, like connecting a messaging account.
 - The Add modal first offers a standard named/expiring key and five guided AI connections. Claude and ChatGPT can use their custom-connector path; local Claude, Codex, Cursor, and Gemini create a key and show only that client's setup snippet.
 - A generated API key is shown exactly once, whether created through `#api-key-save` or a quick connection. Copy the displayed key or snippet in the same step; there is no way to display the plaintext key again.

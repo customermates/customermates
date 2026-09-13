@@ -9,7 +9,7 @@ Global search is a modal, not a page: it opens from anywhere in the app with **C
 
 The modal searches **contacts, organizations, deals, and services** by name and related fields, and shows a **Recently opened** group before you type. Tasks are not part of global search: find them on `/tasks` with its list search and filters, or with the `list_records` MCP tool.
 
-Selecting a result opens the record's drawer over the current page, so the context you were in stays underneath. The deep-link equivalent is the `?open={entityType}:{id}` pattern documented in [CRM Records](/docs/app-records).
+Selecting a result opens the record's detail page. To add a record instead, use the **Add** control on its list page or the `?open={entityType}:new` deep link documented in [CRM Records](/docs/app-records).
 
 ## Stable ids
 
@@ -30,6 +30,6 @@ Tasks are not part of global search. Find them on the tasks list with its search
 Cmd+K on macOS, Ctrl+K elsewhere, from anywhere in the app. The sidebar trigger `#nav-search` opens the same modal.
 </FaqItem>
 <FaqItem question="Where do results open?">
-In the record's drawer over the current page, so your context stays underneath. The same drawer is reachable directly via the `?open={entityType}:{id}` deep link documented in [CRM Records](/docs/app-records).
+On the record's detail page at `/{type}/{id}`, documented in [CRM Records](/docs/app-records).
 </FaqItem>
 </Faq>

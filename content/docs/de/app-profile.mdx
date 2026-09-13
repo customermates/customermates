@@ -44,7 +44,7 @@ Die Signatur darunter ist ein einzelner Markdown-Block mit Ein/Aus-Schalter, das
 ## Tipps für Agents
 
 - Steuerelemente über die stabilen Ids aus der Tabelle finden, zum Beispiel trifft der CSS-Selektor `#profile-api-keys-generate` den Generieren-Button. Die Ids sind stabil; sichtbare Labels und Layout sind es nicht.
-- Zeilen tragen nie Ids. Datensätze über ihre URL öffnen oder auf Entity-Seiten über den Drawer-Deep-Link `?open=<entityType>:{id}`. Die Profil-Tabs sind einfache Routen, also per Tab-URL navigieren und in Zeilen die sichtbaren Buttons nutzen (z.B. **Revoke**) oder die Zeile anklicken.
+- Zeilen tragen nie Ids. Datensätze über ihre Seiten-URL `/{type}/{id}` öffnen. Die Profil-Tabs sind einfache Routen, also per Tab-URL navigieren und in Zeilen die sichtbaren Buttons nutzen (z.B. **Revoke**) oder die Zeile anklicken.
 - Wenn ein MCP-Tool existiert, nutzen Sie es statt zu klicken, siehe [MCP](/docs/mcp). Die UI zu steuern lohnt nur für die wenigen Aktionen ohne Tool, etwa das Verbinden eines Messaging-Kontos.
 - Das Modal zum Hinzufügen bietet zuerst einen Standard-Key mit Name und Ablaufdatum sowie fünf geführte KI-Verbindungen an. Claude und ChatGPT können den benutzerdefinierten Connector nutzen; lokale Claude-Clients, Codex, Cursor und Gemini erstellen einen Key und zeigen nur den passenden Einrichtungsausschnitt.
 - Ein generierter API-Key wird genau einmal angezeigt, unabhängig davon, ob er über `#api-key-save` oder eine Schnellverbindung erstellt wurde. Kopieren Sie den angezeigten Key oder Einrichtungsausschnitt im selben Schritt; der Key lässt sich nicht erneut im Klartext anzeigen.

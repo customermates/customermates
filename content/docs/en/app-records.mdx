@@ -10,10 +10,10 @@ Customermates has five record types: Contacts, Organizations, Deals, Services, a
 Every record type has the same three surfaces:
 
 - **List** at `/{type}` (for example `/contacts`), locale-prefixed like `https://customermates.com/en/contacts`. Search, filter, sort, and bulk actions live here.
-- **Drawer**: append `?open={entityType}:{id}` to the list URL (for example `/contacts?open=contact:{id}`) to edit a record over the list.
+- **Drawer**: append `?open={entityType}:new` to the list URL (for example `/contacts?open=contact:new`) to add a record over the list. Existing records open on their detail page; the drawer is for adding only.
 - **Detail page** at `/{type}/{id}` (for example `/contacts/42`) for the full record, custom fields, and delete. It opens with an overview of the fields that matter most, and every field carries a pin control that adds it to or removes it from that overview. Pinning is per person, so two colleagues can read the same record through different summaries.
 
-Rows never carry a DOM id. Open a record by its URL or the drawer deep-link, never by clicking a row you located by id.
+Rows never carry a DOM id. Open a record by its detail URL, never by clicking a row you located by id.
 
 ## Lists and toolbars
 
@@ -87,7 +87,7 @@ Records link to other records through labeled relation fields inside the form. P
 ## Tips for agents
 
 - Locate controls by the stable ids above, for example `document.querySelector('#deals-add')`. Ids are identical across locales and viewports; visible labels are not.
-- To open a record, build the URL yourself: `/{type}/{id}` for the full page, or `/{type}?open={entityType}:{id}` for the drawer. Do not try to click a row.
+- To open an existing record, build its page URL yourself: `/{type}/{id}`. Do not try to click a row. The hosted assistant's `navigate` tool opens the same page from an entity and a record id.
 - Prefer [MCP](/docs/mcp) tools over driving the UI when a tool exists. Creating or updating a record, or changing a `singleSelect` column value, is one tool call instead of a click sequence.
 
 ## Related

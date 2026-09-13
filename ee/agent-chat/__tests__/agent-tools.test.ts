@@ -280,20 +280,20 @@ describe("agent tools", () => {
       expect(await validate?.({ targetId }), targetId).toMatchObject({ success: false });
   });
 
-  it("accepts only real record ids in open_record and rejects paths and URLs", async () => {
+  it("opens an existing record's page through navigate and rejects drawer, path and URL forms", async () => {
     const tools = getAgentAiTools(deps());
-    const validate = schemaOf(tools.open_record).validate;
+    const validate = schemaOf(tools.navigate).validate;
+    const recordId = "00000000-0000-4000-8000-000000000001";
 
-    expect(await validate?.({ entity: "contact", recordId: "00000000-0000-4000-8000-000000000001" })).toMatchObject({
-      success: true,
-    });
-    expect(await validate?.({ entity: "contact", recordId: "new" })).toMatchObject({ success: true });
-    for (const recordId of ["/contacts/abc", "javascript:alert(1)", "https://example.com", "abc", "1234"])
-      expect(await validate?.({ entity: "contact", recordId }), recordId).toMatchObject({ success: false });
-
-    expect(await validate?.({ entity: "company", recordId: "00000000-0000-4000-8000-000000000001" })).toMatchObject({
-      success: false,
-    });
+    expect(await validate?.({ entity: "deal", recordId })).toMatchObject({ success: true });
+    for (const bad of ["new", "/deals/abc", "javascript:alert(1)", "https://example.com", "abc", "1234"])
+      expect(await validate?.({ entity: "deal", recordId: bad }), bad).toMatchObject({ success: false });
+    expect(await validate?.({ entity: "company", recordId })).toMatchObject({ success: false });
+    expect(await validate?.({ entity: "deal" })).toMatchObject({ success: false });
+    expect(await validate?.({ recordId })).toMatchObject({ success: false });
+    expect(await validate?.({})).toMatchObject({ success: false });
+    expect(await validate?.({ targetId: "nav-deals", entity: "deal", recordId })).toMatchObject({ success: false });
+    expect("open_record" in tools).toBe(false);
   });
 
   it("keeps the complete UI target catalog within the tool-result budget", async () => {

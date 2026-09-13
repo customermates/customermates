@@ -66,7 +66,7 @@ New accounts land in the onboarding wizard at `/onboarding/wizard` before they s
 ## Tips for agents
 
 - Locate controls via the stable ids above, not by visible text. CSS selector example: `#dashboard-add-widget`.
-- Rows never carry ids. Open records via their URL or the drawer deep-link `?open=<entityType>:<id>` (entity pages only). Stack multiple entries with commas, for example `?open=contact:abc,deal:xyz`.
+- Rows never carry ids. Open a record via its page URL `/{type}/{id}`. The drawer deep-link `?open={entityType}:new` adds a record and works on entity pages only.
 - Prefer [MCP](/docs/mcp) tools over clicking when a tool exists. Reading and writing CRM data is faster and safer through tools than through the UI.
 
 ## Related

@@ -15,9 +15,9 @@ import { agentToolResultText } from "./agent-budget-policy";
 import { isReadOnlyTool, requiresApproval } from "./gated-tools";
 import { toAgentUiCommandInput } from "./agent-ui-command";
 import { type AgentToolCancellation as AgentToolCancellationValue } from "./agent-tool-cancellation";
-import { AGENT_UI_TARGETS, NavigationUiTargetIdSchema, UiTargetIdSchema, type AgentUiTarget } from "./ui-targets";
+import { AGENT_UI_TARGETS, UiTargetIdSchema, type AgentUiTarget } from "./ui-targets";
 import { AgentTourSchema } from "./agent-tours";
-import { OpenRecordSchema } from "./ui-operations";
+import { NavigateInputSchema } from "./ui-operations";
 import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
 import { internalToolIdentity } from "./tool-identity";
 import { providerWireInputSchema } from "./provider-safe-json-schema";
@@ -145,9 +145,6 @@ function providerSafeSchema<TSchema extends z.ZodType>(inputSchema: TSchema) {
   );
 }
 
-const NavigateSchema = z.object({
-  targetId: NavigationUiTargetIdSchema.describe("A routable target id."),
-});
 const HighlightElementSchema = z.object({
   targetId: UiTargetIdSchema.describe("A target id from list_ui_targets."),
 });
@@ -249,8 +246,9 @@ function uiTools(deps: AgentToolDeps): ToolSet {
       execute: (input) => listUiTargets(input, deps.resultMaxChars),
     }),
     navigate: tool({
-      description: "Open an app destination by its target id from list_ui_targets.",
-      inputSchema: providerSafeSchema(NavigateSchema),
+      description:
+        "Open an app area by its target id from list_ui_targets, or open one existing record's page by passing entity and recordId after list_records or search_records found the id. Records always open on their page, never in the drawer; to add a record, highlight the matching add control instead.",
+      inputSchema: providerSafeSchema(NavigateInputSchema),
       execute: (input, { toolCallId }) =>
         runSafely(() => runUiCommand(toolCallId, "navigate", panelInput("navigate", input)), deps.resultMaxChars),
     }),
@@ -269,13 +267,6 @@ function uiTools(deps: AgentToolDeps): ToolSet {
       inputSchema: providerSafeSchema(AgentTourSchema),
       execute: (input, { toolCallId }) =>
         runSafely(() => runUiCommand(toolCallId, "start_tour", panelInput("start_tour", input)), deps.resultMaxChars),
-    }),
-    open_record: tool({
-      description:
-        "Open one record after finding its id with list_records or search_records. Use the drawer to keep context, the page for a full view, and recordId 'new' for a blank form the user fills in.",
-      inputSchema: providerSafeSchema(OpenRecordSchema),
-      execute: (input, { toolCallId }) =>
-        runSafely(() => runUiCommand(toolCallId, "open_record", panelInput("open_record", input)), deps.resultMaxChars),
     }),
   };
 }

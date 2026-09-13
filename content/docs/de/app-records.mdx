@@ -10,10 +10,10 @@ Customermates hat fünf Datensatztypen: Contacts, Organizations, Deals, Services
 Jeder Datensatztyp hat dieselben drei Oberflächen:
 
 - **Liste** unter `/{type}` (zum Beispiel `/contacts`), locale-präfixiert wie `https://customermates.com/en/contacts`. Suche, Filter, Sortierung und Massenaktionen leben hier.
-- **Drawer**: Hängen Sie `?open={entityType}:{id}` an die Listen-URL an (zum Beispiel `/contacts?open=contact:{id}`), um einen Datensatz über der Liste zu bearbeiten.
+- **Drawer**: Hängen Sie `?open={entityType}:new` an die Listen-URL an (zum Beispiel `/contacts?open=contact:new`), um einen Datensatz über der Liste anzulegen. Bestehende Datensätze öffnen sich auf ihrer Detailseite; der Drawer dient nur dem Anlegen.
 - **Detailseite** unter `/{type}/{id}` (zum Beispiel `/contacts/42`) für den vollen Datensatz, Custom Fields und das Löschen. Sie öffnet mit einer Übersicht der wichtigsten Felder, und jedes Feld trägt einen Pin-Button, der es dieser Übersicht hinzufügt oder daraus entfernt. Das Anpinnen gilt pro Person, zwei Kolleginnen können denselben Datensatz also durch unterschiedliche Übersichten lesen.
 
-Zeilen tragen nie eine DOM-Id. Öffnen Sie einen Datensatz über seine URL oder den Drawer-Deep-Link, nie durch Klick auf eine per Id gesuchte Zeile.
+Zeilen tragen nie eine DOM-Id. Öffnen Sie einen Datensatz über seine Detail-URL, nie durch Klick auf eine per Id gesuchte Zeile.
 
 ## Listen und Toolbars
 
@@ -87,7 +87,7 @@ Datensätze verknüpfen sich mit anderen Datensätzen über beschriftete Relatio
 ## Tipps für Agents
 
 - Finden Sie Steuerelemente über die stabilen Ids oben, zum Beispiel `document.querySelector('#deals-add')`. Ids sind über Sprachen und Viewports identisch, sichtbare Labels nicht.
-- Um einen Datensatz zu öffnen, bauen Sie die URL selbst: `/{type}/{id}` für die volle Seite oder `/{type}?open={entityType}:{id}` für den Drawer. Versuchen Sie nicht, eine Zeile anzuklicken.
+- Um einen bestehenden Datensatz zu öffnen, bauen Sie seine Seiten-URL selbst: `/{type}/{id}`. Versuchen Sie nicht, eine Zeile anzuklicken. Das `navigate`-Werkzeug des gehosteten Assistenten öffnet dieselbe Seite aus Entität und Datensatz-Id.
 - Bevorzugen Sie [MCP](/docs/mcp)-Tools gegenüber dem Bedienen der UI, wenn ein Tool existiert. Einen Datensatz anlegen oder ändern, oder den Wert einer `singleSelect`-Column setzen, ist ein Tool-Call statt einer Klickstrecke.
 
 ## Verwandte Seiten
