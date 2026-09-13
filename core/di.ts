@@ -485,7 +485,7 @@ export const getSubscriptionService = () => new SubscriptionService(getCompanyRe
 export const getEntitlementService = () => new EntitlementService(getCompanyRepo());
 export const getMessagingService = () => new MessagingService();
 export const getDeleteAccountForBillingService = () =>
-  new DeleteAccountForBillingService(getConnectedAccountRepo(), getMessagingService());
+  new DeleteAccountForBillingService(getConnectedAccountRepo(), getMessagingService(), getEventService());
 export const getIngestUnipileWebhookInteractor = () =>
   new IngestUnipileWebhookInteractor(getUnipileWebhookRepo(), getProcessUnipileWebhookInteractor());
 
@@ -1617,7 +1617,7 @@ export const getCreateCheckoutSessionInteractor = () =>
   new CreateCheckoutSessionInteractor(getSubscriptionService(), getCompanyRepo(), getUserRepo());
 
 export const getGetSubscriptionInteractor = () =>
-  new GetSubscriptionInteractor(getCompanyRepo(), getUserRepo(), getSubscriptionService());
+  new GetSubscriptionInteractor(getCompanyRepo(), getUserRepo(), getSubscriptionService(), getUserService());
 
 export const getRefreshSubscriptionInteractor = () =>
   new RefreshSubscriptionInteractor(getCompanyRepo(), getSubscriptionService(), getDeleteAccountsForPlanInteractor());
@@ -1699,11 +1699,12 @@ export const getGetRoutinesApiInteractor = () =>
 
 export const getGetRoutineRunsInteractor = () => new GetRoutineRunsInteractor(getRoutineRepo());
 
-export const getUpsertRoutineInteractor = () => new UpsertRoutineInteractor(getRoutineRepo(), getCompanyRepo());
+export const getUpsertRoutineInteractor = () =>
+  new UpsertRoutineInteractor(getRoutineRepo(), getCompanyRepo(), getEventService());
 
-export const getDeleteRoutineInteractor = () => new DeleteRoutineInteractor(getRoutineRepo());
+export const getDeleteRoutineInteractor = () => new DeleteRoutineInteractor(getRoutineRepo(), getEventService());
 
-export const getPauseRoutineInteractor = () => new PauseRoutineInteractor(getRoutineRepo());
+export const getPauseRoutineInteractor = () => new PauseRoutineInteractor(getRoutineRepo(), getEventService());
 
 export const getRunRoutineNowInteractor = () =>
   new RunRoutineNowInteractor(getRoutineRepo(), getBackgroundTaskService());

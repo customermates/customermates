@@ -18,8 +18,19 @@ export class DeleteConnectedAccountsForExpiredTrialsInteractor {
     const expiredTrialAccountIds = await this.repo.findConnectedAccountIdsForExpiredTrialsUnscoped();
     const lapsedSubscriptionAccountIds = await this.repo.findConnectedAccountIdsForLapsedSubscriptionsUnscoped();
 
-    const accountIds = new Set([...expiredTrialAccountIds, ...lapsedSubscriptionAccountIds]);
+    const groups = [
+      { accountIds: expiredTrialAccountIds, reason: "trialExpired" },
+      { accountIds: lapsedSubscriptionAccountIds, reason: "subscriptionLapsed" },
+    ] as const;
+    const deleted = new Set<string>();
 
-    for (const accountId of accountIds) await this.deleteService.deleteForBillingOrThrow(accountId);
+    for (const { accountIds, reason } of groups) {
+      for (const accountId of accountIds) {
+        if (deleted.has(accountId)) continue;
+        deleted.add(accountId);
+
+        await this.deleteService.deleteForBillingOrThrow(accountId, reason);
+      }
+    }
   }
 }

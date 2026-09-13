@@ -32,9 +32,9 @@ describe("DeleteConnectedAccountsForExpiredTrialsInteractor", () => {
     await interactor.invoke();
 
     expect(deleteService.deleteForBillingOrThrow).toHaveBeenCalledTimes(3);
-    expect(deleteService.deleteForBillingOrThrow).toHaveBeenCalledWith("acc-1");
-    expect(deleteService.deleteForBillingOrThrow).toHaveBeenCalledWith("acc-2");
-    expect(deleteService.deleteForBillingOrThrow).toHaveBeenCalledWith("acc-3");
+    expect(deleteService.deleteForBillingOrThrow).toHaveBeenCalledWith("acc-1", "trialExpired");
+    expect(deleteService.deleteForBillingOrThrow).toHaveBeenCalledWith("acc-2", "trialExpired");
+    expect(deleteService.deleteForBillingOrThrow).toHaveBeenCalledWith("acc-3", "subscriptionLapsed");
   });
 
   it("de-duplicates an account id returned by both finders", async () => {
@@ -47,7 +47,7 @@ describe("DeleteConnectedAccountsForExpiredTrialsInteractor", () => {
 
     await interactor.invoke();
 
-    expect(deleteService.deleteForBillingOrThrow).toHaveBeenCalledTimes(1);
+    expect(deleteService.deleteForBillingOrThrow).toHaveBeenCalledExactlyOnceWith("acc-1", "trialExpired");
   });
 
   it("does nothing when no accounts are due for deletion (naturally idempotent)", async () => {

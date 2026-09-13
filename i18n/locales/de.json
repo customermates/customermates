@@ -1,4 +1,10 @@
 {
+  "AccountRemovalReason": {
+    "ownerInactive": "Eigentümer/in deaktiviert",
+    "planDowngrade": "Tarif herabgestuft",
+    "subscriptionLapsed": "Abo abgelaufen",
+    "trialExpired": "Testphase beendet"
+  },
   "AccountsRemovedNotice": {
     "body": "Dein Plan wurde auf {plan} umgestellt. Um das Limit deines Plans einzuhalten, habe ich die erforderliche Anzahl verbundener Konten entfernt: {accounts}. Deine Nachrichten und Kontakte sind weiterhin vorhanden. Du kannst die Konten jederzeit auf der Seite „Verbundene Konten“ erneut verbinden.",
     "cta": "Verbundene Konten ansehen",
@@ -766,18 +772,28 @@
       "acceptanceType": "Art der Zustimmung",
       "acceptingEmail": "Zugestimmt von",
       "changedDocuments": "Geänderte Dokumente",
+      "changedFields": "Überwachte Felder",
       "city": "Stadt",
       "country": "Land",
+      "cronExpression": "Zeitplan",
       "currency": "Währung",
       "dealStageWeights": "Phasenwahrscheinlichkeiten",
       "dealWeightingColumnId": "Phasenfeld",
+      "debounceSeconds": "Verzögerung",
+      "disabledReason": "Deaktivierungsgrund",
       "effectiveAt": "Gültig ab",
       "emails": "E-Mail-Adressen",
       "isNewCompany": "Erste Person im Workspace",
       "postalCode": "Postleitzahl",
+      "prompt": "Anweisungen",
       "recipientEmail": "Gesendet an",
+      "removalReason": "Entfernungsgrund",
       "street": "Straße",
       "terminology": "Datensatzbenennung",
+      "timezone": "Zeitzone",
+      "triggerEvents": "Auslöser-Ereignisse",
+      "triggerFilters": "Auslöser-Filter",
+      "triggerKind": "Auslöser",
       "versions": "Dokumentversionen",
       "visibility": "Sichtbarkeit"
     },
@@ -1195,6 +1211,11 @@
         "created": "Rolle erstellt",
         "deleted": "Rolle gelöscht",
         "updated": "Rolle aktualisiert"
+      },
+      "routine": {
+        "created": "Routine erstellt",
+        "deleted": "Routine gelöscht",
+        "updated": "Routine aktualisiert"
       },
       "service": {
         "created": "Service erstellt",

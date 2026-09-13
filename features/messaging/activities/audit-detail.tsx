@@ -391,6 +391,10 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
         );
       case "provider":
         return t.has(`Common.providers.${String(value)}`) ? t(`Common.providers.${String(value)}`) : String(value);
+      case "removalReason":
+        return t.has(`AccountRemovalReason.${String(value)}`)
+          ? t(`AccountRemovalReason.${String(value)}`)
+          : String(value);
       case "status":
         return t.has(`Common.userStatuses.${String(value)}`)
           ? t(`Common.userStatuses.${String(value)}`)

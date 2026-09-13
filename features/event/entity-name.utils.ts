@@ -62,6 +62,9 @@ const entityNameExtractors: {
   [DomainEvent.CUSTOM_COLUMN_CREATED]: (eventData) => eventData.payload.label,
   [DomainEvent.CUSTOM_COLUMN_UPDATED]: (eventData) => eventData.payload.customColumn.label,
   [DomainEvent.CUSTOM_COLUMN_DELETED]: (eventData) => eventData.payload.label,
+  [DomainEvent.ROUTINE_CREATED]: (eventData) => eventData.payload.name,
+  [DomainEvent.ROUTINE_UPDATED]: (eventData) => eventData.payload.routine.name,
+  [DomainEvent.ROUTINE_DELETED]: (eventData) => eventData.payload.name,
   [DomainEvent.CONNECTED_ACCOUNT_CREATED]: (eventData, translate) => connectedAccountName(eventData.payload, translate),
   [DomainEvent.CONNECTED_ACCOUNT_DELETED]: (eventData, translate) => connectedAccountName(eventData.payload, translate),
   [DomainEvent.CONNECTED_ACCOUNT_UPDATED]: (eventData, translate) =>
