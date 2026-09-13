@@ -1,5 +1,6 @@
 import type { EventService } from "@/features/event/event.service";
 import type { ReleaseOwnerRoutinesInteractor } from "@/ee/routines/release-owner-routines.interactor";
+import type { GetOwnerRoutinesRepo } from "@/ee/routines/get-owner-routines.repo";
 import type { TenantUser } from "@/features/user/user.schema";
 import type { Data } from "@/core/validation/validation.utils";
 import type { SubscriptionService } from "@/ee/subscription/subscription.service";
@@ -12,6 +13,7 @@ import { CountryCode, Status, Resource, Action, SubscriptionPlan } from "@/gener
 import type { Subscription } from "@/generated/prisma";
 
 import { DomainEvent } from "@/features/event/domain-events";
+import { calculateChanges } from "@/core/utils/calculate-changes";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { createZodError, zx, type Validated } from "@/core/validation/validation.utils";
 import { Write } from "@/core/decorators/write.decorator";
@@ -62,6 +64,7 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
     private subscriptionRepo: AdminUpdateUserSubscriptionRepo,
     private countUsersRepo: CountActiveUsersRepo,
     private releaseOwnerRoutines: ReleaseOwnerRoutinesInteractor,
+    private ownerRoutinesRepo: GetOwnerRoutinesRepo,
   ) {
     super();
   }
@@ -113,8 +116,26 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
       await this.handleSubscriptionQuantityUpdate();
     }
 
-    if (leavingActive)
+    if (leavingActive) {
+      const previousRoutines = await this.ownerRoutinesRepo.getRoutinesForOwner(targetUserId);
+
       await this.releaseOwnerRoutines.invoke({ companyId: this.user.companyId, ownerUserId: targetUserId });
+
+      const currentRoutines = await this.ownerRoutinesRepo.getRoutinesForOwner(targetUserId);
+      const byId = new Map(previousRoutines.map((routine) => [routine.id, routine]));
+
+      await Promise.all(
+        currentRoutines.map((routine) => {
+          const changes = calculateChanges(byId.get(routine.id), routine);
+          if (!Object.keys(changes).length) return undefined;
+
+          return this.eventService.publish(DomainEvent.ROUTINE_UPDATED, {
+            entityId: routine.id,
+            payload: { routine, changes },
+          });
+        }),
+      );
+    }
 
     await this.eventService.publish(DomainEvent.USER_UPDATED, {
       entityId: targetUserId,

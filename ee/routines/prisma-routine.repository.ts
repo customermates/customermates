@@ -10,6 +10,7 @@ import type { StartRoutineRunRepo } from "./start-routine-run.interactor";
 import type { SweepDueRoutinesRepo } from "./sweep-due-routines.interactor";
 import type { ReconcileRoutineRunsRepo } from "./reconcile-routine-runs.interactor";
 import type { ReleaseOwnerRoutinesRepo } from "./release-owner-routines.interactor";
+import type { GetOwnerRoutinesRepo } from "./get-owner-routines.repo";
 import type { RoutineRunPage } from "./routine-history";
 import type { RoutineDto, RoutineRunDto } from "./routine.schema";
 import type { DeleteCustomColumnRoutineRepo } from "@/features/custom-column/delete-custom-column.interactor";
@@ -202,6 +203,7 @@ export class PrismaRoutineRepo
     SweepDueRoutinesRepo,
     ReconcileRoutineRunsRepo,
     ReleaseOwnerRoutinesRepo,
+    GetOwnerRoutinesRepo,
     TriggerRoutinesRepo,
     DeleteCustomColumnRoutineRepo
 {
@@ -277,6 +279,15 @@ export class PrismaRoutineRepo
     });
 
     return routine ? routineDto(routine) : null;
+  }
+
+  async getRoutinesForOwner(ownerUserId: string): Promise<RoutineDto[]> {
+    const rows = await this.prisma.routine.findMany({
+      where: { companyId: this.companyId, ownerUserId },
+      select: ROUTINE_SELECT,
+    });
+
+    return rows.map(routineDto);
   }
 
   async getRoutineByIdOrThrow(id: string): Promise<RoutineDto> {
