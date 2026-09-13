@@ -38,6 +38,7 @@ export function measureAgentContext(question: string, pageRoute: string | null):
     locale: "en",
     surface: "chat",
     toolsetRouting: true,
+    promptV2: true,
   });
   const strip = (items: typeof definitions) =>
     items.map(({ name, description, inputSchema }) => ({ name, description, inputSchema }));

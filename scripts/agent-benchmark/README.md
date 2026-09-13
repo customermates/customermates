@@ -15,6 +15,12 @@ yarn build
 LOCAL_AGENT_BENCHMARK=true AGENT_BENCHMARK_ARMS="$(yarn -s agent:benchmark overlay)" yarn next start -p 4107
 ```
 
+The runtime variant is a server setting: start the application with `AGENT_RUNTIME_VARIANT=current` (every v2 knob off) or
+`AGENT_RUNTIME_VARIANT=v2` (default), optionally `AGENT_RUNTIME_DISABLE=toolsetRouting,promptV2,resultDigest,cachingAuto` for
+single-knob ablations, and pass the same label as `--variant` so artifacts land under the matching folder. Run
+`yarn agent:benchmark` with `RUN_AGENT_BENCHMARK=true LOCAL_AGENT_BENCHMARK=true npx tsx --import ./scripts/agent-benchmark/register.mjs scripts/agent-benchmark/measure-context.ts`
+to print the catalog bytes per round, the prompt bytes and the credit reservation of the current tree.
+
 Commands (`yarn agent:benchmark <command>`):
 
 - `arms`, `cases`: list arms and cases.
