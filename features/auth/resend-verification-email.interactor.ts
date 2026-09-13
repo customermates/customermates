@@ -31,7 +31,13 @@ export class ResendVerificationEmailInteractor {
     const callbackURL = await this.resolveCallbackUrl(data.onboardingIntent);
 
     if (sessionEmail) {
-      await this.authService.resendVerificationEmail(email, { callbackURL, keepSession: true });
+      try {
+        await this.authService.resendVerificationEmail(email, { callbackURL, keepSession: true });
+      } catch (error) {
+        Sentry.captureException(error);
+        return { ok: false };
+      }
+
       return { ok: true };
     }
 

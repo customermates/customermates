@@ -70,6 +70,30 @@ describe("VerifyEmailPage onboarding intent", () => {
     expect(card.props.onboardingIntent).toBeUndefined();
   });
 
+  it("lets an unverified account still inside onboarding request a verification email", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({
+      emailVerified: false,
+      sessionUser: { email: "setting-up@example.com", id: "auth-user" },
+      state: "unregistered",
+    });
+
+    const result = await VerifyEmailPage({ searchParams: Promise.resolve({}) });
+
+    expect(result.props.children.props).toMatchObject({ email: "setting-up@example.com" });
+  });
+
+  it("sends a verified account back to onboarding rather than the verification card", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({
+      emailVerified: true,
+      sessionUser: { email: "done@example.com", id: "auth-user" },
+      state: "unregistered",
+    });
+
+    await expect(VerifyEmailPage({ searchParams: Promise.resolve({}) })).rejects.toThrow("REDIRECT:/en/onboarding");
+  });
+
   it("lets a signed-out visitor request a verification email when no intent is in play", async () => {
     mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
     mocks.requireAccountState.mockResolvedValue({ sessionUser: null, state: "unauthenticated" });
