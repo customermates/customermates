@@ -797,8 +797,8 @@
   "AuthSocialErrors": {
     "accessDenied": "El inicio de sesión se canceló en el proveedor.",
     "accountAlreadyLinkedToDifferentUser": "Esta cuenta social ya está vinculada a otro usuario.",
-    "accountNotLinked": "Ya existe una cuenta con este correo, pero la dirección aún no está verificada. Verifica tu correo primero y después podrás usar el acceso social.",
-    "accountNotLinkedAction": "Enviar correo de verificación",
+    "accountNotLinked": "Tu proveedor no confirmó esta dirección de correo, así que no pudimos vincularla a tu cuenta existente. Inicia sesión con tu contraseña.",
+    "accountNotLinkedAction": "Restablecer contraseña",
     "emailDoesNotMatch": "El correo devuelto por el proveedor no coincide con el de tu cuenta.",
     "emailIsMissing": "El proveedor no devolvió ninguna dirección de correo.",
     "emailNotFound": "No se encontró ninguna dirección de correo para esta cuenta social.",

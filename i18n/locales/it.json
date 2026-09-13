@@ -797,8 +797,8 @@
   "AuthSocialErrors": {
     "accessDenied": "L'accesso è stato annullato presso il provider.",
     "accountAlreadyLinkedToDifferentUser": "Questo account social è già collegato a un altro utente.",
-    "accountNotLinked": "Esiste già un account con questa e-mail, ma l'indirizzo non è ancora verificato. Verifica prima il tuo indirizzo, poi potrai usare l'accesso social.",
-    "accountNotLinkedAction": "Invia e-mail di verifica",
+    "accountNotLinked": "Il tuo provider non ha confermato questo indirizzo e-mail, quindi non abbiamo potuto collegarlo al tuo account esistente. Accedi invece con la password.",
+    "accountNotLinkedAction": "Reimposta password",
     "emailDoesNotMatch": "L'e-mail restituita dal provider non corrisponde a quella del tuo account.",
     "emailIsMissing": "Il provider non ha restituito alcun indirizzo e-mail.",
     "emailNotFound": "Non è stato trovato alcun indirizzo e-mail per questo account social.",

@@ -7,7 +7,6 @@ import { SignUpForm } from "./sign-up-form";
 
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { requireUnauthenticated } from "@/features/auth/next/require";
-import { verificationRecoveryForSocialError } from "@/features/auth/social-error-recovery";
 import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
 import { enabledSocialProviders } from "@/core/auth/better-auth";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
@@ -35,11 +34,6 @@ export default async function SignUpPage({ searchParams }: Props) {
     onboardingIntent.status === "valid" && onboardingIntent.type === "invitation" ? onboardingIntent : null;
   if (invitation && (await resolveRequestAccountState()).sessionUser)
     redirect(buildLocalePath(await getLocale(), pathWithOnboardingIntent("/auth/invitation", invitation.intent)));
-
-  if (!invitation) {
-    const verificationRecovery = verificationRecoveryForSocialError(params.error);
-    if (verificationRecovery) redirect(buildLocalePath(await getLocale(), verificationRecovery));
-  }
 
   await requireUnauthenticated();
 
