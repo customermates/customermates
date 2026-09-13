@@ -10,7 +10,7 @@ export abstract class RefreshSubscriptionRepo {
   abstract getSubscriptionOrThrow(): Promise<{ lemonSqueezyId: string | null; plan: SubscriptionPlan }>;
 }
 
-@TenantInteractor({ resource: Resource.company, action: Action.readOwn })
+@TenantInteractor({ resource: Resource.company, action: Action.update })
 export class RefreshSubscriptionInteractor extends AuthenticatedInteractor<void, null> {
   constructor(
     private repo: RefreshSubscriptionRepo,
