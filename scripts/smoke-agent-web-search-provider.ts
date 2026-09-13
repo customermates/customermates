@@ -4,7 +4,11 @@ import { fileURLToPath } from "node:url";
 import { createGateway, generateText, isStepCount } from "ai";
 
 import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
-import { AGENT_WEB_SEARCH_TOOL_NAME, getAgentWebSearchTool } from "@/ee/agent-chat/agent-web-search";
+import {
+  AGENT_WEB_SEARCH_TOOL_NAME,
+  AGENT_WEB_SEARCH_USD_PER_REQUEST,
+  getAgentWebSearchTool,
+} from "@/ee/agent-chat/agent-web-search";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
 import { MODEL_CATALOG, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
 
@@ -17,10 +21,8 @@ const MAX_REQUEST_BODY_BYTES = 64_000;
 
 export const AGENT_WEB_SEARCH_SMOKE_MAX_USD = 15;
 export const AGENT_WEB_SEARCH_FEASIBILITY_BLOCKERS = [
-  "Gateway Perplexity configuration is not a verified immutable runtime query/result limit.",
-  "No verified provider-enforced native search-call cap covers parallel calls inside one model request.",
-  "Gateway-specific Search data-processing, confidentiality, personal-data permission, and regional terms remain unverified.",
-  "Authoritative all-in Gateway cost including every search has not been verified against a live generation receipt.",
+  "No verified native search-call cap covers Gateway's internal model and tool loop within one SDK step.",
+  "The native loop's accumulated input and search charges are not bounded by the existing routine reservation.",
 ] as const;
 
 type JsonRecord = Record<string, unknown>;
@@ -51,7 +53,7 @@ function sameJson(actual: unknown, expected: unknown): boolean {
 export function assertProviderSmokeFeasible(): never {
   return fail(
     "feasibility",
-    "Paid web-search smoke is disabled before network access: provider-native bounds and Search-specific processing terms are unverified. One HTTP request is not a search-count or spend ceiling.",
+    "Paid web-search smoke is disabled before network access: provider-native loop bounds are unverified. One HTTP request is not a search-count or spend ceiling.",
   );
 }
 
@@ -165,7 +167,12 @@ export async function inspectProviderSmokeSerialization() {
 
 export function inspectProviderSmokeBilling(metadata: unknown, generation: Generation) {
   const charge = readAgentProviderCharge(metadata, MODEL.servingProvider);
-  const routing = record(record(record(metadata)?.gateway)?.routing);
+  const gateway = record(record(metadata)?.gateway);
+  const routing = record(gateway?.routing);
+  const searchCalls = record(gateway?.gatewayToolCalls)?.perplexity_search;
+  const inferenceCost = typeof gateway?.inferenceCost === "string" ? Number(gateway.inferenceCost) : NaN;
+  const marketCost = typeof gateway?.cost === "string" ? Number(gateway.cost) : NaN;
+  const searchCost = typeof searchCalls === "number" ? searchCalls * AGENT_WEB_SEARCH_USD_PER_REQUEST : NaN;
   const attempts = Array.isArray(routing?.modelAttempts) ? routing.modelAttempts : [];
   const successful = attempts.flatMap((attempt) => {
     const providers = record(attempt)?.providerAttempts;
@@ -188,15 +195,20 @@ export function inspectProviderSmokeBilling(metadata: unknown, generation: Gener
     !generation.isByok && generation.upstreamInferenceCost === 0,
     Number.isFinite(generation.totalCost) && generation.totalCost >= 0 && Number.isSafeInteger(totalMicrocents),
     Math.abs(generation.usage - generation.totalCost) <= 0.00000001,
-    Number.isSafeInteger(generation.billableWebSearchCalls) && generation.billableWebSearchCalls > 0,
+    Number.isSafeInteger(searchCalls) && (searchCalls as number) > 0,
+    Number.isSafeInteger(generation.billableWebSearchCalls) && generation.billableWebSearchCalls >= 0,
+    Number.isFinite(inferenceCost) && inferenceCost >= 0,
+    Number.isFinite(marketCost) && Math.abs(marketCost - inferenceCost - searchCost) <= 0.00000001,
+    generation.totalCost >= marketCost,
+    gateway?.enabledZeroDataRetention === true && gateway.enabledDisallowPromptTraining === true,
     regionsMatch,
   ];
   if (!valid.every(Boolean))
     fail("settlement", "Receipt did not reconcile authoritative all-in cost, billed searches, provider, and region.");
   return {
     authoritativeMicrocents: totalMicrocents,
-    billedSearches: generation.billableWebSearchCalls,
-    searchCostInclusionVerified: false,
+    billedSearches: searchCalls,
+    searchCostInclusionVerified: true,
     releasePrerequisitesSatisfied: false,
   };
 }

@@ -59,6 +59,7 @@ const domTestFiles = [
   "components/editor/__tests__/editor-link-picker.test.ts",
   "components/wiki/__tests__/wiki-homepage-setup.test.ts",
   "components/modal/__tests__/delete-confirmation-modal.test.ts",
+  "components/modal/__tests__/navigation-history-guard.test.ts",
   "components/acquisition/__tests__/public-ad-attribution-consent.test.ts",
   "components/scroll/__tests__/messages-scroll-container.test.ts",
   "components/shared/__tests__/overflow-rail.test.ts",

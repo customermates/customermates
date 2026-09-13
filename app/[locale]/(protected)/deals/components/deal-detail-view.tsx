@@ -37,6 +37,7 @@ export const DealDetailView = observer(({ layout = "drawer" }: Props) => {
     isEditingCustomField,
     customColumns,
     fetchedEntity,
+    toggleEditingCustomField,
     totalQuantity,
     totalValue,
     weightedValueBreakdown,
@@ -179,6 +180,7 @@ export const DealDetailView = observer(({ layout = "drawer" }: Props) => {
           entityType={EntityType.deal}
           isEditing={isEditingCustomField}
           sectionId={DEAL_DETAIL_SECTION.customFields}
+          onToggleEditing={toggleEditingCustomField}
         />
       </EntityDetailSectionGroup>
     );

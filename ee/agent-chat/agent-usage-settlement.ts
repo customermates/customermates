@@ -45,18 +45,13 @@ export function buildAgentUsageSettlement(args: {
   tokens: TokenCounts;
   reservedCredits: number;
   providerCharge: AgentProviderChargeEvidence;
-  toolCostMicrocents?: number;
 }): AgentUsageSettlement {
   if (!Number.isSafeInteger(args.reservedCredits) || args.reservedCredits < 1)
     throw new Error("Agent usage reservation credits are invalid.");
 
-  const toolCostMicrocents = args.toolCostMicrocents === undefined ? 0 : args.toolCostMicrocents;
-  if (!Number.isSafeInteger(toolCostMicrocents) || toolCostMicrocents < 0)
-    throw new Error("Agent tool cost must be a non-negative whole number of microcents.");
-
   const base = { ...args.tokens, model: args.model, reservedCredits: args.reservedCredits };
 
-  if (!args.providerCharge.billed && toolCostMicrocents === 0) {
+  if (!args.providerCharge.billed) {
     return {
       ...base,
       costMicrocents: 0,
@@ -67,12 +62,9 @@ export function buildAgentUsageSettlement(args: {
     };
   }
 
-  const measured = args.providerCharge.billed ? args.providerCharge.measuredCostMicrocents : 0;
-  const costSource: AgentUsageCostSource = measured === null || toolCostMicrocents > 0 ? "estimated" : "measured";
-  const inferenceCostMicrocents = measured ?? estimateCostMicrocents(args);
-  if (!Number.isSafeInteger(inferenceCostMicrocents) || inferenceCostMicrocents < 0)
-    throw new Error("AI provider cost must be a non-negative whole number of microcents.");
-  const costMicrocents = inferenceCostMicrocents + toolCostMicrocents;
+  const measured = args.providerCharge.measuredCostMicrocents;
+  const costSource: AgentUsageCostSource = measured === null ? "estimated" : "measured";
+  const costMicrocents = measured ?? estimateCostMicrocents(args);
   const meteredCredits = agentCreditsForStartedProviderCost(costMicrocents);
 
   return {

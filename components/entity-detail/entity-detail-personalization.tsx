@@ -116,7 +116,12 @@ function flushPersistence(channelKey: string) {
 function schedulePersistence(channelKey: string, snapshot: PersonalizationSnapshot) {
   let channel = persistenceChannels.get(channelKey);
   if (!channel) {
-    channel = { latest: snapshot, pending: null, queue: Promise.resolve(), timer: null };
+    channel = {
+      latest: snapshot,
+      pending: null,
+      queue: Promise.resolve(),
+      timer: null,
+    };
     persistenceChannels.set(channelKey, channel);
   }
 
@@ -335,4 +340,28 @@ export function EntityDetailPersonalizationProvider({
 
 export function useEntityDetailPersonalization() {
   return useContext(EntityDetailPersonalizationContext);
+}
+
+type EntityDetailCustomizationOptions = {
+  canManage: boolean;
+  isEditingCustomField: boolean;
+  toggleEditingCustomField: () => void;
+};
+
+export function useEntityDetailCustomization({
+  canManage,
+  isEditingCustomField,
+  toggleEditingCustomField,
+}: EntityDetailCustomizationOptions) {
+  const { enabled, isPersonalizing, setIsPersonalizing } = useEntityDetailPersonalization();
+  const isCustomizing = enabled
+    ? isPersonalizing || (canManage && isEditingCustomField)
+    : canManage && isEditingCustomField;
+  const onToggleCustomization = useCallback(() => {
+    const next = !isCustomizing;
+    if (enabled) setIsPersonalizing(next);
+    if (canManage && isEditingCustomField !== next) toggleEditingCustomField();
+  }, [canManage, enabled, isCustomizing, isEditingCustomField, setIsPersonalizing, toggleEditingCustomField]);
+
+  return { isCustomizing, onToggleCustomization };
 }

@@ -21,8 +21,8 @@ const GENERATION_ID = "gen_01M0QTS0NKJMJMMYA0JGKZM6SF";
 function generation(overrides: Partial<Parameters<typeof inspectProviderSmokeBilling>[1]> = {}) {
   return {
     id: GENERATION_ID,
-    totalCost: 0.0053,
-    usage: 0.0053,
+    totalCost: 0.0054,
+    usage: 0.0054,
     upstreamInferenceCost: 0,
     model: MODEL.modelId,
     providerName: MODEL.servingProvider,
@@ -47,7 +47,12 @@ function metadata(overrides: Record<string, unknown> = {}, region: string | null
     gateway: {
       generationId: GENERATION_ID,
       cost: "0.00530000",
+      gatewayCost: "0.00540000",
+      surchargeCost: "0.00010000",
       inferenceCost: "0.00030000",
+      gatewayToolCalls: { perplexity_search: 1 },
+      enabledZeroDataRetention: true,
+      enabledDisallowPromptTraining: true,
       upstreamInferenceCost: "0",
       routing: {
         finalProvider: MODEL.servingProvider,
@@ -82,7 +87,7 @@ describe("web-search offline feasibility guard", () => {
     vi.stubEnv("RUN_AGENT_WEB_SEARCH_SMOKE", "true");
     vi.stubEnv("AGENT_WEB_SEARCH_SMOKE_MAX_USD", "15");
     expect(() => readProviderSmokeCeiling()).toThrow("disabled before network access");
-    expect(AGENT_WEB_SEARCH_FEASIBILITY_BLOCKERS).toHaveLength(4);
+    expect(AGENT_WEB_SEARCH_FEASIBILITY_BLOCKERS).toHaveLength(2);
   });
 
   it.each(["", "NaN", "-1", "0", "15.01", "Infinity", "1e3"])("rejects invalid aggregate ceiling %s", (ceiling) => {
@@ -196,9 +201,9 @@ describe("web-search offline feasibility guard", () => {
 describe("read-only all-in billing receipt inspection", () => {
   it("reconciles total Gateway charge rather than the smaller inference-only charge", () => {
     expect(inspectProviderSmokeBilling(metadata(), generation())).toEqual({
-      authoritativeMicrocents: 530_000,
+      authoritativeMicrocents: 540_000,
       billedSearches: 1,
-      searchCostInclusionVerified: false,
+      searchCostInclusionVerified: true,
       releasePrerequisitesSatisfied: false,
     });
   });
@@ -211,7 +216,7 @@ describe("read-only all-in billing receipt inspection", () => {
     { model: "other-model" },
     { isByok: true },
     { upstreamInferenceCost: 0.001 },
-    { billableWebSearchCalls: 0 },
+    { billableWebSearchCalls: -1 },
     { billableWebSearchCalls: 1.5 },
     { id: "different-receipt" },
     { usage: 1 },
@@ -221,6 +226,27 @@ describe("read-only all-in billing receipt inspection", () => {
 
   it("requires the resolved inference region and the authoritative cost field", () => {
     expect(() => inspectProviderSmokeBilling(metadata({}, "us"), generation())).toThrow("did not reconcile");
-    expect(() => inspectProviderSmokeBilling(metadata({ cost: undefined }), generation())).toThrow("did not reconcile");
+    expect(() => inspectProviderSmokeBilling(metadata({ gatewayCost: undefined }), generation())).toThrow("did not reconcile");
+  });
+
+  it("uses Gateway's tool counter when the provider-native search counter is zero", () => {
+    expect(inspectProviderSmokeBilling(metadata(), generation({ billableWebSearchCalls: 0 }))).toMatchObject({
+      billedSearches: 1,
+      searchCostInclusionVerified: true,
+      releasePrerequisitesSatisfied: false,
+    });
+  });
+
+  it.each([
+    { gatewayToolCalls: undefined },
+    { gatewayToolCalls: { perplexity_search: 0 } },
+    { gatewayToolCalls: { perplexity_search: 1.5 } },
+    { gatewayToolCalls: { perplexity_search: 2 } },
+    { inferenceCost: "0.00530000" },
+    { inferenceCost: undefined },
+    { enabledZeroDataRetention: false },
+    { enabledDisallowPromptTraining: false },
+  ])("refuses incomplete native-search billing evidence", (overrides) => {
+    expect(() => inspectProviderSmokeBilling(metadata(overrides), generation())).toThrow("did not reconcile");
   });
 });

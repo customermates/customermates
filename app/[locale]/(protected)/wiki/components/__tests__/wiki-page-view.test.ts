@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { Root as ReactRoot } from "react-dom/client";
 import type * as TopBarActionsModule from "@/app/components/topbar-actions-context";
 
-import { act, createElement } from "react";
+import { act, createElement, startTransition, Suspense, use, useState } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { observable, runInAction } from "mobx";
@@ -322,6 +322,84 @@ describe("Wiki document view", () => {
     expect(harness.store.load).toHaveBeenCalledExactlyOnceWith(page);
     expect(harness.push).toHaveBeenCalledExactlyOnceWith(`/wiki?page=${page.id}`);
   });
+
+  it.each(["clean", "confirmed dirty"])(
+    "prevents a new draft or edits while a %s page navigation is suspended",
+    async (mode) => {
+      configure(true, false);
+      const nextPage = { ...page, id: "10000000-0000-4000-8000-000000000002", title: "Support knowledge" };
+      const pages = { ...populatedList, items: [page, nextPage], total: 2 };
+      let ready = false;
+      let complete = () => {};
+      const routeResponse = new Promise<void>((resolve) => {
+        complete = resolve;
+      });
+      let confirmNavigation: (() => void) | undefined;
+      if (mode === "confirmed dirty") {
+        harness.tryNavigate.mockImplementation((navigate: () => void) => {
+          confirmNavigation = navigate;
+          return false;
+        });
+      }
+      function Toolbar() {
+        return createElement("header", null, useTopBarActions().actions);
+      }
+      function Route() {
+        const [selected, setSelected] = useState(page);
+        harness.push.mockImplementation(() => startTransition(() => setSelected(nextPage)));
+        if (selected === nextPage && !ready) use(routeResponse);
+        harness.store.form = selected;
+        return createElement(WikiPageView, { key: selected.id, initialPage: selected, listPage: pages });
+      }
+      const { container } = await mount(
+        createElement(TopBarActionsProvider, null, [
+          createElement(Toolbar, { key: "toolbar" }),
+          createElement(Suspense, { key: "route", fallback: "Incoming route" }, createElement(Route)),
+        ]),
+      );
+      const pageButton = [...container.querySelectorAll<HTMLButtonElement>("nav button")].find(
+        (button) => button.textContent === nextPage.title,
+      );
+
+      await act(async () => {
+        pageButton?.click();
+        await Promise.resolve();
+      });
+      if (mode === "confirmed dirty") {
+        expect(harness.push).not.toHaveBeenCalled();
+        expect(container.querySelector('input[aria-label="Wiki.pageTitle"]')).not.toBeNull();
+        expect(container.querySelector('[aria-label="Wiki.newPage"]')).not.toBeNull();
+        await act(async () => {
+          confirmNavigation?.();
+          await Promise.resolve();
+        });
+      }
+
+      expect(harness.push).toHaveBeenCalledExactlyOnceWith(`/wiki?page=${nextPage.id}`);
+      expect(container.querySelector('main [data-page-state="loading"]')).not.toBeNull();
+      expect(container.querySelector('main [role="status"]')?.textContent).toBe("PageState.loading");
+      expect(container.querySelector('input[aria-label="Wiki.pageTitle"]')).toBeNull();
+      expect(container.querySelector("[data-editor-readonly]")).toBeNull();
+      expect(container.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
+      expect(container.querySelector('[aria-label="Wiki.save"]')).toBeNull();
+      expect([...container.querySelectorAll<HTMLButtonElement>("nav button")].every((button) => button.disabled)).toBe(
+        true,
+      );
+      expect(harness.store.startCreate).not.toHaveBeenCalled();
+
+      await act(async () => {
+        ready = true;
+        complete();
+        await routeResponse;
+      });
+
+      expect(container.querySelector('main [data-page-state="loading"]')).toBeNull();
+      expect(container.querySelector('nav [aria-current="page"]')?.textContent).toBe(nextPage.title);
+      expect(container.querySelector('input[aria-label="Wiki.pageTitle"]')).not.toBeNull();
+      expect(container.querySelector('[data-editor-readonly="false"]')).not.toBeNull();
+      expect(container.querySelector('[aria-label="Wiki.newPage"]')).not.toBeNull();
+    },
+  );
 
   it("guards New and conflict reload with the same unsaved-changes boundary", async () => {
     configure(true, false);

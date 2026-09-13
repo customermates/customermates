@@ -27,7 +27,8 @@ export const ContactDetailView = observer(({ layout = "drawer" }: Props) => {
   const t = useTranslations();
   const intlStore = useHydratedIntlStore();
   const { contactDetailStore } = useRootStore();
-  const { canManage, isEditingCustomField, customColumns, fetchedEntity } = contactDetailStore;
+  const { canManage, isEditingCustomField, customColumns, fetchedEntity, toggleEditingCustomField } =
+    contactDetailStore;
 
   const content =
     layout === "drawer" ? (
@@ -162,6 +163,7 @@ export const ContactDetailView = observer(({ layout = "drawer" }: Props) => {
           entityType={EntityType.contact}
           isEditing={isEditingCustomField}
           sectionId={CONTACT_DETAIL_SECTION.customFields}
+          onToggleEditing={toggleEditingCustomField}
         />
       </EntityDetailSectionGroup>
     );

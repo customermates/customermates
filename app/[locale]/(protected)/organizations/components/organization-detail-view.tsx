@@ -28,7 +28,8 @@ export const OrganizationDetailView = observer(({ layout = "drawer" }: Props) =>
   const { plural } = useEntityTerminology();
   const intlStore = useHydratedIntlStore();
   const { organizationDetailStore } = useRootStore();
-  const { canManage, isEditingCustomField, customColumns, fetchedEntity } = organizationDetailStore;
+  const { canManage, isEditingCustomField, customColumns, fetchedEntity, toggleEditingCustomField } =
+    organizationDetailStore;
 
   const content =
     layout === "drawer" ? (
@@ -144,6 +145,7 @@ export const OrganizationDetailView = observer(({ layout = "drawer" }: Props) =>
           entityType={EntityType.organization}
           isEditing={isEditingCustomField}
           sectionId={ORGANIZATION_DETAIL_SECTION.customFields}
+          onToggleEditing={toggleEditingCustomField}
         />
       </EntityDetailSectionGroup>
     );

@@ -31,7 +31,7 @@ import { EntityNotesPanel } from "./entity-notes-panel";
 import { EntityDetailPageSkeleton } from "./entity-detail-page-skeleton";
 import { resolveEntityDetailPageState } from "./entity-detail-page-state";
 import { ENTITY_URL_SEGMENT } from "./entity-relations";
-import { useEntityDetailPersonalization } from "./entity-detail-personalization";
+import { useEntityDetailCustomization, useEntityDetailPersonalization } from "./entity-detail-personalization";
 
 type IdentityProps = {
   name: string;
@@ -80,12 +80,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   const { layoutStore, userStore } = useRootStore();
   const { stack: entityDrawerStack } = useEntityDrawerStack();
   const { showDeleteConfirmation } = useDeleteConfirmation();
-  const {
-    enabled: canPersonalize,
-    isPersonalizing,
-    setIsPersonalizing,
-    starredFieldIds,
-  } = useEntityDetailPersonalization();
+  const { enabled: canPersonalize, starredFieldIds } = useEntityDetailPersonalization();
   const [hasMounted, setHasMounted] = useState(false);
   const [activePanel, setActivePanel] = useState<DetailPanel>("details");
   const formId = useId();
@@ -104,6 +99,11 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   }, []);
 
   const { canManage, isLoading, isEditingCustomField, toggleEditingCustomField, form } = store;
+  const { isCustomizing, onToggleCustomization } = useEntityDetailCustomization({
+    canManage,
+    isEditingCustomField,
+    toggleEditingCustomField,
+  });
   const hasId = form && typeof form === "object" && "id" in form && Boolean(form.id);
   const canSeeHistory = userStore.can(Resource.auditLog, Action.readAll);
   const selectedPanel =
@@ -121,7 +121,6 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   });
   const showLoadError = pageState === "error" || pageState === "not-found";
   const showLoading = pageState === "loading";
-  const isCustomizing = canPersonalize && (isPersonalizing || (canManage && isEditingCustomField));
   const showEditFieldsAction = !canPersonalize && canManage && !isEditingCustomField;
   const showEditFieldsActiveActions = canManage && isEditingCustomField;
   const hasSummary = Boolean(summary) && (!canPersonalize || starredFieldIds.length > 0);
@@ -169,12 +168,6 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
       return ok;
     });
   }, [store, router, entityType]);
-  const onToggleCustomization = useCallback(() => {
-    const next = !isCustomizing;
-    setIsPersonalizing(next);
-    if (canManage && isEditingCustomField !== next) toggleEditingCustomField();
-  }, [canManage, isCustomizing, isEditingCustomField, setIsPersonalizing, toggleEditingCustomField]);
-
   const topBarActions = useMemo(
     () =>
       showLoading || showLoadError ? null : (

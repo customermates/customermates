@@ -2,7 +2,7 @@
 
 import type { WikiPageListResult, WikiPageDto } from "@/features/wiki/wiki.schema";
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
 import { observer } from "mobx-react-lite";
 import { BookOpen, ChevronDown, FileText, Plus, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -38,13 +38,16 @@ export const WikiPageView = observer(({ initialPage, listPage, unavailable = fal
   const t = useTranslations();
   const rootStore = useRootStore();
   const router = useRouter();
+  const [isNavigating, startNavigation] = useTransition();
   const [hasMounted, setHasMounted] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [store] = useState(
     () =>
       new WikiPageStore(rootStore, initialPage, (pageId) => {
-        router.replace(pageId ? `/wiki?page=${pageId}` : "/wiki");
-        router.refresh();
+        startNavigation(() => {
+          router.replace(pageId ? `/wiki?page=${pageId}` : "/wiki");
+          router.refresh();
+        });
       }),
   );
   const formId = useId();
@@ -79,15 +82,16 @@ export const WikiPageView = observer(({ initialPage, listPage, unavailable = fal
     tryNavigate(() => {
       store.load(initialPage);
       setMobileOpen(false);
-      router.push(`/wiki?page=${pageId}`);
+      startNavigation(() => router.push(`/wiki?page=${pageId}`));
     });
   };
   const reload = useCallback(() => tryNavigate(() => runUserAction(store.reload)), [store, tryNavigate]);
   const topBar = useMemo(
-    () => (
-      <WikiPageActions formId={formId} hasDocument={hasDocument} store={store} onCreate={create} onReload={reload} />
-    ),
-    [create, formId, hasDocument, reload, store],
+    () =>
+      isNavigating ? null : (
+        <WikiPageActions formId={formId} hasDocument={hasDocument} store={store} onCreate={create} onReload={reload} />
+      ),
+    [create, formId, hasDocument, isNavigating, reload, store],
   );
   useSetTopBarActions(topBar);
 
@@ -133,7 +137,7 @@ export const WikiPageView = observer(({ initialPage, listPage, unavailable = fal
                 "mb-0.5 h-auto min-h-9 w-full justify-start gap-2 p-2 text-left font-normal",
                 !store.creating && page.id === store.form.id && "bg-accent text-accent-foreground",
               )}
-              disabled={store.isLoading}
+              disabled={store.isLoading || isNavigating}
               variant="ghost"
               onClick={() => selectPage(page.id)}
             >
@@ -211,7 +215,9 @@ export const WikiPageView = observer(({ initialPage, listPage, unavailable = fal
       </Sheet>
 
       <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
-        {missing ? (
+        {isNavigating ? (
+          <PageState background={<WikiPageSkeleton documentOnly />} label={t("PageState.loading")} state="loading" />
+        ) : missing ? (
           <PageState description={t("Wiki.unavailableBody")} state="error" title={t("Wiki.unavailableTitle")} />
         ) : !hasDocument ? (
           <PageState

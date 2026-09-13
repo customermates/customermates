@@ -490,6 +490,7 @@ describe("entity detail section", () => {
             columns: [{ id: firstId, entityType: EntityType.contact, label: "Industry", type: CustomColumnType.plain }],
             entityType: EntityType.contact,
             isEditing: true,
+            onToggleEditing: vi.fn(),
             sectionId: "customFields",
           }),
         ),

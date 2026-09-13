@@ -3,13 +3,17 @@ import type { ComponentType, ReactNode } from "react";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { EntityDetailPersonalizationConfig } from "../entity-detail-personalization";
 
-import { act, createElement } from "react";
+import { act, createElement, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CustomColumnType, EntityType } from "@/generated/prisma";
 
 const upsertP13nAction = vi.hoisted(() => vi.fn());
-const customColumnModalStore = vi.hoisted(() => ({ initialize: vi.fn(), open: vi.fn() }));
+const customColumnModalStore = vi.hoisted(() => ({
+  initialize: vi.fn(),
+  open: vi.fn(),
+}));
+const toggleEditing = vi.hoisted(() => vi.fn());
 
 vi.mock("@/app/actions", () => ({ upsertP13nAction }));
 vi.mock("@/core/errors/report-application-error", () => ({
@@ -31,6 +35,7 @@ vi.mock("next-intl", () => ({
 import {
   EntityDetailPersonalizationProvider,
   resetEntityDetailPersonalizationPersistenceForTests,
+  useEntityDetailCustomization,
 } from "../entity-detail-personalization";
 import { EntityDetailCustomFieldsSection } from "../entity-detail-custom-fields-section";
 import { EntityDetailSectionGroup } from "../entity-detail-section";
@@ -43,10 +48,49 @@ const TestProvider = EntityDetailPersonalizationProvider as ComponentType<{
   customColumnIds?: string[];
   persistenceScope: string;
 }>;
-const TestSectionGroup = EntityDetailSectionGroup as ComponentType<{ children?: ReactNode }>;
+const TestSectionGroup = EntityDetailSectionGroup as ComponentType<{
+  children?: ReactNode;
+}>;
 const oneColumn: CustomColumnDto[] = [
-  { id: columnId, entityType: EntityType.contact, label: "Industry", type: CustomColumnType.plain },
+  {
+    id: columnId,
+    entityType: EntityType.contact,
+    label: "Industry",
+    type: CustomColumnType.plain,
+  },
 ];
+
+function CustomizationJourney() {
+  const [isEditing, setIsEditing] = useState(false);
+  const onToggleEditing = () => setIsEditing((current) => !current);
+  const { isCustomizing, onToggleCustomization } = useEntityDetailCustomization({
+    canManage: true,
+    isEditingCustomField: isEditing,
+    toggleEditingCustomField: onToggleEditing,
+  });
+
+  return createElement(
+    TestSectionGroup,
+    null,
+    createElement(
+      "button",
+      {
+        "data-test-top-customization": true,
+        "data-active": isCustomizing,
+        onClick: onToggleCustomization,
+      },
+      "Customize",
+    ),
+    createElement(EntityDetailCustomFieldsSection, {
+      canManage: true,
+      columns: oneColumn,
+      entityType: EntityType.contact,
+      isEditing,
+      onToggleEditing,
+      sectionId: "customFields",
+    }),
+  );
+}
 
 function view({
   canManage = true,
@@ -77,6 +121,7 @@ function view({
         columns,
         entityType: EntityType.contact,
         isEditing,
+        onToggleEditing: toggleEditing,
         sectionId: "customFields",
       }),
     ),
@@ -99,6 +144,7 @@ beforeEach(() => {
   upsertP13nAction.mockResolvedValue({ ok: true, data: {} });
   customColumnModalStore.initialize.mockReset();
   customColumnModalStore.open.mockReset();
+  toggleEditing.mockReset();
 });
 
 afterEach(() => {
@@ -131,6 +177,7 @@ describe("entity detail custom fields empty state", () => {
 
     expect(container.querySelector('[data-slot="empty-state"]')).not.toBeNull();
     expect(container.querySelector("[data-entity-add-custom-field]")).toBeNull();
+    expect(container.querySelector("[data-entity-custom-fields-mode-toggle]")).toBeNull();
   });
 
   it("renders the fields instead of the empty state once a custom column exists", () => {
@@ -146,5 +193,73 @@ describe("entity detail custom fields empty state", () => {
 
     expect(container.querySelector('[data-slot="empty-state"]')).toBeNull();
     expect(container.querySelector("[data-entity-add-custom-field]")).not.toBeNull();
+  });
+
+  it("offers a bordered, subdued edit toggle at the bottom of a populated section", () => {
+    const { container } = mount(view({ columns: oneColumn }));
+    const content = container.querySelector<HTMLElement>('[data-detail-section-content="customFields"]');
+    const toggle = container.querySelector<HTMLButtonElement>("[data-entity-custom-fields-mode-toggle]");
+
+    expect(toggle).not.toBeNull();
+    expect(toggle?.dataset.variant).toBe("field");
+    expect(toggle?.dataset.size).toBe("default");
+    expect(toggle?.classList.contains("bg-transparent")).toBe(true);
+    expect(toggle?.classList.contains("shadow-none")).toBe(true);
+    expect(toggle?.getAttribute("aria-pressed")).toBe("false");
+    expect(toggle?.textContent).toContain("Common.actions.editCustomFields");
+    expect(toggle?.closest('[data-detail-section-content="customFields"]')).toBe(content);
+    expect(toggle?.parentElement?.lastElementChild).toBe(toggle);
+
+    act(() => toggle?.click());
+
+    expect(toggleEditing).toHaveBeenCalledOnce();
+  });
+
+  it("turns the footer toggle into a cancel action while editing", () => {
+    const { container } = mount(view({ columns: oneColumn, isEditing: true }));
+    const content = container.querySelector<HTMLElement>('[data-detail-section-content="customFields"]');
+    const add = container.querySelector<HTMLButtonElement>("[data-entity-add-custom-field]");
+    const toggle = container.querySelector<HTMLButtonElement>("[data-entity-custom-fields-mode-toggle]");
+
+    expect(toggle?.getAttribute("aria-pressed")).toBe("true");
+    expect(toggle?.textContent).toContain("Common.actions.cancel");
+    expect(toggle?.closest('[data-detail-section-content="customFields"]')).toBe(content);
+    expect(toggle?.parentElement?.lastElementChild).toBe(toggle);
+    expect(add?.nextElementSibling).toBe(toggle);
+
+    act(() => toggle?.click());
+
+    expect(toggleEditing).toHaveBeenCalledOnce();
+  });
+
+  it("leaves personalization and field editing together when canceling from the footer", () => {
+    const { container } = mount(
+      createElement(
+        TestProvider,
+        {
+          config: {
+            p13nId: "contact-detail",
+            defaultStarredFieldIds: [],
+            defaultCollapsedSectionIds: [],
+            sectionIds: ["customFields"],
+          },
+          customColumnIds: [columnId],
+          persistenceScope: "user-1",
+        },
+        createElement(CustomizationJourney),
+      ),
+    );
+    const top = container.querySelector<HTMLButtonElement>("[data-test-top-customization]");
+
+    act(() => top?.click());
+
+    const cancel = container.querySelector<HTMLButtonElement>("[data-entity-custom-fields-mode-toggle]");
+    expect(top?.dataset.active).toBe("true");
+    expect(cancel?.textContent).toContain("Common.actions.cancel");
+
+    act(() => cancel?.click());
+
+    expect(top?.dataset.active).toBe("false");
+    expect(cancel?.textContent).toContain("Common.actions.editCustomFields");
   });
 });

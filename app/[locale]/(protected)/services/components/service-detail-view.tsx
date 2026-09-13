@@ -29,7 +29,8 @@ export const ServiceDetailView = observer(({ layout = "drawer" }: Props) => {
   const { plural } = useEntityTerminology();
   const { serviceDetailStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
-  const { canManage, isEditingCustomField, customColumns, fetchedEntity } = serviceDetailStore;
+  const { canManage, isEditingCustomField, customColumns, fetchedEntity, toggleEditingCustomField } =
+    serviceDetailStore;
 
   const amountEndContent = intlStore.companyCurrency ? (
     <span className="mr-1.5">{intlStore.formatCurrency(0).replace(/[\d\s,.-]/g, "")}</span>
@@ -142,6 +143,7 @@ export const ServiceDetailView = observer(({ layout = "drawer" }: Props) => {
           entityType={EntityType.service}
           isEditing={isEditingCustomField}
           sectionId={SERVICE_DETAIL_SECTION.customFields}
+          onToggleEditing={toggleEditingCustomField}
         />
       </EntityDetailSectionGroup>
     );
