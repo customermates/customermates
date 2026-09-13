@@ -27,19 +27,19 @@ Rules are AND-combined. For OR logic, run two queries and merge client-side, or 
 
 | Operator | Expects | Works on | Example value |
 |---|---|---|---|
-| `equals` | single | scalars, ids, text | `"active"` |
-| `contains` | single | text | `"acme"` |
-| `startsWith` | single | text | `"An"` |
+| `equals` | single | text fields (`name`, `firstName`, `lastName`, `url`) and currency, email, phone, plain and link custom columns; exact and case-sensitive | `"Acme"` |
+| `contains` | single | text fields (`name`, `firstName`, `lastName`, `url`), email, phone, plain and link custom columns, and date-range custom columns; case-insensitive | `"acme"` |
+| `startsWith` | single | `name`, `firstName`, `lastName`; case-insensitive | `"An"` |
 | `gt` | single | numbers, dates | `"2024-01-01"` |
 | `gte` | single | numbers, dates | `100` |
 | `lt` | single | numbers, dates | `"2024-12-31"` |
 | `lte` | single | numbers, dates | `"2024-12-31"` |
-| `in` | array | any | `["id1", "id2"]` |
-| `notIn` | array | any | `["id1"]` |
+| `in` | array | relationship arrays, id, enum and select fields, and singleSelect custom columns | `["id1", "id2"]` |
+| `notIn` | array | relationship arrays, id, enum and select fields, and singleSelect custom columns | `["id1"]` |
 | `between` | array of 2 | numbers, dates | `["2024-01-01", "2024-12-31"]` |
 | `inLastDays` | single (positive integer) | dates | `30` |
-| `isNull` | no value | any | (none) |
-| `isNotNull` | no value | any | (none) |
+| `isNull` | no value | custom columns only | (none) |
+| `isNotNull` | no value | custom columns only | (none) |
 | `hasNone` | no value | relationship arrays, messaging-thread draft status | (none) |
 | `hasSome` | no value | relationship arrays, messaging-thread draft status | (none) |
 | `hasUnset` | no value | messaging-thread participants | (none) |
@@ -51,7 +51,7 @@ Date fields such as `createdAt` and `updatedAt` accept `gt`, `gte`, `lt`, `lte`,
 
 ### Which operators work on text fields?
 
-Text fields such as a contact's `firstName` and `lastName` or an organization's `name` accept `equals`, `startsWith`, and `contains`. All three compare case-insensitively.
+Text fields such as a contact's `firstName` and `lastName` or an organization's `name` accept `equals`, `startsWith`, and `contains`. `contains` and `startsWith` compare case-insensitively; `equals` is an exact, case-sensitive match.
 
 ### Which relationship operators exist?
 
@@ -63,7 +63,7 @@ The `field` value is whatever `get_record_schema` returns under `filterableField
 
 - Default scalar fields (for example `createdAt`, `updatedAt`, and on contacts `firstName` and `lastName`).
 - Relationship arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`). Pair these with `in`, `notIn`, `hasNone`, `hasSome`. Some relation fields need read permission on the related record type.
-- Custom column ids. Use the column's UUID as the field; a singleSelect column filters on its option value.
+- Custom column ids. Use the column's UUID as the field; a singleSelect column accepts only `in`, `notIn`, `isNull` and `isNotNull` and filters on its option values.
 
 Always call `get_record_schema` first if you are not sure what is filterable. The error for an unknown field lists every available field with its allowed operators.
 
@@ -75,12 +75,12 @@ Contacts in any of three organizations:
 { "field": "organizationIds", "operator": "in", "value": ["org_1","org_2","org_3"] }
 ```
 
-Deals created in 2024 whose custom singleSelect column (identified by its UUID) equals a chosen option value:
+Deals created in 2024 whose custom singleSelect column (identified by its UUID) is set to a chosen option value:
 
 ```json
 [
   { "field": "createdAt", "operator": "between", "value": ["2024-01-01","2024-12-31"] },
-  { "field": "col_uuid",  "operator": "equals",  "value": "option_value" }
+  { "field": "col_uuid",  "operator": "in",      "value": ["option_value"] }
 ]
 ```
 
@@ -98,7 +98,7 @@ Records created in the last 30 days:
 
 ## Free-text search or a filter?
 
-`list_records` also accepts `searchTerm`, which runs a free-text search against the entity's name fields (firstName and lastName for contacts, name for the rest). Use `searchTerm` for "contacts whose name contains acme" when you do not care which name field matched; use a filter rule on `firstName` or `lastName` with `contains`, `startsWith`, or `equals` when the field matters or when you combine it with other rules.
+`list_records` also accepts `searchTerm`, which runs a free-text search against the entity's name fields plus related fields: for contacts `firstName`, `lastName`, channel identifier values and linked organization names; for organizations `name` plus linked contacts' first and last names; for deals, services and tasks `name`. Use `searchTerm` for "contacts whose name contains acme" when you do not care which name field matched; use a filter rule on `firstName` or `lastName` with `contains`, `startsWith`, or `equals` when the field matters or when you combine it with other rules.
 
 ## Next
 

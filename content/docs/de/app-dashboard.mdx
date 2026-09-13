@@ -7,20 +7,20 @@ Customermates ist ein Open-Source-CRM, KI-nativ gebaut. Diese Seite dokumentiert
 
 ## Was zeigt das Dashboard?
 
-Das Dashboard ist der Startbildschirm nach der Anmeldung. Es zeigt konfigurierbare Widgets über Ihren CRM-Daten: Pipelines, Aufgabenzahlen, letzte Aktivität, was immer Sie einrichten. Jedes Widget gehört dem Workspace, Teammitglieder sehen also dasselbe Board.
+Das Dashboard ist der Startbildschirm nach der Anmeldung. Es zeigt konfigurierbare Widgets über Ihren CRM-Daten: Pipelines, Aufgabenzahlen, letzte Aktivität, was immer Sie einrichten. Jedes Widget gehört Ihnen als Nutzer; Teammitglieder sehen es erst, wenn Sie es mit **Als Vorlage freigeben** teilen, und starten daraus ihre eigene Kopie.
 
 ## Welche Widget-Typen gibt es?
 
-Drücken Sie **Widget hinzufügen** (`#dashboard-add-widget`) und wählen Sie eine von zwei Arten:
+Drücken Sie **Widget hinzufügen** (`#dashboard-add-widget`); die Erstellung beginnt mit der Wahl zwischen zwei Arten oder einer Vorlage, die ein Teammitglied freigegeben hat:
 
-- **Diagramm**: aggregiert einen Datensatztyp. Wählen Sie den Datensatztyp, eine Gruppierungsachse (ein verknüpfter Kontakt, eine Organisation, ein Deal oder ein Service, eine Custom Column oder keine), eine Aggregation (Anzahl, Deal-Wert, Deal-Menge oder gewichteter Deal-Wert) und einen Darstellungstyp (vertikale oder horizontale Balken mit oder ohne Beschriftung, Doughnut oder Radar). Filter grenzen die Datenmenge ein; Deal-Diagramme können die zugehörigen Deals separat filtern.
+- **Diagramm**: aggregiert einen Datensatztyp. Wählen Sie den Datensatztyp, eine Gruppierungsachse (ein verknüpfter Kontakt, eine Organisation, ein Deal oder ein Service, eine Custom Column oder keine), eine Aggregation (Anzahl, Deal-Wert, Deal-Menge oder gewichteter Deal-Wert) und einen Darstellungstyp (vertikale oder horizontale Balken mit oder ohne Beschriftung, Doughnut oder Radar). Filter grenzen die Datenmenge ein; ein Diagramm über Kontakte, Organisationen, Services oder Aufgaben, das Deal-Wert, Deal-Menge oder gewichteten Deal-Wert aggregiert, erhält einen separaten Filter für die zugehörigen Deals.
 - **Aktivitätsverlauf**: ein Feed von Änderungen, Nachrichten und Aktivitäten verbundener Konten, neueste zuerst. Seine Filter gehören zu diesem Widget, sodass mehrere Verlaufs-Widgets unterschiedliche Ansichten zeigen können, ohne sich gegenseitig oder den Verlauf auf einer Datensatzseite zu verändern.
 
-Über MCP erstellt und ändert `manage_widgets` beide Arten mit denselben Optionen.
+Über MCP erstellt und aktualisiert `manage_widgets` beide Arten mit einem reduzierten Optionsumfang: Ein Diagramm entsteht aus Name, Datensatztyp, Darstellungstyp, Gruppierung und Aggregation plus optionalen Filtern und Gruppierungs-Column, und ein Update kann Name, Gruppierung, Filter, Achsenrichtung und Balkenfarben ändern, nicht aber Datensatztyp, Darstellungstyp oder Aggregation; ein Verlauf nimmt Name, Verlaufsfilter und das Flag zum Anzeigen der Filter.
 
 ### Was kann ein Aktivitätsverlauf zeigen?
 
-Die Kategorie **Änderungen** enthält Änderungen aus dem Audit-Log. **Nachrichten** enthält Nachrichten aus dem Posteingang. **Aktivitäten** enthält Aktivitäten verbundener Konten, etwa angenommene LinkedIn-Kontaktanfragen, sowie Kalenderereignisse.
+Die Kategorie **Datensatzänderungen** enthält Änderungen aus dem Audit-Log. **Nachrichten** enthält Nachrichten aus dem Posteingang. **Konto & Kalender** enthält Aktivitäten verbundener Konten, etwa angenommene LinkedIn-Kontaktanfragen, sowie Kalenderereignisse.
 
 Alle zugänglichen Datensätze bilden die implizite Basis. Filtern Sie einen Verlauf nach Kategorie, Anbieter, verbundenem Konto, Unterhaltung oder verknüpften Kontakten, Organisationen, Deals, Services und Aufgaben. Jedes Feld kann einmal konfiguriert werden. Beziehungsfilter verwenden dieselben Operatoren wie Datensatzlisten: **ist in** und **ist nicht in** akzeptieren einen oder mehrere Datensätze, während **hat welche** und **hat keine** keinen Wert benötigen. Verschiedene Filterfelder werden mit UND verknüpft, mehrere Werte innerhalb eines **ist in**-Filters mit ODER. Nicht verknüpfte Einträge erfüllen positive Beziehungsfilter nicht und negative schon. Filter werden dauerhaft, wenn Sie das Widget speichern.
 
@@ -35,11 +35,11 @@ Die neuesten Einträge stehen zuerst. Mit **Ältere laden** öffnen Sie die näc
 | Beide Berechtigungen, in einem Tarif mit Messaging | Ein zusammengeführter Verlauf mit allen zulässigen Quellen |
 | Keine von beiden | Ein neutraler Hinweis auf fehlende Verfügbarkeit |
 
-Audit-Log-Änderungen sind unabhängig von der Messaging-Berechtigung verfügbar. Nachrichten, Aktivitäten verbundener Konten und Kalenderereignisse erfordern Zugriff auf den Posteingang und im Cloud-Modus einen Tarif mit Messaging (Pro und höher). Ein fehlendes verbundenes Messaging-Konto entfernt die Messaging-basierten Quellen, verbirgt aber keine zulässigen Audit-Änderungen. Gelöschte oder neu unzugängliche Filterwerte liefern keine Treffer mehr, werden zur sicheren Entfernung als **Nicht verfügbarer Wert** angezeigt und geben nie ihre rohen Ids preis.
+Audit-Log-Änderungen sind unabhängig von der Messaging-Berechtigung verfügbar. Nachrichten, Aktivitäten verbundener Konten und Kalenderereignisse erfordern den Cloud-Modus, Zugriff auf den Posteingang und einen Tarif mit Messaging (Pro und höher). Ein fehlendes verbundenes Messaging-Konto entfernt die Messaging-basierten Quellen, verbirgt aber keine zulässigen Audit-Änderungen. Gelöschte oder neu unzugängliche Filterwerte liefern keine Treffer mehr, werden zur sicheren Entfernung auf dem Filter-Chip als **Filter nicht verfügbar** und in der Werteauswahl als **Auswahl nicht verfügbar** angezeigt und geben nie ihre rohen Ids preis.
 
 ## Wie funktioniert der Widget-Editor?
 
-Das Widget-Modal ist in drei Tabs organisiert: `#widget-tab-data` (**Daten**) wählt die Quelle (Datensatztyp oder Aktivitätsverlauf) und die Aggregation, `#widget-tab-filters` (**Filter**) grenzt ein, was zählt (`#widget-entity-filters-heading` markiert den Block der Datensatzfilter), und `#widget-tab-appearance` (**Darstellung**) bestimmt Darstellungstyp, Achsen und Farben. Eine Live-Vorschau unter `#widget-preview-heading` spiegelt jede Änderung vor dem Speichern, und `#widget-template-heading` bietet fertige Startpunkte. Speichern oder verwerfen Sie mit `#widget-modal-save` (**Speichern**) / `#widget-modal-reset` (**Zurücksetzen**); der Reset-Button erscheint bei ungespeicherten Änderungen.
+Bei einem Diagramm-Widget ist das Modal in drei Tabs organisiert: `#widget-tab-data` (**Daten**) wählt den Datensatztyp und die Aggregation, `#widget-tab-filters` (**Filter**) grenzt ein, was zählt (`#widget-entity-filters-heading` markiert den Block der Datensatzfilter), und `#widget-tab-appearance` (**Darstellung**) bestimmt Darstellungstyp, Achsen und Farben. Eine Live-Vorschau unter `#widget-preview-heading` spiegelt jede Änderung vor dem Speichern, und `#widget-template-heading` bietet fertige Startpunkte. Speichern oder verwerfen Sie mit `#widget-modal-save` (**Speichern**) / `#widget-modal-reset` (**Zurücksetzen**); der Reset-Button erscheint bei ungespeicherten Änderungen. Ein Aktivitätsverlauf-Widget hat zwei Tabs: `#widget-tab-data`, der auch seine Verlaufsfilter enthält, und `#widget-tab-appearance`.
 
 ## Welche Controls bringt die Sidebar mit?
 
@@ -57,12 +57,12 @@ Die Sidebar ist auf jedem Screen dieselbe; ihre Controls sind hier dokumentiert,
 
 ## Was passiert beim ersten Start?
 
-Neue Accounts landen im [Onboarding-Wizard](/docs/app-onboarding) unter `/onboarding/wizard`, bevor sie das Dashboard sehen. Er hat drei Schritte: Ihr Profil, das Verbinden eines KI-Clients und Team-Einladungen. Nur der Einladungsschritt trägt die stabilen Ids `#onboarding-next` und `#onboarding-back`.
+Neue Accounts landen im [Onboarding-Wizard](/docs/app-onboarding) unter `/onboarding/wizard`, bevor sie das Dashboard sehen. Er hat drei Schritte: Ihr Profil, Team-Einladungen und das Verbinden eines KI-Clients. Nur der Einladungsschritt trägt die stabilen Ids `#onboarding-next` und `#onboarding-back`.
 
 ## Tipps für Agents
 
 - Der gehostete Assistent Mate kann hierher navigieren und `#nav-dashboard` sowie `#dashboard-add-widget` hervorheben; Widgets erstellt er über `manage_widgets`, statt das Modal zu bedienen.
-- Zeilen tragen nie Ids. Öffnen Sie einen Datensatz über seine Seiten-URL `/{type}/{id}`. Der Drawer-Deep-Link `?open={entityType}:new` legt einen Datensatz an und funktioniert nur auf Entitätsseiten.
+- Zeilen tragen nie Ids. Öffnen Sie einen Datensatz über seine Seiten-URL `/{type}/{id}`. Der Drawer-Deep-Link `?open={entityType}:new` legt einen Datensatz an und funktioniert auf jeder angemeldeten Seite, auch auf dem Dashboard.
 - Bevorzugen Sie [MCP](/docs/mcp)-Tools statt Klicken, wenn ein Tool existiert. CRM-Daten lesen und schreiben ist über Tools schneller und sicherer als über die UI.
 
 ## Verwandt

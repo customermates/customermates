@@ -19,7 +19,7 @@ Each record has `id`, `createdAt`, `updatedAt`, and supports markdown `notes`. E
 
 ## How do relationships link records?
 
-Relationships are typed and many-to-many. A contact belongs to zero or more organizations and zero or more deals. A deal belongs to zero or more contacts, organizations, and services (with quantities), plus assignees.
+Relationships are typed and many-to-many. A contact belongs to zero or more organizations, deals, and users. A deal belongs to zero or more contacts, organizations, and services (with quantities), plus assignees.
 
 | From to | Example |
 |---|---|
@@ -27,10 +27,10 @@ Relationships are typed and many-to-many. A contact belongs to zero or more orga
 | Contact to Deal | "Max is a stakeholder on the Q2 contract" |
 | Organization to Deal | "The Q2 contract is with Initech" |
 | Deal to Service (with quantity) | "5 hours consulting plus 1 setup fee" |
-| Deal / Service / Task to User | "Assigned to Julia" |
+| Contact / Organization / Deal / Service / Task to User | "Assigned to Julia" |
 | Task to Contact / Organization / Deal / Service | "Follow up on the Q2 contract" |
 
-Tasks link to users, contacts, organizations, deals, and services. Over MCP, links change only through `manage_record_links`; the update tools never touch them. Over REST, sending a relation array replaces that whole set, and `null` or `[]` clears it.
+Tasks link to users, contacts, organizations, deals, and services. Over MCP, links change through `manage_record_links`, with one exception: `update_deals` keeps `services` (deal-to-service links with quantities) on its update schema. Every other relation changes only through `manage_record_links`; the other update tools never touch links. Over REST, sending a relation array replaces that whole set, and `null` or `[]` clears it.
 
 ## What are custom columns?
 
@@ -40,24 +40,24 @@ Ten types:
 
 | Type | Use for |
 |---|---|
-| **Plain** | Free-text values |
-| **Date** | Calendar dates (renewal, next touch, a task's due date) |
-| **DateRange** | A start and end date |
-| **DateTime** | Timestamps |
-| **DateTimeRange** | A start and end timestamp |
-| **Currency** | Money amounts, stored with an ISO currency code |
-| **Single-select** | A value from a fixed option list |
-| **Link** | One or more URLs |
-| **Email** | One or more email addresses |
-| **Phone** | One or more phone numbers |
+| **Text** (`plain`) | Free-text values |
+| **Date** (`date`) | Calendar dates (renewal, next touch, a task's due date) |
+| **Date Range** (`dateRange`) | A start and end date |
+| **Date & Time** (`dateTime`) | Timestamps |
+| **Date & Time Range** (`dateTimeRange`) | A start and end timestamp |
+| **Currency** (`currency`) | Money amounts, stored with an ISO currency code |
+| **Single Select** (`singleSelect`) | A value from a fixed option list |
+| **Link** (`link`) | One or more URLs |
+| **Email** (`email`) | One or more email addresses |
+| **Phone** (`phone`) | One or more phone numbers |
 
-Single-select columns are how you model your own workflows. A deal "Stage" or a task "Priority" is a single-select column you define, with the options you choose, per workspace. A board view can then group records by any single-select column, and the value is what filters and tools compare against.
+Single Select columns are how you model your own workflows. A deal "Stage" or a task "Priority" is a Single Select column you define, with the options you choose, per workspace. A board view can then group records by any Single Select column, and the value is what filters and tools compare against.
 
 Custom columns are first-class in filters, widgets, and the MCP surface: `manage_custom_columns` creates and updates them, and every record tool reads and writes their values through `customFieldValues` with the column id from `get_record_schema`.
 
 ### How does a weighted pipeline work?
 
-A workspace can mark one single-select deal column as the weighting column and give each of its options a weight in percent, for example Qualified 20 and Proposal 60. Each deal then carries `weightedValue` = its total value multiplied by the weight of its current option, or no weighted value when the option carries no weight. `list_records` returns the sum of both values across every matching deal, and a dashboard chart can aggregate by deal weighted value.
+A workspace can mark one Single Select deal column as the weighting column and give each of its options a weight in percent, for example Qualified 20 and Proposal 60. Each deal then carries `weightedValue` = its total value multiplied by the weight of its current option, or no weighted value when the option carries no weight. `list_records` returns the sum of both values across every matching deal, and a dashboard chart can aggregate by deal weighted value.
 
 ## What are widgets?
 

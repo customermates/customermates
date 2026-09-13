@@ -7,7 +7,7 @@ API-Keys authentifizieren Clients für das Model Context Protocol (MCP) und die 
 
 ## Wie lege ich einen API-Key an?
 
-Öffnen Sie **Profil**, dann den Tab **API & Konnektoren** (`/profile/api-keys`), und klicken Sie auf **Hinzufügen**. Der Dialog bietet zwei Wege:
+Öffnen Sie **Mein Profil**, dann den Tab **API & Konnektoren** (`/profile/api-keys`), und klicken Sie auf **Hinzufügen**. Der Dialog bietet zwei Wege:
 
 - **Standard-API-Key**: Geben Sie einen Namen, der den Einsatzort benennt, zum Beispiel `Claude Desktop, privater Laptop`, und optional ein Ablaufdatum. Der Key wird einmal angezeigt; kopieren Sie ihn, bevor Sie den Dialog schließen.
 - **Schnellverbindungen**: Wählen Sie Claude, ChatGPT und Codex, Cursor oder Gemini; der Dialog legt den Key an und zeigt das Setup-Snippet dieses Clients.
@@ -40,7 +40,7 @@ Rotieren Sie, wenn ein Gerät mit dem Key verloren geht oder kompromittiert ist,
 
 ## Welches Format hat ein Key?
 
-Keys sind 64 Zeichen lang, Base62 (`a-z A-Z 0-9`), erzeugt vom better-auth-API-Key-Plugin und gehasht gespeichert. Der vollständige Key wird nur bei der Erstellung angezeigt und lässt sich danach nicht mehr abrufen.
+Keys bestehen aus 64 ASCII-Buchstaben (`a-z A-Z`), erzeugt vom better-auth-API-Key-Plugin und gehasht gespeichert. Der vollständige Key wird nur bei der Erstellung angezeigt und lässt sich danach nicht mehr abrufen.
 
 ## Welche Berechtigungen hat ein Key?
 

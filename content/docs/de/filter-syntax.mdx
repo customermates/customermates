@@ -27,19 +27,19 @@ Regeln sind UND-verknüpft. Für ODER-Logik lassen Sie zwei Abfragen laufen und 
 
 | Operator | Erwartet | Wirkt auf | Beispielwert |
 |---|---|---|---|
-| `equals` | einen Wert | Skalare, IDs, Text | `"active"` |
-| `contains` | einen Wert | Text | `"acme"` |
-| `startsWith` | einen Wert | Text | `"An"` |
+| `equals` | einen Wert | Textfelder (`name`, `firstName`, `lastName`, `url`) sowie Custom Columns der Typen Währung, E-Mail, Telefon, Text und Link; exakt und mit Beachtung der Groß- und Kleinschreibung | `"Acme"` |
+| `contains` | einen Wert | Textfelder (`name`, `firstName`, `lastName`, `url`), Custom Columns der Typen E-Mail, Telefon, Text und Link sowie Datumsbereich-Custom-Columns; ohne Beachtung der Groß- und Kleinschreibung | `"acme"` |
+| `startsWith` | einen Wert | `name`, `firstName`, `lastName`; ohne Beachtung der Groß- und Kleinschreibung | `"An"` |
 | `gt` | einen Wert | Zahlen, Daten | `"2024-01-01"` |
 | `gte` | einen Wert | Zahlen, Daten | `100` |
 | `lt` | einen Wert | Zahlen, Daten | `"2024-12-31"` |
 | `lte` | einen Wert | Zahlen, Daten | `"2024-12-31"` |
-| `in` | Array | beliebig | `["id1", "id2"]` |
-| `notIn` | Array | beliebig | `["id1"]` |
+| `in` | Array | Relationship-Arrays, ID-, Enum- und Auswahlfelder sowie singleSelect-Custom-Columns | `["id1", "id2"]` |
+| `notIn` | Array | Relationship-Arrays, ID-, Enum- und Auswahlfelder sowie singleSelect-Custom-Columns | `["id1"]` |
 | `between` | Array aus 2 | Zahlen, Daten | `["2024-01-01", "2024-12-31"]` |
 | `inLastDays` | einen Wert (positive Ganzzahl) | Daten | `30` |
-| `isNull` | keinen Wert | beliebig | (keiner) |
-| `isNotNull` | keinen Wert | beliebig | (keiner) |
+| `isNull` | keinen Wert | nur Custom Columns | (keiner) |
+| `isNotNull` | keinen Wert | nur Custom Columns | (keiner) |
 | `hasNone` | keinen Wert | Relationship-Arrays, Draft-Status von Messaging-Threads | (keiner) |
 | `hasSome` | keinen Wert | Relationship-Arrays, Draft-Status von Messaging-Threads | (keiner) |
 | `hasUnset` | keinen Wert | Teilnehmer von Messaging-Threads | (keiner) |
@@ -51,7 +51,7 @@ Datumsfelder wie `createdAt` und `updatedAt` akzeptieren `gt`, `gte`, `lt`, `lte
 
 ### Welche Operatoren wirken auf Textfelder?
 
-Textfelder wie `firstName` und `lastName` eines Kontakts oder `name` einer Organisation akzeptieren `equals`, `startsWith` und `contains`. Alle drei vergleichen ohne Beachtung der Groß- und Kleinschreibung.
+Textfelder wie `firstName` und `lastName` eines Kontakts oder `name` einer Organisation akzeptieren `equals`, `startsWith` und `contains`. `contains` und `startsWith` vergleichen ohne Beachtung der Groß- und Kleinschreibung; `equals` ist ein exakter Abgleich mit Beachtung der Groß- und Kleinschreibung.
 
 ### Welche Relationship-Operatoren gibt es?
 
@@ -63,7 +63,7 @@ Der Wert von `field` ist, was `get_record_schema` unter `filterableFields` für 
 
 - Standard-Skalarfelder (zum Beispiel `createdAt`, `updatedAt` und bei Kontakten `firstName` und `lastName`).
 - Relationship-Arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`). Kombinieren Sie sie mit `in`, `notIn`, `hasNone`, `hasSome`. Manche Relationsfelder brauchen Leseberechtigung auf den verknüpften Datensatztyp.
-- Custom-Column-IDs. Nutzen Sie die UUID der Spalte als Feld; eine singleSelect-Spalte filtert auf ihren Optionswert.
+- Custom-Column-IDs. Nutzen Sie die UUID der Spalte als Feld; eine singleSelect-Spalte akzeptiert nur `in`, `notIn`, `isNull` und `isNotNull` und filtert auf ihre Optionswerte.
 
 Rufen Sie immer zuerst `get_record_schema` auf, wenn Sie unsicher sind, was filterbar ist. Die Fehlermeldung bei einem unbekannten Feld listet jedes verfügbare Feld mit seinen erlaubten Operatoren.
 
@@ -75,12 +75,12 @@ Kontakte in einer von drei Organisationen:
 { "field": "organizationIds", "operator": "in", "value": ["org_1","org_2","org_3"] }
 ```
 
-Deals aus 2024, deren Custom-singleSelect-Spalte (identifiziert über ihre UUID) einem gewählten Optionswert entspricht:
+Deals aus 2024, deren Custom-singleSelect-Spalte (identifiziert über ihre UUID) auf einen gewählten Optionswert gesetzt ist:
 
 ```json
 [
   { "field": "createdAt", "operator": "between", "value": ["2024-01-01","2024-12-31"] },
-  { "field": "col_uuid",  "operator": "equals",  "value": "option_value" }
+  { "field": "col_uuid",  "operator": "in",      "value": ["option_value"] }
 ]
 ```
 
@@ -98,7 +98,7 @@ Datensätze der letzten 30 Tage:
 
 ## Freitextsuche oder Filter?
 
-`list_records` akzeptiert auch `searchTerm`, eine Freitextsuche über die Namensfelder der Entity (firstName und lastName bei Kontakten, name beim Rest). Nutzen Sie `searchTerm` für "Kontakte, deren Name acme enthält", wenn es Ihnen egal ist, welches Namensfeld getroffen hat; nutzen Sie eine Filterregel auf `firstName` oder `lastName` mit `contains`, `startsWith` oder `equals`, wenn das Feld eine Rolle spielt oder wenn Sie sie mit anderen Regeln kombinieren.
+`list_records` akzeptiert auch `searchTerm`, eine Freitextsuche über die Namensfelder der Entity plus verwandte Felder: bei Kontakten `firstName`, `lastName`, Werte der Kanal-Identifikatoren und Namen verknüpfter Organisationen; bei Organisationen `name` plus Vor- und Nachnamen verknüpfter Kontakte; bei Deals, Services und Aufgaben `name`. Nutzen Sie `searchTerm` für "Kontakte, deren Name acme enthält", wenn es Ihnen egal ist, welches Namensfeld getroffen hat; nutzen Sie eine Filterregel auf `firstName` oder `lastName` mit `contains`, `startsWith` oder `equals`, wenn das Feld eine Rolle spielt oder wenn Sie sie mit anderen Regeln kombinieren.
 
 ## Weiter
 

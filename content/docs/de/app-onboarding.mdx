@@ -1,21 +1,21 @@
 ---
 title: "Onboarding-Wizard"
-description: "Das Setup in drei Schritten nach der Registrierung: Profil, KI-Client verbinden und Team-Einladungen, mit den stabilen Ids, die Agents steuern können."
+description: "Das Setup in drei Schritten nach der Registrierung: Profil, Team-Einladungen und KI-Client verbinden, mit den stabilen Ids, die Agents steuern können."
 ---
 
-Ein frischer Workspace öffnet direkt nach der Registrierung den Onboarding-Wizard unter `/onboarding/wizard`. Er läuft genau einmal; nach dem Abschluss landen Sie auf dem Dashboard. Diese Seite dokumentiert den Wizard für Menschen und für KI-Agents, die die UI steuern.
+Nach der Registrierung landen Sie zuerst unter `/onboarding`, wo Sie einen Workspace anlegen oder über eine Einladung einem beitreten, und danach im Onboarding-Wizard unter `/onboarding/wizard`. Er läuft genau einmal; nach dem Abschluss landen Sie auf dem Dashboard. Diese Seite dokumentiert den Wizard für Menschen und für KI-Agents, die die UI steuern.
 
 ## Welche drei Schritte gibt es?
 
 <Steps>
 <Step title="Ihr Profil">
-Ihr Name und Ihr Land sowie die Checkbox für die Nutzungsbedingungen. Die Felder sind gewöhnliche Formulareingaben (`firstName`, `lastName`, `country`, `agreeToTerms`), adressierbar über ihre sichtbaren Labels. Dieser Schritt ist erforderlich.
-</Step>
-<Step title="KI verbinden">
-Verbinden Sie einen externen KI-Client (Claude, ChatGPT und Codex, Cursor oder Gemini) mit dem [MCP-Endpoint](/docs/mcp) des Workspace. Der Flow erstellt einen API-Key für den gewählten Client und zeigt dessen Einrichtungsausschnitt. Dieser Schritt ist überspringbar; derselbe Flow bleibt auf der Seite [Profil](/docs/app-profile) verfügbar, und der eingebaute [Assistent](/docs/app-assistant) Mate funktioniert auch ohne ihn.
+Ihr Name und Ihr Land. Die Felder sind gewöhnliche Formulareingaben (`firstName`, `lastName`, `country`), adressierbar über ihre sichtbaren Labels; die Checkbox für die Nutzungsbedingungen (`agreeToTerms`) wird nur im Cloud-Modus angezeigt. Dieser Schritt ist erforderlich.
 </Step>
 <Step title="Team einladen">
-Laden Sie Teammitglieder per E-Mail ein oder kopieren Sie den teilbaren Link der Form `/invitation/{token}`. Wer sich über diesen Link registriert, tritt dem Workspace mit dem Status **Wartet auf Genehmigung** bei, bis ein Admin auf der Seite [Unternehmen](/docs/app-company) eine Rolle zuweist und die Person aktiviert. Dieser Schritt ist überspringbar und lässt sich später von der Seite Unternehmen aus wiederholen.
+Laden Sie Teammitglieder per E-Mail ein oder kopieren Sie den teilbaren Link der Form `/invitation/{token}`. Wer sich über diesen Link registriert, tritt dem Workspace mit dem Status **Wartet auf Genehmigung** bei, bis ein Admin auf der Seite [Unternehmen](/docs/app-company) eine Rolle zuweist und die Person aktiviert. Dieser Schritt ist überspringbar und lässt sich später von der Seite Unternehmen aus wiederholen; **Weiter** (`#onboarding-next`) führt zu KI verbinden.
+</Step>
+<Step title="KI verbinden">
+Verbinden Sie einen externen KI-Client (Claude, ChatGPT und Codex, Cursor oder Gemini) mit dem [MCP-Endpoint](/docs/mcp) des Workspace. Bei den lokalen Einrichtungen (Claude Code oder Claude Desktop, Codex, Cursor, Gemini) erstellt der Flow einen API-Key für den gewählten Client und zeigt dessen Einrichtungsausschnitt; die Methoden Claude-Konto und ChatGPT-App verbinden sich über den gehosteten Konnektor und erstellen keinen Key. Dieser Schritt ist mit **Später einrichten** überspringbar; derselbe Flow bleibt auf der Seite [Mein Profil](/docs/app-profile) verfügbar, und der eingebaute [Assistent](/docs/app-assistant) Mate funktioniert auch ohne ihn. Der Wizard wird mit **Fertig** in der eigenen Fußzeile dieses Schritts abgeschlossen.
 </Step>
 </Steps>
 
@@ -23,16 +23,16 @@ Laden Sie Teammitglieder per E-Mail ein oder kopieren Sie den teilbaren Link der
 
 | Control | Id | Wo vorhanden |
 |---|---|---|
-| Zurück zum vorherigen Schritt | `#onboarding-back` (**Zurück**) | Nur im Einladungsschritt |
-| Wizard abschließen | `#onboarding-next` (**Fertig**) | Nur im Einladungsschritt |
+| Zurück zum Profil-Schritt | `#onboarding-back` (**Zurück**) | Nur im Einladungsschritt; deaktiviert, wenn der Wizard im Einladungsschritt geöffnet wurde, weil das Profil bereits vollständig war |
+| Weiter zu KI verbinden | `#onboarding-next` (**Weiter**) | Nur im Einladungsschritt |
 
-Der Profil- und der KI-Schritt verwenden eigene Buttons ohne stabile Ids: Steuern Sie diese über ihre sichtbaren Labels. Innerhalb jedes Schritts sind die Felder ein normales Formular; füllen Sie es per Label aus und aktivieren Sie dann den Primär-Button des Schritts.
+Der Profil- und der KI-Schritt verwenden eigene Buttons ohne stabile Ids (**Zurück**, **Später einrichten** und **Fertig** im KI-Schritt): Steuern Sie diese über ihre sichtbaren Labels. Innerhalb jedes Schritts sind die Felder ein normales Formular; füllen Sie es per Label aus und aktivieren Sie dann den Primär-Button des Schritts.
 
 ## Häufige Fragen
 
 <Faq>
 <FaqItem question="Kann ich Schritte überspringen?">
-Der KI- und der Einladungsschritt sind überspringbar. Einladungen lassen sich später von der Seite Unternehmen aus verschicken, und der KI-Client-Flow bleibt auf der Seite Profil verfügbar. Der Profil-Schritt ist erforderlich.
+Der Einladungs- und der KI-Schritt sind überspringbar. Einladungen lassen sich später von der Seite Unternehmen aus verschicken, und der KI-Client-Flow bleibt auf der Seite Profil verfügbar. Der Profil-Schritt ist erforderlich.
 </FaqItem>
 <FaqItem question="Was passiert mit Personen, die sich über den Einladungslink registrieren?">
 Sie treten dem Workspace mit dem Status Wartet auf Genehmigung bei. Ein Admin weist auf der Seite Unternehmen eine Rolle zu und aktiviert sie; bis dahin können sie nicht im Workspace arbeiten.

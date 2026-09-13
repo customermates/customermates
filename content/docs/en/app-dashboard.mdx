@@ -7,20 +7,20 @@ Customermates is an open-source, AI-native CRM. This page documents the **Dashbo
 
 ## What does the Dashboard show?
 
-The Dashboard is the landing screen after sign-in. It shows configurable widgets over your CRM data: pipelines, task counts, recent activity, whatever you set up. Every widget belongs to the workspace, so teammates see the same board.
+The Dashboard is the landing screen after sign-in. It shows configurable widgets over your CRM data: pipelines, task counts, recent activity, whatever you set up. Every widget belongs to you as a user; teammates see it only after you share it with **Share as a template**, which lets them start their own copy from it.
 
 ## Which widget types exist?
 
-Press **Add widget** (`#dashboard-add-widget`) and choose one of two kinds:
+Press **Add widget** (`#dashboard-add-widget`); creation starts with a choice between two kinds, or a template a teammate shared:
 
-- **Chart**: aggregates one record type. Pick the record type, a group-by axis (a linked contact, organization, deal or service, a custom column, or none), an aggregation (count, deal value, deal quantity, or deal weighted value), and a display type (vertical or horizontal bars with or without labels, doughnut, or radar). Filters narrow the data set; deal charts can filter the related deals separately.
+- **Chart**: aggregates one record type. Pick the record type, a group-by axis (a linked contact, organization, deal or service, a custom column, or none), an aggregation (count, deal value, deal quantity, or deal weighted value), and a display type (vertical or horizontal bars with or without labels, doughnut, or radar). Filters narrow the data set; a chart over contacts, organizations, services or tasks that aggregates deal value, deal quantity or deal weighted value gets a separate filter for the related deals.
 - **Activity timeline**: a newest-first feed of changes, messages and connected-account activity. Its filters belong to that widget, so several timeline widgets can show different views without changing each other or the timeline on a record page.
 
-Over MCP, `manage_widgets` creates and changes both kinds with the same options.
+Over MCP, `manage_widgets` creates and updates both kinds with a reduced option set: a chart is created from name, entity type, display type, group-by and aggregation plus optional filters and group-by column, and an update can change its name, group-by, filters, axis direction and bar colors but not its entity, display or aggregation type; a timeline takes a name, timeline filters and the show-filters flag.
 
 ### What can an activity timeline show?
 
-The **Changes** category contains audit-log changes. **Messages** contains Inbox messages. **Activities** contains connected-account activity, such as accepted LinkedIn connections, and calendar events.
+The **Record changes** category contains audit-log changes. **Messages** contains Inbox messages. **Account & calendar** contains connected-account activity, such as accepted LinkedIn connections, and calendar events.
 
 All accessible records are the implicit baseline. Filter a timeline by category, provider, connected account, conversation, or related contacts, organizations, deals, services, and tasks. Each field can be configured once. Relationship filters use the same operators as record lists: **in** and **not in** accept one or more records, while **has some** and **has none** need no value. Different filter fields are AND-combined, and multiple values within one **in** filter are OR-combined. Unlinked entries fail positive relationship filters and pass negative ones. Filters become persistent when you save the widget.
 
@@ -35,11 +35,11 @@ Entries are shown newest first. Use **Load older** for the next bounded page. A 
 | Both permissions, on a plan with messaging | One merged timeline containing all permitted sources |
 | Neither | A non-sensitive unavailable state |
 
-Audit-log changes are available independently of the messaging entitlement. Messages, connected-account activities, and calendar events require Inbox access and, in cloud mode, a plan with messaging (Pro and above). A missing connected messaging account removes messaging-based sources but does not hide permitted audit changes. Deleted or newly inaccessible filter values stop matching, are shown as **Unavailable value** for safe removal, and never expose their raw ids.
+Audit-log changes are available independently of the messaging entitlement. Messages, connected-account activities, and calendar events require cloud mode, Inbox access, and a plan with messaging (Pro and above). A missing connected messaging account removes messaging-based sources but does not hide permitted audit changes. Deleted or newly inaccessible filter values stop matching, are shown as **Filter not available** on the filter chip and **Selection unavailable** in the value picker for safe removal, and never expose their raw ids.
 
 ## How does the widget editor work?
 
-The widget modal is organized in three tabs: `#widget-tab-data` chooses the source (record type or activity timeline) and the aggregation, `#widget-tab-filters` narrows what counts (`#widget-entity-filters-heading` marks the record filter block), and `#widget-tab-appearance` sets the display type, axes, and colors. A live preview under `#widget-preview-heading` reflects every change before you save, and `#widget-template-heading` offers ready-made starting points. Save or discard with `#widget-modal-save` / `#widget-modal-reset`; the reset button appears with unsaved changes.
+For a chart widget the modal is organized in three tabs: `#widget-tab-data` chooses the record type and the aggregation, `#widget-tab-filters` narrows what counts (`#widget-entity-filters-heading` marks the record filter block), and `#widget-tab-appearance` sets the display type, axes, and colors. A live preview under `#widget-preview-heading` reflects every change before you save, and `#widget-template-heading` offers ready-made starting points. Save or discard with `#widget-modal-save` / `#widget-modal-reset`; the reset button appears with unsaved changes. An activity-timeline widget has two tabs: `#widget-tab-data`, which also holds its timeline filters, and `#widget-tab-appearance`.
 
 ## Which controls does the sidebar add?
 
@@ -57,12 +57,12 @@ The sidebar is the same on every screen; its controls are documented here becaus
 
 ## What happens on first run?
 
-New accounts land in the [onboarding wizard](/docs/app-onboarding) at `/onboarding/wizard` before they see the Dashboard. It has three steps: your profile, connecting an AI client, and team invites. Only the invite step carries the stable ids `#onboarding-next` and `#onboarding-back`.
+New accounts land in the [onboarding wizard](/docs/app-onboarding) at `/onboarding/wizard` before they see the Dashboard. It has three steps: your profile, team invites, and connecting an AI client. Only the invite step carries the stable ids `#onboarding-next` and `#onboarding-back`.
 
 ## Tips for agents
 
 - The hosted assistant can navigate here and highlight `#nav-dashboard` and `#dashboard-add-widget`; it creates widgets through `manage_widgets` instead of driving the modal.
-- Rows never carry ids. Open a record via its page URL `/{type}/{id}`. The drawer deep-link `?open={entityType}:new` adds a record and works on entity pages only.
+- Rows never carry ids. Open a record via its page URL `/{type}/{id}`. The drawer deep-link `?open={entityType}:new` adds a record and works on every signed-in page, the Dashboard included.
 - Prefer [MCP](/docs/mcp) tools over clicking when a tool exists. Reading and writing CRM data is faster and safer through tools than through the UI.
 
 ## Related

@@ -1,21 +1,21 @@
 ---
 title: "Onboarding Wizard"
-description: "The three-step setup a fresh workspace walks through after sign-up: profile, connecting an AI client, and team invites, with the stable ids agents can drive."
+description: "The three-step setup a fresh workspace walks through after sign-up: profile, team invites, and connecting an AI client, with the stable ids agents can drive."
 ---
 
-A fresh workspace opens the onboarding wizard at `/onboarding/wizard` right after sign-up. It runs once; finishing it lands on the dashboard. This page documents the wizard for people and for AI agents that drive the UI.
+A fresh sign-up first lands on `/onboarding`, where you create a workspace or join one through an invitation, and then opens the onboarding wizard at `/onboarding/wizard`. It runs once; finishing it lands on the dashboard. This page documents the wizard for people and for AI agents that drive the UI.
 
 ## What are the three steps?
 
 <Steps>
 <Step title="Your profile">
-Your name and country, plus the terms checkbox. The fields are ordinary form inputs (`firstName`, `lastName`, `country`, `agreeToTerms`) addressed by their visible labels. This step is required.
-</Step>
-<Step title="Connect your AI">
-Connect an external AI client (Claude, ChatGPT and Codex, Cursor, or Gemini) to the workspace's [MCP endpoint](/docs/mcp). The flow creates an API key for the chosen client and shows its setup snippet. This step can be skipped; the same flow stays available on the [Profile page](/docs/app-profile), and the in-app [Assistant](/docs/app-assistant) works without it.
+Your name and country. The fields are ordinary form inputs (`firstName`, `lastName`, `country`) addressed by their visible labels; the terms checkbox (`agreeToTerms`) is rendered only in cloud mode. This step is required.
 </Step>
 <Step title="Invite your team">
-Invite teammates by email, or copy the shareable link of the form `/invitation/{token}`. Anyone who registers through that link joins the workspace as **Waiting for Approval** until an admin assigns a role and activates them on the [Company page](/docs/app-company). This step can be skipped and repeated later from the Company page.
+Invite teammates by email, or copy the shareable link of the form `/invitation/{token}`. Anyone who registers through that link joins the workspace as **Waiting for Approval** until an admin assigns a role and activates them on the [Company page](/docs/app-company). This step can be skipped and repeated later from the Company page; **Next** (`#onboarding-next`) moves on to Connect your AI.
+</Step>
+<Step title="Connect your AI">
+Connect an external AI client (Claude, ChatGPT and Codex, Cursor, or Gemini) to the workspace's [MCP endpoint](/docs/mcp). For the local setups (Claude Code or Claude Desktop, Codex, Cursor, Gemini) the flow creates an API key for the chosen client and shows its setup snippet; the Claude account and ChatGPT app methods connect through the hosted connector and create no key. This step can be skipped with **Skip for now**; the same flow stays available on the [Profile page](/docs/app-profile), and the in-app [Assistant](/docs/app-assistant) works without it. The wizard is finished with **Finish** in this step's own footer.
 </Step>
 </Steps>
 
@@ -23,16 +23,16 @@ Invite teammates by email, or copy the shareable link of the form `/invitation/{
 
 | Control | Id | Where it exists |
 |---|---|---|
-| Back to the previous step | `#onboarding-back` | Only on the invite step |
-| Finish the wizard | `#onboarding-next` | Only on the invite step |
+| Back to the profile step | `#onboarding-back` (**Back**) | Only on the invite step; disabled when the wizard opened on the invite step because the profile was already complete |
+| Continue to Connect your AI | `#onboarding-next` (**Next**) | Only on the invite step |
 
-The profile and AI steps use their own buttons without stable ids: drive those by their visible labels. Inside every step the fields are a regular form; fill it by label, then activate the step's primary button.
+The profile and AI steps use their own buttons without stable ids (**Back**, **Skip for now** and **Finish** on the AI step): drive those by their visible labels. Inside every step the fields are a regular form; fill it by label, then activate the step's primary button.
 
 ## Frequently asked questions
 
 <Faq>
 <FaqItem question="Can I skip steps?">
-The AI and invite steps are skippable. Invitations can be sent later from the Company page, and the AI-client flow stays available on the Profile page. The profile step is required.
+The invite and AI steps are skippable. Invitations can be sent later from the Company page, and the AI-client flow stays available on the Profile page. The profile step is required.
 </FaqItem>
 <FaqItem question="What happens to people who register through the invitation link?">
 They join the workspace as Waiting for Approval. An admin assigns a role and activates them on the Company page; until then they cannot work in the workspace.

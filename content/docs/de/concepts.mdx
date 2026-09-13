@@ -19,7 +19,7 @@ Jeder Datensatz hat `id`, `createdAt`, `updatedAt` und unterstützt Markdown-`no
 
 ## Wie verknüpfen Beziehungen Datensätze?
 
-Beziehungen sind typisiert und many-to-many. Ein Kontakt gehört zu null oder mehr Organisationen und null oder mehr Deals. Ein Deal gehört zu null oder mehr Kontakten, Organisationen und Services (mit Mengen), plus zugewiesenen Nutzern.
+Beziehungen sind typisiert und many-to-many. Ein Kontakt gehört zu null oder mehr Organisationen, Deals und Nutzern. Ein Deal gehört zu null oder mehr Kontakten, Organisationen und Services (mit Mengen), plus zugewiesenen Nutzern.
 
 | Von zu | Beispiel |
 |---|---|
@@ -27,10 +27,10 @@ Beziehungen sind typisiert und many-to-many. Ein Kontakt gehört zu null oder me
 | Kontakt zu Deal | "Max ist Stakeholder im Q2-Vertrag" |
 | Organisation zu Deal | "Der Q2-Vertrag läuft mit Initech" |
 | Deal zu Service (mit Menge) | "5 Stunden Beratung plus 1 Setup-Gebühr" |
-| Deal / Service / Aufgabe zu Nutzer | "Zugewiesen an Julia" |
+| Kontakt / Organisation / Deal / Service / Aufgabe zu Nutzer | "Zugewiesen an Julia" |
 | Aufgabe zu Kontakt / Organisation / Deal / Service | "Follow-up zum Q2-Vertrag" |
 
-Aufgaben verknüpfen sich mit Nutzern, Kontakten, Organisationen, Deals und Services. Über MCP ändern sich Verknüpfungen nur über `manage_record_links`; die Update-Tools rühren sie nie an. Über REST ersetzt ein gesendetes Relations-Array die gesamte Menge, und `null` oder `[]` leert sie.
+Aufgaben verknüpfen sich mit Nutzern, Kontakten, Organisationen, Deals und Services. Über MCP ändern sich Verknüpfungen über `manage_record_links`, mit einer Ausnahme: `update_deals` behält `services` (Deal-zu-Service-Verknüpfungen mit Mengen) in seinem Update-Schema. Jede andere Beziehung ändert sich nur über `manage_record_links`; die übrigen Update-Tools rühren Verknüpfungen nie an. Über REST ersetzt ein gesendetes Relations-Array die gesamte Menge, und `null` oder `[]` leert sie.
 
 ## Was sind Custom Columns?
 
@@ -40,24 +40,24 @@ Zehn Typen:
 
 | Typ | Wofür |
 |---|---|
-| **Plain** | Freitext |
-| **Date** | Kalenderdaten (Verlängerung, nächster Kontakt, das Fälligkeitsdatum einer Aufgabe) |
-| **DateRange** | Start- und Enddatum |
-| **DateTime** | Zeitstempel |
-| **DateTimeRange** | Start- und End-Zeitstempel |
-| **Currency** | Geldbeträge, gespeichert mit ISO-Währungscode |
-| **Single-select** | Ein Wert aus einer festen Optionsliste |
-| **Link** | Eine oder mehrere URLs |
-| **Email** | Eine oder mehrere E-Mail-Adressen |
-| **Phone** | Eine oder mehrere Telefonnummern |
+| **Text** (`plain`) | Freitext |
+| **Datum** (`date`) | Kalenderdaten (Verlängerung, nächster Kontakt, das Fälligkeitsdatum einer Aufgabe) |
+| **Datumsbereich** (`dateRange`) | Start- und Enddatum |
+| **Datum & Uhrzeit** (`dateTime`) | Zeitstempel |
+| **Datums- und Uhrzeitbereich** (`dateTimeRange`) | Start- und End-Zeitstempel |
+| **Währung** (`currency`) | Geldbeträge, gespeichert mit ISO-Währungscode |
+| **Einzelauswahl** (`singleSelect`) | Ein Wert aus einer festen Optionsliste |
+| **Link** (`link`) | Eine oder mehrere URLs |
+| **E-Mail** (`email`) | Eine oder mehrere E-Mail-Adressen |
+| **Telefon** (`phone`) | Eine oder mehrere Telefonnummern |
 
-Single-select-Columns sind das Mittel, um eigene Workflows abzubilden. Eine Deal-"Phase" oder eine Aufgaben-"Priorität" ist eine Single-select-Column, die Sie selbst definieren, mit den Optionen Ihrer Wahl, pro Workspace. Eine Board-Ansicht kann Datensätze dann nach jeder beliebigen Single-select-Column gruppieren, und der Wert ist das, womit Filter und Tools vergleichen.
+Einzelauswahl-Columns sind das Mittel, um eigene Workflows abzubilden. Eine Deal-"Phase" oder eine Aufgaben-"Priorität" ist eine Einzelauswahl-Column, die Sie selbst definieren, mit den Optionen Ihrer Wahl, pro Workspace. Eine Board-Ansicht kann Datensätze dann nach jeder beliebigen Einzelauswahl-Column gruppieren, und der Wert ist das, womit Filter und Tools vergleichen.
 
 Custom Columns sind First-Class in Filtern, Widgets und der MCP-Oberfläche: `manage_custom_columns` legt sie an und ändert sie, und jedes Datensatz-Tool liest und schreibt ihre Werte über `customFieldValues` mit der Column-Id aus `get_record_schema`.
 
 ### Wie funktioniert eine gewichtete Pipeline? [#how-does-a-weighted-pipeline-work]
 
-Ein Workspace kann eine Single-select-Deal-Column als Gewichtungs-Column markieren und jeder ihrer Optionen ein Gewicht in Prozent geben, zum Beispiel Qualifiziert 20 und Angebot 60. Jeder Deal trägt dann `weightedValue` = sein Gesamtwert multipliziert mit dem Gewicht seiner aktuellen Option, oder keinen gewichteten Wert, wenn die Option kein Gewicht trägt. `list_records` gibt die Summe beider Werte über alle passenden Deals zurück, und ein Dashboard-Chart kann nach dem gewichteten Deal-Wert aggregieren.
+Ein Workspace kann eine Einzelauswahl-Deal-Column als Gewichtungs-Column markieren und jeder ihrer Optionen ein Gewicht in Prozent geben, zum Beispiel Qualifiziert 20 und Angebot 60. Jeder Deal trägt dann `weightedValue` = sein Gesamtwert multipliziert mit dem Gewicht seiner aktuellen Option, oder keinen gewichteten Wert, wenn die Option kein Gewicht trägt. `list_records` gibt die Summe beider Werte über alle passenden Deals zurück, und ein Dashboard-Chart kann nach dem gewichteten Deal-Wert aggregieren.
 
 ## Was sind Widgets?
 
