@@ -1,34 +1,35 @@
 ---
 title: "Filter-Syntax: Operatoren für MCP- und REST-Abfragen"
-description: Jeder Filter-Operator in Customermates, mit Beispielen.
+description: "Die Form einer Filterregel, alle siebzehn Operatoren und was jeder erwartet, welche auf Daten, Relationen und Textfelder wirken, plus Beispiele."
 ---
 
-Customermates-Filter (genutzt von den Model-Context-Protocol-Tools (MCP), der REST-API und der App-UI) sind Arrays von Feld-Operator-Wert-Regeln. Sechzehn Operatoren decken Equality, Vergleich, Set-Membership, Range, Aktualität, Null-Checks und Relationship-Membership ab.
+Customermates-Filter (genutzt von den Model-Context-Protocol-Tools (MCP), der REST-API und der App-UI) sind Arrays aus Feld-Operator-Wert-Regeln. Siebzehn Operatoren decken Gleichheit, Textabgleich, Vergleich, Mengenzugehörigkeit, Bereich, Aktualität, Null-Prüfungen und Relationship-Zugehörigkeit ab.
 
-## Wo Filter greifen
+## Wo greifen Filter?
 
-- Das `list_records` MCP-Tool und die Messaging-Filter auf `get_messaging_threads` und `get_activities`.
+- Das MCP-Tool `list_records` und die Messaging-Filter auf `get_messaging_threads` und `get_activities`.
 - `entityFilters` und `dealFilters` auf Widgets.
 - `timelineFilters` auf Aktivitäts-Widgets. Aktivitätsfilter erlauben höchstens eine Regel pro Feld; ODER-Alternativen gehören in das Werte-Array einer einzigen `in`-Regel.
-- Gespeicherte Views in der UI (intern dieselbe Form).
+- Gespeicherte Ansichten in der UI (intern in dieselbe Form umgewandelt).
 
-## Die Form
+## Wie sieht eine Filterregel aus?
 
 ```json
 [
-  { "field": "firstName", "operator": "contains", "value": "acme" },
-  { "field": "createdAt", "operator": "gte",       "value": "2024-01-01" }
+  { "field": "firstName", "operator": "startsWith", "value": "An" },
+  { "field": "createdAt", "operator": "gte",        "value": "2024-01-01" }
 ]
 ```
 
-Regeln sind UND-verknüpft. Für ODER: zwei Queries laufen lassen und client-seitig mergen, oder den `in`-Operator gegen eine Liste.
+Regeln sind UND-verknüpft. Für ODER-Logik lassen Sie zwei Abfragen laufen und mergen client-seitig, oder Sie nutzen den `in`-Operator, wenn Sie gegen eine Liste vergleichen.
 
-## Operatoren
+## Welche Operatoren gibt es?
 
-| Operator | Erwartet | Wirkt auf | Beispiel |
+| Operator | Erwartet | Wirkt auf | Beispielwert |
 |---|---|---|---|
-| `equals` | einen Wert | Skalare, IDs | `"active"` |
-| `contains` | einen Wert | Strings | `"acme"` |
+| `equals` | einen Wert | Skalare, IDs, Text | `"active"` |
+| `contains` | einen Wert | Text | `"acme"` |
+| `startsWith` | einen Wert | Text | `"An"` |
 | `gt` | einen Wert | Zahlen, Daten | `"2024-01-01"` |
 | `gte` | einen Wert | Zahlen, Daten | `100` |
 | `lt` | einen Wert | Zahlen, Daten | `"2024-12-31"` |
@@ -36,35 +37,39 @@ Regeln sind UND-verknüpft. Für ODER: zwei Queries laufen lassen und client-sei
 | `in` | Array | beliebig | `["id1", "id2"]` |
 | `notIn` | Array | beliebig | `["id1"]` |
 | `between` | Array aus 2 | Zahlen, Daten | `["2024-01-01", "2024-12-31"]` |
-| `inLastDays` | einen Wert (Ganzzahl) | Daten | `30` |
-| `isNull` | kein Value | beliebig | (keins) |
-| `isNotNull` | kein Value | beliebig | (keins) |
-| `hasNone` | kein Value | Relationship-Arrays, Draft-Status von Messaging-Threads | (keins) |
-| `hasSome` | kein Value | Relationship-Arrays, Draft-Status von Messaging-Threads | (keins) |
-| `hasUnset` | kein Value | Messaging-Thread-Teilnehmer | (keins) |
-| `allSet` | kein Value | Messaging-Thread-Teilnehmer | (keins) |
+| `inLastDays` | einen Wert (positive Ganzzahl) | Daten | `30` |
+| `isNull` | keinen Wert | beliebig | (keiner) |
+| `isNotNull` | keinen Wert | beliebig | (keiner) |
+| `hasNone` | keinen Wert | Relationship-Arrays, Draft-Status von Messaging-Threads | (keiner) |
+| `hasSome` | keinen Wert | Relationship-Arrays, Draft-Status von Messaging-Threads | (keiner) |
+| `hasUnset` | keinen Wert | Teilnehmer von Messaging-Threads | (keiner) |
+| `allSet` | keinen Wert | Teilnehmer von Messaging-Threads | (keiner) |
 
-### Datums-Operatoren
+### Welche Datums-Operatoren gibt es?
 
-Datumsfelder wie `createdAt` und `updatedAt` akzeptieren `gt`, `gte`, `lt`, `lte`, `between` und `inLastDays`. Nutzen Sie `inLastDays` mit einer ganzzahligen Anzahl von Tagen für ein rollierendes Aktualitätsfenster, zum Beispiel `{ "field": "createdAt", "operator": "inLastDays", "value": 7 }` für Datensätze der letzten Woche.
+Datumsfelder wie `createdAt` und `updatedAt` akzeptieren `gt`, `gte`, `lt`, `lte`, `between` und `inLastDays`. Nutzen Sie `inLastDays` mit einer positiven ganzzahligen Anzahl von Tagen für ein rollierendes Aktualitätsfenster, zum Beispiel `{ "field": "createdAt", "operator": "inLastDays", "value": 7 }` für Datensätze, die in der letzten Woche erstellt wurden.
 
-### Relationship- und Teilnehmer-Operatoren
+### Welche Operatoren wirken auf Textfelder?
 
-Relationship-Arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`, `serviceIds`, `taskIds`) akzeptieren `in`, `notIn`, `hasNone` und `hasSome`. Das Teilnehmer-Verknüpfungsfeld auf `get_messaging_threads` nutzt `hasUnset` und `allSet`, um Threads danach zu filtern, ob ihre Teilnehmer mit Datensätzen verknüpft sind. Das Feld `draft` desselben Tools akzeptiert die wertlosen Operatoren `hasSome` (der Thread enthält einen ungesendeten Draft) und `hasNone` (er enthält keinen), womit sich Drafts auflisten oder ausschließen lassen.
+Textfelder wie `firstName` und `lastName` eines Kontakts oder `name` einer Organisation akzeptieren `equals`, `startsWith` und `contains`. Alle drei vergleichen ohne Beachtung der Groß- und Kleinschreibung.
 
-## Feldnamen
+### Welche Relationship-Operatoren gibt es?
 
-`field` ist, was `get_record_schema` unter `filterableFields` für diese Entity zurückgibt. Enthält:
+Relationship-Arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`, `serviceIds`, `taskIds`) akzeptieren `in`, `notIn`, `hasNone` und `hasSome`. Das Feld für den Verknüpfungsstatus der Teilnehmer auf `get_messaging_threads` nutzt `hasUnset` und `allSet`, um Threads danach zu filtern, ob ihre Teilnehmer mit Datensätzen verknüpft sind. Das Feld `draft` desselben Tools akzeptiert die wertlosen Operatoren `hasSome` (der Thread enthält einen ungesendeten Entwurf) und `hasNone` (er enthält keinen), womit Sie Entwürfe auflisten oder ausschließen.
 
-- Standard-Skalare (z.B. `createdAt`, `updatedAt`).
-- Relationship-Arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`). Kombinieren Sie sie mit `in`, `notIn`, `hasNone`, `hasSome`.
-- Custom-Column-IDs. Nutzen Sie die UUID der Spalte als Feldname.
+## Welche Feldnamen kann ich nutzen?
 
-Immer `get_record_schema` zuerst, wenn Sie unsicher sind, was filterbar ist. Die Fehlermeldung bei unbekanntem Feld listet alle verfügbaren Felder mit erlaubten Operatoren.
+Der Wert von `field` ist, was `get_record_schema` unter `filterableFields` für diese Entity zurückgibt, samt der Operatoren, die jedes Feld erlaubt. Dazu gehören:
+
+- Standard-Skalarfelder (zum Beispiel `createdAt`, `updatedAt` und bei Kontakten `firstName` und `lastName`).
+- Relationship-Arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`). Kombinieren Sie sie mit `in`, `notIn`, `hasNone`, `hasSome`. Manche Relationsfelder brauchen Leseberechtigung auf den verknüpften Datensatztyp.
+- Custom-Column-IDs. Nutzen Sie die UUID der Spalte als Feld; eine singleSelect-Spalte filtert auf ihren Optionswert.
+
+Rufen Sie immer zuerst `get_record_schema` auf, wenn Sie unsicher sind, was filterbar ist. Die Fehlermeldung bei einem unbekannten Feld listet jedes verfügbare Feld mit seinen erlaubten Operatoren.
 
 ## Beispiele
 
-Contacts in einer von drei Organizations:
+Kontakte in einer von drei Organisationen:
 
 ```json
 { "field": "organizationIds", "operator": "in", "value": ["org_1","org_2","org_3"] }
@@ -79,7 +84,7 @@ Deals aus 2024, deren Custom-singleSelect-Spalte (identifiziert über ihre UUID)
 ]
 ```
 
-Contacts ohne Organization:
+Kontakte ohne verknüpfte Organisation:
 
 ```json
 { "field": "organizationIds", "operator": "hasNone" }
@@ -91,9 +96,9 @@ Datensätze der letzten 30 Tage:
 { "field": "createdAt", "operator": "inLastDays", "value": 30 }
 ```
 
-## Freitext vs Filter
+## Freitextsuche oder Filter?
 
-`list_records` akzeptiert auch `searchTerm`, eine Freitextsuche über die Namensfelder (firstName+lastName für Contacts, name für den Rest). Für "Contacts, deren Name 'acme' enthält" ist das `searchTerm`, nicht eine Filter-Regel auf `firstName`. Filter-Regeln auf `firstName` werden nicht unterstützt.
+`list_records` akzeptiert auch `searchTerm`, eine Freitextsuche über die Namensfelder der Entity (firstName und lastName bei Kontakten, name beim Rest). Nutzen Sie `searchTerm` für "Kontakte, deren Name acme enthält", wenn es Ihnen egal ist, welches Namensfeld getroffen hat; nutzen Sie eine Filterregel auf `firstName` oder `lastName` mit `contains`, `startsWith` oder `equals`, wenn das Feld eine Rolle spielt oder wenn Sie sie mit anderen Regeln kombinieren.
 
 ## Weiter
 

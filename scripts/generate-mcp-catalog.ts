@@ -24,19 +24,63 @@ export const CATALOG_SECTIONS: Record<string, McpTool[]> = {
 
 export type CatalogSummaries = Record<string, string>;
 
+type SchemaLike = { shape?: Record<string, unknown>; def?: Record<string, unknown>; _zod?: { def?: Record<string, unknown> } };
+
+function objectShape(schema: unknown): Record<string, unknown> | null {
+  let current = schema as SchemaLike | null | undefined;
+  for (let depth = 0; depth < 6 && current; depth += 1) {
+    if (current.shape && typeof current.shape === "object") return current.shape;
+    const def = current.def ?? current._zod?.def;
+    if (!def) return null;
+    current = (def.in ?? def.innerType ?? def.schema ?? null) as SchemaLike | null;
+  }
+  return null;
+}
+
+function isRequired(field: unknown): boolean {
+  const candidate = field as { safeParse?: (value: unknown) => { success: boolean } };
+  return typeof candidate.safeParse === "function" ? !candidate.safeParse(undefined).success : false;
+}
+
+export function toolArguments(tool: McpTool): { required: string[]; optional: string[] } {
+  const shape = objectShape(tool.inputSchema);
+  if (!shape) return { required: [], optional: [] };
+  const required: string[] = [];
+  const optional: string[] = [];
+  for (const [name, field] of Object.entries(shape)) (isRequired(field) ? required : optional).push(name);
+  return { required, optional };
+}
+
+function renderToolEntry(tool: McpTool, summary: string, summaries: CatalogSummaries): string {
+  const requiredLabel = summaries.$requiredLabel ?? "Required";
+  const optionalLabel = summaries.$optionalLabel ?? "Optional";
+  const noArgumentsLabel = summaries.$noArgumentsLabel ?? "No arguments";
+  const { required, optional } = toolArguments(tool);
+  const code = (names: string[]) => names.map((name) => `\`${name}\``).join(", ");
+  const argumentLine =
+    required.length === 0 && optional.length === 0
+      ? `${noArgumentsLabel}.`
+      : [required.length ? `${requiredLabel}: ${code(required)}.` : "", optional.length ? `${optionalLabel}: ${code(optional)}.` : ""]
+          .filter(Boolean)
+          .join(" ");
+  return [`#### \`${tool.name}\``, "", summary, "", argumentLine].join("\n");
+}
+
 export function renderCatalogTable(section: string, locale: ContentLocale, summaries: CatalogSummaries): string {
   const tools = CATALOG_SECTIONS[section];
   if (!tools) throw new Error(`Unknown catalog section "${section}"`);
   const purposeHeader = summaries.$purposeHeader ?? "Purpose";
   const lines = [`| Tool | Read | Destructive | ${purposeHeader} |`, "|---|---|---|---|"];
+  const entries: string[] = [];
   for (const tool of tools) {
     const summary = summaries[tool.name];
     if (!summary) throw new Error(`Tool "${tool.name}" has no ${locale} summary in ${summariesPath(locale)}`);
     const read = tool.annotations?.readOnlyHint ? "✓" : "";
     const destructive = tool.annotations?.destructiveHint ? "✓" : "";
     lines.push(`| \`${tool.name}\` | ${read} | ${destructive} | ${summary} |`);
+    entries.push(renderToolEntry(tool, summary, summaries));
   }
-  return lines.join("\n");
+  return [...lines, "", ...entries.flatMap((entry) => [entry, ""])].join("\n").trimEnd();
 }
 
 export function applyCatalogTables(source: string, locale: ContentLocale, summaries: CatalogSummaries): string {

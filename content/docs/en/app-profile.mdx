@@ -1,39 +1,46 @@
 ---
 title: "User Profile Settings in the Customermates CRM"
-description: "The Profile screen holds your personal Customermates settings: identity, preferences, API keys, and connected messaging accounts, with anchor ids."
+description: "The Profile screen holds your personal Customermates settings tab by tab: identity and preferences, API keys with expiration, and connected messaging accounts."
 ---
 
 Customermates is an open-source, AI-native CRM. This page documents the **Profile** screen of the web app for humans and for AI agents that drive the UI.
 
-## Purpose
+## What lives on the Profile screen?
 
-Profile holds your personal workspace settings: everything scoped to you as a user rather than to the company. Three tabs cover your settings (one form for identity and preferences: name, country, avatar, theme, language), API keys for MCP and REST clients, and the messaging accounts that feed the Inbox. Changes here affect only your own account.
+Everything scoped to you as a user rather than to the company: your settings (name, country, avatar, theme, language), the API keys for MCP and REST clients, and the messaging accounts that feed the Inbox. Changes here affect only your own account. URLs are locale-prefixed, for example `https://customermates.com/en/profile/settings`; each tab has its own route, and the sidebar entry `#nav-profile` opens `/profile/settings`.
 
-## URL
+## Settings tab
 
-`/profile/settings`
+Route `/profile/settings`, sidebar id `#nav-profile-settings`. One form covers identity (name, country, avatar) and preferences (theme, language). Save or discard with `#profile-settings-save` and `#profile-settings-reset`; the reset button appears only with unsaved changes. Over MCP, `update_workspace_settings` with `target: "profile"` changes the same values.
 
-URLs are locale-prefixed. For example `https://customermates.com/en/profile/settings`. Each tab has its own route: `/profile/settings`, `/profile/api-keys`, `/profile/connected-accounts`.
+## API keys tab (API & Connectors)
 
-## Key actions
+Route `/profile/api-keys`, sidebar id `#nav-profile-api-keys`. Keys for MCP and REST clients; the rules are on [API keys](/docs/api-keys).
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
-| Go to Profile | App sidebar | `#nav-profile` | Opens /profile/settings |
-| Settings tab | Sidebar sub-item | `#nav-profile-settings` | Identity (name, country, avatar) and preferences (theme, language) in one form |
-| Save / reset settings | Form footer | `#profile-settings-save` / `#profile-settings-reset` | Persists or discards (reset appears with unsaved changes) |
-| API keys tab | Sidebar sub-item | `#nav-profile-api-keys` | Manage keys for MCP/REST clients |
-| Add an API key | API keys card | `#profile-api-keys-generate` | Opens a wizard for a standard key or a guided AI connection |
-| Create a standard key | Add-key wizard | `#api-key-save` | Opens after Standard API key; the key is shown once, so copy it immediately |
-| Connect an AI client | Add-key wizard | none | Choose Claude, ChatGPT, Codex, Cursor, or Gemini for client-specific setup |
-| Revoke a key | Key row | none | Row button labeled Revoke |
-| Connected accounts tab | Sidebar sub-item | `#nav-profile-connected-accounts` | Messaging accounts for the Inbox |
-| Connect an account | Card header | `#profile-connected-accounts-connect` | Opens the hosted-auth window (email, LinkedIn, WhatsApp, Instagram, Telegram) |
-| Connect an account from an empty profile | Centered empty state | `#profile-connected-accounts-connect-empty` | Opens the same hosted-auth window when no account exists |
+| Add a key | Page header | `#profile-api-keys-generate` | Opens the add dialog with two routes |
+| Create a standard key | Standard route | `#api-key-save` | Name plus optional expiration date; the key is shown once, so copy it immediately |
+| Quick connection | Quick route | none | Four tiles: Claude, ChatGPT and Codex, Cursor, Gemini; creates the key and shows that client's setup snippet |
+| Open a key | Key card | none | Shows created, expires ("Never" when unset) and last used |
+| Delete a key | Key dialog | none | Button labeled Delete, with a confirmation |
+
+There is no rotate or revoke button: create a new key, update the client, then delete the old one.
+
+## Connected accounts tab
+
+Route `/profile/connected-accounts`, sidebar id `#nav-profile-connected-accounts`, Cloud only. **Connect** (`#profile-connected-accounts-connect`) adds a messaging account (email, LinkedIn, WhatsApp, Instagram, Telegram) that feeds the [Inbox](/docs/app-inbox); connecting WhatsApp means scanning the QR code in the hosted-auth window.
+
+| Action | Where | Anchor id | What happens |
+|---|---|---|---|
+| Connect an account | Card header | `#profile-connected-accounts-connect` | Opens the hosted-auth window |
+| Connect from an empty profile | Centered empty state | `#profile-connected-accounts-connect-empty` | Opens the same hosted-auth window when no account exists |
 | Manage an account | Account row click | none | Opens the account modal on its Details tab |
-| Account details tab | Account modal | `#connected-account-tab-details` | Provider, status, visibility, owner, folder count and sync times |
-| Email tab | Account modal | `#connected-account-tab-email` | Email appearance and signature; appears only for an email account you own |
-| Folders tab | Account modal | `#connected-account-tab-folders` | Choose which provider folders sync; appears only when the account exposes folders |
+| Details tab | Account modal | `#connected-account-tab-details` | Provider, status, visibility, owner, folder count and sync times |
+| Email tab | Account modal | `#connected-account-tab-email` | Email appearance and signature; only for an email account you own |
+| Folders tab | Account modal | `#connected-account-tab-folders` | Choose which provider folders sync; only when the account exposes folders |
+
+Connecting opens a separate hosted-auth window: expect a popup, not in-page navigation. How many accounts a user may connect depends on the plan: Starter [[commercial.entitlement.starter.includedAccountsPerUser]], Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]] per user.
 
 ### Email appearance and signature
 
@@ -43,15 +50,13 @@ The signature below it is a single Markdown block with an on/off toggle, so swit
 
 ## Tips for agents
 
-- Locate controls via the stable ids above. For example, the CSS selector `#profile-api-keys-generate` finds the generate button. The ids are stable; visible labels and layout are not.
-- Rows never carry ids. Open records via their page URL `/{type}/{id}`. The Profile tabs are plain routes, so navigate by tab URL and act on rows via their visible buttons (e.g. **Revoke**) or by clicking the row.
-- Prefer MCP tools over clicking when a tool exists. See [MCP](/docs/mcp). Driving the UI is for the few actions with no tool, like connecting a messaging account.
-- The Add modal first offers a standard named/expiring key and five guided AI connections. Claude and ChatGPT can use their custom-connector path; local Claude, Codex, Cursor, and Gemini create a key and show only that client's setup snippet.
-- A generated API key is shown exactly once, whether created through `#api-key-save` or a quick connection. Copy the displayed key or snippet in the same step; there is no way to display the plaintext key again.
-- Connecting an account opens a separate hosted-auth window: expect a popup, not in-page navigation.
+- The hosted assistant can navigate to the three tabs and highlight `#nav-profile-connected-accounts` and `#profile-connected-accounts-connect`; it cannot press them. Ask it for a tour of connecting an account and it walks you there.
+- Rows never carry ids. Open a key or an account by clicking its card or row; the tabs are plain routes.
+- Prefer MCP tools when a tool exists: `connect_messaging_account` creates the authentication link for a new channel, and `get_workspace_context` lists the connected accounts. Creating an API key has no tool; use the dialog above.
+- A generated API key is shown exactly once, whether created as a standard key or through a quick connection. Copy it in the same step.
 
 ## Related
 
-- [API keys](/docs/api-keys): create, rotate, and revoke keys, plus hygiene rules.
+- [API keys](/docs/api-keys): creating, using, expiring and deleting keys.
 - [App guide, Inbox](/docs/app-inbox): the screen your connected accounts feed.
-- [CLI & editors](/docs/connect-cli): where a generated key goes for Claude Code, Codex, and Cursor.
+- [CLI and editors](/docs/connect-cli): where a generated key goes for Claude Code, Codex, and Cursor.

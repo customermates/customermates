@@ -400,9 +400,9 @@ export function splitSections(args: {
     if (heading) {
       flush();
       const depth = Math.max(0, heading[1].length - 2);
-      const title = heading[2].replace(/\s*\{#[^}]+\}\s*$/, "");
+      const title = heading[2].replace(/\s*(?:\{#[^}]+\}|\[#[^\]]+\])\s*$/, "");
       path = [...path.slice(0, depth), title];
-      anchor = /\{#([^}]+)\}/.exec(heading[2])?.[1] ?? slugifyHeading(title);
+      anchor = /(?:\{#([^}]+)\}|\[#([^\]]+)\])\s*$/.exec(heading[2])?.slice(1).find(Boolean) ?? slugifyHeading(title);
       continue;
     }
     buffer.push(line);

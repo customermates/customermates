@@ -1,34 +1,35 @@
 ---
 title: "Filter Syntax: Operators for MCP and REST Queries"
-description: Every filter operator Customermates supports, with examples.
+description: "The shape of a filter rule, all seventeen operators with what each expects, which operators work on dates, relations and text fields, and worked examples."
 ---
 
-Customermates filters (used by the Model Context Protocol (MCP) tools, the REST API, and the app UI) are arrays of field-operator-value rules. Sixteen operators cover equality, comparison, set membership, range, recency, null checks, and relationship membership.
+Customermates filters (used by the Model Context Protocol (MCP) tools, the REST API, and the app UI) are arrays of field-operator-value rules. Seventeen operators cover equality, text matching, comparison, set membership, range, recency, null checks, and relationship membership.
 
-## Where filters apply
+## Where do filters apply?
 
 - The `list_records` MCP tool and the messaging filters on `get_messaging_threads` and `get_activities`.
 - `entityFilters` and `dealFilters` on widgets.
 - `timelineFilters` on activity widgets. Activity filters allow at most one rule per field; put OR alternatives in one `in` value array.
 - Saved views in the UI (converted to the same shape under the hood).
 
-## The shape
+## What does a filter rule look like?
 
 ```json
 [
-  { "field": "firstName", "operator": "contains", "value": "acme" },
-  { "field": "createdAt", "operator": "gte",       "value": "2024-01-01" }
+  { "field": "firstName", "operator": "startsWith", "value": "An" },
+  { "field": "createdAt", "operator": "gte",        "value": "2024-01-01" }
 ]
 ```
 
 Rules are AND-combined. For OR logic, run two queries and merge client-side, or use the `in` operator when comparing against a list.
 
-## Operators
+## Which operators exist?
 
 | Operator | Expects | Works on | Example value |
 |---|---|---|---|
-| `equals` | single | scalars, ids | `"active"` |
-| `contains` | single | strings | `"acme"` |
+| `equals` | single | scalars, ids, text | `"active"` |
+| `contains` | single | text | `"acme"` |
+| `startsWith` | single | text | `"An"` |
 | `gt` | single | numbers, dates | `"2024-01-01"` |
 | `gte` | single | numbers, dates | `100` |
 | `lt` | single | numbers, dates | `"2024-12-31"` |
@@ -36,7 +37,7 @@ Rules are AND-combined. For OR logic, run two queries and merge client-side, or 
 | `in` | array | any | `["id1", "id2"]` |
 | `notIn` | array | any | `["id1"]` |
 | `between` | array of 2 | numbers, dates | `["2024-01-01", "2024-12-31"]` |
-| `inLastDays` | single (integer) | dates | `30` |
+| `inLastDays` | single (positive integer) | dates | `30` |
 | `isNull` | no value | any | (none) |
 | `isNotNull` | no value | any | (none) |
 | `hasNone` | no value | relationship arrays, messaging-thread draft status | (none) |
@@ -44,23 +45,27 @@ Rules are AND-combined. For OR logic, run two queries and merge client-side, or 
 | `hasUnset` | no value | messaging-thread participants | (none) |
 | `allSet` | no value | messaging-thread participants | (none) |
 
-### Date operators
+### Which date operators exist?
 
-Date fields such as `createdAt` and `updatedAt` accept `gt`, `gte`, `lt`, `lte`, `between`, and `inLastDays`. Use `inLastDays` with an integer number of days for a rolling recency window, for example `{ "field": "createdAt", "operator": "inLastDays", "value": 7 }` for records created in the last week.
+Date fields such as `createdAt` and `updatedAt` accept `gt`, `gte`, `lt`, `lte`, `between`, and `inLastDays`. Use `inLastDays` with a positive integer number of days for a rolling recency window, for example `{ "field": "createdAt", "operator": "inLastDays", "value": 7 }` for records created in the last week.
 
-### Relationship and participant operators
+### Which operators work on text fields?
+
+Text fields such as a contact's `firstName` and `lastName` or an organization's `name` accept `equals`, `startsWith`, and `contains`. All three compare case-insensitively.
+
+### Which relationship operators exist?
 
 Relationship arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`, `serviceIds`, `taskIds`) accept `in`, `notIn`, `hasNone`, and `hasSome`. The participants link-status field on `get_messaging_threads` uses `hasUnset` and `allSet` to filter threads by whether their participants are linked to records. The `draft` field on the same tool takes the value-less `hasSome` (the thread holds an unsent draft) and `hasNone` (it does not), which is how you list or exclude drafts.
 
-## Field names
+## Which field names can I use?
 
-The `field` value is whatever `get_record_schema` returns under `filterableFields` for that entity. It includes:
+The `field` value is whatever `get_record_schema` returns under `filterableFields` for that entity, with the operators each field allows. It includes:
 
-- Default scalar fields (e.g. `createdAt`, `updatedAt`).
-- Relationship arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`). Pair these with `in`, `notIn`, `hasNone`, `hasSome`.
-- Custom column ids. Use the column's UUID as the field.
+- Default scalar fields (for example `createdAt`, `updatedAt`, and on contacts `firstName` and `lastName`).
+- Relationship arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`). Pair these with `in`, `notIn`, `hasNone`, `hasSome`. Some relation fields need read permission on the related record type.
+- Custom column ids. Use the column's UUID as the field; a singleSelect column filters on its option value.
 
-Always call `get_record_schema` first if you're not sure what's filterable. The error when a field isn't recognized lists every available field with its allowed operators.
+Always call `get_record_schema` first if you are not sure what is filterable. The error for an unknown field lists every available field with its allowed operators.
 
 ## Examples
 
@@ -91,9 +96,9 @@ Records created in the last 30 days:
 { "field": "createdAt", "operator": "inLastDays", "value": 30 }
 ```
 
-## Free-text vs filters
+## Free-text search or a filter?
 
-`list_records` also accepts `searchTerm`, which runs a free-text search against the entity's name fields (firstName + lastName for contacts, name for the rest). If you want "contacts whose name contains acme", that's `searchTerm`, not a filter rule on `firstName`. Filter rules on `firstName` specifically are not supported.
+`list_records` also accepts `searchTerm`, which runs a free-text search against the entity's name fields (firstName and lastName for contacts, name for the rest). Use `searchTerm` for "contacts whose name contains acme" when you do not care which name field matched; use a filter rule on `firstName` or `lastName` with `contains`, `startsWith`, or `equals` when the field matters or when you combine it with other rules.
 
 ## Next
 

@@ -18,7 +18,7 @@ LOCAL_AGENT_BENCHMARK=true AGENT_BENCHMARK_ARMS="$(yarn -s agent:benchmark overl
 The runtime variant is a server setting: start the application with `AGENT_RUNTIME_VARIANT=current` (every v2 knob off) or
 `AGENT_RUNTIME_VARIANT=v2` (default), optionally `AGENT_RUNTIME_DISABLE=toolsetRouting,promptV2,resultDigest,cachingAuto` for
 single-knob ablations, and pass the same label as `--variant` so artifacts land under the matching folder. Run
-`yarn agent:benchmark` with `RUN_AGENT_BENCHMARK=true LOCAL_AGENT_BENCHMARK=true npx tsx --import ./scripts/agent-benchmark/register.mjs scripts/agent-benchmark/measure-context.ts`
+`yarn agent:benchmark` with `RUN_AGENT_BENCHMARK=true LOCAL_AGENT_BENCHMARK=true npx tsx --import ./scripts/lib/register-server-only-shim.mjs scripts/agent-benchmark/measure-context.ts`
 to print the catalog bytes per round, the prompt bytes and the credit reservation of the current tree.
 
 Commands (`yarn agent:benchmark <command>`):
@@ -31,6 +31,6 @@ Commands (`yarn agent:benchmark <command>`):
 - `judge --campaign <id>`: grade the final answers; charges count against the cap.
 - `report --campaign <id> --label matrix`: write `reports/<date>-<label>/report.md|json` with the selection rule applied.
 
-The CLI runs under `tsx` with `register.mjs`, a resolve hook that maps `server-only` to the test shim so the product graph loads outside Next.js.
+The CLI runs under `tsx` with `scripts/lib/register-server-only-shim.mjs`, a resolve hook that maps `server-only` to the test shim so the product graph loads outside Next.js.
 
 Raw artifacts live under `.runs/<campaign>/<variant>/<arm>/<case>-r<n>.json` (ignored by git); committed reports live under `reports/`.

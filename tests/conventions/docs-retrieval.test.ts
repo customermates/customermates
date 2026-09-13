@@ -26,17 +26,9 @@ function outcome(question: GoldenQuestion) {
 const ANSWERABLE = GOLDEN_QUESTIONS.filter((question) => !question.requiresDocsRewrite);
 
 describe("docs retrieval golden set", () => {
-  it("lists the questions the current docs cannot answer, for the docs rewrite to close", () => {
+  it("has no question left waiting for a docs rewrite", () => {
     const pending = GOLDEN_QUESTIONS.filter((question) => question.requiresDocsRewrite).map((question) => question.query);
-    expect(pending).toEqual([
-      "what can a routine do without approval",
-      "import contacts from excel",
-      "task due date",
-      "weighted pipeline value",
-      "Was darf eine Routine ohne Freigabe",
-      "Kontakte aus Excel importieren",
-      "Aufgabe Fälligkeitsdatum",
-    ]);
+    expect(pending).toEqual([]);
   });
 
   it("returns the right page and section for every probe question from the audit", () => {

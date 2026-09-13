@@ -90,6 +90,16 @@ describe("splitSections", () => {
     const rotate = all.find((section) => section.headingPath.at(-1) === "Rotate");
     expect(rotate?.headingPath).toEqual(["Hygiene", "Rotate"]);
     expect(rotate?.anchor).toBe("rotate");
+    const pinned = splitSections({
+      slug: "x",
+      source: "docs",
+      pageTitle: "X",
+      markdown: "## Tool-Katalog [#tool-catalog]\nText\n\n## Alt {#legacy}\nMore",
+    });
+    expect(pinned.map((section) => [section.headingPath.at(-1), section.anchor])).toEqual([
+      ["Tool-Katalog", "tool-catalog"],
+      ["Alt", "legacy"],
+    ]);
     const hygiene = all.find((section) => section.headingPath.join(">") === "Hygiene");
     expect(hygiene?.text).toContain("### Rotate");
     expect(hygiene?.text).toContain("Revoke a key you no longer need.");
