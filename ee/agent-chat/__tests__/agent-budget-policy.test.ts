@@ -215,3 +215,21 @@ describe("tool result truncation is never silent", () => {
     expect(cut).toMatch(/fewer ids, a smaller pageSize, or a narrower filter/);
   });
 });
+
+describe("agent turn budget reasoning settings", () => {
+  it("carries the entry's reasoning effort and thinking level into the turn budget", () => {
+    const budget = resolveAgentTurnBudget({
+      model: { ...BALANCED, reasoningEffort: "low", thinkingLevel: "medium" },
+      availableCredits: 500,
+    });
+
+    expect(budget).toEqual(expect.objectContaining({ reasoningEffort: "low", thinkingLevel: "medium" }));
+  });
+
+  it("omits the reasoning keys entirely for a model without them", () => {
+    const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 500 });
+
+    expect(budget).not.toHaveProperty("reasoningEffort");
+    expect(budget).not.toHaveProperty("thinkingLevel");
+  });
+});

@@ -180,6 +180,7 @@
     "pg-protocol": "1.14.0"
   },
   "scripts": {
+    "agent:benchmark": "RUN_AGENT_BENCHMARK=true tsx --import ./scripts/agent-benchmark/register.mjs scripts/agent-benchmark/cli.ts",
     "agent:eval": "RUN_AGENT_EVAL=true RUN_DATABASE_TESTS=true vitest run --config scripts/agent-eval.config.ts",
     "billing:verify-catalog": "tsx scripts/verify-billing-catalog.ts",
     "build": "prisma generate && yarn openapi:generate && yarn raw-docs:generate && next build",

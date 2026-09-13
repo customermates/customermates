@@ -24,6 +24,8 @@ export type AgentTurnBudget = {
   maxContextTokens: number;
   maxContextBytes: number;
   maxToolResultChars: number;
+  reasoningEffort?: AgentModelEntry["reasoningEffort"];
+  thinkingLevel?: AgentModelEntry["thinkingLevel"];
 };
 
 export function agentContextBytesToTokens(bytes: number) {
@@ -86,6 +88,8 @@ export function resolveAgentTurnBudget(args: {
     maxContextTokens: entry.maxContextTokens,
     maxContextBytes: agentContextTokensToBytes(entry.maxContextTokens),
     maxToolResultChars: Math.min(entry.maxToolResultChars, AGENT_MAX_TOOL_RESULT_CHARS),
+    ...(entry.reasoningEffort ? { reasoningEffort: entry.reasoningEffort } : {}),
+    ...(entry.thinkingLevel ? { thinkingLevel: entry.thinkingLevel } : {}),
   };
 }
 

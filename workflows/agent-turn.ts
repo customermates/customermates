@@ -30,6 +30,7 @@ import {
   type ToolApprovalGrant,
 } from "@/ee/agent-chat/agent-approval-resume";
 import { agentUiCommandHookToken, isAgentPanelTool, toAgentUiCommandInput } from "@/ee/agent-chat/agent-ui-command";
+import { googleThinkingProviderOptions } from "@/ee/agent-chat/agent-thinking-options";
 import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-context";
 import { buildAgentSystemPrompt } from "@/ee/agent-chat/system-prompt";
 import { buildAgentUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/agent-usage-settlement";
@@ -994,6 +995,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           ]),
         ),
         maxOutputTokens: payload.turnBudget.maxOutputTokens,
+        ...(payload.turnBudget.reasoningEffort ? { reasoning: payload.turnBudget.reasoningEffort } : {}),
         providerOptions: {
           gateway: {
             only: [payload.turnBudget.servingProvider],
@@ -1004,6 +1006,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             disallowPromptTraining: true,
           },
           openai: { parallelToolCalls: false },
+          ...googleThinkingProviderOptions(payload.turnBudget),
         },
         prepareStep: async ({ messages: stepMessages }) => {
           if (abandoned || cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null)
