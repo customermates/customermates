@@ -43,6 +43,10 @@ import { ForbiddenError } from "@/core/errors/app-errors";
 const ROUTINE_ID = "00000000-0000-4000-8000-000000000001";
 const RUN_ID = "00000000-0000-4000-8000-000000000002";
 
+function eventServiceStub() {
+  return { publish: vi.fn().mockResolvedValue(undefined) } as never;
+}
+
 function readOwnRoutineUser() {
   return {
     ...createMockUserWithPermissions([{ resource: Resource.routines, action: Action.readOwn }]),
@@ -1245,6 +1249,7 @@ describe("per-user routine plan allowance", () => {
     const interactor = new UpsertRoutineInteractor(
       repo as never,
       { getSubscriptionOrThrow: () => Promise.resolve({ plan }) } as never,
+      eventServiceStub(),
     );
 
     const result = await interactor.invoke({
@@ -1315,6 +1320,7 @@ describe("per-user routine plan allowance", () => {
       {
         getSubscriptionOrThrow: () => Promise.reject(new Error("must not read the plan on edit")),
       } as never,
+      eventServiceStub(),
     );
 
     const result = await interactor.invoke({ id: ROUTINE_ID, name: "Renamed" });
@@ -1336,7 +1342,11 @@ describe("per-user routine plan allowance", () => {
       isEligibleRoutineOwner: vi.fn().mockResolvedValue(true),
       upsertRoutineOrThrow: vi.fn(),
     };
-    const interactor = new UpsertRoutineInteractor(repo as never, { getSubscriptionOrThrow: vi.fn() } as never);
+    const interactor = new UpsertRoutineInteractor(
+      repo as never,
+      { getSubscriptionOrThrow: vi.fn() } as never,
+      eventServiceStub(),
+    );
 
     const result = await interactor.invoke({
       id: ROUTINE_ID,

@@ -1196,6 +1196,11 @@
         "deleted": "Rôle supprimé",
         "updated": "Rôle mis à jour"
       },
+      "routine": {
+        "created": "Routine créée",
+        "deleted": "Routine supprimée",
+        "updated": "Routine mise à jour"
+      },
       "service": {
         "created": "Service créé",
         "deleted": "Service supprimé",

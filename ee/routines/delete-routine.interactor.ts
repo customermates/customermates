@@ -1,10 +1,12 @@
 import type { RoutineDto } from "./routine.schema";
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { EventService } from "@/features/event/event.service";
 
 import { Action, Resource } from "@/generated/prisma";
 
 import { z } from "zod";
 
+import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -22,7 +24,10 @@ export abstract class DeleteRoutineRepo {
 
 @TenantInteractor({ resource: Resource.routines, action: Action.delete })
 export class DeleteRoutineInteractor extends AuthenticatedInteractor<DeleteRoutineData, string> {
-  constructor(private repo: DeleteRoutineRepo) {
+  constructor(
+    private repo: DeleteRoutineRepo,
+    private eventService: EventService,
+  ) {
     super();
   }
 
@@ -33,6 +38,11 @@ export class DeleteRoutineInteractor extends AuthenticatedInteractor<DeleteRouti
 
     const deleted = await this.repo.deleteRoutineOrThrow(data.id);
     if (!deleted) return failConflict(CustomErrorCode.routineDeleteHasRunningRun, ["id"]);
+
+    await this.eventService.publish(DomainEvent.ROUTINE_DELETED, {
+      entityId: deleted.id,
+      payload: deleted,
+    });
 
     return { ok: true as const, data: data.id };
   }

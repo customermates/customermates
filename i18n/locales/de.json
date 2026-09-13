@@ -1196,6 +1196,11 @@
         "deleted": "Rolle gelöscht",
         "updated": "Rolle aktualisiert"
       },
+      "routine": {
+        "created": "Routine erstellt",
+        "deleted": "Routine gelöscht",
+        "updated": "Routine aktualisiert"
+      },
       "service": {
         "created": "Service erstellt",
         "deleted": "Service gelöscht",
