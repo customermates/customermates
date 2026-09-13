@@ -797,7 +797,8 @@
   "AuthSocialErrors": {
     "accessDenied": "L'accesso è stato annullato presso il provider.",
     "accountAlreadyLinkedToDifferentUser": "Questo account social è già collegato a un altro utente.",
-    "accountNotLinked": "Esiste già un account con questa e-mail, ma l'indirizzo non è ancora verificato. Accedi con la password e verifica l'indirizzo, poi potrai usare l'accesso social.",
+    "accountNotLinked": "Il tuo provider non ha confermato questo indirizzo e-mail, quindi non abbiamo potuto collegarlo al tuo account esistente. Accedi invece con la password.",
+    "accountNotLinkedAction": "Reimposta password",
     "emailDoesNotMatch": "L'e-mail restituita dal provider non corrisponde a quella del tuo account.",
     "emailIsMissing": "Il provider non ha restituito alcun indirizzo e-mail.",
     "emailNotFound": "Non è stato trovato alcun indirizzo e-mail per questo account social.",
@@ -3254,7 +3255,8 @@
     "rememberMe": "Ricordami",
     "signInCta": "Accedi",
     "signInTitle": "Accedi al tuo account",
-    "switchToSignUp": "Non hai un account? <registerLink>Registrati</registerLink>"
+    "switchToSignUp": "Non hai un account? <registerLink>Registrati</registerLink>",
+    "verificationEmailHelp": "Non hai ricevuto l'e-mail di verifica?"
   },
   "SignUpForm": {
     "acceptInviteCta": "Continua",
@@ -3424,8 +3426,11 @@
     "subject": "Verifica la tua e-mail"
   },
   "VerifyEmailCard": {
+    "anonymousBody": "Inserisci l'indirizzo e-mail con cui ti sei registrato e ti invieremo un nuovo link di verifica.",
+    "anonymousResendSuccess": "Se quell'indirizzo deve ancora essere verificato, gli abbiamo inviato un nuovo link.",
     "body": "Ti abbiamo inviato un'e-mail di verifica. Controlla la tua posta in arrivo e clicca sul link per verificare il tuo indirizzo e-mail.",
     "ctaLabel": "Invia di nuovo l'e-mail di verifica",
+    "invalidEmail": "Inserisci un indirizzo e-mail valido.",
     "invitationFrom": "Invito da {inviterName}",
     "resendSuccess": "E-mail di verifica inviata correttamente.",
     "subtitle": "Verifica il tuo indirizzo e-mail per continuare.",

@@ -797,7 +797,8 @@
   "AuthSocialErrors": {
     "accessDenied": "The sign-in was cancelled at the provider.",
     "accountAlreadyLinkedToDifferentUser": "This social account is already linked to a different user.",
-    "accountNotLinked": "An account with this email already exists but its email address is not verified yet. Sign in with your password and verify your email first, then you can use social login.",
+    "accountNotLinked": "Your provider did not confirm this email address, so we could not connect it to your existing account. Sign in with your password instead.",
+    "accountNotLinkedAction": "Reset password",
     "emailDoesNotMatch": "The email returned by the provider does not match the email of your account.",
     "emailIsMissing": "The provider did not return an email address.",
     "emailNotFound": "No email address was found for this social account.",
@@ -3254,7 +3255,8 @@
     "rememberMe": "Remember me",
     "signInCta": "Sign In",
     "signInTitle": "Sign in to your account",
-    "switchToSignUp": "Don't have an account? <registerLink>Register</registerLink>"
+    "switchToSignUp": "Don't have an account? <registerLink>Register</registerLink>",
+    "verificationEmailHelp": "Didn't get your verification email?"
   },
   "SignUpForm": {
     "acceptInviteCta": "Continue",
@@ -3424,8 +3426,11 @@
     "subject": "Verify your email"
   },
   "VerifyEmailCard": {
+    "anonymousBody": "Enter the email address you signed up with and we will send you a new verification link.",
+    "anonymousResendSuccess": "If that address still needs verifying, we have sent it a new link.",
     "body": "We've sent you a verification email. Please check your inbox and click the link to verify your email address.",
     "ctaLabel": "Resend verification email",
+    "invalidEmail": "Enter a valid email address.",
     "invitationFrom": "Invitation from {inviterName}",
     "resendSuccess": "Verification email sent successfully.",
     "subtitle": "Verify your email address to continue.",

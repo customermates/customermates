@@ -797,7 +797,8 @@
   "AuthSocialErrors": {
     "accessDenied": "Die Anmeldung wurde beim Anbieter abgebrochen.",
     "accountAlreadyLinkedToDifferentUser": "Dieses Social-Konto ist bereits mit einem anderen Benutzer verknüpft.",
-    "accountNotLinked": "Ein Konto mit dieser E-Mail existiert bereits, aber die E-Mail-Adresse ist noch nicht bestätigt. Melde dich zuerst mit deinem Passwort an und bestätige deine E-Mail, danach kannst du den Social-Login nutzen.",
+    "accountNotLinked": "Dein Anbieter hat diese E-Mail-Adresse nicht bestätigt, deshalb konnten wir sie nicht mit deinem bestehenden Konto verbinden. Melde dich stattdessen mit deinem Passwort an.",
+    "accountNotLinkedAction": "Passwort zurücksetzen",
     "emailDoesNotMatch": "Die E-Mail-Adresse vom Anbieter stimmt nicht mit der E-Mail deines Kontos überein.",
     "emailIsMissing": "Der Anbieter hat keine E-Mail-Adresse zurückgegeben.",
     "emailNotFound": "Für dieses Social-Konto wurde keine E-Mail-Adresse gefunden.",
@@ -3254,7 +3255,8 @@
     "rememberMe": "Angemeldet bleiben",
     "signInCta": "Anmelden",
     "signInTitle": "Bei deinem Konto anmelden",
-    "switchToSignUp": "Noch kein Konto? <registerLink>Registrieren</registerLink>"
+    "switchToSignUp": "Noch kein Konto? <registerLink>Registrieren</registerLink>",
+    "verificationEmailHelp": "Keine Bestätigungs-E-Mail erhalten?"
   },
   "SignUpForm": {
     "acceptInviteCta": "Weiter",
@@ -3424,8 +3426,11 @@
     "subject": "E-Mail bestätigen"
   },
   "VerifyEmailCard": {
+    "anonymousBody": "Gib die E-Mail-Adresse ein, mit der du dich registriert hast. Wir senden dir einen neuen Bestätigungslink.",
+    "anonymousResendSuccess": "Falls diese Adresse noch bestätigt werden muss, haben wir einen neuen Link geschickt.",
     "body": "Wir haben dir eine Verifizierungs-E-Mail gesendet. Bitte überprüfe dein Postfach und klicke auf den Link, um deine E-Mail-Adresse zu verifizieren.",
     "ctaLabel": "Verifizierungs-E-Mail erneut senden",
+    "invalidEmail": "Gib eine gültige E-Mail-Adresse ein.",
     "invitationFrom": "Einladung von {inviterName}",
     "resendSuccess": "Verifizierungs-E-Mail wurde erfolgreich gesendet.",
     "subtitle": "Verifiziere deine E-Mail-Adresse, um fortzufahren.",

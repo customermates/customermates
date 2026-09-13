@@ -27,7 +27,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
 
   const activeIntent = onboardingIntent.status === "valid" ? onboardingIntent : null;
   const resolution = await requireAccountState(
-    ["overdueVerification", "unregistered"],
+    activeIntent ? ["overdueVerification", "unregistered"] : ["overdueVerification", "unregistered", "unauthenticated"],
     "/",
     activeIntent ? onboardingIntentAuthRedirects(activeIntent.intent) : undefined,
   );
@@ -35,7 +35,9 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
     onboardingIntent.status === "valid" && onboardingIntent.type === "invitation" ? onboardingIntent : null;
   if (activeIntent?.type === "createCompany" && activeIntent.authUserId !== resolution.sessionUser?.id)
     redirect(buildLocalePath(locale, "/auth/error?type=invalidOnboardingIntent"));
-  if (resolution.state === "unregistered") {
+  const awaitsVerificationBeforeOnboarding =
+    resolution.state === "unregistered" && !activeIntent && resolution.emailVerified === false;
+  if (resolution.state === "unregistered" && !awaitsVerificationBeforeOnboarding) {
     const destination = activeIntent
       ? pathWithOnboardingIntent(
           activeIntent.type === "invitation" ? "/auth/invitation" : "/onboarding/wizard",

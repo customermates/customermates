@@ -61,6 +61,7 @@ export const auth = betterAuth({
   rateLimit: {
     customRules: {
       "/mcp/register": { window: 3600, max: 10 },
+      "/send-verification-email": { window: 3600, max: 10 },
     },
   },
 
@@ -88,6 +89,22 @@ export const auth = betterAuth({
         },
       },
     },
+    account: {
+      create: {
+        before: async (account) => {
+          if (account.providerId === "credential") return;
+
+          const authUser = await prisma.authUser.findUnique({
+            where: { id: account.userId },
+            select: { emailVerified: true },
+          });
+          if (!authUser || authUser.emailVerified) return;
+
+          await prisma.authAccount.deleteMany({ where: { userId: account.userId, providerId: "credential" } });
+          await prisma.authSession.deleteMany({ where: { userId: account.userId } });
+        },
+      },
+    },
   },
 
   user: {
@@ -104,6 +121,9 @@ export const auth = betterAuth({
 
   account: {
     modelName: "AuthAccount",
+    accountLinking: {
+      requireLocalEmailVerified: false,
+    },
   },
 
   session: {

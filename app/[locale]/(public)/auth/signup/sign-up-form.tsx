@@ -126,6 +126,10 @@ export const SignUpForm = observer(({ invitationIntent, inviterName, socialProvi
           />
 
           <FormInput required id="confirmPassword" type={signUpStore.showPassword ? "text" : "password"} />
+
+          <div className="flex w-full justify-end">
+            <AppLink href="/auth/verify-email">{t("SignInForm.verificationEmailHelp")}</AppLink>
+          </div>
         </AppCardBody>
 
         <AppCardFooter>
