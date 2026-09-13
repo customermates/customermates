@@ -26,7 +26,11 @@ vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({ customColumnModalStore }),
 }));
 vi.mock("@/components/data-view/custom-columns/custom-field-inputs", () => ({
-  CustomFieldInputs: () => createElement("div", { "data-custom-field-inputs": true }),
+  useCustomFieldInputs: ({ columns }: { columns: CustomColumnDto[] }) =>
+    columns.map((column) => ({
+      id: column.id,
+      content: createElement("input", { "data-custom-field-inputs": true, defaultValue: column.label }),
+    })),
 }));
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
@@ -37,8 +41,7 @@ import {
   resetEntityDetailPersonalizationPersistenceForTests,
   useEntityDetailCustomization,
 } from "../entity-detail-personalization";
-import { EntityDetailCustomFieldsSection } from "../entity-detail-custom-fields-section";
-import { EntityDetailSectionGroup } from "../entity-detail-section";
+import { EntityDetailOverview } from "../entity-detail-overview";
 
 const columnId = "10000000-0000-4000-8000-000000000001";
 const roots = new Set<Root>();
@@ -47,9 +50,6 @@ const TestProvider = EntityDetailPersonalizationProvider as ComponentType<{
   config: EntityDetailPersonalizationConfig;
   customColumnIds?: string[];
   persistenceScope: string;
-}>;
-const TestSectionGroup = EntityDetailSectionGroup as ComponentType<{
-  children?: ReactNode;
 }>;
 const oneColumn: CustomColumnDto[] = [
   {
@@ -70,7 +70,7 @@ function CustomizationJourney() {
   });
 
   return createElement(
-    TestSectionGroup,
+    "div",
     null,
     createElement(
       "button",
@@ -81,13 +81,13 @@ function CustomizationJourney() {
       },
       "Customize",
     ),
-    createElement(EntityDetailCustomFieldsSection, {
+    createElement(EntityDetailOverview, {
       canManage: true,
       columns: oneColumn,
       entityType: EntityType.contact,
       isEditing,
       onToggleEditing,
-      sectionId: "customFields",
+      fields: [],
     }),
   );
 }
@@ -107,22 +107,20 @@ function view({
       config: {
         p13nId: "contact-detail",
         defaultStarredFieldIds: [],
-        defaultCollapsedSectionIds: [],
-        sectionIds: ["customFields"],
       },
       customColumnIds: columns.map((column) => column.id),
       persistenceScope: "user-1",
     },
     createElement(
-      TestSectionGroup,
+      "div",
       null,
-      createElement(EntityDetailCustomFieldsSection, {
+      createElement(EntityDetailOverview, {
         canManage,
         columns,
         entityType: EntityType.contact,
         isEditing,
         onToggleEditing: toggleEditing,
-        sectionId: "customFields",
+        fields: [],
       }),
     ),
   );
@@ -154,17 +152,16 @@ afterEach(() => {
 });
 
 describe("entity detail custom fields empty state", () => {
-  it("explains the absence and offers the first field without entering edit mode", () => {
+  it("offers the first field without an empty-state section or edit mode", () => {
     const { container } = mount(view({}));
     const emptyState = container.querySelector<HTMLElement>('[data-slot="empty-state"]');
     const button = container.querySelector<HTMLButtonElement>("[data-entity-add-custom-field]");
 
-    expect(emptyState?.closest('[data-detail-section-content="customFields"]')).not.toBeNull();
-    expect(emptyState?.textContent).toContain("EntityDetail.customFieldsEmpty.title");
-    expect(emptyState?.textContent).toContain("EntityDetail.customFieldsEmpty.body");
+    expect(emptyState).toBeNull();
+    expect(container.querySelector("[data-detail-section-trigger]")).toBeNull();
     expect(container.querySelector("[data-custom-field-inputs]")).toBeNull();
     expect(button).not.toBeNull();
-    expect(button?.closest('[data-detail-section-content="customFields"]')).not.toBeNull();
+    expect(button?.closest("[data-entity-overview]")).not.toBeNull();
 
     act(() => button?.click());
 
@@ -172,10 +169,10 @@ describe("entity detail custom fields empty state", () => {
     expect(customColumnModalStore.open).toHaveBeenCalledOnce();
   });
 
-  it("keeps the explanation but hides the action without manage permission", () => {
+  it("renders no empty-state section or management actions without manage permission", () => {
     const { container } = mount(view({ canManage: false }));
 
-    expect(container.querySelector('[data-slot="empty-state"]')).not.toBeNull();
+    expect(container.querySelector('[data-slot="empty-state"]')).toBeNull();
     expect(container.querySelector("[data-entity-add-custom-field]")).toBeNull();
     expect(container.querySelector("[data-entity-custom-fields-mode-toggle]")).toBeNull();
   });
@@ -195,9 +192,9 @@ describe("entity detail custom fields empty state", () => {
     expect(container.querySelector("[data-entity-add-custom-field]")).not.toBeNull();
   });
 
-  it("offers a bordered, subdued edit toggle at the bottom of a populated section", () => {
+  it("offers a bordered, subdued Customize toggle matching the header at the bottom", () => {
     const { container } = mount(view({ columns: oneColumn }));
-    const content = container.querySelector<HTMLElement>('[data-detail-section-content="customFields"]');
+    const content = container.querySelector<HTMLElement>("[data-entity-overview]");
     const toggle = container.querySelector<HTMLButtonElement>("[data-entity-custom-fields-mode-toggle]");
 
     expect(toggle).not.toBeNull();
@@ -206,8 +203,9 @@ describe("entity detail custom fields empty state", () => {
     expect(toggle?.classList.contains("bg-transparent")).toBe(true);
     expect(toggle?.classList.contains("shadow-none")).toBe(true);
     expect(toggle?.getAttribute("aria-pressed")).toBe("false");
-    expect(toggle?.textContent).toContain("Common.actions.editCustomFields");
-    expect(toggle?.closest('[data-detail-section-content="customFields"]')).toBe(content);
+    expect(toggle?.textContent).toContain("EntityDetail.personalize");
+    expect(toggle?.getAttribute("aria-label")).toBe("EntityDetail.personalize");
+    expect(toggle?.closest("[data-entity-overview]")).toBe(content);
     expect(toggle?.parentElement?.lastElementChild).toBe(toggle);
 
     act(() => toggle?.click());
@@ -215,15 +213,16 @@ describe("entity detail custom fields empty state", () => {
     expect(toggleEditing).toHaveBeenCalledOnce();
   });
 
-  it("turns the footer toggle into a cancel action while editing", () => {
+  it("turns the footer toggle into a Done action matching the header while editing", () => {
     const { container } = mount(view({ columns: oneColumn, isEditing: true }));
-    const content = container.querySelector<HTMLElement>('[data-detail-section-content="customFields"]');
+    const content = container.querySelector<HTMLElement>("[data-entity-overview]");
     const add = container.querySelector<HTMLButtonElement>("[data-entity-add-custom-field]");
     const toggle = container.querySelector<HTMLButtonElement>("[data-entity-custom-fields-mode-toggle]");
 
     expect(toggle?.getAttribute("aria-pressed")).toBe("true");
-    expect(toggle?.textContent).toContain("Common.actions.cancel");
-    expect(toggle?.closest('[data-detail-section-content="customFields"]')).toBe(content);
+    expect(toggle?.textContent).toContain("EntityDetail.donePersonalizing");
+    expect(toggle?.getAttribute("aria-label")).toBe("EntityDetail.donePersonalizing");
+    expect(toggle?.closest("[data-entity-overview]")).toBe(content);
     expect(toggle?.parentElement?.lastElementChild).toBe(toggle);
     expect(add?.nextElementSibling).toBe(toggle);
 
@@ -232,7 +231,7 @@ describe("entity detail custom fields empty state", () => {
     expect(toggleEditing).toHaveBeenCalledOnce();
   });
 
-  it("leaves personalization and field editing together when canceling from the footer", () => {
+  it("leaves personalization and field editing together when finishing from the footer", () => {
     const { container } = mount(
       createElement(
         TestProvider,
@@ -240,8 +239,6 @@ describe("entity detail custom fields empty state", () => {
           config: {
             p13nId: "contact-detail",
             defaultStarredFieldIds: [],
-            defaultCollapsedSectionIds: [],
-            sectionIds: ["customFields"],
           },
           customColumnIds: [columnId],
           persistenceScope: "user-1",
@@ -253,13 +250,13 @@ describe("entity detail custom fields empty state", () => {
 
     act(() => top?.click());
 
-    const cancel = container.querySelector<HTMLButtonElement>("[data-entity-custom-fields-mode-toggle]");
+    const done = container.querySelector<HTMLButtonElement>("[data-entity-custom-fields-mode-toggle]");
     expect(top?.dataset.active).toBe("true");
-    expect(cancel?.textContent).toContain("Common.actions.cancel");
+    expect(done?.textContent).toContain("EntityDetail.donePersonalizing");
 
-    act(() => cancel?.click());
+    act(() => done?.click());
 
     expect(top?.dataset.active).toBe("false");
-    expect(cancel?.textContent).toContain("Common.actions.editCustomFields");
+    expect(done?.textContent).toContain("EntityDetail.personalize");
   });
 });

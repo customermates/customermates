@@ -40,16 +40,6 @@ function SectionHeader({
   );
 }
 
-function DetailSectionHeader({ animated, labelWidth }: { animated: boolean; labelWidth: string }) {
-  return (
-    <div data-entity-detail-skeleton-section className="flex h-13 shrink-0 items-center px-4">
-      <Shape breathe animated={animated} className={cn("h-3", labelWidth)} motionPhase={1} />
-
-      <Shape animated={animated} className="ml-auto size-4 rounded" motionPhase={2} />
-    </div>
-  );
-}
-
 export function EntityDetailPageSkeleton({
   animated = true,
   showSummary = false,
@@ -147,30 +137,16 @@ export function EntityDetailPageSkeleton({
             data-skeleton-group="0"
           >
             <div className="p-4 @6xl/detail:min-h-0 @6xl/detail:flex-1">
-              <div className="-mx-4 -mt-4 flex flex-col">
-                <div className="border-b border-border">
-                  <DetailSectionHeader animated={animated} labelWidth="w-20" />
+              <div className="flex flex-col gap-4">
+                <div data-skeleton-group="1">
+                  <FormFieldSkeleton short animated={animated} />
+                </div>
 
-                  <div className="flex flex-col gap-4 px-4 pb-4">
-                    <div data-skeleton-group="1">
-                      <FormFieldSkeleton short animated={animated} />
-                    </div>
-
-                    {FORM_ROWS.map((row) => (
-                      <div key={row} data-skeleton-group={row % 4}>
-                        <FormFieldSkeleton animated={animated} short={row % 2 === 0} />
-                      </div>
-                    ))}
+                {FORM_ROWS.map((row) => (
+                  <div key={row} data-skeleton-group={row % 4}>
+                    <FormFieldSkeleton animated={animated} short={row % 2 === 0} />
                   </div>
-                </div>
-
-                <div className="border-b border-border">
-                  <DetailSectionHeader animated={animated} labelWidth="w-16" />
-                </div>
-
-                <div className="border-b border-border">
-                  <DetailSectionHeader animated={animated} labelWidth="w-24" />
-                </div>
+                ))}
               </div>
             </div>
           </div>

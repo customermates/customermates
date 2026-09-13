@@ -9,23 +9,13 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { upsertP13nAction } from "@/app/actions";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import {
-  collapsedSectionIdsForOpenSection,
-  reconcileAvailableIds,
-  reconcileColumnOrder,
-  reconcileSingleOpenSections,
-  resolveSingleOpenSectionId,
-} from "./entity-detail-personalization.utils";
+import { reconcileAvailableIds, reconcileColumnOrder } from "./entity-detail-personalization.utils";
 
 export type EntityDetailPersonalizationConfig = {
   p13nId: string;
   defaultStarredFieldIds: string[];
-  defaultCollapsedSectionIds?: string[];
   availableFieldIds?: string[];
-  sectionIds?: string[];
 };
-
-type MoveDirection = "up" | "down";
 
 export type EntityDetailPreviewItem = {
   key: string;
@@ -38,14 +28,15 @@ type EntityDetailPersonalizationValue = {
   isPersonalizing: boolean;
   starredFieldIds: string[];
   hiddenFieldIds: string[];
-  openSectionId?: string;
+  availableFieldIds?: string[];
+  fieldOrder: string[];
   columnOrder: string[];
   previewFieldValues: Record<string, EntityDetailPreviewItem[]>;
   setIsPersonalizing: (value: boolean) => void;
   toggleStarredField: (fieldId: string) => void;
   toggleFieldVisibility: (fieldId: string) => void;
-  setOpenSection: (sectionId: string | undefined) => void;
-  moveColumn: (columnId: string, direction: MoveDirection) => void;
+  reorderFields: (fieldIds: string[]) => void;
+  reorderColumns: (columnIds: string[]) => void;
   setPreviewFieldValue: (fieldId: string, items: EntityDetailPreviewItem[]) => void;
 };
 
@@ -55,14 +46,14 @@ const EMPTY_VALUE: EntityDetailPersonalizationValue = {
   isPersonalizing: false,
   starredFieldIds: [],
   hiddenFieldIds: [],
-  openSectionId: undefined,
+  fieldOrder: [],
   columnOrder: [],
   previewFieldValues: {},
   setIsPersonalizing: () => undefined,
   toggleStarredField: () => undefined,
   toggleFieldVisibility: () => undefined,
-  setOpenSection: () => undefined,
-  moveColumn: () => undefined,
+  reorderFields: () => undefined,
+  reorderColumns: () => undefined,
   setPreviewFieldValue: () => undefined,
 };
 
@@ -152,17 +143,13 @@ export function EntityDetailPersonalizationProvider({
   const [isPersonalizing, setIsPersonalizing] = useState(false);
   const initialHiddenFieldIds = reconcileAvailableIds(storedOptions?.hiddenFieldIds ?? [], config?.availableFieldIds);
   const [hiddenFieldIds, setHiddenFieldIds] = useState(() => initialHiddenFieldIds);
+  const [fieldOrder, setFieldOrder] = useState(() =>
+    reconcileAvailableIds(storedOptions?.fieldOrder, config?.availableFieldIds),
+  );
   const [starredFieldIds, setStarredFieldIds] = useState(() =>
     reconcileAvailableIds(
       storedOptions?.starredFieldIds ?? config?.defaultStarredFieldIds ?? [],
       config?.availableFieldIds,
-    ).filter((fieldId) => !initialHiddenFieldIds.includes(fieldId)),
-  );
-  const [collapsedSectionIds, setCollapsedSectionIds] = useState(() =>
-    reconcileSingleOpenSections(
-      config?.sectionIds,
-      storedOptions?.collapsedSectionIds ?? config?.defaultCollapsedSectionIds ?? [],
-      config?.defaultCollapsedSectionIds,
     ),
   );
   const storedColumnOrder = latestSnapshot?.columnOrder ?? initial?.columnOrder;
@@ -177,21 +164,15 @@ export function EntityDetailPersonalizationProvider({
       p13nId,
       detailOptions: {
         starredFieldIds,
-        collapsedSectionIds,
+        collapsedSectionIds: [],
         ...(hiddenFieldIds.length > 0 ? { hiddenFieldIds } : {}),
+        ...(fieldOrder.length > 0 ? { fieldOrder } : {}),
       },
       columnOrder,
     }),
   );
   const currentColumnStamp = customColumnIds?.join("|");
   const availableFieldStamp = config?.availableFieldIds?.join("|");
-  const sectionStamp = config?.sectionIds?.join("|");
-  const defaultCollapsedSectionStamp = config?.defaultCollapsedSectionIds?.join("|");
-  const openSectionId = resolveSingleOpenSectionId(
-    config?.sectionIds,
-    collapsedSectionIds,
-    config?.defaultCollapsedSectionIds,
-  );
 
   useEffect(() => {
     if (currentColumnStamp === undefined) return;
@@ -211,17 +192,11 @@ export function EntityDetailPersonalizationProvider({
       const next = reconcileAvailableIds(current, availableFieldIds);
       return next.length === current.length && next.every((id, index) => id === current[index]) ? current : next;
     });
-  }, [availableFieldStamp]);
-
-  useEffect(() => {
-    const sectionIds = sectionStamp === undefined ? undefined : sectionStamp.split("|");
-    const defaultCollapsedSectionIds =
-      defaultCollapsedSectionStamp === undefined ? undefined : defaultCollapsedSectionStamp.split("|");
-    setCollapsedSectionIds((current) => {
-      const next = reconcileSingleOpenSections(sectionIds, current, defaultCollapsedSectionIds);
+    setFieldOrder((current) => {
+      const next = reconcileAvailableIds(current, availableFieldIds);
       return next.length === current.length && next.every((id, index) => id === current[index]) ? current : next;
     });
-  }, [defaultCollapsedSectionStamp, sectionStamp]);
+  }, [availableFieldStamp]);
 
   useEffect(() => {
     if (!p13nId || !persistenceChannelKey) return;
@@ -229,8 +204,9 @@ export function EntityDetailPersonalizationProvider({
       p13nId,
       detailOptions: {
         starredFieldIds,
-        collapsedSectionIds,
+        collapsedSectionIds: [],
         ...(hiddenFieldIds.length > 0 ? { hiddenFieldIds } : {}),
+        ...(fieldOrder.length > 0 ? { fieldOrder } : {}),
       },
       columnOrder,
     };
@@ -239,7 +215,7 @@ export function EntityDetailPersonalizationProvider({
 
     lastPersistenceStamp.current = stamp;
     schedulePersistence(persistenceChannelKey, snapshot);
-  }, [collapsedSectionIds, columnOrder, hiddenFieldIds, p13nId, persistenceChannelKey, starredFieldIds]);
+  }, [columnOrder, fieldOrder, hiddenFieldIds, p13nId, persistenceChannelKey, starredFieldIds]);
 
   useEffect(
     () => () => {
@@ -254,39 +230,25 @@ export function EntityDetailPersonalizationProvider({
     );
   }, []);
 
-  const toggleFieldVisibility = useCallback(
-    (fieldId: string) => {
-      const hiding = !hiddenFieldIds.includes(fieldId);
-      setHiddenFieldIds((current) =>
-        current.includes(fieldId) ? current.filter((id) => id !== fieldId) : [...current, fieldId],
-      );
-      if (hiding) setStarredFieldIds((starred) => starred.filter((id) => id !== fieldId));
+  const toggleFieldVisibility = useCallback((fieldId: string) => {
+    setHiddenFieldIds((current) =>
+      current.includes(fieldId) ? current.filter((id) => id !== fieldId) : [...current, fieldId],
+    );
+  }, []);
+
+  const reorderFields = useCallback(
+    (fieldIds: string[]) => {
+      setFieldOrder(fieldIds);
+      if (customColumnIds !== undefined) {
+        const customIds = new Set(customColumnIds);
+        setColumnOrder(fieldIds.filter((id) => customIds.has(id)));
+      }
     },
-    [hiddenFieldIds],
+    [customColumnIds],
   );
 
-  const setOpenSection = useCallback(
-    (sectionId: string | undefined) => {
-      const sectionIds = sectionStamp === undefined ? undefined : sectionStamp.split("|");
-      if (sectionId !== undefined && !sectionIds?.includes(sectionId)) return;
-      setCollapsedSectionIds((current) => {
-        const next = collapsedSectionIdsForOpenSection(sectionIds, sectionId);
-        return next.length === current.length && next.every((id, index) => id === current[index]) ? current : next;
-      });
-    },
-    [sectionStamp],
-  );
-
-  const moveColumn = useCallback((columnId: string, direction: MoveDirection) => {
-    setColumnOrder((current) => {
-      const index = current.indexOf(columnId);
-      if (index < 0) return current;
-      const target = direction === "up" ? index - 1 : index + 1;
-      if (target < 0 || target >= current.length) return current;
-      const next = [...current];
-      [next[index], next[target]] = [next[target], next[index]];
-      return next;
-    });
+  const reorderColumns = useCallback((columnIds: string[]) => {
+    setColumnOrder(columnIds);
   }, []);
 
   const setPreviewFieldValue = useCallback((fieldId: string, items: EntityDetailPreviewItem[]) => {
@@ -306,14 +268,15 @@ export function EntityDetailPersonalizationProvider({
       isPersonalizing,
       starredFieldIds,
       hiddenFieldIds,
-      openSectionId,
+      availableFieldIds: config?.availableFieldIds,
+      fieldOrder,
       columnOrder,
       previewFieldValues,
       setIsPersonalizing,
       toggleStarredField,
       toggleFieldVisibility,
-      setOpenSection,
-      moveColumn,
+      reorderFields,
+      reorderColumns,
       setPreviewFieldValue,
     }),
     [
@@ -321,11 +284,11 @@ export function EntityDetailPersonalizationProvider({
       config,
       applyFieldVisibility,
       hiddenFieldIds,
+      fieldOrder,
       isPersonalizing,
-      moveColumn,
-      openSectionId,
+      reorderFields,
+      reorderColumns,
       previewFieldValues,
-      setOpenSection,
       setPreviewFieldValue,
       starredFieldIds,
       toggleFieldVisibility,

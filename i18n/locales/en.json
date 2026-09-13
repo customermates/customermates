@@ -2081,25 +2081,17 @@
       "weightedValue": "{dealValue} × the {percent}% win probability for the current stage ({stage}). Change {services}, quantities, or the stage; manage stage probabilities in {company}.",
       "weightedValueUnconfigured": "{dealValue} × the selected stage’s win probability. Configure stage probabilities in {company} and select a stage; change {services} or quantities to update it."
     },
-    "customFieldsEmpty": {
-      "body": "Custom fields hold the extra details your workspace tracks on this record type.",
-      "title": "No custom fields yet"
-    },
     "donePersonalizing": "Done",
     "fields": {
       "createdAt": "Created at",
       "updatedAt": "Updated at"
     },
     "hideField": "Hide {field} from details",
-    "moveFieldDown": "Move {field} down",
-    "moveFieldUp": "Move {field} up",
+    "overview": "Overview",
     "personalize": "Customize",
     "pinField": "Pin {field} to the overview",
     "sections": {
-      "base": "Base data",
-      "customFields": "Custom fields",
-      "notes": "Notes",
-      "relations": "Relations"
+      "notes": "Notes"
     },
     "showField": "Show {field} in details",
     "unpinField": "Unpin {field} from the overview"
@@ -3099,13 +3091,6 @@
   },
   "RoutineDetail": {
     "credits": "Credits",
-    "disabledAdminPaused": "A company administrator paused this routine.",
-    "disabledGeneric": "This routine is paused and will not run until its owner activates it.",
-    "disabledOwnerPaused": "The owner paused this routine.",
-    "disabledOwnerUnavailable": "This routine was paused because its owner is no longer available. It stays read-only, and a company administrator can delete it.",
-    "disabledRepeatedFailures": "Mate paused this routine because its last three runs all failed. Fix the instructions, then switch it back on.",
-    "disabledRepeatedFailuresReadOnly": "Mate paused this routine because its last three runs all failed. Its owner needs to fix the instructions and activate it again.",
-    "disabledTitle": "Routine paused",
     "empty": {
       "event": {
         "actions": {
@@ -3179,9 +3164,10 @@
     "detailsTab": "Details",
     "disabled": "Paused",
     "enabled": "Active",
-    "enabledHelp": "Paused routines keep their schedule but do not run.",
+    "enabledHelp": "This routine can currently be executed.",
     "eventSuppressionNote": "Events caused by routines do not trigger routines.",
     "onMinute": "at minute",
+    "pausedHelp": "This routine is currently paused and will not be executed.",
     "promptExampleEvent": "Read the record that changed and reply with one sentence on what it means.",
     "promptExampleSchedule": "Summarise the deals that moved since yesterday and reply with a short list.",
     "scheduleTimeZone": "Times are shown in {timezone}.",

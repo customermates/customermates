@@ -43,11 +43,6 @@ vi.mock("@/components/ui/icon-button", () => ({
       label,
     ),
 }));
-vi.mock("../entity-detail-pin-button", () => ({
-  EntityDetailPinButton: ({ disabled, fieldId }: { disabled?: boolean; fieldId: string }) =>
-    createElement("button", { "data-pin": fieldId, disabled, type: "button" }),
-}));
-
 import {
   EntityDetailPersonalizationProvider,
   resetEntityDetailPersonalizationPersistenceForTests,
@@ -88,6 +83,12 @@ function Controls() {
   );
 }
 
+function PinnedFields() {
+  const { starredFieldIds } = useEntityDetailPersonalization();
+
+  return createElement("output", { "data-pinned-fields": starredFieldIds.join(",") });
+}
+
 function view({
   applyFieldVisibility = true,
   hidden = [],
@@ -113,6 +114,7 @@ function view({
       persistenceScope: "user-1",
     },
     createElement(Controls),
+    createElement(PinnedFields),
     createElement(
       TestField,
       { fieldId: "name" },
@@ -156,23 +158,28 @@ describe("entity detail field visibility", () => {
     const { container } = mount(view({ hidden: ["name"] }));
 
     expect(container.querySelector("[data-field-content]")).toBeNull();
+    expect(container.querySelector("[data-pinned-fields]")?.getAttribute("data-pinned-fields")).toBe("");
 
     act(() => container.querySelector<HTMLButtonElement>("[data-personalizing]")?.click());
 
     expect(container.querySelector('[data-entity-field="name"]')?.getAttribute("data-field-hidden")).toBe("true");
     expect(container.querySelector('[data-entity-field="name"]')?.className).toContain("opacity-50");
-    expect(container.querySelector<HTMLButtonElement>('[data-pin="name"]')?.disabled).toBe(true);
+    expect(container.querySelector<HTMLButtonElement>('[aria-label="EntityDetail.pinField:Name"]')?.disabled).toBe(
+      false,
+    );
     expect(container.querySelector('[aria-label="EntityDetail.showField:Name"]')).not.toBeNull();
   });
 
-  it("hides and unpins a field together, then persists the visibility preference", async () => {
+  it("hides a pinned field without removing it from the overview", async () => {
     const { container, root } = mount(view({ starred: ["name"] }));
 
     act(() => container.querySelector<HTMLButtonElement>("[data-personalizing]")?.click());
+    expect(container.querySelector('[aria-label="EntityDetail.unpinField:Name"]')).not.toBeNull();
     act(() => container.querySelector<HTMLButtonElement>('[aria-label="EntityDetail.hideField:Name"]')?.click());
     act(() => container.querySelector<HTMLButtonElement>("[data-personalizing]")?.click());
 
     expect(container.querySelector("[data-field-content]")).toBeNull();
+    expect(container.querySelector("[data-pinned-fields]")?.getAttribute("data-pinned-fields")).toBe("name");
 
     act(() => root.unmount());
     roots.delete(root);
@@ -183,7 +190,30 @@ describe("entity detail field visibility", () => {
       detailOptions: {
         collapsedSectionIds: [],
         hiddenFieldIds: ["name"],
-        starredFieldIds: [],
+        starredFieldIds: ["name"],
+      },
+      columnOrder: [],
+    });
+  });
+
+  it("allows a hidden field to be pinned while Customize is open", async () => {
+    const { container, root } = mount(view({ hidden: ["name"] }));
+
+    act(() => container.querySelector<HTMLButtonElement>("[data-personalizing]")?.click());
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="EntityDetail.pinField:Name"]')?.click());
+
+    expect(container.querySelector('[aria-label="EntityDetail.unpinField:Name"]')).not.toBeNull();
+
+    act(() => root.unmount());
+    roots.delete(root);
+    await act(async () => Promise.resolve());
+
+    expect(upsertP13nAction).toHaveBeenCalledExactlyOnceWith({
+      p13nId: "contact-detail",
+      detailOptions: {
+        collapsedSectionIds: [],
+        hiddenFieldIds: ["name"],
+        starredFieldIds: ["name"],
       },
       columnOrder: [],
     });

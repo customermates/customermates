@@ -235,7 +235,7 @@ describe("EntityDetailLayout", () => {
     const tabClasses = html.match(/role="tab"[^>]*class="([^"]+)"/)?.[1].split(" ") ?? [];
     expect(tabClasses).toContain("group-data-[orientation=horizontal]/tabs:after:-bottom-px");
     expect(tabClasses).not.toContain("group-data-[orientation=horizontal]/tabs:after:bottom-[-5px]");
-    expect(html).toContain("Common.details");
+    expect(html).toContain("EntityDetail.overview");
     expect(html).toContain("EntityDetail.sections.notes");
     expect(html).toContain("EntityTimeline.types.activities");
     expect(html).toContain("@6xl/detail:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_360px]");

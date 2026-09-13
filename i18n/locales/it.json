@@ -2081,25 +2081,17 @@
       "weightedValue": "{dealValue} × probabilità di chiusura del {percent}% per la fase corrente ({stage}). Modifica «{services}», quantità o fase; gestisci le probabilità in «{company}».",
       "weightedValueUnconfigured": "{dealValue} × probabilità di chiusura della fase selezionata. Configura le probabilità in «{company}» e seleziona una fase; modifica «{services}» o quantità."
     },
-    "customFieldsEmpty": {
-      "body": "I campi personalizzati contengono le informazioni aggiuntive che il tuo spazio di lavoro registra per questo tipo di record.",
-      "title": "Ancora nessun campo personalizzato"
-    },
     "donePersonalizing": "Fine",
     "fields": {
       "createdAt": "Creato il",
       "updatedAt": "Aggiornato il"
     },
     "hideField": "Nascondi {field} dai dettagli",
-    "moveFieldDown": "Sposta {field} in basso",
-    "moveFieldUp": "Sposta {field} in alto",
+    "overview": "Panoramica",
     "personalize": "Personalizza",
     "pinField": "Fissa {field} nella panoramica",
     "sections": {
-      "base": "Dati di base",
-      "customFields": "Campi personalizzati",
-      "notes": "Note",
-      "relations": "Relazioni"
+      "notes": "Note"
     },
     "showField": "Mostra {field} nei dettagli",
     "unpinField": "Togli {field} dalla panoramica"
@@ -3099,13 +3091,6 @@
   },
   "RoutineDetail": {
     "credits": "Crediti",
-    "disabledAdminPaused": "Un amministratore aziendale ha sospeso questa routine.",
-    "disabledGeneric": "Questa routine è sospesa e non verrà eseguita finché il proprietario non la attiva.",
-    "disabledOwnerPaused": "Il proprietario ha sospeso questa routine.",
-    "disabledOwnerUnavailable": "Questa routine è stata sospesa perché il proprietario non è più disponibile. Resta di sola lettura e un amministratore aziendale può eliminarla.",
-    "disabledRepeatedFailures": "Mate ha messo in pausa questa routine perché le ultime tre esecuzioni sono fallite. Correggi le istruzioni e riattivala.",
-    "disabledRepeatedFailuresReadOnly": "Mate ha sospeso questa routine perché le ultime tre esecuzioni sono fallite. Il proprietario deve correggere le istruzioni e riattivarla.",
-    "disabledTitle": "Routine sospesa",
     "empty": {
       "event": {
         "actions": {
@@ -3179,9 +3164,10 @@
     "detailsTab": "Dettagli",
     "disabled": "In pausa",
     "enabled": "Attiva",
-    "enabledHelp": "Le routine in pausa mantengono la pianificazione ma non vengono eseguite.",
+    "enabledHelp": "Questa routine può essere eseguita al momento.",
     "eventSuppressionNote": "Gli eventi causati dalle routine non attivano alcuna routine.",
     "onMinute": "al minuto",
+    "pausedHelp": "Questa routine è attualmente in pausa e non verrà eseguita.",
     "promptExampleEvent": "Leggi il record che è cambiato e rispondi con una frase su cosa significa.",
     "promptExampleSchedule": "Riassumi ciò che è cambiato da ieri e rispondi con un breve elenco.",
     "scheduleTimeZone": "Gli orari sono mostrati in {timezone}.",

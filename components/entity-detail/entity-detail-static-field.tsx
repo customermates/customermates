@@ -6,6 +6,7 @@ import { FormOutputField } from "@/components/forms/form-output-field";
 
 import { EntityDetailField } from "./entity-detail-field";
 import { EntityDetailFieldActions } from "./entity-detail-field-actions";
+import { EntityDetailFieldDragHandle } from "./entity-detail-fields";
 
 type Props = {
   fieldId: string;
@@ -20,6 +21,7 @@ export function EntityDetailStaticField({ fieldId, label, value, help }: Props) 
   return (
     <EntityDetailField fieldId={fieldId}>
       <FormOutputField
+        controlStartAddon={<EntityDetailFieldDragHandle label={label} />}
         help={help}
         label={label}
         labelEndAddon={<EntityDetailFieldActions fieldId={fieldId} label={label} />}

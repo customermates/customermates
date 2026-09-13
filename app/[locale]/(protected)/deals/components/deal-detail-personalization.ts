@@ -13,9 +13,3 @@ export const DEAL_DETAIL_FIELD = {
   createdAt: "createdAt",
   updatedAt: "updatedAt",
 } as const;
-
-export const DEAL_DETAIL_SECTION = {
-  base: "base",
-  relations: "relations",
-  customFields: "customFields",
-} as const;

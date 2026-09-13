@@ -7,6 +7,7 @@ import { observer } from "mobx-react-lite";
 
 import { Input } from "@/components/ui/input";
 import { FormLabel } from "./form-label";
+import { FormControlRow } from "./form-control-row";
 import { cn } from "@/core/utils/cn";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
@@ -26,6 +27,7 @@ type Props = Omit<
   containerClassName?: string;
   endContent?: ReactNode;
   labelEndAddon?: ReactNode;
+  controlStartAddon?: ReactNode;
   disabled?: boolean;
   readOnly?: boolean;
 };
@@ -43,6 +45,7 @@ export const FormNumberInput = observer(
     onFocus,
     endContent,
     labelEndAddon,
+    controlStartAddon,
     disabled,
     readOnly,
     ...props
@@ -87,7 +90,7 @@ export const FormNumberInput = observer(
           </div>
         )}
 
-        <div className="relative">
+        <FormControlRow startAddon={controlStartAddon}>
           <Input
             aria-invalid={hasError}
             className={cn(endContent && "pr-8", className)}
@@ -130,7 +133,7 @@ export const FormNumberInput = observer(
               {endContent}
             </span>
           )}
-        </div>
+        </FormControlRow>
       </div>
     );
   },

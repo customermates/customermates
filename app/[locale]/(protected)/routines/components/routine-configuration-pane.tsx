@@ -63,21 +63,6 @@ export const RoutineConfigurationPane = observer(({ store, onPause }: Props) => 
   const hasTriggerFilterRows = filterableFields.length > 0 || (form.triggerFilters?.length ?? 0) > 0;
   const ownerName = form.owner ? `${form.owner.firstName} ${form.owner.lastName}`.trim() : null;
   const ownerAvailable = store.hasAvailableOwner;
-  const disabledReasonCopy =
-    store.disabledReason === "repeatedFailures"
-      ? store.canManage
-        ? t("RoutineDetail.disabledRepeatedFailures")
-        : ownerAvailable
-          ? t("RoutineDetail.disabledRepeatedFailuresReadOnly")
-          : t("RoutineDetail.disabledOwnerUnavailable")
-      : store.disabledReason === "adminPaused"
-        ? t("RoutineDetail.disabledAdminPaused")
-        : store.disabledReason === "ownerUnavailable"
-          ? t("RoutineDetail.disabledOwnerUnavailable")
-          : store.disabledReason === "ownerPaused"
-            ? t("RoutineDetail.disabledOwnerPaused")
-            : t("RoutineDetail.disabledGeneric");
-
   return (
     <section aria-labelledby="routine-configuration-heading" className="min-w-0 space-y-4">
       <h3 className="text-sm font-semibold" id="routine-configuration-heading">
@@ -148,28 +133,34 @@ export const RoutineConfigurationPane = observer(({ store, onPause }: Props) => 
         </div>
       )}
 
-      <div className="bg-muted/40 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 rounded-lg border px-4 py-3">
-        {store.canManage ? (
-          <FormSwitch
-            containerClassName="shrink-0"
-            id="enabled"
-            label={form.enabled ? t("RoutineModal.enabled") : t("RoutineModal.disabled")}
-          />
-        ) : (
+      {store.canManage ? (
+        <label
+          data-routine-enabled-field
+          className="bg-muted/40 flex cursor-pointer flex-wrap items-center justify-between gap-x-4 gap-y-1.5 rounded-lg border px-4 py-3 transition-colors hover:bg-accent focus-within:ring-[3px] focus-within:ring-ring/50"
+          htmlFor="enabled"
+        >
+          <FormSwitch containerClassName="shrink-0" id="enabled" />
+
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium">
+              {form.enabled ? t("RoutineModal.enabled") : t("RoutineModal.disabled")}
+            </p>
+
+            <p className="text-subdued text-xs">
+              {form.enabled ? t("RoutineModal.enabledHelp") : t("RoutineModal.pausedHelp")}
+            </p>
+          </div>
+        </label>
+      ) : (
+        <div className="bg-muted/40 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 rounded-lg border px-4 py-3">
           <AppChip size="sm" variant={form.enabled ? "success" : "secondary"}>
             {form.enabled ? t("RoutineModal.enabled") : t("RoutineModal.disabled")}
           </AppChip>
-        )}
 
-        <p className="text-subdued min-w-0 flex-1 text-xs">{t("RoutineModal.enabledHelp")}</p>
-      </div>
-
-      {!form.enabled && store.disabledReason && (
-        <Alert color="warning">
-          <p className="text-x-sm font-medium">{t("RoutineDetail.disabledTitle")}</p>
-
-          <p className="text-x-sm">{disabledReasonCopy}</p>
-        </Alert>
+          <p className="text-subdued min-w-0 flex-1 text-xs">
+            {form.enabled ? t("RoutineModal.enabledHelp") : t("RoutineModal.pausedHelp")}
+          </p>
+        </div>
       )}
 
       <FormInput required id="name" />

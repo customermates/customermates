@@ -2081,25 +2081,17 @@
       "weightedValue": "{dealValue} × probabilité de conclusion de {percent} % pour l’étape actuelle ({stage}). Modifiez « {services} », les quantités ou l’étape ; gérez les probabilités dans « {company} ».",
       "weightedValueUnconfigured": "{dealValue} × probabilité de conclusion de l’étape sélectionnée. Configurez les probabilités dans « {company} » et sélectionnez une étape ; modifiez « {services} » ou les quantités."
     },
-    "customFieldsEmpty": {
-      "body": "Les champs personnalisés contiennent les informations supplémentaires que votre espace de travail suit pour ce type d’enregistrement.",
-      "title": "Aucun champ personnalisé pour le moment"
-    },
     "donePersonalizing": "Terminé",
     "fields": {
       "createdAt": "Créé le",
       "updatedAt": "Mis à jour le"
     },
     "hideField": "Masquer {field} dans les détails",
-    "moveFieldDown": "Déplacer {field} vers le bas",
-    "moveFieldUp": "Déplacer {field} vers le haut",
+    "overview": "Vue d’ensemble",
     "personalize": "Personnaliser",
     "pinField": "Épingler {field} dans l’aperçu",
     "sections": {
-      "base": "Données de base",
-      "customFields": "Champs personnalisés",
-      "notes": "Notes",
-      "relations": "Relations"
+      "notes": "Notes"
     },
     "showField": "Afficher {field} dans les détails",
     "unpinField": "Désépingler {field} de l’aperçu"
@@ -3099,13 +3091,6 @@
   },
   "RoutineDetail": {
     "credits": "Crédits",
-    "disabledAdminPaused": "Un administrateur de l’entreprise a suspendu cette routine.",
-    "disabledGeneric": "Cette routine est suspendue et ne s’exécutera pas avant que son propriétaire ne l’active.",
-    "disabledOwnerPaused": "Le propriétaire a suspendu cette routine.",
-    "disabledOwnerUnavailable": "Cette routine a été suspendue car son propriétaire n’est plus disponible. Elle reste en lecture seule et un administrateur de l’entreprise peut la supprimer.",
-    "disabledRepeatedFailures": "Mate a mis cette routine en pause car ses trois dernières exécutions ont échoué. Corrigez les instructions, puis réactivez-la.",
-    "disabledRepeatedFailuresReadOnly": "Mate a suspendu cette routine car ses trois dernières exécutions ont échoué. Son propriétaire doit corriger les instructions, puis la réactiver.",
-    "disabledTitle": "Routine suspendue",
     "empty": {
       "event": {
         "actions": {
@@ -3179,9 +3164,10 @@
     "detailsTab": "Détails",
     "disabled": "En pause",
     "enabled": "Active",
-    "enabledHelp": "Les routines en pause conservent leur planification mais ne s'exécutent pas.",
+    "enabledHelp": "Cette routine peut actuellement être exécutée.",
     "eventSuppressionNote": "Les évènements causés par des routines ne déclenchent aucune routine.",
     "onMinute": "à la minute",
+    "pausedHelp": "Cette routine est actuellement en pause et ne sera pas exécutée.",
     "promptExampleEvent": "Lis l’enregistrement modifié et réponds en une phrase sur ce que cela signifie.",
     "promptExampleSchedule": "Résume ce qui a bougé depuis hier et réponds par une courte liste.",
     "scheduleTimeZone": "Les heures sont affichées en {timezone}.",

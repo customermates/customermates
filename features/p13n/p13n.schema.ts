@@ -6,6 +6,7 @@ export const EntityDetailOptionsSchema = z.object({
   starredFieldIds: z.array(z.string().min(1)),
   collapsedSectionIds: z.array(z.string().min(1)),
   hiddenFieldIds: z.array(z.string().min(1)).optional(),
+  fieldOrder: z.array(z.string().min(1)).optional(),
 });
 
 export type EntityDetailOptions = z.infer<typeof EntityDetailOptionsSchema>;
