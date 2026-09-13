@@ -797,7 +797,8 @@
   "AuthSocialErrors": {
     "accessDenied": "Die Anmeldung wurde beim Anbieter abgebrochen.",
     "accountAlreadyLinkedToDifferentUser": "Dieses Social-Konto ist bereits mit einem anderen Benutzer verknüpft.",
-    "accountNotLinked": "Ein Konto mit dieser E-Mail existiert bereits, aber die E-Mail-Adresse ist noch nicht bestätigt. Melde dich zuerst mit deinem Passwort an und bestätige deine E-Mail, danach kannst du den Social-Login nutzen.",
+    "accountNotLinked": "Ein Konto mit dieser E-Mail existiert bereits, aber die E-Mail-Adresse ist noch nicht bestätigt. Bestätige zuerst deine E-Mail, danach kannst du den Social-Login nutzen.",
+    "accountNotLinkedAction": "Bestätigungs-E-Mail senden",
     "emailDoesNotMatch": "Die E-Mail-Adresse vom Anbieter stimmt nicht mit der E-Mail deines Kontos überein.",
     "emailIsMissing": "Der Anbieter hat keine E-Mail-Adresse zurückgegeben.",
     "emailNotFound": "Für dieses Social-Konto wurde keine E-Mail-Adresse gefunden.",
@@ -3424,6 +3425,7 @@
     "subject": "E-Mail bestätigen"
   },
   "VerifyEmailCard": {
+    "anonymousBody": "Gib die E-Mail-Adresse ein, mit der du dich registriert hast. Wir senden dir einen neuen Bestätigungslink.",
     "body": "Wir haben dir eine Verifizierungs-E-Mail gesendet. Bitte überprüfe dein Postfach und klicke auf den Link, um deine E-Mail-Adresse zu verifizieren.",
     "ctaLabel": "Verifizierungs-E-Mail erneut senden",
     "invitationFrom": "Einladung von {inviterName}",

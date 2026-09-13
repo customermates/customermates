@@ -1,17 +1,22 @@
+import type { FormEvent } from "react";
 import type { RootStore } from "@/core/stores/root.store";
 
 import { action, makeObservable, observable, runInAction } from "mobx";
 
-import { BaseStore } from "@/core/base/base.store";
+import { BaseFormStore } from "@/core/base/base-form.store";
 import { resendVerificationEmailFromAuthAction } from "@/app/[locale]/(public)/auth/actions";
 
-export class VerifyEmailStore extends BaseStore {
+type VerifyEmailForm = {
+  email: string;
+};
+
+export class VerifyEmailStore extends BaseFormStore<VerifyEmailForm> {
   isSent = false;
   private activeEmail: string | undefined;
   private onboardingIntent: string | undefined;
 
   constructor(rootStore: RootStore) {
-    super(rootStore);
+    super(rootStore, { email: "" });
 
     makeObservable(this, {
       isSent: observable,
@@ -19,6 +24,8 @@ export class VerifyEmailStore extends BaseStore {
       deactivate: action,
       resend: action,
     });
+
+    this.setWithUnsavedChangesGuard(false);
   }
 
   activate = (email: string | undefined, onboardingIntent?: string): void => {
@@ -35,13 +42,22 @@ export class VerifyEmailStore extends BaseStore {
     this.isSent = false;
   };
 
+  onSubmit = async (event?: FormEvent<HTMLFormElement>): Promise<void> => {
+    event?.preventDefault();
+    await this.resend();
+  };
+
   resend = async (): Promise<void> => {
-    const email = this.activeEmail;
+    const sessionEmail = this.activeEmail;
+    const email = sessionEmail ?? this.form.email.trim();
     if (!email) return;
 
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
-      const result = await resendVerificationEmailFromAuthAction(this.onboardingIntent);
-      if (!result.ok || this.activeEmail !== email) return;
+      const result = await resendVerificationEmailFromAuthAction({
+        onboardingIntent: this.onboardingIntent,
+        email: sessionEmail ? undefined : email,
+      });
+      if (!result.ok || this.activeEmail !== sessionEmail) return;
 
       runInAction(() => {
         this.isSent = true;

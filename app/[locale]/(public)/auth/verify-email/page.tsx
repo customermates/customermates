@@ -27,7 +27,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
 
   const activeIntent = onboardingIntent.status === "valid" ? onboardingIntent : null;
   const resolution = await requireAccountState(
-    ["overdueVerification", "unregistered"],
+    activeIntent ? ["overdueVerification", "unregistered"] : ["overdueVerification", "unregistered", "unauthenticated"],
     "/",
     activeIntent ? onboardingIntentAuthRedirects(activeIntent.intent) : undefined,
   );

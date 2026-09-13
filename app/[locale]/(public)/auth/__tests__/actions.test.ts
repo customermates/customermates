@@ -79,10 +79,10 @@ describe("authentication action adapters", () => {
 
     await requestPasswordResetAction(request);
     await resetPasswordAction(reset);
-    await resendVerificationEmailFromAuthAction("signed.intent");
+    await resendVerificationEmailFromAuthAction({ onboardingIntent: "signed.intent" });
 
     expect(mocks.requestPasswordReset).toHaveBeenCalledExactlyOnceWith(request);
     expect(mocks.resetPassword).toHaveBeenCalledExactlyOnceWith(reset);
-    expect(mocks.resendVerification).toHaveBeenCalledExactlyOnceWith("signed.intent");
+    expect(mocks.resendVerification).toHaveBeenCalledExactlyOnceWith({ onboardingIntent: "signed.intent" });
   });
 });

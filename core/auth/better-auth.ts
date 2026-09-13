@@ -61,6 +61,7 @@ export const auth = betterAuth({
   rateLimit: {
     customRules: {
       "/mcp/register": { window: 3600, max: 10 },
+      "/send-verification-email": { window: 3600, max: 10 },
     },
   },
 

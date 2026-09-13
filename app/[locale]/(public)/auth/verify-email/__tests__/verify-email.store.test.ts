@@ -67,6 +67,25 @@ describe("VerifyEmailStore", () => {
 
     await store.resend();
 
-    expect(authActions.resendVerificationEmailFromAuthAction).toHaveBeenCalledWith("signed.intent");
+    expect(authActions.resendVerificationEmailFromAuthAction).toHaveBeenCalledWith({
+      email: undefined,
+      onboardingIntent: "signed.intent",
+    });
+  });
+  it("sends the typed address when nobody is signed in", async () => {
+    const store = new VerifyEmailStore(rootStore);
+    store.activate(undefined);
+
+    await store.resend();
+    expect(authActions.resendVerificationEmailFromAuthAction).not.toHaveBeenCalled();
+
+    store.onChange("email", "  Stuck.User@Gmail.com  ");
+    await store.resend();
+
+    expect(authActions.resendVerificationEmailFromAuthAction).toHaveBeenCalledExactlyOnceWith({
+      email: "Stuck.User@Gmail.com",
+      onboardingIntent: undefined,
+    });
+    expect(store.isSent).toBe(true);
   });
 });

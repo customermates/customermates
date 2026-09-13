@@ -1,5 +1,6 @@
 import type React from "react";
 
+import * as Sentry from "@sentry/nextjs";
 import { Resend } from "resend";
 
 import { env } from "@/env";
@@ -37,6 +38,13 @@ export class EmailService {
       react: args.react,
     });
 
-    return error === null;
+    if (error) {
+      Sentry.captureException(new Error(`Resend rejected an email: ${error.name}: ${error.message}`), {
+        extra: { subject: args.subject, recipientDomain: args.to.split("@").at(-1) },
+      });
+      return false;
+    }
+
+    return true;
   }
 }

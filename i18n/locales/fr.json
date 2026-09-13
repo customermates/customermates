@@ -797,7 +797,8 @@
   "AuthSocialErrors": {
     "accessDenied": "La connexion a été annulée chez le fournisseur.",
     "accountAlreadyLinkedToDifferentUser": "Ce compte social est déjà lié à un autre utilisateur.",
-    "accountNotLinked": "Un compte existe déjà avec cette adresse e-mail, mais elle n'est pas encore vérifiée. Connectez-vous avec votre mot de passe et vérifiez votre adresse, puis vous pourrez utiliser la connexion sociale.",
+    "accountNotLinked": "Un compte existe déjà avec cette adresse e-mail, mais elle n'est pas encore vérifiée. Vérifiez d'abord votre adresse, puis vous pourrez utiliser la connexion sociale.",
+    "accountNotLinkedAction": "Envoyer l'e-mail de vérification",
     "emailDoesNotMatch": "L'adresse e-mail renvoyée par le fournisseur ne correspond pas à celle de votre compte.",
     "emailIsMissing": "Le fournisseur n'a renvoyé aucune adresse e-mail.",
     "emailNotFound": "Aucune adresse e-mail n'a été trouvée pour ce compte social.",
@@ -3424,6 +3425,7 @@
     "subject": "Vérifiez votre adresse e-mail"
   },
   "VerifyEmailCard": {
+    "anonymousBody": "Saisissez l'adresse e-mail utilisée lors de votre inscription et nous vous enverrons un nouveau lien de vérification.",
     "body": "Nous vous avons envoyé un e-mail de vérification. Consultez votre boîte de réception et cliquez sur le lien pour vérifier votre adresse.",
     "ctaLabel": "Renvoyer l'e-mail de vérification",
     "invitationFrom": "Invitation de {inviterName}",

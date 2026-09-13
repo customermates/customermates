@@ -69,4 +69,19 @@ describe("VerifyEmailPage onboarding intent", () => {
     expect(card.props.inviterName).toBeUndefined();
     expect(card.props.onboardingIntent).toBeUndefined();
   });
+
+  it("lets a signed-out visitor request a verification email when no intent is in play", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({ sessionUser: null, state: "unauthenticated" });
+
+    const result = await VerifyEmailPage({ searchParams: Promise.resolve({}) });
+    const card = result.props.children;
+
+    expect(mocks.requireAccountState).toHaveBeenCalledWith(
+      ["overdueVerification", "unregistered", "unauthenticated"],
+      "/",
+      undefined,
+    );
+    expect(card.props.email).toBeUndefined();
+  });
 });
