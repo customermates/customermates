@@ -1,4 +1,5 @@
 import type { SubscriptionService } from "./subscription.service";
+import type { UserService } from "@/features/user/user.service";
 
 import { z } from "zod";
 import {
@@ -14,7 +15,6 @@ import type { CountActiveUsersRepo } from "@/features/user/count-active-users.re
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { canManageBilling } from "@/features/auth/subscription-recovery";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 const OutputSchema = z.object({
@@ -50,6 +50,7 @@ export class GetSubscriptionInteractor extends AuthenticatedInteractor<void, Sub
     private repo: GetSubscriptionRepo,
     private userRepo: CountActiveUsersRepo,
     private lemonSqueezyService: SubscriptionService,
+    private userService: UserService,
   ) {
     super();
   }
@@ -63,11 +64,11 @@ export class GetSubscriptionInteractor extends AuthenticatedInteractor<void, Sub
 
     let customerPortalUrl: string | null = null;
 
-    if (
-      canManageBilling(this.user) &&
-      subscription.lemonSqueezyId &&
-      subscription.plan !== SubscriptionPlanEnum.enterprise
-    ) {
+    const mayManageBilling =
+      subscription.plan !== SubscriptionPlanEnum.enterprise &&
+      (await this.userService.hasPermission(Resource.company, Action.update));
+
+    if (mayManageBilling && subscription.lemonSqueezyId) {
       const lemonSqueezySubscription = await this.lemonSqueezyService.getSubscriptionOrThrowUnscoped(
         subscription.lemonSqueezyId,
       );

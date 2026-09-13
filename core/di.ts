@@ -1617,7 +1617,7 @@ export const getCreateCheckoutSessionInteractor = () =>
   new CreateCheckoutSessionInteractor(getSubscriptionService(), getCompanyRepo(), getUserRepo());
 
 export const getGetSubscriptionInteractor = () =>
-  new GetSubscriptionInteractor(getCompanyRepo(), getUserRepo(), getSubscriptionService());
+  new GetSubscriptionInteractor(getCompanyRepo(), getUserRepo(), getSubscriptionService(), getUserService());
 
 export const getRefreshSubscriptionInteractor = () =>
   new RefreshSubscriptionInteractor(getCompanyRepo(), getSubscriptionService(), getDeleteAccountsForPlanInteractor());

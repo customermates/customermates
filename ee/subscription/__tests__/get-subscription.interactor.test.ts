@@ -22,7 +22,7 @@ const { runWithTenant } = await import("@/core/decorators/tenant-context");
 
 const PORTAL_URL = "https://billing.example/portal/abc";
 
-function make() {
+function make(mayManageBilling: boolean) {
   const repo = {
     getSubscriptionOrThrow: vi.fn().mockResolvedValue({
       status: "active",
@@ -40,9 +40,17 @@ function make() {
     }),
   };
 
+  const userService = { hasPermission: vi.fn().mockResolvedValue(mayManageBilling) };
+
   return {
-    interactor: new GetSubscriptionInteractor(repo as never, userRepo as never, lemonSqueezyService as never),
+    interactor: new GetSubscriptionInteractor(
+      repo as never,
+      userRepo as never,
+      lemonSqueezyService as never,
+      userService as never,
+    ),
     lemonSqueezyService,
+    userService,
   };
 }
 
@@ -68,7 +76,7 @@ beforeEach(() => vi.clearAllMocks());
 
 describe("GetSubscriptionInteractor customer portal exposure", () => {
   it("withholds the billing portal link from a member who cannot act on billing", async () => {
-    const { interactor, lemonSqueezyService } = make();
+    const { interactor, lemonSqueezyService } = make(false);
 
     const result = await runWithTenant(readOnlyMember(), () => interactor.invoke());
 
@@ -77,7 +85,7 @@ describe("GetSubscriptionInteractor customer portal exposure", () => {
   });
 
   it("still reports the plan and seats to that member, because reading the subscription is allowed", async () => {
-    const { interactor } = make();
+    const { interactor } = make(true);
 
     const result = await runWithTenant(readOnlyMember(), () => interactor.invoke());
 
@@ -85,16 +93,17 @@ describe("GetSubscriptionInteractor customer portal exposure", () => {
   });
 
   it("gives the portal link to a member who can manage billing", async () => {
-    const { interactor, lemonSqueezyService } = make();
+    const { interactor, lemonSqueezyService, userService } = make(true);
 
     const result = await runWithTenant(billingManager(), () => interactor.invoke());
 
     expect(result.data.customerPortalUrl).toBe(PORTAL_URL);
     expect(lemonSqueezyService.getSubscriptionOrThrowUnscoped).toHaveBeenCalledOnce();
+    expect(userService.hasPermission).toHaveBeenCalledWith(Resource.company, Action.update);
   });
 
   it("gives the portal link to a system administrator", async () => {
-    const { interactor } = make();
+    const { interactor } = make(true);
 
     const result = await runWithTenant(createMockUser(), () => interactor.invoke());
 
