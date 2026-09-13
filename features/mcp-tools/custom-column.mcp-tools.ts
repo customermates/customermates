@@ -129,7 +129,9 @@ const DeleteCustomColumnSchema = z.object({
 const ManageCustomColumnsSchema = z.object({
   action: z
     .enum(["list", "upsert", "delete"])
-    .describe("list = read columns, upsert = create or update a column, delete = remove a column"),
+    .describe(
+      "list = read columns (optional entityType); upsert = create a column with intent create, entityType, type, label and selectOptions for singleSelect, or update one with intent update, its existing id and unchanged label; delete = id.",
+    ),
   entityType: z
     .enum(EntityType)
     .optional()

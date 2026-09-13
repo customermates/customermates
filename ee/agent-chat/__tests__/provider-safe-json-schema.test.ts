@@ -371,7 +371,6 @@ describe("the shipped tool catalog on the Google wire", () => {
     expect(declaredTools.length).toBeGreaterThanOrEqual(46);
     for (const keyword of ["$schema", "oneOf", "const", "exclusiveMinimum", "additionalProperties"])
       expect(declared, keyword).toContain(`"${keyword}"`);
-    expect(declared).toContain('"enum":[5,10,25,100]');
     expect(declared).toContain('"type":"null"');
   });
 
@@ -456,7 +455,7 @@ describe("the shipped tool catalog on the Google wire", () => {
       "anyOf:collapsed": 45,
       "const:removed": 1,
       "const:rewritten": 218,
-      "enum:removed": 25,
+      "enum:removed": 18,
       "exclusiveMinimum:rewritten": 11,
       "nullable:collapsed": 10,
       "nullable:rewritten": 25,
@@ -466,7 +465,7 @@ describe("the shipped tool catalog on the Google wire", () => {
     expect(summarizeGoogleSchemaChanges(changes.filter((change) => change.loosened))).toEqual({
       "additionalProperties:removed": 56,
       "const:removed": 1,
-      "enum:removed": 25,
+      "enum:removed": 18,
       "exclusiveMinimum:rewritten": 2,
       "propertyNames:removed": 1,
       "oneOf:rewritten": 18,
@@ -511,9 +510,11 @@ describe("the authoritative input gate", () => {
     );
 
     const coerced = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: "25" }, 400);
-    const rejected = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: 7 }, 400);
+    const rounded = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: 7 }, 400);
+    const rejected = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: 0 }, 400);
 
     expect(coerced).toEqual({ ok: true, input: { entity: "contact", page: 1, pageSize: 25 } });
+    expect(rounded).toEqual({ ok: true, input: { entity: "contact", page: 1, pageSize: 10 } });
     expect(rejected.ok).toBe(false);
   });
 

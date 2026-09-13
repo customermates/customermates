@@ -69,9 +69,11 @@ const ListRecordsSchema = z.object({
   entity: EntitySchema,
   searchTerm: z.string().optional().describe("Free-text search against the entity's name or related fields"),
   filters: z.array(FilterSchema).optional().describe(FILTER_FIELD_DESCRIPTION),
-  sortDescriptor: SortDescriptorSchema.optional(),
+  sortDescriptor: SortDescriptorSchema.optional().describe(
+    "{ field, direction: asc | desc }. field is a built-in field name (name, totalValue, createdAt, ...) or a custom-column id from get_record_schema sortableFields.",
+  ),
   page: mcpPage(),
-  pageSize: mcpPageSize(10, "Results per page (one of: 5, 10, 25, 100). Default 10."),
+  pageSize: mcpPageSize(25),
 });
 
 const SearchRecordsSchema = z.object({
@@ -150,7 +152,10 @@ const ManageRecordLinksSchema = z.object({
   ids: z
     .array(z.uuid())
     .min(1)
-    .describe("IDs to add to (link) or remove from (unlink) the source entity's relationship"),
+    .max(100)
+    .describe(
+      "Record UUIDs to add to (link) or remove from (unlink) the source entity's relationship. Unlike sourceId, contact channel keys are not accepted here: resolve them to ids with search_records or get_records first.",
+    ),
 });
 
 const DeleteRecordsSchema = z.object({
@@ -169,17 +174,18 @@ const RecordSchemaOutputSchema = z
   );
 
 const ListRecordsOutputSchema = z.object({
-  items: z.array(
-    z
-      .looseObject({ id: z.string(), name: z.string().nullable() })
-      .describe("Deal items add totalValue, totalQuantity, weightedValue; service items add amount."),
-  ),
   total: z.number().describe("Matching records across all pages"),
   sums: z
     .record(z.string(), z.number())
     .optional()
     .describe("Per numeric column: total across every matching record, not just this page"),
   page: z.number(),
+  pageSize: z.number(),
+  items: z.array(
+    z
+      .looseObject({ id: z.string(), name: z.string().nullable() })
+      .describe("Deal items add totalValue, totalQuantity, weightedValue; service items add amount."),
+  ),
   filters: z.array(z.unknown()).optional(),
 });
 
@@ -326,8 +332,8 @@ export const listRecordsTool = {
   title: "List records",
   description:
     "Use this when you need to search, filter, sort, or count records of a single entity type. " +
-    "Required: entity. Optional: searchTerm, filters, sortDescriptor, page, pageSize (5/10/25/100, default 10). " +
-    "Returns id and name per item plus the matching total (it is always returned, use it for counts too); " +
+    "Required: entity. Optional: searchTerm, filters, sortDescriptor, page, pageSize (1-100, default 25). " +
+    "Returns total first (matching records across all pages; use it for counts), then id and name per item; " +
     "deal items add totalValue, totalQuantity and weightedValue, service items add amount. " +
     "When the entity has numeric columns it also returns sums: the total of each numeric column across " +
     "every record matching the filters, not just the current page. Read sums directly instead of adding " +
@@ -356,6 +362,12 @@ export const listRecordsTool = {
     if (!result.ok) return mcpInteractorFailure(result.error);
 
     return toonResult({
+      total: result.data.pagination?.total ?? result.data.items.length,
+      ...(result.data.valueSums && Object.keys(result.data.valueSums).length > 0
+        ? { sums: result.data.valueSums }
+        : {}),
+      page,
+      pageSize,
       items: result.data.items.map((item: any) => ({
         id: item.id,
         name: entityNameExtractors[entity](item),
@@ -364,11 +376,6 @@ export const listRecordsTool = {
         ...(item.weightedValue != null && { weightedValue: item.weightedValue }),
         ...(item.amount !== undefined && { amount: item.amount }),
       })),
-      total: result.data.pagination?.total ?? result.data.items.length,
-      ...(result.data.valueSums && Object.keys(result.data.valueSums).length > 0
-        ? { sums: result.data.valueSums }
-        : {}),
-      page,
       ...(filters ? { filters } : {}),
     });
   },

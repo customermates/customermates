@@ -354,12 +354,14 @@ describe("agent tools", () => {
     expect(result).not.toContain("nav-company-webhooks");
   });
 
-  it("falls back to the whole catalog rather than stranding the model on an unmatched query", async () => {
+  it("answers an unmatched query with an explicit miss and id prefixes instead of the whole catalog", async () => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 4096 }));
     const result = String(await execute(tools.list_ui_targets, { query: "zzzz" }));
 
-    expect(result).toContain(AGENT_UI_TARGETS[0].id);
-    expect(result).not.toContain("No interface targets match");
+    expect(result).toContain('No interface target matches "zzzz"');
+    expect(result).toContain("nav-");
+    expect(result).not.toContain(AGENT_UI_TARGETS[0].id);
+    expect(result.length).toBeLessThan(600);
   });
 
   it("discovers the connected-account destination and walkthrough control together", async () => {
@@ -419,13 +421,15 @@ describe("agent tools", () => {
   });
 
   it.each([
-    ["list_users", { searchTerm: "Sofia" }, { searchTerm: "Sofia", page: 1, pageSize: 100 }],
+    ["list_users", { searchTerm: "Sofia" }, { searchTerm: "Sofia", page: 1, pageSize: 25 }],
+    ["list_users", { searchTerm: "Sofia", pageSize: " 12 " }, { searchTerm: "Sofia", page: 1, pageSize: 25 }],
     [
       "list_users",
       { searchTerm: "Sofia", page: "2", pageSize: " 10 " },
       { searchTerm: "Sofia", page: 2, pageSize: 10 },
     ],
-    ["list_records", { entity: "contact" }, { entity: "contact", page: 1, pageSize: 10 }],
+    ["list_records", { entity: "contact" }, { entity: "contact", page: 1, pageSize: 25 }],
+    ["list_records", { entity: "contact", pageSize: 50 }, { entity: "contact", page: 1, pageSize: 100 }],
     [
       "get_records",
       { items: [{ entity: "contact", id: "record-1" }] },

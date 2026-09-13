@@ -186,12 +186,29 @@ function matchesUiTargetQuery(target: AgentUiTarget, tokens: string[]) {
   return tokens.some((token) => haystack.includes(token));
 }
 
+function uiTargetPrefixes(limit: number): string[] {
+  const counts = new Map<string, number>();
+  for (const target of AGENT_UI_TARGETS) {
+    const prefix = target.id.split("-")[0] ?? target.id;
+    counts.set(prefix, (counts.get(prefix) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .toSorted((left, right) => right[1] - left[1] || (left[0] < right[0] ? -1 : left[0] > right[0] ? 1 : 0))
+    .slice(0, limit)
+    .map(([prefix]) => `${prefix}-`);
+}
+
 function listUiTargets(input: z.infer<typeof ListUiTargetsSchema>, resultMaxChars: number) {
   const tokens = uiTargetQueryTokens(input.query);
-  const matched = tokens.length
+  const targets = tokens.length
     ? AGENT_UI_TARGETS.filter((target) => matchesUiTargetQuery(target, tokens))
     : AGENT_UI_TARGETS;
-  const targets = matched.length > 0 ? matched : AGENT_UI_TARGETS;
+  if (targets.length === 0) {
+    return `No interface target matches "${input.query ?? ""}". Query with the page or workflow phrase (for example "deals", "inbox", "settings"), or with one of these id prefixes: ${uiTargetPrefixes(10).join(", ")}.`.slice(
+      0,
+      resultMaxChars,
+    );
+  }
   const cursor = Math.min(input.cursor ?? 0, targets.length);
   const header = "actions n=navigate,h=highlight; >target is a prerequisite the user must open\n";
 
