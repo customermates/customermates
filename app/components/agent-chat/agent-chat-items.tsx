@@ -20,6 +20,7 @@ import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { Button } from "@/components/ui/button";
 import { MessageResponse } from "@/components/ai-elements/message";
+import { agentMessageComponents, agentMessageRehypePlugins } from "./agent-message-links";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { cn } from "@/core/utils/cn";
 import { ActionTooltip, ItemTime, TypingDots, chatUiCopy, focusAgentComposer } from "./chat-ui";
@@ -78,7 +79,12 @@ export const AgentChatItemView = observer(function AgentChatItemView({
       <article aria-label={t("AgentChat.title")} className="group/message flex flex-col gap-1.5">
         <div className="flex min-w-0 flex-col items-start gap-1.5">
           <div className="w-full text-sm leading-relaxed [&_pre]:overflow-x-auto">
-            <MessageResponse mode={item.streaming ? "streaming" : "static"} showTableActions={!item.streaming}>
+            <MessageResponse
+              components={agentMessageComponents}
+              mode={item.streaming ? "streaming" : "static"}
+              rehypePlugins={agentMessageRehypePlugins}
+              showTableActions={!item.streaming}
+            >
               {item.text}
             </MessageResponse>
           </div>

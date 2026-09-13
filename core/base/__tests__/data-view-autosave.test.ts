@@ -129,6 +129,33 @@ describe("data view autosave", () => {
     expect(selectDataViewAction).not.toHaveBeenCalled();
   });
 
+  it("settles both an in-flight save and a debounced edit before the assistant reads saved state", async () => {
+    const store = hydrated();
+    const first = deferred<{ ok: true; data: { viewKey: string } }>();
+    const second = deferred<{ ok: true; data: { viewKey: string } }>();
+    saveDataViewStateAction.mockImplementationOnce(() => first.promise).mockImplementationOnce(() => second.promise);
+    store.setQueryOptions({ searchTerm: "first" });
+    await vi.advanceTimersByTimeAsync(1000);
+    store.setQueryOptions({ searchTerm: "latest" });
+    let settled = false;
+    const pending = store.settleViewState().then(() => {
+      settled = true;
+    });
+    expect(saveDataViewStateAction).toHaveBeenCalledTimes(1);
+    expect(settled).toBe(false);
+    first.resolve({ ok: true, data: { viewKey: ALL_VIEW_KEY } });
+    await vi.advanceTimersByTimeAsync(0);
+    expect(saveDataViewStateAction).toHaveBeenCalledTimes(2);
+    expect(saveDataViewStateAction.mock.calls[1]?.[0]?.state.searchTerm).toBe("latest");
+    expect(settled).toBe(false);
+    second.resolve({ ok: true, data: { viewKey: ALL_VIEW_KEY } });
+    await pending;
+    expect(settled).toBe(true);
+    expect(store.allViewState.searchTerm).toBe("latest");
+    await vi.advanceTimersByTimeAsync(1500);
+    expect(saveDataViewStateAction).toHaveBeenCalledTimes(2);
+  });
+
   it("fires exactly one debounced write carrying the whole state into the All tab after a query change", async () => {
     const store = hydrated();
 
@@ -402,6 +429,7 @@ describe("data view autosave", () => {
 
     expect(toastZodErrorTree).toHaveBeenCalledExactlyOnceWith({ errors: ["nope"] });
     expect(store.filters).toEqual([filter("open")]);
+    await expect(store.settleViewState()).rejects.toThrow("The current view could not be saved.");
   });
 
   it("fires nothing when the store has no surface key", async () => {

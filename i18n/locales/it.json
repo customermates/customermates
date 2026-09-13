@@ -233,6 +233,23 @@
             "running": "Pronto a modificare l’accesso del team"
           }
         },
+        "views": {
+          "configure": {
+            "done": "Vista configurata",
+            "error": "Impossibile configurare la vista",
+            "running": "Configurazione della vista"
+          },
+          "delete": {
+            "done": "Vista eliminata",
+            "error": "Impossibile eliminare la vista",
+            "running": "Eliminazione della vista"
+          },
+          "read": {
+            "done": "Viste salvate verificate",
+            "error": "Impossibile verificare le viste salvate",
+            "running": "Verifica delle viste salvate"
+          }
+        },
         "webhooks": {
           "manage": {
             "done": "Azione sul webhook completata",
@@ -1922,10 +1939,36 @@
     "selectGroup": "Seleziona il gruppo {group}",
     "selectRow": "Seleziona la riga {id}",
     "views": {
+      "aiCreateNamedPrompt": "Crea una nuova vista chiamata “{name}” su questa pagina in base alla richiesta seguente.",
+      "aiCreatePrompt": "Crea una nuova vista su questa pagina in base alla richiesta seguente.",
+      "aiEditPrompt": "Modifica la vista “{name}” su questa pagina in base alla richiesta seguente. Mantieni le impostazioni che non menziono.",
+      "aiLabel": "Chiedi all’IA della vista {name}",
+      "aiRequest": {
+        "appearanceLabel": "Come deve apparire questa vista?",
+        "appearancePlaceholder": "Descrivi layout, raggruppamento o ordinamento.",
+        "appearancePrompt": "Modifica l’aspetto della vista “{name}” su questa pagina in base alla richiesta seguente. Mantieni le impostazioni che non menziono.",
+        "busy": "Attendi che l’attività attuale dell’IA termini prima di inviare la richiesta.",
+        "contextChanged": "La vista selezionata è cambiata. Chiudi questa finestra e apri “Chiedi all’IA” per la vista desiderata.",
+        "createLabel": "Cosa deve mostrare la nuova vista?",
+        "createPlaceholder": "Descrivi i record che vuoi vedere e come organizzarli.",
+        "existingContext": "Vista: {name}",
+        "filtersLabel": "Quali record deve mostrare questa vista?",
+        "filtersPlaceholder": "Descrivi i filtri o la ricerca da applicare.",
+        "filtersPrompt": "Modifica i filtri e la ricerca della vista “{name}” su questa pagina in base alla richiesta seguente. Mantieni le impostazioni che non menziono.",
+        "namedContext": "Nuova vista: {name}",
+        "newContext": "Nuova vista su questa pagina",
+        "submit": "Invia all’IA",
+        "unavailable": "L’IA non è disponibile al momento. La richiesta non è stata inviata.",
+        "viewLabel": "Cosa vuoi modificare?",
+        "viewPlaceholder": "Descrivi filtri, ricerca, layout, raggruppamento o ordinamento."
+      },
       "all": "Tutte",
       "applied": "Visualizzazione di {name}",
+      "askAi": "Chiedi all'IA",
       "copyLink": "Copia link",
       "createTitle": "Nuova vista",
+      "createWithAi": "Crea con IA",
+      "createWithAiDescription": "Descrivi cosa vuoi vedere e invia la richiesta all’IA.",
       "delete": "Elimina vista",
       "duplicate": "Duplica come nuova vista",
       "duplicateName": "{name} copia",

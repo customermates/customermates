@@ -135,6 +135,7 @@ All create and update tools take custom-column values via customFieldValues; cal
 |---|---|---|---|
 | `get_workspace_context` | ✓ |  | Your user, the company profile, all roles including permissions, and your connected messaging accounts (your own plus any shared with the workspace) in one call. The natural first call of a session. |
 | `list_users` | ✓ |  | Team members with id, name, email, roleId, and status. |
+| `manage_data_views` |  | ✓ | One tool for personal saved views: surfaces, config, list, create, update, select, delete. Discover accessible surfaces and their supported filters, search, sorting, grouping and layouts before writing. Create selects the new view; updates preserve omitted state and column layout. Use viewKey `__all__` for the All tab. Deleting a view never deletes its records. Returned links open saved views; remote changes appear after refreshing the page. Operator views require an interactive operator session. |
 {/* /mcp-catalog */}
 
 ### Messaging

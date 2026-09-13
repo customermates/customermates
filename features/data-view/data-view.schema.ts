@@ -10,15 +10,29 @@ export const SurfaceKeyInputSchema = z.enum(DATA_VIEW_SURFACE_KEYS);
 export const GetDataViewsSchema = z.object({ surfaceKey: SurfaceKeyInputSchema }).strict();
 export type GetDataViewsData = Data<typeof GetDataViewsSchema>;
 
-export const UpsertDataViewSchema = z
+const DataViewNameSchema = z.string().min(1).max(100);
+const DataViewPositionSchema = z.number().int().min(0);
+
+const CreateDataViewSchema = z
   .object({
-    id: z.uuid().optional(),
     surfaceKey: SurfaceKeyInputSchema,
-    name: z.string().min(1).max(100),
-    position: z.number().int().min(0).optional(),
+    name: DataViewNameSchema,
+    position: DataViewPositionSchema.optional(),
     state: DataViewStateSchema,
   })
   .strict();
+
+const UpdateDataViewSchema = z
+  .object({
+    id: z.uuid(),
+    surfaceKey: SurfaceKeyInputSchema,
+    name: DataViewNameSchema.optional(),
+    position: DataViewPositionSchema.optional(),
+    state: DataViewStateSchema.optional(),
+  })
+  .strict();
+
+export const UpsertDataViewSchema = z.union([UpdateDataViewSchema, CreateDataViewSchema]);
 export type UpsertDataViewData = Data<typeof UpsertDataViewSchema>;
 
 export const DeleteDataViewSchema = z.object({ id: z.uuid() }).strict();

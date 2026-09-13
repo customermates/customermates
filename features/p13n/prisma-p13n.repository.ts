@@ -85,6 +85,22 @@ export class PrismaP13nRepo extends BaseRepository implements GetP13nRepo, Upser
     };
   }
 
+  async clearActiveViewKeyIfMatches({
+    p13nId,
+    expectedActiveViewKey,
+  }: {
+    p13nId: string;
+    expectedActiveViewKey: string;
+  }): Promise<boolean> {
+    const { companyId, id: userId } = this.user;
+    const affected = await this.prisma.p13n.updateMany({
+      where: { companyId, userId, p13nId, activeViewKey: expectedActiveViewKey },
+      data: { activeViewKey: null },
+    });
+
+    return affected.count > 0;
+  }
+
   async upsertP13n({ p13nId, ...data }: RepoArgs<UpsertP13nRepo, "upsertP13n">) {
     const { companyId, id: userId } = this.user;
 

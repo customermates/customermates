@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 
+import { DATA_VIEW_PATHS } from "@/core/data-view/data-view-paths";
+import { APP_LOCALES } from "@/i18n/locale-registry";
+
 import { clientSafeAgentMessageParts } from "../agent-chat.schema";
 import {
   AgentVisibleTextStreamSanitizer,
@@ -48,6 +51,83 @@ describe("agent client-visible output safety", () => {
       const visible = `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`;
       expect(visible).toBe(expected);
     }
+  });
+
+  it("keeps named saved-view links on every standalone surface and supported locale", () => {
+    const viewId = "00000000-0000-4000-8000-000000000001";
+    for (const path of Object.values(DATA_VIEW_PATHS)) {
+      if (path === null) continue;
+      for (const prefix of ["", ...APP_LOCALES.map((locale) => `/${locale}`)]) {
+        const url = `${prefix}${path}?view=${viewId}`;
+        expect(sanitizeAgentVisibleText(url)).toBe(url);
+        const answer = `Open [My view](${url}) or [${url}](${url}).`;
+        expect(sanitizeAgentVisibleText(answer)).toBe(answer);
+        expect(sanitizeAgentVisibleText(sanitizeAgentVisibleText(answer))).toBe(answer);
+      }
+    }
+    expect(sanitizeAgentVisibleText(`[All](/contacts?view=__all__)`)).toBe(`[All](/contacts?view=__all__)`);
+  });
+
+  it("keeps saved-view URLs only within exact local page links", () => {
+    const viewId = "00000000-0000-4000-8000-000000000001";
+    const rejected = [
+      `https://example.com/contacts?view=${viewId}`,
+      `//example.com/contacts?view=${viewId}`,
+      `/unknown?view=${viewId}`,
+      `/xx/contacts?view=${viewId}`,
+      `/CONTACTS?view=${viewId}`,
+      `/contacts?record=${viewId}`,
+      `/contacts?view=${viewId}&searchTerm=secret`,
+      `/contacts?searchTerm=secret&view=${viewId}`,
+      `/contacts?view=${viewId}#details`,
+      `/contacts?view=${viewId}/details`,
+      `/contacts?view=${viewId}%20`,
+      `/contacts?view=${viewId}x`,
+    ];
+    for (const url of rejected) expect(sanitizeAgentVisibleText(`[View](${url})`)).not.toContain(viewId);
+    const valid = `/contacts?view=${viewId}`;
+    expect(sanitizeAgentVisibleText(`Raw ${viewId}; [View](${valid}).`)).toBe(
+      `Raw [internal reference]; [View](${valid}).`,
+    );
+    expect(sanitizeAgentVisibleText("/contacts?view=00000000-0000-4")).toBe("/contacts?view=[internal reference]");
+  });
+
+  it("redacts secret assignments and private content even when they contain a saved-view URL", () => {
+    const url = "/contacts?view=00000000-0000-4000-8000-000000000001";
+    expect(sanitizeAgentVisibleText(`password=${url}; Safe.`)).toBe("password=[redacted]; Safe.");
+    expect(sanitizeAgentVisibleText(`<analysis>[View](${url})</analysis>Safe.`)).toBe("Safe.");
+  });
+
+  it("preserves whole saved-view URLs across every provider chunk boundary and incremental streaming", () => {
+    const viewId = "00000000-0000-4000-8000-000000000001";
+    const url = `/de/company/webhook-deliveries?view=${viewId}`;
+    const prefix = "A safe introduction. ".repeat(8);
+    const suffix = " A safe conclusion.".repeat(8);
+    const sources = [
+      `${prefix}[My view](${url})${suffix}`,
+      `${prefix}[${url}](${url})${suffix}`,
+      `${prefix}[View](${url}&extra=value)${suffix}`,
+      `${prefix}https://example.com${url}${suffix}`,
+      `${prefix}https://${"x".repeat(400)}.example.com${url}${suffix}`,
+      `${prefix}${url}${suffix} Raw ${viewId}.`,
+    ];
+    for (const source of sources) {
+      const expected = sanitizeAgentVisibleText(source);
+      for (let split = 0; split <= source.length; split += 1) {
+        const sanitizer = new AgentVisibleTextStreamSanitizer();
+        const visible = `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`;
+        expect(visible).toBe(expected);
+      }
+      const sanitizer = new AgentVisibleTextStreamSanitizer();
+      const visible = [...source].map((character) => sanitizer.push(character)).join("") + sanitizer.finish();
+      expect(visible).toBe(expected);
+    }
+  });
+
+  it("preserves saved-view links when replaying persisted messages", () => {
+    const text = "Open [My view](/contacts?view=00000000-0000-4000-8000-000000000001).";
+    const parts = [{ type: "text", text }];
+    expect(clientSafeAgentMessageParts(parts, { sanitizeText: true })).toEqual(parts);
   });
 
   it("removes provider tool protocol and its payload across every chunk boundary", () => {

@@ -271,6 +271,16 @@ describe("agent tools", () => {
     expect(JSON.stringify(schema?.properties?.id)).toContain('"null"');
   });
 
+  it("publishes fresh-state and minimal-patch instructions for saved-view updates", () => {
+    const definition = getAgentAiToolDefinitions().find(({ name }) => name === "manage_data_views");
+    const schema = definition?.inputSchema as { properties?: Record<string, unknown> } | undefined;
+    const state = schema?.properties?.state as { description?: string } | undefined;
+
+    expect(state?.description).toContain("call list immediately before every update");
+    expect(state?.description).toContain("include only keys the user asked to change");
+    expect(state?.description).toContain("Never copy old conversation/full state");
+  });
+
   it("accepts only exact navigation target ids and rejects URL-like model input", async () => {
     const tools = getAgentAiTools(deps());
     const validate = schemaOf(tools.navigate).validate;
@@ -770,6 +780,11 @@ describe("agent tools", () => {
     expect(prompt).toContain("asks to walk them through or show them how to connect an account");
     expect(prompt).toContain("action=upsert, intent=create, and no id");
     expect(prompt).toContain("top-level selectOptions");
+    expect(prompt).toContain("list immediately before every update");
+    expect(prompt).toContain("Patch only keys the user asked to change");
+    expect(prompt).toContain("never copy old conversation/full state");
+    expect(prompt).toContain("Disclose unsupported settings; never silently substitute");
+    expect(prompt).toContain("[view name](returned link)");
     expect(prompt).toContain("retry that tool once");
     expect(prompt).toContain("Never print or imitate tool-call syntax as text");
     expect(prompt).toContain("keep working while credits remain");

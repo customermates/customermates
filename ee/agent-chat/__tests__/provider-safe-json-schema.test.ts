@@ -108,6 +108,16 @@ const ACCEPTED_TODAY: [string, unknown][] = [
   ["get_workspace_context", {}],
   ["search_records", { searchTerm: "a" }],
   ["manage_widgets", { action: "list" }],
+  ["manage_data_views", { action: "surfaces" }],
+  [
+    "manage_data_views",
+    {
+      action: "create",
+      surfaceKey: "contacts-card-store",
+      name: "Mine",
+      state: { searchTerm: "Ada", filters: [{ field: "name", operator: "contains", value: "Ada" }], grouping: null },
+    },
+  ],
   ["send_email", { connectedAccountId: UUID, subject: "s", body: "b", to: [{ identifier: "ada@example.com" }] }],
 ];
 
@@ -117,6 +127,7 @@ const REJECTED_TODAY: [string, unknown][] = [
   ["open_record", { entity: "contact" }],
   ["create_contacts", { contacts: [] }],
   ["manage_webhooks", { action: "detonate" }],
+  ["manage_data_views", { action: "detonate" }],
   ["update_contacts", { contacts: [{ id: UUID, customFieldValues: [{ columnId: UUID, value: 5 }] }] }],
   ["send_email", { connectedAccountId: "nope", subject: "s", body: "b", to: [{ identifier: "a@b.com" }] }],
 ];
@@ -450,25 +461,25 @@ describe("the shipped tool catalog on the Google wire", () => {
     const changes = changesForShippedCatalog();
 
     expect(summarizeGoogleSchemaChanges(changes)).toEqual({
-      "$schema:removed": 53,
-      "additionalProperties:removed": 56,
-      "anyOf:collapsed": 45,
-      "const:removed": 1,
-      "const:rewritten": 219,
+      "$schema:removed": 54,
+      "additionalProperties:removed": 59,
+      "anyOf:collapsed": 47,
+      "const:removed": 5,
+      "const:rewritten": 237,
       "enum:removed": 25,
-      "exclusiveMinimum:rewritten": 11,
+      "exclusiveMinimum:rewritten": 12,
       "nullable:collapsed": 10,
-      "nullable:rewritten": 25,
+      "nullable:rewritten": 27,
       "propertyNames:removed": 1,
-      "oneOf:rewritten": 18,
+      "oneOf:rewritten": 19,
     });
     expect(summarizeGoogleSchemaChanges(changes.filter((change) => change.loosened))).toEqual({
-      "additionalProperties:removed": 56,
-      "const:removed": 1,
+      "additionalProperties:removed": 59,
+      "const:removed": 5,
       "enum:removed": 25,
       "exclusiveMinimum:rewritten": 2,
       "propertyNames:removed": 1,
-      "oneOf:rewritten": 18,
+      "oneOf:rewritten": 19,
     });
   });
 

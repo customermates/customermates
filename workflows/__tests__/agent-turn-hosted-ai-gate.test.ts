@@ -168,7 +168,6 @@ vi.mock("@/ee/agent-chat/agent-provider-context", () => ({
 vi.mock("@/i18n/get-translator", () => ({
   getTranslator: () => Promise.resolve((key: string) => `localized:${key}`),
 }));
-vi.mock("@/i18n/locale-registry", () => ({ appLocaleOrDefault: (locale: string) => locale }));
 vi.mock("../capture-failure", () => ({
   reportFailure: state.reportFailure,
   toWorkflowFailure: (error: unknown) => error,

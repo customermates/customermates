@@ -26,7 +26,10 @@ vi.mock("@/components/ui/tabs", async (importOriginal) => {
 });
 vi.mock("mobx-react-lite", () => ({ observer: <T>(component: T) => component }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
-vi.mock("next/navigation", () => ({ usePathname: () => "/en/deals" }));
+vi.mock("next/navigation", async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  usePathname: () => "/en/deals",
+}));
 vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => ({}) }));
 vi.mock("@/components/entity-terminology/use-column-label", () => ({ useColumnLabel: () => (uid: string) => uid }));
 vi.mock("@/components/entity-terminology/use-filter-field-label", () => ({

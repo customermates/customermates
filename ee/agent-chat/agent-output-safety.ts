@@ -1,9 +1,25 @@
+import { DATA_VIEW_PATHS } from "@/core/data-view/data-view-paths";
+import { APP_LOCALES } from "@/i18n/locale-registry";
+
 const INTERNAL_REFERENCE = "[internal reference]";
 const REDACTED_VALUE = "[redacted]";
 const INTERNAL_DETAILS = "[internal details]";
 
 const UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})(?=$|[^0-9a-f])/gi;
 const PARTIAL_UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}-(?:[0-9a-f]{0,4}(?:-[0-9a-f]{0,4}){0,3})?)$/gi;
+const SAVED_VIEW_PATHS = Object.values(DATA_VIEW_PATHS).filter((path): path is string => path !== null);
+const escapePattern = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const SAVED_VIEW_URL_PATTERN = new RegExp(
+  `(^|[\\s(\\[<"'\\x60])(/(?:(?:${APP_LOCALES.map(escapePattern).join("|")})/)?(?:${SAVED_VIEW_PATHS.map((path) => escapePattern(path.slice(1))).join("|")})\\?view=[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12})(?=$|[\\s)\\]>"'\\x60])`,
+  "g",
+);
+const VIEW_URL_STREAM_PATTERN = /[^\s()[\]<>"'`]*(?:\?|&)view=[^\s()[\]<>"'`]*/g;
+const MAX_SAVED_VIEW_URL_LENGTH =
+  Math.max(...SAVED_VIEW_PATHS.map((path) => path.length)) +
+  Math.max(...APP_LOCALES.map((locale) => locale.length + 1)) +
+  "?view=".length +
+  36;
+
 const PAGE_CONTEXT_BLOCK_PATTERN = /<page_context\b[^>]*>[\s\S]*?<\/page_context\s*>/gi;
 const PAGE_CONTEXT_TAG_PATTERN = /<\/?page_context\b[^>]*>/gi;
 const ENCODED_PAGE_CONTEXT_BLOCK_PATTERN = /&lt;page_context\b[\s\S]*?&gt;[\s\S]*?&lt;\/page_context\s*&gt;/gi;
@@ -64,9 +80,15 @@ const PRIVATE_MARKERS = [
   "```internal",
   "-----begin ",
 ] as const;
-const STREAM_TAIL_LENGTH = Math.max(64, ...PRIVATE_MARKERS.map((marker) => marker.length - 1));
+const STREAM_TAIL_LENGTH = Math.max(
+  64,
+  MAX_SAVED_VIEW_URL_LENGTH + 2,
+  ...PRIVATE_MARKERS.map((marker) => marker.length - 1),
+);
 
 const PROTECTED_STREAM_PATTERNS = [
+  VIEW_URL_STREAM_PATTERN,
+  SAVED_VIEW_URL_PATTERN,
   UUID_PATTERN,
   PAGE_CONTEXT_BLOCK_PATTERN,
   PAGE_CONTEXT_TAG_PATTERN,
@@ -93,7 +115,15 @@ function earliest(current: number | null, candidate: number | null) {
 }
 
 function replaceUuid(value: string) {
-  return value.replace(UUID_PATTERN, (_match, prefix: string) => `${prefix}${INTERNAL_REFERENCE}`);
+  const savedViewUrls = [...value.matchAll(SAVED_VIEW_URL_PATTERN)].map((match) => ({
+    start: match.index + match[1].length,
+    end: match.index + match[0].length,
+  }));
+  return value.replace(UUID_PATTERN, (match: string, prefix: string, uuid: string, offset: number) => {
+    const start = offset + prefix.length;
+    if (savedViewUrls.some((url) => start >= url.start && start + uuid.length <= url.end)) return match;
+    return `${prefix}${INTERNAL_REFERENCE}`;
+  });
 }
 
 function replacePartialUuidTail(value: string) {

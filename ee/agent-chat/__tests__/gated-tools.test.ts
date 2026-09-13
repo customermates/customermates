@@ -170,7 +170,7 @@ describe("gated-tools", () => {
 
     expect(groupSizes).toEqual({
       records: 17,
-      workspace: 2,
+      workspace: 3,
       messaging: 10,
       social: 8,
       docs: 2,

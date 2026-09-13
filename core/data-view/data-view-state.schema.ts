@@ -6,7 +6,9 @@ import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema"
 import { GroupingSchema } from "@/core/base/grouping/grouping.schema";
 import { ViewMode } from "@/core/base/base-query-builder";
 
-import { ALL_VIEW_KEY, DATA_VIEW_SURFACE_KEYS } from "./data-view-keys";
+import { SurfaceKeySchema } from "./data-view-identity.schema";
+
+export { SurfaceKeySchema, ViewKeySchema, type ViewKey } from "./data-view-identity.schema";
 
 export const DATA_VIEW_PAGE_SIZES = [5, 10, 25, 100] as const;
 
@@ -48,11 +50,6 @@ export const DATA_VIEW_STATE_FIELDS = [
   "columnWidths",
   "hiddenColumns",
 ] as const satisfies readonly (keyof DataViewState)[];
-
-export const ViewKeySchema = z.union([z.literal(ALL_VIEW_KEY), z.uuid()]);
-export type ViewKey = Data<typeof ViewKeySchema>;
-
-export const SurfaceKeySchema = z.enum(DATA_VIEW_SURFACE_KEYS);
 
 export const DataViewChipDtoSchema = z.object({
   id: z.string(),

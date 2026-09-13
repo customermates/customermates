@@ -37,6 +37,7 @@ import {
 } from "./actions";
 import { appLocaleOrDefault } from "@/i18n/locale-registry";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
+import { AgentViewContext, type AgentViewChange } from "./agent-view-context";
 
 export type AgentChatItem =
   | { kind: "user"; id: string; messageId: string; text: string; at?: Date }
@@ -83,6 +84,7 @@ type AgentStreamStepCheckpoint = {
   anchorItemId: string | null;
   items: AgentChatItem[];
   hasSuccessfulMutation: boolean;
+  viewChanges: AgentViewChange[];
 };
 
 export type AgentStreamStatus =
@@ -239,6 +241,8 @@ function isUiCommandName(value: string): value is UiCommandName {
 }
 
 export class AgentChatStore extends BaseStore {
+  readonly viewContext = new AgentViewContext();
+  private pendingViewChanges: AgentViewChange[] = [];
   isOpen = false;
   isExpanded = false;
   enabled: boolean | null = null;
@@ -394,6 +398,16 @@ export class AgentChatStore extends BaseStore {
     this.open();
   };
 
+  private currentPageRoute = () =>
+    typeof window === "undefined" ? "/" : this.viewContext.route(window.location.pathname);
+
+  prepareViewReload = () => {
+    if (typeof window === "undefined") return;
+    const href = this.viewContext.reloadHref(window.location.href, this.pendingViewChanges);
+    this.pendingViewChanges = [];
+    if (href) window.history.replaceState(null, "", href);
+  };
+
   get conversationTitle() {
     if (!this.conversationId) return null;
     const summary = this.conversations.find((conversation) => conversation.id === this.conversationId);
@@ -518,7 +532,7 @@ export class AgentChatStore extends BaseStore {
       this.queuedPromptNeedsAttention = false;
       this.queuedPromptMessageId = globalThis.crypto.randomUUID();
       this.queuedPromptConversationId = this.conversationId;
-      this.queuedPromptPageRoute = typeof window === "undefined" ? "/" : window.location.pathname;
+      this.queuedPromptPageRoute = this.currentPageRoute();
       this.composerDraft = "";
       return;
     }
@@ -1336,7 +1350,7 @@ export class AgentChatStore extends BaseStore {
     if (!trimmed || this.isWorking) return;
     if (this.usage?.blockedReason && !options.reconcileBusyTurn) return;
     const messageId = options.messageId ?? globalThis.crypto.randomUUID();
-    const pageRoute = options.pageRoute ?? (typeof window === "undefined" ? "/" : window.location.pathname);
+    const pageRoute = options.pageRoute ?? this.currentPageRoute();
     const conversationId = options.conversationId === undefined ? this.conversationId : options.conversationId;
 
     runInAction(() => {
@@ -1361,6 +1375,10 @@ export class AgentChatStore extends BaseStore {
     const turnLoadVersion = this.conversationLoadVersion;
 
     try {
+      const pendingViewState = this.viewContext.prepare(pageRoute);
+      if (pendingViewState) await withDeadline(pendingViewState, AGENT_ADMISSION_TIMEOUT_MS);
+      if (controller.signal.aborted) throw new DOMException("Aborted", "AbortError");
+      if (turnGeneration !== this.activeTurnGeneration || turnLoadVersion !== this.conversationLoadVersion) return;
       const response = await fetchWithDeadline(
         "/api/agent/messages",
         {
@@ -1936,7 +1954,11 @@ export class AgentChatStore extends BaseStore {
       let pendingDeltaText = "";
       const flushPendingDelta = () => {
         if (pendingDeltaSequence === null) return;
-        this.handleEvent({ seq: pendingDeltaSequence, type: "delta", text: pendingDeltaText });
+        this.handleEvent({
+          seq: pendingDeltaSequence,
+          type: "delta",
+          text: pendingDeltaText,
+        });
         this.activeTurnNextStreamIndex = pendingDeltaSequence + 1;
         pendingDeltaSequence = null;
         pendingDeltaText = "";
@@ -2067,7 +2089,7 @@ export class AgentChatStore extends BaseStore {
       id: nextItemId(),
       messageId: requestId,
       text: user.text,
-      pageRoute: this.activeTurnPageRoute ?? (typeof window === "undefined" ? "/" : window.location.pathname),
+      pageRoute: this.activeTurnPageRoute ?? this.currentPageRoute(),
       retry: false,
       at: new Date(),
     });
@@ -2280,8 +2302,10 @@ export class AgentChatStore extends BaseStore {
           );
           if (activity) {
             activity.status = event.status === "cancelled" ? "cancelled" : event.isError ? "error" : "done";
-            if (activity.status === "done" && activity.activity.risk !== "read")
+            if (activity.status === "done" && activity.activity.risk !== "read") {
               this.activeTurnHasSuccessfulMutation = true;
+              this.recordViewChange(activity.activity);
+            }
           }
           break;
         }
@@ -2426,6 +2450,7 @@ export class AgentChatStore extends BaseStore {
       anchorItemId: anchorIndex >= 0 ? (this.items[anchorIndex]?.id ?? null) : null,
       items: this.items.slice(anchorIndex + 1).map(cloneAgentChatItem),
       hasSuccessfulMutation: this.activeTurnHasSuccessfulMutation,
+      viewChanges: [...this.pendingViewChanges],
     };
   }
 
@@ -2446,11 +2471,31 @@ export class AgentChatStore extends BaseStore {
 
     this.items = [...this.items.slice(0, anchorIndex + 1), ...checkpoint.items.map(cloneAgentChatItem)];
     this.activeTurnHasSuccessfulMutation = checkpoint.hasSuccessfulMutation;
+    this.pendingViewChanges = [...checkpoint.viewChanges];
     this.progressPhase = this.items.at(-1)?.kind === "user" ? "working" : null;
     if (!this.activeTurnStopRequested) this.streamStatus = "working";
   }
 
+  private recordViewChange(activity: AgentActivityDescriptor) {
+    if (activity.viewSurfaceKey) {
+      this.pendingViewChanges.push({
+        surfaceKey: activity.viewSurfaceKey,
+        action: activity.viewAction,
+        viewKey: activity.viewKey,
+      });
+    }
+  }
+
   private recordReplayedMutations(parts: AgentMessagePart[]) {
+    for (const part of parts) {
+      if (
+        part.type === "activity" &&
+        part.status === "done" &&
+        part.activity.risk !== "read" &&
+        part.activity.viewSurfaceKey
+      )
+        this.recordViewChange(part.activity);
+    }
     if (parts.some((part) => part.type === "activity" && part.status === "done" && part.activity.risk !== "read"))
       this.activeTurnHasSuccessfulMutation = true;
   }

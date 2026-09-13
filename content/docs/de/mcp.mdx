@@ -135,6 +135,7 @@ Alle Create- und Update-Tools nehmen Custom-Column-Werte über customFieldValues
 |---|---|---|---|
 | `get_workspace_context` | ✓ |  | Ihr User, das Company-Profil, alle Rollen inklusive Rechte und Ihre verbundenen Messaging-Konten (Ihre eigenen plus die mit dem Workspace geteilten) in einem Call. Der natürliche erste Call einer Session. |
 | `list_users` | ✓ |  | Teammitglieder mit ID, Name, E-Mail, roleId und Status. |
+| `manage_data_views` |  | ✓ | Ein Tool für persönliche gespeicherte Ansichten: surfaces, config, list, create, update, select, delete. Vor dem Schreiben verfügbare Oberflächen sowie unterstützte Filter, Suche, Sortierung, Gruppierung und Layouts ermitteln. Create wählt die neue Ansicht aus; Updates behalten ausgelassene Einstellungen und das Spaltenlayout bei. viewKey `__all__` bezeichnet Alle. Das Löschen einer Ansicht löscht keine Datensätze. Zurückgegebene Links öffnen Ansichten; externe Änderungen erscheinen nach dem Aktualisieren der Seite. Operator-Ansichten benötigen eine interaktive Operator-Sitzung. |
 {/* /mcp-catalog */}
 
 ### Messaging

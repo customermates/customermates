@@ -233,6 +233,23 @@
             "running": "Accès de l’équipe prêt à être modifié"
           }
         },
+        "views": {
+          "configure": {
+            "done": "Vue configurée",
+            "error": "Impossible de configurer la vue",
+            "running": "Configuration de la vue"
+          },
+          "delete": {
+            "done": "Vue supprimée",
+            "error": "Impossible de supprimer la vue",
+            "running": "Suppression de la vue"
+          },
+          "read": {
+            "done": "Vues enregistrées vérifiées",
+            "error": "Impossible de vérifier les vues enregistrées",
+            "running": "Vérification des vues enregistrées"
+          }
+        },
         "webhooks": {
           "manage": {
             "done": "Action sur le webhook terminée",
@@ -1922,10 +1939,36 @@
     "selectGroup": "Sélectionner le groupe {group}",
     "selectRow": "Sélectionner la ligne {id}",
     "views": {
+      "aiCreateNamedPrompt": "Crée une nouvelle vue appelée « {name} » sur cette page selon la demande ci-dessous.",
+      "aiCreatePrompt": "Crée une nouvelle vue sur cette page selon la demande ci-dessous.",
+      "aiEditPrompt": "Modifie la vue « {name} » sur cette page selon la demande ci-dessous. Conserve les paramètres que je ne mentionne pas.",
+      "aiLabel": "Interroger l’IA sur {name}",
+      "aiRequest": {
+        "appearanceLabel": "À quoi cette vue doit-elle ressembler ?",
+        "appearancePlaceholder": "Décris la disposition, le regroupement ou le tri.",
+        "appearancePrompt": "Modifie l’apparence de la vue « {name} » sur cette page selon la demande ci-dessous. Conserve les paramètres que je ne mentionne pas.",
+        "busy": "Attends la fin de l’activité actuelle de l’IA avant d’envoyer ta demande.",
+        "contextChanged": "La vue sélectionnée a changé. Ferme cette fenêtre et ouvre « Demander à l’IA » pour la vue souhaitée.",
+        "createLabel": "Que doit afficher ta nouvelle vue ?",
+        "createPlaceholder": "Décris les enregistrements souhaités et leur organisation.",
+        "existingContext": "Vue : {name}",
+        "filtersLabel": "Quels enregistrements cette vue doit-elle afficher ?",
+        "filtersPlaceholder": "Décris les filtres ou la recherche à appliquer.",
+        "filtersPrompt": "Modifie les filtres et la recherche de la vue « {name} » sur cette page selon la demande ci-dessous. Conserve les paramètres que je ne mentionne pas.",
+        "namedContext": "Nouvelle vue : {name}",
+        "newContext": "Nouvelle vue sur cette page",
+        "submit": "Envoyer à l’IA",
+        "unavailable": "L’IA est actuellement indisponible. Ta demande n’a pas été envoyée.",
+        "viewLabel": "Que souhaites-tu modifier ?",
+        "viewPlaceholder": "Décris les filtres, la recherche, la disposition, le regroupement ou le tri."
+      },
       "all": "Toutes",
       "applied": "Affichage de {name}",
+      "askAi": "Demander à l'IA",
       "copyLink": "Copier le lien",
       "createTitle": "Nouvelle vue",
+      "createWithAi": "Créer avec l’IA",
+      "createWithAiDescription": "Décris ce que tu souhaites voir et envoie ta demande à l’IA.",
       "delete": "Supprimer la vue",
       "duplicate": "Dupliquer comme nouvelle vue",
       "duplicateName": "{name} copie",

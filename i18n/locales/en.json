@@ -233,6 +233,23 @@
             "running": "Ready to change team access"
           }
         },
+        "views": {
+          "configure": {
+            "done": "Configured the view",
+            "error": "Couldn’t configure the view",
+            "running": "Configuring the view"
+          },
+          "delete": {
+            "done": "Deleted the view",
+            "error": "Couldn’t delete the view",
+            "running": "Deleting the view"
+          },
+          "read": {
+            "done": "Reviewed saved views",
+            "error": "Couldn’t review saved views",
+            "running": "Reviewing saved views"
+          }
+        },
         "webhooks": {
           "manage": {
             "done": "Completed the webhook action",
@@ -1922,10 +1939,36 @@
     "selectGroup": "Select group {group}",
     "selectRow": "Select row {id}",
     "views": {
+      "aiCreateNamedPrompt": "Create a new view called “{name}” on this page using the request below.",
+      "aiCreatePrompt": "Create a new view on this page using the request below.",
+      "aiEditPrompt": "Update the view “{name}” on this page using the request below. Preserve any settings I do not mention.",
+      "aiLabel": "Ask AI about {name}",
+      "aiRequest": {
+        "appearanceLabel": "How should this view look?",
+        "appearancePlaceholder": "Describe the layout, grouping, or sorting.",
+        "appearancePrompt": "Update the appearance of the view “{name}” on this page using the request below. Preserve any settings I do not mention.",
+        "busy": "Wait for the current AI activity to finish before sending.",
+        "contextChanged": "The selected view changed. Close this dialog and open Ask AI for the view you want.",
+        "createLabel": "What should your new view show?",
+        "createPlaceholder": "Describe the records you want to see and how to organize them.",
+        "existingContext": "View: {name}",
+        "filtersLabel": "Which records should this view show?",
+        "filtersPlaceholder": "Describe the filters or search you want to apply.",
+        "filtersPrompt": "Update the filters and search in the view “{name}” on this page using the request below. Preserve any settings I do not mention.",
+        "namedContext": "New view: {name}",
+        "newContext": "New view on this page",
+        "submit": "Send to AI",
+        "unavailable": "AI is currently unavailable. Your request has not been sent.",
+        "viewLabel": "What would you like to change?",
+        "viewPlaceholder": "Describe the filters, search, layout, grouping, or sorting."
+      },
       "all": "All",
       "applied": "Showing {name}",
+      "askAi": "Ask AI",
       "copyLink": "Copy link",
       "createTitle": "New view",
+      "createWithAi": "Create with AI",
+      "createWithAiDescription": "Describe what you want to see and send your request to AI.",
       "delete": "Delete view",
       "duplicate": "Duplicate as new view",
       "duplicateName": "{name} copy",
