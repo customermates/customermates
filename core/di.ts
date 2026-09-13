@@ -1699,11 +1699,12 @@ export const getGetRoutinesApiInteractor = () =>
 
 export const getGetRoutineRunsInteractor = () => new GetRoutineRunsInteractor(getRoutineRepo());
 
-export const getUpsertRoutineInteractor = () => new UpsertRoutineInteractor(getRoutineRepo(), getCompanyRepo());
+export const getUpsertRoutineInteractor = () =>
+  new UpsertRoutineInteractor(getRoutineRepo(), getCompanyRepo(), getEventService());
 
-export const getDeleteRoutineInteractor = () => new DeleteRoutineInteractor(getRoutineRepo());
+export const getDeleteRoutineInteractor = () => new DeleteRoutineInteractor(getRoutineRepo(), getEventService());
 
-export const getPauseRoutineInteractor = () => new PauseRoutineInteractor(getRoutineRepo());
+export const getPauseRoutineInteractor = () => new PauseRoutineInteractor(getRoutineRepo(), getEventService());
 
 export const getRunRoutineNowInteractor = () =>
   new RunRoutineNowInteractor(getRoutineRepo(), getBackgroundTaskService());

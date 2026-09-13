@@ -1,11 +1,14 @@
 import type { RoutineDto, UpsertRoutineData } from "./routine.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
+import type { EventService } from "@/features/event/event.service";
 
 import { Action, Resource, RoutineTriggerKind } from "@/generated/prisma";
 
 import { RoutineDtoSchema, UpsertRoutineSchema, validateRoutineFinalState } from "./routine.schema";
 
+import { DomainEvent } from "@/features/event/domain-events";
+import { calculateChanges } from "@/core/utils/calculate-changes";
 import { getEntitlements } from "@/ee/subscription/entitlements";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { failAuthorization, failConflict } from "@/core/validation/interactor-failure-server";
@@ -72,6 +75,7 @@ export class UpsertRoutineInteractor extends AuthenticatedInteractor<UpsertRouti
   constructor(
     private repo: UpsertRoutineRepo,
     private subscriptionRepo: UpsertRoutineSubscriptionRepo,
+    private eventService: EventService,
   ) {
     super();
   }
@@ -102,6 +106,21 @@ export class UpsertRoutineInteractor extends AuthenticatedInteractor<UpsertRouti
       if (!(error instanceof RoutineLimitExceededError)) throw error;
       return failConflict(CustomErrorCode.routineLimitReached, ["name"], { limit: error.limit });
     }
+
+    const eventPromise = previous
+      ? this.eventService.publish(DomainEvent.ROUTINE_UPDATED, {
+          entityId: routine.id,
+          payload: {
+            routine,
+            changes: calculateChanges(previous, routine),
+          },
+        })
+      : this.eventService.publish(DomainEvent.ROUTINE_CREATED, {
+          entityId: routine.id,
+          payload: routine,
+        });
+
+    await eventPromise;
 
     return { ok: true as const, data: routine };
   }

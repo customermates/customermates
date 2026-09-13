@@ -35,6 +35,10 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 const ROUTINE_ID = "00000000-0000-4000-8000-000000000001";
 const OWNER_ID = "00000000-0000-4000-8000-000000000002";
 
+function eventServiceStub() {
+  return { publish: vi.fn().mockResolvedValue(undefined) } as never;
+}
+
 function member(id = OWNER_ID): TenantUser {
   const role = createMockUser().role;
   if (!role) throw new Error("The mock tenant user must have a role");
@@ -111,7 +115,7 @@ describe("routine ownership writes", () => {
     const subscriptions = {
       getSubscriptionOrThrow: vi.fn().mockResolvedValue({ plan: "enterprise" }),
     };
-    const result = await new UpsertRoutineInteractor(repo as never, subscriptions as never).invoke({
+    const result = await new UpsertRoutineInteractor(repo as never, subscriptions as never, eventServiceStub()).invoke({
       name: "Daily deal digest",
       prompt: "Summarise the open pipeline.",
       triggerKind: "schedule",
@@ -132,6 +136,7 @@ describe("routine ownership writes", () => {
     const result = await new UpsertRoutineInteractor(
       repo as never,
       { getSubscriptionOrThrow: vi.fn() } as never,
+      eventServiceStub(),
     ).invoke({ id: ROUTINE_ID, name: "Renamed" });
 
     expect(result.ok).toBe(true);
@@ -151,6 +156,7 @@ describe("routine ownership writes", () => {
     const result = await new UpsertRoutineInteractor(
       repo as never,
       { getSubscriptionOrThrow: vi.fn() } as never,
+      eventServiceStub(),
     ).invoke({ id: ROUTINE_ID, enabled: false });
 
     expect(result).toEqual({ ok: true, data: paused });
@@ -168,6 +174,7 @@ describe("routine ownership writes", () => {
     const result = await new UpsertRoutineInteractor(
       repo as never,
       { getSubscriptionOrThrow: vi.fn() } as never,
+      eventServiceStub(),
     ).invoke({ id: ROUTINE_ID, enabled: true });
 
     expectAuthorizationFailure(result, CustomErrorCode.routineEditNotOwner);
@@ -185,6 +192,7 @@ describe("routine ownership writes", () => {
     const result = await new UpsertRoutineInteractor(
       repo as never,
       { getSubscriptionOrThrow: vi.fn() } as never,
+      eventServiceStub(),
     ).invoke({ id: ROUTINE_ID, name: "Not mine" });
 
     expectAuthorizationFailure(result, CustomErrorCode.routineEditNotOwner);
@@ -201,6 +209,7 @@ describe("routine ownership writes", () => {
     const result = await new UpsertRoutineInteractor(
       repo as never,
       { getSubscriptionOrThrow: vi.fn() } as never,
+      eventServiceStub(),
     ).invoke({ id: ROUTINE_ID, enabled: true });
 
     expectAuthorizationFailure(result, CustomErrorCode.routineOwnerIneligible);
@@ -218,10 +227,11 @@ describe("routine administration", () => {
   it("lets an admin pause another owner's routine", async () => {
     const repo = {
       isActiveSystemAdministrator: vi.fn().mockResolvedValue(true),
+      getRoutineByIdOrThrow: vi.fn().mockResolvedValue(routine()),
       pauseRoutineOrThrow: vi.fn().mockResolvedValue(routine()),
     };
 
-    const result = await new PauseRoutineInteractor(repo as never).invoke({
+    const result = await new PauseRoutineInteractor(repo as never, eventServiceStub()).invoke({
       routineId: ROUTINE_ID,
     });
 
@@ -237,7 +247,7 @@ describe("routine administration", () => {
       pauseRoutineOrThrow: vi.fn(),
     };
 
-    const result = await new PauseRoutineInteractor(repo as never).invoke({
+    const result = await new PauseRoutineInteractor(repo as never, eventServiceStub()).invoke({
       routineId: ROUTINE_ID,
     });
 
@@ -252,7 +262,7 @@ describe("routine administration", () => {
       pauseRoutineOrThrow: vi.fn(),
     };
 
-    const result = await new PauseRoutineInteractor(repo as never).invoke({
+    const result = await new PauseRoutineInteractor(repo as never, eventServiceStub()).invoke({
       routineId: ROUTINE_ID,
     });
 
@@ -266,17 +276,21 @@ describe("routine administration", () => {
       isActiveSystemAdministrator: vi.fn().mockResolvedValue(true),
       deleteRoutineOrThrow: vi.fn().mockResolvedValue(routine()),
     };
-    await expect(new DeleteRoutineInteractor(repo as never).invoke({ id: ROUTINE_ID })).resolves.toEqual({
+    await expect(
+      new DeleteRoutineInteractor(repo as never, eventServiceStub()).invoke({ id: ROUTINE_ID }),
+    ).resolves.toEqual({
       ok: true,
       data: ROUTINE_ID,
     });
 
     currentUser = member();
-    const ownerDenied = await new DeleteRoutineInteractor(repo as never).invoke({ id: ROUTINE_ID });
+    const ownerDenied = await new DeleteRoutineInteractor(repo as never, eventServiceStub()).invoke({ id: ROUTINE_ID });
     expectAuthorizationFailure(ownerDenied as never, CustomErrorCode.routineAdminRequired);
 
     currentUser = member("other-member");
-    const memberDenied = await new DeleteRoutineInteractor(repo as never).invoke({ id: ROUTINE_ID });
+    const memberDenied = await new DeleteRoutineInteractor(repo as never, eventServiceStub()).invoke({
+      id: ROUTINE_ID,
+    });
 
     expectAuthorizationFailure(memberDenied as never, CustomErrorCode.routineAdminRequired);
     expect(repo.isActiveSystemAdministrator).toHaveBeenCalledTimes(1);
@@ -290,7 +304,7 @@ describe("routine administration", () => {
       deleteRoutineOrThrow: vi.fn(),
     };
 
-    const result = await new DeleteRoutineInteractor(repo as never).invoke({
+    const result = await new DeleteRoutineInteractor(repo as never, eventServiceStub()).invoke({
       id: ROUTINE_ID,
     });
 
@@ -305,7 +319,7 @@ describe("routine administration", () => {
       deleteRoutineOrThrow: vi.fn().mockResolvedValue(null),
     };
 
-    const result = await new DeleteRoutineInteractor(repo as never).invoke({
+    const result = await new DeleteRoutineInteractor(repo as never, eventServiceStub()).invoke({
       id: ROUTINE_ID,
     });
 
