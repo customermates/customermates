@@ -41,6 +41,7 @@ export const TaskDetailView = observer(({ layout = "drawer" }: Props) => {
     isCustomTask,
     systemTaskAlertConfig,
     systemTaskDisplayName,
+    toggleEditingCustomField,
   } = taskDetailStore;
 
   const systemTaskAlert = systemTaskAlertConfig && (
@@ -210,6 +211,7 @@ export const TaskDetailView = observer(({ layout = "drawer" }: Props) => {
           entityType={EntityType.task}
           isEditing={isEditingCustomField}
           sectionId={TASK_DETAIL_SECTION.customFields}
+          onToggleEditing={toggleEditingCustomField}
         />
       </EntityDetailSectionGroup>
     );

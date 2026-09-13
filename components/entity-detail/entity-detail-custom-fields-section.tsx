@@ -2,7 +2,7 @@
 
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
-import { Plus, SlidersHorizontal } from "lucide-react";
+import { Pencil, Plus, SlidersHorizontal, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback } from "react";
 import { CustomColumnType, type EntityType } from "@/generated/prisma";
@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/shared/icon";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
+import { useEntityDetailCustomization } from "./entity-detail-personalization";
 import { EntityDetailSection } from "./entity-detail-section";
 
 type Props = {
@@ -20,12 +21,25 @@ type Props = {
   columns: CustomColumnDto[];
   entityType: EntityType;
   isEditing: boolean;
+  onToggleEditing: () => void;
   sectionId: string;
 };
 
-export function EntityDetailCustomFieldsSection({ canManage, columns, entityType, isEditing, sectionId }: Props) {
+export function EntityDetailCustomFieldsSection({
+  canManage,
+  columns,
+  entityType,
+  isEditing,
+  onToggleEditing,
+  sectionId,
+}: Props) {
   const t = useTranslations();
   const { customColumnModalStore } = useRootStore();
+  const { isCustomizing, onToggleCustomization } = useEntityDetailCustomization({
+    canManage,
+    isEditingCustomField: isEditing,
+    toggleEditingCustomField: onToggleEditing,
+  });
   const onAddField = useCallback(() => {
     customColumnModalStore.initialize(CustomColumnType.plain, entityType);
     customColumnModalStore.open();
@@ -57,6 +71,23 @@ export function EntityDetailCustomFieldsSection({ canManage, columns, entityType
           <Icon icon={Plus} />
 
           {t("Common.actions.addCustomField")}
+        </Button>
+      ) : null}
+
+      {canManage ? (
+        <Button
+          data-entity-custom-fields-mode-toggle
+          aria-label={isCustomizing ? t("Common.actions.cancel") : t("Common.actions.editCustomFields")}
+          aria-pressed={isCustomizing}
+          className="w-full text-muted-foreground"
+          size="sm"
+          type="button"
+          variant="ghost"
+          onClick={onToggleCustomization}
+        >
+          <Icon icon={isCustomizing ? X : Pencil} />
+
+          {isCustomizing ? t("Common.actions.cancel") : t("Common.actions.editCustomFields")}
         </Button>
       ) : null}
     </EntityDetailSection>

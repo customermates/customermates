@@ -43,6 +43,28 @@ vi.mock("../entity-detail-personalization", () => ({
     starredFieldIds: harness.starredFieldIds,
     setIsPersonalizing: harness.setIsPersonalizing,
   }),
+  useEntityDetailCustomization: ({
+    canManage,
+    isEditingCustomField,
+    toggleEditingCustomField,
+  }: {
+    canManage: boolean;
+    isEditingCustomField: boolean;
+    toggleEditingCustomField: () => void;
+  }) => {
+    const isCustomizing = harness.personalizationEnabled
+      ? harness.isPersonalizing || (canManage && isEditingCustomField)
+      : canManage && isEditingCustomField;
+
+    return {
+      isCustomizing,
+      onToggleCustomization: () => {
+        const next = !isCustomizing;
+        if (harness.personalizationEnabled) harness.setIsPersonalizing(next);
+        if (canManage && isEditingCustomField !== next) toggleEditingCustomField();
+      },
+    };
+  },
 }));
 
 vi.mock("@/components/entity-detail/entity-notes-panel", () => ({
