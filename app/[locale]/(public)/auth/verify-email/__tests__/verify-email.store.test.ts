@@ -88,4 +88,14 @@ describe("VerifyEmailStore", () => {
     });
     expect(store.isSent).toBe(true);
   });
+  it("refuses a malformed address instead of silently doing nothing", async () => {
+    const store = new VerifyEmailStore(rootStore);
+    store.activate(undefined);
+    store.onChange("email", "not-an-email");
+
+    await store.resend();
+
+    expect(authActions.resendVerificationEmailFromAuthAction).not.toHaveBeenCalled();
+    expect(store.isSent).toBe(false);
+  });
 });

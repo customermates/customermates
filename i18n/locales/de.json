@@ -3255,7 +3255,8 @@
     "rememberMe": "Angemeldet bleiben",
     "signInCta": "Anmelden",
     "signInTitle": "Bei deinem Konto anmelden",
-    "switchToSignUp": "Noch kein Konto? <registerLink>Registrieren</registerLink>"
+    "switchToSignUp": "Noch kein Konto? <registerLink>Registrieren</registerLink>",
+    "verificationEmailHelp": "Keine Bestätigungs-E-Mail erhalten?"
   },
   "SignUpForm": {
     "acceptInviteCta": "Weiter",
@@ -3428,6 +3429,7 @@
     "anonymousBody": "Gib die E-Mail-Adresse ein, mit der du dich registriert hast. Wir senden dir einen neuen Bestätigungslink.",
     "body": "Wir haben dir eine Verifizierungs-E-Mail gesendet. Bitte überprüfe dein Postfach und klicke auf den Link, um deine E-Mail-Adresse zu verifizieren.",
     "ctaLabel": "Verifizierungs-E-Mail erneut senden",
+    "invalidEmail": "Gib eine gültige E-Mail-Adresse ein.",
     "invitationFrom": "Einladung von {inviterName}",
     "resendSuccess": "Verifizierungs-E-Mail wurde erfolgreich gesendet.",
     "subtitle": "Verifiziere deine E-Mail-Adresse, um fortzufahren.",

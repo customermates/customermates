@@ -3255,7 +3255,8 @@
     "rememberMe": "Se souvenir de moi",
     "signInCta": "Se connecter",
     "signInTitle": "Connectez-vous à votre compte",
-    "switchToSignUp": "Vous n'avez pas de compte ? <registerLink>Inscrivez-vous</registerLink>"
+    "switchToSignUp": "Vous n'avez pas de compte ? <registerLink>Inscrivez-vous</registerLink>",
+    "verificationEmailHelp": "Vous n'avez pas reçu l'e-mail de vérification ?"
   },
   "SignUpForm": {
     "acceptInviteCta": "Continuer",
@@ -3428,6 +3429,7 @@
     "anonymousBody": "Saisissez l'adresse e-mail utilisée lors de votre inscription et nous vous enverrons un nouveau lien de vérification.",
     "body": "Nous vous avons envoyé un e-mail de vérification. Consultez votre boîte de réception et cliquez sur le lien pour vérifier votre adresse.",
     "ctaLabel": "Renvoyer l'e-mail de vérification",
+    "invalidEmail": "Saisissez une adresse e-mail valide.",
     "invitationFrom": "Invitation de {inviterName}",
     "resendSuccess": "E-mail de vérification envoyé.",
     "subtitle": "Vérifiez votre adresse e-mail pour continuer.",

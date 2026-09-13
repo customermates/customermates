@@ -3255,7 +3255,8 @@
     "rememberMe": "Recordarme",
     "signInCta": "Iniciar sesión",
     "signInTitle": "Inicia sesión en tu cuenta",
-    "switchToSignUp": "¿No tienes cuenta? <registerLink>Regístrate</registerLink>"
+    "switchToSignUp": "¿No tienes cuenta? <registerLink>Regístrate</registerLink>",
+    "verificationEmailHelp": "¿No recibiste el correo de verificación?"
   },
   "SignUpForm": {
     "acceptInviteCta": "Continuar",
@@ -3428,6 +3429,7 @@
     "anonymousBody": "Introduce el correo con el que te registraste y te enviaremos un nuevo enlace de verificación.",
     "body": "Te hemos enviado un correo de verificación. Revisa tu bandeja de entrada y haz clic en el enlace para verificar tu dirección de correo.",
     "ctaLabel": "Reenviar el correo de verificación",
+    "invalidEmail": "Introduce una dirección de correo válida.",
     "invitationFrom": "Invitación de {inviterName}",
     "resendSuccess": "Correo de verificación enviado correctamente.",
     "subtitle": "Verifica tu dirección de correo para continuar.",

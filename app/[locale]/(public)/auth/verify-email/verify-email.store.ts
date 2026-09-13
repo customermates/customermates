@@ -6,6 +6,8 @@ import { action, makeObservable, observable, runInAction } from "mobx";
 import { BaseFormStore } from "@/core/base/base-form.store";
 import { resendVerificationEmailFromAuthAction } from "@/app/[locale]/(public)/auth/actions";
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 type VerifyEmailForm = {
   email: string;
 };
@@ -52,12 +54,21 @@ export class VerifyEmailStore extends BaseFormStore<VerifyEmailForm> {
     const email = sessionEmail ?? this.form.email.trim();
     if (!email) return;
 
+    if (!sessionEmail && !EMAIL_PATTERN.test(email)) {
+      this.toastError("VerifyEmailCard.invalidEmail");
+      return;
+    }
+
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
       const result = await resendVerificationEmailFromAuthAction({
         onboardingIntent: this.onboardingIntent,
         email: sessionEmail ? undefined : email,
       });
-      if (!result.ok || this.activeEmail !== sessionEmail) return;
+      if (this.activeEmail !== sessionEmail) return;
+      if (!result.ok) {
+        this.toastError("Common.notifications.unexpectedError");
+        return;
+      }
 
       runInAction(() => {
         this.isSent = true;
