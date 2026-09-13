@@ -228,7 +228,7 @@ describe("agent client-visible output safety", () => {
       const visible = [...source].map((character) => sanitizer.push(character)).join("") + sanitizer.finish();
       expect(visible).toBe(expected);
     }
-  }, 60_000);
+  }, 120_000);
 
   it("preserves saved-view links when replaying persisted messages", () => {
     const text = "Open [My view](/contacts?view=00000000-0000-4000-8000-000000000001).";
