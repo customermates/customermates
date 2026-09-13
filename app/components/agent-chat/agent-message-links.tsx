@@ -5,7 +5,6 @@ import { defaultRehypePlugins, type Components } from "streamdown";
 
 import { AppLink } from "@/components/shared/app-link";
 import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
-import { useRouter } from "@/i18n/navigation";
 
 type MarkdownNode = {
   tagName?: string;
@@ -16,7 +15,12 @@ type MarkdownNode = {
 
 function rehypeSavedViewLinks() {
   return function transform(node: MarkdownNode) {
-    const href = node.tagName === "a" ? dataViewNavigationHref(node.properties?.href) : null;
+    const href =
+      node.tagName === "a"
+        ? dataViewNavigationHref(node.properties?.href, {
+            origin: typeof window === "undefined" ? undefined : window.location.origin,
+          })
+        : null;
     if (href) {
       node.tagName = "span";
       node.properties = {};
@@ -27,19 +31,8 @@ function rehypeSavedViewLinks() {
 }
 
 function SavedViewLink({ href, children, className }: ComponentProps<"a"> & { href: string }) {
-  const router = useRouter();
   return (
-    <AppLink
-      inheritSize
-      appearance="inline"
-      className={className}
-      href={href}
-      onClick={(event) => {
-        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-        event.preventDefault();
-        router.push(href);
-      }}
-    >
+    <AppLink inheritSize appearance="inline" className={className} href={href}>
       {children}
     </AppLink>
   );

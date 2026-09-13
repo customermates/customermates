@@ -18,3 +18,9 @@ export const DATA_VIEW_PATHS: Readonly<Record<DataViewSurfaceKey, string | null>
   [SURFACE.operatorAudit]: "/operator/audit",
   [SURFACE.routines]: "/routines",
 });
+
+export const ENTITY_TIMELINE_PARENT_PATHS = Object.freeze(
+  [SURFACE.contacts, SURFACE.organizations, SURFACE.deals, SURFACE.services, SURFACE.tasks].map(
+    (surfaceKey) => DATA_VIEW_PATHS[surfaceKey] as string,
+  ),
+);

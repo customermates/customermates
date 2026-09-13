@@ -184,6 +184,7 @@ const payload: AgentTurnWorkflowPayload = {
   userName: "Test User",
   locale: "en",
   appBaseUrl: "http://localhost:4000",
+  pageRoute: "/en/contacts",
   messages: [{ role: "user", text: "Hello" }],
   turnBudget: {
     modelSpec: "google/gemini-3.5-flash-lite",

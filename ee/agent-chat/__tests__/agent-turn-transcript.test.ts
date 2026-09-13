@@ -22,6 +22,19 @@ function transcriptWithLog() {
 }
 
 describe("agent turn transcript", () => {
+  it("canonicalizes same-app absolute links before publishing and persistence", () => {
+    const events: AgentTranscriptEvent[] = [];
+    const transcript = new AgentTurnTranscript((event) => events.push(event), "http://localhost:4016");
+    const relative =
+      "/contacts/00000000-0000-4000-8000-000000000001?view=00000000-0000-4000-8000-000000000002&viewSurface=entity-timeline";
+
+    transcript.pushTextDelta(`[Timeline](http://localhost:4016/en${relative})`);
+    transcript.finishTextSegment();
+
+    expect(transcript.replyText).toBe(`[Timeline](${relative})`);
+    expect(events).toContainEqual({ type: "delta", payload: { text: `[Timeline](${relative})` } });
+  });
+
   it("interleaves visible text with activities in the order they happened", () => {
     const { events, transcript } = transcriptWithLog();
 

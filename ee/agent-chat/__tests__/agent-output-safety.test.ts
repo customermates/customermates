@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { DATA_VIEW_PATHS } from "@/core/data-view/data-view-paths";
+import { SURFACE } from "@/core/data-view/data-view-keys";
+import { DATA_VIEW_PATHS, ENTITY_TIMELINE_PARENT_PATHS } from "@/core/data-view/data-view-paths";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 
 import { clientSafeAgentMessageParts } from "../agent-chat.schema";
@@ -9,6 +10,7 @@ import {
   agentPlainTextPreview,
   sanitizeAgentConversationTitle,
   sanitizeAgentVisibleText,
+  sanitizeAgentVisibleTextForApp,
 } from "../agent-output-safety";
 
 describe("agent client-visible output safety", () => {
@@ -66,10 +68,29 @@ describe("agent client-visible output safety", () => {
       }
     }
     expect(sanitizeAgentVisibleText(`[All](/contacts?view=__all__)`)).toBe(`[All](/contacts?view=__all__)`);
+    expect(sanitizeAgentVisibleText(`[Status:Open](/contacts?view=${viewId})`)).toBe(
+      `[Status:Open](/contacts?view=${viewId})`,
+    );
+    expect(sanitizeAgentVisibleText(`Created:[Open](/contacts?view=${viewId})`)).toBe(
+      `Created:[Open](/contacts?view=${viewId})`,
+    );
+  });
+
+  it("keeps named timeline links on exact record routes while redacting unrelated ids", () => {
+    const recordId = "00000000-0000-4000-8000-000000000001";
+    const viewId = "00000000-0000-4000-8000-000000000002";
+    for (const path of ENTITY_TIMELINE_PARENT_PATHS) {
+      for (const prefix of ["", ...APP_LOCALES.map((locale) => `/${locale}`)]) {
+        const url = `${prefix}${path}/${recordId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}`;
+        const answer = `Open [Activity](${url}); raw ${recordId}.`;
+        expect(sanitizeAgentVisibleText(answer)).toBe(`Open [Activity](${url}); raw [internal reference].`);
+      }
+    }
   });
 
   it("keeps saved-view URLs only within exact local page links", () => {
     const viewId = "00000000-0000-4000-8000-000000000001";
+    const recordId = "00000000-0000-4000-8000-000000000002";
     const rejected = [
       `https://example.com/contacts?view=${viewId}`,
       `//example.com/contacts?view=${viewId}`,
@@ -83,46 +104,131 @@ describe("agent client-visible output safety", () => {
       `/contacts?view=${viewId}/details`,
       `/contacts?view=${viewId}%20`,
       `/contacts?view=${viewId}x`,
+      `https://example.invalid/(/contacts/${viewId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline})`,
+      `https://example.invalid/x](/contacts/${viewId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline})`,
+      `//example.invalid/x](/contacts/${viewId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline})`,
     ];
     for (const url of rejected) expect(sanitizeAgentVisibleText(`[View](${url})`)).not.toContain(viewId);
     const valid = `/contacts?view=${viewId}`;
     expect(sanitizeAgentVisibleText(`Raw ${viewId}; [View](${valid}).`)).toBe(
       `Raw [internal reference]; [View](${valid}).`,
     );
+    const disguisedExternalLinks = [
+      `https://example.invalid/x](/contacts/${recordId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline})`,
+      `[Link](https://example.invalid/x\\)](/contacts/${recordId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}))`,
+    ];
+    for (const source of disguisedExternalLinks) {
+      expect(sanitizeAgentVisibleText(source)).not.toContain(viewId);
+      expect(sanitizeAgentVisibleText(source)).not.toContain(recordId);
+    }
+    const timelineUrl = `/contacts/${recordId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}`;
+    for (const source of [
+      `[Link](https://example.invalid "${timelineUrl}")`,
+      `![Image](https://example.invalid "${timelineUrl}")`,
+      `[Link](<https://example.invalid ${timelineUrl}>)`,
+      `<a href="https://example.invalid/x ${timelineUrl}">Link</a>`,
+      `[Link][ref]\n\n[ref]: https://example.invalid\n  "${timelineUrl}"\n`,
+      `> [Link][ref]\n>\n> [ref]: https://example.invalid\n>   "${timelineUrl}"\n`,
+      `- [Link][ref]\n\n  [ref]: https://example.invalid\n    "${timelineUrl}"\n`,
+    ]) {
+      expect(sanitizeAgentVisibleText(source)).not.toContain(viewId);
+      expect(sanitizeAgentVisibleText(source)).not.toContain(recordId);
+    }
+    expect(sanitizeAgentVisibleText(`[View](\\/contacts\\?view\\=${viewId})`)).toContain(viewId);
     expect(sanitizeAgentVisibleText("/contacts?view=00000000-0000-4")).toBe("/contacts?view=[internal reference]");
   });
 
   it("redacts secret assignments and private content even when they contain a saved-view URL", () => {
     const url = "/contacts?view=00000000-0000-4000-8000-000000000001";
     expect(sanitizeAgentVisibleText(`password=${url}; Safe.`)).toBe("password=[redacted]; Safe.");
+    expect(sanitizeAgentVisibleText(`password=[View](${url}); Safe.`)).not.toContain("00000000");
     expect(sanitizeAgentVisibleText(`<analysis>[View](${url})</analysis>Safe.`)).toBe("Safe.");
+  });
+
+  it("classifies saved-view URLs before other redactions alter their Markdown context", () => {
+    const recordId = "00000000-0000-4000-8000-000000000001";
+    const viewId = "00000000-0000-4000-8000-000000000002";
+    const timelineUrl = `/contacts/${recordId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}`;
+    const externalTitle = `[Link](https://example.invalid "${timelineUrl} Authorization: Bearer abc")`;
+    const validLink = `[Activity](${timelineUrl})`;
+
+    expect(sanitizeAgentVisibleText(externalTitle)).not.toContain(recordId);
+    expect(sanitizeAgentVisibleText(externalTitle)).not.toContain(viewId);
+    expect(sanitizeAgentVisibleText(`${validLink}\nAuthorization: Bearer abc`)).toContain(validLink);
+  });
+
+  it("canonicalizes same-app absolute links across every provider chunk boundary", () => {
+    const origin = "http://localhost:4016";
+    const recordId = "00000000-0000-4000-8000-000000000001";
+    const viewId = "00000000-0000-4000-8000-000000000002";
+    const relativeUrl = `/contacts/${recordId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}`;
+    const source = `Created [Activity timeline](${origin}/en${relativeUrl}).`;
+    const expected = `Created [Activity timeline](${relativeUrl}).`;
+
+    expect(sanitizeAgentVisibleTextForApp(source, origin)).toBe(expected);
+    expect(sanitizeAgentVisibleTextForApp(source, "https://app.example.com")).not.toContain(viewId);
+    for (let split = 0; split <= source.length; split += 1) {
+      const sanitizer = new AgentVisibleTextStreamSanitizer(origin);
+      const visible = `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`;
+      expect(visible, `split ${split}`).toBe(expected);
+    }
   });
 
   it("preserves whole saved-view URLs across every provider chunk boundary and incremental streaming", () => {
     const viewId = "00000000-0000-4000-8000-000000000001";
     const url = `/de/company/webhook-deliveries?view=${viewId}`;
+    const timelineUrl = `/contacts/${viewId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}`;
+    const longTitle = "padding ".repeat(65);
     const prefix = "A safe introduction. ".repeat(8);
     const suffix = " A safe conclusion.".repeat(8);
     const sources = [
       `${prefix}[My view](${url})${suffix}`,
+      `${prefix}[Status:Open](${url})${suffix}`,
+      `${prefix}Created:[Open](${url})${suffix}`,
+      `${prefix}[Activity](/contacts/${viewId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline})${suffix}`,
       `${prefix}[${url}](${url})${suffix}`,
       `${prefix}[View](${url}&extra=value)${suffix}`,
       `${prefix}https://example.com${url}${suffix}`,
       `${prefix}https://${"x".repeat(400)}.example.com${url}${suffix}`,
+      `${prefix}[External](https://example.invalid/(/contacts/${viewId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}))${suffix}`,
+      `${prefix}[External](https://${"x".repeat(400)}.example.invalid/x](/contacts/${viewId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}))${suffix}`,
+      `${prefix}[External](//${"x".repeat(400)}.example.invalid/x](/contacts/${viewId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}))${suffix}`,
+      `${prefix}https://example.invalid/x](/contacts/${viewId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline})${suffix}`,
+      `${prefix}[External](https://example.invalid/x\\)](/contacts/${viewId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}))${suffix}`,
+      `${prefix}[External](https://example.invalid "${timelineUrl} ${longTitle}")${suffix}`,
+      `${prefix}*[External](https://example.invalid "${timelineUrl} ${longTitle}")*${suffix}`,
+      `${prefix}![External](https://example.invalid "${timelineUrl} ${longTitle}")${suffix}`,
+      `${prefix}[External](<https://example.invalid ${timelineUrl}> "${longTitle}")${suffix}`,
+      `${prefix}[View](${url} "${longTitle}")${suffix}`,
+      `${prefix}*[View](${url} "${longTitle}")*${suffix}`,
+      `${prefix}[View](\\/de/company/webhook-deliveries\\?view\\=${viewId} "${longTitle}")${suffix}`,
+      `${prefix}[Link][ref]\n\n[ref]: https://example.invalid\n  "${timelineUrl} ${longTitle}"\n${suffix}`,
+      `${prefix}\n> [Link][ref]\n>\n> [ref]: https://example.invalid\n>   "${timelineUrl} ${longTitle}"\n${suffix}`,
+      `${prefix}\n- [Link][ref]\n\n  [ref]: https://example.invalid\n    "${timelineUrl} ${longTitle}"\n${suffix}`,
+      `Here is the view\n    [View](${timelineUrl})\n    ${longTitle}\n`,
+      `${prefix}\`${longTitle}[View](${url}) ${longTitle}\`${suffix}`,
+      `${prefix}\n~~~text\n${longTitle}\n[View](${url})\n${longTitle}\n~~~\n${suffix}`,
+      `${prefix}\n\n    ${longTitle}[View](${url}) ${longTitle}\n${suffix}`,
+      `${prefix}\n<!-- ${longTitle}[View](${url}) ${longTitle} -->\n${suffix}`,
+      `${prefix}\n<div>\n${longTitle}[View](${url}) ${longTitle}\n</div>\n\n${suffix}`,
+      `${prefix}<span title="${longTitle}[View](${url}) ${longTitle}">Text</span>${suffix}`,
+      `${prefix}<a href="https://example.invalid/x ${timelineUrl}">Link</a>${suffix}`,
+      `${prefix}[External](https://example.invalid "${timelineUrl} Authorization: Bearer abc")${suffix}`,
+      `${prefix}\\[View](${url})${suffix}`,
       `${prefix}${url}${suffix} Raw ${viewId}.`,
     ];
-    for (const source of sources) {
+    for (const [sourceIndex, source] of sources.entries()) {
       const expected = sanitizeAgentVisibleText(source);
       for (let split = 0; split <= source.length; split += 1) {
         const sanitizer = new AgentVisibleTextStreamSanitizer();
         const visible = `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`;
-        expect(visible).toBe(expected);
+        expect(visible, `source ${sourceIndex}, split ${split}`).toBe(expected);
       }
       const sanitizer = new AgentVisibleTextStreamSanitizer();
       const visible = [...source].map((character) => sanitizer.push(character)).join("") + sanitizer.finish();
       expect(visible).toBe(expected);
     }
-  });
+  }, 60_000);
 
   it("preserves saved-view links when replaying persisted messages", () => {
     const text = "Open [My view](/contacts?view=00000000-0000-4000-8000-000000000001).";
@@ -240,7 +346,11 @@ describe("agent client-visible output safety", () => {
         },
         { type: "reasoning", text: "hidden chain of thought" },
         { type: "tool_result", result: { apiKey: "never-show" } },
-        { type: "provider_metadata", modelId: "gpt-5.6-luna", inputTokens: 321 },
+        {
+          type: "provider_metadata",
+          modelId: "gpt-5.6-luna",
+          inputTokens: 321,
+        },
       ],
       { sanitizeText: true },
     );

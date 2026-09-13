@@ -1,5 +1,10 @@
-import { DATA_VIEW_PATHS } from "@/core/data-view/data-view-paths";
+import { SURFACE } from "@/core/data-view/data-view-keys";
+import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
+import { DATA_VIEW_PATHS, ENTITY_TIMELINE_PARENT_PATHS } from "@/core/data-view/data-view-paths";
 import { APP_LOCALES } from "@/i18n/locale-registry";
+
+import { parse, postprocess, preprocess } from "micromark";
+import { decodeString } from "micromark-util-decode-string";
 
 const INTERNAL_REFERENCE = "[internal reference]";
 const REDACTED_VALUE = "[redacted]";
@@ -9,16 +14,28 @@ const UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})
 const PARTIAL_UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}-(?:[0-9a-f]{0,4}(?:-[0-9a-f]{0,4}){0,3})?)$/gi;
 const SAVED_VIEW_PATHS = Object.values(DATA_VIEW_PATHS).filter((path): path is string => path !== null);
 const escapePattern = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const UUID_SOURCE = "[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}";
+const VIEW_KEY_SOURCE = `(?:__all__|${UUID_SOURCE})`;
+const LOCALE_PREFIX_SOURCE = `(?:(?:${APP_LOCALES.map(escapePattern).join("|")})/)?`;
 const SAVED_VIEW_URL_PATTERN = new RegExp(
-  `(^|[\\s(\\[<"'\\x60])(/(?:(?:${APP_LOCALES.map(escapePattern).join("|")})/)?(?:${SAVED_VIEW_PATHS.map((path) => escapePattern(path.slice(1))).join("|")})\\?view=[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12})(?=$|[\\s)\\]>"'\\x60])`,
+  `(^|[\\s(\\[<"'\\x60])(/${LOCALE_PREFIX_SOURCE}(?:(?:${SAVED_VIEW_PATHS.map((path) => escapePattern(path.slice(1))).join("|")})\\?view=${VIEW_KEY_SOURCE}|(?:${ENTITY_TIMELINE_PARENT_PATHS.map((path) => escapePattern(path.slice(1))).join("|")})/${UUID_SOURCE}\\?view=${VIEW_KEY_SOURCE}&viewSurface=${escapePattern(SURFACE.entityTimeline)}))(?=$|[\\s)\\]>"'\\x60])`,
   "g",
 );
 const VIEW_URL_STREAM_PATTERN = /[^\s()[\]<>"'`]*(?:\?|&)view=[^\s()[\]<>"'`]*/g;
-const MAX_SAVED_VIEW_URL_LENGTH =
-  Math.max(...SAVED_VIEW_PATHS.map((path) => path.length)) +
-  Math.max(...APP_LOCALES.map((locale) => locale.length + 1)) +
+const MAX_LOCALE_PREFIX_LENGTH = Math.max(...APP_LOCALES.map((locale) => locale.length + 1));
+const MAX_STANDALONE_VIEW_URL_LENGTH =
+  Math.max(...SAVED_VIEW_PATHS.map((path) => path.length)) + MAX_LOCALE_PREFIX_LENGTH + "?view=".length + 36;
+const MAX_TIMELINE_VIEW_URL_LENGTH =
+  Math.max(...ENTITY_TIMELINE_PARENT_PATHS.map((path) => path.length)) +
+  MAX_LOCALE_PREFIX_LENGTH +
+  1 +
+  36 +
   "?view=".length +
-  36;
+  36 +
+  "&viewSurface=".length +
+  SURFACE.entityTimeline.length;
+const MAX_SAVED_VIEW_URL_LENGTH = Math.max(MAX_STANDALONE_VIEW_URL_LENGTH, MAX_TIMELINE_VIEW_URL_LENGTH);
+const PROTECTED_STREAM_CONTEXT_CHARS = 2;
 
 const PAGE_CONTEXT_BLOCK_PATTERN = /<page_context\b[^>]*>[\s\S]*?<\/page_context\s*>/gi;
 const PAGE_CONTEXT_TAG_PATTERN = /<\/?page_context\b[^>]*>/gi;
@@ -114,16 +131,167 @@ function earliest(current: number | null, candidate: number | null) {
   return current === null ? candidate : Math.min(current, candidate);
 }
 
+type TextRange = { start: number; end: number };
+type MarkdownContainer = TextRange & { type: string };
+type CanonicalDestination = TextRange & { href: string };
+
+function parsedMarkdownUrlRanges(value: string, origin?: string) {
+  const canonicalDestinations: CanonicalDestination[] = [];
+  const containers: MarkdownContainer[] = [];
+  const definitionTitles: TextRange[] = [];
+  const destinations: TextRange[] = [];
+  const embeddedUrls: TextRange[] = [];
+  const htmlContent: TextRange[] = [];
+  const opaqueContent: TextRange[] = [];
+  const structuralContexts: TextRange[] = [];
+  const events = postprocess(
+    parse()
+      .document()
+      .write(preprocess()(value, undefined, true)),
+  );
+
+  for (const [phase, token] of events) {
+    if (phase !== "enter") continue;
+    const start = token.start.offset;
+    const end = token.end.offset;
+    if (start === undefined || end === undefined) continue;
+    if (["blockQuote", "listOrdered", "listUnordered"].includes(token.type)) {
+      structuralContexts.push({ start, end });
+      continue;
+    }
+    if (["codeFenced", "codeIndented", "codeText", "htmlFlow", "htmlText"].includes(token.type)) {
+      opaqueContent.push({ start, end });
+      if (["htmlFlow", "htmlText"].includes(token.type)) htmlContent.push({ start, end });
+      continue;
+    }
+    if (["autolink", "definition", "image", "link"].includes(token.type)) {
+      containers.push({ start, end, type: token.type });
+      continue;
+    }
+    if (
+      ![
+        "definitionDestinationString",
+        "definitionTitleString",
+        "resourceDestinationString",
+        "resourceTitleString",
+      ].includes(token.type)
+    )
+      continue;
+    embeddedUrls.push({ start, end });
+    if (token.type === "definitionTitleString") definitionTitles.push({ start, end });
+    if (!["definitionDestinationString", "resourceDestinationString"].includes(token.type)) continue;
+
+    const parent = containers
+      .filter((container) => start >= container.start && end <= container.end)
+      .sort((left, right) => left.end - left.start - (right.end - right.start))[0];
+    if (!parent || !["definition", "link"].includes(parent.type)) continue;
+    const decodedDestination = decodeString(value.slice(start, end));
+    const navigationHref = dataViewNavigationHref(decodedDestination, { origin });
+    if (!navigationHref) continue;
+    destinations.push({ start, end });
+    if (/^https?:\/\//i.test(decodedDestination)) canonicalDestinations.push({ start, end, href: navigationHref });
+  }
+
+  const streamContainers = containers.map((container) => {
+    if (container.type !== "definition") return container;
+    const lineStart = value.lastIndexOf("\n", container.start - 1) + 1;
+    const contextStart = structuralContexts
+      .filter((context) => container.start >= context.start && container.end <= context.end)
+      .reduce((start, context) => Math.min(start, context.start), lineStart);
+    return { ...container, start: contextStart };
+  });
+  const streamOpaqueContent = opaqueContent.map((range) => {
+    const lineStart = value.lastIndexOf("\n", range.start - 1) + 1;
+    const contextStart = structuralContexts
+      .filter((context) => range.start >= context.start && range.end <= context.end)
+      .reduce((start, context) => Math.min(start, context.start), lineStart);
+    return { start: contextStart, end: range.end };
+  });
+
+  return {
+    canonicalDestinations,
+    containers,
+    definitionTitles,
+    destinations,
+    embeddedUrls,
+    htmlContent,
+    opaqueContent,
+    streamContainers,
+    streamOpaqueContent,
+  };
+}
+
+function canonicalizeSameOriginDataViewLinks(value: string, origin?: string) {
+  if (!origin) return value;
+  return parsedMarkdownUrlRanges(value, origin)
+    .canonicalDestinations.sort((left, right) => right.start - left.start)
+    .reduce(
+      (canonicalValue, destination) =>
+        `${canonicalValue.slice(0, destination.start)}${destination.href}${canonicalValue.slice(destination.end)}`,
+      value,
+    );
+}
+
+function hasBareLocalUrlBoundary(value: string, match: RegExpMatchArray) {
+  const index = match.index ?? 0;
+  const prefix = match[1] ?? "";
+  if (index === 0 || /\s/.test(prefix)) return true;
+  return /\s/.test(value[index - 1] ?? "");
+}
+
+function savedViewUrlRanges(value: string) {
+  const markdown = parsedMarkdownUrlRanges(value);
+  const bareSavedViewUrls = [...value.matchAll(SAVED_VIEW_URL_PATTERN)].flatMap((match) => {
+    const start = (match.index ?? 0) + match[1].length;
+    const end = (match.index ?? 0) + match[0].length;
+    const embeddedInMarkdown = markdown.embeddedUrls.some((range) => start >= range.start && end <= range.end);
+    const embeddedInHtml = markdown.htmlContent.some((range) => start >= range.start && end <= range.end);
+    return !embeddedInMarkdown &&
+      !embeddedInHtml &&
+      hasBareLocalUrlBoundary(value, match) &&
+      dataViewNavigationHref(match[2])
+      ? [
+          {
+            start,
+            end,
+          },
+        ]
+      : [];
+  });
+  return [...markdown.destinations, ...bareSavedViewUrls];
+}
+
 function replaceUuid(value: string) {
-  const savedViewUrls = [...value.matchAll(SAVED_VIEW_URL_PATTERN)].map((match) => ({
-    start: match.index + match[1].length,
-    end: match.index + match[0].length,
-  }));
+  const savedViewUrls = savedViewUrlRanges(value);
   return value.replace(UUID_PATTERN, (match: string, prefix: string, uuid: string, offset: number) => {
     const start = offset + prefix.length;
     if (savedViewUrls.some((url) => start >= url.start && start + uuid.length <= url.end)) return match;
     return `${prefix}${INTERNAL_REFERENCE}`;
   });
+}
+
+function protectSavedViewUuids(value: string) {
+  const savedViewUrls = savedViewUrlRanges(value);
+  const uuidReplacements: Array<string | null> = [];
+  let placeholderPrefix = "\uE000saved-view-uuid:";
+  while (value.includes(placeholderPrefix)) placeholderPrefix = `\uE000${placeholderPrefix}`;
+  const protectedValue = value.replace(UUID_PATTERN, (match: string, prefix: string, uuid: string, offset: number) => {
+    const start = offset + prefix.length;
+    const replacement = savedViewUrls.some((url) => start >= url.start && start + uuid.length <= url.end) ? uuid : null;
+    const placeholder = `${placeholderPrefix}${uuidReplacements.length}\uE001`;
+    uuidReplacements.push(replacement);
+    return `${prefix}${placeholder}`;
+  });
+
+  return {
+    protectedValue,
+    restore: (redactedValue: string) =>
+      uuidReplacements.reduce<string>(
+        (restoredValue, uuid, index) =>
+          restoredValue.replaceAll(`${placeholderPrefix}${index}\uE001`, uuid ?? INTERNAL_REFERENCE),
+        redactedValue,
+      ),
+  };
 }
 
 function replacePartialUuidTail(value: string) {
@@ -212,48 +380,190 @@ function incompleteToolProtocolStart(value: string) {
   return TOOL_PROTOCOL_PREFIX_PATTERN.exec(value)?.index ?? null;
 }
 
+function isEscaped(value: string, index: number) {
+  let backslashes = 0;
+  for (let cursor = index - 1; cursor >= 0 && value[cursor] === "\\"; cursor -= 1) backslashes += 1;
+  return backslashes % 2 === 1;
+}
+
+function markdownLinkStartBefore(value: string, match: RegExpMatchArray) {
+  const matchStart = match.index ?? 0;
+  const urlStart = matchStart + (match[1]?.length ?? 0);
+  if (value[urlStart] !== "/" || value[urlStart - 1] !== "(" || value[urlStart - 2] !== "]") return null;
+
+  for (let cursor = urlStart - 3; cursor >= 0; cursor -= 1) {
+    if (value[cursor] !== "[") continue;
+    while (cursor > 0 && value[cursor - 1] === "\\") cursor -= 1;
+    return cursor;
+  }
+  return null;
+}
+
+function closingLabelIndex(value: string, start: number) {
+  let depth = 1;
+  for (let cursor = start + 1; cursor < value.length; cursor += 1) {
+    if (isEscaped(value, cursor)) continue;
+    if (value[cursor] === "[") depth += 1;
+    else if (value[cursor] === "]") depth -= 1;
+    if (depth === 0) return cursor;
+  }
+  return null;
+}
+
+function canStartDefinition(value: string, labelStart: number) {
+  const lineStart = value.lastIndexOf("\n", labelStart - 1) + 1;
+  return /^[ \t]{0,3}$/.test(value.slice(lineStart, labelStart));
+}
+
+function unresolvedMarkdownContainerStart(value: string, markdown: ReturnType<typeof parsedMarkdownUrlRanges>) {
+  for (let cursor = 0; cursor < value.length; cursor += 1) {
+    if (value[cursor] !== "[" || isEscaped(value, cursor)) continue;
+    const parsedContainer = markdown.containers.find(
+      (container) => cursor >= container.start && cursor < container.end,
+    );
+    if (parsedContainer) {
+      if (
+        parsedContainer.type === "definition" &&
+        !markdown.definitionTitles.some(
+          (title) => title.start >= parsedContainer.start && title.end <= parsedContainer.end,
+        )
+      ) {
+        return (
+          markdown.streamContainers.find(
+            (container) => container.type === "definition" && container.end === parsedContainer.end,
+          )?.start ?? parsedContainer.start
+        );
+      }
+      cursor = parsedContainer.end - 1;
+      continue;
+    }
+    const opaque = markdown.opaqueContent.find((range) => cursor >= range.start && cursor < range.end);
+    if (opaque) {
+      cursor = opaque.end - 1;
+      continue;
+    }
+
+    const labelEnd = closingLabelIndex(value, cursor);
+    if (labelEnd === null || value[labelEnd + 1] === undefined) return cursor;
+    if (value[labelEnd + 1] === "(")
+      return value[cursor - 1] === "!" && !isEscaped(value, cursor - 1) ? cursor - 1 : cursor;
+    if (value[labelEnd + 1] === ":" && canStartDefinition(value, cursor)) return cursor;
+    cursor = labelEnd;
+  }
+  return null;
+}
+
+function unresolvedCodeSpanStart(value: string, markdown: ReturnType<typeof parsedMarkdownUrlRanges>) {
+  for (let cursor = 0; cursor < value.length; cursor += 1) {
+    if (value[cursor] !== "`" || isEscaped(value, cursor)) continue;
+    const opaque = markdown.opaqueContent.find((range) => cursor >= range.start && cursor < range.end);
+    if (opaque) {
+      cursor = opaque.end - 1;
+      continue;
+    }
+    let runEnd = cursor + 1;
+    while (value[runEnd] === "`") runEnd += 1;
+    const runLength = runEnd - cursor;
+    for (let candidate = runEnd; candidate < value.length; candidate += 1) {
+      if (value[candidate] !== "`" || isEscaped(value, candidate)) continue;
+      let candidateEnd = candidate + 1;
+      while (value[candidateEnd] === "`") candidateEnd += 1;
+      if (candidateEnd - candidate === runLength) {
+        cursor = candidateEnd - 1;
+        break;
+      }
+      candidate = candidateEnd - 1;
+    }
+    if (cursor < runEnd) return cursor;
+  }
+  return null;
+}
+
+function unresolvedHtmlStart(value: string, markdown: ReturnType<typeof parsedMarkdownUrlRanges>) {
+  for (let cursor = 0; cursor < value.length; cursor += 1) {
+    if (value[cursor] !== "<" || isEscaped(value, cursor)) continue;
+    const parsedRange = [...markdown.containers, ...markdown.opaqueContent].find(
+      (range) => cursor >= range.start && cursor < range.end,
+    );
+    if (parsedRange) {
+      cursor = parsedRange.end - 1;
+      continue;
+    }
+    const next = value[cursor + 1];
+    if (next === undefined || /[!/?A-Za-z]/.test(next)) return cursor;
+  }
+  return null;
+}
+
+function indentedContinuationContextStart(value: string, boundary: number) {
+  if (boundary <= 0) return null;
+  if (/^\r?\n(?: {4}|\t)/.test(value.slice(boundary))) return value.lastIndexOf("\n", boundary - 1) + 1;
+  if (value[boundary - 1] === "\n" && /^(?: {4}|\t)/.test(value.slice(boundary)))
+    return value.lastIndexOf("\n", boundary - 2) + 1;
+  return null;
+}
+
 function protectStreamBoundary(value: string, requestedEnd: number) {
   let safeEnd = requestedEnd;
-  let changed = true;
+  const markdown = parsedMarkdownUrlRanges(value);
+  while (true) {
+    const previousSafeEnd = safeEnd;
+    for (const range of markdown.streamContainers)
+      if (range.start < safeEnd && range.end > safeEnd) safeEnd = range.start;
+    for (const range of markdown.streamOpaqueContent)
+      if (range.start < safeEnd && range.end >= safeEnd) safeEnd = range.start;
+    const unresolvedContextStart = earliest(
+      earliest(unresolvedMarkdownContainerStart(value, markdown), unresolvedCodeSpanStart(value, markdown)),
+      unresolvedHtmlStart(value, markdown),
+    );
+    if (unresolvedContextStart !== null && unresolvedContextStart < safeEnd) safeEnd = unresolvedContextStart;
+    const continuationContextStart = indentedContinuationContextStart(value, safeEnd);
+    if (continuationContextStart !== null && continuationContextStart < safeEnd) safeEnd = continuationContextStart;
 
-  while (changed) {
-    changed = false;
     for (const pattern of PROTECTED_STREAM_PATTERNS) {
       pattern.lastIndex = 0;
       for (let match = pattern.exec(value); match; match = pattern.exec(value)) {
         const end = match.index + match[0].length;
-        if (match.index >= safeEnd || end <= safeEnd) continue;
-        safeEnd = match.index;
-        changed = true;
+        const protectedStart =
+          markdownLinkStartBefore(value, match) ?? Math.max(0, match.index - PROTECTED_STREAM_CONTEXT_CHARS);
+        if (protectedStart >= safeEnd || end <= safeEnd) continue;
+        safeEnd = protectedStart;
         break;
       }
     }
-  }
 
-  return safeEnd;
+    if (
+      safeEnd > 0 &&
+      safeEnd < value.length &&
+      !/\s/.test(value[safeEnd] ?? "") &&
+      !/\s/.test(value[safeEnd - 1] ?? "")
+    )
+      while (safeEnd > 0 && !/\s/.test(value[safeEnd - 1] ?? "")) safeEnd -= 1;
+    if (safeEnd === previousSafeEnd) return safeEnd;
+  }
 }
 
 function redactCompleteAgentVisibleText(value: string) {
-  return replaceUuid(
-    value
-      .replace(PAGE_CONTEXT_TAG_PATTERN, "")
-      .replace(ENCODED_PAGE_CONTEXT_TAG_PATTERN, "")
-      .replace(PRIVATE_REASONING_TAG_PATTERN, "")
-      .replace(AUTHORIZATION_HEADER_PATTERN, `$1${REDACTED_VALUE}`)
-      .replace(COOKIE_HEADER_PATTERN, `$1${REDACTED_VALUE}`)
-      .replace(URL_CREDENTIAL_PATTERN, `$1${REDACTED_VALUE}@`)
-      .replace(SECRET_ASSIGNMENT_PATTERN, `$1${REDACTED_VALUE}`)
-      .replace(BARE_SECRET_PATTERN, REDACTED_VALUE)
-      .replace(JWT_PATTERN, REDACTED_VALUE)
-      .replace(INTERNAL_METADATA_ASSIGNMENT_PATTERN, INTERNAL_DETAILS)
-      .replace(MODEL_ID_PATTERN, INTERNAL_DETAILS)
-      .replace(TOKEN_COUNT_PATTERN, INTERNAL_DETAILS)
-      .replace(INTERNAL_COST_PATTERN, INTERNAL_DETAILS),
-  );
+  return value
+    .replace(PAGE_CONTEXT_TAG_PATTERN, "")
+    .replace(ENCODED_PAGE_CONTEXT_TAG_PATTERN, "")
+    .replace(PRIVATE_REASONING_TAG_PATTERN, "")
+    .replace(AUTHORIZATION_HEADER_PATTERN, `$1${REDACTED_VALUE}`)
+    .replace(COOKIE_HEADER_PATTERN, `$1${REDACTED_VALUE}`)
+    .replace(URL_CREDENTIAL_PATTERN, `$1${REDACTED_VALUE}@`)
+    .replace(SECRET_ASSIGNMENT_PATTERN, `$1${REDACTED_VALUE}`)
+    .replace(BARE_SECRET_PATTERN, REDACTED_VALUE)
+    .replace(JWT_PATTERN, REDACTED_VALUE)
+    .replace(INTERNAL_METADATA_ASSIGNMENT_PATTERN, INTERNAL_DETAILS)
+    .replace(MODEL_ID_PATTERN, INTERNAL_DETAILS)
+    .replace(TOKEN_COUNT_PATTERN, INTERNAL_DETAILS)
+    .replace(INTERNAL_COST_PATTERN, INTERNAL_DETAILS);
 }
 
-export function sanitizeAgentVisibleText(value: string) {
-  const withoutClosedPrivateContent = stripClosedPrivateContent(value);
+function sanitizeVisibleText(value: string, appBaseUrl?: string) {
+  const canonicalValue = canonicalizeSameOriginDataViewLinks(value, appBaseUrl);
+  const protectedUuids = protectSavedViewUuids(canonicalValue);
+  const withoutClosedPrivateContent = stripClosedPrivateContent(protectedUuids.protectedValue);
   const unsafeStart = earliest(
     earliest(
       openPrivateContentStart(withoutClosedPrivateContent),
@@ -261,10 +571,22 @@ export function sanitizeAgentVisibleText(value: string) {
     ),
     toolProtocolStart(withoutClosedPrivateContent),
   );
-  const complete = redactCompleteAgentVisibleText(
-    unsafeStart === null ? withoutClosedPrivateContent : withoutClosedPrivateContent.slice(0, unsafeStart),
+  const complete = replaceUuid(
+    protectedUuids.restore(
+      redactCompleteAgentVisibleText(
+        unsafeStart === null ? withoutClosedPrivateContent : withoutClosedPrivateContent.slice(0, unsafeStart),
+      ),
+    ),
   );
   return replacePartialUuidTail(complete);
+}
+
+export function sanitizeAgentVisibleText(value: string) {
+  return sanitizeVisibleText(value);
+}
+
+export function sanitizeAgentVisibleTextForApp(value: string, appBaseUrl: string) {
+  return sanitizeVisibleText(value, appBaseUrl);
 }
 
 const LEGACY_USER_PAGE_CONTEXT_PREFIX =
@@ -314,6 +636,8 @@ export class AgentVisibleTextStreamSanitizer {
   private finished = false;
   private toolProtocolRemoved = false;
 
+  constructor(private readonly appBaseUrl?: string) {}
+
   get removedToolProtocol() {
     return this.toolProtocolRemoved;
   }
@@ -324,7 +648,7 @@ export class AgentVisibleTextStreamSanitizer {
 
     const protocolStart = toolProtocolStart(this.buffer);
     if (protocolStart !== null) {
-      const visible = sanitizeAgentVisibleText(this.buffer.slice(0, protocolStart));
+      const visible = sanitizeVisibleText(this.buffer.slice(0, protocolStart), this.appBaseUrl);
       this.buffer = "";
       this.toolProtocolRemoved = true;
       return visible;
@@ -336,7 +660,7 @@ export class AgentVisibleTextStreamSanitizer {
       incompleteToolProtocolStart(this.buffer),
     );
     const safeEnd = protectStreamBoundary(this.buffer, Math.min(requestedEnd, unsafeStart ?? this.buffer.length));
-    const visible = sanitizeAgentVisibleText(this.buffer.slice(0, safeEnd));
+    const visible = sanitizeVisibleText(this.buffer.slice(0, safeEnd), this.appBaseUrl);
     this.buffer = this.buffer.slice(safeEnd);
     return visible;
   }
@@ -347,13 +671,13 @@ export class AgentVisibleTextStreamSanitizer {
 
     const protocolStart = toolProtocolStart(this.buffer);
     if (protocolStart !== null) {
-      const visible = sanitizeAgentVisibleText(this.buffer.slice(0, protocolStart));
+      const visible = sanitizeVisibleText(this.buffer.slice(0, protocolStart), this.appBaseUrl);
       this.buffer = "";
       this.toolProtocolRemoved = true;
       return visible;
     }
 
-    const visible = sanitizeAgentVisibleText(this.buffer);
+    const visible = sanitizeVisibleText(this.buffer, this.appBaseUrl);
     this.buffer = "";
     return visible;
   }

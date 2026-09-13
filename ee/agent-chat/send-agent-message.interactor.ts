@@ -352,6 +352,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         userName,
         locale,
         appBaseUrl: env.BASE_URL,
+        pageRoute,
         messages,
         turnBudget: reservation.budget,
         tenant: { userId: user.id, companyId: user.companyId },

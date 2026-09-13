@@ -2,6 +2,9 @@ import { z } from "zod";
 import { asSchema, tool, jsonSchema, type ToolSet } from "ai";
 
 import { ALL_MCP_TOOLS, MCP_TOOL_GROUPS } from "@/features/mcp-tools/tool-registry";
+import { encodeToToon } from "@/features/mcp-tools/utils";
+import { entityTimelineNavigationHref } from "@/core/data-view/data-view-links";
+import { SURFACE } from "@/core/data-view/data-view-keys";
 import {
   executeMcpTool,
   expectedMcpToolFailure,
@@ -50,6 +53,7 @@ export type AgentToolDeps = {
   runExactlyOnce: <T>(toolCallId: string, toolName: string, run: () => Promise<T>) => Promise<T>;
   runInCallerContext: <T>(run: () => Promise<T>) => Promise<T>;
   resultMaxChars: number;
+  pageRoute?: string | null;
 };
 
 function withCallerContext(tools: ToolSet, deps: AgentToolDeps): ToolSet {
@@ -92,10 +96,26 @@ async function runGated<T>(
   return run();
 }
 
-function agentToolResult(outcome: McpToolExecutionResult, maxChars: number) {
+function contextualAgentToolResultText(
+  toolName: string | undefined,
+  outcome: McpToolExecutionResult,
+  pageRoute: string | null | undefined,
+) {
+  if (toolName !== "manage_data_views" || !outcome.ok || !outcome.structuredContent) return outcome.result;
+  if (outcome.structuredContent.surfaceKey !== SURFACE.entityTimeline) return outcome.result;
+
+  const link = entityTimelineNavigationHref(pageRoute, outcome.structuredContent.viewKey);
+  return link ? encodeToToon({ ...outcome.structuredContent, link }) : outcome.result;
+}
+
+function agentToolResult(
+  outcome: McpToolExecutionResult,
+  maxChars: number,
+  context: { toolName?: string; pageRoute?: string | null } = {},
+) {
   return {
     ok: outcome.ok,
-    result: agentToolResultText(outcome.result, maxChars),
+    result: agentToolResultText(contextualAgentToolResultText(context.toolName, outcome, context.pageRoute), maxChars),
   };
 }
 
@@ -214,7 +234,7 @@ function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
     execute: async (input: unknown, { toolCallId }) => {
       const execute = async () => {
         const outcome = await executeMcpTool(mcp, [input]);
-        return agentToolResult(outcome, deps.resultMaxChars);
+        return agentToolResult(outcome, deps.resultMaxChars, { toolName: mcp.name, pageRoute: deps.pageRoute });
       };
       const enrollable = !isReadOnlyTool(mcp) && !hasNonTransactionalEffect(mcp.name);
       const run = enrollable ? () => deps.runExactlyOnce(toolCallId, mcp.name, execute) : execute;

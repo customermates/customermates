@@ -281,6 +281,31 @@ describe("agent tools", () => {
     expect(state?.description).toContain("Never copy old conversation/full state");
   });
 
+  it("gives the hosted agent a record-specific link for a timeline view created on a detail page", async () => {
+    const viewKey = "00000000-0000-4000-8000-000000000001";
+    const recordId = "00000000-0000-4000-8000-000000000002";
+    const mcp = ALL_MCP_TOOLS.find(({ name }) => name === "manage_data_views");
+    if (!mcp) throw new Error("manage_data_views is missing");
+    const executeMcp = vi.spyOn(mcp, "execute").mockResolvedValue({
+      text: `surfaceKey: entity-timeline\nviewKey: ${viewKey}\nlink: null`,
+      structuredContent: { surfaceKey: "entity-timeline", viewKey, link: null },
+    });
+
+    try {
+      const result = await execute(
+        getAgentAiTools(deps({ pageRoute: `/en/contacts/${recordId}?view=__all__&viewSurface=entity-timeline` }))
+          .manage_data_views,
+        { action: "create", surfaceKey: "entity-timeline", name: "Contact created", state: {} },
+      );
+
+      expect(result).toMatchObject({ ok: true });
+      expect(JSON.stringify(result)).toContain(`/contacts/${recordId}?view=${viewKey}&viewSurface=entity-timeline`);
+      expect(JSON.stringify(result)).not.toContain("link: null");
+    } finally {
+      executeMcp.mockRestore();
+    }
+  });
+
   it("accepts only exact navigation target ids and rejects URL-like model input", async () => {
     const tools = getAgentAiTools(deps());
     const validate = schemaOf(tools.navigate).validate;

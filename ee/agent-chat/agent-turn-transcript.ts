@@ -34,10 +34,15 @@ export class AgentTurnTranscript {
   private readonly approvalParts = new Map<string, Extract<AgentMessagePart, { type: "approval" }>>();
   private readonly retryableFailureByTool = new Map<string, string>();
   private readonly affected = new Set<AgentActivityResource>();
-  private sanitizer = new AgentVisibleTextStreamSanitizer();
+  private sanitizer: AgentVisibleTextStreamSanitizer;
   private text = "";
 
-  constructor(private readonly emit: AgentTranscriptEmit) {}
+  constructor(
+    private readonly emit: AgentTranscriptEmit,
+    private readonly appBaseUrl?: string,
+  ) {
+    this.sanitizer = new AgentVisibleTextStreamSanitizer(appBaseUrl);
+  }
 
   get replyParts(): AgentMessagePart[] {
     return this.parts;
@@ -72,7 +77,7 @@ export class AgentTurnTranscript {
 
   finishTextSegment() {
     this.appendText(this.sanitizer.finish());
-    this.sanitizer = new AgentVisibleTextStreamSanitizer();
+    this.sanitizer = new AgentVisibleTextStreamSanitizer(this.appBaseUrl);
   }
 
   beginToolCall(call: { toolCallId: string; toolName: string; activity: AgentActivityDescriptor }) {
