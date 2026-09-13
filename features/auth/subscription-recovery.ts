@@ -5,14 +5,17 @@ import { Action, Resource, SubscriptionPlan as SubscriptionPlanEnum } from "@/ge
 
 export type SubscriptionRecoveryPath = "selfServiceCheckout" | "manualEnterpriseBilling" | "administratorRequired";
 
-export function resolveSubscriptionRecoveryPath(user: TenantUser, plan: SubscriptionPlan): SubscriptionRecoveryPath {
-  const hasRecoveryPermission =
+export function canManageBilling(user: TenantUser): boolean {
+  return (
     user.role?.isSystemRole ||
     user.role?.permissions.some(
       (permission) => permission.resource === Resource.company && permission.action === Action.update,
-    ) === true;
+    ) === true
+  );
+}
 
-  if (!hasRecoveryPermission) return "administratorRequired";
+export function resolveSubscriptionRecoveryPath(user: TenantUser, plan: SubscriptionPlan): SubscriptionRecoveryPath {
+  if (!canManageBilling(user)) return "administratorRequired";
   if (plan === SubscriptionPlanEnum.enterprise) return "manualEnterpriseBilling";
   return "selfServiceCheckout";
 }
