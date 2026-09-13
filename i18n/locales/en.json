@@ -784,7 +784,6 @@
       "effectiveAt": "Effective from",
       "emails": "Email addresses",
       "isNewCompany": "First user in the workspace",
-      "ownerUserId": "Owner",
       "postalCode": "Postal code",
       "prompt": "Instructions",
       "recipientEmail": "Sent to",

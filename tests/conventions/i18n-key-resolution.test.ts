@@ -172,7 +172,6 @@ const AUDIT_FIELD_KEYS = [
   "AuditLogModal.fields.effectiveAt",
   "AuditLogModal.fields.emails",
   "AuditLogModal.fields.isNewCompany",
-  "AuditLogModal.fields.ownerUserId",
   "AuditLogModal.fields.postalCode",
   "AuditLogModal.fields.prompt",
   "AuditLogModal.fields.recipientEmail",

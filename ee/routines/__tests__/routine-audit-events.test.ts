@@ -220,20 +220,6 @@ describe("routine audit events", () => {
     });
   });
 
-  it("publishes nothing when a delete is refused because a run is still in flight", async () => {
-    currentUser = createMockUser({ id: "admin-user" });
-    const repo = {
-      isActiveSystemAdministrator: vi.fn().mockResolvedValue(true),
-      deleteRoutineOrThrow: vi.fn().mockResolvedValue(null),
-    };
-    const { publish, service } = eventService();
-
-    const result = await new DeleteRoutineInteractor(repo as never, service).invoke({ id: ROUTINE_ID });
-
-    expect(result.ok).toBe(false);
-    expect(publish).not.toHaveBeenCalled();
-  });
-
   it("publishes routine.updated when an administrator pauses a routine", async () => {
     currentUser = createMockUser({ id: "admin-user" });
     const previous = routine();
@@ -258,41 +244,6 @@ describe("routine audit events", () => {
         },
       },
     });
-  });
-
-  it("publishes nothing when a pause is refused for a caller who is not an administrator", async () => {
-    currentUser = owner();
-    const repo = {
-      isActiveSystemAdministrator: vi.fn().mockResolvedValue(false),
-      getRoutineByIdOrThrow: vi.fn(),
-      pauseRoutineOrThrow: vi.fn(),
-    };
-    const { publish, service } = eventService();
-
-    const result = await new PauseRoutineInteractor(repo as never, service).invoke({ routineId: ROUTINE_ID });
-
-    expect(result.ok).toBe(false);
-    expect(publish).not.toHaveBeenCalled();
-    expect(repo.pauseRoutineOrThrow).not.toHaveBeenCalled();
-  });
-
-  it("publishes nothing when a non-owner edit is rejected", async () => {
-    currentUser = owner("00000000-0000-4000-8000-000000000099");
-    const repo = {
-      getRoutineByIdOrThrow: vi.fn().mockResolvedValue(routine()),
-      upsertRoutineOrThrow: vi.fn(),
-      isEligibleRoutineOwner: vi.fn().mockResolvedValue(true),
-    };
-    const { publish, service } = eventService();
-
-    const result = await new UpsertRoutineInteractor(
-      repo as never,
-      { getSubscriptionOrThrow: vi.fn() } as never,
-      service,
-    ).invoke({ id: ROUTINE_ID, name: "Not mine" });
-
-    expect(result.ok).toBe(false);
-    expect(publish).not.toHaveBeenCalled();
   });
 });
 
