@@ -1431,6 +1431,39 @@ describe("routine browse-or-mutate batch safety", () => {
     expect(JSON.stringify(state.finalize.mock.calls[0][0].parts)).toContain("https://example.com/current");
   });
 
+  it.each(["chat", "routine"] as const)(
+    "keeps measured Search charges when a later %s round lacks cost metadata",
+    async (surface) => {
+      const search = nativeSearchStep();
+      search.providerMetadata.gateway.gatewayCost = "0.01080279";
+      search.providerMetadata.gateway.cost = "0.01070279";
+      search.providerMetadata.gateway.gatewayToolCalls.perplexity_search = 2;
+      let segment = 0;
+      state.runTools = ({ messages }) =>
+        Promise.resolve({
+          finishReason: segment === 0 ? "length" : "stop",
+          messages,
+          steps: [segment++ === 0 ? search : streamedStep("Answer.", "stop")],
+        });
+
+      await runAgentTurn({ ...payload, surface, webSearchEnabled: true });
+
+      expect(state.providerCalls).toBe(2);
+      const persistedCost = state.recordRound.mock.calls.reduce((total, [round]) => total + round.costMicrocents, 0);
+      expect(persistedCost).toBeGreaterThan(1_080_279);
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          usageSettlement: expect.objectContaining({
+            costMicrocents: persistedCost,
+            costSource: "estimated",
+            chargedCredits: 2,
+            policyBreach: false,
+          }),
+        }),
+      );
+    },
+  );
+
   it("denies a failed browse batch but permits a later mutation after failure is established", async () => {
     state.readPage.mockResolvedValue({ ok: false, reason: "network_failure" });
     state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {

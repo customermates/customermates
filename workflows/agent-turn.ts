@@ -188,6 +188,7 @@ function usageSettlementForTurn(payload: AgentTurnWorkflowPayload, outcome: Agen
   if (outcome.providerStarted === false) return null;
 
   const measured = outcome.ledger.every((entry) => entry.measured);
+  const totalCostMicrocents = outcome.ledger.reduce((total, entry) => total + entry.costMicrocents, 0);
   const unreadableReason = outcome.ledger.find((entry) => entry.unreadableReason)?.unreadableReason ?? null;
   return buildAgentUsageSettlement({
     model: payload.turnBudget.modelSpec,
@@ -197,10 +198,8 @@ function usageSettlementForTurn(payload: AgentTurnWorkflowPayload, outcome: Agen
     reservedCredits: outcome.reservedCredits,
     providerCharge: {
       billed: outcome.ledger.length > 0,
-      measuredCostMicrocents:
-        measured && outcome.ledger.length > 0
-          ? outcome.ledger.reduce((total, entry) => total + entry.costMicrocents, 0)
-          : null,
+      measuredCostMicrocents: measured && outcome.ledger.length > 0 ? totalCostMicrocents : null,
+      estimatedCostMicrocents: measured ? undefined : totalCostMicrocents,
       stepTokens: outcome.ledger.map((entry) => entry.tokens),
       unreadableReason,
     },

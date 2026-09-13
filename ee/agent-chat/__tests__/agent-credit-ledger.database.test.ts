@@ -5,6 +5,7 @@ import { describe, it, expect, afterAll, vi } from "vitest";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import type { TenantUser } from "@/features/user/user.schema";
+import { buildAgentUsageSettlement } from "../agent-usage-settlement";
 
 const authState = vi.hoisted(() => ({ user: null as TenantUser | null }));
 
@@ -641,6 +642,72 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     expect(rounds[0].costMicrocents).toBe(5_500n);
     expect(rounds[0].reasoningTokens).toBe(4);
     expect(rounds[1].roundIndex).toBe(1);
+  });
+
+  it("persists mixed Search costs in ordinary credit usage without double-charging finalization", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const { companyId, userId } = await seedActiveSeat(anchor);
+    authState.user = createMockUser({ id: userId, companyId, email: `search-${userId}@example.com` });
+    const repo = new PrismaAgentChatRepo();
+    const admitted = await new SendAgentMessageInteractor(
+      repo,
+      new AgentUsageService(repo),
+      entitlements as never,
+      backgroundTasks() as never,
+      emptyWikiCatalog(),
+    ).invoke({ clientRequestId: randomUUID(), text: "Search and answer", retry: false });
+    if (!admitted.ok || admitted.data.disposition !== "run") throw new Error("Expected an admitted turn.");
+    const { turnRequestId, conversationId, runId } = admitted.data;
+    const identity = { turnRequestId, conversationId, runId, companyId, userId };
+    await runWithoutTenant(() => repo.markAgentTurnProviderStartedUnscoped(identity));
+    const reserved = await runWithoutTenant(() =>
+      prisma.agentUsageEvent.findFirstOrThrow({ where: { turnRequestId, companyId, userId, state: "reserved" } }),
+    );
+    const usageSettlement = buildAgentUsageSettlement({
+      model: "google/gemini-3.5-flash-lite",
+      provider: "vertex",
+      inferenceRegion: "eu",
+      tokens: { inputTokens: 2, outputTokens: 2, cacheReadTokens: 0, cacheWriteTokens: 0 },
+      reservedCredits: reserved.reservedCredits,
+      providerCharge: {
+        billed: true,
+        measuredCostMicrocents: null,
+        estimatedCostMicrocents: 1_080_587,
+        stepTokens: [],
+        unreadableReason: "missing later-round metadata",
+      },
+    });
+    const finalize = () =>
+      runWithoutTenant(() =>
+        repo.finalizeAgentTurnOrThrowUnscoped({
+          ...identity,
+          parts: [{ type: "text", text: "Search answer" }],
+          terminalCode: "completed",
+          stopReason: null,
+          affectedResources: [],
+          usageSettlement,
+        }),
+      );
+    await finalize();
+    await expect(finalize()).rejects.toThrow("no longer active");
+
+    const [events, usage, replies] = await runWithoutTenant(() =>
+      Promise.all([
+        prisma.agentUsageEvent.findMany({ where: { turnRequestId, companyId, userId } }),
+        repo.getUserCreditUsageUnscoped(companyId, userId, reserved.periodStart, reserved.periodEnd),
+        prisma.agentMessage.count({ where: { turnRequestId, companyId, role: "assistant" } }),
+      ]),
+    );
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({
+      state: "settled",
+      costMicrocents: 1_080_587n,
+      costSource: "estimated",
+      chargedCredits: 2,
+      policyBreach: false,
+    });
+    expect(usage).toEqual({ usedCredits: 2, recentTurnCredits: 2 });
+    expect(replies).toBe(1);
   });
 
   it("takes a conversation's rounds with it on delete while its billing survives", async () => {
