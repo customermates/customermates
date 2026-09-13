@@ -55,7 +55,6 @@ function harness(previousStatus: Status) {
   };
   const countUsersRepo = { countActiveUsers: vi.fn() };
   const releaseOwnerRoutines = { invoke: vi.fn().mockResolvedValue({ blocked: 0, disabled: 0 }) };
-  const ownerRoutinesRepo = { getRoutinesForOwner: vi.fn().mockResolvedValue([]) };
 
   const interactor = new AdminUpdateUserDetailsInteractor(
     userRepo as never,
@@ -65,7 +64,6 @@ function harness(previousStatus: Status) {
     subscriptionRepo as never,
     countUsersRepo as never,
     releaseOwnerRoutines as never,
-    ownerRoutinesRepo as never,
   );
 
   const invoke = (status: "active" | "inactive") =>
@@ -79,97 +77,12 @@ function harness(previousStatus: Status) {
       roleId: TARGET_ROLE_ID,
     });
 
-  return { invoke, subscriptionRepo, userRepo, eventService, ownerRoutinesRepo, releaseOwnerRoutines };
+  return { invoke, subscriptionRepo, userRepo };
 }
 
 function expectProfileUpdateBefore(profileUpdate: ReturnType<typeof vi.fn>, timestampWrite: ReturnType<typeof vi.fn>) {
   expect(profileUpdate.mock.invocationCallOrder[0]).toBeLessThan(timestampWrite.mock.invocationCallOrder[0]);
 }
-
-function routine(id: string, overrides: Record<string, unknown> = {}) {
-  return {
-    id,
-    ownerUserId: TARGET_USER_ID,
-    owner: null,
-    name: `Routine ${id}`,
-    prompt: "Summarise the pipeline.",
-    enabled: true,
-    triggerKind: "schedule",
-    cronExpression: "0 9 * * *",
-    timezone: "Europe/Berlin",
-    triggerEvents: [],
-    changedFields: [],
-    triggerFilters: [],
-    debounceSeconds: 300,
-    nextRunAt: null,
-    lastRunAt: null,
-    lastRunStatus: null,
-    disabledReason: null,
-    createdAt: new Date("2026-09-01T08:00:00.000Z"),
-    updatedAt: new Date("2026-09-01T08:00:00.000Z"),
-    ...overrides,
-  };
-}
-
-describe("AdminUpdateUserDetailsInteractor routine release audit", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it("audits every routine the deactivation disabled", async () => {
-    const { invoke, eventService, ownerRoutinesRepo } = harness(Status.active);
-    const disabled = { enabled: false, disabledReason: "ownerUnavailable" };
-
-    ownerRoutinesRepo.getRoutinesForOwner
-      .mockResolvedValueOnce([routine("a"), routine("b")])
-      .mockResolvedValueOnce([routine("a", disabled), routine("b", disabled)]);
-
-    await expect(invoke(Status.inactive)).resolves.toMatchObject({ ok: true });
-
-    const routineEvents = eventService.publish.mock.calls.filter(([event]) => event === "routine.updated");
-
-    expect(routineEvents).toHaveLength(2);
-    expect(routineEvents.map(([, data]) => data.entityId).sort()).toEqual(["a", "b"]);
-    expect(routineEvents[0][1].payload.changes).toEqual({
-      enabled: { previous: true, current: false },
-      disabledReason: { previous: null, current: "ownerUnavailable" },
-    });
-  });
-
-  it("reads the routines before the release runs, so the previous state is not already disabled", async () => {
-    const { invoke, ownerRoutinesRepo, releaseOwnerRoutines } = harness(Status.active);
-
-    ownerRoutinesRepo.getRoutinesForOwner.mockResolvedValue([]);
-
-    await invoke(Status.inactive);
-
-    expect(ownerRoutinesRepo.getRoutinesForOwner.mock.invocationCallOrder[0]).toBeLessThan(
-      releaseOwnerRoutines.invoke.mock.invocationCallOrder[0],
-    );
-    expect(releaseOwnerRoutines.invoke.mock.invocationCallOrder[0]).toBeLessThan(
-      ownerRoutinesRepo.getRoutinesForOwner.mock.invocationCallOrder[1],
-    );
-  });
-
-  it("publishes no routine event for a routine the release left untouched", async () => {
-    const { invoke, eventService, ownerRoutinesRepo } = harness(Status.active);
-
-    ownerRoutinesRepo.getRoutinesForOwner.mockResolvedValue([routine("a", { enabled: false })]);
-
-    await invoke(Status.inactive);
-
-    expect(eventService.publish.mock.calls.filter(([event]) => event === "routine.updated")).toHaveLength(0);
-  });
-
-  it("publishes nothing about routines when the user stays active", async () => {
-    const { invoke, eventService, ownerRoutinesRepo } = harness(Status.active);
-
-    await invoke(Status.active);
-
-    expect(ownerRoutinesRepo.getRoutinesForOwner).not.toHaveBeenCalled();
-    expect(eventService.publish.mock.calls.filter(([event]) => event === "routine.updated")).toHaveLength(0);
-  });
-});
 
 describe("AdminUpdateUserDetailsInteractor agent credit activation", () => {
   beforeEach(() => {

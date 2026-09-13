@@ -1020,7 +1020,6 @@ export const getAdminUpdateUserDetailsInteractor = () =>
     getCompanyRepo(),
     getUserRepo(),
     getReleaseOwnerRoutinesInteractor(),
-    getRoutineRepo(),
   );
 
 export const getGetUsersInteractor = () =>
