@@ -7,6 +7,7 @@ import type { RoleDto } from "@/features/role/role.schema";
 import type { WebhookEventPayload } from "@/features/webhook/webhook-event-payload";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { LegalAcceptanceAuditPayload, LegalNoticeAuditPayload } from "@/features/legal/legal-audit.schema";
+import type { AccountRemovalReason } from "@/ee/messaging/connect/account-removal-reason";
 
 import type { CountryCode, Status, Currency, EntityType, MessagingProvider } from "@/generated/prisma";
 
@@ -281,7 +282,7 @@ export type DomainEventMap = {
     userId: string;
     companyId: string;
     entityId: string;
-    payload: ConnectedAccountAuditPayload;
+    payload: ConnectedAccountAuditPayload & { removalReason?: AccountRemovalReason };
   };
   [DomainEvent.CONNECTED_ACCOUNT_UPDATED]: {
     userId: string;

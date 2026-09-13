@@ -1,4 +1,10 @@
 {
+  "AccountRemovalReason": {
+    "ownerInactive": "Propriétaire désactivé",
+    "planDowngrade": "Forfait rétrogradé",
+    "subscriptionLapsed": "Abonnement expiré",
+    "trialExpired": "Essai terminé"
+  },
   "AccountsRemovedNotice": {
     "body": "Votre formule est passée à {plan}, j'ai donc supprimé le ou les comptes connectés suivants afin de respecter la limite de votre formule : {accounts}. Vos messages et vos contacts sont toujours là. Vous pouvez reconnecter ces comptes à tout moment depuis la page de vos comptes connectés.",
     "cta": "Voir les comptes connectés",
@@ -776,6 +782,7 @@
       "isNewCompany": "Première personne de l'espace",
       "postalCode": "Code postal",
       "recipientEmail": "Envoyé à",
+      "removalReason": "Motif de suppression",
       "street": "Rue",
       "terminology": "Noms des enregistrements",
       "versions": "Versions des documents",

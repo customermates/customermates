@@ -1,4 +1,10 @@
 {
+  "AccountRemovalReason": {
+    "ownerInactive": "Propietario desactivado",
+    "planDowngrade": "Plan reducido",
+    "subscriptionLapsed": "Suscripción vencida",
+    "trialExpired": "Prueba finalizada"
+  },
   "AccountsRemovedNotice": {
     "body": "Tu plan cambió a {plan}, así que he eliminado las siguientes cuentas conectadas para respetar el límite del plan: {accounts}. Tus mensajes y contactos siguen ahí. Puedes volver a conectarlas cuando quieras desde la página de cuentas conectadas.",
     "cta": "Ver las cuentas conectadas",
@@ -776,6 +782,7 @@
       "isNewCompany": "Primera persona del espacio",
       "postalCode": "Código postal",
       "recipientEmail": "Enviado a",
+      "removalReason": "Motivo de eliminación",
       "street": "Calle",
       "terminology": "Nombres de registros",
       "versions": "Versiones de documentos",
