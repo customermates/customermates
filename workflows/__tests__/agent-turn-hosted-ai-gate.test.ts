@@ -150,6 +150,10 @@ vi.mock("@/ee/agent-chat/agent-tools", () => ({
     if (state.toolLoadFailure) throw new Error("tool shell unavailable");
     return state.definitions;
   },
+  agentToolDefinitionsForTurn: () => {
+    if (state.toolLoadFailure) throw new Error("tool shell unavailable");
+    return state.definitions.map((definition: { name: string }) => ({ ...definition, toolset: null }));
+  },
   getAgentAiTools: () => Object.fromEntries(state.definitions.map(({ name }) => [name, { execute: state.execute }])),
   normalizeAgentAiToolInput: state.normalize,
 }));

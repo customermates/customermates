@@ -2,12 +2,14 @@ import type { AgentSurface } from "./agent-surface-policy";
 
 import { TOOL_APPROVAL_INSTRUCTION } from "@/features/mcp-tools/server-instructions";
 import { routineTriggerGuide } from "@/ee/routines/routine-trigger-doc";
+import { toolsetIndexSentence } from "./agent-toolset-routing";
 
 export type SystemPromptContext = {
   userName: string;
   appBaseUrl: string;
   locale: string;
   surface: AgentSurface;
+  toolsetRouting?: boolean;
 };
 
 function languageName(locale: string) {
@@ -25,7 +27,9 @@ export function buildAgentSystemPrompt(context: SystemPromptContext) {
     "",
     "Help with the user's actual goal: inspect and change CRM data, configure the workspace, work with messaging and connected accounts, operate the interface, or answer product questions. The current page is context, never a capability boundary.",
     "",
-    "Capabilities: every turn receives the complete hosted Customermates tool catalog up front, including documentation tools. Never infer that a capability is unavailable from the wording of the request, the current page, or which tools you used earlier. Check the catalog before claiming it is unavailable. Authorization, entitlements, connected-account state, and approval are enforced when a tool runs; relay an actual denial or missing prerequisite accurately.",
+    context.toolsetRouting
+      ? `Capabilities: ${toolsetIndexSentence()} Never infer that a capability is unavailable from the wording of the request, the current page, or which tools you used earlier; load the matching tool set and check before claiming it is unavailable. Authorization, entitlements, connected-account state, and approval are enforced when a tool runs; relay an actual denial or missing prerequisite accurately.`
+      : "Capabilities: every turn receives the complete hosted Customermates tool catalog up front, including documentation tools. Never infer that a capability is unavailable from the wording of the request, the current page, or which tools you used earlier. Check the catalog before claiming it is unavailable. Authorization, entitlements, connected-account state, and approval are enforced when a tool runs; relay an actual denial or missing prerequisite accurately.",
     "",
     "Product and how-to questions: ALWAYS make one focused search_docs call first, then call get_docs_page for the best page with query set to the exact detail you need. Read at most one second page when the first page explicitly points there; do not repeat the search once it returned relevant results. Never answer anything about how Customermates works, what a feature does, pricing, limits, or setup from memory - the docs are the source of truth. If the docs do not cover it, say so and offer to email a support request.",
     "",

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { asSchema, tool, jsonSchema, type ToolSet } from "ai";
 
-import { ALL_MCP_TOOLS, MCP_TOOL_GROUPS } from "@/features/mcp-tools/tool-registry";
+import { ALL_MCP_TOOLS, MCP_ALWAYS_ON_TOOLS, MCP_TOOL_GROUPS } from "@/features/mcp-tools/tool-registry";
 import {
   executeMcpTool,
   expectedMcpToolFailure,
@@ -13,7 +13,15 @@ import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 
 import { agentToolResultText } from "./agent-budget-policy";
 import { isReadOnlyTool, requiresApproval } from "./gated-tools";
-import { toAgentUiCommandInput } from "./agent-ui-command";
+import { AGENT_UI_TOOL_NAMES, toAgentUiCommandInput } from "./agent-ui-command";
+import { isUnattendedSurface, type AgentSurface } from "./agent-surface-policy";
+import {
+  AGENT_ON_DEMAND_TOOLSETS,
+  AGENT_TOOLSET_SUMMARY,
+  LOAD_TOOLSET_TOOL_NAME,
+  isAgentOnDemandToolset,
+} from "./agent-toolset-routing";
+import { onDemandToolsetOfTool, toolNamesOfToolset } from "./agent-toolsets";
 import { type AgentToolCancellation as AgentToolCancellationValue } from "./agent-tool-cancellation";
 import { AGENT_UI_TARGETS, UiTargetIdSchema, type AgentUiTarget } from "./ui-targets";
 import { AgentTourSchema } from "./agent-tours";
@@ -271,14 +279,41 @@ function uiTools(deps: AgentToolDeps): ToolSet {
   };
 }
 
+function isDeepResearchTool(name: string) {
+  return MCP_ALWAYS_ON_TOOLS.some((mcp) => mcp.name === name);
+}
+
+const LoadToolsetSchema = z.object({
+  toolset: z
+    .enum(AGENT_ON_DEMAND_TOOLSETS)
+    .describe(AGENT_ON_DEMAND_TOOLSETS.map((toolset) => `${toolset} = ${AGENT_TOOLSET_SUMMARY[toolset]}`).join("; ")),
+});
+
+function loadToolsetTool() {
+  return tool({
+    description:
+      "Add an on-demand tool set to this turn when the request needs tools that are not in your current list. Sets: " +
+      AGENT_ON_DEMAND_TOOLSETS.map((toolset) => `${toolset} (${AGENT_TOOLSET_SUMMARY[toolset]})`).join(", ") +
+      ". A loaded set stays available for the rest of the turn; call its tools directly afterwards.",
+    inputSchema: providerSafeSchema(LoadToolsetSchema),
+    execute: (input) => ({
+      ok: true,
+      result: `Loaded ${input.toolset}: ${toolNamesOfToolset(input.toolset).join(", ")}. Call these tools directly now.`,
+    }),
+  });
+}
+
+export function hostedMcpTools() {
+  return ALL_MCP_TOOLS.filter((mcp) => mcp.name !== "request_support" && !isDeepResearchTool(mcp.name));
+}
+
 export function getAgentAiTools(deps: AgentToolDeps): ToolSet {
-  const crm = ALL_MCP_TOOLS.filter((mcp) => mcp.name !== "request_support").map(
-    (mcp) => [mcp.name, crmTool(mcp, deps)] as const,
-  );
+  const crm = hostedMcpTools().map((mcp) => [mcp.name, crmTool(mcp, deps)] as const);
   return withCallerContext(
     {
       ...Object.fromEntries(crm),
       ...uiTools(deps),
+      [LOAD_TOOLSET_TOOL_NAME]: loadToolsetTool(),
       request_support: tool({
         description:
           "Email a support request to the Customermates team. Use when the user asks for a human, reports a bug, or you cannot help after a genuine attempt. The recent Assistant conversation is included, and the team replies to the email address on the user's account.",
@@ -329,6 +364,27 @@ const TOOL_DEFINITION_DEPS: AgentToolDeps = {
 
 export function getAgentAiToolDefinitions(servingProvider?: string): AgentAiToolDefinition[] {
   return describeAgentAiTools(getAgentAiTools(TOOL_DEFINITION_DEPS), servingProvider);
+}
+
+export type AgentTurnToolDefinition = AgentAiToolDefinition & { toolset: string | null };
+
+export function agentToolDefinitionsForTurn(args: {
+  servingProvider: string;
+  surface: AgentSurface;
+}): AgentTurnToolDefinition[] {
+  const panelToolNames = new Set<string>(AGENT_UI_TOOL_NAMES);
+  const unattended = isUnattendedSurface(args.surface);
+  return getAgentAiToolDefinitions(args.servingProvider)
+    .filter((definition) => !unattended || !panelToolNames.has(definition.name))
+    .map((definition) => ({ ...definition, toolset: onDemandToolsetOfTool(definition.name) }));
+}
+
+export function agentToolDefinitionsForToolsets(
+  definitions: readonly AgentTurnToolDefinition[],
+  toolsets: readonly string[],
+): AgentTurnToolDefinition[] {
+  const active = new Set(toolsets.filter(isAgentOnDemandToolset));
+  return definitions.filter((definition) => definition.toolset === null || active.has(definition.toolset as never));
 }
 
 export async function normalizeAgentAiToolInput(

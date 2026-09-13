@@ -233,6 +233,13 @@
             "running": "Ready to change team access"
           }
         },
+        "tools": {
+          "load": {
+            "done": "Loaded more tools",
+            "error": "Couldn’t load more tools",
+            "running": "Loading more tools"
+          }
+        },
         "webhooks": {
           "manage": {
             "done": "Completed the webhook action",

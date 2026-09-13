@@ -26,7 +26,10 @@ import type { AgentUsageService } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { AGENT_RUN_LEASE_MS, decideAgentTurnAdmission, type AgentTurnRequestSnapshot } from "./agent-turn-request";
 import { buildAgentSystemPrompt } from "./system-prompt";
-import { getAgentAiToolDefinitions } from "./agent-tools";
+import { agentToolDefinitionsForTurn } from "./agent-tools";
+import { agentRuntimeFlags } from "./agent-runtime-flags";
+import { toolsetsForRequest, toolsetsFromActivities } from "./agent-toolset-routing";
+import { AgentActivityDescriptorSchema, type AgentActivityDescriptor } from "./agent-activity";
 import { conservativeAgentInitialContextBytes } from "./agent-provider-context";
 import { AGENT_REPLAY_COUNT, budgetAgentReplayHistory } from "./agent-replay-budget";
 import { isAgentModelKey, resolveAgentModel } from "./model-catalog";
@@ -60,6 +63,20 @@ export type SendAgentMessageResult =
       userMessageId?: string;
       retryAllowed: boolean;
     };
+
+function activitiesInMessages(messages: readonly { parts: unknown }[]): AgentActivityDescriptor[] {
+  const activities: AgentActivityDescriptor[] = [];
+  for (const message of messages) {
+    if (!Array.isArray(message.parts)) continue;
+    for (const part of message.parts) {
+      const candidate = part as { type?: unknown; activity?: unknown };
+      if (candidate?.type !== "activity") continue;
+      const parsed = AgentActivityDescriptorSchema.safeParse(candidate.activity);
+      if (parsed.success) activities.push(parsed.data);
+    }
+  }
+  return activities;
+}
 
 @TenantInteractor()
 export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgentMessageData, SendAgentMessageResult> {
@@ -201,16 +218,19 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
     const locale = data.locale ?? resolveUserLocale(user);
+    const runtime = agentRuntimeFlags();
+    const requestedToolsets = toolsetsForRequest({ text: data.text, pageRoute });
     const requiredContextBytes = conservativeAgentInitialContextBytes({
       systemPrompt: buildAgentSystemPrompt({
         userName,
         appBaseUrl: env.BASE_URL,
         locale,
         surface,
+        toolsetRouting: runtime.toolsetRouting,
       }),
       currentText: data.text,
       pageRoute,
-      toolDefinitions: getAgentAiToolDefinitions(),
+      toolDefinitions: agentToolDefinitionsForTurn({ servingProvider: turnModel.servingProvider, surface }),
     });
     if (requiredContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");
 
@@ -325,6 +345,8 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
               },
       });
 
+      const priorToolsets = toolsetsFromActivities(activitiesInMessages(admission.recentMessages));
+      const toolsets = [...new Set([...requestedToolsets, ...priorToolsets])];
       const pageContext = data.pageContext ? `<page_context route="${data.pageContext.route}"/>\n` : "";
       const replayInputs = admission.recentMessages.map((message) => {
         const text = partsToText(message.parts);
@@ -356,6 +378,8 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         turnBudget: reservation.budget,
         tenant: { userId: user.id, companyId: user.companyId },
         surface,
+        runtime,
+        toolsets,
       });
       await this.repo.recordAgentTurnExternalRun(turnRequestId, runId, externalRunId);
 

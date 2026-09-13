@@ -33,7 +33,7 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import { searchDocsTool } from "@/features/mcp-tools/docs.mcp-tools";
-import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
+import { ALL_MCP_TOOLS, MCP_ALWAYS_ON_TOOLS } from "@/features/mcp-tools/tool-registry";
 
 import {
   AGENT_TOOL_RESULT_TRUNCATED_MARK,
@@ -148,13 +148,19 @@ describe("agent tools", () => {
       expect(hasNonTransactionalEffect(name), name).toBe(false);
   });
 
-  it("exposes the complete MCP registry plus the interface tools on every turn", () => {
+  it("exposes the MCP registry without the deep-research pair, plus the interface tools and load_toolset", () => {
     const names = Object.keys(getAgentAiTools(deps()));
-    const expected = new Set([...ALL_MCP_TOOLS.map((agentTool) => agentTool.name), ...AGENT_UI_TOOL_NAMES]);
+    const deepResearch = new Set(MCP_ALWAYS_ON_TOOLS.map((agentTool) => agentTool.name));
+    const expected = new Set([
+      ...ALL_MCP_TOOLS.filter((agentTool) => !deepResearch.has(agentTool.name)).map((agentTool) => agentTool.name),
+      ...AGENT_UI_TOOL_NAMES,
+      "load_toolset",
+    ]);
 
     expect(names.toSorted()).toEqual([...expected].toSorted());
-    expect(names).toContain("search");
-    expect(names).toContain("fetch");
+    expect(names).not.toContain("search");
+    expect(names).not.toContain("fetch");
+    expect(names).toContain("load_toolset");
     expect(names).not.toContain("click_ui_target");
     expect(names.filter((name) => name === "request_support")).toHaveLength(1);
     expect(names.every((name) => !name.startsWith("discover_"))).toBe(true);

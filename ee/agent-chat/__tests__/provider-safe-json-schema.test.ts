@@ -451,7 +451,7 @@ describe("the shipped tool catalog on the Google wire", () => {
     const changes = changesForShippedCatalog();
 
     expect(summarizeGoogleSchemaChanges(changes)).toEqual({
-      "$schema:removed": 52,
+      "$schema:removed": 51,
       "additionalProperties:removed": 56,
       "anyOf:collapsed": 45,
       "const:removed": 1,
@@ -537,9 +537,13 @@ describe("the transform on the wire", () => {
   it("is asked for by serving provider where the workflow builds its tool shells", () => {
     const source = readFileSync(join(REPO_ROOT, "workflows", "agent-turn.ts"), "utf8");
 
-    expect(source).toContain("getAgentAiToolDefinitions(servingProvider)");
+    expect(source).toContain("agentToolDefinitionsForTurn({ surface, servingProvider })");
     expect(source).toContain("loadAgentToolShells(surface, payload.turnBudget.servingProvider)");
     expect(source).not.toContain("getAgentAiToolDefinitions()");
+
+    const admission = readFileSync(join(REPO_ROOT, "ee", "agent-chat", "send-agent-message.interactor.ts"), "utf8");
+    expect(admission).toContain("agentToolDefinitionsForTurn({ servingProvider: turnModel.servingProvider, surface })");
+    expect(admission).not.toContain("getAgentAiToolDefinitions()");
   });
 });
 

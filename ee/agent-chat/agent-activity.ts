@@ -5,6 +5,7 @@ import type { AgentToolIdentity } from "./tool-identity";
 import { internalToolIdentity, isInternalToolIdentity } from "./tool-identity";
 
 import { sanitizeAgentVisibleText } from "./agent-output-safety";
+import { LOAD_TOOLSET_TOOL_NAME } from "./agent-toolset-routing";
 
 export type AgentTranslator = (key: string, values?: Record<string, string | number>) => string;
 
@@ -45,6 +46,7 @@ export const AGENT_ACTIVITY_KINDS = [
   "interface.navigate",
   "interface.tour",
   "interface.interact",
+  "tools.load",
   "support.escalate",
   "generic",
 ] as const;
@@ -227,6 +229,7 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
   const details = inputRecord(input);
 
   if (toolName === "list_ui_targets") return descriptor("interface.inspect", undefined, "read");
+  if (toolName === LOAD_TOOLSET_TOOL_NAME) return descriptor("tools.load", undefined, "read");
   if (toolName === "get_workspace_context") return descriptor("workspace.inspect", undefined, "read");
   if (toolName === "navigate" || toolName === "highlight_element")
     return descriptor("interface.navigate", undefined, "read");

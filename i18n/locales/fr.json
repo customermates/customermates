@@ -233,6 +233,13 @@
             "running": "Accès de l’équipe prêt à être modifié"
           }
         },
+        "tools": {
+          "load": {
+            "done": "Outils supplémentaires chargés",
+            "error": "Impossible de charger d’autres outils",
+            "running": "Chargement d’outils supplémentaires"
+          }
+        },
         "webhooks": {
           "manage": {
             "done": "Action sur le webhook terminée",

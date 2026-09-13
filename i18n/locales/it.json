@@ -233,6 +233,13 @@
             "running": "Pronto a modificare l’accesso del team"
           }
         },
+        "tools": {
+          "load": {
+            "done": "Altri strumenti caricati",
+            "error": "Impossibile caricare altri strumenti",
+            "running": "Caricamento di altri strumenti"
+          }
+        },
         "webhooks": {
           "manage": {
             "done": "Azione sul webhook completata",

@@ -233,6 +233,13 @@
             "running": "Teamzugriff ist zum Ändern bereit"
           }
         },
+        "tools": {
+          "load": {
+            "done": "Weitere Werkzeuge geladen",
+            "error": "Weitere Werkzeuge konnten nicht geladen werden",
+            "running": "Lädt weitere Werkzeuge"
+          }
+        },
         "webhooks": {
           "manage": {
             "done": "Webhook-Aktion abgeschlossen",

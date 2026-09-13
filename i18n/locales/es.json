@@ -233,6 +233,13 @@
             "running": "Listo para cambiar el acceso del equipo"
           }
         },
+        "tools": {
+          "load": {
+            "done": "Herramientas adicionales cargadas",
+            "error": "No se pudieron cargar más herramientas",
+            "running": "Cargando más herramientas"
+          }
+        },
         "webhooks": {
           "manage": {
             "done": "Acción de webhook completada",
