@@ -5,9 +5,9 @@ import { useTranslations } from "next-intl";
 import { EntityType } from "@/generated/prisma";
 
 import { EntityDetailBody } from "@/components/entity-detail/entity-detail-body";
-import { EntityDetailCustomFieldsSection } from "@/components/entity-detail/entity-detail-custom-fields-section";
-import { EntityDetailSection, EntityDetailSectionGroup } from "@/components/entity-detail/entity-detail-section";
+import { EntityDetailOverview } from "@/components/entity-detail/entity-detail-overview";
 import { EntityDetailStaticField } from "@/components/entity-detail/entity-detail-static-field";
+import { EntityDetailFieldDragHandle } from "@/components/entity-detail/entity-detail-fields";
 import { EntityDetailField } from "@/components/entity-detail/entity-detail-field";
 import { EntityDetailFieldActions } from "@/components/entity-detail/entity-detail-field-actions";
 import { EntityRelationField, AssignedUsersField } from "@/components/entity-detail/relation-fields";
@@ -17,7 +17,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 import { ContactChannels } from "./contact-channels";
-import { CONTACT_DETAIL_FIELD, CONTACT_DETAIL_SECTION } from "./contact-detail-personalization";
+import { CONTACT_DETAIL_FIELD } from "./contact-detail-personalization";
 
 type Props = {
   layout?: "drawer" | "page";
@@ -76,96 +76,135 @@ export const ContactDetailView = observer(({ layout = "drawer" }: Props) => {
         <AssignedUsersField items={fetchedEntity?.users} visibilityFieldId={CONTACT_DETAIL_FIELD.userIds} />
       </>
     ) : (
-      <EntityDetailSectionGroup>
-        <EntityDetailSection label={t("EntityDetail.sections.base")} sectionId={CONTACT_DETAIL_SECTION.base}>
-          <EntityDetailField fieldId={CONTACT_DETAIL_FIELD.firstName}>
-            <FormInput
-              autoFocus
-              required
-              id="firstName"
-              labelEndAddon={
-                <EntityDetailFieldActions
-                  fieldId={CONTACT_DETAIL_FIELD.firstName}
-                  label={t("Common.inputs.firstName")}
+      <EntityDetailOverview
+        canManage={canManage}
+        columns={customColumns}
+        entityType={EntityType.contact}
+        fields={[
+          {
+            id: CONTACT_DETAIL_FIELD.firstName,
+            content: (
+              <EntityDetailField fieldId={CONTACT_DETAIL_FIELD.firstName}>
+                <FormInput
+                  autoFocus
+                  required
+                  controlStartAddon={<EntityDetailFieldDragHandle label={t("Common.inputs.firstName")} />}
+                  id="firstName"
+                  labelEndAddon={
+                    <EntityDetailFieldActions
+                      fieldId={CONTACT_DETAIL_FIELD.firstName}
+                      label={t("Common.inputs.firstName")}
+                    />
+                  }
                 />
-              }
-            />
-          </EntityDetailField>
-
-          <EntityDetailField fieldId={CONTACT_DETAIL_FIELD.lastName}>
-            <FormInput
-              id="lastName"
-              labelEndAddon={
-                <EntityDetailFieldActions fieldId={CONTACT_DETAIL_FIELD.lastName} label={t("Common.inputs.lastName")} />
-              }
-            />
-          </EntityDetailField>
-
-          <EntityDetailField fieldId={CONTACT_DETAIL_FIELD.identifiers}>
-            <ContactChannels
-              contactId={fetchedEntity?.id}
-              headingEndAddon={
-                <EntityDetailFieldActions
-                  fieldId={CONTACT_DETAIL_FIELD.identifiers}
-                  label={t("EntityChannels.heading")}
+              </EntityDetailField>
+            ),
+          },
+          {
+            id: CONTACT_DETAIL_FIELD.lastName,
+            content: (
+              <EntityDetailField fieldId={CONTACT_DETAIL_FIELD.lastName}>
+                <FormInput
+                  controlStartAddon={<EntityDetailFieldDragHandle label={t("Common.inputs.lastName")} />}
+                  id="lastName"
+                  labelEndAddon={
+                    <EntityDetailFieldActions
+                      fieldId={CONTACT_DETAIL_FIELD.lastName}
+                      label={t("Common.inputs.lastName")}
+                    />
+                  }
                 />
-              }
-            />
-          </EntityDetailField>
-
-          <AssignedUsersField
-            items={fetchedEntity?.users}
-            personalization={{ fieldId: CONTACT_DETAIL_FIELD.userIds }}
-          />
-
-          <EntityDetailStaticField
-            fieldId={CONTACT_DETAIL_FIELD.createdAt}
-            label={t("EntityDetail.fields.createdAt")}
-            value={intlStore.formatNumericalShortDateTime(fetchedEntity?.createdAt)}
-          />
-
-          <EntityDetailStaticField
-            fieldId={CONTACT_DETAIL_FIELD.updatedAt}
-            label={t("EntityDetail.fields.updatedAt")}
-            value={intlStore.formatNumericalShortDateTime(fetchedEntity?.updatedAt)}
-          />
-        </EntityDetailSection>
-
-        <EntityDetailSection label={t("EntityDetail.sections.relations")} sectionId={CONTACT_DETAIL_SECTION.relations}>
-          <EntityRelationField
-            currentEntityId={fetchedEntity?.id}
-            currentEntityType="contact"
-            items={fetchedEntity?.organizations}
-            personalization={{ fieldId: CONTACT_DETAIL_FIELD.organizationIds }}
-            target="organization"
-          />
-
-          <EntityRelationField
-            currentEntityId={fetchedEntity?.id}
-            currentEntityType="contact"
-            items={fetchedEntity?.deals}
-            personalization={{ fieldId: CONTACT_DETAIL_FIELD.dealIds }}
-            target="deal"
-          />
-
-          <EntityRelationField
-            currentEntityId={fetchedEntity?.id}
-            currentEntityType="contact"
-            items={fetchedEntity?.tasks}
-            personalization={{ fieldId: CONTACT_DETAIL_FIELD.taskIds }}
-            target="task"
-          />
-        </EntityDetailSection>
-
-        <EntityDetailCustomFieldsSection
-          canManage={canManage}
-          columns={customColumns}
-          entityType={EntityType.contact}
-          isEditing={isEditingCustomField}
-          sectionId={CONTACT_DETAIL_SECTION.customFields}
-          onToggleEditing={toggleEditingCustomField}
-        />
-      </EntityDetailSectionGroup>
+              </EntityDetailField>
+            ),
+          },
+          {
+            id: CONTACT_DETAIL_FIELD.identifiers,
+            content: (
+              <EntityDetailField fieldId={CONTACT_DETAIL_FIELD.identifiers}>
+                <ContactChannels
+                  contactId={fetchedEntity?.id}
+                  controlStartAddon={<EntityDetailFieldDragHandle label={t("EntityChannels.heading")} />}
+                  headingEndAddon={
+                    <EntityDetailFieldActions
+                      fieldId={CONTACT_DETAIL_FIELD.identifiers}
+                      label={t("EntityChannels.heading")}
+                    />
+                  }
+                />
+              </EntityDetailField>
+            ),
+          },
+          {
+            id: CONTACT_DETAIL_FIELD.userIds,
+            content: (
+              <AssignedUsersField
+                items={fetchedEntity?.users}
+                personalization={{ fieldId: CONTACT_DETAIL_FIELD.userIds }}
+              />
+            ),
+          },
+          {
+            id: CONTACT_DETAIL_FIELD.organizationIds,
+            content: (
+              <EntityRelationField
+                currentEntityId={fetchedEntity?.id}
+                currentEntityType="contact"
+                items={fetchedEntity?.organizations}
+                personalization={{
+                  fieldId: CONTACT_DETAIL_FIELD.organizationIds,
+                }}
+                target="organization"
+              />
+            ),
+          },
+          {
+            id: CONTACT_DETAIL_FIELD.dealIds,
+            content: (
+              <EntityRelationField
+                currentEntityId={fetchedEntity?.id}
+                currentEntityType="contact"
+                items={fetchedEntity?.deals}
+                personalization={{ fieldId: CONTACT_DETAIL_FIELD.dealIds }}
+                target="deal"
+              />
+            ),
+          },
+          {
+            id: CONTACT_DETAIL_FIELD.taskIds,
+            content: (
+              <EntityRelationField
+                currentEntityId={fetchedEntity?.id}
+                currentEntityType="contact"
+                items={fetchedEntity?.tasks}
+                personalization={{ fieldId: CONTACT_DETAIL_FIELD.taskIds }}
+                target="task"
+              />
+            ),
+          },
+          {
+            id: CONTACT_DETAIL_FIELD.createdAt,
+            content: (
+              <EntityDetailStaticField
+                fieldId={CONTACT_DETAIL_FIELD.createdAt}
+                label={t("EntityDetail.fields.createdAt")}
+                value={intlStore.formatNumericalShortDateTime(fetchedEntity?.createdAt)}
+              />
+            ),
+          },
+          {
+            id: CONTACT_DETAIL_FIELD.updatedAt,
+            content: (
+              <EntityDetailStaticField
+                fieldId={CONTACT_DETAIL_FIELD.updatedAt}
+                label={t("EntityDetail.fields.updatedAt")}
+                value={intlStore.formatNumericalShortDateTime(fetchedEntity?.updatedAt)}
+              />
+            ),
+          },
+        ]}
+        isEditing={isEditingCustomField}
+        onToggleEditing={toggleEditingCustomField}
+      />
     );
 
   return (

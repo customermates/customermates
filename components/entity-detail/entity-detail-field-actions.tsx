@@ -29,7 +29,7 @@ export function EntityDetailFieldActions({ fieldId, label, className }: Props) {
 
   return (
     <span className={cn("flex items-center gap-0.5", className)}>
-      <EntityDetailPinButton disabled={hidden} fieldId={fieldId} label={label} />
+      <EntityDetailPinButton fieldId={fieldId} label={label} />
 
       {isPersonalizing ? (
         <IconButton

@@ -15,6 +15,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { FormLabel } from "./form-label";
+import { FormControlRow } from "./form-control-row";
 import { cn } from "@/core/utils/cn";
 
 import { useAppForm } from "./form-context";
@@ -29,6 +30,7 @@ type Props<T extends Identifiable> = {
   id: string;
   label?: string | null;
   labelEndAddon?: ReactNode;
+  controlStartAddon?: ReactNode;
   placeholder?: string;
   required?: boolean;
   selectionMode?: "single" | "multiple";
@@ -70,6 +72,7 @@ export const FormAutocomplete = observer(
     id,
     label,
     labelEndAddon,
+    controlStartAddon,
     placeholder,
     required,
     selectionMode = "single",
@@ -391,120 +394,122 @@ export const FormAutocomplete = observer(
           </div>
         )}
 
-        {isReadOnly ? (
-          <Button asChild className={fieldClassName} variant="field">
-            <div
-              aria-busy={isOptionsLoading || undefined}
-              aria-label={!resolvedLabel ? resolvedPlaceholder : undefined}
-              aria-labelledby={resolvedLabel ? labelId : undefined}
-              data-field-state="read-only"
-              data-invalid={hasError || undefined}
-              id={id}
-              role="group"
-              tabIndex={hasReadOnlyChipActions ? undefined : 0}
-            >
-              {selectionContent}
-            </div>
-          </Button>
-        ) : (
-          <Popover modal open={popoverOpen} onOpenChange={canEdit ? setOpen : undefined}>
-            <PopoverTrigger asChild>
-              <Button
+        <FormControlRow startAddon={controlStartAddon}>
+          {isReadOnly ? (
+            <Button asChild className={fieldClassName} variant="field">
+              <div
                 aria-busy={isOptionsLoading || undefined}
-                aria-expanded={popoverOpen}
-                aria-invalid={hasError}
-                className={fieldClassName}
-                disabled={isDisabled}
+                aria-label={!resolvedLabel ? resolvedPlaceholder : undefined}
+                aria-labelledby={resolvedLabel ? labelId : undefined}
+                data-field-state="read-only"
+                data-invalid={hasError || undefined}
                 id={id}
-                role="combobox"
-                type="button"
-                variant="field"
+                role="group"
+                tabIndex={hasReadOnlyChipActions ? undefined : 0}
               >
                 {selectionContent}
+              </div>
+            </Button>
+          ) : (
+            <Popover modal open={popoverOpen} onOpenChange={canEdit ? setOpen : undefined}>
+              <PopoverTrigger asChild>
+                <Button
+                  aria-busy={isOptionsLoading || undefined}
+                  aria-expanded={popoverOpen}
+                  aria-invalid={hasError}
+                  className={fieldClassName}
+                  disabled={isDisabled}
+                  id={id}
+                  role="combobox"
+                  type="button"
+                  variant="field"
+                >
+                  {selectionContent}
 
-                <ChevronsUpDownIcon className="ml-2 size-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
+                  <ChevronsUpDownIcon className="ml-2 size-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
 
-            <PopoverContent
-              align="start"
-              className={cn(
-                "p-0",
-                popoverFitContent
-                  ? "min-w-(--radix-popover-trigger-width) max-w-(--radix-popover-content-available-width) w-max"
-                  : "w-(--radix-popover-trigger-width)",
-              )}
-            >
-              <Command shouldFilter={false}>
-                <CommandInput
-                  autoFocus
-                  disabled={isCreating}
-                  placeholder={t("Common.table.search")}
-                  value={input}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && showCreate) {
-                      e.preventDefault();
-                      runUserAction(handleCreate);
-                    }
-                  }}
-                  onValueChange={setInput}
-                />
+              <PopoverContent
+                align="start"
+                className={cn(
+                  "p-0",
+                  popoverFitContent
+                    ? "min-w-(--radix-popover-trigger-width) max-w-(--radix-popover-content-available-width) w-max"
+                    : "w-(--radix-popover-trigger-width)",
+                )}
+              >
+                <Command shouldFilter={false}>
+                  <CommandInput
+                    autoFocus
+                    disabled={isCreating}
+                    placeholder={t("Common.table.search")}
+                    value={input}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && showCreate) {
+                        e.preventDefault();
+                        runUserAction(handleCreate);
+                      }
+                    }}
+                    onValueChange={setInput}
+                  />
 
-                <CommandList aria-busy={isOptionsLoading || isCreating || undefined}>
-                  {(isOptionsLoading || isCreating) && <SelectionOptionsSkeleton label={t("Loading.text")} />}
+                  <CommandList aria-busy={isOptionsLoading || isCreating || undefined}>
+                    {(isOptionsLoading || isCreating) && <SelectionOptionsSkeleton label={t("Loading.text")} />}
 
-                  {!isOptionsLoading && !isCreating && optionError && (
-                    <div className="flex flex-col items-center gap-2 px-3 py-4 text-center text-sm" role="alert">
-                      <span className="text-muted-foreground">{t("Common.notifications.unexpectedError")}</span>
+                    {!isOptionsLoading && !isCreating && optionError && (
+                      <div className="flex flex-col items-center gap-2 px-3 py-4 text-center text-sm" role="alert">
+                        <span className="text-muted-foreground">{t("Common.notifications.unexpectedError")}</span>
 
-                      <Button
-                        size="sm"
-                        type="button"
-                        variant="secondary"
-                        onClick={() => setOptionAttempt((value) => value + 1)}
-                      >
-                        {t("ErrorCard.retry")}
-                      </Button>
-                    </div>
-                  )}
+                        <Button
+                          size="sm"
+                          type="button"
+                          variant="secondary"
+                          onClick={() => setOptionAttempt((value) => value + 1)}
+                        >
+                          {t("ErrorCard.retry")}
+                        </Button>
+                      </div>
+                    )}
 
-                  {!isOptionsLoading && !isCreating && !optionError && filteredItems.length === 0 && !showCreate && (
-                    <CommandEmpty>{resolvedEmptyContent}</CommandEmpty>
-                  )}
+                    {!isOptionsLoading && !isCreating && !optionError && filteredItems.length === 0 && !showCreate && (
+                      <CommandEmpty>{resolvedEmptyContent}</CommandEmpty>
+                    )}
 
-                  {showCreate && (
-                    <CommandGroup>
-                      <CommandItem value={`__create__${input}`} onSelect={() => runUserAction(handleCreate)}>
-                        {t("Common.inputs.addOption", { value: input.trim() })}
-                      </CommandItem>
-                    </CommandGroup>
-                  )}
+                    {showCreate && (
+                      <CommandGroup>
+                        <CommandItem value={`__create__${input}`} onSelect={() => runUserAction(handleCreate)}>
+                          {t("Common.inputs.addOption", { value: input.trim() })}
+                        </CommandItem>
+                      </CommandGroup>
+                    )}
 
-                  {!isOptionsLoading && !optionError && filteredItems.length > 0 && (
-                    <CommandGroup>
-                      {filteredItems.map((item) => {
-                        const k = keyOf(item);
-                        const rendered = children(item);
-                        const selected = selectedKeys.includes(k);
-                        return (
-                          <CommandItem
-                            key={k}
-                            className={cn(selected && "bg-accent")}
-                            data-selected={selected}
-                            value={k}
-                            onSelect={() => toggleKey(k)}
-                          >
-                            {rendered}
-                          </CommandItem>
-                        );
-                      })}
-                    </CommandGroup>
-                  )}
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-        )}
+                    {!isOptionsLoading && !optionError && filteredItems.length > 0 && (
+                      <CommandGroup>
+                        {filteredItems.map((item) => {
+                          const k = keyOf(item);
+                          const rendered = children(item);
+                          const selected = selectedKeys.includes(k);
+                          return (
+                            <CommandItem
+                              key={k}
+                              className={cn(selected && "bg-accent")}
+                              data-selected={selected}
+                              value={k}
+                              onSelect={() => toggleKey(k)}
+                            >
+                              {rendered}
+                            </CommandItem>
+                          );
+                        })}
+                      </CommandGroup>
+                    )}
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          )}
+        </FormControlRow>
       </div>
     );
   },

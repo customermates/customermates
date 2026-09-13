@@ -56,6 +56,7 @@ describeDatabase("P13n user isolation on PostgreSQL", () => {
           starredFieldIds: ["identifiers", "first-custom-field"],
           collapsedSectionIds: ["relations"],
           hiddenFieldIds: ["lastName"],
+          fieldOrder: ["identifiers", "firstName", "createdAt", "updatedAt"],
         },
       }),
     );
@@ -67,6 +68,7 @@ describeDatabase("P13n user isolation on PostgreSQL", () => {
           starredFieldIds: ["userIds", "second-custom-field"],
           collapsedSectionIds: ["customFields"],
           hiddenFieldIds: ["createdAt"],
+          fieldOrder: ["userIds", "firstName", "createdAt", "updatedAt"],
         },
       }),
     );
@@ -80,6 +82,7 @@ describeDatabase("P13n user isolation on PostgreSQL", () => {
         starredFieldIds: ["identifiers", "first-custom-field"],
         collapsedSectionIds: ["relations"],
         hiddenFieldIds: ["lastName"],
+        fieldOrder: ["identifiers", "firstName", "createdAt", "updatedAt"],
       },
     });
     expect(second).toMatchObject({
@@ -88,6 +91,7 @@ describeDatabase("P13n user isolation on PostgreSQL", () => {
         starredFieldIds: ["userIds", "second-custom-field"],
         collapsedSectionIds: ["customFields"],
         hiddenFieldIds: ["createdAt"],
+        fieldOrder: ["userIds", "firstName", "createdAt", "updatedAt"],
       },
     });
 

@@ -222,6 +222,10 @@ describe("workspace-context Wiki discovery", () => {
     expect(calls.catalog).toHaveBeenCalledWith({ page: 2 });
     expect(decode(mcpToolResultText(result))).toMatchObject({ wiki: catalog });
     expect(MCP_SERVER_INSTRUCTIONS).toContain(WORKSPACE_WIKI_INSTRUCTION);
+    expect(WORKSPACE_WIKI_INSTRUCTION).toContain("pass each returned nextOffset");
+    expect(WORKSPACE_WIKI_INSTRUCTION).toContain("never guess offsets or skip sections");
+    expect(WORKSPACE_WIKI_INSTRUCTION).toContain("disclose the unread portion");
+    expect(WORKSPACE_WIKI_INSTRUCTION).toContain("user's requested language");
   });
 
   it("returns the Wiki catalog without connected accounts when Inbox Read is denied", async () => {

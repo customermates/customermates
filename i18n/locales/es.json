@@ -2099,25 +2099,17 @@
       "weightedValue": "{dealValue} × {percent} % de probabilidad de cierre de la etapa actual ({stage}). Edita «{services}», las cantidades o la etapa; gestiona las probabilidades en «{company}».",
       "weightedValueUnconfigured": "{dealValue} × probabilidad de cierre de la etapa seleccionada. Configura las probabilidades en «{company}» y selecciona una etapa; edita «{services}» o las cantidades."
     },
-    "customFieldsEmpty": {
-      "body": "Los campos personalizados contienen los datos adicionales que tu espacio de trabajo registra para este tipo de registro.",
-      "title": "Aún no hay campos personalizados"
-    },
     "donePersonalizing": "Listo",
     "fields": {
       "createdAt": "Creado el",
       "updatedAt": "Actualizado el"
     },
     "hideField": "Ocultar {field} de los detalles",
-    "moveFieldDown": "Mover {field} hacia abajo",
-    "moveFieldUp": "Mover {field} hacia arriba",
+    "overview": "Vista general",
     "personalize": "Personalizar",
     "pinField": "Fijar {field} en el resumen",
     "sections": {
-      "base": "Datos básicos",
-      "customFields": "Campos personalizados",
-      "notes": "Notas",
-      "relations": "Relaciones"
+      "notes": "Notas"
     },
     "showField": "Mostrar {field} en los detalles",
     "unpinField": "Desfijar {field} del resumen"
@@ -3123,13 +3115,6 @@
   },
   "RoutineDetail": {
     "credits": "Créditos",
-    "disabledAdminPaused": "Un administrador de la empresa pausó esta rutina.",
-    "disabledGeneric": "Esta rutina está pausada y no se ejecutará hasta que su propietario la active.",
-    "disabledOwnerPaused": "El propietario pausó esta rutina.",
-    "disabledOwnerUnavailable": "Esta rutina se pausó porque su propietario ya no está disponible. Permanece en modo de solo lectura y un administrador de la empresa puede eliminarla.",
-    "disabledRepeatedFailures": "Mate ha pausado esta rutina porque sus tres últimas ejecuciones fallaron. Corrige las instrucciones y vuelve a activarla.",
-    "disabledRepeatedFailuresReadOnly": "Mate pausó esta rutina porque sus tres últimas ejecuciones fallaron. Su propietario debe corregir las instrucciones y volver a activarla.",
-    "disabledTitle": "Rutina pausada",
     "empty": {
       "event": {
         "actions": {
@@ -3203,9 +3188,10 @@
     "detailsTab": "Detalles",
     "disabled": "En pausa",
     "enabled": "Activa",
-    "enabledHelp": "Las rutinas en pausa conservan su programación, pero no se ejecutan.",
+    "enabledHelp": "Esta rutina se puede ejecutar actualmente.",
     "eventSuppressionNote": "Los eventos causados por rutinas no activan rutinas.",
     "onMinute": "en el minuto",
+    "pausedHelp": "Esta rutina está en pausa y no se ejecutará.",
     "promptExampleEvent": "Lee el registro que ha cambiado y responde con una frase sobre lo que significa.",
     "promptExampleSchedule": "Resume lo que ha cambiado desde ayer y responde con una lista breve.",
     "scheduleTimeZone": "Las horas se muestran en {timezone}.",

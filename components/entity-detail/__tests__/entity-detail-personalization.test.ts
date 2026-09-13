@@ -10,7 +10,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CustomColumnType, EntityType } from "@/generated/prisma";
 
 const upsertP13nAction = vi.hoisted(() => vi.fn());
-const customColumnModalStore = vi.hoisted(() => ({ initialize: vi.fn(), open: vi.fn() }));
+const customColumnModalStore = vi.hoisted(() => ({
+  initialize: vi.fn(),
+  open: vi.fn(),
+}));
 
 vi.mock("@/app/actions", () => ({ upsertP13nAction }));
 vi.mock("@/core/errors/report-application-error", () => ({
@@ -22,9 +25,6 @@ vi.mock("@/core/utils/toast-zod-error-tree", () => ({
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({ customColumnModalStore }),
 }));
-vi.mock("@/components/data-view/custom-columns/custom-field-inputs", () => ({
-  CustomFieldInputs: () => createElement("div", { "data-custom-field-inputs": true }),
-}));
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: { section?: string }) =>
     values?.section ? `${key}:${values.section}` : key,
@@ -35,22 +35,18 @@ import {
   resetEntityDetailPersonalizationPersistenceForTests,
   useEntityDetailPersonalization,
 } from "../entity-detail-personalization";
-import { EntityDetailCustomFieldsSection } from "../entity-detail-custom-fields-section";
 import {
-  collapsedSectionIdsForOpenSection,
   reconcileAvailableIds,
   reconcileColumnOrder,
-  reconcileSingleOpenSections,
-  resolveSingleOpenSectionId,
   resolveOrderedCustomColumns,
+  resolveDetailFieldOrder,
 } from "../entity-detail-personalization.utils";
-import { EntityDetailSection, EntityDetailSectionGroup } from "../entity-detail-section";
+import { EntityDetailFieldDragHandle, EntityDetailFields } from "../entity-detail-fields";
+import { FormControlRow } from "@/components/forms/form-control-row";
 
 const firstId = "10000000-0000-4000-8000-000000000001";
 const secondId = "10000000-0000-4000-8000-000000000002";
 const thirdId = "10000000-0000-4000-8000-000000000003";
-const detailSectionIds = ["base", "relations", "customFields"];
-const defaultCollapsedSectionIds = ["relations", "customFields"];
 const roots = new Set<Root>();
 const TestProvider = EntityDetailPersonalizationProvider as ComponentType<{
   children?: ReactNode;
@@ -59,48 +55,71 @@ const TestProvider = EntityDetailPersonalizationProvider as ComponentType<{
   initial?: P13nEntry | null;
   persistenceScope: string;
 }>;
-const TestSection = EntityDetailSection as ComponentType<{
-  children?: ReactNode;
-  label: string;
-  sectionId: string;
-}>;
-const TestSectionGroup = EntityDetailSectionGroup as ComponentType<{
-  children?: ReactNode;
-}>;
+const TestControlRow = FormControlRow as ComponentType<{ children?: ReactNode; startAddon?: ReactNode }>;
 
-function sectionView(initial?: P13nEntry | null) {
-  return createElement(
-    TestProvider,
-    {
-      config: {
-        p13nId: "contact-detail",
-        defaultStarredFieldIds: [],
-        defaultCollapsedSectionIds,
-        sectionIds: detailSectionIds,
-      },
-      customColumnIds: [],
-      initial,
-      persistenceScope: "user-1",
-    },
-    createElement(
-      TestSectionGroup,
-      null,
+describe("entity detail drag handle placement", () => {
+  it("anchors the grip beside the control and preserves drafts when customization toggles", () => {
+    function Customize() {
+      const { isPersonalizing, setIsPersonalizing } = useEntityDetailPersonalization();
+      return createElement("button", {
+        "data-customize": true,
+        type: "button",
+        onClick: () => setIsPersonalizing(!isPersonalizing),
+      });
+    }
+
+    const { container } = mountNode(
       createElement(
-        TestSection,
-        { label: "Base data", sectionId: "base" },
-        createElement("input", {
-          id: "identity-probe",
+        TestProvider,
+        {
+          config: { p13nId: "deal-detail", defaultStarredFieldIds: [], availableFieldIds: ["name"] },
+          persistenceScope: "user-1",
+        },
+        createElement(Customize),
+        createElement(EntityDetailFields, {
+          fields: [
+            {
+              id: "name",
+              content: createElement(
+                "div",
+                null,
+                createElement("label", { htmlFor: "name", "data-field-label": true }, "A wrapping field label"),
+                createElement(
+                  TestControlRow,
+                  {
+                    startAddon: createElement(EntityDetailFieldDragHandle, { label: "Name" }),
+                  },
+                  createElement("textarea", { id: "name", defaultValue: "Original" }),
+                ),
+              ),
+            },
+          ],
         }),
       ),
-      createElement(TestSection, { label: "Relations", sectionId: "relations" }, createElement("div", null, "Links")),
-      createElement(
-        TestSection,
-        { label: "Custom fields", sectionId: "customFields" },
-        createElement("div", null, "Fields"),
-      ),
-    ),
-  );
-}
+    );
+    const input = container.querySelector<HTMLTextAreaElement>("textarea");
+    if (!input) throw new Error("Expected the field control to be rendered");
+    input.value = "Unsaved draft";
+    expect(container.querySelector("[data-field-drag-handle]")).toBeNull();
+
+    act(() => container.querySelector<HTMLButtonElement>("[data-customize]")?.click());
+
+    const handle = container.querySelector<HTMLButtonElement>("[data-field-drag-handle]");
+    expect(handle?.closest("[data-form-control-row]")).toBe(input.closest("[data-form-control-row]"));
+    expect(handle?.getAttribute("aria-label")).toBe("DataView.dragToReorder: Name");
+    expect(handle?.type).toBe("button");
+    expect(container.querySelector("[data-field-label] [data-field-drag-handle]")).toBeNull();
+    expect(container.querySelector("[data-sortable-field]")?.classList.contains("pl-7")).toBe(true);
+    expect(container.querySelector("textarea")).toBe(input);
+
+    act(() => container.querySelector<HTMLButtonElement>("[data-customize]")?.click());
+
+    expect(container.querySelector("[data-field-drag-handle]")).toBeNull();
+    expect(container.querySelector("[data-sortable-field]")?.classList.contains("pl-7")).toBe(false);
+    expect(container.querySelector("textarea")).toBe(input);
+    expect(input.value).toBe("Unsaved draft");
+  });
+});
 
 function Probe() {
   const personalization = useEntityDetailPersonalization();
@@ -162,6 +181,74 @@ afterEach(() => {
 });
 
 describe("entity detail custom field order", () => {
+  it("reorders standard and custom inputs together without losing drafts and mirrors custom order for drawers", async () => {
+    const fieldIds = ["name", "organizationIds", secondId, firstId, "createdAt", "updatedAt"];
+    function OrderControls() {
+      const { reorderFields } = useEntityDetailPersonalization();
+      return createElement(
+        "button",
+        {
+          "data-reorder-fields": true,
+          type: "button",
+          onClick: () => reorderFields([firstId, "organizationIds", "name", secondId, "createdAt", "updatedAt"]),
+        },
+        "Reorder fields",
+      );
+    }
+    const { container, root } = mountNode(
+      createElement(
+        TestProvider,
+        {
+          config: {
+            p13nId: "deal-detail",
+            defaultStarredFieldIds: ["name"],
+            availableFieldIds: [...fieldIds, firstId, secondId],
+          },
+          customColumnIds: [firstId, secondId],
+          initial: { p13nId: "deal-detail", columnOrder: [secondId, firstId] },
+          persistenceScope: "user-1",
+        },
+        createElement(OrderControls),
+        createElement(EntityDetailFields, {
+          fields: fieldIds.map((id) => ({
+            id,
+            content: createElement("input", { id, defaultValue: id }),
+          })),
+        }),
+      ),
+    );
+    const nameInput = container.querySelector<HTMLInputElement>("#name");
+    if (!nameInput) throw new Error("Expected the name input to be rendered");
+    nameInput.value = "Unsaved draft";
+
+    act(() => container.querySelector<HTMLButtonElement>("[data-reorder-fields]")?.click());
+
+    expect(Array.from(container.querySelectorAll("input"), (input) => input.id)).toEqual([
+      firstId,
+      "organizationIds",
+      "name",
+      secondId,
+      "createdAt",
+      "updatedAt",
+    ]);
+    expect(container.querySelector("#name")).toBe(nameInput);
+    expect(nameInput.value).toBe("Unsaved draft");
+
+    act(() => root.unmount());
+    roots.delete(root);
+    await act(async () => Promise.resolve());
+
+    expect(upsertP13nAction).toHaveBeenCalledExactlyOnceWith({
+      p13nId: "deal-detail",
+      columnOrder: [firstId, secondId],
+      detailOptions: {
+        starredFieldIds: ["name"],
+        collapsedSectionIds: [],
+        fieldOrder: [firstId, "organizationIds", "name", secondId, "createdAt", "updatedAt"],
+      },
+    });
+  });
+
   it("removes stale preference IDs while preserving the user's order", () => {
     expect(reconcileAvailableIds(["updatedAt", "deleted", "updatedAt", "userIds"], ["userIds", "updatedAt"])).toEqual([
       "updatedAt",
@@ -201,37 +288,6 @@ describe("entity detail custom field order", () => {
   });
 });
 
-describe("entity detail single-open section state", () => {
-  it("defaults legacy ambiguous section preferences to Base data", () => {
-    expect(resolveSingleOpenSectionId(detailSectionIds, [], defaultCollapsedSectionIds)).toBe("base");
-    expect(resolveSingleOpenSectionId(detailSectionIds, ["relations"], defaultCollapsedSectionIds)).toBe("base");
-    expect(reconcileSingleOpenSections(detailSectionIds, [], defaultCollapsedSectionIds)).toEqual(
-      defaultCollapsedSectionIds,
-    );
-  });
-
-  it("preserves an unambiguous saved section and collapses every other section", () => {
-    expect(resolveSingleOpenSectionId(detailSectionIds, ["base", "customFields"], defaultCollapsedSectionIds)).toBe(
-      "relations",
-    );
-    expect(collapsedSectionIdsForOpenSection(detailSectionIds, "relations")).toEqual(["base", "customFields"]);
-  });
-
-  it("keeps every section closed once the reader collapses the last open one", () => {
-    expect(resolveSingleOpenSectionId(detailSectionIds, detailSectionIds, defaultCollapsedSectionIds)).toBeUndefined();
-    expect(collapsedSectionIdsForOpenSection(detailSectionIds, undefined)).toEqual(detailSectionIds);
-    expect(reconcileSingleOpenSections(detailSectionIds, detailSectionIds, defaultCollapsedSectionIds)).toEqual(
-      detailSectionIds,
-    );
-  });
-
-  it("still opens the default section for a reader who has never chosen one", () => {
-    expect(resolveSingleOpenSectionId(detailSectionIds, defaultCollapsedSectionIds, defaultCollapsedSectionIds)).toBe(
-      "base",
-    );
-  });
-});
-
 describe("entity detail preference persistence", () => {
   it("preserves custom-field preferences until column metadata becomes authoritative", async () => {
     const p13nId = "contact-detail-metadata";
@@ -240,8 +296,16 @@ describe("entity detail preference persistence", () => {
       columnOrder: [firstId],
       detailOptions: { starredFieldIds: [firstId], collapsedSectionIds: [] },
     };
-    const unknownConfig = { p13nId, defaultStarredFieldIds: [], availableFieldIds: undefined };
-    const knownConfig = { p13nId, defaultStarredFieldIds: [], availableFieldIds: [firstId] };
+    const unknownConfig = {
+      p13nId,
+      defaultStarredFieldIds: [],
+      availableFieldIds: undefined,
+    };
+    const knownConfig = {
+      p13nId,
+      defaultStarredFieldIds: [],
+      availableFieldIds: [firstId],
+    };
     const { container, root } = mountNode(
       createElement(
         TestProvider,
@@ -262,7 +326,12 @@ describe("entity detail preference persistence", () => {
       root.render(
         createElement(
           TestProvider,
-          { config: knownConfig, customColumnIds: [firstId], initial: stored, persistenceScope: "user-1" },
+          {
+            config: knownConfig,
+            customColumnIds: [firstId],
+            initial: stored,
+            persistenceScope: "user-1",
+          },
           createElement(Probe),
         ),
       ),
@@ -334,176 +403,27 @@ describe("entity detail preference persistence", () => {
       columnOrder: [firstId],
     });
   });
-
-  it("stores collapsed sections in the same P13N record as pinned fields and field order", async () => {
-    const { container, root } = mountNode(sectionView());
-    const trigger = container.querySelector<HTMLButtonElement>('[data-detail-section-trigger="relations"]');
-
-    act(() => trigger?.click());
-    act(() => root.unmount());
-    roots.delete(root);
-    await act(async () => Promise.resolve());
-
-    expect(upsertP13nAction).toHaveBeenCalledExactlyOnceWith({
-      p13nId: "contact-detail",
-      detailOptions: {
-        starredFieldIds: [],
-        collapsedSectionIds: ["base", "customFields"],
-      },
-      columnOrder: [],
-    });
-  });
 });
 
-describe("entity detail section", () => {
-  it("clips fields throughout the collapse animation", () => {
-    const { container } = mountNode(sectionView());
-    const content = container.querySelector<HTMLElement>('[data-slot="accordion-content"]');
-
-    expect(content?.className).toContain("overflow-y-hidden");
-    expect(content?.className).toContain("data-[state=closed]:animate-accordion-up");
-    expect(content?.className).toContain("data-[state=open]:animate-accordion-down");
-  });
-
-  it("uses the complete header row as its accessible accordion trigger", () => {
-    const { container } = mountNode(sectionView());
-    const trigger = container.querySelector<HTMLButtonElement>('[data-detail-section-trigger="base"]');
-    const group = container.querySelector<HTMLElement>("[data-detail-section-group]");
-    const section = container.querySelector<HTMLElement>('[data-detail-section="base"]');
-    const content = container.querySelector<HTMLElement>('[data-detail-section-content="base"]');
-
-    expect(trigger?.tagName).toBe("BUTTON");
-    expect(trigger?.className).toContain("w-full");
-    expect(trigger?.className).toContain("rounded-none");
-    expect(trigger?.className).toContain("p-4");
-    expect(trigger?.className).not.toContain("bg-muted/30");
-    expect(group?.className).toContain("-mx-4");
-    expect(group?.className).toContain("-mt-4");
-    expect(group?.className).not.toContain("@6xl/detail:mt-0");
-    expect(group?.className).not.toContain("divide-y");
-    expect(group?.className).not.toContain("border-b");
-    expect(group?.className).not.toContain("border-t");
-    expect(section?.className).toContain("border-b");
-    expect(section?.className).toContain("border-border");
-    expect(trigger?.textContent).toContain("Base data");
-    expect(trigger?.querySelector("span")?.className).not.toContain("uppercase");
-    expect(trigger?.getAttribute("aria-label")).toBeNull();
-    expect(trigger?.getAttribute("aria-expanded")).toBe("true");
-    expect(trigger?.getAttribute("aria-disabled")).toBeNull();
-    expect(trigger?.getAttribute("aria-controls")).toBe(content?.id);
-    expect(content?.getAttribute("aria-labelledby")).toBe(trigger?.id);
-    expect(content?.getAttribute("role")).toBe("region");
-    expect(trigger?.querySelector("button")).toBeNull();
-    expect(content?.firstElementChild?.className).toContain("pb-4");
-
-    act(() => trigger?.click());
-
-    expect(trigger?.getAttribute("aria-expanded")).toBe("false");
-  });
-
-  it("answers a pointer over the header row with a visible surface and label change", () => {
-    const { container } = mountNode(sectionView());
-    const trigger = container.querySelector<HTMLButtonElement>('[data-detail-section-trigger="base"]');
-    const label = trigger?.querySelector("span");
-
-    expect(trigger?.className).toContain("group");
-    expect(trigger?.className).toContain("hover:bg-accent");
-    expect(label?.className).toContain("group-hover:text-foreground");
-  });
-
-  it("opens one section at a time and lets the reader close the open one", () => {
-    const stored: P13nEntry = {
-      p13nId: "contact-detail",
-      columnOrder: [],
-      detailOptions: { starredFieldIds: [], collapsedSectionIds: [] },
-    };
-    const { container } = mountNode(sectionView(stored));
-    const base = container.querySelector<HTMLButtonElement>('[data-detail-section-trigger="base"]');
-    const relations = container.querySelector<HTMLButtonElement>('[data-detail-section-trigger="relations"]');
-    const customFields = container.querySelector<HTMLButtonElement>('[data-detail-section-trigger="customFields"]');
-
-    expect(base?.getAttribute("aria-expanded")).toBe("true");
-    expect(relations?.getAttribute("aria-expanded")).toBe("false");
-    expect(customFields?.getAttribute("aria-expanded")).toBe("false");
-
-    act(() => relations?.click());
-
-    expect(base?.getAttribute("aria-expanded")).toBe("false");
-    expect(relations?.getAttribute("aria-expanded")).toBe("true");
-    expect(customFields?.getAttribute("aria-expanded")).toBe("false");
-
-    act(() => relations?.click());
-
-    expect(base?.getAttribute("aria-expanded")).toBe("false");
-    expect(relations?.getAttribute("aria-expanded")).toBe("false");
-    expect(customFields?.getAttribute("aria-expanded")).toBe("false");
-
-    act(() => customFields?.click());
-
-    expect(customFields?.getAttribute("aria-expanded")).toBe("true");
-  });
-
-  it("supports arrow-key navigation between section triggers", () => {
-    const { container } = mountNode(sectionView());
-    const base = container.querySelector<HTMLButtonElement>('[data-detail-section-trigger="base"]');
-    const relations = container.querySelector<HTMLButtonElement>('[data-detail-section-trigger="relations"]');
-
-    act(() => {
-      base?.focus();
-      base?.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "ArrowDown" }));
-    });
-
-    expect(document.activeElement).toBe(relations);
-  });
-
-  it("uses the selected full-width divider treatment", () => {
-    const { container } = mountNode(sectionView());
-    const group = container.querySelector<HTMLElement>("[data-detail-section-group]");
-    const section = container.querySelector<HTMLElement>('[data-detail-section="base"]');
-
-    expect(group?.className).toContain("-mx-4");
-    expect(group?.className).not.toContain("border-b");
-    expect(group?.className).not.toContain("border-t");
-    expect(section?.className).toContain("border-b");
-    expect(container.querySelectorAll("#identity-probe")).toHaveLength(1);
-  });
-
-  it("keeps Add field inside the open Custom fields section", () => {
-    const { container } = mountNode(
-      createElement(
-        TestProvider,
-        {
-          config: {
-            p13nId: "contact-detail",
-            defaultStarredFieldIds: [],
-            defaultCollapsedSectionIds: [],
-            sectionIds: ["customFields"],
-          },
-          customColumnIds: [firstId],
-          persistenceScope: "user-1",
-        },
-        createElement(
-          TestSectionGroup,
-          null,
-          createElement(EntityDetailCustomFieldsSection, {
-            canManage: true,
-            columns: [{ id: firstId, entityType: EntityType.contact, label: "Industry", type: CustomColumnType.plain }],
-            entityType: EntityType.contact,
-            isEditing: true,
-            onToggleEditing: vi.fn(),
-            sectionId: "customFields",
-          }),
-        ),
+describe("unified overview field order", () => {
+  it("inserts legacy custom columns before timestamps while preserving their previous order", () => {
+    expect(
+      resolveDetailFieldOrder(
+        ["name", secondId, firstId, "createdAt", "updatedAt"],
+        ["name", "createdAt", "updatedAt"],
       ),
-    );
-    const button = container.querySelector<HTMLButtonElement>("[data-entity-add-custom-field]");
+    ).toEqual(["name", secondId, firstId, "createdAt", "updatedAt"]);
+  });
 
-    expect(button?.closest('[data-detail-section-content="customFields"]')).not.toBeNull();
-    expect(container.querySelectorAll("[data-entity-add-custom-field]")).toHaveLength(1);
-
-    act(() => button?.click());
-
-    expect(customColumnModalStore.initialize).toHaveBeenCalledWith(CustomColumnType.plain, EntityType.contact);
-    expect(customColumnModalStore.open).toHaveBeenCalledOnce();
+  it("preserves an explicit mixed order and reconciles new, removed, and duplicate fields", () => {
+    expect(
+      resolveDetailFieldOrder(
+        ["name", firstId, thirdId, "createdAt", "updatedAt"],
+        [firstId, "name", "deleted", "createdAt", firstId, "updatedAt"],
+      ),
+    ).toEqual([firstId, "name", thirdId, "createdAt", "updatedAt"]);
+    expect(
+      resolveDetailFieldOrder(["name", firstId, "createdAt", "updatedAt"], ["updatedAt", firstId, "name", "createdAt"]),
+    ).toEqual(["updatedAt", firstId, "name", "createdAt"]);
   });
 });

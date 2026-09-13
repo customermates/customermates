@@ -75,11 +75,8 @@ describe("entity detail personalization registry", () => {
       expect(configuration?.defaultStarredFieldIds.every((id) => configuration.availableFieldIds?.includes(id))).toBe(
         true,
       );
-      expect(
-        (configuration?.defaultCollapsedSectionIds ?? []).every((id) => configuration?.sectionIds?.includes(id)),
-      ).toBe(true);
-      expect(configuration?.sectionIds).toEqual(["base", "relations", "customFields"]);
-      expect(configuration?.defaultCollapsedSectionIds).toEqual(["relations", "customFields"]);
+      expect(configuration).not.toHaveProperty("sectionIds");
+      expect(configuration).not.toHaveProperty("defaultCollapsedSectionIds");
     }
   });
 

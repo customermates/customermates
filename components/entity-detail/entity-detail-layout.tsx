@@ -358,7 +358,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
             >
               <Tabs value={selectedPanel} onValueChange={(value) => setActivePanel(value as DetailPanel)}>
                 <TabsList
-                  aria-label={t("Common.details")}
+                  aria-label={t("EntityDetail.overview")}
                   className="h-13 w-full justify-stretch gap-0 rounded-none p-0 group-data-[orientation=horizontal]/tabs:h-13"
                   variant="line"
                 >
@@ -368,7 +368,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
                     id={`${formId}-details-tab`}
                     value="details"
                   >
-                    {t("Common.details")}
+                    {t("EntityDetail.overview")}
                   </TabsTrigger>
 
                   {showNotesPanel && (

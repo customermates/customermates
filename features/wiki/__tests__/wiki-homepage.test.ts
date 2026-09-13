@@ -55,6 +55,12 @@ describe("buildWikiHomepageSetupPrompt", () => {
     expect(prompt).toContain("Create one to five useful pages");
     expect(prompt).toContain("There is no required template");
     expect(prompt).toContain("Preserve each source's qualifiers and scope");
+    expect(prompt).toContain("page you actually read that supports those claims");
+    expect(prompt).toContain("Link to the current pricing source instead of copying prices");
+    expect(prompt).toContain("unlimited-allowance claims");
+    expect(prompt).toContain("distinguish managed cloud from self-hosting");
+    expect(prompt).toContain("[page title](/wiki?page=returned-page-id)");
+    expect(prompt).toContain("actual titles and ids returned by the tool");
     expect(prompt).toContain("support answers");
     expect(prompt).toContain("documented CRM processes");
     expect(prompt).not.toContain("Suggested topics are Company Overview");
