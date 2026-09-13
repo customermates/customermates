@@ -24,6 +24,7 @@ function defaultRolePermissions() {
     inboxMessages: { canManage: "no", readAccess: "none" },
     wiki: { canManage: "no", readAccess: "all" },
     auditLog: { readAccess: "none" },
+    routines: { canManage: "no", readAccess: "own" },
   } as const;
 }
 
@@ -130,6 +131,7 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
       inboxMessages: { canManage: "no", readAccess: "none" },
       wiki: { canManage: "no", readAccess: "none" },
       auditLog: { readAccess: "none" },
+      routines: { canManage: "no", readAccess: "none" },
     };
 
     if (role.isSystemRole) {

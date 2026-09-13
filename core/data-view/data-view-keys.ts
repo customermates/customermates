@@ -16,6 +16,7 @@ export const SURFACE = Object.freeze({
   operatorUsers: "operator-users",
   operatorWorkspaces: "operator-workspaces",
   operatorAudit: "operator-audit",
+  routines: "routines-card-store",
 } as const);
 
 export const DATA_VIEW_SURFACE_KEYS = [
@@ -34,6 +35,7 @@ export const DATA_VIEW_SURFACE_KEYS = [
   SURFACE.operatorUsers,
   SURFACE.operatorWorkspaces,
   SURFACE.operatorAudit,
+  SURFACE.routines,
 ] as const;
 
 export type DataViewSurfaceKey = (typeof DATA_VIEW_SURFACE_KEYS)[number];

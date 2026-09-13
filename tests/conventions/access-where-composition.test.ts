@@ -19,6 +19,7 @@ const HELPER_KEYS: Record<string, string[]> = {
   'accessWhere("deal")': CRM_ACCESS_KEYS,
   'accessWhere("service")': CRM_ACCESS_KEYS,
   'accessWhere("task")': CRM_ACCESS_KEYS,
+  'accessWhere("routine")': ["companyId", "ownerUserId"],
   "threadAccessWhere(": ["companyId", "OR"],
   "calendarAccessWhere(": ["companyId", "connectedAccount"],
   "calendarEventAccessWhere(": ["companyId", "connectedAccount"],

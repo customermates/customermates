@@ -4,12 +4,15 @@ import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-context";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
+import { cn } from "@/core/utils/cn";
 
 export const UsageRing = observer(function UsageRing() {
-  const { agentChatStore: store } = useRootStore();
+  const store = useAgentChatStore();
+  const uiTargets = useAgentChatUiTargets();
   const intlStore = useHydratedIntlStore();
   const t = useTranslations();
   const [open, setOpen] = useState(false);
@@ -26,7 +29,7 @@ export const UsageRing = observer(function UsageRing() {
         aria-label={t("AgentChat.credits.usage", { pct })}
         className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
         data-testid="agent-usage"
-        id="agent-usage"
+        id={uiTargets.usageId}
         onMouseEnter={() => setOpen(true)}
       >
         <svg className="-rotate-90 size-5" viewBox="0 0 18 18">
@@ -47,7 +50,7 @@ export const UsageRing = observer(function UsageRing() {
 
       <PopoverContent
         align="end"
-        className="w-64 space-y-1 p-3 text-xs text-muted-foreground"
+        className={cn("w-64 space-y-1 p-3 text-xs text-muted-foreground", OVERLAY_TOPMOST_LAYER_CLASS)}
         side="top"
         onMouseLeave={() => setOpen(false)}
       >

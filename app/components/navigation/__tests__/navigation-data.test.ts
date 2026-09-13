@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { ACCOUNT_STATES } from "@/features/auth/account-state";
+import { AppErrorCode, AuthError, ForbiddenError } from "@/core/errors/app-errors";
 
 import { loadNavigationData, type NavigationDataLoaders } from "../navigation-data";
 
@@ -58,5 +59,38 @@ describe("loadNavigationData", () => {
       channelsNeedingActionCount: 4,
     });
     expect(Object.values(deps).every((loader) => vi.mocked(loader).mock.calls.length === 1)).toBe(true);
+  });
+
+  it("keeps navigation available to an allowed Wiki reader without Inbox permissions", async () => {
+    const deps = loaders();
+    vi.mocked(deps.channelsNeedingActionCount).mockRejectedValue(
+      new ForbiddenError("Access denied. Required permissions: readAll on inboxMessages OR readOwn on inboxMessages"),
+    );
+
+    await expect(loadNavigationData("allowed", deps)).resolves.toMatchObject({
+      company: { id: "company-1" },
+      systemTaskCount: 2,
+      unreadThreadCount: 3,
+      channelsNeedingActionCount: 0,
+    });
+  });
+
+  it.each([
+    new ForbiddenError("Inactive", AppErrorCode.inactiveUser),
+    new AuthError(),
+    new Error("Database unavailable"),
+  ])("does not hide other Inbox badge loader failures: %s", async (error) => {
+    const deps = loaders();
+    vi.mocked(deps.channelsNeedingActionCount).mockRejectedValue(error);
+
+    await expect(loadNavigationData("allowed", deps)).rejects.toBe(error);
+  });
+
+  it("does not suppress permission failures from required navigation data", async () => {
+    const deps = loaders();
+    const error = new ForbiddenError("Company permission denied");
+    vi.mocked(deps.company).mockRejectedValue(error);
+
+    await expect(loadNavigationData("allowed", deps)).rejects.toBe(error);
   });
 });

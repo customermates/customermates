@@ -49,6 +49,8 @@ const CONTACT_ID_2 = "00000000-0000-4000-8000-000000000002";
 const ORG_ID_1 = "00000000-0000-4000-8000-000000000010";
 const ORG_ID_2 = "00000000-0000-4000-8000-000000000011";
 const DEAL_ID_1 = "00000000-0000-4000-8000-000000000020";
+const VISIBLE_USER_ID = "00000000-0000-4000-8000-000000000030";
+const HIDDEN_USER_ID = "00000000-0000-4000-8000-000000000031";
 
 function makeContactDto(overrides: Record<string, unknown> = {}) {
   return {
@@ -66,6 +68,16 @@ function makeContactDto(overrides: Record<string, unknown> = {}) {
     tasks: [],
     customFieldValues: [],
     ...overrides,
+  };
+}
+
+function makeUserDto(id: string, firstName: string) {
+  return {
+    id,
+    firstName,
+    lastName: "User",
+    avatarUrl: null,
+    email: `${firstName.toLowerCase()}@example.com`,
   };
 }
 
@@ -638,6 +650,31 @@ describe("UpdateContactInteractor", () => {
     );
   });
 
+  it("calculates changes from the company-wide post-state while returning and publishing the scoped contact", async () => {
+    const visibleUser = makeUserDto(VISIBLE_USER_ID, "Visible");
+    const hiddenUser = makeUserDto(HIDDEN_USER_ID, "Hidden");
+    const previousCompanyWide = makeContactDto({ users: [visibleUser, hiddenUser] });
+    const currentCompanyWide = makeContactDto({ firstName: "Janet", users: [visibleUser, hiddenUser] });
+    const scopedContact = makeContactDto({ firstName: "Janet", users: [visibleUser] });
+
+    mockUpdateRepo.getOrThrowCompanyWide
+      .mockReset()
+      .mockResolvedValueOnce(previousCompanyWide)
+      .mockResolvedValueOnce(currentCompanyWide);
+    mockUpdateRepo.updateContactOrThrow.mockResolvedValue(scopedContact);
+
+    const result: any = await createInteractor().invoke({ id: CONTACT_ID, firstName: "Janet" });
+    const eventData = mockEventService.publish.mock.calls.find(
+      ([event]: [DomainEvent]) => event === DomainEvent.CONTACT_UPDATED,
+    )?.[1];
+
+    expect(mockUpdateRepo.getOrThrowCompanyWide).toHaveBeenNthCalledWith(2, CONTACT_ID);
+    expect(eventData.payload.contact).toEqual(scopedContact);
+    expect(eventData.payload.contact.users).toEqual([visibleUser]);
+    expect(eventData.payload.changes).toEqual({ firstName: { previous: "Jane", current: "Janet" } });
+    expect(result).toEqual({ ok: true, data: scopedContact });
+  });
+
   it("publishes ORGANIZATION_UPDATED events with payload for linked organizations", async () => {
     const interactor = createInteractor();
     await interactor.invoke({
@@ -941,6 +978,56 @@ describe("UpdateManyContactsInteractor", () => {
         }),
       }),
     );
+  });
+
+  it("maps company-wide post-states by id without exposing hidden users in bulk payloads or responses", async () => {
+    const visibleUser = makeUserDto(VISIBLE_USER_ID, "Visible");
+    const hiddenUser = makeUserDto(HIDDEN_USER_ID, "Hidden");
+    const previousFirst = makeContactDto({ users: [visibleUser, hiddenUser] });
+    const previousSecond = makeContactDto({ id: CONTACT_ID_2, firstName: "John", users: [visibleUser, hiddenUser] });
+    const currentFirstCompanyWide = makeContactDto({
+      firstName: "Janet",
+      users: [visibleUser, hiddenUser],
+    });
+    const currentSecondCompanyWide = makeContactDto({
+      id: CONTACT_ID_2,
+      firstName: "Johnny",
+      users: [visibleUser, hiddenUser],
+    });
+    const scopedFirst = makeContactDto({ firstName: "Janet", users: [visibleUser] });
+    const scopedSecond = makeContactDto({ id: CONTACT_ID_2, firstName: "Johnny", users: [visibleUser] });
+
+    mockUpdateRepo.getManyOrThrowCompanyWide
+      .mockReset()
+      .mockResolvedValueOnce([previousFirst, previousSecond])
+      .mockResolvedValueOnce([currentSecondCompanyWide, currentFirstCompanyWide]);
+    mockUpdateRepo.updateContactOrThrow
+      .mockReset()
+      .mockResolvedValueOnce(scopedFirst)
+      .mockResolvedValueOnce(scopedSecond);
+
+    const result: any = await createInteractor().invoke({
+      contacts: [
+        { id: CONTACT_ID, firstName: "Janet" },
+        { id: CONTACT_ID_2, firstName: "Johnny" },
+      ],
+    });
+    const eventDataById = new Map<string, any>(
+      mockEventService.publish.mock.calls
+        .filter(([event]: [DomainEvent]) => event === DomainEvent.CONTACT_UPDATED)
+        .map(([, eventData]: [DomainEvent, any]) => [eventData.entityId, eventData] as const),
+    );
+
+    expect(mockUpdateRepo.getManyOrThrowCompanyWide).toHaveBeenNthCalledWith(2, [CONTACT_ID, CONTACT_ID_2]);
+    expect(eventDataById.get(CONTACT_ID).payload).toEqual({
+      contact: scopedFirst,
+      changes: { firstName: { previous: "Jane", current: "Janet" } },
+    });
+    expect(eventDataById.get(CONTACT_ID_2).payload).toEqual({
+      contact: scopedSecond,
+      changes: { firstName: { previous: "John", current: "Johnny" } },
+    });
+    expect(result).toEqual({ ok: true, data: [scopedFirst, scopedSecond] });
   });
 
   it("publishes ORGANIZATION_UPDATED events with payload when contacts have linked organizations", async () => {

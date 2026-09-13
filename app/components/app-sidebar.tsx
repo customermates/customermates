@@ -24,6 +24,7 @@ import {
   Package,
   Plus,
   LayoutGrid,
+  Repeat,
   ShieldCheck,
   TrendingUp,
   UserCircle,
@@ -126,7 +127,7 @@ const FullAppSidebar = observer(
     const intlPathname = useIntlPathname();
     const router = useRouter();
     const rootStore = useRootStore();
-    const { userStore, terminologyStore } = rootStore;
+    const { feedbackModalStore, globalSearchModalStore, terminologyStore, userStore } = rootStore;
     const { singular, plural } = useEntityTerminology();
 
     const { isMobile, setOpenMobile } = useSidebar();
@@ -188,19 +189,18 @@ const FullAppSidebar = observer(
               badge: unreadThreadCount,
             },
             {
+              key: "routines",
+              title: t("NavigationBar.routines"),
+              href: "/routines",
+              icon: Repeat,
+              visible: rootStore.appMode !== "self-hosted" && canAccess(Resource.routines),
+            },
+            {
               key: "wiki",
               title: t("NavigationBar.wiki"),
               href: "/wiki",
               icon: BookOpen,
               visible: canAccess(Resource.wiki),
-            },
-            {
-              key: "tasks",
-              title: plural(EntityType.task),
-              href: "/tasks",
-              icon: CheckCircle2,
-              visible: canAccess(Resource.tasks),
-              badge: systemTaskCount,
             },
           ].filter((i) => i.visible),
         },
@@ -235,6 +235,14 @@ const FullAppSidebar = observer(
               href: "/services",
               icon: Package,
               visible: canAccess(Resource.services),
+            },
+            {
+              key: "tasks",
+              title: plural(EntityType.task),
+              href: "/tasks",
+              icon: CheckCircle2,
+              visible: canAccess(Resource.tasks),
+              badge: systemTaskCount,
             },
           ].filter((i) => i.visible),
         },
@@ -325,11 +333,12 @@ const FullAppSidebar = observer(
           }
 
           closeMobileSidebar(() => {
-            rootStore.feedbackModalStore.onInitOrRefresh({
+            feedbackModalStore.onInitOrRefresh({
               type: FeedbackType.general,
               feedback: "",
             });
-            rootStore.feedbackModalStore.openFrom(invoker, document.getElementById("sidebar-trigger"));
+            const sidebarTrigger = document.getElementById("sidebar-trigger");
+            feedbackModalStore.openFrom(invoker, sidebarTrigger);
           });
         },
       },
@@ -442,9 +451,10 @@ const FullAppSidebar = observer(
                 return;
               }
 
-              closeMobileSidebar(() =>
-                rootStore.globalSearchModalStore.openFrom(invoker, document.getElementById("sidebar-trigger")),
-              );
+              closeMobileSidebar(() => {
+                const sidebarTrigger = document.getElementById("sidebar-trigger");
+                globalSearchModalStore.openFrom(invoker, sidebarTrigger);
+              });
             }}
           />
 

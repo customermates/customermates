@@ -38,6 +38,7 @@ type SharedProps = {
   title: ReactNode;
   actions?: AppModalActions;
   description?: ReactNode;
+  layerClassName?: string;
   size?: ModalSize;
   children: ReactNode;
 };
@@ -63,7 +64,7 @@ function AppModalActionRail({ actions }: { actions: readonly AppModalActionProps
 }
 
 export const AppModal = observer((props: Props) => {
-  const { title, actions = [], description, size = "md", children } = props;
+  const { title, actions = [], description, layerClassName, size = "md", children } = props;
   const store = hasStore(props) ? props.store : undefined;
   const isOpen = hasStore(props) ? props.store.isOpen : props.open;
   const navigationGuard = store?.rootStore.navigationGuard;
@@ -98,9 +99,14 @@ export const AppModal = observer((props: Props) => {
       {isWide ? (
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
           <DialogContent
-            className={cn("flex flex-col gap-0 border-0 bg-transparent p-0 shadow-none", sizeClassMap[size])}
+            className={cn(
+              "flex flex-col gap-0 border-0 bg-transparent p-0 shadow-none",
+              sizeClassMap[size],
+              layerClassName,
+            )}
             data-overlay-action-count={hasActions ? actionCount : undefined}
             data-overlay-actions={hasActions ? "" : undefined}
+            overlayClassName={layerClassName}
             {...(!description ? { "aria-describedby": undefined } : {})}
             {...focusReturn}
           >
@@ -118,9 +124,10 @@ export const AppModal = observer((props: Props) => {
       ) : (
         <Drawer open={isOpen} repositionInputs={false} onOpenChange={handleOpenChange}>
           <DrawerContent
-            className="gap-0"
+            className={cn("gap-0", layerClassName)}
             data-overlay-action-count={hasActions ? actionCount : undefined}
             data-overlay-actions={hasActions ? "" : undefined}
+            overlayClassName={layerClassName}
             {...focusReturn}
           >
             <VisuallyHidden.Root>

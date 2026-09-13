@@ -1,20 +1,19 @@
 import { describe, expect, it } from "vitest";
-
-import { AGENT_SERVING_PROVIDER, getAgentProviderOptions } from "../agent-provider-options";
+import { getAgentProviderOptions } from "../agent-provider-options";
+import { MODEL_CATALOG } from "../model-catalog";
 
 describe("Agent provider options", () => {
-  it("pins hosted Assistant traffic to Azure with the shared privacy settings", () => {
-    expect(getAgentProviderOptions(AGENT_SERVING_PROVIDER)).toEqual({
+  it.each(Object.values(MODEL_CATALOG))("preserves the serving provider and inference region for $modelId", (model) => {
+    expect(getAgentProviderOptions(model.servingProvider, model.inferenceRegion)).toEqual({
       gateway: {
-        only: ["azure"],
+        only: [model.servingProvider],
+        inferenceRegion: model.inferenceRegion
+          ? { scope: "zone", geoRegion: model.inferenceRegion }
+          : { scope: "global" },
         zeroDataRetention: true,
         disallowPromptTraining: true,
       },
-      openai: { parallelToolCalls: false, store: false, maxToolCalls: 1 },
+      openai: { parallelToolCalls: false, store: false },
     });
-  });
-
-  it("fails closed for a non-Azure serving provider", () => {
-    expect(() => getAgentProviderOptions("openai")).toThrow("Hosted Assistant requires Azure.");
   });
 });

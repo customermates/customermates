@@ -2,11 +2,11 @@ import type { AgentModelEntry } from "./model-catalog";
 
 import {
   AGENT_CONTEXT_BYTES_PER_TOKEN,
+  AGENT_MIN_BYTES_PER_PROVIDER_TOKEN,
   AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS,
   isAgentModelWithinBudgetEnvelope,
 } from "./model-catalog";
-import { modelProviderContextLength, resolveModelPricing } from "./model-pricing";
-import { AGENT_WEB_SEARCH_MAX_TOOL_CALLS_PER_ROUND, AGENT_WEB_SEARCH_MAX_USD_PER_CALL } from "./agent-web-search";
+import { resolveModelPricing } from "./model-pricing";
 
 export const AGENT_RESERVATION_ROUNDS_AHEAD = 4;
 export const AGENT_MAX_TOOL_RESULT_CHARS = 6000;
@@ -17,13 +17,13 @@ const USD_PER_AGENT_CREDIT = 0.01;
 export type AgentTurnBudget = {
   modelSpec: string;
   servingProvider: string;
+  inferenceRegion: AgentModelEntry["inferenceRegion"];
   reservedCredits: number;
   roundReserveCredits: number;
   maxOutputTokens: number;
   maxContextTokens: number;
   maxContextBytes: number;
   maxToolResultChars: number;
-  webSearchEnabled: boolean;
 };
 
 export function agentContextBytesToTokens(bytes: number) {
@@ -34,24 +34,29 @@ export function agentContextTokensToBytes(tokens: number) {
   return tokens * AGENT_CONTEXT_BYTES_PER_TOKEN;
 }
 
-function tokenWorstCaseUsd(entry: AgentModelEntry, promptTokens: number, outputTokens: number) {
-  const pricing = resolveModelPricing(entry.modelId, promptTokens, entry.servingProvider);
+export function agentContextBytesToWorstCaseProviderTokens(bytes: number) {
+  return Math.ceil(bytes / AGENT_MIN_BYTES_PER_PROVIDER_TOKEN);
+}
+
+function stepWorstCaseUsd(entry: AgentModelEntry, contextTokens: number, outputTokens: number) {
+  const promptTokens = contextTokens + AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS;
+  const pricing = resolveModelPricing(entry.modelId, promptTokens, entry.servingProvider, entry.inferenceRegion);
   const maxInputRate = Math.max(pricing.inputPerMTok, pricing.cacheReadPerMTok, pricing.cacheWritePerMTok);
 
   return (promptTokens * maxInputRate) / 1_000_000 + (outputTokens * pricing.outputPerMTok) / 1_000_000;
 }
 
-export function agentRoundWorstCaseCredits(entry: AgentModelEntry) {
-  const promptTokens = modelProviderContextLength(entry.modelId, entry.servingProvider);
-  const roundUsd =
-    tokenWorstCaseUsd(entry, promptTokens, entry.maxOutputTokens) +
-    AGENT_WEB_SEARCH_MAX_USD_PER_CALL * AGENT_WEB_SEARCH_MAX_TOOL_CALLS_PER_ROUND;
+export function agentRoundWorstCaseCreditsForContextBytes(entry: AgentModelEntry, contextBytes: number) {
+  const roundUsd = stepWorstCaseUsd(
+    entry,
+    agentContextBytesToWorstCaseProviderTokens(contextBytes),
+    entry.maxOutputTokens,
+  );
   return Math.max(1, Math.ceil(roundUsd / USD_PER_AGENT_CREDIT));
 }
 
-function agentNonWebRoundWorstCaseCredits(entry: AgentModelEntry) {
-  const promptTokens = entry.maxContextTokens + AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS;
-  return Math.max(1, Math.ceil(tokenWorstCaseUsd(entry, promptTokens, entry.maxOutputTokens) / USD_PER_AGENT_CREDIT));
+export function agentRoundWorstCaseCredits(entry: AgentModelEntry) {
+  return agentRoundWorstCaseCreditsForContextBytes(entry, agentContextTokensToBytes(entry.maxContextTokens));
 }
 
 export function resolveAgentTurnBudget(args: {
@@ -68,21 +73,19 @@ export function resolveAgentTurnBudget(args: {
   if (!Number.isSafeInteger(requiredContextBytes) || requiredContextBytes < 1) return null;
   if (agentContextBytesToTokens(requiredContextBytes) > entry.maxContextTokens) return null;
 
-  const webRoundReserveCredits = agentRoundWorstCaseCredits(entry);
-  const webSearchEnabled = args.availableCredits >= webRoundReserveCredits;
-  const roundReserveCredits = webSearchEnabled ? webRoundReserveCredits : agentNonWebRoundWorstCaseCredits(entry);
-  const initialReservationRounds = webSearchEnabled ? 1 : AGENT_RESERVATION_ROUNDS_AHEAD;
+  const roundReserveCredits = agentRoundWorstCaseCredits(entry);
+  if (args.availableCredits < roundReserveCredits) return null;
 
   return {
     modelSpec: entry.modelId,
     servingProvider: entry.servingProvider,
-    reservedCredits: Math.min(args.availableCredits, roundReserveCredits * initialReservationRounds),
+    inferenceRegion: entry.inferenceRegion,
+    reservedCredits: Math.min(args.availableCredits, roundReserveCredits * AGENT_RESERVATION_ROUNDS_AHEAD),
     roundReserveCredits,
     maxOutputTokens: entry.maxOutputTokens,
     maxContextTokens: entry.maxContextTokens,
     maxContextBytes: agentContextTokensToBytes(entry.maxContextTokens),
     maxToolResultChars: Math.min(entry.maxToolResultChars, AGENT_MAX_TOOL_RESULT_CHARS),
-    webSearchEnabled,
   };
 }
 
@@ -103,4 +106,17 @@ export function isAgentContextWithinBudget(value: unknown, maxContextBytes: numb
 export function resolveAgentToolResultMaxChars(configured: number) {
   if (!Number.isFinite(configured) || configured <= 0) return 1;
   return Math.min(Math.floor(configured), AGENT_MAX_TOOL_RESULT_CHARS);
+}
+
+export const AGENT_TOOL_RESULT_TRUNCATED_MARK = "[truncated:";
+
+function truncationNotice(kept: number, total: number) {
+  return `\n${AGENT_TOOL_RESULT_TRUNCATED_MARK} first ${kept} of ${total} characters. The rest was not read: report partial data and re-run with fewer ids, a smaller pageSize, or a narrower filter.]`;
+}
+
+export function agentToolResultText(result: string, maxChars: number) {
+  if (result.length <= maxChars) return result;
+  const budget = maxChars - truncationNotice(maxChars, result.length).length;
+  if (budget < 1) return result.slice(0, maxChars);
+  return `${result.slice(0, budget)}${truncationNotice(budget, result.length)}`;
 }

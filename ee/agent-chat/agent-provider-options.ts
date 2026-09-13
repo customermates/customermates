@@ -1,20 +1,21 @@
-import { AGENT_WEB_SEARCH_MAX_TOOL_CALLS_PER_ROUND } from "./agent-web-search";
+import type { AgentModelEntry } from "./model-catalog";
 
-export const AGENT_SERVING_PROVIDER = "azure";
-
-export function getAgentProviderOptions(servingProvider: string) {
-  if (servingProvider !== AGENT_SERVING_PROVIDER) throw new Error("Hosted Assistant requires Azure.");
-
+export function getAgentProviderOptions(
+  servingProvider: string,
+  inferenceRegion: AgentModelEntry["inferenceRegion"] = null,
+) {
   return {
     gateway: {
       only: [servingProvider],
+      inferenceRegion: inferenceRegion
+        ? { scope: "zone" as const, geoRegion: inferenceRegion }
+        : { scope: "global" as const },
       zeroDataRetention: true,
       disallowPromptTraining: true,
     },
     openai: {
       parallelToolCalls: false,
       store: false,
-      maxToolCalls: AGENT_WEB_SEARCH_MAX_TOOL_CALLS_PER_ROUND,
     },
   };
 }

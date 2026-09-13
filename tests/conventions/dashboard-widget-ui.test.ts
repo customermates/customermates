@@ -129,9 +129,18 @@ describe("dashboard widget UI", () => {
     expect(between(modal, 'baseId="entityFilters"', "/>")).toContain('variant="grouped"');
     expect(between(modal, 'baseId="dealFilters"', "/>")).toContain('variant="grouped"');
     expect(between(fields, 'baseId="timelineFilters"', "/>")).toContain('variant="grouped"');
+
+    // Routine event triggers are a filter family in the same sense, so the routines modal is an
+    // admitted caller and is asserted here rather than exempted.
+    const routineConfiguration = read(
+      "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx",
+    );
+
+    expect(between(routineConfiguration, 'baseId="triggerFilters"', "/>")).toContain('variant="grouped"');
     expect(groupedCallers.map((file) => relative(REPO_ROOT, file)).sort()).toEqual([
       "app/[locale]/(protected)/dashboard/components/activity-filter-fields.tsx",
       "app/[locale]/(protected)/dashboard/components/widget-modal.tsx",
+      "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx",
     ]);
   });
 

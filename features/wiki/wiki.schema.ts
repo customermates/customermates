@@ -47,6 +47,27 @@ export type WikiPageDto = Data<typeof WikiPageSchema>;
 export const WikiPageSummarySchema = WikiPageSchema.omit({ markdown: true });
 export type WikiPageSummary = Data<typeof WikiPageSummarySchema>;
 
+export const WIKI_CATALOG_PAGE_SIZE = 10;
+export const WikiCatalogInputSchema = z.object({
+  page: z.number().int().min(1).default(1),
+});
+export type WikiCatalogInput = Data<typeof WikiCatalogInputSchema>;
+export const WikiCatalogSchema = z.object({
+  items: z
+    .array(
+      WikiPageSummarySchema.extend({
+        excerpt: z.string().max(200),
+        url: z.string(),
+      }),
+    )
+    .max(10),
+  total: z.number().int().min(0),
+  page: z.number().int().min(1),
+  nextPage: z.number().int().min(1).nullable(),
+  truncated: z.boolean(),
+});
+export type WikiCatalog = Data<typeof WikiCatalogSchema>;
+
 export const WikiSearchResultSchema = WikiPageSummarySchema.extend({
   snippet: z.string(),
 });

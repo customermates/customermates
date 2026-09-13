@@ -78,9 +78,14 @@ export const AuditLogModal = observer(() => {
           </InfoRow>
 
           {auditLog.event === DomainEvent.WIKI_PAGE_UPDATED && markdownChange ? (
-            <InfoRow label={t("AuditLogModal.fields.markdown")}>
+            <section
+              aria-label={t("AuditLogModal.fields.markdown")}
+              className="min-w-0 space-y-2 whitespace-normal break-words text-left"
+            >
+              <h3 className="text-xs text-muted-foreground">{t("AuditLogModal.fields.markdown")}</h3>
+
               <NotesDiff current={markdownChange.current} previous={markdownChange.previous} />
-            </InfoRow>
+            </section>
           ) : null}
 
           <CodeBlockAccordion code={JSON.stringify(auditLog.eventData, null, 2)} title={t("AuditLogModal.eventData")} />

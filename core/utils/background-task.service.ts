@@ -1,4 +1,4 @@
-import { resumeHook, start } from "workflow/api";
+import { getRun, resumeHook, start } from "workflow/api";
 import { HookNotFoundError } from "workflow/errors";
 
 import type { WorkflowId, WorkflowPayload } from "@/workflows/registry";
@@ -7,6 +7,8 @@ import type { WorkflowTenant } from "@/workflows/workflow-tenant";
 import { tenantStorage } from "@/core/decorators/tenant-context";
 import { transactionStorage } from "@/core/decorators/transaction-context";
 import { WORKFLOW_REGISTRY } from "@/workflows/registry";
+
+export const VERCEL_WORKFLOW_REGION = "fra1";
 
 function currentTenant(): WorkflowTenant | undefined {
   const user = tenantStorage.getStore()?.user;
@@ -33,6 +35,11 @@ export class BackgroundTaskService {
     return this.startWorkflow(id, payload);
   }
 
+  async isWorkflowTerminal(externalRunId: string): Promise<boolean> {
+    const status = await getRun(externalRunId).status;
+    return status === "completed" || status === "failed" || status === "cancelled";
+  }
+
   async resume(token: string, payload: Record<string, unknown>): Promise<boolean> {
     try {
       await resumeHook(token, payload);
@@ -47,7 +54,7 @@ export class BackgroundTaskService {
     const tenant = currentTenant();
     const stamped = tenant ? { ...payload, tenant } : payload;
     const workflow = WORKFLOW_REGISTRY[id] as (payload: unknown) => Promise<unknown>;
-    const run = await start(workflow, [stamped]);
+    const run = await start(workflow, [stamped], { region: VERCEL_WORKFLOW_REGION });
 
     return run.runId;
   }

@@ -28,6 +28,7 @@ import { CreateWikiPagesInteractor } from "../create-wiki-pages.interactor";
 import { DeleteWikiPageInteractor } from "../delete-wiki-page.interactor";
 import { GetWikiPageInteractor } from "../get-wiki-page.interactor";
 import { GetWikiPagesInteractor } from "../get-wiki-pages.interactor";
+import { GetWikiCatalogInteractor } from "../get-wiki-catalog.interactor";
 import { PrismaWikiPageRepo } from "../prisma-wiki-page.repository";
 import { SearchWikiPagesInteractor } from "../search-wiki-pages.interactor";
 import { UpdateWikiPageInteractor } from "../update-wiki-page.interactor";
@@ -42,7 +43,10 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
   const userId = randomUUID();
   const foreignUserId = randomUUID();
   const user: TenantUser = createMockUser({ id: userId, companyId });
-  const foreignUser: TenantUser = createMockUser({ id: foreignUserId, companyId: foreignCompanyId });
+  const foreignUser: TenantUser = createMockUser({
+    id: foreignUserId,
+    companyId: foreignCompanyId,
+  });
 
   const eventService = () =>
     new EventService(
@@ -57,6 +61,15 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       },
       new PrismaAuditLogRepo(),
       { dispatch: () => Promise.resolve() } as never,
+      {
+        findEventRoutinesUnscoped: () => Promise.resolve([]),
+        admitEventRoutineRunsUnscoped: () => Promise.resolve([]),
+      },
+      {
+        matchesCurrentUser: () => Promise.resolve(true),
+        matchesUserUnscoped: () => Promise.resolve(true),
+        canUserAccessUnscoped: () => Promise.resolve(true),
+      },
     );
 
   const create = (tenant: TenantUser, pages: Array<{ title: string; markdown: string }>, requireEmpty = false) =>
@@ -65,7 +78,12 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     );
   const update = (
     tenant: TenantUser,
-    data: { id: string; expectedUpdatedAt: Date; title?: string; markdown?: string },
+    data: {
+      id: string;
+      expectedUpdatedAt: Date;
+      title?: string;
+      markdown?: string;
+    },
   ) => runWithTenant(tenant, () => new UpdateWikiPageInteractor(new PrismaWikiPageRepo(), eventService()).invoke(data));
   const remove = (tenant: TenantUser, data: { id: string; expectedUpdatedAt: Date }) =>
     runWithTenant(tenant, () => new DeleteWikiPageInteractor(new PrismaWikiPageRepo(), eventService()).invoke(data));
@@ -120,17 +138,25 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
 
     const [listed, searched, loaded] = await runWithTenant(user, async () =>
       Promise.all([
-        new GetWikiPagesInteractor(new PrismaWikiPageRepo()).invoke({ page: 1, pageSize: 25 }),
-        new SearchWikiPagesInteractor(new PrismaWikiPageRepo()).invoke({
-          query: "foreign-only",
+        new GetWikiPagesInteractor(new PrismaWikiPageRepo()).invoke({
           page: 1,
           pageSize: 25,
         }),
-        new GetWikiPageInteractor(new PrismaWikiPageRepo()).invoke({ id: foreignPage.id }),
+        new SearchWikiPagesInteractor(new PrismaWikiPageRepo()).invoke({
+          query: "foreign",
+          page: 1,
+          pageSize: 25,
+        }),
+        new GetWikiPageInteractor(new PrismaWikiPageRepo()).invoke({
+          id: foreignPage.id,
+        }),
       ]),
     );
 
-    expect(listed).toMatchObject({ ok: true, data: { total: 1, items: [{ id: local.data[0].id }] } });
+    expect(listed).toMatchObject({
+      ok: true,
+      data: { total: 1, items: [{ id: local.data[0].id }] },
+    });
     expect(searched).toMatchObject({ ok: true, data: { total: 0, items: [] } });
     expect(loaded).toEqual({ ok: true, data: null });
 
@@ -150,6 +176,130 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     expect(untouched.rows).toEqual([{ markdown: foreignPage.markdown }]);
   });
 
+  it("ranks title matches above body matches and supports multiple query terms without crossing tenants", async () => {
+    const local = await create(user, [
+      { title: "Older page", markdown: "Our voice is clear." },
+      { title: "Voice", markdown: "Speak clearly." },
+      { title: "Support", markdown: "Answer questions." },
+    ]);
+    await create(foreignUser, [{ title: "Voice support", markdown: "Foreign-only guidance." }]);
+    if (!local.ok) throw new Error("Wiki fixtures were not created.");
+    const search = (query: string, page = 1) =>
+      runWithTenant(user, () =>
+        new SearchWikiPagesInteractor(new PrismaWikiPageRepo()).invoke({
+          query,
+          page,
+          pageSize: 5,
+        }),
+      );
+    const result = await search("voice support");
+    expect(result).toMatchObject({ ok: true, data: { total: 3 } });
+    if (!result.ok) throw new Error("Wiki search failed.");
+    expect(result.data.items.map((item) => item.id)).toEqual([local.data[1].id, local.data[2].id, local.data[0].id]);
+    expect(result.data.items[2].snippet).toBe("Our voice is clear.");
+    expect(await search("voice support", 2)).toMatchObject({
+      ok: true,
+      data: { total: 3, items: [] },
+    });
+    expect(await search("_%!:&|")).toMatchObject({
+      ok: true,
+      data: { total: 0, items: [] },
+    });
+    expect(await search("'; DROP TABLE WikiPage;--")).toMatchObject({
+      ok: true,
+      data: { total: 0, items: [] },
+    });
+    expect(await search("voice")).toMatchObject({
+      ok: true,
+      data: { total: 2 },
+    });
+  });
+
+  it("finds non-English guidance and immediately reflects edits in search and catalog", async () => {
+    const created = await create(user, [
+      {
+        title: "Kundenbetreuung",
+        markdown: "Wir beantworten Rückfragen freundlich und präzise.",
+      },
+    ]);
+    if (!created.ok) throw new Error("Wiki fixture was not created.");
+    const page = created.data[0];
+    const search = (query: string) =>
+      runWithTenant(user, () =>
+        new SearchWikiPagesInteractor(new PrismaWikiPageRepo()).invoke({
+          query,
+          page: 1,
+          pageSize: 5,
+        }),
+      );
+    expect(await search("Rückfragen präzise")).toMatchObject({
+      ok: true,
+      data: { total: 1, items: [{ id: page.id, title: "Kundenbetreuung" }] },
+    });
+    const changed = await update(user, {
+      id: page.id,
+      expectedUpdatedAt: page.updatedAt,
+      markdown: "Antworten beginnen mit einer kurzen Zusammenfassung.",
+    });
+    expect(changed.ok).toBe(true);
+    expect(await search("Rückfragen")).toMatchObject({
+      ok: true,
+      data: { total: 0 },
+    });
+    expect(await search("Zusammenfassung")).toMatchObject({
+      ok: true,
+      data: { total: 1 },
+    });
+    const catalog = await runWithTenant(user, () =>
+      new GetWikiCatalogInteractor(new PrismaWikiPageRepo()).invoke({
+        page: 1,
+      }),
+    );
+    expect(catalog).toMatchObject({
+      ok: true,
+      data: {
+        items: [
+          {
+            id: page.id,
+            excerpt: "Antworten beginnen mit einer kurzen Zusammenfassung.",
+          },
+        ],
+      },
+    });
+  });
+
+  it("returns ten live catalog entries with accurate continuation and no foreign titles", async () => {
+    for (let batch = 0; batch < 3; batch++) {
+      await create(
+        user,
+        Array.from({ length: batch === 2 ? 1 : 5 }, (_, index) => ({
+          title: `Local ${batch * 5 + index + 1}`,
+          markdown: "# Heading\n\nA **helpful** opening.\n\nLater content is not a catalog excerpt.",
+        })),
+      );
+    }
+    await create(foreignUser, [{ title: "Foreign catalog entry", markdown: "Hidden" }]);
+    const catalog = (page: number) =>
+      runWithTenant(user, () => new GetWikiCatalogInteractor(new PrismaWikiPageRepo()).invoke({ page }));
+    const first = await catalog(1);
+    const second = await catalog(2);
+    expect(first).toMatchObject({
+      ok: true,
+      data: { total: 11, nextPage: 2, truncated: true },
+    });
+    expect(second).toMatchObject({
+      ok: true,
+      data: { total: 11, nextPage: null, truncated: false },
+    });
+    if (!first.ok || !second.ok) throw new Error("Wiki catalog failed.");
+    expect(first.data.items).toHaveLength(10);
+    expect(second.data.items).toHaveLength(1);
+    expect(new Set([...first.data.items, ...second.data.items].map((item) => item.id)).size).toBe(11);
+    expect(first.data.items.every((item) => item.excerpt === "A helpful opening.")).toBe(true);
+    expect(JSON.stringify([first, second])).not.toContain("Foreign catalog entry");
+    expect(JSON.stringify([first, second])).not.toContain("Later content");
+  });
+
   it("serializes same-token updates, suppresses no-ops, and rejects a stale delete", async () => {
     const created = await create(user, [{ title: "Concurrent page", markdown: "Original" }]);
     if (!created.ok) throw new Error("Wiki fixture was not created.");
@@ -159,20 +309,32 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       pageId,
     ]);
     const loaded = await runWithTenant(user, () =>
-      new GetWikiPageInteractor(new PrismaWikiPageRepo()).invoke({ id: pageId }),
+      new GetWikiPageInteractor(new PrismaWikiPageRepo()).invoke({
+        id: pageId,
+      }),
     );
     if (!loaded.ok || !loaded.data) throw new Error("Wiki fixture could not be loaded.");
     const oldUpdatedAt = loaded.data.updatedAt;
 
     const outcomes = await Promise.all([
-      update(user, { id: pageId, expectedUpdatedAt: oldUpdatedAt, markdown: "First winner" }),
-      update(user, { id: pageId, expectedUpdatedAt: oldUpdatedAt, markdown: "Second winner" }),
+      update(user, {
+        id: pageId,
+        expectedUpdatedAt: oldUpdatedAt,
+        markdown: "First winner",
+      }),
+      update(user, {
+        id: pageId,
+        expectedUpdatedAt: oldUpdatedAt,
+        markdown: "Second winner",
+      }),
     ]);
     expect(outcomes.filter((outcome) => outcome.ok)).toHaveLength(1);
     expect(outcomes.filter((outcome) => customCode(outcome) === CustomErrorCode.wikiPageConflict)).toHaveLength(1);
 
     const current = await runWithTenant(user, () =>
-      new GetWikiPageInteractor(new PrismaWikiPageRepo()).invoke({ id: pageId }),
+      new GetWikiPageInteractor(new PrismaWikiPageRepo()).invoke({
+        id: pageId,
+      }),
     );
     if (!current.ok || !current.data) throw new Error("Updated Wiki page could not be loaded.");
     expect(["First winner", "Second winner"]).toContain(current.data.markdown);
@@ -194,21 +356,30 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       title: current.data.title,
       markdown: current.data.markdown,
     });
-    expect(unchanged).toMatchObject({ ok: true, data: { updatedAt: current.data.updatedAt } });
+    expect(unchanged).toMatchObject({
+      ok: true,
+      data: { updatedAt: current.data.updatedAt },
+    });
     const auditCountAfterNoOp = await client.query(
       'SELECT COUNT(*)::int AS "count" FROM "AuditLog" WHERE "companyId" = $1 AND "event" = $2 AND "entityId" = $3',
       [companyId, DomainEvent.WIKI_PAGE_UPDATED, pageId],
     );
     expect(auditCountAfterNoOp.rows[0].count).toBe(1);
 
-    const staleDelete = await remove(user, { id: pageId, expectedUpdatedAt: oldUpdatedAt });
+    const staleDelete = await remove(user, {
+      id: pageId,
+      expectedUpdatedAt: oldUpdatedAt,
+    });
     expect(customCode(staleDelete)).toBe(CustomErrorCode.wikiPageConflict);
     expect(await client.query('SELECT 1 FROM "WikiPage" WHERE "id" = $1', [pageId])).toMatchObject({ rowCount: 1 });
   });
 
   it("allows exactly one concurrent empty-only five-page batch and audits all five snapshots", async () => {
     const batch = (prefix: string) =>
-      Array.from({ length: 5 }, (_, index) => ({ title: `${prefix} ${index + 1}`, markdown: `Body ${index + 1}` }));
+      Array.from({ length: 5 }, (_, index) => ({
+        title: `${prefix} ${index + 1}`,
+        markdown: `Body ${index + 1}`,
+      }));
 
     const outcomes = await Promise.all([create(user, batch("First"), true), create(user, batch("Second"), true)]);
 
@@ -288,6 +459,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       api: { canManage: "no", readAccess: "none" },
       tasks: { canManage: "no", readAccess: "none" },
       inboxMessages: { canManage: "no", readAccess: "none" },
+      routines: { canManage: "no", readAccess: "none" },
       wiki,
       auditLog: { readAccess: "none" },
     });
@@ -308,7 +480,10 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       return result.rows.map(({ action }) => action);
     };
 
-    const manager = await save(undefined, { canManage: "yes", readAccess: "none" });
+    const manager = await save(undefined, {
+      canManage: "yes",
+      readAccess: "none",
+    });
     try {
       expect(await wikiActions(manager.id)).toEqual(["create", "readAll", "update", "delete"]);
 

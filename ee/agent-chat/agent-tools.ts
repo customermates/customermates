@@ -2,35 +2,40 @@ import { z } from "zod";
 import { asSchema, tool, jsonSchema, type ToolSet } from "ai";
 
 import { ALL_MCP_TOOLS, MCP_TOOL_GROUPS } from "@/features/mcp-tools/tool-registry";
-import { executeMcpTool, expectedMcpToolFailure, type McpToolExecutionResult } from "@/features/mcp-tools/mcp-tool";
+import {
+  executeMcpTool,
+  expectedMcpToolFailure,
+  validationError,
+  type McpToolExecutionResult,
+} from "@/features/mcp-tools/mcp-tool";
 import { RequestSupportSchema } from "@/features/mcp-tools/support.mcp-tools";
-import { WikiHomepageSetupCreateSchema } from "@/features/mcp-tools/wiki.mcp-tools";
 import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 
+import { agentToolResultText } from "./agent-budget-policy";
 import { isReadOnlyTool, requiresApproval } from "./gated-tools";
 import { toAgentUiCommandInput } from "./agent-ui-command";
 import { type AgentToolCancellation as AgentToolCancellationValue } from "./agent-tool-cancellation";
-import {
-  AGENT_UI_TARGETS,
-  ClickUiTargetIdSchema,
-  NavigationUiTargetIdSchema,
-  UiTargetIdSchema,
-  type AgentUiTarget,
-} from "./ui-targets";
+import { AGENT_UI_TARGETS, NavigationUiTargetIdSchema, UiTargetIdSchema, type AgentUiTarget } from "./ui-targets";
 import { AgentTourSchema } from "./agent-tours";
 import { OpenRecordSchema } from "./ui-operations";
 import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
 import { internalToolIdentity } from "./tool-identity";
-import { AGENT_WEB_SEARCH_TOOL_NAME, getAgentWebSearchTool } from "./agent-web-search";
+import { providerWireInputSchema } from "./provider-safe-json-schema";
+import type { AgentToolInputResult } from "./agent-tool-input";
+import { getAgentWebSearchTool, AGENT_WEB_SEARCH_RELEASED } from "./agent-web-search";
+import { manageWikiPagesTool, WikiHomepageSetupCreateSchema } from "@/features/mcp-tools/wiki.mcp-tools";
+
+export type AgentToolOptions = {
+  webSearchEnabled?: boolean;
+  wikiHomepageSetup?: boolean;
+  surface?: "chat" | "routine";
+};
+const ReadPublicPageSchema = z.object({ url: z.url().max(2_000) });
 
 export { isAgentToolCancellation, type AgentToolCancellation } from "./agent-tool-cancellation";
 
 export type ApprovalDecision = "approve" | "reject" | "timeout";
 export type AgentUiCommandOutcome = { ok: boolean; result: string };
-export type AgentToolCatalogOptions = {
-  webSearchEnabled?: boolean;
-  wikiHomepageSetupDomain?: string;
-};
 
 export { AGENT_UI_TOOL_NAMES } from "./agent-ui-command";
 
@@ -97,7 +102,10 @@ async function runGated<T>(
 }
 
 function agentToolResult(outcome: McpToolExecutionResult, maxChars: number) {
-  return { ok: outcome.ok, result: outcome.result.slice(0, maxChars) };
+  return {
+    ok: outcome.ok,
+    result: agentToolResultText(outcome.result, maxChars),
+  };
 }
 
 async function runSafely<T>(
@@ -152,10 +160,6 @@ const NavigateSchema = z.object({
 const HighlightElementSchema = z.object({
   targetId: UiTargetIdSchema.describe("A target id from list_ui_targets."),
 });
-const ClickUiTargetSchema = z.object({
-  targetId: ClickUiTargetIdSchema.describe("An activatable target id from list_ui_targets."),
-});
-
 const ListUiTargetsSchema = z.object({
   query: z
     .string()
@@ -170,8 +174,8 @@ const ListUiTargetsSchema = z.object({
 });
 
 function compactUiTarget(target: AgentUiTarget) {
-  const actions = [...(target.route.startsWith("/") ? ["n"] : []), "h", ...(target.activation ? ["c"] : [])].join("");
-  const prerequisite = target.activation?.kind === "selected" ? `|>${target.activation.prerequisite}` : "";
+  const actions = [...(target.route.startsWith("/") ? ["n"] : []), "h"].join("");
+  const prerequisite = target.prerequisite ? `|>${target.prerequisite}` : "";
   return `${target.id}|${target.route}|${actions}${prerequisite}`;
 }
 
@@ -191,7 +195,7 @@ function listUiTargets(input: z.infer<typeof ListUiTargetsSchema>, resultMaxChar
     : AGENT_UI_TARGETS;
   const targets = matched.length > 0 ? matched : AGENT_UI_TARGETS;
   const cursor = Math.min(input.cursor ?? 0, targets.length);
-  const header = "actions n=navigate,h=highlight,c=click; >target is a prerequisite\n";
+  const header = "actions n=navigate,h=highlight; >target is a prerequisite the user must open\n";
 
   const lines: string[] = [];
   let nextCursor = cursor;
@@ -212,26 +216,31 @@ function listUiTargets(input: z.infer<typeof ListUiTargetsSchema>, resultMaxChar
   return `${header}${lines.join("\n")}\n${footer}`;
 }
 
-function crmTool(
-  mcp: (typeof ALL_MCP_TOOLS)[number],
-  deps: AgentToolDeps,
-  override?: { inputSchema: z.ZodType; description: string },
-) {
-  const inputSchema = override?.inputSchema ?? mcp.inputSchema;
+function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
   return tool({
-    description: override?.description ?? mcp.description,
-    inputSchema: providerSafeSchema(inputSchema),
+    description: mcp.description,
+    inputSchema: providerSafeSchema(mcp.inputSchema),
     execute: async (input: unknown, { toolCallId }) => {
-      const executionInput = override ? await inputSchema.parseAsync(input) : input;
       const execute = async () => {
-        const outcome = await executeMcpTool(mcp, [executionInput]);
+        const wikiId =
+          mcp.name === "fetch" &&
+          input &&
+          typeof input === "object" &&
+          "id" in input &&
+          typeof input.id === "string" &&
+          input.id.startsWith("wiki:")
+            ? input.id.slice(5)
+            : null;
+        const outcome = wikiId
+          ? await executeMcpTool(manageWikiPagesTool, [{ action: "get", id: wikiId }])
+          : await executeMcpTool(mcp, [input]);
         return agentToolResult(outcome, deps.resultMaxChars);
       };
       const enrollable = !isReadOnlyTool(mcp) && !hasNonTransactionalEffect(mcp.name);
       const run = enrollable ? () => deps.runExactlyOnce(toolCallId, mcp.name, execute) : execute;
       return runSafely(async () => {
-        if (!requiresApproval(internalToolIdentity(mcp.name), mcp, executionInput)) return run();
-        const approvalContext = await deps.resolveApprovalContext(mcp.name, executionInput);
+        if (!requiresApproval(internalToolIdentity(mcp.name), mcp, input)) return run();
+        const approvalContext = await deps.resolveApprovalContext(mcp.name, input);
         if (!approvalContext.ok) return { ok: false, result: approvalContext.result };
         return runGated(deps, toolCallId, mcp.name, approvalContext.input, run);
       }, deps.resultMaxChars);
@@ -246,13 +255,16 @@ function panelInput(toolName: string, input: unknown): Record<string, unknown> {
 function uiTools(deps: AgentToolDeps): ToolSet {
   const runUiCommand = async (toolCallId: string, name: string, input: Record<string, unknown>) => {
     const outcome = await deps.runUiCommand(toolCallId, name, input);
-    return { ...outcome, result: outcome.result.slice(0, deps.resultMaxChars) };
+    return {
+      ...outcome,
+      result: agentToolResultText(outcome.result, deps.resultMaxChars),
+    };
   };
 
   return {
     list_ui_targets: tool({
       description:
-        "List exact stable interface target ids before using an interface tool. Make one focused query with the workflow or page phrase and reuse every relevant id it returns instead of querying ids one by one. Results use action codes n=navigate, h=highlight, c=click and >target for a prerequisite; continue only when nextCursor is present.",
+        "List exact stable interface target ids before using an interface tool. Make one focused query with the workflow or page phrase and reuse every relevant id it returns instead of querying ids one by one. Results use action codes n=navigate and h=highlight; >target names a prerequisite the user must open. Continue only when nextCursor is present.",
       inputSchema: providerSafeSchema(ListUiTargetsSchema),
       execute: (input) => listUiTargets(input, deps.resultMaxChars),
     }),
@@ -278,16 +290,6 @@ function uiTools(deps: AgentToolDeps): ToolSet {
       execute: (input, { toolCallId }) =>
         runSafely(() => runUiCommand(toolCallId, "start_tour", panelInput("start_tour", input)), deps.resultMaxChars),
     }),
-    click_ui_target: tool({
-      description:
-        "Activate one reversible display control by its exact id from list_ui_targets. Navigate to the target first. Layout controls require opening the matching display-options target first. A successful result means the browser verified the control is expanded or selected.",
-      inputSchema: providerSafeSchema(ClickUiTargetSchema),
-      execute: (input, { toolCallId }) =>
-        runSafely(
-          () => runUiCommand(toolCallId, "click_ui_target", panelInput("click_ui_target", input)),
-          deps.resultMaxChars,
-        ),
-    }),
     open_record: tool({
       description:
         "Open one record after finding its id with list_records or search_records. Use the drawer to keep context, the page for a full view, and recordId 'new' for a blank form the user fills in.",
@@ -298,36 +300,42 @@ function uiTools(deps: AgentToolDeps): ToolSet {
   };
 }
 
-export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolCatalogOptions = {}): ToolSet {
-  if (options.wikiHomepageSetupDomain) {
-    if (!options.webSearchEnabled) throw new Error("Wiki homepage setup requires available native web search.");
-
-    const wiki = ALL_MCP_TOOLS.find((mcp) => mcp.name === "manage_wiki_pages");
-    if (!wiki) throw new Error("The Workspace Wiki tool is not registered.");
-
+export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolOptions = {}): ToolSet {
+  const web = {
+    read_public_page: tool({
+      description:
+        "Read one public HTTP(S) page as text. Supply its exact URL; follow only useful explicit source links. Network protections and page limits are enforced by the runtime.",
+      inputSchema: providerSafeSchema(ReadPublicPageSchema),
+    }),
+    ...((options.webSearchEnabled ?? AGENT_WEB_SEARCH_RELEASED) ? { web_search: getAgentWebSearchTool() } : {}),
+  };
+  if (options.wikiHomepageSetup) {
+    const wiki = crmTool(manageWikiPagesTool, deps);
     return withCallerContext(
       {
-        [AGENT_WEB_SEARCH_TOOL_NAME]: getAgentWebSearchTool({
-          allowedDomains: [options.wikiHomepageSetupDomain],
-        }),
-        manage_wiki_pages: crmTool(wiki, deps, {
-          inputSchema: WikiHomepageSetupCreateSchema,
-          description:
-            "Create exactly five Workspace Wiki pages in one atomic call. This setup-only capability requires action=create and requireEmpty=true, and refuses the entire batch when the Wiki is not empty.",
-        }),
-      } as unknown as ToolSet,
+        read_public_page: web.read_public_page,
+        manage_wiki_pages: {
+          ...wiki,
+          inputSchema: providerSafeSchema(WikiHomepageSetupCreateSchema),
+          execute: async (input, context) => {
+            const parsed = WikiHomepageSetupCreateSchema.safeParse(input);
+            if (!parsed.success)
+              return { ok: false, result: agentToolResultText(validationError(parsed.error), deps.resultMaxChars) };
+            return wiki.execute(parsed.data, context);
+          },
+        },
+      },
       deps,
     );
   }
-
   const crm = ALL_MCP_TOOLS.filter((mcp) => mcp.name !== "request_support").map(
     (mcp) => [mcp.name, crmTool(mcp, deps)] as const,
   );
   return withCallerContext(
     {
       ...Object.fromEntries(crm),
-      ...uiTools(deps),
-      ...(options.webSearchEnabled ? { [AGENT_WEB_SEARCH_TOOL_NAME]: getAgentWebSearchTool() } : {}),
+      ...(options.surface === "routine" ? {} : uiTools(deps)),
+      ...web,
       request_support: tool({
         description:
           "Email a support request to the Customermates team. Use when the user asks for a human, reports a bug, or you cannot help after a genuine attempt. The recent Assistant conversation is included, and the team replies to the email address on the user's account.",
@@ -348,53 +356,36 @@ export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolCatalogOp
   );
 }
 
-type FunctionAgentAiToolDefinition = {
+export type AgentAiToolDefinition = {
   name: string;
+  type?: "provider";
+  isProviderExecuted?: boolean;
+  supportsDeferredResults?: boolean;
+  id?: string;
+  args?: Record<string, unknown>;
   description: string | undefined;
   inputSchema: unknown;
-  type?: undefined;
 };
 
-type ProviderAgentAiToolDefinition = {
-  name: string;
-  description: string | undefined;
-  inputSchema: unknown;
-  type: "provider";
-  isProviderExecuted: true;
-  id: `${string}.${string}`;
-  args: Record<string, unknown>;
-};
-
-export type AgentAiToolDefinition = FunctionAgentAiToolDefinition | ProviderAgentAiToolDefinition;
-
-export function describeAgentAiTools(tools: ToolSet): AgentAiToolDefinition[] {
-  return Object.entries(tools).map(([name, agentTool]) => {
-    const definition: FunctionAgentAiToolDefinition = {
-      name,
-      description:
-        "description" in agentTool && typeof agentTool.description === "string" ? agentTool.description : undefined,
-      inputSchema: "inputSchema" in agentTool ? asSchema(agentTool.inputSchema).jsonSchema : undefined,
-    };
-    const provider = agentTool as {
-      type?: string;
-      isProviderExecuted?: boolean;
-      id?: `${string}.${string}`;
-      args?: Record<string, unknown>;
-    };
-    if (provider.type === "provider") {
-      if (provider.isProviderExecuted !== true || !provider.id || !provider.args)
-        throw new Error(`Provider tool ${name} is missing its execution metadata.`);
-
-      return {
-        ...definition,
-        type: "provider" as const,
-        isProviderExecuted: true as const,
-        id: provider.id,
-        args: provider.args,
-      };
-    }
-    return definition;
-  });
+export function describeAgentAiTools(tools: ToolSet, servingProvider?: string): AgentAiToolDefinition[] {
+  return Object.entries(tools).map(([name, agentTool]) => ({
+    name,
+    ...(agentTool.type === "provider"
+      ? {
+          type: "provider" as const,
+          id: agentTool.id,
+          args: agentTool.args,
+          isProviderExecuted: agentTool.isProviderExecuted,
+          supportsDeferredResults: agentTool.supportsDeferredResults,
+        }
+      : {}),
+    description:
+      "description" in agentTool && typeof agentTool.description === "string" ? agentTool.description : undefined,
+    inputSchema:
+      "inputSchema" in agentTool
+        ? providerWireInputSchema(asSchema(agentTool.inputSchema).jsonSchema, servingProvider)
+        : undefined,
+  }));
 }
 
 const TOOL_DEFINITION_DEPS: AgentToolDeps = {
@@ -407,6 +398,32 @@ const TOOL_DEFINITION_DEPS: AgentToolDeps = {
   resultMaxChars: 1,
 };
 
-export function getAgentAiToolDefinitions(options: AgentToolCatalogOptions = {}): AgentAiToolDefinition[] {
-  return describeAgentAiTools(getAgentAiTools(TOOL_DEFINITION_DEPS, options));
+export function getAgentAiToolDefinitions(
+  servingProvider?: string,
+  options: AgentToolOptions = {},
+): AgentAiToolDefinition[] {
+  return describeAgentAiTools(getAgentAiTools(TOOL_DEFINITION_DEPS, options), servingProvider);
+}
+
+export async function normalizeAgentAiToolInput(
+  toolName: string,
+  input: unknown,
+  maxChars: number,
+  options: AgentToolOptions = {},
+): Promise<AgentToolInputResult> {
+  const tools = getAgentAiTools(TOOL_DEFINITION_DEPS, options);
+  if (!Object.hasOwn(tools, toolName)) return { ok: false, result: "The requested tool is not available." };
+  const agentTool = tools[toolName];
+  const schema = asSchema(agentTool.inputSchema);
+  if (!schema.validate) throw new Error("The agent tool has no authoritative input validator.");
+  const result = await schema.validate(input);
+  if (result.success) return { ok: true, input: result.value };
+
+  return {
+    ok: false,
+    result:
+      result.error instanceof z.ZodError
+        ? agentToolResultText(validationError(result.error), maxChars)
+        : "The tool input does not match its required schema.",
+  };
 }

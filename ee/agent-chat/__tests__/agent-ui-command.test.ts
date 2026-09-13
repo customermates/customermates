@@ -20,8 +20,8 @@ describe("agent interface commands", () => {
     expect(toAgentUiCommandInput("list_ui_targets", { query: "deals" })).toBeNull();
   });
 
-  it("sends only the target id for the tools that act on one control", () => {
-    for (const name of ["navigate", "highlight_element", "click_ui_target"]) {
+  it("sends only the target id for the tools that locate one interface target", () => {
+    for (const name of ["navigate", "highlight_element"]) {
       expect(toAgentUiCommandInput(name, { targetId: "nav-deals", extra: "dropped" })).toEqual({
         targetId: "nav-deals",
       });

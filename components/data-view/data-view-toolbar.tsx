@@ -105,6 +105,7 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
 
         {onAdd && !store.isDisabled && (
           <Button
+            aria-label={addLabel ?? t("Common.actions.add")}
             className="h-8"
             id={anchorScope ? `${anchorScope}-add` : undefined}
             size="sm"

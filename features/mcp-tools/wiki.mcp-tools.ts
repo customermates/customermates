@@ -44,7 +44,7 @@ const PageInputSchema = z.object({
 });
 export const WikiHomepageSetupCreateSchema = z.object({
   action: z.literal("create"),
-  pages: z.array(PageInputSchema).length(5),
+  pages: z.array(PageInputSchema).min(1).max(5),
   requireEmpty: z.literal(true),
 });
 const CreateSchema = z.object({
@@ -87,6 +87,7 @@ const ManageWikiPagesOutputSchema = z.looseObject({
   pageSize: z.number().optional(),
   id: z.string().optional(),
   title: z.string().optional(),
+  url: z.string().optional(),
   markdown: z.string().optional(),
   markdownChunk: z.string().optional(),
   offset: z.number().optional(),
@@ -134,6 +135,7 @@ function wikiPageChunk(
   const base = formatDatesInResponse({
     id: page.id,
     title: page.title,
+    url: `/wiki?page=${page.id}`,
     offset,
     nextOffset: null as number | null,
     totalChars: page.markdown.length,
@@ -162,11 +164,13 @@ export const manageWikiPagesTool = {
   title: "Manage Workspace Wiki pages",
   description:
     "Read and manage the shared Workspace Wiki. " +
-    "list returns pages in creation order. search matches titles and Markdown and returns short snippets. " +
+    "Read company facts, processes, voice, and support guidance before answering or acting on them. " +
+    "list returns pages in creation order. search ranks query terms in titles and Markdown and returns short snippets. " +
     "get returns one Markdown chunk; pass nextOffset back as offset until it is null. " +
     "create atomically creates one to five pages; requireEmpty=true refuses the whole batch unless the Wiki is empty. " +
     "update changes title and/or Markdown and requires expectedUpdatedAt from a prior read. " +
-    "delete permanently deletes one page and requires expectedUpdatedAt; deletion is irreversible.",
+    "delete permanently deletes one page and requires expectedUpdatedAt; deletion is irreversible. " +
+    "Link pages with ordinary Markdown links to /wiki?page=<page-id>; page ids remain stable when titles change.",
   annotations: {
     readOnlyHint: false,
     destructiveHint: true,

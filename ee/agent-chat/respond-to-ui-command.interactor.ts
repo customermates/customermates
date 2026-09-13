@@ -15,17 +15,23 @@ import type { BackgroundTaskService } from "@/core/utils/background-task.service
 const Schema = z.object({
   conversationId: z.uuid(),
   commandId: z.string().min(1).max(200),
-  name: z.enum(["navigate", "highlight_element", "start_tour", "click_ui_target", "open_record"]),
+  name: z.enum(["navigate", "highlight_element", "start_tour", "open_record"]),
   ok: z.boolean(),
   result: z.string().min(1).max(1000),
 });
 
 export type RespondToUiCommandData = Data<typeof Schema>;
 
-const OutputSchema = z.object({ resolved: z.literal(true) });
+const OutputSchema = z.object({
+  resolved: z.literal(true),
+  resumed: z.boolean(),
+});
 
 @TenantInteractor()
-export class RespondToUiCommandInteractor extends AuthenticatedInteractor<RespondToUiCommandData, { resolved: true }> {
+export class RespondToUiCommandInteractor extends AuthenticatedInteractor<
+  RespondToUiCommandData,
+  { resolved: true; resumed: boolean }
+> {
   constructor(
     private repo: PrismaAgentChatRepo,
     private entitlements: EntitlementService,
@@ -35,18 +41,18 @@ export class RespondToUiCommandInteractor extends AuthenticatedInteractor<Respon
   }
 
   @Write({ input: Schema, output: OutputSchema, tx: false })
-  async invoke(data: RespondToUiCommandData): Validated<{ resolved: true }> {
+  async invoke(data: RespondToUiCommandData): Validated<{ resolved: true; resumed: boolean }> {
     const denied = await this.entitlements.require("agentChat");
     if (denied) return denied;
 
-    const conversation = await this.repo.findConversation(data.conversationId);
+    const conversation = await this.repo.findInteractiveConversation(data.conversationId);
     if (!conversation) return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
     await this.repo.recordUiCommandResult(data);
-    await this.backgroundTaskService.resume(agentUiCommandHookToken(data.conversationId), {
+    const resumed = await this.backgroundTaskService.resume(agentUiCommandHookToken(data.conversationId), {
       commandId: data.commandId,
     });
 
-    return { ok: true as const, data: { resolved: true } };
+    return { ok: true as const, data: { resolved: true, resumed } };
   }
 }

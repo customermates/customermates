@@ -20,7 +20,8 @@ import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 const ENFORCED = true;
 
 const DOCS_ID_PATTERN = /`#([a-z][a-z0-9]*(?:-[a-z0-9]+)+)`/g;
-const LITERAL_ID_PATTERN = /\b(?:id|inputId)=["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']/g;
+const LITERAL_ID_PATTERN =
+  /\b(?:id|inputId)=["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']|\b(?:composerId|fallbackFocusId|usageId):\s*["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']/g;
 const ANCHOR_SCOPE_PATTERN = /anchorScope=["']([a-z0-9-]+)["']/g;
 const DOCS_LOCALES = CONTENT_LOCALES;
 
@@ -62,7 +63,7 @@ function codeIds(): Set<string> {
   const ids = new Set<string>();
   for (const file of sourceFiles()) {
     const text = readFileSync(file, "utf8");
-    for (const match of text.matchAll(LITERAL_ID_PATTERN)) ids.add(match[1]);
+    for (const match of text.matchAll(LITERAL_ID_PATTERN)) ids.add(match[1] ?? match[2]);
     for (const match of text.matchAll(ANCHOR_SCOPE_PATTERN)) {
       const scope = match[1];
       if (TOOLBAR_SCOPES_WITH_ADD.includes(scope) || TOOLBAR_SCOPES_WITHOUT_ADD.includes(scope)) {
@@ -106,7 +107,8 @@ function expectedDocumentedIds(): Set<string> {
   for (const file of sourceFiles()) {
     const text = readFileSync(file, "utf8");
     for (const match of text.matchAll(LITERAL_ID_PATTERN)) {
-      if (RESERVED_LITERAL_PREFIXES.some((prefix) => match[1].startsWith(prefix))) ids.add(match[1]);
+      const id = match[1] ?? match[2];
+      if (RESERVED_LITERAL_PREFIXES.some((prefix) => id.startsWith(prefix))) ids.add(id);
     }
   }
   return ids;

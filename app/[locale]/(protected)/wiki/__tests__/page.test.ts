@@ -10,9 +10,15 @@ vi.mock("@/core/di", () => ({
   getGetWikiPageInteractor: () => ({ invoke: mocks.getPage }),
   getGetWikiPagesInteractor: () => ({ invoke: mocks.listPages }),
 }));
-vi.mock("@/features/auth/next/require", () => ({ requireAccess: mocks.requireAccess }));
-vi.mock("@/components/shared/page-container", () => ({ PageContainer: "page-container" }));
-vi.mock("../components/wiki-page-view", () => ({ WikiPageView: "wiki-page-view" }));
+vi.mock("@/features/auth/next/require", () => ({
+  requireAccess: mocks.requireAccess,
+}));
+vi.mock("@/components/shared/page-container", () => ({
+  PageContainer: "page-container",
+}));
+vi.mock("../components/wiki-page-view", () => ({
+  WikiPageView: "wiki-page-view",
+}));
 
 import WikiPage from "../page";
 
@@ -32,41 +38,55 @@ beforeEach(() => {
 });
 
 describe("WikiPage", () => {
-  it("falls back to the first visible page when a requested page is missing", async () => {
+  it("shows an unavailable page rather than substituting another document for a missing link", async () => {
     mocks.listPages.mockResolvedValue({
       ok: true,
-      data: { items: [summary], total: 1, page: 1, pageSize: 100 },
+      data: { items: [summary], total: 1, page: 1, pageSize: 25 },
     });
     mocks.getPage.mockResolvedValueOnce({ ok: true, data: null }).mockResolvedValueOnce({ ok: true, data: page });
 
-    const result = await WikiPage({ searchParams: Promise.resolve({ page: "missing" }) });
+    const result = await WikiPage({
+      searchParams: Promise.resolve({ page: "missing" }),
+    });
 
-    expect(mocks.getPage.mock.calls).toEqual([[{ id: "missing" }], [{ id: PAGE_ID }]]);
-    expect(result.props.children.props.initialPage).toBe(page);
+    expect(mocks.getPage.mock.calls).toEqual([[{ id: "missing" }]]);
+    expect(result.props.children.props.initialPage).toBeNull();
+    expect(result.props.children.props.unavailable).toBe(true);
   });
 
   it("falls back to the first list page when the requested list page is out of range", async () => {
     mocks.listPages
-      .mockResolvedValueOnce({ ok: true, data: { items: [], total: 1, page: 9, pageSize: 100 } })
-      .mockResolvedValueOnce({ ok: true, data: { items: [summary], total: 1, page: 1, pageSize: 100 } });
+      .mockResolvedValueOnce({
+        ok: true,
+        data: { items: [], total: 1, page: 9, pageSize: 25 },
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        data: { items: [summary], total: 1, page: 1, pageSize: 25 },
+      });
     mocks.getPage.mockResolvedValue({ ok: true, data: page });
 
-    const result = await WikiPage({ searchParams: Promise.resolve({ listPage: "9" }) });
+    const result = await WikiPage({
+      searchParams: Promise.resolve({ listPage: "9" }),
+    });
 
-    expect(mocks.listPages.mock.calls).toEqual([[{ page: 9, pageSize: 100 }], [{ page: 1, pageSize: 100 }]]);
+    expect(mocks.listPages.mock.calls).toEqual([[{ page: 9, pageSize: 25 }], [{ page: 1, pageSize: 25 }]]);
     expect(result.props.children.props).toMatchObject({
       initialPage: page,
-      listPage: { items: [summary], total: 1, page: 1, pageSize: 100 },
+      listPage: { items: [summary], total: 1, page: 1, pageSize: 25 },
     });
   });
 
   it("reserves the empty state for a Wiki with no pages", async () => {
-    const empty = { items: [], total: 0, page: 1, pageSize: 100 };
+    const empty = { items: [], total: 0, page: 1, pageSize: 25 };
     mocks.listPages.mockResolvedValue({ ok: true, data: empty });
 
     const result = await WikiPage({ searchParams: Promise.resolve({}) });
 
     expect(mocks.getPage).not.toHaveBeenCalled();
-    expect(result.props.children.props).toMatchObject({ initialPage: null, listPage: empty });
+    expect(result.props.children.props).toMatchObject({
+      initialPage: null,
+      listPage: empty,
+    });
   });
 });

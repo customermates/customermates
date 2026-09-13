@@ -87,7 +87,8 @@ export class UpdateManyTasksInteractor extends AuthenticatedInteractor<UpdateMan
 
     const tasks = await Promise.all(data.tasks.map((taskData) => this.repo.updateTaskOrThrow(taskData)));
 
-    const [currentContacts, currentOrganizations, currentDeals, currentServices] = await Promise.all([
+    const [currentTasks, currentContacts, currentOrganizations, currentDeals, currentServices] = await Promise.all([
+      this.repo.getManyOrThrowCompanyWide(tasks.map((task) => task.id)),
       this.contactsRepo.getManyOrThrowCompanyWide(relatedContactIds),
       this.organizationsRepo.getManyOrThrowCompanyWide(relatedOrganizationIds),
       this.dealsRepo.getManyOrThrowCompanyWide(relatedDealIds),
@@ -95,6 +96,7 @@ export class UpdateManyTasksInteractor extends AuthenticatedInteractor<UpdateMan
     ]);
 
     const previousTasksMap = new Map(previousTasks.map((t) => [t.id, t]));
+    const currentTasksMap = new Map(currentTasks.map((task) => [task.id, task]));
 
     await Promise.all([
       ...buildRelationChangePublishes(previousContacts, currentContacts, "tasks", (contact, changes) =>
@@ -133,15 +135,18 @@ export class UpdateManyTasksInteractor extends AuthenticatedInteractor<UpdateMan
           },
         }),
       ),
-      ...tasks.map((task) =>
-        this.eventService.publish(DomainEvent.TASK_UPDATED, {
+      ...tasks.map((task) => {
+        const currentTask = currentTasksMap.get(task.id);
+        if (!currentTask) throw new Error(`Updated task ${task.id} missing from company-wide snapshot`);
+
+        return this.eventService.publish(DomainEvent.TASK_UPDATED, {
           entityId: task.id,
           payload: {
             task,
-            changes: calculateChanges(previousTasksMap.get(task.id), task),
+            changes: calculateChanges(previousTasksMap.get(task.id), currentTask),
           },
-        }),
-      ),
+        });
+      }),
     ]);
 
     return { ok: true as const, data: tasks };

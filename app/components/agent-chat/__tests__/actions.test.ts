@@ -68,11 +68,11 @@ describe("agent server actions", () => {
     });
     const respondToApproval = useInteractor(di.getRespondToApprovalInteractor, {
       ok: true,
-      data: { resolved: true },
+      data: { resolved: true, resumed: true },
     });
     const respondToUiCommand = useInteractor(di.getRespondToUiCommandInteractor, {
       ok: true,
-      data: { resolved: true },
+      data: { resolved: true, resumed: true },
     });
 
     await expect(getAgentConversationAction(conversationId, "cursor-1")).resolves.toEqual({ messages: [] });
@@ -91,7 +91,7 @@ describe("agent server actions", () => {
     });
     await expect(
       respondToApprovalAction({ conversationId, requestId: "request-1", decision: "approve" }),
-    ).resolves.toEqual({ ok: true, data: { resolved: true } });
+    ).resolves.toEqual({ ok: true, data: { resolved: true, resumed: true } });
     await expect(
       respondToUiCommandAction({
         conversationId,
@@ -100,7 +100,7 @@ describe("agent server actions", () => {
         ok: true,
         result: "Navigated.",
       }),
-    ).resolves.toEqual({ ok: true, data: { resolved: true } });
+    ).resolves.toEqual({ ok: true, data: { resolved: true, resumed: true } });
 
     expect(getConversation).toHaveBeenCalledWith({ conversationId, before: "cursor-1" });
     expect(listConversations).toHaveBeenCalledWith({ kind: "both" });

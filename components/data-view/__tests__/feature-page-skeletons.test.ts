@@ -12,6 +12,7 @@ import { WebhooksPageSkeleton } from "@/app/[locale]/(protected)/company/compone
 import { ContactsPageSkeleton } from "@/app/[locale]/(protected)/contacts/components/contacts-page-skeleton";
 import { DealsPageSkeleton } from "@/app/[locale]/(protected)/deals/components/deals-page-skeleton";
 import { OrganizationsPageSkeleton } from "@/app/[locale]/(protected)/organizations/components/organizations-page-skeleton";
+import { RoutinesPageSkeleton } from "@/app/[locale]/(protected)/routines/components/routines-page-skeleton";
 import { ServicesPageSkeleton } from "@/app/[locale]/(protected)/services/components/services-page-skeleton";
 import { TasksPageSkeleton } from "@/app/[locale]/(protected)/tasks/components/tasks-page-skeleton";
 
@@ -30,6 +31,7 @@ const CASES: Array<[string, Skeleton, string, string]> = [
   ["audit-logs", AuditLogsPageSkeleton, "plain", "text"],
   ["webhooks", WebhooksPageSkeleton, "plain", "text"],
   ["webhook-deliveries", WebhookDeliveriesPageSkeleton, "plain", "text"],
+  ["routines", RoutinesPageSkeleton, "plain", "text"],
 ];
 
 describe("feature-owned collection skeletons", () => {

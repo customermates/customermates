@@ -26,6 +26,7 @@ export type ModelWhereInputMap = {
   deal: Prisma.DealWhereInput;
   service: Prisma.ServiceWhereInput;
   task: Prisma.TaskWhereInput;
+  routine: Prisma.RoutineWhereInput;
 };
 
 export type SummableModel = keyof ModelWhereInputMap;
@@ -68,6 +69,7 @@ export abstract class BaseRepository<
       deal: Resource.deals,
       service: Resource.services,
       task: Resource.tasks,
+      routine: Resource.routines,
     };
 
     const permissionResource = modelToResourceMap[resource];
@@ -126,6 +128,7 @@ export abstract class BaseRepository<
       users: { some: { userId } },
     }),
     task: (companyId, userId) => ({ companyId, users: { some: { userId } } }),
+    routine: (companyId, userId) => ({ companyId, ownerUserId: userId }),
   };
 
   collator(): Pick<Intl.Collator, "compare"> {

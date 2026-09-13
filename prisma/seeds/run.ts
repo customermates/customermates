@@ -21,6 +21,7 @@ import { seedSyntheticAuditLogs } from "./audit-logs";
 import { seedOrganizations } from "./organizations";
 import { seedPersonalization } from "./personalization";
 import { seedRelationships } from "./relationships";
+import { seedRoutines } from "./routines";
 import { seedServices } from "./services";
 import { seedTasks } from "./tasks";
 import { seedWebhooks } from "./webhooks";
@@ -64,6 +65,9 @@ export async function runSyntheticSeed(
   });
   await seedSyntheticAuditLogs(context, entities);
   await seedAgentConversations(context);
+  await seedRoutines(context);
+  await context.prisma
+    .$executeRaw`SELECT setval(pg_get_serial_sequence('"AgentMessage"', 'sequence'), (SELECT COALESCE(MAX(sequence), 1) FROM "AgentMessage"))`;
 
   return entities;
 }

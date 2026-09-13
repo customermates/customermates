@@ -1,7 +1,8 @@
 import { WorkflowAgent, type ModelCallStreamPart } from "@ai-sdk/workflow";
-import { jsonSchema, tool } from "ai";
+import { isStepCount, jsonSchema, tool } from "ai";
 import { convertArrayToReadableStream, MockLanguageModelV4 } from "ai/test";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { agentBatchContainsWebCall } from "@/ee/agent-chat/agent-web-policy";
 
 import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
 
@@ -34,13 +35,13 @@ async function runWebSearchResponse(streamParts: MockStreamPart[]) {
     tools: {
       web_search: tool({
         type: "provider",
-        id: "openai.web_search",
-        args: { externalWebAccess: true, searchContextSize: "low" },
+        id: "gateway.perplexity_search",
+        args: { maxResults: 3, maxTokens: 1024, maxTokensPerPage: 512 },
         isProviderExecuted: true,
         inputSchema: jsonSchema({ type: "object", properties: {}, additionalProperties: false }),
       }),
     },
-    providerOptions: getAgentProviderOptions("azure"),
+    providerOptions: getAgentProviderOptions("vertex", "eu"),
   });
 
   const result = await agent.stream({
@@ -109,18 +110,19 @@ describe("WorkflowAgent native web search contract", () => {
       tools: [
         {
           type: "provider",
-          id: "openai.web_search",
+          id: "gateway.perplexity_search",
           name: "web_search",
-          args: { externalWebAccess: true, searchContextSize: "low" },
+          args: { maxResults: 3, maxTokens: 1024, maxTokensPerPage: 512 },
         },
       ],
       providerOptions: {
         gateway: {
-          only: ["azure"],
+          only: ["vertex"],
+          inferenceRegion: { scope: "zone", geoRegion: "eu" },
           zeroDataRetention: true,
           disallowPromptTraining: true,
         },
-        openai: { parallelToolCalls: false, store: false, maxToolCalls: 1 },
+        openai: { parallelToolCalls: false, store: false },
       },
     });
     expect(result.steps).toHaveLength(1);
@@ -270,4 +272,65 @@ describe("WorkflowAgent native web search contract", () => {
       ]),
     );
   });
+});
+
+describe("WorkflowAgent complete native tool batch", () => {
+  it.each(["web-first", "write-first"])(
+    "blocks a local mutation in a %s provider-executed search response",
+    async (order) => {
+      const mutated = vi.fn();
+      const calls: MockStreamPart[] = [
+        { type: "tool-call", toolCallId: "web-1", toolName: "web_search", input: "{}", providerExecuted: true },
+        { type: "tool-call", toolCallId: "write-1", toolName: "manage_wiki_pages", input: "{}" },
+      ];
+      if (order === "write-first") calls.reverse();
+      const model = new MockLanguageModelV4({
+        doStream: () =>
+          Promise.resolve({
+            stream: convertArrayToReadableStream([
+              { type: "stream-start", warnings: [] },
+              ...calls,
+              {
+                type: "tool-result",
+                toolCallId: "web-1",
+                toolName: "web_search",
+                result: { results: [{ url: "https://example.com" }] },
+              },
+              { type: "finish", finishReason: { unified: "tool-calls", raw: "tool-calls" }, usage },
+            ] as MockStreamPart[]),
+          }),
+      });
+      const agent = new WorkflowAgent({
+        model,
+        stopWhen: isStepCount(1),
+        tools: {
+          web_search: tool({
+            type: "provider",
+            id: "gateway.perplexity_search",
+            args: {},
+            isProviderExecuted: true,
+            inputSchema: jsonSchema({ type: "object" }),
+          }),
+          manage_wiki_pages: tool({
+            inputSchema: jsonSchema({ type: "object" }),
+            execute: (_input, { messages, toolCallId }) => {
+              if (agentBatchContainsWebCall(messages, toolCallId)) return Promise.resolve({ ok: false });
+              mutated();
+              return Promise.resolve({ ok: true });
+            },
+          }),
+        },
+      });
+      const result = await agent.stream({
+        prompt: "Read and write",
+        writable: new WritableStream(),
+        preventClose: true,
+      });
+      expect(mutated).not.toHaveBeenCalled();
+      expect(result.steps.flatMap((step) => step.toolResults)).toContainEqual(
+        expect.objectContaining({ toolName: "manage_wiki_pages", output: { ok: false } }),
+      );
+      expect(model.doStreamCalls).toHaveLength(1);
+    },
+  );
 });

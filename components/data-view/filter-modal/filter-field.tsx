@@ -45,10 +45,23 @@ export const FilterField = observer(({ customColumns, filter, filterableFields, 
   const isValidFilter = hasValidFilterConfiguration(filter);
   const isStandalone = isStandaloneOperator(operator);
   const operatorIsEmpty = !operator;
+  const fieldAvailable = filterableFields.some((field) => field.field === filter.field);
 
   const operators = filterableFields?.find((f) => f.field === filter.field)?.operators.map((op) => ({ key: op })) ?? [];
 
   const renderFilterFieldBody = useCallback((): ReactElement => {
+    if (!fieldAvailable) {
+      return (
+        <div
+          data-filter-value-unavailable
+          aria-disabled="true"
+          className="flex h-8 items-center rounded-md border border-input px-3 text-sm text-muted-foreground"
+        >
+          {t("Common.filters.unavailableValue")}
+        </div>
+      );
+    }
+
     const id = `${baseId}.value`;
     const valueClass = resolveFilterValueClass(filter.field, operator, customColumns);
     const granularity = resolveFilterDateGranularity(filter.field, customColumns);
@@ -85,7 +98,7 @@ export const FilterField = observer(({ customColumns, filter, filterableFields, 
       default:
         return <FilterInputText id={id} isValidFilter={isValidFilter} />;
     }
-  }, [customColumns, filter, baseId, isValidFilter, onFilterChange, operator, t]);
+  }, [baseId, customColumns, fieldAvailable, filter, isValidFilter, onFilterChange, operator, t]);
 
   const operatorId = `${baseId}.operator`;
   const bodyShown = !isStandalone && !operatorIsEmpty;
@@ -131,7 +144,6 @@ export const FilterField = observer(({ customColumns, filter, filterableFields, 
             aria-label={t("Common.actions.clear")}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-[color,opacity,transform] hover:text-foreground opacity-50 hover:opacity-100 active:scale-[0.97] motion-reduce:transition-none"
             disabled={isDisabled}
-            tabIndex={-1}
             type="button"
             onClick={(e) => {
               e.stopPropagation();

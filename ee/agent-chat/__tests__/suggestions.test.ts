@@ -3,8 +3,8 @@ import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 
-import { SUGGESTION_PAGE_IDS, suggestionPageId, suggestionVariant, type AgentDataCounts } from "../agent-chat.schema";
-import { agentPageActions, agentPageState } from "../agent-page-actions";
+import { SUGGESTION_PAGE_IDS, suggestionPageId } from "../agent-chat.schema";
+import { agentPageActions } from "../agent-page-actions";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 import { createTranslator } from "next-intl";
 
@@ -21,22 +21,13 @@ const translatorFor = (locale: keyof typeof CATALOGS) => {
     (translate as unknown as (key: string, values?: Record<string, string | number>) => string)(key, values);
 };
 
-const NO_DATA: AgentDataCounts = {
-  contacts: false,
-  organizations: false,
-  deals: false,
-  services: false,
-  tasks: false,
-  widgets: false,
-  connectedAccounts: false,
-};
-
 describe("suggestionPageId", () => {
   it("maps entity list routes to their page id", () => {
     expect(suggestionPageId("/contacts")).toBe("contacts");
     expect(suggestionPageId("/deals")).toBe("deals");
     expect(suggestionPageId("/inbox")).toBe("inbox");
     expect(suggestionPageId("/dashboard")).toBe("dashboard");
+    expect(suggestionPageId("/routines")).toBe("routines");
   });
 
   it("maps the connected-accounts profile page despite the profile prefix", () => {
@@ -55,27 +46,6 @@ describe("suggestionPageId", () => {
   });
 });
 
-describe("suggestionVariant", () => {
-  it("uses the page's own entity signal", () => {
-    expect(suggestionVariant("contacts", { ...NO_DATA, contacts: true })).toBe("data");
-    expect(suggestionVariant("contacts", { ...NO_DATA, deals: true })).toBe("empty");
-    expect(suggestionVariant("tasks", { ...NO_DATA, tasks: true })).toBe("data");
-  });
-
-  it("uses the connected-accounts signal for inbox and connected-accounts", () => {
-    expect(suggestionVariant("inbox", { ...NO_DATA, connectedAccounts: true })).toBe("data");
-    expect(suggestionVariant("inbox", { ...NO_DATA, contacts: true })).toBe("empty");
-    expect(suggestionVariant("connected-accounts", { ...NO_DATA, connectedAccounts: true })).toBe("data");
-  });
-
-  it("uses widgets for dashboard and contacts or deals for default", () => {
-    expect(suggestionVariant("dashboard", { ...NO_DATA, widgets: true })).toBe("data");
-    expect(suggestionVariant("dashboard", { ...NO_DATA, contacts: true, deals: true })).toBe("empty");
-    expect(suggestionVariant("default", { ...NO_DATA, contacts: true })).toBe("data");
-    expect(suggestionVariant("default", NO_DATA)).toBe("empty");
-  });
-});
-
 describe("suggestion catalogs", () => {
   it.each(APP_LOCALES)("%s catalog returns exactly three usable actions for every page and state", (locale) => {
     for (const pageId of SUGGESTION_PAGE_IDS) {
@@ -88,15 +58,6 @@ describe("suggestion catalogs", () => {
           expect(action.prompt.length, `${pageId}.${state}.prompt`).toBeGreaterThan(0);
         }
       }
-    }
-  });
-
-  it("derives the same page state the legacy variant helper reported", () => {
-    const counts: AgentDataCounts = { ...NO_DATA, contacts: true, connectedAccounts: true };
-
-    for (const pageId of SUGGESTION_PAGE_IDS) {
-      expect(agentPageState(pageId, counts), pageId).toBe(suggestionVariant(pageId, counts));
-      expect(agentPageState(pageId, NO_DATA), pageId).toBe(suggestionVariant(pageId, NO_DATA));
     }
   });
 });

@@ -32,10 +32,12 @@ export const SendAgentMessageSchema = z.object({
   locale: AgentAppLocaleSchema.optional(),
   retry: z.boolean().default(false),
   wikiHomepageSetupDomain: WikiHomepageSetupDomainSchema.optional(),
+  wikiHomepageSetupUrl: z.url().max(2_000).optional(),
 });
 
 export const PublicSendAgentMessageSchema = SendAgentMessageSchema.omit({
   wikiHomepageSetupDomain: true,
+  wikiHomepageSetupUrl: true,
 });
 
 export type SendAgentMessageData = Data<typeof SendAgentMessageSchema>;
@@ -139,6 +141,7 @@ export const AgentDataCountsSchema = z.object({
   deals: z.boolean(),
   services: z.boolean(),
   tasks: z.boolean(),
+  routines: z.boolean(),
   widgets: z.boolean(),
   connectedAccounts: z.boolean(),
 });
@@ -162,6 +165,7 @@ export const SUGGESTION_PAGE_IDS = [
   "organizations",
   "deals",
   "services",
+  "routines",
   "connected-accounts",
   "default",
 ] as const;
@@ -174,28 +178,6 @@ export function suggestionPageId(pathname: string): SuggestionPageId {
   return SUGGESTION_PAGE_IDS.includes(first as SuggestionPageId) && first !== "default"
     ? (first as SuggestionPageId)
     : "default";
-}
-
-export function suggestionVariant(pageId: SuggestionPageId, counts: AgentDataCounts): "data" | "empty" {
-  switch (pageId) {
-    case "contacts":
-      return counts.contacts ? "data" : "empty";
-    case "organizations":
-      return counts.organizations ? "data" : "empty";
-    case "deals":
-      return counts.deals ? "data" : "empty";
-    case "services":
-      return counts.services ? "data" : "empty";
-    case "tasks":
-      return counts.tasks ? "data" : "empty";
-    case "dashboard":
-      return counts.widgets ? "data" : "empty";
-    case "inbox":
-    case "connected-accounts":
-      return counts.connectedAccounts ? "data" : "empty";
-    default:
-      return counts.contacts || counts.deals ? "data" : "empty";
-  }
 }
 
 export function partsToText(parts: unknown): string {

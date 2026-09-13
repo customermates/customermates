@@ -1,4 +1,4 @@
-import type { Prisma } from "@/generated/prisma";
+import { Prisma } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import type { RepoArgs } from "@/core/utils/types";
@@ -7,15 +7,19 @@ import type { CreateWikiPagesRepo } from "./create-wiki-pages.interactor";
 import type { DeleteWikiPageRepo } from "./delete-wiki-page.interactor";
 import type { GetWikiPageRepo } from "./get-wiki-page.interactor";
 import type { GetWikiPagesRepo } from "./get-wiki-pages.interactor";
+import type { GetWikiCatalogRepo } from "./get-wiki-catalog.interactor";
 import type { SearchWikiPagesRepo } from "./search-wiki-pages.interactor";
 import type { UpdateWikiPageRepo } from "./update-wiki-page.interactor";
 import type { StartWikiHomepageSetupRepo } from "./start-wiki-homepage-setup.interactor";
 import type { WikiPageDto, WikiPageSearchData } from "./wiki.schema";
+import { WIKI_CATALOG_PAGE_SIZE } from "./wiki.schema";
+import { wikiPlainText, wikiSearchTerms } from "./wiki-content";
 
 export class PrismaWikiPageRepo
   extends BaseRepository<Prisma.WikiPageWhereInput>
   implements
     GetWikiPagesRepo,
+    GetWikiCatalogRepo,
     SearchWikiPagesRepo,
     GetWikiPageRepo,
     CreateWikiPagesRepo,
@@ -59,29 +63,47 @@ export class PrismaWikiPageRepo
 
   async searchPages(data: RepoArgs<SearchWikiPagesRepo, "searchPages">) {
     const { page, pageSize, query } = data;
-    const where: Prisma.WikiPageWhereInput = {
-      companyId: this.companyId,
-      OR: [{ title: { contains: query, mode: "insensitive" } }, { markdown: { contains: query, mode: "insensitive" } }],
-    };
-    const [rows, total] = await Promise.all([
-      this.prisma.wikiPage.findMany({
-        where,
-        select: this.pageSelect,
-        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-      }),
-      this.prisma.wikiPage.count({ where }),
+    const terms = wikiSearchTerms(query);
+    if (terms.length === 0) return { items: [], total: 0, page, pageSize };
+    const searchQuery = terms.map((term) => `${term}:*`).join(" | ");
+    const document = Prisma.sql`setweight(to_tsvector('simple', "title"), 'A') || setweight(to_tsvector('simple', "markdown"), 'B')`;
+    const predicate = Prisma.sql`"companyId" = ${this.companyId} AND (${document}) @@ to_tsquery('simple', ${searchQuery})`;
+    const [rows, counts] = await Promise.all([
+      this.prisma.$queryRaw<WikiPageDto[]>(Prisma.sql`
+        SELECT "id", "title", "markdown", "createdAt", "updatedAt"
+        FROM "WikiPage"
+        WHERE ${predicate}
+        ORDER BY ts_rank_cd((${document}), to_tsquery('simple', ${searchQuery})) DESC, "createdAt" ASC, "id" ASC
+        LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
+      `),
+      this.prisma.$queryRaw<Array<{ total: number }>>(Prisma.sql`
+        SELECT COUNT(*)::int AS "total" FROM "WikiPage" WHERE ${predicate}
+      `),
     ]);
     return {
       items: rows.map(({ markdown, ...page }) => ({
         ...page,
         snippet: this.searchSnippet(markdown, data),
       })),
-      total,
+      total: counts[0]?.total ?? 0,
       page,
       pageSize,
     };
+  }
+
+  async listCatalogPages({ page }: RepoArgs<GetWikiCatalogRepo, "listCatalogPages">) {
+    const where = { companyId: this.companyId };
+    const [items, total] = await Promise.all([
+      this.prisma.wikiPage.findMany({
+        where,
+        select: this.pageSelect,
+        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+        skip: (page - 1) * WIKI_CATALOG_PAGE_SIZE,
+        take: WIKI_CATALOG_PAGE_SIZE,
+      }),
+      this.prisma.wikiPage.count({ where }),
+    ]);
+    return { items, total };
   }
 
   async getPage(id: string) {
@@ -174,7 +196,9 @@ export class PrismaWikiPageRepo
     });
     if (updated.count !== 1) {
       const current = await this.getPage(data.id);
-      return { status: current ? ("conflict" as const) : ("not-found" as const) };
+      return {
+        status: current ? ("conflict" as const) : ("not-found" as const),
+      };
     }
 
     const page = await this.getPage(data.id);
@@ -196,14 +220,19 @@ export class PrismaWikiPageRepo
     });
     if (deleted.count !== 1) {
       const current = await this.getPage(data.id);
-      return { status: current ? ("conflict" as const) : ("not-found" as const) };
+      return {
+        status: current ? ("conflict" as const) : ("not-found" as const),
+      };
     }
     return { status: "deleted" as const, page };
   }
 
   private searchSnippet(markdown: string, data: WikiPageSearchData): string {
-    const compact = markdown.replaceAll(/\s+/g, " ").trim();
-    const match = compact.toLocaleLowerCase().indexOf(data.query.toLocaleLowerCase());
+    const compact = wikiPlainText(markdown);
+    const matches = wikiSearchTerms(data.query)
+      .map((term) => compact.toLocaleLowerCase().indexOf(term))
+      .filter((index) => index >= 0);
+    const match = matches.length > 0 ? Math.min(...matches) : -1;
     const start = match < 0 ? 0 : Math.max(0, match - 80);
     const prefix = start > 0 ? "…" : "";
     const suffix = start + 240 < compact.length ? "…" : "";

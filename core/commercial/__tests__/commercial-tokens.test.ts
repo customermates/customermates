@@ -9,6 +9,11 @@ describe("commercial content tokens", () => {
     expect(resolveCommercialTokens("[[commercial.price.starter.monthly.seats.15.months.12]]", "en")).toBe("€2,160");
     expect(resolveCommercialTokens("[[commercial.trial.days]]", "en")).toBe("7");
     expect(resolveCommercialTokens("[[commercial.entitlement.business.includedAccountsPerUser]]", "en")).toBe("3");
+    expect(resolveCommercialTokens("[[commercial.entitlement.starter.includedRoutinesPerUser]]", "en")).toBe("1");
+    expect(resolveCommercialTokens("[[commercial.entitlement.pro.includedRoutinesPerUser]]", "en")).toBe("5");
+    expect(resolveCommercialTokens("[[commercial.entitlement.business.includedRoutinesPerUser]]", "en")).toBe(
+      "unlimited",
+    );
     expect(resolveCommercialTokens("[[commercial.entitlement.enterprise.includedAccountsPerUser]]", "en")).toBe(
       "unlimited",
     );

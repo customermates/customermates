@@ -8,6 +8,7 @@ export const TOOLBAR_PAGES_WITH_ADD: AnchorPage[] = [
   { scope: "deals", route: "/deals", label: "deals" },
   { scope: "services", route: "/services", label: "services" },
   { scope: "tasks", route: "/tasks", label: "tasks" },
+  { scope: "routines", route: "/routines", label: "routines" },
   { scope: "company-members", route: "/company/members", label: "team members" },
   { scope: "company-webhooks", route: "/company/webhooks", label: "webhooks" },
   { scope: "company-roles", route: "/company/roles", label: "roles" },
@@ -24,6 +25,7 @@ export const FORM_PAGES: AnchorPage[] = [
   { scope: "member-modal", route: "/company/members", label: "member dialog (open it first)" },
   { scope: "webhook-modal", route: "/company/webhooks", label: "webhook dialog (open it first)" },
   { scope: "widget-modal", route: "/dashboard", label: "dashboard widget dialog (open it first)" },
+  { scope: "routine-modal", route: "/routines", label: "routine dialog (open it first)" },
 ];
 
 export const PRIMARY_NAV_PAGES: { key: string; route: string; description: string }[] = [
@@ -34,6 +36,7 @@ export const PRIMARY_NAV_PAGES: { key: string; route: string; description: strin
   { key: "organizations", route: "/organizations", description: "Sidebar link to the organizations list" },
   { key: "deals", route: "/deals", description: "Sidebar link to the deals pipeline" },
   { key: "services", route: "/services", description: "Sidebar link to the services list" },
+  { key: "routines", route: "/routines", description: "Sidebar link to the scheduled assistant routines" },
 ];
 
 export const WORKSPACE_NAV_GROUPS: { section: WorkspaceSection; route: string; description: string }[] = [

@@ -54,6 +54,7 @@ const CONFIG = {
     deals: false,
     services: false,
     tasks: false,
+    routines: false,
     widgets: false,
     connectedAccounts: false,
   },
@@ -116,6 +117,39 @@ function stubBrowser(
   return values;
 }
 
+function rejectFetchWhenAborted(init?: RequestInit): Promise<Response> {
+  return new Promise((_resolve, reject) => {
+    const signal = init?.signal;
+    if (!signal) {
+      reject(new Error("Expected the request to carry an abort signal."));
+      return;
+    }
+    const rejectAbort = () =>
+      reject(signal.reason instanceof Error ? signal.reason : new DOMException("Aborted", "AbortError"));
+    if (signal.aborted) rejectAbort();
+    else signal.addEventListener("abort", rejectAbort, { once: true });
+  });
+}
+
+function streamEventsUntilAborted(events: readonly Record<string, unknown>[], init?: RequestInit): Promise<Response> {
+  const encoder = new TextEncoder();
+  return Promise.resolve(
+    new Response(
+      new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(
+            encoder.encode([...events.map((event) => `data: ${JSON.stringify(event)}`), ""].join("\n\n")),
+          );
+          init?.signal?.addEventListener("abort", () => controller.error(new DOMException("Aborted", "AbortError")), {
+            once: true,
+          });
+        },
+      }),
+      { headers: { "content-type": "text/event-stream" } },
+    ),
+  );
+}
+
 describe("AgentChatStore", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -138,7 +172,7 @@ describe("AgentChatStore", () => {
     });
     actionsMock.respondToUiCommandAction.mockResolvedValue({
       ok: true,
-      data: { resolved: true },
+      data: { resolved: true, resumed: true },
     });
     actionsMock.listAgentConversationsAction.mockResolvedValue({
       active: { conversations: [], nextCursor: null },
@@ -150,6 +184,7 @@ describe("AgentChatStore", () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.unstubAllGlobals();
   });
 
@@ -470,6 +505,211 @@ describe("AgentChatStore", () => {
     expect(store.isAwaitingAssistantResponse).toBe(false);
   });
 
+  it("keeps lifecycle progress transient and resets it for a new turn", () => {
+    const store = new AgentChatStore(root() as never);
+    const internal = store as unknown as {
+      beginActiveTurnMutationTracking: () => number;
+      handleEvent: (event: Record<string, unknown>) => void;
+      resetConversation: (id: string | null) => void;
+    };
+    store.items = [{ kind: "user", id: "u1", messageId: "u1", text: "Long request" }];
+    store.isWorking = true;
+    internal.beginActiveTurnMutationTracking();
+    expect(store.progressPhase).toBe("starting");
+    expect(store.progressStartedAt).toEqual(expect.any(Number));
+    internal.handleEvent({ seq: 0, type: "progress", phase: "working", secret: "not copied" });
+    expect(store.progressPhase).toBe("working");
+    internal.handleEvent({ seq: 1, type: "progress", phase: "preparing_action" });
+    expect(store.progressPhase).toBe("preparing_action");
+    internal.handleEvent({ seq: 2, type: "progress", phase: "untrusted" });
+    expect(store.progressPhase).toBe("preparing_action");
+    expect(store.items).toEqual([{ kind: "user", id: "u1", messageId: "u1", text: "Long request" }]);
+    internal.handleEvent({ seq: 3, type: "delta", text: "Answer" });
+    expect(store.progressPhase).toBeNull();
+    internal.handleEvent({ seq: 4, type: "progress", phase: "working" });
+    expect(store.progressPhase).toBeNull();
+    internal.resetConversation(null);
+    expect(store.progressStartedAt).toBeNull();
+    internal.beginActiveTurnMutationTracking();
+    expect(store.progressPhase).toBe("starting");
+  });
+
+  it.each(["turn_done", "error", "stop"])("does not resurrect progress after %s", (terminal) => {
+    const store = new AgentChatStore(root() as never);
+    const internal = store as unknown as {
+      handleEvent: (event: Record<string, unknown>) => void;
+      activeTurnStopRequested: boolean;
+    };
+    store.items = [{ kind: "user", id: "u1", messageId: "u1", text: "Long request" }];
+    store.isWorking = true;
+    store.progressPhase = "working";
+    if (terminal === "stop") {
+      internal.activeTurnStopRequested = true;
+      store.progressPhase = null;
+      store.streamStatus = "stopping";
+    } else internal.handleEvent({ seq: 0, type: terminal });
+    internal.handleEvent({ seq: 1, type: "progress", phase: "working" });
+    expect(store.progressPhase).toBeNull();
+    if (terminal === "stop") expect(store.streamStatus).toBe("stopping");
+  });
+
+  it("clears stale Stop ownership when the durable turn completes", () => {
+    const store = new AgentChatStore(root() as never);
+    const internal = store as unknown as {
+      handleEvent: (event: Record<string, unknown>) => void;
+      activeTurnStopRequested: boolean;
+    };
+    store.items = [{ kind: "user", id: "u1", messageId: "u1", text: "Long request" }];
+    store.isWorking = true;
+    internal.activeTurnStopRequested = true;
+
+    internal.handleEvent({
+      seq: 0,
+      type: "turn_done",
+      isError: false,
+      terminalCode: "completed",
+      stopReason: null,
+      affectedResources: [],
+    });
+
+    expect(internal.activeTurnStopRequested).toBe(false);
+  });
+
+  it("accepts progress when reattaching after a failed turn", () => {
+    const store = new AgentChatStore(root() as never);
+    const internal = store as unknown as {
+      beginActiveTurnMutationTracking: () => number;
+      handleEvent: (event: Record<string, unknown>) => void;
+    };
+    store.items = [{ kind: "user", id: "failed-user", messageId: "failed-user", text: "Previous request" }];
+    store.isWorking = true;
+    internal.beginActiveTurnMutationTracking();
+    internal.handleEvent({ seq: 0, type: "error" });
+    expect(store.progressPhase).toBeNull();
+
+    store.items = [{ kind: "user", id: "running-user", messageId: "running-user", text: "Another running request" }];
+    internal.beginActiveTurnMutationTracking();
+    store.streamStatus = "reconnecting";
+    internal.handleEvent({ seq: 0, type: "progress", phase: "working" });
+    expect(store.progressPhase).toBe("working");
+    expect(store.streamStatus).toBe("working");
+  });
+
+  it("deduplicates replayed progress and ignores a previous turn's stream", async () => {
+    const store = new AgentChatStore(root() as never);
+    const internal = store as unknown as {
+      beginActiveTurnMutationTracking: () => number;
+      readStream: (stream: ReadableStream<Uint8Array>, generation: number) => Promise<void>;
+    };
+    store.items = [{ kind: "user", id: "u1", messageId: "u1", text: "Long request" }];
+    store.isWorking = true;
+    const generation = internal.beginActiveTurnMutationTracking();
+    const stream = new Response(
+      'data: {"seq":0,"type":"progress","phase":"working"}\n\ndata: {"seq":0,"type":"progress","phase":"preparing_action"}\n\n',
+    ).body;
+    if (!stream) throw new Error("Missing synthetic stream");
+    await internal.readStream(stream, generation);
+    expect(store.progressPhase).toBe("working");
+    internal.beginActiveTurnMutationTracking();
+    const oldStream = new Response('data: {"seq":1,"type":"progress","phase":"preparing_action"}\n\n').body;
+    if (!oldStream) throw new Error("Missing synthetic stream");
+    await internal.readStream(oldStream, generation);
+    expect(store.progressPhase).toBe("starting");
+  });
+
+  it("coalesces adjacent text frames from one network chunk without delaying ordered events", async () => {
+    const store = new AgentChatStore(root() as never);
+    const internal = store as unknown as {
+      activeTurnNextStreamIndex: number;
+      beginActiveTurnMutationTracking: () => number;
+      handleEvent: (event: { seq: number; type: string } & Record<string, unknown>) => void;
+      readStream: (stream: ReadableStream<Uint8Array>, generation: number) => Promise<void>;
+    };
+    store.items = [{ kind: "user", id: "u1", messageId: "u1", text: "Stream quickly" }];
+    store.isWorking = true;
+    const generation = internal.beginActiveTurnMutationTracking();
+    const handled = vi.spyOn(internal, "handleEvent");
+    const stream = new Response(
+      [
+        'data: {"seq":0,"type":"delta","text":"Hel"}',
+        'data: {"seq":0,"type":"delta","text":"duplicate"}',
+        'data: {"seq":2,"type":"delta","text":"lo"}',
+        'data: {"seq":3,"type":"progress","phase":"working"}',
+        'data: {"seq":5,"type":"delta","text":"!"}',
+        "",
+      ].join("\n\n"),
+    ).body;
+    if (!stream) throw new Error("Missing synthetic stream");
+
+    await internal.readStream(stream, generation);
+
+    expect(handled.mock.calls.map(([event]) => event)).toEqual([
+      { seq: 2, type: "delta", text: "Hello" },
+      { seq: 3, type: "progress", phase: "working" },
+      { seq: 5, type: "delta", text: "!" },
+    ]);
+    expect(store.items).toContainEqual(expect.objectContaining({ kind: "assistant", text: "Hello!" }));
+    expect(internal.activeTurnNextStreamIndex).toBe(6);
+  });
+
+  it("rolls a retried model step back to its latest durable stream checkpoint", () => {
+    const store = new AgentChatStore(root() as never);
+    const internal = store as unknown as {
+      beginActiveTurnMutationTracking: () => number;
+      handleEvent: (event: Record<string, unknown>) => void;
+    };
+    store.items = [{ kind: "user", id: "u1", messageId: "u1", text: "Survive a retry" }];
+    store.isWorking = true;
+    internal.beginActiveTurnMutationTracking();
+    internal.handleEvent({ seq: 0, type: "stream_step_reset" });
+    internal.handleEvent({
+      seq: 1,
+      type: "activity",
+      id: "stable-read",
+      activity: {
+        kind: "records.read",
+        resource: "contacts",
+        affectedResources: ["contacts"],
+        risk: "read",
+      },
+    });
+    internal.handleEvent({ seq: 2, type: "activity_result", id: "stable-read", isError: false, status: "done" });
+    internal.handleEvent({ seq: 3, type: "stream_step_start" });
+    internal.handleEvent({ seq: 4, type: "delta", text: "Stable answer." });
+    internal.handleEvent({ seq: 5, type: "stream_checkpoint" });
+    internal.handleEvent({ seq: 6, type: "delta", text: " Duplicated attempt." });
+    internal.handleEvent({
+      seq: 7,
+      type: "activity",
+      id: "discarded-read",
+      activity: {
+        kind: "records.read",
+        resource: "deals",
+        affectedResources: ["deals"],
+        risk: "read",
+      },
+    });
+    const stableActivity = store.items.find(
+      (item): item is Extract<(typeof store.items)[number], { kind: "activity" }> =>
+        item.kind === "activity" && item.providerCallId === "stable-read",
+    );
+    if (!stableActivity) throw new Error("Expected stable activity");
+    stableActivity.status = "error";
+
+    internal.handleEvent({ seq: 8, type: "stream_step_reset" });
+    internal.handleEvent({ seq: 9, type: "delta", text: " Continued once." });
+
+    expect(store.items).toContainEqual(
+      expect.objectContaining({ kind: "assistant", text: "Stable answer. Continued once." }),
+    );
+    expect(store.items).toContainEqual(
+      expect.objectContaining({ kind: "activity", providerCallId: "stable-read", status: "done" }),
+    );
+    expect(store.items).not.toContainEqual(
+      expect.objectContaining({ kind: "activity", providerCallId: "discarded-read" }),
+    );
+  });
+
   it("shows explicit continuation progress after an approval is acknowledged", () => {
     const store = new AgentChatStore(root() as never);
     store.isWorking = true;
@@ -548,6 +788,32 @@ describe("AgentChatStore", () => {
     expect(store.items).toMatchObject([{ kind: "assistant", text: "Second chat" }]);
   });
 
+  it("hides the routine trigger envelope when replaying a routine run", async () => {
+    const conversationId = "00000000-0000-4000-8000-0000000000a1";
+    const prompt = "Read the deal that changed and reply with a one sentence summary.";
+    actionsMock.getAgentConversationAction.mockResolvedValue({
+      id: conversationId,
+      title: "Routine run",
+      messages: [
+        {
+          id: "m1",
+          role: "user",
+          parts: [
+            {
+              type: "text",
+              text: `<routine_trigger event="deal.updated" entityId="abc" />\n${prompt}`,
+            },
+          ],
+        },
+      ],
+    });
+    const store = new AgentChatStore(root() as never);
+
+    await store.selectConversation(conversationId);
+
+    expect(store.items).toMatchObject([{ kind: "user", text: prompt }]);
+  });
+
   it("keeps the current transcript and exposes a retry state when history loading fails", async () => {
     const currentId = "00000000-0000-4000-8000-000000000001";
     const failedId = "00000000-0000-4000-8000-000000000002";
@@ -569,6 +835,880 @@ describe("AgentChatStore", () => {
     expect(store.items).toMatchObject([{ kind: "assistant", text: "Keep this transcript" }]);
     expect(store.conversationLoadError).toBe(true);
     expect(store.conversationLoadPendingId).toBeNull();
+  });
+
+  it("leaves the pending state and exposes a retry when conversation loading stops responding", async () => {
+    vi.useFakeTimers();
+    const conversationId = "00000000-0000-4000-8000-0000000000b1";
+    let resolveLoad!: (value: unknown) => void;
+    actionsMock.getAgentConversationAction.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveLoad = resolve;
+        }),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    const loading = store.selectConversation(conversationId);
+    expect(store.conversationLoadPendingId).toBe(conversationId);
+    await vi.advanceTimersByTimeAsync(15000);
+    await loading;
+
+    expect(store.conversationLoadPendingId).toBeNull();
+    expect(store.conversationLoadError).toBe(true);
+    expect(store.conversationId).toBeNull();
+
+    resolveLoad({ activeTurn: false, messages: [], nextCursor: null });
+    await Promise.resolve();
+    expect(store.conversationId).toBeNull();
+    vi.useRealTimers();
+  });
+
+  it("refreshes a previously selected embedded transcript when it is opened again", async () => {
+    const conversationId = "00000000-0000-4000-8000-0000000000b2";
+    actionsMock.getAgentConversationAction
+      .mockResolvedValueOnce({
+        id: conversationId,
+        activeTurn: false,
+        messages: [
+          {
+            id: "old-answer",
+            role: "assistant",
+            parts: [{ type: "text", text: "Old answer" }],
+          },
+        ],
+        nextCursor: null,
+      })
+      .mockResolvedValueOnce({
+        id: conversationId,
+        activeTurn: false,
+        messages: [
+          {
+            id: "new-answer",
+            role: "assistant",
+            parts: [{ type: "text", text: "New answer" }],
+          },
+        ],
+        nextCursor: null,
+      });
+    const store = new AgentChatStore(root() as never);
+
+    await store.selectConversationForEmbeddedViewer(conversationId);
+    await store.selectConversationForEmbeddedViewer(conversationId);
+
+    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledTimes(2);
+    expect(store.items).toEqual([expect.objectContaining({ kind: "assistant", text: "New answer" })]);
+  });
+
+  it("does not abandon an unconfirmed admission when the same embedded transcript is reopened", async () => {
+    const conversationId = "00000000-0000-4000-8000-0000000000b8";
+    let resolveAdmission!: (response: Response) => void;
+    const admission = { signal: null as AbortSignal | null };
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementationOnce(
+      (_input, init) =>
+        new Promise((resolve) => {
+          admission.signal = init?.signal ?? null;
+          resolveAdmission = resolve;
+        }),
+    );
+    const store = new AgentChatStore(root() as never);
+    store.conversationId = conversationId;
+
+    const sending = store.sendMessage("Wait for durable admission");
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+    await store.selectConversationForEmbeddedViewer(conversationId);
+
+    expect(actionsMock.getAgentConversationAction).not.toHaveBeenCalled();
+    expect(admission.signal?.aborted).toBe(false);
+    expect(store.isWorking).toBe(true);
+
+    resolveAdmission(
+      new Response(
+        [
+          `data: ${JSON.stringify({
+            seq: 0,
+            type: "message_replay",
+            messageId: "assistant-after-slow-admission",
+            parts: [{ type: "text", text: "Admission completed safely." }],
+          })}`,
+          `data: ${JSON.stringify({
+            seq: 1,
+            type: "turn_done",
+            isError: false,
+            terminalCode: "completed",
+            stopReason: null,
+            assistantMessageId: "assistant-after-slow-admission",
+            affectedResources: [],
+          })}`,
+          "",
+        ].join("\n\n"),
+        {
+          headers: {
+            "content-type": "text/event-stream",
+            "x-conversation-id": conversationId,
+          },
+        },
+      ),
+    );
+    await sending;
+
+    expect(store.items).toContainEqual(
+      expect.objectContaining({ kind: "assistant", text: "Admission completed safely." }),
+    );
+    expect(store.isWorking).toBe(false);
+    fetchMock.mockRestore();
+  });
+
+  it("settles an active reattach when refreshing the same embedded transcript times out", async () => {
+    vi.useFakeTimers();
+    const conversationId = "00000000-0000-4000-8000-0000000000b3";
+    let resolveReattach!: (response: Response) => void;
+    actionsMock.getAgentConversationAction
+      .mockResolvedValueOnce({
+        id: conversationId,
+        activeTurn: true,
+        messages: [
+          {
+            id: "running-user",
+            role: "user",
+            parts: [{ type: "text", text: "Still running" }],
+            turn: {
+              clientRequestId: "running-request",
+              status: "running",
+              assistantMessageId: null,
+              terminalCode: null,
+            },
+          },
+        ],
+        nextCursor: null,
+      })
+      .mockImplementationOnce(() => new Promise(() => undefined));
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockImplementationOnce((_input, init) => rejectFetchWhenAborted(init))
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveReattach = resolve;
+          }),
+      );
+    const store = new AgentChatStore(root() as never);
+
+    await store.selectConversationForEmbeddedViewer(conversationId);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(store.isWorking).toBe(true);
+    expect(fetchMock).toHaveBeenCalledOnce();
+
+    const refreshing = store.selectConversationForEmbeddedViewer(conversationId);
+    expect(store.isWorking).toBe(true);
+    expect(store.streamStatus).toBe("reconnecting");
+    await vi.advanceTimersByTimeAsync(15000);
+    await refreshing;
+    await vi.advanceTimersByTimeAsync(1);
+
+    expect(store.conversationLoadPendingId).toBeNull();
+    expect(store.conversationLoadError).toBe(true);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(store.isWorking).toBe(true);
+    expect(store.streamStatus).toBe("reconnecting");
+    expect(store.canInterrupt).toBe(true);
+    expect(store.items).toEqual([expect.objectContaining({ kind: "user", text: "Still running" })]);
+
+    resolveReattach(
+      new Response(
+        [
+          `data: ${JSON.stringify({
+            seq: 0,
+            type: "message_replay",
+            messageId: "reattached-after-load-timeout",
+            parts: [{ type: "text", text: "The durable run completed." }],
+          })}`,
+          `data: ${JSON.stringify({
+            seq: 1,
+            type: "turn_done",
+            isError: false,
+            terminalCode: "completed",
+            stopReason: null,
+            assistantMessageId: "reattached-after-load-timeout",
+            affectedResources: [],
+          })}`,
+          "",
+        ].join("\n\n"),
+        { headers: { "content-type": "text/event-stream" } },
+      ),
+    );
+    await vi.advanceTimersByTimeAsync(0);
+    await vi.waitFor(() => expect(store.isWorking).toBe(false));
+    expect(store.progressPhase).toBeNull();
+    expect(store.items).toContainEqual(
+      expect.objectContaining({ kind: "assistant", text: "The durable run completed." }),
+    );
+    expect(store.conversationLoadError).toBe(false);
+    fetchMock.mockRestore();
+  });
+
+  it("preserves the durable stream cursor when an active same-conversation reload times out", async () => {
+    vi.useFakeTimers();
+    const conversationId = "00000000-0000-4000-8000-0000000000b9";
+    const navigate = vi.fn().mockResolvedValue({ ok: true, result: "Navigated once." });
+    const uiCommand = {
+      seq: 0,
+      type: "ui_command",
+      commandId: "cursor-command",
+      name: "navigate",
+      input: { targetId: "nav-contacts" },
+    };
+    actionsMock.getAgentConversationAction
+      .mockResolvedValueOnce({
+        activeTurn: true,
+        messages: [
+          {
+            id: "cursor-user-db-id",
+            role: "user",
+            parts: [{ type: "text", text: "Run one UI command" }],
+            turn: {
+              clientRequestId: "cursor-client-request-id",
+              status: "running",
+              assistantMessageId: null,
+              terminalCode: null,
+            },
+          },
+        ],
+        nextCursor: null,
+      })
+      .mockImplementationOnce(() => new Promise(() => undefined));
+    const encoder = new TextEncoder();
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockImplementationOnce((_input, init) =>
+        Promise.resolve(
+          new Response(
+            new ReadableStream<Uint8Array>({
+              start(controller) {
+                controller.enqueue(
+                  encoder.encode(
+                    [
+                      `data: ${JSON.stringify(uiCommand)}`,
+                      `data: ${JSON.stringify({ seq: 1, type: "delta", text: "Partial once" })}`,
+                      "",
+                    ].join("\n\n"),
+                  ),
+                );
+                init?.signal?.addEventListener(
+                  "abort",
+                  () => controller.error(new DOMException("Aborted", "AbortError")),
+                  { once: true },
+                );
+              },
+            }),
+            { headers: { "content-type": "text/event-stream" } },
+          ),
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          [
+            `data: ${JSON.stringify(uiCommand)}`,
+            `data: ${JSON.stringify({ seq: 1, type: "delta", text: "Partial once" })}`,
+            `data: ${JSON.stringify({
+              seq: 2,
+              type: "message_replay",
+              messageId: "cursor-canonical-answer",
+              parts: [{ type: "text", text: "Complete after reload." }],
+            })}`,
+            `data: ${JSON.stringify({
+              seq: 3,
+              type: "turn_done",
+              isError: false,
+              terminalCode: "completed",
+              stopReason: null,
+              assistantMessageId: "cursor-canonical-answer",
+              affectedResources: [],
+            })}`,
+            "",
+          ].join("\n\n"),
+          { headers: { "content-type": "text/event-stream" } },
+        ),
+      );
+    const store = new AgentChatStore(root({ navigate }) as never);
+
+    await store.selectConversationForEmbeddedViewer(conversationId);
+    for (let attempt = 0; attempt < 10 && navigate.mock.calls.length === 0; attempt += 1)
+      await vi.advanceTimersByTimeAsync(1);
+    expect(navigate).toHaveBeenCalledOnce();
+    expect(store.items).toContainEqual(expect.objectContaining({ kind: "assistant", text: "Partial once" }));
+
+    const refreshing = store.selectConversationForEmbeddedViewer(conversationId);
+    await vi.advanceTimersByTimeAsync(15000);
+    await refreshing;
+    for (let attempt = 0; attempt < 10 && store.isWorking; attempt += 1) await vi.advanceTimersByTimeAsync(1);
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(String(fetchMock.mock.calls[1]?.[0])).toContain("startIndex=2");
+    expect(navigate).toHaveBeenCalledOnce();
+    expect(actionsMock.respondToUiCommandAction).toHaveBeenCalledOnce();
+    expect(store.items.filter((item) => item.kind === "assistant" && item.text === "Partial once")).toHaveLength(1);
+    expect(store.items).toContainEqual(expect.objectContaining({ kind: "assistant", text: "Complete after reload." }));
+    expect(store.isWorking).toBe(false);
+    fetchMock.mockRestore();
+  });
+
+  it("preserves partial assistant text when the same active transcript reload succeeds", async () => {
+    const conversationId = "00000000-0000-4000-8000-0000000000bb";
+    const clientRequestId = "partial-reload-client-request";
+    const assistantMessageId = "partial-reload-assistant";
+    let resolveReattach!: (response: Response) => void;
+    const activeConversation = {
+      activeTurn: true,
+      messages: [
+        {
+          id: "partial-reload-user-db-id",
+          role: "user",
+          parts: [{ type: "text", text: "Keep my partial answer" }],
+          turn: {
+            clientRequestId,
+            status: "running",
+            assistantMessageId: null,
+            terminalCode: null,
+          },
+        },
+      ],
+      nextCursor: null,
+    };
+    actionsMock.getAgentConversationAction
+      .mockResolvedValueOnce(activeConversation)
+      .mockResolvedValueOnce(activeConversation)
+      .mockResolvedValueOnce({
+        activeTurn: false,
+        messages: [
+          ...activeConversation.messages,
+          {
+            id: assistantMessageId,
+            role: "assistant",
+            parts: [{ type: "text", text: "Partial before reload, complete after reload." }],
+          },
+        ],
+        nextCursor: null,
+      });
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockImplementationOnce((_input, init) =>
+        streamEventsUntilAborted([{ seq: 0, type: "delta", text: "Partial before reload" }], init),
+      )
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveReattach = resolve;
+          }),
+      );
+    const store = new AgentChatStore(root() as never);
+
+    await store.selectConversationForEmbeddedViewer(conversationId);
+    await vi.waitFor(() =>
+      expect(store.items).toContainEqual(
+        expect.objectContaining({ kind: "assistant", text: "Partial before reload", streaming: true }),
+      ),
+    );
+
+    await store.selectConversationForEmbeddedViewer(conversationId);
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+
+    expect(String(fetchMock.mock.calls[1]?.[0])).toContain("startIndex=1");
+    expect(store.items.filter((item) => item.kind === "user")).toHaveLength(1);
+    expect(store.items).toContainEqual(
+      expect.objectContaining({ kind: "assistant", text: "Partial before reload", streaming: true }),
+    );
+
+    resolveReattach(
+      new Response(
+        [
+          `data: ${JSON.stringify({ seq: 1, type: "delta", text: ", complete after reload." })}`,
+          `data: ${JSON.stringify({ seq: 2, type: "message_committed", messageId: assistantMessageId })}`,
+          `data: ${JSON.stringify({
+            seq: 3,
+            type: "turn_done",
+            isError: false,
+            terminalCode: "completed",
+            stopReason: null,
+            assistantMessageId,
+            affectedResources: [],
+          })}`,
+          "",
+        ].join("\n\n"),
+        { headers: { "content-type": "text/event-stream" } },
+      ),
+    );
+    await vi.waitFor(() => expect(store.isWorking).toBe(false));
+
+    expect(store.items.filter((item) => item.kind === "assistant")).toEqual([
+      expect.objectContaining({
+        messageId: assistantMessageId,
+        text: "Partial before reload, complete after reload.",
+        streaming: false,
+      }),
+    ]);
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    fetchMock.mockRestore();
+  });
+
+  it("keeps an unresolved approval actionable when the same active transcript reload succeeds", async () => {
+    const conversationId = "00000000-0000-4000-8000-0000000000bc";
+    const clientRequestId = "approval-reload-client-request";
+    const requestId = "approval-reload-request";
+    let resolveReattach!: (response: Response) => void;
+    const activeConversation = {
+      activeTurn: true,
+      messages: [
+        {
+          id: "approval-reload-user-db-id",
+          role: "user",
+          parts: [{ type: "text", text: "Ask before updating" }],
+          turn: {
+            clientRequestId,
+            status: "running",
+            assistantMessageId: null,
+            terminalCode: null,
+          },
+        },
+      ],
+      nextCursor: null,
+    };
+    const approvalActivity = {
+      kind: "records.update",
+      resource: "contacts",
+      affectedResources: ["contacts"],
+      risk: "write",
+    };
+    actionsMock.getAgentConversationAction
+      .mockResolvedValueOnce(activeConversation)
+      .mockResolvedValueOnce(activeConversation);
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockImplementationOnce((_input, init) =>
+        streamEventsUntilAborted([{ seq: 0, type: "approval_request", requestId, activity: approvalActivity }], init),
+      )
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveReattach = resolve;
+          }),
+      );
+    const store = new AgentChatStore(root() as never);
+
+    await store.selectConversationForEmbeddedViewer(conversationId);
+    await vi.waitFor(() =>
+      expect(store.items).toContainEqual(expect.objectContaining({ kind: "approval", requestId })),
+    );
+
+    await store.selectConversationForEmbeddedViewer(conversationId);
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+
+    const approval = store.items.find(
+      (item): item is Extract<(typeof store.items)[number], { kind: "approval" }> =>
+        item.kind === "approval" && item.requestId === requestId,
+    );
+    expect(approval).toMatchObject({ resolution: null, pendingDecision: null, submittedDecision: null });
+    expect(String(fetchMock.mock.calls[1]?.[0])).toContain("startIndex=1");
+    if (!approval) throw new Error("Expected the unresolved approval to survive the reload.");
+
+    await store.respondToApproval(approval, "approve");
+    expect(actionsMock.respondToApprovalAction).toHaveBeenCalledWith({
+      conversationId,
+      requestId,
+      decision: "approve",
+    });
+    expect(approval.submittedDecision).toBe("approve");
+
+    resolveReattach(
+      new Response(
+        [
+          `data: ${JSON.stringify({ seq: 1, type: "approval_resolved", requestId, decision: "approve" })}`,
+          `data: ${JSON.stringify({
+            seq: 2,
+            type: "message_replay",
+            messageId: "approval-reload-assistant",
+            parts: [{ type: "text", text: "The approved update completed." }],
+          })}`,
+          `data: ${JSON.stringify({
+            seq: 3,
+            type: "turn_done",
+            isError: false,
+            terminalCode: "completed",
+            stopReason: null,
+            assistantMessageId: "approval-reload-assistant",
+            affectedResources: ["contacts"],
+          })}`,
+          "",
+        ].join("\n\n"),
+        { headers: { "content-type": "text/event-stream" } },
+      ),
+    );
+    await vi.waitFor(() => expect(store.isWorking).toBe(false));
+
+    expect(approval.resolution).toBe("approve");
+    expect(store.items.filter((item) => item.kind === "approval" && item.requestId === requestId)).toHaveLength(1);
+    expect(store.items).toContainEqual(
+      expect.objectContaining({ kind: "assistant", text: "The approved update completed." }),
+    );
+    fetchMock.mockRestore();
+  });
+
+  it("keeps a detached accepted Stop pending until the durable turn confirms termination", async () => {
+    vi.useFakeTimers();
+    const conversationId = "00000000-0000-4000-8000-0000000000b5";
+    let resolveCancellation!: (value: { ok: true; data: { cancelling: true } }) => void;
+    actionsMock.cancelAgentTurnAction.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveCancellation = resolve;
+        }),
+    );
+    actionsMock.getAgentConversationAction
+      .mockResolvedValueOnce({
+        activeTurn: true,
+        messages: [
+          {
+            id: "running-stop-reload-user",
+            role: "user",
+            parts: [{ type: "text", text: "Keep working" }],
+            turn: {
+              clientRequestId: "running-stop-reload-request",
+              status: "running",
+              assistantMessageId: null,
+              terminalCode: null,
+            },
+          },
+        ],
+        nextCursor: null,
+      })
+      .mockImplementationOnce(() => new Promise(() => undefined));
+    let resolveReattach!: (response: Response) => void;
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockImplementationOnce((_input, init) => rejectFetchWhenAborted(init))
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveReattach = resolve;
+          }),
+      );
+    const store = new AgentChatStore(root() as never);
+
+    await store.selectConversationForEmbeddedViewer(conversationId);
+    await vi.advanceTimersByTimeAsync(0);
+    store.setComposerDraft("Keep this follow-up available");
+    store.submitDraft();
+    store.interrupt();
+    const refreshing = store.selectConversationForEmbeddedViewer(conversationId);
+    resolveCancellation({ ok: true, data: { cancelling: true } });
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(store.isWorking).toBe(true);
+    expect(store.streamStatus).toBe("stopping");
+    expect(store.canInterrupt).toBe(false);
+    expect(store.queuedPrompt).toBe("Keep this follow-up available");
+    expect(store.queuedPromptNeedsAttention).toBe(false);
+    expect(store.items).toContainEqual(
+      expect.objectContaining({ kind: "assistant", text: "This response was stopped." }),
+    );
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+
+    resolveReattach(
+      new Response(
+        `data: ${JSON.stringify({
+          seq: 0,
+          type: "turn_done",
+          isError: true,
+          terminalCode: "cancelled",
+          stopReason: "cancelled",
+          affectedResources: [],
+        })}\n\n`,
+        { headers: { "content-type": "text/event-stream" } },
+      ),
+    );
+    await vi.waitFor(() => expect(store.isWorking).toBe(false));
+
+    expect(store.streamStatus).toBe("idle");
+    expect(store.queuedPrompt).toBe("Keep this follow-up available");
+    expect(store.queuedPromptNeedsAttention).toBe(true);
+
+    await vi.advanceTimersByTimeAsync(15000);
+    await refreshing;
+    expect(store.conversationLoadPendingId).toBeNull();
+    expect(store.conversationLoadError).toBe(false);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(vi.getTimerCount()).toBe(0);
+    expect((store as unknown as { activeTurnStopRequested: boolean }).activeTurnStopRequested).toBe(false);
+    fetchMock.mockRestore();
+  });
+
+  it("waits for a pending Stop before settling an inactive same-conversation reload", async () => {
+    const conversationId = "00000000-0000-4000-8000-0000000000ba";
+    let resolveCancellation!: (value: { ok: true; data: { cancelling: false } }) => void;
+    actionsMock.cancelAgentTurnAction.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveCancellation = resolve;
+        }),
+    );
+    actionsMock.getAgentConversationAction
+      .mockResolvedValueOnce({
+        activeTurn: true,
+        messages: [
+          {
+            id: "reverse-stop-running-user",
+            role: "user",
+            parts: [{ type: "text", text: "Finish the original turn" }],
+            turn: {
+              clientRequestId: "reverse-stop-client-request",
+              status: "running",
+              assistantMessageId: null,
+              terminalCode: null,
+            },
+          },
+        ],
+        nextCursor: null,
+      })
+      .mockResolvedValueOnce({
+        activeTurn: false,
+        messages: [
+          {
+            id: "reverse-stop-user-db-id",
+            role: "user",
+            parts: [{ type: "text", text: "Finish the original turn" }],
+            turn: {
+              clientRequestId: "reverse-stop-client-request",
+              status: "completed",
+              assistantMessageId: "reverse-stop-answer",
+              terminalCode: "completed",
+            },
+          },
+          {
+            id: "reverse-stop-answer",
+            role: "assistant",
+            parts: [{ type: "text", text: "The original turn completed." }],
+          },
+        ],
+        nextCursor: null,
+      });
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockImplementationOnce((_input, init) => rejectFetchWhenAborted(init));
+    const store = new AgentChatStore(root() as never);
+
+    await store.selectConversationForEmbeddedViewer(conversationId);
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+    store.setComposerDraft("Do not send this until I choose again");
+    store.submitDraft();
+    store.interrupt();
+    const refreshing = store.selectConversationForEmbeddedViewer(conversationId);
+    await refreshing;
+
+    expect(store.isWorking).toBe(true);
+    expect(store.streamStatus).toBe("stopping");
+    expect(store.queuedPrompt).toBe("Do not send this until I choose again");
+    expect(store.queuedPromptNeedsAttention).toBe(false);
+    expect(fetchMock).toHaveBeenCalledOnce();
+
+    resolveCancellation({ ok: true, data: { cancelling: false } });
+    await vi.waitFor(() => expect(store.isWorking).toBe(false));
+
+    expect(store.streamStatus).toBe("idle");
+    expect(store.queuedPrompt).toBe("Do not send this until I choose again");
+    expect(store.queuedPromptNeedsAttention).toBe(true);
+    expect(store.items).toContainEqual(
+      expect.objectContaining({ kind: "assistant", text: "The original turn completed." }),
+    );
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(actionsMock.cancelAgentTurnAction).toHaveBeenCalledWith({ conversationId });
+    expect((store as unknown as { activeTurnStopRequested: boolean }).activeTurnStopRequested).toBe(false);
+    fetchMock.mockRestore();
+  });
+
+  it.each(["inactive", "failed"] as const)(
+    "rejoins a turn detached by a timed-out same-conversation load when cancellation is %s",
+    async (cancellationOutcome) => {
+      vi.useFakeTimers();
+      const conversationId =
+        cancellationOutcome === "inactive"
+          ? "00000000-0000-4000-8000-0000000000b6"
+          : "00000000-0000-4000-8000-0000000000b7";
+      if (cancellationOutcome === "inactive")
+        actionsMock.cancelAgentTurnAction.mockResolvedValueOnce({ ok: true, data: { cancelling: false } });
+      else actionsMock.cancelAgentTurnAction.mockRejectedValue(new Error("cancel unavailable"));
+      actionsMock.getAgentConversationAction
+        .mockResolvedValueOnce({
+          activeTurn: true,
+          messages: [
+            {
+              id: `running-${cancellationOutcome}-reload-user`,
+              role: "user",
+              parts: [{ type: "text", text: "Keep working" }],
+              turn: {
+                clientRequestId: `running-${cancellationOutcome}-reload-request`,
+                status: "running",
+                assistantMessageId: null,
+                terminalCode: null,
+              },
+            },
+          ],
+          nextCursor: null,
+        })
+        .mockImplementationOnce(() => new Promise(() => undefined));
+      const fetchMock = vi
+        .spyOn(globalThis, "fetch")
+        .mockImplementationOnce((_input, init) => rejectFetchWhenAborted(init))
+        .mockResolvedValueOnce(
+          new Response(
+            [
+              `data: ${JSON.stringify({
+                seq: 0,
+                type: "message_replay",
+                messageId: `assistant-after-${cancellationOutcome}-cancellation`,
+                parts: [{ type: "text", text: "The durable turn was recovered." }],
+              })}`,
+              `data: ${JSON.stringify({
+                seq: 1,
+                type: "turn_done",
+                isError: false,
+                terminalCode: "completed",
+                stopReason: null,
+                assistantMessageId: `assistant-after-${cancellationOutcome}-cancellation`,
+                affectedResources: [],
+              })}`,
+              "",
+            ].join("\n\n"),
+            { headers: { "content-type": "text/event-stream" } },
+          ),
+        );
+      const store = new AgentChatStore(root() as never);
+
+      await store.selectConversationForEmbeddedViewer(conversationId);
+      await vi.advanceTimersByTimeAsync(0);
+      const refreshing = store.selectConversationForEmbeddedViewer(conversationId);
+      store.interrupt();
+      await vi.advanceTimersByTimeAsync(16000);
+      await refreshing;
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(actionsMock.cancelAgentTurnAction).toHaveBeenCalledTimes(cancellationOutcome === "failed" ? 4 : 1);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(store.items).toContainEqual(
+        expect.objectContaining({ kind: "assistant", text: "The durable turn was recovered." }),
+      );
+      expect(store.conversationLoadError).toBe(false);
+      expect(store.isWorking).toBe(false);
+      expect(store.streamStatus).toBe("idle");
+      expect(store.canInterrupt).toBe(false);
+      if (cancellationOutcome === "failed") expect(toastMock.error).toHaveBeenCalled();
+      fetchMock.mockRestore();
+    },
+  );
+
+  it("keeps a queued continuation owned across closing and reloading the active embedded transcript", async () => {
+    vi.useFakeTimers();
+    const conversationId = "00000000-0000-4000-8000-0000000000b4";
+    const runningConversation = {
+      id: conversationId,
+      activeTurn: true,
+      messages: [
+        {
+          id: "running-queued-user",
+          role: "user",
+          parts: [{ type: "text", text: "First request" }],
+          turn: {
+            clientRequestId: "running-queued-request",
+            status: "running",
+            assistantMessageId: null,
+            terminalCode: null,
+          },
+        },
+      ],
+      nextCursor: null,
+    };
+    actionsMock.getAgentConversationAction
+      .mockResolvedValueOnce(runningConversation)
+      .mockResolvedValueOnce(runningConversation);
+    const terminalStream = (messageId: string, text: string) =>
+      new Response(
+        [
+          `data: ${JSON.stringify({
+            seq: 0,
+            type: "message_replay",
+            messageId,
+            parts: [{ type: "text", text }],
+          })}`,
+          `data: ${JSON.stringify({
+            seq: 1,
+            type: "turn_done",
+            isError: false,
+            terminalCode: "completed",
+            stopReason: null,
+            assistantMessageId: messageId,
+            affectedResources: [],
+          })}`,
+          "",
+        ].join("\n\n"),
+        { headers: { "content-type": "text/event-stream", "x-conversation-id": conversationId } },
+      );
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockImplementationOnce((_input, init) => rejectFetchWhenAborted(init))
+      .mockResolvedValueOnce(terminalStream("first-run-answer", "The first run completed."))
+      .mockResolvedValueOnce(terminalStream("queued-run-answer", "The queued continuation completed."));
+    const store = new AgentChatStore(root() as never);
+
+    await store.selectConversationForEmbeddedViewer(conversationId);
+    await vi.advanceTimersByTimeAsync(0);
+    store.setComposerDraft("Continue with the next step");
+    store.submitDraft();
+    expect(store.queuedPrompt).toBe("Continue with the next step");
+
+    store.close();
+    await store.selectConversationForEmbeddedViewer(conversationId);
+    expect(store.queuedPrompt).toBe("Continue with the next step");
+    for (let attempt = 0; attempt < 10 && fetchMock.mock.calls.length < 3; attempt += 1)
+      await vi.advanceTimersByTimeAsync(1);
+
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(JSON.parse(String(fetchMock.mock.calls[2]?.[1]?.body))).toMatchObject({
+      conversationId,
+      text: "Continue with the next step",
+    });
+    expect(store.queuedPrompt).toBeNull();
+    expect(store.queuedPromptNeedsAttention).toBe(false);
+    expect(store.items).toContainEqual(
+      expect.objectContaining({ kind: "assistant", text: "The queued continuation completed." }),
+    );
+    await vi.advanceTimersByTimeAsync(1);
+    expect(store.isWorking).toBe(false);
+    fetchMock.mockRestore();
+  });
+
+  it("keeps the active embedded transcript selected until its run finishes", async () => {
+    const nextId = "00000000-0000-4000-8000-000000000002";
+    actionsMock.getAgentConversationAction.mockResolvedValue({
+      id: nextId,
+      title: "Next run",
+      messages: [
+        {
+          id: "next-message",
+          role: "assistant",
+          parts: [{ type: "text", text: "Next transcript" }],
+        },
+      ],
+    });
+    const store = new AgentChatStore(root() as never);
+    store.conversationId = "00000000-0000-4000-8000-000000000001";
+    store.isWorking = true;
+    store.items = [{ kind: "assistant", id: "old", text: "Old transcript", streaming: true }];
+
+    await store.selectConversationForEmbeddedViewer(nextId);
+
+    expect(actionsMock.getAgentConversationAction).not.toHaveBeenCalled();
+    expect(store.conversationId).toBe("00000000-0000-4000-8000-000000000001");
+    expect(store.items).toMatchObject([{ kind: "assistant", text: "Old transcript" }]);
   });
 
   it("posts the command id and exact browser result back to the owning conversation", async () => {
@@ -602,24 +1742,24 @@ describe("AgentChatStore", () => {
   it("serializes dependent browser commands through their acknowledgements", async () => {
     let resolveFirst!: (value: { ok: true; result: string }) => void;
     const order: string[] = [];
-    const clickTarget = vi
+    const navigate = vi
       .fn()
       .mockImplementationOnce(
         () =>
           new Promise((resolve) => {
-            order.push("display:start");
+            order.push("contacts:start");
             resolveFirst = resolve;
           }),
       )
       .mockImplementationOnce(() => {
-        order.push("layout:start");
-        return { ok: true, result: "Cards layout selected." };
+        order.push("deals:start");
+        return { ok: true, result: "Navigated to deals." };
       });
     actionsMock.respondToUiCommandAction.mockImplementation(({ commandId }: { commandId: string }) => {
       order.push(`${commandId}:acknowledged`);
-      return Promise.resolve({ ok: true, data: { resolved: true } });
+      return Promise.resolve({ ok: true, data: { resolved: true, resumed: true } });
     });
-    const store = new AgentChatStore(root({ clickTarget }) as never);
+    const store = new AgentChatStore(root({ navigate }) as never);
     store.conversationId = "00000000-0000-4000-8000-000000000001";
     const handleEvent = (
       store as unknown as {
@@ -630,25 +1770,77 @@ describe("AgentChatStore", () => {
     handleEvent({
       seq: 1,
       type: "ui_command",
-      commandId: "display",
-      name: "click_ui_target",
-      input: { targetId: "contacts-display-options" },
+      commandId: "contacts",
+      name: "navigate",
+      input: { targetId: "nav-contacts" },
     });
     handleEvent({
       seq: 2,
       type: "ui_command",
-      commandId: "layout",
-      name: "click_ui_target",
-      input: { targetId: "contacts-layout-board" },
+      commandId: "deals",
+      name: "navigate",
+      input: { targetId: "nav-deals" },
     });
 
-    await vi.waitFor(() => expect(clickTarget).toHaveBeenCalledOnce());
-    expect(order).toEqual(["display:start"]);
-    resolveFirst({ ok: true, result: "Display options opened." });
+    await vi.waitFor(() => expect(navigate).toHaveBeenCalledOnce());
+    expect(order).toEqual(["contacts:start"]);
+    resolveFirst({ ok: true, result: "Navigated to contacts." });
 
-    await vi.waitFor(() => expect(clickTarget).toHaveBeenCalledTimes(2));
-    expect(order.slice(0, 3)).toEqual(["display:start", "display:acknowledged", "layout:start"]);
+    await vi.waitFor(() => expect(navigate).toHaveBeenCalledTimes(2));
+    expect(order.slice(0, 3)).toEqual(["contacts:start", "contacts:acknowledged", "deals:start"]);
     await vi.waitFor(() => expect(actionsMock.respondToUiCommandAction).toHaveBeenCalledTimes(2));
+  });
+
+  it("bounds and retries a stuck browser-command acknowledgement without blocking later commands", async () => {
+    vi.useFakeTimers();
+    const order: string[] = [];
+    const navigate = vi.fn((targetId: string) => {
+      order.push(targetId);
+      return { ok: true, result: "Navigation completed." };
+    });
+    actionsMock.respondToUiCommandAction
+      .mockImplementationOnce(() => new Promise(() => undefined))
+      .mockResolvedValueOnce({ ok: true, data: { resolved: true, resumed: false } })
+      .mockResolvedValue({ ok: true, data: { resolved: true, resumed: true } });
+    const store = new AgentChatStore(root({ navigate }) as never);
+    store.conversationId = "00000000-0000-4000-8000-000000000001";
+    const handleEvent = (
+      store as unknown as {
+        handleEvent: (event: Record<string, unknown>) => void;
+      }
+    ).handleEvent;
+
+    handleEvent({
+      seq: 1,
+      type: "ui_command",
+      commandId: "contacts",
+      name: "navigate",
+      input: { targetId: "nav-contacts" },
+    });
+    handleEvent({
+      seq: 2,
+      type: "ui_command",
+      commandId: "deals",
+      name: "navigate",
+      input: { targetId: "nav-deals" },
+    });
+
+    await vi.advanceTimersByTimeAsync(3000);
+    expect(navigate).toHaveBeenCalledOnce();
+    await vi.advanceTimersByTimeAsync(500);
+    expect(actionsMock.respondToUiCommandAction).toHaveBeenCalledTimes(2);
+    expect(navigate).toHaveBeenCalledOnce();
+    await vi.advanceTimersByTimeAsync(1500);
+    await vi.waitFor(() => expect(navigate).toHaveBeenCalledTimes(2));
+    await vi.waitFor(() => expect(actionsMock.respondToUiCommandAction).toHaveBeenCalledTimes(4));
+
+    expect(actionsMock.respondToUiCommandAction.mock.calls.slice(0, 3).map(([value]) => value.commandId)).toEqual([
+      "contacts",
+      "contacts",
+      "contacts",
+    ]);
+    expect(actionsMock.respondToUiCommandAction.mock.calls[3]?.[0].commandId).toBe("deals");
+    expect(reportApplicationErrorMock).not.toHaveBeenCalled();
   });
 
   it("keeps an awaited browser outcome bound to the conversation that requested it", async () => {
@@ -689,7 +1881,7 @@ describe("AgentChatStore", () => {
     );
   });
 
-  it("never acknowledges an unknown UI command", async () => {
+  it("never acknowledges the removed UI-click command", async () => {
     const store = new AgentChatStore(root() as never);
     store.conversationId = "00000000-0000-4000-8000-000000000001";
 
@@ -701,8 +1893,8 @@ describe("AgentChatStore", () => {
       seq: 1,
       type: "ui_command",
       commandId: "command-2",
-      name: "open_external_url",
-      input: { path: "https://example.com" },
+      name: "click_ui_target",
+      input: { targetId: "contacts-display-options" },
     });
     await Promise.resolve();
 
@@ -1318,6 +2510,67 @@ describe("AgentChatStore", () => {
     expect(store.isContinuingAfterApproval).toBe(true);
   });
 
+  it("hands a hung approval decision to the bounded resume path", async () => {
+    vi.useFakeTimers();
+    actionsMock.respondToApprovalAction
+      .mockImplementationOnce(() => new Promise(() => undefined))
+      .mockResolvedValueOnce({ ok: true, data: { resolved: true, resumed: true } });
+    const conversationId = "00000000-0000-4000-8000-0000000000be";
+    const store = new AgentChatStore(root() as never);
+    store.conversationId = conversationId;
+    store.isWorking = true;
+    const handleEvent = (
+      store as unknown as {
+        handleEvent: (event: Record<string, unknown>) => void;
+      }
+    ).handleEvent;
+    handleEvent({
+      seq: 0,
+      type: "approval_request",
+      requestId: "hung-approval-request",
+      activity: {
+        kind: "records.update",
+        resource: "contacts",
+        risk: "write",
+        affectedResources: ["contacts"],
+      },
+    });
+    const approval = store.items.find(
+      (item): item is Extract<(typeof store.items)[number], { kind: "approval" }> => item.kind === "approval",
+    );
+    if (!approval) throw new Error("Expected an approval request.");
+
+    const responding = store.respondToApproval(approval, "approve");
+    expect(approval.pendingDecision).toBe("approve");
+
+    await vi.advanceTimersByTimeAsync(5000);
+    await responding;
+
+    expect(approval).toMatchObject({
+      pendingDecision: null,
+      submittedDecision: "approve",
+      retryDecision: null,
+      resolution: null,
+    });
+    expect(store.streamStatus).toBe("resuming");
+
+    await vi.advanceTimersByTimeAsync(500);
+    expect(actionsMock.respondToApprovalAction).toHaveBeenCalledTimes(2);
+    expect(actionsMock.respondToApprovalAction).toHaveBeenNthCalledWith(2, {
+      conversationId,
+      requestId: "hung-approval-request",
+      decision: "approve",
+    });
+    handleEvent({
+      seq: 1,
+      type: "approval_resolved",
+      requestId: "hung-approval-request",
+      decision: "approve",
+    });
+    expect(approval).toMatchObject({ pendingDecision: null, submittedDecision: null, resolution: "approve" });
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
   it("restores a same-decision retry after approval resume attempts are exhausted", async () => {
     vi.useFakeTimers();
     actionsMock.respondToApprovalAction.mockResolvedValue({
@@ -1723,6 +2976,7 @@ describe("AgentChatStore", () => {
   });
 
   it("rejoins a busy conversation and re-sends the same idempotency key when it frees up", async () => {
+    vi.useFakeTimers();
     const conversationId = "00000000-0000-4000-8000-000000000015";
     const clientRequestId = "00000000-0000-4000-8000-000000000016";
     let resolveConfig!: (value: { ok: true; data: typeof CONFIG }) => void;
@@ -1732,6 +2986,7 @@ describe("AgentChatStore", () => {
           resolveConfig = resolve;
         }),
     );
+    actionsMock.getAgentConversationAction.mockImplementationOnce(() => new Promise(() => undefined));
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(
@@ -1756,11 +3011,14 @@ describe("AgentChatStore", () => {
         new Response(
           [
             `data: ${JSON.stringify({
+              seq: 0,
+              type: "delta",
+              text: "Finished in the other tab.",
+            })}`,
+            `data: ${JSON.stringify({
               seq: 1,
-              type: "message_replay",
+              type: "message_committed",
               messageId: "assistant-running",
-              parts: [{ type: "text", text: "Finished in the other tab." }],
-              createdAt: "2026-08-06T10:00:00.000Z",
             })}`,
             `data: ${JSON.stringify({
               seq: 2,
@@ -1781,18 +3039,30 @@ describe("AgentChatStore", () => {
           },
         ),
       )
-      .mockImplementation(async () =>
-        Promise.resolve(
+      .mockImplementation((_input, init) => {
+        const request = JSON.parse(String(init?.body)) as { text: string };
+        const assistantMessageId = request.text === "Long request" ? "assistant-running" : "assistant-queued";
+        return Promise.resolve(
           new Response(
-            `data: ${JSON.stringify({
-              seq: 1,
-              type: "turn_done",
-              isError: false,
-              terminalCode: "completed",
-              assistantMessageId: "assistant-later",
-              affectedResources: [],
-              errorMessage: null,
-            })}\n\n`,
+            [
+              `data: ${JSON.stringify({
+                seq: 1,
+                type: "message_replay",
+                messageId: assistantMessageId,
+                parts: [{ type: "text", text: `Completed ${request.text}` }],
+              })}`,
+              `data: ${JSON.stringify({
+                seq: 2,
+                type: "turn_done",
+                isError: false,
+                terminalCode: "completed",
+                stopReason: null,
+                assistantMessageId,
+                affectedResources: [],
+                errorMessage: null,
+              })}`,
+              "",
+            ].join("\n\n"),
             {
               headers: {
                 "content-type": "text/event-stream",
@@ -1800,8 +3070,8 @@ describe("AgentChatStore", () => {
               },
             },
           ),
-        ),
-      );
+        );
+      });
     const store = new AgentChatStore(root() as never);
 
     const sending = store.sendMessage("Long request", {
@@ -1817,8 +3087,15 @@ describe("AgentChatStore", () => {
 
     resolveConfig({ ok: true, data: CONFIG });
     await sending;
-    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(4));
+    await vi.advanceTimersByTimeAsync(1);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(store.queuedPrompt).toBe("Queue this while the first turn reconciles");
+    await vi.advanceTimersByTimeAsync(5000);
+    for (let attempt = 0; attempt < 10 && (fetchMock.mock.calls.length < 4 || store.isWorking); attempt += 1)
+      await vi.advanceTimersByTimeAsync(1);
 
+    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledOnce();
+    expect(fetchMock).toHaveBeenCalledTimes(4);
     expect(String(fetchMock.mock.calls[1]?.[0])).toContain(`/api/agent/conversations/${conversationId}/stream`);
     expect(JSON.parse(String(fetchMock.mock.calls[2]?.[1]?.body))).toMatchObject({
       conversationId,
@@ -1834,9 +3111,19 @@ describe("AgentChatStore", () => {
       expect.objectContaining({
         kind: "assistant",
         messageId: "assistant-running",
-        text: "Finished in the other tab.",
+        text: "Completed Long request",
       }),
     );
+    expect(store.items).toContainEqual(
+      expect.objectContaining({
+        kind: "assistant",
+        messageId: "assistant-queued",
+        text: "Completed Queue this while the first turn reconciles",
+      }),
+    );
+    expect(store.items.filter((item) => item.kind === "assistant")).toHaveLength(2);
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    expect(store.isWorking).toBe(false);
     fetchMock.mockRestore();
   });
 
@@ -1864,12 +3151,6 @@ describe("AgentChatStore", () => {
           new Promise((resolve) => {
             resolveReattach = resolve;
           }),
-      )
-      .mockResolvedValueOnce(
-        new Response(
-          'data: {"seq":1,"type":"turn_done","isError":true,"terminalCode":"cancelled","affectedResources":[]}\n\n',
-          { headers: { "content-type": "text/event-stream", "x-conversation-id": conversationId } },
-        ),
       );
     const store = new AgentChatStore(root() as never);
 
@@ -1899,7 +3180,7 @@ describe("AgentChatStore", () => {
       ),
     );
     await vi.waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledTimes(3);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
       expect(store.isWorking).toBe(false);
     });
     expect(store.items).toContainEqual(
@@ -2143,6 +3424,108 @@ describe("AgentChatStore", () => {
     expect(store.routeSyncStatus).toBe("queued");
   });
 
+  it.each([
+    { isError: false, terminalCode: "completed", stopReason: null, expectedStatus: "done" },
+    { isError: true, terminalCode: "partial", stopReason: "provider_error", expectedStatus: "error" },
+    { isError: true, terminalCode: "cancelled", stopReason: "cancelled", expectedStatus: "cancelled" },
+  ])("settles a running activity when the terminal event ends as $terminalCode", (terminal) => {
+    const store = new AgentChatStore(root() as never);
+    const handleEvent = (
+      store as unknown as {
+        handleEvent: (event: Record<string, unknown>) => void;
+      }
+    ).handleEvent;
+
+    handleEvent({
+      seq: 0,
+      type: "activity",
+      id: "activity-with-missed-result",
+      activity: {
+        kind: "records.read",
+        resource: "contacts",
+        affectedResources: [],
+        risk: "read",
+      },
+    });
+    handleEvent({
+      seq: 1,
+      type: "turn_done",
+      isError: terminal.isError,
+      terminalCode: terminal.terminalCode,
+      stopReason: terminal.stopReason,
+      affectedResources: [],
+    });
+
+    expect(store.items).toContainEqual(
+      expect.objectContaining({
+        kind: "activity",
+        providerCallId: "activity-with-missed-result",
+        status: terminal.expectedStatus,
+      }),
+    );
+  });
+
+  it.each([
+    { terminalCode: "completed", stopReason: null, isError: false, expectedResolution: "timeout" },
+    { terminalCode: "partial", stopReason: "provider_error", isError: true, expectedResolution: "timeout" },
+    { terminalCode: "cancelled", stopReason: "cancelled", isError: true, expectedResolution: "cancelled" },
+  ])("terminalizes an unresolved approval when canonical $terminalCode details are unavailable", (terminal) => {
+    const store = new AgentChatStore(root() as never);
+    const handleEvent = (
+      store as unknown as {
+        handleEvent: (event: Record<string, unknown>) => void;
+      }
+    ).handleEvent;
+    store.items = [{ kind: "user", id: "terminal-user", messageId: "terminal-user", text: "Apply it" }];
+    handleEvent({
+      seq: 0,
+      type: "approval_request",
+      requestId: "approval-with-missed-resolution",
+      activity: {
+        kind: "records.delete",
+        resource: "contacts",
+        affectedResources: ["contacts"],
+        risk: "sensitive",
+      },
+    });
+
+    handleEvent({
+      seq: 1,
+      type: "turn_done",
+      isError: terminal.isError,
+      terminalCode: terminal.terminalCode,
+      stopReason: terminal.stopReason,
+      assistantMessageId: "unavailable-canonical-message",
+      affectedResources: [],
+    });
+
+    expect(store.items).toContainEqual(
+      expect.objectContaining({
+        kind: "approval",
+        requestId: "approval-with-missed-resolution",
+        pendingDecision: null,
+        submittedDecision: null,
+        retryDecision: null,
+        resolution: terminal.expectedResolution,
+      }),
+    );
+  });
+
+  it("completes a soft route refresh without clearing a newer queued refresh", () => {
+    const store = new AgentChatStore(root() as never);
+
+    store.markRouteSyncRefreshing();
+    store.markRouteSyncComplete();
+    expect(store.routeSyncStatus).toBe("idle");
+
+    store.markRouteSyncRefreshing();
+    runInAction(() => {
+      store.routeSyncStatus = "queued";
+    });
+    store.markRouteSyncComplete();
+    expect(store.routeSyncStatus).toBe("queued");
+  });
+
   it("reconnects an active durable stream from the next confirmed sequence", async () => {
     const conversationId = "00000000-0000-4000-8000-000000000051";
     actionsMock.getAgentConversationAction.mockResolvedValueOnce({
@@ -2180,6 +3563,761 @@ describe("AgentChatStore", () => {
     expect(store.items).toContainEqual(expect.objectContaining({ kind: "assistant", text: "Working" }));
     expect(store.routeRefreshRevision).toBe(1);
     expect(store.streamStatus).toBe("finalizing");
+    fetchMock.mockRestore();
+  });
+
+  it("hydrates the canonical answer when the terminal event arrives without message content", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000054";
+    actionsMock.getAgentConversationAction.mockResolvedValue({
+      activeTurn: false,
+      messages: [
+        {
+          id: "assistant-canonical",
+          role: "assistant",
+          parts: [{ type: "text", text: "The complete saved answer." }],
+        },
+      ],
+      nextCursor: null,
+    });
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        `data: ${JSON.stringify({
+          seq: 0,
+          type: "turn_done",
+          assistantMessageId: "assistant-canonical",
+          isError: false,
+          terminalCode: "completed",
+          stopReason: null,
+          affectedResources: [],
+        })}\n\n`,
+        {
+          headers: {
+            "content-type": "text/event-stream",
+            "x-conversation-id": conversationId,
+          },
+        },
+      ),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    await store.sendMessage("Give me the complete answer");
+
+    expect(store.items.filter((item) => item.kind === "assistant")).toEqual([
+      expect.objectContaining({
+        messageId: "assistant-canonical",
+        text: "The complete saved answer.",
+        streaming: false,
+      }),
+    ]);
+    expect(store.isWorking).toBe(false);
+    fetchMock.mockRestore();
+  });
+
+  it("retries a reattached canonical timeout with the client request id rather than the persisted user id", async () => {
+    vi.useFakeTimers();
+    const conversationId = "00000000-0000-4000-8000-00000000005d";
+    const persistedUserId = "00000000-0000-4000-8000-00000000005e";
+    const clientRequestId = "00000000-0000-4000-8000-00000000005f";
+    const assistantMessageId = "00000000-0000-4000-8000-000000000060";
+    actionsMock.getAgentConversationAction
+      .mockResolvedValueOnce({
+        activeTurn: true,
+        messages: [
+          {
+            id: persistedUserId,
+            role: "user",
+            parts: [{ type: "text", text: "Recover the persisted turn" }],
+            turn: {
+              clientRequestId,
+              status: "running",
+              assistantMessageId: null,
+              terminalCode: null,
+            },
+          },
+        ],
+        nextCursor: null,
+      })
+      .mockImplementationOnce(() => new Promise(() => undefined));
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        new Response(
+          [
+            `data: ${JSON.stringify({ seq: 0, type: "delta", text: "Partial persisted answer" })}`,
+            `data: ${JSON.stringify({ seq: 1, type: "message_committed", messageId: assistantMessageId })}`,
+            `data: ${JSON.stringify({
+              seq: 2,
+              type: "turn_done",
+              isError: false,
+              terminalCode: "completed",
+              stopReason: null,
+              assistantMessageId,
+              affectedResources: [],
+            })}`,
+            "",
+          ].join("\n\n"),
+          { headers: { "content-type": "text/event-stream" } },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          [
+            `data: ${JSON.stringify({
+              seq: 0,
+              type: "message_replay",
+              messageId: assistantMessageId,
+              parts: [{ type: "text", text: "The complete persisted answer." }],
+            })}`,
+            `data: ${JSON.stringify({
+              seq: 1,
+              type: "turn_done",
+              isError: false,
+              terminalCode: "completed",
+              stopReason: null,
+              assistantMessageId,
+              affectedResources: [],
+            })}`,
+            "",
+          ].join("\n\n"),
+          { headers: { "content-type": "text/event-stream" } },
+        ),
+      );
+    const store = new AgentChatStore(root() as never);
+
+    await store.selectConversationForEmbeddedViewer(conversationId);
+    await vi.advanceTimersByTimeAsync(5000);
+    for (let attempt = 0; attempt < 10 && store.isWorking; attempt += 1) await vi.advanceTimersByTimeAsync(1);
+
+    const turnError = store.items.findLast(
+      (item): item is Extract<(typeof store.items)[number], { kind: "turn_error" }> => item.kind === "turn_error",
+    );
+    expect(turnError).toMatchObject({ messageId: clientRequestId, text: "Recover the persisted turn" });
+    expect(store.items).toContainEqual(expect.objectContaining({ kind: "user", messageId: persistedUserId }));
+
+    if (!turnError) throw new Error("Expected a recoverable reattached turn error.");
+    store.retryFailedTurn(turnError);
+    for (let attempt = 0; attempt < 10 && store.isWorking; attempt += 1) await vi.advanceTimersByTimeAsync(1);
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(JSON.parse(String(fetchMock.mock.calls[1]?.[1]?.body))).toMatchObject({
+      conversationId,
+      clientRequestId,
+      text: "Recover the persisted turn",
+    });
+    expect(store.items.filter((item) => item.kind === "user")).toEqual([
+      expect.objectContaining({ messageId: persistedUserId }),
+    ]);
+    expect(store.items.filter((item) => item.kind === "assistant")).toEqual([
+      expect.objectContaining({ messageId: assistantMessageId, text: "The complete persisted answer." }),
+    ]);
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    fetchMock.mockRestore();
+  });
+
+  it("shows a recoverable turn error after the one canonical reconciliation request exhausts", async () => {
+    vi.useFakeTimers();
+    const conversationId = "00000000-0000-4000-8000-00000000005a";
+    const clientRequestId = "00000000-0000-4000-8000-00000000005b";
+    actionsMock.getAgentConversationAction.mockImplementationOnce(() => new Promise(() => undefined));
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        new Response(
+          [
+            `data: ${JSON.stringify({ seq: 0, type: "delta", text: "Only part of the answer" })}`,
+            `data: ${JSON.stringify({
+              seq: 1,
+              type: "message_committed",
+              messageId: "unavailable-terminal-answer",
+            })}`,
+            `data: ${JSON.stringify({
+              seq: 2,
+              type: "turn_done",
+              isError: false,
+              terminalCode: "completed",
+              stopReason: null,
+              assistantMessageId: "unavailable-terminal-answer",
+              affectedResources: [],
+            })}`,
+            "",
+          ].join("\n\n"),
+          {
+            headers: {
+              "content-type": "text/event-stream",
+              "x-conversation-id": conversationId,
+            },
+          },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          [
+            `data: ${JSON.stringify({
+              seq: 0,
+              type: "message_replay",
+              messageId: "unavailable-terminal-answer",
+              parts: [{ type: "text", text: "The complete answer after retry." }],
+            })}`,
+            `data: ${JSON.stringify({
+              seq: 1,
+              type: "turn_done",
+              isError: false,
+              terminalCode: "completed",
+              stopReason: null,
+              assistantMessageId: "unavailable-terminal-answer",
+              affectedResources: [],
+            })}`,
+            "",
+          ].join("\n\n"),
+          {
+            headers: {
+              "content-type": "text/event-stream",
+              "x-conversation-id": conversationId,
+            },
+          },
+        ),
+      );
+    const store = new AgentChatStore(root() as never);
+
+    const sending = store.sendMessage("Keep this retryable", {
+      messageId: clientRequestId,
+      pageRoute: "/en/contacts",
+    });
+    await vi.advanceTimersByTimeAsync(5000);
+    await sending;
+
+    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledOnce();
+    expect(store.items).toContainEqual(
+      expect.objectContaining({
+        kind: "turn_error",
+        messageId: clientRequestId,
+        text: "Keep this retryable",
+        pageRoute: "/en/contacts",
+        retry: false,
+      }),
+    );
+    const turnError = store.items.findLast(
+      (item): item is Extract<(typeof store.items)[number], { kind: "turn_error" }> => item.kind === "turn_error",
+    );
+    expect(turnError && store.canRetryFailedTurn(turnError)).toBe(true);
+    expect(store.hasInSessionTerminalResult).toBe(false);
+    expect(store.isWorking).toBe(false);
+    expect(vi.getTimerCount()).toBe(0);
+
+    if (!turnError) throw new Error("Expected a recoverable turn error.");
+    store.retryFailedTurn(turnError);
+    for (let attempt = 0; attempt < 10 && store.isWorking; attempt += 1) await vi.advanceTimersByTimeAsync(1);
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(store.items.filter((item) => item.kind === "assistant")).toEqual([
+      expect.objectContaining({
+        messageId: "unavailable-terminal-answer",
+        text: "The complete answer after retry.",
+        streaming: false,
+      }),
+    ]);
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    fetchMock.mockRestore();
+  });
+
+  it("does not turn a cancelled terminal snapshot timeout into a transport retry", async () => {
+    vi.useFakeTimers();
+    const conversationId = "00000000-0000-4000-8000-00000000005c";
+    actionsMock.getAgentConversationAction.mockImplementationOnce(() => new Promise(() => undefined));
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(
+        `data: ${JSON.stringify({
+          seq: 0,
+          type: "turn_done",
+          isError: true,
+          terminalCode: "cancelled",
+          stopReason: "cancelled",
+          assistantMessageId: "cancelled-terminal-answer",
+          affectedResources: [],
+        })}\n\n`,
+        {
+          headers: {
+            "content-type": "text/event-stream",
+            "x-conversation-id": conversationId,
+          },
+        },
+      ),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    const sending = store.sendMessage("Stop this terminal result");
+    await vi.advanceTimersByTimeAsync(5000);
+    await sending;
+
+    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledOnce();
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    expect(store.hasInSessionTerminalResult).toBe(true);
+    expect(store.isWorking).toBe(false);
+    expect(vi.getTimerCount()).toBe(0);
+    fetchMock.mockRestore();
+  });
+
+  it("replaces a truncated current turn with every authoritative persisted message part", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000059";
+    const canonicalActivity = {
+      kind: "records.update",
+      resource: "contacts",
+      affectedResources: ["contacts"],
+      risk: "write",
+    };
+    const canonicalApproval = {
+      kind: "records.delete",
+      resource: "contacts",
+      affectedResources: ["contacts"],
+      risk: "sensitive",
+    };
+    actionsMock.getAgentConversationAction.mockResolvedValue({
+      activeTurn: false,
+      messages: [
+        {
+          id: "assistant-authoritative-parts",
+          role: "assistant",
+          parts: [
+            { type: "activity", id: "write-authoritative", status: "done", activity: canonicalActivity },
+            { type: "approval", id: "approval-authoritative", status: "approved", activity: canonicalApproval },
+            { type: "text", text: "The complete authoritative answer." },
+          ],
+        },
+      ],
+      nextCursor: null,
+    });
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        [
+          `data: ${JSON.stringify({ seq: 0, type: "activity", id: "write-authoritative", activity: canonicalActivity })}`,
+          `data: ${JSON.stringify({
+            seq: 1,
+            type: "approval_request",
+            requestId: "approval-authoritative",
+            activity: canonicalApproval,
+          })}`,
+          `data: ${JSON.stringify({ seq: 2, type: "delta", text: "The truncated answer" })}`,
+          `data: ${JSON.stringify({
+            seq: 3,
+            type: "message_committed",
+            messageId: "assistant-authoritative-parts",
+          })}`,
+          `data: ${JSON.stringify({
+            seq: 4,
+            type: "turn_done",
+            isError: false,
+            terminalCode: "completed",
+            stopReason: null,
+            assistantMessageId: "assistant-authoritative-parts",
+            affectedResources: ["contacts"],
+          })}`,
+          "",
+        ].join("\n\n"),
+        {
+          headers: {
+            "content-type": "text/event-stream",
+            "x-conversation-id": conversationId,
+          },
+        },
+      ),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    await store.sendMessage("Return the whole result");
+
+    expect(store.items).not.toContainEqual(
+      expect.objectContaining({ kind: "assistant", text: "The truncated answer" }),
+    );
+    expect(store.items).toContainEqual(
+      expect.objectContaining({
+        kind: "assistant",
+        messageId: "assistant-authoritative-parts",
+        text: "The complete authoritative answer.",
+      }),
+    );
+    expect(store.items).toContainEqual(
+      expect.objectContaining({ kind: "activity", providerCallId: "write-authoritative", status: "done" }),
+    );
+    expect(store.items).toContainEqual(
+      expect.objectContaining({ kind: "approval", requestId: "approval-authoritative", resolution: "approve" }),
+    );
+    fetchMock.mockRestore();
+  });
+
+  it("turns a timed-out admission into a visible idempotent retry instead of loading forever", async () => {
+    vi.useFakeTimers();
+    const clientRequestId = "00000000-0000-4000-8000-000000000056";
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation((_input, init) => rejectFetchWhenAborted(init));
+    const store = new AgentChatStore(root() as never);
+
+    const sending = store.sendMessage("Recover this admission", {
+      messageId: clientRequestId,
+      pageRoute: "/en/contacts",
+    });
+    await vi.advanceTimersByTimeAsync(15000);
+    await sending;
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(store.isWorking).toBe(false);
+    expect(store.streamStatus).toBe("idle");
+    expect(store.items).toContainEqual(
+      expect.objectContaining({
+        kind: "turn_error",
+        messageId: clientRequestId,
+        text: "Recover this admission",
+        retry: false,
+      }),
+    );
+    expect(
+      store.canRetryFailedTurn(store.items.at(-1) as Extract<(typeof store.items)[number], { kind: "turn_error" }>),
+    ).toBe(true);
+    fetchMock.mockRestore();
+  });
+
+  it("recovers an inactive stream connection while the durable turn keeps running", async () => {
+    vi.useFakeTimers();
+    const conversationId = "00000000-0000-4000-8000-000000000055";
+    const stalledStream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode('data: {"seq":0,"type":"progress","phase":"working"}\n\n'));
+      },
+    });
+    actionsMock.getAgentConversationAction
+      .mockResolvedValueOnce({
+        activeTurn: true,
+        messages: [],
+        nextCursor: null,
+      })
+      .mockResolvedValueOnce({
+        activeTurn: false,
+        messages: [
+          {
+            id: "assistant-after-inactivity",
+            role: "assistant",
+            parts: [{ type: "text", text: "Recovered without stopping the run." }],
+          },
+        ],
+        nextCursor: null,
+      });
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        new Response(stalledStream, {
+          headers: {
+            "content-type": "text/event-stream",
+            "x-conversation-id": conversationId,
+          },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          `data: ${JSON.stringify({
+            seq: 1,
+            type: "turn_done",
+            assistantMessageId: "assistant-after-inactivity",
+            isError: false,
+            affectedResources: [],
+          })}\n\n`,
+          { headers: { "content-type": "text/event-stream" } },
+        ),
+      );
+    const store = new AgentChatStore(root() as never);
+
+    const sending = store.sendMessage("Keep running through a dead connection");
+    await vi.advanceTimersByTimeAsync(61000);
+    await sending;
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(String(fetchMock.mock.calls[1]?.[0])).toBe(`/api/agent/conversations/${conversationId}/stream?startIndex=1`);
+    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledTimes(2);
+    expect(store.items).toContainEqual(
+      expect.objectContaining({
+        kind: "assistant",
+        text: "Recovered without stopping the run.",
+      }),
+    );
+    expect(store.isWorking).toBe(false);
+    expect(reportApplicationErrorMock).not.toHaveBeenCalled();
+    fetchMock.mockRestore();
+  });
+
+  it("recovers from a failed snapshot when a later snapshot confirms the saved result", async () => {
+    vi.useFakeTimers();
+    const conversationId = "00000000-0000-4000-8000-0000000000bf";
+    const clientRequestId = "00000000-0000-4000-8000-0000000000c0";
+    const assistantMessageId = "snapshot-retry-assistant";
+    actionsMock.getAgentConversationAction
+      .mockRejectedValueOnce(new Error("temporary snapshot outage"))
+      .mockResolvedValueOnce({
+        activeTurn: false,
+        messages: [
+          {
+            id: "snapshot-retry-user-db-id",
+            role: "user",
+            parts: [{ type: "text", text: "Recover after the snapshot outage" }],
+            turn: {
+              clientRequestId,
+              status: "completed",
+              assistantMessageId,
+              terminalCode: "completed",
+            },
+          },
+          {
+            id: assistantMessageId,
+            role: "assistant",
+            parts: [{ type: "text", text: "The later snapshot recovered the answer." }],
+          },
+        ],
+        nextCursor: null,
+      });
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        new Response("", {
+          headers: { "content-type": "text/event-stream", "x-conversation-id": conversationId },
+        }),
+      )
+      .mockResolvedValueOnce(new Response("", { headers: { "content-type": "text/event-stream" } }));
+    const store = new AgentChatStore(root() as never);
+
+    const sending = store.sendMessage("Recover after the snapshot outage", { messageId: clientRequestId });
+    await vi.advanceTimersByTimeAsync(250);
+    await sending;
+
+    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(store.items.filter((item) => item.kind === "assistant")).toEqual([
+      expect.objectContaining({
+        messageId: assistantMessageId,
+        text: "The later snapshot recovered the answer.",
+        streaming: false,
+      }),
+    ]);
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    expect(store.isWorking).toBe(false);
+    expect(vi.getTimerCount()).toBe(0);
+    fetchMock.mockRestore();
+  });
+
+  it("refreshes a proven mutation when two unavailable snapshots end in a recoverable turn", async () => {
+    vi.useFakeTimers();
+    const conversationId = "00000000-0000-4000-8000-0000000000c1";
+    const clientRequestId = "00000000-0000-4000-8000-0000000000c2";
+    actionsMock.getAgentConversationAction
+      .mockRejectedValueOnce(new Error("first snapshot outage"))
+      .mockRejectedValueOnce(new Error("second snapshot outage"));
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        new Response(
+          [
+            `data: ${JSON.stringify({
+              seq: 0,
+              type: "activity",
+              id: "snapshot-failure-write",
+              activity: {
+                kind: "records.update",
+                resource: "contacts",
+                affectedResources: ["contacts"],
+                risk: "write",
+              },
+            })}`,
+            `data: ${JSON.stringify({
+              seq: 1,
+              type: "activity_result",
+              id: "snapshot-failure-write",
+              isError: false,
+              status: "done",
+            })}`,
+            "",
+          ].join("\n\n"),
+          { headers: { "content-type": "text/event-stream", "x-conversation-id": conversationId } },
+        ),
+      )
+      .mockResolvedValueOnce(new Response("", { headers: { "content-type": "text/event-stream" } }));
+    const store = new AgentChatStore(root() as never);
+
+    const sending = store.sendMessage("Do not reconnect forever", {
+      messageId: clientRequestId,
+      pageRoute: "/en/contacts",
+    });
+    await vi.advanceTimersByTimeAsync(250);
+    await sending;
+
+    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(store.items).toContainEqual(
+      expect.objectContaining({
+        kind: "turn_error",
+        messageId: clientRequestId,
+        text: "Do not reconnect forever",
+        pageRoute: "/en/contacts",
+        retry: false,
+      }),
+    );
+    const error = store.items.findLast(
+      (item): item is Extract<(typeof store.items)[number], { kind: "turn_error" }> => item.kind === "turn_error",
+    );
+    expect(error && store.canRetryFailedTurn(error)).toBe(true);
+    expect(store.routeRefreshRevision).toBe(1);
+    expect(store.hasPendingRouteReload).toBe(true);
+    expect(store.isWorking).toBe(false);
+    expect(store.streamStatus).toBe("finalizing");
+    expect(vi.getTimerCount()).toBe(0);
+    fetchMock.mockRestore();
+  });
+
+  it("treats repeated null snapshots as unavailable and stops reconnecting empty streams", async () => {
+    vi.useFakeTimers();
+    const conversationId = "00000000-0000-4000-8000-0000000000c3";
+    const clientRequestId = "00000000-0000-4000-8000-0000000000c4";
+    actionsMock.getAgentConversationAction.mockResolvedValueOnce(null).mockResolvedValueOnce(null);
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        new Response("", {
+          headers: { "content-type": "text/event-stream", "x-conversation-id": conversationId },
+        }),
+      )
+      .mockResolvedValueOnce(new Response("", { headers: { "content-type": "text/event-stream" } }));
+    const store = new AgentChatStore(root() as never);
+
+    const sending = store.sendMessage("Recover from null snapshots", {
+      messageId: clientRequestId,
+      pageRoute: "/en/tasks",
+    });
+    await vi.advanceTimersByTimeAsync(250);
+    await sending;
+
+    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(store.items).toContainEqual(
+      expect.objectContaining({
+        kind: "turn_error",
+        messageId: clientRequestId,
+        text: "Recover from null snapshots",
+        pageRoute: "/en/tasks",
+        retry: false,
+      }),
+    );
+    const error = store.items.findLast(
+      (item): item is Extract<(typeof store.items)[number], { kind: "turn_error" }> => item.kind === "turn_error",
+    );
+    expect(error && store.canRetryFailedTurn(error)).toBe(true);
+    expect(store.isWorking).toBe(false);
+    expect(store.streamStatus).toBe("idle");
+    expect(vi.getTimerCount()).toBe(0);
+    fetchMock.mockRestore();
+  });
+
+  it("bounds a hung recovery snapshot and rejoins the still-running durable turn", async () => {
+    vi.useFakeTimers();
+    const conversationId = "00000000-0000-4000-8000-000000000057";
+    actionsMock.getAgentConversationAction
+      .mockImplementationOnce(() => new Promise(() => undefined))
+      .mockResolvedValueOnce({ activeTurn: true, messages: [], nextCursor: null });
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        new Response("", {
+          headers: {
+            "content-type": "text/event-stream",
+            "x-conversation-id": conversationId,
+          },
+        }),
+      )
+      .mockRejectedValueOnce(new TypeError("temporary reconnect outage"))
+      .mockResolvedValueOnce(
+        new Response(
+          [
+            `data: ${JSON.stringify({
+              seq: 0,
+              type: "message_replay",
+              messageId: "assistant-after-snapshot-timeout",
+              parts: [{ type: "text", text: "Recovered after the snapshot timed out." }],
+            })}`,
+            `data: ${JSON.stringify({
+              seq: 1,
+              type: "turn_done",
+              isError: false,
+              terminalCode: "completed",
+              stopReason: null,
+              assistantMessageId: "assistant-after-snapshot-timeout",
+              affectedResources: [],
+            })}`,
+            "",
+          ].join("\n\n"),
+          { headers: { "content-type": "text/event-stream" } },
+        ),
+      );
+    const store = new AgentChatStore(root() as never);
+
+    const sending = store.sendMessage("Survive a hung snapshot");
+    await vi.advanceTimersByTimeAsync(17000);
+    await sending;
+
+    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(String(fetchMock.mock.calls[2]?.[0])).toContain(`/api/agent/conversations/${conversationId}/stream`);
+    expect(store.items).toContainEqual(
+      expect.objectContaining({ kind: "assistant", text: "Recovered after the snapshot timed out." }),
+    );
+    expect(store.isWorking).toBe(false);
+    fetchMock.mockRestore();
+  });
+
+  it("aborts a hung reconnect request and continues rejoining the durable turn", async () => {
+    vi.useFakeTimers();
+    const conversationId = "00000000-0000-4000-8000-000000000058";
+    actionsMock.getAgentConversationAction
+      .mockResolvedValueOnce({ activeTurn: true, messages: [], nextCursor: null })
+      .mockResolvedValueOnce({ activeTurn: true, messages: [], nextCursor: null });
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        new Response("", {
+          headers: {
+            "content-type": "text/event-stream",
+            "x-conversation-id": conversationId,
+          },
+        }),
+      )
+      .mockImplementationOnce((_input, init) => rejectFetchWhenAborted(init))
+      .mockResolvedValueOnce(
+        new Response(
+          [
+            `data: ${JSON.stringify({
+              seq: 0,
+              type: "message_replay",
+              messageId: "assistant-after-reconnect-timeout",
+              parts: [{ type: "text", text: "Recovered after reconnecting again." }],
+            })}`,
+            `data: ${JSON.stringify({
+              seq: 1,
+              type: "turn_done",
+              isError: false,
+              terminalCode: "completed",
+              stopReason: null,
+              assistantMessageId: "assistant-after-reconnect-timeout",
+              affectedResources: [],
+            })}`,
+            "",
+          ].join("\n\n"),
+          { headers: { "content-type": "text/event-stream" } },
+        ),
+      );
+    const store = new AgentChatStore(root() as never);
+
+    const sending = store.sendMessage("Survive a hung reconnect");
+    await vi.advanceTimersByTimeAsync(17000);
+    await sending;
+
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(String(fetchMock.mock.calls[2]?.[0])).toContain(`/api/agent/conversations/${conversationId}/stream`);
+    expect(store.items).toContainEqual(
+      expect.objectContaining({ kind: "assistant", text: "Recovered after reconnecting again." }),
+    );
+    expect(store.isWorking).toBe(false);
     fetchMock.mockRestore();
   });
 
@@ -2683,6 +4821,413 @@ describe("AgentChatStore", () => {
     expect(store.routeRefreshRevision).toBe(1);
     expect(store.routeSyncStatus).toBe("waiting");
     expect(store.streamStatus).toBe("idle");
+    expect(store.items.filter((item) => item.kind === "turn_interrupted")).toHaveLength(1);
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    fetchMock.mockRestore();
+  });
+
+  it("shows a durable non-retry notice for an uncertain turn with no saved assistant response", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000111";
+    const clientRequestId = "00000000-0000-4000-8000-000000000112";
+    const userMessage = {
+      id: "persisted-user-uncertain",
+      role: "user",
+      parts: [{ type: "text", text: "Check my deals" }],
+      createdAt: new Date(0),
+      turn: {
+        clientRequestId,
+        status: "uncertain",
+        assistantMessageId: null,
+        terminalCode: null,
+      },
+    };
+    actionsMock.getAgentConversationAction.mockResolvedValue({
+      id: conversationId,
+      activeTurn: false,
+      messages: [userMessage],
+      nextCursor: null,
+    });
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response("", {
+        headers: {
+          "content-type": "text/event-stream",
+          "x-conversation-id": conversationId,
+        },
+      }),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    await store.sendMessage("Check my deals", { messageId: clientRequestId });
+
+    expect(store.items.filter((item) => item.kind === "turn_interrupted")).toEqual([
+      expect.objectContaining({ messageId: clientRequestId }),
+    ]);
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "assistant" }));
+    expect(store.hasInSessionTerminalResult).toBe(false);
+    expect(store.isWorking).toBe(false);
+    expect(fetchMock).toHaveBeenCalledOnce();
+
+    const reloaded = new AgentChatStore(root() as never);
+    await reloaded.selectConversation(conversationId);
+    expect(reloaded.items.filter((item) => item.kind === "turn_interrupted")).toEqual([
+      expect.objectContaining({ messageId: userMessage.id }),
+    ]);
+    expect(reloaded.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    expect(fetchMock).toHaveBeenCalledOnce();
+
+    reloaded.newConversation();
+    expect(reloaded.items).toEqual([]);
+    expect(reloaded.conversationId).toBeNull();
+    expect(fetchMock).toHaveBeenCalledOnce();
+    fetchMock.mockRestore();
+  });
+
+  it.each(["completed", "partial", "cancelled"])(
+    "restores a saved %s result when its terminal stream event was lost",
+    async (terminalCode) => {
+      const conversationId = "00000000-0000-4000-8000-000000000113";
+      const clientRequestId = "00000000-0000-4000-8000-000000000114";
+      actionsMock.getAgentConversationAction.mockResolvedValue({
+        id: conversationId,
+        activeTurn: false,
+        messages: [
+          {
+            id: "persisted-user-completed",
+            role: "user",
+            parts: [{ type: "text", text: "Check my deals" }],
+            turn: {
+              clientRequestId,
+              status: "completed",
+              assistantMessageId: "saved-assistant",
+              terminalCode,
+            },
+          },
+          {
+            id: "saved-assistant",
+            role: "assistant",
+            parts: [{ type: "text", text: "The saved result." }],
+          },
+        ],
+        nextCursor: null,
+      });
+      const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+        new Response('data: {"seq":1,"type":"delta","text":"Incomplete streamed result"}\n\n', {
+          headers: {
+            "content-type": "text/event-stream",
+            "x-conversation-id": conversationId,
+          },
+        }),
+      );
+      const store = new AgentChatStore(root() as never);
+
+      await store.sendMessage("Check my deals", { messageId: clientRequestId });
+
+      expect(store.items.filter((item) => item.kind === "assistant")).toEqual([
+        expect.objectContaining({
+          messageId: "saved-assistant",
+          text: "The saved result.",
+          streaming: false,
+        }),
+      ]);
+      expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_interrupted" }));
+      expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+      expect((store as unknown as { activeTurnFailed: boolean }).activeTurnFailed).toBe(terminalCode !== "completed");
+      expect(store.isWorking).toBe(false);
+      expect(fetchMock).toHaveBeenCalledOnce();
+      fetchMock.mockRestore();
+    },
+  );
+
+  it.each(["missing-answer", "different-request"])(
+    "does not treat %s metadata as a confirmed successful response",
+    async (scenario) => {
+      const conversationId = "00000000-0000-4000-8000-000000000115";
+      const clientRequestId = "00000000-0000-4000-8000-000000000116";
+      actionsMock.getAgentConversationAction.mockResolvedValue({
+        id: conversationId,
+        activeTurn: false,
+        messages: [
+          {
+            id: "persisted-user-unconfirmed",
+            role: "user",
+            parts: [{ type: "text", text: "Check my deals" }],
+            turn: {
+              clientRequestId: scenario === "different-request" ? "another-request" : clientRequestId,
+              status: "completed",
+              assistantMessageId: "saved-assistant",
+              terminalCode: "completed",
+            },
+          },
+          ...(scenario === "different-request"
+            ? [
+                {
+                  id: "saved-assistant",
+                  role: "assistant",
+                  parts: [{ type: "text", text: "Another request's answer" }],
+                },
+              ]
+            : []),
+        ],
+        nextCursor: null,
+      });
+      const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+        new Response("", {
+          headers: {
+            "content-type": "text/event-stream",
+            "x-conversation-id": conversationId,
+          },
+        }),
+      );
+      const store = new AgentChatStore(root() as never);
+
+      await store.sendMessage("Check my deals", { messageId: clientRequestId });
+
+      expect(store.items.filter((item) => item.kind === "turn_interrupted")).toHaveLength(1);
+      expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "assistant" }));
+      expect(store.hasInSessionTerminalResult).toBe(false);
+      expect(fetchMock).toHaveBeenCalledOnce();
+      fetchMock.mockRestore();
+    },
+  );
+
+  it("does not apply a late recovery snapshot after navigation to a new conversation", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000117";
+    let resolveSnapshot!: (snapshot: { activeTurn: boolean; messages: never[]; nextCursor: null }) => void;
+    actionsMock.getAgentConversationAction.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveSnapshot = resolve;
+        }),
+    );
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response("", {
+        headers: {
+          "content-type": "text/event-stream",
+          "x-conversation-id": conversationId,
+        },
+      }),
+    );
+    const store = new AgentChatStore(root() as never);
+    const sending = store.sendMessage("Check my deals");
+    await vi.waitFor(() => expect(actionsMock.getAgentConversationAction).toHaveBeenCalled());
+
+    (store as unknown as { beginNewConversation: () => void }).beginNewConversation();
+    resolveSnapshot({ activeTurn: false, messages: [], nextCursor: null });
+    await sending;
+
+    expect(store.conversationId).toBeNull();
+    expect(store.items).toEqual([]);
+    expect(store.routeRefreshRevision).toBe(0);
+    expect(store.isWorking).toBe(false);
+    expect(fetchMock).toHaveBeenCalledOnce();
+    fetchMock.mockRestore();
+  });
+
+  it("keeps the exact request identity and does not re-submit an uncertain busy-turn recovery", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000120";
+    const clientRequestId = "00000000-0000-4000-8000-000000000121";
+    actionsMock.getAgentConversationAction.mockResolvedValue({
+      id: conversationId,
+      activeTurn: false,
+      nextCursor: null,
+      messages: [
+        {
+          id: "another-user",
+          role: "user",
+          parts: [{ type: "text", text: "Another question" }],
+          turn: {
+            clientRequestId: "another-request",
+            status: "completed",
+            assistantMessageId: "another-assistant",
+            terminalCode: "completed",
+          },
+        },
+        { id: "another-assistant", role: "assistant", parts: [{ type: "text", text: "Another answer" }] },
+      ],
+    });
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ disposition: "running", conversationId, clientRequestId }), {
+          status: 409,
+          headers: { "content-type": "application/json", "x-conversation-id": conversationId },
+        }),
+      )
+      .mockResolvedValueOnce(new Response("", { headers: { "content-type": "text/event-stream" } }));
+    const store = new AgentChatStore(root() as never);
+
+    await store.sendMessage("Check my deals", { messageId: clientRequestId });
+    await vi.waitFor(() => expect(store.items).toContainEqual(expect.objectContaining({ kind: "turn_interrupted" })));
+    await Promise.resolve();
+
+    expect(store.items.filter((item) => item.kind === "turn_interrupted")).toEqual([
+      expect.objectContaining({ messageId: clientRequestId }),
+    ]);
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "assistant" }));
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    expect(store.hasInSessionTerminalResult).toBe(false);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls.filter((call) => call[1]?.method === "POST")).toHaveLength(1);
+    fetchMock.mockRestore();
+  });
+
+  it("does not replay a completed history result when a reattached stream has no known request identity", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000122";
+    actionsMock.getAgentConversationAction.mockResolvedValue({
+      id: conversationId,
+      activeTurn: false,
+      nextCursor: null,
+      messages: [
+        {
+          id: "unknown-user",
+          role: "user",
+          parts: [{ type: "text", text: "Unknown question" }],
+          turn: {
+            clientRequestId: "unknown-request",
+            status: "completed",
+            assistantMessageId: "unknown-assistant",
+            terminalCode: "completed",
+          },
+        },
+        { id: "unknown-assistant", role: "assistant", parts: [{ type: "text", text: "Unconfirmed answer" }] },
+      ],
+    });
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response("", {
+        headers: { "content-type": "text/event-stream" },
+      }),
+    );
+    const store = new AgentChatStore(root() as never);
+    store.conversationId = conversationId;
+    store.items = [{ kind: "user", id: "local-user", messageId: "local-request", text: "Check my deals" }];
+
+    await (store as unknown as { reattachStream: (id: string, version: number) => Promise<void> }).reattachStream(
+      conversationId,
+      0,
+    );
+
+    expect(store.items.filter((item) => item.kind === "turn_interrupted")).toEqual([
+      expect.objectContaining({ messageId: "local-request" }),
+    ]);
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "assistant" }));
+    expect(store.hasInSessionTerminalResult).toBe(false);
+    expect(fetchMock).toHaveBeenCalledOnce();
+    fetchMock.mockRestore();
+  });
+
+  it("shows an interrupted notice when admission reports an already uncertain request", async () => {
+    const clientRequestId = "00000000-0000-4000-8000-000000000123";
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ disposition: "uncertain" }), {
+        status: 409,
+        headers: { "content-type": "application/json" },
+      }),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    await store.sendMessage("Check my deals", { messageId: clientRequestId });
+
+    expect(store.items.filter((item) => item.kind === "turn_interrupted")).toEqual([
+      expect.objectContaining({ messageId: clientRequestId }),
+    ]);
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    expect(fetchMock).toHaveBeenCalledOnce();
+    fetchMock.mockRestore();
+  });
+
+  it("shows the interruption notice after reattaching a persisted active turn", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000118";
+    const userMessage = {
+      id: "persisted-user-reattached",
+      role: "user",
+      parts: [{ type: "text", text: "Check my deals" }],
+      turn: {
+        clientRequestId: "reattached-request",
+        status: "running",
+        assistantMessageId: null,
+        terminalCode: null,
+      },
+    };
+    actionsMock.getAgentConversationAction
+      .mockResolvedValueOnce({
+        id: conversationId,
+        activeTurn: true,
+        messages: [userMessage],
+        nextCursor: null,
+      })
+      .mockResolvedValue({
+        id: conversationId,
+        activeTurn: false,
+        messages: [
+          {
+            ...userMessage,
+            turn: { ...userMessage.turn, status: "uncertain" },
+          },
+        ],
+        nextCursor: null,
+      });
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response("", {
+        headers: { "content-type": "text/event-stream" },
+      }),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    await store.selectConversation(conversationId);
+    await vi.waitFor(() => expect(store.isWorking).toBe(false));
+
+    expect(store.items.filter((item) => item.kind === "turn_interrupted")).toEqual([
+      expect.objectContaining({ messageId: userMessage.id }),
+    ]);
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(fetchMock.mock.calls[0]?.[0]).toContain(`/api/agent/conversations/${conversationId}/stream`);
+    fetchMock.mockRestore();
+  });
+
+  it("hydrates uncertain notices in older history without duplicating them or retrying the turn", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000119";
+    actionsMock.getAgentConversationAction
+      .mockResolvedValueOnce({
+        id: conversationId,
+        activeTurn: false,
+        nextCursor: "50",
+        messages: [
+          {
+            id: "newer-user",
+            role: "user",
+            parts: [{ type: "text", text: "A later question" }],
+          },
+        ],
+      })
+      .mockResolvedValue({
+        id: conversationId,
+        activeTurn: false,
+        nextCursor: "40",
+        messages: [
+          {
+            id: "older-user",
+            role: "user",
+            parts: [{ type: "text", text: "An older question" }],
+            turn: {
+              clientRequestId: "older-request",
+              status: "uncertain",
+              assistantMessageId: null,
+              terminalCode: null,
+            },
+          },
+        ],
+      });
+    const fetchMock = vi.spyOn(globalThis, "fetch");
+    const store = new AgentChatStore(root() as never);
+
+    await store.selectConversation(conversationId);
+    await store.loadOlderMessages();
+    await store.loadOlderMessages();
+
+    expect(store.items.map((item) => item.kind)).toEqual(["user", "turn_interrupted", "user"]);
+    expect(fetchMock).not.toHaveBeenCalled();
     fetchMock.mockRestore();
   });
 
@@ -2826,6 +5371,32 @@ describe("AgentChatStore", () => {
     );
     expect(toastMock.error).toHaveBeenCalled();
     vi.useRealTimers();
+  });
+
+  it("bounds cancellation attempts that never respond and returns to a live state", async () => {
+    vi.useFakeTimers();
+    actionsMock.cancelAgentTurnAction.mockImplementation(() => new Promise(() => undefined));
+    const conversationId = "00000000-0000-4000-8000-0000000000bd";
+    const store = new AgentChatStore(root() as never);
+    store.conversationId = conversationId;
+    store.isWorking = true;
+    (store as unknown as { activeTurnAdmissionConfirmed: boolean }).activeTurnAdmissionConfirmed = true;
+
+    store.interrupt();
+    expect(store.streamStatus).toBe("stopping");
+
+    await vi.advanceTimersByTimeAsync(26000);
+
+    expect(actionsMock.cancelAgentTurnAction).toHaveBeenCalledTimes(4);
+    expect(actionsMock.cancelAgentTurnAction).toHaveBeenNthCalledWith(1, { conversationId });
+    expect(actionsMock.cancelAgentTurnAction).toHaveBeenNthCalledWith(4, { conversationId });
+    expect(store.streamStatus).toBe("reconnecting");
+    expect(store.canInterrupt).toBe(true);
+    expect(store.items).not.toContainEqual(
+      expect.objectContaining({ kind: "assistant", text: "This response was stopped." }),
+    );
+    expect(toastMock.error).toHaveBeenCalled();
+    expect(vi.getTimerCount()).toBe(0);
   });
 
   it("does not label a completed turn as cancelled when Stop finds no running turn", async () => {

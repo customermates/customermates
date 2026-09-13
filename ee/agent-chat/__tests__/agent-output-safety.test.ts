@@ -9,6 +9,58 @@ import {
 } from "../agent-output-safety";
 
 describe("agent client-visible output safety", () => {
+  it("preserves local Wiki citations across every stream split while redacting bare identifiers", () => {
+    const id = "00000000-0000-4000-8000-000000000001";
+    const source = `Read [Voice](/wiki?page=${id}) and [Support](/de/wiki?page=${id}). Bare ${id}. ${"Safe prose. ".repeat(10)} [/wiki?page=${id}](/wiki?page=${id}) Raw /wiki?page=${id} and \`/wiki?page=${id}\``;
+    const expected = source.replace(`Bare ${id}`, "Bare [internal reference]");
+    expect(sanitizeAgentVisibleText(source)).toBe(expected);
+    for (let split = 0; split <= source.length; split += 1) {
+      const sanitizer = new AgentVisibleTextStreamSanitizer();
+      expect(
+        `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`,
+      ).toBe(expected);
+    }
+    const sanitizer = new AgentVisibleTextStreamSanitizer();
+    expect([...source].map((character) => sanitizer.push(character)).join("") + sanitizer.finish()).toBe(expected);
+    expect(clientSafeAgentMessageParts([{ type: "text", text: source }], { sanitizeText: true })).toEqual([
+      { type: "text", text: expected },
+    ]);
+  });
+
+  it("does not exempt external URLs, arbitrary routes, or incomplete Wiki citations from ID redaction", () => {
+    const id = "00000000-0000-4000-8000-000000000001";
+    for (const path of [
+      `https://example.com/wiki?page=${id}`,
+      `https://例子.公司/wiki?page=${id}`,
+      `https://example.com/path)/wiki?page=${id}`,
+      `/other-/wiki?page=${id}`,
+      `//example.com/wiki?page=${id}`,
+      `/contacts?id=${id}`,
+      `/wiki?page=${id}&other=true`,
+    ]) {
+      expect(sanitizeAgentVisibleText(`[Link](${path})`)).not.toContain(id);
+      const source = `${path}${" ".repeat(64 - `/wiki?page=${id}`.length)}`;
+      const expected = sanitizeAgentVisibleText(source);
+      for (let split = 0; split <= source.length; split += 1) {
+        const sanitizer = new AgentVisibleTextStreamSanitizer();
+        expect(
+          `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`,
+        ).toBe(expected);
+      }
+      const sanitizer = new AgentVisibleTextStreamSanitizer();
+      expect([...source].map((character) => sanitizer.push(character)).join("") + sanitizer.finish()).toBe(expected);
+    }
+
+    expect(sanitizeAgentVisibleText("[Link](/wiki?page=00000000-0000-4")).toContain("[internal reference]");
+  });
+
+  it("preserves ordinary code delimiters without exposing incomplete private fences", () => {
+    expect(sanitizeAgentVisibleText("Use `plain text`")).toBe("Use `plain text`");
+    expect(sanitizeAgentVisibleText("```text\nPlain text\n```")).toBe("```text\nPlain text\n```");
+    expect(sanitizeAgentVisibleText("Safe ```analys")).toBe("Safe ");
+    expect(sanitizeAgentVisibleText("Safe ```analysis\nprivate")).toBe("Safe ");
+  });
+
   it("redacts private model output without removing the user-facing answer", () => {
     const secret = `sk-proj-${"x".repeat(120)}`;
     const source = [

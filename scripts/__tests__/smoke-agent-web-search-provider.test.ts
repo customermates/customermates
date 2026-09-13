@@ -1,122 +1,226 @@
-import { createGateway } from "ai";
+import { asSchema } from "ai";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { MODEL_CATALOG } from "@/ee/agent-chat/model-catalog";
+import { getAgentWebSearchTool } from "@/ee/agent-chat/agent-web-search";
+import { MODEL_CATALOG, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
 
 import {
+  AGENT_WEB_SEARCH_FEASIBILITY_BLOCKERS,
   AGENT_WEB_SEARCH_SMOKE_MAX_USD,
+  assertProviderSmokeFeasible,
   assertProviderSmokeRequest,
-  assertProviderSmokeSources,
-  expectedProviderSmokeCostMicrocents,
-  providerSmokeUpperBoundUsd,
+  inspectProviderSmokeBilling,
+  inspectProviderSmokeSerialization,
   readProviderSmokeCeiling,
-  runProviderSmokeModelRequest,
+  runProviderSmoke,
 } from "../smoke-agent-web-search-provider";
 
-const MODEL_URL = "https://ai-gateway.vercel.sh/v4/ai/language-model";
+const MODEL = MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY];
+const GENERATION_ID = "gen_01M0QTS0NKJMJMMYA0JGKZM6SF";
 
-afterEach(() => vi.unstubAllEnvs());
+function generation(overrides: Partial<Parameters<typeof inspectProviderSmokeBilling>[1]> = {}) {
+  return {
+    id: GENERATION_ID,
+    totalCost: 0.0053,
+    usage: 0.0053,
+    upstreamInferenceCost: 0,
+    model: MODEL.modelId,
+    providerName: MODEL.servingProvider,
+    isByok: false,
+    createdAt: "2026-09-13T00:00:00.000Z",
+    streamed: false,
+    finishReason: "tool_calls",
+    latency: 1,
+    generationTime: 1,
+    promptTokens: 100,
+    completionTokens: 10,
+    reasoningTokens: 0,
+    cachedTokens: 0,
+    cacheCreationTokens: 0,
+    billableWebSearchCalls: 1,
+    ...overrides,
+  };
+}
 
-describe("web-search provider smoke guard", () => {
-  it("requires explicit opt-in and a ceiling that covers one bounded Azure search", () => {
-    expect(providerSmokeUpperBoundUsd()).toBeCloseTo(0.5394608, 10);
-    expect(() => readProviderSmokeCeiling()).toThrow("opt into the paid smoke");
+function metadata(overrides: Record<string, unknown> = {}, region: string | null = MODEL.inferenceRegion) {
+  return {
+    gateway: {
+      generationId: GENERATION_ID,
+      cost: "0.00530000",
+      inferenceCost: "0.00030000",
+      upstreamInferenceCost: "0",
+      routing: {
+        finalProvider: MODEL.servingProvider,
+        modelAttempts: [
+          {
+            providerAttempts: [
+              {
+                success: true,
+                provider: MODEL.servingProvider,
+                credentialType: "system",
+                inferenceEndpoint: region ? { scope: "zone", geoRegion: region } : null,
+              },
+            ],
+          },
+        ],
+      },
+      ...overrides,
+    },
+  };
+}
 
+afterEach(() => {
+  vi.unstubAllEnvs();
+  vi.unstubAllGlobals();
+});
+
+describe("web-search offline feasibility guard", () => {
+  it("does not infer a provider spend bound from an approved budget", () => {
+    expect(AGENT_WEB_SEARCH_SMOKE_MAX_USD).toBe(15);
+    expect(() => assertProviderSmokeFeasible()).toThrow("One HTTP request is not");
+    expect(() => readProviderSmokeCeiling()).toThrow("request a paid smoke");
     vi.stubEnv("RUN_AGENT_WEB_SEARCH_SMOKE", "true");
-    vi.stubEnv("AI_GATEWAY_API_KEY", "test-only");
-    vi.stubEnv("AGENT_WEB_SEARCH_SMOKE_MAX_USD", "0.539");
-    expect(() => readProviderSmokeCeiling()).toThrow("worst case exceeds");
-
-    vi.stubEnv(
-      "AGENT_WEB_SEARCH_SMOKE_MAX_USD",
-      String(AGENT_WEB_SEARCH_SMOKE_MAX_USD),
-    );
-    expect(readProviderSmokeCeiling()).toBe(0.55);
+    vi.stubEnv("AGENT_WEB_SEARCH_SMOKE_MAX_USD", "15");
+    expect(() => readProviderSmokeCeiling()).toThrow("disabled before network access");
+    expect(AGENT_WEB_SEARCH_FEASIBILITY_BLOCKERS).toHaveLength(4);
   });
 
-  it("accepts the real SDK serialization and rejects every other authenticated request", async () => {
-    const inspected: string[] = [];
-    const gateway = createGateway({
-      apiKey: "test-only",
-      fetch: async (input, init) => {
-        inspected.push(await assertProviderSmokeRequest(input, init));
-        return new Response(
-          JSON.stringify({ error: { message: "intentional test stop" } }),
+  it.each(["", "NaN", "-1", "0", "15.01", "Infinity", "1e3"])("rejects invalid aggregate ceiling %s", (ceiling) => {
+    vi.stubEnv("RUN_AGENT_WEB_SEARCH_SMOKE", "true");
+    vi.stubEnv("AGENT_WEB_SEARCH_SMOKE_MAX_USD", ceiling);
+    expect(() => readProviderSmokeCeiling()).toThrow();
+  });
+
+  it("refuses paid opt-in before any network or credential use", async () => {
+    const fetch = vi.fn(() => {
+      throw new Error("Network must not run.");
+    });
+    vi.stubGlobal("fetch", fetch);
+    vi.stubEnv("RUN_AGENT_WEB_SEARCH_SMOKE", "true");
+    vi.stubEnv("AGENT_WEB_SEARCH_SMOKE_MAX_USD", "15");
+    vi.stubEnv("AI_GATEWAY_API_KEY", "synthetic-must-not-be-used");
+    await expect(runProviderSmoke()).rejects.toThrow("disabled before network access");
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("captures actual SDK native serialization without sending a network request", async () => {
+    const fetch = vi.fn(() => {
+      throw new Error("Network must not run.");
+    });
+    vi.stubGlobal("fetch", fetch);
+    const evidence = await inspectProviderSmokeSerialization();
+    expect(fetch).not.toHaveBeenCalled();
+    expect(evidence).toMatchObject({
+      mode: "offline",
+      networkRequests: 0,
+      spentUsd: 0,
+      paidExecutionAvailable: false,
+      serialization: {
+        model: MODEL.modelId,
+        provider: "vertex",
+        inferenceRegion: "eu",
+        inputSchemaSent: false,
+        nativeTools: [
           {
-            status: 400,
-            headers: { "content-type": "application/json" },
+            type: "provider",
+            name: "web_search",
+            id: "gateway.perplexity_search",
+            args: {
+              maxResults: 3,
+              maxTokens: 1024,
+              maxTokensPerPage: 512,
+              searchDomainFilter: ["iana.org"],
+            },
           },
-        );
+        ],
+        providerOptions: {
+          gateway: {
+            only: ["vertex"],
+            inferenceRegion: { scope: "zone", geoRegion: "eu" },
+            zeroDataRetention: true,
+            disallowPromptTraining: true,
+          },
+        },
       },
     });
-
-    await expect(runProviderSmokeModelRequest(gateway)).rejects.toThrow();
-    expect(inspected).toEqual(["model"]);
-
-    expect(
-      await assertProviderSmokeRequest(
-        new Request(
-          "https://ai-gateway.vercel.sh/v1/generation?id=gen_01M0QTS0NKJMJMMYA0JGKZM6SF",
-          {
-            headers: { authorization: "Bearer test-only" },
-          },
-        ),
-      ),
-    ).toBe("generation");
-    await expect(
-      assertProviderSmokeRequest(
-        "https://ai-gateway.vercel.sh/v4/ai/future-paid-path",
-        { method: "POST" },
-      ),
-    ).rejects.toThrow("unexpected authenticated Gateway request");
+    expect(evidence.serialization.providerOptions.openai).not.toHaveProperty("maxToolCalls");
+    expect(evidence.serialization.nativeTools[0]).not.toHaveProperty("inputSchema");
   });
 
-  it("rejects drift in the serialized model, output, or native tool policy", async () => {
-    const request = new Request(MODEL_URL, {
+  it("shows that the installed runtime schema permits parameters above configured defaults", async () => {
+    const tool = getAgentWebSearchTool({ allowedDomains: ["iana.org"] });
+    const inputSchema = asSchema(tool.inputSchema);
+    const input = {
+      query: Array.from({ length: 6 }, (_, index) => "synthetic query " + index),
+      max_results: 20,
+      max_tokens: 1_000_000,
+      max_tokens_per_page: 2048,
+      search_domain_filter: ["example.com"],
+    };
+    const result = await inputSchema.validate?.(input);
+    expect(result).toEqual({ success: true, value: input });
+    expect(tool.args).toMatchObject({
+      maxResults: 3,
+      maxTokens: 1024,
+      maxTokensPerPage: 512,
+      searchDomainFilter: ["iana.org"],
+    });
+    expect(tool).toMatchObject({ type: "provider", id: "gateway.perplexity_search" });
+  });
+
+  it("runs the default command as an offline-only check", async () => {
+    vi.stubEnv("RUN_AGENT_WEB_SEARCH_SMOKE", "");
+    expect(await runProviderSmoke()).toMatchObject({ mode: "offline", networkRequests: 0, spentUsd: 0 });
+  });
+
+  it("rejects drift instead of accepting a stale Azure/OpenAI smoke request", async () => {
+    const request = new Request("https://ai-gateway.vercel.sh/v4/ai/language-model", {
       method: "POST",
-      headers: {
-        authorization: "Bearer test-only",
-        "ai-language-model-id": MODEL_CATALOG.balanced.modelId,
-        "ai-language-model-specification-version": "4",
-        "ai-language-model-streaming": "false",
-        "ai-gateway-protocol-version": "0.0.1",
-      },
-      body: JSON.stringify({ maxOutputTokens: 257, tools: [] }),
+      headers: { "ai-language-model-id": "openai/gpt-5.6-luna" },
+      body: JSON.stringify({ maxOutputTokens: 257, tools: [{ type: "provider", id: "openai.web_search" }] }),
     });
-
-    await expect(assertProviderSmokeRequest(request)).rejects.toThrow(
-      "did not preserve",
-    );
+    await expect(assertProviderSmokeRequest(request)).rejects.toThrow("current model, provider, region");
   });
 
-  it("adds the billed search to the actual token cost", () => {
-    expect(
-      expectedProviderSmokeCostMicrocents({
-        promptTokens: 100,
-        completionTokens: 10,
-        cachedTokens: 0,
-        cacheCreationTokens: 0,
-        billableWebSearchCalls: 1,
-      }),
-    ).toBe(1_403_200);
+  it("rejects malformed and oversized offline request data", async () => {
+    const request = (body: string) =>
+      new Request("https://ai-gateway.vercel.sh/v4/ai/language-model", {
+        method: "POST",
+        body,
+      });
+    await expect(assertProviderSmokeRequest(request("not-json"))).rejects.toThrow("not JSON");
+    await expect(assertProviderSmokeRequest(request(" ".repeat(64_001)))).rejects.toThrow("serialization bound");
+  });
+});
+
+describe("read-only all-in billing receipt inspection", () => {
+  it("reconciles total Gateway charge rather than the smaller inference-only charge", () => {
+    expect(inspectProviderSmokeBilling(metadata(), generation())).toEqual({
+      authoritativeMicrocents: 530_000,
+      billedSearches: 1,
+      searchCostInclusionVerified: false,
+      releasePrerequisitesSatisfied: false,
+    });
   });
 
-  it("accepts usable provider sources from the requested domain", () => {
-    const sources = [{ type: "url", url: "https://iana.org/source" }];
-    const content = [
-      {
-        type: "tool-result",
-        toolName: "web_search",
-        output: { action: { type: "search" }, sources },
-      },
-    ];
+  it.each([
+    { totalCost: 0.0003, usage: 0.0003 },
+    { totalCost: Number.NaN },
+    { totalCost: -1 },
+    { providerName: "azure" },
+    { model: "other-model" },
+    { isByok: true },
+    { upstreamInferenceCost: 0.001 },
+    { billableWebSearchCalls: 0 },
+    { billableWebSearchCalls: 1.5 },
+    { id: "different-receipt" },
+    { usage: 1 },
+  ])("rejects inconsistent, missing-search, or differently served receipts", (overrides) => {
+    expect(() => inspectProviderSmokeBilling(metadata(), generation(overrides))).toThrow("did not reconcile");
+  });
 
-    expect(assertProviderSmokeSources(content)).toEqual([
-      "https://iana.org/source",
-    ]);
-    sources[0].url = "https://example.com/forbidden";
-    expect(() => assertProviderSmokeSources(content)).toThrow(
-      "outside the requested domain",
-    );
+  it("requires the resolved inference region and the authoritative cost field", () => {
+    expect(() => inspectProviderSmokeBilling(metadata({}, "us"), generation())).toThrow("did not reconcile");
+    expect(() => inspectProviderSmokeBilling(metadata({ cost: undefined }), generation())).toThrow("did not reconcile");
   });
 });

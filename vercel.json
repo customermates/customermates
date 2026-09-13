@@ -8,6 +8,10 @@
     {
       "path": "/api/cron/reprocess-webhook-events",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/routines",
+      "schedule": "*/5 * * * *"
     }
   ],
   "git": {

@@ -35,11 +35,14 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "linkedin_manage_sales_lists",
   "manage_custom_columns",
   "manage_record_links",
+  "manage_routines",
   "manage_social_relations",
   "manage_webhooks",
   "manage_widgets",
   "manage_wiki_pages",
   "save_message_draft",
+  "send_chat_message",
+  "send_email",
   "update_contacts",
   "update_deals",
   "update_messaging_thread",
@@ -58,8 +61,6 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "manage_team",
   "move_email_thread",
   "request_support",
-  "send_chat_message",
-  "send_email",
 ]
 `;
 
@@ -72,6 +73,12 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "manage_custom_columns": [
     "list",
     "upsert",
+  ],
+  "manage_routines": [
+    "list",
+    "runs",
+    "create",
+    "update",
   ],
   "manage_social_relations": [
     "list",

@@ -5,21 +5,22 @@ import { useLayoutEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Pencil, X } from "lucide-react";
 
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-context";
 import { Button } from "@/components/ui/button";
 import { ActionTooltip, chatUiCopy, focusAgentComposer } from "./chat-ui";
 
 export const QueuedPrompt = observer(function QueuedPrompt() {
-  const { agentChatStore: store } = useRootStore();
+  const store = useAgentChatStore();
+  const uiTargets = useAgentChatUiTargets();
   const copy = chatUiCopy(useTranslations());
   const rowRef = useRef<HTMLDivElement>(null);
   const prompt = store.queuedPrompt;
 
   useLayoutEffect(
     () => () => {
-      if (rowRef.current?.contains(document.activeElement)) focusAgentComposer();
+      if (rowRef.current?.contains(document.activeElement)) focusAgentComposer(uiTargets);
     },
-    [],
+    [uiTargets],
   );
 
   if (!prompt) return null;

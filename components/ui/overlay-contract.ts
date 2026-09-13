@@ -1,5 +1,9 @@
 export const OVERLAY_COLLISION_PADDING = 8;
 
+export const OVERLAY_RAISED_PANEL_LAYER_CLASS = "z-[60]";
+
+export const OVERLAY_TOPMOST_LAYER_CLASS = "z-[70]";
+
 export const OVERLAY_CLOSE_POSITION_CLASS = "top-1.5 right-1.5";
 
 export const OVERLAY_SAFE_CLOSE_POSITION_CLASS =

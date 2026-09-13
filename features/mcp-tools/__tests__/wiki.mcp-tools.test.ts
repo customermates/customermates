@@ -73,14 +73,28 @@ describe("manage_wiki_pages registry", () => {
   });
 
   it("exposes only the two setup capabilities during homepage setup", () => {
-    const validPages = Array.from({ length: 5 }, (_, index) => ({ title: `Page ${index + 1}`, markdown: "Body" }));
+    const validPages = Array.from({ length: 5 }, (_, index) => ({
+      title: `Page ${index + 1}`,
+      markdown: "Body",
+    }));
 
-    expect(
-      WikiHomepageSetupCreateSchema.safeParse({ action: "create", pages: validPages, requireEmpty: true }).success,
-    ).toBe(true);
+    for (let count = 1; count <= 5; count++) {
+      expect(
+        WikiHomepageSetupCreateSchema.safeParse({
+          action: "create",
+          pages: validPages.slice(0, count),
+          requireEmpty: true,
+        }).success,
+      ).toBe(true);
+    }
     for (const invalid of [
       { action: "list" },
-      { action: "create", pages: validPages.slice(0, 4), requireEmpty: true },
+      { action: "create", pages: [], requireEmpty: true },
+      {
+        action: "create",
+        pages: [...validPages, validPages[0]],
+        requireEmpty: true,
+      },
       { action: "create", pages: validPages, requireEmpty: false },
       { action: "update", pages: validPages, requireEmpty: true },
     ])
@@ -93,7 +107,14 @@ describe("manage_wiki_pages reads", () => {
     calls.list.mockResolvedValue({
       ok: true,
       data: {
-        items: [{ id: PAGE_ID, title: "Company Overview", createdAt: CREATED_AT, updatedAt: UPDATED_AT }],
+        items: [
+          {
+            id: PAGE_ID,
+            title: "Company Overview",
+            createdAt: CREATED_AT,
+            updatedAt: UPDATED_AT,
+          },
+        ],
         total: 1,
         page: 2,
         pageSize: 5,
@@ -141,7 +162,11 @@ describe("manage_wiki_pages reads", () => {
 
     const result = await run({ action: "search", query: "useful" });
 
-    expect(calls.search).toHaveBeenCalledWith({ query: "useful", page: 1, pageSize: 5 });
+    expect(calls.search).toHaveBeenCalledWith({
+      query: "useful",
+      page: 1,
+      pageSize: 5,
+    });
     expect(decode(mcpToolResultText(result))).toMatchObject({
       items: [{ id: PAGE_ID, snippet: "A useful match" }],
       total: 1,
@@ -168,14 +193,23 @@ describe("manage_wiki_pages reads", () => {
     });
 
     const text = mcpToolResultText(await run({ action: "search", query: "match" }));
-    const output = decode(text) as { items: unknown[]; total: number; page: number; pageSize: number };
+    const output = decode(text) as {
+      items: unknown[];
+      total: number;
+      page: number;
+      pageSize: number;
+    };
 
     expect(text.length).toBeLessThan(6_000);
     expect(output).toMatchObject({ total: 23, page: 1, pageSize: 5 });
     expect(output.items).toHaveLength(5);
-    expect(manageWikiPagesTool.inputSchema.safeParse({ action: "search", query: "match", pageSize: 10 }).success).toBe(
-      false,
-    );
+    expect(
+      manageWikiPagesTool.inputSchema.safeParse({
+        action: "search",
+        query: "match",
+        pageSize: 10,
+      }).success,
+    ).toBe(false);
   });
 
   it("returns long Unicode Markdown in bounded, contiguous chunks", async () => {
@@ -218,7 +252,11 @@ describe("manage_wiki_pages reads", () => {
       offset: number;
       nextOffset: number | null;
     };
-    expect(middle).toMatchObject({ markdownChunk: "😀B", offset: 1, nextOffset: null });
+    expect(middle).toMatchObject({
+      markdownChunk: "😀B",
+      offset: 1,
+      nextOffset: null,
+    });
 
     const beyond = decode(mcpToolResultText(await run({ action: "get", id: PAGE_ID, offset: 10_000 }))) as {
       markdownChunk: string;
@@ -239,7 +277,10 @@ describe("manage_wiki_pages reads", () => {
 
 describe("manage_wiki_pages writes", () => {
   it("delegates one atomic empty-only five-page create", async () => {
-    const pages = Array.from({ length: 5 }, (_, index) => ({ title: `Page ${index + 1}`, markdown: `Body ${index}` }));
+    const pages = Array.from({ length: 5 }, (_, index) => ({
+      title: `Page ${index + 1}`,
+      markdown: `Body ${index}`,
+    }));
     calls.create.mockResolvedValue({
       ok: true,
       data: pages.map((value, index) => ({
@@ -276,12 +317,25 @@ describe("manage_wiki_pages writes", () => {
       expectedUpdatedAt: UPDATED_AT,
       markdown: "Updated",
     });
-    expect(calls.delete).toHaveBeenCalledWith({ id: PAGE_ID, expectedUpdatedAt: UPDATED_AT });
-    expect(decode(mcpToolResultText(deleted))).toEqual({ deleted: true, id: PAGE_ID });
+    expect(calls.delete).toHaveBeenCalledWith({
+      id: PAGE_ID,
+      expectedUpdatedAt: UPDATED_AT,
+    });
+    expect(decode(mcpToolResultText(deleted))).toEqual({
+      deleted: true,
+      id: PAGE_ID,
+    });
   });
 
   it.each([
-    [{ action: "update", id: PAGE_ID, expectedUpdatedAt: UPDATED_AT.toISOString() }, "update"],
+    [
+      {
+        action: "update",
+        id: PAGE_ID,
+        expectedUpdatedAt: UPDATED_AT.toISOString(),
+      },
+      "update",
+    ],
     [{ action: "delete", id: PAGE_ID }, "delete"],
   ] as const)("rejects incomplete %s input before invoking an interactor", async (input, action) => {
     const result = await run(input as unknown as Record<string, unknown>);

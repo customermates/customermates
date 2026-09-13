@@ -12,17 +12,18 @@ describe("native Agent web search", () => {
     expect(getAgentWebSearchTool()).toMatchObject({
       type: "provider",
       isProviderExecuted: true,
-      id: "openai.web_search",
-      args: { externalWebAccess: true, searchContextSize: "low" },
+      id: "gateway.perplexity_search",
+      args: { maxResults: 3, maxTokens: 1024, maxTokensPerPage: 512 },
     });
     expect(getAgentWebSearchTool({ allowedDomains: ["example.com"] })).toMatchObject({
       type: "provider",
       isProviderExecuted: true,
-      id: "openai.web_search",
+      id: "gateway.perplexity_search",
       args: {
-        externalWebAccess: true,
-        searchContextSize: "low",
-        filters: { allowedDomains: ["example.com"] },
+        maxResults: 3,
+        maxTokens: 1024,
+        maxTokensPerPage: 512,
+        searchDomainFilter: ["example.com"],
       },
     });
   });

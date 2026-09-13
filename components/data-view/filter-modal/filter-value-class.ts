@@ -57,6 +57,7 @@ function standardValueClass(field: string, operator: FilterOperatorKey): FilterV
       return comparisonValueClass(filterValueKind(field)?.kind);
     case FilterOperatorKey.equals:
     case FilterOperatorKey.contains:
+    case FilterOperatorKey.startsWith:
       return "text";
     case FilterOperatorKey.isNull:
     case FilterOperatorKey.isNotNull:

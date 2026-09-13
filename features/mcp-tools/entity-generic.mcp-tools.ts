@@ -196,10 +196,13 @@ const SearchRecordsOutputSchema = z.object({
 });
 
 const GetRecordsOutputSchema = z.object({
+  requested: z.number().describe("How many items were asked for."),
+  found: z.number().describe("How many were returned successfully."),
+  failed: z.number().describe("How many could not be loaded."),
   items: z
     .array(z.looseObject({}))
     .describe(
-      "One entry per requested item, in order: the record keyed by its entity name (plus notes when requested), or { error } when that id failed.",
+      "One entry per requested item, in order: the record keyed by its entity name, or { error } when that id failed. notesStatus says whether notes are present, absent, or were not requested; notes are only included when include is withNotes.",
     ),
 });
 
@@ -418,6 +421,8 @@ export const getRecordsTool = {
     "Required per item: entity, id (for contacts, id may also be an email, phone, or 'provider:handle' channel key). " +
     "Optional per item: include (masterData = fields only, default; withNotes = fields + markdown notes). " +
     "Each result item is the full record, or { error } for an id that was not found, so inspect every item even when the call succeeds. " +
+    "The response reports requested, found and failed counts; compare them rather than counting items yourself. " +
+    "notesStatus is present, empty, or notRequested: notRequested means the record has notes you did not ask for, so never report that a record has no notes unless notesStatus is empty. " +
     "Use this before update_* or manage_record_links when you need the current state.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: GetRecordsSchema,
@@ -432,14 +437,23 @@ export const getRecordsTool = {
         const { notes, ...masterData } = loaded.entity as Record<string, unknown> & { notes?: unknown };
         if (include === "withNotes") {
           const markdown = notes ? serializeJSONToMarkdown(notes as object) : null;
-          return formatDatesInResponse({ [key]: masterData, notes: markdown });
+          return formatDatesInResponse({
+            [key]: masterData,
+            notesStatus: markdown ? "present" : "empty",
+            notes: markdown,
+          });
         }
 
-        return formatDatesInResponse({ [key]: masterData });
+        return formatDatesInResponse({
+          [key]: masterData,
+          notesStatus: notes ? "notRequested" : "empty",
+        });
       }),
     );
 
-    return { text: encodeToToon(results), structuredContent: { items: results } };
+    const failed = results.filter((entry) => "error" in entry).length;
+    const payload = { requested: items.length, found: results.length - failed, failed, items: results };
+    return { text: encodeToToon(payload), structuredContent: payload };
   },
 };
 

@@ -1,16 +1,44 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+type WorkflowTool = {
+  needsApproval: (input: unknown, options: { toolCallId: string }) => Promise<boolean>;
+  execute?: (input: unknown, options: { toolCallId: string; messages?: unknown[] }) => Promise<unknown>;
+};
+
+type StreamOptions = {
+  tools: Record<string, WorkflowTool>;
+  messages: unknown[];
+  completeStepAndPrepareNext: (step: unknown, messages?: unknown[]) => Promise<void>;
+  executeAndCompleteTool: (toolName: string, input: unknown, toolCallId: string, batch?: unknown[]) => Promise<unknown>;
+};
+
 const state = vi.hoisted(() => ({
   gateResults: [] as boolean[],
+  gateFailure: null as Error | null,
+  contextFits: vi.fn(),
   providerCalls: 0,
-  agentOptions: [] as Record<string, unknown>[],
-  toolDefinitions: [] as Record<string, unknown>[],
-  messages: [] as unknown[],
-  steps: [] as unknown[],
   writes: [] as unknown[],
-  lifecycle: [] as string[],
   markProviderStarted: vi.fn<() => Promise<boolean>>(),
   finalize: vi.fn(),
+  reconcile: vi.fn(),
+  close: vi.fn(),
+  reportFailure: vi.fn(),
+  toolLoadFailure: false,
+  providerOptions: null as unknown,
+  instructions: [] as string[],
+  prepared: null as unknown,
+  readPage: vi.fn(),
+  definitions: [] as { name: string; description: string; inputSchema: unknown }[],
+  normalize: vi.fn(),
+  execute: vi.fn(),
+  runTools: null as null | ((options: StreamOptions) => Promise<unknown>),
+  createApproval: vi.fn(),
+  readApproval: vi.fn(),
+  takeUiResult: vi.fn(),
+  readCancellation: vi.fn(),
+  dispatch: vi.fn(),
+  heartbeat: vi.fn(),
+  recordRound: vi.fn(),
   extendReservation: vi.fn(),
 }));
 
@@ -18,44 +46,70 @@ vi.mock("@ai-sdk/workflow", () => ({
   WorkflowAgent: class {
     constructor(
       private readonly options: {
-        prepareStep: () => Promise<unknown>;
+        prepareStep: (input: { messages: unknown[] }) => Promise<unknown>;
         onStepEnd: (step: unknown) => Promise<void>;
+        onToolExecutionEnd: (event: unknown) => void;
+        instructions: string;
+        providerOptions: unknown;
+        tools: Record<string, WorkflowTool>;
       },
     ) {
-      state.agentOptions.push(options as unknown as Record<string, unknown>);
+      state.providerOptions = options.providerOptions;
+      state.instructions.push(options.instructions);
     }
 
-    async stream() {
-      const startProviderRound = async () => {
-        await this.options.prepareStep();
+    async stream({ messages }: { messages: unknown[] }) {
+      const preparedMessages = (nextMessages: unknown[]) => [
+        { role: "system", content: this.options.instructions },
+        ...nextMessages,
+      ];
+      if (state.runTools) {
+        await this.options.prepareStep({ messages: preparedMessages(messages) });
         state.providerCalls += 1;
-        state.lifecycle.push(`provider:${state.providerCalls}`);
-      };
-
-      await startProviderRound();
-
-      if (state.steps.length === 0) await startProviderRound();
-      else {
-        for (const step of state.steps as { finishReason?: string }[]) {
-          await this.options.onStepEnd(step);
-          if (step.finishReason !== "tool-calls") break;
-          await startProviderRound();
-        }
+        return state.runTools({
+          tools: this.options.tools,
+          messages,
+          completeStepAndPrepareNext: async (step, nextMessages = messages) => {
+            await this.options.onStepEnd(step);
+            state.prepared = await this.options.prepareStep({ messages: preparedMessages(nextMessages) });
+            state.providerCalls += 1;
+          },
+          executeAndCompleteTool: async (toolName, input, toolCallId, batch) => {
+            const tool = this.options.tools[toolName];
+            if (!tool?.execute) throw new Error(`Tool ${toolName} cannot execute.`);
+            const output = await tool.execute(input, {
+              toolCallId,
+              messages: batch ?? [{ role: "assistant", content: [{ type: "tool-call", toolName, toolCallId, input }] }],
+            });
+            this.options.onToolExecutionEnd({
+              success: true,
+              toolCall: { toolCallId, toolName },
+              output,
+            });
+            return output;
+          },
+        });
       }
+      await this.options.prepareStep({ messages: preparedMessages(messages) });
+      state.providerCalls += 1;
 
-      return {
-        finishReason: "stop",
-        messages: state.messages,
-        steps: state.steps,
-      };
+      await this.options.prepareStep({ messages: preparedMessages(messages) });
+      state.providerCalls += 1;
+
+      return { finishReason: "stop", messages: [], steps: [] };
     }
   },
 }));
 
 vi.mock("workflow", () => ({
-  createHook: () => ({ dispose: vi.fn() }),
+  createHook: () => ({
+    dispose: vi.fn(),
+    async *[Symbol.asyncIterator]() {
+      yield await Promise.resolve({ requestId: "turn-1:call-1" });
+    },
+  }),
   getWritable: () => ({
-    close: vi.fn().mockResolvedValue(undefined),
+    close: state.close,
     getWriter: () => ({
       releaseLock: vi.fn(),
       write: (value: unknown) => {
@@ -70,7 +124,6 @@ vi.mock("workflow", () => ({
 vi.mock("ai", () => ({
   isStepCount: () => () => false,
   jsonSchema: (schema: unknown) => schema,
-  tool: (definition: unknown) => definition,
 }));
 
 vi.mock("@/core/decorators/background-tenant", () => ({
@@ -79,38 +132,54 @@ vi.mock("@/core/decorators/background-tenant", () => ({
 
 vi.mock("@/core/di", () => ({
   getAgentChatRepo: () => ({
-    canStartNextHostedAiProviderRoundUnscoped: vi.fn(() => Promise.resolve(state.gateResults.shift() ?? false)),
+    canStartNextHostedAiProviderRoundUnscoped: vi.fn(() => {
+      if (state.gateFailure) return Promise.reject(state.gateFailure);
+      return Promise.resolve(state.gateResults.shift() ?? true);
+    }),
     finalizeAgentTurnOrThrowUnscoped: state.finalize,
-    heartbeatAgentRunUnscoped: vi.fn().mockResolvedValue(true),
-    isAgentTurnCancellationRequestedUnscoped: vi.fn().mockResolvedValue(false),
+    reconcileInterruptedAgentTurnUnscoped: state.reconcile,
+    isAgentTurnCancellationRequestedUnscoped: state.readCancellation,
     markAgentTurnProviderStartedUnscoped: state.markProviderStarted,
-    recordAgentRunRoundUnscoped: vi.fn().mockResolvedValue(undefined),
+    extendAgentRunLeaseForSuspensionUnscoped: vi.fn().mockResolvedValue(undefined),
+    createPendingApprovalRequestOrThrowUnscoped: state.createApproval,
+    findApprovalDecisionUnscoped: state.readApproval,
+    discardPendingApprovalRequestUnscoped: vi.fn().mockResolvedValue(undefined),
+    takeUiCommandResultUnscoped: state.takeUiResult,
+    heartbeatAgentRunUnscoped: state.heartbeat,
+    recordAgentRunRoundUnscoped: state.recordRound,
     extendUsageReservationUnscoped: state.extendReservation,
   }),
+  getBackgroundTaskService: () => ({ dispatch: state.dispatch }),
 }));
 
 vi.mock("@/ee/agent-chat/agent-tools", () => ({
-  getAgentAiToolDefinitions: () => state.toolDefinitions,
-  getAgentAiTools: () => ({}),
+  getAgentAiToolDefinitions: () => {
+    if (state.toolLoadFailure) throw new Error("tool shell unavailable");
+    return state.definitions;
+  },
+  getAgentAiTools: () => Object.fromEntries(state.definitions.map(({ name }) => [name, { execute: state.execute }])),
+  normalizeAgentAiToolInput: state.normalize,
 }));
-vi.mock("@/features/mcp-tools/tool-registry", () => ({ ALL_MCP_TOOLS: [] }));
-vi.mock("@/ee/agent-chat/system-prompt", () => ({
-  buildAgentSystemPrompt: () => "system",
+vi.mock("@/ee/agent-chat/public-page-reader", () => ({ readPublicPage: state.readPage }));
+vi.mock("@/features/mcp-tools/tool-registry", () => ({
+  ALL_MCP_TOOLS: [
+    { name: "list_users", annotations: { readOnlyHint: true } },
+    { name: "manage_widgets", annotations: { readOnlyHint: false } },
+    { name: "manage_wiki_pages", annotations: { readOnlyHint: false } },
+    { name: "delete_records", annotations: { readOnlyHint: false } },
+  ],
 }));
+vi.mock("@/ee/agent-chat/system-prompt", () => ({ buildAgentSystemPrompt: () => "system" }));
 vi.mock("@/ee/agent-chat/agent-provider-context", () => ({
-  buildAgentProviderContext: (_system: string, messages: unknown[]) => ({
-    messages,
-  }),
-  isAgentStepContextWithinBudget: () => true,
+  buildAgentProviderContext: (system: string, messages: unknown[], tools: unknown[]) => ({ messages, system, tools }),
+  isAgentStepContextWithinBudget: (...args: unknown[]) => state.contextFits(...args),
 }));
 vi.mock("@/i18n/get-translator", () => ({
   getTranslator: () => Promise.resolve((key: string) => `localized:${key}`),
 }));
-vi.mock("@/i18n/locale-registry", () => ({
-  appLocaleOrDefault: (locale: string) => locale,
-}));
+vi.mock("@/i18n/locale-registry", () => ({ appLocaleOrDefault: (locale: string) => locale }));
 vi.mock("../capture-failure", () => ({
-  reportFailure: vi.fn().mockResolvedValue(undefined),
+  reportFailure: state.reportFailure,
   toWorkflowFailure: (error: unknown) => error,
 }));
 
@@ -127,55 +196,90 @@ const payload: AgentTurnWorkflowPayload = {
   appBaseUrl: "http://localhost:4000",
   messages: [{ role: "user", text: "Hello" }],
   turnBudget: {
-    modelSpec: "openai/gpt-5-nano",
-    servingProvider: "azure",
+    modelSpec: "google/gemini-3.5-flash-lite",
+    servingProvider: "vertex",
+    inferenceRegion: "eu",
     reservedCredits: 10,
     roundReserveCredits: 2,
     maxOutputTokens: 100,
     maxContextTokens: 8_000,
     maxContextBytes: 32_000,
     maxToolResultChars: 1_000,
-    webSearchEnabled: true,
   },
   tenant: { userId: "user-1", companyId: "company-1" },
 };
 
-function measuredAzureProviderMetadata(cost: unknown = "0.000041") {
+beforeEach(() => {
+  state.gateResults = [];
+  state.gateFailure = null;
+  state.providerCalls = 0;
+  state.writes = [];
+  state.toolLoadFailure = false;
+  state.providerOptions = null;
+  state.instructions = [];
+  state.prepared = null;
+  state.readPage.mockReset().mockResolvedValue({
+    ok: true,
+    url: "https://example.com/",
+    title: "Example",
+    text: "Useful information",
+    links: [],
+    truncated: false,
+  });
+  state.definitions = [];
+  state.runTools = null;
+  state.normalize.mockReset();
+  state.execute.mockReset().mockResolvedValue({ ok: true, result: "done" });
+  state.createApproval.mockReset().mockResolvedValue(undefined);
+  state.readApproval.mockReset();
+  state.takeUiResult.mockReset().mockResolvedValue({ ok: true, result: "shown" });
+  state.readCancellation.mockReset().mockResolvedValue(false);
+  state.dispatch.mockReset().mockResolvedValue(undefined);
+  state.heartbeat.mockReset().mockResolvedValue(true);
+  state.recordRound.mockReset().mockResolvedValue(undefined);
+  state.extendReservation
+    .mockReset()
+    .mockImplementation(({ requiredCredits }) =>
+      Promise.resolve({ disposition: "extended", reservedCredits: requiredCredits }),
+    );
+  state.contextFits.mockReset().mockReturnValue(true);
+  state.reconcile.mockReset().mockResolvedValue({ reconciled: true });
+  state.close.mockReset().mockResolvedValue(undefined);
+  state.reportFailure.mockReset().mockResolvedValue(undefined);
+  state.markProviderStarted.mockReset().mockResolvedValue(true);
+  state.finalize.mockReset().mockImplementation((args) => {
+    const policyBreach = args.usageSettlement?.policyBreach === true;
+    return Promise.resolve({
+      assistantMessage: { id: "assistant-1" },
+      terminalCode: policyBreach ? "policyBreach" : args.terminalCode,
+      stopReason: policyBreach ? "policy_breach" : args.stopReason,
+      affectedResources: args.affectedResources,
+      chargedCredits: args.usageSettlement?.chargedCredits ?? 0,
+    });
+  });
+});
+
+function streamedStep(text: string, finishReason: string, outputTokens = text ? 1 : 0) {
   return {
-    gateway: {
-      routing: {
-        finalProvider: "azure",
-        modelAttempts: [
-          {
-            providerAttempts: [{ provider: "azure", credentialType: "system", success: true }],
-          },
-        ],
-      },
-      cost,
+    content: text ? [{ type: "text", text }] : [],
+    finishReason,
+    usage: {
+      inputTokens: 1,
+      outputTokens,
+      totalTokens: outputTokens + 1,
+      inputTokenDetails: { noCacheTokens: 1, cacheReadTokens: 0, cacheWriteTokens: 0 },
+      outputTokenDetails: { textTokens: outputTokens, reasoningTokens: 0 },
     },
+    providerMetadata: {},
   };
 }
 
-beforeEach(() => {
-  state.gateResults = [];
-  state.providerCalls = 0;
-  state.agentOptions = [];
-  state.toolDefinitions = [];
-  state.messages = [];
-  state.steps = [];
-  state.writes = [];
-  state.lifecycle = [];
-  state.markProviderStarted.mockReset().mockResolvedValue(true);
-  state.extendReservation.mockReset().mockResolvedValue(null);
-  state.finalize.mockReset().mockImplementation((args) =>
-    Promise.resolve({
-      assistantMessage: { id: "assistant-1" },
-      terminalCode: args.terminalCode,
-      affectedResources: args.affectedResources,
-      chargedCredits: 0,
-    }),
-  );
-});
+function streamedToolCallStep(toolName: string, toolCallId: string, input: unknown) {
+  return {
+    ...streamedStep("", "tool-calls"),
+    content: [{ type: "tool-call", toolName, toolCallId, input }],
+  };
+}
 
 describe("agent-turn hosted-AI provider gates", () => {
   it("makes no provider call when the provider-start admission is rejected", async () => {
@@ -184,7 +288,9 @@ describe("agent-turn hosted-AI provider gates", () => {
     await runAgentTurn(payload);
 
     expect(state.providerCalls).toBe(0);
-    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ usageSettlement: null }));
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ usageSettlement: null, stopReason: "hosted_ai_unavailable" }),
+    );
     expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.hostedAiUnavailable");
     expect(JSON.stringify(state.writes)).not.toMatch(/operator_paused|global_spend_cap/u);
   });
@@ -195,455 +301,1045 @@ describe("agent-turn hosted-AI provider gates", () => {
     await runAgentTurn(payload);
 
     expect(state.providerCalls).toBe(1);
-    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "partial" }));
+    expect(state.providerOptions).toEqual({
+      gateway: {
+        only: [payload.turnBudget.servingProvider],
+        inferenceRegion: { scope: "zone", geoRegion: "eu" },
+        zeroDataRetention: true,
+        disallowPromptTraining: true,
+      },
+      openai: { parallelToolCalls: false, store: false },
+    });
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "partial", stopReason: "hosted_ai_unavailable" }),
+    );
     expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.hostedAiUnavailable");
     expect(JSON.stringify(state.writes)).not.toMatch(/operator_paused|global_spend_cap/u);
   });
+});
 
-  it("does not start another provider round when its reservation extension is rejected", async () => {
-    state.gateResults = [true, true];
-    state.steps = [
-      {
-        content: [{ type: "text", text: "Working." }],
-        toolResults: [],
-        finishReason: "tool-calls",
-        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
-        providerMetadata: {},
-      },
-    ];
+describe("agent-turn credit-bounded continuation", () => {
+  it("continues a length-truncated response from captured partial output without replaying the original prompt", async () => {
+    let segment = 0;
+    const seenMessages: unknown[][] = [];
+    state.runTools = ({ messages }) => {
+      seenMessages.push(messages);
+      segment += 1;
+
+      if (segment === 1) {
+        return Promise.resolve({
+          finishReason: "length",
+          messages: [{ role: "user", content: "Hello" }],
+          steps: [streamedStep("First half.", "length")],
+        });
+      }
+
+      return Promise.resolve({
+        finishReason: "stop",
+        messages,
+        steps: [streamedStep(" Second half.", "stop")],
+      });
+    };
+
+    await runAgentTurn(payload);
+
+    expect(state.providerCalls).toBe(2);
+    expect(state.writes.filter((event) => (event as { type?: string }).type === "stream_checkpoint")).toHaveLength(2);
+    expect(JSON.stringify(seenMessages[1])).toContain("First half.");
+    expect(JSON.stringify(seenMessages[1])).toContain("agent_output_continuation");
+    expect(JSON.stringify(seenMessages[1]).match(/Hello/g)).toHaveLength(1);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "completed", stopReason: null }),
+    );
+  });
+
+  it("stops before another provider segment when the next worst-case round cannot be reserved", async () => {
+    state.extendReservation.mockResolvedValueOnce({ disposition: "credit_limit" });
+    state.runTools = ({ messages }) =>
+      Promise.resolve({
+        finishReason: "length",
+        messages,
+        steps: [streamedStep("Partial response.", "length")],
+      });
 
     await runAgentTurn({
       ...payload,
-      turnBudget: {
-        ...payload.turnBudget,
-        reservedCredits: 1,
-        roundReserveCredits: 2,
-      },
+      turnBudget: { ...payload.turnBudget, reservedCredits: 1, roundReserveCredits: 2 },
     });
 
     expect(state.providerCalls).toBe(1);
     expect(state.extendReservation).toHaveBeenCalledWith(expect.objectContaining({ requiredCredits: 3 }));
-    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "partial" }));
-    expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.creditLimit");
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        terminalCode: "partial",
+        stopReason: "credit_limit",
+        usageSettlement: expect.objectContaining({ reservedCredits: 1, chargedCredits: 1 }),
+      }),
+    );
+    expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.creditLimitNoWrite");
   });
 
-  it("does not start another provider round when its reservation extension fails", async () => {
-    state.gateResults = [true, true];
-    state.extendReservation.mockRejectedValueOnce(new Error("reservation unavailable"));
-    state.steps = [
-      {
-        content: [{ type: "text", text: "Working." }],
-        toolResults: [],
-        finishReason: "tool-calls",
-        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
-        providerMetadata: {},
-      },
-    ];
+  it("blocks the SDK's next internal provider request when a tool-call round exhausts its reservation", async () => {
+    state.extendReservation.mockResolvedValueOnce({ disposition: "credit_limit" });
+    state.runTools = async ({ messages, completeStepAndPrepareNext }) => {
+      await completeStepAndPrepareNext(streamedStep("Working.", "tool-calls"), messages);
+      throw new Error("unreachable");
+    };
 
     await runAgentTurn({
       ...payload,
-      turnBudget: {
-        ...payload.turnBudget,
-        reservedCredits: 1,
-        roundReserveCredits: 2,
-      },
+      turnBudget: { ...payload.turnBudget, reservedCredits: 1, roundReserveCredits: 2 },
     });
 
     expect(state.providerCalls).toBe(1);
-    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "partial" }));
-    expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.turnError");
+    expect(state.extendReservation).toHaveBeenCalledWith(expect.objectContaining({ requiredCredits: 3 }));
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "partial", stopReason: "credit_limit" }),
+    );
   });
 
-  it("commits a reservation extension before starting another provider round", async () => {
-    state.gateResults = [true, true];
-    state.extendReservation.mockImplementationOnce(() => {
-      state.lifecycle.push("reservation:extended");
-      return Promise.resolve(3);
-    });
-    state.steps = [
-      {
-        content: [{ type: "text", text: "Working." }],
-        toolResults: [],
-        finishReason: "tool-calls",
-        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
-        providerMetadata: {},
-      },
-    ];
-
-    await runAgentTurn({
-      ...payload,
-      turnBudget: {
-        ...payload.turnBudget,
-        reservedCredits: 1,
-        roundReserveCredits: 2,
-      },
-    });
-
-    expect(state.providerCalls).toBe(2);
-    expect(state.lifecycle).toEqual(["provider:1", "reservation:extended", "provider:2"]);
-  });
-
-  it("does not reserve a future round after a terminal response", async () => {
-    state.gateResults = [true];
-    state.steps = [
-      {
-        content: [{ type: "text", text: "Done." }],
-        toolResults: [],
-        finishReason: "stop",
-        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
-        providerMetadata: {},
-      },
-    ];
-
-    await runAgentTurn({
-      ...payload,
-      turnBudget: {
-        ...payload.turnBudget,
-        reservedCredits: 1,
-        roundReserveCredits: 2,
-      },
-    });
-
-    expect(state.providerCalls).toBe(1);
-    expect(state.extendReservation).not.toHaveBeenCalled();
-    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
-    expect(JSON.stringify(state.writes)).not.toContain("localized:AgentChat.runner.creditLimit");
-  });
-
-  it("does not reserve a future round after an output-length stop", async () => {
-    state.gateResults = [true];
-    state.steps = [
-      {
-        content: [{ type: "text", text: "Partial." }],
-        toolResults: [],
-        finishReason: "length",
-        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
-        providerMetadata: {},
-      },
-    ];
-
-    await runAgentTurn({
-      ...payload,
-      turnBudget: {
-        ...payload.turnBudget,
-        reservedCredits: 1,
-        roundReserveCredits: 2,
-      },
-    });
-
-    expect(state.providerCalls).toBe(1);
-    expect(state.extendReservation).not.toHaveBeenCalled();
-    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "partial" }));
-    expect(JSON.stringify(state.writes)).not.toContain("localized:AgentChat.runner.creditLimit");
-  });
-
-  it("evaluates the current safety limit before reserving another round", async () => {
-    state.gateResults = [true, true, true];
-    state.extendReservation.mockResolvedValueOnce(4);
-    state.steps = [
-      {
-        content: [{ type: "text", text: "Working." }],
-        toolResults: [],
-        finishReason: "tool-calls",
-        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
-        providerMetadata: measuredAzureProviderMetadata("0.011"),
-      },
-      {
-        content: [{ type: "text", text: "Still working." }],
-        toolResults: [],
-        finishReason: "tool-calls",
-        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
-        providerMetadata: measuredAzureProviderMetadata("0.011"),
-      },
-    ];
-
-    await runAgentTurn({
-      ...payload,
-      turnBudget: {
-        ...payload.turnBudget,
-        reservedCredits: 1,
-        roundReserveCredits: 2,
-      },
-    });
-
-    expect(state.providerCalls).toBe(2);
-    expect(state.extendReservation).toHaveBeenCalledTimes(1);
-    expect(state.extendReservation).toHaveBeenCalledWith(expect.objectContaining({ requiredCredits: 4 }));
-    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "partial" }));
-    expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.safetyLimit");
-    expect(JSON.stringify(state.writes)).not.toContain("localized:AgentChat.runner.creditLimit");
-  });
-
-  it("reconstructs native web search with its provider metadata and pins Azure with ZDR", async () => {
-    state.gateResults = [true, true];
-    state.toolDefinitions = [
-      {
-        name: "web_search",
-        description: undefined,
-        inputSchema: {},
-        type: "provider",
-        isProviderExecuted: true,
-        id: "openai.web_search",
-        args: { externalWebAccess: true, searchContextSize: "low" },
-      },
-    ];
+  it("blocks the SDK's next internal provider request after cancellation is observed at the round boundary", async () => {
+    state.readCancellation.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+    state.runTools = async ({ messages, completeStepAndPrepareNext }) => {
+      await completeStepAndPrepareNext(streamedStep("Working.", "tool-calls"), messages);
+      throw new Error("unreachable");
+    };
 
     await runAgentTurn(payload);
 
-    expect(state.agentOptions).toHaveLength(1);
-    expect(state.agentOptions[0]).toMatchObject({
-      tools: {
-        web_search: {
-          type: "provider",
-          isProviderExecuted: true,
-          id: "openai.web_search",
-          args: { externalWebAccess: true, searchContextSize: "low" },
-        },
-      },
-      providerOptions: {
-        gateway: {
-          only: ["azure"],
-          zeroDataRetention: true,
-          disallowPromptTraining: true,
-        },
-        openai: { parallelToolCalls: false, store: false, maxToolCalls: 1 },
-      },
-    });
+    expect(state.providerCalls).toBe(1);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "cancelled", stopReason: "cancelled" }),
+    );
+    expect(state.extendReservation).not.toHaveBeenCalled();
   });
 
-  it.each([
-    ["missing", {}, "the gateway reported no cost metadata"],
-    ["unreadable", measuredAzureProviderMetadata("not-a-cost"), "the gateway reported no usable cost figure"],
-  ])("fails closed when a native web-search round has %s Gateway cost metadata", async (_case, metadata, reason) => {
-    state.gateResults = [true, true];
-    state.toolDefinitions = [
-      {
-        name: "web_search",
-        description: undefined,
-        inputSchema: {},
-        type: "provider",
-        isProviderExecuted: true,
-        id: "openai.web_search",
-        args: { externalWebAccess: true, searchContextSize: "low" },
-      },
-    ];
-    state.steps = [
-      {
-        content: [
-          {
-            type: "tool-call",
-            toolCallId: "web-1",
-            toolName: "web_search",
-            input: {},
-            providerExecuted: true,
-          },
-          {
-            type: "tool-result",
-            toolCallId: "web-1",
-            toolName: "web_search",
-            input: {},
-            output: {
-              action: { type: "search", queries: ["current answer"] },
-              sources: [],
-            },
-            providerExecuted: true,
-          },
-        ],
-        toolResults: [
-          {
-            type: "tool-result",
-            toolCallId: "web-1",
-            toolName: "web_search",
-            input: {},
-            output: {
-              action: { type: "search", queries: ["current answer"] },
-              sources: [],
-            },
-            providerExecuted: true,
-          },
-        ],
-        finishReason: "stop",
-        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
-        providerMetadata: metadata,
-      },
-    ];
+  it("does not reserve a future round after the current run loses its lease", async () => {
+    state.heartbeat.mockResolvedValueOnce(false);
+    state.runTools = ({ messages }) =>
+      Promise.resolve({
+        finishReason: "tool-calls",
+        messages,
+        steps: [streamedStep("Working.", "tool-calls")],
+      });
 
-    await expect(runAgentTurn(payload)).rejects.toThrow(
-      `Native web search requires authoritative Gateway cost metadata: ${reason}.`,
-    );
+    await runAgentTurn({
+      ...payload,
+      turnBudget: { ...payload.turnBudget, reservedCredits: 1, roundReserveCredits: 2 },
+    });
+
+    expect(state.providerCalls).toBe(1);
+    expect(state.extendReservation).not.toHaveBeenCalled();
     expect(state.finalize).not.toHaveBeenCalled();
   });
 
-  it("preserves estimated-cost settlement for a round that did not use native web search", async () => {
-    state.gateResults = [true, true];
-    state.steps = [
-      {
-        content: [{ type: "text", text: "A plain answer." }],
-        toolResults: [],
-        finishReason: "stop",
-        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
-        providerMetadata: {},
-      },
-    ];
+  it("blocks the SDK's next internal provider request after round persistence fails", async () => {
+    state.recordRound.mockRejectedValueOnce(new Error("round persistence unavailable"));
+    state.runTools = async ({ messages, completeStepAndPrepareNext }) => {
+      await completeStepAndPrepareNext(streamedStep("Working.", "tool-calls"), messages);
+      throw new Error("unreachable");
+    };
 
     await runAgentTurn(payload);
 
+    expect(state.providerCalls).toBe(1);
     expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "partial", stopReason: "turn_error" }),
+    );
+  });
+
+  it("reports hosted AI as unavailable when a global gate denies a reservation extension", async () => {
+    state.extendReservation.mockResolvedValueOnce({ disposition: "hosted_ai_unavailable" });
+    state.runTools = ({ messages }) =>
+      Promise.resolve({
+        finishReason: "length",
+        messages,
+        steps: [streamedStep("Partial response.", "length")],
+      });
+
+    await runAgentTurn({
+      ...payload,
+      turnBudget: { ...payload.turnBudget, reservedCredits: 1, roundReserveCredits: 2 },
+    });
+
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "partial", stopReason: "hosted_ai_unavailable" }),
+    );
+    expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.hostedAiUnavailable");
+  });
+
+  it("does not reserve a next round after a terminal stop", async () => {
+    state.runTools = ({ messages }) =>
+      Promise.resolve({
+        finishReason: "stop",
+        messages,
+        steps: [streamedStep("Done.", "stop")],
+      });
+
+    await runAgentTurn({
+      ...payload,
+      turnBudget: { ...payload.turnBudget, reservedCredits: 1, roundReserveCredits: 2 },
+    });
+
+    expect(state.extendReservation).not.toHaveBeenCalled();
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "completed", stopReason: null }),
+    );
+  });
+
+  it("does not request approval after credit denial makes a pending tool impossible to resume", async () => {
+    state.definitions.push({ name: "delete_records", description: "delete_records", inputSchema: { type: "object" } });
+    state.normalize.mockResolvedValue({ ok: true, input: { entity: "contact", ids: ["record-1"] } });
+    state.extendReservation.mockResolvedValueOnce({ disposition: "credit_limit" });
+    state.runTools = ({ messages }) =>
+      Promise.resolve({
+        finishReason: "tool-calls",
+        messages: [
+          ...messages,
+          {
+            role: "assistant",
+            content: [
+              {
+                type: "tool-call",
+                toolName: "delete_records",
+                toolCallId: "call-1",
+                input: { entity: "contact", ids: ["record-1"] },
+              },
+            ],
+          },
+        ],
+        steps: [streamedToolCallStep("delete_records", "call-1", { entity: "contact", ids: ["record-1"] })],
+      });
+
+    await runAgentTurn({
+      ...payload,
+      turnBudget: { ...payload.turnBudget, reservedCredits: 1, roundReserveCredits: 2 },
+    });
+
+    expect(state.createApproval).not.toHaveBeenCalled();
+    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ stopReason: "credit_limit" }));
+  });
+
+  it("continues after a 32-round segment and compacts before the next segment", async () => {
+    state.contextFits.mockReturnValueOnce(false).mockReturnValue(true);
+    const seenMessages: unknown[][] = [];
+    let segment = 0;
+    state.runTools = ({ messages }) => {
+      seenMessages.push(messages);
+      segment += 1;
+      if (segment === 1) {
+        return Promise.resolve({
+          finishReason: "tool-calls",
+          messages,
+          steps: Array.from({ length: 32 }, () => streamedStep("", "tool-calls")),
+        });
+      }
+      return Promise.resolve({
+        finishReason: "stop",
+        messages,
+        steps: [streamedStep("Done.", "stop")],
+      });
+    };
+
+    await runAgentTurn(payload);
+
+    expect(state.providerCalls).toBe(2);
+    expect(state.recordRound).toHaveBeenCalledTimes(33);
+    expect(JSON.stringify(seenMessages[1]).match(/Hello/g)).toHaveLength(1);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "completed", stopReason: null }),
+    );
+  });
+
+  it("adaptively retains only the current partial output when two large length steps do not fit", async () => {
+    state.contextFits.mockImplementation((context: unknown, stepMessages: unknown, maxBytes: unknown) => {
+      if (typeof maxBytes !== "number") return false;
+      return (
+        new TextEncoder().encode(JSON.stringify({ ...(context as object), messages: stepMessages })).byteLength <=
+        maxBytes
+      );
+    });
+    const firstPartial = `first:${"a".repeat(7_000)}`;
+    const currentPartial = `current:${"b".repeat(7_000)}`;
+    const seenMessages: unknown[][] = [];
+    let segment = 0;
+    state.runTools = ({ messages }) => {
+      seenMessages.push(messages);
+      segment += 1;
+      if (segment === 1) {
+        return Promise.resolve({
+          finishReason: "length",
+          messages: [...messages, { role: "assistant", content: firstPartial }],
+          steps: [streamedStep(firstPartial, "length"), streamedStep(currentPartial, "length")],
+        });
+      }
+      return Promise.resolve({
+        finishReason: "stop",
+        messages,
+        steps: [streamedStep("Done.", "stop")],
+      });
+    };
+
+    await runAgentTurn({
+      ...payload,
+      turnBudget: { ...payload.turnBudget, maxContextBytes: 10_000 },
+    });
+
+    expect(state.providerCalls).toBe(2);
+    expect(JSON.stringify(seenMessages[1])).not.toContain(firstPartial);
+    expect(JSON.stringify(seenMessages[1])).toContain(currentPartial);
+    expect(JSON.stringify(seenMessages[1])).toContain("agent_output_continuation");
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "completed", stopReason: null }),
+    );
+  });
+
+  it("drops a large completed tool result after recording it in the trusted checkpoint", async () => {
+    state.contextFits.mockImplementation((context: unknown, stepMessages: unknown, maxBytes: unknown) => {
+      if (typeof maxBytes !== "number") return false;
+      return (
+        new TextEncoder().encode(JSON.stringify({ ...(context as object), messages: stepMessages })).byteLength <=
+        maxBytes
+      );
+    });
+    state.definitions.push({ name: "list_users", description: "list_users", inputSchema: { type: "object" } });
+    state.normalize.mockResolvedValue({ ok: true, input: { page: 1 } });
+    const largeResult = `result:${"界".repeat(6_000)}`;
+    state.execute.mockResolvedValue({ ok: true, result: largeResult });
+    const seenMessages: unknown[][] = [];
+    let segment = 0;
+    state.runTools = async ({ messages, executeAndCompleteTool }) => {
+      seenMessages.push(messages);
+      segment += 1;
+      if (segment === 1) {
+        const output = await executeAndCompleteTool("list_users", { page: 1 }, "call-1");
+        return {
+          finishReason: "tool-calls",
+          messages: [
+            ...messages,
+            {
+              role: "assistant",
+              content: [{ type: "tool-call", toolName: "list_users", toolCallId: "call-1", input: { page: 1 } }],
+            },
+            {
+              role: "tool",
+              content: [
+                {
+                  type: "tool-result",
+                  toolName: "list_users",
+                  toolCallId: "call-1",
+                  output: { type: "json", value: output },
+                },
+              ],
+            },
+          ],
+          steps: [streamedToolCallStep("list_users", "call-1", { page: 1 })],
+        };
+      }
+      return {
+        finishReason: "stop",
+        messages,
+        steps: [streamedStep("Done.", "stop")],
+      };
+    };
+
+    await runAgentTurn({
+      ...payload,
+      turnBudget: { ...payload.turnBudget, maxContextBytes: 10_000 },
+    });
+
+    expect(state.providerCalls).toBe(2);
+    expect(JSON.stringify(seenMessages[1])).not.toContain(largeResult);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "completed", stopReason: null }),
+    );
+  });
+
+  it.each(["tool-result", "tool-error"])(
+    "settles native %s telemetry before a local read and preserves it through continuation compaction",
+    async (nativeType) => {
+      state.contextFits.mockImplementation((context: unknown, stepMessages: unknown, maxBytes: unknown) => {
+        if (typeof maxBytes !== "number") return false;
+        return (
+          new TextEncoder().encode(JSON.stringify({ ...(context as object), messages: stepMessages })).byteLength <=
+          maxBytes
+        );
+      });
+      state.definitions.push({ name: "list_users", description: "list_users", inputSchema: { type: "object" } });
+      state.normalize.mockResolvedValue({ ok: true, input: { page: 1 } });
+      state.execute.mockResolvedValue({ ok: true, result: `read:${"y".repeat(4_000)}` });
+      const nativePayload = { text: `native:${"x".repeat(1_000)}` };
+      const nativeCall = {
+        type: "tool-call",
+        toolName: "web_search",
+        toolCallId: "web-1",
+        input: { query: "public company information" },
+        providerExecuted: true,
+      };
+      const nativeOutcome = {
+        type: nativeType,
+        toolName: "web_search",
+        toolCallId: "web-1",
+        providerExecuted: true,
+        ...(nativeType === "tool-error" ? { error: nativePayload } : { output: nativePayload }),
+      };
+      const nativeStep = { ...streamedStep("", "tool-calls"), content: [nativeCall, nativeOutcome, nativeOutcome] };
+      const seenMessages: unknown[][] = [];
+      state.runTools = async ({ messages, completeStepAndPrepareNext, executeAndCompleteTool }) => {
+        seenMessages.push(messages);
+        if (seenMessages.length === 1) {
+          const nativeMessages = [
+            ...messages,
+            { role: "assistant", content: [nativeCall] },
+            {
+              role: "tool",
+              content: [
+                {
+                  type: "tool-result",
+                  toolName: "web_search",
+                  toolCallId: "web-1",
+                  output: { type: nativeType === "tool-error" ? "error-json" : "json", value: nativePayload },
+                },
+              ],
+            },
+          ];
+          await completeStepAndPrepareNext(nativeStep, nativeMessages);
+          const output = await executeAndCompleteTool("list_users", { page: 1 }, "read-1");
+          const localStep = streamedToolCallStep("list_users", "read-1", { page: 1 });
+          return {
+            finishReason: "tool-calls",
+            messages: [
+              ...nativeMessages,
+              { role: "assistant", content: localStep.content },
+              {
+                role: "tool",
+                content: [
+                  {
+                    type: "tool-result",
+                    toolName: "list_users",
+                    toolCallId: "read-1",
+                    output: { type: "json", value: output },
+                  },
+                ],
+              },
+            ],
+            steps: [nativeStep, localStep],
+          };
+        }
+        return { finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] };
+      };
+
+      await runAgentTurn({ ...payload, turnBudget: { ...payload.turnBudget, maxContextBytes: 3_500 } });
+
+      expect(state.providerCalls).toBe(3);
+      expect(state.recordRound).toHaveBeenCalledTimes(3);
+      expect(state.execute).toHaveBeenCalledOnce();
+      expect(state.createApproval).not.toHaveBeenCalled();
+      expect(state.instructions[1]).toContain('"completedSteps":2');
+      expect(state.instructions[1]).toContain(`"successfulActivities":${nativeType === "tool-error" ? 1 : 2}`);
+      expect(state.instructions[1]).toContain(`"errors":${nativeType === "tool-error" ? 1 : 0}`);
+      expect(state.instructions[1]).toContain('"toolName":"web_search"');
+      expect(JSON.stringify(seenMessages[1])).not.toContain("web-1");
+      expect(JSON.stringify(seenMessages[1])).not.toContain(nativePayload.text);
+      expect(JSON.stringify(seenMessages[1])).not.toContain("read-1");
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          terminalCode: "completed",
+          stopReason: null,
+          parts: expect.arrayContaining([
+            expect.objectContaining({ id: "web-1", status: nativeType === "tool-error" ? "error" : "done" }),
+            expect.objectContaining({ id: "read-1", status: "done" }),
+          ]),
+        }),
+      );
+    },
+  );
+
+  it("compacts an approval-resume message set before treating context overflow as fatal", async () => {
+    state.definitions.push({ name: "navigate", description: "navigate", inputSchema: { type: "object" } });
+    state.normalize.mockResolvedValue({ ok: true, input: { targetId: "nav-contacts" } });
+    let segment = 0;
+    state.runTools = ({ messages }) => {
+      segment += 1;
+      if (segment === 1) {
+        return Promise.resolve({
+          finishReason: "tool-calls",
+          messages: [
+            ...messages,
+            {
+              role: "assistant",
+              content: [
+                { type: "text", text: "x".repeat(4_000) },
+                {
+                  type: "tool-call",
+                  toolName: "navigate",
+                  toolCallId: "panel-1",
+                  input: { targetId: "nav-contacts" },
+                },
+              ],
+            },
+          ],
+          steps: [
+            streamedStep("a".repeat(1_500), "tool-calls"),
+            streamedStep("b".repeat(1_500), "tool-calls"),
+            streamedToolCallStep("navigate", "panel-1", { targetId: "nav-contacts" }),
+          ],
+        });
+      }
+      return Promise.resolve({
+        finishReason: "stop",
+        messages,
+        steps: [streamedStep("Done.", "stop")],
+      });
+    };
+
+    await runAgentTurn({
+      ...payload,
+      turnBudget: { ...payload.turnBudget, maxContextBytes: 3_000 },
+    });
+
+    expect(segment).toBe(2);
+    expect(state.providerCalls).toBe(2);
+    expect(state.takeUiResult).toHaveBeenCalled();
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "completed", stopReason: null }),
+    );
+  });
+});
+
+describe("agent-turn terminal reasons", () => {
+  it("classifies a provider-originated stream exception as a provider error", async () => {
+    const providerFailure = Object.assign(new Error("provider unavailable"), {
+      [Symbol.for("vercel.ai.gateway.error")]: true,
+    });
+    state.runTools = () => Promise.reject(providerFailure);
+
+    await runAgentTurn(payload);
+
+    expect(state.reportFailure).toHaveBeenCalledWith("agent-turn", providerFailure, payload.tenant);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "partial", stopReason: "provider_error" }),
+    );
+    expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.providerError");
+  });
+
+  it("classifies a provider-round gate failure as a turn error", async () => {
+    const gateFailure = new Error("round gate unavailable");
+    state.gateFailure = gateFailure;
+
+    await runAgentTurn(payload);
+
+    expect(state.providerCalls).toBe(0);
+    expect(state.reportFailure).toHaveBeenCalledWith("agent-turn", gateFailure, payload.tenant);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "partial", stopReason: "turn_error" }),
+    );
+    expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.turnError");
+  });
+
+  it.each([
+    ["content-filter", "content_filter", "contentFilter"],
+    ["error", "provider_error", "providerError"],
+    ["other", "provider_error", "providerError"],
+    ["unknown", "provider_error", "providerError"],
+  ] as const)("persists and emits %s as %s", async (finishReason, stopReason, messageKey) => {
+    state.runTools = ({ messages }) =>
+      Promise.resolve({
+        finishReason,
+        messages,
+        steps: [streamedStep("Partial response.", finishReason)],
+      });
+
+    await runAgentTurn(payload);
+
+    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "partial", stopReason }));
+    expect(JSON.stringify(state.writes)).toContain(`localized:AgentChat.runner.${messageKey}`);
+    expect(state.writes).toContainEqual(
       expect.objectContaining({
-        usageSettlement: expect.objectContaining({ costSource: "estimated" }),
+        type: "turn_done",
+        payload: expect.objectContaining({ terminalCode: "partial", stopReason }),
       }),
     );
   });
 
-  it("streams and persists the canonical HTTPS source footer", async () => {
-    state.gateResults = [true, true];
-    state.toolDefinitions = [
-      {
-        name: "web_search",
-        description: undefined,
-        inputSchema: {},
-        type: "provider",
-        isProviderExecuted: true,
-        id: "openai.web_search",
-        args: { externalWebAccess: true, searchContextSize: "low" },
-      },
-    ];
-    state.messages = [
-      {
-        role: "assistant",
-        content: [{ type: "text", text: "A current answer." }],
-      },
-    ];
-    state.steps = [
-      {
-        content: [
-          {
-            type: "tool-call",
-            toolCallId: "web-1",
-            toolName: "web_search",
-            input: {},
-            providerExecuted: true,
-          },
-          { type: "text", text: "A current answer." },
-          {
-            type: "source",
-            sourceType: "url",
-            id: "source-1",
-            url: "https://example.com/current#section",
-          },
-          {
-            type: "tool-result",
-            toolCallId: "web-1",
-            toolName: "web_search",
-            input: {},
-            output: {
-              action: { type: "search", queries: ["current answer"] },
-              sources: [{ type: "url", url: "https://example.com/current#section" }],
-            },
-            providerExecuted: true,
-          },
-        ],
-        toolResults: [
-          {
-            type: "tool-result",
-            toolCallId: "web-1",
-            toolName: "web_search",
-            input: {},
-            output: {
-              action: { type: "search", queries: ["current answer"] },
-              sources: [{ type: "url", url: "https://example.com/current#section" }],
-            },
-            providerExecuted: true,
-          },
-        ],
-        finishReason: "stop",
-        usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
-        providerMetadata: measuredAzureProviderMetadata(),
-      },
-    ];
+  it("persists and emits a durable turn error", async () => {
+    const failure = new Error("round persistence unavailable");
+    state.recordRound.mockRejectedValueOnce(failure);
+    state.runTools = ({ messages }) =>
+      Promise.resolve({
+        finishReason: "tool-calls",
+        messages,
+        steps: [streamedStep("Working.", "tool-calls")],
+      });
 
     await runAgentTurn(payload);
 
-    const footer = "\n\n### Sources\n- <https://example.com/current>";
-    expect(JSON.stringify(state.writes)).toContain(footer.replaceAll("\n", "\\n"));
+    expect(state.reportFailure).toHaveBeenCalledWith("agent-turn", failure, payload.tenant);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "partial", stopReason: "turn_error" }),
+    );
+    expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.turnError");
+    expect(state.writes).toContainEqual(
+      expect.objectContaining({
+        type: "turn_done",
+        payload: expect.objectContaining({ terminalCode: "partial", stopReason: "turn_error" }),
+      }),
+    );
+  });
+
+  it("projects an overspend safeguard breach into persisted output and the terminal event", async () => {
+    state.extendReservation.mockResolvedValueOnce({ disposition: "credit_limit" });
+    state.runTools = ({ messages }) =>
+      Promise.resolve({
+        finishReason: "stop",
+        messages,
+        steps: [streamedStep("Expensive response.", "stop", 100_000)],
+      });
+
+    await runAgentTurn({
+      ...payload,
+      turnBudget: { ...payload.turnBudget, reservedCredits: 1, roundReserveCredits: 2 },
+    });
+
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({
-        parts: expect.arrayContaining([
-          expect.objectContaining({
-            type: "text",
-            text: expect.stringContaining(footer),
-          }),
-          expect.objectContaining({
-            type: "activity",
-            id: "web-1",
-            status: "done",
-          }),
-        ]),
         usageSettlement: expect.objectContaining({
-          costMicrocents: 4_100,
-          costSource: "measured",
+          reservedCredits: 1,
+          chargedCredits: 1,
+          policyBreach: true,
         }),
       }),
     );
+    expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.policyBreach");
+    expect(state.writes).toContainEqual(
+      expect.objectContaining({
+        type: "turn_done",
+        payload: expect.objectContaining({ terminalCode: "policyBreach", stopReason: "policy_breach" }),
+      }),
+    );
   });
 
-  it("settles a failed provider tool from its real result envelope without adding sources", async () => {
-    state.gateResults = [true, true];
-    state.toolDefinitions = [
-      {
-        name: "web_search",
-        description: undefined,
-        inputSchema: {},
-        type: "provider",
-        isProviderExecuted: true,
-        id: "openai.web_search",
-        args: { externalWebAccess: true, searchContextSize: "low" },
-      },
-    ];
-    state.messages = [];
-    state.steps = [
-      {
-        content: [
-          {
-            type: "tool-call",
-            toolCallId: "web-1",
-            toolName: "web_search",
-            input: {},
-            providerExecuted: true,
-          },
-          {
-            type: "tool-error",
-            toolCallId: "web-1",
-            toolName: "web_search",
-            input: {},
-            error: {
-              message: "Search failed",
-              sources: [{ type: "url", url: "https://example.com/must-not-appear" }],
-            },
-            providerExecuted: true,
-          },
-        ],
-        toolResults: [],
-        finishReason: "stop",
-        usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
-        providerMetadata: measuredAzureProviderMetadata(),
-      },
-    ];
+  it("persists and emits cancellation before another provider request", async () => {
+    state.readCancellation.mockResolvedValueOnce(true);
 
     await runAgentTurn(payload);
 
+    expect(state.providerCalls).toBe(0);
     expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "cancelled", stopReason: "cancelled" }),
+    );
+    expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.cancelled");
+    expect(state.writes).toContainEqual(
       expect.objectContaining({
-        parts: expect.arrayContaining([
-          expect.objectContaining({
-            type: "activity",
-            id: "web-1",
-            status: "error",
-          }),
-        ]),
+        type: "turn_done",
+        payload: expect.objectContaining({ terminalCode: "cancelled", stopReason: "cancelled" }),
       }),
     );
-    expect(JSON.stringify(state.writes)).not.toContain("must-not-appear");
-    expect(JSON.stringify(state.writes)).not.toContain("### Sources");
+  });
+});
+
+describe("agent-turn outer failure compensation", () => {
+  it("reconciles the exact admitted attempt and closes after an early exception", async () => {
+    state.markProviderStarted.mockRejectedValueOnce(new Error("admission interrupted"));
+
+    await expect(runAgentTurn(payload)).rejects.toThrow("admission interrupted");
+
+    expect(state.reconcile).toHaveBeenCalledWith({
+      turnRequestId: payload.turnRequestId,
+      conversationId: payload.conversationId,
+      companyId: payload.companyId,
+      userId: payload.userId,
+      runId: payload.runId,
+    });
+    expect(state.finalize).not.toHaveBeenCalled();
+    expect(state.providerCalls).toBe(0);
+    expect(state.close).toHaveBeenCalled();
+  });
+
+  it("does not use an empty measured settlement after provider-start was persisted", async () => {
+    state.toolLoadFailure = true;
+
+    await expect(runAgentTurn(payload)).rejects.toThrow("tool shell unavailable");
+
+    expect(state.markProviderStarted).toHaveBeenCalled();
+    expect(state.reconcile).toHaveBeenCalledTimes(1);
+    expect(state.finalize).not.toHaveBeenCalled();
+    expect(state.providerCalls).toBe(0);
+    expect(state.close).toHaveBeenCalled();
+  });
+
+  it.each(["reconcile", "reportFailure", "close"] as const)(
+    "preserves the original failure when %s throws",
+    async (operation) => {
+      const original = new Error("admission interrupted");
+      state.markProviderStarted.mockRejectedValueOnce(original);
+      state[operation].mockRejectedValueOnce(new Error("cleanup unavailable"));
+
+      await expect(runAgentTurn(payload)).rejects.toBe(original);
+
+      expect(state.reconcile).toHaveBeenCalledTimes(1);
+      expect(state.reportFailure).toHaveBeenCalledWith("agent-turn", original, payload.tenant);
+      expect(state.close).toHaveBeenCalled();
+    },
+  );
+});
+
+describe("agent-turn authoritative tool inputs", () => {
+  function executeTool(tool: WorkflowTool, input: unknown) {
+    if (!tool.execute) throw new Error("Tool cannot execute.");
+    return tool.execute(input, { toolCallId: "call-1" });
+  }
+
+  function define(name: string) {
+    state.definitions.push({ name, description: name, inputSchema: { type: "object" } });
+  }
+
+  function pendingMessage(toolName: string, input: unknown) {
+    return { role: "assistant", content: [{ type: "tool-call", toolName, toolCallId: "call-1", input }] };
+  }
+
+  function finish() {
+    return { finishReason: "stop", messages: [], steps: [] };
+  }
+
+  it("executes the normalized default-filled read input once after serialized schema reconstruction", async () => {
+    define("list_users");
+    const raw = { searchTerm: "Sofia" };
+    const normalized = { searchTerm: "Sofia", page: 1, pageSize: 100 };
+    state.normalize.mockResolvedValue({ ok: true, input: normalized });
+    state.runTools = async ({ tools }) => {
+      expect(await tools.list_users.needsApproval(raw, { toolCallId: "call-1" })).toBe(false);
+      await executeTool(tools.list_users, raw);
+      return finish();
+    };
+
+    await runAgentTurn(payload);
+
+    expect(state.normalize).toHaveBeenCalledTimes(1);
+    expect(state.normalize).toHaveBeenCalledWith("list_users", raw, 1000, {
+      wikiHomepageSetup: false,
+      webSearchEnabled: undefined,
+      surface: undefined,
+    });
+    expect(state.execute).toHaveBeenCalledWith(normalized, { toolCallId: "call-1", messages: [] });
+    expect(state.createApproval).not.toHaveBeenCalled();
+  });
+
+  it("uses normalized action values for approval policy", async () => {
+    define("manage_widgets");
+    const raw = { action: " list " };
+    state.normalize.mockResolvedValue({ ok: true, input: { action: "list" } });
+    state.runTools = async ({ tools }) => {
+      expect(await tools.manage_widgets.needsApproval(raw, { toolCallId: "call-1" })).toBe(false);
+      await executeTool(tools.manage_widgets, raw);
+      return finish();
+    };
+
+    await runAgentTurn(payload);
+
+    expect(state.execute).toHaveBeenCalledWith({ action: "list" }, expect.anything());
+    expect(state.createApproval).not.toHaveBeenCalled();
+  });
+
+  it("does not approve or execute invalid write input", async () => {
+    define("delete_records");
+    const invalid = { ok: false, result: "Validation error: missing ids" };
+    state.normalize.mockResolvedValue(invalid);
+    state.runTools = async ({ tools }) => {
+      expect(await tools.delete_records.needsApproval({}, { toolCallId: "call-1" })).toBe(false);
+      expect(await executeTool(tools.delete_records, {})).toEqual(invalid);
+      return finish();
+    };
+
+    await runAgentTurn(payload);
+
+    expect(state.normalize).toHaveBeenCalledTimes(1);
+    expect(state.execute).not.toHaveBeenCalled();
+    expect(state.createApproval).not.toHaveBeenCalled();
+  });
+
+  it.each(["approve", "reject", "timeout"])(
+    "preserves one normalized snapshot through approval %s",
+    async (decision) => {
+      define("delete_records");
+      const raw = { entity: "contact", ids: ["original"] };
+      const normalized = { entity: "contact", ids: ["normalized-once"] };
+      state.normalize.mockResolvedValue({ ok: true, input: normalized });
+      state.readApproval.mockResolvedValue(decision === "timeout" ? null : { toolName: "delete_records", decision });
+      let round = 0;
+      state.runTools = async ({ tools, messages }) => {
+        if (round++ === 0) {
+          expect(await tools.delete_records.needsApproval(raw, { toolCallId: "call-1" })).toBe(true);
+          return { finishReason: "tool-calls", messages: [pendingMessage("delete_records", raw)], steps: [] };
+        }
+        expect(JSON.stringify(messages)).toContain(`"approved":${decision === "approve"}`);
+        if (decision === "approve") {
+          expect(await tools.delete_records.needsApproval(raw, { toolCallId: "call-1" })).toBe(true);
+          await executeTool(tools.delete_records, raw);
+        }
+        return finish();
+      };
+
+      await runAgentTurn(payload);
+
+      expect(state.normalize).toHaveBeenCalledTimes(1);
+      expect(state.createApproval).toHaveBeenCalledWith(
+        expect.objectContaining({
+          requestId: "turn-1:call-1",
+          toolName: "delete_records",
+          companyId: "company-1",
+          userId: "user-1",
+        }),
+      );
+      if (decision === "approve") expect(state.execute).toHaveBeenCalledWith(normalized, expect.anything());
+      else expect(state.execute).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([true, false])("validates panel commands before emission (valid=%s)", async (valid) => {
+    define("navigate");
+    const raw = valid ? { targetId: " nav-contacts " } : {};
+    state.normalize.mockResolvedValue(
+      valid
+        ? { ok: true, input: { targetId: "nav-contacts" } }
+        : { ok: false, result: "Validation error: missing targetId" },
+    );
+    let round = 0;
+    state.runTools = async ({ tools, messages }) => {
+      if (round++ === 0) {
+        expect(await tools.navigate.needsApproval(raw, { toolCallId: "call-1" })).toBe(false);
+        expect(tools.navigate.execute).toBeUndefined();
+        return { finishReason: "tool-calls", messages: [pendingMessage("navigate", raw)], steps: [] };
+      }
+      expect(JSON.stringify(messages)).toContain(valid ? "shown" : "Validation error: missing targetId");
+      return finish();
+    };
+
+    await runAgentTurn(payload);
+
+    const commands = state.writes.filter((event) => (event as { type: string }).type === "ui_command");
+    expect(commands).toEqual(
+      valid
+        ? [
+            {
+              type: "ui_command",
+              payload: { commandId: "call-1", name: "navigate", input: { targetId: "nav-contacts" } },
+            },
+          ]
+        : [],
+    );
+    expect(state.normalize).toHaveBeenCalledTimes(1);
+    expect(state.execute).not.toHaveBeenCalled();
+    expect(state.createApproval).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    [true, "approve"],
+    [true, "reject"],
+    [true, "cancel"],
+    [false, "approve"],
+    [false, "reject"],
+  ])("settles mixed panel and approval calls before resuming (panel=%s, decision=%s)", async (valid, decision) => {
+    define("navigate");
+    define("delete_records");
+    const panelInput = valid ? { targetId: "nav-contacts" } : {};
+    const mutationInput = { entity: "contact", ids: ["record-1"] };
+    state.normalize.mockImplementation((name: string, input: unknown) =>
+      Promise.resolve(
+        name === "navigate" && !valid ? { ok: false, result: "Invalid panel input" } : { ok: true, input },
+      ),
+    );
+    state.readApproval.mockResolvedValue({ toolName: "delete_records", decision });
+    let round = 0;
+    state.runTools = async ({ tools, messages }) => {
+      if (round++ === 0) {
+        expect(await tools.navigate.needsApproval(panelInput, { toolCallId: "panel-1" })).toBe(false);
+        expect(await tools.delete_records.needsApproval(mutationInput, { toolCallId: "call-1" })).toBe(true);
+        if (decision === "cancel") state.readCancellation.mockResolvedValue(true);
+        return {
+          finishReason: "tool-calls",
+          steps: [],
+          messages: [
+            {
+              role: "assistant",
+              content: [
+                { type: "tool-call", toolName: "navigate", toolCallId: "panel-1", input: panelInput },
+                { type: "tool-call", toolName: "delete_records", toolCallId: "call-1", input: mutationInput },
+              ],
+            },
+          ],
+        };
+      }
+      expect(state.createApproval).toHaveBeenCalledTimes(1);
+      expect(JSON.stringify(messages)).toContain(valid ? "shown" : "Invalid panel input");
+      expect(JSON.stringify(messages)).toContain(`"approved":${decision === "approve"}`);
+      if (decision === "approve") await executeTool(tools.delete_records, mutationInput);
+      return finish();
+    };
+
+    await runAgentTurn(payload);
+
+    expect(round).toBe(decision === "cancel" ? 1 : 2);
+    if (decision === "cancel") {
+      expect(state.createApproval).not.toHaveBeenCalled();
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({ terminalCode: "cancelled", stopReason: "cancelled" }),
+      );
+    }
+    expect(state.normalize).toHaveBeenCalledTimes(2);
+    expect(state.execute).toHaveBeenCalledTimes(decision === "approve" ? 1 : 0);
+    expect(state.writes.filter((event) => (event as { type: string }).type === "ui_command")).toHaveLength(
+      valid ? 1 : 0,
+    );
+    expect(state.reportFailure).not.toHaveBeenCalled();
+  });
+});
+
+describe("routine run settlement", () => {
+  it("asks for the owner's routine runs to be settled once a routine turn ends", async () => {
+    state.gateResults = [true, true];
+
+    await runAgentTurn({ ...payload, surface: "routine" });
+
+    expect(state.dispatch).toHaveBeenCalledWith("reconcile-routine-runs", { ownerUserId: payload.userId });
+  });
+
+  it("settles the owner's routine runs even when the turn throws", async () => {
+    state.gateResults = [true, true];
+    state.markProviderStarted.mockRejectedValue(new Error("admission interrupted"));
+
+    await expect(runAgentTurn({ ...payload, surface: "routine" })).rejects.toThrow("admission interrupted");
+
+    expect(state.dispatch).toHaveBeenCalledWith("reconcile-routine-runs", { ownerUserId: payload.userId });
+  });
+
+  it("leaves a chat turn alone", async () => {
+    state.gateResults = [true, true];
+
+    await runAgentTurn(payload);
+
+    expect(state.dispatch).not.toHaveBeenCalled();
+  });
+
+  it("never lets a failed settlement dispatch mask the turn outcome", async () => {
+    state.gateResults = [true, true];
+    state.dispatch.mockRejectedValue(new Error("dispatch unavailable"));
+
+    await expect(runAgentTurn({ ...payload, surface: "routine" })).resolves.toBeUndefined();
+  });
+});
+
+describe("routine browse-or-mutate batch safety", () => {
+  const read = { url: "https://example.com/" };
+  const write = { action: "create", pages: [{ title: "Tone", markdown: "Be clear." }] };
+  const call = (toolName: string, toolCallId: string, input: unknown) => ({
+    type: "tool-call",
+    toolName,
+    toolCallId,
+    input,
+  });
+  const finish = () => ({ finishReason: "stop", messages: [], steps: [] });
+
+  beforeEach(() => {
+    state.definitions = ["read_public_page", "manage_wiki_pages", "list_users"].map((name) => ({
+      name,
+      description: name,
+      inputSchema: { type: "object" },
+    }));
+    state.normalize.mockImplementation((_name, input) => Promise.resolve({ ok: true, input }));
+  });
+
+  it.each(["web-first", "write-first", "parallel"])("denies mutation for the complete %s web batch", async (order) => {
+    state.runTools = async ({ executeAndCompleteTool }) => {
+      const calls = [call("read_public_page", "read-1", read), call("manage_wiki_pages", "write-1", write)];
+      if (order === "write-first") calls.reverse();
+      const batch = [{ role: "assistant", content: calls }];
+      const results =
+        order === "parallel"
+          ? await Promise.all(
+              calls.map((item) => executeAndCompleteTool(item.toolName, item.input, item.toolCallId, batch)),
+            )
+          : await calls.reduce(
+              async (prior, item) => [
+                ...(await prior),
+                await executeAndCompleteTool(item.toolName, item.input, item.toolCallId, batch),
+              ],
+              Promise.resolve([] as unknown[]),
+            );
+      expect(results).toContainEqual(expect.objectContaining({ ok: false }));
+      return finish();
+    };
+    await runAgentTurn({ ...payload, surface: "routine" });
+    expect(state.execute).not.toHaveBeenCalled();
+    expect(state.readPage).toHaveBeenCalledOnce();
+  });
+
+  it("keeps a successful browse boundary across later steps, while Wiki reads remain available", async () => {
+    state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
+      await executeAndCompleteTool("read_public_page", read, "read-1");
+      await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+      expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-1")).toMatchObject({ ok: false });
+      expect(await executeAndCompleteTool("manage_wiki_pages", { action: "get", id: "page-1" }, "get-1")).toMatchObject(
+        { ok: true },
+      );
+      return finish();
+    };
+    await runAgentTurn({ ...payload, surface: "routine" });
+    expect(state.execute).toHaveBeenCalledOnce();
+    expect(state.execute.mock.calls[0][0]).toMatchObject({ action: "get" });
+  });
+
+  it("denies a failed browse batch but permits a later mutation after failure is established", async () => {
+    state.readPage.mockResolvedValue({ ok: false, reason: "network_failure" });
+    state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
+      const batch = [
+        {
+          role: "assistant",
+          content: [call("read_public_page", "read-1", read), call("manage_wiki_pages", "write-1", write)],
+        },
+      ];
+      await executeAndCompleteTool("read_public_page", read, "read-1", batch);
+      expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-1", batch)).toMatchObject({ ok: false });
+      await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+      expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-2")).toMatchObject({ ok: true });
+      return finish();
+    };
+    await runAgentTurn({ ...payload, surface: "routine" });
+    expect(state.execute).toHaveBeenCalledOnce();
+  });
+
+  it("removes web tools before the next provider request after a successful mutation and denies direct reads", async () => {
+    state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
+      expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-1")).toMatchObject({ ok: true });
+      await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+      expect(state.prepared).toEqual({ activeTools: ["manage_wiki_pages", "list_users"] });
+      expect(await executeAndCompleteTool("read_public_page", read, "read-1")).toMatchObject({ ok: false });
+      return finish();
+    };
+    await runAgentTurn({ ...payload, surface: "routine" });
+    expect(state.readPage).not.toHaveBeenCalled();
+  });
+
+  it("does not apply the routine mutation boundary to ordinary chat", async () => {
+    state.runTools = async ({ executeAndCompleteTool }) => {
+      await executeAndCompleteTool("read_public_page", read, "read-1");
+      expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-1")).toMatchObject({ ok: true });
+      return finish();
+    };
+    await runAgentTurn(payload);
+    expect(state.execute).toHaveBeenCalledOnce();
+    expect(JSON.stringify(state.finalize.mock.calls[0][0].parts)).toContain("https://example.com/");
+  });
+
+  it("does not create setup pages before a usable homepage read", async () => {
+    state.runTools = async ({ executeAndCompleteTool }) => {
+      expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-1")).toMatchObject({ ok: false });
+      return finish();
+    };
+    await runAgentTurn({
+      ...payload,
+      wikiHomepageSetup: { url: "https://example.com/", registrableDomain: "example.com" },
+    });
+    expect(state.execute).not.toHaveBeenCalled();
   });
 });

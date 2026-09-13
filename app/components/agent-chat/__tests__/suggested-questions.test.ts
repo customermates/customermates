@@ -2,6 +2,7 @@ import type { Root as ReactRoot } from "react-dom/client";
 
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
+import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const harness = vi.hoisted(() => ({
@@ -52,6 +53,19 @@ afterEach(() => {
 });
 
 describe("AgentStarterActions", () => {
+  it("keeps the server and hydration fallback deterministic before showing AI actions", () => {
+    const html = renderToStaticMarkup(
+      createElement(AgentStarterActions, {
+        fallback: createElement("button", null, "Manual add"),
+        pageId: "routines",
+        state: "empty",
+        surface: "page",
+      }),
+    );
+
+    expect(html).toBe("<button>Manual add</button>");
+  });
+
   it("opens Mate with the page-specific empty-state prompt", () => {
     act(() => {
       reactRoot.render(
@@ -71,6 +85,28 @@ describe("AgentStarterActions", () => {
 
     expect(harness.openWithDraft).toHaveBeenCalledWith(
       "AgentChat.suggestions.pages.contacts.empty.setup-contacts.prompt",
+    );
+    expect(harness.focusComposer).toHaveBeenCalledOnce();
+  });
+
+  it("opens Mate with one of the three Routines onboarding prompts", () => {
+    act(() => {
+      reactRoot.render(
+        createElement(AgentStarterActions, {
+          pageId: "routines",
+          state: "empty",
+          surface: "page",
+        }),
+      );
+    });
+
+    const buttons = container.querySelectorAll("button");
+    expect(buttons).toHaveLength(3);
+
+    act(() => buttons[0]?.click());
+
+    expect(harness.openWithDraft).toHaveBeenCalledWith(
+      "AgentChat.suggestions.pages.routines.empty.first-routine.prompt",
     );
     expect(harness.focusComposer).toHaveBeenCalledOnce();
   });

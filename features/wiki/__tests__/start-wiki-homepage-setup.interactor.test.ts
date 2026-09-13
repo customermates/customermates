@@ -57,6 +57,7 @@ describe("StartWikiHomepageSetupInteractor", () => {
       locale: "de",
       retry: false,
       wikiHomepageSetupDomain: "example.com",
+      wikiHomepageSetupUrl: "https://www.example.com/about",
     });
     expect(agent.invoke.mock.calls[0][0].text).not.toContain("?ref=");
     expect(agent.invoke.mock.calls[0][0].text).not.toContain("#team");

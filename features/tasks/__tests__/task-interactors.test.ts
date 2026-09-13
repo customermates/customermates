@@ -51,6 +51,8 @@ const ORG_ID_1 = "00000000-0000-4000-8000-000000000010";
 const CONTACT_ID_1 = "00000000-0000-4000-8000-000000000020";
 const DEAL_ID_1 = "00000000-0000-4000-8000-000000000030";
 const SERVICE_ID_1 = "00000000-0000-4000-8000-000000000040";
+const USER_ID_1 = "00000000-0000-4000-8000-000000000050";
+const USER_ID_2 = "00000000-0000-4000-8000-000000000051";
 
 function makeOrgDto(id: string) {
   return { id, name: `Org ${id.slice(-2)}` };
@@ -66,6 +68,16 @@ function makeDealDto(id: string) {
 
 function makeServiceDto(id: string) {
   return { id, name: `Service ${id.slice(-2)}` };
+}
+
+function makeUserDto(id: string) {
+  return {
+    id,
+    firstName: "Task",
+    lastName: `Owner ${id.slice(-2)}`,
+    avatarUrl: null,
+    email: `${id}@example.com`,
+  };
 }
 
 function makeTaskWritePrecheck(): TaskWritePrecheckInteractor {
@@ -377,6 +389,32 @@ describe("UpdateTaskInteractor", () => {
         name: "Test Task",
       }),
     );
+  });
+
+  it("diffs company-wide state while returning and publishing the scoped task", async () => {
+    const visibleUser = makeUserDto(USER_ID_1);
+    const hiddenUser = makeUserDto(USER_ID_2);
+    const previousTask = makeTaskDto({ name: "Before", users: [visibleUser, hiddenUser] });
+    const scopedTask = makeTaskDto({ name: "After", users: [visibleUser] });
+    const currentTask = makeTaskDto({ name: "After", users: [visibleUser, hiddenUser] });
+    mockUpdateRepo.getOrThrowCompanyWide
+      .mockReset()
+      .mockResolvedValueOnce(previousTask)
+      .mockResolvedValueOnce(currentTask);
+    mockUpdateRepo.updateTaskOrThrow.mockResolvedValue(scopedTask);
+
+    const result = await createInteractor().invoke({ id: TASK_ID, name: "After" });
+
+    expect(mockUpdateRepo.getOrThrowCompanyWide).toHaveBeenNthCalledWith(1, TASK_ID);
+    expect(mockUpdateRepo.getOrThrowCompanyWide).toHaveBeenNthCalledWith(2, TASK_ID);
+    expect(mockEventService.publish).toHaveBeenCalledWith(DomainEvent.TASK_UPDATED, {
+      entityId: TASK_ID,
+      payload: {
+        task: scopedTask,
+        changes: { name: { previous: "Before", current: "After" } },
+      },
+    });
+    expect(result).toEqual({ ok: true, data: scopedTask });
   });
 });
 
@@ -696,6 +734,50 @@ describe("UpdateManyTasksInteractor", () => {
 
     expect(result.ok).toBe(true);
     expect(result.data).toHaveLength(2);
+  });
+
+  it("maps company-wide post-update state by id without exposing hidden relations", async () => {
+    const visibleUser = makeUserDto(USER_ID_1);
+    const hiddenUser = makeUserDto(USER_ID_2);
+    const previous1 = makeTaskDto({ name: "Before One", users: [visibleUser, hiddenUser] });
+    const previous2 = makeTaskDto({ id: TASK_ID_2, name: "Before Two", users: [hiddenUser] });
+    const scoped1 = makeTaskDto({ name: "After One", users: [visibleUser] });
+    const scoped2 = makeTaskDto({ id: TASK_ID_2, name: "After Two", users: [] });
+    const current1 = makeTaskDto({ name: "After One", users: [visibleUser, hiddenUser] });
+    const current2 = makeTaskDto({ id: TASK_ID_2, name: "After Two", users: [hiddenUser] });
+    mockUpdateRepo.getManyOrThrowCompanyWide
+      .mockReset()
+      .mockResolvedValueOnce([previous1, previous2])
+      .mockResolvedValueOnce([current2, current1]);
+    mockUpdateRepo.updateTaskOrThrow.mockReset().mockResolvedValueOnce(scoped1).mockResolvedValueOnce(scoped2);
+
+    const result = await createInteractor().invoke({
+      tasks: [
+        { id: TASK_ID, name: "After One" },
+        { id: TASK_ID_2, name: "After Two" },
+      ],
+    });
+
+    const taskEvents = mockEventService.publish.mock.calls.filter(
+      ([event]: [DomainEvent]) => event === DomainEvent.TASK_UPDATED,
+    );
+    expect(taskEvents).toEqual([
+      [
+        DomainEvent.TASK_UPDATED,
+        {
+          entityId: TASK_ID,
+          payload: { task: scoped1, changes: { name: { previous: "Before One", current: "After One" } } },
+        },
+      ],
+      [
+        DomainEvent.TASK_UPDATED,
+        {
+          entityId: TASK_ID_2,
+          payload: { task: scoped2, changes: { name: { previous: "Before Two", current: "After Two" } } },
+        },
+      ],
+    ]);
+    expect(result).toEqual({ ok: true, data: [scoped1, scoped2] });
   });
 });
 

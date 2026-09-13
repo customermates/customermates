@@ -11,6 +11,7 @@ import { env } from "@/env";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { resolveUserLocale } from "@/i18n/user-locale";
+import { AgentConversationOrigin } from "@/generated/prisma";
 
 import {
   SendAgentMessageSchema,
@@ -26,17 +27,20 @@ import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { AGENT_RUN_LEASE_MS, decideAgentTurnAdmission, type AgentTurnRequestSnapshot } from "./agent-turn-request";
 import { buildAgentSystemPrompt } from "./system-prompt";
 import { getAgentAiToolDefinitions } from "./agent-tools";
-import {
-  AGENT_REPLAY_COUNT,
-  AGENT_REPLAY_MAX_CHARS,
-  conservativeAgentInitialContextBytes,
-} from "./agent-provider-context";
+import { conservativeAgentInitialContextBytes } from "./agent-provider-context";
+import { AGENT_REPLAY_COUNT, budgetAgentReplayHistory } from "./agent-replay-budget";
 import { isAgentModelKey, resolveAgentModel } from "./model-catalog";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import { fail, failConflict, failNotFound, failRateLimit } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import type { GetWikiCatalogInteractor } from "@/features/wiki/get-wiki-catalog.interactor";
+import { parsePublicWikiHomepage, type PublicWikiHomepage } from "@/features/wiki/wiki-homepage";
+import { AppErrorCode, appErrorDetails } from "@/core/errors/app-errors";
+import { AGENT_WEB_SEARCH_RELEASED } from "./agent-web-search";
+import { agentWikiReplayBudget, serializeAgentWikiCatalog } from "./agent-wiki-context";
 
 type AdmittedAgentRun = { disposition: "run"; externalRunId: string } & Omit<AgentRunContext, "appBaseUrl">;
+type AgentInvocationMode = "interactive" | "routine";
 
 export type SendAgentMessageResult =
   | AdmittedAgentRun
@@ -51,10 +55,11 @@ export type SendAgentMessageResult =
         createdAt: Date;
       };
       terminalCode: NonNullable<AgentTurnRequestSnapshot["terminalCode"]>;
+      stopReason: AgentTurnRequestSnapshot["stopReason"];
       affectedResources: AgentTurnRequestSnapshot["affectedResources"];
     }
   | {
-      disposition: "running" | "failed" | "uncertain" | "conflict";
+      disposition: "running" | "atCapacity" | "failed" | "uncertain" | "conflict";
       clientRequestId: string;
       conversationId?: string;
       userMessageId?: string;
@@ -68,6 +73,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     private usageService: AgentUsageService,
     private entitlements: EntitlementService,
     private backgroundTaskService: BackgroundTaskService,
+    private wikiCatalog: Pick<GetWikiCatalogInteractor, "invoke">,
   ) {
     super();
   }
@@ -78,6 +84,17 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     tx: false,
   })
   async invoke(data: SendAgentMessageData): Validated<SendAgentMessageResult> {
+    return this.invokeScoped(data, "interactive");
+  }
+
+  async invokeRoutine(data: SendAgentMessageData): Validated<SendAgentMessageResult> {
+    const denied = await this.entitlements.require("agentChat");
+    if (denied) return denied;
+
+    return this.invokeScoped(data, "routine");
+  }
+
+  private async invokeScoped(data: SendAgentMessageData, mode: AgentInvocationMode): Validated<SendAgentMessageResult> {
     const user = this.user;
     const now = new Date();
     const model = resolveAgentModel();
@@ -90,8 +107,9 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       conversationId: data.conversationId,
       text: data.text,
       pageRoute,
-      wikiHomepageSetupDomain: data.wikiHomepageSetupDomain,
       retry: data.retry,
+      wikiHomepageSetupDomain: data.wikiHomepageSetupDomain,
+      wikiHomepageSetupUrl: data.wikiHomepageSetupUrl,
     });
 
     if (decision.disposition === "completed") {
@@ -128,6 +146,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
             createdAt: assistantMessage.createdAt,
           },
           terminalCode,
+          stopReason: decision.turn.stopReason,
           affectedResources: decision.turn.affectedResources,
         },
       };
@@ -161,63 +180,82 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       };
     }
 
-    const wikiHomepageSetupDomain =
-      decision.disposition === "retry"
-        ? (decision.turn.wikiHomepageSetupDomain ?? undefined)
-        : data.wikiHomepageSetupDomain;
+    if (mode === "routine" && decision.disposition === "retry")
+      return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+    if (mode === "routine" && !data.conversationId)
+      return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
-    const conversation =
-      decision.disposition === "retry"
-        ? await this.repo.findConversation(decision.turn.conversationId)
-        : data.conversationId
-          ? await this.repo.findConversation(data.conversationId)
-          : null;
+    const requestedConversationId =
+      decision.disposition === "retry" ? decision.turn.conversationId : data.conversationId;
+    const conversation = requestedConversationId
+      ? mode === "routine"
+        ? await this.repo.findConversation(requestedConversationId)
+        : await this.repo.findInteractiveConversation(
+            requestedConversationId,
+            decision.disposition === "retry" ? decision.turn.id : undefined,
+          )
+      : null;
     if ((decision.disposition === "retry" || data.conversationId) && !conversation)
       return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+    if (mode === "routine" && conversation?.origin !== AgentConversationOrigin.routine)
+      return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+
+    const surface: "routine" | "chat" = mode === "routine" ? "routine" : "chat";
 
     const requestedModelKey = conversation?.modelKey ?? data.modelKey ?? null;
     if (requestedModelKey !== null && !isAgentModelKey(requestedModelKey))
       return fail(CustomErrorCode.agentModelUnavailable, ["modelKey"]);
-    const turnModel = resolveAgentModel(requestedModelKey);
+    const setupUrl = decision.disposition === "retry" ? decision.turn.wikiHomepageSetupUrl : data.wikiHomepageSetupUrl;
+    const setupDomain =
+      decision.disposition === "retry" ? decision.turn.wikiHomepageSetupDomain : data.wikiHomepageSetupDomain;
+    const wikiHomepageSetup: PublicWikiHomepage | undefined = setupUrl
+      ? (parsePublicWikiHomepage(setupUrl) ?? undefined)
+      : undefined;
+    if ((setupDomain || setupUrl) && (!wikiHomepageSetup || wikiHomepageSetup.registrableDomain !== setupDomain))
+      return fail(CustomErrorCode.invalidUrl, ["wikiHomepageSetupUrl"]);
+    const baseModel = resolveAgentModel(requestedModelKey);
+    const turnModel = wikiHomepageSetup ? { ...baseModel, maxOutputTokens: 8_192 } : baseModel;
+    const toolOptions = {
+      surface,
+      wikiHomepageSetup: Boolean(wikiHomepageSetup),
+      webSearchEnabled: AGENT_WEB_SEARCH_RELEASED,
+    };
+    let wikiCatalog: string | null = null;
+    if (!wikiHomepageSetup) {
+      try {
+        const result = await this.wikiCatalog.invoke({ page: 1 });
+        if (!result.ok) return result;
+        wikiCatalog = serializeAgentWikiCatalog(result.data);
+      } catch (error) {
+        if (appErrorDetails(error)?.code !== AppErrorCode.permissionDenied) throw error;
+      }
+    }
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
     const locale = data.locale ?? resolveUserLocale(user);
-    const measureContext = (webSearchEnabled: boolean) =>
-      conservativeAgentInitialContextBytes({
-        systemPrompt: buildAgentSystemPrompt({
-          userName,
-          appBaseUrl: env.BASE_URL,
-          locale,
-          wikiHomepageSetupDomain,
-          webSearchEnabled,
-        }),
-        currentText: data.text,
-        pageRoute,
-        toolDefinitions: getAgentAiToolDefinitions({
-          webSearchEnabled,
-          wikiHomepageSetupDomain,
-        }),
-      });
-    const setupRequiresWeb = Boolean(wikiHomepageSetupDomain);
-    const initialContextBytes = measureContext(setupRequiresWeb);
-    if (initialContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");
-
-    let creditAdmission = await this.usageService.prepareTurn(user.id, now, {
-      model: turnModel,
-      requiredContextBytes: initialContextBytes,
+    const requiredContextBytes = conservativeAgentInitialContextBytes({
+      systemPrompt: buildAgentSystemPrompt({
+        userName,
+        appBaseUrl: env.BASE_URL,
+        locale,
+        surface,
+        wikiHomepageSetup: Boolean(wikiHomepageSetup),
+        webSearchEnabled: AGENT_WEB_SEARCH_RELEASED,
+      }),
+      currentText: data.text,
+      pageRoute,
+      toolDefinitions: getAgentAiToolDefinitions(turnModel.servingProvider, toolOptions),
+      wikiCatalog,
     });
-    if (!setupRequiresWeb && creditAdmission.reservation?.budget.webSearchEnabled) {
-      const webContextBytes = measureContext(true);
-      if (webContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");
-      creditAdmission = await this.usageService.prepareTurn(user.id, now, {
-        model: turnModel,
-        requiredContextBytes: webContextBytes,
-      });
-    }
+    if (requiredContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");
+
+    const creditAdmission = await this.usageService.prepareTurn(user.id, now, {
+      model: turnModel,
+      requiredContextBytes,
+      creditCeiling: mode === "routine" ? (conversation?.creditCeiling ?? null) : null,
+    });
     const reservation = creditAdmission.reservation;
     if (!reservation) return failRateLimit(CustomErrorCode.agentLimitReached);
-    if (setupRequiresWeb && !reservation.budget.webSearchEnabled)
-      return failRateLimit(CustomErrorCode.agentLimitReached);
 
     const runId = randomUUID();
     const reservationId = randomUUID();
@@ -227,10 +265,10 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       const claimed = await runInTransaction(async () => {
         const phaseOneAt = new Date();
         if (conversationIsNew) {
-          if (await this.repo.isAtAgentRunLimit(phaseOneAt)) return "unavailable" as const;
+          if (await this.repo.isAtAgentRunLimit(phaseOneAt)) return "at-user-limit" as const;
           await this.repo.createAgentConversationForRun({
             conversationId,
-            title: wikiHomepageSetupDomain ? "Set up Workspace Wiki" : data.text,
+            title: wikiHomepageSetup ? "Set up Workspace Wiki" : data.text,
             modelKey: requestedModelKey,
             now: phaseOneAt,
           });
@@ -242,7 +280,8 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           expiresAt: new Date(phaseOneAt.getTime() + AGENT_RUN_LEASE_MS),
           now: phaseOneAt,
         });
-        if (lease !== "claimed") return "unavailable" as const;
+        if (lease === "atUserLimit") return "at-user-limit" as const;
+        if (lease === "conversationBusy") return "conversation-busy" as const;
 
         const admitted = await this.usageService.reserveUsage({
           reservationId,
@@ -255,7 +294,30 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         return "claimed" as const;
       });
       if (claimed === "not-admitted") return failRateLimit(CustomErrorCode.agentLimitReached);
-      if (claimed !== "claimed") {
+      if (claimed === "at-user-limit") {
+        if (mode === "routine") {
+          return {
+            ok: true as const,
+            data: {
+              disposition: "atCapacity",
+              clientRequestId: data.clientRequestId,
+              conversationId,
+              retryAllowed: true,
+            },
+          };
+        }
+        if (conversationIsNew) return failConflict(CustomErrorCode.agentTurnAlreadyRunning);
+        return {
+          ok: true as const,
+          data: {
+            disposition: "running",
+            clientRequestId: data.clientRequestId,
+            conversationId,
+            retryAllowed: false,
+          },
+        };
+      }
+      if (claimed === "conversation-busy") {
         if (conversationIsNew) return failConflict(CustomErrorCode.agentTurnAlreadyRunning);
         return {
           ok: true as const,
@@ -278,6 +340,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         modelSpec: reservation.budget.modelSpec,
         servingProvider: reservation.budget.servingProvider,
         recentMessageLimit: AGENT_REPLAY_COUNT,
+        ...(mode === "routine" ? { routineRunId: data.clientRequestId } : {}),
         turn:
           decision.disposition === "retry"
             ? {
@@ -293,20 +356,28 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
                 clientRequestId: data.clientRequestId,
                 text: data.text,
                 pageRoute,
-                wikiHomepageSetupDomain: wikiHomepageSetupDomain ?? null,
+                wikiHomepageSetupDomain: wikiHomepageSetup?.registrableDomain,
+                wikiHomepageSetupUrl: wikiHomepageSetup?.url,
                 userMessageId,
               },
       });
 
       const pageContext = data.pageContext ? `<page_context route="${data.pageContext.route}"/>\n` : "";
-      const messages = admission.recentMessages
-        .map((message) => {
-          const text = partsToText(message.parts);
-          return {
-            role: message.role as string,
-            text: message.id === userMessageId ? `${pageContext}${text}` : text.slice(0, AGENT_REPLAY_MAX_CHARS),
-          };
-        })
+      const replayInputs = admission.recentMessages.map((message) => {
+        const text = partsToText(message.parts);
+        const current = message.id === userMessageId;
+        return {
+          role: message.role as string,
+          text: current ? `${pageContext}${text}` : text,
+          budgeted: !current,
+        };
+      });
+      const budgeted = budgetAgentReplayHistory(replayInputs, agentWikiReplayBudget(wikiCatalog));
+      const messages = replayInputs
+        .map((message, index) => ({
+          role: message.role,
+          text: budgeted[index],
+        }))
         .filter((message) => message.text);
 
       const externalRunId = await this.backgroundTaskService.dispatchTracked("agent-turn", {
@@ -320,10 +391,13 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         appBaseUrl: env.BASE_URL,
         messages,
         turnBudget: reservation.budget,
-        wikiHomepageSetupDomain,
         tenant: { userId: user.id, companyId: user.companyId },
+        surface,
+        wikiHomepageSetup,
+        wikiCatalog,
+        webSearchEnabled: AGENT_WEB_SEARCH_RELEASED,
       });
-      await this.repo.recordAgentTurnExternalRun(turnRequestId, externalRunId);
+      await this.repo.recordAgentTurnExternalRun(turnRequestId, runId, externalRunId);
 
       return {
         ok: true as const,

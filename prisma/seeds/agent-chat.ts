@@ -123,6 +123,4 @@ export async function seedAgentConversations(context: SeedContext): Promise<void
       });
     }
   }
-
-  await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('"AgentMessage"', 'sequence'), (SELECT COALESCE(MAX(sequence), 1) FROM "AgentMessage"))`;
 }

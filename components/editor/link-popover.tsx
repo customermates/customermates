@@ -4,12 +4,14 @@ import type { Editor } from "@tiptap/react";
 
 import { Check, Link, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/core/utils/cn";
+
+import { EditorLinkPickerContext, insertEditorLink } from "./editor-link-picker";
 
 type Props = {
   editor: Editor;
@@ -22,6 +24,7 @@ type Props = {
 export function LinkPopover({ editor, open, onOpenChange, normalizeUrl, disabled = false }: Props) {
   const t = useTranslations();
   const [url, setUrl] = useState("");
+  const LinkPicker = useContext(EditorLinkPickerContext);
 
   const isActive = editor.isActive("link");
   const normalizedUrl = url.trim() ? (normalizeUrl?.(url) ?? (normalizeUrl ? null : url.trim())) : "";
@@ -106,6 +109,17 @@ export function LinkPopover({ editor, open, onOpenChange, normalizeUrl, disabled
             </Button>
           )}
         </div>
+
+        {LinkPicker && open && !disabled && (
+          <div className="mt-2 border-t border-border pt-2">
+            <LinkPicker
+              onSelect={({ href, title }) => {
+                insertEditorLink(editor, { href, title });
+                onOpenChange(false);
+              }}
+            />
+          </div>
+        )}
       </PopoverContent>
     </Popover>
   );

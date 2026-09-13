@@ -1,11 +1,14 @@
 import { AGENT_ACTIVITY_RESOURCES, type AgentActivityResource } from "./agent-activity";
+import { AgentTurnStopReason as AgentTurnStopReasonValue } from "@/generated/prisma";
 
 export const AGENT_TURN_REQUEST_STATUSES = ["running", "completed", "failed", "uncertain"] as const;
 export const AGENT_TURN_TERMINAL_CODES = ["completed", "partial", "error", "cancelled", "policyBreach"] as const;
+export const AGENT_TURN_STOP_REASONS = Object.values(AgentTurnStopReasonValue);
 export const AGENT_RUN_LEASE_MS = 330_000;
 
 export type AgentTurnRequestStatus = (typeof AGENT_TURN_REQUEST_STATUSES)[number];
 export type AgentTurnTerminalCode = (typeof AGENT_TURN_TERMINAL_CODES)[number];
+export type AgentTurnStopReason = AgentTurnStopReasonValue;
 
 export type AgentTurnRequestSnapshot = {
   id: string;
@@ -14,6 +17,7 @@ export type AgentTurnRequestSnapshot = {
   text: string;
   pageRoute: string | null;
   wikiHomepageSetupDomain: string | null;
+  wikiHomepageSetupUrl?: string | null;
   status: AgentTurnRequestStatus;
   runId: string;
   attemptCount: number;
@@ -21,6 +25,7 @@ export type AgentTurnRequestSnapshot = {
   userMessageId: string;
   assistantMessageId: string | null;
   terminalCode: AgentTurnTerminalCode | null;
+  stopReason: AgentTurnStopReason | null;
   affectedResources: AgentActivityResource[];
   hasLaterMessages: boolean;
 };
@@ -31,6 +36,7 @@ export type AgentTurnRequestInput = {
   text: string;
   pageRoute: string | null;
   wikiHomepageSetupDomain?: string;
+  wikiHomepageSetupUrl?: string;
   retry: boolean;
 };
 
@@ -50,6 +56,7 @@ function sameRequest(turn: AgentTurnRequestSnapshot, input: AgentTurnRequestInpu
     turn.text === input.text &&
     turn.pageRoute === input.pageRoute &&
     (input.wikiHomepageSetupDomain === undefined || turn.wikiHomepageSetupDomain === input.wikiHomepageSetupDomain) &&
+    (input.wikiHomepageSetupUrl === undefined || turn.wikiHomepageSetupUrl === input.wikiHomepageSetupUrl) &&
     (!input.conversationId || turn.conversationId === input.conversationId)
   );
 }
@@ -74,6 +81,10 @@ export function decideAgentTurnAdmission(
 
 export function isAgentTurnTerminalCode(value: unknown): value is AgentTurnTerminalCode {
   return typeof value === "string" && AGENT_TURN_TERMINAL_CODES.some((code) => code === value);
+}
+
+export function isAgentTurnStopReason(value: unknown): value is AgentTurnStopReason {
+  return typeof value === "string" && AGENT_TURN_STOP_REASONS.some((reason) => reason === value);
 }
 
 export function areAgentTurnAffectedResources(value: unknown): value is AgentActivityResource[] {

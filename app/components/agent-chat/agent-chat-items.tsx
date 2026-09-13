@@ -15,7 +15,7 @@ import {
 
 import { useActivityGroupState } from "./use-activity-group-state";
 import { useSteadyLabel } from "./use-steady-label";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-context";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { Button } from "@/components/ui/button";
@@ -37,10 +37,15 @@ export function useAgentActivityTerminology(): Partial<Record<AgentActivityResou
 
 export const AgentChatItemView = observer(function AgentChatItemView({
   item,
+  readOnly = false,
+  userLabel,
 }: {
   item: Exclude<AgentChatItem, { kind: "activity" }>;
+  readOnly?: boolean;
+  userLabel?: string;
 }) {
-  const { agentChatStore: store } = useRootStore();
+  const store = useAgentChatStore();
+  const uiTargets = useAgentChatUiTargets();
   const t = useTranslations();
   const copyToClipboard = useCopyToClipboard();
   const terminology = useAgentActivityTerminology();
@@ -49,13 +54,15 @@ export const AgentChatItemView = observer(function AgentChatItemView({
     decision: "approve" | "reject",
   ) => {
     await store.respondToApproval(approval, decision);
-    if (approval.submittedDecision || approval.resolution) focusAgentComposer();
+    if (approval.submittedDecision || approval.resolution) focusAgentComposer(uiTargets);
   };
 
   if (item.kind === "user") {
     return (
-      <article aria-label={t("Inbox.senderYou")} className="group/message flex justify-end">
+      <article aria-label={userLabel ?? t("Inbox.senderYou")} className="group/message flex justify-end">
         <div className="flex max-w-[85%] flex-col items-end gap-1">
+          {userLabel && <span className="text-subdued text-xs">{userLabel}</span>}
+
           <div className="w-fit min-w-16 rounded-xl rounded-br-md bg-muted px-3.5 py-2 text-sm whitespace-pre-wrap shadow-xs dark:bg-accent/60">
             {item.text}
           </div>
@@ -96,6 +103,18 @@ export const AgentChatItemView = observer(function AgentChatItemView({
     );
   }
 
+  if (item.kind === "turn_interrupted") {
+    return (
+      <div
+        className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs"
+        data-testid="agent-turn-interrupted"
+        role="alert"
+      >
+        {t("AgentChat.ui.turnInterrupted")}
+      </div>
+    );
+  }
+
   if (item.kind === "turn_error") {
     const copy = chatUiCopy(t);
     return (
@@ -105,18 +124,20 @@ export const AgentChatItemView = observer(function AgentChatItemView({
       >
         <span>{copy.turnFailed}</span>
 
-        <Button
-          className="shrink-0"
-          disabled={store.isWorking || Boolean(store.usage?.blockedReason) || !store.canRetryFailedTurn(item)}
-          size="sm"
-          variant="secondary"
-          onClick={() => {
-            store.retryFailedTurn(item);
-            focusAgentComposer();
-          }}
-        >
-          {copy.retryTurn}
-        </Button>
+        {!readOnly && (
+          <Button
+            className="shrink-0"
+            disabled={store.isWorking || Boolean(store.usage?.blockedReason) || !store.canRetryFailedTurn(item)}
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              store.retryFailedTurn(item);
+              focusAgentComposer(uiTargets);
+            }}
+          >
+            {copy.retryTurn}
+          </Button>
+        )}
       </div>
     );
   }
@@ -139,7 +160,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
 
           {t("AgentChat.approval.resuming")}
         </p>
-      ) : (
+      ) : readOnly ? null : (
         <div className="mt-3 space-y-2">
           {item.retryDecision && <p className="text-xs text-muted-foreground">{t("AgentChat.approval.retryResume")}</p>}
 
@@ -183,6 +204,11 @@ export function consecutiveActivityItems(items: AgentChatItem[], start: number) 
   return activities;
 }
 
+export function isWorkingActivityGroup(items: AgentChatItem[], start: number, isWorking: boolean) {
+  if (!isWorking) return false;
+  return start > items.findLastIndex((item) => item.kind === "user");
+}
+
 export const AgentActivity = observer(function AgentActivity({
   isWorking,
   isTrailing,
@@ -198,10 +224,12 @@ export const AgentActivity = observer(function AgentActivity({
   const hasRunning = items.some((item) => item.status === "running");
   const isPending = isWorking && isTrailing;
   const hasError = items.some((item) => item.status === "error");
+  const isRecovering = isWorking && hasError;
+  const isActive = hasRunning || isRecovering || isPending;
   const hasCancelled = items.some((item) => item.status === "cancelled");
   const { open, setOpen, elapsedSeconds } = useActivityGroupState({
-    hasError,
-    hasRunning: hasRunning || isPending,
+    hasError: hasError && !isRecovering,
+    hasRunning: isActive,
     isWorking,
     startedAt: items[0]?.at,
   });
@@ -218,13 +246,13 @@ export const AgentActivity = observer(function AgentActivity({
           items.map((item) => item.status),
           t,
         );
-  const runningItem = items.find((item) => item.status === "running");
+  const runningItem = items.findLast((item) => item.status === "running" || (isRecovering && item.status === "error"));
   const runningLabel = runningItem ? agentActivityCopy(runningItem.activity, t, terminology).running : uiCopy.thinking;
   const liveSummary =
     !hasError && !hasCancelled && elapsedSeconds !== null
       ? uiCopy.stepsTook(items.length, elapsedSeconds)
       : settledSummary;
-  const summary = useSteadyLabel(hasRunning || isPending ? runningLabel : liveSummary);
+  const summary = useSteadyLabel(isActive ? runningLabel : liveSummary);
 
   return (
     <details
@@ -235,7 +263,7 @@ export const AgentActivity = observer(function AgentActivity({
       onToggle={(event) => setOpen(event.currentTarget.open)}
     >
       <summary className="flex cursor-pointer list-none items-center gap-2 text-xs text-muted-foreground transition-colors select-none hover:text-foreground [&::-webkit-details-marker]:hidden">
-        {hasRunning || isPending ? (
+        {isActive ? (
           <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
         ) : hasError ? (
           <X aria-hidden="true" className="size-3.5 text-destructive" />
@@ -253,12 +281,13 @@ export const AgentActivity = observer(function AgentActivity({
       <div className="mt-3 space-y-3 pl-4 [&>*]:fade-in-0 [&>*]:slide-in-from-top-2 [&>*]:animate-in [&>*]:duration-300 [&>*]:motion-reduce:animate-none">
         {items.map((item) => {
           const copy = agentActivityCopy(item.activity, t, terminology);
+          const status = isRecovering && item.status === "error" ? "running" : item.status;
           const label =
-            item.status === "running"
+            status === "running"
               ? copy.running
-              : item.status === "error"
+              : status === "error"
                 ? copy.error
-                : item.status === "cancelled"
+                : status === "cancelled"
                   ? copy.cancelled
                   : copy.done;
 
@@ -270,14 +299,14 @@ export const AgentActivity = observer(function AgentActivity({
                 "before:absolute before:top-0 before:-left-4 before:h-[calc(100%+0.75rem)] before:w-px before:bg-border",
                 "before:origin-top before:animate-timeline-grow before:motion-reduce:animate-none",
                 "last:before:h-full",
-                item.status === "error" && "text-destructive",
+                status === "error" && "text-destructive",
               )}
             >
-              {item.status === "running" ? (
+              {status === "running" ? (
                 <Loader2 aria-hidden="true" className="mt-0.5 size-3.5 shrink-0 animate-spin" />
-              ) : item.status === "error" ? (
+              ) : status === "error" ? (
                 <X aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
-              ) : item.status === "cancelled" ? (
+              ) : status === "cancelled" ? (
                 <Square aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
               ) : (
                 <Check aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />

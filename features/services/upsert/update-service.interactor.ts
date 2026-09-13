@@ -63,12 +63,13 @@ export class UpdateServiceInteractor extends AuthenticatedInteractor<UpdateServi
 
     const service = await this.servicesRepo.updateServiceOrThrow(data);
 
-    const [currentDeals, currentTasks] = await Promise.all([
+    const [currentCompanyWideService, currentDeals, currentTasks] = await Promise.all([
+      this.servicesRepo.getOrThrowCompanyWide(service.id),
       this.dealsRepo.getManyOrThrowCompanyWide(relatedDealIds),
       this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
-    const changes = calculateChanges(previousService, service);
+    const changes = calculateChanges(previousService, currentCompanyWideService);
 
     await Promise.all([
       ...buildRelationChangePublishes(

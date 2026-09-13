@@ -46,6 +46,10 @@ const PAGE_ACTION_IDS: Record<SupportedPage, Record<PageState, readonly string[]
     empty: ["setup-tasks", "first-task", "tasks-tour"],
     data: ["task-priorities", "create-task", "task-gaps"],
   },
+  routines: {
+    empty: ["first-routine", "routine-ideas", "routines-tour"],
+    data: ["routine-health", "create-routine", "routines-tour-data"],
+  },
   inbox: {
     empty: ["inbox-connect-email", "inbox-connect-whatsapp", "inbox-explain"],
     data: ["inbox-needs-reply", "inbox-explain-data", "inbox-add-channel"],
@@ -165,13 +169,13 @@ export function agentPageActions(
   capabilities: AgentPageCapabilities = {},
 ): AgentPageAction[] {
   const readOnly = readOnlyAgentPageActions(page, t);
-  const writeGated = isEntityPage(page) || page === "dashboard";
+  const writeGated = isEntityPage(page) || page === "dashboard" || page === "routines";
   let actions: AgentPageAction[];
 
   if (writeGated && capabilities.canCreate === false) actions = readOnly;
   else {
     actions = PAGE_ACTION_IDS[page][state].map((id) => suggestionAction(page, state, id, t));
-    if (writeGated && state === "empty" && page !== "dashboard" && capabilities.canSetupWorkspace === false)
+    if (isEntityPage(page) && state === "empty" && capabilities.canSetupWorkspace === false)
       actions = [actions[1], actions[2], readOnly[0]];
   }
 

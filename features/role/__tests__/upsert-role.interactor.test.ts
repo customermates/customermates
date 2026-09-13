@@ -72,6 +72,7 @@ const escalatingPermissions = (): UpsertRoleData["permissions"] => ({
   inboxMessages: { canManage: "yes", readAccess: "all" },
   wiki: { canManage: "yes", readAccess: "all" },
   auditLog: { readAccess: "all" },
+  routines: { canManage: "yes", readAccess: "all" },
 });
 
 const payload = (id?: string): UpsertRoleData => ({

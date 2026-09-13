@@ -88,11 +88,15 @@ export class UpdateManyOrganizationsInteractor extends AuthenticatedInteractor<
       data.organizations.map((organizationData) => this.organizationsRepo.updateOrganizationOrThrow(organizationData)),
     );
 
-    const [currentContacts, currentDeals, currentTasks] = await Promise.all([
+    const [currentOrganizationsCompanyWide, currentContacts, currentDeals, currentTasks] = await Promise.all([
+      this.organizationsRepo.getManyOrThrowCompanyWide(organizations.map((organization) => organization.id)),
       this.contactsRepo.getManyOrThrowCompanyWide(relatedContactIds),
       this.dealsRepo.getManyOrThrowCompanyWide(relatedDealIds),
       this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
+    const currentOrganizationsCompanyWideMap = new Map(
+      currentOrganizationsCompanyWide.map((organization) => [organization.id, organization]),
+    );
 
     await Promise.all([
       ...buildRelationChangePublishes(previousContacts, currentContacts, "organizations", (contact, changes) =>
@@ -123,7 +127,11 @@ export class UpdateManyOrganizationsInteractor extends AuthenticatedInteractor<
         }),
       ),
       ...organizations.map((organization) => {
-        const changes = calculateChanges(previousOrganizationsMap.get(organization.id), organization);
+        const currentOrganizationCompanyWide = currentOrganizationsCompanyWideMap.get(organization.id);
+        if (!currentOrganizationCompanyWide)
+          throw new Error(`Updated organization ${organization.id} missing from company-wide snapshot`);
+
+        const changes = calculateChanges(previousOrganizationsMap.get(organization.id), currentOrganizationCompanyWide);
 
         return this.eventService.publish(DomainEvent.ORGANIZATION_UPDATED, {
           entityId: organization.id,

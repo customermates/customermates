@@ -1,9 +1,10 @@
-import { openai } from "@ai-sdk/openai";
+import { gateway } from "ai";
 
 export const AGENT_WEB_SEARCH_TOOL_NAME = "web_search";
-export const AGENT_WEB_SEARCH_CONTEXT_SIZE = "low";
-export const AGENT_WEB_SEARCH_MAX_TOOL_CALLS_PER_ROUND = 1;
-export const AGENT_WEB_SEARCH_MAX_USD_PER_CALL = 0.014;
+export const AGENT_WEB_SEARCH_RELEASED = false;
+export const AGENT_WEB_SEARCH_MAX_RESULTS = 3;
+export const AGENT_WEB_SEARCH_MAX_TOKENS = 1_024;
+export const AGENT_WEB_SEARCH_USD_PER_REQUEST = 0.005;
 const AGENT_WEB_SOURCE_LIMIT = 8;
 export const AGENT_WEB_SOURCE_MAX_LENGTH = 1_000;
 
@@ -12,10 +13,11 @@ export type AgentWebSearchOptions = {
 };
 
 export function getAgentWebSearchTool(options: AgentWebSearchOptions = {}) {
-  return openai.tools.webSearch({
-    externalWebAccess: true,
-    searchContextSize: AGENT_WEB_SEARCH_CONTEXT_SIZE,
-    ...(options.allowedDomains?.length ? { filters: { allowedDomains: [...options.allowedDomains] } } : {}),
+  return gateway.tools.perplexitySearch({
+    maxResults: AGENT_WEB_SEARCH_MAX_RESULTS,
+    maxTokens: AGENT_WEB_SEARCH_MAX_TOKENS,
+    maxTokensPerPage: 512,
+    ...(options.allowedDomains?.length ? { searchDomainFilter: [...options.allowedDomains] } : {}),
   });
 }
 
@@ -40,12 +42,13 @@ function addOutputSources(value: unknown, sources: Set<string>) {
   const raw = record(value);
   if (raw?.type !== undefined && raw.type !== "json") return;
   const output = raw && "value" in raw ? record(raw.value) : raw;
-  if (!output || !Array.isArray(output.sources)) return;
+  if (!output) return;
+  const items = Array.isArray(output.results) ? output.results : Array.isArray(output.sources) ? output.sources : [];
 
-  for (const item of output.sources) {
+  for (const item of items) {
     const source = record(item);
-    if (source?.type !== "url") continue;
-    const url = canonicalHttpsSource(source.url);
+    if (source?.type !== undefined && source.type !== "url") continue;
+    const url = canonicalHttpsSource(source?.url);
     if (url) sources.add(url);
     if (sources.size >= AGENT_WEB_SOURCE_LIMIT) break;
   }
@@ -64,6 +67,12 @@ export function collectAgentWebSources(messages: readonly unknown[]): string[] {
 
       if (part.type === "tool-result" && part.toolName === AGENT_WEB_SEARCH_TOOL_NAME)
         addOutputSources(part.output, sources);
+      if (part.type === "tool-result" && part.toolName === "read_public_page") {
+        const raw = record(part.output);
+        const output = raw && "value" in raw ? record(raw.value) : raw;
+        const url = output?.ok === true ? canonicalHttpsSource(output.url) : null;
+        if (url) sources.add(url);
+      }
       if (part.type === "source" && part.sourceType === "url") {
         const url = canonicalHttpsSource(part.url);
         if (url) sources.add(url);

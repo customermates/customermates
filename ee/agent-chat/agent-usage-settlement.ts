@@ -1,7 +1,7 @@
 import type { LanguageModelUsage } from "ai";
 
 import { agentCreditsForStartedProviderCost } from "./agent-credit-policy";
-import { computeCostMicrocents, type TokenCounts } from "./model-pricing";
+import { computeCostMicrocents, type ModelInferenceRegion, type TokenCounts } from "./model-pricing";
 
 export type AgentUsageCostSource = "measured" | "estimated";
 
@@ -25,18 +25,23 @@ export type AgentUsageSettlement = TokenCounts & {
 function estimateCostMicrocents(args: {
   model: string;
   provider?: string;
+  inferenceRegion?: ModelInferenceRegion | null;
   tokens: TokenCounts;
   providerCharge: AgentProviderChargeEvidence;
 }) {
   const steps = args.providerCharge.stepTokens;
-  if (steps.length === 0) return computeCostMicrocents(args.model, args.tokens, args.provider);
+  if (steps.length === 0) return computeCostMicrocents(args.model, args.tokens, args.provider, args.inferenceRegion);
 
-  return steps.reduce((total, step) => total + computeCostMicrocents(args.model, step, args.provider), 0);
+  return steps.reduce(
+    (total, step) => total + computeCostMicrocents(args.model, step, args.provider, args.inferenceRegion),
+    0,
+  );
 }
 
 export function buildAgentUsageSettlement(args: {
   model: string;
   provider?: string;
+  inferenceRegion?: ModelInferenceRegion | null;
   tokens: TokenCounts;
   reservedCredits: number;
   providerCharge: AgentProviderChargeEvidence;

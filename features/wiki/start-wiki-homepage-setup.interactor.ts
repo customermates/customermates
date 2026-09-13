@@ -57,6 +57,7 @@ export class StartWikiHomepageSetupInteractor extends AuthenticatedInteractor<
       locale: data.locale,
       retry: data.retry === true,
       wikiHomepageSetupDomain: homepage.registrableDomain,
+      wikiHomepageSetupUrl: homepage.url,
     });
   }
 }

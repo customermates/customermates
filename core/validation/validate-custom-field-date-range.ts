@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { isIsoDateTime } from "@/core/validation/iso-date-time";
+
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 export function validateCustomFieldDateRange(value: string, ctx: z.RefinementCtx, basePath: (string | number)[]) {
@@ -16,7 +18,7 @@ export function validateCustomFieldDateRange(value: string, ctx: z.RefinementCtx
 
   for (const part of parts) {
     const dateOnlyOk = z.iso.date().safeParse(part).success;
-    const datetimeOk = z.iso.datetime().safeParse(part).success;
+    const datetimeOk = isIsoDateTime(part);
     if (dateOnlyOk || datetimeOk) continue;
 
     ctx.addIssue({

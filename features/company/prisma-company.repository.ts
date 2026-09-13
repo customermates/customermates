@@ -12,6 +12,7 @@ import type { RouteGuardCompanyRepo } from "@/features/auth/route-guard.service"
 import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
 import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement.service";
 import type { CreateAuthLinkSubscriptionRepo } from "@/ee/messaging/connect/create-auth-link.interactor";
+import type { UpsertRoutineSubscriptionRepo } from "@/ee/routines/upsert-routine.interactor";
 import type { RegisterUserCompanyRepo } from "@/features/user/register/register-user.interactor";
 import type { GetDealWeightingColumnRepo } from "./get-deal-weighting-column.repo";
 
@@ -37,6 +38,7 @@ export class PrismaCompanyRepo
     RouteGuardCompanyRepo,
     EntitlementSubscriptionRepo,
     CreateAuthLinkSubscriptionRepo,
+    UpsertRoutineSubscriptionRepo,
     RegisterUserCompanyRepo,
     GetDealWeightingColumnRepo
 {

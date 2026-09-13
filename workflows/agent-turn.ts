@@ -1,5 +1,5 @@
 import type { Prisma } from "@/generated/prisma";
-import type { AgentAiToolDefinition, AgentToolDeps } from "@/ee/agent-chat/agent-tools";
+import type { AgentToolDeps } from "@/ee/agent-chat/agent-tools";
 import type { AgentTurnBudget } from "@/ee/agent-chat/agent-budget-policy";
 import type { AgentActivityResource } from "@/ee/agent-chat/agent-activity";
 import type { AgentTranscriptEvent } from "@/ee/agent-chat/agent-turn-transcript";
@@ -7,13 +7,15 @@ import type { AgentTurnTerminalEvent } from "@/ee/agent-chat/agent-durable-strea
 import type { ReplayMessage } from "@/ee/agent-chat/agent-stream-utils";
 import type { TokenCounts } from "@/ee/agent-chat/model-pricing";
 import type { WorkflowTenant } from "./workflow-tenant";
+import type { ModelMessage } from "ai";
 
 import { WorkflowAgent } from "@ai-sdk/workflow";
 import { createHook, getWritable, sleep } from "workflow";
-import { isStepCount, jsonSchema, tool } from "ai";
+import { isStepCount, jsonSchema } from "ai";
 
 import { AgentTurnTranscript } from "@/ee/agent-chat/agent-turn-transcript";
-import { isAgentTurnTerminalError } from "@/ee/agent-chat/agent-turn-request";
+import { approvalWindowMsForSurface, isUnattendedSurface } from "@/ee/agent-chat/agent-surface-policy";
+import { isAgentTurnTerminalError, type AgentTurnStopReason } from "@/ee/agent-chat/agent-turn-request";
 import {
   agentApprovalHookToken,
   agentApprovalRequestId,
@@ -30,49 +32,68 @@ import {
 import { agentUiCommandHookToken, isAgentPanelTool, toAgentUiCommandInput } from "@/ee/agent-chat/agent-ui-command";
 import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-context";
 import { buildAgentSystemPrompt } from "@/ee/agent-chat/system-prompt";
+import type { AgentAiToolDefinition, AgentToolOptions } from "@/ee/agent-chat/agent-tools";
+import type { PublicWikiHomepage } from "@/features/wiki/wiki-homepage";
+import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
+import {
+  agentBatchContainsWebCall,
+  isAgentWebTool,
+  isSuccessfulAgentWebResult,
+} from "@/ee/agent-chat/agent-web-policy";
+import { agentWebSourcesFooter, collectAgentWebSources } from "@/ee/agent-chat/agent-web-search";
+import {
+  createPublicPageReadState,
+  reservePublicPageRead,
+  recordPublicPageLinks,
+} from "@/ee/agent-chat/public-page-read-state";
 import { buildAgentUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/agent-usage-settlement";
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
 import { agentCreditsForStartedProviderCost } from "@/ee/agent-chat/agent-credit-policy";
 import { createAgentSupportTicket } from "@/ee/agent-chat/agent-support-ticket";
 import { describeAgentTool } from "@/ee/agent-chat/agent-activity";
-import { agentToolOutcomeStatus, AGENT_TRANSCRIPT_FORWARDED_EVENTS } from "@/ee/agent-chat/agent-durable-stream";
 import {
-  agentContinuationLimits,
-  toAgentContinuationStep,
-  type AgentToolOutcome,
-} from "@/ee/agent-chat/agent-run-limits";
+  agentToolOutcomeStatus,
+  unwrapToolOutput,
+  AGENT_TRANSCRIPT_FORWARDED_EVENTS,
+} from "@/ee/agent-chat/agent-durable-stream";
+import { toAgentContinuationStep, type AgentToolOutcome } from "@/ee/agent-chat/agent-run-limits";
 import {
+  AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS,
   compactAgentContinuationContext,
   decideAgentContinuationLoop,
   type AgentContinuationStep,
 } from "@/ee/agent-chat/agent-continuation";
 import { isAgentStepContextWithinBudget } from "@/ee/agent-chat/agent-provider-context";
-import { getAgentChatRepo } from "@/core/di";
+import { getAgentChatRepo, getBackgroundTaskService } from "@/core/di";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
-import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
-import { requiresApproval } from "@/ee/agent-chat/gated-tools";
+import { isReadOnlyAgentToolCall, requiresApproval } from "@/ee/agent-chat/gated-tools";
+import { isAgentToolCancellation } from "@/ee/agent-chat/agent-tool-cancellation";
+import { createAgentToolInputResolver, type AgentToolInputResult } from "@/ee/agent-chat/agent-tool-input";
 import { resolveAgentApprovalContext } from "@/ee/agent-chat/agent-external-approval-context";
-import { resolveAgentToolResultMaxChars } from "@/ee/agent-chat/agent-budget-policy";
+import { isAgentContextWithinBudget, resolveAgentToolResultMaxChars } from "@/ee/agent-chat/agent-budget-policy";
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
+import { runInRoutineContext } from "@/core/decorators/routine-context";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import {
-  AGENT_WEB_SEARCH_TOOL_NAME,
-  agentWebSourcesFooter,
-  collectAgentWebSources,
-} from "@/ee/agent-chat/agent-web-search";
 
 import { reportFailure, toWorkflowFailure, type WorkflowFailure } from "./capture-failure";
 
 const WORKFLOW_NAME = "agent-turn";
 
-export const AGENT_APPROVAL_WINDOW_MS = 30 * 60 * 1000;
 export const AGENT_UI_COMMAND_WINDOW_MS = 30 * 1000;
 export const AGENT_SEGMENT_ROUNDS = 32;
 
+const AGENT_OUTPUT_CONTINUATION_PROMPT =
+  "<agent_output_continuation>Continue directly from the partial assistant response above. Do not repeat completed text. Finish the user's request.</agent_output_continuation>";
+const AGENT_CONTEXT_COMPACTION_REQUIRED = new Error(
+  "Agent context requires compaction before the next provider round.",
+);
 const AGENT_LOCAL_TERMINATION_REQUIRED = new Error(
   "Agent execution reached a local terminal condition before the next provider round.",
 );
+const AI_API_CALL_ERROR_MARKER = Symbol.for("vercel.ai.error.AI_APICallError");
+const AI_GATEWAY_ERROR_MARKER = Symbol.for("vercel.ai.gateway.error");
+const AI_RETRY_ERROR_MARKER = Symbol.for("vercel.ai.error.AI_RetryError");
 
 export type AgentTurnWorkflowPayload = {
   turnRequestId: string;
@@ -85,9 +106,14 @@ export type AgentTurnWorkflowPayload = {
   appBaseUrl: string;
   messages: ReplayMessage[];
   turnBudget: AgentTurnBudget;
-  wikiHomepageSetupDomain?: string;
   tenant: WorkflowTenant;
+  surface?: AgentTurnSurface;
+  wikiHomepageSetup?: PublicWikiHomepage;
+  wikiCatalog?: string | null;
+  webSearchEnabled?: boolean;
 };
+
+export type AgentTurnSurface = "chat" | "routine";
 
 type AgentToolShell = AgentAiToolDefinition & {
   annotations: Record<string, boolean> | undefined;
@@ -103,13 +129,6 @@ type PendingApproval = {
 
 type AgentRoundResult = {
   content: unknown[];
-  toolResults?: Array<{
-    type: "tool-result";
-    toolCallId: string;
-    toolName: string;
-    output: unknown;
-    providerExecuted?: boolean;
-  }>;
   finishReason: string;
   usage: Parameters<typeof usageToTokenCounts>[0] & {
     outputTokenDetails?: { reasoningTokens?: number };
@@ -123,6 +142,70 @@ type RoundLedgerEntry = {
   measured: boolean;
   unreadableReason?: string;
 };
+
+type AgentTurnUsageOutcome = {
+  tokens: TokenCounts;
+  ledger: RoundLedgerEntry[];
+  reservedCredits: number;
+  providerStarted?: boolean;
+};
+
+type AgentTurnFinalizationOutcome = AgentTurnUsageOutcome & {
+  parts: unknown;
+  terminalCode: "completed" | "partial" | "cancelled";
+  stopReason: AgentTurnStopReason | null;
+  affectedResources: AgentActivityResource[];
+  hasSuccessfulMutation: boolean;
+};
+
+function nextAgentSegmentMessages(args: {
+  messages: readonly ModelMessage[];
+  finishReason: string;
+  lastStep: AgentContinuationStep | undefined;
+}): ModelMessage[] {
+  const messages = args.messages.filter((message) => message.role !== "system");
+  if (args.finishReason !== "length") return messages;
+
+  return [
+    ...messages,
+    ...(args.lastStep?.response.messages ?? []),
+    { role: "user", content: AGENT_OUTPUT_CONTINUATION_PROMPT },
+  ];
+}
+
+function hasErrorMarker(error: unknown, marker: symbol) {
+  return typeof error === "object" && error !== null && marker in error && error[marker as keyof typeof error] === true;
+}
+
+function isAgentProviderFailure(error: unknown): boolean {
+  if (hasErrorMarker(error, AI_API_CALL_ERROR_MARKER) || hasErrorMarker(error, AI_GATEWAY_ERROR_MARKER)) return true;
+  if (hasErrorMarker(error, AI_RETRY_ERROR_MARKER)) return true;
+  if (typeof error !== "object" || error === null || !("cause" in error)) return false;
+  return isAgentProviderFailure(error.cause);
+}
+
+function usageSettlementForTurn(payload: AgentTurnWorkflowPayload, outcome: AgentTurnUsageOutcome) {
+  if (outcome.providerStarted === false) return null;
+
+  const measured = outcome.ledger.every((entry) => entry.measured);
+  const unreadableReason = outcome.ledger.find((entry) => entry.unreadableReason)?.unreadableReason ?? null;
+  return buildAgentUsageSettlement({
+    model: payload.turnBudget.modelSpec,
+    tokens: outcome.tokens,
+    provider: payload.turnBudget.servingProvider,
+    inferenceRegion: payload.turnBudget.inferenceRegion,
+    reservedCredits: outcome.reservedCredits,
+    providerCharge: {
+      billed: outcome.ledger.length > 0,
+      measuredCostMicrocents:
+        measured && outcome.ledger.length > 0
+          ? outcome.ledger.reduce((total, entry) => total + entry.costMicrocents, 0)
+          : null,
+      stepTokens: outcome.ledger.map((entry) => entry.tokens),
+      unreadableReason,
+    },
+  });
+}
 
 function emptyTokens(): TokenCounts {
   return {
@@ -142,27 +225,15 @@ function addTokens(left: TokenCounts, right: TokenCounts): TokenCounts {
   };
 }
 
-function hasNativeWebSearchExecution(step: AgentRoundResult): boolean {
-  return [...step.content, ...(step.toolResults ?? [])].some((raw) => {
-    const part = raw as {
-      type?: unknown;
-      toolName?: unknown;
-      providerExecuted?: unknown;
-    };
-    return (
-      (part.type === "tool-call" || part.type === "tool-result" || part.type === "tool-error") &&
-      part.toolName === AGENT_WEB_SEARCH_TOOL_NAME &&
-      part.providerExecuted === true
-    );
-  });
-}
-
 function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprovalGrant): AgentToolDeps {
   const repo = getAgentChatRepo();
 
   return {
     resultMaxChars: resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars),
-    runInCallerContext: (run) => runAsBackgroundTenant(payload.userId, run),
+    runInCallerContext: (run) =>
+      runAsBackgroundTenant(payload.userId, () =>
+        runInRoutineContext(payload.surface === "routine" ? { causationDepth: 1 } : null, run),
+      ),
     resolveApprovalContext: resolveAgentApprovalContext,
     requestApproval: () => Promise.resolve(toolApprovalDecisionForGrant(grant)),
     runUiCommand: () =>
@@ -222,22 +293,28 @@ async function canStartNextHostedAiProviderRound(payload: AgentTurnWorkflowPaylo
 canStartNextHostedAiProviderRound.maxRetries = 0;
 
 async function loadAgentToolShells(
-  wikiHomepageSetupDomain: string | undefined,
-  webSearchEnabled: boolean,
+  surface: AgentTurnSurface,
+  servingProvider: string,
+  options: AgentToolOptions,
 ): Promise<AgentToolShell[]> {
   "use step";
   const { getAgentAiToolDefinitions } = await import("@/ee/agent-chat/agent-tools");
   const { ALL_MCP_TOOLS } = await import("@/features/mcp-tools/tool-registry");
+  const { AGENT_UI_TOOL_NAMES } = await import("@/ee/agent-chat/agent-ui-command");
   const gatedByName = new Map(ALL_MCP_TOOLS.map((mcp) => [mcp.name, mcp.annotations]));
+  const unattended = isUnattendedSurface(surface);
+  const panelToolNames = new Set<string>(AGENT_UI_TOOL_NAMES);
 
-  return getAgentAiToolDefinitions({
-    webSearchEnabled,
-    wikiHomepageSetupDomain,
-  }).map((definition) => ({
-    ...definition,
-    annotations: gatedByName.get(definition.name),
-    gated: gatedByName.has(definition.name),
-  }));
+  return getAgentAiToolDefinitions(servingProvider, { ...options, surface })
+    .filter((definition) => !unattended || !panelToolNames.has(definition.name))
+    .map((definition) => ({
+      ...definition,
+      name: definition.name,
+      description: definition.description,
+      inputSchema: definition.inputSchema,
+      annotations: gatedByName.get(definition.name),
+      gated: gatedByName.has(definition.name),
+    }));
 }
 
 async function executeAgentTool(
@@ -250,8 +327,9 @@ async function executeAgentTool(
   "use step";
   const { getAgentAiTools } = await import("@/ee/agent-chat/agent-tools");
   const tools = getAgentAiTools(backgroundToolDeps(payload, grant), {
-    webSearchEnabled: payload.turnBudget.webSearchEnabled,
-    wikiHomepageSetupDomain: payload.wikiHomepageSetupDomain,
+    wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
+    webSearchEnabled: payload.webSearchEnabled,
+    surface: payload.surface,
   }) as Record<
     string,
     {
@@ -264,6 +342,48 @@ async function executeAgentTool(
   return execute(input, { toolCallId, messages: [] });
 }
 executeAgentTool.maxRetries = 0;
+
+async function readAgentPublicPage(url: string, allowedDomain?: string) {
+  "use step";
+  const { readPublicPage } = await import("@/ee/agent-chat/public-page-reader");
+  return readPublicPage({ url, allowedDomain });
+}
+readAgentPublicPage.maxRetries = 0;
+
+async function authorizedWikiCatalog(payload: AgentTurnWorkflowPayload): Promise<string | null> {
+  "use step";
+  if (!payload.wikiCatalog) return null;
+  const { getGetWikiCatalogInteractor } = await import("@/core/di");
+  const { AppErrorCode, appErrorDetails } = await import("@/core/errors/app-errors");
+  return runAsBackgroundTenant(payload.userId, async () => {
+    try {
+      const result = await getGetWikiCatalogInteractor().invoke({ page: 1 });
+      if (!result.ok) throw new Error("Workspace Wiki catalog could not be authorized.");
+      return payload.wikiCatalog ?? null;
+    } catch (error) {
+      if (appErrorDetails(error)?.code === AppErrorCode.permissionDenied) return null;
+      throw error;
+    }
+  });
+}
+authorizedWikiCatalog.maxRetries = 0;
+
+async function normalizeAgentToolInput(
+  payload: AgentTurnWorkflowPayload,
+  toolName: string,
+  input: unknown,
+): Promise<AgentToolInputResult> {
+  "use step";
+  const { normalizeAgentAiToolInput } = await import("@/ee/agent-chat/agent-tools");
+  return runAsBackgroundTenant(payload.userId, () =>
+    normalizeAgentAiToolInput(toolName, input, resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars), {
+      wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
+      webSearchEnabled: payload.webSearchEnabled,
+      surface: payload.surface,
+    }),
+  );
+}
+normalizeAgentToolInput.maxRetries = 0;
 
 async function publishTranscriptEvents(events: AgentTranscriptEvent[]): Promise<void> {
   "use step";
@@ -365,10 +485,7 @@ async function publishAssistantText(text: string): Promise<void> {
   }
 }
 
-async function ensureTurnReservation(
-  payload: AgentTurnWorkflowPayload,
-  requiredCredits: number,
-): Promise<number | null> {
+async function ensureTurnReservation(payload: AgentTurnWorkflowPayload, requiredCredits: number) {
   "use step";
   return runAsBackgroundTenant(payload.userId, () =>
     getAgentChatRepo().extendUsageReservationUnscoped({
@@ -380,11 +497,21 @@ async function ensureTurnReservation(
   );
 }
 
+function isSuccessfulToolOutcome(outcome: unknown): boolean {
+  if (typeof outcome !== "object" || outcome === null) return false;
+  const record = outcome as Record<string, unknown>;
+  if (record.ok === false) return false;
+  return !isAgentToolCancellation(outcome);
+}
+
 type AgentRunnerMessageKind =
-  | "safetyLimit"
+  | "cancelled"
+  | "providerError"
+  | "contentFilter"
   | "creditLimit"
+  | "creditLimitNoWrite"
   | "hostedAiUnavailable"
-  | "outputLimit"
+  | "policyBreach"
   | "turnError"
   | "emptyReply";
 
@@ -395,12 +522,16 @@ async function resolveRunnerMessage(locale: string, kind: AgentRunnerMessageKind
   const t = await getTranslator(appLocaleOrDefault(locale));
 
   if (kind === "creditLimit") return t("AgentChat.runner.creditLimit");
+  if (kind === "creditLimitNoWrite") return t("AgentChat.runner.creditLimitNoWrite");
   if (kind === "hostedAiUnavailable") return t("AgentChat.runner.hostedAiUnavailable");
-  if (kind === "outputLimit") return t("AgentChat.runner.outputLimit");
   if (kind === "turnError") return t("AgentChat.runner.turnError");
+  if (kind === "providerError") return t("AgentChat.runner.providerError");
+  if (kind === "contentFilter") return t("AgentChat.runner.contentFilter");
+  if (kind === "policyBreach") return t("AgentChat.runner.policyBreach");
+  if (kind === "cancelled") return t("AgentChat.runner.cancelled");
   if (kind === "emptyReply") return t("AgentChat.runner.emptyReply");
 
-  return t("AgentChat.runner.safetyLimit");
+  return kind satisfies never;
 }
 
 async function readCancellation(payload: AgentTurnWorkflowPayload): Promise<boolean> {
@@ -540,6 +671,19 @@ async function closeTurnStream(): Promise<void> {
   await getWritable().close();
 }
 
+async function publishStreamCheckpoint(): Promise<void> {
+  "use step";
+  const writer = getWritable<{
+    type: "stream_checkpoint";
+    payload: Record<string, never>;
+  }>().getWriter();
+  try {
+    await writer.write({ type: "stream_checkpoint", payload: {} });
+  } finally {
+    writer.releaseLock();
+  }
+}
+
 async function closeTurnStreamAfterFailure(): Promise<void> {
   "use step";
   try {
@@ -550,22 +694,25 @@ async function closeTurnStreamAfterFailure(): Promise<void> {
 }
 closeTurnStreamAfterFailure.maxRetries = 0;
 
-async function finalizeTurn(
-  payload: AgentTurnWorkflowPayload,
-  outcome: {
-    parts: unknown;
-    terminalCode: "completed" | "partial" | "cancelled";
-    affectedResources: AgentActivityResource[];
-    hasSuccessfulMutation: boolean;
-    tokens: TokenCounts;
-    ledger: RoundLedgerEntry[];
-    reservedCredits: number;
-    providerStarted?: boolean;
-  },
-): Promise<void> {
+async function reconcileFailedTurn(payload: AgentTurnWorkflowPayload): Promise<void> {
   "use step";
-  const measured = outcome.ledger.every((entry) => entry.measured);
-  const unreadableReason = outcome.ledger.find((entry) => entry.unreadableReason)?.unreadableReason ?? null;
+  await getAgentChatRepo().reconcileInterruptedAgentTurnUnscoped({
+    turnRequestId: payload.turnRequestId,
+    conversationId: payload.conversationId,
+    companyId: payload.companyId,
+    userId: payload.userId,
+    runId: payload.runId,
+  });
+}
+
+async function settleRoutineRunStep(ownerUserId: string): Promise<void> {
+  "use step";
+  await getBackgroundTaskService().dispatch("reconcile-routine-runs", { ownerUserId });
+}
+settleRoutineRunStep.maxRetries = 0;
+
+async function finalizeTurn(payload: AgentTurnWorkflowPayload, outcome: AgentTurnFinalizationOutcome): Promise<void> {
+  "use step";
 
   const committed = await runAsBackgroundTenant(payload.userId, () =>
     getAgentChatRepo().finalizeAgentTurnOrThrowUnscoped({
@@ -576,25 +723,9 @@ async function finalizeTurn(
       runId: payload.runId,
       parts: outcome.parts as Prisma.InputJsonValue,
       terminalCode: outcome.terminalCode,
+      stopReason: outcome.stopReason,
       affectedResources: outcome.affectedResources,
-      usageSettlement:
-        outcome.providerStarted === false
-          ? null
-          : buildAgentUsageSettlement({
-              model: payload.turnBudget.modelSpec,
-              tokens: outcome.tokens,
-              provider: payload.turnBudget.servingProvider,
-              reservedCredits: outcome.reservedCredits,
-              providerCharge: {
-                billed: outcome.ledger.length > 0,
-                measuredCostMicrocents:
-                  measured && outcome.ledger.length > 0
-                    ? outcome.ledger.reduce((total, entry) => total + entry.costMicrocents, 0)
-                    : null,
-                stepTokens: outcome.ledger.map((entry) => entry.tokens),
-                unreadableReason,
-              },
-            }),
+      usageSettlement: usageSettlementForTurn(payload, outcome),
     }),
   );
 
@@ -609,6 +740,7 @@ async function finalizeTurn(
       payload: {
         isError: isAgentTurnTerminalError(committed.terminalCode),
         terminalCode: committed.terminalCode,
+        stopReason: committed.stopReason,
         assistantMessageId: committed.assistantMessage.id,
         affectedResources: committed.affectedResources,
         hasSuccessfulMutation: outcome.hasSuccessfulMutation,
@@ -636,6 +768,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       await finalizeTurn(payload, {
         parts: transcript.replyParts,
         terminalCode: "partial",
+        stopReason: "hosted_ai_unavailable",
         affectedResources: [],
         hasSuccessfulMutation: false,
         tokens: emptyTokens(),
@@ -646,7 +779,12 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       await closeTurnStream();
       return;
     }
-    const shells = await loadAgentToolShells(payload.wikiHomepageSetupDomain, payload.turnBudget.webSearchEnabled);
+    const surface: AgentTurnSurface = payload.surface ?? "chat";
+    const approvalWindowMs = approvalWindowMsForSurface(surface);
+    const shells = await loadAgentToolShells(surface, payload.turnBudget.servingProvider, {
+      wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
+      webSearchEnabled: payload.webSearchEnabled,
+    });
     const writable = getWritable();
 
     const queued: AgentTranscriptEvent[] = [];
@@ -658,27 +796,17 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       userName: payload.userName,
       appBaseUrl: payload.appBaseUrl,
       locale: payload.locale,
-      wikiHomepageSetupDomain: payload.wikiHomepageSetupDomain,
-      webSearchEnabled: payload.turnBudget.webSearchEnabled,
+      surface,
+      wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
+      webSearchEnabled: payload.webSearchEnabled,
     });
-    const toolDefinitions: AgentAiToolDefinition[] = shells.map((shell) =>
-      shell.type === "provider"
-        ? {
-            name: shell.name,
-            description: shell.description,
-            inputSchema: shell.inputSchema,
-            type: "provider",
-            isProviderExecuted: true,
-            id: shell.id,
-            args: shell.args,
-          }
-        : {
-            name: shell.name,
-            description: shell.description,
-            inputSchema: shell.inputSchema,
-          },
+    const toolDefinitions = shells.map(({ annotations: _annotations, gated: _gated, ...definition }) => definition);
+    const providerContext = buildAgentProviderContext(
+      systemPrompt,
+      payload.messages,
+      toolDefinitions,
+      await authorizedWikiCatalog(payload),
     );
-    const providerContext = buildAgentProviderContext(systemPrompt, payload.messages, toolDefinitions);
 
     let tokens = emptyTokens();
     let cancelled = await readCancellation(payload);
@@ -687,15 +815,22 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let finishReason = "unknown";
     const ledger: RoundLedgerEntry[] = [];
     const grants = new Map<string, ToolApprovalGrant>();
+    const resolveToolInput = createAgentToolInputResolver((toolName, input) =>
+      normalizeAgentToolInput(payload, toolName, input),
+    );
     const completedTools: ({ toolCallId: string; toolName: string } & ({ output: unknown } | { threw: true }))[] = [];
+    let performedWrite = false;
+    let browsed = false;
+    const webSources = new Set<string>();
+    const publicPageState = payload.wikiHomepageSetup ? createPublicPageReadState(payload.wikiHomepageSetup) : null;
 
     const continuationSteps: AgentContinuationStep[] = [];
     let deferredRound: {
       step: AgentRoundResult;
       outcomes: AgentToolOutcome[];
     } | null = null;
-    const continuationLimits = agentContinuationLimits(Number.MAX_SAFE_INTEGER);
-    let safetyStop: string | null = null;
+    let providerStop: Extract<AgentTurnStopReason, "provider_error" | "content_filter"> | null = null;
+    let providerFailure: WorkflowFailure | null = null;
     let budgetStop = false;
     let hostedAiStop = false;
     const hostedAiPaused = new Error("Hosted AI provider work is paused.");
@@ -703,16 +838,12 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let reservedCredits = payload.turnBudget.reservedCredits;
     let roundFailure: WorkflowFailure | null = null;
     const settledToolCallIds = new Set<string>();
-    const webSources = new Set<string>();
-    const providerToolNames = new Set(shells.filter((shell) => shell.type === "provider").map((shell) => shell.name));
 
     const recordContinuationRound = (step: AgentRoundResult, outcomes: AgentToolOutcome[]) => {
       continuationSteps.push(toAgentContinuationStep(step, outcomes));
-      const loop = decideAgentContinuationLoop(
-        { startedAtMs: 0, steps: continuationSteps, observedAtMs: 0 },
-        continuationLimits,
-      );
-      if (loop.action === "error" && loop.reason !== "step_limit") safetyStop = loop.reason;
+      const loop = decideAgentContinuationLoop({ steps: continuationSteps });
+      if (loop.action === "error") providerStop = loop.reason;
+      else if (!["stop", "length", "tool-calls"].includes(step.finishReason)) providerStop = "provider_error";
     };
 
     const resolveDeferredRound = (resumed: readonly AgentToolOutcome[]) => {
@@ -720,6 +851,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       const pending = deferredRound;
       deferredRound = null;
       recordContinuationRound(pending.step, [...pending.outcomes, ...resumed]);
+    };
+
+    const appendDeferredOutcomes = (outcomes: readonly AgentToolOutcome[]) => {
+      if (deferredRound) deferredRound.outcomes.push(...outcomes);
     };
 
     const settleToolOutcome = (toolCallId: string, toolName: string | undefined, output: unknown) => {
@@ -737,16 +872,18 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
     const applyRound = async (step: AgentRoundResult) => {
       appliedThisCall += 1;
-
-      const charge = readAgentProviderCharge(step.providerMetadata, payload.turnBudget.servingProvider);
-      if (hasNativeWebSearchExecution(step) && charge.outcome !== "measured") {
-        const reason =
-          charge.outcome === "unreadable" ? charge.reason : "the gateway reported no successful provider attempt";
-        throw new Error(`Native web search requires authoritative Gateway cost metadata: ${reason}.`);
-      }
-
       try {
         for (const source of collectAgentWebSources([{ content: step.content }])) webSources.add(source);
+        for (const raw of step.content) {
+          const part = raw as { type?: string; toolName?: string; output?: unknown };
+          if (
+            part.type === "tool-result" &&
+            part.toolName &&
+            isAgentWebTool(part.toolName) &&
+            isSuccessfulAgentWebResult(part.output)
+          )
+            browsed = true;
+        }
         for (const raw of step.content) {
           const part = raw as {
             type?: string;
@@ -766,60 +903,35 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         }
         transcript.finishTextSegment();
 
-        const outcomes: AgentToolOutcome[] = completedTools.splice(0);
-        const outcomeIds = new Set(outcomes.map((outcome) => outcome.toolCallId));
-        const providerOutcomes = new Map<string, AgentToolOutcome>();
-        for (const result of step.toolResults ?? []) {
-          if (!providerToolNames.has(result.toolName)) continue;
-          providerOutcomes.set(result.toolCallId, {
-            toolCallId: result.toolCallId,
-            toolName: result.toolName,
-            output: result.output,
-            providerExecuted: true,
-          });
-        }
+        const outcomesByCallId = new Map<string, AgentToolOutcome>(
+          completedTools.splice(0).map((outcome) => [outcome.toolCallId, outcome]),
+        );
         for (const raw of step.content) {
           const part = raw as {
             type?: string;
             toolCallId?: string;
             toolName?: string;
-            error?: unknown;
-          };
-          if (part.type === "tool-error" && part.toolCallId && part.toolName && providerToolNames.has(part.toolName)) {
-            providerOutcomes.set(part.toolCallId, {
-              toolCallId: part.toolCallId,
-              toolName: part.toolName,
-              output: {
-                type: typeof part.error === "string" ? "error-text" : "error-json",
-                value: part.error,
-                ok: false,
-              },
-              providerExecuted: true,
-            });
-          }
-        }
-        for (const raw of step.content) {
-          const part = raw as {
-            type?: string;
-            toolCallId?: string;
-            toolName?: string;
+            output?: unknown;
+            providerExecuted?: boolean;
           };
           if (
-            part.type === "tool-call" &&
-            part.toolCallId &&
-            part.toolName &&
-            providerToolNames.has(part.toolName) &&
-            !outcomeIds.has(part.toolCallId)
-          ) {
-            const providerOutcome = providerOutcomes.get(part.toolCallId);
-            if (providerOutcome) {
-              outcomes.push(providerOutcome);
-              outcomeIds.add(part.toolCallId);
-            }
-          }
+            part.providerExecuted !== true ||
+            !part.toolCallId ||
+            !part.toolName ||
+            (part.type !== "tool-result" && part.type !== "tool-error")
+          )
+            continue;
+          outcomesByCallId.set(part.toolCallId, {
+            toolCallId: part.toolCallId,
+            toolName: part.toolName,
+            providerExecuted: true,
+            ...(part.type === "tool-error" ? { threw: true as const } : { output: part.output }),
+          });
         }
+        const outcomes = [...outcomesByCallId.values()];
         for (const completed of outcomes) {
           if ("threw" in completed) {
+            if (settledToolCallIds.has(completed.toolCallId)) continue;
             settledToolCallIds.add(completed.toolCallId);
             transcript.failToolCall(completed.toolCallId);
             continue;
@@ -829,10 +941,16 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         }
 
         const roundTokens = usageToTokenCounts(step.usage);
+        const charge = readAgentProviderCharge(step.providerMetadata, payload.turnBudget.servingProvider);
         const costMicrocents =
           charge.outcome === "measured"
             ? charge.charge.costMicrocents
-            : computeCostMicrocents(payload.turnBudget.modelSpec, roundTokens, payload.turnBudget.servingProvider);
+            : computeCostMicrocents(
+                payload.turnBudget.modelSpec,
+                roundTokens,
+                payload.turnBudget.servingProvider,
+                payload.turnBudget.inferenceRegion,
+              );
 
         tokens = addTokens(tokens, roundTokens);
         ledger.push({
@@ -854,37 +972,38 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         abandoned ||= roundOutcome.leaseLost;
         await publishTranscriptEvents(queued.splice(0));
 
-        const settledIds = new Set(outcomes.map((outcome) => outcome.toolCallId));
-        const hasPausedCall = step.content.some((raw) => {
-          const part = raw as { type?: string; toolCallId?: string };
-          return (
-            part.type === "tool-call" &&
-            Boolean(part.toolCallId) &&
-            !providerToolNames.has(String((part as { toolName?: unknown }).toolName ?? "")) &&
-            !settledIds.has(part.toolCallId as string)
-          );
-        });
-        if (!hasPausedCall) recordContinuationRound(step, outcomes);
-
         const accruedMicrocents = ledger.reduce((total, entry) => total + entry.costMicrocents, 0);
         const needsAnotherProviderRound =
           !cancelled &&
           !abandoned &&
           !budgetStop &&
           !hostedAiStop &&
-          safetyStop === null &&
+          providerStop === null &&
           roundFailure === null &&
-          step.finishReason === "tool-calls";
+          (step.finishReason === "length" || step.finishReason === "tool-calls");
         const requiredCredits =
           agentCreditsForStartedProviderCost(accruedMicrocents) +
           (needsAnotherProviderRound ? payload.turnBudget.roundReserveCredits : 0);
         if (requiredCredits > reservedCredits) {
-          const extended = await ensureTurnReservation(payload, requiredCredits);
-          if (extended === null) budgetStop = true;
-          else reservedCredits = extended;
+          const extension = await ensureTurnReservation(payload, requiredCredits);
+          if (extension.disposition === "extended") reservedCredits = extension.reservedCredits;
+          else if (extension.disposition === "credit_limit") budgetStop = true;
+          else if (extension.disposition === "hosted_ai_unavailable") hostedAiStop = true;
+          else roundFailure ??= toWorkflowFailure(new Error("Agent usage reservation is no longer available."));
         }
 
-        if (hasPausedCall) deferredRound = { step, outcomes };
+        const settledIds = new Set(outcomes.map((outcome) => outcome.toolCallId));
+        const hasPausedCall = step.content.some((raw) => {
+          const part = raw as { type?: string; toolCallId?: string };
+          return part.type === "tool-call" && Boolean(part.toolCallId) && !settledIds.has(part.toolCallId as string);
+        });
+
+        if (hasPausedCall) {
+          deferredRound = { step, outcomes };
+          return;
+        }
+
+        recordContinuationRound(step, outcomes);
       } catch (error) {
         roundFailure ??= toWorkflowFailure(error);
       }
@@ -892,63 +1011,168 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
     let messages = providerContext.messages;
     let instructions = systemPrompt;
+    let compactedContinuationCount = -1;
+    let compactedRetainedResponseSteps = AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS + 1;
 
-    while (!abandoned && !cancelled && !budgetStop && !hostedAiStop && safetyStop === null && roundFailure === null) {
+    const compactForNextSegment = (continueOutput: boolean): boolean => {
+      const minimumRetainedSteps = continueOutput ? 1 : 0;
+      const maximumRetainedSteps =
+        compactedContinuationCount === continuationSteps.length
+          ? compactedRetainedResponseSteps - 1
+          : AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS;
+
+      for (
+        let retainedResponseSteps = Math.min(maximumRetainedSteps, continuationSteps.length);
+        retainedResponseSteps >= minimumRetainedSteps;
+        retainedResponseSteps -= 1
+      ) {
+        const compacted = compactAgentContinuationContext({
+          system: systemPrompt,
+          initialMessages: providerContext.messages,
+          steps: continuationSteps,
+          retainedResponseSteps,
+        });
+        const candidateMessages = continueOutput
+          ? [...compacted.messages, { role: "user" as const, content: AGENT_OUTPUT_CONTINUATION_PROMPT }]
+          : [...compacted.messages];
+        if (
+          !isAgentStepContextWithinBudget(
+            { ...providerContext, system: compacted.system },
+            candidateMessages,
+            payload.turnBudget.maxContextBytes,
+          )
+        )
+          continue;
+
+        instructions = compacted.system;
+        messages = candidateMessages;
+        compactedContinuationCount = continuationSteps.length;
+        compactedRetainedResponseSteps = retainedResponseSteps;
+        return true;
+      }
+
+      return false;
+    };
+
+    while (!abandoned && !cancelled && !budgetStop && !hostedAiStop && providerStop === null && roundFailure === null) {
       const agent = new WorkflowAgent({
         id: WORKFLOW_NAME,
         model: payload.turnBudget.modelSpec,
         instructions,
         tools: Object.fromEntries(
-          shells.map((shell) => {
-            if (shell.type === "provider") {
-              return [
-                shell.name,
-                tool({
-                  type: "provider" as const,
+          shells.map((shell) => [
+            shell.name,
+            shell.type === "provider"
+              ? ({
+                  type: "provider",
                   id: shell.id,
                   args: shell.args,
-                  isProviderExecuted: true,
+                  isProviderExecuted: shell.isProviderExecuted,
+                  supportsDeferredResults: shell.supportsDeferredResults,
                   inputSchema: jsonSchema(shell.inputSchema as never),
-                }),
-              ];
-            }
-
-            return [
-              shell.name,
-              {
-                description: shell.description,
-                inputSchema: jsonSchema(shell.inputSchema as never),
-                needsApproval: shell.gated
-                  ? (input: unknown) =>
-                      requiresApproval(internalToolIdentity(shell.name), { annotations: shell.annotations }, input)
-                  : false,
-                ...(isAgentPanelTool(shell.name)
-                  ? {}
-                  : {
-                      execute: (input: unknown, options: { toolCallId: string }) =>
-                        executeAgentTool(
-                          payload,
-                          shell.name,
-                          options.toolCallId,
-                          input,
-                          grants.get(options.toolCallId) ?? "not-required",
-                        ),
-                    }),
-              },
-            ];
-          }),
+                } as never)
+              : {
+                  description: shell.description,
+                  inputSchema: jsonSchema(shell.inputSchema as never),
+                  needsApproval: async (input: unknown, options: { toolCallId: string }) => {
+                    const prepared = await resolveToolInput(shell.name, options.toolCallId, input);
+                    return (
+                      prepared.ok &&
+                      shell.gated &&
+                      requiresApproval(
+                        internalToolIdentity(shell.name),
+                        { annotations: shell.annotations },
+                        prepared.input,
+                      )
+                    );
+                  },
+                  ...(isAgentPanelTool(shell.name)
+                    ? {}
+                    : {
+                        execute: async (
+                          input: unknown,
+                          options: { toolCallId: string; messages: readonly unknown[] },
+                        ) => {
+                          const prepared = await resolveToolInput(shell.name, options.toolCallId, input);
+                          if (!prepared.ok) return prepared;
+                          const readOnly = isReadOnlyAgentToolCall(shell.name, shell, prepared.input);
+                          if (payload.wikiHomepageSetup && !readOnly && !browsed) {
+                            return {
+                              ok: false,
+                              result: "Read the submitted homepage successfully before creating Wiki pages.",
+                            };
+                          }
+                          if (
+                            isUnattendedSurface(surface) &&
+                            !readOnly &&
+                            (browsed || agentBatchContainsWebCall(options.messages, options.toolCallId))
+                          ) {
+                            return {
+                              ok: false,
+                              result:
+                                "This routine cannot mutate data after browsing or in a batch containing web access. Nothing was changed.",
+                            };
+                          }
+                          if (shell.name === "read_public_page") {
+                            if (isUnattendedSurface(surface) && performedWrite) {
+                              return {
+                                ok: false,
+                                result: "This routine already changed data, so web access is unavailable.",
+                              };
+                            }
+                            const url = (prepared.input as { url: string }).url;
+                            const request = publicPageState
+                              ? reservePublicPageRead(publicPageState, url)
+                              : { ok: true as const, url, allowedDomain: undefined };
+                            if (!request.ok) return request;
+                            const result = await readAgentPublicPage(request.url, request.allowedDomain);
+                            if (publicPageState) recordPublicPageLinks(publicPageState, request.url, result);
+                            if (result.ok) {
+                              browsed = true;
+                              for (const source of collectAgentWebSources([
+                                { content: [{ type: "tool-result", toolName: shell.name, output: result }] },
+                              ]))
+                                webSources.add(source);
+                            }
+                            return result;
+                          }
+                          const outcome = await executeAgentTool(
+                            payload,
+                            shell.name,
+                            options.toolCallId,
+                            prepared.input,
+                            grants.get(options.toolCallId) ?? "not-required",
+                          );
+                          if (!readOnly && isSuccessfulToolOutcome(outcome)) performedWrite = true;
+                          return outcome;
+                        },
+                      }),
+                },
+          ]),
         ),
         maxOutputTokens: payload.turnBudget.maxOutputTokens,
-        providerOptions: getAgentProviderOptions(payload.turnBudget.servingProvider),
-        prepareStep: async () => {
-          if (abandoned || cancelled || budgetStop || hostedAiStop || safetyStop !== null || roundFailure !== null)
+        providerOptions: getAgentProviderOptions(
+          payload.turnBudget.servingProvider,
+          payload.turnBudget.inferenceRegion,
+        ),
+        prepareStep: async ({ messages: stepMessages }) => {
+          if (abandoned || cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null)
             throw AGENT_LOCAL_TERMINATION_REQUIRED;
+          if (
+            !isAgentContextWithinBudget(
+              { messages: stepMessages, tools: toolDefinitions },
+              payload.turnBudget.maxContextBytes,
+            )
+          )
+            throw AGENT_CONTEXT_COMPACTION_REQUIRED;
           if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
-          return {};
+          return isUnattendedSurface(surface) && performedWrite
+            ? { activeTools: shells.filter((shell) => !isAgentWebTool(shell.name)).map((shell) => shell.name) }
+            : {};
         },
         stopWhen: [
           isStepCount(AGENT_SEGMENT_ROUNDS),
-          () => abandoned || cancelled || budgetStop || hostedAiStop || safetyStop !== null || roundFailure !== null,
+          () => abandoned || cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null,
         ],
         onToolExecutionEnd: (event) => {
           completedTools.push(
@@ -971,41 +1195,60 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       appliedThisCall = 0;
       let result;
       try {
-        result = await agent.stream({
-          messages,
-          writable,
-          preventClose: true,
-          sendFinish: false,
-        });
+        result = await agent.stream({ messages, writable, preventClose: true, sendFinish: false });
       } catch (error) {
         if (error === AGENT_LOCAL_TERMINATION_REQUIRED) break;
         if (error === hostedAiPaused) {
           hostedAiStop = true;
           break;
         }
-        throw error;
+        if (error === AGENT_CONTEXT_COMPACTION_REQUIRED) {
+          const continueOutput = continuationSteps.at(-1)?.finishReason === "length";
+          if (continuationSteps.length === 0 || !compactForNextSegment(continueOutput)) {
+            roundFailure = toWorkflowFailure(
+              new Error("Agent context could not be compacted within its provider budget."),
+            );
+            break;
+          }
+          continue;
+        }
+        const failure = toWorkflowFailure(error);
+        if (isAgentProviderFailure(error)) {
+          providerFailure = failure;
+          providerStop = "provider_error";
+        } else roundFailure = failure;
+        break;
       }
+      await publishStreamCheckpoint();
       finishReason = result.finishReason;
+      for (const source of collectAgentWebSources(result.messages)) webSources.add(source);
 
       for (const step of (result.steps as unknown as AgentRoundResult[]).slice(appliedThisCall)) await applyRound(step);
 
+      if (finishReason === "content-filter") providerStop = "content_filter";
+      else if (!["stop", "length", "tool-calls"].includes(finishReason)) providerStop = "provider_error";
+
       for (const message of result.messages) {
-        if (typeof message.content === "string") continue;
+        if (message.role !== "tool" || typeof message.content === "string") continue;
         for (const part of message.content) {
           if (part.type !== "tool-result") continue;
-          settleToolOutcome(part.toolCallId, part.toolName, part.output);
+          settleToolOutcome(part.toolCallId, part.toolName, unwrapToolOutput(part.output));
         }
       }
-      for (const source of collectAgentWebSources(result.messages)) webSources.add(source);
 
       if (abandoned) break;
+      if (cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null) break;
 
-      const pending = pendingApprovalCalls(result.messages);
+      let pending = pendingApprovalCalls(result.messages);
       if (pending.length === 0) {
         if (finishReason === "stop") break;
-        if (cancelled || budgetStop || safetyStop !== null || roundFailure !== null) break;
+        if (cancelled || budgetStop || providerStop !== null || roundFailure !== null) break;
 
-        const carried = result.messages.filter((message) => message.role !== "system");
+        const carried = nextAgentSegmentMessages({
+          messages: result.messages,
+          finishReason,
+          lastStep: continuationSteps.at(-1),
+        });
         const fitsWhole = isAgentStepContextWithinBudget(
           { ...providerContext, system: instructions },
           carried,
@@ -1016,13 +1259,34 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           continue;
         }
 
-        const compacted = compactAgentContinuationContext({
-          system: systemPrompt,
-          initialMessages: providerContext.messages,
-          steps: continuationSteps,
-        });
-        instructions = compacted.system;
-        messages = [...compacted.messages];
+        if (!compactForNextSegment(finishReason === "length")) {
+          roundFailure = toWorkflowFailure(
+            new Error("Agent context could not be compacted within its provider budget."),
+          );
+          break;
+        }
+        continue;
+      }
+
+      const preparedPending = await Promise.all(
+        pending.map(async (call) => ({
+          call,
+          prepared: await resolveToolInput(call.toolName, call.toolCallId, call.input),
+        })),
+      );
+      const invalidResults = preparedPending.flatMap(({ call, prepared }) =>
+        prepared.ok ? [] : [{ toolCallId: call.toolCallId, toolName: call.toolName, output: prepared }],
+      );
+      let resumableMessages = withToolResults(result.messages, invalidResults);
+      for (const outcome of invalidResults) settleToolOutcome(outcome.toolCallId, outcome.toolName, outcome.output);
+      appendDeferredOutcomes(invalidResults);
+      pending = preparedPending.flatMap(({ call, prepared }) =>
+        prepared.ok ? [{ ...call, input: prepared.input }] : [],
+      );
+      if (pending.length === 0) {
+        resolveDeferredRound([]);
+        await publishTranscriptEvents(queued.splice(0));
+        messages = resumableMessages;
         continue;
       }
 
@@ -1047,12 +1311,21 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
         cancelled = await readCancellation(payload);
         const resumed = await readUiCommandResults(payload, commands);
-        resolveDeferredRound(resumed.map((entry) => ({ ...entry })));
         for (const outcome of resumed) settleToolOutcome(outcome.toolCallId, outcome.toolName, outcome.output);
         await publishTranscriptEvents(queued.splice(0));
 
-        messages = withToolResults(result.messages, resumed);
-        continue;
+        resumableMessages = withToolResults(resumableMessages, resumed);
+        if (cancelled) {
+          resolveDeferredRound(resumed.map((entry) => ({ ...entry })));
+          break;
+        }
+        pending = pending.filter((call) => !isAgentPanelTool(call.toolName));
+        if (pending.length === 0) {
+          resolveDeferredRound(resumed.map((entry) => ({ ...entry })));
+          messages = resumableMessages;
+          continue;
+        }
+        appendDeferredOutcomes(resumed);
       }
 
       const requests: PendingApproval[] = pending.map((call) => ({
@@ -1062,10 +1335,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         input: call.input,
       }));
 
-      const hook = createHook<AgentApprovalWake>({
-        token: agentApprovalHookToken(payload.conversationId),
-      });
-      await openApprovalRequests(payload, requests, AGENT_APPROVAL_WINDOW_MS);
+      const hook =
+        approvalWindowMs > 0
+          ? createHook<AgentApprovalWake>({ token: agentApprovalHookToken(payload.conversationId) })
+          : null;
+      await openApprovalRequests(payload, requests, approvalWindowMs);
       for (const request of requests) {
         transcript.beginApproval(
           request.requestId,
@@ -1074,14 +1348,16 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       }
       await publishTranscriptEvents(queued.splice(0));
 
-      const requestIds = new Set(requests.map((request) => request.requestId));
-      await Promise.race([
-        (async () => {
-          for await (const wake of hook) if (isRelevantAgentApprovalWake(wake, requestIds)) return;
-        })(),
-        sleep(AGENT_APPROVAL_WINDOW_MS),
-      ]);
-      hook.dispose();
+      if (hook) {
+        const requestIds = new Set(requests.map((request) => request.requestId));
+        await Promise.race([
+          (async () => {
+            for await (const wake of hook) if (isRelevantAgentApprovalWake(wake, requestIds)) return;
+          })(),
+          sleep(approvalWindowMs),
+        ]);
+        hook.dispose();
+      }
 
       cancelled = await readCancellation(payload);
       const outcomes = await readApprovalDecisions(payload, requests);
@@ -1121,7 +1397,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           },
         })),
       );
-      messages = withApprovalResponses(result.messages, outcomes);
+      messages = withApprovalResponses(resumableMessages, outcomes);
     }
 
     if (abandoned) {
@@ -1130,19 +1406,43 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     }
 
     transcript.finishTextSegment();
+    const sourceFooter = agentWebSourcesFooter([...webSources]);
+    if (sourceFooter) {
+      transcript.appendText(sourceFooter);
+      await publishAssistantText(sourceFooter);
+    }
     if (roundFailure) await reportFailure(WORKFLOW_NAME, roundFailure, payload.tenant);
+    if (providerFailure) await reportFailure(WORKFLOW_NAME, providerFailure, payload.tenant);
 
-    const stopKind: AgentRunnerMessageKind | null = hostedAiStop
-      ? "hostedAiUnavailable"
-      : budgetStop
-        ? "creditLimit"
-        : roundFailure
-          ? "turnError"
-          : safetyStop
-            ? "safetyLimit"
-            : finishReason === "length"
-              ? "outputLimit"
-              : null;
+    const stopReason: AgentTurnStopReason | null = cancelled
+      ? "cancelled"
+      : hostedAiStop
+        ? "hosted_ai_unavailable"
+        : budgetStop
+          ? "credit_limit"
+          : roundFailure
+            ? "turn_error"
+            : providerStop;
+    const policyBreach = usageSettlementForTurn(payload, { tokens, ledger, reservedCredits })?.policyBreach === true;
+    const effectiveStopReason: AgentTurnStopReason | null = policyBreach ? "policy_breach" : stopReason;
+    const stopKind: AgentRunnerMessageKind | null =
+      effectiveStopReason === "cancelled"
+        ? "cancelled"
+        : effectiveStopReason === "hosted_ai_unavailable"
+          ? "hostedAiUnavailable"
+          : effectiveStopReason === "credit_limit"
+            ? performedWrite
+              ? "creditLimit"
+              : "creditLimitNoWrite"
+            : effectiveStopReason === "turn_error"
+              ? "turnError"
+              : effectiveStopReason === "provider_error"
+                ? "providerError"
+                : effectiveStopReason === "content_filter"
+                  ? "contentFilter"
+                  : effectiveStopReason === "policy_breach"
+                    ? "policyBreach"
+                    : null;
     if (stopKind) {
       const message = await resolveRunnerMessage(payload.locale, stopKind);
       const trailing = transcript.replyText.trim() ? `\n\n${message}` : message;
@@ -1150,25 +1450,17 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       await publishAssistantText(trailing);
     }
     transcript.failUnfinishedTools(cancelled ? "cancelled" : "error", true);
-    if (!transcript.replyText.trim()) {
+    if (transcript.replyParts.length === 0) {
       const message = await resolveRunnerMessage(payload.locale, "emptyReply");
       transcript.appendText(message);
       await publishAssistantText(message);
-    }
-    const sourcesFooter = agentWebSourcesFooter([...webSources]);
-    if (sourcesFooter) {
-      transcript.appendText(sourcesFooter);
-      await publishAssistantText(sourcesFooter);
     }
     await publishTranscriptEvents(queued.splice(0));
 
     await finalizeTurn(payload, {
       parts: transcript.replyParts,
-      terminalCode: cancelled
-        ? "cancelled"
-        : hostedAiStop || safetyStop || roundFailure || finishReason !== "stop"
-          ? "partial"
-          : "completed",
+      stopReason,
+      terminalCode: stopReason === "cancelled" ? "cancelled" : stopReason === null ? "completed" : "partial",
       affectedResources: transcript.affectedResources,
       hasSuccessfulMutation: transcript.hasSuccessfulMutation,
       tokens,
@@ -1177,8 +1469,28 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     });
     await closeTurnStream();
   } catch (error) {
-    await reportFailure(WORKFLOW_NAME, toWorkflowFailure(error), payload.tenant);
-    await closeTurnStreamAfterFailure();
+    const failures = [error];
+    try {
+      await reconcileFailedTurn(payload);
+    } catch (cleanupError) {
+      failures.push(cleanupError);
+    }
+    try {
+      await closeTurnStreamAfterFailure();
+    } catch (closeError) {
+      failures.push(closeError);
+    }
+    for (const failure of failures) {
+      try {
+        await reportFailure(WORKFLOW_NAME, toWorkflowFailure(failure), payload.tenant);
+      } catch {}
+    }
     throw error;
+  } finally {
+    if (payload.surface === "routine") {
+      try {
+        await settleRoutineRunStep(payload.userId);
+      } catch {}
+    }
   }
 }

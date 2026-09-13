@@ -87,6 +87,12 @@ async function seedActiveSeat(allowanceAnchor: Date) {
   return { companyId, userId };
 }
 
+const emptyWikiCatalog = () => ({
+  invoke: vi
+    .fn()
+    .mockResolvedValue({ ok: true, data: { items: [], total: 0, page: 1, nextPage: null, truncated: false } }),
+});
+
 const backgroundTasks = () => ({
   dispatch: vi.fn().mockResolvedValue(undefined),
   dispatchTracked: vi.fn().mockResolvedValue("wrun_test"),
@@ -214,6 +220,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
@@ -276,6 +283,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a long chat",
@@ -337,6 +345,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Delete something that needs approval",
@@ -404,6 +413,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Delete something and then die",
@@ -455,6 +465,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start provider work and lose its receipt",
@@ -535,6 +546,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
@@ -573,6 +585,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
@@ -594,7 +607,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       reasoningTokens: 4,
       costMicrocents: 4_400,
       modelSpec: "openai/gpt-5.6-luna",
-      servingProvider: "openai",
+      servingProvider: "azure",
     };
 
     await runWithoutTenant(() =>
@@ -646,6 +659,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
@@ -669,7 +683,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         reasoningTokens: 0,
         costMicrocents: 1,
         modelSpec: "openai/gpt-5.6-luna",
-        servingProvider: "openai",
+        servingProvider: "azure",
       }),
     );
 
@@ -701,6 +715,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
@@ -773,6 +788,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
@@ -834,7 +850,13 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     vi.spyOn(repo, "releasePreProviderAdmissionOrThrowUnscoped").mockResolvedValue({ disposition: "released" });
 
     await expect(
-      new SendAgentMessageInteractor(repo, usage, entitlements as never, backgroundTasks() as never).invoke({
+      new SendAgentMessageInteractor(
+        repo,
+        usage,
+        entitlements as never,
+        backgroundTasks() as never,
+        emptyWikiCatalog(),
+      ).invoke({
         clientRequestId: randomUUID(),
         text: "Start a chat",
         retry: false,
@@ -877,6 +899,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         new AgentUsageService(repo),
         entitlements as never,
         backgroundTasks() as never,
+        emptyWikiCatalog(),
       ).invoke({
         clientRequestId: randomUUID(),
         conversationId,
@@ -920,6 +943,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         new AgentUsageService(repo),
         entitlements as never,
         backgroundTasks() as never,
+        emptyWikiCatalog(),
       ).invoke({
         clientRequestId: randomUUID(),
         text: "A separate thread",
@@ -956,6 +980,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         new AgentUsageService(repo),
         entitlements as never,
         backgroundTasks() as never,
+        emptyWikiCatalog(),
       ).invoke({
         clientRequestId: randomUUID(),
         text: "Another thread",
@@ -1026,6 +1051,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         new AgentUsageService(failingRepo),
         entitlements as never,
         backgroundTasks() as never,
+        emptyWikiCatalog(),
       ).invoke({
         clientRequestId,
         text: "Create an atomic admission",
@@ -1059,6 +1085,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       new AgentUsageService(retryRepo),
       entitlements as never,
       backgroundTasks() as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId,
       text: "Create an atomic admission",

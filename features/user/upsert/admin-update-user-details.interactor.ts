@@ -1,4 +1,5 @@
 import type { EventService } from "@/features/event/event.service";
+import type { ReleaseOwnerRoutinesInteractor } from "@/ee/routines/release-owner-routines.interactor";
 import type { TenantUser } from "@/features/user/user.schema";
 import type { Data } from "@/core/validation/validation.utils";
 import type { SubscriptionService } from "@/ee/subscription/subscription.service";
@@ -60,6 +61,7 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
     private subscriptionService: SubscriptionService,
     private subscriptionRepo: AdminUpdateUserSubscriptionRepo,
     private countUsersRepo: CountActiveUsersRepo,
+    private releaseOwnerRoutines: ReleaseOwnerRoutinesInteractor,
   ) {
     super();
   }
@@ -110,6 +112,9 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
 
       await this.handleSubscriptionQuantityUpdate();
     }
+
+    if (leavingActive)
+      await this.releaseOwnerRoutines.invoke({ companyId: this.user.companyId, ownerUserId: targetUserId });
 
     await this.eventService.publish(DomainEvent.USER_UPDATED, {
       entityId: targetUserId,

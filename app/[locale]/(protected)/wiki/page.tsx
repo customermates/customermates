@@ -20,24 +20,19 @@ export default async function WikiPage({ searchParams }: Props) {
 
   const raw = await searchParams;
   const listPage = Math.max(1, Number.parseInt(firstString(raw.listPage) ?? "1", 10) || 1);
-  let pages = await unwrapValidated(getGetWikiPagesInteractor().invoke({ page: listPage, pageSize: 100 }));
+  let pages = await unwrapValidated(getGetWikiPagesInteractor().invoke({ page: listPage, pageSize: 25 }));
   if (pages.total > 0 && pages.items.length === 0)
-    pages = await unwrapValidated(getGetWikiPagesInteractor().invoke({ page: 1, pageSize: 100 }));
+    pages = await unwrapValidated(getGetWikiPagesInteractor().invoke({ page: 1, pageSize: 25 }));
 
   const requestedId = firstString(raw.page);
   const fallbackId = pages.items[0]?.id;
   const selectedId = requestedId ?? fallbackId;
   const selectedResult = selectedId ? await getGetWikiPageInteractor().invoke({ id: selectedId }) : null;
-  let selectedPage = selectedResult?.ok ? selectedResult.data : null;
-
-  if (!selectedPage && fallbackId && fallbackId !== selectedId) {
-    const fallbackResult = await getGetWikiPageInteractor().invoke({ id: fallbackId });
-    selectedPage = fallbackResult.ok ? fallbackResult.data : null;
-  }
+  const selectedPage = selectedResult?.ok ? selectedResult.data : null;
 
   return (
     <PageContainer padded={false}>
-      <WikiPageView initialPage={selectedPage} listPage={pages} />
+      <WikiPageView initialPage={selectedPage} listPage={pages} unavailable={Boolean(requestedId && !selectedPage)} />
     </PageContainer>
   );
 }

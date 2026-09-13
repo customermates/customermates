@@ -48,6 +48,8 @@ function makeServiceWritePrecheck(): ServiceWritePrecheckInteractor {
 const SERVICE_ID = "00000000-0000-4000-8000-000000000001";
 const SERVICE_ID_2 = "00000000-0000-4000-8000-000000000002";
 const DEAL_ID_1 = "00000000-0000-4000-8000-000000000020";
+const USER_ID_1 = "00000000-0000-4000-8000-000000000030";
+const USER_ID_2 = "00000000-0000-4000-8000-000000000031";
 
 function makeServiceDto(overrides: Record<string, unknown> = {}) {
   return {
@@ -80,6 +82,16 @@ function makeDealDto(id: string) {
     contacts: [],
     services: [],
     customFieldValues: [],
+  };
+}
+
+function makeUserDto(id: string) {
+  return {
+    id,
+    firstName: `User ${id.slice(-2)}`,
+    lastName: "Example",
+    avatarUrl: null,
+    email: `user-${id.slice(-2)}@example.com`,
   };
 }
 
@@ -296,6 +308,35 @@ describe("UpdateServiceInteractor", () => {
         }),
       }),
     );
+  });
+
+  it("diffs the company-wide result without reporting hidden users as removed", async () => {
+    const visibleUser = makeUserDto(USER_ID_1);
+    const hiddenUser = makeUserDto(USER_ID_2);
+    const previousWideService = makeServiceDto({ name: "Before", users: [visibleUser, hiddenUser] });
+    const scopedUpdatedService = makeServiceDto({ name: "After", users: [visibleUser] });
+    const currentWideService = makeServiceDto({ name: "After", users: [visibleUser, hiddenUser] });
+
+    mockUpdateRepo.getOrThrowCompanyWide
+      .mockReset()
+      .mockResolvedValueOnce(previousWideService)
+      .mockResolvedValueOnce(currentWideService);
+    mockUpdateRepo.updateServiceOrThrow.mockResolvedValue(scopedUpdatedService);
+
+    const result: any = await createInteractor().invoke({ id: SERVICE_ID, name: "After" });
+    const serviceUpdate = mockEventService.publish.mock.calls.find(
+      ([event]: [DomainEvent]) => event === DomainEvent.SERVICE_UPDATED,
+    );
+
+    expect(mockUpdateRepo.getOrThrowCompanyWide).toHaveBeenNthCalledWith(2, SERVICE_ID);
+    expect(serviceUpdate?.[1]).toEqual({
+      entityId: SERVICE_ID,
+      payload: {
+        service: scopedUpdatedService,
+        changes: { name: { previous: "Before", current: "After" } },
+      },
+    });
+    expect(result).toEqual({ ok: true, data: scopedUpdatedService });
   });
 
   it("returns { ok: true, data: service } with the updated service", async () => {
@@ -567,6 +608,69 @@ describe("UpdateManyServicesInteractor", () => {
         }),
       }),
     );
+  });
+
+  it("diffs bulk company-wide results by id without reporting hidden users as removed", async () => {
+    const visibleUser = makeUserDto(USER_ID_1);
+    const hiddenUser = makeUserDto(USER_ID_2);
+    const previousWideService1 = makeServiceDto({ name: "Before One", users: [visibleUser, hiddenUser] });
+    const previousWideService2 = makeServiceDto({
+      id: SERVICE_ID_2,
+      name: "Before Two",
+      users: [visibleUser, hiddenUser],
+    });
+    const scopedService1 = makeServiceDto({ name: "After One", users: [visibleUser] });
+    const scopedService2 = makeServiceDto({ id: SERVICE_ID_2, name: "After Two", users: [visibleUser] });
+    const currentWideService1 = makeServiceDto({ name: "After One", users: [visibleUser, hiddenUser] });
+    const currentWideService2 = makeServiceDto({
+      id: SERVICE_ID_2,
+      name: "After Two",
+      users: [visibleUser, hiddenUser],
+    });
+
+    mockUpdateRepo.getManyOrThrowCompanyWide
+      .mockReset()
+      .mockResolvedValueOnce([previousWideService1, previousWideService2])
+      .mockResolvedValueOnce([currentWideService2, currentWideService1]);
+    mockUpdateRepo.updateServiceOrThrow
+      .mockReset()
+      .mockResolvedValueOnce(scopedService1)
+      .mockResolvedValueOnce(scopedService2);
+
+    const result: any = await createInteractor().invoke({
+      services: [
+        { id: SERVICE_ID, name: "After One" },
+        { id: SERVICE_ID_2, name: "After Two" },
+      ],
+    });
+    const serviceUpdates = mockEventService.publish.mock.calls.filter(
+      ([event]: [DomainEvent]) => event === DomainEvent.SERVICE_UPDATED,
+    );
+
+    expect(mockUpdateRepo.getManyOrThrowCompanyWide).toHaveBeenNthCalledWith(2, [SERVICE_ID, SERVICE_ID_2]);
+    expect(serviceUpdates).toEqual([
+      [
+        DomainEvent.SERVICE_UPDATED,
+        {
+          entityId: SERVICE_ID,
+          payload: {
+            service: scopedService1,
+            changes: { name: { previous: "Before One", current: "After One" } },
+          },
+        },
+      ],
+      [
+        DomainEvent.SERVICE_UPDATED,
+        {
+          entityId: SERVICE_ID_2,
+          payload: {
+            service: scopedService2,
+            changes: { name: { previous: "Before Two", current: "After Two" } },
+          },
+        },
+      ],
+    ]);
+    expect(result).toEqual({ ok: true, data: [scopedService1, scopedService2] });
   });
 
   it("publishes DEAL_UPDATED events with payload when services have linked deals", async () => {

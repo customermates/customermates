@@ -8,10 +8,7 @@ export function isReadOnlyTool(tool: { annotations?: Record<string, boolean> }) 
 
 type AgentApprovalPolicy =
   | { approvalFree: true }
-  | {
-      approvalFreeActions: readonly string[];
-      readOnlyActions?: readonly string[];
-    };
+  | { approvalFreeActions: readonly string[]; readOnlyActions?: readonly string[] };
 
 const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   connect_messaging_account: { approvalFree: true },
@@ -20,33 +17,27 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   create_organizations: { approvalFree: true },
   create_services: { approvalFree: true },
   create_tasks: { approvalFree: true },
-  manage_custom_columns: {
-    approvalFreeActions: ["list", "upsert"],
-    readOnlyActions: ["list"],
-  },
+  manage_custom_columns: { approvalFreeActions: ["list", "upsert"], readOnlyActions: ["list"] },
   manage_record_links: { approvalFree: true },
-  manage_social_relations: {
-    approvalFreeActions: ["list"],
-    readOnlyActions: ["list"],
-  },
+  manage_social_relations: { approvalFreeActions: ["list"], readOnlyActions: ["list"] },
   manage_team: { approvalFreeActions: ["update_member"] },
   manage_webhooks: {
     approvalFreeActions: ["list", "get", "list_deliveries", "create", "update"],
     readOnlyActions: ["list", "get", "list_deliveries"],
   },
+  manage_widgets: { approvalFreeActions: ["list", "get", "create", "update"], readOnlyActions: ["list", "get"] },
+  manage_routines: { approvalFreeActions: ["list", "runs", "create", "update"], readOnlyActions: ["list", "runs"] },
   manage_wiki_pages: {
     approvalFreeActions: ["list", "search", "get", "create", "update"],
     readOnlyActions: ["list", "search", "get"],
-  },
-  manage_widgets: {
-    approvalFreeActions: ["list", "get", "create", "update"],
-    readOnlyActions: ["list", "get"],
   },
   linkedin_manage_sales_lists: {
     approvalFreeActions: ["list", "browse"],
     readOnlyActions: ["list", "browse"],
   },
   save_message_draft: { approvalFree: true },
+  send_chat_message: { approvalFree: true },
+  send_email: { approvalFree: true },
   update_contacts: { approvalFree: true },
   update_deals: { approvalFree: true },
   update_messaging_thread: { approvalFree: true },
@@ -79,6 +70,13 @@ export function approvalFreeActionsForTool(identity: AgentToolIdentity): readonl
 export function readOnlyActionsForTool(identity: AgentToolIdentity): readonly string[] | null {
   const policy = policyFor(identity);
   return policy && "readOnlyActions" in policy ? (policy.readOnlyActions ?? null) : null;
+}
+
+export function isReadOnlyAgentToolCall(name: string, tool: { annotations?: Record<string, boolean> }, input: unknown) {
+  if (isReadOnlyTool(tool) || name === "read_public_page" || name === "web_search") return true;
+  const action =
+    input && typeof input === "object" && !Array.isArray(input) ? (input as { action?: unknown }).action : undefined;
+  return typeof action === "string" && Boolean(readOnlyActionsForTool(internalToolIdentity(name))?.includes(action));
 }
 
 export function requiresApproval(
