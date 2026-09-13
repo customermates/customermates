@@ -115,7 +115,7 @@ describe("saved-view message links", () => {
       `[My view](/en${href}) [Timeline](/en${timelineHref}) [External](https://example.com) [Other](/dashboard)`,
     );
     expect(markup).toContain(`href="/de${href}"`);
-    expect(markup).toContain(`href="/de${timelineHref.replace("&", "&amp;")}"`);
+    expect(markup).toContain(`href="/de${timelineHref.replaceAll("&", "&amp;")}"`);
     expect(markup).toMatch(/<a[^>]*>My view<\/a>/);
     expect(markup).toMatch(/<a[^>]*>Timeline<\/a>/);
     expect(markup).toMatch(/<button[^>]*data-streamdown="link"[^>]*>External<\/button>/);
@@ -131,7 +131,7 @@ describe("saved-view message links", () => {
       ),
     );
     expect(markup).toMatch(/<a[^>]*>Activity timeline<\/a>/);
-    expect(markup).toContain(`href="/de${timelineHref.replace("&", "&amp;")}"`);
+    expect(markup).toContain(`href="/de${timelineHref.replaceAll("&", "&amp;")}"`);
     expect(markup).not.toContain("[internal reference]");
   });
 });
