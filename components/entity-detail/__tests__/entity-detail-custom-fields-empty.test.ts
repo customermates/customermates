@@ -195,13 +195,14 @@ describe("entity detail custom fields empty state", () => {
     expect(container.querySelector("[data-entity-add-custom-field]")).not.toBeNull();
   });
 
-  it("offers a subdued edit toggle at the bottom of a populated section", () => {
+  it("offers a bordered, subdued edit toggle at the bottom of a populated section", () => {
     const { container } = mount(view({ columns: oneColumn }));
     const content = container.querySelector<HTMLElement>('[data-detail-section-content="customFields"]');
     const toggle = container.querySelector<HTMLButtonElement>("[data-entity-custom-fields-mode-toggle]");
 
     expect(toggle).not.toBeNull();
-    expect(toggle?.dataset.variant).toBe("ghost");
+    expect(toggle?.dataset.variant).toBe("field");
+    expect(toggle?.dataset.size).toBe("default");
     expect(toggle?.getAttribute("aria-pressed")).toBe("false");
     expect(toggle?.textContent).toContain("Common.actions.editCustomFields");
     expect(toggle?.closest('[data-detail-section-content="customFields"]')).toBe(content);

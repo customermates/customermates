@@ -80,9 +80,8 @@ export function EntityDetailCustomFieldsSection({
           aria-label={isCustomizing ? t("Common.actions.cancel") : t("Common.actions.editCustomFields")}
           aria-pressed={isCustomizing}
           className="w-full text-muted-foreground"
-          size="sm"
           type="button"
-          variant="ghost"
+          variant="field"
           onClick={onToggleCustomization}
         >
           <Icon icon={isCustomizing ? X : Pencil} />
