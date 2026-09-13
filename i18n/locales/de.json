@@ -3427,6 +3427,7 @@
   },
   "VerifyEmailCard": {
     "anonymousBody": "Gib die E-Mail-Adresse ein, mit der du dich registriert hast. Wir senden dir einen neuen Bestätigungslink.",
+    "anonymousResendSuccess": "Falls diese Adresse noch bestätigt werden muss, haben wir einen neuen Link geschickt.",
     "body": "Wir haben dir eine Verifizierungs-E-Mail gesendet. Bitte überprüfe dein Postfach und klicke auf den Link, um deine E-Mail-Adresse zu verifizieren.",
     "ctaLabel": "Verifizierungs-E-Mail erneut senden",
     "invalidEmail": "Gib eine gültige E-Mail-Adresse ein.",

@@ -58,7 +58,7 @@ export const VerifyEmailCard = observer(({ email, inviterName, onboardingIntent 
 
           <Button
             className="w-full"
-            disabled={verifyEmailStore.isSent || (needsEmail && !verifyEmailStore.form.email.trim())}
+            disabled={needsEmail ? !verifyEmailStore.form.email.trim() : verifyEmailStore.isSent}
             type="submit"
           >
             {t("VerifyEmailCard.ctaLabel")}

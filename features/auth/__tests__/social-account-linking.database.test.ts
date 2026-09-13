@@ -117,6 +117,18 @@ describe.skipIf(!databaseUrl)("social account linking against the database", () 
     expect(sessions.length).toBeGreaterThan(1);
   });
 
+  it("keeps refusing a provider that does not vouch even once the address is verified", async () => {
+    const prisma = await db();
+    const seeded = await seedUser({ emailVerified: true });
+
+    const result = await linkProvider({ email: seeded.email, providerSaysVerified: false });
+
+    expect(result.error).toBe("account not linked");
+
+    const accounts = await prisma.authAccount.findMany({ where: { userId: seeded.id } });
+    expect(accounts.map((account) => account.providerId)).toEqual(["credential"]);
+  });
+
   it("still refuses a provider that does not vouch for the address", async () => {
     const prisma = await db();
     const seeded = await seedUser({ emailVerified: false });

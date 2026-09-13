@@ -3427,6 +3427,7 @@
   },
   "VerifyEmailCard": {
     "anonymousBody": "Enter the email address you signed up with and we will send you a new verification link.",
+    "anonymousResendSuccess": "If that address still needs verifying, we have sent it a new link.",
     "body": "We've sent you a verification email. Please check your inbox and click the link to verify your email address.",
     "ctaLabel": "Resend verification email",
     "invalidEmail": "Enter a valid email address.",

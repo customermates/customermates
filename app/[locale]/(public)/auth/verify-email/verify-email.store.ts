@@ -73,7 +73,7 @@ export class VerifyEmailStore extends BaseFormStore<VerifyEmailForm> {
       runInAction(() => {
         this.isSent = true;
       });
-      this.toastSuccess("VerifyEmailCard.resendSuccess");
+      this.toastSuccess(sessionEmail ? "VerifyEmailCard.resendSuccess" : "VerifyEmailCard.anonymousResendSuccess");
     });
   };
 }
