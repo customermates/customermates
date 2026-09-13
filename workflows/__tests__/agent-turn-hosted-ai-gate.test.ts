@@ -25,10 +25,15 @@ const state = vi.hoisted(() => ({
   reportFailure: vi.fn(),
   toolLoadFailure: false,
   providerOptions: null as unknown,
+  maxRetries: undefined as number | undefined,
   instructions: [] as string[],
   prepared: null as unknown,
   readPage: vi.fn(),
-  definitions: [] as { name: string; description: string; inputSchema: unknown }[],
+  definitions: [] as {
+    name: string;
+    description: string;
+    inputSchema: unknown;
+  }[],
   normalize: vi.fn(),
   execute: vi.fn(),
   runTools: null as null | ((options: StreamOptions) => Promise<unknown>),
@@ -51,10 +56,12 @@ vi.mock("@ai-sdk/workflow", () => ({
         onToolExecutionEnd: (event: unknown) => void;
         instructions: string;
         providerOptions: unknown;
+        maxRetries?: number;
         tools: Record<string, WorkflowTool>;
       },
     ) {
       state.providerOptions = options.providerOptions;
+      state.maxRetries = options.maxRetries;
       state.instructions.push(options.instructions);
     }
 
@@ -216,6 +223,7 @@ beforeEach(() => {
   state.writes = [];
   state.toolLoadFailure = false;
   state.providerOptions = null;
+  state.maxRetries = undefined;
   state.instructions = [];
   state.prepared = null;
   state.readPage.mockReset().mockResolvedValue({
@@ -282,6 +290,15 @@ function streamedToolCallStep(toolName: string, toolCallId: string, input: unkno
 }
 
 describe("agent-turn hosted-AI provider gates", () => {
+  it.each([false, true])(
+    "disables opaque model retries only for native search (enabled=%s)",
+    async (webSearchEnabled) => {
+      state.gateResults = [true, false];
+      await runAgentTurn({ ...payload, webSearchEnabled });
+      expect(state.maxRetries).toBe(webSearchEnabled ? 0 : undefined);
+    },
+  );
+
   it("makes no provider call when the provider-start admission is rejected", async () => {
     state.markProviderStarted.mockResolvedValueOnce(false);
 
@@ -661,14 +678,27 @@ describe("agent-turn credit-bounded continuation", () => {
       state.contextFits.mockImplementation((context: unknown, stepMessages: unknown, maxBytes: unknown) => {
         if (typeof maxBytes !== "number") return false;
         return (
-          new TextEncoder().encode(JSON.stringify({ ...(context as object), messages: stepMessages })).byteLength <=
-          maxBytes
+          new TextEncoder().encode(
+            JSON.stringify({
+              ...(context as object),
+              messages: stepMessages,
+            }),
+          ).byteLength <= maxBytes
         );
       });
-      state.definitions.push({ name: "list_users", description: "list_users", inputSchema: { type: "object" } });
+      state.definitions.push({
+        name: "list_users",
+        description: "list_users",
+        inputSchema: { type: "object" },
+      });
       state.normalize.mockResolvedValue({ ok: true, input: { page: 1 } });
-      state.execute.mockResolvedValue({ ok: true, result: `read:${"y".repeat(4_000)}` });
-      const nativePayload = { text: `native:${"x".repeat(1_000)}` };
+      state.execute.mockResolvedValue({
+        ok: true,
+        result: `read:${"y".repeat(4_000)}`,
+      });
+      const nativePayload = {
+        results: [{ snippet: `native:${"x".repeat(1_000)}` }],
+      };
       const nativeCall = {
         type: "tool-call",
         toolName: "web_search",
@@ -740,14 +770,17 @@ describe("agent-turn credit-bounded continuation", () => {
       expect(state.instructions[1]).toContain(`"errors":${nativeType === "tool-error" ? 1 : 0}`);
       expect(state.instructions[1]).toContain('"toolName":"web_search"');
       expect(JSON.stringify(seenMessages[1])).not.toContain("web-1");
-      expect(JSON.stringify(seenMessages[1])).not.toContain(nativePayload.text);
+      expect(JSON.stringify(seenMessages[1])).not.toContain(nativePayload.results[0].snippet);
       expect(JSON.stringify(seenMessages[1])).not.toContain("read-1");
       expect(state.finalize).toHaveBeenCalledWith(
         expect.objectContaining({
           terminalCode: "completed",
           stopReason: null,
           parts: expect.arrayContaining([
-            expect.objectContaining({ id: "web-1", status: nativeType === "tool-error" ? "error" : "done" }),
+            expect.objectContaining({
+              id: "web-1",
+              status: nativeType === "tool-error" ? "error" : "done",
+            }),
             expect.objectContaining({ id: "read-1", status: "done" }),
           ]),
         }),
@@ -1287,6 +1320,115 @@ describe("routine browse-or-mutate batch safety", () => {
     await runAgentTurn({ ...payload, surface: "routine" });
     expect(state.execute).toHaveBeenCalledOnce();
     expect(state.execute.mock.calls[0][0]).toMatchObject({ action: "get" });
+  });
+
+  const nativeSearchStep = (failed = false) => ({
+    ...streamedStep("Homepage evidence.", "length"),
+    content: [
+      {
+        type: "tool-call",
+        toolName: "web_search",
+        toolCallId: "web-1",
+        input: {},
+        providerExecuted: true,
+      },
+      {
+        type: "tool-result",
+        toolName: "web_search",
+        toolCallId: "web-1",
+        input: {},
+        providerExecuted: true,
+        output: failed
+          ? { error: "timeout", message: "Search timed out" }
+          : {
+              results: [{ url: "https://example.com/current", snippet: "Evidence" }],
+            },
+      },
+      { type: "text", text: "Homepage evidence." },
+    ],
+    providerMetadata: {
+      gateway: {
+        routing: {
+          finalProvider: "vertex",
+          modelAttempts: [
+            {
+              providerAttempts: [{ provider: "vertex", credentialType: "system", success: true }],
+            },
+          ],
+        },
+        gatewayCost: "0.00580279",
+        cost: "0.00570279",
+        inferenceCost: "0.00070279",
+        surchargeCost: "0.0001",
+        gatewayToolCalls: { perplexity_search: 1 },
+      },
+    },
+  });
+
+  it.each([false, true])(
+    "preserves native browsing across a length continuation and allows a later mutation only after failure (failed=%s)",
+    async (failed) => {
+      let segment = 0;
+      state.runTools = async ({ messages, executeAndCompleteTool }) => {
+        if (segment++ === 0) {
+          return {
+            finishReason: "length",
+            messages,
+            steps: [nativeSearchStep(failed)],
+          };
+        }
+        expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-1")).toMatchObject({ ok: failed });
+        return finish();
+      };
+      await runAgentTurn({
+        ...payload,
+        surface: "routine",
+        webSearchEnabled: true,
+      });
+      expect(state.providerCalls).toBe(2);
+      expect(state.execute).toHaveBeenCalledTimes(failed ? 1 : 0);
+      expect(state.recordRound).toHaveBeenCalledWith(expect.objectContaining({ costMicrocents: 580_279 }));
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          usageSettlement: expect.objectContaining({
+            costMicrocents: 580_279,
+            costSource: "measured",
+          }),
+        }),
+      );
+      const parts = JSON.stringify(state.finalize.mock.calls[0][0].parts);
+      expect(parts).toContain(`"status":"${failed ? "error" : "done"}"`);
+      if (!failed) expect(parts).toContain("https://example.com/current");
+      expect(state.createApproval).not.toHaveBeenCalled();
+    },
+  );
+
+  it("settles completed native search before cooperative cancellation without starting another request", async () => {
+    state.readCancellation.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+    state.runTools = async ({ messages, completeStepAndPrepareNext }) => {
+      await completeStepAndPrepareNext(nativeSearchStep(), messages);
+      throw new Error("unreachable");
+    };
+    await runAgentTurn({
+      ...payload,
+      surface: "routine",
+      webSearchEnabled: true,
+    });
+    expect(state.providerCalls).toBe(1);
+    expect(state.execute).not.toHaveBeenCalled();
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        terminalCode: "cancelled",
+        stopReason: "cancelled",
+        usageSettlement: expect.objectContaining({
+          costMicrocents: 580_279,
+          costSource: "measured",
+        }),
+      }),
+    );
+    expect(state.recordRound).toHaveBeenCalledOnce();
+    expect(state.extendReservation).not.toHaveBeenCalled();
+    expect(JSON.stringify(state.finalize.mock.calls[0][0].parts)).toContain("https://example.com/current");
   });
 
   it("denies a failed browse batch but permits a later mutation after failure is established", async () => {

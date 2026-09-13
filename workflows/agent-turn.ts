@@ -925,7 +925,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             toolCallId: part.toolCallId,
             toolName: part.toolName,
             providerExecuted: true,
-            ...(part.type === "tool-error" ? { threw: true as const } : { output: part.output }),
+            ...(part.type === "tool-error" ||
+            (isAgentWebTool(part.toolName) && !isSuccessfulAgentWebResult(part.output))
+              ? { threw: true as const }
+              : { output: part.output }),
           });
         }
         const outcomes = [...outcomesByCallId.values()];
@@ -1151,6 +1154,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           ]),
         ),
         maxOutputTokens: payload.turnBudget.maxOutputTokens,
+        ...(payload.webSearchEnabled ? { maxRetries: 0 } : {}),
         providerOptions: getAgentProviderOptions(
           payload.turnBudget.servingProvider,
           payload.turnBudget.inferenceRegion,

@@ -7,7 +7,11 @@ import { agentBatchContainsWebCall } from "@/ee/agent-chat/agent-web-policy";
 import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
 
 type MockStreamResult = Awaited<ReturnType<MockLanguageModelV4["doStream"]>>;
-type MockStreamPart = MockStreamResult extends { stream: ReadableStream<infer Part> } ? Part : never;
+type MockStreamPart = MockStreamResult extends {
+  stream: ReadableStream<infer Part>;
+}
+  ? Part
+  : never;
 
 const usage = {
   inputTokens: {
@@ -23,23 +27,42 @@ const usage = {
   },
 };
 
-async function runWebSearchResponse(streamParts: MockStreamPart[]) {
+async function runWebSearchResponse(streamParts: MockStreamPart[], withLocalTool = false) {
   const model = new MockLanguageModelV4({
     provider: "openai.responses",
     modelId: "gpt-test",
     doStream: () => Promise.resolve({ stream: convertArrayToReadableStream(streamParts) }),
   });
   const streamed: ModelCallStreamPart[] = [];
+  const executeLocal = vi.fn(() => Promise.resolve({ ok: true }));
+  const endedContents: unknown[] = [];
+  const onStepEnd = vi.fn((step: { content: unknown }) => {
+    endedContents.push(structuredClone(step.content));
+  });
   const agent = new WorkflowAgent({
     model,
+    stopWhen: isStepCount(1),
+    onStepEnd,
     tools: {
       web_search: tool({
         type: "provider",
         id: "gateway.perplexity_search",
         args: { maxResults: 3, maxTokens: 1024, maxTokensPerPage: 512 },
         isProviderExecuted: true,
-        inputSchema: jsonSchema({ type: "object", properties: {}, additionalProperties: false }),
+        inputSchema: jsonSchema({
+          type: "object",
+          properties: {},
+          additionalProperties: false,
+        }),
       }),
+      ...(withLocalTool
+        ? {
+            mutate: tool({
+              inputSchema: jsonSchema({ type: "object" }),
+              execute: executeLocal,
+            }),
+          }
+        : {}),
     },
     providerOptions: getAgentProviderOptions("vertex", "eu"),
   });
@@ -55,7 +78,7 @@ async function runWebSearchResponse(streamParts: MockStreamPart[]) {
     sendFinish: false,
   });
 
-  return { model, result, streamed };
+  return { model, result, streamed, executeLocal, onStepEnd, endedContents };
 }
 
 describe("WorkflowAgent native web search contract", () => {
@@ -274,14 +297,146 @@ describe("WorkflowAgent native web search contract", () => {
   });
 });
 
+describe("WorkflowAgent terminal native search receipts", () => {
+  const terminalReasons = ["length", "content-filter", "error", "other"] as const;
+
+  it.each(terminalReasons.flatMap((reason) => [false, true].map((isError) => ({ reason, isError }))))(
+    "retains the provider outcome before onStepEnd for $reason (isError=$isError) without executing local calls",
+    async ({ reason, isError }) => {
+      const output = isError
+        ? { error: "timeout", message: "Search timed out" }
+        : {
+            results: [
+              {
+                url: "https://example.com/current",
+                title: "Current source",
+                snippet: "Evidence",
+              },
+            ],
+          };
+      const providerMetadata = {
+        gateway: {
+          gatewayCost: "0.00580279",
+          gatewayToolCalls: { perplexity_search: 1 },
+        },
+      };
+      const { model, result, executeLocal, onStepEnd, endedContents } = await runWebSearchResponse(
+        [
+          { type: "stream-start", warnings: [] },
+          {
+            type: "tool-call",
+            toolCallId: "web-1",
+            toolName: "web_search",
+            input: "{}",
+            providerExecuted: true,
+          },
+          {
+            type: "tool-result",
+            toolCallId: "web-1",
+            toolName: "web_search",
+            result: output,
+            isError,
+          },
+          {
+            type: "tool-call",
+            toolCallId: "write-1",
+            toolName: "mutate",
+            input: "{}",
+          },
+          {
+            type: "finish",
+            finishReason: { unified: reason, raw: reason },
+            usage,
+            providerMetadata,
+          },
+        ],
+        true,
+      );
+      const outcome = expect.objectContaining({
+        type: isError ? "tool-error" : "tool-result",
+        toolCallId: "web-1",
+        toolName: "web_search",
+        input: {},
+        providerExecuted: true,
+        ...(isError ? { error: output } : { output }),
+      });
+      expect(executeLocal).not.toHaveBeenCalled();
+      expect(model.doStreamCalls).toHaveLength(1);
+      expect(result.finishReason).toBe(reason);
+      expect(result.steps).toHaveLength(1);
+      expect(result.steps[0].content).toContainEqual(outcome);
+      expect(result.steps[0].toolResults).toEqual(isError ? [] : [outcome]);
+      expect(result.steps[0].staticToolResults).toEqual(isError ? [] : [outcome]);
+      expect(result.steps[0].dynamicToolResults).toEqual([]);
+      expect(result.steps[0].providerMetadata).toEqual(providerMetadata);
+      expect(endedContents).toEqual([expect.arrayContaining([outcome])]);
+      expect(onStepEnd).toHaveBeenCalledExactlyOnceWith(
+        expect.objectContaining({ content: expect.arrayContaining([outcome]) }),
+      );
+    },
+  );
+
+  it("retains a successful search when the stream reports a terminal error instead of a finish", async () => {
+    const failure = new Error("Provider stream failed after search");
+    const output = { results: [{ url: "https://example.com/current" }] };
+    const { result, executeLocal, onStepEnd } = await runWebSearchResponse(
+      [
+        { type: "stream-start", warnings: [] },
+        {
+          type: "tool-call",
+          toolCallId: "web-1",
+          toolName: "web_search",
+          input: "{}",
+          providerExecuted: true,
+        },
+        {
+          type: "tool-result",
+          toolCallId: "web-1",
+          toolName: "web_search",
+          result: output,
+        },
+        {
+          type: "tool-call",
+          toolCallId: "write-1",
+          toolName: "mutate",
+          input: "{}",
+        },
+        { type: "error", error: failure },
+      ],
+      true,
+    );
+    expect(executeLocal).not.toHaveBeenCalled();
+    expect(result.error).toBe(failure);
+    expect(result.steps[0].toolResults).toEqual([
+      expect.objectContaining({
+        toolCallId: "web-1",
+        providerExecuted: true,
+        output,
+      }),
+    ]);
+    expect(onStepEnd).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe("WorkflowAgent complete native tool batch", () => {
   it.each(["web-first", "write-first"])(
     "blocks a local mutation in a %s provider-executed search response",
     async (order) => {
       const mutated = vi.fn();
       const calls: MockStreamPart[] = [
-        { type: "tool-call", toolCallId: "web-1", toolName: "web_search", input: "{}", providerExecuted: true },
-        { type: "tool-call", toolCallId: "write-1", toolName: "manage_wiki_pages", input: "{}" },
+        {
+          type: "tool-call",
+          toolCallId: "web-1",
+          toolName: "web_search",
+          input: "{}",
+          providerExecuted: true,
+        },
+        {
+          type: "tool-call",
+          toolCallId: "write-1",
+          toolName: "manage_wiki_pages",
+          input: "{}",
+        },
       ];
       if (order === "write-first") calls.reverse();
       const model = new MockLanguageModelV4({
