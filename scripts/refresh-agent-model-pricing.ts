@@ -111,7 +111,6 @@ async function main() {
       contextLength: served.context_length as number,
       maxCompletionTokens: (served.max_completion_tokens as number | null) ?? null,
       requestUsd: (pricing.request as string) ?? "0",
-      webSearchUsdPerThousandCalls: (pricing.web_search as string) ?? "0",
       prompt: tiers(pricing, "prompt", "prompt_tiers"),
       completion: tiers(pricing, "completion", "completion_tiers"),
       inputCacheRead: tiers(pricing, "input_cache_read", "input_cache_read_tiers"),

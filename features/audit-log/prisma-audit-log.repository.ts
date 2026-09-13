@@ -5,7 +5,7 @@ import type { LegalAuditRecord } from "@/features/legal/legal-audit.schema";
 import type { LegalAuditRepo } from "@/features/legal/legal-audit.repo";
 import type { GetAuditLogsRepo } from "./get/get-audit-logs.interactor";
 
-import type { Prisma } from "@/generated/prisma";
+import { Action, Resource, type Prisma } from "@/generated/prisma";
 
 import { transactionStorage } from "@/core/decorators/transaction-context";
 import { BaseRepository } from "@/core/base/base-repository";
@@ -15,6 +15,7 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { DomainEvent } from "@/features/event/domain-events";
 import { LegalAcceptanceAuditPayloadSchema, LegalNoticeAuditPayloadSchema } from "@/features/legal/legal-audit.schema";
+import { WIKI_PAGE_AUDIT_EVENTS } from "@/features/wiki/wiki-audit-events";
 
 export class PrismaAuditLogRepo
   extends BaseRepository<Prisma.AuditLogWhereInput>
@@ -68,9 +69,7 @@ export class PrismaAuditLogRepo
   }
 
   async getItems(params: GetQueryParams) {
-    const args = await this.buildQueryArgs(params, {
-      companyId: this.companyId,
-    });
+    const args = await this.buildQueryArgs(params, this.viewerAuditWhere());
 
     const auditLogs = await this.prisma.auditLog.findMany({
       ...args,
@@ -85,11 +84,16 @@ export class PrismaAuditLogRepo
   }
 
   async getCount(params: GetQueryParams) {
-    const { where } = await this.buildQueryArgs(params, {
-      companyId: this.companyId,
-    });
+    const { where } = await this.buildQueryArgs(params, this.viewerAuditWhere());
 
     return this.prisma.auditLog.count({ where });
+  }
+
+  private viewerAuditWhere(): Prisma.AuditLogWhereInput {
+    return {
+      companyId: this.companyId,
+      ...(this.hasPermission(Resource.wiki, Action.readAll) ? {} : { event: { notIn: [...WIKI_PAGE_AUDIT_EVENTS] } }),
+    };
   }
 
   async log(args: RepoArgs<CreateAuditLogRepo, "log">) {

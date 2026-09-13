@@ -13,8 +13,12 @@ const testEnvironment = {
   BETTER_AUTH_SECRET: "vitest-secret",
 };
 const domTestFiles = [
+  "components/ai-elements/__tests__/message-links.test.ts",
   "app/[locale]/(public)/auth/reset-password/__tests__/reset-password-form.test.ts",
   "app/**/company/components/company-settings/__tests__/company-settings-form.test.ts",
+  "app/**/wiki/components/__tests__/wiki-page-view.test.ts",
+  "app/**/wiki/components/__tests__/wiki-page-editor.test.ts",
+  "app/**/wiki/components/__tests__/use-wiki-pages.test.ts",
   "app/**/dashboard/components/__tests__/widget-chart.test.ts",
   "app/[locale]/(protected)/__tests__/protected-layout.test.ts",
   "app/components/agent-chat/__tests__/use-activity-group-state.test.ts",
@@ -54,7 +58,10 @@ const domTestFiles = [
   "components/forms/__tests__/form-context.test.ts",
   "components/forms/__tests__/selection-command.test.ts",
   "components/editor/__tests__/email-markdown-editor.test.ts",
+  "components/editor/__tests__/editor-link-picker.test.ts",
+  "components/wiki/__tests__/wiki-homepage-setup.test.ts",
   "components/modal/__tests__/delete-confirmation-modal.test.ts",
+  "components/modal/__tests__/navigation-history-guard.test.ts",
   "components/acquisition/__tests__/public-ad-attribution-consent.test.ts",
   "components/scroll/__tests__/messages-scroll-container.test.ts",
   "components/shared/__tests__/overflow-rail.test.ts",

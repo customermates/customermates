@@ -7,8 +7,8 @@ export const AGENT_REPLAY_TRIM_MARKER = "\n[...]\n";
 
 export type AgentReplayInput = { role: string; text: string; budgeted: boolean };
 
-export function agentReplayWorstCaseMessageChars() {
-  return Math.ceil(AGENT_REPLAY_HISTORY_MAX_BYTES / (AGENT_REPLAY_COUNT - 1));
+export function agentReplayWorstCaseMessageChars(maxBytes = AGENT_REPLAY_HISTORY_MAX_BYTES) {
+  return Math.ceil(maxBytes / (AGENT_REPLAY_COUNT - 1));
 }
 
 function serializedCharacterBytes(codePoint: number) {
@@ -65,10 +65,13 @@ export function clampAgentReplayText(text: string, maxBytes: number) {
   return `${head.text}${AGENT_REPLAY_TRIM_MARKER}${tail.text}`;
 }
 
-export function budgetAgentReplayHistory(messages: readonly AgentReplayInput[]): string[] {
+export function budgetAgentReplayHistory(
+  messages: readonly AgentReplayInput[],
+  maxBytes = AGENT_REPLAY_HISTORY_MAX_BYTES,
+): string[] {
   const costs = messages.map((message) => serializedReplayTextBytes(message.text));
   const budgets = messages.map(() => 0);
-  let remaining = AGENT_REPLAY_HISTORY_MAX_BYTES;
+  let remaining = Math.max(0, Math.min(maxBytes, AGENT_REPLAY_HISTORY_MAX_BYTES));
 
   const grant = (index: number, ceiling: number) => {
     const wanted = Math.min(costs[index], ceiling) - budgets[index];

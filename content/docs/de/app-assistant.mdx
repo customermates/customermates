@@ -15,13 +15,14 @@ Mate merkt sich pro Benutzer, ob das Panel geöffnet oder geschlossen war, und s
 
 Gewöhnliche CRM-Arbeit läuft, sobald Sie sie anstoßen: Einträge anlegen und ändern, Notizen, Verknüpfungen, Nachrichtenentwürfe, Posteingangs-Triage, Workspace-Einstellungen, eigene Felder, Widget- und Webhook-Einrichtung, Rollen- oder Statusänderungen bei Teammitgliedern und das Erzeugen sicherer Links für Kontoverbindungen. Mate sagt vorher, was es ändert, und berichtet danach genau, was sich geändert hat. Um ein Anbieterkonto zu verbinden, öffnen Sie den erzeugten Link und schließen den QR-Code- oder Anmeldeablauf selbst ab; das Erzeugen des Links bedeutet noch nicht, dass das Konto verbunden ist.
 
-Mate kann in jedem Turn den vollständigen MCP-Werkzeugbestand finden: alle fünf Datensatztypen mit ihren Anlege- und Änderungspfaden, Workspace-Einrichtung, eigene Felder, Widgets, Webhooks, Team-Verwaltung, Messaging, verbundene Social-Profile und Posts, Sales-Navigator-Suchen und -Listen, Dokumentation sowie die Connector-kompatiblen Search- und Fetch-Werkzeuge. Um Tokenverbrauch und Kosten niedrig zu halten, lädt es nur die Definitionen, die es für die aktuelle Aufgabe braucht. Weder die aktuelle Seite noch die Formulierung einer früheren Nachricht entfernt eine Fähigkeit. Die Entdeckung erteilt keinen Zugriff: Jeder Aufruf erzwingt weiterhin Ihre aktuelle Workspace-Rolle, den Mandanten, Tarifberechtigungen, Voraussetzungen verbundener Konten und die unten genannten Freigaben. Der gehostete Assistent behält dieselbe `request_support`-Fähigkeit bei, führt sie aber über seinen bestätigten, verlaufsbezogenen E-Mail-Ablauf aus.
+Mate erhält in gewöhnlichen Anfragen seinen gehosteten Werkzeugbestand: alle fünf Datensatztypen mit ihren Anlege- und Änderungspfaden, Workspace-Einrichtung, Wiki-Seiten, eigene Felder, Widgets, Webhooks, Team-Verwaltung, Messaging, verbundene Social-Profile und Posts, Sales-Navigator-Suchen und -Listen, Dokumentation sowie die Connector-kompatiblen Search- und Fetch-Werkzeuge. Weder die aktuelle Seite noch die Formulierung einer früheren Nachricht entfernt eine Fähigkeit. Die Entdeckung erteilt keinen Zugriff: Jeder Aufruf erzwingt weiterhin Ihre aktuelle Workspace-Rolle, den Mandanten, Tarifberechtigungen, Voraussetzungen verbundener Konten und die unten genannten Freigaben. Die Wiki-Einrichtung über eine Homepage nutzt einen eingeschränkten Werkzeugbestand, der nur erlaubte öffentliche Seiten lesen und die ersten Wiki-Seiten anlegen kann. Der gehostete Assistent behält dieselbe `request_support`-Fähigkeit bei, führt sie aber über seinen bestätigten, verlaufsbezogenen E-Mail-Ablauf aus.
 
 Nur Aktionen, die sich nicht rückgängig machen lassen oder den Workspace verlassen, halten jedes Mal für Ihre Freigabe an:
 
 | Fragt immer                                          | Warum                                              |
 | ---------------------------------------------------- | -------------------------------------------------- |
 | Einträge löschen                                     | Endgültiges Löschen, nicht umkehrbar               |
+| Wiki-Seite löschen                                  | Entfernt das Dokument endgültig                    |
 | Eigenes Feld, Widget oder Webhook löschen            | Zerstört Konfiguration und gespeicherte Werte      |
 | Nachrichtenentwurf verwerfen                         | Entfernt geschriebene Inhalte                      |
 | Team-Einladung senden                                | Sendet eine echte Einladungs-E-Mail                |
@@ -32,6 +33,14 @@ Nur Aktionen, die sich nicht rückgängig machen lassen oder den Workspace verla
 Die Freigabekarte nennt die Aktion und ihre Konsequenz. Lehnen Sie ab oder läuft die Anfrage ab, hat sich nichts geändert. Es gibt keine Dauerfreigabe: Jede dieser Aktionen fragt beim nächsten Mal erneut.
 
 Das Senden einer E-Mail oder Chat-Nachricht steht bewusst nicht auf dieser Liste: Diese Werkzeuge stellen sofort zu, sobald der Assistent sie aufruft. Bitten Sie um einen Entwurf, wenn Sie den Wortlaut vorher prüfen möchten. Ein Entwurf wartet in Ihrem Postfach, bis Sie ihn selbst senden.
+
+## Unternehmenswissen und öffentliche Seiten
+
+Halten Sie Unternehmensfakten, CRM-Abläufe, Sprache und Support-Vorgaben im [Workspace-Wiki](/docs/mcp#gemeinsames-workspace-wiki) fest. Zu Beginn einer gewöhnlichen Anfrage erhält Mate einen kompakten Katalog mit bis zu zehn Seiten, sofern Sie Wiki-Leserechte haben. Es kann den Katalog fortsetzen und relevante Seiten über dieselben berechtigungsgeprüften Werkzeuge lesen, die externe MCP-Clients verwenden. Die Auszüge helfen bei der Auswahl; sie sind keine vollständigen Seiten. Gespeicherte Änderungen stehen späteren Abrufen und neuen Anfragen zur Verfügung.
+
+Mit Wiki-Verwaltungsrechten können Sie Mate bitten, Seiten anzulegen oder zu bearbeiten. Löschen benötigt weiterhin Ihre Freigabe. Dieselben Quelldokumente stehen [Routinen](/docs/app-routines) zur Verfügung; Sie müssen ihre Inhalte nicht in jeden Prompt kopieren.
+
+Mate kann eine bekannte öffentliche HTTP(S)-URL direkt lesen und die gelesenen Seiten als Quellen nennen. Allgemeine Websuche ist derzeit nicht verfügbar. Seiten mit Anmeldepflicht, Zugriffssperren für automatisierte Abrufe oder notwendiger Browser-Interaktion sind möglicherweise nicht lesbar. Um ein leeres Wiki anhand Ihrer Homepage einzurichten, wählen Sie **Mit Mate einrichten** im Onboarding oder im leeren Wiki. Die Einrichtung läuft in einer sichtbaren Unterhaltung und nutzt Ihr normales Guthaben.
 
 ## Die Oberfläche bedienen
 

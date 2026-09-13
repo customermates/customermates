@@ -10,7 +10,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 1000000,
       maxCompletionTokens: 65000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "14",
       prompt: [
         {
           costUsdPerToken: "0.00000033",
@@ -40,7 +39,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 1050000,
       maxCompletionTokens: 128000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [
         {
           costUsdPerToken: "0.0000002",
@@ -93,7 +91,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 400000,
       maxCompletionTokens: 128000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [
         {
           costUsdPerToken: "0.00000005",

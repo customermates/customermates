@@ -148,6 +148,14 @@ Useful scripts:
 - `yarn db:provision`
 - `yarn db:reset`
 
+### Hosted Wiki setup and web search
+
+Wiki pages use the existing Notes editor and shared, permission-checked MCP tools. Homepage setup reads the submitted public site directly; it does not depend on a search index. Manual Wiki pages also work in self-hosted deployments.
+
+The native search integration uses `gateway.tools.perplexitySearch()` through the existing AI Gateway authentication. It does not require a separate Perplexity API key. Model routing, EU inference, credit settlement, and the routine browse-or-mutate boundary remain shared with the Assistant.
+
+Native search is not released yet. Gateway's internal search loop needs a supported server-enforced bound that fits the existing credit reservation. Search-output limits, SDK step counts, and [Gateway's request-start budget checks](https://vercel.com/docs/ai-gateway/observability-and-spend/budgets) do not establish that bound. The provider smoke therefore refuses paid execution before network access; its offline serialization check remains available. Do not enable search until that dependency, all-in billing, and the applicable human release and data-processing approvals are verified.
+
 ## 📚 Documentation
 
 The docs cover:

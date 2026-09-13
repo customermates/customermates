@@ -50,6 +50,8 @@ type StoredAgentTurnRow = {
   clientRequestId: string;
   text: string;
   pageRoute: string | null;
+  wikiHomepageSetupDomain: string | null;
+  wikiHomepageSetupUrl: string | null;
   status: string;
   runId: string;
   attemptCount: number;
@@ -113,6 +115,8 @@ type AgentTurnAdmissionArgs = {
         clientRequestId: string;
         text: string;
         pageRoute: string | null;
+        wikiHomepageSetupDomain?: string | null;
+        wikiHomepageSetupUrl?: string | null;
         userMessageId: string;
       }
     | {
@@ -287,6 +291,8 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       clientRequestId: row.clientRequestId,
       text: row.text,
       pageRoute: row.pageRoute,
+      wikiHomepageSetupDomain: row.wikiHomepageSetupDomain,
+      wikiHomepageSetupUrl: row.wikiHomepageSetupUrl,
       status,
       runId: row.runId,
       attemptCount: row.attemptCount,
@@ -537,6 +543,8 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
             clientRequestId: args.turn.clientRequestId,
             text: args.turn.text,
             pageRoute: args.turn.pageRoute,
+            wikiHomepageSetupDomain: args.turn.wikiHomepageSetupDomain,
+            wikiHomepageSetupUrl: args.turn.wikiHomepageSetupUrl,
             status: "running",
             runId: args.runId,
             attemptCount: 1,
@@ -984,6 +992,8 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       clientRequestId: true,
       text: true,
       pageRoute: true,
+      wikiHomepageSetupDomain: true,
+      wikiHomepageSetupUrl: true,
       status: true,
       runId: true,
       attemptCount: true,

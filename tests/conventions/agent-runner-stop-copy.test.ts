@@ -22,7 +22,7 @@ describe("agent runner stop copy", () => {
   it("sets performedWrite only for a successful call to a tool that is not read-only", () => {
     const workflow = read("workflows/agent-turn.ts");
     expect(workflow).toMatch(
-      /if \(!isReadOnlyTool\(\{ annotations: shell\.annotations \}\) && isSuccessfulToolOutcome\(outcome\)\)\s*\n\s*performedWrite = true;/,
+      /const readOnly = isReadOnlyAgentToolCall\(shell\.name, shell, prepared\.input\);[\s\S]*if \(!readOnly && isSuccessfulToolOutcome\(outcome\)\)\s*performedWrite = true;/,
     );
   });
 

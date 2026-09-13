@@ -7,7 +7,11 @@ import { buildAgentSystemPrompt } from "@/ee/agent-chat/system-prompt";
 import { requiresApproval } from "@/ee/agent-chat/gated-tools";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
-import { MCP_SERVER_INSTRUCTIONS, GET_STARTED_PROMPT } from "@/features/mcp-tools/server-instructions";
+import {
+  MCP_ACTION_INSTRUCTION,
+  MCP_SERVER_INSTRUCTIONS,
+  GET_STARTED_PROMPT,
+} from "@/features/mcp-tools/server-instructions";
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
 const root = process.cwd();
@@ -51,11 +55,11 @@ describe("agent approval wording matches runtime behaviour", () => {
     expect(chatPrompt).toMatch(/save_message_draft/);
   });
 
-  it("states that approval is raised by calling the tool, from one shared definition", () => {
+  it("reserves the call-to-request-approval instruction for hosted Mate", () => {
     const instruction = "Approval is requested by calling the tool";
     expect(chatPrompt).toContain(instruction);
-    expect(MCP_SERVER_INSTRUCTIONS).toContain(instruction);
-    expect(GET_STARTED_PROMPT).toContain(instruction);
+    expect(MCP_SERVER_INSTRUCTIONS).not.toContain(instruction);
+    expect(GET_STARTED_PROMPT).not.toContain(instruction);
 
     const definitions = read("features/mcp-tools/server-instructions.ts").match(
       /Approval is requested by calling the tool/g,
@@ -64,9 +68,14 @@ describe("agent approval wording matches runtime behaviour", () => {
     expect(read("ee/agent-chat/system-prompt.ts")).not.toContain(instruction);
   });
 
-  it("no longer instructs the model to ask permission in prose instead of calling", () => {
-    expect(MCP_SERVER_INSTRUCTIONS).not.toMatch(/Confirm with the user before/);
-    expect(GET_STARTED_PROMPT).not.toMatch(/Confirm with me before/);
+  it("requires authorization before public MCP calls without promising a hosted approval pause", () => {
+    expect(MCP_SERVER_INSTRUCTIONS).toContain(MCP_ACTION_INSTRUCTION);
+    expect(GET_STARTED_PROMPT).toContain(MCP_ACTION_INSTRUCTION);
+    expect(MCP_ACTION_INSTRUCTION).toContain("execute immediately once permissions allow them");
+    expect(MCP_ACTION_INSTRUCTION).toContain("does not provide Mate's hosted approval pause");
+    expect(MCP_ACTION_INSTRUCTION).toContain("obtain the user's explicit authorization");
+    expect(MCP_ACTION_INSTRUCTION).toContain("Never call a tool merely to request approval");
+    expect(chatPrompt).not.toContain(MCP_ACTION_INSTRUCTION);
   });
 
   it("warns an unattended run that approvals will be declined, and does not warn an attended one", () => {

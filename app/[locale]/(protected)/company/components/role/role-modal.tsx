@@ -37,6 +37,7 @@ export const RoleModal = observer(({ store }: Props) => {
 
     const hasReadAccess = "readAccess" in permission;
     const hasCanManage = "canManage" in permission;
+    const manageImpliesRead = resource === Resource.wiki && hasCanManage && permission.canManage === "yes";
 
     const canManageOptions: FormRadioGroupOption[] = [
       { value: "yes", label: t("RoleModal.yes") },
@@ -47,8 +48,12 @@ export const RoleModal = observer(({ store }: Props) => {
       {
         value: "all",
         label: t("RoleModal.readAll"),
+        disabled: manageImpliesRead,
       },
-      ...(resource !== Resource.api && resource !== Resource.auditLog && resource !== Resource.inboxMessages
+      ...(resource !== Resource.api &&
+      resource !== Resource.auditLog &&
+      resource !== Resource.inboxMessages &&
+      resource !== Resource.wiki
         ? [
             {
               value: "own",
@@ -61,6 +66,7 @@ export const RoleModal = observer(({ store }: Props) => {
             {
               value: "none",
               label: t("RoleModal.readNone"),
+              disabled: manageImpliesRead,
             },
           ]
         : []),
@@ -166,6 +172,8 @@ export const RoleModal = observer(({ store }: Props) => {
               {renderResourcePermissions(Resource.company)}
 
               {renderResourcePermissions(Resource.auditLog)}
+
+              {renderResourcePermissions(Resource.wiki)}
 
               {renderResourcePermissions(Resource.tasks)}
 

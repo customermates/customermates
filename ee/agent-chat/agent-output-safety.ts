@@ -1,8 +1,11 @@
 const INTERNAL_REFERENCE = "[internal reference]";
 const REDACTED_VALUE = "[redacted]";
 const INTERNAL_DETAILS = "[internal details]";
+const WIKI_URL_TOKEN_PATTERN = /(?:^|\s)\S*\/(?:[a-z]{2}\/)?wiki\?page=\S*/gi;
 
 const UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})(?=$|[^0-9a-f])/gi;
+const WIKI_PAGE_URL_PATTERN =
+  /(^|[\s`"'\[]|\]\()\/(?:[a-z]{2}\/)?wiki\?page=[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}(?=$|[\s)\]`"'<>])/gi;
 const PARTIAL_UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}-(?:[0-9a-f]{0,4}(?:-[0-9a-f]{0,4}){0,3})?)$/gi;
 const PAGE_CONTEXT_BLOCK_PATTERN = /<page_context\b[^>]*>[\s\S]*?<\/page_context\s*>/gi;
 const PAGE_CONTEXT_TAG_PATTERN = /<\/?page_context\b[^>]*>/gi;
@@ -67,6 +70,8 @@ const PRIVATE_MARKERS = [
 const STREAM_TAIL_LENGTH = Math.max(64, ...PRIVATE_MARKERS.map((marker) => marker.length - 1));
 
 const PROTECTED_STREAM_PATTERNS = [
+  WIKI_URL_TOKEN_PATTERN,
+  WIKI_PAGE_URL_PATTERN,
   UUID_PATTERN,
   PAGE_CONTEXT_BLOCK_PATTERN,
   PAGE_CONTEXT_TAG_PATTERN,
@@ -93,7 +98,12 @@ function earliest(current: number | null, candidate: number | null) {
 }
 
 function replaceUuid(value: string) {
-  return value.replace(UUID_PATTERN, (_match, prefix: string) => `${prefix}${INTERNAL_REFERENCE}`);
+  const pageLinks = [...value.matchAll(WIKI_PAGE_URL_PATTERN)];
+  return value.replace(UUID_PATTERN, (match, prefix: string, _id: string, offset: number) =>
+    pageLinks.some((link) => offset >= link.index && offset + match.length <= link.index + link[0].length)
+      ? match
+      : `${prefix}${INTERNAL_REFERENCE}`,
+  );
 }
 
 function replacePartialUuidTail(value: string) {
@@ -165,6 +175,7 @@ function incompletePrivateMarkerStart(value: string) {
     }
 
     for (let length = Math.min(marker.length - 1, lower.length); length > 0; length -= 1) {
+      if (marker.startsWith("```") && length <= 3) continue;
       if (!lower.endsWith(marker.slice(0, length))) continue;
       start = earliest(start, lower.length - length);
       break;

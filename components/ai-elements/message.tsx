@@ -19,6 +19,8 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { copyToClipboard } from "@/core/utils/clipboard";
 import { cn } from "@/core/utils/cn";
 
+import { messageLinkSafety } from "./message-link-safety";
+
 type MarkdownElementProps<Tag extends keyof JSX.IntrinsicElements> = ComponentProps<Tag> & { node?: unknown };
 
 const MessageTableActionsContext = createContext(true);
@@ -142,6 +144,7 @@ export type MessageResponseProps = ComponentProps<typeof Streamdown> & {
 export const MessageResponse = memo(function MessageResponse({
   className,
   components,
+  linkSafety = messageLinkSafety,
   showTableActions = true,
   ...props
 }: MessageResponseProps) {
@@ -155,6 +158,7 @@ export const MessageResponse = memo(function MessageResponse({
       <Streamdown
         className={cn("size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0", className)}
         components={resolvedComponents}
+        linkSafety={linkSafety}
         {...props}
       />
     </MessageTableActionsContext.Provider>

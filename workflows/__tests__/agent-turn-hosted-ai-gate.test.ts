@@ -2,14 +2,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 type WorkflowTool = {
   needsApproval: (input: unknown, options: { toolCallId: string }) => Promise<boolean>;
-  execute?: (input: unknown, options: { toolCallId: string }) => Promise<unknown>;
+  execute?: (input: unknown, options: { toolCallId: string; messages?: unknown[] }) => Promise<unknown>;
 };
 
 type StreamOptions = {
   tools: Record<string, WorkflowTool>;
   messages: unknown[];
   completeStepAndPrepareNext: (step: unknown, messages?: unknown[]) => Promise<void>;
-  executeAndCompleteTool: (toolName: string, input: unknown, toolCallId: string) => Promise<unknown>;
+  executeAndCompleteTool: (toolName: string, input: unknown, toolCallId: string, batch?: unknown[]) => Promise<unknown>;
 };
 
 const state = vi.hoisted(() => ({
@@ -25,7 +25,15 @@ const state = vi.hoisted(() => ({
   reportFailure: vi.fn(),
   toolLoadFailure: false,
   providerOptions: null as unknown,
-  definitions: [] as { name: string; description: string; inputSchema: unknown }[],
+  maxRetries: undefined as number | undefined,
+  instructions: [] as string[],
+  prepared: null as unknown,
+  readPage: vi.fn(),
+  definitions: [] as {
+    name: string;
+    description: string;
+    inputSchema: unknown;
+  }[],
   normalize: vi.fn(),
   execute: vi.fn(),
   runTools: null as null | ((options: StreamOptions) => Promise<unknown>),
@@ -48,10 +56,13 @@ vi.mock("@ai-sdk/workflow", () => ({
         onToolExecutionEnd: (event: unknown) => void;
         instructions: string;
         providerOptions: unknown;
+        maxRetries?: number;
         tools: Record<string, WorkflowTool>;
       },
     ) {
       state.providerOptions = options.providerOptions;
+      state.maxRetries = options.maxRetries;
+      state.instructions.push(options.instructions);
     }
 
     async stream({ messages }: { messages: unknown[] }) {
@@ -67,13 +78,16 @@ vi.mock("@ai-sdk/workflow", () => ({
           messages,
           completeStepAndPrepareNext: async (step, nextMessages = messages) => {
             await this.options.onStepEnd(step);
-            await this.options.prepareStep({ messages: preparedMessages(nextMessages) });
+            state.prepared = await this.options.prepareStep({ messages: preparedMessages(nextMessages) });
             state.providerCalls += 1;
           },
-          executeAndCompleteTool: async (toolName, input, toolCallId) => {
+          executeAndCompleteTool: async (toolName, input, toolCallId, batch) => {
             const tool = this.options.tools[toolName];
             if (!tool?.execute) throw new Error(`Tool ${toolName} cannot execute.`);
-            const output = await tool.execute(input, { toolCallId });
+            const output = await tool.execute(input, {
+              toolCallId,
+              messages: batch ?? [{ role: "assistant", content: [{ type: "tool-call", toolName, toolCallId, input }] }],
+            });
             this.options.onToolExecutionEnd({
               success: true,
               toolCall: { toolCallId, toolName },
@@ -153,10 +167,12 @@ vi.mock("@/ee/agent-chat/agent-tools", () => ({
   getAgentAiTools: () => Object.fromEntries(state.definitions.map(({ name }) => [name, { execute: state.execute }])),
   normalizeAgentAiToolInput: state.normalize,
 }));
+vi.mock("@/ee/agent-chat/public-page-reader", () => ({ readPublicPage: state.readPage }));
 vi.mock("@/features/mcp-tools/tool-registry", () => ({
   ALL_MCP_TOOLS: [
     { name: "list_users", annotations: { readOnlyHint: true } },
     { name: "manage_widgets", annotations: { readOnlyHint: false } },
+    { name: "manage_wiki_pages", annotations: { readOnlyHint: false } },
     { name: "delete_records", annotations: { readOnlyHint: false } },
   ],
 }));
@@ -207,6 +223,17 @@ beforeEach(() => {
   state.writes = [];
   state.toolLoadFailure = false;
   state.providerOptions = null;
+  state.maxRetries = undefined;
+  state.instructions = [];
+  state.prepared = null;
+  state.readPage.mockReset().mockResolvedValue({
+    ok: true,
+    url: "https://example.com/",
+    title: "Example",
+    text: "Useful information",
+    links: [],
+    truncated: false,
+  });
   state.definitions = [];
   state.runTools = null;
   state.normalize.mockReset();
@@ -263,6 +290,15 @@ function streamedToolCallStep(toolName: string, toolCallId: string, input: unkno
 }
 
 describe("agent-turn hosted-AI provider gates", () => {
+  it.each([false, true])(
+    "disables opaque model retries only for native search (enabled=%s)",
+    async (webSearchEnabled) => {
+      state.gateResults = [true, false];
+      await runAgentTurn({ ...payload, webSearchEnabled });
+      expect(state.maxRetries).toBe(webSearchEnabled ? 0 : undefined);
+    },
+  );
+
   it("makes no provider call when the provider-start admission is rejected", async () => {
     state.markProviderStarted.mockResolvedValueOnce(false);
 
@@ -289,7 +325,7 @@ describe("agent-turn hosted-AI provider gates", () => {
         zeroDataRetention: true,
         disallowPromptTraining: true,
       },
-      openai: { parallelToolCalls: false },
+      openai: { parallelToolCalls: false, store: false },
     });
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({ terminalCode: "partial", stopReason: "hosted_ai_unavailable" }),
@@ -636,6 +672,122 @@ describe("agent-turn credit-bounded continuation", () => {
     );
   });
 
+  it.each(["tool-result", "tool-error"])(
+    "settles native %s telemetry before a local read and preserves it through continuation compaction",
+    async (nativeType) => {
+      state.contextFits.mockImplementation((context: unknown, stepMessages: unknown, maxBytes: unknown) => {
+        if (typeof maxBytes !== "number") return false;
+        return (
+          new TextEncoder().encode(
+            JSON.stringify({
+              ...(context as object),
+              messages: stepMessages,
+            }),
+          ).byteLength <= maxBytes
+        );
+      });
+      state.definitions.push({
+        name: "list_users",
+        description: "list_users",
+        inputSchema: { type: "object" },
+      });
+      state.normalize.mockResolvedValue({ ok: true, input: { page: 1 } });
+      state.execute.mockResolvedValue({
+        ok: true,
+        result: `read:${"y".repeat(4_000)}`,
+      });
+      const nativePayload = {
+        results: [{ snippet: `native:${"x".repeat(1_000)}` }],
+      };
+      const nativeCall = {
+        type: "tool-call",
+        toolName: "web_search",
+        toolCallId: "web-1",
+        input: { query: "public company information" },
+        providerExecuted: true,
+      };
+      const nativeOutcome = {
+        type: nativeType,
+        toolName: "web_search",
+        toolCallId: "web-1",
+        providerExecuted: true,
+        ...(nativeType === "tool-error" ? { error: nativePayload } : { output: nativePayload }),
+      };
+      const nativeStep = { ...streamedStep("", "tool-calls"), content: [nativeCall, nativeOutcome, nativeOutcome] };
+      const seenMessages: unknown[][] = [];
+      state.runTools = async ({ messages, completeStepAndPrepareNext, executeAndCompleteTool }) => {
+        seenMessages.push(messages);
+        if (seenMessages.length === 1) {
+          const nativeMessages = [
+            ...messages,
+            { role: "assistant", content: [nativeCall] },
+            {
+              role: "tool",
+              content: [
+                {
+                  type: "tool-result",
+                  toolName: "web_search",
+                  toolCallId: "web-1",
+                  output: { type: nativeType === "tool-error" ? "error-json" : "json", value: nativePayload },
+                },
+              ],
+            },
+          ];
+          await completeStepAndPrepareNext(nativeStep, nativeMessages);
+          const output = await executeAndCompleteTool("list_users", { page: 1 }, "read-1");
+          const localStep = streamedToolCallStep("list_users", "read-1", { page: 1 });
+          return {
+            finishReason: "tool-calls",
+            messages: [
+              ...nativeMessages,
+              { role: "assistant", content: localStep.content },
+              {
+                role: "tool",
+                content: [
+                  {
+                    type: "tool-result",
+                    toolName: "list_users",
+                    toolCallId: "read-1",
+                    output: { type: "json", value: output },
+                  },
+                ],
+              },
+            ],
+            steps: [nativeStep, localStep],
+          };
+        }
+        return { finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] };
+      };
+
+      await runAgentTurn({ ...payload, turnBudget: { ...payload.turnBudget, maxContextBytes: 3_500 } });
+
+      expect(state.providerCalls).toBe(3);
+      expect(state.recordRound).toHaveBeenCalledTimes(3);
+      expect(state.execute).toHaveBeenCalledOnce();
+      expect(state.createApproval).not.toHaveBeenCalled();
+      expect(state.instructions[1]).toContain('"completedSteps":2');
+      expect(state.instructions[1]).toContain(`"successfulActivities":${nativeType === "tool-error" ? 1 : 2}`);
+      expect(state.instructions[1]).toContain(`"errors":${nativeType === "tool-error" ? 1 : 0}`);
+      expect(state.instructions[1]).toContain('"toolName":"web_search"');
+      expect(JSON.stringify(seenMessages[1])).not.toContain("web-1");
+      expect(JSON.stringify(seenMessages[1])).not.toContain(nativePayload.results[0].snippet);
+      expect(JSON.stringify(seenMessages[1])).not.toContain("read-1");
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          terminalCode: "completed",
+          stopReason: null,
+          parts: expect.arrayContaining([
+            expect.objectContaining({
+              id: "web-1",
+              status: nativeType === "tool-error" ? "error" : "done",
+            }),
+            expect.objectContaining({ id: "read-1", status: "done" }),
+          ]),
+        }),
+      );
+    },
+  );
+
   it("compacts an approval-resume message set before treating context overflow as fatal", async () => {
     state.definitions.push({ name: "navigate", description: "navigate", inputSchema: { type: "object" } });
     state.normalize.mockResolvedValue({ ok: true, input: { targetId: "nav-contacts" } });
@@ -897,7 +1049,11 @@ describe("agent-turn authoritative tool inputs", () => {
     await runAgentTurn(payload);
 
     expect(state.normalize).toHaveBeenCalledTimes(1);
-    expect(state.normalize).toHaveBeenCalledWith("list_users", raw, 1000);
+    expect(state.normalize).toHaveBeenCalledWith("list_users", raw, 1000, {
+      wikiHomepageSetup: false,
+      webSearchEnabled: undefined,
+      surface: undefined,
+    });
     expect(state.execute).toHaveBeenCalledWith(normalized, { toolCallId: "call-1", messages: [] });
     expect(state.createApproval).not.toHaveBeenCalled();
   });
@@ -1103,5 +1259,262 @@ describe("routine run settlement", () => {
     state.dispatch.mockRejectedValue(new Error("dispatch unavailable"));
 
     await expect(runAgentTurn({ ...payload, surface: "routine" })).resolves.toBeUndefined();
+  });
+});
+
+describe("routine browse-or-mutate batch safety", () => {
+  const read = { url: "https://example.com/" };
+  const write = { action: "create", pages: [{ title: "Tone", markdown: "Be clear." }] };
+  const call = (toolName: string, toolCallId: string, input: unknown) => ({
+    type: "tool-call",
+    toolName,
+    toolCallId,
+    input,
+  });
+  const finish = () => ({ finishReason: "stop", messages: [], steps: [] });
+
+  beforeEach(() => {
+    state.definitions = ["read_public_page", "manage_wiki_pages", "list_users"].map((name) => ({
+      name,
+      description: name,
+      inputSchema: { type: "object" },
+    }));
+    state.normalize.mockImplementation((_name, input) => Promise.resolve({ ok: true, input }));
+  });
+
+  it.each(["web-first", "write-first", "parallel"])("denies mutation for the complete %s web batch", async (order) => {
+    state.runTools = async ({ executeAndCompleteTool }) => {
+      const calls = [call("read_public_page", "read-1", read), call("manage_wiki_pages", "write-1", write)];
+      if (order === "write-first") calls.reverse();
+      const batch = [{ role: "assistant", content: calls }];
+      const results =
+        order === "parallel"
+          ? await Promise.all(
+              calls.map((item) => executeAndCompleteTool(item.toolName, item.input, item.toolCallId, batch)),
+            )
+          : await calls.reduce(
+              async (prior, item) => [
+                ...(await prior),
+                await executeAndCompleteTool(item.toolName, item.input, item.toolCallId, batch),
+              ],
+              Promise.resolve([] as unknown[]),
+            );
+      expect(results).toContainEqual(expect.objectContaining({ ok: false }));
+      return finish();
+    };
+    await runAgentTurn({ ...payload, surface: "routine" });
+    expect(state.execute).not.toHaveBeenCalled();
+    expect(state.readPage).toHaveBeenCalledOnce();
+  });
+
+  it("keeps a successful browse boundary across later steps, while Wiki reads remain available", async () => {
+    state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
+      await executeAndCompleteTool("read_public_page", read, "read-1");
+      await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+      expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-1")).toMatchObject({ ok: false });
+      expect(await executeAndCompleteTool("manage_wiki_pages", { action: "get", id: "page-1" }, "get-1")).toMatchObject(
+        { ok: true },
+      );
+      return finish();
+    };
+    await runAgentTurn({ ...payload, surface: "routine" });
+    expect(state.execute).toHaveBeenCalledOnce();
+    expect(state.execute.mock.calls[0][0]).toMatchObject({ action: "get" });
+  });
+
+  const nativeSearchStep = (failed = false) => ({
+    ...streamedStep("Homepage evidence.", "length"),
+    content: [
+      {
+        type: "tool-call",
+        toolName: "web_search",
+        toolCallId: "web-1",
+        input: {},
+        providerExecuted: true,
+      },
+      {
+        type: "tool-result",
+        toolName: "web_search",
+        toolCallId: "web-1",
+        input: {},
+        providerExecuted: true,
+        output: failed
+          ? { error: "timeout", message: "Search timed out" }
+          : {
+              results: [{ url: "https://example.com/current", snippet: "Evidence" }],
+            },
+      },
+      { type: "text", text: "Homepage evidence." },
+    ],
+    providerMetadata: {
+      gateway: {
+        routing: {
+          finalProvider: "vertex",
+          modelAttempts: [
+            {
+              providerAttempts: [{ provider: "vertex", credentialType: "system", success: true }],
+            },
+          ],
+        },
+        gatewayCost: "0.00580279",
+        cost: "0.00570279",
+        inferenceCost: "0.00070279",
+        surchargeCost: "0.0001",
+        gatewayToolCalls: { perplexity_search: 1 },
+      },
+    },
+  });
+
+  it.each([false, true])(
+    "preserves native browsing across a length continuation and allows a later mutation only after failure (failed=%s)",
+    async (failed) => {
+      let segment = 0;
+      state.runTools = async ({ messages, executeAndCompleteTool }) => {
+        if (segment++ === 0) {
+          return {
+            finishReason: "length",
+            messages,
+            steps: [nativeSearchStep(failed)],
+          };
+        }
+        expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-1")).toMatchObject({ ok: failed });
+        return finish();
+      };
+      await runAgentTurn({
+        ...payload,
+        surface: "routine",
+        webSearchEnabled: true,
+      });
+      expect(state.providerCalls).toBe(2);
+      expect(state.execute).toHaveBeenCalledTimes(failed ? 1 : 0);
+      expect(state.recordRound).toHaveBeenCalledWith(expect.objectContaining({ costMicrocents: 580_279 }));
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          usageSettlement: expect.objectContaining({
+            costMicrocents: 580_279,
+            costSource: "measured",
+          }),
+        }),
+      );
+      const parts = JSON.stringify(state.finalize.mock.calls[0][0].parts);
+      expect(parts).toContain(`"status":"${failed ? "error" : "done"}"`);
+      if (!failed) expect(parts).toContain("https://example.com/current");
+      expect(state.createApproval).not.toHaveBeenCalled();
+    },
+  );
+
+  it("settles completed native search before cooperative cancellation without starting another request", async () => {
+    state.readCancellation.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+    state.runTools = async ({ messages, completeStepAndPrepareNext }) => {
+      await completeStepAndPrepareNext(nativeSearchStep(), messages);
+      throw new Error("unreachable");
+    };
+    await runAgentTurn({
+      ...payload,
+      surface: "routine",
+      webSearchEnabled: true,
+    });
+    expect(state.providerCalls).toBe(1);
+    expect(state.execute).not.toHaveBeenCalled();
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        terminalCode: "cancelled",
+        stopReason: "cancelled",
+        usageSettlement: expect.objectContaining({
+          costMicrocents: 580_279,
+          costSource: "measured",
+        }),
+      }),
+    );
+    expect(state.recordRound).toHaveBeenCalledOnce();
+    expect(state.extendReservation).not.toHaveBeenCalled();
+    expect(JSON.stringify(state.finalize.mock.calls[0][0].parts)).toContain("https://example.com/current");
+  });
+
+  it.each(["chat", "routine"] as const)(
+    "keeps measured Search charges when a later %s round lacks cost metadata",
+    async (surface) => {
+      const search = nativeSearchStep();
+      search.providerMetadata.gateway.gatewayCost = "0.01080279";
+      search.providerMetadata.gateway.cost = "0.01070279";
+      search.providerMetadata.gateway.gatewayToolCalls.perplexity_search = 2;
+      let segment = 0;
+      state.runTools = ({ messages }) =>
+        Promise.resolve({
+          finishReason: segment === 0 ? "length" : "stop",
+          messages,
+          steps: [segment++ === 0 ? search : streamedStep("Answer.", "stop")],
+        });
+
+      await runAgentTurn({ ...payload, surface, webSearchEnabled: true });
+
+      expect(state.providerCalls).toBe(2);
+      const persistedCost = state.recordRound.mock.calls.reduce((total, [round]) => total + round.costMicrocents, 0);
+      expect(persistedCost).toBeGreaterThan(1_080_279);
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          usageSettlement: expect.objectContaining({
+            costMicrocents: persistedCost,
+            costSource: "estimated",
+            chargedCredits: 2,
+            policyBreach: false,
+          }),
+        }),
+      );
+    },
+  );
+
+  it("denies a failed browse batch but permits a later mutation after failure is established", async () => {
+    state.readPage.mockResolvedValue({ ok: false, reason: "network_failure" });
+    state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
+      const batch = [
+        {
+          role: "assistant",
+          content: [call("read_public_page", "read-1", read), call("manage_wiki_pages", "write-1", write)],
+        },
+      ];
+      await executeAndCompleteTool("read_public_page", read, "read-1", batch);
+      expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-1", batch)).toMatchObject({ ok: false });
+      await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+      expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-2")).toMatchObject({ ok: true });
+      return finish();
+    };
+    await runAgentTurn({ ...payload, surface: "routine" });
+    expect(state.execute).toHaveBeenCalledOnce();
+  });
+
+  it("removes web tools before the next provider request after a successful mutation and denies direct reads", async () => {
+    state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
+      expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-1")).toMatchObject({ ok: true });
+      await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+      expect(state.prepared).toEqual({ activeTools: ["manage_wiki_pages", "list_users"] });
+      expect(await executeAndCompleteTool("read_public_page", read, "read-1")).toMatchObject({ ok: false });
+      return finish();
+    };
+    await runAgentTurn({ ...payload, surface: "routine" });
+    expect(state.readPage).not.toHaveBeenCalled();
+  });
+
+  it("does not apply the routine mutation boundary to ordinary chat", async () => {
+    state.runTools = async ({ executeAndCompleteTool }) => {
+      await executeAndCompleteTool("read_public_page", read, "read-1");
+      expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-1")).toMatchObject({ ok: true });
+      return finish();
+    };
+    await runAgentTurn(payload);
+    expect(state.execute).toHaveBeenCalledOnce();
+    expect(JSON.stringify(state.finalize.mock.calls[0][0].parts)).toContain("https://example.com/");
+  });
+
+  it("does not create setup pages before a usable homepage read", async () => {
+    state.runTools = async ({ executeAndCompleteTool }) => {
+      expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-1")).toMatchObject({ ok: false });
+      return finish();
+    };
+    await runAgentTurn({
+      ...payload,
+      wikiHomepageSetup: { url: "https://example.com/", registrableDomain: "example.com" },
+    });
+    expect(state.execute).not.toHaveBeenCalled();
   });
 });

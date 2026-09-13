@@ -72,11 +72,14 @@ const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.userNotFound,
   CustomErrorCode.webhookDeliveryNotFound,
   CustomErrorCode.webhookNotFound,
+  CustomErrorCode.wikiPageNotFound,
   CustomErrorCode.widgetNotFound,
 ]);
 const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.operatorConflict,
   CustomErrorCode.roleSystemImmutable,
+  CustomErrorCode.wikiNotEmpty,
+  CustomErrorCode.wikiPageConflict,
 ]);
 
 function issueCustomCode(issue: $ZodIssue): CustomErrorCode | null {
@@ -203,10 +206,18 @@ function nonBlankText(max: number) {
     .string()
     .max(max)
     .superRefine((value, ctx) => {
-      if (value.trim().length === 0)
-        ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.mustNotBeBlank } });
-      if (/\u0000/.test(value))
-        ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.mustNotContainNullChars } });
+      if (value.trim().length === 0) {
+        ctx.addIssue({
+          code: "custom",
+          params: { error: CustomErrorCode.mustNotBeBlank },
+        });
+      }
+      if (/\u0000/.test(value)) {
+        ctx.addIssue({
+          code: "custom",
+          params: { error: CustomErrorCode.mustNotContainNullChars },
+        });
+      }
     });
 }
 

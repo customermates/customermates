@@ -38,9 +38,13 @@ export function agentToolOutcomeStatus(output: unknown): {
   status: AgentActivityStatus;
   failed: boolean;
 } {
-  if (isAgentToolCancellation(output)) return { status: "cancelled", failed: false };
   if (isAgentToolErrorOutput(output)) return { status: "error", failed: true };
   const unwrapped = unwrapToolOutput(output);
+  if (
+    isAgentToolCancellation(unwrapped) ||
+    (unwrapped && typeof unwrapped === "object" && (unwrapped as { type?: unknown }).type === "execution-denied")
+  )
+    return { status: "cancelled", failed: false };
   const failed = Boolean(unwrapped && typeof unwrapped === "object" && (unwrapped as { ok?: unknown }).ok === false);
   return { status: failed ? "error" : "done", failed };
 }

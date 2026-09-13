@@ -1,0 +1,241 @@
+import { Prisma } from "@/generated/prisma";
+
+import { BaseRepository } from "@/core/base/base-repository";
+import type { RepoArgs } from "@/core/utils/types";
+
+import type { CreateWikiPagesRepo } from "./create-wiki-pages.interactor";
+import type { DeleteWikiPageRepo } from "./delete-wiki-page.interactor";
+import type { GetWikiPageRepo } from "./get-wiki-page.interactor";
+import type { GetWikiPagesRepo } from "./get-wiki-pages.interactor";
+import type { GetWikiCatalogRepo } from "./get-wiki-catalog.interactor";
+import type { SearchWikiPagesRepo } from "./search-wiki-pages.interactor";
+import type { UpdateWikiPageRepo } from "./update-wiki-page.interactor";
+import type { StartWikiHomepageSetupRepo } from "./start-wiki-homepage-setup.interactor";
+import type { WikiPageDto, WikiPageSearchData } from "./wiki.schema";
+import { WIKI_CATALOG_PAGE_SIZE } from "./wiki.schema";
+import { wikiPlainText, wikiSearchTerms } from "./wiki-content";
+
+export class PrismaWikiPageRepo
+  extends BaseRepository<Prisma.WikiPageWhereInput>
+  implements
+    GetWikiPagesRepo,
+    GetWikiCatalogRepo,
+    SearchWikiPagesRepo,
+    GetWikiPageRepo,
+    CreateWikiPagesRepo,
+    UpdateWikiPageRepo,
+    DeleteWikiPageRepo,
+    StartWikiHomepageSetupRepo
+{
+  private get pageSelect() {
+    return {
+      id: true,
+      title: true,
+      markdown: true,
+      createdAt: true,
+      updatedAt: true,
+    } as const;
+  }
+
+  private get summarySelect() {
+    return {
+      id: true,
+      title: true,
+      createdAt: true,
+      updatedAt: true,
+    } as const;
+  }
+
+  async listPages({ page, pageSize }: RepoArgs<GetWikiPagesRepo, "listPages">) {
+    const where = { companyId: this.companyId };
+    const [items, total] = await Promise.all([
+      this.prisma.wikiPage.findMany({
+        where,
+        select: this.summarySelect,
+        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      this.prisma.wikiPage.count({ where }),
+    ]);
+    return { items, total, page, pageSize };
+  }
+
+  async searchPages(data: RepoArgs<SearchWikiPagesRepo, "searchPages">) {
+    const { page, pageSize, query } = data;
+    const terms = wikiSearchTerms(query);
+    if (terms.length === 0) return { items: [], total: 0, page, pageSize };
+    const searchQuery = terms.map((term) => `${term}:*`).join(" | ");
+    const document = Prisma.sql`setweight(to_tsvector('simple', "title"), 'A') || setweight(to_tsvector('simple', "markdown"), 'B')`;
+    const predicate = Prisma.sql`"companyId" = ${this.companyId} AND (${document}) @@ to_tsquery('simple', ${searchQuery})`;
+    const [rows, counts] = await Promise.all([
+      this.prisma.$queryRaw<WikiPageDto[]>(Prisma.sql`
+        SELECT "id", "title", "markdown", "createdAt", "updatedAt"
+        FROM "WikiPage"
+        WHERE ${predicate}
+        ORDER BY ts_rank_cd((${document}), to_tsquery('simple', ${searchQuery})) DESC, "createdAt" ASC, "id" ASC
+        LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
+      `),
+      this.prisma.$queryRaw<Array<{ total: number }>>(Prisma.sql`
+        SELECT COUNT(*)::int AS "total" FROM "WikiPage" WHERE ${predicate}
+      `),
+    ]);
+    return {
+      items: rows.map(({ markdown, ...page }) => ({
+        ...page,
+        snippet: this.searchSnippet(markdown, data),
+      })),
+      total: counts[0]?.total ?? 0,
+      page,
+      pageSize,
+    };
+  }
+
+  async listCatalogPages({ page }: RepoArgs<GetWikiCatalogRepo, "listCatalogPages">) {
+    const where = { companyId: this.companyId };
+    const [items, total] = await Promise.all([
+      this.prisma.wikiPage.findMany({
+        where,
+        select: this.pageSelect,
+        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+        skip: (page - 1) * WIKI_CATALOG_PAGE_SIZE,
+        take: WIKI_CATALOG_PAGE_SIZE,
+      }),
+      this.prisma.wikiPage.count({ where }),
+    ]);
+    return { items, total };
+  }
+
+  async getPage(id: string) {
+    return this.prisma.wikiPage.findFirst({
+      where: { id, companyId: this.companyId },
+      select: this.pageSelect,
+    });
+  }
+
+  async wikiIsEmpty() {
+    return (
+      (await this.prisma.wikiPage.count({
+        where: { companyId: this.companyId },
+      })) === 0
+    );
+  }
+
+  async findReusableSetupRequestClientId(data: { clientRequestId: string; prompt: string }): Promise<string | null> {
+    const setupWhere = {
+      companyId: this.companyId,
+      userId: this.user.id,
+      wikiHomepageSetupDomain: { not: null },
+      text: data.prompt,
+    } as const;
+    const exact = await this.prisma.agentTurnRequest.findFirst({
+      where: { ...setupWhere, clientRequestId: data.clientRequestId },
+      select: { clientRequestId: true },
+    });
+    if (exact) return exact.clientRequestId;
+
+    const recoverable = await this.prisma.agentTurnRequest.findFirst({
+      where: {
+        ...setupWhere,
+        status: "running",
+      },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      select: { clientRequestId: true },
+    });
+    return recoverable?.clientRequestId ?? null;
+  }
+
+  async createPages(data: RepoArgs<CreateWikiPagesRepo, "createPages">) {
+    if (
+      data.requireEmpty &&
+      (await this.prisma.wikiPage.count({
+        where: { companyId: this.companyId },
+      })) > 0
+    )
+      return null;
+
+    const pages: WikiPageDto[] = [];
+    const createdAt = Date.now();
+    for (const [index, page] of data.pages.entries()) {
+      pages.push(
+        await this.prisma.wikiPage.create({
+          data: {
+            companyId: this.companyId,
+            title: page.title.trim(),
+            markdown: page.markdown,
+            createdAt: new Date(createdAt + index),
+          },
+          select: this.pageSelect,
+        }),
+      );
+    }
+    return pages;
+  }
+
+  async updatePage(data: RepoArgs<UpdateWikiPageRepo, "updatePage">) {
+    const previous = await this.getPage(data.id);
+    if (!previous) return { status: "not-found" as const };
+    if (previous.updatedAt.getTime() !== data.expectedUpdatedAt.getTime()) return { status: "conflict" as const };
+
+    const title = data.title?.trim() ?? previous.title;
+    const markdown = data.markdown ?? previous.markdown;
+    if (title === previous.title && markdown === previous.markdown)
+      return { status: "unchanged" as const, previous, page: previous };
+
+    const updated = await this.prisma.wikiPage.updateMany({
+      where: {
+        id: data.id,
+        companyId: this.companyId,
+        updatedAt: data.expectedUpdatedAt,
+      },
+      data: {
+        title,
+        markdown,
+        updatedAt: new Date(Math.max(Date.now(), previous.updatedAt.getTime() + 1)),
+      },
+    });
+    if (updated.count !== 1) {
+      const current = await this.getPage(data.id);
+      return {
+        status: current ? ("conflict" as const) : ("not-found" as const),
+      };
+    }
+
+    const page = await this.getPage(data.id);
+    if (!page) return { status: "not-found" as const };
+    return { status: "updated" as const, previous, page };
+  }
+
+  async deletePage(data: RepoArgs<DeleteWikiPageRepo, "deletePage">) {
+    const page = await this.getPage(data.id);
+    if (!page) return { status: "not-found" as const };
+    if (page.updatedAt.getTime() !== data.expectedUpdatedAt.getTime()) return { status: "conflict" as const };
+
+    const deleted = await this.prisma.wikiPage.deleteMany({
+      where: {
+        id: data.id,
+        companyId: this.companyId,
+        updatedAt: data.expectedUpdatedAt,
+      },
+    });
+    if (deleted.count !== 1) {
+      const current = await this.getPage(data.id);
+      return {
+        status: current ? ("conflict" as const) : ("not-found" as const),
+      };
+    }
+    return { status: "deleted" as const, page };
+  }
+
+  private searchSnippet(markdown: string, data: WikiPageSearchData): string {
+    const compact = wikiPlainText(markdown);
+    const matches = wikiSearchTerms(data.query)
+      .map((term) => compact.toLocaleLowerCase().indexOf(term))
+      .filter((index) => index >= 0);
+    const match = matches.length > 0 ? Math.min(...matches) : -1;
+    const start = match < 0 ? 0 : Math.max(0, match - 80);
+    const prefix = start > 0 ? "…" : "";
+    const suffix = start + 240 < compact.length ? "…" : "";
+    return `${prefix}${compact.slice(start, start + 240)}${suffix}`;
+  }
+}

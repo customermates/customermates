@@ -22,6 +22,15 @@ import type { AgentApprovalContextResolution } from "./agent-external-approval-c
 import { internalToolIdentity } from "./tool-identity";
 import { providerWireInputSchema } from "./provider-safe-json-schema";
 import type { AgentToolInputResult } from "./agent-tool-input";
+import { getAgentWebSearchTool, AGENT_WEB_SEARCH_RELEASED } from "./agent-web-search";
+import { manageWikiPagesTool, WikiHomepageSetupCreateSchema } from "@/features/mcp-tools/wiki.mcp-tools";
+
+export type AgentToolOptions = {
+  webSearchEnabled?: boolean;
+  wikiHomepageSetup?: boolean;
+  surface?: "chat" | "routine";
+};
+const ReadPublicPageSchema = z.object({ url: z.url().max(2_000) });
 
 export { isAgentToolCancellation, type AgentToolCancellation } from "./agent-tool-cancellation";
 
@@ -213,7 +222,18 @@ function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
     inputSchema: providerSafeSchema(mcp.inputSchema),
     execute: async (input: unknown, { toolCallId }) => {
       const execute = async () => {
-        const outcome = await executeMcpTool(mcp, [input]);
+        const wikiId =
+          mcp.name === "fetch" &&
+          input &&
+          typeof input === "object" &&
+          "id" in input &&
+          typeof input.id === "string" &&
+          input.id.startsWith("wiki:")
+            ? input.id.slice(5)
+            : null;
+        const outcome = wikiId
+          ? await executeMcpTool(manageWikiPagesTool, [{ action: "get", id: wikiId }])
+          : await executeMcpTool(mcp, [input]);
         return agentToolResult(outcome, deps.resultMaxChars);
       };
       const enrollable = !isReadOnlyTool(mcp) && !hasNonTransactionalEffect(mcp.name);
@@ -280,14 +300,42 @@ function uiTools(deps: AgentToolDeps): ToolSet {
   };
 }
 
-export function getAgentAiTools(deps: AgentToolDeps): ToolSet {
+export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolOptions = {}): ToolSet {
+  const web = {
+    read_public_page: tool({
+      description:
+        "Read one public HTTP(S) page as text. Supply its exact URL; follow only useful explicit source links. Network protections and page limits are enforced by the runtime.",
+      inputSchema: providerSafeSchema(ReadPublicPageSchema),
+    }),
+    ...((options.webSearchEnabled ?? AGENT_WEB_SEARCH_RELEASED) ? { web_search: getAgentWebSearchTool() } : {}),
+  };
+  if (options.wikiHomepageSetup) {
+    const wiki = crmTool(manageWikiPagesTool, deps);
+    return withCallerContext(
+      {
+        read_public_page: web.read_public_page,
+        manage_wiki_pages: {
+          ...wiki,
+          inputSchema: providerSafeSchema(WikiHomepageSetupCreateSchema),
+          execute: async (input, context) => {
+            const parsed = WikiHomepageSetupCreateSchema.safeParse(input);
+            if (!parsed.success)
+              return { ok: false, result: agentToolResultText(validationError(parsed.error), deps.resultMaxChars) };
+            return wiki.execute(parsed.data, context);
+          },
+        },
+      },
+      deps,
+    );
+  }
   const crm = ALL_MCP_TOOLS.filter((mcp) => mcp.name !== "request_support").map(
     (mcp) => [mcp.name, crmTool(mcp, deps)] as const,
   );
   return withCallerContext(
     {
       ...Object.fromEntries(crm),
-      ...uiTools(deps),
+      ...(options.surface === "routine" ? {} : uiTools(deps)),
+      ...web,
       request_support: tool({
         description:
           "Email a support request to the Customermates team. Use when the user asks for a human, reports a bug, or you cannot help after a genuine attempt. The recent Assistant conversation is included, and the team replies to the email address on the user's account.",
@@ -310,6 +358,11 @@ export function getAgentAiTools(deps: AgentToolDeps): ToolSet {
 
 export type AgentAiToolDefinition = {
   name: string;
+  type?: "provider";
+  isProviderExecuted?: boolean;
+  supportsDeferredResults?: boolean;
+  id?: string;
+  args?: Record<string, unknown>;
   description: string | undefined;
   inputSchema: unknown;
 };
@@ -317,6 +370,15 @@ export type AgentAiToolDefinition = {
 export function describeAgentAiTools(tools: ToolSet, servingProvider?: string): AgentAiToolDefinition[] {
   return Object.entries(tools).map(([name, agentTool]) => ({
     name,
+    ...(agentTool.type === "provider"
+      ? {
+          type: "provider" as const,
+          id: agentTool.id,
+          args: agentTool.args,
+          isProviderExecuted: agentTool.isProviderExecuted,
+          supportsDeferredResults: agentTool.supportsDeferredResults,
+        }
+      : {}),
     description:
       "description" in agentTool && typeof agentTool.description === "string" ? agentTool.description : undefined,
     inputSchema:
@@ -336,16 +398,20 @@ const TOOL_DEFINITION_DEPS: AgentToolDeps = {
   resultMaxChars: 1,
 };
 
-export function getAgentAiToolDefinitions(servingProvider?: string): AgentAiToolDefinition[] {
-  return describeAgentAiTools(getAgentAiTools(TOOL_DEFINITION_DEPS), servingProvider);
+export function getAgentAiToolDefinitions(
+  servingProvider?: string,
+  options: AgentToolOptions = {},
+): AgentAiToolDefinition[] {
+  return describeAgentAiTools(getAgentAiTools(TOOL_DEFINITION_DEPS, options), servingProvider);
 }
 
 export async function normalizeAgentAiToolInput(
   toolName: string,
   input: unknown,
   maxChars: number,
+  options: AgentToolOptions = {},
 ): Promise<AgentToolInputResult> {
-  const tools = getAgentAiTools(TOOL_DEFINITION_DEPS);
+  const tools = getAgentAiTools(TOOL_DEFINITION_DEPS, options);
   if (!Object.hasOwn(tools, toolName)) return { ok: false, result: "The requested tool is not available." };
   const agentTool = tools[toolName];
   const schema = asSchema(agentTool.inputSchema);

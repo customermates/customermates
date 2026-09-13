@@ -42,6 +42,7 @@ import {
   resolveAgentTurnBudget,
 } from "../agent-budget-policy";
 import { conservativeAgentInitialContextBytes } from "../agent-provider-context";
+import { serializeAgentWikiCatalog } from "../agent-wiki-context";
 import { MODEL_CATALOG } from "../model-catalog";
 import { buildAgentSystemPrompt } from "../system-prompt";
 import { AGENT_UI_TARGETS } from "../ui-targets";
@@ -150,7 +151,11 @@ describe("agent tools", () => {
 
   it("exposes the complete MCP registry plus the interface tools on every turn", () => {
     const names = Object.keys(getAgentAiTools(deps()));
-    const expected = new Set([...ALL_MCP_TOOLS.map((agentTool) => agentTool.name), ...AGENT_UI_TOOL_NAMES]);
+    const expected = new Set([
+      ...ALL_MCP_TOOLS.map((agentTool) => agentTool.name),
+      "read_public_page",
+      ...AGENT_UI_TOOL_NAMES,
+    ]);
 
     expect(names.toSorted()).toEqual([...expected].toSorted());
     expect(names).toContain("search");
@@ -261,6 +266,51 @@ describe("agent tools", () => {
     expect(funded?.maxContextBytes).toBeGreaterThanOrEqual(requiredContextBytes ?? Number.POSITIVE_INFINITY);
     expect(funded?.maxOutputTokens).toBe(model.maxOutputTokens);
   });
+
+  it.each(["chat", "routine"] as const)(
+    "admits a full Unicode catalog on %s with the supported prompt limit",
+    (surface) => {
+      const catalog = serializeAgentWikiCatalog({
+        items: Array.from({ length: 10 }, (_, index) => ({
+          id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
+          title: "漢".repeat(120),
+          excerpt: '漢"\\'.repeat(50),
+          url: `https://example.com/wiki?page=00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
+          createdAt: new Date("2026-09-13T00:00:00.000Z"),
+          updatedAt: new Date("2026-09-13T00:00:00.000Z"),
+        })),
+        total: 20,
+        page: 1,
+        nextPage: 2,
+        truncated: true,
+      });
+      for (const model of Object.values(MODEL_CATALOG)) {
+        const requiredContextBytes = conservativeAgentInitialContextBytes({
+          systemPrompt: buildAgentSystemPrompt({
+            userName: "Test",
+            appBaseUrl: "https://example.com",
+            locale: "en",
+            surface,
+          }),
+          currentText: "x".repeat(surface === "routine" ? 5000 : 20000),
+          pageRoute: null,
+          toolDefinitions: getAgentAiToolDefinitions(model.servingProvider, { surface }),
+          wikiCatalog: catalog,
+        });
+        expect(requiredContextBytes, model.modelId).toBeLessThanOrEqual(
+          agentContextTokensToBytes(model.maxContextTokens),
+        );
+        expect(
+          resolveAgentTurnBudget({
+            model,
+            availableCredits: agentRoundWorstCaseCredits(model),
+            requiredContextBytes: requiredContextBytes ?? undefined,
+          }),
+          model.modelId,
+        ).not.toBeNull();
+      }
+    },
+  );
 
   it("publishes the preferred custom-field option shape to the hosted provider", () => {
     const definition = getAgentAiToolDefinitions().find(({ name }) => name === "manage_custom_columns");

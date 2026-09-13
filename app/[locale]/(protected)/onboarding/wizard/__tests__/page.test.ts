@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
+  requireAgentEntitlement: vi.fn(),
+  getWikiPages: vi.fn(),
   requireAccountState: vi.fn(),
   resolveOnboardingIntent: vi.fn(),
 }));
@@ -12,6 +14,11 @@ vi.mock("next/navigation", () => ({
 }));
 vi.mock("next-intl/server", () => ({ getLocale: vi.fn().mockResolvedValue("en") }));
 vi.mock("@/features/auth/next/require", () => ({ requireAccountState: mocks.requireAccountState }));
+vi.mock("@/core/di", () => ({
+  getEntitlementService: () => ({ require: mocks.requireAgentEntitlement }),
+  getGetWikiPagesInteractor: () => ({ invoke: mocks.getWikiPages }),
+}));
+vi.mock("@/env", () => ({ env: { APP_MODE: "cloud" } }));
 vi.mock("@/features/company/next/onboarding-intent", () => ({
   resolveOnboardingIntent: mocks.resolveOnboardingIntent,
 }));
@@ -23,10 +30,23 @@ import OnboardingWizardPage from "../page";
 describe("OnboardingWizardPage authentication detours", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.getWikiPages.mockResolvedValue({ ok: true, data: { items: [], total: 0, page: 1, pageSize: 5 } });
+    mocks.requireAgentEntitlement.mockResolvedValue(null);
   });
 
   it.each([
-    { name: "registered creator", user: { companyId: "company-a" }, intent: null, isInvited: false },
+    {
+      name: "registered creator",
+      user: { companyId: "company-a", role: { isSystemRole: true } },
+      intent: null,
+      isInvited: false,
+    },
+    {
+      name: "registered invitee",
+      user: { companyId: "company-a", role: { isSystemRole: false } },
+      intent: null,
+      isInvited: true,
+    },
     { name: "explicit invitee", user: null, intent: { type: "invitation", intent: "signed.invite" }, isInvited: true },
     { name: "pre-tenant binding", user: null, intent: null, isInvited: true },
     {
@@ -44,7 +64,37 @@ describe("OnboardingWizardPage authentication detours", () => {
 
     const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
 
-    expect(page.props.children.props).toMatchObject({ isInvited, profileCompleted: Boolean(user) });
+    expect(page.props.children.props).toMatchObject({
+      canSetupWithMate: Boolean(user?.role?.isSystemRole),
+      isInvited,
+      profileCompleted: Boolean(user),
+    });
+  });
+
+  it("skips the Wiki step after an owner already has pages", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({ status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({
+      sessionUser: { id: "user-a", email: "owner@example.com", companyId: "company-a" },
+      user: { companyId: "company-a", role: { isSystemRole: true } },
+    });
+    mocks.getWikiPages.mockResolvedValue({ ok: true, data: { items: [], total: 5, page: 1, pageSize: 5 } });
+
+    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+
+    expect(page.props.children.props).toMatchObject({ profileCompleted: true, wikiCompleted: true });
+  });
+
+  it("does not offer setup when the owner's Agent entitlement is unavailable", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({ status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({
+      sessionUser: { id: "user-a", email: "owner@example.com", companyId: "company-a" },
+      user: { companyId: "company-a", role: { isSystemRole: true } },
+    });
+    mocks.requireAgentEntitlement.mockResolvedValue({ ok: false });
+
+    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+
+    expect(page.props.children.props.canSetupWithMate).toBe(false);
   });
 
   it("preserves an invitation when a cached session loses its identity", async () => {

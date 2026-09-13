@@ -44,7 +44,7 @@ const MESSAGE_ID = "00000000-0000-4000-8000-000000000002";
 const CLIENT_REQUEST_ID = "00000000-0000-4000-8000-000000000003";
 const messagePage = (messages: unknown[]) => ({ messages, nextCursor: null });
 
-function usageService() {
+function usageService(webSearchEnabled = true) {
   const summary = {
     creditsUsed: 0,
     creditsRemaining: 500,
@@ -71,6 +71,7 @@ function usageService() {
           maxOutputTokens: 2048,
           maxContextBytes: 200_000,
           maxToolResultChars: 6_000,
+          webSearchEnabled,
         },
       },
     }),
@@ -78,6 +79,12 @@ function usageService() {
     releaseReservation: vi.fn().mockResolvedValue(undefined),
   };
 }
+
+const emptyWikiCatalog = () => ({
+  invoke: vi
+    .fn()
+    .mockResolvedValue({ ok: true, data: { items: [], total: 0, page: 1, nextPage: null, truncated: false } }),
+});
 
 const backgroundTasks = () => ({
   dispatch: vi.fn().mockResolvedValue(undefined),
@@ -123,6 +130,7 @@ describe("agent access", () => {
       usage as never,
       entitlements as never,
       backgroundTasks() as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "hello",
@@ -175,6 +183,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: currentText,
@@ -240,6 +249,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "hello",
@@ -253,6 +263,40 @@ describe("agent access", () => {
 
     expect(repo.findAgentTurnRequestForAdmission).toHaveBeenCalledBefore(usage.prepareTurn);
     expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
+  });
+
+  it("rejects homepage setup before persistence when the canonical URL is missing", async () => {
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+      claimAgentRunLease: vi.fn(),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
+    };
+    const usage = usageService(false);
+
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      backgroundTasks() as never,
+      emptyWikiCatalog(),
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "Set up the Workspace Wiki from example.com.",
+      wikiHomepageSetupDomain: "example.com",
+      retry: false,
+    });
+
+    expect(result).toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: "invalidUrl" } }] },
+    });
+    expect(usage.prepareTurn).not.toHaveBeenCalled();
+    expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
+    expect(repo.createAgentConversationForRun).not.toHaveBeenCalled();
   });
 
   it("continues only an explicitly owned conversation and never silently switches chats", async () => {
@@ -286,6 +330,7 @@ describe("agent access", () => {
       usageService() as never,
       mockEntitlementService(),
       backgroundTasks() as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       conversationId: CONVERSATION_ID,
@@ -338,6 +383,7 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         background as never,
+        emptyWikiCatalog(),
       ).invokeRoutine({
         clientRequestId: CLIENT_REQUEST_ID,
         conversationId: CONVERSATION_ID,
@@ -383,6 +429,7 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         backgroundTasks() as never,
+        emptyWikiCatalog(),
       ).invokeRoutine({
         clientRequestId: CLIENT_REQUEST_ID,
         conversationId: CONVERSATION_ID,
@@ -435,6 +482,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       background as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       conversationId: CONVERSATION_ID,
@@ -490,6 +538,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       conversationId: CONVERSATION_ID,
@@ -507,6 +556,7 @@ describe("agent access", () => {
       requiredContextBytes: expect.any(Number),
       creditCeiling: null,
     });
+    expect(usage.prepareTurn).toHaveBeenCalledTimes(1);
   });
 
   it("replays a completed turn before budget, lease, reservation, or provider work", async () => {
@@ -549,6 +599,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "same",
@@ -604,6 +655,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "same",
@@ -622,6 +674,8 @@ describe("agent access", () => {
       clientRequestId: CLIENT_REQUEST_ID,
       text: "retry this",
       pageRoute: null,
+      wikiHomepageSetupDomain: "example.com",
+      wikiHomepageSetupUrl: "https://example.com/",
       status: "failed",
       runId: "run-1",
       attemptCount: 1,
@@ -660,12 +714,14 @@ describe("agent access", () => {
         ],
       }),
     };
+    const tasks = backgroundTasks();
 
     const result = await new SendAgentMessageInteractor(
       repo as never,
       usageService() as never,
       mockEntitlementService(),
-      backgroundTasks() as never,
+      tasks as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "retry this",
@@ -687,6 +743,65 @@ describe("agent access", () => {
       }),
     );
     expect(result.ok && result.data.disposition === "run" && result.data.userMessageId).toBe(MESSAGE_ID);
+    expect(tasks.dispatchTracked).toHaveBeenCalledWith(
+      "agent-turn",
+      expect.objectContaining({
+        wikiHomepageSetup: { registrableDomain: "example.com", url: "https://example.com/" },
+      }),
+    );
+  });
+
+  it("rejects attempts to mutate durable retry tool metadata before budget or persistence work", async () => {
+    const usage = usageService();
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue({
+        snapshot: {
+          id: "turn-1",
+          conversationId: CONVERSATION_ID,
+          clientRequestId: CLIENT_REQUEST_ID,
+          text: "retry this",
+          pageRoute: null,
+          wikiHomepageSetupDomain: "example.com",
+          status: "failed",
+          runId: "run-1",
+          attemptCount: 1,
+          providerStartedAt: null,
+          userMessageId: MESSAGE_ID,
+          assistantMessageId: null,
+          terminalCode: null,
+          affectedResources: [],
+          hasLaterMessages: false,
+        },
+        assistantMessage: null,
+      }),
+      claimAgentRunLease: vi.fn(),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
+      admitAgentTurnOrThrow: vi.fn(),
+    };
+    const tasks = backgroundTasks();
+
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      tasks as never,
+      emptyWikiCatalog(),
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "retry this",
+      retry: true,
+      wikiHomepageSetupDomain: "other.com",
+    });
+
+    expect(result.ok && result.data.disposition).toBe("conflict");
+    expect(usage.prepareTurn).not.toHaveBeenCalled();
+    expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
+    expect(repo.admitAgentTurnOrThrow).not.toHaveBeenCalled();
+    expect(tasks.dispatchTracked).not.toHaveBeenCalled();
   });
 
   it("returns a conflict for reused request data without touching budget or persistence", async () => {
@@ -724,6 +839,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "different",
@@ -754,6 +870,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       conversationId: CONVERSATION_ID,
@@ -788,6 +905,7 @@ describe("agent access", () => {
       usageService() as never,
       mockEntitlementService(),
       backgroundTasks() as never,
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "hello",
@@ -822,6 +940,7 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         backgroundTasks() as never,
+        emptyWikiCatalog(),
       ).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
         text: "hello",
@@ -867,6 +986,7 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         backgroundTasks() as never,
+        emptyWikiCatalog(),
       ).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
         text: "hello",
@@ -905,6 +1025,7 @@ describe("agent access", () => {
         usageService() as never,
         mockEntitlementService(),
         backgroundTasks() as never,
+        emptyWikiCatalog(),
       ).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
         text: "hello",

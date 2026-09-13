@@ -66,6 +66,7 @@ describeDatabase("agent assistant migration", { timeout: 120_000 }, () => {
         "AgentCreditAdjustment_period_ordered",
         "AgentCreditAdjustment_reason_valid",
         "AgentTurnRequest_attempt_count_positive",
+        "AgentTurnRequest_wiki_homepage_setup_domain_bounded",
         "AgentUsageEvent_amounts_nonnegative",
         "AgentUsageEvent_charge_within_reservation",
         "AgentUsageEvent_period_ordered",

@@ -69,6 +69,38 @@ The server sends workflow guidance when a client connects: read the schema first
 
 The full [[derived.mcp.tools.total]]-tool surface is the default. Append `?toolsets=` to the endpoint URL to narrow it, for example `/api/v1/mcp?toolsets=records,messaging`. Keys and details are in [Narrowing with ?toolsets=](/docs/mcp#narrowing-with-toolsets).
 
+## Shared Workspace Wiki
+
+Keep your CRM processes, company voice, product knowledge, and support answers in **Wiki**, below **Routines** in the sidebar. The same pages are available to people in the CRM, Mate, cloud routines, and connected MCP clients. Manual pages work in cloud and self-hosted workspaces.
+
+### Write and link pages
+
+Choose **New page**, enter a title, and write directly in the visual editor. It uses the same formatting as CRM Notes. Choose **Save** when you are ready; changes are not saved automatically. **Reset** discards unsaved edits. Use the page list to switch documents or search their titles and content.
+
+Use the editor's link control to find another Wiki page, or choose **Copy page link** in **Page actions**. These are ordinary Markdown links; renaming a page does not change its address. You do not need to maintain a separate index or linking metadata.
+
+Wiki Read lets you view pages. Wiki Manage lets you create, edit, and delete them and includes Read. If another person or agent changes a page before you save, your stale save is refused and your edits stay visible so you can reconcile them with the latest page. Deletion is permanent. Changes use the normal Audit Logs; viewing their Wiki content requires both Audit Log access and Wiki Read. The audit log is not a restore feature.
+
+### Set up from your homepage
+
+When Mate is enabled in the cloud workspace, the owner can optionally enter a company homepage during onboarding or from an empty Wiki and choose **Set up with Mate**. A bare domain such as `customermates.com` is accepted. **Skip** continues onboarding without creating pages; invited members do not receive this step.
+
+Once the request is accepted, onboarding continues while a visible conversation titled **Set up Workspace Wiki** runs. Mate reads the submitted page directly and may read up to four useful pages linked from that homepage on the same domain or its subdomains. It creates one to five useful Wiki pages in your interface language, with source links and missing information identified instead of invented. Setup uses your normal hosted AI credits.
+
+Automatic setup focuses on durable company, product, and support knowledge. It is instructed to link to current pricing rather than copy prices and conditional plan allowances into the Wiki. Review generated facts and their sources before relying on them; you can edit the pages normally.
+
+Setup creates pages only while the Wiki is empty and never overwrites existing pages. If the site cannot be read or provides no useful company information, the conversation explains the problem and creates nothing. You can retry from the empty Wiki or create pages manually. Once created, the pages are ordinary editable Wiki documents.
+
+This setup reads known public pages, not search-engine results. General web search is currently unavailable in Mate and routines. The public MCP endpoint exposes Wiki retrieval and editing, not Mate's public-page reader.
+
+### Read the Wiki from an AI client
+
+Your connected AI clients read the same current pages through this MCP endpoint. Start with `get_workspace_context`: its `wiki` catalog lists ten titles and short opening excerpts. These excerpts help find pages; read the page before treating it as guidance. Pass `wiki.nextPage` as `wikiPage` to continue the catalog.
+
+Use the read-only `search` tool to find relevant content, then `fetch` with the returned `wiki:<uuid>` ID to read the full Markdown and its source URL. For smaller responses, `manage_wiki_pages` with `action: "get"` returns a chunk; repeat with `nextOffset` until it is null. The same tool creates and edits pages when your role has Wiki Manage. Reads require Wiki Read, and every change uses the ordinary audit log.
+
+The server tells connected agents to consult relevant Wiki pages before using company facts, processes, voice, or support guidance. Each external client decides when to retrieve that context; connecting does not guarantee that every request reads the Wiki. If your client ignores server instructions, add the same retrieval instruction to that client's persistent instructions. Keep the documentation itself in the CRM so clients read current content.
+
 ## How the tool surface is shaped
 
 The MCP surface is built so that models with weaker planning can use it reliably:
@@ -133,8 +165,16 @@ All create and update tools take custom-column values via customFieldValues; cal
 {/* mcp-catalog:workspace */}
 | Tool | Read | Destructive | Purpose |
 |---|---|---|---|
-| `get_workspace_context` | ✓ |  | Your user, the company profile, all roles including permissions, and your connected messaging accounts (your own plus any shared with the workspace) in one call. The natural first call of a session. |
+| `get_workspace_context` | ✓ |  | Your user, company, Wiki catalog, roles, and connected messaging accounts in one call. The Wiki catalog contains ten page titles and excerpts; pass its nextPage as wikiPage to continue. Wiki data is omitted without Wiki Read. |
 | `list_users` | ✓ |  | Team members with id, name, email, roleId, and status. |
+{/* /mcp-catalog */}
+
+### Workspace Wiki
+
+{/* mcp-catalog:wiki */}
+| Tool | Read | Destructive | Purpose |
+|---|---|---|---|
+| `manage_wiki_pages` |  | ✓ | List, search, read, create, update, or permanently delete Workspace Wiki pages. Updates and deletes require the latest updatedAt value; create can atomically require an empty Wiki. |
 {/* /mcp-catalog */}
 
 ### Messaging
@@ -213,8 +253,8 @@ For a company, call `get_social_profile` with `profileType=company` and an `iden
 |---|---|---|---|
 | `search_docs` | ✓ |  | Full-text search over the docs; defaults to the product guides (source=docs); pass source=api or all to include the REST API reference. Returns slug, source, title, url, snippet. |
 | `get_docs_page` | ✓ |  | One documentation page as markdown with its canonical URL. Lists valid slugs on a miss. |
-| `search` | ✓ |  | Required by ChatGPT deep research connectors; federates CRM records and docs. Interactive agents should prefer `search_records` or `search_docs`. |
-| `fetch` | ✓ |  | Deep-research companion to `search`: fetches one result by its id. |
+| `search` | ✓ |  | Read-only search across Workspace Wiki content, CRM records, and product docs. Wiki results have title-weighted query matching and stable `wiki:<uuid>` ids for `fetch`. Compatible with ChatGPT company knowledge and deep research. |
+| `fetch` | ✓ |  | Read a result from `search`, including full Workspace Wiki Markdown by `wiki:<uuid>`, with its source URL. Wiki Read is required for Wiki content. |
 {/* /mcp-catalog */}
 
 ### Custom columns
@@ -274,7 +314,7 @@ All [[derived.mcp.tools.total]] tools are on by default. To expose only part of 
 https://customermates.com/api/v1/mcp?toolsets=records,messaging
 ```
 
-Keys: records, workspace, messaging, social, docs, custom-columns, widgets, routines, webhooks, admin, support. No parameter means everything; unknown keys are ignored. `search` and `fetch` are always on so deep-research connectors keep working on any narrowed surface.
+Keys: records, workspace, wiki, messaging, social, docs, custom-columns, widgets, routines, webhooks, admin, support. No parameter means everything; unknown keys are ignored. `search` and `fetch` are always on so deep-research connectors keep working on any narrowed surface.
 
 ### When a call is refused
 

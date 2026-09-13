@@ -48,9 +48,13 @@ Run statuses are `queued`, `running`, `succeeded`, `partial`, `failed`, `skipped
 
 ## What a routine may do
 
-An unattended run can read your workspace and create or update contacts, organizations, deals, services, tasks, and notes. It can also draft and send messages.
+An unattended run can read your workspace and create or update contacts, organizations, deals, services, tasks, notes, and Wiki pages within the owner's permissions. It can also draft and send messages.
 
-Deleting records always needs a person to approve it, so a routine that tries to delete something is declined immediately and the run records that it was refused.
+When the owner has Wiki Read, each run starts with a compact catalog of current [Workspace Wiki](/docs/mcp#shared-workspace-wiki) pages and can read the relevant documents. Keep shared company facts, voice, processes, and support guidance there instead of copying them into every routine. Creating or updating a Wiki page requires the owner's Wiki Manage permission.
+
+A routine can read known public HTTP(S) pages and include source links in its answer. General web search is currently unavailable. An unattended run may read public pages or change data, but never both: after a successful public-page read, all writes are denied for that run; after a successful write, public-page access is denied. Wiki and CRM reads remain available. Split work that needs both steps into separate tasks.
+
+Deleting records or Wiki pages always needs a person to approve it, so a routine that tries to delete something is declined immediately and the run records that it was refused.
 
 Interface tools are unavailable to routines, because there is no browser attached to an unattended run.
 
