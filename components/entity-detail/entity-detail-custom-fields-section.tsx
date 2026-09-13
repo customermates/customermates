@@ -79,7 +79,7 @@ export function EntityDetailCustomFieldsSection({
           data-entity-custom-fields-mode-toggle
           aria-label={isCustomizing ? t("Common.actions.cancel") : t("Common.actions.editCustomFields")}
           aria-pressed={isCustomizing}
-          className="w-full text-muted-foreground"
+          className="w-full bg-transparent text-muted-foreground shadow-none"
           type="button"
           variant="field"
           onClick={onToggleCustomization}

@@ -203,6 +203,8 @@ describe("entity detail custom fields empty state", () => {
     expect(toggle).not.toBeNull();
     expect(toggle?.dataset.variant).toBe("field");
     expect(toggle?.dataset.size).toBe("default");
+    expect(toggle?.classList.contains("bg-transparent")).toBe(true);
+    expect(toggle?.classList.contains("shadow-none")).toBe(true);
     expect(toggle?.getAttribute("aria-pressed")).toBe("false");
     expect(toggle?.textContent).toContain("Common.actions.editCustomFields");
     expect(toggle?.closest('[data-detail-section-content="customFields"]')).toBe(content);
