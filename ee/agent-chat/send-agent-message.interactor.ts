@@ -25,7 +25,7 @@ import type { AgentRunContext } from "./agent-run-context";
 import type { AgentUsageService } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { AGENT_RUN_LEASE_MS, decideAgentTurnAdmission, type AgentTurnRequestSnapshot } from "./agent-turn-request";
-import { buildAgentSystemPrompt } from "./system-prompt";
+import { buildAgentSystemPrompt, routineTriggerEventOf } from "./system-prompt";
 import { agentToolDefinitionsForTurn } from "./agent-tools";
 import { agentRuntimeFlags } from "./agent-runtime-flags";
 import { toolsetsForRequest, toolsetsFromActivities } from "./agent-toolset-routing";
@@ -227,6 +227,8 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         locale,
         surface,
         toolsetRouting: runtime.toolsetRouting,
+        promptV2: runtime.promptV2,
+        triggerEvent: routineTriggerEventOf(data.text),
       }),
       currentText: data.text,
       pageRoute,

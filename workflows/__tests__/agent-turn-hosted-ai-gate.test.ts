@@ -164,7 +164,10 @@ vi.mock("@/features/mcp-tools/tool-registry", () => ({
     { name: "delete_records", annotations: { readOnlyHint: false } },
   ],
 }));
-vi.mock("@/ee/agent-chat/system-prompt", () => ({ buildAgentSystemPrompt: () => "system" }));
+vi.mock("@/ee/agent-chat/system-prompt", () => ({
+  buildAgentSystemPrompt: () => "system",
+  routineTriggerEventOf: () => null,
+}));
 vi.mock("@/ee/agent-chat/agent-provider-context", () => ({
   buildAgentProviderContext: (system: string, messages: unknown[], tools: unknown[]) => ({ messages, system, tools }),
   isAgentStepContextWithinBudget: (...args: unknown[]) => state.contextFits(...args),
@@ -901,7 +904,7 @@ describe("agent-turn authoritative tool inputs", () => {
     await runAgentTurn(payload);
 
     expect(state.normalize).toHaveBeenCalledTimes(1);
-    expect(state.normalize).toHaveBeenCalledWith("list_users", raw, 1000);
+    expect(state.normalize).toHaveBeenCalledWith("list_users", raw, 1000, { locale: payload.locale });
     expect(state.execute).toHaveBeenCalledWith(normalized, { toolCallId: "call-1", messages: [] });
     expect(state.createApproval).not.toHaveBeenCalled();
   });

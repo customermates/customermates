@@ -384,7 +384,7 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
     });
   }
   if (toolName === "move_email_thread")
-    return descriptor("messages.triage", "messages", "sensitive", ["messages"], { action: "thread.move" });
+    return descriptor("messages.triage", "messages", "write", ["messages"], { action: "thread.move" });
 
   if (
     toolName === "get_record_schema" ||

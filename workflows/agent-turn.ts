@@ -35,7 +35,7 @@ import { activeAgentToolNames } from "@/ee/agent-chat/agent-toolset-routing";
 import { agentRuntimeFlagsOrDefault } from "@/ee/agent-chat/agent-runtime-flags";
 import { googleThinkingProviderOptions } from "@/ee/agent-chat/agent-thinking-options";
 import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-context";
-import { buildAgentSystemPrompt } from "@/ee/agent-chat/system-prompt";
+import { buildAgentSystemPrompt, routineTriggerEventOf } from "@/ee/agent-chat/system-prompt";
 import { buildAgentUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/agent-usage-settlement";
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
 import { agentCreditsForStartedProviderCost } from "@/ee/agent-chat/agent-credit-policy";
@@ -331,7 +331,9 @@ async function normalizeAgentToolInput(
   "use step";
   const { normalizeAgentAiToolInput } = await import("@/ee/agent-chat/agent-tools");
   return runAsBackgroundTenant(payload.userId, () =>
-    normalizeAgentAiToolInput(toolName, input, resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars)),
+    normalizeAgentAiToolInput(toolName, input, resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars), {
+      locale: payload.locale,
+    }),
   );
 }
 normalizeAgentToolInput.maxRetries = 0;
@@ -748,6 +750,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       locale: payload.locale,
       surface,
       toolsetRouting: runtime.toolsetRouting,
+      promptV2: runtime.promptV2,
+      triggerEvent: routineTriggerEventOf(payload.messages.findLast((message) => message.role === "user")?.text),
     });
     const toolDefinitions = shells.map(({ name, description, inputSchema }) => ({ name, description, inputSchema }));
     const activeToolNamesFor = (stepMessages: readonly unknown[]) =>
@@ -948,9 +952,16 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         const candidateMessages = continueOutput
           ? [...compacted.messages, { role: "user" as const, content: AGENT_OUTPUT_CONTINUATION_PROMPT }]
           : [...compacted.messages];
+        const activeForCandidate = activeToolNamesFor(candidateMessages);
         if (
           !isAgentStepContextWithinBudget(
-            { ...providerContext, system: compacted.system },
+            {
+              ...providerContext,
+              system: compacted.system,
+              tools: activeForCandidate
+                ? toolDefinitions.filter((definition) => activeForCandidate.includes(definition.name))
+                : toolDefinitions,
+            },
             candidateMessages,
             payload.turnBudget.maxContextBytes,
           )

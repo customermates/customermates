@@ -39,6 +39,7 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "manage_social_relations",
   "manage_webhooks",
   "manage_widgets",
+  "move_email_thread",
   "save_message_draft",
   "send_chat_message",
   "send_email",
@@ -58,7 +59,6 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "delete_records",
   "discard_message_draft",
   "manage_team",
-  "move_email_thread",
   "request_support",
 ]
 `;
@@ -78,6 +78,8 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
     "runs",
     "create",
     "update",
+    "pause",
+    "run_now",
   ],
   "manage_social_relations": [
     "list",

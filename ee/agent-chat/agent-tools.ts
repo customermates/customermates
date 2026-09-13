@@ -22,6 +22,8 @@ import {
   isAgentOnDemandToolset,
 } from "./agent-toolset-routing";
 import { onDemandToolsetOfTool, toolNamesOfToolset } from "./agent-toolsets";
+import { hostedToolInputGuard } from "./agent-hosted-guards";
+import { isContentLocale } from "@/i18n/locale-registry";
 import { type AgentToolCancellation as AgentToolCancellationValue } from "./agent-tool-cancellation";
 import { AGENT_UI_TARGETS, UiTargetIdSchema, type AgentUiTarget } from "./ui-targets";
 import { AgentTourSchema } from "./agent-tours";
@@ -387,18 +389,32 @@ export function agentToolDefinitionsForToolsets(
   return definitions.filter((definition) => definition.toolset === null || active.has(definition.toolset as never));
 }
 
+const DOCS_TOOL_NAMES = new Set(["search_docs", "get_docs_page"]);
+
+export function withTurnLocale(toolName: string, input: unknown, locale: string | undefined): unknown {
+  if (!DOCS_TOOL_NAMES.has(toolName) || !isContentLocale(locale)) return input;
+  const record =
+    input && typeof input === "object" && !Array.isArray(input) ? (input as Record<string, unknown>) : null;
+  if (!record || record.locale !== undefined) return input;
+  return { ...record, locale };
+}
+
 export async function normalizeAgentAiToolInput(
   toolName: string,
   input: unknown,
   maxChars: number,
+  options: { locale?: string } = {},
 ): Promise<AgentToolInputResult> {
   const tools = getAgentAiTools(TOOL_DEFINITION_DEPS);
   if (!Object.hasOwn(tools, toolName)) return { ok: false, result: "The requested tool is not available." };
   const agentTool = tools[toolName];
   const schema = asSchema(agentTool.inputSchema);
   if (!schema.validate) throw new Error("The agent tool has no authoritative input validator.");
-  const result = await schema.validate(input);
-  if (result.success) return { ok: true, input: result.value };
+  const result = await schema.validate(withTurnLocale(toolName, input, options.locale));
+  if (result.success) {
+    const guard = hostedToolInputGuard(toolName, result.value);
+    return guard ? { ok: false, result: guard } : { ok: true, input: result.value };
+  }
 
   return {
     ok: false,
