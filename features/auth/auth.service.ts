@@ -22,6 +22,8 @@ import { env } from "@/env";
 import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 import { getRequestAppLocale } from "@/i18n/request-app-locale";
 
+const FORWARDED_RATE_LIMIT_HEADERS = ["cookie", "x-forwarded-for", "x-real-ip", "cf-connecting-ip", "user-agent"];
+
 type AuthUser = {
   id: string;
   email: string;
@@ -160,6 +162,34 @@ export class AuthService {
     });
 
     if (!options?.keepSession) await auth.api.signOut({ headers: await headers() });
+  }
+
+  async sendVerificationEmailForAddress(email: string, callbackURL?: string): Promise<boolean> {
+    const requestHeaders = await headers();
+    const requestOrigin = requestHeaders.get("origin") ?? env.BASE_URL;
+    const forwarded = new Headers({ "content-type": "application/json", origin: requestOrigin });
+    for (const name of FORWARDED_RATE_LIMIT_HEADERS) {
+      const value = requestHeaders.get(name);
+      if (value) forwarded.set(name, value);
+    }
+
+    const response = await auth.handler(
+      new Request(new URL("/api/auth/send-verification-email", requestOrigin), {
+        method: "POST",
+        headers: forwarded,
+        body: JSON.stringify({ email, callbackURL: callbackURL ?? "/" }),
+      }),
+    );
+
+    return response.ok;
+  }
+
+  async isEmailPendingVerification(email: string): Promise<boolean> {
+    const authUser = await runWithoutTenant(() =>
+      prisma.authUser.findFirst({ where: { email: email.toLowerCase() }, select: { emailVerified: true } }),
+    );
+
+    return authUser !== null && !authUser.emailVerified;
   }
 
   async sendVerificationEmail(args: { to: string; url: string }): Promise<void> {

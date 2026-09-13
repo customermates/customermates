@@ -72,6 +72,12 @@ export class SignUpWithEmailInteractor {
     });
 
     if (!res.ok) {
+      if (
+        res.error === CustomErrorCode.emailAlreadyExists &&
+        (await this.authService.isEmailPendingVerification(data.email))
+      )
+        return redirectTo("/auth/verify-email");
+
       const t = await getTranslations();
       const error = createZodError<EmailSignUpData>(t(`Common.errors.${res.error}`));
       return {

@@ -36,12 +36,11 @@ export class ResendVerificationEmailInteractor {
     }
 
     try {
-      await this.authService.resendVerificationEmail(email, { callbackURL, keepSession: true });
+      return { ok: await this.authService.sendVerificationEmailForAddress(email, callbackURL) };
     } catch (error) {
       Sentry.captureException(error);
+      return { ok: false };
     }
-
-    return { ok: true };
   }
 
   private async resolveCallbackUrl(onboardingIntentValue?: string): Promise<string | undefined> {
