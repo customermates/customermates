@@ -51,21 +51,23 @@ function rubricPrompt(artifact: EpisodeArtifact) {
 }
 
 function parseScores(raw: string): { scores: JudgeScore["scores"]; rationale: string } | null {
-  const match = raw.match(/\{[\s\S]*\}/);
+  const match = raw.match(/\{[\s\S]*\}?/);
   if (!match) return null;
+  let parsed: Record<string, unknown> | null = null;
   try {
-    const parsed = JSON.parse(match[0]) as Record<string, unknown>;
-    const scores = Object.fromEntries(
-      JUDGE_DIMENSIONS.map((dimension) => {
-        const value = Number(parsed[dimension]);
-        if (!Number.isInteger(value) || value < 1 || value > 5) throw new Error(`bad ${dimension}`);
-        return [dimension, value];
-      }),
-    ) as JudgeScore["scores"];
-    return { scores, rationale: String(parsed.rationale ?? "") };
+    parsed = JSON.parse(match[0]) as Record<string, unknown>;
   } catch {
-    return null;
+    parsed = null;
   }
+  const scoreOf = (dimension: string): number => {
+    if (parsed) return Number(parsed[dimension]);
+    const field = raw.match(new RegExp(`"${dimension}"\\s*:\\s*([1-5])`));
+    return field ? Number(field[1]) : Number.NaN;
+  };
+  const entries = JUDGE_DIMENSIONS.map((dimension) => [dimension, scoreOf(dimension)] as const);
+  if (entries.some(([, value]) => !Number.isInteger(value) || value < 1 || value > 5)) return null;
+  const rationale = parsed ? String(parsed.rationale ?? "") : (raw.match(/"rationale"\s*:\s*"([\s\S]*)$/)?.[1] ?? "").replace(/"?\s*\}?\s*$/, "");
+  return { scores: Object.fromEntries(entries) as JudgeScore["scores"], rationale };
 }
 
 async function askJudge(apiKey: string, model: (typeof JUDGE_MODELS)[number], prompt: string): Promise<JudgeScore> {
@@ -75,7 +77,7 @@ async function askJudge(apiKey: string, model: (typeof JUDGE_MODELS)[number], pr
     body: JSON.stringify({
       model: model.id,
       messages: [{ role: "user", content: prompt }],
-      max_tokens: 600,
+      max_tokens: 1200,
       temperature: 0,
       providerOptions: { gateway: { only: [model.provider], zeroDataRetention: true, disallowPromptTraining: true } },
     }),

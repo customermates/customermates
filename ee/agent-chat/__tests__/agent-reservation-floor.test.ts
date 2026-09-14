@@ -16,9 +16,9 @@ describe("reservation floor", () => {
     expect(agentModelWorstCasePromptTokens(balanced)).toBe(Math.ceil((balanced.maxContextTokens * 3) / 2) + 2_500);
   });
 
-  it("reserves at most four credits per round for the shipped model and admits a user holding that much", () => {
+  it("reserves at most six credits per round for the shipped model and admits a user holding that much", () => {
     const perRound = agentRoundWorstCaseCredits(MODEL_CATALOG.balanced);
-    expect(perRound).toBeLessThanOrEqual(4);
+    expect(perRound).toBeLessThanOrEqual(6);
     expect(perRound).toBeGreaterThanOrEqual(2);
     expect(resolveAgentTurnBudget({ model: MODEL_CATALOG.balanced, availableCredits: perRound })).not.toBeNull();
     expect(resolveAgentTurnBudget({ model: MODEL_CATALOG.balanced, availableCredits: perRound - 1 })).toBeNull();

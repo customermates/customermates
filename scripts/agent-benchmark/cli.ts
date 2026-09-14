@@ -184,17 +184,25 @@ async function main() {
         }
         return files;
       }
-      for (const file of await walk(outputDir)) {
-        const artifact = JSON.parse(await readFile(file, "utf8")) as EpisodeArtifact;
-        if (artifact.skipped || artifact.judge || (flags.force !== true && artifact.observed.length === 0)) continue;
-        try {
-          artifact.judge = await judgeArtifact(pool, env.gatewayApiKey, artifact);
-          await writeFile(file, JSON.stringify(artifact, null, 2) + "\n");
-          console.log(`judged ${artifact.arm} ${artifact.caseId} r${artifact.repetition}: ${(artifact.judge as { mean: number | null }).mean?.toFixed(2)}`);
-        } catch (error) {
-          console.log(`judge failed ${artifact.arm} ${artifact.caseId}: ${error instanceof Error ? error.message : String(error)}`);
+      const files = await walk(outputDir);
+      const judgeConcurrency = Number(flags.concurrency ?? 6);
+      let cursor = 0;
+      const judgeNext = async (): Promise<void> => {
+        while (cursor < files.length) {
+          const file = files[cursor];
+          cursor += 1;
+          const artifact = JSON.parse(await readFile(file, "utf8")) as EpisodeArtifact;
+          if (artifact.skipped || artifact.judge || (flags.force !== true && artifact.observed.length === 0)) continue;
+          try {
+            artifact.judge = await judgeArtifact(pool, env.gatewayApiKey, artifact);
+            await writeFile(file, JSON.stringify(artifact, null, 2) + "\n");
+            console.log(`judged ${artifact.arm} ${artifact.caseId} r${artifact.repetition}: ${(artifact.judge as { mean: number | null }).mean?.toFixed(2)}`);
+          } catch (error) {
+            console.log(`judge failed ${artifact.arm} ${artifact.caseId}: ${error instanceof Error ? error.message : String(error)}`);
+          }
         }
-      }
+      };
+      await Promise.all(Array.from({ length: Math.max(1, judgeConcurrency) }, () => judgeNext()));
     });
     return;
   }

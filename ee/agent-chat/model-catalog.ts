@@ -36,9 +36,19 @@ export const MODEL_CATALOG = {
     modelId: "google/gemini-3.5-flash-lite",
     servingProvider: "vertex",
     inferenceRegion: "eu",
-    maxOutputTokens: 2048,
+    maxOutputTokens: 8192,
     maxContextTokens: 66_000,
     maxToolResultChars: 6000,
+    thinkingLevel: "low",
+  },
+  quality: {
+    modelId: "anthropic/claude-sonnet-5",
+    servingProvider: "bedrock",
+    inferenceRegion: "eu",
+    maxOutputTokens: 8192,
+    maxContextTokens: 66_000,
+    maxToolResultChars: 6000,
+    reasoningEffort: "medium",
   },
 } as const satisfies Record<string, AgentModelEntry>;
 

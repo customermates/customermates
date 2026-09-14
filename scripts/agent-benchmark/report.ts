@@ -223,11 +223,12 @@ export function selectArms(report: BenchmarkReport, eligibleArmIds: ReadonlySet<
     return allowed;
   });
   if (eligible.length === 0) return { defaultArm: null, deepArm: null, reasoning: [...reasoning, "no eligible arm"] };
-  const best = [...eligible].sort((a, b) => b.passRate - a.passRate || (b.judgeMean ?? 0) - (a.judgeMean ?? 0))[0];
+  const solvesWhatShippedSolves = (arm: ArmSummary) => arm.neverSolvedCases.every((caseId) => shippedNeverSolved.has(caseId));
+  const ranked = [...eligible].sort((a, b) => b.passRate - a.passRate || (b.judgeMean ?? 0) - (a.judgeMean ?? 0));
+  const best = ranked.find(solvesWhatShippedSolves) ?? ranked[0];
   const bestJudge = Math.max(...eligible.map((arm) => arm.judgeMean ?? 0));
   const quality = eligible.filter((arm) => {
-    const solvesWhatShippedSolves = arm.neverSolvedCases.every((caseId) => shippedNeverSolved.has(caseId));
-    const ok = arm.passRate >= best.passRate - rule.qualityFloorPoints && (arm.judgeMean ?? 0) >= bestJudge - rule.judgeFloor && solvesWhatShippedSolves;
+    const ok = arm.passRate >= best.passRate - rule.qualityFloorPoints && (arm.judgeMean ?? 0) >= bestJudge - rule.judgeFloor && solvesWhatShippedSolves(arm);
     if (!ok) reasoning.push(`${arm.runtimeVariant}/${arm.arm}: below the quality floor (pass ${pct(arm.passRate)} vs best ${pct(best.passRate)}, judge ${(arm.judgeMean ?? 0).toFixed(2)} vs ${bestJudge.toFixed(2)}, never solved ${arm.neverSolvedCases.join(" ") || "-"})`);
     return ok;
   });
@@ -245,14 +246,22 @@ export function selectArms(report: BenchmarkReport, eligibleArmIds: ReadonlySet<
     })[0] ?? null;
   let defaultArm = cheapest(fast);
   if (defaultArm) reasoning.push(`default = cheapest cost per successful task among arms passing both floors: ${defaultArm.runtimeVariant}/${defaultArm.arm}`);
-  else if (best.creditsPerTurn <= rule.bestArmMaxCreditsPerTurn) {
+  else if (quality.length > 1) {
+    defaultArm = cheapest(quality);
+    reasoning.push(
+      `no arm passes the speed floor (TTFT is measured after the tool rounds); latency ranks below cost, so default = cheapest cost per successful task among the ${quality.length} arms passing the quality floor: ${defaultArm?.runtimeVariant}/${defaultArm?.arm}`,
+    );
+  } else if (best.creditsPerTurn <= rule.bestArmMaxCreditsPerTurn) {
     defaultArm = best;
     reasoning.push(`no other arm passes the quality floor; the best arm ships because it costs ${best.creditsPerTurn.toFixed(1)} credits per turn`);
   } else {
     defaultArm = cheapest(eligible.filter((arm) => arm.passRate >= best.passRate - rule.fallbackWithinPoints));
     reasoning.push(`best arm too expensive (${best.creditsPerTurn.toFixed(1)} credits per turn); cheapest arm within ${rule.fallbackWithinPoints * 100} points chosen`);
   }
-  const deep = [...eligible].filter((arm) => arm.creditsPerTurn <= rule.deepModeMaxCreditsPerTurn).sort((a, b) => b.passRate - a.passRate || (b.judgeMean ?? 0) - (a.judgeMean ?? 0))[0] ?? null;
+  const deep =
+    [...eligible]
+      .filter((arm) => arm.creditsPerTurn <= rule.deepModeMaxCreditsPerTurn && solvesWhatShippedSolves(arm))
+      .sort((a, b) => b.passRate - a.passRate || (b.judgeMean ?? 0) - (a.judgeMean ?? 0))[0] ?? null;
   const deepArm = deep && defaultArm && deep.arm === defaultArm.arm && deep.runtimeVariant === defaultArm.runtimeVariant ? null : deep;
   reasoning.push(deepArm ? `deep mode = best-quality arm at most ${rule.deepModeMaxCreditsPerTurn} credits per turn: ${deepArm.runtimeVariant}/${deepArm.arm}` : "deep mode omitted: it would be the default arm");
   return { defaultArm, deepArm, reasoning };

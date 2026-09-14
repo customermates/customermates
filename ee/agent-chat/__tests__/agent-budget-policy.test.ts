@@ -227,7 +227,7 @@ describe("agent turn budget reasoning settings", () => {
   });
 
   it("omits the reasoning keys entirely for a model without them", () => {
-    const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 500 });
+    const budget = resolveAgentTurnBudget({ model: MODEL_CATALOG.fast, availableCredits: 500 });
 
     expect(budget).not.toHaveProperty("reasoningEffort");
     expect(budget).not.toHaveProperty("thinkingLevel");
