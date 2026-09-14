@@ -2,7 +2,8 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { DATA_VIEW_SURFACE_KEYS, SURFACE } from "@/core/data-view/data-view-keys";
+import { DATA_VIEW_SURFACE_KEYS, SURFACE, type DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
+import { DATA_VIEW_PATHS } from "@/core/data-view/data-view-paths";
 
 const root = process.cwd();
 const read = (path: string) => readFileSync(resolve(root, path), "utf8");
@@ -24,6 +25,7 @@ describe("data view surface registry", () => {
     const values = Object.values(SURFACE);
     expect(new Set(values).size).toBe(values.length);
     expect(surfaceKeys).toEqual(new Set(values));
+    expect(new Set(Object.keys(DATA_VIEW_PATHS))).toEqual(surfaceKeys);
   });
 
   it("keeps every p13nId literal in a page file inside the registry", () => {
@@ -42,6 +44,12 @@ describe("data view surface registry", () => {
       for (const match of read(path).matchAll(/readSurfaceParams\(\s*SURFACE\.(\w+)/g)) {
         const key = surfaceNames.get(match[1]);
         expect(key, `${path} names an unknown surface SURFACE.${match[1]}`).toBeDefined();
+        const route = `/${path
+          .split("/")
+          .slice(1, -1)
+          .filter((segment) => segment !== "[locale]" && !segment.startsWith("("))
+          .join("/")}`;
+        expect(DATA_VIEW_PATHS[key as DataViewSurfaceKey], `${path} saved-view link`).toBe(route);
         reached.add(key as string);
       }
     }
@@ -51,6 +59,7 @@ describe("data view surface registry", () => {
   });
 
   it("mounts the embedded timeline surface from the activities panel rather than from a page", () => {
+    expect(DATA_VIEW_PATHS[SURFACE.entityTimeline]).toBeNull();
     expect(read("features/messaging/activities/activities.store.ts")).toContain(
       `export const ACTIVITIES_P13N_ID = "${SURFACE.entityTimeline}"`,
     );

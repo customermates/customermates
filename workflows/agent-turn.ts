@@ -90,6 +90,7 @@ export type AgentTurnWorkflowPayload = {
   userName: string;
   locale: string;
   appBaseUrl: string;
+  pageRoute: string | null;
   messages: ReplayMessage[];
   turnBudget: AgentTurnBudget;
   tenant: WorkflowTenant;
@@ -216,6 +217,7 @@ function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprov
 
   return {
     resultMaxChars: resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars),
+    pageRoute: payload.pageRoute,
     runInCallerContext: (run) =>
       runAsBackgroundTenant(payload.userId, () =>
         runInRoutineContext(payload.surface === "routine" ? { causationDepth: 1 } : null, run),
@@ -328,7 +330,12 @@ async function normalizeAgentToolInput(
   "use step";
   const { normalizeAgentAiToolInput } = await import("@/ee/agent-chat/agent-tools");
   return runAsBackgroundTenant(payload.userId, () =>
-    normalizeAgentAiToolInput(toolName, input, resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars)),
+    normalizeAgentAiToolInput(
+      toolName,
+      input,
+      resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars),
+      payload.pageRoute,
+    ),
   );
 }
 normalizeAgentToolInput.maxRetries = 0;
@@ -710,7 +717,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const providerStarted = await openTurn(payload);
     if (!providerStarted) {
       const message = await resolveRunnerMessage(payload.locale, "hostedAiUnavailable");
-      const transcript = new AgentTurnTranscript(() => undefined);
+      const transcript = new AgentTurnTranscript(() => undefined, payload.appBaseUrl);
       transcript.appendText(message);
       await publishAssistantText(message);
       await finalizeTurn(payload, {
@@ -735,7 +742,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const queued: AgentTranscriptEvent[] = [];
     const transcript = new AgentTurnTranscript((event) => {
       if ((AGENT_TRANSCRIPT_FORWARDED_EVENTS as readonly string[]).includes(event.type)) queued.push(event);
-    });
+    }, payload.appBaseUrl);
 
     const systemPrompt = buildAgentSystemPrompt({
       userName: payload.userName,

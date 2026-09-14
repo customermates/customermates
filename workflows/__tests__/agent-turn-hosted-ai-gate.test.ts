@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { agentViewRequestMismatch } from "@/ee/agent-chat/agent-page-context";
 
 type WorkflowTool = {
   needsApproval: (input: unknown, options: { toolCallId: string }) => Promise<boolean>;
@@ -168,7 +169,6 @@ vi.mock("@/ee/agent-chat/agent-provider-context", () => ({
 vi.mock("@/i18n/get-translator", () => ({
   getTranslator: () => Promise.resolve((key: string) => `localized:${key}`),
 }));
-vi.mock("@/i18n/locale-registry", () => ({ appLocaleOrDefault: (locale: string) => locale }));
 vi.mock("../capture-failure", () => ({
   reportFailure: state.reportFailure,
   toWorkflowFailure: (error: unknown) => error,
@@ -185,6 +185,7 @@ const payload: AgentTurnWorkflowPayload = {
   userName: "Test User",
   locale: "en",
   appBaseUrl: "http://localhost:4000",
+  pageRoute: "/en/contacts",
   messages: [{ role: "user", text: "Hello" }],
   turnBudget: {
     modelSpec: "google/gemini-3.5-flash-lite",
@@ -897,7 +898,7 @@ describe("agent-turn authoritative tool inputs", () => {
     await runAgentTurn(payload);
 
     expect(state.normalize).toHaveBeenCalledTimes(1);
-    expect(state.normalize).toHaveBeenCalledWith("list_users", raw, 1000);
+    expect(state.normalize).toHaveBeenCalledWith("list_users", raw, 1000, payload.pageRoute);
     expect(state.execute).toHaveBeenCalledWith(normalized, { toolCallId: "call-1", messages: [] });
     expect(state.createApproval).not.toHaveBeenCalled();
   });
@@ -931,6 +932,25 @@ describe("agent-turn authoritative tool inputs", () => {
     await runAgentTurn(payload);
 
     expect(state.normalize).toHaveBeenCalledTimes(1);
+    expect(state.execute).not.toHaveBeenCalled();
+    expect(state.createApproval).not.toHaveBeenCalled();
+  });
+
+  it("checks the captured view target before requesting destructive approval", async () => {
+    define("manage_data_views");
+    const pageRoute = "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update";
+    const input = { action: "delete", surfaceKey: "deals-card-store", viewKey: "00000000-0000-4000-8000-000000000001" };
+    state.normalize.mockImplementation((_name, value, _maxChars, route) => {
+      const mismatch = agentViewRequestMismatch(route, value);
+      return Promise.resolve(mismatch ? { ok: false, result: mismatch } : { ok: true, input: value });
+    });
+    state.runTools = async ({ tools }) => {
+      expect(await tools.manage_data_views.needsApproval(input, { toolCallId: "call-1" })).toBe(false);
+      expect(await executeTool(tools.manage_data_views, input)).toMatchObject({ ok: false });
+      return finish();
+    };
+    await runAgentTurn({ ...payload, pageRoute });
+    expect(state.normalize).toHaveBeenCalledExactlyOnceWith("manage_data_views", input, 1000, pageRoute);
     expect(state.execute).not.toHaveBeenCalled();
     expect(state.createApproval).not.toHaveBeenCalled();
   });

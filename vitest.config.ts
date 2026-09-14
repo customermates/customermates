@@ -39,6 +39,7 @@ const domTestFiles = [
   "components/data-view/__tests__/board-grouping-prompt.test.tsx",
   "components/data-view/__tests__/data-view-url-sync.test.ts",
   "components/data-view/__tests__/data-view-views-rail-interaction.test.ts",
+  "components/data-view/header/__tests__/view-menu-ai-interaction.test.ts",
   "components/data-view/__tests__/use-data-view-sync.test.ts",
   "components/data-view/filter-modal/inputs/__tests__/filter-input-number.test.ts",
   "components/data-view/filter-palette/__tests__/filter-palette-keyboard.test.tsx",

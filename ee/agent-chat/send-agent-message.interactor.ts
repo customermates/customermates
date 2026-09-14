@@ -28,6 +28,7 @@ import { AGENT_RUN_LEASE_MS, decideAgentTurnAdmission, type AgentTurnRequestSnap
 import { buildAgentSystemPrompt } from "./system-prompt";
 import { getAgentAiToolDefinitions } from "./agent-tools";
 import { conservativeAgentInitialContextBytes } from "./agent-provider-context";
+import { agentPageContextPrefix } from "./agent-page-context";
 import { AGENT_REPLAY_COUNT, budgetAgentReplayHistory } from "./agent-replay-budget";
 import { isAgentModelKey, resolveAgentModel } from "./model-catalog";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
@@ -325,7 +326,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
               },
       });
 
-      const pageContext = data.pageContext ? `<page_context route="${data.pageContext.route}"/>\n` : "";
+      const pageContext = agentPageContextPrefix(pageRoute);
       const replayInputs = admission.recentMessages.map((message) => {
         const text = partsToText(message.parts);
         const current = message.id === userMessageId;
@@ -352,6 +353,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         userName,
         locale,
         appBaseUrl: env.BASE_URL,
+        pageRoute,
         messages,
         turnBudget: reservation.budget,
         tenant: { userId: user.id, companyId: user.companyId },

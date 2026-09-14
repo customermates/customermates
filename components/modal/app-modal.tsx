@@ -41,6 +41,9 @@ type SharedProps = {
   layerClassName?: string;
   size?: ModalSize;
   children: ReactNode;
+  focusReturnTarget?: HTMLElement | null;
+  focusReturnFallback?: HTMLElement | null;
+  onCloseAutoFocus?: (event: Event) => void;
 };
 
 type StoreProps = { store: BaseModalStore; open?: never; onClose?: never };
@@ -73,7 +76,16 @@ export const AppModal = observer((props: Props) => {
   const hasActions = actionCount > 0;
 
   if (actionCount > 2) throw new Error("AppModal supports at most two header actions");
-  const focusReturn = useOverlayFocusReturn(isOpen, store?.focusReturnTarget, store?.focusReturnFallback);
+  const focusReturn = useOverlayFocusReturn(
+    isOpen,
+    store?.focusReturnTarget ?? props.focusReturnTarget,
+    store?.focusReturnFallback ?? props.focusReturnFallback,
+  );
+
+  function handleCloseAutoFocus(event: Event) {
+    props.onCloseAutoFocus?.(event);
+    if (!event.defaultPrevented) focusReturn.onCloseAutoFocus(event);
+  }
 
   useEffect(() => {
     if (!store || !isOpen || !navigationGuard) return;
@@ -109,6 +121,7 @@ export const AppModal = observer((props: Props) => {
             overlayClassName={layerClassName}
             {...(!description ? { "aria-describedby": undefined } : {})}
             {...focusReturn}
+            onCloseAutoFocus={handleCloseAutoFocus}
           >
             <VisuallyHidden.Root>
               <DialogTitle>{title}</DialogTitle>
@@ -129,6 +142,7 @@ export const AppModal = observer((props: Props) => {
             data-overlay-actions={hasActions ? "" : undefined}
             overlayClassName={layerClassName}
             {...focusReturn}
+            onCloseAutoFocus={handleCloseAutoFocus}
           >
             <VisuallyHidden.Root>
               <DrawerTitle>{title}</DrawerTitle>

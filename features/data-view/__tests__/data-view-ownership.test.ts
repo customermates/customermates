@@ -95,14 +95,38 @@ describe("data view ownership", () => {
   });
 
   it("refuses a delete of a view the caller does not own and records no write", async () => {
-    const repo = { deleteOwned: vi.fn().mockResolvedValue(false) };
+    const repo = {
+      findOwnedOrNull: vi.fn().mockResolvedValue(null),
+      deleteOwned: vi.fn().mockResolvedValue(false),
+    };
+    const selection = { clearActiveViewKeyIfMatches: vi.fn() };
 
     const result = await runWithTenant(mockUser, () =>
-      new DeleteDataViewInteractor(repo).invoke({ id: FOREIGN_VIEW_ID }),
+      new DeleteDataViewInteractor(repo, selection).invoke({ id: FOREIGN_VIEW_ID }),
     );
 
     expect(result.ok).toBe(false);
     expect(failureCode(result)).toEqual({ code: CustomErrorCode.dataViewNotFound, kind: "not_found" });
+    expect(repo.deleteOwned).not.toHaveBeenCalled();
+    expect(selection.clearActiveViewKeyIfMatches).not.toHaveBeenCalled();
+  });
+
+  it("clears the deleted view only when it is still the persisted active selection", async () => {
+    const repo = {
+      findOwnedOrNull: vi.fn().mockResolvedValue(ownedView()),
+      deleteOwned: vi.fn().mockResolvedValue(true),
+    };
+    const selection = { clearActiveViewKeyIfMatches: vi.fn().mockResolvedValue(true) };
+
+    const result = await runWithTenant(mockUser, () =>
+      new DeleteDataViewInteractor(repo, selection).invoke({ id: OWN_VIEW_ID }),
+    );
+
+    expect(result).toEqual({ ok: true, data: { id: OWN_VIEW_ID } });
+    expect(selection.clearActiveViewKeyIfMatches).toHaveBeenCalledWith({
+      p13nId: SURFACE,
+      expectedActiveViewKey: OWN_VIEW_ID,
+    });
   });
 
   it("creates a view at the caller's next position and points the surface at it", async () => {
@@ -132,6 +156,26 @@ describe("data view ownership", () => {
     expect(result.ok && result.data).toMatchObject({ id: OWN_VIEW_ID, name: "Renamed", position: 2 });
     expect(repo.updateOwned).toHaveBeenCalledWith({ id: OWN_VIEW_ID, name: "Renamed", position: 2, state: {} });
     expect(personalization.upsertP13n).not.toHaveBeenCalled();
+  });
+
+  it("updates state without supplying a name that could overwrite a concurrent rename", async () => {
+    const { interactor, repo } = upsertDoubles(ownedView({ name: "Renamed elsewhere" }));
+
+    const result = await runWithTenant(mockUser, () =>
+      interactor.invoke({ id: OWN_VIEW_ID, surfaceKey: SURFACE, state: { pageSize: 25 } }),
+    );
+
+    expect(result.ok && result.data.name).toBe("Renamed elsewhere");
+    expect(repo.updateOwned).toHaveBeenCalledWith({ id: OWN_VIEW_ID, state: { pageSize: 25 } });
+  });
+
+  it("still requires a name and state when creating a view", async () => {
+    const { interactor, repo } = upsertDoubles(null);
+
+    const result = await runWithTenant(mockUser, () => interactor.invoke({ surfaceKey: SURFACE } as never));
+
+    expect(result.ok).toBe(false);
+    expect(repo.createView).not.toHaveBeenCalled();
   });
 
   it("refuses an update that names a surface the stored view does not live on", async () => {

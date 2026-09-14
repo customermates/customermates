@@ -43,8 +43,14 @@ The saved-view tabs sit directly under the header on every list surface, and the
 - `#global-data-views-all` is the built-in All tab, which clears the active view.
 - `#global-data-views-new` opens the create-view overlay.
 - `#global-data-views-menu` opens the action menu for the active tab: edit, duplicate, move, copy link and delete on a saved view, and duplicate plus copy link on the All tab.
+- `#global-data-views-ai` is **Ask AI** inside the right-hand view-actions menu. Clicking a view selects it and opens this same menu. Ask AI opens a compact request dialog for that view before starting chat.
+- **Ask AI** is also available while editing a view and at the top right of the Filters and Appearance headers, including nested filter pages. These text-first actions use the shared modal control styling. The Filter list inherits the surrounding panel background. Pending filter changes are applied before the request dialog opens. Asking from the edit dialog does not save an unfinished rename.
+- `#view-editor-ai` offers **Create with AI** inside **New view** and carries its optional name into the request dialog. Opening or cancelling the dialog creates no view and sends no message.
+- `#view-ai-request-input` accepts the changes you want, with guidance for views, filters or appearance. `#view-ai-request-submit` closes the dialog and sends a localized context prefix followed by your text through the existing assistant. Any unrelated chat draft stays unsent. Blank input, busy or unavailable chat, and a changed view prevent sending; a late availability change keeps your request in the dialog. `#view-ai-request-cancel` returns focus to the original view control.
 
-A view is addressed by the `view` query parameter, for example `/deals?view=<id>`; no parameter means All. The tabs themselves carry no ids, so switch views by URL rather than by clicking a tab you located by id.
+A view is addressed by the `view` query parameter, for example `/deals?view=<id>`; without it, the page uses your remembered selection. Use `view=__all__` to open All explicitly. The tabs themselves carry no ids, so switch views by URL rather than by clicking a tab you located by id.
+
+Describe the records you want to see, for example “Create a view of my open deals, sorted by value.” The assistant uses `manage_data_views` to discover the page’s supported settings, then saves filters, search, sorting, grouping, page size and layout. It preserves settings you did not ask to change. New views are selected automatically; changes appear after the chat turn finishes. Views remain personal, and deleting one requires confirmation in the built-in chat. Column visibility, widths and order stay available in Appearance. External AI clients connected through MCP can use the same tool with the connected user’s permissions.
 
 ## Drawer and detail actions
 

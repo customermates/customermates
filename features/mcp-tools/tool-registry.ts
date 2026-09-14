@@ -1,3 +1,4 @@
+import { manageDataViewsTool } from "@/features/mcp-tools/data-view.mcp-tools";
 import { createContactsTool, updateContactsTool } from "@/features/mcp-tools/contact.mcp-tools";
 import { createDealsTool, updateDealsTool } from "@/features/mcp-tools/deal.mcp-tools";
 import { createOrganizationsTool, updateOrganizationsTool } from "@/features/mcp-tools/organization.mcp-tools";
@@ -68,7 +69,7 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
     manageRecordLinksTool,
     deleteRecordsTool,
   ],
-  workspace: [getWorkspaceContextTool, listUsersTool],
+  workspace: [getWorkspaceContextTool, listUsersTool, manageDataViewsTool],
   messaging: [
     getMessagingThreadsTool,
     getActivitiesTool,

@@ -6,28 +6,32 @@ import { NavigationGuardController } from "@/core/stores/navigation-guard.contro
 import { scheduleAgentRouteReload } from "../agent-route-reload";
 
 function routeStore() {
-  return observable({
-    canApplyRouteReload: true,
-    hasPendingRouteReload: true,
-    isWorking: false,
-    queuedPrompt: null as string | null,
-    queuedPromptNeedsAttention: false,
-    routeSyncStatus: "queued",
-    markRouteSyncWaiting() {
-      this.routeSyncStatus = "waiting";
+  return observable(
+    {
+      canApplyRouteReload: true,
+      hasPendingRouteReload: true,
+      isWorking: false,
+      queuedPrompt: null as string | null,
+      queuedPromptNeedsAttention: false,
+      routeSyncStatus: "queued",
+      prepareViewReload: vi.fn(),
+      markRouteSyncWaiting() {
+        this.routeSyncStatus = "waiting";
+      },
+      markRouteSyncRefreshing() {
+        this.routeSyncStatus = "refreshing";
+      },
+      markRouteSyncQueued() {
+        this.routeSyncStatus = "queued";
+      },
+      takeRouteRefreshRequest() {
+        if (!this.hasPendingRouteReload) return false;
+        this.hasPendingRouteReload = false;
+        return true;
+      },
     },
-    markRouteSyncRefreshing() {
-      this.routeSyncStatus = "refreshing";
-    },
-    markRouteSyncQueued() {
-      this.routeSyncStatus = "queued";
-    },
-    takeRouteRefreshRequest() {
-      if (!this.hasPendingRouteReload) return false;
-      this.hasPendingRouteReload = false;
-      return true;
-    },
-  });
+    { prepareViewReload: false },
+  );
 }
 
 function formBlocker({ dirty = false, loading = false } = {}) {
@@ -58,6 +62,7 @@ describe("scheduleAgentRouteReload", () => {
       form.hasUnsavedChanges = false;
     });
     expect(reload).not.toHaveBeenCalled();
+    expect(store.prepareViewReload).not.toHaveBeenCalled();
     expect(store.hasPendingRouteReload).toBe(true);
 
     runInAction(() => {
@@ -70,6 +75,8 @@ describe("scheduleAgentRouteReload", () => {
     });
 
     expect(reload).toHaveBeenCalledOnce();
+    expect(store.prepareViewReload).toHaveBeenCalledOnce();
+    expect(store.prepareViewReload.mock.invocationCallOrder[0]).toBeLessThan(reload.mock.invocationCallOrder[0]);
     expect(store.hasPendingRouteReload).toBe(false);
     expect(store.routeSyncStatus).toBe("refreshing");
   });
@@ -87,11 +94,13 @@ describe("scheduleAgentRouteReload", () => {
       reload,
     });
     expect(reload).not.toHaveBeenCalled();
+    expect(store.prepareViewReload).not.toHaveBeenCalled();
 
     runInAction(() => {
       form.isLoading = false;
     });
     expect(reload).toHaveBeenCalledOnce();
+    expect(store.prepareViewReload).toHaveBeenCalledOnce();
     expect(store.hasPendingRouteReload).toBe(false);
   });
 
@@ -105,7 +114,11 @@ describe("scheduleAgentRouteReload", () => {
       store.routeSyncStatus = "waiting";
     });
 
-    scheduleAgentRouteReload({ store: store as never, navigationGuard, reload });
+    scheduleAgentRouteReload({
+      store: store as never,
+      navigationGuard,
+      reload,
+    });
     expect(store.routeSyncStatus).toBe("queued");
 
     runInAction(() => {
@@ -113,7 +126,11 @@ describe("scheduleAgentRouteReload", () => {
       store.queuedPrompt = "Run this next";
       store.routeSyncStatus = "waiting";
     });
-    scheduleAgentRouteReload({ store: store as never, navigationGuard, reload });
+    scheduleAgentRouteReload({
+      store: store as never,
+      navigationGuard,
+      reload,
+    });
 
     expect(store.routeSyncStatus).toBe("queued");
     expect(reload).not.toHaveBeenCalled();
@@ -129,7 +146,11 @@ describe("scheduleAgentRouteReload", () => {
       store.queuedPromptNeedsAttention = true;
     });
 
-    scheduleAgentRouteReload({ store: store as never, navigationGuard, reload });
+    scheduleAgentRouteReload({
+      store: store as never,
+      navigationGuard,
+      reload,
+    });
 
     expect(store.routeSyncStatus).toBe("waiting");
     expect(reload).not.toHaveBeenCalled();

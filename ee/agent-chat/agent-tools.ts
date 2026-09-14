@@ -2,6 +2,9 @@ import { z } from "zod";
 import { asSchema, tool, jsonSchema, type ToolSet } from "ai";
 
 import { ALL_MCP_TOOLS, MCP_TOOL_GROUPS } from "@/features/mcp-tools/tool-registry";
+import { encodeToToon } from "@/features/mcp-tools/utils";
+import { entityTimelineNavigationHref } from "@/core/data-view/data-view-links";
+import { SURFACE } from "@/core/data-view/data-view-keys";
 import {
   executeMcpTool,
   expectedMcpToolFailure,
@@ -22,6 +25,7 @@ import type { AgentApprovalContextResolution } from "./agent-external-approval-c
 import { internalToolIdentity } from "./tool-identity";
 import { providerWireInputSchema } from "./provider-safe-json-schema";
 import type { AgentToolInputResult } from "./agent-tool-input";
+import { agentViewRequestMismatch } from "./agent-page-context";
 
 export { isAgentToolCancellation, type AgentToolCancellation } from "./agent-tool-cancellation";
 
@@ -50,6 +54,7 @@ export type AgentToolDeps = {
   runExactlyOnce: <T>(toolCallId: string, toolName: string, run: () => Promise<T>) => Promise<T>;
   runInCallerContext: <T>(run: () => Promise<T>) => Promise<T>;
   resultMaxChars: number;
+  pageRoute?: string | null;
 };
 
 function withCallerContext(tools: ToolSet, deps: AgentToolDeps): ToolSet {
@@ -92,10 +97,26 @@ async function runGated<T>(
   return run();
 }
 
-function agentToolResult(outcome: McpToolExecutionResult, maxChars: number) {
+function contextualAgentToolResultText(
+  toolName: string | undefined,
+  outcome: McpToolExecutionResult,
+  pageRoute: string | null | undefined,
+) {
+  if (toolName !== "manage_data_views" || !outcome.ok || !outcome.structuredContent) return outcome.result;
+  if (outcome.structuredContent.surfaceKey !== SURFACE.entityTimeline) return outcome.result;
+
+  const link = entityTimelineNavigationHref(pageRoute, outcome.structuredContent.viewKey);
+  return link ? encodeToToon({ ...outcome.structuredContent, link }) : outcome.result;
+}
+
+function agentToolResult(
+  outcome: McpToolExecutionResult,
+  maxChars: number,
+  context: { toolName?: string; pageRoute?: string | null } = {},
+) {
   return {
     ok: outcome.ok,
-    result: agentToolResultText(outcome.result, maxChars),
+    result: agentToolResultText(contextualAgentToolResultText(context.toolName, outcome, context.pageRoute), maxChars),
   };
 }
 
@@ -214,11 +235,13 @@ function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
     execute: async (input: unknown, { toolCallId }) => {
       const execute = async () => {
         const outcome = await executeMcpTool(mcp, [input]);
-        return agentToolResult(outcome, deps.resultMaxChars);
+        return agentToolResult(outcome, deps.resultMaxChars, { toolName: mcp.name, pageRoute: deps.pageRoute });
       };
       const enrollable = !isReadOnlyTool(mcp) && !hasNonTransactionalEffect(mcp.name);
       const run = enrollable ? () => deps.runExactlyOnce(toolCallId, mcp.name, execute) : execute;
       return runSafely(async () => {
+        const mismatch = mcp.name === "manage_data_views" ? agentViewRequestMismatch(deps.pageRoute, input) : null;
+        if (mismatch) return { ok: false, result: mismatch };
         if (!requiresApproval(internalToolIdentity(mcp.name), mcp, input)) return run();
         const approvalContext = await deps.resolveApprovalContext(mcp.name, input);
         if (!approvalContext.ok) return { ok: false, result: approvalContext.result };
@@ -344,6 +367,7 @@ export async function normalizeAgentAiToolInput(
   toolName: string,
   input: unknown,
   maxChars: number,
+  pageRoute?: string | null,
 ): Promise<AgentToolInputResult> {
   const tools = getAgentAiTools(TOOL_DEFINITION_DEPS);
   if (!Object.hasOwn(tools, toolName)) return { ok: false, result: "The requested tool is not available." };
@@ -351,7 +375,12 @@ export async function normalizeAgentAiToolInput(
   const schema = asSchema(agentTool.inputSchema);
   if (!schema.validate) throw new Error("The agent tool has no authoritative input validator.");
   const result = await schema.validate(input);
-  if (result.success) return { ok: true, input: result.value };
+  if (result.success) {
+    const mismatch = toolName === "manage_data_views" ? agentViewRequestMismatch(pageRoute, result.value) : null;
+    return mismatch
+      ? { ok: false, result: agentToolResultText(mismatch, maxChars) }
+      : { ok: true, input: result.value };
+  }
 
   return {
     ok: false,

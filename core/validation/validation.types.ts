@@ -18,6 +18,7 @@ export enum CustomErrorCode {
   passwordMismatch = "passwordMismatch",
   passwordInvalid = "passwordInvalid",
   dataViewNotFound = "dataViewNotFound",
+  dataViewAllNameImmutable = "dataViewAllNameImmutable",
   emailNotVerified = "emailNotVerified",
   invalidCredentials = "invalidCredentials",
   invalidCallbackUrl = "invalidCallbackUrl",

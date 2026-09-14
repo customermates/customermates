@@ -1,10 +1,13 @@
 import { z } from "zod";
+import { SurfaceKeySchema, ViewKeySchema } from "@/core/data-view/data-view-identity.schema";
 
 import { approvalFreeActionsForTool, readOnlyActionsForTool } from "./gated-tools";
 import type { AgentToolIdentity } from "./tool-identity";
 import { internalToolIdentity, isInternalToolIdentity } from "./tool-identity";
 
 import { sanitizeAgentVisibleText } from "./agent-output-safety";
+
+const ViewMutationActionSchema = z.enum(["create", "update", "select", "delete"]);
 
 export type AgentTranslator = (key: string, values?: Record<string, string | number>) => string;
 
@@ -19,6 +22,9 @@ export const AGENT_ACTIVITY_KINDS = [
   "customFields.update",
   "customFields.delete",
   "customFields.configure",
+  "views.read",
+  "views.configure",
+  "views.delete",
   "widgets.read",
   "widgets.create",
   "widgets.update",
@@ -118,6 +124,9 @@ export const AgentActivityDescriptorSchema = z.preprocess(
     risk: z.enum(["read", "write", "sensitive"]),
     count: z.number().int().min(1).max(100).optional(),
     consequence: AgentActivityConsequenceSchema.optional(),
+    viewSurfaceKey: SurfaceKeySchema.optional(),
+    viewAction: ViewMutationActionSchema.optional(),
+    viewKey: ViewKeySchema.optional(),
   }),
 );
 
@@ -270,6 +279,22 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
       "widgets",
       isMultiplexedRead(toolName, details) ? "read" : multiplexedRisk(toolName, details),
     );
+  }
+  if (toolName === "manage_data_views") {
+    const surface = SurfaceKeySchema.safeParse(details.surfaceKey);
+    const action = ViewMutationActionSchema.safeParse(details.action);
+    const view = ViewKeySchema.safeParse(details.viewKey);
+    const read = isMultiplexedRead(toolName, details);
+    return {
+      ...descriptor(
+        read ? "views.read" : details.action === "delete" ? "views.delete" : "views.configure",
+        undefined,
+        read ? "read" : multiplexedRisk(toolName, details),
+      ),
+      ...(surface.success ? { viewSurfaceKey: surface.data } : {}),
+      ...(action.success ? { viewAction: action.data } : {}),
+      ...(view.success ? { viewKey: view.data } : {}),
+    };
   }
   if (isMultiplexedRead(toolName, details)) return descriptor("workspace.read", undefined, "read");
   if (toolName === "update_workspace_settings") {

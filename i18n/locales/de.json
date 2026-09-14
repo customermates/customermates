@@ -233,6 +233,23 @@
             "running": "Teamzugriff ist zum Ändern bereit"
           }
         },
+        "views": {
+          "configure": {
+            "done": "Ansicht eingerichtet",
+            "error": "Ansicht konnte nicht eingerichtet werden",
+            "running": "Ansicht wird eingerichtet"
+          },
+          "delete": {
+            "done": "Ansicht gelöscht",
+            "error": "Ansicht konnte nicht gelöscht werden",
+            "running": "Ansicht wird gelöscht"
+          },
+          "read": {
+            "done": "Gespeicherte Ansichten geprüft",
+            "error": "Gespeicherte Ansichten konnten nicht geprüft werden",
+            "running": "Gespeicherte Ansichten werden geprüft"
+          }
+        },
         "webhooks": {
           "manage": {
             "done": "Webhook-Aktion abgeschlossen",
@@ -1010,6 +1027,7 @@
       "customFieldInvalidPhone": "Der Telefonwert ist ungültig. Muss im E.164-Format sein (z.B. +491234567890). Bei mehreren Telefonnummern durch Komma trennen (z.B. +491234567890, +499876543210).",
       "customFieldInvalidSingleSelect": "Der Single-Select-Wert ist ungültig. Muss eine der erlaubten Optionen sein: {validValues}.",
       "customFieldInvalidUrl": "Der URL-Wert ist ungültig. Muss ein gültiges URL-Format haben (z.B. https://example.com). Bei mehreren URLs durch Komma trennen (z.B. https://example.com, https://example.org).",
+      "dataViewAllNameImmutable": "Die Ansicht Alle kann nicht umbenannt werden. Lasse name weg und ändere nur die angeforderten Einstellungen in state. Lies vor einem erneuten Versuch config für unterstützte Einstellungen und list für den aktuellen Zustand.",
       "dataViewNotFound": "Diese gespeicherte Ansicht wurde nicht gefunden.",
       "dealNotFound": "Deal-ID nicht gefunden oder nicht zugänglich.",
       "demoMode": "Diese Aktion ist im Demo-Modus nicht verfügbar. Melde dich an, um alle Funktionen zu nutzen.",
@@ -1922,10 +1940,40 @@
     "selectGroup": "Gruppe {group} auswählen",
     "selectRow": "Zeile {id} auswählen",
     "views": {
+      "aiCreateNamedPrompt": "Erstelle eine neue Ansicht namens „{name}“ anhand meiner folgenden Beschreibung.",
+      "aiCreatePrompt": "Erstelle eine neue Ansicht anhand meiner folgenden Beschreibung.",
+      "aiEditPrompt": "Passe meine aktuelle Ansicht „{name}“ an. Behalte alle Einstellungen bei, die ich nicht erwähne.",
+      "aiLabel": "KI zu {name} fragen",
+      "aiRequest": {
+        "appearanceLabel": "Wie soll diese Ansicht aussehen?",
+        "appearancePlaceholder": "Beschreibe Layout, Gruppierung oder Sortierung.",
+        "appearancePrompt": "Passe die Darstellung meiner aktuellen Ansicht „{name}“ an. Behalte alle Einstellungen bei, die ich nicht erwähne.",
+        "busy": "Warte, bis die aktuelle KI-Aktivität abgeschlossen ist, bevor du die Anfrage sendest.",
+        "contextChanged": "Die ausgewählte Ansicht hat sich geändert. Schließe diesen Dialog und öffne „KI fragen“ für die gewünschte Ansicht.",
+        "contextPrompt": "Kontext: {location}.",
+        "createLabel": "Was soll deine neue Ansicht zeigen?",
+        "createPlaceholder": "Beschreibe, welche Datensätze du sehen und wie du sie anordnen möchtest.",
+        "existingContext": "{location} · Ansicht: {name}",
+        "filtersLabel": "Welche Datensätze soll diese Ansicht zeigen?",
+        "filtersPlaceholder": "Beschreibe die gewünschten Filter oder die Suche.",
+        "filtersPrompt": "Passe die Filter und die Suche meiner aktuellen Ansicht „{name}“ an. Behalte alle Einstellungen bei, die ich nicht erwähne.",
+        "namedContext": "{location} · Neue Ansicht: {name}",
+        "newContext": "{location} · Neue Ansicht",
+        "submit": "An KI senden",
+        "timelineLabel": "Welche Aktivitäten möchtest du sehen?",
+        "timelineLocation": "Aktivitätenverlauf dieses Datensatzes",
+        "timelinePlaceholder": "Zum Beispiel nur Datensatzänderungen oder Nachrichten anzeigen.",
+        "unavailable": "Die KI ist derzeit nicht verfügbar. Deine Anfrage wurde nicht gesendet.",
+        "viewLabel": "Was möchtest du ändern?",
+        "viewPlaceholder": "Beschreibe Filter, Suche, Layout, Gruppierung oder Sortierung."
+      },
       "all": "Alle",
       "applied": "{name} wird angezeigt",
+      "askAi": "KI fragen",
       "copyLink": "Link kopieren",
       "createTitle": "Neue Ansicht",
+      "createWithAi": "Mit KI erstellen",
+      "createWithAiDescription": "Beschreibe, was du sehen möchtest, und sende deine Anfrage an die KI.",
       "delete": "Ansicht löschen",
       "duplicate": "Als neue Ansicht duplizieren",
       "duplicateName": "{name} Kopie",
