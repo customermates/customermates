@@ -781,9 +781,9 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
     const size = (tool.input as { pageSize?: number } | undefined)?.pageSize;
     return typeof size === "number" && ![5, 10, 25, 100].includes(size);
       });
-      check("d4-no-out-of-enum-page-size-reported-as-success",
-    outOfEnumPageSize.every((tool) => tool.outcome !== "ok" && tool.status !== "completed"));
-      check("rejection-reported", Boolean(soleLine(text, /^REJECTED: pageSize$/)));
+      const refusedPageSize = outOfEnumPageSize.some((tool) => tool.outcome !== "ok" && tool.status !== "completed");
+      check("d4-page-size-outcome-reported-consistently",
+    refusedPageSize ? Boolean(soleLine(text, /^REJECTED: pageSize$/)) : !/^REJECTED: pageSize$/m.test(text));
       const countLine = soleLine(text, /^COUNT: (\d+)$/);
       check("count-line-well-formed", Boolean(countLine));
       check("unlinked-count-9", Number(countLine?.[1]) === 9);

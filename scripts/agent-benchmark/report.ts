@@ -133,9 +133,11 @@ export async function buildReport(campaignId: string, runsDir: string): Promise<
         const comparison = comparePaired(group.filter((artifact) => !artifact.skipped).map(outcome), control);
         return { key, comparison };
       });
-    const holm = holmAdjust(raw.map(({ key, comparison }) => ({ key, p: comparison.signTestP })));
+    const controlCases = new Set(control.map((entry) => entry.caseId)).size;
+    const family = raw.filter(({ comparison }) => comparison.cases === controlCases);
+    const holm = holmAdjust(family.map(({ key, comparison }) => ({ key, p: comparison.signTestP })));
     for (const { key, comparison } of raw)
-      comparisons.push({ arm: key, control: shippedKey, cases: comparison.cases, wins: comparison.wins, losses: comparison.losses, ties: comparison.ties, meanDifference: comparison.meanDifference, p: comparison.signTestP, holmP: holm.get(key) ?? 1, floor: comparison.floor });
+      comparisons.push({ arm: key, control: shippedKey, cases: comparison.cases, wins: comparison.wins, losses: comparison.losses, ties: comparison.ties, meanDifference: comparison.meanDifference, p: comparison.signTestP, holmP: holm.get(key) ?? comparison.signTestP, floor: comparison.floor });
   }
   const caseMatrix: Record<string, Record<string, string>> = {};
   for (const [key, group] of groups)
@@ -210,9 +212,14 @@ export type Selection = { defaultArm: ArmSummary | null; deepArm: ArmSummary | n
 export function selectArms(report: BenchmarkReport, eligibleArmIds: ReadonlySet<string>, rule: SelectionRule = DEFAULT_SELECTION_RULE): Selection {
   const reasoning: string[] = [];
   const shippedNeverSolved = new Set(report.arms.find((arm) => arm.arm === "shipped")?.neverSolvedCases ?? []);
+  const caseCount = Object.keys(report.caseMatrix).length;
   const eligible = report.arms.filter((arm) => {
-    const allowed = eligibleArmIds.has(arm.arm) && arm.measuredShare >= rule.measuredShareMin && arm.episodes > 0;
-    if (!allowed) reasoning.push(`${arm.runtimeVariant}/${arm.arm}: ineligible (zdr/no-training ${eligibleArmIds.has(arm.arm)}, measured ${(arm.measuredShare * 100).toFixed(0)} %, episodes ${arm.episodes})`);
+    const coversEveryCase = arm.episodes >= caseCount;
+    const allowed = eligibleArmIds.has(arm.arm) && arm.measuredShare >= rule.measuredShareMin && coversEveryCase;
+    if (!allowed)
+      reasoning.push(
+        `${arm.runtimeVariant}/${arm.arm}: ineligible (zdr/no-training ${eligibleArmIds.has(arm.arm)}, measured ${(arm.measuredShare * 100).toFixed(0)} %, episodes ${arm.episodes} for ${caseCount} cases)`,
+      );
     return allowed;
   });
   if (eligible.length === 0) return { defaultArm: null, deepArm: null, reasoning: [...reasoning, "no eligible arm"] };

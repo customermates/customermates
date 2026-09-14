@@ -1031,9 +1031,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         providerOptions: {
           gateway: {
             only: [payload.turnBudget.servingProvider],
-            inferenceRegion: payload.turnBudget.inferenceRegion
-              ? { scope: "zone", geoRegion: payload.turnBudget.inferenceRegion }
-              : { scope: "global" },
+            ...(payload.turnBudget.inferenceRegion
+              ? { inferenceRegion: { scope: "zone", geoRegion: payload.turnBudget.inferenceRegion } }
+              : {}),
             zeroDataRetention: true,
             disallowPromptTraining: true,
             ...(runtime.cachingAuto ? { caching: "auto" as const } : {}),

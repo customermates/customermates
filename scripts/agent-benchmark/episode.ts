@@ -273,11 +273,27 @@ async function observeEpisode(db: BenchmarkDb, fixture: Fixture) {
   };
 }
 
+const MAX_FIXTURE_ATTEMPTS = 6;
+
+async function seedFreshBenchmarkCase(db: BenchmarkDb, caseId: CaseId, baseNamespace: string) {
+  for (let attempt = 1; attempt <= MAX_FIXTURE_ATTEMPTS; attempt += 1) {
+    const namespace = attempt === 1 ? baseNamespace : `${baseNamespace}:t${attempt}`;
+    try {
+      return await seedBenchmarkCase(db, caseId, namespace);
+    } catch (error) {
+      const exhausted = attempt === MAX_FIXTURE_ATTEMPTS;
+      const taken = error instanceof Error && error.message.startsWith("Fixture namespace already exists");
+      if (!taken || exhausted) throw error;
+    }
+  }
+  throw new Error("unreachable");
+}
+
 export async function runEpisode(request: EpisodeRequest): Promise<EpisodeArtifact> {
   const definition = BENCHMARK_CASES.find((entry) => entry.id === request.caseId);
   if (!definition) throw new Error(`Unknown case ${request.caseId}.`);
-  const namespace = `${request.campaign.id}:${request.runtimeVariant}:${request.arm.id}:r${request.repetition}`;
-  const fixture = await seedBenchmarkCase(request.db, request.caseId, namespace);
+  const baseNamespace = `${request.campaign.id}:${request.runtimeVariant}:${request.arm.id}:r${request.repetition}`;
+  const fixture = await seedFreshBenchmarkCase(request.db, request.caseId, baseNamespace);
   const episodeId = await registerEpisode(request.pool, {
     campaignId: request.campaign.id,
     arm: request.arm.id,
