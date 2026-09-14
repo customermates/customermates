@@ -26,6 +26,9 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { fail, failAuthorization, failNotFound } from "@/core/validation/interactor-failure-server";
 import { runPrecheck } from "@/core/validation/run-precheck";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { filterValueKind, TIMELINE_KIND_VIEW_VALUES } from "@/core/types/filter-field-value-kind";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { DomainEvent } from "@/features/event/domain-events";
 import { DATA_VIEW_SURFACES } from "./data-view-surfaces";
 import { ActivityFiltersSchema } from "@/ee/messaging/activities/activities.schema";
 import { ManageDataViewsSchema } from "./manage-data-views.schema";
@@ -91,7 +94,18 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           entityType: descriptor.entityType,
           supportsSearch: config.supportsSearch,
           viewModes: config.viewModes,
-          filterableFields: config.filterableFields,
+          filterableFields: config.filterableFields.map((field) => {
+            const valueKind = filterValueKind(field.field);
+            const values =
+              field.field === FilterFieldKey.timelineKind.toString()
+                ? TIMELINE_KIND_VIEW_VALUES
+                : valueKind?.kind === "enum"
+                  ? valueKind.values
+                  : valueKind?.kind === "event"
+                    ? Object.values(DomainEvent)
+                    : undefined;
+            return { ...field, ...(values ? { values } : {}) };
+          }),
           sortableFields: [
             ...config.sortableFields.map(({ field }) => ({ field })),
             ...(data.surfaceKey === SURFACE.entityTimeline ? [] : config.customColumns).map(({ id, label, type }) => ({
@@ -162,11 +176,9 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
       };
     }
 
-    if (data.viewKey === ALL_VIEW_KEY && data.name !== undefined) {
-      return fail(CustomErrorCode.invalidFilterValue, ["name"], {
-        value: data.name,
-      });
-    }
+    if (data.viewKey === ALL_VIEW_KEY && data.name !== undefined)
+      return fail(CustomErrorCode.dataViewAllNameImmutable, ["name"]);
+
     const state = data.state ?? {};
     const checked = await this.validateState(data.surfaceKey, state);
     if (!checked.ok) return checked;

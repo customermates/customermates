@@ -11,7 +11,7 @@ const ManageDataViewsToolSchema = z
   .object({
     action: z.enum(["surfaces", "config", "list", "create", "update", "select", "delete"]),
     surfaceKey: SurfaceKeySchema.optional(),
-    viewKey: ViewKeySchema.optional().describe("Required for update/select/delete; __all__ cannot be deleted."),
+    viewKey: ViewKeySchema.optional().describe("Required for update/select/delete. __all__: omit name; cannot delete."),
     name: z.string().trim().min(1).max(100).optional(),
     state: AgentDataViewStateSchema.optional().describe(
       "Call config first. Create: initial state. Update: call list immediately before every update; include only keys the user asked to change. Never copy old conversation/full state.",
@@ -23,12 +23,12 @@ export const manageDataViewsTool = {
   name: "manage_data_views",
   title: "Manage personal saved views",
   description:
-    "IRREVERSIBLE delete removes views, never records. " +
-    "surfaces: pages; config: filter fields/operators, sorts, grouping/layouts; " +
+    "IRREVERSIBLE delete: views, never records. " +
+    "surfaces: pages; config: filter fields/values/operators, sorts, layouts; " +
     "list: owned views, activeViewKey, All state. create requires name/state and selects it; update patches settings/name; " +
     "select remembers a view. Clear filters=[], search=empty string, sort/grouping=null; filters are ANDed. " +
-    "Timelines span records. Appearance owns columns. Operator pages require fresh interactive auth. " +
-    "Returned links clear stale URL overrides.",
+    "Timeline: only filters/sortDescriptor; no name on All. Columns use Appearance. Operators need fresh auth. " +
+    "Links clear URL overrides.",
   annotations: {
     readOnlyHint: false,
     destructiveHint: true,

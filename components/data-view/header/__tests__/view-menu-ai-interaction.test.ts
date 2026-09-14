@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type * as NextIntl from "next-intl";
 import type { Root as ReactRoot } from "react-dom/client";
 import type { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import type { Filter } from "@/core/base/base-get.schema";
@@ -12,8 +13,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
+import { APP_LOCALES, type AppLocale } from "@/i18n/locale-registry";
+import en from "@/i18n/locales/en.json";
+import de from "@/i18n/locales/de.json";
+import es from "@/i18n/locales/es.json";
+import fr from "@/i18n/locales/fr.json";
+import itMessages from "@/i18n/locales/it.json";
+
+const catalogs = { en, de, es, fr, it: itMessages };
 
 const harness = vi.hoisted(() => ({
+  locale: null as AppLocale | null,
+  pathname: "/en/contacts",
   agent: {
     enabled: true,
     composerDraft: "",
@@ -22,7 +33,7 @@ const harness = vi.hoisted(() => ({
     conversationLoadPendingId: null as string | null,
     historyMutationPending: false,
     usage: null as { blockedReason: string } | null,
-    sendMessage: vi.fn<(text: string) => Promise<void>>(),
+    sendMessage: vi.fn<(text: string, options?: { pageRoute: string }) => Promise<void>>(),
     openWithDraft: vi.fn<(draft: string) => void>(),
     viewContext: null as unknown as ViewContext,
   },
@@ -38,13 +49,26 @@ const harness = vi.hoisted(() => ({
   >(),
 }));
 
-vi.mock("next/navigation", () => ({ usePathname: () => "/en/contacts" }));
-vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string, values?: Record<string, unknown>) =>
-    values ? `${key}(${Object.values(values).join(",")})` : key,
-}));
+vi.mock("next/navigation", () => ({ usePathname: () => harness.pathname }));
+vi.mock("next-intl", async (importOriginal) => {
+  const actual = await importOriginal<typeof NextIntl>();
+  return {
+    ...actual,
+    useTranslations: () =>
+      harness.locale
+        ? actual.createTranslator({ locale: harness.locale, messages: catalogs[harness.locale] })
+        : (key: string, values?: Record<string, unknown>) =>
+            values ? `${key}(${Object.values(values).join(",")})` : key,
+  };
+});
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({ agentChatStore: harness.agent, filterPaletteStore: harness.palette }),
+}));
+vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
+  useEntityTerminology: () => ({
+    plural: (entity: string) =>
+      harness.locale ? catalogs[harness.locale].EntityTerminology.presets.contact.contact.plural : `${entity}s`,
+  }),
 }));
 vi.mock("@/components/entity-terminology/use-column-label", () => ({ useColumnLabel: () => (uid: string) => uid }));
 vi.mock("@/components/entity-terminology/use-filter-field-label", () => ({
@@ -222,6 +246,8 @@ function finishRequestClose(): Event {
 }
 
 beforeEach(() => {
+  harness.locale = null;
+  harness.pathname = "/en/contacts";
   vi.useFakeTimers();
   vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => setTimeout(() => callback(0), 16));
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -229,8 +255,8 @@ beforeEach(() => {
   resetAgentBlock();
   harness.request = { onCloseAutoFocus: undefined, focusReturnTarget: null };
   harness.sentRoutes.length = 0;
-  harness.agent.sendMessage.mockReset().mockImplementation(() => {
-    harness.sentRoutes.push(harness.agent.viewContext.route(PATHNAME));
+  harness.agent.sendMessage.mockReset().mockImplementation((_text, options) => {
+    harness.sentRoutes.push(options?.pageRoute ?? harness.agent.viewContext.route(PATHNAME));
     return Promise.resolve();
   });
   harness.agent.composerDraft = "";
@@ -261,6 +287,54 @@ afterEach(() => {
 });
 
 describe("view menu AI request", () => {
+  it("edits Contacts All from Appearance even when the requested filter mentions deals", () => {
+    harness.locale = "en";
+    const store = dataViewStore({ activeViewKey: ALL_VIEW_KEY });
+    render(createElement(DataViewDisplayOptions, { id: "appearance", store }));
+    openRequest("appearance");
+    expect(host.textContent).toContain("Contacts · View: All");
+    typeRequest("Change this to Kanban and show contacts with at least one linked deal.");
+    submitRequest();
+    finishRequestClose();
+    expect(harness.agent.sendMessage).toHaveBeenCalledExactlyOnceWith(
+      "Context: Contacts.\nUpdate the appearance of my current view “All”. Keep any settings I do not mention.\n\nChange this to Kanban and show contacts with at least one linked deal.",
+      { pageRoute: "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update" },
+    );
+  });
+
+  it.each(APP_LOCALES)("sends readable %s timeline instructions with the exact record and current view", (locale) => {
+    harness.locale = locale;
+    harness.pathname = `/${locale}/contacts/00000000-0000-4000-8000-000000000001`;
+    const store = dataViewStore({ p13nId: SURFACE.entityTimeline, activeViewKey: ALL_VIEW_KEY });
+    render(createElement(FilterPopover, { id: "filters", store }));
+    openRequest("filters");
+    const copy = catalogs[locale].DataView.views;
+    expect(host.textContent).toContain(copy.aiRequest.timelineLocation);
+    expect(host.querySelector('label[for="view-ai-request-input"]')?.textContent).toBe(copy.aiRequest.timelineLabel);
+    typeRequest("Only show record creation events.");
+    submitRequest();
+    finishRequestClose();
+    expect(harness.agent.sendMessage).toHaveBeenCalledExactlyOnceWith(
+      `${copy.aiRequest.contextPrompt.replace("{location}", copy.aiRequest.timelineLocation)}\n${copy.aiRequest.filtersPrompt.replace("{name}", copy.all)}\n\nOnly show record creation events.`,
+      { pageRoute: `${harness.pathname}?view=__all__&viewSurface=entity-timeline&viewAction=update` },
+    );
+    expect(harness.agent.sendMessage.mock.calls[0]?.[0]).not.toMatch(/DataView\.|entity-timeline|00000000|this page/);
+  });
+
+  it("does not send an open timeline request after changing records", () => {
+    harness.pathname = "/en/contacts/00000000-0000-4000-8000-000000000001";
+    const store = dataViewStore({ p13nId: SURFACE.entityTimeline });
+    render(createElement(FilterPopover, { id: "filters", store }));
+    openRequest("filters");
+    typeRequest("Only show messages.");
+    harness.pathname = "/en/contacts/00000000-0000-4000-8000-000000000002";
+    render(createElement(FilterPopover, { id: "filters", store }));
+    submitRequest();
+    finishRequestClose();
+    expect(host.textContent).toContain("DataView.views.aiRequest.contextChanged");
+    expect(harness.agent.sendMessage).not.toHaveBeenCalled();
+  });
+
   it("flushes a pending palette draft, asks for instructions, then sends once after the request dialog closes", async () => {
     const store = dataViewStore();
     render(createElement(FilterPopover, { id: "filters", store }));
@@ -296,9 +370,12 @@ describe("view menu AI request", () => {
     expect(finishRequestClose().defaultPrevented).toBe(true);
     expect(harness.agent.openWithDraft).toHaveBeenCalledExactlyOnceWith("");
     expect(harness.agent.sendMessage).toHaveBeenCalledExactlyOnceWith(
-      "DataView.views.aiRequest.filtersPrompt(Qualified contacts)\n\nOnly show Leon and keep my current layout.",
+      "DataView.views.aiRequest.contextPrompt(contacts)\nDataView.views.aiRequest.filtersPrompt(Qualified contacts)\n\nOnly show Leon and keep my current layout.",
+      { pageRoute: `${PATHNAME}?view=${VIEW_ID}&viewSurface=${SURFACE.contacts}&viewAction=update` },
     );
-    expect(harness.sentRoutes).toEqual([`${PATHNAME}?view=${VIEW_ID}&viewSurface=${SURFACE.contacts}`]);
+    expect(harness.sentRoutes).toEqual([
+      `${PATHNAME}?view=${VIEW_ID}&viewSurface=${SURFACE.contacts}&viewAction=update`,
+    ]);
     await harness.agent.viewContext.prepare(harness.agent.viewContext.route(PATHNAME));
     expect(store.settleViewState).toHaveBeenCalledOnce();
     expectComposerFocus();
@@ -328,7 +405,8 @@ describe("view menu AI request", () => {
     expect(harness.agent.openWithDraft).toHaveBeenCalledExactlyOnceWith("Keep my unrelated unfinished message.");
     expect(harness.agent.composerDraft).toBe("Keep my unrelated unfinished message.");
     expect(harness.agent.sendMessage).toHaveBeenCalledExactlyOnceWith(
-      "DataView.views.aiRequest.appearancePrompt(Qualified contacts)\n\nHide phones and use board layout.",
+      "DataView.views.aiRequest.contextPrompt(contacts)\nDataView.views.aiRequest.appearancePrompt(Qualified contacts)\n\nHide phones and use board layout.",
+      { pageRoute: `${PATHNAME}?view=${VIEW_ID}&viewSurface=${SURFACE.contacts}&viewAction=update` },
     );
     expectComposerFocus();
   });
@@ -423,7 +501,8 @@ describe("view menu AI request", () => {
       submitRequest();
       finishRequestClose();
       expect(harness.agent.sendMessage).toHaveBeenCalledExactlyOnceWith(
-        "DataView.views.aiRequest.appearancePrompt(Qualified contacts)\n\nPreserve me across the late busy state. Retry now.",
+        "DataView.views.aiRequest.contextPrompt(contacts)\nDataView.views.aiRequest.appearancePrompt(Qualified contacts)\n\nPreserve me across the late busy state. Retry now.",
+        { pageRoute: `${PATHNAME}?view=${VIEW_ID}&viewSurface=${SURFACE.contacts}&viewAction=update` },
       );
     },
   );
@@ -500,12 +579,14 @@ describe("view menu AI request", () => {
     openRequest("appearance");
     expect(context.route(PATHNAME)).toBe(pageRoute);
     expect(host.querySelector('label[for="view-ai-request-input"]')?.textContent).toBe(
-      "DataView.views.aiRequest.createLabel",
+      "DataView.views.aiRequest.timelineLabel",
     );
     typeRequest("Create a recent activity view.");
     submitRequest();
     finishRequestClose();
-    expect(harness.sentRoutes).toEqual([`${PATHNAME}?view=__all__&viewSurface=${SURFACE.entityTimeline}`]);
+    expect(harness.sentRoutes).toEqual([
+      `${PATHNAME}?view=__all__&viewSurface=${SURFACE.entityTimeline}&viewAction=update`,
+    ]);
     await context.prepare(context.route(PATHNAME));
     expect(timeline.settleViewState).toHaveBeenCalledOnce();
     expect(page.settleViewState).not.toHaveBeenCalled();

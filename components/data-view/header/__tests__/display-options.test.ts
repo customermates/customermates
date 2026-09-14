@@ -30,7 +30,7 @@ vi.mock("next/navigation", async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   usePathname: () => "/en/deals",
 }));
-vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => ({}) }));
+vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => ({ terminologyStore: { overrides: [] } }) }));
 vi.mock("@/components/entity-terminology/use-column-label", () => ({ useColumnLabel: () => (uid: string) => uid }));
 vi.mock("@/components/entity-terminology/use-filter-field-label", () => ({
   useFilterFieldLabel: () => (field: string) =>

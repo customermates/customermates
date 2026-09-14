@@ -11,9 +11,17 @@ import { MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import type { McpToolExecutionResult } from "../mcp-tool";
+import en from "@/i18n/locales/en.json";
 
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
-vi.mock("next-intl/server", () => ({ getTranslations: () => Promise.resolve({ raw: (key: string) => key }) }));
+vi.mock("next-intl/server", () => ({
+  getTranslations: () =>
+    Promise.resolve(
+      Object.assign((key: string) => key, {
+        raw: (key: string) => (en.Common.errors as Record<string, string>)[key] ?? key,
+      }),
+    ),
+}));
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -92,6 +100,27 @@ describeDatabase("saved views through MCP and the real page query", () => {
     const result = await page();
     expect(result.ok && result.data.activeViewKey).toBe(viewId);
     expect(result.ok && result.data.items.map(({ id }) => id)).toEqual([matchingContact]);
+  });
+
+  it("explains an invalid All rename and accepts the corrected timeline patch without creating a view", async () => {
+    const state = { filters: [{ field: "timelineKind", operator: "in", value: ["changes"] }] };
+    const invalid = await run({
+      action: "update",
+      surfaceKey: SURFACE.entityTimeline,
+      viewKey: ALL_VIEW_KEY,
+      name: "All",
+      state,
+    });
+    expect(invalid.ok).toBe(false);
+    expect(invalid.result).toContain("The All view cannot be renamed. Omit name");
+    expect(invalid.result).toContain("Read config");
+    const before = await run({ action: "list", surfaceKey: SURFACE.entityTimeline });
+    expect(before.ok && before.structuredContent?.allState).toEqual({});
+    const corrected = await run({ action: "update", surfaceKey: SURFACE.entityTimeline, viewKey: ALL_VIEW_KEY, state });
+    expect(corrected.ok, corrected.result).toBe(true);
+    const after = await run({ action: "list", surfaceKey: SURFACE.entityTimeline });
+    expect(after.ok && after.structuredContent?.allState).toMatchObject(state);
+    expect(after.ok && after.structuredContent?.views).toEqual([]);
   });
 
   it("hides and refuses another user's and another company's view, including select", async () => {

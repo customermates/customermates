@@ -25,6 +25,7 @@ import type { AgentApprovalContextResolution } from "./agent-external-approval-c
 import { internalToolIdentity } from "./tool-identity";
 import { providerWireInputSchema } from "./provider-safe-json-schema";
 import type { AgentToolInputResult } from "./agent-tool-input";
+import { agentViewRequestMismatch } from "./agent-page-context";
 
 export { isAgentToolCancellation, type AgentToolCancellation } from "./agent-tool-cancellation";
 
@@ -239,6 +240,8 @@ function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
       const enrollable = !isReadOnlyTool(mcp) && !hasNonTransactionalEffect(mcp.name);
       const run = enrollable ? () => deps.runExactlyOnce(toolCallId, mcp.name, execute) : execute;
       return runSafely(async () => {
+        const mismatch = mcp.name === "manage_data_views" ? agentViewRequestMismatch(deps.pageRoute, input) : null;
+        if (mismatch) return { ok: false, result: mismatch };
         if (!requiresApproval(internalToolIdentity(mcp.name), mcp, input)) return run();
         const approvalContext = await deps.resolveApprovalContext(mcp.name, input);
         if (!approvalContext.ok) return { ok: false, result: approvalContext.result };
@@ -364,6 +367,7 @@ export async function normalizeAgentAiToolInput(
   toolName: string,
   input: unknown,
   maxChars: number,
+  pageRoute?: string | null,
 ): Promise<AgentToolInputResult> {
   const tools = getAgentAiTools(TOOL_DEFINITION_DEPS);
   if (!Object.hasOwn(tools, toolName)) return { ok: false, result: "The requested tool is not available." };
@@ -371,7 +375,12 @@ export async function normalizeAgentAiToolInput(
   const schema = asSchema(agentTool.inputSchema);
   if (!schema.validate) throw new Error("The agent tool has no authoritative input validator.");
   const result = await schema.validate(input);
-  if (result.success) return { ok: true, input: result.value };
+  if (result.success) {
+    const mismatch = toolName === "manage_data_views" ? agentViewRequestMismatch(pageRoute, result.value) : null;
+    return mismatch
+      ? { ok: false, result: agentToolResultText(mismatch, maxChars) }
+      : { ok: true, input: result.value };
+  }
 
   return {
     ok: false,

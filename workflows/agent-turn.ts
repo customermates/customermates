@@ -330,7 +330,12 @@ async function normalizeAgentToolInput(
   "use step";
   const { normalizeAgentAiToolInput } = await import("@/ee/agent-chat/agent-tools");
   return runAsBackgroundTenant(payload.userId, () =>
-    normalizeAgentAiToolInput(toolName, input, resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars)),
+    normalizeAgentAiToolInput(
+      toolName,
+      input,
+      resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars),
+      payload.pageRoute,
+    ),
   );
 }
 normalizeAgentToolInput.maxRetries = 0;

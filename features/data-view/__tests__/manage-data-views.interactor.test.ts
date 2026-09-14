@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Action, MessagingProvider, Resource } from "@/generated/prisma";
 import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import {
   createMockDiModule,
@@ -14,6 +14,9 @@ import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
 import { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 import { dateGroupables } from "@/core/base/grouping/groupable-field";
 import { interactorFailureKind } from "@/core/validation/validation.utils";
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { TIMELINE_KIND_VIEW_VALUES } from "@/core/types/filter-field-value-kind";
+import { DomainEvent } from "@/features/event/domain-events";
 import { ManageDataViewsInteractor } from "../manage-data-views.interactor";
 import type { AgentDataViewState, ManageDataViewsData } from "../manage-data-views.schema";
 
@@ -190,6 +193,27 @@ describe("agent saved-view management", () => {
       }),
     );
     expect(subject.sources[SURFACE.entityTimeline].setMessagingSourcesEnabled).toHaveBeenLastCalledWith(false);
+  });
+
+  it("publishes canonical timeline and event values so agents do not have to guess", async () => {
+    const subject = setup();
+    subject.sources[SURFACE.entityTimeline].getFilterableFields.mockResolvedValue([
+      { field: "timelineKind", operators: [FilterOperatorKey.in] },
+      { field: "provider", operators: [FilterOperatorKey.in] },
+    ]);
+    const result = await subject.run({ action: "config", surfaceKey: SURFACE.entityTimeline });
+    expect(result.ok && result.data.filterableFields).toEqual([
+      { field: "timelineKind", operators: ["in"], values: TIMELINE_KIND_VIEW_VALUES },
+      { field: "provider", operators: ["in"], values: Object.values(MessagingProvider) },
+    ]);
+    expect(result.ok && result.data.writableStateFields).toEqual(["filters", "sortDescriptor"]);
+    subject.sources[SURFACE.auditLogs].getFilterableFields.mockResolvedValue([
+      { field: "event", operators: [FilterOperatorKey.in] },
+    ]);
+    const audit = await subject.run({ action: "config", surfaceKey: SURFACE.auditLogs });
+    expect(audit.ok && audit.data.filterableFields).toEqual([
+      { field: "event", operators: ["in"], values: Object.values(DomainEvent) },
+    ]);
   });
 
   it.each([
@@ -376,16 +400,19 @@ describe("agent saved-view management", () => {
       viewKey: ALL_VIEW_KEY,
       state: { searchTerm: "" },
     });
-    expect(
-      (
-        await subject.run({
-          action: "update",
-          surfaceKey: SURFACE.contacts,
-          viewKey: ALL_VIEW_KEY,
-          name: "Renamed",
-        })
-      ).ok,
-    ).toBe(false);
+    const renamed = await subject.run({
+      action: "update",
+      surfaceKey: SURFACE.contacts,
+      viewKey: ALL_VIEW_KEY,
+      name: "Renamed",
+    });
+    expect(renamed.ok).toBe(false);
+    if (!renamed.ok) {
+      expect(renamed.error.issues).toEqual([
+        expect.objectContaining({ path: ["name"], params: { error: CustomErrorCode.dataViewAllNameImmutable } }),
+      ]);
+    }
+    expect(subject.save.invoke).toHaveBeenCalledTimes(1);
   });
 
   it("delegates deletion without resetting a newer selection from stale surface state", async () => {

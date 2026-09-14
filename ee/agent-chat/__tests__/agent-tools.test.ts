@@ -306,6 +306,73 @@ describe("agent tools", () => {
     }
   });
 
+  it.each([
+    { action: "create", surfaceKey: "deals-card-store", name: "Linked deals", state: {} },
+    { action: "update", surfaceKey: "deals-card-store", viewKey: "__all__", state: { viewMode: "card" } },
+    { action: "create", surfaceKey: "contacts-card-store", name: "Unexpected new view", state: {} },
+    {
+      action: "update",
+      surfaceKey: "contacts-card-store",
+      viewKey: "00000000-0000-4000-8000-000000000001",
+      state: { viewMode: "card" },
+    },
+    { action: "delete", surfaceKey: "contacts-card-store", viewKey: "00000000-0000-4000-8000-000000000001" },
+  ])("rejects a different target before approval or execution: $action $surfaceKey", async (input) => {
+    const mcp = ALL_MCP_TOOLS.find(({ name }) => name === "manage_data_views");
+    if (!mcp) throw new Error("manage_data_views is missing");
+    const executeMcp = vi.spyOn(mcp, "execute");
+    const dependencies = deps({
+      pageRoute: "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
+      runExactlyOnce: vi.fn(),
+    });
+    try {
+      const result = await execute(getAgentAiTools(dependencies).manage_data_views, input);
+      expect(result).toMatchObject({ ok: false, result: expect.stringContaining("surfaceKey=contacts-card-store") });
+      expect(executeMcp).not.toHaveBeenCalled();
+      expect(dependencies.runExactlyOnce).not.toHaveBeenCalled();
+      expect(dependencies.resolveApprovalContext).not.toHaveBeenCalled();
+      await expect(
+        normalizeAgentAiToolInput("manage_data_views", input, 6000, dependencies.pageRoute),
+      ).resolves.toEqual(result);
+    } finally {
+      executeMcp.mockRestore();
+    }
+  });
+
+  it.each([
+    ["update", "contacts-card-store", "__all__", "update"],
+    ["create", "entity-timeline", undefined, "create"],
+    ["config", "contacts-card-store", undefined, "update"],
+    ["list", "contacts-card-store", undefined, "update"],
+    ["surfaces", "contacts-card-store", undefined, "update"],
+    ["create", "deals-card-store", undefined, null],
+  ])(
+    "keeps valid %s requests on the existing MCP execution path",
+    async (action, surfaceKey, viewKey, requestAction) => {
+      const mcp = ALL_MCP_TOOLS.find(({ name }) => name === "manage_data_views");
+      if (!mcp) throw new Error("manage_data_views is missing");
+      const executeMcp = vi.spyOn(mcp, "execute").mockResolvedValue({ text: "Saved view operation completed." });
+      const route = `/en/contacts?view=__all__&viewSurface=${requestAction ? surfaceKey : "contacts-card-store"}`;
+      try {
+        const result = await execute(
+          getAgentAiTools(deps({ pageRoute: requestAction ? `${route}&viewAction=${requestAction}` : route }))
+            .manage_data_views,
+          {
+            action,
+            surfaceKey,
+            ...(viewKey ? { viewKey } : {}),
+            ...(action === "create" ? { name: "My view" } : {}),
+            state: {},
+          },
+        );
+        expect(result).toMatchObject({ ok: true });
+        expect(executeMcp).toHaveBeenCalledOnce();
+      } finally {
+        executeMcp.mockRestore();
+      }
+    },
+  );
+
   it("accepts only exact navigation target ids and rejects URL-like model input", async () => {
     const tools = getAgentAiTools(deps());
     const validate = schemaOf(tools.navigate).validate;
@@ -805,11 +872,13 @@ describe("agent tools", () => {
     expect(prompt).toContain("asks to walk them through or show them how to connect an account");
     expect(prompt).toContain("action=upsert, intent=create, and no id");
     expect(prompt).toContain("top-level selectOptions");
-    expect(prompt).toContain("list immediately before every update");
-    expect(prompt).toContain("Patch only keys the user asked to change");
-    expect(prompt).toContain("never copy old conversation/full state");
-    expect(prompt).toContain("Disclose unsupported settings; never silently substitute");
-    expect(prompt).toContain("[view name](returned link)");
+    expect(prompt).toContain("list before updates");
+    expect(prompt).toContain("patch only requested keys from fresh state");
+    expect(prompt).toContain("never old/full state");
+    expect(prompt).toContain("Linked-entity filters never retarget");
+    expect(prompt).toContain("Without requestedAction, from All create unless asked to edit All");
+    expect(prompt).toContain("Disclose unsupported settings");
+    expect(prompt).toContain("[name](returned link)");
     expect(prompt).toContain("retry that tool once");
     expect(prompt).toContain("Never print or imitate tool-call syntax as text");
     expect(prompt).toContain("keep working while credits remain");
