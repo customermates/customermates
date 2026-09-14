@@ -49,9 +49,17 @@ describe("gated-tools", () => {
     }
   });
 
-  it("keeps the mailbox folder move behind approval, unlike inbox-only thread triage", () => {
-    expect(approvalNeeded(toolByName("move_email_thread"), {})).toBe(true);
+  it("runs mailbox folder moves and inbox-only thread triage without approval", () => {
+    expect(approvalNeeded(toolByName("move_email_thread"), {})).toBe(false);
     expect(approvalNeeded(toolByName("update_messaging_thread"), {})).toBe(false);
+  });
+
+  it("gates only routine deletion; drafting, updating, pausing and running now stay immediate", () => {
+    const routines = toolByName("manage_routines");
+    for (const action of ["list", "runs", "create", "update", "pause", "run_now"])
+      expect(approvalNeeded(routines, { action }), action).toBe(false);
+    expect(approvalNeeded(routines, { action: "delete" })).toBe(true);
+    expect(approvalNeeded(routines, {})).toBe(true);
   });
 
   it("fails closed: a tool without annotations is not read-only", () => {

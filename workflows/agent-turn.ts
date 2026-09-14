@@ -1,6 +1,7 @@
 import type { Prisma } from "@/generated/prisma";
 import type { AgentToolDeps } from "@/ee/agent-chat/agent-tools";
 import type { AgentTurnBudget } from "@/ee/agent-chat/agent-budget-policy";
+import type { AgentRuntimeFlags } from "@/ee/agent-chat/agent-runtime-flags";
 import type { AgentActivityResource } from "@/ee/agent-chat/agent-activity";
 import type { AgentTranscriptEvent } from "@/ee/agent-chat/agent-turn-transcript";
 import type { AgentTurnTerminalEvent } from "@/ee/agent-chat/agent-durable-stream";
@@ -14,7 +15,7 @@ import { createHook, getWritable, sleep } from "workflow";
 import { isStepCount, jsonSchema } from "ai";
 
 import { AgentTurnTranscript } from "@/ee/agent-chat/agent-turn-transcript";
-import { approvalWindowMsForSurface, isUnattendedSurface } from "@/ee/agent-chat/agent-surface-policy";
+import { approvalWindowMsForSurface } from "@/ee/agent-chat/agent-surface-policy";
 import { isAgentTurnTerminalError, type AgentTurnStopReason } from "@/ee/agent-chat/agent-turn-request";
 import {
   agentApprovalHookToken,
@@ -30,8 +31,11 @@ import {
   type ToolApprovalGrant,
 } from "@/ee/agent-chat/agent-approval-resume";
 import { agentUiCommandHookToken, isAgentPanelTool, toAgentUiCommandInput } from "@/ee/agent-chat/agent-ui-command";
+import { activeAgentToolNames } from "@/ee/agent-chat/agent-toolset-routing";
+import { agentRuntimeFlagsOrDefault } from "@/ee/agent-chat/agent-runtime-flags";
+import { googleThinkingProviderOptions } from "@/ee/agent-chat/agent-thinking-options";
 import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-context";
-import { buildAgentSystemPrompt } from "@/ee/agent-chat/system-prompt";
+import { buildAgentSystemPrompt, routineTriggerEventOf } from "@/ee/agent-chat/system-prompt";
 import { buildAgentUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/agent-usage-settlement";
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
 import { agentCreditsForStartedProviderCost } from "@/ee/agent-chat/agent-credit-policy";
@@ -62,7 +66,7 @@ import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
 import { runInRoutineContext } from "@/core/decorators/routine-context";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 
-import { reportFailure, toWorkflowFailure, type WorkflowFailure } from "./capture-failure";
+import { reportFailure, reportWarning, toWorkflowFailure, type WorkflowFailure } from "./capture-failure";
 
 const WORKFLOW_NAME = "agent-turn";
 
@@ -94,6 +98,8 @@ export type AgentTurnWorkflowPayload = {
   turnBudget: AgentTurnBudget;
   tenant: WorkflowTenant;
   surface?: AgentTurnSurface;
+  runtime?: Partial<AgentRuntimeFlags>;
+  toolsets?: string[];
 };
 
 export type AgentTurnSurface = "chat" | "routine";
@@ -104,6 +110,7 @@ type AgentToolShell = {
   inputSchema: unknown;
   annotations: Record<string, boolean> | undefined;
   gated: boolean;
+  toolset: string | null;
 };
 
 type PendingApproval = {
@@ -175,6 +182,13 @@ function usageSettlementForTurn(payload: AgentTurnWorkflowPayload, outcome: Agen
 
   const measured = outcome.ledger.every((entry) => entry.measured);
   const unreadableReason = outcome.ledger.find((entry) => entry.unreadableReason)?.unreadableReason ?? null;
+  if (!measured && outcome.ledger.length > 0) {
+    void reportWarning(
+      WORKFLOW_NAME,
+      `Agent usage settled from modelled cost because the provider charge was unreadable (${unreadableReason ?? "no reason"}) for ${outcome.ledger.filter((entry) => !entry.measured).length} of ${outcome.ledger.length} rounds on ${payload.turnBudget.modelSpec}.`,
+      payload.tenant,
+    );
+  }
   return buildAgentUsageSettlement({
     model: payload.turnBudget.modelSpec,
     tokens: outcome.tokens,
@@ -280,22 +294,18 @@ canStartNextHostedAiProviderRound.maxRetries = 0;
 
 async function loadAgentToolShells(surface: AgentTurnSurface, servingProvider: string): Promise<AgentToolShell[]> {
   "use step";
-  const { getAgentAiToolDefinitions } = await import("@/ee/agent-chat/agent-tools");
+  const { agentToolDefinitionsForTurn } = await import("@/ee/agent-chat/agent-tools");
   const { ALL_MCP_TOOLS } = await import("@/features/mcp-tools/tool-registry");
-  const { AGENT_UI_TOOL_NAMES } = await import("@/ee/agent-chat/agent-ui-command");
   const gatedByName = new Map(ALL_MCP_TOOLS.map((mcp) => [mcp.name, mcp.annotations]));
-  const unattended = isUnattendedSurface(surface);
-  const panelToolNames = new Set<string>(AGENT_UI_TOOL_NAMES);
 
-  return getAgentAiToolDefinitions(servingProvider)
-    .filter((definition) => !unattended || !panelToolNames.has(definition.name))
-    .map((definition) => ({
-      name: definition.name,
-      description: definition.description,
-      inputSchema: definition.inputSchema,
-      annotations: gatedByName.get(definition.name),
-      gated: gatedByName.has(definition.name),
-    }));
+  return agentToolDefinitionsForTurn({ surface, servingProvider }).map((definition) => ({
+    name: definition.name,
+    description: definition.description,
+    inputSchema: definition.inputSchema,
+    annotations: gatedByName.get(definition.name),
+    gated: gatedByName.has(definition.name),
+    toolset: definition.toolset,
+  }));
 }
 
 async function executeAgentTool(
@@ -328,7 +338,9 @@ async function normalizeAgentToolInput(
   "use step";
   const { normalizeAgentAiToolInput } = await import("@/ee/agent-chat/agent-tools");
   return runAsBackgroundTenant(payload.userId, () =>
-    normalizeAgentAiToolInput(toolName, input, resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars)),
+    normalizeAgentAiToolInput(toolName, input, resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars), {
+      locale: payload.locale,
+    }),
   );
 }
 normalizeAgentToolInput.maxRetries = 0;
@@ -737,14 +749,27 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       if ((AGENT_TRANSCRIPT_FORWARDED_EVENTS as readonly string[]).includes(event.type)) queued.push(event);
     });
 
+    const runtime = agentRuntimeFlagsOrDefault(payload.runtime);
+    const initialToolsets = payload.toolsets ?? [];
     const systemPrompt = buildAgentSystemPrompt({
       userName: payload.userName,
       appBaseUrl: payload.appBaseUrl,
       locale: payload.locale,
       surface,
+      toolsetRouting: runtime.toolsetRouting,
+      promptV2: runtime.promptV2,
+      triggerEvent: routineTriggerEventOf(payload.messages.findLast((message) => message.role === "user")?.text),
     });
     const toolDefinitions = shells.map(({ name, description, inputSchema }) => ({ name, description, inputSchema }));
-    const providerContext = buildAgentProviderContext(systemPrompt, payload.messages, toolDefinitions);
+    const activeToolNamesFor = (stepMessages: readonly unknown[]) =>
+      runtime.toolsetRouting ? activeAgentToolNames({ tools: shells, initialToolsets, messages: stepMessages }) : null;
+    const providerContext = buildAgentProviderContext(
+      systemPrompt,
+      payload.messages,
+      runtime.toolsetRouting
+        ? toolDefinitions.filter((definition) => activeToolNamesFor([])?.includes(definition.name))
+        : toolDefinitions,
+    );
 
     let tokens = emptyTokens();
     let cancelled = await readCancellation(payload);
@@ -930,13 +955,21 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           initialMessages: providerContext.messages,
           steps: continuationSteps,
           retainedResponseSteps,
+          resultDigest: runtime.resultDigest,
         });
         const candidateMessages = continueOutput
           ? [...compacted.messages, { role: "user" as const, content: AGENT_OUTPUT_CONTINUATION_PROMPT }]
           : [...compacted.messages];
+        const activeForCandidate = activeToolNamesFor(candidateMessages);
         if (
           !isAgentStepContextWithinBudget(
-            { ...providerContext, system: compacted.system },
+            {
+              ...providerContext,
+              system: compacted.system,
+              tools: activeForCandidate
+                ? toolDefinitions.filter((definition) => activeForCandidate.includes(definition.name))
+                : toolDefinitions,
+            },
             candidateMessages,
             payload.turnBudget.maxContextBytes,
           )
@@ -994,29 +1027,36 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           ]),
         ),
         maxOutputTokens: payload.turnBudget.maxOutputTokens,
+        ...(payload.turnBudget.reasoningEffort ? { reasoning: payload.turnBudget.reasoningEffort } : {}),
         providerOptions: {
           gateway: {
             only: [payload.turnBudget.servingProvider],
-            inferenceRegion: payload.turnBudget.inferenceRegion
-              ? { scope: "zone", geoRegion: payload.turnBudget.inferenceRegion }
-              : { scope: "global" },
+            ...(payload.turnBudget.inferenceRegion
+              ? { inferenceRegion: { scope: "zone", geoRegion: payload.turnBudget.inferenceRegion } }
+              : {}),
             zeroDataRetention: true,
             disallowPromptTraining: true,
+            ...(runtime.cachingAuto ? { caching: "auto" as const } : {}),
           },
           openai: { parallelToolCalls: false },
+          ...googleThinkingProviderOptions(payload.turnBudget),
         },
         prepareStep: async ({ messages: stepMessages }) => {
           if (abandoned || cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null)
             throw AGENT_LOCAL_TERMINATION_REQUIRED;
+          const activeTools = activeToolNamesFor(stepMessages);
+          const activeDefinitions = activeTools
+            ? toolDefinitions.filter((definition) => activeTools.includes(definition.name))
+            : toolDefinitions;
           if (
             !isAgentContextWithinBudget(
-              { messages: stepMessages, tools: toolDefinitions },
+              { system: instructions, messages: stepMessages, tools: activeDefinitions },
               payload.turnBudget.maxContextBytes,
             )
           )
             throw AGENT_CONTEXT_COMPACTION_REQUIRED;
           if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
-          return {};
+          return activeTools ? { activeTools } : {};
         },
         stopWhen: [
           isStepCount(AGENT_SEGMENT_ROUNDS),

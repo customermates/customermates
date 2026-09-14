@@ -17,6 +17,24 @@
   },
   "AgentChat": {
     "activity": {
+      "approval": {
+        "messages": {
+          "discard": "Pronto a eliminare la bozza",
+          "draft": "Pronto a salvare una bozza",
+          "send": "Pronto a inviare un messaggio reale",
+          "triage": "Pronto a cambiare lo stato della conversazione"
+        },
+        "routines": {
+          "configure": "Pronto a mettere in pausa o eseguire la routine",
+          "delete": "Pronto a eliminare la routine e la sua cronologia"
+        },
+        "team": {
+          "manage": "Pronto a modificare l’accesso del team"
+        },
+        "webhooks": {
+          "manage": "Pronto a modificare la consegna dei webhook"
+        }
+      },
       "cancelled": "Interrotto",
       "consequence": {
         "accountConnect": "Collegare un canale di messaggistica",
@@ -29,6 +47,9 @@
         "recordsDelete": "Questa azione non può essere annullata.",
         "recordsLink": "Collegare i record",
         "recordsUnlink": "Rimuovere i collegamenti",
+        "routineDelete": "Eliminare definitivamente la routine selezionata e la sua cronologia",
+        "routinePause": "Mettere in pausa la routine selezionata",
+        "routineRun": "Eseguire ora la routine selezionata",
         "salesListSave": "Aggiungere il potenziale cliente selezionato a un elenco Sales Navigator",
         "salesListSaveTarget": "Aggiungere {target} all'elenco Sales Navigator {list}",
         "socialAccept": "Accettare la richiesta di collegamento selezionata",
@@ -157,12 +178,12 @@
           "discard": {
             "done": "Bozza scartata",
             "error": "Impossibile eliminare la bozza",
-            "running": "Pronto a eliminare la bozza"
+            "running": "Eliminazione della bozza"
           },
           "draft": {
             "done": "Bozza salvata",
             "error": "Impossibile salvare la bozza",
-            "running": "Pronto a salvare una bozza"
+            "running": "Salvataggio di una bozza"
           },
           "read": {
             "done": "Conversazioni controllate",
@@ -172,12 +193,12 @@
           "send": {
             "done": "Messaggio inviato",
             "error": "Impossibile inviare il messaggio",
-            "running": "Pronto a inviare un messaggio reale"
+            "running": "Invio del messaggio"
           },
           "triage": {
             "done": "Stato della conversazione modificato",
             "error": "Impossibile modificare lo stato della conversazione",
-            "running": "Pronto a cambiare lo stato della conversazione"
+            "running": "Modifica dello stato della conversazione"
           }
         },
         "profile": {
@@ -219,6 +240,33 @@
             "running": "{count, plural, one {Aggiornamento di {target}} other {Aggiornamento di {target}}}"
           }
         },
+        "routines": {
+          "configure": {
+            "done": "Pianificazione della routine modificata",
+            "error": "Impossibile modificare la pianificazione della routine",
+            "running": "Modifica della pianificazione della routine"
+          },
+          "create": {
+            "done": "Routine creata",
+            "error": "Impossibile creare la routine",
+            "running": "Creazione di una routine"
+          },
+          "delete": {
+            "done": "Routine rimossa",
+            "error": "Impossibile rimuovere la routine",
+            "running": "Rimozione della routine"
+          },
+          "read": {
+            "done": "Routine lette",
+            "error": "Impossibile leggere le routine",
+            "running": "Lettura delle routine"
+          },
+          "update": {
+            "done": "Routine aggiornata",
+            "error": "Impossibile aggiornare la routine",
+            "running": "Aggiornamento della routine"
+          }
+        },
         "support": {
           "escalate": {
             "done": "E-mail di assistenza accettata per l’invio",
@@ -230,14 +278,21 @@
           "manage": {
             "done": "Accesso del team modificato",
             "error": "Impossibile modificare gli accessi del team",
-            "running": "Pronto a modificare l’accesso del team"
+            "running": "Modifica dell’accesso del team"
+          }
+        },
+        "tools": {
+          "load": {
+            "done": "Altri strumenti caricati",
+            "error": "Impossibile caricare altri strumenti",
+            "running": "Caricamento di altri strumenti"
           }
         },
         "webhooks": {
           "manage": {
             "done": "Azione sul webhook completata",
             "error": "Impossibile completare l’azione webhook",
-            "running": "Pronto a modificare la consegna dei webhook"
+            "running": "Modifica della consegna dei webhook"
           }
         },
         "widgets": {

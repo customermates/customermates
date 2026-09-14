@@ -1,16 +1,17 @@
 import { z } from "zod";
 
 import {
-  toonResult,
-  runInteractor,
   customMcpFailure,
+  filtersDescription,
   formatDatesInResponse,
+  MCP_PAGE_SIZE_DESCRIPTION,
   mcpInteractorFailure,
-  mcpValidationFailure,
   mcpPage,
   mcpPageSize,
-  filtersDescription,
+  mcpValidationFailure,
+  runInteractor,
   sortDescription,
+  toonResult,
 } from "./utils";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -56,7 +57,7 @@ const GetMessagingThreadsSchema = z.object({
   page: mcpPage(),
   pageSize: mcpPageSize(
     25,
-    "Results per page: 5, 10, 25, or 100 (default 25). With threadId set this pages the thread's messages",
+    `${MCP_PAGE_SIZE_DESCRIPTION} Default 25. With threadId set this pages the thread's messages.`,
   ),
   searchTerm: GetQueryParamsSchema.shape.searchTerm.describe(
     "Free-text search against thread name, subject, and participants (list mode only)",
@@ -277,7 +278,7 @@ export const getMessagingThreadsTool = {
 const GetActivitiesSchema = z
   .object({
     page: mcpPage(ACTIVITY_MAX_PAGE),
-    pageSize: mcpPageSize(25, "Results per page: 5, 10, 25, or 100 (default 25)"),
+    pageSize: mcpPageSize(25),
     scope: ActivityScopeSchema.optional().describe(
       "Optional low-level base scope for entity-detail timelines. When filters are also present, scope and filters are AND-combined.",
     ),
@@ -351,7 +352,7 @@ const GetCalendarsToolSchema = z.object({
   ),
   sortDescriptor: SortDescriptorSchema.optional().describe(sortDescription("name (calendars) or startsAt (events)")),
   page: mcpPage(),
-  pageSize: mcpPageSize(25, "Results per page: 5, 10, 25, or 100 (default 25)"),
+  pageSize: mcpPageSize(25),
 });
 
 export const getCalendarsTool = {

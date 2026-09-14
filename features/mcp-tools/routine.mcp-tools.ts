@@ -17,18 +17,26 @@ import {
   RoutineTriggerEventSchema,
 } from "@/ee/routines/routine.schema";
 
-import { enumHint, mcpPage, mcpPageSize, mcpValidationFailure, runInteractor, toonResult } from "./utils";
+import {
+  enumHint,
+  MCP_PAGE_SIZE_DESCRIPTION,
+  mcpPage,
+  mcpPageSize,
+  mcpValidationFailure,
+  runInteractor,
+  toonResult,
+} from "./utils";
 
 const ManageRoutinesSchema = z.object({
   action: z
     .enum(["list", "runs", "create", "update", "pause", "run_now", "delete"])
     .describe(
-      "list = every routine with its full configuration; runs = one routine's run history; create/update/pause/run_now/delete = manage a routine",
+      "list = every routine with its full configuration (optional page, pageSize, searchTerm); runs = one routine's run history (id, optional cursor); create = name, prompt, triggerKind, enabled, plus cronExpression and timezone for a schedule or triggerEvents (optional changedFields, triggerFilters, debounceSeconds) for an event; update = id plus the fields to change; pause, run_now and delete = id.",
     ),
   id: z.uuid().optional().describe("Routine id. Required for update, pause, run_now and delete."),
   cursor: z.string().max(500).nullable().optional().describe("runs only. Page cursor from a previous runs call."),
   page: mcpPage(),
-  pageSize: mcpPageSize(25, "list only. Results per page: 5, 10, 25, or 100 (default 25)"),
+  pageSize: mcpPageSize(25, `list only. ${MCP_PAGE_SIZE_DESCRIPTION} Default 25.`),
   searchTerm: z.string().optional().describe("list only. Free-text match against the routine name."),
   name: z.string().min(1).max(ROUTINE_NAME_MAX_CHARS).optional().describe("Required on create."),
   prompt: z

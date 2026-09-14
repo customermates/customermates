@@ -148,7 +148,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
     <div className="rounded-2xl border px-4 py-3.5 text-sm" data-testid="agent-approval">
       <p className="text-xs font-medium text-muted-foreground">{t("AgentChat.approval.title")}</p>
 
-      <p className="mt-1 font-medium">{copy.running}</p>
+      <p className="mt-1 font-medium">{copy.approval}</p>
 
       {item.activity.consequence && copy.detail && <p className="mt-1 text-xs text-muted-foreground">{copy.detail}</p>}
 

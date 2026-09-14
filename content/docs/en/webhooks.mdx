@@ -5,7 +5,7 @@ description: Subscribe to CRM events, verify signatures, inspect failed deliveri
 
 Customermates sends a JSON POST to your HTTPS endpoint whenever subscribed data changes. You choose the events and provide the URL. Failed deliveries can be re-sent from the UI or through MCP. Deliveries are signed with HMAC-SHA256 over the raw request body. Every event and its payload shape is listed in the catalog at the end of this page.
 
-## Uses
+## What are webhooks for?
 
 Webhooks let other systems react to CRM changes without polling.
 
@@ -14,7 +14,7 @@ Webhooks let other systems react to CRM changes without polling.
 - Trigger a finance workflow when a deal is marked as closed.
 - Sync records into a data warehouse in near real time.
 
-## Create a webhook
+## How do I create a webhook?
 
 **UI:** Company, then Webhooks, then New.
 
@@ -31,7 +31,7 @@ Webhooks let other systems react to CRM changes without polling.
 
 Use an HTTPS endpoint. An `http://` URL is accepted for local testing, but a webhook that carries custom headers must be `https://`, because headers usually carry a credential.
 
-## What you receive
+## What does the payload look like?
 
 Every delivery is a `POST` with `Content-Type: application/json` and the same envelope:
 
@@ -92,7 +92,7 @@ The record fields depend on the entity type. Custom columns appear under `custom
 
 `changes` is present only on `*.updated` events. Each key is a record field whose value moved. `previous` is the value before the write, `current` is the value after.
 
-Arrays of related records compare by id. Objects compare by deep equality. Scalar fields compare by value. `createdAt` and `updatedAt` are never reported as changes.
+Scalar and object fields report their complete value before and after, compared by deep equality. Arrays whose items carry an `id`, `columnId` or `key` (related records, custom-field values) report only the items that moved: `previous` holds the items that changed or were removed, `current` holds the items that changed or were added, and unchanged items are omitted. An added item therefore appears only under `current` and a removed one only under `previous`. Arrays without such a key report the whole array on both sides. `createdAt` and `updatedAt` are never reported as changes.
 
 If a write does not change any field, the event is suppressed. No-op `*.updated` events are not delivered.
 
@@ -100,7 +100,7 @@ If a write does not change any field, the event is suppressed. No-op `*.updated`
 
 Some receivers will not accept the standard delivery. Two optional settings cover that, and a webhook that sets neither delivers exactly as described above.
 
-**Custom headers** are sent with every delivery, for endpoints that require their own authentication. Set them in the UI one per line as `Name: value`, or pass a `headers` object through MCP and the API. `Content-Type`, `Host` and `X-Webhook-Signature` are set by Customermates and cannot be overridden; header names must be valid HTTP tokens, and values must be Latin-1 text without line breaks. Because headers usually carry a credential, a webhook that has them must use an HTTPS endpoint.
+**Custom headers** are sent with every delivery, for endpoints that require their own authentication. Set them in the UI one per line as `Name: value`, or pass a `headers` object through MCP and the API. Six names are reserved and rejected when you save: `Connection`, `Content-Length`, `Content-Type`, `Host`, `Transfer-Encoding` and `X-Webhook-Signature`. Header names must be valid HTTP tokens, values must be Latin-1 text without line breaks, and a webhook may carry up to 20 headers with names up to 128 characters, values up to 2,048 characters, and 8,192 characters in total. Because headers usually carry a credential, a webhook that has them must use an HTTPS endpoint; plain HTTP is accepted only for localhost.
 
 Header values are never returned by the REST API or by MCP, which report `headerNames` instead. The webhook form in Customermates does still show them, so anyone who can manage webhooks in the workspace can read them, the same as the signing secret. An API or MCP update that omits `headers` keeps the stored values, and one that passes `null` clears them.
 
@@ -118,7 +118,7 @@ The template must produce a JSON object. It is checked when you save the webhook
 
 Deliveries are recorded with the event payload rather than the rendered body, so the delivery detail shows the event that fired and not the exact bytes sent.
 
-## Sending to a specific service
+## How do I send to Slack, Discord or n8n?
 
 Each recipe is the URL, the custom headers, and the body template to paste into **Company → Webhooks → New**. Set a signing secret in every case; a receiver that cannot verify it simply ignores the header.
 
@@ -186,7 +186,7 @@ See [n8n](/docs/n8n) for the full pattern.
 
 A receiver that needs neither its own authentication nor a fixed body needs neither setting. Leave both empty and verify the signature as described below.
 
-## Signature verification
+## How do I verify the signature?
 
 If you set a `secret`, every request includes:
 
@@ -207,7 +207,7 @@ function verify(rawBody: string, received: string, secret: string) {
 }
 ```
 
-## Retries and failed deliveries
+## How do retries and failed deliveries work?
 
 Every delivery is recorded. Review deliveries in the UI (Company, then Webhook Deliveries) or through `manage_webhooks` with `action: "list_deliveries"`.
 
@@ -217,7 +217,7 @@ Customermates automatically retries failed deliveries: up to 5 retries for timeo
 
 You can also resend any delivery yourself from the UI or with `manage_webhooks` and `action: "resend_delivery"` plus the delivery id. A manual resend creates a new delivery record; the original is unchanged.
 
-## Ordering and concurrency
+## Are deliveries ordered?
 
 Deliveries are not strictly ordered across events. Two `contact.updated` events milliseconds apart can arrive out of order. Use the `timestamp` in the payload to resolve order, or treat deliveries as idempotent messages keyed by `entityId`.
 
@@ -225,19 +225,19 @@ Deliveries are not strictly ordered across events. Two `contact.updated` events 
 
 The `notes` field in payloads is Tiptap JSON, the same structure the editor stores. To render it as markdown on your side, run it through a Tiptap-compatible serializer. In MCP, `get_records` with `include: "withNotes"` returns notes already serialized to markdown.
 
-## Delete payloads
+## What do delete payloads contain?
 
 Delete events carry the full record as it was before deletion, under `payload`, not just the id. The affected record id is also available as `data.entityId`.
 
-## Debugging
+## How do I debug a delivery?
 
 - Use [webhook.site](https://webhook.site) as a throwaway receiver during integration testing.
 - The delivery log (`manage_webhooks`, `action: "list_deliveries"`) supports `searchTerm` on url and event name.
 - If your receiver returns an error status, Customermates records the response so you can inspect what happened.
 
-## Event catalog
+## Which events exist?
 
-Twenty-six events are available to subscribe to: fifteen record events across the five entity types, and eleven messaging events. All use the envelope above.
+[[derived.webhooks.events.total]] events are available to subscribe to: [[derived.webhooks.events.records]] record events across the five entity types, and [[derived.webhooks.events.messaging]] messaging events. All use the envelope above. Routines can be triggered by the same events except the two message-deleted events; see [Routines](/docs/app-routines#how-do-event-triggers-work).
 
 ### Record events
 

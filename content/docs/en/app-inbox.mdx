@@ -5,7 +5,7 @@ description: "The Customermates Inbox puts email, LinkedIn, WhatsApp, Instagram,
 
 This page documents the managed-cloud **Inbox** screen for humans and for authorized clients that drive the UI.
 
-## Purpose
+## What is the Inbox?
 
 The Inbox is unified messaging. Email, LinkedIn, WhatsApp, Instagram, and Telegram threads from all connected accounts appear in one list. From here you reply on the thread's original channel, set the thread state, and link participants to CRM contacts. It requires at least one connected account. See [App guide, Profile](/docs/app-profile).
 
@@ -13,7 +13,9 @@ The Inbox is unified messaging. Email, LinkedIn, WhatsApp, Instagram, and Telegr
 
 The route is `/inbox`. All app routes are locale-prefixed, for example `https://customermates.com/en/inbox`.
 
-## Key actions
+## Which ids does the Inbox have?
+
+Mate can navigate to `#nav-inbox`. The other ids are DOM ids for external browser clients; Mate triages threads with the `update_messaging_thread` and `move_email_thread` tools instead of pressing these controls.
 
 | Action                      | Where                               | Anchor id                                  | What happens                                                               |
 | --------------------------- | ----------------------------------- | ------------------------------------------ | -------------------------------------------------------------------------- |
@@ -23,20 +25,20 @@ The route is `/inbox`. All app routes are locale-prefixed, for example `https://
 | Set thread state            | Thread header state select          | `#inbox-thread-state`                      | Choose unread, open, closed, or spam                                       |
 | Move email to a folder      | Thread header folder select         | `#inbox-thread-folder`                     | Files the conversation in the real mailbox; Sent and Drafts are not targets |
 | Open the reply composer     | Collapsed row under the thread      | `#inbox-reply-expand`                      | Expands the composer; it stays open while a draft or attachment is present |
-| Share thread with the team  | Thread settings panel               | `#thread-shared`                           | Expose this individual thread to CRM teammates on a messaging-enabled plan |
+| Share thread with the team  | Thread settings panel               | `#thread-shared`                           | Expose this individual thread to CRM teammates on a messaging-enabled plan; disabled unless you own the account and the account itself is not shared |
 | Link participant to contact | Thread settings panel               | none                                       | Open thread settings, then link per participant                            |
 
-## Thread settings
+## How do I share a thread or link a participant?
 
-Open a thread's settings to manage everything that belongs to the conversation rather than a single message. Each participant can be linked to a CRM contact, which makes the thread and its messages appear on that contact's timeline; unlinked participants stay visible in the thread only. On any messaging-enabled plan, `#thread-shared` exposes that individual thread to CRM teammates. Sharing the complete connected account is a separate entitlement available on Business and Enterprise.
+Open a thread's settings to manage everything that belongs to the conversation rather than a single message. Each participant can be linked to a CRM contact, which makes the thread and its messages appear on that contact's timeline; unlinked participants stay visible in the thread only. On any messaging-enabled plan (Pro, Business, Enterprise), the account owner uses `#thread-shared` to expose that individual thread to CRM teammates. Sharing the complete connected account is a separate entitlement available on Business and Enterprise; once an account is shared, every thread is shared and the per-thread switch is disabled.
 
-## Drafts and attachments
+## How do drafts and attachments work?
 
 Use **Save as draft** in the reply composer's menu to keep a reply in the Inbox without sending it. The Inbox has no composer for a brand-new conversation: start one from the send icon on a contact's channel, or with `save_message_draft` over MCP or `POST /v1/messaging/drafts`, and it then appears in the Inbox as a draft. Saved drafts survive reloads and can be edited, sent, or discarded. There is one saved draft per thread; saving again updates it. UI, REST, and MCP use the same draft queue. API clients must supply the saved message ID and its current `draftRevision` when sending or discarding that draft. Discarding removes the saved content and cannot be undone.
 
 Saved drafts store message text and email addressing, not outgoing attachments. Supported incoming media opens inline, ordinary files download, and unsupported items are shown as unsupported. LinkedIn-post attachments open at their external source. Outgoing attachments go through the reply composer on channels that support them.
 
-## Email appearance and signatures
+## How do I set an email signature?
 
 Open [Profile → Connected accounts](/docs/app-profile), select an email account you own, and use its **Email** tab. Font family, font size, link color, and link style apply to emails composed from plain text or Markdown, including new messages and replies. Write the signature in one Markdown block and enable or disable it without deleting its content. Choose text only, logo above, or logo beside; logo layouts offer small, medium, or large sizing, an optional thin divider, and compact or comfortable spacing. Logos keep their proportions and require a public HTTPS image URL. The live preview sits beside the settings on larger screens and below them on smaller screens.
 
@@ -46,14 +48,14 @@ The signature toggle belongs to the sending account, not to a transport: turning
 
 Draft previews and sending use the same email renderer and current account settings. Generated HTML separates the signature with spacing, and the plain-text alternative uses the conventional signature delimiter. Recipient mail clients may still adjust colors, fonts, or remote-image visibility. Saved drafts retain editable Markdown and a body-only HTML derivative, never a pre-appended signature.
 
-## Thread states
+## What do the thread states mean?
 
-A thread is **unread** until someone opens it, **open** while it needs attention, **closed** when it is done, and **spam** to keep a sender out of the way. Setting a state never sends anything to the other side; it only organizes your inbox. The hosted Mate capability is release-gated and is not required for this workflow.
+A thread is **unread** until someone opens it, **open** while it needs attention, **closed** when it is done, and **spam** to keep a sender out of the way. Setting a state never sends anything to the other side; it only organizes your inbox.
 
 ## Tips for agents
 
-- Locate controls via the stable ids above, for example with the CSS selector `#inbox-reply-send`.
-- Rows never carry ids. Open records via their URL, or (on entity pages) via the drawer deep-link `?open=<entityType>:{id}`. In the Inbox, thread rows are buttons inside `#inbox-thread-list`.
+- External browser clients locate controls via the stable ids above, for example with the CSS selector `#inbox-reply-send`. The hosted assistant only navigates to `#nav-inbox`.
+- Rows never carry ids. Open records via their page URL `/{type}/{id}`. In the Inbox, thread rows are buttons inside `#inbox-thread-list`.
 - Prefer [MCP](/docs/mcp) tools over clicking when a tool exists.
 - Starting a fresh conversation (new email, new chat) is available through the MCP tools `send_email` and `send_chat_message`. Prefer those over the UI. In the app, the send icon on a contact's channel opens a compose popover for a quick message.
 

@@ -226,6 +226,7 @@ const globexId = randomUUID();
 const throwawayId = randomUUID();
 const sweepId = randomUUID();
 const stoppableId = randomUUID();
+const novaDealId = randomUUID();
 const evalRoleId = randomUUID();
 
 describeEval("agent live eval", () => {
@@ -278,6 +279,7 @@ describeEval("agent live eval", () => {
       });
       await prisma.organization.create({ data: { id: acmeId, companyId, name: "ACME GmbH" } });
       await prisma.organization.create({ data: { id: globexId, companyId, name: "Globex" } });
+      await prisma.deal.create({ data: { id: novaDealId, companyId, name: "Nova Expansion" } });
       await prisma.contact.create({
         data: { companyId: sentinelCompanyId, firstName: "Sentinel", lastName: "Person" },
       });
@@ -331,6 +333,16 @@ describeEval("agent live eval", () => {
 
     expect(targets, JSON.stringify(frames)).toContain("deals-layout-board");
     for (const target of targets) expect(AGENT_UI_TARGET_IDS).toContain(target);
+    expect(frames.at(-1)).toMatchObject({ type: "turn_done", terminalCode: "completed" });
+  });
+
+  it("opens the deal Nova Expansion on its page and never in the drawer", async () => {
+    const { frames } = await runTurn({ text: "Open the deal Nova Expansion." });
+
+    const navigations = frames.filter((frame) => frame.type === "ui_command" && frame.name === "navigate");
+    expect(navigations, JSON.stringify(frames)).toHaveLength(1);
+    expect(navigations[0]?.input).toEqual({ entity: "deal", recordId: novaDealId });
+    expect(JSON.stringify(frames)).not.toContain("?open=");
     expect(frames.at(-1)).toMatchObject({ type: "turn_done", terminalCode: "completed" });
   });
 

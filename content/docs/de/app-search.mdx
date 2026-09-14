@@ -1,35 +1,35 @@
 ---
 title: "Globale Suche"
-description: "Das Cmd/Ctrl+K-Suchmodal: was es durchsucht, seine stabilen Ids und wie Ergebnisse öffnen, für Menschen und für AI-Agents, die die UI steuern."
+description: "Das Cmd/Ctrl+K-Suchmodal: welche Datensatztypen es durchsucht, seine stabilen Ids, wo ein Ergebnis öffnet und wo Aufgaben und Nachrichten stattdessen liegen."
 ---
 
-Die globale Suche ist ein Modal, keine Seite: Sie öffnet überall in der App mit **Cmd/Ctrl+K** oder über `#nav-search` in der Sidebar. Diese Seite dokumentiert sie für Menschen und für AI-Agents, die die UI steuern.
+Die globale Suche ist ein Modal, keine Seite: Sie öffnet überall in der App mit **Cmd/Ctrl+K** oder über `#nav-search` (**Suchen**) in der Sidebar. Diese Seite dokumentiert sie für Menschen und für KI-Agents, die die UI steuern.
 
-## Was durchsucht wird
+## Was findet die globale Suche?
 
-Das Modal durchsucht **Contacts, Organizations, Deals und Services** nach Name und verwandten Feldern und zeigt vor der Eingabe eine Gruppe **Zuletzt geöffnet**. Tasks sind nicht Teil der globalen Suche: Sie finden sich auf `/tasks` über die Listensuche und Filter oder über das MCP-Tool `list_records`.
+Das Modal durchsucht **Kontakte, Organisationen, Deals und Services** nach Name und verwandten Feldern, bis zu 50 Treffer pro Datensatztyp, und zeigt vor der Eingabe eine Gruppe **Zuletzt geöffnet**. Aufgaben sind nicht Teil der globalen Suche: Sie finden sie auf `/tasks` über die Listensuche und Filter oder mit dem MCP-Tool `list_records`. Nachrichten werden ebenfalls nicht durchsucht; der Posteingang hat seine eigene Suche.
 
-Die Auswahl eines Ergebnisses öffnet den Drawer des Records über der aktuellen Seite, der Kontext darunter bleibt erhalten. Das Deep-Link-Äquivalent ist das Muster `?open={entityType}:{id}` aus [CRM Records](/docs/app-records).
+Die Auswahl eines Ergebnisses öffnet die Detailseite des Datensatzes unter `/{type}/{id}`. Um stattdessen einen Datensatz anzulegen, nutzen Sie das Steuerelement **Hinzufügen** seiner Listenseite oder den Deep-Link `?open={entityType}:new`, dokumentiert in [CRM-Datensätze](/docs/app-records).
 
-## Stabile Ids
+## Welche stabilen Ids hat sie?
 
 | Control | Id |
 |---|---|
-| Sidebar-Trigger | `#nav-search` |
+| Sidebar-Trigger | `#nav-search` (**Suchen**) |
 | Suchfeld im Modal | `#global-search-input` |
 
-Für einen Agent passiert die Eingabe in `#global-search-input` nach dem Öffnen des Modals; Ergebnisse sind normale Optionen, ausgewählt über ihren sichtbaren Namen. Für gefilterte, sortierte oder gezählte Abfragen sind die Listenseiten oder `list_records` besser, denn sie liefern Totale.
+Für einen Agent passiert die Eingabe nach dem Öffnen des Modals in `#global-search-input`; Ergebnisse sind normale Optionen, ausgewählt über ihren sichtbaren Namen. Für gefilterte, sortierte oder gezählte Abfragen sind die Listenseiten oder `list_records` besser, denn sie liefern Gesamtzahlen. Der gehostete Assistent Mate kann `#nav-search` hervorheben, aber das Modal weder öffnen noch etwas hineintippen.
 
 ## Häufige Fragen
 
 <Faq>
-<FaqItem question="Warum taucht ein Task nicht in der globalen Suche auf?">
-Tasks sind nicht Teil der globalen Suche. Sie finden sich in der Task-Liste über deren Suche und Filter oder über das MCP-Tool `list_records`.
+<FaqItem question="Warum taucht eine Aufgabe nicht in der globalen Suche auf?">
+Aufgaben sind nicht Teil der globalen Suche. Sie finden sie in der Aufgabenliste über deren Suche und Filter oder über das MCP-Tool `list_records`.
 </FaqItem>
 <FaqItem question="Was ist das Tastenkürzel?">
-Cmd+K auf macOS, sonst Ctrl+K, überall in der App. Der Sidebar-Trigger `#nav-search` öffnet dasselbe Modal.
+Cmd+K auf macOS, sonst Ctrl+K, überall in der App. Der Sidebar-Trigger öffnet dasselbe Modal.
 </FaqItem>
 <FaqItem question="Wo öffnen sich Ergebnisse?">
-Im Drawer des Records über der aktuellen Seite, der Kontext darunter bleibt erhalten. Derselbe Drawer ist direkt über den Deep-Link `?open={entityType}:{id}` aus [CRM Records](/docs/app-records) erreichbar.
+Auf der Detailseite des Datensatzes unter `/{type}/{id}`, dokumentiert in CRM-Datensätze.
 </FaqItem>
 </Faq>

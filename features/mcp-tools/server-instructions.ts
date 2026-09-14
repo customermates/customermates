@@ -1,12 +1,19 @@
 export const TOOL_APPROVAL_INSTRUCTION =
   "Approval is requested by calling the tool: the call itself raises whatever confirmation the action needs, and nothing happens until that confirmation is granted. Never ask for permission in a message and then wait for a reply instead of calling the tool.";
 
+export const CRM_DATA_INVARIANTS = [
+  "Deal stage and task status are singleSelect custom columns, not fixed fields.",
+  "Never guess custom-column ids or singleSelect option ids; read them from get_record_schema.",
+  "Contact ids: a UUID, or a channel the contact owns: an email, a phone, or 'provider:handle' (linkedin, telegram, instagram).",
+  "List results are TOON-encoded tables with total first and id and name per item; page through with page/pageSize.",
+] as const;
+
 export const MCP_SERVER_INSTRUCTIONS = `Customermates CRM. Five record types (contacts, organizations, deals, services, tasks), all with user-defined custom columns. Deal stage and task status are singleSelect custom columns, not fixed fields. Flow: call get_record_schema first (fields and custom-column ids vary per workspace), find ids with search_records or list_records, write with the per-entity create_*/update_* tools. Relations change ONLY via manage_record_links; update_* never touches them. ${TOOL_APPROVAL_INSTRUCTION} delete_records and the send_* tools take effect immediately and cannot be undone from here, so name the exact records or recipients in the same message as the call.
 
 Conventions:
-- Contact ids: a UUID, or a channel the contact owns: an email, a phone, or 'provider:handle' (linkedin, telegram, instagram).
-- Never guess custom-column ids or singleSelect option ids; read them from get_record_schema.
-- List results are TOON-encoded tables with id and name first; page through with page/pageSize, total is always included.
+- ${CRM_DATA_INVARIANTS[2]}
+- ${CRM_DATA_INVARIANTS[1]}
+- ${CRM_DATA_INVARIANTS[3]}
 - save_message_draft prepares a message for the user to review and send from their inbox, either as a reply on a thread or as a brand-new conversation; send_email and send_chat_message deliver immediately.
 - Start a session with get_workspace_context to learn the user, company, roles, and connected messaging accounts.
 - To connect a new messaging channel (WhatsApp, LinkedIn, email, Instagram, Telegram), call connect_messaging_account; it returns a link the user opens in a browser to finish auth. You cannot complete the connection yourself, so hand the link over and ask them to open it.

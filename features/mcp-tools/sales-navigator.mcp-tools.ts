@@ -194,7 +194,7 @@ export const searchSalesLeadsTool = {
     "Two modes: pass a Sales Navigator search URL the user copied from their browser, or build a structured search with filters " +
     "(keywords plus location, industry, company, job title, seniority, headcount and more; resolve parameter ids as linkedin_get_sales_search_parameters.items[].id first). " +
     "Runs through the connected LinkedIn account with the account owner's license. " +
-    "Returns lead rows with linkedin_search_sales_leads.items[].id (use as providerId for linkedin_manage_sales_lists save), name, headline, location, profile url and items[].current_positions[] (company, role, company_id, company_url); use linkedin_search_sales_leads.items[].current_positions[].company_id with get_social_profile and profileType=company, or as providerId for linkedin_manage_sales_lists kind accounts; has_been_saved marks leads already on one of your lists. " +
+    "Returns lead rows with items[].id (the providerId for linkedin_manage_sales_lists save), name, headline, location, profile url and current_positions (company, role, company_id, company_url); linkedin_search_sales_leads.items[].current_positions[].company_id works with get_social_profile and profileType=company and as a providerId for account lists; has_been_saved marks leads already on one of your lists. " +
     "Paginate with offset plus limit; LinkedIn caps a single search at 2500 results, so narrow filters beat deep paging. " +
     "Requires a connected LinkedIn account with an active Sales Navigator subscription; without one the provider rejects the call.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
@@ -240,7 +240,7 @@ export const searchSalesCompaniesTool = {
     "Use this when the user wants to find companies (accounts) via LinkedIn Sales Navigator, for example to import them as organizations. " +
     "Two modes: pass a Sales Navigator company search URL the user copied from their browser, or build a structured search with filters " +
     "(keywords plus location, industry, headcount, annual revenue, spotlights and more; resolve parameter ids as linkedin_get_sales_search_parameters.items[].id first). " +
-    "Returns company rows with linkedin_search_sales_companies.items[].id (use with get_social_profile and profileType=company, or as providerId for linkedin_manage_sales_lists save with kind accounts), name, industry, location, headcount, website, specialties, founded year plus hiring and saved flags. " +
+    "Returns company rows with items[].id (usable with get_social_profile and profileType=company, and as providerId for linkedin_manage_sales_lists save with kind accounts), name, industry, location, headcount, website, specialties, founded year plus hiring and saved flags. " +
     "Paginate with offset plus limit; LinkedIn caps a single company search at 1000 results. " +
     "Requires a connected LinkedIn account with an active Sales Navigator subscription; without one the provider rejects the call.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
@@ -283,10 +283,10 @@ export const getSalesSearchParametersTool = {
   name: "linkedin_get_sales_search_parameters",
   title: "Get Sales Navigator search parameters",
   description:
-    "Use this to resolve linkedin_get_sales_search_parameters.items[].id values that fill the filter fields of linkedin_search_sales_leads and linkedin_search_sales_companies. " +
+    "Use this to resolve the parameter ids that fill the filter fields of linkedin_search_sales_leads and linkedin_search_sales_companies. " +
     "Pass a type (LOCATION, INDUSTRY, JOB_TITLE, JOB_FUNCTION, COMPANY, SCHOOL, GROUP, RELATION, PERSONA, PROFILE_LANGUAGE, POSTAL_CODE, " +
     "LEAD_LIST, ACCOUNT_LIST, SAVED_PEOPLE_SEARCH, SAVED_COMPANY_SEARCH, RECENT_SEARCH) plus keywords and get back matching ids with display names. " +
-    "LEAD_LIST and ACCOUNT_LIST also find existing Sales Navigator lists by name; use linkedin_get_sales_search_parameters.items[].id as linkedin_manage_sales_lists.listId. " +
+    "LEAD_LIST and ACCOUNT_LIST also find existing Sales Navigator lists by name; that id is the listId for linkedin_manage_sales_lists. " +
     "Paginate with offset plus limit when a type has more matches than one page. " +
     "Requires a connected LinkedIn account with an active Sales Navigator subscription.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
@@ -317,9 +317,9 @@ export const manageSalesListsTool = {
   title: "Manage Sales Navigator lists",
   description:
     "Use this to work with the Sales Navigator lead and account lists of a connected LinkedIn account. " +
-    "action list enumerates the existing lists (kind leads for people, accounts for companies) with linkedin_manage_sales_lists.items[].id, name and item count. " +
-    "action browse returns the members of one list using listId from linkedin_manage_sales_lists.items[].id; lead rows include items[].current_positions[] (company, role, company_id, company_url), and linkedin_manage_sales_lists.items[].current_positions[].company_id resolves via get_social_profile with profileType=company. " +
-    "action save ADDS a person or company to an existing list: for kind leads, pass providerId from linkedin_search_sales_leads.items[].id or get_social_profile.id. For get_messaging_threads.items[].participants[].identifier or get_messaging_threads.thread.participants[].identifier, call get_social_profile first and use get_social_profile.id. For kind accounts, pass linkedin_search_sales_companies.items[].id, linkedin_search_sales_leads.items[].current_positions[].company_id, linkedin_manage_sales_lists.items[].current_positions[].company_id from action=browse, or get_social_profile.current_positions[].company_id. The hosted Assistant verifies the person or company and the list from LinkedIn immediately before asking for approval. " +
+    "action list enumerates the existing lists (kind leads for people, accounts for companies) with id, name and item count. " +
+    "action browse returns the members of one list (listId); lead rows carry current_positions (company, role, company_id, company_url), and a company_id resolves via get_social_profile with profileType=company. " +
+    "action save ADDS a person or company to an existing list (listId plus providerId): for kind leads pass linkedin_search_sales_leads.items[].id or get_social_profile.id (a get_messaging_threads.items[].participants[].identifier or get_messaging_threads.thread.participants[].identifier must go through get_social_profile first); for kind accounts pass linkedin_search_sales_companies.items[].id or a current_positions[].company_id. The hosted Assistant verifies the person or company and the list with LinkedIn right before asking for approval. " +
     "Paginate list and browse with offset plus limit, repeating the same kind and listId while increasing offset. " +
     "New lists cannot be created via the API; the user creates them in Sales Navigator first. " +
     "Requires a connected LinkedIn account with an active Sales Navigator subscription.",

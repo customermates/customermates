@@ -126,7 +126,9 @@ export const updateWorkspaceSettingsTool = {
 const ManageTeamSchema = z.object({
   action: z
     .enum(["invite", "update_member"])
-    .describe("invite = send invitation emails, update_member = change an existing member's role or status"),
+    .describe(
+      "invite = send invitation emails (emails); update_member = change an existing member's role or status (userId plus roleId and/or status).",
+    ),
   emails: InviteUsersByEmailSchema.shape.emails
     .optional()
     .describe("invite action: required, 1 to 20 email addresses, each receives a real invitation email"),

@@ -1,72 +1,68 @@
 ---
 title: "Dashboard Widgets and the Activity Timeline"
-description: The landing screen after sign-in, configurable widgets over your CRM data, with stable anchor ids for AI agents driving the UI.
+description: "The landing screen after sign-in: chart and activity-timeline widgets over your CRM data, the widget editor, and the stable anchor ids agents can drive."
 ---
 
-Customermates is an open-source, AI-native CRM. This page documents the **Dashboard** screen of the web app for humans and for AI agents that drive the UI.
+Customermates is an open-source, AI-native CRM. This page documents the **Dashboard** screen of the web app for humans and for AI agents that drive the UI. Route: `/dashboard`, locale-prefixed like `https://customermates.com/en/dashboard`, sidebar id `#nav-dashboard`.
 
-## Purpose
+## What does the Dashboard show?
 
-The Dashboard is the landing screen after sign-in. It shows configurable widgets over your CRM data: pipelines, tasks, recent activity, whatever you set up. From here you jump off to every other screen in the app.
+The Dashboard is the landing screen after sign-in. It shows configurable widgets over your CRM data: pipelines, task counts, recent activity, whatever you set up. Every widget belongs to you as a user; teammates see it only after you share it with **Share as a template**, which lets them start their own copy from it.
 
-## Widget types
+## Which widget types exist?
 
-Use **Add widget** and choose **Chart** for aggregated CRM data or **Activity timeline** for a newest-first history feed. An activity timeline keeps its filters on that widget. Different activity widgets can therefore show different views without changing each other or the timeline on a record page.
+Press **Add widget** (`#dashboard-add-widget`); creation starts with a choice between two kinds, or a template a teammate shared:
 
-### Sources and filters
+- **Chart**: aggregates one record type. Pick the record type, a group-by axis (a linked contact, organization, deal or service, a custom column, or none), an aggregation (count, deal value, deal quantity, or deal weighted value), and a display type (vertical or horizontal bars with or without labels, doughnut, or radar). Filters narrow the data set; a chart over contacts, organizations, services or tasks that aggregates deal value, deal quantity or deal weighted value gets a separate filter for the related deals.
+- **Activity timeline**: a newest-first feed of changes, messages and connected-account activity. Its filters belong to that widget, so several timeline widgets can show different views without changing each other or the timeline on a record page.
 
-The **Changes** category contains audit-log changes. **Messages** contains Inbox messages. **Activities** contains connected-account activity, such as accepted LinkedIn connections, and calendar events.
+Over MCP, `manage_widgets` creates and updates both kinds with a reduced option set: a chart is created from name, entity type, display type, group-by and aggregation plus optional filters and group-by column, and an update can change its name, group-by, filters, axis direction and bar colors but not its entity, display or aggregation type; a timeline takes a name, timeline filters and the show-filters flag.
 
-All accessible records are the implicit baseline. Filter an activity timeline by category, provider, connected account, conversation, or related contacts, organizations, deals, services, and tasks. Each field can be configured once. Relationship filters use the same operators as record lists: **in** and **not in** accept one or more records, while **has some** and **has none** need no value. Different filter fields are AND-combined, and multiple values within one **in** filter are OR-combined. Unlinked entries fail positive relationship filters and pass negative ones. Filters become persistent when you save the widget.
+### What can an activity timeline show?
 
-### Reading the timeline
+The **Record changes** category contains audit-log changes. **Messages** contains Inbox messages. **Account & calendar** contains connected-account activity, such as accepted LinkedIn connections, and calendar events.
 
-Entries are shown newest first. Use **Load older** for the next bounded page. A row can show one primary record, up to three related records, and a remaining-record count. Permitted record links open the relevant record, and message details can open the permitted Inbox thread. Rows without a CRM association remain visible without a record link. Message previews and details use the same safe rendering as record timelines.
+All accessible records are the implicit baseline. Filter a timeline by category, provider, connected account, conversation, or related contacts, organizations, deals, services, and tasks. Each field can be configured once. Relationship filters use the same operators as record lists: **in** and **not in** accept one or more records, while **has some** and **has none** need no value. Different filter fields are AND-combined, and multiple values within one **in** filter are OR-combined. Unlinked entries fail positive relationship filters and pass negative ones. Filters become persistent when you save the widget.
 
-### Permissions
+Entries are shown newest first. Use **Load older** for the next bounded page. A row can show one primary record, up to three related records, and a remaining-record count. Permitted record links open the relevant record, and message details can open the permitted Inbox thread. Rows without a CRM association remain visible without a record link.
 
-| Access                                                        | Visible content                                                       |
-| ------------------------------------------------------------- | --------------------------------------------------------------------- |
-| Audit log only                                                | Permitted changes                                                     |
-| Inbox messages only, with the cloud Pro messaging entitlement | Permitted messages, connected-account activities, and calendar events |
-| Both permissions, with the cloud Pro messaging entitlement    | One merged timeline containing all permitted sources                  |
-| Neither                                                       | A non-sensitive unavailable state                                     |
+### Who sees what in a timeline?
 
-Audit-log changes are available independently of the messaging entitlement. Messages, connected-account activities, and calendar events require Inbox access and, in cloud mode, the Pro messaging entitlement. A missing connected messaging account removes messaging-based sources but does not hide permitted audit changes. Deleted or newly inaccessible filter values stop matching, are shown as **Unavailable value** for safe removal, and never expose their raw ids.
+| Access | Visible content |
+|---|---|
+| Audit log only | Permitted changes |
+| Inbox messages only, on a plan with messaging | Permitted messages, connected-account activities, and calendar events |
+| Both permissions, on a plan with messaging | One merged timeline containing all permitted sources |
+| Neither | A non-sensitive unavailable state |
 
-## URL
+Audit-log changes are available independently of the messaging entitlement. Messages, connected-account activities, and calendar events require cloud mode, Inbox access, and a plan with messaging (Pro and above). A missing connected messaging account removes messaging-based sources but does not hide permitted audit changes. Deleted or newly inaccessible filter values stop matching, are shown as **Filter not available** on the filter chip and **Selection unavailable** in the value picker for safe removal, and never expose their raw ids.
 
-Route: `/dashboard`. All app routes are locale-prefixed, for example `https://customermates.com/en/dashboard`.
+## How does the widget editor work?
 
-## Key actions
+For a chart widget the modal is organized in three tabs: `#widget-tab-data` chooses the record type and the aggregation, `#widget-tab-filters` narrows what counts (`#widget-entity-filters-heading` marks the record filter block), and `#widget-tab-appearance` sets the display type, axes, and colors. A live preview under `#widget-preview-heading` reflects every change before you save, and `#widget-template-heading` offers ready-made starting points. Save or discard with `#widget-modal-save` / `#widget-modal-reset`; the reset button appears with unsaved changes. An activity-timeline widget has two tabs: `#widget-tab-data`, which also holds its timeline filters, and `#widget-tab-appearance`.
+
+## Which controls does the sidebar add?
+
+The sidebar is the same on every screen; its controls are documented here because the Dashboard is where you land.
 
 | Action | Where | Anchor id | What happens |
-|--------|-------|-----------|--------------|
+|---|---|---|---|
 | Go to Dashboard | App sidebar | `#nav-dashboard` | Opens `/dashboard` |
 | Add widget | Page header | `#dashboard-add-widget` | Opens the widget modal |
-| Save / reset widget | Widget modal footer | `#widget-modal-save` / `#widget-modal-reset` | Creates or updates the widget (reset appears with unsaved changes) |
-| Global search | Top of sidebar | `#nav-search` | Opens the search modal (also Cmd/Ctrl+K) |
+| Global search | Top of sidebar | `#nav-search` | Opens the search modal (also Cmd/Ctrl+K); see [Global search](/docs/app-search) |
+| Search input | Search modal | `#global-search-input` | Finds contacts, organizations, deals and services by name; tasks are not searched |
 | Create a record | Top of sidebar | `#nav-add` | Opens the record type picker |
-| Search anything | Search modal | `#global-search-input` | Jump to any contact, organization, deal, service, or task |
 | Open documentation | Sidebar footer | `#nav-documentation` | Opens `/docs` |
 | Send feedback | Sidebar footer | `#nav-feedback` | Opens the feedback dialog |
 
-## The widget editor
+## What happens on first run?
 
-The widget modal is organized in three tabs: `#widget-tab-data` chooses the source (record type or activity timeline) and the aggregation, `#widget-tab-filters` narrows what counts (`#widget-entity-filters-heading` marks the record filter block), and `#widget-tab-appearance` sets the display type, axes, and colors. A live preview under `#widget-preview-heading` reflects every change before you save, and `#widget-template-heading` offers ready-made starting points. Save or discard with `#widget-modal-save` / `#widget-modal-reset`.
-
-## Global search
-
-`#nav-search` (or Cmd/Ctrl+K anywhere) opens the search modal; `#global-search-input` takes the query. It matches contacts, organizations, deals, services, and tasks by their names and jumps straight to the record you pick. It searches records, not messages; the Inbox has its own search.
-
-## First run
-
-New accounts land in the onboarding wizard at `/onboarding/wizard` before they see the Dashboard. It walks through profile, company, entities, demo data, AI setup, and team invites. Navigate it with the anchor ids `#onboarding-next` and `#onboarding-back`.
+New accounts land in the [onboarding wizard](/docs/app-onboarding) at `/onboarding/wizard` before they see the Dashboard. It has three steps: your profile, team invites, and connecting an AI client. Only the invite step carries the stable ids `#onboarding-next` and `#onboarding-back`.
 
 ## Tips for agents
 
-- Locate controls via the stable ids above, not by visible text. CSS selector example: `#dashboard-add-widget`.
-- Rows never carry ids. Open records via their URL or the drawer deep-link `?open=<entityType>:<id>` (entity pages only). Stack multiple entries with commas, for example `?open=contact:abc,deal:xyz`.
+- The hosted assistant can navigate here and highlight `#nav-dashboard` and `#dashboard-add-widget`; it creates widgets through `manage_widgets` instead of driving the modal.
+- Rows never carry ids. Open a record via its page URL `/{type}/{id}`. The drawer deep-link `?open={entityType}:new` adds a record and works on every signed-in page, the Dashboard included.
 - Prefer [MCP](/docs/mcp) tools over clicking when a tool exists. Reading and writing CRM data is faster and safer through tools than through the UI.
 
 ## Related

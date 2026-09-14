@@ -1,38 +1,38 @@
 ---
-title: "CRM-Datenmodell: Objekte, Beziehungen und Felder"
-description: Datensätze, Beziehungen, Custom Columns, Widgets und Webhooks auf einer Seite.
+title: "CRM-Datenmodell: Entitäten, Beziehungen, Custom Columns"
+description: "Die fünf Datensatztypen, wie sie sich verknüpfen, die zehn Custom-Column-Typen samt gewichteten Deal-Phasen, Widgets, Webhooks, Notizen, Nutzer und Rollen."
 ---
 
-Customermates verfolgt fünf Datensatztypen, jeder kann eigene Felder tragen, sie verknüpfen sich typisiert untereinander, und jede Änderung löst einen Webhook aus.
+Customermates verfolgt fünf Datensatztypen, lässt jeden davon benutzerdefinierte Felder tragen, verknüpft sie über typisierte Beziehungen miteinander und löst einen Webhook aus, sobald sich etwas davon ändert.
 
-## Die fünf Datensatztypen
+## Welche fünf Datensatztypen gibt es?
 
-| Typ | Was er abbildet | Typische Felder |
+| Datensatztyp | Was er abbildet | Eingebaute Felder |
 |---|---|---|
-| **Contact** | Eine Person | firstName, lastName, notes |
-| **Organization** | Eine Firma | name, notes |
-| **Deal** | Eine Verkaufschance | name, totalValue, totalQuantity |
-| **Service** | Produkt oder Leistung an einem Deal | name, amount |
-| **Task** | Ein To-do | name, assignees |
+| **Kontakt** | Eine Person | firstName, lastName, Kanal-Identifikatoren (E-Mail, Telefon, LinkedIn, WhatsApp, Instagram, Telegram), notes |
+| **Organisation** | Eine Firma | name, notes |
+| **Deal** | Eine Verkaufschance | name, totalValue und totalQuantity (abgeleitet aus verknüpften Services), weightedValue, notes |
+| **Service** | Ein Produkt oder eine Leistung an einem Deal | name, amount, notes |
+| **Aufgabe** | Ein To-do | name, assignees, notes |
 
-Jeder Datensatz hat `id`, `createdAt`, `updatedAt` und unterstützt Markdown-`notes`. Alles andere ist entweder eine Beziehung zu einem anderen Datensatz oder ein Custom-Column-Wert. Es gibt auf keinem Datensatztyp feste Status- oder Stage-Felder; dafür nutzen Sie Custom Columns. Mit `get_record_schema` lesen Sie die Spalten, die in einem Workspace existieren.
+Jeder Datensatz hat `id`, `createdAt`, `updatedAt` und unterstützt Markdown-`notes`. Alles andere ist entweder eine Beziehung zu einem anderen Datensatz oder ein Custom-Column-Wert. Es gibt auf keinem Datensatztyp feste Felder für Status, Phase, Priorität oder Fälligkeitsdatum; auch Aufgaben haben kein eingebautes Fälligkeitsdatum. Nutzen Sie dafür Custom Columns, und rufen Sie `get_record_schema` auf, um die Spalten zu lesen, die in einem Workspace existieren.
 
-## Beziehungen
+## Wie verknüpfen Beziehungen Datensätze?
 
-Typisiert und many-to-many. Ein Contact gehört zu null oder mehr Organizations und Deals. Ein Deal hat Contacts, Organizations und Services (mit Mengen), plus assignees.
+Beziehungen sind typisiert und many-to-many. Ein Kontakt gehört zu null oder mehr Organisationen, Deals und Nutzern. Ein Deal gehört zu null oder mehr Kontakten, Organisationen und Services (mit Mengen), plus zugewiesenen Nutzern.
 
 | Von zu | Beispiel |
 |---|---|
-| Contact zu Organization | "Max arbeitet bei Initech" |
-| Contact zu Deal | "Max ist Stakeholder im Q2-Vertrag" |
-| Organization zu Deal | "Der Q2-Vertrag ist mit Initech" |
-| Deal zu Service (mit Menge) | "5 h Beratung plus 1 Setup-Fee" |
-| Deal / Service / Task zu User | "Zugewiesen an Julia" |
-| Task zu Contact / Organization / Deal / Service | "Follow-up zum Q2-Vertrag" |
+| Kontakt zu Organisation | "Max arbeitet bei Initech" |
+| Kontakt zu Deal | "Max ist Stakeholder im Q2-Vertrag" |
+| Organisation zu Deal | "Der Q2-Vertrag läuft mit Initech" |
+| Deal zu Service (mit Menge) | "5 Stunden Beratung plus 1 Setup-Gebühr" |
+| Kontakt / Organisation / Deal / Service / Aufgabe zu Nutzer | "Zugewiesen an Julia" |
+| Aufgabe zu Kontakt / Organisation / Deal / Service | "Follow-up zum Q2-Vertrag" |
 
-Tasks verknüpfen sich mit Usern, Contacts, Organizations, Deals und Services.
+Aufgaben verknüpfen sich mit Nutzern, Kontakten, Organisationen, Deals und Services. Über MCP ändern sich Verknüpfungen über `manage_record_links`, mit einer Ausnahme: `update_deals` behält `services` (Deal-zu-Service-Verknüpfungen mit Mengen) in seinem Update-Schema. Jede andere Beziehung ändert sich nur über `manage_record_links`; die übrigen Update-Tools rühren Verknüpfungen nie an. Über REST ersetzt ein gesendetes Relations-Array die gesamte Menge, und `null` oder `[]` leert sie.
 
-## Custom Columns
+## Was sind Custom Columns?
 
 Das Standard-Schema deckt die Basics ab. Für alles andere fügen Sie eine Custom Column hinzu.
 
@@ -40,43 +40,45 @@ Zehn Typen:
 
 | Typ | Wofür |
 |---|---|
-| **Plain** | Freitext |
-| **Date** | Kalenderdaten (Renewal, Next Touch) |
-| **DateRange** | Start- und Enddatum |
-| **DateTime** | Zeitstempel |
-| **DateTimeRange** | Start- und End-Zeitstempel |
-| **Currency** | Geldbeträge mit ISO-Währungscode |
-| **Single-select** | Ein Wert aus einer festen Optionsliste |
-| **Link** | Eine oder mehrere URLs |
-| **Email** | Eine oder mehrere E-Mails |
-| **Phone** | Eine oder mehrere Telefonnummern |
+| **Text** (`plain`) | Freitext |
+| **Datum** (`date`) | Kalenderdaten (Verlängerung, nächster Kontakt, das Fälligkeitsdatum einer Aufgabe) |
+| **Datumsbereich** (`dateRange`) | Start- und Enddatum |
+| **Datum & Uhrzeit** (`dateTime`) | Zeitstempel |
+| **Datums- und Uhrzeitbereich** (`dateTimeRange`) | Start- und End-Zeitstempel |
+| **Währung** (`currency`) | Geldbeträge, gespeichert mit ISO-Währungscode |
+| **Einzelauswahl** (`singleSelect`) | Ein Wert aus einer festen Optionsliste |
+| **Link** (`link`) | Eine oder mehrere URLs |
+| **E-Mail** (`email`) | Eine oder mehrere E-Mail-Adressen |
+| **Telefon** (`phone`) | Eine oder mehrere Telefonnummern |
 
-Single-select-Columns sind das Mittel, um eigene Workflows abzubilden. Ein Deal-"Status" oder eine Task-"Priorität" ist eine Single-select-Column, die Sie selbst definieren, mit den Optionen Ihrer Wahl, pro Workspace. Eine Board-Ansicht kann Datensätze dann nach jeder beliebigen Single-select-Column gruppieren.
+Einzelauswahl-Columns sind das Mittel, um eigene Workflows abzubilden. Eine Deal-"Phase" oder eine Aufgaben-"Priorität" ist eine Einzelauswahl-Column, die Sie selbst definieren, mit den Optionen Ihrer Wahl, pro Workspace. Eine Board-Ansicht kann Datensätze dann nach jeder beliebigen Einzelauswahl-Column gruppieren, und der Wert ist das, womit Filter und Tools vergleichen.
 
-Custom Columns sind First-Class in Filtern, Widgets und der MCP-Oberfläche.
+Custom Columns sind First-Class in Filtern, Widgets und der MCP-Oberfläche: `manage_custom_columns` legt sie an und ändert sie, und jedes Datensatz-Tool liest und schreibt ihre Werte über `customFieldValues` mit der Column-Id aus `get_record_schema`.
 
-## Widgets
+### Wie funktioniert eine gewichtete Pipeline? [#how-does-a-weighted-pipeline-work]
 
-Widgets sind Dashboard-Charts auf Live-Daten. Sie wählen einen Datensatztyp, eine Group-by-Achse (Feld oder Custom Column), eine Aggregation (Count, Deal Value, Deal Quantity) und einen Chart-Typ (Bar, Doughnut oder Radar). Filter grenzen die Daten ein.
+Ein Workspace kann eine Einzelauswahl-Deal-Column als Gewichtungs-Column markieren und jeder ihrer Optionen ein Gewicht in Prozent geben, zum Beispiel Qualifiziert 20 und Angebot 60. Jeder Deal trägt dann `weightedValue` = sein Gesamtwert multipliziert mit dem Gewicht seiner aktuellen Option, oder keinen gewichteten Wert, wenn die Option kein Gewicht trägt. `list_records` gibt die Summe beider Werte über alle passenden Deals zurück, und ein Dashboard-Chart kann nach dem gewichteten Deal-Wert aggregieren.
 
-Ein Widget rendert neu, sobald sich die zugrundeliegenden Datensätze ändern.
+## Was sind Widgets?
 
-## Webhooks
+Widgets sind Dashboard-Charts auf Live-Daten. Sie wählen einen Datensatztyp, eine Group-by-Achse (ein verknüpfter Datensatztyp, eine Custom Column oder keine), eine Aggregation (Anzahl, Deal-Wert, Deal-Menge oder gewichteter Deal-Wert) und einen Darstellungstyp (vertikale oder horizontale Balken mit oder ohne Beschriftung, Doughnut oder Radar). Filter grenzen die Datenmenge ein. Ein Aktivitäts-Timeline-Widget zeigt statt eines Charts einen Feed. Siehe [Dashboard](/docs/app-dashboard).
 
-Jeder Write löst ein Domain-Event aus: `contact.created`, `deal.updated`, `task.deleted` und so weiter. Sie abonnieren per URL und Event-Liste. Jede Zustellung enthält den geänderten Datensatz plus eine `changes`-Map, die zeigt, was sich von wo nach wo geändert hat, sodass Abonnenten auf Diffs reagieren können, ohne zu pollen.
+## Was sind Webhooks?
+
+Jeder Write löst ein Domain-Event aus: `contact.created`, `deal.updated`, `task.deleted` und so weiter. Sie abonnieren per URL und Event-Liste. Jede Update-Zustellung enthält den geänderten Datensatz plus eine `changes`-Map, die zeigt, was sich von welchem zu welchem Wert geändert hat, sodass Abonnenten auf Diffs reagieren können, ohne zu pollen.
 
 Siehe [Webhooks](/docs/webhooks) für den vollständigen Event-Katalog und die Payload-Struktur.
 
-## Notes
+## Was sind Notizen?
 
-Notes sind Markdown pro Datensatz. Sie rendern in der UI über einen Tiptap-Editor und sind überall sonst Plain Markdown. Sie können sie über `update_record_notes` mit dem passenden `mode` ersetzen oder anhängen.
+Notizen sind Markdown pro Datensatz. In der UI rendern sie über einen Tiptap-Editor, überall sonst sind sie reines Markdown. Sie können sie über `update_record_notes` mit dem passenden `mode` ersetzen oder anhängen.
 
-## User, Rollen, Company
+## Wer sind Nutzer, Rollen und die Company?
 
-User sind Ihre Teammitglieder. Rollen werden pro Workspace definiert und steuern, was jeder User lesen und schreiben darf. Die Company ist der Tenant. Jeder Datensatz lebt in genau einer Company, Cross-Tenant-Zugriff ist nicht möglich.
+Nutzer sind Ihre Teammitglieder. Rollen werden pro Workspace definiert und steuern, was jeder Nutzer lesen und schreiben darf. Die Company ist der Tenant. Jeder Datensatz lebt in genau einer Company, und Cross-Tenant-Zugriff ist nicht möglich.
 
 ## Weiter
 
-- **[Custom Columns](/docs/mcp#tool-catalog)**: Rezepte und Fallstricke.
+- **[CRM-Datensätze](/docs/app-records)**: die Listen-, Drawer- und Detail-Oberflächen.
 - **[Filter-Syntax](/docs/filter-syntax)**: Operatoren und Beispiele.
 - **[MCP-Tool-Katalog](/docs/mcp#tool-catalog)**: jedes Tool, das auf diese Konzepte wirkt.

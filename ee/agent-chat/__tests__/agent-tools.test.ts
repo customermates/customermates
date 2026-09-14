@@ -33,7 +33,7 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import { searchDocsTool } from "@/features/mcp-tools/docs.mcp-tools";
-import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
+import { ALL_MCP_TOOLS, MCP_ALWAYS_ON_TOOLS } from "@/features/mcp-tools/tool-registry";
 
 import {
   AGENT_TOOL_RESULT_TRUNCATED_MARK,
@@ -148,13 +148,19 @@ describe("agent tools", () => {
       expect(hasNonTransactionalEffect(name), name).toBe(false);
   });
 
-  it("exposes the complete MCP registry plus the interface tools on every turn", () => {
+  it("exposes the MCP registry without the deep-research pair, plus the interface tools and load_toolset", () => {
     const names = Object.keys(getAgentAiTools(deps()));
-    const expected = new Set([...ALL_MCP_TOOLS.map((agentTool) => agentTool.name), ...AGENT_UI_TOOL_NAMES]);
+    const deepResearch = new Set(MCP_ALWAYS_ON_TOOLS.map((agentTool) => agentTool.name));
+    const expected = new Set([
+      ...ALL_MCP_TOOLS.filter((agentTool) => !deepResearch.has(agentTool.name)).map((agentTool) => agentTool.name),
+      ...AGENT_UI_TOOL_NAMES,
+      "load_toolset",
+    ]);
 
     expect(names.toSorted()).toEqual([...expected].toSorted());
-    expect(names).toContain("search");
-    expect(names).toContain("fetch");
+    expect(names).not.toContain("search");
+    expect(names).not.toContain("fetch");
+    expect(names).toContain("load_toolset");
     expect(names).not.toContain("click_ui_target");
     expect(names.filter((name) => name === "request_support")).toHaveLength(1);
     expect(names.every((name) => !name.startsWith("discover_"))).toBe(true);
@@ -280,20 +286,20 @@ describe("agent tools", () => {
       expect(await validate?.({ targetId }), targetId).toMatchObject({ success: false });
   });
 
-  it("accepts only real record ids in open_record and rejects paths and URLs", async () => {
+  it("opens an existing record's page through navigate and rejects drawer, path and URL forms", async () => {
     const tools = getAgentAiTools(deps());
-    const validate = schemaOf(tools.open_record).validate;
+    const validate = schemaOf(tools.navigate).validate;
+    const recordId = "00000000-0000-4000-8000-000000000001";
 
-    expect(await validate?.({ entity: "contact", recordId: "00000000-0000-4000-8000-000000000001" })).toMatchObject({
-      success: true,
-    });
-    expect(await validate?.({ entity: "contact", recordId: "new" })).toMatchObject({ success: true });
-    for (const recordId of ["/contacts/abc", "javascript:alert(1)", "https://example.com", "abc", "1234"])
-      expect(await validate?.({ entity: "contact", recordId }), recordId).toMatchObject({ success: false });
-
-    expect(await validate?.({ entity: "company", recordId: "00000000-0000-4000-8000-000000000001" })).toMatchObject({
-      success: false,
-    });
+    expect(await validate?.({ entity: "deal", recordId })).toMatchObject({ success: true });
+    for (const bad of ["new", "/deals/abc", "javascript:alert(1)", "https://example.com", "abc", "1234"])
+      expect(await validate?.({ entity: "deal", recordId: bad }), bad).toMatchObject({ success: false });
+    expect(await validate?.({ entity: "company", recordId })).toMatchObject({ success: false });
+    expect(await validate?.({ entity: "deal" })).toMatchObject({ success: false });
+    expect(await validate?.({ recordId })).toMatchObject({ success: false });
+    expect(await validate?.({})).toMatchObject({ success: false });
+    expect(await validate?.({ targetId: "nav-deals", entity: "deal", recordId })).toMatchObject({ success: false });
+    expect("open_record" in tools).toBe(false);
   });
 
   it("keeps the complete UI target catalog within the tool-result budget", async () => {
@@ -348,12 +354,14 @@ describe("agent tools", () => {
     expect(result).not.toContain("nav-company-webhooks");
   });
 
-  it("falls back to the whole catalog rather than stranding the model on an unmatched query", async () => {
+  it("answers an unmatched query with an explicit miss and id prefixes instead of the whole catalog", async () => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 4096 }));
     const result = String(await execute(tools.list_ui_targets, { query: "zzzz" }));
 
-    expect(result).toContain(AGENT_UI_TARGETS[0].id);
-    expect(result).not.toContain("No interface targets match");
+    expect(result).toContain('No interface target matches "zzzz"');
+    expect(result).toContain("nav-");
+    expect(result).not.toContain(AGENT_UI_TARGETS[0].id);
+    expect(result.length).toBeLessThan(600);
   });
 
   it("discovers the connected-account destination and walkthrough control together", async () => {
@@ -413,13 +421,15 @@ describe("agent tools", () => {
   });
 
   it.each([
-    ["list_users", { searchTerm: "Sofia" }, { searchTerm: "Sofia", page: 1, pageSize: 100 }],
+    ["list_users", { searchTerm: "Sofia" }, { searchTerm: "Sofia", page: 1, pageSize: 25 }],
+    ["list_users", { searchTerm: "Sofia", pageSize: " 12 " }, { searchTerm: "Sofia", page: 1, pageSize: 25 }],
     [
       "list_users",
       { searchTerm: "Sofia", page: "2", pageSize: " 10 " },
       { searchTerm: "Sofia", page: 2, pageSize: 10 },
     ],
-    ["list_records", { entity: "contact" }, { entity: "contact", page: 1, pageSize: 10 }],
+    ["list_records", { entity: "contact" }, { entity: "contact", page: 1, pageSize: 25 }],
+    ["list_records", { entity: "contact", pageSize: 50 }, { entity: "contact", page: 1, pageSize: 100 }],
     [
       "get_records",
       { items: [{ entity: "contact", id: "record-1" }] },

@@ -150,6 +150,10 @@ vi.mock("@/ee/agent-chat/agent-tools", () => ({
     if (state.toolLoadFailure) throw new Error("tool shell unavailable");
     return state.definitions;
   },
+  agentToolDefinitionsForTurn: () => {
+    if (state.toolLoadFailure) throw new Error("tool shell unavailable");
+    return state.definitions.map((definition: { name: string }) => ({ ...definition, toolset: null }));
+  },
   getAgentAiTools: () => Object.fromEntries(state.definitions.map(({ name }) => [name, { execute: state.execute }])),
   normalizeAgentAiToolInput: state.normalize,
 }));
@@ -160,7 +164,10 @@ vi.mock("@/features/mcp-tools/tool-registry", () => ({
     { name: "delete_records", annotations: { readOnlyHint: false } },
   ],
 }));
-vi.mock("@/ee/agent-chat/system-prompt", () => ({ buildAgentSystemPrompt: () => "system" }));
+vi.mock("@/ee/agent-chat/system-prompt", () => ({
+  buildAgentSystemPrompt: () => "system",
+  routineTriggerEventOf: () => null,
+}));
 vi.mock("@/ee/agent-chat/agent-provider-context", () => ({
   buildAgentProviderContext: (system: string, messages: unknown[], tools: unknown[]) => ({ messages, system, tools }),
   isAgentStepContextWithinBudget: (...args: unknown[]) => state.contextFits(...args),
@@ -171,6 +178,7 @@ vi.mock("@/i18n/get-translator", () => ({
 vi.mock("@/i18n/locale-registry", () => ({ appLocaleOrDefault: (locale: string) => locale }));
 vi.mock("../capture-failure", () => ({
   reportFailure: state.reportFailure,
+  reportWarning: () => Promise.resolve(),
   toWorkflowFailure: (error: unknown) => error,
 }));
 
@@ -288,6 +296,7 @@ describe("agent-turn hosted-AI provider gates", () => {
         inferenceRegion: { scope: "zone", geoRegion: "eu" },
         zeroDataRetention: true,
         disallowPromptTraining: true,
+        caching: "auto",
       },
       openai: { parallelToolCalls: false },
     });
@@ -897,7 +906,7 @@ describe("agent-turn authoritative tool inputs", () => {
     await runAgentTurn(payload);
 
     expect(state.normalize).toHaveBeenCalledTimes(1);
-    expect(state.normalize).toHaveBeenCalledWith("list_users", raw, 1000);
+    expect(state.normalize).toHaveBeenCalledWith("list_users", raw, 1000, { locale: payload.locale });
     expect(state.execute).toHaveBeenCalledWith(normalized, { toolCallId: "call-1", messages: [] });
     expect(state.createApproval).not.toHaveBeenCalled();
   });

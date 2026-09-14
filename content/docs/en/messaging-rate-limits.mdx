@@ -1,13 +1,13 @@
 ---
 title: Messaging rate limits
-description: Why connected channels are rate-limited, the per-provider limits that apply, and what happens when one is reached.
+description: Why connected channels are rate-limited, the per-provider read and send limits that apply, and what happens when one is reached.
 ---
 
 When you connect a channel (LinkedIn, WhatsApp, email, and so on), Customermates talks to that provider through Unipile. Every provider enforces its own request limits, and exceeding them can get the underlying account throttled or suspended. To stay within safe bounds, Customermates applies a conservative request budget per channel and pauses before a provider would push back.
 
 A paused sync is expected behavior: it keeps the connected account within provider limits and resumes on its own.
 
-## How the limits work
+## How do the limits work?
 
 Limits are configured in the Unipile dashboard and enforced by Unipile. They apply **per connected account** at three levels at once:
 
@@ -17,7 +17,7 @@ Limits are configured in the Unipile dashboard and enforced by Unipile. They app
 
 When a window is full, further calls are rejected until it rolls over.
 
-## Read limits
+## What are the read limits per provider?
 
 Read operations sync history. They are set higher than writes because reads rarely trigger a provider ban.
 
@@ -33,7 +33,7 @@ Read operations sync history. They are set higher than writes because reads rare
 
 LinkedIn stays the most conservative because its automated-activity detection is the strictest. Some values are shaped by the provider's own ceilings: social channels cap the per-minute read limit at 50, email channels at 100, and the daily limit moves in steps of 30 (so a target of 500 is applied as 510). Telegram and the email providers do not expose a separate daily read limit.
 
-## Sensitive limits
+## What are the limits for sending and profile lookups?
 
 The riskier operations stay conservative regardless of the read budget: profile lookups (which providers treat as scraping-sensitive) and any send action.
 
@@ -49,14 +49,14 @@ The riskier operations stay conservative regardless of the read budget: profile 
 | Outlook | Send an email | 300 / day |
 | IMAP | Send an email | 300 / day |
 
-## What you see when a limit is reached
+## What happens when a limit is reached?
 
 The action returns a message with the time to wait, for example:
 
 > This channel hit its rate limit. You can try again in 2 minutes.
 
-You can retry once the indicated window passes. Nothing is lost in the meantime.
+The waiting time comes from the provider's `Retry-After` answer; when the provider sends none, Customermates waits 60 seconds. You can retry once the indicated window passes. Nothing is lost in the meantime. Over MCP and the REST API the same situation returns a `rate_limit` failure with the same waiting time.
 
-## History syncs itself
+## Does the history import resume by itself?
 
-Importing a full message history can be large, roughly one request per conversation. If a limit is reached mid-import, the background importer **pauses and resumes automatically** when the window frees up, with no action needed on your part. Opening a conversation also loads its messages on demand, and new activity arrives in real time over webhooks.
+Importing a full message history can be large, roughly one request per conversation. If a limit is reached mid-import, the background importer **pauses and resumes automatically** when the window frees up, with no action needed on your part; a wait longer than ten minutes defers the import to a later sweep. Opening a conversation also loads its messages on demand, and new activity arrives in real time over webhooks.

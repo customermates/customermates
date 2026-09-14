@@ -3,6 +3,8 @@ import { encode } from "@toon-format/toon";
 import { getTranslations } from "next-intl/server";
 
 import type { CustomErrorCode } from "@/core/validation/validation.types";
+
+import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { createZodError, type InteractorResult } from "@/core/validation/validation.utils";
 
 import {
@@ -24,12 +26,31 @@ export function encodeToToon(data: unknown): string {
   }
 }
 
-const PAGE_SIZE_VALUES = z.literal([5, 10, 25, 100]);
+export type McpPageSize = 5 | 10 | 25 | 100;
 
-export const mcpPageSize = (defaultValue: 5 | 10 | 25 | 100, describe: string) =>
-  z
-    .preprocess((v) => (typeof v === "string" && v.trim() !== "" ? Number(v) : v), PAGE_SIZE_VALUES)
-    .default(defaultValue)
+export const MCP_PAGE_SIZES: readonly McpPageSize[] = [5, 10, 25, 100];
+
+export const MCP_DEFAULT_PAGE_SIZE: McpPageSize = 25;
+
+export function roundMcpPageSize(value: number): McpPageSize {
+  return MCP_PAGE_SIZES.find((size) => value <= size) ?? 100;
+}
+
+export const MCP_PAGE_SIZE_DESCRIPTION = "Results per page, 1-100, rounded up to 5, 10, 25 or 100.";
+
+export const mcpPageSize = (
+  defaultValue: McpPageSize,
+  describe = `${MCP_PAGE_SIZE_DESCRIPTION} Default ${defaultValue}.`,
+) => z.coerce.number().int().min(1).max(100).default(defaultValue).transform(roundMcpPageSize).describe(describe);
+
+export const mcpOptionalPageSize = (describe: string) =>
+  z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(100)
+    .optional()
+    .transform((value) => (value === undefined ? undefined : roundMcpPageSize(value)))
     .describe(describe);
 
 export const mcpPage = (maximum?: number) => {
@@ -99,21 +120,47 @@ export function formatDatesInResponse<T>(data: T): SerializedDates<T> {
   return formatDatesRecursively(data) as SerializedDates<T>;
 }
 
+export const FILTER_OPERATOR_GROUPS = {
+  singleValue: [
+    FilterOperatorKey.equals,
+    FilterOperatorKey.contains,
+    FilterOperatorKey.startsWith,
+    FilterOperatorKey.gt,
+    FilterOperatorKey.gte,
+    FilterOperatorKey.lt,
+    FilterOperatorKey.lte,
+  ],
+  multiValue: [FilterOperatorKey.in, FilterOperatorKey.notIn, FilterOperatorKey.between],
+  relativeWindow: [FilterOperatorKey.inLastDays],
+  noValue: [
+    FilterOperatorKey.isNull,
+    FilterOperatorKey.isNotNull,
+    FilterOperatorKey.hasUnset,
+    FilterOperatorKey.allSet,
+    FilterOperatorKey.hasNone,
+    FilterOperatorKey.hasSome,
+  ],
+} as const satisfies Record<string, readonly FilterOperatorKey[]>;
+
+export const FILTER_OPERATORS: readonly FilterOperatorKey[] = Object.values(FILTER_OPERATOR_GROUPS).flat();
+
 export const FILTER_SYNTAX = {
+  rule: "{ field, operator, value? }, rules are AND-combined",
   operators: {
-    string: ["equals", "contains", "gt", "gte", "lt", "lte"],
-    array: ["in", "notIn"],
-    range: ["between"],
-    noValue: ["isNull", "isNotNull", "hasNone", "hasSome", "hasUnset", "allSet"],
+    singleValue: FILTER_OPERATOR_GROUPS.singleValue,
+    multiValue: FILTER_OPERATOR_GROUPS.multiValue,
+    relativeWindow: FILTER_OPERATOR_GROUPS.relativeWindow,
+    noValue: FILTER_OPERATOR_GROUPS.noValue,
+  },
+  values: {
+    singleValue: "one string",
+    multiValue: "string array; between needs exactly two values",
+    relativeWindow: "positive integer number of days",
+    noValue: "omit value",
   },
   examples: [
     { field: "status", operator: "equals", value: "active" },
-    {
-      field: "createdAt",
-      operator: "between",
-      value: ["2024-01-01", "2024-12-31"],
-    },
-    { field: "assigneeId", operator: "in", value: ["id1", "id2"] },
+    { field: "createdAt", operator: "inLastDays", value: 30 },
     { field: "email", operator: "isNotNull" },
   ],
 };
@@ -146,8 +193,8 @@ export const SORT_SYNTAX = {
 
 export const FILTER_FIELD_DESCRIPTION =
   "Array of filter rules, AND-combined. Each rule is { field, operator, value? }. " +
-  "Operators: equals, contains, gt, gte, lt, lte, in, notIn, between, isNull, isNotNull, hasNone, hasSome. " +
-  'Example: [{"field":"name","operator":"contains","value":"acme"},{"field":"createdAt","operator":"gte","value":"2024-01-01"}]. ' +
+  `Operators with one string value: ${FILTER_OPERATOR_GROUPS.singleValue.join(", ")}; with a string array: ${FILTER_OPERATOR_GROUPS.multiValue.join(", ")} (between needs exactly two); with a positive integer of days: ${FILTER_OPERATOR_GROUPS.relativeWindow.join(", ")}; without a value: ${FILTER_OPERATOR_GROUPS.noValue.join(", ")}. ` +
+  'Example: [{"field":"name","operator":"contains","value":"acme"},{"field":"createdAt","operator":"inLastDays","value":30}]. ' +
   "Call get_record_schema to see all filterable fields.";
 
 export const filtersDescription = (filterableFields: string) =>

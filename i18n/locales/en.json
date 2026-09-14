@@ -17,6 +17,24 @@
   },
   "AgentChat": {
     "activity": {
+      "approval": {
+        "messages": {
+          "discard": "Ready to discard the draft",
+          "draft": "Ready to save a draft",
+          "send": "Ready to send a real message",
+          "triage": "Ready to change the conversation state"
+        },
+        "routines": {
+          "configure": "Ready to pause or run the routine",
+          "delete": "Ready to delete the routine and its history"
+        },
+        "team": {
+          "manage": "Ready to change team access"
+        },
+        "webhooks": {
+          "manage": "Ready to change webhook delivery"
+        }
+      },
       "cancelled": "Stopped",
       "consequence": {
         "accountConnect": "Connect a messaging channel",
@@ -29,6 +47,9 @@
         "recordsDelete": "This cannot be undone.",
         "recordsLink": "Link records",
         "recordsUnlink": "Remove relationships",
+        "routineDelete": "Permanently delete the selected routine and its run history",
+        "routinePause": "Pause the selected routine",
+        "routineRun": "Run the selected routine now",
         "salesListSave": "Add the selected prospect to a Sales Navigator list",
         "salesListSaveTarget": "Add {target} to Sales Navigator list {list}",
         "socialAccept": "Accept the selected connection request",
@@ -157,12 +178,12 @@
           "discard": {
             "done": "Discarded the draft",
             "error": "Couldn’t discard the draft",
-            "running": "Ready to discard the draft"
+            "running": "Discarding the draft"
           },
           "draft": {
             "done": "Saved the draft",
             "error": "Couldn’t save the draft",
-            "running": "Ready to save a draft"
+            "running": "Saving a draft"
           },
           "read": {
             "done": "Checked conversations",
@@ -172,12 +193,12 @@
           "send": {
             "done": "Sent the message",
             "error": "Couldn’t send the message",
-            "running": "Ready to send a real message"
+            "running": "Sending the message"
           },
           "triage": {
             "done": "Changed the conversation state",
             "error": "Couldn’t change the conversation state",
-            "running": "Ready to change the conversation state"
+            "running": "Changing the conversation state"
           }
         },
         "profile": {
@@ -219,6 +240,33 @@
             "running": "{count, plural, one {Updating {target}} other {Updating {target}}}"
           }
         },
+        "routines": {
+          "configure": {
+            "done": "Changed the routine schedule",
+            "error": "Couldn’t change the routine schedule",
+            "running": "Changing the routine schedule"
+          },
+          "create": {
+            "done": "Created a routine",
+            "error": "Couldn’t create the routine",
+            "running": "Creating a routine"
+          },
+          "delete": {
+            "done": "Removed the routine",
+            "error": "Couldn’t remove the routine",
+            "running": "Removing the routine"
+          },
+          "read": {
+            "done": "Read routines",
+            "error": "Couldn’t read routines",
+            "running": "Reading routines"
+          },
+          "update": {
+            "done": "Updated the routine",
+            "error": "Couldn’t update the routine",
+            "running": "Updating the routine"
+          }
+        },
         "support": {
           "escalate": {
             "done": "Support email accepted for delivery",
@@ -230,14 +278,21 @@
           "manage": {
             "done": "Changed team access",
             "error": "Couldn’t change team access",
-            "running": "Ready to change team access"
+            "running": "Changing team access"
+          }
+        },
+        "tools": {
+          "load": {
+            "done": "Loaded more tools",
+            "error": "Couldn’t load more tools",
+            "running": "Loading more tools"
           }
         },
         "webhooks": {
           "manage": {
             "done": "Completed the webhook action",
             "error": "Couldn’t complete the webhook action",
-            "running": "Ready to change webhook delivery"
+            "running": "Changing webhook delivery"
           }
         },
         "widgets": {
