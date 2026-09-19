@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 const databaseUrl = getLocalDatabaseTestUrl();
+const describeDatabase = databaseUrl ? describe : describe.skip;
 const createdUserIds: string[] = [];
 const createdClientIds: string[] = [];
 
@@ -154,7 +155,7 @@ async function resetPassword(userId: string) {
   return auth.api.resetPassword({ body: { newPassword: "ReplacementHorse123!", token } });
 }
 
-describe.skipIf(!databaseUrl)("unverified account access against the database", () => {
+describeDatabase("unverified account access against the database", { timeout: 120_000 }, () => {
   afterEach(async () => {
     const prisma = await db();
     while (createdUserIds.length) {
