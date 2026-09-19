@@ -1,4 +1,12 @@
 {
+  "AccountAccessRevoked": {
+    "body": "Acabas de demostrar que esta dirección es tuya al iniciar sesión con una cuenta conectada. La cuenta existía antes sin haberse confirmado nunca, así que hemos eliminado todo lo que podía acceder a ella: cualquier contraseña, todos los dispositivos con sesión iniciada, todas las claves de API y todas las aplicaciones conectadas. Quien la creó primero ya no puede entrar.",
+    "cta": "Establecer una nueva contraseña",
+    "greeting": "Hola:",
+    "signoff": "Si no has iniciado sesión ahora mismo, ponte en contacto con nosotros de inmediato.",
+    "subject": "Hemos restablecido el acceso a tu cuenta de Customermates",
+    "title": "Acceso a la cuenta restablecido"
+  },
   "AccountsRemovedNotice": {
     "body": "Tu plan cambió a {plan}, así que he eliminado las siguientes cuentas conectadas para respetar el límite del plan: {accounts}. Tus mensajes y contactos siguen ahí. Puedes volver a conectarlas cuando quieras desde la página de cuentas conectadas.",
     "cta": "Ver las cuentas conectadas",
@@ -3255,8 +3263,7 @@
     "rememberMe": "Recordarme",
     "signInCta": "Iniciar sesión",
     "signInTitle": "Inicia sesión en tu cuenta",
-    "switchToSignUp": "¿No tienes cuenta? <registerLink>Regístrate</registerLink>",
-    "verificationEmailHelp": "¿No recibiste el correo de verificación?"
+    "switchToSignUp": "¿No tienes cuenta? <registerLink>Regístrate</registerLink>"
   },
   "SignUpForm": {
     "acceptInviteCta": "Continuar",
@@ -3426,17 +3433,16 @@
     "subject": "Verifica tu correo"
   },
   "VerifyEmailCard": {
-    "anonymousBody": "Introduce el correo con el que te registraste y te enviaremos un nuevo enlace de verificación.",
-    "anonymousResendSuccess": "Si esa dirección todavía necesita verificación, le hemos enviado un nuevo enlace.",
     "body": "Te hemos enviado un correo de verificación. Revisa tu bandeja de entrada y haz clic en el enlace para verificar tu dirección de correo.",
     "ctaLabel": "Reenviar el correo de verificación",
-    "invalidEmail": "Introduce una dirección de correo válida.",
     "invitationFrom": "Invitación de {inviterName}",
-    "linkExpired": "Ese enlace de verificación ha caducado. Solicita uno nuevo abajo.",
-    "linkInvalid": "Ese enlace de verificación no es válido. Solicita uno nuevo abajo.",
+    "linkExpired": "Ese enlace de verificación ha caducado.",
+    "linkInvalid": "Ese enlace de verificación no es válido.",
     "resendSuccess": "Correo de verificación enviado correctamente.",
+    "signedOutBody": "Inicia sesión en tu cuenta para solicitar un nuevo correo de verificación.",
     "subtitle": "Verifica tu dirección de correo para continuar.",
-    "title": "Verificación del correo"
+    "title": "Verificación del correo",
+    "verifiedSignIn": "Tu dirección de correo ya está verificada. Inicia sesión para continuar."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Los intentos de entrega aparecerán aquí cuando se active un webhook.",

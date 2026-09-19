@@ -1,24 +1,17 @@
-import type { FormEvent } from "react";
 import type { RootStore } from "@/core/stores/root.store";
 
 import { action, makeObservable, observable, runInAction } from "mobx";
 
-import { BaseFormStore } from "@/core/base/base-form.store";
+import { BaseStore } from "@/core/base/base.store";
 import { resendVerificationEmailFromAuthAction } from "@/app/[locale]/(public)/auth/actions";
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-type VerifyEmailForm = {
-  email: string;
-};
-
-export class VerifyEmailStore extends BaseFormStore<VerifyEmailForm> {
+export class VerifyEmailStore extends BaseStore {
   isSent = false;
   private activeEmail: string | undefined;
   private onboardingIntent: string | undefined;
 
   constructor(rootStore: RootStore) {
-    super(rootStore, { email: "" });
+    super(rootStore);
 
     makeObservable(this, {
       isSent: observable,
@@ -26,8 +19,6 @@ export class VerifyEmailStore extends BaseFormStore<VerifyEmailForm> {
       deactivate: action,
       resend: action,
     });
-
-    this.setWithUnsavedChangesGuard(false);
   }
 
   activate = (email: string | undefined, onboardingIntent?: string): void => {
@@ -44,27 +35,13 @@ export class VerifyEmailStore extends BaseFormStore<VerifyEmailForm> {
     this.isSent = false;
   };
 
-  onSubmit = async (event?: FormEvent<HTMLFormElement>): Promise<void> => {
-    event?.preventDefault();
-    await this.resend();
-  };
-
   resend = async (): Promise<void> => {
-    const sessionEmail = this.activeEmail;
-    const email = sessionEmail ?? this.form.email.trim();
+    const email = this.activeEmail;
     if (!email) return;
 
-    if (!sessionEmail && !EMAIL_PATTERN.test(email)) {
-      this.toastError("VerifyEmailCard.invalidEmail");
-      return;
-    }
-
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
-      const result = await resendVerificationEmailFromAuthAction({
-        onboardingIntent: this.onboardingIntent,
-        email: sessionEmail ? undefined : email,
-      });
-      if (this.activeEmail !== sessionEmail) return;
+      const result = await resendVerificationEmailFromAuthAction({ onboardingIntent: this.onboardingIntent });
+      if (this.activeEmail !== email) return;
       if (!result.ok) {
         this.toastError("Common.notifications.unexpectedError");
         return;
@@ -73,7 +50,7 @@ export class VerifyEmailStore extends BaseFormStore<VerifyEmailForm> {
       runInAction(() => {
         this.isSent = true;
       });
-      this.toastSuccess(sessionEmail ? "VerifyEmailCard.resendSuccess" : "VerifyEmailCard.anonymousResendSuccess");
+      this.toastSuccess("VerifyEmailCard.resendSuccess");
     });
   };
 }

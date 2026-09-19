@@ -141,10 +141,6 @@ export const SignInForm = observer(({ callbackURL, inviterName, onboardingIntent
               {t("SignInForm.forgotPassword")}
             </AppLink>
           </div>
-
-          <div className="flex w-full justify-end">
-            <AppLink href="/auth/verify-email">{t("SignInForm.verificationEmailHelp")}</AppLink>
-          </div>
         </AppCardBody>
 
         <AppCardFooter>

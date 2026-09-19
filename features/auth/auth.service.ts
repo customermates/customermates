@@ -8,6 +8,7 @@ import { nanoid } from "nanoid";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 
+import AccountAccessRevoked from "@/components/emails/account-access-revoked";
 import ResetPassword from "@/components/emails/reset-password";
 import VerifyEmail from "@/components/emails/verify-email";
 import NewUserNotification from "@/components/emails/new-user-notification";
@@ -20,8 +21,6 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { env } from "@/env";
 import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 import { getRequestAppLocale } from "@/i18n/request-app-locale";
-
-const FORWARDED_RATE_LIMIT_HEADERS = ["cookie", "x-forwarded-for", "x-real-ip", "cf-connecting-ip", "user-agent"];
 
 type AuthUser = {
   id: string;
@@ -63,7 +62,7 @@ export class AuthService {
     }
 
     try {
-      return await auth.api.getSession({ headers: headersList });
+      return await auth.api.getSession({ headers: headersList, query: { disableCookieCache: true } });
     } catch {
       return null;
     }
@@ -77,7 +76,7 @@ export class AuthService {
     if (!hasSessionCookie) return null;
 
     try {
-      return await auth.api.getSession({ headers: headersList });
+      return await auth.api.getSession({ headers: headersList, query: { disableCookieCache: true } });
     } catch {
       return null;
     }
@@ -150,26 +149,6 @@ export class AuthService {
     if (!options?.keepSession) await auth.api.signOut({ headers: await headers() });
   }
 
-  async sendVerificationEmailForAddress(email: string, callbackURL?: string): Promise<boolean> {
-    const requestHeaders = await headers();
-    const requestOrigin = requestHeaders.get("origin") ?? env.BASE_URL;
-    const forwarded = new Headers({ "content-type": "application/json", origin: requestOrigin });
-    for (const name of FORWARDED_RATE_LIMIT_HEADERS) {
-      const value = requestHeaders.get(name);
-      if (value) forwarded.set(name, value);
-    }
-
-    const response = await auth.handler(
-      new Request(new URL("/api/auth/send-verification-email", requestOrigin), {
-        method: "POST",
-        headers: forwarded,
-        body: JSON.stringify({ email, callbackURL: callbackURL ?? "/" }),
-      }),
-    );
-
-    return response.ok;
-  }
-
   async isEmailPendingVerification(email: string): Promise<boolean> {
     const authUser = await runWithoutTenant(() =>
       prisma.authUser.findFirst({ where: { email: email.toLowerCase() }, select: { emailVerified: true } }),
@@ -183,7 +162,7 @@ export class AuthService {
     const locale = await getRequestAppLocale();
     const layoutCopy = await getEmailLayoutCopy(locale);
 
-    await this.emailService.send({
+    const sent = await this.emailService.send({
       to: args.to,
       subject: t("VerifyEmail.subject"),
       react: React.createElement(VerifyEmail, {
@@ -195,6 +174,29 @@ export class AuthService {
         cta: t("VerifyEmail.cta"),
         fallback: t("VerifyEmail.fallback"),
         securityNotice: t("VerifyEmail.securityNotice"),
+      }),
+    });
+
+    if (!sent) throw new Error("The verification email was rejected by the mail provider");
+  }
+
+  async sendAccountAccessRevokedEmail(args: { to: string }): Promise<void> {
+    const t = await getTranslations();
+    const locale = await getRequestAppLocale();
+    const layoutCopy = await getEmailLayoutCopy(locale);
+
+    await this.emailService.send({
+      to: args.to,
+      subject: t("AccountAccessRevoked.subject"),
+      react: React.createElement(AccountAccessRevoked, {
+        locale,
+        layoutCopy,
+        greeting: t("AccountAccessRevoked.greeting"),
+        body: t("AccountAccessRevoked.body"),
+        cta: t("AccountAccessRevoked.cta"),
+        signoff: t("AccountAccessRevoked.signoff"),
+        subject: t("AccountAccessRevoked.subject"),
+        title: t("AccountAccessRevoked.title"),
       }),
     });
   }

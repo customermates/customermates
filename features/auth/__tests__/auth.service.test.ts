@@ -52,6 +52,7 @@ describe("AuthService", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.send.mockResolvedValue(true);
     mocks.locale = "en";
     mocks.signInEmail.mockResolvedValue({
       user: {

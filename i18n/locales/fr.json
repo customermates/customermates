@@ -1,4 +1,12 @@
 {
+  "AccountAccessRevoked": {
+    "body": "Vous venez de prouver que cette adresse est la vôtre en vous connectant avec un compte associé. Le compte existait auparavant sans jamais avoir été confirmé, nous avons donc supprimé tout ce qui pouvait y accéder : tout mot de passe, tous les appareils connectés, toutes les clés d'API et toutes les applications associées. La personne qui l'a créé en premier ne peut plus y entrer.",
+    "cta": "Définir un nouveau mot de passe",
+    "greeting": "Bonjour,",
+    "signoff": "Si vous ne venez pas de vous connecter, contactez-nous immédiatement.",
+    "subject": "Nous avons réinitialisé l'accès à votre compte Customermates",
+    "title": "Accès au compte réinitialisé"
+  },
   "AccountsRemovedNotice": {
     "body": "Votre formule est passée à {plan}, j'ai donc supprimé le ou les comptes connectés suivants afin de respecter la limite de votre formule : {accounts}. Vos messages et vos contacts sont toujours là. Vous pouvez reconnecter ces comptes à tout moment depuis la page de vos comptes connectés.",
     "cta": "Voir les comptes connectés",
@@ -3255,8 +3263,7 @@
     "rememberMe": "Se souvenir de moi",
     "signInCta": "Se connecter",
     "signInTitle": "Connectez-vous à votre compte",
-    "switchToSignUp": "Vous n'avez pas de compte ? <registerLink>Inscrivez-vous</registerLink>",
-    "verificationEmailHelp": "Vous n'avez pas reçu l'e-mail de vérification ?"
+    "switchToSignUp": "Vous n'avez pas de compte ? <registerLink>Inscrivez-vous</registerLink>"
   },
   "SignUpForm": {
     "acceptInviteCta": "Continuer",
@@ -3426,17 +3433,16 @@
     "subject": "Vérifiez votre adresse e-mail"
   },
   "VerifyEmailCard": {
-    "anonymousBody": "Saisissez l'adresse e-mail utilisée lors de votre inscription et nous vous enverrons un nouveau lien de vérification.",
-    "anonymousResendSuccess": "Si cette adresse doit encore être vérifiée, nous lui avons envoyé un nouveau lien.",
     "body": "Nous vous avons envoyé un e-mail de vérification. Consultez votre boîte de réception et cliquez sur le lien pour vérifier votre adresse.",
     "ctaLabel": "Renvoyer l'e-mail de vérification",
-    "invalidEmail": "Saisissez une adresse e-mail valide.",
     "invitationFrom": "Invitation de {inviterName}",
-    "linkExpired": "Ce lien de vérification a expiré. Demandez-en un nouveau ci-dessous.",
-    "linkInvalid": "Ce lien de vérification n'est pas valide. Demandez-en un nouveau ci-dessous.",
+    "linkExpired": "Ce lien de vérification a expiré.",
+    "linkInvalid": "Ce lien de vérification n'est pas valide.",
     "resendSuccess": "E-mail de vérification envoyé.",
+    "signedOutBody": "Connectez-vous à votre compte pour demander un nouvel e-mail de vérification.",
     "subtitle": "Vérifiez votre adresse e-mail pour continuer.",
-    "title": "Vérification de l'adresse e-mail"
+    "title": "Vérification de l'adresse e-mail",
+    "verifiedSignIn": "Votre adresse e-mail est maintenant vérifiée. Connectez-vous pour continuer."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Les tentatives de livraison apparaîtront ici dès qu’un webhook sera déclenché.",

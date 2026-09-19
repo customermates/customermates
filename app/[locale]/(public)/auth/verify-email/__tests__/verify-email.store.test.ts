@@ -68,34 +68,27 @@ describe("VerifyEmailStore", () => {
     await store.resend();
 
     expect(authActions.resendVerificationEmailFromAuthAction).toHaveBeenCalledWith({
-      email: undefined,
       onboardingIntent: "signed.intent",
     });
   });
-  it("sends the typed address when nobody is signed in", async () => {
+
+  it("does nothing without a signed-in account", async () => {
     const store = new VerifyEmailStore(rootStore);
     store.activate(undefined);
 
     await store.resend();
+
     expect(authActions.resendVerificationEmailFromAuthAction).not.toHaveBeenCalled();
-
-    store.onChange("email", "  Stuck.User@Gmail.com  ");
-    await store.resend();
-
-    expect(authActions.resendVerificationEmailFromAuthAction).toHaveBeenCalledExactlyOnceWith({
-      email: "Stuck.User@Gmail.com",
-      onboardingIntent: undefined,
-    });
-    expect(store.isSent).toBe(true);
+    expect(store.isSent).toBe(false);
   });
-  it("refuses a malformed address instead of silently doing nothing", async () => {
+
+  it("does not claim a send that failed", async () => {
+    authActions.resendVerificationEmailFromAuthAction.mockResolvedValue({ ok: false });
     const store = new VerifyEmailStore(rootStore);
-    store.activate(undefined);
-    store.onChange("email", "not-an-email");
+    store.activate("first@example.test");
 
     await store.resend();
 
-    expect(authActions.resendVerificationEmailFromAuthAction).not.toHaveBeenCalled();
     expect(store.isSent).toBe(false);
   });
 });

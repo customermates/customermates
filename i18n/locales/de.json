@@ -1,4 +1,12 @@
 {
+  "AccountAccessRevoked": {
+    "body": "Du hast gerade mit einem verknüpften Konto nachgewiesen, dass diese Adresse dir gehört. Das Konto bestand vorher, ohne je bestätigt worden zu sein. Deshalb haben wir alles entfernt, was vorher darauf zugreifen konnte: jedes Passwort, jedes angemeldete Gerät, jeden API-Schlüssel und jede verbundene App. Wer es zuerst eingerichtet hat, kommt nicht mehr hinein.",
+    "cta": "Neues Passwort festlegen",
+    "greeting": "Hallo,",
+    "signoff": "Falls du dich gerade nicht angemeldet hast, melde dich bitte sofort bei uns.",
+    "subject": "Wir haben den Zugriff auf dein Customermates-Konto zurückgesetzt",
+    "title": "Kontozugriff zurückgesetzt"
+  },
   "AccountsRemovedNotice": {
     "body": "Dein Plan wurde auf {plan} umgestellt. Um das Limit deines Plans einzuhalten, habe ich die erforderliche Anzahl verbundener Konten entfernt: {accounts}. Deine Nachrichten und Kontakte sind weiterhin vorhanden. Du kannst die Konten jederzeit auf der Seite „Verbundene Konten“ erneut verbinden.",
     "cta": "Verbundene Konten ansehen",
@@ -3255,8 +3263,7 @@
     "rememberMe": "Angemeldet bleiben",
     "signInCta": "Anmelden",
     "signInTitle": "Bei deinem Konto anmelden",
-    "switchToSignUp": "Noch kein Konto? <registerLink>Registrieren</registerLink>",
-    "verificationEmailHelp": "Keine Bestätigungs-E-Mail erhalten?"
+    "switchToSignUp": "Noch kein Konto? <registerLink>Registrieren</registerLink>"
   },
   "SignUpForm": {
     "acceptInviteCta": "Weiter",
@@ -3426,17 +3433,16 @@
     "subject": "E-Mail bestätigen"
   },
   "VerifyEmailCard": {
-    "anonymousBody": "Gib die E-Mail-Adresse ein, mit der du dich registriert hast. Wir senden dir einen neuen Bestätigungslink.",
-    "anonymousResendSuccess": "Falls diese Adresse noch bestätigt werden muss, haben wir einen neuen Link geschickt.",
     "body": "Wir haben dir eine Verifizierungs-E-Mail gesendet. Bitte überprüfe dein Postfach und klicke auf den Link, um deine E-Mail-Adresse zu verifizieren.",
     "ctaLabel": "Verifizierungs-E-Mail erneut senden",
-    "invalidEmail": "Gib eine gültige E-Mail-Adresse ein.",
     "invitationFrom": "Einladung von {inviterName}",
-    "linkExpired": "Dieser Bestätigungslink ist abgelaufen. Fordere unten einen neuen an.",
-    "linkInvalid": "Dieser Bestätigungslink ist ungültig. Fordere unten einen neuen an.",
+    "linkExpired": "Dieser Bestätigungslink ist abgelaufen.",
+    "linkInvalid": "Dieser Bestätigungslink ist ungültig.",
     "resendSuccess": "Verifizierungs-E-Mail wurde erfolgreich gesendet.",
+    "signedOutBody": "Melde dich in deinem Konto an, um eine neue Bestätigungs-E-Mail anzufordern.",
     "subtitle": "Verifiziere deine E-Mail-Adresse, um fortzufahren.",
-    "title": "E-Mail-Verifizierung"
+    "title": "E-Mail-Verifizierung",
+    "verifiedSignIn": "Deine E-Mail-Adresse ist jetzt bestätigt. Melde dich an, um fortzufahren."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Zustellversuche erscheinen hier, sobald ein Webhook ausgelöst wird.",

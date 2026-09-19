@@ -1,4 +1,12 @@
 {
+  "AccountAccessRevoked": {
+    "body": "You just proved that this address is yours by signing in with a connected account. The account existed before that without ever being confirmed, so we removed everything that could reach it beforehand: any password, every signed-in device, every API key and every connected app. Whoever set it up first can no longer get in.",
+    "cta": "Set a new password",
+    "greeting": "Hi,",
+    "signoff": "If you did not sign in just now, please contact us straight away.",
+    "subject": "We reset the access on your Customermates account",
+    "title": "Account access reset"
+  },
   "AccountsRemovedNotice": {
     "body": "Your plan changed to {plan}, so I removed the following connected account(s) to stay within your plan's limit: {accounts}. Your messages and contacts are all still there. Reconnect anytime from your connected accounts page.",
     "cta": "View connected accounts",
@@ -3255,8 +3263,7 @@
     "rememberMe": "Remember me",
     "signInCta": "Sign In",
     "signInTitle": "Sign in to your account",
-    "switchToSignUp": "Don't have an account? <registerLink>Register</registerLink>",
-    "verificationEmailHelp": "Didn't get your verification email?"
+    "switchToSignUp": "Don't have an account? <registerLink>Register</registerLink>"
   },
   "SignUpForm": {
     "acceptInviteCta": "Continue",
@@ -3426,17 +3433,16 @@
     "subject": "Verify your email"
   },
   "VerifyEmailCard": {
-    "anonymousBody": "Enter the email address you signed up with and we will send you a new verification link.",
-    "anonymousResendSuccess": "If that address still needs verifying, we have sent it a new link.",
     "body": "We've sent you a verification email. Please check your inbox and click the link to verify your email address.",
     "ctaLabel": "Resend verification email",
-    "invalidEmail": "Enter a valid email address.",
     "invitationFrom": "Invitation from {inviterName}",
-    "linkExpired": "That verification link has expired. Request a new one below.",
-    "linkInvalid": "That verification link is not valid. Request a new one below.",
+    "linkExpired": "That verification link has expired.",
+    "linkInvalid": "That verification link is not valid.",
     "resendSuccess": "Verification email sent successfully.",
+    "signedOutBody": "Sign in to your account to request a new verification email.",
     "subtitle": "Verify your email address to continue.",
-    "title": "Email Verification"
+    "title": "Email Verification",
+    "verifiedSignIn": "Your email address is now verified. Sign in to continue."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Delivery attempts appear here once a webhook fires.",

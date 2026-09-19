@@ -98,12 +98,54 @@ describe("VerifyEmailPage onboarding intent", () => {
     mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
     mocks.requireAccountState.mockResolvedValue({ sessionUser: null, state: "unauthenticated" });
 
-    const result = await VerifyEmailPage({ searchParams: Promise.resolve({ error: "TOKEN_EXPIRED" }) });
+    const result = await VerifyEmailPage({
+      searchParams: Promise.resolve({ error: "TOKEN_EXPIRED", verified: "1" }),
+    });
 
-    expect(result.props.children.props).toMatchObject({ email: undefined, linkProblem: "expired" });
+    expect(result.props.children.props).toMatchObject({
+      email: undefined,
+      justVerified: false,
+      linkProblem: "expired",
+    });
   });
 
-  it("lets a signed-out visitor request a verification email when no intent is in play", async () => {
+  it("never claims success for a link the server rejected for any other reason", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({ sessionUser: null, state: "unauthenticated" });
+
+    const result = await VerifyEmailPage({
+      searchParams: Promise.resolve({ error: "USER_NOT_FOUND", verified: "1" }),
+    });
+
+    expect(result.props.children.props).toMatchObject({
+      email: undefined,
+      justVerified: false,
+      linkProblem: "invalid",
+    });
+  });
+
+  it("tells a signed-out visitor to sign in once their link has verified the address", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({ sessionUser: null, state: "unauthenticated" });
+
+    const result = await VerifyEmailPage({ searchParams: Promise.resolve({ verified: "1" }) });
+
+    expect(result.props.children.props).toMatchObject({ email: undefined, justVerified: true, linkProblem: undefined });
+  });
+
+  it("never reports a signed-in account as just verified", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({
+      sessionUser: { email: "overdue@example.com", id: "auth-user" },
+      state: "overdueVerification",
+    });
+
+    const result = await VerifyEmailPage({ searchParams: Promise.resolve({ verified: "1" }) });
+
+    expect(result.props.children.props).toMatchObject({ email: "overdue@example.com", justVerified: false });
+  });
+
+  it("shows a signed-out visitor how to continue when no intent is in play", async () => {
     mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
     mocks.requireAccountState.mockResolvedValue({ sessionUser: null, state: "unauthenticated" });
 
@@ -115,6 +157,6 @@ describe("VerifyEmailPage onboarding intent", () => {
       "/",
       undefined,
     );
-    expect(card.props.email).toBeUndefined();
+    expect(card.props).toMatchObject({ email: undefined, justVerified: false });
   });
 });

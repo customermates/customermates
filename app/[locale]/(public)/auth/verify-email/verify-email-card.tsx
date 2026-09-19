@@ -8,31 +8,40 @@ import { useLayoutEffect } from "react";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
-import { AppForm } from "@/components/forms/form-context";
-import { FormInput } from "@/components/forms/form-input";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
+import { AppLink } from "@/components/shared/app-link";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { runUserAction } from "@/core/errors/report-application-error";
 import { Alert } from "@/components/shared/alert";
+import { useRouter } from "@/i18n/navigation";
 
 type Props = {
   email?: string;
   inviterName?: string;
+  justVerified?: boolean;
   linkProblem?: "expired" | "invalid";
   onboardingIntent?: string;
 };
 
-export const VerifyEmailCard = observer(({ email, inviterName, linkProblem, onboardingIntent }: Props) => {
-  const t = useTranslations();
-  const { verifyEmailStore } = useRootStore();
-  const needsEmail = email === undefined;
+export const VerifyEmailCard = observer(
+  ({ email, inviterName, justVerified, linkProblem, onboardingIntent }: Props) => {
+    const t = useTranslations();
+    const router = useRouter();
+    const { verifyEmailStore } = useRootStore();
+    const signedOut = email === undefined;
 
-  useLayoutEffect(() => {
-    verifyEmailStore.activate(email, onboardingIntent);
-    return () => verifyEmailStore.deactivate(email);
-  }, [email, onboardingIntent, verifyEmailStore]);
+    useLayoutEffect(() => {
+      verifyEmailStore.activate(email, onboardingIntent);
+      return () => verifyEmailStore.deactivate(email);
+    }, [email, onboardingIntent, verifyEmailStore]);
 
-  return (
-    <AppForm store={verifyEmailStore}>
+    const body = !signedOut
+      ? t("VerifyEmailCard.body")
+      : justVerified && !linkProblem
+        ? t("VerifyEmailCard.verifiedSignIn")
+        : t("VerifyEmailCard.signedOutBody");
+
+    return (
       <AppCard className="max-w-md">
         <CardHeroHeader alt="" subtitle={t("VerifyEmailCard.subtitle")} title={t("VerifyEmailCard.title")} />
 
@@ -51,29 +60,37 @@ export const VerifyEmailCard = observer(({ email, inviterName, linkProblem, onbo
             </Alert>
           ) : null}
 
-          <p className="text-x-sm text-center">
-            {needsEmail ? t("VerifyEmailCard.anonymousBody") : t("VerifyEmailCard.body")}
-          </p>
+          <p className="text-x-sm text-center">{body}</p>
 
-          {needsEmail ? <FormInput required autoComplete="email" id="email" type="email" /> : null}
+          {signedOut ? (
+            <div className="flex w-full justify-center">
+              <AppLink href="/auth/forgot-password">{t("SignInForm.forgotPassword")}</AppLink>
+            </div>
+          ) : null}
         </AppCardBody>
 
         <AppCardFooter>
-          {needsEmail ? null : (
-            <Button className="w-full" type="button" variant="secondary" onClick={() => window.location.reload()}>
-              {t("Common.actions.refresh")}
+          {signedOut ? (
+            <Button className="w-full" onClick={() => router.push("/auth/signin")}>
+              {t("SignInForm.signInCta")}
             </Button>
-          )}
+          ) : (
+            <>
+              <Button className="w-full" variant="secondary" onClick={() => window.location.reload()}>
+                {t("Common.actions.refresh")}
+              </Button>
 
-          <Button
-            className="w-full"
-            disabled={needsEmail ? !verifyEmailStore.form.email.trim() : verifyEmailStore.isSent}
-            type="submit"
-          >
-            {t("VerifyEmailCard.ctaLabel")}
-          </Button>
+              <Button
+                className="w-full"
+                disabled={verifyEmailStore.isSent}
+                onClick={() => runUserAction(() => verifyEmailStore.resend())}
+              >
+                {t("VerifyEmailCard.ctaLabel")}
+              </Button>
+            </>
+          )}
         </AppCardFooter>
       </AppCard>
-    </AppForm>
-  );
-});
+    );
+  },
+);

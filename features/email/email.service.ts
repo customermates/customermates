@@ -39,7 +39,7 @@ export class EmailService {
     });
 
     if (error) {
-      Sentry.captureException(new Error(`Resend rejected an email: ${error.name}: ${error.message}`), {
+      Sentry.captureException(new Error(`Resend rejected an email: ${error.name}`), {
         extra: { subject: args.subject, recipientDomain: args.to.split("@").at(-1) },
       });
       return false;
