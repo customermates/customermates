@@ -71,7 +71,23 @@ Den vollständigen Tool-Katalog finden Sie unter [MCP](/docs/mcp#tool-catalog).
 
 ## Audit-Logging
 
-Jeder Write wird mit User, Action, Entity sowie Vorher- und Nachher-Werten geloggt. Er ist aus der UI abfragbar und als JSON exportierbar. Audit-Logging ist in jedem Cloud-Plan enthalten. Die selbstgehostete Community-Edition enthält kein Audit-Logging.
+Das Audit-Log protokolliert Änderungen an CRM-Datensätzen und an der Workspace-Konfiguration darum herum: Kontakte, Organisationen, Deals, Services, Aufgaben, benutzerdefinierte Felder, Rollen, Mitglieder, Unternehmenseinstellungen, Webhooks, Routinen und verbundene Konten. Rechtliche Zustimmungen, rechtliche Hinweise und Datensatz-Exporte werden ebenfalls protokolliert. UI, REST-API und MCP laufen über dieselben Interactors, eine Änderung durch einen Agenten wird also wie eine Änderung durch eine Person protokolliert.
+
+Ein Eintrag speichert das Ereignis, die Element-ID, die zugeordnete Person, den Zeitstempel und die Payload als JSON. Änderungen an Datensätzen, Rollen, Webhooks, benutzerdefinierten Feldern, Routinen und verbundenen Konten enthalten ein feldweises Diff. Erstellungen und Löschungen enthalten eine Momentaufnahme. Ein fehlgeschlagener Write und ein Write ohne Änderung hinterlassen keinen Eintrag. Webhook-Secrets und Header-Werte werden vor dem Speichern entfernt. Andere Payloads enthalten Datensatzinhalte, das Log hält also Kopien der Daten, die es beschreibt.
+
+Eine Aktion wird nur protokolliert, wenn sie ein Domain-Event veröffentlicht, und Teile des Produkts veröffentlichen keines:
+
+- Posteingangs-Inhalte. Eingehende E-Mails, Chat-Nachrichten, Kalenderänderungen und soziale Verknüpfungen sind bewusst ausgenommen.
+- Authentifizierung. Anmeldung, Abmeldung, Passwort-Reset und die Verknüpfung sozialer Konten.
+- Erstellung und Widerruf von API-Keys. Writes mit einem Key werden der Besitzerin oder dem Besitzer zugeordnet, der Lebenszyklus des Keys selbst wird nicht protokolliert.
+- Abo- und Tarifänderungen, gespeicherte Ansichten, Dashboard-Widgets und Agenten-Konversationen.
+- Operator-Aktionen in der gehosteten Cloud, die in einem separaten internen Log liegen.
+
+Einträge aus automatisierten Abläufen, etwa das Entfernen eines verbundenen Kontos bei Ablauf der Testphase, nennen die betroffene Person und nicht eine handelnde Person.
+
+In der UI lässt sich nach Ereignis und Datum filtern, nach Element-ID suchen und nach Zeit sortieren. Einen Export gibt es nicht. Das Produkt bearbeitet oder löscht keine Einträge, sie liegen aber in derselben Datenbank wie Ihre Daten und werden mit dem zugehörigen Unternehmen oder Benutzer entfernt. Behandeln Sie dies als operatives Protokoll, nicht als manipulationssicheres Compliance-Archiv.
+
+Audit-Logging ist kein Tarif-Feature. Jeder Cloud-Plan enthält es, ebenso die selbstgehostete Community-Edition: `features/audit-log/` ist AGPL-Code außerhalb von `ee/`. Wer es lesen darf, legt die Rolle über die Berechtigung `auditLog` fest.
 
 ## Vulnerabilities melden
 

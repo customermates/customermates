@@ -71,7 +71,23 @@ See [MCP](/docs/mcp#tool-catalog) for the full tool catalog.
 
 ## Audit logging
 
-Every write is logged with user, action, entity, and before and after values. It is queryable from the UI and exportable as JSON. Audit logging is included on every cloud plan. The self-hosted community edition does not include audit logging.
+The audit log records changes to CRM records and to the workspace configuration around them: contacts, organizations, deals, services, tasks, custom fields, roles, members, company settings, webhooks, routines, and connected accounts. Legal acceptances, legal notices, and record exports are recorded too. The UI, the REST API, and MCP run through the same interactors, so a change made by an agent is recorded like a change made by a person.
+
+An entry stores the event, the entity id, the user it is attributed to, the timestamp, and the payload as JSON. Updates to records, roles, webhooks, custom fields, routines, and connected accounts carry a field-level diff. Creates and deletes carry a snapshot. A write that fails or changes nothing leaves no entry. Webhook secrets and header values are stripped before the event is stored. Other payloads carry record contents, so the log holds copies of the data it describes.
+
+An action is recorded only if it publishes a domain event, and parts of the product publish none:
+
+- Inbox content. Incoming email, chat messages, calendar changes, and social relations are excluded deliberately.
+- Authentication. Sign-in, sign-out, password reset, and social account linking.
+- API key creation and revocation. Writes made with a key are attributed to its owner; the key's own lifecycle is not recorded.
+- Subscription and plan changes, saved views, dashboard widgets, and agent conversations.
+- Operator actions on the managed cloud, which are kept in a separate internal log.
+
+Entries written by an automated process, such as removing a connected account when a trial ends, name the user the action affected rather than a person who performed it.
+
+In the UI you can filter by event and date, search by entity id, and sort by time. There is no export. Nothing in the product edits or prunes entries, but they live in the same database as your data and are removed with the company or user they reference. Treat this as an operational record, not a tamper-evident compliance archive.
+
+Audit logging is not a plan entitlement. Every cloud plan includes it, and so does the self-hosted community edition: `features/audit-log/` is AGPL code outside `ee/`. Who may read it is set per role by the `auditLog` permission.
 
 ## Reporting vulnerabilities
 
