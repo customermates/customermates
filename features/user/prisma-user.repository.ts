@@ -732,4 +732,13 @@ export class PrismaUserRepo
       data: { companyId: args.companyId },
     });
   }
+
+  @BypassTenantGuard
+  async findAuthUserAccountStateUnscoped(userId: string) {
+    const authUser = await this.prisma.authUser.findUnique({
+      where: { id: userId },
+      select: { companyId: true, emailVerified: true },
+    });
+    return authUser ?? undefined;
+  }
 }
