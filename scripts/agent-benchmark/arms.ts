@@ -79,6 +79,7 @@ function hosted(
 
 export const BENCHMARK_ARMS: readonly BenchmarkArm[] = [
   google("shipped", "google/gemini-3.5-flash-lite", undefined, "Gemini 3.5 Flash-Lite, provider default thinking, 2048 output (shipped)", { shipped: true }),
+  google("flash-lite-minimal", "google/gemini-3.5-flash-lite", "minimal", "Gemini 3.5 Flash-Lite, thinking minimal, 8192 output"),
   google("flash-lite-low", "google/gemini-3.5-flash-lite", "low", "Gemini 3.5 Flash-Lite, thinking low"),
   google("flash-lite-medium", "google/gemini-3.5-flash-lite", "medium", "Gemini 3.5 Flash-Lite, thinking medium"),
   google("flash-lite-high", "google/gemini-3.5-flash-lite", "high", "Gemini 3.5 Flash-Lite, thinking high"),

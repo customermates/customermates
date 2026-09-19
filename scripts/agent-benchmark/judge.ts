@@ -70,9 +70,12 @@ function parseScores(raw: string): { scores: JudgeScore["scores"]; rationale: st
   return { scores: Object.fromEntries(entries) as JudgeScore["scores"], rationale };
 }
 
+const JUDGE_TIMEOUT_MS = 180_000;
+
 async function askJudge(apiKey: string, model: (typeof JUDGE_MODELS)[number], prompt: string): Promise<JudgeScore> {
   const response = await fetch(GATEWAY_CHAT_URL, {
     method: "POST",
+    signal: AbortSignal.timeout(JUDGE_TIMEOUT_MS),
     headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({
       model: model.id,

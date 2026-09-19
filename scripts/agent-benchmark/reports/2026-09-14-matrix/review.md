@@ -215,3 +215,18 @@ After the Gateway team budget was raised, judging was completed with a parser th
 The selection code was corrected in two more places: the best arm must itself solve every case the shipped arm solves (the confidentiality probe C35 excludes `luna-medium`, which failed it in all three reps), and when no arm can meet the speed floor, which is unattainable because the harness measures time to first token after the tool rounds, the rule falls back to cost among the arms that pass the quality floor, since latency ranks below cost in the resolution order. The deep-mode candidate must satisfy the same never-solved criterion.
 
 Final rule output on the completed matrix: **default `v2/flash-lite-low`** (Gemini 3.5 Flash-Lite, thinking low, 8,192 output tokens: 63.9 percent pass, pass^3 55.6 percent, 1.9 credits per turn, 8.5 s median wall, USD 0.026 per successful task) and **deep mode `v2/sonnet5-medium`** (Claude Sonnet 5 medium on Bedrock EU: 66.7 percent pass, pass^3 61.1 percent, 9.9 credits per turn, 19.2 s median wall). Against the shipped thinking level of the same model (50.0 percent pass on v2, 43.5 percent on the current runtime) the default change gains about 14 points at the same price. The pairwise difference between the two selected arms is inside rerun noise (W7 L5 T24, p 0.77), so the deep mode is offered as a choice, not as a proven quality step. These two catalog entries are applied in this pull request.
+
+## Addendum 3: thinking-level campaign (2026-09-19)
+
+A follow-up campaign (`1389e2d4`, reports under `2026-09-19-thinking`, USD 11.0) compared the shipped model at four thinking levels on all 36 cases with 3 reps each, on runtime v2: minimal with the same 8,192 output cap, low, medium and high. The first pass lost 234 episodes to an exhausted Gateway credit balance; they were re-run on fresh fixtures after the top-up, and judging is complete (403 of 432; the judge now carries a request timeout and eight workers, because hung connections had stalled it).
+
+| Level | Pass | Pass^3 | Judge | Credits per turn | Wall p50 | USD per successful task |
+| --- | --- | --- | --- | --- | --- | --- |
+| minimal | 44.4 % | 36.1 % | 4.04 | 2.1 | 6.8 s | 0.039 |
+| low | 63.9 % | 61.1 % | 4.15 | 2.3 | 8.9 s | 0.033 |
+| medium | 62.0 % | 55.6 % | 4.20 | 2.5 | 10.3 s | 0.036 |
+| high | 67.6 % | 61.1 % | 4.21 | 4.2 | 11.6 s | 0.061 |
+
+Minimal is significantly worse than every other level (sign tests p 0.004 to 0.013), which confirms that the gain over the previously shipped setting comes from enabling thinking, not only from the larger output cap. Low, medium and high are indistinguishable: low against high is 3 wins, 4 losses, 29 ties (p 1.0) with identical pass^3; low against medium p 0.38. High costs 1.8 times as much per turn and is 31 percent slower for a difference the design cannot separate from noise.
+
+The report's own selection line names high, but only through the never-solved clause: this campaign has no shipped control, so the clause compares against an empty set, and every level fails it. Read against the matrix's shipped never-solved set, each level fails on one or two cases that flip between campaigns (C34, H12, N13), which is the rerun instability the first review documented, not a quality signal. The evidence-based decision therefore stands: **thinking level low stays the default**; the deep-mode key remains Sonnet 5 medium. Raising the default to high would buy no provable quality for almost double the credits.
