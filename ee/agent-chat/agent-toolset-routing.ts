@@ -1,6 +1,8 @@
 export const AGENT_CORE_TOOLSETS = ["records", "workspace", "docs", "custom-columns", "support"] as const;
 export const AGENT_ON_DEMAND_TOOLSETS = ["messaging", "social", "widgets", "webhooks", "routines", "admin"] as const;
 
+export const AGENT_CORE_TOOL_NAMES = ["get_activities"] as const;
+
 export type AgentOnDemandToolset = (typeof AGENT_ON_DEMAND_TOOLSETS)[number];
 
 export const LOAD_TOOLSET_TOOL_NAME = "load_toolset";

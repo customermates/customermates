@@ -123,7 +123,6 @@ describe("model catalog + pricing coverage", () => {
     expect(Object.values(MODEL_CATALOG).map((entry) => entry.modelId)).toEqual([
       "openai/gpt-5-nano",
       "google/gemini-3.5-flash-lite",
-      "anthropic/claude-sonnet-5",
     ]);
   });
 

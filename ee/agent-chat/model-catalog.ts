@@ -41,15 +41,6 @@ export const MODEL_CATALOG = {
     maxToolResultChars: 6000,
     thinkingLevel: "low",
   },
-  quality: {
-    modelId: "anthropic/claude-sonnet-5",
-    servingProvider: "bedrock",
-    inferenceRegion: "eu",
-    maxOutputTokens: 8192,
-    maxContextTokens: 66_000,
-    maxToolResultChars: 6000,
-    reasoningEffort: "medium",
-  },
 } as const satisfies Record<string, AgentModelEntry>;
 
 export type AgentModelKey = keyof typeof MODEL_CATALOG;
