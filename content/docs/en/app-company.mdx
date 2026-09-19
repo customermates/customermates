@@ -17,9 +17,9 @@ All app routes are locale-prefixed (example: https://customermates.com/en/compan
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
-| Go to Company | App sidebar | `#nav-company` | Opens /company/subscription (Cloud) or /company/settings (self-hosted) |
+| Open the Company group | App sidebar | `#nav-company` | Expands the sidebar sub-items; the button itself does not navigate |
 | Subscription tab | Sidebar sub-item | `#nav-company-subscription` | Plan, trial status, and the plan picker (Cloud only) |
-| Settings tab | Sidebar sub-item | `#nav-company-settings` | Workspace currency for all money values |
+| Settings tab | Sidebar sub-item | `#nav-company-settings` | Workspace currency, deal forecasting, and the data model |
 | Save / reset settings | Top bar | `#company-settings-save` / `#company-settings-reset` | Persists or discards |
 | Members tab | Sidebar sub-item | `#nav-company-members` | Team management |
 | Invite member | Members toolbar | `#company-members-add` | Opens the invite modal |
@@ -35,9 +35,9 @@ All app routes are locale-prefixed (example: https://customermates.com/en/compan
 | Deliveries tab | Sidebar sub-item | `#nav-company-webhook-deliveries` | Per-delivery status + payload; resend from a delivery row |
 | Deliveries list controls | Deliveries toolbar | `#company-webhook-deliveries-search` / `#company-webhook-deliveries-filter` / `#company-webhook-deliveries-display-options` | List controls |
 | Audit logs tab | Sidebar sub-item | `#nav-company-audit-logs` | Who changed what, when |
-| Audit list controls | Audit toolbar | `#company-audit-logs-search` / `#company-audit-logs-filter` / `#company-audit-logs-display-options` | List controls |
+| Audit list controls | Audit toolbar | `#company-audit-logs-search` / `#company-audit-logs-filter` / `#company-audit-logs-display-options` | List controls (search matches the record id only; the filter offers event and date) |
 
-The display-options popovers expose these stable layout controls:
+The display-options popovers expose these stable layout controls. None of these lists is groupable, so the board control renders disabled on every one of them:
 
 - Members: `#company-members-layout-table`, `#company-members-layout-board`
 - Roles: `#company-roles-layout-table`, `#company-roles-layout-board`

@@ -22,7 +22,7 @@ Every record belongs to a **Company**. The company id is enforced in three place
 2. **Prisma layer**: queries include `companyId` in every `where`.
 3. **Decorator layer**: `@TenantInteractor` makes interactors that fail to scope throw at runtime.
 
-Cross-tenant reads are not possible through the public surface. There is no admin panel that bypasses scope.
+Cross-tenant reads are not possible through the public surface. On the managed cloud, a vendor operator console can read across tenants for support; it is restricted to an allowlisted operator account, refuses to load outside cloud mode, and records every read and write in a separate internal log. A self-hosted deployment has no such console.
 
 ## Authentication
 
@@ -36,7 +36,7 @@ All methods resolve to the same user and company context.
 
 ## Authorization
 
-Per-user and role-driven. Roles carry permissions on resources (contacts, organizations, deals, services, tasks) and actions (read, create, update, delete). Every interactor calls `userService.hasPermissionOrThrow(resource, action)` before acting.
+Per-user and role-driven. Roles carry permissions on resources (contacts, organizations, deals, services, tasks, users, company, api, audit log, inbox messages, routines) and actions (create, read own, read all, update, delete). Every interactor calls `userService.hasPermissionOrThrow(resource, action)` before acting.
 
 API keys inherit the permissions of their owning user. There is no per-key scoping.
 
@@ -73,9 +73,9 @@ See [MCP](/docs/mcp#tool-catalog) for the full tool catalog.
 
 The audit log records changes to CRM records and to the workspace configuration around them: contacts, organizations, deals, services, tasks, custom fields, roles, members, company settings, webhooks, routines, and connected accounts. Legal acceptances, legal notices, and record exports are recorded too. The UI, the REST API, and MCP run through the same interactors, so a change made by an agent is recorded like a change made by a person.
 
-An entry stores the event, the entity id, the user it is attributed to, the timestamp, and the payload as JSON. Updates to records, roles, webhooks, custom fields, routines, and connected accounts carry a field-level diff. Creates and deletes carry a snapshot. A write that fails or changes nothing leaves no entry. Webhook secrets and header values are stripped before the event is stored. Other payloads carry record contents, so the log holds copies of the data it describes.
+An entry stores the event, the element id, the user it is attributed to, the timestamp, and the payload as JSON. Updates to records, roles, webhooks, custom fields, routines, and connected accounts carry a field-level diff. Creates, deletes, and updates to members and company settings carry a snapshot instead. A write that fails leaves no entry, and neither does an update whose diff is empty; a member or company-settings save carries a snapshot rather than a diff, so it records an entry even when nothing changed. Webhook secrets and header values are stripped before the event is stored. Other payloads carry record contents, so the log holds copies of the data it describes.
 
-An action is recorded only if it publishes a domain event, and parts of the product publish none:
+An action reaches the log only when it publishes a domain event and that event is not on the exclusion list. These are not recorded:
 
 - Inbox content. Incoming email, chat messages, calendar changes, and social relations are excluded deliberately.
 - Authentication. Sign-in, sign-out, password reset, and social account linking.
@@ -85,7 +85,7 @@ An action is recorded only if it publishes a domain event, and parts of the prod
 
 Entries written by an automated process, such as removing a connected account when a trial ends, name the user the action affected rather than a person who performed it.
 
-In the UI you can filter by event and date, search by entity id, and sort by time. There is no export. Nothing in the product edits or prunes entries, but they live in the same database as your data and are removed with the company or user they reference. Treat this as an operational record, not a tamper-evident compliance archive.
+In the UI you can filter by event and date, search by element id, and sort by time. The screen has no export action; the same entries are also readable through the activity timeline, its REST endpoint, and the `get_activities` tool in [MCP](/docs/mcp), under the same permission. Nothing in the product edits or prunes entries, but they live in the same database as your data and are removed with the company or user they reference. Treat this as an operational record, not a tamper-evident compliance archive.
 
 Audit logging is not a plan entitlement. Every cloud plan includes it, and so does the self-hosted community edition: `features/audit-log/` is AGPL code outside `ee/`. Who may read it is set per role by the `auditLog` permission.
 

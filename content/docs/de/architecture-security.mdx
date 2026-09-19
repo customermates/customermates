@@ -22,7 +22,7 @@ Jeder Datensatz gehört zu einer **Company**. Die Company-ID wird an drei Stelle
 2. **Prisma-Layer**: Queries enthalten `companyId` in jedem `where`.
 3. **Decorator-Layer**: `@TenantInteractor` sorgt dafür, dass Interactors, die den Scope vergessen, zur Laufzeit werfen.
 
-Cross-Tenant-Reads sind über die öffentliche Oberfläche nicht möglich. Es gibt kein Admin-Panel, das den Scope umgeht.
+Cross-Tenant-Reads sind über die öffentliche Oberfläche nicht möglich. In der gehosteten Cloud kann eine Operator-Konsole des Anbieters für den Support mandantenübergreifend lesen; sie ist auf ein freigeschaltetes Operator-Konto beschränkt, verweigert den Dienst außerhalb des Cloud-Modus und schreibt jeden Read und Write in ein separates internes Log. Ein Self-Hosted-Deployment hat diese Konsole nicht.
 
 ## Authentifizierung
 
@@ -36,7 +36,7 @@ Alle Methoden lösen auf denselben User- und Company-Kontext auf.
 
 ## Autorisierung
 
-Pro User und rollenbasiert. Rollen tragen Permissions auf Resources (Contacts, Organizations, Deals, Services, Tasks) und Actions (Read, Create, Update, Delete). Jeder Interactor ruft `userService.hasPermissionOrThrow(resource, action)`, bevor er handelt.
+Pro User und rollenbasiert. Rollen tragen Permissions auf Resources (Contacts, Organizations, Deals, Services, Tasks, Users, Company, API, Audit-Log, Inbox-Messages, Routines) und Actions (Create, Read Own, Read All, Update, Delete). Jeder Interactor ruft `userService.hasPermissionOrThrow(resource, action)`, bevor er handelt.
 
 API-Keys erben die Rechte ihres Owner-Users. Es gibt kein Scoping pro Key.
 
@@ -73,9 +73,9 @@ Den vollständigen Tool-Katalog finden Sie unter [MCP](/docs/mcp#tool-catalog).
 
 Das Audit-Log protokolliert Änderungen an CRM-Datensätzen und an der Workspace-Konfiguration darum herum: Kontakte, Organisationen, Deals, Services, Aufgaben, benutzerdefinierte Felder, Rollen, Mitglieder, Unternehmenseinstellungen, Webhooks, Routinen und verbundene Konten. Rechtliche Zustimmungen, rechtliche Hinweise und Datensatz-Exporte werden ebenfalls protokolliert. UI, REST-API und MCP laufen über dieselben Interactors, eine Änderung durch einen Agenten wird also wie eine Änderung durch eine Person protokolliert.
 
-Ein Eintrag speichert das Ereignis, die Element-ID, die zugeordnete Person, den Zeitstempel und die Payload als JSON. Änderungen an Datensätzen, Rollen, Webhooks, benutzerdefinierten Feldern, Routinen und verbundenen Konten enthalten ein feldweises Diff. Erstellungen und Löschungen enthalten eine Momentaufnahme. Ein fehlgeschlagener Write und ein Write ohne Änderung hinterlassen keinen Eintrag. Webhook-Secrets und Header-Werte werden vor dem Speichern entfernt. Andere Payloads enthalten Datensatzinhalte, das Log hält also Kopien der Daten, die es beschreibt.
+Ein Eintrag speichert das Ereignis, die Element-ID, die zugeordnete Person, den Zeitstempel und die Payload als JSON. Aktualisierungen an Datensätzen, Rollen, Webhooks, benutzerdefinierten Feldern, Routinen und verbundenen Konten enthalten ein feldweises Diff. Erstellungen, Löschungen sowie Aktualisierungen an Mitgliedern und Unternehmenseinstellungen enthalten stattdessen eine Momentaufnahme. Ein fehlgeschlagener Write hinterlässt keinen Eintrag, ebenso wenig eine Aktualisierung mit leerem Diff; das Speichern von Mitgliedern oder Unternehmenseinstellungen enthält eine Momentaufnahme statt eines Diffs und schreibt daher auch dann einen Eintrag, wenn sich nichts geändert hat. Webhook-Secrets und Header-Werte werden vor dem Speichern entfernt. Andere Payloads enthalten Datensatzinhalte, das Log hält also Kopien der Daten, die es beschreibt.
 
-Eine Aktion wird nur protokolliert, wenn sie ein Domain-Event veröffentlicht, und Teile des Produkts veröffentlichen keines:
+Eine Aktion landet nur im Log, wenn sie ein Domain-Event veröffentlicht und dieses Event nicht auf der Ausschlussliste steht. Nicht protokolliert werden:
 
 - Posteingangs-Inhalte. Eingehende E-Mails, Chat-Nachrichten, Kalenderänderungen und soziale Verknüpfungen sind bewusst ausgenommen.
 - Authentifizierung. Anmeldung, Abmeldung, Passwort-Reset und die Verknüpfung sozialer Konten.
@@ -85,9 +85,9 @@ Eine Aktion wird nur protokolliert, wenn sie ein Domain-Event veröffentlicht, u
 
 Einträge aus automatisierten Abläufen, etwa das Entfernen eines verbundenen Kontos bei Ablauf der Testphase, nennen die betroffene Person und nicht eine handelnde Person.
 
-In der UI lässt sich nach Ereignis und Datum filtern, nach Element-ID suchen und nach Zeit sortieren. Einen Export gibt es nicht. Das Produkt bearbeitet oder löscht keine Einträge, sie liegen aber in derselben Datenbank wie Ihre Daten und werden mit dem zugehörigen Unternehmen oder Benutzer entfernt. Behandeln Sie dies als operatives Protokoll, nicht als manipulationssicheres Compliance-Archiv.
+In der UI lässt sich nach Ereignis und Datum filtern, nach Element-ID suchen und nach Zeit sortieren. Der Screen bietet keinen Export; dieselben Einträge sind über die Aktivitäts-Timeline, ihren REST-Endpunkt und das Tool `get_activities` in [MCP](/docs/mcp) lesbar, mit derselben Berechtigung. Das Produkt bearbeitet oder löscht keine Einträge, sie liegen aber in derselben Datenbank wie Ihre Daten und werden mit dem zugehörigen Unternehmen oder Benutzer entfernt. Behandeln Sie dies als operatives Protokoll, nicht als manipulationssicheres Compliance-Archiv.
 
-Audit-Logging ist kein Tarif-Feature. Jeder Cloud-Plan enthält es, ebenso die selbstgehostete Community-Edition: `features/audit-log/` ist AGPL-Code außerhalb von `ee/`. Wer es lesen darf, legt die Rolle über die Berechtigung `auditLog` fest.
+Audit-Logging ist kein Tarif-Feature. Jeder Cloud-Plan enthält es, ebenso die selbstgehostete Community-Edition: `features/audit-log/` ist AGPL-Code außerhalb von `ee/`. Wer es lesen darf, wird pro Rolle über die Berechtigung `auditLog` festgelegt.
 
 ## Vulnerabilities melden
 

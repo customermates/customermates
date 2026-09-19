@@ -15,9 +15,9 @@ Wählen Sie unter **Widget hinzufügen** ein **Diagramm** für aggregierte CRM-D
 
 ### Quellen und Filter
 
-Die Kategorie **Änderungen** enthält Änderungen aus dem Audit-Log. **Nachrichten** enthält Nachrichten aus dem Posteingang. **Aktivitäten** enthält Aktivitäten verbundener Accounts, etwa angenommene LinkedIn-Kontaktanfragen, sowie Kalenderereignisse.
+Die Kategorie **Datensatzänderungen** enthält Änderungen aus dem Audit-Log. **Nachrichten** enthält Nachrichten aus dem Posteingang. **Konto & Kalender** enthält Aktivitäten verbundener Accounts, etwa angenommene LinkedIn-Kontaktanfragen, sowie Kalenderereignisse.
 
-Alle zugänglichen Datensätze bilden die implizite Basis. Filtern Sie einen Aktivitätsverlauf nach Kategorie, Anbieter, verbundenem Account, Unterhaltung oder verknüpften Kontakten, Organisationen, Deals, Services und Aufgaben. Jedes Feld kann einmal konfiguriert werden. Beziehungsfilter verwenden dieselben Operatoren wie Datensatzlisten: **in** und **not in** akzeptieren einen oder mehrere Datensätze, **has some** und **has none** benötigen keinen Wert. Verschiedene Filterfelder werden mit UND verknüpft, mehrere Werte in einem **in**-Filter mit ODER. Nicht verknüpfte Einträge erfüllen positive Beziehungsfilter nicht und negative Beziehungsfilter schon. Filter werden beim Speichern dauerhaft am Widget hinterlegt.
+Alle zugänglichen Datensätze bilden die implizite Basis. Filtern Sie einen Aktivitätsverlauf nach Kategorie, Anbieter, verbundenem Account, Unterhaltung oder verknüpften Kontakten, Organisationen, Deals, Services und Aufgaben. Die Filter Anbieter, verbundener Account und Unterhaltung erscheinen nur mit Zugriff auf den Posteingang und der Messaging-Berechtigung, und ein Filter auf Anbieter, verbundenen Account oder eine Unterhaltung mit **in** lässt Audit-Log-Änderungen aus dem Ergebnis heraus. Jedes Feld kann einmal konfiguriert werden. Beziehungsfilter verwenden dieselben Operatoren wie Datensatzlisten: **in** und **not in** akzeptieren einen oder mehrere Datensätze, **has some** und **has none** benötigen keinen Wert. Verschiedene Filterfelder werden mit UND verknüpft, mehrere Werte in einem **in**-Filter mit ODER. Nicht verknüpfte Einträge erfüllen positive Beziehungsfilter nicht und negative Beziehungsfilter schon. Filter werden beim Speichern dauerhaft am Widget hinterlegt.
 
 ### Verlauf lesen
 
@@ -28,11 +28,11 @@ Die neuesten Einträge stehen zuerst. Mit **Ältere laden** öffnen Sie die näc
 | Zugriff                                                                      | Sichtbarer Inhalt                                                              |
 | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | Nur Audit-Log                                                                | Zulässige Änderungen                                                           |
-| Nur Posteingangsnachrichten, mit Messaging-Berechtigung des Cloud-Pro-Tarifs | Zulässige Nachrichten, Aktivitäten verbundener Accounts und Kalenderereignisse |
-| Beide Berechtigungen, mit Messaging-Berechtigung des Cloud-Pro-Tarifs        | Ein zusammengeführter Verlauf mit allen zulässigen Quellen                     |
+| Nur Posteingangsnachrichten, mit Messaging-Berechtigung (Cloud, ab dem Pro-Tarif) | Zulässige Nachrichten, Aktivitäten verbundener Accounts und Kalenderereignisse |
+| Beide Berechtigungen, mit Messaging-Berechtigung (Cloud, ab dem Pro-Tarif)        | Ein zusammengeführter Verlauf mit allen zulässigen Quellen                     |
 | Keines                                                                       | Ein neutraler Hinweis auf fehlende Verfügbarkeit                               |
 
-Audit-Log-Änderungen sind unabhängig von der Messaging-Berechtigung verfügbar. Nachrichten, Aktivitäten verbundener Accounts und Kalenderereignisse erfordern Zugriff auf den Posteingang und im Cloud-Modus den Pro-Tarif für Messaging. Ohne verbundenen Messaging-Account entfallen die Messaging-basierten Quellen, zulässige Audit-Änderungen bleiben jedoch sichtbar. Gelöschte oder neu unzugängliche Filterwerte liefern keine Treffer mehr, werden zur sicheren Entfernung als **Nicht verfügbarer Wert** angezeigt und geben niemals ihre rohe ID preis.
+Audit-Log-Änderungen sind unabhängig von der Messaging-Berechtigung verfügbar. Nachrichten, Aktivitäten verbundener Accounts und Kalenderereignisse erfordern Zugriff auf den Posteingang und die Messaging-Berechtigung, die es in der Cloud ab dem Pro-Tarif gibt und im Self-Hosting nie. Ohne verbundenen Messaging-Account entfallen die Messaging-basierten Quellen, zulässige Audit-Änderungen bleiben jedoch sichtbar. Gelöschte oder neu unzugängliche Filterwerte liefern keine Treffer mehr, werden zur sicheren Entfernung als **Auswahl nicht verfügbar** angezeigt und geben niemals ihre rohe ID preis.
 
 ## URL
 

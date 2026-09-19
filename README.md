@@ -49,7 +49,7 @@ Docs entry points:
 - n8n workflows and automation support
 - MCP support for agent tooling and structured tool calling
 - Unified inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram (Cloud, from the Pro plan)
-- Audit logging on every plan, self-hosted included; Single Sign-On and Whitelabeling on the Enterprise plan (self-hosted Enterprise deployments by agreement)
+- Audit logging; Single Sign-On and Whitelabeling on the Enterprise plan (self-hosted Enterprise deployments by agreement)
 - Role-based access control for teams
 - Self-hosted deployment with Docker Compose and PostgreSQL
 - Cloud uses monthly per-seat pricing; see the [current plans](https://customermates.com/pricing)
@@ -113,7 +113,7 @@ docker compose restart                         # restart after .env changes
 docker compose logs -f app                     # logs
 ```
 
-Front the app with a reverse proxy (Caddy, nginx, Traefik) for TLS. Customermates sets secure cookies when `BASE_URL` uses `https://` — make sure the proxy forwards `X-Forwarded-Proto`.
+Front the app with a reverse proxy (Caddy, nginx, Traefik) for TLS. Customermates sets secure cookies when `BASE_URL` uses `https://`, so make sure the proxy forwards `X-Forwarded-Proto`.
 
 More docs:
 
@@ -164,10 +164,10 @@ Start here: [customermates.com/docs](https://customermates.com/docs)
 
 Customermates uses an open-core licensing model.
 
-The Community Edition—all first-party code outside `ee/`, including `features/audit-log/`—is licensed under [AGPL-3.0-only](./LICENSE). Audit logging is therefore free for production self-hosting.
+The Community Edition (all first-party code outside `ee/`, including `features/audit-log/`) is licensed under [AGPL-3.0-only](./LICENSE).
 
 Other first-party files in `ee/` are source-available under the [Customermates Commercial License](./ee/LICENSE.md), subject to its AGPL client-material exception. Production use of Commercial Software outside the limited Community Build permission, including any Enterprise Feature, requires a Commercial Agreement.
 
-The official Community image at `ghcr.io/customermates/customermates` is built from the shared codebase and contains compiled Commercial Software. The limited Community Build permission allows anyone to run its unmodified commercial support components where documented `APP_MODE=self-hosted` operation necessarily executes them for entitlement bookkeeping, feature denial, and audit-only shared activity timelines; it does not license Enterprise Feature use.
+The official Community image at `ghcr.io/customermates/customermates` is built from the shared codebase and contains compiled Commercial Software. The limited Community Build permission allows anyone to run its unmodified commercial support components where documented `APP_MODE=self-hosted` operation necessarily executes them; it does not license Enterprise Feature use.
 
 Contributor terms are available in [`.github/CLA.md`](./.github/CLA.md).

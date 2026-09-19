@@ -15,9 +15,9 @@ Use **Add widget** and choose **Chart** for aggregated CRM data or **Activity ti
 
 ### Sources and filters
 
-The **Changes** category contains audit-log changes. **Messages** contains Inbox messages. **Activities** contains connected-account activity, such as accepted LinkedIn connections, and calendar events.
+The **Record changes** category contains audit-log changes. **Messages** contains Inbox messages. **Account & calendar** contains connected-account activity, such as accepted LinkedIn connections, and calendar events.
 
-All accessible records are the implicit baseline. Filter an activity timeline by category, provider, connected account, conversation, or related contacts, organizations, deals, services, and tasks. Each field can be configured once. Relationship filters use the same operators as record lists: **in** and **not in** accept one or more records, while **has some** and **has none** need no value. Different filter fields are AND-combined, and multiple values within one **in** filter are OR-combined. Unlinked entries fail positive relationship filters and pass negative ones. Filters become persistent when you save the widget.
+All accessible records are the implicit baseline. Filter an activity timeline by category, provider, connected account, conversation, or related contacts, organizations, deals, services, and tasks. The provider, connected-account, and conversation filters appear only with Inbox access and the messaging entitlement, and a provider, connected-account, or conversation **in** filter leaves audit-log changes out of the result. Each field can be configured once. Relationship filters use the same operators as record lists: **in** and **not in** accept one or more records, while **has some** and **has none** need no value. Different filter fields are AND-combined, and multiple values within one **in** filter are OR-combined. Unlinked entries fail positive relationship filters and pass negative ones. Filters become persistent when you save the widget.
 
 ### Reading the timeline
 
@@ -28,11 +28,11 @@ Entries are shown newest first. Use **Load older** for the next bounded page. A 
 | Access                                                        | Visible content                                                       |
 | ------------------------------------------------------------- | --------------------------------------------------------------------- |
 | Audit log only                                                | Permitted changes                                                     |
-| Inbox messages only, with the cloud Pro messaging entitlement | Permitted messages, connected-account activities, and calendar events |
-| Both permissions, with the cloud Pro messaging entitlement    | One merged timeline containing all permitted sources                  |
+| Inbox messages only, with the messaging entitlement (cloud, from the Pro tier) | Permitted messages, connected-account activities, and calendar events |
+| Both permissions, with the messaging entitlement (cloud, from the Pro tier)    | One merged timeline containing all permitted sources                  |
 | Neither                                                       | A non-sensitive unavailable state                                     |
 
-Audit-log changes are available independently of the messaging entitlement. Messages, connected-account activities, and calendar events require Inbox access and, in cloud mode, the Pro messaging entitlement. A missing connected messaging account removes messaging-based sources but does not hide permitted audit changes. Deleted or newly inaccessible filter values stop matching, are shown as **Unavailable value** for safe removal, and never expose their raw ids.
+Audit-log changes are available independently of the messaging entitlement. Messages, connected-account activities, and calendar events require Inbox access plus the messaging entitlement, which cloud workspaces carry from the Pro tier and self-hosted installs never carry. A missing connected messaging account removes messaging-based sources but does not hide permitted audit changes. Deleted or newly inaccessible filter values stop matching, are shown as **Selection unavailable** for safe removal, and never expose their raw ids.
 
 ## URL
 

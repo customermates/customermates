@@ -31,7 +31,7 @@ For MCP clients, the key goes into the MCP config:
 
 ## Hygiene
 
-- **One key per client.** Makes audit logs readable and lets you revoke a single client without breaking the others.
+- **One key per client.** Lets you revoke a single client without breaking the others, and gives each client its own last-used timestamp on the API Keys page. Audit-log entries name the user a key belongs to, not the key, so they do not tell two of your keys apart.
 - **Store in an env var**, not in a config file. `~/.zshrc`, 1Password, Bitwarden CLI, or your OS keychain.
 - **Rotate when**:
   - A device that held the key is lost or compromised.

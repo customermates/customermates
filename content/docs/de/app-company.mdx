@@ -17,9 +17,9 @@ Alle App-Routen sind locale-präfixiert (Beispiel: https://customermates.com/en/
 
 | Aktion | Wo | Anchor id | Was passiert |
 |---|---|---|---|
-| Zu Company gehen | App-Sidebar | `#nav-company` | Öffnet /company/subscription (Cloud) oder /company/settings (Self-Hosted) |
+| Company-Gruppe öffnen | App-Sidebar | `#nav-company` | Klappt die Sidebar-Unterpunkte auf; der Button selbst navigiert nicht |
 | Subscription-Tab | Sidebar-Unterpunkt | `#nav-company-subscription` | Plan, Trial-Status und Plan-Auswahl (nur Cloud) |
-| Settings-Tab | Sidebar-Unterpunkt | `#nav-company-settings` | Workspace-Währung für alle Geldwerte |
+| Settings-Tab | Sidebar-Unterpunkt | `#nav-company-settings` | Workspace-Währung, Deal-Forecasting und das Datenmodell |
 | Settings speichern / zurücksetzen | Top-Bar | `#company-settings-save` / `#company-settings-reset` | Speichert oder verwirft |
 | Members-Tab | Sidebar-Unterpunkt | `#nav-company-members` | Team-Verwaltung |
 | Mitglied einladen | Members-Toolbar | `#company-members-add` | Öffnet das Einladungs-Modal |
@@ -35,9 +35,9 @@ Alle App-Routen sind locale-präfixiert (Beispiel: https://customermates.com/en/
 | Deliveries-Tab | Sidebar-Unterpunkt | `#nav-company-webhook-deliveries` | Status + Payload pro Delivery; Resend direkt aus der Delivery-Zeile |
 | Deliveries-Listen-Controls | Deliveries-Toolbar | `#company-webhook-deliveries-search` / `#company-webhook-deliveries-filter` / `#company-webhook-deliveries-display-options` | Listen-Controls |
 | Audit-Logs-Tab | Sidebar-Unterpunkt | `#nav-company-audit-logs` | Wer hat was wann geändert |
-| Audit-Listen-Controls | Audit-Toolbar | `#company-audit-logs-search` / `#company-audit-logs-filter` / `#company-audit-logs-display-options` | Listen-Controls |
+| Audit-Listen-Controls | Audit-Toolbar | `#company-audit-logs-search` / `#company-audit-logs-filter` / `#company-audit-logs-display-options` | Listen-Controls (die Suche trifft nur die Datensatz-ID; gefiltert wird nach Event und Datum) |
 
-Die Display-options-Popovers enthalten diese stabilen Layout-Steuerelemente:
+Die Display-options-Popovers enthalten diese stabilen Layout-Steuerelemente. Keine dieser Listen ist gruppierbar, daher ist das Board-Steuerelement überall vorhanden, aber deaktiviert:
 
 - Members: `#company-members-layout-table`, `#company-members-layout-board`
 - Roles: `#company-roles-layout-table`, `#company-roles-layout-board`
