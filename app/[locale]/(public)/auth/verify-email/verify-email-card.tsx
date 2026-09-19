@@ -17,10 +17,11 @@ import { Alert } from "@/components/shared/alert";
 type Props = {
   email?: string;
   inviterName?: string;
+  linkProblem?: "expired" | "invalid";
   onboardingIntent?: string;
 };
 
-export const VerifyEmailCard = observer(({ email, inviterName, onboardingIntent }: Props) => {
+export const VerifyEmailCard = observer(({ email, inviterName, linkProblem, onboardingIntent }: Props) => {
   const t = useTranslations();
   const { verifyEmailStore } = useRootStore();
   const needsEmail = email === undefined;
@@ -39,6 +40,14 @@ export const VerifyEmailCard = observer(({ email, inviterName, onboardingIntent 
           {inviterName ? (
             <Alert role="note">
               <p className="text-x-sm">{t("VerifyEmailCard.invitationFrom", { inviterName })}</p>
+            </Alert>
+          ) : null}
+
+          {linkProblem ? (
+            <Alert color="warning">
+              <p className="text-x-sm">
+                {linkProblem === "expired" ? t("VerifyEmailCard.linkExpired") : t("VerifyEmailCard.linkInvalid")}
+              </p>
             </Alert>
           ) : null}
 

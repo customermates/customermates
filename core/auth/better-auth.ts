@@ -150,11 +150,12 @@ export const auth = betterAuth({
   emailVerification: {
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
+    expiresIn: 24 * 60 * 60,
     sendVerificationEmail: async ({ user, url }) => {
       const verificationUrl = new URL(url);
       const callbackURL = verificationUrl.searchParams.get("callbackURL");
       if (!callbackURL || callbackURL === "/" || !callbackUrlSchema.safeParse(callbackURL).success)
-        verificationUrl.searchParams.set("callbackURL", "/onboarding");
+        verificationUrl.searchParams.set("callbackURL", "/auth/verify-email");
 
       const { getAuthService } = await import("@/core/di");
       await getAuthService().sendVerificationEmail({ to: user.email, url: verificationUrl.toString() });

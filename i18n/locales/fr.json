@@ -3432,6 +3432,8 @@
     "ctaLabel": "Renvoyer l'e-mail de vérification",
     "invalidEmail": "Saisissez une adresse e-mail valide.",
     "invitationFrom": "Invitation de {inviterName}",
+    "linkExpired": "Ce lien de vérification a expiré. Demandez-en un nouveau ci-dessous.",
+    "linkInvalid": "Ce lien de vérification n'est pas valide. Demandez-en un nouveau ci-dessous.",
     "resendSuccess": "E-mail de vérification envoyé.",
     "subtitle": "Vérifiez votre adresse e-mail pour continuer.",
     "title": "Vérification de l'adresse e-mail"

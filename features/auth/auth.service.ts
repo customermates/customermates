@@ -15,7 +15,6 @@ import { DEFAULT_EMAIL_LAYOUT_COPY, getEmailLayoutCopy } from "@/components/emai
 import { auth } from "@/core/auth/better-auth";
 import { prisma } from "@/prisma/db";
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
-import { mustVerifyEmail } from "./email-verification-grace";
 import { redirectTo } from "./auth-outcome";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { env } from "@/env";
@@ -34,7 +33,6 @@ type AuthResult = { ok: true; user: AuthUser } | { ok: false; error: CustomError
 
 type Session = NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>;
 export type InteractiveSession = Session;
-type SessionOrRedirect = { session: Session } | Redirect;
 type ApiKeyExpirationError = CustomErrorCode.apiKeyMinExpiration | CustomErrorCode.apiKeyMaxExpiration;
 type CreatedApiKey = Awaited<ReturnType<typeof auth.api.createApiKey>>;
 type CreateApiKeyResult = { ok: true; data: CreatedApiKey } | { ok: false; error: ApiKeyExpirationError };
@@ -83,18 +81,6 @@ export class AuthService {
     } catch {
       return null;
     }
-  }
-
-  async resolveSession(): Promise<SessionOrRedirect> {
-    const headersList = await headers();
-
-    if (!this.hasAuthToken(headersList)) return redirectTo("/auth/signin");
-
-    const session = await auth.api.getSession({ headers: headersList });
-    if (!session) return redirectTo("/auth/signin");
-    if (mustVerifyEmail(session.user)) return redirectTo("/auth/verify-email");
-
-    return { session };
   }
 
   async signInWithEmail(args: {

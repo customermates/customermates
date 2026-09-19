@@ -3432,6 +3432,8 @@
     "ctaLabel": "Invia di nuovo l'e-mail di verifica",
     "invalidEmail": "Inserisci un indirizzo e-mail valido.",
     "invitationFrom": "Invito da {inviterName}",
+    "linkExpired": "Questo link di verifica è scaduto. Richiedine uno nuovo qui sotto.",
+    "linkInvalid": "Questo link di verifica non è valido. Richiedine uno nuovo qui sotto.",
     "resendSuccess": "E-mail di verifica inviata correttamente.",
     "subtitle": "Verifica il tuo indirizzo e-mail per continuare.",
     "title": "Verifica dell'e-mail"

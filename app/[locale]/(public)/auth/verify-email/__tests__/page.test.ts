@@ -94,6 +94,15 @@ describe("VerifyEmailPage onboarding intent", () => {
     await expect(VerifyEmailPage({ searchParams: Promise.resolve({}) })).rejects.toThrow("REDIRECT:/en/onboarding");
   });
 
+  it("tells a signed-out visitor when the link they followed had expired", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({ sessionUser: null, state: "unauthenticated" });
+
+    const result = await VerifyEmailPage({ searchParams: Promise.resolve({ error: "TOKEN_EXPIRED" }) });
+
+    expect(result.props.children.props).toMatchObject({ email: undefined, linkProblem: "expired" });
+  });
+
   it("lets a signed-out visitor request a verification email when no intent is in play", async () => {
     mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
     mocks.requireAccountState.mockResolvedValue({ sessionUser: null, state: "unauthenticated" });

@@ -3432,6 +3432,8 @@
     "ctaLabel": "Verifizierungs-E-Mail erneut senden",
     "invalidEmail": "Gib eine gültige E-Mail-Adresse ein.",
     "invitationFrom": "Einladung von {inviterName}",
+    "linkExpired": "Dieser Bestätigungslink ist abgelaufen. Fordere unten einen neuen an.",
+    "linkInvalid": "Dieser Bestätigungslink ist ungültig. Fordere unten einen neuen an.",
     "resendSuccess": "Verifizierungs-E-Mail wurde erfolgreich gesendet.",
     "subtitle": "Verifiziere deine E-Mail-Adresse, um fortzufahren.",
     "title": "E-Mail-Verifizierung"

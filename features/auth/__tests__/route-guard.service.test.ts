@@ -116,6 +116,17 @@ describe("RouteGuardService.resolveAccountState", () => {
     expect(result.sessionUser?.emailVerified).toBe(true);
   });
 
+  it("does not let a stale verified cookie bypass an unverified row past the grace", async () => {
+    mocks.getSession.mockResolvedValue(session({ createdAt: PAST, emailVerified: true }));
+    mocks.findAuthUserAccountStateUnscoped.mockResolvedValue({ companyId: null, emailVerified: false });
+    mocks.findCurrentUserUnscoped.mockResolvedValue(null);
+
+    const result = await makeService().resolveAccountState();
+
+    expect(result.state).toBe("overdueVerification");
+    expect(result.emailVerified).toBe(false);
+  });
+
   it("resolves an absent session without loading product or tenant data", async () => {
     mocks.getSession.mockResolvedValue(null);
 

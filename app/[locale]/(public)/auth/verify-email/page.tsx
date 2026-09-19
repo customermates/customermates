@@ -47,11 +47,15 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
     redirect(buildLocalePath(locale, destination));
   }
 
+  const linkProblem =
+    params.error === "TOKEN_EXPIRED" ? "expired" : params.error === "INVALID_TOKEN" ? "invalid" : undefined;
+
   return (
     <CenteredCardPage>
       <VerifyEmailCard
         email={resolution.sessionUser?.email}
         inviterName={invitation?.inviterName}
+        linkProblem={linkProblem}
         onboardingIntent={activeIntent?.intent}
       />
     </CenteredCardPage>
