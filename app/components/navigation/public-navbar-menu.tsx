@@ -99,6 +99,7 @@ export function isPrimaryPublicNavLink(groups: PublicNavGroup[], link: PublicNav
 }
 
 export function PublicNavLinkMark({ mark }: { mark: PublicNavMark }) {
+  const hydrated = useSyncExternalStore(subscribeToHydration, clientHydrationSnapshot, serverHydrationSnapshot);
   let icon: ReactNode = null;
 
   if (mark.kind === "channel") icon = <ProviderMark decorative provider={mark.provider} size={18} />;
@@ -119,7 +120,7 @@ export function PublicNavLinkMark({ mark }: { mark: PublicNavMark }) {
       className="grid h-[18px] w-[22px] shrink-0 place-items-center"
       data-public-nav-mark={`${mark.kind}:${mark.provider}`}
     >
-      {icon}
+      {hydrated ? icon : null}
     </span>
   );
 }

@@ -35,7 +35,6 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 
-import { useRootStore } from "@/core/stores/root-store.provider";
 import { IntlLink, usePathname } from "@/i18n/navigation";
 import { AppLink } from "@/components/shared/app-link";
 import { AppImage } from "@/components/shared/app-image";
@@ -78,12 +77,12 @@ const mobileOverviewRowClassName =
 
 export const PublicNavbar = observer(({ accountState, hasValidSession, onboardingIntent }: Props) => {
   const t = useTranslations();
-  const { layoutStore } = useRootStore();
   const pathname = usePathname();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   function closeMenu() {
-    layoutStore.setIsMenuOpen(false);
+    setIsMenuOpen(false);
   }
 
   function isNavItemActive(href: string) {
@@ -446,10 +445,10 @@ export const PublicNavbar = observer(({ accountState, hasValidSession, onboardin
         <div className="col-span-3 flex w-full items-center justify-between xl:hidden">
           {renderHomeButton()}
 
-          <Sheet open={layoutStore.isMenuOpen} onOpenChange={layoutStore.setIsMenuOpen}>
+          <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
             <SheetTrigger asChild>
               <Button aria-label={t("Common.sidebar.toggle")} size="icon" variant="ghost">
-                <Icon aria-hidden icon={layoutStore.isMenuOpen ? X : Menu} />
+                <Icon aria-hidden icon={isMenuOpen ? X : Menu} />
               </Button>
             </SheetTrigger>
 

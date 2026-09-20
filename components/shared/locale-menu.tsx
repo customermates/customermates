@@ -9,7 +9,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { FormAutocompleteCountryItem } from "@/components/forms/form-autocomplete-country-item";
 import { Button } from "@/components/ui/button";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useNavigationGuard } from "@/core/stores/navigation-guard.context";
 import { cn } from "@/core/utils/cn";
 import { CONTENT_LOCALES, buildLocalePath, contentLocaleOrDefault, flagCodeFor } from "@/i18n/locale-registry";
 import { usePathname } from "@/i18n/navigation";
@@ -26,7 +26,7 @@ export const LocaleMenu = observer(({ align = "start", className, side = "bottom
   const pathname = usePathname();
   const currentLocale = contentLocaleOrDefault(useLocale());
   const currentLocaleLabel = t(`Common.locales.${currentLocale}`);
-  const { navigationGuard } = useRootStore();
+  const navigationGuard = useNavigationGuard();
   const menuRef = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
@@ -68,9 +68,12 @@ export const LocaleMenu = observer(({ align = "start", className, side = "bottom
     if (menuRef.current) menuRef.current.open = false;
     if (locale === currentLocale) return;
 
-    navigationGuard.tryNavigate(() => {
+    const navigate = () => {
       window.location.href = destination;
-    });
+    };
+
+    if (navigationGuard) navigationGuard.tryNavigate(navigate);
+    else navigate();
   }
 
   function preservePendingClick(event: ReactMouseEvent<HTMLAnchorElement>, locale: ContentLocale) {

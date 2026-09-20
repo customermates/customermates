@@ -1,6 +1,8 @@
 import { getLocale } from "next-intl/server";
 
 import { FooterContent } from "./footer-content";
+
+import { env } from "@/env";
 import { type FooterCollection, FOOTER_RENDERED_COLLECTION_SIZE, selectFooterSlugs } from "./footer-selection";
 
 import { blogPostsSource, featurePagesSource, forPagesSource } from "@/core/fumadocs/source";
@@ -48,6 +50,12 @@ export async function Footer({ className }: { className?: string }) {
   }));
 
   return (
-    <FooterContent blogPosts={blogPosts} className={className} featureLinks={featureLinks} industries={industries} />
+    <FooterContent
+      appMode={env.APP_MODE}
+      blogPosts={blogPosts}
+      className={className}
+      featureLinks={featureLinks}
+      industries={industries}
+    />
   );
 }
