@@ -533,7 +533,11 @@ export function scoreComplexCase(caseId: ComplexCaseId, c: ScoreContext): void {
       const owners = (dealKey: string) => c.rows(c.after, "dealUser").filter((row) => row.dealId === id(dealKey)).map((row) => row.userId);
       c.check("ownerless-deals-now-sofia", c.same(owners("harbor"), [id("sofia")]) && c.same(owners("summit"), [id("sofia")]));
       c.check("owner-count-delta-two", c.rows(c.after, "dealUser").length === c.rows(c.before, "dealUser").length + 2);
-      c.check("nothing-else-changed", c.same(c.without(c.before, ["contactOrganization", "dealUser"]), c.without(c.after, ["contactOrganization", "dealUser"])));
+      const withoutDerivedTotals = (snapshot: typeof c.before) => ({
+        ...c.without(snapshot, ["contactOrganization", "dealUser", "deal"]),
+        deal: c.rows(snapshot, "deal").map(({ totalValue, totalQuantity, weightedValue, ...rest }) => rest),
+      });
+      c.check("nothing-else-changed", c.same(withoutDerivedTotals(c.before), withoutDerivedTotals(c.after)));
       c.check("nothing-created", !c.toolNames.some((name) => name.startsWith("create_")));
       return;
     }

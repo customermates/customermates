@@ -98,3 +98,17 @@ describe("getZodParseContext", () => {
     if (!german.success) expect(german.error.issues[0].message).toBe("de:Common.errors.generic");
   });
 });
+
+describe("outside a request scope", () => {
+  it("falls back to the default locale instead of throwing", async () => {
+    const { getLocale, getTranslations } = await import("next-intl/server");
+    vi.mocked(getLocale).mockRejectedValueOnce(new Error("`getLocale` is not supported in Client Components"));
+    vi.mocked(getTranslations).mockRejectedValueOnce(new Error("no request scope"));
+
+    const context = await getZodParseContext();
+    const result = z.string().email().safeParse("not-an-email", context);
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toBeTruthy();
+  });
+});

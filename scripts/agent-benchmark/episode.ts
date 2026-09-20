@@ -33,6 +33,7 @@ export type TurnRecord = {
   approvals: { requestId: string; decision: string }[];
   frameCount: number;
   error: string | null;
+  responderError?: string;
 };
 
 export type RoundMetric = {
@@ -157,13 +158,17 @@ async function runTurn(input: {
       return record;
     }
     const { frames, timing } = await readSseFrames(response, startedAt, async (frame) => {
-      if (frame.type === "ui_command") {
-        record.uiCommands.push(String(frame.name));
-        await respondToUiCommand(input.fixture, conversationId, frame);
-      }
-      if (frame.type === "approval_request") {
-        record.approvals.push({ requestId: String(frame.requestId), decision: input.approvalDecision });
-        await respondToApproval(input.fixture, conversationId, frame, input.approvalDecision);
+      try {
+        if (frame.type === "ui_command") {
+          record.uiCommands.push(String(frame.name));
+          await respondToUiCommand(input.fixture, conversationId, frame);
+        }
+        if (frame.type === "approval_request") {
+          record.approvals.push({ requestId: String(frame.requestId), decision: input.approvalDecision });
+          await respondToApproval(input.fixture, conversationId, frame, input.approvalDecision);
+        }
+      } catch (error) {
+        record.responderError = error instanceof Error ? error.message : String(error);
       }
     });
     record.frameCount = frames.length;
@@ -393,7 +398,11 @@ export async function runEpisode(request: EpisodeRequest): Promise<EpisodeArtifa
       state: event.state,
     });
 
-  if (!artifact.eligibility.expectedTurnCount) {
+  const responderFailure = artifact.turns.find((turn) => turn.responderError)?.responderError;
+  if (responderFailure) {
+    artifact.skipped = `the benchmark responder failed, so this episode observes the harness and not the assistant: ${responderFailure}`;
+    await updateEpisode(request.pool, episodeId, "skipped", artifact.skipped, artifactPath);
+  } else if (!artifact.eligibility.expectedTurnCount) {
     artifact.skipped = `actor turn count ${observation.turns.length} does not equal prompt count ${definition.prompts.length}`;
     await updateEpisode(request.pool, episodeId, "skipped", artifact.skipped, artifactPath);
   } else {
