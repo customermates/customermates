@@ -424,7 +424,7 @@ export const manageSocialRelationsTool = {
   description:
     "Use this to manage connection requests on a connected LinkedIn or Instagram account (connectedAccountId from get_workspace_context). " +
     "action list returns invitations with invitationId, user and message: direction=received (default) lists requests sent to the account owner, direction=sent the owner's pending outgoing requests; manage_social_relations.items[].user.id identifies that person in get_social_profile. " +
-    "action invite SENDS A REAL connection request to identifier, a get_social_profile.id; a get_messaging_threads.items[].participants[].identifier or get_messaging_threads.thread.participants[].identifier must go through get_social_profile first. The optional message travels with the request, and the hosted Assistant verifies the person with the provider right before asking for approval. " +
+    "action invite SENDS A REAL connection request to identifier, a get_social_profile.id; a get_messaging_threads.items[].participants[].identifier or get_messaging_threads.thread.participants[].identifier must go through get_social_profile first. The optional message travels with the request, and the hosted Assistant verifies the person with the provider before it calls, refusing the call when the identifier does not resolve. " +
     "action accept and action cancel take the invitationId from action list. Paginate list with cursor or offset plus limit.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
   inputSchema: ManageSocialRelationsToolSchema,

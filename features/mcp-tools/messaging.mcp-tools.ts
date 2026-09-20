@@ -539,7 +539,7 @@ export const discardMessageDraftTool = {
   name: "discard_message_draft",
   title: "Discard message draft",
   description:
-    "Use this when a prepared draft is no longer wanted: permanently deletes it. " +
+    "Use this when a prepared draft is no longer wanted: permanently deletes it. IRREVERSIBLE. " +
     "messageId and draftRevision identify the exact DRAFT revision returned by save_message_draft or shown in " +
     "get_messaging_threads thread detail. Only drafts can be discarded; sent and received messages are never affected. " +
     "Discarding an id that is not a draft is a safe no-op that reports no draft found.",

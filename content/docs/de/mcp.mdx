@@ -65,7 +65,7 @@ Der Server stellt beim Verbinden Anweisungen bereit. Ob ein Client sie an das Mo
 
 ## Server-Instructions, Prompts und Toolsets
 
-Der Server sendet beim Verbinden Hinweise zum Ablauf: zuerst das Schema lesen, IDs vor dem Schreiben suchen, Beziehungen nur über `manage_record_links` ändern und vor Löschen oder Senden nachfragen. Diese Hinweise bilden keine serverseitig erzwungene Freigabe. Prüfen Sie, wie der gewählte Client die Anweisungen an das Modell weitergibt und Bestätigungen behandelt, bevor Sie Schreib-, Lösch- oder Messaging-Zugriff gewähren. In Clients mit MCP-Prompt-Unterstützung kann ein eingebauter Get-Started-Prompt den Workspace für den Einstieg zusammenfassen.
+Der Server sendet beim Verbinden Hinweise zum Ablauf: zuerst das Schema lesen, IDs vor dem Schreiben suchen, Beziehungen nur über `manage_record_links` ändern und beim Löschen oder Senden die genauen Datensätze oder Empfänger nennen. Diese Hinweise bilden keine serverseitig erzwungene Freigabe. Prüfen Sie, wie der gewählte Client die Anweisungen an das Modell weitergibt und Bestätigungen behandelt, bevor Sie Schreib-, Lösch- oder Messaging-Zugriff gewähren. In Clients mit MCP-Prompt-Unterstützung kann ein eingebauter Get-Started-Prompt den Workspace für den Einstieg zusammenfassen.
 
 Die volle [[derived.mcp.tools.total]]-Tool-Oberfläche ist der Standard. Hängen Sie `?toolsets=` an die Endpoint-URL, um sie einzugrenzen, zum Beispiel `/api/v1/mcp?toolsets=records,messaging`. Keys und Details stehen unter [Eingrenzen mit ?toolsets=](/docs/mcp#eingrenzen-mit-toolsets).
 
@@ -516,7 +516,7 @@ Entitlements lehnen auf demselben Weg ab. Messaging-gestützte Tools brauchen di
 
 ### Tool-Metadaten und serverseitige Grenzen
 
-- **Bestätigungshinweis für den Client.** Die Server-Anweisungen fordern das Modell auf, vor `delete_records` und jedem Versand-Tool nachzufragen. Der MCP-Endpunkt führt einen autorisierten Tool-Aufruf aus, sobald der Client ihn sendet. Prüfen Sie daher das Bestätigungsverhalten des Clients.
+- **Bestätigungshinweis für den Client.** Die Server-Anweisungen fordern das Modell auf, bei `delete_records` und jedem Versand-Tool die genauen Datensätze oder Empfänger in derselben Nachricht zu nennen, statt um Erlaubnis zu bitten und zu warten. Der MCP-Endpunkt führt einen autorisierten Tool-Aufruf aus, sobald der Client ihn sendet; eine Bestätigung ist damit Sache des Clients, und sie zu prüfen gehört zur Auswahl.
 - **Beziehungen nur über `manage_record_links`.** Die Update-Tools fassen Beziehungen nie an, und `null` auf einem Relationship-Array wird serverseitig mit Remediation-Hint abgelehnt.
 - **Erst Draft, dann Send.** `send_email` und `send_chat_message` stellen sofort zu. Wer eine Nachricht vorbereitet haben will, bekommt sie über `save_message_draft`, und Sie senden sie aus der Inbox. Ein Draft braucht keine bestehende Unterhaltung: Mit `connectedAccountId` und `recipients` entsteht der Thread lokal, erscheint in der Inbox und erreicht den Anbieter erst beim Senden.
 - **Destructive-Flags überall.** Jedes destruktive Tool und jede destruktive Action hat `destructiveHint: true` und nennt `IRREVERSIBLE` in seiner Beschreibung.
