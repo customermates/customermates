@@ -53,12 +53,8 @@ import {
   threadAccessWhere,
 } from "../messaging-access";
 import { channelClass, classWhere, isDraftThreadId, isEmailProvider, isHandleProvider } from "../provider";
-import {
-  draftRevisionMatches,
-  draftThreadProviderId,
-  normalizeDraftThreadRecipients,
-  type DraftDeleteResult,
-} from "../draft-thread";
+import { draftRevisionMatches, normalizeDraftThreadRecipients, type DraftDeleteResult } from "../draft-thread";
+import { draftThreadProviderId } from "../draft-thread-id";
 import { identifierKey } from "@/features/contacts/upsert/validate-identifiers";
 
 type MappedThreadRow = ReturnType<PrismaMessagingRepo["mapThreadRow"]>;
