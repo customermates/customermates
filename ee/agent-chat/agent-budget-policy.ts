@@ -8,7 +8,7 @@ import {
 } from "./model-catalog";
 import { resolveModelPricing } from "./model-pricing";
 
-export const AGENT_RESERVATION_ROUNDS_AHEAD = 4;
+export const AGENT_RESERVATION_ROUNDS_AHEAD = 2;
 export const AGENT_MAX_TOOL_RESULT_CHARS = 6000;
 export const AGENT_MIN_CONTEXT_TOKENS_PER_STEP = 8_000;
 

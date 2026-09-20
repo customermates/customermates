@@ -344,7 +344,10 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       });
 
       const priorToolsets = toolsetsFromActivities(activitiesInMessages(admission.recentMessages));
-      const toolsets = [...new Set([...requestedToolsets, ...priorToolsets])];
+      const earlierRequestToolsets = admission.recentMessages
+        .filter((message) => message.role === "user")
+        .flatMap((message) => [...toolsetsForRequest({ text: partsToText(message.parts), pageRoute: null })]);
+      const toolsets = [...new Set([...requestedToolsets, ...priorToolsets, ...earlierRequestToolsets])];
       const pageContext = data.pageContext ? `<page_context route="${data.pageContext.route}"/>\n` : "";
       const replayInputs = admission.recentMessages.map((message) => {
         const text = partsToText(message.parts);

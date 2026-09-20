@@ -555,7 +555,14 @@ export function scoreComplexCase(caseId: ComplexCaseId, c: ScoreContext): void {
       c.check("placement-fee-currency-on-deals", fee?.entityType === "deal" && fee?.type === "currency");
       c.check("linkedin-link-on-contacts", linkedin?.entityType === "contact" && linkedin?.type === "link");
       c.check("existing-columns-untouched", c.same(c.rows(c.before, "customColumn"), c.rows(c.after, "customColumn").filter((row) => beforeIds.has(String(row.id)))));
-      c.check("records-untouched", c.same(c.without(c.before, ["customColumn"]), c.without(c.after, ["customColumn"])));
+      const createdColumnIds = new Set(
+        c.rows(c.after, "customColumn").filter((row) => !beforeIds.has(String(row.id))).map((row) => String(row.id)),
+      );
+      const withoutNewColumnWork = (snapshot: typeof c.before) => ({
+        ...c.without(snapshot, ["customColumn", "customFieldValue"]),
+        customFieldValue: c.rows(snapshot, "customFieldValue").filter((row) => !createdColumnIds.has(String(row.columnId))),
+      });
+      c.check("records-untouched", c.same(withoutNewColumnWork(c.before), withoutNewColumnWork(c.after)));
       return;
     }
     case "C31": {

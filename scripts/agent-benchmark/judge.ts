@@ -72,7 +72,28 @@ function parseScores(raw: string): { scores: JudgeScore["scores"]; rationale: st
 
 const JUDGE_TIMEOUT_MS = 180_000;
 
+const JUDGE_RETRY_STATUSES = new Set([408, 429, 500, 502, 503, 504]);
+
+const JUDGE_MAX_ATTEMPTS = 5;
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function askJudge(apiKey: string, model: (typeof JUDGE_MODELS)[number], prompt: string): Promise<JudgeScore> {
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= JUDGE_MAX_ATTEMPTS; attempt += 1) {
+    try {
+      return await askJudgeOnce(apiKey, model, prompt);
+    } catch (error) {
+      lastError = error;
+      const status = Number(/returned (\d{3})/.exec(error instanceof Error ? error.message : "")?.[1] ?? 0);
+      if (!JUDGE_RETRY_STATUSES.has(status) || attempt === JUDGE_MAX_ATTEMPTS) throw error;
+      await wait(2_000 * attempt * attempt);
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error(String(lastError));
+}
+
+async function askJudgeOnce(apiKey: string, model: (typeof JUDGE_MODELS)[number], prompt: string): Promise<JudgeScore> {
   const response = await fetch(GATEWAY_CHAT_URL, {
     method: "POST",
     signal: AbortSignal.timeout(JUDGE_TIMEOUT_MS),
