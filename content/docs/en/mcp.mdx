@@ -93,10 +93,13 @@ Both live at the same base URL. MCP is `/api/v1/mcp`; the OpenAPI spec is at `/a
 
 Customermates exposes [[derived.mcp.tools.total]] MCP tools, all enabled by default. They cover records, workspace, messaging, social posts, documentation and deep research, custom columns, widgets, routines, webhooks, admin, and support. Every destructive tool is flagged and says `IRREVERSIBLE` in its description. Relations change only through `manage_record_links`; the update tools never touch them.
 
-Each section opens with an index of its tools and two flags, then one entry per tool with its summary and arguments:
+Every tool below carries its summary, its flag when it has one, and its arguments. Two flags matter: **Read-only** marks a tool that mutates nothing, which is what you allow without prompting in your client, and **IRREVERSIBLE** marks one that deletes data or cannot be undone. For merged tools the destructive flag applies to their delete-capable actions.
 
-- **Read**: no mutation.
-- **Destructive**: deletes data or cannot be undone. For merged tools the flag applies to their delete-capable actions.
+{/* mcp-catalog:flags */}
+**Read-only:** `get_record_schema`, `list_records`, `search_records`, `get_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
+
+**IRREVERSIBLE:** `delete_records`, `discard_message_draft`, `manage_custom_columns`, `manage_widgets`, `manage_routines`, `manage_webhooks`
+{/* /mcp-catalog */}
 
 Full JSON Schema for every tool is available live at `POST /api/v1/mcp` with `method: "tools/list"`.
 
@@ -107,49 +110,29 @@ Seventeen tools work against the five record types (contact, organization, deal,
 All create and update tools take custom-column values via customFieldValues; call `get_record_schema` first for the column ids. `list_records` returns `total` and, for entities with numeric columns, `sums` before the items; for deals `sums` carries `totalValue`, `totalQuantity` and `weightedValue`, the pipeline weighted by each stage's win probability, across every record matching the filters. `pageSize` is rounded up to the next supported size: 5, 10, 25 or 100.
 
 {/* mcp-catalog:records */}
-| Tool | Read | Destructive |
-|---|---|---|
-| `get_record_schema` | ✓ |  |
-| `list_records` | ✓ |  |
-| `search_records` | ✓ |  |
-| `get_records` | ✓ |  |
-| `create_contacts` |  |  |
-| `create_organizations` |  |  |
-| `create_deals` |  |  |
-| `create_services` |  |  |
-| `create_tasks` |  |  |
-| `update_contacts` |  |  |
-| `update_organizations` |  |  |
-| `update_deals` |  |  |
-| `update_services` |  |  |
-| `update_tasks` |  |  |
-| `update_record_notes` |  |  |
-| `manage_record_links` |  |  |
-| `delete_records` |  | ✓ |
-
 #### `get_record_schema`
 
 Schema and custom-column metadata, never record data. One entity type, or all five when `entity` is omitted. Call before any create or update.
 
-Optional: `entity`.
+**Read-only.** Optional: `entity`.
 
 #### `list_records`
 
 Search, filter, sort, paginate one entity type. Always returns the total. Deals include totalValue and totalQuantity, services include amount.
 
-Required: `entity`. Optional: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+**Read-only.** Required: `entity`. Optional: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
 
 #### `search_records`
 
 Free-text search across one or more entity types in one call.
 
-Required: `searchTerm`. Optional: `entities`, `limitPerEntity`.
+**Read-only.** Required: `searchTerm`. Optional: `entities`, `limitPerEntity`.
 
 #### `get_records`
 
 Full record data by id, up to 100, mixed entity types allowed; contacts also by email, phone, or provider:handle. Always returns fields; add markdown notes per item with include=withNotes.
 
-Required: `items`.
+**Read-only.** Required: `items`.
 
 #### `create_contacts`
 
@@ -227,28 +210,23 @@ Required: `action`, `entity`, `sourceId`, `relation`, `ids`.
 
 IRREVERSIBLE hard-delete of 1 to 100 records by id (contacts also by email, phone, or provider:value).
 
-Required: `entity`, `ids`.
+**IRREVERSIBLE.** Required: `entity`, `ids`.
 {/* /mcp-catalog */}
 
 ### Workspace
 
 {/* mcp-catalog:workspace */}
-| Tool | Read | Destructive |
-|---|---|---|
-| `get_workspace_context` | ✓ |  |
-| `list_users` | ✓ |  |
-
 #### `get_workspace_context`
 
 Your user, the company profile, all roles including permissions, and your connected messaging accounts (your own plus any shared with the workspace) in one call. The natural first call of a session.
 
-No arguments.
+**Read-only.** No arguments.
 
 #### `list_users`
 
 Team members with id, name, email, roleId, and status.
 
-Optional: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+**Read-only.** Optional: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
 {/* /mcp-catalog */}
 
 ### Messaging
@@ -256,36 +234,23 @@ Optional: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
 Messaging-backed tools are available from the Pro tier in cloud mode. `get_activities` can still return audit-log changes without the messaging entitlement when the caller has Audit Log permission. Its messaging, connected-account, and calendar sources require Inbox permission plus the messaging entitlement.
 
 {/* mcp-catalog:messaging */}
-| Tool | Read | Destructive |
-|---|---|---|
-| `get_messaging_threads` | ✓ |  |
-| `get_activities` | ✓ |  |
-| `get_calendars` | ✓ |  |
-| `send_chat_message` |  |  |
-| `send_email` |  |  |
-| `save_message_draft` |  |  |
-| `discard_message_draft` |  | ✓ |
-| `update_messaging_thread` |  |  |
-| `move_email_thread` |  |  |
-| `connect_messaging_account` |  |  |
-
 #### `get_messaging_threads`
 
 Two modes: without threadId lists inbox threads with filters and sorting (threads with no message yet are hidden unless they hold a draft; the `draft` filter isolates threads that hold one); with threadId returns one thread plus a page of its messages (default 25, newest first, drafts included).
 
-Optional: `threadId`, `page`, `pageSize`, `searchTerm`, `filters`, `sortDescriptor`.
+**Read-only.** Optional: `threadId`, `page`, `pageSize`, `searchTerm`, `filters`, `sortDescriptor`.
 
 #### `get_activities`
 
 Activity timeline with an optional low-level entity scope plus AND-combined filters. Filters support category/raw kind, conversation, provider, connected account, and related contact, organization, deal, service, or task. Each activity filter field may appear once; alternatives belong in the value array of one membership rule. Relationship fields accept `in`, `notIn`, `hasSome`, and `hasNone`; membership takes 1–50 UUIDs. Relationship UUIDs must resolve to records you can read; unresolvable ids are rejected. The result includes `availableSources`, `scopeTruncated`, `pageLimitReached`, total, and page. Pages are capped at 40.
 
-Optional: `page`, `pageSize`, `scope`, `filters`, `sortDescriptor`.
+**Read-only.** Optional: `page`, `pageSize`, `scope`, `filters`, `sortDescriptor`.
 
 #### `get_calendars`
 
 Three modes: list: "calendars" (default) lists the calendars of accessible connected accounts; list: "events" lists calendar events ordered by start time, filterable by calendarId or a startsAt date range; with eventId it returns one event's detail including organizer and attendees. Ids match the entityId of calendar webhook events.
 
-Optional: `list`, `eventId`, `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+**Read-only.** Optional: `list`, `eventId`, `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
 
 #### `send_chat_message`
 
@@ -309,7 +274,7 @@ Required: `body`. Optional: `threadId`, `connectedAccountId`, `recipients`, `sub
 
 Delete the exact saved draft revision using its message id and opaque revision token.
 
-Required: `messageId`, `draftRevision`.
+**IRREVERSIBLE.** Required: `messageId`, `draftRevision`.
 
 #### `update_messaging_thread`
 
@@ -333,34 +298,23 @@ Required: `channel`.
 ### Social posts
 
 {/* mcp-catalog:social */}
-| Tool | Read | Destructive |
-|---|---|---|
-| `get_social_posts` | ✓ |  |
-| `get_social_post_engagement` | ✓ |  |
-| `get_social_profile` | ✓ |  |
-| `manage_social_relations` |  |  |
-| `linkedin_search_sales_leads` | ✓ |  |
-| `linkedin_search_sales_companies` | ✓ |  |
-| `linkedin_get_sales_search_parameters` | ✓ |  |
-| `linkedin_manage_sales_lists` |  |  |
-
 #### `get_social_posts`
 
 Posts on LinkedIn or Instagram, read through a connected account. Use `authorIdentifier=me` for the account owner. For another person, use `get_social_profile.id`, `get_social_posts.items[].author.id` (list mode), `get_social_posts.author.id` (single-post mode), `get_social_post_engagement.items[].author.id` (comments), `get_social_post_engagement.items[].sender.id` (reactions), or `manage_social_relations.items[].user.id`. Resolve `get_messaging_threads.items[].participants[].identifier` (list mode) or `get_messaging_threads.thread.participants[].identifier` (detail mode) through `get_social_profile` first; do not pass a thread participant identifier directly. Pass `get_social_posts.items[].id` as `postId` to fetch one post. On continuation, repeat the same account, author, and limit with next_cursor.
 
-Required: `connectedAccountId`. Optional: `postId`, `authorIdentifier`, `cursor`, `offset`, `limit`.
+**Read-only.** Required: `connectedAccountId`. Optional: `postId`, `authorIdentifier`, `cursor`, `offset`, `limit`.
 
 #### `get_social_post_engagement`
 
 Engagement on a post: kind=comments (default) lists comments, kind=reactions lists who reacted; with commentId it returns the reactions on that comment.
 
-Required: `connectedAccountId`, `postId`. Optional: `kind`, `commentId`, `sortBy`, `cursor`, `offset`, `limit`.
+**Read-only.** Required: `connectedAccountId`, `postId`. Optional: `kind`, `commentId`, `sortBy`, `cursor`, `offset`, `limit`.
 
 #### `get_social_profile`
 
 A person or company profile. For a person, use `profileType=person` with `me`, `get_messaging_threads.items[].participants[].identifier`, `get_messaging_threads.thread.participants[].identifier`, `get_social_posts.items[].author.id`, `get_social_posts.author.id`, `get_social_post_engagement.items[].author.id`, `get_social_post_engagement.items[].sender.id`, `manage_social_relations.items[].user.id`, a LinkedIn Classic public profile slug, or an Instagram username. For a LinkedIn company, use `profileType=company` with `linkedin_search_sales_companies.items[].id`, `linkedin_search_sales_leads.items[].current_positions[].company_id`, `linkedin_manage_sales_lists.items[].current_positions[].company_id`, or `get_social_profile.current_positions[].company_id`. Reuse `get_social_profile.id` with the same `profileType`.
 
-Required: `connectedAccountId`, `identifier`. Optional: `profileType`.
+**Read-only.** Required: `connectedAccountId`, `identifier`. Optional: `profileType`.
 
 #### `manage_social_relations`
 
@@ -372,19 +326,19 @@ Required: `action`, `connectedAccountId`. Optional: `identifier`, `message`, `in
 
 Finds people via LinkedIn Sales Navigator: either from a pasted search URL or as a structured search with filters (keywords, location, industry, company, job title, seniority and more). Resolve `linkedin_search_sales_leads.items[].current_positions[].company_id` with `get_social_profile` and `profileType=company`. Requires a Sales Navigator subscription.
 
-Required: `connectedAccountId`. Optional: `url`, `filters`, `offset`, `limit`.
+**Read-only.** Required: `connectedAccountId`. Optional: `url`, `filters`, `offset`, `limit`.
 
 #### `linkedin_search_sales_companies`
 
 Finds companies via LinkedIn Sales Navigator: either from a pasted company search URL or as a structured search with filters (keywords, location, industry, headcount, annual revenue and more). Pass `linkedin_search_sales_companies.items[].id` to `get_social_profile` with `profileType=company`. Requires a Sales Navigator subscription.
 
-Required: `connectedAccountId`. Optional: `url`, `filters`, `offset`, `limit`.
+**Read-only.** Required: `connectedAccountId`. Optional: `url`, `filters`, `offset`, `limit`.
 
 #### `linkedin_get_sales_search_parameters`
 
 Resolves the ids behind LinkedIn Sales Navigator search inputs by type (locations, industries, job titles, functions, companies, schools, groups and more) plus your lead/account lists and saved/recent searches; keyword is optional, so a bare type enumerates the whole family.
 
-Required: `connectedAccountId`, `type`. Optional: `keywords`, `offset`, `limit`.
+**Read-only.** Required: `connectedAccountId`, `type`. Optional: `keywords`, `offset`, `limit`.
 
 #### `linkedin_manage_sales_lists`
 
@@ -431,102 +385,74 @@ For a company, call `get_social_profile` with `profileType=company` and an `iden
 ### Documentation and deep research
 
 {/* mcp-catalog:docs */}
-| Tool | Read | Destructive |
-|---|---|---|
-| `search_docs` | ✓ |  |
-| `get_docs_page` | ✓ |  |
-| `search` | ✓ |  |
-| `fetch` | ✓ |  |
-
 #### `search_docs`
 
 Full-text search over the docs; defaults to the product guides (source=docs); pass source=api or all to include the REST API reference. Returns slug, source, title, url, snippet.
 
-Required: `query`. Optional: `locale`, `source`.
+**Read-only.** Required: `query`. Optional: `locale`, `source`.
 
 #### `get_docs_page`
 
 One documentation page as markdown with its canonical URL. Lists valid slugs on a miss.
 
-Required: `slug`. Optional: `query`, `locale`, `source`.
+**Read-only.** Required: `slug`. Optional: `query`, `locale`, `source`.
 
 #### `search`
 
 Required by ChatGPT deep research connectors; federates CRM records and docs. Interactive agents should prefer `search_records` or `search_docs`.
 
-Required: `query`.
+**Read-only.** Required: `query`.
 
 #### `fetch`
 
 Deep-research companion to `search`: fetches one result by its id.
 
-Required: `id`.
+**Read-only.** Required: `id`.
 {/* /mcp-catalog */}
 
 ### Custom columns
 
 {/* mcp-catalog:custom-columns */}
-| Tool | Read | Destructive |
-|---|---|---|
-| `manage_custom_columns` |  | ✓ |
-
 #### `manage_custom_columns`
 
 One tool with an `action` switch: list, upsert (create or update), delete. Upsert requires `intent` (`create` or `update`). Covers all ten column types; label, type and entityType are immutable on update. Delete is IRREVERSIBLE and removes every stored value.
 
-Required: `action`. Optional: `entityType`, `id`, `intent`, `type`, `label`, `selectOptions`, `options`.
+**IRREVERSIBLE.** Required: `action`. Optional: `entityType`, `id`, `intent`, `type`, `label`, `selectOptions`, `options`.
 {/* /mcp-catalog */}
 
 ### Widgets
 
 {/* mcp-catalog:widgets */}
-| Tool | Read | Destructive |
-|---|---|---|
-| `manage_widgets` |  | ✓ |
-
 #### `manage_widgets`
 
 One tool with an `action` switch: list, get, create, update, delete. Omitted create `kind` remains `chart`. Activity creation accepts `name`, optional `timelineFilters`, and optional `showFilters`; each activity filter field may appear once. Update infers the immutable stored kind, preserves omitted fields, and clears filters with `timelineFilters: []`. Create rejects newly inaccessible relationship UUIDs. Update may retain or remove an unavailable relationship UUID only when that UUID is already stored on the widget; adding another inaccessible UUID is rejected. list/get/create/update all return `kind`; get also returns chart data for charts and reusable `timelineFilters` for activity widgets. Chart-only and activity-only fields cannot be mixed.
 
-Required: `action`. Optional: `kind`, `id`, `ids`, `name`, `entityType`, `entityFilters`, `dealFilters`, `displayType`, `groupByType`, `groupByCustomColumnId`, `aggregationType`, `reverseXAxis`, `reverseYAxis`, `barColors`, `timelineFilters`, `showFilters`.
+**IRREVERSIBLE.** Required: `action`. Optional: `kind`, `id`, `ids`, `name`, `entityType`, `entityFilters`, `dealFilters`, `displayType`, `groupByType`, `groupByCustomColumnId`, `aggregationType`, `reverseXAxis`, `reverseYAxis`, `barColors`, `timelineFilters`, `showFilters`.
 {/* /mcp-catalog */}
 
 ### Routines
 
 {/* mcp-catalog:routines */}
-| Tool | Read | Destructive |
-|---|---|---|
-| `manage_routines` |  | ✓ |
-
 #### `manage_routines`
 
 One tool with an `action` switch: list, runs, create, update, pause, run_now, delete. A routine is saved instructions the assistant runs on a cron schedule or when a CRM event fires. Omitting `enabled` on create produces a LIVE routine, so pass `enabled: false` to draft one; the hosted assistant must state `enabled` explicitly and drafts unless the user asked to activate. A change of `triggerKind` must arrive with that kind's schedule or events. pause disables the routine and settles its queued runs to skipped, which re-enabling does not undo. run_now applies to scheduled routines only. Runs are paginated by `cursor` and carry status, summary and trigger.
 
-Required: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `changedFields`, `triggerFilters`, `debounceSeconds`.
+**IRREVERSIBLE.** Required: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `changedFields`, `triggerFilters`, `debounceSeconds`.
 {/* /mcp-catalog */}
 
 ### Webhooks
 
 {/* mcp-catalog:webhooks */}
-| Tool | Read | Destructive |
-|---|---|---|
-| `manage_webhooks` |  | ✓ |
-
 #### `manage_webhooks`
 
 One tool with an `action` switch: list, get, create, update, delete, plus the delivery log (action list_deliveries, scoped to one webhook's current url when you pass its `id`) and re-delivery (action resend_delivery).
 
-Required: `action`. Optional: `id`, `url`, `description`, `events`, `secret`, `headers`, `bodyTemplate`, `enabled`, `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+**IRREVERSIBLE.** Required: `action`. Optional: `id`, `url`, `description`, `events`, `secret`, `headers`, `bodyTemplate`, `enabled`, `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
 {/* /mcp-catalog */}
 
 ### Admin and team
 
 {/* mcp-catalog:admin */}
-| Tool | Read | Destructive |
-|---|---|---|
-| `update_workspace_settings` |  |  |
-| `manage_team` |  |  |
-
 #### `update_workspace_settings`
 
 `target` profile updates your own name, country, and avatar; `target` company updates the workspace currency (admin only).
@@ -543,10 +469,6 @@ Required: `action`. Optional: `emails`, `userId`, `roleId`, `status`.
 ### Support
 
 {/* mcp-catalog:support */}
-| Tool | Read | Destructive |
-|---|---|---|
-| `request_support` |  |  |
-
 #### `request_support`
 
 Open a support ticket with the Customermates team (subject plus description). The team follows up by email and in the in-app chat. Returns the ticket number.

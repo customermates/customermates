@@ -1,6 +1,8 @@
 {
+  "$destructiveLabel": "IRREVERSIBLE",
   "$noArgumentsLabel": "No arguments",
   "$optionalLabel": "Optional",
+  "$readOnlyLabel": "Read-only",
   "$requiredLabel": "Required",
   "connect_messaging_account": "Generate a link the user opens in a browser to connect a channel (WhatsApp, LinkedIn, email, Instagram, Telegram). You return the link; the user finishes auth there. Expires in 30 minutes.",
   "create_contacts": "Create up to 100 contacts, custom-column values and relation ids inline.",

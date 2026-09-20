@@ -21,9 +21,11 @@ Route `/profile/api-keys`, Sidebar-Id `#nav-profile-api-keys` (**API & Konnektor
 |---|---|---|---|
 | Key hinzufügen | Seitenkopf | `#profile-api-keys-generate` (**Hinzufügen**) | Öffnet den Dialog zum Hinzufügen mit zwei Wegen |
 | Standard-Key anlegen | Bereich Standard-API-Key | `#api-key-save` (**Speichern**) | Name plus optionales Ablaufdatum; der Key wird einmal angezeigt, kopieren Sie ihn also sofort |
-| Schnellverbindungen | Bereich Schnellverbindungen | keine | Vier Kacheln: Claude, ChatGPT und Codex, Cursor, Gemini; die lokalen Einrichtungen (Claude Code oder Claude Desktop, Codex, Cursor, Gemini) erstellen den Key und zeigen den Einrichtungsausschnitt dieses Clients, während die Methoden Claude-Konto und ChatGPT-App sich ohne Key über den gehosteten Konnektor verbinden |
+| Schnellverbindungen | Bereich Schnellverbindungen | keine | Vier Client-Kacheln, unten beschrieben |
 | Key öffnen | Key-Karte | keine | Zeigt das Erstellungsdatum; die Zeilen für Ablauf und letzte Verwendung erscheinen nur, wenn sie gesetzt sind |
 | Key löschen | Key-Dialog | keine | Button mit Label Löschen, mit Bestätigung |
+
+Der Bereich Schnellverbindungen bietet vier Kacheln: Claude, ChatGPT und Codex, Cursor und Gemini. Die lokalen Einrichtungen, also Claude Code oder Claude Desktop, Codex, Cursor und Gemini, erstellen den Key und zeigen den Einrichtungsausschnitt des jeweiligen Clients. Die Methoden Claude-Konto und ChatGPT-App verbinden stattdessen über den gehosteten Connector und erstellen keinen Key.
 
 Es gibt keinen Rotate- oder Revoke-Button: Erstellen Sie einen neuen Key, aktualisieren Sie den Client und löschen Sie dann den alten.
 

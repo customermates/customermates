@@ -63,28 +63,43 @@ function renderToolEntry(tool: McpTool, summary: string, summaries: CatalogSumma
       : [required.length ? `${requiredLabel}: ${code(required)}.` : "", optional.length ? `${optionalLabel}: ${code(optional)}.` : ""]
           .filter(Boolean)
           .join(" ");
-  return [`#### \`${tool.name}\``, "", summary, "", argumentLine].join("\n");
+  const flag = tool.annotations?.destructiveHint
+    ? `**${summaries.$destructiveLabel ?? "IRREVERSIBLE"}.** `
+    : tool.annotations?.readOnlyHint
+      ? `**${summaries.$readOnlyLabel ?? "Read-only"}.** `
+      : "";
+  return [`#### \`${tool.name}\``, "", summary, "", `${flag}${argumentLine}`].join("\n");
+}
+
+function renderFlagOverview(summaries: CatalogSummaries): string {
+  const all = Object.values(CATALOG_SECTIONS).flat();
+  const names = (predicate: (tool: McpTool) => boolean) =>
+    all
+      .filter(predicate)
+      .map((tool) => `\`${tool.name}\``)
+      .join(", ");
+  return [
+    `**${summaries.$readOnlyLabel ?? "Read-only"}:** ${names((tool) => tool.annotations?.readOnlyHint === true)}`,
+    "",
+    `**${summaries.$destructiveLabel ?? "IRREVERSIBLE"}:** ${names((tool) => tool.annotations?.destructiveHint === true)}`,
+  ].join("\n");
 }
 
 export function renderCatalogTable(section: string, locale: ContentLocale, summaries: CatalogSummaries): string {
+  if (section === "flags") return renderFlagOverview(summaries);
   const tools = CATALOG_SECTIONS[section];
   if (!tools) throw new Error(`Unknown catalog section "${section}"`);
-  const lines = ["| Tool | Read | Destructive |", "|---|---|---|"];
-  const entries: string[] = [];
-  for (const tool of tools) {
+  const entries = tools.map((tool) => {
     const summary = summaries[tool.name];
     if (!summary) throw new Error(`Tool "${tool.name}" has no ${locale} summary in ${summariesPath(locale)}`);
-    const read = tool.annotations?.readOnlyHint ? "✓" : "";
-    const destructive = tool.annotations?.destructiveHint ? "✓" : "";
-    lines.push(`| \`${tool.name}\` | ${read} | ${destructive} |`);
-    entries.push(renderToolEntry(tool, summary, summaries));
-  }
-  return [...lines, "", ...entries.flatMap((entry) => [entry, ""])].join("\n").trimEnd();
+    return renderToolEntry(tool, summary, summaries);
+  });
+  return entries.join("\n\n");
 }
 
 export function applyCatalogTables(source: string, locale: ContentLocale, summaries: CatalogSummaries): string {
   return source.replace(
-    /(\{\/\* mcp-catalog:([a-z-]+) \*\/\}\n)[\s\S]*?(\n\{\/\* \/mcp-catalog \*\/\})/g,
+    /(\{\/\* mcp-catalog:([a-z-]+) \*\/\}\n)(?:(?!\{\/\* mcp-catalog:)[\s\S])*?(\n?\{\/\* \/mcp-catalog \*\/\})/g,
     (_match, open: string, section: string, close: string) =>
       `${open}${renderCatalogTable(section, locale, summaries)}${close}`,
   );
