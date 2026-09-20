@@ -8,20 +8,16 @@ import type { LegalUpdateStatus } from "@/features/legal/get-legal-status.intera
 import type { AccountState } from "@/features/auth/account-state";
 import type { SidebarUser } from "./sidebar-user";
 
+import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef } from "react";
 import * as Sentry from "@sentry/nextjs";
 
-import { AppSidebar } from "../app-sidebar";
-import { AppTopBar } from "../app-topbar";
 import { PublicNavbar } from "../public-navbar";
-import { ShellHeader } from "../shell-header";
 import { TopBarActionsProvider } from "../topbar-actions-context";
 
 import { isCanonicalInactiveErrorType } from "@/features/auth/account-state";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { DocsSidebar } from "@/app/[locale]/(static)/docs/components/docs-sidebar";
-import { DocsTopBar } from "@/app/[locale]/(static)/docs/components/docs-topbar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppLocalePreferenceSync } from "@/components/shared/app-locale-preference-sync";
@@ -30,6 +26,16 @@ import { ProtectedEnhancementsProvider } from "./protected-enhancements-context"
 import { accountStateForPath } from "./account-state-for-path";
 import { resolveNavigationShell } from "./navigation-shell";
 import { ONBOARDING_INTENT_QUERY_PARAM } from "@/features/company/onboarding-intent-url";
+
+const AppSidebar = dynamic(() => import("../app-sidebar").then((mod) => ({ default: mod.AppSidebar })));
+const AppTopBar = dynamic(() => import("../app-topbar").then((mod) => ({ default: mod.AppTopBar })));
+const ShellHeader = dynamic(() => import("../shell-header").then((mod) => ({ default: mod.ShellHeader })));
+const DocsSidebar = dynamic(() =>
+  import("@/app/[locale]/(static)/docs/components/docs-sidebar").then((mod) => ({ default: mod.DocsSidebar })),
+);
+const DocsTopBar = dynamic(() =>
+  import("@/app/[locale]/(static)/docs/components/docs-topbar").then((mod) => ({ default: mod.DocsTopBar })),
+);
 
 type NavigationSwitchProps = {
   accountState: AccountState;
