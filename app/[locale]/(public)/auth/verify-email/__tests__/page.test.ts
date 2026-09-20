@@ -69,4 +69,94 @@ describe("VerifyEmailPage onboarding intent", () => {
     expect(card.props.inviterName).toBeUndefined();
     expect(card.props.onboardingIntent).toBeUndefined();
   });
+
+  it("lets an unverified account still inside onboarding request a verification email", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({
+      emailVerified: false,
+      sessionUser: { email: "setting-up@example.com", id: "auth-user" },
+      state: "unregistered",
+    });
+
+    const result = await VerifyEmailPage({ searchParams: Promise.resolve({}) });
+
+    expect(result.props.children.props).toMatchObject({ email: "setting-up@example.com" });
+  });
+
+  it("sends a verified account back to onboarding rather than the verification card", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({
+      emailVerified: true,
+      sessionUser: { email: "done@example.com", id: "auth-user" },
+      state: "unregistered",
+    });
+
+    await expect(VerifyEmailPage({ searchParams: Promise.resolve({}) })).rejects.toThrow("REDIRECT:/en/onboarding");
+  });
+
+  it("tells a signed-out visitor when the link they followed had expired", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({ sessionUser: null, state: "unauthenticated" });
+
+    const result = await VerifyEmailPage({
+      searchParams: Promise.resolve({ error: "TOKEN_EXPIRED", verified: "1" }),
+    });
+
+    expect(result.props.children.props).toMatchObject({
+      email: undefined,
+      justVerified: false,
+      linkProblem: "expired",
+    });
+  });
+
+  it("never claims success for a link the server rejected for any other reason", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({ sessionUser: null, state: "unauthenticated" });
+
+    const result = await VerifyEmailPage({
+      searchParams: Promise.resolve({ error: "USER_NOT_FOUND", verified: "1" }),
+    });
+
+    expect(result.props.children.props).toMatchObject({
+      email: undefined,
+      justVerified: false,
+      linkProblem: "invalid",
+    });
+  });
+
+  it("tells a signed-out visitor to sign in once their link has verified the address", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({ sessionUser: null, state: "unauthenticated" });
+
+    const result = await VerifyEmailPage({ searchParams: Promise.resolve({ verified: "1" }) });
+
+    expect(result.props.children.props).toMatchObject({ email: undefined, justVerified: true, linkProblem: undefined });
+  });
+
+  it("never reports a signed-in account as just verified", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({
+      sessionUser: { email: "overdue@example.com", id: "auth-user" },
+      state: "overdueVerification",
+    });
+
+    const result = await VerifyEmailPage({ searchParams: Promise.resolve({ verified: "1" }) });
+
+    expect(result.props.children.props).toMatchObject({ email: "overdue@example.com", justVerified: false });
+  });
+
+  it("shows a signed-out visitor how to continue when no intent is in play", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({ source: "absent", status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({ sessionUser: null, state: "unauthenticated" });
+
+    const result = await VerifyEmailPage({ searchParams: Promise.resolve({}) });
+    const card = result.props.children;
+
+    expect(mocks.requireAccountState).toHaveBeenCalledWith(
+      ["overdueVerification", "unregistered", "unauthenticated"],
+      "/",
+      undefined,
+    );
+    expect(card.props).toMatchObject({ email: undefined, justVerified: false });
+  });
 });

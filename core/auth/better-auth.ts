@@ -9,6 +9,7 @@ import { prisma } from "@/prisma/db";
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
 import { env } from "@/env";
 import { callbackUrlSchema } from "@/features/auth/callback-url.schema";
+import { onboardingIntentFromPath, pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 import { API_KEY_MAX_EXPIRATION_DAYS, API_KEY_MIN_EXPIRATION_DAYS } from "@/features/api-key/api-key-expiration";
 
 const socialProviders = {
@@ -46,6 +47,8 @@ const oauthProxy =
 
 const baseUrlProtocol = new URL(env.BASE_URL).protocol === "https:" ? "https" : "http";
 
+const VERIFIED_LANDING_PATH = "/auth/verify-email?verified=1";
+
 export const auth = betterAuth({
   baseURL: {
     allowedHosts: env.AUTH_ALLOWED_HOSTS,
@@ -61,6 +64,7 @@ export const auth = betterAuth({
   rateLimit: {
     customRules: {
       "/mcp/register": { window: 3600, max: 10 },
+      "/send-verification-email": { window: 3600, max: 10 },
     },
   },
 
@@ -88,6 +92,29 @@ export const auth = betterAuth({
         },
       },
     },
+    account: {
+      create: {
+        before: async (account) => {
+          if (account.providerId === "credential") return;
+
+          const authUser = await prisma.authUser.findUnique({
+            where: { id: account.userId },
+            select: { email: true, emailVerified: true },
+          });
+          if (!authUser || authUser.emailVerified) return;
+
+          const removed = await revokeUnprovenAccess(account.userId, { removeAccounts: true });
+          if (removed === 0) return;
+
+          try {
+            const { getAuthService } = await import("@/core/di");
+            await getAuthService().sendAccountAccessRevokedEmail({ to: authUser.email });
+          } catch (error) {
+            Sentry.captureException(error);
+          }
+        },
+      },
+    },
   },
 
   user: {
@@ -104,6 +131,9 @@ export const auth = betterAuth({
 
   account: {
     modelName: "AuthAccount",
+    accountLinking: {
+      requireLocalEmailVerified: false,
+    },
   },
 
   session: {
@@ -121,6 +151,11 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
+    onPasswordReset: async ({ user }) => {
+      if (user.emailVerified) return;
+
+      await revokeUnprovenAccess(user.id, { removeAccounts: false });
+    },
     sendResetPassword: async ({ user, url }) => {
       const { getAuthService } = await import("@/core/di");
       await getAuthService().sendResetPasswordEmail({ to: user.email, url });
@@ -129,12 +164,20 @@ export const auth = betterAuth({
 
   emailVerification: {
     sendOnSignUp: true,
-    autoSignInAfterVerification: true,
+    autoSignInAfterVerification: false,
+    expiresIn: 24 * 60 * 60,
     sendVerificationEmail: async ({ user, url }) => {
       const verificationUrl = new URL(url);
-      const callbackURL = verificationUrl.searchParams.get("callbackURL");
-      if (!callbackURL || callbackURL === "/" || !callbackUrlSchema.safeParse(callbackURL).success)
-        verificationUrl.searchParams.set("callbackURL", "/onboarding");
+      const requested = verificationUrl.searchParams.get("callbackURL") ?? undefined;
+      const onboardingIntent = onboardingIntentFromPath(
+        requested && callbackUrlSchema.safeParse(requested).success ? requested : undefined,
+      );
+      verificationUrl.searchParams.set(
+        "callbackURL",
+        onboardingIntent.status === "valid"
+          ? pathWithOnboardingIntent(VERIFIED_LANDING_PATH, onboardingIntent.intent)
+          : VERIFIED_LANDING_PATH,
+      );
 
       const { getAuthService } = await import("@/core/di");
       await getAuthService().sendVerificationEmail({ to: user.email, url: verificationUrl.toString() });
@@ -170,3 +213,13 @@ export const auth = betterAuth({
     nextCookies(),
   ],
 });
+
+async function revokeUnprovenAccess(userId: string, options: { removeAccounts: boolean }): Promise<number> {
+  const accounts = options.removeAccounts ? await prisma.authAccount.deleteMany({ where: { userId } }) : { count: 0 };
+  const sessions = await prisma.authSession.deleteMany({ where: { userId } });
+  const apiKeys = await prisma.apikey.deleteMany({ where: { referenceId: userId } });
+  const tokens = await prisma.oauthAccessToken.deleteMany({ where: { userId } });
+  const consents = await prisma.oauthConsent.deleteMany({ where: { userId } });
+
+  return accounts.count + sessions.count + apiKeys.count + tokens.count + consents.count;
+}

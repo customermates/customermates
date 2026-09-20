@@ -1,4 +1,12 @@
 {
+  "AccountAccessRevoked": {
+    "body": "Acabas de iniciar sesión sin contraseña, y eso confirma que esta dirección de correo es tuya. Hasta ahora nunca se había confirmado, así que no podíamos estar seguros de quién creó esta cuenta. Por seguridad hemos eliminado la contraseña anterior y todo lo demás que pudiera abrir la cuenta, como aplicaciones conectadas o claves. Tus datos no han cambiado y puedes seguir iniciando sesión igual que acabas de hacerlo.",
+    "cta": "Establecer una nueva contraseña",
+    "greeting": "Hola:",
+    "signoff": "Solo necesitas el botón de arriba si prefieres entrar con una contraseña. Si no has sido tú quien ha iniciado sesión, ponte en contacto con nosotros de inmediato.",
+    "subject": "Tu correo está confirmado y hemos eliminado tu contraseña anterior",
+    "title": "Tu dirección de correo está confirmada"
+  },
   "AccountsRemovedNotice": {
     "body": "Tu plan cambió a {plan}, así que he eliminado las siguientes cuentas conectadas para respetar el límite del plan: {accounts}. Tus mensajes y contactos siguen ahí. Puedes volver a conectarlas cuando quieras desde la página de cuentas conectadas.",
     "cta": "Ver las cuentas conectadas",
@@ -807,7 +815,8 @@
   "AuthSocialErrors": {
     "accessDenied": "El inicio de sesión se canceló en el proveedor.",
     "accountAlreadyLinkedToDifferentUser": "Esta cuenta social ya está vinculada a otro usuario.",
-    "accountNotLinked": "Ya existe una cuenta con este correo, pero la dirección aún no está verificada. Inicia sesión con tu contraseña y verifica el correo; después podrás usar el acceso social.",
+    "accountNotLinked": "Tu proveedor no confirmó esta dirección de correo, así que no pudimos vincularla a tu cuenta existente. Inicia sesión con tu contraseña.",
+    "accountNotLinkedAction": "Restablecer contraseña",
     "emailDoesNotMatch": "El correo devuelto por el proveedor no coincide con el de tu cuenta.",
     "emailIsMissing": "El proveedor no devolvió ninguna dirección de correo.",
     "emailNotFound": "No se encontró ninguna dirección de correo para esta cuenta social.",
@@ -3452,9 +3461,13 @@
     "body": "Te hemos enviado un correo de verificación. Revisa tu bandeja de entrada y haz clic en el enlace para verificar tu dirección de correo.",
     "ctaLabel": "Reenviar el correo de verificación",
     "invitationFrom": "Invitación de {inviterName}",
+    "linkExpired": "Ese enlace de verificación ha caducado.",
+    "linkInvalid": "Ese enlace de verificación no es válido.",
     "resendSuccess": "Correo de verificación enviado correctamente.",
+    "signedOutBody": "Inicia sesión en tu cuenta para solicitar un nuevo correo de verificación.",
     "subtitle": "Verifica tu dirección de correo para continuar.",
-    "title": "Verificación del correo"
+    "title": "Verificación del correo",
+    "verifiedSignIn": "Tu dirección de correo ya está verificada. Inicia sesión para continuar."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Los intentos de entrega aparecerán aquí cuando se active un webhook.",

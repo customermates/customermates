@@ -1,4 +1,12 @@
 {
+  "AccountAccessRevoked": {
+    "body": "You just signed in without a password, and that confirmed this email address is yours. Until now it had never been confirmed, so we could not be certain who created this account. To keep it safe we removed the old password, along with anything else that could open the account, such as connected apps or keys. Your data is untouched, and you can carry on signing in exactly as you just did.",
+    "cta": "Set a new password",
+    "greeting": "Hi,",
+    "signoff": "You only need the button above if you would rather sign in with a password. If this sign-in was not you, please contact us right away.",
+    "subject": "Your email is confirmed, and your old password was removed",
+    "title": "Your email address is confirmed"
+  },
   "AccountsRemovedNotice": {
     "body": "Your plan changed to {plan}, so I removed the following connected account(s) to stay within your plan's limit: {accounts}. Your messages and contacts are all still there. Reconnect anytime from your connected accounts page.",
     "cta": "View connected accounts",
@@ -807,7 +815,8 @@
   "AuthSocialErrors": {
     "accessDenied": "The sign-in was cancelled at the provider.",
     "accountAlreadyLinkedToDifferentUser": "This social account is already linked to a different user.",
-    "accountNotLinked": "An account with this email already exists but its email address is not verified yet. Sign in with your password and verify your email first, then you can use social login.",
+    "accountNotLinked": "Your provider did not confirm this email address, so we could not connect it to your existing account. Sign in with your password instead.",
+    "accountNotLinkedAction": "Reset password",
     "emailDoesNotMatch": "The email returned by the provider does not match the email of your account.",
     "emailIsMissing": "The provider did not return an email address.",
     "emailNotFound": "No email address was found for this social account.",
@@ -3452,9 +3461,13 @@
     "body": "We've sent you a verification email. Please check your inbox and click the link to verify your email address.",
     "ctaLabel": "Resend verification email",
     "invitationFrom": "Invitation from {inviterName}",
+    "linkExpired": "That verification link has expired.",
+    "linkInvalid": "That verification link is not valid.",
     "resendSuccess": "Verification email sent successfully.",
+    "signedOutBody": "Sign in to your account to request a new verification email.",
     "subtitle": "Verify your email address to continue.",
-    "title": "Email Verification"
+    "title": "Email Verification",
+    "verifiedSignIn": "Your email address is now verified. Sign in to continue."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Delivery attempts appear here once a webhook fires.",

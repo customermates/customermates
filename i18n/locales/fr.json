@@ -1,4 +1,12 @@
 {
+  "AccountAccessRevoked": {
+    "body": "Vous venez de vous connecter sans mot de passe, ce qui confirme que cette adresse e-mail est bien la vôtre. Jusqu'à présent elle n'avait jamais été confirmée, nous ne pouvions donc pas savoir avec certitude qui avait créé ce compte. Par sécurité, nous avons supprimé l'ancien mot de passe ainsi que tout ce qui pouvait ouvrir le compte, comme les applications connectées ou les clés. Vos données n'ont pas changé et vous pouvez continuer à vous connecter exactement comme vous venez de le faire.",
+    "cta": "Définir un nouveau mot de passe",
+    "greeting": "Bonjour,",
+    "signoff": "Le bouton ci-dessus ne vous sert que si vous préférez vous connecter avec un mot de passe. Si ce n'est pas vous qui venez de vous connecter, contactez-nous immédiatement.",
+    "subject": "Votre adresse e-mail est confirmée et nous avons supprimé votre ancien mot de passe",
+    "title": "Votre adresse e-mail est confirmée"
+  },
   "AccountsRemovedNotice": {
     "body": "Votre formule est passée à {plan}, j'ai donc supprimé le ou les comptes connectés suivants afin de respecter la limite de votre formule : {accounts}. Vos messages et vos contacts sont toujours là. Vous pouvez reconnecter ces comptes à tout moment depuis la page de vos comptes connectés.",
     "cta": "Voir les comptes connectés",
@@ -807,7 +815,8 @@
   "AuthSocialErrors": {
     "accessDenied": "La connexion a été annulée chez le fournisseur.",
     "accountAlreadyLinkedToDifferentUser": "Ce compte social est déjà lié à un autre utilisateur.",
-    "accountNotLinked": "Un compte existe déjà avec cette adresse e-mail, mais elle n'est pas encore vérifiée. Connectez-vous avec votre mot de passe et vérifiez votre adresse, puis vous pourrez utiliser la connexion sociale.",
+    "accountNotLinked": "Votre fournisseur n'a pas confirmé cette adresse e-mail, nous n'avons donc pas pu la relier à votre compte existant. Connectez-vous plutôt avec votre mot de passe.",
+    "accountNotLinkedAction": "Réinitialiser le mot de passe",
     "emailDoesNotMatch": "L'adresse e-mail renvoyée par le fournisseur ne correspond pas à celle de votre compte.",
     "emailIsMissing": "Le fournisseur n'a renvoyé aucune adresse e-mail.",
     "emailNotFound": "Aucune adresse e-mail n'a été trouvée pour ce compte social.",
@@ -3452,9 +3461,13 @@
     "body": "Nous vous avons envoyé un e-mail de vérification. Consultez votre boîte de réception et cliquez sur le lien pour vérifier votre adresse.",
     "ctaLabel": "Renvoyer l'e-mail de vérification",
     "invitationFrom": "Invitation de {inviterName}",
+    "linkExpired": "Ce lien de vérification a expiré.",
+    "linkInvalid": "Ce lien de vérification n'est pas valide.",
     "resendSuccess": "E-mail de vérification envoyé.",
+    "signedOutBody": "Connectez-vous à votre compte pour demander un nouvel e-mail de vérification.",
     "subtitle": "Vérifiez votre adresse e-mail pour continuer.",
-    "title": "Vérification de l'adresse e-mail"
+    "title": "Vérification de l'adresse e-mail",
+    "verifiedSignIn": "Votre adresse e-mail est maintenant vérifiée. Connectez-vous pour continuer."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Les tentatives de livraison apparaîtront ici dès qu’un webhook sera déclenché.",
