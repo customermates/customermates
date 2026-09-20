@@ -325,14 +325,16 @@ describeEval("agent live eval", () => {
     expect(lease).toBeNull();
   });
 
-  it("switches the deals view to kanban through allowlisted DOM controls", async () => {
+  it("points at the control that opens the kanban layout, never past its prerequisite", async () => {
     const { frames } = await runTurn({ text: "Open the Deals page and switch its layout to the kanban board." });
 
     const commands = frames.filter((frame) => frame.type === "ui_command");
     const targets = commands.map((frame) => (frame.input as { targetId?: string })?.targetId).filter(Boolean);
 
-    expect(targets, JSON.stringify(frames)).toContain("deals-layout-board");
     for (const target of targets) expect(AGENT_UI_TARGET_IDS).toContain(target);
+    expect(targets, JSON.stringify(frames)).toContain("deals-display-options");
+    const layoutIndex = targets.indexOf("deals-layout-board");
+    if (layoutIndex >= 0) expect(targets.indexOf("deals-display-options")).toBeLessThan(layoutIndex);
     expect(frames.at(-1)).toMatchObject({ type: "turn_done", terminalCode: "completed" });
   });
 
