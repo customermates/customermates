@@ -1,7 +1,6 @@
 import type { Prisma } from "@/generated/prisma";
 import type { AgentToolDeps } from "@/ee/agent-chat/agent-tools";
 import type { AgentTurnBudget } from "@/ee/agent-chat/agent-budget-policy";
-import type { AgentRuntimeFlags } from "@/ee/agent-chat/agent-runtime-flags";
 import type { AgentActivityResource } from "@/ee/agent-chat/agent-activity";
 import type { AgentTranscriptEvent } from "@/ee/agent-chat/agent-turn-transcript";
 import type { AgentTurnTerminalEvent } from "@/ee/agent-chat/agent-durable-stream";
@@ -32,7 +31,6 @@ import {
 } from "@/ee/agent-chat/agent-approval-resume";
 import { agentUiCommandHookToken, isAgentPanelTool, toAgentUiCommandInput } from "@/ee/agent-chat/agent-ui-command";
 import { activeAgentToolNames } from "@/ee/agent-chat/agent-toolset-routing";
-import { agentRuntimeFlagsOrDefault } from "@/ee/agent-chat/agent-runtime-flags";
 import { googleThinkingProviderOptions } from "@/ee/agent-chat/agent-thinking-options";
 import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-context";
 import { buildAgentSystemPrompt, routineTriggerEventOf } from "@/ee/agent-chat/system-prompt";
@@ -98,7 +96,6 @@ export type AgentTurnWorkflowPayload = {
   turnBudget: AgentTurnBudget;
   tenant: WorkflowTenant;
   surface?: AgentTurnSurface;
-  runtime?: Partial<AgentRuntimeFlags>;
   toolsets?: string[];
 };
 
@@ -749,26 +746,21 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       if ((AGENT_TRANSCRIPT_FORWARDED_EVENTS as readonly string[]).includes(event.type)) queued.push(event);
     });
 
-    const runtime = agentRuntimeFlagsOrDefault(payload.runtime);
     const initialToolsets = payload.toolsets ?? [];
     const systemPrompt = buildAgentSystemPrompt({
       userName: payload.userName,
       appBaseUrl: payload.appBaseUrl,
       locale: payload.locale,
       surface,
-      toolsetRouting: runtime.toolsetRouting,
-      promptV2: runtime.promptV2,
       triggerEvent: routineTriggerEventOf(payload.messages.findLast((message) => message.role === "user")?.text),
     });
     const toolDefinitions = shells.map(({ name, description, inputSchema }) => ({ name, description, inputSchema }));
     const activeToolNamesFor = (stepMessages: readonly unknown[]) =>
-      runtime.toolsetRouting ? activeAgentToolNames({ tools: shells, initialToolsets, messages: stepMessages }) : null;
+      activeAgentToolNames({ tools: shells, initialToolsets, messages: stepMessages });
     const providerContext = buildAgentProviderContext(
       systemPrompt,
       payload.messages,
-      runtime.toolsetRouting
-        ? toolDefinitions.filter((definition) => activeToolNamesFor([])?.includes(definition.name))
-        : toolDefinitions,
+      toolDefinitions.filter((definition) => activeToolNamesFor([])?.includes(definition.name)),
     );
 
     let tokens = emptyTokens();
@@ -955,7 +947,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           initialMessages: providerContext.messages,
           steps: continuationSteps,
           retainedResponseSteps,
-          resultDigest: runtime.resultDigest,
         });
         const candidateMessages = continueOutput
           ? [...compacted.messages, { role: "user" as const, content: AGENT_OUTPUT_CONTINUATION_PROMPT }]
@@ -1036,7 +1027,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
               : {}),
             zeroDataRetention: true,
             disallowPromptTraining: true,
-            ...(runtime.cachingAuto ? { caching: "auto" as const } : {}),
+            caching: "auto" as const,
           },
           openai: { parallelToolCalls: false },
           ...googleThinkingProviderOptions(payload.turnBudget),

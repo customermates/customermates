@@ -759,8 +759,10 @@ describe("agent tools", () => {
     expect(prompt).not.toMatch(/Always allow/i);
     expect(prompt).not.toContain("onboarding copilot");
     expect(prompt).not.toContain("Do not attempt heavy multi-step automation");
-    expect(prompt).toContain("complete hosted Customermates tool catalog");
-    expect(prompt).toContain("up front");
+    expect(prompt).toContain("load the matching tool set");
+    expect(prompt).toContain(
+      "Authorization, entitlements, connected-account state, and approval are enforced when a tool runs",
+    );
     expect(prompt).toContain("current page is context, never a capability boundary");
     expect(prompt).toContain("Never infer that a capability is unavailable");
     expect(prompt).toContain("Ordinary CRM work also runs immediately");

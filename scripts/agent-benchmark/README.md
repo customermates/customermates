@@ -15,18 +15,14 @@ yarn build
 LOCAL_AGENT_BENCHMARK=true AGENT_BENCHMARK_ARMS="$(yarn -s agent:benchmark overlay)" yarn next start -p 4107
 ```
 
-The runtime variant is a server setting: start the application with `AGENT_RUNTIME_VARIANT=current` (every v2 knob off) or
-`AGENT_RUNTIME_VARIANT=v2` (default), optionally `AGENT_RUNTIME_DISABLE=toolsetRouting,promptV2,resultDigest,cachingAuto` for
-single-knob ablations, and pass the same label as `--variant` so artifacts land under the matching folder. Run
-`yarn agent:benchmark` with `RUN_AGENT_BENCHMARK=true LOCAL_AGENT_BENCHMARK=true npx tsx --import ./scripts/lib/register-server-only-shim.mjs scripts/agent-benchmark/measure-context.ts`
-to print the catalog bytes per round, the prompt bytes and the credit reservation of the current tree.
+`--variant <label>` groups a run's artifacts and report rows under a label of your choice; the application has one runtime, so the label records what you changed between runs rather than selecting a code path.
 
 Commands (`yarn agent:benchmark <command>`):
 
 - `arms`, `cases`: list arms and cases.
 - `verify-arms`: read the Gateway endpoint listing and record which arms report ZDR and no-training; excluded arms never run.
 - `campaign --label screening --cap 200`: open a campaign with a hard USD cap enforced before every episode.
-- `run --campaign <id> --arms shipped,flash-lite-low --cases S1,M7 --reps 1 --variant current`: seed a fresh fixture per episode,
+- `run --campaign <id> --arms shipped,flash-lite-low --cases S1,M7 --reps 1 --variant baseline`: seed a fresh fixture per episode,
   drive the turns, observe, score and record the measured cost. Existing episodes are never re-run.
 - `judge --campaign <id>`: grade the final answers; charges count against the cap.
 - `report --campaign <id> --label matrix`: write `reports/<date>-<label>/report.md|json` with the selection rule applied.

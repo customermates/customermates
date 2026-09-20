@@ -27,7 +27,6 @@ import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { AGENT_RUN_LEASE_MS, decideAgentTurnAdmission, type AgentTurnRequestSnapshot } from "./agent-turn-request";
 import { buildAgentSystemPrompt, routineTriggerEventOf } from "./system-prompt";
 import { agentToolDefinitionsForTurn } from "./agent-tools";
-import { agentRuntimeFlags } from "./agent-runtime-flags";
 import { toolsetsForRequest, toolsetsFromActivities } from "./agent-toolset-routing";
 import { AgentActivityDescriptorSchema, type AgentActivityDescriptor } from "./agent-activity";
 import { conservativeAgentInitialContextBytes } from "./agent-provider-context";
@@ -218,7 +217,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
     const locale = data.locale ?? resolveUserLocale(user);
-    const runtime = agentRuntimeFlags();
     const requestedToolsets = toolsetsForRequest({ text: data.text, pageRoute });
     const requiredContextBytes = conservativeAgentInitialContextBytes({
       systemPrompt: buildAgentSystemPrompt({
@@ -226,8 +224,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         appBaseUrl: env.BASE_URL,
         locale,
         surface,
-        toolsetRouting: runtime.toolsetRouting,
-        promptV2: runtime.promptV2,
         triggerEvent: routineTriggerEventOf(data.text),
       }),
       currentText: data.text,
@@ -380,7 +376,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         turnBudget: reservation.budget,
         tenant: { userId: user.id, companyId: user.companyId },
         surface,
-        runtime,
         toolsets,
       });
       await this.repo.recordAgentTurnExternalRun(turnRequestId, runId, externalRunId);

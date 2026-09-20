@@ -134,7 +134,7 @@ async function main() {
     const armIds = list(flags.arms, BENCHMARK_ARMS.map((arm) => arm.id));
     const caseIds = list(flags.cases, BENCHMARK_CASES.map((definition) => definition.id)) as CaseId[];
     const reps = Number(flags.reps ?? 1);
-    const runtimeVariant = String(flags.variant ?? process.env.AGENT_RUNTIME_VARIANT ?? "current");
+    const runtimeVariant = String(flags.variant ?? "default");
     const verified = JSON.parse(await readFile(resolve(RUNS_DIR, "arms-verified.json"), "utf8").catch(() => '{"results":[]}')) as { results: ArmVerification[] };
     const excluded = new Set(verified.results.filter((result) => !result.eligible).map((result) => result.arm));
     const db = await createBenchmarkDb(env.databaseUrl, env.appUrl);
