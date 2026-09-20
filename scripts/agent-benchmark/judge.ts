@@ -80,7 +80,7 @@ const JUDGE_TIMEOUT_MS = 180_000;
 
 const JUDGE_RETRY_STATUSES = new Set([408, 429, 500, 502, 503, 504]);
 
-const JUDGE_MAX_ATTEMPTS = 7;
+const JUDGE_MAX_ATTEMPTS = Number(process.env.JUDGE_MAX_ATTEMPTS ?? 7);
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 

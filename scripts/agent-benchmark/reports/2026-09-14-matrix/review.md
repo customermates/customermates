@@ -317,3 +317,22 @@ Admission now prices the round it is about to start rather than a full-envelope 
 - Loading the product graph starts a **second workflow worker inside the CLI**, and that worker posts durable steps over HTTP. Without `WORKFLOW_LOCAL_BASE_URL` it probes for a port, and a failed probe sends every step it picked up into a backoff whose next attempt is hours away: one campaign stalled after 31 episodes. The environment guard now refuses to start without the variable.
 - The same worker keeps the CLI alive after the last episode; a campaign sat idle for sixteen minutes before it was killed by hand. Every command now exits when it finishes.
 - A 429 from the first judge threw away the second judge's verdict for the whole episode, and the artifact was then skipped forever because it carried no verdict at all. Judges are now asked independently and a later pass asks only for the missing one.
+
+### The merge candidate, measured
+
+The tree that merges was measured as a full campaign of its own (`9922e27f`, 108 episodes, USD 1.73), against the candidate campaign of the same 36 cases:
+
+| | candidate `ddadb1ab` | merge `9922e27f` |
+| --- | ---: | ---: |
+| Pass | 90.7 % | 91.7 % |
+| pass^3 | 77.8 % | 83.3 % |
+| Judge mean | 4.48 | 4.45 |
+| Credits per turn | 2.2 | 1.9 |
+| Rounds per turn | 4.22 | 4.00 |
+| First-round prompt, median | 19,070 tokens | 14,758 tokens |
+| Time to first token, p50 | 11.3 s | 7.7 s |
+| Wall time, p50 | 11.9 s | 8.1 s |
+| `get_record_schema` calls | 70 | 21 |
+| Cases no repetition solved | N21 | none |
+
+Two caveats belong with those numbers. The judge mean is not comparable in the way the earlier campaigns' means are: Claude Opus 5 on Bedrock EU answered 429 for the whole judging window, so 89 of 108 episodes carry only the Azure judge, and 19 carry both. And three turns ended in a provider error mid-stream, always in the round after the model issued several tool calls at once; that rate sits at about 0.5 percent across the roughly 2,000 turns measured in every campaign so far, so it is older than this work, but it is the largest single source of unearned failures left in the suite.
