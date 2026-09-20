@@ -62,7 +62,7 @@ export class AuthService {
     }
 
     try {
-      return await auth.api.getSession({ headers: headersList, query: { disableCookieCache: true } });
+      return await auth.api.getSession({ headers: headersList });
     } catch {
       return null;
     }
@@ -76,7 +76,7 @@ export class AuthService {
     if (!hasSessionCookie) return null;
 
     try {
-      return await auth.api.getSession({ headers: headersList, query: { disableCookieCache: true } });
+      return await auth.api.getSession({ headers: headersList });
     } catch {
       return null;
     }
