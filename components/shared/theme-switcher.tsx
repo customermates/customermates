@@ -1,5 +1,7 @@
 "use client";
 
+import type { Theme } from "@/generated/prisma";
+
 import { useCallback, useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -9,7 +11,6 @@ import { Icon } from "@/components/shared/icon";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/core/utils/cn";
-import { Theme } from "@/generated/prisma";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 type Props = {
@@ -42,10 +43,10 @@ export function ThemeSwitcher({ className, onThemeChange }: Props) {
     );
   }
 
-  const selectedTheme = resolvedTheme === Theme.dark ? Theme.dark : Theme.light;
-  const nextTheme = selectedTheme === Theme.dark ? Theme.light : Theme.dark;
-  const SelectedIcon = selectedTheme === Theme.dark ? Moon : Sun;
-  const selectedThemeLabel = selectedTheme === Theme.dark ? t("Common.themes.dark") : t("Common.themes.light");
+  const selectedTheme = resolvedTheme === "dark" ? "dark" : "light";
+  const nextTheme = selectedTheme === "dark" ? "light" : "dark";
+  const SelectedIcon = selectedTheme === "dark" ? Moon : Sun;
+  const selectedThemeLabel = selectedTheme === "dark" ? t("Common.themes.dark") : t("Common.themes.light");
 
   return (
     <TooltipProvider>
@@ -53,7 +54,7 @@ export function ThemeSwitcher({ className, onThemeChange }: Props) {
         <TooltipTrigger asChild>
           <Button
             aria-label={`${t("Common.ariaLabels.themeSwitcher")}: ${selectedThemeLabel}`}
-            aria-pressed={selectedTheme === Theme.dark}
+            aria-pressed={selectedTheme === "dark"}
             className={cn("size-8 rounded-md p-0 text-subdued hover:text-foreground", className)}
             data-theme={selectedTheme}
             size="icon-sm"

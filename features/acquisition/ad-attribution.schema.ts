@@ -1,12 +1,17 @@
 import { z } from "zod";
 
-import { AD_PROVIDER_ORDER, AdIdentifierKindSchema, AdProviderSchema } from "./ad-provider-registry";
+import { AD_IDENTIFIER_KINDS, AD_PROVIDER_ORDER, type AdIdentifierKind } from "./ad-provider-registry";
 
-export const PUBLIC_AD_ATTRIBUTION_COOKIE_NAME = "cm_ad_attribution";
-export const PUBLIC_AD_ATTRIBUTION_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 90;
-export const PUBLIC_AD_ATTRIBUTION_PENDING_PARAM = "cm_ads_pending";
-export const PUBLIC_AD_ATTRIBUTION_PENDING_MAX_AGE_SECONDS = 60 * 60 * 24;
-export const PUBLIC_AD_ATTRIBUTION_PENDING_FUTURE_SKEW_SECONDS = 60 * 5;
+export const AdProviderSchema = z.enum(AD_PROVIDER_ORDER);
+export const AdIdentifierKindSchema = z.enum(AD_IDENTIFIER_KINDS as [AdIdentifierKind, ...AdIdentifierKind[]]);
+
+export {
+  PUBLIC_AD_ATTRIBUTION_COOKIE_MAX_AGE_SECONDS,
+  PUBLIC_AD_ATTRIBUTION_COOKIE_NAME,
+  PUBLIC_AD_ATTRIBUTION_PENDING_FUTURE_SKEW_SECONDS,
+  PUBLIC_AD_ATTRIBUTION_PENDING_MAX_AGE_SECONDS,
+  PUBLIC_AD_ATTRIBUTION_PENDING_PARAM,
+} from "./ad-attribution.constants";
 
 export const adIdentifierValueSchema = z
   .string()

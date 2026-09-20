@@ -449,10 +449,16 @@ describe("public navigation preferences", () => {
     const themeSwitcher = read("components/shared/theme-switcher.tsx");
 
     expect(themeSwitcher).toContain(
-      "resolvedTheme === Theme.dark ? Theme.dark : Theme.light",
+      'resolvedTheme === "dark" ? "dark" : "light"',
     );
     expect(themeSwitcher).toContain(
-      "selectedTheme === Theme.dark ? Theme.light : Theme.dark",
+      'selectedTheme === "dark" ? "light" : "dark"',
+    );
+    expect(themeSwitcher).toContain(
+      'import type { Theme } from "@/generated/prisma"',
+    );
+    expect(themeSwitcher).not.toContain(
+      'import { Theme } from "@/generated/prisma"',
     );
     expect(themeSwitcher).toContain(
       '${t("Common.ariaLabels.themeSwitcher")}: ${selectedThemeLabel}',

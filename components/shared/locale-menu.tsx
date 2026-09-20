@@ -4,7 +4,6 @@ import type { MouseEvent as ReactMouseEvent } from "react";
 import type { ContentLocale } from "@/i18n/locale-registry";
 
 import { useEffect, useRef } from "react";
-import { observer } from "mobx-react-lite";
 import { useLocale, useTranslations } from "next-intl";
 
 import { FormAutocompleteCountryItem } from "@/components/forms/form-autocomplete-country-item";
@@ -21,7 +20,7 @@ type Props = {
   side?: "top" | "bottom";
 };
 
-export const LocaleMenu = observer(({ align = "start", className, side = "bottom" }: Props) => {
+export function LocaleMenu({ align = "start", className, side = "bottom" }: Props) {
   const t = useTranslations();
   const pathname = usePathname();
   const currentLocale = contentLocaleOrDefault(useLocale());
@@ -133,4 +132,4 @@ export const LocaleMenu = observer(({ align = "start", className, side = "bottom
       </nav>
     </details>
   );
-});
+}

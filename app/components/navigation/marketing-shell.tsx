@@ -3,15 +3,15 @@
 import type { AccountState } from "@/features/auth/account-state";
 
 import { useLayoutEffect, useRef } from "react";
+import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 
 import { PublicNavbar } from "../public-navbar";
 
 import { usePathname } from "@/i18n/navigation";
-import { DocsSidebar } from "@/app/[locale]/(static)/docs/components/docs-sidebar";
-import { DocsTopBar } from "@/app/[locale]/(static)/docs/components/docs-topbar";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { ONBOARDING_INTENT_QUERY_PARAM } from "@/features/company/onboarding-intent-url";
+
+const DocsShell = dynamic(() => import("./docs-shell").then((mod) => ({ default: mod.DocsShell })));
 
 type Props = {
   accountState: AccountState;
@@ -32,19 +32,7 @@ export function MarketingShell({ accountState, children, defaultSidebarOpen = tr
     scrollportRef.current.scrollTop = 0;
   }, [isDocs, pathname]);
 
-  if (isDocs) {
-    return (
-      <SidebarProvider defaultOpen={defaultSidebarOpen}>
-        <DocsSidebar />
-
-        <SidebarInset className="min-w-0 overflow-y-auto overflow-x-clip">
-          <DocsTopBar />
-
-          {children}
-        </SidebarInset>
-      </SidebarProvider>
-    );
-  }
+  if (isDocs) return <DocsShell defaultSidebarOpen={defaultSidebarOpen}>{children}</DocsShell>;
 
   return (
     <div

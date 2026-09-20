@@ -2,7 +2,6 @@ import type { MDXComponents } from "mdx/types";
 
 import defaultMdxComponents from "fumadocs-ui/mdx";
 
-import { APIPage } from "./api-page";
 import { ComparisonTable } from "./comparison-table";
 import {
   AcquisitionCallout,
@@ -25,7 +24,6 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
     ...defaultMdxComponents,
     ...markdownBaseComponents,
-    APIPage,
     AcquisitionCallout,
     ArticleSummary,
     ComparisonTable,

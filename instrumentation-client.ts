@@ -10,6 +10,10 @@ const sentryEnabled = Boolean(sentryDsn);
 if (sentryEnabled) {
   Sentry.init({
     dsn: sentryDsn,
+    // Tracing is off, but Sentry only drops browserTracingIntegration when the bundler
+    // rewrites __SENTRY_TRACING__, which Turbopack does not do. Filter it out explicitly so
+    // marketing pages do not pay for PerformanceObservers and fetch/history patching.
+    integrations: (defaults) => defaults.filter((integration) => integration.name !== "BrowserTracing"),
     tracesSampleRate: 0,
     replaysSessionSampleRate: 0,
     replaysOnErrorSampleRate: 0,

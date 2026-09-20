@@ -33,7 +33,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { observer } from "mobx-react-lite";
 
 import { IntlLink, usePathname } from "@/i18n/navigation";
 import { AppLink } from "@/components/shared/app-link";
@@ -75,7 +74,7 @@ type Props = {
 const mobileOverviewRowClassName =
   "flex min-h-14 w-full items-center justify-between gap-4 rounded-md py-4 text-left text-base font-medium text-sidebar-foreground no-underline transition-all outline-none hover:no-underline focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50";
 
-export const PublicNavbar = observer(({ accountState, hasValidSession, onboardingIntent }: Props) => {
+export function PublicNavbar({ accountState, hasValidSession, onboardingIntent }: Props) {
   const t = useTranslations();
   const pathname = usePathname();
   const [isSigningOut, setIsSigningOut] = useState(false);
@@ -556,4 +555,4 @@ export const PublicNavbar = observer(({ accountState, hasValidSession, onboardin
       </MarketingContainer>
     </div>
   );
-});
+}
