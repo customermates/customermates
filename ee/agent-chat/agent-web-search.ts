@@ -2,8 +2,9 @@ import { gateway } from "ai";
 
 export const AGENT_WEB_SEARCH_TOOL_NAME = "web_search";
 export const AGENT_WEB_SEARCH_RELEASED = false;
-export const AGENT_WEB_SEARCH_MAX_RESULTS = 3;
-export const AGENT_WEB_SEARCH_MAX_TOKENS = 1_024;
+export const AGENT_WEB_SEARCH_DEFAULT_RESULTS = 3;
+export const AGENT_WEB_SEARCH_DEFAULT_TOKENS = 1_024;
+export const AGENT_WEB_SEARCH_DEFAULT_TOKENS_PER_PAGE = 512;
 export const AGENT_WEB_SEARCH_USD_PER_REQUEST = 0.005;
 const AGENT_WEB_SOURCE_LIMIT = 8;
 export const AGENT_WEB_SOURCE_MAX_LENGTH = 1_000;
@@ -14,9 +15,9 @@ export type AgentWebSearchOptions = {
 
 export function getAgentWebSearchTool(options: AgentWebSearchOptions = {}) {
   return gateway.tools.perplexitySearch({
-    maxResults: AGENT_WEB_SEARCH_MAX_RESULTS,
-    maxTokens: AGENT_WEB_SEARCH_MAX_TOKENS,
-    maxTokensPerPage: 512,
+    maxResults: AGENT_WEB_SEARCH_DEFAULT_RESULTS,
+    maxTokens: AGENT_WEB_SEARCH_DEFAULT_TOKENS,
+    maxTokensPerPage: AGENT_WEB_SEARCH_DEFAULT_TOKENS_PER_PAGE,
     ...(options.allowedDomains?.length ? { searchDomainFilter: [...options.allowedDomains] } : {}),
   });
 }

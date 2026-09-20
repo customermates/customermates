@@ -158,6 +158,21 @@ describe("managed Wiki retrieval tools", () => {
     expect(calls.get).not.toHaveBeenCalled();
   });
 
+  it("publishes the hosted Wiki fetch continuation contract without changing other fetch ids", () => {
+    const options = { surface: "chat" as const, webSearchEnabled: false };
+    const tools = getAgentAiTools(dependencies(), options);
+    const description = (tools.fetch as { description?: string }).description ?? "";
+
+    expect(description).toContain("markdownChunk");
+    expect(description).toContain("nextOffset");
+    expect(description).toContain("manage_wiki_pages");
+    expect(description).toContain("Non-Wiki ids use normal fetch behavior");
+    expect(description).toContain("explicit truncation");
+    expect(description).toContain("wiki:<uuid> returns bounded");
+    expect(description).not.toBe("Read one complete source document.");
+    expect(getAgentAiToolDefinitions(undefined, options)).toEqual(describeAgentAiTools(tools));
+  });
+
   it("returns a denied read without leaking Markdown through the agent wrapper", async () => {
     calls.get.mockRejectedValue(new ForbiddenError("Wiki Read denied"));
     const tools = getAgentAiTools(dependencies(), { webSearchEnabled: false });
@@ -221,10 +236,14 @@ describe("managed Wiki retrieval tools", () => {
     expect(result.result.length).toBeLessThanOrEqual(6_000);
     expect(result.result).not.toContain("[truncated:");
     const decoded = decode(result.result) as {
+      user: { id: string };
+      company: { id: string };
       roles: Array<{ id: string }>;
       connectedAccounts: Array<{ id: string }>;
       wiki: { agentsMd: WikiChunk & { shortened: boolean }; items: unknown[] };
     };
+    expect(decoded.user).toEqual(expect.objectContaining({ id: "user" }));
+    expect(decoded.company).toEqual(expect.objectContaining({ id: "company" }));
     expect(decoded.roles).toEqual([expect.objectContaining({ id: "role-1" })]);
     expect(decoded.connectedAccounts).toEqual([expect.objectContaining({ id: "account-1" })]);
     expect(decoded.wiki.agentsMd.markdownChunk.length).toBeGreaterThan(0);

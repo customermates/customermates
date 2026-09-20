@@ -3,6 +3,7 @@ import type { WikiCatalog } from "@/features/wiki/wiki.schema";
 import { AGENT_REPLAY_HISTORY_MAX_BYTES } from "./agent-replay-budget";
 
 const WIKI_REFERENCE_MAX_BYTES = 6000;
+export const AGENT_WIKI_REFERENCE_TOOL_NAME = "workspace_wiki_reference";
 const encodedBytes = (value: unknown) => new TextEncoder().encode(JSON.stringify(value)).byteLength;
 
 export function serializeAgentWikiCatalog(catalog: WikiCatalog): string {
@@ -65,8 +66,8 @@ export function agentWikiContextMessages(catalog?: string | null): ModelMessage[
         {
           type: "tool-call",
           toolCallId: "workspace-wiki-catalog",
-          toolName: "get_workspace_context",
-          input: { wikiPage: 1 },
+          toolName: AGENT_WIKI_REFERENCE_TOOL_NAME,
+          input: { page: 1 },
         },
       ],
     },
@@ -76,7 +77,7 @@ export function agentWikiContextMessages(catalog?: string | null): ModelMessage[
         {
           type: "tool-result",
           toolCallId: "workspace-wiki-catalog",
-          toolName: "get_workspace_context",
+          toolName: AGENT_WIKI_REFERENCE_TOOL_NAME,
           output: { type: "text", value: catalog },
         },
       ],

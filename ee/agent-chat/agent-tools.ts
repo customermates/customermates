@@ -32,6 +32,10 @@ export type AgentToolOptions = {
   surface?: "chat" | "routine";
 };
 const ReadPublicPageSchema = z.object({ url: z.url().max(2_000) });
+const HOSTED_FETCH_DESCRIPTION =
+  "Read a search result. Non-Wiki ids use normal fetch behavior with an explicit truncation notice. wiki:<uuid> returns bounded " +
+  "{markdownChunk,offset,nextOffset,totalChars,url}; while nextOffset is not null, call manage_wiki_pages " +
+  "with action=get, the bare UUID, and offset=nextOffset until null. Wiki Read required; cite url.";
 
 export { isAgentToolCancellation, type AgentToolCancellation } from "./agent-tool-cancellation";
 
@@ -219,7 +223,7 @@ function listUiTargets(input: z.infer<typeof ListUiTargetsSchema>, resultMaxChar
 
 function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
   return tool({
-    description: mcp.description,
+    description: mcp.name === "fetch" ? HOSTED_FETCH_DESCRIPTION : mcp.description,
     inputSchema: providerSafeSchema(mcp.inputSchema),
     execute: async (input: unknown, { toolCallId }) => {
       const execute = async () => {

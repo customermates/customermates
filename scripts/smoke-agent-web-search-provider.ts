@@ -22,7 +22,7 @@ const MAX_REQUEST_BODY_BYTES = 64_000;
 export const AGENT_WEB_SEARCH_SMOKE_MAX_USD = 15;
 export const AGENT_WEB_SEARCH_FEASIBILITY_BLOCKERS = [
   "No verified native search-call cap covers Gateway's internal model and tool loop within one SDK step.",
-  "The native loop's accumulated input and search charges are not bounded by the existing routine reservation.",
+  "Model-supplied result and token overrides leave the native loop's accumulated input and search charges outside the existing routine reservation.",
 ] as const;
 
 type JsonRecord = Record<string, unknown>;

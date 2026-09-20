@@ -7,6 +7,7 @@ import {
 } from "@/ee/agent-chat/agent-provider-context";
 import { AGENT_REPLAY_COUNT, agentReplayWorstCaseMessageChars } from "@/ee/agent-chat/agent-replay-budget";
 import {
+  AGENT_WIKI_REFERENCE_TOOL_NAME,
   agentWikiContextMessages,
   agentWikiReplayBudget,
   serializeAgentWikiCatalog,
@@ -50,8 +51,8 @@ describe("Workspace Wiki provider context", () => {
           {
             type: "tool-call",
             toolCallId: "workspace-wiki-catalog",
-            toolName: "get_workspace_context",
-            input: { wikiPage: 1 },
+            toolName: AGENT_WIKI_REFERENCE_TOOL_NAME,
+            input: { page: 1 },
           },
         ],
       },
@@ -61,7 +62,7 @@ describe("Workspace Wiki provider context", () => {
           {
             type: "tool-result",
             toolCallId: "workspace-wiki-catalog",
-            toolName: "get_workspace_context",
+            toolName: AGENT_WIKI_REFERENCE_TOOL_NAME,
             output: { type: "text", value: catalog },
           },
         ],
@@ -75,6 +76,7 @@ describe("Workspace Wiki provider context", () => {
     );
     expect(context.system).toBe("System instructions");
     expect(context.messages).toEqual([...messages, { role: "user", content: "Draft a reply" }]);
+    expect(JSON.stringify(messages)).not.toContain("get_workspace_context");
   });
 
   it("uses the newly supplied catalog on each turn without retaining a previous excerpt", () => {
