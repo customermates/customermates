@@ -30,9 +30,11 @@ import { agentToolDefinitionsForTurn } from "./agent-tools";
 import { toolsetsForRequest, toolsetsFromActivities } from "./agent-toolset-routing";
 import { AgentActivityDescriptorSchema, type AgentActivityDescriptor } from "./agent-activity";
 import { conservativeAgentInitialContextBytes } from "./agent-provider-context";
+import { renderAgentSchemaDigest } from "./agent-schema-digest";
 import { AGENT_REPLAY_COUNT, budgetAgentReplayHistory } from "./agent-replay-budget";
 import { isAgentModelKey, resolveAgentModel } from "./model-catalog";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
+import type { GetCustomColumnsRepo } from "@/features/custom-column/get-custom-columns.interactor";
 import { fail, failConflict, failNotFound, failRateLimit } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
@@ -84,8 +86,18 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     private usageService: AgentUsageService,
     private entitlements: EntitlementService,
     private backgroundTaskService: BackgroundTaskService,
+    private customColumns: GetCustomColumnsRepo,
   ) {
     super();
+  }
+
+  private async schemaDigest() {
+    try {
+      return renderAgentSchemaDigest(await this.customColumns.getCustomColumns());
+    } catch (error) {
+      Sentry.captureException(error);
+      return null;
+    }
   }
 
   @Write({
@@ -218,6 +230,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     const userName = `${user.firstName} ${user.lastName}`.trim();
     const locale = data.locale ?? resolveUserLocale(user);
     const requestedToolsets = toolsetsForRequest({ text: data.text, pageRoute });
+    const schemaDigest = await this.schemaDigest();
     const requiredContextBytes = conservativeAgentInitialContextBytes({
       systemPrompt: buildAgentSystemPrompt({
         userName,
@@ -225,6 +238,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         locale,
         surface,
         triggerEvent: routineTriggerEventOf(data.text),
+        schemaDigest,
       }),
       currentText: data.text,
       pageRoute,
@@ -380,6 +394,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         tenant: { userId: user.id, companyId: user.companyId },
         surface,
         toolsets,
+        ...(schemaDigest ? { schemaDigest } : {}),
       });
       await this.repo.recordAgentTurnExternalRun(turnRequestId, runId, externalRunId);
 

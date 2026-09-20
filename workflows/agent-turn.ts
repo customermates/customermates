@@ -94,6 +94,7 @@ export type AgentTurnWorkflowPayload = {
   appBaseUrl: string;
   messages: ReplayMessage[];
   turnBudget: AgentTurnBudget;
+  schemaDigest?: string | null;
   tenant: WorkflowTenant;
   surface?: AgentTurnSurface;
   toolsets?: string[];
@@ -753,6 +754,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       locale: payload.locale,
       surface,
       loadedToolsets: initialToolsets,
+      schemaDigest: payload.schemaDigest ?? null,
       triggerEvent: routineTriggerEventOf(payload.messages.findLast((message) => message.role === "user")?.text),
     });
     const toolDefinitions = shells.map(({ name, description, inputSchema }) => ({ name, description, inputSchema }));
