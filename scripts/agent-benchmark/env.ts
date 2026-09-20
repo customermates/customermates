@@ -37,6 +37,14 @@ export function requireLocalBenchmarkEnvironment(
   const gatewayApiKey = environment.AI_GATEWAY_API_KEY?.trim() ?? "";
   if (!gatewayApiKey || gatewayApiKey === "XXX") throw new Error("AI_GATEWAY_API_KEY is required for paid benchmark work.");
 
+  const workflowBaseUrl = environment.WORKFLOW_LOCAL_BASE_URL?.trim() ?? "";
+  if (!workflowBaseUrl)
+    throw new Error(
+      `Set WORKFLOW_LOCAL_BASE_URL=${app.origin} for this process: loading the product graph starts a workflow worker here too, and without it durable steps stall in a long backoff.`,
+    );
+  if (loopbackUrl(workflowBaseUrl, "WORKFLOW_LOCAL_BASE_URL", ["http:"]).origin !== app.origin)
+    throw new Error("WORKFLOW_LOCAL_BASE_URL must point at the same origin as BASE_URL.");
+
   return { appUrl: app.origin, databaseUrl: database.href, gatewayApiKey };
 }
 
