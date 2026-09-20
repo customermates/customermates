@@ -91,7 +91,7 @@ describe("onboarding authentication detours", () => {
       onboardingIntentService as never,
     );
 
-    await expect(interactor.invoke(invitation.intent)).resolves.toEqual({ ok: true });
+    await expect(interactor.invoke({ onboardingIntent: invitation.intent })).resolves.toEqual({ ok: true });
     expect(resendVerificationEmail).toHaveBeenCalledWith("invited@example.com", {
       callbackURL: "/auth/invitation?intent=signed.intent",
       keepSession: true,

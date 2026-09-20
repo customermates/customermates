@@ -67,6 +67,28 @@ describe("VerifyEmailStore", () => {
 
     await store.resend();
 
-    expect(authActions.resendVerificationEmailFromAuthAction).toHaveBeenCalledWith("signed.intent");
+    expect(authActions.resendVerificationEmailFromAuthAction).toHaveBeenCalledWith({
+      onboardingIntent: "signed.intent",
+    });
+  });
+
+  it("does nothing without a signed-in account", async () => {
+    const store = new VerifyEmailStore(rootStore);
+    store.activate(undefined);
+
+    await store.resend();
+
+    expect(authActions.resendVerificationEmailFromAuthAction).not.toHaveBeenCalled();
+    expect(store.isSent).toBe(false);
+  });
+
+  it("does not claim a send that failed", async () => {
+    authActions.resendVerificationEmailFromAuthAction.mockResolvedValue({ ok: false });
+    const store = new VerifyEmailStore(rootStore);
+    store.activate("first@example.test");
+
+    await store.resend();
+
+    expect(store.isSent).toBe(false);
   });
 });

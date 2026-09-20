@@ -27,6 +27,7 @@ const mocks = {
   existsUnscoped: vi.fn(),
   getSession: vi.fn(),
   findAuthUserCompanyIdUnscoped: vi.fn(),
+  findAuthUserAccountStateUnscoped: vi.fn(),
   findCurrentUserUnscoped: vi.fn(),
   getSubscriptionOrThrowUnscoped: vi.fn(),
   getLegalStatus: vi.fn(),
@@ -37,6 +38,7 @@ function makeService() {
     { getSession: mocks.getSession } as unknown as AuthService,
     {
       findAuthUserCompanyIdUnscoped: mocks.findAuthUserCompanyIdUnscoped,
+      findAuthUserAccountStateUnscoped: mocks.findAuthUserAccountStateUnscoped,
       findCurrentUserUnscoped: mocks.findCurrentUserUnscoped,
     } as unknown as FindUserRepo,
     {
@@ -89,6 +91,12 @@ beforeEach(() => {
   mockEnv.APP_MODE = "cloud";
   mocks.getSession.mockResolvedValue(session());
   mocks.findAuthUserCompanyIdUnscoped.mockResolvedValue(null);
+  mocks.findAuthUserAccountStateUnscoped.mockImplementation(async (userId: string) => {
+    const companyId = await mocks.findAuthUserCompanyIdUnscoped(userId);
+    if (companyId === undefined) return undefined;
+    const current = await mocks.getSession.mock.results.at(-1)?.value;
+    return { companyId, emailVerified: current?.user?.emailVerified ?? false };
+  });
   mocks.existsUnscoped.mockResolvedValue(true);
   mocks.findCurrentUserUnscoped.mockResolvedValue(user());
   mocks.getSubscriptionOrThrowUnscoped.mockResolvedValue(subscription(SubscriptionStatus.active));
@@ -96,6 +104,29 @@ beforeEach(() => {
 });
 
 describe("RouteGuardService.resolveAccountState", () => {
+  it("trusts the database over a stale session cache when deciding email verification", async () => {
+    mocks.getSession.mockResolvedValue(session({ createdAt: PAST, emailVerified: false }));
+    mocks.findAuthUserAccountStateUnscoped.mockResolvedValue({ companyId: null, emailVerified: true });
+    mocks.findCurrentUserUnscoped.mockResolvedValue(null);
+
+    const result = await makeService().resolveAccountState();
+
+    expect(result.state).toBe("unregistered");
+    expect(result.emailVerified).toBe(true);
+    expect(result.sessionUser?.emailVerified).toBe(true);
+  });
+
+  it("does not let a stale verified cookie bypass an unverified row past the grace", async () => {
+    mocks.getSession.mockResolvedValue(session({ createdAt: PAST, emailVerified: true }));
+    mocks.findAuthUserAccountStateUnscoped.mockResolvedValue({ companyId: null, emailVerified: false });
+    mocks.findCurrentUserUnscoped.mockResolvedValue(null);
+
+    const result = await makeService().resolveAccountState();
+
+    expect(result.state).toBe("overdueVerification");
+    expect(result.emailVerified).toBe(false);
+  });
+
   it("resolves an absent session without loading product or tenant data", async () => {
     mocks.getSession.mockResolvedValue(null);
 

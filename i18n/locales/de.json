@@ -1,4 +1,12 @@
 {
+  "AccountAccessRevoked": {
+    "body": "Du hast dich gerade ohne Passwort angemeldet, und damit ist bestätigt, dass diese E-Mail-Adresse dir gehört. Bis jetzt war sie nie bestätigt, deshalb konnten wir nicht sicher sein, wer dieses Konto angelegt hat. Zur Sicherheit haben wir das alte Passwort entfernt und alles andere, womit man das Konto öffnen könnte, etwa verbundene Apps oder Schlüssel. Deine Daten sind unverändert, und du kannst dich weiterhin genau so anmelden wie gerade eben.",
+    "cta": "Neues Passwort festlegen",
+    "greeting": "Hallo,",
+    "signoff": "Den Button oben brauchst du nur, wenn du dich lieber mit einem Passwort anmelden möchtest. Falls du dich gerade nicht angemeldet hast, melde dich bitte sofort bei uns.",
+    "subject": "Deine E-Mail-Adresse ist bestätigt, dein altes Passwort haben wir entfernt",
+    "title": "Deine E-Mail-Adresse ist bestätigt"
+  },
   "AccountsRemovedNotice": {
     "body": "Dein Plan wurde auf {plan} umgestellt. Um das Limit deines Plans einzuhalten, habe ich die erforderliche Anzahl verbundener Konten entfernt: {accounts}. Deine Nachrichten und Kontakte sind weiterhin vorhanden. Du kannst die Konten jederzeit auf der Seite „Verbundene Konten“ erneut verbinden.",
     "cta": "Verbundene Konten ansehen",
@@ -797,7 +805,8 @@
   "AuthSocialErrors": {
     "accessDenied": "Die Anmeldung wurde beim Anbieter abgebrochen.",
     "accountAlreadyLinkedToDifferentUser": "Dieses Social-Konto ist bereits mit einem anderen Benutzer verknüpft.",
-    "accountNotLinked": "Ein Konto mit dieser E-Mail existiert bereits, aber die E-Mail-Adresse ist noch nicht bestätigt. Melde dich zuerst mit deinem Passwort an und bestätige deine E-Mail, danach kannst du den Social-Login nutzen.",
+    "accountNotLinked": "Dein Anbieter hat diese E-Mail-Adresse nicht bestätigt, deshalb konnten wir sie nicht mit deinem bestehenden Konto verbinden. Melde dich stattdessen mit deinem Passwort an.",
+    "accountNotLinkedAction": "Passwort zurücksetzen",
     "emailDoesNotMatch": "Die E-Mail-Adresse vom Anbieter stimmt nicht mit der E-Mail deines Kontos überein.",
     "emailIsMissing": "Der Anbieter hat keine E-Mail-Adresse zurückgegeben.",
     "emailNotFound": "Für dieses Social-Konto wurde keine E-Mail-Adresse gefunden.",
@@ -3427,9 +3436,13 @@
     "body": "Wir haben dir eine Verifizierungs-E-Mail gesendet. Bitte überprüfe dein Postfach und klicke auf den Link, um deine E-Mail-Adresse zu verifizieren.",
     "ctaLabel": "Verifizierungs-E-Mail erneut senden",
     "invitationFrom": "Einladung von {inviterName}",
+    "linkExpired": "Dieser Bestätigungslink ist abgelaufen.",
+    "linkInvalid": "Dieser Bestätigungslink ist ungültig.",
     "resendSuccess": "Verifizierungs-E-Mail wurde erfolgreich gesendet.",
+    "signedOutBody": "Melde dich in deinem Konto an, um eine neue Bestätigungs-E-Mail anzufordern.",
     "subtitle": "Verifiziere deine E-Mail-Adresse, um fortzufahren.",
-    "title": "E-Mail-Verifizierung"
+    "title": "E-Mail-Verifizierung",
+    "verifiedSignIn": "Deine E-Mail-Adresse ist jetzt bestätigt. Melde dich an, um fortzufahren."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Zustellversuche erscheinen hier, sobald ein Webhook ausgelöst wird.",

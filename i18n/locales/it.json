@@ -1,4 +1,12 @@
 {
+  "AccountAccessRevoked": {
+    "body": "Hai appena effettuato l'accesso senza password, e questo conferma che questo indirizzo e-mail è tuo. Fino a ora non era mai stato confermato, quindi non potevamo sapere con certezza chi avesse creato questo account. Per sicurezza abbiamo rimosso la vecchia password e tutto il resto che poteva aprire l'account, come app collegate o chiavi. I tuoi dati non sono cambiati e puoi continuare ad accedere esattamente come hai appena fatto.",
+    "cta": "Imposta una nuova password",
+    "greeting": "Ciao,",
+    "signoff": "Il pulsante qui sopra ti serve solo se preferisci accedere con una password. Se non sei stato tu ad accedere, contattaci subito.",
+    "subject": "La tua e-mail è confermata e abbiamo rimosso la vecchia password",
+    "title": "Il tuo indirizzo e-mail è confermato"
+  },
   "AccountsRemovedNotice": {
     "body": "Il tuo piano è passato a {plan}, quindi ho rimosso i seguenti account collegati per rientrare nel limite del piano: {accounts}. I tuoi messaggi e i tuoi contatti sono ancora tutti lì. Puoi ricollegare questi account quando vuoi dalla pagina degli account collegati.",
     "cta": "Vedi gli account collegati",
@@ -797,7 +805,8 @@
   "AuthSocialErrors": {
     "accessDenied": "L'accesso è stato annullato presso il provider.",
     "accountAlreadyLinkedToDifferentUser": "Questo account social è già collegato a un altro utente.",
-    "accountNotLinked": "Esiste già un account con questa e-mail, ma l'indirizzo non è ancora verificato. Accedi con la password e verifica l'indirizzo, poi potrai usare l'accesso social.",
+    "accountNotLinked": "Il tuo provider non ha confermato questo indirizzo e-mail, quindi non abbiamo potuto collegarlo al tuo account esistente. Accedi invece con la password.",
+    "accountNotLinkedAction": "Reimposta password",
     "emailDoesNotMatch": "L'e-mail restituita dal provider non corrisponde a quella del tuo account.",
     "emailIsMissing": "Il provider non ha restituito alcun indirizzo e-mail.",
     "emailNotFound": "Non è stato trovato alcun indirizzo e-mail per questo account social.",
@@ -3427,9 +3436,13 @@
     "body": "Ti abbiamo inviato un'e-mail di verifica. Controlla la tua posta in arrivo e clicca sul link per verificare il tuo indirizzo e-mail.",
     "ctaLabel": "Invia di nuovo l'e-mail di verifica",
     "invitationFrom": "Invito da {inviterName}",
+    "linkExpired": "Questo link di verifica è scaduto.",
+    "linkInvalid": "Questo link di verifica non è valido.",
     "resendSuccess": "E-mail di verifica inviata correttamente.",
+    "signedOutBody": "Accedi al tuo account per richiedere una nuova e-mail di verifica.",
     "subtitle": "Verifica il tuo indirizzo e-mail per continuare.",
-    "title": "Verifica dell'e-mail"
+    "title": "Verifica dell'e-mail",
+    "verifiedSignIn": "Il tuo indirizzo e-mail è ora verificato. Accedi per continuare."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "I tentativi di consegna appariranno qui quando viene attivato un webhook.",

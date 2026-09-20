@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import deMessages from "@/i18n/locales/de.json";
 
 const INFORMAL_RECIPIENT_EMAIL_NAMESPACES = [
+  "AccountAccessRevoked",
   "AccountsRemovedNotice",
   "CompanyInvite",
   "ResetPassword",
