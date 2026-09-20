@@ -49,7 +49,8 @@ Docs entry points:
 - n8n workflows and automation support
 - MCP support for agent tooling and structured tool calling
 - Unified inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram (Cloud, from the Pro plan)
-- Audit logging; Single Sign-On and Whitelabeling on the Enterprise plan (self-hosted Enterprise deployments by agreement)
+- Audit logging
+- Single Sign-On and Whitelabeling on the Enterprise plan (self-hosted Enterprise deployments by agreement)
 - Role-based access control for teams
 - Self-hosted deployment with Docker Compose and PostgreSQL
 - Cloud uses monthly per-seat pricing; see the [current plans](https://customermates.com/pricing)
@@ -164,7 +165,7 @@ Start here: [customermates.com/docs](https://customermates.com/docs)
 
 Customermates uses an open-core licensing model.
 
-The Community Edition (all first-party code outside `ee/`, including `features/audit-log/`) is licensed under [AGPL-3.0-only](./LICENSE).
+The Community Edition (all first-party code outside `ee/`) is licensed under [AGPL-3.0-only](./LICENSE).
 
 Other first-party files in `ee/` are source-available under the [Customermates Commercial License](./ee/LICENSE.md), subject to its AGPL client-material exception. Production use of Commercial Software outside the limited Community Build permission, including any Enterprise Feature, requires a Commercial Agreement.
 
