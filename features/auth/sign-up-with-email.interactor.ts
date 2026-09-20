@@ -73,15 +73,13 @@ export class SignUpWithEmailInteractor {
 
     if (!res.ok) {
       if (res.error === CustomErrorCode.emailAlreadyExists) {
-        const destination = (await this.authService.isEmailPendingVerification(data.email))
-          ? "/auth/verify-email"
-          : "/auth/signin";
         const onboardingIntent = onboardingIntentFromPath(data.callbackURL);
-        return redirectTo(
-          onboardingIntent.status === "valid"
-            ? pathWithOnboardingIntent(destination, onboardingIntent.intent)
-            : destination,
-        );
+        const hasIntent = onboardingIntent.status === "valid";
+        const awaitsVerification = await this.authService.isEmailPendingVerification(data.email);
+        if (awaitsVerification || hasIntent) {
+          const destination = awaitsVerification ? "/auth/verify-email" : "/auth/signin";
+          return redirectTo(hasIntent ? pathWithOnboardingIntent(destination, onboardingIntent.intent) : destination);
+        }
       }
 
       const t = await getTranslations();

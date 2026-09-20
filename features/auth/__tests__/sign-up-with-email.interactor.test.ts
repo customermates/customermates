@@ -55,10 +55,13 @@ describe("SignUpWithEmailInteractor when the account already exists", () => {
     });
   });
 
-  it("sends an already verified account to sign in instead of a dead-end error", async () => {
+  it("tells an already verified account that it exists rather than bouncing it somewhere unexplained", async () => {
     const { interactor } = buildInteractor({ error: "emailAlreadyExists", pendingVerification: false });
 
-    await expect(interactor.invoke(signUpData)).resolves.toEqual({ redirect: "/auth/signin" });
+    const result = await interactor.invoke(signUpData);
+
+    expect(result).toMatchObject({ ok: false });
+    expect(result).not.toHaveProperty("redirect");
   });
 
   it("keeps an invitation alive for an invitee who verified before signing up again", async () => {
