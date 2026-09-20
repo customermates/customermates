@@ -20,7 +20,10 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   discard_message_draft: { approvalFree: true },
   manage_custom_columns: { approvalFreeActions: ["list", "upsert"], readOnlyActions: ["list"] },
   manage_record_links: { approvalFree: true },
-  manage_social_relations: { approvalFreeActions: ["list"], readOnlyActions: ["list"] },
+  manage_social_relations: {
+    approvalFreeActions: ["list", "invite", "accept", "cancel"],
+    readOnlyActions: ["list"],
+  },
   manage_team: { approvalFreeActions: ["update_member"] },
   manage_webhooks: {
     approvalFreeActions: ["list", "get", "list_deliveries", "create", "update"],
@@ -33,7 +36,7 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   },
   move_email_thread: { approvalFree: true },
   linkedin_manage_sales_lists: {
-    approvalFreeActions: ["list", "browse"],
+    approvalFreeActions: ["list", "browse", "save"],
     readOnlyActions: ["list", "browse"],
   },
   save_message_draft: { approvalFree: true },

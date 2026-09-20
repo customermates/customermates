@@ -103,10 +103,6 @@ describe("gated-tools", () => {
     for (const name of ["manage_custom_columns", "manage_widgets", "manage_webhooks"])
       expect(approvalNeeded(toolByName(name), { action: "delete" })).toBe(true);
     for (const [name, action] of [
-      ["manage_social_relations", "invite"],
-      ["manage_social_relations", "accept"],
-      ["manage_social_relations", "cancel"],
-      ["linkedin_manage_sales_lists", "save"],
       ["manage_team", "invite"],
       ["manage_webhooks", "resend_delivery"],
     ] as const)
@@ -130,8 +126,12 @@ describe("gated-tools", () => {
       ["manage_custom_columns", { action: "upsert" }],
       ["manage_widgets", { action: "create" }],
       ["manage_social_relations", { action: "list" }],
+      ["manage_social_relations", { action: "invite" }],
+      ["manage_social_relations", { action: "accept" }],
+      ["manage_social_relations", { action: "cancel" }],
       ["linkedin_manage_sales_lists", { action: "list" }],
       ["linkedin_manage_sales_lists", { action: "browse" }],
+      ["linkedin_manage_sales_lists", { action: "save" }],
     ];
     for (const [name, input] of freeCalls) expect(approvalNeeded(toolByName(name), input)).toBe(false);
   });

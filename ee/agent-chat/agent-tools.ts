@@ -250,9 +250,9 @@ function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
       const enrollable = !isReadOnlyTool(mcp) && !hasNonTransactionalEffect(mcp.name);
       const run = enrollable ? () => deps.runExactlyOnce(toolCallId, mcp.name, execute) : execute;
       return runSafely(async () => {
-        if (!requiresApproval(internalToolIdentity(mcp.name), mcp, input)) return run();
         const approvalContext = await deps.resolveApprovalContext(mcp.name, input);
         if (!approvalContext.ok) return { ok: false, result: approvalContext.result };
+        if (!requiresApproval(internalToolIdentity(mcp.name), mcp, input)) return run();
         return runGated(deps, toolCallId, mcp.name, approvalContext.input, run);
       }, deps.resultMaxChars);
     },

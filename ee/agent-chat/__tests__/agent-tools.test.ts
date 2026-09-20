@@ -592,8 +592,6 @@ describe("agent tools", () => {
     ["manage_custom_columns", { action: "delete" }],
     ["manage_widgets", { action: "delete" }],
     ["manage_webhooks", { action: "delete" }],
-    ["manage_social_relations", { action: "invite", targetLabel: "Ada Lovelace" }],
-    ["linkedin_manage_sales_lists", { action: "save", targetLabel: "Ada Lovelace", listLabel: "Priority Leads" }],
     ["manage_team", { action: "invite" }],
     ["manage_webhooks", { action: "resend_delivery" }],
     ["manage_custom_columns", {}],
@@ -613,19 +611,18 @@ describe("agent tools", () => {
     },
   );
 
-  it("asks for external approval with authoritative context instead of model-authored labels", async () => {
+  it("verifies an external target against the provider even though the call no longer asks", async () => {
     const input = { action: "invite", connectedAccountId: "account-1", identifier: "provider-ada" };
-    const approvalInput = { ...input, targetLabel: "Ada Lovelace" };
-    const resolveApprovalContext = vi.fn().mockResolvedValue({ ok: true, input: approvalInput });
+    const resolveApprovalContext = vi
+      .fn()
+      .mockResolvedValue({ ok: true, input: { ...input, targetLabel: "Ada Lovelace" } });
     const requestApproval = vi.fn().mockResolvedValue("reject");
     const tools = getAgentAiTools(deps({ requestApproval, resolveApprovalContext }));
 
-    await expect(execute(tools.manage_social_relations, input, "social-approval")).resolves.toMatchObject({
-      agentToolStatus: "cancelled",
-      reason: "rejected",
-    });
+    await Promise.resolve(execute(tools.manage_social_relations, input, "social-approval")).catch(() => undefined);
+
     expect(resolveApprovalContext).toHaveBeenCalledWith("manage_social_relations", input);
-    expect(requestApproval).toHaveBeenCalledWith("social-approval", "manage_social_relations", approvalInput);
+    expect(requestApproval).not.toHaveBeenCalled();
   });
 
   it("does not request approval when authoritative external context cannot be resolved", async () => {
@@ -721,6 +718,10 @@ describe("agent tools", () => {
     ["manage_social_relations", { action: "list" }],
     ["linkedin_manage_sales_lists", { action: "list" }],
     ["linkedin_manage_sales_lists", { action: "browse" }],
+    ["linkedin_manage_sales_lists", { action: "save" }],
+    ["manage_social_relations", { action: "invite" }],
+    ["manage_social_relations", { action: "accept" }],
+    ["manage_social_relations", { action: "cancel" }],
   ] as [string, Record<string, unknown>][])(
     "runs ordinary CRM call %s %j without asking for approval",
     async (toolName, input) => {

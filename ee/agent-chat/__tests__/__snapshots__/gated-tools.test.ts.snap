@@ -68,6 +68,7 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "linkedin_manage_sales_lists": [
     "list",
     "browse",
+    "save",
   ],
   "manage_custom_columns": [
     "list",
@@ -83,6 +84,9 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   ],
   "manage_social_relations": [
     "list",
+    "invite",
+    "accept",
+    "cancel",
   ],
   "manage_team": [
     "update_member",
