@@ -12,8 +12,10 @@ and the application started in production mode with the benchmark model overlay:
 
 ```sh
 yarn build
-LOCAL_AGENT_BENCHMARK=true AGENT_BENCHMARK_ARMS="$(yarn -s agent:benchmark overlay)" yarn next start -p 4107
+WORKFLOW_LOCAL_BASE_URL=http://localhost:4107 LOCAL_AGENT_BENCHMARK=true AGENT_BENCHMARK_ARMS="$(yarn -s agent:benchmark overlay)" yarn next start -p 4107
 ```
+
+`WORKFLOW_LOCAL_BASE_URL` is not optional here: the workflow queue otherwise probes for its own port, and when that probe fails mid-campaign every durable step retries with backoff and the run stalls behind a job whose next attempt is hours away.
 
 `--variant <label>` groups a run's artifacts and report rows under a label of your choice; the application has one runtime, so the label records what you changed between runs rather than selecting a code path.
 

@@ -1,7 +1,7 @@
 {
   "report": {
     "campaignId": "ddadb1ab-ec64-4176-8c78-012e68138b0d",
-    "generatedAt": "2026-09-20T13:33:45.283Z",
+    "generatedAt": "2026-09-20T14:18:31.242Z",
     "arms": [
       {
         "arm": "flash-lite-low",
