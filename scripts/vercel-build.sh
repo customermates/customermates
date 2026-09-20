@@ -37,4 +37,12 @@ else
     npx --no-install tsx prisma/seed.ts
   fi
 fi
+# fumadocs' lastModified() plugin derives each content page's <lastmod> from Git history.
+# Vercel clones shallow, so outside that window the resolver returns nothing and 258 of the
+# 414 sitemap URLs ship with no lastmod at all - every /for, /features and /compare page.
+# Deepen the clone so the dates are real; never fail the deployment if the remote refuses.
+if [[ -n "${VERCEL:-}" && "$(git rev-parse --is-shallow-repository 2>/dev/null)" == "true" ]]; then
+  git fetch --unshallow --quiet ||
+    echo "WARNING: could not deepen the Git clone; content dates fall back to frontmatter." >&2
+fi
 yarn build

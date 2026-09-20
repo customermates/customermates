@@ -127,6 +127,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                       alt="Benjamin Wagner"
                       className="size-4.5 min-h-4.5 min-w-4.5 shrink-0 rounded-full"
                       height={800}
+                      sizes="18px"
                       src="benjamin-wagner.png"
                       width={800}
                     />

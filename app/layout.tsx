@@ -5,7 +5,7 @@ import type { Metadata, Viewport } from "next";
 import { getLocale, getMessages } from "next-intl/server";
 import { cookies } from "next/headers";
 
-import { latin, mono, serif } from "./fonts";
+import { latin, mono } from "./fonts";
 import { Providers } from "./providers";
 import { NavigationSwitch } from "./components/navigation/navigation-switch";
 import { loadNavigationData } from "./components/navigation/navigation-data";
@@ -78,7 +78,7 @@ export default async function RootLayout({ children }: Props) {
   return (
     <html
       suppressHydrationWarning
-      className={`${latin.variable} ${mono.variable} ${serif.variable} ${latin.className}`}
+      className={`${latin.variable} ${mono.variable} ${latin.className}`}
       data-scroll-behavior="smooth"
       lang={displayLanguage}
     >

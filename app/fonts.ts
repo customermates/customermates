@@ -21,22 +21,6 @@ export const mono = localFont({
     },
   ],
   display: "swap",
+  preload: false,
   variable: "--font-mono",
-});
-
-export const serif = localFont({
-  src: [
-    {
-      path: "../node_modules/@fontsource-variable/lora/files/lora-latin-wght-normal.woff2",
-      weight: "400 600",
-      style: "normal",
-    },
-    {
-      path: "../node_modules/@fontsource-variable/lora/files/lora-latin-wght-italic.woff2",
-      weight: "400 600",
-      style: "italic",
-    },
-  ],
-  display: "swap",
-  variable: "--font-serif",
 });
