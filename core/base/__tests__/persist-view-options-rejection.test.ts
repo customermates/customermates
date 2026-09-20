@@ -149,7 +149,7 @@ describe("Sentry reporting for handled application errors", () => {
     const boom = new Error("network down");
     reportApplicationError(boom);
 
-    expect(captureException).toHaveBeenCalledExactlyOnceWith(boom);
+    await vi.waitFor(() => expect(captureException).toHaveBeenCalledExactlyOnceWith(boom));
   });
 
   it("stays silent on the demo host, where the rejection is the expected demo guard", async () => {

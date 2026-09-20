@@ -34,7 +34,17 @@ const FORBIDDEN = [
     id: "generated/prisma",
     reason: "import the enum as a type and use its string literals; a value import ships the generated client",
   },
+  {
+    id: "@sentry/nextjs",
+    reason:
+      "the browser SDK is loaded when the main thread goes idle (instrumentation-client.ts); a static import puts it back in front of the first paint",
+  },
 ];
+
+// Zod 4's barrel re-exports every locale pack and its JSON-Schema generator. Reached through the
+// `z` namespace they all stay live, so one schema file on a marketing page shipped 264 KB instead
+// of 117 KB. Named imports let the bundler drop what the schema never calls.
+const ZOD_NAMESPACE_FREE = ["features/acquisition/ad-attribution.schema.ts"];
 
 const EXTENSIONS = [".tsx", ".ts", ".jsx", ".js", ".mjs", "/index.tsx", "/index.ts", "/index.js", "/index.mjs"];
 
@@ -161,6 +171,15 @@ describe("marketing client graph", () => {
 
   it("reaches the marketing chrome it is supposed to police", () => {
     expect(graph.files).toContain(join("app", "components", "public-navbar.tsx"));
+  });
+
+  it.each(ZOD_NAMESPACE_FREE)("imports Zod by name, not as a namespace, in %s", (file) => {
+    const source = readFileSync(join(REPO_ROOT, file), "utf8");
+    expect(source, `${file} is in the marketing client graph`).toContain('from "zod"');
+    expect(
+      /^\s*import\s+\{\s*z\s*[,}]/mu.test(source),
+      `${file} imports the Zod namespace as a value, which pins every locale pack into the browser bundle`,
+    ).toBe(false);
   });
 
   it.each(FORBIDDEN)("keeps $id out of the browser bundle on marketing pages", ({ id, reason }) => {

@@ -4,7 +4,6 @@ import "@/styles/globals.css";
 import { latin } from "./fonts";
 
 import { useEffect, useState } from "react";
-import * as Sentry from "@sentry/nextjs";
 
 import { ErrorPageView } from "@/components/shared/error-page-view";
 import { defaultGlobalErrorFallback, globalErrorFallback } from "@/i18n/global-error-copy";
@@ -20,7 +19,7 @@ export default function GlobalError({ error, reset }: Props) {
   useEffect(() => setFallback(globalErrorFallback()), []);
 
   useEffect(() => {
-    Sentry.captureException(error);
+    void import("@sentry/nextjs").then((Sentry) => Sentry.captureException(error)).catch(() => undefined);
   }, [error]);
 
   const { copy, locale } = fallback;
