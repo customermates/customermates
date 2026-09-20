@@ -32,6 +32,7 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "create_organizations",
   "create_services",
   "create_tasks",
+  "discard_message_draft",
   "linkedin_manage_sales_lists",
   "manage_custom_columns",
   "manage_record_links",
@@ -57,7 +58,6 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
 exports[`gated-tools > snapshots the surface so new tools and actions force a conscious approval decision 3`] = `
 [
   "delete_records",
-  "discard_message_draft",
   "manage_team",
   "request_support",
 ]

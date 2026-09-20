@@ -406,7 +406,7 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
     });
   }
   if (toolName === "discard_message_draft") {
-    return descriptor("messages.discard", "messages", "sensitive", ["messages"], {
+    return descriptor("messages.discard", "messages", "write", ["messages"], {
       action: "draft.discard",
     });
   }

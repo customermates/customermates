@@ -13,7 +13,7 @@ The panel is closed on your first visit and remembers whether you left it open o
 
 ## What runs immediately and what asks first
 
-Ordinary CRM work runs as soon as you ask: creating and updating records, notes, and record links; saving message drafts; sending emails and chat messages; inbox triage including moving email threads and changing a thread's assignee or status; workspace settings; custom fields; creating and updating widgets and webhooks; changing a team member's role or status; generating account-connection links; and routines (listing, creating, updating, pausing, running now). Mate says what it is about to change and reports exactly what changed. A routine Mate creates is saved as a draft unless you explicitly asked for it to be active; the runtime rejects a routine call that does not state this choice. To connect a messaging account, you open the generated link and complete its QR code or sign-in flow yourself; creating the link does not connect the account.
+Ordinary CRM work runs as soon as you ask: creating and updating records, notes, and record links; saving and discarding message drafts; sending emails and chat messages; inbox triage including moving email threads and changing a thread's assignee or status; workspace settings; custom fields; creating and updating widgets and webhooks; changing a team member's role or status; generating account-connection links; and routines (listing, creating, updating, pausing, running now). Mate says what it is about to change and reports exactly what changed. A routine Mate creates is saved as a draft unless you explicitly asked for it to be active; the runtime rejects a routine call that does not state this choice. To connect a messaging account, you open the generated link and complete its QR code or sign-in flow yourself; creating the link does not connect the account.
 
 Only actions that cannot be taken back or that leave your workspace stop for your approval, every single time:
 
@@ -24,14 +24,13 @@ Only actions that cannot be taken back or that leave your workspace stop for you
 | Deleting a widget | `manage_widgets` with `delete` | Removes the dashboard widget |
 | Deleting or resending a webhook | `manage_webhooks` with `delete` or `resend_delivery` | Destroys configuration, or sends a new external request |
 | Deleting a routine | `manage_routines` with `delete` | Removes the routine and its run history |
-| Discarding a message draft | `discard_message_draft` | Removes written content |
 | Inviting team members | `manage_team` with `invite` | Sends real invitation emails |
 | Changing a social relation or Sales Navigator list | `manage_social_relations`, `linkedin_manage_sales_lists` | Changes data on a connected external account |
 | Sending a support request | `request_support` | Emails the Customermates team with your recent conversation |
 
 Approval is requested by calling the tool: the call itself raises the approval card, and nothing happens until you answer it. The card names the action and its consequence and offers **Approve once** or **Cancel**. Decline it and nothing has changed. An unanswered card times out after 30 minutes; the request is then discarded and Mate is told that the approval timed out. There is no standing permission: each of these actions asks again next time.
 
-Sending an email or chat message is deliberately not on that list: `send_email` and `send_chat_message` deliver the moment Mate calls them, so ask for a draft when you want to review the wording first. A draft waits in your inbox until you send it yourself.
+Sending an email or chat message is deliberately not on that list: `send_email` and `send_chat_message` deliver the moment Mate calls them, so ask for a draft when you want to review the wording first. A draft waits in your inbox until you send it yourself, and Mate may discard a draft it saved without asking, because the text never left your workspace.
 
 ## Which tools can Mate use?
 

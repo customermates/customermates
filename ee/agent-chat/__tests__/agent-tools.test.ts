@@ -589,7 +589,6 @@ describe("agent tools", () => {
 
   it.each([
     ["delete_records", {}],
-    ["discard_message_draft", {}],
     ["manage_custom_columns", { action: "delete" }],
     ["manage_widgets", { action: "delete" }],
     ["manage_webhooks", { action: "delete" }],
@@ -711,6 +710,7 @@ describe("agent tools", () => {
     ["manage_record_links", { action: "add" }],
     ["manage_record_links", { action: "remove" }],
     ["save_message_draft", {}],
+    ["discard_message_draft", {}],
     ["update_messaging_thread", {}],
     ["update_workspace_settings", {}],
     ["manage_team", { action: "update_member" }],

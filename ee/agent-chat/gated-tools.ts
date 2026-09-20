@@ -17,6 +17,7 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   create_organizations: { approvalFree: true },
   create_services: { approvalFree: true },
   create_tasks: { approvalFree: true },
+  discard_message_draft: { approvalFree: true },
   manage_custom_columns: { approvalFreeActions: ["list", "upsert"], readOnlyActions: ["list"] },
   manage_record_links: { approvalFree: true },
   manage_social_relations: { approvalFreeActions: ["list"], readOnlyActions: ["list"] },
@@ -56,6 +57,8 @@ const AGENT_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = Object.fromEn
 );
 
 export const AGENT_APPROVAL_POLICY_TOOL_NAMES = Object.keys(INTERNAL_APPROVAL_POLICY);
+
+export const AGENT_DESTRUCTIVE_APPROVAL_FREE_TOOL_NAMES = ["discard_message_draft"] as const;
 
 function policyFor(identity: AgentToolIdentity): AgentApprovalPolicy | undefined {
   if (!isInternalToolIdentity(identity)) return undefined;

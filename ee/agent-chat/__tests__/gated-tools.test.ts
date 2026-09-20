@@ -15,6 +15,7 @@ import {
   approvalFreeActionsForTool,
   isReadOnlyTool,
   requiresApproval,
+  AGENT_DESTRUCTIVE_APPROVAL_FREE_TOOL_NAMES,
 } from "../gated-tools";
 import { agentToolIdentityKey, internalToolIdentity, parseAgentToolIdentityKey } from "../tool-identity";
 
@@ -97,8 +98,8 @@ describe("gated-tools", () => {
   });
 
   it("requires approval for exactly the destructive and outbound tools", () => {
-    for (const name of ["delete_records", "discard_message_draft"])
-      expect(approvalNeeded(toolByName(name), {})).toBe(true);
+    expect(approvalNeeded(toolByName("delete_records"), {})).toBe(true);
+    expect(approvalNeeded(toolByName("discard_message_draft"), {})).toBe(false);
     for (const name of ["manage_custom_columns", "manage_widgets", "manage_webhooks"])
       expect(approvalNeeded(toolByName(name), { action: "delete" })).toBe(true);
     for (const [name, action] of [
@@ -135,9 +136,12 @@ describe("gated-tools", () => {
     for (const [name, input] of freeCalls) expect(approvalNeeded(toolByName(name), input)).toBe(false);
   });
 
-  it("never lets a destructiveHint tool run unconditionally approval-free", () => {
+  it("lets a destructiveHint tool run approval-free only by name, so a new one cannot slip through", () => {
+    expect([...AGENT_DESTRUCTIVE_APPROVAL_FREE_TOOL_NAMES]).toEqual(["discard_message_draft"]);
+
+    const exempt = new Set<string>(AGENT_DESTRUCTIVE_APPROVAL_FREE_TOOL_NAMES);
     for (const tool of ALL_MCP_TOOLS.filter((tool) => tool.annotations?.destructiveHint === true))
-      expect(approvalNeeded(tool, {})).toBe(true);
+      expect(`${tool.name} ${approvalNeeded(tool, {})}`).toBe(`${tool.name} ${!exempt.has(tool.name)}`);
   });
 
   it("keeps every policy key pointing at a real tool", () => {

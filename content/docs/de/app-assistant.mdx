@@ -13,7 +13,7 @@ Beim ersten Besuch ist das Panel geschlossen; danach merkt es sich pro Benutzer 
 
 ## Was sofort läuft und was erst fragt [#what-runs-immediately-and-what-asks-first]
 
-Gewöhnliche CRM-Arbeit läuft, sobald Sie darum bitten: Datensätze, Notizen und Verknüpfungen anlegen und ändern; Nachrichtenentwürfe speichern; E-Mails und Chat-Nachrichten senden; Posteingangs-Triage einschließlich des Verschiebens von E-Mail-Threads und des Änderns von Zuständigkeit oder Status eines Threads; Workspace-Einstellungen; Custom Columns; Widgets und Webhooks anlegen und ändern; Rolle oder Status eines Teammitglieds ändern; Links für Kontoverbindungen erzeugen; sowie Routinen (auflisten, anlegen, ändern, pausieren, sofort ausführen). Mate sagt, was es gleich ändert, und berichtet genau, was sich geändert hat. Eine von Mate angelegte Routine wird als Entwurf gespeichert, außer Sie haben ausdrücklich darum gebeten, dass sie aktiv ist; die Laufzeit lehnt einen Routinen-Aufruf ab, der diese Wahl nicht angibt. Um ein Messaging-Konto zu verbinden, öffnen Sie den erzeugten Link und schließen dessen QR-Code- oder Anmeldeablauf selbst ab; das Erzeugen des Links verbindet das Konto nicht.
+Gewöhnliche CRM-Arbeit läuft, sobald Sie darum bitten: Datensätze, Notizen und Verknüpfungen anlegen und ändern; Nachrichtenentwürfe speichern und verwerfen; E-Mails und Chat-Nachrichten senden; Posteingangs-Triage einschließlich des Verschiebens von E-Mail-Threads und des Änderns von Zuständigkeit oder Status eines Threads; Workspace-Einstellungen; Custom Columns; Widgets und Webhooks anlegen und ändern; Rolle oder Status eines Teammitglieds ändern; Links für Kontoverbindungen erzeugen; sowie Routinen (auflisten, anlegen, ändern, pausieren, sofort ausführen). Mate sagt, was es gleich ändert, und berichtet genau, was sich geändert hat. Eine von Mate angelegte Routine wird als Entwurf gespeichert, außer Sie haben ausdrücklich darum gebeten, dass sie aktiv ist; die Laufzeit lehnt einen Routinen-Aufruf ab, der diese Wahl nicht angibt. Um ein Messaging-Konto zu verbinden, öffnen Sie den erzeugten Link und schließen dessen QR-Code- oder Anmeldeablauf selbst ab; das Erzeugen des Links verbindet das Konto nicht.
 
 Nur Aktionen, die sich nicht rückgängig machen lassen oder Ihren Workspace verlassen, halten für Ihre Freigabe an, und zwar jedes einzelne Mal:
 
@@ -24,14 +24,13 @@ Nur Aktionen, die sich nicht rückgängig machen lassen oder Ihren Workspace ver
 | Widget löschen | `manage_widgets` mit `delete` | Entfernt das Dashboard-Widget |
 | Webhook löschen oder Zustellung erneut senden | `manage_webhooks` mit `delete` oder `resend_delivery` | Zerstört Konfiguration oder sendet eine neue externe Anfrage |
 | Routine löschen | `manage_routines` mit `delete` | Entfernt die Routine und ihren Laufverlauf |
-| Nachrichtenentwurf verwerfen | `discard_message_draft` | Entfernt geschriebene Inhalte |
 | Teammitglieder einladen | `manage_team` mit `invite` | Sendet echte Einladungs-E-Mails |
 | Social-Verknüpfung oder Sales-Navigator-Liste ändern | `manage_social_relations`, `linkedin_manage_sales_lists` | Ändert Daten in einem verbundenen externen Konto |
 | Support-Anfrage senden | `request_support` | Sendet eine E-Mail mit Ihrem jüngsten Gesprächsverlauf an das Customermates-Team |
 
 Die Freigabe wird durch den Tool-Aufruf angefordert: Der Aufruf selbst öffnet die Freigabekarte, und nichts passiert, bis Sie sie beantworten. Die Karte nennt die Aktion und ihre Konsequenz und bietet **Einmal freigeben** oder **Abbrechen** an. Lehnen Sie ab, hat sich nichts geändert. Eine unbeantwortete Karte läuft nach 30 Minuten ab; die Anfrage wird dann verworfen, und Mate erfährt, dass die Freigabe abgelaufen ist. Es gibt keine Dauerfreigabe: Jede dieser Aktionen fragt beim nächsten Mal erneut.
 
-Das Senden einer E-Mail oder Chat-Nachricht steht bewusst nicht auf dieser Liste: `send_email` und `send_chat_message` stellen in dem Moment zu, in dem Mate sie aufruft. Bitten Sie also um einen Entwurf, wenn Sie den Wortlaut vorher prüfen möchten. Ein Entwurf wartet in Ihrem Posteingang, bis Sie ihn selbst senden.
+Das Senden einer E-Mail oder Chat-Nachricht steht bewusst nicht auf dieser Liste: `send_email` und `send_chat_message` stellen in dem Moment zu, in dem Mate sie aufruft. Bitten Sie also um einen Entwurf, wenn Sie den Wortlaut vorher prüfen möchten. Ein Entwurf wartet in Ihrem Posteingang, bis Sie ihn selbst senden, und Mate darf einen selbst gespeicherten Entwurf ohne Nachfrage verwerfen, weil der Text Ihren Workspace nie verlassen hat.
 
 ## Welche Tools kann Mate nutzen?
 
