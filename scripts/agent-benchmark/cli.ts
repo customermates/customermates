@@ -10,7 +10,7 @@ import { campaignEpisodes, campaignSpendUsd, createCampaign, existingEpisode, lo
 import { requireLocalBenchmarkDatabase, requireLocalBenchmarkEnvironment } from "./env";
 import { runEpisode } from "./episode";
 import { BENCHMARK_CASES, createBenchmarkDb, type CaseId } from "./fixtures";
-import { judgeArtifact } from "./judge";
+import { judgeArtifact, judgeVerdictIsComplete } from "./judge";
 import { buildReport, renderReport, selectArms } from "./report";
 
 const RUNS_DIR = resolve(process.cwd(), "scripts/agent-benchmark/.runs");
@@ -192,7 +192,8 @@ async function main() {
           const file = files[cursor];
           cursor += 1;
           const artifact = JSON.parse(await readFile(file, "utf8")) as EpisodeArtifact;
-          if (artifact.skipped || artifact.judge || (flags.force !== true && artifact.observed.length === 0)) continue;
+          if (artifact.skipped || judgeVerdictIsComplete(artifact.judge) || (flags.force !== true && artifact.observed.length === 0))
+            continue;
           try {
             artifact.judge = await judgeArtifact(pool, env.gatewayApiKey, artifact);
             await writeFile(file, JSON.stringify(artifact, null, 2) + "\n");
@@ -227,7 +228,11 @@ async function main() {
   console.log("Commands: arms | cases | overlay | verify-arms | campaign --label L --cap USD | status --campaign ID | run --campaign ID [--arms a,b] [--cases S1,S2] [--reps N] [--variant current] | judge --campaign ID | report --campaign ID [--label L]");
 }
 
-main().catch((error: unknown) => {
-  console.error(error instanceof Error ? error.stack ?? error.message : error);
-  process.exit(1);
-});
+main()
+  .then(() => {
+    process.exit(0);
+  })
+  .catch((error: unknown) => {
+    console.error(error instanceof Error ? error.stack ?? error.message : error);
+    process.exit(1);
+  });

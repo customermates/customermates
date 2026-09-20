@@ -6,6 +6,7 @@ import type { Pool } from "pg";
 import type { BenchmarkArm } from "./arms";
 import type { Campaign } from "./campaign";
 import type { BenchmarkDb, CaseId, Fixture, ObservedTurn, OracleResult } from "./fixtures";
+import type { JudgeVerdict } from "./judge";
 import type { SseFrame, SseTiming } from "./sse";
 
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
@@ -73,7 +74,7 @@ export type EpisodeArtifact = {
   eligibility: { exactPrompts: boolean; oneConversation: boolean; expectedTurnCount: boolean; correctRoute: boolean; allTurnsTerminal: boolean };
   skipped: string | null;
   capturedAt: string;
-  judge?: unknown;
+  judge?: JudgeVerdict;
 };
 
 export type EpisodeRequest = {

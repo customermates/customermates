@@ -42,8 +42,20 @@ describe("agent schema digest", () => {
       label: `Column ${index}`,
     }));
     const digest = renderAgentSchemaDigest(many) ?? "";
-    expect(digest.length).toBeLessThan(AGENT_SCHEMA_DIGEST_MAX_CHARS + 400);
-    expect(digest).toMatch(/further columns did not fit: call get_record_schema for those\./);
+    expect(digest.length).toBeLessThan(AGENT_SCHEMA_DIGEST_MAX_CHARS + 500);
+    expect(digest).toMatch(/further columns did not fit: call get_record_schema for them\./);
+  });
+
+  it("drops the option ids before it drops a column, and says it did", () => {
+    const manySelects = Array.from({ length: 40 }, (_, index) => ({
+      ...stage,
+      id: `7f3a1c54-9b2e-4c31-8f6a-2b5d7e9c${String(index).padStart(4, "0")}`,
+      label: `Select ${index}`,
+    }));
+    const digest = renderAgentSchemaDigest(manySelects) ?? "";
+    expect(digest).toContain("Option ids are not listed here");
+    expect(digest).not.toContain("Lead=");
+    expect(digest.split("\n").filter((line) => line.startsWith("deal |"))).toHaveLength(40);
   });
 
   it("collapses a label that carries newlines so one column stays one line", () => {

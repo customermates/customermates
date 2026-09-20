@@ -25,7 +25,13 @@ export type JudgeScore = {
   raw: string;
 };
 
-export type JudgeVerdict = { judges: JudgeScore[]; mean: number | null; disagreement: boolean; judgedAt: string };
+export type JudgeVerdict = {
+  judges: JudgeScore[];
+  mean: number | null;
+  disagreement: boolean;
+  judgedAt: string;
+  unavailable?: string[];
+};
 
 function rubricPrompt(artifact: EpisodeArtifact) {
   const answers = artifact.observed.map((turn, index) => `--- Assistant answer to request ${index + 1} ---\n${turn.text.trim() || "(empty)"}`).join("\n\n");
@@ -74,7 +80,7 @@ const JUDGE_TIMEOUT_MS = 180_000;
 
 const JUDGE_RETRY_STATUSES = new Set([408, 429, 500, 502, 503, 504]);
 
-const JUDGE_MAX_ATTEMPTS = 5;
+const JUDGE_MAX_ATTEMPTS = 7;
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -87,7 +93,7 @@ async function askJudge(apiKey: string, model: (typeof JUDGE_MODELS)[number], pr
       lastError = error;
       const status = Number(/returned (\d{3})/.exec(error instanceof Error ? error.message : "")?.[1] ?? 0);
       if (!JUDGE_RETRY_STATUSES.has(status) || attempt === JUDGE_MAX_ATTEMPTS) throw error;
-      await wait(2_000 * attempt * attempt);
+      await wait(Math.min(120_000, 5_000 * attempt * attempt));
     }
   }
   throw lastError instanceof Error ? lastError : new Error(String(lastError));
@@ -126,16 +132,28 @@ async function askJudgeOnce(apiKey: string, model: (typeof JUDGE_MODELS)[number]
   return { model: model.id, scores: parsed.scores, overall, rationale: parsed.rationale, usd: microcents / MICROCENTS_PER_USD, raw };
 }
 
+export function judgeVerdictIsComplete(verdict: JudgeVerdict | undefined): boolean {
+  return verdict !== undefined && (verdict.unavailable?.length ?? 0) === 0 && verdict.judges.length === JUDGE_MODELS.length;
+}
+
 export async function judgeArtifact(pool: Pool, apiKey: string, artifact: EpisodeArtifact): Promise<JudgeVerdict> {
   const prompt = rubricPrompt(artifact);
-  const judges: JudgeScore[] = [];
+  const judges: JudgeScore[] = [...(artifact.judge?.judges ?? [])];
+  const unavailable: string[] = [];
   for (const model of JUDGE_MODELS) {
-    const score = await askJudge(apiKey, model, prompt);
-    judges.push(score);
-    await recordCharge(pool, artifact.campaignId, artifact.episodeId, "judge", score.usd, false, { model: model.id });
+    if (judges.some((judge) => judge.model === model.id)) continue;
+    try {
+      const score = await askJudge(apiKey, model, prompt);
+      judges.push(score);
+      await recordCharge(pool, artifact.campaignId, artifact.episodeId, "judge", score.usd, false, { model: model.id });
+    } catch (error) {
+      unavailable.push(model.id);
+      console.log(`judge ${model.id} unavailable for ${artifact.caseId} r${artifact.repetition}: ${error instanceof Error ? error.message.slice(0, 120) : String(error)}`);
+    }
   }
+  if (judges.length === 0) throw new Error(`no judge answered for ${artifact.caseId} r${artifact.repetition}`);
   const overalls = judges.map((judge) => judge.overall);
-  const mean = overalls.length ? overalls.reduce((total, value) => total + value, 0) / overalls.length : null;
+  const mean = overalls.reduce((total, value) => total + value, 0) / overalls.length;
   const disagreement = overalls.length > 1 && Math.max(...overalls) - Math.min(...overalls) > 1;
-  return { judges, mean, disagreement, judgedAt: new Date().toISOString() };
+  return { judges, mean, disagreement, judgedAt: new Date().toISOString(), ...(unavailable.length ? { unavailable } : {}) };
 }
