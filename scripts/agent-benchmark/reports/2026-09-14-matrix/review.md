@@ -285,3 +285,35 @@ Measured on the shipped model and settings, 3 repetitions per case:
 Two findings stand and are not claimed as fixed. `rejection-respected` on M8 now fails on its merits rather than through a crashed observer, so it is a real behaviour to study. C34, where an ambiguous deal name must be clarified before writing, is unstable for this model at 0 to 67 percent across campaigns; the 0/3 seen today predates every change in this addendum (the same arm scored 0/3 in the thinking campaign of 2026-09-19), so it is a pre-existing weakness of the model on ambiguity, not a regression. The mechanism that worked for injection disclosure, putting the instruction next to the data, is the obvious candidate: a list result that matches a name ambiguously should say so in the result.
 
 The wider lesson is the one the first review already named and this round proves: a check that fails on every arm measures the harness, not the model. Five of the six cases that no arm ever solved were instrumentation.
+
+## Addendum 6: the pre-merge finish line (2026-09-20)
+
+Five items were named before merging, plus three follow-ups that had been deferred. Each was measured rather than argued, and two of them died on the measurement.
+
+### The baseline the pull request cited was twenty points stale
+
+The matrix of 2026-09-14 measured the shipped arm at 64.5 percent on the 36 cases. That number predates the routing fix, the untrusted-notes markers, the responder repair and three oracle corrections. A campaign at the merge candidate (`ddadb1ab`, 108 episodes, USD 2.10) measured **90.7 percent** with a judge mean of 4.48, 2.2 credits and 4.22 rounds per turn, and a cache-read share of 73 percent. That is the number the pull request should be read against; everything below is measured against it.
+
+### The uuid pattern was a third of the always-on catalog
+
+The canonical uuid regex that `z.uuid()` produces is 179 bytes and appears 50 times in the always-on catalog. Bytes understate it: measured against the Gateway on the shipped model, the same 29-tool catalog costs **17,031 prompt tokens with it and 11,681 without**, because the regex tokenizes at about 1.4 bytes per token. The agent wire now carries `^[0-9a-fA-F-]{36}$` instead (11,681 tokens measured, 5,350 saved on every round); the strict pattern still validates on the server and still reaches external MCP clients. Two further candidates were measured and left alone: the 150-code currency enum is worth 262 tokens, and the repeated notes about money, merges and prerequisites are worth about 1,200 tokens but sit next to the parameter they govern, which is exactly where the date contract had to be moved to work at all.
+
+### What the follow-ups measured
+
+**Batching independent reads** was already live in the baseline; rounds per turn did not move (4.22 against 4.10), so the rule stays as a correctness instruction and is claimed as nothing more.
+
+**Routing the ten per-entity write tools on demand** was measured before it was built, by running the router's lexicon over the 36 case prompts: **33 of 36 would load the set anyway**, because write verbs ("assign", "add", "set", "mark") appear throughout read-only requests. The 4,330 tokens those tools cost would have been paid on 92 percent of turns while adding a round to the rest. Not shipped; the measurement is the reason.
+
+**Collapsing those ten tools into two generic ones** was dropped for the same arithmetic: the per-entity field shapes have to be expressed somewhere, so a union saves only the tool framing and the repeated notes, about 1,700 tokens, while a free-form payload saves 4,000 and takes the field list away from the model. It also changes a published MCP surface, which is not a unilateral decision.
+
+**Preloading the workspace schema** was built and measured. On 27 episodes shared between the two builds, `get_record_schema` calls fall from **17 to 5** and pass rate is identical at 25 of 27; rounds per turn do not fall, because the model had been issuing the schema read in parallel with other reads rather than in a round of its own.
+
+### The reservation
+
+Admission now prices the round it is about to start rather than a full-envelope round, and the hold is two rounds instead of four. For the shipped model the floor stays at 6 credits: the worst case is USD 0.0500 on EU Vertex pricing, one twentieth of a cent above the five-credit boundary, of which the 8,192-token output cap is 45 percent. The cap is not lowered because the measured output distribution reaches it (p99.9 of 6,911 tokens across 9,245 rounds). The hold halves from 24 credits to 12.
+
+### Harness defects found while running these campaigns
+
+- Loading the product graph starts a **second workflow worker inside the CLI**, and that worker posts durable steps over HTTP. Without `WORKFLOW_LOCAL_BASE_URL` it probes for a port, and a failed probe sends every step it picked up into a backoff whose next attempt is hours away: one campaign stalled after 31 episodes. The environment guard now refuses to start without the variable.
+- The same worker keeps the CLI alive after the last episode; a campaign sat idle for sixteen minutes before it was killed by hand. Every command now exits when it finishes.
+- A 429 from the first judge threw away the second judge's verdict for the whole episode, and the artifact was then skipped forever because it carried no verdict at all. Judges are now asked independently and a later pass asks only for the missing one.
