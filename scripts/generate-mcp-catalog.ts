@@ -69,15 +69,14 @@ function renderToolEntry(tool: McpTool, summary: string, summaries: CatalogSumma
 export function renderCatalogTable(section: string, locale: ContentLocale, summaries: CatalogSummaries): string {
   const tools = CATALOG_SECTIONS[section];
   if (!tools) throw new Error(`Unknown catalog section "${section}"`);
-  const purposeHeader = summaries.$purposeHeader ?? "Purpose";
-  const lines = [`| Tool | Read | Destructive | ${purposeHeader} |`, "|---|---|---|---|"];
+  const lines = ["| Tool | Read | Destructive |", "|---|---|---|"];
   const entries: string[] = [];
   for (const tool of tools) {
     const summary = summaries[tool.name];
     if (!summary) throw new Error(`Tool "${tool.name}" has no ${locale} summary in ${summariesPath(locale)}`);
     const read = tool.annotations?.readOnlyHint ? "✓" : "";
     const destructive = tool.annotations?.destructiveHint ? "✓" : "";
-    lines.push(`| \`${tool.name}\` | ${read} | ${destructive} | ${summary} |`);
+    lines.push(`| \`${tool.name}\` | ${read} | ${destructive} |`);
     entries.push(renderToolEntry(tool, summary, summaries));
   }
   return [...lines, "", ...entries.flatMap((entry) => [entry, ""])].join("\n").trimEnd();
