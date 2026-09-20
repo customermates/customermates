@@ -98,7 +98,7 @@ vi.mock("@/features/messaging/activities/activities-detail-modal", () => ({
   TimelineDetailModal: () => "timeline-detail-modal",
 }));
 
-import ProtectedLayout from "../layout";
+import { ProtectedShell as ProtectedLayout } from "../protected-shell";
 
 let container: HTMLDivElement;
 let root: Root;

@@ -1,9 +1,12 @@
 import { notFound } from "next/navigation";
 import { Analytics } from "@vercel/analytics/next";
+import { cookies } from "next/headers";
 
 import { Toaster } from "@/components/ui/sonner";
 import { env } from "@/env";
 import { isContentLocale } from "@/i18n/locale-registry";
+import { MarketingShell } from "@/app/components/navigation/marketing-shell";
+import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
 
 type Props = {
   children: React.ReactNode;
@@ -15,9 +18,17 @@ export default async function StaticLayout({ children, params }: Props) {
 
   if (!isContentLocale(locale)) notFound();
 
+  const [account, cookiesStore] = await Promise.all([resolveRequestAccountState(), cookies()]);
+  const sidebarCloseCookie = cookiesStore.get("sidebar-close")?.value;
+
   return (
     <>
-      {children}
+      <MarketingShell
+        accountState={account.state}
+        defaultSidebarOpen={sidebarCloseCookie !== undefined ? sidebarCloseCookie !== "true" : undefined}
+      >
+        {children}
+      </MarketingShell>
 
       <Toaster />
 
