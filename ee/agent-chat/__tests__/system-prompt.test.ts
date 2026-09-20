@@ -7,7 +7,7 @@ import { buildAgentSystemPrompt, routineTriggerEventOf } from "../system-prompt"
 
 const base = { userName: "Ada", appBaseUrl: "https://app.example.com", locale: "en", surface: "chat" as const };
 
-describe("system prompt v2", () => {
+describe("system prompt", () => {
   it("keeps the user-specific line last so the static prefix is cacheable across users and days", () => {
     const ada = buildAgentSystemPrompt({ ...base });
     const grace = buildAgentSystemPrompt({ ...base, userName: "Grace", locale: "de" });
