@@ -10,6 +10,7 @@ export type SystemPromptContext = {
   locale: string;
   surface: AgentSurface;
   triggerEvent?: string | null;
+  loadedToolsets?: readonly string[];
 };
 
 const ROUTINE_TRIGGER_EVENT_PATTERN = /^(?:\uFEFF)?[ \t]*<routine_trigger\b[^>]*\bevent="([^"\r\n]{1,80})"/;
@@ -63,8 +64,8 @@ const INTERFACE_PARAGRAPH =
 const UNATTENDED_PARAGRAPH =
   "Unattended run: nobody is watching this turn, so an action that needs approval will be declined automatically rather than granted. Interface tools are not available. Do the work that runs without approval, and when a step would need one, stop and report exactly what remains and why, instead of asking a question no one will read.";
 
-function capabilitiesParagraph() {
-  return `Capabilities: ${toolsetIndexSentence()} Never infer that a capability is unavailable from the wording of the request, the current page, or which tools you used earlier; load the matching tool set and check before claiming it is unavailable. Authorization, entitlements, connected-account state, and approval are enforced when a tool runs; relay an actual denial or missing prerequisite accurately.`;
+function capabilitiesParagraph(loadedToolsets: readonly string[]) {
+  return `Capabilities: ${toolsetIndexSentence(loadedToolsets)} Never infer that a capability is unavailable from the wording of the request, the current page, or which tools you used earlier; load the matching tool set and check before claiming it is unavailable. Authorization, entitlements, connected-account state, and approval are enforced when a tool runs; relay an actual denial or missing prerequisite accurately.`;
 }
 
 export function buildAgentSystemPrompt(context: SystemPromptContext) {
@@ -73,7 +74,7 @@ export function buildAgentSystemPrompt(context: SystemPromptContext) {
     identity,
     ...rest,
     "",
-    capabilitiesParagraph(),
+    capabilitiesParagraph(context.loadedToolsets ?? []),
     ...(context.surface === "routine"
       ? ["", UNATTENDED_PARAGRAPH, "", routineTriggerGuide(context.triggerEvent)]
       : ["", INTERFACE_PARAGRAPH]),

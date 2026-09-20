@@ -16,9 +16,10 @@ export type ContextMeasurement = {
   fullCatalogBytes: number;
   routedTools: number;
   routedBytes: number;
-  systemPromptBytes: { current: number; v2: number };
-  conservativeInitialBytes: { current: number | null; v2: number | null };
+  systemPromptBytes: number;
+  conservativeInitialBytes: { fullCatalog: number | null; routed: number | null };
   perTool: { name: string; bytes: number }[];
+  routedPerTool: { name: string; bytes: number }[];
 };
 
 export function measureAgentContext(question: string, pageRoute: string | null): ContextMeasurement {
@@ -26,13 +27,7 @@ export function measureAgentContext(question: string, pageRoute: string | null):
   const definitions = agentToolDefinitionsForTurn({ servingProvider: model.servingProvider, surface: "chat" });
   const toolsets = [...toolsetsForRequest({ text: question, pageRoute })];
   const routed = agentToolDefinitionsForToolsets(definitions, toolsets);
-  const promptCurrent = buildAgentSystemPrompt({
-    userName: "Benjamin Wagner",
-    appBaseUrl: "https://customermates.com",
-    locale: "en",
-    surface: "chat",
-  });
-  const promptV2 = buildAgentSystemPrompt({
+  const systemPrompt = buildAgentSystemPrompt({
     userName: "Benjamin Wagner",
     appBaseUrl: "https://customermates.com",
     locale: "en",
@@ -40,6 +35,13 @@ export function measureAgentContext(question: string, pageRoute: string | null):
   });
   const strip = (items: typeof definitions) =>
     items.map(({ name, description, inputSchema }) => ({ name, description, inputSchema }));
+  const perToolBytes = (items: typeof definitions) =>
+    items
+      .map((definition) => ({
+        name: definition.name,
+        bytes: bytes({ d: definition.description, s: definition.inputSchema }),
+      }))
+      .toSorted((a, b) => b.bytes - a.bytes);
   return {
     question,
     pageRoute,
@@ -48,34 +50,50 @@ export function measureAgentContext(question: string, pageRoute: string | null):
     fullCatalogBytes: bytes(strip(definitions)),
     routedTools: routed.length,
     routedBytes: bytes(strip(routed)),
-    systemPromptBytes: { current: bytes(promptCurrent), v2: bytes(promptV2) },
+    systemPromptBytes: bytes(systemPrompt),
     conservativeInitialBytes: {
-      current: conservativeAgentInitialContextBytes({
-        systemPrompt: promptCurrent,
+      fullCatalog: conservativeAgentInitialContextBytes({
+        systemPrompt,
         currentText: question,
         pageRoute,
         toolDefinitions: strip(definitions),
       }),
-      v2: conservativeAgentInitialContextBytes({
-        systemPrompt: promptV2,
+      routed: conservativeAgentInitialContextBytes({
+        systemPrompt,
         currentText: question,
         pageRoute,
         toolDefinitions: strip(routed),
       }),
     },
-    perTool: definitions
-      .map((definition) => ({ name: definition.name, bytes: bytes({ d: definition.description, s: definition.inputSchema }) }))
-      .toSorted((a, b) => b.bytes - a.bytes),
+    perTool: perToolBytes(definitions),
+    routedPerTool: perToolBytes(routed),
   };
 }
 
-export function reservationSummary() {
+export function admissionFloorCredits(entry: (typeof MODEL_CATALOG)[keyof typeof MODEL_CATALOG], initialContextBytes: number) {
+  for (let credits = 1; credits <= agentRoundWorstCaseCredits(entry); credits += 1) {
+    const budget = resolveAgentTurnBudget({
+      model: entry,
+      availableCredits: credits,
+      requiredContextBytes: initialContextBytes,
+    });
+    if (budget) return credits;
+  }
+  return null;
+}
+
+export function reservationSummary(initialContextBytes?: number) {
   return Object.entries(MODEL_CATALOG).map(([key, entry]) => {
-    const budget = resolveAgentTurnBudget({ model: entry, availableCredits: 500 });
+    const budget = resolveAgentTurnBudget({
+      model: entry,
+      availableCredits: 500,
+      ...(initialContextBytes === undefined ? {} : { requiredContextBytes: initialContextBytes }),
+    });
     return {
       key,
       modelId: entry.modelId,
       roundReserveCredits: agentRoundWorstCaseCredits(entry),
+      admissionFloorCredits: initialContextBytes === undefined ? null : admissionFloorCredits(entry, initialContextBytes),
       reservedCreditsAt500: budget?.reservedCredits ?? null,
       maxContextBytes: budget?.maxContextBytes ?? null,
     };
@@ -88,11 +106,12 @@ if (process.argv[1]?.endsWith("measure-context.ts")) {
     ["Reply to the last email from ACME with a short thank-you note.", "/en/inbox"],
     ["Create a routine that reminds me every Monday about stale deals.", "/en/dashboard"],
   ];
+  const measured = measureAgentContext(questions[0]![0], questions[0]![1]);
   const report = {
-    reservations: reservationSummary(),
+    reservations: reservationSummary(measured.conservativeInitialBytes.fullCatalog ?? undefined),
     measurements: questions.map(([question, route]) => {
-      const { perTool, ...rest } = measureAgentContext(question, route);
-      return { ...rest, largestTools: perTool.slice(0, 8) };
+      const { perTool, routedPerTool, ...rest } = measureAgentContext(question, route);
+      return { ...rest, largestTools: perTool.slice(0, 8), largestRoutedTools: routedPerTool.slice(0, 12) };
     }),
   };
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);

@@ -76,13 +76,17 @@ export function resolveAgentTurnBudget(args: {
   if (agentContextBytesToTokens(requiredContextBytes) > entry.maxContextTokens) return null;
 
   const roundReserveCredits = agentRoundWorstCaseCredits(entry);
-  if (args.availableCredits < roundReserveCredits) return null;
+  const firstRoundReserveCredits =
+    args.requiredContextBytes === undefined
+      ? roundReserveCredits
+      : Math.min(roundReserveCredits, agentRoundWorstCaseCreditsForContextBytes(entry, requiredContextBytes));
+  if (args.availableCredits < firstRoundReserveCredits) return null;
 
   return {
     modelSpec: entry.modelId,
     servingProvider: entry.servingProvider,
     inferenceRegion: entry.inferenceRegion,
-    reservedCredits: Math.min(args.availableCredits, roundReserveCredits * AGENT_RESERVATION_ROUNDS_AHEAD),
+    reservedCredits: Math.min(args.availableCredits, firstRoundReserveCredits * AGENT_RESERVATION_ROUNDS_AHEAD),
     roundReserveCredits,
     maxOutputTokens: entry.maxOutputTokens,
     maxContextTokens: entry.maxContextTokens,

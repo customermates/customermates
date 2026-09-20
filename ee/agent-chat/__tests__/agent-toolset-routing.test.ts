@@ -5,6 +5,7 @@ import { MCP_TOOL_GROUPS } from "@/features/mcp-tools/tool-registry";
 import {
   AGENT_CORE_TOOLSETS,
   AGENT_ON_DEMAND_TOOLSETS,
+  AGENT_TOOLSET_SUMMARY,
   activeAgentToolNames,
   toolsetIndexSentence,
   toolsetsForRequest,
@@ -103,6 +104,18 @@ describe("activeAgentToolNames", () => {
     expect(active).not.toContain("get_social_posts");
   });
 
+  it("drops the loader from the list once every set is loaded", () => {
+    const active = activeAgentToolNames({
+      tools: TOOLS,
+      initialToolsets: [...AGENT_ON_DEMAND_TOOLSETS],
+      messages: [],
+    });
+    expect(active).not.toContain("load_toolset");
+    expect(activeAgentToolNames({ tools: TOOLS, initialToolsets: ["messaging"], messages: [] })).toContain(
+      "load_toolset",
+    );
+  });
+
   it("ignores malformed tool calls and unknown sets", () => {
     const messages = [
       {
@@ -121,5 +134,19 @@ describe("toolsetIndexSentence", () => {
     const sentence = toolsetIndexSentence();
     for (const toolset of AGENT_ON_DEMAND_TOOLSETS) expect(sentence).toContain(toolset);
     expect(sentence).toContain("load_toolset");
+  });
+
+  it("separates the sets already loaded from the ones still loadable", () => {
+    const sentence = toolsetIndexSentence(["messaging"]);
+    expect(sentence).toContain("Already loaded for this turn: messaging.");
+    expect(sentence).toContain("not loaded yet");
+    expect(sentence).toContain("never for a set that is already loaded");
+    expect(sentence).not.toContain(`messaging (${AGENT_TOOLSET_SUMMARY.messaging})`);
+  });
+
+  it("stops offering the loader once every set is loaded", () => {
+    const sentence = toolsetIndexSentence([...AGENT_ON_DEMAND_TOOLSETS]);
+    expect(sentence).toContain("nothing left to load");
+    expect(sentence).not.toContain("load_toolset");
   });
 });

@@ -124,10 +124,15 @@ async function runSafely<T>(
 
 const UNSUPPORTED_PATTERN = /\(\?=|\(\?!|\(\?<=|\(\?<!/;
 
+export const AGENT_WIRE_UUID_PATTERN = "^[0-9a-fA-F-]{36}$";
+
 const PROVIDER_SAFE_FORMAT_PATTERNS: Record<string, string | undefined> = {
   email: "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
   uri: "^[A-Za-z][A-Za-z0-9+.-]*:\\S*$",
+  uuid: AGENT_WIRE_UUID_PATTERN,
 };
+
+const CANONICAL_UUID_PATTERN_MARK = "[0-9a-fA-F]{8}-";
 
 function providerSafeSchema<TSchema extends z.ZodType>(inputSchema: TSchema) {
   return jsonSchema<z.infer<TSchema>>(
@@ -137,6 +142,8 @@ function providerSafeSchema<TSchema extends z.ZodType>(inputSchema: TSchema) {
       override: (ctx) => {
         const schema = ctx.jsonSchema as { pattern?: string; format?: string };
         if (typeof schema.pattern === "string" && UNSUPPORTED_PATTERN.test(schema.pattern)) delete schema.pattern;
+        if (typeof schema.pattern === "string" && schema.pattern.includes(CANONICAL_UUID_PATTERN_MARK))
+          schema.pattern = AGENT_WIRE_UUID_PATTERN;
 
         const format = schema.format;
         delete schema.format;

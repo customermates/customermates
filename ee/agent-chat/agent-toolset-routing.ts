@@ -211,12 +211,22 @@ export function activeAgentToolNames(args: {
   };
   const active = new Set<AgentOnDemandToolset>(args.initialToolsets.filter(isAgentOnDemandToolset));
   for (const toolset of toolsetsUsedInMessages(args.messages, toolsetOf)) active.add(toolset);
+  const everySetLoaded = AGENT_ON_DEMAND_TOOLSETS.every((toolset) => active.has(toolset));
   return args.tools
     .filter((tool) => !isAgentOnDemandToolset(tool.toolset) || active.has(tool.toolset))
+    .filter((tool) => !everySetLoaded || tool.name !== LOAD_TOOLSET_TOOL_NAME)
     .map((tool) => tool.name);
 }
 
-export function toolsetIndexSentence(): string {
-  const sets = AGENT_ON_DEMAND_TOOLSETS.map((toolset) => `${toolset} (${AGENT_TOOLSET_SUMMARY[toolset]})`).join("; ");
-  return `Tool sets: records, workspace, documentation, custom fields, interface and support tools are always in your list. These sets load on demand: ${sets}. When a request needs one of them and its tools are not in your list, call ${LOAD_TOOLSET_TOOL_NAME} with the set's name first; a loaded set stays available for the rest of the turn.`;
+export function toolsetIndexSentence(loadedToolsets: readonly string[] = []): string {
+  const loaded = AGENT_ON_DEMAND_TOOLSETS.filter((toolset) => loadedToolsets.includes(toolset));
+  const loadable = AGENT_ON_DEMAND_TOOLSETS.filter((toolset) => !loadedToolsets.includes(toolset));
+  const always =
+    "Tool sets: records, workspace, documentation, custom fields, interface and support tools are always in your list.";
+  const already = loaded.length > 0 ? ` Already loaded for this turn: ${loaded.join(", ")}.` : "";
+  if (loadable.length === 0)
+    return `${always}${already} Every on-demand set is loaded, so there is nothing left to load.`;
+
+  const sets = loadable.map((toolset) => `${toolset} (${AGENT_TOOLSET_SUMMARY[toolset]})`).join("; ");
+  return `${always}${already} These sets are not loaded yet: ${sets}. When a request needs one of them, call ${LOAD_TOOLSET_TOOL_NAME} with the set's name first, and never for a set that is already loaded; a loaded set stays available for the rest of the turn.`;
 }

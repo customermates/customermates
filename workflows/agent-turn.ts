@@ -752,6 +752,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       appBaseUrl: payload.appBaseUrl,
       locale: payload.locale,
       surface,
+      loadedToolsets: initialToolsets,
       triggerEvent: routineTriggerEventOf(payload.messages.findLast((message) => message.role === "user")?.text),
     });
     const toolDefinitions = shells.map(({ name, description, inputSchema }) => ({ name, description, inputSchema }));
