@@ -1,11 +1,11 @@
 {
   "AccountAccessRevoked": {
-    "body": "Hai appena dimostrato che questo indirizzo è tuo accedendo con un account collegato. L'account esisteva già senza essere mai stato confermato, quindi abbiamo rimosso tutto ciò che poteva accedervi: qualsiasi password, ogni dispositivo connesso, ogni chiave API e ogni app collegata. Chi lo ha creato per primo non può più entrare.",
+    "body": "Hai appena effettuato l'accesso senza password, e questo conferma che questo indirizzo e-mail è tuo. Fino a ora non era mai stato confermato, quindi non potevamo sapere con certezza chi avesse creato questo account. Per sicurezza abbiamo rimosso la vecchia password e tutto il resto che poteva aprire l'account, come app collegate o chiavi. I tuoi dati non sono cambiati e puoi continuare ad accedere esattamente come hai appena fatto.",
     "cta": "Imposta una nuova password",
     "greeting": "Ciao,",
-    "signoff": "Se non hai appena effettuato l'accesso, contattaci subito.",
-    "subject": "Abbiamo reimpostato l'accesso al tuo account Customermates",
-    "title": "Accesso all'account reimpostato"
+    "signoff": "Il pulsante qui sopra ti serve solo se preferisci accedere con una password. Se non sei stato tu ad accedere, contattaci subito.",
+    "subject": "La tua e-mail è confermata e abbiamo rimosso la vecchia password",
+    "title": "Il tuo indirizzo e-mail è confermato"
   },
   "AccountsRemovedNotice": {
     "body": "Il tuo piano è passato a {plan}, quindi ho rimosso i seguenti account collegati per rientrare nel limite del piano: {accounts}. I tuoi messaggi e i tuoi contatti sono ancora tutti lì. Puoi ricollegare questi account quando vuoi dalla pagina degli account collegati.",

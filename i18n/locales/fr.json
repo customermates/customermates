@@ -1,11 +1,11 @@
 {
   "AccountAccessRevoked": {
-    "body": "Vous venez de prouver que cette adresse est la vôtre en vous connectant avec un compte associé. Le compte existait auparavant sans jamais avoir été confirmé, nous avons donc supprimé tout ce qui pouvait y accéder : tout mot de passe, tous les appareils connectés, toutes les clés d'API et toutes les applications associées. La personne qui l'a créé en premier ne peut plus y entrer.",
+    "body": "Vous venez de vous connecter sans mot de passe, ce qui confirme que cette adresse e-mail est bien la vôtre. Jusqu'à présent elle n'avait jamais été confirmée, nous ne pouvions donc pas savoir avec certitude qui avait créé ce compte. Par sécurité, nous avons supprimé l'ancien mot de passe ainsi que tout ce qui pouvait ouvrir le compte, comme les applications connectées ou les clés. Vos données n'ont pas changé et vous pouvez continuer à vous connecter exactement comme vous venez de le faire.",
     "cta": "Définir un nouveau mot de passe",
     "greeting": "Bonjour,",
-    "signoff": "Si vous ne venez pas de vous connecter, contactez-nous immédiatement.",
-    "subject": "Nous avons réinitialisé l'accès à votre compte Customermates",
-    "title": "Accès au compte réinitialisé"
+    "signoff": "Le bouton ci-dessus ne vous sert que si vous préférez vous connecter avec un mot de passe. Si ce n'est pas vous qui venez de vous connecter, contactez-nous immédiatement.",
+    "subject": "Votre adresse e-mail est confirmée et nous avons supprimé votre ancien mot de passe",
+    "title": "Votre adresse e-mail est confirmée"
   },
   "AccountsRemovedNotice": {
     "body": "Votre formule est passée à {plan}, j'ai donc supprimé le ou les comptes connectés suivants afin de respecter la limite de votre formule : {accounts}. Vos messages et vos contacts sont toujours là. Vous pouvez reconnecter ces comptes à tout moment depuis la page de vos comptes connectés.",

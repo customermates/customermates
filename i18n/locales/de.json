@@ -1,11 +1,11 @@
 {
   "AccountAccessRevoked": {
-    "body": "Du hast gerade mit einem verknüpften Konto nachgewiesen, dass diese Adresse dir gehört. Das Konto bestand vorher, ohne je bestätigt worden zu sein. Deshalb haben wir alles entfernt, was vorher darauf zugreifen konnte: jedes Passwort, jedes angemeldete Gerät, jeden API-Schlüssel und jede verbundene App. Wer es zuerst eingerichtet hat, kommt nicht mehr hinein.",
+    "body": "Du hast dich gerade ohne Passwort angemeldet, und damit ist bestätigt, dass diese E-Mail-Adresse dir gehört. Bis jetzt war sie nie bestätigt, deshalb konnten wir nicht sicher sein, wer dieses Konto angelegt hat. Zur Sicherheit haben wir das alte Passwort entfernt und alles andere, womit man das Konto öffnen könnte, etwa verbundene Apps oder Schlüssel. Deine Daten sind unverändert, und du kannst dich weiterhin genau so anmelden wie gerade eben.",
     "cta": "Neues Passwort festlegen",
     "greeting": "Hallo,",
-    "signoff": "Falls du dich gerade nicht angemeldet hast, melde dich bitte sofort bei uns.",
-    "subject": "Wir haben den Zugriff auf dein Customermates-Konto zurückgesetzt",
-    "title": "Kontozugriff zurückgesetzt"
+    "signoff": "Den Button oben brauchst du nur, wenn du dich lieber mit einem Passwort anmelden möchtest. Falls du dich gerade nicht angemeldet hast, melde dich bitte sofort bei uns.",
+    "subject": "Deine E-Mail-Adresse ist bestätigt, dein altes Passwort haben wir entfernt",
+    "title": "Deine E-Mail-Adresse ist bestätigt"
   },
   "AccountsRemovedNotice": {
     "body": "Dein Plan wurde auf {plan} umgestellt. Um das Limit deines Plans einzuhalten, habe ich die erforderliche Anzahl verbundener Konten entfernt: {accounts}. Deine Nachrichten und Kontakte sind weiterhin vorhanden. Du kannst die Konten jederzeit auf der Seite „Verbundene Konten“ erneut verbinden.",

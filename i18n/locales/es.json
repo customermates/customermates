@@ -1,11 +1,11 @@
 {
   "AccountAccessRevoked": {
-    "body": "Acabas de demostrar que esta dirección es tuya al iniciar sesión con una cuenta conectada. La cuenta existía antes sin haberse confirmado nunca, así que hemos eliminado todo lo que podía acceder a ella: cualquier contraseña, todos los dispositivos con sesión iniciada, todas las claves de API y todas las aplicaciones conectadas. Quien la creó primero ya no puede entrar.",
+    "body": "Acabas de iniciar sesión sin contraseña, y eso confirma que esta dirección de correo es tuya. Hasta ahora nunca se había confirmado, así que no podíamos estar seguros de quién creó esta cuenta. Por seguridad hemos eliminado la contraseña anterior y todo lo demás que pudiera abrir la cuenta, como aplicaciones conectadas o claves. Tus datos no han cambiado y puedes seguir iniciando sesión igual que acabas de hacerlo.",
     "cta": "Establecer una nueva contraseña",
     "greeting": "Hola:",
-    "signoff": "Si no has iniciado sesión ahora mismo, ponte en contacto con nosotros de inmediato.",
-    "subject": "Hemos restablecido el acceso a tu cuenta de Customermates",
-    "title": "Acceso a la cuenta restablecido"
+    "signoff": "Solo necesitas el botón de arriba si prefieres entrar con una contraseña. Si no has sido tú quien ha iniciado sesión, ponte en contacto con nosotros de inmediato.",
+    "subject": "Tu correo está confirmado y hemos eliminado tu contraseña anterior",
+    "title": "Tu dirección de correo está confirmada"
   },
   "AccountsRemovedNotice": {
     "body": "Tu plan cambió a {plan}, así que he eliminado las siguientes cuentas conectadas para respetar el límite del plan: {accounts}. Tus mensajes y contactos siguen ahí. Puedes volver a conectarlas cuando quieras desde la página de cuentas conectadas.",
