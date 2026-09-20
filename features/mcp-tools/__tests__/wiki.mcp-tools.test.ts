@@ -74,7 +74,7 @@ describe("manage_wiki_pages registry", () => {
 
   it("exposes only the two setup capabilities during homepage setup", () => {
     const validPages = Array.from({ length: 5 }, (_, index) => ({
-      title: `Page ${index + 1}`,
+      title: index === 0 ? "AGENTS.md" : `Page ${index + 1}`,
       markdown: "Body",
     }));
 
@@ -89,6 +89,7 @@ describe("manage_wiki_pages registry", () => {
     }
     for (const invalid of [
       { action: "list" },
+      { action: "create", pages: [{ title: "agents.md", markdown: "Body" }], requireEmpty: true },
       { action: "create", pages: [], requireEmpty: true },
       {
         action: "create",

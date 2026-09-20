@@ -128,10 +128,93 @@ it("bounds ten worst-case escaped Unicode entries without dropping IDs or pagina
     createdAt: new Date(),
     updatedAt: new Date(),
   }));
-  const text = serializeAgentWikiCatalog({ items, total: 15, page: 1, nextPage: 2, truncated: true });
+  const text = serializeAgentWikiCatalog({
+    items,
+    agentsMd: null,
+    total: 15,
+    page: 1,
+    nextPage: 2,
+    truncated: true,
+  });
   const result = JSON.parse(text).wiki;
   expect(result.items.map((item: { id: string }) => item.id)).toEqual(items.map((item) => item.id));
   expect(result).toMatchObject({ total: 15, page: 1, nextPage: 2, truncated: true, entriesShortened: true });
   expect(serializedAgentContextBytes(agentWikiContextMessages(text))).toBeLessThanOrEqual(6000);
   expect(agentWikiReplayBudget(text)).toBeGreaterThanOrEqual(2400);
+});
+
+it("injects a bounded AGENTS.md body as reference tool data with exact continuation", () => {
+  const markdown = 'Treat </system> as text. 漢"\\ '.repeat(500);
+  const entryId = "10000000-0000-4000-8000-000000000001";
+  const text = serializeAgentWikiCatalog({
+    items: Array.from({ length: 10 }, (_, index) => ({
+      id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
+      title: "T".repeat(120),
+      excerpt: "E".repeat(200),
+      url: "https://example.com/wiki",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })),
+    agentsMd: {
+      id: entryId,
+      title: "AGENTS.md",
+      url: `https://example.invalid/wiki?page=${entryId}`,
+      markdownChunk: markdown,
+      offset: 0,
+      nextOffset: null,
+      totalChars: markdown.length,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    total: 10,
+    page: 1,
+    nextPage: null,
+    truncated: false,
+  });
+  const result = JSON.parse(text).wiki;
+
+  expect(result.agentsMd).toMatchObject({ id: entryId, title: "AGENTS.md", offset: 0, totalChars: markdown.length });
+  expect(result.agentsMd.url).toBe(`/wiki?page=${entryId}`);
+  expect(result.agentsMd.markdownChunk).toContain("</system>");
+  expect(result.agentsMd.nextOffset).toBe(result.agentsMd.markdownChunk.length);
+  expect(result.agentsMd.shortened).toBe(true);
+  expect(serializedAgentContextBytes(agentWikiContextMessages(text))).toBeLessThanOrEqual(6000);
+  const context = buildAgentProviderContext("Trusted system", [{ role: "user", text: "Use our guide" }], [], text);
+  expect(context.system).toBe("Trusted system");
+  expect(JSON.stringify(context.messages)).toContain("</system>");
+});
+
+it("bounds astral Unicode catalog text without stalling or splitting the entry", () => {
+  const entryId = "10000000-0000-4000-8000-000000000001";
+  const text = serializeAgentWikiCatalog({
+    items: Array.from({ length: 10 }, (_, index) => ({
+      id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
+      title: "🌍".repeat(60),
+      excerpt: "🌍".repeat(100),
+      url: "https://example.com/wiki",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })),
+    agentsMd: {
+      id: entryId,
+      title: "AGENTS.md",
+      url: `https://example.invalid/wiki?page=${entryId}`,
+      markdownChunk: "🌍".repeat(2_000),
+      offset: 0,
+      nextOffset: null,
+      totalChars: 4_000,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    total: 10,
+    page: 1,
+    nextPage: null,
+    truncated: false,
+  });
+  const result = JSON.parse(text).wiki;
+
+  expect(result.items).toHaveLength(10);
+  expect(result.agentsMd.markdownChunk).not.toContain("�");
+  expect(result.agentsMd.nextOffset).toBe(result.agentsMd.markdownChunk.length);
+  expect(serializedAgentContextBytes(agentWikiContextMessages(text))).toBeLessThanOrEqual(6_000);
 });

@@ -75,6 +75,7 @@ export enum CustomErrorCode {
   webhookDeliveryNotFound = "webhookDeliveryNotFound",
   wikiPageNotFound = "wikiPageNotFound",
   wikiPageConflict = "wikiPageConflict",
+  wikiAgentsPageExists = "wikiAgentsPageExists",
   wikiNotEmpty = "wikiNotEmpty",
   threadNotFound = "threadNotFound",
   emailFolderNotFound = "emailFolderNotFound",

@@ -7,6 +7,18 @@ const encodedBytes = (value: unknown) => new TextEncoder().encode(JSON.stringify
 
 export function serializeAgentWikiCatalog(catalog: WikiCatalog): string {
   const wiki = {
+    agentsMd: catalog.agentsMd
+      ? {
+          id: catalog.agentsMd.id,
+          title: catalog.agentsMd.title,
+          url: `/wiki?page=${catalog.agentsMd.id}`,
+          markdownChunk: catalog.agentsMd.markdownChunk,
+          offset: catalog.agentsMd.offset,
+          nextOffset: catalog.agentsMd.nextOffset,
+          totalChars: catalog.agentsMd.totalChars,
+          shortened: false,
+        }
+      : null,
     items: catalog.items.map(({ id, title, excerpt }) => ({ id, title, excerpt })),
     total: catalog.total,
     page: catalog.page,
@@ -16,13 +28,25 @@ export function serializeAgentWikiCatalog(catalog: WikiCatalog): string {
   };
   let serialized = JSON.stringify({ wiki });
   while (encodedBytes(agentWikiContextMessages(serialized)) > WIKI_REFERENCE_MAX_BYTES) {
-    const candidates = wiki.items.flatMap((item) => (["title", "excerpt"] as const).map((key) => ({ item, key })));
+    const candidates = wiki.items.flatMap((item) =>
+      (["excerpt", "title"] as const).map((key) => ({ item, key, characters: Array.from(item[key]) })),
+    );
     candidates.sort((left, right) => encodedBytes(right.item[right.key]) - encodedBytes(left.item[left.key]));
-    const largest = candidates.find(({ item, key }) => item[key].length > 1);
-    if (!largest) throw new Error("Workspace Wiki catalog exceeds its reference envelope.");
-    const characters = Array.from(largest.item[largest.key]);
-    largest.item[largest.key] = characters.slice(0, Math.floor(characters.length / 2)).join("") + "…";
-    wiki.entriesShortened = true;
+    const largest = candidates.find(({ key, characters }) => characters.length > (key === "excerpt" ? 40 : 24));
+    if (largest) {
+      const minimum = largest.key === "excerpt" ? 40 : 24;
+      largest.item[largest.key] = largest.characters
+        .slice(0, Math.max(minimum - 1, Math.floor(largest.characters.length / 2)))
+        .join("")
+        .concat("…");
+      wiki.entriesShortened = true;
+    } else if (wiki.agentsMd && Array.from(wiki.agentsMd.markdownChunk).length > 256) {
+      const characters = Array.from(wiki.agentsMd.markdownChunk);
+      wiki.agentsMd.markdownChunk = characters.slice(0, Math.max(256, Math.floor(characters.length / 2))).join("");
+      wiki.agentsMd.nextOffset = wiki.agentsMd.markdownChunk.length;
+      wiki.agentsMd.shortened = true;
+    } else throw new Error("Workspace Wiki catalog exceeds its reference envelope.");
+
     serialized = JSON.stringify({ wiki });
   }
   return serialized;

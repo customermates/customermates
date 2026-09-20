@@ -73,6 +73,22 @@ describe("Wiki document editing", () => {
     expect(changed).toHaveBeenCalledWith(page.id);
   });
 
+  it("prefills the conventional entry filename as a dirty, immediately saveable draft", async () => {
+    const store = new WikiPageStore(rootStore(), null, vi.fn());
+    store.startCreate("AGENTS.md");
+
+    expect(store.creating).toBe(true);
+    expect(store.form).toMatchObject({ id: null, title: "AGENTS.md", markdown: "" });
+    expect(store.hasUnsavedChanges).toBe(true);
+
+    await store.onSubmit();
+
+    expect(actions.create).toHaveBeenCalledExactlyOnceWith({
+      pages: [{ title: "AGENTS.md", markdown: "" }],
+      requireEmpty: false,
+    });
+  });
+
   it("saves direct edits with the original concurrency token and suppresses clean saves", async () => {
     const store = new WikiPageStore(rootStore(), page, vi.fn());
     await store.onSubmit();
@@ -153,6 +169,23 @@ describe("Wiki document editing", () => {
     expect(store.form.markdown).toBe("My draft");
     expect(store.error).toEqual(error);
     expect(store.isLoading).toBe(false);
+  });
+
+  it("shows a duplicate AGENTS.md validation error without a stale-update banner", async () => {
+    const error = {
+      kind: "conflict",
+      issues: [{ code: "custom", customCode: "wikiAgentsPageExists", path: ["pages"], message: "Duplicate" }],
+    };
+    actions.update.mockResolvedValue({ ok: false, conflict: false, error });
+    const store = new WikiPageStore(rootStore(), page, vi.fn());
+    store.onChange("title", "AGENTS.md");
+
+    await store.onSubmit();
+
+    expect(store.conflict).toBe(false);
+    expect(store.error).toEqual(error);
+    expect(store.form.title).toBe("AGENTS.md");
+    expect(store.hasUnsavedChanges).toBe(true);
   });
 
   it("does not mutate for read-only users", async () => {

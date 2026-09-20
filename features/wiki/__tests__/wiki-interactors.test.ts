@@ -30,7 +30,7 @@ import { GetWikiPageInteractor } from "../get-wiki-page.interactor";
 import { GetWikiPagesInteractor } from "../get-wiki-pages.interactor";
 import { SearchWikiPagesInteractor } from "../search-wiki-pages.interactor";
 import { UpdateWikiPageInteractor } from "../update-wiki-page.interactor";
-import type { WikiPageDto } from "../wiki.schema";
+import { WIKI_MARKDOWN_MAX_LENGTH, WikiMarkdownSchema, type WikiPageDto } from "../wiki.schema";
 
 const PAGE_ID = "00000000-0000-4000-8000-000000000001";
 const UPDATED_AT = new Date("2026-09-08T10:00:00.000Z");
@@ -53,7 +53,7 @@ beforeEach(() => vi.clearAllMocks());
 describe("CreateWikiPagesInteractor", () => {
   it("publishes one complete snapshot for every atomically created page", async () => {
     const pages = [page(), page({ id: "00000000-0000-4000-8000-000000000002", title: "Offerings" })];
-    const repo = { createPages: vi.fn().mockResolvedValue(pages) };
+    const repo = { createPages: vi.fn().mockResolvedValue({ status: "created", pages }) };
     const events = eventService();
 
     const result = await new CreateWikiPagesInteractor(repo, events as never).invoke({
@@ -63,7 +63,7 @@ describe("CreateWikiPagesInteractor", () => {
 
     expect(result).toEqual({ ok: true, data: pages });
     expect(repo.createPages).toHaveBeenCalledWith({
-      pages: pages.map(({ title, markdown }) => ({ title, markdown })),
+      pages: pages.map(({ title, markdown }) => ({ title, markdown, id: expect.any(String) })),
       requireEmpty: true,
     });
     expect(events.publish.mock.calls).toEqual(
@@ -72,7 +72,7 @@ describe("CreateWikiPagesInteractor", () => {
   });
 
   it("refuses the whole empty-only batch without publishing events", async () => {
-    const repo = { createPages: vi.fn().mockResolvedValue(null) };
+    const repo = { createPages: vi.fn().mockResolvedValue({ status: "wiki-not-empty" }) };
     const events = eventService();
 
     const result = await new CreateWikiPagesInteractor(repo, events as never).invoke({
@@ -82,6 +82,110 @@ describe("CreateWikiPagesInteractor", () => {
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.issues[0]).toMatchObject({ params: { error: CustomErrorCode.wikiNotEmpty } });
+    expect(events.publish).not.toHaveBeenCalled();
+  });
+
+  it("preallocates stable sibling links in an empty-only AGENTS.md batch", async () => {
+    const repo = {
+      createPages: vi.fn().mockImplementation((data) =>
+        Promise.resolve({
+          status: "created",
+          pages: data.pages.map((item: { id: string; title: string; markdown: string }) =>
+            page({ ...item, createdAt: new Date(), updatedAt: new Date() }),
+          ),
+        }),
+      ),
+    };
+    const events = eventService();
+    const result = await new CreateWikiPagesInteractor(repo as never, events as never).invoke({
+      pages: [
+        {
+          title: "AGENTS.md",
+          markdown:
+            "Read [Voice \\[external\\] \\\\ handbook](/wiki?page=guessed-slug) and [the source](https://example.com/source).",
+        },
+        { title: String.raw`Voice [external] \ handbook`, markdown: "Write clearly." },
+      ],
+      requireEmpty: true,
+    });
+
+    expect(result.ok).toBe(true);
+    const submitted = repo.createPages.mock.calls[0][0].pages;
+    expect(submitted[0].title).toBe("AGENTS.md");
+    expect(submitted[0].markdown).toContain(`- [Voice \\[external\\] \\\\ handbook](/wiki?page=${submitted[1].id})`);
+    expect(submitted[0].markdown).toContain("Read Voice \\[external\\] \\\\ handbook");
+    expect(submitted[0].markdown).not.toContain("guessed-slug");
+    expect(submitted[0].markdown).toContain("[the source](https://example.com/source)");
+    expect(submitted[0].markdown).toContain("## Wiki");
+    expect(WikiMarkdownSchema.parse(submitted[0].markdown)).toBe(submitted[0].markdown);
+  });
+
+  it("removes guessed Wiki links from an AGENTS.md-only empty-Wiki setup", async () => {
+    const repo = {
+      createPages: vi.fn().mockImplementation((data) =>
+        Promise.resolve({
+          status: "created",
+          pages: data.pages.map((item: { id: string; title: string; markdown: string }) =>
+            page({ ...item, createdAt: new Date(), updatedAt: new Date() }),
+          ),
+        }),
+      ),
+    };
+    const events = eventService();
+
+    const result = await new CreateWikiPagesInteractor(repo as never, events as never).invoke({
+      pages: [
+        {
+          title: "AGENTS.md",
+          markdown: "Read [a guessed page](/wiki?page=does-not-exist) and [the source](https://example.com/source).",
+        },
+      ],
+      requireEmpty: true,
+    });
+
+    expect(result.ok).toBe(true);
+    const submitted = repo.createPages.mock.calls[0][0].pages;
+    expect(submitted[0].markdown).toContain("Read a guessed page");
+    expect(submitted[0].markdown).not.toContain("does-not-exist");
+    expect(submitted[0].markdown).toContain("[the source](https://example.com/source)");
+    expect(submitted[0].markdown).not.toContain("## Wiki");
+    expect(WikiMarkdownSchema.parse(submitted[0].markdown)).toBe(submitted[0].markdown);
+  });
+
+  it("maps a duplicate conventional entry to a stable conflict", async () => {
+    const repo = { createPages: vi.fn().mockResolvedValue({ status: "agents-exists" }) };
+    const events = eventService();
+    const result = await new CreateWikiPagesInteractor(repo, events as never).invoke({
+      pages: [{ title: "AGENTS.md", markdown: "Body" }],
+      requireEmpty: false,
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok)
+      expect(result.error.issues[0]).toMatchObject({ params: { error: CustomErrorCode.wikiAgentsPageExists } });
+    expect(events.publish).not.toHaveBeenCalled();
+  });
+
+  it("returns a structured refusal when generated sibling links exceed the Markdown cap", async () => {
+    const repo = { createPages: vi.fn() };
+    const events = eventService();
+
+    const result = await new CreateWikiPagesInteractor(repo, events as never).invoke({
+      pages: [
+        { title: "AGENTS.md", markdown: "a".repeat(WIKI_MARKDOWN_MAX_LENGTH - 10) },
+        { title: "A linked page", markdown: "Body" },
+      ],
+      requireEmpty: true,
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.issues[0]).toMatchObject({
+        path: ["pages", 0, "markdown"],
+        params: { error: CustomErrorCode.notesExceedsMaxLength },
+      });
+    }
+    expect(repo.createPages).not.toHaveBeenCalled();
     expect(events.publish).not.toHaveBeenCalled();
   });
 });
@@ -149,6 +253,22 @@ describe("UpdateWikiPageInteractor", () => {
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.issues[0]).toMatchObject({ params: { error: code } });
+    expect(events.publish).not.toHaveBeenCalled();
+  });
+
+  it("rejects promotion when another AGENTS.md entry already exists", async () => {
+    const repo = { updatePage: vi.fn().mockResolvedValue({ status: "agents-exists" }) };
+    const events = eventService();
+    const result = await new UpdateWikiPageInteractor(repo as never, events as never).invoke({
+      id: PAGE_ID,
+      expectedUpdatedAt: UPDATED_AT,
+      title: "agents.md",
+    });
+
+    expect(repo.updatePage).toHaveBeenCalledWith(expect.objectContaining({ title: "AGENTS.md" }));
+    expect(result.ok).toBe(false);
+    if (!result.ok)
+      expect(result.error.issues[0]).toMatchObject({ params: { error: CustomErrorCode.wikiAgentsPageExists } });
     expect(events.publish).not.toHaveBeenCalled();
   });
 });
@@ -248,7 +368,10 @@ describe("Wiki permission boundary", () => {
     const events = eventService();
     const calls = [
       () =>
-        new CreateWikiPagesInteractor({ createPages: vi.fn().mockResolvedValue([created]) }, events as never).invoke({
+        new CreateWikiPagesInteractor(
+          { createPages: vi.fn().mockResolvedValue({ status: "created", pages: [created] }) },
+          events as never,
+        ).invoke({
           pages: [{ title: created.title, markdown: created.markdown }],
           requireEmpty: false,
         }),

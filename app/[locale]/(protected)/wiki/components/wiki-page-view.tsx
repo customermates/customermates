@@ -1,6 +1,6 @@
 "use client";
 
-import type { WikiPageListResult, WikiPageDto } from "@/features/wiki/wiki.schema";
+import type { WikiPageListResult, WikiPageDto, WikiPageSummary } from "@/features/wiki/wiki.schema";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
 import { observer } from "mobx-react-lite";
@@ -21,6 +21,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { useRouter } from "@/i18n/navigation";
 import { cn } from "@/core/utils/cn";
 import { WikiHomepageSetup } from "@/components/wiki/wiki-homepage-setup";
+import { WIKI_AGENTS_PAGE_TITLE } from "@/features/wiki/wiki.schema";
 
 import { WikiPageStore } from "./wiki-page.store";
 import { WikiPageActions } from "./wiki-page-actions";
@@ -31,10 +32,11 @@ import { useWikiPages } from "./use-wiki-pages";
 type Props = {
   initialPage: WikiPageDto | null;
   listPage: WikiPageListResult;
+  pinnedPage?: WikiPageSummary | null;
   unavailable?: boolean;
 };
 
-export const WikiPageView = observer(({ initialPage, listPage, unavailable = false }: Props) => {
+export const WikiPageView = observer(({ initialPage, listPage, pinnedPage = null, unavailable = false }: Props) => {
   const t = useTranslations();
   const rootStore = useRootStore();
   const router = useRouter();
@@ -70,10 +72,10 @@ export const WikiPageView = observer(({ initialPage, listPage, unavailable = fal
   );
   const create = useCallback(() => {
     tryNavigate(() => {
-      store.startCreate();
+      store.startCreate(listPage.total === 0 ? WIKI_AGENTS_PAGE_TITLE : undefined);
       setMobileOpen(false);
     });
-  }, [store, tryNavigate]);
+  }, [listPage.total, store, tryNavigate]);
   const selectPage = (pageId: string) => {
     if (!store.creating && pageId === store.form.id) {
       setMobileOpen(false);
@@ -94,6 +96,28 @@ export const WikiPageView = observer(({ initialPage, listPage, unavailable = fal
     [create, formId, hasDocument, isNavigating, reload, store],
   );
   useSetTopBarActions(topBar);
+  const pinnedRailPage = pinnedPage && !pages.result.items.some(({ id }) => id === pinnedPage.id) ? pinnedPage : null;
+  const pageButton = (page: WikiPageSummary) => (
+    <Button
+      key={page.id}
+      aria-current={!store.creating && page.id === store.form.id ? "page" : undefined}
+      className={cn(
+        "mb-0.5 h-auto min-h-9 w-full justify-start gap-2 p-2 text-left font-normal",
+        !store.creating && page.id === store.form.id && "bg-accent text-accent-foreground",
+      )}
+      disabled={store.isLoading || isNavigating}
+      variant="ghost"
+      onClick={() => selectPage(page.id)}
+    >
+      {page.title === WIKI_AGENTS_PAGE_TITLE ? (
+        <BookOpen className="size-4 shrink-0 text-muted-foreground" />
+      ) : (
+        <FileText className="size-4 shrink-0 text-muted-foreground" />
+      )}
+
+      <span className="truncate">{page.title}</span>
+    </Button>
+  );
 
   const pageList = (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -114,39 +138,27 @@ export const WikiPageView = observer(({ initialPage, listPage, unavailable = fal
       <nav
         aria-busy={pages.loading}
         aria-label={t("Wiki.pagesLabel")}
-        className="min-h-0 flex-1 overflow-y-auto px-2 pb-2"
+        className="flex min-h-0 flex-1 flex-col px-2 pb-2"
       >
-        {pages.failed ? (
-          <div className="space-y-2 p-3 text-sm text-muted-foreground">
-            <p>{t("Wiki.loadFailed")}</p>
+        {pinnedRailPage && <div className="pb-1">{pageButton(pinnedRailPage)}</div>}
 
-            <Button size="xs" variant="secondary" onClick={pages.retry}>
-              {t("ErrorCard.retry")}
-            </Button>
-          </div>
-        ) : pages.result.items.length === 0 ? (
-          <p className="p-3 text-sm text-muted-foreground">
-            {pages.query ? t("Wiki.noResults") : t("Wiki.pagesLabel")}
-          </p>
-        ) : (
-          pages.result.items.map((page) => (
-            <Button
-              key={page.id}
-              aria-current={!store.creating && page.id === store.form.id ? "page" : undefined}
-              className={cn(
-                "mb-0.5 h-auto min-h-9 w-full justify-start gap-2 p-2 text-left font-normal",
-                !store.creating && page.id === store.form.id && "bg-accent text-accent-foreground",
-              )}
-              disabled={store.isLoading || isNavigating}
-              variant="ghost"
-              onClick={() => selectPage(page.id)}
-            >
-              <FileText className="size-4 shrink-0 text-muted-foreground" />
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          {pages.failed ? (
+            <div className="space-y-2 p-3 text-sm text-muted-foreground">
+              <p>{t("Wiki.loadFailed")}</p>
 
-              <span className="truncate">{page.title}</span>
-            </Button>
-          ))
-        )}
+              <Button size="xs" variant="secondary" onClick={pages.retry}>
+                {t("ErrorCard.retry")}
+              </Button>
+            </div>
+          ) : pages.result.items.length === 0 ? (
+            <p className="p-3 text-sm text-muted-foreground">
+              {pages.query ? t("Wiki.noResults") : t("Wiki.pagesLabel")}
+            </p>
+          ) : (
+            pages.result.items.map(pageButton)
+          )}
+        </div>
 
         {pages.loading && (
           <span className="sr-only" role="status">

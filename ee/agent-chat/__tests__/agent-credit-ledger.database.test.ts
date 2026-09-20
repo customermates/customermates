@@ -89,9 +89,10 @@ async function seedActiveSeat(allowanceAnchor: Date) {
 }
 
 const emptyWikiCatalog = () => ({
-  invoke: vi
-    .fn()
-    .mockResolvedValue({ ok: true, data: { items: [], total: 0, page: 1, nextPage: null, truncated: false } }),
+  invoke: vi.fn().mockResolvedValue({
+    ok: true,
+    data: { items: [], agentsMd: null, total: 0, page: 1, nextPage: null, truncated: false },
+  }),
 });
 
 const backgroundTasks = () => ({

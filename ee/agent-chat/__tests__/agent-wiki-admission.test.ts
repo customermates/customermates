@@ -43,8 +43,9 @@ import type { AgentTurnWorkflowPayload } from "@/workflows/agent-turn";
 const CLIENT_REQUEST_ID = "00000000-0000-4000-8000-000000000001";
 const CONVERSATION_ID = "00000000-0000-4000-8000-000000000002";
 const PAGE_ID = "00000000-0000-4000-8000-000000000003";
+const AGENTS_ID = "00000000-0000-4000-8000-000000000004";
 
-function catalogData(excerpt = "Current workspace guidance") {
+function catalogData(excerpt = "Current workspace guidance", agentsMarkdown = "Read Voice before drafting replies.") {
   return {
     items: [
       {
@@ -56,6 +57,17 @@ function catalogData(excerpt = "Current workspace guidance") {
         updatedAt: new Date("2026-09-13T12:00:00Z"),
       },
     ],
+    agentsMd: {
+      id: AGENTS_ID,
+      title: "AGENTS.md",
+      url: `http://localhost:4000/wiki?page=${AGENTS_ID}`,
+      markdownChunk: agentsMarkdown,
+      offset: 0 as const,
+      nextOffset: null,
+      totalChars: agentsMarkdown.length,
+      createdAt: new Date("2026-09-01T12:00:00Z"),
+      updatedAt: new Date("2026-09-13T12:00:00Z"),
+    },
     total: 1,
     page: 1,
     nextPage: null,
@@ -132,6 +144,7 @@ describe("Workspace Wiki admission bootstrap", () => {
     expect(state.catalog.invoke).toHaveBeenCalledExactlyOnceWith({ page: 1 });
     const payload = state.payload();
     expect(payload.wikiCatalog).toBe(serializeAgentWikiCatalog(catalogData()));
+    expect(payload.wikiCatalog).toContain("Read Voice before drafting replies.");
     expect(payload.surface).toBe(surface);
     const systemPrompt = buildAgentSystemPrompt({
       userName: payload.userName,
@@ -165,10 +178,15 @@ describe("Workspace Wiki admission bootstrap", () => {
     const state = fixture();
     await state.interactor.invoke({ clientRequestId: CLIENT_REQUEST_ID, text: "First request", retry: false });
     const first = state.payload().wikiCatalog;
-    state.catalog.invoke.mockResolvedValue({ ok: true, data: catalogData("Edited guidance") });
+    state.catalog.invoke.mockResolvedValue({
+      ok: true,
+      data: catalogData("Edited guidance", "Read the updated Voice page first."),
+    });
     await state.interactor.invoke({ clientRequestId: PAGE_ID, text: "Next request", retry: false });
     expect(first).toContain("Current workspace guidance");
     expect(state.payload().wikiCatalog).toContain("Edited guidance");
+    expect(state.payload().wikiCatalog).toContain("Read the updated Voice page first.");
+    expect(state.payload().wikiCatalog).not.toContain("Read Voice before drafting replies.");
     expect(state.payload().wikiCatalog).not.toContain("Current workspace guidance");
     expect(state.catalog.invoke).toHaveBeenCalledTimes(2);
   });

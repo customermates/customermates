@@ -23,6 +23,7 @@ import { internalToolIdentity } from "./tool-identity";
 import { providerWireInputSchema } from "./provider-safe-json-schema";
 import type { AgentToolInputResult } from "./agent-tool-input";
 import { getAgentWebSearchTool, AGENT_WEB_SEARCH_RELEASED } from "./agent-web-search";
+import { hostedWorkspaceContextText } from "./agent-workspace-context";
 import { manageWikiPagesTool, WikiHomepageSetupCreateSchema } from "@/features/mcp-tools/wiki.mcp-tools";
 
 export type AgentToolOptions = {
@@ -234,6 +235,12 @@ function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
         const outcome = wikiId
           ? await executeMcpTool(manageWikiPagesTool, [{ action: "get", id: wikiId }])
           : await executeMcpTool(mcp, [input]);
+        if (mcp.name === "get_workspace_context" && outcome.ok && outcome.structuredContent) {
+          return {
+            ok: true,
+            result: hostedWorkspaceContextText(outcome.structuredContent, deps.resultMaxChars),
+          };
+        }
         return agentToolResult(outcome, deps.resultMaxChars);
       };
       const enrollable = !isReadOnlyTool(mcp) && !hasNonTransactionalEffect(mcp.name);

@@ -1137,6 +1137,7 @@
       "widgetNotFound": "ID de widget introuvable ou inaccessible.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Les tâches ne peuvent être regroupées que par colonnes personnalisées, pas par types d'élément.",
       "widgetWeightedValueNotAllowedForService": "L'agrégation de valeur pondérée n'est pas autorisée pour le type d'élément Service.",
+      "wikiAgentsPageExists": "Cet espace de travail possède déjà une page AGENTS.md.",
       "wikiNotEmpty": "La configuration du wiki de l’espace de travail ne peut être lancée que si le wiki est vide.",
       "wikiPageConflict": "Cette page du wiki a été modifiée après son ouverture. Rechargez-la et réessayez.",
       "wikiPageNotFound": "Page du wiki introuvable ou inaccessible."

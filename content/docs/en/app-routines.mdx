@@ -50,7 +50,7 @@ Run statuses are `queued`, `running`, `succeeded`, `partial`, `failed`, `skipped
 
 An unattended run can read your workspace and create or update contacts, organizations, deals, services, tasks, notes, and Wiki pages within the owner's permissions. It can also draft and send messages.
 
-When the owner has Wiki Read, each run starts with a compact catalog of current [Workspace Wiki](/docs/mcp#shared-workspace-wiki) pages and can read the relevant documents. Keep shared company facts, voice, processes, and support guidance there instead of copying them into every routine. Creating or updating a Wiki page requires the owner's Wiki Manage permission.
+When the owner has Wiki Read, each run starts with a bounded first chunk of the conventional `AGENTS.md` entry when present, plus a compact catalog of current [Workspace Wiki](/docs/mcp#shared-workspace-wiki) pages. The routine follows relevant stable links and reads the documents it needs. The entry is reference data and cannot expand the routine's permissions. Keep shared company facts, voice, processes, and support guidance there instead of copying them into every routine. Creating or updating a Wiki page requires the owner's Wiki Manage permission.
 
 A routine can read known public HTTP(S) pages and include source links in its answer. General web search is currently unavailable. An unattended run may read public pages or change data, but never both: after a successful public-page read, all writes are denied for that run; after a successful write, public-page access is denied. Wiki and CRM reads remain available. Split work that needs both steps into separate tasks.
 

@@ -73,6 +73,7 @@ import { createAgentToolInputResolver, type AgentToolInputResult } from "@/ee/ag
 import { resolveAgentApprovalContext } from "@/ee/agent-chat/agent-external-approval-context";
 import { isAgentContextWithinBudget, resolveAgentToolResultMaxChars } from "@/ee/agent-chat/agent-budget-policy";
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
+import { getTenantUser } from "@/core/decorators/tenant-context";
 import { runInRoutineContext } from "@/core/decorators/routine-context";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 
@@ -230,9 +231,11 @@ function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprov
   return {
     resultMaxChars: resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars),
     runInCallerContext: (run) =>
-      runAsBackgroundTenant(payload.userId, () =>
-        runInRoutineContext(payload.surface === "routine" ? { causationDepth: 1 } : null, run),
-      ),
+      runAsBackgroundTenant(payload.userId, () => {
+        if (getTenantUser().companyId !== payload.companyId)
+          throw new Error("Agent tenant changed during tool execution.");
+        return runInRoutineContext(payload.surface === "routine" ? { causationDepth: 1 } : null, run);
+      }),
     resolveApprovalContext: resolveAgentApprovalContext,
     requestApproval: () => Promise.resolve(toolApprovalDecisionForGrant(grant)),
     runUiCommand: () =>
@@ -267,15 +270,16 @@ function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprov
 
 async function openTurn(payload: AgentTurnWorkflowPayload): Promise<boolean> {
   "use step";
-  return runAsBackgroundTenant(payload.userId, () =>
-    getAgentChatRepo().markAgentTurnProviderStartedUnscoped({
+  return runAsBackgroundTenant(payload.userId, () => {
+    if (getTenantUser().companyId !== payload.companyId) return false;
+    return getAgentChatRepo().markAgentTurnProviderStartedUnscoped({
       turnRequestId: payload.turnRequestId,
       conversationId: payload.conversationId,
       companyId: payload.companyId,
       userId: payload.userId,
       runId: payload.runId,
-    }),
-  );
+    });
+  });
 }
 openTurn.maxRetries = 0;
 
@@ -354,8 +358,10 @@ async function authorizedWikiCatalog(payload: AgentTurnWorkflowPayload): Promise
   if (!payload.wikiCatalog) return null;
   const { getGetWikiCatalogInteractor } = await import("@/core/di");
   const { AppErrorCode, appErrorDetails } = await import("@/core/errors/app-errors");
+  const { getTenantUser } = await import("@/core/decorators/tenant-context");
   return runAsBackgroundTenant(payload.userId, async () => {
     try {
+      if (getTenantUser().companyId !== payload.companyId) return null;
       const result = await getGetWikiCatalogInteractor().invoke({ page: 1 });
       if (!result.ok) throw new Error("Workspace Wiki catalog could not be authorized.");
       return payload.wikiCatalog ?? null;
@@ -374,13 +380,20 @@ async function normalizeAgentToolInput(
 ): Promise<AgentToolInputResult> {
   "use step";
   const { normalizeAgentAiToolInput } = await import("@/ee/agent-chat/agent-tools");
-  return runAsBackgroundTenant(payload.userId, () =>
-    normalizeAgentAiToolInput(toolName, input, resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars), {
-      wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
-      webSearchEnabled: payload.webSearchEnabled,
-      surface: payload.surface,
-    }),
-  );
+  return runAsBackgroundTenant(payload.userId, () => {
+    if (getTenantUser().companyId !== payload.companyId)
+      throw new Error("Agent tenant changed during tool normalization.");
+    return normalizeAgentAiToolInput(
+      toolName,
+      input,
+      resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars),
+      {
+        wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
+        webSearchEnabled: payload.webSearchEnabled,
+        surface: payload.surface,
+      },
+    );
+  });
 }
 normalizeAgentToolInput.maxRetries = 0;
 

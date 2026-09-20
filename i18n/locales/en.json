@@ -1137,6 +1137,7 @@
       "widgetNotFound": "Widget ID not found or not accessible.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Tasks can only be grouped by custom columns, not by element types.",
       "widgetWeightedValueNotAllowedForService": "Weighted value aggregation is not allowed for Service element type.",
+      "wikiAgentsPageExists": "This workspace already has an AGENTS.md page.",
       "wikiNotEmpty": "Workspace Wiki setup can only run when the Wiki is empty.",
       "wikiPageConflict": "This Wiki page changed after you opened it. Reload it and try again.",
       "wikiPageNotFound": "Wiki page not found or not accessible."

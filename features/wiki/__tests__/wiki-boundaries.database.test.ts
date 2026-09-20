@@ -300,6 +300,142 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     expect(JSON.stringify([first, second])).not.toContain("Later content");
   });
 
+  it("exposes the tenant AGENTS.md entry even when it falls beyond the first catalog page", async () => {
+    for (let batch = 0; batch < 2; batch++) {
+      const created = await create(
+        user,
+        Array.from({ length: 5 }, (_, index) => ({
+          title: `Reference ${batch * 5 + index + 1}`,
+          markdown: `Reference body ${index + 1}`,
+        })),
+      );
+      expect(created.ok).toBe(true);
+    }
+    const entry = await create(user, [{ title: "agents.md", markdown: "Read [Voice](/wiki?page=target)." }]);
+    const foreignEntry = await create(foreignUser, [{ title: "AGENTS.md", markdown: "Foreign entry" }]);
+    if (!entry.ok || !foreignEntry.ok) throw new Error("Wiki entry fixtures were not created.");
+
+    const first = await runWithTenant(user, () =>
+      new GetWikiCatalogInteractor(new PrismaWikiPageRepo()).invoke({ page: 1 }),
+    );
+    const second = await runWithTenant(user, () =>
+      new GetWikiCatalogInteractor(new PrismaWikiPageRepo()).invoke({ page: 2 }),
+    );
+
+    for (const catalog of [first, second]) {
+      expect(catalog).toMatchObject({
+        ok: true,
+        data: {
+          agentsMd: {
+            id: entry.data[0].id,
+            title: "AGENTS.md",
+            markdownChunk: "Read [Voice](/wiki?page=target).",
+          },
+        },
+      });
+      expect(JSON.stringify(catalog)).not.toContain("Foreign entry");
+    }
+    if (!first.ok) throw new Error("Wiki catalog failed.");
+    expect(first.data.items.map((item) => item.id)).not.toContain(entry.data[0].id);
+  });
+
+  it("discovers a normalized legacy entry written outside the application boundary", async () => {
+    const entryId = randomUUID();
+    await client.query(
+      'INSERT INTO "WikiPage" ("id", "companyId", "title", "markdown", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)',
+      [entryId, companyId, " agents.Md ", "Legacy routing entry"],
+    );
+
+    const catalog = await runWithTenant(user, () =>
+      new GetWikiCatalogInteractor(new PrismaWikiPageRepo()).invoke({ page: 1 }),
+    );
+
+    expect(catalog).toMatchObject({
+      ok: true,
+      data: { agentsMd: { id: entryId, title: "AGENTS.md", markdownChunk: "Legacy routing entry" } },
+    });
+  });
+
+  it("keeps one canonical AGENTS.md per tenant under concurrent writes while allowing normal duplicate titles", async () => {
+    const outcomes = await Promise.all([
+      create(user, [{ title: "agents.md", markdown: "First" }]),
+      create(user, [{ title: " AGENTS.MD ", markdown: "Second" }]),
+    ]);
+
+    expect(outcomes.filter((outcome) => outcome.ok)).toHaveLength(1);
+    expect(outcomes.filter((outcome) => customCode(outcome) === CustomErrorCode.wikiAgentsPageExists)).toHaveLength(1);
+    const storedEntry = await client.query(
+      'SELECT "title" FROM "WikiPage" WHERE "companyId" = $1 AND lower(btrim("title")) = $2',
+      [companyId, "agents.md"],
+    );
+    expect(storedEntry.rows).toEqual([{ title: "AGENTS.md" }]);
+
+    expect(await create(user, [{ title: "Duplicate", markdown: "One" }])).toMatchObject({ ok: true });
+    expect(await create(user, [{ title: "Duplicate", markdown: "Two" }])).toMatchObject({ ok: true });
+    await expect(
+      client.query(
+        'INSERT INTO "WikiPage" ("id", "companyId", "title", "markdown", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)',
+        [randomUUID(), companyId, " agents.Md ", "Bypass"],
+      ),
+    ).rejects.toMatchObject({ code: "23505" });
+  });
+
+  it("designates by title through rename, removes the entry on rename or delete, and allows recreation", async () => {
+    const created = await create(user, [{ title: "Workspace guide", markdown: "Start here" }]);
+    if (!created.ok) throw new Error("Wiki fixture was not created.");
+    const promoted = await update(user, {
+      id: created.data[0].id,
+      expectedUpdatedAt: created.data[0].updatedAt,
+      title: "agents.md",
+    });
+    if (!promoted.ok) throw new Error("Wiki fixture was not promoted.");
+    expect(promoted.data.title).toBe("AGENTS.md");
+    expect(
+      await runWithTenant(user, () => new GetWikiCatalogInteractor(new PrismaWikiPageRepo()).invoke({ page: 1 })),
+    ).toMatchObject({ ok: true, data: { agentsMd: { id: promoted.data.id } } });
+
+    const demoted = await update(user, {
+      id: promoted.data.id,
+      expectedUpdatedAt: promoted.data.updatedAt,
+      title: "Workspace guide",
+    });
+    if (!demoted.ok) throw new Error("Wiki fixture was not renamed.");
+    expect(
+      await runWithTenant(user, () => new GetWikiCatalogInteractor(new PrismaWikiPageRepo()).invoke({ page: 1 })),
+    ).toMatchObject({ ok: true, data: { agentsMd: null } });
+
+    const recreated = await create(user, [{ title: "AGENTS.md", markdown: "Replacement" }]);
+    if (!recreated.ok) throw new Error("Wiki entry was not recreated.");
+    expect(
+      await remove(user, { id: recreated.data[0].id, expectedUpdatedAt: recreated.data[0].updatedAt }),
+    ).toMatchObject({ ok: true });
+    expect(
+      await runWithTenant(user, () => new GetWikiCatalogInteractor(new PrismaWikiPageRepo()).invoke({ page: 1 })),
+    ).toMatchObject({ ok: true, data: { agentsMd: null } });
+  });
+
+  it("creates stable sibling links inside the same empty-only AGENTS.md transaction and audit snapshot", async () => {
+    const created = await create(
+      user,
+      [
+        { title: "AGENTS.md", markdown: "Use the relevant page." },
+        { title: "Voice", markdown: "Be direct." },
+        { title: "Support", markdown: "Answer from evidence." },
+      ],
+      true,
+    );
+    if (!created.ok) throw new Error("Wiki setup batch was not created.");
+    const [entry, ...siblings] = created.data;
+
+    for (const sibling of siblings) expect(entry.markdown).toContain(`[${sibling.title}](/wiki?page=${sibling.id})`);
+    const audit = await client.query(
+      'SELECT "eventData" FROM "AuditLog" WHERE "companyId" = $1 AND "event" = $2 AND "entityId" = $3',
+      [companyId, DomainEvent.WIKI_PAGE_CREATED, entry.id],
+    );
+    expect(audit.rows).toHaveLength(1);
+    expect(audit.rows[0].eventData.payload.markdown).toBe(entry.markdown);
+  });
+
   it("serializes same-token updates, suppresses no-ops, and rejects a stale delete", async () => {
     const created = await create(user, [{ title: "Concurrent page", markdown: "Original" }]);
     if (!created.ok) throw new Error("Wiki fixture was not created.");

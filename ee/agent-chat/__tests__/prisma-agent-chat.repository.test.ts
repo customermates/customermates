@@ -1541,6 +1541,32 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     },
   );
 
+  it("refuses provider start when the user moved to another company", async () => {
+    prismaMock.agentRunLease.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.user.findUnique.mockResolvedValue({
+      id: user.id,
+      companyId: "another-company",
+      status: Status.active,
+      createdAt: new Date("2026-01-15T10:30:00.000Z"),
+      agentCreditActivatedAt: new Date("2026-01-15T10:30:00.000Z"),
+      company: { subscription: null },
+    });
+
+    await expect(
+      new PrismaAgentChatRepo().markAgentTurnProviderStartedUnscoped({
+        turnRequestId: "turn-1",
+        conversationId: "conversation-1",
+        companyId: user.companyId,
+        userId: user.id,
+        runId: "run-1",
+      }),
+    ).resolves.toBe(false);
+
+    expect(prismaMock.agentUsageEvent.findFirst).not.toHaveBeenCalled();
+    expect(prismaMock.agentTurnRequest.updateMany).not.toHaveBeenCalled();
+    expect(prismaMock.agentUsageEvent.updateMany).not.toHaveBeenCalled();
+  });
+
   it("fails provider start before the model call when the exact lease is absent", async () => {
     prismaMock.agentRunLease.updateMany.mockResolvedValue({ count: 0 });
 

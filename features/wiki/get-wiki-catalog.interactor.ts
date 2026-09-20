@@ -9,6 +9,7 @@ import type { Validated } from "@/core/validation/validation.utils";
 import { env } from "@/env";
 
 import { wikiExcerpt } from "./wiki-content";
+import { wikiMarkdownChunk, WIKI_AGENTS_CONTEXT_MAX_CHARS } from "./wiki-page-chunk";
 import {
   WIKI_CATALOG_PAGE_SIZE,
   WikiCatalogInputSchema,
@@ -19,7 +20,9 @@ import {
 } from "./wiki.schema";
 
 export abstract class GetWikiCatalogRepo {
-  abstract listCatalogPages(data: WikiCatalogInput): Promise<{ items: WikiPageDto[]; total: number }>;
+  abstract listCatalogPages(
+    data: WikiCatalogInput,
+  ): Promise<{ items: WikiPageDto[]; agentsMd: WikiPageDto | null; total: number }>;
 }
 
 @AllowInDemoMode
@@ -32,8 +35,9 @@ export class GetWikiCatalogInteractor extends AuthenticatedInteractor<WikiCatalo
   @Validate(WikiCatalogInputSchema)
   @ValidateOutput(WikiCatalogSchema)
   async invoke(data: WikiCatalogInput): Validated<WikiCatalog> {
-    const { items, total } = await this.repo.listCatalogPages(data);
+    const { items, agentsMd, total } = await this.repo.listCatalogPages(data);
     const nextPage = data.page * WIKI_CATALOG_PAGE_SIZE < total ? data.page + 1 : null;
+    const agentsChunk = agentsMd ? wikiMarkdownChunk(agentsMd.markdown, 0, WIKI_AGENTS_CONTEXT_MAX_CHARS) : null;
     return {
       ok: true,
       data: {
@@ -42,6 +46,19 @@ export class GetWikiCatalogInteractor extends AuthenticatedInteractor<WikiCatalo
           excerpt: wikiExcerpt(markdown),
           url: `${env.BASE_URL}/wiki?page=${page.id}`,
         })),
+        agentsMd: agentsMd
+          ? {
+              id: agentsMd.id,
+              title: agentsMd.title,
+              createdAt: agentsMd.createdAt,
+              updatedAt: agentsMd.updatedAt,
+              url: `${env.BASE_URL}/wiki?page=${agentsMd.id}`,
+              markdownChunk: agentsChunk?.markdownChunk ?? "",
+              offset: 0,
+              nextOffset: agentsChunk?.nextOffset ?? null,
+              totalChars: agentsChunk?.totalChars ?? 0,
+            }
+          : null,
         total,
         page: data.page,
         nextPage,

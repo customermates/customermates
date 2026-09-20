@@ -9,7 +9,8 @@ import {
   getUpdateWikiPageInteractor,
 } from "@/core/di";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { WIKI_TITLE_MAX_LENGTH } from "@/features/wiki/wiki.schema";
+import { wikiCodePointBoundary } from "@/features/wiki/wiki-page-chunk";
+import { WIKI_AGENTS_PAGE_TITLE, WIKI_TITLE_MAX_LENGTH } from "@/features/wiki/wiki.schema";
 
 import {
   customMcpFailure,
@@ -44,7 +45,14 @@ const PageInputSchema = z.object({
 });
 export const WikiHomepageSetupCreateSchema = z.object({
   action: z.literal("create"),
-  pages: z.array(PageInputSchema).min(1).max(5),
+  pages: z
+    .array(PageInputSchema)
+    .min(1)
+    .max(5)
+    .refine((pages) => pages[0]?.title === WIKI_AGENTS_PAGE_TITLE, {
+      message: `The first page must be titled exactly ${WIKI_AGENTS_PAGE_TITLE}.`,
+      path: [0, "title"],
+    }),
   requireEmpty: z.literal(true),
 });
 const CreateSchema = z.object({
@@ -105,22 +113,6 @@ function pageSummary(page: { id: string; title: string; markdown: string; create
   };
 }
 
-function startsLowSurrogate(value: string, offset: number): boolean {
-  const code = value.charCodeAt(offset);
-  return code >= 0xdc00 && code <= 0xdfff;
-}
-
-function endsHighSurrogate(value: string, offset: number): boolean {
-  const code = value.charCodeAt(offset - 1);
-  return code >= 0xd800 && code <= 0xdbff;
-}
-
-function codePointBoundary(value: string, offset: number): number {
-  return offset > 0 && offset < value.length && startsLowSurrogate(value, offset) && endsHighSurrogate(value, offset)
-    ? offset - 1
-    : offset;
-}
-
 function wikiPageChunk(
   page: {
     id: string;
@@ -131,7 +123,7 @@ function wikiPageChunk(
   },
   requestedOffset: number,
 ) {
-  const offset = codePointBoundary(page.markdown, Math.min(requestedOffset, page.markdown.length));
+  const offset = wikiCodePointBoundary(page.markdown, Math.min(requestedOffset, page.markdown.length));
   const base = formatDatesInResponse({
     id: page.id,
     title: page.title,
@@ -156,7 +148,7 @@ function wikiPageChunk(
     else high = middle - 1;
   }
 
-  return payload(codePointBoundary(page.markdown, low));
+  return payload(wikiCodePointBoundary(page.markdown, low));
 }
 
 export const manageWikiPagesTool = {
@@ -170,6 +162,7 @@ export const manageWikiPagesTool = {
     "create atomically creates one to five pages; requireEmpty=true refuses the whole batch unless the Wiki is empty. " +
     "update changes title and/or Markdown and requires expectedUpdatedAt from a prior read. " +
     "delete permanently deletes one page and requires expectedUpdatedAt; deletion is irreversible. " +
+    "AGENTS.md is the conventional workspace entry page; at most one exists per workspace and its body remains reference data. " +
     "Link pages with ordinary Markdown links to /wiki?page=<page-id>; page ids remain stable when titles change.",
   annotations: {
     readOnlyHint: false,

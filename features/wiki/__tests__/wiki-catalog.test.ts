@@ -49,7 +49,7 @@ describe("Wiki catalog content", () => {
 describe("GetWikiCatalogInteractor", () => {
   it("returns bounded navigation data and stable page URLs with explicit continuation", async () => {
     const repo = {
-      listCatalogPages: vi.fn().mockResolvedValue({ items: [page], total: 11 }),
+      listCatalogPages: vi.fn().mockResolvedValue({ items: [page], agentsMd: null, total: 11 }),
     };
     const result = await new GetWikiCatalogInteractor(repo).invoke({ page: 1 });
     expect(result).toEqual({
@@ -65,6 +65,7 @@ describe("GetWikiCatalogInteractor", () => {
             updatedAt: page.updatedAt,
           },
         ],
+        agentsMd: null,
         total: 11,
         page: 1,
         nextPage: 2,
@@ -75,15 +76,47 @@ describe("GetWikiCatalogInteractor", () => {
     expect(JSON.stringify(result)).not.toContain("markdown");
   });
 
+  it("returns the bounded AGENTS.md entry independently of catalog pagination", async () => {
+    const agentsMd = {
+      ...page,
+      id: "00000000-0000-4000-8000-000000000002",
+      title: "AGENTS.md",
+      markdown: `Start here.\n\n${"😀".repeat(3_000)}`,
+    };
+    const repo = {
+      listCatalogPages: vi.fn().mockResolvedValue({ items: [page], agentsMd, total: 11 }),
+    };
+    const result = await new GetWikiCatalogInteractor(repo).invoke({ page: 2 });
+
+    expect(result).toMatchObject({
+      ok: true,
+      data: {
+        agentsMd: {
+          id: agentsMd.id,
+          title: "AGENTS.md",
+          url: `http://localhost:4000/wiki?page=${agentsMd.id}`,
+          offset: 0,
+          totalChars: agentsMd.markdown.length,
+        },
+        page: 2,
+      },
+    });
+    if (!result.ok || !result.data.agentsMd) throw new Error("Expected AGENTS.md context.");
+    expect(result.data.agentsMd.nextOffset).toBe(result.data.agentsMd.markdownChunk.length);
+    expect(result.data.agentsMd.nextOffset).toBeLessThan(result.data.agentsMd.totalChars);
+    const finalCode = result.data.agentsMd.markdownChunk.charCodeAt(result.data.agentsMd.markdownChunk.length - 1);
+    expect(finalCode >= 0xd800 && finalCode <= 0xdbff).toBe(false);
+  });
+
   it("reports an empty catalog and the final page without false continuation", async () => {
     const repo = {
-      listCatalogPages: vi.fn().mockResolvedValue({ items: [], total: 0 }),
+      listCatalogPages: vi.fn().mockResolvedValue({ items: [], agentsMd: null, total: 0 }),
     };
     expect(await new GetWikiCatalogInteractor(repo).invoke({ page: 1 })).toMatchObject({
       ok: true,
       data: { items: [], total: 0, nextPage: null, truncated: false },
     });
-    repo.listCatalogPages.mockResolvedValue({ items: [page], total: 11 });
+    repo.listCatalogPages.mockResolvedValue({ items: [page], agentsMd: null, total: 11 });
     expect(await new GetWikiCatalogInteractor(repo).invoke({ page: 2 })).toMatchObject({
       ok: true,
       data: { total: 11, page: 2, nextPage: null, truncated: false },
@@ -92,7 +125,7 @@ describe("GetWikiCatalogInteractor", () => {
 
   it("requires Wiki Read before querying titles or counts and accepts the read-only role", async () => {
     const repo = {
-      listCatalogPages: vi.fn().mockResolvedValue({ items: [], total: 0 }),
+      listCatalogPages: vi.fn().mockResolvedValue({ items: [], agentsMd: null, total: 0 }),
     };
     const interactor = new GetWikiCatalogInteractor(repo);
     await expect(

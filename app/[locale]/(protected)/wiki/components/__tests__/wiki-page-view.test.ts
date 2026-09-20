@@ -289,6 +289,26 @@ describe("Wiki document view", () => {
     expect(topBar).not.toContain("Wiki.newPage");
   });
 
+  it("pins a selected AGENTS.md outside the current page without changing pagination", async () => {
+    configure(false, false);
+    const agents = { ...page, id: "10000000-0000-4000-8000-000000000099", title: "AGENTS.md" };
+    const firstPage = Array.from({ length: 25 }, (_, index) => ({
+      ...page,
+      id: `10000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,
+      title: `Page ${index + 1}`,
+    }));
+    const paginated = { ...listPage, items: firstPage, total: 26 };
+    harness.store.form = agents;
+
+    const { container } = await mount(
+      createElement(WikiPageView, { initialPage: agents, listPage: paginated, pinnedPage: agents }),
+    );
+
+    expect(container.querySelectorAll("nav button")).toHaveLength(26);
+    expect(container.querySelector('nav [aria-current="page"]')?.textContent).toBe("AGENTS.md");
+    expect(container.textContent).toContain("Wiki.page");
+  });
+
   it("shows an unavailable target without substituting a document or offering homepage setup", () => {
     configure(true, true);
     const html = renderToStaticMarkup(
@@ -476,6 +496,18 @@ describe("Wiki empty state", () => {
     expect(harness.open).toHaveBeenCalledOnce();
     expect(harness.loadConfig).toHaveBeenCalledOnce();
     expect(harness.selectConversation).toHaveBeenCalledExactlyOnceWith("conversation-1");
+  });
+
+  it("starts the first manual document with the conventional AGENTS.md filename", async () => {
+    configure(true, false);
+    const { container } = await mount(createElement(WikiPageView, { initialPage: null, listPage }));
+    const manual = [...container.querySelectorAll<HTMLButtonElement>("button")].find((button) =>
+      button.textContent?.includes("Wiki.newPage"),
+    );
+
+    act(() => manual?.click());
+
+    expect(harness.store.startCreate).toHaveBeenCalledExactlyOnceWith("AGENTS.md");
   });
 
   it("offers homepage setup on a first visit before chat availability has been loaded", async () => {

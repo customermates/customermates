@@ -12,7 +12,7 @@ import type { SearchWikiPagesRepo } from "./search-wiki-pages.interactor";
 import type { UpdateWikiPageRepo } from "./update-wiki-page.interactor";
 import type { StartWikiHomepageSetupRepo } from "./start-wiki-homepage-setup.interactor";
 import type { WikiPageDto, WikiPageSearchData } from "./wiki.schema";
-import { WIKI_CATALOG_PAGE_SIZE } from "./wiki.schema";
+import { isWikiAgentsPageTitle, WIKI_AGENTS_PAGE_TITLE, WIKI_CATALOG_PAGE_SIZE } from "./wiki.schema";
 import { wikiPlainText, wikiSearchTerms } from "./wiki-content";
 
 export class PrismaWikiPageRepo
@@ -44,6 +44,20 @@ export class PrismaWikiPageRepo
       createdAt: true,
       updatedAt: true,
     } as const;
+  }
+
+  private async findAgentsPage(excludeId?: string): Promise<WikiPageDto | null> {
+    const excludedPage = excludeId ? Prisma.sql`AND "id" <> ${excludeId}` : Prisma.sql``;
+    const pages = await this.prisma.$queryRaw<WikiPageDto[]>(Prisma.sql`
+      SELECT "id", "title", "markdown", "createdAt", "updatedAt"
+      FROM "WikiPage"
+      WHERE "companyId" = ${this.companyId}
+        AND lower(btrim("title")) = 'agents.md'
+        ${excludedPage}
+      ORDER BY "createdAt" ASC, "id" ASC
+      LIMIT 1
+    `);
+    return pages[0] ? { ...pages[0], title: WIKI_AGENTS_PAGE_TITLE } : null;
   }
 
   async listPages({ page, pageSize }: RepoArgs<GetWikiPagesRepo, "listPages">) {
@@ -93,7 +107,7 @@ export class PrismaWikiPageRepo
 
   async listCatalogPages({ page }: RepoArgs<GetWikiCatalogRepo, "listCatalogPages">) {
     const where = { companyId: this.companyId };
-    const [items, total] = await Promise.all([
+    const [items, agentsMd, total] = await Promise.all([
       this.prisma.wikiPage.findMany({
         where,
         select: this.pageSelect,
@@ -101,9 +115,10 @@ export class PrismaWikiPageRepo
         skip: (page - 1) * WIKI_CATALOG_PAGE_SIZE,
         take: WIKI_CATALOG_PAGE_SIZE,
       }),
+      this.findAgentsPage(),
       this.prisma.wikiPage.count({ where }),
     ]);
-    return { items, total };
+    return { items, agentsMd, total };
   }
 
   async getPage(id: string) {
@@ -152,7 +167,11 @@ export class PrismaWikiPageRepo
         where: { companyId: this.companyId },
       })) > 0
     )
-      return null;
+      return { status: "wiki-not-empty" as const };
+
+    const agentsPages = data.pages.filter((page) => isWikiAgentsPageTitle(page.title));
+    if (agentsPages.length > 1 || (agentsPages.length === 1 && (await this.findAgentsPage())))
+      return { status: "agents-exists" as const };
 
     const pages: WikiPageDto[] = [];
     const createdAt = Date.now();
@@ -160,8 +179,9 @@ export class PrismaWikiPageRepo
       pages.push(
         await this.prisma.wikiPage.create({
           data: {
+            id: page.id,
             companyId: this.companyId,
-            title: page.title.trim(),
+            title: page.title,
             markdown: page.markdown,
             createdAt: new Date(createdAt + index),
           },
@@ -169,7 +189,7 @@ export class PrismaWikiPageRepo
         }),
       );
     }
-    return pages;
+    return { status: "created" as const, pages };
   }
 
   async updatePage(data: RepoArgs<UpdateWikiPageRepo, "updatePage">) {
@@ -181,6 +201,9 @@ export class PrismaWikiPageRepo
     const markdown = data.markdown ?? previous.markdown;
     if (title === previous.title && markdown === previous.markdown)
       return { status: "unchanged" as const, previous, page: previous };
+
+    if (isWikiAgentsPageTitle(title) && !isWikiAgentsPageTitle(previous.title) && (await this.findAgentsPage(data.id)))
+      return { status: "agents-exists" as const };
 
     const updated = await this.prisma.wikiPage.updateMany({
       where: {

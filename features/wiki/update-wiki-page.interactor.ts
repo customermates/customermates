@@ -6,18 +6,18 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Write } from "@/core/decorators/write.decorator";
 import { failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { zx, type Data, type Validated } from "@/core/validation/validation.utils";
+import { type Data, type Validated } from "@/core/validation/validation.utils";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { DomainEvent } from "@/features/event/domain-events";
 import type { EventService } from "@/features/event/event.service";
 
-import { WIKI_TITLE_MAX_LENGTH, WikiMarkdownSchema, WikiPageSchema, type WikiPageDto } from "./wiki.schema";
+import { WikiMarkdownSchema, WikiPageSchema, WikiTitleSchema, type WikiPageDto } from "./wiki.schema";
 
 export const UpdateWikiPageSchema = z
   .object({
     id: z.uuid(),
     expectedUpdatedAt: z.coerce.date(),
-    title: zx.nonBlankText(WIKI_TITLE_MAX_LENGTH).optional(),
+    title: WikiTitleSchema.optional(),
     markdown: WikiMarkdownSchema.optional(),
   })
   .refine((data) => data.title !== undefined || data.markdown !== undefined, {
@@ -32,7 +32,8 @@ export type UpdateWikiPageRepoResult =
       page: WikiPageDto;
     }
   | { status: "not-found" }
-  | { status: "conflict" };
+  | { status: "conflict" }
+  | { status: "agents-exists" };
 
 export abstract class UpdateWikiPageRepo {
   abstract updatePage(data: UpdateWikiPageData): Promise<UpdateWikiPageRepoResult>;
@@ -52,6 +53,7 @@ export class UpdateWikiPageInteractor extends AuthenticatedInteractor<UpdateWiki
     const result = await this.repo.updatePage(data);
     if (result.status === "not-found") return failNotFound(CustomErrorCode.wikiPageNotFound, ["id"]);
     if (result.status === "conflict") return failConflict(CustomErrorCode.wikiPageConflict, ["expectedUpdatedAt"]);
+    if (result.status === "agents-exists") return failConflict(CustomErrorCode.wikiAgentsPageExists, ["title"]);
 
     if (result.status === "updated") {
       await this.eventService.publish(DomainEvent.WIKI_PAGE_UPDATED, {

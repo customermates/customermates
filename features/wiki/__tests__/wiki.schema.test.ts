@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-import { WIKI_MARKDOWN_MAX_LENGTH, WIKI_TITLE_MAX_LENGTH, WikiPageInputSchema } from "../wiki.schema";
+import {
+  WIKI_AGENTS_PAGE_TITLE,
+  WIKI_MARKDOWN_MAX_LENGTH,
+  WIKI_TITLE_MAX_LENGTH,
+  WikiPageInputSchema,
+} from "../wiki.schema";
 
 describe("WikiPageInputSchema", () => {
   it("canonicalizes Markdown with the existing Notes parser and serializer", () => {
@@ -12,7 +17,7 @@ describe("WikiPageInputSchema", () => {
     });
     const twice = WikiPageInputSchema.parse(once);
 
-    expect(once.title).toBe("  Sales playbook  ");
+    expect(once.title).toBe("Sales playbook");
     expect(once.markdown).toBe(twice.markdown);
     expect(once.markdown).toContain("# Heading");
     expect(once.markdown).toContain("- first");
@@ -54,5 +59,9 @@ describe("WikiPageInputSchema", () => {
 
   it("rejects blank titles", () => {
     expect(WikiPageInputSchema.safeParse({ title: "   ", markdown: "Body" }).success).toBe(false);
+  });
+
+  it.each(["AGENTS.md", " agents.md ", "Agents.MD"])("canonicalizes the conventional entry title %s", (title) => {
+    expect(WikiPageInputSchema.parse({ title, markdown: "Body" }).title).toBe(WIKI_AGENTS_PAGE_TITLE);
   });
 });

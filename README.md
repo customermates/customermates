@@ -150,7 +150,7 @@ Useful scripts:
 
 ### Hosted Wiki setup and web search
 
-Wiki pages use the existing Notes editor and shared, permission-checked MCP tools. Homepage setup reads the submitted public site directly; it does not depend on a search index. Manual Wiki pages also work in self-hosted deployments.
+Wiki pages use the existing Notes editor and shared, permission-checked MCP tools. A workspace can keep one conventional `AGENTS.md` Wiki page as the read-first routing entry for Mate, routines, and MCP clients. It remains ordinary tenant-authored reference data. Homepage setup reads the submitted public site directly; it does not depend on a search index. Manual Wiki pages also work in self-hosted deployments.
 
 The native search integration uses `gateway.tools.perplexitySearch()` through the existing AI Gateway authentication. It does not require a separate Perplexity API key. Model routing, EU inference, credit settlement, and the routine browse-or-mutate boundary remain shared with the Assistant.
 

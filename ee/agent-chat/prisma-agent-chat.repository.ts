@@ -1717,6 +1717,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       if (renewedLease.count !== 1) throw new Error("Agent run lease expired before the provider started.");
 
       const user = await this.findUserForUsageUnscoped(args.userId);
+      if (!user || user.companyId !== args.companyId) return false;
       if (!user?.subscription) throw new Error("Agent credit subscription is unavailable at provider start.");
       if (user.status !== Status.active) throw new Error("Agent credit user is not an active seat at provider start.");
       const entitlement = await this.resolveCurrentAgentCreditEntitlement(user, startedAt);

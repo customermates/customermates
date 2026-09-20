@@ -74,12 +74,13 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
     this.editorDocument = parseMarkdownToJSON(this.form.markdown);
   };
 
-  startCreate = () => {
+  startCreate = (initialTitle = "") => {
     if (!this.canManage || this.isLoading) return;
     this.creating = true;
     this.conflict = false;
     this.unavailable = false;
     this.onInitOrRefresh(pageForm(null));
+    if (initialTitle) this.onChange("title", initialTitle);
     this.editorDocument = parseMarkdownToJSON("");
   };
 

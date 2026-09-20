@@ -6,7 +6,14 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { createMockDiModule, MOCK_ENV_MODULE, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
 
 const mockUser = createMockUser();
-const calls = vi.hoisted(() => ({ get: vi.fn(), create: vi.fn(), fetch: vi.fn(), catalog: vi.fn() }));
+const calls = vi.hoisted(() => ({
+  get: vi.fn(),
+  create: vi.fn(),
+  fetch: vi.fn(),
+  catalog: vi.fn(),
+  roles: vi.fn(),
+  accounts: vi.fn(),
+}));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
@@ -19,8 +26,8 @@ vi.mock("@/core/di", () => ({
   getGetCompanySettingsInteractor: () => ({
     invoke: () => Promise.resolve({ ok: true, data: { id: "company", terminology: { labels: {} } } }),
   }),
-  getGetRolesApiInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: { items: [] } }) }),
-  getGetMyConnectedAccountsApiInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: [] }) }),
+  getGetRolesApiInteractor: () => ({ invoke: calls.roles }),
+  getGetMyConnectedAccountsApiInteractor: () => ({ invoke: calls.accounts }),
 }));
 vi.mock("@/features/mcp-tools/tool-registry", async () => {
   const { z } = await import("zod");
@@ -64,6 +71,7 @@ const page = {
 };
 const catalog = {
   items: [{ ...page, markdown: undefined, excerpt: "Current catalog guidance", url: `/wiki?page=${PAGE_ID}` }],
+  agentsMd: null,
   total: 1,
   page: 1,
   nextPage: null,
@@ -98,6 +106,8 @@ describe("managed Wiki retrieval tools", () => {
     calls.create.mockResolvedValue({ ok: true, data: [{ ...page, markdown: "Created page" }] });
     calls.fetch.mockResolvedValue({ text: "Complete external document" });
     calls.catalog.mockResolvedValue({ ok: true, data: catalog });
+    calls.roles.mockResolvedValue({ ok: true, data: { items: [] } });
+    calls.accounts.mockResolvedValue({ ok: true, data: [] });
   });
 
   it.each(["chat", "routine"] as const)(
@@ -171,6 +181,100 @@ describe("managed Wiki retrieval tools", () => {
     expect(decode(denied.result)).not.toHaveProperty("wiki");
     expect(denied.result).not.toContain("Current catalog guidance");
   });
+
+  it("keeps core workspace data and explicit AGENTS.md continuation in one hosted result", async () => {
+    const markdownChunk = "A".repeat(4_000);
+    calls.catalog.mockResolvedValue({
+      ok: true,
+      data: {
+        items: Array.from({ length: 10 }, (_, index) => ({
+          ...page,
+          id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
+          title: `Page ${index} ${"T".repeat(110)}`,
+          excerpt: "E".repeat(200),
+          url: `/wiki?page=${index}`,
+        })),
+        agentsMd: {
+          ...page,
+          title: "AGENTS.md",
+          url: `/wiki?page=${PAGE_ID}`,
+          markdownChunk,
+          offset: 0,
+          nextOffset: 4_000,
+          totalChars: 8_000,
+        },
+        total: 20,
+        page: 1,
+        nextPage: 2,
+        truncated: true,
+      },
+    });
+    calls.roles.mockResolvedValue({ ok: true, data: { items: [{ id: "role-1", name: "Support" }] } });
+    calls.accounts.mockResolvedValue({
+      ok: true,
+      data: [{ id: "account-1", provider: "email", status: "connected" }],
+    });
+
+    const result = await execute(getAgentAiTools(dependencies()).get_workspace_context, {});
+
+    expect(result.ok).toBe(true);
+    expect(result.result.length).toBeLessThanOrEqual(6_000);
+    expect(result.result).not.toContain("[truncated:");
+    const decoded = decode(result.result) as {
+      roles: Array<{ id: string }>;
+      connectedAccounts: Array<{ id: string }>;
+      wiki: { agentsMd: WikiChunk & { shortened: boolean }; items: unknown[] };
+    };
+    expect(decoded.roles).toEqual([expect.objectContaining({ id: "role-1" })]);
+    expect(decoded.connectedAccounts).toEqual([expect.objectContaining({ id: "account-1" })]);
+    expect(decoded.wiki.agentsMd.markdownChunk.length).toBeGreaterThan(0);
+    expect(decoded.wiki.agentsMd.markdownChunk.length).toBeLessThan(markdownChunk.length);
+    expect(decoded.wiki.agentsMd.nextOffset).toBe(decoded.wiki.agentsMd.markdownChunk.length);
+    expect(decoded.wiki.agentsMd.shortened).toBe(true);
+    expect(decoded.wiki.items).toHaveLength(10);
+  });
+
+  it("shrinks escape-heavy AGENTS.md on a code-point boundary without truncating the hosted payload", async () => {
+    const markdownChunk = `${'"\\n'.repeat(1_999)}🌍`;
+    calls.catalog.mockResolvedValue({
+      ok: true,
+      data: {
+        items: Array.from({ length: 10 }, (_, index) => ({
+          ...page,
+          id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
+          title: `Page ${index} ${"T".repeat(110)}`,
+          excerpt: "E".repeat(200),
+          url: `/wiki?page=${index}`,
+        })),
+        agentsMd: {
+          ...page,
+          title: "AGENTS.md",
+          url: `/wiki?page=${PAGE_ID}`,
+          markdownChunk,
+          offset: 0,
+          nextOffset: markdownChunk.length,
+          totalChars: markdownChunk.length * 2,
+        },
+        total: 20,
+        page: 1,
+        nextPage: 2,
+        truncated: true,
+      },
+    });
+
+    const result = await execute(getAgentAiTools(dependencies()).get_workspace_context, {});
+
+    expect(result.ok).toBe(true);
+    expect(result.result.length).toBeLessThanOrEqual(6_000);
+    expect(result.result).not.toContain("[truncated:");
+    expect(result.result).not.toContain("�");
+    const decoded = decode(result.result) as { wiki: { agentsMd: WikiChunk & { shortened: boolean } } };
+    expect(decoded.wiki.agentsMd.markdownChunk.length).toBeGreaterThan(0);
+    expect(decoded.wiki.agentsMd.markdownChunk.endsWith("\ud83c")).toBe(false);
+    expect(decoded.wiki.agentsMd.nextOffset).toBe(decoded.wiki.agentsMd.markdownChunk.length);
+    expect(decoded.wiki.agentsMd.nextOffset).toBeLessThan(markdownChunk.length);
+    expect(decoded.wiki.agentsMd.shortened).toBe(true);
+  });
 });
 
 describe("homepage setup tool boundary", () => {
@@ -198,7 +302,10 @@ describe("homepage setup tool boundary", () => {
       const input = {
         action: "create",
         requireEmpty: true,
-        pages: Array.from({ length: count }, () => ({ title: "Page", markdown: "Verified" })),
+        pages: Array.from({ length: count }, (_, index) => ({
+          title: index === 0 ? "AGENTS.md" : `Page ${index}`,
+          markdown: "Verified",
+        })),
       };
       expect(await normalizeAgentAiToolInput("manage_wiki_pages", input, 6_000, options)).toMatchObject({
         ok: true,
@@ -209,11 +316,15 @@ describe("homepage setup tool boundary", () => {
       { action: "get", id: PAGE_ID },
       { action: "delete", id: PAGE_ID, expectedUpdatedAt: page.updatedAt.toISOString() },
       { action: "create", requireEmpty: false, pages: [{ title: "Page", markdown: "Verified" }] },
+      { action: "create", requireEmpty: true, pages: [{ title: "agents.md", markdown: "Verified" }] },
       { action: "create", requireEmpty: true, pages: [] },
       {
         action: "create",
         requireEmpty: true,
-        pages: Array.from({ length: 6 }, () => ({ title: "Page", markdown: "Verified" })),
+        pages: Array.from({ length: 6 }, (_, index) => ({
+          title: index === 0 ? "AGENTS.md" : `Page ${index}`,
+          markdown: "Verified",
+        })),
       },
     ]) {
       expect(await normalizeAgentAiToolInput("manage_wiki_pages", input, 6_000, options)).toMatchObject({ ok: false });
@@ -231,7 +342,7 @@ describe("homepage setup tool boundary", () => {
     calls.create.mockResolvedValue({ ok: true, data: [{ ...page, markdown: "Verified" }] });
     const deps = dependencies();
     const tools = getAgentAiTools(deps, { wikiHomepageSetup: true });
-    const input = { action: "create", requireEmpty: true, pages: [{ title: "Page", markdown: "Verified" }] };
+    const input = { action: "create", requireEmpty: true, pages: [{ title: "AGENTS.md", markdown: "Verified" }] };
     expect(await execute(tools.manage_wiki_pages, input)).toMatchObject({ ok: true });
     expect(calls.create).toHaveBeenCalledWith({ requireEmpty: true, pages: input.pages });
     expect(deps.runExactlyOnce).toHaveBeenCalledWith("wiki-test-call", "manage_wiki_pages", expect.any(Function));

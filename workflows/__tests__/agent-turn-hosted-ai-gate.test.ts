@@ -27,6 +27,9 @@ const state = vi.hoisted(() => ({
   providerOptions: null as unknown,
   maxRetries: undefined as number | undefined,
   instructions: [] as string[],
+  providerContexts: [] as Array<{ system: string; messages: unknown[]; tools: unknown[]; wikiCatalog?: string | null }>,
+  wikiCatalogAuthorization: vi.fn(),
+  tenantCompanyId: "company-1",
   prepared: null as unknown,
   readPage: vi.fn(),
   definitions: [] as {
@@ -136,6 +139,9 @@ vi.mock("ai", () => ({
 vi.mock("@/core/decorators/background-tenant", () => ({
   runAsBackgroundTenant: (_userId: string, run: () => unknown) => Promise.resolve(run()),
 }));
+vi.mock("@/core/decorators/tenant-context", () => ({
+  getTenantUser: () => ({ companyId: state.tenantCompanyId }),
+}));
 
 vi.mock("@/core/di", () => ({
   getAgentChatRepo: () => ({
@@ -157,6 +163,7 @@ vi.mock("@/core/di", () => ({
     extendUsageReservationUnscoped: state.extendReservation,
   }),
   getBackgroundTaskService: () => ({ dispatch: state.dispatch }),
+  getGetWikiCatalogInteractor: () => ({ invoke: state.wikiCatalogAuthorization }),
 }));
 
 vi.mock("@/ee/agent-chat/agent-tools", () => ({
@@ -164,7 +171,15 @@ vi.mock("@/ee/agent-chat/agent-tools", () => ({
     if (state.toolLoadFailure) throw new Error("tool shell unavailable");
     return state.definitions;
   },
-  getAgentAiTools: () => Object.fromEntries(state.definitions.map(({ name }) => [name, { execute: state.execute }])),
+  getAgentAiTools: (deps: { runInCallerContext: (run: () => Promise<unknown>) => Promise<unknown> }) =>
+    Object.fromEntries(
+      state.definitions.map(({ name }) => [
+        name,
+        {
+          execute: (input: unknown, options: unknown) => deps.runInCallerContext(() => state.execute(input, options)),
+        },
+      ]),
+    ),
   normalizeAgentAiToolInput: state.normalize,
 }));
 vi.mock("@/ee/agent-chat/public-page-reader", () => ({ readPublicPage: state.readPage }));
@@ -178,7 +193,10 @@ vi.mock("@/features/mcp-tools/tool-registry", () => ({
 }));
 vi.mock("@/ee/agent-chat/system-prompt", () => ({ buildAgentSystemPrompt: () => "system" }));
 vi.mock("@/ee/agent-chat/agent-provider-context", () => ({
-  buildAgentProviderContext: (system: string, messages: unknown[], tools: unknown[]) => ({ messages, system, tools }),
+  buildAgentProviderContext: (system: string, messages: unknown[], tools: unknown[], wikiCatalog?: string | null) => {
+    state.providerContexts.push({ system, messages, tools, wikiCatalog });
+    return { messages, system, tools };
+  },
   isAgentStepContextWithinBudget: (...args: unknown[]) => state.contextFits(...args),
 }));
 vi.mock("@/i18n/get-translator", () => ({
@@ -225,6 +243,9 @@ beforeEach(() => {
   state.providerOptions = null;
   state.maxRetries = undefined;
   state.instructions = [];
+  state.providerContexts = [];
+  state.tenantCompanyId = "company-1";
+  state.wikiCatalogAuthorization.mockReset().mockResolvedValue({ ok: true, data: {} });
   state.prepared = null;
   state.readPage.mockReset().mockResolvedValue({
     ok: true,
@@ -290,6 +311,62 @@ function streamedToolCallStep(toolName: string, toolCallId: string, input: unkno
 }
 
 describe("agent-turn hosted-AI provider gates", () => {
+  it.each(["chat", "routine"] as const)(
+    "passes the exact durable AGENTS.md snapshot into the first %s provider request",
+    async (surface) => {
+      const wikiCatalog = JSON.stringify({
+        wiki: {
+          agentsMd: { title: "AGENTS.md", markdownChunk: "Read Voice first." },
+          items: [],
+        },
+      });
+      state.runTools = ({ messages }) =>
+        Promise.resolve({ finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] });
+
+      await runAgentTurn({ ...payload, surface, wikiCatalog });
+
+      expect(state.wikiCatalogAuthorization).toHaveBeenCalledExactlyOnceWith({ page: 1 });
+      expect(state.providerContexts[0]?.wikiCatalog).toBe(wikiCatalog);
+      expect(state.providerContexts[0]?.system).toBe("system");
+    },
+  );
+
+  it("stops before the provider and tools if the user moved to another company before execution", async () => {
+    state.tenantCompanyId = "company-2";
+    state.runTools = ({ messages }) =>
+      Promise.resolve({ finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] });
+
+    await runAgentTurn({ ...payload, wikiCatalog: "old-tenant AGENTS.md" });
+
+    expect(state.markProviderStarted).not.toHaveBeenCalled();
+    expect(state.wikiCatalogAuthorization).not.toHaveBeenCalled();
+    expect(state.providerCalls).toBe(0);
+    expect(state.execute).not.toHaveBeenCalled();
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ usageSettlement: null, stopReason: "hosted_ai_unavailable" }),
+    );
+  });
+
+  it("denies a local tool if the user moves companies after the provider starts", async () => {
+    state.definitions = [{ name: "manage_wiki_pages", description: "Wiki", inputSchema: {} }];
+    let denied: unknown;
+    state.runTools = async ({ executeAndCompleteTool, messages }) => {
+      state.tenantCompanyId = "company-2";
+      try {
+        await executeAndCompleteTool("manage_wiki_pages", { action: "get", id: "page-1" }, "call-1");
+      } catch (error) {
+        denied = error;
+      }
+      return { finishReason: "stop", messages, steps: [streamedStep("Stopped.", "stop")] };
+    };
+
+    await runAgentTurn(payload);
+
+    expect(denied).toBeInstanceOf(Error);
+    expect((denied as Error).message).toMatch(/^Agent tenant changed/u);
+    expect(state.execute).not.toHaveBeenCalled();
+  });
+
   it.each([false, true])(
     "disables opaque model retries only for native search (enabled=%s)",
     async (webSearchEnabled) => {

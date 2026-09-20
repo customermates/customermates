@@ -1137,6 +1137,7 @@
       "widgetNotFound": "ID de widget no encontrado o no accesible.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Las tareas solo se pueden agrupar por columnas personalizadas, no por tipos de elemento.",
       "widgetWeightedValueNotAllowedForService": "La agregación de valor ponderado no está permitida para el tipo de elemento Servicio.",
+      "wikiAgentsPageExists": "Este espacio de trabajo ya tiene una página AGENTS.md.",
       "wikiNotEmpty": "La configuración de la wiki del espacio de trabajo solo puede ejecutarse cuando la wiki está vacía.",
       "wikiPageConflict": "Esta página de la wiki cambió después de que la abrieras. Vuelve a cargarla e inténtalo de nuevo.",
       "wikiPageNotFound": "Página de la wiki no encontrada o no accesible."

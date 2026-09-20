@@ -279,6 +279,7 @@ describe("agent tools", () => {
           createdAt: new Date("2026-09-13T00:00:00.000Z"),
           updatedAt: new Date("2026-09-13T00:00:00.000Z"),
         })),
+        agentsMd: null,
         total: 20,
         page: 1,
         nextPage: 2,

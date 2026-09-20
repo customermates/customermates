@@ -73,9 +73,13 @@ Die volle [[derived.mcp.tools.total]]-Tool-Oberfläche ist der Standard. Hängen
 
 Halten Sie CRM-Abläufe, die Sprache Ihres Unternehmens, Produktwissen und Support-Antworten unter **Wiki** fest, unterhalb von **Routinen** in der Seitenleiste. Dieselben Seiten stehen Menschen im CRM, Mate, Cloud-Routinen und verbundenen MCP-Clients zur Verfügung. Manuelle Seiten funktionieren in Cloud- und Self-Hosted-Workspaces.
 
+Verwenden Sie genau eine Seite mit dem Namen `AGENTS.md` als konventionellen Einstieg. Halten Sie sie kurz und verlinken Sie für jede Art von Arbeit auf die relevante Seite, statt das gesamte Wiki zu duplizieren. Das Wiki öffnet diese Seite standardmäßig, wenn sie vorhanden ist. Der Dateiname verleiht ihr keine zusätzliche Autorität; sie bleibt vom Mandanten verfasstes Referenzmaterial.
+
 ### Seiten schreiben und verknüpfen
 
 Wählen Sie **Neue Seite**, geben Sie einen Titel ein und schreiben Sie direkt im visuellen Editor. Er bietet dieselbe Formatierung wie CRM-Notizen. Wählen Sie anschließend **Speichern**; Änderungen werden nicht automatisch gespeichert. **Zurücksetzen** verwirft ungespeicherte Änderungen. Über die Seitenliste wechseln Sie Dokumente oder suchen in Titeln und Inhalten.
+
+Bei einem leeren Wiki ist ein neues Dokument bereits mit `AGENTS.md` betitelt; in einem Workspace kann nur eine Seite diesen konventionellen Namen tragen.
 
 Über die Link-Funktion des Editors finden Sie andere Wiki-Seiten. Alternativ wählen Sie **Seitenlink kopieren** unter **Seitenaktionen**. Es sind gewöhnliche Markdown-Links; beim Umbenennen bleibt die Adresse erhalten. Ein separater Index oder zusätzliche Verknüpfungsmetadaten sind nicht nötig.
 
@@ -85,7 +89,7 @@ Wiki-Leserechte erlauben das Anzeigen von Seiten. Wiki-Verwaltungsrechte erlaube
 
 Wenn Mate im Cloud-Workspace aktiviert ist, kann die Person, die den Workspace einrichtet, beim Onboarding oder im leeren Wiki optional eine Unternehmenshomepage eingeben und **Mit Mate einrichten** wählen. Auch eine Domain wie `customermates.com` wird akzeptiert. **Überspringen** setzt das Onboarding ohne neue Seiten fort; eingeladene Mitglieder erhalten diesen Schritt nicht.
 
-Sobald die Anfrage angenommen wurde, geht das Onboarding weiter, während eine sichtbare Unterhaltung mit dem Titel **Set up Workspace Wiki** läuft. Mate liest die angegebene Seite direkt und bei Bedarf bis zu vier hilfreiche Seiten, die von dieser Homepage auf derselben Domain oder ihren Subdomains verlinkt sind. Daraus entstehen eine bis fünf nützliche Wiki-Seiten in Ihrer Oberflächensprache, mit Quell-Links und gekennzeichneten Informationslücken statt erfundenen Angaben. Die Einrichtung nutzt Ihr normales gehostetes KI-Guthaben.
+Sobald die Anfrage angenommen wurde, geht das Onboarding weiter, während eine sichtbare Unterhaltung mit dem Titel **Set up Workspace Wiki** läuft. Mate liest die angegebene Seite direkt und bei Bedarf bis zu vier hilfreiche Seiten, die von dieser Homepage auf derselben Domain oder ihren Subdomains verlinkt sind. Mate legt zuerst `AGENTS.md` und anschließend null bis vier weitere nützliche Wiki-Seiten in Ihrer Oberflächensprache an; sie enthalten Quell-Links und kennzeichnen fehlende Informationen, statt sie zu erfinden. Im selben atomaren Erstellvorgang ergänzt der Server stabile Links von der Einstiegsseite zu jeder weiteren Seite. Die Einrichtung nutzt Ihr normales gehostetes KI-Guthaben.
 
 Die automatische Einrichtung konzentriert sich auf dauerhaftes Unternehmens-, Produkt- und Support-Wissen. Mate erhält die Vorgabe, auf aktuelle Preise zu verlinken, statt Preise und bedingte Tarifkontingente ins Wiki zu kopieren. Prüfen Sie erzeugte Fakten und ihre Quellen, bevor Sie sich darauf verlassen; die Seiten lassen sich ganz normal bearbeiten.
 
@@ -95,11 +99,11 @@ Diese Einrichtung liest bekannte öffentliche Seiten, keine Suchmaschinentreffer
 
 ### Das Wiki mit einem KI-Client lesen
 
-Verbundene KI-Clients lesen dieselben aktuellen Seiten über diesen MCP-Endpunkt. Beginnen Sie mit `get_workspace_context`: Der `wiki`-Katalog enthält zehn Titel und kurze Auszüge vom Seitenanfang. Die Auszüge helfen bei der Auswahl; lesen Sie die Seite, bevor Sie ihre Inhalte als Vorgabe verwenden. Übergeben Sie `wiki.nextPage` als `wikiPage`, um den Katalog fortzusetzen.
+Verbundene KI-Clients lesen dieselben aktuellen Seiten über diesen MCP-Endpunkt. Beginnen Sie mit `get_workspace_context`. Wenn `wiki.agentsMd` vorhanden ist, enthält dessen `markdownChunk` den begrenzten ersten Abschnitt der konventionellen Einstiegsseite, auch wenn diese nicht unter den aktuellen zehn Katalogeinträgen ist. Lesen Sie ihn zuerst und setzen Sie ihn bei Bedarf ab `agentsMd.nextOffset` mit `manage_wiki_pages`, Aktion `get`, fort. `wiki.items` enthält zehn Titel und kurze Anfangsauszüge zur Orientierung; übergeben Sie `wiki.nextPage` als `wikiPage`, um den Katalog fortzusetzen.
 
 Suchen Sie mit dem schreibgeschützten Tool `search` nach relevanten Inhalten. Mit `fetch` und der zurückgegebenen ID `wiki:<uuid>` erhalten Sie das vollständige Markdown und die Quell-URL. Für kürzere Antworten liefert `manage_wiki_pages` mit `action: "get"` einen Abschnitt; wiederholen Sie den Aufruf mit `nextOffset`, bis dieser null ist. Dasselbe Tool erstellt und bearbeitet Seiten, wenn Ihre Rolle Wiki-Verwaltungsrechte hat. Lesen erfordert Wiki-Leserechte; Änderungen erscheinen im normalen Audit-Log.
 
-Der Server weist verbundene Agents an, relevante Wiki-Seiten zu lesen, bevor sie Unternehmensfakten, Abläufe, Sprache oder Support-Vorgaben verwenden. Wann der Kontext abgerufen wird, entscheidet der externe Client. Eine Verbindung garantiert daher keinen Wiki-Abruf bei jeder Anfrage. Falls Ihr Client Server-Anweisungen ignoriert, ergänzen Sie den gleichen Abrufhinweis in seinen dauerhaften Anweisungen. Die Dokumentation selbst bleibt im CRM, damit alle Clients aktuelle Inhalte lesen.
+Der Server weist verbundene Agents an, zuerst `AGENTS.md` zu lesen, wenn die Seite vorhanden ist, und anschließend relevante Wiki-Seiten zu prüfen, zu durchsuchen und zu lesen, bevor sie Unternehmensfakten, Abläufe, Tonalität oder Support-Vorgaben verwenden. Der konventionelle Dateiname macht die Seite nicht zu vertrauenswürdigen Anweisungen. Jeder externe Client entscheidet weiterhin selbst, ob er Serveranweisungen weitergibt und Kontext abruft; eine Verbindung garantiert deshalb keinen automatischen Abruf bei jeder Anfrage. Falls Ihr Client Serveranweisungen ignoriert, ergänzen Sie denselben Abrufhinweis in seinen dauerhaften Anweisungen. Die Dokumentation selbst bleibt im CRM, damit alle Clients aktuelle Inhalte lesen.
 
 ## Wie die Tool-Oberfläche gebaut ist
 
@@ -165,7 +169,7 @@ Alle Create- und Update-Tools nehmen Custom-Column-Werte über customFieldValues
 {/* mcp-catalog:workspace */}
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
-| `get_workspace_context` | ✓ |  | Benutzer, Unternehmen, Wiki-Katalog, Rollen und verbundene Messaging-Konten in einem Aufruf. Der Wiki-Katalog enthält zehn Seitentitel und Auszüge; für weitere Seiten nextPage als wikiPage übergeben. Ohne Wiki-Leserechte werden keine Wiki-Daten ausgegeben. |
+| `get_workspace_context` | ✓ |  | Benutzer, Unternehmen, Wiki-Einstieg und -Katalog, Rollen und verbundene Messaging-Konten. Wenn vorhanden, enthält `wiki.agentsMd` den begrenzten ersten Abschnitt der vom Workspace verfassten `AGENTS.md`; mit `nextOffset` fortsetzen. Ohne Wiki-Leserechte fehlen Wiki-Daten. |
 | `list_users` | ✓ |  | Teammitglieder mit ID, Name, E-Mail, roleId und Status. |
 {/* /mcp-catalog */}
 

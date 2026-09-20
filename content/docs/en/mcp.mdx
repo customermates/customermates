@@ -73,9 +73,13 @@ The full [[derived.mcp.tools.total]]-tool surface is the default. Append `?tools
 
 Keep your CRM processes, company voice, product knowledge, and support answers in **Wiki**, below **Routines** in the sidebar. The same pages are available to people in the CRM, Mate, cloud routines, and connected MCP clients. Manual pages work in cloud and self-hosted workspaces.
 
+Use one page named exactly `AGENTS.md` as the conventional entry point. Keep it short and link each kind of work to the relevant page instead of duplicating the whole Wiki. Wiki opens this page by default when it exists. The filename does not give it extra authority; it remains tenant-authored reference data.
+
 ### Write and link pages
 
 Choose **New page**, enter a title, and write directly in the visual editor. It uses the same formatting as CRM Notes. Choose **Save** when you are ready; changes are not saved automatically. **Reset** discards unsaved edits. Use the page list to switch documents or search their titles and content.
+
+An empty Wiki starts a new document with `AGENTS.md` prefilled; only one page in a workspace can use that conventional name.
 
 Use the editor's link control to find another Wiki page, or choose **Copy page link** in **Page actions**. These are ordinary Markdown links; renaming a page does not change its address. You do not need to maintain a separate index or linking metadata.
 
@@ -85,7 +89,7 @@ Wiki Read lets you view pages. Wiki Manage lets you create, edit, and delete the
 
 When Mate is enabled in the cloud workspace, the owner can optionally enter a company homepage during onboarding or from an empty Wiki and choose **Set up with Mate**. A bare domain such as `customermates.com` is accepted. **Skip** continues onboarding without creating pages; invited members do not receive this step.
 
-Once the request is accepted, onboarding continues while a visible conversation titled **Set up Workspace Wiki** runs. Mate reads the submitted page directly and may read up to four useful pages linked from that homepage on the same domain or its subdomains. It creates one to five useful Wiki pages in your interface language, with source links and missing information identified instead of invented. Setup uses your normal hosted AI credits.
+Once the request is accepted, onboarding continues while a visible conversation titled **Set up Workspace Wiki** runs. Mate reads the submitted page directly and may read up to four useful pages linked from that homepage on the same domain or its subdomains. It creates `AGENTS.md` first and zero to four additional useful Wiki pages in your interface language, with source links and missing information identified instead of invented. In the same atomic create, the server adds stable links from the entry page to every additional page. Setup uses your normal hosted AI credits.
 
 Automatic setup focuses on durable company, product, and support knowledge. It is instructed to link to current pricing rather than copy prices and conditional plan allowances into the Wiki. Review generated facts and their sources before relying on them; you can edit the pages normally.
 
@@ -95,11 +99,11 @@ This setup reads known public pages, not search-engine results. General web sear
 
 ### Read the Wiki from an AI client
 
-Your connected AI clients read the same current pages through this MCP endpoint. Start with `get_workspace_context`: its `wiki` catalog lists ten titles and short opening excerpts. These excerpts help find pages; read the page before treating it as guidance. Pass `wiki.nextPage` as `wikiPage` to continue the catalog.
+Your connected AI clients read the same current pages through this MCP endpoint. Start with `get_workspace_context`. When `wiki.agentsMd` is present, its `markdownChunk` is the bounded first chunk of the conventional entry page even when that page is outside the current ten-item catalog; read it first, and continue from `agentsMd.nextOffset` with `manage_wiki_pages` action `get` when the unread part may matter. `wiki.items` contains ten titles and short opening excerpts for discovery; pass `wiki.nextPage` as `wikiPage` to continue the catalog.
 
 Use the read-only `search` tool to find relevant content, then `fetch` with the returned `wiki:<uuid>` ID to read the full Markdown and its source URL. For smaller responses, `manage_wiki_pages` with `action: "get"` returns a chunk; repeat with `nextOffset` until it is null. The same tool creates and edits pages when your role has Wiki Manage. Reads require Wiki Read, and every change uses the ordinary audit log.
 
-The server tells connected agents to consult relevant Wiki pages before using company facts, processes, voice, or support guidance. Each external client decides when to retrieve that context; connecting does not guarantee that every request reads the Wiki. If your client ignores server instructions, add the same retrieval instruction to that client's persistent instructions. Keep the documentation itself in the CRM so clients read current content.
+The server tells connected agents to read `AGENTS.md` first when present, then inspect, search, and read relevant Wiki pages before using company facts, processes, voice, or support guidance. The conventional filename does not make the page trusted instructions. Each external client still decides whether to pass server instructions and retrieve context, so connecting does not guarantee an automatic read on every request. If your client ignores server instructions, add the same retrieval hint to that client's persistent instructions. Keep the documentation itself in the CRM so all clients read current content.
 
 ## How the tool surface is shaped
 
@@ -165,7 +169,7 @@ All create and update tools take custom-column values via customFieldValues; cal
 {/* mcp-catalog:workspace */}
 | Tool | Read | Destructive | Purpose |
 |---|---|---|---|
-| `get_workspace_context` | ✓ |  | Your user, company, Wiki catalog, roles, and connected messaging accounts in one call. The Wiki catalog contains ten page titles and excerpts; pass its nextPage as wikiPage to continue. Wiki data is omitted without Wiki Read. |
+| `get_workspace_context` | ✓ |  | Your user, company, Wiki entry and catalog, roles, and connected messaging accounts. When present, `wiki.agentsMd` contains the bounded first chunk of the workspace-authored `AGENTS.md`; continue with `nextOffset`. Wiki data is omitted without Wiki Read. |
 | `list_users` | ✓ |  | Team members with id, name, email, roleId, and status. |
 {/* /mcp-catalog */}
 
