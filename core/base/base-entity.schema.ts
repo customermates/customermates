@@ -3,7 +3,12 @@ import type { Data } from "@/core/validation/validation.utils";
 import { z } from "zod";
 import { TaskType } from "@/generated/prisma";
 
-export const NotesSchema = z.any().nullish().describe("Markdown content");
+export const NotesSchema = z
+  .any()
+  .nullish()
+  .describe(
+    "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
+  );
 
 export const OrganizationReferenceSchema = z.object({
   id: z.uuid(),

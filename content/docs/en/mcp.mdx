@@ -65,7 +65,7 @@ The server exposes instructions when a client connects. Whether a client present
 
 ## Server instructions, prompts, and toolsets
 
-The server sends workflow guidance when a client connects: read the schema first, find ids before writing, change relations only through `manage_record_links`, and name the exact records or recipients when deleting or sending. That guidance is not a server-enforced confirmation gate. Verify how the chosen client passes instructions to the model and handles approval before granting write, delete or messaging access. In clients that support MCP prompts, a built-in get-started prompt can summarize the workspace to personalize the start.
+The server sends workflow guidance when a client connects: read the schema first, find ids before writing, change relations only through `manage_record_links`, and get the user's confirmation, naming the exact records or recipients, before deleting or sending. That guidance is not a server-enforced confirmation gate. Verify how the chosen client passes instructions to the model and handles approval before granting write, delete or messaging access. In clients that support MCP prompts, a built-in get-started prompt can summarize the workspace to personalize the start.
 
 The full [[derived.mcp.tools.total]]-tool surface is the default. Append `?toolsets=` to the endpoint URL to narrow it, for example `/api/v1/mcp?toolsets=records,messaging`. Keys and details are in [Narrowing with ?toolsets=](/docs/mcp#narrowing-with-toolsets).
 
@@ -516,7 +516,7 @@ Entitlements refuse the same way. Messaging-backed tools need the Pro tier, Sale
 
 ### Tool metadata and server-side constraints
 
-- **Client confirmation guidance.** The server instructions tell the model to name the exact records or recipients in the same message as a `delete_records` or send call, not to ask for permission and wait. The MCP route executes an authorized tool call once the client makes it, so any confirmation step is the client's, and verifying it is part of choosing one.
+- **Client confirmation guidance.** The server instructions state plainly that nothing is gated here, list every tool that deletes, sends or reaches outside the workspace, and tell the model to get its own user's confirmation, naming the exact records or recipients, before calling one. The MCP route executes an authorized tool call once the client makes it, so the confirmation step is the client's, and verifying that the client honours it is part of choosing one.
 - **Relations change only via `manage_record_links`.** The update tools never touch relations, and `null` on a relationship array is rejected server-side with a remediation hint.
 - **Draft, then send.** `send_email` and `send_chat_message` deliver immediately. When asked to prepare a message, the agent uses `save_message_draft` and the user sends from the inbox. A draft needs no existing conversation: pass `connectedAccountId` and `recipients` and the thread is created locally, appears in the inbox, and reaches the provider only when it is sent.
 - **Destructive flags everywhere.** Every destructive tool or action has `destructiveHint: true` and says `IRREVERSIBLE` in its description.
