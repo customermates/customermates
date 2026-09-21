@@ -37,7 +37,7 @@ export function roundMcpPageSize(value: number): McpPageSize {
 }
 
 export const MCP_PAGE_SIZE_DESCRIPTION =
-  "Results per page. Any value from 1 to 100 is accepted and lowered to the nearest of 5, 10, 25 or 100; the size actually used comes back as pageSize, and the call is never refused over it. Ask for a smaller size when a result was truncated: the next size down really is smaller.";
+  "Results per page: 5, 10, 25 or 100. A number in between is not refused, it is lowered to the next of those sizes and the call still succeeds, so never report an adjusted page size as a rejection; the size actually used comes back as pageSize. When a result was truncated, ask for the next size down.";
 
 export const mcpPageSize = (
   defaultValue: McpPageSize,
