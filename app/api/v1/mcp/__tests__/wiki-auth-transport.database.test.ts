@@ -1,5 +1,6 @@
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 
+import { defaultKeyHasher } from "@better-auth/api-key";
 import { Client } from "pg";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
@@ -46,10 +47,6 @@ type RpcEnvelope = {
   };
   error?: { code: number; message: string };
 };
-
-function apiKeyHash(value: string) {
-  return createHash("sha256").update(value).digest("base64url");
-}
 
 function mcpBody(method: string, id?: number, params?: Record<string, unknown>) {
   return {
@@ -172,11 +169,11 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
       [
         managerApiKeyId,
         "Wiki transport manager",
-        apiKeyHash(managerApiKey),
+        await defaultKeyHasher(managerApiKey),
         managerAuthUserId,
         readerApiKeyId,
         "Wiki transport reader",
-        apiKeyHash(readerApiKey),
+        await defaultKeyHasher(readerApiKey),
         readerAuthUserId,
       ],
     );

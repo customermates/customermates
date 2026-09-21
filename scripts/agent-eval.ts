@@ -1,7 +1,8 @@
 import "dotenv/config";
 
-import { createHash, createHmac, randomBytes, randomUUID } from "node:crypto";
+import { createHmac, randomBytes, randomUUID } from "node:crypto";
 
+import { defaultKeyHasher } from "@better-auth/api-key";
 import { createMCPClient } from "@ai-sdk/mcp";
 import { createGateway, isStepCount, ToolLoopAgent, type ToolSet } from "ai";
 import { createTranslator } from "next-intl";
@@ -725,6 +726,7 @@ describeEval("agent live eval", () => {
         `/wiki?page=${targetPageId}`,
         APP_URL,
       ).toString();
+      const persistedCredential = await defaultKeyHasher(apiKey);
       const now = new Date();
       let mcpClient: Awaited<ReturnType<typeof createMCPClient>> | undefined;
 
@@ -734,7 +736,7 @@ describeEval("agent live eval", () => {
             data: {
               id: apiKeyId,
               name: "Independent MCP Wiki live eval",
-              key: createHash("sha256").update(apiKey).digest("base64url"),
+              key: persistedCredential,
               referenceId: userId,
               configId: "default",
               enabled: true,
