@@ -130,7 +130,7 @@ const ManageCustomColumnsSchema = z.object({
   action: z
     .enum(["list", "upsert", "delete"])
     .describe(
-      "list = read columns (optional entityType); upsert = create a column with intent create, entityType, type, label and selectOptions for singleSelect, or update one with intent update, its existing id and unchanged label; delete = id.",
+      "list = read columns (optional entityType); upsert = create a column with intent create, entityType, type, label and selectOptions for singleSelect, or update one with intent update plus its existing id, entityType, type and unchanged label (entityType and type are required on every upsert and must match the stored column); delete = id.",
     ),
   entityType: z
     .enum(EntityType)
@@ -236,10 +236,10 @@ export const manageCustomColumnsTool = {
           entityType: params.entityType,
         });
         if (!byEntity.ok) return mcpInteractorFailure(byEntity.error);
-        return toonResult({ items: byEntity.data });
+        return toonResult({ total: byEntity.data.length, items: byEntity.data });
       }
       const all = await getGetCustomColumnsInteractor().invoke();
-      return toonResult({ items: all.data });
+      return toonResult({ total: all.data.length, items: all.data });
     }
     if (params.action === "upsert") {
       const normalizedParams = params.intent === "create" && params.id === null ? { ...params, id: undefined } : params;

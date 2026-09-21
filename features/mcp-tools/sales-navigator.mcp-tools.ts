@@ -204,8 +204,8 @@ export const searchSalesLeadsTool = {
     const format = (data: { data: SalesListItem[]; total_count?: number | null }) =>
       toonResult(
         formatDatesInResponse({
-          items: data.data.map(formatSalesListItem),
           total: data.total_count ?? data.data.length,
+          items: data.data.map(formatSalesListItem),
           next_offset: data.data.length ? (params.offset ?? 0) + data.data.length : null,
         }),
       );
@@ -250,8 +250,8 @@ export const searchSalesCompaniesTool = {
     const format = (data: { data: unknown[]; total_count?: number | null }) =>
       toonResult(
         formatDatesInResponse({
-          items: data.data.map((item) => formatSalesCompany(SalesCompanySchema.parse(item))),
           total: data.total_count ?? data.data.length,
+          items: data.data.map((item) => formatSalesCompany(SalesCompanySchema.parse(item))),
           next_offset: data.data.length ? (params.offset ?? 0) + data.data.length : null,
         }),
       );
@@ -304,8 +304,8 @@ export const getSalesSearchParametersTool = {
       (data) =>
         toonResult(
           formatDatesInResponse({
-            items: data.data.map((parameter) => ({ id: parameter.id, name: parameter.name })),
             total: data.total_count ?? data.data.length,
+            items: data.data.map((parameter) => ({ id: parameter.id, name: parameter.name })),
             next_offset: data.data.length ? (params.offset ?? 0) + data.data.length : null,
           }),
         ),
@@ -338,8 +338,8 @@ export const manageSalesListsTool = {
         (data) =>
           toonResult(
             formatDatesInResponse({
-              items: data.data.map(formatSalesList),
               total: data.total_count ?? data.data.length,
+              items: data.data.map(formatSalesList),
               next_offset: data.data.length ? (params.offset ?? 0) + data.data.length : null,
             }),
           ),
@@ -351,8 +351,8 @@ export const manageSalesListsTool = {
       return runInteractor(getLinkedinBrowseSalesListInteractor().invoke(parsed.data), (data) =>
         toonResult(
           formatDatesInResponse({
-            items: data.data.map(formatSalesListItem),
             total: data.total_count ?? data.data.length,
+            items: data.data.map(formatSalesListItem),
             next_offset: data.data.length ? (parsed.data.offset ?? 0) + data.data.length : null,
           }),
         ),

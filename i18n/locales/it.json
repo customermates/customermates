@@ -26,21 +26,36 @@
   "AgentChat": {
     "activity": {
       "approval": {
+        "customFields": {
+          "configure": "Pronto a modificare i campi personalizzati",
+          "delete": "Pronto a eliminare definitivamente un campo personalizzato"
+        },
+        "generic": "Pronto a eseguire una modifica che richiede la tua approvazione",
         "messages": {
           "discard": "Pronto a eliminare la bozza",
           "draft": "Pronto a salvare una bozza",
           "send": "Pronto a inviare un messaggio reale",
           "triage": "Pronto a cambiare lo stato della conversazione"
         },
+        "records": {
+          "delete": "{count, plural, one {Pronto a eliminare definitivamente {target}} other {Pronto a eliminare definitivamente {target}}}"
+        },
         "routines": {
           "configure": "Pronto a mettere in pausa o eseguire la routine",
           "delete": "Pronto a eliminare la routine e la sua cronologia"
+        },
+        "support": {
+          "escalate": "Pronto a inviare la tua richiesta via e-mail al supporto"
         },
         "team": {
           "manage": "Pronto a modificare l’accesso del team"
         },
         "webhooks": {
           "manage": "Pronto a modificare la consegna dei webhook"
+        },
+        "widgets": {
+          "configure": "Pronto a modificare i widget della dashboard",
+          "delete": "Pronto a eliminare definitivamente un widget della dashboard"
         }
       },
       "cancelled": "Interrotto",

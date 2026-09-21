@@ -26,21 +26,36 @@
   "AgentChat": {
     "activity": {
       "approval": {
+        "customFields": {
+          "configure": "Ready to change custom fields",
+          "delete": "Ready to permanently delete a custom field"
+        },
+        "generic": "Ready to make a change that needs your approval",
         "messages": {
           "discard": "Ready to discard the draft",
           "draft": "Ready to save a draft",
           "send": "Ready to send a real message",
           "triage": "Ready to change the conversation state"
         },
+        "records": {
+          "delete": "{count, plural, one {Ready to permanently delete {target}} other {Ready to permanently delete {target}}}"
+        },
         "routines": {
           "configure": "Ready to pause or run the routine",
           "delete": "Ready to delete the routine and its history"
+        },
+        "support": {
+          "escalate": "Ready to email your request to support"
         },
         "team": {
           "manage": "Ready to change team access"
         },
         "webhooks": {
           "manage": "Ready to change webhook delivery"
+        },
+        "widgets": {
+          "configure": "Ready to change dashboard widgets",
+          "delete": "Ready to permanently delete a dashboard widget"
         }
       },
       "cancelled": "Stopped",

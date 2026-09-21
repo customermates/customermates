@@ -15,7 +15,6 @@ const read = (path: string) => readFileSync(join(root, path), "utf8");
 
 const chatPrompt = buildAgentSystemPrompt({
   userName: "Ada Lovelace",
-  appBaseUrl: "https://app.example.com",
   locale: "en",
   surface: "chat",
 });
@@ -72,7 +71,6 @@ describe("agent approval wording matches runtime behaviour", () => {
   it("warns an unattended run that approvals will be declined, and does not warn an attended one", () => {
     const routinePrompt = buildAgentSystemPrompt({
       userName: "Ada Lovelace",
-      appBaseUrl: "https://app.example.com",
       locale: "en",
       surface: "routine",
     });

@@ -5,7 +5,7 @@ export const CRM_DATA_INVARIANTS = [
   "Deal stage and task status are singleSelect custom columns, not fixed fields.",
   "Never guess custom-column ids or singleSelect option ids; read them from get_record_schema.",
   "Contact ids: a UUID, or a channel the contact owns: an email, a phone, or 'provider:handle' (linkedin, telegram, instagram).",
-  "List results are TOON-encoded tables with total first and id and name per item; page through with page/pageSize.",
+  "List results are TOON-encoded tables that carry total, and page or nextCursor where they apply, before items: read those instead of counting rows, and page with page/pageSize or the cursor.",
 ] as const;
 
 export const MCP_SERVER_INSTRUCTIONS = `Customermates CRM. Five record types (contacts, organizations, deals, services, tasks), all with user-defined custom columns. Deal stage and task status are singleSelect custom columns, not fixed fields. Flow: call get_record_schema first (fields and custom-column ids vary per workspace), find ids with search_records or list_records, write with the per-entity create_*/update_* tools. Relations change ONLY via manage_record_links; update_* never touches them. ${TOOL_APPROVAL_INSTRUCTION} delete_records and the send_* tools take effect immediately and cannot be undone from here, so name the exact records or recipients in the same message as the call.

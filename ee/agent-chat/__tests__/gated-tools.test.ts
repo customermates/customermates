@@ -13,6 +13,7 @@ import { describeAgentTool } from "../agent-activity";
 import {
   AGENT_APPROVAL_POLICY_TOOL_NAMES,
   approvalFreeActionsForTool,
+  readOnlyActionsForTool,
   isReadOnlyTool,
   requiresApproval,
   AGENT_DESTRUCTIVE_APPROVAL_FREE_TOOL_NAMES,
@@ -150,13 +151,18 @@ describe("gated-tools", () => {
   });
 
   it("keeps the risk label aligned with the approval predicate for every catalog tool", () => {
+    const policyActions = new Set(
+      AGENT_APPROVAL_POLICY_TOOL_NAMES.flatMap((name) => [
+        ...(approvalFreeActionsForTool(internalToolIdentity(name)) ?? []),
+        ...(readOnlyActionsForTool(internalToolIdentity(name)) ?? []),
+      ]),
+    );
     const inputs = [
       undefined,
       {},
-      { action: "list" },
-      { action: "delete" },
-      { action: "upsert" },
-      { action: "create" },
+      ...[...policyActions, "delete", "upsert", "create"].map((action) => ({
+        action,
+      })),
     ];
     for (const tool of ALL_MCP_TOOLS) {
       if (isReadOnlyTool(tool)) continue;
@@ -218,7 +224,11 @@ describe("tool identity", () => {
   });
 
   it.each(COLLIDING_NAMES)("does not let an external server inherit the internal policy for %s", (name) => {
-    const external = { source: "external-mcp" as const, serverId: "acme", name };
+    const external = {
+      source: "external-mcp" as const,
+      serverId: "acme",
+      name,
+    };
     const claimsReadOnly = { name, annotations: { readOnlyHint: true } };
 
     expect(requiresApproval(external, claimsReadOnly, { action: "list" })).toBe(true);
@@ -227,7 +237,10 @@ describe("tool identity", () => {
   });
 
   it("ignores a read-only annotation from a source that did not earn trust", () => {
-    const internalReadOnly = { name: "search", annotations: { readOnlyHint: true } };
+    const internalReadOnly = {
+      name: "search",
+      annotations: { readOnlyHint: true },
+    };
 
     expect(requiresApproval(internalToolIdentity("search"), internalReadOnly, {})).toBe(false);
     for (const source of ["external-mcp", "gateway-tool", "provider-native", "sandbox"] as const)
@@ -263,6 +276,7 @@ describe("tool identity", () => {
     expect(new Set(keys).size).toBe(identities.length);
     for (const identity of identities)
       expect(parseAgentToolIdentityKey(agentToolIdentityKey(identity))).toEqual(identity);
+
     expect(parseAgentToolIdentityKey("not-a-source::acme::search")).toBeNull();
     expect(parseAgentToolIdentityKey("external-mcp::acme")).toBeNull();
   });

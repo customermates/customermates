@@ -6,7 +6,6 @@ import { toolsetIndexSentence } from "./agent-toolset-routing";
 
 export type SystemPromptContext = {
   userName: string;
-  appBaseUrl: string;
   locale: string;
   surface: AgentSurface;
   triggerEvent?: string | null;

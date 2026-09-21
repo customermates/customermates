@@ -239,7 +239,6 @@ describe("agent tools", () => {
   it("keeps the stable full catalog inside the conservative provider envelope", () => {
     const systemPrompt = buildAgentSystemPrompt({
       userName: "Ada Lovelace",
-      appBaseUrl: "https://app.example.com",
       locale: "en",
       surface: "chat",
     });
@@ -752,7 +751,6 @@ describe("agent tools", () => {
   it("gives the model truthful, neutral capability and approval instructions", () => {
     const prompt = buildAgentSystemPrompt({
       userName: "Ada",
-      appBaseUrl: "https://app.example.com",
       locale: "en",
       surface: "chat",
     });
@@ -795,13 +793,11 @@ describe("system prompt reply language", () => {
   it("names the interface language so workspace data cannot decide it", () => {
     const german = buildAgentSystemPrompt({
       userName: "Ada",
-      appBaseUrl: "https://app.example.com",
       locale: "de",
       surface: "chat",
     });
     const english = buildAgentSystemPrompt({
       userName: "Ada",
-      appBaseUrl: "https://app.example.com",
       locale: "en",
       surface: "chat",
     });

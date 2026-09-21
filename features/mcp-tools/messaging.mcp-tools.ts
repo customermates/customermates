@@ -240,6 +240,8 @@ export const getMessagingThreadsTool = {
       (data) =>
         toonResult(
           formatDatesInResponse({
+            total: data.pagination?.total ?? data.items.length,
+            page,
             items: data.items.map((thread) => ({
               id: thread.id,
               connectedAccountId: thread.connectedAccountId,
@@ -267,8 +269,6 @@ export const getMessagingThreadsTool = {
               sharedToCrm: thread.sharedToCrm,
               isOwner: thread.isOwner,
             })),
-            total: data.pagination?.total ?? data.items.length,
-            page,
           }),
         ),
     );
@@ -321,11 +321,11 @@ export const getActivitiesTool = {
         toonResult(
           formatDatesInResponse({
             availableSources: data.availableSources,
+            total: data.pagination?.total ?? data.items.length,
+            page,
             items: data.items.map(withoutRawMessageHtml),
             pageLimitReached: data.pageLimitReached,
             scopeTruncated: data.scopeTruncated,
-            total: data.pagination?.total ?? data.items.length,
-            page,
           }),
         ),
     ),
@@ -400,9 +400,9 @@ export const getCalendarsTool = {
       return runInteractor(getGetCalendarEventsApiInteractor().invoke(params), (data) =>
         toonResult(
           formatDatesInResponse({
-            items: data.items,
             total: data.pagination?.total ?? data.items.length,
             page,
+            items: data.items,
           }),
         ),
       );
@@ -411,9 +411,9 @@ export const getCalendarsTool = {
     return runInteractor(getGetCalendarsApiInteractor().invoke(params), (data) =>
       toonResult(
         formatDatesInResponse({
-          items: data.items,
           total: data.pagination?.total ?? data.items.length,
           page,
+          items: data.items,
         }),
       ),
     );

@@ -26,21 +26,36 @@
   "AgentChat": {
     "activity": {
       "approval": {
+        "customFields": {
+          "configure": "Bereit, Custom Columns zu ändern",
+          "delete": "Bereit, eine Custom Column endgültig zu löschen"
+        },
+        "generic": "Bereit für eine Änderung, die Ihre Freigabe braucht",
         "messages": {
           "discard": "Entwurf ist zum Verwerfen bereit",
           "draft": "Entwurf ist zum Speichern bereit",
           "send": "Eine echte Nachricht ist zum Senden bereit",
           "triage": "Unterhaltungsstatus ist zum Ändern bereit"
         },
+        "records": {
+          "delete": "{count, plural, one {Bereit, {target} endgültig zu löschen} other {Bereit, {target} endgültig zu löschen}}"
+        },
         "routines": {
           "configure": "Routine ist zum Pausieren oder Ausführen bereit",
           "delete": "Routine samt Verlauf ist zum Löschen bereit"
+        },
+        "support": {
+          "escalate": "Bereit, Ihre Anfrage an den Support zu senden"
         },
         "team": {
           "manage": "Teamzugriff ist zum Ändern bereit"
         },
         "webhooks": {
           "manage": "Webhook-Aktion ist bereit"
+        },
+        "widgets": {
+          "configure": "Bereit, Dashboard-Widgets zu ändern",
+          "delete": "Bereit, ein Dashboard-Widget endgültig zu löschen"
         }
       },
       "cancelled": "Gestoppt",

@@ -29,7 +29,6 @@ export function measureAgentContext(question: string, pageRoute: string | null):
   const routed = agentToolDefinitionsForToolsets(definitions, toolsets);
   const systemPrompt = buildAgentSystemPrompt({
     userName: "Benjamin Wagner",
-    appBaseUrl: "https://customermates.com",
     locale: "en",
     surface: "chat",
   });

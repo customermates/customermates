@@ -218,7 +218,7 @@ export const manageWebhooksTool = {
     "action list supports searchTerm, filters, sort, paging. " +
     "action list_deliveries returns delivery attempts newest first; without `id` it spans the whole workspace, with `id` it is scoped to that webhook's CURRENT url (deliveries made while a different url was configured are not matched); narrow further with searchTerm or filters. " +
     "action resend_delivery re-sends a past delivery as a NEW delivery record; pass the delivery id from list_deliveries.",
-  annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
+  annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true },
   inputSchema: ManageWebhooksSchema,
   outputSchema: ManageWebhooksOutputSchema,
   execute: async (params: z.infer<typeof ManageWebhooksSchema>) => {
@@ -334,9 +334,9 @@ export const manageWebhooksTool = {
         }),
         (data) =>
           toonResult({
-            items: formatDatesInResponse(data.items),
             total: data.pagination?.total ?? data.items.length,
             page: parsed.data.page,
+            items: formatDatesInResponse(data.items),
           }),
       );
     }

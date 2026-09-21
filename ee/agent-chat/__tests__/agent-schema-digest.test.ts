@@ -65,7 +65,7 @@ describe("agent schema digest", () => {
   });
 
   it("reaches the system prompt only when there is something to say", () => {
-    const context = { userName: "Ada", appBaseUrl: "https://app.test", locale: "en", surface: "chat" } as const;
+    const context = { userName: "Ada", locale: "en", surface: "chat" } as const;
     const digest = renderAgentSchemaDigest([stage]) ?? "";
     expect(buildAgentSystemPrompt({ ...context, schemaDigest: digest })).toContain("deal | Stage | singleSelect");
     expect(buildAgentSystemPrompt(context)).not.toContain("Custom columns of this workspace");

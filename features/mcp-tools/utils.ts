@@ -200,6 +200,7 @@ export const FILTER_FIELD_DESCRIPTION =
 export const filtersDescription = (filterableFields: string) =>
   "Array of filter rules, AND-combined. Each rule is { field, operator, value? }. " +
   "Use only the operators listed in each field's hint; value-less operators take no value. " +
+  'Example: [{"field":"createdAt","operator":"inLastDays","value":30}]. ' +
   `Filterable fields: ${filterableFields}.`;
 
 export const sortDescription = (sortableFields: string) =>

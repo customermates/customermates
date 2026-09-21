@@ -106,8 +106,8 @@ export const manageRoutinesTool = {
     "action create needs name, prompt and triggerKind, plus cronExpression for a schedule, or triggerEvents for an event. " +
     "Omitting enabled on create produces a routine that is immediately LIVE and will start running, so pass enabled false to draft one. " +
     "action update changes only the fields supplied, but a change of triggerKind must arrive with that kind's schedule or events or validation fails. " +
-    "action pause disables a routine and settles its queued runs to skipped; re-enabling restores the schedule but never those runs. " +
-    "action run_now starts a scheduled routine immediately and is rejected for an event routine. " +
+    "action pause disables a routine and settles its queued runs to skipped; re-enabling restores the schedule but never those runs. Only an active system administrator may pause. " +
+    "action run_now starts a scheduled routine immediately; it is rejected for an event routine, for a routine the caller does not own, and for one that is not enabled. " +
     "action delete removes the routine and its history and is IRREVERSIBLE. " +
     "A routine whose owner has been deactivated cannot be enabled, and creating one may be refused when the owner has used their plan's per-user routine allowance.",
   annotations: {
@@ -126,7 +126,7 @@ export const manageRoutinesTool = {
           pageSize: params.pageSize,
           searchTerm: params.searchTerm,
         }),
-        (data) => toonResult({ items: data.items, total: data.pagination?.total ?? data.items.length }),
+        (data) => toonResult({ total: data.pagination?.total ?? data.items.length, items: data.items }),
       );
     }
 
@@ -136,7 +136,7 @@ export const manageRoutinesTool = {
 
       return runInteractor(
         getGetRoutineRunsInteractor().invoke({ routineId: parsed.data.id, cursor: params.cursor }),
-        (data) => toonResult({ items: data.runs, nextCursor: data.nextCursor }),
+        (data) => toonResult({ nextCursor: data.nextCursor, items: data.runs }),
       );
     }
 

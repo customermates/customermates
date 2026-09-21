@@ -363,14 +363,14 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
           : action === "cancel"
             ? "social.cancel"
             : "external.manage";
-    return descriptor("generic", undefined, "sensitive", [], {
+    return descriptor("generic", undefined, multiplexedRisk(toolName, details), [], {
       action: consequenceAction,
       target: safeText(details.targetLabel, 120),
       preview: action === "invite" ? safeText(details.message, 240) : undefined,
     });
   }
   if (toolName === "linkedin_manage_sales_lists") {
-    return descriptor("generic", undefined, "sensitive", [], {
+    return descriptor("generic", undefined, multiplexedRisk(toolName, details), [], {
       action: actionValue(details) === "save" ? "salesList.save" : "external.manage",
       target: safeText(details.targetLabel, 120),
       state: safeText(details.listLabel, 80),
@@ -471,6 +471,13 @@ type ActivityCopy = {
 };
 
 export const AGENT_APPROVAL_COPY_KINDS: readonly AgentActivityKind[] = [
+  "generic",
+  "records.delete",
+  "customFields.configure",
+  "customFields.delete",
+  "widgets.configure",
+  "widgets.delete",
+  "support.escalate",
   "messages.discard",
   "messages.draft",
   "messages.send",

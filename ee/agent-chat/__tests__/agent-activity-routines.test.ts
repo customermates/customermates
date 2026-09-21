@@ -6,6 +6,9 @@ import { describe, expect, it } from "vitest";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
 
 import { AGENT_APPROVAL_COPY_KINDS, agentActivityCopy, describeAgentTool } from "../agent-activity";
+import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
+
+import { requiresApproval } from "../gated-tools";
 import { internalToolIdentity } from "../tool-identity";
 
 const describeInternalTool = (name: string, input: unknown) => describeAgentTool(internalToolIdentity(name), input);
@@ -80,9 +83,22 @@ describe("manage_routines activity", () => {
     expect(ROUTING_LOCALES.length).toBeGreaterThan(0);
   });
 
-  it("keeps the approval label list limited to kinds that can reach an approval card", () => {
-    expect(AGENT_APPROVAL_COPY_KINDS).toContain("messages.send");
-    expect(AGENT_APPROVAL_COPY_KINDS).toContain("routines.delete");
+  it("carries approval copy for every kind that can still reach an approval card", () => {
+    const declaredActions = (tool: (typeof ALL_MCP_TOOLS)[number]): string[] => {
+      const shape = (tool.inputSchema as { shape?: Record<string, { options?: unknown }> }).shape;
+      const options = shape?.action?.options;
+      return Array.isArray(options) ? options.filter((option): option is string => typeof option === "string") : [];
+    };
+    const reachable = new Set<string>();
+    for (const tool of ALL_MCP_TOOLS) {
+      const inputs = [undefined, {}, ...declaredActions(tool).map((action) => ({ action }))];
+      for (const input of inputs) {
+        if (!requiresApproval(internalToolIdentity(tool.name), tool, input)) continue;
+        reachable.add(describeInternalTool(tool.name, input).kind);
+      }
+    }
+    expect(reachable.size).toBeGreaterThan(0);
+    for (const kind of reachable) expect(AGENT_APPROVAL_COPY_KINDS).toContain(kind);
     expect(AGENT_APPROVAL_COPY_KINDS).not.toContain("records.read");
   });
 });

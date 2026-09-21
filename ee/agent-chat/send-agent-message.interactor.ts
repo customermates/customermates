@@ -234,7 +234,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     const requiredContextBytes = conservativeAgentInitialContextBytes({
       systemPrompt: buildAgentSystemPrompt({
         userName,
-        appBaseUrl: env.BASE_URL,
         locale,
         surface,
         triggerEvent: routineTriggerEventOf(data.text),

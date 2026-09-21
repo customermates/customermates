@@ -127,7 +127,7 @@ const ManageWidgetsSchema = z.object({
   action: z
     .enum(["create", "update", "delete", "get", "list"])
     .describe(
-      "list = ids, names, and kinds (no other keys); get = full config with computed chart data (ids); create = name, entityType, displayType, groupByType, aggregationType, plus optional entityFilters, dealFilters, groupByCustomColumnId for a chart, or kind activityTimeline with optional timelineFilters and showFilters; update = id plus the fields to change (chart: name, groupByType, groupByCustomColumnId, entityFilters, dealFilters, reverseXAxis, reverseYAxis, barColors; activityTimeline: name, timelineFilters, showFilters); delete = id.",
+      "list = ids, names, and kinds (no other keys); get = full config with computed chart data (ids); create = name, entityType, displayType, groupByType, aggregationType, plus optional entityFilters, dealFilters, groupByCustomColumnId for a chart, or kind activityTimeline with optional timelineFilters and showFilters; update = id plus the fields to change (chart: name, displayType, aggregationType, groupByType, groupByCustomColumnId, entityFilters, dealFilters, reverseXAxis, reverseYAxis, barColors; activityTimeline: name, timelineFilters, showFilters); delete = id.",
     ),
   kind: z
     .enum(WidgetKind)
@@ -232,12 +232,12 @@ export const manageWidgetsTool = {
       const result = await getGetWidgetsInteractor().invoke();
       const widgets = result.data;
       return toonResult({
+        total: widgets.length,
         items: widgets.map((widget) => ({
           id: widget.id,
           name: widget.name,
           kind: widget.kind,
         })),
-        total: widgets.length,
       });
     }
     if (params.action === "get") {

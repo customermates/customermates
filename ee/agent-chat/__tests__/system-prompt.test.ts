@@ -5,7 +5,7 @@ import { ROUTINE_TRIGGER_EVENTS } from "@/ee/routines/routine-trigger-events";
 
 import { buildAgentSystemPrompt, routineTriggerEventOf } from "../system-prompt";
 
-const base = { userName: "Ada", appBaseUrl: "https://app.example.com", locale: "en", surface: "chat" as const };
+const base = { userName: "Ada", locale: "en", surface: "chat" as const };
 
 describe("system prompt", () => {
   it("keeps the user-specific line last so the static prefix is cacheable across users and days", () => {

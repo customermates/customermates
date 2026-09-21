@@ -750,7 +750,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const initialToolsets = payload.toolsets ?? [];
     const systemPrompt = buildAgentSystemPrompt({
       userName: payload.userName,
-      appBaseUrl: payload.appBaseUrl,
       locale: payload.locale,
       surface,
       loadedToolsets: initialToolsets,

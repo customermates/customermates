@@ -302,8 +302,8 @@ export const getSocialPostsTool = {
     return runInteractor(getListSocialPostsInteractor().invoke(parsed.data), (data) =>
       toonResult(
         formatDatesInResponse({
-          items: data.data.map(formatPost),
           total: data.total_count ?? data.data.length,
+          items: data.data.map(formatPost),
           next_cursor: data.next_cursor ?? null,
         }),
       ),
@@ -336,8 +336,8 @@ export const getSocialPostEngagementTool = {
         (data) =>
           toonResult(
             formatDatesInResponse({
-              items: data.data.map(formatReaction),
               total: data.total_count ?? data.data.length,
+              items: data.data.map(formatReaction),
               next_cursor: data.next_cursor ?? null,
             }),
           ),
@@ -355,8 +355,8 @@ export const getSocialPostEngagementTool = {
         (data) =>
           toonResult(
             formatDatesInResponse({
-              items: data.data.map(formatReaction),
               total: data.total_count ?? data.data.length,
+              items: data.data.map(formatReaction),
               next_cursor: data.next_cursor ?? null,
             }),
           ),
@@ -374,6 +374,7 @@ export const getSocialPostEngagementTool = {
       (data) =>
         toonResult(
           formatDatesInResponse({
+            total: data.total_count ?? data.data.length,
             items: data.data.map((comment) => ({
               id: comment.id,
               created_at: comment.created_at,
@@ -392,7 +393,6 @@ export const getSocialPostEngagementTool = {
                   }
                 : null,
             })),
-            total: data.total_count ?? data.data.length,
             next_cursor: data.next_cursor ?? null,
           }),
         ),
@@ -425,7 +425,8 @@ export const manageSocialRelationsTool = {
     "Use this to manage connection requests on a connected LinkedIn or Instagram account (connectedAccountId from get_workspace_context). " +
     "action list returns invitations with invitationId, user and message: direction=received (default) lists requests sent to the account owner, direction=sent the owner's pending outgoing requests; manage_social_relations.items[].user.id identifies that person in get_social_profile. " +
     "action invite SENDS A REAL connection request to identifier, a get_social_profile.id; a get_messaging_threads.items[].participants[].identifier or get_messaging_threads.thread.participants[].identifier must go through get_social_profile first. The optional message travels with the request, and the hosted Assistant verifies the person with the provider before it calls, refusing the call when the identifier does not resolve. " +
-    "action accept and action cancel take the invitationId from action list. Paginate list with cursor or offset plus limit.",
+    "action accept and action cancel take the invitationId from action list; the hosted Assistant checks that invitationId against the provider's first pages of invitations too, and refuses the call when it is not among them, so page to a recent invitation rather than a deep one. " +
+    "Paginate list with cursor or offset plus limit.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
   inputSchema: ManageSocialRelationsToolSchema,
   outputSchema: ManageSocialRelationsOutputSchema,
@@ -442,8 +443,8 @@ export const manageSocialRelationsTool = {
         (data) =>
           toonResult(
             formatDatesInResponse({
-              items: data.data.map(formatRelationRequest),
               total: data.total_count ?? data.data.length,
+              items: data.data.map(formatRelationRequest),
               next_cursor: data.next_cursor ?? null,
             }),
           ),
