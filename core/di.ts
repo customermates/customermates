@@ -1689,6 +1689,7 @@ export const getSendAgentMessageInteractor = () =>
     getAgentUsageService(),
     getEntitlementService(),
     getBackgroundTaskService(),
+    getCustomColumnRepo(),
   );
 
 export const getGetRoutinesInteractor = () =>

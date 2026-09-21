@@ -122,7 +122,7 @@ describe("get_docs_page", () => {
   it("keeps full-page behavior when no focused query is supplied", () => {
     const result = getPage({ slug: "app-profile" });
 
-    expect(result).toContain("## Purpose");
+    expect(result).toContain("## What lives on the Profile screen?");
     expect(result).toContain("## Related");
   });
 });

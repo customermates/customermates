@@ -1,55 +1,79 @@
 ---
 title: "Company Settings: Roles, Audit Log, Team Access"
-description: "The Company screen is workspace-wide admin in Customermates: subscription, members, roles, webhooks, deliveries, and the audit trail."
+description: "The Company screen is workspace-wide admin in Customermates: subscription, currency, members, roles, webhooks, deliveries, and the audit trail, tab by tab."
 ---
 
 Customermates is an open-source CRM with a built-in MCP server. This page documents the **Company** screen of the web app for humans and for AI agents that drive the UI.
 
-## Purpose
+## What lives on the Company screen?
 
-The Company screen is workspace-wide administration. It holds the subscription (Cloud only), the team and its permissions, outbound webhooks with their delivery history, and the audit trail. Everything that affects the whole workspace, not a single record, lives here.
+Workspace-wide administration: the subscription (Cloud only), the workspace currency, the team and its permissions, outbound webhooks with their delivery history, and the audit trail. Everything that affects the whole workspace, not a single record, lives here. All app routes are locale-prefixed (example: https://customermates.com/en/company/members), and each tab has its own route. The sidebar entry `#nav-company` opens `/company/subscription` on Cloud and `/company/settings` on a self-hosted install.
 
-## URL
+## Subscription tab
 
-All app routes are locale-prefixed (example: https://customermates.com/en/company/members). Each tab has its own route: `/company/subscription` (Cloud only), `/company/settings`, `/company/members`, `/company/roles`, `/company/webhooks`, `/company/webhook-deliveries`, and `/company/audit-logs`.
+Route `/company/subscription`, sidebar id `#nav-company-subscription`, Cloud only. Shows the plan, the trial status and the plan picker. Plan prices and allowances are listed under [Plans and credits](/docs/app-assistant#plans-and-credits).
 
-## Key actions
+## Settings tab
+
+Route `/company/settings`, sidebar id `#nav-company-settings`. Holds the workspace currency for all money values. Save or discard with `#company-settings-save` and `#company-settings-reset`.
+
+## Members tab
+
+Route `/company/members`, sidebar id `#nav-company-members`.
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
-| Open the Company group | App sidebar | `#nav-company` | Expands the sidebar sub-items; the button itself does not navigate |
-| Subscription tab | Sidebar sub-item | `#nav-company-subscription` | Plan, trial status, and the plan picker (Cloud only) |
-| Settings tab | Sidebar sub-item | `#nav-company-settings` | Workspace currency, deal forecasting, and the data model |
-| Save / reset settings | Top bar | `#company-settings-save` / `#company-settings-reset` | Persists or discards |
-| Members tab | Sidebar sub-item | `#nav-company-members` | Team management |
 | Invite member | Members toolbar | `#company-members-add` | Opens the invite modal |
-| Send invite | Invite modal footer | `#member-modal-save` / `#member-modal-reset` | Sends the invitation |
-| Search / filter members | Members toolbar | `#company-members-search` / `#company-members-filter` / `#company-members-display-options` | List controls |
-| Roles tab | Sidebar sub-item | `#nav-company-roles` | Permission sets |
+| Send invite | Invite modal footer | `#member-modal-save` / `#member-modal-reset` | Sends the invitation email |
+| Search, filter, display options | Members toolbar | `#company-members-search` / `#company-members-filter` / `#company-members-display-options` | List controls |
+| Layout | Display-options popover | `#company-members-layout-table` / `#company-members-layout-board` | Table is the only usable layout; the board control is present but disabled because members have nothing to group by |
+
+People who register through an invitation link appear as **Waiting for Approval** until an admin assigns a role and activates them. Sending an invitation always asks the assistant's user for approval, because it emails a real person.
+
+## Roles tab
+
+Route `/company/roles`, sidebar id `#nav-company-roles`. Roles are permission sets: for every resource (the five record types, users, roles, audit log, API, routines and so on) they grant read, create, update and delete rights.
+
+| Action | Where | Anchor id | What happens |
+|---|---|---|---|
 | Add role | Roles toolbar | `#company-roles-add` | Opens the role editor |
-| Roles list controls | Roles toolbar | `#company-roles-search` / `#company-roles-display-options` | List controls (roles have no filterable fields, so no filter control renders) |
-| Webhooks tab | Sidebar sub-item | `#nav-company-webhooks` | Outbound event subscriptions |
+| Search, display options | Roles toolbar | `#company-roles-search` / `#company-roles-display-options` | Roles have no filterable fields, so no filter control renders |
+| Layout | Display-options popover | `#company-roles-layout-table` / `#company-roles-layout-board` | Table only; the board control is disabled |
+
+## Webhooks tab
+
+Route `/company/webhooks`, sidebar id `#nav-company-webhooks`. Outbound event subscriptions; the payloads, signatures and retries are documented on [Webhooks](/docs/webhooks).
+
+| Action | Where | Anchor id | What happens |
+|---|---|---|---|
 | Create webhook | Webhooks toolbar | `#company-webhooks-add` | Opens the webhook modal |
 | Save webhook | Webhook modal footer | `#webhook-modal-save` / `#webhook-modal-reset` | Subscribes the URL to events |
-| Webhooks list controls | Webhooks toolbar | `#company-webhooks-search` / `#company-webhooks-filter` / `#company-webhooks-display-options` | List controls |
-| Deliveries tab | Sidebar sub-item | `#nav-company-webhook-deliveries` | Per-delivery status + payload; resend from a delivery row |
-| Deliveries list controls | Deliveries toolbar | `#company-webhook-deliveries-search` / `#company-webhook-deliveries-filter` / `#company-webhook-deliveries-display-options` | List controls |
-| Audit logs tab | Sidebar sub-item | `#nav-company-audit-logs` | Who changed what, when |
-| Audit list controls | Audit toolbar | `#company-audit-logs-search` / `#company-audit-logs-filter` / `#company-audit-logs-display-options` | List controls (search matches the record id only; the filter offers event and date) |
+| Search, filter, display options | Webhooks toolbar | `#company-webhooks-search` / `#company-webhooks-filter` / `#company-webhooks-display-options` | List controls |
+| Layout | Display-options popover | `#company-webhooks-layout-table` / `#company-webhooks-layout-board` | Table only; the board control is disabled |
 
-The display-options popovers expose these stable layout controls. None of these lists is groupable, so the board control renders disabled on every one of them:
+## Deliveries tab
 
-- Members: `#company-members-layout-table`, `#company-members-layout-board`
-- Roles: `#company-roles-layout-table`, `#company-roles-layout-board`
-- Webhooks: `#company-webhooks-layout-table`, `#company-webhooks-layout-board`
-- Deliveries: `#company-webhook-deliveries-layout-table`, `#company-webhook-deliveries-layout-board`
-- Audit logs: `#company-audit-logs-layout-table`, `#company-audit-logs-layout-board`
+Route `/company/webhook-deliveries`, sidebar id `#nav-company-webhook-deliveries`. One row per delivery with its status and payload; open a row to inspect it and resend it from there.
+
+| Action | Where | Anchor id | What happens |
+|---|---|---|---|
+| Search, filter, display options | Deliveries toolbar | `#company-webhook-deliveries-search` / `#company-webhook-deliveries-filter` / `#company-webhook-deliveries-display-options` | List controls |
+| Layout | Display-options popover | `#company-webhook-deliveries-layout-table` / `#company-webhook-deliveries-layout-board` | Table only; the board control is disabled |
+
+## Audit logs tab
+
+Route `/company/audit-logs`, sidebar id `#nav-company-audit-logs`. Changes to records and workspace configuration with who, what and when, as a field-level diff for updates and a snapshot for creates and deletes; messaging events are not logged, and webhook secrets and header values are redacted. Reading it needs the audit-log permission on your role. There is no export; the [dashboard](/docs/app-dashboard) activity timeline shows the same changes as a feed.
+
+| Action | Where | Anchor id | What happens |
+|---|---|---|---|
+| Search, filter, display options | Audit toolbar | `#company-audit-logs-search` / `#company-audit-logs-filter` / `#company-audit-logs-display-options` | List controls |
+| Layout | Display-options popover | `#company-audit-logs-layout-table` / `#company-audit-logs-layout-board` | Table only; the board control is disabled |
 
 ## Tips for agents
 
-- Locate controls via the stable ids above, not by visible text. Text changes with the locale, ids do not. Example CSS selector: `#company-webhooks-add`.
+- The hosted assistant can navigate to every tab and highlight every id above; it cannot click a row or submit a modal.
 - Rows never carry ids. Navigate to a tab via its URL (for example `/company/webhooks`) and open a row by clicking it. Edits happen in modals, not in a drawer.
-- Prefer [MCP](/docs/mcp) tools over clicking when a tool exists: managing records via MCP is faster and more reliable than driving the UI.
+- Prefer [MCP](/docs/mcp) tools over clicking when a tool exists: `manage_team` invites and updates members, `manage_webhooks` manages subscriptions and deliveries, and `get_workspace_context` lists roles.
 
 ## Related
 

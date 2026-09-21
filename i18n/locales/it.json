@@ -1,4 +1,12 @@
 {
+  "AccountAccessRevoked": {
+    "body": "Hai appena effettuato l'accesso senza password, e questo conferma che questo indirizzo e-mail è tuo. Fino a ora non era mai stato confermato, quindi non potevamo sapere con certezza chi avesse creato questo account. Per sicurezza abbiamo rimosso la vecchia password e tutto il resto che poteva aprire l'account, come app collegate o chiavi. I tuoi dati non sono cambiati e puoi continuare ad accedere esattamente come hai appena fatto.",
+    "cta": "Imposta una nuova password",
+    "greeting": "Ciao,",
+    "signoff": "Il pulsante qui sopra ti serve solo se preferisci accedere con una password. Se non sei stato tu ad accedere, contattaci subito.",
+    "subject": "La tua e-mail è confermata e abbiamo rimosso la vecchia password",
+    "title": "Il tuo indirizzo e-mail è confermato"
+  },
   "AccountRemovalReason": {
     "ownerInactive": "Proprietario disattivato",
     "planDowngrade": "Piano ridotto",
@@ -23,6 +31,39 @@
   },
   "AgentChat": {
     "activity": {
+      "approval": {
+        "customFields": {
+          "configure": "Pronto a modificare i campi personalizzati",
+          "delete": "Pronto a eliminare definitivamente un campo personalizzato"
+        },
+        "generic": "Pronto a eseguire una modifica che richiede la tua approvazione",
+        "messages": {
+          "discard": "Pronto a scartare la bozza",
+          "draft": "Pronto a salvare una bozza",
+          "send": "Pronto a inviare un messaggio reale",
+          "triage": "Pronto a cambiare lo stato della conversazione"
+        },
+        "records": {
+          "delete": "{count, plural, one {Pronto a eliminare definitivamente {target}} other {Pronto a eliminare definitivamente {target}}}"
+        },
+        "routines": {
+          "configure": "Pronto a mettere in pausa o eseguire la routine",
+          "delete": "Pronto a eliminare la routine e la sua cronologia"
+        },
+        "support": {
+          "escalate": "Pronto a inviare la tua richiesta all’assistenza via e-mail"
+        },
+        "team": {
+          "manage": "Pronto a modificare l’accesso del team"
+        },
+        "webhooks": {
+          "manage": "Pronto a modificare la consegna dei webhook"
+        },
+        "widgets": {
+          "configure": "Pronto a modificare i widget della dashboard",
+          "delete": "Pronto a eliminare definitivamente un widget della dashboard"
+        }
+      },
       "cancelled": "Interrotto",
       "consequence": {
         "accountConnect": "Collegare un canale di messaggistica",
@@ -35,6 +76,9 @@
         "recordsDelete": "Questa azione non può essere annullata.",
         "recordsLink": "Collegare i record",
         "recordsUnlink": "Rimuovere i collegamenti",
+        "routineDelete": "Eliminare definitivamente la routine selezionata e la sua cronologia",
+        "routinePause": "Mettere in pausa la routine selezionata",
+        "routineRun": "Eseguire ora la routine selezionata",
         "salesListSave": "Aggiungere il potenziale cliente selezionato a un elenco Sales Navigator",
         "salesListSaveTarget": "Aggiungere {target} all'elenco Sales Navigator {list}",
         "socialAccept": "Accettare la richiesta di collegamento selezionata",
@@ -163,12 +207,12 @@
           "discard": {
             "done": "Bozza scartata",
             "error": "Impossibile eliminare la bozza",
-            "running": "Pronto a eliminare la bozza"
+            "running": "Eliminazione della bozza"
           },
           "draft": {
             "done": "Bozza salvata",
             "error": "Impossibile salvare la bozza",
-            "running": "Pronto a salvare una bozza"
+            "running": "Salvataggio di una bozza"
           },
           "read": {
             "done": "Conversazioni controllate",
@@ -178,12 +222,12 @@
           "send": {
             "done": "Messaggio inviato",
             "error": "Impossibile inviare il messaggio",
-            "running": "Pronto a inviare un messaggio reale"
+            "running": "Invio del messaggio"
           },
           "triage": {
             "done": "Stato della conversazione modificato",
             "error": "Impossibile modificare lo stato della conversazione",
-            "running": "Pronto a cambiare lo stato della conversazione"
+            "running": "Modifica dello stato della conversazione"
           }
         },
         "profile": {
@@ -225,6 +269,33 @@
             "running": "{count, plural, one {Aggiornamento di {target}} other {Aggiornamento di {target}}}"
           }
         },
+        "routines": {
+          "configure": {
+            "done": "Pianificazione della routine modificata",
+            "error": "Impossibile modificare la pianificazione della routine",
+            "running": "Modifica della pianificazione della routine"
+          },
+          "create": {
+            "done": "Routine creata",
+            "error": "Impossibile creare la routine",
+            "running": "Creazione di una routine"
+          },
+          "delete": {
+            "done": "Routine rimossa",
+            "error": "Impossibile rimuovere la routine",
+            "running": "Rimozione della routine"
+          },
+          "read": {
+            "done": "Routine lette",
+            "error": "Impossibile leggere le routine",
+            "running": "Lettura delle routine"
+          },
+          "update": {
+            "done": "Routine aggiornata",
+            "error": "Impossibile aggiornare la routine",
+            "running": "Aggiornamento della routine"
+          }
+        },
         "support": {
           "escalate": {
             "done": "E-mail di assistenza accettata per l’invio",
@@ -236,14 +307,21 @@
           "manage": {
             "done": "Accesso del team modificato",
             "error": "Impossibile modificare gli accessi del team",
-            "running": "Pronto a modificare l’accesso del team"
+            "running": "Modifica dell’accesso del team"
+          }
+        },
+        "tools": {
+          "load": {
+            "done": "Altri strumenti caricati",
+            "error": "Impossibile caricare altri strumenti",
+            "running": "Caricamento di altri strumenti"
           }
         },
         "webhooks": {
           "manage": {
             "done": "Azione sul webhook completata",
             "error": "Impossibile completare l’azione webhook",
-            "running": "Pronto a modificare la consegna dei webhook"
+            "running": "Modifica della consegna dei webhook"
           }
         },
         "widgets": {
@@ -813,7 +891,8 @@
   "AuthSocialErrors": {
     "accessDenied": "L'accesso è stato annullato presso il provider.",
     "accountAlreadyLinkedToDifferentUser": "Questo account social è già collegato a un altro utente.",
-    "accountNotLinked": "Esiste già un account con questa e-mail, ma l'indirizzo non è ancora verificato. Accedi con la password e verifica l'indirizzo, poi potrai usare l'accesso social.",
+    "accountNotLinked": "Il tuo provider non ha confermato questo indirizzo e-mail, quindi non abbiamo potuto collegarlo al tuo account esistente. Accedi invece con la password.",
+    "accountNotLinkedAction": "Reimposta password",
     "emailDoesNotMatch": "L'e-mail restituita dal provider non corrisponde a quella del tuo account.",
     "emailIsMissing": "Il provider non ha restituito alcun indirizzo e-mail.",
     "emailNotFound": "Non è stato trovato alcun indirizzo e-mail per questo account social.",
@@ -3448,9 +3527,13 @@
     "body": "Ti abbiamo inviato un'e-mail di verifica. Controlla la tua posta in arrivo e clicca sul link per verificare il tuo indirizzo e-mail.",
     "ctaLabel": "Invia di nuovo l'e-mail di verifica",
     "invitationFrom": "Invito da {inviterName}",
+    "linkExpired": "Questo link di verifica è scaduto.",
+    "linkInvalid": "Questo link di verifica non è valido.",
     "resendSuccess": "E-mail di verifica inviata correttamente.",
+    "signedOutBody": "Accedi al tuo account per richiedere una nuova e-mail di verifica.",
     "subtitle": "Verifica il tuo indirizzo e-mail per continuare.",
-    "title": "Verifica dell'e-mail"
+    "title": "Verifica dell'e-mail",
+    "verifiedSignIn": "Il tuo indirizzo e-mail è ora verificato. Accedi per continuare."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "I tentativi di consegna appariranno qui quando viene attivato un webhook.",

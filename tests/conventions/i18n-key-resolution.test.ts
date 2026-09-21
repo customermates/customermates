@@ -32,7 +32,7 @@ import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { SignatureTemplate } from "@/ee/messaging/email-settings";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { AGENT_ACTIVITY_KINDS } from "@/ee/agent-chat/agent-activity";
+import { AGENT_ACTIVITY_KINDS, AGENT_APPROVAL_COPY_KINDS } from "@/ee/agent-chat/agent-activity";
 import { ROUTINE_SCHEDULE_PRESETS } from "@/ee/routines/routine-schedule-preset";
 import { ROUTINE_RUN_REASONS } from "@/ee/routines/routine-run-outcome";
 import { OPERATOR_AUDIT_ACTION } from "@/ee/operator/operator.schema";
@@ -398,6 +398,7 @@ const AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS = [
 const AGENT_ACTIVITY_STATE_KEYS = AGENT_ACTIVITY_KINDS.flatMap((kind) =>
   (["done", "error", "running"] as const).map((state) => `AgentChat.activity.state.${kind}.${state}`),
 );
+const AGENT_ACTIVITY_APPROVAL_KEYS = AGENT_APPROVAL_COPY_KINDS.map((kind) => `AgentChat.activity.approval.${kind}`);
 const AGENT_SUGGESTION_KEYS = [
   "AgentChat.suggestions.pages.connected-accounts.data.accounts-add-channel",
   "AgentChat.suggestions.pages.connected-accounts.data.accounts-list",
@@ -537,6 +538,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["AgentChat.activity.resourceSingular.${*}", AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS],
   ["AgentChat.activity.label.${*}", AGENT_ACTIVITY_LABEL_KEYS],
   ["AgentChat.activity.state.${*}.${*}", AGENT_ACTIVITY_STATE_KEYS],
+  ["AgentChat.activity.approval.${*}", AGENT_ACTIVITY_APPROVAL_KEYS],
   ["AgentChat.approval.${*}", AGENT_APPROVAL_RESOLUTION_KEYS],
   ["AgentChat.credits.blocked.${*}", AGENT_CREDIT_BLOCKED_KEYS],
   ["AgentChat.suggestions.pages.${*}.${*}.${*}.label", AGENT_SUGGESTION_KEYS.map((key) => `${key}.label`)],
@@ -709,6 +711,7 @@ export const DYNAMIC_KEY_SITES = [
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.resource.${activity.resource}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.resourceSingular.${resourceKey}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.state.${activity.kind}.${name}",
+  "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.approval.${activity.kind}",
   "ee/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.pages.${page}.${state}.${id}.label",
   "ee/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.pages.${page}.${state}.${id}.prompt",
   "ee/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.readOnly.${id}.label",

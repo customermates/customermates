@@ -4,6 +4,7 @@ import type { EmailSignInData } from "@/features/auth/sign-in-with-email.interac
 import type { EmailSignUpData } from "@/features/auth/sign-up-with-email.interactor";
 import type { RequestPasswordResetData } from "@/features/auth/request-password-reset.interactor";
 import type { ResetPasswordData } from "@/features/auth/reset-password.interactor";
+import type { ResendVerificationEmailData } from "@/features/auth/resend-verification-email.interactor";
 import type { DecideMcpConsentData } from "@/features/auth/decide-mcp-consent.interactor";
 
 import {
@@ -80,10 +81,10 @@ export async function resetPasswordAction(data: ResetPasswordData) {
   return serializeResult(getResetPasswordInteractor().invoke(data));
 }
 
-export async function resendVerificationEmailFromAuthAction(onboardingIntentValue?: string): Promise<{
+export async function resendVerificationEmailFromAuthAction(data: ResendVerificationEmailData = {}): Promise<{
   ok: boolean;
 }> {
-  return await getResendVerificationEmailInteractor().invoke(onboardingIntentValue);
+  return await getResendVerificationEmailInteractor().invoke(data);
 }
 
 export async function decideMcpConsentAction(data: DecideMcpConsentData) {

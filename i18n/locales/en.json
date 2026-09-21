@@ -1,4 +1,12 @@
 {
+  "AccountAccessRevoked": {
+    "body": "You just signed in without a password, and that confirmed this email address is yours. Until now it had never been confirmed, so we could not be certain who created this account. To keep it safe we removed the old password, along with anything else that could open the account, such as connected apps or keys. Your data is untouched, and you can carry on signing in exactly as you just did.",
+    "cta": "Set a new password",
+    "greeting": "Hi,",
+    "signoff": "You only need the button above if you would rather sign in with a password. If this sign-in was not you, please contact us right away.",
+    "subject": "Your email is confirmed, and your old password was removed",
+    "title": "Your email address is confirmed"
+  },
   "AccountRemovalReason": {
     "ownerInactive": "Owner deactivated",
     "planDowngrade": "Plan downgrade",
@@ -23,6 +31,39 @@
   },
   "AgentChat": {
     "activity": {
+      "approval": {
+        "customFields": {
+          "configure": "Ready to change custom fields",
+          "delete": "Ready to permanently delete a custom field"
+        },
+        "generic": "Ready to make a change that needs your approval",
+        "messages": {
+          "discard": "Ready to discard the draft",
+          "draft": "Ready to save a draft",
+          "send": "Ready to send a real message",
+          "triage": "Ready to change the conversation state"
+        },
+        "records": {
+          "delete": "{count, plural, one {Ready to permanently delete {target}} other {Ready to permanently delete {target}}}"
+        },
+        "routines": {
+          "configure": "Ready to pause or run the routine",
+          "delete": "Ready to delete the routine and its history"
+        },
+        "support": {
+          "escalate": "Ready to email your request to support"
+        },
+        "team": {
+          "manage": "Ready to change team access"
+        },
+        "webhooks": {
+          "manage": "Ready to change webhook delivery"
+        },
+        "widgets": {
+          "configure": "Ready to change dashboard widgets",
+          "delete": "Ready to permanently delete a dashboard widget"
+        }
+      },
       "cancelled": "Stopped",
       "consequence": {
         "accountConnect": "Connect a messaging channel",
@@ -35,6 +76,9 @@
         "recordsDelete": "This cannot be undone.",
         "recordsLink": "Link records",
         "recordsUnlink": "Remove relationships",
+        "routineDelete": "Permanently delete the selected routine and its run history",
+        "routinePause": "Pause the selected routine",
+        "routineRun": "Run the selected routine now",
         "salesListSave": "Add the selected prospect to a Sales Navigator list",
         "salesListSaveTarget": "Add {target} to Sales Navigator list {list}",
         "socialAccept": "Accept the selected connection request",
@@ -163,12 +207,12 @@
           "discard": {
             "done": "Discarded the draft",
             "error": "Couldn’t discard the draft",
-            "running": "Ready to discard the draft"
+            "running": "Discarding the draft"
           },
           "draft": {
             "done": "Saved the draft",
             "error": "Couldn’t save the draft",
-            "running": "Ready to save a draft"
+            "running": "Saving a draft"
           },
           "read": {
             "done": "Checked conversations",
@@ -178,12 +222,12 @@
           "send": {
             "done": "Sent the message",
             "error": "Couldn’t send the message",
-            "running": "Ready to send a real message"
+            "running": "Sending the message"
           },
           "triage": {
             "done": "Changed the conversation state",
             "error": "Couldn’t change the conversation state",
-            "running": "Ready to change the conversation state"
+            "running": "Changing the conversation state"
           }
         },
         "profile": {
@@ -225,6 +269,33 @@
             "running": "{count, plural, one {Updating {target}} other {Updating {target}}}"
           }
         },
+        "routines": {
+          "configure": {
+            "done": "Changed the routine schedule",
+            "error": "Couldn’t change the routine schedule",
+            "running": "Changing the routine schedule"
+          },
+          "create": {
+            "done": "Created a routine",
+            "error": "Couldn’t create the routine",
+            "running": "Creating a routine"
+          },
+          "delete": {
+            "done": "Removed the routine",
+            "error": "Couldn’t remove the routine",
+            "running": "Removing the routine"
+          },
+          "read": {
+            "done": "Read routines",
+            "error": "Couldn’t read routines",
+            "running": "Reading routines"
+          },
+          "update": {
+            "done": "Updated the routine",
+            "error": "Couldn’t update the routine",
+            "running": "Updating the routine"
+          }
+        },
         "support": {
           "escalate": {
             "done": "Support email accepted for delivery",
@@ -236,14 +307,21 @@
           "manage": {
             "done": "Changed team access",
             "error": "Couldn’t change team access",
-            "running": "Ready to change team access"
+            "running": "Changing team access"
+          }
+        },
+        "tools": {
+          "load": {
+            "done": "Loaded more tools",
+            "error": "Couldn’t load more tools",
+            "running": "Loading more tools"
           }
         },
         "webhooks": {
           "manage": {
             "done": "Completed the webhook action",
             "error": "Couldn’t complete the webhook action",
-            "running": "Ready to change webhook delivery"
+            "running": "Changing webhook delivery"
           }
         },
         "widgets": {
@@ -813,7 +891,8 @@
   "AuthSocialErrors": {
     "accessDenied": "The sign-in was cancelled at the provider.",
     "accountAlreadyLinkedToDifferentUser": "This social account is already linked to a different user.",
-    "accountNotLinked": "An account with this email already exists but its email address is not verified yet. Sign in with your password and verify your email first, then you can use social login.",
+    "accountNotLinked": "Your provider did not confirm this email address, so we could not connect it to your existing account. Sign in with your password instead.",
+    "accountNotLinkedAction": "Reset password",
     "emailDoesNotMatch": "The email returned by the provider does not match the email of your account.",
     "emailIsMissing": "The provider did not return an email address.",
     "emailNotFound": "No email address was found for this social account.",
@@ -3448,9 +3527,13 @@
     "body": "We've sent you a verification email. Please check your inbox and click the link to verify your email address.",
     "ctaLabel": "Resend verification email",
     "invitationFrom": "Invitation from {inviterName}",
+    "linkExpired": "That verification link has expired.",
+    "linkInvalid": "That verification link is not valid.",
     "resendSuccess": "Verification email sent successfully.",
+    "signedOutBody": "Sign in to your account to request a new verification email.",
     "subtitle": "Verify your email address to continue.",
-    "title": "Email Verification"
+    "title": "Email Verification",
+    "verifiedSignIn": "Your email address is now verified. Sign in to continue."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Delivery attempts appear here once a webhook fires.",

@@ -1,4 +1,12 @@
 {
+  "AccountAccessRevoked": {
+    "body": "Vous venez de vous connecter sans mot de passe, ce qui confirme que cette adresse e-mail est bien la vôtre. Jusqu'à présent elle n'avait jamais été confirmée, nous ne pouvions donc pas savoir avec certitude qui avait créé ce compte. Par sécurité, nous avons supprimé l'ancien mot de passe ainsi que tout ce qui pouvait ouvrir le compte, comme les applications connectées ou les clés. Vos données n'ont pas changé et vous pouvez continuer à vous connecter exactement comme vous venez de le faire.",
+    "cta": "Définir un nouveau mot de passe",
+    "greeting": "Bonjour,",
+    "signoff": "Le bouton ci-dessus ne vous sert que si vous préférez vous connecter avec un mot de passe. Si ce n'est pas vous qui venez de vous connecter, contactez-nous immédiatement.",
+    "subject": "Votre adresse e-mail est confirmée et nous avons supprimé votre ancien mot de passe",
+    "title": "Votre adresse e-mail est confirmée"
+  },
   "AccountRemovalReason": {
     "ownerInactive": "Propriétaire désactivé",
     "planDowngrade": "Forfait rétrogradé",
@@ -23,6 +31,39 @@
   },
   "AgentChat": {
     "activity": {
+      "approval": {
+        "customFields": {
+          "configure": "Prêt à modifier les champs personnalisés",
+          "delete": "Prêt à supprimer définitivement un champ personnalisé"
+        },
+        "generic": "Prêt à effectuer une modification qui nécessite votre approbation",
+        "messages": {
+          "discard": "Prêt à supprimer le brouillon",
+          "draft": "Prêt à enregistrer un brouillon",
+          "send": "Prêt à envoyer un message réel",
+          "triage": "Prêt à modifier l’état de la conversation"
+        },
+        "records": {
+          "delete": "{count, plural, one {Prêt à supprimer définitivement {target}} other {Prêt à supprimer définitivement {target}}}"
+        },
+        "routines": {
+          "configure": "Prêt à mettre la routine en pause ou à l’exécuter",
+          "delete": "Prêt à supprimer la routine et son historique"
+        },
+        "support": {
+          "escalate": "Prêt à envoyer votre demande à l’assistance par e-mail"
+        },
+        "team": {
+          "manage": "Prêt à modifier l’accès de l’équipe"
+        },
+        "webhooks": {
+          "manage": "Prêt à modifier l’envoi des webhooks"
+        },
+        "widgets": {
+          "configure": "Prêt à modifier les widgets du tableau de bord",
+          "delete": "Prêt à supprimer définitivement un widget du tableau de bord"
+        }
+      },
       "cancelled": "Arrêté",
       "consequence": {
         "accountConnect": "Connecter un canal de messagerie",
@@ -35,6 +76,9 @@
         "recordsDelete": "Cette action est irréversible.",
         "recordsLink": "Lier des enregistrements",
         "recordsUnlink": "Supprimer les liens",
+        "routineDelete": "Supprimer définitivement la routine sélectionnée et son historique",
+        "routinePause": "Mettre en pause la routine sélectionnée",
+        "routineRun": "Exécuter maintenant la routine sélectionnée",
         "salesListSave": "Ajouter le prospect sélectionné à une liste Sales Navigator",
         "salesListSaveTarget": "Ajouter {target} à la liste Sales Navigator {list}",
         "socialAccept": "Accepter la demande de connexion sélectionnée",
@@ -163,12 +207,12 @@
           "discard": {
             "done": "Brouillon supprimé",
             "error": "Impossible de supprimer le brouillon",
-            "running": "Brouillon prêt à être supprimé"
+            "running": "Suppression du brouillon"
           },
           "draft": {
             "done": "Brouillon enregistré",
             "error": "Impossible d’enregistrer le brouillon",
-            "running": "Brouillon prêt à être enregistré"
+            "running": "Enregistrement d’un brouillon"
           },
           "read": {
             "done": "Conversations vérifiées",
@@ -178,12 +222,12 @@
           "send": {
             "done": "Message envoyé",
             "error": "Impossible d’envoyer le message",
-            "running": "Message réel prêt à être envoyé"
+            "running": "Envoi du message"
           },
           "triage": {
             "done": "Statut de la conversation modifié",
             "error": "Impossible de modifier l’état de la conversation",
-            "running": "État de la conversation prêt à être modifié"
+            "running": "Modification de l’état de la conversation"
           }
         },
         "profile": {
@@ -225,6 +269,33 @@
             "running": "{count, plural, one {{target} en cours de mise à jour} other {{target} en cours de mise à jour}}"
           }
         },
+        "routines": {
+          "configure": {
+            "done": "Planification de la routine modifiée",
+            "error": "Impossible de modifier la planification de la routine",
+            "running": "Modification de la planification de la routine"
+          },
+          "create": {
+            "done": "Routine créée",
+            "error": "Impossible de créer la routine",
+            "running": "Création d’une routine"
+          },
+          "delete": {
+            "done": "Routine supprimée",
+            "error": "Impossible de supprimer la routine",
+            "running": "Suppression de la routine"
+          },
+          "read": {
+            "done": "Routines consultées",
+            "error": "Impossible de lire les routines",
+            "running": "Lecture des routines"
+          },
+          "update": {
+            "done": "Routine mise à jour",
+            "error": "Impossible de mettre à jour la routine",
+            "running": "Mise à jour de la routine"
+          }
+        },
         "support": {
           "escalate": {
             "done": "E-mail d’assistance accepté pour envoi",
@@ -236,14 +307,21 @@
           "manage": {
             "done": "Accès de l’équipe modifié",
             "error": "Impossible de modifier les accès de l’équipe",
-            "running": "Accès de l’équipe prêt à être modifié"
+            "running": "Modification de l’accès de l’équipe"
+          }
+        },
+        "tools": {
+          "load": {
+            "done": "Outils supplémentaires chargés",
+            "error": "Impossible de charger d’autres outils",
+            "running": "Chargement d’outils supplémentaires"
           }
         },
         "webhooks": {
           "manage": {
             "done": "Action sur le webhook terminée",
             "error": "Impossible d’effectuer l’action webhook",
-            "running": "Envoi des webhooks prêt à être modifié"
+            "running": "Modification de l’envoi des webhooks"
           }
         },
         "widgets": {
@@ -813,7 +891,8 @@
   "AuthSocialErrors": {
     "accessDenied": "La connexion a été annulée chez le fournisseur.",
     "accountAlreadyLinkedToDifferentUser": "Ce compte social est déjà lié à un autre utilisateur.",
-    "accountNotLinked": "Un compte existe déjà avec cette adresse e-mail, mais elle n'est pas encore vérifiée. Connectez-vous avec votre mot de passe et vérifiez votre adresse, puis vous pourrez utiliser la connexion sociale.",
+    "accountNotLinked": "Votre fournisseur n'a pas confirmé cette adresse e-mail, nous n'avons donc pas pu la relier à votre compte existant. Connectez-vous plutôt avec votre mot de passe.",
+    "accountNotLinkedAction": "Réinitialiser le mot de passe",
     "emailDoesNotMatch": "L'adresse e-mail renvoyée par le fournisseur ne correspond pas à celle de votre compte.",
     "emailIsMissing": "Le fournisseur n'a renvoyé aucune adresse e-mail.",
     "emailNotFound": "Aucune adresse e-mail n'a été trouvée pour ce compte social.",
@@ -3448,9 +3527,13 @@
     "body": "Nous vous avons envoyé un e-mail de vérification. Consultez votre boîte de réception et cliquez sur le lien pour vérifier votre adresse.",
     "ctaLabel": "Renvoyer l'e-mail de vérification",
     "invitationFrom": "Invitation de {inviterName}",
+    "linkExpired": "Ce lien de vérification a expiré.",
+    "linkInvalid": "Ce lien de vérification n'est pas valide.",
     "resendSuccess": "E-mail de vérification envoyé.",
+    "signedOutBody": "Connectez-vous à votre compte pour demander un nouvel e-mail de vérification.",
     "subtitle": "Vérifiez votre adresse e-mail pour continuer.",
-    "title": "Vérification de l'adresse e-mail"
+    "title": "Vérification de l'adresse e-mail",
+    "verifiedSignIn": "Votre adresse e-mail est maintenant vérifiée. Connectez-vous pour continuer."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Les tentatives de livraison apparaîtront ici dès qu’un webhook sera déclenché.",

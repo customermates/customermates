@@ -1,15 +1,16 @@
 import { ProfileSettingsForm } from "../components/profile-settings-form";
 
-import { getAuthService, getGetUserDetailsInteractor } from "@/core/di";
+import { getGetUserDetailsInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
+import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
 import { PageContainer } from "@/components/shared/page-container";
 
 export default async function ProfileSettingsPage() {
   await requireAccess();
 
-  const [result, session] = await Promise.all([getGetUserDetailsInteractor().invoke(), getAuthService().getSession()]);
+  const [result, account] = await Promise.all([getGetUserDetailsInteractor().invoke(), resolveRequestAccountState()]);
 
-  const emailVerified = session?.user?.emailVerified ?? false;
+  const emailVerified = account.emailVerified ?? false;
 
   return (
     <PageContainer>

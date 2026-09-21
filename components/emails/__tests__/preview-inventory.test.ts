@@ -9,6 +9,7 @@ import { render } from "@react-email/render";
 import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 
+import AccountAccessRevoked from "../account-access-revoked";
 import AccountsRemovedNotice from "../accounts-removed-notice";
 import CompanyInvite from "../company-invite";
 import ContactInquiry from "../contact-inquiry";
@@ -138,6 +139,23 @@ const EMAIL_PREVIEW_CASES = [
       return createElement(VerifyEmail, {
         ...previewLayoutProps(locale),
         url: `${PREVIEW_BASE_URL}/auth/verify-email?token=synthetic-preview-token`,
+        ...copy,
+      });
+    },
+  },
+  {
+    key: "account-access-revoked",
+    sendSite: "account-access-revoked",
+    audience: "recipient-localized",
+    sourcePath: "features/auth/auth.service.ts",
+    templatePath: "components/emails/account-access-revoked.tsx",
+    template: AccountAccessRevoked,
+    expectedText: (locale) => catalog(locale).AccountAccessRevoked.title,
+    render: (locale) => {
+      const copy = catalog(locale).AccountAccessRevoked;
+      return createElement(AccountAccessRevoked, {
+        ...previewLayoutProps(locale),
+        href: `${PREVIEW_BASE_URL}/auth/forgot-password`,
         ...copy,
       });
     },
@@ -425,11 +443,11 @@ function localesFor(definition: PreviewDefinition): readonly AppLocale[] {
 }
 
 describe("transactional email preview inventory", () => {
-  it("maps all 13 production send sites onto 14 production templates", () => {
-    expect(EMAIL_PREVIEW_CASES).toHaveLength(14);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ key }) => key)).size).toBe(14);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ sendSite }) => sendSite)).size).toBe(13);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath)).size).toBe(14);
+  it("maps all 14 production send sites onto 15 production templates", () => {
+    expect(EMAIL_PREVIEW_CASES).toHaveLength(15);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ key }) => key)).size).toBe(15);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ sendSite }) => sendSite)).size).toBe(14);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath)).size).toBe(15);
     expect(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath).sort()).toEqual(topLevelTemplates());
   });
 
@@ -458,7 +476,7 @@ describe("transactional email preview inventory", () => {
   });
 
   it("keeps recipient localization and internal English explicit", () => {
-    expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "recipient-localized")).toHaveLength(11);
+    expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "recipient-localized")).toHaveLength(12);
     expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "operator-english")).toHaveLength(3);
   });
 
@@ -520,7 +538,7 @@ describe("transactional email preview rendering", () => {
       }
     }
 
-    expect(renderCount).toBe(58);
+    expect(renderCount).toBe(63);
   }, 15_000);
 
   it.each(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "operator-english"))(

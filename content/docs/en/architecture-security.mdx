@@ -1,11 +1,11 @@
 ---
 title: "CRM Security: Tenant Isolation and Audit Logs"
-description: How Customermates is built, how data is isolated, and how external AI access is controlled.
+description: "How Customermates is built, how workspace data is isolated, how API keys and MCP OAuth authenticate, what the audit log records, and how to report a flaw."
 ---
 
 Customermates enforces a single-tenant-per-company data model at every layer. Every record is scoped to a company, API keys carry the owning user's identity, and agents see only what that user can see.
 
-## Stack
+## What is the stack?
 
 - **Next.js 16** (App Router, Turbopack): web app and API.
 - **PostgreSQL**: primary datastore. JSONB for custom column values and webhook payloads.
@@ -14,7 +14,7 @@ Customermates enforces a single-tenant-per-company data model at every layer. Ev
 - **mcp-handler**: Model Context Protocol endpoint.
 - **TypeScript** end to end, Zod-validated at every boundary.
 
-## Tenancy
+## How does multi-tenancy isolate workspaces?
 
 Every record belongs to a **Company**. The company id is enforced in three places:
 
@@ -22,25 +22,21 @@ Every record belongs to a **Company**. The company id is enforced in three place
 2. **Prisma layer**: queries include `companyId` in every `where`.
 3. **Decorator layer**: `@TenantInteractor` makes interactors that fail to scope throw at runtime.
 
-Cross-tenant reads are not possible through the public surface. On the managed cloud, a vendor operator console can read across tenants for support; it is restricted to an allowlisted operator account, refuses to load outside cloud mode, and records every read and write in a separate internal log. A self-hosted deployment has no such console.
+Cross-tenant reads are not possible through the public surface. On the managed cloud a vendor operator console can read across tenants for support; it is limited to an allowlisted operator account, refuses to load outside cloud mode, and records every read and write in a separate internal log. A self-hosted deployment has no such console. The hosted assistant runs inside the same scope: it can read and change only what the asking user can.
 
-## Authentication
+## How do clients authenticate?
 
-Three ways to authenticate:
+Three ways, all resolving to the same user and company context:
 
 - **Session cookie** (UI): signed, http-only, `Secure` under HTTPS.
-- **API key**: 64-character base62 token (a-z, A-Z, 0-9), issued by the better-auth apiKey plugin, hashed at rest, tied to a user. Sent in the `x-api-key` header.
-- **OAuth 2.1** (MCP): remote MCP clients can authorize via better-auth and send a Bearer token instead of an API key.
+- **API key**: 64-character base62 token issued by the better-auth API key plugin, hashed at rest, tied to a user, optionally expiring. Sent in the `x-api-key` header. See [API keys](/docs/api-keys).
+- **OAuth 2.1** (MCP): remote MCP clients authorize through better-auth with PKCE and send a Bearer token instead of an API key. Access tokens live one hour, refresh tokens thirty days.
 
-All methods resolve to the same user and company context.
+## How is authorization decided?
 
-## Authorization
+Per user and role. Roles carry permissions on resources (contacts, organizations, deals, services, tasks, and the workspace features) and actions (read, create, update, delete). Every interactor checks the permission before acting. API keys inherit the permissions of their owning user; there is no per-key scoping.
 
-Per-user and role-driven. Roles carry permissions on resources (contacts, organizations, deals, services, tasks, users, company, api, audit log, inbox messages, routines) and actions (create, read own, read all, update, delete). Every interactor calls `userService.hasPermissionOrThrow(resource, action)` before acting.
-
-API keys inherit the permissions of their owning user. There is no per-key scoping.
-
-## External AI access
+## How does external AI access work?
 
 MCP requests use the same authentication and authorization path. When an agent acts through MCP:
 
@@ -51,47 +47,27 @@ MCP requests use the same authentication and authorization path. When an agent a
 
 The MCP surface adds input guardrails to keep tool calls safe:
 
-- Passing `null` on a relation array is rejected before it reaches the database.
+- Relation arrays cannot be sent through the update tools at all; links change only through `manage_record_links`, so a `null` can never wipe a relation.
 - Update tools targeting the wrong record type are rejected with a pointer to the correct tool.
 - Destructive tools require an explicit list of record ids. There is no delete-by-filter shortcut.
 
-See [MCP](/docs/mcp#tool-catalog) for the full tool catalog.
+See the [MCP tool catalog](/docs/mcp#tool-catalog) for the full list.
 
-## Data at rest
+## How is data protected at rest and in transit?
 
 - Postgres encryption depends on your provider. On the managed cloud, data lives in an EU region with disk-level encryption at rest.
 - Secrets in `.env` are never logged. The logger redacts anything that looks like a key, token, or password.
 - Webhook secrets are stored in Postgres because they must be retrievable to sign outgoing requests. To keep them elsewhere, self-host with your own secret manager.
+- HTTPS everywhere on the managed cloud. On self-host, you provide the TLS; see [self-hosting](/docs/self-hosting) for the Caddy example.
+- Webhook deliveries that carry custom headers must go to HTTPS URLs; plain `http://` is accepted only for local testing without headers.
 
-## Data in transit
+## What does the audit log record?
 
-- HTTPS everywhere on the managed cloud.
-- On self-host, you provide the TLS. See [self-hosting](/docs/self-hosting) for the Caddy example.
-- Webhook deliveries only go to HTTPS URLs. HTTP is rejected at the schema layer.
+Changes to records and to the workspace configuration around them are logged with the user, the event, the element id and the payload. Updates to records, roles, webhooks, custom fields, routines and connected accounts carry a field-level diff; creates, deletes and member or company-settings saves carry a snapshot instead, which is written even when nothing changed. A failed write leaves no entry. Messaging events are not written to the audit log, and webhook secrets and header values are redacted. Authentication, API key lifecycle, subscription changes, saved views, widgets, agent conversations and vendor operator actions are not recorded either. An entry written by an automated process, such as removing a connected account when a trial ends, names the user it affected rather than someone who performed it. Read it on the [Company page](/docs/app-company) under **Audit logs**; access needs the audit-log read permission on your role. It is included on every cloud plan and in the self-hosted edition alike. The screen has no export action; the activity timeline, its REST endpoint and the `get_activities` tool return the same entries under the same permission.
 
-## Audit logging
+## Where do I report a vulnerability?
 
-The audit log records changes to CRM records and to the workspace configuration around them: contacts, organizations, deals, services, tasks, custom fields, roles, members, company settings, webhooks, routines, and connected accounts. Legal acceptances, legal notices, and record exports are recorded too. The UI, the REST API, and MCP run through the same interactors, so a change made by an agent is recorded like a change made by a person.
-
-An entry stores the event, the element id, the user it is attributed to, the timestamp, and the payload as JSON. Updates to records, roles, webhooks, custom fields, routines, and connected accounts carry a field-level diff. Creates, deletes, and updates to members and company settings carry a snapshot instead. A write that fails leaves no entry, and neither does an update whose diff is empty; a member or company-settings save carries a snapshot rather than a diff, so it records an entry even when nothing changed. Webhook secrets and header values are stripped before the event is stored. Other payloads carry record contents, so the log holds copies of the data it describes.
-
-An action reaches the log only when it publishes a domain event and that event is not on the exclusion list. These are not recorded:
-
-- Inbox content. Incoming email, chat messages, calendar changes, and social relations are excluded deliberately.
-- Authentication. Sign-in, sign-out, password reset, and social account linking.
-- API key creation and revocation. Writes made with a key are attributed to its owner; the key's own lifecycle is not recorded.
-- Subscription and plan changes, saved views, dashboard widgets, and agent conversations.
-- Operator actions on the managed cloud, which are kept in a separate internal log.
-
-Entries written by an automated process, such as removing a connected account when a trial ends, name the user the action affected rather than a person who performed it.
-
-In the UI you can filter by event and date, search by element id, and sort by time. The screen has no export action; the same entries are also readable through the activity timeline, its REST endpoint, and the `get_activities` tool in [MCP](/docs/mcp), under the same permission. Nothing in the product edits or prunes entries, but they live in the same database as your data and are removed with the company or user they reference. Treat this as an operational record, not a tamper-evident compliance archive.
-
-Audit logging is not a plan entitlement. Every cloud plan includes it, and so does the self-hosted community edition: `features/audit-log/` is AGPL code outside `ee/`. Who may read it is set per role by the `auditLog` permission.
-
-## Reporting vulnerabilities
-
-Please disclose responsibly to `security@customermates.com`. The PGP key is in the repository. We aim to acknowledge within 24 hours.
+Write to `mail@customermates.com`. We aim to acknowledge within one business day. There is no bug bounty program.
 
 ## Next
 

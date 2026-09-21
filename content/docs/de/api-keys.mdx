@@ -1,17 +1,22 @@
 ---
-title: "API-Keys für MCP und REST anlegen und rotieren"
-description: API-Keys für MCP- und REST-Zugriff anlegen, rotieren, widerrufen.
+title: "API-Keys für MCP- und REST-Clients"
+description: "So legen Sie einen API-Key im Profil an, senden ihn im Header x-api-key, setzen ein Ablaufdatum, löschen einen Key und rotieren ihn sicher."
 ---
 
-API-Keys authentifizieren Clients für das Model Context Protocol (MCP) und die REST-API gegen Ihr Customermates-CRM. Ein Key pro Client (Claude, ChatGPT, Zapier etc.), in einer Umgebungsvariable speichern, rotieren, wenn ein Gerät kompromittiert ist oder ein Teammitglied geht.
+API-Keys authentifizieren Clients für das Model Context Protocol (MCP) und die REST-API gegen Ihr Customermates-CRM. Legen Sie einen Key pro Client an, speichern Sie ihn in einer Umgebungsvariable und löschen Sie ihn, wenn das Gerät oder das Teammitglied, das ihn hatte, wegfällt.
 
-## Key anlegen
+## Wie lege ich einen API-Key an?
 
-**Profil → API Keys → Neuer Key**. Geben Sie ihm einen Namen, der den Einsatzort beschreibt (z.B. `Claude Desktop privater Laptop`). Der 64-Zeichen-Key wird **einmal** angezeigt. Sofort kopieren.
+Öffnen Sie **Mein Profil**, dann den Tab **API & Konnektoren** (`/profile/api-keys`), und klicken Sie auf **Hinzufügen**. Der Dialog bietet zwei Wege:
 
-## Key nutzen
+- **Standard-API-Key**: Geben Sie einen Namen, der den Einsatzort benennt, zum Beispiel `Claude Desktop, privater Laptop`, und optional ein Ablaufdatum. Der Key wird einmal angezeigt; kopieren Sie ihn, bevor Sie den Dialog schließen.
+- **Schnellverbindungen**: Wählen Sie Claude, ChatGPT und Codex, Cursor oder Gemini; der Dialog legt den Key an und zeigt das Setup-Snippet dieses Clients.
 
-Im Header `x-api-key` bei jeder Request:
+Keys gehören dem User, der sie angelegt hat, und erben dessen Berechtigungen.
+
+## Wie kann ich einen Key nutzen?
+
+Senden Sie ihn bei jeder Anfrage im Header `x-api-key`:
 
 ```bash
 curl -H "x-api-key: $CUSTOMERMATES_API_KEY" \
@@ -21,40 +26,27 @@ curl -H "x-api-key: $CUSTOMERMATES_API_KEY" \
      -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
 ```
 
-Der Header `Accept: application/json, text/event-stream` wird vom MCP-Streamable-HTTP-Transport verlangt; ohne ihn liefert der Endpoint `406 Not Acceptable`.
+Der Header `Accept: application/json, text/event-stream` wird vom MCP-Streamable-HTTP-Transport verlangt; ohne ihn liefert der Endpoint `406 Not Acceptable`. Bei MCP-Clients gehört der Key in die Konfiguration des Clients, siehe [CLI- und Editor-Clients](/docs/connect-cli) und [ChatGPT mit einem API-Key](/docs/connect-custom-connector#chatgpt).
 
-Für MCP-Clients gehört der Key in die MCP-Config:
+## Laufen Keys ab?
 
-- [Claude Desktop](/docs/connect-cli#claude-desktop-config-file)
-- [ChatGPT](/docs/connect-custom-connector#chatgpt)
-- [Cursor](/docs/connect-cli#cursor)
+Nur, wenn Sie ein Ablaufdatum setzen. Ein Key ohne Ablaufdatum läuft nie ab. Wenn Sie eines setzen, muss es zwischen 1 und 365 Tagen in der Zukunft liegen. Die Key-Karte zeigt das Erstellungsdatum, das Ablaufdatum ("Nie", wenn keins gesetzt ist) und wann der Key zuletzt verwendet wurde.
 
-## Hygiene
+## Wie kann ich einen Key widerrufen, löschen oder rotieren?
 
-- **Ein Key pro Client.** Erlaubt Revoke einzelner Clients, ohne andere zu brechen, und jeder Client bekommt seinen eigenen Zeitstempel der letzten Nutzung auf der API-Keys-Seite. Audit-Log-Einträge nennen den User, dem ein Key gehört, nicht den Key selbst, und unterscheiden Ihre Keys daher nicht.
-- **In Umgebungsvariable speichern**, nicht in Config-Dateien. `~/.zshrc`, 1Password, Bitwarden CLI oder OS-Keychain.
-- **Rotieren wenn**:
-  - Ein Gerät mit dem Key verloren oder kompromittiert ist.
-  - Ein Teammitglied mit Zugriff geht.
-  - Sie einen Leak vermuten (Git-History, CI-Logs, Screenshots).
+Öffnen Sie den Key über seine Karte und wählen Sie **Löschen**; eine Bestätigung folgt, und der Key funktioniert sofort nicht mehr. Eine separate Rotate- oder Revoke-Aktion gibt es nicht: Zum Rotieren legen Sie einen neuen Key an, aktualisieren jeden Client, der den alten genutzt hat, und löschen dann den alten Key.
 
-## Rotieren
+Rotieren Sie, wenn ein Gerät mit dem Key verloren geht oder kompromittiert ist, wenn ein Teammitglied mit Zugriff das Team verlässt oder wenn Sie einen Leak vermuten. Ein Key pro Client erlaubt es, einen einzelnen Client zu löschen, ohne die anderen zu brechen. Im Audit-Log trennt er sie nicht, denn dort steht der User, dem ein Key gehört, nicht der Key selbst. Bewahren Sie Keys in einer Umgebungsvariable oder einem Passwort-Manager auf, nie in einer Config-Datei, die Sie committen.
 
-Profil → API Keys → Key klicken → **Rotate**. Neuer Key generiert, alter sofort ungültig. Alle Clients aktualisieren.
+## Welches Format hat ein Key?
 
-## Widerrufen
+Keys bestehen aus 64 ASCII-Buchstaben (`a-z A-Z`), erzeugt vom better-auth-API-Key-Plugin und gehasht gespeichert. Der vollständige Key wird nur bei der Erstellung angezeigt und lässt sich danach nicht mehr abrufen.
 
-Gleicher Ort → **Revoke**. Key wird ungültig, kein neuer generiert. Nutzen Sie das, wenn Sie keinen Ersatz brauchen.
+## Welche Berechtigungen hat ein Key?
 
-## Key-Format
-
-Customermates-Keys sind 64 Zeichen, Base62 (`a-z A-Z 0-9`), erzeugt vom API-Key-Plugin. Der vollständige Key wird nur bei der Erstellung angezeigt und lässt sich danach nicht mehr abrufen.
-
-## Rechte
-
-Jeder Key erbt die Rechte seines Users. Wenn ein User von Admin auf Member degradiert wird, verlieren seine Keys Admin-Fähigkeiten beim nächsten Call. Separate per-Key-Rechte gibt es heute nicht.
+Alles, was sein Owner darf, und nicht mehr. Wird ein User von Admin auf Member herabgestuft, verlieren seine Keys die Admin-Fähigkeiten beim nächsten Aufruf. Ein Berechtigungs-Scoping pro Key gibt es nicht.
 
 ## Weiter
 
-- [Quickstart](/docs/quickstart): erster End-to-End-Lauf.
-- [MCP-Übersicht](/docs/mcp): was Keys freischalten.
+- [Schnellstart](/docs/quickstart): erster End-to-End-Lauf.
+- [MCP-Übersicht](/docs/mcp): was ein Key freischaltet.

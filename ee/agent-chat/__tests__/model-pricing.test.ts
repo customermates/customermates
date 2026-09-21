@@ -8,6 +8,8 @@ import {
   promptTokensOf,
   resolveModelPricing,
 } from "../model-pricing";
+import { MODEL_CATALOG } from "../model-catalog";
+import { BENCHMARK_ARMS } from "@/scripts/agent-benchmark/arms";
 
 const GATEWAY_ID = "openai/gpt-5.6-luna";
 const NATIVE_ID = "gpt-5.6-luna";
@@ -20,11 +22,19 @@ describe("pinned pricing snapshot", () => {
     expect(pinnedModelEndpoints()).toEqual(
       expect.arrayContaining([{ modelId: GATEWAY_ID, provider: PROVIDER, inferenceRegion: null }]),
     );
-    expect(
-      pinnedModelEndpoints()
-        .map((endpoint) => endpoint.modelId)
-        .toSorted(),
-    ).toEqual(["google/gemini-3.5-flash-lite", "openai/gpt-5-nano", "openai/gpt-5.6-luna"]);
+    const pinKey = (endpoint: { modelId: string; provider: string; inferenceRegion: string | null }) =>
+      `${endpoint.modelId}|${endpoint.provider}|${endpoint.inferenceRegion ?? ""}`;
+    const pinned = pinnedModelEndpoints().map(pinKey);
+    const catalogPins = Object.values(MODEL_CATALOG).map((entry) =>
+      pinKey({ modelId: entry.modelId, provider: entry.servingProvider, inferenceRegion: entry.inferenceRegion }),
+    );
+    const armPins = BENCHMARK_ARMS.map((arm) =>
+      pinKey({ modelId: arm.modelId, provider: arm.servingProvider, inferenceRegion: arm.inferenceRegion }),
+    );
+    expect(new Set(pinned).size).toBe(pinned.length);
+    expect(pinned).toEqual(expect.arrayContaining(catalogPins));
+    expect(pinned).toEqual(expect.arrayContaining(armPins));
+    expect(pinned.filter((key) => !catalogPins.includes(key) && !armPins.includes(key))).toEqual([]);
   });
 
   it("resolves by gateway id and by provider-native id alike", () => {

@@ -11,7 +11,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { redirectTo } from "./auth-outcome";
 import { callbackUrlSchema } from "./callback-url.schema";
-import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
+import { onboardingIntentFromPath, pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 
 const Schema = z
   .object({
@@ -72,6 +72,16 @@ export class SignUpWithEmailInteractor {
     });
 
     if (!res.ok) {
+      if (res.error === CustomErrorCode.emailAlreadyExists) {
+        const onboardingIntent = onboardingIntentFromPath(data.callbackURL);
+        const hasIntent = onboardingIntent.status === "valid";
+        const awaitsVerification = await this.authService.isEmailPendingVerification(data.email);
+        if (awaitsVerification || hasIntent) {
+          const destination = awaitsVerification ? "/auth/verify-email" : "/auth/signin";
+          return redirectTo(hasIntent ? pathWithOnboardingIntent(destination, onboardingIntent.intent) : destination);
+        }
+      }
+
       const t = await getTranslations();
       const error = createZodError<EmailSignUpData>(t(`Common.errors.${res.error}`));
       return {

@@ -15,7 +15,6 @@ const read = (path: string) => readFileSync(join(root, path), "utf8");
 
 const chatPrompt = buildAgentSystemPrompt({
   userName: "Ada Lovelace",
-  appBaseUrl: "https://app.example.com",
   locale: "en",
   surface: "chat",
 });
@@ -51,11 +50,11 @@ describe("agent approval wording matches runtime behaviour", () => {
     expect(chatPrompt).toMatch(/save_message_draft/);
   });
 
-  it("states that approval is raised by calling the tool, from one shared definition", () => {
+  it("tells the hosted assistant, and only the hosted assistant, that calling raises the approval", () => {
     const instruction = "Approval is requested by calling the tool";
     expect(chatPrompt).toContain(instruction);
-    expect(MCP_SERVER_INSTRUCTIONS).toContain(instruction);
-    expect(GET_STARTED_PROMPT).toContain(instruction);
+    expect(MCP_SERVER_INSTRUCTIONS).not.toContain(instruction);
+    expect(GET_STARTED_PROMPT).not.toContain(instruction);
 
     const definitions = read("features/mcp-tools/server-instructions.ts").match(
       /Approval is requested by calling the tool/g,
@@ -64,15 +63,13 @@ describe("agent approval wording matches runtime behaviour", () => {
     expect(read("ee/agent-chat/system-prompt.ts")).not.toContain(instruction);
   });
 
-  it("no longer instructs the model to ask permission in prose instead of calling", () => {
-    expect(MCP_SERVER_INSTRUCTIONS).not.toMatch(/Confirm with the user before/);
-    expect(GET_STARTED_PROMPT).not.toMatch(/Confirm with me before/);
+  it("no longer instructs the hosted assistant to ask permission in prose instead of calling", () => {
+    expect(chatPrompt).not.toMatch(/Confirm with the user before/);
   });
 
   it("warns an unattended run that approvals will be declined, and does not warn an attended one", () => {
     const routinePrompt = buildAgentSystemPrompt({
       userName: "Ada Lovelace",
-      appBaseUrl: "https://app.example.com",
       locale: "en",
       surface: "routine",
     });

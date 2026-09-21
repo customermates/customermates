@@ -5,7 +5,7 @@ description: CRM-Events abonnieren, Signaturen verifizieren, fehlgeschlagene Del
 
 Customermates sendet einen JSON-POST an Ihren HTTPS-Endpunkt, sobald sich abonnierte Daten ändern. Sie wählen die Events und geben die URL an. Fehlgeschlagene Deliveries können Sie aus der UI oder per MCP erneut zustellen. Deliveries werden per HMAC-SHA256 über den rohen Request-Body signiert. Jedes Event und seine Payload-Struktur stehen im Katalog am Ende dieser Seite.
 
-## Einsatzzwecke
+## Wofür sind Webhooks da?
 
 Webhooks lassen andere Systeme auf CRM-Änderungen reagieren, ohne zu pollen.
 
@@ -14,7 +14,7 @@ Webhooks lassen andere Systeme auf CRM-Änderungen reagieren, ohne zu pollen.
 - Einen Finance-Workflow auslösen, wenn ein Deal als abgeschlossen markiert wird.
 - Records nahezu in Echtzeit in ein Data Warehouse synchronisieren.
 
-## Webhook anlegen
+## Wie lege ich einen Webhook an?
 
 **UI:** Unternehmen, dann Webhooks, dann Neu.
 
@@ -31,7 +31,7 @@ Webhooks lassen andere Systeme auf CRM-Änderungen reagieren, ohne zu pollen.
 
 Verwenden Sie einen HTTPS-Endpunkt. Eine `http://`-URL wird für lokale Tests akzeptiert, ein Webhook mit eigenen Headern muss aber `https://` verwenden, da Header in der Regel ein Credential tragen.
 
-## Was Sie bekommen
+## Wie sieht der Payload aus?
 
 Jede Delivery ist ein `POST` mit `Content-Type: application/json` und demselben Envelope:
 
@@ -92,15 +92,15 @@ Die Record-Felder hängen vom Entity-Typ ab. Custom-Columns erscheinen unter `cu
 
 `changes` existiert nur bei `*.updated`-Events. Jeder Key ist ein Record-Feld, dessen Wert sich geändert hat. `previous` ist der Wert vor dem Write, `current` der Wert danach.
 
-Arrays verknüpfter Records werden per id verglichen. Objekte per Deep-Equal. Skalare Felder per Wert. `createdAt` und `updatedAt` werden nie als Änderung gemeldet.
+Skalare und Objekt-Felder melden ihren vollständigen Wert vor und nach der Änderung, verglichen per Deep-Equal. Arrays, deren Elemente eine `id`, `columnId` oder einen `key` tragen (verknüpfte Records, Custom-Column-Werte), melden nur die Elemente, die sich geändert haben: `previous` enthält die geänderten oder entfernten Elemente, `current` die geänderten oder hinzugefügten Elemente, und unveränderte Elemente entfallen. Ein hinzugefügtes Element erscheint deshalb nur unter `current`, ein entferntes nur unter `previous`. Arrays ohne einen solchen Key melden auf beiden Seiten das ganze Array. `createdAt` und `updatedAt` werden nie als Änderung gemeldet.
 
 Wenn ein Write kein Feld ändert, wird das Event unterdrückt. No-op-`*.updated`-Events werden nicht zugestellt.
 
-## Eigene Header und Body-Vorlagen
+## Custom Headers und Body-Vorlagen
 
 Manche Empfänger akzeptieren die Standardzustellung nicht. Dafür gibt es zwei optionale Einstellungen; ein Webhook, der keine davon setzt, stellt genau wie oben beschrieben zu.
 
-**Eigene Header** werden bei jeder Zustellung mitgesendet, für Endpunkte mit eigener Authentifizierung. In der Oberfläche tragen Sie sie zeilenweise als `Name: Wert` ein, über MCP und API als `headers`-Objekt. `Content-Type`, `Host` und `X-Webhook-Signature` setzt Customermates selbst und lassen sich nicht überschreiben; Header-Namen müssen gültige HTTP-Tokens sein, Werte müssen Latin-1-Text ohne Zeilenumbrüche sein. Da Header in der Regel ein Credential tragen, muss ein Webhook mit Headern einen HTTPS-Endpunkt verwenden.
+**Custom Headers** werden bei jeder Zustellung mitgesendet, für Endpunkte mit eigener Authentifizierung. In der Oberfläche tragen Sie sie zeilenweise als `Name: Wert` ein, über MCP und API als `headers`-Objekt. Sechs Namen sind reserviert und werden beim Speichern abgelehnt: `Connection`, `Content-Length`, `Content-Type`, `Host`, `Transfer-Encoding` und `X-Webhook-Signature`. Header-Namen müssen gültige HTTP-Tokens sein, Werte müssen Latin-1-Text ohne Zeilenumbrüche sein, und ein Webhook darf bis zu 20 Header tragen, mit Namen bis 128 Zeichen, Werten bis 2.048 Zeichen und insgesamt 8.192 Zeichen. Da Header in der Regel ein Credential tragen, muss ein Webhook mit Headern einen HTTPS-Endpunkt verwenden; reines HTTP wird nur für localhost akzeptiert.
 
 Header-Werte werden von der REST-API und von MCP nie zurückgegeben, beide liefern stattdessen `headerNames`. Das Webhook-Formular in Customermates zeigt sie weiterhin an, sodass jede Person, die Webhooks im Workspace verwalten darf, sie lesen kann, genau wie das Signaturgeheimnis. Eine Aktualisierung über API oder MCP ohne `headers` behält die gespeicherten Werte, eine mit `null` löscht sie.
 
@@ -118,7 +118,7 @@ Die Vorlage muss ein JSON-Objekt ergeben. Sie wird beim Speichern geprüft, und 
 
 Zustellungen werden mit dem Ereignis-Payload erfasst, nicht mit dem gerenderten Body. Das Zustellungsdetail zeigt also das ausgelöste Ereignis und nicht die exakt gesendeten Bytes.
 
-## Zustellung an einen bestimmten Dienst
+## Wie sende ich an Slack, Discord oder n8n?
 
 Jedes Rezept nennt die URL, die eigenen Header und die Body-Vorlage zum Einfügen unter **Unternehmen → Webhooks → Neu**. Setzen Sie in jedem Fall ein Signaturgeheimnis; ein Empfänger, der es nicht prüfen kann, ignoriert den Header einfach.
 
@@ -186,7 +186,7 @@ Das vollständige Muster steht unter [n8n](/docs/n8n).
 
 Ein Empfänger, der weder eigene Authentifizierung noch eine feste Body-Struktur braucht, benötigt keine der beiden Einstellungen. Lassen Sie beide leer und prüfen Sie die Signatur wie unten beschrieben.
 
-## Signatur-Verifikation
+## Wie prüfe ich die Signatur?
 
 Wenn Sie ein `secret` setzen, enthält jede Request:
 
@@ -207,7 +207,7 @@ function verify(rawBody: string, received: string, secret: string) {
 }
 ```
 
-## Retries und fehlgeschlagene Deliveries
+## Wie funktionieren Retries und fehlgeschlagene Deliveries?
 
 Jede Delivery wird protokolliert. Deliveries sehen Sie in der UI (Unternehmen, dann Webhook-Deliveries) oder per `manage_webhooks` mit `action: "list_deliveries"`.
 
@@ -217,27 +217,27 @@ Customermates wiederholt fehlgeschlagene Deliveries automatisch: bis zu 5 Wieder
 
 Sie können jede Delivery zusätzlich selbst erneut zustellen, aus der UI oder per `manage_webhooks` mit `action: "resend_delivery"` und der Delivery-id. Ein manueller Resend erzeugt einen neuen Delivery-Record; das Original bleibt unverändert.
 
-## Ordering und Concurrency
+## Sind Deliveries geordnet?
 
-Deliveries sind über Events hinweg nicht strikt geordnet. Zwei `contact.updated`-Events im Millisekundenabstand können in falscher Reihenfolge ankommen. Löse die Reihenfolge über den `timestamp` im Payload auf oder behandle Deliveries als idempotente Messages mit `entityId` als Schlüssel.
+Deliveries sind über Events hinweg nicht strikt geordnet. Zwei `contact.updated`-Events im Millisekundenabstand können in falscher Reihenfolge ankommen. Lösen Sie die Reihenfolge über den `timestamp` im Payload auf oder behandeln Sie Deliveries als idempotente Messages mit `entityId` als Schlüssel.
 
 ## Notes sind JSON, nicht Markdown
 
 Das `notes`-Feld in Payloads ist Tiptap-JSON, dieselbe Struktur, die der Editor speichert. Um es auf Ihrer Seite als Markdown zu rendern, nutzen Sie einen Tiptap-kompatiblen Serializer. In MCP liefert `get_records` mit `include: "withNotes"` die Notes bereits als Markdown serialisiert.
 
-## Delete-Payloads
+## Was enthalten Delete-Payloads?
 
 Delete-Events enthalten unter `payload` den vollständigen Record, wie er vor dem Löschen war, nicht nur die id. Die id des betroffenen Records steht zusätzlich in `data.entityId`.
 
-## Debugging
+## Wie debugge ich eine Delivery?
 
 - Nutzen Sie [webhook.site](https://webhook.site) als Einweg-Receiver beim Integrationstest.
 - Das Delivery-Log (`manage_webhooks`, `action: "list_deliveries"`) unterstützt `searchTerm` auf URL und Event-Name.
 - Wenn Ihr Receiver einen Fehlerstatus zurückgibt, protokolliert Customermates die Antwort, sodass Sie nachvollziehen können, was passiert ist.
 
-## Event-Katalog
+## Welche Ereignisse gibt es? [#which-events-exist]
 
-Sechsundzwanzig Events können Sie abonnieren: fünfzehn Record-Events über die fünf Entity-Typen und elf Messaging-Events. Alle nutzen den Envelope oben.
+[[derived.webhooks.events.total]] Events können Sie abonnieren: [[derived.webhooks.events.records]] Record-Events über die fünf Entity-Typen und [[derived.webhooks.events.messaging]] Messaging-Events. Alle nutzen den Envelope oben. Routinen können durch dieselben Ereignisse ausgelöst werden, mit Ausnahme der beiden Ereignisse für gelöschte Nachrichten; siehe [Routinen](/docs/app-routines#how-do-event-triggers-work).
 
 ### Record-Events
 

@@ -1,4 +1,12 @@
 {
+  "AccountAccessRevoked": {
+    "body": "Acabas de iniciar sesión sin contraseña, y eso confirma que esta dirección de correo es tuya. Hasta ahora nunca se había confirmado, así que no podíamos estar seguros de quién creó esta cuenta. Por seguridad hemos eliminado la contraseña anterior y todo lo demás que pudiera abrir la cuenta, como aplicaciones conectadas o claves. Tus datos no han cambiado y puedes seguir iniciando sesión igual que acabas de hacerlo.",
+    "cta": "Establecer una nueva contraseña",
+    "greeting": "Hola:",
+    "signoff": "Solo necesitas el botón de arriba si prefieres entrar con una contraseña. Si no has sido tú quien ha iniciado sesión, ponte en contacto con nosotros de inmediato.",
+    "subject": "Tu correo está confirmado y hemos eliminado tu contraseña anterior",
+    "title": "Tu dirección de correo está confirmada"
+  },
   "AccountRemovalReason": {
     "ownerInactive": "Propietario desactivado",
     "planDowngrade": "Plan reducido",
@@ -23,6 +31,39 @@
   },
   "AgentChat": {
     "activity": {
+      "approval": {
+        "customFields": {
+          "configure": "Listo para cambiar los campos personalizados",
+          "delete": "Listo para eliminar de forma permanente un campo personalizado"
+        },
+        "generic": "Listo para hacer un cambio que necesita tu aprobación",
+        "messages": {
+          "discard": "Listo para descartar el borrador",
+          "draft": "Listo para guardar un borrador",
+          "send": "Listo para enviar un mensaje real",
+          "triage": "Listo para cambiar el estado de la conversación"
+        },
+        "records": {
+          "delete": "{count, plural, one {Listo para eliminar de forma permanente {target}} other {Listo para eliminar de forma permanente {target}}}"
+        },
+        "routines": {
+          "configure": "Listo para pausar o ejecutar la rutina",
+          "delete": "Listo para eliminar la rutina y su historial"
+        },
+        "support": {
+          "escalate": "Listo para enviar tu solicitud al soporte por correo"
+        },
+        "team": {
+          "manage": "Listo para cambiar el acceso del equipo"
+        },
+        "webhooks": {
+          "manage": "Listo para cambiar la entrega del webhook"
+        },
+        "widgets": {
+          "configure": "Listo para cambiar los widgets del panel",
+          "delete": "Listo para eliminar de forma permanente un widget del panel"
+        }
+      },
       "cancelled": "Detenido",
       "consequence": {
         "accountConnect": "Conectar un canal de mensajería",
@@ -35,6 +76,9 @@
         "recordsDelete": "Esta acción no se puede deshacer.",
         "recordsLink": "Vincular registros",
         "recordsUnlink": "Eliminar vínculos",
+        "routineDelete": "Eliminar definitivamente la rutina seleccionada y su historial",
+        "routinePause": "Pausar la rutina seleccionada",
+        "routineRun": "Ejecutar ahora la rutina seleccionada",
         "salesListSave": "Añadir el prospecto seleccionado a una lista de Sales Navigator",
         "salesListSaveTarget": "Añadir {target} a la lista {list} de Sales Navigator",
         "socialAccept": "Aceptar la solicitud de conexión seleccionada",
@@ -163,12 +207,12 @@
           "discard": {
             "done": "Borrador descartado",
             "error": "No se pudo descartar el borrador",
-            "running": "Listo para descartar el borrador"
+            "running": "Descartando el borrador"
           },
           "draft": {
             "done": "Borrador guardado",
             "error": "No se pudo guardar el borrador",
-            "running": "Listo para guardar un borrador"
+            "running": "Guardando un borrador"
           },
           "read": {
             "done": "Conversaciones revisadas",
@@ -178,12 +222,12 @@
           "send": {
             "done": "Mensaje enviado",
             "error": "No se pudo enviar el mensaje",
-            "running": "Listo para enviar un mensaje real"
+            "running": "Enviando el mensaje"
           },
           "triage": {
             "done": "Estado de la conversación cambiado",
             "error": "No se pudo cambiar el estado de la conversación",
-            "running": "Listo para cambiar el estado de la conversación"
+            "running": "Cambiando el estado de la conversación"
           }
         },
         "profile": {
@@ -225,6 +269,33 @@
             "running": "{count, plural, one {Actualizando {target}} other {Actualizando {target}}}"
           }
         },
+        "routines": {
+          "configure": {
+            "done": "Programación de la rutina cambiada",
+            "error": "No se pudo cambiar la programación de la rutina",
+            "running": "Cambiando la programación de la rutina"
+          },
+          "create": {
+            "done": "Rutina creada",
+            "error": "No se pudo crear la rutina",
+            "running": "Creando una rutina"
+          },
+          "delete": {
+            "done": "Rutina eliminada",
+            "error": "No se pudo eliminar la rutina",
+            "running": "Eliminando la rutina"
+          },
+          "read": {
+            "done": "Rutinas consultadas",
+            "error": "No se pudieron consultar las rutinas",
+            "running": "Consultando rutinas"
+          },
+          "update": {
+            "done": "Rutina actualizada",
+            "error": "No se pudo actualizar la rutina",
+            "running": "Actualizando la rutina"
+          }
+        },
         "support": {
           "escalate": {
             "done": "Correo de soporte aceptado para su envío",
@@ -236,14 +307,21 @@
           "manage": {
             "done": "Acceso del equipo modificado",
             "error": "No se pudo cambiar el acceso del equipo",
-            "running": "Listo para cambiar el acceso del equipo"
+            "running": "Cambiando el acceso del equipo"
+          }
+        },
+        "tools": {
+          "load": {
+            "done": "Herramientas adicionales cargadas",
+            "error": "No se pudieron cargar más herramientas",
+            "running": "Cargando más herramientas"
           }
         },
         "webhooks": {
           "manage": {
             "done": "Acción de webhook completada",
             "error": "No se pudo completar la acción de webhook",
-            "running": "Listo para cambiar la entrega del webhook"
+            "running": "Cambiando la entrega del webhook"
           }
         },
         "widgets": {
@@ -813,7 +891,8 @@
   "AuthSocialErrors": {
     "accessDenied": "El inicio de sesión se canceló en el proveedor.",
     "accountAlreadyLinkedToDifferentUser": "Esta cuenta social ya está vinculada a otro usuario.",
-    "accountNotLinked": "Ya existe una cuenta con este correo, pero la dirección aún no está verificada. Inicia sesión con tu contraseña y verifica el correo; después podrás usar el acceso social.",
+    "accountNotLinked": "Tu proveedor no confirmó esta dirección de correo, así que no pudimos vincularla a tu cuenta existente. Inicia sesión con tu contraseña.",
+    "accountNotLinkedAction": "Restablecer contraseña",
     "emailDoesNotMatch": "El correo devuelto por el proveedor no coincide con el de tu cuenta.",
     "emailIsMissing": "El proveedor no devolvió ninguna dirección de correo.",
     "emailNotFound": "No se encontró ninguna dirección de correo para esta cuenta social.",
@@ -3448,9 +3527,13 @@
     "body": "Te hemos enviado un correo de verificación. Revisa tu bandeja de entrada y haz clic en el enlace para verificar tu dirección de correo.",
     "ctaLabel": "Reenviar el correo de verificación",
     "invitationFrom": "Invitación de {inviterName}",
+    "linkExpired": "Ese enlace de verificación ha caducado.",
+    "linkInvalid": "Ese enlace de verificación no es válido.",
     "resendSuccess": "Correo de verificación enviado correctamente.",
+    "signedOutBody": "Inicia sesión en tu cuenta para solicitar un nuevo correo de verificación.",
     "subtitle": "Verifica tu dirección de correo para continuar.",
-    "title": "Verificación del correo"
+    "title": "Verificación del correo",
+    "verifiedSignIn": "Tu dirección de correo ya está verificada. Inicia sesión para continuar."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Los intentos de entrega aparecerán aquí cuando se active un webhook.",

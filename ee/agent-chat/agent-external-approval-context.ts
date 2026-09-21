@@ -180,12 +180,12 @@ export async function resolveAgentApprovalContext(
         cursor: requiredString(details.cursor) ?? undefined,
         offset: nonNegativeInteger(details.offset),
       });
-    } else return { ok: false, result: VERIFICATION_FAILED };
+    } else return { ok: true, input };
 
     return targetLabel ? { ok: true, input: { ...details, targetLabel } } : { ok: false, result: VERIFICATION_FAILED };
   }
 
-  if (details.action !== "save") return { ok: false, result: VERIFICATION_FAILED };
+  if (details.action !== "save") return { ok: true, input };
   const providerId = requiredString(details.providerId);
   const listId = requiredString(details.listId);
   const kind = details.kind === "accounts" ? "accounts" : details.kind === "leads" ? "leads" : null;

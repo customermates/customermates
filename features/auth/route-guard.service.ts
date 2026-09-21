@@ -99,8 +99,8 @@ export class RouteGuardService {
       };
     }
 
-    const authUserCompanyId = await this.userRepo.findAuthUserCompanyIdUnscoped(session.user.id);
-    if (authUserCompanyId === undefined) {
+    const authUserState = await this.userRepo.findAuthUserAccountStateUnscoped(session.user.id);
+    if (authUserState === undefined) {
       return {
         state: "unauthenticated",
         sessionUser: null,
@@ -112,13 +112,15 @@ export class RouteGuardService {
     }
 
     const user = await this.userRepo.findCurrentUserUnscoped(session.user.email);
+    const authUserCompanyId = authUserState.companyId;
     let companyId = user?.companyId ?? null;
     if (!user && authUserCompanyId && (await this.companyRepo.existsUnscoped(authUserCompanyId)))
       companyId = authUserCompanyId;
-    const emailVerified = session.user.emailVerified ?? false;
+    const emailVerified = authUserState.emailVerified;
     const sessionUser: AccountSessionUser = {
       ...session.user,
       companyId,
+      emailVerified,
     };
     const base = {
       sessionUser,
@@ -128,7 +130,7 @@ export class RouteGuardService {
       subscription: null,
     };
 
-    if (mustVerifyEmail(session.user)) return { state: "overdueVerification", ...base };
+    if (mustVerifyEmail(sessionUser)) return { state: "overdueVerification", ...base };
     if (!user) return { state: "unregistered", ...base };
     switch (user.status) {
       case Status.inactive:
