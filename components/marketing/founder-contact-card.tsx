@@ -42,7 +42,7 @@ export function FounderContactCard({ className }: Props) {
       <p className="mt-3 text-xs leading-5 text-muted-foreground">{t("ContactPage.highlights.personal.body")}</p>
 
       <Button asChild className="mt-2 h-auto justify-start px-0 py-1 text-xs" size="xs" variant="link">
-        <IntlLink href="/contact">
+        <IntlLink href="/contact" prefetch={false}>
           {t("Common.actions.contact")}
 
           <ArrowUpRight aria-hidden className="size-3.5" />

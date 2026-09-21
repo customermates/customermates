@@ -47,6 +47,21 @@ export function contentHrefForLocale(href: string, locale: unknown): string | nu
   return isContentLocale(targetLocale) && targetLocale !== locale ? localizedHref : null;
 }
 
+export function leavesContentTree(href: string, pathname: string): boolean {
+  return isContentPathname(pathname) && !targetStaysInContentTree(href);
+}
+
+function targetStaysInContentTree(href: string): boolean {
+  const base = "https://internal.invalid";
+  const target = new URL(href, base);
+
+  return target.origin !== base || isContentPathname(target.pathname);
+}
+
+export function contentLinkPrefetch(href: string): false | undefined {
+  return targetStaysInContentTree(href) ? undefined : false;
+}
+
 export function protectedHrefFromContent(href: string, pathname: string): string | null {
   if (!isContentPathname(pathname)) return null;
 
@@ -116,5 +131,12 @@ export function AppLink(props: Props) {
     );
   }
 
-  return <IntlLink className={mergedClassName} {...internalProps} />;
+  const prefetch =
+    internalProps.prefetch === undefined && typeof internalProps.href === "string"
+      ? leavesContentTree(internalProps.href, pathname)
+        ? false
+        : undefined
+      : internalProps.prefetch;
+
+  return <IntlLink className={mergedClassName} {...internalProps} prefetch={prefetch} />;
 }

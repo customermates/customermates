@@ -400,7 +400,7 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent }
 
     return (
       <Button asChild className={className} size="sm" variant={subtle ? "ghost" : "secondary"}>
-        <IntlLink href="/contact" onNavigate={closeMenu}>
+        <IntlLink href="/contact" prefetch={false} onNavigate={closeMenu}>
           {t("Common.actions.contact")}
         </IntlLink>
       </Button>

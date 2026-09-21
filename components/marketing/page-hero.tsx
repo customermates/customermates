@@ -10,6 +10,7 @@ import { IntlLink } from "@/i18n/navigation";
 
 import { AgplGithubBadge } from "./agpl-github-badge";
 import { MarketingContainer } from "./marketing-container";
+import { contentLinkPrefetch } from "@/components/shared/app-link";
 
 type HeroBaseProps = {
   badge?: string;
@@ -58,7 +59,9 @@ function HeroAction({ href, label, variant }: { href: string; label: string; var
           {content}
         </a>
       ) : (
-        <IntlLink href={href}>{content}</IntlLink>
+        <IntlLink href={href} prefetch={contentLinkPrefetch(href)}>
+          {content}
+        </IntlLink>
       )}
     </Button>
   );
