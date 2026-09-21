@@ -22,6 +22,10 @@ describe("German recipient-email voice", () => {
     expect(JSON.stringify(deMessages[namespace])).not.toMatch(FORMAL_ADDRESS);
   });
 
+  it("uses the product's informal voice in the assistant's own copy", () => {
+    expect(JSON.stringify(deMessages.AgentChat)).not.toMatch(FORMAL_ADDRESS);
+  });
+
   it("keeps legal notices as the explicit formal-register exception", () => {
     expect(JSON.stringify(deMessages.LegalDocumentNotice)).toMatch(FORMAL_ADDRESS);
   });

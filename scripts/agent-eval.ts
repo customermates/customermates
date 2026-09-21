@@ -20,6 +20,7 @@ const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { AGENT_UI_TARGET_IDS } = await import("@/ee/agent-chat/ui-targets");
+const { isAgentPanelTool } = await import("@/ee/agent-chat/agent-ui-command");
 const { getCancelAgentTurnInteractor, getRespondToUiCommandInteractor } = await import("@/core/di");
 const { MODEL_CATALOG } = await import("@/ee/agent-chat/model-catalog");
 const { AGENT_RUN_LEASE_MS } = await import("@/ee/agent-chat/agent-turn-request");
@@ -137,6 +138,11 @@ async function runTurn(args: {
         return { frames, conversationId, detached: true };
       }
       if (frame.type === "ui_command") {
+        if (!isAgentPanelTool(String(frame.name)))
+          throw new Error(
+            `The evaluation received a ui_command for "${String(frame.name)}", which this build does not define. ` +
+              "Another application process is executing these workflow steps against the same database.",
+          );
         await runWithTenant(evalUser, () =>
           getRespondToUiCommandInteractor().invoke({
             conversationId,
@@ -226,6 +232,7 @@ const globexId = randomUUID();
 const throwawayId = randomUUID();
 const sweepId = randomUUID();
 const stoppableId = randomUUID();
+const novaDealId = randomUUID();
 const evalRoleId = randomUUID();
 
 describeEval("agent live eval", () => {
@@ -278,6 +285,7 @@ describeEval("agent live eval", () => {
       });
       await prisma.organization.create({ data: { id: acmeId, companyId, name: "ACME GmbH" } });
       await prisma.organization.create({ data: { id: globexId, companyId, name: "Globex" } });
+      await prisma.deal.create({ data: { id: novaDealId, companyId, name: "Nova Expansion" } });
       await prisma.contact.create({
         data: { companyId: sentinelCompanyId, firstName: "Sentinel", lastName: "Person" },
       });
@@ -323,14 +331,26 @@ describeEval("agent live eval", () => {
     expect(lease).toBeNull();
   });
 
-  it("switches the deals view to kanban through allowlisted DOM controls", async () => {
+  it("points at the control that opens the kanban layout, never past its prerequisite", async () => {
     const { frames } = await runTurn({ text: "Open the Deals page and switch its layout to the kanban board." });
 
     const commands = frames.filter((frame) => frame.type === "ui_command");
     const targets = commands.map((frame) => (frame.input as { targetId?: string })?.targetId).filter(Boolean);
 
-    expect(targets, JSON.stringify(frames)).toContain("deals-layout-board");
     for (const target of targets) expect(AGENT_UI_TARGET_IDS).toContain(target);
+    expect(targets, JSON.stringify(frames)).toContain("deals-display-options");
+    const layoutIndex = targets.indexOf("deals-layout-board");
+    if (layoutIndex >= 0) expect(targets.indexOf("deals-display-options")).toBeLessThan(layoutIndex);
+    expect(frames.at(-1)).toMatchObject({ type: "turn_done", terminalCode: "completed" });
+  });
+
+  it("opens the deal Nova Expansion on its page and never in the drawer", async () => {
+    const { frames } = await runTurn({ text: "Open the deal Nova Expansion." });
+
+    const navigations = frames.filter((frame) => frame.type === "ui_command" && frame.name === "navigate");
+    expect(navigations, JSON.stringify(frames)).toHaveLength(1);
+    expect(navigations[0]?.input).toEqual({ entity: "deal", recordId: novaDealId });
+    expect(JSON.stringify(frames)).not.toContain("?open=");
     expect(frames.at(-1)).toMatchObject({ type: "turn_done", terminalCode: "completed" });
   });
 

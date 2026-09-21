@@ -1,13 +1,13 @@
 ---
 title: Nachrichten-Ratenlimits
-description: Warum verbundene Kanäle Ratenlimits haben, welche Limits pro Anbieter gelten und was passiert, wenn ein Limit erreicht wird.
+description: Warum verbundene Kanäle Ratenlimits haben, welche Lese- und Sendelimits pro Anbieter gelten und was passiert, wenn ein Limit erreicht wird.
 ---
 
 Wenn Sie einen Kanal verbinden (LinkedIn, WhatsApp, E-Mail und so weiter), kommuniziert Customermates über Unipile mit diesem Anbieter. Jeder Anbieter erzwingt eigene Anfragelimits, und ein Überschreiten kann das zugrunde liegende Konto drosseln oder sperren. Um innerhalb sicherer Grenzen zu bleiben, wendet Customermates pro Kanal ein konservatives Anfragebudget an und pausiert, bevor ein Anbieter eingreifen würde.
 
 Eine pausierte Synchronisierung ist erwartetes Verhalten: Sie hält das verbundene Konto innerhalb der Anbieterlimits und setzt von selbst fort.
 
-## So funktionieren die Limits
+## Wie funktionieren die Limits?
 
 Die Limits werden im Unipile-Dashboard konfiguriert und von Unipile erzwungen. Sie gelten **pro verbundenem Konto** und gleichzeitig auf drei Ebenen:
 
@@ -17,7 +17,7 @@ Die Limits werden im Unipile-Dashboard konfiguriert und von Unipile erzwungen. S
 
 Ist ein Fenster voll, werden weitere Aufrufe abgelehnt, bis es sich erneuert.
 
-## Leselimits
+## Welche Leselimits gelten pro Anbieter?
 
 Lesevorgänge synchronisieren den Verlauf. Sie sind höher angesetzt als Schreibvorgänge, da Lesen selten eine Anbieter-Sperre auslöst.
 
@@ -33,7 +33,7 @@ Lesevorgänge synchronisieren den Verlauf. Sie sind höher angesetzt als Schreib
 
 LinkedIn bleibt am konservativsten, da die Erkennung automatisierter Aktivität dort am strengsten ist. Einige Werte richten sich nach den Obergrenzen des Anbieters: soziale Kanäle begrenzen das Minuten-Leselimit auf 50, E-Mail-Kanäle auf 100, und das Tageslimit bewegt sich in 30er-Schritten (ein Zielwert von 500 wird daher als 510 angewendet). Telegram und die E-Mail-Anbieter bieten kein separates Tages-Leselimit.
 
-## Sensible Limits
+## Welche Limits gelten für Senden und Profilabrufe?
 
 Die riskanteren Operationen bleiben unabhängig vom Lesebudget konservativ: Profilabrufe (die Anbieter als scraping-sensibel behandeln) und jede Sendeaktion.
 
@@ -49,14 +49,14 @@ Die riskanteren Operationen bleiben unabhängig vom Lesebudget konservativ: Prof
 | Outlook | E-Mail senden | 300 / Tag |
 | IMAP | E-Mail senden | 300 / Tag |
 
-## Was Sie sehen, wenn ein Limit erreicht wird
+## Was passiert, wenn ein Limit erreicht wird?
 
 Die Aktion gibt eine Meldung mit der Wartezeit zurück, zum Beispiel:
 
 > Das Rate-Limit dieses Kanals wurde erreicht. Erneut versuchen ist in 2 Minuten möglich.
 
-Sobald das angegebene Fenster vorbei ist, können Sie es erneut versuchen. Es geht nichts verloren.
+Die Wartezeit stammt aus der `Retry-After`-Antwort des Anbieters; sendet der Anbieter keine, wartet Customermates 60 Sekunden. Sobald das angegebene Fenster vorbei ist, können Sie es erneut versuchen. Es geht nichts verloren. Über MCP und die REST-API liefert dieselbe Situation eine `rate_limit`-Ablehnung mit derselben Wartezeit.
 
-## Der Verlauf synchronisiert sich selbst
+## Setzt der Verlaufsimport von selbst fort?
 
-Der Import des gesamten Nachrichtenverlaufs kann umfangreich sein, etwa eine Anfrage pro Unterhaltung. Wird mitten im Import ein Limit erreicht, **pausiert der Hintergrund-Import und setzt automatisch fort**, sobald sich das Fenster erneuert; Sie müssen nichts tun. Beim Öffnen einer Unterhaltung werden deren Nachrichten zudem bei Bedarf geladen, und neue Aktivität trifft in Echtzeit über Webhooks ein.
+Der Import des gesamten Nachrichtenverlaufs kann umfangreich sein, etwa eine Anfrage pro Unterhaltung. Wird mitten im Import ein Limit erreicht, **pausiert der Hintergrund-Import und setzt automatisch fort**, sobald sich das Fenster erneuert; Sie müssen nichts tun. Eine Wartezeit von mehr als zehn Minuten verschiebt den Import auf einen späteren Durchlauf. Beim Öffnen einer Unterhaltung werden deren Nachrichten zudem bei Bedarf geladen, und neue Aktivität trifft in Echtzeit über Webhooks ein.

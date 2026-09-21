@@ -25,6 +25,39 @@
   },
   "AgentChat": {
     "activity": {
+      "approval": {
+        "customFields": {
+          "configure": "Bereit, benutzerdefinierte Felder zu ändern",
+          "delete": "Bereit, ein benutzerdefiniertes Feld endgültig zu löschen"
+        },
+        "generic": "Bereit für eine Änderung, die deine Freigabe braucht",
+        "messages": {
+          "discard": "Bereit, den Entwurf zu verwerfen",
+          "draft": "Bereit, einen Entwurf zu speichern",
+          "send": "Bereit, eine echte Nachricht zu senden",
+          "triage": "Bereit, den Unterhaltungsstatus zu ändern"
+        },
+        "records": {
+          "delete": "{count, plural, one {Bereit, {target} endgültig zu löschen} other {Bereit, {target} endgültig zu löschen}}"
+        },
+        "routines": {
+          "configure": "Bereit, die Routine zu pausieren oder auszuführen",
+          "delete": "Bereit, die Routine samt Verlauf zu löschen"
+        },
+        "support": {
+          "escalate": "Bereit, deine Anfrage an den Support zu senden"
+        },
+        "team": {
+          "manage": "Bereit, den Teamzugriff zu ändern"
+        },
+        "webhooks": {
+          "manage": "Bereit, die Webhook-Zustellung zu ändern"
+        },
+        "widgets": {
+          "configure": "Bereit, Dashboard-Widgets zu ändern",
+          "delete": "Bereit, ein Dashboard-Widget endgültig zu löschen"
+        }
+      },
       "cancelled": "Gestoppt",
       "consequence": {
         "accountConnect": "Einen Nachrichtenkanal verbinden",
@@ -37,6 +70,9 @@
         "recordsDelete": "Das kann nicht rückgängig gemacht werden.",
         "recordsLink": "Datensätze verknüpfen",
         "recordsUnlink": "Verknüpfungen entfernen",
+        "routineDelete": "Die ausgewählte Routine samt Verlauf endgültig löschen",
+        "routinePause": "Die ausgewählte Routine pausieren",
+        "routineRun": "Die ausgewählte Routine jetzt ausführen",
         "salesListSave": "Den ausgewählten Interessenten zu einer Sales-Navigator-Liste hinzufügen",
         "salesListSaveTarget": "{target} zur Sales-Navigator-Liste {list} hinzufügen",
         "socialAccept": "Die ausgewählte Kontaktanfrage annehmen",
@@ -165,12 +201,12 @@
           "discard": {
             "done": "Entwurf wurde verworfen",
             "error": "Entwurf konnte nicht verworfen werden",
-            "running": "Entwurf ist zum Verwerfen bereit"
+            "running": "Entwurf wird verworfen"
           },
           "draft": {
             "done": "Entwurf wurde gespeichert",
             "error": "Entwurf konnte nicht gespeichert werden",
-            "running": "Entwurf ist zum Speichern bereit"
+            "running": "Entwurf wird gespeichert"
           },
           "read": {
             "done": "Unterhaltungen wurden geprüft",
@@ -180,12 +216,12 @@
           "send": {
             "done": "Nachricht wurde gesendet",
             "error": "Nachricht konnte nicht gesendet werden",
-            "running": "Eine echte Nachricht ist zum Senden bereit"
+            "running": "Nachricht wird gesendet"
           },
           "triage": {
             "done": "Unterhaltungsstatus wurde geändert",
             "error": "Unterhaltungsstatus konnte nicht geändert werden",
-            "running": "Unterhaltungsstatus ist zum Ändern bereit"
+            "running": "Unterhaltungsstatus wird geändert"
           }
         },
         "profile": {
@@ -227,6 +263,33 @@
             "running": "{count, plural, one {{target} wird aktualisiert} other {{target} werden aktualisiert}}"
           }
         },
+        "routines": {
+          "configure": {
+            "done": "Routinenzeitplan wurde geändert",
+            "error": "Routinenzeitplan konnte nicht geändert werden",
+            "running": "Routinenzeitplan wird geändert"
+          },
+          "create": {
+            "done": "Routine wurde angelegt",
+            "error": "Routine konnte nicht angelegt werden",
+            "running": "Routine wird angelegt"
+          },
+          "delete": {
+            "done": "Routine wurde entfernt",
+            "error": "Routine konnte nicht entfernt werden",
+            "running": "Routine wird entfernt"
+          },
+          "read": {
+            "done": "Routinen wurden gelesen",
+            "error": "Routinen konnten nicht gelesen werden",
+            "running": "Routinen werden gelesen"
+          },
+          "update": {
+            "done": "Routine wurde geändert",
+            "error": "Routine konnte nicht geändert werden",
+            "running": "Routine wird geändert"
+          }
+        },
         "support": {
           "escalate": {
             "done": "Support-E-Mail wurde zum Versand angenommen",
@@ -238,14 +301,21 @@
           "manage": {
             "done": "Teamzugriff wurde geändert",
             "error": "Teamzugriff konnte nicht geändert werden",
-            "running": "Teamzugriff ist zum Ändern bereit"
+            "running": "Teamzugriff wird geändert"
+          }
+        },
+        "tools": {
+          "load": {
+            "done": "Weitere Werkzeuge geladen",
+            "error": "Weitere Werkzeuge konnten nicht geladen werden",
+            "running": "Lädt weitere Werkzeuge"
           }
         },
         "webhooks": {
           "manage": {
             "done": "Webhook-Aktion abgeschlossen",
             "error": "Webhook-Aktion fehlgeschlagen",
-            "running": "Webhook-Aktion ist bereit"
+            "running": "Webhook-Zustellung wird geändert"
           }
         },
         "widgets": {

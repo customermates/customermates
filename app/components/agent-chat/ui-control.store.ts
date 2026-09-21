@@ -1,12 +1,12 @@
 import { makeObservable, observable, action } from "mobx";
 
 import type { RootStore } from "@/core/stores/root.store";
-import type { OpenRecordData } from "@/ee/agent-chat/ui-operations";
 
 import { BaseStore } from "@/core/base/base.store";
 import { ENTITY_URL_SEGMENT } from "@/components/entity-detail/entity-relations";
 import { EntityType } from "@/generated/prisma";
 import { findAgentNavigationTarget } from "@/ee/agent-chat/ui-targets";
+import { NavigateRecordTargetSchema } from "@/ee/agent-chat/ui-operations";
 import { agentGuidedTour, type AgentGuidedTourStep, type AgentTourStepData } from "@/ee/agent-chat/agent-tours";
 import {
   captureOverlayFocusTarget,
@@ -22,6 +22,20 @@ export type Spotlight = {
 };
 
 export type AgentNavigationOutcome = "navigated" | "blocked" | "timeout";
+
+function resolveAgentNavigationRoute(input: Record<string, unknown>): { path: string; done: string } | null {
+  const record = NavigateRecordTargetSchema.safeParse(input);
+  if (record.success) {
+    const segment = ENTITY_URL_SEGMENT[EntityType[record.data.entity]];
+    return { path: `/${segment}/${record.data.recordId}`, done: `Opened the ${record.data.entity} on its page.` };
+  }
+  const target = findAgentNavigationTarget(String(input.targetId ?? ""));
+  return target ? { path: target.route, done: `Navigated to ${target.route}.` } : null;
+}
+
+function describeNavigationInput(input: Record<string, unknown>) {
+  return input.targetId !== undefined ? String(input.targetId) : `${String(input.entity)}:${String(input.recordId)}`;
+}
 
 export function findAgentTargetElement(targetId: string) {
   return document.getElementById(targetId);
@@ -61,18 +75,18 @@ export class AgentUiControlStore extends BaseStore {
     this.navigateCallback = callback;
   };
 
-  navigate = async (targetId: string) => {
-    const target = findAgentNavigationTarget(targetId);
-    if (!target) {
+  navigate = async (input: Record<string, unknown>) => {
+    const route = resolveAgentNavigationRoute(input);
+    if (!route) {
       return {
         ok: false,
-        result: `Navigation target ${targetId} is not allowed.`,
+        result: `Navigation target ${describeNavigationInput(input)} is not allowed.`,
       };
     }
     if (!this.navigateCallback) return { ok: false, result: "Navigation is not available right now." };
 
-    const outcome = await this.navigateCallback(target.route);
-    if (outcome === "navigated") return { ok: true, result: `Navigated to ${target.route}.` };
+    const outcome = await this.navigateCallback(route.path);
+    if (outcome === "navigated") return { ok: true, result: route.done };
     if (outcome === "blocked") {
       return {
         ok: false,
@@ -81,7 +95,7 @@ export class AgentUiControlStore extends BaseStore {
     }
     return {
       ok: false,
-      result: `Navigation to ${target.route} did not finish.`,
+      result: `Navigation to ${route.path} did not finish.`,
     };
   };
 
@@ -203,32 +217,6 @@ export class AgentUiControlStore extends BaseStore {
     });
     return true;
   }
-
-  openRecord = async (input: OpenRecordData) => {
-    if (!this.navigateCallback) return { ok: false, result: "Navigation is not available right now." };
-    const segment = ENTITY_URL_SEGMENT[EntityType[input.entity]];
-    const path =
-      input.recordId === "new" || input.presentation !== "page"
-        ? `/${segment}?open=${input.entity}:${input.recordId}`
-        : `/${segment}/${input.recordId}`;
-    const outcome = await this.navigateCallback(path);
-    if (outcome === "navigated") {
-      return {
-        ok: true,
-        result:
-          input.recordId === "new"
-            ? `Opened a blank ${input.entity} form for the user to fill in.`
-            : `Opened the ${input.entity}.`,
-      };
-    }
-    if (outcome === "blocked") {
-      return {
-        ok: false,
-        result: "Navigation requires the user to resolve unsaved changes.",
-      };
-    }
-    return { ok: false, result: `Opening the ${input.entity} did not finish.` };
-  };
 
   private captureFocus() {
     this.previousFocus = captureOverlayFocusTarget(document.activeElement);

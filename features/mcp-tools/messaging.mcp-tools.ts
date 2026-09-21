@@ -1,16 +1,17 @@
 import { z } from "zod";
 
 import {
-  toonResult,
-  runInteractor,
   customMcpFailure,
+  filtersDescription,
   formatDatesInResponse,
+  MCP_PAGE_SIZE_DESCRIPTION,
   mcpInteractorFailure,
-  mcpValidationFailure,
   mcpPage,
   mcpPageSize,
-  filtersDescription,
+  mcpValidationFailure,
+  runInteractor,
   sortDescription,
+  toonResult,
 } from "./utils";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -56,7 +57,7 @@ const GetMessagingThreadsSchema = z.object({
   page: mcpPage(),
   pageSize: mcpPageSize(
     25,
-    "Results per page: 5, 10, 25, or 100 (default 25). With threadId set this pages the thread's messages",
+    `${MCP_PAGE_SIZE_DESCRIPTION} Default 25. With threadId set this pages the thread's messages.`,
   ),
   searchTerm: GetQueryParamsSchema.shape.searchTerm.describe(
     "Free-text search against thread name, subject, and participants (list mode only)",
@@ -239,6 +240,8 @@ export const getMessagingThreadsTool = {
       (data) =>
         toonResult(
           formatDatesInResponse({
+            total: data.pagination?.total ?? data.items.length,
+            page,
             items: data.items.map((thread) => ({
               id: thread.id,
               connectedAccountId: thread.connectedAccountId,
@@ -266,8 +269,6 @@ export const getMessagingThreadsTool = {
               sharedToCrm: thread.sharedToCrm,
               isOwner: thread.isOwner,
             })),
-            total: data.pagination?.total ?? data.items.length,
-            page,
           }),
         ),
     );
@@ -277,7 +278,7 @@ export const getMessagingThreadsTool = {
 const GetActivitiesSchema = z
   .object({
     page: mcpPage(ACTIVITY_MAX_PAGE),
-    pageSize: mcpPageSize(25, "Results per page: 5, 10, 25, or 100 (default 25)"),
+    pageSize: mcpPageSize(25),
     scope: ActivityScopeSchema.optional().describe(
       "Optional low-level base scope for entity-detail timelines. When filters are also present, scope and filters are AND-combined.",
     ),
@@ -320,11 +321,11 @@ export const getActivitiesTool = {
         toonResult(
           formatDatesInResponse({
             availableSources: data.availableSources,
+            total: data.pagination?.total ?? data.items.length,
+            page,
             items: data.items.map(withoutRawMessageHtml),
             pageLimitReached: data.pageLimitReached,
             scopeTruncated: data.scopeTruncated,
-            total: data.pagination?.total ?? data.items.length,
-            page,
           }),
         ),
     ),
@@ -351,7 +352,7 @@ const GetCalendarsToolSchema = z.object({
   ),
   sortDescriptor: SortDescriptorSchema.optional().describe(sortDescription("name (calendars) or startsAt (events)")),
   page: mcpPage(),
-  pageSize: mcpPageSize(25, "Results per page: 5, 10, 25, or 100 (default 25)"),
+  pageSize: mcpPageSize(25),
 });
 
 export const getCalendarsTool = {
@@ -399,9 +400,9 @@ export const getCalendarsTool = {
       return runInteractor(getGetCalendarEventsApiInteractor().invoke(params), (data) =>
         toonResult(
           formatDatesInResponse({
-            items: data.items,
             total: data.pagination?.total ?? data.items.length,
             page,
+            items: data.items,
           }),
         ),
       );
@@ -410,9 +411,9 @@ export const getCalendarsTool = {
     return runInteractor(getGetCalendarsApiInteractor().invoke(params), (data) =>
       toonResult(
         formatDatesInResponse({
-          items: data.items,
           total: data.pagination?.total ?? data.items.length,
           page,
+          items: data.items,
         }),
       ),
     );
@@ -434,7 +435,8 @@ export const sendChatMessageTool = {
   name: "send_chat_message",
   title: "Send chat message",
   description:
-    "Use this when sending a real chat message (LinkedIn, WhatsApp, and other connected chat accounts). SIDE EFFECT: delivers a real message. " +
+    "Use this when sending a real chat message (LinkedIn, WhatsApp, and other connected chat accounts). SIDE EFFECT: delivers a real message that cannot be recalled. " +
+    "Show your user the recipient and the exact text and get their go-ahead before calling; use save_message_draft when they have not approved wording. " +
     "Exactly one mode: pass threadId to send text into that existing thread, " +
     "or omit threadId to start a new chat, which requires connectedAccountId from get_workspace_context.connectedAccounts[].id (check its status is ok) and attendeeIdentifiers " +
     "(the recipients' provider handles, i.e. the value of a contact's messaging channel) plus optional chatName to name the group. " +
@@ -475,7 +477,8 @@ export const sendEmailTool = {
   name: "send_email",
   title: "Send email",
   description:
-    "Send a real email (or reply) from a connected email account. SIDE EFFECT: delivers a real message. " +
+    "Send a real email (or reply) from a connected email account. SIDE EFFECT: delivers a real message that cannot be recalled. " +
+    "Show your user the recipients and the exact text and get their go-ahead before calling; use save_message_draft when they have not approved wording. " +
     "Required: to, subject, body, and at least one of threadId (reply; takes precedence if both given) or connectedAccountId (new email). " +
     "Optional: cc, bcc. cc/bcc are plain email strings (not the {identifier} object form used by to). " +
     "When sending a saved draft, pass both draftMessageId and its opaque draftRevision from save_message_draft or get_messaging_threads. " +
@@ -538,7 +541,7 @@ export const discardMessageDraftTool = {
   name: "discard_message_draft",
   title: "Discard message draft",
   description:
-    "Use this when a prepared draft is no longer wanted: permanently deletes it. " +
+    "Use this when a prepared draft is no longer wanted: permanently deletes it. IRREVERSIBLE. " +
     "messageId and draftRevision identify the exact DRAFT revision returned by save_message_draft or shown in " +
     "get_messaging_threads thread detail. Only drafts can be discarded; sent and received messages are never affected. " +
     "Discarding an id that is not a draft is a safe no-op that reports no draft found.",

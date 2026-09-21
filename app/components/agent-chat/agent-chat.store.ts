@@ -12,7 +12,6 @@ import {
 } from "@/ee/agent-chat/agent-chat.schema";
 import { AgentTourSchema } from "@/ee/agent-chat/agent-tours";
 import { stripRoutineTriggerBlock } from "@/ee/routines/routine-prompt";
-import { OpenRecordSchema } from "@/ee/agent-chat/ui-operations";
 import {
   AgentActivityDescriptorSchema,
   AGENT_ACTIVITY_RESOURCES,
@@ -100,7 +99,7 @@ export type AgentProgressPhase = "starting" | "working" | "preparing_action";
 
 let itemSeq = 0;
 const nextItemId = () => `item-${++itemSeq}`;
-const UI_COMMAND_NAMES = ["navigate", "highlight_element", "start_tour", "open_record"] as const;
+const UI_COMMAND_NAMES = ["navigate", "highlight_element", "start_tour"] as const;
 const AGENT_CONFIG_LOAD_TIMEOUT_MS = 15000;
 const AGENT_CONVERSATION_LOAD_TIMEOUT_MS = 15000;
 const AGENT_ADMISSION_TIMEOUT_MS = 15000;
@@ -2530,13 +2529,7 @@ export class AgentChatStore extends BaseStore {
   }) => {
     const ui = this.rootStore.agentUiControlStore;
 
-    if (command.name === "navigate") return ui.navigate(String(command.input.targetId ?? ""));
-
-    if (command.name === "open_record") {
-      const input = OpenRecordSchema.safeParse(command.input);
-      if (!input.success) return { ok: false, result: "The record request was invalid." };
-      return ui.openRecord(input.data);
-    }
+    if (command.name === "navigate") return ui.navigate(command.input);
 
     if (command.name === "highlight_element" || command.name === "start_tour") {
       const run = async () =>

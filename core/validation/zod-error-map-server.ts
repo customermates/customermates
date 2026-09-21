@@ -6,8 +6,20 @@ import { getTranslations } from "next-intl/server";
 import { createErrorHandler } from "./validation.utils";
 import { CustomErrorCode } from "./validation.types";
 
-import { validationTagFor } from "@/i18n/locale-registry";
+import { getTranslator } from "@/i18n/get-translator";
+import { appLocaleOrDefault, validationTagFor, type AppLocale } from "@/i18n/locale-registry";
 import { getRequestAppLocale } from "@/i18n/request-app-locale";
+
+type MessageReader = { raw: (key: string) => unknown };
+
+async function localization(): Promise<{ appLocale: AppLocale; messages: MessageReader }> {
+  try {
+    return { appLocale: await getRequestAppLocale(), messages: await getTranslations() };
+  } catch {
+    const appLocale = appLocaleOrDefault(undefined);
+    return { appLocale, messages: await getTranslator(appLocale) };
+  }
+}
 
 function invalidFormatError(issue: $ZodRawIssue, errors: Record<string, string>): string | undefined {
   if (issue.code !== "invalid_format") return undefined;
@@ -17,8 +29,7 @@ function invalidFormatError(issue: $ZodRawIssue, errors: Record<string, string>)
 }
 
 export async function getZodParseContext(): Promise<ParseContext<$ZodIssue>> {
-  const appLocale = await getRequestAppLocale();
-  const t = await getTranslations();
+  const { appLocale, messages: t } = await localization();
 
   const customErrorTranslations = Object.fromEntries(
     Object.values(CustomErrorCode).map((code) => [code, t.raw(`Common.errors.${code}`) as string]),

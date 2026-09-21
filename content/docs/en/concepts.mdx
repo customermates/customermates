@@ -1,25 +1,25 @@
 ---
 title: "CRM Data Model: Entities, Relations, Custom Fields"
-description: Records, relationships, custom columns, widgets, and webhooks, in one page.
+description: "The five record types, how they link to each other, the ten custom column types including weighted deal stages, widgets, webhooks, notes, users and roles."
 ---
 
 Customermates tracks five record types, lets each one carry user-defined fields, links them to each other through typed relationships, and emits webhooks whenever any of that changes.
 
-## The five record types
+## Which five record types exist?
 
-| Record type | What it represents | Typical fields |
+| Record type | What it represents | Built-in fields |
 |---|---|---|
-| **Contact** | A person | firstName, lastName, notes |
+| **Contact** | A person | firstName, lastName, channel identifiers (email, phone, LinkedIn, WhatsApp, Instagram, Telegram), notes |
 | **Organization** | A company | name, notes |
-| **Deal** | A sales opportunity | name, totalValue, totalQuantity |
-| **Service** | A product or offering attached to a deal | name, amount |
-| **Task** | A todo item | name, assignees |
+| **Deal** | A sales opportunity | name, totalValue and totalQuantity (derived from linked services), weightedValue, notes |
+| **Service** | A product or offering attached to a deal | name, amount, notes |
+| **Task** | A todo item | name, assignees, notes |
 
-Each record has `id`, `createdAt`, `updatedAt`, and supports markdown `notes`. Everything else is either a relationship to another record or a custom column value. There are no fixed status or stage fields on any record type; use custom columns for those. Call `get_record_schema` to read the columns that exist in a given workspace.
+Each record has `id`, `createdAt`, `updatedAt`, and supports markdown `notes`. Everything else is either a relationship to another record or a custom column value. There are no fixed status, stage, priority, or due-date fields on any record type; tasks have no built-in due date either. Use custom columns for those, and call `get_record_schema` to read the columns that exist in a given workspace.
 
-## Relationships
+## How do relationships link records?
 
-Relationships are typed and many-to-many. A contact belongs to zero or more organizations and zero or more deals. A deal belongs to zero or more contacts, organizations, and services (with quantities), plus assignees.
+Relationships are typed and many-to-many. A contact belongs to zero or more organizations, deals, and users. A deal belongs to zero or more contacts, organizations, and services (with quantities), plus assignees.
 
 | From to | Example |
 |---|---|
@@ -27,12 +27,12 @@ Relationships are typed and many-to-many. A contact belongs to zero or more orga
 | Contact to Deal | "Max is a stakeholder on the Q2 contract" |
 | Organization to Deal | "The Q2 contract is with Initech" |
 | Deal to Service (with quantity) | "5 hours consulting plus 1 setup fee" |
-| Deal / Service / Task to User | "Assigned to Julia" |
+| Contact / Organization / Deal / Service / Task to User | "Assigned to Julia" |
 | Task to Contact / Organization / Deal / Service | "Follow up on the Q2 contract" |
 
-Tasks link to users, contacts, organizations, deals, and services.
+Tasks link to users, contacts, organizations, deals, and services. Over MCP, links change through `manage_record_links`, with one exception: `update_deals` keeps `services` (deal-to-service links with quantities) on its update schema. Every other relation changes only through `manage_record_links`; the other update tools never touch links. Over REST, sending a relation array replaces that whole set, and `null` or `[]` clears it.
 
-## Custom columns
+## What are custom columns?
 
 The default schema covers the basics. For anything else, add a custom column.
 
@@ -40,43 +40,45 @@ Ten types:
 
 | Type | Use for |
 |---|---|
-| **Plain** | Free-text values |
-| **Date** | Calendar dates (renewal, next touch) |
-| **DateRange** | A start and end date |
-| **DateTime** | Timestamps |
-| **DateTimeRange** | A start and end timestamp |
-| **Currency** | Money amounts, stored with an ISO currency code |
-| **Single-select** | A value from a fixed option list |
-| **Link** | One or more URLs |
-| **Email** | One or more email addresses |
-| **Phone** | One or more phone numbers |
+| **Text** (`plain`) | Free-text values |
+| **Date** (`date`) | Calendar dates (renewal, next touch, a task's due date) |
+| **Date Range** (`dateRange`) | A start and end date |
+| **Date & Time** (`dateTime`) | Timestamps |
+| **Date & Time Range** (`dateTimeRange`) | A start and end timestamp |
+| **Currency** (`currency`) | Money amounts, stored with an ISO currency code |
+| **Single Select** (`singleSelect`) | A value from a fixed option list |
+| **Link** (`link`) | One or more URLs |
+| **Email** (`email`) | One or more email addresses |
+| **Phone** (`phone`) | One or more phone numbers |
 
-Single-select columns are how you model your own workflows. A deal "Status" or a task "Priority" is a single-select column you define, with the options you choose, per workspace. A board view can then group records by any single-select column.
+Single Select columns are how you model your own workflows. A deal "Stage" or a task "Priority" is a Single Select column you define, with the options you choose, per workspace. A board view can then group records by any Single Select column, and the value is what filters and tools compare against.
 
-Custom columns are first-class in filters, widgets, and the MCP surface.
+Custom columns are first-class in filters, widgets, and the MCP surface: `manage_custom_columns` creates and updates them, and every record tool reads and writes their values through `customFieldValues` with the column id from `get_record_schema`.
 
-## Widgets
+### How does a weighted pipeline work?
 
-Widgets are dashboard charts driven by live data. You pick a record type, a group-by axis (plain field or custom column), an aggregation (count, deal value, deal quantity), and a display type (bar, doughnut, or radar). Filters narrow the data set.
+A workspace can mark one Single Select deal column as the weighting column and give each of its options a weight in percent, for example Qualified 20 and Proposal 60. Each deal then carries `weightedValue` = its total value multiplied by the weight of its current option, or no weighted value when the option carries no weight. `list_records` returns the sum of both values across every matching deal, and a dashboard chart can aggregate by deal weighted value.
 
-A widget re-renders whenever underlying records change.
+## What are widgets?
 
-## Webhooks
+Widgets are dashboard charts driven by live data. You pick a record type, a group-by axis (a linked record type, a custom column, or none), an aggregation (count, deal value, deal quantity, or deal weighted value), and a display type (vertical or horizontal bars with or without labels, doughnut, or radar). Filters narrow the data set. An activity-timeline widget shows a feed instead of a chart. See the [Dashboard](/docs/app-dashboard).
 
-Every write emits a domain event: `contact.created`, `deal.updated`, `task.deleted`, and so on. You subscribe by URL and event list. Each delivery includes the changed record plus a `changes` map showing what moved from what to what, so subscribers can act on diffs without polling.
+## What are webhooks?
+
+Every write emits a domain event: `contact.created`, `deal.updated`, `task.deleted`, and so on. You subscribe by URL and event list. Each update delivery includes the changed record plus a `changes` map showing what moved from what to what, so subscribers can act on diffs without polling.
 
 See [Webhooks](/docs/webhooks) for the full event catalog and payload shape.
 
-## Notes
+## What are notes?
 
 Notes are per-record markdown. They render through a Tiptap editor in the UI and are plain markdown everywhere else. You can replace them or append to them via `update_record_notes` with the matching `mode`.
 
-## Users, roles, and the company
+## Who are users, roles, and the company?
 
 Users are your teammates. Roles are defined per workspace and control what each user can read and write. The company is the tenant. Every record lives inside one company, and cross-tenant access is not possible.
 
 ## Next
 
-- **[Custom columns](/docs/mcp#tool-catalog)**: recipes and gotchas.
+- **[CRM records](/docs/app-records)**: the list, drawer and detail surfaces.
 - **[Filter syntax](/docs/filter-syntax)**: operators and examples.
 - **[MCP tool catalog](/docs/mcp#tool-catalog)**: every tool that operates on these concepts.
