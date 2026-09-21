@@ -10,7 +10,7 @@ import { IntlLink } from "@/i18n/navigation";
 
 import { AgplGithubBadge } from "./agpl-github-badge";
 import { MarketingContainer } from "./marketing-container";
-import { contentLinkPrefetch } from "@/components/shared/app-link";
+import { contentLinkPrefetch } from "@/i18n/content-links";
 
 type HeroBaseProps = {
   badge?: string;

@@ -7,7 +7,7 @@ import { ORGANIZATION_NAME } from "@/core/seo/schemas";
 import { IntlLink } from "@/i18n/navigation";
 
 import { MarketingSection } from "./marketing-section";
-import { contentLinkPrefetch } from "@/components/shared/app-link";
+import { contentLinkPrefetch } from "@/i18n/content-links";
 
 type Props = {
   action: string;

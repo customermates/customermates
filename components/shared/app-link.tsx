@@ -14,6 +14,7 @@ import {
   stripLocalePrefix,
 } from "@/i18n/locale-registry";
 import { isContentPathname, isPublicPathname } from "@/i18n/routing";
+import { leavesContentTree } from "@/i18n/content-links";
 import { cn } from "@/core/utils/cn";
 
 type BaseProps = {
@@ -45,21 +46,6 @@ export function contentHrefForLocale(href: string, locale: unknown): string | nu
 
   const targetLocale = routingLocaleFromPathname(new URL(href, "https://internal.invalid").pathname);
   return isContentLocale(targetLocale) && targetLocale !== locale ? localizedHref : null;
-}
-
-export function leavesContentTree(href: string, pathname: string): boolean {
-  return isContentPathname(pathname) && !targetStaysInContentTree(href);
-}
-
-function targetStaysInContentTree(href: string): boolean {
-  const base = "https://internal.invalid";
-  const target = new URL(href, base);
-
-  return target.origin !== base || isContentPathname(target.pathname);
-}
-
-export function contentLinkPrefetch(href: string): false | undefined {
-  return targetStaysInContentTree(href) ? undefined : false;
 }
 
 export function protectedHrefFromContent(href: string, pathname: string): string | null {

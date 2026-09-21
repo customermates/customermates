@@ -3,7 +3,7 @@ import { join, relative } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { contentLinkPrefetch, leavesContentTree } from "@/components/shared/app-link";
+import { contentLinkPrefetch, leavesContentTree } from "@/i18n/content-links";
 
 import { REPO_ROOT, walkFiles } from "./walk";
 
