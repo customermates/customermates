@@ -12,7 +12,6 @@ import { action, makeObservable, observable, runInAction } from "mobx";
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 
 import { getActivitiesAction } from "@/app/[locale]/(protected)/actions";
-import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { ACTIVITIES_PAGE_SIZE, computeHasMore } from "./activities-paging";
 import { activityEntryKey } from "./activity-entry-key";
 import { ActivityFiltersSchema } from "@/ee/messaging/activities/activities.schema";
@@ -105,8 +104,8 @@ export class ActivitiesStore extends BaseDataViewStore<ActivityEntryDto> {
     void this.refresh().catch(() => this.toastError("Common.notifications.unexpectedError"));
   };
 
-  private get requestViewId(): string | undefined {
-    return this.activeViewKey === ALL_VIEW_KEY ? undefined : this.activeViewKey;
+  private get requestViewId(): string {
+    return this.activeViewKey;
   }
 
   private async fetchPage(extra: { filters?: Filter[]; p13nId?: string; page: number; viewId?: string }) {

@@ -19,9 +19,13 @@ import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-con
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { Button } from "@/components/ui/button";
+import { AppLink } from "@/components/shared/app-link";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { MessageResponse } from "@/components/ai-elements/message";
+import { agentMessageComponents, agentMessageRehypePlugins } from "./agent-message-links";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { cn } from "@/core/utils/cn";
+import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 import { ActionTooltip, ItemTime, TypingDots, chatUiCopy, focusAgentComposer } from "./chat-ui";
 
 export function useAgentActivityTerminology(): Partial<Record<AgentActivityResource, string>> {
@@ -78,7 +82,12 @@ export const AgentChatItemView = observer(function AgentChatItemView({
       <article aria-label={t("AgentChat.title")} className="group/message flex flex-col gap-1.5">
         <div className="flex min-w-0 flex-col items-start gap-1.5">
           <div className="w-full text-sm leading-relaxed [&_pre]:overflow-x-auto">
-            <MessageResponse mode={item.streaming ? "streaming" : "static"} showTableActions={!item.streaming}>
+            <MessageResponse
+              components={agentMessageComponents}
+              mode={item.streaming ? "streaming" : "static"}
+              rehypePlugins={agentMessageRehypePlugins}
+              showTableActions={!item.streaming}
+            >
               {item.text}
             </MessageResponse>
           </div>
@@ -253,32 +262,48 @@ export const AgentActivity = observer(function AgentActivity({
       ? uiCopy.stepsTook(items.length, elapsedSeconds)
       : settledSummary;
   const summary = useSteadyLabel(isActive ? runningLabel : liveSummary);
+  const viewHref = items.findLast((item) => {
+    if (item.status !== "done" || item.activity.kind !== "views.configure") return false;
+    return dataViewNavigationHref(item.activity.viewHref) !== null;
+  })?.activity.viewHref;
 
   return (
-    <details
-      aria-live="off"
-      className="group py-1"
-      data-testid="agent-activity"
-      open={open}
-      onToggle={(event) => setOpen(event.currentTarget.open)}
-    >
-      <summary className="flex cursor-pointer list-none items-center gap-2 text-xs text-muted-foreground transition-colors select-none hover:text-foreground [&::-webkit-details-marker]:hidden">
-        {isActive ? (
-          <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
-        ) : hasError ? (
-          <X aria-hidden="true" className="size-3.5 text-destructive" />
-        ) : hasCancelled ? (
-          <Square aria-hidden="true" className="size-3.5" />
-        ) : (
-          <Check aria-hidden="true" className="size-3.5" />
+    <Collapsible aria-live="off" className="group py-1" data-testid="agent-activity" open={open} onOpenChange={setOpen}>
+      <div className="flex items-center gap-1">
+        <CollapsibleTrigger asChild>
+          <button
+            className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-md text-xs text-muted-foreground transition-colors outline-none select-none hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50"
+            type="button"
+          >
+            {isActive ? (
+              <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
+            ) : hasError ? (
+              <X aria-hidden="true" className="size-3.5 text-destructive" />
+            ) : hasCancelled ? (
+              <Square aria-hidden="true" className="size-3.5" />
+            ) : (
+              <Check aria-hidden="true" className="size-3.5" />
+            )}
+
+            <span className="flex-1 text-left">{summary}</span>
+
+            <ChevronDown
+              aria-hidden="true"
+              className="size-3.5 transition-transform group-data-[state=open]:rotate-180"
+            />
+          </button>
+        </CollapsibleTrigger>
+
+        {viewHref && (
+          <Button asChild size="xs" variant="ghost">
+            <AppLink appearance="unstyled" href={viewHref}>
+              {t("AgentChat.openSavedView")}
+            </AppLink>
+          </Button>
         )}
+      </div>
 
-        <span className="flex-1 text-left">{summary}</span>
-
-        <ChevronDown aria-hidden="true" className="size-3.5 transition-transform group-open:rotate-180" />
-      </summary>
-
-      <div className="mt-3 space-y-3 pl-4 [&>*]:fade-in-0 [&>*]:slide-in-from-top-2 [&>*]:animate-in [&>*]:duration-300 [&>*]:motion-reduce:animate-none">
+      <CollapsibleContent className="mt-3 space-y-3 pl-4 [&>*]:fade-in-0 [&>*]:slide-in-from-top-2 [&>*]:animate-in [&>*]:duration-300 [&>*]:motion-reduce:animate-none">
         {items.map((item) => {
           const copy = agentActivityCopy(item.activity, t, terminology);
           const status = isRecovering && item.status === "error" ? "running" : item.status;
@@ -331,7 +356,7 @@ export const AgentActivity = observer(function AgentActivity({
             </span>
           </div>
         )}
-      </div>
-    </details>
+      </CollapsibleContent>
+    </Collapsible>
   );
 });

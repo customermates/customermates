@@ -37,6 +37,7 @@ export function scheduleAgentRouteReload({
     }
     if (!store.takeRouteRefreshRequest()) return;
     store.markRouteSyncRefreshing();
+    store.prepareViewReload();
     reload();
   });
 }

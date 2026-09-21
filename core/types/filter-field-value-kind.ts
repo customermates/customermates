@@ -31,10 +31,10 @@ export type FilterValueKind =
 
 const enumValues = (e: Record<string, string>): readonly string[] => Object.values(e);
 
+export const TIMELINE_KIND_VIEW_VALUES = ["changes", "messages", "activities"] as const;
+
 export const TIMELINE_KIND_FILTER_VALUES = [
-  "changes",
-  "messages",
-  "activities",
+  ...TIMELINE_KIND_VIEW_VALUES,
   "message",
   "audit",
   "activity",

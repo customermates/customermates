@@ -2,6 +2,7 @@ import type { AgentActivityDescriptor, AgentActivityResource } from "./agent-act
 import type { AgentMessagePart } from "./agent-chat.schema";
 
 import { AgentVisibleTextStreamSanitizer } from "./agent-output-safety";
+import { agentToolSavedViewHref } from "./agent-tool-navigation";
 
 export type AgentActivityStatus = "done" | "error" | "cancelled";
 export type AgentApprovalStatus = "approved" | "rejected" | "timeout" | "cancelled";
@@ -15,7 +16,7 @@ export type AgentTranscriptEvent =
   | { type: "activity_superseded"; payload: { id: string } }
   | {
       type: "activity_result";
-      payload: { id: string; isError: boolean; status?: AgentActivityStatus };
+      payload: { id: string; isError: boolean; status?: AgentActivityStatus; viewHref?: string };
     }
   | {
       type: "approval_request";
@@ -34,10 +35,15 @@ export class AgentTurnTranscript {
   private readonly approvalParts = new Map<string, Extract<AgentMessagePart, { type: "approval" }>>();
   private readonly retryableFailureByTool = new Map<string, string>();
   private readonly affected = new Set<AgentActivityResource>();
-  private sanitizer = new AgentVisibleTextStreamSanitizer();
+  private sanitizer: AgentVisibleTextStreamSanitizer;
   private text = "";
 
-  constructor(private readonly emit: AgentTranscriptEmit) {}
+  constructor(
+    private readonly emit: AgentTranscriptEmit,
+    private readonly appBaseUrl?: string,
+  ) {
+    this.sanitizer = new AgentVisibleTextStreamSanitizer(appBaseUrl);
+  }
 
   get replyParts(): AgentMessagePart[] {
     return this.parts;
@@ -72,7 +78,7 @@ export class AgentTurnTranscript {
 
   finishTextSegment() {
     this.appendText(this.sanitizer.finish());
-    this.sanitizer = new AgentVisibleTextStreamSanitizer();
+    this.sanitizer = new AgentVisibleTextStreamSanitizer(this.appBaseUrl);
   }
 
   beginToolCall(call: { toolCallId: string; toolName: string; activity: AgentActivityDescriptor }) {
@@ -102,8 +108,17 @@ export class AgentTurnTranscript {
     });
   }
 
-  completeToolCall(result: { toolCallId: string; toolName?: string; status: AgentActivityStatus; failed: boolean }) {
+  completeToolCall(result: {
+    toolCallId: string;
+    toolName?: string;
+    status: AgentActivityStatus;
+    failed: boolean;
+    output?: unknown;
+  }) {
     if (result.failed && result.toolName) this.retryableFailureByTool.set(result.toolName, result.toolCallId);
+    const viewHref = result.status === "done" ? agentToolSavedViewHref(result.toolName, result.output) : null;
+    const toolPart = this.toolParts.get(result.toolCallId);
+    if (viewHref && toolPart) toolPart.activity = { ...toolPart.activity, viewHref };
     this.settleTool(result.toolCallId, result.status);
     this.emit({
       type: "activity_result",
@@ -111,6 +126,7 @@ export class AgentTurnTranscript {
         id: result.toolCallId,
         isError: result.failed,
         status: result.status,
+        ...(viewHref ? { viewHref } : {}),
       },
     });
   }

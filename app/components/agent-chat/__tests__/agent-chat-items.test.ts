@@ -1,4 +1,4 @@
-import { createElement } from "react";
+import { createElement, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
@@ -8,6 +8,12 @@ vi.mock("next-intl", () => ({
 vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
   useEntityTerminology: () => ({ plural: () => "Contacts" }),
 }));
+vi.mock("@/components/shared/app-link", async () => {
+  const { createElement } = await import("react");
+  return {
+    AppLink: ({ children, href }: { children?: ReactNode; href: string }) => createElement("a", { href }, children),
+  };
+});
 
 import type { AgentChatItem } from "../agent-chat.store";
 
@@ -28,6 +34,32 @@ const failedRead = {
 };
 
 describe("AgentActivity", () => {
+  it("renders saved-view navigation beside an independent disclosure control", () => {
+    const html = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        isTrailing: true,
+        isWorking: false,
+        items: [
+          {
+            ...failedRead,
+            activity: {
+              kind: "views.configure" as const,
+              affectedResources: [],
+              risk: "write" as const,
+              viewHref: "/contacts?view=__all__",
+            },
+            status: "done" as const,
+          },
+        ],
+      }),
+    );
+
+    expect(html).toContain('href="/contacts?view=__all__"');
+    expect(html).toContain("AgentChat.openSavedView");
+    expect(html).toMatch(/<button[^>]*aria-expanded="false"/);
+    expect(html).not.toMatch(/<button[^>]*>[^<]*<a/);
+  });
+
   it("keeps an intermediate tool failure visually working while the agent can recover", () => {
     const html = renderToStaticMarkup(
       createElement(AgentActivity, {

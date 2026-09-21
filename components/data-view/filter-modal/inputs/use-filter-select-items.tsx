@@ -23,6 +23,7 @@ import { useActivityQuery } from "@/features/messaging/activities/activity-query
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { Avatar } from "@/components/ui/avatar";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { TIMELINE_KIND_VIEW_VALUES } from "@/core/types/filter-field-value-kind";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { type ChipColor } from "@/constants/chip-colors";
 import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
@@ -183,7 +184,7 @@ export function filterOptionSources(
     [FilterFieldKey.participants]: NO_FILTER_OPTIONS,
     [FilterFieldKey.timelineKind]: {
       items: () =>
-        (["changes", "messages", "activities"] as const).map((type) => ({
+        TIMELINE_KIND_VIEW_VALUES.map((type) => ({
           key: type,
           value: type,
           textValue: t(`EntityTimeline.types.${type}`),

@@ -98,7 +98,7 @@ Jedes Tool unten führt seine Zusammenfassung, sein Flag (sofern vorhanden) und 
 {/* mcp-catalog:flags */}
 **Nur lesend:** `get_record_schema`, `list_records`, `search_records`, `get_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
-**IRREVERSIBEL:** `delete_records`, `discard_message_draft`, `manage_custom_columns`, `manage_widgets`, `manage_routines`, `manage_webhooks`
+**IRREVERSIBEL:** `delete_records`, `manage_data_views`, `discard_message_draft`, `manage_custom_columns`, `manage_widgets`, `manage_routines`, `manage_webhooks`
 {/* /mcp-catalog */}
 
 Das volle JSON-Schema jedes Tools liegt live an `POST /api/v1/mcp` mit `method: "tools/list"`.
@@ -227,6 +227,12 @@ Ihr User, das Company-Profil, alle Rollen inklusive Rechte und Ihre verbundenen 
 Teammitglieder mit ID, Name, E-Mail, roleId und Status.
 
 **Nur lesend.** Optional: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+
+#### `manage_data_views`
+
+Persönliche gespeicherte Ansichten auf unterstützten Workspace-Seiten entdecken, prüfen, anlegen, aktualisieren, auswählen und löschen. Konfiguration und Ansichten werden paginiert und sind durchsuchbar; create wählt die neue Ansicht aus, Updates ändern nur übergebene Einstellungen und delete ist IRREVERSIBEL. Ansichten der Operator-Konsole sind über dieses Tool nicht verfügbar.
+
+**IRREVERSIBEL.** Pflicht: `action`. Optional: `surfaceKey`, `viewKey`, `section`, `page`, `pageSize`, `query`, `name`, `state`.
 {/* /mcp-catalog */}
 
 ### Messaging

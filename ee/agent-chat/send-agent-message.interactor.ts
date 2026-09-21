@@ -1,13 +1,16 @@
 import { randomUUID } from "node:crypto";
 import type { z } from "zod";
 import * as Sentry from "@sentry/nextjs";
+import { headers } from "next/headers";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { resolveRequestOrigin } from "@/core/config/environment";
 import { type Validated } from "@/core/validation/validation.utils";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
+import { env } from "@/env";
 
 import { resolveUserLocale } from "@/i18n/user-locale";
 import { AgentConversationOrigin } from "@/generated/prisma";
@@ -30,6 +33,7 @@ import { toolsetsForRequest, toolsetsFromActivities } from "./agent-toolset-rout
 import { AgentActivityDescriptorSchema, type AgentActivityDescriptor } from "./agent-activity";
 import { conservativeAgentInitialContextBytes } from "./agent-provider-context";
 import { renderAgentSchemaDigest } from "./agent-schema-digest";
+import { agentPageContextPrefix } from "./agent-page-context";
 import { AGENT_REPLAY_COUNT, budgetAgentReplayHistory } from "./agent-replay-budget";
 import { isAgentModelKey, resolveAgentModel } from "./model-catalog";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
@@ -360,7 +364,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         .filter((message) => message.role === "user")
         .flatMap((message) => [...toolsetsForRequest({ text: partsToText(message.parts), pageRoute: null })]);
       const toolsets = [...new Set([...requestedToolsets, ...priorToolsets, ...earlierRequestToolsets])];
-      const pageContext = data.pageContext ? `<page_context route="${data.pageContext.route}"/>\n` : "";
+      const pageContext = agentPageContextPrefix(pageRoute);
       const replayInputs = admission.recentMessages.map((message) => {
         const text = partsToText(message.parts);
         const current = message.id === userMessageId;
@@ -377,6 +381,10 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           text: budgeted[index],
         }))
         .filter((message) => message.text);
+      const appBaseUrl =
+        mode === "interactive"
+          ? resolveRequestOrigin((await headers()).get("origin") ?? env.BASE_URL, env.AUTH_ALLOWED_HOSTS, env.BASE_URL)
+          : env.BASE_URL;
 
       const externalRunId = await this.backgroundTaskService.dispatchTracked("agent-turn", {
         turnRequestId,
@@ -386,6 +394,8 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         userId: user.id,
         userName,
         locale,
+        appBaseUrl,
+        pageRoute,
         messages,
         turnBudget: reservation.budget,
         tenant: { userId: user.id, companyId: user.companyId },

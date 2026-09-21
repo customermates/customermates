@@ -98,7 +98,7 @@ Every tool below carries its summary, its flag when it has one, and its argument
 {/* mcp-catalog:flags */}
 **Read-only:** `get_record_schema`, `list_records`, `search_records`, `get_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
-**IRREVERSIBLE:** `delete_records`, `discard_message_draft`, `manage_custom_columns`, `manage_widgets`, `manage_routines`, `manage_webhooks`
+**IRREVERSIBLE:** `delete_records`, `manage_data_views`, `discard_message_draft`, `manage_custom_columns`, `manage_widgets`, `manage_routines`, `manage_webhooks`
 {/* /mcp-catalog */}
 
 Full JSON Schema for every tool is available live at `POST /api/v1/mcp` with `method: "tools/list"`.
@@ -227,6 +227,12 @@ Your user, the company profile, all roles including permissions, and your connec
 Team members with id, name, email, roleId, and status.
 
 **Read-only.** Optional: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+
+#### `manage_data_views`
+
+Discover, inspect, create, update, select and delete personal saved views on supported workspace pages. Configuration and view discovery are paginated and searchable; create selects the new view, updates patch only supplied settings, and delete is IRREVERSIBLE. Operator-console views are not available through this tool.
+
+**IRREVERSIBLE.** Required: `action`. Optional: `surfaceKey`, `viewKey`, `section`, `page`, `pageSize`, `query`, `name`, `state`.
 {/* /mcp-catalog */}
 
 ### Messaging

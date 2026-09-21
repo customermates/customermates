@@ -56,6 +56,10 @@
         "team": {
           "manage": "Listo para cambiar el acceso del equipo"
         },
+        "views": {
+          "configure": "Listo para cambiar la vista guardada",
+          "delete": "Listo para eliminar permanentemente la vista guardada"
+        },
         "webhooks": {
           "manage": "Listo para cambiar la entrega del webhook"
         },
@@ -317,6 +321,23 @@
             "running": "Cargando más herramientas"
           }
         },
+        "views": {
+          "configure": {
+            "done": "Vista configurada",
+            "error": "No se pudo configurar la vista",
+            "running": "Configurando la vista"
+          },
+          "delete": {
+            "done": "Vista eliminada",
+            "error": "No se pudo eliminar la vista",
+            "running": "Eliminando la vista"
+          },
+          "read": {
+            "done": "Vistas guardadas revisadas",
+            "error": "No se pudieron revisar las vistas guardadas",
+            "running": "Revisando las vistas guardadas"
+          }
+        },
         "webhooks": {
           "manage": {
             "done": "Acción de webhook completada",
@@ -421,6 +442,7 @@
       "subtitle": "Pregúnteme lo que quiera sobre su espacio de trabajo o dígame qué hacer y me encargo.",
       "support": "Si algo no sale bien, puedo enviar por correo electrónico a nuestro equipo la conversación reciente, y le responderán por correo electrónico."
     },
+    "openSavedView": "Abrir vista guardada",
     "placeholder": "Pregunte a su CRM…",
     "runner": {
       "cancelled": "Esta respuesta se ha detenido.",
@@ -1106,7 +1128,9 @@
       "customFieldInvalidPhone": "El número de teléfono no es válido. Debe estar en formato E.164 (por ejemplo +491234567890). Para varios números, sepáralos con una coma (por ejemplo +491234567890, +499876543210).",
       "customFieldInvalidSingleSelect": "El valor de selección única no es válido. Debe ser una de las opciones permitidas: {validValues}.",
       "customFieldInvalidUrl": "La URL no es válida. Debe respetar el formato de una URL (por ejemplo https://example.com). Para varias URL, sepáralas con una coma (por ejemplo https://example.com, https://example.org).",
+      "dataViewAllNameImmutable": "La vista Todas no se puede renombrar. Omite name y actualiza solo los ajustes solicitados en state. Consulta config para los ajustes compatibles y list para el estado actual antes de reintentar.",
       "dataViewNotFound": "No se encontró esta vista guardada.",
+      "dataViewUpdateEmpty": "Indica un nombre o al menos un ajuste de vista para actualizar.",
       "dealNotFound": "ID de oportunidad no encontrado o no accesible.",
       "demoMode": "Esta acción no está disponible en el modo de demostración. Inicia sesión para acceder a todas las funciones.",
       "draftMessageNotFound": "No se ha encontrado ese borrador. Puede que ya se haya enviado o descartado.",
@@ -2023,10 +2047,41 @@
     "selectGroup": "Seleccionar el grupo {group}",
     "selectRow": "Seleccionar fila {id}",
     "views": {
+      "aiCreateNamedPrompt": "Crea una nueva vista llamada «{name}» según mi solicitud a continuación.",
+      "aiCreatePrompt": "Crea una nueva vista según mi solicitud a continuación.",
+      "aiEditPrompt": "Actualiza mi vista actual «{name}». Conserva los ajustes que no mencione.",
+      "aiLabel": "Preguntar a la IA sobre {name}",
+      "aiRequest": {
+        "appearanceLabel": "¿Qué aspecto debe tener esta vista?",
+        "appearancePlaceholder": "Describe el diseño, la agrupación o el orden.",
+        "appearancePrompt": "Actualiza la apariencia de mi vista actual «{name}». Conserva los ajustes que no mencione.",
+        "busy": "Espera a que termine la actividad actual de la IA antes de enviar la solicitud.",
+        "contextChanged": "La vista seleccionada ha cambiado. Cierra este diálogo y abre «Preguntar a la IA» para la vista que quieras.",
+        "contextPrompt": "Contexto: {location}.",
+        "createLabel": "¿Qué debe mostrar tu nueva vista?",
+        "createPlaceholder": "Describe los registros que quieres ver y cómo organizarlos.",
+        "existingContext": "{location} · Vista: {name}",
+        "filtersLabel": "¿Qué registros debe mostrar esta vista?",
+        "filtersPlaceholder": "Describe los filtros o la búsqueda que quieras aplicar.",
+        "filtersPrompt": "Actualiza los filtros y la búsqueda de mi vista actual «{name}». Conserva los ajustes que no mencione.",
+        "namedContext": "{location} · Nueva vista: {name}",
+        "newContext": "{location} · Nueva vista",
+        "submit": "Enviar a la IA",
+        "timelineLabel": "¿Qué actividades quieres ver?",
+        "timelineLocation": "Historial de actividad de este registro",
+        "timelinePlaceholder": "Por ejemplo, mostrar solo cambios en registros o mensajes.",
+        "timelinePrompt": "Actualiza los filtros de actividad o el orden de mi vista de cronología actual «{name}». Conserva los ajustes que no mencione.",
+        "unavailable": "La IA no está disponible en este momento. Tu solicitud no se ha enviado.",
+        "viewLabel": "¿Qué quieres modificar?",
+        "viewPlaceholder": "Describe los filtros, la búsqueda, el diseño, la agrupación o el orden."
+      },
       "all": "Todas",
       "applied": "Mostrando {name}",
+      "askAi": "Preguntar a la IA",
       "copyLink": "Copiar enlace",
       "createTitle": "Nueva vista",
+      "createWithAi": "Crear con IA",
+      "createWithAiDescription": "Describe lo que quieres ver y envía tu solicitud a la IA.",
       "delete": "Eliminar vista",
       "duplicate": "Duplicar como vista nueva",
       "duplicateName": "{name} copia",

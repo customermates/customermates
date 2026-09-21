@@ -4,6 +4,7 @@ import { toModelMessages, type ReplayMessage } from "./agent-stream-utils";
 import type { AgentAiToolDefinition } from "./agent-tools";
 import { isAgentContextWithinBudget, serializedAgentContextBytes } from "./agent-budget-policy";
 import { AGENT_REPLAY_COUNT, agentReplayWorstCaseMessageChars } from "./agent-replay-budget";
+import { agentPageContextPrefix } from "./agent-page-context";
 
 export type AgentProviderContext = {
   system: string;
@@ -42,7 +43,7 @@ export function conservativeAgentInitialContextBytes(args: {
     role: index % 2 === 0 ? "user" : "assistant",
     text: "x".repeat(worstCaseMessageChars),
   }));
-  const pageContext = args.pageRoute ? `<page_context route="${args.pageRoute}"/>\n` : "";
+  const pageContext = agentPageContextPrefix(args.pageRoute);
   const context = buildAgentProviderContext(
     args.systemPrompt,
     [...priorMessages, { role: "user", text: `${pageContext}${args.currentText}` }],

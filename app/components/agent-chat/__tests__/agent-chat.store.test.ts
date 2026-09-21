@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createTranslator } from "next-intl";
-import { observable, runInAction } from "mobx";
+import { autorun, observable, runInAction } from "mobx";
 
 import en from "@/i18n/locales/en.json";
 
@@ -32,7 +32,7 @@ vi.mock("@/core/errors/report-application-error", () => ({
   reportApplicationError: reportApplicationErrorMock,
 }));
 
-import { AgentChatStore } from "../agent-chat.store";
+import { AgentChatStore, type AgentChatItem } from "../agent-chat.store";
 import { AgentUiControlStore } from "../ui-control.store";
 
 const CONFIG = {
@@ -151,6 +151,153 @@ function streamEventsUntilAborted(events: readonly Record<string, unknown>[], in
 }
 
 describe("AgentChatStore", () => {
+  it("waits for pending view saves before admitting the assistant turn", async () => {
+    stubBrowser("/en/contacts");
+    const store = new AgentChatStore(root() as never);
+    let resolveSave!: () => void;
+    const save = new Promise<void>((resolve) => {
+      resolveSave = resolve;
+    });
+    store.viewContext.register(
+      "/en/contacts",
+      () => ({ surfaceKey: "contacts-card-store", viewKey: "__all__" }),
+      () => save,
+    );
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response('data: {"seq":0,"type":"turn_done","isError":false,"affectedResources":[]}\n\n', {
+        headers: { "content-type": "text/event-stream" },
+      }),
+    );
+    const sending = store.sendMessage("Create a view");
+    expect(fetchMock).not.toHaveBeenCalled();
+    resolveSave();
+    await sending;
+    expect(fetchMock).toHaveBeenCalledOnce();
+  });
+
+  it("sends the active saved-view identity and preserves an explicit retry target", async () => {
+    stubBrowser("/en/contacts");
+    const store = new AgentChatStore(root() as never);
+    store.viewContext.register("/en/contacts", () => ({ surfaceKey: "contacts-card-store", viewKey: "__all__" }));
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(() =>
+      Promise.resolve(
+        new Response('data: {"type":"turn_done","isError":false,"affectedResources":[]}\n\n', {
+          headers: { "content-type": "text/event-stream" },
+        }),
+      ),
+    );
+    await store.sendMessage("Create a view");
+    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body)).pageContext.route).toBe(
+      "/en/contacts?view=__all__&viewSurface=contacts-card-store",
+    );
+    await store.sendMessage("Retry", { pageRoute: "/en/deals?view=__all__&viewSurface=deals-card-store" });
+    expect(JSON.parse(String(fetchMock.mock.calls[1]?.[1]?.body)).pageContext.route).toBe(
+      "/en/deals?view=__all__&viewSurface=deals-card-store",
+    );
+  });
+
+  it.each(["rejected", "stalled"])("does not admit a turn after a %s view save", async (failure) => {
+    vi.useFakeTimers();
+    stubBrowser("/en/contacts");
+    const store = new AgentChatStore(root() as never);
+    store.viewContext.register(
+      "/en/contacts",
+      () => ({ surfaceKey: "contacts-card-store", viewKey: "__all__" }),
+      () => (failure === "rejected" ? Promise.reject(new Error("Save failed")) : new Promise<void>(() => undefined)),
+    );
+    const fetchMock = vi.spyOn(globalThis, "fetch");
+    const sending = store.sendMessage("Create a view");
+    await vi.advanceTimersByTimeAsync(15001);
+    await sending;
+    expect(store.isWorking).toBe(false);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("drops stale URL overrides only after a successful saved-view mutation", async () => {
+    const replaceState = vi.fn();
+    vi.stubGlobal("window", {
+      location: {
+        pathname: "/en/contacts",
+        href: "http://localhost:4016/en/contacts?view=old&searchTerm=old&contact=keep",
+      },
+      history: { replaceState },
+    });
+    const store = new AgentChatStore(root() as never);
+    store.viewContext.register("/en/contacts", () => ({ surfaceKey: "contacts-card-store", viewKey: "__all__" }));
+    vi.spyOn(globalThis, "fetch").mockImplementation(() =>
+      Promise.resolve(
+        new Response(
+          [
+            {
+              type: "activity",
+              id: "view-write",
+              activity: {
+                kind: "views.configure",
+                risk: "write",
+                affectedResources: [],
+                viewSurfaceKey: "contacts-card-store",
+                viewAction: "update",
+                viewKey: "__all__",
+              },
+            },
+            { type: "activity_result", id: "view-write", isError: false },
+            { type: "turn_done", isError: false, affectedResources: [], hasSuccessfulMutation: true },
+          ]
+            .map((event, seq) => `data: ${JSON.stringify({ ...event, seq })}\n\n`)
+            .join(""),
+          { headers: { "content-type": "text/event-stream" } },
+        ),
+      ),
+    );
+    await store.sendMessage("Update this view");
+    expect(store.hasPendingRouteReload).toBe(true);
+    store.prepareViewReload();
+    expect(replaceState).toHaveBeenCalledWith(null, "", "/en/contacts?contact=keep&view=__all__");
+    replaceState.mockClear();
+    store.prepareViewReload();
+    expect(replaceState).not.toHaveBeenCalled();
+  });
+
+  it("drops stale URL overrides when the saved-view activity result was missed before terminal success", () => {
+    const replaceState = vi.fn();
+    vi.stubGlobal("window", {
+      location: {
+        pathname: "/en/contacts",
+        href: "http://localhost:4016/en/contacts?view=old&viewMode=list&filters=old&contact=keep",
+      },
+      history: { replaceState },
+    });
+    const store = new AgentChatStore(root() as never);
+    store.viewContext.register("/en/contacts", () => ({ surfaceKey: "contacts-card-store", viewKey: "__all__" }));
+    const handleEvent = (store as unknown as { handleEvent: (event: Record<string, unknown>) => void }).handleEvent;
+
+    handleEvent({
+      seq: 0,
+      type: "activity",
+      id: "view-write-with-missed-result",
+      activity: {
+        kind: "views.configure",
+        risk: "write",
+        affectedResources: [],
+        viewSurfaceKey: "contacts-card-store",
+        viewAction: "update",
+        viewKey: "__all__",
+      },
+    });
+    handleEvent({
+      seq: 1,
+      type: "turn_done",
+      isError: false,
+      terminalCode: "completed",
+      affectedResources: [],
+      hasSuccessfulMutation: true,
+    });
+
+    expect(store.hasPendingRouteReload).toBe(true);
+    store.prepareViewReload();
+    expect(replaceState).toHaveBeenCalledWith(null, "", "/en/contacts?contact=keep&view=__all__");
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
     actionsMock.getAgentConfigAction.mockResolvedValue({
@@ -532,6 +679,28 @@ describe("AgentChatStore", () => {
     expect(store.progressStartedAt).toBeNull();
     internal.beginActiveTurnMutationTracking();
     expect(store.progressPhase).toBe("starting");
+  });
+
+  it("starts an observed stream lifecycle inside a MobX action", () => {
+    const store = new AgentChatStore(root() as never);
+    const internal = store as unknown as {
+      beginActiveTurnMutationTracking: () => number;
+    };
+    const stopObserving = autorun(() => {
+      void store.hasInSessionTerminalResult;
+      void store.streamStatus;
+      void store.progressPhase;
+      void store.progressStartedAt;
+    });
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+    try {
+      internal.beginActiveTurnMutationTracking();
+      expect(warn.mock.calls.flat().join("\n")).not.toContain("Since strict-mode is enabled");
+    } finally {
+      stopObserving();
+      warn.mockRestore();
+    }
   });
 
   it.each(["turn_done", "error", "stop"])("does not resurrect progress after %s", (terminal) => {
@@ -2817,6 +2986,63 @@ describe("AgentChatStore", () => {
     fetchMock.mockRestore();
   });
 
+  it("replays the persisted saved-view destination after reconnect", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000013";
+    const clientRequestId = "00000000-0000-4000-8000-000000000014";
+    const replay = [
+      `data: ${JSON.stringify({
+        seq: 1,
+        type: "message_replay",
+        messageId: "assistant-view",
+        parts: [
+          {
+            type: "activity",
+            id: "view-call",
+            activity: {
+              kind: "views.configure",
+              affectedResources: [],
+              risk: "write",
+              viewSurfaceKey: "contacts-card-store",
+              viewAction: "update",
+              viewKey: "__all__",
+              viewHref: "/contacts?view=__all__",
+            },
+            status: "done",
+          },
+        ],
+      })}`,
+      `data: ${JSON.stringify({
+        seq: 2,
+        type: "turn_done",
+        isError: false,
+        terminalCode: "completed",
+        assistantMessageId: "assistant-view",
+        affectedResources: [],
+      })}`,
+      "",
+    ].join("\n\n");
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(replay, {
+        headers: {
+          "content-type": "text/event-stream",
+          "x-conversation-id": conversationId,
+        },
+      }),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    await store.sendMessage("Update this view", { messageId: clientRequestId });
+
+    expect(store.items).toContainEqual(
+      expect.objectContaining({
+        kind: "activity",
+        status: "done",
+        activity: expect.objectContaining({ viewHref: "/contacts?view=__all__" }),
+      }),
+    );
+    fetchMock.mockRestore();
+  });
+
   it("deduplicates a replayed canonical assistant message and does not offer a retry for its terminal error", async () => {
     const conversationId = "00000000-0000-4000-8000-000000000013";
     const clientRequestId = "00000000-0000-4000-8000-000000000014";
@@ -3254,6 +3480,66 @@ describe("AgentChatStore", () => {
       }),
     );
     fetchMock.mockRestore();
+  });
+
+  it("stores a validated saved-view destination from the live activity result", () => {
+    const store = new AgentChatStore(root() as never);
+    const handleEvent = (
+      store as unknown as {
+        handleEvent: (event: Record<string, unknown>) => void;
+      }
+    ).handleEvent;
+
+    handleEvent({
+      seq: 1,
+      type: "activity",
+      id: "view-write",
+      activity: {
+        kind: "views.configure",
+        affectedResources: [],
+        risk: "write",
+        viewSurfaceKey: "contacts-card-store",
+        viewAction: "update",
+        viewKey: "__all__",
+      },
+    });
+    handleEvent({
+      seq: 2,
+      type: "activity_result",
+      id: "view-write",
+      isError: false,
+      status: "done",
+      viewHref: "/contacts?view=__all__",
+    });
+
+    const activity = store.items.find(
+      (item): item is Extract<AgentChatItem, { kind: "activity" }> => item.kind === "activity",
+    );
+    expect(activity?.activity.viewHref).toBe("/contacts?view=__all__");
+
+    handleEvent({
+      seq: 3,
+      type: "activity",
+      id: "invalid-view-write",
+      activity: {
+        kind: "views.configure",
+        affectedResources: [],
+        risk: "write",
+      },
+    });
+    handleEvent({
+      seq: 4,
+      type: "activity_result",
+      id: "invalid-view-write",
+      isError: false,
+      status: "done",
+      viewHref: "https://example.com/contacts?view=__all__",
+    });
+    const invalid = store.items.find(
+      (item): item is Extract<AgentChatItem, { kind: "activity" }> =>
+        item.kind === "activity" && item.providerCallId === "invalid-view-write",
+    );
+    expect(invalid?.activity.viewHref).toBeUndefined();
   });
 
   it("requests one route refresh after successful mutations even without mapped resources", () => {

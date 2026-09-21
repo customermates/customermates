@@ -22,6 +22,81 @@ function transcriptWithLog() {
 }
 
 describe("agent turn transcript", () => {
+  it("persists and emits only the validated destination from a successful saved-view result", () => {
+    const { events, transcript } = transcriptWithLog();
+    transcript.beginToolCall({
+      toolCallId: "view-call",
+      toolName: "manage_data_views",
+      activity: activity({ kind: "views.configure", affectedResources: [] }),
+    });
+    transcript.completeToolCall({
+      toolCallId: "view-call",
+      toolName: "manage_data_views",
+      status: "done",
+      failed: false,
+      output: {
+        type: "json",
+        value: {
+          ok: true,
+          navigation: { kind: "saved-view", href: "/contacts?view=__all__" },
+        },
+      },
+    });
+
+    expect(transcript.replyParts).toContainEqual(
+      expect.objectContaining({
+        type: "activity",
+        status: "done",
+        activity: expect.objectContaining({ viewHref: "/contacts?view=__all__" }),
+      }),
+    );
+    expect(events.at(-1)).toEqual({
+      type: "activity_result",
+      payload: {
+        id: "view-call",
+        isError: false,
+        status: "done",
+        viewHref: "/contacts?view=__all__",
+      },
+    });
+  });
+
+  it.each([
+    ["a failed result", "error", { ok: true, navigation: { kind: "saved-view", href: "/contacts?view=__all__" } }],
+    ["another tool", "done", { ok: true, navigation: { kind: "saved-view", href: "/contacts?view=__all__" } }],
+    ["an external destination", "done", { ok: true, navigation: { kind: "saved-view", href: "https://example.com" } }],
+  ] as const)("does not persist navigation from %s", (_case, status, output) => {
+    const { events, transcript } = transcriptWithLog();
+    transcript.beginToolCall({
+      toolCallId: "view-call",
+      toolName: _case === "another tool" ? "update_contacts" : "manage_data_views",
+      activity: activity({ kind: "views.configure", affectedResources: [] }),
+    });
+    transcript.completeToolCall({
+      toolCallId: "view-call",
+      toolName: _case === "another tool" ? "update_contacts" : "manage_data_views",
+      status,
+      failed: status === "error",
+      output,
+    });
+
+    expect(transcript.replyParts[0]).not.toMatchObject({ activity: { viewHref: expect.anything() } });
+    expect(events.at(-1)).not.toMatchObject({ payload: { viewHref: expect.anything() } });
+  });
+
+  it("publishes only the inert label from a model-authored same-app saved-view link", () => {
+    const events: AgentTranscriptEvent[] = [];
+    const transcript = new AgentTurnTranscript((event) => events.push(event), "http://localhost:4016");
+    const relative =
+      "/contacts/00000000-0000-4000-8000-000000000001?view=00000000-0000-4000-8000-000000000002&viewSurface=entity-timeline";
+
+    transcript.pushTextDelta(`[Timeline](http://localhost:4016/en${relative})`);
+    transcript.finishTextSegment();
+
+    expect(transcript.replyText).toBe("Timeline");
+    expect(events).toContainEqual({ type: "delta", payload: { text: "Timeline" } });
+  });
+
   it("interleaves visible text with activities in the order they happened", () => {
     const { events, transcript } = transcriptWithLog();
 

@@ -15,11 +15,13 @@ import {
 import { MODEL_CATALOG } from "../model-catalog";
 
 const mockUser = createMockUserWithPermissions([]);
+const request = vi.hoisted(() => ({ origin: "http://127.0.0.1:4016" }));
 
 vi.mock("@/env", () => ({
   env: {
     ...MOCK_ENV_MODULE.env,
     APP_MODE: "cloud" as const,
+    AUTH_ALLOWED_HOSTS: ["localhost:4000", "127.0.0.1:4016"],
   },
 }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
@@ -32,6 +34,9 @@ vi.mock("@sentry/nextjs", () => ({
   captureException: vi.fn(),
   setTag: vi.fn(),
   setUser: vi.fn(),
+}));
+vi.mock("next/headers", () => ({
+  headers: () => new Headers({ origin: request.origin }),
 }));
 
 import { GetAgentConversationInteractor } from "../get-agent-conversation.interactor";
@@ -88,6 +93,7 @@ const backgroundTasks = () => ({
 describe("agent access", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    request.origin = "http://127.0.0.1:4016";
     expect(mockUser.role?.isSystemRole).toBe(false);
     expect(mockUser.role?.permissions).toEqual([]);
   });
@@ -139,6 +145,7 @@ describe("agent access", () => {
   });
 
   it("admits a new turn, keeps page context private, and preserves the complete current message", async () => {
+    const background = backgroundTasks();
     const currentText = "x".repeat(2000);
     let persistedUserMessageId = "";
     const usage = usageService();
@@ -175,7 +182,7 @@ describe("agent access", () => {
       repo as never,
       usage as never,
       mockEntitlementService(),
-      backgroundTasks() as never,
+      background as never,
       { getCustomColumns: () => Promise.resolve([]) } as never,
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -209,6 +216,10 @@ describe("agent access", () => {
     expect(repo.claimAgentRunLease).toHaveBeenCalledBefore(usage.reserveUsage);
     expect(usage.reserveUsage).toHaveBeenCalledBefore(repo.admitAgentTurnOrThrow);
     expect(MOCK_PRISMA_DB_MODULE.prisma.$transaction).toHaveBeenCalledOnce();
+    expect(background.dispatchTracked).toHaveBeenCalledWith(
+      "agent-turn",
+      expect.objectContaining({ appBaseUrl: "http://127.0.0.1:4016" }),
+    );
   });
 
   it("checks reservation headroom only after replay admission", async () => {
@@ -405,6 +416,7 @@ describe("agent access", () => {
   });
 
   it("continues a terminal owned routine conversation as an interactive chat turn", async () => {
+    request.origin = "https://attacker.example";
     const background = backgroundTasks();
     const usage = usageService();
     const repo = {
@@ -461,7 +473,11 @@ describe("agent access", () => {
     );
     expect(background.dispatchTracked).toHaveBeenCalledWith(
       "agent-turn",
-      expect.objectContaining({ surface: "chat", conversationId: CONVERSATION_ID }),
+      expect.objectContaining({
+        surface: "chat",
+        conversationId: CONVERSATION_ID,
+        appBaseUrl: "http://localhost:4000",
+      }),
     );
   });
 

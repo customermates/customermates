@@ -10,8 +10,9 @@ import {
 
 const mockUser = createMockUser();
 const A_VIEW_KEY = "9c1f0a7e-0b6a-4b1d-9a4e-2d3f5b6c7a81";
-const { p13nFindUnique, p13nUpsert } = vi.hoisted(() => ({
+const { p13nFindUnique, p13nUpdateMany, p13nUpsert } = vi.hoisted(() => ({
   p13nFindUnique: vi.fn(),
+  p13nUpdateMany: vi.fn(),
   p13nUpsert: vi.fn(),
 }));
 
@@ -24,6 +25,7 @@ vi.mock("@/prisma/db", () => ({
     ...MOCK_PRISMA_DB_MODULE.prisma,
     p13n: {
       findUnique: p13nFindUnique,
+      updateMany: p13nUpdateMany,
       upsert: p13nUpsert,
     },
   },
@@ -107,6 +109,30 @@ describe("PrismaP13nRepo legacy filter normalization", () => {
     const unset = await runWithTenant(mockUser, () => new PrismaP13nRepo().getP13n("organizations"));
 
     expect(unset?.activeViewKey).toBeUndefined();
+  });
+
+  it("clears an active view only when the persisted selection still matches", async () => {
+    p13nUpdateMany.mockResolvedValueOnce({ count: 0 }).mockResolvedValueOnce({ count: 1 });
+    const repo = new PrismaP13nRepo();
+
+    const preserved = await runWithTenant(mockUser, () =>
+      repo.clearActiveViewKeyIfMatches({ p13nId: "organizations", expectedActiveViewKey: A_VIEW_KEY }),
+    );
+    const cleared = await runWithTenant(mockUser, () =>
+      repo.clearActiveViewKeyIfMatches({ p13nId: "organizations", expectedActiveViewKey: A_VIEW_KEY }),
+    );
+
+    expect(preserved).toBe(false);
+    expect(cleared).toBe(true);
+    expect(p13nUpdateMany).toHaveBeenCalledWith({
+      where: {
+        companyId: mockUser.companyId,
+        userId: mockUser.id,
+        p13nId: "organizations",
+        activeViewKey: A_VIEW_KEY,
+      },
+      data: { activeViewKey: null },
+    });
   });
 
   it("reads valid entity detail options and ignores malformed options", async () => {

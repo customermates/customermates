@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type * as LocaleRegistry from "@/i18n/locale-registry";
+
 type WorkflowTool = {
   needsApproval: (input: unknown, options: { toolCallId: string }) => Promise<boolean>;
   execute?: (input: unknown, options: { toolCallId: string }) => Promise<unknown>;
@@ -177,7 +179,10 @@ vi.mock("@/ee/agent-chat/agent-provider-context", () => ({
 vi.mock("@/i18n/get-translator", () => ({
   getTranslator: () => Promise.resolve((key: string) => `localized:${key}`),
 }));
-vi.mock("@/i18n/locale-registry", () => ({ appLocaleOrDefault: (locale: string) => locale }));
+vi.mock("@/i18n/locale-registry", async (importOriginal) => ({
+  ...(await importOriginal<typeof LocaleRegistry>()),
+  appLocaleOrDefault: (locale: string) => locale,
+}));
 vi.mock("../capture-failure", () => ({
   reportFailure: state.reportFailure,
   reportWarning: () => Promise.resolve(),
@@ -194,6 +199,8 @@ const payload: AgentTurnWorkflowPayload = {
   userId: "user-1",
   userName: "Test User",
   locale: "en",
+  appBaseUrl: "http://localhost:4000",
+  pageRoute: "/en/contacts",
   messages: [{ role: "user", text: "Hello" }],
   turnBudget: {
     modelSpec: "google/gemini-3.5-flash-lite",
@@ -369,6 +376,30 @@ describe("agent-turn credit-bounded continuation", () => {
       }),
     );
     expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.creditLimitNoWrite");
+  });
+
+  it.each([
+    ["list", "creditLimitNoWrite"],
+    ["create", "creditLimit"],
+  ] as const)("classifies a successful multiplexed %s action for credit-limit recovery", async (action, messageKey) => {
+    state.definitions.push({ name: "manage_widgets", description: "manage_widgets", inputSchema: { type: "object" } });
+    state.normalize.mockResolvedValue({ ok: true, input: { action } });
+    state.extendReservation.mockResolvedValueOnce({ disposition: "credit_limit" });
+    state.runTools = async ({ messages, executeAndCompleteTool }) => {
+      await executeAndCompleteTool("manage_widgets", { action }, `call-${action}`);
+      return {
+        finishReason: "length",
+        messages,
+        steps: [streamedStep("Partial response.", "length")],
+      };
+    };
+
+    await runAgentTurn({
+      ...payload,
+      turnBudget: { ...payload.turnBudget, reservedCredits: 1, roundReserveCredits: 2 },
+    });
+
+    expect(JSON.stringify(state.writes)).toContain(`localized:AgentChat.runner.${messageKey}`);
   });
 
   it("blocks the SDK's next internal provider request when a tool-call round exhausts its reservation", async () => {
@@ -986,7 +1017,10 @@ describe("agent-turn authoritative tool inputs", () => {
     await runAgentTurn(payload);
 
     expect(state.normalize).toHaveBeenCalledTimes(1);
-    expect(state.normalize).toHaveBeenCalledWith("list_users", raw, 1000, { locale: payload.locale });
+    expect(state.normalize).toHaveBeenCalledWith("list_users", raw, 1000, {
+      locale: payload.locale,
+      pageRoute: payload.pageRoute,
+    });
     expect(state.execute).toHaveBeenCalledWith(normalized, { toolCallId: "call-1", messages: [] });
     expect(state.createApproval).not.toHaveBeenCalled();
   });
