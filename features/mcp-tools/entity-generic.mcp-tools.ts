@@ -194,7 +194,9 @@ const ListRecordsOutputSchema = z.object({
   sums: z
     .record(z.string(), z.number())
     .optional()
-    .describe("Per numeric column: total across every matching record, not just this page"),
+    .describe(
+      "Per summable column: the total across every matching record, not just this page. Built-in columns use their own name; a custom currency column uses its custom-column id",
+    ),
   page: z.number(),
   pageSize: z.number(),
   items: z.array(
@@ -355,8 +357,9 @@ export const listRecordsTool = {
     "every record matching the filters, not just the current page. Read sums directly instead of adding " +
     "up items, which would only cover one page. For deals sums holds totalValue (pipeline), totalQuantity " +
     "and weightedValue (pipeline weighted by each stage's win probability). " +
-    "Numeric columns of the record are summable; single-select and other custom fields are not, so filter " +
-    "or group by those instead. " +
+    "Custom currency columns are summed the same way and appear in sums under the custom-column id from " +
+    "get_record_schema, not the column label, so a question about a money field is one call: filter, then read " +
+    "its sum. Single-select, text and date custom columns are not summable, so filter or group by those instead. " +
     "Use get_records (batched, pass many ids in one call) to fetch full field/custom-column values.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: ListRecordsSchema,

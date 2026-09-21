@@ -844,7 +844,14 @@ describe("agent-turn terminal reasons", () => {
 
     await runAgentTurn(payload);
 
-    expect(state.reportFailure).toHaveBeenCalledWith("agent-turn", failure, payload.tenant);
+    expect(state.reportFailure).toHaveBeenCalledWith(
+      "agent-turn",
+      expect.objectContaining({
+        name: failure.name,
+        message: "Agent round failed while applying its result: round persistence unavailable",
+      }),
+      payload.tenant,
+    );
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({ terminalCode: "partial", stopReason: "turn_error" }),
     );

@@ -211,8 +211,8 @@ describe("tool result truncation is never silent", () => {
 
   it("tells the model how to recover rather than only that it failed", () => {
     const cut = agentToolResultText("z".repeat(10_000), 600);
-    expect(cut).toMatch(/report partial data/);
-    expect(cut).toMatch(/fewer ids, a smaller pageSize, or a narrower filter/);
+    expect(cut).toMatch(/re-run it with the next smaller pageSize, fewer ids, or a narrower filter/);
+    expect(cut).toMatch(/Report partial data only once a smaller request has also been truncated/);
   });
 });
 

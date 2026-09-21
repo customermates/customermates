@@ -119,7 +119,7 @@ export function resolveAgentToolResultMaxChars(configured: number) {
 export const AGENT_TOOL_RESULT_TRUNCATED_MARK = "[truncated:";
 
 function truncationNotice(kept: number, total: number) {
-  return `\n${AGENT_TOOL_RESULT_TRUNCATED_MARK} first ${kept} of ${total} characters. The rest was not read: report partial data and re-run with fewer ids, a smaller pageSize, or a narrower filter.]`;
+  return `\n${AGENT_TOOL_RESULT_TRUNCATED_MARK} first ${kept} of ${total} characters. The rest was not read, so this page is incomplete: re-run it with the next smaller pageSize, fewer ids, or a narrower filter before answering. Report partial data only once a smaller request has also been truncated, and say so.]`;
 }
 
 export function agentToolResultText(result: string, maxChars: number) {

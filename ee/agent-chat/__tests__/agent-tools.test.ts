@@ -421,14 +421,14 @@ describe("agent tools", () => {
 
   it.each([
     ["list_users", { searchTerm: "Sofia" }, { searchTerm: "Sofia", page: 1, pageSize: 25 }],
-    ["list_users", { searchTerm: "Sofia", pageSize: " 12 " }, { searchTerm: "Sofia", page: 1, pageSize: 25 }],
+    ["list_users", { searchTerm: "Sofia", pageSize: " 12 " }, { searchTerm: "Sofia", page: 1, pageSize: 10 }],
     [
       "list_users",
       { searchTerm: "Sofia", page: "2", pageSize: " 10 " },
       { searchTerm: "Sofia", page: 2, pageSize: 10 },
     ],
     ["list_records", { entity: "contact" }, { entity: "contact", page: 1, pageSize: 25 }],
-    ["list_records", { entity: "contact", pageSize: 50 }, { entity: "contact", page: 1, pageSize: 100 }],
+    ["list_records", { entity: "contact", pageSize: 50 }, { entity: "contact", page: 1, pageSize: 25 }],
     [
       "get_records",
       { items: [{ entity: "contact", id: "record-1" }] },

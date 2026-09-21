@@ -16,6 +16,7 @@ import { isTenantGuardBypassed, getTenantUser } from "../decorators/tenant-conte
 import { BaseQueryBuilder, compareCustomFieldValues } from "@/core/base/base-query-builder";
 import { LABEL_SELECT, toGroupLabel } from "@/core/base/grouping/group-labels";
 import { countGroupRows } from "@/core/base/grouping/group-count";
+import { ENTITY_CUSTOM_FIELD_RELATION } from "@/core/base/grouping/groupable-field";
 import { prisma, type AppPrismaClient } from "@/prisma/db";
 import { resolveUserFormattingTag, resolveUserLocale } from "@/i18n/user-locale";
 
@@ -211,6 +212,40 @@ export abstract class BaseRepository<
     const result = await aggregate({ where, _sum: Object.fromEntries(opts.fields.map((field) => [field, true])) });
 
     return result._sum ?? {};
+  }
+
+  async sumCustomColumnValues(opts: {
+    entityType: EntityType;
+    columnIds: readonly string[];
+    params: GetQueryParams;
+  }): Promise<Record<string, number>> {
+    if (opts.columnIds.length === 0) return {};
+
+    const baseWhere = this.accessWhere(opts.entityType as SummableModel) as unknown as TWhereInput;
+    const { where } = await this.buildQueryArgs(opts.params, baseWhere);
+
+    const groupBy = (args: unknown): Promise<{ columnId: string; _sum: { numericValue: unknown } }[]> =>
+      (
+        this.prisma as unknown as Record<string, { groupBy: (a: unknown) => Promise<unknown> }>
+      ).customFieldValue.groupBy(args) as Promise<{ columnId: string; _sum: { numericValue: unknown } }[]>;
+
+    const rows = await groupBy({
+      by: ["columnId"],
+      where: {
+        companyId: this.companyId,
+        entityType: opts.entityType,
+        columnId: { in: [...opts.columnIds] },
+        [ENTITY_CUSTOM_FIELD_RELATION[opts.entityType]]: where,
+      },
+      _sum: { numericValue: true },
+    });
+
+    return Object.fromEntries(
+      rows.flatMap((row) => {
+        const total = Number(row._sum.numericValue);
+        return Number.isFinite(total) ? [[String(row.columnId), total]] : [];
+      }),
+    );
   }
 
   protected async list<TRow extends { id: string }, TMapped>(opts: {

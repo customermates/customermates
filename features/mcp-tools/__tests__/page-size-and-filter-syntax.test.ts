@@ -13,20 +13,23 @@ import {
 } from "../utils";
 
 describe("page size", () => {
-  it("rounds any 1-100 integer up to the nearest supported size and applies the default", () => {
+  it("lowers any 1-100 integer to the nearest supported size and applies the default", () => {
     expect(roundMcpPageSize(1)).toBe(5);
-    expect(roundMcpPageSize(7)).toBe(10);
+    expect(roundMcpPageSize(50)).toBe(25);
+    expect(roundMcpPageSize(60)).toBe(25);
+    expect(roundMcpPageSize(100)).toBe(100);
+    expect(roundMcpPageSize(99)).toBe(25);
+    expect(roundMcpPageSize(7)).toBe(5);
     expect(roundMcpPageSize(25)).toBe(25);
-    expect(roundMcpPageSize(50)).toBe(100);
     const schema = z.object({ pageSize: mcpPageSize(25) });
     expect(schema.parse({}).pageSize).toBe(25);
-    expect(schema.parse({ pageSize: "50" }).pageSize).toBe(100);
+    expect(schema.parse({ pageSize: "50" }).pageSize).toBe(25);
     expect(schema.parse({ pageSize: 3 }).pageSize).toBe(5);
     expect(schema.safeParse({ pageSize: 0 }).success).toBe(false);
     expect(schema.safeParse({ pageSize: 101 }).success).toBe(false);
     const optional = z.object({ pageSize: mcpOptionalPageSize("x") });
     expect(optional.parse({}).pageSize).toBeUndefined();
-    expect(optional.parse({ pageSize: 12 }).pageSize).toBe(25);
+    expect(optional.parse({ pageSize: 12 }).pageSize).toBe(10);
   });
 
   it("advertises a plain bounded integer on the wire instead of a literal union", () => {

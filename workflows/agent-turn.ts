@@ -31,6 +31,12 @@ import {
 } from "@/ee/agent-chat/agent-approval-resume";
 import { agentUiCommandHookToken, isAgentPanelTool, toAgentUiCommandInput } from "@/ee/agent-chat/agent-ui-command";
 import { activeAgentToolNames } from "@/ee/agent-chat/agent-toolset-routing";
+import {
+  ambiguousTargetFromMessages,
+  ambiguousTargetRefusal,
+  withheldToolNamesFor,
+  writeCoversEveryCandidate,
+} from "@/ee/agent-chat/agent-ambiguous-target";
 import { googleThinkingProviderOptions } from "@/ee/agent-chat/agent-thinking-options";
 import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-context";
 import { buildAgentSystemPrompt, routineTriggerEventOf } from "@/ee/agent-chat/system-prompt";
@@ -814,6 +820,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     } | null = null;
     let providerStop: Extract<AgentTurnStopReason, "provider_error" | "content_filter"> | null = null;
     let resolvedProviderErrorRetries = 0;
+    let ambiguousTarget: ReturnType<typeof ambiguousTargetFromMessages> = null;
     let providerFailure: WorkflowFailure | null = null;
     let budgetStop = false;
     let hostedAiStop = false;
@@ -946,14 +953,28 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           return part.type === "tool-call" && Boolean(part.toolCallId) && !settledIds.has(part.toolCallId as string);
         });
 
-        if (hasPausedCall) {
+        if (hasPausedCall && step.finishReason === "tool-calls") {
           deferredRound = { step, outcomes };
           return;
         }
 
+        if (hasPausedCall) {
+          for (const raw of step.content) {
+            const part = raw as { type?: string; toolCallId?: string };
+            if (part.type === "tool-call" && part.toolCallId) settledToolCallIds.add(part.toolCallId);
+          }
+        }
+
         recordContinuationRound(step, outcomes);
       } catch (error) {
-        roundFailure ??= toWorkflowFailure(error);
+        roundFailure ??= toWorkflowFailure(
+          error instanceof Error
+            ? Object.assign(new Error(`Agent round failed while applying its result: ${error.message}`), {
+                name: error.name,
+                stack: error.stack,
+              })
+            : error,
+        );
       }
     };
 
@@ -1035,6 +1056,12 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                     execute: async (input: unknown, options: { toolCallId: string }) => {
                       const prepared = await resolveToolInput(shell.name, options.toolCallId, input);
                       if (!prepared.ok) return prepared;
+                      if (
+                        ambiguousTarget &&
+                        withheldToolNamesFor(ambiguousTarget).includes(shell.name) &&
+                        !writeCoversEveryCandidate(ambiguousTarget, prepared.input)
+                      )
+                        return { ok: false, result: ambiguousTargetRefusal(ambiguousTarget) };
                       const outcome = await executeAgentTool(
                         payload,
                         shell.name,
@@ -1068,7 +1095,14 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         prepareStep: async ({ messages: stepMessages }) => {
           if (abandoned || cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null)
             throw AGENT_LOCAL_TERMINATION_REQUIRED;
-          const activeTools = activeToolNamesFor(stepMessages);
+          ambiguousTarget = ambiguousTargetFromMessages(stepMessages);
+          const withheld = withheldToolNamesFor(ambiguousTarget);
+          const routed = activeToolNamesFor(stepMessages);
+          const activeTools = withheld.length
+            ? (routed ?? toolDefinitions.map((definition) => definition.name)).filter(
+                (name) => !withheld.includes(name),
+              )
+            : routed;
           const activeDefinitions = activeTools
             ? toolDefinitions.filter((definition) => activeTools.includes(definition.name))
             : toolDefinitions;

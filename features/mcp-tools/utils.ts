@@ -33,10 +33,11 @@ export const MCP_PAGE_SIZES: readonly McpPageSize[] = [5, 10, 25, 100];
 export const MCP_DEFAULT_PAGE_SIZE: McpPageSize = 25;
 
 export function roundMcpPageSize(value: number): McpPageSize {
-  return MCP_PAGE_SIZES.find((size) => value <= size) ?? 100;
+  return [...MCP_PAGE_SIZES].reverse().find((size) => size <= value) ?? MCP_PAGE_SIZES[0];
 }
 
-export const MCP_PAGE_SIZE_DESCRIPTION = "Results per page, 1-100, rounded up to 5, 10, 25 or 100.";
+export const MCP_PAGE_SIZE_DESCRIPTION =
+  "Results per page. Any value from 1 to 100 is accepted and lowered to the nearest of 5, 10, 25 or 100; the size actually used comes back as pageSize, and the call is never refused over it. Ask for a smaller size when a result was truncated: the next size down really is smaller.";
 
 export const mcpPageSize = (
   defaultValue: McpPageSize,
@@ -195,7 +196,10 @@ export const FILTER_FIELD_DESCRIPTION =
   "Array of filter rules, AND-combined. Each rule is { field, operator, value? }. " +
   `Operators with one string value: ${FILTER_OPERATOR_GROUPS.singleValue.join(", ")}; with a string array: ${FILTER_OPERATOR_GROUPS.multiValue.join(", ")} (between needs exactly two); with a positive integer of days: ${FILTER_OPERATOR_GROUPS.relativeWindow.join(", ")}; without a value: ${FILTER_OPERATOR_GROUPS.noValue.join(", ")}. ` +
   'Example: [{"field":"name","operator":"contains","value":"acme"},{"field":"createdAt","operator":"inLastDays","value":30}]. ' +
-  "Call get_record_schema to see all filterable fields.";
+  "isNull and isNotNull are offered on custom columns and mean the column was never filled in, which is how you find records missing a value. " +
+  "On a field of linked-record ids, in and notIn take those ids and mean linked to any of them or to none of them, while hasSome and hasNone take no value and mean has any link at all or none at all: " +
+  'to find deals with no open task, list the open tasks, then filter [{"field":"taskIds","operator":"notIn","value":["<task-id>"]}]. ' +
+  "Call get_record_schema to see all filterable fields and which operators each one takes.";
 
 export const filtersDescription = (filterableFields: string) =>
   "Array of filter rules, AND-combined. Each rule is { field, operator, value? }. " +
