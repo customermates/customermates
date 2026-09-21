@@ -11,6 +11,7 @@ import type { SseFrame, SseTiming } from "./sse";
 
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
 import { agentToolOutcomeStatus } from "@/ee/agent-chat/agent-durable-stream";
+import { AGENT_PANEL_TOOL_NAMES, isAgentPanelTool } from "@/ee/agent-chat/agent-ui-command";
 import { respondToApprovalAs, respondToUiCommandAs } from "@/tests/helpers/agent-benchmark-responder";
 
 import { armModelKey } from "./arms";
@@ -21,6 +22,16 @@ import { readSseFrames } from "./sse";
 
 const TURN_TIMEOUT_MS = 15 * 60 * 1000;
 const MICROCENTS_PER_USD = 100_000_000;
+
+
+function assertKnownPanelTool(name: string) {
+  if (isAgentPanelTool(name)) return;
+  throw new Error(
+    `The run received a ui_command for "${name}", which this build does not define (${AGENT_PANEL_TOOL_NAMES.join(", ")}). ` +
+      "Another application process is executing this run's workflow steps against the same database. " +
+      "Stop it, or point this run at its own database, and start over.",
+  );
+}
 
 export type TurnRecord = {
   index: number;
@@ -161,6 +172,7 @@ async function runTurn(input: {
     const { frames, timing } = await readSseFrames(response, startedAt, async (frame) => {
       try {
         if (frame.type === "ui_command") {
+          assertKnownPanelTool(String(frame.name));
           record.uiCommands.push(String(frame.name));
           await respondToUiCommand(input.fixture, conversationId, frame);
         }

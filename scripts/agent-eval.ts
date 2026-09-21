@@ -20,6 +20,7 @@ const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { AGENT_UI_TARGET_IDS } = await import("@/ee/agent-chat/ui-targets");
+const { isAgentPanelTool } = await import("@/ee/agent-chat/agent-ui-command");
 const { getCancelAgentTurnInteractor, getRespondToUiCommandInteractor } = await import("@/core/di");
 const { MODEL_CATALOG } = await import("@/ee/agent-chat/model-catalog");
 const { AGENT_RUN_LEASE_MS } = await import("@/ee/agent-chat/agent-turn-request");
@@ -137,6 +138,11 @@ async function runTurn(args: {
         return { frames, conversationId, detached: true };
       }
       if (frame.type === "ui_command") {
+        if (!isAgentPanelTool(String(frame.name)))
+          throw new Error(
+            `The evaluation received a ui_command for "${String(frame.name)}", which this build does not define. ` +
+              "Another application process is executing these workflow steps against the same database.",
+          );
         await runWithTenant(evalUser, () =>
           getRespondToUiCommandInteractor().invoke({
             conversationId,

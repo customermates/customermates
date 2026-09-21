@@ -18,6 +18,8 @@ LOCAL_AGENT_BENCHMARK=true AGENT_BENCHMARK_ARMS="$(yarn -s agent:benchmark overl
 
 `WORKFLOW_LOCAL_BASE_URL` must be exported for the CLI as well as the server, because loading the product graph starts a second workflow worker inside the CLI process and that worker posts durable steps over HTTP. Without the variable it probes for a port, and a probe that fails mid-campaign sends every step it picked up into a backoff whose next attempt is hours away: a run stalled after 31 episodes this way.
 
+Run nothing else against the same database while a campaign runs. Any other application process on this machine — a development server left running in a second worktree — executes the durable workflow steps of your run with its own code, so the model is offered that tree's tool catalog and prompt. The symptom is a turn that calls a tool this build does not define; the driver now fails the episode with that explanation instead of scoring it. Either stop the other process or give the run its own database.
+
 Every command exits the process when it finishes: loading the product graph starts a workflow worker that would otherwise keep the run alive indefinitely after the last episode.
 
 `--variant <label>` groups a run's artifacts and report rows under a label of your choice; the application has one runtime, so the label records what you changed between runs rather than selecting a code path.
