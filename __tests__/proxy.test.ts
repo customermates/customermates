@@ -64,6 +64,12 @@ function request(pathname: string, cookie?: string, origin = "http://localhost:4
   });
 }
 
+function embeddedRequest(pathname: string, cookie?: string, origin = "http://localhost:4000"): NextRequest {
+  const headers: Record<string, string> = { "sec-fetch-dest": "iframe" };
+  if (cookie) headers.cookie = cookie;
+  return new NextRequestValue(`${origin}${pathname}`, { headers });
+}
+
 function responseWithCookies(status: number, cookies: string[]): Response {
   const headers = new Headers();
   for (const cookie of cookies) headers.append("set-cookie", cookie);
@@ -89,6 +95,7 @@ describe("automatic demo authentication proxy", () => {
     mockEnv.BASE_URL = "http://localhost:4000";
     mocks.intlMiddleware.mockImplementation(() => NextResponse.next());
     mocks.isPublicPage.mockReturnValue(false);
+    mocks.isContentPage.mockReturnValue(false);
   });
 
   it("round-trips an unauthenticated visitor through a same-URL redirect carrying every auth cookie", async () => {
@@ -184,6 +191,67 @@ describe("automatic demo authentication proxy", () => {
     expect(response.headers.get("location")).toBe("http://localhost:4000/en/inbox");
     expect(setCookieHeaders(response)).toEqual([CLEARED_SESSION_COOKIE, SESSION_TOKEN_COOKIE, SESSION_DATA_COOKIE]);
     expect(mocks.intlMiddleware).not.toHaveBeenCalled();
+  });
+
+  it("marks the redirect when the demo is embedded, so a frame that cannot store the cookie stops after one attempt", async () => {
+    mocks.signInEmail.mockResolvedValue(responseWithCookies(200, [SESSION_TOKEN_COOKIE, SESSION_DATA_COOKIE]));
+
+    const response = await proxy(embeddedRequest("/en/dashboard?agentChat=open"));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe("http://localhost:4000/en/dashboard?agentChat=open&cm_demo_auth=1");
+  });
+
+  it("stops signing in when an embedded frame comes back unauthenticated a second time", async () => {
+    // A cross-site iframe drops the SameSite=Lax cookie, so without this bound the demo redirected
+    // to itself until the browser gave up with ERR_TOO_MANY_REDIRECTS.
+    mocks.signInEmail.mockResolvedValue(responseWithCookies(200, [SESSION_TOKEN_COOKIE, SESSION_DATA_COOKIE]));
+
+    const response = await proxy(embeddedRequest("/en/dashboard?agentChat=open&cm_demo_auth=1"));
+
+    expect(mocks.signInEmail).not.toHaveBeenCalled();
+    expect(response.headers.get("location")).toContain("/auth/signin");
+  });
+
+  it("keeps signing a direct visitor in on every attempt, because their cookies do stick", async () => {
+    mocks.signInEmail.mockResolvedValue(responseWithCookies(200, [SESSION_TOKEN_COOKIE, SESSION_DATA_COOKIE]));
+
+    const response = await proxy(request("/en/dashboard?cm_demo_auth=1"));
+
+    expect(mocks.signInEmail).toHaveBeenCalledOnce();
+    expect(response.headers.get("location")).toBe("http://localhost:4000/en/dashboard?cm_demo_auth=1");
+  });
+
+  it("serves a public marketing page on the demo host without minting a session", async () => {
+    mocks.isContentPage.mockReturnValue(true);
+
+    const response = await proxy(request("/en/terms"));
+
+    expect(mocks.signInEmail).not.toHaveBeenCalled();
+    expect(mocks.intlMiddleware).toHaveBeenCalledOnce();
+    expect(response.headers.get("location")).toBeNull();
+  });
+
+  it("still sends the demo root to the dashboard even though the root is a content page", async () => {
+    mocks.isContentPage.mockReturnValue(true);
+    mocks.signInEmail.mockResolvedValue(responseWithCookies(200, [SESSION_TOKEN_COOKIE, SESSION_DATA_COOKIE]));
+
+    const response = await proxy(request("/en"));
+
+    expect(mocks.signInEmail).toHaveBeenCalledOnce();
+    expect(response.status).toBe(307);
+  });
+
+  it("recognises the __Secure- prefixed session cookie that https actually sets", async () => {
+    mocks.getSession.mockResolvedValue({
+      session: { expiresAt: new Date(Date.now() + 60_000) },
+      user: { email: SYNTHETIC_SEED_USER.email },
+    });
+
+    await proxy(request("/en/dashboard", "__Secure-app.session_token=existing-synthetic-token"));
+
+    expect(mocks.getSession).toHaveBeenCalledOnce();
+    expect(mocks.signInEmail).not.toHaveBeenCalled();
   });
 
   it("fails closed without rendering when automatic sign-in is rejected", async () => {
