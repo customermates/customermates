@@ -329,7 +329,9 @@ async function observeGatewayCreditDebit(gateway: Gateway, beforeTotalUsed: stri
   fail("settlement", "Gateway credit usage did not reflect the authoritative generation debit.");
 }
 
-function requestedAdversarialOverrides(call: JsonRecord) {
+export function requestedAdversarialOverrides(value: unknown) {
+  const call = record(value);
+  if (!call) return false;
   const input = record(call.input) ?? record(call.args);
   const contents = record(input?.contents);
   const text = record(contents?.text);
@@ -337,7 +339,8 @@ function requestedAdversarialOverrides(call: JsonRecord) {
     input?.type === "auto" &&
     input.num_results === 4 &&
     Array.isArray(input.include_domains) &&
-    input.include_domains.includes(DOMAIN) &&
+    input.include_domains.length === 1 &&
+    input.include_domains[0] === DOMAIN &&
     text?.max_characters === 1_100 &&
     text.verbosity === "standard"
   );

@@ -12,6 +12,7 @@ import {
   inspectProviderSmokeBilling,
   inspectProviderSmokeSerialization,
   readProviderSmokePostRunThreshold,
+  requestedAdversarialOverrides,
   runProviderSmoke,
 } from "../smoke-agent-web-search-provider";
 
@@ -198,6 +199,22 @@ describe("web-search offline feasibility guard", () => {
         },
       },
     });
+  });
+
+  it("accepts only the exact expected domain in the model's attempted override", () => {
+    const call = (includeDomains: unknown[]) => ({
+      input: {
+        type: "auto",
+        num_results: 4,
+        include_domains: includeDomains,
+        contents: { text: { max_characters: 1_100, verbosity: "standard" } },
+      },
+    });
+
+    expect(requestedAdversarialOverrides(call(["customermates.com"]))).toBe(true);
+    expect(requestedAdversarialOverrides(call(["customermates.com.attacker.example"]))).toBe(false);
+    expect(requestedAdversarialOverrides(call(["attacker-customermates.com"]))).toBe(false);
+    expect(requestedAdversarialOverrides(call(["customermates.com", "attacker.example"]))).toBe(false);
   });
 
   it("runs the default command as an offline-only check", async () => {
