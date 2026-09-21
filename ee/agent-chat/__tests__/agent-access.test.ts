@@ -83,7 +83,14 @@ function usageService(webSearchEnabled = true) {
 const emptyWikiCatalog = () => ({
   invoke: vi.fn().mockResolvedValue({
     ok: true,
-    data: { items: [], agentsMd: null, total: 0, page: 1, nextPage: null, truncated: false },
+    data: {
+      items: [],
+      relevantPages: [],
+      total: 0,
+      page: 1,
+      nextPage: null,
+      truncated: false,
+    },
   }),
 });
 
@@ -212,7 +219,10 @@ describe("agent access", () => {
       }),
     );
     expect(repo.claimAgentRunLease).toHaveBeenCalledWith(
-      expect.objectContaining({ conversationId: expect.any(String), runId: expect.any(String) }),
+      expect.objectContaining({
+        conversationId: expect.any(String),
+        runId: expect.any(String),
+      }),
     );
     expect(repo.claimAgentRunLease).toHaveBeenCalledBefore(usage.reserveUsage);
     expect(usage.reserveUsage).toHaveBeenCalledBefore(repo.admitAgentTurnOrThrow);
@@ -408,7 +418,10 @@ describe("agent access", () => {
     );
     expect(background.dispatchTracked).toHaveBeenCalledWith(
       "agent-turn",
-      expect.objectContaining({ surface: "routine", conversationId: CONVERSATION_ID }),
+      expect.objectContaining({
+        surface: "routine",
+        conversationId: CONVERSATION_ID,
+      }),
     );
   });
 
@@ -419,9 +432,12 @@ describe("agent access", () => {
       findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
       claimAgentRunLease: vi.fn().mockResolvedValue("atUserLimit"),
       isAtAgentRunLimit: vi.fn().mockResolvedValue(true),
-      findConversation: vi
-        .fn()
-        .mockResolvedValue({ id: CONVERSATION_ID, origin: "routine", modelKey: null, creditCeiling: 10 }),
+      findConversation: vi.fn().mockResolvedValue({
+        id: CONVERSATION_ID,
+        origin: "routine",
+        modelKey: null,
+        creditCeiling: 10,
+      }),
     };
 
     const result = await runWithTenant(mockUser, () =>
@@ -441,7 +457,11 @@ describe("agent access", () => {
 
     expect(result).toMatchObject({
       ok: true,
-      data: { disposition: "atCapacity", conversationId: CONVERSATION_ID, retryAllowed: true },
+      data: {
+        disposition: "atCapacity",
+        conversationId: CONVERSATION_ID,
+        retryAllowed: true,
+      },
     });
     expect(usage.reserveUsage).not.toHaveBeenCalled();
   });
@@ -503,7 +523,10 @@ describe("agent access", () => {
     );
     expect(background.dispatchTracked).toHaveBeenCalledWith(
       "agent-turn",
-      expect.objectContaining({ surface: "chat", conversationId: CONVERSATION_ID }),
+      expect.objectContaining({
+        surface: "chat",
+        conversationId: CONVERSATION_ID,
+      }),
     );
   });
 
@@ -747,7 +770,10 @@ describe("agent access", () => {
     expect(tasks.dispatchTracked).toHaveBeenCalledWith(
       "agent-turn",
       expect.objectContaining({
-        wikiHomepageSetup: { registrableDomain: "example.com", url: "https://example.com/" },
+        wikiHomepageSetup: {
+          registrableDomain: "example.com",
+          url: "https://example.com/",
+        },
       }),
     );
   });

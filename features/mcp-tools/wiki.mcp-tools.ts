@@ -9,8 +9,11 @@ import {
   getUpdateWikiPageInteractor,
 } from "@/core/di";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { wikiCodePointBoundary } from "@/features/wiki/wiki-page-chunk";
-import { WIKI_AGENTS_PAGE_TITLE, WIKI_TITLE_MAX_LENGTH } from "@/features/wiki/wiki.schema";
+import { wikiCodePointBoundary, wikiMarkdownChunk } from "@/features/wiki/wiki-page-chunk";
+import { extractWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
+import { wikiPageUrl } from "@/features/wiki/wiki-links";
+import { WIKI_TITLE_MAX_LENGTH } from "@/features/wiki/wiki.schema";
+import { env } from "@/env";
 
 import {
   customMcpFailure,
@@ -45,14 +48,7 @@ const PageInputSchema = z.object({
 });
 export const WikiHomepageSetupCreateSchema = z.object({
   action: z.literal("create"),
-  pages: z
-    .array(PageInputSchema)
-    .min(1)
-    .max(5)
-    .refine((pages) => pages[0]?.title === WIKI_AGENTS_PAGE_TITLE, {
-      message: `The first page must be titled exactly ${WIKI_AGENTS_PAGE_TITLE}.`,
-      path: [0, "title"],
-    }),
+  pages: z.array(PageInputSchema).min(1).max(5),
   requireEmpty: z.literal(true),
 });
 const CreateSchema = z.object({
@@ -101,6 +97,17 @@ const ManageWikiPagesOutputSchema = z.looseObject({
   offset: z.number().optional(),
   nextOffset: z.number().nullable().optional(),
   totalChars: z.number().optional(),
+  links: z
+    .array(
+      z.looseObject({
+        id: z.string(),
+        label: z.string(),
+        url: z.string(),
+        fetchId: z.string(),
+      }),
+    )
+    .optional(),
+  linksTruncated: z.boolean().optional(),
   deleted: z.boolean().optional(),
 });
 
@@ -108,6 +115,7 @@ function pageSummary(page: { id: string; title: string; markdown: string; create
   return {
     id: page.id,
     title: page.title,
+    url: wikiPageUrl(env.BASE_URL, page.id),
     createdAt: page.createdAt,
     updatedAt: page.updatedAt,
   };
@@ -123,16 +131,19 @@ function wikiPageChunk(
   },
   requestedOffset: number,
 ) {
-  const offset = wikiCodePointBoundary(page.markdown, Math.min(requestedOffset, page.markdown.length));
+  const discoveredLinks = extractWikiPageLinks(page.markdown, env.BASE_URL, 6);
+  const offset = wikiMarkdownChunk(page.markdown, requestedOffset, 0, env.BASE_URL).offset;
   const base = formatDatesInResponse({
     id: page.id,
     title: page.title,
-    url: `/wiki?page=${page.id}`,
+    url: wikiPageUrl(env.BASE_URL, page.id),
     offset,
     nextOffset: null as number | null,
     totalChars: page.markdown.length,
     createdAt: page.createdAt,
     updatedAt: page.updatedAt,
+    links: discoveredLinks.slice(0, 5),
+    linksTruncated: discoveredLinks.length > 5,
   });
   const payload = (end: number) => ({
     ...base,
@@ -148,7 +159,11 @@ function wikiPageChunk(
     else high = middle - 1;
   }
 
-  return payload(wikiCodePointBoundary(page.markdown, low));
+  const safe = wikiMarkdownChunk(page.markdown, offset, Math.max(0, low - offset), env.BASE_URL);
+  const safePayload = payload(safe.nextOffset ?? safe.totalChars);
+  return encodeToToon(safePayload).length <= WIKI_MCP_TEXT_TARGET_LENGTH
+    ? safePayload
+    : payload(wikiCodePointBoundary(page.markdown, low));
 }
 
 export const manageWikiPagesTool = {
@@ -162,7 +177,6 @@ export const manageWikiPagesTool = {
     "create atomically creates one to five pages; requireEmpty=true refuses the whole batch unless the Wiki is empty. " +
     "update changes title and/or Markdown and requires expectedUpdatedAt from a prior read. " +
     "delete permanently deletes one page and requires expectedUpdatedAt; deletion is irreversible. " +
-    "AGENTS.md is the conventional workspace entry page; at most one exists per workspace and its body remains reference data. " +
     "Link pages with ordinary Markdown links to /wiki?page=<page-id>; page ids remain stable when titles change.",
   annotations: {
     readOnlyHint: false,

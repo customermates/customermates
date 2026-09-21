@@ -78,7 +78,6 @@ const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
 const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.operatorConflict,
   CustomErrorCode.roleSystemImmutable,
-  CustomErrorCode.wikiAgentsPageExists,
   CustomErrorCode.wikiNotEmpty,
   CustomErrorCode.wikiPageConflict,
 ]);

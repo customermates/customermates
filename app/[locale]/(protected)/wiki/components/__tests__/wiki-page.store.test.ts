@@ -73,18 +73,20 @@ describe("Wiki document editing", () => {
     expect(changed).toHaveBeenCalledWith(page.id);
   });
 
-  it("prefills the conventional entry filename as a dirty, immediately saveable draft", async () => {
+  it("starts a blank draft that becomes saveable after editing", async () => {
     const store = new WikiPageStore(rootStore(), null, vi.fn());
-    store.startCreate("AGENTS.md");
+    store.startCreate();
 
     expect(store.creating).toBe(true);
-    expect(store.form).toMatchObject({ id: null, title: "AGENTS.md", markdown: "" });
-    expect(store.hasUnsavedChanges).toBe(true);
+    expect(store.form).toMatchObject({ id: null, title: "", markdown: "" });
+    expect(store.hasUnsavedChanges).toBe(false);
+
+    store.onChange("title", "Support");
 
     await store.onSubmit();
 
     expect(actions.create).toHaveBeenCalledExactlyOnceWith({
-      pages: [{ title: "AGENTS.md", markdown: "" }],
+      pages: [{ title: "Support", markdown: "" }],
       requireEmpty: false,
     });
   });
@@ -171,20 +173,20 @@ describe("Wiki document editing", () => {
     expect(store.isLoading).toBe(false);
   });
 
-  it("shows a duplicate AGENTS.md validation error without a stale-update banner", async () => {
+  it("shows a validation error without losing the draft or showing a stale-update banner", async () => {
     const error = {
-      kind: "conflict",
-      issues: [{ code: "custom", customCode: "wikiAgentsPageExists", path: ["pages"], message: "Duplicate" }],
+      kind: "validation",
+      issues: [{ code: "too_big", path: ["title"], message: "Too long" }],
     };
     actions.update.mockResolvedValue({ ok: false, conflict: false, error });
     const store = new WikiPageStore(rootStore(), page, vi.fn());
-    store.onChange("title", "AGENTS.md");
+    store.onChange("title", "An unsaved title");
 
     await store.onSubmit();
 
     expect(store.conflict).toBe(false);
     expect(store.error).toEqual(error);
-    expect(store.form.title).toBe("AGENTS.md");
+    expect(store.form.title).toBe("An unsaved title");
     expect(store.hasUnsavedChanges).toBe(true);
   });
 

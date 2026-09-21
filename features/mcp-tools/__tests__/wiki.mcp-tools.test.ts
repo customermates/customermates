@@ -74,7 +74,7 @@ describe("manage_wiki_pages registry", () => {
 
   it("exposes only the two setup capabilities during homepage setup", () => {
     const validPages = Array.from({ length: 5 }, (_, index) => ({
-      title: index === 0 ? "AGENTS.md" : `Page ${index + 1}`,
+      title: `Page ${index + 1}`,
       markdown: "Body",
     }));
 
@@ -89,7 +89,6 @@ describe("manage_wiki_pages registry", () => {
     }
     for (const invalid of [
       { action: "list" },
-      { action: "create", pages: [{ title: "agents.md", markdown: "Body" }], requireEmpty: true },
       { action: "create", pages: [], requireEmpty: true },
       {
         action: "create",
@@ -241,6 +240,65 @@ describe("manage_wiki_pages reads", () => {
       offset = output.nextOffset;
     }
 
+    expect(reconstructed).toBe(markdown);
+  });
+
+  it("never splits a Wiki link across continuation chunks", async () => {
+    const link = `[Support](/wiki?page=00000000-0000-4000-8000-000000000002)`;
+    const markdown = `${`${link} supporting context.\n`.repeat(180)}Done.`;
+    calls.get.mockResolvedValue({ ok: true, data: page(markdown) });
+
+    let offset = 0;
+    let reconstructed = "";
+    for (let chunkIndex = 0; chunkIndex < 20; chunkIndex += 1) {
+      const text = mcpToolResultText(await run({ action: "get", id: PAGE_ID, offset }));
+      const output = decode(text) as {
+        markdownChunk: string;
+        offset: number;
+        nextOffset: number | null;
+      };
+
+      expect(text.length).toBeLessThanOrEqual(5_500);
+      expect(output.offset).toBe(offset);
+      expect(output.markdownChunk.replaceAll(link, "")).not.toContain("/wiki?page=");
+      reconstructed += output.markdownChunk;
+
+      if (output.nextOffset === null) break;
+      expect(output.nextOffset).toBeGreaterThan(offset);
+      offset = output.nextOffset;
+    }
+
+    expect(reconstructed).toBe(markdown);
+  });
+
+  it("splits an oversized link label safely without repeating a continuation", async () => {
+    const linkedId = "00000000-0000-4000-8000-000000000002";
+    const markdown = `[${"Very long label ".repeat(600)}](/wiki?page=${linkedId})`;
+    calls.get.mockResolvedValue({ ok: true, data: page(markdown) });
+
+    let offset = 0;
+    let reconstructed = "";
+    const offsets = [offset];
+    for (let chunkIndex = 0; chunkIndex < 20; chunkIndex += 1) {
+      const text = mcpToolResultText(await run({ action: "get", id: PAGE_ID, offset }));
+      const output = decode(text) as {
+        links: Array<{ label: string }>;
+        markdownChunk: string;
+        offset: number;
+        nextOffset: number | null;
+      };
+
+      expect(text.length).toBeLessThanOrEqual(5_500);
+      expect(output.offset).toBe(offset);
+      expect(output.links[0]?.label.length).toBeLessThanOrEqual(120);
+      reconstructed += output.markdownChunk;
+      if (output.nextOffset === null) break;
+      expect(output.nextOffset).toBeGreaterThan(offset);
+      offset = output.nextOffset;
+      offsets.push(offset);
+    }
+
+    expect(new Set(offsets).size).toBe(offsets.length);
     expect(reconstructed).toBe(markdown);
   });
 

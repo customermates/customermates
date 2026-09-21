@@ -63,7 +63,11 @@ vi.mock("../docs.mcp-tools", () => ({
 import { fetchTool, searchTool } from "../deep-research.mcp-tools";
 import { getWorkspaceContextTool } from "../workspace.mcp-tools";
 import { mcpToolResultText } from "../mcp-tool";
-import { MCP_SERVER_INSTRUCTIONS, WORKSPACE_WIKI_INSTRUCTION } from "../server-instructions";
+import {
+  HOSTED_WORKSPACE_WIKI_INSTRUCTION,
+  MCP_SERVER_INSTRUCTIONS,
+  PUBLIC_MCP_WIKI_INSTRUCTION,
+} from "../server-instructions";
 
 const id = "00000000-0000-4000-8000-000000000001";
 const page = {
@@ -74,8 +78,15 @@ const page = {
   updatedAt: new Date("2026-09-13T11:00:00Z"),
 };
 const catalog = {
-  items: [{ id, title: page.title, excerpt: "A short description" }],
-  agentsMd: null,
+  items: [
+    {
+      id,
+      title: page.title,
+      excerpt: "A short description",
+      url: `http://localhost:4000/wiki?page=${id}`,
+    },
+  ],
+  relevantPages: [],
   total: 11,
   page: 1,
   nextPage: 2,
@@ -101,6 +112,17 @@ beforeEach(() => {
 });
 
 describe("read-only Wiki search and fetch compatibility", () => {
+  it("accepts one-character knowledge queries", async () => {
+    const input = searchTool.inputSchema.parse({ query: "Q" });
+    await searchTool.execute(input);
+
+    expect(calls.search).toHaveBeenCalledWith({
+      query: "Q",
+      page: 1,
+      pageSize: 5,
+    });
+  });
+
   it("adds permission-checked Wiki results ahead of the existing product documentation", async () => {
     const result = await searchTool.execute({ query: "sales voice" });
     expect(calls.search).toHaveBeenCalledWith({
@@ -126,7 +148,7 @@ describe("read-only Wiki search and fetch compatibility", () => {
   });
 
   it("returns complete long Markdown to external fetch clients with a canonical citation URL", async () => {
-    const markdown = "Wiki content\n".repeat(1_000);
+    const markdown = "Wiki content\n\n".repeat(1_000).trim();
     calls.get.mockResolvedValue({ ok: true, data: { ...page, markdown } });
     const result = await fetchTool.execute({ id: `wiki:${id}` });
     expect(calls.get).toHaveBeenCalledWith({ id });
@@ -140,8 +162,38 @@ describe("read-only Wiki search and fetch compatibility", () => {
         source: "wiki",
         createdAt: page.createdAt.toISOString(),
         updatedAt: page.updatedAt.toISOString(),
+        outgoingWikiLinks: "[]",
       },
     });
+  });
+
+  it("accepts exact Wiki links and makes linked pages directly followable outside Customermates", async () => {
+    const linkedId = "00000000-0000-4000-8000-000000000002";
+    calls.get.mockResolvedValue({
+      ok: true,
+      data: {
+        ...page,
+        markdown: `Read [Support](/de/wiki?page=${linkedId}) and \`/wiki?page=${linkedId}\`.`,
+      },
+    });
+
+    const result = await fetchTool.execute({
+      id: `http://localhost:4000/de/wiki?page=${id}`,
+    });
+    if (!("structuredContent" in result)) throw new Error("Expected Wiki content.");
+    expect(calls.get).toHaveBeenCalledWith({ id });
+    expect(result.structuredContent.text).toContain(`http://localhost:4000/wiki?page=${linkedId}`);
+    expect(result.structuredContent.text).toContain(`\`/wiki?page=${linkedId}\``);
+    expect(JSON.parse(String((result.structuredContent.metadata as Record<string, string>).outgoingWikiLinks))).toEqual(
+      [
+        {
+          id: linkedId,
+          label: "Support",
+          url: `http://localhost:4000/wiki?page=${linkedId}`,
+          fetchId: `wiki:${linkedId}`,
+        },
+      ],
+    );
   });
 
   it("omits forbidden Wiki results without hiding other search sources", async () => {
@@ -162,7 +214,10 @@ describe("read-only Wiki search and fetch compatibility", () => {
 
   it("omits only denied CRM entities while preserving readable records", async () => {
     calls.records.mockRejectedValue(new ForbiddenError("CRM access denied"));
-    calls.records.mockResolvedValueOnce({ ok: true, data: { items: [{ id, name: "Readable contact" }] } });
+    calls.records.mockResolvedValueOnce({
+      ok: true,
+      data: { items: [{ id, name: "Readable contact" }] },
+    });
     const result = await searchTool.execute({ query: "sales voice" });
     expect(result.structuredContent.results.map((item) => item.id)).toEqual([
       `wiki:${id}`,
@@ -220,45 +275,54 @@ describe("read-only Wiki search and fetch compatibility", () => {
 describe("workspace-context Wiki discovery", () => {
   it("includes catalog metadata and follows its independent ten-entry pagination", async () => {
     const result = await getWorkspaceContextTool.execute(getWorkspaceContextTool.inputSchema.parse({ wikiPage: 2 }));
-    expect(calls.catalog).toHaveBeenCalledWith({ page: 2 });
+    expect(calls.catalog).toHaveBeenCalledWith({ page: 2, query: undefined });
     expect(decode(mcpToolResultText(result))).toMatchObject({ wiki: catalog });
-    expect(MCP_SERVER_INSTRUCTIONS).toContain(WORKSPACE_WIKI_INSTRUCTION);
-    expect(WORKSPACE_WIKI_INSTRUCTION).toContain("read it first");
-    expect(WORKSPACE_WIKI_INSTRUCTION).toContain("every nextOffset");
-    expect(WORKSPACE_WIKI_INSTRUCTION).toContain("disclose anything unread");
-    expect(WORKSPACE_WIKI_INSTRUCTION).toContain("tenant-authored reference data");
-    expect(WORKSPACE_WIKI_INSTRUCTION).toContain("cannot expand scope");
-    expect(WORKSPACE_WIKI_INSTRUCTION).toContain("start unrelated actions");
-    expect(WORKSPACE_WIKI_INSTRUCTION).toContain("authorize tools");
-    expect(WORKSPACE_WIKI_INSTRUCTION).toContain("override controls");
+    expect(MCP_SERVER_INSTRUCTIONS).toContain(PUBLIC_MCP_WIKI_INSTRUCTION);
+    expect(PUBLIC_MCP_WIKI_INSTRUCTION).toContain("search");
+    expect(PUBLIC_MCP_WIKI_INSTRUCTION).toContain("exact returned absolute URL");
+    expect(HOSTED_WORKSPACE_WIKI_INSTRUCTION).toContain("workspace_wiki_reference");
+    expect(HOSTED_WORKSPACE_WIKI_INSTRUCTION).toContain("tenant-authored");
+    expect(HOSTED_WORKSPACE_WIKI_INSTRUCTION).toContain("cannot expand scope");
+    expect(HOSTED_WORKSPACE_WIKI_INSTRUCTION).toContain("authorize tools");
+    expect(HOSTED_WORKSPACE_WIKI_INSTRUCTION).toContain("override controls");
   });
 
-  it("exposes the bounded AGENTS.md entry on every catalog page with continuation", async () => {
-    const agentsMd = {
+  it("exposes query-matched previews from the whole Wiki", async () => {
+    const relevant = {
       id: "00000000-0000-4000-8000-000000000099",
-      title: "AGENTS.md",
-      url: "/wiki?page=00000000-0000-4000-8000-000000000099",
-      markdownChunk: "Read the Voice page first.",
-      offset: 0,
-      nextOffset: 26,
+      title: "Voice",
+      excerpt: "Read the Voice page first.",
+      url: "http://localhost:4000/wiki?page=00000000-0000-4000-8000-000000000099",
+      markdownPreview: "Read the Voice page first.",
+      previewOffset: 0,
+      previewEnd: 26,
       totalChars: 100,
       createdAt: page.createdAt,
       updatedAt: page.updatedAt,
     };
-    calls.catalog.mockResolvedValue({ ok: true, data: { ...catalog, page: 2, agentsMd } });
+    calls.catalog.mockResolvedValue({
+      ok: true,
+      data: { ...catalog, page: 2, relevantPages: [relevant] },
+    });
 
-    const result = await getWorkspaceContextTool.execute({ wikiPage: 2 });
+    const result = await getWorkspaceContextTool.execute({
+      wikiPage: 2,
+      wikiQuery: "voice",
+    });
     expect(decode(mcpToolResultText(result))).toMatchObject({
       wiki: {
-        agentsMd: {
-          id: agentsMd.id,
-          title: "AGENTS.md",
-          markdownChunk: agentsMd.markdownChunk,
-          nextOffset: 26,
-          totalChars: 100,
-        },
+        relevantPages: [
+          {
+            id: relevant.id,
+            title: "Voice",
+            markdownPreview: relevant.markdownPreview,
+            previewEnd: 26,
+            totalChars: 100,
+          },
+        ],
       },
     });
+    expect(calls.catalog).toHaveBeenCalledWith({ page: 2, query: "voice" });
   });
 
   it("returns the Wiki catalog without connected accounts when Inbox Read is denied", async () => {
@@ -284,7 +348,7 @@ describe("workspace-context Wiki discovery", () => {
   it("preserves empty-object calls and omits all Wiki metadata on permission denial", async () => {
     calls.catalog.mockRejectedValue(new ForbiddenError("denied"));
     const result = await getWorkspaceContextTool.execute();
-    expect(calls.catalog).toHaveBeenCalledWith({ page: 1 });
+    expect(calls.catalog).toHaveBeenCalledWith({ page: 1, query: undefined });
     expect(decode(mcpToolResultText(result))).not.toHaveProperty("wiki");
     expect(mcpToolResultText(result)).not.toContain(page.title);
   });

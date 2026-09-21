@@ -425,7 +425,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         preview: agentPlainTextPreview(
           latest?.role === AgentMessageRole.user
             ? stripLegacyUserPageContextPrefix(latestText)
-            : sanitizeAgentVisibleText(latestText),
+            : sanitizeAgentVisibleText(latestText, env.BASE_URL),
           140,
         ),
         updatedAt: row.updatedAt,
@@ -484,6 +484,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       if (args.routineRunId) {
         if (conversation.origin !== AgentConversationOrigin.routine || args.turn.kind !== "create")
           throw new Error("Routine run admission requires a new turn in a routine conversation.");
+
         if (args.turn.clientRequestId !== args.routineRunId)
           throw new Error("Routine run admission does not match its client request.");
 
@@ -770,7 +771,11 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       take: AGENT_MESSAGE_PAGE_SIZE + 1,
       include: {
         turnRequest: {
-          where: { companyId: this.companyId, userId: this.userId, conversationId },
+          where: {
+            companyId: this.companyId,
+            userId: this.userId,
+            conversationId,
+          },
           select: {
             clientRequestId: true,
             status: true,
@@ -1012,7 +1017,10 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     now: Date,
     model: string,
     requireLease: boolean,
-    scope: { companyId: string; userId: string } = { companyId: this.companyId, userId: this.userId },
+    scope: { companyId: string; userId: string } = {
+      companyId: this.companyId,
+      userId: this.userId,
+    },
   ): Promise<"failed" | "uncertain"> {
     const nextStatus = row.providerStartedAt ? "uncertain" : "failed";
     if (nextStatus === "uncertain") {
@@ -1274,6 +1282,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       hasRenderableAgentMessageParts(
         clientSafeAgentMessageParts(assistantMessage.parts, {
           sanitizeText: true,
+          wikiBaseUrl: env.BASE_URL,
         }),
       );
     const completedIsReplayable = assistantMessageIsRenderable && reconciledRow.terminalCode !== null;
@@ -1866,11 +1875,14 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       throw new Error("A non-completed agent turn requires a stop reason.");
     if (args.terminalCode === "cancelled" && args.stopReason !== "cancelled")
       throw new Error("A cancelled agent turn requires the cancelled stop reason.");
+
     if (args.terminalCode === "policyBreach" && args.stopReason !== "policy_breach")
       throw new Error("A policy-breach agent turn requires the policy-breach stop reason.");
+
     if (!areAgentTurnAffectedResources(args.affectedResources)) throw new Error("Agent turn resources are invalid.");
     const safeParts = clientSafeAgentMessageParts(args.parts, {
       sanitizeText: true,
+      wikiBaseUrl: env.BASE_URL,
     });
     if (!hasRenderableAgentMessageParts(safeParts)) throw new Error("Agent turn canonical reply is not renderable.");
 
@@ -2325,8 +2337,12 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         (reservation.reservedCredits > creditCeiling || args.requiredCredits > creditCeiling)
       )
         return { disposition: "credit_limit" };
-      if (reservation.reservedCredits >= args.requiredCredits)
-        return { disposition: "extended", reservedCredits: reservation.reservedCredits };
+      if (reservation.reservedCredits >= args.requiredCredits) {
+        return {
+          disposition: "extended",
+          reservedCredits: reservation.reservedCredits,
+        };
+      }
 
       const now = new Date();
       const user = await this.findUserForUsageUnscoped(args.userId);

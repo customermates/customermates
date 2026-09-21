@@ -53,7 +53,9 @@ beforeEach(() => vi.clearAllMocks());
 describe("CreateWikiPagesInteractor", () => {
   it("publishes one complete snapshot for every atomically created page", async () => {
     const pages = [page(), page({ id: "00000000-0000-4000-8000-000000000002", title: "Offerings" })];
-    const repo = { createPages: vi.fn().mockResolvedValue({ status: "created", pages }) };
+    const repo = {
+      createPages: vi.fn().mockResolvedValue({ status: "created", pages }),
+    };
     const events = eventService();
 
     const result = await new CreateWikiPagesInteractor(repo, events as never).invoke({
@@ -63,7 +65,11 @@ describe("CreateWikiPagesInteractor", () => {
 
     expect(result).toEqual({ ok: true, data: pages });
     expect(repo.createPages).toHaveBeenCalledWith({
-      pages: pages.map(({ title, markdown }) => ({ title, markdown, id: expect.any(String) })),
+      pages: pages.map(({ title, markdown }) => ({
+        title,
+        markdown,
+        id: expect.any(String),
+      })),
       requireEmpty: true,
     });
     expect(events.publish.mock.calls).toEqual(
@@ -72,7 +78,9 @@ describe("CreateWikiPagesInteractor", () => {
   });
 
   it("refuses the whole empty-only batch without publishing events", async () => {
-    const repo = { createPages: vi.fn().mockResolvedValue({ status: "wiki-not-empty" }) };
+    const repo = {
+      createPages: vi.fn().mockResolvedValue({ status: "wiki-not-empty" }),
+    };
     const events = eventService();
 
     const result = await new CreateWikiPagesInteractor(repo, events as never).invoke({
@@ -81,11 +89,15 @@ describe("CreateWikiPagesInteractor", () => {
     });
 
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.issues[0]).toMatchObject({ params: { error: CustomErrorCode.wikiNotEmpty } });
+    if (!result.ok) {
+      expect(result.error.issues[0]).toMatchObject({
+        params: { error: CustomErrorCode.wikiNotEmpty },
+      });
+    }
     expect(events.publish).not.toHaveBeenCalled();
   });
 
-  it("preallocates stable sibling links in an empty-only AGENTS.md batch", async () => {
+  it("preallocates ids without rewriting ordinary titles or Markdown", async () => {
     const repo = {
       createPages: vi.fn().mockImplementation((data) =>
         Promise.resolve({
@@ -100,44 +112,12 @@ describe("CreateWikiPagesInteractor", () => {
     const result = await new CreateWikiPagesInteractor(repo as never, events as never).invoke({
       pages: [
         {
-          title: "AGENTS.md",
-          markdown:
-            "Read [Voice \\[external\\] \\\\ handbook](/wiki?page=guessed-slug) and [the source](https://example.com/source).",
+          title: "agents.md",
+          markdown: "Read [the source](https://example.com/source).",
         },
-        { title: String.raw`Voice [external] \ handbook`, markdown: "Write clearly." },
-      ],
-      requireEmpty: true,
-    });
-
-    expect(result.ok).toBe(true);
-    const submitted = repo.createPages.mock.calls[0][0].pages;
-    expect(submitted[0].title).toBe("AGENTS.md");
-    expect(submitted[0].markdown).toContain(`- [Voice \\[external\\] \\\\ handbook](/wiki?page=${submitted[1].id})`);
-    expect(submitted[0].markdown).toContain("Read Voice \\[external\\] \\\\ handbook");
-    expect(submitted[0].markdown).not.toContain("guessed-slug");
-    expect(submitted[0].markdown).toContain("[the source](https://example.com/source)");
-    expect(submitted[0].markdown).toContain("## Wiki");
-    expect(WikiMarkdownSchema.parse(submitted[0].markdown)).toBe(submitted[0].markdown);
-  });
-
-  it("removes guessed Wiki links from an AGENTS.md-only empty-Wiki setup", async () => {
-    const repo = {
-      createPages: vi.fn().mockImplementation((data) =>
-        Promise.resolve({
-          status: "created",
-          pages: data.pages.map((item: { id: string; title: string; markdown: string }) =>
-            page({ ...item, createdAt: new Date(), updatedAt: new Date() }),
-          ),
-        }),
-      ),
-    };
-    const events = eventService();
-
-    const result = await new CreateWikiPagesInteractor(repo as never, events as never).invoke({
-      pages: [
         {
-          title: "AGENTS.md",
-          markdown: "Read [a guessed page](/wiki?page=does-not-exist) and [the source](https://example.com/source).",
+          title: String.raw`Voice [external] \ handbook`,
+          markdown: "Write clearly.",
         },
       ],
       requireEmpty: true,
@@ -145,35 +125,23 @@ describe("CreateWikiPagesInteractor", () => {
 
     expect(result.ok).toBe(true);
     const submitted = repo.createPages.mock.calls[0][0].pages;
-    expect(submitted[0].markdown).toContain("Read a guessed page");
-    expect(submitted[0].markdown).not.toContain("does-not-exist");
-    expect(submitted[0].markdown).toContain("[the source](https://example.com/source)");
-    expect(submitted[0].markdown).not.toContain("## Wiki");
+    expect(submitted[0].title).toBe("agents.md");
+    expect(submitted[0].markdown).toBe("Read [the source](https://example.com/source).");
+    expect(submitted[1].title).toBe(String.raw`Voice [external] \ handbook`);
+    expect(submitted.every((item: { id: string }) => /^[0-9a-f-]{36}$/.test(item.id))).toBe(true);
     expect(WikiMarkdownSchema.parse(submitted[0].markdown)).toBe(submitted[0].markdown);
   });
 
-  it("maps a duplicate conventional entry to a stable conflict", async () => {
-    const repo = { createPages: vi.fn().mockResolvedValue({ status: "agents-exists" }) };
-    const events = eventService();
-    const result = await new CreateWikiPagesInteractor(repo, events as never).invoke({
-      pages: [{ title: "AGENTS.md", markdown: "Body" }],
-      requireEmpty: false,
-    });
-
-    expect(result.ok).toBe(false);
-    if (!result.ok)
-      expect(result.error.issues[0]).toMatchObject({ params: { error: CustomErrorCode.wikiAgentsPageExists } });
-    expect(events.publish).not.toHaveBeenCalled();
-  });
-
-  it("returns a structured refusal when generated sibling links exceed the Markdown cap", async () => {
+  it("returns a structured refusal when Markdown exceeds the cap", async () => {
     const repo = { createPages: vi.fn() };
     const events = eventService();
 
     const result = await new CreateWikiPagesInteractor(repo, events as never).invoke({
       pages: [
-        { title: "AGENTS.md", markdown: "a".repeat(WIKI_MARKDOWN_MAX_LENGTH - 10) },
-        { title: "A linked page", markdown: "Body" },
+        {
+          title: "Long page",
+          markdown: "a".repeat(WIKI_MARKDOWN_MAX_LENGTH + 1),
+        },
       ],
       requireEmpty: true,
     });
@@ -198,7 +166,9 @@ describe("UpdateWikiPageInteractor", () => {
       markdown: "Updated body",
       updatedAt: new Date("2026-09-08T11:00:00.000Z"),
     });
-    const repo = { updatePage: vi.fn().mockResolvedValue({ status: "updated", previous, page: current }) };
+    const repo = {
+      updatePage: vi.fn().mockResolvedValue({ status: "updated", previous, page: current }),
+    };
     const events = eventService();
 
     const result = await new UpdateWikiPageInteractor(repo as never, events as never).invoke({
@@ -224,7 +194,11 @@ describe("UpdateWikiPageInteractor", () => {
   it("suppresses the event when canonical data did not change", async () => {
     const unchanged = page();
     const repo = {
-      updatePage: vi.fn().mockResolvedValue({ status: "unchanged", previous: unchanged, page: unchanged }),
+      updatePage: vi.fn().mockResolvedValue({
+        status: "unchanged",
+        previous: unchanged,
+        page: unchanged,
+      }),
     };
     const events = eventService();
 
@@ -252,23 +226,11 @@ describe("UpdateWikiPageInteractor", () => {
     });
 
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.issues[0]).toMatchObject({ params: { error: code } });
-    expect(events.publish).not.toHaveBeenCalled();
-  });
-
-  it("rejects promotion when another AGENTS.md entry already exists", async () => {
-    const repo = { updatePage: vi.fn().mockResolvedValue({ status: "agents-exists" }) };
-    const events = eventService();
-    const result = await new UpdateWikiPageInteractor(repo as never, events as never).invoke({
-      id: PAGE_ID,
-      expectedUpdatedAt: UPDATED_AT,
-      title: "agents.md",
-    });
-
-    expect(repo.updatePage).toHaveBeenCalledWith(expect.objectContaining({ title: "AGENTS.md" }));
-    expect(result.ok).toBe(false);
-    if (!result.ok)
-      expect(result.error.issues[0]).toMatchObject({ params: { error: CustomErrorCode.wikiAgentsPageExists } });
+    if (!result.ok) {
+      expect(result.error.issues[0]).toMatchObject({
+        params: { error: code },
+      });
+    }
     expect(events.publish).not.toHaveBeenCalled();
   });
 });
@@ -276,7 +238,9 @@ describe("UpdateWikiPageInteractor", () => {
 describe("DeleteWikiPageInteractor", () => {
   it("publishes the complete deleted snapshot", async () => {
     const deleted = page();
-    const repo = { deletePage: vi.fn().mockResolvedValue({ status: "deleted", page: deleted }) };
+    const repo = {
+      deletePage: vi.fn().mockResolvedValue({ status: "deleted", page: deleted }),
+    };
     const events = eventService();
 
     const result = await new DeleteWikiPageInteractor(repo as never, events as never).invoke({
@@ -327,7 +291,12 @@ describe("Wiki permission boundary", () => {
     };
     const calls = [
       () => new GetWikiPagesInteractor(repo).invoke({ page: 1, pageSize: 25 }),
-      () => new SearchWikiPagesInteractor(repo).invoke({ query: "company", page: 1, pageSize: 25 }),
+      () =>
+        new SearchWikiPagesInteractor(repo).invoke({
+          query: "company",
+          page: 1,
+          pageSize: 25,
+        }),
       () => new GetWikiPageInteractor(repo).invoke({ id: PAGE_ID }),
     ];
 
@@ -364,12 +333,17 @@ describe("Wiki permission boundary", () => {
 
   it("lets a manager create, update, and delete through the same interactors used by UI and MCP", async () => {
     const created = page();
-    const updated = page({ markdown: "Updated", updatedAt: new Date("2026-09-08T11:00:00.000Z") });
+    const updated = page({
+      markdown: "Updated",
+      updatedAt: new Date("2026-09-08T11:00:00.000Z"),
+    });
     const events = eventService();
     const calls = [
       () =>
         new CreateWikiPagesInteractor(
-          { createPages: vi.fn().mockResolvedValue({ status: "created", pages: [created] }) },
+          {
+            createPages: vi.fn().mockResolvedValue({ status: "created", pages: [created] }),
+          },
           events as never,
         ).invoke({
           pages: [{ title: created.title, markdown: created.markdown }],
@@ -378,13 +352,23 @@ describe("Wiki permission boundary", () => {
       () =>
         new UpdateWikiPageInteractor(
           {
-            updatePage: vi.fn().mockResolvedValue({ status: "updated", previous: created, page: updated }),
+            updatePage: vi.fn().mockResolvedValue({
+              status: "updated",
+              previous: created,
+              page: updated,
+            }),
           },
           events as never,
-        ).invoke({ id: PAGE_ID, expectedUpdatedAt: UPDATED_AT, markdown: updated.markdown }),
+        ).invoke({
+          id: PAGE_ID,
+          expectedUpdatedAt: UPDATED_AT,
+          markdown: updated.markdown,
+        }),
       () =>
         new DeleteWikiPageInteractor(
-          { deletePage: vi.fn().mockResolvedValue({ status: "deleted", page: updated }) },
+          {
+            deletePage: vi.fn().mockResolvedValue({ status: "deleted", page: updated }),
+          },
           events as never,
         ).invoke({ id: PAGE_ID, expectedUpdatedAt: updated.updatedAt }),
     ];

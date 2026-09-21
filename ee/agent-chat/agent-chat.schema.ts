@@ -66,7 +66,11 @@ function includes<T extends string>(values: readonly T[], value: unknown): value
 
 export function clientSafeAgentMessageParts(
   value: unknown,
-  options: { sanitizeText?: boolean; stripLegacyUserContext?: boolean } = {},
+  options: {
+    sanitizeText?: boolean;
+    stripLegacyUserContext?: boolean;
+    wikiBaseUrl?: string;
+  } = {},
 ): AgentMessagePart[] {
   if (!Array.isArray(value)) return [];
 
@@ -81,7 +85,9 @@ export function clientSafeAgentMessageParts(
       return [
         {
           type: "text",
-          text: options.sanitizeText ? sanitizeAgentVisibleText(withoutLegacyContext) : withoutLegacyContext,
+          text: options.sanitizeText
+            ? sanitizeAgentVisibleText(withoutLegacyContext, options.wikiBaseUrl)
+            : withoutLegacyContext,
         },
       ];
     }

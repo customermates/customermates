@@ -9,6 +9,8 @@ import {
 } from "../agent-output-safety";
 
 describe("agent client-visible output safety", () => {
+  const wikiBaseUrl = "https://app.customermates.com";
+
   it("preserves local Wiki citations across every stream split while redacting bare identifiers", () => {
     const id = "00000000-0000-4000-8000-000000000001";
     const source = `Read [Voice](/wiki?page=${id}) and [Support](/de/wiki?page=${id}). Bare ${id}. ${"Safe prose. ".repeat(10)} [/wiki?page=${id}](/wiki?page=${id}) Raw /wiki?page=${id} and \`/wiki?page=${id}\``;
@@ -22,32 +24,57 @@ describe("agent client-visible output safety", () => {
     }
     const sanitizer = new AgentVisibleTextStreamSanitizer();
     expect([...source].map((character) => sanitizer.push(character)).join("") + sanitizer.finish()).toBe(expected);
-    expect(clientSafeAgentMessageParts([{ type: "text", text: source }], { sanitizeText: true })).toEqual([
-      { type: "text", text: expected },
-    ]);
+    expect(
+      clientSafeAgentMessageParts([{ type: "text", text: source }], {
+        sanitizeText: true,
+      }),
+    ).toEqual([{ type: "text", text: expected }]);
   });
 
-  it("does not exempt external URLs, arbitrary routes, or incomplete Wiki citations from ID redaction", () => {
+  it.each([
+    `/wiki?page=00000000-0000-4000-8000-000000000001`,
+    `/de/wiki?page=00000000-0000-4000-8000-000000000001`,
+    `${wikiBaseUrl}/wiki?page=00000000-0000-4000-8000-000000000001`,
+    `${wikiBaseUrl}/de/wiki?page=00000000-0000-4000-8000-000000000001`,
+  ])("preserves the canonical Wiki citation %s across every stream split", (path) => {
+    const source = `Read [Page](${path}).`;
+    expect(sanitizeAgentVisibleText(source, wikiBaseUrl)).toBe(source);
+    for (let split = 0; split <= source.length; split += 1) {
+      const sanitizer = new AgentVisibleTextStreamSanitizer(wikiBaseUrl);
+      expect(
+        `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`,
+      ).toBe(source);
+    }
+  });
+
+  it("does not exempt external, noncanonical, or incomplete Wiki citations from ID redaction", () => {
     const id = "00000000-0000-4000-8000-000000000001";
-    for (const path of [
-      `https://example.com/wiki?page=${id}`,
-      `https://例子.公司/wiki?page=${id}`,
-      `https://example.com/path)/wiki?page=${id}`,
-      `/other-/wiki?page=${id}`,
-      `//example.com/wiki?page=${id}`,
-      `/contacts?id=${id}`,
-      `/wiki?page=${id}&other=true`,
+    for (const [path, identifier] of [
+      [`https://example.com/wiki?page=${id}`, id],
+      [`https://例子.公司/wiki?page=${id}`, id],
+      [`https://example.com/path)/wiki?page=${id}`, id],
+      [`/other-/wiki?page=${id}`, id],
+      [`//example.com/wiki?page=${id}`, id],
+      [`/pt/wiki?page=${id}`, id],
+      [`/contacts?id=${id}`, id],
+      [`/wiki?page=${id}&other=true`, id],
+      [`/wiki?page=${id}#fragment`, id],
+      [`/WIKI?page=${id}`, id],
+      [`/wiki?PAGE=${id}`, id],
+      [`/EN/wiki?page=${id}`, id],
+      ["/wiki?page=10000000-0000-9000-8000-000000000001", "10000000-0000-9000-8000-000000000001"],
+      ["/wiki?page=10000000-0000-4000-c000-000000000001", "10000000-0000-4000-c000-000000000001"],
     ]) {
-      expect(sanitizeAgentVisibleText(`[Link](${path})`)).not.toContain(id);
+      expect(sanitizeAgentVisibleText(`[Link](${path})`, wikiBaseUrl)).not.toContain(identifier);
       const source = `${path}${" ".repeat(64 - `/wiki?page=${id}`.length)}`;
-      const expected = sanitizeAgentVisibleText(source);
+      const expected = sanitizeAgentVisibleText(source, wikiBaseUrl);
       for (let split = 0; split <= source.length; split += 1) {
-        const sanitizer = new AgentVisibleTextStreamSanitizer();
+        const sanitizer = new AgentVisibleTextStreamSanitizer(wikiBaseUrl);
         expect(
           `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`,
         ).toBe(expected);
       }
-      const sanitizer = new AgentVisibleTextStreamSanitizer();
+      const sanitizer = new AgentVisibleTextStreamSanitizer(wikiBaseUrl);
       expect([...source].map((character) => sanitizer.push(character)).join("") + sanitizer.finish()).toBe(expected);
     }
 
@@ -212,7 +239,11 @@ describe("agent client-visible output safety", () => {
         },
         { type: "reasoning", text: "hidden chain of thought" },
         { type: "tool_result", result: { apiKey: "never-show" } },
-        { type: "provider_metadata", modelId: "gpt-5.6-luna", inputTokens: 321 },
+        {
+          type: "provider_metadata",
+          modelId: "gpt-5.6-luna",
+          inputTokens: 321,
+        },
       ],
       { sanitizeText: true },
     );

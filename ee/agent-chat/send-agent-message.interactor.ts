@@ -118,6 +118,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       const safeParts = assistantMessage
         ? clientSafeAgentMessageParts(assistantMessage.parts, {
             sanitizeText: true,
+            wikiBaseUrl: env.BASE_URL,
           })
         : [];
       if (!assistantMessage || !terminalCode || !hasRenderableAgentMessageParts(safeParts)) {
@@ -182,6 +183,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
     if (mode === "routine" && decision.disposition === "retry")
       return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+
     if (mode === "routine" && !data.conversationId)
       return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
@@ -197,6 +199,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       : null;
     if ((decision.disposition === "retry" || data.conversationId) && !conversation)
       return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+
     if (mode === "routine" && conversation?.origin !== AgentConversationOrigin.routine)
       return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
@@ -223,9 +226,12 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     let wikiCatalog: string | null = null;
     if (!wikiHomepageSetup) {
       try {
-        const result = await this.wikiCatalog.invoke({ page: 1 });
+        const result = await this.wikiCatalog.invoke({
+          page: 1,
+          query: data.text,
+        });
         if (!result.ok) return result;
-        wikiCatalog = serializeAgentWikiCatalog(result.data);
+        wikiCatalog = serializeAgentWikiCatalog(result.data, env.BASE_URL);
       } catch (error) {
         if (appErrorDetails(error)?.code !== AppErrorCode.permissionDenied) throw error;
       }

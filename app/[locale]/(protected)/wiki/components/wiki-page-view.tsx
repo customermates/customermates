@@ -21,7 +21,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { useRouter } from "@/i18n/navigation";
 import { cn } from "@/core/utils/cn";
 import { WikiHomepageSetup } from "@/components/wiki/wiki-homepage-setup";
-import { WIKI_AGENTS_PAGE_TITLE } from "@/features/wiki/wiki.schema";
+import { wikiPagePath } from "@/features/wiki/wiki-links";
 
 import { WikiPageStore } from "./wiki-page.store";
 import { WikiPageActions } from "./wiki-page-actions";
@@ -33,10 +33,17 @@ type Props = {
   initialPage: WikiPageDto | null;
   listPage: WikiPageListResult;
   pinnedPage?: WikiPageSummary | null;
+  readOnly?: boolean;
   unavailable?: boolean;
 };
 
-export const WikiPageView = observer(({ initialPage, listPage, pinnedPage = null, unavailable = false }: Props) => {
+const WikiPageViewComponent = ({
+  initialPage,
+  listPage,
+  pinnedPage = null,
+  readOnly = false,
+  unavailable = false,
+}: Props) => {
   const t = useTranslations();
   const rootStore = useRootStore();
   const router = useRouter();
@@ -47,7 +54,7 @@ export const WikiPageView = observer(({ initialPage, listPage, pinnedPage = null
     () =>
       new WikiPageStore(rootStore, initialPage, (pageId) => {
         startNavigation(() => {
-          router.replace(pageId ? `/wiki?page=${pageId}` : "/wiki");
+          router.replace(pageId ? wikiPagePath(pageId) : "/wiki");
           router.refresh();
         });
       }),
@@ -55,6 +62,7 @@ export const WikiPageView = observer(({ initialPage, listPage, pinnedPage = null
   const formId = useId();
   const titleContainer = useRef<HTMLDivElement>(null);
   const pages = useWikiPages(listPage);
+  const canManage = store.canManage && !readOnly;
 
   useEffect(() => store.receivePage(initialPage), [initialPage, store]);
   useEffect(() => setHasMounted(true), []);
@@ -65,17 +73,17 @@ export const WikiPageView = observer(({ initialPage, listPage, pinnedPage = null
   const missing = !store.creating && (unavailable || store.unavailable);
   const hasDocument = !missing && (store.creating || Boolean(store.form.id));
   const canSetupWithMate =
-    hasMounted && store.canManage && rootStore.agentChatEnabled && rootStore.agentChatStore.enabled !== false;
+    hasMounted && canManage && rootStore.agentChatEnabled && rootStore.agentChatStore.enabled !== false;
   const tryNavigate = useCallback(
     (navigate: () => void) => rootStore.navigationGuard.tryNavigate(navigate),
     [rootStore],
   );
   const create = useCallback(() => {
     tryNavigate(() => {
-      store.startCreate(listPage.total === 0 ? WIKI_AGENTS_PAGE_TITLE : undefined);
+      store.startCreate();
       setMobileOpen(false);
     });
-  }, [listPage.total, store, tryNavigate]);
+  }, [store, tryNavigate]);
   const selectPage = (pageId: string) => {
     if (!store.creating && pageId === store.form.id) {
       setMobileOpen(false);
@@ -84,16 +92,23 @@ export const WikiPageView = observer(({ initialPage, listPage, pinnedPage = null
     tryNavigate(() => {
       store.load(initialPage);
       setMobileOpen(false);
-      startNavigation(() => router.push(`/wiki?page=${pageId}`));
+      startNavigation(() => router.push(wikiPagePath(pageId)));
     });
   };
   const reload = useCallback(() => tryNavigate(() => runUserAction(store.reload)), [store, tryNavigate]);
   const topBar = useMemo(
     () =>
       isNavigating ? null : (
-        <WikiPageActions formId={formId} hasDocument={hasDocument} store={store} onCreate={create} onReload={reload} />
+        <WikiPageActions
+          canManage={canManage}
+          formId={formId}
+          hasDocument={hasDocument}
+          store={store}
+          onCreate={create}
+          onReload={reload}
+        />
       ),
-    [create, formId, hasDocument, isNavigating, reload, store],
+    [canManage, create, formId, hasDocument, isNavigating, reload, store],
   );
   useSetTopBarActions(topBar);
   const pinnedRailPage = pinnedPage && !pages.result.items.some(({ id }) => id === pinnedPage.id) ? pinnedPage : null;
@@ -109,11 +124,7 @@ export const WikiPageView = observer(({ initialPage, listPage, pinnedPage = null
       variant="ghost"
       onClick={() => selectPage(page.id)}
     >
-      {page.title === WIKI_AGENTS_PAGE_TITLE ? (
-        <BookOpen className="size-4 shrink-0 text-muted-foreground" />
-      ) : (
-        <FileText className="size-4 shrink-0 text-muted-foreground" />
-      )}
+      <FileText className="size-4 shrink-0 text-muted-foreground" />
 
       <span className="truncate">{page.title}</span>
     </Button>
@@ -234,7 +245,7 @@ export const WikiPageView = observer(({ initialPage, listPage, pinnedPage = null
         ) : !hasDocument ? (
           <PageState
             action={
-              store.canManage ? (
+              canManage ? (
                 <div className="w-72 max-w-full space-y-4">
                   {canSetupWithMate && (
                     <WikiHomepageSetup
@@ -256,7 +267,7 @@ export const WikiPageView = observer(({ initialPage, listPage, pinnedPage = null
             }
             background={<WikiPageSkeleton documentOnly animated={false} />}
             description={
-              !store.canManage
+              !canManage
                 ? t("Wiki.emptyBodyReadOnly")
                 : canSetupWithMate
                   ? t("Wiki.emptyBody")
@@ -286,7 +297,7 @@ export const WikiPageView = observer(({ initialPage, listPage, pinnedPage = null
             )}
 
             <div ref={titleContainer}>
-              {store.canManage ? (
+              {canManage ? (
                 <FormInput
                   required
                   aria-label={t("Wiki.pageTitle")}
@@ -304,7 +315,7 @@ export const WikiPageView = observer(({ initialPage, listPage, pinnedPage = null
             <EditorLinkPickerContext.Provider value={WikiLinkPicker}>
               <Editor
                 data={store.editorDocument}
-                readOnly={!store.canManage || store.isLoading}
+                readOnly={!canManage || store.isLoading}
                 onChange={store.onEditorChange}
               />
             </EditorLinkPickerContext.Provider>
@@ -313,4 +324,6 @@ export const WikiPageView = observer(({ initialPage, listPage, pinnedPage = null
       </main>
     </div>
   );
-});
+};
+
+export const WikiPageView = observer(WikiPageViewComponent);

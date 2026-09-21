@@ -32,8 +32,7 @@ export type UpdateWikiPageRepoResult =
       page: WikiPageDto;
     }
   | { status: "not-found" }
-  | { status: "conflict" }
-  | { status: "agents-exists" };
+  | { status: "conflict" };
 
 export abstract class UpdateWikiPageRepo {
   abstract updatePage(data: UpdateWikiPageData): Promise<UpdateWikiPageRepoResult>;
@@ -53,8 +52,6 @@ export class UpdateWikiPageInteractor extends AuthenticatedInteractor<UpdateWiki
     const result = await this.repo.updatePage(data);
     if (result.status === "not-found") return failNotFound(CustomErrorCode.wikiPageNotFound, ["id"]);
     if (result.status === "conflict") return failConflict(CustomErrorCode.wikiPageConflict, ["expectedUpdatedAt"]);
-    if (result.status === "agents-exists") return failConflict(CustomErrorCode.wikiAgentsPageExists, ["title"]);
-
     if (result.status === "updated") {
       await this.eventService.publish(DomainEvent.WIKI_PAGE_UPDATED, {
         entityId: result.page.id,

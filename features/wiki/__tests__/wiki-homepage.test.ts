@@ -52,13 +52,9 @@ describe("buildWikiHomepageSetupPrompt", () => {
     expect(prompt).toContain("First use read_public_page");
     expect(prompt).toContain("up to four additional pages explicitly linked from that homepage");
     expect(prompt).toContain("Do not guess URLs");
-    expect(prompt).toContain("The first page must be titled exactly AGENTS.md");
-    expect(prompt).toContain("zero to four additional useful pages");
-    expect(prompt).toContain("server adds stable links from AGENTS.md");
-    expect(prompt).toContain("not guessed Wiki links");
-    expect(prompt).toContain("If AGENTS.md is the only useful page");
-    expect(prompt).toContain("never create an almost-empty index");
-    expect(prompt).toContain("There is no required topic template");
+    expect(prompt).toContain("Create one to five useful pages");
+    expect(prompt).toContain("There is no required entry page or topic template");
+    expect(prompt).toContain("Combine sparse topics rather than creating empty pages");
     expect(prompt).toContain("Preserve each source's qualifiers and scope");
     expect(prompt).toContain("page you actually read that supports those claims");
     expect(prompt).toContain("Link to the current pricing source instead of copying prices");

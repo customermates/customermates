@@ -719,7 +719,9 @@ async function reconcileFailedTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
 async function settleRoutineRunStep(ownerUserId: string): Promise<void> {
   "use step";
-  await getBackgroundTaskService().dispatch("reconcile-routine-runs", { ownerUserId });
+  await getBackgroundTaskService().dispatch("reconcile-routine-runs", {
+    ownerUserId,
+  });
 }
 settleRoutineRunStep.maxRetries = 0;
 
@@ -774,7 +776,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const providerStarted = await openTurn(payload);
     if (!providerStarted) {
       const message = await resolveRunnerMessage(payload.locale, "hostedAiUnavailable");
-      const transcript = new AgentTurnTranscript(() => undefined);
+      const transcript = new AgentTurnTranscript(() => undefined, payload.appBaseUrl);
       transcript.appendText(message);
       await publishAssistantText(message);
       await finalizeTurn(payload, {
@@ -802,7 +804,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const queued: AgentTranscriptEvent[] = [];
     const transcript = new AgentTurnTranscript((event) => {
       if ((AGENT_TRANSCRIPT_FORWARDED_EVENTS as readonly string[]).includes(event.type)) queued.push(event);
-    });
+    }, payload.appBaseUrl);
 
     const systemPrompt = buildAgentSystemPrompt({
       userName: payload.userName,
@@ -887,7 +889,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       try {
         for (const source of collectAgentWebSources([{ content: step.content }])) webSources.add(source);
         for (const raw of step.content) {
-          const part = raw as { type?: string; toolName?: string; output?: unknown };
+          const part = raw as {
+            type?: string;
+            toolName?: string;
+            output?: unknown;
+          };
           if (
             part.type === "tool-result" &&
             part.toolName &&
@@ -1048,7 +1054,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           retainedResponseSteps,
         });
         const candidateMessages = continueOutput
-          ? [...compacted.messages, { role: "user" as const, content: AGENT_OUTPUT_CONTINUATION_PROMPT }]
+          ? [
+              ...compacted.messages,
+              {
+                role: "user" as const,
+                content: AGENT_OUTPUT_CONTINUATION_PROMPT,
+              },
+            ]
           : [...compacted.messages];
         if (
           !isAgentStepContextWithinBudget(
@@ -1106,7 +1118,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                     : {
                         execute: async (
                           input: unknown,
-                          options: { toolCallId: string; messages: readonly unknown[] },
+                          options: {
+                            toolCallId: string;
+                            messages: readonly unknown[];
+                          },
                         ) => {
                           const prepared = await resolveToolInput(shell.name, options.toolCallId, input);
                           if (!prepared.ok) return prepared;
@@ -1138,14 +1153,26 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                             const url = (prepared.input as { url: string }).url;
                             const request = publicPageState
                               ? reservePublicPageRead(publicPageState, url)
-                              : { ok: true as const, url, allowedDomain: undefined };
+                              : {
+                                  ok: true as const,
+                                  url,
+                                  allowedDomain: undefined,
+                                };
                             if (!request.ok) return request;
                             const result = await readAgentPublicPage(request.url, request.allowedDomain);
                             if (publicPageState) recordPublicPageLinks(publicPageState, request.url, result);
                             if (result.ok) {
                               browsed = true;
                               for (const source of collectAgentWebSources([
-                                { content: [{ type: "tool-result", toolName: shell.name, output: result }] },
+                                {
+                                  content: [
+                                    {
+                                      type: "tool-result",
+                                      toolName: shell.name,
+                                      output: result,
+                                    },
+                                  ],
+                                },
                               ]))
                                 webSources.add(source);
                             }
@@ -1183,7 +1210,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             throw AGENT_CONTEXT_COMPACTION_REQUIRED;
           if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
           return isUnattendedSurface(surface) && performedWrite
-            ? { activeTools: shells.filter((shell) => !isAgentWebTool(shell.name)).map((shell) => shell.name) }
+            ? {
+                activeTools: shells.filter((shell) => !isAgentWebTool(shell.name)).map((shell) => shell.name),
+              }
             : {};
         },
         stopWhen: [
@@ -1211,7 +1240,12 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       appliedThisCall = 0;
       let result;
       try {
-        result = await agent.stream({ messages, writable, preventClose: true, sendFinish: false });
+        result = await agent.stream({
+          messages,
+          writable,
+          preventClose: true,
+          sendFinish: false,
+        });
       } catch (error) {
         if (error === AGENT_LOCAL_TERMINATION_REQUIRED) break;
         if (error === hostedAiPaused) {
@@ -1291,7 +1325,15 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         })),
       );
       const invalidResults = preparedPending.flatMap(({ call, prepared }) =>
-        prepared.ok ? [] : [{ toolCallId: call.toolCallId, toolName: call.toolName, output: prepared }],
+        prepared.ok
+          ? []
+          : [
+              {
+                toolCallId: call.toolCallId,
+                toolName: call.toolName,
+                output: prepared,
+              },
+            ],
       );
       let resumableMessages = withToolResults(result.messages, invalidResults);
       for (const outcome of invalidResults) settleToolOutcome(outcome.toolCallId, outcome.toolName, outcome.output);
@@ -1353,7 +1395,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
       const hook =
         approvalWindowMs > 0
-          ? createHook<AgentApprovalWake>({ token: agentApprovalHookToken(payload.conversationId) })
+          ? createHook<AgentApprovalWake>({
+              token: agentApprovalHookToken(payload.conversationId),
+            })
           : null;
       await openApprovalRequests(payload, requests, approvalWindowMs);
       for (const request of requests) {

@@ -1,7 +1,8 @@
 import { Resource } from "@/generated/prisma";
+import { env } from "@/env";
 
 import { PageContainer } from "@/components/shared/page-container";
-import { getGetWikiCatalogInteractor, getGetWikiPageInteractor, getGetWikiPagesInteractor } from "@/core/di";
+import { getGetWikiPageInteractor, getGetWikiPagesInteractor } from "@/core/di";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 import { requireAccess } from "@/features/auth/next/require";
 
@@ -25,11 +26,7 @@ export default async function WikiPage({ searchParams }: Props) {
     pages = await unwrapValidated(getGetWikiPagesInteractor().invoke({ page: 1, pageSize: 25 }));
 
   const requestedId = firstString(raw.page);
-  const agentsMd = requestedId
-    ? null
-    : (await unwrapValidated(getGetWikiCatalogInteractor().invoke({ page: 1 }))).agentsMd;
-  const fallbackId = agentsMd?.id ?? pages.items[0]?.id;
-  const selectedId = requestedId ?? fallbackId;
+  const selectedId = requestedId ?? pages.items[0]?.id;
   const selectedResult = selectedId ? await getGetWikiPageInteractor().invoke({ id: selectedId }) : null;
   const selectedPage = selectedResult?.ok ? selectedResult.data : null;
   const pinnedPage =
@@ -43,6 +40,7 @@ export default async function WikiPage({ searchParams }: Props) {
         initialPage={selectedPage}
         listPage={pages}
         pinnedPage={pinnedPage}
+        readOnly={env.APP_MODE === "demo"}
         unavailable={Boolean(requestedId && !selectedPage)}
       />
     </PageContainer>

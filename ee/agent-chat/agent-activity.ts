@@ -97,11 +97,27 @@ export const AGENT_CONSEQUENCE_ACTIONS = [
 export const AgentActivityConsequenceSchema = z
   .object({
     action: z.enum(AGENT_CONSEQUENCE_ACTIONS),
-    target: z.string().max(240).transform(sanitizeAgentVisibleText).optional(),
-    subject: z.string().max(200).transform(sanitizeAgentVisibleText).optional(),
-    preview: z.string().max(240).transform(sanitizeAgentVisibleText).optional(),
+    target: z
+      .string()
+      .max(240)
+      .transform((value) => sanitizeAgentVisibleText(value))
+      .optional(),
+    subject: z
+      .string()
+      .max(200)
+      .transform((value) => sanitizeAgentVisibleText(value))
+      .optional(),
+    preview: z
+      .string()
+      .max(240)
+      .transform((value) => sanitizeAgentVisibleText(value))
+      .optional(),
     count: z.number().int().min(0).max(100).optional(),
-    state: z.string().max(80).transform(sanitizeAgentVisibleText).optional(),
+    state: z
+      .string()
+      .max(80)
+      .transform((value) => sanitizeAgentVisibleText(value))
+      .optional(),
   })
   .strict();
 

@@ -1,19 +1,25 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-  getCatalog: vi.fn(),
+  appMode: "cloud" as "cloud" | "demo",
   getPage: vi.fn(),
   listPages: vi.fn(),
   requireAccess: vi.fn(),
 }));
 
 vi.mock("@/core/di", () => ({
-  getGetWikiCatalogInteractor: () => ({ invoke: mocks.getCatalog }),
   getGetWikiPageInteractor: () => ({ invoke: mocks.getPage }),
   getGetWikiPagesInteractor: () => ({ invoke: mocks.listPages }),
 }));
 vi.mock("@/features/auth/next/require", () => ({
   requireAccess: mocks.requireAccess,
+}));
+vi.mock("@/env", () => ({
+  env: {
+    get APP_MODE() {
+      return mocks.appMode;
+    },
+  },
 }));
 vi.mock("@/components/shared/page-container", () => ({
   PageContainer: "page-container",
@@ -36,54 +42,49 @@ const summary = (({ markdown: _markdown, ...value }) => value)(page);
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.appMode = "cloud";
   mocks.requireAccess.mockResolvedValue(undefined);
-  mocks.getCatalog.mockResolvedValue({
-    ok: true,
-    data: { items: [], agentsMd: null, total: 0, page: 1, nextPage: null, truncated: false },
-  });
 });
 
 describe("WikiPage", () => {
-  it("opens AGENTS.md by default even when another page was created first", async () => {
-    const agents = {
-      ...page,
-      id: "00000000-0000-4000-8000-000000000999",
-      title: "AGENTS.md",
-      markdown: "Start here",
-    };
+  it("opens the first creation-ordered page by default", async () => {
     const firstPage = Array.from({ length: 25 }, (_, index) => ({
       ...summary,
       id: `00000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,
       title: `Page ${index + 1}`,
     }));
-    mocks.listPages.mockResolvedValue({ ok: true, data: { items: firstPage, total: 26, page: 1, pageSize: 25 } });
-    mocks.getCatalog.mockResolvedValue({
+    mocks.listPages.mockResolvedValue({
       ok: true,
-      data: {
-        items: [],
-        agentsMd: {
-          ...agents,
-          url: `/wiki?page=${agents.id}`,
-          markdownChunk: agents.markdown,
-          offset: 0,
-          nextOffset: null,
-          totalChars: agents.markdown.length,
-        },
-        total: 26,
-        page: 1,
-        nextPage: null,
-        truncated: false,
-      },
+      data: { items: firstPage, total: 25, page: 1, pageSize: 25 },
     });
-    mocks.getPage.mockResolvedValue({ ok: true, data: agents });
+    mocks.getPage.mockResolvedValue({
+      ok: true,
+      data: { ...page, ...firstPage[0] },
+    });
 
     const result = await WikiPage({ searchParams: Promise.resolve({}) });
 
-    expect(mocks.getPage).toHaveBeenCalledExactlyOnceWith({ id: agents.id });
-    expect(result.props.children.props.initialPage).toEqual(agents);
+    expect(mocks.getPage).toHaveBeenCalledExactlyOnceWith({
+      id: firstPage[0]?.id,
+    });
+    expect(result.props.children.props.initialPage.id).toBe(firstPage[0]?.id);
     expect(result.props.children.props.listPage.items).toEqual(firstPage);
     expect(result.props.children.props.listPage.items).toHaveLength(25);
-    expect(result.props.children.props.pinnedPage).toEqual((({ markdown: _markdown, ...value }) => value)(agents));
+    expect(result.props.children.props.pinnedPage).toBeNull();
+    expect(result.props.children.props.readOnly).toBe(false);
+  });
+
+  it("marks the Wiki read-only in demo mode", async () => {
+    mocks.appMode = "demo";
+    mocks.listPages.mockResolvedValue({
+      ok: true,
+      data: { items: [summary], total: 1, page: 1, pageSize: 25 },
+    });
+    mocks.getPage.mockResolvedValue({ ok: true, data: page });
+
+    const result = await WikiPage({ searchParams: Promise.resolve({}) });
+
+    expect(result.props.children.props.readOnly).toBe(true);
   });
 
   it("shows an unavailable page rather than substituting another document for a missing link", async () => {
@@ -98,7 +99,6 @@ describe("WikiPage", () => {
     });
 
     expect(mocks.getPage.mock.calls).toEqual([[{ id: "missing" }]]);
-    expect(mocks.getCatalog).not.toHaveBeenCalled();
     expect(result.props.children.props.initialPage).toBeNull();
     expect(result.props.children.props.unavailable).toBe(true);
   });
@@ -120,7 +120,6 @@ describe("WikiPage", () => {
     });
 
     expect(mocks.listPages.mock.calls).toEqual([[{ page: 9, pageSize: 25 }], [{ page: 1, pageSize: 25 }]]);
-    expect(mocks.getCatalog).toHaveBeenCalledWith({ page: 1 });
     expect(result.props.children.props).toMatchObject({
       initialPage: page,
       listPage: { items: [summary], total: 1, page: 1, pageSize: 25 },
@@ -134,7 +133,6 @@ describe("WikiPage", () => {
     const result = await WikiPage({ searchParams: Promise.resolve({}) });
 
     expect(mocks.getPage).not.toHaveBeenCalled();
-    expect(mocks.getCatalog).toHaveBeenCalledWith({ page: 1 });
     expect(result.props.children.props).toMatchObject({
       initialPage: null,
       listPage: empty,

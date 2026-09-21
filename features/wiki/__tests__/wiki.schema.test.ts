@@ -2,12 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-import {
-  WIKI_AGENTS_PAGE_TITLE,
-  WIKI_MARKDOWN_MAX_LENGTH,
-  WIKI_TITLE_MAX_LENGTH,
-  WikiPageInputSchema,
-} from "../wiki.schema";
+import { WIKI_MARKDOWN_MAX_LENGTH, WIKI_TITLE_MAX_LENGTH, WikiPageInputSchema } from "../wiki.schema";
 
 describe("WikiPageInputSchema", () => {
   it("canonicalizes Markdown with the existing Notes parser and serializer", () => {
@@ -24,12 +19,18 @@ describe("WikiPageInputSchema", () => {
   });
 
   it("uses the platform title and Notes length limits", () => {
-    expect(WikiPageInputSchema.safeParse({ title: "x".repeat(WIKI_TITLE_MAX_LENGTH), markdown: "" }).success).toBe(
-      true,
-    );
-    expect(WikiPageInputSchema.safeParse({ title: "x".repeat(WIKI_TITLE_MAX_LENGTH + 1), markdown: "" }).success).toBe(
-      false,
-    );
+    expect(
+      WikiPageInputSchema.safeParse({
+        title: "x".repeat(WIKI_TITLE_MAX_LENGTH),
+        markdown: "",
+      }).success,
+    ).toBe(true);
+    expect(
+      WikiPageInputSchema.safeParse({
+        title: "x".repeat(WIKI_TITLE_MAX_LENGTH + 1),
+        markdown: "",
+      }).success,
+    ).toBe(false);
 
     const result = WikiPageInputSchema.safeParse({
       title: "Too long",
@@ -61,7 +62,8 @@ describe("WikiPageInputSchema", () => {
     expect(WikiPageInputSchema.safeParse({ title: "   ", markdown: "Body" }).success).toBe(false);
   });
 
-  it.each(["AGENTS.md", " agents.md ", "Agents.MD"])("canonicalizes the conventional entry title %s", (title) => {
-    expect(WikiPageInputSchema.parse({ title, markdown: "Body" }).title).toBe(WIKI_AGENTS_PAGE_TITLE);
+  it("treats AGENTS.md like any other title", () => {
+    expect(WikiPageInputSchema.parse({ title: " agents.md ", markdown: "Body" }).title).toBe("agents.md");
+    expect(WikiPageInputSchema.parse({ title: "Agents.MD", markdown: "Body" }).title).toBe("Agents.MD");
   });
 });

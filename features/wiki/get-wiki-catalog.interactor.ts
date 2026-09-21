@@ -8,8 +8,8 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import type { Validated } from "@/core/validation/validation.utils";
 import { env } from "@/env";
 
-import { wikiExcerpt } from "./wiki-content";
-import { wikiMarkdownChunk, WIKI_AGENTS_CONTEXT_MAX_CHARS } from "./wiki-page-chunk";
+import { wikiExcerpt, wikiRelevantMarkdownPreview, wikiRelevantSearchSnippet } from "./wiki-content";
+import { wikiPageUrl } from "./wiki-links";
 import {
   WIKI_CATALOG_PAGE_SIZE,
   WikiCatalogInputSchema,
@@ -20,9 +20,8 @@ import {
 } from "./wiki.schema";
 
 export abstract class GetWikiCatalogRepo {
-  abstract listCatalogPages(
-    data: WikiCatalogInput,
-  ): Promise<{ items: WikiPageDto[]; agentsMd: WikiPageDto | null; total: number }>;
+  abstract listCatalogPages(data: WikiCatalogInput): Promise<{ items: WikiPageDto[]; total: number }>;
+  abstract findRelevantCatalogPages(data: { query: string }): Promise<WikiPageDto[]>;
 }
 
 @AllowInDemoMode
@@ -35,30 +34,25 @@ export class GetWikiCatalogInteractor extends AuthenticatedInteractor<WikiCatalo
   @Validate(WikiCatalogInputSchema)
   @ValidateOutput(WikiCatalogSchema)
   async invoke(data: WikiCatalogInput): Validated<WikiCatalog> {
-    const { items, agentsMd, total } = await this.repo.listCatalogPages(data);
+    const [{ items, total }, relevantPages] = await Promise.all([
+      this.repo.listCatalogPages(data),
+      data.query?.trim() ? this.repo.findRelevantCatalogPages({ query: data.query }) : Promise.resolve([]),
+    ]);
     const nextPage = data.page * WIKI_CATALOG_PAGE_SIZE < total ? data.page + 1 : null;
-    const agentsChunk = agentsMd ? wikiMarkdownChunk(agentsMd.markdown, 0, WIKI_AGENTS_CONTEXT_MAX_CHARS) : null;
     return {
       ok: true,
       data: {
         items: items.map(({ markdown, ...page }) => ({
           ...page,
           excerpt: wikiExcerpt(markdown),
-          url: `${env.BASE_URL}/wiki?page=${page.id}`,
+          url: wikiPageUrl(env.BASE_URL, page.id),
         })),
-        agentsMd: agentsMd
-          ? {
-              id: agentsMd.id,
-              title: agentsMd.title,
-              createdAt: agentsMd.createdAt,
-              updatedAt: agentsMd.updatedAt,
-              url: `${env.BASE_URL}/wiki?page=${agentsMd.id}`,
-              markdownChunk: agentsChunk?.markdownChunk ?? "",
-              offset: 0,
-              nextOffset: agentsChunk?.nextOffset ?? null,
-              totalChars: agentsChunk?.totalChars ?? 0,
-            }
-          : null,
+        relevantPages: relevantPages.map(({ markdown, ...page }) => ({
+          ...page,
+          excerpt: wikiRelevantSearchSnippet(markdown, data.query ?? ""),
+          url: wikiPageUrl(env.BASE_URL, page.id),
+          ...wikiRelevantMarkdownPreview(markdown, data.query ?? "", env.BASE_URL),
+        })),
         total,
         page: data.page,
         nextPage,

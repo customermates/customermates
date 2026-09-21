@@ -25,6 +25,8 @@ import type { AgentToolInputResult } from "./agent-tool-input";
 import { getAgentWebSearchTool, AGENT_WEB_SEARCH_RELEASED } from "./agent-web-search";
 import { hostedWorkspaceContextText } from "./agent-workspace-context";
 import { manageWikiPagesTool, WikiHomepageSetupCreateSchema } from "@/features/mcp-tools/wiki.mcp-tools";
+import { localizeWikiPageUrls, parseWikiPageReference } from "@/features/wiki/wiki-links";
+import { env } from "@/env";
 
 export type AgentToolOptions = {
   webSearchEnabled?: boolean;
@@ -33,7 +35,7 @@ export type AgentToolOptions = {
 };
 const ReadPublicPageSchema = z.object({ url: z.url().max(2_000) });
 const HOSTED_FETCH_DESCRIPTION =
-  "Read a search result. Non-Wiki ids use normal fetch behavior with an explicit truncation notice. wiki:<uuid> returns bounded " +
+  "Read a search result. Non-Wiki ids use normal fetch behavior with an explicit truncation notice. A wiki:<uuid>, exact Wiki path, or same-origin Wiki URL returns bounded " +
   "{markdownChunk,offset,nextOffset,totalChars,url}; while nextOffset is not null, call manage_wiki_pages " +
   "with action=get, the bare UUID, and offset=nextOffset until null. Wiki Read required; cite url.";
 
@@ -109,7 +111,7 @@ async function runGated<T>(
 function agentToolResult(outcome: McpToolExecutionResult, maxChars: number) {
   return {
     ok: outcome.ok,
-    result: agentToolResultText(outcome.result, maxChars),
+    result: agentToolResultText(localizeWikiPageUrls(outcome.result, env.BASE_URL), maxChars),
   };
 }
 
@@ -227,22 +229,17 @@ function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
     inputSchema: providerSafeSchema(mcp.inputSchema),
     execute: async (input: unknown, { toolCallId }) => {
       const execute = async () => {
-        const wikiId =
-          mcp.name === "fetch" &&
-          input &&
-          typeof input === "object" &&
-          "id" in input &&
-          typeof input.id === "string" &&
-          input.id.startsWith("wiki:")
-            ? input.id.slice(5)
+        const wikiReference =
+          mcp.name === "fetch" && input && typeof input === "object" && "id" in input && typeof input.id === "string"
+            ? parseWikiPageReference(input.id, env.BASE_URL)
             : null;
-        const outcome = wikiId
-          ? await executeMcpTool(manageWikiPagesTool, [{ action: "get", id: wikiId }])
+        const outcome = wikiReference
+          ? await executeMcpTool(manageWikiPagesTool, [{ action: "get", id: wikiReference.id }])
           : await executeMcpTool(mcp, [input]);
         if (mcp.name === "get_workspace_context" && outcome.ok && outcome.structuredContent) {
           return {
             ok: true,
-            result: hostedWorkspaceContextText(outcome.structuredContent, deps.resultMaxChars),
+            result: hostedWorkspaceContextText(outcome.structuredContent, deps.resultMaxChars, env.BASE_URL),
           };
         }
         return agentToolResult(outcome, deps.resultMaxChars);
@@ -330,8 +327,12 @@ export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolOptions =
           inputSchema: providerSafeSchema(WikiHomepageSetupCreateSchema),
           execute: async (input, context) => {
             const parsed = WikiHomepageSetupCreateSchema.safeParse(input);
-            if (!parsed.success)
-              return { ok: false, result: agentToolResultText(validationError(parsed.error), deps.resultMaxChars) };
+            if (!parsed.success) {
+              return {
+                ok: false,
+                result: agentToolResultText(validationError(parsed.error), deps.resultMaxChars),
+              };
+            }
             return wiki.execute(parsed.data, context);
           },
         },

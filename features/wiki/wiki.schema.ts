@@ -6,16 +6,6 @@ import { zx, type Data } from "@/core/validation/validation.utils";
 
 export const WIKI_MARKDOWN_MAX_LENGTH = 65_535;
 export const WIKI_TITLE_MAX_LENGTH = 120;
-export const WIKI_AGENTS_PAGE_TITLE = "AGENTS.md";
-
-export function isWikiAgentsPageTitle(title: string): boolean {
-  return title.trim().toLocaleLowerCase("en-US") === WIKI_AGENTS_PAGE_TITLE.toLocaleLowerCase("en-US");
-}
-
-export function canonicalWikiPageTitle(title: string): string {
-  const trimmed = title.trim();
-  return isWikiAgentsPageTitle(trimmed) ? WIKI_AGENTS_PAGE_TITLE : trimmed;
-}
 
 export const WikiMarkdownSchema = z.string().transform((markdown, ctx) => {
   if (markdown.length > WIKI_MARKDOWN_MAX_LENGTH) {
@@ -57,30 +47,27 @@ export type WikiPageDto = Data<typeof WikiPageSchema>;
 export const WikiPageSummarySchema = WikiPageSchema.omit({ markdown: true });
 export type WikiPageSummary = Data<typeof WikiPageSummarySchema>;
 
-export const WikiAgentsPageSchema = WikiPageSummarySchema.extend({
-  url: z.string(),
-  offset: z.literal(0),
-  nextOffset: z.number().int().min(1).nullable(),
-  totalChars: z.number().int().min(0),
-  markdownChunk: z.string(),
-});
-export type WikiAgentsPage = Data<typeof WikiAgentsPageSchema>;
-
 export const WIKI_CATALOG_PAGE_SIZE = 10;
+export const WIKI_CATALOG_RELEVANT_PAGE_LIMIT = 3;
+export const WIKI_RELEVANT_PREVIEW_MAX_CHARS = 1_000;
 export const WikiCatalogInputSchema = z.object({
   page: z.number().int().min(1).default(1),
+  query: z.string().max(20_000).optional(),
 });
 export type WikiCatalogInput = Data<typeof WikiCatalogInputSchema>;
+const WikiCatalogItemSchema = WikiPageSummarySchema.extend({
+  excerpt: z.string().max(200),
+  url: z.string(),
+});
+const WikiRelevantPageSchema = WikiCatalogItemSchema.extend({
+  markdownPreview: z.string(),
+  previewOffset: z.number().int().min(0),
+  previewEnd: z.number().int().min(0),
+  totalChars: z.number().int().min(0),
+});
 export const WikiCatalogSchema = z.object({
-  agentsMd: WikiAgentsPageSchema.nullable(),
-  items: z
-    .array(
-      WikiPageSummarySchema.extend({
-        excerpt: z.string().max(200),
-        url: z.string(),
-      }),
-    )
-    .max(10),
+  items: z.array(WikiCatalogItemSchema).max(WIKI_CATALOG_PAGE_SIZE),
+  relevantPages: z.array(WikiRelevantPageSchema).max(WIKI_CATALOG_RELEVANT_PAGE_LIMIT),
   total: z.number().int().min(0),
   page: z.number().int().min(1),
   nextPage: z.number().int().min(1).nullable(),
@@ -93,7 +80,7 @@ export const WikiSearchResultSchema = WikiPageSummarySchema.extend({
 });
 export type WikiSearchResult = Data<typeof WikiSearchResultSchema>;
 
-export const WikiTitleSchema = zx.nonBlankText(WIKI_TITLE_MAX_LENGTH).transform(canonicalWikiPageTitle);
+export const WikiTitleSchema = zx.nonBlankText(WIKI_TITLE_MAX_LENGTH).transform((title) => title.trim());
 
 export const WikiPageInputSchema = z.object({
   title: WikiTitleSchema,

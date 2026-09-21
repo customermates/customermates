@@ -91,7 +91,14 @@ async function seedActiveSeat(allowanceAnchor: Date) {
 const emptyWikiCatalog = () => ({
   invoke: vi.fn().mockResolvedValue({
     ok: true,
-    data: { items: [], agentsMd: null, total: 0, page: 1, nextPage: null, truncated: false },
+    data: {
+      items: [],
+      relevantPages: [],
+      total: 0,
+      page: 1,
+      nextPage: null,
+      truncated: false,
+    },
   }),
 });
 
@@ -648,7 +655,11 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
   it("persists mixed Search costs in ordinary credit usage without double-charging finalization", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
-    authState.user = createMockUser({ id: userId, companyId, email: `search-${userId}@example.com` });
+    authState.user = createMockUser({
+      id: userId,
+      companyId,
+      email: `search-${userId}@example.com`,
+    });
     const repo = new PrismaAgentChatRepo();
     const admitted = await new SendAgentMessageInteractor(
       repo,
@@ -656,19 +667,36 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       entitlements as never,
       backgroundTasks() as never,
       emptyWikiCatalog(),
-    ).invoke({ clientRequestId: randomUUID(), text: "Search and answer", retry: false });
+    ).invoke({
+      clientRequestId: randomUUID(),
+      text: "Search and answer",
+      retry: false,
+    });
     if (!admitted.ok || admitted.data.disposition !== "run") throw new Error("Expected an admitted turn.");
     const { turnRequestId, conversationId, runId } = admitted.data;
-    const identity = { turnRequestId, conversationId, runId, companyId, userId };
+    const identity = {
+      turnRequestId,
+      conversationId,
+      runId,
+      companyId,
+      userId,
+    };
     await runWithoutTenant(() => repo.markAgentTurnProviderStartedUnscoped(identity));
     const reserved = await runWithoutTenant(() =>
-      prisma.agentUsageEvent.findFirstOrThrow({ where: { turnRequestId, companyId, userId, state: "reserved" } }),
+      prisma.agentUsageEvent.findFirstOrThrow({
+        where: { turnRequestId, companyId, userId, state: "reserved" },
+      }),
     );
     const usageSettlement = buildAgentUsageSettlement({
       model: "google/gemini-3.5-flash-lite",
       provider: "vertex",
       inferenceRegion: "eu",
-      tokens: { inputTokens: 2, outputTokens: 2, cacheReadTokens: 0, cacheWriteTokens: 0 },
+      tokens: {
+        inputTokens: 2,
+        outputTokens: 2,
+        cacheReadTokens: 0,
+        cacheWriteTokens: 0,
+      },
       reservedCredits: reserved.reservedCredits,
       providerCharge: {
         billed: true,
@@ -694,9 +722,13 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
 
     const [events, usage, replies] = await runWithoutTenant(() =>
       Promise.all([
-        prisma.agentUsageEvent.findMany({ where: { turnRequestId, companyId, userId } }),
+        prisma.agentUsageEvent.findMany({
+          where: { turnRequestId, companyId, userId },
+        }),
         repo.getUserCreditUsageUnscoped(companyId, userId, reserved.periodStart, reserved.periodEnd),
-        prisma.agentMessage.count({ where: { turnRequestId, companyId, role: "assistant" } }),
+        prisma.agentMessage.count({
+          where: { turnRequestId, companyId, role: "assistant" },
+        }),
       ]),
     );
     expect(events).toHaveLength(1);

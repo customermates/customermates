@@ -1,4 +1,4 @@
-export const WIKI_AGENTS_CONTEXT_MAX_CHARS = 4_000;
+import { wikiMarkdownLinkRanges } from "./wiki-markdown-links";
 
 function startsLowSurrogate(value: string, offset: number): boolean {
   const code = value.charCodeAt(offset);
@@ -16,9 +16,25 @@ export function wikiCodePointBoundary(value: string, offset: number): number {
     : offset;
 }
 
-export function wikiMarkdownChunk(markdown: string, requestedOffset: number, maximumChars: number) {
-  const offset = wikiCodePointBoundary(markdown, Math.min(requestedOffset, markdown.length));
-  const end = wikiCodePointBoundary(markdown, Math.min(markdown.length, offset + maximumChars));
+function completeWikiLinkBoundary(markdown: string, requestedOffset: number, maximumChars: number, baseUrl: string) {
+  const ranges = wikiMarkdownLinkRanges(markdown, baseUrl);
+  let offset = wikiCodePointBoundary(markdown, Math.min(requestedOffset, markdown.length));
+  const containingStart = ranges.find((range) => offset > range.start && offset < range.end);
+  if (containingStart) offset = containingStart.start;
+
+  let end = wikiCodePointBoundary(markdown, Math.min(markdown.length, offset + maximumChars));
+  const containingEnd = ranges.find((range) => end > range.start && end < range.end);
+  if (containingEnd) end = containingEnd.start > offset ? containingEnd.start : containingEnd.end;
+  return { offset, end };
+}
+
+export function wikiMarkdownChunk(
+  markdown: string,
+  requestedOffset: number,
+  maximumChars: number,
+  baseUrl = "https://wiki.invalid",
+) {
+  const { offset, end } = completeWikiLinkBoundary(markdown, requestedOffset, maximumChars, baseUrl);
   return {
     markdownChunk: markdown.slice(offset, end),
     offset,

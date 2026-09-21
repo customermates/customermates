@@ -7,6 +7,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { type Data, type Validated } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
+import { env } from "@/env";
 
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { clientSafeAgentMessageParts } from "./agent-chat.schema";
@@ -76,6 +77,7 @@ export class GetAgentConversationInteractor extends AuthenticatedInteractor<
         parts: clientSafeAgentMessageParts(message.parts, {
           sanitizeText: message.role !== "user",
           stripLegacyUserContext: message.role === "user",
+          wikiBaseUrl: env.BASE_URL,
         }),
         createdAt: message.createdAt,
         turn:

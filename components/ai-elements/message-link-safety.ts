@@ -1,6 +1,7 @@
 import type { LinkSafetyConfig } from "streamdown";
+import { parseWikiPageHref } from "@/features/wiki/wiki-links";
 
 export const messageLinkSafety: LinkSafetyConfig = {
   enabled: true,
-  onLinkCheck: (url) => /^\/wiki\?page=[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(url),
+  onLinkCheck: (url) => parseWikiPageHref(url) !== null,
 };

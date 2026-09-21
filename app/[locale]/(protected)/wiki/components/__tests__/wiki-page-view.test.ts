@@ -18,7 +18,10 @@ const harness = vi.hoisted(() => ({
   push: vi.fn(),
   topBar: null as ReactNode,
   toolbarRenders: 0,
-  editorProps: null as null | { data?: object; onChange?: (value: object) => void },
+  editorProps: null as null | {
+    data?: object;
+    onChange?: (value: object) => void;
+  },
   refresh: vi.fn(),
   open: vi.fn(),
   loadConfig: vi.fn(),
@@ -34,7 +37,11 @@ vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => harness.rootStore,
 }));
 vi.mock("@/i18n/navigation", () => ({
-  useRouter: () => ({ replace: harness.replace, refresh: harness.refresh, push: harness.push }),
+  useRouter: () => ({
+    replace: harness.replace,
+    refresh: harness.refresh,
+    push: harness.push,
+  }),
 }));
 vi.mock("@/app/components/topbar-actions-context", async (importOriginal) => {
   const actual = await importOriginal<typeof TopBarActionsModule>();
@@ -74,7 +81,9 @@ vi.mock("@/components/modal/hooks/use-delete-confirmation", () => ({
 vi.mock("@/components/editor/editor", () => ({
   Editor: (props: { readOnly?: boolean; data?: object; onChange?: (value: object) => void }) => {
     harness.editorProps = props;
-    return createElement("div", { "data-editor-readonly": Boolean(props.readOnly) });
+    return createElement("div", {
+      "data-editor-readonly": Boolean(props.readOnly),
+    });
   },
 }));
 vi.mock("@/components/editor/editor.utils", () => ({
@@ -228,7 +237,11 @@ describe("Wiki document view", () => {
     const { container } = await mount(
       createElement(TopBarActionsProvider, null, [
         createElement(Toolbar, { key: "toolbar" }),
-        createElement(WikiPageView, { key: "wiki", initialPage: page, listPage: populatedList }),
+        createElement(WikiPageView, {
+          key: "wiki",
+          initialPage: page,
+          listPage: populatedList,
+        }),
       ]),
     );
     const save = () => container.querySelector<HTMLButtonElement>('header [aria-label="Wiki.save"]');
@@ -258,7 +271,12 @@ describe("Wiki document view", () => {
     configure(true, false);
     harness.store.form = page;
     harness.store.hasUnsavedChanges = true;
-    const { container } = await mount(createElement(WikiPageView, { initialPage: page, listPage: populatedList }));
+    const { container } = await mount(
+      createElement(WikiPageView, {
+        initialPage: page,
+        listPage: populatedList,
+      }),
+    );
     const { container: topBar } = await mount(harness.topBar);
     const form = container.querySelector("form");
     const save = topBar.querySelector<HTMLButtonElement>('[aria-label="Wiki.save"]');
@@ -279,7 +297,12 @@ describe("Wiki document view", () => {
   it("renders readers without edit, Save, or New controls", () => {
     configure(false, false);
     harness.store.form = page;
-    const html = renderToStaticMarkup(createElement(WikiPageView, { initialPage: page, listPage: populatedList }));
+    const html = renderToStaticMarkup(
+      createElement(WikiPageView, {
+        initialPage: page,
+        listPage: populatedList,
+      }),
+    );
     const topBar = renderToStaticMarkup(harness.topBar);
 
     expect(html).toContain('data-editor-readonly="true"');
@@ -289,30 +312,62 @@ describe("Wiki document view", () => {
     expect(topBar).not.toContain("Wiki.newPage");
   });
 
-  it("pins a selected AGENTS.md outside the current page without changing pagination", async () => {
+  it("renders demo managers through the same read-only document surface", () => {
+    configure(true, true);
+    harness.store.form = page;
+    const html = renderToStaticMarkup(
+      createElement(WikiPageView, {
+        initialPage: page,
+        listPage: populatedList,
+        readOnly: true,
+      }),
+    );
+    const topBar = renderToStaticMarkup(harness.topBar);
+
+    expect(html).toContain('data-editor-readonly="true"');
+    expect(html).toContain(`<h1 class="break-words text-3xl font-semibold tracking-tight">${page.title}</h1>`);
+    expect(html).not.toContain('aria-label="Wiki.pageTitle"');
+    expect(topBar).not.toContain("Wiki.save");
+    expect(topBar).not.toContain("Wiki.newPage");
+    expect(topBar).not.toContain("Wiki.delete");
+  });
+
+  it("pins a selected page outside the current list page without changing pagination", async () => {
     configure(false, false);
-    const agents = { ...page, id: "10000000-0000-4000-8000-000000000099", title: "AGENTS.md" };
+    const selected = {
+      ...page,
+      id: "10000000-0000-4000-8000-000000000099",
+      title: "Support",
+    };
     const firstPage = Array.from({ length: 25 }, (_, index) => ({
       ...page,
       id: `10000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,
       title: `Page ${index + 1}`,
     }));
     const paginated = { ...listPage, items: firstPage, total: 26 };
-    harness.store.form = agents;
+    harness.store.form = selected;
 
     const { container } = await mount(
-      createElement(WikiPageView, { initialPage: agents, listPage: paginated, pinnedPage: agents }),
+      createElement(WikiPageView, {
+        initialPage: selected,
+        listPage: paginated,
+        pinnedPage: selected,
+      }),
     );
 
     expect(container.querySelectorAll("nav button")).toHaveLength(26);
-    expect(container.querySelector('nav [aria-current="page"]')?.textContent).toBe("AGENTS.md");
+    expect(container.querySelector('nav [aria-current="page"]')?.textContent).toBe("Support");
     expect(container.textContent).toContain("Wiki.page");
   });
 
   it("shows an unavailable target without substituting a document or offering homepage setup", () => {
     configure(true, true);
     const html = renderToStaticMarkup(
-      createElement(WikiPageView, { initialPage: null, listPage: populatedList, unavailable: true }),
+      createElement(WikiPageView, {
+        initialPage: null,
+        listPage: populatedList,
+        unavailable: true,
+      }),
     );
 
     expect(html).toContain("Wiki.unavailableTitle");
@@ -330,7 +385,12 @@ describe("Wiki document view", () => {
       pending = navigate;
       return false;
     });
-    const { container } = await mount(createElement(WikiPageView, { initialPage: page, listPage: populatedList }));
+    const { container } = await mount(
+      createElement(WikiPageView, {
+        initialPage: page,
+        listPage: populatedList,
+      }),
+    );
     const pageButton = [...container.querySelectorAll("nav button")].find(
       (button) => button.textContent === page.title,
     );
@@ -347,7 +407,11 @@ describe("Wiki document view", () => {
     "prevents a new draft or edits while a %s page navigation is suspended",
     async (mode) => {
       configure(true, false);
-      const nextPage = { ...page, id: "10000000-0000-4000-8000-000000000002", title: "Support knowledge" };
+      const nextPage = {
+        ...page,
+        id: "10000000-0000-4000-8000-000000000002",
+        title: "Support knowledge",
+      };
       const pages = { ...populatedList, items: [page, nextPage], total: 2 };
       let ready = false;
       let complete = () => {};
@@ -369,7 +433,11 @@ describe("Wiki document view", () => {
         harness.push.mockImplementation(() => startTransition(() => setSelected(nextPage)));
         if (selected === nextPage && !ready) use(routeResponse);
         harness.store.form = selected;
-        return createElement(WikiPageView, { key: selected.id, initialPage: selected, listPage: pages });
+        return createElement(WikiPageView, {
+          key: selected.id,
+          initialPage: selected,
+          listPage: pages,
+        });
       }
       const { container } = await mount(
         createElement(TopBarActionsProvider, null, [
@@ -431,7 +499,12 @@ describe("Wiki document view", () => {
       pending = navigate;
       return false;
     });
-    const { container } = await mount(createElement(WikiPageView, { initialPage: page, listPage: populatedList }));
+    const { container } = await mount(
+      createElement(WikiPageView, {
+        initialPage: page,
+        listPage: populatedList,
+      }),
+    );
     const { container: topBar } = await mount(harness.topBar);
 
     act(() => topBar.querySelector<HTMLButtonElement>('[aria-label="Wiki.newPage"]')?.click());
@@ -498,7 +571,7 @@ describe("Wiki empty state", () => {
     expect(harness.selectConversation).toHaveBeenCalledExactlyOnceWith("conversation-1");
   });
 
-  it("starts the first manual document with the conventional AGENTS.md filename", async () => {
+  it("starts the first manual document as a blank draft", async () => {
     configure(true, false);
     const { container } = await mount(createElement(WikiPageView, { initialPage: null, listPage }));
     const manual = [...container.querySelectorAll<HTMLButtonElement>("button")].find((button) =>
@@ -507,7 +580,7 @@ describe("Wiki empty state", () => {
 
     act(() => manual?.click());
 
-    expect(harness.store.startCreate).toHaveBeenCalledExactlyOnceWith("AGENTS.md");
+    expect(harness.store.startCreate).toHaveBeenCalledExactlyOnceWith();
   });
 
   it("offers homepage setup on a first visit before chat availability has been loaded", async () => {

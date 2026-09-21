@@ -1,6 +1,7 @@
 "use client";
 
 import type { EditorLinkPickerProps } from "@/components/editor/editor-link-picker";
+import { wikiPagePath } from "@/features/wiki/wiki-links";
 import type { WikiPageListResult } from "@/features/wiki/wiki.schema";
 
 import { useTranslations } from "next-intl";
@@ -46,7 +47,7 @@ export function WikiLinkPicker({ onSelect }: EditorLinkPickerProps) {
               <CommandItem
                 key={page.id}
                 value={page.id}
-                onSelect={() => onSelect({ href: `/wiki?page=${page.id}`, title: page.title })}
+                onSelect={() => onSelect({ href: wikiPagePath(page.id), title: page.title })}
               >
                 <FileText />
 

@@ -150,7 +150,7 @@ Useful scripts:
 
 ### Hosted Wiki setup and web search
 
-Wiki pages use the existing Notes editor and shared, permission-checked MCP tools. A workspace can keep one conventional `AGENTS.md` Wiki page as the read-first routing entry for Mate, routines, and MCP clients. It remains ordinary tenant-authored reference data. Homepage setup reads the submitted public site directly; it does not depend on a search index. Manual Wiki pages also work in self-hosted deployments.
+Wiki pages use the existing Notes editor and shared, permission-checked MCP tools. Mate and routines receive a bounded catalog plus query-matched page previews before their first model call, then use the same Wiki search and fetch paths for complete pages and linked documents. External MCP clients receive standard `search` and `fetch` tools, discoverable Wiki resources, and stable absolute page links; support still depends on each client honoring MCP discovery and server instructions. Homepage setup reads the submitted public site directly, without depending on a search index. Manual Wiki pages also work in self-hosted deployments.
 
 The native search integration uses `gateway.tools.exaSearch()` through the existing AI Gateway authentication. It does not require a separate Exa API key. Model routing, EU inference, authoritative all-in credit settlement, and the routine browse-or-mutate boundary remain shared with the Assistant.
 

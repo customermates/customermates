@@ -1146,7 +1146,6 @@
       "widgetNotFound": "Widget-ID nicht gefunden oder nicht zugänglich.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Aufgaben können nur nach benutzerdefinierten Spalten gruppiert werden, nicht nach Elementtypen.",
       "widgetWeightedValueNotAllowedForService": "Gewichtete Wert-Aggregation ist für den Elementtyp Service nicht erlaubt.",
-      "wikiAgentsPageExists": "Dieser Workspace hat bereits eine AGENTS.md-Seite.",
       "wikiNotEmpty": "Die Einrichtung des Workspace-Wikis kann nur ausgeführt werden, wenn das Wiki leer ist.",
       "wikiPageConflict": "Diese Wiki-Seite wurde geändert, nachdem du sie geöffnet hast. Lade sie neu und versuche es erneut.",
       "wikiPageNotFound": "Wiki-Seite nicht gefunden oder nicht zugänglich."

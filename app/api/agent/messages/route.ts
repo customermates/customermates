@@ -30,11 +30,16 @@ function completedReplayStream(data: Extract<SendAgentMessageResult, { dispositi
   return new ReadableStream<Uint8Array>({
     start(controller) {
       controller.enqueue(
-        sse(1, "message_replay", {
-          messageId: data.assistantMessage.id,
-          parts: data.assistantMessage.parts,
-          createdAt: data.assistantMessage.createdAt.toISOString(),
-        }),
+        sse(
+          1,
+          "message_replay",
+          {
+            messageId: data.assistantMessage.id,
+            parts: data.assistantMessage.parts,
+            createdAt: data.assistantMessage.createdAt.toISOString(),
+          },
+          env.BASE_URL,
+        ),
       );
       controller.enqueue(
         sse(2, "turn_done", {

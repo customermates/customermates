@@ -11,9 +11,9 @@ import type { GetWikiCatalogRepo } from "./get-wiki-catalog.interactor";
 import type { SearchWikiPagesRepo } from "./search-wiki-pages.interactor";
 import type { UpdateWikiPageRepo } from "./update-wiki-page.interactor";
 import type { StartWikiHomepageSetupRepo } from "./start-wiki-homepage-setup.interactor";
-import type { WikiPageDto, WikiPageSearchData } from "./wiki.schema";
-import { isWikiAgentsPageTitle, WIKI_AGENTS_PAGE_TITLE, WIKI_CATALOG_PAGE_SIZE } from "./wiki.schema";
-import { wikiPlainText, wikiSearchTerms } from "./wiki-content";
+import type { WikiPageDto } from "./wiki.schema";
+import { WIKI_CATALOG_PAGE_SIZE, WIKI_CATALOG_RELEVANT_PAGE_LIMIT } from "./wiki.schema";
+import { wikiRelevantSearchTerms, wikiSearchSnippet, wikiSearchTerms, wikiSubstringSearchTerms } from "./wiki-content";
 
 export class PrismaWikiPageRepo
   extends BaseRepository<Prisma.WikiPageWhereInput>
@@ -46,20 +46,6 @@ export class PrismaWikiPageRepo
     } as const;
   }
 
-  private async findAgentsPage(excludeId?: string): Promise<WikiPageDto | null> {
-    const excludedPage = excludeId ? Prisma.sql`AND "id" <> ${excludeId}` : Prisma.sql``;
-    const pages = await this.prisma.$queryRaw<WikiPageDto[]>(Prisma.sql`
-      SELECT "id", "title", "markdown", "createdAt", "updatedAt"
-      FROM "WikiPage"
-      WHERE "companyId" = ${this.companyId}
-        AND lower(btrim("title")) = 'agents.md'
-        ${excludedPage}
-      ORDER BY "createdAt" ASC, "id" ASC
-      LIMIT 1
-    `);
-    return pages[0] ? { ...pages[0], title: WIKI_AGENTS_PAGE_TITLE } : null;
-  }
-
   async listPages({ page, pageSize }: RepoArgs<GetWikiPagesRepo, "listPages">) {
     const where = { companyId: this.companyId };
     const [items, total] = await Promise.all([
@@ -79,15 +65,13 @@ export class PrismaWikiPageRepo
     const { page, pageSize, query } = data;
     const terms = wikiSearchTerms(query);
     if (terms.length === 0) return { items: [], total: 0, page, pageSize };
-    const searchQuery = terms.map((term) => `${term}:*`).join(" | ");
-    const document = Prisma.sql`setweight(to_tsvector('simple', "title"), 'A') || setweight(to_tsvector('simple', "markdown"), 'B')`;
-    const predicate = Prisma.sql`"companyId" = ${this.companyId} AND (${document}) @@ to_tsquery('simple', ${searchQuery})`;
+    const { predicate, rank } = this.wikiSearchSql(terms);
     const [rows, counts] = await Promise.all([
       this.prisma.$queryRaw<WikiPageDto[]>(Prisma.sql`
         SELECT "id", "title", "markdown", "createdAt", "updatedAt"
         FROM "WikiPage"
         WHERE ${predicate}
-        ORDER BY ts_rank_cd((${document}), to_tsquery('simple', ${searchQuery})) DESC, "createdAt" ASC, "id" ASC
+        ORDER BY ${rank} DESC, "createdAt" ASC, "id" ASC
         LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
       `),
       this.prisma.$queryRaw<Array<{ total: number }>>(Prisma.sql`
@@ -97,7 +81,7 @@ export class PrismaWikiPageRepo
     return {
       items: rows.map(({ markdown, ...page }) => ({
         ...page,
-        snippet: this.searchSnippet(markdown, data),
+        snippet: wikiSearchSnippet(markdown, data.query),
       })),
       total: counts[0]?.total ?? 0,
       page,
@@ -107,7 +91,7 @@ export class PrismaWikiPageRepo
 
   async listCatalogPages({ page }: RepoArgs<GetWikiCatalogRepo, "listCatalogPages">) {
     const where = { companyId: this.companyId };
-    const [items, agentsMd, total] = await Promise.all([
+    const [items, total] = await Promise.all([
       this.prisma.wikiPage.findMany({
         where,
         select: this.pageSelect,
@@ -115,10 +99,22 @@ export class PrismaWikiPageRepo
         skip: (page - 1) * WIKI_CATALOG_PAGE_SIZE,
         take: WIKI_CATALOG_PAGE_SIZE,
       }),
-      this.findAgentsPage(),
       this.prisma.wikiPage.count({ where }),
     ]);
-    return { items, agentsMd, total };
+    return { items, total };
+  }
+
+  async findRelevantCatalogPages({ query }: RepoArgs<GetWikiCatalogRepo, "findRelevantCatalogPages">) {
+    const terms = wikiRelevantSearchTerms(query);
+    if (terms.length === 0) return [];
+    const { predicate, rank } = this.wikiSearchSql(terms);
+    return this.prisma.$queryRaw<WikiPageDto[]>(Prisma.sql`
+      SELECT "id", "title", "markdown", "createdAt", "updatedAt"
+      FROM "WikiPage"
+      WHERE ${predicate}
+      ORDER BY ${rank} DESC, "createdAt" ASC, "id" ASC
+      LIMIT ${WIKI_CATALOG_RELEVANT_PAGE_LIMIT}
+    `);
   }
 
   async getPage(id: string) {
@@ -169,10 +165,6 @@ export class PrismaWikiPageRepo
     )
       return { status: "wiki-not-empty" as const };
 
-    const agentsPages = data.pages.filter((page) => isWikiAgentsPageTitle(page.title));
-    if (agentsPages.length > 1 || (agentsPages.length === 1 && (await this.findAgentsPage())))
-      return { status: "agents-exists" as const };
-
     const pages: WikiPageDto[] = [];
     const createdAt = Date.now();
     for (const [index, page] of data.pages.entries()) {
@@ -201,9 +193,6 @@ export class PrismaWikiPageRepo
     const markdown = data.markdown ?? previous.markdown;
     if (title === previous.title && markdown === previous.markdown)
       return { status: "unchanged" as const, previous, page: previous };
-
-    if (isWikiAgentsPageTitle(title) && !isWikiAgentsPageTitle(previous.title) && (await this.findAgentsPage(data.id)))
-      return { status: "agents-exists" as const };
 
     const updated = await this.prisma.wikiPage.updateMany({
       where: {
@@ -250,15 +239,29 @@ export class PrismaWikiPageRepo
     return { status: "deleted" as const, page };
   }
 
-  private searchSnippet(markdown: string, data: WikiPageSearchData): string {
-    const compact = wikiPlainText(markdown);
-    const matches = wikiSearchTerms(data.query)
-      .map((term) => compact.toLocaleLowerCase().indexOf(term))
-      .filter((index) => index >= 0);
-    const match = matches.length > 0 ? Math.min(...matches) : -1;
-    const start = match < 0 ? 0 : Math.max(0, match - 80);
-    const prefix = start > 0 ? "…" : "";
-    const suffix = start + 240 < compact.length ? "…" : "";
-    return `${prefix}${compact.slice(start, start + 240)}${suffix}`;
+  private wikiSearchSql(terms: string[]) {
+    const searchQuery = terms.map((term) => `${term}:*`).join(" | ");
+    const document = Prisma.sql`setweight(to_tsvector('simple', "title"), 'A') || setweight(to_tsvector('simple', "markdown"), 'B')`;
+    const fullTextPredicate = Prisma.sql`(${document}) @@ to_tsquery('simple', ${searchQuery})`;
+    const substringTerms = wikiSubstringSearchTerms(terms);
+    const substringPredicates = substringTerms.map(
+      (term) => Prisma.sql`(strpos(lower("title"), ${term}) > 0 OR strpos(lower("markdown"), ${term}) > 0)`,
+    );
+    const substringRanks = substringTerms.map(
+      (term) => Prisma.sql`
+        (CASE WHEN strpos(lower("title"), ${term}) > 0 THEN 2 ELSE 0 END) +
+        (CASE WHEN strpos(lower("markdown"), ${term}) > 0 THEN 1 ELSE 0 END)
+      `,
+    );
+    const contentPredicate =
+      substringPredicates.length > 0
+        ? Prisma.sql`(${fullTextPredicate} OR ${Prisma.join(substringPredicates, " OR ")})`
+        : fullTextPredicate;
+    const rank =
+      substringRanks.length > 0
+        ? Prisma.sql`ts_rank_cd((${document}), to_tsquery('simple', ${searchQuery})) + (${Prisma.join(substringRanks, " + ")})`
+        : Prisma.sql`ts_rank_cd((${document}), to_tsquery('simple', ${searchQuery}))`;
+    const predicate = Prisma.sql`"companyId" = ${this.companyId} AND ${contentPredicate}`;
+    return { searchQuery, document, predicate, rank };
   }
 }

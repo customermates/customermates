@@ -21,6 +21,8 @@ import {
   getGetWikiPageInteractor,
   getSearchWikiPagesInteractor,
 } from "@/core/di";
+import { extractWikiPageLinks, externalizeWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
+import { parseWikiPageReference, wikiPageFetchId, wikiPageUrl } from "@/features/wiki/wiki-links";
 
 type Entity = "contact" | "organization" | "deal" | "service" | "task";
 
@@ -122,18 +124,48 @@ async function fetchWiki(id: string) {
   if (!result.ok) return mcpInteractorFailure(result.error);
   if (!result.data) return customMcpFailure(CustomErrorCode.wikiPageNotFound);
   const page = result.data;
+  const links = extractWikiPageLinks(page.markdown, env.BASE_URL);
   const output = {
-    id: `wiki:${page.id}`,
+    id: wikiPageFetchId(page.id),
     title: page.title,
-    text: page.markdown,
-    url: `${env.BASE_URL}/wiki?page=${page.id}`,
+    text: externalizeWikiPageLinks(page.markdown, env.BASE_URL),
+    url: wikiPageUrl(env.BASE_URL, page.id),
     metadata: {
       source: "wiki",
       createdAt: page.createdAt.toISOString(),
       updatedAt: page.updatedAt.toISOString(),
+      outgoingWikiLinks: JSON.stringify(
+        links.map(({ id: linkedId, label, url, fetchId }) => ({
+          id: linkedId,
+          label,
+          url,
+          fetchId,
+        })),
+      ),
     },
   };
-  return { text: JSON.stringify(output), structuredContent: output };
+  return {
+    text: JSON.stringify(output),
+    structuredContent: output,
+    content: [
+      {
+        type: "resource_link" as const,
+        uri: output.url,
+        name: page.title,
+        title: page.title,
+        description: "Current Workspace Wiki page",
+        mimeType: "text/markdown",
+      },
+      ...links.map((link) => ({
+        type: "resource_link" as const,
+        uri: link.url,
+        name: link.label,
+        title: link.label,
+        description: "Linked Workspace Wiki page",
+        mimeType: "text/markdown",
+      })),
+    ],
+  };
 }
 
 async function searchWiki(query: string) {
@@ -146,9 +178,9 @@ async function searchWiki(query: string) {
       }),
     );
     return result.items.map((page) => ({
-      id: `wiki:${page.id}`,
+      id: wikiPageFetchId(page.id),
       title: page.title,
-      url: `${env.BASE_URL}/wiki?page=${page.id}`,
+      url: wikiPageUrl(env.BASE_URL, page.id),
     }));
   } catch (error) {
     if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied) return [];
@@ -174,7 +206,7 @@ export const searchTool = {
     query: z
       .string()
       .trim()
-      .min(2)
+      .min(1)
       .max(200)
       .describe("Search terms for workspace Wiki content, CRM record names, and product documentation"),
   }),
@@ -215,7 +247,18 @@ export const searchTool = {
       results: [...wikiResults, ...recordGroups.flat(), ...docResults],
     };
 
-    return { text: JSON.stringify(output), structuredContent: output };
+    return {
+      text: JSON.stringify(output),
+      structuredContent: output,
+      content: wikiResults.map((result) => ({
+        type: "resource_link" as const,
+        uri: result.url,
+        name: result.title,
+        title: result.title,
+        description: "Workspace Wiki search result",
+        mimeType: "text/markdown",
+      })),
+    };
   },
 };
 
@@ -224,9 +267,9 @@ export const fetchTool = {
   title: "Read workspace knowledge",
   description:
     "Read a result from search, including Workspace Wiki Markdown by wiki:<uuid>. " +
-    "Returns full current content and a source URL for citations; Wiki Read is required for Wiki pages. " +
-    "For bounded Wiki chunks prefer manage_wiki_pages with action=get and follow nextOffset. " +
-    "Compatible with ChatGPT company knowledge and deep research.",
+    "Wiki pages may also be fetched by their exact relative, localized, or same-origin absolute Wiki URL. " +
+    "Returns full current content with absolute internal links and a source URL for citations; Wiki Read is required for Wiki pages. " +
+    "Compatible with ChatGPT company knowledge and deep research. For focused CRM or product-documentation retrieval, prefer get_records or get_docs_page.",
   annotations: {
     readOnlyHint: true,
     idempotentHint: true,
@@ -241,16 +284,17 @@ export const fetchTool = {
   }),
   outputSchema: FetchOutputSchema,
   execute: async ({ id }: { id: string }) => {
+    const wikiReference = parseWikiPageReference(id, env.BASE_URL);
+    if (wikiReference) return fetchWiki(wikiReference.id);
+
     const [kind, qualifier, ...rest] = id.split(":");
     const key = rest.join(":");
 
     if (kind === "record" && qualifier && isEntity(qualifier) && key.length > 0) return fetchRecord(qualifier, key);
     if (kind === "doc" && isContentLocale(qualifier) && key.length > 0) return fetchDoc(qualifier, key);
-    if (kind === "wiki" && z.uuid().safeParse(qualifier).success && rest.length === 0) return fetchWiki(qualifier);
-
     return mcpMessageFailure(
       `Unknown id "${id}". Expected "record:<entity>:<id>" with entity one of contact, organization, deal, service, task, ` +
-        `"wiki:<uuid>", or "doc:<locale>:<slug>" with locale ${CONTENT_LOCALES.join(" or ")}.`,
+        `"wiki:<uuid>" or an exact Customermates Wiki URL, or "doc:<locale>:<slug>" with locale ${CONTENT_LOCALES.join(" or ")}.`,
     );
   },
 };
