@@ -1,4 +1,12 @@
 {
+  "AccountAccessRevoked": {
+    "body": "Du hast dich gerade ohne Passwort angemeldet, und damit ist bestätigt, dass diese E-Mail-Adresse dir gehört. Bis jetzt war sie nie bestätigt, deshalb konnten wir nicht sicher sein, wer dieses Konto angelegt hat. Zur Sicherheit haben wir das alte Passwort entfernt und alles andere, womit man das Konto öffnen könnte, etwa verbundene Apps oder Schlüssel. Deine Daten sind unverändert, und du kannst dich weiterhin genau so anmelden wie gerade eben.",
+    "cta": "Neues Passwort festlegen",
+    "greeting": "Hallo,",
+    "signoff": "Den Button oben brauchst du nur, wenn du dich lieber mit einem Passwort anmelden möchtest. Falls du dich gerade nicht angemeldet hast, melde dich bitte sofort bei uns.",
+    "subject": "Deine E-Mail-Adresse ist bestätigt, dein altes Passwort haben wir entfernt",
+    "title": "Deine E-Mail-Adresse ist bestätigt"
+  },
   "AccountsRemovedNotice": {
     "body": "Dein Plan wurde auf {plan} umgestellt. Um das Limit deines Plans einzuhalten, habe ich die erforderliche Anzahl verbundener Konten entfernt: {accounts}. Deine Nachrichten und Kontakte sind weiterhin vorhanden. Du kannst die Konten jederzeit auf der Seite „Verbundene Konten“ erneut verbinden.",
     "cta": "Verbundene Konten ansehen",
@@ -852,7 +860,8 @@
   "AuthSocialErrors": {
     "accessDenied": "Die Anmeldung wurde beim Anbieter abgebrochen.",
     "accountAlreadyLinkedToDifferentUser": "Dieses Social-Konto ist bereits mit einem anderen Benutzer verknüpft.",
-    "accountNotLinked": "Ein Konto mit dieser E-Mail existiert bereits, aber die E-Mail-Adresse ist noch nicht bestätigt. Melde dich zuerst mit deinem Passwort an und bestätige deine E-Mail, danach kannst du den Social-Login nutzen.",
+    "accountNotLinked": "Dein Anbieter hat diese E-Mail-Adresse nicht bestätigt, deshalb konnten wir sie nicht mit deinem bestehenden Konto verbinden. Melde dich stattdessen mit deinem Passwort an.",
+    "accountNotLinkedAction": "Passwort zurücksetzen",
     "emailDoesNotMatch": "Die E-Mail-Adresse vom Anbieter stimmt nicht mit der E-Mail deines Kontos überein.",
     "emailIsMissing": "Der Anbieter hat keine E-Mail-Adresse zurückgegeben.",
     "emailNotFound": "Für dieses Social-Konto wurde keine E-Mail-Adresse gefunden.",
@@ -2136,25 +2145,17 @@
       "weightedValue": "{dealValue} × {percent} % Abschlusswahrscheinlichkeit der aktuellen Phase ({stage}). Ändere „{services}“, Mengen oder die Phase; bearbeite Phasenwahrscheinlichkeiten unter „{company}“.",
       "weightedValueUnconfigured": "{dealValue} × Abschlusswahrscheinlichkeit der ausgewählten Phase. Richte unter „{company}“ Phasenwahrscheinlichkeiten ein und wähle eine Phase; ändere „{services}“ oder Mengen."
     },
-    "customFieldsEmpty": {
-      "body": "Benutzerdefinierte Felder enthalten die zusätzlichen Angaben, die dein Arbeitsbereich zu diesem Datensatztyp erfasst.",
-      "title": "Noch keine benutzerdefinierten Felder"
-    },
     "donePersonalizing": "Fertig",
     "fields": {
       "createdAt": "Erstellt am",
       "updatedAt": "Aktualisiert am"
     },
     "hideField": "{field} in den Details ausblenden",
-    "moveFieldDown": "{field} nach unten verschieben",
-    "moveFieldUp": "{field} nach oben verschieben",
+    "overview": "Übersicht",
     "personalize": "Anpassen",
     "pinField": "{field} an die Übersicht anheften",
     "sections": {
-      "base": "Basisdaten",
-      "customFields": "Benutzerdefinierte Felder",
-      "notes": "Notizen",
-      "relations": "Beziehungen"
+      "notes": "Notizen"
     },
     "showField": "{field} in den Details anzeigen",
     "unpinField": "{field} von der Übersicht lösen"
@@ -3154,13 +3155,6 @@
   },
   "RoutineDetail": {
     "credits": "Guthaben",
-    "disabledAdminPaused": "Ein Unternehmensadmin hat diese Routine pausiert.",
-    "disabledGeneric": "Diese Routine ist pausiert und läuft erst wieder, wenn ihre Eigentümerin oder ihr Eigentümer sie aktiviert.",
-    "disabledOwnerPaused": "Die Eigentümerin oder der Eigentümer hat diese Routine pausiert.",
-    "disabledOwnerUnavailable": "Diese Routine wurde pausiert, weil ihre Eigentümerin oder ihr Eigentümer nicht mehr verfügbar ist. Sie bleibt schreibgeschützt und kann von einem Unternehmensadmin gelöscht werden.",
-    "disabledRepeatedFailures": "Mate hat diese Routine pausiert, weil die letzten drei Läufe fehlgeschlagen sind. Passe die Anweisungen an und schalte sie wieder ein.",
-    "disabledRepeatedFailuresReadOnly": "Mate hat diese Routine pausiert, weil die letzten drei Läufe fehlgeschlagen sind. Die Eigentümerin oder der Eigentümer muss die Anweisungen anpassen und sie wieder aktivieren.",
-    "disabledTitle": "Routine pausiert",
     "empty": {
       "event": {
         "actions": {
@@ -3234,9 +3228,10 @@
     "detailsTab": "Details",
     "disabled": "Pausiert",
     "enabled": "Aktiv",
-    "enabledHelp": "Pausierte Routinen behalten ihren Zeitplan, laufen aber nicht.",
+    "enabledHelp": "Diese Routine kann derzeit ausgeführt werden.",
     "eventSuppressionNote": "Von Routinen verursachte Ereignisse lösen keine Routinen aus.",
     "onMinute": "zur Minute",
+    "pausedHelp": "Diese Routine ist derzeit pausiert und wird nicht ausgeführt.",
     "promptExampleEvent": "Lies den geänderten Datensatz und antworte mit einem Satz dazu, was das bedeutet.",
     "promptExampleSchedule": "Fasse zusammen, was sich seit gestern bewegt hat, und antworte mit einer kurzen Liste.",
     "scheduleTimeZone": "Zeiten werden in {timezone} angezeigt.",
@@ -3496,9 +3491,13 @@
     "body": "Wir haben dir eine Verifizierungs-E-Mail gesendet. Bitte überprüfe dein Postfach und klicke auf den Link, um deine E-Mail-Adresse zu verifizieren.",
     "ctaLabel": "Verifizierungs-E-Mail erneut senden",
     "invitationFrom": "Einladung von {inviterName}",
+    "linkExpired": "Dieser Bestätigungslink ist abgelaufen.",
+    "linkInvalid": "Dieser Bestätigungslink ist ungültig.",
     "resendSuccess": "Verifizierungs-E-Mail wurde erfolgreich gesendet.",
+    "signedOutBody": "Melde dich in deinem Konto an, um eine neue Bestätigungs-E-Mail anzufordern.",
     "subtitle": "Verifiziere deine E-Mail-Adresse, um fortzufahren.",
-    "title": "E-Mail-Verifizierung"
+    "title": "E-Mail-Verifizierung",
+    "verifiedSignIn": "Deine E-Mail-Adresse ist jetzt bestätigt. Melde dich an, um fortzufahren."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Zustellversuche erscheinen hier, sobald ein Webhook ausgelöst wird.",

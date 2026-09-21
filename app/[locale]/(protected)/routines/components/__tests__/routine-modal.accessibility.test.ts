@@ -29,13 +29,15 @@ describe("routine modal accessibility contract", () => {
     expect(configuration).toContain("USER_STATUS_COLORS_MAP[form.owner.status]");
     expect(configuration).toContain("RoutineDetail.ownerUnavailableReadOnly");
     expect(configuration).toContain("RoutineDetail.ownerPermissionReadOnly");
-    expect(configuration).toContain("RoutineDetail.disabledRepeatedFailuresReadOnly");
-    expect(configuration).toContain("RoutineDetail.disabledOwnerUnavailable");
-    expect(configuration).toContain('store.disabledReason === "repeatedFailures"\n      ? store.canManage');
     expect(configuration).toContain("{store.isReadOnly && (");
     expect(configuration).toContain("store.isOwner && !store.canManage");
     expect(configuration).toContain("{store.canManage ? (");
     expect(configuration).not.toContain("{store.isOwner ? (");
+    expect(configuration).toContain("data-routine-enabled-field");
+    expect(configuration).toContain('htmlFor="enabled"');
+    expect(configuration).toContain('form.enabled ? t("RoutineModal.enabledHelp") : t("RoutineModal.pausedHelp")');
+    expect(configuration).not.toContain('Alert color="warning"');
+    expect(configuration).not.toContain("disabledReasonCopy");
     expect(emptyState).toContain("const testDescription = !store.canManage");
     expect(emptyState).toContain("RoutineDetail.ownerPermissionReadOnly");
     expect(emptyState).not.toContain("const testDescription = !store.isOwner");

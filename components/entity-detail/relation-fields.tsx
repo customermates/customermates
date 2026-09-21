@@ -29,6 +29,8 @@ import {
 } from "@/components/entity-detail/entity-relation-actions";
 import { EntityDetailField } from "@/components/entity-detail/entity-detail-field";
 import { EntityDetailFieldActions } from "@/components/entity-detail/entity-detail-field-actions";
+import { EntityDetailFieldDragHandle } from "@/components/entity-detail/entity-detail-fields";
+import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { AppChip } from "@/components/chip/app-chip";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
@@ -119,6 +121,7 @@ export const EntityRelationField = observer(
   }: RelationFieldProps) => {
     const { userStore } = useRootStore();
     const entityHref = useEntityHref();
+    const { plural } = useEntityTerminology();
     const { setPreviewFieldValue } = useEntityDetailPersonalization();
     const t = useTranslations();
     const config = RELATION[target];
@@ -138,6 +141,9 @@ export const EntityRelationField = observer(
     };
 
     const common = {
+      controlStartAddon: personalization ? (
+        <EntityDetailFieldDragHandle label={personalization.label ?? plural(target)} />
+      ) : undefined,
       chipHref: (id: string) => entityHref(config.entityType, id),
       getItems: config.getItems,
       id: config.field,
@@ -217,6 +223,7 @@ export const AssignedUsersField = observer(
     return (
       <EntityDetailField fieldId={personalization?.fieldId ?? visibilityFieldId}>
         <FormAutocompleteAvatar
+          controlStartAddon={personalization ? <EntityDetailFieldDragHandle label={fieldLabel} /> : undefined}
           getItems={getUsersAction}
           id="userIds"
           items={items ?? []}

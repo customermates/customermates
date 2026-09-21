@@ -6,8 +6,8 @@ import { EntityType } from "@/generated/prisma";
 
 import { CustomFieldInputs } from "@/components/data-view/custom-columns/custom-field-inputs";
 import { EntityDetailBody } from "@/components/entity-detail/entity-detail-body";
-import { EntityDetailCustomFieldsSection } from "@/components/entity-detail/entity-detail-custom-fields-section";
-import { EntityDetailSection, EntityDetailSectionGroup } from "@/components/entity-detail/entity-detail-section";
+import { EntityDetailOverview } from "@/components/entity-detail/entity-detail-overview";
+import { EntityDetailFieldDragHandle } from "@/components/entity-detail/entity-detail-fields";
 import { EntityDetailField } from "@/components/entity-detail/entity-detail-field";
 import { EntityDetailFieldActions } from "@/components/entity-detail/entity-detail-field-actions";
 import { EntityDetailStaticField } from "@/components/entity-detail/entity-detail-static-field";
@@ -18,7 +18,7 @@ import { useEntityTerminology } from "@/components/entity-terminology/use-entity
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
-import { SERVICE_DETAIL_FIELD, SERVICE_DETAIL_SECTION } from "./service-detail-personalization";
+import { SERVICE_DETAIL_FIELD } from "./service-detail-personalization";
 
 type Props = {
   layout?: "drawer" | "page";
@@ -29,7 +29,8 @@ export const ServiceDetailView = observer(({ layout = "drawer" }: Props) => {
   const { plural } = useEntityTerminology();
   const { serviceDetailStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
-  const { canManage, isEditingCustomField, customColumns, fetchedEntity } = serviceDetailStore;
+  const { canManage, isEditingCustomField, customColumns, fetchedEntity, toggleEditingCustomField } =
+    serviceDetailStore;
 
   const amountEndContent = intlStore.companyCurrency ? (
     <span className="mr-1.5">{intlStore.formatCurrency(0).replace(/[\d\s,.-]/g, "")}</span>
@@ -67,83 +68,109 @@ export const ServiceDetailView = observer(({ layout = "drawer" }: Props) => {
         <AssignedUsersField items={fetchedEntity?.users} visibilityFieldId={SERVICE_DETAIL_FIELD.userIds} />
       </>
     ) : (
-      <EntityDetailSectionGroup>
-        <EntityDetailSection label={t("EntityDetail.sections.base")} sectionId={SERVICE_DETAIL_SECTION.base}>
-          <EntityDetailField fieldId={SERVICE_DETAIL_FIELD.name}>
-            <FormInput
-              autoFocus
-              required
-              id="name"
-              labelEndAddon={
-                <EntityDetailFieldActions fieldId={SERVICE_DETAIL_FIELD.name} label={t("Common.inputs.name")} />
-              }
-            />
-          </EntityDetailField>
-
-          <EntityDetailField fieldId={SERVICE_DETAIL_FIELD.amount}>
-            <FormNumberInput
-              required
-              endContent={amountEndContent}
-              id="amount"
-              labelEndAddon={
-                <EntityDetailFieldActions fieldId={SERVICE_DETAIL_FIELD.amount} label={t("Common.inputs.amount")} />
-              }
-            />
-          </EntityDetailField>
-
-          <AssignedUsersField
-            items={fetchedEntity?.users}
-            personalization={{
-              fieldId: SERVICE_DETAIL_FIELD.userIds,
-              label: t("Common.inputs.userIds"),
-            }}
-          />
-
-          <EntityDetailStaticField
-            fieldId={SERVICE_DETAIL_FIELD.createdAt}
-            label={t("EntityDetail.fields.createdAt")}
-            value={intlStore.formatNumericalShortDateTime(fetchedEntity?.createdAt)}
-          />
-
-          <EntityDetailStaticField
-            fieldId={SERVICE_DETAIL_FIELD.updatedAt}
-            label={t("EntityDetail.fields.updatedAt")}
-            value={intlStore.formatNumericalShortDateTime(fetchedEntity?.updatedAt)}
-          />
-        </EntityDetailSection>
-
-        <EntityDetailSection label={t("EntityDetail.sections.relations")} sectionId={SERVICE_DETAIL_SECTION.relations}>
-          <EntityRelationField
-            currentEntityId={fetchedEntity?.id}
-            currentEntityType="service"
-            items={fetchedEntity?.deals}
-            personalization={{
-              fieldId: SERVICE_DETAIL_FIELD.dealIds,
-              label: plural(EntityType.deal),
-            }}
-            target="deal"
-          />
-
-          <EntityRelationField
-            currentEntityId={fetchedEntity?.id}
-            currentEntityType="service"
-            items={fetchedEntity?.tasks}
-            personalization={{
-              fieldId: SERVICE_DETAIL_FIELD.taskIds,
-              label: plural(EntityType.task),
-            }}
-            target="task"
-          />
-        </EntityDetailSection>
-
-        <EntityDetailCustomFieldsSection
-          canManage={canManage}
-          columns={customColumns}
-          entityType={EntityType.service}
-          isEditing={isEditingCustomField}
-          sectionId={SERVICE_DETAIL_SECTION.customFields}
-        />
-      </EntityDetailSectionGroup>
+      <EntityDetailOverview
+        canManage={canManage}
+        columns={customColumns}
+        entityType={EntityType.service}
+        fields={[
+          {
+            id: SERVICE_DETAIL_FIELD.name,
+            content: (
+              <EntityDetailField fieldId={SERVICE_DETAIL_FIELD.name}>
+                <FormInput
+                  autoFocus
+                  required
+                  controlStartAddon={<EntityDetailFieldDragHandle label={t("Common.inputs.name")} />}
+                  id="name"
+                  labelEndAddon={
+                    <EntityDetailFieldActions fieldId={SERVICE_DETAIL_FIELD.name} label={t("Common.inputs.name")} />
+                  }
+                />
+              </EntityDetailField>
+            ),
+          },
+          {
+            id: SERVICE_DETAIL_FIELD.amount,
+            content: (
+              <EntityDetailField fieldId={SERVICE_DETAIL_FIELD.amount}>
+                <FormNumberInput
+                  required
+                  controlStartAddon={<EntityDetailFieldDragHandle label={t("Common.inputs.amount")} />}
+                  endContent={amountEndContent}
+                  id="amount"
+                  labelEndAddon={
+                    <EntityDetailFieldActions fieldId={SERVICE_DETAIL_FIELD.amount} label={t("Common.inputs.amount")} />
+                  }
+                />
+              </EntityDetailField>
+            ),
+          },
+          {
+            id: SERVICE_DETAIL_FIELD.userIds,
+            content: (
+              <AssignedUsersField
+                items={fetchedEntity?.users}
+                personalization={{
+                  fieldId: SERVICE_DETAIL_FIELD.userIds,
+                  label: t("Common.inputs.userIds"),
+                }}
+              />
+            ),
+          },
+          {
+            id: SERVICE_DETAIL_FIELD.dealIds,
+            content: (
+              <EntityRelationField
+                currentEntityId={fetchedEntity?.id}
+                currentEntityType="service"
+                items={fetchedEntity?.deals}
+                personalization={{
+                  fieldId: SERVICE_DETAIL_FIELD.dealIds,
+                  label: plural(EntityType.deal),
+                }}
+                target="deal"
+              />
+            ),
+          },
+          {
+            id: SERVICE_DETAIL_FIELD.taskIds,
+            content: (
+              <EntityRelationField
+                currentEntityId={fetchedEntity?.id}
+                currentEntityType="service"
+                items={fetchedEntity?.tasks}
+                personalization={{
+                  fieldId: SERVICE_DETAIL_FIELD.taskIds,
+                  label: plural(EntityType.task),
+                }}
+                target="task"
+              />
+            ),
+          },
+          {
+            id: SERVICE_DETAIL_FIELD.createdAt,
+            content: (
+              <EntityDetailStaticField
+                fieldId={SERVICE_DETAIL_FIELD.createdAt}
+                label={t("EntityDetail.fields.createdAt")}
+                value={intlStore.formatNumericalShortDateTime(fetchedEntity?.createdAt)}
+              />
+            ),
+          },
+          {
+            id: SERVICE_DETAIL_FIELD.updatedAt,
+            content: (
+              <EntityDetailStaticField
+                fieldId={SERVICE_DETAIL_FIELD.updatedAt}
+                label={t("EntityDetail.fields.updatedAt")}
+                value={intlStore.formatNumericalShortDateTime(fetchedEntity?.updatedAt)}
+              />
+            ),
+          },
+        ]}
+        isEditing={isEditingCustomField}
+        onToggleEditing={toggleEditingCustomField}
+      />
     );
 
   return (

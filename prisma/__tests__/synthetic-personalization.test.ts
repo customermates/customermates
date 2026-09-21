@@ -217,73 +217,59 @@ describe("synthetic personalization fixtures", () => {
       viewMode: null,
     });
 
-    expect(byP13nId.get("contact-detail")).toMatchObject({
-      columnOrder: [SYNTHETIC_CUSTOM_COLUMN_IDS.contactSalesPipeline, SYNTHETIC_CUSTOM_COLUMN_IDS.contactPhone],
-      detailOptions: {
-        starredFieldIds: [
-          "firstName",
-          "lastName",
-          SYNTHETIC_CUSTOM_COLUMN_IDS.contactSalesPipeline,
-          SYNTHETIC_CUSTOM_COLUMN_IDS.contactPhone,
-          "userIds",
-          "updatedAt",
-        ],
-        collapsedSectionIds: [],
-      },
-      hiddenColumns: [],
-      viewMode: null,
-    });
-    expect(byP13nId.get("organization-detail")).toMatchObject({
-      columnOrder: [SYNTHETIC_CUSTOM_COLUMN_IDS.organizationType, SYNTHETIC_CUSTOM_COLUMN_IDS.organizationWebsite],
-      detailOptions: {
-        starredFieldIds: ["contactIds", "userIds", "updatedAt"],
-        collapsedSectionIds: [],
-      },
-      hiddenColumns: [],
-      viewMode: null,
-    });
+    const detailIds = ["contact-detail", "organization-detail", "deal-detail", "service-detail", "task-detail"];
+    for (const id of detailIds) {
+      const entry = byP13nId.get(id);
+      const options = EntityDetailOptionsSchema.parse(entry?.detailOptions);
+      expect(entry).toMatchObject({ hiddenColumns: [], viewMode: null });
+      expect(options.collapsedSectionIds).toEqual([]);
+      expect(options.fieldOrder?.slice(-3)).toEqual(["userIds", "createdAt", "updatedAt"]);
+      expect(new Set(options.fieldOrder).size).toBe(options.fieldOrder?.length);
+      expect(options.hiddenFieldIds).toEqual(expect.arrayContaining(["createdAt", "updatedAt"]));
+      expect(options.hiddenFieldIds).not.toContain("userIds");
+      expect(options.starredFieldIds).not.toEqual(expect.arrayContaining(["updatedAt"]));
+      expect(options.fieldOrder).toEqual(expect.arrayContaining(z.array(z.string()).parse(entry?.columnOrder)));
+      for (const field of [...options.starredFieldIds, ...(options.hiddenFieldIds ?? [])])
+        expect(options.fieldOrder).toContain(field);
+    }
     expect(byP13nId.get("deal-detail")).toMatchObject({
       columnOrder: [SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus, SYNTHETIC_CUSTOM_COLUMN_IDS.dealProjectPeriod],
       detailOptions: {
-        starredFieldIds: [
-          "totalValue",
-          "totalQuantity",
-          "organizationIds",
+        starredFieldIds: ["totalValue", "totalQuantity", "organizationIds", SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus],
+        hiddenFieldIds: ["weightedValue", "contactIds", "taskIds", "createdAt", "updatedAt"],
+        fieldOrder: [
+          "name",
           SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus,
+          "organizationIds",
           SYNTHETIC_CUSTOM_COLUMN_IDS.dealProjectPeriod,
-        ],
-        collapsedSectionIds: [],
-      },
-      hiddenColumns: [],
-      viewMode: null,
-    });
-    expect(byP13nId.get("service-detail")).toMatchObject({
-      columnOrder: [SYNTHETIC_CUSTOM_COLUMN_IDS.serviceType, SYNTHETIC_CUSTOM_COLUMN_IDS.servicePricing],
-      detailOptions: {
-        starredFieldIds: [
-          "amount",
-          SYNTHETIC_CUSTOM_COLUMN_IDS.serviceType,
-          SYNTHETIC_CUSTOM_COLUMN_IDS.servicePricing,
+          "serviceIds",
+          "totalQuantity",
+          "totalValue",
+          "weightedValue",
+          "contactIds",
+          "taskIds",
           "userIds",
-        ],
-        collapsedSectionIds: [],
-      },
-      hiddenColumns: [],
-      viewMode: null,
-    });
-    expect(byP13nId.get("task-detail")).toMatchObject({
-      columnOrder: [SYNTHETIC_CUSTOM_COLUMN_IDS.taskPriority, SYNTHETIC_CUSTOM_COLUMN_IDS.taskStatus],
-      detailOptions: {
-        starredFieldIds: [
-          SYNTHETIC_CUSTOM_COLUMN_IDS.taskPriority,
-          SYNTHETIC_CUSTOM_COLUMN_IDS.taskStatus,
+          "createdAt",
           "updatedAt",
         ],
-        collapsedSectionIds: [],
       },
-      hiddenColumns: [],
-      viewMode: null,
     });
+    expect(byP13nId.get("contact-detail")?.columnOrder).toEqual([
+      SYNTHETIC_CUSTOM_COLUMN_IDS.contactSalesPipeline,
+      SYNTHETIC_CUSTOM_COLUMN_IDS.contactPhone,
+    ]);
+    expect(byP13nId.get("organization-detail")?.columnOrder).toEqual([
+      SYNTHETIC_CUSTOM_COLUMN_IDS.organizationType,
+      SYNTHETIC_CUSTOM_COLUMN_IDS.organizationWebsite,
+    ]);
+    expect(byP13nId.get("service-detail")?.columnOrder).toEqual([
+      SYNTHETIC_CUSTOM_COLUMN_IDS.serviceType,
+      SYNTHETIC_CUSTOM_COLUMN_IDS.servicePricing,
+    ]);
+    expect(byP13nId.get("task-detail")?.columnOrder).toEqual([
+      SYNTHETIC_CUSTOM_COLUMN_IDS.taskPriority,
+      SYNTHETIC_CUSTOM_COLUMN_IDS.taskStatus,
+    ]);
   });
 
   it("upserts by the tenant-user-view key and removes only stale deterministic rows", async () => {

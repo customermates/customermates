@@ -6,8 +6,9 @@ import { EntityType } from "@/generated/prisma";
 
 import { CustomFieldInputs } from "@/components/data-view/custom-columns/custom-field-inputs";
 import { EntityDetailBody } from "@/components/entity-detail/entity-detail-body";
-import { EntityDetailCustomFieldsSection } from "@/components/entity-detail/entity-detail-custom-fields-section";
-import { EntityDetailSection, EntityDetailSectionGroup } from "@/components/entity-detail/entity-detail-section";
+import { EntityDetailOverview } from "@/components/entity-detail/entity-detail-overview";
+import { EntityDetailFieldDragHandle } from "@/components/entity-detail/entity-detail-fields";
+import { FormControlRow } from "@/components/forms/form-control-row";
 import { EntityDetailField } from "@/components/entity-detail/entity-detail-field";
 import { EntityDetailFieldActions } from "@/components/entity-detail/entity-detail-field-actions";
 import { EntityDetailStaticField } from "@/components/entity-detail/entity-detail-static-field";
@@ -21,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
-import { TASK_DETAIL_FIELD, TASK_DETAIL_SECTION } from "./task-detail-personalization";
+import { TASK_DETAIL_FIELD } from "./task-detail-personalization";
 
 type Props = {
   layout?: "drawer" | "page";
@@ -41,6 +42,7 @@ export const TaskDetailView = observer(({ layout = "drawer" }: Props) => {
     isCustomTask,
     systemTaskAlertConfig,
     systemTaskDisplayName,
+    toggleEditingCustomField,
   } = taskDetailStore;
 
   const systemTaskAlert = systemTaskAlertConfig && (
@@ -77,11 +79,14 @@ export const TaskDetailView = observer(({ layout = "drawer" }: Props) => {
           <EntityDetailFieldActions fieldId={TASK_DETAIL_FIELD.name} label={t("Common.inputs.name")} />
         </div>
 
-        <Input readOnly id="name" value={systemTaskDisplayName} />
+        <FormControlRow startAddon={<EntityDetailFieldDragHandle label={t("Common.inputs.name")} />}>
+          <Input readOnly id="name" value={systemTaskDisplayName} />
+        </FormControlRow>
       </div>
     ) : (
       <FormInput
         required
+        controlStartAddon={<EntityDetailFieldDragHandle label={t("Common.inputs.name")} />}
         id="name"
         labelEndAddon={<EntityDetailFieldActions fieldId={TASK_DETAIL_FIELD.name} label={t("Common.inputs.name")} />}
       />
@@ -131,87 +136,115 @@ export const TaskDetailView = observer(({ layout = "drawer" }: Props) => {
         <AssignedUsersField items={fetchedEntity?.users} visibilityFieldId={TASK_DETAIL_FIELD.userIds} />
       </>
     ) : (
-      <EntityDetailSectionGroup>
-        <EntityDetailSection label={t("EntityDetail.sections.base")} sectionId={TASK_DETAIL_SECTION.base}>
-          {systemTaskAlert}
+      <div className="flex min-w-0 flex-col gap-4">
+        {systemTaskAlert}
 
-          <EntityDetailField fieldId={TASK_DETAIL_FIELD.name}>{pageNameField}</EntityDetailField>
-
-          <AssignedUsersField
-            items={fetchedEntity?.users}
-            personalization={{
-              fieldId: TASK_DETAIL_FIELD.userIds,
-              label: t("Common.inputs.userIds"),
-            }}
-          />
-
-          <EntityDetailStaticField
-            fieldId={TASK_DETAIL_FIELD.createdAt}
-            label={t("EntityDetail.fields.createdAt")}
-            value={intlStore.formatNumericalShortDateTime(fetchedEntity?.createdAt)}
-          />
-
-          <EntityDetailStaticField
-            fieldId={TASK_DETAIL_FIELD.updatedAt}
-            label={t("EntityDetail.fields.updatedAt")}
-            value={intlStore.formatNumericalShortDateTime(fetchedEntity?.updatedAt)}
-          />
-        </EntityDetailSection>
-
-        <EntityDetailSection label={t("EntityDetail.sections.relations")} sectionId={TASK_DETAIL_SECTION.relations}>
-          <EntityRelationField
-            currentEntityId={fetchedEntity?.id}
-            currentEntityType="task"
-            items={fetchedEntity?.contacts}
-            personalization={{
-              fieldId: TASK_DETAIL_FIELD.contactIds,
-              label: plural(EntityType.contact),
-            }}
-            target="contact"
-          />
-
-          <EntityRelationField
-            currentEntityId={fetchedEntity?.id}
-            currentEntityType="task"
-            items={fetchedEntity?.organizations}
-            personalization={{
-              fieldId: TASK_DETAIL_FIELD.organizationIds,
-              label: plural(EntityType.organization),
-            }}
-            target="organization"
-          />
-
-          <EntityRelationField
-            currentEntityId={fetchedEntity?.id}
-            currentEntityType="task"
-            items={fetchedEntity?.deals}
-            personalization={{
-              fieldId: TASK_DETAIL_FIELD.dealIds,
-              label: plural(EntityType.deal),
-            }}
-            target="deal"
-          />
-
-          <EntityRelationField
-            currentEntityId={fetchedEntity?.id}
-            currentEntityType="task"
-            items={fetchedEntity?.services}
-            personalization={{
-              fieldId: TASK_DETAIL_FIELD.serviceIds,
-              label: plural(EntityType.service),
-            }}
-            target="service"
-          />
-        </EntityDetailSection>
-
-        <EntityDetailCustomFieldsSection
+        <EntityDetailOverview
           canManage={canManage}
           columns={customColumns}
           entityType={EntityType.task}
+          fields={[
+            {
+              id: TASK_DETAIL_FIELD.name,
+              content: <EntityDetailField fieldId={TASK_DETAIL_FIELD.name}>{pageNameField}</EntityDetailField>,
+            },
+            {
+              id: TASK_DETAIL_FIELD.userIds,
+              content: (
+                <AssignedUsersField
+                  items={fetchedEntity?.users}
+                  personalization={{
+                    fieldId: TASK_DETAIL_FIELD.userIds,
+                    label: t("Common.inputs.userIds"),
+                  }}
+                />
+              ),
+            },
+            {
+              id: TASK_DETAIL_FIELD.contactIds,
+              content: (
+                <EntityRelationField
+                  currentEntityId={fetchedEntity?.id}
+                  currentEntityType="task"
+                  items={fetchedEntity?.contacts}
+                  personalization={{
+                    fieldId: TASK_DETAIL_FIELD.contactIds,
+                    label: plural(EntityType.contact),
+                  }}
+                  target="contact"
+                />
+              ),
+            },
+            {
+              id: TASK_DETAIL_FIELD.organizationIds,
+              content: (
+                <EntityRelationField
+                  currentEntityId={fetchedEntity?.id}
+                  currentEntityType="task"
+                  items={fetchedEntity?.organizations}
+                  personalization={{
+                    fieldId: TASK_DETAIL_FIELD.organizationIds,
+                    label: plural(EntityType.organization),
+                  }}
+                  target="organization"
+                />
+              ),
+            },
+            {
+              id: TASK_DETAIL_FIELD.dealIds,
+              content: (
+                <EntityRelationField
+                  currentEntityId={fetchedEntity?.id}
+                  currentEntityType="task"
+                  items={fetchedEntity?.deals}
+                  personalization={{
+                    fieldId: TASK_DETAIL_FIELD.dealIds,
+                    label: plural(EntityType.deal),
+                  }}
+                  target="deal"
+                />
+              ),
+            },
+            {
+              id: TASK_DETAIL_FIELD.serviceIds,
+              content: (
+                <EntityRelationField
+                  currentEntityId={fetchedEntity?.id}
+                  currentEntityType="task"
+                  items={fetchedEntity?.services}
+                  personalization={{
+                    fieldId: TASK_DETAIL_FIELD.serviceIds,
+                    label: plural(EntityType.service),
+                  }}
+                  target="service"
+                />
+              ),
+            },
+            {
+              id: TASK_DETAIL_FIELD.createdAt,
+              content: (
+                <EntityDetailStaticField
+                  fieldId={TASK_DETAIL_FIELD.createdAt}
+                  label={t("EntityDetail.fields.createdAt")}
+                  value={intlStore.formatNumericalShortDateTime(fetchedEntity?.createdAt)}
+                />
+              ),
+            },
+            {
+              id: TASK_DETAIL_FIELD.updatedAt,
+              content: (
+                <EntityDetailStaticField
+                  fieldId={TASK_DETAIL_FIELD.updatedAt}
+                  label={t("EntityDetail.fields.updatedAt")}
+                  value={intlStore.formatNumericalShortDateTime(fetchedEntity?.updatedAt)}
+                />
+              ),
+            },
+          ]}
           isEditing={isEditingCustomField}
-          sectionId={TASK_DETAIL_SECTION.customFields}
+          onToggleEditing={toggleEditingCustomField}
         />
-      </EntityDetailSectionGroup>
+      </div>
     );
 
   return (

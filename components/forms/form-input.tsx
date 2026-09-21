@@ -6,6 +6,7 @@ import { observer } from "mobx-react-lite";
 
 import { Input } from "@/components/ui/input";
 import { FormLabel } from "./form-label";
+import { FormControlRow } from "./form-control-row";
 import { cn } from "@/core/utils/cn";
 
 import { useAppForm } from "./form-context";
@@ -22,6 +23,7 @@ type Props = Omit<ComponentProps<"input">, "value" | "onChange" | "id"> & {
   readOnly?: boolean;
   endContent?: ReactNode;
   labelEndAddon?: ReactNode;
+  controlStartAddon?: ReactNode;
 };
 
 export const FormInput = observer(
@@ -36,6 +38,7 @@ export const FormInput = observer(
     readOnly,
     endContent,
     labelEndAddon,
+    controlStartAddon,
     ...props
   }: Props) => {
     const store = useAppForm();
@@ -59,7 +62,7 @@ export const FormInput = observer(
           </div>
         )}
 
-        <div className="relative">
+        <FormControlRow startAddon={controlStartAddon}>
           <Input
             aria-invalid={hasError}
             className={cn(endContent && "pr-10", className)}
@@ -75,7 +78,7 @@ export const FormInput = observer(
           {endContent && (
             <div className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center">{endContent}</div>
           )}
-        </div>
+        </FormControlRow>
 
         {description && !hasError && <p className="text-xs text-muted-foreground">{description}</p>}
       </div>

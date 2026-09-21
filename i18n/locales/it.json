@@ -1,4 +1,12 @@
 {
+  "AccountAccessRevoked": {
+    "body": "Hai appena effettuato l'accesso senza password, e questo conferma che questo indirizzo e-mail è tuo. Fino a ora non era mai stato confermato, quindi non potevamo sapere con certezza chi avesse creato questo account. Per sicurezza abbiamo rimosso la vecchia password e tutto il resto che poteva aprire l'account, come app collegate o chiavi. I tuoi dati non sono cambiati e puoi continuare ad accedere esattamente come hai appena fatto.",
+    "cta": "Imposta una nuova password",
+    "greeting": "Ciao,",
+    "signoff": "Il pulsante qui sopra ti serve solo se preferisci accedere con una password. Se non sei stato tu ad accedere, contattaci subito.",
+    "subject": "La tua e-mail è confermata e abbiamo rimosso la vecchia password",
+    "title": "Il tuo indirizzo e-mail è confermato"
+  },
   "AccountsRemovedNotice": {
     "body": "Il tuo piano è passato a {plan}, quindi ho rimosso i seguenti account collegati per rientrare nel limite del piano: {accounts}. I tuoi messaggi e i tuoi contatti sono ancora tutti lì. Puoi ricollegare questi account quando vuoi dalla pagina degli account collegati.",
     "cta": "Vedi gli account collegati",
@@ -852,7 +860,8 @@
   "AuthSocialErrors": {
     "accessDenied": "L'accesso è stato annullato presso il provider.",
     "accountAlreadyLinkedToDifferentUser": "Questo account social è già collegato a un altro utente.",
-    "accountNotLinked": "Esiste già un account con questa e-mail, ma l'indirizzo non è ancora verificato. Accedi con la password e verifica l'indirizzo, poi potrai usare l'accesso social.",
+    "accountNotLinked": "Il tuo provider non ha confermato questo indirizzo e-mail, quindi non abbiamo potuto collegarlo al tuo account esistente. Accedi invece con la password.",
+    "accountNotLinkedAction": "Reimposta password",
     "emailDoesNotMatch": "L'e-mail restituita dal provider non corrisponde a quella del tuo account.",
     "emailIsMissing": "Il provider non ha restituito alcun indirizzo e-mail.",
     "emailNotFound": "Non è stato trovato alcun indirizzo e-mail per questo account social.",
@@ -2136,25 +2145,17 @@
       "weightedValue": "{dealValue} × probabilità di chiusura del {percent}% per la fase corrente ({stage}). Modifica «{services}», quantità o fase; gestisci le probabilità in «{company}».",
       "weightedValueUnconfigured": "{dealValue} × probabilità di chiusura della fase selezionata. Configura le probabilità in «{company}» e seleziona una fase; modifica «{services}» o quantità."
     },
-    "customFieldsEmpty": {
-      "body": "I campi personalizzati contengono le informazioni aggiuntive che il tuo spazio di lavoro registra per questo tipo di record.",
-      "title": "Ancora nessun campo personalizzato"
-    },
     "donePersonalizing": "Fine",
     "fields": {
       "createdAt": "Creato il",
       "updatedAt": "Aggiornato il"
     },
     "hideField": "Nascondi {field} dai dettagli",
-    "moveFieldDown": "Sposta {field} in basso",
-    "moveFieldUp": "Sposta {field} in alto",
+    "overview": "Panoramica",
     "personalize": "Personalizza",
     "pinField": "Fissa {field} nella panoramica",
     "sections": {
-      "base": "Dati di base",
-      "customFields": "Campi personalizzati",
-      "notes": "Note",
-      "relations": "Relazioni"
+      "notes": "Note"
     },
     "showField": "Mostra {field} nei dettagli",
     "unpinField": "Togli {field} dalla panoramica"
@@ -3154,13 +3155,6 @@
   },
   "RoutineDetail": {
     "credits": "Crediti",
-    "disabledAdminPaused": "Un amministratore aziendale ha sospeso questa routine.",
-    "disabledGeneric": "Questa routine è sospesa e non verrà eseguita finché il proprietario non la attiva.",
-    "disabledOwnerPaused": "Il proprietario ha sospeso questa routine.",
-    "disabledOwnerUnavailable": "Questa routine è stata sospesa perché il proprietario non è più disponibile. Resta di sola lettura e un amministratore aziendale può eliminarla.",
-    "disabledRepeatedFailures": "Mate ha messo in pausa questa routine perché le ultime tre esecuzioni sono fallite. Correggi le istruzioni e riattivala.",
-    "disabledRepeatedFailuresReadOnly": "Mate ha sospeso questa routine perché le ultime tre esecuzioni sono fallite. Il proprietario deve correggere le istruzioni e riattivarla.",
-    "disabledTitle": "Routine sospesa",
     "empty": {
       "event": {
         "actions": {
@@ -3234,9 +3228,10 @@
     "detailsTab": "Dettagli",
     "disabled": "In pausa",
     "enabled": "Attiva",
-    "enabledHelp": "Le routine in pausa mantengono la pianificazione ma non vengono eseguite.",
+    "enabledHelp": "Questa routine può essere eseguita al momento.",
     "eventSuppressionNote": "Gli eventi causati dalle routine non attivano alcuna routine.",
     "onMinute": "al minuto",
+    "pausedHelp": "Questa routine è attualmente in pausa e non verrà eseguita.",
     "promptExampleEvent": "Leggi il record che è cambiato e rispondi con una frase su cosa significa.",
     "promptExampleSchedule": "Riassumi ciò che è cambiato da ieri e rispondi con un breve elenco.",
     "scheduleTimeZone": "Gli orari sono mostrati in {timezone}.",
@@ -3496,9 +3491,13 @@
     "body": "Ti abbiamo inviato un'e-mail di verifica. Controlla la tua posta in arrivo e clicca sul link per verificare il tuo indirizzo e-mail.",
     "ctaLabel": "Invia di nuovo l'e-mail di verifica",
     "invitationFrom": "Invito da {inviterName}",
+    "linkExpired": "Questo link di verifica è scaduto.",
+    "linkInvalid": "Questo link di verifica non è valido.",
     "resendSuccess": "E-mail di verifica inviata correttamente.",
+    "signedOutBody": "Accedi al tuo account per richiedere una nuova e-mail di verifica.",
     "subtitle": "Verifica il tuo indirizzo e-mail per continuare.",
-    "title": "Verifica dell'e-mail"
+    "title": "Verifica dell'e-mail",
+    "verifiedSignIn": "Il tuo indirizzo e-mail è ora verificato. Accedi per continuare."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "I tentativi di consegna appariranno qui quando viene attivato un webhook.",

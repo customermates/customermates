@@ -43,6 +43,28 @@ vi.mock("../entity-detail-personalization", () => ({
     starredFieldIds: harness.starredFieldIds,
     setIsPersonalizing: harness.setIsPersonalizing,
   }),
+  useEntityDetailCustomization: ({
+    canManage,
+    isEditingCustomField,
+    toggleEditingCustomField,
+  }: {
+    canManage: boolean;
+    isEditingCustomField: boolean;
+    toggleEditingCustomField: () => void;
+  }) => {
+    const isCustomizing = harness.personalizationEnabled
+      ? harness.isPersonalizing || (canManage && isEditingCustomField)
+      : canManage && isEditingCustomField;
+
+    return {
+      isCustomizing,
+      onToggleCustomization: () => {
+        const next = !isCustomizing;
+        if (harness.personalizationEnabled) harness.setIsPersonalizing(next);
+        if (canManage && isEditingCustomField !== next) toggleEditingCustomField();
+      },
+    };
+  },
 }));
 
 vi.mock("@/components/entity-detail/entity-notes-panel", () => ({
@@ -213,7 +235,7 @@ describe("EntityDetailLayout", () => {
     const tabClasses = html.match(/role="tab"[^>]*class="([^"]+)"/)?.[1].split(" ") ?? [];
     expect(tabClasses).toContain("group-data-[orientation=horizontal]/tabs:after:-bottom-px");
     expect(tabClasses).not.toContain("group-data-[orientation=horizontal]/tabs:after:bottom-[-5px]");
-    expect(html).toContain("Common.details");
+    expect(html).toContain("EntityDetail.overview");
     expect(html).toContain("EntityDetail.sections.notes");
     expect(html).toContain("EntityTimeline.types.activities");
     expect(html).toContain("@6xl/detail:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_360px]");

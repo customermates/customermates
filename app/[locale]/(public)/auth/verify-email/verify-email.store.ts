@@ -40,8 +40,12 @@ export class VerifyEmailStore extends BaseStore {
     if (!email) return;
 
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
-      const result = await resendVerificationEmailFromAuthAction(this.onboardingIntent);
-      if (!result.ok || this.activeEmail !== email) return;
+      const result = await resendVerificationEmailFromAuthAction({ onboardingIntent: this.onboardingIntent });
+      if (this.activeEmail !== email) return;
+      if (!result.ok) {
+        this.toastError("Common.notifications.unexpectedError");
+        return;
+      }
 
       runInAction(() => {
         this.isSent = true;

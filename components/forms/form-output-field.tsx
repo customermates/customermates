@@ -10,6 +10,7 @@ import { cn } from "@/core/utils/cn";
 import { FormFieldHelp } from "./form-field-help";
 import { FormLabel } from "./form-label";
 import { FormOutput } from "./form-output";
+import { FormControlRow } from "./form-control-row";
 
 type Props = {
   label: string;
@@ -17,6 +18,7 @@ type Props = {
   help?: ReactNode;
   description?: ReactNode;
   labelEndAddon?: ReactNode;
+  controlStartAddon?: ReactNode;
   className?: string;
   outputClassName?: string;
 };
@@ -27,6 +29,7 @@ export function FormOutputField({
   help,
   description,
   labelEndAddon,
+  controlStartAddon,
   className,
   outputClassName,
 }: Props) {
@@ -46,13 +49,15 @@ export function FormOutputField({
         {labelEndAddon}
       </div>
 
-      <FormOutput
-        aria-describedby={description ? descriptionId : undefined}
-        aria-labelledby={labelId}
-        className={outputClassName}
-      >
-        {children}
-      </FormOutput>
+      <FormControlRow startAddon={controlStartAddon}>
+        <FormOutput
+          aria-describedby={description ? descriptionId : undefined}
+          aria-labelledby={labelId}
+          className={outputClassName}
+        >
+          {children}
+        </FormOutput>
+      </FormControlRow>
 
       {description ? (
         <p className="text-xs text-muted-foreground" id={descriptionId}>

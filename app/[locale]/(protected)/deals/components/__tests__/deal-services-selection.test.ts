@@ -100,6 +100,7 @@ import { DealServicesSelection } from "../deal-services-selection";
 
 describe("DealServicesSelection relation actions", () => {
   beforeEach(() => {
+    dealDetailStore.canManage = true;
     dealDetailStore.form.services = [];
     dealDetailStore.totalQuantity = 0;
     dealDetailStore.totalValue = 0;
@@ -128,7 +129,7 @@ describe("DealServicesSelection relation actions", () => {
     expect(markup).toContain('aria-label="About Value"');
   });
 
-  it("explains line values and every computed total in the drawer", () => {
+  it("keeps line-value and weighted-value help without repeating help icons beside sums", () => {
     dealDetailStore.form.services = [{ quantity: 2, serviceId: "service-1" }];
     dealDetailStore.totalQuantity = 2;
     dealDetailStore.totalValue = 400;
@@ -141,16 +142,74 @@ describe("DealServicesSelection relation actions", () => {
     const markup = renderToStaticMarkup(createElement(DealServicesSelection));
 
     expect(markup).toContain('aria-label="About Value"');
-    expect(markup).toContain('aria-label="About totalValue"');
+    expect(markup).not.toContain('aria-label="About totalValue"');
     expect(markup).toContain('aria-label="About weightedValue"');
-    expect(markup).toContain('aria-label="About totalQuantity"');
+    expect(markup).not.toContain('aria-label="About totalQuantity"');
     expect(markup).toContain("EntityDetail.computedFieldHelp.serviceLineValue");
-    expect(markup).toContain("EntityDetail.computedFieldHelp.dealValue");
     expect(markup).toContain("EntityDetail.computedFieldHelp.weightedValue");
-    expect(markup).toContain("EntityDetail.computedFieldHelp.serviceQuantity");
   });
 
-  it("applies drawer visibility independently to services and each computed total", () => {
+  it("aligns quantity and value totals beside the add-service control", () => {
+    dealDetailStore.form.services = [{ quantity: 2, serviceId: "service-1" }];
+    dealDetailStore.totalQuantity = 2;
+    dealDetailStore.totalValue = 400;
+
+    const markup = renderToStaticMarkup(
+      createElement(DealServicesSelection, {
+        personalization: { fieldId: "serviceIds", label: "Services" },
+        showWeightedValue: false,
+      }),
+    );
+
+    expect(markup).toContain("grid-cols-[minmax(0,1fr)_5.5rem_minmax(4.5rem,8rem)_2.5rem]");
+    expect(markup).toContain('data-deal-service-total="quantity"');
+    expect(markup).toContain('aria-label="totalQuantity: 2"');
+    expect(markup).toContain('data-deal-service-total="value"');
+    expect(markup).toContain('aria-label="totalValue: €400"');
+    expect(markup.indexOf("Add service")).toBeLessThan(markup.indexOf('data-deal-service-total="quantity"'));
+    expect(markup).not.toContain('data-entity-field="weightedValue"');
+  });
+
+  it.each([true, false])("keeps plain monospace sums aligned and accessible with canManage=%s", (canManage) => {
+    dealDetailStore.canManage = canManage;
+    dealDetailStore.form.services = [{ quantity: 1050, serviceId: "service-1" }];
+    dealDetailStore.totalQuantity = 1050;
+    dealDetailStore.totalValue = 342000;
+
+    const markup = renderToStaticMarkup(createElement(DealServicesSelection));
+    const outputs = [...markup.matchAll(/<output\b[^>]*>[\s\S]*?<\/output>/g)].map(([output]) => output);
+
+    expect(outputs).toHaveLength(2);
+    for (const output of outputs) {
+      expect(output).toContain("font-mono font-normal tabular-nums");
+      expect(output).toContain('aria-hidden="true"');
+      expect(output).toContain("lucide-sigma");
+      expect(output.indexOf("lucide-sigma")).toBeLessThan(output.indexOf('<span class="truncate">'));
+      expect(output).not.toContain("<button");
+      expect(output).not.toMatch(/border-t\b|font-semibold|font-bold/);
+    }
+    expect(outputs[0]).toContain("border border-transparent pr-3 text-base");
+    expect(outputs[0]).toContain("md:text-sm");
+    expect(outputs[0]).toContain('aria-label="totalQuantity: 1050"');
+    expect(outputs[1]).toContain("text-base");
+    expect(outputs[1]).toContain("md:text-sm");
+    expect(outputs[1]).toContain('aria-label="totalValue: €342000"');
+    expect(markup).toContain(
+      'class="flex min-w-0 text-base text-right font-mono tabular-nums text-foreground/80 md:text-sm"',
+    );
+    expect(markup.includes("Add service")).toBe(canManage);
+  });
+
+  it("does not show sums without service rows or when totals are disabled", () => {
+    expect(renderToStaticMarkup(createElement(DealServicesSelection))).not.toContain("<output");
+    dealDetailStore.form.services = [{ quantity: 0, serviceId: "service-1" }];
+    expect(renderToStaticMarkup(createElement(DealServicesSelection, { showTotals: false }))).not.toContain("<output");
+    const markup = renderToStaticMarkup(createElement(DealServicesSelection));
+    expect(markup).toContain('aria-label="totalQuantity: 0"');
+    expect(markup).toContain('aria-label="totalValue: €0"');
+  });
+
+  it("keeps contextual service totals visible when their standalone fields are hidden", () => {
     dealDetailStore.form.services = [{ quantity: 2, serviceId: "service-1" }];
     dealDetailStore.totalQuantity = 2;
     dealDetailStore.totalValue = 400;
@@ -160,16 +219,14 @@ describe("DealServicesSelection relation actions", () => {
       weightedValue: 200,
     };
 
-    const fieldIds = ["serviceIds", "totalValue", "weightedValue", "totalQuantity"];
-
-    for (const hiddenFieldId of fieldIds) {
+    for (const hiddenFieldId of ["totalValue", "totalQuantity", "weightedValue"]) {
       personalization.hiddenFieldIds = [hiddenFieldId];
       const markup = renderToStaticMarkup(createElement(DealServicesSelection));
 
-      for (const fieldId of fieldIds) {
-        const fieldMarker = `data-entity-field="${fieldId}"`;
-        expect(markup.includes(fieldMarker)).toBe(fieldId !== hiddenFieldId);
-      }
+      expect(markup).toContain('data-entity-field="serviceIds"');
+      expect(markup).toContain('data-deal-service-total="quantity"');
+      expect(markup).toContain('data-deal-service-total="value"');
+      expect(markup.includes('data-entity-field="weightedValue"')).toBe(hiddenFieldId !== "weightedValue");
     }
   });
 });

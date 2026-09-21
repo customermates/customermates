@@ -39,12 +39,13 @@ vi.mock("@/components/data-view/custom-columns/custom-field-inputs", () => ({
 vi.mock("@/components/entity-detail/entity-detail-body", () => ({
   EntityDetailBody: ({ children }: { children: ReactNode }) => createElement("main", null, children),
 }));
-vi.mock("@/components/entity-detail/entity-detail-custom-fields-section", () => ({
-  EntityDetailCustomFieldsSection: () => null,
-}));
-vi.mock("@/components/entity-detail/entity-detail-section", () => ({
-  EntityDetailSection: ({ children }: { children: ReactNode }) => createElement("section", null, children),
-  EntityDetailSectionGroup: ({ children }: { children: ReactNode }) => createElement("div", null, children),
+vi.mock("@/components/entity-detail/entity-detail-overview", () => ({
+  EntityDetailOverview: ({ fields }: { fields: { id: string; content: ReactNode }[] }) =>
+    createElement(
+      "div",
+      null,
+      fields.map((field) => createElement("div", { key: field.id }, field.content)),
+    ),
 }));
 vi.mock("@/components/entity-detail/entity-detail-pin-button", () => ({
   EntityDetailPinButton: () => null,

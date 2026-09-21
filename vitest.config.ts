@@ -45,6 +45,7 @@ const domTestFiles = [
   "components/data-view/filter-palette/__tests__/filter-palette-pages.test.tsx",
   "components/entity-detail/__tests__/entity-detail-custom-fields-empty.test.ts",
   "components/entity-detail/__tests__/entity-detail-personalization.test.ts",
+  "components/entity-detail/__tests__/entity-detail-overview-order.test.ts",
   "components/entity-detail/__tests__/entity-detail-summary.test.ts",
   "components/entity-detail/__tests__/entity-detail-visibility.test.tsx",
   "components/entity-detail/__tests__/entity-drawer-personalization.test.ts",

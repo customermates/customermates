@@ -1,4 +1,12 @@
 {
+  "AccountAccessRevoked": {
+    "body": "Acabas de iniciar sesión sin contraseña, y eso confirma que esta dirección de correo es tuya. Hasta ahora nunca se había confirmado, así que no podíamos estar seguros de quién creó esta cuenta. Por seguridad hemos eliminado la contraseña anterior y todo lo demás que pudiera abrir la cuenta, como aplicaciones conectadas o claves. Tus datos no han cambiado y puedes seguir iniciando sesión igual que acabas de hacerlo.",
+    "cta": "Establecer una nueva contraseña",
+    "greeting": "Hola:",
+    "signoff": "Solo necesitas el botón de arriba si prefieres entrar con una contraseña. Si no has sido tú quien ha iniciado sesión, ponte en contacto con nosotros de inmediato.",
+    "subject": "Tu correo está confirmado y hemos eliminado tu contraseña anterior",
+    "title": "Tu dirección de correo está confirmada"
+  },
   "AccountsRemovedNotice": {
     "body": "Tu plan cambió a {plan}, así que he eliminado las siguientes cuentas conectadas para respetar el límite del plan: {accounts}. Tus mensajes y contactos siguen ahí. Puedes volver a conectarlas cuando quieras desde la página de cuentas conectadas.",
     "cta": "Ver las cuentas conectadas",
@@ -852,7 +860,8 @@
   "AuthSocialErrors": {
     "accessDenied": "El inicio de sesión se canceló en el proveedor.",
     "accountAlreadyLinkedToDifferentUser": "Esta cuenta social ya está vinculada a otro usuario.",
-    "accountNotLinked": "Ya existe una cuenta con este correo, pero la dirección aún no está verificada. Inicia sesión con tu contraseña y verifica el correo; después podrás usar el acceso social.",
+    "accountNotLinked": "Tu proveedor no confirmó esta dirección de correo, así que no pudimos vincularla a tu cuenta existente. Inicia sesión con tu contraseña.",
+    "accountNotLinkedAction": "Restablecer contraseña",
     "emailDoesNotMatch": "El correo devuelto por el proveedor no coincide con el de tu cuenta.",
     "emailIsMissing": "El proveedor no devolvió ninguna dirección de correo.",
     "emailNotFound": "No se encontró ninguna dirección de correo para esta cuenta social.",
@@ -2136,25 +2145,17 @@
       "weightedValue": "{dealValue} × {percent} % de probabilidad de cierre de la etapa actual ({stage}). Edita «{services}», las cantidades o la etapa; gestiona las probabilidades en «{company}».",
       "weightedValueUnconfigured": "{dealValue} × probabilidad de cierre de la etapa seleccionada. Configura las probabilidades en «{company}» y selecciona una etapa; edita «{services}» o las cantidades."
     },
-    "customFieldsEmpty": {
-      "body": "Los campos personalizados contienen los datos adicionales que tu espacio de trabajo registra para este tipo de registro.",
-      "title": "Aún no hay campos personalizados"
-    },
     "donePersonalizing": "Listo",
     "fields": {
       "createdAt": "Creado el",
       "updatedAt": "Actualizado el"
     },
     "hideField": "Ocultar {field} de los detalles",
-    "moveFieldDown": "Mover {field} hacia abajo",
-    "moveFieldUp": "Mover {field} hacia arriba",
+    "overview": "Vista general",
     "personalize": "Personalizar",
     "pinField": "Fijar {field} en el resumen",
     "sections": {
-      "base": "Datos básicos",
-      "customFields": "Campos personalizados",
-      "notes": "Notas",
-      "relations": "Relaciones"
+      "notes": "Notas"
     },
     "showField": "Mostrar {field} en los detalles",
     "unpinField": "Desfijar {field} del resumen"
@@ -3154,13 +3155,6 @@
   },
   "RoutineDetail": {
     "credits": "Créditos",
-    "disabledAdminPaused": "Un administrador de la empresa pausó esta rutina.",
-    "disabledGeneric": "Esta rutina está pausada y no se ejecutará hasta que su propietario la active.",
-    "disabledOwnerPaused": "El propietario pausó esta rutina.",
-    "disabledOwnerUnavailable": "Esta rutina se pausó porque su propietario ya no está disponible. Permanece en modo de solo lectura y un administrador de la empresa puede eliminarla.",
-    "disabledRepeatedFailures": "Mate ha pausado esta rutina porque sus tres últimas ejecuciones fallaron. Corrige las instrucciones y vuelve a activarla.",
-    "disabledRepeatedFailuresReadOnly": "Mate pausó esta rutina porque sus tres últimas ejecuciones fallaron. Su propietario debe corregir las instrucciones y volver a activarla.",
-    "disabledTitle": "Rutina pausada",
     "empty": {
       "event": {
         "actions": {
@@ -3234,9 +3228,10 @@
     "detailsTab": "Detalles",
     "disabled": "En pausa",
     "enabled": "Activa",
-    "enabledHelp": "Las rutinas en pausa conservan su programación, pero no se ejecutan.",
+    "enabledHelp": "Esta rutina se puede ejecutar actualmente.",
     "eventSuppressionNote": "Los eventos causados por rutinas no activan rutinas.",
     "onMinute": "en el minuto",
+    "pausedHelp": "Esta rutina está en pausa y no se ejecutará.",
     "promptExampleEvent": "Lee el registro que ha cambiado y responde con una frase sobre lo que significa.",
     "promptExampleSchedule": "Resume lo que ha cambiado desde ayer y responde con una lista breve.",
     "scheduleTimeZone": "Las horas se muestran en {timezone}.",
@@ -3496,9 +3491,13 @@
     "body": "Te hemos enviado un correo de verificación. Revisa tu bandeja de entrada y haz clic en el enlace para verificar tu dirección de correo.",
     "ctaLabel": "Reenviar el correo de verificación",
     "invitationFrom": "Invitación de {inviterName}",
+    "linkExpired": "Ese enlace de verificación ha caducado.",
+    "linkInvalid": "Ese enlace de verificación no es válido.",
     "resendSuccess": "Correo de verificación enviado correctamente.",
+    "signedOutBody": "Inicia sesión en tu cuenta para solicitar un nuevo correo de verificación.",
     "subtitle": "Verifica tu dirección de correo para continuar.",
-    "title": "Verificación del correo"
+    "title": "Verificación del correo",
+    "verifiedSignIn": "Tu dirección de correo ya está verificada. Inicia sesión para continuar."
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Los intentos de entrega aparecerán aquí cuando se active un webhook.",

@@ -51,7 +51,7 @@ describe("page skeleton families", () => {
     expect(empty).toContain('data-page-skeleton-empty="true"');
   });
 
-  it("matches the responsive entity-detail panel and section geometry", () => {
+  it("matches the responsive entity-detail panel and flat field geometry", () => {
     const detail = renderToStaticMarkup(
       createElement(EntityDetailPageSkeleton, {
         showActivityPanel: true,
@@ -77,9 +77,10 @@ describe("page skeleton families", () => {
     expect(detail).toContain("data-entity-detail-skeleton-tabs");
     expect(detail).toContain("h-13 shrink-0 border-b border-border bg-background @6xl/detail:hidden");
     expect(detail).toContain("grid size-full grid-flow-col auto-cols-fr");
-    expect(detail).toContain("-mx-4 -mt-4 flex flex-col");
+    expect(detail).not.toContain("-mx-4 -mt-4 flex flex-col");
+    expect(detail).toContain("flex flex-col gap-4");
     expect(detail).not.toContain("@6xl/detail:mt-0");
-    expect(count(detail, "data-entity-detail-skeleton-section")).toBe(3);
+    expect(count(detail, "data-entity-detail-skeleton-section")).toBe(0);
     expect(detail).toContain("@6xl/detail:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_360px]");
   });
 
