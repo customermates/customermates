@@ -7,7 +7,6 @@ import { env } from "@/env";
 import { appErrorDetailsInCauseChain } from "@/core/errors/app-errors";
 import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 import { externalizeWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
-import { parseWikiPageHref } from "@/features/wiki/wiki-links";
 
 const RESOURCE_UNAVAILABLE = "Workspace Wiki resource is unavailable.";
 class WikiResourceUnavailableError extends Error {}
@@ -41,6 +40,12 @@ function catalogPage(value: unknown): number {
     .int()
     .min(1)
     .safeParse(value ?? 1);
+  if (!parsed.success) throw new WikiResourceUnavailableError();
+  return parsed.data;
+}
+
+function wikiPageId(value: unknown): string {
+  const parsed = z.uuid().safeParse(value);
   if (!parsed.success) throw new WikiResourceUnavailableError();
   return parsed.data;
 }
@@ -88,24 +93,20 @@ export function registerWikiMcpResources(server: McpServer) {
 
   server.registerResource(
     "workspace-wiki-page",
-    new ResourceTemplate(`${env.BASE_URL}/wiki{?page}`, { list: undefined }),
+    new ResourceTemplate("customermates://wiki/page/{id}", { list: undefined }),
     {
       title: "Workspace Wiki page",
-      description: "A current Wiki page addressed by its stable UUID deep link",
+      description: "A permission-checked Wiki page addressed by its stable UUID",
       mimeType: "text/markdown",
     },
-    async (uri) => {
-      const target = parseWikiPageHref(uri.href, env.BASE_URL);
-      if (!target) throw new Error("Workspace Wiki page URL is invalid.");
-      return {
-        contents: [
-          {
-            uri: uri.href,
-            mimeType: "text/markdown",
-            text: await wikiResourceBoundary(() => wikiPageText(target.id)),
-          },
-        ],
-      };
-    },
+    async (uri, variables) => ({
+      contents: [
+        {
+          uri: uri.href,
+          mimeType: "text/markdown",
+          text: await wikiResourceBoundary(() => wikiPageText(wikiPageId(variables.id))),
+        },
+      ],
+    }),
   );
 }

@@ -187,7 +187,7 @@ describe("Wiki MCP transport", () => {
           uriTemplate: "customermates://wiki/catalog{?page}",
         }),
         expect.objectContaining({
-          uriTemplate: "http://localhost:4105/wiki{?page}",
+          uriTemplate: "customermates://wiki/page/{id}",
         }),
       ]),
     });
@@ -212,7 +212,7 @@ describe("Wiki MCP transport", () => {
     const pageRead = await rpc(
       handler,
       requestBody("resources/read", 3, {
-        uri: `http://localhost:4105/wiki?page=${PAGE_ID}`,
+        uri: `customermates://wiki/page/${PAGE_ID}`,
       }),
       sessionId,
     );
@@ -306,10 +306,11 @@ describe("Wiki MCP transport", () => {
   });
 
   it.each([
-    `http://other.example/wiki?page=${PAGE_ID}`,
-    `http://localhost:4105/wiki?page=${PAGE_ID}&other=true`,
-    `http://localhost:4105/wiki?page=${PAGE_ID}#fragment`,
-    "http://localhost:4105/wiki?page=invalid",
+    `http://localhost:4105/wiki?page=${PAGE_ID}`,
+    `customermates://wiki/page/${PAGE_ID}/extra`,
+    `customermates://wiki/page/${PAGE_ID}?other=true`,
+    `customermates://wiki/page/${PAGE_ID}#fragment`,
+    "customermates://wiki/page/invalid",
   ])("rejects unsafe resource URI %s without reading a page", async (uri) => {
     const { handler, sessionId } = await initializedHandler();
     calls.get.mockClear();
@@ -346,7 +347,7 @@ describe("Wiki MCP transport", () => {
     const result = await rpc(
       handler,
       requestBody("resources/read", 2, {
-        uri: `http://localhost:4105/wiki?page=${PAGE_ID}`,
+        uri: `customermates://wiki/page/${PAGE_ID}`,
       }),
       sessionId,
     );

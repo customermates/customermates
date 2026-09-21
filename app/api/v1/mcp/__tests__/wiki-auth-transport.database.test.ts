@@ -255,7 +255,7 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
           uriTemplate: "customermates://wiki/catalog{?page}",
         }),
         expect.objectContaining({
-          uriTemplate: "http://localhost:4000/wiki{?page}",
+          uriTemplate: "customermates://wiki/page/{id}",
         }),
       ]),
     );
@@ -426,11 +426,11 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
 
     const targetResource = await rpc(
       managerApiKey,
-      mcpBody("resources/read", 12, { uri: target.url }),
+      mcpBody("resources/read", 12, { uri: `customermates://wiki/page/${target.id}` }),
       initialized.sessionId,
     );
     expect(targetResource.data?.result?.contents?.[0]).toMatchObject({
-      uri: target.url,
+      uri: `customermates://wiki/page/${target.id}`,
       text: "Escalate uncertain answers to the support lead.",
     });
 
