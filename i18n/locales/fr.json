@@ -32,26 +32,26 @@
         },
         "generic": "Prêt à effectuer une modification qui nécessite votre approbation",
         "messages": {
-          "discard": "Brouillon prêt à être supprimé",
-          "draft": "Brouillon prêt à être enregistré",
-          "send": "Message réel prêt à être envoyé",
-          "triage": "État de la conversation prêt à être modifié"
+          "discard": "Prêt à supprimer le brouillon",
+          "draft": "Prêt à enregistrer un brouillon",
+          "send": "Prêt à envoyer un message réel",
+          "triage": "Prêt à modifier l’état de la conversation"
         },
         "records": {
           "delete": "{count, plural, one {Prêt à supprimer définitivement {target}} other {Prêt à supprimer définitivement {target}}}"
         },
         "routines": {
-          "configure": "Routine prête à être mise en pause ou exécutée",
-          "delete": "Routine et son historique prêts à être supprimés"
+          "configure": "Prêt à mettre la routine en pause ou à l’exécuter",
+          "delete": "Prêt à supprimer la routine et son historique"
         },
         "support": {
-          "escalate": "Prêt à envoyer votre demande par e-mail au support"
+          "escalate": "Prêt à envoyer votre demande à l’assistance par e-mail"
         },
         "team": {
-          "manage": "Accès de l’équipe prêt à être modifié"
+          "manage": "Prêt à modifier l’accès de l’équipe"
         },
         "webhooks": {
-          "manage": "Envoi des webhooks prêt à être modifié"
+          "manage": "Prêt à modifier l’envoi des webhooks"
         },
         "widgets": {
           "configure": "Prêt à modifier les widgets du tableau de bord",

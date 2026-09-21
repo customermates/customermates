@@ -27,31 +27,31 @@
     "activity": {
       "approval": {
         "customFields": {
-          "configure": "Bereit, Custom Columns zu ändern",
-          "delete": "Bereit, eine Custom Column endgültig zu löschen"
+          "configure": "Bereit, benutzerdefinierte Felder zu ändern",
+          "delete": "Bereit, ein benutzerdefiniertes Feld endgültig zu löschen"
         },
-        "generic": "Bereit für eine Änderung, die Ihre Freigabe braucht",
+        "generic": "Bereit für eine Änderung, die deine Freigabe braucht",
         "messages": {
-          "discard": "Entwurf ist zum Verwerfen bereit",
-          "draft": "Entwurf ist zum Speichern bereit",
-          "send": "Eine echte Nachricht ist zum Senden bereit",
-          "triage": "Unterhaltungsstatus ist zum Ändern bereit"
+          "discard": "Bereit, den Entwurf zu verwerfen",
+          "draft": "Bereit, einen Entwurf zu speichern",
+          "send": "Bereit, eine echte Nachricht zu senden",
+          "triage": "Bereit, den Unterhaltungsstatus zu ändern"
         },
         "records": {
           "delete": "{count, plural, one {Bereit, {target} endgültig zu löschen} other {Bereit, {target} endgültig zu löschen}}"
         },
         "routines": {
-          "configure": "Routine ist zum Pausieren oder Ausführen bereit",
-          "delete": "Routine samt Verlauf ist zum Löschen bereit"
+          "configure": "Bereit, die Routine zu pausieren oder auszuführen",
+          "delete": "Bereit, die Routine samt Verlauf zu löschen"
         },
         "support": {
-          "escalate": "Bereit, Ihre Anfrage an den Support zu senden"
+          "escalate": "Bereit, deine Anfrage an den Support zu senden"
         },
         "team": {
-          "manage": "Teamzugriff ist zum Ändern bereit"
+          "manage": "Bereit, den Teamzugriff zu ändern"
         },
         "webhooks": {
-          "manage": "Webhook-Aktion ist bereit"
+          "manage": "Bereit, die Webhook-Zustellung zu ändern"
         },
         "widgets": {
           "configure": "Bereit, Dashboard-Widgets zu ändern",

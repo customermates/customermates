@@ -32,7 +32,7 @@
         },
         "generic": "Pronto a eseguire una modifica che richiede la tua approvazione",
         "messages": {
-          "discard": "Pronto a eliminare la bozza",
+          "discard": "Pronto a scartare la bozza",
           "draft": "Pronto a salvare una bozza",
           "send": "Pronto a inviare un messaggio reale",
           "triage": "Pronto a cambiare lo stato della conversazione"
@@ -45,7 +45,7 @@
           "delete": "Pronto a eliminare la routine e la sua cronologia"
         },
         "support": {
-          "escalate": "Pronto a inviare la tua richiesta via e-mail al supporto"
+          "escalate": "Pronto a inviare la tua richiesta all’assistenza via e-mail"
         },
         "team": {
           "manage": "Pronto a modificare l’accesso del team"

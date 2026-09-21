@@ -205,8 +205,8 @@ export const searchSalesLeadsTool = {
       toonResult(
         formatDatesInResponse({
           total: data.total_count ?? data.data.length,
-          items: data.data.map(formatSalesListItem),
           next_offset: data.data.length ? (params.offset ?? 0) + data.data.length : null,
+          items: data.data.map(formatSalesListItem),
         }),
       );
 
@@ -251,8 +251,8 @@ export const searchSalesCompaniesTool = {
       toonResult(
         formatDatesInResponse({
           total: data.total_count ?? data.data.length,
-          items: data.data.map((item) => formatSalesCompany(SalesCompanySchema.parse(item))),
           next_offset: data.data.length ? (params.offset ?? 0) + data.data.length : null,
+          items: data.data.map((item) => formatSalesCompany(SalesCompanySchema.parse(item))),
         }),
       );
 
@@ -305,8 +305,8 @@ export const getSalesSearchParametersTool = {
         toonResult(
           formatDatesInResponse({
             total: data.total_count ?? data.data.length,
-            items: data.data.map((parameter) => ({ id: parameter.id, name: parameter.name })),
             next_offset: data.data.length ? (params.offset ?? 0) + data.data.length : null,
+            items: data.data.map((parameter) => ({ id: parameter.id, name: parameter.name })),
           }),
         ),
     ),
@@ -339,8 +339,8 @@ export const manageSalesListsTool = {
           toonResult(
             formatDatesInResponse({
               total: data.total_count ?? data.data.length,
-              items: data.data.map(formatSalesList),
               next_offset: data.data.length ? (params.offset ?? 0) + data.data.length : null,
+              items: data.data.map(formatSalesList),
             }),
           ),
       );
@@ -352,8 +352,8 @@ export const manageSalesListsTool = {
         toonResult(
           formatDatesInResponse({
             total: data.total_count ?? data.data.length,
-            items: data.data.map(formatSalesListItem),
             next_offset: data.data.length ? (parsed.data.offset ?? 0) + data.data.length : null,
+            items: data.data.map(formatSalesListItem),
           }),
         ),
       );

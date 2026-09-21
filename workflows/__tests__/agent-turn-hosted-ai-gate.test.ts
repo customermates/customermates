@@ -37,6 +37,7 @@ const state = vi.hoisted(() => ({
   heartbeat: vi.fn(),
   recordRound: vi.fn(),
   extendReservation: vi.fn(),
+  instructions: [] as string[],
 }));
 
 vi.mock("@ai-sdk/workflow", () => ({
@@ -52,6 +53,7 @@ vi.mock("@ai-sdk/workflow", () => ({
       },
     ) {
       state.providerOptions = options.providerOptions;
+      state.instructions.push(options.instructions);
     }
 
     async stream({ messages }: { messages: unknown[] }) {
@@ -192,7 +194,6 @@ const payload: AgentTurnWorkflowPayload = {
   userId: "user-1",
   userName: "Test User",
   locale: "en",
-  appBaseUrl: "http://localhost:4000",
   messages: [{ role: "user", text: "Hello" }],
   turnBudget: {
     modelSpec: "google/gemini-3.5-flash-lite",
@@ -232,6 +233,7 @@ beforeEach(() => {
       Promise.resolve({ disposition: "extended", reservedCredits: requiredCredits }),
     );
   state.contextFits.mockReset().mockReturnValue(true);
+  state.instructions.length = 0;
   state.reconcile.mockReset().mockResolvedValue({ reconciled: true });
   state.close.mockReset().mockResolvedValue(undefined);
   state.reportFailure.mockReset().mockResolvedValue(undefined);
@@ -536,6 +538,84 @@ describe("agent-turn credit-bounded continuation", () => {
     expect(state.providerCalls).toBe(2);
     expect(state.recordRound).toHaveBeenCalledTimes(33);
     expect(JSON.stringify(seenMessages[1]).match(/Hello/g)).toHaveLength(1);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "completed", stopReason: null }),
+    );
+  });
+
+  it("retries a resolved provider error and reports it with the provider's own message", async () => {
+    let segment = 0;
+    state.runTools = ({ messages }) => {
+      segment += 1;
+      if (segment <= 2) {
+        return Promise.resolve({
+          finishReason: "error",
+          messages,
+          steps: [streamedStep("", "error")],
+          error: new Error("Vertex said no"),
+        });
+      }
+      return Promise.resolve({ finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] });
+    };
+
+    await runAgentTurn(payload);
+
+    expect(segment).toBe(3);
+    expect(state.reportFailure).toHaveBeenCalledTimes(2);
+    expect(state.reportFailure.mock.calls[0][1].message).toContain('finishReason "error"');
+    expect(state.reportFailure.mock.calls[0][1].message).toContain("Vertex said no");
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "completed", stopReason: null }),
+    );
+  });
+
+  it("stops with provider_error once the resolved-error retries are spent", async () => {
+    state.runTools = ({ messages }) =>
+      Promise.resolve({
+        finishReason: "error",
+        messages,
+        steps: [streamedStep("", "error")],
+        error: new Error("Vertex said no again"),
+      });
+
+    await runAgentTurn(payload);
+
+    expect(state.reportFailure).toHaveBeenCalledTimes(3);
+    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ stopReason: "provider_error" }));
+  });
+
+  it("carries a digest of earlier tool results into the compacted segment", async () => {
+    state.contextFits.mockReturnValueOnce(false).mockReturnValue(true);
+    state.definitions.push({ name: "list_records", description: "list_records", inputSchema: { type: "object" } });
+    state.normalize.mockResolvedValue({ ok: true, input: { entity: "deal" } });
+    state.execute.mockResolvedValue({
+      ok: true,
+      result: ["total: 42", "items[1]{id,name}:", "  11111111-2222-3333-4444-555555555555,Nova Expansion"].join("\n"),
+    });
+    let segment = 0;
+    state.runTools = async ({ messages, executeAndCompleteTool }) => {
+      segment += 1;
+      if (segment === 1) {
+        await executeAndCompleteTool("list_records", { entity: "deal" }, "call-digest");
+        return {
+          finishReason: "tool-calls",
+          messages,
+          steps: [
+            streamedToolCallStep("list_records", "call-digest", { entity: "deal" }),
+            ...Array.from({ length: 31 }, () => streamedStep("", "tool-calls")),
+          ],
+        };
+      }
+      return { finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] };
+    };
+
+    await runAgentTurn(payload);
+
+    const compacted = state.instructions.at(-1) ?? "";
+    expect(compacted).toContain("<agent_continuation_checkpoint>");
+    expect(compacted).toContain("total=42");
+    expect(compacted).not.toContain("Nova Expansion");
+    expect(compacted).not.toContain("11111111-2222-3333-4444-555555555555");
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({ terminalCode: "completed", stopReason: null }),
     );

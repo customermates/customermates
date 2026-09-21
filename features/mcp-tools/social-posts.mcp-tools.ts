@@ -303,8 +303,8 @@ export const getSocialPostsTool = {
       toonResult(
         formatDatesInResponse({
           total: data.total_count ?? data.data.length,
-          items: data.data.map(formatPost),
           next_cursor: data.next_cursor ?? null,
+          items: data.data.map(formatPost),
         }),
       ),
     );
@@ -337,8 +337,8 @@ export const getSocialPostEngagementTool = {
           toonResult(
             formatDatesInResponse({
               total: data.total_count ?? data.data.length,
-              items: data.data.map(formatReaction),
               next_cursor: data.next_cursor ?? null,
+              items: data.data.map(formatReaction),
             }),
           ),
       );
@@ -356,8 +356,8 @@ export const getSocialPostEngagementTool = {
           toonResult(
             formatDatesInResponse({
               total: data.total_count ?? data.data.length,
-              items: data.data.map(formatReaction),
               next_cursor: data.next_cursor ?? null,
+              items: data.data.map(formatReaction),
             }),
           ),
       );
@@ -375,6 +375,7 @@ export const getSocialPostEngagementTool = {
         toonResult(
           formatDatesInResponse({
             total: data.total_count ?? data.data.length,
+            next_cursor: data.next_cursor ?? null,
             items: data.data.map((comment) => ({
               id: comment.id,
               created_at: comment.created_at,
@@ -393,7 +394,6 @@ export const getSocialPostEngagementTool = {
                   }
                 : null,
             })),
-            next_cursor: data.next_cursor ?? null,
           }),
         ),
     );
@@ -444,8 +444,8 @@ export const manageSocialRelationsTool = {
           toonResult(
             formatDatesInResponse({
               total: data.total_count ?? data.data.length,
-              items: data.data.map(formatRelationRequest),
               next_cursor: data.next_cursor ?? null,
+              items: data.data.map(formatRelationRequest),
             }),
           ),
       );

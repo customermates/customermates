@@ -91,7 +91,6 @@ export type AgentTurnWorkflowPayload = {
   userId: string;
   userName: string;
   locale: string;
-  appBaseUrl: string;
   messages: ReplayMessage[];
   turnBudget: AgentTurnBudget;
   schemaDigest?: string | null;
@@ -502,6 +501,36 @@ async function readCancellation(payload: AgentTurnWorkflowPayload): Promise<bool
   );
 }
 
+export const AGENT_RESOLVED_PROVIDER_ERROR_RETRIES = 2;
+
+async function reportResolvedProviderError(
+  payload: AgentTurnWorkflowPayload,
+  finishReason: string,
+  error: unknown,
+  attempt: number,
+): Promise<void> {
+  await reportFailure(
+    WORKFLOW_NAME,
+    toWorkflowFailure(
+      new Error(
+        `The provider resolved a round with finishReason "${finishReason}" (attempt ${attempt} of ${AGENT_RESOLVED_PROVIDER_ERROR_RETRIES + 1}): ${safeProviderErrorText(error)}`,
+      ),
+    ),
+    { companyId: payload.companyId, userId: payload.userId },
+  );
+}
+
+function safeProviderErrorText(error: unknown): string {
+  if (error === undefined || error === null) return "the provider reported no error object";
+  if (error instanceof Error) return `${error.name}: ${error.message}`;
+  if (typeof error === "string") return error;
+  try {
+    return JSON.stringify(error).slice(0, 500);
+  } catch {
+    return "an error object that could not be serialized";
+  }
+}
+
 async function publishUiCommands(
   commands: {
     toolCallId: string;
@@ -784,6 +813,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       outcomes: AgentToolOutcome[];
     } | null = null;
     let providerStop: Extract<AgentTurnStopReason, "provider_error" | "content_filter"> | null = null;
+    let resolvedProviderErrorRetries = 0;
     let providerFailure: WorkflowFailure | null = null;
     let budgetStop = false;
     let hostedAiStop = false;
@@ -1107,7 +1137,18 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       for (const step of (result.steps as unknown as AgentRoundResult[]).slice(appliedThisCall)) await applyRound(step);
 
       if (finishReason === "content-filter") providerStop = "content_filter";
-      else if (!["stop", "length", "tool-calls"].includes(finishReason)) providerStop = "provider_error";
+      else if (!["stop", "length", "tool-calls"].includes(finishReason)) {
+        const resolvedError = (result as { error?: unknown }).error;
+        if (resolvedProviderErrorRetries < AGENT_RESOLVED_PROVIDER_ERROR_RETRIES) {
+          resolvedProviderErrorRetries += 1;
+          await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries);
+          providerStop = null;
+          messages = result.messages;
+          continue;
+        }
+        await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries);
+        providerStop = "provider_error";
+      }
 
       for (const message of result.messages) {
         if (message.role !== "tool" || typeof message.content === "string") continue;

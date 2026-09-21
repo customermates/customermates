@@ -7,7 +7,6 @@ import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { type Validated } from "@/core/validation/validation.utils";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { env } from "@/env";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { resolveUserLocale } from "@/i18n/user-locale";
@@ -38,7 +37,7 @@ import type { GetCustomColumnsRepo } from "@/features/custom-column/get-custom-c
 import { fail, failConflict, failNotFound, failRateLimit } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-type AdmittedAgentRun = { disposition: "run"; externalRunId: string } & Omit<AgentRunContext, "appBaseUrl">;
+type AdmittedAgentRun = { disposition: "run"; externalRunId: string } & AgentRunContext;
 type AgentInvocationMode = "interactive" | "routine";
 
 export type SendAgentMessageResult =
@@ -387,7 +386,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         userId: user.id,
         userName,
         locale,
-        appBaseUrl: env.BASE_URL,
         messages,
         turnBudget: reservation.budget,
         tenant: { userId: user.id, companyId: user.companyId },

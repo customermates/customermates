@@ -38,14 +38,14 @@
           "triage": "Listo para cambiar el estado de la conversación"
         },
         "records": {
-          "delete": "{count, plural, one {Listo para eliminar {target} de forma permanente} other {Listo para eliminar {target} de forma permanente}}"
+          "delete": "{count, plural, one {Listo para eliminar de forma permanente {target}} other {Listo para eliminar de forma permanente {target}}}"
         },
         "routines": {
           "configure": "Listo para pausar o ejecutar la rutina",
           "delete": "Listo para eliminar la rutina y su historial"
         },
         "support": {
-          "escalate": "Listo para enviar tu solicitud por correo al soporte"
+          "escalate": "Listo para enviar tu solicitud al soporte por correo"
         },
         "team": {
           "manage": "Listo para cambiar el acceso del equipo"
