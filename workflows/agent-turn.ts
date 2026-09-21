@@ -950,6 +950,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           initialMessages: providerContext.messages,
           steps: continuationSteps,
           retainedResponseSteps,
+          resultDigest: true,
         });
         const candidateMessages = continueOutput
           ? [...compacted.messages, { role: "user" as const, content: AGENT_OUTPUT_CONTINUATION_PROMPT }]
