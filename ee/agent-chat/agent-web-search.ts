@@ -3,9 +3,7 @@ import { gateway } from "ai";
 export const AGENT_WEB_SEARCH_TOOL_NAME = "web_search";
 export const AGENT_WEB_SEARCH_RELEASED = false;
 export const AGENT_WEB_SEARCH_DEFAULT_RESULTS = 3;
-export const AGENT_WEB_SEARCH_DEFAULT_TOKENS = 1_024;
-export const AGENT_WEB_SEARCH_DEFAULT_TOKENS_PER_PAGE = 512;
-export const AGENT_WEB_SEARCH_USD_PER_REQUEST = 0.005;
+export const AGENT_WEB_SEARCH_DEFAULT_CONTENT_CHARS = 1_000;
 const AGENT_WEB_SOURCE_LIMIT = 8;
 export const AGENT_WEB_SOURCE_MAX_LENGTH = 1_000;
 
@@ -13,12 +11,74 @@ export type AgentWebSearchOptions = {
   allowedDomains?: readonly string[];
 };
 
+export function resolveAgentWebSearchEnabled(
+  options: {
+    nodeEnv?: string;
+    localE2eOptIn?: string;
+    agentEvalOptIn?: string;
+    databaseTestsOptIn?: string;
+    databaseUrl?: string;
+    directUrl?: string;
+    ci?: string;
+    deploymentConfigured?: boolean;
+    libpqRoutingConfigured?: boolean;
+  } = {},
+) {
+  if (AGENT_WEB_SEARCH_RELEASED) return true;
+  const nodeEnv = options.nodeEnv ?? process.env.NODE_ENV;
+  const localE2eOptIn = options.localE2eOptIn ?? process.env.RUN_AGENT_WEB_SEARCH_E2E;
+  const agentEvalOptIn = options.agentEvalOptIn ?? process.env.RUN_AGENT_EVAL;
+  const databaseTestsOptIn = options.databaseTestsOptIn ?? process.env.RUN_DATABASE_TESTS;
+  const databaseUrl = options.databaseUrl ?? process.env.DATABASE_URL;
+  const directUrl = options.directUrl ?? process.env.DIRECT_URL;
+  const ci = options.ci ?? process.env.CI;
+  const deploymentConfigured = options.deploymentConfigured ?? Boolean(process.env.VERCEL || process.env.VERCEL_ENV);
+  const libpqRoutingConfigured =
+    options.libpqRoutingConfigured ??
+    ["PGHOST", "PGHOSTADDR", "PGPORT", "PGDATABASE", "PGSERVICE", "PGSERVICEFILE"].some((name) =>
+      Boolean(process.env[name]),
+    );
+  if (
+    nodeEnv !== "development" ||
+    localE2eOptIn !== "true" ||
+    agentEvalOptIn !== "true" ||
+    databaseTestsOptIn !== "true" ||
+    Boolean(ci) ||
+    deploymentConfigured ||
+    libpqRoutingConfigured ||
+    !databaseUrl
+  )
+    return false;
+
+  const isExactLoopbackPostgres = (value: string) => {
+    if (value.includes("?") || value.includes("#")) return false;
+    try {
+      const url = new URL(value);
+      return (
+        ["postgres:", "postgresql:"].includes(url.protocol) &&
+        ["127.0.0.1", "localhost", "[::1]", "::1"].includes(url.hostname)
+      );
+    } catch {
+      return false;
+    }
+  };
+
+  return isExactLoopbackPostgres(databaseUrl) && (!directUrl || isExactLoopbackPostgres(directUrl));
+}
+
+export const AGENT_WEB_SEARCH_ENABLED = resolveAgentWebSearchEnabled();
+
 export function getAgentWebSearchTool(options: AgentWebSearchOptions = {}) {
-  return gateway.tools.perplexitySearch({
-    maxResults: AGENT_WEB_SEARCH_DEFAULT_RESULTS,
-    maxTokens: AGENT_WEB_SEARCH_DEFAULT_TOKENS,
-    maxTokensPerPage: AGENT_WEB_SEARCH_DEFAULT_TOKENS_PER_PAGE,
-    ...(options.allowedDomains?.length ? { searchDomainFilter: [...options.allowedDomains] } : {}),
+  return gateway.tools.exaSearch({
+    type: "auto",
+    numResults: AGENT_WEB_SEARCH_DEFAULT_RESULTS,
+    ...(options.allowedDomains?.length ? { includeDomains: [...options.allowedDomains] } : {}),
+    contents: {
+      text: {
+        maxCharacters: AGENT_WEB_SEARCH_DEFAULT_CONTENT_CHARS,
+        verbosity: "compact",
+      },
+    },
   });
 }
 

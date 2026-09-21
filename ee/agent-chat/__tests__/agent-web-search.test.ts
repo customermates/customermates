@@ -5,27 +5,107 @@ import {
   agentWebSourcesFooter,
   collectAgentWebSources,
   getAgentWebSearchTool,
+  resolveAgentWebSearchEnabled,
 } from "../agent-web-search";
 
 describe("native Agent web search", () => {
+  it("allows an explicit local-development E2E without opening a production release path", () => {
+    expect(
+      resolveAgentWebSearchEnabled({
+        nodeEnv: "development",
+        localE2eOptIn: "true",
+        agentEvalOptIn: "true",
+        databaseTestsOptIn: "true",
+        databaseUrl: "postgresql://postgres:postgres@127.0.0.1:5432/customermates",
+        directUrl: "",
+        ci: "",
+        deploymentConfigured: false,
+        libpqRoutingConfigured: false,
+      }),
+    ).toBe(true);
+    for (const options of [
+      { nodeEnv: "production" },
+      { localE2eOptIn: "false" },
+      { agentEvalOptIn: "false" },
+      { databaseTestsOptIn: "false" },
+      { databaseUrl: "postgresql://database.example.com/db" },
+      { databaseUrl: "not-a-url" },
+      { databaseUrl: "postgresql://localhost/db?host=database.example.com" },
+      { directUrl: "postgresql://database.example.com/db" },
+      { directUrl: "postgresql://localhost/db?host=database.example.com" },
+      { ci: "true" },
+      { ci: "false" },
+      { deploymentConfigured: true },
+      { libpqRoutingConfigured: true },
+    ]) {
+      expect(
+        resolveAgentWebSearchEnabled({
+          nodeEnv: "development",
+          localE2eOptIn: "true",
+          agentEvalOptIn: "true",
+          databaseTestsOptIn: "true",
+          databaseUrl: "postgresql://localhost/db",
+          ci: "",
+          deploymentConfigured: false,
+          libpqRoutingConfigured: false,
+          ...options,
+        }),
+      ).toBe(false);
+    }
+  });
+
   it("preserves the provider-native tool and restricts optional setup turns by domain", () => {
     expect(getAgentWebSearchTool()).toMatchObject({
       type: "provider",
       isProviderExecuted: true,
-      id: "gateway.perplexity_search",
-      args: { maxResults: 3, maxTokens: 1024, maxTokensPerPage: 512 },
+      id: "gateway.exa_search",
+      args: {
+        type: "auto",
+        numResults: 3,
+        contents: {
+          text: { maxCharacters: 1000, verbosity: "compact" },
+        },
+      },
     });
     expect(getAgentWebSearchTool({ allowedDomains: ["example.com"] })).toMatchObject({
       type: "provider",
       isProviderExecuted: true,
-      id: "gateway.perplexity_search",
+      id: "gateway.exa_search",
       args: {
-        maxResults: 3,
-        maxTokens: 1024,
-        maxTokensPerPage: 512,
-        searchDomainFilter: ["example.com"],
+        type: "auto",
+        numResults: 3,
+        includeDomains: ["example.com"],
+        contents: {
+          text: { maxCharacters: 1000, verbosity: "compact" },
+        },
       },
     });
+  });
+
+  it("collects canonical Exa result URLs", () => {
+    expect(
+      collectAgentWebSources([
+        {
+          content: [
+            {
+              type: "tool-result",
+              toolName: AGENT_WEB_SEARCH_TOOL_NAME,
+              output: {
+                requestId: "request-1",
+                results: [
+                  {
+                    id: "one",
+                    title: "One",
+                    url: "https://example.com/one#fragment",
+                  },
+                  { id: "two", title: "Two", url: "https://example.com/two" },
+                ],
+              },
+            },
+          ],
+        },
+      ]),
+    ).toEqual(["https://example.com/one", "https://example.com/two"]);
   });
 
   it("collects URL citations and web-search result sources from provider messages", () => {
@@ -48,7 +128,11 @@ describe("native Agent web search", () => {
             },
           },
           { type: "source", sourceType: "url", url: "https://example.com/a" },
-          { type: "source", sourceType: "url", url: "https://example.com/c?ref=answer#citation" },
+          {
+            type: "source",
+            sourceType: "url",
+            url: "https://example.com/c?ref=answer#citation",
+          },
         ],
       },
     ];
@@ -67,17 +151,43 @@ describe("native Agent web search", () => {
           {
             type: "tool-result",
             toolName: "different_tool",
-            output: { type: "json", value: { sources: [{ type: "url", url: "https://example.com/unrelated" }] } },
+            output: {
+              type: "json",
+              value: {
+                sources: [{ type: "url", url: "https://example.com/unrelated" }],
+              },
+            },
           },
           {
             type: "tool-result",
             toolName: AGENT_WEB_SEARCH_TOOL_NAME,
-            output: { type: "error-json", value: { sources: [{ type: "url", url: "https://example.com/error" }] } },
+            output: {
+              type: "error-json",
+              value: {
+                sources: [{ type: "url", url: "https://example.com/error" }],
+              },
+            },
           },
-          { type: "source", sourceType: "url", url: "http://example.com/plaintext" },
-          { type: "source", sourceType: "url", url: "https://user:secret@example.com/private" },
-          { type: "source", sourceType: "url", url: `https://example.com/${"x".repeat(1_001)}` },
-          { type: "source", sourceType: "document", url: "https://example.com/document" },
+          {
+            type: "source",
+            sourceType: "url",
+            url: "http://example.com/plaintext",
+          },
+          {
+            type: "source",
+            sourceType: "url",
+            url: "https://user:secret@example.com/private",
+          },
+          {
+            type: "source",
+            sourceType: "url",
+            url: `https://example.com/${"x".repeat(1_001)}`,
+          },
+          {
+            type: "source",
+            sourceType: "document",
+            url: "https://example.com/document",
+          },
         ],
       },
     ];

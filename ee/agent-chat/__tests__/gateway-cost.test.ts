@@ -90,12 +90,12 @@ const VERTEX_NATIVE_SEARCH = {
         },
       ],
     },
-    cost: "0.00570279",
+    cost: "0.00770279",
     inferenceCost: "0.00070279",
     surchargeCost: "0.0001",
-    gatewayCost: "0.00580279",
+    gatewayCost: "0.00780279",
     enabledZDR: true,
-    gatewayToolCalls: { perplexity_search: 1 },
+    gatewayToolCalls: { exa_search: 1 },
     generationId: "gen_synthetic_native_search",
   },
 };
@@ -180,7 +180,7 @@ describe("gateway provider charge", () => {
     expect(readAgentProviderCharge(VERTEX_NATIVE_SEARCH, "vertex")).toEqual({
       outcome: "measured",
       charge: {
-        costMicrocents: 580_279,
+        costMicrocents: 780_279,
         finalProvider: "vertex",
         generationId: "gen_synthetic_native_search",
       },
@@ -191,14 +191,14 @@ describe("gateway provider charge", () => {
     const metadata = {
       gateway: {
         ...VERTEX_NATIVE_SEARCH.gateway,
-        cost: "0.01070279",
-        gatewayCost: "0.01080279",
-        gatewayToolCalls: { perplexity_search: 2 },
+        cost: "0.01470279",
+        gatewayCost: "0.01480279",
+        gatewayToolCalls: { exa_search: 2 },
       },
     };
     expect(readAgentProviderCharge(metadata, "vertex")).toMatchObject({
       outcome: "measured",
-      charge: { costMicrocents: 1_080_279 },
+      charge: { costMicrocents: 1_480_279 },
     });
   });
 

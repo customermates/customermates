@@ -46,8 +46,12 @@ async function runWebSearchResponse(streamParts: MockStreamPart[], withLocalTool
     tools: {
       web_search: tool({
         type: "provider",
-        id: "gateway.perplexity_search",
-        args: { maxResults: 3, maxTokens: 1024, maxTokensPerPage: 512 },
+        id: "gateway.exa_search",
+        args: {
+          type: "auto",
+          numResults: 3,
+          contents: { text: { maxCharacters: 1000 } },
+        },
         isProviderExecuted: true,
         inputSchema: jsonSchema({
           type: "object",
@@ -91,8 +95,15 @@ describe("WorkflowAgent native web search contract", () => {
       title: "Current source",
     };
     const webSearchOutput = {
-      action: { type: "search", queries: ["current answer"] },
-      sources: [{ type: "url", url: source.url }],
+      requestId: "request-1",
+      results: [
+        {
+          id: "result-1",
+          title: source.title,
+          url: source.url,
+          text: "Evidence",
+        },
+      ],
     };
     const streamParts: MockStreamPart[] = [
       { type: "stream-start", warnings: [] },
@@ -133,9 +144,13 @@ describe("WorkflowAgent native web search contract", () => {
       tools: [
         {
           type: "provider",
-          id: "gateway.perplexity_search",
+          id: "gateway.exa_search",
           name: "web_search",
-          args: { maxResults: 3, maxTokens: 1024, maxTokensPerPage: 512 },
+          args: {
+            type: "auto",
+            numResults: 3,
+            contents: { text: { maxCharacters: 1000 } },
+          },
         },
       ],
       providerOptions: {
@@ -306,18 +321,20 @@ describe("WorkflowAgent terminal native search receipts", () => {
       const output = isError
         ? { error: "timeout", message: "Search timed out" }
         : {
+            requestId: "request-1",
             results: [
               {
+                id: "result-1",
                 url: "https://example.com/current",
                 title: "Current source",
-                snippet: "Evidence",
+                text: "Evidence",
               },
             ],
           };
       const providerMetadata = {
         gateway: {
-          gatewayCost: "0.00580279",
-          gatewayToolCalls: { perplexity_search: 1 },
+          gatewayCost: "0.00780279",
+          gatewayToolCalls: { exa_search: 1 },
         },
       };
       const { model, result, executeLocal, onStepEnd, endedContents } = await runWebSearchResponse(
@@ -461,7 +478,7 @@ describe("WorkflowAgent complete native tool batch", () => {
         tools: {
           web_search: tool({
             type: "provider",
-            id: "gateway.perplexity_search",
+            id: "gateway.exa_search",
             args: {},
             isProviderExecuted: true,
             inputSchema: jsonSchema({ type: "object" }),

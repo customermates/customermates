@@ -183,6 +183,7 @@
   },
   "scripts": {
     "agent:eval": "RUN_AGENT_EVAL=true RUN_DATABASE_TESTS=true vitest run --config scripts/agent-eval.config.ts",
+    "agent:web-search-e2e": "AGENT_EVAL_BASE_URL=http://localhost:4105 RUN_AGENT_EVAL=true RUN_AGENT_WEB_SEARCH_E2E=true RUN_DATABASE_TESTS=true vitest run --config scripts/agent-eval.config.ts -t \"grounds a persisted chat turn with native search\"",
     "agent:web-search-smoke": "tsx scripts/smoke-agent-web-search-provider.ts",
     "billing:verify-catalog": "tsx scripts/verify-billing-catalog.ts",
     "build": "prisma generate && yarn openapi:generate && yarn raw-docs:generate && next build",

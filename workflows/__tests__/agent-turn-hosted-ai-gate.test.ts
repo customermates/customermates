@@ -1418,7 +1418,15 @@ describe("routine browse-or-mutate batch safety", () => {
         output: failed
           ? { error: "timeout", message: "Search timed out" }
           : {
-              results: [{ url: "https://example.com/current", snippet: "Evidence" }],
+              requestId: "request-1",
+              results: [
+                {
+                  id: "result-1",
+                  title: "Current source",
+                  url: "https://example.com/current",
+                  text: "Evidence",
+                },
+              ],
             },
       },
       { type: "text", text: "Homepage evidence." },
@@ -1433,11 +1441,11 @@ describe("routine browse-or-mutate batch safety", () => {
             },
           ],
         },
-        gatewayCost: "0.00580279",
-        cost: "0.00570279",
+        gatewayCost: "0.00780279",
+        cost: "0.00770279",
         inferenceCost: "0.00070279",
         surchargeCost: "0.0001",
-        gatewayToolCalls: { perplexity_search: 1 },
+        gatewayToolCalls: { exa_search: 1 },
       },
     },
   });
@@ -1464,11 +1472,11 @@ describe("routine browse-or-mutate batch safety", () => {
       });
       expect(state.providerCalls).toBe(2);
       expect(state.execute).toHaveBeenCalledTimes(failed ? 1 : 0);
-      expect(state.recordRound).toHaveBeenCalledWith(expect.objectContaining({ costMicrocents: 580_279 }));
+      expect(state.recordRound).toHaveBeenCalledWith(expect.objectContaining({ costMicrocents: 780_279 }));
       expect(state.finalize).toHaveBeenCalledWith(
         expect.objectContaining({
           usageSettlement: expect.objectContaining({
-            costMicrocents: 580_279,
+            costMicrocents: 780_279,
             costSource: "measured",
           }),
         }),
@@ -1498,7 +1506,7 @@ describe("routine browse-or-mutate batch safety", () => {
         terminalCode: "cancelled",
         stopReason: "cancelled",
         usageSettlement: expect.objectContaining({
-          costMicrocents: 580_279,
+          costMicrocents: 780_279,
           costSource: "measured",
         }),
       }),
@@ -1512,9 +1520,9 @@ describe("routine browse-or-mutate batch safety", () => {
     "keeps measured Search charges when a later %s round lacks cost metadata",
     async (surface) => {
       const search = nativeSearchStep();
-      search.providerMetadata.gateway.gatewayCost = "0.01080279";
-      search.providerMetadata.gateway.cost = "0.01070279";
-      search.providerMetadata.gateway.gatewayToolCalls.perplexity_search = 2;
+      search.providerMetadata.gateway.gatewayCost = "0.01480279";
+      search.providerMetadata.gateway.cost = "0.01470279";
+      search.providerMetadata.gateway.gatewayToolCalls.exa_search = 2;
       let segment = 0;
       state.runTools = ({ messages }) =>
         Promise.resolve({
@@ -1527,7 +1535,7 @@ describe("routine browse-or-mutate batch safety", () => {
 
       expect(state.providerCalls).toBe(2);
       const persistedCost = state.recordRound.mock.calls.reduce((total, [round]) => total + round.costMicrocents, 0);
-      expect(persistedCost).toBeGreaterThan(1_080_279);
+      expect(persistedCost).toBeGreaterThan(1_480_279);
       expect(state.finalize).toHaveBeenCalledWith(
         expect.objectContaining({
           usageSettlement: expect.objectContaining({

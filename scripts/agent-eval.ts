@@ -22,13 +22,16 @@ const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tena
 const { AGENT_UI_TARGET_IDS } = await import("@/ee/agent-chat/ui-targets");
 const { getCancelAgentTurnInteractor, getRespondToUiCommandInteractor } = await import("@/core/di");
 const { MODEL_CATALOG } = await import("@/ee/agent-chat/model-catalog");
+const { AGENT_WEB_SEARCH_DEFAULT_CONTENT_CHARS, AGENT_WEB_SEARCH_DEFAULT_RESULTS } = await import(
+  "@/ee/agent-chat/agent-web-search"
+);
 const { AGENT_RUN_LEASE_MS } = await import("@/ee/agent-chat/agent-turn-request");
 
 const companyId = randomUUID();
 const sentinelCompanyId = randomUUID();
 const userId = randomUUID();
 const evalUser = createMockUser({ companyId, id: userId });
-const APP_URL = process.env.BASE_URL ?? "http://localhost:4105";
+const APP_URL = process.env.AGENT_EVAL_BASE_URL ?? process.env.BASE_URL ?? "http://localhost:4105";
 
 let sessionCookie = "";
 
@@ -216,6 +219,7 @@ async function expectAccountingToBalance(conversationId: string, frames: Frame[]
 
 const enabled = process.env.RUN_AGENT_EVAL === "true" && Boolean(getLocalDatabaseTestUrl());
 const describeEval = enabled ? describe : describe.skip;
+const itWebSearchE2e = process.env.RUN_AGENT_WEB_SEARCH_E2E === "true" ? it : it.skip;
 
 if (process.env.RUN_AGENT_EVAL === "true" && !process.env.AI_GATEWAY_API_KEY)
   throw new Error("AI_GATEWAY_API_KEY must be set for the agent eval.");
@@ -289,6 +293,7 @@ describeEval("agent live eval", () => {
   afterAll(async () => {
     await runWithoutTenant(async () => {
       await prisma.auditLog.deleteMany({ where: { companyId: { in: [companyId, sentinelCompanyId] } } });
+      await prisma.authUser.deleteMany({ where: { id: userId } });
       await prisma.company.deleteMany({ where: { id: { in: [companyId, sentinelCompanyId] } } });
     });
     await prisma.$disconnect();
@@ -516,6 +521,101 @@ describeEval("agent live eval", () => {
     expect(rounds.length).toBeGreaterThan(0);
   });
 
+  itWebSearchE2e("grounds a persisted chat turn with native search and settles its all-in Gateway cost", async () => {
+    const { frames, conversationId } = await runTurn({
+      text: "Search the public web exactly once for the current Customermates homepage. State its exact primary heading and explain what the product does, using the sources you found.",
+    });
 
+    expect(frames.at(-1), JSON.stringify(frames.map((frame) => frame.type))).toMatchObject({
+      type: "turn_done",
+      terminalCode: "completed",
+      isError: false,
+    });
+    expect(
+      frames.some(
+        (frame) =>
+          frame.type === "activity" && (frame.activity as { kind?: string } | undefined)?.kind === "web.search",
+      ),
+      JSON.stringify(frames),
+    ).toBe(true);
 
+    const reply = frames
+      .filter((frame) => frame.type === "delta")
+      .map((frame) => String(frame.text ?? ""))
+      .join("");
+    expect(reply).toMatch(/open.source CRM built for AI agents/i);
+    expect(reply).toMatch(/### Sources/);
+    expect(reply).toMatch(/https:\/\/(?:www\.)?customermates\.com\//i);
+
+    const { turn, rounds, usage } = await expectAccountingToBalance(conversationId, frames);
+    expect(turn.status).toBe("completed");
+    expect(turn.terminalCode).toBe("completed");
+    expect(turn.externalRunId).toEqual(expect.any(String));
+    expect(turn.modelSpec).toBe(MODEL_CATALOG.balanced.modelId);
+    expect(turn.servingProvider).toBe(MODEL_CATALOG.balanced.servingProvider);
+    expect(usage).toMatchObject({ state: "settled", costSource: "measured", policyBreach: false });
+    expect(usage?.settledAt).toBeInstanceOf(Date);
+    expect(usage?.chargedCredits).toBeGreaterThanOrEqual(1);
+    expect(usage?.costMicrocents ?? 0n).toBeGreaterThan(0n);
+    expect(frames.at(-1)?.creditsUsed).toBe(usage?.chargedCredits);
+    for (const round of rounds) {
+      expect(round.modelSpec).toBe(MODEL_CATALOG.balanced.modelId);
+      expect(round.servingProvider).toBe(MODEL_CATALOG.balanced.servingProvider);
+    }
+
+    const persistedParts = rounds.flatMap((round) => (Array.isArray(round.parts) ? round.parts : [])) as {
+      type?: string;
+      toolName?: string;
+      providerExecuted?: boolean;
+      output?: unknown;
+    }[];
+    const searchCalls = persistedParts.filter((part) => part.type === "tool-call" && part.toolName === "web_search");
+    const searchResults = persistedParts.filter(
+      (part) => part.type === "tool-result" && part.toolName === "web_search",
+    );
+    expect(searchCalls).toHaveLength(1);
+    expect(searchResults).toHaveLength(1);
+    expect(searchCalls[0].providerExecuted).toBe(true);
+    expect(searchResults[0].providerExecuted).toBe(true);
+
+    const rawOutput = searchResults[0].output as { type?: string; value?: unknown } | undefined;
+    const output = (rawOutput?.type === "json" ? rawOutput.value : rawOutput) as
+      | { results?: { title?: string; text?: string; url?: string }[]; costDollars?: { total?: number } }
+      | undefined;
+    const results = output?.results ?? [];
+    expect(results.length).toBeGreaterThan(0);
+    expect(results.length).toBeLessThanOrEqual(AGENT_WEB_SEARCH_DEFAULT_RESULTS);
+    for (const result of results) {
+      if (typeof result.text === "string")
+        expect(result.text.length).toBeLessThanOrEqual(AGENT_WEB_SEARCH_DEFAULT_CONTENT_CHARS);
+    }
+    expect(results.map((result) => `${result.title ?? ""}\n${result.text ?? ""}`).join("\n")).toMatch(
+      /open.source CRM built for AI agents/i,
+    );
+    const resultUrls = results.flatMap((result) => (typeof result.url === "string" ? [result.url] : []));
+    expect(resultUrls.length).toBeGreaterThan(0);
+    const httpsResultUrls = resultUrls.filter((value) => new URL(value).protocol === "https:");
+    expect(httpsResultUrls.length).toBeGreaterThan(0);
+    expect(
+      httpsResultUrls.some((value) => {
+        const { hostname } = new URL(value);
+        return hostname === "customermates.com" || hostname.endsWith(".customermates.com");
+      }),
+    ).toBe(true);
+    expect(output?.costDollars?.total).toEqual(expect.any(Number));
+    expect(Number.isFinite(output?.costDollars?.total) && (output?.costDollars?.total ?? 0) > 0).toBe(true);
+    expect(usage?.costMicrocents ?? 0n).toBeGreaterThanOrEqual(
+      BigInt(Math.round((output?.costDollars?.total ?? 0) * 100_000_000)),
+    );
+
+    const assistant = await runWithoutTenant(() =>
+      prisma.agentMessage.findFirstOrThrow({
+        where: { conversationId, turnRequestId: turn.id, role: "assistant" },
+        select: { parts: true },
+      }),
+    );
+    expect(JSON.stringify(assistant.parts)).toContain("### Sources");
+    expect(await runWithoutTenant(() => prisma.agentMessage.count({ where: { conversationId } }))).toBe(2);
+    expect(await runWithoutTenant(() => prisma.agentRunLease.findFirst({ where: { conversationId } }))).toBeNull();
+  });
 });

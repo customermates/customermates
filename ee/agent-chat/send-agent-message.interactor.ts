@@ -36,7 +36,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { GetWikiCatalogInteractor } from "@/features/wiki/get-wiki-catalog.interactor";
 import { parsePublicWikiHomepage, type PublicWikiHomepage } from "@/features/wiki/wiki-homepage";
 import { AppErrorCode, appErrorDetails } from "@/core/errors/app-errors";
-import { AGENT_WEB_SEARCH_RELEASED } from "./agent-web-search";
+import { AGENT_WEB_SEARCH_ENABLED } from "./agent-web-search";
 import { agentWikiReplayBudget, serializeAgentWikiCatalog } from "./agent-wiki-context";
 
 type AdmittedAgentRun = { disposition: "run"; externalRunId: string } & Omit<AgentRunContext, "appBaseUrl">;
@@ -218,7 +218,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     const toolOptions = {
       surface,
       wikiHomepageSetup: Boolean(wikiHomepageSetup),
-      webSearchEnabled: AGENT_WEB_SEARCH_RELEASED,
+      webSearchEnabled: AGENT_WEB_SEARCH_ENABLED,
     };
     let wikiCatalog: string | null = null;
     if (!wikiHomepageSetup) {
@@ -240,7 +240,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         locale,
         surface,
         wikiHomepageSetup: Boolean(wikiHomepageSetup),
-        webSearchEnabled: AGENT_WEB_SEARCH_RELEASED,
+        webSearchEnabled: AGENT_WEB_SEARCH_ENABLED,
       }),
       currentText: data.text,
       pageRoute,
@@ -395,7 +395,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         surface,
         wikiHomepageSetup,
         wikiCatalog,
-        webSearchEnabled: AGENT_WEB_SEARCH_RELEASED,
+        webSearchEnabled: AGENT_WEB_SEARCH_ENABLED,
       });
       await this.repo.recordAgentTurnExternalRun(turnRequestId, runId, externalRunId);
 
