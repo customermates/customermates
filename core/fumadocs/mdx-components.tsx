@@ -2,7 +2,6 @@ import type { MDXComponents } from "mdx/types";
 
 import defaultMdxComponents from "fumadocs-ui/mdx";
 
-import { ComparisonTable } from "./comparison-table";
 import {
   AcquisitionCallout,
   ArticleSummary,
@@ -12,13 +11,10 @@ import {
 } from "@/components/marketing/article-blocks";
 import { Faq, FaqItem } from "@/components/marketing/faq";
 import { ProductDemo } from "@/components/marketing/product-demo";
-import { RelatedPage, RelatedPages } from "@/components/marketing/related-pages";
 import { Step, Steps } from "@/components/marketing/process-steps";
 import { markdownBaseComponents } from "./markdown-base-components";
 import { McpInstallSnippet } from "./mcp-install-snippet";
-import { Mermaid } from "./mermaid";
 import { StatusAvailable, StatusPartial, StatusUnavailable } from "./status-icon";
-import { YouTube } from "./youtube-embed";
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
@@ -26,23 +22,21 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     ...markdownBaseComponents,
     AcquisitionCallout,
     ArticleSummary,
-    ComparisonTable,
     Faq,
     FaqItem,
-    McpInstallSnippet,
-    Mermaid,
     ProductDemo,
     ProofItem,
     ProofRail,
-    RelatedPage,
-    RelatedPages,
     Step,
     Steps,
     SummaryItem,
     StatusAvailable,
     StatusPartial,
     StatusUnavailable,
-    YouTube,
     ...components,
   };
+}
+
+export function getDocsMDXComponents(components?: MDXComponents): MDXComponents {
+  return getMDXComponents({ McpInstallSnippet, ...components });
 }

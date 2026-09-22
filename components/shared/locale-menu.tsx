@@ -6,7 +6,6 @@ import type { ContentLocale } from "@/i18n/locale-registry";
 import { useEffect, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
-import { FormAutocompleteCountryItem } from "@/components/forms/form-autocomplete-country-item";
 import { Button } from "@/components/ui/button";
 import { useNavigationGuard } from "@/core/stores/navigation-guard.context";
 import { cn } from "@/core/utils/cn";
@@ -115,7 +114,7 @@ export function LocaleMenu({ align = "start", className, side = "bottom" }: Prop
               key={locale}
               aria-current={isSelected ? "true" : undefined}
               className={cn(
-                "flex w-full items-center rounded-sm px-2 py-1.5 text-sm no-underline transition-colors hover:bg-accent focus-visible:bg-accent",
+                "flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm no-underline transition-colors hover:bg-accent focus-visible:bg-accent",
                 isSelected && "bg-accent",
               )}
               data-selected={isSelected}
@@ -125,7 +124,18 @@ export function LocaleMenu({ align = "start", className, side = "bottom" }: Prop
               onClick={(event) => handleSelect(event, locale)}
               onContextMenu={(event) => preservePendingClick(event, locale)}
             >
-              <FormAutocompleteCountryItem countryKey={flagCodeFor(locale)} label={label} />
+              {/* eslint-disable-next-line @next/next/no-img-element -- a lazy flag inside a closed disclosure must not be requested, which next/image cannot express. */}
+              <img
+                aria-hidden
+                alt=""
+                className="size-5 shrink-0 rounded-full object-cover"
+                height={20}
+                loading="lazy"
+                src={`https://flagcdn.com/${flagCodeFor(locale).toLowerCase()}.svg`}
+                width={20}
+              />
+
+              <span className="truncate">{label}</span>
             </a>
           );
         })}

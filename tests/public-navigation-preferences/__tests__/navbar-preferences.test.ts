@@ -427,9 +427,19 @@ describe("public navigation preferences", () => {
     expect(menu, "the trigger shows the locale it is currently on").toContain(
       "currentLocale.toUpperCase()",
     );
-    expect(menu, "the option matches the profile country selector").toContain(
-      "<FormAutocompleteCountryItem countryKey={flagCodeFor(locale)} label={label} />",
+    // Radix Avatar resolves its source with `new Image()` to decide a loading state, so the flags
+    // were fetched from flagcdn.com on every marketing page even though the disclosure is closed.
+    // A lazy <img> inside a closed <details> is never requested.
+    expect(menu, "the flag must not be fetched until the menu opens").toContain(
+      'loading="lazy"',
     );
+    expect(menu, "the flag still comes from the locale registry").toContain(
+      "flagCodeFor(locale)",
+    );
+    expect(
+      menu,
+      "a portalled avatar primitive ships a request for a menu nobody opened",
+    ).not.toContain("FormAutocompleteCountryItem");
   });
 
   it("leaves no import of the retired dropdown-based selector", () => {

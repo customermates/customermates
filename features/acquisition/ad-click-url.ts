@@ -1,20 +1,37 @@
 import type { AdClick } from "./ad-attribution.schema";
 
 import {
-  AdClickSchema,
+  AD_IDENTIFIER_VALUE_MAX_LENGTH,
+  AD_IDENTIFIER_VALUE_PATTERN,
+  AD_SEARCH_MAX_LENGTH,
   PUBLIC_AD_ATTRIBUTION_PENDING_FUTURE_SKEW_SECONDS,
   PUBLIC_AD_ATTRIBUTION_PENDING_MAX_AGE_SECONDS,
   PUBLIC_AD_ATTRIBUTION_PENDING_PARAM,
-  PublicAdAttributionSearchInputSchema,
-  PublicAdAttributionVisitInputSchema,
-  adIdentifierValueSchema,
-} from "./ad-attribution.schema";
+} from "./ad-attribution.constants";
 import { AD_IDENTIFIER_KINDS, adProviderForIdentifierKind } from "./ad-provider-registry";
 
 const INTERNAL_URL_BASE = "https://internal.invalid";
 
 function searchParams(search: string): URLSearchParams {
   return new URLSearchParams(search.startsWith("?") ? search.slice(1) : search);
+}
+
+function readSearch(input: unknown): string | null {
+  if (typeof input !== "object" || input === null) return null;
+
+  const search = (input as { search?: unknown }).search;
+  return typeof search === "string" && search.length <= AD_SEARCH_MAX_LENGTH ? search : null;
+}
+
+function readPendingAt(input: unknown): string | null {
+  if (readSearch(input) === null) return null;
+
+  const pendingAt = (input as { pendingAt?: unknown }).pendingAt;
+  return typeof pendingAt === "string" && Number.isFinite(Date.parse(pendingAt)) ? pendingAt : null;
+}
+
+function isAdIdentifierValue(value: string): boolean {
+  return value.length >= 1 && value.length <= AD_IDENTIFIER_VALUE_MAX_LENGTH && AD_IDENTIFIER_VALUE_PATTERN.test(value);
 }
 
 function withinPendingWindow(pendingAt: Date, now: Date): boolean {
@@ -35,18 +52,18 @@ function pendingMarkerDate(value: string, now: Date): Date | null {
 }
 
 function explicitPendingDate(input: unknown, now: Date): Date | null {
-  const parsed = PublicAdAttributionVisitInputSchema.safeParse(input);
-  if (!parsed.success) return null;
+  const pendingAt = readPendingAt(input);
+  if (pendingAt === null) return null;
 
-  const pendingAt = new Date(parsed.data.pendingAt);
-  return withinPendingWindow(pendingAt, now) ? pendingAt : null;
+  const parsed = new Date(pendingAt);
+  return withinPendingWindow(parsed, now) ? parsed : null;
 }
 
 export function normalizeAdClick(input: unknown, clickedAt = new Date()): AdClick | null {
-  const parsed = PublicAdAttributionSearchInputSchema.safeParse(input);
-  if (!parsed.success) return null;
+  const search = readSearch(input);
+  if (search === null) return null;
 
-  const params = searchParams(parsed.data.search);
+  const params = searchParams(search);
   const candidates = AD_IDENTIFIER_KINDS.flatMap((kind) => params.getAll(kind).map((value) => ({ kind, value })));
   if (candidates.length !== 1) return null;
 
@@ -56,34 +73,26 @@ export function normalizeAdClick(input: unknown, clickedAt = new Date()): AdClic
   const provider = adProviderForIdentifierKind(candidate.kind);
   if (!provider) return null;
 
-  const value = adIdentifierValueSchema.safeParse(candidate.value);
-  if (!value.success) return null;
+  if (!isAdIdentifierValue(candidate.value)) return null;
 
-  return AdClickSchema.parse({
-    provider,
-    kind: candidate.kind,
-    value: value.data,
-    clickedAt: clickedAt.toISOString(),
-  });
+  return { provider, kind: candidate.kind, value: candidate.value, clickedAt: clickedAt.toISOString() };
 }
 
 export function hasAdAttributionPendingMarker(input: unknown): boolean {
-  const parsed = PublicAdAttributionSearchInputSchema.safeParse(input);
-  if (!parsed.success) return false;
-
-  return searchParams(parsed.data.search).has(PUBLIC_AD_ATTRIBUTION_PENDING_PARAM);
+  const search = readSearch(input);
+  return search !== null && searchParams(search).has(PUBLIC_AD_ATTRIBUTION_PENDING_PARAM);
 }
 
 export function normalizePendingAdClick(input: unknown, now = new Date()): AdClick | null {
-  const parsed = PublicAdAttributionSearchInputSchema.safeParse(input);
-  if (!parsed.success) return null;
+  const search = readSearch(input);
+  if (search === null) return null;
 
-  const markers = searchParams(parsed.data.search).getAll(PUBLIC_AD_ATTRIBUTION_PENDING_PARAM);
+  const markers = searchParams(search).getAll(PUBLIC_AD_ATTRIBUTION_PENDING_PARAM);
   const marker = markers.length === 1 ? markers[0] : undefined;
   if (!marker) return null;
 
   const pendingAt = pendingMarkerDate(marker, now);
-  return pendingAt ? normalizeAdClick(parsed.data, pendingAt) : null;
+  return pendingAt ? normalizeAdClick({ search }, pendingAt) : null;
 }
 
 export function hasPendingAdClick(input: unknown, now = new Date()): boolean {
@@ -91,11 +100,10 @@ export function hasPendingAdClick(input: unknown, now = new Date()): boolean {
 }
 
 export function normalizePublicAdVisitClick(input: unknown, now = new Date()): AdClick | null {
-  const parsed = PublicAdAttributionVisitInputSchema.safeParse(input);
-  if (!parsed.success) return null;
+  if (readPendingAt(input) === null) return null;
 
-  const pendingAt = explicitPendingDate(parsed.data, now);
-  return pendingAt ? normalizeAdClick(parsed.data, pendingAt) : null;
+  const pendingAt = explicitPendingDate(input, now);
+  return pendingAt ? normalizeAdClick(input, pendingAt) : null;
 }
 
 export function preserveAdClickInHref(href: string, input: unknown, now = new Date()): string {

@@ -3,6 +3,11 @@ import type { z } from "zod";
 import { array, boolean, date, iso, literal, object, string, enum as zodEnum } from "zod";
 
 import { AD_IDENTIFIER_KINDS, AD_PROVIDER_ORDER, type AdIdentifierKind } from "./ad-provider-registry";
+import {
+  AD_IDENTIFIER_VALUE_MAX_LENGTH,
+  AD_IDENTIFIER_VALUE_PATTERN,
+  AD_SEARCH_MAX_LENGTH,
+} from "./ad-attribution.constants";
 
 export const AdProviderSchema = zodEnum(AD_PROVIDER_ORDER);
 export const AdIdentifierKindSchema = zodEnum(AD_IDENTIFIER_KINDS as [AdIdentifierKind, ...AdIdentifierKind[]]);
@@ -17,8 +22,8 @@ export {
 
 export const adIdentifierValueSchema = string()
   .min(1)
-  .max(512)
-  .regex(/^[^\p{Cc}\p{Cf}\p{Z}=+@][^\p{Cc}\p{Cf}\p{Z}]*$/u);
+  .max(AD_IDENTIFIER_VALUE_MAX_LENGTH)
+  .regex(AD_IDENTIFIER_VALUE_PATTERN);
 
 export const AdClickSchema = object({
   provider: AdProviderSchema,
@@ -49,7 +54,7 @@ export const PublicAdAttributionCookieSchema = object({
 });
 export type PublicAdAttributionCookie = z.infer<typeof PublicAdAttributionCookieSchema>;
 
-export const PublicAdAttributionSearchInputSchema = object({ search: string().max(2048) });
+export const PublicAdAttributionSearchInputSchema = object({ search: string().max(AD_SEARCH_MAX_LENGTH) });
 
 export const PublicAdAttributionVisitInputSchema = PublicAdAttributionSearchInputSchema.extend({
   pendingAt: iso.datetime(),

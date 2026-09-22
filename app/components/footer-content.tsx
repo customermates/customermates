@@ -1,12 +1,10 @@
-"use client";
-
 import type { AppMode } from "@/core/config/environment";
 
 import { useLocale, useTranslations } from "next-intl";
 
 import { FooterBadges } from "./footer-badges";
+import { FooterPrivacyChoices } from "./footer-privacy-choices";
 
-import { OPEN_PRIVACY_CHOICES_EVENT } from "@/components/acquisition/privacy-choices-event";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
 import { AppImage } from "@/components/shared/app-image";
 import { AppLink } from "@/components/shared/app-link";
@@ -271,13 +269,7 @@ export function FooterContent({ appMode, blogPosts = [], className, featureLinks
 
               {appMode === "cloud" && isContentLocale(locale) ? (
                 <li>
-                  <button
-                    className={FOOTER_LINK_CLASS}
-                    type="button"
-                    onClick={() => window.dispatchEvent(new Event(OPEN_PRIVACY_CHOICES_EVENT))}
-                  >
-                    {t("Footer.privacyChoices")}
-                  </button>
+                  <FooterPrivacyChoices className={FOOTER_LINK_CLASS} label={t("Footer.privacyChoices")} />
                 </li>
               ) : null}
 

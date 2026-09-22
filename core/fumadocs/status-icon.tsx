@@ -1,5 +1,3 @@
-"use client";
-
 import { Check, Minus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
