@@ -177,39 +177,17 @@ describe("ProtectedLayout account-state boundary", () => {
     expect(state.toggleAgentChat).not.toHaveBeenCalled();
   });
 
-  it("mounts only the opened assistant inside the restricted onboarding shell", () => {
+  it("never mounts the floating assistant inside the restricted onboarding shell", () => {
     state.pathname = "/en/onboarding/wizard";
     state.agentChatEnabled = true;
     state.agentConfigEnabled = true;
     state.agentOpen = true;
     renderLayout();
 
-    expect(container.textContent).toContain("agent-chat");
+    expect(container.textContent).not.toContain("agent-chat");
     expect(container.textContent).not.toContain("global-search-modal");
     expect(container.textContent).not.toContain("company-user-modal");
-    expect(state.getAgentChatStore).toHaveBeenCalledOnce();
-  });
-
-  it("returns focus to the onboarding task button when the restricted assistant closes", async () => {
-    state.pathname = "/en/onboarding/wizard";
-    state.agentChatEnabled = true;
-    state.agentConfigEnabled = true;
-    state.agentOpen = true;
-    const returnTarget = document.createElement("button");
-    returnTarget.dataset.agentFocusReturn = "";
-    document.body.append(returnTarget);
-    renderLayout();
-
-    state.agentOpen = false;
-    act(() => {
-      root.render(createElement(ProtectedLayout, null, "recovery-card-after-close"));
-    });
-    await act(async () => {
-      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-    });
-
-    expect(document.activeElement).toBe(returnTarget);
-    returnTarget.remove();
+    expect(state.getAgentChatStore).not.toHaveBeenCalled();
   });
 
   it("mounts the assistant but ignores Cmd+J while its config is unresolved", () => {

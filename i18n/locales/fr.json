@@ -2934,8 +2934,8 @@
         "title": "Votre profil"
       },
       "wiki": {
-        "subtitle": "Ajoutez le contexte de votre site public ou ignorez cette étape facultative.",
-        "title": "Configurer votre wiki d’espace de travail"
+        "subtitle": "Mate recueille les informations publiques utiles de votre site afin que vos agents IA disposent du contexte nécessaire. Vous pourrez tout vérifier et modifier plus tard.",
+        "title": "Créer votre wiki à partir de votre site ?"
       }
     }
   },
@@ -3625,6 +3625,7 @@
   },
   "WikiSetup": {
     "continue": "Continuer",
+    "continueBackground": "Continuer — Mate poursuit son travail",
     "createBlank": "Créer une page vierge",
     "description": "Transformez votre site en wiki de départ avec cinq pages reliées.",
     "gapsNote": "Mate cite ses sources et signale les informations manquantes au lieu de les inventer.",
@@ -3644,20 +3645,20 @@
     "homepageLabel": "Site web de l’entreprise",
     "homepagePlaceholder": "https://exemple.fr",
     "openTask": "Ouvrir la tâche Mate",
-    "skip": "Ignorer",
-    "start": "Configurer avec Mate",
+    "skip": "Pas maintenant",
+    "start": "Créer mon wiki",
     "startFailed": "Mate n’a pas pu démarrer la configuration du wiki. Réessayez.",
     "status": {
       "completedBody": "Vos pages de départ reliées sont prêtes à être vérifiées et modifiées.",
-      "completedBodyOnboarding": "Vos cinq pages de départ reliées sont prêtes. Poursuivez l’intégration, puis vérifiez-les dans le wiki.",
+      "completedBodyOnboarding": "Votre wiki de départ est prêt. Continuez maintenant, puis vérifiez-le ou modifiez-le plus tard.",
       "completedExistingBody": "Votre wiki contient déjà des pages. Poursuivez l’intégration ou vérifiez le contenu existant.",
       "completedTitle": "Votre wiki est prêt",
-      "failedBody": "Aucune page n’a été ajoutée. Ouvrez la tâche Mate pour plus de détails ou essayez un autre site.",
+      "failedBody": "Aucune page n’a été ajoutée. Essayez un autre site ou continuez et ajoutez des pages plus tard.",
       "failedTitle": "La configuration n’a pas abouti",
       "noContentBody": "Mate n’a pas trouvé assez d’informations publiques fiables et n’a donc créé aucune page.",
       "noContentTitle": "Aucun contenu exploitable trouvé",
-      "workingBody": "Mate lit {domain} et crée les cinq pages. Vous pouvez consulter la tâche ou poursuivre l’intégration.",
-      "workingBodyNoTask": "Mate lit {domain} et crée les cinq pages. Vous pouvez poursuivre l’intégration ; les pages apparaîtront à la fin de la tâche.",
+      "workingBody": "Mate lit {domain} et construit votre wiki. Suivez sa progression ici ou continuez ; Mate poursuivra son travail en arrière-plan.",
+      "workingBodyNoTask": "Mate lit {domain} et construit votre wiki. Vous pouvez continuer ; Mate poursuivra son travail en arrière-plan.",
       "workingTitle": "Mate construit votre wiki"
     },
     "topics": {

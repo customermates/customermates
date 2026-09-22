@@ -2934,8 +2934,8 @@
         "title": "Dein Profil"
       },
       "wiki": {
-        "subtitle": "Füge Kontext aus deiner öffentlichen Homepage hinzu oder überspringe diesen optionalen Schritt.",
-        "title": "Workspace-Wiki einrichten"
+        "subtitle": "Mate sammelt nützliches öffentliches Wissen von deiner Firmenwebsite, damit deine KI-Agenten den nötigen Kontext haben. Du kannst alles später prüfen und bearbeiten.",
+        "title": "Wiki aus deiner Website erstellen?"
       }
     }
   },
@@ -3625,6 +3625,7 @@
   },
   "WikiSetup": {
     "continue": "Weiter",
+    "continueBackground": "Weiter – Mate arbeitet weiter",
     "createBlank": "Leere Seite erstellen",
     "description": "Verwandle deine Website in ein Starter-Wiki mit fünf verknüpften Seiten.",
     "gapsNote": "Mate belegt gefundene Informationen mit Quellen und markiert Lücken, statt zu raten.",
@@ -3644,20 +3645,20 @@
     "homepageLabel": "Unternehmenswebsite",
     "homepagePlaceholder": "https://beispiel.de",
     "openTask": "Mate-Aufgabe öffnen",
-    "skip": "Überspringen",
-    "start": "Mit Mate einrichten",
+    "skip": "Nicht jetzt",
+    "start": "Wiki erstellen",
     "startFailed": "Mate konnte die Wiki-Einrichtung nicht starten. Bitte versuche es erneut.",
     "status": {
       "completedBody": "Deine verknüpften Starter-Seiten sind bereit zum Prüfen und Bearbeiten.",
-      "completedBodyOnboarding": "Deine fünf verknüpften Starter-Seiten sind bereit. Schließe das Onboarding ab und prüfe sie anschließend im Wiki.",
+      "completedBodyOnboarding": "Dein Start-Wiki ist bereit. Fahre fort und prüfe oder bearbeite es später.",
       "completedExistingBody": "Dein Wiki enthält bereits Seiten. Fahre mit dem Onboarding fort oder prüfe die vorhandenen Inhalte.",
       "completedTitle": "Dein Wiki ist bereit",
-      "failedBody": "Es wurden keine Seiten hinzugefügt. Öffne die Mate-Aufgabe für Details oder versuche eine andere Website.",
+      "failedBody": "Es wurden keine Seiten hinzugefügt. Versuche eine andere Website oder fahre fort und füge später Seiten hinzu.",
       "failedTitle": "Einrichtung nicht abgeschlossen",
       "noContentBody": "Mate hat nicht genug verlässliche öffentliche Informationen gefunden und deshalb keine Seiten erstellt.",
       "noContentTitle": "Keine nutzbaren Inhalte gefunden",
-      "workingBody": "Mate liest {domain} und erstellt die fünf Seiten. Du kannst die Aufgabe ansehen oder mit dem Onboarding fortfahren.",
-      "workingBodyNoTask": "Mate liest {domain} und erstellt die fünf Seiten. Du kannst mit dem Onboarding fortfahren; die Seiten erscheinen, sobald die Aufgabe abgeschlossen ist.",
+      "workingBody": "Mate liest {domain} und erstellt dein Wiki. Verfolge den Fortschritt hier oder fahre fort, während Mate im Hintergrund weiterarbeitet.",
+      "workingBodyNoTask": "Mate liest {domain} und erstellt dein Wiki. Du kannst fortfahren, während Mate im Hintergrund weiterarbeitet.",
       "workingTitle": "Mate erstellt dein Wiki"
     },
     "topics": {

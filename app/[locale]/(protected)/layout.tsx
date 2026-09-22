@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { observer } from "mobx-react-lite";
 
@@ -35,18 +35,8 @@ const ProtectedLayout = observer(function ProtectedLayout({ children }: { childr
   const rootStore = useRootStore();
   const { closeAllModals } = rootStore;
   const protectedEnhancementsAllowed = useProtectedEnhancementsAllowed();
-  const onboardingAssistantOpen =
-    pathname.endsWith("/onboarding/wizard") && rootStore.agentChatEnabled && rootStore.agentChatStore.isOpen;
-  const wasOnboardingAssistantOpen = useRef(onboardingAssistantOpen);
 
   useEffect(() => closeAllModals(), [pathname, closeAllModals, protectedEnhancementsAllowed]);
-
-  useEffect(() => {
-    const wasOpen = wasOnboardingAssistantOpen.current;
-    wasOnboardingAssistantOpen.current = onboardingAssistantOpen;
-    if (!wasOpen || onboardingAssistantOpen || !pathname.endsWith("/onboarding/wizard")) return;
-    requestAnimationFrame(() => document.querySelector<HTMLElement>("[data-agent-focus-return]")?.focus());
-  }, [onboardingAssistantOpen, pathname]);
 
   useEffect(() => {
     if (!protectedEnhancementsAllowed) return;
@@ -127,8 +117,6 @@ const ProtectedLayout = observer(function ProtectedLayout({ children }: { childr
           {rootStore.agentChatEnabled && <AgentChat />}
         </>
       ) : null}
-
-      {!protectedEnhancementsAllowed && onboardingAssistantOpen ? <AgentChat /> : null}
     </>
   );
 });

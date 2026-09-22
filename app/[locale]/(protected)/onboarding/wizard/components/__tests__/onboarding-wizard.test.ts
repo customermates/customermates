@@ -1,7 +1,11 @@
 import type { RootStore } from "@/core/stores/root.store";
 import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 
-import { createElement } from "react";
+import type { ReactNode } from "react";
+
+import { act, createElement } from "react";
+import { createRoot } from "react-dom/client";
+import { observable } from "mobx";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -14,10 +18,10 @@ const testContext = vi.hoisted(() => ({
     canStart?: boolean;
     disabled?: boolean;
     onboarding?: boolean;
+    renderConversation?: (conversationId: string) => ReactNode;
   },
-  openAgentChat: vi.fn(),
-  loadAgentConfig: vi.fn(),
-  selectConversation: vi.fn(),
+  embeddedSelectConversation: vi.fn(),
+  wikiSetupChatStore: null as Record<string, unknown> | null,
   completeWikiStep: vi.fn(),
 }));
 
@@ -32,6 +36,26 @@ vi.mock("next-intl", () => ({
           .map(([name, value]) => `${name}=${value}`)
           .join(" ")}`
       : key,
+}));
+vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
+vi.mock("@/app/components/agent-chat/agent-chat-store-context", () => ({
+  AgentChatStoreProvider: ({ children }: { children: ReactNode }) => children,
+}));
+vi.mock("@/app/components/agent-chat/agent-route-reload", () => ({ AgentRouteReloadBridge: () => null }));
+vi.mock("@/app/components/agent-chat/agent-conversation", () => ({
+  AgentConversationLog: ({ readOnly, renderLinksAsText }: { readOnly?: boolean; renderLinksAsText?: boolean }) =>
+    createElement("div", {
+      "data-agent-conversation": true,
+      "data-links-as-text": renderLinksAsText,
+      "data-read-only": readOnly,
+    }),
+}));
+vi.mock("@/app/components/agent-chat/agent-status-announcer", () => ({
+  AgentProgressStatus: () => createElement("div", { "data-agent-progress": true }),
+  AgentStatusAnnouncer: () => createElement("div", { "data-agent-announcer": true }),
+}));
+vi.mock("@/components/ui/tooltip", () => ({
+  TooltipProvider: ({ children }: { children: ReactNode }) => children,
 }));
 
 vi.mock("../../actions", () => ({
@@ -63,6 +87,7 @@ vi.mock("@/components/wiki/wiki-homepage-setup", () => ({
     canStart?: boolean;
     disabled?: boolean;
     onboarding?: boolean;
+    renderConversation?: (conversationId: string) => ReactNode;
   }) => {
     testContext.wikiProps = props;
     return createElement("div", { "data-step": "wiki" });
@@ -80,13 +105,19 @@ function renderWizard(
   wikiSetupState?: WikiHomepageSetupState,
 ): string {
   const store = new OnboardingWizardStore({} as RootStore);
+  const wikiSetupChatStore = observable({
+    conversationId: null as string | null,
+    conversationLoadError: false,
+    conversationLoadPendingId: null as string | null,
+    isWorking: false,
+    routeSyncStatus: "idle",
+    markRouteSyncComplete: vi.fn(),
+    selectConversationForEmbeddedViewer: testContext.embeddedSelectConversation,
+  });
+  testContext.wikiSetupChatStore = wikiSetupChatStore;
   testContext.rootStore = {
-    agentChatStore: {
-      open: testContext.openAgentChat,
-      loadConfig: testContext.loadAgentConfig,
-      selectConversation: testContext.selectConversation,
-    },
     onboardingWizardStore: store,
+    wikiSetupChatStore,
   } as unknown as RootStore;
 
   return renderToStaticMarkup(
@@ -101,12 +132,13 @@ function renderWizard(
 }
 
 beforeEach(() => {
+  (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   vi.clearAllMocks();
-  testContext.loadAgentConfig.mockResolvedValue(undefined);
-  testContext.selectConversation.mockResolvedValue(undefined);
+  testContext.embeddedSelectConversation.mockResolvedValue(undefined);
   testContext.completeWikiStep.mockResolvedValue({ ok: true, data: { completed: true } });
   testContext.rootStore = null;
   testContext.wikiProps = null;
+  testContext.wikiSetupChatStore = null;
 });
 
 describe("OnboardingWizard", () => {
@@ -143,7 +175,7 @@ describe("OnboardingWizard", () => {
     expect(renderWizard(true, false, true, true)).toContain('data-step="invite"');
   });
 
-  it("opens the visible Mate task without advancing from Wiki", async () => {
+  it("keeps acceptance lightweight and leaves loading to the inline viewer", async () => {
     renderWizard(true);
     const props = testContext.wikiProps;
     if (!props) throw new Error("Wiki setup did not render.");
@@ -152,9 +184,81 @@ describe("OnboardingWizard", () => {
     await props.onAccepted("conversation-1");
 
     expect(testContext.rootStore?.onboardingWizardStore.currentStep).toBe("wiki");
-    expect(testContext.openAgentChat).toHaveBeenCalledOnce();
-    expect(testContext.loadAgentConfig).toHaveBeenCalledOnce();
-    expect(testContext.selectConversation).toHaveBeenCalledExactlyOnceWith("conversation-1");
+    expect(testContext.embeddedSelectConversation).not.toHaveBeenCalled();
+    expect(props.renderConversation).toBeTypeOf("function");
+  });
+
+  it("renders the selected setup conversation read-only with text-only links", () => {
+    renderWizard(true);
+    const props = testContext.wikiProps;
+    const chatStore = testContext.wikiSetupChatStore;
+    if (!props?.renderConversation || !chatStore) throw new Error("Wiki setup conversation did not render.");
+    chatStore.conversationId = "conversation-1";
+    chatStore.isWorking = true;
+
+    const html = renderToStaticMarkup(props.renderConversation("conversation-1"));
+
+    expect(html).toContain('data-agent-conversation="true"');
+    expect(html).toContain('data-read-only="true"');
+    expect(html).toContain('data-links-as-text="true"');
+    expect(html).toContain('data-agent-progress="true"');
+    expect(html).toContain('data-agent-announcer="true"');
+    expect(html).not.toContain("agent-composer");
+  });
+
+  it("loads a restored setup conversation through the dedicated embedded store", async () => {
+    renderWizard(true);
+    const props = testContext.wikiProps;
+    const chatStore = testContext.wikiSetupChatStore;
+    if (!props?.renderConversation || !chatStore) throw new Error("Wiki setup conversation did not render.");
+    testContext.embeddedSelectConversation.mockImplementation((conversationId: string) => {
+      chatStore.conversationId = conversationId;
+      return Promise.resolve();
+    });
+    const container = document.createElement("div");
+    document.body.append(container);
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(props.renderConversation?.("conversation-restored"));
+      await Promise.resolve();
+    });
+    expect(testContext.embeddedSelectConversation).toHaveBeenCalledExactlyOnceWith("conversation-restored");
+    expect(container.querySelector('[data-agent-conversation="true"]')).not.toBeNull();
+    expect(container.querySelector('[aria-label="PageState.loading"]')).toBeNull();
+
+    act(() => root.unmount());
+    container.remove();
+  });
+
+  it("retries a failed inline transcript load without opening the floating assistant", async () => {
+    renderWizard(true);
+    const props = testContext.wikiProps;
+    const chatStore = testContext.wikiSetupChatStore;
+    if (!props?.renderConversation || !chatStore) throw new Error("Wiki setup conversation did not render.");
+    chatStore.conversationId = "conversation-1";
+    chatStore.conversationLoadError = true;
+    const container = document.createElement("div");
+    document.body.append(container);
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(props.renderConversation?.("conversation-1"));
+      await Promise.resolve();
+    });
+    const retry = [...container.querySelectorAll<HTMLButtonElement>("button")].find((button) =>
+      button.textContent?.includes("ErrorCard.retry"),
+    );
+    if (!retry) throw new Error("Inline transcript retry did not render.");
+    await act(async () => {
+      retry.click();
+      await Promise.resolve();
+    });
+
+    expect(testContext.embeddedSelectConversation).toHaveBeenCalledExactlyOnceWith("conversation-1");
+
+    act(() => root.unmount());
+    container.remove();
   });
 
   it.each(["onContinue", "onSkip"] as const)("advances an owner from Wiki when %s fires", async (callback) => {
@@ -211,11 +315,6 @@ describe("OnboardingWizard", () => {
   it("does not mutate the shared wizard store during render", () => {
     const store = new OnboardingWizardStore({} as RootStore);
     testContext.rootStore = {
-      agentChatStore: {
-        open: testContext.openAgentChat,
-        loadConfig: testContext.loadAgentConfig,
-        selectConversation: testContext.selectConversation,
-      },
       onboardingWizardStore: store,
     } as unknown as RootStore;
 

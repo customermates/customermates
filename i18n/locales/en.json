@@ -2934,8 +2934,8 @@
         "title": "Your profile"
       },
       "wiki": {
-        "subtitle": "Add company context from your public homepage, or skip this optional step.",
-        "title": "Set up your Workspace Wiki"
+        "subtitle": "Mate gathers useful public knowledge from your company website so your AI agents have the context they need. You can review and edit it later.",
+        "title": "Build your Wiki from your website?"
       }
     }
   },
@@ -3625,6 +3625,7 @@
   },
   "WikiSetup": {
     "continue": "Continue",
+    "continueBackground": "Continue — Mate keeps working",
     "createBlank": "Create a blank page",
     "description": "Turn your website into a starter Wiki with five connected pages.",
     "gapsNote": "Mate cites what it finds and marks missing information instead of guessing.",
@@ -3644,20 +3645,20 @@
     "homepageLabel": "Company website",
     "homepagePlaceholder": "https://example.com",
     "openTask": "Open Mate task",
-    "skip": "Skip",
-    "start": "Set up with Mate",
+    "skip": "Not now",
+    "start": "Build my Wiki",
     "startFailed": "Mate could not start the Wiki setup. Please try again.",
     "status": {
       "completedBody": "Your connected starter pages are ready to review and edit.",
-      "completedBodyOnboarding": "Your five connected starter pages are ready. Continue onboarding, then review them in Wiki.",
+      "completedBodyOnboarding": "Your starter Wiki is ready. Continue now and review or edit it later.",
       "completedExistingBody": "Your Wiki already contains pages. Continue onboarding or review the existing content.",
       "completedTitle": "Your Wiki is ready",
-      "failedBody": "No pages were added. Open the Mate task for details or try another website.",
+      "failedBody": "No pages were added. Try another website, or continue and add pages later.",
       "failedTitle": "Setup did not finish",
       "noContentBody": "Mate could not find enough reliable public information, so it created no pages.",
       "noContentTitle": "No usable content found",
-      "workingBody": "Mate is reading {domain} and building the five pages. You can watch the task or continue onboarding.",
-      "workingBodyNoTask": "Mate is reading {domain} and building the five pages. You can continue onboarding; the pages will appear when the task finishes.",
+      "workingBody": "Mate is reading {domain} and building your Wiki. Follow along here or continue while it finishes in the background.",
+      "workingBodyNoTask": "Mate is reading {domain} and building your Wiki. You can continue while it finishes in the background.",
       "workingTitle": "Mate is building your Wiki"
     },
     "topics": {

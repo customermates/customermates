@@ -1,5 +1,8 @@
 "use client";
 
+import type { ComponentProps } from "react";
+import type { Components } from "streamdown";
+
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Check, ChevronDown, Copy, Loader2, Square, X } from "lucide-react";
@@ -24,6 +27,12 @@ import { useEntityTerminology } from "@/components/entity-terminology/use-entity
 import { cn } from "@/core/utils/cn";
 import { ActionTooltip, ItemTime, TypingDots, chatUiCopy, focusAgentComposer } from "./chat-ui";
 
+function MessageLinkText({ children }: ComponentProps<"a"> & { node?: unknown }) {
+  return <span className="underline decoration-dotted underline-offset-2">{children}</span>;
+}
+
+const nonInteractiveMessageLinks = { a: MessageLinkText } satisfies Components;
+
 export function useAgentActivityTerminology(): Partial<Record<AgentActivityResource, string>> {
   const { plural } = useEntityTerminology();
   return {
@@ -37,10 +46,12 @@ export function useAgentActivityTerminology(): Partial<Record<AgentActivityResou
 
 export const AgentChatItemView = observer(function AgentChatItemView({
   item,
+  renderLinksAsText = false,
   readOnly = false,
   userLabel,
 }: {
   item: Exclude<AgentChatItem, { kind: "activity" }>;
+  renderLinksAsText?: boolean;
   readOnly?: boolean;
   userLabel?: string;
 }) {
@@ -78,7 +89,11 @@ export const AgentChatItemView = observer(function AgentChatItemView({
       <article aria-label={t("AgentChat.title")} className="group/message flex flex-col gap-1.5">
         <div className="flex min-w-0 flex-col items-start gap-1.5">
           <div className="w-full text-sm leading-relaxed [&_pre]:overflow-x-auto">
-            <MessageResponse mode={item.streaming ? "streaming" : "static"} showTableActions={!item.streaming}>
+            <MessageResponse
+              components={renderLinksAsText ? nonInteractiveMessageLinks : undefined}
+              mode={item.streaming ? "streaming" : "static"}
+              showTableActions={!item.streaming}
+            >
               {item.text}
             </MessageResponse>
           </div>

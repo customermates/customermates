@@ -2934,8 +2934,8 @@
         "title": "Il tuo profilo"
       },
       "wiki": {
-        "subtitle": "Aggiungi il contesto dal sito pubblico della tua azienda oppure salta questo passaggio facoltativo.",
-        "title": "Configura la wiki dell’area di lavoro"
+        "subtitle": "Mate raccoglie le informazioni pubbliche utili dal sito della tua azienda, così i tuoi agenti IA hanno il contesto necessario. Potrai controllare e modificare tutto in seguito.",
+        "title": "Creare la wiki dal tuo sito web?"
       }
     }
   },
@@ -3625,6 +3625,7 @@
   },
   "WikiSetup": {
     "continue": "Continua",
+    "continueBackground": "Continua — Mate prosegue il lavoro",
     "createBlank": "Crea una pagina vuota",
     "description": "Trasforma il tuo sito in una wiki iniziale con cinque pagine collegate.",
     "gapsNote": "Mate cita ciò che trova e segnala le informazioni mancanti invece di inventarle.",
@@ -3644,20 +3645,20 @@
     "homepageLabel": "Sito web dell’azienda",
     "homepagePlaceholder": "https://esempio.it",
     "openTask": "Apri attività Mate",
-    "skip": "Salta",
-    "start": "Configura con Mate",
+    "skip": "Non ora",
+    "start": "Crea la mia wiki",
     "startFailed": "Mate non è riuscito ad avviare la configurazione della wiki. Riprova.",
     "status": {
       "completedBody": "Le pagine iniziali collegate sono pronte per essere controllate e modificate.",
-      "completedBodyOnboarding": "Le cinque pagine iniziali collegate sono pronte. Continua l’onboarding e poi controllale nella wiki.",
+      "completedBodyOnboarding": "La tua wiki iniziale è pronta. Continua ora e controllala o modificala in seguito.",
       "completedExistingBody": "La wiki contiene già delle pagine. Continua l’onboarding o controlla i contenuti esistenti.",
       "completedTitle": "La tua wiki è pronta",
-      "failedBody": "Non è stata aggiunta alcuna pagina. Apri l’attività Mate per i dettagli o prova un altro sito.",
+      "failedBody": "Non è stata aggiunta alcuna pagina. Prova un altro sito oppure continua e aggiungi le pagine più tardi.",
       "failedTitle": "Configurazione non completata",
       "noContentBody": "Mate non ha trovato abbastanza informazioni pubbliche affidabili e non ha creato pagine.",
       "noContentTitle": "Nessun contenuto utilizzabile trovato",
-      "workingBody": "Mate sta leggendo {domain} e creando le cinque pagine. Puoi seguire l’attività o continuare l’onboarding.",
-      "workingBodyNoTask": "Mate sta leggendo {domain} e creando le cinque pagine. Puoi continuare l’onboarding; le pagine appariranno al termine dell’attività.",
+      "workingBody": "Mate sta leggendo {domain} e creando la tua wiki. Segui qui i progressi o continua mentre termina in background.",
+      "workingBodyNoTask": "Mate sta leggendo {domain} e creando la tua wiki. Puoi continuare mentre termina in background.",
       "workingTitle": "Mate sta creando la tua wiki"
     },
     "topics": {

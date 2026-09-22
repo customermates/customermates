@@ -24,12 +24,14 @@ import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-con
 
 export const AgentConversationLog = observer(function AgentConversationLog({
   readOnly = false,
+  renderLinksAsText = false,
   scrollContainerRef,
   scrollFooterRef,
   scrollable = true,
   userLabel,
 }: {
   readOnly?: boolean;
+  renderLinksAsText?: boolean;
   scrollContainerRef?: RefObject<HTMLElement | null>;
   scrollFooterRef?: RefObject<HTMLElement | null>;
   scrollable?: boolean;
@@ -72,7 +74,12 @@ export const AgentConversationLog = observer(function AgentConversationLog({
                   <ActivityGroup index={index} />
                 )
               ) : (
-                <AgentChatItemView item={item} readOnly={readOnly} userLabel={userLabel} />
+                <AgentChatItemView
+                  item={item}
+                  readOnly={readOnly}
+                  renderLinksAsText={renderLinksAsText}
+                  userLabel={userLabel}
+                />
               )}
             </Fragment>
           );

@@ -1,5 +1,7 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
@@ -32,6 +34,7 @@ type Props = {
   onContinue?: () => void | Promise<void>;
   onCreateBlank?: () => void;
   onSkip?: () => void | Promise<void>;
+  renderConversation?: (conversationId: string) => ReactNode;
 };
 
 export const EMPTY_WIKI_HOMEPAGE_SETUP_STATE: WikiHomepageSetupState = {
@@ -50,6 +53,7 @@ export function WikiHomepageSetup({
   onContinue,
   onCreateBlank,
   onSkip,
+  renderConversation,
 }: Props) {
   const t = useTranslations();
   const router = useRouter();
@@ -60,6 +64,8 @@ export function WikiHomepageSetup({
   const [retrying, setRetrying] = useState(false);
   const submitting = useRef(false);
   const homepageInput = useRef<HTMLInputElement>(null);
+  const statusHeading = useRef<HTMLHeadingElement>(null);
+  const focusStatusAfterSubmit = useRef(false);
   const topics = [
     { id: "company", label: t("WikiSetup.topics.company") },
     { id: "products", label: t("WikiSetup.topics.products") },
@@ -90,6 +96,12 @@ export function WikiHomepageSetup({
     if (!canStart) setRetrying(false);
   }, [canStart]);
 
+  useEffect(() => {
+    if (!focusStatusAfterSubmit.current || state.status === "idle" || retrying) return;
+    focusStatusAfterSubmit.current = false;
+    statusHeading.current?.focus();
+  }, [retrying, state.status]);
+
   const submit = async () => {
     if (!canStart || disabled || !homepage.trim() || submitting.current) return;
     submitting.current = true;
@@ -106,6 +118,7 @@ export function WikiHomepageSetup({
       }
 
       const { conversationId, domain, homepage: canonicalHomepage } = result.data;
+      focusStatusAfterSubmit.current = true;
       setState({
         status: "working",
         homepage: canonicalHomepage,
@@ -144,8 +157,8 @@ export function WikiHomepageSetup({
         ? t("WikiSetup.status.completedBodyOnboarding")
         : t("WikiSetup.status.completedBody");
     return (
-      <section aria-live="polite" className="w-full space-y-5 text-left">
-        <div className="flex items-start gap-3">
+      <section className="w-full space-y-5 text-left">
+        <div aria-live="polite" className="flex items-start gap-3">
           <div className="mt-0.5 rounded-full bg-muted p-2 text-muted-foreground">
             {working ? (
               <Loader2 className="size-4 animate-spin motion-reduce:animate-none" />
@@ -157,7 +170,7 @@ export function WikiHomepageSetup({
           </div>
 
           <div className="min-w-0 space-y-1">
-            <h2 className="font-medium">
+            <h2 ref={statusHeading} className="font-medium outline-none" tabIndex={-1}>
               {working
                 ? t("WikiSetup.status.workingTitle")
                 : completed
@@ -179,7 +192,7 @@ export function WikiHomepageSetup({
           </div>
         </div>
 
-        {completed ? (
+        {completed && !(state.conversationId && renderConversation) ? (
           <div className="grid gap-1.5">
             {state.pages.map((page) =>
               onboarding ? (
@@ -201,6 +214,8 @@ export function WikiHomepageSetup({
           </div>
         ) : null}
 
+        {state.conversationId && renderConversation ? renderConversation(state.conversationId) : null}
+
         <div className="flex flex-wrap justify-end gap-2">
           {canStart && !working && !completed ? (
             <Button disabled={controlsDisabled} type="button" variant="secondary" onClick={() => setRetrying(true)}>
@@ -218,7 +233,7 @@ export function WikiHomepageSetup({
             </Button>
           ) : null}
 
-          {state.conversationId ? (
+          {state.conversationId && !renderConversation ? (
             <Button
               data-agent-focus-return
               disabled={controlsDisabled}
@@ -234,7 +249,7 @@ export function WikiHomepageSetup({
 
           {onContinue ? (
             <Button disabled={controlsDisabled} type="button" onClick={() => runUserAction(onContinue)}>
-              {t("WikiSetup.continue")}
+              {working && onboarding ? t("WikiSetup.continueBackground") : t("WikiSetup.continue")}
             </Button>
           ) : null}
         </div>
@@ -252,21 +267,23 @@ export function WikiHomepageSetup({
         runUserAction(submit);
       }}
     >
-      <div className="space-y-3">
-        <p className="text-sm text-muted-foreground">{t("WikiSetup.description")}</p>
+      {!onboarding ? (
+        <div className="space-y-3">
+          <p className="text-sm text-muted-foreground">{t("WikiSetup.description")}</p>
 
-        <div className="grid gap-1.5 sm:grid-cols-2">
-          {topics.map((topic) => (
-            <div key={topic.id} className="flex items-center gap-2 text-sm">
-              <FileText className="size-4 shrink-0 text-muted-foreground" />
+          <div className="grid gap-1.5 sm:grid-cols-2">
+            {topics.map((topic) => (
+              <div key={topic.id} className="flex items-center gap-2 text-sm">
+                <FileText className="size-4 shrink-0 text-muted-foreground" />
 
-              <span>{topic.label}</span>
-            </div>
-          ))}
+                <span>{topic.label}</span>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-xs text-muted-foreground">{t("WikiSetup.gapsNote")}</p>
         </div>
-
-        <p className="text-xs text-muted-foreground">{t("WikiSetup.gapsNote")}</p>
-      </div>
+      ) : null}
 
       <div>
         <Label htmlFor="wiki-homepage">{t("WikiSetup.homepageLabel")}</Label>
@@ -276,7 +293,7 @@ export function WikiHomepageSetup({
 
           <Input
             ref={homepageInput}
-            aria-describedby="wiki-homepage-help"
+            aria-describedby={onboarding ? undefined : "wiki-homepage-help"}
             autoComplete="url"
             className="pl-9"
             disabled={controlsDisabled}
@@ -292,9 +309,11 @@ export function WikiHomepageSetup({
           />
         </div>
 
-        <p className="mt-2 text-xs text-muted-foreground" id="wiki-homepage-help">
-          {t("WikiSetup.homepageHelp")}
-        </p>
+        {!onboarding ? (
+          <p className="mt-2 text-xs text-muted-foreground" id="wiki-homepage-help">
+            {t("WikiSetup.homepageHelp")}
+          </p>
+        ) : null}
       </div>
 
       <span aria-live="polite" className="sr-only">

@@ -126,6 +126,20 @@ describe("WikiHomepageSetup", () => {
     expect(harness.action).not.toHaveBeenCalled();
   });
 
+  it("keeps the onboarding decision focused on the website and two actions", () => {
+    render(undefined, { onboarding: true });
+
+    expect(input().getAttribute("aria-describedby")).toBeNull();
+    expect(container.textContent).not.toContain("WikiSetup.description");
+    expect(container.textContent).not.toContain("WikiSetup.gapsNote");
+    expect(container.textContent).not.toContain("WikiSetup.homepageHelp");
+    for (const topic of ["company", "products", "customers", "voice", "support"])
+      expect(container.textContent).not.toContain(`WikiSetup.topics.${topic}`);
+    expect(container.querySelectorAll("button")).toHaveLength(2);
+    expect(container.textContent).toContain("WikiSetup.skip");
+    expect(container.textContent).toContain("WikiSetup.start");
+  });
+
   it("deduplicates submission and transitions to a durable visible-task state", async () => {
     let resolve!: (value: unknown) => void;
     harness.action.mockReturnValue(new Promise((done) => (resolve = done)));
@@ -182,6 +196,92 @@ describe("WikiHomepageSetup", () => {
     expect(container.querySelector("form")).toBeNull();
     act(() => button("WikiSetup.openTask").click());
     expect(onAccepted).toHaveBeenCalledExactlyOnceWith("conversation-1");
+  });
+
+  it("embeds the restored Mate task and keeps Continue below it during onboarding", () => {
+    render(
+      {
+        status: "working",
+        homepage: "https://example.com/",
+        domain: "example.com",
+        conversationId: "conversation-1",
+        pages: [],
+      },
+      {
+        onboarding: true,
+        renderConversation: (conversationId) =>
+          createElement("div", { "data-inline-conversation": conversationId }, "Inline Mate task"),
+      },
+    );
+
+    const inlineConversation = container.querySelector('[data-inline-conversation="conversation-1"]');
+    if (!inlineConversation) throw new Error("Inline conversation did not render.");
+    expect(container.textContent).toContain("Inline Mate task");
+    expect(container.textContent).not.toContain("WikiSetup.openTask");
+    expect(container.textContent).toContain("WikiSetup.continueBackground");
+    expect(button("WikiSetup.continueBackground").compareDocumentPosition(inlineConversation)).toBe(
+      Node.DOCUMENT_POSITION_PRECEDING,
+    );
+    act(() => button("WikiSetup.continueBackground").click());
+    expect(onContinue).toHaveBeenCalledOnce();
+  });
+
+  it("uses the inline task instead of duplicate completed-page rows", () => {
+    render(
+      {
+        status: "completed",
+        homepage: "https://example.com/",
+        domain: "example.com",
+        conversationId: "conversation-1",
+        pages: [
+          {
+            id: "00000000-0000-4000-8000-000000000001",
+            title: "Company Overview",
+            createdAt: new Date("2026-09-22T00:00:00.000Z"),
+            updatedAt: new Date("2026-09-22T00:00:00.000Z"),
+          },
+        ],
+      },
+      {
+        onboarding: true,
+        renderConversation: (conversationId) =>
+          createElement("div", { "data-inline-conversation": conversationId }, "Inline Mate task"),
+      },
+    );
+
+    expect(container.querySelector('[data-inline-conversation="conversation-1"]')).not.toBeNull();
+    expect(container.textContent).not.toContain("Company Overview");
+    expect(container.textContent).not.toContain("WikiSetup.openTask");
+    expect(container.textContent).toContain("WikiSetup.continue");
+    expect(container.textContent).not.toContain("WikiSetup.continueBackground");
+  });
+
+  it("keeps completed page names when the initiating conversation is not visible to this user", () => {
+    render(
+      {
+        status: "completed",
+        homepage: "https://example.com/",
+        domain: "example.com",
+        conversationId: null,
+        pages: [
+          {
+            id: "00000000-0000-4000-8000-000000000001",
+            title: "Company Overview",
+            createdAt: new Date("2026-09-22T00:00:00.000Z"),
+            updatedAt: new Date("2026-09-22T00:00:00.000Z"),
+          },
+        ],
+      },
+      {
+        onboarding: true,
+        renderConversation: (conversationId) =>
+          createElement("div", { "data-inline-conversation": conversationId }, "Inline Mate task"),
+      },
+    );
+
+    expect(container.textContent).toContain("Company Overview");
+    expect(container.querySelector("a")).toBeNull();
+    expect(container.querySelector("[data-inline-conversation]")).toBeNull();
   });
 
   it("renders completed pages without offering an impossible retry", () => {

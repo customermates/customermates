@@ -1,22 +1,91 @@
 "use client";
 
 import { observer } from "mobx-react-lite";
-import { useRef } from "react";
+import { useCallback, useEffect, useRef, useTransition } from "react";
 import { useTranslations } from "next-intl";
 
+import { AgentConversationLog } from "@/app/components/agent-chat/agent-conversation";
+import { AgentRouteReloadBridge } from "@/app/components/agent-chat/agent-route-reload";
+import { AgentChatStoreProvider } from "@/app/components/agent-chat/agent-chat-store-context";
+import { AgentProgressStatus, AgentStatusAnnouncer } from "@/app/components/agent-chat/agent-status-announcer";
 import { WikiHomepageSetup } from "@/components/wiki/wiki-homepage-setup";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { runUserAction } from "@/core/errors/report-application-error";
 import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
+import { useRouter } from "@/i18n/navigation";
 
 import { completeOnboardingWikiStepAction } from "../actions";
+
+const WikiSetupConversation = observer(function WikiSetupConversation({ conversationId }: { conversationId: string }) {
+  const t = useTranslations();
+  const router = useRouter();
+  const { wikiSetupChatStore } = useRootStore();
+  const requestedConversationId = useRef<string | null>(null);
+  const [isRefreshPending, startRefreshTransition] = useTransition();
+  const selected = wikiSetupChatStore.conversationId === conversationId;
+  const failed =
+    wikiSetupChatStore.conversationLoadError && (selected || requestedConversationId.current === conversationId);
+  const loading = !failed && (wikiSetupChatStore.conversationLoadPendingId === conversationId || !selected);
+  const loadConversation = useCallback(() => {
+    requestedConversationId.current = conversationId;
+    return wikiSetupChatStore.selectConversationForEmbeddedViewer(conversationId);
+  }, [conversationId, wikiSetupChatStore]);
+  const refreshPage = useCallback(() => {
+    startRefreshTransition(() => router.refresh());
+  }, [router]);
+
+  useEffect(() => {
+    if (selected || wikiSetupChatStore.conversationLoadPendingId === conversationId) return;
+    if (requestedConversationId.current === conversationId) return;
+    runUserAction(loadConversation);
+  }, [conversationId, loadConversation, selected, wikiSetupChatStore.conversationLoadPendingId]);
+
+  useEffect(() => {
+    if (!isRefreshPending && wikiSetupChatStore.routeSyncStatus === "refreshing")
+      wikiSetupChatStore.markRouteSyncComplete();
+  }, [isRefreshPending, wikiSetupChatStore, wikiSetupChatStore.routeSyncStatus]);
+
+  return (
+    <AgentChatStoreProvider store={wikiSetupChatStore}>
+      <AgentRouteReloadBridge reload={refreshPage} />
+
+      <TooltipProvider>
+        <div className="flex h-72 min-w-0 flex-col overflow-hidden rounded-xl border bg-card sm:h-80">
+          {loading ? (
+            <div className="flex flex-1 items-center justify-center" role="status">
+              <Spinner aria-label={t("PageState.loading")} />
+            </div>
+          ) : failed ? (
+            <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center" role="alert">
+              <p className="text-sm text-muted-foreground">{t("AgentChat.errors.turnFailed")}</p>
+
+              <Button size="sm" type="button" variant="secondary" onClick={() => runUserAction(loadConversation)}>
+                {t("ErrorCard.retry")}
+              </Button>
+            </div>
+          ) : (
+            <>
+              <AgentConversationLog readOnly renderLinksAsText />
+
+              {wikiSetupChatStore.isWorking ? <AgentProgressStatus /> : null}
+
+              <AgentStatusAnnouncer />
+            </>
+          )}
+        </div>
+      </TooltipProvider>
+    </AgentChatStoreProvider>
+  );
+});
 
 export const StepWiki = observer(
   ({ canSetupWithMate, initialState }: { canSetupWithMate: boolean; initialState: WikiHomepageSetupState }) => {
     const t = useTranslations();
-    const { agentChatStore, onboardingWizardStore } = useRootStore();
+    const { onboardingWizardStore } = useRootStore();
     const completing = useRef(false);
     const completeStep = async () => {
       if (completing.current) return;
@@ -59,11 +128,8 @@ export const StepWiki = observer(
         canStart={canSetupWithMate}
         disabled={onboardingWizardStore.isSubmitting}
         initialState={initialState}
-        onAccepted={async (conversationId) => {
-          agentChatStore.open();
-          await agentChatStore.loadConfig();
-          await agentChatStore.selectConversation(conversationId);
-        }}
+        renderConversation={(conversationId) => <WikiSetupConversation conversationId={conversationId} />}
+        onAccepted={() => undefined}
         onContinue={completeStep}
         onSkip={completeStep}
       />

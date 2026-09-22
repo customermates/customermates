@@ -2934,8 +2934,8 @@
         "title": "Tu perfil"
       },
       "wiki": {
-        "subtitle": "Añade contexto desde el sitio web público de tu empresa u omite este paso opcional.",
-        "title": "Configura la wiki de tu espacio"
+        "subtitle": "Mate recopila conocimiento público útil de la web de tu empresa para que tus agentes de IA tengan el contexto que necesitan. Podrás revisarlo y editarlo más tarde.",
+        "title": "¿Crear tu wiki desde tu sitio web?"
       }
     }
   },
@@ -3625,6 +3625,7 @@
   },
   "WikiSetup": {
     "continue": "Continuar",
+    "continueBackground": "Continuar — Mate sigue trabajando",
     "createBlank": "Crear una página en blanco",
     "description": "Convierte tu sitio web en una wiki inicial con cinco páginas conectadas.",
     "gapsNote": "Mate cita lo que encuentra y marca la información que falta en vez de inventarla.",
@@ -3644,20 +3645,20 @@
     "homepageLabel": "Sitio web de la empresa",
     "homepagePlaceholder": "https://ejemplo.com",
     "openTask": "Abrir tarea de Mate",
-    "skip": "Omitir",
-    "start": "Configurar con Mate",
+    "skip": "Ahora no",
+    "start": "Crear mi wiki",
     "startFailed": "Mate no pudo iniciar la configuración de la wiki. Inténtalo de nuevo.",
     "status": {
       "completedBody": "Tus páginas iniciales conectadas están listas para revisar y editar.",
-      "completedBodyOnboarding": "Tus cinco páginas iniciales conectadas están listas. Continúa la incorporación y revísalas después en la wiki.",
+      "completedBodyOnboarding": "Tu wiki inicial está lista. Continúa ahora y revísala o edítala más tarde.",
       "completedExistingBody": "Tu wiki ya contiene páginas. Continúa la incorporación o revisa el contenido existente.",
       "completedTitle": "Tu wiki está lista",
-      "failedBody": "No se añadió ninguna página. Abre la tarea de Mate para ver los detalles o prueba otro sitio.",
+      "failedBody": "No se añadió ninguna página. Prueba otro sitio o continúa y añade páginas más tarde.",
       "failedTitle": "La configuración no terminó",
       "noContentBody": "Mate no encontró suficiente información pública fiable, por lo que no creó páginas.",
       "noContentTitle": "No se encontró contenido útil",
-      "workingBody": "Mate está leyendo {domain} y creando las cinco páginas. Puedes ver la tarea o continuar la incorporación.",
-      "workingBodyNoTask": "Mate está leyendo {domain} y creando las cinco páginas. Puedes continuar la incorporación; las páginas aparecerán cuando termine la tarea.",
+      "workingBody": "Mate está leyendo {domain} y creando tu wiki. Sigue el progreso aquí o continúa; Mate seguirá trabajando en segundo plano.",
+      "workingBodyNoTask": "Mate está leyendo {domain} y creando tu wiki. Puedes continuar; Mate seguirá trabajando en segundo plano.",
       "workingTitle": "Mate está creando tu wiki"
     },
     "topics": {
