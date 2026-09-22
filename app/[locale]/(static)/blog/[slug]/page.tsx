@@ -12,7 +12,7 @@ import { MarketingContainer } from "@/components/marketing/marketing-container";
 import { PageEnding } from "@/components/marketing/page-ending";
 import { Icon } from "@/components/shared/icon";
 import { GridPattern } from "@/components/shared/grid-pattern";
-import { AppChip } from "@/components/chip/app-chip";
+import { Badge } from "@/components/ui/badge";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
@@ -139,9 +139,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 {tags.length > 0 ? (
                   <div className="mt-5 flex flex-wrap gap-2">
                     {tags.map((tag: string) => (
-                      <AppChip key={tag} variant="secondary">
+                      <Badge key={tag} className="h-[22px] rounded-md px-1.5 py-0.5 text-[11px]" variant="secondary">
                         {tag}
-                      </AppChip>
+                      </Badge>
                     ))}
                   </div>
                 ) : null}

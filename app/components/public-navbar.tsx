@@ -17,7 +17,6 @@ import {
   HeartPulse,
   Inbox,
   LayoutGrid,
-  LogOut,
   Megaphone,
   Menu,
   Plug,
@@ -51,10 +50,8 @@ import {
 } from "@/components/ui/sheet";
 import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 import { cn } from "@/core/utils/cn";
-import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import { runUserAction } from "@/core/errors/report-application-error";
 import { resolvePublicNavbarActions } from "./navigation/public-navbar-model";
-import { signOutFromPublicNavbar } from "./navigation/public-navbar-sign-out";
+import { PublicNavbarSignOutButton } from "./navigation/public-navbar-sign-out-button";
 import {
   isPrimaryPublicNavLink,
   PublicNavLinkIcon,
@@ -77,7 +74,6 @@ const mobileOverviewRowClassName =
 export function PublicNavbar({ accountState, hasValidSession, onboardingIntent }: Props) {
   const t = useTranslations();
   const pathname = usePathname();
-  const [isSigningOut, setIsSigningOut] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   function closeMenu() {
@@ -362,36 +358,15 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent }
     );
   }
 
-  async function handleSignOut() {
-    if (isSigningOut) return;
-    setIsSigningOut(true);
-    try {
-      const result = await signOutFromPublicNavbar(onboardingIntent);
-      if (!result || result.ok) return;
-
-      toastZodErrorTree(result.error);
-      setIsSigningOut(false);
-    } catch (error) {
-      setIsSigningOut(false);
-      throw error;
-    }
-  }
-
   function renderSignOutButton(className?: string) {
     if (actions.signOut === "hidden") return null;
 
     return (
-      <Button
+      <PublicNavbarSignOutButton
         className={className}
-        disabled={isSigningOut}
-        size="sm"
+        onboardingIntent={onboardingIntent}
         variant={actions.signOut === "setupEscape" ? "destructiveOutline" : "ghost"}
-        onClick={() => runUserAction(handleSignOut)}
-      >
-        <LogOut aria-hidden className="size-4" />
-
-        {t("UserAvatar.signOut")}
-      </Button>
+      />
     );
   }
 
