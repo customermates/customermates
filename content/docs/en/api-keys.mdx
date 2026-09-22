@@ -36,7 +36,7 @@ Only if you set an expiration date. A key without one never expires. When you se
 
 Open the key from its card and choose **Delete**; a confirmation follows and the key stops working immediately. There is no separate rotate or revoke action: to rotate, create a new key, update every client that used the old one, then delete the old key.
 
-Rotate when a device that held the key is lost or compromised, when a teammate with access leaves, or when you suspect the key leaked. One key per client keeps audit entries readable and lets you delete a single client without breaking the others. Keep keys in an environment variable or a password manager, never in a config file you commit.
+Rotate when a device that held the key is lost or compromised, when a teammate with access leaves, or when you suspect the key leaked. One key per client lets you delete a single client without breaking the others. It does not separate them in the audit log, which names the user a key belongs to, not the key. Keep keys in an environment variable or a password manager, never in a config file you commit.
 
 ## What is the key format?
 

@@ -7,6 +7,8 @@ import type { RoleDto } from "@/features/role/role.schema";
 import type { WebhookEventPayload } from "@/features/webhook/webhook-event-payload";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { LegalAcceptanceAuditPayload, LegalNoticeAuditPayload } from "@/features/legal/legal-audit.schema";
+import type { RoutineDto } from "@/ee/routines/routine.schema";
+import type { AccountRemovalReason } from "@/ee/messaging/connect/account-removal-reason";
 
 import type { CountryCode, Status, Currency, EntityType, MessagingProvider } from "@/generated/prisma";
 
@@ -38,6 +40,9 @@ export enum DomainEvent {
   CUSTOM_COLUMN_CREATED = "custom_column.created",
   CUSTOM_COLUMN_UPDATED = "custom_column.updated",
   CUSTOM_COLUMN_DELETED = "custom_column.deleted",
+  ROUTINE_CREATED = "routine.created",
+  ROUTINE_UPDATED = "routine.updated",
+  ROUTINE_DELETED = "routine.deleted",
   CONNECTED_ACCOUNT_CREATED = "connected_account.created",
   CONNECTED_ACCOUNT_DELETED = "connected_account.deleted",
   CONNECTED_ACCOUNT_UPDATED = "connected_account.updated",
@@ -271,6 +276,27 @@ export type DomainEventMap = {
     entityId: string;
     payload: CustomColumnDto;
   };
+  [DomainEvent.ROUTINE_CREATED]: {
+    userId: string;
+    companyId: string;
+    entityId: string;
+    payload: RoutineDto;
+  };
+  [DomainEvent.ROUTINE_UPDATED]: {
+    userId: string;
+    companyId: string;
+    entityId: string;
+    payload: {
+      routine: RoutineDto;
+      changes: Record<string, { previous: unknown; current: unknown }>;
+    };
+  };
+  [DomainEvent.ROUTINE_DELETED]: {
+    userId: string;
+    companyId: string;
+    entityId: string;
+    payload: RoutineDto;
+  };
   [DomainEvent.CONNECTED_ACCOUNT_CREATED]: {
     userId: string;
     companyId: string;
@@ -281,7 +307,7 @@ export type DomainEventMap = {
     userId: string;
     companyId: string;
     entityId: string;
-    payload: ConnectedAccountAuditPayload;
+    payload: ConnectedAccountAuditPayload & { removalReason?: AccountRemovalReason };
   };
   [DomainEvent.CONNECTED_ACCOUNT_UPDATED]: {
     userId: string;

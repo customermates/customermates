@@ -43,6 +43,7 @@ import {
   FILTER_FIELD_TERMINOLOGY,
 } from "@/features/entity-terminology/entity-terminology.constants";
 import { DIAGRAM_SYSTEM_LABEL_KEYS, DisplayType } from "@/features/widget/widget.schema";
+import { ACCOUNT_REMOVAL_REASONS } from "@/ee/messaging/connect/account-removal-reason";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
 
 const ENTITY_TERMINOLOGY_KEYS = Object.entries(ENTITY_TERMINOLOGY_PRESETS).flatMap(([entityType, presets]) =>
@@ -52,6 +53,7 @@ const ENTITY_TERMINOLOGY_KEYS = Object.entries(ENTITY_TERMINOLOGY_PRESETS).flatM
 );
 
 const DOMAIN_EVENT_KEYS = Object.values(DomainEvent).map((event) => `Common.events.${event}`);
+const ACCOUNT_REMOVAL_REASON_KEYS = ACCOUNT_REMOVAL_REASONS.map((reason) => `AccountRemovalReason.${reason}`);
 const ROUTINE_RUN_STATUS_KEYS = Object.values(RoutineRunStatus).map((status) => `RoutineRunStatus.${status}`);
 const ROUTINE_TRIGGER_KIND_KEYS = Object.values(RoutineTriggerKind).map((kind) => `RoutineTriggerKind.${kind}`);
 const ROUTINE_SCHEDULE_PRESET_KEYS = ROUTINE_SCHEDULE_PRESETS.map((preset) => `RoutineSchedulePreset.${preset}`);
@@ -158,18 +160,28 @@ const AUDIT_FIELD_KEYS = [
   "AuditLogModal.fields.acceptanceType",
   "AuditLogModal.fields.acceptingEmail",
   "AuditLogModal.fields.changedDocuments",
+  "AuditLogModal.fields.changedFields",
   "AuditLogModal.fields.city",
   "AuditLogModal.fields.country",
+  "AuditLogModal.fields.cronExpression",
   "AuditLogModal.fields.currency",
   "AuditLogModal.fields.dealStageWeights",
   "AuditLogModal.fields.dealWeightingColumnId",
+  "AuditLogModal.fields.debounceSeconds",
+  "AuditLogModal.fields.disabledReason",
   "AuditLogModal.fields.effectiveAt",
   "AuditLogModal.fields.emails",
   "AuditLogModal.fields.isNewCompany",
   "AuditLogModal.fields.postalCode",
+  "AuditLogModal.fields.prompt",
   "AuditLogModal.fields.recipientEmail",
+  "AuditLogModal.fields.removalReason",
   "AuditLogModal.fields.street",
   "AuditLogModal.fields.terminology",
+  "AuditLogModal.fields.timezone",
+  "AuditLogModal.fields.triggerEvents",
+  "AuditLogModal.fields.triggerFilters",
+  "AuditLogModal.fields.triggerKind",
   "AuditLogModal.fields.versions",
   "AuditLogModal.fields.visibility",
 ] as const;
@@ -468,6 +480,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Common.defaultData.${*}.options.${*}", DEFAULT_DATA_OPTION_KEYS],
   ["Common.errors.${*}", CUSTOM_ERROR_CODE_KEYS],
   ["Common.events.${*}", DOMAIN_EVENT_KEYS],
+  ["AccountRemovalReason.${*}", ACCOUNT_REMOVAL_REASON_KEYS],
   ["RoutineRunStatus.${*}", ROUTINE_RUN_STATUS_KEYS],
   ["RoutineTriggerKind.${*}", ROUTINE_TRIGGER_KIND_KEYS],
   ["RoutineSchedulePreset.${*}", ROUTINE_SCHEDULE_PRESET_KEYS],
@@ -709,11 +722,13 @@ export const DYNAMIC_KEY_SITES = [
   "features/messaging/activities/activities-list.tsx :: t :: Common.events.${entry.event}",
   "features/messaging/activities/activities-list.tsx :: t :: Common.providers.${ev.provider}",
   "features/messaging/activities/activities-list.tsx :: t :: Common.providers.${message.provider}",
+  "features/messaging/activities/audit-detail.tsx :: t :: AccountRemovalReason.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.customColumnTypes.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.events.${entry.event}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.providers.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.userStatuses.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t :: LegalDocumentNotice.documents.${document}",
+  "features/messaging/activities/audit-detail.tsx :: t.has :: AccountRemovalReason.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t.has :: Common.customColumnTypes.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t.has :: Common.providers.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t.has :: Common.userStatuses.${String(value)}",

@@ -61,7 +61,7 @@ export class DeleteAccountsForPlanInteractor {
     );
     if (overage.length === 0) return;
 
-    for (const account of overage) await this.deleteService.deleteForBillingOrThrow(account.id);
+    for (const account of overage) await this.deleteService.deleteForBillingOrThrow(account.id, "planDowngrade");
 
     await this.notifyAdmins(payload.companyId, payload.plan, overage);
   }

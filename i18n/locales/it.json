@@ -7,6 +7,12 @@
     "subject": "La tua e-mail è confermata e abbiamo rimosso la vecchia password",
     "title": "Il tuo indirizzo e-mail è confermato"
   },
+  "AccountRemovalReason": {
+    "ownerInactive": "Proprietario disattivato",
+    "planDowngrade": "Piano ridotto",
+    "subscriptionLapsed": "Abbonamento scaduto",
+    "trialExpired": "Prova terminata"
+  },
   "AccountsRemovedNotice": {
     "body": "Il tuo piano è passato a {plan}, quindi ho rimosso i seguenti account collegati per rientrare nel limite del piano: {accounts}. I tuoi messaggi e i tuoi contatti sono ancora tutti lì. Puoi ricollegare questi account quando vuoi dalla pagina degli account collegati.",
     "cta": "Vedi gli account collegati",
@@ -844,18 +850,28 @@
       "acceptanceType": "Tipo di accettazione",
       "acceptingEmail": "Accettato da",
       "changedDocuments": "Documenti modificati",
+      "changedFields": "Campi monitorati",
       "city": "Città",
       "country": "Paese",
+      "cronExpression": "Pianificazione",
       "currency": "Valuta",
       "dealStageWeights": "Probabilità di fase",
       "dealWeightingColumnId": "Campo della fase",
+      "debounceSeconds": "Ritardo",
+      "disabledReason": "Motivo disattivazione",
       "effectiveAt": "In vigore dal",
       "emails": "Indirizzi e-mail",
       "isNewCompany": "Prima persona nello spazio",
       "postalCode": "Codice postale",
+      "prompt": "Istruzioni",
       "recipientEmail": "Inviato a",
+      "removalReason": "Motivo rimozione",
       "street": "Via",
       "terminology": "Nomi dei record",
+      "timezone": "Fuso orario",
+      "triggerEvents": "Eventi di attivazione",
+      "triggerFilters": "Filtri di attivazione",
+      "triggerKind": "Attivazione",
       "versions": "Versioni dei documenti",
       "visibility": "Visibilità"
     },
@@ -1274,6 +1290,11 @@
         "created": "Ruolo creato",
         "deleted": "Ruolo eliminato",
         "updated": "Ruolo aggiornato"
+      },
+      "routine": {
+        "created": "Routine creata",
+        "deleted": "Routine eliminata",
+        "updated": "Routine aggiornata"
       },
       "service": {
         "created": "Servizio creato",

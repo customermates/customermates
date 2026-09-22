@@ -22,7 +22,7 @@ Every record belongs to a **Company**. The company id is enforced in three place
 2. **Prisma layer**: queries include `companyId` in every `where`.
 3. **Decorator layer**: `@TenantInteractor` makes interactors that fail to scope throw at runtime.
 
-Cross-tenant reads are not possible through the public surface. There is no admin panel that bypasses scope. The hosted assistant runs inside the same scope: it can read and change only what the asking user can.
+Cross-tenant reads are not possible through the public surface. On the managed cloud a vendor operator console can read across tenants for support; it is limited to an allowlisted operator account, refuses to load outside cloud mode, and records every read and write in a separate internal log. A self-hosted deployment has no such console. The hosted assistant runs inside the same scope: it can read and change only what the asking user can.
 
 ## How do clients authenticate?
 
@@ -63,7 +63,7 @@ See the [MCP tool catalog](/docs/mcp#tool-catalog) for the full list.
 
 ## What does the audit log record?
 
-Every write to a record is logged with user, action, entity, and the fields that changed with their previous and current values. Messaging events are not written to the audit log, and webhook secrets and header values are redacted. Read it on the [Company page](/docs/app-company) under **Audit logs**; access needs the audit-log read permission on your role. It is included on every cloud plan and in the self-hosted edition alike. There is no export of the audit log; the dashboard's activity timeline can show the same changes as a feed.
+Changes to records and to the workspace configuration around them are logged with the user, the event, the element id and the payload. Updates to records, roles, webhooks, custom fields, routines and connected accounts carry a field-level diff; creates, deletes and member or company-settings saves carry a snapshot instead, which is written even when nothing changed. A failed write leaves no entry. Messaging events are not written to the audit log, and webhook secrets and header values are redacted. Authentication, API key lifecycle, subscription changes, saved views, widgets, agent conversations and vendor operator actions are not recorded either. An entry written by an automated process, such as removing a connected account when a trial ends, names the user it affected rather than someone who performed it. Read it on the [Company page](/docs/app-company) under **Audit logs**; access needs the audit-log read permission on your role. It is included on every cloud plan and in the self-hosted edition alike. The screen has no export action; the activity timeline, its REST endpoint and the `get_activities` tool return the same entries under the same permission.
 
 ## Where do I report a vulnerability?
 

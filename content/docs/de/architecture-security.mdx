@@ -22,7 +22,7 @@ Jeder Datensatz gehört zu einer **Company**. Die Company-ID wird an drei Stelle
 2. **Prisma-Layer**: Queries enthalten `companyId` in jedem `where`.
 3. **Decorator-Layer**: `@TenantInteractor` lässt Interactors, die den Scope nicht setzen, zur Laufzeit werfen.
 
-Cross-Tenant-Reads sind über die öffentliche Oberfläche nicht möglich. Es gibt kein Admin-Panel, das den Scope umgeht. Der gehostete Assistent läuft im selben Scope: Er kann nur lesen und ändern, was der anfragende User darf.
+Cross-Tenant-Reads sind über die öffentliche Oberfläche nicht möglich. In der gehosteten Cloud kann eine Operator-Konsole des Anbieters für den Support mandantenübergreifend lesen; sie ist auf ein freigeschaltetes Operator-Konto beschränkt, verweigert den Dienst außerhalb des Cloud-Modus und schreibt jeden Read und Write in ein separates internes Log. Eine selbstgehostete Installation hat keine solche Konsole. Der gehostete Assistent läuft im selben Scope: Er kann nur lesen und ändern, was der anfragende User darf.
 
 ## Wie authentifizieren sich Clients?
 
@@ -63,7 +63,7 @@ Die vollständige Liste finden Sie im [MCP-Tool-Katalog](/docs/mcp#tool-catalog)
 
 ## Was erfasst das Audit-Log?
 
-Jeder Write auf einen Datensatz wird mit User, Aktion, Entity und den geänderten Feldern samt vorherigem und aktuellem Wert geloggt. Messaging-Events werden nicht ins Audit-Log geschrieben, und Webhook-Secrets sowie Header-Werte werden redigiert. Lesen Sie es auf der Seite [Unternehmen](/docs/app-company) unter **Audit-Logs**; der Zugriff braucht die Leseberechtigung für das Audit-Log auf Ihrer Rolle. Es ist in jedem Cloud-Plan und ebenso in der selbstgehosteten Edition enthalten. Einen Export des Audit-Logs gibt es nicht; der Aktivitätsverlauf des Dashboards kann dieselben Änderungen als Feed zeigen.
+Änderungen an Datensätzen und an der Workspace-Konfiguration darum herum werden mit User, Ereignis, Element-ID und Payload protokolliert. Aktualisierungen an Datensätzen, Rollen, Webhooks, benutzerdefinierten Feldern, Routinen und verbundenen Konten enthalten ein feldweises Diff; Erstellungen, Löschungen sowie das Speichern von Mitgliedern oder Unternehmenseinstellungen enthalten stattdessen eine Momentaufnahme, die auch dann geschrieben wird, wenn sich nichts geändert hat. Ein fehlgeschlagener Write hinterlässt keinen Eintrag. Messaging-Events werden nicht ins Audit-Log geschrieben, und Webhook-Secrets sowie Header-Werte werden redigiert. Authentifizierung, der Lebenszyklus von API-Keys, Abo-Änderungen, gespeicherte Ansichten, Widgets, Agent-Konversationen und Operator-Aktionen des Anbieters werden ebenfalls nicht protokolliert. Ein Eintrag aus einem automatisierten Prozess, etwa das Entfernen eines verbundenen Kontos nach Ablauf der Testphase, nennt die betroffene Person, nicht eine ausführende. Lesen Sie es auf der Seite [Unternehmen](/docs/app-company) unter **Audit-Logs**; der Zugriff braucht die Leseberechtigung für das Audit-Log auf Ihrer Rolle. Es ist in jedem Cloud-Plan und ebenso in der selbstgehosteten Edition enthalten. Der Screen bietet keinen Export; der Aktivitätsverlauf, sein REST-Endpunkt und das Tool `get_activities` liefern dieselben Einträge mit derselben Berechtigung.
 
 ## Wo melde ich Vulnerabilities?
 
