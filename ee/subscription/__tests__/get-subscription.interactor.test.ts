@@ -18,39 +18,41 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 const { GetSubscriptionInteractor } = await import("../get-subscription.interactor");
+const { GetBillingPortalUrlInteractor } = await import("../get-billing-portal-url.interactor");
 const { runWithTenant } = await import("@/core/decorators/tenant-context");
 
 const PORTAL_URL = "https://billing.example/portal/abc";
 
-function make(mayManageBilling: boolean) {
-  const repo = {
-    getSubscriptionOrThrow: vi.fn().mockResolvedValue({
-      status: "active",
-      plan: "pro",
-      quantity: 3,
-      trialEndDate: null,
-      currentPeriodEnd: null,
-      lemonSqueezyId: "ls-1",
-    }),
+function subscriptionRow(overrides: Record<string, unknown> = {}) {
+  return {
+    status: "active",
+    plan: "pro",
+    quantity: 3,
+    trialEndDate: null,
+    currentPeriodEnd: null,
+    lemonSqueezyId: "ls-1",
+    ...overrides,
   };
+}
+
+function makeSubscription(overrides: Record<string, unknown> = {}) {
+  const repo = { getSubscriptionOrThrow: vi.fn().mockResolvedValue(subscriptionRow(overrides)) };
   const userRepo = { countActiveUsers: vi.fn().mockResolvedValue(3) };
+
+  return new GetSubscriptionInteractor(repo as never, userRepo as never);
+}
+
+function makePortal(overrides: Record<string, unknown> = {}) {
+  const repo = { getSubscriptionOrThrow: vi.fn().mockResolvedValue(subscriptionRow(overrides)) };
   const lemonSqueezyService = {
     getSubscriptionOrThrowUnscoped: vi.fn().mockResolvedValue({
       data: { attributes: { urls: { customer_portal: PORTAL_URL } } },
     }),
   };
 
-  const userService = { hasPermission: vi.fn().mockResolvedValue(mayManageBilling) };
-
   return {
-    interactor: new GetSubscriptionInteractor(
-      repo as never,
-      userRepo as never,
-      lemonSqueezyService as never,
-      userService as never,
-    ),
+    interactor: new GetBillingPortalUrlInteractor(repo as never, lemonSqueezyService as never),
     lemonSqueezyService,
-    userService,
   };
 }
 
@@ -74,39 +76,56 @@ const billingManager = () => ({
 
 beforeEach(() => vi.clearAllMocks());
 
-describe("GetSubscriptionInteractor customer portal exposure", () => {
-  it("withholds the billing portal link from a member who cannot act on billing", async () => {
-    const { interactor, lemonSqueezyService } = make(false);
-
-    const result = await runWithTenant(readOnlyMember(), () => interactor.invoke());
-
-    expect(result.data.customerPortalUrl).toBeNull();
-    expect(lemonSqueezyService.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
-  });
-
-  it("still reports the plan and seats to that member, because reading the subscription is allowed", async () => {
-    const { interactor } = make(true);
-
-    const result = await runWithTenant(readOnlyMember(), () => interactor.invoke());
+describe("GetSubscriptionInteractor", () => {
+  it("reports the plan and seats to a member who may only read the company", async () => {
+    const result = await runWithTenant(readOnlyMember(), () => makeSubscription().invoke());
 
     expect(result.data).toMatchObject({ plan: "pro", status: "active", activeUsers: 3, hasActiveSubscription: true });
   });
 
-  it("gives the portal link to a member who can manage billing", async () => {
-    const { interactor, lemonSqueezyService, userService } = make(true);
+  it("says a billing portal exists without reaching the billing provider", async () => {
+    const result = await runWithTenant(readOnlyMember(), () => makeSubscription().invoke());
+
+    expect(result.data.hasBillingPortal).toBe(true);
+    expect(result.data).not.toHaveProperty("customerPortalUrl");
+  });
+
+  it("reports no billing portal for an enterprise plan, which is contracted rather than self-serve", async () => {
+    const result = await runWithTenant(billingManager(), () => makeSubscription({ plan: "enterprise" }).invoke());
+
+    expect(result.data.hasBillingPortal).toBe(false);
+  });
+
+  it("reports no billing portal when the workspace has no billing subscription", async () => {
+    const result = await runWithTenant(billingManager(), () => makeSubscription({ lemonSqueezyId: null }).invoke());
+
+    expect(result.data.hasBillingPortal).toBe(false);
+  });
+});
+
+describe("GetBillingPortalUrlInteractor", () => {
+  it("refuses a member who cannot act on the company, at the decorator", async () => {
+    const { interactor, lemonSqueezyService } = makePortal();
+
+    await expect(runWithTenant(readOnlyMember(), () => interactor.invoke())).rejects.toThrow(/update on company/);
+    expect(lemonSqueezyService.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("returns the portal url to a member who can act on the company", async () => {
+    const { interactor, lemonSqueezyService } = makePortal();
 
     const result = await runWithTenant(billingManager(), () => interactor.invoke());
 
-    expect(result.data.customerPortalUrl).toBe(PORTAL_URL);
+    expect(result.data).toBe(PORTAL_URL);
     expect(lemonSqueezyService.getSubscriptionOrThrowUnscoped).toHaveBeenCalledOnce();
-    expect(userService.hasPermission).toHaveBeenCalledWith(Resource.company, Action.update);
   });
 
-  it("gives the portal link to a system administrator", async () => {
-    const { interactor } = make(true);
+  it("returns nothing for an enterprise plan without calling the billing provider", async () => {
+    const { interactor, lemonSqueezyService } = makePortal({ plan: "enterprise" });
 
-    const result = await runWithTenant(createMockUser(), () => interactor.invoke());
+    const result = await runWithTenant(billingManager(), () => interactor.invoke());
 
-    expect(result.data.customerPortalUrl).toBe(PORTAL_URL);
+    expect(result.data).toBeNull();
+    expect(lemonSqueezyService.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
   });
 });

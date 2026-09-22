@@ -31,6 +31,7 @@ import {
   getCreateCheckoutSessionInteractor,
   getRefreshSubscriptionInteractor,
   getGetSubscriptionInteractor,
+  getGetBillingPortalUrlInteractor,
   getGetWebhooksInteractor,
   getUpsertWebhookInteractor,
   getDeleteWebhookInteractor,
@@ -54,6 +55,11 @@ export async function refreshSubscriptionAction() {
 
 export async function getSubscriptionAction() {
   const result = await getGetSubscriptionInteractor().invoke();
+  return result.data;
+}
+
+export async function getBillingPortalUrlAction() {
+  const result = await getGetBillingPortalUrlInteractor().invoke();
   return result.data;
 }
 

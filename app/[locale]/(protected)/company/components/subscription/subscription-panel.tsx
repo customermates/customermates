@@ -42,7 +42,7 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
   const seats = subscription?.quantity ?? subscription?.activeUsers ?? 0;
   const hasActiveSubscription = subscription?.hasActiveSubscription ?? false;
   const canManageCompany = userStore.canManage(Resource.company);
-  const hasBillingPortal = Boolean(subscription?.customerPortalUrl);
+  const hasBillingPortal = Boolean(subscription?.hasBillingPortal);
   const planHelp = !hasActiveSubscription
     ? canManageCompany
       ? t("Subscription.fieldHelp.planPicker")

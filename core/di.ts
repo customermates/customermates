@@ -328,6 +328,7 @@ import { DeleteApiKeyInteractor } from "@/features/api-key/delete-api-key.intera
 // EE Subscription interactors
 import { CreateCheckoutSessionInteractor } from "@/ee/subscription/create-checkout-session.interactor";
 import { GetSubscriptionInteractor } from "@/ee/subscription/get-subscription.interactor";
+import { GetBillingPortalUrlInteractor } from "@/ee/subscription/get-billing-portal-url.interactor";
 import { RefreshSubscriptionInteractor } from "@/ee/subscription/refresh-subscription.interactor";
 // EE Lifecycle interactors (cron consumers)
 import { SendWelcomeAndDemoInteractor } from "@/ee/lifecycle/send-welcome-and-demo.interactor";
@@ -1616,8 +1617,10 @@ export const getDeleteApiKeyInteractor = () => new DeleteApiKeyInteractor(getAut
 export const getCreateCheckoutSessionInteractor = () =>
   new CreateCheckoutSessionInteractor(getSubscriptionService(), getCompanyRepo(), getUserRepo());
 
-export const getGetSubscriptionInteractor = () =>
-  new GetSubscriptionInteractor(getCompanyRepo(), getUserRepo(), getSubscriptionService(), getUserService());
+export const getGetSubscriptionInteractor = () => new GetSubscriptionInteractor(getCompanyRepo(), getUserRepo());
+
+export const getGetBillingPortalUrlInteractor = () =>
+  new GetBillingPortalUrlInteractor(getCompanyRepo(), getSubscriptionService());
 
 export const getRefreshSubscriptionInteractor = () =>
   new RefreshSubscriptionInteractor(getCompanyRepo(), getSubscriptionService(), getDeleteAccountsForPlanInteractor());

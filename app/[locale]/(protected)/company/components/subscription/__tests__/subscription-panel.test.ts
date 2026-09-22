@@ -74,7 +74,7 @@ describe("SubscriptionPanel read-only fields", () => {
     const initialSubscription: SubscriptionDto = {
       activeUsers: 3,
       currentPeriodEnd: new Date("2026-09-30T00:00:00.000Z"),
-      customerPortalUrl: "https://billing.example.test",
+      hasBillingPortal: true,
       hasActiveSubscription: true,
       plan: SubscriptionPlan.pro,
       quantity: 4,
@@ -140,7 +140,7 @@ describe("SubscriptionPanel read-only fields", () => {
         initialSubscription: {
           activeUsers: 3,
           currentPeriodEnd: new Date("2026-09-30T00:00:00.000Z"),
-          customerPortalUrl: "https://billing.example.test",
+          hasBillingPortal: true,
           hasActiveSubscription: true,
           plan: SubscriptionPlan.pro,
           quantity: 4,
@@ -166,7 +166,7 @@ describe("SubscriptionPanel read-only fields", () => {
         initialSubscription: {
           activeUsers: 3,
           currentPeriodEnd: new Date("2026-09-30T00:00:00.000Z"),
-          customerPortalUrl: null,
+          hasBillingPortal: false,
           hasActiveSubscription: true,
           plan: SubscriptionPlan.pro,
           quantity: 4,
