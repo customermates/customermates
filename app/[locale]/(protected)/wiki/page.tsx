@@ -2,7 +2,7 @@ import { Resource } from "@/generated/prisma";
 import { env } from "@/env";
 
 import { PageContainer } from "@/components/shared/page-container";
-import { getGetWikiPageInteractor, getGetWikiPagesInteractor } from "@/core/di";
+import { getGetWikiHomepageSetupStateInteractor, getGetWikiPageInteractor, getGetWikiPagesInteractor } from "@/core/di";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 import { requireAccess } from "@/features/auth/next/require";
 
@@ -21,9 +21,14 @@ export default async function WikiPage({ searchParams }: Props) {
 
   const raw = await searchParams;
   const listPage = Math.max(1, Number.parseInt(firstString(raw.listPage) ?? "1", 10) || 1);
-  let pages = await unwrapValidated(getGetWikiPagesInteractor().invoke({ page: listPage, pageSize: 25 }));
-  if (pages.total > 0 && pages.items.length === 0)
-    pages = await unwrapValidated(getGetWikiPagesInteractor().invoke({ page: 1, pageSize: 25 }));
+  const [initialPages, setupState] = await Promise.all([
+    unwrapValidated(getGetWikiPagesInteractor().invoke({ page: listPage, pageSize: 25 })),
+    unwrapValidated(getGetWikiHomepageSetupStateInteractor().invoke()),
+  ]);
+  const pages =
+    initialPages.total > 0 && initialPages.items.length === 0
+      ? await unwrapValidated(getGetWikiPagesInteractor().invoke({ page: 1, pageSize: 25 }))
+      : initialPages;
 
   const requestedId = firstString(raw.page);
   const selectedId = requestedId ?? pages.items[0]?.id;
@@ -38,6 +43,7 @@ export default async function WikiPage({ searchParams }: Props) {
     <PageContainer padded={false}>
       <WikiPageView
         initialPage={selectedPage}
+        initialSetupState={setupState}
         listPage={pages}
         pinnedPage={pinnedPage}
         readOnly={env.APP_MODE === "demo"}

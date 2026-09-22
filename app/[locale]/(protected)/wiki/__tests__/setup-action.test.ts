@@ -34,8 +34,18 @@ describe("startWikiHomepageSetupAction", () => {
     mocks.invoke.mockResolvedValue(disposition(value));
 
     await expect(
-      startWikiHomepageSetupAction({ homepage: "example.com", clientRequestId: CLIENT_REQUEST_ID }),
-    ).resolves.toEqual({ ok: true, data: { conversationId: CONVERSATION_ID } });
+      startWikiHomepageSetupAction({
+        homepage: "example.com",
+        clientRequestId: CLIENT_REQUEST_ID,
+      }),
+    ).resolves.toEqual({
+      ok: true,
+      data: {
+        conversationId: CONVERSATION_ID,
+        homepage: "https://example.com/",
+        domain: "example.com",
+      },
+    });
 
     expect(mocks.invoke).toHaveBeenCalledWith({
       homepage: "example.com",
@@ -49,8 +59,18 @@ describe("startWikiHomepageSetupAction", () => {
     mocks.invoke.mockResolvedValueOnce(disposition("failed")).mockResolvedValueOnce(disposition("run"));
 
     await expect(
-      startWikiHomepageSetupAction({ homepage: "example.com", clientRequestId: CLIENT_REQUEST_ID }),
-    ).resolves.toEqual({ ok: true, data: { conversationId: CONVERSATION_ID } });
+      startWikiHomepageSetupAction({
+        homepage: "example.com",
+        clientRequestId: CLIENT_REQUEST_ID,
+      }),
+    ).resolves.toEqual({
+      ok: true,
+      data: {
+        conversationId: CONVERSATION_ID,
+        homepage: "https://example.com/",
+        domain: "example.com",
+      },
+    });
 
     expect(mocks.invoke.mock.calls.map(([input]) => input.retry)).toEqual([false, true]);
   });

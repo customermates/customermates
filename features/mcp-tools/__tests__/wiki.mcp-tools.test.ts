@@ -32,7 +32,7 @@ vi.mock("@/core/di", () => ({
 }));
 
 import { ALL_MCP_TOOLS, MCP_TOOL_GROUPS } from "../tool-registry";
-import { manageWikiPagesTool, WikiHomepageSetupCreateSchema } from "../wiki.mcp-tools";
+import { manageWikiPagesTool, WikiHomepageSetupCreateSchema, wikiHomepageSetupTool } from "../wiki.mcp-tools";
 import { executeMcpTool, mcpToolResultText } from "../mcp-tool";
 
 const PAGE_ID = "00000000-0000-4000-8000-000000000001";
@@ -73,26 +73,48 @@ describe("manage_wiki_pages registry", () => {
   });
 
   it("exposes only the two setup capabilities during homepage setup", () => {
-    const validPages = Array.from({ length: 5 }, (_, index) => ({
-      title: `Page ${index + 1}`,
-      markdown: "Body",
+    const validPages = [
+      "company_overview",
+      "products_services",
+      "customers_competitors",
+      "voice_tone",
+      "support_faq",
+    ].map((topic) => ({
+      topic,
+      body: "Body",
+      gaps: "Confirm with the team.",
+      sources: [`https://example.com/${topic}`],
     }));
 
-    for (let count = 1; count <= 5; count++) {
-      expect(
-        WikiHomepageSetupCreateSchema.safeParse({
-          action: "create",
-          pages: validPages.slice(0, count),
-          requireEmpty: true,
-        }).success,
-      ).toBe(true);
-    }
+    expect(
+      WikiHomepageSetupCreateSchema.safeParse({
+        action: "create",
+        pages: validPages,
+        requireEmpty: true,
+      }).success,
+    ).toBe(true);
     for (const invalid of [
       { action: "list" },
       { action: "create", pages: [], requireEmpty: true },
+      { action: "create", pages: validPages.slice(0, 4), requireEmpty: true },
       {
         action: "create",
-        pages: [...validPages, validPages[0]],
+        pages: [...validPages.slice(0, 4), validPages[0]],
+        requireEmpty: true,
+      },
+      {
+        action: "create",
+        pages: validPages.map((page, index) => (index === 0 ? { ...page, body: " " } : page)),
+        requireEmpty: true,
+      },
+      {
+        action: "create",
+        pages: validPages.map((page, index) => (index === 0 ? { ...page, gaps: "" } : page)),
+        requireEmpty: true,
+      },
+      {
+        action: "create",
+        pages: validPages.map((page, index) => (index === 0 ? { ...page, sources: [] } : page)),
         requireEmpty: true,
       },
       { action: "create", pages: validPages, requireEmpty: false },
@@ -100,6 +122,109 @@ describe("manage_wiki_pages registry", () => {
     ])
       expect(WikiHomepageSetupCreateSchema.safeParse(invalid).success).toBe(false);
   });
+
+  it.each([
+    [
+      "en",
+      [
+        "Company Overview",
+        "Products & Services",
+        "Customers, Positioning & Competitors",
+        "Voice & Tone",
+        "Support & FAQ",
+      ],
+      "Gaps to confirm",
+      "Sources",
+      "Related pages",
+    ],
+    [
+      "de",
+      [
+        "Unternehmensüberblick",
+        "Produkte & Leistungen",
+        "Kunden, Positionierung & Wettbewerber",
+        "Sprache & Tonalität",
+        "Support & häufige Fragen",
+      ],
+      "Noch zu klären",
+      "Quellen",
+      "Verwandte Seiten",
+    ],
+    [
+      "es",
+      [
+        "Resumen de la empresa",
+        "Productos y servicios",
+        "Clientes, posicionamiento y competidores",
+        "Voz y tono",
+        "Soporte y preguntas frecuentes",
+      ],
+      "Aspectos por confirmar",
+      "Fuentes",
+      "Páginas relacionadas",
+    ],
+    [
+      "fr",
+      [
+        "Présentation de l’entreprise",
+        "Produits et services",
+        "Clients, positionnement et concurrents",
+        "Voix et ton",
+        "Support et FAQ",
+      ],
+      "Points à confirmer",
+      "Sources",
+      "Pages associées",
+    ],
+    [
+      "it",
+      [
+        "Panoramica dell’azienda",
+        "Prodotti e servizi",
+        "Clienti, posizionamento e concorrenti",
+        "Voce e tono",
+        "Supporto e FAQ",
+      ],
+      "Aspetti da confermare",
+      "Fonti",
+      "Pagine correlate",
+    ],
+  ] as const)(
+    "generates trusted %s titles, source links, and headings on the server",
+    async (locale, titles, gaps, sources, related) => {
+      calls.create.mockResolvedValue({ ok: true, data: [page()] });
+      const input = WikiHomepageSetupCreateSchema.parse({
+        action: "create",
+        requireEmpty: true,
+        pages: ["company_overview", "products_services", "customers_competitors", "voice_tone", "support_faq"].map(
+          (topic) => ({
+            topic,
+            body: `Verified ${topic}`,
+            gaps: `Confirm ${topic}`,
+            sources: [`https://example.com/${topic}`],
+          }),
+        ),
+      });
+
+      await wikiHomepageSetupTool(locale).execute(input);
+
+      expect(calls.create).toHaveBeenCalledWith({
+        requireEmpty: true,
+        pages: titles.map((title, index) =>
+          expect.objectContaining({
+            title,
+            setupRelatedHeading: related,
+            markdown: expect.stringContaining(`## ${gaps}`),
+            setupTopic: input.pages[index].topic,
+          }),
+        ),
+      });
+      for (const [index, created] of calls.create.mock.calls[0][0].pages.entries()) {
+        expect(created.markdown).toContain(`## ${sources}`);
+        expect(created.markdown).toContain(`<https://example.com/${input.pages[index].topic}>`);
+      }
+    },
+  );
 });
 
 describe("manage_wiki_pages reads", () => {

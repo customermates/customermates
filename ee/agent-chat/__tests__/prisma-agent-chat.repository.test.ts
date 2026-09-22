@@ -74,6 +74,7 @@ import { env } from "@/env";
 
 import { PrismaAgentChatRepo } from "../prisma-agent-chat.repository";
 import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "../agent-run-limits";
+import { WikiHomepageSetupAlreadyRunningError } from "../agent-turn-request";
 import { pendingAgentApprovalToolName } from "../agent-approval";
 
 const user = createMockUserWithPermissions([]);
@@ -388,6 +389,107 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       userMessageId: "user-message-1",
     });
     expect(prismaMock.$transaction).toHaveBeenCalledOnce();
+  });
+
+  it("rejects a concurrent homepage setup under the company admission lock", async () => {
+    prismaMock.agentRunLease.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
+      id: "reservation-2",
+    });
+    prismaMock.agentConversation.findFirst.mockResolvedValue({
+      id: "conversation-2",
+      origin: "user",
+    });
+    prismaMock.agentTurnRequest.findFirst.mockResolvedValueOnce({
+      id: "active-setup",
+    });
+
+    await expect(
+      runWithTenant(user, () =>
+        new PrismaAgentChatRepo().admitAgentTurnOrThrow({
+          conversationId: "conversation-2",
+          title: "Set up Workspace Wiki",
+          runId: "run-2",
+          reservationId: "reservation-2",
+          modelSpec: "openai/gpt-5.6-luna",
+          servingProvider: "azure",
+          recentMessageLimit: 8,
+          turn: {
+            kind: "create",
+            turnRequestId: "turn-2",
+            clientRequestId: "request-2",
+            text: "Set up the Wiki from https://example.com/",
+            pageRoute: "/en/wiki",
+            wikiHomepageSetupDomain: "example.com",
+            wikiHomepageSetupUrl: "https://example.com/",
+            userMessageId: "user-message-2",
+          },
+        }),
+      ),
+    ).rejects.toBeInstanceOf(WikiHomepageSetupAlreadyRunningError);
+
+    expect(prismaMock.$transaction).toHaveBeenCalledOnce();
+    expect(prismaMock.$executeRaw).toHaveBeenCalledOnce();
+    expect(prismaMock.agentTurnRequest.findFirst).toHaveBeenCalledWith({
+      where: {
+        id: { not: "turn-2" },
+        companyId: user.companyId,
+        wikiHomepageSetupDomain: { not: null },
+        status: { in: ["running", "waitingBudget"] },
+        OR: [{ heartbeatAt: { gt: expect.any(Date) } }, { heartbeatAt: null, updatedAt: { gt: expect.any(Date) } }],
+      },
+      select: { id: true },
+    });
+    expect(prismaMock.agentTurnRequest.create).not.toHaveBeenCalled();
+    expect(prismaMock.agentMessage.create).not.toHaveBeenCalled();
+  });
+
+  it("rejects retrying a failed homepage setup while another setup is active", async () => {
+    prismaMock.agentRunLease.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
+      id: "reservation-retry",
+    });
+    prismaMock.agentConversation.findFirst.mockResolvedValue({
+      id: "conversation-retry",
+      origin: "user",
+    });
+    prismaMock.agentTurnRequest.findFirst.mockResolvedValueOnce({
+      id: "other-active-setup",
+    });
+
+    await expect(
+      runWithTenant(user, () =>
+        new PrismaAgentChatRepo().admitAgentTurnOrThrow({
+          conversationId: "conversation-retry",
+          title: "Set up Workspace Wiki",
+          runId: "run-retry",
+          reservationId: "reservation-retry",
+          modelSpec: "openai/gpt-5.6-luna",
+          servingProvider: "azure",
+          recentMessageLimit: 8,
+          turn: {
+            kind: "retry",
+            turnRequestId: "failed-setup",
+            priorRunId: "failed-run",
+            priorAttemptCount: 1,
+            wikiHomepageSetupDomain: "example.com",
+            userMessageId: "failed-user-message",
+          },
+        }),
+      ),
+    ).rejects.toBeInstanceOf(WikiHomepageSetupAlreadyRunningError);
+
+    expect(prismaMock.agentTurnRequest.findFirst).toHaveBeenCalledWith({
+      where: {
+        id: { not: "failed-setup" },
+        companyId: user.companyId,
+        wikiHomepageSetupDomain: { not: null },
+        status: { in: ["running", "waitingBudget"] },
+        OR: [{ heartbeatAt: { gt: expect.any(Date) } }, { heartbeatAt: null, updatedAt: { gt: expect.any(Date) } }],
+      },
+      select: { id: true },
+    });
+    expect(prismaMock.agentTurnRequest.updateMany).not.toHaveBeenCalled();
   });
 
   it("rejects an expired lease before reading usage or writing chat state", async () => {

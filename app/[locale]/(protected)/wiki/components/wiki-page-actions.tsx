@@ -20,6 +20,7 @@ import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 
 type Props = {
   canManage: boolean;
+  canCreate: boolean;
   store: WikiPageStore;
   formId: string;
   hasDocument: boolean;
@@ -27,14 +28,15 @@ type Props = {
   onReload: () => void;
 };
 
-export const WikiPageActions = observer(({ canManage, store, formId, hasDocument, onCreate, onReload }: Props) => {
+export const WikiPageActions = observer((props: Props) => {
+  const { canManage, canCreate, store, formId, hasDocument, onCreate, onReload } = props;
   const t = useTranslations();
   const copyToClipboard = useCopyToClipboard();
   const { showDeleteConfirmation } = useDeleteConfirmation();
 
   return (
     <div className="flex items-center gap-1">
-      {canManage && (
+      {canManage && canCreate && (
         <Button
           aria-label={t("Wiki.newPage")}
           disabled={store.isLoading}

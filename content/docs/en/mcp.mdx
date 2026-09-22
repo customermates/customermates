@@ -87,11 +87,13 @@ Wiki Read lets you view pages. Wiki Manage lets you create, edit, and delete the
 
 When Mate is enabled in the cloud workspace, the owner can optionally enter a company homepage during onboarding or from an empty Wiki and choose **Set up with Mate**. A bare domain such as `customermates.com` is accepted. **Skip** continues onboarding without creating pages; invited members do not receive this step.
 
-Once the request is accepted, onboarding continues while a visible conversation titled **Set up Workspace Wiki** runs. Mate reads the submitted page directly and may read up to four useful pages linked from that homepage on the same domain or its subdomains. It creates one to five useful ordinary Wiki pages in your interface language, with natural titles, source links, and missing information identified instead of invented. The pages are created in one atomic empty-Wiki-only call. Setup uses your normal hosted AI credits.
+Starting setup opens a visible conversation titled **Set up Workspace Wiki**. The Wiki step shows that setup is working and restores that state after a refresh; choose **Continue** when you are ready to move on, or reopen the Mate conversation from the step. Mate reads the submitted page directly and may read up to four useful pages linked from that homepage on the same domain or its subdomains.
+
+When the site contains usable company information, Mate creates these five localized pages in one atomic empty-Wiki-only call: **Company Overview**, **Products & Services**, **Customers, Positioning & Competitors**, **Voice & Tone**, and **Support & FAQ**. The server supplies their localized titles and stable links between them. Mate adds ordinary source links and a clearly marked gaps section instead of inventing missing facts. Setup uses your normal hosted AI credits.
 
 Automatic setup focuses on durable company, product, and support knowledge. It is instructed to link to current pricing rather than copy prices and conditional plan allowances into the Wiki. Review generated facts and their sources before relying on them; you can edit the pages normally.
 
-Setup creates pages only while the Wiki is empty and never overwrites existing pages. If the site cannot be read or provides no useful company information, the conversation explains the problem and creates nothing. You can retry from the empty Wiki or create pages manually. Once created, the pages are ordinary editable Wiki documents.
+Setup creates pages only while the Wiki is empty and never overwrites existing pages. If the site cannot be read or provides no useful company information, the conversation explains the problem and creates nothing. The Wiki step preserves the submitted address so you can retry or create a page manually. Once created, the five pages are ordinary editable Wiki documents.
 
 This setup reads known public pages, not search-engine results. General web search is currently unavailable in Mate and routines. The public MCP endpoint exposes Wiki retrieval and editing, not Mate's public-page reader.
 
@@ -102,6 +104,8 @@ Your connected AI clients read the same current pages through this MCP endpoint.
 Use the standard read-only `search` tool to find relevant content, then `fetch` with either the returned `wiki:<uuid>` ID or its exact URL to read the full Markdown and canonical source URL. Links between Wiki pages are returned as absolute URLs and can be passed directly back to `fetch`. Clients with MCP resource support can also discover the paginated catalog and page templates with `resources/list` and `resources/templates/list`. For smaller responses, `manage_wiki_pages` with `action: "get"` returns a chunk; repeat with `nextOffset` until it is null. The same tool creates and edits pages when your role has Wiki Manage. Reads require Wiki Read, and every change uses the ordinary audit log.
 
 The server tells connected agents to search and read relevant Wiki pages before using company facts, processes, voice, product, or support guidance, follow useful links, and cite the exact returned URLs. MCP clients decide whether they expose resources and server instructions to their model, so no server can force every arbitrary client to perform those reads. If your client ignores that guidance, add the same retrieval instruction to the client's persistent instructions. Keep the documentation itself in the CRM so every supported client retrieves the current authoritative copy.
+
+After this feature is deployed, an Enterprise or Edu workspace admin must **Refresh** the existing ChatGPT connector and review its new actions so ChatGPT discovers `manage_wiki_pages` and the current server instructions. Business workspaces must recreate and republish the connector when its approved tools or metadata change. Existing `search` and `fetch` calls use the updated Wiki-aware behavior automatically on the server.
 
 ## How the tool surface is shaped
 
@@ -132,7 +136,7 @@ Every tool below carries its summary, its flag when it has one, and its argument
 {/* mcp-catalog:flags */}
 **Read-only:** `get_record_schema`, `list_records`, `search_records`, `get_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
-**IRREVERSIBLE:** `delete_records`, `discard_message_draft`, `manage_custom_columns`, `manage_widgets`, `manage_routines`, `manage_webhooks`
+**IRREVERSIBLE:** `delete_records`, `manage_wiki_pages`, `discard_message_draft`, `manage_custom_columns`, `manage_widgets`, `manage_routines`, `manage_webhooks`
 {/* /mcp-catalog */}
 
 Full JSON Schema for every tool is available live at `POST /api/v1/mcp` with `method: "tools/list"`.
@@ -250,18 +254,27 @@ IRREVERSIBLE hard-delete of 1 to 100 records by id (contacts also by email, phon
 ### Workspace
 
 {/* mcp-catalog:workspace */}
-| Tool | Read | Destructive | Purpose |
-|---|---|---|---|
-| `get_workspace_context` | ✓ |  | Your user, company, permission-filtered Wiki catalog, roles, and connected messaging accounts. Pass `wikiPage` for catalog pagination and `wikiQuery` for up to three bounded matches from the whole Wiki. Wiki data is omitted without Wiki Read. |
-| `list_users` | ✓ |  | Team members with id, name, email, roleId, and status. |
+#### `get_workspace_context`
+
+Your user, company, permission-filtered Wiki catalog, roles, and connected messaging accounts. Pass `wikiPage` for catalog pagination and `wikiQuery` for up to three bounded matches from the whole Wiki. Wiki data is omitted without Wiki Read.
+
+**Read-only.** Optional: `wikiPage`, `wikiQuery`.
+
+#### `list_users`
+
+Team members with id, name, email, roleId, and status.
+
+**Read-only.** Optional: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
 {/* /mcp-catalog */}
 
 ### Workspace Wiki
 
 {/* mcp-catalog:wiki */}
-| Tool | Read | Destructive | Purpose |
-|---|---|---|---|
-| `manage_wiki_pages` |  | ✓ | List, search, read, create, update, or permanently delete Workspace Wiki pages. Updates and deletes require the latest updatedAt value; create can atomically require an empty Wiki. |
+#### `manage_wiki_pages`
+
+List, search, read, create, update, or permanently delete Workspace Wiki pages. Updates and deletes require the latest updatedAt value; create can atomically require an empty Wiki.
+
+**IRREVERSIBLE.** Required: `action`. Optional: `id`, `query`, `offset`, `page`, `pageSize`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `title`, `markdown`.
 {/* /mcp-catalog */}
 
 ### Messaging
@@ -420,12 +433,29 @@ For a company, call `get_social_profile` with `profileType=company` and an `iden
 ### Documentation and deep research
 
 {/* mcp-catalog:docs */}
-| Tool | Read | Destructive | Purpose |
-|---|---|---|---|
-| `search_docs` | ✓ |  | Full-text search over the docs; defaults to the product guides (source=docs); pass source=api or all to include the REST API reference. Returns slug, source, title, url, snippet. |
-| `get_docs_page` | ✓ |  | One documentation page as markdown with its canonical URL. Lists valid slugs on a miss. |
-| `search` | ✓ |  | Read-only search across Workspace Wiki content, CRM records, and product docs. Wiki results have title-weighted query matching and stable `wiki:<uuid>` ids for `fetch`. Compatible with ChatGPT company knowledge and deep research. |
-| `fetch` | ✓ |  | Read a result from `search`, including full Workspace Wiki Markdown by `wiki:<uuid>` or its exact returned URL. Internal Wiki links are absolute and directly followable. Wiki Read is required for Wiki content. |
+#### `search_docs`
+
+Full-text search over the docs; defaults to the product guides (source=docs); pass source=api or all to include the REST API reference. Returns slug, source, title, url, snippet.
+
+**Read-only.** Required: `query`. Optional: `locale`, `source`.
+
+#### `get_docs_page`
+
+One documentation page as markdown with its canonical URL. Lists valid slugs on a miss.
+
+**Read-only.** Required: `slug`. Optional: `query`, `locale`, `source`.
+
+#### `search`
+
+Read-only search across Workspace Wiki content, CRM records, and product docs. Wiki results have title-weighted query matching and stable `wiki:<uuid>` ids for `fetch`. Compatible with ChatGPT company knowledge and deep research.
+
+**Read-only.** Required: `query`.
+
+#### `fetch`
+
+Read a result from `search`, including full Workspace Wiki Markdown by `wiki:<uuid>` or its exact returned URL. Internal Wiki links are absolute and directly followable. Wiki Read is required for Wiki content.
+
+**Read-only.** Required: `id`.
 {/* /mcp-catalog */}
 
 ### Custom columns

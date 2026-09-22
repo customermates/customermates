@@ -30,14 +30,6 @@ export type McpToolResult =
   | {
       text: string;
       structuredContent: Record<string, unknown>;
-      content?: Array<{
-        type: "resource_link";
-        uri: string;
-        name: string;
-        title?: string;
-        description?: string;
-        mimeType?: string;
-      }>;
     };
 
 export function mcpToolResultText(result: McpToolResult): string {
@@ -59,7 +51,6 @@ export type McpToolExecutionResult =
       ok: true;
       result: string;
       structuredContent?: Record<string, unknown>;
-      content?: Exclude<McpToolResult, string | McpToolFailureResult>["content"];
     }
   | {
       ok: false;
@@ -165,7 +156,6 @@ export async function executeMcpTool(tool: McpTool, args: unknown[]): Promise<Mc
       ok: true,
       result: raw.text,
       structuredContent: conformingStructuredContent(tool, raw.structuredContent),
-      content: raw.content,
     };
   } catch (error) {
     const expected = await expectedMcpToolFailure(error);

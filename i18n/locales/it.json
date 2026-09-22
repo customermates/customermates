@@ -56,6 +56,9 @@
         "widgets": {
           "configure": "Pronto a modificare i widget della dashboard",
           "delete": "Pronto a eliminare definitivamente un widget della dashboard"
+        },
+        "workspace": {
+          "configure": "Pronto a eliminare definitivamente questa pagina della wiki"
         }
       },
       "cancelled": "Interrotto",
@@ -3600,12 +3603,50 @@
     "untitled": "Pagina senza titolo"
   },
   "WikiSetup": {
-    "description": "Mate legge il tuo sito pubblico e crea pagine wiki utili. Puoi continuare mentre lavora.",
-    "homepageLabel": "Sito web dell’azienda (facoltativo)",
+    "continue": "Continua",
+    "createBlank": "Crea una pagina vuota",
+    "description": "Trasforma il tuo sito in una wiki iniziale con cinque pagine collegate.",
+    "gapsNote": "Mate cita ciò che trova e segnala le informazioni mancanti invece di inventarle.",
+    "generated": {
+      "gapsHeading": "Aspetti da confermare",
+      "relatedPages": "Pagine correlate",
+      "sourcesHeading": "Fonti",
+      "topics": {
+        "company_overview": "Panoramica dell’azienda",
+        "customers_competitors": "Clienti, posizionamento e concorrenti",
+        "products_services": "Prodotti e servizi",
+        "support_faq": "Supporto e FAQ",
+        "voice_tone": "Voce e tono"
+      }
+    },
+    "homepageHelp": "Sito HTTP(S) pubblico. Mate può leggere fino a quattro pagine utili collegate.",
+    "homepageLabel": "Sito web dell’azienda",
     "homepagePlaceholder": "https://esempio.it",
+    "openTask": "Apri attività Mate",
     "skip": "Salta",
     "start": "Configura con Mate",
     "startFailed": "Mate non è riuscito ad avviare la configurazione della wiki. Riprova.",
+    "status": {
+      "completedBody": "Le pagine iniziali collegate sono pronte per essere controllate e modificate.",
+      "completedBodyOnboarding": "Le cinque pagine iniziali collegate sono pronte. Continua l’onboarding e poi controllale nella wiki.",
+      "completedExistingBody": "La wiki contiene già delle pagine. Continua l’onboarding o controlla i contenuti esistenti.",
+      "completedTitle": "La tua wiki è pronta",
+      "failedBody": "Non è stata aggiunta alcuna pagina. Apri l’attività Mate per i dettagli o prova un altro sito.",
+      "failedTitle": "Configurazione non completata",
+      "noContentBody": "Mate non ha trovato abbastanza informazioni pubbliche affidabili e non ha creato pagine.",
+      "noContentTitle": "Nessun contenuto utilizzabile trovato",
+      "workingBody": "Mate sta leggendo {domain} e creando le cinque pagine. Puoi seguire l’attività o continuare l’onboarding.",
+      "workingBodyNoTask": "Mate sta leggendo {domain} e creando le cinque pagine. Puoi continuare l’onboarding; le pagine appariranno al termine dell’attività.",
+      "workingTitle": "Mate sta creando la tua wiki"
+    },
+    "topics": {
+      "company": "Panoramica dell’azienda",
+      "customers": "Clienti e concorrenti",
+      "products": "Prodotti e servizi",
+      "support": "Supporto e FAQ",
+      "voice": "Voce e tono"
+    },
+    "tryAnother": "Prova un altro sito",
     "unavailable": "La configurazione con Mate non è disponibile al momento. Potrai creare pagine in seguito dalla wiki."
   }
 }

@@ -24,7 +24,9 @@ state.setUser.mockImplementation((user: { id: string } | null) => {
 });
 
 vi.mock("next/navigation", () => ({
-  useSearchParams: () => ({ getAll: (key: string) => state.searchParams[key] ?? [] }),
+  useSearchParams: () => ({
+    getAll: (key: string) => state.searchParams[key] ?? [],
+  }),
 }));
 vi.mock("@/i18n/navigation", () => ({
   usePathname: () => state.pathname,
@@ -62,7 +64,10 @@ vi.mock("@/app/components/app-topbar", () => ({
 }));
 vi.mock("@/app/components/public-navbar", () => ({
   PublicNavbar: ({ onboardingIntent }: { onboardingIntent?: string }) =>
-    jsx("div", { "data-onboarding-intent": onboardingIntent, "data-public-navbar": true }),
+    jsx("div", {
+      "data-onboarding-intent": onboardingIntent,
+      "data-public-navbar": true,
+    }),
 }));
 vi.mock("@/app/components/shell-header", () => ({ ShellHeader: () => null }));
 vi.mock("@/app/[locale]/(static)/docs/components/docs-sidebar", () => ({
@@ -106,6 +111,7 @@ const appUser = {
   theme: "system",
   agreeToTerms: true,
   lastActiveAt: null,
+  onboardingWikiStepCompletedAt: new Date("2026-01-01T00:00:00.000Z"),
   onboardingWizardCompletedAt: new Date("2026-01-01T00:00:00.000Z"),
   role: null,
 } satisfies NonNullable<NavigationSwitchProps["appUser"]>;
@@ -214,7 +220,11 @@ describe("NavigationSwitch account-state refresh", () => {
     state.renderPhaseUserWrites = [];
 
     act(() => {
-      renderWithinNavigationMarkers({ ...allowed, appUser: replacementAppUser, children: "replacement account" });
+      renderWithinNavigationMarkers({
+        ...allowed,
+        appUser: replacementAppUser,
+        children: "replacement account",
+      });
     });
 
     expect(state.renderPhaseUserWrites).toEqual([]);

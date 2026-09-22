@@ -40,6 +40,13 @@ export type AgentTurnRequestInput = {
   retry: boolean;
 };
 
+export class WikiHomepageSetupAlreadyRunningError extends Error {
+  constructor() {
+    super("A Workspace Wiki homepage setup is already running.");
+    this.name = "WikiHomepageSetupAlreadyRunningError";
+  }
+}
+
 export type AgentTurnAdmissionDecision =
   | { disposition: "new" }
   | { disposition: "retry"; turn: AgentTurnRequestSnapshot }

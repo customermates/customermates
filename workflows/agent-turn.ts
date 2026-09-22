@@ -45,6 +45,7 @@ import {
 import { agentWebSourcesFooter, collectAgentWebSources } from "@/ee/agent-chat/agent-web-search";
 import {
   createPublicPageReadState,
+  publicPageSourcesWereRead,
   reservePublicPageRead,
   recordPublicPageLinks,
 } from "@/ee/agent-chat/public-page-read-state";
@@ -317,7 +318,11 @@ async function loadAgentToolShells(
   const { ALL_MCP_TOOLS } = await import("@/features/mcp-tools/tool-registry");
   const gatedByName = new Map(ALL_MCP_TOOLS.map((mcp) => [mcp.name, mcp.annotations]));
 
-  return agentToolDefinitionsForTurn({ surface, servingProvider, ...options }).map((definition) => ({
+  return agentToolDefinitionsForTurn({
+    surface,
+    servingProvider,
+    ...options,
+  }).map((definition) => ({
     ...definition,
     annotations: gatedByName.get(definition.name),
     gated: gatedByName.has(definition.name),
@@ -334,6 +339,7 @@ async function executeAgentTool(
   "use step";
   const { getAgentAiTools } = await import("@/ee/agent-chat/agent-tools");
   const tools = getAgentAiTools(backgroundToolDeps(payload, grant), {
+    locale: payload.locale,
     wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
     webSearchEnabled: payload.webSearchEnabled,
     surface: payload.surface,
@@ -831,6 +837,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const surface: AgentTurnSurface = payload.surface ?? "chat";
     const approvalWindowMs = approvalWindowMsForSurface(surface);
     const shells = await loadAgentToolShells(surface, payload.turnBudget.servingProvider, {
+      locale: payload.locale,
       wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
       webSearchEnabled: payload.webSearchEnabled,
     });
@@ -856,7 +863,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       ({ annotations: _annotations, gated: _gated, toolset: _toolset, ...definition }) => definition,
     );
     const activeToolNamesFor = (stepMessages: readonly unknown[]) =>
-      activeAgentToolNames({ tools: shells, initialToolsets, messages: stepMessages });
+      activeAgentToolNames({
+        tools: shells,
+        initialToolsets,
+        messages: stepMessages,
+      });
     const providerContext = buildAgentProviderContext(
       systemPrompt,
       payload.messages,
@@ -1184,6 +1195,17 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                             };
                           }
                           if (
+                            payload.wikiHomepageSetup &&
+                            !readOnly &&
+                            (!publicPageState || !publicPageSourcesWereRead(publicPageState, prepared.input))
+                          ) {
+                            return {
+                              ok: false,
+                              result:
+                                "Every setup page must cite at least one exact URL that this task read successfully. Nothing was changed.",
+                            };
+                          }
+                          if (
                             isUnattendedSurface(surface) &&
                             !readOnly &&
                             (browsed || agentBatchContainsWebCall(options.messages, options.toolCallId))
@@ -1259,7 +1281,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             : toolDefinitions;
           if (
             !isAgentContextWithinBudget(
-              { system: instructions, messages: stepMessages, tools: activeDefinitions },
+              {
+                system: instructions,
+                messages: stepMessages,
+                tools: activeDefinitions,
+              },
               payload.turnBudget.maxContextBytes,
             )
           )

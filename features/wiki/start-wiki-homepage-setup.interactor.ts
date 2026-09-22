@@ -24,7 +24,10 @@ export type StartWikiHomepageSetupData = Data<typeof StartWikiHomepageSetupSchem
 
 export abstract class StartWikiHomepageSetupRepo {
   abstract wikiIsEmpty(): Promise<boolean>;
-  abstract findReusableSetupRequestClientId(data: { clientRequestId: string; prompt: string }): Promise<string | null>;
+  abstract findReusableSetupRequest(data: {
+    clientRequestId: string;
+    prompt: string;
+  }): Promise<{ disposition: "reuse"; clientRequestId: string } | { disposition: "blocked" } | null>;
 }
 
 @TenantInteractor({ resource: Resource.wiki, action: Action.create })
@@ -44,15 +47,15 @@ export class StartWikiHomepageSetupInteractor extends AuthenticatedInteractor<
     const homepage = parsePublicWikiHomepage(data.homepage);
     if (!homepage) return fail(CustomErrorCode.invalidUrl, ["homepage"]);
     const prompt = buildWikiHomepageSetupPrompt(homepage);
-    const reusableClientRequestId = await this.repo.findReusableSetupRequestClientId({
+    const reusable = await this.repo.findReusableSetupRequest({
       clientRequestId: data.clientRequestId,
       prompt,
     });
-    if (!reusableClientRequestId && !(await this.repo.wikiIsEmpty()))
-      return failConflict(CustomErrorCode.wikiNotEmpty, ["homepage"]);
+    if (reusable?.disposition === "blocked") return failConflict(CustomErrorCode.agentTurnAlreadyRunning, ["homepage"]);
+    if (!reusable && !(await this.repo.wikiIsEmpty())) return failConflict(CustomErrorCode.wikiNotEmpty, ["homepage"]);
 
     return this.agent.invoke({
-      clientRequestId: reusableClientRequestId ?? data.clientRequestId,
+      clientRequestId: reusable?.clientRequestId ?? data.clientRequestId,
       text: prompt,
       locale: data.locale,
       retry: data.retry === true,

@@ -10,6 +10,8 @@ import { AppCardFooter } from "@/components/card/app-card-footer";
 import { Button } from "@/components/ui/button";
 import { WizardProgress } from "@/components/shared/wizard-progress";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
+import { EMPTY_WIKI_HOMEPAGE_SETUP_STATE } from "@/components/wiki/wiki-homepage-setup";
 
 import { StepProfile } from "./step-profile";
 import { StepAi, StepAiFooter } from "./step-ai";
@@ -19,7 +21,8 @@ import { StepWiki } from "./step-wiki";
 type Props = {
   profileCompleted: boolean;
   canSetupWithMate?: boolean;
-  wikiCompleted?: boolean;
+  wikiStepCompleted?: boolean;
+  wikiSetupState?: WikiHomepageSetupState;
   onboardingIntent?: string;
   inviterName?: string;
   isInvited?: boolean;
@@ -33,7 +36,8 @@ export const OnboardingWizard = observer(
   ({
     profileCompleted,
     canSetupWithMate = false,
-    wikiCompleted = false,
+    wikiStepCompleted = false,
+    wikiSetupState = EMPTY_WIKI_HOMEPAGE_SETUP_STATE,
     onboardingIntent,
     inviterName,
     isInvited = false,
@@ -44,13 +48,13 @@ export const OnboardingWizard = observer(
   }: Props) => {
     const t = useTranslations();
     const { onboardingWizardStore } = useRootStore();
-    const initialStepIndex = profileCompleted ? (isInvited || wikiCompleted ? 2 : 1) : 0;
+    const initialStepIndex = profileCompleted ? (isInvited || wikiStepCompleted ? 2 : 1) : 0;
     const [initializedProfileCompleted, setInitializedProfileCompleted] = useState<boolean | null>(null);
     const isStepSynchronized = initializedProfileCompleted === profileCompleted;
     const currentStep = isStepSynchronized
       ? onboardingWizardStore.currentStep
       : profileCompleted
-        ? isInvited || wikiCompleted
+        ? isInvited || wikiStepCompleted
           ? "invite"
           : "wiki"
         : "profile";
@@ -87,7 +91,7 @@ export const OnboardingWizard = observer(
         case "ai":
           return <StepAi />;
         case "wiki":
-          return <StepWiki canSetupWithMate={canSetupWithMate} />;
+          return <StepWiki canSetupWithMate={canSetupWithMate} initialState={wikiSetupState} />;
         case "invite":
           return <StepInvite />;
       }

@@ -132,6 +132,74 @@ describe("CreateWikiPagesInteractor", () => {
     expect(WikiMarkdownSchema.parse(submitted[0].markdown)).toBe(submitted[0].markdown);
   });
 
+  it("adds stable server-generated links across the exact five homepage topics", async () => {
+    const repo = {
+      createPages: vi.fn().mockImplementation((data) =>
+        Promise.resolve({
+          status: "created",
+          pages: data.pages.map((item: { id: string; title: string; markdown: string }) => page(item)),
+        }),
+      ),
+    };
+    const topics = [
+      ["company_overview", "Company Overview"],
+      ["products_services", "Products & Services"],
+      ["customers_competitors", "Customers, Positioning & Competitors"],
+      ["voice_tone", "Voice & Tone"],
+      ["support_faq", "Support & FAQ"],
+    ] as const;
+
+    const result = await new CreateWikiPagesInteractor(repo as never, eventService() as never).invoke({
+      requireEmpty: true,
+      pages: topics.map(([setupTopic, title]) => ({
+        setupTopic,
+        setupRelatedHeading: "Related pages",
+        title,
+        markdown: `Verified ${title}\n\n## Gaps to confirm\n\nConfirm with the team.`,
+      })),
+    });
+
+    expect(result.ok).toBe(true);
+    const submitted = repo.createPages.mock.calls[0][0].pages as Array<{
+      id: string;
+      setupTopic: string;
+      title: string;
+      markdown: string;
+    }>;
+    expect(new Set(submitted.map(({ id }) => id))).toHaveProperty("size", 5);
+    const overview = submitted.find(({ setupTopic }) => setupTopic === "company_overview");
+    if (!overview) throw new Error("Overview was not created.");
+    for (const target of submitted.filter(({ setupTopic }) => setupTopic !== "company_overview")) {
+      expect(overview.markdown).toContain(`[${target.title}](/wiki?page=${target.id})`);
+      expect(target.markdown).toContain(`[${overview.title}](/wiki?page=${overview.id})`);
+      expect(WikiMarkdownSchema.parse(target.markdown)).toBe(target.markdown);
+    }
+  });
+
+  it("rejects a partial or mixed homepage setup before writing", async () => {
+    const repo = { createPages: vi.fn() };
+    const result = await new CreateWikiPagesInteractor(repo, eventService() as never).invoke({
+      requireEmpty: true,
+      pages: [
+        {
+          setupTopic: "company_overview",
+          setupRelatedHeading: "Related pages",
+          title: "Company Overview",
+          markdown: "Body",
+        },
+        { title: "Ordinary page", markdown: "Body" },
+      ],
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.issues[0]).toMatchObject({
+        params: { error: CustomErrorCode.notesInvalidFormat },
+      });
+    }
+    expect(repo.createPages).not.toHaveBeenCalled();
+  });
+
   it("returns a structured refusal when Markdown exceeds the cap", async () => {
     const repo = { createPages: vi.fn() };
     const events = eventService();

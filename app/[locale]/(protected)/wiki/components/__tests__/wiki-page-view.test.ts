@@ -13,6 +13,8 @@ const harness = vi.hoisted(() => ({
   store: {} as Record<string, unknown>,
   setupProps: null as null | {
     onAccepted: (conversationId: string) => Promise<void>;
+    onCreateBlank?: () => void;
+    canStart?: boolean;
   },
   replace: vi.fn(),
   push: vi.fn(),
@@ -69,7 +71,8 @@ vi.mock("../use-wiki-pages", () => ({
 }));
 vi.mock("../wiki-link-picker", () => ({ WikiLinkPicker: () => null }));
 vi.mock("@/components/ui/sheet", () => ({
-  Sheet: () => null,
+  Sheet: ({ children }: { children?: ReactNode }) => children,
+  SheetTrigger: ({ children }: { children?: ReactNode }) => children,
   SheetContent: () => null,
   SheetHeader: () => null,
   SheetTitle: () => null,
@@ -109,9 +112,24 @@ vi.mock("@/components/ui/button", () => ({
   },
 }));
 vi.mock("@/components/wiki/wiki-homepage-setup", () => ({
-  WikiHomepageSetup: (props: { onAccepted: (conversationId: string) => Promise<void> }) => {
+  EMPTY_WIKI_HOMEPAGE_SETUP_STATE: {
+    status: "idle",
+    homepage: null,
+    domain: null,
+    conversationId: null,
+    pages: [],
+  },
+  WikiHomepageSetup: (props: {
+    onAccepted: (conversationId: string) => Promise<void>;
+    onCreateBlank?: () => void;
+    canStart?: boolean;
+  }) => {
     harness.setupProps = props;
-    return createElement("div", { "data-wiki-homepage-setup": true });
+    return createElement(
+      "div",
+      { "data-wiki-homepage-setup": true },
+      props.onCreateBlank ? createElement("button", { onClick: props.onCreateBlank }, "Wiki.newPage") : null,
+    );
   },
 }));
 vi.mock("../wiki-page.store", () => ({
@@ -581,6 +599,65 @@ describe("Wiki empty state", () => {
     act(() => manual?.click());
 
     expect(harness.store.startCreate).toHaveBeenCalledExactlyOnceWith();
+  });
+
+  it("hides every New page entry point while homepage setup is active", async () => {
+    configure(true, true, true);
+    const { container } = await mount(
+      createElement(WikiPageView, {
+        initialPage: null,
+        initialSetupState: {
+          status: "working",
+          homepage: "https://example.com/",
+          domain: "example.com",
+          conversationId: "conversation-1",
+          pages: [],
+        },
+        listPage,
+      }),
+    );
+    const { container: topBar } = await mount(harness.topBar);
+
+    expect(container.innerHTML).toContain("data-wiki-homepage-setup");
+    expect(container.textContent).not.toContain("Wiki.newPage");
+    expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
+    expect(harness.store.startCreate).not.toHaveBeenCalled();
+  });
+
+  it("hides New immediately after local setup acceptance, before the server refresh returns", async () => {
+    configure(true, true, true);
+    await mount(createElement(WikiPageView, { initialPage: null, listPage }));
+    expect(harness.setupProps).not.toBeNull();
+
+    await act(async () => {
+      await harness.setupProps?.onAccepted("conversation-1");
+    });
+    const { container: topBar } = await mount(harness.topBar);
+
+    expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
+  });
+
+  it("keeps an active setup visible when Agent availability changes", async () => {
+    configure(true, true, false);
+    const { container } = await mount(
+      createElement(WikiPageView, {
+        initialPage: null,
+        initialSetupState: {
+          status: "working",
+          homepage: "https://example.com/",
+          domain: "example.com",
+          conversationId: "conversation-1",
+          pages: [],
+        },
+        listPage,
+      }),
+    );
+    const { container: topBar } = await mount(harness.topBar);
+
+    expect(container.innerHTML).toContain("data-wiki-homepage-setup");
+    expect(harness.setupProps).toMatchObject({ canStart: false });
+    expect(container.textContent).not.toContain("Wiki.newPage");
+    expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
   });
 
   it("offers homepage setup on a first visit before chat availability has been loaded", async () => {

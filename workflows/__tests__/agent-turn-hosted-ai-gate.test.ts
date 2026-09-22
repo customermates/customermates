@@ -187,7 +187,10 @@ vi.mock("@/core/di", () => ({
 vi.mock("@/ee/agent-chat/agent-tools", () => ({
   agentToolDefinitionsForTurn: () => {
     if (state.toolLoadFailure) throw new Error("tool shell unavailable");
-    return state.definitions.map((definition: { name: string }) => ({ ...definition, toolset: null }));
+    return state.definitions.map((definition: { name: string }) => ({
+      ...definition,
+      toolset: null,
+    }));
   },
   getAgentAiTools: (deps: { runInCallerContext: (run: () => Promise<unknown>) => Promise<unknown> }) =>
     Object.fromEntries(
@@ -948,7 +951,11 @@ describe("agent-turn credit-bounded continuation", () => {
           error: new Error("Vertex said no"),
         });
       }
-      return Promise.resolve({ finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] });
+      return Promise.resolve({
+        finishReason: "stop",
+        messages,
+        steps: [streamedStep("Done.", "stop")],
+      });
     };
 
     await runAgentTurn(payload);
@@ -979,7 +986,11 @@ describe("agent-turn credit-bounded continuation", () => {
 
   it("carries a digest of earlier tool results into the compacted segment", async () => {
     state.contextFits.mockReturnValueOnce(false).mockReturnValue(true);
-    state.definitions.push({ name: "list_records", description: "list_records", inputSchema: { type: "object" } });
+    state.definitions.push({
+      name: "list_records",
+      description: "list_records",
+      inputSchema: { type: "object" },
+    });
     state.normalize.mockResolvedValue({ ok: true, input: { entity: "deal" } });
     state.execute.mockResolvedValue({
       ok: true,
@@ -994,12 +1005,18 @@ describe("agent-turn credit-bounded continuation", () => {
           finishReason: "tool-calls",
           messages,
           steps: [
-            streamedToolCallStep("list_records", "call-digest", { entity: "deal" }),
+            streamedToolCallStep("list_records", "call-digest", {
+              entity: "deal",
+            }),
             ...Array.from({ length: 31 }, () => streamedStep("", "tool-calls")),
           ],
         };
       }
-      return { finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] };
+      return {
+        finishReason: "stop",
+        messages,
+        steps: [streamedStep("Done.", "stop")],
+      };
     };
 
     await runAgentTurn(payload);
@@ -2101,6 +2118,65 @@ describe("routine browse-or-mutate batch safety", () => {
         registrableDomain: "example.com",
       },
     });
+    expect(state.execute).not.toHaveBeenCalled();
+  });
+
+  it("creates setup pages only when every cited source was read successfully", async () => {
+    const citedWrite = {
+      ...write,
+      pages: [
+        {
+          title: "Tone",
+          markdown: "Be clear.",
+          sources: ["https://example.com/#source"],
+        },
+      ],
+    };
+    state.runTools = async ({ executeAndCompleteTool }) => {
+      expect(await executeAndCompleteTool("read_public_page", read, "read-1")).toMatchObject({ ok: true });
+      expect(await executeAndCompleteTool("manage_wiki_pages", citedWrite, "write-1")).toMatchObject({ ok: true });
+      return finish();
+    };
+
+    await runAgentTurn({
+      ...payload,
+      wikiHomepageSetup: {
+        url: "https://example.com/",
+        registrableDomain: "example.com",
+      },
+    });
+
+    expect(state.execute).toHaveBeenCalledOnce();
+  });
+
+  it("rejects a setup citation to an unread or failed page", async () => {
+    const unsupportedWrite = {
+      ...write,
+      pages: [
+        {
+          title: "Tone",
+          markdown: "Be clear.",
+          sources: ["https://example.com/guessed"],
+        },
+      ],
+    };
+    state.runTools = async ({ executeAndCompleteTool }) => {
+      await executeAndCompleteTool("read_public_page", read, "read-1");
+      expect(await executeAndCompleteTool("manage_wiki_pages", unsupportedWrite, "write-1")).toMatchObject({
+        ok: false,
+        result: expect.stringContaining("exact URL that this task read successfully"),
+      });
+      return finish();
+    };
+
+    await runAgentTurn({
+      ...payload,
+      wikiHomepageSetup: {
+        url: "https://example.com/",
+        registrableDomain: "example.com",
+      },
+    });
+
     expect(state.execute).not.toHaveBeenCalled();
   });
 });

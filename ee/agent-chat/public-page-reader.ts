@@ -15,6 +15,7 @@ const MAX_BODY_BYTES = 512_000;
 const MAX_REDIRECTS = 3;
 const MAX_READ_MS = 15_000;
 const MAX_RESULT_CHARACTERS = 6_000;
+const MAX_LINK_CANDIDATES = 200;
 const MAX_LINKS = 12;
 const EXTRACTION_LIMIT_MARKER = "[Page extraction limit reached]";
 const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
@@ -156,11 +157,83 @@ function cleanText(value: string): string {
     .trim();
 }
 
+const LINK_CATEGORIES = [
+  /(?:^|[\s/_-])(product|products|feature|features|solution|solutions|service|services|platform|produkt|loesung|lösung|producto|productos|servicio|servicios|solucion|solución|soluciones|produit|produits|fonctionnalite|fonctionnalité|fonctionnalités|prodotto|prodotti|servizio|servizi|soluzione|soluzioni|funzionalita|funzionalità)(?:$|[\s/_-])/u,
+  /(?:^|[\s/_-])(compare|comparison|alternative|alternatives|versus|competitor|competitors|vergleich|comparar|comparacion|comparación|competidor|competidores|comparaison|concurrent|concurrents|confronto|concorrente|concorrenti)(?:$|[\s/_-])/u,
+  /(?:^|[\s/_-])(support|help|docs|documentation|faq|knowledge|contact|hilfe|kontakt|ayuda|soporte|documentacion|documentación|aide|assistance|aiuto|supporto|documentazione)(?:$|[\s/_-])/u,
+  /(?:^|[\s/_-])(blog|news|press|resources|insights|magazin|noticias|recursos|actualites|actualités|ressources|notizie|risorse)(?:$|[\s/_-])/u,
+  /(?:^|[\s/_-])(about|company|team|mission|story|unternehmen|ueber|über|nosotros|empresa|equipo|propos|entreprise|equipe|équipe|chi-siamo|azienda|squadra)(?:$|[\s/_-])/u,
+  /(?:^|[\s/_-])(for|customer|customers|case|cases|use-case|industries|testimonial|reference|kunden|referenzen|clientes|casos|industrias|testimonios|clients|secteurs|temoignages|témoignages|clienti|casi|settori|testimonianze)(?:$|[\s/_-])/u,
+] as const;
+const LOW_VALUE_LINK =
+  /(?:^|[\s/_-])(login|log-in|signin|sign-in|signup|sign-up|privacy|terms|legal|imprint|cookie|status|contact|kontakt|careers|jobs|iniciar-sesion|registro|privacidad|terminos|términos|empleo|connexion|inscription|confidentialite|confidentialité|mentions|carrieres|carrières|accedi|registrati|termini|lavora)(?:$|[\s/_-])/u;
+
+function linkCategory(link: PublicPageLink): number | null {
+  const url = new URL(link.url);
+  const path = url.pathname.toLocaleLowerCase();
+  const pathIndex = LINK_CATEGORIES.findIndex((pattern) => pattern.test(path));
+  if (pathIndex >= 0) return pathIndex;
+  const index = LINK_CATEGORIES.findIndex((pattern) => pattern.test(link.title.toLocaleLowerCase()));
+  return index < 0 ? null : index;
+}
+
+function linkScore(link: PublicPageLink, index: number, sourceUrl: string): number {
+  const url = new URL(link.url);
+  const source = new URL(sourceUrl);
+  const searchable = `${url.pathname} ${link.title}`.toLocaleLowerCase();
+  const depth = url.pathname.split("/").filter(Boolean).length;
+  const firstSegment = url.pathname.split("/").filter(Boolean)[0] ?? "";
+  const sourceSegment = source.pathname.split("/").filter(Boolean)[0] ?? "";
+  const alternateLocale =
+    /^[a-z]{2}$/u.test(firstSegment) && /^[a-z]{2}$/u.test(sourceSegment) && firstSegment !== sourceSegment;
+  const broadHub =
+    /\/(?:all|features|solutions|products|services|docs|compare|blog|productos|servicios|soluciones|comparar|produits|comparaison|prodotti|servizi|soluzioni|confronto)\/?$/u.test(
+      url.pathname,
+    );
+  return (
+    (linkCategory(link) === null ? 0 : 100) -
+    (LOW_VALUE_LINK.test(searchable) ? 200 : 0) -
+    (alternateLocale ? 80 : 0) +
+    (broadHub ? 25 : 0) -
+    Math.min(depth, 8) * 3 -
+    (url.search ? 5 : 0) -
+    index / 1_000
+  );
+}
+
+function rankPageLinks(links: PublicPageLink[], sourceUrl: string): PublicPageLink[] {
+  const scored = links.map((link, index) => ({
+    link,
+    category: linkCategory(link),
+    score: linkScore(link, index, sourceUrl),
+  }));
+  const selected: typeof scored = [];
+  const categoryCounts = new Map<number | null, number>();
+  for (let category = 0; category < LINK_CATEGORIES.length; category++) {
+    const best = scored
+      .filter((candidate) => candidate.category === category)
+      .toSorted((left, right) => right.score - left.score)[0];
+    if (best) {
+      selected.push(best);
+      categoryCounts.set(category, 1);
+    }
+  }
+  for (const candidate of scored.toSorted((left, right) => right.score - left.score)) {
+    if (selected.length >= MAX_LINKS) break;
+    if (selected.includes(candidate)) continue;
+    const count = categoryCounts.get(candidate.category) ?? 0;
+    if (candidate.category !== null && count >= 2) continue;
+    selected.push(candidate);
+    categoryCounts.set(candidate.category, count + 1);
+  }
+  return selected.slice(0, MAX_LINKS).map(({ link }) => link);
+}
+
 function extractPage(body: string, url: string, contentType: string, allowedDomain: string): PublicPageReadResult {
-  const links: PublicPageLink[] = [];
+  const linkCandidates: PublicPageLink[] = [];
   let title = "";
   let linksTruncated = false;
-  const formatAnchor: FormatCallback = (element, walk, builder) => {
+  const collectAnchor: FormatCallback = (element, walk, builder) => {
     let label = "";
     builder.pushWordTransform((word) => {
       label += `${word} `;
@@ -176,14 +249,14 @@ function extractPage(body: string, url: string, contentType: string, allowedDoma
         !page ||
         page.registrableDomain !== allowedDomain ||
         page.url === url ||
-        links.some((link) => link.url === page.url)
+        linkCandidates.some((link) => link.url === page.url)
       )
         return;
-      if (links.length >= MAX_LINKS) {
+      if (linkCandidates.length >= MAX_LINK_CANDIDATES) {
         linksTruncated = true;
         return;
       }
-      links.push({
+      linkCandidates.push({
         url: page.url,
         title: cleanText(label).slice(0, 120) || page.url,
       });
@@ -194,6 +267,22 @@ function extractPage(body: string, url: string, contentType: string, allowedDoma
   const formatTitle: FormatCallback = (element) => {
     title = cleanText(element.children?.map((node) => node.data ?? "").join("") ?? "").slice(0, 160);
   };
+  const contentAnchor: FormatCallback = (element, walk, builder) => walk(element.children ?? [], builder);
+  if (contentType !== "text/plain") {
+    compile({
+      wordwrap: false,
+      baseElements: { selectors: ["html"], returnDomByDefault: true },
+      limits: {
+        maxInputLength: MAX_BODY_BYTES,
+        maxDepth: 64,
+        maxChildNodes: 5_000,
+      },
+      formatters: { collectAnchor },
+      selectors: [{ selector: "a", format: "collectAnchor" }],
+    })(body);
+  }
+  const links = rankPageLinks(linkCandidates, url);
+  if (linkCandidates.length > links.length) linksTruncated = true;
   const text = cleanText(
     contentType === "text/plain"
       ? body
@@ -206,12 +295,12 @@ function extractPage(body: string, url: string, contentType: string, allowedDoma
             maxChildNodes: 5_000,
             ellipsis: EXTRACTION_LIMIT_MARKER,
           },
-          formatters: { publicAnchor: formatAnchor, pageTitle: formatTitle },
+          formatters: { contentAnchor, pageTitle: formatTitle },
           selectors: [
-            { selector: "a", format: "publicAnchor" },
+            { selector: "a", format: "contentAnchor" },
             { selector: "title", format: "pageTitle" },
             { selector: "head", format: "inline" },
-            ...["script", "style", "noscript", "template", "img", "svg", "form"].map((selector) => ({
+            ...["script", "style", "noscript", "template", "img", "svg", "form", "nav", "footer"].map((selector) => ({
               selector,
               format: "skip",
             })),

@@ -509,6 +509,7 @@ export const AGENT_APPROVAL_COPY_KINDS: readonly AgentActivityKind[] = [
   "webhooks.manage",
   "routines.configure",
   "routines.delete",
+  "workspace.configure",
 ];
 
 function countedResourceCopy(

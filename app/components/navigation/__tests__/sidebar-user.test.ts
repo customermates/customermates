@@ -65,6 +65,7 @@ describe("sidebar user access", () => {
       lastActiveAt: null,
       lastName: "Person",
       onboardingWizardCompletedAt: null,
+      onboardingWikiStepCompletedAt: null,
       role: {
         createdAt: new Date(),
         description: null,

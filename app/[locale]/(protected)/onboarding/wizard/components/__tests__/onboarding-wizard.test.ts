@@ -1,4 +1,5 @@
 import type { RootStore } from "@/core/stores/root.store";
+import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -8,11 +9,16 @@ const testContext = vi.hoisted(() => ({
   rootStore: null as RootStore | null,
   wikiProps: null as null | {
     onAccepted: (conversationId: string) => void | Promise<void>;
-    onSkip?: () => void;
+    onContinue?: () => void | Promise<void>;
+    onSkip?: () => void | Promise<void>;
+    canStart?: boolean;
+    disabled?: boolean;
+    onboarding?: boolean;
   },
   openAgentChat: vi.fn(),
   loadAgentConfig: vi.fn(),
   selectConversation: vi.fn(),
+  completeWikiStep: vi.fn(),
 }));
 
 vi.mock("@/core/stores/root-store.provider", () => ({
@@ -28,7 +34,10 @@ vi.mock("next-intl", () => ({
       : key,
 }));
 
-vi.mock("../../actions", () => ({ completeOnboardingWizardAction: vi.fn() }));
+vi.mock("../../actions", () => ({
+  completeOnboardingWikiStepAction: testContext.completeWikiStep,
+  completeOnboardingWizardAction: vi.fn(),
+}));
 vi.mock("../step-profile", () => ({
   StepProfile: () => createElement("div", { "data-step": "profile" }),
 }));
@@ -40,7 +49,21 @@ vi.mock("../step-ai", () => ({
   StepAiFooter: () => createElement("div", { "data-step-footer": "ai" }),
 }));
 vi.mock("@/components/wiki/wiki-homepage-setup", () => ({
-  WikiHomepageSetup: (props: { onAccepted: (conversationId: string) => void | Promise<void>; onSkip?: () => void }) => {
+  EMPTY_WIKI_HOMEPAGE_SETUP_STATE: {
+    status: "idle",
+    homepage: null,
+    domain: null,
+    conversationId: null,
+    pages: [],
+  },
+  WikiHomepageSetup: (props: {
+    onAccepted: (conversationId: string) => void | Promise<void>;
+    onContinue?: () => void | Promise<void>;
+    onSkip?: () => void | Promise<void>;
+    canStart?: boolean;
+    disabled?: boolean;
+    onboarding?: boolean;
+  }) => {
     testContext.wikiProps = props;
     return createElement("div", { "data-step": "wiki" });
   },
@@ -53,7 +76,8 @@ function renderWizard(
   profileCompleted: boolean,
   isInvited = false,
   canSetupWithMate = true,
-  wikiCompleted = false,
+  wikiStepCompleted = false,
+  wikiSetupState?: WikiHomepageSetupState,
 ): string {
   const store = new OnboardingWizardStore({} as RootStore);
   testContext.rootStore = {
@@ -66,7 +90,13 @@ function renderWizard(
   } as unknown as RootStore;
 
   return renderToStaticMarkup(
-    createElement(OnboardingWizard, { profileCompleted, isInvited, canSetupWithMate, wikiCompleted }),
+    createElement(OnboardingWizard, {
+      profileCompleted,
+      isInvited,
+      canSetupWithMate,
+      wikiStepCompleted,
+      wikiSetupState,
+    }),
   );
 }
 
@@ -74,6 +104,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   testContext.loadAgentConfig.mockResolvedValue(undefined);
   testContext.selectConversation.mockResolvedValue(undefined);
+  testContext.completeWikiStep.mockResolvedValue({ ok: true, data: { completed: true } });
   testContext.rootStore = null;
   testContext.wikiProps = null;
 });
@@ -112,21 +143,49 @@ describe("OnboardingWizard", () => {
     expect(renderWizard(true, false, true, true)).toContain('data-step="invite"');
   });
 
-  it.each(["onAccepted", "onSkip"] as const)("advances an owner from Wiki when %s fires", async (callback) => {
+  it("opens the visible Mate task without advancing from Wiki", async () => {
     renderWizard(true);
     const props = testContext.wikiProps;
     if (!props) throw new Error("Wiki setup did not render.");
     testContext.rootStore?.onboardingWizardStore.setInitialStep(1);
 
-    if (callback === "onAccepted") await props.onAccepted("conversation-1");
-    else props.onSkip?.();
+    await props.onAccepted("conversation-1");
+
+    expect(testContext.rootStore?.onboardingWizardStore.currentStep).toBe("wiki");
+    expect(testContext.openAgentChat).toHaveBeenCalledOnce();
+    expect(testContext.loadAgentConfig).toHaveBeenCalledOnce();
+    expect(testContext.selectConversation).toHaveBeenCalledExactlyOnceWith("conversation-1");
+  });
+
+  it.each(["onContinue", "onSkip"] as const)("advances an owner from Wiki when %s fires", async (callback) => {
+    renderWizard(true);
+    const props = testContext.wikiProps;
+    if (!props) throw new Error("Wiki setup did not render.");
+    testContext.rootStore?.onboardingWizardStore.setInitialStep(1);
+
+    await props[callback]?.();
 
     expect(testContext.rootStore?.onboardingWizardStore.currentStep).toBe("invite");
-    if (callback === "onAccepted") {
-      expect(testContext.openAgentChat).toHaveBeenCalledOnce();
-      expect(testContext.loadAgentConfig).toHaveBeenCalledOnce();
-      expect(testContext.selectConversation).toHaveBeenCalledExactlyOnceWith("conversation-1");
-    }
+  });
+
+  it("coalesces concurrent Continue clicks so Invite cannot be skipped", async () => {
+    let resolve!: (value: { ok: true; data: { completed: true } }) => void;
+    testContext.completeWikiStep.mockReturnValue(new Promise((done) => (resolve = done)));
+    renderWizard(true);
+    const props = testContext.wikiProps;
+    if (!props) throw new Error("Wiki setup did not render.");
+    testContext.rootStore?.onboardingWizardStore.setInitialStep(1);
+
+    const first = props.onContinue?.();
+    const second = props.onContinue?.();
+    expect(testContext.completeWikiStep).toHaveBeenCalledOnce();
+    expect(testContext.rootStore?.onboardingWizardStore.isSubmitting).toBe(true);
+
+    resolve({ ok: true, data: { completed: true } });
+    await Promise.all([first, second]);
+
+    expect(testContext.rootStore?.onboardingWizardStore.currentStep).toBe("invite");
+    expect(testContext.rootStore?.onboardingWizardStore.isSubmitting).toBe(false);
   });
 
   it("offers only Skip on the Wiki step when Mate is unavailable", () => {
@@ -135,6 +194,18 @@ describe("OnboardingWizard", () => {
     expect(html).toContain("WikiSetup.unavailable");
     expect(html).toContain("WikiSetup.skip");
     expect(testContext.wikiProps).toBeNull();
+  });
+
+  it("keeps an existing setup visible when Mate becomes unavailable", () => {
+    renderWizard(true, false, false, false, {
+      status: "working",
+      homepage: "https://example.com/",
+      domain: "example.com",
+      conversationId: "conversation-1",
+      pages: [],
+    });
+
+    expect(testContext.wikiProps).toMatchObject({ canStart: false, onboarding: true });
   });
 
   it("does not mutate the shared wizard store during render", () => {

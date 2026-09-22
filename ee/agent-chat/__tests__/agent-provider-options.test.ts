@@ -12,6 +12,7 @@ describe("Agent provider options", () => {
           : { scope: "global" },
         zeroDataRetention: true,
         disallowPromptTraining: true,
+        caching: "auto",
       },
       openai: { parallelToolCalls: false, store: false },
     });

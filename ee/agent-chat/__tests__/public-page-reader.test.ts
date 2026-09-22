@@ -240,8 +240,12 @@ describe("readPublicPage", () => {
   });
 
   it("requests functional query parameters unchanged and strips only the fragment", async () => {
-    fixtures.push({ body: "<html><body><p>Details for offering 42.</p></body></html>" });
-    const result = await readPublicPage({ url: "https://example.com/index.php?id=42&lang=en#details" });
+    fixtures.push({
+      body: "<html><body><p>Details for offering 42.</p></body></html>",
+    });
+    const result = await readPublicPage({
+      url: "https://example.com/index.php?id=42&lang=en#details",
+    });
     expect(mocks.httpsRequest.mock.calls[0][0].href).toBe("https://example.com/index.php?id=42&lang=en");
     expect(result).toMatchObject({
       ok: true,
@@ -257,7 +261,9 @@ describe("readPublicPage", () => {
         body: '<html><body><p>Offering 43.</p><a href="?id=44#overview">Offering 44</a><a href="?id=44#details">Duplicate</a><a href="?id=45">Offering 45</a></body></html>',
       },
     );
-    const result = await readPublicPage({ url: "https://example.com/index.php?id=42#overview" });
+    const result = await readPublicPage({
+      url: "https://example.com/index.php?id=42#overview",
+    });
     expect(mocks.httpsRequest.mock.calls.map(([url]) => url.href)).toEqual([
       "https://example.com/index.php?id=42",
       "https://example.com/index.php?id=43",
@@ -313,14 +319,52 @@ describe("readPublicPage", () => {
       title: "Our & Company",
       links: [
         { url: "https://example.com/about", title: "About & team" },
-        { url: "https://www.example.com/pricing", title: "Pricing" },
         { url: "https://example.com/about?campaign=1", title: "Duplicate" },
+        { url: "https://www.example.com/pricing", title: "Pricing" },
       ],
     });
     if (!result.ok) throw new Error("expected page");
     expect(result.text).toContain("We help teams.");
     expect(result.text).not.toMatch(/secret|hidden-css|Private input|Hidden/);
     expect(mocks.httpsRequest).toHaveBeenCalledTimes(1);
+  });
+
+  it("selects category-diverse evidence links instead of the first repeated feature links", async () => {
+    const featureLeaves = Array.from(
+      { length: 50 },
+      (_, index) => `<a href="/features/feature-${index}">Feature ${index}</a>`,
+    ).join("");
+    fixtures.push({
+      body: `<html><body><main><h1>Example</h1><p>Useful overview.</p>${featureLeaves}<a href="/features">All features</a><a href="/compare">Compare alternatives</a><a href="/docs">Documentation</a><a href="/blog">Insights</a><a href="/about">About us</a><a href="/for/customer-support">For customer support</a></main></body></html>`,
+    });
+
+    const result = await readPublicPage({ url: "https://example.com/" });
+
+    if (!result.ok) throw new Error("expected page");
+    expect(result.links).toHaveLength(7);
+    expect(result.links.map(({ url }) => new URL(url).pathname)).toEqual(
+      expect.arrayContaining(["/features", "/compare", "/docs", "/blog", "/about", "/for/customer-support"]),
+    );
+    expect(result.links.filter(({ url }) => new URL(url).pathname.startsWith("/features/"))).toHaveLength(1);
+    expect(mocks.httpsRequest).toHaveBeenCalledTimes(1);
+  });
+
+  it("finds diverse Spanish evidence after a long repeated navigation menu", async () => {
+    const repeated = Array.from(
+      { length: 120 },
+      (_, index) => `<a href="/productos/funcion-${index}">Función ${index}</a>`,
+    ).join("");
+    fixtures.push({
+      body: `<html><body><main><h1>Ejemplo</h1><p>Información útil.</p>${repeated}<a href="/productos">Productos</a><a href="/comparacion">Comparación</a><a href="/ayuda">Ayuda</a><a href="/noticias">Noticias</a><a href="/empresa">Empresa</a><a href="/clientes">Clientes</a></main></body></html>`,
+    });
+
+    const result = await readPublicPage({ url: "https://example.com/es" });
+
+    if (!result.ok) throw new Error("expected page");
+    expect(result.links.map(({ url }) => new URL(url).pathname)).toEqual(
+      expect.arrayContaining(["/productos", "/comparacion", "/ayuda", "/noticias", "/empresa", "/clientes"]),
+    );
+    expect(result.links.filter(({ url }) => new URL(url).pathname.startsWith("/productos/"))).toHaveLength(1);
   });
 
   it("returns JSON within the existing result cap and marks truncation", async () => {

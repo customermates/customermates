@@ -8,9 +8,10 @@ import { CenteredCardPage } from "@/components/shared/centered-card-page";
 import { ONBOARDING_INTENT_QUERY_PARAM, onboardingIntentAuthRedirects } from "@/features/company/onboarding-intent-url";
 import { resolveOnboardingIntent } from "@/features/company/next/onboarding-intent";
 import { buildLocalePath } from "@/i18n/locale-registry";
-import { getEntitlementService, getGetWikiPagesInteractor } from "@/core/di";
+import { getEntitlementService, getGetWikiHomepageSetupStateInteractor } from "@/core/di";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { env } from "@/env";
+import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -21,6 +22,7 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
   const onboardingIntent = await resolveOnboardingIntent(params[ONBOARDING_INTENT_QUERY_PARAM]);
   if (onboardingIntent.status === "invalid" && onboardingIntent.source === "explicit")
     redirect(buildLocalePath(await getLocale(), `/auth/error?type=${onboardingIntent.errorMessage}`));
+
   const activeIntent = onboardingIntent.status === "valid" ? onboardingIntent : null;
   const resolution = await requireAccountState(
     ["unregistered", "onboarding"],
@@ -44,16 +46,21 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
   );
   if (!user && !isInvited && !canCreateCompany) redirect(buildLocalePath(await getLocale(), "/onboarding"));
 
-  let wikiCompleted = false;
+  let wikiStepCompleted = false;
+  let wikiSetupState: WikiHomepageSetupState = {
+    status: "idle",
+    homepage: null,
+    domain: null,
+    conversationId: null,
+    pages: [],
+  };
   let canSetupWithMate = false;
   if (user?.role?.isSystemRole) {
-    const [wikiPages, agentDenial] = await runWithTenant(user, () =>
-      Promise.all([
-        getGetWikiPagesInteractor().invoke({ page: 1, pageSize: 5 }),
-        getEntitlementService().require("agentChat"),
-      ]),
+    const [setupState, agentDenial] = await runWithTenant(user, () =>
+      Promise.all([getGetWikiHomepageSetupStateInteractor().invoke(), getEntitlementService().require("agentChat")]),
     );
-    wikiCompleted = wikiPages.ok && wikiPages.data.total > 0;
+    if (setupState.ok) wikiSetupState = setupState.data;
+    wikiStepCompleted = user.onboardingWikiStepCompletedAt !== null;
     canSetupWithMate = env.APP_MODE !== "demo" && agentDenial === null;
   }
 
@@ -80,7 +87,8 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
         sessionEmail={sessionUser.email}
         sessionFirstName={sessionFirstName}
         sessionLastName={sessionLastName}
-        wikiCompleted={wikiCompleted}
+        wikiSetupState={wikiSetupState}
+        wikiStepCompleted={wikiStepCompleted}
       />
     </CenteredCardPage>
   );

@@ -34,11 +34,12 @@ import { providerWireInputSchema } from "./provider-safe-json-schema";
 import type { AgentToolInputResult } from "./agent-tool-input";
 import { getAgentWebSearchTool, AGENT_WEB_SEARCH_RELEASED } from "./agent-web-search";
 import { hostedWorkspaceContextText } from "./agent-workspace-context";
-import { manageWikiPagesTool, WikiHomepageSetupCreateSchema } from "@/features/mcp-tools/wiki.mcp-tools";
+import { wikiHomepageSetupTool } from "@/features/mcp-tools/wiki.mcp-tools";
 import { localizeWikiPageUrls } from "@/features/wiki/wiki-links";
 import { env } from "@/env";
 
 export type AgentToolOptions = {
+  locale?: string;
   webSearchEnabled?: boolean;
   wikiHomepageSetup?: boolean;
   surface?: AgentSurface;
@@ -361,24 +362,10 @@ export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolOptions =
     ...((options.webSearchEnabled ?? AGENT_WEB_SEARCH_RELEASED) ? { web_search: getAgentWebSearchTool() } : {}),
   };
   if (options.wikiHomepageSetup) {
-    const wiki = crmTool(manageWikiPagesTool, deps);
     return withCallerContext(
       {
         read_public_page: web.read_public_page,
-        manage_wiki_pages: {
-          ...wiki,
-          inputSchema: providerSafeSchema(WikiHomepageSetupCreateSchema),
-          execute: async (input, context) => {
-            const parsed = WikiHomepageSetupCreateSchema.safeParse(input);
-            if (!parsed.success) {
-              return {
-                ok: false,
-                result: agentToolResultText(validationError(parsed.error), deps.resultMaxChars),
-              };
-            }
-            return wiki.execute(parsed.data, context);
-          },
-        },
+        manage_wiki_pages: crmTool(wikiHomepageSetupTool(options.locale), deps),
       },
       deps,
     );
@@ -459,11 +446,14 @@ export function getAgentAiToolDefinitions(
   return describeAgentAiTools(getAgentAiTools(TOOL_DEFINITION_DEPS, options), servingProvider);
 }
 
-export type AgentTurnToolDefinition = AgentAiToolDefinition & { toolset: string | null };
+export type AgentTurnToolDefinition = AgentAiToolDefinition & {
+  toolset: string | null;
+};
 
 export function agentToolDefinitionsForTurn(args: {
   servingProvider: string;
   surface: AgentSurface;
+  locale?: string;
   webSearchEnabled?: boolean;
   wikiHomepageSetup?: boolean;
 }): AgentTurnToolDefinition[] {
@@ -471,7 +461,10 @@ export function agentToolDefinitionsForTurn(args: {
   const unattended = isUnattendedSurface(args.surface);
   return getAgentAiToolDefinitions(args.servingProvider, args)
     .filter((definition) => !unattended || !panelToolNames.has(definition.name))
-    .map((definition) => ({ ...definition, toolset: onDemandToolsetOfTool(definition.name) }));
+    .map((definition) => ({
+      ...definition,
+      toolset: onDemandToolsetOfTool(definition.name),
+    }));
 }
 
 export function agentToolDefinitionsForToolsets(

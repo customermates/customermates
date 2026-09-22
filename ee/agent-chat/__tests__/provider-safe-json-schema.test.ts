@@ -659,7 +659,10 @@ describe("the transform on the wire", () => {
   it("is asked for by serving provider where the workflow builds its tool shells", () => {
     const source = readFileSync(join(REPO_ROOT, "workflows", "agent-turn.ts"), "utf8");
 
-    expect(source).toContain("agentToolDefinitionsForTurn({ surface, servingProvider, ...options })");
+    expect(source).toContain("return agentToolDefinitionsForTurn({");
+    expect(source).toContain("surface,");
+    expect(source).toContain("servingProvider,");
+    expect(source).toContain("...options,");
     expect(source).toContain("loadAgentToolShells(surface, payload.turnBudget.servingProvider, {");
     expect(source).not.toContain("getAgentAiToolDefinitions()");
 

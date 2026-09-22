@@ -24,7 +24,12 @@ import {
 import type { AgentRunContext } from "./agent-run-context";
 import type { AgentUsageService } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
-import { AGENT_RUN_LEASE_MS, decideAgentTurnAdmission, type AgentTurnRequestSnapshot } from "./agent-turn-request";
+import {
+  AGENT_RUN_LEASE_MS,
+  decideAgentTurnAdmission,
+  WikiHomepageSetupAlreadyRunningError,
+  type AgentTurnRequestSnapshot,
+} from "./agent-turn-request";
 import { buildAgentSystemPrompt, routineTriggerEventOf } from "./system-prompt";
 import { agentToolDefinitionsForTurn } from "./agent-tools";
 import { toolsetsForRequest, toolsetsFromActivities } from "./agent-toolset-routing";
@@ -246,7 +251,9 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       return fail(CustomErrorCode.invalidUrl, ["wikiHomepageSetupUrl"]);
     const baseModel = resolveAgentModel(requestedModelKey);
     const turnModel = wikiHomepageSetup ? { ...baseModel, maxOutputTokens: 8_192 } : baseModel;
+    const locale = data.locale ?? resolveUserLocale(user);
     const toolOptions = {
+      locale,
       surface,
       wikiHomepageSetup: Boolean(wikiHomepageSetup),
       webSearchEnabled: AGENT_WEB_SEARCH_ENABLED,
@@ -266,8 +273,10 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     }
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
-    const locale = data.locale ?? resolveUserLocale(user);
-    const requestedToolsets = toolsetsForRequest({ text: data.text, pageRoute });
+    const requestedToolsets = toolsetsForRequest({
+      text: data.text,
+      pageRoute,
+    });
     const schemaDigest = await this.schemaDigest();
     const requiredContextBytes = conservativeAgentInitialContextBytes({
       systemPrompt: buildAgentSystemPrompt({
@@ -388,6 +397,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
                 turnRequestId,
                 priorRunId: decision.turn.runId,
                 priorAttemptCount: decision.turn.attemptCount,
+                wikiHomepageSetupDomain: wikiHomepageSetup?.registrableDomain,
                 userMessageId,
               }
             : {
@@ -405,7 +415,12 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       const priorToolsets = toolsetsFromActivities(activitiesInMessages(admission.recentMessages));
       const earlierRequestToolsets = admission.recentMessages
         .filter((message) => message.role === "user")
-        .flatMap((message) => [...toolsetsForRequest({ text: partsToText(message.parts), pageRoute: null })]);
+        .flatMap((message) => [
+          ...toolsetsForRequest({
+            text: partsToText(message.parts),
+            pageRoute: null,
+          }),
+        ]);
       const toolsets = [...new Set([...requestedToolsets, ...priorToolsets, ...earlierRequestToolsets])];
       const pageContext = data.pageContext ? `<page_context route="${data.pageContext.route}"/>\n` : "";
       const replayInputs = admission.recentMessages.map((message) => {
@@ -478,6 +493,8 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           tags: { kind: "agent-admission-cleanup-failure" },
         });
       }
+      if (error instanceof WikiHomepageSetupAlreadyRunningError)
+        return failConflict(CustomErrorCode.agentTurnAlreadyRunning, ["homepage"]);
       throw error;
     }
   }

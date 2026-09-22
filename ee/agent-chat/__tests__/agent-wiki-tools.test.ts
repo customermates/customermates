@@ -43,18 +43,16 @@ vi.mock("@/features/mcp-tools/tool-registry", async () => {
   const { z } = await import("zod");
   const { manageWikiPagesTool } = await import("@/features/mcp-tools/wiki.mcp-tools");
   const { getWorkspaceContextTool } = await import("@/features/mcp-tools/workspace.mcp-tools");
+  const fetchTool = {
+    name: "fetch",
+    description: "Read one complete source document.",
+    inputSchema: z.object({ id: z.string() }),
+    annotations: { readOnlyHint: true, destructiveHint: false },
+    execute: calls.fetch,
+  };
   return {
-    ALL_MCP_TOOLS: [
-      manageWikiPagesTool,
-      getWorkspaceContextTool,
-      {
-        name: "fetch",
-        description: "Read one complete source document.",
-        inputSchema: z.object({ id: z.string() }),
-        annotations: { readOnlyHint: true, destructiveHint: false },
-        execute: calls.fetch,
-      },
-    ],
+    ALL_MCP_TOOLS: [manageWikiPagesTool, getWorkspaceContextTool, fetchTool],
+    MCP_ALWAYS_ON_TOOLS: [fetchTool],
     MCP_TOOL_GROUPS: {},
   };
 });
@@ -148,13 +146,18 @@ describe("managed Wiki retrieval tools", () => {
   });
 
   it.each(["chat", "routine"] as const)(
-    "reads a Wiki fetch in bounded chunks on %s without invoking external full fetch",
+    "reads a Wiki page in bounded chunks on %s without exposing external deep-research fetch",
     async (surface) => {
       const markdown = "A clear voice 🌍.\n".repeat(1_000);
       calls.get.mockResolvedValue({ ok: true, data: { ...page, markdown } });
       const deps = dependencies();
       const tools = getAgentAiTools(deps, { surface, webSearchEnabled: false });
-      const first = await execute(tools.fetch, { id: `wiki:${PAGE_ID}` });
+      expect(tools.fetch).toBeUndefined();
+      const first = await execute(tools.manage_wiki_pages, {
+        action: "get",
+        id: PAGE_ID,
+        offset: 0,
+      });
       expect(first.ok).toBe(true);
       expect(first.result.length).toBeLessThanOrEqual(6_000);
       expect(first.result).not.toContain("[truncated:");
@@ -228,8 +231,11 @@ describe("managed Wiki retrieval tools", () => {
         webSearchEnabled: false,
       });
 
-      const sourceResult = await execute(tools.fetch, {
-        id: `wiki:${sourceId}`,
+      expect(tools.fetch).toBeUndefined();
+      const sourceResult = await execute(tools.manage_wiki_pages, {
+        action: "get",
+        id: sourceId,
+        offset: 0,
       });
       const source = decode(sourceResult.result) as WikiChunk & {
         links: Array<{
@@ -253,8 +259,10 @@ describe("managed Wiki retrieval tools", () => {
         ],
       });
 
-      const firstTargetResult = await execute(tools.fetch, {
-        id: source.links[0].url,
+      const firstTargetResult = await execute(tools.manage_wiki_pages, {
+        action: "get",
+        id: source.links[0].id,
+        offset: 0,
       });
       const firstTarget = decode(firstTargetResult.result) as WikiChunk;
       expect(firstTarget.url).toBe(`/wiki?page=${linkedId}`);
@@ -304,7 +312,11 @@ describe("managed Wiki retrieval tools", () => {
         webSearchEnabled: false,
       });
 
-      const read = await execute(tools.fetch, { id: `wiki:${PAGE_ID}` });
+      const read = await execute(tools.manage_wiki_pages, {
+        action: "get",
+        id: PAGE_ID,
+        offset: 0,
+      });
       expect((decode(read.result) as WikiChunk).markdownChunk).toBe(hostileMarkdown);
 
       const deniedUpdate = await execute(tools.manage_wiki_pages, {
@@ -334,58 +346,28 @@ describe("managed Wiki retrieval tools", () => {
     },
   );
 
-  it.each([
-    `wiki:${PAGE_ID}`,
-    `/wiki?page=${PAGE_ID}`,
-    `/de/wiki?page=${PAGE_ID}`,
-    `http://localhost:4000/wiki?page=${PAGE_ID}`,
-  ])("routes the supported Wiki reference %s through bounded hosted retrieval", async (id) => {
-    calls.get.mockResolvedValue({
-      ok: true,
-      data: { ...page, markdown: "Current guidance" },
-    });
-    const tools = getAgentAiTools(dependencies(), {
-      webSearchEnabled: false,
-    });
-
-    const result = await execute(tools.fetch, { id });
-
-    expect(result.ok).toBe(true);
-    expect(calls.get).toHaveBeenCalledExactlyOnceWith({ id: PAGE_ID });
-    expect(calls.fetch).not.toHaveBeenCalled();
-    expect((decode(result.result) as WikiChunk).url).toBe(`/wiki?page=${PAGE_ID}`);
-  });
-
-  it("preserves non-Wiki fetch behavior", async () => {
-    const tools = getAgentAiTools(dependencies(), { webSearchEnabled: false });
-    expect(await execute(tools.fetch, { id: "doc:en:wiki" })).toEqual({
-      ok: true,
-      result: "Complete external document",
-    });
-    expect(calls.fetch).toHaveBeenCalledWith({ id: "doc:en:wiki" });
-    expect(calls.get).not.toHaveBeenCalled();
-  });
-
-  it("publishes the hosted Wiki fetch continuation contract without changing other fetch ids", () => {
+  it("uses the runtime-v2 hosted Wiki tools and keeps the public deep-research pair external", () => {
     const options = { surface: "chat" as const, webSearchEnabled: false };
     const tools = getAgentAiTools(dependencies(), options);
-    const description = (tools.fetch as { description?: string }).description ?? "";
+    const description = (tools.manage_wiki_pages as { description?: string }).description ?? "";
 
-    expect(description).toContain("markdownChunk");
+    expect(tools.get_workspace_context).toBeDefined();
+    expect(tools.manage_wiki_pages).toBeDefined();
+    expect(tools.fetch).toBeUndefined();
+    expect(description).toContain("get returns one Markdown chunk");
     expect(description).toContain("nextOffset");
-    expect(description).toContain("manage_wiki_pages");
-    expect(description).toContain("Non-Wiki ids use normal fetch behavior");
-    expect(description).toContain("explicit truncation");
-    expect(description).toContain("wiki:<uuid>");
-    expect(description).toContain("same-origin Wiki URL");
-    expect(description).not.toBe("Read one complete source document.");
+    expect(description).toContain("/wiki?page=<page-id>");
     expect(getAgentAiToolDefinitions(undefined, options)).toEqual(describeAgentAiTools(tools));
   });
 
   it("returns a denied read without leaking Markdown through the agent wrapper", async () => {
     calls.get.mockRejectedValue(new ForbiddenError("Wiki Read denied"));
     const tools = getAgentAiTools(dependencies(), { webSearchEnabled: false });
-    const result = await execute(tools.fetch, { id: `wiki:${PAGE_ID}` });
+    const result = await execute(tools.manage_wiki_pages, {
+      action: "get",
+      id: PAGE_ID,
+      offset: 0,
+    });
     expect(result.ok).toBe(false);
     expect(result.result).not.toContain("Current catalog guidance");
     expect(calls.fetch).not.toHaveBeenCalled();
@@ -571,6 +553,19 @@ describe("managed Wiki retrieval tools", () => {
 });
 
 describe("homepage setup tool boundary", () => {
+  const setupPages = [
+    "company_overview",
+    "products_services",
+    "customers_competitors",
+    "voice_tone",
+    "support_faq",
+  ].map((topic) => ({
+    topic,
+    body: `Verified ${topic}`,
+    gaps: `Confirm ${topic}`,
+    sources: [`https://example.com/${topic}`],
+  }));
+
   it.each([false, true])(
     "exposes only bounded page reads and atomic create when web search is enabled=%s",
     (webSearchEnabled) => {
@@ -592,22 +587,13 @@ describe("homepage setup tool boundary", () => {
       expect(getAgentAiToolDefinitions(provider, options)).toEqual(describeAgentAiTools(actual, provider));
   });
 
-  it("validates one-to-five-page empty-only creation and denies all other actions before execution", async () => {
+  it("validates the exact five-topic empty-only creation and denies all other actions before execution", async () => {
     const options = { wikiHomepageSetup: true, webSearchEnabled: true };
-    for (let count = 1; count <= 5; count++) {
-      const input = {
-        action: "create",
-        requireEmpty: true,
-        pages: Array.from({ length: count }, (_, index) => ({
-          title: `Page ${index + 1}`,
-          markdown: "Verified",
-        })),
-      };
-      expect(await normalizeAgentAiToolInput("manage_wiki_pages", input, 6_000, options)).toMatchObject({
-        ok: true,
-        input,
-      });
-    }
+    const input = { action: "create", requireEmpty: true, pages: setupPages };
+    expect(await normalizeAgentAiToolInput("manage_wiki_pages", input, 6_000, options)).toMatchObject({
+      ok: true,
+      input,
+    });
     for (const input of [
       { action: "get", id: PAGE_ID },
       {
@@ -618,16 +604,33 @@ describe("homepage setup tool boundary", () => {
       {
         action: "create",
         requireEmpty: false,
-        pages: [{ title: "Page", markdown: "Verified" }],
+        pages: setupPages,
       },
       { action: "create", requireEmpty: true, pages: [] },
       {
         action: "create",
         requireEmpty: true,
-        pages: Array.from({ length: 6 }, (_, index) => ({
-          title: `Page ${index + 1}`,
-          markdown: "Verified",
-        })),
+        pages: setupPages.slice(0, 4),
+      },
+      {
+        action: "create",
+        requireEmpty: true,
+        pages: [...setupPages.slice(0, 4), setupPages[0]],
+      },
+      {
+        action: "create",
+        requireEmpty: true,
+        pages: setupPages.map((page, index) => (index === 0 ? { ...page, body: "   " } : page)),
+      },
+      {
+        action: "create",
+        requireEmpty: true,
+        pages: setupPages.map((page, index) => (index === 0 ? { ...page, gaps: "" } : page)),
+      },
+      {
+        action: "create",
+        requireEmpty: true,
+        pages: setupPages.map((page, index) => (index === 0 ? { ...page, sources: [] } : page)),
       },
     ]) {
       expect(await normalizeAgentAiToolInput("manage_wiki_pages", input, 6_000, options)).toMatchObject({ ok: false });
@@ -651,15 +654,40 @@ describe("homepage setup tool boundary", () => {
     const input = {
       action: "create",
       requireEmpty: true,
-      pages: [{ title: "Company", markdown: "Verified" }],
+      pages: setupPages,
     };
     expect(await execute(tools.manage_wiki_pages, input)).toMatchObject({
       ok: true,
     });
     expect(calls.create).toHaveBeenCalledWith({
       requireEmpty: true,
-      pages: input.pages,
+      pages: [
+        expect.objectContaining({
+          setupTopic: "company_overview",
+          setupRelatedHeading: "Related pages",
+          title: "Company Overview",
+          markdown: expect.stringContaining("## Gaps to confirm"),
+        }),
+        expect.objectContaining({
+          setupTopic: "products_services",
+          title: "Products & Services",
+        }),
+        expect.objectContaining({
+          setupTopic: "customers_competitors",
+          title: "Customers, Positioning & Competitors",
+        }),
+        expect.objectContaining({
+          setupTopic: "voice_tone",
+          title: "Voice & Tone",
+        }),
+        expect.objectContaining({
+          setupTopic: "support_faq",
+          title: "Support & FAQ",
+        }),
+      ],
     });
+    expect(calls.create.mock.calls[0][0].pages[0].markdown).toContain("## Sources");
+    expect(calls.create.mock.calls[0][0].pages[0].markdown).toContain("<https://example.com/company_overview>");
     expect(deps.runExactlyOnce).toHaveBeenCalledWith("wiki-test-call", "manage_wiki_pages", expect.any(Function));
     expect(deps.requestApproval).not.toHaveBeenCalled();
     expect(deps.runInCallerContext).toHaveBeenCalledOnce();

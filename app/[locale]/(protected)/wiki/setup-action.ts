@@ -6,6 +6,7 @@ import { z } from "zod";
 import { getStartWikiHomepageSetupInteractor } from "@/core/di";
 import { createZodError } from "@/core/validation/validation.utils";
 import type { AppLocale } from "@/i18n/locale-registry";
+import { parsePublicWikiHomepage } from "@/features/wiki/wiki-homepage";
 
 export async function startWikiHomepageSetupAction(data: { homepage: string; clientRequestId: string }) {
   const locale = (await getLocale()) as AppLocale;
@@ -28,9 +29,14 @@ export async function startWikiHomepageSetupAction(data: { homepage: string; cli
       error: z.treeifyError(createZodError(t("startFailed"), ["homepage"])),
     };
   }
+  const homepage = parsePublicWikiHomepage(data.homepage);
 
   return {
     ok: true as const,
-    data: { conversationId: result.data.conversationId },
+    data: {
+      conversationId: result.data.conversationId,
+      homepage: homepage?.url ?? data.homepage,
+      domain: homepage?.registrableDomain ?? null,
+    },
   };
 }

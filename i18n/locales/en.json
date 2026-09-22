@@ -56,6 +56,9 @@
         "widgets": {
           "configure": "Ready to change dashboard widgets",
           "delete": "Ready to permanently delete a dashboard widget"
+        },
+        "workspace": {
+          "configure": "Ready to permanently delete this Wiki page"
         }
       },
       "cancelled": "Stopped",
@@ -3600,12 +3603,50 @@
     "untitled": "Untitled page"
   },
   "WikiSetup": {
-    "description": "Mate reads your public site and creates useful Wiki pages. You can continue while it works.",
-    "homepageLabel": "Company homepage (optional)",
+    "continue": "Continue",
+    "createBlank": "Create a blank page",
+    "description": "Turn your website into a starter Wiki with five connected pages.",
+    "gapsNote": "Mate cites what it finds and marks missing information instead of guessing.",
+    "generated": {
+      "gapsHeading": "Gaps to confirm",
+      "relatedPages": "Related pages",
+      "sourcesHeading": "Sources",
+      "topics": {
+        "company_overview": "Company Overview",
+        "customers_competitors": "Customers, Positioning & Competitors",
+        "products_services": "Products & Services",
+        "support_faq": "Support & FAQ",
+        "voice_tone": "Voice & Tone"
+      }
+    },
+    "homepageHelp": "Public HTTP(S) website. Mate may read up to four useful pages linked from it.",
+    "homepageLabel": "Company website",
     "homepagePlaceholder": "https://example.com",
+    "openTask": "Open Mate task",
     "skip": "Skip",
     "start": "Set up with Mate",
     "startFailed": "Mate could not start the Wiki setup. Please try again.",
+    "status": {
+      "completedBody": "Your connected starter pages are ready to review and edit.",
+      "completedBodyOnboarding": "Your five connected starter pages are ready. Continue onboarding, then review them in Wiki.",
+      "completedExistingBody": "Your Wiki already contains pages. Continue onboarding or review the existing content.",
+      "completedTitle": "Your Wiki is ready",
+      "failedBody": "No pages were added. Open the Mate task for details or try another website.",
+      "failedTitle": "Setup did not finish",
+      "noContentBody": "Mate could not find enough reliable public information, so it created no pages.",
+      "noContentTitle": "No usable content found",
+      "workingBody": "Mate is reading {domain} and building the five pages. You can watch the task or continue onboarding.",
+      "workingBodyNoTask": "Mate is reading {domain} and building the five pages. You can continue onboarding; the pages will appear when the task finishes.",
+      "workingTitle": "Mate is building your Wiki"
+    },
+    "topics": {
+      "company": "Company overview",
+      "customers": "Customers and competitors",
+      "products": "Products and services",
+      "support": "Support and FAQ",
+      "voice": "Voice and tone"
+    },
+    "tryAnother": "Try another website",
     "unavailable": "Mate setup is not available right now. You can create Wiki pages later from Wiki."
   }
 }

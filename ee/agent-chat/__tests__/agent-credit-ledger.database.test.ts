@@ -34,7 +34,7 @@ vi.mock("@/core/validation/zod-error-map-server", () => ({
 
 const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.repository");
 const { AGENT_MAX_CONCURRENT_RUNS_PER_USER } = await import("@/ee/agent-chat/agent-run-limits");
-const { AGENT_RUN_LEASE_MS } = await import("@/ee/agent-chat/agent-turn-request");
+const { AGENT_RUN_LEASE_MS, WikiHomepageSetupAlreadyRunningError } = await import("@/ee/agent-chat/agent-turn-request");
 const { AgentUsageService } = await import("@/ee/agent-chat/agent-usage.service");
 const { SendAgentMessageInteractor } = await import("@/ee/agent-chat/send-agent-message.interactor");
 const { prisma } = await import("@/prisma/db");
@@ -116,6 +116,238 @@ const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const entitlements = { require: vi.fn().mockResolvedValue(null) };
 
 describeDatabase("agent credit ledger against a real database", { timeout: 120_000 }, () => {
+  it("admits exactly one of two concurrent homepage setup turns for a workspace", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const { companyId, userId: firstUserId } = await seedActiveSeat(anchor);
+    const secondUserId = randomUUID();
+    await runWithoutTenant(() =>
+      prisma.user.create({
+        data: {
+          id: secondUserId,
+          companyId,
+          email: `setup-${secondUserId}@example.com`,
+          firstName: "Second",
+          lastName: "Owner",
+          status: "active",
+          agentCreditActivatedAt: anchor,
+        },
+      }),
+    );
+
+    const firstUser = createMockUser({
+      id: firstUserId,
+      companyId,
+      email: `setup-${firstUserId}@example.com`,
+    });
+    const secondUser = createMockUser({
+      id: secondUserId,
+      companyId,
+      email: `setup-${secondUserId}@example.com`,
+    });
+    const expiresAt = new Date(Date.now() + AGENT_RUN_LEASE_MS);
+    const periodEnd = new Date(anchor.getTime() + 31 * 24 * 60 * 60 * 1_000);
+
+    const prepare = async (tenant: TenantUser) => {
+      const repo = new PrismaAgentChatRepo();
+      const conversationId = randomUUID();
+      const runId = randomUUID();
+      const reservationId = randomUUID();
+      await runWithTenant(tenant, async () => {
+        await repo.createAgentConversationForRun({
+          conversationId,
+          title: "Set up Workspace Wiki",
+          now: new Date(),
+        });
+        expect(
+          await repo.claimAgentRunLease({
+            conversationId,
+            runId,
+            expiresAt,
+            now: new Date(),
+          }),
+        ).toBe("claimed");
+      });
+      await runWithoutTenant(() =>
+        repo.reserveUsageEventUnscoped({
+          id: reservationId,
+          companyId,
+          userId: tenant.id,
+          sessionId: runId,
+          reservedCredits: 1,
+          planSnapshot: "starter",
+          subscriptionStatusSnapshot: "active",
+          allowanceCreditsSnapshot: 200,
+          periodStart: anchor,
+          periodEnd,
+        }),
+      );
+      return { repo, conversationId, runId, reservationId };
+    };
+
+    const first = await prepare(firstUser);
+    const second = await prepare(secondUser);
+    const admit = (tenant: TenantUser, prepared: Awaited<ReturnType<typeof prepare>>) =>
+      runWithTenant(tenant, () =>
+        prepared.repo.admitAgentTurnOrThrow({
+          conversationId: prepared.conversationId,
+          title: "Set up Workspace Wiki",
+          runId: prepared.runId,
+          reservationId: prepared.reservationId,
+          modelSpec: "openai/gpt-5.6-luna",
+          servingProvider: "azure",
+          recentMessageLimit: 8,
+          turn: {
+            kind: "create",
+            turnRequestId: randomUUID(),
+            clientRequestId: randomUUID(),
+            text: "Set up the Wiki from https://example.com/",
+            pageRoute: "/wiki",
+            wikiHomepageSetupDomain: "example.com",
+            wikiHomepageSetupUrl: "https://example.com/",
+            userMessageId: randomUUID(),
+          },
+        }),
+      );
+
+    const outcomes = await Promise.allSettled([admit(firstUser, first), admit(secondUser, second)]);
+    expect(outcomes.filter(({ status }) => status === "fulfilled")).toHaveLength(1);
+    const rejected = outcomes.filter((outcome) => outcome.status === "rejected");
+    expect(rejected).toHaveLength(1);
+    expect(rejected[0]).toMatchObject({
+      reason: expect.any(WikiHomepageSetupAlreadyRunningError),
+    });
+
+    const activeSetups = await runWithoutTenant(() =>
+      prisma.agentTurnRequest.count({
+        where: {
+          companyId,
+          wikiHomepageSetupDomain: { not: null },
+          status: { in: ["running", "waitingBudget"] },
+        },
+      }),
+    );
+    expect(activeSetups).toBe(1);
+  });
+
+  it("does not retry a failed homepage setup while another setup is active", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const { companyId, userId } = await seedActiveSeat(anchor);
+    const user = createMockUser({ id: userId, companyId });
+    const repo = new PrismaAgentChatRepo();
+    const failedConversationId = randomUUID();
+    const activeConversationId = randomUUID();
+    const failedTurnId = randomUUID();
+    const activeTurnId = randomUUID();
+    const failedRunId = randomUUID();
+    const failedUserMessageId = randomUUID();
+    const retryRunId = randomUUID();
+    const reservationId = randomUUID();
+    const periodEnd = new Date(anchor.getTime() + 31 * 24 * 60 * 60 * 1_000);
+
+    await runWithTenant(user, async () => {
+      await repo.createAgentConversationForRun({
+        conversationId: failedConversationId,
+        title: "Set up Workspace Wiki",
+        now: new Date(),
+      });
+      expect(
+        await repo.claimAgentRunLease({
+          conversationId: failedConversationId,
+          runId: retryRunId,
+          expiresAt: new Date(Date.now() + AGENT_RUN_LEASE_MS),
+          now: new Date(),
+        }),
+      ).toBe("claimed");
+    });
+    await runWithoutTenant(async () => {
+      await prisma.agentConversation.create({
+        data: {
+          id: activeConversationId,
+          companyId,
+          userId,
+          title: "Set up Workspace Wiki",
+        },
+      });
+      await prisma.agentTurnRequest.createMany({
+        data: [
+          {
+            id: failedTurnId,
+            companyId,
+            userId,
+            conversationId: failedConversationId,
+            clientRequestId: randomUUID(),
+            text: "Set up the Wiki from https://first.example.com/",
+            pageRoute: "/wiki",
+            wikiHomepageSetupDomain: "first.example.com",
+            wikiHomepageSetupUrl: "https://first.example.com/",
+            status: "failed",
+            runId: failedRunId,
+            modelSpec: "openai/gpt-5.6-luna",
+            servingProvider: "azure",
+            userMessageId: failedUserMessageId,
+            affectedResources: [],
+          },
+          {
+            id: activeTurnId,
+            companyId,
+            userId,
+            conversationId: activeConversationId,
+            clientRequestId: randomUUID(),
+            text: "Set up the Wiki from https://second.example.com/",
+            pageRoute: "/wiki",
+            wikiHomepageSetupDomain: "second.example.com",
+            wikiHomepageSetupUrl: "https://second.example.com/",
+            status: "running",
+            runId: randomUUID(),
+            modelSpec: "openai/gpt-5.6-luna",
+            servingProvider: "azure",
+            userMessageId: randomUUID(),
+            affectedResources: [],
+          },
+        ],
+      });
+      await repo.reserveUsageEventUnscoped({
+        id: reservationId,
+        companyId,
+        userId,
+        sessionId: retryRunId,
+        reservedCredits: 1,
+        planSnapshot: "starter",
+        subscriptionStatusSnapshot: "active",
+        allowanceCreditsSnapshot: 200,
+        periodStart: anchor,
+        periodEnd,
+      });
+    });
+
+    await expect(
+      runWithTenant(user, () =>
+        repo.admitAgentTurnOrThrow({
+          conversationId: failedConversationId,
+          title: "Set up Workspace Wiki",
+          runId: retryRunId,
+          reservationId,
+          modelSpec: "openai/gpt-5.6-luna",
+          servingProvider: "azure",
+          recentMessageLimit: 8,
+          turn: {
+            kind: "retry",
+            turnRequestId: failedTurnId,
+            priorRunId: failedRunId,
+            priorAttemptCount: 1,
+            wikiHomepageSetupDomain: "first.example.com",
+            userMessageId: failedUserMessageId,
+          },
+        }),
+      ),
+    ).rejects.toBeInstanceOf(WikiHomepageSetupAlreadyRunningError);
+
+    const failedTurn = await runWithoutTenant(() =>
+      prisma.agentTurnRequest.findUniqueOrThrow({ where: { id: failedTurnId }, select: { status: true } }),
+    );
+    expect(failedTurn.status).toBe("failed");
+  });
+
   it("admits only as many concurrent reservations as the allowance permits", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);

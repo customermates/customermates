@@ -15,13 +15,14 @@ import { EditorLinkPickerContext } from "@/components/editor/editor-link-picker"
 import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sheet, SheetBody, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetBody, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRouter } from "@/i18n/navigation";
 import { cn } from "@/core/utils/cn";
-import { WikiHomepageSetup } from "@/components/wiki/wiki-homepage-setup";
+import { EMPTY_WIKI_HOMEPAGE_SETUP_STATE, WikiHomepageSetup } from "@/components/wiki/wiki-homepage-setup";
 import { wikiPagePath } from "@/features/wiki/wiki-links";
+import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 
 import { WikiPageStore } from "./wiki-page.store";
 import { WikiPageActions } from "./wiki-page-actions";
@@ -31,6 +32,7 @@ import { useWikiPages } from "./use-wiki-pages";
 
 type Props = {
   initialPage: WikiPageDto | null;
+  initialSetupState?: WikiHomepageSetupState;
   listPage: WikiPageListResult;
   pinnedPage?: WikiPageSummary | null;
   readOnly?: boolean;
@@ -39,6 +41,7 @@ type Props = {
 
 const WikiPageViewComponent = ({
   initialPage,
+  initialSetupState = EMPTY_WIKI_HOMEPAGE_SETUP_STATE,
   listPage,
   pinnedPage = null,
   readOnly = false,
@@ -50,6 +53,7 @@ const WikiPageViewComponent = ({
   const [isNavigating, startNavigation] = useTransition();
   const [hasMounted, setHasMounted] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [setupStarted, setSetupStarted] = useState(false);
   const [store] = useState(
     () =>
       new WikiPageStore(rootStore, initialPage, (pageId) => {
@@ -63,9 +67,11 @@ const WikiPageViewComponent = ({
   const titleContainer = useRef<HTMLDivElement>(null);
   const pages = useWikiPages(listPage);
   const canManage = store.canManage && !readOnly;
+  const setupActive = initialSetupState.status === "working" || setupStarted;
 
   useEffect(() => store.receivePage(initialPage), [initialPage, store]);
   useEffect(() => setHasMounted(true), []);
+  useEffect(() => setSetupStarted(initialSetupState.status === "working"), [initialSetupState.status]);
   useEffect(() => {
     if (store.creating) titleContainer.current?.querySelector("input")?.focus();
   }, [store.creating]);
@@ -100,6 +106,7 @@ const WikiPageViewComponent = ({
     () =>
       isNavigating ? null : (
         <WikiPageActions
+          canCreate={!setupActive}
           canManage={canManage}
           formId={formId}
           hasDocument={hasDocument}
@@ -108,7 +115,7 @@ const WikiPageViewComponent = ({
           onReload={reload}
         />
       ),
-    [canManage, create, formId, hasDocument, isNavigating, reload, store],
+    [canManage, create, formId, hasDocument, isNavigating, reload, setupActive, store],
   );
   useSetTopBarActions(topBar);
   const pinnedRailPage = pinnedPage && !pages.result.items.some(({ id }) => id === pinnedPage.id) ? pinnedPage : null;
@@ -213,21 +220,19 @@ const WikiPageViewComponent = ({
     <div className="flex min-h-0 flex-1 flex-col md:grid md:grid-cols-[15rem_minmax(0,1fr)]">
       <aside className="hidden min-h-0 flex-col border-r border-border md:flex">{pageList}</aside>
 
-      <div className="flex min-w-0 items-center border-b border-border px-4 py-2 md:hidden">
-        <Button
-          className="min-w-0 max-w-full justify-between gap-3 font-normal"
-          variant="ghost"
-          onClick={() => setMobileOpen(true)}
-        >
-          <BookOpen className="shrink-0" />
-
-          <span className="truncate">{store.form.title || t("Wiki.pagesLabel")}</span>
-
-          <ChevronDown className="shrink-0" />
-        </Button>
-      </div>
-
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        <div className="flex min-w-0 items-center border-b border-border px-4 py-2 md:hidden">
+          <SheetTrigger asChild>
+            <Button className="min-w-0 max-w-full justify-between gap-3 font-normal" variant="ghost">
+              <BookOpen className="shrink-0" />
+
+              <span className="truncate">{store.form.title || t("Wiki.pagesLabel")}</span>
+
+              <ChevronDown className="shrink-0" />
+            </Button>
+          </SheetTrigger>
+        </div>
+
         <SheetContent aria-describedby={undefined} className="gap-0" side="left">
           <SheetHeader>
             <SheetTitle>{t("Wiki.pagesLabel")}</SheetTitle>
@@ -246,22 +251,28 @@ const WikiPageViewComponent = ({
           <PageState
             action={
               canManage ? (
-                <div className="w-72 max-w-full space-y-4">
-                  {canSetupWithMate && (
+                <div className="w-full max-w-xl space-y-4">
+                  {(canSetupWithMate || initialSetupState.status !== "idle") && (
                     <WikiHomepageSetup
+                      canStart={canSetupWithMate}
+                      initialState={initialSetupState}
                       onAccepted={async (conversationId) => {
+                        setSetupStarted(true);
                         rootStore.agentChatStore.open();
                         await rootStore.agentChatStore.loadConfig();
                         await rootStore.agentChatStore.selectConversation(conversationId);
                       }}
+                      onCreateBlank={setupActive ? undefined : create}
                     />
                   )}
 
-                  <Button disabled={store.isLoading} size="sm" variant="secondary" onClick={create}>
-                    <Plus />
+                  {!canSetupWithMate && !setupActive ? (
+                    <Button disabled={store.isLoading} size="sm" variant="secondary" onClick={create}>
+                      <Plus />
 
-                    {t("Wiki.newPage")}
-                  </Button>
+                      {t("Wiki.newPage")}
+                    </Button>
+                  ) : null}
                 </div>
               ) : undefined
             }
@@ -269,7 +280,7 @@ const WikiPageViewComponent = ({
             description={
               !canManage
                 ? t("Wiki.emptyBodyReadOnly")
-                : canSetupWithMate
+                : canSetupWithMate || initialSetupState.status !== "idle"
                   ? t("Wiki.emptyBody")
                   : t("Wiki.emptyBodyManual")
             }

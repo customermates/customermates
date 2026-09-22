@@ -3,12 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   appMode: "cloud" as "cloud" | "demo",
   getPage: vi.fn(),
+  getSetupState: vi.fn(),
   listPages: vi.fn(),
   requireAccess: vi.fn(),
 }));
 
 vi.mock("@/core/di", () => ({
   getGetWikiPageInteractor: () => ({ invoke: mocks.getPage }),
+  getGetWikiHomepageSetupStateInteractor: () => ({ invoke: mocks.getSetupState }),
   getGetWikiPagesInteractor: () => ({ invoke: mocks.listPages }),
 }));
 vi.mock("@/features/auth/next/require", () => ({
@@ -44,6 +46,10 @@ beforeEach(() => {
   vi.clearAllMocks();
   mocks.appMode = "cloud";
   mocks.requireAccess.mockResolvedValue(undefined);
+  mocks.getSetupState.mockResolvedValue({
+    ok: true,
+    data: { status: "idle", homepage: null, domain: null, conversationId: null, pages: [] },
+  });
 });
 
 describe("WikiPage", () => {

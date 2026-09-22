@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { createPublicPageReadState, recordPublicPageLinks, reservePublicPageRead } from "../public-page-read-state";
+import {
+  createPublicPageReadState,
+  publicPageSourcesWereRead,
+  recordPublicPageLinks,
+  reservePublicPageRead,
+} from "../public-page-read-state";
 
 const homepage = {
   url: "https://example.com/",
@@ -46,6 +51,7 @@ describe("public page read state", () => {
       "https://www.example.com/pricing",
       "https://example.com/about",
     ]);
+    expect(state.successfulUrls).toEqual(["https://example.com/en"]);
     expect(reservePublicPageRead(state, "https://example.com/about#team").ok).toBe(true);
     recordPublicPageLinks(state, "https://example.com/about", {
       ok: true,
@@ -60,6 +66,44 @@ describe("public page read state", () => {
       ok: false,
       reason: "outside_domain",
     });
+  });
+
+  it("accepts citations only for exact pages that were read successfully", () => {
+    const state = startedState();
+    recordPublicPageLinks(state, homepage.url, {
+      ok: true,
+      url: homepage.url,
+      links: [{ url: "https://example.com/about" }, { url: "https://example.com/failed" }],
+    });
+    expect(reservePublicPageRead(state, "https://example.com/about").ok).toBe(true);
+    recordPublicPageLinks(state, "https://example.com/about", {
+      ok: true,
+      url: "https://example.com/about#team",
+      links: [],
+    });
+    expect(reservePublicPageRead(state, "https://example.com/failed").ok).toBe(true);
+    recordPublicPageLinks(state, "https://example.com/failed", { ok: false });
+
+    expect(
+      publicPageSourcesWereRead(state, {
+        pages: [
+          {
+            sources: ["https://example.com/#top", "https://example.com/about#team"],
+          },
+        ],
+      }),
+    ).toBe(true);
+    expect(
+      publicPageSourcesWereRead(state, {
+        pages: [{ sources: ["https://example.com/failed"] }],
+      }),
+    ).toBe(false);
+    expect(
+      publicPageSourcesWereRead(state, {
+        pages: [{ sources: ["https://example.com/guessed"] }],
+      }),
+    ).toBe(false);
+    expect(publicPageSourcesWereRead(state, { pages: [{ sources: [] }] })).toBe(false);
   });
 
   it("counts failed attempts, rejects retries, and reserves synchronously before parallel work", () => {
@@ -126,7 +170,9 @@ describe("public page read state", () => {
     recordPublicPageLinks(state, homepage.url, {
       ok: true,
       url: homepage.url,
-      links: Array.from({ length: 5 }, (_, index) => ({ url: `https://example.com/index.php?id=${index}` })),
+      links: Array.from({ length: 5 }, (_, index) => ({
+        url: `https://example.com/index.php?id=${index}`,
+      })),
     });
     for (let index = 0; index < 4; index++)
       expect(reservePublicPageRead(state, `https://example.com/index.php?id=${index}`).ok).toBe(true);

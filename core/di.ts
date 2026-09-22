@@ -184,6 +184,7 @@ import { RegisterUserInteractor } from "@/features/user/register/register-user.i
 import { RegisterOnboardingProfileInteractor } from "@/features/user/register/register-onboarding-profile.interactor";
 import { UpdateUserDetailsInteractor } from "@/features/user/upsert/update-user-details.interactor";
 import { CompleteOnboardingWizardInteractor } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
+import { CompleteOnboardingWikiStepInteractor } from "@/features/onboarding-wizard/complete-onboarding-wiki-step.interactor";
 import { GetUserDetailsInteractor } from "@/features/user/get/get-user-details.interactor";
 import { GetUserByIdInteractor } from "@/features/user/get/get-user-by-id.interactor";
 import { AdminUpdateUserDetailsInteractor } from "@/features/user/upsert/admin-update-user-details.interactor";
@@ -311,6 +312,7 @@ import { CreateWikiPagesInteractor } from "@/features/wiki/create-wiki-pages.int
 import { UpdateWikiPageInteractor } from "@/features/wiki/update-wiki-page.interactor";
 import { DeleteWikiPageInteractor } from "@/features/wiki/delete-wiki-page.interactor";
 import { StartWikiHomepageSetupInteractor } from "@/features/wiki/start-wiki-homepage-setup.interactor";
+import { GetWikiHomepageSetupStateInteractor } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 // Custom Column interactors
 import { GetCustomColumnsInteractor } from "@/features/custom-column/get-custom-columns.interactor";
 import { GetCustomColumnsByEntityTypeInteractor } from "@/features/custom-column/get-custom-columns-by-entity-type.interactor";
@@ -1016,6 +1018,8 @@ export const getUpdateUserDetailsInteractor = () => new UpdateUserDetailsInterac
 
 export const getCompleteOnboardingWizardInteractor = () =>
   new CompleteOnboardingWizardInteractor(getUserRepo(), getRouteGuardService());
+export const getCompleteOnboardingWikiStepInteractor = () =>
+  new CompleteOnboardingWikiStepInteractor(getUserRepo(), getRouteGuardService());
 
 export const getGetUserDetailsInteractor = () => new GetUserDetailsInteractor();
 
@@ -1140,6 +1144,7 @@ export const getUpdateWikiPageInteractor = () => new UpdateWikiPageInteractor(ge
 export const getDeleteWikiPageInteractor = () => new DeleteWikiPageInteractor(getWikiPageRepo(), getEventService());
 export const getStartWikiHomepageSetupInteractor = () =>
   new StartWikiHomepageSetupInteractor(getWikiPageRepo(), getSendAgentMessageInteractor());
+export const getGetWikiHomepageSetupStateInteractor = () => new GetWikiHomepageSetupStateInteractor(getWikiPageRepo());
 
 // --- Webhook ---
 

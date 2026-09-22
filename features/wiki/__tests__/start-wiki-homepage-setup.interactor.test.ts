@@ -30,7 +30,7 @@ describe("StartWikiHomepageSetupInteractor", () => {
   it("dispatches one visible, localized, domain-restricted durable Mate turn", async () => {
     const repo = {
       wikiIsEmpty: vi.fn().mockResolvedValue(true),
-      findReusableSetupRequestClientId: vi.fn().mockResolvedValue(null),
+      findReusableSetupRequest: vi.fn().mockResolvedValue(null),
     };
     const outcome = {
       ok: true as const,
@@ -64,7 +64,7 @@ describe("StartWikiHomepageSetupInteractor", () => {
   });
 
   it("rejects an unsafe homepage before checking or dispatching", async () => {
-    const repo = { wikiIsEmpty: vi.fn(), findReusableSetupRequestClientId: vi.fn() };
+    const repo = { wikiIsEmpty: vi.fn(), findReusableSetupRequest: vi.fn() };
     const agent = { invoke: vi.fn() };
 
     const result = await new StartWikiHomepageSetupInteractor(repo, agent as never).invoke({
@@ -74,16 +74,20 @@ describe("StartWikiHomepageSetupInteractor", () => {
     });
 
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.issues[0]).toMatchObject({ params: { error: CustomErrorCode.invalidUrl } });
+    if (!result.ok) {
+      expect(result.error.issues[0]).toMatchObject({
+        params: { error: CustomErrorCode.invalidUrl },
+      });
+    }
     expect(repo.wikiIsEmpty).not.toHaveBeenCalled();
-    expect(repo.findReusableSetupRequestClientId).not.toHaveBeenCalled();
+    expect(repo.findReusableSetupRequest).not.toHaveBeenCalled();
     expect(agent.invoke).not.toHaveBeenCalled();
   });
 
   it("rejects a non-empty Wiki without creating a conversation", async () => {
     const repo = {
       wikiIsEmpty: vi.fn().mockResolvedValue(false),
-      findReusableSetupRequestClientId: vi.fn().mockResolvedValue(null),
+      findReusableSetupRequest: vi.fn().mockResolvedValue(null),
     };
     const agent = { invoke: vi.fn() };
 
@@ -106,7 +110,10 @@ describe("StartWikiHomepageSetupInteractor", () => {
   it("returns the Assistant's exactly-once replay outcome unchanged", async () => {
     const repo = {
       wikiIsEmpty: vi.fn().mockResolvedValue(true),
-      findReusableSetupRequestClientId: vi.fn().mockResolvedValue(CLIENT_REQUEST_ID),
+      findReusableSetupRequest: vi.fn().mockResolvedValue({
+        disposition: "reuse",
+        clientRequestId: CLIENT_REQUEST_ID,
+      }),
     };
     const replay = {
       ok: true as const,
@@ -133,7 +140,10 @@ describe("StartWikiHomepageSetupInteractor", () => {
     const priorRequestId = "00000000-0000-4000-8000-000000000003";
     const repo = {
       wikiIsEmpty: vi.fn().mockResolvedValue(true),
-      findReusableSetupRequestClientId: vi.fn().mockResolvedValue(priorRequestId),
+      findReusableSetupRequest: vi.fn().mockResolvedValue({
+        disposition: "reuse",
+        clientRequestId: priorRequestId,
+      }),
     };
     const agent = {
       invoke: vi.fn().mockResolvedValue({
@@ -160,7 +170,10 @@ describe("StartWikiHomepageSetupInteractor", () => {
   it("replays an exact completed request even when its pages make the Wiki non-empty", async () => {
     const repo = {
       wikiIsEmpty: vi.fn().mockResolvedValue(false),
-      findReusableSetupRequestClientId: vi.fn().mockResolvedValue(CLIENT_REQUEST_ID),
+      findReusableSetupRequest: vi.fn().mockResolvedValue({
+        disposition: "reuse",
+        clientRequestId: CLIENT_REQUEST_ID,
+      }),
     };
     const replay = {
       ok: true as const,
@@ -168,7 +181,11 @@ describe("StartWikiHomepageSetupInteractor", () => {
         disposition: "completedReplay" as const,
         clientRequestId: CLIENT_REQUEST_ID,
         conversationId: "00000000-0000-4000-8000-000000000002",
-        assistantMessage: { id: "message-1", parts: [{ type: "text", text: "Done" }], createdAt: new Date() },
+        assistantMessage: {
+          id: "message-1",
+          parts: [{ type: "text", text: "Done" }],
+          createdAt: new Date(),
+        },
         terminalCode: "completed" as const,
         affectedResources: ["wiki" as const],
       },
@@ -183,5 +200,29 @@ describe("StartWikiHomepageSetupInteractor", () => {
       }),
     ).resolves.toBe(replay);
     expect(repo.wikiIsEmpty).not.toHaveBeenCalled();
+  });
+
+  it("blocks a second setup while another workspace setup is active", async () => {
+    const repo = {
+      wikiIsEmpty: vi.fn(),
+      findReusableSetupRequest: vi.fn().mockResolvedValue({ disposition: "blocked" }),
+    };
+    const agent = { invoke: vi.fn() };
+
+    const result = await new StartWikiHomepageSetupInteractor(repo, agent as never).invoke({
+      homepage: "different.example.com",
+      clientRequestId: CLIENT_REQUEST_ID,
+      locale: "en",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.issues[0]).toMatchObject({
+        path: ["homepage"],
+        params: { error: CustomErrorCode.agentTurnAlreadyRunning },
+      });
+    }
+    expect(repo.wikiIsEmpty).not.toHaveBeenCalled();
+    expect(agent.invoke).not.toHaveBeenCalled();
   });
 });

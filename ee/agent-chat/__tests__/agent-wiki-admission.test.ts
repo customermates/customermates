@@ -210,7 +210,9 @@ describe("Workspace Wiki admission bootstrap", () => {
     const execution = buildAgentProviderContext(systemPrompt, payload.messages, [], payload.wikiCatalog);
     const referenceMessages = agentWikiContextMessages(payload.wikiCatalog);
     expect(execution.messages.slice(0, referenceMessages.length)).toEqual(referenceMessages);
-    expect(definitions).toHaveBeenCalledWith(admission.model.servingProvider, {
+    expect(definitions).toHaveBeenCalledWith({
+      servingProvider: admission.model.servingProvider,
+      locale: "en",
       surface,
       wikiHomepageSetup: false,
       webSearchEnabled: AGENT_WEB_SEARCH_RELEASED,
@@ -416,7 +418,9 @@ describe("Workspace Wiki admission bootstrap", () => {
       url: "https://customermates.com/",
       registrableDomain: "customermates.com",
     });
-    expect(definitions).toHaveBeenCalledWith(admission.model.servingProvider, {
+    expect(definitions).toHaveBeenCalledWith({
+      servingProvider: admission.model.servingProvider,
+      locale: "en",
       surface: "chat",
       wikiHomepageSetup: true,
       webSearchEnabled: AGENT_WEB_SEARCH_RELEASED,

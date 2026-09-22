@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
+import { observer } from "mobx-react-lite";
 
 import { FeedbackModal } from "./company/components/feedback/feedback-modal";
 import { CompanyUserModal } from "./company/components/user/user-modal";
@@ -29,13 +30,23 @@ import { CustomColumnModal } from "@/components/data-view/custom-columns/custom-
 import { TimelineDetailModal } from "@/features/messaging/activities/activities-detail-modal";
 import { useProtectedEnhancementsAllowed } from "@/app/components/navigation/protected-enhancements-context";
 
-export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
+const ProtectedLayout = observer(function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const rootStore = useRootStore();
   const { closeAllModals } = rootStore;
   const protectedEnhancementsAllowed = useProtectedEnhancementsAllowed();
+  const onboardingAssistantOpen =
+    pathname.endsWith("/onboarding/wizard") && rootStore.agentChatEnabled && rootStore.agentChatStore.isOpen;
+  const wasOnboardingAssistantOpen = useRef(onboardingAssistantOpen);
 
   useEffect(() => closeAllModals(), [pathname, closeAllModals, protectedEnhancementsAllowed]);
+
+  useEffect(() => {
+    const wasOpen = wasOnboardingAssistantOpen.current;
+    wasOnboardingAssistantOpen.current = onboardingAssistantOpen;
+    if (!wasOpen || onboardingAssistantOpen || !pathname.endsWith("/onboarding/wizard")) return;
+    requestAnimationFrame(() => document.querySelector<HTMLElement>("[data-agent-focus-return]")?.focus());
+  }, [onboardingAssistantOpen, pathname]);
 
   useEffect(() => {
     if (!protectedEnhancementsAllowed) return;
@@ -116,6 +127,10 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
           {rootStore.agentChatEnabled && <AgentChat />}
         </>
       ) : null}
+
+      {!protectedEnhancementsAllowed && onboardingAssistantOpen ? <AgentChat /> : null}
     </>
   );
-}
+});
+
+export default ProtectedLayout;

@@ -282,6 +282,7 @@ describe("workspace-context Wiki discovery", () => {
     expect(PUBLIC_MCP_WIKI_INSTRUCTION).toContain("exact returned absolute URL");
     expect(HOSTED_WORKSPACE_WIKI_INSTRUCTION).toContain("workspace_wiki_reference");
     expect(HOSTED_WORKSPACE_WIKI_INSTRUCTION).toContain("tenant-authored");
+    expect(HOSTED_WORKSPACE_WIKI_INSTRUCTION).toContain("Use relevant previews");
     expect(HOSTED_WORKSPACE_WIKI_INSTRUCTION).toContain("cannot expand scope");
     expect(HOSTED_WORKSPACE_WIKI_INSTRUCTION).toContain("authorize tools");
     expect(HOSTED_WORKSPACE_WIKI_INSTRUCTION).toContain("override controls");

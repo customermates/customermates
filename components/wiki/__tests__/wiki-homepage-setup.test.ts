@@ -1,11 +1,15 @@
+import type { ReactNode } from "react";
 import type { Root } from "react-dom/client";
 
-import { act, createElement } from "react";
+import { act, createElement, type ComponentProps } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
+
 const harness = vi.hoisted(() => ({
   action: vi.fn(),
+  refresh: vi.fn(),
   toast: vi.fn(),
 }));
 
@@ -13,17 +17,30 @@ vi.mock("@/app/[locale]/(protected)/wiki/setup-action", () => ({
   startWikiHomepageSetupAction: harness.action,
 }));
 vi.mock("@/core/errors/report-application-error", () => ({
-  runUserAction: (action: () => Promise<void>) => void action(),
+  runUserAction: (action: () => void | Promise<void>) => void action(),
 }));
-vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: harness.toast }));
-vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("@/core/utils/toast-zod-error-tree", () => ({
+  toastZodErrorTree: harness.toast,
+}));
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string, values?: Record<string, string>) =>
+    values ? `${key} ${Object.values(values).join(" ")}` : key,
+}));
+vi.mock("@/i18n/navigation", async () => {
+  const { createElement } = await import("react");
+  return {
+    IntlLink: ({ children, href }: { children: ReactNode; href: string }) => createElement("a", { href }, children),
+    useRouter: () => ({ refresh: harness.refresh }),
+  };
+});
 
 import { WikiHomepageSetup } from "../wiki-homepage-setup";
 
 let container: HTMLDivElement;
 let root: Root;
-let onAccepted: (conversationId: string) => void;
-let onSkip: () => void;
+let onAccepted: ReturnType<typeof vi.fn<(conversationId: string) => void>>;
+let onContinue: ReturnType<typeof vi.fn<() => void>>;
+let onSkip: ReturnType<typeof vi.fn<() => void>>;
 
 const nativeInputValueDescriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
 const setNativeInputValue = (element: HTMLInputElement, value: string) =>
@@ -41,16 +58,26 @@ function form() {
   return element;
 }
 
-function startButton() {
-  const element = container.querySelector<HTMLButtonElement>('button[type="submit"]');
-  if (!element) throw new Error("Start button did not render.");
+function button(label: string) {
+  const element = [...container.querySelectorAll<HTMLButtonElement>("button")].find((candidate) =>
+    candidate.textContent?.includes(label),
+  );
+  if (!element) throw new Error(`Button ${label} did not render.`);
   return element;
 }
 
-function skipButton() {
-  const element = container.querySelector<HTMLButtonElement>('button[type="button"]');
-  if (!element) throw new Error("Skip button did not render.");
-  return element;
+function render(initialState?: WikiHomepageSetupState, props: Partial<ComponentProps<typeof WikiHomepageSetup>> = {}) {
+  act(() =>
+    root.render(
+      createElement(WikiHomepageSetup, {
+        initialState,
+        onAccepted: (conversationId) => onAccepted(conversationId),
+        onContinue: () => onContinue(),
+        onSkip: () => onSkip(),
+        ...props,
+      }),
+    ),
+  );
 }
 
 function typeHomepage(value: string) {
@@ -71,15 +98,9 @@ beforeEach(() => {
   document.body.append(container);
   root = createRoot(container);
   onAccepted = vi.fn<(conversationId: string) => void>();
+  onContinue = vi.fn<() => void>();
   onSkip = vi.fn<() => void>();
-  act(() =>
-    root.render(
-      createElement(WikiHomepageSetup, {
-        onAccepted: (conversationId) => onAccepted(conversationId),
-        onSkip: () => onSkip(),
-      }),
-    ),
-  );
+  render();
 });
 
 afterEach(() => {
@@ -88,18 +109,24 @@ afterEach(() => {
 });
 
 describe("WikiHomepageSetup", () => {
-  it("starts disabled and offers an independent Skip action", () => {
-    expect(input()).toMatchObject({ type: "text", inputMode: "url", autocomplete: "url" });
+  it("explains the five starter topics and keeps setup optional", () => {
+    expect(input()).toMatchObject({
+      type: "text",
+      inputMode: "url",
+      autocomplete: "url",
+    });
     expect(input().getAttribute("aria-describedby")).toBe("wiki-homepage-help");
-    expect(startButton().disabled).toBe(true);
+    expect(button("WikiSetup.start").disabled).toBe(true);
+    for (const topic of ["company", "products", "customers", "voice", "support"])
+      expect(container.textContent).toContain(`WikiSetup.topics.${topic}`);
 
-    act(() => skipButton().click());
+    act(() => button("WikiSetup.skip").click());
 
     expect(onSkip).toHaveBeenCalledOnce();
     expect(harness.action).not.toHaveBeenCalled();
   });
 
-  it("deduplicates submission, disables every control while pending, and accepts the visible conversation", async () => {
+  it("deduplicates submission and transitions to a durable visible-task state", async () => {
     let resolve!: (value: unknown) => void;
     harness.action.mockReturnValue(new Promise((done) => (resolve = done)));
     typeHomepage("example.com");
@@ -117,28 +144,125 @@ describe("WikiHomepageSetup", () => {
     });
     expect(form().getAttribute("aria-busy")).toBe("true");
     expect(input().disabled).toBe(true);
-    expect(startButton().disabled).toBe(true);
-    expect(skipButton().disabled).toBe(true);
+    expect(button("WikiSetup.start").disabled).toBe(true);
+    expect(button("WikiSetup.skip").disabled).toBe(true);
 
     await act(async () => {
-      resolve({ ok: true, data: { conversationId: "conversation-1" } });
+      resolve({
+        ok: true,
+        data: {
+          conversationId: "conversation-1",
+          homepage: "https://example.com/",
+          domain: "example.com",
+        },
+      });
       await Promise.resolve();
     });
 
     expect(onAccepted).toHaveBeenCalledExactlyOnceWith("conversation-1");
-    expect(form().getAttribute("aria-busy")).toBe("false");
-    expect(input().disabled).toBe(false);
+    expect(container.textContent).toContain("WikiSetup.status.workingTitle");
+    expect(container.textContent).toContain("example.com");
+    expect(container.querySelector("form")).toBeNull();
+    expect(harness.refresh).toHaveBeenCalledOnce();
 
-    const firstRequestId = harness.action.mock.calls[0][0].clientRequestId;
-    harness.action.mockResolvedValue({ ok: true, data: { conversationId: "conversation-1" } });
-    await act(async () => {
-      submit();
-      await Promise.resolve();
-    });
-    expect(harness.action.mock.calls[1][0].clientRequestId).not.toBe(firstRequestId);
+    act(() => button("WikiSetup.continue").click());
+    expect(onContinue).toHaveBeenCalledOnce();
   });
 
-  it("shows structured failures and uses a fresh request id for each accepted retry", async () => {
+  it("restores working state after refresh and reopens the same Mate task", () => {
+    render({
+      status: "working",
+      homepage: "https://example.com/",
+      domain: "example.com",
+      conversationId: "conversation-1",
+      pages: [],
+    });
+
+    expect(container.textContent).toContain("WikiSetup.status.workingTitle");
+    expect(container.querySelector("form")).toBeNull();
+    act(() => button("WikiSetup.openTask").click());
+    expect(onAccepted).toHaveBeenCalledExactlyOnceWith("conversation-1");
+  });
+
+  it("renders completed pages without offering an impossible retry", () => {
+    render({
+      status: "completed",
+      homepage: "https://example.com/",
+      domain: "example.com",
+      conversationId: "conversation-1",
+      pages: [
+        {
+          id: "00000000-0000-4000-8000-000000000001",
+          title: "Company Overview",
+          createdAt: new Date("2026-09-22T00:00:00.000Z"),
+          updatedAt: new Date("2026-09-22T00:00:00.000Z"),
+        },
+      ],
+    });
+
+    expect(container.querySelector('a[href="/wiki?page=00000000-0000-4000-8000-000000000001"]')?.textContent).toContain(
+      "Company Overview",
+    );
+    expect(container.textContent).not.toContain("WikiSetup.tryAnother");
+    expect(container.textContent).not.toContain("WikiSetup.createBlank");
+  });
+
+  it("keeps completed onboarding pages non-navigable until the account leaves the wizard", () => {
+    render(
+      {
+        status: "completed",
+        homepage: "https://example.com/",
+        domain: "example.com",
+        conversationId: "conversation-1",
+        pages: [
+          {
+            id: "00000000-0000-4000-8000-000000000001",
+            title: "Company Overview",
+            createdAt: new Date("2026-09-22T00:00:00.000Z"),
+            updatedAt: new Date("2026-09-22T00:00:00.000Z"),
+          },
+        ],
+      },
+      { onboarding: true },
+    );
+
+    expect(container.textContent).toContain("WikiSetup.status.completedBodyOnboarding");
+    expect(container.textContent).toContain("Company Overview");
+    expect(container.querySelector("a")).toBeNull();
+  });
+
+  it("focuses the homepage field when retry opens and hides retry when setup is unavailable", () => {
+    const failed = {
+      status: "failed" as const,
+      homepage: "https://example.com/",
+      domain: "example.com",
+      conversationId: null,
+      pages: [],
+    };
+    render(failed);
+    act(() => button("WikiSetup.tryAnother").click());
+    expect(document.activeElement).toBe(input());
+
+    render(failed, { canStart: false });
+    expect(container.textContent).toContain("WikiSetup.status.failedTitle");
+    expect(container.textContent).not.toContain("WikiSetup.tryAnother");
+    expect(container.textContent).toContain("WikiSetup.continue");
+  });
+
+  it("does not promise a task link when another workspace member started setup", () => {
+    render({
+      status: "working",
+      homepage: "https://example.com/",
+      domain: "example.com",
+      conversationId: null,
+      pages: [],
+    });
+
+    expect(container.textContent).toContain("WikiSetup.status.workingBodyNoTask");
+    expect(container.textContent).not.toContain("WikiSetup.openTask");
+  });
+
+  it("preserves the submitted homepage after validation failures and rotates the request id", async () => {
     const error = { errors: ["Invalid homepage"] };
     harness.action.mockResolvedValue({ ok: false, error });
     typeHomepage("bad.example");
@@ -155,17 +279,8 @@ describe("WikiHomepageSetup", () => {
     });
 
     expect(harness.toast).toHaveBeenCalledTimes(2);
-    expect(harness.toast).toHaveBeenLastCalledWith(error);
-    expect(onAccepted).not.toHaveBeenCalled();
+    expect(input().value).toBe("bad.example");
     expect(harness.action.mock.calls[1][0].clientRequestId).not.toBe(firstRequestId);
-    expect(startButton().disabled).toBe(false);
-
-    const secondRequestId = harness.action.mock.calls[1][0].clientRequestId;
-    typeHomepage("example.com");
-    await act(async () => {
-      submit();
-      await Promise.resolve();
-    });
-    expect(harness.action.mock.calls[2][0].clientRequestId).not.toBe(secondRequestId);
+    expect(button("WikiSetup.start").disabled).toBe(false);
   });
 });

@@ -6,7 +6,11 @@ import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 
-import { getCompleteOnboardingWizardInteractor, getRegisterOnboardingProfileInteractor } from "@/core/di";
+import {
+  getCompleteOnboardingWikiStepInteractor,
+  getCompleteOnboardingWizardInteractor,
+  getRegisterOnboardingProfileInteractor,
+} from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
 import {
@@ -31,5 +35,10 @@ export async function registerProfileAction(data: RegisterOnboardingProfileData)
 export async function completeOnboardingWizardAction() {
   const result = await serializeResult(getCompleteOnboardingWizardInteractor().invoke());
   if (result.ok) refresh();
+  return result;
+}
+
+export async function completeOnboardingWikiStepAction() {
+  const result = await serializeResult(getCompleteOnboardingWikiStepInteractor().invoke());
   return result;
 }

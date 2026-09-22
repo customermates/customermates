@@ -32,6 +32,7 @@ export const TenantUserSchema = UserDtoSchema.extend({
   agreeToTerms: z.boolean(),
   lastActiveAt: z.date().nullable(),
   onboardingWizardCompletedAt: z.date().nullable(),
+  onboardingWikiStepCompletedAt: z.date().nullable(),
   role: RoleDtoSchema.nullable(),
 });
 

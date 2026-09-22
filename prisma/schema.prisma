@@ -177,6 +177,7 @@ model User {
   trialInactivationReminderSentAt DateTime?
   trialInactivationNoticeSentAt   DateTime?
   onboardingWizardCompletedAt     DateTime?
+  onboardingWikiStepCompletedAt   DateTime?
   agentCreditActivatedAt          DateTime?
   isPlatformOperator              Boolean                 @default(false)
   createdAt                       DateTime                @default(now())

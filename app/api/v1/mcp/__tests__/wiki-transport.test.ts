@@ -247,7 +247,7 @@ describe("Wiki MCP transport", () => {
     );
     const searchResult = searched.data?.result as {
       structuredContent: { results: Array<{ id: string; url: string }> };
-      content: Array<{ type: string; uri?: string }>;
+      content: Array<{ type: string; text?: string }>;
     };
     expect(searchResult.structuredContent.results).toEqual([
       {
@@ -256,16 +256,11 @@ describe("Wiki MCP transport", () => {
         url: `http://localhost:4105/wiki?page=${PAGE_ID}`,
       },
     ]);
-    expect(searchResult.content).toContainEqual(
-      expect.objectContaining({
-        type: "resource_link",
-        uri: `http://localhost:4105/wiki?page=${PAGE_ID}`,
-      }),
-    );
+    expect(searchResult.content).toEqual([{ type: "text", text: JSON.stringify(searchResult.structuredContent) }]);
 
     const fetched = await rpc(
       handler,
-      requestBody("tools/call", 4, {
+      requestBody("tools/call", 5, {
         name: "fetch",
         arguments: { id: searchResult.structuredContent.results[0]?.url },
       }),
@@ -276,6 +271,7 @@ describe("Wiki MCP transport", () => {
         text: string;
         metadata: { outgoingWikiLinks: string };
       };
+      content: Array<{ type: string; text?: string }>;
     };
     expect(fetchResult.structuredContent.text).toContain(`http://localhost:4105/wiki?page=${LINKED_ID}`);
     const outgoing = JSON.parse(fetchResult.structuredContent.metadata.outgoingWikiLinks) as Array<{ url: string }>;
@@ -284,10 +280,22 @@ describe("Wiki MCP transport", () => {
         url: `http://localhost:4105/wiki?page=${LINKED_ID}`,
       }),
     ]);
+    expect(fetchResult.content).toEqual([{ type: "text", text: JSON.stringify(fetchResult.structuredContent) }]);
+
+    const linkedResource = await rpc(
+      handler,
+      requestBody("resources/read", 6, {
+        uri: `customermates://wiki/page/${LINKED_ID}`,
+      }),
+      sessionId,
+    );
+    expect((linkedResource.data?.result as { contents: Array<{ text: string }> }).contents[0]?.text).toBe(
+      linkedPage.markdown,
+    );
 
     const linked = await rpc(
       handler,
-      requestBody("tools/call", 5, {
+      requestBody("tools/call", 7, {
         name: "fetch",
         arguments: { id: outgoing[0]?.url },
       }),

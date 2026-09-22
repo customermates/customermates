@@ -87,11 +87,13 @@ Wiki-Leserechte erlauben das Anzeigen von Seiten. Wiki-Verwaltungsrechte erlaube
 
 Wenn Mate im Cloud-Workspace aktiviert ist, kann die Person, die den Workspace einrichtet, beim Onboarding oder im leeren Wiki optional eine Unternehmenshomepage eingeben und **Mit Mate einrichten** wählen. Auch eine Domain wie `customermates.com` wird akzeptiert. **Überspringen** setzt das Onboarding ohne neue Seiten fort; eingeladene Mitglieder erhalten diesen Schritt nicht.
 
-Sobald die Anfrage angenommen wurde, geht das Onboarding weiter, während eine sichtbare Unterhaltung mit dem Titel **Set up Workspace Wiki** läuft. Mate liest die angegebene Seite direkt und bei Bedarf bis zu vier hilfreiche Seiten, die von dieser Homepage auf derselben Domain oder ihren Subdomains verlinkt sind. Mate legt in einem einzigen atomaren Vorgang für ein leeres Wiki eine bis fünf gewöhnliche Wiki-Seiten mit natürlichen Titeln in Ihrer Oberflächensprache an. Sie enthalten Quell-Links und kennzeichnen fehlende Informationen, statt sie zu erfinden. Die Einrichtung nutzt Ihr normales gehostetes KI-Guthaben.
+Beim Start der Einrichtung öffnet sich eine sichtbare Unterhaltung mit dem Titel **Set up Workspace Wiki**. Der Wiki-Schritt zeigt den laufenden Status und stellt ihn nach einem Neuladen wieder her. Wählen Sie **Weiter**, sobald Sie fortfahren möchten, oder öffnen Sie die Mate-Unterhaltung erneut aus diesem Schritt. Mate liest die angegebene Seite direkt und bei Bedarf bis zu vier hilfreiche Seiten, die von dieser Homepage auf derselben Domain oder ihren Subdomains verlinkt sind.
+
+Enthält die Website brauchbare Unternehmensinformationen, erstellt Mate in einem einzigen atomaren Vorgang für ein leeres Wiki fünf lokalisierte Seiten: **Unternehmensüberblick**, **Produkte & Leistungen**, **Kunden, Positionierung & Wettbewerber**, **Sprache & Tonalität** und **Support & FAQ**. Der Server vergibt die lokalisierten Titel und stabile Links zwischen den Seiten. Mate ergänzt gewöhnliche Quellenlinks und einen klar gekennzeichneten Abschnitt für offene Punkte, statt fehlende Fakten zu erfinden. Die Einrichtung nutzt Ihr normales gehostetes KI-Guthaben.
 
 Die automatische Einrichtung konzentriert sich auf dauerhaftes Unternehmens-, Produkt- und Support-Wissen. Mate erhält die Vorgabe, auf aktuelle Preise zu verlinken, statt Preise und bedingte Tarifkontingente ins Wiki zu kopieren. Prüfen Sie erzeugte Fakten und ihre Quellen, bevor Sie sich darauf verlassen; die Seiten lassen sich ganz normal bearbeiten.
 
-Die Einrichtung erstellt Seiten nur bei leerem Wiki und überschreibt keine bestehenden Seiten. Ist die Website nicht lesbar oder enthält sie keine brauchbaren Unternehmensinformationen, erklärt die Unterhaltung das Problem und erstellt nichts. Sie können im leeren Wiki erneut starten oder Seiten manuell anlegen. Erstellte Seiten sind gewöhnliche, bearbeitbare Wiki-Dokumente.
+Die Einrichtung erstellt Seiten nur bei leerem Wiki und überschreibt keine bestehenden Seiten. Ist die Website nicht lesbar oder enthält sie keine brauchbaren Unternehmensinformationen, erklärt die Unterhaltung das Problem und erstellt nichts. Der Wiki-Schritt behält die eingegebene Adresse bei, damit Sie es erneut versuchen oder eine Seite manuell anlegen können. Die fünf erstellten Seiten sind gewöhnliche, bearbeitbare Wiki-Dokumente.
 
 Diese Einrichtung liest bekannte öffentliche Seiten, keine Suchmaschinentreffer. Allgemeine Websuche ist in Mate und Routinen derzeit nicht verfügbar. Der öffentliche MCP-Endpunkt bietet Wiki-Abruf und -Bearbeitung, nicht Mates Werkzeug zum Lesen öffentlicher Seiten.
 
@@ -102,6 +104,8 @@ Verbundene KI-Clients lesen dieselben aktuellen Seiten über diesen MCP-Endpunkt
 Suchen Sie mit dem standardisierten schreibgeschützten Tool `search` nach relevanten Inhalten. Mit `fetch` und entweder der zurückgegebenen ID `wiki:<uuid>` oder der exakten URL erhalten Sie das vollständige Markdown und die kanonische Quell-URL. Links zwischen Wiki-Seiten werden als absolute URLs zurückgegeben und können direkt wieder an `fetch` übergeben werden. Clients mit MCP-Resource-Unterstützung können den paginierten Katalog und die Seiten-Templates außerdem über `resources/list` und `resources/templates/list` entdecken. Für kürzere Antworten liefert `manage_wiki_pages` mit `action: "get"` einen Abschnitt; wiederholen Sie den Aufruf mit `nextOffset`, bis dieser null ist. Dasselbe Tool erstellt und bearbeitet Seiten, wenn Ihre Rolle Wiki-Verwaltungsrechte hat. Lesen erfordert Wiki-Leserechte; Änderungen erscheinen im normalen Audit-Log.
 
 Der Server weist verbundene Agents an, relevante Wiki-Seiten zu suchen und zu lesen, bevor sie Unternehmensfakten, Abläufe, Tonalität, Produkt- oder Support-Vorgaben verwenden, hilfreichen Links zu folgen und die exakten zurückgegebenen URLs zu nennen. MCP-Clients entscheiden selbst, ob sie Resources und Serveranweisungen an ihr Modell weitergeben; deshalb kann kein Server diese Abrufe bei jedem beliebigen Client erzwingen. Falls Ihr Client diese Hinweise ignoriert, ergänzen Sie dieselbe Abrufanweisung in seinen dauerhaften Anweisungen. Die Dokumentation selbst bleibt im CRM, damit jeder unterstützte Client die aktuelle maßgebliche Fassung abruft.
+
+Nach der Bereitstellung dieses Features muss ein Admin in einem Enterprise- oder Edu-Workspace den bestehenden ChatGPT-Connector **aktualisieren** und seine neuen Aktionen prüfen, damit ChatGPT `manage_wiki_pages` und die aktuellen Serveranweisungen erkennt. In Business-Workspaces muss der Connector neu erstellt und veröffentlicht werden, wenn sich freigegebene Tools oder Metadaten ändern. Bestehende Aufrufe von `search` und `fetch` nutzen das aktualisierte Wiki-Verhalten automatisch auf dem Server.
 
 ## Wie die Tool-Oberfläche gebaut ist
 
@@ -132,7 +136,7 @@ Jedes Tool unten führt seine Zusammenfassung, sein Flag (sofern vorhanden) und 
 {/* mcp-catalog:flags */}
 **Nur lesend:** `get_record_schema`, `list_records`, `search_records`, `get_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
-**IRREVERSIBEL:** `delete_records`, `discard_message_draft`, `manage_custom_columns`, `manage_widgets`, `manage_routines`, `manage_webhooks`
+**IRREVERSIBEL:** `delete_records`, `manage_wiki_pages`, `discard_message_draft`, `manage_custom_columns`, `manage_widgets`, `manage_routines`, `manage_webhooks`
 {/* /mcp-catalog */}
 
 Das volle JSON-Schema jedes Tools liegt live an `POST /api/v1/mcp` mit `method: "tools/list"`.
@@ -250,18 +254,27 @@ IRREVERSIBLES Hard-Delete von 1 bis 100 Records per ID (Contacts auch per E-Mail
 ### Workspace
 
 {/* mcp-catalog:workspace */}
-| Tool | Read | Destructive | Zweck |
-|---|---|---|---|
-| `get_workspace_context` | ✓ |  | Benutzer, Unternehmen, zugriffsgefilterter Wiki-Katalog, Rollen und verbundene Messaging-Konten. `wikiPage` setzt den Katalog fort; `wikiQuery` liefert bis zu drei begrenzte Treffer aus dem gesamten Wiki. Ohne Wiki-Leserechte fehlen Wiki-Daten. |
-| `list_users` | ✓ |  | Teammitglieder mit ID, Name, E-Mail, roleId und Status. |
+#### `get_workspace_context`
+
+Benutzer, Unternehmen, zugriffsgefilterter Wiki-Katalog, Rollen und verbundene Messaging-Konten. `wikiPage` setzt den Katalog fort; `wikiQuery` liefert bis zu drei begrenzte Treffer aus dem gesamten Wiki. Ohne Wiki-Leserechte fehlen Wiki-Daten.
+
+**Nur lesend.** Optional: `wikiPage`, `wikiQuery`.
+
+#### `list_users`
+
+Teammitglieder mit ID, Name, E-Mail, roleId und Status.
+
+**Nur lesend.** Optional: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
 {/* /mcp-catalog */}
 
 ### Workspace-Wiki
 
 {/* mcp-catalog:wiki */}
-| Tool | Read | Destructive | Zweck |
-|---|---|---|---|
-| `manage_wiki_pages` |  | ✓ | Workspace-Wiki-Seiten auflisten, suchen, lesen, anlegen, aktualisieren oder dauerhaft löschen. Updates und Löschungen benötigen den neuesten updatedAt-Wert; Create kann atomar ein leeres Wiki voraussetzen. |
+#### `manage_wiki_pages`
+
+Workspace-Wiki-Seiten auflisten, suchen, lesen, anlegen, aktualisieren oder dauerhaft löschen. Updates und Löschungen benötigen den neuesten updatedAt-Wert; Create kann atomar ein leeres Wiki voraussetzen.
+
+**IRREVERSIBEL.** Pflicht: `action`. Optional: `id`, `query`, `offset`, `page`, `pageSize`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `title`, `markdown`.
 {/* /mcp-catalog */}
 
 ### Messaging
@@ -420,12 +433,29 @@ Für ein Unternehmen rufen Sie `get_social_profile` mit `profileType=company` un
 ### Dokumentation und Deep Research
 
 {/* mcp-catalog:docs */}
-| Tool | Read | Destructive | Zweck |
-|---|---|---|---|
-| `search_docs` | ✓ |  | Volltextsuche über die Docs; standardmäßig nur die Produkt-Guides (source=docs); mit source=api oder all auch die REST-API-Referenz. Liefert Slug, Source, Titel, URL, Snippet. |
-| `get_docs_page` | ✓ |  | Eine Doku-Seite als Markdown inklusive kanonischer URL. Listet bei einem Miss alle gültigen Slugs. |
-| `search` | ✓ |  | Schreibgeschützte Suche in Workspace-Wiki-Inhalten, CRM-Datensätzen und Produktdokumentation. Wiki-Treffer gewichten Suchbegriffe im Titel höher und liefern stabile `wiki:<uuid>`-IDs für `fetch`. Kompatibel mit ChatGPT-Unternehmenswissen und Deep Research. |
-| `fetch` | ✓ |  | Lädt einen Treffer aus `search`, einschließlich vollständigem Workspace-Wiki-Markdown über `wiki:<uuid>` oder die exakt zurückgegebene URL. Interne Wiki-Links sind absolut und direkt abrufbar. Wiki-Inhalte benötigen Wiki-Leserechte. |
+#### `search_docs`
+
+Volltextsuche über die Docs; standardmäßig nur die Produkt-Guides (source=docs); mit source=api oder all auch die REST-API-Referenz. Liefert Slug, Source, Titel, URL, Snippet.
+
+**Nur lesend.** Pflicht: `query`. Optional: `locale`, `source`.
+
+#### `get_docs_page`
+
+Eine Doku-Seite als Markdown inklusive kanonischer URL. Listet bei einem Miss alle gültigen Slugs.
+
+**Nur lesend.** Pflicht: `slug`. Optional: `query`, `locale`, `source`.
+
+#### `search`
+
+Schreibgeschützte Suche in Workspace-Wiki-Inhalten, CRM-Datensätzen und Produktdokumentation. Wiki-Treffer gewichten Suchbegriffe im Titel höher und liefern stabile `wiki:<uuid>`-IDs für `fetch`. Kompatibel mit ChatGPT-Unternehmenswissen und Deep Research.
+
+**Nur lesend.** Pflicht: `query`.
+
+#### `fetch`
+
+Lädt einen Treffer aus `search`, einschließlich vollständigem Workspace-Wiki-Markdown über `wiki:<uuid>` oder die exakt zurückgegebene URL. Interne Wiki-Links sind absolut und direkt abrufbar. Wiki-Inhalte benötigen Wiki-Leserechte.
+
+**Nur lesend.** Pflicht: `id`.
 {/* /mcp-catalog */}
 
 ### Custom Columns

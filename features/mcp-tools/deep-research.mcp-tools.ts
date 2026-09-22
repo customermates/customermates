@@ -152,28 +152,7 @@ async function fetchWiki(id: string) {
       ),
     },
   };
-  return {
-    text: JSON.stringify(output),
-    structuredContent: output,
-    content: [
-      {
-        type: "resource_link" as const,
-        uri: output.url,
-        name: page.title,
-        title: page.title,
-        description: "Current Workspace Wiki page",
-        mimeType: "text/markdown",
-      },
-      ...links.map((link) => ({
-        type: "resource_link" as const,
-        uri: link.url,
-        name: link.label,
-        title: link.label,
-        description: "Linked Workspace Wiki page",
-        mimeType: "text/markdown",
-      })),
-    ],
-  };
+  return { text: JSON.stringify(output), structuredContent: output };
 }
 
 async function searchWiki(query: string) {
@@ -202,7 +181,7 @@ export const searchTool = {
   description:
     "Required by ChatGPT company-knowledge and deep-research connectors. Returns relevant Workspace Wiki pages, CRM records, and product documentation in one list, without totals or filters. " +
     "Fetch every relevant Wiki result and follow its linked Wiki pages. Wiki matches are ranked by query terms with title matches weighted higher. " +
-    "For focused CRM or product-doc queries use search_records or list_records, which carry totals and filters, or search_docs.",
+    "For focused CRM or product-doc queries prefer search_records or list_records, which carry totals and filters, or search_docs.",
   annotations: {
     readOnlyHint: true,
     idempotentHint: true,
@@ -254,18 +233,7 @@ export const searchTool = {
       results: [...wikiResults, ...recordGroups.flat(), ...docResults],
     };
 
-    return {
-      text: JSON.stringify(output),
-      structuredContent: output,
-      content: wikiResults.map((result) => ({
-        type: "resource_link" as const,
-        uri: result.url,
-        name: result.title,
-        title: result.title,
-        description: "Workspace Wiki search result",
-        mimeType: "text/markdown",
-      })),
-    };
+    return { text: JSON.stringify(output), structuredContent: output };
   },
 };
 

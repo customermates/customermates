@@ -56,6 +56,9 @@
         "widgets": {
           "configure": "Bereit, Dashboard-Widgets zu ändern",
           "delete": "Bereit, ein Dashboard-Widget endgültig zu löschen"
+        },
+        "workspace": {
+          "configure": "Bereit, diese Wiki-Seite endgültig zu löschen"
         }
       },
       "cancelled": "Gestoppt",
@@ -3600,12 +3603,50 @@
     "untitled": "Unbenannte Seite"
   },
   "WikiSetup": {
-    "description": "Mate liest deine öffentliche Website und erstellt hilfreiche Wiki-Seiten. Du kannst währenddessen fortfahren.",
-    "homepageLabel": "Unternehmens-Homepage (optional)",
+    "continue": "Weiter",
+    "createBlank": "Leere Seite erstellen",
+    "description": "Verwandle deine Website in ein Starter-Wiki mit fünf verknüpften Seiten.",
+    "gapsNote": "Mate belegt gefundene Informationen mit Quellen und markiert Lücken, statt zu raten.",
+    "generated": {
+      "gapsHeading": "Noch zu klären",
+      "relatedPages": "Verwandte Seiten",
+      "sourcesHeading": "Quellen",
+      "topics": {
+        "company_overview": "Unternehmensüberblick",
+        "customers_competitors": "Kunden, Positionierung & Wettbewerber",
+        "products_services": "Produkte & Leistungen",
+        "support_faq": "Support & häufige Fragen",
+        "voice_tone": "Sprache & Tonalität"
+      }
+    },
+    "homepageHelp": "Öffentliche HTTP(S)-Website. Mate kann bis zu vier hilfreiche verlinkte Seiten lesen.",
+    "homepageLabel": "Unternehmenswebsite",
     "homepagePlaceholder": "https://beispiel.de",
+    "openTask": "Mate-Aufgabe öffnen",
     "skip": "Überspringen",
     "start": "Mit Mate einrichten",
     "startFailed": "Mate konnte die Wiki-Einrichtung nicht starten. Bitte versuche es erneut.",
+    "status": {
+      "completedBody": "Deine verknüpften Starter-Seiten sind bereit zum Prüfen und Bearbeiten.",
+      "completedBodyOnboarding": "Deine fünf verknüpften Starter-Seiten sind bereit. Schließe das Onboarding ab und prüfe sie anschließend im Wiki.",
+      "completedExistingBody": "Dein Wiki enthält bereits Seiten. Fahre mit dem Onboarding fort oder prüfe die vorhandenen Inhalte.",
+      "completedTitle": "Dein Wiki ist bereit",
+      "failedBody": "Es wurden keine Seiten hinzugefügt. Öffne die Mate-Aufgabe für Details oder versuche eine andere Website.",
+      "failedTitle": "Einrichtung nicht abgeschlossen",
+      "noContentBody": "Mate hat nicht genug verlässliche öffentliche Informationen gefunden und deshalb keine Seiten erstellt.",
+      "noContentTitle": "Keine nutzbaren Inhalte gefunden",
+      "workingBody": "Mate liest {domain} und erstellt die fünf Seiten. Du kannst die Aufgabe ansehen oder mit dem Onboarding fortfahren.",
+      "workingBodyNoTask": "Mate liest {domain} und erstellt die fünf Seiten. Du kannst mit dem Onboarding fortfahren; die Seiten erscheinen, sobald die Aufgabe abgeschlossen ist.",
+      "workingTitle": "Mate erstellt dein Wiki"
+    },
+    "topics": {
+      "company": "Unternehmensüberblick",
+      "customers": "Kunden und Wettbewerber",
+      "products": "Produkte und Leistungen",
+      "support": "Support und FAQ",
+      "voice": "Sprache und Tonalität"
+    },
+    "tryAnother": "Andere Website versuchen",
     "unavailable": "Die Einrichtung mit Mate ist derzeit nicht verfügbar. Du kannst später im Wiki Seiten erstellen."
   }
 }

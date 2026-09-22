@@ -93,7 +93,11 @@ export const AgentChat = observer(function AgentChat() {
         : null;
     if (!targetId) return;
     requestAnimationFrame(() => {
-      const target = document.getElementById(targetId) ?? document.getElementById("agent-panel-dialog");
+      const target =
+        document.getElementById(targetId) ??
+        (targetId === "nav-assistant"
+          ? document.querySelector<HTMLElement>("[data-agent-focus-return]")
+          : document.getElementById("agent-panel-dialog"));
       target?.focus();
     });
   }, [store.isHistoryOpen, store.isOpen]);

@@ -42,7 +42,7 @@ function registerAllTools(server: Parameters<Parameters<typeof createMcpHandler>
             };
           }
           return {
-            content: [{ type: "text" as const, text: result.result }, ...(result.content ?? [])],
+            ...createTextContent(result.result),
             ...(result.structuredContent ? { structuredContent: result.structuredContent } : {}),
           };
         } catch (error) {

@@ -37,6 +37,7 @@ vi.mock("@sentry/nextjs", () => ({
 import { GetAgentConversationInteractor } from "../get-agent-conversation.interactor";
 import { RespondToUiCommandInteractor } from "../respond-to-ui-command.interactor";
 import { SendAgentMessageInteractor } from "../send-agent-message.interactor";
+import { WikiHomepageSetupAlreadyRunningError } from "../agent-turn-request";
 import { agentUiCommandHookToken } from "../agent-ui-command";
 
 const CONVERSATION_ID = "00000000-0000-4000-8000-000000000001";
@@ -778,6 +779,7 @@ describe("agent access", () => {
           turnRequestId: "turn-1",
           priorRunId: "run-1",
           priorAttemptCount: 1,
+          wikiHomepageSetupDomain: "example.com",
           userMessageId: MESSAGE_ID,
         },
       }),
@@ -1010,6 +1012,48 @@ describe("agent access", () => {
       runId: expect.any(String),
       reservationId: reservation?.reservationId,
     });
+  });
+
+  it("returns a conflict and dispatches no provider work when another homepage setup wins admission", async () => {
+    const usage = usageService();
+    const tasks = backgroundTasks();
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+      claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn().mockResolvedValue(undefined),
+      deleteUnusedAgentConversation: vi.fn().mockResolvedValue(undefined),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
+      admitAgentTurnOrThrow: vi.fn().mockRejectedValue(new WikiHomepageSetupAlreadyRunningError()),
+      releasePreProviderAdmissionOrThrowUnscoped: vi.fn().mockResolvedValue({ disposition: "released" }),
+    };
+
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      tasks as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "Set up the Workspace Wiki from https://example.com/",
+      retry: false,
+      wikiHomepageSetupDomain: "example.com",
+      wikiHomepageSetupUrl: "https://example.com/",
+    });
+
+    expect(result).toMatchObject({
+      ok: false,
+      error: {
+        issues: [{ path: ["homepage"], params: { error: "agentTurnAlreadyRunning" } }],
+      },
+    });
+    expect(repo.releasePreProviderAdmissionOrThrowUnscoped).toHaveBeenCalledOnce();
+    expect(repo.deleteUnusedAgentConversation).toHaveBeenCalledOnce();
+    expect(tasks.dispatchTracked).not.toHaveBeenCalled();
+    expect(repo.recordAgentTurnExternalRun).not.toHaveBeenCalled();
   });
 
   it("does not admit a chat turn when phase-one credit reservation fails", async () => {

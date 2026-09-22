@@ -8,6 +8,7 @@ export type PublicPageReadState = {
   homepageUrl: string;
   registrableDomain: string;
   attemptedUrls: string[];
+  successfulUrls: string[];
   linkedUrls: string[];
 };
 
@@ -16,6 +17,7 @@ export function createPublicPageReadState(homepage: PublicWikiHomepage): PublicP
     homepageUrl: homepage.url,
     registrableDomain: homepage.registrableDomain,
     attemptedUrls: [],
+    successfulUrls: [],
     linkedUrls: [],
   };
 }
@@ -46,7 +48,13 @@ export function recordPublicPageLinks(
   requestedUrl: string,
   result: { ok: true; url: string; links: { url: string }[] } | { ok: false },
 ): void {
-  if (!result.ok || requestedUrl !== state.homepageUrl || !state.attemptedUrls.includes(state.homepageUrl)) return;
+  if (!result.ok) return;
+
+  const successful = parsePublicPageUrl(result.url);
+  if (successful?.registrableDomain === state.registrableDomain)
+    state.successfulUrls = [...new Set([...state.successfulUrls, successful.url])];
+
+  if (requestedUrl !== state.homepageUrl || !state.attemptedUrls.includes(state.homepageUrl)) return;
 
   state.linkedUrls = [
     ...new Set(
@@ -56,4 +64,21 @@ export function recordPublicPageLinks(
       }),
     ),
   ];
+}
+
+export function publicPageSourcesWereRead(state: PublicPageReadState, input: unknown): boolean {
+  if (!input || typeof input !== "object") return false;
+  const pages = (input as { pages?: unknown }).pages;
+  if (!Array.isArray(pages) || pages.length === 0) return false;
+
+  return pages.every((page) => {
+    if (!page || typeof page !== "object") return false;
+    const sources = (page as { sources?: unknown }).sources;
+    if (!Array.isArray(sources) || sources.length === 0) return false;
+    return sources.every((source) => {
+      if (typeof source !== "string") return false;
+      const parsed = parsePublicPageUrl(source);
+      return Boolean(parsed && state.successfulUrls.includes(parsed.url));
+    });
+  });
 }

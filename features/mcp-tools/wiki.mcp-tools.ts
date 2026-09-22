@@ -14,6 +14,9 @@ import { extractWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
 import { wikiPageUrl } from "@/features/wiki/wiki-links";
 import { WIKI_TITLE_MAX_LENGTH } from "@/features/wiki/wiki.schema";
 import { env } from "@/env";
+import { WIKI_HOMEPAGE_TOPICS } from "@/features/wiki/wiki-homepage";
+import { getTranslator } from "@/i18n/get-translator";
+import { DEFAULT_LOCALE, isAppLocale, type AppLocale } from "@/i18n/locale-registry";
 
 import {
   customMcpFailure,
@@ -42,15 +45,42 @@ const GetSchema = z.object({
   id: z.uuid(),
   offset: z.coerce.number().int().min(0).default(0),
 });
+const PublicSourceUrlSchema = z
+  .url()
+  .max(2_000)
+  .refine((value) => ["http:", "https:"].includes(new URL(value).protocol), "Source URL must use HTTP(S).");
 const PageInputSchema = z.object({
   title: z.string().trim().min(1).max(WIKI_TITLE_MAX_LENGTH),
   markdown: z.string(),
 });
-export const WikiHomepageSetupCreateSchema = z.object({
-  action: z.literal("create"),
-  pages: z.array(PageInputSchema).min(1).max(5),
-  requireEmpty: z.literal(true),
-});
+const WikiHomepageTopicSchema = z.enum(WIKI_HOMEPAGE_TOPICS);
+export const WikiHomepageSetupCreateSchema = z
+  .object({
+    action: z.literal("create"),
+    pages: z
+      .array(
+        z.object({
+          topic: WikiHomepageTopicSchema,
+          body: z.string().trim().min(1),
+          gaps: z.string().trim().min(1),
+          sources: z.array(PublicSourceUrlSchema).min(1).max(5),
+        }),
+      )
+      .length(WIKI_HOMEPAGE_TOPICS.length),
+    requireEmpty: z.literal(true),
+  })
+  .superRefine((data, ctx) => {
+    const topics = new Set(data.pages.map(({ topic }) => topic));
+    for (const topic of WIKI_HOMEPAGE_TOPICS) {
+      if (!topics.has(topic)) {
+        ctx.addIssue({
+          code: "custom",
+          message: `Missing required topic: ${topic}`,
+          path: ["pages"],
+        });
+      }
+    }
+  });
 const CreateSchema = z.object({
   pages: z.array(PageInputSchema).min(1).max(5),
   requireEmpty: z.boolean().default(false),
@@ -246,3 +276,49 @@ export const manageWikiPagesTool = {
     );
   },
 };
+
+async function setupPages(input: z.infer<typeof WikiHomepageSetupCreateSchema>, locale: AppLocale) {
+  const t = await getTranslator(locale, "WikiSetup.generated");
+  const pagesByTopic = new Map(input.pages.map((page) => [page.topic, page]));
+  const titles = {
+    company_overview: t("topics.company_overview"),
+    products_services: t("topics.products_services"),
+    customers_competitors: t("topics.customers_competitors"),
+    voice_tone: t("topics.voice_tone"),
+    support_faq: t("topics.support_faq"),
+  } satisfies Record<(typeof WIKI_HOMEPAGE_TOPICS)[number], string>;
+  return WIKI_HOMEPAGE_TOPICS.map((topic) => {
+    const page = pagesByTopic.get(topic);
+    if (!page) throw new Error(`The homepage setup payload is missing ${topic}.`);
+    return {
+      setupTopic: topic,
+      setupRelatedHeading: t("relatedPages"),
+      title: titles[topic],
+      markdown:
+        `${page.body.trim()}\n\n## ${t("sourcesHeading")}\n\n` +
+        `${[...new Set(page.sources)].map((source) => `- <${source}>`).join("\n")}\n\n` +
+        `## ${t("gapsHeading")}\n\n${page.gaps.trim()}`,
+    };
+  });
+}
+
+export function wikiHomepageSetupTool(locale: string | undefined) {
+  const appLocale = isAppLocale(locale) ? locale : DEFAULT_LOCALE;
+  return {
+    ...manageWikiPagesTool,
+    description:
+      "Create the five required starter Wiki pages in one atomic empty-Wiki-only call. Supply each topic exactly once, with one to five exact successfully read source URLs. Localized titles, Sources and gaps headings, and stable internal links are added by the server.",
+    inputSchema: WikiHomepageSetupCreateSchema,
+    execute: async (params: z.infer<typeof WikiHomepageSetupCreateSchema>) => {
+      const parsed = WikiHomepageSetupCreateSchema.safeParse(params);
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
+      return runInteractor(
+        getCreateWikiPagesInteractor().invoke({
+          requireEmpty: true,
+          pages: await setupPages(parsed.data, appLocale),
+        }),
+        (pages) => toonResult({ items: formatDatesInResponse(pages.map(pageSummary)) }),
+      );
+    },
+  };
+}

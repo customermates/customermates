@@ -36,6 +36,7 @@ import {
   AGENT_RUN_LEASE_MS,
   isAgentTurnStopReason,
   isAgentTurnTerminalCode,
+  WikiHomepageSetupAlreadyRunningError,
   type AgentTurnRequestSnapshot,
   type AgentTurnRequestStatus,
   type AgentTurnStopReason,
@@ -124,6 +125,7 @@ type AgentTurnAdmissionArgs = {
         turnRequestId: string;
         priorRunId: string;
         priorAttemptCount: number;
+        wikiHomepageSetupDomain?: string | null;
         userMessageId: string;
       };
 };
@@ -503,6 +505,21 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           },
         });
         if (linkedRun.count !== 1) throw new Error("Routine run changed before agent admission.");
+      }
+
+      if (args.turn.wikiHomepageSetupDomain) {
+        const freshnessCutoff = new Date(admittedAt.getTime() - AGENT_RUN_LEASE_MS);
+        const activeSetup = await this.prisma.agentTurnRequest.findFirst({
+          where: {
+            id: { not: args.turn.turnRequestId },
+            companyId,
+            wikiHomepageSetupDomain: { not: null },
+            status: { in: ["running", "waitingBudget"] },
+            OR: [{ heartbeatAt: { gt: freshnessCutoff } }, { heartbeatAt: null, updatedAt: { gt: freshnessCutoff } }],
+          },
+          select: { id: true },
+        });
+        if (activeSetup) throw new WikiHomepageSetupAlreadyRunningError();
       }
 
       if (args.turn.kind === "retry") {
