@@ -125,6 +125,34 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
     expect(gone).toBeNull();
   });
 
+  it("leaves an audit row for every routine change made through the tool", async () => {
+    await runWithoutTenant(() => prisma.auditLog.deleteMany({ where: { companyId: company } }));
+
+    const created = await run({
+      action: "create",
+      name: "MCP audit probe",
+      prompt: "Summarise the open pipeline. Change nothing.",
+      triggerKind: "schedule",
+      cronExpression: "0 9 * * 1",
+      timezone: "Europe/Berlin",
+      enabled: false,
+    });
+    const id = created.structured.id as string;
+
+    await run({ action: "update", id, name: "MCP audit probe renamed" });
+    await run({ action: "delete", id });
+
+    const rows = await runWithoutTenant(() => prisma.auditLog.findMany({ where: { companyId: company } }));
+    const events = rows.map((row) => row.event);
+
+    expect(events).toHaveLength(3);
+    expect(new Set(events)).toEqual(new Set(["routine.created", "routine.updated", "routine.deleted"]));
+    expect(rows.every((row) => row.userId === user && row.entityId === id)).toBe(true);
+    expect(rows.find((row) => row.event === "routine.updated")?.eventData).toMatchObject({
+      payload: { changes: { name: { previous: "MCP audit probe", current: "MCP audit probe renamed" } } },
+    });
+  });
+
   it("creates a live routine when enabled is omitted, which the description warns about", async () => {
     const created = await run({
       action: "create",

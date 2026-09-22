@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { RefreshCw } from "lucide-react";
-import { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
+import { Action, Resource, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
 
@@ -22,11 +22,13 @@ type Props = {
 
 export const SubscriptionView = observer(({ initialSubscription }: Props) => {
   const t = useTranslations();
-  const { subscriptionStore } = useRootStore();
+  const { subscriptionStore, userStore } = useRootStore();
 
   const subscription = subscriptionStore.subscription ?? initialSubscription;
   const showRefresh =
-    subscription?.plan !== SubscriptionPlan.enterprise && subscription?.status !== SubscriptionStatus.trial;
+    userStore.can(Resource.company, Action.update) &&
+    subscription?.plan !== SubscriptionPlan.enterprise &&
+    subscription?.status !== SubscriptionStatus.trial;
 
   const topBarActions = useMemo(
     () => (

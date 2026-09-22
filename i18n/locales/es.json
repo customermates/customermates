@@ -7,6 +7,12 @@
     "subject": "Tu correo está confirmado y hemos eliminado tu contraseña anterior",
     "title": "Tu dirección de correo está confirmada"
   },
+  "AccountRemovalReason": {
+    "ownerInactive": "Propietario desactivado",
+    "planDowngrade": "Plan reducido",
+    "subscriptionLapsed": "Suscripción vencida",
+    "trialExpired": "Prueba finalizada"
+  },
   "AccountsRemovedNotice": {
     "body": "Tu plan cambió a {plan}, así que he eliminado las siguientes cuentas conectadas para respetar el límite del plan: {accounts}. Tus mensajes y contactos siguen ahí. Puedes volver a conectarlas cuando quieras desde la página de cuentas conectadas.",
     "cta": "Ver las cuentas conectadas",
@@ -856,19 +862,29 @@
       "acceptanceType": "Tipo de aceptación",
       "acceptingEmail": "Aceptado por",
       "changedDocuments": "Documentos modificados",
+      "changedFields": "Campos vigilados",
       "city": "Ciudad",
       "country": "País",
+      "cronExpression": "Programación",
       "currency": "Moneda",
       "dealStageWeights": "Probabilidades de etapa",
       "dealWeightingColumnId": "Campo de etapa",
+      "debounceSeconds": "Retardo",
+      "disabledReason": "Motivo de desactivación",
       "effectiveAt": "Vigente desde",
       "emails": "Direcciones de correo",
       "isNewCompany": "Primera persona del espacio",
       "markdown": "Markdown",
       "postalCode": "Código postal",
+      "prompt": "Instrucciones",
       "recipientEmail": "Enviado a",
+      "removalReason": "Motivo de eliminación",
       "street": "Calle",
       "terminology": "Nombres de registros",
+      "timezone": "Zona horaria",
+      "triggerEvents": "Eventos del disparador",
+      "triggerFilters": "Filtros del disparador",
+      "triggerKind": "Disparador",
       "versions": "Versiones de documentos",
       "visibility": "Visibilidad"
     },
@@ -1290,6 +1306,11 @@
         "created": "Rol creado",
         "deleted": "Rol eliminado",
         "updated": "Rol actualizado"
+      },
+      "routine": {
+        "created": "Rutina creada",
+        "deleted": "Rutina eliminada",
+        "updated": "Rutina actualizada"
       },
       "service": {
         "created": "Servicio creado",

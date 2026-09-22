@@ -16,6 +16,6 @@ export class DeleteConnectedAccountsForInactiveOwnersInteractor {
   async invoke(): Promise<void> {
     const accountIds = await this.repo.findConnectedAccountIdsForInactiveOwnersUnscoped();
 
-    for (const accountId of accountIds) await this.deleteService.deleteForBillingOrThrow(accountId);
+    for (const accountId of accountIds) await this.deleteService.deleteForBillingOrThrow(accountId, "ownerInactive");
   }
 }

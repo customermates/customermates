@@ -30,7 +30,7 @@ export type AuditChange = Data<typeof AuditChangeSchema>;
 
 type Changes = DomainEventMap[DomainEvent.DEAL_UPDATED]["payload"]["changes"];
 
-const IGNORED_FIELDS = new Set(["id", "createdAt", "updatedAt", "avatarUrl", "roleId"]);
+const IGNORED_FIELDS = new Set(["id", "createdAt", "updatedAt", "avatarUrl", "roleId", "ownerUserId"]);
 
 const REDACTED_FIELDS = new Set(["secret", "headers"]);
 

@@ -7,6 +7,12 @@
     "subject": "Votre adresse e-mail est confirmée et nous avons supprimé votre ancien mot de passe",
     "title": "Votre adresse e-mail est confirmée"
   },
+  "AccountRemovalReason": {
+    "ownerInactive": "Propriétaire désactivé",
+    "planDowngrade": "Forfait rétrogradé",
+    "subscriptionLapsed": "Abonnement expiré",
+    "trialExpired": "Essai terminé"
+  },
   "AccountsRemovedNotice": {
     "body": "Votre formule est passée à {plan}, j'ai donc supprimé le ou les comptes connectés suivants afin de respecter la limite de votre formule : {accounts}. Vos messages et vos contacts sont toujours là. Vous pouvez reconnecter ces comptes à tout moment depuis la page de vos comptes connectés.",
     "cta": "Voir les comptes connectés",
@@ -856,19 +862,29 @@
       "acceptanceType": "Type d'acceptation",
       "acceptingEmail": "Accepté par",
       "changedDocuments": "Documents modifiés",
+      "changedFields": "Champs surveillés",
       "city": "Ville",
       "country": "Pays",
+      "cronExpression": "Planification",
       "currency": "Devise",
       "dealStageWeights": "Probabilités d'étape",
       "dealWeightingColumnId": "Champ d'étape",
+      "debounceSeconds": "Délai d’attente",
+      "disabledReason": "Motif de désactivation",
       "effectiveAt": "En vigueur à partir du",
       "emails": "Adresses e-mail",
       "isNewCompany": "Première personne de l'espace",
       "markdown": "Markdown",
       "postalCode": "Code postal",
+      "prompt": "Consignes",
       "recipientEmail": "Envoyé à",
+      "removalReason": "Motif de suppression",
       "street": "Rue",
       "terminology": "Noms des enregistrements",
+      "timezone": "Fuseau horaire",
+      "triggerEvents": "Évènements déclencheurs",
+      "triggerFilters": "Filtres du déclencheur",
+      "triggerKind": "Déclencheur",
       "versions": "Versions des documents",
       "visibility": "Visibilité"
     },
@@ -1290,6 +1306,11 @@
         "created": "Rôle créé",
         "deleted": "Rôle supprimé",
         "updated": "Rôle mis à jour"
+      },
+      "routine": {
+        "created": "Routine créée",
+        "deleted": "Routine supprimée",
+        "updated": "Routine mise à jour"
       },
       "service": {
         "created": "Service créé",

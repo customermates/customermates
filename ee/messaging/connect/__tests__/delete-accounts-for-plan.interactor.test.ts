@@ -82,9 +82,9 @@ describe("DeleteAccountsForPlanInteractor", () => {
     await service.invoke({ companyId: "company-1", plan: "pro" });
 
     expect(deleteService.deleteForBillingOrThrow).toHaveBeenCalledTimes(2);
-    expect(deleteService.deleteForBillingOrThrow).toHaveBeenCalledWith("acc-newest");
-    expect(deleteService.deleteForBillingOrThrow).toHaveBeenCalledWith("acc-middle");
-    expect(deleteService.deleteForBillingOrThrow).not.toHaveBeenCalledWith("acc-oldest");
+    expect(deleteService.deleteForBillingOrThrow).toHaveBeenCalledWith("acc-newest", "planDowngrade");
+    expect(deleteService.deleteForBillingOrThrow).toHaveBeenCalledWith("acc-middle", "planDowngrade");
+    expect(deleteService.deleteForBillingOrThrow).not.toHaveBeenCalledWith("acc-oldest", "planDowngrade");
   });
 
   it("does nothing and sends no notice when everyone already fits the new plan", async () => {

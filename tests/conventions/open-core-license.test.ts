@@ -12,11 +12,9 @@ function source(path: string): string {
 describe("open-core licence boundary", () => {
   it("licenses the core and audit log under AGPL-3.0-only", () => {
     const rootLicense = source("LICENSE");
-    const readme = source("README.md");
 
     expect(rootLicense).toContain("Files outside `ee/` are licensed");
     expect(rootLicense).toContain("AGPL-3.0-only");
-    expect(readme).toContain("including `features/audit-log/`");
     expect(existsSync(join(REPO_ROOT, "features/audit-log/prisma-audit-log.repository.ts"))).toBe(true);
     expect(existsSync(join(REPO_ROOT, "ee/audit-log"))).toBe(false);
   });

@@ -36,7 +36,7 @@ Nur, wenn Sie ein Ablaufdatum setzen. Ein Key ohne Ablaufdatum läuft nie ab. We
 
 Öffnen Sie den Key über seine Karte und wählen Sie **Löschen**; eine Bestätigung folgt, und der Key funktioniert sofort nicht mehr. Eine separate Rotate- oder Revoke-Aktion gibt es nicht: Zum Rotieren legen Sie einen neuen Key an, aktualisieren jeden Client, der den alten genutzt hat, und löschen dann den alten Key.
 
-Rotieren Sie, wenn ein Gerät mit dem Key verloren geht oder kompromittiert ist, wenn ein Teammitglied mit Zugriff das Team verlässt oder wenn Sie einen Leak vermuten. Ein Key pro Client hält Audit-Einträge lesbar und erlaubt es, einen einzelnen Client zu löschen, ohne die anderen zu brechen. Bewahren Sie Keys in einer Umgebungsvariable oder einem Passwort-Manager auf, nie in einer Config-Datei, die Sie committen.
+Rotieren Sie, wenn ein Gerät mit dem Key verloren geht oder kompromittiert ist, wenn ein Teammitglied mit Zugriff das Team verlässt oder wenn Sie einen Leak vermuten. Ein Key pro Client erlaubt es, einen einzelnen Client zu löschen, ohne die anderen zu brechen. Im Audit-Log trennt er sie nicht, denn dort steht der User, dem ein Key gehört, nicht der Key selbst. Bewahren Sie Keys in einer Umgebungsvariable oder einem Passwort-Manager auf, nie in einer Config-Datei, die Sie committen.
 
 ## Welches Format hat ein Key?
 

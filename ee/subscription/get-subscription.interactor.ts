@@ -1,4 +1,5 @@
 import type { SubscriptionService } from "./subscription.service";
+import type { UserService } from "@/features/user/user.service";
 
 import { z } from "zod";
 import {
@@ -49,6 +50,7 @@ export class GetSubscriptionInteractor extends AuthenticatedInteractor<void, Sub
     private repo: GetSubscriptionRepo,
     private userRepo: CountActiveUsersRepo,
     private lemonSqueezyService: SubscriptionService,
+    private userService: UserService,
   ) {
     super();
   }
@@ -62,7 +64,11 @@ export class GetSubscriptionInteractor extends AuthenticatedInteractor<void, Sub
 
     let customerPortalUrl: string | null = null;
 
-    if (subscription.lemonSqueezyId && subscription.plan !== SubscriptionPlanEnum.enterprise) {
+    const mayManageBilling =
+      subscription.plan !== SubscriptionPlanEnum.enterprise &&
+      (await this.userService.hasPermission(Resource.company, Action.update));
+
+    if (mayManageBilling && subscription.lemonSqueezyId) {
       const lemonSqueezySubscription = await this.lemonSqueezyService.getSubscriptionOrThrowUnscoped(
         subscription.lemonSqueezyId,
       );
