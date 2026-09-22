@@ -10,6 +10,7 @@ import {
   Building2,
   Cable,
   CheckCircle2,
+  ChevronDown,
   CircleDollarSign,
   FileText,
   GitCompareArrows,
@@ -59,7 +60,6 @@ import {
   PublicNavbarMenu,
   type PublicNavGroup,
 } from "./navigation/public-navbar-menu";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
 
 type Props = {
@@ -435,49 +435,57 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent }
 
               <SheetBody className="flex flex-col gap-3 pb-6">
                 <div className="w-full">
-                  <Accordion collapsible className="w-full" type="single">
-                    {publicNavGroups.map((group) => (
-                      <AccordionItem key={group.id} value={group.id}>
-                        <AccordionTrigger className={mobileOverviewRowClassName}>
-                          <span className="flex items-center gap-2.5">
-                            <Icon aria-hidden icon={group.icon} size="md" />
+                  {publicNavGroups.map((group) => (
+                    <details key={group.id} className="group border-b border-sidebar-border" name="public-nav-mobile">
+                      <summary
+                        className={cn(
+                          mobileOverviewRowClassName,
+                          "cursor-pointer list-none [&::-webkit-details-marker]:hidden",
+                        )}
+                      >
+                        <span className="flex items-center gap-2.5">
+                          <Icon aria-hidden icon={group.icon} size="md" />
 
-                            {group.title}
-                          </span>
-                        </AccordionTrigger>
+                          {group.title}
+                        </span>
 
-                        <AccordionContent>
-                          <div className="flex flex-col gap-1 pt-1">
-                            {group.links.map((link) => {
-                              const linkActive =
-                                isNavItemActive(link.href) && isPrimaryPublicNavLink(publicNavGroups, link);
+                        <ChevronDown
+                          aria-hidden
+                          className="pointer-events-none size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
+                        />
+                      </summary>
 
-                              return (
-                                <AppLink
-                                  key={`${link.href}-${link.title}`}
-                                  aria-current={linkActive ? "page" : undefined}
-                                  className={cn(
-                                    "flex min-h-10 items-center gap-2.5 rounded-md p-2 text-sm",
-                                    !linkActive && "text-subdued",
-                                  )}
-                                  href={link.href}
-                                  onNavigate={closeMenu}
-                                >
-                                  {link.mark ? (
-                                    <PublicNavLinkMark mark={link.mark} />
-                                  ) : (
-                                    <PublicNavLinkIcon icon={link.icon} />
-                                  )}
+                      <div className="pb-2">
+                        <div className="flex flex-col gap-1 pt-1">
+                          {group.links.map((link) => {
+                            const linkActive =
+                              isNavItemActive(link.href) && isPrimaryPublicNavLink(publicNavGroups, link);
 
-                                  {link.title}
-                                </AppLink>
-                              );
-                            })}
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
+                            return (
+                              <AppLink
+                                key={`${link.href}-${link.title}`}
+                                aria-current={linkActive ? "page" : undefined}
+                                className={cn(
+                                  "flex min-h-10 items-center gap-2.5 rounded-md p-2 text-sm",
+                                  !linkActive && "text-subdued",
+                                )}
+                                href={link.href}
+                                onNavigate={closeMenu}
+                              >
+                                {link.mark ? (
+                                  <PublicNavLinkMark mark={link.mark} />
+                                ) : (
+                                  <PublicNavLinkIcon icon={link.icon} />
+                                )}
+
+                                {link.title}
+                              </AppLink>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </details>
+                  ))}
 
                   <AppLink
                     appearance="unstyled"

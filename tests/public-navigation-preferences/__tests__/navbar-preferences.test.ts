@@ -142,9 +142,20 @@ describe("public navigation preferences", () => {
     }
 
     expect(navbar.match(/publicNavGroups\.map/gu)).toHaveLength(1);
-    expect(navbar).toContain(
-      '<Accordion collapsible className="w-full" type="single">',
+    // A native disclosure ships its links in the server HTML whether or not it is open, and
+    // `name` gives one-open-at-a-time without a controlled value. Radix Accordion bought the same
+    // behaviour for 3.3 KB of JavaScript on every marketing page.
+    expect(
+      navbar,
+      "the mobile disclosure has to be native to render closed",
+    ).toContain("<details");
+    expect(navbar, "one mobile group open at a time").toContain(
+      'name="public-nav-mobile"',
     );
+    expect(
+      navbar,
+      "a disclosure list does not need an overlay primitive",
+    ).not.toContain("<Accordion");
     expect(navbar).toContain("<MarketingContainer");
     expect(menu).toContain("<Popover");
     expect(menu).toContain("<PopoverAnchor");
@@ -196,7 +207,10 @@ describe("public navigation preferences", () => {
     expect(menu).toContain('href="/docs"');
 
     expect(mobile.match(/mobileOverviewRowClassName/gu)).toHaveLength(3);
-    expect(mobile).toContain("<AccordionTrigger className={mobileOverviewRowClassName}>");
+    expect(
+      mobile,
+      "a group row has to look like the flat mobile links beside it",
+    ).toMatch(/<summary\s+className=\{cn\(\s*mobileOverviewRowClassName/u);
     for (const href of ["/pricing", "/docs"]) {
       const hrefIndex = mobile.indexOf(`href="${href}"`);
       const linkStart = mobile.lastIndexOf("<AppLink", hrefIndex);
@@ -283,12 +297,12 @@ describe("public navigation preferences", () => {
     }
     expect(integrations).not.toMatch(/icon: \w+,\s+href:/u);
 
-    const accordionEnd = mobile.indexOf("</Accordion>");
+    const groupsEnd = mobile.lastIndexOf("</details>");
     const pricingIndex = mobile.indexOf('href="/pricing"');
     const docsIndex = mobile.indexOf('href="/docs"');
     const preferencesIndex = mobile.indexOf("{renderPreferenceButtons()}");
-    expect(accordionEnd).toBeGreaterThan(-1);
-    expect(pricingIndex).toBeGreaterThan(accordionEnd);
+    expect(groupsEnd).toBeGreaterThan(-1);
+    expect(pricingIndex).toBeGreaterThan(groupsEnd);
     expect(docsIndex).toBeGreaterThan(pricingIndex);
     expect(preferencesIndex).toBeGreaterThan(docsIndex);
 
