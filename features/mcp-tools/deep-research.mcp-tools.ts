@@ -4,6 +4,12 @@ import type { ContentLocale } from "@/i18n/locale-registry";
 
 import { customMcpFailure, formatDatesInResponse, mcpInteractorFailure, mcpMessageFailure } from "./utils";
 import { getDocsPageRaw, listDocsSlugs, searchDocsRaw } from "./docs.mcp-tools";
+import {
+  UNTRUSTED_NOTES_CLOSE,
+  UNTRUSTED_NOTES_HANDLING,
+  UNTRUSTED_NOTES_OPEN,
+  stripUntrustedNotesMarkers,
+} from "./entity-generic.mcp-tools";
 
 import { env } from "@/env";
 import { CONTENT_LOCALES, DEFAULT_LOCALE, isContentLocale } from "@/i18n/locale-registry";
@@ -70,7 +76,7 @@ const SearchOutputSchema = z.object({
 
 const FetchOutputSchema = z.object({
   id: z.string().describe("The canonical result id"),
-  title: z.string().describe("Display name of the record or docs page"),
+  title: z.string().describe("Display name of the Wiki page, record, or docs page"),
   text: z.string().describe("Full content: Wiki Markdown, record fields plus notes, or product docs Markdown"),
   url: z.string().describe("Canonical app or docs URL"),
   metadata: z.record(z.string(), z.string()).optional().describe("Extra context such as entity type or locale"),
@@ -88,7 +94,9 @@ async function fetchRecord(entity: Entity, key: string) {
   };
   const noteMarkdown = notes ? serializeJSONToMarkdown(notes as object) : null;
   const masterText = JSON.stringify(formatDatesInResponse(masterData), null, 2);
-  const text = noteMarkdown ? `${masterText}\n\nNotes:\n${noteMarkdown}` : masterText;
+  const text = noteMarkdown
+    ? `${masterText}\n\nNotes:\n${UNTRUSTED_NOTES_HANDLING}\n${UNTRUSTED_NOTES_OPEN}\n${stripUntrustedNotesMarkers(noteMarkdown)}\n${UNTRUSTED_NOTES_CLOSE}`
+    : masterText;
   const recordId = String(masterData.id);
   const output = {
     id: `record:${entity}:${recordId}`,
@@ -192,10 +200,9 @@ export const searchTool = {
   name: "search",
   title: "Search workspace knowledge",
   description:
-    "Find relevant Workspace Wiki pages, CRM records, and product documentation. " +
-    "Use for company processes, voice, offerings, and support guidance, then fetch each relevant result. " +
-    "Wiki matches are ranked by query terms with title matches weighted higher. " +
-    "Compatible with ChatGPT company knowledge and deep research. For focused record or product-doc queries, prefer search_records or search_docs.",
+    "Required by ChatGPT company-knowledge and deep-research connectors. Returns relevant Workspace Wiki pages, CRM records, and product documentation in one list, without totals or filters. " +
+    "Fetch every relevant Wiki result and follow its linked Wiki pages. Wiki matches are ranked by query terms with title matches weighted higher. " +
+    "For focused CRM or product-doc queries use search_records or list_records, which carry totals and filters, or search_docs.",
   annotations: {
     readOnlyHint: true,
     idempotentHint: true,

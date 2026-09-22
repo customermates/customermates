@@ -1,16 +1,18 @@
 import { z } from "zod";
 
 import {
+  customMcpFailure,
   encodeToToon,
-  mcpInteractorFailure,
-  mcpValidationFailure,
-  runInteractor,
   enumHint,
+  filtersDescription,
   formatDatesInResponse,
+  MCP_PAGE_SIZE_DESCRIPTION,
+  mcpInteractorFailure,
+  mcpOptionalPageSize,
   mcpPage,
   mcpPageSize,
-  customMcpFailure,
-  filtersDescription,
+  mcpValidationFailure,
+  runInteractor,
   sortDescription,
   toonResult,
 } from "./utils";
@@ -39,7 +41,7 @@ const ListWebhooksSchema = z.object({
     .describe(filtersDescription(filterFieldsHint([FilterFieldKey.createdAt, FilterFieldKey.updatedAt]))),
   sortDescriptor: SortDescriptorSchema.optional().describe(sortDescription("name, createdAt, updatedAt")),
   page: mcpPage(),
-  pageSize: mcpPageSize(100, "Results per page: 5, 10, 25, or 100 (default 100)"),
+  pageSize: mcpPageSize(25),
 });
 
 const CreateWebhookSchema = z.object({
@@ -109,7 +111,7 @@ const GetWebhookSchema = z.object({
 const ListWebhookDeliveriesSchema = z.object({
   searchTerm: z.string().optional().describe("Free-text search against url and event name"),
   page: mcpPage(),
-  pageSize: mcpPageSize(25, "Results per page: 5, 10, 25, or 100 (default 25)"),
+  pageSize: mcpPageSize(25),
   filters: z
     .array(FilterSchema)
     .optional()
@@ -124,7 +126,9 @@ const ResendWebhookDeliverySchema = z.object({
 const ManageWebhooksSchema = z.object({
   action: z
     .enum(["create", "update", "delete", "get", "list", "list_deliveries", "resend_delivery"])
-    .describe("Webhook operation to perform"),
+    .describe(
+      "Webhook operation. Keys per action: create = url, events, then optional description, secret, headers, bodyTemplate, enabled; update = id plus any of url, description, events, secret, headers, bodyTemplate, enabled; get and delete = id; list = optional searchTerm, filters, sortDescriptor, page, pageSize; list_deliveries = optional id (webhook), searchTerm, filters, sortDescriptor, page, pageSize; resend_delivery = id (delivery).",
+    ),
   id: z
     .uuid()
     .optional()
@@ -183,10 +187,7 @@ const ManageWebhooksSchema = z.object({
     "list and list_deliveries only. " + sortDescription("list: name, createdAt, updatedAt; list_deliveries: createdAt"),
   ),
   page: mcpPage(),
-  pageSize: z
-    .preprocess((v) => (typeof v === "string" && v.trim() !== "" ? Number(v) : v), z.literal([5, 10, 25, 100]))
-    .optional()
-    .describe("Results per page: 5, 10, 25, or 100. Default 100 for list, 25 for list_deliveries."),
+  pageSize: mcpOptionalPageSize(`${MCP_PAGE_SIZE_DESCRIPTION} Default 25 for list and list_deliveries.`),
 });
 
 const ManageWebhooksOutputSchema = z
@@ -217,7 +218,7 @@ export const manageWebhooksTool = {
     "action list supports searchTerm, filters, sort, paging. " +
     "action list_deliveries returns delivery attempts newest first; without `id` it spans the whole workspace, with `id` it is scoped to that webhook's CURRENT url (deliveries made while a different url was configured are not matched); narrow further with searchTerm or filters. " +
     "action resend_delivery re-sends a past delivery as a NEW delivery record; pass the delivery id from list_deliveries.",
-  annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
+  annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true },
   inputSchema: ManageWebhooksSchema,
   outputSchema: ManageWebhooksOutputSchema,
   execute: async (params: z.infer<typeof ManageWebhooksSchema>) => {
@@ -243,7 +244,8 @@ export const manageWebhooksTool = {
               updatedAt: webhook.updatedAt,
             })),
           );
-          return { text: encodeToToon(items), structuredContent: { items } };
+          const payload = { total: data.pagination?.total ?? items.length, page: parsed.data.page, items };
+          return { text: encodeToToon(payload), structuredContent: payload };
         },
       );
     }
@@ -332,9 +334,9 @@ export const manageWebhooksTool = {
         }),
         (data) =>
           toonResult({
-            items: formatDatesInResponse(data.items),
             total: data.pagination?.total ?? data.items.length,
             page: parsed.data.page,
+            items: formatDatesInResponse(data.items),
           }),
       );
     }

@@ -65,7 +65,7 @@
                       ]
                     },
                     "notes": {
-                      "description": "Markdown content",
+                      "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                       "anyOf": [
                         {},
                         {
@@ -405,7 +405,7 @@
                         ]
                       },
                       "notes": {
-                        "description": "Markdown content",
+                        "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                         "anyOf": [
                           {},
                           {
@@ -744,7 +744,7 @@
                         ]
                       },
                       "notes": {
-                        "description": "Markdown content",
+                        "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                         "anyOf": [
                           {},
                           {
@@ -2524,7 +2524,7 @@
                             ]
                           },
                           "notes": {
-                            "description": "Markdown content",
+                            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                             "anyOf": [
                               {},
                               {
@@ -3779,7 +3779,7 @@
                               ]
                             },
                             "notes": {
-                              "description": "Markdown content",
+                              "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                               "anyOf": [
                                 {},
                                 {
@@ -4879,7 +4879,7 @@
                     "maxLength": 255
                   },
                   "notes": {
-                    "description": "Markdown content",
+                    "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                     "anyOf": [
                       {},
                       {
@@ -5060,7 +5060,7 @@
                       ]
                     },
                     "notes": {
-                      "description": "Markdown content",
+                      "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                       "anyOf": [
                         {},
                         {
@@ -5464,7 +5464,7 @@
                       "type": "string"
                     },
                     "notes": {
-                      "description": "Markdown content",
+                      "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                       "anyOf": [
                         {},
                         {
@@ -5736,7 +5736,7 @@
                         "type": "string"
                       },
                       "notes": {
-                        "description": "Markdown content",
+                        "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                         "anyOf": [
                           {},
                           {
@@ -6007,7 +6007,7 @@
                         "type": "string"
                       },
                       "notes": {
-                        "description": "Markdown content",
+                        "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                         "anyOf": [
                           {},
                           {
@@ -7718,7 +7718,7 @@
                             "type": "string"
                           },
                           "notes": {
-                            "description": "Markdown content",
+                            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                             "anyOf": [
                               {},
                               {
@@ -8903,7 +8903,7 @@
                               "type": "string"
                             },
                             "notes": {
-                              "description": "Markdown content",
+                              "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                               "anyOf": [
                                 {},
                                 {
@@ -9941,7 +9941,7 @@
                     "maxLength": 255
                   },
                   "notes": {
-                    "description": "Markdown content",
+                    "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                     "anyOf": [
                       {},
                       {
@@ -10065,7 +10065,7 @@
                       "type": "string"
                     },
                     "notes": {
-                      "description": "Markdown content",
+                      "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                       "anyOf": [
                         {},
                         {
@@ -10428,7 +10428,7 @@
                       ]
                     },
                     "notes": {
-                      "description": "Markdown content",
+                      "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                       "anyOf": [
                         {},
                         {
@@ -10749,7 +10749,7 @@
                         ]
                       },
                       "notes": {
-                        "description": "Markdown content",
+                        "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                         "anyOf": [
                           {},
                           {
@@ -11069,7 +11069,7 @@
                         ]
                       },
                       "notes": {
-                        "description": "Markdown content",
+                        "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                         "anyOf": [
                           {},
                           {
@@ -12829,7 +12829,7 @@
                             ]
                           },
                           "notes": {
-                            "description": "Markdown content",
+                            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                             "anyOf": [
                               {},
                               {
@@ -14063,7 +14063,7 @@
                               ]
                             },
                             "notes": {
-                              "description": "Markdown content",
+                              "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                               "anyOf": [
                                 {},
                                 {
@@ -15134,7 +15134,7 @@
                     "maxLength": 255
                   },
                   "notes": {
-                    "description": "Markdown content",
+                    "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                     "anyOf": [
                       {},
                       {
@@ -15302,7 +15302,7 @@
                       ]
                     },
                     "notes": {
-                      "description": "Markdown content",
+                      "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                       "anyOf": [
                         {},
                         {
@@ -15685,7 +15685,7 @@
                       "type": "number"
                     },
                     "notes": {
-                      "description": "Markdown content",
+                      "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                       "anyOf": [
                         {},
                         {
@@ -15924,7 +15924,7 @@
                         "type": "number"
                       },
                       "notes": {
-                        "description": "Markdown content",
+                        "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                         "anyOf": [
                           {},
                           {
@@ -16162,7 +16162,7 @@
                         "type": "number"
                       },
                       "notes": {
-                        "description": "Markdown content",
+                        "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                         "anyOf": [
                           {},
                           {
@@ -17840,7 +17840,7 @@
                             "type": "number"
                           },
                           "notes": {
-                            "description": "Markdown content",
+                            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                             "anyOf": [
                               {},
                               {
@@ -18992,7 +18992,7 @@
                               "type": "number"
                             },
                             "notes": {
-                              "description": "Markdown content",
+                              "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                               "anyOf": [
                                 {},
                                 {
@@ -19998,7 +19998,7 @@
                     "exclusiveMinimum": 0
                   },
                   "notes": {
-                    "description": "Markdown content",
+                    "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                     "anyOf": [
                       {},
                       {
@@ -20110,7 +20110,7 @@
                       "type": "number"
                     },
                     "notes": {
-                      "description": "Markdown content",
+                      "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                       "anyOf": [
                         {},
                         {
@@ -20428,7 +20428,7 @@
                       ]
                     },
                     "notes": {
-                      "description": "Markdown content",
+                      "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                       "anyOf": [
                         {},
                         {
@@ -20726,7 +20726,7 @@
                         ]
                       },
                       "notes": {
-                        "description": "Markdown content",
+                        "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                         "anyOf": [
                           {},
                           {
@@ -21023,7 +21023,7 @@
                         ]
                       },
                       "notes": {
-                        "description": "Markdown content",
+                        "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                         "anyOf": [
                           {},
                           {
@@ -22760,7 +22760,7 @@
                             ]
                           },
                           "notes": {
-                            "description": "Markdown content",
+                            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                             "anyOf": [
                               {},
                               {
@@ -23971,7 +23971,7 @@
                               ]
                             },
                             "notes": {
-                              "description": "Markdown content",
+                              "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                               "anyOf": [
                                 {},
                                 {
@@ -25028,7 +25028,7 @@
                     "maxLength": 255
                   },
                   "notes": {
-                    "description": "Markdown content",
+                    "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                     "anyOf": [
                       {},
                       {
@@ -25174,7 +25174,7 @@
                       ]
                     },
                     "notes": {
-                      "description": "Markdown content",
+                      "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                       "anyOf": [
                         {},
                         {
@@ -41508,7 +41508,7 @@
             "type": "string"
           },
           "notes": {
-            "description": "Markdown content",
+            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
             "anyOf": [
               {},
               {
@@ -41648,7 +41648,7 @@
                   "type": "string"
                 },
                 "notes": {
-                  "description": "Markdown content",
+                  "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                   "anyOf": [
                     {},
                     {
@@ -41802,7 +41802,7 @@
                   "maxLength": 255
                 },
                 "notes": {
-                  "description": "Markdown content",
+                  "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                   "anyOf": [
                     {},
                     {
@@ -41985,7 +41985,7 @@
             "maxLength": 255
           },
           "notes": {
-            "description": "Markdown content",
+            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
             "anyOf": [
               {},
               {
@@ -42077,7 +42077,7 @@
                   "maxLength": 255
                 },
                 "notes": {
-                  "description": "Markdown content",
+                  "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                   "anyOf": [
                     {},
                     {
@@ -42180,7 +42180,7 @@
                   "maxLength": 255
                 },
                 "notes": {
-                  "description": "Markdown content",
+                  "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                   "anyOf": [
                     {},
                     {
@@ -42319,7 +42319,7 @@
             "maxLength": 255
           },
           "notes": {
-            "description": "Markdown content",
+            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
             "anyOf": [
               {},
               {
@@ -42433,7 +42433,7 @@
                   "maxLength": 255
                 },
                 "notes": {
-                  "description": "Markdown content",
+                  "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                   "anyOf": [
                     {},
                     {
@@ -42558,7 +42558,7 @@
                   "maxLength": 255
                 },
                 "notes": {
-                  "description": "Markdown content",
+                  "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                   "anyOf": [
                     {},
                     {
@@ -42729,7 +42729,7 @@
             "exclusiveMinimum": 0
           },
           "notes": {
-            "description": "Markdown content",
+            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
             "anyOf": [
               {},
               {
@@ -42817,7 +42817,7 @@
                   "exclusiveMinimum": 0
                 },
                 "notes": {
-                  "description": "Markdown content",
+                  "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                   "anyOf": [
                     {},
                     {
@@ -42916,7 +42916,7 @@
                   "exclusiveMinimum": 0
                 },
                 "notes": {
-                  "description": "Markdown content",
+                  "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                   "anyOf": [
                     {},
                     {
@@ -43040,7 +43040,7 @@
             "maxLength": 255
           },
           "notes": {
-            "description": "Markdown content",
+            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
             "anyOf": [
               {},
               {
@@ -43141,7 +43141,7 @@
                   "maxLength": 255
                 },
                 "notes": {
-                  "description": "Markdown content",
+                  "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                   "anyOf": [
                     {},
                     {
@@ -43253,7 +43253,7 @@
                   "maxLength": 255
                 },
                 "notes": {
-                  "description": "Markdown content",
+                  "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                   "anyOf": [
                     {},
                     {
@@ -43431,7 +43431,7 @@
                     ]
                   },
                   "notes": {
-                    "description": "Markdown content",
+                    "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                     "anyOf": [
                       {},
                       {
@@ -43736,7 +43736,7 @@
                         ]
                       },
                       "notes": {
-                        "description": "Markdown content",
+                        "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                         "anyOf": [
                           {},
                           {
@@ -44034,7 +44034,7 @@
                         "type": "object",
                         "properties": {
                           "previous": {
-                            "description": "Markdown content",
+                            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                             "anyOf": [
                               {},
                               {
@@ -44043,7 +44043,7 @@
                             ]
                           },
                           "current": {
-                            "description": "Markdown content",
+                            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                             "anyOf": [
                               {},
                               {
@@ -44589,7 +44589,7 @@
                     ]
                   },
                   "notes": {
-                    "description": "Markdown content",
+                    "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                     "anyOf": [
                       {},
                       {
@@ -44878,7 +44878,7 @@
                     "type": "string"
                   },
                   "notes": {
-                    "description": "Markdown content",
+                    "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                     "anyOf": [
                       {},
                       {
@@ -45116,7 +45116,7 @@
                         "type": "string"
                       },
                       "notes": {
-                        "description": "Markdown content",
+                        "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                         "anyOf": [
                           {},
                           {
@@ -45316,7 +45316,7 @@
                         "type": "object",
                         "properties": {
                           "previous": {
-                            "description": "Markdown content",
+                            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                             "anyOf": [
                               {},
                               {
@@ -45325,7 +45325,7 @@
                             ]
                           },
                           "current": {
-                            "description": "Markdown content",
+                            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                             "anyOf": [
                               {},
                               {
@@ -45747,7 +45747,7 @@
                     "type": "string"
                   },
                   "notes": {
-                    "description": "Markdown content",
+                    "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                     "anyOf": [
                       {},
                       {
@@ -45998,7 +45998,7 @@
                     ]
                   },
                   "notes": {
-                    "description": "Markdown content",
+                    "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                     "anyOf": [
                       {},
                       {
@@ -46284,7 +46284,7 @@
                         ]
                       },
                       "notes": {
-                        "description": "Markdown content",
+                        "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                         "anyOf": [
                           {},
                           {
@@ -46575,7 +46575,7 @@
                         "type": "object",
                         "properties": {
                           "previous": {
-                            "description": "Markdown content",
+                            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                             "anyOf": [
                               {},
                               {
@@ -46584,7 +46584,7 @@
                             ]
                           },
                           "current": {
-                            "description": "Markdown content",
+                            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                             "anyOf": [
                               {},
                               {
@@ -47087,7 +47087,7 @@
                     ]
                   },
                   "notes": {
-                    "description": "Markdown content",
+                    "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                     "anyOf": [
                       {},
                       {
@@ -47357,7 +47357,7 @@
                     "type": "number"
                   },
                   "notes": {
-                    "description": "Markdown content",
+                    "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                     "anyOf": [
                       {},
                       {
@@ -47563,7 +47563,7 @@
                         "type": "number"
                       },
                       "notes": {
-                        "description": "Markdown content",
+                        "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                         "anyOf": [
                           {},
                           {
@@ -47743,7 +47743,7 @@
                         "type": "object",
                         "properties": {
                           "previous": {
-                            "description": "Markdown content",
+                            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                             "anyOf": [
                               {},
                               {
@@ -47752,7 +47752,7 @@
                             ]
                           },
                           "current": {
-                            "description": "Markdown content",
+                            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                             "anyOf": [
                               {},
                               {
@@ -48098,7 +48098,7 @@
                     "type": "number"
                   },
                   "notes": {
-                    "description": "Markdown content",
+                    "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                     "anyOf": [
                       {},
                       {
@@ -48305,7 +48305,7 @@
                     ]
                   },
                   "notes": {
-                    "description": "Markdown content",
+                    "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                     "anyOf": [
                       {},
                       {
@@ -48568,7 +48568,7 @@
                         ]
                       },
                       "notes": {
-                        "description": "Markdown content",
+                        "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                         "anyOf": [
                           {},
                           {
@@ -48809,7 +48809,7 @@
                         "type": "object",
                         "properties": {
                           "previous": {
-                            "description": "Markdown content",
+                            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                             "anyOf": [
                               {},
                               {
@@ -48818,7 +48818,7 @@
                             ]
                           },
                           "current": {
-                            "description": "Markdown content",
+                            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                             "anyOf": [
                               {},
                               {
@@ -49288,7 +49288,7 @@
                     ]
                   },
                   "notes": {
-                    "description": "Markdown content",
+                    "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
                     "anyOf": [
                       {},
                       {
@@ -55426,7 +55426,7 @@
             "maxLength": 255
           },
           "notes": {
-            "description": "Markdown content",
+            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
             "anyOf": [
               {},
               {
@@ -55622,7 +55622,7 @@
             "maxLength": 255
           },
           "notes": {
-            "description": "Markdown content",
+            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
             "anyOf": [
               {},
               {
@@ -55772,7 +55772,7 @@
             "maxLength": 255
           },
           "notes": {
-            "description": "Markdown content",
+            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
             "anyOf": [
               {},
               {
@@ -55956,7 +55956,7 @@
             "exclusiveMinimum": 0
           },
           "notes": {
-            "description": "Markdown content",
+            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
             "anyOf": [
               {},
               {
@@ -56091,7 +56091,7 @@
             "maxLength": 255
           },
           "notes": {
-            "description": "Markdown content",
+            "description": "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
             "anyOf": [
               {},
               {

@@ -1,43 +1,41 @@
 ---
 title: "CRM Records: Contacts, Deals and Custom Columns"
-description: "Contacts, organizations, deals, services, and tasks share one Customermates layout: list, drawer, detail, plus custom columns and stable anchor ids."
+description: "Contacts, organizations, deals, services, and tasks share one layout: list, add drawer, detail page, saved views, board view, and stable anchor ids for agents."
 ---
 
 Customermates has five record types: Contacts, Organizations, Deals, Services, and Tasks. They all use the same screen layout, so this page documents them together for people and for AI agents that drive the UI.
 
-## The shared layout
+## What is the shared layout of a record type?
 
 Every record type has the same three surfaces:
 
-- **List** at `/{type}` (for example `/contacts`), locale-prefixed like `https://customermates.com/en/contacts`. Search, filter, sort, and bulk actions live here.
-- **Drawer**: append `?open={entityType}:{id}` to the list URL (for example `/contacts?open=contact:{id}`) to edit a record over the list.
-- **Detail page** at `/{type}/{id}` (for example `/contacts/42`) for the full record, custom fields, and delete. It opens with an overview of the fields that matter most, and every field carries a pin control that adds it to or removes it from that overview. Pinning is per person, so two colleagues can read the same record through different summaries.
+- **List** at `/{type}` (for example `/contacts`), locale-prefixed like `https://customermates.com/en/contacts`. Search, filter, sort, saved views, and bulk actions live here.
+- **Add drawer**: the **Add** button opens a form over the list; the deep link is `?open={entityType}:new` (for example `/contacts?open=contact:new`). The drawer is for adding only; existing records open on their detail page.
+- **Detail page** at `/{type}/{id}` (for example `/contacts/42`) for the full record, custom fields, relations, and delete. It opens with an overview of the fields that matter most; every field carries a pin control (no stable id) that adds it to or removes it from that overview. Pinning is per person, so two colleagues can read the same record through different summaries.
 
-Rows never carry a DOM id. Open a record by its URL or the drawer deep-link, never by clicking a row you located by id.
+Rows never carry a DOM id. Open a record by its detail URL, never by clicking a row you located by id.
 
-## Lists and toolbars
+## Which ids does each list have?
 
-Each record type has its own route and its own toolbar ids, prefixed with the type. The four toolbar controls behave the same everywhere: **Add** opens the create drawer, **Search** live-filters the list, **Filter** opens the filter popover ([filter syntax](/docs/filter-syntax)), and **Display options** controls columns, sorting, and view mode.
+Each record type has its own route and its own toolbar ids, prefixed with the type. The toolbar controls behave the same everywhere: **Add** opens the create drawer, **Search** live-filters the list, **Filter** opens the filter palette ([filter syntax](/docs/filter-syntax)), **Display options** controls columns, sorting, and layout, and the transfer menu exports the list to a spreadsheet or imports records from one.
 
-| Record type | Route | entityType | Sidebar | Toolbar: add, search, filter, display options |
+| Record type | Route | entityType | Sidebar | Toolbar ids |
 |---|---|---|---|---|
-| Contacts | `/contacts` | `contact` | `#nav-contacts` | `#contacts-add`, `#contacts-search`, `#contacts-filter`, `#contacts-display-options` |
-| Organizations | `/organizations` | `organization` | `#nav-organizations` | `#organizations-add`, `#organizations-search`, `#organizations-filter`, `#organizations-display-options` |
-| Deals | `/deals` | `deal` | `#nav-deals` | `#deals-add`, `#deals-search`, `#deals-filter`, `#deals-display-options` |
-| Services | `/services` | `service` | `#nav-services` | `#services-add`, `#services-search`, `#services-filter`, `#services-display-options` |
-| Tasks | `/tasks` | `task` | `#nav-tasks` | `#tasks-add`, `#tasks-search`, `#tasks-filter`, `#tasks-display-options` |
+| Contacts | `/contacts` | `contact` | `#nav-contacts` | `#contacts-add`, `#contacts-search`, `#contacts-filter`, `#contacts-display-options`, `#contacts-transfer` |
+| Organizations | `/organizations` | `organization` | `#nav-organizations` | `#organizations-add`, `#organizations-search`, `#organizations-filter`, `#organizations-display-options`, `#organizations-transfer` |
+| Deals | `/deals` | `deal` | `#nav-deals` | `#deals-add`, `#deals-search`, `#deals-filter`, `#deals-display-options`, `#deals-transfer` |
+| Services | `/services` | `service` | `#nav-services` | `#services-add`, `#services-search`, `#services-filter`, `#services-display-options`, `#services-transfer` |
+| Tasks | `/tasks` | `task` | `#nav-tasks` | `#tasks-add`, `#tasks-search`, `#tasks-filter`, `#tasks-display-options`, `#tasks-transfer` |
 
-Inside each display-options popover, the stable layout controls are:
+Inside each display-options popover, the layout controls are `#{type}-layout-table` and `#{type}-layout-board`, for example `#contacts-layout-table`, `#contacts-layout-board`, `#organizations-layout-table`, `#organizations-layout-board`, `#deals-layout-table`, `#deals-layout-board`, `#services-layout-table`, `#services-layout-board`, `#tasks-layout-table`, `#tasks-layout-board`. Every id in this section is a target the hosted assistant can navigate to or highlight.
 
-- Contacts: `#contacts-layout-table`, `#contacts-layout-board`
-- Organizations: `#organizations-layout-table`, `#organizations-layout-board`
-- Deals: `#deals-layout-table`, `#deals-layout-board`
-- Services: `#services-layout-table`, `#services-layout-board`
-- Tasks: `#tasks-layout-table`, `#tasks-layout-board`
+## How do I import or export records?
 
-## Saved views
+The transfer menu (`#{type}-transfer`, for example `#contacts-transfer`) on every list is labelled **Import and export**. **Export** writes the current list to an Excel workbook with the visible columns, the current filters, search and sort applied, or only the selected rows when some are checked; the first 50,000 records are included. **Add from file** opens a wizard that reads an Excel workbook (`.xlsx`, up to 10 MB and 10,000 rows), lets you match spreadsheet columns to fields, custom fields and channels, checks every row, and then adds the records in batches. A column mapped to **Record ID** updates existing records instead of adding new ones. CSV files are not accepted: save them as `.xlsx` first. Over MCP, the equivalent of an import is one `create_contacts`, `create_organizations`, `create_deals`, `create_services`, or `create_tasks` call with up to 100 records.
 
-The saved-view tabs sit directly under the header on every list surface, and they carry the same ids everywhere, so these ids have no record-type prefix. A view is personal to the user who created it and remembers the whole list: filters, search, sort, page size, layout, grouping, column order, column widths and hidden columns. Every change is saved into the active view as you make it; on the All tab it is saved as your personal state for that list. There is nothing to reset or save by hand.
+## How do saved views work?
+
+The saved-view tabs sit directly under the header on every list surface, and they carry the same ids everywhere, so these ids have no record-type prefix. A view is personal to the user who created it and remembers the whole list: filters, search, sort, page size, layout, grouping, column order, column widths and hidden columns. Every change is saved into the active view as you make it; on the All tab it is saved as your personal state for that list. There is nothing to reset or save by hand. Views are personal: to share one, copy its link from the menu and send it, or ask a teammate to duplicate it.
 
 - `#global-data-views` is the tab bar itself, a navigation landmark.
 - `#global-data-views-all` is the built-in All tab, which clears the active view.
@@ -46,13 +44,13 @@ The saved-view tabs sit directly under the header on every list surface, and the
 
 A view is addressed by the `view` query parameter, for example `/deals?view=<id>`; no parameter means All. The tabs themselves carry no ids, so switch views by URL rather than by clicking a tab you located by id.
 
-## Drawer and detail actions
+## Which ids do the drawer and the detail page have?
 
-These ids are shared by every record type.
+These ids are shared by every record type. They are DOM ids for external browser clients; the hosted assistant does not press them, it changes data through the record tools instead.
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
-| Save (drawer) | Drawer footer | `#drawer-save` | Persists edits made in the drawer |
+| Save (drawer) | Drawer footer | `#drawer-save` | Persists the new record |
 | Save / Reset (detail) | Detail topbar | `#entity-save` / `#entity-reset` | Persists or discards edits |
 | Edit custom fields | Detail topbar | `#entity-edit-fields` | Toggles editing of the custom fields, not the built-in ones |
 | Add custom field | Custom fields section, while editing fields or when the section is empty | `#entity-add-custom-field` | Creates a custom column |
@@ -62,32 +60,35 @@ These ids are shared by every record type.
 
 Notes are a labeled field inside the form. Edit them there, then save.
 
-## Each record type in brief
+## What is special about each record type?
 
-**Contacts** are people, with channel identifiers (email address, LinkedIn, WhatsApp, Instagram, Telegram) that connect them to Inbox threads and power the send icons on their detail page. **Organizations** group contacts and carry the company-level relations that deals and services hang off. **Deals** track opportunities and carry linked services with per-deal quantities; the deal's value follows from them. **Services** are what you sell, linkable to deals and organizations. **Tasks** carry due dates and link to any of the other types.
+**Contacts** are people, with channel identifiers (email address, phone, LinkedIn, WhatsApp, Instagram, Telegram) that connect them to Inbox threads and power the send icons on their detail page. **Organizations** group contacts and carry the company-level relations that deals and services hang off. **Deals** track opportunities and carry linked services with per-deal quantities; the deal's total value and quantity follow from them, and a weighted value follows from the stage column when the workspace defines one (see [core concepts](/docs/concepts#how-does-a-weighted-pipeline-work)). **Services** are what you sell, linkable to deals and organizations. **Tasks** are to-dos that link to any of the other types and to assignees. Tasks have no built-in due date: add a Date custom column called "Due date" and filter or sort on it.
 
 All five share the same machinery: the same list views, the same drawer and detail page, the same custom columns, the same filters, and the same relation editing. Anything this page says about one type holds for the others.
 
-## Switching views
+## How do I switch between table and board view?
 
-Every list offers a table and a board. `#{type}-display-options` opens the switcher, which shows one labelled card per layout with a small preview of it; the board groups records by a field, and the group-by picker lists every groupable field: `singleSelect` custom columns, linked records, assigned users, and created or updated dates. A board with no grouping yet asks you to pick one and offers to create a `singleSelect` field on the spot. Sorting, search, and filters live in the same toolbar (`#{type}-search`, `#{type}-filter`). View choices persist per user and survive reloads. Mate can highlight search, filter, display options, and the stable table or board targets, but you open and change those controls yourself.
+Every list offers a table and a board. `#{type}-display-options` opens the switcher, which shows one labelled card per layout with a small preview of it; the board groups records by a field, and the group-by picker lists every groupable field: `singleSelect` custom columns, linked records, assigned users, and created or updated dates. A board with no grouping yet asks you to pick one and offers to create a `singleSelect` field on the spot. Sorting, search, and filters live in the same toolbar (`#{type}-search`, `#{type}-filter`). View choices persist per user and survive reloads. The hosted assistant can highlight search, filter, display options, and the table or board targets, but you open and change those controls yourself.
 
 The filter control opens a command palette. `#filter-palette-search` narrows the list of filterable fields as you type; picking a field opens its value page, and the value applies to the list as soon as you set it, with no separate apply step. `#filter-palette-back` returns to the field list, Escape steps back one page and closes the palette at the top level, and **Clear** removes every applied filter at once.
 
-## Custom columns and the board view
+## How do I change a deal stage or a task status on the board?
 
-Any record type can carry user-defined custom columns. There are no fixed workflow fields baked into a type, so there is no product-level deal stage or task status. `get_record_schema` returns whatever columns a workspace has configured for each type.
+Any record type can carry user-defined custom columns. There are no fixed workflow fields baked into a type, so there is no product-level deal stage or task status. A `singleSelect` custom column holds those values, and `get_record_schema` returns whatever columns a workspace has configured for each type with their option values.
 
-A `singleSelect` custom column can drive a board (kanban) view. `#{type}-display-options` switches the list between a table and a board, and the board groups by the chosen field. When that field is a `singleSelect` column, drag a record between columns to change its value; the equivalent in the drawer or detail form is to set the field and save. This applies to every record type, not only to deals.
+To change a stage in the app, open the record and set the field, or drag the card between board columns when the board groups by that column. Over MCP, call `update_deals` or `update_tasks` with the column id and the option value from `get_record_schema`; the option value is the canonical form, not the label.
 
-The demo workspace ships example columns to illustrate the pattern, for instance a "Status" column on deals and "Status" and "Priority" columns on tasks. These are seeded examples, not fixed behavior. Rename them, change their options, add more, or remove them per workspace.
+A `singleSelect` custom column can drive a board (kanban) view. `#{type}-display-options` switches the list between a table and a board, and the board groups by the chosen field. This applies to every record type, not only to deals.
 
-Records link to other records through labeled relation fields inside the form. Pick the records, then save.
+The demo workspace ships example columns to illustrate the pattern, for instance a "Stage" column on deals and "Status" and "Priority" columns on tasks. These are seeded examples, not fixed behavior. Rename them, change their options, add more, or remove them per workspace.
+
+Records link to other records through labeled relation fields inside the form. Pick the records, then save. Over MCP, `manage_record_links` adds or removes single links.
 
 ## Tips for agents
 
-- Locate controls by the stable ids above, for example `document.querySelector('#deals-add')`. Ids are identical across locales and viewports; visible labels are not.
-- To open a record, build the URL yourself: `/{type}/{id}` for the full page, or `/{type}?open={entityType}:{id}` for the drawer. Do not try to click a row.
+- The hosted assistant navigates by the target ids above (`navigate` with a target id, or with an entity and record id for a detail page) and highlights toolbar controls; it never opens the drawer for an existing record.
+- External browser clients locate controls by the stable ids, for example `document.querySelector('#deals-add')`. Ids are identical across locales and viewports; visible labels are not.
+- To open an existing record, build its page URL yourself: `/{type}/{id}`. Do not try to click a row.
 - Prefer [MCP](/docs/mcp) tools over driving the UI when a tool exists. Creating or updating a record, or changing a `singleSelect` column value, is one tool call instead of a click sequence.
 
 ## Related

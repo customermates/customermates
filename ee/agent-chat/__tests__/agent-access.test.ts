@@ -94,6 +94,10 @@ const emptyWikiCatalog = () => ({
   }),
 });
 
+const emptyCustomColumns = () => ({
+  getCustomColumns: () => Promise.resolve([]),
+});
+
 const backgroundTasks = () => ({
   dispatch: vi.fn().mockResolvedValue(undefined),
   dispatchTracked: vi.fn().mockResolvedValue("wrun_test"),
@@ -138,6 +142,7 @@ describe("agent access", () => {
       usage as never,
       entitlements as never,
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -191,6 +196,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -260,6 +266,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -293,6 +300,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -341,6 +349,7 @@ describe("agent access", () => {
       usageService() as never,
       mockEntitlementService(),
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -394,6 +403,7 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         background as never,
+        emptyCustomColumns(),
         emptyWikiCatalog(),
       ).invokeRoutine({
         clientRequestId: CLIENT_REQUEST_ID,
@@ -446,6 +456,7 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         backgroundTasks() as never,
+        emptyCustomColumns(),
         emptyWikiCatalog(),
       ).invokeRoutine({
         clientRequestId: CLIENT_REQUEST_ID,
@@ -503,6 +514,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       background as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -562,6 +574,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -623,6 +636,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -679,6 +693,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -745,6 +760,7 @@ describe("agent access", () => {
       usageService() as never,
       mockEntitlementService(),
       tasks as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -816,6 +832,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       tasks as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -866,6 +883,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -897,6 +915,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -932,6 +951,7 @@ describe("agent access", () => {
       usageService() as never,
       mockEntitlementService(),
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -967,6 +987,7 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         backgroundTasks() as never,
+        emptyCustomColumns(),
         emptyWikiCatalog(),
       ).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
@@ -1013,6 +1034,7 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         backgroundTasks() as never,
+        emptyCustomColumns(),
         emptyWikiCatalog(),
       ).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
@@ -1052,6 +1074,7 @@ describe("agent access", () => {
         usageService() as never,
         mockEntitlementService(),
         backgroundTasks() as never,
+        emptyCustomColumns(),
         emptyWikiCatalog(),
       ).invoke({
         clientRequestId: CLIENT_REQUEST_ID,

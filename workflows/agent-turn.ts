@@ -30,8 +30,10 @@ import {
   type ToolApprovalGrant,
 } from "@/ee/agent-chat/agent-approval-resume";
 import { agentUiCommandHookToken, isAgentPanelTool, toAgentUiCommandInput } from "@/ee/agent-chat/agent-ui-command";
+import { activeAgentToolNames } from "@/ee/agent-chat/agent-toolset-routing";
+import { googleThinkingProviderOptions } from "@/ee/agent-chat/agent-thinking-options";
 import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-context";
-import { buildAgentSystemPrompt } from "@/ee/agent-chat/system-prompt";
+import { buildAgentSystemPrompt, routineTriggerEventOf } from "@/ee/agent-chat/system-prompt";
 import type { AgentAiToolDefinition, AgentToolOptions } from "@/ee/agent-chat/agent-tools";
 import type { PublicWikiHomepage } from "@/features/wiki/wiki-homepage";
 import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
@@ -77,7 +79,7 @@ import { getTenantUser } from "@/core/decorators/tenant-context";
 import { runInRoutineContext } from "@/core/decorators/routine-context";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 
-import { reportFailure, toWorkflowFailure, type WorkflowFailure } from "./capture-failure";
+import { reportFailure, reportWarning, toWorkflowFailure, type WorkflowFailure } from "./capture-failure";
 
 const WORKFLOW_NAME = "agent-turn";
 
@@ -107,8 +109,10 @@ export type AgentTurnWorkflowPayload = {
   appBaseUrl: string;
   messages: ReplayMessage[];
   turnBudget: AgentTurnBudget;
+  schemaDigest?: string | null;
   tenant: WorkflowTenant;
   surface?: AgentTurnSurface;
+  toolsets?: string[];
   wikiHomepageSetup?: PublicWikiHomepage;
   wikiCatalog?: string | null;
   webSearchEnabled?: boolean;
@@ -119,6 +123,7 @@ export type AgentTurnSurface = "chat" | "routine";
 type AgentToolShell = AgentAiToolDefinition & {
   annotations: Record<string, boolean> | undefined;
   gated: boolean;
+  toolset: string | null;
 };
 
 type PendingApproval = {
@@ -191,6 +196,13 @@ function usageSettlementForTurn(payload: AgentTurnWorkflowPayload, outcome: Agen
   const measured = outcome.ledger.every((entry) => entry.measured);
   const totalCostMicrocents = outcome.ledger.reduce((total, entry) => total + entry.costMicrocents, 0);
   const unreadableReason = outcome.ledger.find((entry) => entry.unreadableReason)?.unreadableReason ?? null;
+  if (!measured && outcome.ledger.length > 0) {
+    void reportWarning(
+      WORKFLOW_NAME,
+      `Agent usage settled from modelled cost because the provider charge was unreadable (${unreadableReason ?? "no reason"}) for ${outcome.ledger.filter((entry) => !entry.measured).length} of ${outcome.ledger.length} rounds on ${payload.turnBudget.modelSpec}.`,
+      payload.tenant,
+    );
+  }
   return buildAgentUsageSettlement({
     model: payload.turnBudget.modelSpec,
     tokens: outcome.tokens,
@@ -301,23 +313,15 @@ async function loadAgentToolShells(
   options: AgentToolOptions,
 ): Promise<AgentToolShell[]> {
   "use step";
-  const { getAgentAiToolDefinitions } = await import("@/ee/agent-chat/agent-tools");
+  const { agentToolDefinitionsForTurn } = await import("@/ee/agent-chat/agent-tools");
   const { ALL_MCP_TOOLS } = await import("@/features/mcp-tools/tool-registry");
-  const { AGENT_UI_TOOL_NAMES } = await import("@/ee/agent-chat/agent-ui-command");
   const gatedByName = new Map(ALL_MCP_TOOLS.map((mcp) => [mcp.name, mcp.annotations]));
-  const unattended = isUnattendedSurface(surface);
-  const panelToolNames = new Set<string>(AGENT_UI_TOOL_NAMES);
 
-  return getAgentAiToolDefinitions(servingProvider, { ...options, surface })
-    .filter((definition) => !unattended || !panelToolNames.has(definition.name))
-    .map((definition) => ({
-      ...definition,
-      name: definition.name,
-      description: definition.description,
-      inputSchema: definition.inputSchema,
-      annotations: gatedByName.get(definition.name),
-      gated: gatedByName.has(definition.name),
-    }));
+  return agentToolDefinitionsForTurn({ surface, servingProvider, ...options }).map((definition) => ({
+    ...definition,
+    annotations: gatedByName.get(definition.name),
+    gated: gatedByName.has(definition.name),
+  }));
 }
 
 async function executeAgentTool(
@@ -388,9 +392,10 @@ async function normalizeAgentToolInput(
       input,
       resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars),
       {
+        locale: payload.locale,
         wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
         webSearchEnabled: payload.webSearchEnabled,
-        surface: payload.surface,
+        surface: payload.surface ?? "chat",
       },
     );
   });
@@ -554,6 +559,36 @@ async function readCancellation(payload: AgentTurnWorkflowPayload): Promise<bool
       companyId: payload.companyId,
     }),
   );
+}
+
+export const AGENT_RESOLVED_PROVIDER_ERROR_RETRIES = 2;
+
+async function reportResolvedProviderError(
+  payload: AgentTurnWorkflowPayload,
+  finishReason: string,
+  error: unknown,
+  attempt: number,
+): Promise<void> {
+  await reportFailure(
+    WORKFLOW_NAME,
+    toWorkflowFailure(
+      new Error(
+        `The provider resolved a round with finishReason "${finishReason}" (attempt ${attempt} of ${AGENT_RESOLVED_PROVIDER_ERROR_RETRIES + 1}): ${safeProviderErrorText(error)}`,
+      ),
+    ),
+    { companyId: payload.companyId, userId: payload.userId },
+  );
+}
+
+function safeProviderErrorText(error: unknown): string {
+  if (error === undefined || error === null) return "the provider reported no error object";
+  if (error instanceof Error) return `${error.name}: ${error.message}`;
+  if (typeof error === "string") return error;
+  try {
+    return JSON.stringify(error).slice(0, 500);
+  } catch {
+    return "an error object that could not be serialized";
+  }
 }
 
 async function publishUiCommands(
@@ -806,19 +841,26 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       if ((AGENT_TRANSCRIPT_FORWARDED_EVENTS as readonly string[]).includes(event.type)) queued.push(event);
     }, payload.appBaseUrl);
 
+    const initialToolsets = payload.toolsets ?? [];
     const systemPrompt = buildAgentSystemPrompt({
       userName: payload.userName,
-      appBaseUrl: payload.appBaseUrl,
       locale: payload.locale,
       surface,
+      loadedToolsets: initialToolsets,
+      schemaDigest: payload.schemaDigest ?? null,
+      triggerEvent: routineTriggerEventOf(payload.messages.findLast((message) => message.role === "user")?.text),
       wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
       webSearchEnabled: payload.webSearchEnabled,
     });
-    const toolDefinitions = shells.map(({ annotations: _annotations, gated: _gated, ...definition }) => definition);
+    const toolDefinitions = shells.map(
+      ({ annotations: _annotations, gated: _gated, toolset: _toolset, ...definition }) => definition,
+    );
+    const activeToolNamesFor = (stepMessages: readonly unknown[]) =>
+      activeAgentToolNames({ tools: shells, initialToolsets, messages: stepMessages });
     const providerContext = buildAgentProviderContext(
       systemPrompt,
       payload.messages,
-      toolDefinitions,
+      toolDefinitions.filter((definition) => activeToolNamesFor([])?.includes(definition.name)),
       await authorizedWikiCatalog(payload),
     );
 
@@ -844,6 +886,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       outcomes: AgentToolOutcome[];
     } | null = null;
     let providerStop: Extract<AgentTurnStopReason, "provider_error" | "content_filter"> | null = null;
+    let resolvedProviderErrorRetries = 0;
     let providerFailure: WorkflowFailure | null = null;
     let budgetStop = false;
     let hostedAiStop = false;
@@ -1052,6 +1095,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           initialMessages: providerContext.messages,
           steps: continuationSteps,
           retainedResponseSteps,
+          resultDigest: true,
         });
         const candidateMessages = continueOutput
           ? [
@@ -1062,9 +1106,16 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
               },
             ]
           : [...compacted.messages];
+        const activeForCandidate = activeToolNamesFor(candidateMessages);
         if (
           !isAgentStepContextWithinBudget(
-            { ...providerContext, system: compacted.system },
+            {
+              ...providerContext,
+              system: compacted.system,
+              tools: activeForCandidate
+                ? toolDefinitions.filter((definition) => activeForCandidate.includes(definition.name))
+                : toolDefinitions,
+            },
             candidateMessages,
             payload.turnBudget.maxContextBytes,
           )
@@ -1194,26 +1245,31 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         ),
         maxOutputTokens: payload.turnBudget.maxOutputTokens,
         ...(payload.webSearchEnabled ? { maxRetries: 0 } : {}),
-        providerOptions: getAgentProviderOptions(
-          payload.turnBudget.servingProvider,
-          payload.turnBudget.inferenceRegion,
-        ),
+        ...(payload.turnBudget.reasoningEffort ? { reasoning: payload.turnBudget.reasoningEffort } : {}),
+        providerOptions: {
+          ...getAgentProviderOptions(payload.turnBudget.servingProvider, payload.turnBudget.inferenceRegion),
+          ...googleThinkingProviderOptions(payload.turnBudget),
+        },
         prepareStep: async ({ messages: stepMessages }) => {
           if (abandoned || cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null)
             throw AGENT_LOCAL_TERMINATION_REQUIRED;
+          const activeTools = activeToolNamesFor(stepMessages);
+          const activeDefinitions = activeTools
+            ? toolDefinitions.filter((definition) => activeTools.includes(definition.name))
+            : toolDefinitions;
           if (
             !isAgentContextWithinBudget(
-              { messages: stepMessages, tools: toolDefinitions },
+              { system: instructions, messages: stepMessages, tools: activeDefinitions },
               payload.turnBudget.maxContextBytes,
             )
           )
             throw AGENT_CONTEXT_COMPACTION_REQUIRED;
           if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
-          return isUnattendedSurface(surface) && performedWrite
-            ? {
-                activeTools: shells.filter((shell) => !isAgentWebTool(shell.name)).map((shell) => shell.name),
-              }
-            : {};
+          const permittedTools =
+            isUnattendedSurface(surface) && performedWrite
+              ? activeTools.filter((toolName) => !isAgentWebTool(toolName))
+              : activeTools;
+          return permittedTools ? { activeTools: permittedTools } : {};
         },
         stopWhen: [
           isStepCount(AGENT_SEGMENT_ROUNDS),
@@ -1276,7 +1332,18 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       for (const step of (result.steps as unknown as AgentRoundResult[]).slice(appliedThisCall)) await applyRound(step);
 
       if (finishReason === "content-filter") providerStop = "content_filter";
-      else if (!["stop", "length", "tool-calls"].includes(finishReason)) providerStop = "provider_error";
+      else if (!["stop", "length", "tool-calls"].includes(finishReason)) {
+        const resolvedError = (result as { error?: unknown }).error;
+        if (resolvedProviderErrorRetries < AGENT_RESOLVED_PROVIDER_ERROR_RETRIES) {
+          resolvedProviderErrorRetries += 1;
+          await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries);
+          providerStop = null;
+          messages = result.messages;
+          continue;
+        }
+        await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries);
+        providerStop = "provider_error";
+      }
 
       for (const message of result.messages) {
         if (message.role !== "tool" || typeof message.content === "string") continue;

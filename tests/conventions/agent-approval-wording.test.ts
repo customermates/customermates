@@ -19,7 +19,6 @@ const read = (path: string) => readFileSync(join(root, path), "utf8");
 
 const chatPrompt = buildAgentSystemPrompt({
   userName: "Ada Lovelace",
-  appBaseUrl: "https://app.example.com",
   locale: "en",
   surface: "chat",
 });
@@ -55,7 +54,7 @@ describe("agent approval wording matches runtime behaviour", () => {
     expect(chatPrompt).toMatch(/save_message_draft/);
   });
 
-  it("reserves the call-to-request-approval instruction for hosted Mate", () => {
+  it("tells the hosted assistant, and only the hosted assistant, that calling raises the approval", () => {
     const instruction = "Approval is requested by calling the tool";
     expect(chatPrompt).toContain(instruction);
     expect(MCP_SERVER_INSTRUCTIONS).not.toContain(instruction);
@@ -71,17 +70,20 @@ describe("agent approval wording matches runtime behaviour", () => {
   it("requires authorization before public MCP calls without promising a hosted approval pause", () => {
     expect(MCP_SERVER_INSTRUCTIONS).toContain(MCP_ACTION_INSTRUCTION);
     expect(GET_STARTED_PROMPT).toContain(MCP_ACTION_INSTRUCTION);
-    expect(MCP_ACTION_INSTRUCTION).toContain("execute immediately once permissions allow them");
-    expect(MCP_ACTION_INSTRUCTION).toContain("does not provide Mate's hosted approval pause");
-    expect(MCP_ACTION_INSTRUCTION).toContain("obtain the user's explicit authorization");
-    expect(MCP_ACTION_INSTRUCTION).toContain("Never call a tool merely to request approval");
+    expect(MCP_ACTION_INSTRUCTION).toContain("runs immediately");
+    expect(MCP_ACTION_INSTRUCTION).toContain("never stops it to ask anyone");
+    expect(MCP_ACTION_INSTRUCTION).toContain("Get your user's confirmation yourself");
+    expect(MCP_ACTION_INSTRUCTION).toContain("before a call that deletes, sends, or reaches outside the workspace");
     expect(chatPrompt).not.toContain(MCP_ACTION_INSTRUCTION);
+  });
+
+  it("no longer instructs the hosted assistant to ask permission in prose instead of calling", () => {
+    expect(chatPrompt).not.toMatch(/Confirm with the user before/);
   });
 
   it("warns an unattended run that approvals will be declined, and does not warn an attended one", () => {
     const routinePrompt = buildAgentSystemPrompt({
       userName: "Ada Lovelace",
-      appBaseUrl: "https://app.example.com",
       locale: "en",
       surface: "routine",
     });

@@ -102,6 +102,10 @@ const emptyWikiCatalog = () => ({
   }),
 });
 
+const emptyCustomColumns = () => ({
+  getCustomColumns: () => Promise.resolve([]),
+});
+
 const backgroundTasks = () => ({
   dispatch: vi.fn().mockResolvedValue(undefined),
   dispatchTracked: vi.fn().mockResolvedValue("wrun_test"),
@@ -229,6 +233,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
@@ -292,6 +297,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
@@ -354,6 +360,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
@@ -422,6 +429,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
@@ -474,6 +482,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
@@ -555,6 +564,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
@@ -594,6 +604,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
@@ -666,6 +677,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       new AgentUsageService(repo),
       entitlements as never,
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
@@ -759,6 +771,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
@@ -815,6 +828,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
@@ -888,6 +902,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
@@ -955,6 +970,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         usage,
         entitlements as never,
         backgroundTasks() as never,
+        emptyCustomColumns(),
         emptyWikiCatalog(),
       ).invoke({
         clientRequestId: randomUUID(),
@@ -999,6 +1015,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         new AgentUsageService(repo),
         entitlements as never,
         backgroundTasks() as never,
+        emptyCustomColumns(),
         emptyWikiCatalog(),
       ).invoke({
         clientRequestId: randomUUID(),
@@ -1043,6 +1060,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         new AgentUsageService(repo),
         entitlements as never,
         backgroundTasks() as never,
+        emptyCustomColumns(),
         emptyWikiCatalog(),
       ).invoke({
         clientRequestId: randomUUID(),
@@ -1080,6 +1098,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         new AgentUsageService(repo),
         entitlements as never,
         backgroundTasks() as never,
+        emptyCustomColumns(),
         emptyWikiCatalog(),
       ).invoke({
         clientRequestId: randomUUID(),
@@ -1151,6 +1170,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         new AgentUsageService(failingRepo),
         entitlements as never,
         backgroundTasks() as never,
+        emptyCustomColumns(),
         emptyWikiCatalog(),
       ).invoke({
         clientRequestId,
@@ -1185,6 +1205,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       new AgentUsageService(retryRepo),
       entitlements as never,
       backgroundTasks() as never,
+      emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId,

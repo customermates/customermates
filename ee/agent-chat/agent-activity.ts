@@ -5,6 +5,7 @@ import type { AgentToolIdentity } from "./tool-identity";
 import { internalToolIdentity, isInternalToolIdentity } from "./tool-identity";
 
 import { sanitizeAgentVisibleText } from "./agent-output-safety";
+import { LOAD_TOOLSET_TOOL_NAME } from "./agent-toolset-routing";
 
 export type AgentTranslator = (key: string, values?: Record<string, string | number>) => string;
 
@@ -46,6 +47,12 @@ export const AGENT_ACTIVITY_KINDS = [
   "interface.navigate",
   "interface.tour",
   "interface.interact",
+  "tools.load",
+  "routines.read",
+  "routines.create",
+  "routines.update",
+  "routines.delete",
+  "routines.configure",
   "support.escalate",
   "generic",
 ] as const;
@@ -82,6 +89,9 @@ export const AGENT_CONSEQUENCE_ACTIONS = [
   "webhook.delete",
   "webhook.resend",
   "webhook.inspect",
+  "routine.pause",
+  "routine.run",
+  "routine.delete",
   "records.delete",
   "records.link",
   "workspace.configure",
@@ -245,8 +255,9 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
   const details = inputRecord(input);
 
   if (toolName === "list_ui_targets") return descriptor("interface.inspect", undefined, "read");
+  if (toolName === LOAD_TOOLSET_TOOL_NAME) return descriptor("tools.load", undefined, "read");
   if (toolName === "get_workspace_context") return descriptor("workspace.inspect", undefined, "read");
-  if (toolName === "navigate" || toolName === "highlight_element" || toolName === "open_record")
+  if (toolName === "navigate" || toolName === "highlight_element")
     return descriptor("interface.navigate", undefined, "read");
   if (toolName === "configure_view") return descriptor("interface.interact", undefined, "read");
   if (toolName === "start_tour") return descriptor("interface.tour", undefined, "read");
@@ -293,6 +304,31 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
       "widgets",
       isMultiplexedRead(toolName, details) ? "read" : multiplexedRisk(toolName, details),
     );
+  }
+  if (toolName === "manage_routines") {
+    const action = actionValue(details);
+    const kind: AgentActivityKind =
+      action === "list" || action === "runs"
+        ? "routines.read"
+        : action === "create"
+          ? "routines.create"
+          : action === "update"
+            ? "routines.update"
+            : action === "delete"
+              ? "routines.delete"
+              : "routines.configure";
+    const consequenceAction =
+      action === "pause"
+        ? "routine.pause"
+        : action === "run_now"
+          ? "routine.run"
+          : action === "delete"
+            ? "routine.delete"
+            : undefined;
+    const risk = isMultiplexedRead(toolName, details) ? "read" : multiplexedRisk(toolName, details);
+    return consequenceAction
+      ? descriptor(kind, undefined, risk, [], { action: consequenceAction })
+      : descriptor(kind, undefined, risk);
   }
   if (isMultiplexedRead(toolName, details)) return descriptor("workspace.read", undefined, "read");
   if (toolName === "update_workspace_settings") {
@@ -350,14 +386,14 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
           : action === "cancel"
             ? "social.cancel"
             : "external.manage";
-    return descriptor("generic", undefined, "sensitive", [], {
+    return descriptor("generic", undefined, multiplexedRisk(toolName, details), [], {
       action: consequenceAction,
       target: safeText(details.targetLabel, 120),
       preview: action === "invite" ? safeText(details.message, 240) : undefined,
     });
   }
   if (toolName === "linkedin_manage_sales_lists") {
-    return descriptor("generic", undefined, "sensitive", [], {
+    return descriptor("generic", undefined, multiplexedRisk(toolName, details), [], {
       action: actionValue(details) === "save" ? "salesList.save" : "external.manage",
       target: safeText(details.targetLabel, 120),
       state: safeText(details.listLabel, 80),
@@ -393,7 +429,7 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
     });
   }
   if (toolName === "discard_message_draft") {
-    return descriptor("messages.discard", "messages", "sensitive", ["messages"], {
+    return descriptor("messages.discard", "messages", "write", ["messages"], {
       action: "draft.discard",
     });
   }
@@ -404,7 +440,7 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
     });
   }
   if (toolName === "move_email_thread")
-    return descriptor("messages.triage", "messages", "sensitive", ["messages"], { action: "thread.move" });
+    return descriptor("messages.triage", "messages", "write", ["messages"], { action: "thread.move" });
 
   if (
     toolName === "get_record_schema" ||
@@ -450,11 +486,30 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
 
 type ActivityCopy = {
   running: string;
+  approval: string;
   done: string;
   error: string;
   cancelled: string;
   detail?: string;
 };
+
+export const AGENT_APPROVAL_COPY_KINDS: readonly AgentActivityKind[] = [
+  "generic",
+  "records.delete",
+  "customFields.configure",
+  "customFields.delete",
+  "widgets.configure",
+  "widgets.delete",
+  "support.escalate",
+  "messages.discard",
+  "messages.draft",
+  "messages.send",
+  "messages.triage",
+  "team.manage",
+  "webhooks.manage",
+  "routines.configure",
+  "routines.delete",
+];
 
 function countedResourceCopy(
   count: number | undefined,
@@ -504,6 +559,12 @@ function agentConsequenceDetail(
       return t("AgentChat.activity.consequence.draftDiscard");
     case "thread.move":
       return t("AgentChat.activity.consequence.threadMove");
+    case "routine.pause":
+      return t("AgentChat.activity.consequence.routinePause");
+    case "routine.run":
+      return t("AgentChat.activity.consequence.routineRun");
+    case "routine.delete":
+      return t("AgentChat.activity.consequence.routineDelete");
     case "thread.update":
       return consequence.state
         ? t("AgentChat.activity.consequence.threadUpdateState", {
@@ -611,8 +672,17 @@ export function agentActivityCopy(
       target: mutationTarget,
     });
 
+  const approval = AGENT_APPROVAL_COPY_KINDS.includes(activity.kind)
+    ? t(`AgentChat.activity.approval.${activity.kind}`, {
+        count: activity.count ?? 0,
+        resource: resource ?? t("AgentChat.activity.yourRecords"),
+        target: mutationTarget,
+      })
+    : state("running");
+
   return {
     running: state("running"),
+    approval,
     done: state("done"),
     error: state("error"),
     cancelled: t("AgentChat.activity.cancelled"),

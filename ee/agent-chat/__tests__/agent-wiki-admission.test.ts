@@ -25,7 +25,7 @@ vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 vi.mock("@/ee/agent-chat/agent-tools", () => ({
-  getAgentAiToolDefinitions: definitions,
+  agentToolDefinitionsForTurn: definitions,
 }));
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve({ raw: (key: string) => key }),
@@ -150,6 +150,7 @@ function fixture() {
     usage as never,
     mockEntitlementService(),
     background as never,
+    { getCustomColumns: () => Promise.resolve([]) },
     catalog,
   );
   const payload = () => {
@@ -190,7 +191,6 @@ describe("Workspace Wiki admission bootstrap", () => {
     expect(payload.surface).toBe(surface);
     const systemPrompt = buildAgentSystemPrompt({
       userName: payload.userName,
-      appBaseUrl: payload.appBaseUrl,
       locale: payload.locale,
       surface,
       wikiHomepageSetup: false,
@@ -305,7 +305,6 @@ describe("Workspace Wiki admission bootstrap", () => {
 
       const systemPrompt = buildAgentSystemPrompt({
         userName: payload.userName,
-        appBaseUrl: payload.appBaseUrl,
         locale: payload.locale,
         surface,
         wikiHomepageSetup: false,

@@ -25,6 +25,39 @@
   },
   "AgentChat": {
     "activity": {
+      "approval": {
+        "customFields": {
+          "configure": "Listo para cambiar los campos personalizados",
+          "delete": "Listo para eliminar de forma permanente un campo personalizado"
+        },
+        "generic": "Listo para hacer un cambio que necesita tu aprobación",
+        "messages": {
+          "discard": "Listo para descartar el borrador",
+          "draft": "Listo para guardar un borrador",
+          "send": "Listo para enviar un mensaje real",
+          "triage": "Listo para cambiar el estado de la conversación"
+        },
+        "records": {
+          "delete": "{count, plural, one {Listo para eliminar de forma permanente {target}} other {Listo para eliminar de forma permanente {target}}}"
+        },
+        "routines": {
+          "configure": "Listo para pausar o ejecutar la rutina",
+          "delete": "Listo para eliminar la rutina y su historial"
+        },
+        "support": {
+          "escalate": "Listo para enviar tu solicitud al soporte por correo"
+        },
+        "team": {
+          "manage": "Listo para cambiar el acceso del equipo"
+        },
+        "webhooks": {
+          "manage": "Listo para cambiar la entrega del webhook"
+        },
+        "widgets": {
+          "configure": "Listo para cambiar los widgets del panel",
+          "delete": "Listo para eliminar de forma permanente un widget del panel"
+        }
+      },
       "cancelled": "Detenido",
       "consequence": {
         "accountConnect": "Conectar un canal de mensajería",
@@ -37,6 +70,9 @@
         "recordsDelete": "Esta acción no se puede deshacer.",
         "recordsLink": "Vincular registros",
         "recordsUnlink": "Eliminar vínculos",
+        "routineDelete": "Eliminar definitivamente la rutina seleccionada y su historial",
+        "routinePause": "Pausar la rutina seleccionada",
+        "routineRun": "Ejecutar ahora la rutina seleccionada",
         "salesListSave": "Añadir el prospecto seleccionado a una lista de Sales Navigator",
         "salesListSaveTarget": "Añadir {target} a la lista {list} de Sales Navigator",
         "socialAccept": "Aceptar la solicitud de conexión seleccionada",
@@ -167,12 +203,12 @@
           "discard": {
             "done": "Borrador descartado",
             "error": "No se pudo descartar el borrador",
-            "running": "Listo para descartar el borrador"
+            "running": "Descartando el borrador"
           },
           "draft": {
             "done": "Borrador guardado",
             "error": "No se pudo guardar el borrador",
-            "running": "Listo para guardar un borrador"
+            "running": "Guardando un borrador"
           },
           "read": {
             "done": "Conversaciones revisadas",
@@ -182,12 +218,12 @@
           "send": {
             "done": "Mensaje enviado",
             "error": "No se pudo enviar el mensaje",
-            "running": "Listo para enviar un mensaje real"
+            "running": "Enviando el mensaje"
           },
           "triage": {
             "done": "Estado de la conversación cambiado",
             "error": "No se pudo cambiar el estado de la conversación",
-            "running": "Listo para cambiar el estado de la conversación"
+            "running": "Cambiando el estado de la conversación"
           }
         },
         "profile": {
@@ -229,6 +265,33 @@
             "running": "{count, plural, one {Actualizando {target}} other {Actualizando {target}}}"
           }
         },
+        "routines": {
+          "configure": {
+            "done": "Programación de la rutina cambiada",
+            "error": "No se pudo cambiar la programación de la rutina",
+            "running": "Cambiando la programación de la rutina"
+          },
+          "create": {
+            "done": "Rutina creada",
+            "error": "No se pudo crear la rutina",
+            "running": "Creando una rutina"
+          },
+          "delete": {
+            "done": "Rutina eliminada",
+            "error": "No se pudo eliminar la rutina",
+            "running": "Eliminando la rutina"
+          },
+          "read": {
+            "done": "Rutinas consultadas",
+            "error": "No se pudieron consultar las rutinas",
+            "running": "Consultando rutinas"
+          },
+          "update": {
+            "done": "Rutina actualizada",
+            "error": "No se pudo actualizar la rutina",
+            "running": "Actualizando la rutina"
+          }
+        },
         "support": {
           "escalate": {
             "done": "Correo de soporte aceptado para su envío",
@@ -240,7 +303,14 @@
           "manage": {
             "done": "Acceso del equipo modificado",
             "error": "No se pudo cambiar el acceso del equipo",
-            "running": "Listo para cambiar el acceso del equipo"
+            "running": "Cambiando el acceso del equipo"
+          }
+        },
+        "tools": {
+          "load": {
+            "done": "Herramientas adicionales cargadas",
+            "error": "No se pudieron cargar más herramientas",
+            "running": "Cargando más herramientas"
           }
         },
         "web": {
@@ -254,7 +324,7 @@
           "manage": {
             "done": "Acción de webhook completada",
             "error": "No se pudo completar la acción de webhook",
-            "running": "Listo para cambiar la entrega del webhook"
+            "running": "Cambiando la entrega del webhook"
           }
         },
         "widgets": {

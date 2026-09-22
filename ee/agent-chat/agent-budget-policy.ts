@@ -8,7 +8,7 @@ import {
 } from "./model-catalog";
 import { resolveModelPricing } from "./model-pricing";
 
-export const AGENT_RESERVATION_ROUNDS_AHEAD = 4;
+export const AGENT_RESERVATION_ROUNDS_AHEAD = 2;
 export const AGENT_MAX_TOOL_RESULT_CHARS = 6000;
 export const AGENT_MIN_CONTEXT_TOKENS_PER_STEP = 8_000;
 
@@ -24,6 +24,8 @@ export type AgentTurnBudget = {
   maxContextTokens: number;
   maxContextBytes: number;
   maxToolResultChars: number;
+  reasoningEffort?: AgentModelEntry["reasoningEffort"];
+  thinkingLevel?: AgentModelEntry["thinkingLevel"];
 };
 
 export function agentContextBytesToTokens(bytes: number) {
@@ -74,18 +76,24 @@ export function resolveAgentTurnBudget(args: {
   if (agentContextBytesToTokens(requiredContextBytes) > entry.maxContextTokens) return null;
 
   const roundReserveCredits = agentRoundWorstCaseCredits(entry);
-  if (args.availableCredits < roundReserveCredits) return null;
+  const firstRoundReserveCredits =
+    args.requiredContextBytes === undefined
+      ? roundReserveCredits
+      : Math.min(roundReserveCredits, agentRoundWorstCaseCreditsForContextBytes(entry, requiredContextBytes));
+  if (args.availableCredits < firstRoundReserveCredits) return null;
 
   return {
     modelSpec: entry.modelId,
     servingProvider: entry.servingProvider,
     inferenceRegion: entry.inferenceRegion,
-    reservedCredits: Math.min(args.availableCredits, roundReserveCredits * AGENT_RESERVATION_ROUNDS_AHEAD),
+    reservedCredits: Math.min(args.availableCredits, firstRoundReserveCredits * AGENT_RESERVATION_ROUNDS_AHEAD),
     roundReserveCredits,
     maxOutputTokens: entry.maxOutputTokens,
     maxContextTokens: entry.maxContextTokens,
     maxContextBytes: agentContextTokensToBytes(entry.maxContextTokens),
     maxToolResultChars: Math.min(entry.maxToolResultChars, AGENT_MAX_TOOL_RESULT_CHARS),
+    ...(entry.reasoningEffort ? { reasoningEffort: entry.reasoningEffort } : {}),
+    ...(entry.thinkingLevel ? { thinkingLevel: entry.thinkingLevel } : {}),
   };
 }
 

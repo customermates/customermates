@@ -17,18 +17,26 @@ import {
   RoutineTriggerEventSchema,
 } from "@/ee/routines/routine.schema";
 
-import { enumHint, mcpPage, mcpPageSize, mcpValidationFailure, runInteractor, toonResult } from "./utils";
+import {
+  enumHint,
+  MCP_PAGE_SIZE_DESCRIPTION,
+  mcpPage,
+  mcpPageSize,
+  mcpValidationFailure,
+  runInteractor,
+  toonResult,
+} from "./utils";
 
 const ManageRoutinesSchema = z.object({
   action: z
     .enum(["list", "runs", "create", "update", "pause", "run_now", "delete"])
     .describe(
-      "list = every routine with its full configuration; runs = one routine's run history; create/update/pause/run_now/delete = manage a routine",
+      "list = every routine with its full configuration (optional page, pageSize, searchTerm); runs = one routine's run history (id, optional cursor); create = name, prompt, triggerKind, enabled, plus cronExpression and timezone for a schedule or triggerEvents (optional changedFields, triggerFilters, debounceSeconds) for an event; update = id plus the fields to change; pause, run_now and delete = id.",
     ),
   id: z.uuid().optional().describe("Routine id. Required for update, pause, run_now and delete."),
   cursor: z.string().max(500).nullable().optional().describe("runs only. Page cursor from a previous runs call."),
   page: mcpPage(),
-  pageSize: mcpPageSize(25, "list only. Results per page: 5, 10, 25, or 100 (default 25)"),
+  pageSize: mcpPageSize(25, `list only. ${MCP_PAGE_SIZE_DESCRIPTION} Default 25.`),
   searchTerm: z.string().optional().describe("list only. Free-text match against the routine name."),
   name: z.string().min(1).max(ROUTINE_NAME_MAX_CHARS).optional().describe("Required on create."),
   prompt: z
@@ -98,8 +106,8 @@ export const manageRoutinesTool = {
     "action create needs name, prompt and triggerKind, plus cronExpression for a schedule, or triggerEvents for an event. " +
     "Omitting enabled on create produces a routine that is immediately LIVE and will start running, so pass enabled false to draft one. " +
     "action update changes only the fields supplied, but a change of triggerKind must arrive with that kind's schedule or events or validation fails. " +
-    "action pause disables a routine and settles its queued runs to skipped; re-enabling restores the schedule but never those runs. " +
-    "action run_now starts a scheduled routine immediately and is rejected for an event routine. " +
+    "action pause disables a routine and settles its queued runs to skipped; re-enabling restores the schedule but never those runs. Only an active system administrator may pause. " +
+    "action run_now starts a scheduled routine immediately; it is rejected for an event routine, for a routine the caller does not own, and for one that is not enabled. " +
     "action delete removes the routine and its history and is IRREVERSIBLE. " +
     "A routine whose owner has been deactivated cannot be enabled, and creating one may be refused when the owner has used their plan's per-user routine allowance.",
   annotations: {
@@ -118,7 +126,7 @@ export const manageRoutinesTool = {
           pageSize: params.pageSize,
           searchTerm: params.searchTerm,
         }),
-        (data) => toonResult({ items: data.items, total: data.pagination?.total ?? data.items.length }),
+        (data) => toonResult({ total: data.pagination?.total ?? data.items.length, items: data.items }),
       );
     }
 
@@ -128,7 +136,7 @@ export const manageRoutinesTool = {
 
       return runInteractor(
         getGetRoutineRunsInteractor().invoke({ routineId: parsed.data.id, cursor: params.cursor }),
-        (data) => toonResult({ items: data.runs, nextCursor: data.nextCursor }),
+        (data) => toonResult({ nextCursor: data.nextCursor, items: data.runs }),
       );
     }
 

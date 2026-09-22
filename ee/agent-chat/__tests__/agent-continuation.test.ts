@@ -3,11 +3,14 @@ import { describe, expect, it } from "vitest";
 
 import {
   AGENT_CONTINUATION_CHECKPOINT_MAX_BYTES,
+  AGENT_CONTINUATION_DIGEST_CHECKPOINT_MAX_BYTES,
   AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS,
   compactAgentContinuationContext,
   decideAgentContinuationLoop,
+  digestAgentToolResult,
   serializeAgentContinuationCheckpoint,
   summarizeAgentContinuationStep,
+  summarizeAgentContinuationSteps,
   type AgentContinuationStep,
 } from "../agent-continuation";
 
@@ -333,5 +336,51 @@ describe("agent continuation decisions", () => {
     ["other", "provider_error"],
   ] as const)("maps the %s finish reason to the technical %s stop", (finishReason, reason) => {
     expect(advance([step([], finishReason)])).toMatchObject({ action: "error", reason });
+  });
+});
+
+describe("agent continuation result digest", () => {
+  const listResult = {
+    ok: true,
+    result:
+      "total: 42\nsums:\n  totalValue: 123456.5\n  weightedValue: 9000\npage: 1\npageSize: 25\nitems[2]{id,name,totalValue}:\n  00000000-0000-4000-8000-000000000001,Nova Expansion,100\n  00000000-0000-4000-8000-000000000002,Acme Renewal,200",
+  };
+
+  it("keeps the numeric facts of a successful read and nothing else", () => {
+    expect(digestAgentToolResult(listResult)).toBe(
+      "total=42 page=1 pageSize=25 items=2 sums.totalValue=123456.5 sums.weightedValue=9000",
+    );
+    expect(
+      digestAgentToolResult({ ok: true, result: "requested: 2\nfound: 2\nfailed: 0\nitems[1]{id,name}:\n  a,b" }),
+    ).toBe("requested=2 found=2 failed=0 items=1");
+    expect(digestAgentToolResult({ ok: false, result: "total: 5 private" })).toBeNull();
+    expect(digestAgentToolResult({ ok: true, result: "Loaded messaging: send_email" })).toBeNull();
+    expect(digestAgentToolResult("plain")).toBeNull();
+  });
+
+  it("carries the digest into the checkpoint only when enabled and never for failures", () => {
+    const steps = [
+      step([
+        { name: "list_records", input: { entity: "deal" }, output: listResult },
+        { name: "create_contacts", input: [{ firstName: "x" }], output: { ok: false, result: "total: 9 nope" } },
+      ]),
+    ];
+    const withDigest = summarizeAgentContinuationSteps(steps, { resultDigest: true }).flat();
+    expect(withDigest[0]?.resultDigest).toContain("total=42");
+    expect(withDigest[0]?.resultDigest).not.toContain("Nova");
+    expect(withDigest[0]?.resultDigest).not.toContain("00000000");
+    expect(withDigest[1]?.resultDigest).toBeUndefined();
+    const withoutDigest = summarizeAgentContinuationSteps(steps).flat();
+    expect(withoutDigest[0]?.resultDigest).toBeUndefined();
+
+    const compacted = compactAgentContinuationContext({
+      system: "system",
+      initialMessages: [{ role: "user", content: "request" }],
+      steps: [...steps, step([], "tool-calls", "recent-1"), step([], "tool-calls", "recent-2")],
+      resultDigest: true,
+    });
+    expect(compacted.system).toContain("total=42");
+    expect(compacted.system).not.toContain("Nova Expansion");
+    expect(compacted.checkpointBytes).toBeLessThanOrEqual(AGENT_CONTINUATION_DIGEST_CHECKPOINT_MAX_BYTES);
   });
 });

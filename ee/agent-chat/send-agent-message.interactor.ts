@@ -7,8 +7,8 @@ import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { type Validated } from "@/core/validation/validation.utils";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { env } from "@/env";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
+import { env } from "@/env";
 
 import { resolveUserLocale } from "@/i18n/user-locale";
 import { AgentConversationOrigin } from "@/generated/prisma";
@@ -25,12 +25,16 @@ import type { AgentRunContext } from "./agent-run-context";
 import type { AgentUsageService } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { AGENT_RUN_LEASE_MS, decideAgentTurnAdmission, type AgentTurnRequestSnapshot } from "./agent-turn-request";
-import { buildAgentSystemPrompt } from "./system-prompt";
-import { getAgentAiToolDefinitions } from "./agent-tools";
+import { buildAgentSystemPrompt, routineTriggerEventOf } from "./system-prompt";
+import { agentToolDefinitionsForTurn } from "./agent-tools";
+import { toolsetsForRequest, toolsetsFromActivities } from "./agent-toolset-routing";
+import { AgentActivityDescriptorSchema, type AgentActivityDescriptor } from "./agent-activity";
 import { conservativeAgentInitialContextBytes } from "./agent-provider-context";
+import { renderAgentSchemaDigest } from "./agent-schema-digest";
 import { AGENT_REPLAY_COUNT, budgetAgentReplayHistory } from "./agent-replay-budget";
 import { isAgentModelKey, resolveAgentModel } from "./model-catalog";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
+import type { GetCustomColumnsRepo } from "@/features/custom-column/get-custom-columns.interactor";
 import { fail, failConflict, failNotFound, failRateLimit } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { GetWikiCatalogInteractor } from "@/features/wiki/get-wiki-catalog.interactor";
@@ -66,6 +70,20 @@ export type SendAgentMessageResult =
       retryAllowed: boolean;
     };
 
+function activitiesInMessages(messages: readonly { parts: unknown }[]): AgentActivityDescriptor[] {
+  const activities: AgentActivityDescriptor[] = [];
+  for (const message of messages) {
+    if (!Array.isArray(message.parts)) continue;
+    for (const part of message.parts) {
+      const candidate = part as { type?: unknown; activity?: unknown };
+      if (candidate?.type !== "activity") continue;
+      const parsed = AgentActivityDescriptorSchema.safeParse(candidate.activity);
+      if (parsed.success) activities.push(parsed.data);
+    }
+  }
+  return activities;
+}
+
 @TenantInteractor()
 export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgentMessageData, SendAgentMessageResult> {
   constructor(
@@ -73,9 +91,19 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     private usageService: AgentUsageService,
     private entitlements: EntitlementService,
     private backgroundTaskService: BackgroundTaskService,
+    private customColumns: GetCustomColumnsRepo,
     private wikiCatalog: Pick<GetWikiCatalogInteractor, "invoke">,
   ) {
     super();
+  }
+
+  private async schemaDigest() {
+    try {
+      return renderAgentSchemaDigest(await this.customColumns.getCustomColumns());
+    } catch (error) {
+      Sentry.captureException(error);
+      return null;
+    }
   }
 
   @Write({
@@ -239,18 +267,24 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
     const locale = data.locale ?? resolveUserLocale(user);
+    const requestedToolsets = toolsetsForRequest({ text: data.text, pageRoute });
+    const schemaDigest = await this.schemaDigest();
     const requiredContextBytes = conservativeAgentInitialContextBytes({
       systemPrompt: buildAgentSystemPrompt({
         userName,
-        appBaseUrl: env.BASE_URL,
         locale,
         surface,
+        triggerEvent: routineTriggerEventOf(data.text),
+        schemaDigest,
         wikiHomepageSetup: Boolean(wikiHomepageSetup),
         webSearchEnabled: AGENT_WEB_SEARCH_ENABLED,
       }),
       currentText: data.text,
       pageRoute,
-      toolDefinitions: getAgentAiToolDefinitions(turnModel.servingProvider, toolOptions),
+      toolDefinitions: agentToolDefinitionsForTurn({
+        servingProvider: turnModel.servingProvider,
+        ...toolOptions,
+      }),
       wikiCatalog,
     });
     if (requiredContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");
@@ -368,6 +402,11 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
               },
       });
 
+      const priorToolsets = toolsetsFromActivities(activitiesInMessages(admission.recentMessages));
+      const earlierRequestToolsets = admission.recentMessages
+        .filter((message) => message.role === "user")
+        .flatMap((message) => [...toolsetsForRequest({ text: partsToText(message.parts), pageRoute: null })]);
+      const toolsets = [...new Set([...requestedToolsets, ...priorToolsets, ...earlierRequestToolsets])];
       const pageContext = data.pageContext ? `<page_context route="${data.pageContext.route}"/>\n` : "";
       const replayInputs = admission.recentMessages.map((message) => {
         const text = partsToText(message.parts);
@@ -399,6 +438,8 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         turnBudget: reservation.budget,
         tenant: { userId: user.id, companyId: user.companyId },
         surface,
+        toolsets,
+        ...(schemaDigest ? { schemaDigest } : {}),
         wikiHomepageSetup,
         wikiCatalog,
         webSearchEnabled: AGENT_WEB_SEARCH_ENABLED,

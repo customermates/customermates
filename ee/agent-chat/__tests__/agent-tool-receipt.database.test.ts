@@ -180,7 +180,7 @@ describeDatabase("agent tool receipts wrap a real mutation", { timeout: 120_000 
       resultMaxChars: 6000,
     });
     const normalized = await normalizeAgentAiToolInput("list_users", { searchTerm: "Receipt" }, 6000);
-    expect(normalized).toEqual({ ok: true, input: { searchTerm: "Receipt", page: 1, pageSize: 100 } });
+    expect(normalized).toEqual({ ok: true, input: { searchTerm: "Receipt", page: 1, pageSize: 25 } });
     if (!normalized.ok) throw new Error("Read normalization failed.");
 
     const unnormalized = await executeTool(tools, "list_users", { searchTerm: "Receipt" }, randomUUID());

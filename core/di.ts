@@ -1709,6 +1709,7 @@ export const getSendAgentMessageInteractor = () =>
     getAgentUsageService(),
     getEntitlementService(),
     getBackgroundTaskService(),
+    getCustomColumnRepo(),
     getGetWikiCatalogInteractor(),
   );
 

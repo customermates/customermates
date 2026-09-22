@@ -11,7 +11,6 @@ export type AgentRunContext = {
   userName: string;
   conversationId: string;
   locale: string;
-  appBaseUrl: string;
   messages: ReplayMessage[];
   turnBudget: AgentTurnBudget;
 };

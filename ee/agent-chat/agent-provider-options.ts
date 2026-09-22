@@ -12,6 +12,7 @@ export function getAgentProviderOptions(
         : { scope: "global" as const },
       zeroDataRetention: true,
       disallowPromptTraining: true,
+      caching: "auto" as const,
     },
     openai: {
       parallelToolCalls: false,
