@@ -321,6 +321,6 @@ describe("get_messaging_threads list rows", () => {
     const [first] = (result as { structuredContent: Record<string, unknown[]> }).structuredContent.items;
     expect(first).not.toHaveProperty("lastMessageFromSelf");
     expect(getMessagingThreadsTool.description).toContain("lastSentMessageFromSelf");
-    expect(getMessagingThreadsTool.description).toContain("an unsent draft does not count");
+    expect(getMessagingThreadsTool.description).toContain("null when nothing has been sent yet");
   });
 });

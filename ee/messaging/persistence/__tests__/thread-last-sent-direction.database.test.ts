@@ -143,6 +143,16 @@ describeDatabase("the latest sent message of a thread on PostgreSQL", () => {
     ]);
   });
 
+  it("says nothing was sent yet when the thread holds only a draft", async () => {
+    const threadId = await threadWith([]);
+    await saveDraftReply(threadId);
+
+    expect(await readBothWays(threadId)).toEqual([
+      { lastMessageFromSelf: true, lastSentMessageFromSelf: null },
+      { lastMessageFromSelf: true, lastSentMessageFromSelf: null },
+    ]);
+  });
+
   it("reads the newest message directly when the thread holds no draft", async () => {
     const waiting = await threadWith(["outbound", "inbound"]);
     const answered = await threadWith(["inbound", "outbound"]);

@@ -813,16 +813,16 @@ export class PrismaMessagingRepo
       ),
     );
     const sentFromSelfBehindDraft = new Map(
-      draftLed.map((threadId, index) => [
-        threadId,
-        latestSent[index]?.direction === MessagingMessageDirection.outbound,
-      ]),
+      draftLed.map((threadId, index) => {
+        const sent = latestSent[index];
+        return [threadId, sent ? sent.direction === MessagingMessageDirection.outbound : null] as const;
+      }),
     );
 
     return this.hydrateThreadContacts(rows.map((row) => this.mapThreadRow(row, sentFromSelfBehindDraft.get(row.id))));
   }
 
-  private mapThreadRow(row: ThreadRow, sentFromSelfBehindDraft?: boolean) {
+  private mapThreadRow(row: ThreadRow, sentFromSelfBehindDraft?: boolean | null) {
     const { messages, participants, connectedAccount, lastMessagePreview, lastMessageIsSender, ...rest } = row;
     const last = messages[0];
     const previewSource =
@@ -860,7 +860,7 @@ export class PrismaMessagingRepo
         ? last.direction === MessagingMessageDirection.outbound
         : (lastMessageIsSender ?? false),
       lastSentMessageFromSelf: last?.isDraft
-        ? (sentFromSelfBehindDraft ?? false)
+        ? (sentFromSelfBehindDraft ?? null)
         : last
           ? last.direction === MessagingMessageDirection.outbound
           : (lastMessageIsSender ?? false),

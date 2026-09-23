@@ -50567,8 +50567,15 @@
             "type": "boolean"
           },
           "lastSentMessageFromSelf": {
-            "default": false,
-            "type": "boolean"
+            "default": null,
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "lastMessageSenderName": {
             "default": null,
@@ -55356,8 +55363,15 @@
             "type": "boolean"
           },
           "lastSentMessageFromSelf": {
-            "default": false,
-            "type": "boolean"
+            "default": null,
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "lastMessageSenderName": {
             "default": null,
