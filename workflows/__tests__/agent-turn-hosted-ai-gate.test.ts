@@ -190,6 +190,7 @@ vi.mock("../capture-failure", () => ({
 }));
 
 import { runAgentTurn, type AgentTurnWorkflowPayload } from "../agent-turn";
+import { approvalDenialReason } from "@/ee/agent-chat/agent-approval-resume";
 
 const payload: AgentTurnWorkflowPayload = {
   turnRequestId: "turn-1",
@@ -1091,11 +1092,13 @@ describe("agent-turn authoritative tool inputs", () => {
       state.normalize.mockResolvedValue({ ok: true, input: normalized });
       state.readApproval.mockResolvedValue(decision === "timeout" ? null : { toolName: "delete_records", decision });
       let round = 0;
+      let resumed = "";
       state.runTools = async ({ tools, messages }) => {
         if (round++ === 0) {
           expect(await tools.delete_records.needsApproval(raw, { toolCallId: "call-1" })).toBe(true);
           return { finishReason: "tool-calls", messages: [pendingMessage("delete_records", raw)], steps: [] };
         }
+        resumed = JSON.stringify(messages);
         expect(JSON.stringify(messages)).toContain(`"approved":${decision === "approve"}`);
         if (decision === "approve") {
           expect(await tools.delete_records.needsApproval(raw, { toolCallId: "call-1" })).toBe(true);
@@ -1117,8 +1120,34 @@ describe("agent-turn authoritative tool inputs", () => {
       );
       if (decision === "approve") expect(state.execute).toHaveBeenCalledWith(normalized, expect.anything());
       else expect(state.execute).not.toHaveBeenCalled();
+      if (decision === "approve") expect(resumed).not.toContain('"reason"');
+      else expect(resumed).toContain(JSON.stringify(approvalDenialReason(decision as "reject" | "timeout")));
     },
   );
+
+  it("tells the model an unattended run declined the approval automatically", async () => {
+    define("delete_records");
+    const raw = { entity: "contact", ids: ["original"] };
+    state.normalize.mockResolvedValue({ ok: true, input: raw });
+    state.readApproval.mockResolvedValue(null);
+    let round = 0;
+    let resumed = "";
+    state.runTools = async ({ tools, messages }) => {
+      if (round++ === 0) {
+        await tools.delete_records.needsApproval(raw, { toolCallId: "call-1" });
+        return { finishReason: "tool-calls", messages: [pendingMessage("delete_records", raw)], steps: [] };
+      }
+      resumed = JSON.stringify(messages);
+      return finish();
+    };
+
+    await runAgentTurn({ ...payload, surface: "routine" });
+
+    expect(round).toBe(2);
+    expect(resumed).toContain(JSON.stringify(approvalDenialReason("timeout", "routine")));
+    expect(resumed).not.toContain(JSON.stringify(approvalDenialReason("timeout")));
+    expect(state.execute).not.toHaveBeenCalled();
+  });
 
   it.each([true, false])("validates panel commands before emission (valid=%s)", async (valid) => {
     define("navigate");

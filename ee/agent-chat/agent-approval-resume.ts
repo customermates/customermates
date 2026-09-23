@@ -1,5 +1,8 @@
 import type { ApprovalDecision } from "./agent-tools";
+import type { AgentSurface } from "./agent-surface-policy";
 import type { ModelMessage } from "ai";
+
+import { isUnattendedSurface } from "./agent-surface-policy";
 
 export type ToolApprovalGrant = "approve" | "not-required";
 
@@ -60,7 +63,22 @@ export function pendingApprovalCalls(messages: ModelMessage[]): PendingApprovalC
   return pending;
 }
 
-export function withApprovalResponses(messages: ModelMessage[], outcomes: AgentApprovalOutcome[]): ModelMessage[] {
+export function approvalDenialReason(
+  decision: Exclude<AgentApprovalOutcome["decision"], "approve">,
+  surface: AgentSurface = "chat",
+): string {
+  if (decision === "reject")
+    return "The user declined this action, so nothing was changed. Do not request it again; tell the user it was not done, and ask before trying anything else instead.";
+  if (isUnattendedSurface(surface))
+    return "Nobody is watching this run, so the approval was declined automatically and nothing was changed. Do not ask for approval; report what was not done and why.";
+  return "The approval request got no answer in time, so nothing was changed. Tell the user it was not done; they can ask for it again.";
+}
+
+export function withApprovalResponses(
+  messages: ModelMessage[],
+  outcomes: AgentApprovalOutcome[],
+  surface: AgentSurface = "chat",
+): ModelMessage[] {
   const next: ModelMessage[] = messages.filter((message) => message.role !== "system");
 
   let assistantIndex = -1;
@@ -90,6 +108,7 @@ export function withApprovalResponses(messages: ModelMessage[], outcomes: AgentA
     type: "tool-approval-response" as const,
     approvalId: agentApprovalId(outcome.toolCallId),
     approved: outcome.decision === "approve",
+    ...(outcome.decision === "approve" ? {} : { reason: approvalDenialReason(outcome.decision, surface) }),
   }));
 
   const last = next.at(-1);

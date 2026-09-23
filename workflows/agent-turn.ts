@@ -1361,7 +1361,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           },
         })),
       );
-      messages = withApprovalResponses(resumableMessages, outcomes);
+      messages = withApprovalResponses(resumableMessages, outcomes, surface);
     }
 
     if (abandoned) {

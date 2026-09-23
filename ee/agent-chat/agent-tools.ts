@@ -15,6 +15,7 @@ import { agentToolResultText } from "./agent-budget-policy";
 import { isReadOnlyTool, requiresApproval } from "./gated-tools";
 import { AGENT_UI_TOOL_NAMES, toAgentUiCommandInput } from "./agent-ui-command";
 import { isUnattendedSurface, type AgentSurface } from "./agent-surface-policy";
+import { approvalDenialReason } from "./agent-approval-resume";
 import {
   AGENT_ON_DEMAND_TOOLSETS,
   AGENT_TOOLSET_SUMMARY,
@@ -83,10 +84,7 @@ function declineResult(decision: Exclude<ApprovalDecision, "approve">): AgentToo
   return {
     agentToolStatus: "cancelled",
     reason: decision === "reject" ? "rejected" : "timeout",
-    message:
-      decision === "reject"
-        ? "The user declined this action, so nothing was changed. Ask what they would like to do instead."
-        : "The approval request timed out, so nothing was changed.",
+    message: approvalDenialReason(decision),
   };
 }
 

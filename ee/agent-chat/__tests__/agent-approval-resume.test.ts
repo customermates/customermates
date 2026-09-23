@@ -1,11 +1,15 @@
 import type { ModelMessage } from "ai";
 
-import { describe, expect, it } from "vitest";
+import { createGateway } from "@ai-sdk/gateway";
+import { streamText, tool } from "ai";
+import { describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 
 import {
   agentApprovalHookToken,
   agentApprovalId,
   agentApprovalRequestId,
+  approvalDenialReason,
   isRelevantAgentApprovalWake,
   pendingApprovalCalls,
   toolApprovalDecisionForGrant,
@@ -144,6 +148,64 @@ describe("agent approval resume", () => {
 
     const responses = resumed.at(-1) as { content: { approved: boolean }[] };
     expect(responses.content[0].approved).toBe(false);
+  });
+
+  it("tells the model why an approval was not granted: declined, timed out, or unattended", () => {
+    const deny = (decision: "reject" | "timeout", surface?: "chat" | "routine") => {
+      const resumed = withApprovalResponses(
+        [
+          { role: "user", content: "do it" },
+          assistantWithCalls({ id: "wipe", name: "delete_records" }),
+        ] as ModelMessage[],
+        [{ toolCallId: "wipe", decision }],
+        surface,
+      );
+      return (resumed.at(-1) as { content: { reason?: string }[] }).content[0].reason;
+    };
+
+    expect(deny("reject")).toBe(approvalDenialReason("reject"));
+    expect(deny("reject")).toMatch(/declined[^.]*nothing was changed\. Do not request it again/);
+    expect(deny("timeout")).toMatch(/no answer in time/);
+    expect(deny("timeout", "routine")).toMatch(/declined automatically[^.]*\. Do not ask for approval/);
+    expect(deny("reject", "routine")).toBe(deny("reject"));
+    for (const reason of [deny("reject"), deny("timeout"), deny("timeout", "routine")])
+      expect(reason).toContain("nothing was changed");
+  });
+
+  it("puts the reason for a declined approval into the request the gateway receives", async () => {
+    const bodies: string[] = [];
+    const fetch = vi.fn((_url: RequestInfo | URL, init?: RequestInit) => {
+      bodies.push(String(init?.body));
+      return Promise.resolve(
+        new Response(JSON.stringify({ error: { message: "stop", type: "internal_server_error" } }), { status: 500 }),
+      );
+    });
+    const gateway = createGateway({ apiKey: "test-key", fetch: fetch as typeof globalThis.fetch });
+    const resumed = withApprovalResponses(
+      [
+        { role: "user", content: "delete it" },
+        assistantWithCalls({ id: "wipe", name: "delete_records" }),
+      ] as ModelMessage[],
+      [{ toolCallId: "wipe", decision: "reject" }],
+    );
+
+    const result = streamText({
+      model: gateway("google/gemini-3.5-flash-lite"),
+      messages: resumed,
+      tools: {
+        delete_records: tool({
+          inputSchema: z.object({ id: z.string() }),
+          needsApproval: true,
+          execute: () => "deleted",
+        }),
+      },
+      maxRetries: 0,
+    });
+    await result.consumeStream({ onError: () => undefined });
+
+    expect(bodies.length).toBeGreaterThan(0);
+    expect(bodies[0]).toContain('"type":"execution-denied"');
+    expect(bodies[0]).toContain(JSON.stringify(approvalDenialReason("reject")).slice(1, -1));
   });
 
   it("refuses a tool that reaches execution without a granted approval", () => {
