@@ -106,7 +106,7 @@ const initialState: RootStoreInitialState = {
     activeUsers: 1,
     trialEndDate: null,
     currentPeriodEnd: null,
-    customerPortalUrl: null,
+    hasBillingPortal: false,
     hasActiveSubscription: true,
   },
 };

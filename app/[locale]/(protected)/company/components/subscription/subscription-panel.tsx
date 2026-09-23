@@ -42,16 +42,14 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
   const seats = subscription?.quantity ?? subscription?.activeUsers ?? 0;
   const hasActiveSubscription = subscription?.hasActiveSubscription ?? false;
   const canManageCompany = userStore.canManage(Resource.company);
-  const hasBillingPortal = Boolean(subscription?.customerPortalUrl);
+  const hasBillingPortal = Boolean(subscription?.hasBillingPortal);
   const planHelp = !hasActiveSubscription
     ? canManageCompany
       ? t("Subscription.fieldHelp.planPicker")
       : t("Subscription.fieldHelp.planReadOnly")
     : !canManageCompany
       ? t("Subscription.fieldHelp.planReadOnly")
-      : hasBillingPortal
-        ? t("Subscription.fieldHelp.planManage", { billing: t("Subscription.manageWithLemonSqueezy") })
-        : t("Subscription.fieldHelp.planUnavailable");
+      : t("Subscription.fieldHelp.planManage", { billing: t("Subscription.manageWithLemonSqueezy") });
   const currentPeriodEndHelp = !canManageCompany
     ? t("Subscription.fieldHelp.currentPeriodEndReadOnly")
     : hasBillingPortal
@@ -63,9 +61,7 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
       : t("Subscription.fieldHelp.trialEndsReadOnly")
     : !canManageCompany
       ? t("Subscription.fieldHelp.trialEndsReadOnly")
-      : hasBillingPortal
-        ? t("Subscription.fieldHelp.trialEndsManage", { billing: t("Subscription.manageWithLemonSqueezy") })
-        : t("Subscription.fieldHelp.trialEndsUnavailable");
+      : t("Subscription.fieldHelp.trialEndsManage", { billing: t("Subscription.manageWithLemonSqueezy") });
 
   return (
     <section className="flex w-full flex-col gap-4">

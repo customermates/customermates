@@ -220,7 +220,9 @@ import { GetWidgetFilterableFieldsInteractor } from "@/features/widget/get-widge
 // Messaging interactors
 import { CreateAuthLinkInteractor } from "@/ee/messaging/connect/create-auth-link.interactor";
 import { GetMyConnectedAccountsInteractor } from "@/ee/messaging/connect/get-my-connected-accounts.interactor";
+import { CountChannelsNeedingActionInteractor } from "@/ee/messaging/connect/count-channels-needing-action.interactor";
 import { GetMyConnectedAccountsApiInteractor } from "@/ee/messaging/connect/get-my-connected-accounts-api.interactor";
+import { GetMyConnectedAccountsContextInteractor } from "@/ee/messaging/connect/get-my-connected-accounts-context.interactor";
 import { RefreshInboxInteractor } from "@/ee/messaging/inbox/refresh-inbox.interactor";
 import { DeleteConnectedAccountInteractor } from "@/ee/messaging/connect/delete-connected-account.interactor";
 import { ResyncConnectedAccountInteractor } from "@/ee/messaging/connect/resync-connected-account.interactor";
@@ -328,6 +330,7 @@ import { DeleteApiKeyInteractor } from "@/features/api-key/delete-api-key.intera
 // EE Subscription interactors
 import { CreateCheckoutSessionInteractor } from "@/ee/subscription/create-checkout-session.interactor";
 import { GetSubscriptionInteractor } from "@/ee/subscription/get-subscription.interactor";
+import { GetBillingPortalUrlInteractor } from "@/ee/subscription/get-billing-portal-url.interactor";
 import { RefreshSubscriptionInteractor } from "@/ee/subscription/refresh-subscription.interactor";
 // EE Lifecycle interactors (cron consumers)
 import { SendWelcomeAndDemoInteractor } from "@/ee/lifecycle/send-welcome-and-demo.interactor";
@@ -1186,8 +1189,14 @@ export const getCreateAuthLinkInteractor = () =>
 export const getGetMyConnectedAccountsInteractor = () =>
   new GetMyConnectedAccountsInteractor(getConnectedAccountRepo());
 
+export const getCountChannelsNeedingActionInteractor = () =>
+  new CountChannelsNeedingActionInteractor(getConnectedAccountRepo());
+
 export const getGetMyConnectedAccountsApiInteractor = () =>
   new GetMyConnectedAccountsApiInteractor(getConnectedAccountRepo());
+
+export const getGetMyConnectedAccountsContextInteractor = () =>
+  new GetMyConnectedAccountsContextInteractor(getConnectedAccountRepo());
 
 export const getDeleteConnectedAccountInteractor = () =>
   new DeleteConnectedAccountInteractor(getConnectedAccountRepo(), getMessagingService(), getEventService());
@@ -1616,8 +1625,10 @@ export const getDeleteApiKeyInteractor = () => new DeleteApiKeyInteractor(getAut
 export const getCreateCheckoutSessionInteractor = () =>
   new CreateCheckoutSessionInteractor(getSubscriptionService(), getCompanyRepo(), getUserRepo());
 
-export const getGetSubscriptionInteractor = () =>
-  new GetSubscriptionInteractor(getCompanyRepo(), getUserRepo(), getSubscriptionService(), getUserService());
+export const getGetSubscriptionInteractor = () => new GetSubscriptionInteractor(getCompanyRepo(), getUserRepo());
+
+export const getGetBillingPortalUrlInteractor = () =>
+  new GetBillingPortalUrlInteractor(getCompanyRepo(), getSubscriptionService());
 
 export const getRefreshSubscriptionInteractor = () =>
   new RefreshSubscriptionInteractor(getCompanyRepo(), getSubscriptionService(), getDeleteAccountsForPlanInteractor());
