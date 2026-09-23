@@ -148,6 +148,34 @@ describe("ambiguous write targets", () => {
     }
   });
 
+  it("does not take a reply as a choice when it names a candidate the previous message never listed", () => {
+    const threeRows: [string, string][] = [
+      [NOVA, "Nova"],
+      [NOVA_2025, "Nova East"],
+      [UNRELATED, "Nova West"],
+    ];
+    const targets = ambiguousTargetsFromMessages(
+      reads({ input: { entity: "deal", searchTerm: "Nova" }, result: table(threeRows) }),
+      request("Delete the Nova deal.", "I moved Nova East to Negotiation and Nova West to Won."),
+    );
+    expect(targets).toHaveLength(1);
+  });
+
+  it("matches names on word boundaries, never inside another word", () => {
+    const rows: [string, string][] = [
+      [NOVA, "Nova"],
+      [NOVA_2025, "Nova East"],
+    ];
+    const search = { input: { entity: "deal", searchTerm: "Nova" }, result: table(rows) };
+    expect(
+      ambiguousTargetsFromMessages(
+        reads(search),
+        request("Delete the Nova deal.", "The renovation budget for Nova East is 12,000."),
+      ),
+    ).toHaveLength(1);
+    expect(ambiguousTargetsFromMessages(reads(search), request("Plan the renovation deal."))).toEqual([]);
+  });
+
   it("widens an armed target with a later read's candidates and never narrows it", () => {
     const [wide] = ambiguousTargetsFromMessages(
       reads({

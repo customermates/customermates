@@ -12,6 +12,12 @@ const TOON_LIST_ROW = /^\s*-\s+id:\s*([0-9a-fA-F-]{36})\s*\n\s+name:\s*(?:"((?:[
 
 type Row = { id: string; name: string };
 
+function containsName(text: string, name: string): boolean {
+  if (!name) return false;
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(?<![\\p{L}\\p{N}])${escaped}(?![\\p{L}\\p{N}])`, "u").test(text);
+}
+
 export function ambiguityRequestOf(history: readonly { role: string; text: string }[]): AmbiguityRequest {
   const latestIndex = history.findLastIndex((message) => message.role === "user");
   const previousAssistant = history
@@ -107,7 +113,7 @@ function exactNameInsideAnother(needle: string, candidates: Row[]): boolean {
 function namedUniquely(latest: string, candidates: Row[]): boolean {
   return candidates.some((candidate) => {
     const name = candidate.name.toLowerCase();
-    if (!name || !latest.includes(name)) return false;
+    if (!containsName(latest, name)) return false;
     return candidates.every((other) => other === candidate || !other.name.toLowerCase().includes(name));
   });
 }
@@ -117,7 +123,7 @@ function mentionedAlone(text: string, name: string, candidates: Row[]): boolean 
     .map((candidate) => candidate.name.toLowerCase())
     .filter((other) => other !== name && other.includes(name));
   const remaining = longer.reduce((rest, other) => rest.split(other).join(" "), text);
-  return remaining.includes(name);
+  return containsName(remaining, name);
 }
 
 function answersClarification(request: AmbiguityRequest, candidates: Row[]): boolean {
@@ -125,12 +131,12 @@ function answersClarification(request: AmbiguityRequest, candidates: Row[]): boo
     mentionedAlone(request.previousAssistantText, candidate.name.toLowerCase(), candidates),
   );
   if (listed.length < 2) return false;
-  return candidates.some((candidate) => {
+  return listed.some((candidate) => {
     const name = candidate.name.toLowerCase();
-    if (!name || !request.latestUserText.includes(name)) return false;
+    if (!containsName(request.latestUserText, name)) return false;
     return candidates.every((other) => {
       const otherName = other.name.toLowerCase();
-      return other === candidate || !otherName.includes(name) || !request.latestUserText.includes(otherName);
+      return other === candidate || !otherName.includes(name) || !containsName(request.latestUserText, otherName);
     });
   });
 }
@@ -168,7 +174,7 @@ export function ambiguousTargetsFromMessages(
         if (!input) continue;
         const entity = queriedEntity(part.toolName, input);
         const phrase = nameQuery(input);
-        if (!entity || !phrase || !latest.includes(phrase.toLowerCase())) continue;
+        if (!entity || !phrase || !containsName(latest, phrase.toLowerCase())) continue;
         calls.set(part.toolCallId, { entity, phrase });
         continue;
       }
