@@ -220,6 +220,7 @@ import { GetWidgetFilterableFieldsInteractor } from "@/features/widget/get-widge
 // Messaging interactors
 import { CreateAuthLinkInteractor } from "@/ee/messaging/connect/create-auth-link.interactor";
 import { GetMyConnectedAccountsInteractor } from "@/ee/messaging/connect/get-my-connected-accounts.interactor";
+import { CountChannelsNeedingActionInteractor } from "@/ee/messaging/connect/count-channels-needing-action.interactor";
 import { GetMyConnectedAccountsApiInteractor } from "@/ee/messaging/connect/get-my-connected-accounts-api.interactor";
 import { RefreshInboxInteractor } from "@/ee/messaging/inbox/refresh-inbox.interactor";
 import { DeleteConnectedAccountInteractor } from "@/ee/messaging/connect/delete-connected-account.interactor";
@@ -1186,6 +1187,9 @@ export const getCreateAuthLinkInteractor = () =>
 
 export const getGetMyConnectedAccountsInteractor = () =>
   new GetMyConnectedAccountsInteractor(getConnectedAccountRepo());
+
+export const getCountChannelsNeedingActionInteractor = () =>
+  new CountChannelsNeedingActionInteractor(getConnectedAccountRepo());
 
 export const getGetMyConnectedAccountsApiInteractor = () =>
   new GetMyConnectedAccountsApiInteractor(getConnectedAccountRepo());
