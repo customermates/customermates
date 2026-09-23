@@ -35,6 +35,18 @@ describe("captureError", () => {
     expect(sentry.captureException).toHaveBeenCalledWith(error);
   });
 
+  it("retries the browser SDK after a failed load instead of keeping the rejected attempt", async () => {
+    vi.stubGlobal("window", {});
+    sentry.init.mockImplementationOnce(() => {
+      throw new Error("chunk failed");
+    });
+    const { loadSentry } = await import("../sentry-client");
+
+    await expect(loadSentry()).rejects.toThrow("chunk failed");
+    await expect(loadSentry()).resolves.toBeDefined();
+    expect(sentry.init).toHaveBeenCalledTimes(2);
+  });
+
   it("leaves server-side initialisation to the server instrumentation", async () => {
     const { captureError } = await import("../sentry-client");
     const error = new Error("server failure");

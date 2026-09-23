@@ -7,30 +7,35 @@ import { scrubAdIdentifiersFromEvent } from "./scrub-ad-identifiers";
 let browserSdk: Promise<typeof SentrySdk> | null = null;
 
 export function loadSentry(): Promise<typeof SentrySdk> {
-  browserSdk ??= import("@sentry/nextjs").then((Sentry) => {
-    Sentry.init({
-      dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-      integrations: (defaults) => defaults.filter((integration) => integration.name !== "BrowserTracing"),
-      tracesSampleRate: 0,
-      replaysSessionSampleRate: 0,
-      replaysOnErrorSampleRate: 0,
-      beforeSend(event, hint) {
-        if (isExpectedError(hint?.originalException)) return null;
+  browserSdk ??= import("@sentry/nextjs")
+    .then((Sentry) => {
+      Sentry.init({
+        dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+        integrations: (defaults) => defaults.filter((integration) => integration.name !== "BrowserTracing"),
+        tracesSampleRate: 0,
+        replaysSessionSampleRate: 0,
+        replaysOnErrorSampleRate: 0,
+        beforeSend(event, hint) {
+          if (isExpectedError(hint?.originalException)) return null;
 
-        if (process.env.NODE_ENV !== "production") {
-          console.error(hint?.originalException ?? event);
-          return null;
-        }
+          if (process.env.NODE_ENV !== "production") {
+            console.error(hint?.originalException ?? event);
+            return null;
+          }
 
-        const digest = errorDigest(hint?.originalException);
-        if (digest) event.tags = { ...event.tags, digest };
+          const digest = errorDigest(hint?.originalException);
+          if (digest) event.tags = { ...event.tags, digest };
 
-        return scrubAdIdentifiersFromEvent(event);
-      },
+          return scrubAdIdentifiersFromEvent(event);
+        },
+      });
+
+      return Sentry;
+    })
+    .catch((error: unknown) => {
+      browserSdk = null;
+      throw error;
     });
-
-    return Sentry;
-  });
 
   return browserSdk;
 }

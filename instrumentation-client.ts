@@ -11,27 +11,21 @@ const sentryEnabled = Boolean(process.env.NEXT_PUBLIC_SENTRY_DSN);
 // before it lands are buffered and replayed, and explicit reports go through the same loader
 // (core/errors/sentry-client.ts), so every report reaches an initialised SDK.
 const buffered: unknown[] = [];
-let installed = false;
 
 function bufferError(event: ErrorEvent) {
-  if (!installed) buffered.push(event.error ?? event.message);
-  void startSentry();
+  buffered.push(event.error ?? event.message);
+  void startSentry().catch(() => undefined);
 }
 
 function bufferRejection(event: PromiseRejectionEvent) {
-  if (!installed) buffered.push(event.reason);
-  void startSentry();
+  buffered.push(event.reason);
+  void startSentry().catch(() => undefined);
 }
 
 function startSentry(): Promise<typeof SentrySdk> {
   return loadSentry().then((Sentry) => {
-    if (!installed) {
-      installed = true;
-      if (typeof window !== "undefined") {
-        window.removeEventListener("error", bufferError);
-        window.removeEventListener("unhandledrejection", bufferRejection);
-      }
-    }
+    window.removeEventListener("error", bufferError);
+    window.removeEventListener("unhandledrejection", bufferRejection);
     for (const error of buffered.splice(0)) Sentry.captureException(error);
 
     return Sentry;
@@ -43,7 +37,7 @@ if (sentryEnabled && typeof window !== "undefined") {
   window.addEventListener("unhandledrejection", bufferRejection);
 
   const whenIdle = window.requestIdleCallback ?? ((callback: () => void) => window.setTimeout(callback, 2000));
-  whenIdle(() => void startSentry());
+  whenIdle(() => void startSentry().catch(() => undefined));
 }
 
 function routerTransitionStart(...args: unknown[]): void {
