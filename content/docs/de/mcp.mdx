@@ -107,7 +107,7 @@ Das volle JSON-Schema jedes Tools liegt live an `POST /api/v1/mcp` mit `method: 
 
 Siebzehn Tools arbeiten gegen die fünf Record-Typen (contact, organization, deal, service, task). Records tragen pro Workspace definierte Custom Columns, deshalb ist `get_record_schema` der Anker: Es liefert die Custom-Column-IDs und Optionswerte, die Schreibzugriffe brauchen. Felder wie ein Deal- oder Task-Status sind konfigurierbare singleSelect Custom Columns, keine festen nativen Felder; `get_record_schema` liefert genau die Spalten, die der Workspace tatsächlich hat.
 
-Alle Create- und Update-Tools nehmen Custom-Column-Werte über customFieldValues; rufen Sie zuerst `get_record_schema` für die Column-IDs auf. `list_records` liefert `total` und, bei Entitäten mit numerischen Spalten, `sums` vor den Elementen; bei Deals enthält `sums` `totalValue`, `totalQuantity` und `weightedValue`, die mit der Gewinnwahrscheinlichkeit der jeweiligen Stufe gewichtete Pipeline, über alle Datensätze, die zu den Filtern passen. `pageSize` wird auf die nächste unterstützte Größe aufgerundet: 5, 10, 25 oder 100.
+Alle Create- und Update-Tools nehmen Custom-Column-Werte über customFieldValues; rufen Sie zuerst `get_record_schema` für die Column-IDs auf. `list_records` liefert `total` und, bei Entitäten mit numerischen Spalten, `sums` vor den Elementen; bei Deals enthält `sums` `totalValue`, `totalQuantity` und `weightedValue`, die mit der Gewinnwahrscheinlichkeit der jeweiligen Stufe gewichtete Pipeline, über alle Datensätze, die zu den Filtern passen. `pageSize` wird auf die nächste unterstützte Größe abgesenkt, 5, 10, 25 oder 100, nie abgelehnt, und das Ergebnis nennt dann `requestedPageSize` neben der verwendeten Größe. Mit `groupBy` (eine Single-Select-Spalte, eine Beziehung wie `userIds` oder `createdAt` bzw. `updatedAt` nach Tag, Woche oder Monat) liefert `list_records` statt Elementen `groups` mit Bezeichnung und Anzahl je Gruppe und bei Deals den Summen von `totalValue` und `weightedValue`.
 
 {/* mcp-catalog:records */}
 #### `get_record_schema`
@@ -118,9 +118,9 @@ Schema und Custom-Column-Metadaten, nie Record-Daten. Ein Entity-Typ, oder alle 
 
 #### `list_records`
 
-Suchen, filtern, sortieren, paginieren für einen Entity-Typ. Liefert immer das Total. Deals enthalten totalValue und totalQuantity, Services amount.
+Suchen, filtern, sortieren, paginieren für einen Entity-Typ oder mit groupBy je Gruppe zählen und summieren. Liefert immer das Total. Deals enthalten totalValue und totalQuantity, Services amount.
 
-**Nur lesend.** Pflicht: `entity`. Optional: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+**Nur lesend.** Pflicht: `entity`. Optional: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`, `groupBy`.
 
 #### `search_records`
 

@@ -20,6 +20,8 @@ import {
 import type { McpToolFailureResult } from "./mcp-tool";
 
 import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
+import { DateBucketSchema, NO_VALUE_GROUP_KEY, type GroupingResult } from "@/core/base/grouping/grouping.schema";
+import { createZodError } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 import { entityListExecutors, entityNameExtractors } from "@/features/search/entity-list-executors";
@@ -93,6 +95,20 @@ const ListRecordsSchema = z.object({
   ),
   page: mcpPage(),
   pageSize: mcpPageSize(25),
+  groupBy: z
+    .object({
+      field: z
+        .string()
+        .min(1)
+        .describe(
+          "A single-select custom-column id (for example Status), a relation such as userIds (owners), organizationIds or contactIds, or createdAt or updatedAt",
+        ),
+      bucket: DateBucketSchema.optional().describe("day, week or month; only for createdAt and updatedAt"),
+    })
+    .optional()
+    .describe(
+      "Count the matching records per value of one field instead of listing them. Returns groups with key, label and count, and for deals the sums of totalValue and weightedValue per group. A record linked to several owners counts in each of their groups.",
+    ),
 });
 
 const SearchRecordsSchema = z.object({
@@ -215,6 +231,19 @@ const ListRecordsOutputSchema = z.object({
     .describe(
       "Present when two or more listed names contain the searched name: ask which one was meant before writing",
     ),
+  groupedBy: z.string().optional(),
+  groups: z
+    .array(
+      z.object({
+        key: z.string(),
+        label: z.string(),
+        count: z.number(),
+        sums: z.record(z.string(), z.number()).optional(),
+      }),
+    )
+    .optional()
+    .describe("Present with groupBy: one entry per value of the grouped field, and items is empty"),
+  groupNote: z.string().optional(),
   items: z.array(
     z
       .looseObject({ id: z.string(), name: z.string().nullable() })
@@ -363,12 +392,62 @@ export const getRecordSchemaTool = {
   },
 };
 
+function groupedListResult(
+  entity: Entity,
+  groupBy: NonNullable<z.infer<typeof ListRecordsSchema>["groupBy"]>,
+  data: {
+    items: unknown[];
+    pagination?: { total?: number };
+    valueSums?: Record<string, number | null>;
+    grouping?: GroupingResult;
+    groupableFields?: { id: string; label?: string }[];
+  },
+) {
+  const grouping = data.grouping;
+  if (!grouping) {
+    const groupable = (data.groupableFields ?? []).map((field) =>
+      field.label ? `${field.id} (${field.label})` : field.id,
+    );
+    const text = `${singularLabels[entity]} records cannot be grouped by ${groupBy.field}. Groupable fields: ${groupable.join(", ") || "none"}.`;
+    return mcpInteractorFailure(createZodError(text, ["groupBy", "field"]), "validation", text);
+  }
+
+  const total = data.pagination?.total ?? grouping.total;
+  const shown = grouping.groups.filter((group) => group.count > 0);
+  const groups = shown.map((group) => ({
+    key: group.key,
+    label:
+      group.label ??
+      (group.key === NO_VALUE_GROUP_KEY || group.isNoValue ? "No value" : (group.bucketStart ?? group.key)),
+    count: group.count,
+    ...(group.valueSums ? { sums: group.valueSums } : {}),
+  }));
+  const notes = [
+    ...(grouping.membershipTotal !== undefined && grouping.membershipTotal > total
+      ? ["A record in several groups counts in each of them, so the group counts add up to more than total."]
+      : []),
+    ...(groups.some((group) => group.sums) && groups.some((group) => !group.sums)
+      ? ["Per-group sums cover the first 25 groups; filter to one group for the sums of the others."]
+      : []),
+    ...(grouping.overflow ? [`Only the first ${grouping.overflow.shown} groups are listed.`] : []),
+  ];
+
+  return toonResult({
+    total,
+    ...(data.valueSums && Object.keys(data.valueSums).length > 0 ? { sums: data.valueSums } : {}),
+    groupedBy: groupBy.bucket ? `${groupBy.field}:${groupBy.bucket}` : groupBy.field,
+    ...(notes.length > 0 ? { groupNote: notes.join(" ") } : {}),
+    groups,
+    items: [],
+  });
+}
+
 export const listRecordsTool = {
   name: "list_records",
   title: "List records",
   description:
     "Use this when you need to search, filter, sort, or count records of a single entity type. " +
-    "Required: entity. Optional: searchTerm, filters, sortDescriptor, page, pageSize (1-100, default 25). " +
+    "Required: entity. Optional: searchTerm, filters, sortDescriptor, page, pageSize (1-100, default 25), groupBy. " +
     "Returns total first (matching records across all pages; use it for counts), then id and name per item; " +
     "deal items add totalValue, totalQuantity and weightedValue, service items add amount. " +
     "When the entity has numeric columns it also returns sums: the total of each numeric column across " +
@@ -378,6 +457,7 @@ export const listRecordsTool = {
     "Custom currency columns are summed the same way and appear in sums under the custom-column id from " +
     "get_record_schema, not the column label, so a question about a money field is one call: filter, then read " +
     "its sum. Single-select, text and date custom columns are not summable, so filter by those instead. " +
+    "For a breakdown per status, owner, organization or month, pass groupBy instead of paging through items: one call returns the count and, for deals, the totalValue and weightedValue sums of every group. " +
     "Use get_records (batched, pass many ids in one call) to fetch full field/custom-column values.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: ListRecordsSchema,
@@ -389,14 +469,17 @@ export const listRecordsTool = {
     sortDescriptor,
     page,
     pageSize,
+    groupBy,
   }: z.infer<typeof ListRecordsSchema>) => {
     const result = await entityListExecutors[entity]({
       searchTerm,
       filters,
       sortDescriptor,
       pagination: { page, pageSize: pageSize.applied },
+      ...(groupBy ? { grouping: groupBy, groupPage: { perGroup: 1, includeValueSums: true } } : {}),
     });
     if (!result.ok) return mcpInteractorFailure(result.error);
+    if (groupBy) return groupedListResult(entity, groupBy, result.data);
 
     const items = result.data.items.map((item: any) => ({
       id: item.id,
