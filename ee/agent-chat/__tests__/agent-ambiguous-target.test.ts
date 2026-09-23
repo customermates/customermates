@@ -1,4 +1,4 @@
-import { encode } from "@toon-format/toon";
+import { decode, encode } from "@toon-format/toon";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -73,10 +73,68 @@ describe("ambiguous write targets", () => {
     expect(candidateIdsIn(target, { a: NOVA, b: [NOVA_2025, UNRELATED] })).toBe(2);
   });
 
-  it("lets a request for every match write to all candidates in one call", () => {
-    const targets = ambiguousTargetsFromMessages(reads(novaSearch), request("Set both Nova Expansion deals to Won."));
-    expect(targets).toHaveLength(1);
+  it("never arms on a name the user governs with a set word or a name rule", () => {
+    for (const text of [
+      "Set both Nova Expansion deals to Won.",
+      "Set all the Nova Expansion deals to Won.",
+      "Assign both Nova Expansion deals to Max Klein as owner.",
+      "Weise beide Nova Expansion Deals Max Klein zu.",
+      "Set every deal whose name starts with 'Nova Expansion' to Won.",
+      "Setze jeden Deal, dessen Name mit 'Nova Expansion' beginnt, auf Gewonnen.",
+    ])
+      expect(ambiguousTargetsFromMessages(reads(novaSearch), request(text)), text).toEqual([]);
+
+    for (const text of [
+      "Mark the Nova Expansion deal as Won and all Kestrel deals as Lost.",
+      "Show me all activities of Nova Expansion and mark it Won.",
+      "Update the deal named Nova Expansion to Won.",
+    ])
+      expect(ambiguousTargetsFromMessages(reads(novaSearch), request(text)), text).toHaveLength(1);
+
+    const targets = ambiguousTargetsFromMessages(reads(novaSearch), C34);
     expect(refusingTarget(targets, false, { deals: [{ id: NOVA }, { id: NOVA_2025 }] })).toBeNull();
+    expect(ambiguousTargetRefusal(targets[0])).not.toContain("all of them");
+  });
+
+  it("lets a rule-selected write through even when the rule picks one record", () => {
+    const renewal = reads({
+      input: { entity: "task", searchTerm: "Renewal check" },
+      result: table([
+        [NOVA, "Renewal check"],
+        [NOVA_2025, "Renewal check Aster"],
+        [UNRELATED, "Renewal check Boreal"],
+      ]),
+    });
+    expect(
+      ambiguousTargetsFromMessages(
+        renewal,
+        request(
+          "Set the Status of every task whose name starts with 'Renewal check' and whose Due date is in the past to Done.",
+        ),
+      ),
+    ).toEqual([]);
+    const followUps: [string, string][] = [
+      [NOVA, "Follow up"],
+      [NOVA_2025, "Follow up"],
+      [UNRELATED, "Follow up"],
+    ];
+    const followUpRead = reads({ input: { entity: "task", searchTerm: "Follow up" }, result: table(followUps) });
+    expect(
+      ambiguousTargetsFromMessages(
+        followUpRead,
+        request("Set every task named Follow up whose due date has passed to Done."),
+      ),
+    ).toEqual([]);
+    const nachfassen = reads({
+      input: { entity: "task", searchTerm: "Nachfassen" },
+      result: table(followUps.map(([id]) => [id, "Nachfassen"])),
+    });
+    expect(
+      ambiguousTargetsFromMessages(
+        nachfassen,
+        request("Setze alle überfälligen Aufgaben namens Nachfassen auf Erledigt."),
+      ),
+    ).toEqual([]);
   });
 
   it("stays armed through a later read of another phrase or a narrowing re-read", () => {
@@ -253,6 +311,146 @@ describe("ambiguous write targets", () => {
       expect(armed(contacts, "Update Alex Müller's phone number to +49 30 1234")).toBe(1);
     });
 
+    it("treats a name as held by another only on word boundaries", () => {
+      const schmidt: Read = {
+        input: { entity: "contact", searchTerm: "Anna Schmidt" },
+        result: table([
+          [NOVA, "Anna Schmidt"],
+          [NOVA_2025, "Johanna Schmidt"],
+        ]),
+      };
+      expect(armed(schmidt, "Update Anna Schmidt's phone number to +49 30 1234")).toBe(0);
+      const workshops = search(
+        Array.from({ length: 12 }, (_, index): [string, string] => [
+          `00000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,
+          `Workshop ${index + 1}`,
+        ]),
+        "Workshop",
+      );
+      expect(armed(workshops, "Mark Workshop 1 as done")).toBe(0);
+      expect(armed(workshops, "Mark Workshop 1 through Workshop 5 as done")).toBe(0);
+      expect(
+        armed(
+          search([
+            [NOVA, "Bauer GmbH"],
+            [NOVA_2025, "Neubauer GmbH"],
+          ]),
+          "Setze Bauer GmbH auf Gewonnen",
+        ),
+      ).toBe(0);
+      expect(
+        armed(
+          search([
+            [NOVA, "Müller-Bau"],
+            [NOVA_2025, "Müller-Bau 2025"],
+          ]),
+          "Mark the Müller-Bau deal as won.",
+        ),
+      ).toBe(1);
+    });
+
+    it("keeps a target armed over the candidates the user did not name in full", () => {
+      const three = search([
+        [NOVA, "Nova Expansion"],
+        [NOVA_2025, "Nova Expansion 2025"],
+        [UNRELATED, "Nova Expansion Pilot"],
+      ]);
+      const [target] = ambiguousTargetsFromMessages(
+        reads(three),
+        request("Mark the Nova Expansion deal as Won and move Nova Expansion Pilot to Lost."),
+      );
+      expect(target?.candidates.map((candidate) => candidate.id)).toEqual([NOVA, NOVA_2025]);
+      expect(refusingTarget([target], false, { deals: [{ id: NOVA }] })).toBe(target);
+      expect(refusingTarget([target], false, { deals: [{ id: NOVA }, { id: UNRELATED }] })).toBe(target);
+      expect(armed(search(novaRows), "Mark Nova Expansion as Won and Nova Expansion 2025 as Lost.")).toBe(0);
+      expect(armed(three, "Mark Nova Expansion 2025 as Won.")).toBe(0);
+      expect(
+        armed(
+          search([
+            [NOVA, "Nova"],
+            [NOVA_2025, "Nova East"],
+            [UNRELATED, "Nova Eastern"],
+          ]),
+          "Mark Nova East as won",
+        ),
+      ).toBe(0);
+      expect(armed(nova, "Mark Nova East\uFE0F as won")).toBe(0);
+      expect(armed(search(novaRows), "Setze den Nova-Expansion-2025-Deal auf Gewonnen.")).toBe(0);
+      expect(armed(nova, "Delete Nova, not \u{10428}Nova East")).toBe(1);
+      expect(armed(nova, "Delete Nova, not Nova East\u{10428}")).toBe(1);
+    });
+
+    it("needs two candidates listed before taking a reply as a choice", () => {
+      expect(armed(search(novaRows), "Mark Nova Expansion as Won.", "Nova Expansion is worth EUR 24,000.")).toBe(1);
+    });
+
+    it("takes a reply that distinguishes same-named records by what the question said about them", () => {
+      const twins: Read = {
+        input: { entity: "contact", searchTerm: "Alex Müller" },
+        result: table([
+          [NOVA, "Alex Müller"],
+          [NOVA_2025, "Alex Müller"],
+        ]),
+      };
+      const asked =
+        "There are two contacts named Alex Müller: one at Northstar Services GmbH and one at Southbank Systems GmbH. Which one do you mean?";
+      expect(armed(twins, "Update Alex Müller's phone number to +49 30 1234")).toBe(1);
+      expect(armed(twins, "Update the contact named Alex Müller")).toBe(1);
+      expect(armed(twins, "Alex Müller bei Northstar Services GmbH", asked)).toBe(0);
+      expect(armed(twins, "The Northstar one", asked)).toBe(0);
+      expect(armed(twins, "Alex Müller", asked)).toBe(1);
+      expect(armed(twins, "Alex Müller, the one", asked)).toBe(1);
+      expect(armed(twins, "Update Alex Müller at Northstar", "Northstar Services GmbH has three open deals.")).toBe(1);
+      const mixed = search(
+        [
+          [NOVA, "Nova"],
+          [NOVA_2025, "Nova Expansion"],
+          [UNRELATED, "Nova Expansion"],
+        ],
+        "Nova",
+      );
+      const listing = "Three deals match: Nova, Nova Expansion (Northwind) and Nova Expansion (Southbank). Which one?";
+      expect(armed(mixed, "Nova Expansion", listing)).toBe(1);
+      expect(armed(mixed, "Nova Expansion at Northwind", listing)).toBe(0);
+      expect(armed(twins, "Update Alex Müller at Northstar")).toBe(1);
+    });
+
+    it("arms on the spellings people type for a stored name", () => {
+      const zurich = search(
+        [
+          [NOVA, "Außenstelle Zürich"],
+          [NOVA_2025, "Außenstelle Zürich 2025"],
+        ],
+        "Zürich",
+      );
+      expect(armed(zurich, "Setze den Deal Aussenstelle Zürich auf Gewonnen.")).toBe(1);
+      const twins = search(
+        [
+          [NOVA, "Alex Müller"],
+          [NOVA_2025, "Alex Müller"],
+        ],
+        "Alex",
+      );
+      expect(armed(twins, "Update Alex Mueller's phone number")).toBe(1);
+      expect(armed(twins, "Update Alex Muller's phone number")).toBe(1);
+      const acme = search(
+        [
+          [NOVA, "Acme Inc."],
+          [NOVA_2025, "Acme Inc. Europe"],
+        ],
+        "Acme",
+      );
+      expect(armed(acme, "Update the address of Acme Inc to Main Street 5")).toBe(1);
+      const cafeNova = search(
+        [
+          [NOVA, "Café Nova"],
+          [NOVA_2025, "Café Nova 2025"],
+        ],
+        "Nova",
+      );
+      expect(armed(cafeNova, "Mark Cafe Nova as won")).toBe(1);
+    });
+
     it("never counts a name found inside another word as a mention", () => {
       expect(armed(nova, "Delete the Nova deal.", "The renovation budget for Nova East is 12,000.")).toBe(1);
       expect(armed(nova, "Plan the renovation deal.")).toBe(0);
@@ -282,9 +480,9 @@ describe("ambiguous write targets", () => {
     it("never takes a plural or a longer name's stem as naming the shorter candidate", () => {
       const adam = search([
         [NOVA, "Adam"],
-        [NOVA_2025, "Adams Consulting"],
+        [NOVA_2025, "Adam Consulting"],
       ]);
-      expect(armed(adam, "Adams", "Did you mean Adam or Adams Consulting?")).toBe(1);
+      expect(armed(adam, "Adams", "Did you mean Adam or Adam Consulting?")).toBe(1);
       expect(
         armed(
           threeNovas,
@@ -347,7 +545,7 @@ describe("ambiguous write targets", () => {
         [NOVA, "O'Brien"],
         [NOVA_2025, "O'Brien Consulting"],
       ]);
-      for (const apostrophe of ["’", "´", "`", "′"])
+      for (const apostrophe of ["’", "´", "`", "′", "ʹ"])
         expect(armed(obrien, `Delete the O${apostrophe}Brien deal`), apostrophe).toBe(1);
 
       const east = search([
@@ -513,11 +711,55 @@ describe("ambiguous write targets", () => {
     ).toEqual([]);
   });
 
-  it("arms only on a read that looked records up by name, whatever name it looked up", () => {
-    expect(ambiguousTargetsFromMessages(reads({ ...novaSearch, input: { entity: "deal" } }), C34)).toEqual([]);
+  it("arms on any list or search read, whatever it looked up, and on no other tool", () => {
+    for (const input of [
+      { entity: "deal" },
+      { entity: "deal", searchTerm: "Kestrel" },
+      { entity: "deal", filters: [{ field: "organizationIds", operator: "hasSome", value: [UNRELATED] }] },
+    ])
+      expect(ambiguousTargetsFromMessages(reads({ ...novaSearch, input }), C34)).toHaveLength(1);
+
     expect(
-      ambiguousTargetsFromMessages(reads({ ...novaSearch, input: { entity: "deal", searchTerm: "Kestrel" } }), C34),
-    ).toHaveLength(1);
+      ambiguousTargetsFromMessages(reads({ ...novaSearch, toolName: "get_records", input: { entity: "deal" } }), C34),
+    ).toEqual([]);
+  });
+
+  it("reads a truncated search_records result section by section", () => {
+    const result = encode({
+      searchTerm: "Nova",
+      results: [
+        { entity: "deal", total: 2, items: novaRows.map(([id, name]) => ({ id, name })) },
+        {
+          entity: "organization",
+          total: 3,
+          items: [
+            { id: UNRELATED, name: "Nova Analytics" },
+            { id: "44444444-4444-4444-8444-444444444444", name: "Nova Logistics" },
+            { id: "55555555-5555-4555-8555-555555555555", name: "Nova Retail" },
+          ],
+        },
+      ],
+    });
+    const truncated = `${result.slice(0, result.indexOf("44444444") + 12)}\n[truncated: 4,012 more characters]`;
+    expect(() => decode(truncated)).toThrow();
+    expect(
+      ambiguousTargetsFromMessages(
+        reads({
+          toolName: "search_records",
+          input: { entities: ["organization"], searchTerm: "Nova" },
+          result: truncated,
+        }),
+        C34,
+      ),
+    ).toEqual([]);
+    for (const input of [{ searchTerm: "Nova" }, { entities: ["organization", "deal"], searchTerm: "Nova" }]) {
+      const [target] = ambiguousTargetsFromMessages(
+        reads({ toolName: "search_records", input, result: truncated }),
+        C34,
+      );
+      expect(target?.entity).toBe("deal");
+      expect(target?.candidates.map((candidate) => candidate.id)).toEqual([NOVA, NOVA_2025]);
+    }
   });
 
   it("takes the request from the turn's own messages, never from a continuation prompt", () => {
