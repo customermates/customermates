@@ -84,6 +84,31 @@ describe("analyze_records", () => {
     expect(outcome).toEqual({ ok: true, result: JSON.stringify({ rowsRead: 3, result: ["kept", 3] }) });
   });
 
+  it("takes a grouped list as complete in one read instead of paging for items it never returns", async () => {
+    const execute = vi.fn(() => {
+      const payload = { total: 40, page: 1, pageSize: 100, groups: [{ key: "a", label: "Ada", count: 40 }], items: [] };
+      return { text: JSON.stringify(payload), structuredContent: payload };
+    });
+    const grouped: McpTool = {
+      name: "list_records",
+      title: "list",
+      description: "list",
+      annotations: { readOnlyHint: true },
+      inputSchema: z.object({
+        page: z.number().default(1),
+        pageSize: z.number().default(25),
+        groupBy: z.unknown().optional(),
+      }),
+      execute: execute as never,
+    };
+    const outcome = await analyzeRecords(
+      { reads: [read("list_records", { groupBy: { field: "userIds" } })], code: "(data) => data[0].groups[0].count" },
+      { tools: [grouped] },
+    );
+    expect(outcome).toEqual({ ok: true, result: JSON.stringify({ rowsRead: 0, result: 40 }) });
+    expect(execute).toHaveBeenCalledTimes(1);
+  });
+
   it("refuses a tool that is not read-only or not known, before any read runs", async () => {
     const { tool, execute } = listTool("list_things", 3);
     for (const name of ["update_things", "delete_records"]) {

@@ -26,6 +26,8 @@ function stoppedError(stop: "time" | "steps" | null, message: string): string {
   if (stop === "time") return "The analysis code ran longer than its time budget and was stopped.";
   if (stop === "steps") return "The analysis code exceeded its step budget and was stopped.";
   if (/out of memory/i.test(message)) return "The analysis code ran out of memory and was stopped.";
+  if (/not a function/i.test(message))
+    return "The analysis code must be one synchronous function expression (data) => result; async functions, await and promises are not available.";
   return `The analysis code failed: ${message.slice(0, 500)}`;
 }
 

@@ -56,6 +56,11 @@ describe("analysis isolate", () => {
       error: expect.stringMatching(/^The analysis code failed: .*TypeError|cannot read/i),
     });
     await expect(runAnalysisCode("not a function", {})).resolves.toMatchObject({ ok: false });
+    await expect(runAnalysisCode("async (data) => data.length", [1])).resolves.toEqual({
+      ok: false,
+      error:
+        "The analysis code must be one synchronous function expression (data) => result; async functions, await and promises are not available.",
+    });
     await expect(runAnalysisCode("() => undefined", {})).resolves.toEqual({ ok: true, value: null });
   });
 });

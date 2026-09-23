@@ -39,7 +39,8 @@ export type AnalyzeRecordsInput = z.infer<typeof AnalyzeRecordsSchema>;
 export const ANALYZE_RECORDS_DESCRIPTION =
   "Use this when an answer needs arithmetic over many records that no filter or sum expresses: a median, a ranking with a tie-break, a per-record ratio, normalized duplicates, or counting rows by a field the list returns. " +
   "It runs up to five read-only tool calls, collects every page of each list (up to 5,000 rows and 8 MB in total, never a truncated set), and passes the results to your synchronous JavaScript function (data) => result, which runs in an isolated sandbox with no network, clock or tools. " +
-  "data[i] is reads[i]'s structured result; list results carry total and items across all pages. Use filters and sums instead when they already answer the question, and report figures exactly as the result states them.";
+  "data[i] is reads[i]'s structured result; list results carry total and items across all pages. A list_records item holds only id, name and, for deals, totalValue, totalQuantity and weightedValue: no owners, links or custom fields. " +
+  "When the answer depends on those, or is a count or total per status, owner or month, use filters, sums or list_records groupBy instead, and report figures exactly as the result states them.";
 
 export type AnalysisDeps = { tools: readonly McpTool[] };
 
@@ -86,7 +87,8 @@ async function runRead(mcp: McpTool, read: Read, rowBudget: number): Promise<Rea
     Object.entries(first.content).filter(([key]) => key !== "page" && key !== "pageSize"),
   );
   const firstItems = firstContent.items;
-  if (!Array.isArray(firstItems)) return { ok: true, data: firstContent, rows: 0 };
+  if (!Array.isArray(firstItems) || Array.isArray(firstContent.groups))
+    return { ok: true, data: firstContent, rows: 0 };
   const total = typeof firstContent.total === "number" ? firstContent.total : firstItems.length;
   if (total > rowBudget) {
     return {
