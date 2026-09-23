@@ -1177,7 +1177,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           resolvedProviderErrorRetries += 1;
           await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries);
           providerStop = null;
-          messages = result.messages;
+          messages = result.messages.filter((message) => message.role !== "system");
           continue;
         }
         await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries);

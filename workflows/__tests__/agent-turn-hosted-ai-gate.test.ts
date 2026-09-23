@@ -57,6 +57,11 @@ vi.mock("@ai-sdk/workflow", () => ({
     }
 
     async stream({ messages }: { messages: unknown[] }) {
+      if (messages.some((message) => (message as { role?: string }).role === "system")) {
+        throw new Error(
+          "System messages are not allowed in the prompt or messages fields. Use the instructions option instead.",
+        );
+      }
       const preparedMessages = (nextMessages: unknown[]) => [
         { role: "system", content: this.options.instructions },
         ...nextMessages,
@@ -550,7 +555,7 @@ describe("agent-turn credit-bounded continuation", () => {
       if (segment <= 2) {
         return Promise.resolve({
           finishReason: "error",
-          messages,
+          messages: [{ role: "system", content: "instructions the SDK carries in its result" }, ...messages],
           steps: [streamedStep("", "error")],
           error: new Error("Vertex said no"),
         });
@@ -564,6 +569,52 @@ describe("agent-turn credit-bounded continuation", () => {
     expect(state.reportFailure).toHaveBeenCalledTimes(2);
     expect(state.reportFailure.mock.calls[0][1].message).toContain('finishReason "error"');
     expect(state.reportFailure.mock.calls[0][1].message).toContain("Vertex said no");
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "completed", stopReason: null }),
+    );
+  });
+
+  it("retries from a state where an already-run tool is settled, so the retry cannot run it again", async () => {
+    const settled = [
+      {
+        role: "assistant",
+        content: [{ type: "tool-call", toolName: "request_support", toolCallId: "approved-1", input: {} }],
+      },
+      {
+        role: "tool",
+        content: [
+          {
+            type: "tool-result",
+            toolName: "request_support",
+            toolCallId: "approved-1",
+            output: { type: "json", value: { ok: true, result: "sent" } },
+          },
+        ],
+      },
+    ];
+    const seen: unknown[][] = [];
+    let segment = 0;
+    state.runTools = ({ messages }) => {
+      segment += 1;
+      seen.push(messages);
+      if (segment === 1) {
+        return Promise.resolve({
+          finishReason: "error",
+          messages: [{ role: "system", content: "instructions" }, ...messages, ...settled],
+          steps: [streamedStep("", "error")],
+          error: new Error("Vertex said no"),
+        });
+      }
+      return Promise.resolve({ finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] });
+    };
+
+    await runAgentTurn(payload);
+
+    expect(segment).toBe(2);
+    expect(JSON.stringify(seen[1])).toContain('"toolCallId":"approved-1"');
+    expect(JSON.stringify(seen[1])).toContain('"type":"tool-result"');
+    expect(JSON.stringify(seen[1])).not.toContain("tool-approval-response");
+    expect(state.execute).not.toHaveBeenCalled();
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({ terminalCode: "completed", stopReason: null }),
     );
