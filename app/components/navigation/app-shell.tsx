@@ -51,45 +51,39 @@ export async function AppShell({ children, displayLanguage }: Props) {
   const accountAllowed = account.state === "allowed";
   const appUser = accountAllowed ? account.user : null;
 
-  const shell = (
-    <RootStoreProvider
-      agentChatEnabled={isAgentChatAvailable()}
-      appMode={env.APP_MODE}
-      initialState={{
-        locale: isRoutingLocale(displayLanguage) ? displayLanguage : DEFAULT_LOCALE,
-        user: appUser,
-        company: accountAllowed ? navigation.company : null,
-        terminology: accountAllowed ? navigation.terminology : [],
-        subscription: accountAllowed ? navigation.subscription : null,
-      }}
-    >
-      <NavigationSwitch
-        accountState={account.state}
-        appUser={appUser}
-        channelsNeedingActionCount={navigation.channelsNeedingActionCount}
-        company={navigation.company}
-        defaultSidebarOpen={initialSidebarOpen}
-        emailVerified={accountAllowed ? account.emailVerified : null}
-        legalStatus={accountAllowed ? account.legalStatus : null}
-        operatorConsoleVisible={operatorConsoleVisible}
-        sidebarUser={toSidebarUser(account.user)}
-        subscription={navigation.subscription}
-        systemTaskCount={navigation.systemTaskCount}
-        terminology={navigation.terminology}
-        trialDaysLeft={navigation.trialDaysLeft}
-        unreadThreadCount={navigation.unreadThreadCount}
-        userDisplayLanguage={account.user?.displayLanguage}
-      >
-        {children}
-      </NavigationSwitch>
-    </RootStoreProvider>
-  );
-
-  if (account.state !== "unauthenticated") return shell;
-
   return (
     <NextIntlClientProvider locale={displayLanguage} messages={messages} timeZone="UTC">
-      {shell}
+      <RootStoreProvider
+        agentChatEnabled={isAgentChatAvailable()}
+        appMode={env.APP_MODE}
+        initialState={{
+          locale: isRoutingLocale(displayLanguage) ? displayLanguage : DEFAULT_LOCALE,
+          user: appUser,
+          company: accountAllowed ? navigation.company : null,
+          terminology: accountAllowed ? navigation.terminology : [],
+          subscription: accountAllowed ? navigation.subscription : null,
+        }}
+      >
+        <NavigationSwitch
+          accountState={account.state}
+          appUser={appUser}
+          channelsNeedingActionCount={navigation.channelsNeedingActionCount}
+          company={navigation.company}
+          defaultSidebarOpen={initialSidebarOpen}
+          emailVerified={accountAllowed ? account.emailVerified : null}
+          legalStatus={accountAllowed ? account.legalStatus : null}
+          operatorConsoleVisible={operatorConsoleVisible}
+          sidebarUser={toSidebarUser(account.user)}
+          subscription={navigation.subscription}
+          systemTaskCount={navigation.systemTaskCount}
+          terminology={navigation.terminology}
+          trialDaysLeft={navigation.trialDaysLeft}
+          unreadThreadCount={navigation.unreadThreadCount}
+          userDisplayLanguage={account.user?.displayLanguage}
+        >
+          {children}
+        </NavigationSwitch>
+      </RootStoreProvider>
     </NextIntlClientProvider>
   );
 }

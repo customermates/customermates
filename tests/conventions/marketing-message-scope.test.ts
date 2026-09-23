@@ -20,6 +20,10 @@ const MARKETING_ROOTS = [
   join("app", "components", "footer-badges.tsx"),
   join("app", "components", "navigation", "public-navbar-menu.tsx"),
   join("app", "components", "navigation", "public-navbar-model.ts"),
+  join("app", "components", "navigation", "public-navbar-sign-out-button.tsx"),
+  join("app", "components", "navigation", "marketing-shell.tsx"),
+  join("app", "components", "navigation", "docs-shell.tsx"),
+  join("app", "[locale]", "error.tsx"),
   join("app", "not-found.tsx"),
   join("components", "shared"),
   join("components", "marketing"),
@@ -39,9 +43,7 @@ function marketingSources(): string[] {
       found.push(absolute);
       continue;
     }
-    found.push(
-      ...walkFiles(absolute, (path) => /\.tsx?$/u.test(path) && !path.includes(`${sep}__tests__${sep}`)),
-    );
+    found.push(...walkFiles(absolute, (path) => /\.tsx?$/u.test(path) && !path.includes(`${sep}__tests__${sep}`)));
   }
   return found;
 }

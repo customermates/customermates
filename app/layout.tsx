@@ -9,7 +9,6 @@ import { latin, mono } from "./fonts";
 import { Providers } from "./providers";
 
 import { GLOBAL_METADATA } from "@/core/seo/homepage-metadata";
-import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
 import { pickMarketingMessages } from "@/i18n/marketing-messages";
 
 export const metadata: Metadata = GLOBAL_METADATA;
@@ -30,12 +29,7 @@ type Props = {
 };
 
 export default async function RootLayout({ children }: Props) {
-  const [messages, displayLanguage, account, cookiesStore] = await Promise.all([
-    getMessages(),
-    getLocale(),
-    resolveRequestAccountState(),
-    cookies(),
-  ]);
+  const [messages, displayLanguage, cookiesStore] = await Promise.all([getMessages(), getLocale(), cookies()]);
 
   return (
     <html
@@ -48,7 +42,7 @@ export default async function RootLayout({ children }: Props) {
         <Providers
           defaultTheme={cookiesStore.get("theme")?.value}
           displayLanguage={displayLanguage}
-          messages={account.state === "unauthenticated" ? pickMarketingMessages(messages) : messages}
+          messages={pickMarketingMessages(messages)}
         >
           {children}
         </Providers>

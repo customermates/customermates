@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 
 import { NextIntlClientProvider } from "next-intl";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 const state = vi.hoisted(() => ({
   accountState: "unauthenticated" as "unauthenticated" | "unregistered" | "allowed",
@@ -50,24 +50,14 @@ async function renderShell() {
 }
 
 describe("AppShell message scope", () => {
-  beforeEach(() => {
-    state.accountState = "unauthenticated";
-  });
-
-  it("gives anonymous visitors the full catalogue that the root layout narrows to marketing namespaces", async () => {
-    const shell = await renderShell();
-
-    expect(shell.type).toBe(NextIntlClientProvider);
-    expect(shell.props).toMatchObject({ locale: "en", messages: state.messages, timeZone: "UTC" });
-  });
-
-  it.each(["unregistered", "allowed"] as const)(
-    "adds no second provider for a %s account, which already receives the full catalogue",
+  it.each(["unauthenticated", "unregistered", "allowed"] as const)(
+    "restores the full catalogue that the root layout narrows to marketing namespaces for a %s account",
     async (accountState) => {
       state.accountState = accountState;
       const shell = await renderShell();
 
-      expect(shell.type).not.toBe(NextIntlClientProvider);
+      expect(shell.type).toBe(NextIntlClientProvider);
+      expect(shell.props).toMatchObject({ locale: "en", messages: state.messages, timeZone: "UTC" });
     },
   );
 });
