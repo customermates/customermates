@@ -73,6 +73,18 @@ const ENTITY_PLURALS: Record<string, string[]> = {
   service: ["services", "dienstleistungen", "servicios", "servizi"],
 };
 const ARTICLES = ["the", "die", "der", "el", "los", "las", "les", "le", "la", "lo", "i", "gli"];
+const SINGULAR_GENITIVES = [
+  "des",
+  "eines",
+  "meines",
+  "deines",
+  "seines",
+  "ihres",
+  "unseres",
+  "eures",
+  "dieses",
+  "jenes",
+];
 const POSSESSIVES = [
   "our",
   "my",
@@ -329,6 +341,7 @@ const PLURALS_BY_ENTITY = new Map(
 );
 const ARTICLE_WORDS = new Set(inEverySpelling(ARTICLES));
 const DETERMINER_WORDS = new Set(inEverySpelling([...ARTICLES, ...POSSESSIVES]));
+const GENITIVE_WORDS = new Set(inEverySpelling(SINGULAR_GENITIVES));
 const BREAKING_WORDS = new Set(inEverySpelling(PHRASE_BREAKS));
 const NAMING_RULES = inEverySpelling(NAMING_WORD_LIST).map((rule) => rule.split(" "));
 const SELECTION_RULES = inEverySpelling(SELECTION_RULE_LIST).map((rule) => rule.split(" "));
@@ -412,7 +425,11 @@ function setWordGoverns(words: string[], text: string, end: number, entity: stri
   for (let skipped = 0; skipped < DETERMINER_REACH && DETERMINER_WORDS.has(words[index] ?? ""); skipped += 1)
     index -= 1;
   const adjacent = SET_WORDS.has(words[index] ?? "");
-  if (!adjacent && !words.slice(-SET_WORD_REACH).some((word) => SET_WORDS.has(word))) return false;
+  const reach = words.slice(-SET_WORD_REACH);
+  const setAt = reach.findLastIndex((word) => SET_WORDS.has(word));
+  const describing =
+    setAt >= 0 && reach.slice(setAt + 1).every((word) => !BREAKING_WORDS.has(word) && !GENITIVE_WORDS.has(word));
+  if (!adjacent && !describing) return false;
   const kind = followingKind(text, end, entity);
   return kind === "plural" || (adjacent && kind === "open");
 }
