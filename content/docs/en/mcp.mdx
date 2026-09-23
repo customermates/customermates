@@ -107,7 +107,7 @@ Full JSON Schema for every tool is available live at `POST /api/v1/mcp` with `me
 
 Seventeen tools work against the five record types (contact, organization, deal, service, task). Records carry custom columns defined per workspace, so `get_record_schema` is the anchor: it returns the custom-column ids and option values that writes need. Fields such as a deal or task status are configurable singleSelect custom columns, not fixed native fields; `get_record_schema` returns whatever columns the workspace actually has.
 
-All create and update tools take custom-column values via customFieldValues; call `get_record_schema` first for the column ids. `list_records` returns `total` and, for entities with numeric columns, `sums` before the items; for deals `sums` carries `totalValue`, `totalQuantity` and `weightedValue`, the pipeline weighted by each stage's win probability, across every record matching the filters. `pageSize` is rounded up to the next supported size: 5, 10, 25 or 100.
+All create and update tools take custom-column values via customFieldValues; call `get_record_schema` first for the column ids. `list_records` returns `total` and, for entities with numeric columns, `sums` before the items; for deals `sums` carries `totalValue`, `totalQuantity` and `weightedValue`, the pipeline weighted by each stage's win probability, across every record matching the filters. When `searchTerm` matches several records, `writeTargetGuidance.status` is `ambiguous`: choose from `items`, inspect more pages when `total` exceeds the current page, and enrich duplicate names with `get_records` before a single-record write. `pageSize` is rounded up to the next supported size: 5, 10, 25 or 100.
 
 {/* mcp-catalog:records */}
 #### `get_record_schema`

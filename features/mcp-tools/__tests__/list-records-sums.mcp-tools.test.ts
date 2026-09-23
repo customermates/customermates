@@ -76,13 +76,22 @@ describe("list_records numeric totals", () => {
       structuredContent: {
         writeTargetGuidance: {
           status: "ambiguous",
-          candidates: ["Nova Expansion", "Nova Expansion 2025"],
+          reason: "multiple_search_matches",
+          returnedCandidateCount: 2,
         },
+        items: [
+          { id: "d1", name: "Nova Expansion", totalValue: 24_000 },
+          { id: "d2", name: "Nova Expansion 2025", totalValue: 18_000 },
+        ],
       },
     });
-    expect(typeof output === "string" ? output : output.text).toContain(
-      "An exact-name result does not resolve the other matches",
-    );
+    if (typeof output === "string" || !("structuredContent" in output))
+      throw new Error("Expected a structured MCP result");
+    expect(listRecordsTool.outputSchema.safeParse(output.structuredContent).success).toBe(true);
+    expect(output).not.toHaveProperty("structuredContent.writeTargetGuidance.instruction");
+    expect(output).not.toHaveProperty("structuredContent.writeTargetGuidance.candidates");
+    expect(typeof output === "string" ? output : output.text).not.toContain("Do not change");
+    expect(listRecordsTool.description).toContain("exactly equals the search term");
   });
 
   it("does not add write guidance to an unfiltered multi-record list", async () => {
@@ -124,6 +133,40 @@ describe("list_records numeric totals", () => {
     });
 
     const output = await listDeals({ searchTerm: "Nova Expansion", pageSize: 1 });
-    expect(typeof output === "string" ? output : output.text).toContain("review more pages before acting");
+    expect(output).toMatchObject({
+      structuredContent: {
+        total: 3,
+        writeTargetGuidance: {
+          returnedCandidateCount: 1,
+        },
+      },
+    });
+    expect(listRecordsTool.description).toContain("review more pages first");
+  });
+
+  it("keeps duplicate-name candidates in items and explains safe disambiguation", async () => {
+    spies.listDeals.mockResolvedValue({
+      ok: true,
+      data: {
+        items: [
+          { id: "d1", name: "Nova Expansion" },
+          { id: "d2", name: "Nova Expansion" },
+        ],
+        pagination: { total: 2 },
+      },
+    });
+
+    const output = await listDeals({ searchTerm: "Nova Expansion" });
+    expect(output).toMatchObject({
+      structuredContent: {
+        writeTargetGuidance: { returnedCandidateCount: 2 },
+        items: [
+          { id: "d1", name: "Nova Expansion" },
+          { id: "d2", name: "Nova Expansion" },
+        ],
+      },
+    });
+    expect(listRecordsTool.description).toContain("call get_records");
+    expect(listRecordsTool.description).toContain("never expose raw ids");
   });
 });

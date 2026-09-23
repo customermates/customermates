@@ -16,7 +16,8 @@ Requirements: the sandbox worktree with its loopback PostgreSQL, `.env` with `AI
 and the application started in production mode with the benchmark model overlay:
 
 ```sh
-export WORKFLOW_LOCAL_BASE_URL=http://localhost:4107
+export BASE_URL=http://localhost:4107
+export WORKFLOW_LOCAL_BASE_URL="$BASE_URL"
 export WORKFLOW_LOCAL_DATA_DIR="$PWD/.next/workflow-data"
 yarn build
 LOCAL_AGENT_BENCHMARK=true \
