@@ -238,6 +238,11 @@
           }
         },
         "records": {
+          "analyze": {
+            "done": "{resource} wurden ausgewertet",
+            "error": "{resource} konnten nicht ausgewertet werden",
+            "running": "{resource} werden ausgewertet"
+          },
           "create": {
             "done": "{count, plural, one {{target} wurde erstellt} other {{target} wurden erstellt}}",
             "error": "{count, plural, one {{target} konnte nicht erstellt werden} other {{target} konnten nicht erstellt werden}}",

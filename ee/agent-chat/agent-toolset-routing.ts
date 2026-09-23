@@ -6,6 +6,7 @@ export const AGENT_CORE_TOOL_NAMES = ["get_activities"] as const;
 export type AgentOnDemandToolset = (typeof AGENT_ON_DEMAND_TOOLSETS)[number];
 
 export const LOAD_TOOLSET_TOOL_NAME = "load_toolset";
+export const ANALYZE_RECORDS_TOOL_NAME = "analyze_records";
 
 export const AGENT_TOOLSET_SUMMARY: Record<AgentOnDemandToolset, string> = {
   messaging: "inbox, email, chat, calendar and connected messaging accounts",

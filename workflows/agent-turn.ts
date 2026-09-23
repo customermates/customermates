@@ -297,7 +297,7 @@ canStartNextHostedAiProviderRound.maxRetries = 0;
 
 async function loadAgentToolShells(surface: AgentTurnSurface, servingProvider: string): Promise<AgentToolShell[]> {
   "use step";
-  const { agentToolDefinitionsForTurn } = await import("@/ee/agent-chat/agent-tools");
+  const { AGENT_HOSTED_TOOL_ANNOTATIONS, agentToolDefinitionsForTurn } = await import("@/ee/agent-chat/agent-tools");
   const { ALL_MCP_TOOLS } = await import("@/features/mcp-tools/tool-registry");
   const gatedByName = new Map(ALL_MCP_TOOLS.map((mcp) => [mcp.name, mcp.annotations]));
 
@@ -305,7 +305,7 @@ async function loadAgentToolShells(surface: AgentTurnSurface, servingProvider: s
     name: definition.name,
     description: definition.description,
     inputSchema: definition.inputSchema,
-    annotations: gatedByName.get(definition.name),
+    annotations: gatedByName.get(definition.name) ?? AGENT_HOSTED_TOOL_ANNOTATIONS[definition.name],
     gated: gatedByName.has(definition.name),
     toolset: definition.toolset,
   }));

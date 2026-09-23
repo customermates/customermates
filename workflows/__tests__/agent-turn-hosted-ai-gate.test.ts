@@ -163,6 +163,7 @@ vi.mock("@/ee/agent-chat/agent-tools", () => ({
   },
   getAgentAiTools: () => Object.fromEntries(state.definitions.map(({ name }) => [name, { execute: state.execute }])),
   normalizeAgentAiToolInput: state.normalize,
+  AGENT_HOSTED_TOOL_ANNOTATIONS: { analyze_records: { readOnlyHint: true } },
 }));
 vi.mock("@/features/mcp-tools/tool-registry", () => ({
   ALL_MCP_TOOLS: [
@@ -1229,6 +1230,67 @@ describe("agent-turn authoritative tool inputs", () => {
     expect(resumed).toContain('"approved":false');
     expect(state.createApproval).toHaveBeenCalledTimes(1);
     expect(state.execute).not.toHaveBeenCalled();
+  });
+
+  it("runs an analysis without approval and never refuses it as a write, even beside an ambiguous name", async () => {
+    define("list_records");
+    define("analyze_records");
+    const nova = "11111111-1111-4111-8111-111111111111";
+    const request = "Mark the Nova Expansion deal as Won.";
+    const searched = [
+      { role: "user", content: request },
+      {
+        role: "assistant",
+        content: [
+          {
+            type: "tool-call",
+            toolName: "list_records",
+            toolCallId: "list-1",
+            input: { entity: "deal", searchTerm: "Nova Expansion" },
+          },
+        ],
+      },
+      {
+        role: "tool",
+        content: [
+          {
+            type: "tool-result",
+            toolCallId: "list-1",
+            toolName: "list_records",
+            output: {
+              type: "json",
+              value: {
+                ok: true,
+                result: `total: 2\nitems[2]{id,name}:\n  ${nova},Nova Expansion\n  22222222-2222-4222-8222-222222222222,Nova Expansion 2025`,
+              },
+            },
+          },
+        ],
+      },
+    ];
+    const analysis = {
+      reads: [{ tool: "get_records", input: JSON.stringify({ items: [{ entity: "deal", id: nova }] }) }],
+      code: "(data) => data",
+    };
+    state.normalize.mockImplementation((_name: string, input: unknown) => Promise.resolve({ ok: true, input }));
+    let gated: boolean | undefined;
+    let output: unknown;
+    state.runTools = async ({ tools, completeStepAndPrepareNext }) => {
+      await completeStepAndPrepareNext(
+        streamedToolCallStep("list_records", "list-1", { entity: "deal", searchTerm: "Nova Expansion" }),
+        searched,
+      );
+      gated = await tools.analyze_records.needsApproval(analysis, { toolCallId: "call-1" });
+      output = await executeTool(tools.analyze_records, analysis);
+      return finish();
+    };
+
+    await runAgentTurn({ ...payload, messages: [{ role: "user", text: request }] });
+
+    expect(gated).toBe(false);
+    expect(output).toEqual({ ok: true, result: "done" });
+    expect(state.execute).toHaveBeenCalledTimes(1);
+    expect(state.createApproval).not.toHaveBeenCalled();
   });
 
   it.each([true, false])("validates panel commands before emission (valid=%s)", async (valid) => {

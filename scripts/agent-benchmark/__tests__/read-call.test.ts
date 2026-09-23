@@ -10,6 +10,7 @@ describe("benchmark read-call predicate", () => {
     expect(isReadCall({ name: "load_toolset", input: {} })).toBe(true);
     expect(isReadCall({ name: "navigate", input: { entity: "deal" } })).toBe(true);
     expect(isReadCall({ name: "list_ui_targets", input: {} })).toBe(true);
+    expect(isReadCall({ name: "analyze_records", input: { reads: [], code: "() => 1" } })).toBe(true);
   });
 
   it("fails closed on writes, write actions, missing actions and unknown tools", () => {

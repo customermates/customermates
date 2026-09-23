@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import type { Prisma, PrismaClient, Action, Resource } from "@/generated/prisma";
 import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 import { AGENT_UI_TOOL_NAMES } from "@/ee/agent-chat/agent-ui-command";
+import { AGENT_HOSTED_TOOL_ANNOTATIONS } from "@/ee/agent-chat/agent-tools";
 import { isReadOnlyTool, readOnlyActionsForTool } from "@/ee/agent-chat/gated-tools";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
@@ -539,6 +540,7 @@ const DATA_NEUTRAL_HOSTED_TOOLS = new Set<string>(["load_toolset", ...AGENT_UI_T
 const MCP_TOOLS_BY_NAME = new Map(ALL_MCP_TOOLS.map((tool) => [tool.name, tool]));
 export function isReadCall(tool: { name: string; input?: unknown }): boolean {
   if (DATA_NEUTRAL_HOSTED_TOOLS.has(tool.name)) return true;
+  if (isReadOnlyTool({ annotations: AGENT_HOSTED_TOOL_ANNOTATIONS[tool.name] })) return true;
   const mcp = MCP_TOOLS_BY_NAME.get(tool.name);
   if (!mcp) return false;
   if (isReadOnlyTool(mcp)) return true;

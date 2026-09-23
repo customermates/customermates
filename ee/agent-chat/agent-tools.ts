@@ -19,6 +19,7 @@ import { approvalDenialReason } from "./agent-approval-resume";
 import {
   AGENT_ON_DEMAND_TOOLSETS,
   AGENT_TOOLSET_SUMMARY,
+  ANALYZE_RECORDS_TOOL_NAME,
   LOAD_TOOLSET_TOOL_NAME,
   isAgentOnDemandToolset,
 } from "./agent-toolset-routing";
@@ -32,6 +33,8 @@ import { NavigateInputSchema } from "./ui-operations";
 import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
 import { internalToolIdentity } from "./tool-identity";
 import { providerWireInputSchema } from "./provider-safe-json-schema";
+import { ANALYZE_RECORDS_DESCRIPTION, AnalyzeRecordsSchema, analyzeRecords } from "./agent-analysis";
+import { env } from "@/env";
 import type { AgentToolInputResult } from "./agent-tool-input";
 
 export { isAgentToolCancellation, type AgentToolCancellation } from "./agent-tool-cancellation";
@@ -313,6 +316,31 @@ const LoadToolsetSchema = z.object({
     .describe(AGENT_ON_DEMAND_TOOLSETS.map((toolset) => `${toolset} = ${AGENT_TOOLSET_SUMMARY[toolset]}`).join("; ")),
 });
 
+function analyzeRecordsTool(deps: AgentToolDeps) {
+  return tool({
+    description: ANALYZE_RECORDS_DESCRIPTION,
+    inputSchema: providerSafeSchema(AnalyzeRecordsSchema),
+    execute: (input) =>
+      runSafely(
+        () =>
+          analyzeRecords(input, { tools: hostedMcpTools() }).then((outcome) => ({
+            ok: outcome.ok,
+            result: agentToolResultText(outcome.result, deps.resultMaxChars),
+          })),
+        deps.resultMaxChars,
+      ),
+  });
+}
+
+export const AGENT_HOSTED_TOOL_ANNOTATIONS: Readonly<Record<string, Record<string, boolean>>> = {
+  [ANALYZE_RECORDS_TOOL_NAME]: {
+    readOnlyHint: true,
+    idempotentHint: true,
+    destructiveHint: false,
+    openWorldHint: false,
+  },
+};
+
 function loadToolsetTool() {
   return tool({
     description:
@@ -338,6 +366,7 @@ export function getAgentAiTools(deps: AgentToolDeps): ToolSet {
       ...Object.fromEntries(crm),
       ...uiTools(deps),
       [LOAD_TOOLSET_TOOL_NAME]: loadToolsetTool(),
+      ...(env.AGENT_ANALYSIS_TOOL_ENABLED ? { [ANALYZE_RECORDS_TOOL_NAME]: analyzeRecordsTool(deps) } : {}),
       request_support: tool({
         description:
           "Email a support request to the Customermates team. Use when the user asks for a human, reports a bug, or you cannot help after a genuine attempt. The recent Assistant conversation is included, and the team replies to the email address on the user's account.",

@@ -27,6 +27,10 @@ const nextConfig: NextConfig = {
 
   compress: true,
 
+  outputFileTracingIncludes: {
+    "/.well-known/workflow/v1/flow": ["./node_modules/quickjs-wasi/quickjs.wasm"],
+  },
+
   experimental: {
     serverActions: {
       bodySizeLimit: "25mb",
