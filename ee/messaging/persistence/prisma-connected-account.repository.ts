@@ -1,6 +1,7 @@
 import type { MessagingProvider, Prisma } from "@/generated/prisma";
 
 import type { GetMyConnectedAccountsRepo } from "../connect/get-my-connected-accounts.interactor";
+import type { CountChannelsNeedingActionRepo } from "../connect/count-channels-needing-action.interactor";
 import type { CreateHostedAuthLinkRepo } from "../connect/create-auth-link.interactor";
 import type { ThreadAccountOwnersRepo } from "../inbox/get-messaging-thread.interactor";
 import type { MoveEmailThreadAccountRepo } from "../inbox/move-email-thread.interactor";
@@ -32,11 +33,12 @@ import type { RepoArgs } from "@/core/utils/types";
 
 import { randomUUID } from "node:crypto";
 
-import { AccountActivityKind, ConnectedAccountStatus, Status, SubscriptionStatus } from "@/generated/prisma";
+import { AccountActivityKind, ConnectedAccountStatus, Resource, Status, SubscriptionStatus } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { accessibleConnectedAccountWhere } from "../messaging-access";
+import { accountNeedsAction } from "../provider";
 
 const BACKFILL_CLAIM_STALE_MS = 15 * 60 * 1000;
 
@@ -44,6 +46,7 @@ export class PrismaConnectedAccountRepo
   extends BaseRepository
   implements
     GetMyConnectedAccountsRepo,
+    CountChannelsNeedingActionRepo,
     CreateHostedAuthLinkRepo,
     DeleteConnectedAccountRepo,
     ResyncConnectedAccountRepo,
@@ -477,6 +480,20 @@ export class PrismaConnectedAccountRepo
     return rows
       .map((row) => this.toDto(row, row.user.id === this.userId))
       .sort((a, b) => Number(b.isOwner) - Number(a.isOwner) || b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async countAccountsNeedingAction() {
+    if (!this.canAccess(Resource.inboxMessages)) return 0;
+
+    const rows = await this.prisma.connectedAccount.findMany({
+      where: {
+        companyId: this.companyId,
+        OR: [{ userId: this.userId }, { shared: true }],
+      },
+      select: { status: true },
+    });
+
+    return rows.filter(accountNeedsAction).length;
   }
 
   async listAccountsForRefresh() {
