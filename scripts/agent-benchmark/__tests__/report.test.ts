@@ -12,6 +12,7 @@ import { JUDGE_MODELS, type JudgeVerdict } from "../judge";
 import {
   benchmarkReportDirectoryName,
   buildReport,
+  isEpisodeArtifactFileName,
   persistMergeCheckSummary,
   renderReport,
   selectArms,
@@ -97,6 +98,13 @@ function artifact(arm: string, caseId: string, repetition: number, passed: boole
 }
 
 describe("benchmark report", () => {
+  it("separates episode artifacts from campaign metadata", () => {
+    expect(isEpisodeArtifactFileName("S1-r1.json")).toBe(true);
+    expect(isEpisodeArtifactFileName("merge-check.json")).toBe(false);
+    expect(isEpisodeArtifactFileName("arms-verified.json")).toBe(false);
+    expect(isEpisodeArtifactFileName("notes.md")).toBe(false);
+  });
+
   it("aggregates artifacts, compares against the shipped arm and applies the selection rule", async () => {
     const dir = await mkdtemp(join(tmpdir(), "agent-benchmark-"));
     const artifacts = [

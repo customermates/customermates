@@ -48,6 +48,7 @@ import { validateJudgePreflight } from "./judge-preflight";
 import {
   benchmarkReportDirectoryName,
   buildReport,
+  isEpisodeArtifactFileName,
   persistMergeCheckSummary,
   renderReport,
   selectArms,
@@ -500,7 +501,7 @@ async function main() {
         for (const entry of entries) {
           const full = resolve(path, entry.name);
           if (entry.isDirectory()) files.push(...(await walk(full)));
-          else if (entry.name.endsWith(".json")) files.push(full);
+          else if (isEpisodeArtifactFileName(entry.name)) files.push(full);
         }
         return files;
       }

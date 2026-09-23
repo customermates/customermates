@@ -83,6 +83,12 @@ export type BenchmarkReport = {
 
 export const MERGE_CHECK_METADATA_FILE = "merge-check.json";
 
+export function isEpisodeArtifactFileName(fileName: string): boolean {
+  return fileName.endsWith(".json")
+    && !fileName.startsWith("arms-")
+    && fileName !== MERGE_CHECK_METADATA_FILE;
+}
+
 export async function persistMergeCheckSummary(campaignRunsDir: string, summary: MergeCheckSummary): Promise<void> {
   await mkdir(campaignRunsDir, { recursive: true });
   await writeFile(join(campaignRunsDir, MERGE_CHECK_METADATA_FILE), JSON.stringify(summary, null, 2) + "\n");
@@ -109,7 +115,7 @@ async function readArtifacts(dir: string): Promise<EpisodeArtifact[]> {
     for (const entry of entries) {
       const full = join(path, entry.name);
       if (entry.isDirectory()) await walk(full);
-      else if (entry.name.endsWith(".json") && !entry.name.startsWith("arms-") && entry.name !== MERGE_CHECK_METADATA_FILE) artifacts.push(JSON.parse(await readFile(full, "utf8")) as EpisodeArtifact);
+      else if (isEpisodeArtifactFileName(entry.name)) artifacts.push(JSON.parse(await readFile(full, "utf8")) as EpisodeArtifact);
     }
   }
   await walk(dir);
