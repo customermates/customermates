@@ -13,6 +13,8 @@ import {
   runInteractor,
   customMcpFailure,
   CONTACT_KEY_FIELD_NOTE,
+  nameMatchNote,
+  nameQueryOf,
 } from "./utils";
 import type { McpToolFailureResult } from "./mcp-tool";
 
@@ -199,6 +201,12 @@ const ListRecordsOutputSchema = z.object({
     ),
   page: z.number(),
   pageSize: z.number(),
+  nameMatchNote: z
+    .string()
+    .optional()
+    .describe(
+      "Present when two or more listed names contain the searched name: ask which one was meant before writing",
+    ),
   items: z.array(
     z
       .looseObject({ id: z.string(), name: z.string().nullable() })
@@ -212,8 +220,9 @@ const SearchRecordsOutputSchema = z.object({
   results: z.array(
     z.object({
       entity: EntitySchema,
-      items: z.array(z.object({ id: z.string(), name: z.string().nullable() })),
       total: z.number().optional(),
+      nameMatchNote: z.string().optional(),
+      items: z.array(z.object({ id: z.string(), name: z.string().nullable() })),
       error: z.string().optional(),
     }),
   ),
@@ -380,6 +389,16 @@ export const listRecordsTool = {
     });
     if (!result.ok) return mcpInteractorFailure(result.error);
 
+    const items = result.data.items.map((item: any) => ({
+      id: item.id,
+      name: entityNameExtractors[entity](item),
+      ...(item.totalValue !== undefined && { totalValue: item.totalValue }),
+      ...(item.totalQuantity !== undefined && { totalQuantity: item.totalQuantity }),
+      ...(item.weightedValue != null && { weightedValue: item.weightedValue }),
+      ...(item.amount !== undefined && { amount: item.amount }),
+    }));
+    const note = nameMatchNote(nameQueryOf(searchTerm, filters), items);
+
     return toonResult({
       total: result.data.pagination?.total ?? result.data.items.length,
       ...(result.data.valueSums && Object.keys(result.data.valueSums).length > 0
@@ -387,14 +406,8 @@ export const listRecordsTool = {
         : {}),
       page,
       pageSize,
-      items: result.data.items.map((item: any) => ({
-        id: item.id,
-        name: entityNameExtractors[entity](item),
-        ...(item.totalValue !== undefined && { totalValue: item.totalValue }),
-        ...(item.totalQuantity !== undefined && { totalQuantity: item.totalQuantity }),
-        ...(item.weightedValue != null && { weightedValue: item.weightedValue }),
-        ...(item.amount !== undefined && { amount: item.amount }),
-      })),
+      ...(note ? { nameMatchNote: note } : {}),
+      items,
       ...(filters ? { filters } : {}),
     });
   },
@@ -424,13 +437,16 @@ export const searchRecordsTool = {
           pagination: { page: 1, pageSize },
         });
         if (!result.ok) return { entity, items: [], error: z.prettifyError(result.error) };
+        const items = result.data.items.slice(0, limitPerEntity).map((item: any) => ({
+          id: item.id,
+          name: entityNameExtractors[entity](item),
+        }));
+        const note = nameMatchNote(searchTerm, items);
         return {
           entity,
-          items: result.data.items.slice(0, limitPerEntity).map((item: any) => ({
-            id: item.id,
-            name: entityNameExtractors[entity](item),
-          })),
           total: result.data.pagination?.total ?? result.data.items.length,
+          ...(note ? { nameMatchNote: note } : {}),
+          items,
         };
       }),
     );

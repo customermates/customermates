@@ -34,8 +34,8 @@ import { activeAgentToolNames } from "@/ee/agent-chat/agent-toolset-routing";
 import {
   ambiguousTargetFromMessages,
   ambiguousTargetRefusal,
+  refusesAmbiguousWrite,
   withheldToolNamesFor,
-  writeCoversEveryCandidate,
 } from "@/ee/agent-chat/agent-ambiguous-target";
 import { googleThinkingProviderOptions } from "@/ee/agent-chat/agent-thinking-options";
 import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-context";
@@ -1047,6 +1047,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                 return (
                   prepared.ok &&
                   shell.gated &&
+                  !refusesAmbiguousWrite(
+                    ambiguousTarget,
+                    isReadOnlyTool({ annotations: shell.annotations }),
+                    prepared.input,
+                  ) &&
                   requiresApproval(internalToolIdentity(shell.name), { annotations: shell.annotations }, prepared.input)
                 );
               },
@@ -1058,8 +1063,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                       if (!prepared.ok) return prepared;
                       if (
                         ambiguousTarget &&
-                        withheldToolNamesFor(ambiguousTarget).includes(shell.name) &&
-                        !writeCoversEveryCandidate(ambiguousTarget, prepared.input)
+                        refusesAmbiguousWrite(
+                          ambiguousTarget,
+                          isReadOnlyTool({ annotations: shell.annotations }),
+                          prepared.input,
+                        )
                       )
                         return { ok: false, result: ambiguousTargetRefusal(ambiguousTarget) };
                       const outcome = await executeAgentTool(

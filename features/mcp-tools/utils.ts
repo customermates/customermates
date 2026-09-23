@@ -251,6 +251,31 @@ export async function runInteractor<T>(
   return { text: formatted, structuredContent: structured(outcome.data) };
 }
 
+const MIN_NAME_MATCH_TERM_LENGTH = 3;
+
+export function nameMatchNote(
+  term: string | undefined,
+  items: readonly { name?: string | null }[],
+): string | undefined {
+  const needle = term?.trim().toLowerCase();
+  if (!needle || needle.length < MIN_NAME_MATCH_TERM_LENGTH) return undefined;
+  const matches = items.filter((item) => item.name?.toLowerCase().includes(needle)).length;
+  if (matches < 2) return undefined;
+  return `${matches} records here match the name "${term?.trim()}". If the user meant one record, ask which one before changing anything; if they asked for every match, act on all of them.`;
+}
+
+export function nameQueryOf(
+  searchTerm: string | undefined,
+  filters: readonly unknown[] | undefined,
+): string | undefined {
+  if (searchTerm?.trim()) return searchTerm;
+  for (const raw of filters ?? []) {
+    const filter = raw as { field?: unknown; value?: unknown };
+    if (filter?.field === "name" && typeof filter.value === "string") return filter.value;
+  }
+  return undefined;
+}
+
 export function toonResult(payload: Record<string, unknown>): McpToolResult {
   return { text: encodeToToon(payload), structuredContent: payload };
 }

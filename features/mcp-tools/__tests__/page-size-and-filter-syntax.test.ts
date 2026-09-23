@@ -10,6 +10,8 @@ import {
   mcpOptionalPageSize,
   mcpPageSize,
   roundMcpPageSize,
+  nameMatchNote,
+  nameQueryOf,
 } from "../utils";
 
 describe("page size", () => {
@@ -53,5 +55,26 @@ describe("filter syntax", () => {
 
   it("stays compact enough to leave room for the schema it accompanies", () => {
     expect(JSON.stringify(FILTER_SYNTAX).length).toBeLessThan(700);
+  });
+});
+
+describe("name match note", () => {
+  it("says so when two or more listed names contain the searched name", () => {
+    const note = nameMatchNote("Nova Expansion", [{ name: "Nova Expansion" }, { name: "Nova Expansion 2025" }]);
+    expect(note).toContain('2 records here match the name "Nova Expansion"');
+    expect(note).toContain("ask which one");
+    expect(note).toContain("act on all of them");
+  });
+
+  it("stays silent for a single match, a short term, or no term", () => {
+    expect(nameMatchNote("Nova Expansion", [{ name: "Nova Expansion" }, { name: "Kestrel" }])).toBeUndefined();
+    expect(nameMatchNote("No", [{ name: "Nova" }, { name: "Nordwind" }])).toBeUndefined();
+    expect(nameMatchNote(undefined, [{ name: "Nova" }, { name: "Nova" }])).toBeUndefined();
+  });
+
+  it("reads the name query from a search term or a name filter", () => {
+    expect(nameQueryOf("Acme", undefined)).toBe("Acme");
+    expect(nameQueryOf(undefined, [{ field: "name", operator: "startsWith", value: "Renewal" }])).toBe("Renewal");
+    expect(nameQueryOf(undefined, [{ field: "status", operator: "in", value: ["x"] }])).toBeUndefined();
   });
 });
