@@ -21,6 +21,7 @@ const MARKETING_ROOTS = [
   join("app", "components", "navigation", "public-navbar-menu.tsx"),
   join("app", "components", "navigation", "public-navbar-model.ts"),
   join("app", "components", "navigation", "public-navbar-sign-out-button.tsx"),
+  join("app", "components", "navigation", "public-scrollport.tsx"),
   join("app", "components", "navigation", "marketing-shell.tsx"),
   join("app", "components", "navigation", "docs-shell.tsx"),
   join("app", "[locale]", "error.tsx"),

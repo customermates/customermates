@@ -10,10 +10,9 @@ import type { SidebarUser } from "./sidebar-user";
 
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import * as Sentry from "@sentry/nextjs";
 
-import { PublicNavbar } from "../public-navbar";
 import { TopBarActionsProvider } from "../topbar-actions-context";
 
 import { isCanonicalInactiveErrorType } from "@/features/auth/account-state";
@@ -25,17 +24,11 @@ import { AppLocalePreferenceSync } from "@/components/shared/app-locale-preferen
 import { ProtectedEnhancementsProvider } from "./protected-enhancements-context";
 import { accountStateForPath } from "./account-state-for-path";
 import { resolveNavigationShell } from "./navigation-shell";
-import { ONBOARDING_INTENT_QUERY_PARAM } from "@/features/company/onboarding-intent-url";
+import { PublicScrollport } from "./public-scrollport";
 
 const AppSidebar = dynamic(() => import("../app-sidebar").then((mod) => ({ default: mod.AppSidebar })));
 const AppTopBar = dynamic(() => import("../app-topbar").then((mod) => ({ default: mod.AppTopBar })));
 const ShellHeader = dynamic(() => import("../shell-header").then((mod) => ({ default: mod.ShellHeader })));
-const DocsSidebar = dynamic(() =>
-  import("@/app/[locale]/(static)/docs/components/docs-sidebar").then((mod) => ({ default: mod.DocsSidebar })),
-);
-const DocsTopBar = dynamic(() =>
-  import("@/app/[locale]/(static)/docs/components/docs-topbar").then((mod) => ({ default: mod.DocsTopBar })),
-);
 
 type NavigationSwitchProps = {
   accountState: AccountState;
@@ -78,8 +71,6 @@ export function NavigationSwitch({
   const router = useRouter();
   const searchParams = useSearchParams();
   const errorTypes = searchParams.getAll("type");
-  const onboardingIntents = searchParams.getAll(ONBOARDING_INTENT_QUERY_PARAM);
-  const onboardingIntent = onboardingIntents.length === 1 && onboardingIntents[0] ? onboardingIntents[0] : undefined;
   const hasValidSession = accountState !== "unauthenticated";
   const isRegistered = sidebarUser !== null;
   const currentAccountState = accountStateForPath({
@@ -94,7 +85,6 @@ export function NavigationSwitch({
     isRegistered,
   });
   const rootStore = useRootStore();
-  const publicScrollportRef = useRef<HTMLDivElement>(null);
   const { userStore, companyStore, subscriptionStore, terminologyStore } = rootStore;
   const accountAllowed = currentAccountState === "allowed";
   const protectedEnhancementsAllowed = accountAllowed && shellMode === "app";
@@ -125,43 +115,12 @@ export function NavigationSwitch({
     if (!protectedEnhancementsAllowed) rootStore.closeAllModals();
   }, [accountAllowed, company, identifiedUser, protectedEnhancementsAllowed, rootStore, subscription, terminology]);
 
-  useLayoutEffect(() => {
-    if (shellMode !== "public" || !publicScrollportRef.current) return;
-    publicScrollportRef.current.scrollTop = 0;
-  }, [pathname, shellMode]);
-
   let shell: React.ReactNode;
-  if (shellMode === "docs") {
+  if (shellMode === "public") {
     shell = (
-      <SidebarProvider defaultOpen={defaultSidebarOpen}>
-        <DocsSidebar />
-
-        <SidebarInset className="min-w-0 overflow-y-auto overflow-x-clip">
-          <DocsTopBar />
-
-          {children}
-        </SidebarInset>
-      </SidebarProvider>
-    );
-  } else if (shellMode === "public") {
-    shell = (
-      <div
-        ref={publicScrollportRef}
-        data-public-scrollport
-        className="relative flex h-svh flex-col overflow-y-auto bg-background [--table-sticky-top:4rem] [--toc-sticky-top:4rem] [--toc-anchor-offset:5rem] xl:[--table-sticky-top:3.5rem] xl:[--toc-sticky-top:3.5rem] xl:[--toc-anchor-offset:4.5rem]"
-      >
-        <header className="sticky top-0 z-50 flex shrink-0 flex-col bg-background/90 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
-          <PublicNavbar
-            accountState={currentAccountState}
-            hasValidSession={hasValidSession}
-            onboardingIntent={onboardingIntent}
-          />
-        </header>
-
-        <main className="relative flex min-w-0 flex-1 flex-col">
-          <div className="flex flex-col flex-1 overflow-x-clip">{children}</div>
-        </main>
-      </div>
+      <PublicScrollport accountState={currentAccountState} hasValidSession={hasValidSession}>
+        {children}
+      </PublicScrollport>
     );
   } else if (shellMode === "restricted") {
     shell = (

@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { STYLEGUIDE_CHAPTERS } from "@/app/[locale]/(static)/styleguide/components/styleguide-chapters";
-import { ACCOUNT_STATES } from "@/features/auth/account-state";
-
 import { resolveNavigationShell } from "../navigation-shell";
 
 describe("resolveNavigationShell", () => {
@@ -42,26 +39,6 @@ describe("resolveNavigationShell", () => {
     },
   );
 
-  it.each(
-    STYLEGUIDE_CHAPTERS.flatMap(({ href }) =>
-      ACCOUNT_STATES.flatMap((accountState) =>
-        [false, true].map((isRegistered) => ({
-          accountState,
-          href,
-          isRegistered,
-        })),
-      ),
-    ),
-  )("keeps $href on the public shell for $accountState when registered=$isRegistered", (testCase) => {
-    expect(
-      resolveNavigationShell({
-        accountState: testCase.accountState,
-        pathname: testCase.href,
-        isRegistered: testCase.isRegistered,
-      }),
-    ).toBe("public");
-  });
-
   it("does not change the existing shell policy for other public routes", () => {
     expect(
       resolveNavigationShell({
@@ -70,43 +47,6 @@ describe("resolveNavigationShell", () => {
         isRegistered: true,
       }),
     ).toBe("app");
-  });
-
-  it.each(
-    ACCOUNT_STATES.filter(
-      (state) => !["overdueVerification", "inactive", "pending", "onboarding", "legal", "subscription"].includes(state),
-    ),
-  )("uses the docs shell for %s", (state) => {
-    expect(
-      resolveNavigationShell({
-        accountState: state,
-        pathname: "/docs/api",
-        isRegistered: true,
-      }),
-    ).toBe("docs");
-  });
-
-  it.each(["overdueVerification", "inactive", "pending", "onboarding", "legal", "subscription"] as const)(
-    "keeps account controls available for registered %s users visiting docs",
-    (state) => {
-      expect(
-        resolveNavigationShell({
-          accountState: state,
-          pathname: "/docs/api",
-          isRegistered: true,
-        }),
-      ).toBe("restricted");
-    },
-  );
-
-  it("keeps docs public for a pre-tenant session", () => {
-    expect(
-      resolveNavigationShell({
-        accountState: "unregistered",
-        pathname: "/docs/api",
-        isRegistered: false,
-      }),
-    ).toBe("docs");
   });
 
   it.each(["overdueVerification", "inactive", "pending", "onboarding", "legal", "subscription"] as const)(

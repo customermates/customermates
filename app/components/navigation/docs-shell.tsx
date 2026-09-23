@@ -6,12 +6,11 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 type Props = {
   children: React.ReactNode;
-  defaultSidebarOpen?: boolean;
 };
 
-export function DocsShell({ children, defaultSidebarOpen = true }: Props) {
+export function DocsShell({ children }: Props) {
   return (
-    <SidebarProvider defaultOpen={defaultSidebarOpen}>
+    <SidebarProvider>
       <DocsSidebar />
 
       <SidebarInset className="min-w-0 overflow-y-auto overflow-x-clip">
