@@ -3379,6 +3379,7 @@
     }
   },
   "Subscription": {
+    "billingPortalUnavailable": "Das Abrechnungsportal ist für diesen Workspace nicht verfügbar. Wende dich für Änderungen an den Support.",
     "currentPeriodEnd": "Ende des aktuellen Abrechnungszeitraums",
     "fieldHelp": {
       "currentPeriodEndManage": "Wird durch den aktuellen Abrechnungszeitraum festgelegt. Verwende „{billing}“ für Änderungen am Abonnement.",

@@ -3379,6 +3379,7 @@
     }
   },
   "Subscription": {
+    "billingPortalUnavailable": "The billing portal is not available for this workspace. Contact support to make changes.",
     "currentPeriodEnd": "Current period ends",
     "fieldHelp": {
       "currentPeriodEndManage": "Set by the current billing cycle. Use {billing} to make subscription changes.",

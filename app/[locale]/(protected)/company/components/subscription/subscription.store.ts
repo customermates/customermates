@@ -50,7 +50,12 @@ export class SubscriptionStore extends BaseStore {
   handleManageBilling = async (): Promise<void> => {
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
       const url = await getBillingPortalUrlAction();
-      if (url) window.location.assign(url);
+      if (url) {
+        window.location.assign(url);
+        return;
+      }
+      await this.reloadSubscription();
+      this.toastError("Subscription.billingPortalUnavailable");
     });
   };
 

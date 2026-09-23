@@ -3379,6 +3379,7 @@
     }
   },
   "Subscription": {
+    "billingPortalUnavailable": "El portal de facturación no está disponible para este espacio de trabajo. Contacta con soporte para hacer cambios.",
     "currentPeriodEnd": "El periodo actual termina el",
     "fieldHelp": {
       "currentPeriodEndManage": "Lo determina el ciclo de facturación actual. Usa «{billing}» para cambiar la suscripción.",
