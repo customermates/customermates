@@ -92,11 +92,25 @@ describe("analysis isolate", () => {
       error: expect.stringMatching(/^The analysis code failed: .*TypeError|cannot read/i),
     });
     await expect(runAnalysisCode("not a function", {})).resolves.toMatchObject({ ok: false });
-    await expect(runAnalysisCode("async (data) => data.length", [1])).resolves.toEqual({
-      ok: false,
-      error:
-        "The analysis code must be one synchronous function expression (data) => result; async functions, await and promises are not available.",
-    });
     await expect(runAnalysisCode("() => undefined", {})).resolves.toEqual({ ok: true, value: null });
+  });
+
+  it("asks for one synchronous function only when the code is not one, and reports a synchronous bug as it is", async () => {
+    for (const code of [
+      "async (data) => data.length",
+      "async function (data) { return data; }",
+      "42",
+      "({ total: 1 })",
+    ]) {
+      await expect(runAnalysisCode(code, [1])).resolves.toEqual({
+        ok: false,
+        error:
+          "The analysis code must be one synchronous function expression (data) => result; async functions, await and promises are not available.",
+      });
+    }
+    await expect(runAnalysisCode("(data) => data.total()", { total: 3 })).resolves.toEqual({
+      ok: false,
+      error: "The analysis code failed: not a function",
+    });
   });
 });

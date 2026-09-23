@@ -14,6 +14,7 @@ export type AnalysisOutcome = { ok: true; value: unknown } | { ok: false; error:
 const ANALYSIS_INTRINSICS =
   Intrinsics.EVAL | Intrinsics.JSON | Intrinsics.MAP_SET | Intrinsics.REGEXP | Intrinsics.TYPED_ARRAYS;
 const TERMINATE_MARGIN_MS = 250;
+const NOT_A_SYNCHRONOUS_FUNCTION = "AnalysisCodeIsNotASynchronousFunction";
 
 type Stop = "time" | "steps" | null;
 type WorkerReport = { ok: true; serialized: string | null } | { ok: false; stop: Stop; message: string };
@@ -74,14 +75,14 @@ function quickjsModule(): Promise<WebAssembly.Module> {
 }
 
 function analysisSource(code: string): string {
-  return `(() => { const run = (${code}); const data = JSON.parse(__analysisInput); __analysisInput = undefined; return JSON.stringify(run(data)); })()`;
+  return `(() => { const run = (${code}); if (typeof run !== "function") throw new TypeError(${JSON.stringify(NOT_A_SYNCHRONOUS_FUNCTION)}); const data = JSON.parse(__analysisInput); __analysisInput = undefined; return JSON.stringify(run(data)); })()`;
 }
 
 function stoppedError(stop: Stop, message: string): string {
   if (stop === "time") return "The analysis code ran longer than its time budget and was stopped.";
   if (stop === "steps") return "The analysis code exceeded its step budget and was stopped.";
   if (/out of memory/i.test(message)) return "The analysis code ran out of memory and was stopped.";
-  if (/not a function/i.test(message))
+  if (message === NOT_A_SYNCHRONOUS_FUNCTION)
     return "The analysis code must be one synchronous function expression (data) => result; async functions, await and promises are not available.";
   return `The analysis code failed: ${message.slice(0, 500)}`;
 }
