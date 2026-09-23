@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { Worker } from "node:worker_threads";
+import { MessageChannel, Worker, receiveMessageOnPort, type MessagePort } from "node:worker_threads";
 
 import { Intrinsics } from "quickjs-wasi";
 
@@ -19,6 +19,7 @@ const NOT_A_SYNCHRONOUS_FUNCTION = "AnalysisCodeIsNotASynchronousFunction";
 type Stop = "time" | "steps" | null;
 type WorkerReport = { ok: true; serialized: string | null } | { ok: false; stop: Stop; message: string };
 type AnalysisWorkerData = {
+  report?: MessagePort;
   quickjsUrl: string;
   wasm: WebAssembly.Module;
   source: string;
@@ -32,7 +33,8 @@ type AnalysisWorkerData = {
 const TIMED_OUT: WorkerReport = { ok: false, stop: "time", message: "" };
 
 const ANALYSIS_WORKER_SOURCE = `(async () => {
-  const { parentPort, workerData } = await import("node:worker_threads");
+  const { workerData } = await import("node:worker_threads");
+  const report = workerData.report;
   const { QuickJS } = await import(workerData.quickjsUrl);
   let steps = 0;
   let stop = null;
@@ -54,12 +56,12 @@ const ANALYSIS_WORKER_SOURCE = `(async () => {
     const result = vm.evalCode(workerData.source, "analysis.js");
     try {
       const serialized = vm.dump(result);
-      parentPort.postMessage({ ok: true, serialized: typeof serialized === "string" ? serialized : null });
+      report.postMessage({ ok: true, serialized: typeof serialized === "string" ? serialized : null });
     } finally {
       result.dispose();
     }
   } catch (error) {
-    parentPort.postMessage({ ok: false, stop, message: error instanceof Error ? error.message : String(error) });
+    report.postMessage({ ok: false, stop, message: error instanceof Error ? error.message : String(error) });
   } finally {
     vm.dispose();
   }
@@ -88,12 +90,20 @@ function stoppedError(stop: Stop, message: string): string {
 }
 
 async function runInWorker(workerData: AnalysisWorkerData, terminateAfterMs: number): Promise<WorkerReport> {
-  const worker = new Worker(ANALYSIS_WORKER_SOURCE, { eval: true, workerData });
+  const channel = new MessageChannel();
+  const worker = new Worker(ANALYSIS_WORKER_SOURCE, {
+    eval: true,
+    workerData: { ...workerData, report: channel.port2 },
+    transferList: [channel.port2],
+  });
   let timer: NodeJS.Timeout | undefined;
   try {
     return await new Promise<WorkerReport>((resolve, reject) => {
-      timer = setTimeout(() => resolve(TIMED_OUT), terminateAfterMs);
-      worker.on("message", resolve);
+      timer = setTimeout(() => {
+        const pending = receiveMessageOnPort(channel.port1);
+        resolve(pending ? (pending.message as WorkerReport) : TIMED_OUT);
+      }, terminateAfterMs);
+      channel.port1.on("message", resolve);
       worker.on("error", reject);
       worker.on("exit", (exitCode) =>
         reject(new Error(`The analysis worker exited with code ${exitCode} before it reported a result.`)),
@@ -101,6 +111,7 @@ async function runInWorker(workerData: AnalysisWorkerData, terminateAfterMs: num
     });
   } finally {
     clearTimeout(timer);
+    channel.port1.close();
     await worker.terminate();
   }
 }
