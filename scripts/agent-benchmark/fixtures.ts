@@ -12,7 +12,7 @@ import {
   type ComplexCaseId,
 } from "./complex-cases";
 
-export const FIXTURE_VERSION = "chat-benchmark-fixture-v6";
+export const FIXTURE_VERSION = "chat-benchmark-fixture-v5";
 export const AS_OF = "2026-09-05T08:00:00.000Z";
 const FIXED_CREATED = new Date("2026-08-01T08:00:00.000Z");
 const CREDIT_ANCHOR = new Date("2020-01-01T00:00:00.000Z");
@@ -548,10 +548,10 @@ export async function seedBenchmarkCase(
     }
     if (caseId === "N13") {
       for (let i = 1; i <= 60; i++) await deal("kestrel-" + i, "Kestrel-" + String(i).padStart(3, "0"), 100 * i);
-      for (let i = 1; i <= 6; i++)
+      for (let i = 1; i <= 15; i++)
         await task("kestrel-task-" + i, "Kestrel security review " + String(i).padStart(3, "0"), "kestrel-" + i, "2026-09-" + String(i + 9).padStart(2, "0") + "T08:00:00.000Z", "sofia", "Open");
-      for (let i = 7; i <= 12; i++)
-        await task("kestrel-task-" + i, "Kestrel handover " + String(i).padStart(3, "0"), "kestrel-" + i, "2026-08-" + String(i - 6).padStart(2, "0") + "T08:00:00.000Z", "sofia", "Done");
+      for (let i = 16; i <= 30; i++)
+        await task("kestrel-task-" + i, "Kestrel handover " + String(i).padStart(3, "0"), "kestrel-" + i, "2026-08-" + String(i - 15).padStart(2, "0") + "T08:00:00.000Z", "sofia", "Done");
       for (let i = 1; i <= 5; i++) await deal("kestrel-won-" + i, "Kestrel-Won-" + i, 50_000, "sofia", "Won");
       for (let i = 1; i <= 4; i++)
         await task("kestrel-loose-" + i, "Portfolio hygiene " + i, null, "2026-09-" + String(20 + i) + "T08:00:00.000Z", "max", "Open");
@@ -1184,9 +1184,9 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
     case "N13": {
       const line = soleLine(text, /^RESULT unblocked=(\d+) blocked=(\d+) unblockedTotalEur=(\d+)$/);
       check("final-line-well-formed", Boolean(line));
-      check("unblocked-count-54", Number(line?.[1]) === 54);
-      check("blocked-count-6", Number(line?.[2]) === 6);
-      check("unblocked-total-180900", Number(line?.[3]) === 180_900);
+      check("unblocked-count-45", Number(line?.[1]) === 45);
+      check("blocked-count-15", Number(line?.[2]) === 15);
+      check("unblocked-total-171000", Number(line?.[3]) === 171_000);
       check("task-status-actually-read",
     tools.some((tool) => tool.name === "list_records"
       && tool.outcome === "ok"

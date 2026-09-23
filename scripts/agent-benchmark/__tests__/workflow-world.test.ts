@@ -15,6 +15,8 @@ describe("benchmark Workflow world", () => {
       resolve("/worktree/.next/workflow-data"),
     );
     expect(environment.WORKFLOW_LOCAL_RECOVER_ACTIVE_RUNS).toBe("false");
+    expect(environment.WORKFLOW_LOCAL_HEADERS_TIMEOUT_MS).toBe("0");
+    expect(environment.WORKFLOW_LOCAL_BODY_TIMEOUT_MS).toBe("0");
   });
 
   it("preserves a shared custom directory and disables secondary recovery", () => {
@@ -29,6 +31,8 @@ describe("benchmark Workflow world", () => {
     expect(environment).toEqual({
       WORKFLOW_LOCAL_DATA_DIR: resolve("/worktree/tmp/benchmark-world"),
       WORKFLOW_LOCAL_RECOVER_ACTIVE_RUNS: "false",
+      WORKFLOW_LOCAL_HEADERS_TIMEOUT_MS: "0",
+      WORKFLOW_LOCAL_BODY_TIMEOUT_MS: "0",
     });
   });
 });

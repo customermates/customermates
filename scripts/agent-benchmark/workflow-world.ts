@@ -11,6 +11,8 @@ export function configureBenchmarkWorkflowWorld(
 
   environment.WORKFLOW_LOCAL_DATA_DIR = dataDir;
   environment.WORKFLOW_LOCAL_RECOVER_ACTIVE_RUNS = "false";
+  environment.WORKFLOW_LOCAL_HEADERS_TIMEOUT_MS = "0";
+  environment.WORKFLOW_LOCAL_BODY_TIMEOUT_MS = "0";
 
   return dataDir;
 }

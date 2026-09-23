@@ -31,7 +31,9 @@ by the Assistant. The overlay contains only the experimental arms, so it cannot 
 an explicit data directory or defaults the CLI to the same absolute `.next/workflow-data` directory that Next uses. The
 shared directory lets direct approval, UI-command and cancellation responders see the server's durable hooks. The CLI
 also forces `WORKFLOW_LOCAL_RECOVER_ACTIVE_RUNS=false`, so its secondary worker cannot recover or enqueue the server's
-active runs. When using a custom directory, start the server and CLI with that same value (and set
+active runs. Benchmark mode also removes the local world's 30-second queue delivery deadline because complex, valid
+Assistant turns can exceed it; the episode driver still enforces its own bounded wait. When using a custom directory,
+start the server and CLI with that same value (and set
 `WORKFLOW_TARGET_WORLD=local` so the Next plugin preserves it).
 
 The base URL is required in both processes because the CLI's secondary worker posts durable steps over HTTP. Without it,

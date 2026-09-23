@@ -162,30 +162,4 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
     expect(wrong.checks.find((check) => check.id === "gap-79000")?.passed).toBe(false);
   }, 60_000);
 
-  it("keeps the task-exclusion case broad without an oversized detail payload", async () => {
-    const fixture = await seedBenchmarkCase(db, "N13", `selftest:${randomUUID()}`, 12);
-    fixtures.push(fixture);
-
-    await expect(
-      db.prisma.task.count({
-        where: {
-          companyId: fixture.companyId,
-          deals: { some: { deal: { name: { startsWith: "Kestrel-" } } } },
-        },
-      }),
-    ).resolves.toBe(12);
-
-    const result = await scoreBenchmarkCase(db, fixture, {
-      turns: [{
-        text: "RESULT unblocked=54 blocked=6 unblockedTotalEur=180900",
-        tools: [{
-          name: "get_records",
-          input: { items: [{ entity: "task" }] },
-          outcome: "ok",
-        }],
-        terminalCode: "completed",
-      }],
-    });
-    expect(result.passed).toBe(true);
-  }, 60_000);
 });

@@ -8,6 +8,7 @@ import { withWorkflow } from "workflow/next";
 import { env } from "@/env";
 import { permanentAliasRedirects } from "@/core/seo/route-aliases";
 import { resolveBenchmarkBuildSource } from "@/scripts/agent-benchmark/build-source";
+import { configureBenchmarkWorkflowWorld } from "@/scripts/agent-benchmark/workflow-world";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
@@ -16,6 +17,7 @@ const withMDX = createMDX({
 });
 
 const agentBenchmarkBuildSource = resolveBenchmarkBuildSource();
+if (process.env.LOCAL_AGENT_BENCHMARK === "true") configureBenchmarkWorkflowWorld();
 
 const nextConfig: NextConfig = {
   env: {
