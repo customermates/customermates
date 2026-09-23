@@ -356,6 +356,7 @@ export type ScaleScoreContext = {
   text: string;
   turnTexts: readonly string[];
   turnTools: readonly (readonly ObservedToolLike[])[];
+  reads: readonly ObservedToolLike[];
   before: Record<string, unknown[]>;
   after: Record<string, unknown[]>;
   ids: Record<string, string>;

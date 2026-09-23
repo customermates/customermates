@@ -44,6 +44,32 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
     expect(planted.checks.filter((check) => !check.passed).map((check) => check.id)).toEqual(["exact-filtered-count-23"]);
   }, 60_000);
 
+  it("counts a read made through analyze_records as grounding and traversal but not as cover for a write", async () => {
+    const analyze = (tool: string, input: object) => ({ name: "analyze_records", input: { reads: [{ tool, input: JSON.stringify(input) }], code: "(data) => data[0].total" }, outcome: "ok" as const });
+    const failed = (result: { checks: { id: string; passed: boolean }[] }) => result.checks.filter((check) => !check.passed).map((check) => check.id);
+
+    const s1 = await seedBenchmarkCase(db, "S1", `selftest:${randomUUID()}`);
+    fixtures.push(s1);
+    const s1Read = analyze("list_records", { entity: "deal", filters: [{ field: "userIds", operator: "in", value: [s1.ids.sofia] }] });
+    expect(failed(await scoreBenchmarkCase(db, s1, { turns: [{ text: "Sofia Rossi has 23 open deals.", tools: [s1Read], terminalCode: "completed" }] }))).toEqual([]);
+    const s1Write = { name: "update_deals", input: { deals: [] }, outcome: "error" as const };
+    expect(failed(await scoreBenchmarkCase(db, s1, { turns: [{ text: "Sofia Rossi has 23 open deals.", tools: [s1Read, s1Write], terminalCode: "completed" }] }))).toEqual(["no-mutating-tool-attempt"]);
+
+    const m7 = await seedBenchmarkCase(db, "M7", `selftest:${randomUUID()}`);
+    fixtures.push(m7);
+    const names = Array.from({ length: 113 }, (_, index) => "Renewal-" + String(index + 1).padStart(3, "0"));
+    const answer = names.join("\n") + "\nCombined totalValue: EUR 644,100";
+    const m7Read = analyze("list_records", { entity: "deal", filters: [{ field: "name", operator: "startsWith", value: "Renewal-" }] });
+    expect(failed(await scoreBenchmarkCase(db, m7, { turns: [{ text: answer, tools: [m7Read], terminalCode: "completed" }] }))).toEqual([]);
+    const firstPageOnly = { name: "list_records", input: { entity: "deal", page: 1 }, outcome: "ok" as const };
+    expect(failed(await scoreBenchmarkCase(db, m7, { turns: [{ text: answer, tools: [firstPageOnly], terminalCode: "completed" }] }))).toEqual(["actually-traverses-more-than-one-page"]);
+
+    const c26 = await seedBenchmarkCase(db, "C26", `selftest:${randomUUID()}`);
+    fixtures.push(c26);
+    const week = "Send contract to Kite (15 Sep)\nCall Heron about pricing (16 Sep)\nPrepare demo for Stork (17 Sep)\nReview Crane proposal (18 Sep)\nWaiting for your reply: Nova pilot: kickoff date\nRESULT tasks=4 replies=1";
+    expect(failed(await scoreBenchmarkCase(db, c26, { turns: [{ text: week, tools: [analyze("get_messaging_threads", {})], terminalCode: "completed" }] }))).toEqual([]);
+  }, 120_000);
+
   it("scores a complex case from its final line and the database state", async () => {
     const fixture = await seedBenchmarkCase(db, "C27", `selftest:${randomUUID()}`);
     fixtures.push(fixture);

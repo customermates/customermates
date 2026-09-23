@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { isReadCall } from "../fixtures";
+import { analysisReads, isReadCall, withAnalysisReads } from "../fixtures";
 
 describe("benchmark read-call predicate", () => {
   it("counts read-only tools, read-only actions and interface tools as reads", () => {
@@ -19,5 +19,26 @@ describe("benchmark read-call predicate", () => {
     expect(isReadCall({ name: "manage_webhooks", input: {} })).toBe(false);
     expect(isReadCall({ name: "manage_record_links", input: { action: "add" } })).toBe(false);
     expect(isReadCall({ name: "a_tool_this_build_does_not_define", input: {} })).toBe(false);
+  });
+
+  it("adds one read per analyze_records read after its call, with the call's outcome", () => {
+    const analysis = {
+      name: "analyze_records",
+      input: { reads: [{ tool: "list_records", input: '{"entity":"deal"}' }, { tool: "get_activities", input: "{}" }], code: "(data) => data" },
+      outcome: "error" as const,
+    };
+    const write = { name: "update_deals", input: { deals: [] }, outcome: "ok" as const };
+    expect(analysisReads(analysis)).toEqual([
+      { name: "list_records", input: { entity: "deal" }, outcome: "error" },
+      { name: "get_activities", input: {}, outcome: "error" },
+    ]);
+    expect(withAnalysisReads([analysis, write]).map((tool) => tool.name)).toEqual(["analyze_records", "list_records", "get_activities", "update_deals"]);
+    expect(withAnalysisReads([analysis, write]).filter((tool) => !isReadCall(tool))).toEqual([write]);
+  });
+
+  it("adds nothing for a write named inside analyze_records or for any other tool", () => {
+    const smuggled = { name: "analyze_records", input: { reads: [{ tool: "update_deals", input: '{"deals":[]}' }], code: "(data) => data" }, outcome: "error" as const };
+    expect(analysisReads(smuggled)).toEqual([]);
+    expect(analysisReads({ name: "list_records", input: { reads: [{ tool: "list_records", input: "{}" }] } })).toEqual([]);
   });
 });
