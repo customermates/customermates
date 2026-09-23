@@ -6,7 +6,7 @@ import type { ChipColor } from "@/constants/chip-colors";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useLayoutEffect } from "react";
-import { Resource, SubscriptionStatus, SubscriptionPlan } from "@/generated/prisma";
+import { Action, Resource, SubscriptionStatus, SubscriptionPlan } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
@@ -41,27 +41,27 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
   const isManaged = subscription?.plan === SubscriptionPlan.enterprise;
   const seats = subscription?.quantity ?? subscription?.activeUsers ?? 0;
   const hasActiveSubscription = subscription?.hasActiveSubscription ?? false;
-  const canManageCompany = userStore.canManage(Resource.company);
+  const canManageBilling = userStore.can(Resource.company, Action.update);
   const hasBillingPortal = Boolean(subscription?.hasBillingPortal);
   const planHelp = !hasActiveSubscription
-    ? canManageCompany
+    ? canManageBilling
       ? t("Subscription.fieldHelp.planPicker")
       : t("Subscription.fieldHelp.planReadOnly")
-    : !canManageCompany
+    : !canManageBilling
       ? t("Subscription.fieldHelp.planReadOnly")
       : hasBillingPortal
         ? t("Subscription.fieldHelp.planManage", { billing: t("Subscription.manageWithLemonSqueezy") })
         : t("Subscription.fieldHelp.planUnavailable");
-  const currentPeriodEndHelp = !canManageCompany
+  const currentPeriodEndHelp = !canManageBilling
     ? t("Subscription.fieldHelp.currentPeriodEndReadOnly")
     : hasBillingPortal
       ? t("Subscription.fieldHelp.currentPeriodEndManage", { billing: t("Subscription.manageWithLemonSqueezy") })
       : t("Subscription.fieldHelp.currentPeriodEndUnavailable");
   const trialEndHelp = !hasActiveSubscription
-    ? canManageCompany
+    ? canManageBilling
       ? t("Subscription.fieldHelp.trialEndsPicker")
       : t("Subscription.fieldHelp.trialEndsReadOnly")
-    : !canManageCompany
+    : !canManageBilling
       ? t("Subscription.fieldHelp.trialEndsReadOnly")
       : hasBillingPortal
         ? t("Subscription.fieldHelp.trialEndsManage", { billing: t("Subscription.manageWithLemonSqueezy") })
@@ -109,7 +109,7 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
             </FormOutputField>
           </div>
 
-          {!hasActiveSubscription && canManageCompany && (
+          {!hasActiveSubscription && canManageBilling && (
             <PlanPicker
               isLoading={loadingOverlayStore.isLoading}
               onSelect={(plan) => runUserAction(() => subscriptionStore.handleSubscribe(plan))}

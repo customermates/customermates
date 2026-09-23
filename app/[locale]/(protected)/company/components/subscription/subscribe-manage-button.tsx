@@ -2,7 +2,7 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Resource } from "@/generated/prisma";
+import { Action, Resource } from "@/generated/prisma";
 
 import { Button } from "@/components/ui/button";
 import { AppImage } from "@/components/shared/app-image";
@@ -13,7 +13,7 @@ export const SubscribeManageButton = observer(() => {
   const t = useTranslations();
   const { subscriptionStore, userStore } = useRootStore();
 
-  if (!userStore.canManage(Resource.company)) return null;
+  if (!userStore.can(Resource.company, Action.update)) return null;
 
   const subscription = subscriptionStore.subscription;
   const icon = (
