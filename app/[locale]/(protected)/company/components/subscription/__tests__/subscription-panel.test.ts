@@ -74,7 +74,7 @@ describe("SubscriptionPanel read-only fields", () => {
     const initialSubscription: SubscriptionDto = {
       activeUsers: 3,
       currentPeriodEnd: new Date("2026-09-30T00:00:00.000Z"),
-      customerPortalUrl: "https://billing.example.test",
+      hasBillingPortal: true,
       hasActiveSubscription: true,
       plan: SubscriptionPlan.pro,
       quantity: 4,
@@ -140,7 +140,7 @@ describe("SubscriptionPanel read-only fields", () => {
         initialSubscription: {
           activeUsers: 3,
           currentPeriodEnd: new Date("2026-09-30T00:00:00.000Z"),
-          customerPortalUrl: "https://billing.example.test",
+          hasBillingPortal: true,
           hasActiveSubscription: true,
           plan: SubscriptionPlan.pro,
           quantity: 4,
@@ -160,24 +160,24 @@ describe("SubscriptionPanel read-only fields", () => {
     });
   });
 
-  it("uses support guidance when an administrator has no billing portal", () => {
+  it("uses support guidance for the billing period when an administrator has no billing subscription", () => {
     renderToStaticMarkup(
       createElement(SubscriptionPanel, {
         initialSubscription: {
           activeUsers: 3,
           currentPeriodEnd: new Date("2026-09-30T00:00:00.000Z"),
-          customerPortalUrl: null,
-          hasActiveSubscription: true,
+          hasBillingPortal: false,
+          hasActiveSubscription: false,
           plan: SubscriptionPlan.pro,
           quantity: 4,
-          status: SubscriptionStatus.active,
+          status: SubscriptionStatus.expired,
           trialEndDate: null,
         },
       }),
     );
 
     expect(harness.translationCalls).toContainEqual({
-      key: "Subscription.fieldHelp.planUnavailable",
+      key: "Subscription.fieldHelp.planPicker",
       values: undefined,
     });
     expect(harness.translationCalls).toContainEqual({

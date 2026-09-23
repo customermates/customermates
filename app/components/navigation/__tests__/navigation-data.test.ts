@@ -18,7 +18,7 @@ function loaders(): NavigationDataLoaders {
       activeUsers: 1,
       trialEndDate: null,
       currentPeriodEnd: null,
-      customerPortalUrl: null,
+      hasBillingPortal: false,
       hasActiveSubscription: true,
     }),
     systemTaskCount: vi.fn().mockResolvedValue(2),

@@ -40,7 +40,7 @@ vi.mock("@/core/di", () => ({
   getGetRolesApiInteractor: () => ({
     invoke: () => Promise.resolve({ ok: true, data: { items: [] } }),
   }),
-  getGetMyConnectedAccountsApiInteractor: () => ({
+  getGetMyConnectedAccountsContextInteractor: () => ({
     invoke: calls.accounts,
   }),
 }));
@@ -344,8 +344,8 @@ describe("workspace-context Wiki discovery", () => {
     expect(calls.catalog).toHaveBeenCalledWith({ page: 2, query: "voice" });
   });
 
-  it("returns the Wiki catalog without connected accounts when Inbox Read is denied", async () => {
-    calls.accounts.mockRejectedValue(new ForbiddenError("Inbox access denied"));
+  it("returns the Wiki catalog when the permission-independent account context is empty", async () => {
+    calls.accounts.mockResolvedValue({ ok: true, data: [] });
     const result = await getWorkspaceContextTool.execute();
     expect(decode(mcpToolResultText(result))).toMatchObject({
       user: { id: "user" },

@@ -16,10 +16,9 @@ import {
   getCountSystemTasksInteractor,
   getGetSubscriptionInteractor,
   getGetUnreadThreadCountInteractor,
-  getGetMyConnectedAccountsInteractor,
+  getCountChannelsNeedingActionInteractor,
   getGetOperatorConsoleVisibilityInteractor,
 } from "@/core/di";
-import { accountNeedsAction } from "@/ee/messaging/provider";
 import { env } from "@/env";
 import { GLOBAL_METADATA } from "@/core/seo/homepage-metadata";
 import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
@@ -62,10 +61,7 @@ export default async function RootLayout({ children }: Props) {
     subscription: async () => (await getGetSubscriptionInteractor().invoke()).data,
     systemTaskCount: async () => (await getCountSystemTasksInteractor().invoke()).data,
     unreadThreadCount: async () => (await getGetUnreadThreadCountInteractor().invoke()).data,
-    channelsNeedingActionCount: async () => {
-      const result = await getGetMyConnectedAccountsInteractor().invoke();
-      return result.ok ? result.data.filter(accountNeedsAction).length : 0;
-    },
+    channelsNeedingActionCount: async () => (await getCountChannelsNeedingActionInteractor().invoke()).data,
   });
 
   const themeCookie = cookiesStore.get("theme")?.value;

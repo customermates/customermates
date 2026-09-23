@@ -17,7 +17,7 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
 import {
   getGetCompanySettingsInteractor,
-  getGetMyConnectedAccountsApiInteractor,
+  getGetMyConnectedAccountsContextInteractor,
   getGetRolesApiInteractor,
   getGetUserDetailsInteractor,
   getGetUsersApiInteractor,
@@ -108,15 +108,8 @@ export const getWorkspaceContextTool = {
     const [userResult, companyResult, rolesResult, accountsResult, wikiResult] = await Promise.all([
       getGetUserDetailsInteractor().invoke(),
       getGetCompanySettingsInteractor().invoke(),
-      getGetRolesApiInteractor().invoke({
-        pagination: { page: 1, pageSize: 100 },
-      }),
-      getGetMyConnectedAccountsApiInteractor()
-        .invoke()
-        .catch((error: unknown) => {
-          if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied) return null;
-          throw error;
-        }),
+      getGetRolesApiInteractor().invoke({ pagination: { page: 1, pageSize: 100 } }),
+      getGetMyConnectedAccountsContextInteractor().invoke(),
       getGetWikiCatalogInteractor()
         .invoke({ page: wikiPage, query: wikiQuery })
         .catch((error: unknown) => {

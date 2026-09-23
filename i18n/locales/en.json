@@ -1108,6 +1108,7 @@
       "apiKeyMaxExpiration": "API key expiration cannot exceed 365 days.",
       "apiKeyMinExpiration": "API key expiration must be at least 1 day.",
       "assigneeRequired": "You must assign yourself to this item. Please note that you will only be able to view items assigned to you.",
+      "billingPortalUnavailable": "The billing portal is not available for this workspace. Contact support to make changes.",
       "calendarEventNotFound": "Calendar event ID not found or not accessible.",
       "channelAlreadyLinked": "This channel is already linked to another contact.",
       "connectedAccountNotFound": "Channel ID not found or not accessible.",
@@ -3424,12 +3425,10 @@
       "planManage": "Synced from billing. Use {billing} to make changes.",
       "planPicker": "Choose a plan below to start or change the subscription.",
       "planReadOnly": "Synced from billing. Ask a workspace administrator to make changes.",
-      "planUnavailable": "Synced from billing. Contact support to make changes.",
       "quantity": "Synced to the number of active workspace members. Workspace administrators can activate or deactivate members in {company}.",
       "trialEndsManage": "Set by the trial period. Use {billing} to manage the subscription.",
       "trialEndsPicker": "Set by the trial period. Choose a plan before this date to continue without interruption.",
-      "trialEndsReadOnly": "Set by the trial period. Ask a workspace administrator to manage the subscription.",
-      "trialEndsUnavailable": "Set by the trial period. Contact support to manage the subscription."
+      "trialEndsReadOnly": "Set by the trial period. Ask a workspace administrator to manage the subscription."
     },
     "managedExternallyNote": "This workspace is on an Enterprise plan billed by invoice. Contact your account manager to make changes.",
     "manageWithLemonSqueezy": "Manage with Lemon Squeezy",
