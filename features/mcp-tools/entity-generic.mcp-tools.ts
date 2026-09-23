@@ -699,8 +699,9 @@ function recordLinksResultText(result: {
   removed: number;
   before: number;
   after: number;
+  kept: number;
 }): string {
-  const { action, entity, sourceId, relation, requested, added, removed, before, after } = result;
+  const { action, entity, sourceId, relation, requested, added, removed, before, after, kept } = result;
   const counts = `(was ${before}, now ${after})`;
   if (action === "add") {
     if (added === 0)
@@ -712,9 +713,15 @@ function recordLinksResultText(result: {
       return `Nothing was unlinked: none of the ${requested} ids is linked as ${relation} of ${entity} ${sourceId} ${counts}. Check that the ids are the linked ${relation}, not the ${entity} itself.`;
     return `Unlinked ${removed} of ${requested} ${relation} from ${entity} ${sourceId} ${counts}`;
   }
-  if (added === 0 && removed === 0)
+  const keptNote =
+    kept === 0
+      ? ""
+      : `; ${kept} other ${kept === 1 ? "link was kept because it points" : "links were kept because they point"} to records outside your access`;
+  if (added === 0 && removed === 0 && kept === 0)
     return `Nothing changed: the ${relation} of ${entity} ${sourceId} already were exactly the ${requested} given ids ${counts}`;
-  return `Set the ${relation} of ${entity} ${sourceId} to the ${requested} given ids: linked ${added}, unlinked ${removed} ${counts}`;
+  if (added === 0 && removed === 0)
+    return `Nothing changed: the ${relation} of ${entity} ${sourceId} already held the ${requested} given ids${keptNote} ${counts}`;
+  return `Set the ${relation} of ${entity} ${sourceId} to the ${requested} given ids: linked ${added}, unlinked ${removed}${keptNote} ${counts}`;
 }
 
 export const manageRecordLinksTool = {
@@ -737,7 +744,15 @@ export const manageRecordLinksTool = {
   execute: ({ action, entity, sourceId, relation, ids }: z.infer<typeof ManageRecordLinksSchema>) =>
     runInteractor(
       getModifyEntityRelationInteractor().invoke({ entity, sourceId, relation, mode: action, ids }),
-      (data) => recordLinksResultText({ ...data, action, entity, sourceId, relation }),
+      (data) =>
+        recordLinksResultText({
+          ...data,
+          action,
+          entity,
+          sourceId,
+          relation,
+          kept: action === "set" ? Math.max(0, data.after - new Set(ids).size) : 0,
+        }),
       ({ requested, added, removed, before, after }) => ({
         action,
         relation,

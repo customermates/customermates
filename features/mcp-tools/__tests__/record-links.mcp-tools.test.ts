@@ -174,6 +174,34 @@ describe("manage_record_links", () => {
     expect(manageRecordLinksTool.description).not.toContain("Other links stay untouched");
   });
 
+  it("says a set kept links outside the caller's access instead of claiming the relation is exactly the given ids", async () => {
+    const set = () => execute({ action: "set", entity: "contact", sourceId, relation: "organizations", ids: [orgOne] });
+
+    spies.modifyRelation.mockResolvedValue({
+      ok: true,
+      data: { requested: 1, added: 0, removed: 0, before: 1, after: 1 },
+    });
+    expect(mcpToolResultText(await set())).toBe(
+      `Nothing changed: the organizations of contact ${sourceId} already were exactly the 1 given ids (was 1, now 1)`,
+    );
+
+    spies.modifyRelation.mockResolvedValue({
+      ok: true,
+      data: { requested: 1, added: 0, removed: 0, before: 2, after: 2 },
+    });
+    expect(mcpToolResultText(await set())).toBe(
+      `Nothing changed: the organizations of contact ${sourceId} already held the 1 given ids; 1 other link was kept because it points to records outside your access (was 2, now 2)`,
+    );
+
+    spies.modifyRelation.mockResolvedValue({
+      ok: true,
+      data: { requested: 1, added: 0, removed: 1, before: 4, after: 3 },
+    });
+    expect(mcpToolResultText(await set())).toBe(
+      `Set the organizations of contact ${sourceId} to the 1 given ids: linked 0, unlinked 1; 2 other links were kept because they point to records outside your access (was 4, now 3)`,
+    );
+  });
+
   it.each([
     [{ action: "merge", entity: "contact", sourceId, relation: "organizations", ids: [orgOne] }],
     [{ action: "add", entity: "contact", sourceId, relation: "organizations", ids: [] }],
