@@ -69,7 +69,8 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
     manageRecordLinksTool,
     deleteRecordsTool,
   ],
-  workspace: [getWorkspaceContextTool, listUsersTool, manageDataViewsTool],
+  workspace: [getWorkspaceContextTool, listUsersTool],
+  views: [manageDataViewsTool],
   messaging: [
     getMessagingThreadsTool,
     getActivitiesTool,

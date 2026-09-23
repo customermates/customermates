@@ -91,7 +91,7 @@ Beide liegen an derselben Basis-URL. MCP nutzt `/api/v1/mcp`, die OpenAPI-Spezif
 
 ## Tool-Katalog [#tool-catalog]
 
-Customermates exponiert [[derived.mcp.tools.total]] MCP-Tools, alle standardmäßig aktiviert. Sie decken Records, Workspace, Messaging, Social Posts, Dokumentation und Deep Research, Custom Columns, Widgets, Routinen, Webhooks, Admin und Support ab. Jedes destruktive Tool ist geflaggt und nennt `IRREVERSIBLE` in seiner Beschreibung. Beziehungen ändern sich nur über `manage_record_links`; die Update-Tools fassen sie nie an.
+Customermates exponiert [[derived.mcp.tools.total]] MCP-Tools, alle standardmäßig aktiviert. Sie decken Records, Workspace, gespeicherte Ansichten, Messaging, Social Posts, Dokumentation und Deep Research, Custom Columns, Widgets, Routinen, Webhooks, Admin und Support ab. Jedes destruktive Tool ist geflaggt und nennt `IRREVERSIBLE` in seiner Beschreibung. Beziehungen ändern sich nur über `manage_record_links`; die Update-Tools fassen sie nie an.
 
 Jedes Tool unten führt seine Zusammenfassung, sein Flag (sofern vorhanden) und seine Argumente. Zwei Flags sind wichtig: **Nur lesend** kennzeichnet ein Tool, das nichts verändert und das Sie in Ihrem Client ohne Rückfrage erlauben können, und **IRREVERSIBEL** kennzeichnet eines, das Daten löscht oder nicht rückgängig zu machen ist. Bei zusammengeführten Tools gilt das zerstörende Flag für die löschenden Actions.
 
@@ -227,7 +227,11 @@ Ihr User, das Company-Profil, alle Rollen inklusive Rechte und Ihre verbundenen 
 Teammitglieder mit ID, Name, E-Mail, roleId und Status.
 
 **Nur lesend.** Optional: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+{/* /mcp-catalog */}
 
+### Gespeicherte Ansichten
+
+{/* mcp-catalog:views */}
 #### `manage_data_views`
 
 Persönliche gespeicherte Ansichten auf unterstützten Workspace-Seiten entdecken, prüfen, anlegen, aktualisieren, auswählen und löschen. Konfiguration und Ansichten werden paginiert und sind durchsuchbar; create wählt die neue Ansicht aus, Updates ändern nur übergebene Einstellungen und delete ist IRREVERSIBEL. Ansichten der Operator-Konsole sind über dieses Tool nicht verfügbar.
@@ -490,7 +494,7 @@ Alle [[derived.mcp.tools.total]] Tools sind standardmäßig an. Um nur einen Tei
 https://customermates.com/api/v1/mcp?toolsets=records,messaging
 ```
 
-Keys: records, workspace, messaging, social, docs, custom-columns, widgets, routines, webhooks, admin, support. Kein Parameter heißt alles; unbekannte Keys werden ignoriert, und eine Liste ohne erkannten Key liefert die volle Oberfläche. `search` und `fetch` sind immer an, damit Deep-Research-Connectors auch auf einer eingegrenzten Oberfläche funktionieren.
+Keys: records, workspace, views, messaging, social, docs, custom-columns, widgets, routines, webhooks, admin, support. Kein Parameter heißt alles; unbekannte Keys werden ignoriert, und eine Liste ohne erkannten Key liefert die volle Oberfläche. `search` und `fetch` sind immer an, damit Deep-Research-Connectors auch auf einer eingegrenzten Oberfläche funktionieren.
 
 ### Wenn ein Aufruf abgelehnt wird
 

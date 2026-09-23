@@ -1,5 +1,15 @@
+import { agentViewRequestTarget } from "./agent-page-context";
+
 export const AGENT_CORE_TOOLSETS = ["records", "workspace", "docs", "custom-columns", "support"] as const;
-export const AGENT_ON_DEMAND_TOOLSETS = ["messaging", "social", "widgets", "webhooks", "routines", "admin"] as const;
+export const AGENT_ON_DEMAND_TOOLSETS = [
+  "views",
+  "messaging",
+  "social",
+  "widgets",
+  "webhooks",
+  "routines",
+  "admin",
+] as const;
 
 export const AGENT_CORE_TOOL_NAMES = ["get_activities"] as const;
 
@@ -8,6 +18,7 @@ export type AgentOnDemandToolset = (typeof AGENT_ON_DEMAND_TOOLSETS)[number];
 export const LOAD_TOOLSET_TOOL_NAME = "load_toolset";
 
 export const AGENT_TOOLSET_SUMMARY: Record<AgentOnDemandToolset, string> = {
+  views: "saved views, filters, sorting, grouping and layouts",
   messaging: "inbox, email, chat, calendar and connected messaging accounts",
   social: "LinkedIn, Instagram, posts, profiles, engagement and Sales Navigator",
   widgets: "dashboard widgets",
@@ -17,6 +28,37 @@ export const AGENT_TOOLSET_SUMMARY: Record<AgentOnDemandToolset, string> = {
 };
 
 const TOOLSET_LEXICON: Record<AgentOnDemandToolset, readonly string[]> = {
+  views: [
+    "saved view",
+    "current view",
+    "new view",
+    "my view",
+    "create a view",
+    "update a view",
+    "delete a view",
+    "gespeicherte ansicht",
+    "aktuelle ansicht",
+    "neue ansicht",
+    "meine ansicht",
+    "ansicht erstellen",
+    "ansicht löschen",
+    "vista guardada",
+    "vista actual",
+    "nueva vista",
+    "mi vista",
+    "crear una vista",
+    "vue enregistrée",
+    "vue actuelle",
+    "nouvelle vue",
+    "ma vue",
+    "créer une vue",
+    "vista salvata",
+    "vista attuale",
+    "nuova vista",
+    "mia vista",
+    "crea una vista",
+    "kanban",
+  ],
   messaging: [
     "email",
     "e-mail",
@@ -101,6 +143,7 @@ const TOOLSET_LEXICON: Record<AgentOnDemandToolset, readonly string[]> = {
 };
 
 const TOOLSET_ROUTES: Record<AgentOnDemandToolset, readonly string[]> = {
+  views: [],
   messaging: ["/inbox", "/calendar"],
   social: ["/social"],
   widgets: ["/dashboard"],
@@ -110,6 +153,7 @@ const TOOLSET_ROUTES: Record<AgentOnDemandToolset, readonly string[]> = {
 };
 
 const ACTIVITY_KIND_TOOLSETS: Record<string, AgentOnDemandToolset> = {
+  views: "views",
   messages: "messaging",
   accounts: "messaging",
   widgets: "widgets",
@@ -147,6 +191,7 @@ export function toolsetsForRequest(args: { text: string; pageRoute: string | nul
   const text = normalizeText(args.text);
   const route = args.pageRoute ? normalizeText(args.pageRoute).replace(/^\/[a-z]{2}(?=\/|$)/, "") : "";
   const matched = new Set<AgentOnDemandToolset>();
+  if (agentViewRequestTarget(args.pageRoute).kind === "target") matched.add("views");
   for (const toolset of AGENT_ON_DEMAND_TOOLSETS) {
     if (TOOLSET_LEXICON[toolset].some((term) => text.includes(term))) matched.add(toolset);
     if (route && TOOLSET_ROUTES[toolset].some((prefix) => route === prefix || route.startsWith(`${prefix}/`)))

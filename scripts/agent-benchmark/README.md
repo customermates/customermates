@@ -7,6 +7,11 @@ reports pass rate, pass^3, cost per successful task, cache share, rounds and lat
 comparisons against the shipped configuration. The knowledge base owns the procedure and the reading guide; this file
 only lists the commands.
 
+Use `yarn test` for deterministic code checks and `yarn agent:eval` for the compact merge regression against the
+currently shipped model. Use this benchmark only for capped, resumable quality, cost and latency experiments across
+model configurations. The suites have different release roles even though both live suites drive the same local
+Assistant endpoint.
+
 Requirements: the sandbox worktree with its loopback PostgreSQL, `.env` with `AI_GATEWAY_API_KEY`, `RUN_AGENT_BENCHMARK=true`,
 and the application started in production mode with the benchmark model overlay:
 
@@ -15,6 +20,9 @@ export WORKFLOW_LOCAL_BASE_URL=http://localhost:4107
 yarn build
 LOCAL_AGENT_BENCHMARK=true AGENT_BENCHMARK_ARMS="$(yarn -s agent:benchmark overlay)" yarn next start -p 4107
 ```
+
+The `shipped` control resolves through `MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY]`, the same production catalog entry used
+by the Assistant. The overlay contains only the experimental arms, so it cannot replace or drift from that control.
 
 `WORKFLOW_LOCAL_BASE_URL` must be exported for the CLI as well as the server, because loading the product graph starts a second workflow worker inside the CLI process and that worker posts durable steps over HTTP. Without the variable it probes for a port, and a probe that fails mid-campaign sends every step it picked up into a backoff whose next attempt is hours away: a run stalled after 31 episodes this way.
 
@@ -29,8 +37,11 @@ Commands (`yarn agent:benchmark <command>`):
 - `arms`, `cases`: list arms and cases.
 - `verify-arms`: read the Gateway endpoint listing and record which arms report ZDR and no-training; excluded arms never run.
 - `campaign --label screening --cap 200`: open a campaign with a hard USD cap enforced before every episode.
-- `run --campaign <id> --arms shipped,flash-lite-low --cases S1,M7 --reps 1 --variant baseline`: seed a fresh fixture per episode,
-  drive the turns, observe, score and record the measured cost. Existing episodes are never re-run.
+- `run --campaign <id> --cases S1,M7 --reps 1 --variant baseline`: seed a fresh fixture per episode, drive the turns,
+  observe, score and record the measured cost. Omitting `--arms` runs only the shipped control, and existing episodes
+  are never re-run.
+- Add `--arms shipped,flash-lite-medium` to a run when you explicitly want a comparison between the shipped control and
+  another arm.
 - `judge --campaign <id>`: grade the final answers; charges count against the cap.
 - `report --campaign <id> --label matrix`: write `reports/<date>-<label>/report.md|json` with the selection rule applied.
 

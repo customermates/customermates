@@ -6,8 +6,6 @@ import type { BenchmarkArm } from "./arms";
 
 import { resolveAgentTurnBudget } from "@/ee/agent-chat/agent-budget-policy";
 
-import { benchmarkModelEntries } from "./arms";
-
 export const USD_PER_CREDIT = 0.01;
 
 export const LEDGER_DDL = [
@@ -80,8 +78,7 @@ export async function campaignSpendUsd(pool: Pool, campaignId: string): Promise<
 }
 
 export function worstCaseEpisodeUsd(arm: BenchmarkArm, prompts: number): number {
-  const [entry] = benchmarkModelEntries([arm]);
-  const budget = resolveAgentTurnBudget({ model: entry, availableCredits: 1_000_000 });
+  const budget = resolveAgentTurnBudget({ model: arm, availableCredits: 1_000_000 });
   if (!budget) throw new Error(`Arm ${arm.id} cannot be budgeted.`);
   return budget.reservedCredits * USD_PER_CREDIT * prompts;
 }

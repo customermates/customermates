@@ -5,7 +5,13 @@ import { Pool } from "pg";
 
 import type { EpisodeArtifact } from "./episode";
 
-import { armById, benchmarkArmsOverlayJson, BENCHMARK_ARMS, type BenchmarkArm } from "./arms";
+import {
+  armById,
+  benchmarkArmsOverlayJson,
+  BENCHMARK_ARMS,
+  defaultBenchmarkArmIds,
+  type BenchmarkArm,
+} from "./arms";
 import { campaignEpisodes, campaignSpendUsd, createCampaign, existingEpisode, loadCampaign } from "./campaign";
 import { requireLocalBenchmarkDatabase, requireLocalBenchmarkEnvironment } from "./env";
 import { runEpisode } from "./episode";
@@ -131,7 +137,7 @@ async function main() {
   if (command === "run") {
     const env = requireLocalBenchmarkEnvironment();
     const campaignId = String(flags.campaign ?? "");
-    const armIds = list(flags.arms, BENCHMARK_ARMS.map((arm) => arm.id));
+    const armIds = list(flags.arms, defaultBenchmarkArmIds());
     const caseIds = list(flags.cases, BENCHMARK_CASES.map((definition) => definition.id)) as CaseId[];
     const reps = Number(flags.reps ?? 1);
     const runtimeVariant = String(flags.variant ?? "default");
@@ -225,7 +231,7 @@ async function main() {
     return;
   }
 
-  console.log("Commands: arms | cases | overlay | verify-arms | campaign --label L --cap USD | status --campaign ID | run --campaign ID [--arms a,b] [--cases S1,S2] [--reps N] [--variant current] | judge --campaign ID | report --campaign ID [--label L]");
+  console.log("Commands: arms | cases | overlay | verify-arms | campaign --label L --cap USD | status --campaign ID | run --campaign ID [--arms a,b (default: shipped)] [--cases S1,S2] [--reps N] [--variant current] | judge --campaign ID | report --campaign ID [--label L]");
 }
 
 main()

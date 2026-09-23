@@ -91,7 +91,7 @@ Both live at the same base URL. MCP is `/api/v1/mcp`; the OpenAPI spec is at `/a
 
 ## Tool catalog
 
-Customermates exposes [[derived.mcp.tools.total]] MCP tools, all enabled by default. They cover records, workspace, messaging, social posts, documentation and deep research, custom columns, widgets, routines, webhooks, admin, and support. Every destructive tool is flagged and says `IRREVERSIBLE` in its description. Relations change only through `manage_record_links`; the update tools never touch them.
+Customermates exposes [[derived.mcp.tools.total]] MCP tools, all enabled by default. They cover records, workspace, saved views, messaging, social posts, documentation and deep research, custom columns, widgets, routines, webhooks, admin, and support. Every destructive tool is flagged and says `IRREVERSIBLE` in its description. Relations change only through `manage_record_links`; the update tools never touch them.
 
 Every tool below carries its summary, its flag when it has one, and its arguments. Two flags matter: **Read-only** marks a tool that mutates nothing, which is what you allow without prompting in your client, and **IRREVERSIBLE** marks one that deletes data or cannot be undone. For merged tools the destructive flag applies to their delete-capable actions.
 
@@ -227,7 +227,11 @@ Your user, the company profile, all roles including permissions, and your connec
 Team members with id, name, email, roleId, and status.
 
 **Read-only.** Optional: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+{/* /mcp-catalog */}
 
+### Saved views
+
+{/* mcp-catalog:views */}
 #### `manage_data_views`
 
 Discover, inspect, create, update, select and delete personal saved views on supported workspace pages. Configuration and view discovery are paginated and searchable; create selects the new view, updates patch only supplied settings, and delete is IRREVERSIBLE. Operator-console views are not available through this tool.
@@ -490,7 +494,7 @@ All [[derived.mcp.tools.total]] tools are on by default. To expose only part of 
 https://customermates.com/api/v1/mcp?toolsets=records,messaging
 ```
 
-Keys: records, workspace, messaging, social, docs, custom-columns, widgets, routines, webhooks, admin, support. No parameter means everything; unknown keys are ignored, and a list with no recognised key serves the full surface. `search` and `fetch` are always on so deep-research connectors keep working on any narrowed surface.
+Keys: records, workspace, views, messaging, social, docs, custom-columns, widgets, routines, webhooks, admin, support. No parameter means everything; unknown keys are ignored, and a list with no recognised key serves the full surface. `search` and `fetch` are always on so deep-research connectors keep working on any narrowed surface.
 
 ### When a call is refused
 

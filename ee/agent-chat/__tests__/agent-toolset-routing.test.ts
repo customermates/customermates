@@ -18,6 +18,7 @@ const TOOLS = [
   { name: "list_records", toolset: null },
   { name: "search_docs", toolset: null },
   { name: "load_toolset", toolset: null },
+  { name: "manage_data_views", toolset: "views" },
   { name: "get_messaging_threads", toolset: "messaging" },
   { name: "send_email", toolset: "messaging" },
   { name: "manage_webhooks", toolset: "webhooks" },
@@ -37,9 +38,10 @@ describe("toolset partition", () => {
     for (const toolset of AGENT_ON_DEMAND_TOOLSETS)
       for (const name of toolNamesOfToolset(toolset)) expect(onDemandToolsetOfTool(name)).toBe(toolset);
     for (const name of coreToolNames()) expect(onDemandToolsetOfTool(name)).toBeNull();
-    expect(coreToolNames().size).toBe(25);
+    expect(coreToolNames().size).toBe(24);
     expect(coreToolNames().has("get_activities")).toBe(true);
-    expect(coreToolNames().has("manage_data_views")).toBe(true);
+    expect(coreToolNames().has("manage_data_views")).toBe(false);
+    expect(onDemandToolsetOfTool("manage_data_views")).toBe("views");
   });
 });
 
@@ -51,6 +53,8 @@ describe("toolsetsForRequest", () => {
     );
     expect([...toolsetsForRequest({ text: "Add a KPI chart to my dashboard", pageRoute: null })]).toEqual(["widgets"]);
     expect([...toolsetsForRequest({ text: "Lade Anna als Teammitglied ein", pageRoute: null })]).toEqual(["admin"]);
+    expect([...toolsetsForRequest({ text: "Update my current view", pageRoute: null })]).toEqual(["views"]);
+    expect([...toolsetsForRequest({ text: "Passe meine aktuelle Ansicht an", pageRoute: null })]).toEqual(["views"]);
   });
 
   it("routes by the current page and strips the locale prefix", () => {
@@ -59,6 +63,19 @@ describe("toolsetsForRequest", () => {
       "admin",
     ]);
     expect([...toolsetsForRequest({ text: "Summarize this", pageRoute: "/en/inbox" })]).toEqual(["messaging"]);
+    expect([
+      ...toolsetsForRequest({
+        text: "Only show records with deals",
+        pageRoute: "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
+      }),
+    ]).toEqual(["views"]);
+    expect([
+      ...toolsetsForRequest({
+        text: "Nur Änderungen anzeigen",
+        pageRoute:
+          "/de/contacts/00000000-0000-4000-8000-000000000001?view=__all__&viewSurface=entity-timeline&viewAction=update",
+      }),
+    ]).toEqual(["views"]);
   });
 
   it("keeps a plain records question on the core set", () => {
@@ -71,10 +88,11 @@ describe("toolsetsFromActivities", () => {
     const toolsets = toolsetsFromActivities([
       { kind: "messages.read" },
       { kind: "workspace.terminology" },
+      { kind: "views.configure" },
       { kind: "records.read" },
       { kind: "generic", consequence: { action: "salesList.save" } },
     ]);
-    expect([...toolsets].toSorted()).toEqual(["admin", "messaging", "social"]);
+    expect([...toolsets].toSorted()).toEqual(["admin", "messaging", "social", "views"]);
   });
 });
 
@@ -87,6 +105,9 @@ describe("activeAgentToolNames", () => {
     ]);
     expect(activeAgentToolNames({ tools: TOOLS, initialToolsets: ["webhooks"], messages: [] })).toContain(
       "manage_webhooks",
+    );
+    expect(activeAgentToolNames({ tools: TOOLS, initialToolsets: ["views"], messages: [] })).toContain(
+      "manage_data_views",
     );
   });
 
