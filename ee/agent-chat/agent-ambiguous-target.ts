@@ -23,6 +23,7 @@ const SELECTION_RULE_REACH = 3;
 const NAMING_CLAUSE_REACH = 8;
 const CLAUSE_LOOKBACK_CHARS = 400;
 const CLAUSE_MARKS = [".", "!", "?", ";", ":", ",", "\n"];
+const CLAUSE_BREAK = /[.,:;!?]+(?=\s|$)|\n/;
 const COUNT_WORDS = [
   "both",
   "two",
@@ -394,9 +395,23 @@ function writtenAsRecord(text: string, name: string, entity: string): boolean {
   );
 }
 
+function writtenInClauses(whole: string, clauses: string[], name: string, entity: string): boolean {
+  const holding = clauses.filter((clause) => clause.includes(name));
+  if (holding.length === 0) return writtenAsRecord(whole, name, entity);
+  return holding.some((clause) => writtenAsRecord(clause, name, entity));
+}
+
 function writtenInSomeSpelling(text: string, name: string, entity: string): boolean {
   const names = spellings(name);
-  return spellings(text).some((spelling, index) => writtenAsRecord(spelling, names[index], entity));
+  const clauses = text.split(CLAUSE_BREAK).map(spellings);
+  return spellings(text).some((spelling, index) =>
+    writtenInClauses(
+      spelling,
+      clauses.map((clause) => clause[index]),
+      names[index],
+      entity,
+    ),
+  );
 }
 
 function writtenOutside(text: string, name: string, chosen: string[], entity: string): boolean {
@@ -405,7 +420,8 @@ function writtenOutside(text: string, name: string, chosen: string[], entity: st
   return strictSpellings(text, true).some((spelling, index) => {
     if (!chosenSpellings.every((other) => containsName(spelling, other[index]))) return false;
     const rest = chosenSpellings.reduce((remaining, other) => remaining.split(other[index]).join("\n"), spelling);
-    return writtenAsRecord(loose(rest).trim(), names[index], entity);
+    const clauses = rest.split(CLAUSE_BREAK).map((clause) => loose(clause).trim());
+    return writtenInClauses(loose(rest).trim(), clauses, names[index], entity);
   });
 }
 

@@ -634,6 +634,28 @@ describe("ambiguous write targets", () => {
         "Nova",
       );
       expect(armed(cafeNova, "Mark Cafe Nova as won")).toBe(1);
+      const cafeNord = search([
+        [NOVA, "Café Nord"],
+        [NOVA_2025, "Café Nord 2025"],
+        [UNRELATED, "Café Nord Pilot"],
+      ]);
+      for (const text of [
+        "Alles klar, Cafe Nord auf Gewonnen setzen.",
+        "Thanks all! Mark Cafe Nord as Won.",
+        "Merci à tous. Passe Cafe Nord à gagné.",
+        "Mark Cafe Nord 2025 as won. Thanks all, Cafe Nord as lost.",
+      ])
+        expect(armed(cafeNord, text), text).toBe(1);
+      const mullerKg = search([
+        [NOVA, "Müller GmbH & Co. KG"],
+        [NOVA_2025, "Müller GmbH & Co. KG 2025"],
+      ]);
+      expect(armed(mullerKg, "Alles klar, Müller GmbH & Co KG auf Gewonnen setzen.")).toBe(1);
+      const muellerBau = search([
+        [NOVA, "Müller Bau"],
+        [NOVA_2025, "Müller Bau 2025"],
+      ]);
+      expect(armed(muellerBau, "Setze alle Mueller Bau Deals auf Gewonnen.")).toBe(0);
     });
 
     it("never counts a name found inside another word as a mention", () => {
