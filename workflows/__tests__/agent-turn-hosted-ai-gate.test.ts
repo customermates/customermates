@@ -576,12 +576,14 @@ describe("agent-turn credit-bounded continuation", () => {
 
   it("retries a resolved provider error and reports it with the provider's own message", async () => {
     let segment = 0;
+    const seenMessages: unknown[][] = [];
     state.runTools = ({ messages }) => {
+      seenMessages.push(messages);
       segment += 1;
-      if (segment <= 2) {
+      if (segment === 1) {
         return Promise.resolve({
           finishReason: "error",
-          messages,
+          messages: [{ role: "system", content: "provider-added system message" }, ...messages],
           steps: [streamedStep("", "error")],
           error: new Error("Vertex said no"),
         });
@@ -591,8 +593,9 @@ describe("agent-turn credit-bounded continuation", () => {
 
     await runAgentTurn(payload);
 
-    expect(segment).toBe(3);
-    expect(state.reportFailure).toHaveBeenCalledTimes(2);
+    expect(segment).toBe(2);
+    expect(seenMessages[1]).not.toContainEqual(expect.objectContaining({ role: "system" }));
+    expect(state.reportFailure).toHaveBeenCalledTimes(1);
     expect(state.reportFailure.mock.calls[0][1].message).toContain('finishReason "error"');
     expect(state.reportFailure.mock.calls[0][1].message).toContain("Vertex said no");
     expect(state.finalize).toHaveBeenCalledWith(

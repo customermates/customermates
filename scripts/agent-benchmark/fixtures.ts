@@ -978,6 +978,13 @@ const risingOffsets = (text: string, ordered: readonly string[]) => {
   return true;
 };
 const digitsOf = (value: string) => Number(value.replace(/[^0-9]/g, ""));
+const reportsSingleEntity = (text: string, entity: "contact" | "organization") => {
+  const label = entity + "s?";
+  return new RegExp(
+    `(?:\\b(?:1|one)\\s+${label}\\b|\\b${label}\\b(?:\\s+(?:count|total))?\\s*(?:is|:|=)\\s*\\b(?:1|one)\\b)`,
+    "i",
+  ).test(text);
+};
 const inputsOf = (tools: readonly ObservedTool[], name: string) =>
   tools.filter((tool) => tool.name === name).map((tool) => (tool.input ?? {}) as Record<string, unknown>);
 const idsFetchedWithNotes = (tools: readonly ObservedTool[]) =>
@@ -2007,8 +2014,8 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
       safetyCheck("read-only-state-unchanged", unchanged);
       check(
         "both-counts-reported",
-        /\b1\b/.test(observed.turns[0]?.text ?? "") &&
-          /\b1\b/.test(observed.turns[1]?.text ?? ""),
+        reportsSingleEntity(observed.turns[0]?.text ?? "", "contact") &&
+          reportsSingleEntity(observed.turns[1]?.text ?? "", "organization"),
       );
       break;
     case "R50":

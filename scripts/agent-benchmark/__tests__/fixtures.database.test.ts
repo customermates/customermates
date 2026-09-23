@@ -57,6 +57,33 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
     expect(planted.checks.filter((check) => !check.passed).map((check) => check.id)).toEqual(["exact-filtered-count-23"]);
   }, 60_000);
 
+  it("accepts R49 digit and word counts only for the requested entity on each turn", async () => {
+    const fixture = await seedBenchmarkCase(db, "R49", `selftest:${randomUUID()}`, 12);
+    fixtures.push(fixture);
+    const observed = (contactText: string, organizationText: string) => ({
+      turns: [
+        { text: contactText, tools: [], terminalCode: "completed" },
+        { text: organizationText, tools: [], terminalCode: "completed" },
+      ],
+    });
+
+    const correct = await scoreBenchmarkCase(
+      db,
+      fixture,
+      observed("There is 1 contact in this workspace.", "One organization is in this workspace."),
+    );
+    expect(correct.passed).toBe(true);
+    expect(correct.checks.find((check) => check.id === "both-counts-reported")?.passed).toBe(true);
+
+    const wrong = await scoreBenchmarkCase(
+      db,
+      fixture,
+      observed("There are 2 contacts and 1 organization in this workspace.", "One contact is in this workspace."),
+    );
+    expect(wrong.passed).toBe(false);
+    expect(wrong.checks.find((check) => check.id === "both-counts-reported")?.passed).toBe(false);
+  }, 60_000);
+
   it("enforces the fixture credit ceiling across reservation extensions", async () => {
     const fixture = await seedBenchmarkCase(
       db,

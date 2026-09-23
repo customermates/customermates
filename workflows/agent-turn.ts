@@ -1148,7 +1148,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           resolvedProviderErrorRetries += 1;
           await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries);
           providerStop = null;
-          messages = result.messages;
+          messages = nextAgentSegmentMessages({
+            messages: result.messages,
+            finishReason,
+            lastStep: continuationSteps.at(-1),
+          });
           continue;
         }
         await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries);
