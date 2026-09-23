@@ -1,19 +1,16 @@
 import type * as SentrySdk from "@sentry/nextjs";
 
-import { errorDigest } from "@/core/errors/error-digest";
-import { isExpectedError } from "@/core/errors/app-errors";
-import { scrubAdIdentifiersFromEvent } from "@/core/errors/scrub-ad-identifiers";
+import { loadSentry } from "@/core/errors/sentry-client";
 
-const sentryDsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
-const sentryEnabled = Boolean(sentryDsn);
+const sentryEnabled = Boolean(process.env.NEXT_PUBLIC_SENTRY_DSN);
 
 // A static import here makes @sentry/nextjs the first script in every document, including a blog
 // post: ~176 KB that parses, installs fetch/XHR/history/console wrappers and constructs
 // PerformanceObservers inside the hydration window, before the largest text element can paint.
-// Loading it when the main thread next goes idle keeps it off that path. Errors thrown before it
-// lands are buffered and replayed, so nothing is dropped - only delayed.
+// Loading it when the main thread next goes idle keeps it off that path. Uncaught errors thrown
+// before it lands are buffered and replayed, and explicit reports go through the same loader
+// (core/errors/sentry-client.ts), so every report reaches an initialised SDK.
 const buffered: unknown[] = [];
-let sdk: Promise<typeof SentrySdk> | null = null;
 let installed = false;
 
 function bufferError(event: ErrorEvent) {
@@ -27,41 +24,18 @@ function bufferRejection(event: PromiseRejectionEvent) {
 }
 
 function startSentry(): Promise<typeof SentrySdk> {
-  sdk ??= import("@sentry/nextjs").then((Sentry) => {
-    Sentry.init({
-      dsn: sentryDsn,
-      // Sentry only drops browserTracingIntegration when the bundler rewrites __SENTRY_TRACING__,
-      // which its webpack plugin does and Turbopack does not. Filter it out explicitly.
-      integrations: (defaults) => defaults.filter((integration) => integration.name !== "BrowserTracing"),
-      tracesSampleRate: 0,
-      replaysSessionSampleRate: 0,
-      replaysOnErrorSampleRate: 0,
-      beforeSend(event, hint) {
-        if (isExpectedError(hint?.originalException)) return null;
-
-        if (process.env.NODE_ENV !== "production") {
-          console.error(hint?.originalException ?? event);
-          return null;
-        }
-
-        const digest = errorDigest(hint?.originalException);
-        if (digest) event.tags = { ...event.tags, digest };
-
-        return scrubAdIdentifiersFromEvent(event);
-      },
-    });
-
-    installed = true;
-    if (typeof window !== "undefined") {
-      window.removeEventListener("error", bufferError);
-      window.removeEventListener("unhandledrejection", bufferRejection);
+  return loadSentry().then((Sentry) => {
+    if (!installed) {
+      installed = true;
+      if (typeof window !== "undefined") {
+        window.removeEventListener("error", bufferError);
+        window.removeEventListener("unhandledrejection", bufferRejection);
+      }
     }
     for (const error of buffered.splice(0)) Sentry.captureException(error);
 
     return Sentry;
   });
-
-  return sdk;
 }
 
 if (sentryEnabled && typeof window !== "undefined") {

@@ -1,4 +1,6 @@
 import { cookies } from "next/headers";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 
 import { NavigationSwitch } from "./navigation-switch";
 import { loadNavigationData } from "./navigation-data";
@@ -25,10 +27,11 @@ type Props = {
 };
 
 export async function AppShell({ children, displayLanguage }: Props) {
-  const [account, cookiesStore, operatorConsoleVisible] = await Promise.all([
+  const [account, cookiesStore, operatorConsoleVisible, messages] = await Promise.all([
     resolveRequestAccountState(),
     cookies(),
     getGetOperatorConsoleVisibilityInteractor().invoke(),
+    getMessages(),
   ]);
   const navigation = await loadNavigationData(account.state, {
     company: async () => {
@@ -52,7 +55,7 @@ export async function AppShell({ children, displayLanguage }: Props) {
   const accountAllowed = account.state === "allowed";
   const appUser = accountAllowed ? account.user : null;
 
-  return (
+  const shell = (
     <RootStoreProvider
       agentChatEnabled={isAgentChatAvailable()}
       appMode={env.APP_MODE}
@@ -84,5 +87,13 @@ export async function AppShell({ children, displayLanguage }: Props) {
         {children}
       </NavigationSwitch>
     </RootStoreProvider>
+  );
+
+  if (account.state !== "unauthenticated") return shell;
+
+  return (
+    <NextIntlClientProvider locale={displayLanguage} messages={messages} timeZone="UTC">
+      {shell}
+    </NextIntlClientProvider>
   );
 }

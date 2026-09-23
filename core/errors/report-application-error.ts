@@ -1,4 +1,5 @@
 import { isClientTransportError } from "./client-transport-error";
+import { captureError } from "./sentry-client";
 
 type ApplicationErrorHandler = (error: unknown) => void;
 
@@ -18,8 +19,7 @@ export function registerApplicationErrorHandler(handler: ApplicationErrorHandler
 }
 
 export function reportApplicationError(error: unknown): void {
-  if (!isDemoEnvironment() && !isClientTransportError(error))
-    void import("@sentry/nextjs").then((Sentry) => Sentry.captureException(error)).catch(() => undefined);
+  if (!isDemoEnvironment() && !isClientTransportError(error)) captureError(error);
 
   activeHandler?.(error);
 }
