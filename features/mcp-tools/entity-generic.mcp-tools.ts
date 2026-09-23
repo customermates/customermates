@@ -368,7 +368,7 @@ export const listRecordsTool = {
     "and weightedValue (pipeline weighted by each stage's win probability). " +
     "Custom currency columns are summed the same way and appear in sums under the custom-column id from " +
     "get_record_schema, not the column label, so a question about a money field is one call: filter, then read " +
-    "its sum. Single-select, text and date custom columns are not summable, so filter or group by those instead. " +
+    "its sum. Single-select, text and date custom columns are not summable, so filter by those instead. " +
     "Use get_records (batched, pass many ids in one call) to fetch full field/custom-column values.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: ListRecordsSchema,
