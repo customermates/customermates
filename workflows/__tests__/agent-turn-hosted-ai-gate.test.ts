@@ -1263,6 +1263,75 @@ describe("agent-turn authoritative tool inputs", () => {
     expect(state.execute).not.toHaveBeenCalled();
   });
 
+  it("widens an armed target with a later read of the same phrase instead of replacing it", async () => {
+    define("list_records");
+    define("delete_records");
+    const request = "Delete the Nova deal.";
+    const [a, b, c] = [
+      "11111111-1111-4111-8111-111111111111",
+      "22222222-2222-4222-8222-222222222222",
+      "33333333-3333-4333-8333-333333333333",
+    ];
+    const read = (id: string, rows: [string, string][]) => [
+      {
+        role: "assistant",
+        content: [
+          {
+            type: "tool-call",
+            toolName: "list_records",
+            toolCallId: id,
+            input: { entity: "deal", searchTerm: "Nova" },
+          },
+        ],
+      },
+      {
+        role: "tool",
+        content: [
+          {
+            type: "tool-result",
+            toolCallId: id,
+            toolName: "list_records",
+            output: {
+              type: "json",
+              value: {
+                ok: true,
+                result: `total: ${rows.length}\nitems[${rows.length}]{id,name}:\n${rows.map(([rowId, name]) => `  ${rowId},${name}`).join("\n")}`,
+              },
+            },
+          },
+        ],
+      },
+    ];
+    const messages = [
+      { role: "user", content: request },
+      ...read("wide", [
+        [a, "Nova"],
+        [b, "Nova East"],
+        [c, "Nova West"],
+      ]),
+      ...read("narrow", [
+        [a, "Nova"],
+        [b, "Nova East"],
+      ]),
+    ];
+    const input = { entity: "deal", ids: [c] };
+    state.normalize.mockImplementation((_name: string, value: unknown) => Promise.resolve({ ok: true, input: value }));
+    let gated: boolean | undefined;
+    let output: unknown;
+    state.runTools = async ({ tools, completeStepAndPrepareNext }) => {
+      await completeStepAndPrepareNext(streamedStep("Checking.", "tool-calls"), messages);
+      gated = await tools.delete_records.needsApproval(input, { toolCallId: "call-1" });
+      output = await executeTool(tools.delete_records, input);
+      return finish();
+    };
+
+    await runAgentTurn({ ...payload, messages: [{ role: "user", text: request }] });
+
+    expect(gated).toBe(false);
+    expect(output).toEqual({ ok: false, result: expect.stringContaining("More than one deal matches") });
+    expect(state.execute).not.toHaveBeenCalled();
+  });
+
   it.each(["length", "error"])(
     "never replays a tool call a %s step did not run, and settles it as not run",
     async (finishReason) => {

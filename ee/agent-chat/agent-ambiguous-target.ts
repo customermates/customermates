@@ -121,7 +121,6 @@ function mentionedAlone(text: string, name: string, candidates: Row[]): boolean 
 }
 
 function answersClarification(request: AmbiguityRequest, candidates: Row[]): boolean {
-  if (!request.previousAssistantText.includes("?")) return false;
   const listed = candidates.filter((candidate) =>
     mentionedAlone(request.previousAssistantText, candidate.name.toLowerCase(), candidates),
   );

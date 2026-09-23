@@ -128,19 +128,24 @@ describe("ambiguous write targets", () => {
     expect(ambiguousTargetsFromMessages(reads(novaSearch), request("The 2025 one.", asked))).toEqual([]);
   });
 
-  it("stays armed when the previous answer only mentioned the longer name or listed both without asking", () => {
+  it("stays armed when the previous answer only mentioned the longer name", () => {
     expect(
       ambiguousTargetsFromMessages(
         reads(novaSearch),
         request("Now mark Nova Expansion as Won.", "I moved Nova Expansion 2025 to Negotiation. Anything else?"),
       ),
     ).toHaveLength(1);
-    expect(
-      ambiguousTargetsFromMessages(
-        reads(novaSearch),
-        request("Mark the Nova Expansion deal as Won.", "Nova Expansion and Nova Expansion 2025."),
-      ),
-    ).toHaveLength(1);
+  });
+
+  it("takes a reply naming one candidate after an answer that listed both as a choice, asked or not", () => {
+    for (const previous of [
+      "I found two deals: Nova Expansion and Nova Expansion 2025. Please let me know which one you mean.",
+      "Nova Expansion and Nova Expansion 2025.",
+    ]) {
+      expect(ambiguousTargetsFromMessages(reads(novaSearch), request("Mark Nova Expansion as Won.", previous))).toEqual(
+        [],
+      );
+    }
   });
 
   it("widens an armed target with a later read's candidates and never narrows it", () => {
