@@ -1,7 +1,9 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { describe, expect, it } from "vitest";
+import type * as FsPromises from "node:fs/promises";
+
+import { describe, expect, it, vi } from "vitest";
 
 import { ANALYSIS_LIMITS, runAnalysisCode } from "../agent-analysis-isolate";
 
@@ -72,6 +74,32 @@ describe("analysis isolate", () => {
     },
     30_000,
   );
+
+  it("starts the wall budget only once the wasm module is compiled", async () => {
+    vi.resetModules();
+    vi.doMock("node:fs/promises", async (importOriginal) => {
+      const actual = await importOriginal<typeof FsPromises>();
+      return {
+        ...actual,
+        readFile: async (...args: Parameters<typeof actual.readFile>) => {
+          await new Promise((resolve) => setTimeout(resolve, 600));
+          return actual.readFile(...args);
+        },
+      };
+    });
+    try {
+      const fresh = await import("../agent-analysis-isolate");
+      await expect(
+        fresh.runAnalysisCode("(data) => data.length", [1, 2], { ...ANALYSIS_LIMITS, wallMs: 200 }),
+      ).resolves.toEqual({
+        ok: true,
+        value: 2,
+      });
+    } finally {
+      vi.doUnmock("node:fs/promises");
+      vi.resetModules();
+    }
+  }, 30_000);
 
   it("stops code that exceeds its step budget", async () => {
     const outcome = await runAnalysisCode(
