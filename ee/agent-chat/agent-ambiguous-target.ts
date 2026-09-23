@@ -112,8 +112,19 @@ function namedUniquely(latest: string, candidates: Row[]): boolean {
   });
 }
 
+function mentionedAlone(text: string, name: string, candidates: Row[]): boolean {
+  const longer = candidates
+    .map((candidate) => candidate.name.toLowerCase())
+    .filter((other) => other !== name && other.includes(name));
+  const remaining = longer.reduce((rest, other) => rest.split(other).join(" "), text);
+  return remaining.includes(name);
+}
+
 function answersClarification(request: AmbiguityRequest, candidates: Row[]): boolean {
-  const listed = candidates.filter((candidate) => request.previousAssistantText.includes(candidate.name.toLowerCase()));
+  if (!request.previousAssistantText.includes("?")) return false;
+  const listed = candidates.filter((candidate) =>
+    mentionedAlone(request.previousAssistantText, candidate.name.toLowerCase(), candidates),
+  );
   if (listed.length < 2) return false;
   return candidates.some((candidate) => {
     const name = candidate.name.toLowerCase();
@@ -127,6 +138,15 @@ function answersClarification(request: AmbiguityRequest, candidates: Row[]): boo
 
 export function ambiguousTargetKey(target: AmbiguousTarget): string {
   return `${target.entity}:${target.phrase.toLowerCase()}`;
+}
+
+export function mergeAmbiguousTarget(armed: AmbiguousTarget | undefined, next: AmbiguousTarget): AmbiguousTarget {
+  if (!armed) return next;
+  const known = new Set(armed.candidates.map((candidate) => candidate.id.toLowerCase()));
+  return {
+    ...armed,
+    candidates: [...armed.candidates, ...next.candidates.filter((candidate) => !known.has(candidate.id.toLowerCase()))],
+  };
 }
 
 export function ambiguousTargetsFromMessages(

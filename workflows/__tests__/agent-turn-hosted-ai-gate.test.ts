@@ -1233,6 +1233,36 @@ describe("agent-turn authoritative tool inputs", () => {
     expect(state.execute).not.toHaveBeenCalled();
   });
 
+  it("keeps a same-named target armed after the read that armed it has left the context", async () => {
+    define("list_records");
+    define("delete_records");
+    const request = "Delete the Nova Expansion deal.";
+    const { nova, messages: searched } = novaSearched(request);
+    const input = { entity: "deal", ids: [nova] };
+    state.normalize.mockImplementation((_name: string, value: unknown) => Promise.resolve({ ok: true, input: value }));
+    let gated: boolean | undefined;
+    let output: unknown;
+    state.runTools = async ({ tools, completeStepAndPrepareNext }) => {
+      await completeStepAndPrepareNext(
+        streamedToolCallStep("list_records", "list-1", { entity: "deal", searchTerm: "Nova Expansion" }),
+        searched,
+      );
+      await completeStepAndPrepareNext(streamedStep("Checking.", "tool-calls"), [
+        { role: "user", content: request },
+        { role: "user", content: "Continue from where the previous output stopped." },
+      ]);
+      gated = await tools.delete_records.needsApproval(input, { toolCallId: "call-1" });
+      output = await executeTool(tools.delete_records, input);
+      return finish();
+    };
+
+    await runAgentTurn({ ...payload, messages: [{ role: "user", text: request }] });
+
+    expect(gated).toBe(false);
+    expect(output).toEqual({ ok: false, result: expect.stringContaining("More than one deal matches") });
+    expect(state.execute).not.toHaveBeenCalled();
+  });
+
   it.each(["length", "error"])(
     "never replays a tool call a %s step did not run, and settles it as not run",
     async (finishReason) => {
@@ -1265,8 +1295,11 @@ describe("agent-turn authoritative tool inputs", () => {
 
       expect(segment).toBe(2);
       expect(seen[1]).not.toContain("unrun-1");
+      if (finishReason === "length") expect(seen[1]).toContain("Partial.");
       expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
-      expect(JSON.stringify(state.writes)).not.toMatch(/"toolCallId":"unrun-1"[^}]*"status":"error"/);
+      expect(state.finalize.mock.calls[0][0].parts).toContainEqual(
+        expect.objectContaining({ type: "activity", id: "unrun-1", status: "cancelled" }),
+      );
     },
   );
 

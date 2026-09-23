@@ -36,6 +36,7 @@ import {
   ambiguousTargetKey,
   ambiguousTargetRefusal,
   ambiguousTargetsFromMessages,
+  mergeAmbiguousTarget,
   refusingTarget,
   type AmbiguousTarget,
 } from "@/ee/agent-chat/agent-ambiguous-target";
@@ -1116,8 +1117,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         prepareStep: async ({ messages: stepMessages }) => {
           if (abandoned || cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null)
             throw AGENT_LOCAL_TERMINATION_REQUIRED;
-          for (const target of ambiguousTargetsFromMessages(stepMessages, ambiguityRequest))
-            armedTargets.set(ambiguousTargetKey(target), target);
+          for (const target of ambiguousTargetsFromMessages(stepMessages, ambiguityRequest)) {
+            const key = ambiguousTargetKey(target);
+            armedTargets.set(key, mergeAmbiguousTarget(armedTargets.get(key), target));
+          }
           const activeTools = activeToolNamesFor(stepMessages);
           const activeDefinitions = activeTools
             ? toolDefinitions.filter((definition) => activeTools.includes(definition.name))

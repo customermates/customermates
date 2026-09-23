@@ -6,6 +6,7 @@ import {
   ambiguousTargetRefusal,
   ambiguousTargetsFromMessages,
   candidateIdsIn,
+  mergeAmbiguousTarget,
   refusingTarget,
   type AmbiguityRequest,
 } from "../agent-ambiguous-target";
@@ -125,6 +126,49 @@ describe("ambiguous write targets", () => {
       ambiguousTargetsFromMessages(reads(novaSearch), request("I meant just Nova Expansion, the one without a year")),
     ).toHaveLength(1);
     expect(ambiguousTargetsFromMessages(reads(novaSearch), request("The 2025 one.", asked))).toEqual([]);
+  });
+
+  it("stays armed when the previous answer only mentioned the longer name or listed both without asking", () => {
+    expect(
+      ambiguousTargetsFromMessages(
+        reads(novaSearch),
+        request("Now mark Nova Expansion as Won.", "I moved Nova Expansion 2025 to Negotiation. Anything else?"),
+      ),
+    ).toHaveLength(1);
+    expect(
+      ambiguousTargetsFromMessages(
+        reads(novaSearch),
+        request("Mark the Nova Expansion deal as Won.", "Nova Expansion and Nova Expansion 2025."),
+      ),
+    ).toHaveLength(1);
+  });
+
+  it("widens an armed target with a later read's candidates and never narrows it", () => {
+    const [wide] = ambiguousTargetsFromMessages(
+      reads({
+        input: { entity: "deal", searchTerm: "Nova" },
+        result: table([
+          [NOVA, "Nova"],
+          [NOVA_2025, "Nova East"],
+          [UNRELATED, "Nova West"],
+        ]),
+      }),
+      request("Mark the Nova deal as Won."),
+    );
+    const [narrow] = ambiguousTargetsFromMessages(
+      reads({
+        input: { entity: "deal", searchTerm: "Nova" },
+        result: table([
+          [NOVA, "Nova"],
+          [NOVA_2025, "Nova East"],
+        ]),
+      }),
+      request("Mark the Nova deal as Won."),
+    );
+    const merged = mergeAmbiguousTarget(wide, narrow);
+    expect(merged.candidates.map((candidate) => candidate.id)).toEqual([NOVA, NOVA_2025, UNRELATED]);
+    expect(refusingTarget([merged], false, { deals: [{ id: UNRELATED }] })).toBe(merged);
+    expect(refusingTarget([merged], false, { deals: [{ id: UNRELATED }, { id: NOVA_2025 }] })).toBeNull();
   });
 
   it("reads candidates from the list form TOON uses when rows have different keys", () => {
