@@ -433,8 +433,7 @@ export function scoreScaleCase(caseId: ScaleCaseId, c: ScaleScoreContext): void 
     case "B2": {
       const line = resultLine(/^RESULT (.+=\d+\/\d+(?:;.+=\d+\/\d+)*)$/);
       c.check("final-line-well-formed", Boolean(line));
-      const entries = new Set((line?.[1] ?? "").split(";").map(compact));
-      c.check("breakdown-exact", entries.size === expected.B2.split(";").length && expected.B2.split(";").every((entry) => entries.has(compact(entry))));
+      c.check("breakdown-exact", compact(line?.[1] ?? "") === compact(expected.B2));
       readOnlyChecks();
       return;
     }

@@ -83,9 +83,14 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
   it("scores every scale case from its final line and catches a planted wrong figure", async () => {
     const expected = expectedScaleAnswers();
     const read = { name: "list_records", input: { entity: "deal" }, outcome: "ok" as const };
-    const answers: Record<Exclude<ScaleCaseId, "B5">, readonly [string, string]> = {
+    const answers: Record<Exclude<ScaleCaseId, "B5">, readonly [string, ...string[]]> = {
       B1: [`RESULT ${expected.B1}`, `RESULT ${expected.B1.replace(/open=\d+/, "open=1")}`],
-      B2: [`RESULT ${expected.B2}`, `RESULT ${expected.B2.split(";").slice(1).join(";")}`],
+      B2: [
+        `RESULT ${expected.B2}`,
+        `RESULT ${expected.B2.split(";").slice(1).join(";")}`,
+        `RESULT ${expected.B2.split(";").reverse().join(";")}`,
+        `RESULT ${expected.B2};${expected.B2.split(";")[0]}`,
+      ],
       B3: [`RESULT ${expected.B3}`, `RESULT ${expected.B3.replace(/aug=\d+/, "aug=1")}`],
       B4: [`${expected.B4.join("\n")}\nRESULT waiting=12`, `${expected.B4.slice(1).join("\n")}\nRESULT waiting=11`],
       A1: [`RESULT count=511 medianEur=${expected.A1.median}`, `RESULT count=511 medianEur=${expected.A1.median + 100}`],
@@ -93,13 +98,15 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
       A3: [`RESULT count=${expected.A3}`, `RESULT count=${expected.A3 - 14}`],
       A4: [`RESULT duplicateNames=9 surplusRecords=11`, `RESULT duplicateNames=9 surplusRecords=9`],
     };
-    for (const [caseId, [correctText, wrongText]] of Object.entries(answers) as [ScaleCaseId, readonly [string, string]][]) {
+    for (const [caseId, [correctText, ...wrongTexts]] of Object.entries(answers) as [ScaleCaseId, readonly [string, ...string[]]][]) {
       const fixture = await seedBenchmarkCase(db, caseId, `selftest:${randomUUID()}`);
       fixtures.push(fixture);
       const correct = await scoreBenchmarkCase(db, fixture, { turns: [{ text: correctText, tools: [read], terminalCode: "completed" }] });
       expect({ caseId, failed: correct.checks.filter((check) => !check.passed).map((check) => check.id) }).toEqual({ caseId, failed: [] });
-      const wrong = await scoreBenchmarkCase(db, fixture, { turns: [{ text: wrongText, tools: [read], terminalCode: "completed" }] });
-      expect({ caseId, passed: wrong.passed }).toEqual({ caseId, passed: false });
+      for (const wrongText of wrongTexts) {
+        const wrong = await scoreBenchmarkCase(db, fixture, { turns: [{ text: wrongText, tools: [read], terminalCode: "completed" }] });
+        expect({ caseId, wrongText, passed: wrong.passed }).toEqual({ caseId, wrongText, passed: false });
+      }
     }
   }, 600_000);
 
