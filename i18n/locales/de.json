@@ -1092,6 +1092,7 @@
       "apiKeyMaxExpiration": "Die Ablaufzeit des API-Schlüssels darf 365 Tage nicht überschreiten.",
       "apiKeyMinExpiration": "Die Ablaufzeit des API-Schlüssels muss mindestens 1 Tag betragen.",
       "assigneeRequired": "Du musst dich diesem Element zuweisen. Beachte, dass du nur Elemente sehen kannst, die dir zugewiesen sind.",
+      "billingPortalUnavailable": "Das Abrechnungsportal ist für diesen Workspace nicht verfügbar. Wende dich für Änderungen an den Support.",
       "calendarEventNotFound": "Kalenderereignis-ID nicht gefunden oder nicht zugänglich.",
       "channelAlreadyLinked": "Dieser Kanal ist bereits mit einem anderen Kontakt verknüpft.",
       "connectedAccountNotFound": "Kanal-ID nicht gefunden oder nicht zugänglich.",
@@ -3392,12 +3393,10 @@
       "planManage": "Wird mit der Abrechnung synchronisiert. Verwende „{billing}“ für Änderungen.",
       "planPicker": "Wähle unten einen Tarif, um das Abonnement zu starten oder zu ändern.",
       "planReadOnly": "Wird mit der Abrechnung synchronisiert. Bitte eine Workspace-Administration um Änderungen.",
-      "planUnavailable": "Wird mit der Abrechnung synchronisiert. Wende dich für Änderungen an den Support.",
       "quantity": "Wird mit der Anzahl aktiver Workspace-Mitglieder synchronisiert. Eine Workspace-Administration kann Mitglieder unter „{company}“ aktivieren oder deaktivieren.",
       "trialEndsManage": "Wird durch den Testzeitraum festgelegt. Verwalte das Abonnement über „{billing}“.",
       "trialEndsPicker": "Wird durch den Testzeitraum festgelegt. Wähle vor diesem Datum einen Tarif, um Unterbrechungen zu vermeiden.",
-      "trialEndsReadOnly": "Wird durch den Testzeitraum festgelegt. Bitte eine Workspace-Administration, das Abonnement zu verwalten.",
-      "trialEndsUnavailable": "Wird durch den Testzeitraum festgelegt. Wende dich zur Verwaltung des Abonnements an den Support."
+      "trialEndsReadOnly": "Wird durch den Testzeitraum festgelegt. Bitte eine Workspace-Administration, das Abonnement zu verwalten."
     },
     "managedExternallyNote": "Dieser Workspace nutzt einen Enterprise-Tarif mit Rechnungsstellung. Wende dich an deinen Ansprechpartner, um Änderungen vorzunehmen.",
     "manageWithLemonSqueezy": "Verwalten mit Lemon Squeezy",

@@ -1092,6 +1092,7 @@
       "apiKeyMaxExpiration": "La scadenza di una chiave API non può superare i 365 giorni.",
       "apiKeyMinExpiration": "La scadenza di una chiave API deve essere di almeno 1 giorno.",
       "assigneeRequired": "Devi assegnare questo elemento a te stesso. Nota che potrai vedere solo gli elementi assegnati a te.",
+      "billingPortalUnavailable": "Il portale di fatturazione non è disponibile per questo spazio di lavoro. Contatta l’assistenza per apportare modifiche.",
       "calendarEventNotFound": "ID evento del calendario non trovato o non accessibile.",
       "channelAlreadyLinked": "Questo canale è già collegato a un altro contatto.",
       "connectedAccountNotFound": "ID canale non trovato o non accessibile.",
@@ -3392,12 +3393,10 @@
       "planManage": "Sincronizzato con la fatturazione. Usa «{billing}» per apportare modifiche.",
       "planPicker": "Scegli un piano qui sotto per avviare o modificare l’abbonamento.",
       "planReadOnly": "Sincronizzato con la fatturazione. Chiedi le modifiche a un amministratore dell’area di lavoro.",
-      "planUnavailable": "Sincronizzato con la fatturazione. Contatta l’assistenza per apportare modifiche.",
       "quantity": "Sincronizzato con il numero di membri attivi dell’area di lavoro. Gli amministratori possono attivare o disattivare i membri in «{company}».",
       "trialEndsManage": "Definita dal periodo di prova. Usa «{billing}» per gestire l’abbonamento.",
       "trialEndsPicker": "Definita dal periodo di prova. Scegli un piano prima di questa data per continuare senza interruzioni.",
-      "trialEndsReadOnly": "Definita dal periodo di prova. Chiedi a un amministratore dell’area di lavoro di gestire l’abbonamento.",
-      "trialEndsUnavailable": "Definita dal periodo di prova. Contatta l’assistenza per gestire l’abbonamento."
+      "trialEndsReadOnly": "Definita dal periodo di prova. Chiedi a un amministratore dell’area di lavoro di gestire l’abbonamento."
     },
     "managedExternallyNote": "Questa area di lavoro usa un piano Enterprise con pagamento tramite fattura. Contatta il tuo account manager per apportare modifiche.",
     "manageWithLemonSqueezy": "Gestisci con Lemon Squeezy",

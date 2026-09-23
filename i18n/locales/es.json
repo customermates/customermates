@@ -1092,6 +1092,7 @@
       "apiKeyMaxExpiration": "La caducidad de una clave de API no puede superar los 365 días.",
       "apiKeyMinExpiration": "La caducidad de una clave de API debe ser de al menos 1 día.",
       "assigneeRequired": "Debes asignarte este elemento. Ten en cuenta que solo podrás ver los elementos asignados a ti.",
+      "billingPortalUnavailable": "El portal de facturación no está disponible para este espacio de trabajo. Contacta con soporte para hacer cambios.",
       "calendarEventNotFound": "ID de evento de calendario no encontrado o no accesible.",
       "channelAlreadyLinked": "Este canal ya está vinculado a otro contacto.",
       "connectedAccountNotFound": "ID de canal no encontrado o no accesible.",
@@ -3392,12 +3393,10 @@
       "planManage": "Se sincroniza con la facturación. Usa «{billing}» para hacer cambios.",
       "planPicker": "Elige un plan abajo para iniciar o cambiar la suscripción.",
       "planReadOnly": "Se sincroniza con la facturación. Pide los cambios a un administrador del espacio de trabajo.",
-      "planUnavailable": "Se sincroniza con la facturación. Contacta con soporte para hacer cambios.",
       "quantity": "Se sincroniza con el número de miembros activos del espacio de trabajo. Los administradores pueden activar o desactivar miembros en «{company}».",
       "trialEndsManage": "Lo determina el periodo de prueba. Usa «{billing}» para gestionar la suscripción.",
       "trialEndsPicker": "Lo determina el periodo de prueba. Elige un plan antes de esta fecha para continuar sin interrupciones.",
-      "trialEndsReadOnly": "Lo determina el periodo de prueba. Pide a un administrador del espacio de trabajo que gestione la suscripción.",
-      "trialEndsUnavailable": "Lo determina el periodo de prueba. Contacta con soporte para gestionar la suscripción."
+      "trialEndsReadOnly": "Lo determina el periodo de prueba. Pide a un administrador del espacio de trabajo que gestione la suscripción."
     },
     "managedExternallyNote": "El plan Enterprise de este espacio de trabajo se abona mediante factura. Contacta con tu gestor de cuenta para hacer cambios.",
     "manageWithLemonSqueezy": "Gestionar con Lemon Squeezy",
