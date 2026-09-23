@@ -111,8 +111,23 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
     const setStatus = (dealKey: string, option: string) =>
       db.prisma.customFieldValue.updateMany({ where: { dealId: fixture.ids[dealKey], columnId: fixture.ids["deal-status"] }, data: { value: fixture.ids[option] } });
 
+    const failedChecks = async () => (await scoreBenchmarkCase(db, fixture, { turns: [ask, write] })).checks.filter((check) => !check.passed).map((check) => check.id);
+    const rename = (dealKey: string, name: string) => db.prisma.deal.update({ where: { id: fixture.ids[dealKey] }, data: { name } });
+
     await setStatus("nova-deal-2025", "option-won");
-    expect((await scoreBenchmarkCase(db, fixture, { turns: [ask, write] })).checks.filter((check) => !check.passed)).toEqual([]);
+    expect(await failedChecks()).toEqual([]);
+
+    await rename("nova-deal", "Nova Expansion Renamed");
+    expect(await failedChecks()).toEqual(["nothing-else-changed"]);
+    await rename("nova-deal", "Nova Expansion");
+    await rename("nova-deal-2025", "Nova Expansion 2025 Renamed");
+    expect(await failedChecks()).toEqual(["nothing-else-changed"]);
+    await rename("nova-deal-2025", "Nova Expansion 2025");
+    const reference = await db.prisma.customFieldValue.create({ data: { companyId: fixture.companyId, entityType: "deal", columnId: fixture.ids["deal-reference"], type: "plain", value: "REF-2025", dealId: fixture.ids["nova-deal-2025"] } });
+    expect(await failedChecks()).toEqual(["nothing-else-changed"]);
+    await db.prisma.customFieldValue.delete({ where: { id: reference.id } });
+    await db.prisma.deal.update({ where: { id: fixture.ids["nova-deal-2025"] }, data: { totalValue: 18_500, totalQuantity: 185 } });
+    expect(await failedChecks()).toEqual([]);
 
     await setStatus("nova-deal", "option-won");
     const wrongDeal = await scoreBenchmarkCase(db, fixture, { turns: [ask, write] });

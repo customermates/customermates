@@ -454,8 +454,12 @@ export function scoreScaleCase(caseId: ScaleCaseId, c: ScaleScoreContext): void 
       const status = (key: string) => c.rows(c.after, "customFieldValue").find((row) => row.dealId === c.ids[key] && row.columnId === c.ids["deal-status"])?.value;
       c.check("named-deal-won", status("nova-deal-2025") === c.ids["option-won"]);
       c.check("other-deal-still-open", status("nova-deal") === c.ids["option-open"]);
-      const otherValues = (snapshot: Record<string, unknown[]>) => c.rows(snapshot, "customFieldValue").filter((row) => row.dealId !== c.ids["nova-deal-2025"]);
-      c.check("nothing-else-changed", c.same(c.without(c.before, ["customFieldValue", "deal"]), c.without(c.after, ["customFieldValue", "deal"])) && c.same(otherValues(c.before), otherValues(c.after)));
+      const withoutRequestedChange = (snapshot: Record<string, unknown[]>) => ({
+        ...c.without(snapshot, ["customFieldValue", "deal"]),
+        deal: c.rows(snapshot, "deal").map(({ totalValue, totalQuantity, weightedValue, ...rest }) => rest),
+        customFieldValue: c.rows(snapshot, "customFieldValue").filter((row) => row.dealId !== c.ids["nova-deal-2025"] || row.columnId !== c.ids["deal-status"]),
+      });
+      c.check("nothing-else-changed", c.same(withoutRequestedChange(c.before), withoutRequestedChange(c.after)));
       return;
     }
     case "A1": {
