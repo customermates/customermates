@@ -171,17 +171,22 @@ describe("ambiguous write targets", () => {
       [NOVA, "Nova"],
       [NOVA_2025, "Nova East"],
     ]);
+    const threeNovas = search([
+      [NOVA, "Nova"],
+      [NOVA_2025, "Nova East"],
+      [UNRELATED, "Nova West"],
+    ]);
+    const cafe = search([
+      [NOVA, "Café"],
+      [NOVA_2025, "Café Nord"],
+    ]);
     const armed = (read: Read, latest: string, previous = "") =>
       ambiguousTargetsFromMessages(reads(read), request(latest, previous)).length;
 
     it("never counts a name found inside another word as a mention", () => {
       expect(armed(nova, "Delete the Nova deal.", "The renovation budget for Nova East is 12,000.")).toBe(1);
       expect(armed(nova, "Plan the renovation deal.")).toBe(0);
-      const threeNovas = search([
-        [NOVA, "Nova"],
-        [NOVA_2025, "Nova East"],
-        [UNRELATED, "Nova West"],
-      ]);
+      expect(armed(nova, "Plan the re\u200cnovation deal.")).toBe(0);
       expect(armed(threeNovas, "The Nova Eastern one", "Did you mean Nova East or Nova West?")).toBe(1);
       expect(
         armed(
@@ -190,6 +195,28 @@ describe("ambiguous write targets", () => {
             [NOVA_2025, "Acme Pro"],
           ]),
           "Delete the Acme deal, see the Acme Profile note",
+        ),
+      ).toBe(1);
+      const dongfang = search([
+        [NOVA, "东方红"],
+        [NOVA_2025, "东方红星"],
+      ]);
+      expect(armed(dongfang, "把东方红星期一的交易删了")).toBe(1);
+      expect(armed(dongfang, "delete东方红")).toBe(1);
+      expect(armed(dongfang, "东方红星")).toBe(0);
+    });
+
+    it("never takes a plural or a longer name's stem as naming the shorter candidate", () => {
+      const adam = search([
+        [NOVA, "Adam"],
+        [NOVA_2025, "Adams Consulting"],
+      ]);
+      expect(armed(adam, "Adams", "Did you mean Adam or Adams Consulting?")).toBe(1);
+      expect(
+        armed(
+          threeNovas,
+          "Delete the Nova deal.",
+          "I moved both Novas: Nova East to Negotiation and Nova West to Won.",
         ),
       ).toBe(1);
     });
@@ -201,12 +228,13 @@ describe("ambiguous write targets", () => {
       ]);
       expect(armed(muller, "Setze Müllers Deal auf Gewonnen")).toBe(1);
       expect(armed(nova, "Poista Novan kauppa")).toBe(1);
-      expect(armed(nova, "删除Nova的交易")).toBe(1);
       expect(armed(nova, "Lösche den Novadeal.")).toBe(1);
+      for (const before of ["删除", "取引の", "ディール", "ลบดีล", "ລົບ", "លុប", "ဖျက်", "❤️", "1️⃣"])
+        expect(armed(nova, `${before}Nova`), before).toBe(1);
     });
 
-    it("takes a possessive or an unspaced script as a clear choice", () => {
-      expect(armed(nova, "Setze Nova Easts Deal auf Gewonnen")).toBe(0);
+    it("takes a name set off from its neighbours as a clear choice", () => {
+      expect(armed(nova, "Mark Nova East's deal as won.")).toBe(0);
       expect(armed(nova, "删除 Nova East的交易")).toBe(0);
       expect(armed(nova, "Nova", "您是指Nova还是Nova East？")).toBe(0);
     });
@@ -219,11 +247,17 @@ describe("ambiguous write targets", () => {
       expect(armed(ram, "राम का सौदा हटाओ", "रामायण बजट राम ट्रेडर्स के लिए 12,000 है।")).toBe(1);
       expect(armed(ram, "राम का सौदा हटाओ", "राम या राम ट्रेडर्स?")).toBe(0);
       expect(armed(nova, "Delete the Nova deal.", "The Nova\u0308 budget for Nova East is 12,000.")).toBe(1);
-      const cafe = search([
-        [NOVA, "Café"],
-        [NOVA_2025, "Café Nord"],
-      ]);
       expect(armed(cafe, "Delete the Cafe\u0301 deal.")).toBe(1);
+      expect(armed(cafe, "Cafe\u0301", "Cafe\u0301 or Cafe\u0301 Nord?")).toBe(0);
+      const decomposed = search(
+        [
+          [NOVA, "Cafe\u0301"],
+          [NOVA_2025, "Cafe\u0301 Nord"],
+        ],
+        "Café",
+      );
+      expect(armed(decomposed, "Delete the Café deal.")).toBe(1);
+      expect(armed(decomposed, "Delete the Café Nord deal.")).toBe(0);
     });
   });
 

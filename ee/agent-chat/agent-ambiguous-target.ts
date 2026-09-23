@@ -12,7 +12,11 @@ const TOON_LIST_ROW = /^\s*-\s+id:\s*([0-9a-fA-F-]{36})\s*\n\s+name:\s*(?:"((?:[
 const UNSPACED_SCRIPTS = ["Han", "Hiragana", "Katakana", "Thai", "Lao", "Khmer", "Myanmar"]
   .map((script) => `\\p{scx=${script}}`)
   .join("");
-const WORD_CHAR = `[[\\p{L}\\p{N}\\p{M}\\u200c\\u200d]--[${UNSPACED_SCRIPTS}]]`;
+const WORD = "\\p{L}\\p{N}\\p{M}\\u200c\\u200d";
+const NEVER_WORD = "\\p{Variation_Selector}\\u20e3";
+const ANY_WORD_CHAR = `[[${WORD}]--[${NEVER_WORD}]]`;
+const SPACED_WORD_CHAR = `[[${WORD}]--[${NEVER_WORD}${UNSPACED_SCRIPTS}]]`;
+const UNSPACED_CHAR = new RegExp(`[${UNSPACED_SCRIPTS}]`, "v");
 
 type Row = { id: string; name: string };
 
@@ -24,14 +28,23 @@ function escapeName(name: string): string {
   return name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+function wordCharNextTo(edge: string): string {
+  return UNSPACED_CHAR.test(edge) ? ANY_WORD_CHAR : SPACED_WORD_CHAR;
+}
+
 function startsWordWith(text: string, phrase: string): boolean {
-  if (!phrase) return false;
-  return new RegExp(`(?<!${WORD_CHAR})${escapeName(phrase)}`, "v").test(text);
+  const [first] = [...phrase];
+  if (!first) return false;
+  if (UNSPACED_CHAR.test(first)) return text.includes(phrase);
+  return new RegExp(`(?<!${SPACED_WORD_CHAR})${escapeName(phrase)}`, "v").test(text);
 }
 
 function containsName(text: string, name: string): boolean {
-  if (!name) return false;
-  return new RegExp(`(?<!${WORD_CHAR})${escapeName(name)}(?:['’]?s)?(?!${WORD_CHAR})`, "v").test(text);
+  const chars = [...name];
+  if (chars.length === 0) return false;
+  const before = wordCharNextTo(chars[0]);
+  const after = wordCharNextTo(chars[chars.length - 1]);
+  return new RegExp(`(?<!${before})${escapeName(name)}(?!${after})`, "v").test(text);
 }
 
 export function ambiguityRequestOf(history: readonly { role: string; text: string }[]): AmbiguityRequest {
