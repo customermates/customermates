@@ -1,6 +1,12 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import { ANALYSIS_LIMITS, runAnalysisCode } from "../agent-analysis-isolate";
+
+const TIME_BUDGET_ERROR = "The analysis code ran longer than its time budget and was stopped.";
+const COSTLY_BUILT_IN_LOOP = "() => { const s = 'a'.repeat(4e6); for (let i = 0; i < 2e3; i++) s.indexOf('b'); }";
 
 describe("analysis isolate", () => {
   it("returns the JSON result of a pure function over the data", async () => {
@@ -16,8 +22,38 @@ describe("analysis isolate", () => {
   it("stops an endless loop at the time budget", async () => {
     const started = Date.now();
     const outcome = await runAnalysisCode("() => { for (;;) {} }", null, { ...ANALYSIS_LIMITS, wallMs: 200 });
-    expect(outcome).toEqual({ ok: false, error: "The analysis code ran longer than its time budget and was stopped." });
+    expect(outcome).toEqual({ ok: false, error: TIME_BUDGET_ERROR });
     expect(Date.now() - started).toBeLessThan(2_000);
+  });
+
+  it("stops a loop over a costly built-in at the time budget", async () => {
+    const started = Date.now();
+    const outcome = await runAnalysisCode(COSTLY_BUILT_IN_LOOP, null, { ...ANALYSIS_LIMITS, wallMs: 500 });
+    expect(outcome).toEqual({ ok: false, error: TIME_BUDGET_ERROR });
+    expect(Date.now() - started).toBeLessThan(500 + 1_500);
+  });
+
+  it("keeps the event loop free while the analysis code runs", async () => {
+    const started = Date.now();
+    let firedAfter: number | undefined;
+    const timer = setTimeout(() => {
+      firedAfter = Date.now() - started;
+    }, 100);
+    const outcome = await runAnalysisCode(COSTLY_BUILT_IN_LOOP, null, { ...ANALYSIS_LIMITS, wallMs: 1_000 });
+    clearTimeout(timer);
+    expect(outcome).toEqual({ ok: false, error: TIME_BUDGET_ERROR });
+    expect(firedAfter).toBeLessThan(600);
+  });
+
+  it("traces every file the worker loads at runtime into the workflow function", () => {
+    const config = readFileSync(join(process.cwd(), "next.config.ts"), "utf8");
+    const traced = /"\/\.well-known\/workflow\/v1\/flow": \[([^\]]*)\]/.exec(config)?.[1] ?? "";
+    for (const path of ["package.json", "dist/*.js", "quickjs.wasm"])
+      expect(traced).toContain(`"./node_modules/quickjs-wasi/${path}"`);
+    const entry = readFileSync(join(process.cwd(), "node_modules", "quickjs-wasi", "dist", "index.js"), "utf8");
+    const relativeImports = [...entry.matchAll(/from\s+["'](\.[^"']*)["']/g)].map((match) => match[1]);
+    expect(relativeImports.length).toBeGreaterThan(0);
+    for (const specifier of relativeImports) expect(specifier).toMatch(/^\.\/[\w-]+\.js$/);
   });
 
   it("stops code that exceeds its step budget", async () => {

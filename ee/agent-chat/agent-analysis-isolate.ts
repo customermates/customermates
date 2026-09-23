@@ -1,7 +1,9 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
+import { Worker } from "node:worker_threads";
 
-import { Intrinsics, QuickJS } from "quickjs-wasi";
+import { Intrinsics } from "quickjs-wasi";
 
 export type AnalysisLimits = { memoryBytes: number; wallMs: number; maxSteps: number };
 
@@ -11,7 +13,56 @@ export type AnalysisOutcome = { ok: true; value: unknown } | { ok: false; error:
 
 const ANALYSIS_INTRINSICS =
   Intrinsics.EVAL | Intrinsics.JSON | Intrinsics.MAP_SET | Intrinsics.REGEXP | Intrinsics.TYPED_ARRAYS;
-const DEADLINE_CHECK_INTERVAL = 4_096;
+const TERMINATE_MARGIN_MS = 250;
+
+type Stop = "time" | "steps" | null;
+type WorkerReport = { ok: true; serialized: string | null } | { ok: false; stop: Stop; message: string };
+type AnalysisWorkerData = {
+  quickjsUrl: string;
+  wasm: WebAssembly.Module;
+  source: string;
+  input: string;
+  deadline: number;
+  maxSteps: number;
+  memoryBytes: number;
+  intrinsics: number;
+};
+
+const TIMED_OUT: WorkerReport = { ok: false, stop: "time", message: "" };
+
+const ANALYSIS_WORKER_SOURCE = `(async () => {
+  const { parentPort, workerData } = await import("node:worker_threads");
+  const { QuickJS } = await import(workerData.quickjsUrl);
+  let steps = 0;
+  let stop = null;
+  const vm = await QuickJS.create({
+    wasm: workerData.wasm,
+    memoryLimit: workerData.memoryBytes,
+    intrinsics: workerData.intrinsics,
+    interruptHandler: () => {
+      steps += 1;
+      if (steps > workerData.maxSteps) stop = "steps";
+      else if (Date.now() > workerData.deadline) stop = "time";
+      return stop !== null;
+    },
+  });
+  try {
+    const input = vm.newString(workerData.input);
+    vm.setProp(vm.global, "__analysisInput", input);
+    input.dispose();
+    const result = vm.evalCode(workerData.source, "analysis.js");
+    try {
+      const serialized = vm.dump(result);
+      parentPort.postMessage({ ok: true, serialized: typeof serialized === "string" ? serialized : null });
+    } finally {
+      result.dispose();
+    }
+  } catch (error) {
+    parentPort.postMessage({ ok: false, stop, message: error instanceof Error ? error.message : String(error) });
+  } finally {
+    vm.dispose();
+  }
+})();`;
 
 let compiledModule: Promise<WebAssembly.Module> | undefined;
 
@@ -22,7 +73,11 @@ function quickjsModule(): Promise<WebAssembly.Module> {
   return compiledModule;
 }
 
-function stoppedError(stop: "time" | "steps" | null, message: string): string {
+function analysisSource(code: string): string {
+  return `(() => { const run = (${code}); const data = JSON.parse(__analysisInput); __analysisInput = undefined; return JSON.stringify(run(data)); })()`;
+}
+
+function stoppedError(stop: Stop, message: string): string {
   if (stop === "time") return "The analysis code ran longer than its time budget and was stopped.";
   if (stop === "steps") return "The analysis code exceeded its step budget and was stopped.";
   if (/out of memory/i.test(message)) return "The analysis code ran out of memory and was stopped.";
@@ -31,42 +86,43 @@ function stoppedError(stop: "time" | "steps" | null, message: string): string {
   return `The analysis code failed: ${message.slice(0, 500)}`;
 }
 
+async function runInWorker(workerData: AnalysisWorkerData, terminateAfterMs: number): Promise<WorkerReport> {
+  const worker = new Worker(ANALYSIS_WORKER_SOURCE, { eval: true, workerData });
+  let timer: NodeJS.Timeout | undefined;
+  try {
+    return await new Promise<WorkerReport>((resolve, reject) => {
+      timer = setTimeout(() => resolve(TIMED_OUT), terminateAfterMs);
+      worker.on("message", resolve);
+      worker.on("error", reject);
+      worker.on("exit", (exitCode) =>
+        reject(new Error(`The analysis worker exited with code ${exitCode} before it reported a result.`)),
+      );
+    });
+  } finally {
+    clearTimeout(timer);
+    await worker.terminate();
+  }
+}
+
 export async function runAnalysisCode(
   code: string,
   data: unknown,
   limits: AnalysisLimits = ANALYSIS_LIMITS,
 ): Promise<AnalysisOutcome> {
   const deadline = Date.now() + limits.wallMs;
-  let steps = 0;
-  let stop: "time" | "steps" | null = null;
-  const vm = await QuickJS.create({
-    wasm: await quickjsModule(),
-    memoryLimit: limits.memoryBytes,
-    intrinsics: ANALYSIS_INTRINSICS,
-    interruptHandler: () => {
-      steps += 1;
-      if (steps > limits.maxSteps) stop = "steps";
-      else if (steps % DEADLINE_CHECK_INTERVAL === 0 && Date.now() > deadline) stop = "time";
-      return stop !== null;
+  const report = await runInWorker(
+    {
+      quickjsUrl: pathToFileURL(join(process.cwd(), "node_modules", "quickjs-wasi", "dist", "index.js")).href,
+      wasm: await quickjsModule(),
+      source: analysisSource(code),
+      input: JSON.stringify(data ?? null),
+      deadline,
+      maxSteps: limits.maxSteps,
+      memoryBytes: limits.memoryBytes,
+      intrinsics: ANALYSIS_INTRINSICS,
     },
-  });
-  try {
-    const input = vm.newString(JSON.stringify(data ?? null));
-    vm.setProp(vm.global, "__analysisInput", input);
-    input.dispose();
-    const result = vm.evalCode(
-      `(() => { const run = (${code}); const data = JSON.parse(__analysisInput); __analysisInput = undefined; return JSON.stringify(run(data)); })()`,
-      "analysis.js",
-    );
-    try {
-      const serialized = vm.dump(result);
-      return { ok: true, value: typeof serialized === "string" ? (JSON.parse(serialized) as unknown) : null };
-    } finally {
-      result.dispose();
-    }
-  } catch (error) {
-    return { ok: false, error: stoppedError(stop, error instanceof Error ? error.message : String(error)) };
-  } finally {
-    vm.dispose();
-  }
+    deadline + TERMINATE_MARGIN_MS - Date.now(),
+  );
+  if (!report.ok) return { ok: false, error: stoppedError(report.stop, report.message) };
+  return { ok: true, value: report.serialized === null ? null : (JSON.parse(report.serialized) as unknown) };
 }
