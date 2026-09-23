@@ -19,7 +19,7 @@ vi.mock("@/core/di", () => ({
   getCountSystemTasksInteractor: vi.fn(),
   getGetSubscriptionInteractor: vi.fn(),
   getGetUnreadThreadCountInteractor: vi.fn(),
-  getGetMyConnectedAccountsInteractor: vi.fn(),
+  getCountChannelsNeedingActionInteractor: vi.fn(),
 }));
 vi.mock("../navigation-data", () => ({
   loadNavigationData: () =>
@@ -33,7 +33,6 @@ vi.mock("../navigation-data", () => ({
       channelsNeedingActionCount: 0,
     }),
 }));
-vi.mock("@/ee/messaging/provider", () => ({ accountNeedsAction: () => false }));
 vi.mock("@/ee/agent-chat/agent-availability", () => ({ isAgentChatAvailable: () => false }));
 vi.mock("@/env", () => ({ env: { APP_MODE: "cloud" } }));
 vi.mock("@/core/stores/root-store.provider", () => ({ RootStoreProvider: () => null }));

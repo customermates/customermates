@@ -5,9 +5,9 @@ import { useTranslations } from "next-intl";
 import { Resource } from "@/generated/prisma";
 
 import { Button } from "@/components/ui/button";
-import { AppLink } from "@/components/shared/app-link";
 import { AppImage } from "@/components/shared/app-image";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 export const SubscribeManageButton = observer(() => {
   const t = useTranslations();
@@ -26,15 +26,13 @@ export const SubscribeManageButton = observer(() => {
     />
   );
 
-  if (!subscription?.customerPortalUrl) return null;
+  if (!subscription?.hasBillingPortal) return null;
 
   return (
-    <AppLink external href={subscription.customerPortalUrl}>
-      <Button className="h-8" size="sm">
-        {icon}
+    <Button className="h-8" size="sm" onClick={() => runUserAction(() => subscriptionStore.handleManageBilling())}>
+      {icon}
 
-        <span className="hidden sm:inline">{t("Subscription.manageWithLemonSqueezy")}</span>
-      </Button>
-    </AppLink>
+      <span className="hidden sm:inline">{t("Subscription.manageWithLemonSqueezy")}</span>
+    </Button>
   );
 });

@@ -5,7 +5,12 @@ import type { SelectableOffer } from "./plan-picker";
 
 import { action, makeObservable, observable } from "mobx";
 
-import { createCheckoutSessionAction, refreshSubscriptionAction, getSubscriptionAction } from "../../actions";
+import {
+  createCheckoutSessionAction,
+  refreshSubscriptionAction,
+  getSubscriptionAction,
+  getBillingPortalUrlAction,
+} from "../../actions";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 export class SubscriptionStore extends BaseStore {
@@ -16,6 +21,7 @@ export class SubscriptionStore extends BaseStore {
     makeObservable(this, {
       subscription: observable,
       handleSubscribe: action,
+      handleManageBilling: action,
       handleRefresh: action,
       setSubscription: action,
     });
@@ -33,6 +39,17 @@ export class SubscriptionStore extends BaseStore {
   handleSubscribe = async (offer: SelectableOffer): Promise<void> => {
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
       const res = await createCheckoutSessionAction(offer);
+      if (!res.ok) {
+        toastZodErrorTree(res.error);
+        return;
+      }
+      window.location.assign(res.data.url);
+    });
+  };
+
+  handleManageBilling = async (): Promise<void> => {
+    await this.rootStore.loadingOverlayStore.withLoading(async () => {
+      const res = await getBillingPortalUrlAction();
       if (!res.ok) {
         toastZodErrorTree(res.error);
         return;
