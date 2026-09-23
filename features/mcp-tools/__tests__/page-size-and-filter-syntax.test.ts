@@ -37,7 +37,10 @@ describe("page size", () => {
 
   it("echoes the requested size next to the applied one only when they differ", () => {
     expect(mcpPageSizeEcho({ applied: 25, requested: 25 })).toEqual({});
-    expect(mcpPageSizeEcho({ applied: 25, requested: 50 })).toEqual({ pageSize: 25, requestedPageSize: 50 });
+    expect(mcpPageSizeEcho({ applied: 25, requested: 50 })).toMatchObject({ pageSize: 25, requestedPageSize: 50 });
+    expect(mcpPageSizeEcho({ applied: 25, requested: 50 }).pageSizeNote).toBe(
+      "50 is not an offered page size, so 25 was used. The call succeeded; nothing was refused.",
+    );
   });
 
   it("advertises a plain bounded integer on the wire instead of a literal union", () => {

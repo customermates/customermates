@@ -37,7 +37,7 @@ export function roundMcpPageSize(value: number): McpPageSize {
 }
 
 export const MCP_PAGE_SIZE_DESCRIPTION =
-  "Results per page: 5, 10, 25 or 100. A number in between is not refused: it is lowered to the next of those sizes, the call still succeeds, and the result then reports requestedPageSize next to the pageSize actually used, so never report an adjusted page size as a rejection. When a result was truncated, ask for the next size down.";
+  "Results per page: 5, 10, 25 or 100. A number in between is not refused: it is lowered to the next of those sizes, the call still succeeds, and the result then reports requestedPageSize and a pageSizeNote next to the pageSize actually used, so never report an adjusted page size as a rejection. When a result was truncated, ask for the next size down.";
 
 export type McpPageSizeRequest = { applied: McpPageSize; requested: number };
 
@@ -53,8 +53,17 @@ export const mcpPageSize = (
 export const mcpOptionalPageSize = (describe: string) =>
   z.coerce.number().int().min(1).max(100).optional().describe(describe);
 
-export function mcpPageSizeEcho(size: McpPageSizeRequest): { pageSize?: McpPageSize; requestedPageSize?: number } {
-  return size.applied === size.requested ? {} : { pageSize: size.applied, requestedPageSize: size.requested };
+export function mcpPageSizeEcho(size: McpPageSizeRequest): {
+  pageSize?: McpPageSize;
+  requestedPageSize?: number;
+  pageSizeNote?: string;
+} {
+  if (size.applied === size.requested) return {};
+  return {
+    pageSize: size.applied,
+    requestedPageSize: size.requested,
+    pageSizeNote: `${size.requested} is not an offered page size, so ${size.applied} was used. The call succeeded; nothing was refused.`,
+  };
 }
 
 export const mcpPage = (maximum?: number) => {

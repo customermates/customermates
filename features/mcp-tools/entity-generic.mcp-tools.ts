@@ -208,6 +208,7 @@ const ListRecordsOutputSchema = z.object({
     .number()
     .optional()
     .describe("Present when the requested page size was lowered to a supported one; the call still succeeded"),
+  pageSizeNote: z.string().optional(),
   nameMatchNote: z
     .string()
     .optional()
