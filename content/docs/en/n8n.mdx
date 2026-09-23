@@ -60,7 +60,7 @@ Store the API key as an n8n **Header Auth** credential with header name `x-api-k
 
 ## What are the common gotchas?
 
-- **Relationship arrays over REST**: sending `null` or `[]` for a relation array such as `organizationIds` clears every link of that kind; omit the field to leave links untouched. Over MCP, use `manage_record_links` to add or remove single links.
+- **Relationship arrays over REST**: sending `null` or `[]` for a relation array such as `organizationIds` clears every link of that kind; omit the field to leave links untouched. Over MCP, use `manage_record_links` to add or remove single links, or `set` to replace a relation's links in one call.
 - **Rate limits**: high-frequency loops can hit API limits. Batch where possible.
 - **Webhook ordering**: deliveries are not strictly ordered. Treat them as idempotent messages keyed by `entityId`, and use the payload `timestamp` to order them.
 

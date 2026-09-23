@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
@@ -7,26 +10,61 @@ import {
   FILTER_FIELD_DESCRIPTION,
   FILTER_OPERATORS,
   FILTER_SYNTAX,
+  MCP_PAGE_SIZE_DESCRIPTION,
+  McpPageSizeEchoOutputShape,
   mcpOptionalPageSize,
   mcpPageSize,
+  mcpPageSizeEcho,
   roundMcpPageSize,
+  nameMatchNote,
+  nameQueryOf,
 } from "../utils";
 
 describe("page size", () => {
-  it("rounds any 1-100 integer up to the nearest supported size and applies the default", () => {
+  it("lowers any 1-100 integer to the nearest supported size and applies the default", () => {
     expect(roundMcpPageSize(1)).toBe(5);
-    expect(roundMcpPageSize(7)).toBe(10);
+    expect(roundMcpPageSize(50)).toBe(25);
+    expect(roundMcpPageSize(60)).toBe(25);
+    expect(roundMcpPageSize(100)).toBe(100);
+    expect(roundMcpPageSize(99)).toBe(25);
+    expect(roundMcpPageSize(7)).toBe(5);
     expect(roundMcpPageSize(25)).toBe(25);
-    expect(roundMcpPageSize(50)).toBe(100);
     const schema = z.object({ pageSize: mcpPageSize(25) });
-    expect(schema.parse({}).pageSize).toBe(25);
-    expect(schema.parse({ pageSize: "50" }).pageSize).toBe(100);
-    expect(schema.parse({ pageSize: 3 }).pageSize).toBe(5);
+    expect(schema.parse({}).pageSize).toEqual({ applied: 25, requested: 25 });
+    expect(schema.parse({ pageSize: "50" }).pageSize).toEqual({ applied: 25, requested: 50 });
+    expect(schema.parse({ pageSize: 3 }).pageSize).toEqual({ applied: 5, requested: 3 });
     expect(schema.safeParse({ pageSize: 0 }).success).toBe(false);
     expect(schema.safeParse({ pageSize: 101 }).success).toBe(false);
     const optional = z.object({ pageSize: mcpOptionalPageSize("x") });
     expect(optional.parse({}).pageSize).toBeUndefined();
-    expect(optional.parse({ pageSize: 12 }).pageSize).toBe(25);
+    expect(optional.parse({ pageSize: 12 }).pageSize).toBe(12);
+  });
+
+  it("echoes the requested size next to the applied one only when they differ", () => {
+    expect(mcpPageSizeEcho({ applied: 25, requested: 25 })).toEqual({});
+    expect(mcpPageSizeEcho({ applied: 25, requested: 50 })).toMatchObject({ pageSize: 25, requestedPageSize: 50 });
+    expect(mcpPageSizeEcho({ applied: 25, requested: 50 }).pageSizeNote).toBe(
+      "50 is not an offered page size, so 25 was used. The call succeeded; nothing was refused.",
+    );
+  });
+
+  it("says which sizes are accepted and how a size is adjusted, never that nothing is ever refused", () => {
+    const requested = McpPageSizeEchoOutputShape.requestedPageSize.description ?? "";
+    const docs = (locale: string) =>
+      readFileSync(join(process.cwd(), "content", "docs", locale, "mcp.mdx"), "utf8").replace(/\s+/g, " ");
+
+    expect(MCP_PAGE_SIZE_DESCRIPTION).toContain("any whole number from 1 to 100 is accepted");
+    expect(MCP_PAGE_SIZE_DESCRIPTION).toContain("lowered to the next smaller offered size, and 1 to 4 become 5");
+    expect(MCP_PAGE_SIZE_DESCRIPTION).toContain("reports requestedPageSize and a pageSizeNote");
+    expect(requested).toContain("lowered to the next smaller one, and 1 to 4 become 5");
+    for (const text of [MCP_PAGE_SIZE_DESCRIPTION, requested]) expect(text).not.toMatch(/never refused|not refused/);
+
+    expect(docs("en")).toContain("`pageSize` accepts any whole number from 1 to 100");
+    expect(docs("en")).toContain("lowered to the next smaller one, 1 to 4 become 5");
+    expect(docs("en")).not.toContain("never refused");
+    expect(docs("de")).toContain("`pageSize` akzeptiert jede ganze Zahl von 1 bis 100");
+    expect(docs("de")).toContain("auf die nächstkleinere abgesenkt, 1 bis 4 werden zu 5");
+    expect(docs("de")).not.toContain("nie abgelehnt");
   });
 
   it("advertises a plain bounded integer on the wire instead of a literal union", () => {
@@ -48,7 +86,37 @@ describe("filter syntax", () => {
     );
   });
 
+  it("teaches single-select filters as in with option ids, the only shape those columns accept", () => {
+    expect(FILTER_SYNTAX.examples).toContainEqual({
+      field: "<single-select-custom-column-uuid>",
+      operator: "in",
+      value: ["<option-uuid>"],
+    });
+    expect(FILTER_SYNTAX.examples.some((example) => example.operator === "equals")).toBe(false);
+  });
+
   it("stays compact enough to leave room for the schema it accompanies", () => {
     expect(JSON.stringify(FILTER_SYNTAX).length).toBeLessThan(700);
+  });
+});
+
+describe("name match note", () => {
+  it("says so when two or more listed names contain the searched name", () => {
+    const note = nameMatchNote("Nova Expansion", [{ name: "Nova Expansion" }, { name: "Nova Expansion 2025" }]);
+    expect(note).toContain('2 records here match the name "Nova Expansion"');
+    expect(note).toContain("ask which one");
+    expect(note).toContain("act on all of them");
+  });
+
+  it("stays silent for a single match, a short term, or no term", () => {
+    expect(nameMatchNote("Nova Expansion", [{ name: "Nova Expansion" }, { name: "Kestrel" }])).toBeUndefined();
+    expect(nameMatchNote("No", [{ name: "Nova" }, { name: "Nordwind" }])).toBeUndefined();
+    expect(nameMatchNote(undefined, [{ name: "Nova" }, { name: "Nova" }])).toBeUndefined();
+  });
+
+  it("reads the name query from a search term or a name filter", () => {
+    expect(nameQueryOf("Acme", undefined)).toBe("Acme");
+    expect(nameQueryOf(undefined, [{ field: "name", operator: "startsWith", value: "Renewal" }])).toBe("Renewal");
+    expect(nameQueryOf(undefined, [{ field: "status", operator: "in", value: ["x"] }])).toBeUndefined();
   });
 });

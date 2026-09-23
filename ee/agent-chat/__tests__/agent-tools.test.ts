@@ -420,15 +420,23 @@ describe("agent tools", () => {
   });
 
   it.each([
-    ["list_users", { searchTerm: "Sofia" }, { searchTerm: "Sofia", page: 1, pageSize: 25 }],
-    ["list_users", { searchTerm: "Sofia", pageSize: " 12 " }, { searchTerm: "Sofia", page: 1, pageSize: 25 }],
+    ["list_users", { searchTerm: "Sofia" }, { searchTerm: "Sofia", page: 1, pageSize: { applied: 25, requested: 25 } }],
+    [
+      "list_users",
+      { searchTerm: "Sofia", pageSize: " 12 " },
+      { searchTerm: "Sofia", page: 1, pageSize: { applied: 10, requested: 12 } },
+    ],
     [
       "list_users",
       { searchTerm: "Sofia", page: "2", pageSize: " 10 " },
-      { searchTerm: "Sofia", page: 2, pageSize: 10 },
+      { searchTerm: "Sofia", page: 2, pageSize: { applied: 10, requested: 10 } },
     ],
-    ["list_records", { entity: "contact" }, { entity: "contact", page: 1, pageSize: 25 }],
-    ["list_records", { entity: "contact", pageSize: 50 }, { entity: "contact", page: 1, pageSize: 100 }],
+    ["list_records", { entity: "contact" }, { entity: "contact", page: 1, pageSize: { applied: 25, requested: 25 } }],
+    [
+      "list_records",
+      { entity: "contact", pageSize: 50 },
+      { entity: "contact", page: 1, pageSize: { applied: 25, requested: 50 } },
+    ],
     [
       "get_records",
       { items: [{ entity: "contact", id: "record-1" }] },
@@ -746,6 +754,18 @@ describe("agent tools", () => {
       reason: decision === "reject" ? "rejected" : "timeout",
     });
     expect(createSupportTicket).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["chat", "got no answer in time"],
+    ["routine", "Nobody is watching this run"],
+  ] as const)("words an unanswered approval for the %s surface", async (surface, wording) => {
+    const requestApproval = vi.fn().mockResolvedValue("timeout");
+    const tools = getAgentAiTools(deps({ requestApproval, surface }));
+
+    const result = await execute(tools.request_support, { subject: "Need help", body: "Human please" }, "support-3");
+
+    expect(result).toMatchObject({ agentToolStatus: "cancelled", message: expect.stringContaining(wording) });
   });
 
   it("gives the model truthful, neutral capability and approval instructions", () => {

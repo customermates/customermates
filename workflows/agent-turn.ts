@@ -31,6 +31,15 @@ import {
 } from "@/ee/agent-chat/agent-approval-resume";
 import { agentUiCommandHookToken, isAgentPanelTool, toAgentUiCommandInput } from "@/ee/agent-chat/agent-ui-command";
 import { activeAgentToolNames } from "@/ee/agent-chat/agent-toolset-routing";
+import {
+  ambiguityRequestOf,
+  ambiguousTargetKey,
+  ambiguousTargetRefusal,
+  ambiguousTargetsFromMessages,
+  mergeAmbiguousTarget,
+  refusingTarget,
+  type AmbiguousTarget,
+} from "@/ee/agent-chat/agent-ambiguous-target";
 import { googleThinkingProviderOptions } from "@/ee/agent-chat/agent-thinking-options";
 import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-context";
 import { buildAgentSystemPrompt, routineTriggerEventOf } from "@/ee/agent-chat/system-prompt";
@@ -227,6 +236,7 @@ function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprov
 
   return {
     resultMaxChars: resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars),
+    surface: payload.surface ?? "chat",
     runInCallerContext: (run) =>
       runAsBackgroundTenant(payload.userId, () =>
         runInRoutineContext(payload.surface === "routine" ? { causationDepth: 1 } : null, run),
@@ -291,7 +301,7 @@ canStartNextHostedAiProviderRound.maxRetries = 0;
 
 async function loadAgentToolShells(surface: AgentTurnSurface, servingProvider: string): Promise<AgentToolShell[]> {
   "use step";
-  const { agentToolDefinitionsForTurn } = await import("@/ee/agent-chat/agent-tools");
+  const { AGENT_HOSTED_TOOL_ANNOTATIONS, agentToolDefinitionsForTurn } = await import("@/ee/agent-chat/agent-tools");
   const { ALL_MCP_TOOLS } = await import("@/features/mcp-tools/tool-registry");
   const gatedByName = new Map(ALL_MCP_TOOLS.map((mcp) => [mcp.name, mcp.annotations]));
 
@@ -299,7 +309,7 @@ async function loadAgentToolShells(surface: AgentTurnSurface, servingProvider: s
     name: definition.name,
     description: definition.description,
     inputSchema: definition.inputSchema,
-    annotations: gatedByName.get(definition.name),
+    annotations: gatedByName.get(definition.name) ?? AGENT_HOSTED_TOOL_ANNOTATIONS[definition.name],
     gated: gatedByName.has(definition.name),
     toolset: definition.toolset,
   }));
@@ -814,6 +824,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     } | null = null;
     let providerStop: Extract<AgentTurnStopReason, "provider_error" | "content_filter"> | null = null;
     let resolvedProviderErrorRetries = 0;
+    const armedTargets = new Map<string, AmbiguousTarget>();
+    const ambiguityRequest = ambiguityRequestOf(payload.messages);
+    const refusedByTarget = (readOnly: boolean, input: unknown) =>
+      refusingTarget(armedTargets.values(), readOnly, input);
     let providerFailure: WorkflowFailure | null = null;
     let budgetStop = false;
     let hostedAiStop = false;
@@ -946,14 +960,44 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           return part.type === "tool-call" && Boolean(part.toolCallId) && !settledIds.has(part.toolCallId as string);
         });
 
-        if (hasPausedCall) {
+        if (hasPausedCall && step.finishReason === "tool-calls") {
           deferredRound = { step, outcomes };
           return;
         }
 
-        recordContinuationRound(step, outcomes);
+        const unrun = new Map<string, string | undefined>();
+        for (const raw of step.content) {
+          const part = raw as { type?: string; toolCallId?: string; toolName?: string };
+          if (part.type === "tool-call" && part.toolCallId && !settledIds.has(part.toolCallId))
+            unrun.set(part.toolCallId, part.toolName);
+        }
+        for (const [toolCallId, toolName] of unrun) {
+          if (settledToolCallIds.has(toolCallId)) continue;
+          settledToolCallIds.add(toolCallId);
+          transcript.completeToolCall({ toolCallId, toolName, status: "cancelled", failed: false });
+        }
+
+        recordContinuationRound(
+          unrun.size > 0
+            ? {
+                ...step,
+                content: step.content.filter((raw) => {
+                  const part = raw as { type?: string; toolCallId?: string };
+                  return !(part.type === "tool-call" && part.toolCallId && unrun.has(part.toolCallId));
+                }),
+              }
+            : step,
+          outcomes,
+        );
       } catch (error) {
-        roundFailure ??= toWorkflowFailure(error);
+        roundFailure ??= toWorkflowFailure(
+          error instanceof Error
+            ? Object.assign(new Error(`Agent round failed while applying its result: ${error.message}`), {
+                name: error.name,
+                stack: error.stack,
+              })
+            : error,
+        );
       }
     };
 
@@ -1026,6 +1070,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                 return (
                   prepared.ok &&
                   shell.gated &&
+                  !refusedByTarget(isReadOnlyTool({ annotations: shell.annotations }), prepared.input) &&
                   requiresApproval(internalToolIdentity(shell.name), { annotations: shell.annotations }, prepared.input)
                 );
               },
@@ -1035,6 +1080,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                     execute: async (input: unknown, options: { toolCallId: string }) => {
                       const prepared = await resolveToolInput(shell.name, options.toolCallId, input);
                       if (!prepared.ok) return prepared;
+                      const refused = refusedByTarget(
+                        isReadOnlyTool({ annotations: shell.annotations }),
+                        prepared.input,
+                      );
+                      if (refused) return { ok: false, result: ambiguousTargetRefusal(refused) };
                       const outcome = await executeAgentTool(
                         payload,
                         shell.name,
@@ -1068,6 +1118,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         prepareStep: async ({ messages: stepMessages }) => {
           if (abandoned || cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null)
             throw AGENT_LOCAL_TERMINATION_REQUIRED;
+          for (const target of surface === "chat" ? ambiguousTargetsFromMessages(stepMessages, ambiguityRequest) : []) {
+            const key = ambiguousTargetKey(target);
+            armedTargets.set(key, mergeAmbiguousTarget(armedTargets.get(key), target));
+          }
           const activeTools = activeToolNamesFor(stepMessages);
           const activeDefinitions = activeTools
             ? toolDefinitions.filter((definition) => activeTools.includes(definition.name))
@@ -1136,6 +1190,14 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
       for (const step of (result.steps as unknown as AgentRoundResult[]).slice(appliedThisCall)) await applyRound(step);
 
+      for (const message of result.messages) {
+        if (message.role !== "tool" || typeof message.content === "string") continue;
+        for (const part of message.content) {
+          if (part.type !== "tool-result") continue;
+          settleToolOutcome(part.toolCallId, part.toolName, unwrapToolOutput(part.output));
+        }
+      }
+
       if (finishReason === "content-filter") providerStop = "content_filter";
       else if (!["stop", "length", "tool-calls"].includes(finishReason)) {
         const resolvedError = (result as { error?: unknown }).error;
@@ -1143,19 +1205,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           resolvedProviderErrorRetries += 1;
           await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries);
           providerStop = null;
-          messages = result.messages;
+          messages = result.messages.filter((message) => message.role !== "system");
           continue;
         }
-        await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries);
+        await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries + 1);
         providerStop = "provider_error";
-      }
-
-      for (const message of result.messages) {
-        if (message.role !== "tool" || typeof message.content === "string") continue;
-        for (const part of message.content) {
-          if (part.type !== "tool-result") continue;
-          settleToolOutcome(part.toolCallId, part.toolName, unwrapToolOutput(part.output));
-        }
       }
 
       if (abandoned) break;
@@ -1196,14 +1250,19 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           prepared: await resolveToolInput(call.toolName, call.toolCallId, call.input),
         })),
       );
-      const invalidResults = preparedPending.flatMap(({ call, prepared }) =>
-        prepared.ok ? [] : [{ toolCallId: call.toolCallId, toolName: call.toolName, output: prepared }],
-      );
+      const refusedOutput = (call: (typeof pending)[number], input: unknown) => {
+        const refused = call.toolName === "navigate" ? refusedByTarget(false, input) : null;
+        return refused ? { ok: false, result: ambiguousTargetRefusal(refused) } : null;
+      };
+      const invalidResults = preparedPending.flatMap(({ call, prepared }) => {
+        const output = prepared.ok ? refusedOutput(call, prepared.input) : prepared;
+        return output ? [{ toolCallId: call.toolCallId, toolName: call.toolName, output }] : [];
+      });
       let resumableMessages = withToolResults(result.messages, invalidResults);
       for (const outcome of invalidResults) settleToolOutcome(outcome.toolCallId, outcome.toolName, outcome.output);
       appendDeferredOutcomes(invalidResults);
       pending = preparedPending.flatMap(({ call, prepared }) =>
-        prepared.ok ? [{ ...call, input: prepared.input }] : [],
+        prepared.ok && !refusedOutput(call, prepared.input) ? [{ ...call, input: prepared.input }] : [],
       );
       if (pending.length === 0) {
         resolveDeferredRound([]);
@@ -1319,7 +1378,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           },
         })),
       );
-      messages = withApprovalResponses(resumableMessages, outcomes);
+      messages = withApprovalResponses(resumableMessages, outcomes, surface);
     }
 
     if (abandoned) {

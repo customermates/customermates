@@ -12,6 +12,7 @@ const spies = vi.hoisted(() => ({
   createAuthLink: vi.fn(),
   getActivities: vi.fn(),
   getMessagingThread: vi.fn(),
+  getMessagingThreads: vi.fn(),
 }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
@@ -21,6 +22,7 @@ vi.mock("@/core/di", () => ({
   getCreateAuthLinkInteractor: () => ({ invoke: spies.createAuthLink }),
   getGetActivitiesApiInteractor: () => ({ invoke: spies.getActivities }),
   getGetMessagingThreadInteractor: () => ({ invoke: spies.getMessagingThread }),
+  getGetMessagingThreadsApiInteractor: () => ({ invoke: spies.getMessagingThreads }),
 }));
 
 import {
@@ -280,5 +282,45 @@ describe("email body exposure", () => {
     expect(text).not.toContain("<p>");
     expect(text).not.toContain("<a href");
     expect(text).toContain("New mention of Customermates");
+  });
+});
+
+describe("get_messaging_threads list rows", () => {
+  it("say whether the latest sent message went out from the connected account, so answered threads are not read as waiting", async () => {
+    const thread = (id: string, lastSentMessageFromSelf: boolean) => ({
+      id,
+      connectedAccountId: "66666666-6666-4666-8666-666666666666",
+      provider: "gmail",
+      type: "single",
+      name: null,
+      subject: `Thread ${id}`,
+      preview: "preview",
+      state: "read",
+      lastMessageAt: new Date("2026-09-01T06:55:15.000Z"),
+      lastMessageFromSelf: true,
+      lastSentMessageFromSelf,
+      participants: [],
+      sharedToCrm: false,
+      isOwner: true,
+    });
+    spies.getMessagingThreads.mockResolvedValue({
+      ok: true,
+      data: { items: [thread("answered", true), thread("waiting", false)], pagination: { total: 2 } },
+    });
+
+    const result = await getMessagingThreadsTool.execute(getMessagingThreadsTool.inputSchema.parse({}));
+
+    expect(result).toMatchObject({
+      structuredContent: {
+        items: [
+          { id: "answered", lastSentMessageFromSelf: true },
+          { id: "waiting", lastSentMessageFromSelf: false },
+        ],
+      },
+    });
+    const [first] = (result as { structuredContent: Record<string, unknown[]> }).structuredContent.items;
+    expect(first).not.toHaveProperty("lastMessageFromSelf");
+    expect(getMessagingThreadsTool.description).toContain("lastSentMessageFromSelf");
+    expect(getMessagingThreadsTool.description).toContain("null when nothing has been sent yet");
   });
 });

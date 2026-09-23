@@ -22,6 +22,7 @@ function unreadThread(): MessagingThread {
     isOwner: true,
     lastMessageAt: new Date("2026-07-16T08:00:00.000Z"),
     lastMessageFromSelf: false,
+    lastSentMessageFromSelf: false,
     lastMessageSenderName: "Anna Müller",
     name: null,
     participants: [],

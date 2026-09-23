@@ -119,6 +119,7 @@ describe("gated-tools", () => {
       ["update_record_notes", {}],
       ["manage_record_links", { action: "add" }],
       ["manage_record_links", { action: "remove" }],
+      ["manage_record_links", { action: "set" }],
       ["save_message_draft", {}],
       ["update_messaging_thread", {}],
       ["update_workspace_settings", {}],

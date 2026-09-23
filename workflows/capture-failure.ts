@@ -18,8 +18,6 @@ export async function reportFailure(
   tenant?: WorkflowTenant,
 ): Promise<void> {
   "use step";
-  if (failure.expected) return;
-
   const error = new Error(failure.message || "Workflow failed");
   if (failure.name) error.name = failure.name;
   if (failure.stack) error.stack = failure.stack;
@@ -28,6 +26,8 @@ export async function reportFailure(
     console.error(`[workflow:${workflowName}]`, error);
     return;
   }
+
+  if (failure.expected) return;
 
   try {
     Sentry.withScope((scope) => {

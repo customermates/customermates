@@ -60,7 +60,7 @@ Speichern Sie den API-Key als n8n-**Header Auth**-Credential mit dem Header-Name
 
 ## Was sind typische Fallstricke?
 
-- **Relationship-Arrays über REST**: `null` oder `[]` für ein Relationship-Array wie `organizationIds` löscht jede Verknüpfung dieser Art; lassen Sie das Feld weg, um Verknüpfungen unangetastet zu lassen. Über MCP nutzen Sie `manage_record_links`, um einzelne Verknüpfungen hinzuzufügen oder zu entfernen.
+- **Relationship-Arrays über REST**: `null` oder `[]` für ein Relationship-Array wie `organizationIds` löscht jede Verknüpfung dieser Art; lassen Sie das Feld weg, um Verknüpfungen unangetastet zu lassen. Über MCP nutzen Sie `manage_record_links`, um einzelne Verknüpfungen hinzuzufügen oder zu entfernen, oder `set`, um die Verknüpfungen einer Beziehung in einem Aufruf zu ersetzen.
 - **Rate-Limits**: Hochfrequente Loops können in API-Limits laufen. Batchen Sie, wo möglich.
 - **Webhook-Reihenfolge**: Deliveries sind nicht strikt geordnet. Behandeln Sie sie als idempotente Nachrichten mit Schlüssel `entityId` und nutzen Sie den `timestamp` der Payload, um sie zu ordnen.
 

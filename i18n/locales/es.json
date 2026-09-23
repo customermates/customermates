@@ -238,6 +238,11 @@
           }
         },
         "records": {
+          "analyze": {
+            "done": "Análisis de {resource} completado",
+            "error": "Error al analizar {resource}",
+            "running": "Analizando {resource}"
+          },
           "create": {
             "done": "{count, plural, one {Creación de {target} completada} other {Creación de {target} completada}}",
             "error": "{count, plural, one {Error al crear {target}} other {Error al crear {target}}}",

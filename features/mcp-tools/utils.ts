@@ -33,25 +33,49 @@ export const MCP_PAGE_SIZES: readonly McpPageSize[] = [5, 10, 25, 100];
 export const MCP_DEFAULT_PAGE_SIZE: McpPageSize = 25;
 
 export function roundMcpPageSize(value: number): McpPageSize {
-  return MCP_PAGE_SIZES.find((size) => value <= size) ?? 100;
+  return [...MCP_PAGE_SIZES].reverse().find((size) => size <= value) ?? MCP_PAGE_SIZES[0];
 }
 
-export const MCP_PAGE_SIZE_DESCRIPTION = "Results per page, 1-100, rounded up to 5, 10, 25 or 100.";
+export const MCP_PAGE_SIZE_DESCRIPTION =
+  "Results per page: any whole number from 1 to 100 is accepted, and the offered sizes are 5, 10, 25 and 100. A size between them is lowered to the next smaller offered size, and 1 to 4 become 5. The call still succeeds, and when the size used differs from the one asked for the result reports requestedPageSize and a pageSizeNote next to the pageSize actually used, so never report an adjusted page size as a rejection. When a result was truncated, ask for the next size down.";
+
+export const McpPageSizeEchoOutputShape = {
+  pageSize: z.number().optional().describe("The page size used"),
+  requestedPageSize: z
+    .number()
+    .optional()
+    .describe(
+      "Present when the size used differs from the one asked for: a size between the offered sizes 5, 10, 25 and 100 is lowered to the next smaller one, and 1 to 4 become 5. The call still succeeded",
+    ),
+  pageSizeNote: z.string().optional(),
+};
+
+export type McpPageSizeRequest = { applied: McpPageSize; requested: number };
+
+function mcpPageSizeRequest(requested: number): McpPageSizeRequest {
+  return { applied: roundMcpPageSize(requested), requested };
+}
 
 export const mcpPageSize = (
   defaultValue: McpPageSize,
   describe = `${MCP_PAGE_SIZE_DESCRIPTION} Default ${defaultValue}.`,
-) => z.coerce.number().int().min(1).max(100).default(defaultValue).transform(roundMcpPageSize).describe(describe);
+) => z.coerce.number().int().min(1).max(100).default(defaultValue).transform(mcpPageSizeRequest).describe(describe);
 
 export const mcpOptionalPageSize = (describe: string) =>
-  z.coerce
-    .number()
-    .int()
-    .min(1)
-    .max(100)
-    .optional()
-    .transform((value) => (value === undefined ? undefined : roundMcpPageSize(value)))
-    .describe(describe);
+  z.coerce.number().int().min(1).max(100).optional().describe(describe);
+
+export function mcpPageSizeEcho(size: McpPageSizeRequest): {
+  pageSize?: McpPageSize;
+  requestedPageSize?: number;
+  pageSizeNote?: string;
+} {
+  if (size.applied === size.requested) return {};
+  return {
+    pageSize: size.applied,
+    requestedPageSize: size.requested,
+    pageSizeNote: `${size.requested} is not an offered page size, so ${size.applied} was used. The call succeeded; nothing was refused.`,
+  };
+}
 
 export const mcpPage = (maximum?: number) => {
   const page = z.coerce.number().int().min(1);
@@ -159,7 +183,7 @@ export const FILTER_SYNTAX = {
     noValue: "omit value",
   },
   examples: [
-    { field: "status", operator: "equals", value: "active" },
+    { field: "<single-select-custom-column-uuid>", operator: "in", value: ["<option-uuid>"] },
     { field: "createdAt", operator: "inLastDays", value: 30 },
     { field: "email", operator: "isNotNull" },
   ],
@@ -195,7 +219,10 @@ export const FILTER_FIELD_DESCRIPTION =
   "Array of filter rules, AND-combined. Each rule is { field, operator, value? }. " +
   `Operators with one string value: ${FILTER_OPERATOR_GROUPS.singleValue.join(", ")}; with a string array: ${FILTER_OPERATOR_GROUPS.multiValue.join(", ")} (between needs exactly two); with a positive integer of days: ${FILTER_OPERATOR_GROUPS.relativeWindow.join(", ")}; without a value: ${FILTER_OPERATOR_GROUPS.noValue.join(", ")}. ` +
   'Example: [{"field":"name","operator":"contains","value":"acme"},{"field":"createdAt","operator":"inLastDays","value":30}]. ' +
-  "Call get_record_schema to see all filterable fields.";
+  "isNull and isNotNull are offered on custom columns and mean the column was never filled in, which is how you find records missing a value. " +
+  "On a field of linked-record ids, in and notIn take those ids and mean linked to any of them or to none of them, while hasSome and hasNone take no value and mean has any link at all or none at all: " +
+  'to find deals with no open task, list the open tasks, then filter [{"field":"taskIds","operator":"notIn","value":["<task-id>"]}]. ' +
+  "Call get_record_schema to see all filterable fields and which operators each one takes.";
 
 export const filtersDescription = (filterableFields: string) =>
   "Array of filter rules, AND-combined. Each rule is { field, operator, value? }. " +
@@ -245,6 +272,31 @@ export async function runInteractor<T>(
   if (typeof formatted !== "string") return formatted;
   if (!structured) return formatted;
   return { text: formatted, structuredContent: structured(outcome.data) };
+}
+
+const MIN_NAME_MATCH_TERM_LENGTH = 3;
+
+export function nameMatchNote(
+  term: string | undefined,
+  items: readonly { name?: string | null }[],
+): string | undefined {
+  const needle = term?.trim().toLowerCase();
+  if (!needle || needle.length < MIN_NAME_MATCH_TERM_LENGTH) return undefined;
+  const matches = items.filter((item) => item.name?.toLowerCase().includes(needle)).length;
+  if (matches < 2) return undefined;
+  return `${matches} records here match the name "${term?.trim()}". If the user meant one record, ask which one before changing anything; if they asked for every match, act on all of them.`;
+}
+
+export function nameQueryOf(
+  searchTerm: string | undefined,
+  filters: readonly unknown[] | undefined,
+): string | undefined {
+  if (searchTerm?.trim()) return searchTerm;
+  for (const raw of filters ?? []) {
+    const filter = raw as { field?: unknown; value?: unknown };
+    if (filter?.field === "name" && typeof filter.value === "string") return filter.value;
+  }
+  return undefined;
 }
 
 export function toonResult(payload: Record<string, unknown>): McpToolResult {

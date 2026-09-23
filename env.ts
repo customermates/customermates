@@ -28,6 +28,9 @@ export const env = {
 
   APP_MODE: resolveAppMode(process.env),
   AGENT_CHAT_DISABLED: Boolean(process.env.AGENT_CHAT_DISABLED),
+  AGENT_ANALYSIS_TOOL_ENABLED: process.env.AGENT_ANALYSIS_TOOL_ENABLED?.trim()
+    ? resolveStrictBoolean("AGENT_ANALYSIS_TOOL_ENABLED", process.env.AGENT_ANALYSIS_TOOL_ENABLED)
+    : true,
   AI_GATEWAY_API_KEY: process.env.AI_GATEWAY_API_KEY,
   HOSTED_AI_OPERATOR_CONTROLS_ENABLED: resolveStrictBoolean(
     "HOSTED_AI_OPERATOR_CONTROLS_ENABLED",

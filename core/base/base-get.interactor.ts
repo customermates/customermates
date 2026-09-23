@@ -29,6 +29,8 @@ import type { GroupAxis, ResolvedGrouping } from "@/core/base/grouping/group-axi
 import type { GroupLabel } from "@/core/base/grouping/group-labels";
 
 import type { EntityType } from "@/generated/prisma";
+
+import { CustomColumnType } from "@/generated/prisma";
 import type { GroupableFieldDto, GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 import type { NumericFieldSums, SummableModel } from "./base-repository";
 import type { QueryParamsPrecheckInteractor } from "./query-params-precheck.interactor";
@@ -45,6 +47,7 @@ import type { ViewMode } from "./base-query-builder";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { resolveDataViewState } from "@/core/data-view/resolve-data-view-state";
 import { runPrecheck } from "../validation/run-precheck";
+import { acceptSingleValueEquals } from "./filter-compat";
 
 export interface GetResult<T> {
   p13nId?: string;
@@ -112,6 +115,14 @@ export abstract class BaseGetRepo<T> {
     fields: readonly F[];
     params: GetQueryParams;
   }): Promise<NumericFieldSums<F>>;
+
+  sumCustomColumnValues(_opts: {
+    entityType: EntityType;
+    columnIds: readonly string[];
+    params: GetQueryParams;
+  }): Promise<Record<string, number>> {
+    return Promise.resolve({});
+  }
 }
 
 type BaseQuery = { filters?: Filter[]; searchTerm?: string; sortDescriptor?: SortDescriptor };
@@ -170,13 +181,17 @@ export abstract class BaseGetInteractor<T> {
       this.repo.customColumnsOnce(),
     ]);
     const sortableFields = this.repo.getSortableFields();
+    const requestedFilters = acceptSingleValueEquals(
+      resolved.filters,
+      this.queryParamsPrecheckFilterableFields ?? filterableFields,
+    );
 
     if (this.mode === "api") {
       const precheck = this.queryParamsPrecheck;
       if (!precheck) throw new Error("api mode requires a queryParamsPrecheck");
 
       const checked = await runPrecheck(
-        { filters: resolved.filters, sortDescriptor: resolved.sortDescriptor },
+        { filters: requestedFilters, sortDescriptor: resolved.sortDescriptor },
         (data, ctx) =>
           precheck.invoke(
             {
@@ -192,7 +207,7 @@ export abstract class BaseGetInteractor<T> {
       if (!checked.ok) return { ok: false as const, error: checked.error };
     }
 
-    const filters = this.repo.validateFilters({ filters: resolved.filters, filterableFields });
+    const filters = this.repo.validateFilters({ filters: requestedFilters, filterableFields });
     const sortDescriptor = this.repo.validateSortDescriptor({
       sortDescriptor: resolved.sortDescriptor,
       sortableFields,
@@ -208,7 +223,12 @@ export abstract class BaseGetInteractor<T> {
       ? await this.fetchGrouped(baseQuery, resolvedGrouping, requested.page)
       : await this.fetchFlat(baseQuery, pagination);
 
-    const valueSums = await this.sumDeclaredFields(baseQuery);
+    const [declaredSums, customSums] = await Promise.all([
+      this.sumDeclaredFields(baseQuery),
+      this.sumCustomCurrencyColumns(baseQuery, customColumns),
+    ]);
+    const mergedSums = { ...(declaredSums ?? {}), ...customSums };
+    const valueSums = Object.keys(mergedSums).length > 0 ? mergedSums : undefined;
 
     return {
       ok: true,
@@ -366,6 +386,18 @@ export abstract class BaseGetInteractor<T> {
         ],
       },
     };
+  }
+
+  private async sumCustomCurrencyColumns(
+    params: GetQueryParams,
+    customColumns: readonly CustomColumnDto[],
+  ): Promise<Record<string, number>> {
+    if (!this.entityType) return {};
+    const columnIds = customColumns
+      .filter((column) => column.type === CustomColumnType.currency)
+      .map((column) => column.id);
+    if (columnIds.length === 0) return {};
+    return this.repo.sumCustomColumnValues({ entityType: this.entityType, columnIds, params });
   }
 
   private async sumDeclaredFields(params: GetQueryParams): Promise<GroupValueSums | undefined> {

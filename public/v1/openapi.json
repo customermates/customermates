@@ -50566,6 +50566,17 @@
             "default": false,
             "type": "boolean"
           },
+          "lastSentMessageFromSelf": {
+            "default": null,
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "lastMessageSenderName": {
             "default": null,
             "anyOf": [
@@ -55351,6 +55362,17 @@
             "default": false,
             "type": "boolean"
           },
+          "lastSentMessageFromSelf": {
+            "default": null,
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "lastMessageSenderName": {
             "default": null,
             "anyOf": [
@@ -55386,6 +55408,7 @@
           "accountShared",
           "isOwner",
           "lastMessageFromSelf",
+          "lastSentMessageFromSelf",
           "lastMessageSenderName",
           "createdAt",
           "updatedAt"

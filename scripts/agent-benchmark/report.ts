@@ -5,6 +5,7 @@ import type { EpisodeArtifact } from "./episode";
 import type { EpisodeOutcome } from "./stats";
 
 import { BENCHMARK_ARMS } from "./arms";
+import { judgeVerdictIsComplete } from "./judge";
 import { comparePaired, costPerSuccessfulTask, holmAdjust, mean, passAtLeastK, passRate, percentile, uniformlyFailingChecks } from "./stats";
 
 export type ArmSummary = {
@@ -16,6 +17,8 @@ export type ArmSummary = {
   passRate: number;
   passAt3: number;
   judgeMean: number | null;
+  judgeCoverage: number;
+  judgeDisagreementShare: number;
   usdPerEpisode: number;
   usdPerTurn: number;
   creditsPerTurn: number;
@@ -26,9 +29,12 @@ export type ArmSummary = {
   roundsPerTurn: number;
   ttftP50Ms: number | null;
   ttftP95Ms: number | null;
+  firstOutputP50Ms: number | null;
+  firstOutputP95Ms: number | null;
   wallP50Ms: number | null;
   wallP95Ms: number | null;
   lengthFinishShare: number;
+  incompleteTurnShare: number;
   neverSolvedCases: string[];
 };
 
@@ -41,6 +47,7 @@ export type BenchmarkReport = {
   comparisons: Comparison[];
   caseMatrix: Record<string, Record<string, string>>;
   uniformlyFailingChecks: string[];
+  judgeModels: { model: string; judged: number; episodes: number; mean: number | null }[];
   skippedEpisodes: { arm: string; caseId: string; repetition: number; reason: string }[];
   totalUsd: number;
 };
@@ -75,17 +82,24 @@ function outcome(artifact: EpisodeArtifact): EpisodeOutcome {
   };
 }
 
+function turnIsIncomplete(turn: EpisodeArtifact["turns"][number]): boolean {
+  return Boolean(turn.error) || turn.terminal?.terminalCode !== "completed";
+}
+
 function summarizeArm(key: string, artifacts: EpisodeArtifact[]): ArmSummary {
   const scored = artifacts.filter((artifact) => !artifact.skipped);
   const outcomes = scored.map(outcome);
   const rounds = scored.flatMap((artifact) => artifact.metrics.rounds);
-  const turns = scored.flatMap((artifact) => artifact.turns.filter((turn) => !turn.error));
+  const drivenTurns = scored.flatMap((artifact) => artifact.turns);
+  const turns = drivenTurns.filter((turn) => !turn.error);
   const promptTokens = rounds.reduce((total, round) => total + round.inputTokens + round.cacheReadTokens + round.cacheWriteTokens, 0);
   const cacheRead = rounds.reduce((total, round) => total + round.cacheReadTokens, 0);
   const cacheWrite = rounds.reduce((total, round) => total + round.cacheWriteTokens, 0);
   const totalUsd = scored.reduce((total, artifact) => total + artifact.usd, 0);
   const turnCount = scored.reduce((total, artifact) => total + artifact.metrics.turns.length, 0);
   const judges = outcomes.map((entry) => entry.judge).filter((value): value is number => value !== null);
+  const judged = scored.filter((artifact) => judgeVerdictIsComplete(artifact.judge));
+  const firstOutputs = turns.map((turn) => turn.timing.firstOutputMs).filter((value): value is number => typeof value === "number");
   const byCase = new Map<string, boolean[]>();
   for (const entry of outcomes) byCase.set(entry.caseId, [...(byCase.get(entry.caseId) ?? []), entry.passed]);
   const [runtimeVariant, arm] = key.split("/");
@@ -98,6 +112,8 @@ function summarizeArm(key: string, artifacts: EpisodeArtifact[]): ArmSummary {
     passRate: passRate(outcomes),
     passAt3: passAtLeastK(outcomes, 3),
     judgeMean: mean(judges),
+    judgeCoverage: scored.length ? scored.filter((artifact) => judgeVerdictIsComplete(artifact.judge)).length / scored.length : 0,
+    judgeDisagreementShare: judged.length ? judged.filter((artifact) => artifact.judge?.disagreement).length / judged.length : 0,
     usdPerEpisode: scored.length ? totalUsd / scored.length : 0,
     usdPerTurn: turnCount ? totalUsd / turnCount : 0,
     creditsPerTurn: turnCount ? scored.reduce((total, artifact) => total + artifact.usage.reduce((sum, event) => sum + event.chargedCredits, 0), 0) / turnCount : 0,
@@ -108,11 +124,22 @@ function summarizeArm(key: string, artifacts: EpisodeArtifact[]): ArmSummary {
     roundsPerTurn: turnCount ? rounds.length / turnCount : 0,
     ttftP50Ms: percentile(turns.map((turn) => turn.timing.firstDeltaMs).filter((value): value is number => value !== null), 50),
     ttftP95Ms: percentile(turns.map((turn) => turn.timing.firstDeltaMs).filter((value): value is number => value !== null), 95),
+    firstOutputP50Ms: percentile(firstOutputs, 50),
+    firstOutputP95Ms: percentile(firstOutputs, 95),
     wallP50Ms: percentile(turns.map((turn) => turn.wallMs), 50),
     wallP95Ms: percentile(turns.map((turn) => turn.wallMs), 95),
     lengthFinishShare: rounds.length ? rounds.filter((round) => round.finishReason === "length").length / rounds.length : 0,
+    incompleteTurnShare: drivenTurns.length ? drivenTurns.filter(turnIsIncomplete).length / drivenTurns.length : 0,
     neverSolvedCases: [...byCase].filter(([, results]) => results.length > 0 && results.every((passed) => !passed)).map(([caseId]) => caseId).sort(),
   };
+}
+
+function summarizeJudges(scored: readonly EpisodeArtifact[]): BenchmarkReport["judgeModels"] {
+  const models = [...new Set(scored.flatMap((artifact) => artifact.judge?.judges.map((judge) => judge.model) ?? []))].sort();
+  return models.map((model) => {
+    const overalls = scored.flatMap((artifact) => artifact.judge?.judges.filter((judge) => judge.model === model).map((judge) => judge.overall) ?? []);
+    return { model, judged: overalls.length, episodes: scored.length, mean: mean(overalls) };
+  });
 }
 
 export async function buildReport(campaignId: string, runsDir: string): Promise<BenchmarkReport> {
@@ -154,6 +181,7 @@ export async function buildReport(campaignId: string, runsDir: string): Promise<
     comparisons,
     caseMatrix,
     uniformlyFailingChecks: uniformlyFailingChecks(artifacts.filter((artifact) => artifact.oracle).map((artifact) => artifact.oracle!.checks)),
+    judgeModels: summarizeJudges(artifacts.filter((artifact) => !artifact.skipped)),
     skippedEpisodes: artifacts.filter((artifact) => artifact.skipped).map((artifact) => ({ arm: `${artifact.runtimeVariant}/${artifact.arm}`, caseId: artifact.caseId, repetition: artifact.repetition, reason: artifact.skipped ?? "" })),
     totalUsd: artifacts.reduce((total, artifact) => total + artifact.usd, 0),
   };
@@ -166,9 +194,12 @@ const ms = (value: number | null) => (value === null ? "n/a" : `${(value / 1000)
 export function renderReport(report: BenchmarkReport): string {
   const lines: string[] = [];
   lines.push(`# Agent benchmark report ${report.campaignId}`, "", `Generated ${report.generatedAt}. Total spend ${usd(report.totalUsd)}. Arms are keyed runtime/arm.`, "");
-  lines.push("## Arms", "", "| Arm | Episodes | Pass | Pass^3 | Judge | $/episode | $/turn | Credits/turn | $/success | Measured | Cache read | Cache write | Rounds/turn | TTFT p50 | TTFT p95 | Wall p50 | Wall p95 | Length stops | Never solved |", "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |");
+  lines.push("## Arms", "", "| Arm | Episodes | Pass | Pass^3 | Judge | Judged | Judge split | $/episode | $/turn | Credits/turn | $/success | Measured | Cache read | Cache write | Rounds/turn | First output p50 | First output p95 | TTFT p50 | TTFT p95 | Wall p50 | Wall p95 | Length stops | Incomplete turns | Never solved |", "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |");
   for (const arm of report.arms)
-    lines.push(`| ${arm.runtimeVariant}/${arm.arm} | ${arm.episodes}${arm.skipped ? ` (+${arm.skipped} skipped)` : ""} | ${pct(arm.passRate)} | ${pct(arm.passAt3)} | ${arm.judgeMean === null ? "n/a" : arm.judgeMean.toFixed(2)} | ${usd(arm.usdPerEpisode)} | ${usd(arm.usdPerTurn)} | ${arm.creditsPerTurn.toFixed(1)} | ${usd(arm.costPerSuccessfulTask)} | ${pct(arm.measuredShare)} | ${pct(arm.cacheReadShare)} | ${pct(arm.cacheWriteShare)} | ${arm.roundsPerTurn.toFixed(1)} | ${ms(arm.ttftP50Ms)} | ${ms(arm.ttftP95Ms)} | ${ms(arm.wallP50Ms)} | ${ms(arm.wallP95Ms)} | ${pct(arm.lengthFinishShare)} | ${arm.neverSolvedCases.join(" ") || "-"} |`);
+    lines.push(`| ${arm.runtimeVariant}/${arm.arm} | ${arm.episodes}${arm.skipped ? ` (+${arm.skipped} skipped)` : ""} | ${pct(arm.passRate)} | ${pct(arm.passAt3)} | ${arm.judgeMean === null ? "n/a" : arm.judgeMean.toFixed(2)} | ${pct(arm.judgeCoverage)} | ${pct(arm.judgeDisagreementShare)} | ${usd(arm.usdPerEpisode)} | ${usd(arm.usdPerTurn)} | ${arm.creditsPerTurn.toFixed(1)} | ${usd(arm.costPerSuccessfulTask)} | ${pct(arm.measuredShare)} | ${pct(arm.cacheReadShare)} | ${pct(arm.cacheWriteShare)} | ${arm.roundsPerTurn.toFixed(1)} | ${ms(arm.firstOutputP50Ms)} | ${ms(arm.firstOutputP95Ms)} | ${ms(arm.ttftP50Ms)} | ${ms(arm.ttftP95Ms)} | ${ms(arm.wallP50Ms)} | ${ms(arm.wallP95Ms)} | ${pct(arm.lengthFinishShare)} | ${pct(arm.incompleteTurnShare)} | ${arm.neverSolvedCases.join(" ") || "-"} |`);
+  lines.push("", "## Judges", "", "| Judge | Judged | Mean |", "| --- | ---: | ---: |");
+  for (const judge of report.judgeModels)
+    lines.push(`| ${judge.model} | ${judge.judged}/${judge.episodes} | ${judge.mean === null ? "n/a" : judge.mean.toFixed(2)} |`);
   lines.push("", "## Pairwise against the shipped arm (exact sign test on per-case pass rates, Holm-corrected)", "", "| Arm | Cases | Wins | Losses | Ties | Mean diff | p | Holm p | Floor |", "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |");
   for (const comparison of report.comparisons)
     lines.push(`| ${comparison.arm} vs ${comparison.control} | ${comparison.cases} | ${comparison.wins} | ${comparison.losses} | ${comparison.ties} | ${(comparison.meanDifference * 100).toFixed(1)} pts | ${comparison.p.toFixed(3)} | ${comparison.holmP.toFixed(3)} | ${comparison.floor.toFixed(3)} |`);

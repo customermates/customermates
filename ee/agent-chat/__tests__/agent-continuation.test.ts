@@ -367,6 +367,12 @@ describe("agent continuation result digest", () => {
     ];
     const withDigest = summarizeAgentContinuationSteps(steps, { resultDigest: true }).flat();
     expect(withDigest[0]?.resultDigest).toContain("total=42");
+    expect(
+      digestAgentToolResult({
+        ok: true,
+        result: ["total: 3", "sums:", '  "0f2a1b3c-4d5e-6f70-8192-a3b4c5d6e7f8": 51150'].join("\n"),
+      }),
+    ).toContain("sums.0f2a1b3c-4d5e-6f70-8192-a3b4c5d6e7f8=51150");
     expect(withDigest[0]?.resultDigest).not.toContain("Nova");
     expect(withDigest[0]?.resultDigest).not.toContain("00000000");
     expect(withDigest[1]?.resultDigest).toBeUndefined();
