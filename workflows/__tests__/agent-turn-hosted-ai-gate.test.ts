@@ -1233,6 +1233,43 @@ describe("agent-turn authoritative tool inputs", () => {
     expect(state.execute).not.toHaveBeenCalled();
   });
 
+  it.each([
+    ["chat", true],
+    ["routine", false],
+  ] as const)(
+    "on the %s surface, refuses a write to one of several same-named records: %s",
+    async (surface, refused) => {
+      define("list_records");
+      define("update_deals");
+      const request = "Mark the Nova Expansion deal as Won.";
+      const { nova, messages: searched } = novaSearched(request);
+      const input = { deals: [{ id: nova }] };
+      state.normalize.mockImplementation((_name: string, value: unknown) =>
+        Promise.resolve({ ok: true, input: value }),
+      );
+      let output: unknown;
+      state.runTools = async ({ tools, completeStepAndPrepareNext }) => {
+        await completeStepAndPrepareNext(
+          streamedToolCallStep("list_records", "list-1", { entity: "deal", searchTerm: "Nova Expansion" }),
+          searched,
+        );
+        output = await executeTool(tools.update_deals, input);
+        return finish();
+      };
+
+      await runAgentTurn({ ...payload, surface, messages: [{ role: "user", text: request }] });
+
+      const refusal = { ok: false, result: expect.stringContaining("More than one deal matches") };
+      if (refused) {
+        expect(output).toEqual(refusal);
+        expect(state.execute).not.toHaveBeenCalled();
+      } else {
+        expect(output).not.toEqual(refusal);
+        expect(state.execute).toHaveBeenCalled();
+      }
+    },
+  );
+
   it("keeps a same-named target armed after the read that armed it has left the context", async () => {
     define("list_records");
     define("delete_records");

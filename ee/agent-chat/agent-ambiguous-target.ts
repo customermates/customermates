@@ -21,8 +21,112 @@ const UNSPACED_CHAR = new RegExp(`^[${UNSPACED_SCRIPTS}]$`, "v");
 const MIN_DISTINGUISHING_WORD = 4;
 const SET_WORD_REACH = 2;
 const SELECTION_RULE_REACH = 3;
-const NAMING_CLAUSE_REACH = 5;
-const SET_WORDS = new Set([
+const NAMING_CLAUSE_REACH = 8;
+const CLAUSE_LOOKBACK_CHARS = 400;
+const CLAUSE_MARKS = [".", "!", "?", ";", ":", ",", "\n"];
+const COUNT_WORDS = [
+  "both",
+  "two",
+  "three",
+  "four",
+  "five",
+  "beide",
+  "beiden",
+  "zwei",
+  "drei",
+  "vier",
+  "fünf",
+  "ambos",
+  "ambas",
+  "dos",
+  "tres",
+  "cuatro",
+  "cinco",
+  "deux",
+  "trois",
+  "quatre",
+  "cinq",
+  "entrambi",
+  "entrambe",
+  "due",
+  "tre",
+  "quattro",
+  "cinque",
+];
+const COMMON_WORDS = [
+  "deal",
+  "deals",
+  "contact",
+  "contacts",
+  "task",
+  "tasks",
+  "organization",
+  "organizations",
+  "organisation",
+  "organisations",
+  "organisationen",
+  "service",
+  "services",
+  "company",
+  "companies",
+  "kontakt",
+  "kontakte",
+  "aufgabe",
+  "aufgaben",
+  "firma",
+  "firmen",
+  "dienstleistung",
+  "dienstleistungen",
+  "contacto",
+  "contactos",
+  "tarea",
+  "tareas",
+  "organización",
+  "organizaciones",
+  "servicio",
+  "servicios",
+  "empresa",
+  "empresas",
+  "tâche",
+  "tâches",
+  "entreprise",
+  "entreprises",
+  "contatto",
+  "contatti",
+  "attività",
+  "organizzazione",
+  "organizzazioni",
+  "servizio",
+  "servizi",
+  "azienda",
+  "aziende",
+  "there",
+  "these",
+  "those",
+  "which",
+  "with",
+  "from",
+  "that",
+  "this",
+  "have",
+  "your",
+  "mean",
+  "welche",
+  "welcher",
+  "welchen",
+  "welches",
+  "diese",
+  "dieser",
+  "meinen",
+  "meinst",
+  "cuál",
+  "cuáles",
+  "quel",
+  "quelle",
+  "quale",
+  "quali",
+];
+const SET_WORD_LIST = [
   "all",
   "every",
   "each",
@@ -53,8 +157,8 @@ const SET_WORDS = new Set([
   "ogni",
   "entrambi",
   "entrambe",
-]);
-const NAMING_WORDS = new Set([
+];
+const NAMING_WORD_LIST = [
   "named",
   "called",
   "namens",
@@ -77,8 +181,19 @@ const NAMING_WORDS = new Set([
   "chiamata",
   "chiamati",
   "chiamate",
-]);
-const SELECTION_RULES = [
+  "titled",
+  "with the name",
+  "whose name is",
+  "mit dem namen",
+  "mit namen",
+  "con el nombre",
+  "de nombre",
+  "avec le nom",
+  "du nom",
+  "con il nome",
+  "di nome",
+];
+const SELECTION_RULE_LIST = [
   "starts with",
   "start with",
   "starting with",
@@ -116,7 +231,7 @@ const SELECTION_RULES = [
   "iniziano con",
   "comincia con",
   "contengono",
-].map((rule) => rule.split(" "));
+];
 
 type Row = { id: string; name: string };
 type ListRead = { tool: string; entities: string[] | null };
@@ -126,7 +241,6 @@ function fold(text: string): string {
     .replace(/[‘’ʼ´`′ʹ]/g, "'")
     .normalize("NFKC")
     .toLowerCase()
-    .replace(/\p{Variation_Selector}/gu, "")
     .replace(/\p{Pd}/gu, " ")
     .replace(/[\n\r\v\f\u0085\u2028\u2029]+/g, "\n")
     .replace(/[^\S\n]+/g, " ");
@@ -136,12 +250,44 @@ function loose(text: string): string {
   return text.replace(/\s+/g, " ");
 }
 
-function spellings(text: string): string[] {
-  const plain = loose(text.replace(/[^\p{L}\p{N}\p{M}\u200c\u200d'\s]/gu, " ")).trim();
+const spelled = new Map<string, string[]>();
+
+function respell(text: string, keepBreaks: boolean): string[] {
+  const key = `${keepBreaks ? "strict" : "loose"}:${text}`;
+  const known = spelled.get(key);
+  if (known) return known;
+  const spaced = text.replace(/[^\p{L}\p{N}\p{M}\u200c\u200d'\s]/gu, " ");
+  const plain = (keepBreaks ? spaced.replace(/[^\S\n]+/g, " ") : loose(spaced)).trim();
   const transliterated = plain.replace(/ß/g, "ss").replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue");
   const unaccented = plain.normalize("NFD").replace(/\p{M}/gu, "").replace(/ß/g, "ss").normalize("NFC");
-  return [loose(text).trim(), transliterated, unaccented];
+  const result = [(keepBreaks ? text : loose(text)).trim(), transliterated, unaccented];
+  spelled.set(key, result);
+  return result;
 }
+
+function spellings(text: string): string[] {
+  return respell(text, false);
+}
+
+function strictSpellings(text: string): string[] {
+  return respell(text, true);
+}
+
+function wordsOf(text: string): string[] {
+  return text.split(/[^\p{L}\p{N}\p{M}]+/u).filter(Boolean);
+}
+
+function inEverySpelling(words: string[]): string[] {
+  return [...new Set(words.flatMap((word) => spellings(word)))];
+}
+
+const SET_WORDS = new Set(inEverySpelling([...SET_WORD_LIST, ...COUNT_WORDS]));
+const COUNTING_WORDS = new Set(inEverySpelling(COUNT_WORDS));
+const NAMING_RULES = inEverySpelling(NAMING_WORD_LIST).map((rule) => rule.split(" "));
+const SELECTION_RULES = inEverySpelling(SELECTION_RULE_LIST).map((rule) => rule.split(" "));
+const GENERIC_WORDS = new Set(
+  inEverySpelling([...COMMON_WORDS, ...NAMING_WORD_LIST.filter((word) => !word.includes(" "))]),
+);
 
 function codePointBefore(text: string, index: number): string {
   return [...text.slice(Math.max(0, index - 2), index)].at(-1) ?? "";
@@ -188,16 +334,22 @@ function holdsSequence(words: string[], sequence: string[]): boolean {
   return words.some((_, index) => sequence.every((part, offset) => words[index + offset] === part));
 }
 
+function endsWithSequence(words: string[], sequence: string[]): boolean {
+  const tail = words.slice(-sequence.length);
+  return tail.length === sequence.length && sequence.every((part, index) => tail[index] === part);
+}
+
 function governedByRule(text: string, start: number): boolean {
-  const words = text
-    .slice(0, start)
-    .split(/[^\p{L}\p{N}\p{M}]+/u)
-    .filter(Boolean)
-    .slice(-NAMING_CLAUSE_REACH);
+  const before = text.slice(Math.max(0, start - CLAUSE_LOOKBACK_CHARS), start);
+  const clauseStart = Math.max(...CLAUSE_MARKS.map((mark) => before.lastIndexOf(mark))) + 1;
+  const words = wordsOf(before.slice(clauseStart));
   if (words.slice(-SET_WORD_REACH).some((word) => SET_WORDS.has(word))) return true;
   const recent = words.slice(-SELECTION_RULE_REACH);
   if (SELECTION_RULES.some((rule) => holdsSequence(recent, rule))) return true;
-  return NAMING_WORDS.has(words.at(-1) ?? "") && words.some((word) => SET_WORDS.has(word));
+  return (
+    NAMING_RULES.some((rule) => endsWithSequence(words, rule)) &&
+    words.slice(-NAMING_CLAUSE_REACH).some((word) => SET_WORDS.has(word))
+  );
 }
 
 function writtenAsRecord(text: string, name: string): boolean {
@@ -212,9 +364,23 @@ function writtenAsRecord(text: string, name: string): boolean {
 }
 
 function writtenInSomeSpelling(text: string, name: string): boolean {
-  const texts = spellings(text);
   const names = spellings(name);
-  return texts.some((spelling, index) => writtenAsRecord(spelling, names[index]));
+  return spellings(text).some((spelling, index) => writtenAsRecord(spelling, names[index]));
+}
+
+function writtenOutside(text: string, name: string, chosen: string[]): boolean {
+  const names = spellings(name);
+  const chosenSpellings = chosen.map(strictSpellings);
+  return strictSpellings(text).some((spelling, index) => {
+    if (!chosenSpellings.every((other) => containsName(spelling, other[index]))) return false;
+    const rest = chosenSpellings.reduce((remaining, other) => remaining.split(other[index]).join("\n"), spelling);
+    return writtenAsRecord(loose(rest).trim(), names[index]);
+  });
+}
+
+function containsInSomeSpelling(text: string, name: string): boolean {
+  const names = strictSpellings(name);
+  return strictSpellings(text).some((spelling, index) => containsName(spelling, names[index]));
 }
 
 export function ambiguityRequestOf(history: readonly { role: string; text: string }[]): AmbiguityRequest {
@@ -301,6 +467,13 @@ function rowSets(output: unknown, read: ListRead): { entity: string; rows: Row[]
   return read.entities?.length === 1 ? [{ entity: read.entities[0], rows: matchedRows(record.result) }] : [];
 }
 
+function createdRows(output: unknown): Row[] {
+  const record = output && typeof output === "object" ? (output as Record<string, unknown>) : null;
+  if (!record || record.ok !== true || typeof record.result !== "string") return [];
+  const value = decoded(record.result);
+  return value ? rowsFromItems(value.items) : matchedRows(record.result);
+}
+
 function unwrap(output: unknown): unknown {
   const record = output && typeof output === "object" ? (output as Record<string, unknown>) : null;
   if (record && record.type === "json" && "value" in record) return record.value;
@@ -309,7 +482,7 @@ function unwrap(output: unknown): unknown {
 
 function namedUniquely(latest: string, candidate: Row, candidates: Row[]): boolean {
   const name = fold(candidate.name);
-  if (!containsName(latest, name)) return false;
+  if (!containsInSomeSpelling(latest, name)) return false;
   return candidates.every((other) => other === candidate || !holdsName(fold(other.name), name));
 }
 
@@ -321,12 +494,24 @@ function mentionedAlone(text: string, name: string, candidates: Row[]): boolean 
   return containsName(remaining, name);
 }
 
-function distinguishingWords(request: AmbiguityRequest, name: string): boolean {
-  const earlier = new Set(request.previousAssistantText.split(/[^\p{L}\p{N}]+/u));
-  const nameWords = new Set(name.split(/[^\p{L}\p{N}]+/u));
-  return request.latestUserText
-    .split(/[^\p{L}\p{N}]+/u)
-    .some((word) => [...word].length >= MIN_DISTINGUISHING_WORD && !nameWords.has(word) && earlier.has(word));
+function settlesTwins(request: AmbiguityRequest, name: string): boolean {
+  const sentences = request.previousAssistantText
+    .split(/(?<=[.!?\n])/u)
+    .map((sentence) => sentence.trim())
+    .filter((sentence) => containsName(sentence, name));
+  const mentions = sentences.reduce((count, sentence) => count + sentence.split(name).length - 1, 0);
+  const counted =
+    mentions >= 2 || sentences.some((sentence) => wordsOf(sentence).some((word) => COUNTING_WORDS.has(word)));
+  if (!counted) return false;
+  const nameWords = new Set(wordsOf(name));
+  const offered = new Set(sentences.flatMap(wordsOf));
+  return wordsOf(request.latestUserText).some(
+    (word) =>
+      [...word].length >= MIN_DISTINGUISHING_WORD &&
+      !nameWords.has(word) &&
+      !GENERIC_WORDS.has(word) &&
+      offered.has(word),
+  );
 }
 
 function answersClarification(request: AmbiguityRequest, candidates: Row[]): boolean {
@@ -336,9 +521,9 @@ function answersClarification(request: AmbiguityRequest, candidates: Row[]): boo
   if (listed.length < 2) return false;
   return listed.some((candidate) => {
     const name = fold(candidate.name);
-    if (!containsName(request.latestUserText, name)) return false;
+    if (!containsInSomeSpelling(request.latestUserText, name)) return false;
     const twins = candidates.filter((other) => other !== candidate && fold(other.name) === name);
-    if (twins.length > 0 && !distinguishingWords(request, name)) return false;
+    if (twins.length > 0 && !settlesTwins(request, name)) return false;
     return candidates.every((other) => {
       const otherName = fold(other.name);
       return (
@@ -364,24 +549,17 @@ export function mergeAmbiguousTarget(armed: AmbiguousTarget | undefined, next: A
 function targetsAmong(entity: string, rows: Row[], request: AmbiguityRequest): AmbiguousTarget[] {
   const latest = request.latestUserText;
   const named = rows.map((row) => ({ row, name: fold(row.name) }));
-  const written = new Set(
-    named
-      .filter(
-        ({ row, name }) =>
-          name.length > 0 &&
-          named.some((other) => other.row !== row && holdsName(other.name, name)) &&
-          writtenInSomeSpelling(latest, name),
-      )
-      .map(({ name }) => name),
+  const nested = named.filter(
+    ({ row, name }) => name.length > 0 && named.some((other) => other.row !== row && holdsName(other.name, name)),
   );
-  return [...written].flatMap((name) => {
+  const written = [...new Set(nested.map(({ name }) => name))].filter((name) => writtenInSomeSpelling(latest, name));
+  return written.flatMap((name) => {
     const candidates = named.filter((entry) => holdsName(entry.name, name)).map((entry) => entry.row);
     if (answersClarification(request, candidates)) return [];
     const chosen = candidates.filter((candidate) => namedUniquely(latest, candidate, candidates));
-    const unchosen = chosen.reduce((text, candidate) => text.split(fold(candidate.name)).join("\n"), latest);
-    if (chosen.length > 0 && !writtenInSomeSpelling(unchosen, name)) return [];
+    const chosenNames = chosen.map((candidate) => fold(candidate.name));
+    if (chosen.length > 0 && !writtenOutside(latest, name, chosenNames)) return [];
     const remaining = candidates.filter((candidate) => !chosen.includes(candidate));
-    if (remaining.length < 2) return [];
     const phrase = remaining.find((candidate) => fold(candidate.name) === name)?.name ?? name;
     return [{ entity, phrase, candidates: remaining }];
   });
@@ -394,8 +572,11 @@ export function ambiguousTargetsFromMessages(
   if (!request.latestUserText) return [];
 
   const reads = new Map<string, ListRead>();
+  const creations = new Set<string>();
+  const created = new Set<string>();
   const found: AmbiguousTarget[] = [];
 
+  spelled.clear();
   for (const message of messages) {
     const content = (message as { content?: unknown })?.content;
     if (!Array.isArray(content)) continue;
@@ -405,17 +586,26 @@ export function ambiguousTargetsFromMessages(
         const input = part.input && typeof part.input === "object" ? (part.input as Record<string, unknown>) : null;
         const entities = input ? queriedEntities(part.toolName, input) : undefined;
         if (entities !== undefined) reads.set(part.toolCallId, { tool: part.toolName, entities });
+        if (part.toolName.startsWith("create_")) creations.add(part.toolCallId);
         continue;
       }
       if (part.type !== "tool-result" || !part.toolCallId) continue;
+      if (creations.has(part.toolCallId)) {
+        for (const row of createdRows(unwrap(part.output))) created.add(row.id.toLowerCase());
+        continue;
+      }
       const read = reads.get(part.toolCallId);
       if (!read) continue;
       for (const { entity, rows } of rowSets(unwrap(part.output), read))
         found.push(...targetsAmong(entity, rows, request));
     }
   }
+  spelled.clear();
 
-  return found;
+  return found.flatMap((target) => {
+    const candidates = target.candidates.filter((candidate) => !created.has(candidate.id.toLowerCase()));
+    return candidates.length >= 2 ? [{ ...target, candidates }] : [];
+  });
 }
 
 export function candidateIdsIn(target: AmbiguousTarget, input: unknown): number {

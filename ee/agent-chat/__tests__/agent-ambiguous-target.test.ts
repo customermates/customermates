@@ -77,6 +77,7 @@ describe("ambiguous write targets", () => {
     for (const text of [
       "Set both Nova Expansion deals to Won.",
       "Set all the Nova Expansion deals to Won.",
+      "Set the two Nova Expansion deals to Won.",
       "Assign both Nova Expansion deals to Max Klein as owner.",
       "Weise beide Nova Expansion Deals Max Klein zu.",
       "Set every deal whose name starts with 'Nova Expansion' to Won.",
@@ -88,6 +89,10 @@ describe("ambiguous write targets", () => {
       "Mark the Nova Expansion deal as Won and all Kestrel deals as Lost.",
       "Show me all activities of Nova Expansion and mark it Won.",
       "Update the deal named Nova Expansion to Won.",
+      "Update the deal with the name Nova Expansion to Won.",
+      "Update all records named in the list and mark Nova Expansion as Won.",
+      "Alles klar, Nova Expansion bitte auf Gewonnen setzen.",
+      "OK, that's all. Nova Expansion: mark it as Won.",
     ])
       expect(ambiguousTargetsFromMessages(reads(novaSearch), request(text)), text).toHaveLength(1);
 
@@ -129,12 +134,34 @@ describe("ambiguous write targets", () => {
       input: { entity: "task", searchTerm: "Nachfassen" },
       result: table(followUps.map(([id]) => [id, "Nachfassen"])),
     });
-    expect(
+    for (const text of [
+      "Setze alle überfälligen Aufgaben namens Nachfassen auf Erledigt.",
+      "Setze sämtliche überfälligen Aufgaben namens Nachfassen auf Erledigt.",
+      "Setze alle überfälligen Aufgaben mit dem Namen Nachfassen auf Erledigt.",
+    ])
+      expect(ambiguousTargetsFromMessages(nachfassen, request(text)), text).toEqual([]);
+
+    for (const text of [
+      "Set every overdue task with the name Follow up to Done.",
+      "Set all overdue tasks whose name is Follow up to Done.",
+      "Close all tasks whose name contains the phrase Follow up.",
+    ])
+      expect(ambiguousTargetsFromMessages(followUpRead, request(text)), text).toEqual([]);
+
+    const localized = (name: string, text: string) =>
       ambiguousTargetsFromMessages(
-        nachfassen,
-        request("Setze alle überfälligen Aufgaben namens Nachfassen auf Erledigt."),
-      ),
-    ).toEqual([]);
+        reads({ input: { entity: "task", searchTerm: name }, result: table(followUps.map(([id]) => [id, name])) }),
+        request(text),
+      );
+    expect(localized("Seguimiento", "Marca como hechas todas las tareas vencidas con el nombre Seguimiento.")).toEqual(
+      [],
+    );
+    expect(localized("Relance", "Marque comme terminées toutes les tâches en retard avec le nom Relance.")).toEqual([]);
+    expect(localized("Relance", "Passe chaque tâche nommée Relance dont l'échéance est dépassée à Terminé.")).toEqual(
+      [],
+    );
+    expect(localized("Richiamo", "Segna come completate tutte le attività scadute con il nome Richiamo.")).toEqual([]);
+    expect(localized("Follow up", "Close the task with the name Follow up.")).toHaveLength(1);
   });
 
   it("stays armed through a later read of another phrase or a narrowing re-read", () => {
@@ -375,9 +402,85 @@ describe("ambiguous write targets", () => {
         ),
       ).toBe(0);
       expect(armed(nova, "Mark Nova East\uFE0F as won")).toBe(0);
+      expect(
+        armed(
+          search(
+            [
+              [NOVA, "Nova-East"],
+              [NOVA_2025, "Nova East 2"],
+            ],
+            "Nova",
+          ),
+          "Delete Nova East",
+        ),
+      ).toBe(1);
       expect(armed(search(novaRows), "Setze den Nova-Expansion-2025-Deal auf Gewonnen.")).toBe(0);
       expect(armed(nova, "Delete Nova, not \u{10428}Nova East")).toBe(1);
       expect(armed(nova, "Delete Nova, not Nova East\u{10428}")).toBe(1);
+    });
+
+    it("takes a longer candidate named in full in any spelling as a clear choice", () => {
+      const cafeNord = search([
+        [NOVA, "Café Nord"],
+        [NOVA_2025, "Café Nord 2025"],
+      ]);
+      expect(armed(cafeNord, "Mark Cafe Nord 2025 as won.")).toBe(0);
+      expect(armed(cafeNord, "Cafe Nord 2025", "Two deals match: Café Nord and Café Nord 2025. Which one?")).toBe(0);
+      expect(armed(cafeNord, "Cafe Nord", "Two deals match: Café Nord and Café Nord 2025. Which one?")).toBe(0);
+      const strasse = search(
+        [
+          [NOVA, "Müller"],
+          [NOVA_2025, "Müller Straße"],
+          [UNRELATED, "Müller Pilot"],
+        ],
+        "Müller",
+      );
+      expect(armed(strasse, "Setze Müller Strasse auf Gewonnen")).toBe(0);
+      expect(armed(strasse, "Setze Müller Strasse auf Gewonnen und Mueller auf Verloren")).toBe(1);
+      const acmeEurope = search([
+        [NOVA, "Acme Inc."],
+        [NOVA_2025, "Acme Inc. Europe"],
+      ]);
+      expect(armed(acmeEurope, "Update the address of Acme Inc Europe to Main Street 5")).toBe(0);
+      const muellerBau = search([
+        [NOVA, "Müller Bau"],
+        [NOVA_2025, "Müller Bau 2025"],
+      ]);
+      expect(armed(muellerBau, "Mark Mueller Bau 2025 as won.")).toBe(0);
+      expect(armed(muellerBau, "Mark Mueller Bau as won.")).toBe(1);
+    });
+
+    it("never lets records the turn created stand for an ambiguous name", () => {
+      const created = [NOVA, NOVA_2025, UNRELATED];
+      const messages = [
+        {
+          role: "assistant",
+          content: [{ type: "tool-call", toolCallId: "create-1", toolName: "create_tasks", input: { tasks: [] } }],
+        },
+        {
+          role: "tool",
+          content: [
+            {
+              type: "tool-result",
+              toolCallId: "create-1",
+              output: {
+                type: "json",
+                value: {
+                  ok: true,
+                  result: encode({ items: created.map((id) => ({ id, name: "Verlängerung besprechen" })) }),
+                },
+              },
+            },
+          ],
+        },
+        ...reads({
+          input: { entity: "task", searchTerm: "Verlängerung besprechen" },
+          result: table(created.map((id) => [id, "Verlängerung besprechen"])),
+        }),
+      ];
+      const text = "Lege für jeden dieser Deals eine Aufgabe Verlängerung besprechen an.";
+      expect(ambiguousTargetsFromMessages(messages, request(text))).toEqual([]);
+      expect(ambiguousTargetsFromMessages(messages.slice(2), request(text))).toHaveLength(1);
     });
 
     it("needs two candidates listed before taking a reply as a choice", () => {
@@ -401,6 +504,24 @@ describe("ambiguous write targets", () => {
       expect(armed(twins, "Alex Müller", asked)).toBe(1);
       expect(armed(twins, "Alex Müller, the one", asked)).toBe(1);
       expect(armed(twins, "Update Alex Müller at Northstar", "Northstar Services GmbH has three open deals.")).toBe(1);
+      expect(
+        armed(
+          twins,
+          "Update Alex Müller's phone number to +12025550199.",
+          "Alex Müller's phone number is +1 202 555 0101.",
+        ),
+      ).toBe(1);
+      const expansions = search(
+        [
+          [NOVA, "Nova Expansion"],
+          [NOVA_2025, "Nova Expansion"],
+        ],
+        "Nova Expansion",
+      );
+      const which = "Two deals are named Nova Expansion: one in Berlin, one in Hamburg. Which should I mark as Won?";
+      expect(armed(expansions, "Mark the Nova Expansion deal as Won", which)).toBe(1);
+      expect(armed(expansions, "Mark the Nova Expansion deals as Won", which)).toBe(1);
+      expect(armed(expansions, "Nova Expansion in Berlin", which)).toBe(0);
       const mixed = search(
         [
           [NOVA, "Nova"],
@@ -760,6 +881,19 @@ describe("ambiguous write targets", () => {
       expect(target?.entity).toBe("deal");
       expect(target?.candidates.map((candidate) => candidate.id)).toEqual([NOVA, NOVA_2025]);
     }
+  });
+
+  it("stays cheap on a long request over many same-named rows", () => {
+    const rows = Array.from({ length: 100 }, (_, index): [string, string] => [
+      `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
+      index === 99 ? "Nova East" : "Nova",
+    ]);
+    const started = performance.now();
+    ambiguousTargetsFromMessages(
+      reads({ input: { entity: "deal", searchTerm: "Nova" }, result: table(rows) }),
+      request("all nova ".repeat(2_222)),
+    );
+    expect(performance.now() - started).toBeLessThan(2_000);
   });
 
   it("takes the request from the turn's own messages, never from a continuation prompt", () => {

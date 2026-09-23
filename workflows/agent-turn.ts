@@ -1117,7 +1117,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         prepareStep: async ({ messages: stepMessages }) => {
           if (abandoned || cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null)
             throw AGENT_LOCAL_TERMINATION_REQUIRED;
-          for (const target of ambiguousTargetsFromMessages(stepMessages, ambiguityRequest)) {
+          for (const target of surface === "chat" ? ambiguousTargetsFromMessages(stepMessages, ambiguityRequest) : []) {
             const key = ambiguousTargetKey(target);
             armedTargets.set(key, mergeAmbiguousTarget(armedTargets.get(key), target));
           }
