@@ -19,6 +19,7 @@ const MARKETING_ROOTS = [
   join("app", "components", "footer-content.tsx"),
   join("app", "components", "footer-badges.tsx"),
   join("app", "components", "navigation", "public-navbar-menu.tsx"),
+  join("app", "components", "navigation", "public-navbar-model.ts"),
   join("app", "not-found.tsx"),
   join("components", "shared"),
   join("components", "marketing"),

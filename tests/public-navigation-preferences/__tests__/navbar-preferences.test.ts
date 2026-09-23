@@ -1,7 +1,33 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { extname, join, resolve } from "node:path";
 
+import {
+  BookOpen,
+  Bot,
+  Boxes,
+  BriefcaseBusiness,
+  Building2,
+  Cable,
+  CheckCircle2,
+  GitCompareArrows,
+  Github,
+  HeartPulse,
+  Inbox,
+  LayoutGrid,
+  Megaphone,
+  Plug,
+  Presentation,
+  Rocket,
+  Server,
+  Store,
+  TrendingUp,
+  UserRoundSearch,
+  Users,
+  UsersRound,
+} from "lucide-react";
 import { describe, expect, it } from "vitest";
+
+import { resolvePublicNavGroups } from "@/app/components/navigation/public-navbar-model";
 
 const REPO_ROOT = process.cwd();
 
@@ -16,25 +42,14 @@ function read(file: string): string {
   return readFileSync(join(REPO_ROOT, file), "utf8");
 }
 
-function publicNavGroup(source: string, id: string, nextId?: string): string {
-  const start = source.indexOf(`id: "${id}"`);
-  if (start < 0) throw new Error(`public navigation group ${id} is missing`);
+const translationKey = ((key: string) => key) as unknown as Parameters<typeof resolvePublicNavGroups>[0];
+const publicNavGroups = resolvePublicNavGroups(translationKey);
 
-  const end = nextId ? source.indexOf(`id: "${nextId}"`, start) : source.indexOf("\n  ];", start);
-  if (end < 0) throw new Error(`public navigation group ${id} has no closing boundary`);
+function publicNavGroup(id: string) {
+  const group = publicNavGroups.find((candidate) => candidate.id === id);
+  if (!group) throw new Error(`public navigation group ${id} is missing`);
 
-  return source.slice(start, end);
-}
-
-function expectHrefOrder(source: string, hrefs: string[]) {
-  let previousIndex = -1;
-
-  for (const href of hrefs) {
-    const index = source.indexOf(`href: "${href}"`);
-    expect(index, `${href} is missing`).toBeGreaterThan(-1);
-    expect(index, `${href} is out of order`).toBeGreaterThan(previousIndex);
-    previousIndex = index;
-  }
+  return group;
 }
 
 function sourceFiles(): string[] {
@@ -118,15 +133,22 @@ describe("public navigation preferences", () => {
     expect(footer).not.toContain('t("Footer.compareViewAll")');
   });
 
-  it("keeps the flat marketing map restrained and shared with mobile", () => {
-    const navbar = read(HEADER_SHELLS.navbar);
-    const menu = read("app/components/navigation/public-navbar-menu.tsx");
-    const product = publicNavGroup(navbar, "product", "solutions");
-    const solutions = publicNavGroup(navbar, "solutions", "integrations");
-    const integrations = publicNavGroup(navbar, "integrations", "resources");
-    const resources = publicNavGroup(navbar, "resources");
-    const mobile = navbar.slice(navbar.indexOf("<SheetBody"), navbar.indexOf("</SheetBody>"));
+  it("keeps the flat marketing map restrained", () => {
+    const groupShape = publicNavGroups.map((group) => [
+      group.id,
+      group.activeHref,
+      group.columns,
+      group.icon,
+      group.title,
+    ]);
+    expect(groupShape).toEqual([
+      ["product", "/features", 3, Boxes, "NavigationBar.public.product"],
+      ["solutions", "/for", 3, UsersRound, "NavigationBar.public.solutions"],
+      ["integrations", "/features/integrations", 2, Plug, "NavigationBar.public.integrations"],
+      ["resources", "/blog", 2, BookOpen, "NavigationBar.public.resources"],
+    ]);
 
+    const hrefs = publicNavGroups.flatMap((group) => group.links.map((link) => link.href));
     for (const href of [
       "/blog/agentic-crm",
       "/blog/open-source-crm",
@@ -135,11 +157,77 @@ describe("public navigation preferences", () => {
       "/for/agencies",
       "/for/professional-services",
     ]) {
-      expect(
-        navbar,
-        `${href} is missing from the sitewide navigation`,
-      ).toContain(`href: "${href}"`);
+      expect(hrefs, `${href} is missing from the sitewide navigation`).toContain(href);
     }
+    expect(hrefs, "the integrations group has no hub page of its own").not.toContain("/features/integrations");
+
+    for (const group of publicNavGroups) {
+      expect(Object.keys(group).sort()).toEqual(["activeHref", "columns", "icon", "id", "links", "title"]);
+      for (const link of group.links) {
+        expect(
+          ["activeMatch", "href", "icon", "mark", "title"],
+          `${link.href} carries a field the flat map does not render`,
+        ).toEqual(expect.arrayContaining(Object.keys(link)));
+      }
+    }
+    expect(publicNavGroups.flatMap((group) => group.links.map((link) => link.title))).not.toContain(
+      "NavigationBar.public.allIntegrations",
+    );
+
+    const iconLinks = (id: string) => publicNavGroup(id).links.map((link) => [link.href, link.icon]);
+    expect(iconLinks("product")).toEqual([
+      ["/features/unified-inbox", Inbox],
+      ["/features/contact-management", Users],
+      ["/features/pipeline", TrendingUp],
+      ["/features/sales-tracking", TrendingUp],
+      ["/features/task-management", CheckCircle2],
+      ["/features/cloud-crm", LayoutGrid],
+      ["/features/self-hosted", Server],
+      ["/docs/mcp", Cable],
+      ["/features/all", Boxes],
+    ]);
+    expect(iconLinks("solutions")).toEqual([
+      ["/for/professional-services", BriefcaseBusiness],
+      ["/for/agencies", Megaphone],
+      ["/for/consultants", Presentation],
+      ["/for/recruiting", UserRoundSearch],
+      ["/for/healthcare", HeartPulse],
+      ["/for/property-management", Building2],
+      ["/for/startups", Rocket],
+      ["/for/smb", Store],
+      ["/for", UsersRound],
+    ]);
+    expect(iconLinks("resources")).toEqual([
+      ["/blog", BookOpen],
+      ["/compare", GitCompareArrows],
+      ["/blog/agentic-crm", Bot],
+      ["/blog/open-source-crm", Github],
+    ]);
+
+    const integrations = publicNavGroup("integrations").links;
+    expect(integrations.every((link) => link.icon === undefined)).toBe(true);
+    expect(integrations.map((link) => [link.mark, link.title])).toEqual([
+      [{ kind: "agent", provider: "claude" }, "NavigationBar.public.providerClaude"],
+      [{ kind: "agent", provider: "chatgpt" }, "NavigationBar.public.providerChatGPT"],
+      [{ kind: "agent", provider: "codex" }, "NavigationBar.public.providerCodex"],
+      [{ kind: "agent", provider: "gemini" }, "NavigationBar.public.providerGemini"],
+      [{ kind: "agent", provider: "cursor" }, "NavigationBar.public.providerCursor"],
+      [{ kind: "channel", provider: "gmail" }, "NavigationBar.public.providerGmail"],
+      [{ kind: "channel", provider: "outlook" }, "NavigationBar.public.providerOutlook"],
+      [{ kind: "channel", provider: "linkedin" }, "NavigationBar.public.providerLinkedIn"],
+      [{ kind: "channel", provider: "whatsapp" }, "NavigationBar.public.providerWhatsApp"],
+      [{ kind: "channel", provider: "instagram" }, "NavigationBar.public.providerInstagram"],
+      [{ kind: "channel", provider: "telegram" }, "NavigationBar.public.providerTelegram"],
+      [{ kind: "channel", provider: "imap" }, "NavigationBar.public.providerImap"],
+      [{ kind: "provider", provider: "slack" }, "NavigationBar.public.providerSlack"],
+      [{ kind: "automation", provider: "n8n" }, "NavigationBar.public.n8n"],
+    ]);
+  });
+
+  it("shares the marketing map between the desktop menu and the mobile sheet", () => {
+    const navbar = read(HEADER_SHELLS.navbar);
+    const menu = read("app/components/navigation/public-navbar-menu.tsx");
+    const mobile = navbar.slice(navbar.indexOf("<SheetBody"), navbar.indexOf("</SheetBody>"));
 
     expect(navbar.match(/publicNavGroups\.map/gu)).toHaveLength(1);
     // A native disclosure ships its links in the server HTML whether or not it is open, and
@@ -169,16 +257,9 @@ describe("public navigation preferences", () => {
       /bg-(?:red|orange|amber|yellow|green|blue|violet|purple)-/u,
     );
 
-    expect(navbar).toContain('id: "integrations"');
-    expect(navbar).toContain('activeHref: "/features/integrations"');
-    expect(navbar).not.toContain("desktopHidden");
     expect(navbar.match(/t\("NavigationBar\.docs"\)/gu)).toHaveLength(2);
     expect(navbar.match(/href="\/docs"/gu)).toHaveLength(1);
     expect(navbar).toContain('isNavItemActive("/docs")');
-    expect(navbar).not.toContain("featured:");
-    expect(navbar).not.toContain("secondary:");
-    expect(navbar).not.toContain("sections:");
-    expect(navbar).not.toContain("description: t(");
     expect(navbar).toContain("group.links.map");
     expect(navbar).not.toContain("group.sections");
     expect(navbar).not.toContain("group.description");
@@ -223,80 +304,6 @@ describe("public navigation preferences", () => {
     expect(mobile).toContain("<PublicNavLinkIcon icon={link.icon} />");
     expect(mobile).not.toContain('cn("py-3 text-base"');
 
-    expectHrefOrder(product, [
-      "/features/unified-inbox",
-      "/features/contact-management",
-      "/features/pipeline",
-      "/features/sales-tracking",
-      "/features/task-management",
-      "/features/cloud-crm",
-      "/features/self-hosted",
-      "/docs/mcp",
-      "/features/all",
-    ]);
-    expectHrefOrder(solutions, [
-      "/for/professional-services",
-      "/for/agencies",
-      "/for/consultants",
-      "/for/recruiting",
-      "/for/healthcare",
-      "/for/property-management",
-      "/for/startups",
-      "/for/smb",
-      "/for",
-    ]);
-    expectHrefOrder(resources, ["/blog", "/compare", "/blog/agentic-crm", "/blog/open-source-crm"]);
-
-    const iconMaps = [
-      [
-        product,
-        [
-          ["/features/unified-inbox", "Inbox"],
-          ["/features/contact-management", "Users"],
-          ["/features/pipeline", "TrendingUp"],
-          ["/features/sales-tracking", "TrendingUp"],
-          ["/features/task-management", "CheckCircle2"],
-          ["/features/cloud-crm", "LayoutGrid"],
-          ["/features/self-hosted", "Server"],
-          ["/docs/mcp", "Cable"],
-          ["/features/all", "Boxes"],
-        ],
-      ],
-      [
-        solutions,
-        [
-          ["/for/professional-services", "BriefcaseBusiness"],
-          ["/for/agencies", "Megaphone"],
-          ["/for/consultants", "Presentation"],
-          ["/for/recruiting", "UserRoundSearch"],
-          ["/for/healthcare", "HeartPulse"],
-          ["/for/property-management", "Building2"],
-          ["/for/startups", "Rocket"],
-          ["/for/smb", "Store"],
-          ["/for", "UsersRound"],
-        ],
-      ],
-      [
-        resources,
-        [
-          ["/blog", "BookOpen"],
-          ["/compare", "GitCompareArrows"],
-          ["/blog/agentic-crm", "Bot"],
-          ["/blog/open-source-crm", "Github"],
-        ],
-      ],
-    ] as const;
-
-    for (const [group, links] of iconMaps) {
-      expect(group.match(/icon: \w+,\s+href:/gu)).toHaveLength(links.length);
-      for (const [href, icon] of links) {
-        expect(group, `${href} should use the ${icon} navigation icon`).toMatch(
-          new RegExp(`icon: ${icon},\\s+href: "${href}"`, "u"),
-        );
-      }
-    }
-    expect(integrations).not.toMatch(/icon: \w+,\s+href:/u);
-
     const groupsEnd = mobile.lastIndexOf("</details>");
     const pricingIndex = mobile.indexOf('href="/pricing"');
     const docsIndex = mobile.indexOf('href="/docs"');
@@ -305,68 +312,6 @@ describe("public navigation preferences", () => {
     expect(pricingIndex).toBeGreaterThan(groupsEnd);
     expect(docsIndex).toBeGreaterThan(pricingIndex);
     expect(preferencesIndex).toBeGreaterThan(docsIndex);
-
-    for (const href of [
-      "/features/unified-inbox",
-      "/docs/mcp",
-      "/features/all",
-    ]) {
-      expect(product, `${href} belongs in Product`).toContain(`href: "${href}"`);
-    }
-
-    for (const href of ["/for/startups", "/for/smb"]) {
-      expect(solutions, `${href} belongs in Solutions`).toContain(`href: "${href}"`);
-    }
-
-    for (const href of ["/blog", "/compare", "/blog/agentic-crm", "/blog/open-source-crm"]) {
-      expect(resources, `${href} belongs in Resources`).toContain(`href: "${href}"`);
-    }
-    expect(resources.match(/href:/gu)).toHaveLength(4);
-    expect(resources).not.toContain('href: "/docs');
-    expect(resources).not.toContain("mcpGuide");
-    expect(resources).not.toContain("selfHostingGuide");
-    expect(resources).not.toContain("inboxGuide");
-
-    for (const [provider, labelKey] of [
-      ["claude", "providerClaude"],
-      ["chatgpt", "providerChatGPT"],
-      ["codex", "providerCodex"],
-      ["gemini", "providerGemini"],
-      ["cursor", "providerCursor"],
-    ] as const) {
-      expect(integrations).toMatch(
-        new RegExp(
-          `mark: \\{ kind: "agent", provider: "${provider}" \\},\\s+title: t\\("NavigationBar\\.public\\.${labelKey}"\\)`,
-          "u",
-        ),
-      );
-    }
-
-    for (const [provider, labelKey] of [
-      ["gmail", "providerGmail"],
-      ["outlook", "providerOutlook"],
-      ["linkedin", "providerLinkedIn"],
-      ["whatsapp", "providerWhatsApp"],
-      ["instagram", "providerInstagram"],
-      ["telegram", "providerTelegram"],
-      ["imap", "providerImap"],
-    ] as const) {
-      expect(integrations).toMatch(
-        new RegExp(
-          `mark: \\{ kind: "channel", provider: "${provider}" \\},\\s+title: t\\("NavigationBar\\.public\\.${labelKey}"\\)`,
-          "u",
-        ),
-      );
-    }
-
-    expect(integrations).toMatch(
-      /mark: \{ kind: "provider", provider: "slack" \},\s+title: t\("NavigationBar\.public\.providerSlack"\)/u,
-    );
-    expect(integrations).toMatch(
-      /mark: \{ kind: "automation", provider: "n8n" \},\s+title: t\("NavigationBar\.public\.n8n"\)/u,
-    );
-    expect(navbar).not.toContain('href: "/features/integrations"');
-    expect(navbar).not.toContain("NavigationBar.public.allIntegrations");
   });
 
   it("keeps the six official theme-aware Featured On badges and outbound destinations", () => {
