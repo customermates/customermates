@@ -68,7 +68,7 @@
   --font-family-mono:
     var(--font-mono), "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo,
     Consolas, "Liberation Mono", monospace;
-  --font-family-terminal:
+  --font-terminal:
     ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
