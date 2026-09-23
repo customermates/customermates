@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 
+import { addMonths, addYears, startOfMonth } from "date-fns";
 import { createTranslator } from "next-intl";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
@@ -59,6 +60,8 @@ const ben = randomUUID();
 const status = randomUUID();
 const [open, won] = [randomUUID(), randomUUID()];
 const tenantUser = createMockUser({ companyId: company, id: ada });
+const now = new Date();
+const currentMonth = startOfMonth(now);
 
 type Grouped = {
   total: number;
@@ -106,14 +109,16 @@ describeDatabase("list_records groupBy against a real database", { timeout: 120_
         },
       });
       const deals = [
-        ["Alpha", 1_000, [ada], open],
-        ["Beta", 2_000, [ada], won],
-        ["Gamma", 4_000, [ben], won],
-        ["Delta", 8_000, [ada, ben], won],
+        ["Alpha", 1_000, [ada], open, addYears(now, -3)],
+        ["Beta", 2_000, [ada], won, now],
+        ["Gamma", 4_000, [ben], won, addYears(now, 1)],
+        ["Delta", 8_000, [ada, ben], won, now],
       ] as const;
-      for (const [name, value, owners, option] of deals) {
+      for (const [name, value, owners, option, createdAt] of deals) {
         const id = randomUUID();
-        await prisma.deal.create({ data: { id, companyId: company, name, totalValue: value, totalQuantity: 1 } });
+        await prisma.deal.create({
+          data: { id, companyId: company, name, totalValue: value, totalQuantity: 1, createdAt },
+        });
         for (const userId of owners) await prisma.dealUser.create({ data: { companyId: company, dealId: id, userId } });
         await prisma.customFieldValue.create({
           data: {
@@ -162,6 +167,38 @@ describeDatabase("list_records groupBy against a real database", { timeout: 120_
     );
     expect(byLabel).toEqual({ Open: [1, 1_000], Won: [3, 14_000] });
     expect(grouped.groupNote).toBeUndefined();
+  });
+
+  it("names the rolling date window's catch-all groups and says what they collect", async () => {
+    const result = await list({ groupBy: { field: "createdAt" } });
+    const grouped = structured(result);
+    const oldestMonth = addMonths(currentMonth, -11).toISOString();
+    const nextMonth = addMonths(currentMonth, 1).toISOString();
+
+    expect(grouped.groupedBy).toBe("createdAt:month");
+    expect(grouped.groups.map((group) => [group.label, group.count])).toEqual([
+      [`from ${nextMonth} on`, 1],
+      [currentMonth.toISOString(), 2],
+      [`before ${oldestMonth}`, 1],
+    ]);
+    expect(grouped.groupNote).toBe(
+      `Only the last 12 months, up to and including the current one, have a group each; "from ${nextMonth} on" collects every later record and "before ${oldestMonth}" collects every earlier record.`,
+    );
+  });
+
+  it("adds no window note when every record falls inside the window", async () => {
+    const result = await list({ searchTerm: "Beta", groupBy: { field: "createdAt", bucket: "week" } });
+    const grouped = structured(result);
+
+    expect(grouped.groupedBy).toBe("createdAt:week");
+    expect(grouped.groups).toHaveLength(1);
+    expect(grouped.groupNote).toBeUndefined();
+  });
+
+  it("reports the grouping actually used, not the raw input", async () => {
+    const result = await list({ groupBy: { field: "userIds", bucket: "day" } });
+
+    expect(structured(result).groupedBy).toBe("userIds");
   });
 
   it("refuses a field it cannot group by and names the ones it can", async () => {

@@ -22,7 +22,13 @@ import {
 import type { McpToolFailureResult } from "./mcp-tool";
 
 import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
-import { DateBucketSchema, NO_VALUE_GROUP_KEY, type GroupingResult } from "@/core/base/grouping/grouping.schema";
+import {
+  DateBucketSchema,
+  NO_VALUE_GROUP_KEY,
+  encodeGroupingToken,
+  type DataViewGroup,
+  type GroupingResult,
+} from "@/core/base/grouping/grouping.schema";
 import { createZodError } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/editor/editor.utils";
@@ -105,11 +111,15 @@ const ListRecordsSchema = z.object({
         .describe(
           "A single-select custom-column id (for example Status), a relation such as userIds (owners), organizationIds or contactIds, or createdAt or updatedAt",
         ),
-      bucket: DateBucketSchema.optional().describe("day, week or month; only for createdAt and updatedAt"),
+      bucket: DateBucketSchema.optional().describe(
+        "day, week or month (the default); only for createdAt and updatedAt",
+      ),
     })
     .optional()
     .describe(
-      "Count the matching records per value of one field instead of listing them. Returns groups with key, label and count, and for deals the sums of totalValue and weightedValue per group. A record linked to several owners counts in each of their groups.",
+      "Count the matching records per value of one field instead of listing them. Returns groups with key, label and count, and for deals the sums of totalValue and weightedValue per group. A record linked to several owners counts in each of their groups. " +
+        "createdAt and updatedAt get one group per day for the last 7 days, per week for the last 7 weeks, or per month for the last 12 months, each up to and including the current one; " +
+        'older records are counted together in one "before <date>" group and records dated after the current period in one "from <date> on" group, and groupNote says so when either holds records.',
     ),
 });
 
@@ -229,7 +239,10 @@ const ListRecordsOutputSchema = z.object({
     .describe(
       "Present when two or more listed names contain the searched name: ask which one was meant before writing",
     ),
-  groupedBy: z.string().optional(),
+  groupedBy: z
+    .string()
+    .optional()
+    .describe("The grouping used: the field, followed by :day, :week or :month when it is a date"),
   groups: z
     .array(
       z.object({
@@ -390,6 +403,29 @@ export const getRecordSchemaTool = {
   },
 };
 
+function groupLabel(group: DataViewGroup, oldestWindowStart: string | undefined) {
+  if (group.label !== undefined) return group.label;
+  if (group.key === NO_VALUE_GROUP_KEY || group.isNoValue) return "No value";
+  if (group.bucketRole === "earlier" && oldestWindowStart) return `before ${oldestWindowStart}`;
+  if (group.bucketRole === "later" && group.bucketStart) return `from ${group.bucketStart} on`;
+  return group.bucketStart ?? group.key;
+}
+
+function dateWindowNote(grouping: GroupingResult, oldestWindowStart: string | undefined) {
+  const catchAll = grouping.groups.filter(
+    (group) => group.count > 0 && (group.bucketRole === "earlier" || group.bucketRole === "later"),
+  );
+  if (catchAll.length === 0) return [];
+
+  const windows = grouping.groups.filter((group) => group.bucketRole === "window").length;
+  const collects = catchAll.map(
+    (group) => `"${groupLabel(group, oldestWindowStart)}" collects every ${group.bucketRole} record`,
+  );
+  return [
+    `Only the last ${windows} ${grouping.grouping.bucket}s, up to and including the current one, have a group each; ${collects.join(" and ")}.`,
+  ];
+}
+
 function groupedListResult(
   entity: Entity,
   groupBy: NonNullable<z.infer<typeof ListRecordsSchema>["groupBy"]>,
@@ -413,12 +449,13 @@ function groupedListResult(
   }
 
   const total = data.pagination?.total ?? grouping.total;
+  const oldestWindowStart = grouping.groups
+    .flatMap((group) => (group.bucketRole === "window" && group.bucketStart ? [group.bucketStart] : []))
+    .toSorted()[0];
   const shown = grouping.groups.filter((group) => group.count > 0);
   const groups = shown.map((group) => ({
     key: group.key,
-    label:
-      group.label ??
-      (group.key === NO_VALUE_GROUP_KEY || group.isNoValue ? "No value" : (group.bucketStart ?? group.key)),
+    label: groupLabel(group, oldestWindowStart),
     count: group.count,
     ...(group.valueSums ? { sums: group.valueSums } : {}),
   }));
@@ -430,6 +467,7 @@ function groupedListResult(
       ? ["Per-group sums cover the first 25 groups; filter to one group for the sums of the others."]
       : []),
     ...(grouping.overflow ? [`Only the first ${grouping.overflow.shown} groups are listed.`] : []),
+    ...dateWindowNote(grouping, oldestWindowStart),
   ];
 
   return toonResult({
@@ -438,7 +476,7 @@ function groupedListResult(
     page,
     pageSize: pageSize.applied,
     ...mcpPageSizeEcho(pageSize),
-    groupedBy: groupBy.bucket ? `${groupBy.field}:${groupBy.bucket}` : groupBy.field,
+    groupedBy: encodeGroupingToken(grouping.grouping),
     ...(notes.length > 0 ? { groupNote: notes.join(" ") } : {}),
     groups,
     items: [],
@@ -455,7 +493,7 @@ export const listRecordsTool = {
     "deal items add totalValue, totalQuantity and weightedValue, service items add amount. " +
     "When the entity has numeric columns it also returns sums: the total of each numeric column across " +
     "every record matching the filters, not just the current page. Read sums directly instead of adding " +
-    "up items, which would only cover one page. For deals sums holds totalValue (pipeline), totalQuantity " +
+    "up items, which would only cover one page. For deals sums holds totalValue (pipeline) " +
     "and weightedValue (pipeline weighted by each stage's win probability). " +
     "Custom currency columns are summed the same way and appear in sums under the custom-column id from " +
     "get_record_schema, not the column label, so a question about a money field is one call: filter, then read " +
