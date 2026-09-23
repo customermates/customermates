@@ -63,11 +63,8 @@ function hasNestedLocalePrefix(pathname: string): boolean {
   return routingLocaleFromUrlSegment(secondSegment) !== null;
 }
 
-const SESSION_COOKIE_NAMES = ["app.session_token=", "__Secure-app.session_token="] as const;
-
 function hasSessionCookie(req: NextRequest): boolean {
-  const cookieHeader = req.headers.get("cookie") ?? "";
-  return SESSION_COOKIE_NAMES.some((name) => cookieHeader.includes(name));
+  return (req.headers.get("cookie") ?? "").includes("app.session_token=");
 }
 
 // A cross-site iframe cannot store the SameSite=Lax session cookie the demo sign-in sets, so the

@@ -11,22 +11,15 @@ export type RuntimeIdentity = {
 };
 
 export class LayoutStore {
-  isMenuOpen = false;
   runtimeIdentity: RuntimeIdentity | null = null;
 
   constructor() {
     makeObservable(this, {
-      isMenuOpen: observable,
       runtimeIdentity: observable,
-      setIsMenuOpen: action,
       setRuntimeIdentity: action,
       clearRuntimeIdentity: action,
     });
   }
-
-  setIsMenuOpen = (isMenuOpen: boolean) => {
-    this.isMenuOpen = isMenuOpen;
-  };
 
   setRuntimeIdentity = (runtimeIdentity: RuntimeIdentity) => {
     this.runtimeIdentity = runtimeIdentity;

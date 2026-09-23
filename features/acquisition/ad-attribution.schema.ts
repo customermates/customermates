@@ -1,6 +1,4 @@
-import type { z } from "zod";
-
-import { array, boolean, date, iso, literal, object, string, enum as zodEnum } from "zod";
+import { z } from "zod";
 
 import { AD_IDENTIFIER_KINDS, AD_PROVIDER_ORDER, type AdIdentifierKind } from "./ad-provider-registry";
 import {
@@ -9,8 +7,8 @@ import {
   AD_SEARCH_MAX_LENGTH,
 } from "./ad-attribution.constants";
 
-export const AdProviderSchema = zodEnum(AD_PROVIDER_ORDER);
-export const AdIdentifierKindSchema = zodEnum(AD_IDENTIFIER_KINDS as [AdIdentifierKind, ...AdIdentifierKind[]]);
+export const AdProviderSchema = z.enum(AD_PROVIDER_ORDER);
+export const AdIdentifierKindSchema = z.enum(AD_IDENTIFIER_KINDS as [AdIdentifierKind, ...AdIdentifierKind[]]);
 
 export {
   PUBLIC_AD_ATTRIBUTION_COOKIE_MAX_AGE_SECONDS,
@@ -20,64 +18,66 @@ export {
   PUBLIC_AD_ATTRIBUTION_PENDING_PARAM,
 } from "./ad-attribution.constants";
 
-export const adIdentifierValueSchema = string()
+export const adIdentifierValueSchema = z
+  .string()
   .min(1)
   .max(AD_IDENTIFIER_VALUE_MAX_LENGTH)
   .regex(AD_IDENTIFIER_VALUE_PATTERN);
 
-export const AdClickSchema = object({
+export const AdClickSchema = z.object({
   provider: AdProviderSchema,
   kind: AdIdentifierKindSchema,
   value: adIdentifierValueSchema,
-  clickedAt: iso.datetime(),
+  clickedAt: z.iso.datetime(),
 });
 export type AdClick = z.infer<typeof AdClickSchema>;
 
 export const RetainedAdClickSchema = AdClickSchema.extend({
-  capturedAt: iso.datetime(),
-  expiresAt: iso.datetime(),
+  capturedAt: z.iso.datetime(),
+  expiresAt: z.iso.datetime(),
 });
 export type RetainedAdClick = z.infer<typeof RetainedAdClickSchema>;
 
-export const PublicAdAttributionConsentSchema = object({
-  advertising: boolean(),
-  decidedAt: iso.datetime(),
-  noticeVersion: string().min(1).max(32),
+export const PublicAdAttributionConsentSchema = z.object({
+  advertising: z.boolean(),
+  decidedAt: z.iso.datetime(),
+  noticeVersion: z.string().min(1).max(32),
 });
 export type PublicAdAttributionConsent = z.infer<typeof PublicAdAttributionConsentSchema>;
 
-export const PublicAdAttributionCookieSchema = object({
-  version: literal(1),
+export const PublicAdAttributionCookieSchema = z.object({
+  version: z.literal(1),
   consent: PublicAdAttributionConsentSchema,
-  clicks: array(RetainedAdClickSchema).max(AD_PROVIDER_ORDER.length),
-  expiresAt: iso.datetime(),
+  clicks: z.array(RetainedAdClickSchema).max(AD_PROVIDER_ORDER.length),
+  expiresAt: z.iso.datetime(),
 });
 export type PublicAdAttributionCookie = z.infer<typeof PublicAdAttributionCookieSchema>;
 
-export const PublicAdAttributionSearchInputSchema = object({ search: string().max(AD_SEARCH_MAX_LENGTH) });
+export const PublicAdAttributionSearchInputSchema = z.object({ search: z.string().max(AD_SEARCH_MAX_LENGTH) });
 
 export const PublicAdAttributionVisitInputSchema = PublicAdAttributionSearchInputSchema.extend({
-  pendingAt: iso.datetime(),
+  pendingAt: z.iso.datetime(),
 });
 export type PublicAdAttributionVisitInput = z.infer<typeof PublicAdAttributionVisitInputSchema>;
 
-export const PublicAdAttributionDecisionInputSchema = object({
-  choice: zodEnum(["allow-attribution", "necessary-only"]),
+export const PublicAdAttributionDecisionInputSchema = z.object({
+  choice: z.enum(["allow-attribution", "necessary-only"]),
   visit: PublicAdAttributionVisitInputSchema.nullable(),
 });
 export type PublicAdAttributionDecisionInput = z.input<typeof PublicAdAttributionDecisionInputSchema>;
 export type PublicAdAttributionDecisionData = z.output<typeof PublicAdAttributionDecisionInputSchema>;
 
-export const RegistrationAdAttributionSchema = object({
-  provider: AdProviderSchema,
-  identifierKind: AdIdentifierKindSchema,
-  identifierValue: adIdentifierValueSchema,
-  clickedAt: date(),
-  capturedAt: date(),
-  consentedAt: date(),
-  consentNoticeVersion: string().min(1).max(32),
-  expiresAt: date(),
-})
+export const RegistrationAdAttributionSchema = z
+  .object({
+    provider: AdProviderSchema,
+    identifierKind: AdIdentifierKindSchema,
+    identifierValue: adIdentifierValueSchema,
+    clickedAt: z.date(),
+    capturedAt: z.date(),
+    consentedAt: z.date(),
+    consentNoticeVersion: z.string().min(1).max(32),
+    expiresAt: z.date(),
+  })
   .refine((value) => value.clickedAt <= value.capturedAt, {
     message: "Ad click capture cannot predate the click",
     path: ["capturedAt"],

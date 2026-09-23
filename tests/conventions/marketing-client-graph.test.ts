@@ -29,7 +29,10 @@ const CLIENT_ENTRY_POINTS = [
 
 const FORBIDDEN = [
   { id: "mobx", reason: "the marketing chrome reads no observable; drop observer() rather than shipping MobX" },
-  { id: "mobx-react-lite", reason: "the marketing chrome reads no observable; drop observer() rather than shipping MobX" },
+  {
+    id: "mobx-react-lite",
+    reason: "the marketing chrome reads no observable; drop observer() rather than shipping MobX",
+  },
   {
     id: "generated/prisma",
     reason: "import the enum as a type and use its string literals; a value import ships the generated client",
@@ -39,12 +42,12 @@ const FORBIDDEN = [
     reason:
       "the browser SDK is loaded when the main thread goes idle (instrumentation-client.ts); a static import puts it back in front of the first paint",
   },
+  {
+    id: "zod",
+    reason:
+      "schemas validate on the server; a browser check reuses the literals in ad-attribution.constants.ts instead of shipping Zod and its locale packs",
+  },
 ];
-
-// Zod 4's barrel re-exports every locale pack and its JSON-Schema generator. Reached through the
-// `z` namespace they all stay live, so one schema file on a marketing page shipped 264 KB instead
-// of 117 KB. Named imports let the bundler drop what the schema never calls.
-const ZOD_NAMESPACE_FREE = ["features/acquisition/ad-attribution.schema.ts"];
 
 const EXTENSIONS = [".tsx", ".ts", ".jsx", ".js", ".mjs", "/index.tsx", "/index.ts", "/index.js", "/index.mjs"];
 
@@ -98,7 +101,7 @@ function edges(file: string): Edge[] {
     found.push({ specifier, typeOnly, dynamic: false });
   }
   const lazy = /\bimport\(\s*["']([^"']+)["']\s*\)/gu;
-  while ((match = lazy.exec(source)) !== null) found.push({ specifier: match[1]!, typeOnly: false, dynamic: true });
+  while ((match = lazy.exec(source)) !== null) found.push({ specifier: match[1], typeOnly: false, dynamic: true });
   return found;
 }
 
@@ -154,12 +157,11 @@ function marketingClientGraph(): { packages: Map<string, string[]>; files: Set<s
 const graph = marketingClientGraph();
 
 function reached(id: string): string[] | null {
-  for (const [specifier, chain] of graph.packages) {
+  for (const [specifier, chain] of graph.packages)
     if (specifier === id || specifier.startsWith(`${id}/`)) return [...chain, specifier];
-  }
-  for (const file of graph.files) {
-    if (file === id || file.startsWith(id)) return [file];
-  }
+
+  for (const file of graph.files) if (file === id || file.startsWith(id)) return [file];
+
   return null;
 }
 
@@ -171,15 +173,6 @@ describe("marketing client graph", () => {
 
   it("reaches the marketing chrome it is supposed to police", () => {
     expect(graph.files).toContain(join("app", "components", "public-navbar.tsx"));
-  });
-
-  it.each(ZOD_NAMESPACE_FREE)("imports Zod by name, not as a namespace, in %s", (file) => {
-    const source = readFileSync(join(REPO_ROOT, file), "utf8");
-    expect(source, `${file} is in the marketing client graph`).toContain('from "zod"');
-    expect(
-      /^\s*import\s+\{\s*z\s*[,}]/mu.test(source),
-      `${file} imports the Zod namespace as a value, which pins every locale pack into the browser bundle`,
-    ).toBe(false);
   });
 
   it.each(FORBIDDEN)("keeps $id out of the browser bundle on marketing pages", ({ id, reason }) => {
