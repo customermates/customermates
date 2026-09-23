@@ -1149,6 +1149,88 @@ describe("agent-turn authoritative tool inputs", () => {
     expect(state.execute).not.toHaveBeenCalled();
   });
 
+  it("refuses a navigation to one of several same-named records and still settles the gated call beside it", async () => {
+    define("list_records");
+    define("navigate");
+    define("delete_records");
+    const nova = "11111111-1111-4111-8111-111111111111";
+    const nova2025 = "22222222-2222-4222-8222-222222222222";
+    const guessed = { entity: "deal", recordId: nova };
+    const mutationInput = { entity: "contact", ids: ["record-1"] };
+    const request = "Mark the Nova Expansion deal as Won.";
+    const searched = [
+      { role: "user", content: request },
+      {
+        role: "assistant",
+        content: [
+          {
+            type: "tool-call",
+            toolName: "list_records",
+            toolCallId: "list-1",
+            input: { entity: "deal", searchTerm: "Nova Expansion" },
+          },
+        ],
+      },
+      {
+        role: "tool",
+        content: [
+          {
+            type: "tool-result",
+            toolCallId: "list-1",
+            toolName: "list_records",
+            output: {
+              type: "json",
+              value: {
+                ok: true,
+                result: `total: 2\nitems[2]{id,name}:\n  ${nova},Nova Expansion\n  ${nova2025},Nova Expansion 2025`,
+              },
+            },
+          },
+        ],
+      },
+    ];
+    state.normalize.mockImplementation((_name: string, input: unknown) => Promise.resolve({ ok: true, input }));
+    state.readApproval.mockResolvedValue({ toolName: "delete_records", decision: "reject" });
+    let round = 0;
+    let resumed = "";
+    state.runTools = async ({ tools, messages, completeStepAndPrepareNext }) => {
+      if (round++ === 0) {
+        await completeStepAndPrepareNext(
+          streamedToolCallStep("list_records", "list-1", { entity: "deal", searchTerm: "Nova Expansion" }),
+          searched,
+        );
+        await tools.delete_records.needsApproval(mutationInput, { toolCallId: "call-1" });
+        return {
+          finishReason: "tool-calls",
+          steps: [],
+          messages: [
+            ...searched.slice(1),
+            {
+              role: "assistant",
+              content: [
+                { type: "tool-call", toolName: "navigate", toolCallId: "panel-1", input: guessed },
+                { type: "tool-call", toolName: "delete_records", toolCallId: "call-1", input: mutationInput },
+              ],
+            },
+          ],
+        };
+      }
+      resumed = JSON.stringify(messages);
+      return finish();
+    };
+
+    await runAgentTurn({ ...payload, messages: [{ role: "user", text: request }] });
+
+    expect(round).toBe(2);
+    expect(state.writes.filter((event) => (event as { type: string }).type === "ui_command")).toHaveLength(0);
+    expect(state.takeUiResult).not.toHaveBeenCalled();
+    expect(resumed).toContain("More than one deal matches");
+    expect(resumed).toContain("Nova Expansion 2025");
+    expect(resumed).toContain('"approved":false');
+    expect(state.createApproval).toHaveBeenCalledTimes(1);
+    expect(state.execute).not.toHaveBeenCalled();
+  });
+
   it.each([true, false])("validates panel commands before emission (valid=%s)", async (valid) => {
     define("navigate");
     const raw = valid ? { targetId: " nav-contacts " } : {};

@@ -1238,14 +1238,19 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           prepared: await resolveToolInput(call.toolName, call.toolCallId, call.input),
         })),
       );
-      const invalidResults = preparedPending.flatMap(({ call, prepared }) =>
-        prepared.ok ? [] : [{ toolCallId: call.toolCallId, toolName: call.toolName, output: prepared }],
-      );
+      const refusedOutput = (call: (typeof pending)[number], input: unknown) =>
+        ambiguousTarget && call.toolName === "navigate" && refusesAmbiguousWrite(ambiguousTarget, false, input)
+          ? { ok: false, result: ambiguousTargetRefusal(ambiguousTarget) }
+          : null;
+      const invalidResults = preparedPending.flatMap(({ call, prepared }) => {
+        const output = prepared.ok ? refusedOutput(call, prepared.input) : prepared;
+        return output ? [{ toolCallId: call.toolCallId, toolName: call.toolName, output }] : [];
+      });
       let resumableMessages = withToolResults(result.messages, invalidResults);
       for (const outcome of invalidResults) settleToolOutcome(outcome.toolCallId, outcome.toolName, outcome.output);
       appendDeferredOutcomes(invalidResults);
       pending = preparedPending.flatMap(({ call, prepared }) =>
-        prepared.ok ? [{ ...call, input: prepared.input }] : [],
+        prepared.ok && !refusedOutput(call, prepared.input) ? [{ ...call, input: prepared.input }] : [],
       );
       if (pending.length === 0) {
         resolveDeferredRound([]);
