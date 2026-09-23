@@ -10,8 +10,8 @@ export const tenantStorage = new AsyncLocalStorage<TenantContext>();
 
 export function runWithTenant<T>(user: TenantUser, fn: () => T | Promise<T>): Promise<T> {
   return tenantStorage.run({ user, bypass: false }, () => {
-    Sentry.setUser({ id: user.id });
-    Sentry.setTag("companyId", user.companyId);
+    Sentry.setUser?.({ id: user.id });
+    Sentry.setTag?.("companyId", user.companyId);
 
     return Promise.resolve(fn());
   });

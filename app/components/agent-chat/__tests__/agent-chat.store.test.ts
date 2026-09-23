@@ -5733,18 +5733,21 @@ describe("AgentUiControlStore", () => {
     const navigate = vi.fn().mockResolvedValue("navigated");
     store.registerNavigate(navigate);
 
-    await expect(store.navigate("javascript:alert(1)")).resolves.toMatchObject({
+    await expect(store.navigate({ targetId: "javascript:alert(1)" })).resolves.toMatchObject({
       ok: false,
     });
-    await expect(store.navigate("https://example.com")).resolves.toMatchObject({
+    await expect(store.navigate({ targetId: "https://example.com" })).resolves.toMatchObject({
       ok: false,
     });
-    await expect(store.navigate("//example.com")).resolves.toMatchObject({
+    await expect(store.navigate({ targetId: "//example.com" })).resolves.toMatchObject({
+      ok: false,
+    });
+    await expect(store.navigate({ entity: "contact", recordId: "../../admin" })).resolves.toMatchObject({
       ok: false,
     });
     expect(navigate).not.toHaveBeenCalled();
 
-    await expect(store.navigate("nav-contacts")).resolves.toEqual({
+    await expect(store.navigate({ targetId: "nav-contacts" })).resolves.toEqual({
       ok: true,
       result: "Navigated to /contacts.",
     });

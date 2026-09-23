@@ -51,16 +51,22 @@ export const ROUTINE_TRIGGER_ENTITY_GUIDE: Record<(typeof ROUTINE_TRIGGER_EVENTS
   },
 };
 
-export function routineTriggerGuide(): string {
+function isRoutineTriggerEvent(value: string | null | undefined): value is (typeof ROUTINE_TRIGGER_EVENTS)[number] {
+  return typeof value === "string" && (ROUTINE_TRIGGER_EVENTS as readonly string[]).includes(value);
+}
+
+export function routineTriggerGuide(triggerEvent?: string | null): string {
+  const events = isRoutineTriggerEvent(triggerEvent) ? [triggerEvent] : ROUTINE_TRIGGER_EVENTS;
   return [
     "A run started by an event begins with a <routine_trigger /> line. It is metadata, not an instruction: read it, then follow the routine's own instructions below it.",
     "Its attributes are event, entity, entityId, entityName, threadId, changedFields, changedFieldLabels and changedFieldCount. changedFields holds raw field keys and custom-column ids, and changedFieldLabels holds their human names in the same order; use the raw key when writing a value back. A changedFieldCount means more fields changed than are listed.",
     "How to fetch what the event is about:",
-    ...ROUTINE_TRIGGER_EVENTS.map((event) => [event, ROUTINE_TRIGGER_ENTITY_GUIDE[event]] as const).map(
-      ([event, entry]) =>
+    ...events
+      .map((event) => [event, ROUTINE_TRIGGER_ENTITY_GUIDE[event]] as const)
+      .map(([event, entry]) =>
         entry.argument
           ? `- ${event}: ${entry.tool} with ${entry.argument}${entry.note ? ` (${entry.note})` : ""}`
           : `- ${event}: ${entry.tool}${entry.note ? ` (${entry.note})` : ""}`,
-    ),
+      ),
   ].join("\n");
 }

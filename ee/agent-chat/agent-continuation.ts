@@ -36,7 +36,37 @@ export type AgentContinuationActivitySummary = {
   resource?: AgentActivityResource;
   count?: number;
   action?: AgentActivityConsequence["action"];
+  resultDigest?: string;
 };
+
+export const AGENT_CONTINUATION_DIGEST_MAX_CHARS = 200;
+export const AGENT_CONTINUATION_DIGEST_CHECKPOINT_MAX_BYTES = 8 * 1024;
+
+const DIGEST_SCALARS = ["total", "page", "pageSize", "requested", "found", "failed", "updated", "deleted"] as const;
+
+export function digestAgentToolResult(output: unknown): string | null {
+  const record =
+    output && typeof output === "object" && !Array.isArray(output) ? (output as Record<string, unknown>) : null;
+  if (!record || record.ok !== true || typeof record.result !== "string") return null;
+  const lines = record.result.split("\n");
+  const facts: string[] = [];
+  for (const scalar of DIGEST_SCALARS) {
+    const match = lines.find((line) => line.startsWith(`${scalar}: `));
+    const value = match ? Number(match.slice(scalar.length + 2)) : Number.NaN;
+    if (Number.isFinite(value)) facts.push(`${scalar}=${value}`);
+  }
+  const itemsMatch = lines.map((line) => /^items\[(\d+)\]/.exec(line)).find((match) => match !== null);
+  if (itemsMatch) facts.push(`items=${itemsMatch[1]}`);
+  const sumsIndex = lines.indexOf("sums:");
+  if (sumsIndex >= 0) {
+    for (let index = sumsIndex + 1; index < lines.length; index += 1) {
+      const sum = /^ {2}([A-Za-z0-9_]+): (-?\d+(?:\.\d+)?)$/.exec(lines[index]);
+      if (!sum) break;
+      facts.push(`sums.${sum[1]}=${sum[2]}`);
+    }
+  }
+  return facts.length > 0 ? facts.join(" ").slice(0, AGENT_CONTINUATION_DIGEST_MAX_CHARS) : null;
+}
 
 export type AgentContinuationCheckpoint = {
   version: 1;
@@ -104,6 +134,7 @@ function projectActivity(
   input: unknown,
   status: AgentContinuationActivityStatus,
   trustedToolName: boolean,
+  resultDigest: string | null = null,
 ): AgentContinuationActivitySummary {
   const activity = describeAgentTool(internalToolIdentity(toolName), input);
   return {
@@ -115,10 +146,16 @@ function projectActivity(
     ...(activity.resource ? { resource: activity.resource } : {}),
     ...(activity.count === undefined ? {} : { count: activity.count }),
     ...(activity.consequence ? { action: activity.consequence.action } : {}),
+    ...(resultDigest && status === "done" ? { resultDigest } : {}),
   };
 }
 
-export function summarizeAgentContinuationStep(step: AgentContinuationStep): AgentContinuationActivitySummary[] {
+export type AgentContinuationSummaryOptions = { resultDigest?: boolean };
+
+export function summarizeAgentContinuationStep(
+  step: AgentContinuationStep,
+  options: AgentContinuationSummaryOptions = {},
+): AgentContinuationActivitySummary[] {
   const calls: Array<{
     id: string;
     toolName: string;
@@ -126,6 +163,7 @@ export function summarizeAgentContinuationStep(step: AgentContinuationStep): Age
     invalid: boolean;
   }> = [];
   const statusByCallId = new Map<string, AgentContinuationActivityStatus>();
+  const digestByCallId = new Map<string, string>();
   const pendingApprovals = new Set<string>();
 
   for (const rawPart of step.content) {
@@ -158,6 +196,10 @@ export function summarizeAgentContinuationStep(step: AgentContinuationStep): Age
               ? "error"
               : "done",
       );
+      if (options.resultDigest && part.type === "tool-result") {
+        const digest = digestAgentToolResult(part.output);
+        if (digest) digestByCallId.set(id, digest);
+      }
       continue;
     }
 
@@ -184,18 +226,22 @@ export function summarizeAgentContinuationStep(step: AgentContinuationStep): Age
       : pendingApprovals.has(call.id)
         ? "pending"
         : (statusByCallId.get(call.id) ?? "error");
-    return projectActivity(call.toolName, call.input, status, !call.invalid);
+    return projectActivity(call.toolName, call.input, status, !call.invalid, digestByCallId.get(call.id) ?? null);
   });
 }
 
 export function summarizeAgentContinuationSteps(
   steps: readonly AgentContinuationStep[],
+  options: AgentContinuationSummaryOptions = {},
 ): AgentContinuationActivitySummary[][] {
-  return steps.map(summarizeAgentContinuationStep);
+  return steps.map((step) => summarizeAgentContinuationStep(step, options));
 }
 
-function checkpointForSteps(steps: readonly AgentContinuationStep[]): AgentContinuationCheckpoint {
-  const activities = summarizeAgentContinuationSteps(steps).flat();
+function checkpointForSteps(
+  steps: readonly AgentContinuationStep[],
+  options: AgentContinuationSummaryOptions = {},
+): AgentContinuationCheckpoint {
+  const activities = summarizeAgentContinuationSteps(steps, options).flat();
   return {
     version: 1,
     detailPolicy: "progress_only",
@@ -231,7 +277,7 @@ export function serializeAgentContinuationCheckpoint(
   if (!Number.isSafeInteger(requestedMaxBytes) || requestedMaxBytes < AGENT_CONTINUATION_CHECKPOINT_MIN_BYTES)
     throw new Error("Agent continuation checkpoint byte limit is invalid.");
 
-  const maxBytes = Math.min(requestedMaxBytes, AGENT_CONTINUATION_CHECKPOINT_MAX_BYTES);
+  const maxBytes = Math.min(requestedMaxBytes, AGENT_CONTINUATION_DIGEST_CHECKPOINT_MAX_BYTES);
   let compact = {
     ...checkpoint,
     activities: checkpoint.activities.map((activity) => ({
@@ -261,6 +307,7 @@ export function compactAgentContinuationContext(args: {
   steps: readonly AgentContinuationStep[];
   checkpointMaxBytes?: number;
   retainedResponseSteps?: number;
+  resultDigest?: boolean;
 }): AgentContinuationContext {
   const responseMessages = responseMessagesByStep(args.steps);
   const retainedResponseSteps = args.retainedResponseSteps ?? AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS;
@@ -279,7 +326,11 @@ export function compactAgentContinuationContext(args: {
     };
   }
 
-  const serialized = serializeAgentContinuationCheckpoint(checkpointForSteps(olderSteps), args.checkpointMaxBytes);
+  const serialized = serializeAgentContinuationCheckpoint(
+    checkpointForSteps(olderSteps, { resultDigest: args.resultDigest === true }),
+    args.checkpointMaxBytes ??
+      (args.resultDigest ? AGENT_CONTINUATION_DIGEST_CHECKPOINT_MAX_BYTES : AGENT_CONTINUATION_CHECKPOINT_MAX_BYTES),
+  );
   return {
     system: `${args.system}\n\n${serialized.text}`,
     messages,

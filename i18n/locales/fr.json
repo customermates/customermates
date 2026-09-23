@@ -7,6 +7,12 @@
     "subject": "Votre adresse e-mail est confirmée et nous avons supprimé votre ancien mot de passe",
     "title": "Votre adresse e-mail est confirmée"
   },
+  "AccountRemovalReason": {
+    "ownerInactive": "Propriétaire désactivé",
+    "planDowngrade": "Forfait rétrogradé",
+    "subscriptionLapsed": "Abonnement expiré",
+    "trialExpired": "Essai terminé"
+  },
   "AccountsRemovedNotice": {
     "body": "Votre formule est passée à {plan}, j'ai donc supprimé le ou les comptes connectés suivants afin de respecter la limite de votre formule : {accounts}. Vos messages et vos contacts sont toujours là. Vous pouvez reconnecter ces comptes à tout moment depuis la page de vos comptes connectés.",
     "cta": "Voir les comptes connectés",
@@ -25,6 +31,39 @@
   },
   "AgentChat": {
     "activity": {
+      "approval": {
+        "customFields": {
+          "configure": "Prêt à modifier les champs personnalisés",
+          "delete": "Prêt à supprimer définitivement un champ personnalisé"
+        },
+        "generic": "Prêt à effectuer une modification qui nécessite votre approbation",
+        "messages": {
+          "discard": "Prêt à supprimer le brouillon",
+          "draft": "Prêt à enregistrer un brouillon",
+          "send": "Prêt à envoyer un message réel",
+          "triage": "Prêt à modifier l’état de la conversation"
+        },
+        "records": {
+          "delete": "{count, plural, one {Prêt à supprimer définitivement {target}} other {Prêt à supprimer définitivement {target}}}"
+        },
+        "routines": {
+          "configure": "Prêt à mettre la routine en pause ou à l’exécuter",
+          "delete": "Prêt à supprimer la routine et son historique"
+        },
+        "support": {
+          "escalate": "Prêt à envoyer votre demande à l’assistance par e-mail"
+        },
+        "team": {
+          "manage": "Prêt à modifier l’accès de l’équipe"
+        },
+        "webhooks": {
+          "manage": "Prêt à modifier l’envoi des webhooks"
+        },
+        "widgets": {
+          "configure": "Prêt à modifier les widgets du tableau de bord",
+          "delete": "Prêt à supprimer définitivement un widget du tableau de bord"
+        }
+      },
       "cancelled": "Arrêté",
       "consequence": {
         "accountConnect": "Connecter un canal de messagerie",
@@ -37,6 +76,9 @@
         "recordsDelete": "Cette action est irréversible.",
         "recordsLink": "Lier des enregistrements",
         "recordsUnlink": "Supprimer les liens",
+        "routineDelete": "Supprimer définitivement la routine sélectionnée et son historique",
+        "routinePause": "Mettre en pause la routine sélectionnée",
+        "routineRun": "Exécuter maintenant la routine sélectionnée",
         "salesListSave": "Ajouter le prospect sélectionné à une liste Sales Navigator",
         "salesListSaveTarget": "Ajouter {target} à la liste Sales Navigator {list}",
         "socialAccept": "Accepter la demande de connexion sélectionnée",
@@ -165,12 +207,12 @@
           "discard": {
             "done": "Brouillon supprimé",
             "error": "Impossible de supprimer le brouillon",
-            "running": "Brouillon prêt à être supprimé"
+            "running": "Suppression du brouillon"
           },
           "draft": {
             "done": "Brouillon enregistré",
             "error": "Impossible d’enregistrer le brouillon",
-            "running": "Brouillon prêt à être enregistré"
+            "running": "Enregistrement d’un brouillon"
           },
           "read": {
             "done": "Conversations vérifiées",
@@ -180,12 +222,12 @@
           "send": {
             "done": "Message envoyé",
             "error": "Impossible d’envoyer le message",
-            "running": "Message réel prêt à être envoyé"
+            "running": "Envoi du message"
           },
           "triage": {
             "done": "Statut de la conversation modifié",
             "error": "Impossible de modifier l’état de la conversation",
-            "running": "État de la conversation prêt à être modifié"
+            "running": "Modification de l’état de la conversation"
           }
         },
         "profile": {
@@ -227,6 +269,33 @@
             "running": "{count, plural, one {{target} en cours de mise à jour} other {{target} en cours de mise à jour}}"
           }
         },
+        "routines": {
+          "configure": {
+            "done": "Planification de la routine modifiée",
+            "error": "Impossible de modifier la planification de la routine",
+            "running": "Modification de la planification de la routine"
+          },
+          "create": {
+            "done": "Routine créée",
+            "error": "Impossible de créer la routine",
+            "running": "Création d’une routine"
+          },
+          "delete": {
+            "done": "Routine supprimée",
+            "error": "Impossible de supprimer la routine",
+            "running": "Suppression de la routine"
+          },
+          "read": {
+            "done": "Routines consultées",
+            "error": "Impossible de lire les routines",
+            "running": "Lecture des routines"
+          },
+          "update": {
+            "done": "Routine mise à jour",
+            "error": "Impossible de mettre à jour la routine",
+            "running": "Mise à jour de la routine"
+          }
+        },
         "support": {
           "escalate": {
             "done": "E-mail d’assistance accepté pour envoi",
@@ -238,14 +307,21 @@
           "manage": {
             "done": "Accès de l’équipe modifié",
             "error": "Impossible de modifier les accès de l’équipe",
-            "running": "Accès de l’équipe prêt à être modifié"
+            "running": "Modification de l’accès de l’équipe"
+          }
+        },
+        "tools": {
+          "load": {
+            "done": "Outils supplémentaires chargés",
+            "error": "Impossible de charger d’autres outils",
+            "running": "Chargement d’outils supplémentaires"
           }
         },
         "webhooks": {
           "manage": {
             "done": "Action sur le webhook terminée",
             "error": "Impossible d’effectuer l’action webhook",
-            "running": "Envoi des webhooks prêt à être modifié"
+            "running": "Modification de l’envoi des webhooks"
           }
         },
         "widgets": {
@@ -774,18 +850,28 @@
       "acceptanceType": "Type d'acceptation",
       "acceptingEmail": "Accepté par",
       "changedDocuments": "Documents modifiés",
+      "changedFields": "Champs surveillés",
       "city": "Ville",
       "country": "Pays",
+      "cronExpression": "Planification",
       "currency": "Devise",
       "dealStageWeights": "Probabilités d'étape",
       "dealWeightingColumnId": "Champ d'étape",
+      "debounceSeconds": "Délai d’attente",
+      "disabledReason": "Motif de désactivation",
       "effectiveAt": "En vigueur à partir du",
       "emails": "Adresses e-mail",
       "isNewCompany": "Première personne de l'espace",
       "postalCode": "Code postal",
+      "prompt": "Consignes",
       "recipientEmail": "Envoyé à",
+      "removalReason": "Motif de suppression",
       "street": "Rue",
       "terminology": "Noms des enregistrements",
+      "timezone": "Fuseau horaire",
+      "triggerEvents": "Évènements déclencheurs",
+      "triggerFilters": "Filtres du déclencheur",
+      "triggerKind": "Déclencheur",
       "versions": "Versions des documents",
       "visibility": "Visibilité"
     },
@@ -1204,6 +1290,11 @@
         "created": "Rôle créé",
         "deleted": "Rôle supprimé",
         "updated": "Rôle mis à jour"
+      },
+      "routine": {
+        "created": "Routine créée",
+        "deleted": "Routine supprimée",
+        "updated": "Routine mise à jour"
       },
       "service": {
         "created": "Service créé",

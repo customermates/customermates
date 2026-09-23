@@ -1,79 +1,98 @@
 ---
-title: Assistant
-description: "Mate, Customermates Cloud's hosted in-app assistant capability: actions, approvals, credits, tours, support, and rollout-dependent availability."
+title: "Mate, the In-App Assistant: Approvals, Credits and Limits"
+description: "How Mate works in Customermates Cloud: what runs immediately, what asks for approval, how credits are reserved and charged per plan, and how it drives the UI."
 ---
 
-Customermates Cloud contains the cloud-only **Mate** in-app assistant capability. Whether Mate is live in a hosted environment depends on that environment's current configuration. This page documents the panel when Mate is enabled, for humans and for AI agents that drive the UI. Self-hosted deployments retain full MCP access for external AI clients with your own provider instead.
+Customermates Cloud includes **Mate**, a hosted in-app assistant. This page documents the panel for people and for AI agents that drive the UI. Self-hosted deployments have no hosted assistant; they connect external AI clients through the [MCP server](/docs/mcp) with your own provider instead.
 
-## Purpose
+## How do I open Mate?
 
-When Mate is enabled, it appears in the sidebar as **Ask AI** and opens with Cmd/Ctrl+J from anywhere in the app. Ask it questions about your workspace or the product, tell it to change data, have it operate the interface, or let it walk you through the app. It answers in your interface language.
+Mate sits in the sidebar as **Ask AI** (`#nav-assistant`) and toggles with Cmd/Ctrl+J from anywhere in the app. Escape closes the panel unless a guided tour is running. Ask it questions about your workspace or the product, tell it to change data, have it operate the interface, or let it walk you through the app. It answers in your interface language and reads the product documentation in that language where a translation exists.
 
-Mate remembers whether each user left the panel open or closed and restores that choice after a refresh. On a completely empty page, it opens automatically until the user explicitly closes it. Demo embeds can choose their initial presentation independently by adding the exact query parameter `agentChat=open` or `agentChat=closed` to the iframe URL. That parameter applies only to the current embedded page and does not overwrite the user's saved choice.
+The panel is closed on your first visit and remembers whether you left it open or closed, per user and per workspace, across refreshes. Submitting a question or clicking a suggested prompt opens it. The only automatic open happens once on demo hosts. Demo embeds can force the initial presentation with the exact query parameter `agentChat=open` or `agentChat=closed` on the page URL; that parameter applies to the current page only and never overwrites your saved choice.
 
 ## What runs immediately and what asks first
 
-Ordinary CRM work runs as soon as you ask: creating and updating records, notes, record links, message drafts, inbox triage, workspace settings, custom fields, widget and webhook setup, team member role or status changes, and generating secure account-connection links. Mate says what it is about to change and reports exactly what changed. To connect a provider account, you open the generated link and complete its QR code or sign-in flow yourself; creating the link does not mean the account is connected yet.
-
-Mate makes the complete MCP tool inventory discoverable on every turn: all five record types and their create/update paths, workspace setup, custom fields, widgets, webhooks, team administration, messaging, connected social profiles and posts, Sales Navigator searches and lists, documentation, and the connector-compatible search and fetch tools. It loads only the definitions needed for the current task to keep token use and cost down. The current page and the wording of an earlier message never remove a capability. Discovery does not grant access: every call still enforces your current workspace role, tenant, plan entitlements, connected-account prerequisites, and the approvals below. The hosted assistant keeps the same `request_support` capability but routes it through its transcript-aware confirmation and email flow.
+Ordinary CRM work runs as soon as you ask: creating and updating records, notes, and record links; saving and discarding message drafts; sending emails and chat messages; inbox triage including moving email threads and changing a thread's state to unread, open, closed or spam; workspace settings; custom fields; creating and updating widgets and webhooks; changing a team member's role or status; generating account-connection links; social invitations and Sales Navigator list changes on a connected account; and routines (listing, creating, updating, pausing, running now). Mate says what it is about to change and reports exactly what changed. A routine Mate creates is saved as a draft unless you explicitly asked for it to be active; the runtime rejects a routine call that does not state this choice. To connect a messaging account, you open the generated link and complete its QR code or sign-in flow yourself; creating the link does not connect the account.
 
 Only actions that cannot be taken back or that leave your workspace stop for your approval, every single time:
 
-| Always asks                                        | Why                                          |
-| -------------------------------------------------- | -------------------------------------------- |
-| Deleting records                                   | Hard delete, cannot be undone                |
-| Deleting a custom field, widget, or webhook        | Destroys configuration and stored values     |
-| Discarding a message draft                         | Removes written content                      |
-| Sending a team invitation                          | Sends a real invitation email                |
-| Resending a webhook delivery                       | Sends a new external webhook request         |
-| Changing a social relation or Sales Navigator list | Changes data on a connected external account |
-| Sending a support request                          | Emails the Customermates team                |
+| Always asks | Tool and action | Why |
+|---|---|---|
+| Deleting records | `delete_records` | Hard delete, cannot be undone |
+| Deleting a custom field | `manage_custom_columns` with `delete` | Destroys the column and every stored value |
+| Deleting a widget | `manage_widgets` with `delete` | Removes the dashboard widget |
+| Deleting or resending a webhook | `manage_webhooks` with `delete` or `resend_delivery` | Destroys configuration, or sends a new external request |
+| Deleting a routine | `manage_routines` with `delete` | Removes the routine and its run history |
+| Inviting team members | `manage_team` with `invite` | Sends real invitation emails |
+| Sending a support request | `request_support` | Emails the Customermates team with your recent conversation |
 
-An approval card names the action and its consequence. Decline it or let it time out and nothing has changed. There is no standing permission: each of these actions asks again next time.
+Approval is requested by calling the tool: the call itself raises the approval card, and nothing happens until you answer it. The card names the action and its consequence and offers **Approve once** or **Cancel**. Decline it and nothing has changed. An unanswered card times out after 30 minutes; the request is then discarded and Mate is told that the approval timed out. There is no standing permission: each of these actions asks again next time.
 
-Sending an email or chat message is deliberately not on that list: those tools deliver the moment the assistant calls them, so ask for a draft when you want to review the wording first. A draft waits in your inbox until you send it yourself.
+Sending an email or chat message is deliberately not on that list: `send_email` and `send_chat_message` deliver the moment Mate calls them, so ask for a draft when you want to review the wording first. A draft waits in your inbox until you send it yourself, and Mate may discard a draft it saved without asking, because the text never left your workspace.
 
-## Operating the interface
+## Which tools can Mate use?
 
-Mate navigates by stable interface ids, highlights controls, and can guide you through a workflow. It does not click or activate controls, type into forms, or change display options, filters, sorting, grouping, or layouts. When a control is inside another panel, Mate tells you which prerequisite to open and then highlights the next control. A board groups records by a field; on a list with nothing to group by, Mate explains that prerequisite.
+Mate uses the same MCP tool catalog as external AI clients, minus the deep-research `search` and `fetch` stubs, plus four interface tools and `load_toolset`, which only Mate has. The record, workspace, documentation, custom-field, interface and support tools are loaded on every turn. The messaging, social, widget, webhook, routine and administration sets load when your request wording, the page you are on, or an earlier turn in the conversation calls for them, or when Mate loads them itself with `load_toolset`. This keeps the tool catalog small for the model, which lowers cost and improves accuracy. The current page and the wording of an earlier message never remove a capability. Loading a tool set does not grant access: every call still enforces your workspace role, tenant, plan entitlements, connected-account prerequisites, and the approvals above.
 
-When you ask Mate to change data, it uses the matching MCP-backed tool directly and tells you what changed. When you would rather enter or refine something in the interface, Mate points at the right control and **you** open it, type, select, and save. Mate never sends arbitrary selectors or clicks interface controls, so your own unsaved edits are never overwritten.
+## How does Mate operate the interface?
+
+Mate has four interface tools: `list_ui_targets` finds stable target ids, `navigate` opens an app area by target id or one record's detail page by entity and record id, `highlight_element` points at a control, and `start_tour` composes a guided walkthrough. It does not click controls, type into forms, submit anything, or change display options, filters, sorting, grouping, or layouts. It never opens the record drawer: an existing record opens on its detail page, and to add a record it highlights the **Add** control and you fill in the form. When a control sits inside another panel, Mate names the prerequisite to open and then highlights the next control. A board groups records by a field; on a list with nothing to group by, Mate explains that prerequisite instead.
+
+When you ask Mate to change data, it calls the matching tool directly and tells you what changed. When you would rather enter or refine something yourself, Mate points at the right control and **you** open it, type, select, and save. Your own unsaved edits are never overwritten.
 
 ## Guided tours
 
-Ask for a tour of anything: a single page, a workflow, or the whole app. Mate composes each tour for you on the spot from what you asked, navigates between pages as the tour progresses, and explains each stop in your language. Close the overlay and the tour ends.
+Ask for a tour of anything: a single page, a workflow, or the whole app. Mate composes each tour on the spot from what you asked, navigates between pages as the tour progresses, and explains each stop in your language. Close the overlay and the tour ends.
 
 ## Getting started on an empty workspace
 
-Ask Mate to set up your workspace and it uses the same complete tool catalog it has for any other request: terminology, settings, custom fields, linked records, team access, connected-account links, webhooks, and dashboard widgets. It asks only for decisions that materially change the result; otherwise it can proceed from the goal and constraints you already gave. It lists what it made, so you can adjust anything or ask it to delete records again, which asks for your approval like every delete.
+Ask Mate to set up your workspace and it uses the same tool catalog it has for any other request: terminology, settings, custom fields, linked records, team access, connected-account links, webhooks, and dashboard widgets. It asks only for decisions that materially change the result; otherwise it proceeds from the goal and constraints you gave. It lists what it made, so you can adjust anything or ask it to delete records again, which asks for your approval like every delete.
 
-Longer requests continue automatically through a bounded sequence of steps. Mate keeps the original request, carries forward a compact record of completed work, retains the latest exact tool results, and re-reads workspace state when it needs details that were compacted. This makes longer setup and audit tasks finish without a manual “continue” in the normal case while retaining hard cost, context, output, error, and runtime limits. If a hard limit is reached, completed changes remain in place, the activity list shows what actually ran, and the next request re-reads the workspace before continuing.
+Longer requests continue automatically through a bounded sequence of steps. Mate keeps the original request, carries forward a compact digest of completed work including the key numbers from earlier tool results, and re-reads workspace state when it needs details that were compacted. Longer setup and audit tasks therefore finish without a manual "continue" in the normal case, within hard cost, context, output, error, and runtime limits. If a limit is reached, completed changes remain in place, the activity list shows what ran, and the next request re-reads the workspace before continuing.
+
+## Plans and credits
+
+Hosted AI processing is paid with credits from a monthly allowance per active user. One credit corresponds to one US cent of measured provider cost. The allowance depends on the plan:
+
+| Plan | Price per seat and month | Hosted AI credits per active user and month | Routines per user |
+|---|---|---|---|
+| Starter | [[commercial.price.starter.monthly]] | 200 | [[commercial.entitlement.starter.includedRoutinesPerUser]] |
+| Pro | [[commercial.price.pro.monthly]] | 500 | [[commercial.entitlement.pro.includedRoutinesPerUser]] |
+| Business | [[commercial.price.business.monthly]] | 1,200 | [[commercial.entitlement.business.includedRoutinesPerUser]] |
+| Enterprise | On request | As contracted | [[commercial.entitlement.enterprise.includedRoutinesPerUser]] |
+
+The free trial runs for [[commercial.trial.days]] days with Pro features and 500 credits per active user. The allowance period starts on the subscription's billing anchor and repeats monthly; paid allowances reset monthly, and unused credits do not roll over. A seat activated mid-period gets a prorated share, rounded up. External MCP clients use your own AI provider and never consume these credits. Routines spend the credits of the routine's owner.
 
 ## Credits
 
-Hosted AI processing uses credits from your plan's monthly allowance per active user. The meter above the composer shows the share used and when it resets; paid allowances reset monthly, and unused credits do not roll over. A successful simple request often settles at one credit and multi-step work costs more. Before a request starts, Mate must be able to reserve a conservative multi-step safety envelope; if too few credits remain for that envelope, new requests pause even though the meter can still show a small remainder. Unused reserved credits are released after complete provider usage is measured. External MCP clients use your own AI provider and never consume these credits.
+The meter above the composer (`#agent-usage`) shows the share of the monthly allowance used, the remaining credits, and the reset date; it is hidden when the workspace has no allowance. Each request is settled on the measured provider cost, rounded up to whole credits, with a minimum of one credit. A simple question therefore costs one credit; a multi-step request that reads many records or runs several tools costs more, and a routine run is capped at 10 credits.
+
+Before a request starts, Mate reserves a safety envelope for the model round it is about to run and for a few rounds ahead. With the default model the reservation is 6 credits per round and 12 credits in total, topped up round by round as the turn proceeds; a request cannot start when fewer than 6 credits remain, even though the meter may still show a small remainder. Reserved credits that the request did not use are released as soon as the provider usage is measured, so the meter can move down and then back up during a request. When the allowance is used up, new requests pause until the reset date and your history stays readable.
 
 ## Chat history
 
-Chats are titled automatically. The history view lists active and archived chats. Archiving is reversible; deleting a chat permanently removes its messages and approvals while CRM records and billing entries remain.
+Chats are titled automatically. The history view lists active and archived chats, 25 at a time. Archiving hides a chat and can be undone. Deleting is only offered for archived chats, is refused while a turn is still running, and permanently removes the chat's messages and approvals; CRM records and billing entries remain.
 
 ## Support
 
 Tell Mate when something does not work out and it offers to email a support request. After your confirmation, the recent conversation is included in an email to the Customermates team. Mate confirms only after the email provider accepts the message. The team replies to the email address on your account, not in the chat. If sending fails, Mate does not claim that the team was notified.
 
-## Key actions
+## Which ids does the panel have?
 
-| Action             | Where              | Anchor id                                               | What happens                             |
-| ------------------ | ------------------ | ------------------------------------------------------- | ---------------------------------------- |
-| Open the assistant | Sidebar, above Add | `#nav-assistant`                                        | Opens the panel, same as Cmd/Ctrl+J      |
-| The panel itself   | Floating card      | `#agent-panel-dialog`                                   | Non-modal dialog over the page           |
-| Write to Mate      | Panel footer       | `#agent-composer`                                       | Enter sends, Shift+Enter breaks the line |
-| Credit meter       | Above the composer | `#agent-usage`                                          | Shows usage and the reset date           |
-| Suggested prompts  | Fresh chat         | `#agent-suggestions`                                    | Prefills the composer, does not send     |
-| Back from history  | History view       | `#agent-history-back`                                   | Returns to the current chat              |
-| Archived chats     | History view       | `#agent-archive-summary`                                | Expands the archived list                |
-| Load more chats    | History view       | `#agent-load-more-active` / `#agent-load-more-archived` | Next page of chats                       |
+These ids belong to the assistant panel itself. They are DOM ids for external browser clients; Mate does not target its own panel.
+
+| Action | Where | Anchor id | What happens |
+|---|---|---|---|
+| Open the assistant | Sidebar, above Add | `#nav-assistant` | Toggles the panel, same as Cmd/Ctrl+J |
+| The panel itself | Floating card | `#agent-panel-dialog` | Non-modal dialog over the page |
+| Write to Mate | Panel footer | `#agent-composer` | Enter sends, Shift+Enter breaks the line |
+| Credit meter | Above the composer | `#agent-usage` | Shows usage and the reset date |
+| Suggested prompts | Fresh chat | `#agent-suggestions` | Prefills the composer, does not send |
+| Back from history | History view | `#agent-history-back` | Returns to the current chat |
+| Archived chats | History view | `#agent-archive-summary` | Expands the archived list |
+| Load more chats | History view | `#agent-load-more-active` / `#agent-load-more-archived` | Next page of chats |
 
 ## Availability
 
-Every cloud plan includes the Mate entitlement. Whether the cloud-only capability is live depends on the hosted environment's current configuration. When enabled, Mate supports every interface language (English, German, Spanish, French, Italian). Self-hosted deployments do not include the hosted assistant; they connect external AI clients through the [MCP server](/docs/mcp) instead.
+Every cloud plan includes the Mate entitlement; whether the assistant is live depends on the hosted environment's current configuration. It supports every interface language (English, German, Spanish, French, Italian); product documentation is retrieved in English or German and falls back to English for the other languages. Self-hosted deployments do not include the hosted assistant or routines; they connect external AI clients through the [MCP server](/docs/mcp) instead. An operator can switch the assistant off for a hosted environment, in which case the sidebar entry is absent.

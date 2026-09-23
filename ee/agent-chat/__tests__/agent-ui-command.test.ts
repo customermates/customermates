@@ -34,12 +34,16 @@ describe("agent interface commands", () => {
     });
   });
 
-  it("passes a record request through whole, because the panel needs every field", () => {
-    expect(toAgentUiCommandInput("open_record", { entity: "contact", recordId: "new", view: "drawer" })).toEqual({
-      entity: "contact",
-      recordId: "new",
-      view: "drawer",
+  it("sends entity and record id when navigate opens one record's page", () => {
+    expect(toAgentUiCommandInput("navigate", { entity: "deal", recordId: "id", presentation: "drawer" })).toEqual({
+      entity: "deal",
+      recordId: "id",
     });
+  });
+
+  it("no longer knows the removed open_record tool", () => {
+    expect(isAgentPanelTool("open_record")).toBe(false);
+    expect(toAgentUiCommandInput("open_record", { entity: "contact", recordId: "new" })).toBeNull();
   });
 
   it("refuses to build a command for a tool it does not know", () => {

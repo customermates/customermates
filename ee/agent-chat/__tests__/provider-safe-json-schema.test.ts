@@ -92,8 +92,8 @@ const ACCEPTED_TODAY: [string, unknown][] = [
   ["update_workspace_settings", { target: "profile", avatarUrl: null }],
   ["update_workspace_settings", { target: "profile", avatarUrl: "" }],
   ["update_workspace_settings", { target: "profile", avatarUrl: "https://example.com/a.png" }],
-  ["open_record", { entity: "contact", recordId: "new" }],
-  ["open_record", { entity: "contact", recordId: UUID, presentation: "drawer" }],
+  ["navigate", { targetId: "nav-deals" }],
+  ["navigate", { entity: "contact", recordId: UUID }],
   ["linkedin_search_sales_leads", { connectedAccountId: UUID, filters: { network_distance: [1, 2, "GROUP"] } }],
   [
     "linkedin_search_sales_leads",
@@ -114,7 +114,8 @@ const ACCEPTED_TODAY: [string, unknown][] = [
 const REJECTED_TODAY: [string, unknown][] = [
   ["list_records", {}],
   ["list_records", { entity: "spaceship" }],
-  ["open_record", { entity: "contact" }],
+  ["navigate", { entity: "contact", recordId: "new" }],
+  ["navigate", { entity: "spaceship", recordId: UUID }],
   ["create_contacts", { contacts: [] }],
   ["manage_webhooks", { action: "detonate" }],
   ["update_contacts", { contacts: [{ id: UUID, customFieldValues: [{ columnId: UUID, value: 5 }] }] }],
@@ -370,7 +371,6 @@ describe("the shipped tool catalog on the Google wire", () => {
     expect(declaredTools.length).toBeGreaterThanOrEqual(46);
     for (const keyword of ["$schema", "oneOf", "const", "exclusiveMinimum", "additionalProperties"])
       expect(declared, keyword).toContain(`"${keyword}"`);
-    expect(declared).toContain('"enum":[5,10,25,100]');
     expect(declared).toContain('"type":"null"');
   });
 
@@ -450,12 +450,12 @@ describe("the shipped tool catalog on the Google wire", () => {
     const changes = changesForShippedCatalog();
 
     expect(summarizeGoogleSchemaChanges(changes)).toEqual({
-      "$schema:removed": 53,
+      "$schema:removed": 51,
       "additionalProperties:removed": 56,
       "anyOf:collapsed": 45,
       "const:removed": 1,
-      "const:rewritten": 219,
-      "enum:removed": 25,
+      "const:rewritten": 218,
+      "enum:removed": 18,
       "exclusiveMinimum:rewritten": 11,
       "nullable:collapsed": 10,
       "nullable:rewritten": 25,
@@ -465,7 +465,7 @@ describe("the shipped tool catalog on the Google wire", () => {
     expect(summarizeGoogleSchemaChanges(changes.filter((change) => change.loosened))).toEqual({
       "additionalProperties:removed": 56,
       "const:removed": 1,
-      "enum:removed": 25,
+      "enum:removed": 18,
       "exclusiveMinimum:rewritten": 2,
       "propertyNames:removed": 1,
       "oneOf:rewritten": 18,
@@ -510,9 +510,11 @@ describe("the authoritative input gate", () => {
     );
 
     const coerced = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: "25" }, 400);
-    const rejected = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: 7 }, 400);
+    const rounded = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: 7 }, 400);
+    const rejected = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: 0 }, 400);
 
     expect(coerced).toEqual({ ok: true, input: { entity: "contact", page: 1, pageSize: 25 } });
+    expect(rounded).toEqual({ ok: true, input: { entity: "contact", page: 1, pageSize: 10 } });
     expect(rejected.ok).toBe(false);
   });
 
@@ -536,9 +538,13 @@ describe("the transform on the wire", () => {
   it("is asked for by serving provider where the workflow builds its tool shells", () => {
     const source = readFileSync(join(REPO_ROOT, "workflows", "agent-turn.ts"), "utf8");
 
-    expect(source).toContain("getAgentAiToolDefinitions(servingProvider)");
+    expect(source).toContain("agentToolDefinitionsForTurn({ surface, servingProvider })");
     expect(source).toContain("loadAgentToolShells(surface, payload.turnBudget.servingProvider)");
     expect(source).not.toContain("getAgentAiToolDefinitions()");
+
+    const admission = readFileSync(join(REPO_ROOT, "ee", "agent-chat", "send-agent-message.interactor.ts"), "utf8");
+    expect(admission).toContain("agentToolDefinitionsForTurn({ servingProvider: turnModel.servingProvider, surface })");
+    expect(admission).not.toContain("getAgentAiToolDefinitions()");
   });
 });
 

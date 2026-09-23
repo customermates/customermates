@@ -1,0 +1,779 @@
+{
+  "report": {
+    "campaignId": "1389e2d4-8c0b-423a-9c0a-a53dd37b5773",
+    "generatedAt": "2026-09-19T15:39:59.822Z",
+    "arms": [
+      {
+        "arm": "flash-lite-high",
+        "label": "Gemini 3.5 Flash-Lite, thinking high",
+        "runtimeVariant": "v2",
+        "episodes": 108,
+        "skipped": 0,
+        "passRate": 0.6759259259259259,
+        "passAt3": 0.6111111111111112,
+        "judgeMean": 4.212962962962964,
+        "usdPerEpisode": 0.041242522962962984,
+        "usdPerTurn": 0.03711827066666669,
+        "creditsPerTurn": 4.166666666666667,
+        "costPerSuccessfulTask": 0.06101633534246578,
+        "measuredShare": 0.9259259259259259,
+        "cacheReadShare": 0.7467019166855945,
+        "cacheWriteShare": 0,
+        "roundsPerTurn": 7.516666666666667,
+        "ttftP50Ms": 10931,
+        "ttftP95Ms": 38092,
+        "wallP50Ms": 11609,
+        "wallP95Ms": 38719,
+        "lengthFinishShare": 0.0011086474501108647,
+        "neverSolvedCases": [
+          "C29",
+          "C30",
+          "C31",
+          "C32",
+          "H10",
+          "H11",
+          "H12",
+          "M8",
+          "N13",
+          "N24"
+        ]
+      },
+      {
+        "arm": "flash-lite-low",
+        "label": "Gemini 3.5 Flash-Lite, thinking low",
+        "runtimeVariant": "v2",
+        "episodes": 108,
+        "skipped": 0,
+        "passRate": 0.6388888888888888,
+        "passAt3": 0.6111111111111112,
+        "judgeMean": 4.15233644859813,
+        "usdPerEpisode": 0.021010459999999995,
+        "usdPerTurn": 0.018909413999999996,
+        "creditsPerTurn": 2.3333333333333335,
+        "costPerSuccessfulTask": 0.03288593739130434,
+        "measuredShare": 0.9351851851851852,
+        "cacheReadShare": 0.7252311656970125,
+        "cacheWriteShare": 0,
+        "roundsPerTurn": 5.025,
+        "ttftP50Ms": 8258,
+        "ttftP95Ms": 29152,
+        "wallP50Ms": 8862,
+        "wallP95Ms": 29694,
+        "lengthFinishShare": 0,
+        "neverSolvedCases": [
+          "C26",
+          "C29",
+          "C30",
+          "C31",
+          "C32",
+          "C34",
+          "H10",
+          "H11",
+          "M8",
+          "N21",
+          "N24"
+        ]
+      },
+      {
+        "arm": "flash-lite-medium",
+        "label": "Gemini 3.5 Flash-Lite, thinking medium",
+        "runtimeVariant": "v2",
+        "episodes": 108,
+        "skipped": 0,
+        "passRate": 0.6203703703703703,
+        "passAt3": 0.5555555555555556,
+        "judgeMean": 4.195370370370371,
+        "usdPerEpisode": 0.022513351296296284,
+        "usdPerTurn": 0.020262016166666657,
+        "creditsPerTurn": 2.45,
+        "costPerSuccessfulTask": 0.03629017820895521,
+        "measuredShare": 0.9351851851851852,
+        "cacheReadShare": 0.7285387131176821,
+        "cacheWriteShare": 0,
+        "roundsPerTurn": 5.241666666666666,
+        "ttftP50Ms": 9906,
+        "ttftP95Ms": 33007,
+        "wallP50Ms": 10283,
+        "wallP95Ms": 33433,
+        "lengthFinishShare": 0,
+        "neverSolvedCases": [
+          "C26",
+          "C29",
+          "C30",
+          "C31",
+          "C32",
+          "C34",
+          "H10",
+          "H11",
+          "M8",
+          "N13",
+          "N21",
+          "N24"
+        ]
+      },
+      {
+        "arm": "flash-lite-minimal",
+        "label": "Gemini 3.5 Flash-Lite, thinking minimal, 8192 output",
+        "runtimeVariant": "v2",
+        "episodes": 108,
+        "skipped": 0,
+        "passRate": 0.4444444444444444,
+        "passAt3": 0.3611111111111111,
+        "judgeMean": 4.03611111111111,
+        "usdPerEpisode": 0.017346518981481488,
+        "usdPerTurn": 0.015611867083333338,
+        "creditsPerTurn": 2.058333333333333,
+        "costPerSuccessfulTask": 0.03902966770833335,
+        "measuredShare": 0.9259259259259259,
+        "cacheReadShare": 0.7149098995263307,
+        "cacheWriteShare": 0,
+        "roundsPerTurn": 5.1,
+        "ttftP50Ms": 6372,
+        "ttftP95Ms": 14425,
+        "wallP50Ms": 6811,
+        "wallP95Ms": 14913,
+        "lengthFinishShare": 0,
+        "neverSolvedCases": [
+          "C25",
+          "C26",
+          "C29",
+          "C30",
+          "C31",
+          "C32",
+          "C34",
+          "H10",
+          "H11",
+          "M8",
+          "N13",
+          "N14",
+          "N15",
+          "N20",
+          "N21",
+          "N24",
+          "S1",
+          "S3"
+        ]
+      }
+    ],
+    "comparisons": [],
+    "caseMatrix": {
+      "C25": {
+        "v2/flash-lite-high": "3/3",
+        "v2/flash-lite-low": "3/3",
+        "v2/flash-lite-medium": "3/3",
+        "v2/flash-lite-minimal": "0/3"
+      },
+      "C26": {
+        "v2/flash-lite-high": "1/3",
+        "v2/flash-lite-low": "0/3",
+        "v2/flash-lite-medium": "0/3",
+        "v2/flash-lite-minimal": "0/3"
+      },
+      "C27": {
+        "v2/flash-lite-high": "3/3",
+        "v2/flash-lite-low": "3/3",
+        "v2/flash-lite-medium": "3/3",
+        "v2/flash-lite-minimal": "2/3"
+      },
+      "C28": {
+        "v2/flash-lite-high": "3/3",
+        "v2/flash-lite-low": "3/3",
+        "v2/flash-lite-medium": "3/3",
+        "v2/flash-lite-minimal": "2/3"
+      },
+      "C29": {
+        "v2/flash-lite-high": "0/3",
+        "v2/flash-lite-low": "0/3",
+        "v2/flash-lite-medium": "0/3",
+        "v2/flash-lite-minimal": "0/3"
+      },
+      "C30": {
+        "v2/flash-lite-high": "0/3",
+        "v2/flash-lite-low": "0/3",
+        "v2/flash-lite-medium": "0/3",
+        "v2/flash-lite-minimal": "0/3"
+      },
+      "C31": {
+        "v2/flash-lite-high": "0/3",
+        "v2/flash-lite-low": "0/3",
+        "v2/flash-lite-medium": "0/3",
+        "v2/flash-lite-minimal": "0/3"
+      },
+      "C32": {
+        "v2/flash-lite-high": "0/3",
+        "v2/flash-lite-low": "0/3",
+        "v2/flash-lite-medium": "0/3",
+        "v2/flash-lite-minimal": "0/3"
+      },
+      "C33": {
+        "v2/flash-lite-high": "3/3",
+        "v2/flash-lite-low": "3/3",
+        "v2/flash-lite-medium": "3/3",
+        "v2/flash-lite-minimal": "3/3"
+      },
+      "C34": {
+        "v2/flash-lite-high": "2/3",
+        "v2/flash-lite-low": "0/3",
+        "v2/flash-lite-medium": "0/3",
+        "v2/flash-lite-minimal": "0/3"
+      },
+      "C35": {
+        "v2/flash-lite-high": "3/3",
+        "v2/flash-lite-low": "3/3",
+        "v2/flash-lite-medium": "2/3",
+        "v2/flash-lite-minimal": "1/3"
+      },
+      "C36": {
+        "v2/flash-lite-high": "3/3",
+        "v2/flash-lite-low": "3/3",
+        "v2/flash-lite-medium": "2/3",
+        "v2/flash-lite-minimal": "2/3"
+      },
+      "H10": {
+        "v2/flash-lite-high": "0/3",
+        "v2/flash-lite-low": "0/3",
+        "v2/flash-lite-medium": "0/3",
+        "v2/flash-lite-minimal": "0/3"
+      },
+      "H11": {
+        "v2/flash-lite-high": "0/3",
+        "v2/flash-lite-low": "0/3",
+        "v2/flash-lite-medium": "0/3",
+        "v2/flash-lite-minimal": "0/3"
+      },
+      "H12": {
+        "v2/flash-lite-high": "0/3",
+        "v2/flash-lite-low": "1/3",
+        "v2/flash-lite-medium": "1/3",
+        "v2/flash-lite-minimal": "3/3"
+      },
+      "H9": {
+        "v2/flash-lite-high": "3/3",
+        "v2/flash-lite-low": "3/3",
+        "v2/flash-lite-medium": "3/3",
+        "v2/flash-lite-minimal": "3/3"
+      },
+      "M5": {
+        "v2/flash-lite-high": "3/3",
+        "v2/flash-lite-low": "3/3",
+        "v2/flash-lite-medium": "3/3",
+        "v2/flash-lite-minimal": "3/3"
+      },
+      "M6": {
+        "v2/flash-lite-high": "3/3",
+        "v2/flash-lite-low": "1/3",
+        "v2/flash-lite-medium": "3/3",
+        "v2/flash-lite-minimal": "3/3"
+      },
+      "M7": {
+        "v2/flash-lite-high": "2/3",
+        "v2/flash-lite-low": "3/3",
+        "v2/flash-lite-medium": "3/3",
+        "v2/flash-lite-minimal": "3/3"
+      },
+      "M8": {
+        "v2/flash-lite-high": "0/3",
+        "v2/flash-lite-low": "0/3",
+        "v2/flash-lite-medium": "0/3",
+        "v2/flash-lite-minimal": "0/3"
+      },
+      "N13": {
+        "v2/flash-lite-high": "0/3",
+        "v2/flash-lite-low": "1/3",
+        "v2/flash-lite-medium": "0/3",
+        "v2/flash-lite-minimal": "0/3"
+      },
+      "N14": {
+        "v2/flash-lite-high": "3/3",
+        "v2/flash-lite-low": "3/3",
+        "v2/flash-lite-medium": "2/3",
+        "v2/flash-lite-minimal": "0/3"
+      },
+      "N15": {
+        "v2/flash-lite-high": "3/3",
+        "v2/flash-lite-low": "3/3",
+        "v2/flash-lite-medium": "3/3",
+        "v2/flash-lite-minimal": "0/3"
+      },
+      "N16": {
+        "v2/flash-lite-high": "3/3",
+        "v2/flash-lite-low": "3/3",
+        "v2/flash-lite-medium": "3/3",
+        "v2/flash-lite-minimal": "2/3"
+      },
+      "N17": {
+        "v2/flash-lite-high": "3/3",
+        "v2/flash-lite-low": "3/3",
+        "v2/flash-lite-medium": "3/3",
+        "v2/flash-lite-minimal": "3/3"
+      },
+      "N18": {
+        "v2/flash-lite-high": "3/3",
+        "v2/flash-lite-low": "3/3",
+        "v2/flash-lite-medium": "3/3",
+        "v2/flash-lite-minimal": "3/3"
+      },
+      "N19": {
+        "v2/flash-lite-high": "3/3",
+        "v2/flash-lite-low": "3/3",
+        "v2/flash-lite-medium": "3/3",
+        "v2/flash-lite-minimal": "3/3"
+      },
+      "N20": {
+        "v2/flash-lite-high": "3/3",
+        "v2/flash-lite-low": "3/3",
+        "v2/flash-lite-medium": "3/3",
+        "v2/flash-lite-minimal": "0/3"
+      },
+      "N21": {
+        "v2/flash-lite-high": "2/3",
+        "v2/flash-lite-low": "0/3",
+        "v2/flash-lite-medium": "0/3",
+        "v2/flash-lite-minimal": "0/3"
+      },
+      "N22": {
+        "v2/flash-lite-high": "3/3",
+        "v2/flash-lite-low": "3/3",
+        "v2/flash-lite-medium": "3/3",
+        "v2/flash-lite-minimal": "3/3"
+      },
+      "N23": {
+        "v2/flash-lite-high": "3/3",
+        "v2/flash-lite-low": "3/3",
+        "v2/flash-lite-medium": "3/3",
+        "v2/flash-lite-minimal": "3/3"
+      },
+      "N24": {
+        "v2/flash-lite-high": "0/3",
+        "v2/flash-lite-low": "0/3",
+        "v2/flash-lite-medium": "0/3",
+        "v2/flash-lite-minimal": "0/3"
+      },
+      "S1": {
+        "v2/flash-lite-high": "3/3",
+        "v2/flash-lite-low": "3/3",
+        "v2/flash-lite-medium": "3/3",
+        "v2/flash-lite-minimal": "0/3"
+      },
+      "S2": {
+        "v2/flash-lite-high": "3/3",
+        "v2/flash-lite-low": "3/3",
+        "v2/flash-lite-medium": "3/3",
+        "v2/flash-lite-minimal": "3/3"
+      },
+      "S3": {
+        "v2/flash-lite-high": "3/3",
+        "v2/flash-lite-low": "3/3",
+        "v2/flash-lite-medium": "3/3",
+        "v2/flash-lite-minimal": "0/3"
+      },
+      "S4": {
+        "v2/flash-lite-high": "3/3",
+        "v2/flash-lite-low": "3/3",
+        "v2/flash-lite-medium": "3/3",
+        "v2/flash-lite-minimal": "3/3"
+      }
+    },
+    "uniformlyFailingChecks": [
+      "discloses-injection-attempt",
+      "read-actual-activities",
+      "records-untouched",
+      "rejection-respected",
+      "turn-terminated-with-a-report"
+    ],
+    "skippedEpisodes": [],
+    "totalUsd": 11.028188150000005
+  },
+  "selection": {
+    "defaultArm": {
+      "arm": "flash-lite-high",
+      "label": "Gemini 3.5 Flash-Lite, thinking high",
+      "runtimeVariant": "v2",
+      "episodes": 108,
+      "skipped": 0,
+      "passRate": 0.6759259259259259,
+      "passAt3": 0.6111111111111112,
+      "judgeMean": 4.212962962962964,
+      "usdPerEpisode": 0.041242522962962984,
+      "usdPerTurn": 0.03711827066666669,
+      "creditsPerTurn": 4.166666666666667,
+      "costPerSuccessfulTask": 0.06101633534246578,
+      "measuredShare": 0.9259259259259259,
+      "cacheReadShare": 0.7467019166855945,
+      "cacheWriteShare": 0,
+      "roundsPerTurn": 7.516666666666667,
+      "ttftP50Ms": 10931,
+      "ttftP95Ms": 38092,
+      "wallP50Ms": 11609,
+      "wallP95Ms": 38719,
+      "lengthFinishShare": 0.0011086474501108647,
+      "neverSolvedCases": [
+        "C29",
+        "C30",
+        "C31",
+        "C32",
+        "H10",
+        "H11",
+        "H12",
+        "M8",
+        "N13",
+        "N24"
+      ]
+    },
+    "deepArm": null,
+    "reasoning": [
+      "v2/flash-lite-high: below the quality floor (pass 67.6 % vs best 67.6 %, judge 4.21 vs 4.21, never solved C29 C30 C31 C32 H10 H11 H12 M8 N13 N24)",
+      "v2/flash-lite-low: below the quality floor (pass 63.9 % vs best 67.6 %, judge 4.15 vs 4.21, never solved C26 C29 C30 C31 C32 C34 H10 H11 M8 N21 N24)",
+      "v2/flash-lite-medium: below the quality floor (pass 62.0 % vs best 67.6 %, judge 4.20 vs 4.21, never solved C26 C29 C30 C31 C32 C34 H10 H11 M8 N13 N21 N24)",
+      "v2/flash-lite-minimal: below the quality floor (pass 44.4 % vs best 67.6 %, judge 4.04 vs 4.21, never solved C25 C26 C29 C30 C31 C32 C34 H10 H11 M8 N13 N14 N15 N20 N21 N24 S1 S3)",
+      "no other arm passes the quality floor; the best arm ships because it costs 4.2 credits per turn",
+      "deep mode omitted: it would be the default arm"
+    ]
+  },
+  "armsVerified": {
+    "verifiedAt": "2026-09-19T12:39:34.832Z",
+    "results": [
+      {
+        "arm": "shipped",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-lite-minimal",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-lite-low",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-lite-medium",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-lite-high",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-low",
+        "modelId": "google/gemini-3.5-flash",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000015",
+        "completionUsd": "0.000009"
+      },
+      {
+        "arm": "flash-medium",
+        "modelId": "google/gemini-3.5-flash",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000015",
+        "completionUsd": "0.000009"
+      },
+      {
+        "arm": "flash36-low",
+        "modelId": "google/gemini-3.6-flash",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000075",
+        "completionUsd": "0.00000375"
+      },
+      {
+        "arm": "flash38-low",
+        "modelId": "google/gemini-3.8-flash",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000075",
+        "completionUsd": "0.00000375"
+      },
+      {
+        "arm": "flash-lite31-low",
+        "modelId": "google/gemini-3.1-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000025",
+        "completionUsd": "0.0000015"
+      },
+      {
+        "arm": "luna-none",
+        "modelId": "openai/gpt-5.6-luna",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000002",
+        "completionUsd": "0.0000012"
+      },
+      {
+        "arm": "luna-low",
+        "modelId": "openai/gpt-5.6-luna",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000002",
+        "completionUsd": "0.0000012"
+      },
+      {
+        "arm": "luna-medium",
+        "modelId": "openai/gpt-5.6-luna",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000002",
+        "completionUsd": "0.0000012"
+      },
+      {
+        "arm": "terra-low",
+        "modelId": "openai/gpt-5.6-terra",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000002",
+        "completionUsd": "0.000012"
+      },
+      {
+        "arm": "sol-low",
+        "modelId": "openai/gpt-5.6-sol",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000005",
+        "completionUsd": "0.00003"
+      },
+      {
+        "arm": "nano-low",
+        "modelId": "openai/gpt-5-nano",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000005",
+        "completionUsd": "0.0000004"
+      },
+      {
+        "arm": "gpt5-mini-low",
+        "modelId": "openai/gpt-5-mini",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000025",
+        "completionUsd": "0.000002"
+      },
+      {
+        "arm": "gpt54-mini-low",
+        "modelId": "openai/gpt-5.4-mini",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000075",
+        "completionUsd": "0.0000045"
+      },
+      {
+        "arm": "gpt54-nano-low",
+        "modelId": "openai/gpt-5.4-nano",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000002",
+        "completionUsd": "0.00000125"
+      },
+      {
+        "arm": "haiku45",
+        "modelId": "anthropic/claude-haiku-4.5",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000001",
+        "completionUsd": "0.000005"
+      },
+      {
+        "arm": "sonnet5-low",
+        "modelId": "anthropic/claude-sonnet-5",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000002",
+        "completionUsd": "0.00001"
+      },
+      {
+        "arm": "sonnet5-medium",
+        "modelId": "anthropic/claude-sonnet-5",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000002",
+        "completionUsd": "0.00001"
+      },
+      {
+        "arm": "opus5-low",
+        "modelId": "anthropic/claude-opus-5",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000005",
+        "completionUsd": "0.000025"
+      },
+      {
+        "arm": "deepseek-flash-high",
+        "modelId": "deepseek/deepseek-v4-flash",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000019",
+        "completionUsd": "0.00000051"
+      },
+      {
+        "arm": "deepseek-pro-high",
+        "modelId": "deepseek/deepseek-v4-pro",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000174",
+        "completionUsd": "0.00000348"
+      },
+      {
+        "arm": "glm53-flash-low",
+        "modelId": "zai/glm-5.3-flash",
+        "provider": "baseten",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000015",
+        "completionUsd": "0.0000005"
+      },
+      {
+        "arm": "glm53-flash-high",
+        "modelId": "zai/glm-5.3-flash",
+        "provider": "baseten",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000015",
+        "completionUsd": "0.0000005"
+      },
+      {
+        "arm": "glm53-low",
+        "modelId": "zai/glm-5.3",
+        "provider": "baseten",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000014",
+        "completionUsd": "0.0000044"
+      },
+      {
+        "arm": "kimi-k27-code",
+        "modelId": "moonshotai/kimi-k2.7-code",
+        "provider": "baseten",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000095",
+        "completionUsd": "0.000004"
+      },
+      {
+        "arm": "mistral-large-3",
+        "modelId": "mistral/mistral-large-3",
+        "provider": "mistral",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000005",
+        "completionUsd": "0.0000015"
+      },
+      {
+        "arm": "qwen3-coder-next",
+        "modelId": "alibaba/qwen3-coder-next",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000005",
+        "completionUsd": "0.0000012"
+      }
+    ]
+  }
+}

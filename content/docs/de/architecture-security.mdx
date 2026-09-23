@@ -1,11 +1,11 @@
 ---
-title: "CRM-Datenschutz und -Sicherheit: Mandantentrennung"
-description: Wie Customermates gebaut ist, wie Daten isoliert sind, und wie externer KI-Zugriff kontrolliert wird.
+title: "CRM-Sicherheit: Mandantentrennung und Audit-Logs"
+description: "Aufbau von Customermates, Isolation der Workspace-Daten, Authentifizierung per API-Key und MCP-OAuth, Inhalt des Audit-Logs und Meldeweg für Schwachstellen."
 ---
 
-Customermates erzwingt ein Single-Tenant-pro-Company-Datenmodell auf jeder Ebene. Jeder Datensatz ist auf eine Company begrenzt, API-Keys tragen die Identität des Owner-Users, und Agents sehen nur das, was dieser User sehen darf.
+Customermates erzwingt ein Single-Tenant-pro-Company-Datenmodell auf jeder Ebene. Jeder Datensatz ist auf eine Company begrenzt, API-Keys tragen die Identität des besitzenden Users, und Agents sehen nur das, was dieser User sehen darf.
 
-## Stack
+## Was ist der Stack?
 
 - **Next.js 16** (App Router, Turbopack): Web-App und API.
 - **PostgreSQL**: primärer Datastore. JSONB für Custom-Column-Werte und Webhook-Payloads.
@@ -14,68 +14,60 @@ Customermates erzwingt ein Single-Tenant-pro-Company-Datenmodell auf jeder Ebene
 - **mcp-handler**: Model-Context-Protocol-Endpoint.
 - **TypeScript** durchgängig, Zod-validiert an jeder Grenze.
 
-## Tenancy
+## Wie isoliert Multi-Tenancy die Workspaces?
 
 Jeder Datensatz gehört zu einer **Company**. Die Company-ID wird an drei Stellen erzwungen:
 
-1. **App-Layer**: jeder Interactor löst die Company des aktuellen Users auf und filtert danach.
+1. **App-Layer**: Jeder Interactor löst die Company des aktuellen Users auf und filtert danach.
 2. **Prisma-Layer**: Queries enthalten `companyId` in jedem `where`.
-3. **Decorator-Layer**: `@TenantInteractor` sorgt dafür, dass Interactors, die den Scope vergessen, zur Laufzeit werfen.
+3. **Decorator-Layer**: `@TenantInteractor` lässt Interactors, die den Scope nicht setzen, zur Laufzeit werfen.
 
-Cross-Tenant-Reads sind über die öffentliche Oberfläche nicht möglich. Es gibt kein Admin-Panel, das den Scope umgeht.
+Cross-Tenant-Reads sind über die öffentliche Oberfläche nicht möglich. In der gehosteten Cloud kann eine Operator-Konsole des Anbieters für den Support mandantenübergreifend lesen; sie ist auf ein freigeschaltetes Operator-Konto beschränkt, verweigert den Dienst außerhalb des Cloud-Modus und schreibt jeden Read und Write in ein separates internes Log. Eine selbstgehostete Installation hat keine solche Konsole. Der gehostete Assistent läuft im selben Scope: Er kann nur lesen und ändern, was der anfragende User darf.
 
-## Authentifizierung
+## Wie authentifizieren sich Clients?
 
-Drei Wege:
+Drei Wege, die alle auf denselben User- und Company-Kontext auflösen:
 
 - **Session-Cookie** (UI): signiert, http-only, `Secure` unter HTTPS.
-- **API-Key**: 64-Zeichen-Base62-Token (a-z, A-Z, 0-9), ausgestellt vom better-auth-apiKey-Plugin, at-rest gehasht, an einen User gebunden. Wird im Header `x-api-key` gesendet.
-- **OAuth 2.1** (MCP): Remote-MCP-Clients können sich über better-auth autorisieren und statt eines API-Keys ein Bearer-Token senden.
+- **API-Key**: 64-Zeichen-Base62-Token, ausgestellt vom better-auth-API-Key-Plugin, at-rest gehasht, an einen User gebunden, optional mit Ablaufdatum. Wird im Header `x-api-key` gesendet. Siehe [API-Keys](/docs/api-keys).
+- **OAuth 2.1** (MCP): Remote-MCP-Clients autorisieren sich über better-auth mit PKCE und senden statt eines API-Keys ein Bearer-Token. Access-Tokens gelten eine Stunde, Refresh-Tokens dreißig Tage.
 
-Alle Methoden lösen auf denselben User- und Company-Kontext auf.
+## Wie wird die Autorisierung entschieden?
 
-## Autorisierung
+Pro User und Rolle. Rollen tragen Berechtigungen auf Ressourcen (Kontakte, Organisationen, Deals, Services, Aufgaben und die Workspace-Funktionen) und Aktionen (Lesen, Erstellen, Aktualisieren, Löschen). Jeder Interactor prüft die Berechtigung, bevor er handelt. API-Keys erben die Berechtigungen ihres besitzenden Users; ein Scoping pro Key gibt es nicht.
 
-Pro User und rollenbasiert. Rollen tragen Permissions auf Resources (Contacts, Organizations, Deals, Services, Tasks) und Actions (Read, Create, Update, Delete). Jeder Interactor ruft `userService.hasPermissionOrThrow(resource, action)`, bevor er handelt.
+## Wie funktioniert externer KI-Zugriff?
 
-API-Keys erben die Rechte ihres Owner-Users. Es gibt kein Scoping pro Key.
+MCP-Anfragen nutzen denselben Authentifizierungs- und Autorisierungspfad. Wenn ein Agent über MCP handelt:
 
-## Externer KI-Zugriff
-
-MCP-Requests nutzen denselben Authentifizierungs- und Autorisierungspfad. Wenn ein Agent über MCP handelt:
-
-- Er ruft `/api/v1/mcp` mit einem API-Key oder einem OAuth-Bearer-Token.
+- Er ruft `/api/v1/mcp` mit einem API-Key oder einem OAuth-Bearer-Token auf.
 - Der Server löst User und Company aus dem Credential auf.
-- Jeder Tool-Call läuft in einem Tenant-Scope.
-- Validierungsfehler liefern strukturierte Meldungen mit Remediation-Hints und leaken keine internen Schema-Details.
+- Jeder Tool-Call läuft in einem Tenant-Scope-Kontext.
+- Validierungsfehler liefern strukturierte Meldungen mit Hinweisen zur Behebung und leaken keine internen Schema-Details.
 
-Die MCP-Oberfläche fügt Input-Guardrails hinzu, die Tool-Calls absichern:
+Die MCP-Oberfläche ergänzt Input-Guardrails, die Tool-Calls absichern:
 
-- `null` auf einem Relation-Array wird abgelehnt, bevor es die Datenbank erreicht.
-- Update-Tools für den falschen Record-Typ werden mit einem Verweis auf das richtige Tool abgelehnt.
-- Destruktive Tools verlangen eine explizite Liste von Record-IDs. Es gibt keinen Delete-by-Filter-Shortcut.
+- Relationship-Arrays können über die Update-Tools gar nicht gesendet werden; Verknüpfungen ändern sich nur über `manage_record_links`, sodass ein `null` nie eine Verknüpfung löschen kann.
+- Update-Tools für den falschen Datensatztyp werden mit einem Verweis auf das richtige Tool abgelehnt.
+- Destruktive Tools verlangen eine explizite Liste von Datensatz-IDs. Einen Delete-by-Filter-Shortcut gibt es nicht.
 
-Den vollständigen Tool-Katalog finden Sie unter [MCP](/docs/mcp#tool-catalog).
+Die vollständige Liste finden Sie im [MCP-Tool-Katalog](/docs/mcp#tool-catalog).
 
-## Daten at-rest
+## Wie werden Daten at-rest und in-transit geschützt?
 
-- Die Postgres-Verschlüsselung hängt vom Provider ab. In der Managed-Cloud liegen die Daten in einer EU-Region mit Disk-Level-Encryption at-rest.
-- Secrets in `.env` werden nie geloggt. Der Logger redaktiert alles, was wie ein Key, Token oder Passwort aussieht.
-- Webhook-Secrets liegen in Postgres, weil sie abrufbar sein müssen, um ausgehende Requests zu signieren. Wenn Sie sie woanders halten wollen, self-hosten Sie mit Ihrem eigenen Secret-Manager.
+- Die Postgres-Verschlüsselung hängt von Ihrem Provider ab. In der Managed-Cloud liegen die Daten in einer EU-Region mit Disk-Level-Verschlüsselung at-rest.
+- Secrets in `.env` werden nie geloggt. Der Logger redigiert alles, was wie ein Key, Token oder Passwort aussieht.
+- Webhook-Secrets liegen in Postgres, weil sie abrufbar sein müssen, um ausgehende Anfragen zu signieren. Wenn Sie sie woanders halten wollen, self-hosten Sie mit Ihrem eigenen Secret-Manager.
+- HTTPS überall in der Managed-Cloud. Bei Self-Hosting stellen Sie das TLS selbst bereit; das Caddy-Beispiel finden Sie unter [Self-Hosting](/docs/self-hosting).
+- Webhook-Deliveries mit Custom-Headern müssen an HTTPS-URLs gehen; reines `http://` wird nur für lokale Tests ohne Header akzeptiert.
 
-## Daten in-transit
+## Was erfasst das Audit-Log?
 
-- HTTPS überall in der Managed-Cloud.
-- Bei Self-Host stellen Sie das TLS selbst bereit. Das Caddy-Beispiel finden Sie unter [Self-Hosting](/docs/self-hosting).
-- Webhook-Deliveries gehen nur an HTTPS-URLs. HTTP wird auf Schema-Ebene abgelehnt.
+Änderungen an Datensätzen und an der Workspace-Konfiguration darum herum werden mit User, Ereignis, Element-ID und Payload protokolliert. Aktualisierungen an Datensätzen, Rollen, Webhooks, benutzerdefinierten Feldern, Routinen und verbundenen Konten enthalten ein feldweises Diff; Erstellungen, Löschungen sowie das Speichern von Mitgliedern oder Unternehmenseinstellungen enthalten stattdessen eine Momentaufnahme, die auch dann geschrieben wird, wenn sich nichts geändert hat. Ein fehlgeschlagener Write hinterlässt keinen Eintrag. Messaging-Events werden nicht ins Audit-Log geschrieben, und Webhook-Secrets sowie Header-Werte werden redigiert. Authentifizierung, der Lebenszyklus von API-Keys, Abo-Änderungen, gespeicherte Ansichten, Widgets, Agent-Konversationen und Operator-Aktionen des Anbieters werden ebenfalls nicht protokolliert. Ein Eintrag aus einem automatisierten Prozess, etwa das Entfernen eines verbundenen Kontos nach Ablauf der Testphase, nennt die betroffene Person, nicht eine ausführende. Lesen Sie es auf der Seite [Unternehmen](/docs/app-company) unter **Audit-Logs**; der Zugriff braucht die Leseberechtigung für das Audit-Log auf Ihrer Rolle. Es ist in jedem Cloud-Plan und ebenso in der selbstgehosteten Edition enthalten. Der Screen bietet keinen Export; der Aktivitätsverlauf, sein REST-Endpunkt und das Tool `get_activities` liefern dieselben Einträge mit derselben Berechtigung.
 
-## Audit-Logging
+## Wo melde ich Vulnerabilities?
 
-Jeder Write wird mit User, Action, Entity sowie Vorher- und Nachher-Werten geloggt. Er ist aus der UI abfragbar und als JSON exportierbar. Audit-Logging ist in jedem Cloud-Plan enthalten. Die selbstgehostete Community-Edition enthält kein Audit-Logging.
-
-## Vulnerabilities melden
-
-Bitte melden Sie verantwortungsvoll an `security@customermates.com`. Der PGP-Key liegt im Repository. Wir bestätigen den Eingang innerhalb von 24 Stunden.
+Schreiben Sie an `mail@customermates.com`. Wir bemühen uns um eine Eingangsbestätigung innerhalb eines Werktags. Ein Bug-Bounty-Programm gibt es nicht.
 
 ## Weiter
 

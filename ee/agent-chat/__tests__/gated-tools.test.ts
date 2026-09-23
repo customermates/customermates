@@ -13,8 +13,10 @@ import { describeAgentTool } from "../agent-activity";
 import {
   AGENT_APPROVAL_POLICY_TOOL_NAMES,
   approvalFreeActionsForTool,
+  readOnlyActionsForTool,
   isReadOnlyTool,
   requiresApproval,
+  AGENT_DESTRUCTIVE_APPROVAL_FREE_TOOL_NAMES,
 } from "../gated-tools";
 import { agentToolIdentityKey, internalToolIdentity, parseAgentToolIdentityKey } from "../tool-identity";
 
@@ -49,9 +51,17 @@ describe("gated-tools", () => {
     }
   });
 
-  it("keeps the mailbox folder move behind approval, unlike inbox-only thread triage", () => {
-    expect(approvalNeeded(toolByName("move_email_thread"), {})).toBe(true);
+  it("runs mailbox folder moves and inbox-only thread triage without approval", () => {
+    expect(approvalNeeded(toolByName("move_email_thread"), {})).toBe(false);
     expect(approvalNeeded(toolByName("update_messaging_thread"), {})).toBe(false);
+  });
+
+  it("gates only routine deletion; drafting, updating, pausing and running now stay immediate", () => {
+    const routines = toolByName("manage_routines");
+    for (const action of ["list", "runs", "create", "update", "pause", "run_now"])
+      expect(approvalNeeded(routines, { action }), action).toBe(false);
+    expect(approvalNeeded(routines, { action: "delete" })).toBe(true);
+    expect(approvalNeeded(routines, {})).toBe(true);
   });
 
   it("fails closed: a tool without annotations is not read-only", () => {
@@ -89,15 +99,11 @@ describe("gated-tools", () => {
   });
 
   it("requires approval for exactly the destructive and outbound tools", () => {
-    for (const name of ["delete_records", "discard_message_draft"])
-      expect(approvalNeeded(toolByName(name), {})).toBe(true);
+    expect(approvalNeeded(toolByName("delete_records"), {})).toBe(true);
+    expect(approvalNeeded(toolByName("discard_message_draft"), {})).toBe(false);
     for (const name of ["manage_custom_columns", "manage_widgets", "manage_webhooks"])
       expect(approvalNeeded(toolByName(name), { action: "delete" })).toBe(true);
     for (const [name, action] of [
-      ["manage_social_relations", "invite"],
-      ["manage_social_relations", "accept"],
-      ["manage_social_relations", "cancel"],
-      ["linkedin_manage_sales_lists", "save"],
       ["manage_team", "invite"],
       ["manage_webhooks", "resend_delivery"],
     ] as const)
@@ -121,15 +127,22 @@ describe("gated-tools", () => {
       ["manage_custom_columns", { action: "upsert" }],
       ["manage_widgets", { action: "create" }],
       ["manage_social_relations", { action: "list" }],
+      ["manage_social_relations", { action: "invite" }],
+      ["manage_social_relations", { action: "accept" }],
+      ["manage_social_relations", { action: "cancel" }],
       ["linkedin_manage_sales_lists", { action: "list" }],
       ["linkedin_manage_sales_lists", { action: "browse" }],
+      ["linkedin_manage_sales_lists", { action: "save" }],
     ];
     for (const [name, input] of freeCalls) expect(approvalNeeded(toolByName(name), input)).toBe(false);
   });
 
-  it("never lets a destructiveHint tool run unconditionally approval-free", () => {
+  it("lets a destructiveHint tool run approval-free only by name, so a new one cannot slip through", () => {
+    expect([...AGENT_DESTRUCTIVE_APPROVAL_FREE_TOOL_NAMES]).toEqual(["discard_message_draft"]);
+
+    const exempt = new Set<string>(AGENT_DESTRUCTIVE_APPROVAL_FREE_TOOL_NAMES);
     for (const tool of ALL_MCP_TOOLS.filter((tool) => tool.annotations?.destructiveHint === true))
-      expect(approvalNeeded(tool, {})).toBe(true);
+      expect(`${tool.name} ${approvalNeeded(tool, {})}`).toBe(`${tool.name} ${!exempt.has(tool.name)}`);
   });
 
   it("keeps every policy key pointing at a real tool", () => {
@@ -138,13 +151,18 @@ describe("gated-tools", () => {
   });
 
   it("keeps the risk label aligned with the approval predicate for every catalog tool", () => {
+    const policyActions = new Set(
+      AGENT_APPROVAL_POLICY_TOOL_NAMES.flatMap((name) => [
+        ...(approvalFreeActionsForTool(internalToolIdentity(name)) ?? []),
+        ...(readOnlyActionsForTool(internalToolIdentity(name)) ?? []),
+      ]),
+    );
     const inputs = [
       undefined,
       {},
-      { action: "list" },
-      { action: "delete" },
-      { action: "upsert" },
-      { action: "create" },
+      ...[...policyActions, "delete", "upsert", "create"].map((action) => ({
+        action,
+      })),
     ];
     for (const tool of ALL_MCP_TOOLS) {
       if (isReadOnlyTool(tool)) continue;
@@ -206,7 +224,11 @@ describe("tool identity", () => {
   });
 
   it.each(COLLIDING_NAMES)("does not let an external server inherit the internal policy for %s", (name) => {
-    const external = { source: "external-mcp" as const, serverId: "acme", name };
+    const external = {
+      source: "external-mcp" as const,
+      serverId: "acme",
+      name,
+    };
     const claimsReadOnly = { name, annotations: { readOnlyHint: true } };
 
     expect(requiresApproval(external, claimsReadOnly, { action: "list" })).toBe(true);
@@ -215,7 +237,10 @@ describe("tool identity", () => {
   });
 
   it("ignores a read-only annotation from a source that did not earn trust", () => {
-    const internalReadOnly = { name: "search", annotations: { readOnlyHint: true } };
+    const internalReadOnly = {
+      name: "search",
+      annotations: { readOnlyHint: true },
+    };
 
     expect(requiresApproval(internalToolIdentity("search"), internalReadOnly, {})).toBe(false);
     for (const source of ["external-mcp", "gateway-tool", "provider-native", "sandbox"] as const)
@@ -251,6 +276,7 @@ describe("tool identity", () => {
     expect(new Set(keys).size).toBe(identities.length);
     for (const identity of identities)
       expect(parseAgentToolIdentityKey(agentToolIdentityKey(identity))).toEqual(identity);
+
     expect(parseAgentToolIdentityKey("not-a-source::acme::search")).toBeNull();
     expect(parseAgentToolIdentityKey("external-mcp::acme")).toBeNull();
   });

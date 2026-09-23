@@ -26,6 +26,10 @@ import { ReconcileRoutineRunsInteractor } from "../reconcile-routine-runs.intera
 import { ReleaseOwnerRoutinesInteractor } from "../release-owner-routines.interactor";
 import { RoutineLimitExceededError } from "../routine-run-limits";
 
+function eventServiceStub() {
+  return { publish: vi.fn().mockResolvedValue(undefined) } as never;
+}
+
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 
@@ -230,7 +234,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
 
     await client.query('UPDATE "User" SET "roleId" = $1 WHERE "id" = $2', [memberRoleId, teammateId]);
     const pauseResult = await runWithTenant(staleAdmin, () =>
-      new PauseRoutineInteractor(new PrismaRoutineRepo()).invoke({ routineId }),
+      new PauseRoutineInteractor(new PrismaRoutineRepo(), eventServiceStub()).invoke({ routineId }),
     );
 
     await client.query('UPDATE "User" SET "roleId" = $1, "status" = $2 WHERE "id" = $3', [
@@ -239,7 +243,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       teammateId,
     ]);
     const deleteResult = await runWithTenant(staleAdmin, () =>
-      new DeleteRoutineInteractor(new PrismaRoutineRepo()).invoke({
+      new DeleteRoutineInteractor(new PrismaRoutineRepo(), eventServiceStub()).invoke({
         id: routineId,
       }),
     );

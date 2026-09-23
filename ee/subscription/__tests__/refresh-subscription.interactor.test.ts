@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { createMockUser } from "@/tests/helpers/mock-user";
+import { Action, Resource } from "@/generated/prisma";
+
+import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import {
   MOCK_ENV_MODULE,
   createMockDiModule,
@@ -16,6 +18,8 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 const { RefreshSubscriptionInteractor } = await import("../refresh-subscription.interactor");
+const { runWithTenant } = await import("@/core/decorators/tenant-context");
+const { ForbiddenError } = await import("@/core/errors/app-errors");
 
 function make(overrides: {
   lemonSqueezyId?: string | null;
@@ -43,6 +47,39 @@ function make(overrides: {
 }
 
 beforeEach(() => vi.clearAllMocks());
+
+describe("RefreshSubscriptionInteractor authorization", () => {
+  const readOnlyMember = () => ({
+    ...createMockUserWithPermissions([
+      { resource: Resource.company, action: Action.readOwn },
+      { resource: Resource.company, action: Action.readAll },
+    ]),
+    id: mockUser.id,
+    companyId: mockUser.companyId,
+  });
+
+  it("refuses a member who can only read the company, because refreshing rewrites billing state", async () => {
+    const { interactor, subscriptionService, deleteAccountsForPlan } = make({});
+
+    await expect(runWithTenant(readOnlyMember(), () => interactor.invoke())).rejects.toThrow(ForbiddenError);
+
+    expect(subscriptionService.updateSubscriptionOrThrow).not.toHaveBeenCalled();
+    expect(deleteAccountsForPlan.invoke).not.toHaveBeenCalled();
+  });
+
+  it("allows a member who can manage the company", async () => {
+    const manager = {
+      ...createMockUserWithPermissions([{ resource: Resource.company, action: Action.update }]),
+      id: mockUser.id,
+      companyId: mockUser.companyId,
+    };
+    const { interactor, subscriptionService } = make({});
+
+    await expect(runWithTenant(manager, () => interactor.invoke())).resolves.toEqual({ ok: true, data: null });
+
+    expect(subscriptionService.updateSubscriptionOrThrow).toHaveBeenCalledOnce();
+  });
+});
 
 describe("RefreshSubscriptionInteractor", () => {
   it("is a no-op for an enterprise (managed) subscription", async () => {

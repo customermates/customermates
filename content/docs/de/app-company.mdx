@@ -1,57 +1,81 @@
 ---
-title: "Unternehmen: Rollen, Mitglieder und Audit-Log"
-description: "Auf dem Company-Screen verwalten Sie den ganzen Workspace: Abonnement, Mitglieder, Rollen, Webhooks, Deliveries und Audit-Trail, mit stabilen Anchor-ids."
+title: "Unternehmen: Rollen, Audit-Log und Team-Zugriff"
+description: "Der Screen Unternehmen ist die workspace-weite Administration: Abonnement, Währung, Mitglieder, Rollen, Webhooks, Zustellungen und Audit-Trail, Tab für Tab."
 ---
 
-Customermates ist ein Open-Source-CRM mit integriertem MCP-Server. Diese Seite dokumentiert den **Company**-Screen der Web-App, für Menschen und für KI-Agents, die die UI steuern.
+Customermates ist ein Open-Source-CRM mit integriertem MCP-Server. Diese Seite dokumentiert den Screen **Unternehmen** der Web-App für Menschen und für KI-Agents, die die UI steuern.
 
-## Zweck
+## Was liegt auf dem Screen Unternehmen?
 
-Der Company-Screen ist die workspace-weite Administration. Hier liegen das Abonnement (nur Cloud), das Team mit seinen Berechtigungen, ausgehende Webhooks mit ihrer Delivery-Historie und der Audit-Trail. Alles, was den ganzen Workspace betrifft und nicht einen einzelnen Datensatz, finden Sie hier.
+Die workspace-weite Administration: das Abonnement (nur Cloud), die Workspace-Währung, das Team mit seinen Berechtigungen, ausgehende Webhooks mit ihrer Zustellungshistorie und der Audit-Trail. Alles, was den ganzen Workspace betrifft und nicht einen einzelnen Datensatz, liegt hier. Alle App-Routen sind locale-präfixiert (Beispiel: https://customermates.com/en/company/members), und jeder Tab hat seine eigene Route. Der Sidebar-Eintrag `#nav-company` (**Mein Unternehmen**) öffnet in der Cloud `/company/subscription` und auf einer Self-Hosted-Installation `/company/settings`.
 
-## URL
+## Tab Abonnement
 
-Alle App-Routen sind locale-präfixiert (Beispiel: https://customermates.com/en/company/members). Jeder Tab hat seine eigene Route: `/company/subscription` (nur Cloud), `/company/settings`, `/company/members`, `/company/roles`, `/company/webhooks`, `/company/webhook-deliveries` und `/company/audit-logs`.
+Route `/company/subscription`, Sidebar-Id `#nav-company-subscription` (**Abonnement**), nur Cloud. Zeigt den Tarif, den Trial-Status und die Tarifauswahl. Tarifpreise und Kontingente stehen unter [Tarife und Credits](/docs/app-assistant#plans-and-credits).
 
-## Wichtige Aktionen
+## Tab Einstellungen
 
-| Aktion | Wo | Anchor id | Was passiert |
+Route `/company/settings`, Sidebar-Id `#nav-company-settings` (**Einstellungen**). Enthält die Workspace-Währung für alle Geldwerte. Speichern oder verwerfen Sie mit `#company-settings-save` (**Speichern**) und `#company-settings-reset` (**Zurücksetzen**).
+
+## Tab Mitglieder
+
+Route `/company/members`, Sidebar-Id `#nav-company-members` (**Mitglieder**).
+
+| Aktion | Wo | Anchor-Id | Was passiert |
 |---|---|---|---|
-| Zu Company gehen | App-Sidebar | `#nav-company` | Öffnet /company/subscription (Cloud) oder /company/settings (Self-Hosted) |
-| Subscription-Tab | Sidebar-Unterpunkt | `#nav-company-subscription` | Plan, Trial-Status und Plan-Auswahl (nur Cloud) |
-| Settings-Tab | Sidebar-Unterpunkt | `#nav-company-settings` | Workspace-Währung für alle Geldwerte |
-| Settings speichern / zurücksetzen | Top-Bar | `#company-settings-save` / `#company-settings-reset` | Speichert oder verwirft |
-| Members-Tab | Sidebar-Unterpunkt | `#nav-company-members` | Team-Verwaltung |
-| Mitglied einladen | Members-Toolbar | `#company-members-add` | Öffnet das Einladungs-Modal |
-| Einladung senden | Footer des Einladungs-Modals | `#member-modal-save` / `#member-modal-reset` | Verschickt die Einladung |
-| Mitglieder suchen / filtern | Members-Toolbar | `#company-members-search` / `#company-members-filter` / `#company-members-display-options` | Listen-Controls |
-| Roles-Tab | Sidebar-Unterpunkt | `#nav-company-roles` | Berechtigungssets |
-| Rolle hinzufügen | Roles-Toolbar | `#company-roles-add` | Öffnet den Rollen-Editor |
-| Roles-Listen-Controls | Roles-Toolbar | `#company-roles-search` / `#company-roles-display-options` | Listen-Controls (Rollen haben keine filterbaren Felder, daher wird kein Filter-Control gerendert) |
-| Webhooks-Tab | Sidebar-Unterpunkt | `#nav-company-webhooks` | Ausgehende Event-Subscriptions |
-| Webhook erstellen | Webhooks-Toolbar | `#company-webhooks-add` | Öffnet das Webhook-Modal |
-| Webhook speichern | Footer des Webhook-Modals | `#webhook-modal-save` / `#webhook-modal-reset` | Abonniert die URL auf Events |
-| Webhooks-Listen-Controls | Webhooks-Toolbar | `#company-webhooks-search` / `#company-webhooks-filter` / `#company-webhooks-display-options` | Listen-Controls |
-| Deliveries-Tab | Sidebar-Unterpunkt | `#nav-company-webhook-deliveries` | Status + Payload pro Delivery; Resend direkt aus der Delivery-Zeile |
-| Deliveries-Listen-Controls | Deliveries-Toolbar | `#company-webhook-deliveries-search` / `#company-webhook-deliveries-filter` / `#company-webhook-deliveries-display-options` | Listen-Controls |
-| Audit-Logs-Tab | Sidebar-Unterpunkt | `#nav-company-audit-logs` | Wer hat was wann geändert |
-| Audit-Listen-Controls | Audit-Toolbar | `#company-audit-logs-search` / `#company-audit-logs-filter` / `#company-audit-logs-display-options` | Listen-Controls |
+| Mitglied einladen | Mitglieder-Toolbar | `#company-members-add` (**Hinzufügen**) | Öffnet das Einladungs-Modal |
+| Einladung senden | Footer des Einladungs-Modals | `#member-modal-save` (**Speichern**) / `#member-modal-reset` (**Zurücksetzen**) | Verschickt die Einladungs-E-Mail |
+| Suchen, filtern, Anzeigeoptionen | Mitglieder-Toolbar | `#company-members-search` / `#company-members-filter` / `#company-members-display-options` | Listen-Controls |
+| Layout | Display-options-Popover | `#company-members-layout-table` (**Tabelle**) / `#company-members-layout-board` (**Board**) | Die Tabelle ist das einzige nutzbare Layout; das Board-Control ist vorhanden, aber deaktiviert, weil Mitglieder nichts zum Gruppieren haben |
 
-Die Display-options-Popovers enthalten diese stabilen Layout-Steuerelemente:
+Wer sich über einen Einladungslink registriert, erscheint als **Wartet auf Genehmigung**, bis ein Admin eine Rolle zuweist und die Person aktiviert. Das Senden einer Einladung fragt den Nutzer des Assistenten immer um Freigabe, weil sie eine echte Person per E-Mail erreicht.
 
-- Members: `#company-members-layout-table`, `#company-members-layout-board`
-- Roles: `#company-roles-layout-table`, `#company-roles-layout-board`
-- Webhooks: `#company-webhooks-layout-table`, `#company-webhooks-layout-board`
-- Deliveries: `#company-webhook-deliveries-layout-table`, `#company-webhook-deliveries-layout-board`
-- Audit-Logs: `#company-audit-logs-layout-table`, `#company-audit-logs-layout-board`
+## Tab Rollen
+
+Route `/company/roles`, Sidebar-Id `#nav-company-roles` (**Rollen**). Rollen sind Berechtigungssets: Für jede Ressource (die fünf Datensatztypen, Nutzer, Rollen, Audit-Log, API, Routinen und so weiter) gewähren sie Lese-, Anlege-, Änderungs- und Löschrechte.
+
+| Aktion | Wo | Anchor-Id | Was passiert |
+|---|---|---|---|
+| Rolle hinzufügen | Rollen-Toolbar | `#company-roles-add` (**Hinzufügen**) | Öffnet den Rollen-Editor |
+| Suchen, Anzeigeoptionen | Rollen-Toolbar | `#company-roles-search` / `#company-roles-display-options` | Rollen haben keine filterbaren Felder, daher wird kein Filter-Control gerendert |
+| Layout | Display-options-Popover | `#company-roles-layout-table` (**Tabelle**) / `#company-roles-layout-board` (**Board**) | Nur Tabelle; das Board-Control ist deaktiviert |
+
+## Tab Webhooks
+
+Route `/company/webhooks`, Sidebar-Id `#nav-company-webhooks` (**Webhooks**). Ausgehende Event-Subscriptions; Payloads, Signaturen und Retries sind unter [Webhooks](/docs/webhooks) dokumentiert.
+
+| Aktion | Wo | Anchor-Id | Was passiert |
+|---|---|---|---|
+| Webhook erstellen | Webhooks-Toolbar | `#company-webhooks-add` (**Hinzufügen**) | Öffnet das Webhook-Modal |
+| Webhook speichern | Footer des Webhook-Modals | `#webhook-modal-save` (**Speichern**) / `#webhook-modal-reset` (**Zurücksetzen**) | Abonniert die URL auf Events |
+| Suchen, filtern, Anzeigeoptionen | Webhooks-Toolbar | `#company-webhooks-search` / `#company-webhooks-filter` / `#company-webhooks-display-options` | Listen-Controls |
+| Layout | Display-options-Popover | `#company-webhooks-layout-table` (**Tabelle**) / `#company-webhooks-layout-board` (**Board**) | Nur Tabelle; das Board-Control ist deaktiviert |
+
+## Tab Zustellungen
+
+Route `/company/webhook-deliveries`, Sidebar-Id `#nav-company-webhook-deliveries` (**Letzte Zustellungen**). Eine Zeile pro Zustellung mit Status und Payload; öffnen Sie eine Zeile, um sie zu prüfen und von dort erneut zu senden.
+
+| Aktion | Wo | Anchor-Id | Was passiert |
+|---|---|---|---|
+| Suchen, filtern, Anzeigeoptionen | Zustellungen-Toolbar | `#company-webhook-deliveries-search` / `#company-webhook-deliveries-filter` / `#company-webhook-deliveries-display-options` | Listen-Controls |
+| Layout | Display-options-Popover | `#company-webhook-deliveries-layout-table` (**Tabelle**) / `#company-webhook-deliveries-layout-board` (**Board**) | Nur Tabelle; das Board-Control ist deaktiviert |
+
+## Tab Audit-Logs
+
+Route `/company/audit-logs`, Sidebar-Id `#nav-company-audit-logs` (**Audit-Logs**). Änderungen an Datensätzen und der Workspace-Konfiguration mit wer, was und wann, als feldweises Diff bei Aktualisierungen und als Momentaufnahme bei Erstellungen und Löschungen; Messaging-Events werden nicht protokolliert, und Webhook-Secrets sowie Header-Werte werden geschwärzt. Zum Lesen braucht Ihre Rolle die Audit-Log-Berechtigung. Es gibt keinen Export; der Aktivitätsverlauf auf dem [Dashboard](/docs/app-dashboard) zeigt dieselben Änderungen als Feed.
+
+| Aktion | Wo | Anchor-Id | Was passiert |
+|---|---|---|---|
+| Suchen, filtern, Anzeigeoptionen | Audit-Toolbar | `#company-audit-logs-search` / `#company-audit-logs-filter` / `#company-audit-logs-display-options` | Listen-Controls |
+| Layout | Display-options-Popover | `#company-audit-logs-layout-table` (**Tabelle**) / `#company-audit-logs-layout-board` (**Board**) | Nur Tabelle; das Board-Control ist deaktiviert |
 
 ## Tipps für Agents
 
-- Finden Sie Controls über die stabilen ids oben, nicht über sichtbaren Text: Text ändert sich mit der Locale, ids nicht. Beispiel-CSS-Selektor: `#company-webhooks-add`.
-- Zeilen tragen nie ids. Navigieren Sie zu einem Tab über seine URL (zum Beispiel `/company/webhooks`) und öffnen Sie eine Zeile per Klick. Bearbeitet wird in Modals, nicht in einem Drawer.
-- Bevorzugen Sie [MCP](/docs/mcp)-Tools statt Klicken, wenn ein Tool existiert: Datensätze per MCP zu verwalten ist schneller und zuverlässiger, als die UI zu bedienen.
+- Der gehostete Assistent Mate kann zu jedem Tab navigieren und jede Id oben hervorheben; er kann keine Zeile anklicken und kein Modal absenden.
+- Zeilen tragen nie Ids. Navigieren Sie zu einem Tab über seine URL (zum Beispiel `/company/webhooks`) und öffnen Sie eine Zeile per Klick. Bearbeitet wird in Modals, nicht in einem Drawer.
+- Bevorzugen Sie [MCP](/docs/mcp)-Tools statt Klicken, wenn ein Tool existiert: `manage_team` lädt Mitglieder ein und aktualisiert sie, `manage_webhooks` verwaltet Subscriptions und Zustellungen, und `get_workspace_context` listet die Rollen.
 
 ## Verwandt
 
 - [Webhooks](/docs/webhooks)
-- [App-Guide, Profile](/docs/app-profile)
+- [App-Guide, Profil](/docs/app-profile)

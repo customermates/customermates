@@ -4,6 +4,12 @@ import type { ContentLocale } from "@/i18n/locale-registry";
 
 import { customMcpFailure, formatDatesInResponse, mcpInteractorFailure, mcpMessageFailure } from "./utils";
 import { getDocsPageRaw, listDocsSlugs, searchDocsRaw } from "./docs.mcp-tools";
+import {
+  UNTRUSTED_NOTES_CLOSE,
+  UNTRUSTED_NOTES_HANDLING,
+  UNTRUSTED_NOTES_OPEN,
+  stripUntrustedNotesMarkers,
+} from "./entity-generic.mcp-tools";
 
 import { env } from "@/env";
 import { CONTENT_LOCALES, DEFAULT_LOCALE, isContentLocale } from "@/i18n/locale-registry";
@@ -78,7 +84,9 @@ async function fetchRecord(entity: Entity, key: string) {
   const { notes, ...masterData } = row as Record<string, unknown> & { notes?: unknown };
   const noteMarkdown = notes ? serializeJSONToMarkdown(notes as object) : null;
   const masterText = JSON.stringify(formatDatesInResponse(masterData), null, 2);
-  const text = noteMarkdown ? `${masterText}\n\nNotes:\n${noteMarkdown}` : masterText;
+  const text = noteMarkdown
+    ? `${masterText}\n\nNotes:\n${UNTRUSTED_NOTES_HANDLING}\n${UNTRUSTED_NOTES_OPEN}\n${stripUntrustedNotesMarkers(noteMarkdown)}\n${UNTRUSTED_NOTES_CLOSE}`
+    : masterText;
   const recordId = String(masterData.id);
   const output = {
     id: `record:${entity}:${recordId}`,
@@ -113,7 +121,8 @@ export const searchTool = {
   name: "search",
   title: "Search (deep research)",
   description:
-    "Required by ChatGPT deep research connectors. Interactive agents should prefer search_records or search_docs.",
+    "Required by ChatGPT deep research connectors: it returns records and documentation pages mixed in one list, with no total and no filters. " +
+    "Do not use it to answer a question about the workspace: prefer search_records or list_records, which carry the totals and filters you need, and search_docs for the documentation.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: z.object({
     query: z.string().min(2).describe("Free-text query matched against CRM record names and the documentation"),

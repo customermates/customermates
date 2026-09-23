@@ -1,57 +1,64 @@
 ---
 title: "Profileinstellungen im Customermates-CRM"
-description: Der Profil-Screen der Customermates Web-App, Identität, Einstellungen, API-Keys und verbundene Messaging-Konten, mit stabilen Anchor-Ids für AI-Agents.
+description: "Der Profil-Screen bündelt Ihre persönlichen Einstellungen Tab für Tab: Identität und Präferenzen, API-Keys mit Ablaufdatum und verbundene Messaging-Konten."
 ---
 
-Customermates ist ein Open-Source-CRM, AI-native gebaut. Diese Seite dokumentiert den **Profil**-Screen der Web-App, für Menschen und für AI-Agents, die die UI steuern.
+Customermates ist ein Open-Source-CRM, KI-nativ gebaut. Diese Seite dokumentiert den Screen **Mein Profil** der Web-App für Menschen und für KI-Agents, die die UI steuern.
 
-## Zweck
+## Was liegt auf dem Profil-Screen?
 
-Das Profil bündelt Ihre persönlichen Workspace-Einstellungen: alles, was an Ihnen als User hängt, nicht an der Company. Drei Tabs decken Ihre Einstellungen (ein Formular für Identität und Präferenzen: Name, Land, Avatar, Theme, Sprache), API-Keys für MCP- und REST-Clients sowie die Messaging-Konten ab, aus denen die Inbox gespeist wird. Änderungen hier betreffen nur Ihren eigenen Account.
+Alles, was an Ihnen als Nutzer hängt und nicht am Unternehmen: Ihre Einstellungen (Name, Land, Avatar, Theme, Sprache), die API-Keys für MCP- und REST-Clients und die Messaging-Konten, die den Posteingang speisen. Änderungen hier betreffen nur Ihren eigenen Account. URLs sind locale-präfixiert, zum Beispiel `https://customermates.com/en/profile/settings`; jeder Tab hat seine eigene Route; der Sidebar-Eintrag **Mein Profil** (`#nav-profile`) klappt die Profil-Gruppe auf, und ihr Untereintrag `#nav-profile-settings` öffnet `/profile/settings`.
 
-## URL
+## Tab Einstellungen
 
-`/profile/settings`
+Route `/profile/settings`, Sidebar-Id `#nav-profile-settings` (**Einstellungen**). Ein Formular deckt Identität (Name, Land, Avatar) und Präferenzen (Theme, Sprache) ab. Speichern oder verwerfen Sie mit `#profile-settings-save` (**Speichern**) und `#profile-settings-reset` (**Zurücksetzen**); beide Buttons erscheinen erst, wenn das Formular ungespeicherte Änderungen hat. Über MCP ändert `update_workspace_settings` mit `target: "profile"` nur Vorname, Nachname, Land und Avatar-URL; Theme und Sprache stellen Sie in der UI ein.
 
-URLs sind locale-präfixiert, zum Beispiel `https://customermates.com/en/profile/settings`. Jeder Tab hat eine eigene Route: `/profile/settings`, `/profile/api-keys`, `/profile/connected-accounts`.
+## Tab API-Keys
 
-## Wichtige Aktionen
+Route `/profile/api-keys`, Sidebar-Id `#nav-profile-api-keys` (**API & Konnektoren**). Keys für MCP- und REST-Clients; die Regeln stehen unter [API-Keys](/docs/api-keys).
 
-| Aktion | Wo | Anchor id | Was passiert |
+| Aktion | Wo | Anchor-Id | Was passiert |
 |---|---|---|---|
-| Zum Profil wechseln | App-Sidebar | `#nav-profile` | Öffnet /profile/settings |
-| Tab Einstellungen | Sidebar-Unterpunkt | `#nav-profile-settings` | Identität (Name, Land, Avatar) und Präferenzen (Theme, Sprache) in einem Formular |
-| Einstellungen speichern / zurücksetzen | Formular-Footer | `#profile-settings-save` / `#profile-settings-reset` | Speichert oder verwirft (Reset erscheint bei ungespeicherten Änderungen) |
-| Tab API Keys | Sidebar-Unterpunkt | `#nav-profile-api-keys` | Keys für MCP-/REST-Clients verwalten |
-| API-Key hinzufügen | API-Keys-Karte | `#profile-api-keys-generate` | Öffnet einen Assistenten für einen Standard-Key oder eine geführte KI-Verbindung |
-| Standard-Key anlegen | Assistent zum Hinzufügen | `#api-key-save` | Erscheint nach Standard-API-Key; der Key wird einmal angezeigt und muss sofort kopiert werden |
-| KI-Client verbinden | Assistent zum Hinzufügen | none | Claude, ChatGPT, Codex, Cursor oder Gemini für eine clientspezifische Einrichtung wählen |
-| Key widerrufen | Key-Zeile | none | Zeilen-Button mit Label Revoke |
-| Tab Verbundene Konten | Sidebar-Unterpunkt | `#nav-profile-connected-accounts` | Messaging-Konten für die Inbox |
-| Konto verbinden | Karten-Header | `#profile-connected-accounts-connect` | Öffnet das Hosted-Auth-Fenster (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) |
-| Konto aus einem leeren Profil verbinden | Zentrierter Leerzustand | `#profile-connected-accounts-connect-empty` | Öffnet dasselbe Hosted-Auth-Fenster, wenn noch kein Konto vorhanden ist |
-| Konto verwalten | Klick auf Konto-Zeile | none | Öffnet das Konto-Modal auf dem Tab Details |
-| Tab Details | Konto-Modal | `#connected-account-tab-details` | Provider, Status, Sichtbarkeit, Besitzer, Ordneranzahl und Sync-Zeiten |
-| Tab E-Mail | Konto-Modal | `#connected-account-tab-email` | E-Mail-Darstellung und Signatur; erscheint nur bei einem eigenen E-Mail-Konto |
-| Tab Ordner | Konto-Modal | `#connected-account-tab-folders` | Auswahl der Provider-Ordner, die synchronisiert werden; erscheint nur, wenn das Konto Ordner bereitstellt |
+| Key hinzufügen | Seitenkopf | `#profile-api-keys-generate` (**Hinzufügen**) | Öffnet den Dialog zum Hinzufügen mit zwei Wegen |
+| Standard-Key anlegen | Bereich Standard-API-Key | `#api-key-save` (**Speichern**) | Name plus optionales Ablaufdatum; der Key wird einmal angezeigt, kopieren Sie ihn also sofort |
+| Schnellverbindungen | Bereich Schnellverbindungen | keine | Vier Client-Kacheln, unten beschrieben |
+| Key öffnen | Key-Karte | keine | Zeigt das Erstellungsdatum; die Zeilen für Ablauf und letzte Verwendung erscheinen nur, wenn sie gesetzt sind |
+| Key löschen | Key-Dialog | keine | Button mit Label Löschen, mit Bestätigung |
+
+Der Bereich Schnellverbindungen bietet vier Kacheln: Claude, ChatGPT und Codex, Cursor und Gemini. Die lokalen Einrichtungen, also Claude Code oder Claude Desktop, Codex, Cursor und Gemini, erstellen den Key und zeigen den Einrichtungsausschnitt des jeweiligen Clients. Die Methoden Claude-Konto und ChatGPT-App verbinden stattdessen über den gehosteten Connector und erstellen keinen Key.
+
+Es gibt keinen Rotate- oder Revoke-Button: Erstellen Sie einen neuen Key, aktualisieren Sie den Client und löschen Sie dann den alten.
+
+## Tab Verbundene Konten
+
+Route `/profile/connected-accounts`, Sidebar-Id `#nav-profile-connected-accounts` (**Kanäle**), nur Cloud. **Kanal verbinden** (`#profile-connected-accounts-connect`) öffnet eine Kanalauswahl (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram); die Wahl eines Kanals navigiert den aktuellen Tab zur Hosted-Auth-Seite, und das verbundene Konto speist danach den [Posteingang](/docs/app-inbox). WhatsApp verbinden Sie durch Scannen des QR-Codes auf dieser Seite.
+
+| Aktion | Wo | Anchor-Id | Was passiert |
+|---|---|---|---|
+| Konto verbinden | Karten-Header | `#profile-connected-accounts-connect` (**Kanal verbinden**) | Öffnet die Kanalauswahl; die Wahl eines Kanals navigiert zur Hosted-Auth-Seite |
+| Konto aus einem leeren Profil verbinden | Zentrierter Leerzustand | `#profile-connected-accounts-connect-empty` (**Kanal verbinden**) | Dieselbe Auswahl, angezeigt, wenn noch kein Konto existiert und Sie verbinden dürfen; ist der Assistent aktiviert, zeigt der Leerzustand stattdessen Startvorschläge des Assistenten |
+| Konto verwalten | Klick auf die Konto-Zeile | keine | Öffnet das Konto-Modal auf dem Tab Details |
+| Tab Details | Konto-Modal | `#connected-account-tab-details` (**Details**) | Provider, Status, Sichtbarkeit, Besitzer, Ordneranzahl und Sync-Zeiten |
+| Tab E-Mail | Konto-Modal | `#connected-account-tab-email` (**E-Mail**) | E-Mail-Darstellung und Signatur; nur bei einem eigenen E-Mail-Konto |
+| Tab Ordner | Konto-Modal | `#connected-account-tab-folders` (**Ordner**) | Auswahl der Provider-Ordner, die synchronisiert werden; nur, wenn das Konto Ordner bereitstellt |
+
+Das Verbinden navigiert den aktuellen Tab zur Hosted-Auth-Seite: Rechnen Sie mit einer vollständigen Seitennavigation, nicht mit einem Popup, und mit der Rückkehr in die App, sobald der Provider fertig ist. Wie viele Konten ein Nutzer verbinden darf, hängt vom Tarif ab: Starter [[commercial.entitlement.starter.includedAccountsPerUser]], Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]] pro Nutzer.
 
 ### E-Mail-Darstellung und Signatur
 
 Der Tab **E-Mail** legt fest, wie jede aus diesem Konto gesendete Nachricht aussieht. Die Darstellung umfasst Schriftart, Basis-Schriftgröße, Linkfarbe und Linkstil und gilt für die gesamte E-Mail. Die Linkfarbe erwartet einen sechsstelligen Hex-Wert mit Farbwähler daneben, prüft die Eingabe sofort und weist auf zu geringen Kontrast hin, ohne zu blockieren.
 
-Die Signatur darunter ist ein einzelner Markdown-Block mit Ein/Aus-Schalter, das Ausschalten behält den gespeicherten Text also für später. Wählen Sie ein Layout aus Nur Text, Logo oben oder Logo daneben, geben Sie eine öffentliche HTTPS-Logo-URL an und passen Sie unter **Layout-Optionen** Logogröße, Trennlinie und Abstand an. Eine Live-Vorschau zeigt das Ergebnis. Gespeicherte Darstellung und Signatur gelten für jede aus diesem Konto gesendete E-Mail, ob aus der Inbox, über die REST-API oder ein MCP-Tool. Agents dürfen die Signatur daher nicht zusätzlich in den Nachrichtentext schreiben.
+Die Signatur darunter ist ein einzelner Markdown-Block mit Ein/Aus-Schalter, das Ausschalten behält den gespeicherten Text also für später. Wählen Sie ein Layout aus Nur Text, Logo oben oder Logo daneben, geben Sie eine öffentliche HTTPS-Logo-URL an und passen Sie unter **Layoutoptionen** Logogröße, Trennlinie und Abstand an. Eine Live-Vorschau zeigt das Ergebnis. Gespeicherte Darstellung und Signatur gelten für jede aus diesem Konto gesendete E-Mail, ob aus dem Posteingang, über die REST-API oder ein MCP-Tool. Agents dürfen die Signatur daher nicht zusätzlich in den Nachrichtentext schreiben.
 
 ## Tipps für Agents
 
-- Steuerelemente über die stabilen Ids aus der Tabelle finden, zum Beispiel trifft der CSS-Selektor `#profile-api-keys-generate` den Generieren-Button. Die Ids sind stabil; sichtbare Labels und Layout sind es nicht.
-- Zeilen tragen nie Ids. Datensätze über ihre URL öffnen oder auf Entity-Seiten über den Drawer-Deep-Link `?open=<entityType>:{id}`. Die Profil-Tabs sind einfache Routen, also per Tab-URL navigieren und in Zeilen die sichtbaren Buttons nutzen (z.B. **Revoke**) oder die Zeile anklicken.
-- Wenn ein MCP-Tool existiert, nutzen Sie es statt zu klicken, siehe [MCP](/docs/mcp). Die UI zu steuern lohnt nur für die wenigen Aktionen ohne Tool, etwa das Verbinden eines Messaging-Kontos.
-- Das Modal zum Hinzufügen bietet zuerst einen Standard-Key mit Name und Ablaufdatum sowie fünf geführte KI-Verbindungen an. Claude und ChatGPT können den benutzerdefinierten Connector nutzen; lokale Claude-Clients, Codex, Cursor und Gemini erstellen einen Key und zeigen nur den passenden Einrichtungsausschnitt.
-- Ein generierter API-Key wird genau einmal angezeigt, unabhängig davon, ob er über `#api-key-save` oder eine Schnellverbindung erstellt wurde. Kopieren Sie den angezeigten Key oder Einrichtungsausschnitt im selben Schritt; der Key lässt sich nicht erneut im Klartext anzeigen.
-- Konto verbinden öffnet ein separates Hosted-Auth-Fenster. Rechnen Sie mit einem Popup, nicht mit In-Page-Navigation.
+- Der gehostete Assistent Mate kann zu den drei Tabs navigieren und `#nav-profile-connected-accounts` sowie `#profile-connected-accounts-connect` hervorheben; drücken kann er sie nicht. Bitten Sie ihn um eine Tour zum Verbinden eines Kontos, und er führt Sie dorthin.
+- Zeilen tragen nie Ids. Öffnen Sie einen Key oder ein Konto per Klick auf seine Karte oder Zeile; die Tabs sind einfache Routen.
+- Bevorzugen Sie MCP-Tools, wenn ein Tool existiert: `connect_messaging_account` erstellt den Authentifizierungslink für einen neuen Kanal, und `get_workspace_context` listet die verbundenen Konten. Für das Erstellen eines API-Keys gibt es kein Tool; nutzen Sie den Dialog oben.
+- Ein generierter API-Key wird genau einmal angezeigt, ob als Standard-Key oder über die lokale Einrichtung einer Schnellverbindung erstellt. Kopieren Sie ihn im selben Schritt.
 
-## Verwandte Seiten
+## Verwandt
 
-- [API-Keys](/docs/api-keys): Keys anlegen, rotieren, widerrufen, plus Hygiene-Regeln.
-- [App-Guide, Inbox](/docs/app-inbox): der Screen, den Ihre verbundenen Konten befüllen.
-- [CLI & Editoren](/docs/connect-cli): wohin ein generierter Key für Claude Code, Codex und Cursor gehört.
+- [API-Keys](/docs/api-keys): Keys erstellen, nutzen, ablaufen lassen und löschen.
+- [App-Guide, Posteingang](/docs/app-inbox): der Screen, den Ihre verbundenen Konten speisen.
+- [CLI und Editoren](/docs/connect-cli): wohin ein generierter Key für Claude Code, Codex und Cursor gehört.

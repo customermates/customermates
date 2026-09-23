@@ -32,7 +32,7 @@ import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { SignatureTemplate } from "@/ee/messaging/email-settings";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { AGENT_ACTIVITY_KINDS } from "@/ee/agent-chat/agent-activity";
+import { AGENT_ACTIVITY_KINDS, AGENT_APPROVAL_COPY_KINDS } from "@/ee/agent-chat/agent-activity";
 import { ROUTINE_SCHEDULE_PRESETS } from "@/ee/routines/routine-schedule-preset";
 import { ROUTINE_RUN_REASONS } from "@/ee/routines/routine-run-outcome";
 import { OPERATOR_AUDIT_ACTION } from "@/ee/operator/operator.schema";
@@ -43,6 +43,7 @@ import {
   FILTER_FIELD_TERMINOLOGY,
 } from "@/features/entity-terminology/entity-terminology.constants";
 import { DIAGRAM_SYSTEM_LABEL_KEYS, DisplayType } from "@/features/widget/widget.schema";
+import { ACCOUNT_REMOVAL_REASONS } from "@/ee/messaging/connect/account-removal-reason";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
 
 const ENTITY_TERMINOLOGY_KEYS = Object.entries(ENTITY_TERMINOLOGY_PRESETS).flatMap(([entityType, presets]) =>
@@ -52,6 +53,7 @@ const ENTITY_TERMINOLOGY_KEYS = Object.entries(ENTITY_TERMINOLOGY_PRESETS).flatM
 );
 
 const DOMAIN_EVENT_KEYS = Object.values(DomainEvent).map((event) => `Common.events.${event}`);
+const ACCOUNT_REMOVAL_REASON_KEYS = ACCOUNT_REMOVAL_REASONS.map((reason) => `AccountRemovalReason.${reason}`);
 const ROUTINE_RUN_STATUS_KEYS = Object.values(RoutineRunStatus).map((status) => `RoutineRunStatus.${status}`);
 const ROUTINE_TRIGGER_KIND_KEYS = Object.values(RoutineTriggerKind).map((kind) => `RoutineTriggerKind.${kind}`);
 const ROUTINE_SCHEDULE_PRESET_KEYS = ROUTINE_SCHEDULE_PRESETS.map((preset) => `RoutineSchedulePreset.${preset}`);
@@ -158,18 +160,28 @@ const AUDIT_FIELD_KEYS = [
   "AuditLogModal.fields.acceptanceType",
   "AuditLogModal.fields.acceptingEmail",
   "AuditLogModal.fields.changedDocuments",
+  "AuditLogModal.fields.changedFields",
   "AuditLogModal.fields.city",
   "AuditLogModal.fields.country",
+  "AuditLogModal.fields.cronExpression",
   "AuditLogModal.fields.currency",
   "AuditLogModal.fields.dealStageWeights",
   "AuditLogModal.fields.dealWeightingColumnId",
+  "AuditLogModal.fields.debounceSeconds",
+  "AuditLogModal.fields.disabledReason",
   "AuditLogModal.fields.effectiveAt",
   "AuditLogModal.fields.emails",
   "AuditLogModal.fields.isNewCompany",
   "AuditLogModal.fields.postalCode",
+  "AuditLogModal.fields.prompt",
   "AuditLogModal.fields.recipientEmail",
+  "AuditLogModal.fields.removalReason",
   "AuditLogModal.fields.street",
   "AuditLogModal.fields.terminology",
+  "AuditLogModal.fields.timezone",
+  "AuditLogModal.fields.triggerEvents",
+  "AuditLogModal.fields.triggerFilters",
+  "AuditLogModal.fields.triggerKind",
   "AuditLogModal.fields.versions",
   "AuditLogModal.fields.visibility",
 ] as const;
@@ -386,6 +398,7 @@ const AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS = [
 const AGENT_ACTIVITY_STATE_KEYS = AGENT_ACTIVITY_KINDS.flatMap((kind) =>
   (["done", "error", "running"] as const).map((state) => `AgentChat.activity.state.${kind}.${state}`),
 );
+const AGENT_ACTIVITY_APPROVAL_KEYS = AGENT_APPROVAL_COPY_KINDS.map((kind) => `AgentChat.activity.approval.${kind}`);
 const AGENT_SUGGESTION_KEYS = [
   "AgentChat.suggestions.pages.connected-accounts.data.accounts-add-channel",
   "AgentChat.suggestions.pages.connected-accounts.data.accounts-list",
@@ -467,6 +480,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Common.defaultData.${*}.options.${*}", DEFAULT_DATA_OPTION_KEYS],
   ["Common.errors.${*}", CUSTOM_ERROR_CODE_KEYS],
   ["Common.events.${*}", DOMAIN_EVENT_KEYS],
+  ["AccountRemovalReason.${*}", ACCOUNT_REMOVAL_REASON_KEYS],
   ["RoutineRunStatus.${*}", ROUTINE_RUN_STATUS_KEYS],
   ["RoutineTriggerKind.${*}", ROUTINE_TRIGGER_KIND_KEYS],
   ["RoutineSchedulePreset.${*}", ROUTINE_SCHEDULE_PRESET_KEYS],
@@ -524,6 +538,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["AgentChat.activity.resourceSingular.${*}", AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS],
   ["AgentChat.activity.label.${*}", AGENT_ACTIVITY_LABEL_KEYS],
   ["AgentChat.activity.state.${*}.${*}", AGENT_ACTIVITY_STATE_KEYS],
+  ["AgentChat.activity.approval.${*}", AGENT_ACTIVITY_APPROVAL_KEYS],
   ["AgentChat.approval.${*}", AGENT_APPROVAL_RESOLUTION_KEYS],
   ["AgentChat.credits.blocked.${*}", AGENT_CREDIT_BLOCKED_KEYS],
   ["AgentChat.suggestions.pages.${*}.${*}.${*}.label", AGENT_SUGGESTION_KEYS.map((key) => `${key}.label`)],
@@ -696,6 +711,7 @@ export const DYNAMIC_KEY_SITES = [
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.resource.${activity.resource}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.resourceSingular.${resourceKey}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.state.${activity.kind}.${name}",
+  "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.approval.${activity.kind}",
   "ee/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.pages.${page}.${state}.${id}.label",
   "ee/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.pages.${page}.${state}.${id}.prompt",
   "ee/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.readOnly.${id}.label",
@@ -706,11 +722,13 @@ export const DYNAMIC_KEY_SITES = [
   "features/messaging/activities/activities-list.tsx :: t :: Common.events.${entry.event}",
   "features/messaging/activities/activities-list.tsx :: t :: Common.providers.${ev.provider}",
   "features/messaging/activities/activities-list.tsx :: t :: Common.providers.${message.provider}",
+  "features/messaging/activities/audit-detail.tsx :: t :: AccountRemovalReason.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.customColumnTypes.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.events.${entry.event}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.providers.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.userStatuses.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t :: LegalDocumentNotice.documents.${document}",
+  "features/messaging/activities/audit-detail.tsx :: t.has :: AccountRemovalReason.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t.has :: Common.customColumnTypes.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t.has :: Common.providers.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t.has :: Common.userStatuses.${String(value)}",
