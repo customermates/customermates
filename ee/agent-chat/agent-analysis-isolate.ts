@@ -77,7 +77,7 @@ function quickjsModule(): Promise<WebAssembly.Module> {
 }
 
 function analysisSource(code: string): string {
-  return `(() => { const run = (${code}); if (typeof run !== "function") throw new TypeError(${JSON.stringify(NOT_A_SYNCHRONOUS_FUNCTION)}); const data = JSON.parse(__analysisInput); __analysisInput = undefined; return JSON.stringify(run(data)); })()`;
+  return `(() => { const run = (${code}); if (typeof run !== "function") throw new TypeError("${NOT_A_SYNCHRONOUS_FUNCTION}"); const data = JSON.parse(__analysisInput); __analysisInput = undefined; return JSON.stringify(run(data)); })()`;
 }
 
 function stoppedError(stop: Stop, message: string): string {
