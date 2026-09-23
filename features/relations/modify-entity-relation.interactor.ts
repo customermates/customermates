@@ -56,7 +56,7 @@ const Schema = z
     entity: z.enum(RELATION_ENTITY),
     sourceId: z.string().min(1),
     relation: z.enum(RELATION),
-    mode: z.enum(["add", "remove"]),
+    mode: z.enum(["add", "remove", "set"]),
     ids: z.array(z.uuid()).min(1),
   })
   .superRefine((data, ctx) => {
@@ -79,8 +79,10 @@ export type ModifyEntityRelationResult = {
   entity: RelationEntity;
   sourceId: string;
   relation: Relation;
-  mode: "add" | "remove";
+  mode: "add" | "remove" | "set";
   requested: number;
+  added: number;
+  removed: number;
   before: number;
   after: number;
 };
@@ -153,13 +155,18 @@ export class ModifyEntityRelationInteractor extends AuthenticatedInteractor<
     if (entity === "deal" && relation === "services") return this.modifyDealServices(sourceId, mode, ids);
 
     const current = await this.loadRelationIds(entity, sourceId, relation);
-    const removeSet = new Set(ids);
-    const next = mode === "add" ? [...new Set([...current, ...ids])] : current.filter((id) => !removeSet.has(id));
+    const currentIds = new Set(current);
+    const requestedIds = new Set(ids);
+    const next =
+      mode === "add"
+        ? [...new Set([...current, ...ids])]
+        : mode === "remove"
+          ? current.filter((id) => !requestedIds.has(id))
+          : [...requestedIds];
 
     const field = WRITE_FIELD[entity][relation];
     if (!field) throw new Error(`No write field for ${entity}.${relation}`);
 
-    const currentIds = new Set(current);
     const unchanged = next.length === currentIds.size && next.every((id) => currentIds.has(id));
 
     if (!unchanged) {
@@ -167,30 +174,49 @@ export class ModifyEntityRelationInteractor extends AuthenticatedInteractor<
       if (!result.ok) return result;
     }
 
+    const after =
+      mode === "set" && !unchanged ? (await this.loadRelationIds(entity, sourceId, relation)).length : next.length;
+    const added = next.filter((id) => !currentIds.has(id)).length;
+
     return {
       ok: true as const,
-      data: { entity, sourceId, relation, mode, requested: ids.length, before: current.length, after: next.length },
+      data: {
+        entity,
+        sourceId,
+        relation,
+        mode,
+        requested: ids.length,
+        added,
+        removed: current.length + added - after,
+        before: current.length,
+        after,
+      },
     };
   }
 
   private async modifyDealServices(
     sourceId: string,
-    mode: "add" | "remove",
+    mode: "add" | "remove" | "set",
     ids: string[],
   ): Validated<ModifyEntityRelationResult> {
     const deal = await this.dealRepo.getOrThrowCompanyWide(sourceId);
-    const existing = new Map(deal.services.map((service) => [service.id, service.quantity]));
-    const before = existing.size;
+    const current = new Map(deal.services.map((service) => [service.id, service.quantity]));
+    const before = current.size;
+    const next = new Map(mode === "set" ? [] : current);
 
-    if (mode === "add") {
-      for (const id of ids) if (!existing.has(id)) existing.set(id, 1);
-    } else for (const id of ids) existing.delete(id);
+    if (mode === "remove") for (const id of ids) next.delete(id);
+    else for (const id of ids) if (!next.has(id)) next.set(id, current.get(id) ?? 1);
 
-    if (existing.size !== before) {
-      const services = [...existing.entries()].map(([serviceId, quantity]) => ({ serviceId, quantity }));
+    const unchanged = next.size === before && [...next.keys()].every((id) => current.has(id));
+    if (!unchanged) {
+      const services = [...next.entries()].map(([serviceId, quantity]) => ({ serviceId, quantity }));
       const result = await this.updateDeals.invoke({ deals: [{ id: sourceId, services }] });
       if (!result.ok) return result;
     }
+
+    const after =
+      mode === "set" && !unchanged ? (await this.dealRepo.getOrThrowCompanyWide(sourceId)).services.length : next.size;
+    const added = [...next.keys()].filter((id) => !current.has(id)).length;
 
     return {
       ok: true as const,
@@ -200,8 +226,10 @@ export class ModifyEntityRelationInteractor extends AuthenticatedInteractor<
         relation: "services",
         mode,
         requested: ids.length,
+        added,
+        removed: before + added - after,
         before,
-        after: existing.size,
+        after,
       },
     };
   }

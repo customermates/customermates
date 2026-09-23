@@ -204,6 +204,90 @@ describe("ModifyEntityRelationInteractor", () => {
     });
   });
 
+  it("set writes exactly the given ids and reports what it linked and unlinked", async () => {
+    contactRepo.getOrThrowCompanyWide
+      .mockResolvedValueOnce({ id: CONTACT, organizations: [{ id: ORG_EXISTING }] })
+      .mockResolvedValueOnce({ id: CONTACT, organizations: [{ id: ORG_NEW }] });
+    const result: any = await createInteractor().invoke({
+      entity: "contact",
+      sourceId: CONTACT,
+      relation: "organizations",
+      mode: "set",
+      ids: [ORG_NEW],
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.data).toMatchObject({ mode: "set", requested: 1, added: 1, removed: 1, before: 1, after: 1 });
+    expect(updateContacts.invoke).toHaveBeenCalledWith({ contacts: [{ id: CONTACT, organizationIds: [ORG_NEW] }] });
+  });
+
+  it("set counts links the write kept, so a link outside the caller's access is not reported as removed", async () => {
+    contactRepo.getOrThrowCompanyWide
+      .mockResolvedValueOnce({ id: CONTACT, organizations: [{ id: ORG_EXISTING }, { id: DEAL }] })
+      .mockResolvedValueOnce({ id: CONTACT, organizations: [{ id: DEAL }, { id: ORG_NEW }] });
+    const result: any = await createInteractor().invoke({
+      entity: "contact",
+      sourceId: CONTACT,
+      relation: "organizations",
+      mode: "set",
+      ids: [ORG_NEW],
+    });
+
+    expect(result.data).toMatchObject({ added: 1, removed: 1, before: 2, after: 2 });
+  });
+
+  it("set to the current list writes nothing", async () => {
+    contactRepo.getOrThrowCompanyWide.mockResolvedValue({ id: CONTACT, organizations: [{ id: ORG_EXISTING }] });
+    const result: any = await createInteractor().invoke({
+      entity: "contact",
+      sourceId: CONTACT,
+      relation: "organizations",
+      mode: "set",
+      ids: [ORG_EXISTING],
+    });
+
+    expect(result.data).toMatchObject({ added: 0, removed: 0, before: 1, after: 1 });
+    expect(updateContacts.invoke).not.toHaveBeenCalled();
+  });
+
+  it("deal->services set keeps the quantity of a service that stays and drops the rest", async () => {
+    dealRepo.getOrThrowCompanyWide
+      .mockResolvedValueOnce({
+        id: DEAL,
+        services: [
+          { id: SVC_EXISTING, quantity: 5 },
+          { id: ORG_EXISTING, quantity: 3 },
+        ],
+      })
+      .mockResolvedValueOnce({
+        id: DEAL,
+        services: [
+          { id: SVC_EXISTING, quantity: 5 },
+          { id: SVC_NEW, quantity: 1 },
+        ],
+      });
+    const result: any = await createInteractor().invoke({
+      entity: "deal",
+      sourceId: DEAL,
+      relation: "services",
+      mode: "set",
+      ids: [SVC_EXISTING, SVC_NEW],
+    });
+
+    expect(result.data).toMatchObject({ added: 1, removed: 1, before: 2, after: 2 });
+    expect(updateDeals.invoke).toHaveBeenCalledWith({
+      deals: [
+        {
+          id: DEAL,
+          services: [
+            { serviceId: SVC_EXISTING, quantity: 5 },
+            { serviceId: SVC_NEW, quantity: 1 },
+          ],
+        },
+      ],
+    });
+  });
+
   it("rejects a disallowed (entity, relation) pair without touching the repos", async () => {
     const result: any = await createInteractor().invoke({
       entity: "service",

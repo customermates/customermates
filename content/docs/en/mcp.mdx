@@ -77,7 +77,7 @@ The MCP surface is built so that models with weaker planning can use it reliably
 - **Merged periphery**: custom columns, widgets, and webhooks each live behind one tool (`manage_custom_columns`, `manage_widgets`, `manage_webhooks`) with an `action` switch, so the model picks an action instead of choosing among many near-identical tools.
 - **Inline enum hints**: every enum field lists its valid values inline in the description, so the model does not have to resolve external types.
 - **Filter examples inline**: every `filters` parameter has a concrete JSON example in its description.
-- **Relationship safety**: relations change only through `manage_record_links` (add or remove); passing `null` on a relationship array is rejected with a remediation hint.
+- **Relationship safety**: relations change only through `manage_record_links` (add, remove, or set to replace the whole list in one call, keeping links to records outside the caller's access); passing `null` on a relationship array is rejected with a remediation hint.
 - **Explicit intent**: `manage_custom_columns` upsert requires `intent` (`create` or `update`); on update the `label`, `type` and `entityType` are immutable and the label must match the existing one, so changing a type or a label means delete and recreate.
 - **Destructive flags**: every destructive tool or action has `destructiveHint: true` and says `IRREVERSIBLE` in its description.
 
@@ -202,7 +202,7 @@ Required: `entity`, `mode`, `items`.
 
 #### `manage_record_links`
 
-Add or remove ids on one relation (`action` add or remove). The only way to change relations.
+Add, remove or replace the ids on one relation (`action` add, remove or set); set makes the ids the complete list in one call and keeps links to records outside your access. The only way to change relations.
 
 Required: `action`, `entity`, `sourceId`, `relation`, `ids`.
 

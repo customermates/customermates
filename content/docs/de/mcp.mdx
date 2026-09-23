@@ -77,7 +77,7 @@ Die MCP-Oberfläche ist so gebaut, dass auch Modelle mit schwächerer Planung si
 - **Zusammengeführte Peripherie**: Custom Columns, Widgets und Webhooks liegen jeweils hinter einem Tool (`manage_custom_columns`, `manage_widgets`, `manage_webhooks`) mit `action`-Schalter, sodass das Modell eine Action wählt statt zwischen vielen fast identischen Tools.
 - **Inline-Enum-Hinweise**: jedes Enum-Feld listet gültige Werte inline in der Beschreibung, sodass das Modell keine externen Typen auflösen muss.
 - **Filter-Beispiele inline**: jeder `filters`-Parameter hat ein konkretes JSON-Beispiel in der Beschreibung.
-- **Relationship-Sicherheit**: Beziehungen ändern sich nur über `manage_record_links` (add oder remove); `null` auf einem Relationship-Array wird mit Remediation-Hint abgelehnt.
+- **Relationship-Sicherheit**: Beziehungen ändern sich nur über `manage_record_links` (add, remove oder set, das die ganze Liste in einem Aufruf ersetzt und Verknüpfungen zu Datensätzen außerhalb des eigenen Zugriffs behält); `null` auf einem Relationship-Array wird mit Remediation-Hint abgelehnt.
 - **Explizite Absicht**: `manage_custom_columns` upsert verlangt `intent` (`create` oder `update`); beim Update sind `label`, `type` und `entityType` unveränderlich, und das Label muss mit dem bestehenden übereinstimmen. Ein Typ- oder Label-Wechsel bedeutet also löschen und neu anlegen.
 - **Destructive-Flags**: jedes destruktive Tool und jede destruktive Action hat `destructiveHint: true` und nennt `IRREVERSIBLE` in seiner Beschreibung.
 
@@ -202,7 +202,7 @@ Pflicht: `entity`, `mode`, `items`.
 
 #### `manage_record_links`
 
-IDs auf einer Beziehung hinzufügen oder entfernen (`action` add oder remove). Der einzige Weg, Beziehungen zu ändern.
+IDs auf einer Beziehung hinzufügen, entfernen oder ersetzen (`action` add, remove oder set); set macht die IDs in einem Aufruf zur vollständigen Liste und behält Verknüpfungen zu Datensätzen außerhalb Ihres Zugriffs. Der einzige Weg, Beziehungen zu ändern.
 
 Pflicht: `action`, `entity`, `sourceId`, `relation`, `ids`.
 

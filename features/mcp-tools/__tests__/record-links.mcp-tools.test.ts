@@ -57,7 +57,10 @@ describe("manage_record_links", () => {
   });
 
   it("adds links through exactly one interactor call with the exact arguments", async () => {
-    spies.modifyRelation.mockResolvedValue({ ok: true, data: { requested: 2, before: 1, after: 3 } });
+    spies.modifyRelation.mockResolvedValue({
+      ok: true,
+      data: { requested: 2, added: 2, removed: 0, before: 1, after: 3 },
+    });
 
     const result = await execute({
       action: "add",
@@ -80,7 +83,10 @@ describe("manage_record_links", () => {
   });
 
   it("removes links through the same single seam and never touches a delete interactor", async () => {
-    spies.modifyRelation.mockResolvedValue({ ok: true, data: { requested: 1, before: 3, after: 2 } });
+    spies.modifyRelation.mockResolvedValue({
+      ok: true,
+      data: { requested: 1, added: 0, removed: 1, before: 3, after: 2 },
+    });
 
     const result = await execute({
       action: "remove",
@@ -103,12 +109,18 @@ describe("manage_record_links", () => {
   });
 
   it("says plainly when a call changed nothing, so a wrong id is noticed", async () => {
-    spies.modifyRelation.mockResolvedValue({ ok: true, data: { requested: 1, before: 2, after: 2 } });
+    spies.modifyRelation.mockResolvedValue({
+      ok: true,
+      data: { requested: 1, added: 0, removed: 0, before: 2, after: 2 },
+    });
     const removed = await execute({ action: "remove", entity: "task", sourceId, relation: "deals", ids: [orgOne] });
     expect(mcpToolResultText(removed)).toMatch(/^Nothing was unlinked: none of the 1 ids is linked as deals of task/);
     expect(removed).toMatchObject({ structuredContent: { changed: 0, before: 2, after: 2 } });
 
-    spies.modifyRelation.mockResolvedValue({ ok: true, data: { requested: 2, before: 3, after: 4 } });
+    spies.modifyRelation.mockResolvedValue({
+      ok: true,
+      data: { requested: 2, added: 1, removed: 0, before: 3, after: 4 },
+    });
     const added = await execute({
       action: "add",
       entity: "contact",
@@ -119,7 +131,10 @@ describe("manage_record_links", () => {
     expect(mcpToolResultText(added)).toBe(`Linked 1 of 2 organizations to contact ${sourceId} (was 3, now 4)`);
     expect(added).toMatchObject({ structuredContent: { changed: 1 } });
 
-    spies.modifyRelation.mockResolvedValue({ ok: true, data: { requested: 1, before: 3, after: 3 } });
+    spies.modifyRelation.mockResolvedValue({
+      ok: true,
+      data: { requested: 1, added: 0, removed: 0, before: 3, after: 3 },
+    });
     const noop = await execute({
       action: "add",
       entity: "contact",
@@ -128,6 +143,35 @@ describe("manage_record_links", () => {
       ids: [orgOne],
     });
     expect(mcpToolResultText(noop)).toMatch(/^Nothing was linked: all 1 organizations were already linked/);
+  });
+
+  it("replaces a relation in one call with set and reports both sides of the change", async () => {
+    spies.modifyRelation.mockResolvedValue({
+      ok: true,
+      data: { requested: 1, added: 1, removed: 2, before: 2, after: 1 },
+    });
+
+    const result = await execute({
+      action: "set",
+      entity: "contact",
+      sourceId,
+      relation: "organizations",
+      ids: [orgTwo],
+    });
+
+    expect(spies.modifyRelation).toHaveBeenCalledWith({
+      entity: "contact",
+      sourceId,
+      relation: "organizations",
+      mode: "set",
+      ids: [orgTwo],
+    });
+    expect(mcpToolResultText(result)).toBe(
+      `Set the organizations of contact ${sourceId} to the 1 given ids: linked 1, unlinked 2 (was 2, now 1)`,
+    );
+    expect(result).toMatchObject({ structuredContent: { action: "set", changed: 3 } });
+    expect(manageRecordLinksTool.description).toContain("Links to records outside your access are always kept");
+    expect(manageRecordLinksTool.description).not.toContain("Other links stay untouched");
   });
 
   it.each([

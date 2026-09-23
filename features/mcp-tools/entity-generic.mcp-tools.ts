@@ -160,8 +160,10 @@ const UpdateRecordNotesSchema = z.object({
 
 const ManageRecordLinksSchema = z.object({
   action: z
-    .enum(["add", "remove"])
-    .describe("add = link the ids to the relationship; remove = unlink the ids from the relationship"),
+    .enum(["add", "remove", "set"])
+    .describe(
+      "add = link the ids; remove = unlink the ids; set = make the ids the complete list, unlinking every other linked record in one call",
+    ),
   entity: EntitySchema,
   sourceId: z
     .string()
@@ -173,7 +175,7 @@ const ManageRecordLinksSchema = z.object({
     .min(1)
     .max(100)
     .describe(
-      "Record UUIDs to add to (link) or remove from (unlink) the source entity's relationship. Unlike sourceId, contact channel keys are not accepted here: resolve them to ids with search_records or get_records first.",
+      "Record UUIDs to link, unlink, or (set) keep as the complete list of the source entity's relationship. Unlike sourceId, contact channel keys are not accepted here: resolve them to ids with search_records or get_records first.",
     ),
 });
 
@@ -251,7 +253,7 @@ const UpdateRecordNotesOutputSchema = z.object({
 });
 
 const ManageRecordLinksOutputSchema = z.object({
-  action: z.enum(["add", "remove"]),
+  action: z.enum(["add", "remove", "set"]),
   relation: RelationSchema,
   requested: z.number(),
   changed: z.number().describe("Links this call actually added or removed; 0 means nothing changed"),
@@ -563,39 +565,45 @@ export const updateRecordNotesTool = {
 };
 
 function recordLinksResultText(result: {
-  action: "add" | "remove";
+  action: "add" | "remove" | "set";
   entity: string;
   sourceId: string;
   relation: string;
   requested: number;
+  added: number;
+  removed: number;
   before: number;
   after: number;
 }): string {
-  const { action, entity, sourceId, relation, requested, before, after } = result;
+  const { action, entity, sourceId, relation, requested, added, removed, before, after } = result;
   const counts = `(was ${before}, now ${after})`;
   if (action === "add") {
-    const added = after - before;
     if (added === 0)
       return `Nothing was linked: all ${requested} ${relation} were already linked to ${entity} ${sourceId} ${counts}`;
     return `Linked ${added} of ${requested} ${relation} to ${entity} ${sourceId} ${counts}`;
   }
-  const removed = before - after;
-  if (removed === 0)
-    return `Nothing was unlinked: none of the ${requested} ids is linked as ${relation} of ${entity} ${sourceId} ${counts}. Check that the ids are the linked ${relation}, not the ${entity} itself.`;
-  return `Unlinked ${removed} of ${requested} ${relation} from ${entity} ${sourceId} ${counts}`;
+  if (action === "remove") {
+    if (removed === 0)
+      return `Nothing was unlinked: none of the ${requested} ids is linked as ${relation} of ${entity} ${sourceId} ${counts}. Check that the ids are the linked ${relation}, not the ${entity} itself.`;
+    return `Unlinked ${removed} of ${requested} ${relation} from ${entity} ${sourceId} ${counts}`;
+  }
+  if (added === 0 && removed === 0)
+    return `Nothing changed: the ${relation} of ${entity} ${sourceId} already were exactly the ${requested} given ids ${counts}`;
+  return `Set the ${relation} of ${entity} ${sourceId} to the ${requested} given ids: linked ${added}, unlinked ${removed} ${counts}`;
 }
 
 export const manageRecordLinksTool = {
   name: "manage_record_links",
   title: "Manage record links",
   description:
-    "Use this when you need to add or remove links between records. " +
-    "Required: action (add or remove), entity, sourceId, relation, ids. " +
-    "Other links stay untouched; remove never deletes the related record. " +
+    "Use this when you need to add, remove or replace links between records. " +
+    "Required: action (add, remove or set), entity, sourceId, relation, ids. " +
+    "add and remove leave the relation's other links as they are; set makes ids the complete list, so moving a record to a new owner or parent is one call. " +
+    "Links to records outside your access are always kept. remove and set never delete the related record. " +
     "Allowed pairs: contact -> organizations|users|deals|tasks; organization -> contacts|users|deals|tasks; " +
     "deal -> organizations|users|contacts|services|tasks; service -> users|deals|tasks; " +
     "task -> users|contacts|organizations|deals|services. " +
-    "deal -> services adds with quantity 1 (use update_deals for exact quantities). " +
+    "deal -> services adds new services with quantity 1 and keeps the quantity of services that stay (use update_deals for exact quantities). " +
     "Idempotent: adding a linked id or removing an unlinked id is a no-op. " +
     "If an error message mentions the field `mode`, it refers to this tool's `action` argument.",
   annotations: { readOnlyHint: false, idempotentHint: true, destructiveHint: false, openWorldHint: false },
@@ -604,13 +612,12 @@ export const manageRecordLinksTool = {
   execute: ({ action, entity, sourceId, relation, ids }: z.infer<typeof ManageRecordLinksSchema>) =>
     runInteractor(
       getModifyEntityRelationInteractor().invoke({ entity, sourceId, relation, mode: action, ids }),
-      ({ requested, before, after }) =>
-        recordLinksResultText({ action, entity, sourceId, relation, requested, before, after }),
-      ({ requested, before, after }) => ({
+      (data) => recordLinksResultText({ ...data, action, entity, sourceId, relation }),
+      ({ requested, added, removed, before, after }) => ({
         action,
         relation,
         requested,
-        changed: Math.abs(after - before),
+        changed: added + removed,
         before,
         after,
       }),
