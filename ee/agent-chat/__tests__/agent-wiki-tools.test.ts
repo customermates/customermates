@@ -37,7 +37,7 @@ vi.mock("@/core/di", () => ({
       }),
   }),
   getGetRolesApiInteractor: () => ({ invoke: calls.roles }),
-  getGetMyConnectedAccountsApiInteractor: () => ({ invoke: calls.accounts }),
+  getGetMyConnectedAccountsContextInteractor: () => ({ invoke: calls.accounts }),
 }));
 vi.mock("@/features/mcp-tools/tool-registry", async () => {
   const { z } = await import("zod");
