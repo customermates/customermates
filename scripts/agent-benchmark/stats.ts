@@ -5,12 +5,12 @@ export function passRate(outcomes: readonly { passed: boolean }[]): number {
   return outcomes.filter((outcome) => outcome.passed).length / outcomes.length;
 }
 
-export function passAtLeastK(outcomes: readonly EpisodeOutcome[], k: number): number {
-  const byCase = new Map<string, boolean[]>();
-  for (const outcome of outcomes) byCase.set(outcome.caseId, [...(byCase.get(outcome.caseId) ?? []), outcome.passed]);
+export function passAtLeastK(outcomes: readonly EpisodeOutcome[], k: number): number | null {
+  const byCase = new Map<string, EpisodeOutcome[]>();
+  for (const outcome of outcomes) byCase.set(outcome.caseId, [...(byCase.get(outcome.caseId) ?? []), outcome]);
   const eligible = [...byCase.values()].filter((results) => results.length >= k);
-  if (eligible.length === 0) return 0;
-  return eligible.filter((results) => results.slice(0, k).every(Boolean)).length / eligible.length;
+  if (eligible.length === 0) return null;
+  return eligible.filter((results) => [...results].sort((a, b) => a.repetition - b.repetition).slice(0, k).every((result) => result.passed)).length / eligible.length;
 }
 
 export function costPerSuccessfulTask(outcomes: readonly EpisodeOutcome[]): number | null {

@@ -6,10 +6,57 @@ import { describe, expect, it } from "vitest";
 
 import type { EpisodeArtifact } from "../episode";
 
-import { buildReport, renderReport, selectArms } from "../report";
+import { armById } from "../arms";
+import { worstCaseEpisodeCredits } from "../campaign";
+import { JUDGE_MODELS, type JudgeVerdict } from "../judge";
+import {
+  benchmarkReportDirectoryName,
+  buildReport,
+  renderReport,
+  selectArms,
+} from "../report";
+
+it("keeps same-day report labels distinct by campaign", () => {
+  expect(
+    benchmarkReportDirectoryName(
+      "2026-09-23",
+      "merge",
+      "12345678-1234-4000-8000-000000000001",
+    ),
+  ).toBe("2026-09-23-merge-12345678");
+});
+
+function completeJudge(mean: number): JudgeVerdict {
+  return {
+    judges: JUDGE_MODELS.map((model) => ({
+      model: model.id,
+      scores: {
+        grounding: mean,
+        completeness: mean,
+        reasoning: mean,
+        actionability: mean,
+        fabricationFree: mean,
+      },
+      overall: mean,
+      rationale: "complete",
+      usd: 0.001,
+      raw: "{}",
+    })),
+    mean,
+    disagreement: false,
+    judgedAt: "2026-09-13T00:00:00.000Z",
+  };
+}
 
 function artifact(arm: string, caseId: string, repetition: number, passed: boolean, usd: number, wallMs: number, judge: number): EpisodeArtifact {
+  const armConfig = { ...armById("shipped"), id: arm, label: arm };
   return {
+    schemaVersion: 4,
+    fixtureVersion: "chat-benchmark-fixture-v4",
+    sourceCommit: "source-commit",
+    sourceDirty: false,
+    armConfig,
+    effectiveModelConfig: armConfig,
     campaignId: "c",
     episodeId: `${arm}-${caseId}-${repetition}`,
     arm,
@@ -21,19 +68,30 @@ function artifact(arm: string, caseId: string, repetition: number, passed: boole
     namespace: `${arm}:${caseId}:${repetition}`,
     companyId: "company",
     actorUserId: "user",
+    creditCeiling: worstCaseEpisodeCredits(armConfig, 1),
     prompts: ["p"],
     judgeFacts: [],
-    turns: [{ index: 0, prompt: "p", conversationId: "x", status: 200, timing: { firstFrameMs: 500, firstDeltaMs: 1200, lastFrameMs: wallMs }, wallMs, terminal: null, uiCommands: [], approvals: [], frameCount: 3, error: null }],
+    comparative: true,
+    judgeable: true,
+    mergeRequired: false,
+    turns: [{ index: 0, prompt: "p", conversationId: "x", status: 200, timing: { firstFrameMs: 500, firstDeltaMs: 1200, lastFrameMs: wallMs }, wallMs, terminal: null, request: { locale: "en", pageRoute: "/en/contacts", modelKey: "bench:test" }, serverSourceCommit: "source-commit", uiCommands: [], approvals: [], streamEvents: [], frameSeqs: [0, 1, 2], detached: false, reattached: false, resumedFrameCount: 0, resumedDeltaText: "", cancelRequested: false, leaseProbe: null, frameCount: 3, error: null }],
     observed: [{ text: "answer", tools: [], terminalCode: "completed" }],
     metrics: { turns: [{ id: "t", status: "completed", terminalCode: "completed", stopReason: null, modelSpec: "m", servingProvider: "p", createdAt: "2026-09-13T00:00:00.000Z", providerStartedAt: null, terminalAt: null }], rounds: [{ turnRequestId: "t", roundIndex: 0, inputTokens: 1000, outputTokens: 100, cacheReadTokens: 500, cacheWriteTokens: 0, reasoningTokens: 0, costMicrocents: "1", finishReason: "stop", createdAt: "2026-09-13T00:00:00.000Z" }] },
     usage: [{ turnRequestId: "t", costMicrocents: String(Math.round(usd * 100_000_000)), costSource: "measured", chargedCredits: Math.max(1, Math.ceil(usd * 100)), state: "settled", model: "m" }],
     usd,
     measuredShare: 1,
-    oracle: { caseId: caseId as never, passed, checks: [{ id: "always-fails", passed: false }, { id: "core", passed }] },
-    eligibility: { exactPrompts: true, oneConversation: true, expectedTurnCount: true, correctRoute: true, allTurnsTerminal: true },
+    oracle: {
+      caseId: caseId as never,
+      passed,
+      checks: [
+        { id: "always-fails", passed: false, gate: "quality" },
+        { id: "core", passed, gate: "quality" },
+      ],
+    },
+    eligibility: { exactPrompts: true, oneConversation: true, expectedTurnCount: true, correctRoute: true, allTurnsTerminal: true, accountingBalanced: true, withinCreditCeiling: true, streamSequenceUnique: true, noActiveLease: true },
     skipped: null,
     capturedAt: "2026-09-13T00:00:00.000Z",
-    judge: { judges: [], mean: judge, disagreement: false, judgedAt: "2026-09-13T00:00:00.000Z" },
+    judge: completeJudge(judge),
   };
 }
 
@@ -44,6 +102,7 @@ describe("benchmark report", () => {
       ...["S1", "S2", "S3", "S4"].flatMap((caseId) => [1, 2, 3].map((rep) => artifact("shipped", caseId, rep, caseId !== "S4", 0.02, 20_000, 3.5))),
       ...["S1", "S2", "S3", "S4"].flatMap((caseId) => [1, 2, 3].map((rep) => artifact("candidate", caseId, rep, true, 0.03, 15_000, 4.2))),
       ...["S1", "S2", "S3", "S4"].flatMap((caseId) => [1, 2, 3].map((rep) => artifact("slow", caseId, rep, true, 0.01, 90_000, 4.4))),
+      ...[1, 2, 3, 4].map((rep) => artifact("subset", "S1", rep, true, 0.001, 1_000, 5)),
     ];
     for (const entry of artifacts) {
       const path = join(dir, entry.runtimeVariant, entry.arm);
@@ -59,9 +118,89 @@ describe("benchmark report", () => {
     expect(report.uniformlyFailingChecks).toEqual(["always-fails"]);
     const comparison = report.comparisons.find((entry) => entry.arm === "current/candidate");
     expect(comparison).toMatchObject({ wins: 1, losses: 0, ties: 3, floor: 1 });
-    const selection = selectArms(report, new Set(["shipped", "candidate", "slow"]));
+    expect(report.comparisons.some((entry) => entry.arm === "current/subset")).toBe(false);
+    const selection = selectArms(report, new Set(["shipped", "candidate", "slow", "subset"]));
     expect(selection.defaultArm?.arm).toBe("candidate");
     expect(selection.reasoning.join("\n")).toMatch(/slow: below the speed floor/);
+    expect(selection.reasoning.join("\n")).toMatch(/subset: ineligible.*exact repetition coverage false/);
     expect(renderReport(report)).toContain("| current/candidate |");
+  });
+
+  it("does not select a cohort with incomplete judge coverage", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "agent-benchmark-"));
+    const shipped = artifact("shipped", "S1", 1, true, 0.02, 20_000, 4);
+    const candidate = artifact("candidate", "S1", 1, true, 0.01, 10_000, 5);
+    candidate.judge = {
+      ...completeJudge(5),
+      judges: completeJudge(5).judges.slice(0, 1),
+    };
+    for (const entry of [shipped, candidate]) {
+      const path = join(dir, entry.runtimeVariant, entry.arm);
+      await mkdir(path, { recursive: true });
+      await writeFile(join(path, `${entry.caseId}-r${entry.repetition}.json`), JSON.stringify(entry));
+    }
+
+    const report = await buildReport("c", dir);
+    const selection = selectArms(report, new Set(["shipped", "candidate"]));
+
+    expect(selection.defaultArm?.arm).toBe("shipped");
+    expect(selection.reasoning.join("\n")).toMatch(
+      /candidate: ineligible.*complete judges 0\/1/,
+    );
+  });
+
+  it("does not select a complete cohort captured from an older source", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "agent-benchmark-"));
+    const shipped = artifact("shipped", "S1", 1, true, 0.02, 20_000, 4);
+    const oldCandidate = artifact("candidate", "S1", 1, true, 0.001, 1_000, 5);
+    oldCandidate.runtimeVariant = "baseline";
+    oldCandidate.sourceCommit = "older-source";
+    for (const entry of [shipped, oldCandidate]) {
+      const path = join(dir, entry.runtimeVariant, entry.arm);
+      await mkdir(path, { recursive: true });
+      await writeFile(join(path, `${entry.caseId}-r${entry.repetition}.json`), JSON.stringify(entry));
+    }
+
+    const report = await buildReport("c", dir);
+    const selection = selectArms(report, new Set(["shipped", "candidate"]));
+
+    expect(selection.defaultArm?.arm).toBe("shipped");
+    expect(selection.reasoning.join("\n")).toMatch(
+      /baseline\/candidate: ineligible.*current clean source false/,
+    );
+  });
+
+  it("rejects source mismatches within one runtime variant", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "agent-benchmark-"));
+    const shipped = artifact("shipped", "S1", 1, true, 0.02, 20_000, 4);
+    const candidate = artifact("candidate", "S1", 1, true, 0.01, 10_000, 5);
+    candidate.sourceCommit = "different-source";
+    for (const entry of [shipped, candidate]) {
+      const path = join(dir, entry.runtimeVariant, entry.arm);
+      await mkdir(path, { recursive: true });
+      await writeFile(join(path, `${entry.caseId}-r${entry.repetition}.json`), JSON.stringify(entry));
+    }
+
+    await expect(buildReport("c", dir)).rejects.toThrow(
+      /runtime variant current mixes source commits/,
+    );
+  });
+
+  it("counts skipped strict contracts in the denominator", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "agent-benchmark-"));
+    const skipped = artifact("shipped", "S1", 1, false, 0, 0, 4);
+    skipped.mergeRequired = true;
+    skipped.skipped = "campaign cap";
+    skipped.oracle = null;
+    const path = join(dir, skipped.runtimeVariant, skipped.arm);
+    await mkdir(path, { recursive: true });
+    await writeFile(join(path, "S1-r1.json"), JSON.stringify(skipped));
+
+    const report = await buildReport("c", dir);
+
+    expect(report.arms[0]).toMatchObject({
+      contractEpisodes: 1,
+      contractPassed: 0,
+    });
   });
 });

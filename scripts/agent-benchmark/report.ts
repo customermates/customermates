@@ -5,17 +5,34 @@ import type { EpisodeArtifact } from "./episode";
 import type { EpisodeOutcome } from "./stats";
 
 import { BENCHMARK_ARMS } from "./arms";
+import { judgeVerdictIsComplete } from "./judge";
 import { comparePaired, costPerSuccessfulTask, holmAdjust, mean, passAtLeastK, passRate, percentile, uniformlyFailingChecks } from "./stats";
+
+export function benchmarkReportDirectoryName(
+  date: string,
+  label: string,
+  campaignId: string,
+) {
+  return `${date}-${label}-${campaignId.slice(0, 8)}`;
+}
 
 export type ArmSummary = {
   arm: string;
   label: string;
   runtimeVariant: string;
+  sourceCommit: string;
+  sourceDirty: boolean;
   episodes: number;
+  distinctCases: number;
+  coverage: string[];
   skipped: number;
+  contractEpisodes: number;
+  contractPassed: number;
   passRate: number;
-  passAt3: number;
+  passAt3: number | null;
   judgeMean: number | null;
+  judgeComplete: number;
+  judgeEligible: number;
   usdPerEpisode: number;
   usdPerTurn: number;
   creditsPerTurn: number;
@@ -37,12 +54,19 @@ export type Comparison = { arm: string; control: string; cases: number; wins: nu
 export type BenchmarkReport = {
   campaignId: string;
   generatedAt: string;
+  cohort: {
+    schemaVersion: string;
+    fixtureVersion: string;
+    sourceCommits: string[];
+    hasDirtyArtifacts: boolean;
+  };
   arms: ArmSummary[];
   comparisons: Comparison[];
   caseMatrix: Record<string, Record<string, string>>;
   uniformlyFailingChecks: string[];
   skippedEpisodes: { arm: string; caseId: string; repetition: number; reason: string }[];
   totalUsd: number;
+  comparativeCaseCount: number;
 };
 
 async function readArtifacts(dir: string): Promise<EpisodeArtifact[]> {
@@ -71,12 +95,18 @@ function outcome(artifact: EpisodeArtifact): EpisodeOutcome {
     repetition: artifact.repetition,
     passed: artifact.oracle?.passed === true,
     usd: artifact.usd,
-    judge: (artifact.judge as { mean?: number | null } | undefined)?.mean ?? null,
+    judge: judgeVerdictIsComplete(artifact.judge)
+      ? artifact.judge?.mean ?? null
+      : null,
   };
 }
 
 function summarizeArm(key: string, artifacts: EpisodeArtifact[]): ArmSummary {
-  const scored = artifacts.filter((artifact) => !artifact.skipped);
+  const scored = artifacts.filter((artifact) => artifact.comparative !== false && !artifact.skipped);
+  const contracts = artifacts.filter((artifact) => artifact.mergeRequired === true);
+  const judgeEligible = scored.filter(
+    (artifact) => artifact.judgeable !== false && artifact.observed.length > 0,
+  );
   const outcomes = scored.map(outcome);
   const rounds = scored.flatMap((artifact) => artifact.metrics.rounds);
   const turns = scored.flatMap((artifact) => artifact.turns.filter((turn) => !turn.error));
@@ -91,13 +121,28 @@ function summarizeArm(key: string, artifacts: EpisodeArtifact[]): ArmSummary {
   const [runtimeVariant, arm] = key.split("/");
   return {
     arm,
-    label: BENCHMARK_ARMS.find((candidate) => candidate.id === arm)?.label ?? arm,
+    label:
+      artifacts.find((artifact) => artifact.armConfig)?.armConfig.label ??
+      BENCHMARK_ARMS.find((candidate) => candidate.id === arm)?.label ??
+      arm,
     runtimeVariant,
+    sourceCommit: artifacts[0]?.sourceCommit ?? "legacy",
+    sourceDirty: artifacts.some((artifact) => artifact.sourceDirty),
     episodes: scored.length,
-    skipped: artifacts.length - scored.length,
+    distinctCases: new Set(scored.map((artifact) => artifact.caseId)).size,
+    coverage: scored
+      .map((artifact) => `${artifact.caseId}:r${artifact.repetition}`)
+      .sort(),
+    skipped: artifacts.filter((artifact) => artifact.skipped).length,
+    contractEpisodes: contracts.length,
+    contractPassed: contracts.filter((artifact) => artifact.oracle?.passed).length,
     passRate: passRate(outcomes),
     passAt3: passAtLeastK(outcomes, 3),
     judgeMean: mean(judges),
+    judgeComplete: judgeEligible.filter((artifact) =>
+      judgeVerdictIsComplete(artifact.judge),
+    ).length,
+    judgeEligible: judgeEligible.length,
     usdPerEpisode: scored.length ? totalUsd / scored.length : 0,
     usdPerTurn: turnCount ? totalUsd / turnCount : 0,
     creditsPerTurn: turnCount ? scored.reduce((total, artifact) => total + artifact.usage.reduce((sum, event) => sum + event.chargedCredits, 0), 0) / turnCount : 0,
@@ -115,22 +160,79 @@ function summarizeArm(key: string, artifacts: EpisodeArtifact[]): ArmSummary {
   };
 }
 
-export async function buildReport(campaignId: string, runsDir: string): Promise<BenchmarkReport> {
+export async function buildReport(campaignId: string, runsDir: string, ledgerTotalUsd?: number): Promise<BenchmarkReport> {
   const artifacts = (await readArtifacts(runsDir)).filter((artifact) => artifact.campaignId === campaignId);
+  const schemaVersions = new Set(
+    artifacts.map((artifact) => String(artifact.schemaVersion ?? "legacy")),
+  );
+  const fixtureVersions = new Set(
+    artifacts.map((artifact) => artifact.fixtureVersion ?? "legacy"),
+  );
+  if (schemaVersions.size > 1 || fixtureVersions.size > 1)
+    throw new Error(
+      `Campaign ${campaignId} mixes benchmark cohorts (schemas ${[
+        ...schemaVersions,
+      ].join(", ")}; fixtures ${[...fixtureVersions].join(", ")}).`,
+    );
   const groups = new Map<string, EpisodeArtifact[]>();
   for (const artifact of artifacts) {
     const key = `${artifact.runtimeVariant}/${artifact.arm}`;
     groups.set(key, [...(groups.get(key) ?? []), artifact]);
   }
+  for (const [key, group] of groups) {
+    const sourceCommits = new Set(
+      group.map((artifact) => artifact.sourceCommit ?? "legacy"),
+    );
+    const armConfigs = new Set(
+      group.map((artifact) => JSON.stringify(artifact.armConfig ?? null)),
+    );
+    if (sourceCommits.size > 1 || armConfigs.size > 1)
+      throw new Error(
+        `Benchmark cohort ${key} mixes source commits or arm configurations.`,
+      );
+  }
+  const byRuntimeVariant = new Map<string, EpisodeArtifact[]>();
+  for (const artifact of artifacts)
+    byRuntimeVariant.set(artifact.runtimeVariant, [
+      ...(byRuntimeVariant.get(artifact.runtimeVariant) ?? []),
+      artifact,
+    ]);
+  for (const [runtimeVariant, group] of byRuntimeVariant) {
+    const sourceCommits = new Set(
+      group.map((artifact) => artifact.sourceCommit ?? "legacy"),
+    );
+    if (sourceCommits.size > 1)
+      throw new Error(
+        `Benchmark runtime variant ${runtimeVariant} mixes source commits.`,
+      );
+  }
   const arms = [...groups].map(([key, group]) => summarizeArm(key, group)).sort((a, b) => b.passRate - a.passRate || (a.usdPerEpisode - b.usdPerEpisode));
   const shippedKey = [...groups.keys()].find((key) => key.endsWith("/shipped") && key.startsWith("current/")) ?? [...groups.keys()].find((key) => key.endsWith("/shipped"));
   const comparisons: Comparison[] = [];
   if (shippedKey) {
-    const control = (groups.get(shippedKey) ?? []).filter((artifact) => !artifact.skipped).map(outcome);
+    const controlArtifacts = (groups.get(shippedKey) ?? []).filter(
+      (artifact) => artifact.comparative !== false && !artifact.skipped,
+    );
+    const controlCoverage = JSON.stringify(
+      controlArtifacts
+        .map((artifact) => `${artifact.caseId}:r${artifact.repetition}`)
+        .sort(),
+    );
+    const control = controlArtifacts.map(outcome);
     const raw = [...groups]
       .filter(([key]) => key !== shippedKey)
+      .filter(([, group]) =>
+        JSON.stringify(
+          group
+            .filter(
+              (artifact) => artifact.comparative !== false && !artifact.skipped,
+            )
+            .map((artifact) => `${artifact.caseId}:r${artifact.repetition}`)
+            .sort(),
+        ) === controlCoverage,
+      )
       .map(([key, group]) => {
-        const comparison = comparePaired(group.filter((artifact) => !artifact.skipped).map(outcome), control);
+        const comparison = comparePaired(group.filter((artifact) => artifact.comparative !== false && !artifact.skipped).map(outcome), control);
         return { key, comparison };
       });
     const controlCases = new Set(control.map((entry) => entry.caseId)).size;
@@ -150,12 +252,25 @@ export async function buildReport(campaignId: string, runsDir: string): Promise<
   return {
     campaignId,
     generatedAt: new Date().toISOString(),
+    cohort: {
+      schemaVersion: [...schemaVersions][0] ?? "unknown",
+      fixtureVersion: [...fixtureVersions][0] ?? "unknown",
+      sourceCommits: [
+        ...new Set(
+          artifacts
+            .map((artifact) => artifact.sourceCommit)
+            .filter((commit): commit is string => Boolean(commit)),
+        ),
+      ].sort(),
+      hasDirtyArtifacts: artifacts.some((artifact) => artifact.sourceDirty === true),
+    },
     arms,
     comparisons,
     caseMatrix,
     uniformlyFailingChecks: uniformlyFailingChecks(artifacts.filter((artifact) => artifact.oracle).map((artifact) => artifact.oracle!.checks)),
     skippedEpisodes: artifacts.filter((artifact) => artifact.skipped).map((artifact) => ({ arm: `${artifact.runtimeVariant}/${artifact.arm}`, caseId: artifact.caseId, repetition: artifact.repetition, reason: artifact.skipped ?? "" })),
-    totalUsd: artifacts.reduce((total, artifact) => total + artifact.usd, 0),
+    totalUsd: ledgerTotalUsd ?? artifacts.reduce((total, artifact) => total + artifact.usd, 0),
+    comparativeCaseCount: new Set(artifacts.filter((artifact) => artifact.comparative !== false).map((artifact) => artifact.caseId)).size,
   };
 }
 
@@ -165,10 +280,19 @@ const ms = (value: number | null) => (value === null ? "n/a" : `${(value / 1000)
 
 export function renderReport(report: BenchmarkReport): string {
   const lines: string[] = [];
-  lines.push(`# Agent benchmark report ${report.campaignId}`, "", `Generated ${report.generatedAt}. Total spend ${usd(report.totalUsd)}. Arms are keyed runtime/arm.`, "");
-  lines.push("## Arms", "", "| Arm | Episodes | Pass | Pass^3 | Judge | $/episode | $/turn | Credits/turn | $/success | Measured | Cache read | Cache write | Rounds/turn | TTFT p50 | TTFT p95 | Wall p50 | Wall p95 | Length stops | Never solved |", "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |");
+  const sources = report.cohort.sourceCommits.length
+    ? report.cohort.sourceCommits.join(", ")
+    : "unrecorded";
+  lines.push(
+    `# Agent benchmark report ${report.campaignId}`,
+    "",
+    `Generated ${report.generatedAt}. Total spend ${usd(report.totalUsd)}. Arms are keyed runtime/arm.`,
+    `Cohort: schema ${report.cohort.schemaVersion}, fixture ${report.cohort.fixtureVersion}, source ${sources}${report.cohort.hasDirtyArtifacts ? " (dirty tree)" : ""}.`,
+    "",
+  );
+  lines.push("## Arms", "", "| Arm | Comparable episodes | Strict contracts passed | Pass | Pass^3 | Judge | Judge coverage | $/episode | $/turn | Credits/turn | $/success | Measured | Cache read | Cache write | Rounds/turn | TTFT p50 | TTFT p95 | Wall p50 | Wall p95 | Length stops | Never solved |", "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |");
   for (const arm of report.arms)
-    lines.push(`| ${arm.runtimeVariant}/${arm.arm} | ${arm.episodes}${arm.skipped ? ` (+${arm.skipped} skipped)` : ""} | ${pct(arm.passRate)} | ${pct(arm.passAt3)} | ${arm.judgeMean === null ? "n/a" : arm.judgeMean.toFixed(2)} | ${usd(arm.usdPerEpisode)} | ${usd(arm.usdPerTurn)} | ${arm.creditsPerTurn.toFixed(1)} | ${usd(arm.costPerSuccessfulTask)} | ${pct(arm.measuredShare)} | ${pct(arm.cacheReadShare)} | ${pct(arm.cacheWriteShare)} | ${arm.roundsPerTurn.toFixed(1)} | ${ms(arm.ttftP50Ms)} | ${ms(arm.ttftP95Ms)} | ${ms(arm.wallP50Ms)} | ${ms(arm.wallP95Ms)} | ${pct(arm.lengthFinishShare)} | ${arm.neverSolvedCases.join(" ") || "-"} |`);
+    lines.push(`| ${arm.runtimeVariant}/${arm.arm} | ${arm.episodes}${arm.skipped ? ` (+${arm.skipped} skipped)` : ""} | ${arm.contractPassed}/${arm.contractEpisodes} | ${pct(arm.passRate)} | ${arm.passAt3 === null ? "n/a" : pct(arm.passAt3)} | ${arm.judgeMean === null ? "n/a" : arm.judgeMean.toFixed(2)} | ${arm.judgeComplete}/${arm.judgeEligible} | ${usd(arm.usdPerEpisode)} | ${usd(arm.usdPerTurn)} | ${arm.creditsPerTurn.toFixed(1)} | ${usd(arm.costPerSuccessfulTask)} | ${pct(arm.measuredShare)} | ${pct(arm.cacheReadShare)} | ${pct(arm.cacheWriteShare)} | ${arm.roundsPerTurn.toFixed(1)} | ${ms(arm.ttftP50Ms)} | ${ms(arm.ttftP95Ms)} | ${ms(arm.wallP50Ms)} | ${ms(arm.wallP95Ms)} | ${pct(arm.lengthFinishShare)} | ${arm.neverSolvedCases.join(" ") || "-"} |`);
   lines.push("", "## Pairwise against the shipped arm (exact sign test on per-case pass rates, Holm-corrected)", "", "| Arm | Cases | Wins | Losses | Ties | Mean diff | p | Holm p | Floor |", "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |");
   for (const comparison of report.comparisons)
     lines.push(`| ${comparison.arm} vs ${comparison.control} | ${comparison.cases} | ${comparison.wins} | ${comparison.losses} | ${comparison.ties} | ${(comparison.meanDifference * 100).toFixed(1)} pts | ${comparison.p.toFixed(3)} | ${comparison.holmP.toFixed(3)} | ${comparison.floor.toFixed(3)} |`);
@@ -211,14 +335,26 @@ export type Selection = { defaultArm: ArmSummary | null; deepArm: ArmSummary | n
 
 export function selectArms(report: BenchmarkReport, eligibleArmIds: ReadonlySet<string>, rule: SelectionRule = DEFAULT_SELECTION_RULE): Selection {
   const reasoning: string[] = [];
-  const shippedNeverSolved = new Set(report.arms.find((arm) => arm.arm === "shipped")?.neverSolvedCases ?? []);
-  const caseCount = Object.keys(report.caseMatrix).length;
+  const currentShipped =
+    report.arms.find(
+      (arm) => arm.arm === "shipped" && arm.runtimeVariant === "current",
+    ) ?? report.arms.find((arm) => arm.arm === "shipped");
+  const shippedNeverSolved = new Set(currentShipped?.neverSolvedCases ?? []);
+  const shippedCoverage = currentShipped?.coverage ?? [];
+  const selectionSourceCommit = currentShipped?.sourceCommit ?? null;
+  const expectedCoverage = JSON.stringify(shippedCoverage);
   const eligible = report.arms.filter((arm) => {
-    const coversEveryCase = arm.episodes >= caseCount;
-    const allowed = eligibleArmIds.has(arm.arm) && arm.measuredShare >= rule.measuredShareMin && coversEveryCase;
+    const coversEveryCase = JSON.stringify(arm.coverage) === expectedCoverage;
+    const hasCompleteJudges =
+      arm.judgeEligible > 0 && arm.judgeComplete === arm.judgeEligible;
+    const currentSource =
+      selectionSourceCommit !== null &&
+      arm.sourceCommit === selectionSourceCommit &&
+      !arm.sourceDirty;
+    const allowed = eligibleArmIds.has(arm.arm) && arm.measuredShare >= rule.measuredShareMin && coversEveryCase && hasCompleteJudges && currentSource;
     if (!allowed)
       reasoning.push(
-        `${arm.runtimeVariant}/${arm.arm}: ineligible (zdr/no-training ${eligibleArmIds.has(arm.arm)}, measured ${(arm.measuredShare * 100).toFixed(0)} %, episodes ${arm.episodes} for ${caseCount} cases)`,
+        `${arm.runtimeVariant}/${arm.arm}: ineligible (zdr/no-training ${eligibleArmIds.has(arm.arm)}, measured ${(arm.measuredShare * 100).toFixed(0)} %, exact repetition coverage ${coversEveryCase}, complete judges ${arm.judgeComplete}/${arm.judgeEligible}, current clean source ${currentSource})`,
       );
     return allowed;
   });
