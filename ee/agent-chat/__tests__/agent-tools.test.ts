@@ -756,6 +756,18 @@ describe("agent tools", () => {
     expect(createSupportTicket).not.toHaveBeenCalled();
   });
 
+  it.each([
+    ["chat", "got no answer in time"],
+    ["routine", "Nobody is watching this run"],
+  ] as const)("words an unanswered approval for the %s surface", async (surface, wording) => {
+    const requestApproval = vi.fn().mockResolvedValue("timeout");
+    const tools = getAgentAiTools(deps({ requestApproval, surface }));
+
+    const result = await execute(tools.request_support, { subject: "Need help", body: "Human please" }, "support-3");
+
+    expect(result).toMatchObject({ agentToolStatus: "cancelled", message: expect.stringContaining(wording) });
+  });
+
   it("gives the model truthful, neutral capability and approval instructions", () => {
     const prompt = buildAgentSystemPrompt({
       userName: "Ada",

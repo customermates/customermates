@@ -64,6 +64,7 @@ export type AgentToolDeps = {
   runExactlyOnce: <T>(toolCallId: string, toolName: string, run: () => Promise<T>) => Promise<T>;
   runInCallerContext: <T>(run: () => Promise<T>) => Promise<T>;
   resultMaxChars: number;
+  surface?: AgentSurface;
 };
 
 function withCallerContext(tools: ToolSet, deps: AgentToolDeps): ToolSet {
@@ -83,11 +84,14 @@ function withCallerContext(tools: ToolSet, deps: AgentToolDeps): ToolSet {
   );
 }
 
-function declineResult(decision: Exclude<ApprovalDecision, "approve">): AgentToolCancellationValue {
+function declineResult(
+  decision: Exclude<ApprovalDecision, "approve">,
+  surface: AgentSurface | undefined,
+): AgentToolCancellationValue {
   return {
     agentToolStatus: "cancelled",
     reason: decision === "reject" ? "rejected" : "timeout",
-    message: approvalDenialReason(decision),
+    message: approvalDenialReason(decision, surface),
   };
 }
 
@@ -99,7 +103,7 @@ async function runGated<T>(
   run: () => Promise<T>,
 ): Promise<T | AgentToolCancellationValue> {
   const decision = await deps.requestApproval(toolCallId, name, input);
-  if (decision !== "approve") return declineResult(decision);
+  if (decision !== "approve") return declineResult(decision, deps.surface);
   return run();
 }
 

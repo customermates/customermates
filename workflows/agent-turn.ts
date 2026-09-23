@@ -236,6 +236,7 @@ function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprov
 
   return {
     resultMaxChars: resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars),
+    surface: payload.surface ?? "chat",
     runInCallerContext: (run) =>
       runAsBackgroundTenant(payload.userId, () =>
         runInRoutineContext(payload.surface === "routine" ? { causationDepth: 1 } : null, run),
@@ -1207,7 +1208,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           messages = result.messages.filter((message) => message.role !== "system");
           continue;
         }
-        await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries);
+        await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries + 1);
         providerStop = "provider_error";
       }
 

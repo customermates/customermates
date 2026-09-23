@@ -588,6 +588,11 @@ describe("agent-turn credit-bounded continuation", () => {
     await runAgentTurn(payload);
 
     expect(state.reportFailure).toHaveBeenCalledTimes(3);
+    expect(state.reportFailure.mock.calls.map((call) => /attempt (\d) of 3/.exec(call[1].message)?.[1])).toEqual([
+      "1",
+      "2",
+      "3",
+    ]);
     expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ stopReason: "provider_error" }));
   });
 
