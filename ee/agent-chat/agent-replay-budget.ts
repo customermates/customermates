@@ -5,7 +5,7 @@ export const AGENT_REPLAY_GROWTH_MESSAGE_BYTES = 2_400;
 export const AGENT_REPLAY_MIN_MESSAGE_BYTES = 300;
 export const AGENT_REPLAY_TRIM_MARKER = "\n[...]\n";
 
-export type AgentReplayInput = { role: string; text: string; budgeted: boolean };
+export type AgentReplayInput = { role: string; text: string; prefix?: string; budgeted: boolean };
 
 export function agentReplayWorstCaseMessageChars() {
   return Math.ceil(AGENT_REPLAY_HISTORY_MAX_BYTES / (AGENT_REPLAY_COUNT - 1));
@@ -66,7 +66,7 @@ export function clampAgentReplayText(text: string, maxBytes: number) {
 }
 
 export function budgetAgentReplayHistory(messages: readonly AgentReplayInput[]): string[] {
-  const costs = messages.map((message) => serializedReplayTextBytes(message.text));
+  const costs = messages.map((message) => serializedReplayTextBytes(`${message.prefix ?? ""}${message.text}`));
   const budgets = messages.map(() => 0);
   let remaining = AGENT_REPLAY_HISTORY_MAX_BYTES;
 
@@ -88,7 +88,11 @@ export function budgetAgentReplayHistory(messages: readonly AgentReplayInput[]):
   for (const index of others) grant(index, AGENT_REPLAY_GROWTH_MESSAGE_BYTES);
   for (const index of newestFirst) grant(index, costs[index]);
 
-  return messages.map((message, index) =>
-    message.budgeted ? clampAgentReplayText(message.text, budgets[index]) : message.text,
-  );
+  return messages.map((message, index) => {
+    const prefix = message.prefix ?? "";
+    if (!message.budgeted) return `${prefix}${message.text}`;
+    const prefixBytes = serializedReplayTextBytes(prefix);
+    if (prefixBytes > budgets[index]) return clampAgentReplayText(message.text, budgets[index]);
+    return `${prefix}${clampAgentReplayText(message.text, budgets[index] - prefixBytes)}`;
+  });
 }

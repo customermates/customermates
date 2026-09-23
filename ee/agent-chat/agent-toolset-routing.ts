@@ -1,4 +1,5 @@
 import { agentViewRequestTarget } from "./agent-page-context";
+import type { AgentContextAttachment } from "./agent-context";
 
 export const AGENT_CORE_TOOLSETS = ["records", "workspace", "docs", "custom-columns", "support"] as const;
 export const AGENT_ON_DEMAND_TOOLSETS = [
@@ -187,11 +188,16 @@ function normalizeText(value: string): string {
   return value.toLocaleLowerCase("en-US").normalize("NFKC");
 }
 
-export function toolsetsForRequest(args: { text: string; pageRoute: string | null }): Set<AgentOnDemandToolset> {
+export function toolsetsForRequest(args: {
+  text: string;
+  pageRoute: string | null;
+  contexts?: readonly AgentContextAttachment[];
+}): Set<AgentOnDemandToolset> {
   const text = normalizeText(args.text);
   const route = args.pageRoute ? normalizeText(args.pageRoute).replace(/^\/[a-z]{2}(?=\/|$)/, "") : "";
   const matched = new Set<AgentOnDemandToolset>();
   if (agentViewRequestTarget(args.pageRoute).kind === "target") matched.add("views");
+  if (args.contexts?.some((context) => context.reference.kind === "dataView")) matched.add("views");
   for (const toolset of AGENT_ON_DEMAND_TOOLSETS) {
     if (TOOLSET_LEXICON[toolset].some((term) => text.includes(term))) matched.add(toolset);
     if (route && TOOLSET_ROUTES[toolset].some((prefix) => route === prefix || route.startsWith(`${prefix}/`)))

@@ -3,6 +3,7 @@ import { createTranslator } from "next-intl";
 import { autorun, observable, runInAction } from "mobx";
 
 import en from "@/i18n/locales/en.json";
+import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
 
 const englishTranslator = createTranslator({
   locale: "en",
@@ -64,6 +65,36 @@ const CONFIG = {
   conversationNextCursor: null,
   archivedConversationNextCursor: null,
 };
+
+const CONTACTS_VIEW_CONTEXT = {
+  reference: {
+    kind: "dataView",
+    surfaceKey: "contacts-card-store",
+    viewKey: "__all__",
+    requestedAction: "update",
+  },
+  label: "All contacts",
+} as const satisfies AgentContextAttachment;
+
+const DEALS_VIEW_CONTEXT = {
+  reference: {
+    kind: "dataView",
+    surfaceKey: "deals-card-store",
+    requestedAction: "create",
+  },
+  label: "New deal view",
+} as const satisfies AgentContextAttachment;
+
+function recordContext(index: number, label = `Contact ${index}`): AgentContextAttachment {
+  return {
+    reference: {
+      kind: "record",
+      entityType: "contact",
+      recordId: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
+    },
+    label,
+  };
+}
 
 function root(
   uiOverrides: Record<string, unknown> = {},
@@ -441,6 +472,131 @@ describe("AgentChatStore", () => {
     expect([...stored.values()]).toEqual(["true"]);
   });
 
+  it("deduplicates composer contexts, replaces the selected data view, and enforces the limit", () => {
+    const store = new AgentChatStore(root() as never);
+
+    store.addComposerContext(CONTACTS_VIEW_CONTEXT);
+    store.addComposerContext(recordContext(1));
+    store.addComposerContext(recordContext(1, "Renamed contact"));
+
+    expect(store.composerContexts).toEqual([CONTACTS_VIEW_CONTEXT, recordContext(1, "Renamed contact")]);
+
+    store.addComposerContext(DEALS_VIEW_CONTEXT);
+    store.addComposerContext(recordContext(2));
+    store.addComposerContext(recordContext(3));
+    store.addComposerContext(recordContext(4));
+    expect(store.composerContexts).toEqual([
+      recordContext(1, "Renamed contact"),
+      DEALS_VIEW_CONTEXT,
+      recordContext(2),
+      recordContext(3),
+      recordContext(4),
+    ]);
+
+    store.addComposerContext(recordContext(5));
+    expect(store.composerContexts).toHaveLength(5);
+    expect(store.composerContexts).not.toContainEqual(recordContext(5));
+  });
+
+  it("prioritizes an exact data-view target when five record contexts are already selected", () => {
+    stubBrowser("/en/contacts");
+    const route = "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update";
+    const store = new AgentChatStore(root() as never);
+    for (let index = 1; index <= 5; index += 1) store.addComposerContext(recordContext(index));
+
+    store.openWithContextDraft({
+      context: CONTACTS_VIEW_CONTEXT,
+      draft: "Update this view",
+      pageRoute: route,
+    });
+
+    expect(store.composerContexts).toEqual([
+      recordContext(2),
+      recordContext(3),
+      recordContext(4),
+      recordContext(5),
+      CONTACTS_VIEW_CONTEXT,
+    ]);
+    expect(store.composerContexts).toHaveLength(5);
+    expect(store.composerDraft).toBe("Update this view");
+  });
+
+  it("opens with context and seeds only a blank composer draft", () => {
+    stubBrowser("/en/contacts");
+    const store = new AgentChatStore(root() as never);
+    store.isHistoryOpen = true;
+
+    store.openWithContextDraft({
+      context: CONTACTS_VIEW_CONTEXT,
+      draft: "Update this view",
+      pageRoute: "/en/contacts?view=__all__&viewSurface=contacts-card-store",
+    });
+
+    expect(store.isOpen).toBe(true);
+    expect(store.isHistoryOpen).toBe(false);
+    expect(store.composerDraft).toBe("Update this view");
+    expect(store.composerContexts).toEqual([CONTACTS_VIEW_CONTEXT]);
+
+    store.setComposerDraft("Keep my unrelated draft");
+    store.openWithContextDraft({
+      context: DEALS_VIEW_CONTEXT,
+      draft: "Create a deal view",
+      pageRoute: "/en/deals?viewSurface=deals-card-store&viewAction=create",
+    });
+
+    expect(store.composerDraft).toBe("Keep my unrelated draft");
+    expect(store.composerContexts).toEqual([DEALS_VIEW_CONTEXT]);
+  });
+
+  it("clears a stale pinned route when replacing a data-view context without a route", () => {
+    stubBrowser("/en/contacts");
+    const store = new AgentChatStore(root() as never);
+    store.addComposerContext(
+      CONTACTS_VIEW_CONTEXT,
+      "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
+    );
+
+    store.addComposerContext(DEALS_VIEW_CONTEXT);
+    store.setComposerDraft("Update the selected view");
+    const send = vi.spyOn(store, "sendMessage").mockResolvedValue(undefined);
+    store.submitDraft();
+
+    expect(send).toHaveBeenCalledWith("Update the selected view", {
+      contexts: [DEALS_VIEW_CONTEXT],
+      pageRoute: "/en/contacts",
+    });
+  });
+
+  it("submits composer contexts with their pinned data-view route and then clears the composer", async () => {
+    stubBrowser("/en/deals");
+    const route = "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update";
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(
+        new Response(
+          'data: {"seq":0,"type":"turn_done","isError":false,"terminalCode":"completed","affectedResources":[]}\n\n',
+          { headers: { "content-type": "text/event-stream" } },
+        ),
+      );
+    const store = new AgentChatStore(root() as never);
+    store.openWithContextDraft({ context: CONTACTS_VIEW_CONTEXT, draft: "Update this view", pageRoute: route });
+
+    store.submitDraft();
+    await vi.waitFor(() => expect(store.isWorking).toBe(false));
+
+    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toMatchObject({
+      text: "Update this view",
+      contexts: [CONTACTS_VIEW_CONTEXT],
+      pageContext: { route },
+    });
+    expect(store.items).toContainEqual(
+      expect.objectContaining({ kind: "user", text: "Update this view", contexts: [CONTACTS_VIEW_CONTEXT] }),
+    );
+    expect(store.composerDraft).toBe("");
+    expect(store.composerContexts).toEqual([]);
+    fetchMock.mockRestore();
+  });
+
   it("keeps an explicitly closed Assistant closed on an empty page", async () => {
     stubBrowser("/en/dashboard");
     const first = new AgentChatStore(root() as never);
@@ -599,6 +755,113 @@ describe("AgentChatStore", () => {
     store.queuedPrompt = "Remove this";
     store.removeQueuedPrompt();
     expect(store.queuedPrompt).toBeNull();
+  });
+
+  it("restores queued contexts and their pinned route when editing the follow-up", () => {
+    stubBrowser("/en/deals");
+    const route = "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update";
+    const store = new AgentChatStore(root() as never);
+    store.isWorking = true;
+    store.addComposerContext(CONTACTS_VIEW_CONTEXT, route, "Update this view");
+
+    store.submitDraft();
+
+    expect(store.queuedPrompt).toBe("Update this view");
+    expect(store.queuedContexts).toEqual([CONTACTS_VIEW_CONTEXT]);
+    expect(store.composerContexts).toEqual([]);
+
+    store.editQueuedPrompt();
+    expect(store.queuedPrompt).toBeNull();
+    expect(store.composerDraft).toBe("Update this view");
+    expect(store.composerContexts).toEqual([CONTACTS_VIEW_CONTEXT]);
+
+    store.isWorking = false;
+    const send = vi.spyOn(store, "sendMessage").mockResolvedValue(undefined);
+    store.submitDraft();
+    expect(send).toHaveBeenCalledWith("Update this view", {
+      contexts: [CONTACTS_VIEW_CONTEXT],
+      pageRoute: route,
+    });
+  });
+
+  it("automatically sends a queued follow-up with its original contexts and pinned route", async () => {
+    stubBrowser("/en/deals");
+    const route = "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update";
+    let resolveFirst!: (response: Response) => void;
+    const completed = () =>
+      new Response(
+        'data: {"seq":0,"type":"turn_done","isError":false,"terminalCode":"completed","affectedResources":[]}\n\n',
+        { headers: { "content-type": "text/event-stream" } },
+      );
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveFirst = resolve;
+          }),
+      )
+      .mockResolvedValueOnce(completed());
+    const store = new AgentChatStore(root() as never);
+
+    const first = store.sendMessage("First request");
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+    store.addComposerContext(CONTACTS_VIEW_CONTEXT, route, "Update this view");
+    store.submitDraft();
+    expect(store.queuedContexts).toEqual([CONTACTS_VIEW_CONTEXT]);
+
+    resolveFirst(completed());
+    await first;
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    await vi.waitFor(() => expect(store.isWorking).toBe(false));
+
+    expect(JSON.parse(String(fetchMock.mock.calls[1]?.[1]?.body))).toMatchObject({
+      text: "Update this view",
+      contexts: [CONTACTS_VIEW_CONTEXT],
+      pageContext: { route },
+    });
+    expect(store.queuedPrompt).toBeNull();
+    expect(store.queuedContexts).toEqual([]);
+    fetchMock.mockRestore();
+  });
+
+  it("retains contexts and the pinned route when retrying a failed turn", async () => {
+    stubBrowser("/en/deals");
+    const route = "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update";
+    const messageId = "00000000-0000-4000-8000-000000000091";
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockRejectedValueOnce(new Error("temporary transport failure"))
+      .mockResolvedValueOnce(
+        new Response(
+          'data: {"seq":0,"type":"turn_done","isError":false,"terminalCode":"completed","affectedResources":[]}\n\n',
+          { headers: { "content-type": "text/event-stream" } },
+        ),
+      );
+    const store = new AgentChatStore(root() as never);
+
+    await store.sendMessage("Update this view", {
+      messageId,
+      contexts: [CONTACTS_VIEW_CONTEXT],
+      pageRoute: route,
+    });
+    const turnError = store.items.find(
+      (item): item is Extract<AgentChatItem, { kind: "turn_error" }> => item.kind === "turn_error",
+    );
+    if (!turnError) throw new Error("Expected a retryable turn error");
+    expect(turnError.contexts).toEqual([CONTACTS_VIEW_CONTEXT]);
+
+    store.retryFailedTurn(turnError);
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    await vi.waitFor(() => expect(store.isWorking).toBe(false));
+
+    expect(JSON.parse(String(fetchMock.mock.calls[1]?.[1]?.body))).toMatchObject({
+      clientRequestId: messageId,
+      text: "Update this view",
+      contexts: [CONTACTS_VIEW_CONTEXT],
+      pageContext: { route },
+    });
+    fetchMock.mockRestore();
   });
 
   it("keeps a blocked draft intact and does not queue or submit it", async () => {
@@ -981,6 +1244,38 @@ describe("AgentChatStore", () => {
     await store.selectConversation(conversationId);
 
     expect(store.items).toMatchObject([{ kind: "user", text: prompt }]);
+  });
+
+  it("hydrates stored context parts onto their user history item", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000092";
+    const selectedRecord = recordContext(92, "Ada Lovelace");
+    actionsMock.getAgentConversationAction.mockResolvedValue({
+      id: conversationId,
+      activeTurn: false,
+      messages: [
+        {
+          id: "00000000-0000-4000-8000-000000000093",
+          role: "user",
+          parts: [
+            { type: "context", context: CONTACTS_VIEW_CONTEXT },
+            { type: "text", text: "Show this contact in the current view" },
+            { type: "context", context: selectedRecord },
+          ],
+        },
+      ],
+      nextCursor: null,
+    });
+    const store = new AgentChatStore(root() as never);
+
+    await store.selectConversation(conversationId);
+
+    expect(store.items).toEqual([
+      expect.objectContaining({
+        kind: "user",
+        text: "Show this contact in the current view",
+        contexts: [CONTACTS_VIEW_CONTEXT, selectedRecord],
+      }),
+    ]);
   });
 
   it("keeps the current transcript and exposes a retry state when history loading fails", async () => {
@@ -2904,6 +3199,7 @@ describe("AgentChatStore", () => {
     ]);
     expect(send).toHaveBeenCalledWith(errorItem.text, {
       appendUser: false,
+      contexts: [],
       messageId: errorItem.messageId,
       pageRoute: errorItem.pageRoute,
       retry: true,

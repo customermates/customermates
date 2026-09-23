@@ -86,7 +86,8 @@ subscription enforces that same ceiling across all turns. A completed episode re
 turn charges, while an interrupted or uncertain episode keeps the conservative reservation.
 
 Artifacts record their schema and fixture version, source commit and dirty state, complete arm and effective model
-configuration, plus every turn's locale, page route, requested model key, server source commit and stream interaction.
+configuration, plus every turn's locale, page route, structured context attachments, requested model key, server source
+commit and stream interaction.
 Historical reports remain evidence for the code, model and suite that produced them; they do not replace a fresh
 `check` on the current tree. The production build compiles its Git source identity into the benchmark-only response
 header. A dirty build is marked `dirty:<commit>`, and a build without verifiable Git metadata is marked `unknown`, so

@@ -66,6 +66,20 @@ describe("agent saved-view context", () => {
     expect(context.route("/en/contacts")).toBe("/en/contacts");
   });
 
+  it("falls back to the mounted page owner when a temporary owner for the same page becomes invalid", async () => {
+    const context = new AgentViewContext();
+    const pagePrepare = vi.fn(() => Promise.resolve());
+    const temporaryPrepare = vi.fn(() => Promise.resolve());
+    context.register("/en/contacts", () => ({ surfaceKey: SURFACE.contacts, viewKey: VIEW_ID }), pagePrepare);
+    context.register("/en/contacts", () => null, temporaryPrepare);
+
+    const route = context.route("/en/contacts");
+    expect(route).toContain(`view=${VIEW_ID}`);
+    await context.prepare(route);
+    expect(pagePrepare).toHaveBeenCalledOnce();
+    expect(temporaryPrepare).not.toHaveBeenCalled();
+  });
+
   it("does not fall back to a stale page under a newer owner, or revive an owner already removed", () => {
     const context = new AgentViewContext();
     const releaseOld = context.register("/en/contacts", () => ({ surfaceKey: SURFACE.contacts, viewKey: VIEW_ID }));

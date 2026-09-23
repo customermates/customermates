@@ -49,6 +49,9 @@ describe("system prompt", () => {
     const routine = buildAgentSystemPrompt({ ...base, surface: "routine" });
 
     expect(chat).toContain("page_context includes requestedAction");
+    expect(chat).toContain("Each selected_context block is exact context the user selected");
+    expect(chat).toContain("use its canonical identifiers and requestedAction");
+    expect(chat).toContain("never reproduce the markup");
     expect(chat).toContain("linked-record filters never change that target");
     expect(chat).toContain("never create or change a custom field to make a saved-view request possible");
     expect(chat).toContain("say it is unavailable and leave the view unchanged");
@@ -57,6 +60,7 @@ describe("system prompt", () => {
     expect(chat).toContain("update All only when they explicitly ask to change All");
     expect(chat).toContain("do not repeat or construct their URLs in prose");
     expect(routine).not.toContain("page_context includes requestedAction");
+    expect(routine).not.toContain("selected_context block");
     expect(routine).not.toContain("never create or change a custom field to make a saved-view request possible");
   });
 

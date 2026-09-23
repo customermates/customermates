@@ -23,6 +23,12 @@ import {
   type SendAgentMessageData,
   partsToText,
 } from "./agent-chat.schema";
+import {
+  agentContextAttachmentsEqual,
+  agentContextProviderPrefix,
+  agentContextsFromMessageParts,
+  type AgentContextAttachment,
+} from "./agent-context";
 import type { AgentRunContext } from "./agent-run-context";
 import type { AgentUsageService } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
@@ -127,13 +133,19 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
     const replay = await this.repo.findAgentTurnRequestForAdmission(data.clientRequestId, now, model.modelId);
     const pageRoute = data.pageContext?.route ?? null;
-    const decision = decideAgentTurnAdmission(replay?.snapshot ?? null, {
-      clientRequestId: data.clientRequestId,
-      conversationId: data.conversationId,
-      text: data.text,
-      pageRoute,
-      retry: data.retry,
-    });
+    const contexts: AgentContextAttachment[] = data.contexts ?? [];
+    const contextsChanged =
+      replay !== null &&
+      !agentContextAttachmentsEqual(agentContextsFromMessageParts(replay.userMessageParts), contexts);
+    const decision = contextsChanged
+      ? ({ disposition: "conflict" } as const)
+      : decideAgentTurnAdmission(replay?.snapshot ?? null, {
+          clientRequestId: data.clientRequestId,
+          conversationId: data.conversationId,
+          text: data.text,
+          pageRoute,
+          retry: data.retry,
+        });
 
     if (decision.disposition === "completed") {
       const assistantMessage = replay?.assistantMessage;
@@ -232,7 +244,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
     const locale = data.locale ?? resolveUserLocale(user);
-    const requestedToolsets = toolsetsForRequest({ text: data.text, pageRoute });
+    const requestedToolsets = toolsetsForRequest({ text: data.text, pageRoute, contexts });
     const schemaDigest = await this.schemaDigest();
     const requiredContextBytes = conservativeAgentInitialContextBytes({
       systemPrompt: buildAgentSystemPrompt({
@@ -243,6 +255,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         schemaDigest,
       }),
       currentText: data.text,
+      contexts,
       pageRoute,
       toolDefinitions: agentToolDefinitionsForTurn({ servingProvider: turnModel.servingProvider, surface }),
     });
@@ -354,6 +367,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
                 turnRequestId,
                 clientRequestId: data.clientRequestId,
                 text: data.text,
+                contexts,
                 pageRoute,
                 userMessageId,
               },
@@ -362,15 +376,24 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       const priorToolsets = toolsetsFromActivities(activitiesInMessages(admission.recentMessages));
       const earlierRequestToolsets = admission.recentMessages
         .filter((message) => message.role === "user")
-        .flatMap((message) => [...toolsetsForRequest({ text: partsToText(message.parts), pageRoute: null })]);
+        .flatMap((message) => [
+          ...toolsetsForRequest({
+            text: partsToText(message.parts),
+            pageRoute: null,
+            contexts: agentContextsFromMessageParts(message.parts),
+          }),
+        ]);
       const toolsets = [...new Set([...requestedToolsets, ...priorToolsets, ...earlierRequestToolsets])];
       const pageContext = agentPageContextPrefix(pageRoute);
       const replayInputs = admission.recentMessages.map((message) => {
         const text = partsToText(message.parts);
         const current = message.id === userMessageId;
+        const selectedContexts =
+          message.role === "user" ? agentContextProviderPrefix(agentContextsFromMessageParts(message.parts)) : "";
         return {
           role: message.role as string,
-          text: current ? `${pageContext}${text}` : text,
+          prefix: current ? `${pageContext}${selectedContexts}` : selectedContexts,
+          text,
           budgeted: !current,
         };
       });

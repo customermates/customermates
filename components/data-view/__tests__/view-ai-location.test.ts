@@ -26,7 +26,7 @@ describe("Ask AI location", () => {
         "Customers",
       );
       expect(viewAiLocation(SURFACE.entityTimeline, translate as (key: string) => string, () => "Contacts")).toBe(
-        messages.DataView.views.aiRequest.timelineLocation,
+        messages.AgentChat.context.timelineLocation,
       );
     },
   );

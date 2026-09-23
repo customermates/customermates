@@ -27,6 +27,7 @@ import { useEntityTerminology } from "@/components/entity-terminology/use-entity
 import { cn } from "@/core/utils/cn";
 import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 import { ActionTooltip, ItemTime, TypingDots, chatUiCopy, focusAgentComposer } from "./chat-ui";
+import { AgentComposerContexts } from "./agent-composer-contexts";
 
 export function useAgentActivityTerminology(): Partial<Record<AgentActivityResource, string>> {
   const { plural } = useEntityTerminology();
@@ -67,8 +68,10 @@ export const AgentChatItemView = observer(function AgentChatItemView({
         <div className="flex max-w-[85%] flex-col items-end gap-1">
           {userLabel && <span className="text-subdued text-xs">{userLabel}</span>}
 
-          <div className="w-fit min-w-16 rounded-xl rounded-br-md bg-muted px-3.5 py-2 text-sm whitespace-pre-wrap shadow-xs dark:bg-accent/60">
-            {item.text}
+          <div className="flex w-fit min-w-16 flex-col gap-1.5 rounded-xl rounded-br-md bg-muted px-3.5 py-2 text-sm shadow-xs dark:bg-accent/60">
+            <AgentComposerContexts contexts={item.contexts ?? []} />
+
+            <span className="whitespace-pre-wrap">{item.text}</span>
           </div>
 
           <ItemTime at={item.at} />

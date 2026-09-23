@@ -106,7 +106,6 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   const ai = useViewAi(store, {
     registerPageContext: false,
     entry: "appearance",
-    getTrigger: () => triggerRef.current,
   });
   const pendingAi = useRef<(() => void) | null>(null);
   const columnLabel = useColumnLabel();
@@ -375,11 +374,5 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
     </ResponsiveOverlay>
   );
 
-  return (
-    <>
-      {overlay}
-
-      {ai.dialog}
-    </>
-  );
+  return overlay;
 });

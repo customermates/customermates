@@ -14,7 +14,7 @@ const LOCATIONS: Record<DataViewSurfaceKey, { entity: EntityType } | { labelKey:
   [SURFACE.webhookDeliveries]: { labelKey: "WebhookDeliveriesCard.title" },
   [SURFACE.auditLogs]: { labelKey: "AuditLogsCard.title" },
   [SURFACE.messagingThreads]: { labelKey: "NavigationBar.inbox" },
-  [SURFACE.entityTimeline]: { labelKey: "DataView.views.aiRequest.timelineLocation" },
+  [SURFACE.entityTimeline]: { labelKey: "AgentChat.context.timelineLocation" },
   [SURFACE.operatorUsers]: { labelKey: "OperatorUsers.navigation" },
   [SURFACE.operatorWorkspaces]: { labelKey: "OperatorWorkspaces.navigation" },
   [SURFACE.operatorAudit]: { labelKey: "OperatorAudit.navigation" },

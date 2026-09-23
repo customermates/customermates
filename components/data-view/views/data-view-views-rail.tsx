@@ -66,10 +66,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
   const pendingAi = useRef<(() => void) | null>(null);
   const menuTriggerRef = useRef<HTMLButtonElement>(null);
   const createTriggerRef = useRef<HTMLButtonElement>(null);
-  const ai = useViewAi(store, {
-    getTrigger: () => menuTriggerRef.current,
-    getCreateTrigger: () => createTriggerRef.current,
-  });
+  const ai = useViewAi(store);
   const offersViews = Boolean(store.p13nId);
 
   const commands = useViewCommands({
@@ -275,8 +272,6 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
       <span aria-live="polite" className="sr-only">
         {t("DataView.views.applied", { name: activeName })}
       </span>
-
-      {ai.dialog}
     </nav>
   );
 });

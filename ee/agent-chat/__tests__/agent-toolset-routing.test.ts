@@ -78,6 +78,26 @@ describe("toolsetsForRequest", () => {
     ]).toEqual(["views"]);
   });
 
+  it("routes a selected data view context without relying on localized prompt text", () => {
+    expect([
+      ...toolsetsForRequest({
+        text: "Bitte so ändern",
+        pageRoute: null,
+        contexts: [
+          {
+            reference: {
+              kind: "dataView",
+              surfaceKey: "contacts-card-store",
+              viewKey: "11111111-1111-4111-8111-111111111111",
+              requestedAction: "update",
+            },
+            label: "Qualifizierte Kontakte",
+          },
+        ],
+      }),
+    ]).toEqual(["views"]);
+  });
+
   it("keeps a plain records question on the core set", () => {
     expect(toolsetsForRequest({ text: "How many open deals do we have?", pageRoute: "/en/deals" }).size).toBe(0);
   });

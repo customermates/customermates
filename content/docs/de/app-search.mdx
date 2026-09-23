@@ -1,13 +1,13 @@
 ---
 title: "Globale Suche"
-description: "Das Cmd/Ctrl+K-Suchmodal: welche Datensatztypen es durchsucht, seine stabilen Ids, wo ein Ergebnis öffnet und wo Aufgaben und Nachrichten stattdessen liegen."
+description: "Das Cmd/Ctrl+K-Suchmodal: welche Datensatztypen es durchsucht, seine stabilen Ids, wo ein Ergebnis öffnet und wo Nachrichten stattdessen liegen."
 ---
 
 Die globale Suche ist ein Modal, keine Seite: Sie öffnet überall in der App mit **Cmd/Ctrl+K** oder über `#nav-search` (**Suchen**) in der Sidebar. Diese Seite dokumentiert sie für Menschen und für KI-Agents, die die UI steuern.
 
 ## Was findet die globale Suche?
 
-Das Modal durchsucht **Kontakte, Organisationen, Deals und Services** nach Name und verwandten Feldern, bis zu 50 Treffer pro Datensatztyp, und zeigt vor der Eingabe eine Gruppe **Zuletzt geöffnet**. Aufgaben sind nicht Teil der globalen Suche: Sie finden sie auf `/tasks` über die Listensuche und Filter oder mit dem MCP-Tool `list_records`. Nachrichten werden ebenfalls nicht durchsucht; der Posteingang hat seine eigene Suche.
+Das Modal durchsucht **Kontakte, Organisationen, Deals, Services und Aufgaben** nach Name und verwandten Feldern, bis zu 50 Treffer pro Datensatztyp, und zeigt vor der Eingabe eine Gruppe **Zuletzt geöffnet**. Nachrichten werden nicht durchsucht; der Posteingang hat seine eigene Suche.
 
 Die Auswahl eines Ergebnisses öffnet die Detailseite des Datensatzes unter `/{type}/{id}`. Um stattdessen einen Datensatz anzulegen, nutzen Sie das Steuerelement **Hinzufügen** seiner Listenseite oder den Deep-Link `?open={entityType}:new`, dokumentiert in [CRM-Datensätze](/docs/app-records).
 
@@ -23,9 +23,6 @@ Für einen Agent passiert die Eingabe nach dem Öffnen des Modals in `#global-se
 ## Häufige Fragen
 
 <Faq>
-<FaqItem question="Warum taucht eine Aufgabe nicht in der globalen Suche auf?">
-Aufgaben sind nicht Teil der globalen Suche. Sie finden sie in der Aufgabenliste über deren Suche und Filter oder über das MCP-Tool `list_records`.
-</FaqItem>
 <FaqItem question="Was ist das Tastenkürzel?">
 Cmd+K auf macOS, sonst Ctrl+K, überall in der App. Der Sidebar-Trigger öffnet dasselbe Modal.
 </FaqItem>

@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
+
 import { armById } from "../arms";
 import { benchmarkCaseModelSelection } from "../episode";
 import { BENCHMARK_CASES } from "../fixtures";
@@ -37,10 +39,57 @@ describe("unified benchmark registry", () => {
 
   it("covers view context and preserves the explicit fast-model pin contract", () => {
     const byId = new Map(BENCHMARK_CASES.map((definition) => [definition.id, definition]));
+    expect(byId.get("V37")?.contexts?.[0]).toEqual({
+      pageRoute: `/en/contacts?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.contacts}&viewAction=update`,
+      contexts: [
+        {
+          label: "View: All",
+          reference: {
+            kind: "dataView",
+            surfaceKey: SURFACE.contacts,
+            viewKey: ALL_VIEW_KEY,
+            requestedAction: "update",
+          },
+        },
+      ],
+    });
     expect(byId.get("V39")?.contexts?.[0]?.pageRoute).toContain("?view={view}&");
-    expect(byId.get("V41")?.contexts?.[0]).toMatchObject({
+    expect(byId.get("V40")?.contexts?.[0]).toMatchObject({
+      pageRoute: expect.stringContaining("viewAction=create"),
+      contexts: [
+        {
+          label: "New view: Contacts with deals",
+          reference: {
+            kind: "dataView",
+            surfaceKey: SURFACE.contacts,
+            proposedName: "Contacts with deals",
+            requestedAction: "create",
+          },
+        },
+      ],
+    });
+    expect(byId.get("V41")?.contexts?.[0]).toEqual({
       locale: "de",
-      pageRoute: expect.stringContaining("/de/contacts/{contact}"),
+      pageRoute: `/de/contacts/{contact}?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.entityTimeline}&viewAction=update`,
+      contexts: [
+        {
+          label: "Ansicht: Alle",
+          reference: {
+            kind: "dataView",
+            surfaceKey: SURFACE.entityTimeline,
+            viewKey: ALL_VIEW_KEY,
+            requestedAction: "update",
+          },
+        },
+        {
+          label: "Kontakt: Ada Lovelace",
+          reference: {
+            kind: "record",
+            entityType: "contact",
+            recordId: "{contact}",
+          },
+        },
+      ],
     });
     expect(byId.get("V40")?.prompts[0]).toContain("set the search text to View");
     expect(byId.get("V40")?.prompts[0]).toContain("group them by creation month");

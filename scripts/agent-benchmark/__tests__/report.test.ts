@@ -8,6 +8,7 @@ import type { EpisodeArtifact } from "../episode";
 
 import { armById } from "../arms";
 import { worstCaseEpisodeCredits } from "../campaign";
+import { ARTIFACT_SCHEMA_VERSION } from "../episode";
 import { JUDGE_MODELS, type JudgeVerdict } from "../judge";
 import {
   benchmarkReportDirectoryName,
@@ -53,7 +54,7 @@ function completeJudge(mean: number): JudgeVerdict {
 function artifact(arm: string, caseId: string, repetition: number, passed: boolean, usd: number, wallMs: number, judge: number): EpisodeArtifact {
   const armConfig = { ...armById("shipped"), id: arm, label: arm };
   return {
-    schemaVersion: 4,
+    schemaVersion: ARTIFACT_SCHEMA_VERSION,
     fixtureVersion: "chat-benchmark-fixture-v4",
     sourceCommit: "source-commit",
     sourceDirty: false,
@@ -76,7 +77,7 @@ function artifact(arm: string, caseId: string, repetition: number, passed: boole
     comparative: true,
     judgeable: true,
     mergeRequired: false,
-    turns: [{ index: 0, prompt: "p", conversationId: "x", status: 200, timing: { firstFrameMs: 500, firstDeltaMs: 1200, lastFrameMs: wallMs }, wallMs, terminal: null, request: { locale: "en", pageRoute: "/en/contacts", modelKey: "bench:test" }, serverSourceCommit: "source-commit", uiCommands: [], approvals: [], streamEvents: [], frameSeqs: [0, 1, 2], detached: false, reattached: false, resumedFrameCount: 0, resumedDeltaText: "", cancelRequested: false, leaseProbe: null, frameCount: 3, error: null }],
+    turns: [{ index: 0, prompt: "p", conversationId: "x", status: 200, timing: { firstFrameMs: 500, firstDeltaMs: 1200, lastFrameMs: wallMs }, wallMs, terminal: null, request: { locale: "en", pageRoute: "/en/contacts", contexts: [], modelKey: "bench:test" }, serverSourceCommit: "source-commit", uiCommands: [], approvals: [], streamEvents: [], frameSeqs: [0, 1, 2], detached: false, reattached: false, resumedFrameCount: 0, resumedDeltaText: "", cancelRequested: false, leaseProbe: null, frameCount: 3, error: null }],
     observed: [{ text: "answer", tools: [], terminalCode: "completed" }],
     metrics: { turns: [{ id: "t", status: "completed", terminalCode: "completed", stopReason: null, modelSpec: "m", servingProvider: "p", createdAt: "2026-09-13T00:00:00.000Z", providerStartedAt: null, terminalAt: null }], rounds: [{ turnRequestId: "t", roundIndex: 0, inputTokens: 1000, outputTokens: 100, cacheReadTokens: 500, cacheWriteTokens: 0, reasoningTokens: 0, costMicrocents: "1", finishReason: "stop", createdAt: "2026-09-13T00:00:00.000Z" }] },
     usage: [{ turnRequestId: "t", costMicrocents: String(Math.round(usd * 100_000_000)), costSource: "measured", chargedCredits: Math.max(1, Math.ceil(usd * 100)), state: "settled", model: "m" }],

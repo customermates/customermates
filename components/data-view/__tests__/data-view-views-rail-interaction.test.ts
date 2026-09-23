@@ -13,9 +13,15 @@ const harness = vi.hoisted(() => ({
   agent: {
     enabled: true,
     composerDraft: "",
+    composerContexts: [] as unknown[],
+    contextRegistry: {
+      candidates: vi.fn(() => []),
+      register: vi.fn(() => vi.fn()),
+    },
+    addComposerContext: vi.fn(),
     open: vi.fn(),
     openWithDraft: vi.fn<(draft: string) => void>(),
-    sendMessage: vi.fn<(text: string, options?: { pageRoute: string }) => Promise<void>>(),
+    openWithContextDraft: vi.fn(),
     viewContext: { register: vi.fn(() => vi.fn()) },
   },
   appMode: { current: "cloud" as "cloud" | "demo" | "self-hosted" },
@@ -25,7 +31,6 @@ const harness = vi.hoisted(() => ({
   menuOpen: false,
   menuCloseAutoFocus: { current: undefined as ((event: Event) => void) | undefined },
   overlayCloseAutoFocus: { current: undefined as ((event: Event) => void) | undefined },
-  requestCloseAutoFocus: { current: undefined as ((event: Event) => void) | undefined },
   routerPush: vi.fn(),
   searchParams: { current: "" },
   upsertDataViewAction: vi.fn(),
@@ -122,21 +127,6 @@ vi.mock("@/components/ui/dropdown-menu", () => ({
     "aria-label"?: string;
   }) => createElement("button", { ...props, disabled, onClick: onSelect, type: "button" }, children),
   DropdownMenuTrigger: ({ children }: { children: ReactNode }) => children,
-}));
-
-vi.mock("@/components/modal/app-modal", () => ({
-  AppModal: ({
-    children,
-    open,
-    onCloseAutoFocus,
-  }: {
-    children: ReactNode;
-    open: boolean;
-    onCloseAutoFocus?: (event: Event) => void;
-  }) => {
-    harness.requestCloseAutoFocus.current = onCloseAutoFocus;
-    return open ? createElement("section", { "data-request-dialog": "" }, children) : null;
-  },
 }));
 
 vi.mock("@/app/components/agent-chat/chat-ui", () => ({ focusAgentComposer: vi.fn() }));
@@ -245,32 +235,6 @@ async function submitMetaForm(host: HTMLElement): Promise<void> {
   });
 }
 
-function typeRequest(host: HTMLElement, value: string): void {
-  const input = host.querySelector<HTMLTextAreaElement>("#view-ai-request-input");
-  if (!input) throw new Error("Missing request input");
-  act(() => {
-    const descriptor = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value");
-    descriptor?.set?.call(input, value);
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-  });
-}
-
-function submitRequest(host: HTMLElement): void {
-  const form = host.querySelector<HTMLFormElement>("#view-ai-request-form");
-  if (!form) throw new Error("Missing request form");
-  act(() => {
-    form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
-  });
-}
-
-function finishRequestClose(): Event {
-  const callback = harness.requestCloseAutoFocus.current;
-  if (!callback) throw new Error("Missing request close callback");
-  const event = new Event("closeAutoFocus", { cancelable: true });
-  act(() => callback(event));
-  return event;
-}
-
 function press(target: HTMLElement, key: string): void {
   act(() => {
     target.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key }));
@@ -284,12 +248,18 @@ function swallowNavigation(event: Event): void {
 beforeEach(() => {
   harness.agent.enabled = true;
   harness.agent.composerDraft = "";
+  harness.agent.composerContexts = [];
   harness.agent.open.mockReset();
   harness.agent.openWithDraft.mockReset().mockImplementation((draft) => {
     harness.agent.composerDraft = draft;
   });
-  harness.agent.sendMessage.mockReset().mockResolvedValue(undefined);
-  harness.requestCloseAutoFocus.current = undefined;
+  harness.agent.openWithContextDraft.mockReset().mockImplementation(({ context, draft }) => {
+    harness.agent.composerContexts = [context];
+    if (!harness.agent.composerDraft.trim()) harness.agent.composerDraft = draft;
+  });
+  harness.agent.addComposerContext.mockReset();
+  harness.agent.contextRegistry.candidates.mockReset().mockReturnValue([]);
+  harness.agent.contextRegistry.register.mockClear();
   harness.agent.viewContext.register.mockClear();
   harness.overlayCloseAutoFocus.current = undefined;
   vi.mocked(focusAgentComposer).mockClear();
@@ -342,54 +312,48 @@ describe("data view rail interaction", () => {
     },
   );
 
-  it("asks for a selected view's instructions before sending once through chat", () => {
+  it("opens chat with the selected view attached and does not send", () => {
     const host = render(store({ activeViewKey: OPEN.id }));
     const button = host.querySelector<HTMLButtonElement>("#global-data-views-ai");
     expect(button?.getAttribute("aria-label")).toBe("DataView.views.aiLabel(Open deals)");
-    expect(button?.closest("[data-view-menu]")).not.toBeNull();
+
     act(() => button?.click());
-    expect(host.querySelector("#view-ai-request-input")).toBeNull();
-    act(() => harness.menuCloseAutoFocus.current?.(new Event("closeAutoFocus", { cancelable: true })));
-    expect(host.querySelector('label[for="view-ai-request-input"]')?.textContent).toBe(
-      "DataView.views.aiRequest.viewLabel",
-    );
-    expect(host.textContent).toContain("DataView.views.aiRequest.existingContext(Open deals,deals)");
-    expect(harness.agent.openWithDraft).not.toHaveBeenCalled();
-    expect(harness.agent.sendMessage).not.toHaveBeenCalled();
-    expect(focusAgentComposer).not.toHaveBeenCalled();
-    expect(harness.agent.viewContext.register).toHaveBeenCalledOnce();
-    typeRequest(host, "  Keep only open deals.  ");
-    submitRequest(host);
-    expect(host.querySelector("#view-ai-request-input")).toBeNull();
-    expect(harness.agent.sendMessage).not.toHaveBeenCalled();
-    expect(finishRequestClose().defaultPrevented).toBe(true);
-    expect(harness.agent.openWithDraft).toHaveBeenCalledExactlyOnceWith("");
-    expect(harness.agent.sendMessage).toHaveBeenCalledExactlyOnceWith(
-      "DataView.views.aiRequest.contextPrompt(deals)\nDataView.views.aiEditPrompt(Open deals)\n\nKeep only open deals.",
-      { pageRoute: `/en/deals?view=${OPEN.id}&viewSurface=deals-card-store&viewAction=update` },
-    );
+    expect(harness.agent.openWithContextDraft).not.toHaveBeenCalled();
+    const closeEvent = new Event("closeAutoFocus", { cancelable: true });
+    act(() => harness.menuCloseAutoFocus.current?.(closeEvent));
+
+    expect(closeEvent.defaultPrevented).toBe(true);
+    expect(harness.agent.openWithContextDraft).toHaveBeenCalledExactlyOnceWith({
+      context: {
+        label: "AgentChat.context.viewLabel(Open deals)",
+        reference: {
+          kind: "dataView",
+          requestedAction: "update",
+          surfaceKey: SURFACE.deals,
+          viewKey: OPEN.id,
+        },
+      },
+      draft: "AgentChat.context.starter.update(Open deals)",
+      pageRoute: `/en/deals?view=${OPEN.id}&viewSurface=${SURFACE.deals}&viewAction=update`,
+    });
     expect(focusAgentComposer).toHaveBeenCalledOnce();
     expect(harness.agent.viewContext.register).toHaveBeenCalledTimes(2);
-    expect(finishRequestClose().defaultPrevented).toBe(false);
-    expect(harness.agent.sendMessage).toHaveBeenCalledOnce();
   });
 
-  it("edits All and preserves an existing chat draft without sending it", () => {
+  it("attaches All without replacing an unrelated composer draft", () => {
     const host = render(store());
     harness.agent.composerDraft = "Keep my unfinished request";
     act(() => host.querySelector<HTMLButtonElement>("#global-data-views-ai")?.click());
     act(() => harness.menuCloseAutoFocus.current?.(new Event("closeAutoFocus", { cancelable: true })));
-    expect(host.textContent).toContain("DataView.views.aiRequest.existingContext(DataView.views.all,deals)");
-    expect(host.querySelector<HTMLTextAreaElement>("#view-ai-request-input")?.value).toBe("");
-    expect(harness.agent.sendMessage).not.toHaveBeenCalled();
-    typeRequest(host, "Keep only open deals.");
-    submitRequest(host);
-    finishRequestClose();
-    expect(harness.agent.openWithDraft).toHaveBeenCalledExactlyOnceWith("Keep my unfinished request");
+
     expect(harness.agent.composerDraft).toBe("Keep my unfinished request");
-    expect(harness.agent.sendMessage).toHaveBeenCalledExactlyOnceWith(
-      "DataView.views.aiRequest.contextPrompt(deals)\nDataView.views.aiEditPrompt(DataView.views.all)\n\nKeep only open deals.",
-      { pageRoute: `/en/deals?view=${ALL_VIEW_KEY}&viewSurface=deals-card-store&viewAction=update` },
+    expect(harness.agent.openWithContextDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        context: expect.objectContaining({
+          label: "AgentChat.context.viewLabel(DataView.views.all)",
+          reference: expect.objectContaining({ viewKey: ALL_VIEW_KEY }),
+        }),
+      }),
     );
   });
 
@@ -404,9 +368,13 @@ describe("data view rail interaction", () => {
   });
 
   it.each([
-    ["", "DataView.views.aiCreatePrompt"],
-    ["  Qualified leads  ", "DataView.views.aiCreateNamedPrompt(Qualified leads)"],
-  ])("carries the optional name %j into the instructions submitted from the second dialog", (name, prefix) => {
+    ["", "AgentChat.context.newViewLabel(deals)", "AgentChat.context.starter.create"],
+    [
+      "  Qualified leads  ",
+      "AgentChat.context.namedNewViewLabel(Qualified leads)",
+      "AgentChat.context.starter.createNamed(Qualified leads)",
+    ],
+  ])("carries the optional name %j into the attached create-view context", (name, label, draft) => {
     const value = store({ activeViewKey: OPEN.id });
     const host = render(value);
     act(() => host.querySelector<HTMLButtonElement>("#global-data-views-new")?.click());
@@ -416,58 +384,25 @@ describe("data view rail interaction", () => {
     expect(action?.disabled).toBe(false);
     act(() => action?.click());
     expect(host.querySelector("#view-editor-name")).toBeNull();
-    expect(host.querySelector("#view-ai-request-input")).toBeNull();
     const closeEvent = new Event("closeAutoFocus", { cancelable: true });
     act(() => harness.overlayCloseAutoFocus.current?.(closeEvent));
     expect(closeEvent.defaultPrevented).toBe(true);
-    expect(host.textContent).toContain(
-      name.trim()
-        ? "DataView.views.aiRequest.namedContext(Qualified leads,deals)"
-        : "DataView.views.aiRequest.newContext",
-    );
-    expect(host.querySelector('label[for="view-ai-request-input"]')?.textContent).toBe(
-      "DataView.views.aiRequest.createLabel",
-    );
-    expect(harness.agent.sendMessage).not.toHaveBeenCalled();
-    expect(focusAgentComposer).not.toHaveBeenCalled();
-    typeRequest(host, "Show qualified leads with ten rows.");
-    submitRequest(host);
-    expect(harness.agent.sendMessage).not.toHaveBeenCalled();
-    finishRequestClose();
-    expect(harness.agent.sendMessage).toHaveBeenCalledExactlyOnceWith(
-      `DataView.views.aiRequest.contextPrompt(deals)\n${prefix}\n\nShow qualified leads with ten rows.`,
-      { pageRoute: `/en/deals?view=${OPEN.id}&viewSurface=deals-card-store&viewAction=create` },
-    );
+    expect(harness.agent.openWithContextDraft).toHaveBeenCalledExactlyOnceWith({
+      context: {
+        label,
+        reference: {
+          kind: "dataView",
+          ...(name.trim() ? { proposedName: name.trim() } : {}),
+          requestedAction: "create",
+          surfaceKey: SURFACE.deals,
+        },
+      },
+      draft,
+      pageRoute: `/en/deals?view=${OPEN.id}&viewSurface=${SURFACE.deals}&viewAction=create`,
+    });
     expect(focusAgentComposer).toHaveBeenCalledOnce();
     expect(harness.upsertDataViewAction).not.toHaveBeenCalled();
     expect(value.applyView).not.toHaveBeenCalled();
-    const laterEvent = new Event("closeAutoFocus", { cancelable: true });
-    act(() => harness.overlayCloseAutoFocus.current?.(laterEvent));
-    expect(laterEvent.defaultPrevented).toBe(false);
-    expect(finishRequestClose().defaultPrevented).toBe(false);
-    expect(harness.agent.sendMessage).toHaveBeenCalledOnce();
-  });
-
-  it("starts each new request empty and leaves the existing composer unchanged across repeated creation requests", () => {
-    const host = render(store({ activeViewKey: OPEN.id }));
-    harness.agent.composerDraft = "An unrelated unfinished request";
-    for (let attempt = 0; attempt < 2; attempt++) {
-      act(() => host.querySelector<HTMLButtonElement>("#global-data-views-new")?.click());
-      typeInto(host.querySelector<HTMLInputElement>("#view-editor-name"), "Qualified leads");
-      act(() => host.querySelector<HTMLButtonElement>("#view-editor-ai")?.click());
-      act(() => harness.overlayCloseAutoFocus.current?.(new Event("closeAutoFocus", { cancelable: true })));
-      expect(host.querySelector<HTMLTextAreaElement>("#view-ai-request-input")?.value).toBe("");
-      typeRequest(host, `Request ${attempt + 1}.`);
-      submitRequest(host);
-      finishRequestClose();
-      expect(harness.agent.sendMessage).toHaveBeenLastCalledWith(
-        `DataView.views.aiRequest.contextPrompt(deals)\nDataView.views.aiCreateNamedPrompt(Qualified leads)\n\nRequest ${attempt + 1}.`,
-        { pageRoute: `/en/deals?view=${OPEN.id}&viewSurface=deals-card-store&viewAction=create` },
-      );
-      expect(harness.agent.composerDraft).toBe("An unrelated unfinished request");
-    }
-    expect(harness.agent.sendMessage).toHaveBeenCalledTimes(2);
-    expect(harness.upsertDataViewAction).not.toHaveBeenCalled();
   });
 
   it.each(["DataView.views.editTitle", "DataView.views.duplicate"])("keeps %s on its existing manual flow", (label) => {
@@ -487,31 +422,20 @@ describe("data view rail interaction", () => {
     const event = new Event("closeAutoFocus", { cancelable: true });
     act(() => harness.overlayCloseAutoFocus.current?.(event));
     expect(event.defaultPrevented).toBe(true);
-    expect(host.textContent).toContain("DataView.views.aiRequest.existingContext(Open deals,deals)");
-    expect(host.textContent).not.toContain("DataView.views.aiRequest.existingContext(Unfinished name,deals)");
-    expect(harness.agent.sendMessage).not.toHaveBeenCalled();
-    typeRequest(host, "Sort by name.");
-    submitRequest(host);
-    finishRequestClose();
-    expect(harness.agent.sendMessage).toHaveBeenCalledExactlyOnceWith(
-      "DataView.views.aiRequest.contextPrompt(deals)\nDataView.views.aiEditPrompt(Open deals)\n\nSort by name.",
-      { pageRoute: `/en/deals?view=${OPEN.id}&viewSurface=deals-card-store&viewAction=update` },
+    expect(harness.agent.openWithContextDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        context: expect.objectContaining({
+          label: "AgentChat.context.viewLabel(Open deals)",
+          reference: expect.objectContaining({ viewKey: OPEN.id }),
+        }),
+      }),
+    );
+    expect(harness.agent.openWithContextDraft).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        context: expect.objectContaining({ label: expect.stringContaining("Unfinished name") }),
+      }),
     );
     expect(harness.upsertDataViewAction).not.toHaveBeenCalled();
-  });
-
-  it("cancels a typed AI request without opening chat or replacing its existing draft", () => {
-    const host = render(store({ activeViewKey: OPEN.id }));
-    harness.agent.composerDraft = "Keep this draft";
-    act(() => host.querySelector<HTMLButtonElement>("#global-data-views-ai")?.click());
-    act(() => harness.menuCloseAutoFocus.current?.(new Event("closeAutoFocus", { cancelable: true })));
-    typeRequest(host, "Cancelled view change.");
-    act(() => host.querySelector<HTMLButtonElement>("#view-ai-request-cancel")?.click());
-    expect(finishRequestClose().defaultPrevented).toBe(false);
-    expect(harness.agent.sendMessage).not.toHaveBeenCalled();
-    expect(harness.agent.openWithDraft).not.toHaveBeenCalled();
-    expect(harness.agent.composerDraft).toBe("Keep this draft");
-    expect(harness.agent.viewContext.register).toHaveBeenCalledOnce();
   });
 
   it("keeps normal cancellation focus return and does not open chat", () => {
@@ -522,7 +446,7 @@ describe("data view rail interaction", () => {
     act(() => harness.overlayCloseAutoFocus.current?.(event));
     expect(event.defaultPrevented).toBe(false);
     expect(harness.agent.openWithDraft).not.toHaveBeenCalled();
-    expect(harness.agent.sendMessage).not.toHaveBeenCalled();
+    expect(harness.agent.openWithContextDraft).not.toHaveBeenCalled();
   });
 
   it("moves focus across the tabs with the arrow keys and keeps one tab stop", () => {

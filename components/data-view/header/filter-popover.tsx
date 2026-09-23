@@ -22,17 +22,17 @@ type Props = {
   store: BaseDataViewStore<any>;
   compact?: boolean;
   id?: string;
+  registerPageContext?: boolean;
 };
 
-export const FilterPopover = observer(function FilterPopover({ store, compact, id }: Props) {
+export const FilterPopover = observer(function FilterPopover({ store, compact, id, registerPageContext }: Props) {
   const t = useTranslations();
   const { filterPaletteStore: palette } = useRootStore();
   const filterFieldLabel = useFilterFieldLabel();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const ai = useViewAi(store, {
-    registerPageContext: false,
+    registerPageContext: registerPageContext ?? false,
     entry: "filters",
-    getTrigger: () => triggerRef.current,
   });
   const pendingAi = useRef<(() => void) | null>(null);
 
@@ -147,11 +147,5 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, i
     </ResponsiveOverlay>
   );
 
-  return (
-    <>
-      {overlay}
-
-      {ai.dialog}
-    </>
-  );
+  return overlay;
 });

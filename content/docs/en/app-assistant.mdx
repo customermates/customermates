@@ -41,6 +41,8 @@ Mate has four interface tools: `list_ui_targets` finds stable target ids, `navig
 
 When you ask Mate to change data or a saved view, it calls the matching tool directly and tells you what changed. When you would rather enter or refine something yourself, Mate points at the right control and **you** open it, type, select, and save. Your own unsaved edits are never overwritten.
 
+The composer’s **Add** menu attaches exact app context to a request. It offers the current view, a new view, and the record open on the page; searching the menu can attach a contact, organization, deal, service, or task by name. Every selection appears as a removable chip above the message. The chip stores the canonical record id or view target separately from its localized display label, so translations and duplicate record names cannot redirect the request; history keeps the label as it appeared when the context was selected. Context stays with a queued message, a retry, and chat history. **Ask AI** actions in view, filter, appearance, and activity panels use the same mechanism: they open chat with the right chip and editable starter text, but send nothing until you submit the message.
+
 ## Guided tours
 
 Ask for a tour of anything: a single page, a workflow, or the whole app. Mate composes each tour on the spot from what you asked, navigates between pages as the tour progresses, and explains each stop in your language. Close the overlay and the tour ends.

@@ -36,10 +36,17 @@ export class AgentViewContext {
 
   private current(pathname: string) {
     if (this.registration?.pathname !== pathname) return null;
-    const value = this.registration.read();
-    const surface = SurfaceKeySchema.safeParse(value?.surfaceKey);
-    const view = ViewKeySchema.safeParse(value?.viewKey);
-    return surface.success && view.success ? { surfaceKey: surface.data, viewKey: view.data } : null;
+
+    for (let index = this.registrations.length - 1; index >= 0; index -= 1) {
+      const registration = this.registrations[index];
+      if (registration.pathname !== pathname) break;
+      const value = registration.read();
+      const surface = SurfaceKeySchema.safeParse(value?.surfaceKey);
+      const view = ViewKeySchema.safeParse(value?.viewKey);
+      if (surface.success && view.success) return { surfaceKey: surface.data, viewKey: view.data, registration };
+    }
+
+    return null;
   }
 
   route(pathname: string): string {
@@ -60,7 +67,7 @@ export class AgentViewContext {
       current?.viewKey !== url.searchParams.get("view")
     )
       return;
-    return this.registration?.prepare?.();
+    return current.registration.prepare?.();
   }
 
   reloadHref(href: string, changes: readonly AgentViewChange[]): string | null {

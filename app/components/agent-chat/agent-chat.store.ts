@@ -6,6 +6,7 @@ import type { AgentMessageTurn } from "@/ee/agent-chat/agent-history";
 import {
   clientSafeAgentMessageParts,
   hasRenderableAgentMessageParts,
+  partsToText,
   type AgentConversationSummary,
   type AgentDataCounts,
   type AgentMessagePart,
@@ -37,10 +38,25 @@ import {
 } from "./actions";
 import { appLocaleOrDefault } from "@/i18n/locale-registry";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
+import {
+  AGENT_CONTEXT_ATTACHMENT_LIMIT,
+  AgentContextAttachmentSchema,
+  agentContextAttachmentKey,
+  agentContextsFromMessageParts,
+  type AgentContextAttachment,
+} from "@/ee/agent-chat/agent-context";
 import { AgentViewContext, type AgentViewChange } from "./agent-view-context";
+import { AgentContextRegistry } from "./agent-context-registry";
 
 export type AgentChatItem =
-  | { kind: "user"; id: string; messageId: string; text: string; at?: Date }
+  | {
+      kind: "user";
+      id: string;
+      messageId: string;
+      text: string;
+      contexts?: AgentContextAttachment[];
+      at?: Date;
+    }
   | { kind: "turn_interrupted"; id: string; messageId: string; at?: Date }
   | {
       kind: "assistant";
@@ -56,6 +72,7 @@ export type AgentChatItem =
       messageId: string;
       text: string;
       pageRoute: string;
+      contexts?: AgentContextAttachment[];
       retry?: boolean;
       at?: Date;
     }
@@ -242,6 +259,7 @@ function isUiCommandName(value: string): value is UiCommandName {
 
 export class AgentChatStore extends BaseStore {
   readonly viewContext = new AgentViewContext();
+  readonly contextRegistry = new AgentContextRegistry();
   private pendingViewChanges: AgentViewChange[] = [];
   isOpen = false;
   isExpanded = false;
@@ -266,6 +284,7 @@ export class AgentChatStore extends BaseStore {
   olderMessagesPending = false;
   items: AgentChatItem[] = [];
   composerDraft = "";
+  composerContexts: AgentContextAttachment[] = [];
   queuedPrompt: string | null = null;
   queuedPromptNeedsAttention = false;
   routeRefreshRevision = 0;
@@ -300,6 +319,8 @@ export class AgentChatStore extends BaseStore {
   private queuedPromptMessageId: string | null = null;
   private queuedPromptConversationId: string | null = null;
   private queuedPromptPageRoute: string | null = null;
+  private queuedPromptContexts: AgentContextAttachment[] = [];
+  private composerContextPageRoute: string | null = null;
   private activeStreamKey = "stream-0";
   private streamSequence = 0;
   private activeTurnClientRequestId: string | null = null;
@@ -348,6 +369,7 @@ export class AgentChatStore extends BaseStore {
       olderMessagesPending: observable,
       items: observable,
       composerDraft: observable,
+      composerContexts: observable,
       queuedPrompt: observable,
       queuedPromptNeedsAttention: observable,
       routeRefreshRevision: observable,
@@ -369,10 +391,13 @@ export class AgentChatStore extends BaseStore {
       beginActiveTurnMutationTracking: action,
       open: action,
       openWithDraft: action,
+      openWithContextDraft: action,
       close: action,
       toggle: action,
       toggleExpanded: action,
       setComposerDraft: action,
+      addComposerContext: action,
+      removeComposerContext: action,
       submitDraft: action,
       editQueuedPrompt: action,
       removeQueuedPrompt: action,
@@ -402,6 +427,20 @@ export class AgentChatStore extends BaseStore {
     this.open();
   };
 
+  openWithContextDraft = ({
+    context,
+    draft,
+    pageRoute,
+  }: {
+    context: AgentContextAttachment;
+    draft: string;
+    pageRoute?: string;
+  }) => {
+    this.isHistoryOpen = false;
+    this.addComposerContext(context, pageRoute, draft, { replaceOldestAtLimit: true });
+    this.open();
+  };
+
   private currentPageRoute = () =>
     typeof window === "undefined" ? "/" : this.viewContext.route(window.location.pathname);
 
@@ -416,6 +455,10 @@ export class AgentChatStore extends BaseStore {
     if (!this.conversationId) return null;
     const summary = this.conversations.find((conversation) => conversation.id === this.conversationId);
     return summary?.title ?? null;
+  }
+
+  get queuedContexts() {
+    return this.queuedPromptContexts;
   }
 
   get isAwaitingAssistantResponse() {
@@ -502,6 +545,8 @@ export class AgentChatStore extends BaseStore {
     this.resetConversation(null);
     this.isDraftConversationSelected = true;
     this.composerDraft = "";
+    this.composerContexts = [];
+    this.composerContextPageRoute = null;
     this.isHistoryOpen = false;
   }
 
@@ -527,32 +572,73 @@ export class AgentChatStore extends BaseStore {
     this.composerDraft = value;
   };
 
+  addComposerContext = (
+    context: AgentContextAttachment,
+    pageRoute?: string,
+    starter?: string,
+    options: { replaceOldestAtLimit?: boolean } = {},
+  ) => {
+    const parsed = AgentContextAttachmentSchema.safeParse(context);
+    if (!parsed.success) return;
+    const normalizedContext = parsed.data;
+    const key = agentContextAttachmentKey(normalizedContext);
+    const withoutSame = this.composerContexts.filter((candidate) => agentContextAttachmentKey(candidate) !== key);
+    let next =
+      normalizedContext.reference.kind === "dataView"
+        ? [...withoutSame.filter((candidate) => candidate.reference.kind !== "dataView"), normalizedContext]
+        : [...withoutSame, normalizedContext];
+    if (next.length > AGENT_CONTEXT_ATTACHMENT_LIMIT) {
+      if (!options.replaceOldestAtLimit) return;
+      next = next.slice(-AGENT_CONTEXT_ATTACHMENT_LIMIT);
+    }
+    this.composerContexts = next;
+    if (normalizedContext.reference.kind === "dataView") this.composerContextPageRoute = pageRoute ?? null;
+    if (!this.composerDraft.trim() && starter) this.composerDraft = starter;
+  };
+
+  removeComposerContext = (key: string) => {
+    const removed = this.composerContexts.find((context) => agentContextAttachmentKey(context) === key);
+    if (!removed) return;
+    this.composerContexts = this.composerContexts.filter((context) => agentContextAttachmentKey(context) !== key);
+    if (removed.reference.kind === "dataView") this.composerContextPageRoute = null;
+  };
+
   submitDraft = () => {
     const text = this.composerDraft.trim();
     if (!text || this.usage?.blockedReason || this.queuedPrompt) return;
+    const contexts = [...this.composerContexts];
+    const pageRoute = this.composerContextPageRoute ?? this.currentPageRoute();
     if (this.isWorking) {
       if (this.queuedPrompt) return;
       this.queuedPrompt = text;
       this.queuedPromptNeedsAttention = false;
       this.queuedPromptMessageId = globalThis.crypto.randomUUID();
       this.queuedPromptConversationId = this.conversationId;
-      this.queuedPromptPageRoute = this.currentPageRoute();
+      this.queuedPromptPageRoute = pageRoute;
+      this.queuedPromptContexts = contexts;
       this.composerDraft = "";
+      this.composerContexts = [];
+      this.composerContextPageRoute = null;
       return;
     }
     this.setOpenState(true);
     this.composerDraft = "";
-    void this.sendMessage(text);
+    this.composerContexts = [];
+    this.composerContextPageRoute = null;
+    void this.sendMessage(text, { contexts, pageRoute });
   };
 
   editQueuedPrompt = () => {
     if (!this.queuedPrompt) return;
     this.composerDraft = this.queuedPrompt;
+    this.composerContexts = this.queuedPromptContexts;
+    this.composerContextPageRoute = this.queuedPromptPageRoute;
     this.queuedPrompt = null;
     this.queuedPromptNeedsAttention = false;
     this.queuedPromptMessageId = null;
     this.queuedPromptConversationId = null;
     this.queuedPromptPageRoute = null;
+    this.queuedPromptContexts = [];
   };
 
   removeQueuedPrompt = () => {
@@ -561,6 +647,7 @@ export class AgentChatStore extends BaseStore {
     this.queuedPromptMessageId = null;
     this.queuedPromptConversationId = null;
     this.queuedPromptPageRoute = null;
+    this.queuedPromptContexts = [];
   };
 
   retryFailedTurn = (item: Extract<AgentChatItem, { kind: "turn_error" }>) => {
@@ -571,6 +658,7 @@ export class AgentChatStore extends BaseStore {
       appendUser: false,
       messageId: item.messageId,
       pageRoute: item.pageRoute,
+      contexts: item.contexts ?? [],
       retry: Boolean(item.retry),
     });
   };
@@ -618,6 +706,7 @@ export class AgentChatStore extends BaseStore {
     this.queuedPromptMessageId = null;
     this.queuedPromptConversationId = null;
     this.queuedPromptPageRoute = null;
+    this.queuedPromptContexts = [];
     this.isWorking = false;
     this.hasInSessionTerminalResult = false;
     this.streamStatus = "idle";
@@ -810,7 +899,19 @@ export class AgentChatStore extends BaseStore {
         input?: unknown;
         activity?: unknown;
       }[];
-      for (const part of parts) this.appendPart(message.role, part, at, message.id);
+      if (message.role === "user") {
+        const text = stripRoutineTriggerBlock(partsToText(parts));
+        if (text) {
+          this.items.push({
+            kind: "user",
+            id: nextItemId(),
+            messageId: message.id,
+            text,
+            contexts: agentContextsFromMessageParts(parts),
+            at,
+          });
+        }
+      } else for (const part of parts) this.appendPart(message.role, part, at, message.id);
       if (message.role === "user" && message.turn?.status === "uncertain") this.appendInterruptedTurn(message.id, at);
       if (message.role === "assistant") this.persistedAssistantMessageIds.add(message.id);
     }
@@ -848,6 +949,7 @@ export class AgentChatStore extends BaseStore {
           id,
           messageId: messageId ?? id,
           text: stripRoutineTriggerBlock(part.text),
+          contexts: [],
           at,
         });
       } else {
@@ -1346,6 +1448,7 @@ export class AgentChatStore extends BaseStore {
       conversationId?: string | null;
       messageId?: string;
       pageRoute?: string;
+      contexts?: AgentContextAttachment[];
       retry?: boolean;
       reconcileBusyTurn?: boolean;
     } = {},
@@ -1355,6 +1458,7 @@ export class AgentChatStore extends BaseStore {
     if (this.usage?.blockedReason && !options.reconcileBusyTurn) return;
     const messageId = options.messageId ?? globalThis.crypto.randomUUID();
     const pageRoute = options.pageRoute ?? this.currentPageRoute();
+    const contexts = [...(options.contexts ?? [])];
     const conversationId = options.conversationId === undefined ? this.conversationId : options.conversationId;
 
     runInAction(() => {
@@ -1364,6 +1468,7 @@ export class AgentChatStore extends BaseStore {
           id: nextItemId(),
           messageId,
           text: trimmed,
+          contexts,
           at: new Date(),
         });
       }
@@ -1392,6 +1497,7 @@ export class AgentChatStore extends BaseStore {
             conversationId: conversationId ?? undefined,
             clientRequestId: messageId,
             text: trimmed,
+            contexts,
             pageContext: { route: pageRoute },
             locale: appLocaleOrDefault(this.rootStore.localeStore.locale),
             retry: Boolean(options.retry),
@@ -1417,7 +1523,13 @@ export class AgentChatStore extends BaseStore {
             if (options.appendUser !== false)
               this.items = this.items.filter((item) => !(item.kind === "user" && item.messageId === messageId));
 
-            if (!this.composerDraft) this.composerDraft = trimmed;
+            if (!this.composerDraft) {
+              this.composerDraft = trimmed;
+              this.composerContexts = contexts;
+              this.composerContextPageRoute = contexts.some((context) => context.reference.kind === "dataView")
+                ? pageRoute
+                : null;
+            }
           });
           reportApplicationError(new Error("The assistant cannot send messages in demo mode."));
           return;
@@ -1508,6 +1620,7 @@ export class AgentChatStore extends BaseStore {
       let queuedConversationId = this.queuedPromptConversationId;
       let queuedMessageId = this.queuedPromptMessageId;
       let queuedPageRoute = this.queuedPromptPageRoute;
+      let queuedContexts = this.queuedPromptContexts;
       const stopSettlementRequest = this.activeTurnStopPromise;
       let stopOwnsQueuedPrompt = Boolean(stopSettlementRequest);
       const runningConversationId = this.activeTurnDisposition === "running" ? this.conversationId : null;
@@ -1527,6 +1640,7 @@ export class AgentChatStore extends BaseStore {
             messageId,
             text: trimmed,
             pageRoute,
+            contexts,
             retry: this.activeTurnDisposition === "failed",
             at: new Date(),
           });
@@ -1562,13 +1676,15 @@ export class AgentChatStore extends BaseStore {
       queuedConversationId = this.queuedPromptConversationId;
       queuedMessageId = this.queuedPromptMessageId;
       queuedPageRoute = this.queuedPromptPageRoute;
+      queuedContexts = this.queuedPromptContexts;
 
       const queuedPromptIsCurrent = Boolean(
         queued &&
           this.queuedPrompt === queued &&
           this.queuedPromptConversationId === queuedConversationId &&
           this.queuedPromptMessageId === queuedMessageId &&
-          this.queuedPromptPageRoute === queuedPageRoute,
+          this.queuedPromptPageRoute === queuedPageRoute &&
+          this.queuedPromptContexts === queuedContexts,
       );
       const shouldSendQueued = Boolean(
         queuedPromptIsCurrent &&
@@ -1586,6 +1702,7 @@ export class AgentChatStore extends BaseStore {
           this.queuedPromptMessageId = null;
           this.queuedPromptConversationId = null;
           this.queuedPromptPageRoute = null;
+          this.queuedPromptContexts = [];
         } else if (!runningConversationId || stopOwnsQueuedPrompt) {
           if (queuedPromptIsCurrent) this.queuedPromptNeedsAttention = true;
           if (queuedPromptIsCurrent && this.hasPendingRouteReload) this.routeSyncStatus = "waiting";
@@ -1597,6 +1714,7 @@ export class AgentChatStore extends BaseStore {
           conversationId: queuedConversationId,
           messageId: queuedMessageId,
           pageRoute: queuedPageRoute,
+          contexts: queuedContexts,
         });
       }
       if (runningConversationId) {
@@ -1606,6 +1724,7 @@ export class AgentChatStore extends BaseStore {
             text: trimmed,
             messageId,
             pageRoute,
+            contexts,
           },
           !stopOwnsQueuedPrompt,
         );
@@ -1615,7 +1734,7 @@ export class AgentChatStore extends BaseStore {
 
   private rejoinBusyConversation = async (
     conversationId: string,
-    resend: { text: string; messageId: string; pageRoute: string },
+    resend: { text: string; messageId: string; pageRoute: string; contexts: AgentContextAttachment[] },
     resendAfterReattach = true,
   ) => {
     const loadVersion = this.conversationLoadVersion;
@@ -1642,6 +1761,7 @@ export class AgentChatStore extends BaseStore {
       conversationId,
       messageId: resend.messageId,
       pageRoute: resend.pageRoute,
+      contexts: resend.contexts,
       retry: false,
       reconcileBusyTurn: true,
     });
@@ -1715,13 +1835,15 @@ export class AgentChatStore extends BaseStore {
     const queuedConversationId = this.queuedPromptConversationId;
     const queuedMessageId = this.queuedPromptMessageId;
     const queuedPageRoute = this.queuedPromptPageRoute;
+    const queuedContexts = this.queuedPromptContexts;
     if (!queued || !queuedMessageId || !queuedPageRoute) return;
 
     const queuedPromptIsCurrent =
       this.queuedPrompt === queued &&
       this.queuedPromptConversationId === queuedConversationId &&
       this.queuedPromptMessageId === queuedMessageId &&
-      this.queuedPromptPageRoute === queuedPageRoute;
+      this.queuedPromptPageRoute === queuedPageRoute &&
+      this.queuedPromptContexts === queuedContexts;
     const shouldSend =
       allowSend &&
       queuedPromptIsCurrent &&
@@ -1735,6 +1857,7 @@ export class AgentChatStore extends BaseStore {
         this.queuedPromptMessageId = null;
         this.queuedPromptConversationId = null;
         this.queuedPromptPageRoute = null;
+        this.queuedPromptContexts = [];
       } else if (queuedPromptIsCurrent) {
         this.queuedPromptNeedsAttention = true;
         this.streamStatus = "idle";
@@ -1745,6 +1868,7 @@ export class AgentChatStore extends BaseStore {
         conversationId: queuedConversationId ?? conversationId,
         messageId: queuedMessageId,
         pageRoute: queuedPageRoute,
+        contexts: queuedContexts,
       });
     }
   };
@@ -2094,6 +2218,7 @@ export class AgentChatStore extends BaseStore {
       messageId: requestId,
       text: user.text,
       pageRoute: this.activeTurnPageRoute ?? this.currentPageRoute(),
+      contexts: user.contexts ?? [],
       retry: false,
       at: new Date(),
     });

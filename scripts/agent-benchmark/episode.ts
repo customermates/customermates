@@ -15,9 +15,14 @@ import type {
 } from "./fixtures";
 import type { JudgeVerdict } from "./judge";
 import type { SseFrame, SseTiming } from "./sse";
+import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
 import type { AgentModelEntry } from "@/ee/agent-chat/model-catalog";
 
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
+import {
+  agentContextAttachmentsEqual,
+  agentContextsFromMessageParts,
+} from "@/ee/agent-chat/agent-context";
 import { agentToolOutcomeStatus } from "@/ee/agent-chat/agent-durable-stream";
 import { AGENT_PANEL_TOOL_NAMES, isAgentPanelTool,
 } from "@/ee/agent-chat/agent-ui-command";
@@ -52,7 +57,7 @@ import { benchmarkServerSourceError, readSseFrames } from "./sse";
 const TURN_TIMEOUT_MS = 15 * 60 * 1000;
 const MICROCENTS_PER_USD = 100_000_000;
 const RESUME_RETRY_DELAYS_MS = [0, 500, 1500, 4000] as const;
-export const ARTIFACT_SCHEMA_VERSION = 4 as const;
+export const ARTIFACT_SCHEMA_VERSION = 5 as const;
 
 
 function assertKnownPanelTool(name: string) {
@@ -72,7 +77,12 @@ export type TurnRecord = {
   timing: SseTiming;
   wallMs: number;
   terminal: Record<string, unknown> | null;
-  request: { locale: string; pageRoute: string; modelKey: string | null };
+  request: {
+    locale: string;
+    pageRoute: string;
+    contexts: AgentContextAttachment[];
+    modelKey: string | null;
+  };
   serverSourceCommit: string | null;
   uiCommands: { name: string; input: unknown }[];
   approvals: { requestId: string; decision: string }[];
@@ -174,6 +184,27 @@ function approvalPolicy(
   return definition.driver?.approval ?? override ?? "reject";
 }
 
+export function buildBenchmarkAgentMessageRequest(input: {
+  clientRequestId: string;
+  conversationId: string | null;
+  contexts: readonly AgentContextAttachment[];
+  locale: string;
+  modelKey?: string;
+  pageRoute: string;
+  prompt: string;
+}) {
+  return {
+    clientRequestId: input.clientRequestId,
+    ...(input.conversationId ? { conversationId: input.conversationId } : {}),
+    ...(input.modelKey ? { modelKey: input.modelKey } : {}),
+    text: input.prompt,
+    contexts: [...input.contexts],
+    locale: input.locale,
+    pageContext: { route: input.pageRoute },
+    retry: false,
+  };
+}
+
 async function respondToUiCommand(fixture: Fixture, conversationId: string, frame: SseFrame,
 ) {
   for (const delay of RESUME_RETRY_DELAYS_MS) {
@@ -229,6 +260,7 @@ async function runTurn(input: {
   prompt: string;
   index: number;
   conversationId: string | null;
+  contexts: AgentContextAttachment[];
   locale: string;
   pageRoute: string;
   driver: BenchmarkCaseDriver;
@@ -248,6 +280,7 @@ async function runTurn(input: {
     request: {
       locale: input.locale,
       pageRoute: input.pageRoute,
+      contexts: input.contexts,
       modelKey: input.modelKey ?? null,
     },
     serverSourceCommit: null,
@@ -269,17 +302,17 @@ async function runTurn(input: {
       method: "POST",
       headers: { "content-type": "application/json", cookie: input.cookie },
       signal: controller.signal,
-      body: JSON.stringify({
-        clientRequestId: crypto.randomUUID(),
-        ...(input.conversationId
-          ? { conversationId: input.conversationId }
-          : {}),
-        ...(input.modelKey ? { modelKey: input.modelKey } : {}),
-        text: input.prompt,
-        locale: input.locale,
-        pageContext: { route: input.pageRoute },
-        retry: false,
-      }),
+      body: JSON.stringify(
+        buildBenchmarkAgentMessageRequest({
+          clientRequestId: crypto.randomUUID(),
+          conversationId: input.conversationId,
+          contexts: input.contexts,
+          locale: input.locale,
+          modelKey: input.modelKey,
+          pageRoute: input.pageRoute,
+          prompt: input.prompt,
+        }),
+      ),
     });
     record.status = response.status;
     record.serverSourceCommit = response.headers.get(
@@ -623,24 +656,61 @@ async function seedFreshBenchmarkCase(
   throw new Error("unreachable");
 }
 
-function turnContext(
+function resolveFixtureIds(
+  value: string,
   definition: BenchmarkCase,
-  fixture: Fixture,
+  fixtureIds: Readonly<Record<string, string>>,
+) {
+  return value.replace(/\{([^}]+)\}/g, (_match, key: string) => {
+    const resolved = fixtureIds[key];
+    if (!resolved)
+      throw new Error(
+        `Case ${definition.id} context references unknown fixture id ${key}.`,
+      );
+    return resolved;
+  });
+}
+
+function resolveContextAttachment(
+  context: AgentContextAttachment,
+  definition: BenchmarkCase,
+  fixtureIds: Readonly<Record<string, string>>,
+): AgentContextAttachment {
+  const reference = context.reference;
+  if (reference.kind === "record")
+    return {
+      ...context,
+      reference: {
+        ...reference,
+        recordId: resolveFixtureIds(reference.recordId, definition, fixtureIds),
+      },
+    };
+  if (reference.requestedAction === "update")
+    return {
+      ...context,
+      reference: {
+        ...reference,
+        viewKey: resolveFixtureIds(reference.viewKey, definition, fixtureIds),
+      },
+    };
+  return { ...context, reference: { ...reference } };
+}
+
+export function resolveBenchmarkTurnContext(
+  definition: BenchmarkCase,
+  fixtureIds: Readonly<Record<string, string>>,
   index: number,
 ) {
   const configured = definition.contexts?.[index] ?? {};
-  const pageRoute = (configured.pageRoute ?? "/en/contacts").replace(
-    /\{([^}]+)\}/g,
-    (_match, key: string) => {
-      const value = fixture.ids[key];
-      if (!value)
-        throw new Error(
-          `Case ${definition.id} route references unknown fixture id ${key}.`,
-        );
-      return value;
-    },
+  const pageRoute = resolveFixtureIds(
+    configured.pageRoute ?? "/en/contacts",
+    definition,
+    fixtureIds,
   );
-  return { locale: configured.locale ?? "en", pageRoute };
+  const contexts = (configured.contexts ?? []).map((context) =>
+    resolveContextAttachment(context, definition, fixtureIds),
+  );
+  return { locale: configured.locale ?? "en", pageRoute, contexts };
 }
 
 function turnModelKey(
@@ -815,7 +885,11 @@ export async function runEpisode(
   );
   let conversationId: string | null = null;
   for (const [index, prompt] of definition.prompts.entries()) {
-    const context = turnContext(definition, fixture, index);
+    const context = resolveBenchmarkTurnContext(
+      definition,
+      fixture.ids,
+      index,
+    );
     const turn = await runTurn({
       db: request.db,
       appUrl: request.appUrl,
@@ -826,6 +900,7 @@ export async function runEpisode(
       prompt,
       index,
       conversationId,
+      contexts: context.contexts,
       locale: context.locale,
       pageRoute: context.pageRoute,
       driver: definition.driver ?? {},
@@ -1005,11 +1080,24 @@ export async function runEpisode(
       id: "integrity:page-route-persisted-and-request-context-serialized",
       gate: "runtime",
       passed: artifact.turns.every((turn, index) => {
-        const expected = turnContext(definition, fixture, index);
+        const expected = resolveBenchmarkTurnContext(
+          definition,
+          fixture.ids,
+          index,
+        );
+        const userMessage = observation.turns[index]?.messages.find(
+          (message) => message.role === "user",
+        );
         return (
           turn.request.locale === expected.locale &&
           turn.request.pageRoute === expected.pageRoute &&
-          observation.turns[index]?.pageRoute === expected.pageRoute
+          observation.turns[index]?.pageRoute === expected.pageRoute &&
+          JSON.stringify(turn.request.contexts) ===
+            JSON.stringify(expected.contexts) &&
+          agentContextAttachmentsEqual(
+            agentContextsFromMessageParts(userMessage?.parts),
+            expected.contexts,
+          )
         );
       }),
     });

@@ -1,8 +1,11 @@
 import { createHash } from "node:crypto";
 import type { Prisma, PrismaClient, Action, Resource } from "@/generated/prisma";
+import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
 import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import { AGENT_UI_TARGET_IDS } from "@/ee/agent-chat/ui-targets";
+import de from "@/i18n/locales/de.json";
+import en from "@/i18n/locales/en.json";
 
 import {
   COMPLEX_CASES,
@@ -13,7 +16,7 @@ import {
 } from "./complex-cases";
 import { isOutboundOrSupportAction, isReadOnlyMixedToolAction } from "./tool-safety";
 
-export const FIXTURE_VERSION = "chat-benchmark-fixture-v5";
+export const FIXTURE_VERSION = "chat-benchmark-fixture-v6";
 export const AS_OF = "2026-09-05T08:00:00.000Z";
 const FIXED_CREATED = new Date("2026-08-01T08:00:00.000Z");
 const CREDIT_ANCHOR = new Date("2020-01-01T00:00:00.000Z");
@@ -127,6 +130,7 @@ if (briefWords < 1_000 || briefWords > 1_500) throw new Error("Proposal brief mu
 export type BenchmarkTurnContext = {
   locale?: string;
   pageRoute?: string;
+  contexts?: AgentContextAttachment[];
   modelKey?: "campaign" | "omit" | string;
 };
 export type BenchmarkCaseDriver = {
@@ -145,6 +149,14 @@ export type BenchmarkCase = { id: CaseId; title: string; actor: "driver" | "read
   mergeRequired?: boolean;
   judgeFacts?: readonly string[];
 };
+
+function benchmarkMessage(template: string, values: Record<string, string> = {}) {
+  return Object.entries(values).reduce(
+    (message, [key, value]) => message.replaceAll(`{${key}}`, value),
+    template,
+  );
+}
+
 export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
   { id: "S1", title: "Filtered count beyond first page", actor: "driver", prompts: ["How many open deals are assigned to Sofia Rossi? Use the exact count across all matching records. Do not change anything."] },
   { id: "S2", title: "Ambiguous contact must be clarified", actor: "driver", prompts: ["Update Alex Müller's phone number to +12025550199."] },
@@ -200,11 +212,24 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
     judgeable: false,
     mergeRequired: true,
     prompts: [
-      "Context: Contacts.\nUpdate the appearance of my current view “All”. Keep any settings I do not mention.\n\nSwitch this current Contacts view to the table layout and sort by name descending. Keep every other setting.",
+      `${en.AgentChat.context.starter.appearance}Switch this current Contacts view to the table layout and sort by name descending. Keep every other setting.`,
     ],
     contexts: [
       {
         pageRoute: `/en/contacts?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.contacts}&viewAction=update`,
+        contexts: [
+          {
+            label: benchmarkMessage(en.AgentChat.context.viewLabel, {
+              name: en.DataView.views.all,
+            }),
+            reference: {
+              kind: "dataView",
+              surfaceKey: SURFACE.contacts,
+              viewKey: ALL_VIEW_KEY,
+              requestedAction: "update",
+            },
+          },
+        ],
       },
     ],
   },
@@ -241,11 +266,24 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
     judgeable: false,
     mergeRequired: true,
     prompts: [
-      "Context: Contacts.\nCreate a new view called “Contacts with deals” using the request below.\n\nShow contacts linked to at least one deal, set the search text to View, group them by creation month, use the card layout, and sort by name ascending.",
+      `${benchmarkMessage(en.AgentChat.context.starter.createNamed, { name: "Contacts with deals" })}Show contacts linked to at least one deal, set the search text to View, group them by creation month, use the card layout, and sort by name ascending.`,
     ],
     contexts: [
       {
         pageRoute: `/en/contacts?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.contacts}&viewAction=create`,
+        contexts: [
+          {
+            label: benchmarkMessage(en.AgentChat.context.namedNewViewLabel, {
+              name: "Contacts with deals",
+            }),
+            reference: {
+              kind: "dataView",
+              surfaceKey: SURFACE.contacts,
+              proposedName: "Contacts with deals",
+              requestedAction: "create",
+            },
+          },
+        ],
       },
     ],
   },
@@ -256,12 +294,36 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
     judgeable: false,
     mergeRequired: true,
     prompts: [
-      "Kontext: Aktivitätenverlauf dieses Datensatzes.\nPasse die Aktivitätsfilter oder die Sortierung meiner aktuellen Verlaufsansicht „Alle“ an. Behalte alle Einstellungen bei, die ich nicht erwähne.\n\nZeige nur Datensatzänderungen und sortiere die neuesten Aktivitäten zuerst.",
+      `${de.AgentChat.context.starter.timeline}Zeige nur Datensatzänderungen und sortiere die neuesten Aktivitäten zuerst.`,
     ],
     contexts: [
       {
         locale: "de",
         pageRoute: `/de/contacts/{contact}?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.entityTimeline}&viewAction=update`,
+        contexts: [
+          {
+            label: benchmarkMessage(de.AgentChat.context.viewLabel, {
+              name: de.DataView.views.all,
+            }),
+            reference: {
+              kind: "dataView",
+              surfaceKey: SURFACE.entityTimeline,
+              viewKey: ALL_VIEW_KEY,
+              requestedAction: "update",
+            },
+          },
+          {
+            label: benchmarkMessage(de.AgentChat.context.recordLabel, {
+              type: de.EntityTerminology.presets.contact.contact.singular,
+              name: "Ada Lovelace",
+            }),
+            reference: {
+              kind: "record",
+              entityType: "contact",
+              recordId: "{contact}",
+            },
+          },
+        ],
       },
     ],
   },
