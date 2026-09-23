@@ -1,6 +1,6 @@
 # Content modification dates
 
-The last-modified plugin in `source.config.ts` uses `createGitLastModifiedResolver` to export only dates supported by the available Git history. That export feeds the sitemap `lastmod` of every page except blog posts, which carry their declared publication date both in the sitemap and as the Article `dateModified`, whatever their Git history says.
+The last-modified plugin in `source.config.ts` uses `createGitLastModifiedResolver` to export only dates supported by the available Git history. That export feeds the sitemap `lastmod` of every page except blog posts, which carry their declared publication date both in the sitemap and as the Article `dateModified`, whatever their Git history says. A post therefore has no separate revision date: only changing its declared date moves it.
 
 In a shallow clone, Git treats the oldest available commit as a root. A file unchanged within that history window can therefore appear to have changed at the shallow boundary. The resolver omits that date because the file's actual modification is unknown. Changes visible after the boundary retain their author dates. Linked worktrees use Git's resolved shallow metadata path.
 

@@ -113,12 +113,13 @@ describe("sitemap assembly", () => {
 
 describe("sitemap page dates", () => {
   it("dates a blog post by its publication date even when its Git history is newer", () => {
-    expect(
-      resolvePageLastModified({
-        blogPost: { date: "2026-03-01" },
-        lastModified: new Date("2026-08-30T10:00:00.000Z"),
-      })?.toISOString(),
-    ).toBe("2026-03-01T00:00:00.000Z");
+    const gitDate = new Date("2026-08-30T10:00:00.000Z");
+
+    for (const date of ["2026-03-01", new Date("2026-03-01")]) {
+      expect(resolvePageLastModified({ blogPost: { date }, lastModified: gitDate })?.toISOString()).toBe(
+        "2026-03-01T00:00:00.000Z",
+      );
+    }
   });
 
   it("dates every other page by its Git-derived modification time", () => {
@@ -135,6 +136,9 @@ describe("sitemap page dates", () => {
       resolvePageLastModified({ blogPost: {}, lastModified: new Date("2026-08-28T10:00:00.000Z") }),
     ).toBeUndefined();
     expect(resolvePageLastModified({ blogPost: { date: "not-a-date" } })).toBeUndefined();
+    expect(
+      resolvePageLastModified({ blogPost: { date: "not-a-date" }, lastModified: new Date("2026-08-28T10:00:00.000Z") }),
+    ).toBeUndefined();
   });
 });
 

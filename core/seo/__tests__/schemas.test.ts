@@ -53,6 +53,11 @@ describe("article images", () => {
     slug: "agentic-crm",
   };
 
+  it("dates the article's modification by its publication unless a later date is given", () => {
+    expect(articleSchema(params).dateModified).toBe(params.datePublished);
+    expect(articleSchema({ ...params, dateModified: "2026-09-01" }).dateModified).toBe("2026-09-01");
+  });
+
   it("uses the generated social image without requiring a visible article hero", () => {
     const schema = articleSchema(params);
 

@@ -11,7 +11,7 @@ export type LocalizedRoute = {
   lastModified?: Date;
 };
 
-type SitemapPageData = { blogPost?: { date?: string }; lastModified?: Date };
+type SitemapPageData = { blogPost?: { date?: Date | string }; lastModified?: Date };
 
 export function resolvePageLastModified(data: object): Date | undefined {
   const { blogPost, lastModified } = data as SitemapPageData;
