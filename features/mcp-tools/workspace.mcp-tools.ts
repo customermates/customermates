@@ -7,6 +7,7 @@ import {
   mcpPage,
   mcpPageSize,
   mcpPageSizeEcho,
+  McpPageSizeEchoOutputShape,
   filtersDescription,
   sortDescription,
   toonResult,
@@ -33,6 +34,7 @@ const WorkspaceContextOutputSchema = z.looseObject({
 const ListUsersOutputSchema = z.object({
   total: z.number(),
   page: z.number(),
+  ...McpPageSizeEchoOutputShape,
   items: z.array(
     z.object({
       id: z.string(),

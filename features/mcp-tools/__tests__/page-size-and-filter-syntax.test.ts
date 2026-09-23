@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
@@ -7,6 +10,8 @@ import {
   FILTER_FIELD_DESCRIPTION,
   FILTER_OPERATORS,
   FILTER_SYNTAX,
+  MCP_PAGE_SIZE_DESCRIPTION,
+  McpPageSizeEchoOutputShape,
   mcpOptionalPageSize,
   mcpPageSize,
   mcpPageSizeEcho,
@@ -41,6 +46,25 @@ describe("page size", () => {
     expect(mcpPageSizeEcho({ applied: 25, requested: 50 }).pageSizeNote).toBe(
       "50 is not an offered page size, so 25 was used. The call succeeded; nothing was refused.",
     );
+  });
+
+  it("says which sizes are accepted and how a size is adjusted, never that nothing is ever refused", () => {
+    const requested = McpPageSizeEchoOutputShape.requestedPageSize.description ?? "";
+    const docs = (locale: string) =>
+      readFileSync(join(process.cwd(), "content", "docs", locale, "mcp.mdx"), "utf8").replace(/\s+/g, " ");
+
+    expect(MCP_PAGE_SIZE_DESCRIPTION).toContain("any whole number from 1 to 100 is accepted");
+    expect(MCP_PAGE_SIZE_DESCRIPTION).toContain("lowered to the next smaller offered size, and 1 to 4 become 5");
+    expect(MCP_PAGE_SIZE_DESCRIPTION).toContain("reports requestedPageSize and a pageSizeNote");
+    expect(requested).toContain("lowered to the next smaller one, and 1 to 4 become 5");
+    for (const text of [MCP_PAGE_SIZE_DESCRIPTION, requested]) expect(text).not.toMatch(/never refused|not refused/);
+
+    expect(docs("en")).toContain("`pageSize` accepts any whole number from 1 to 100");
+    expect(docs("en")).toContain("lowered to the next smaller one, 1 to 4 become 5");
+    expect(docs("en")).not.toContain("never refused");
+    expect(docs("de")).toContain("`pageSize` akzeptiert jede ganze Zahl von 1 bis 100");
+    expect(docs("de")).toContain("auf die nächstkleinere abgesenkt, 1 bis 4 werden zu 5");
+    expect(docs("de")).not.toContain("nie abgelehnt");
   });
 
   it("advertises a plain bounded integer on the wire instead of a literal union", () => {

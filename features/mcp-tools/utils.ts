@@ -37,7 +37,18 @@ export function roundMcpPageSize(value: number): McpPageSize {
 }
 
 export const MCP_PAGE_SIZE_DESCRIPTION =
-  "Results per page: 5, 10, 25 or 100. A number in between is not refused: it is lowered to the next of those sizes, the call still succeeds, and the result then reports requestedPageSize and a pageSizeNote next to the pageSize actually used, so never report an adjusted page size as a rejection. When a result was truncated, ask for the next size down.";
+  "Results per page: any whole number from 1 to 100 is accepted, and the offered sizes are 5, 10, 25 and 100. A size between them is lowered to the next smaller offered size, and 1 to 4 become 5. The call still succeeds, and when the size used differs from the one asked for the result reports requestedPageSize and a pageSizeNote next to the pageSize actually used, so never report an adjusted page size as a rejection. When a result was truncated, ask for the next size down.";
+
+export const McpPageSizeEchoOutputShape = {
+  pageSize: z.number().optional().describe("The page size used"),
+  requestedPageSize: z
+    .number()
+    .optional()
+    .describe(
+      "Present when the size used differs from the one asked for: a size between the offered sizes 5, 10, 25 and 100 is lowered to the next smaller one, and 1 to 4 become 5. The call still succeeded",
+    ),
+  pageSizeNote: z.string().optional(),
+};
 
 export type McpPageSizeRequest = { applied: McpPageSize; requested: number };
 

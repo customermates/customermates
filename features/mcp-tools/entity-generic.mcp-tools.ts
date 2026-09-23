@@ -10,6 +10,8 @@ import {
   mcpPage,
   mcpPageSize,
   mcpPageSizeEcho,
+  McpPageSizeEchoOutputShape,
+  type McpPageSizeRequest,
   mcpInteractorFailure,
   runInteractor,
   customMcpFailure,
@@ -219,12 +221,8 @@ const ListRecordsOutputSchema = z.object({
       "Per summable column: the total across every matching record, not just this page. Built-in columns use their own name; a custom currency column uses its custom-column id",
     ),
   page: z.number(),
-  pageSize: z.number(),
-  requestedPageSize: z
-    .number()
-    .optional()
-    .describe("Present when the requested page size was lowered to a supported one; the call still succeeded"),
-  pageSizeNote: z.string().optional(),
+  ...McpPageSizeEchoOutputShape,
+  pageSize: z.number().describe("The page size used"),
   nameMatchNote: z
     .string()
     .optional()
@@ -395,6 +393,8 @@ export const getRecordSchemaTool = {
 function groupedListResult(
   entity: Entity,
   groupBy: NonNullable<z.infer<typeof ListRecordsSchema>["groupBy"]>,
+  page: number,
+  pageSize: McpPageSizeRequest,
   data: {
     items: unknown[];
     pagination?: { total?: number };
@@ -435,6 +435,9 @@ function groupedListResult(
   return toonResult({
     total,
     ...(data.valueSums && Object.keys(data.valueSums).length > 0 ? { sums: data.valueSums } : {}),
+    page,
+    pageSize: pageSize.applied,
+    ...mcpPageSizeEcho(pageSize),
     groupedBy: groupBy.bucket ? `${groupBy.field}:${groupBy.bucket}` : groupBy.field,
     ...(notes.length > 0 ? { groupNote: notes.join(" ") } : {}),
     groups,
@@ -479,7 +482,7 @@ export const listRecordsTool = {
       ...(groupBy ? { grouping: groupBy, groupPage: { perGroup: 1, includeValueSums: true } } : {}),
     });
     if (!result.ok) return mcpInteractorFailure(result.error);
-    if (groupBy) return groupedListResult(entity, groupBy, result.data);
+    if (groupBy) return groupedListResult(entity, groupBy, page, pageSize, result.data);
 
     const items = result.data.items.map((item: any) => ({
       id: item.id,
