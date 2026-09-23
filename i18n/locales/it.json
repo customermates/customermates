@@ -3388,12 +3388,10 @@
       "planManage": "Sincronizzato con la fatturazione. Usa «{billing}» per apportare modifiche.",
       "planPicker": "Scegli un piano qui sotto per avviare o modificare l’abbonamento.",
       "planReadOnly": "Sincronizzato con la fatturazione. Chiedi le modifiche a un amministratore dell’area di lavoro.",
-      "planUnavailable": "Sincronizzato con la fatturazione. Contatta l’assistenza per apportare modifiche.",
       "quantity": "Sincronizzato con il numero di membri attivi dell’area di lavoro. Gli amministratori possono attivare o disattivare i membri in «{company}».",
       "trialEndsManage": "Definita dal periodo di prova. Usa «{billing}» per gestire l’abbonamento.",
       "trialEndsPicker": "Definita dal periodo di prova. Scegli un piano prima di questa data per continuare senza interruzioni.",
-      "trialEndsReadOnly": "Definita dal periodo di prova. Chiedi a un amministratore dell’area di lavoro di gestire l’abbonamento.",
-      "trialEndsUnavailable": "Definita dal periodo di prova. Contatta l’assistenza per gestire l’abbonamento."
+      "trialEndsReadOnly": "Definita dal periodo di prova. Chiedi a un amministratore dell’area di lavoro di gestire l’abbonamento."
     },
     "managedExternallyNote": "Questa area di lavoro usa un piano Enterprise con pagamento tramite fattura. Contatta il tuo account manager per apportare modifiche.",
     "manageWithLemonSqueezy": "Gestisci con Lemon Squeezy",

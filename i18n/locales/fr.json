@@ -3388,12 +3388,10 @@
       "planManage": "Synchronisé avec la facturation. Utilisez « {billing} » pour le modifier.",
       "planPicker": "Choisissez une offre ci-dessous pour démarrer ou modifier l’abonnement.",
       "planReadOnly": "Synchronisé avec la facturation. Demandez les modifications à un administrateur de l’espace de travail.",
-      "planUnavailable": "Synchronisé avec la facturation. Contactez l’assistance pour le modifier.",
       "quantity": "Synchronisé avec le nombre de membres actifs de l’espace de travail. Les administrateurs peuvent activer ou désactiver des membres dans « {company} ».",
       "trialEndsManage": "Définie par la période d’essai. Utilisez « {billing} » pour gérer l’abonnement.",
       "trialEndsPicker": "Définie par la période d’essai. Choisissez une offre avant cette date pour continuer sans interruption.",
-      "trialEndsReadOnly": "Définie par la période d’essai. Demandez à un administrateur de l’espace de travail de gérer l’abonnement.",
-      "trialEndsUnavailable": "Définie par la période d’essai. Contactez l’assistance pour gérer l’abonnement."
+      "trialEndsReadOnly": "Définie par la période d’essai. Demandez à un administrateur de l’espace de travail de gérer l’abonnement."
     },
     "managedExternallyNote": "Cet espace de travail utilise une formule Enterprise réglée sur facture. Contactez votre gestionnaire de compte pour toute modification.",
     "manageWithLemonSqueezy": "Gérer avec Lemon Squeezy",

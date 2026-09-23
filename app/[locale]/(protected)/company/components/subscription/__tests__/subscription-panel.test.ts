@@ -160,24 +160,24 @@ describe("SubscriptionPanel read-only fields", () => {
     });
   });
 
-  it("uses support guidance when an administrator has no billing portal", () => {
+  it("uses support guidance for the billing period when an administrator has no billing subscription", () => {
     renderToStaticMarkup(
       createElement(SubscriptionPanel, {
         initialSubscription: {
           activeUsers: 3,
           currentPeriodEnd: new Date("2026-09-30T00:00:00.000Z"),
           hasBillingPortal: false,
-          hasActiveSubscription: true,
+          hasActiveSubscription: false,
           plan: SubscriptionPlan.pro,
           quantity: 4,
-          status: SubscriptionStatus.active,
+          status: SubscriptionStatus.expired,
           trialEndDate: null,
         },
       }),
     );
 
     expect(harness.translationCalls).toContainEqual({
-      key: "Subscription.fieldHelp.planUnavailable",
+      key: "Subscription.fieldHelp.planPicker",
       values: undefined,
     });
     expect(harness.translationCalls).toContainEqual({
