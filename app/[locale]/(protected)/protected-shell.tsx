@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 
 import { FeedbackModal } from "./company/components/feedback/feedback-modal";
@@ -12,13 +13,11 @@ import { ImportWizard } from "@/components/data-transfer/import-wizard";
 import { WebhookModal } from "./company/components/webhook/webhook-modal";
 import { RoutineModal } from "./routines/components/routine-modal";
 import { ApiKeyModal } from "./profile/components/api-key-modal";
-import { ConnectedAccountModal } from "./profile/components/connected-account-modal";
 import { ConnectUpsellModal } from "./profile/components/connect-upsell-modal";
 
 import { Toaster } from "@/components/ui/sonner";
 import { GlobalSearchModal } from "@/app/components/global-search-modal";
 import { AgentChat } from "@/app/components/agent-chat/agent-chat";
-import { EntityDrawer } from "@/components/entity-detail/entity-drawer";
 import { LoadingOverlay } from "@/components/shared/loading-overlay";
 import { DeleteConfirmationModal } from "@/components/modal/delete-confirmation-modal";
 import { NavigationGuardModal } from "@/components/modal/navigation-guard-modal";
@@ -26,8 +25,19 @@ import { UnexpectedErrorToaster } from "@/components/shared/unexpected-error-toa
 import { TranslationSync } from "@/components/shared/translation-sync";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { CustomColumnModal } from "@/components/data-view/custom-columns/custom-column-modal";
-import { TimelineDetailModal } from "@/features/messaging/activities/activities-detail-modal";
 import { useProtectedEnhancementsAllowed } from "@/app/components/navigation/protected-enhancements-context";
+
+const ConnectedAccountModal = dynamic(
+  () => import("./profile/components/connected-account-modal").then((mod) => mod.ConnectedAccountModal),
+  { ssr: false },
+);
+const EntityDrawer = dynamic(() => import("@/components/entity-detail/entity-drawer").then((mod) => mod.EntityDrawer), {
+  ssr: false,
+});
+const TimelineDetailModal = dynamic(
+  () => import("@/features/messaging/activities/activities-detail-modal").then((mod) => mod.TimelineDetailModal),
+  { ssr: false },
+);
 
 export function ProtectedShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
