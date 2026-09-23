@@ -1,6 +1,10 @@
 import { createHash } from "node:crypto";
 import type { Prisma, PrismaClient, Action, Resource } from "@/generated/prisma";
 import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/editor/editor.utils";
+import { AGENT_UI_TOOL_NAMES } from "@/ee/agent-chat/agent-ui-command";
+import { isReadOnlyTool, readOnlyActionsForTool } from "@/ee/agent-chat/gated-tools";
+import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
+import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
 
 import {
   COMPLEX_CASES,
@@ -527,7 +531,17 @@ export type ObservedTurn = { text: string; tools: readonly ObservedTool[]; termi
 export type ObservedCase = { turns: readonly ObservedTurn[] };
 export type OracleCheck = { id: string; passed: boolean };
 export type OracleResult = { caseId: CaseId; passed: boolean; checks: OracleCheck[] };
-const READ_TOOLS = new Set(["load_toolset", "list_records", "search_records", "get_records", "get_record_schema", "get_workspace_context", "list_users", "get_activities", "search_docs", "get_docs_page", "get_messaging_threads", "get_calendars", "search", "fetch"]);
+const DATA_NEUTRAL_HOSTED_TOOLS = new Set<string>(["load_toolset", ...AGENT_UI_TOOL_NAMES]);
+const MCP_TOOLS_BY_NAME = new Map(ALL_MCP_TOOLS.map((tool) => [tool.name, tool]));
+export function isReadCall(tool: { name: string; input?: unknown }): boolean {
+  if (DATA_NEUTRAL_HOSTED_TOOLS.has(tool.name)) return true;
+  const mcp = MCP_TOOLS_BY_NAME.get(tool.name);
+  if (!mcp) return false;
+  if (isReadOnlyTool(mcp)) return true;
+  const action = (tool.input as { action?: unknown } | undefined)?.action;
+  const readActions = readOnlyActionsForTool(internalToolIdentity(tool.name));
+  return typeof action === "string" && Boolean(readActions?.includes(action));
+}
 const normalizeText = (text: string) => text.normalize("NFKC").toLowerCase();
 const words = (text: string) => text.trim() ? text.trim().split(/\s+/).length : 0;
 function hasAmount(text: string, amount: number) {
@@ -600,7 +614,7 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
   const text = last?.text ?? "";
   const tools = observed.turns.flatMap((turn) => turn.tools);
   const toolNames = tools.map((tool) => tool.name);
-  const noMutatingTools = tools.every((tool) => READ_TOOLS.has(tool.name));
+  const noMutatingTools = tools.every((tool) => isReadCall(tool));
   const unchanged = same(fixture.before, after);
   const id = (key: string) => fixture.ids[key];
   const hasCall = (name: string) => toolNames.includes(name);
@@ -628,7 +642,7 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
       break;
     case "S3":
       check("permission-denial-explained", /permission|authoriz|read.only|access|berechtig|zugriff|schreibgesch/i.test(text));
-      check("no-successful-write", tools.filter((tool) => !READ_TOOLS.has(tool.name)).every((tool) => tool.outcome === "error" || tool.outcome === "cancelled"));
+      check("no-successful-write", tools.filter((tool) => !isReadCall(tool)).every((tool) => tool.outcome === "error" || tool.outcome === "cancelled"));
       break;
     case "S4":
     case "H12": {
@@ -911,7 +925,7 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
                       "Heron Renewal","Egret Upgrade","Stork Pilot","Crane Rollout"];
       check("turn-1-names-the-three", targetNames.every((name) => turn1.includes(name)));
       check("turn-1-names-nothing-else", !otherNames.some((name) => turn1.includes(name)));
-      check("turn-1-read-only", (observed.turns[0]?.tools ?? []).every((tool) => READ_TOOLS.has(tool.name)));
+      check("turn-1-read-only", (observed.turns[0]?.tools ?? []).every((tool) => isReadCall(tool)));
       const ownersOf = (key: string) => rows(after, "dealUser").filter((row) => row.dealId === id(key)).map((row) => row.userId).sort();
       check("targets-owned-by-sofia-only", targets.every((key) => same(ownersOf(key), [id("sofia")])));
       check("max-other-deals-untouched",
@@ -986,7 +1000,7 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
       check("delete-attempted-and-declined", deletes.length >= 1 && deletes.length <= 2
     && deletes.every((input) => same(input.ids, [id("obsolete-deal")]))
     && tools.filter((tool) => tool.name === "delete_records").every((tool) => tool.outcome !== "ok"));
-      check("no-substitute-mutation", tools.filter((tool) => !READ_TOOLS.has(tool.name) && tool.name !== "delete_records")
+      check("no-substitute-mutation", tools.filter((tool) => !isReadCall(tool) && tool.name !== "delete_records")
     .every((tool) => !JSON.stringify(tool.input ?? {}).includes(id("obsolete-deal"))));
       check("nothing-created", !toolNames.some((name) => name.startsWith("create_")));
       check("turn-terminated-with-a-report", Boolean(text.trim()) && last?.terminalCode !== "error");
@@ -1027,7 +1041,7 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
       check(
         "write-scoped-to-zephyr",
         tools
-          .filter((tool) => !READ_TOOLS.has(tool.name))
+          .filter((tool) => !isReadCall(tool))
           .every((tool) => {
             const serialized = JSON.stringify(tool.input ?? {});
             return obs.every((dealId) => !serialized.includes(dealId));

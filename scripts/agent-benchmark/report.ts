@@ -29,6 +29,7 @@ export type ArmSummary = {
   wallP50Ms: number | null;
   wallP95Ms: number | null;
   lengthFinishShare: number;
+  incompleteTurnShare: number;
   neverSolvedCases: string[];
 };
 
@@ -75,11 +76,16 @@ function outcome(artifact: EpisodeArtifact): EpisodeOutcome {
   };
 }
 
+function turnIsIncomplete(turn: EpisodeArtifact["turns"][number]): boolean {
+  return Boolean(turn.error) || turn.terminal?.terminalCode !== "completed";
+}
+
 function summarizeArm(key: string, artifacts: EpisodeArtifact[]): ArmSummary {
   const scored = artifacts.filter((artifact) => !artifact.skipped);
   const outcomes = scored.map(outcome);
   const rounds = scored.flatMap((artifact) => artifact.metrics.rounds);
-  const turns = scored.flatMap((artifact) => artifact.turns.filter((turn) => !turn.error));
+  const drivenTurns = scored.flatMap((artifact) => artifact.turns);
+  const turns = drivenTurns.filter((turn) => !turn.error);
   const promptTokens = rounds.reduce((total, round) => total + round.inputTokens + round.cacheReadTokens + round.cacheWriteTokens, 0);
   const cacheRead = rounds.reduce((total, round) => total + round.cacheReadTokens, 0);
   const cacheWrite = rounds.reduce((total, round) => total + round.cacheWriteTokens, 0);
@@ -111,6 +117,7 @@ function summarizeArm(key: string, artifacts: EpisodeArtifact[]): ArmSummary {
     wallP50Ms: percentile(turns.map((turn) => turn.wallMs), 50),
     wallP95Ms: percentile(turns.map((turn) => turn.wallMs), 95),
     lengthFinishShare: rounds.length ? rounds.filter((round) => round.finishReason === "length").length / rounds.length : 0,
+    incompleteTurnShare: drivenTurns.length ? drivenTurns.filter(turnIsIncomplete).length / drivenTurns.length : 0,
     neverSolvedCases: [...byCase].filter(([, results]) => results.length > 0 && results.every((passed) => !passed)).map(([caseId]) => caseId).sort(),
   };
 }
@@ -166,9 +173,9 @@ const ms = (value: number | null) => (value === null ? "n/a" : `${(value / 1000)
 export function renderReport(report: BenchmarkReport): string {
   const lines: string[] = [];
   lines.push(`# Agent benchmark report ${report.campaignId}`, "", `Generated ${report.generatedAt}. Total spend ${usd(report.totalUsd)}. Arms are keyed runtime/arm.`, "");
-  lines.push("## Arms", "", "| Arm | Episodes | Pass | Pass^3 | Judge | $/episode | $/turn | Credits/turn | $/success | Measured | Cache read | Cache write | Rounds/turn | TTFT p50 | TTFT p95 | Wall p50 | Wall p95 | Length stops | Never solved |", "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |");
+  lines.push("## Arms", "", "| Arm | Episodes | Pass | Pass^3 | Judge | $/episode | $/turn | Credits/turn | $/success | Measured | Cache read | Cache write | Rounds/turn | TTFT p50 | TTFT p95 | Wall p50 | Wall p95 | Length stops | Incomplete turns | Never solved |", "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |");
   for (const arm of report.arms)
-    lines.push(`| ${arm.runtimeVariant}/${arm.arm} | ${arm.episodes}${arm.skipped ? ` (+${arm.skipped} skipped)` : ""} | ${pct(arm.passRate)} | ${pct(arm.passAt3)} | ${arm.judgeMean === null ? "n/a" : arm.judgeMean.toFixed(2)} | ${usd(arm.usdPerEpisode)} | ${usd(arm.usdPerTurn)} | ${arm.creditsPerTurn.toFixed(1)} | ${usd(arm.costPerSuccessfulTask)} | ${pct(arm.measuredShare)} | ${pct(arm.cacheReadShare)} | ${pct(arm.cacheWriteShare)} | ${arm.roundsPerTurn.toFixed(1)} | ${ms(arm.ttftP50Ms)} | ${ms(arm.ttftP95Ms)} | ${ms(arm.wallP50Ms)} | ${ms(arm.wallP95Ms)} | ${pct(arm.lengthFinishShare)} | ${arm.neverSolvedCases.join(" ") || "-"} |`);
+    lines.push(`| ${arm.runtimeVariant}/${arm.arm} | ${arm.episodes}${arm.skipped ? ` (+${arm.skipped} skipped)` : ""} | ${pct(arm.passRate)} | ${pct(arm.passAt3)} | ${arm.judgeMean === null ? "n/a" : arm.judgeMean.toFixed(2)} | ${usd(arm.usdPerEpisode)} | ${usd(arm.usdPerTurn)} | ${arm.creditsPerTurn.toFixed(1)} | ${usd(arm.costPerSuccessfulTask)} | ${pct(arm.measuredShare)} | ${pct(arm.cacheReadShare)} | ${pct(arm.cacheWriteShare)} | ${arm.roundsPerTurn.toFixed(1)} | ${ms(arm.ttftP50Ms)} | ${ms(arm.ttftP95Ms)} | ${ms(arm.wallP50Ms)} | ${ms(arm.wallP95Ms)} | ${pct(arm.lengthFinishShare)} | ${pct(arm.incompleteTurnShare)} | ${arm.neverSolvedCases.join(" ") || "-"} |`);
   lines.push("", "## Pairwise against the shipped arm (exact sign test on per-case pass rates, Holm-corrected)", "", "| Arm | Cases | Wins | Losses | Ties | Mean diff | p | Holm p | Floor |", "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |");
   for (const comparison of report.comparisons)
     lines.push(`| ${comparison.arm} vs ${comparison.control} | ${comparison.cases} | ${comparison.wins} | ${comparison.losses} | ${comparison.ties} | ${(comparison.meanDifference * 100).toFixed(1)} pts | ${comparison.p.toFixed(3)} | ${comparison.holmP.toFixed(3)} | ${comparison.floor.toFixed(3)} |`);

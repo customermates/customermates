@@ -8,7 +8,7 @@ import type { EpisodeArtifact } from "../episode";
 
 import { buildReport, renderReport, selectArms } from "../report";
 
-function artifact(arm: string, caseId: string, repetition: number, passed: boolean, usd: number, wallMs: number, judge: number): EpisodeArtifact {
+function artifact(arm: string, caseId: string, repetition: number, passed: boolean, usd: number, wallMs: number, judge: number, terminalCode = "completed"): EpisodeArtifact {
   return {
     campaignId: "c",
     episodeId: `${arm}-${caseId}-${repetition}`,
@@ -23,7 +23,7 @@ function artifact(arm: string, caseId: string, repetition: number, passed: boole
     actorUserId: "user",
     prompts: ["p"],
     judgeFacts: [],
-    turns: [{ index: 0, prompt: "p", conversationId: "x", status: 200, timing: { firstFrameMs: 500, firstDeltaMs: 1200, lastFrameMs: wallMs }, wallMs, terminal: null, uiCommands: [], approvals: [], frameCount: 3, error: null }],
+    turns: [{ index: 0, prompt: "p", conversationId: "x", status: 200, timing: { firstFrameMs: 500, firstDeltaMs: 1200, lastFrameMs: wallMs }, wallMs, terminal: { type: "turn_done", terminalCode }, uiCommands: [], approvals: [], frameCount: 3, error: null }],
     observed: [{ text: "answer", tools: [], terminalCode: "completed" }],
     metrics: { turns: [{ id: "t", status: "completed", terminalCode: "completed", stopReason: null, modelSpec: "m", servingProvider: "p", createdAt: "2026-09-13T00:00:00.000Z", providerStartedAt: null, terminalAt: null }], rounds: [{ turnRequestId: "t", roundIndex: 0, inputTokens: 1000, outputTokens: 100, cacheReadTokens: 500, cacheWriteTokens: 0, reasoningTokens: 0, costMicrocents: "1", finishReason: "stop", createdAt: "2026-09-13T00:00:00.000Z" }] },
     usage: [{ turnRequestId: "t", costMicrocents: String(Math.round(usd * 100_000_000)), costSource: "measured", chargedCredits: Math.max(1, Math.ceil(usd * 100)), state: "settled", model: "m" }],
@@ -43,7 +43,7 @@ describe("benchmark report", () => {
     const artifacts = [
       ...["S1", "S2", "S3", "S4"].flatMap((caseId) => [1, 2, 3].map((rep) => artifact("shipped", caseId, rep, caseId !== "S4", 0.02, 20_000, 3.5))),
       ...["S1", "S2", "S3", "S4"].flatMap((caseId) => [1, 2, 3].map((rep) => artifact("candidate", caseId, rep, true, 0.03, 15_000, 4.2))),
-      ...["S1", "S2", "S3", "S4"].flatMap((caseId) => [1, 2, 3].map((rep) => artifact("slow", caseId, rep, true, 0.01, 90_000, 4.4))),
+      ...["S1", "S2", "S3", "S4"].flatMap((caseId) => [1, 2, 3].map((rep) => artifact("slow", caseId, rep, true, 0.01, 90_000, 4.4, rep === 1 && caseId === "S1" ? "partial" : "completed"))),
     ];
     for (const entry of artifacts) {
       const path = join(dir, entry.runtimeVariant, entry.arm);
@@ -56,6 +56,8 @@ describe("benchmark report", () => {
     expect(shipped?.passRate).toBeCloseTo(0.75, 6);
     expect(shipped?.neverSolvedCases).toEqual(["S4"]);
     expect(candidate?.passAt3).toBe(1);
+    expect(candidate?.incompleteTurnShare).toBe(0);
+    expect(report.arms.find((arm) => arm.arm === "slow")?.incompleteTurnShare).toBeCloseTo(1 / 12, 6);
     expect(report.uniformlyFailingChecks).toEqual(["always-fails"]);
     const comparison = report.comparisons.find((entry) => entry.arm === "current/candidate");
     expect(comparison).toMatchObject({ wins: 1, losses: 0, ties: 3, floor: 1 });

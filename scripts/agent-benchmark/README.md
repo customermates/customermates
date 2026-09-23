@@ -12,9 +12,12 @@ and the application started in production mode with the benchmark model overlay:
 
 ```sh
 export WORKFLOW_LOCAL_BASE_URL=http://localhost:4107
+export NEXT_PUBLIC_SENTRY_DSN=
 yarn build
 LOCAL_AGENT_BENCHMARK=true AGENT_BENCHMARK_ARMS="$(yarn -s agent:benchmark overlay)" yarn next start -p 4107
 ```
+
+`NEXT_PUBLIC_SENTRY_DSN` must be empty for the build and the server. With a DSN set, a production build sends every workflow failure to Sentry and prints nothing, so a turn that fails locally leaves no trace in the server log; the empty value also keeps the build from wrapping the Sentry source-map upload.
 
 `WORKFLOW_LOCAL_BASE_URL` must be exported for the CLI as well as the server, because loading the product graph starts a second workflow worker inside the CLI process and that worker posts durable steps over HTTP. Without the variable it probes for a port, and a probe that fails mid-campaign sends every step it picked up into a backoff whose next attempt is hours away: a run stalled after 31 episodes this way.
 
