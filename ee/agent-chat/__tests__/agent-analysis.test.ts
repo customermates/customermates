@@ -109,6 +109,46 @@ describe("analyze_records", () => {
     expect(execute).toHaveBeenCalledTimes(1);
   });
 
+  it("refuses a detail read whose first page holds only part of its rows, and passes a complete one", async () => {
+    const threadTool = (messages: number): McpTool => ({
+      name: "get_messaging_threads",
+      title: "threads",
+      description: "threads",
+      annotations: { readOnlyHint: true },
+      inputSchema: z.object({
+        threadId: z.string().optional(),
+        page: z.number().default(1),
+        pageSize: z.number().default(25),
+      }),
+      execute: (({ page, pageSize }: { page: number; pageSize: number }) => {
+        const payload = {
+          thread: { id: "thread-1", participants: [{ displayName: "Ada" }] },
+          messages: Array.from({ length: Math.min(messages, pageSize) }, (_, index) => ({
+            id: `message-${index + 1}`,
+          })),
+          total: messages,
+          page,
+          pageSize,
+        };
+        return { text: JSON.stringify(payload), structuredContent: payload };
+      }) as never,
+    });
+    const input = {
+      reads: [read("get_messaging_threads", { threadId: "thread-1" })],
+      code: "(data) => data[0].messages.length",
+    };
+
+    await expect(analyzeRecords(input, { tools: [threadTool(250)] })).resolves.toEqual({
+      ok: false,
+      result:
+        "get_messaging_threads returned 100 of 250 rows, so the analysis did not run on a partial set. The analysis code was not run.",
+    });
+    await expect(analyzeRecords(input, { tools: [threadTool(40)] })).resolves.toEqual({
+      ok: true,
+      result: JSON.stringify({ rowsRead: 0, result: 40 }),
+    });
+  });
+
   it("refuses a tool that is not read-only or not known, before any read runs", async () => {
     const { tool, execute } = listTool("list_things", 3);
     for (const name of ["update_things", "delete_records"]) {

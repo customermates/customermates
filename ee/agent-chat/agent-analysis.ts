@@ -62,6 +62,18 @@ function parseReadInput(read: Read): Record<string, unknown> | string {
   return `The input for ${read.tool} must be a JSON object.`;
 }
 
+function partialSetError(mcp: McpTool, returned: number, total: number): string {
+  return `${mcp.name} returned ${returned} of ${total} rows, so the analysis did not run on a partial set.`;
+}
+
+function unpagedResult(mcp: McpTool, content: Record<string, unknown>): ReadResult {
+  const arrays = Object.values(content).filter((value): value is unknown[] => Array.isArray(value));
+  const total = content.total;
+  if (typeof total !== "number" || arrays.length === 0 || arrays.some((array) => array.length >= total))
+    return { ok: true, data: content, rows: 0 };
+  return { ok: false, error: partialSetError(mcp, Math.max(...arrays.map((array) => array.length)), total) };
+}
+
 async function runPage(
   mcp: McpTool,
   input: Record<string, unknown>,
@@ -87,8 +99,8 @@ async function runRead(mcp: McpTool, read: Read, rowBudget: number): Promise<Rea
     Object.entries(first.content).filter(([key]) => key !== "page" && key !== "pageSize"),
   );
   const firstItems = firstContent.items;
-  if (!Array.isArray(firstItems) || Array.isArray(firstContent.groups))
-    return { ok: true, data: firstContent, rows: 0 };
+  if (Array.isArray(firstContent.groups)) return { ok: true, data: firstContent, rows: 0 };
+  if (!Array.isArray(firstItems)) return unpagedResult(mcp, firstContent);
   const total = typeof firstContent.total === "number" ? firstContent.total : firstItems.length;
   if (total > rowBudget) {
     const limit =
@@ -115,12 +127,7 @@ async function runRead(mcp: McpTool, read: Read, rowBudget: number): Promise<Rea
     }
     items.push(...pageItems);
   }
-  if (items.length < total) {
-    return {
-      ok: false,
-      error: `${mcp.name} returned ${items.length} of ${total} rows, so the analysis did not run on a partial set.`,
-    };
-  }
+  if (items.length < total) return { ok: false, error: partialSetError(mcp, items.length, total) };
   return { ok: true, data: { ...firstContent, items }, rows: items.length };
 }
 
