@@ -7,6 +7,12 @@
     "subject": "Your email is confirmed, and your old password was removed",
     "title": "Your email address is confirmed"
   },
+  "AccountRemovalReason": {
+    "ownerInactive": "Owner deactivated",
+    "planDowngrade": "Plan downgrade",
+    "subscriptionLapsed": "Subscription lapsed",
+    "trialExpired": "Trial ended"
+  },
   "AccountsRemovedNotice": {
     "body": "Your plan changed to {plan}, so I removed the following connected account(s) to stay within your plan's limit: {accounts}. Your messages and contacts are all still there. Reconnect anytime from your connected accounts page.",
     "cta": "View connected accounts",
@@ -844,18 +850,28 @@
       "acceptanceType": "Acceptance type",
       "acceptingEmail": "Accepted by",
       "changedDocuments": "Changed documents",
+      "changedFields": "Watched fields",
       "city": "City",
       "country": "Country",
+      "cronExpression": "Schedule",
       "currency": "Currency",
       "dealStageWeights": "Stage probabilities",
       "dealWeightingColumnId": "Stage field",
+      "debounceSeconds": "Debounce",
+      "disabledReason": "Disabled reason",
       "effectiveAt": "Effective from",
       "emails": "Email addresses",
       "isNewCompany": "First user in the workspace",
       "postalCode": "Postal code",
+      "prompt": "Instructions",
       "recipientEmail": "Sent to",
+      "removalReason": "Removal reason",
       "street": "Street",
       "terminology": "Record naming",
+      "timezone": "Time zone",
+      "triggerEvents": "Trigger events",
+      "triggerFilters": "Trigger filters",
+      "triggerKind": "Trigger",
       "versions": "Document versions",
       "visibility": "Visibility"
     },
@@ -1274,6 +1290,11 @@
         "created": "Role Created",
         "deleted": "Role Deleted",
         "updated": "Role Updated"
+      },
+      "routine": {
+        "created": "Routine Created",
+        "deleted": "Routine Deleted",
+        "updated": "Routine Updated"
       },
       "service": {
         "created": "Service Created",
