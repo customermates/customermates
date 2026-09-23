@@ -71,7 +71,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         schema={articleSchema({
           authorName: blogPost.author,
           datePublished: new Date(blogPost.date).toISOString(),
-          dateModified: new Date(page.data.lastModified ?? blogPost.date).toISOString(),
+          dateModified: new Date(blogPost.date).toISOString(),
           description: page.data.description,
           headline: page.data.title,
           locale,

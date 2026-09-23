@@ -112,32 +112,29 @@ describe("sitemap assembly", () => {
 });
 
 describe("sitemap page dates", () => {
-  it("prefers the Git-derived modification time over the original publication date", () => {
-    const modified = new Date("2026-08-28T10:00:00.000Z");
-
+  it("dates a blog post by its publication date even when its Git history is newer", () => {
     expect(
       resolvePageLastModified({
         blogPost: { date: "2026-03-01" },
-        lastModified: modified,
-      }),
-    ).toBe(modified);
+        lastModified: new Date("2026-08-30T10:00:00.000Z"),
+      })?.toISOString(),
+    ).toBe("2026-03-01T00:00:00.000Z");
   });
 
-  it("uses a valid publication date only when no derived modification time exists", () => {
-    expect(resolvePageLastModified({ blogPost: { date: "2026-03-01" } })?.toISOString()).toBe(
-      "2026-03-01T00:00:00.000Z",
-    );
-    expect(resolvePageLastModified({ blogPost: { date: "not-a-date" } })).toBeUndefined();
+  it("dates every other page by its Git-derived modification time", () => {
+    const modified = new Date("2026-08-28T10:00:00.000Z");
+
+    expect(resolvePageLastModified({ lastModified: modified })).toBe(modified);
   });
 
-  it("keeps the publication fallback explicit when a Git date is unavailable or invalid", () => {
-    for (const lastModified of [undefined, null, new Date("not-a-date")]) {
-      expect(resolvePageLastModified({ lastModified, blogPost: { date: "2026-03-01" } })?.toISOString()).toBe(
-        "2026-03-01T00:00:00.000Z",
-      );
+  it("omits the date when the page's own date is missing or invalid, without falling back to the other source", () => {
+    for (const lastModified of [undefined, null, new Date("not-a-date")])
       expect(resolvePageLastModified({ lastModified })).toBeUndefined();
-      expect(resolvePageLastModified({ lastModified, blogPost: { date: "not-a-date" } })).toBeUndefined();
-    }
+
+    expect(
+      resolvePageLastModified({ blogPost: {}, lastModified: new Date("2026-08-28T10:00:00.000Z") }),
+    ).toBeUndefined();
+    expect(resolvePageLastModified({ blogPost: { date: "not-a-date" } })).toBeUndefined();
   });
 });
 
