@@ -15,6 +15,7 @@ export enum CustomErrorCode {
   assigneeRequired = "assigneeRequired",
   emailMismatch = "emailMismatch",
   enterpriseCheckoutUnavailable = "enterpriseCheckoutUnavailable",
+  billingPortalUnavailable = "billingPortalUnavailable",
   passwordMismatch = "passwordMismatch",
   passwordInvalid = "passwordInvalid",
   dataViewNotFound = "dataViewNotFound",

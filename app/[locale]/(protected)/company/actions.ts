@@ -31,6 +31,7 @@ import {
   getCreateCheckoutSessionInteractor,
   getRefreshSubscriptionInteractor,
   getGetSubscriptionInteractor,
+  getGetBillingPortalUrlInteractor,
   getGetWebhooksInteractor,
   getUpsertWebhookInteractor,
   getDeleteWebhookInteractor,
@@ -55,6 +56,12 @@ export async function refreshSubscriptionAction() {
 export async function getSubscriptionAction() {
   const result = await getGetSubscriptionInteractor().invoke();
   return result.data;
+}
+
+export async function getBillingPortalUrlAction() {
+  const result = await getGetBillingPortalUrlInteractor().invoke();
+  if (isRedirect(result)) return { ok: true as const, data: { url: result.redirect } };
+  return { ok: false as const, error: z.treeifyError(result.error) };
 }
 
 export async function updateCompanyAction(data: UpdateCompanySettingsData) {
