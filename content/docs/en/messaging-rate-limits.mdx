@@ -49,14 +49,24 @@ The riskier operations stay conservative regardless of the read budget: profile 
 | Outlook | Send an email | 300 / day |
 | IMAP | Send an email | 300 / day |
 
+Operations without a row here, such as sending a LinkedIn message or InMail and LinkedIn Sales Navigator searches, still fall under the per-endpoint and per-account caps and return the same rate-limit message when a window is full.
+
 ## What happens when a limit is reached?
 
-The action returns a message with the time to wait, for example:
+Further calls for that account are rejected until the window rolls over, and the action tells you how long to wait. Sending a message or starting a conversation shows:
 
-> This channel hit its rate limit. You can try again in 2 minutes.
+> This channel reached its limit for now. You can try again in 2 minutes. Learn more at https://customermates.com/docs/messaging-rate-limits.
 
-The waiting time comes from the provider's `Retry-After` answer; when the provider sends none, Customermates waits 60 seconds. You can retry once the indicated window passes. Nothing is lost in the meantime. Over MCP and the REST API the same situation returns a `rate_limit` failure with the same waiting time.
+Other actions word it differently:
+
+- **Resync thread**, older messages loading at the top of a conversation, and media in a message: "This channel hit its rate limit. You can try again in 2 minutes." with **Learn more**.
+- **Refresh** in the Inbox: "Some channels hit their rate limit. Try again in a few minutes."
+- Moving an email to another folder: "Stopped filing into `{folder}` because the provider is rate limiting." with the waiting time for the rest.
+
+The waiting time in the message comes from the `Retry-After` value of the rate-limited response Unipile returns; without one, the message falls back to 60 seconds and reads "in 1 minute". Customermates does not retry the action for you: the waiting time is only a hint, and you can retry once the indicated window passes. Nothing is lost in the meantime. Over MCP and the REST API the call fails with the same message and waiting time: the REST API answers with HTTP status 400, and MCP returns a failure of kind `validation` whose issue in `_meta.failure` has `customCode: "unipileRateLimit"`, not the kind `rate_limit`.
+
+**Link:** the **Inbox** page, `/inbox`, Cloud URL `https://customermates.com/en/inbox`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`; **Refresh** and **Resync thread** are not highlight targets, so Mate names them.
 
 ## Does the history import resume by itself?
 
-Importing a full message history can be large, roughly one request per conversation. If a limit is reached mid-import, the background importer **pauses and resumes automatically** when the window frees up, with no action needed on your part; a wait longer than ten minutes defers the import to a later sweep. Opening a conversation also loads its messages on demand, and new activity arrives in real time over webhooks.
+Importing a full message history can be large, roughly one request per conversation. If a limit is reached mid-import, the background importer **pauses and resumes automatically** when the window frees up, with no action needed on your part; a wait longer than ten minutes defers the import to a later sweep. With **Manage** on **Inbox messages**, scrolling to the top of a conversation or pressing **Resync thread** fetches older messages from the provider, and both count against the same limits; new activity arrives in real time over webhooks.

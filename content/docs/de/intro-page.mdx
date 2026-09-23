@@ -28,8 +28,12 @@ Ein CRM mit fünf Record-Typen (Contacts, Organizations, Deals, Services, Tasks)
 - **Nativer MCP-Endpoint** unter `/api/v1/mcp`, damit ein MCP-Client CRM-Operationen ohne Plugin entdeckt und aufruft.
 - **Open Source** unter AGPLv3. Enterprise-Komponenten stehen unter einer separaten kommerziellen Lizenz. Self-Hosting oder die Managed Cloud.
 - **EU-gehostete und DSGVO-konforme** Managed-Version.
-- **Webhooks** mit signierten Payloads, Retries und Delivery-Log.
+- **Webhooks** mit optional signierten Payloads, Retries und Delivery-Log.
 - **OpenAPI-3.1**-Spezifikation für die volle REST-Oberfläche unter `/api/v1/openapi`.
+- **Mate**, der In-App-KI-Assistent in Customermates Cloud: Er braucht keinen externen KI-Client und keine Einrichtung und nutzt die Credits aus Ihrem Tarif. Siehe [Assistent](/docs/app-assistant).
+- **Routinen**, die Mate nach Zeitplan oder bei einer Datensatzänderung ausführen, in Customermates Cloud. Siehe [Routinen](/docs/app-routines).
+- **Posteingang** für E-Mail und verbundene LinkedIn-, WhatsApp-, Instagram- und Telegram-Konten, in Customermates Cloud. Siehe [Posteingang](/docs/app-inbox).
+- **Rollen**, die je Bereich festlegen, wer alle Datensätze, nur zugewiesene oder keine lesen und wer sie verwalten darf. Siehe [Unternehmen](/docs/app-company).
 
 ## Vier Wege, wie Customermates mit Ihrem Stack spricht
 
@@ -40,7 +44,7 @@ Ein CRM mit fünf Record-Typen (Contacts, Organizations, Deals, Services, Tasks)
 | Auf CRM-Änderungen in Slack, einem Sequencer, BI oder Ihrem Warehouse reagieren | [Webhooks](/docs/webhooks) |
 | Workflows visuell ohne Code komponieren | [n8n](/docs/n8n) |
 
-Alle vier authentifizieren sich mit einem API-Key. MCP-Clients wie Claude und ChatGPT können sich auch per OAuth ohne Key verbinden. Siehe [API-Keys](/docs/api-keys).
+MCP, OpenAPI und n8n authentifizieren sich mit einem API-Key, und MCP-Clients wie Claude und ChatGPT können sich auch per OAuth ohne Key verbinden; siehe [API-Keys](/docs/api-keys). Webhooks funktionieren umgekehrt: Customermates sendet jede Zustellung an Ihre URL und signiert sie, wenn der Webhook ein Secret hat, mit diesem Secret; Ihr Empfänger prüft also die Signatur oder einen eigenen Header, den Sie am Webhook hinterlegen, statt eines Keys.
 
 ## Design-Ansatz
 
@@ -49,12 +53,12 @@ Customermates behandelt den KI-Client als First-Class-User. Tools sind imperativ
 ## Wie die Docs organisiert sind
 
 - **Getting Started**: [Quickstart](/docs/quickstart), [Konzepte](/docs/concepts).
-- **KI verbinden**: [Custom Connector](/docs/connect-custom-connector), [CLI & Editoren](/docs/connect-cli).
-- **App-Guide**: [Dashboard](/docs/app-dashboard), [Datensätze](/docs/app-records), [Inbox](/docs/app-inbox), [Globale Suche](/docs/app-search), der [Onboarding-Wizard](/docs/app-onboarding) und die anderen App-Screens. Jeder dokumentierte App-Bereich trägt stabile Anchor ids für KI-Agents, und die Anchors werden per Test gegen die Oberfläche abgesichert.
+- **KI verbinden**: [Custom Connector](/docs/connect-custom-connector), [CLI & Editoren](/docs/connect-cli), [Ratenlimits](/docs/messaging-rate-limits).
+- **App-Guide**: [Assistent](/docs/app-assistant), [Dashboard](/docs/app-dashboard), [Posteingang](/docs/app-inbox), [Datensätze](/docs/app-records), [Routinen](/docs/app-routines), [Profil](/docs/app-profile), [Globale Suche](/docs/app-search), der [Onboarding-Wizard](/docs/app-onboarding), [Unternehmen](/docs/app-company), [API-Keys](/docs/api-keys) und [Filter-Syntax](/docs/filter-syntax). Jeder dokumentierte App-Bereich trägt stabile Anchor ids für KI-Agents, und die Anchors werden per Test gegen die Oberfläche abgesichert.
 - **Integrationen**: [MCP](/docs/mcp), [Webhooks](/docs/webhooks), [OpenAPI](/docs/openapi), [n8n](/docs/n8n).
 - **Self-Hosting**: [Start und Betrieb](/docs/self-hosting), [Architektur und Sicherheit](/docs/architecture-security).
 - **Reference**: [MCP-Tool-Katalog](/docs/mcp#tool-catalog), [Filter-Syntax](/docs/filter-syntax), [API-Keys](/docs/api-keys).
 
 ## Ausprobieren
 
-Die eingebettete Demo auf dieser Seite ist eine Live-Instanz. Sie können Records anlegen und löschen. Nichts wird zwischen Sessions gespeichert.
+Die eingebettete Demo auf dieser Seite ist eine schreibgeschützte Live-Instanz mit Beispieldaten: Sie können sie durchsehen und durchsuchen, aber Datensätze anlegen, ändern oder löschen und Mate fragen ist gesperrt; stattdessen erscheint ein Hinweis, dass die Aktion im Demo-Modus nicht verfügbar ist. [Starten Sie eine kostenlose Testphase](/auth/signup), um mit Ihren eigenen Daten zu arbeiten.

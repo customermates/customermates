@@ -18,7 +18,7 @@ Für das End-to-End-Setup auf einer Seite springen Sie zu Ihrem Client: [Claude 
 
 Nehmen Sie stattdessen [OpenAPI](/docs/openapi), wenn ein Entwickler oder Integrations-Service genau weiß, welchen Endpoint er braucht. OpenAPI ist die kanonische HTTP-Referenz. MCP ist die Agent-native Oberfläche darüber.
 
-## Der Endpoint
+## Wie lautet die URL des MCP-Server-Endpoints? [#the-endpoint]
 
 ```
 POST https://customermates.com/api/v1/mcp
@@ -33,19 +33,25 @@ Da es die Streamable-HTTP-Variante ist, muss jede Anfrage `Accept: application/j
 
 Der `x-api-key`-Header ist die API-Key-Methode. Der Key besteht aus 64 Buchstaben (a-z, A-Z) und erbt die Rechte des Users, der ihn erstellt hat. Es gibt kein Scoping pro Key. Custom-Connector-Clients (Claude, ChatGPT) authentifizieren sich stattdessen per OAuth und senden ein Bearer-Token, das sie für Sie holen und erneuern. Siehe [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
 
+Eine Anfrage ohne `x-api-key`-Header und ohne gültiges Bearer-Token (fehlend, abgelaufen oder widerrufen) erhält HTTP `401` mit einem `WWW-Authenticate`-Header, der OAuth-Clients auf `/.well-known/oauth-protected-resource` verweist, sodass sich der Client neu anmeldet. Den Wert des Keys prüft der Server erst, wenn ein Tool läuft: Mit einem falschen, abgeschnittenen, abgelaufenen oder gelöschten Key verbindet sich der Client trotzdem und listet jedes Tool, und jeder Aufruf scheitert dann mit „Sign in to use this action.“ (die Meldung kommt auf Englisch, kind `authentication`).
+
+Der Endpoint und API-Keys stehen in jedem Tarif und auf selbst gehosteten Instanzen zur Verfügung. Nur die Messaging-, Kalender- und Social-Tools brauchen einen Tarif mit Messaging (ab Pro, nur Cloud); siehe [Messaging](/docs/mcp#messaging).
+
 ## Client verbinden
 
 Einen AI-Client mit dem Workspace zu verbinden sind immer dieselben drei Schritte:
 
 <Steps>
 <Step title="API-Key erstellen">
-**Mein Profil → API & Konnektoren → Hinzufügen**. Entweder **Schnellverbindungen** für das geführte Setup von Claude, ChatGPT & Codex, Cursor oder Gemini wählen, oder **Standard-API-Key** für die eigene Integration. Der Key wird nur einmal angezeigt, also vor dem Schließen des Dialogs kopieren. Zum Anlegen von Keys braucht Ihre Rolle die Berechtigung **API & Webhooks**; siehe [API-Keys](/docs/api-keys).
+**Mein Profil → API & Konnektoren → Hinzufügen**. Entweder **Schnellverbindungen** für das geführte Setup von Claude, ChatGPT & Codex, Cursor oder Gemini wählen, oder **Standard-API-Key** für die eigene Integration. Der Key wird nur einmal angezeigt, also vor dem Schließen des Dialogs kopieren. Zum Anlegen eines Keys braucht Ihre Rolle **Verwalten** auf **Ja** in der Zeile **API & Webhooks**, und die Seite selbst braucht **Lesen** **Alle** in dieser Zeile; die eingebaute Rolle **Admin** hat beides. Siehe [API-Keys](/docs/api-keys).
+
+**Link:** die Seite **API & Konnektoren**, `/profile/api-keys`, Cloud-URL `https://customermates.com/de/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`; `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**), danach `api-key-option-standard` für **Standard-API-Key** (Voraussetzung `profile-api-keys-generate`) sowie `api-key-name`, `api-key-expires` und `api-key-save` für **Name**, **Läuft ab** und **Speichern** (Voraussetzung `api-key-option-standard`). Die Kacheln der **Schnellverbindungen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 </Step>
 <Step title="Client auf den Endpoint zeigen lassen">
 Dem Client `POST https://customermates.com/api/v1/mcp` mit dem `x-api-key`-Header aus dem vorherigen Schritt geben, oder per OAuth verbinden, wo der Client das unterstützt. Die Guides pro Client in der Tabelle unten enthalten die genaue Konfiguration.
 </Step>
 <Step title="Prüfen, ob die Tools ankommen">
-Den Client nach seinen Tools fragen. Alle [[derived.mcp.tools.total]] sollten erscheinen, und `get_workspace_context` ist der natürliche erste Aufruf: er liefert User, Company, Rollen und verbundene Accounts auf einmal.
+Den Client nach seinen Tools fragen. Alle [[derived.mcp.tools.total]] sollten erscheinen, und `get_workspace_context` ist der natürliche erste Aufruf: er liefert User, die Workspace-Währung und die Bezeichnungen der Datensatztypen, Rollen und verbundene Accounts auf einmal.
 </Step>
 </Steps>
 
@@ -67,7 +73,7 @@ Der Server stellt beim Verbinden Anweisungen bereit. Ob ein Client sie an das Mo
 
 Der Server sendet beim Verbinden Hinweise zum Ablauf: zuerst das Schema lesen, IDs vor dem Schreiben suchen, Beziehungen nur über `manage_record_links` ändern und vor dem Löschen oder Senden die Bestätigung der Nutzerin oder des Nutzers einholen und dabei die genauen Datensätze oder Empfänger nennen. Diese Hinweise bilden keine serverseitig erzwungene Freigabe. Prüfen Sie, wie der gewählte Client die Anweisungen an das Modell weitergibt und Bestätigungen behandelt, bevor Sie Schreib-, Lösch- oder Messaging-Zugriff gewähren. In Clients mit MCP-Prompt-Unterstützung kann ein eingebauter Get-Started-Prompt den Workspace für den Einstieg zusammenfassen.
 
-Die volle [[derived.mcp.tools.total]]-Tool-Oberfläche ist der Standard. Hängen Sie `?toolsets=` an die Endpoint-URL, um sie einzugrenzen, zum Beispiel `/api/v1/mcp?toolsets=records,messaging`. Keys und Details stehen unter [Eingrenzen mit ?toolsets=](/docs/mcp#eingrenzen-mit-toolsets).
+Die volle [[derived.mcp.tools.total]]-Tool-Oberfläche ist der Standard. Hängen Sie `?toolsets=` an die Endpoint-URL, um sie einzugrenzen, zum Beispiel `/api/v1/mcp?toolsets=records,messaging`. Keys und Details stehen unter [Eingrenzen mit ?toolsets=](/docs/mcp#narrowing-with-toolsets).
 
 ## Wie die Tool-Oberfläche gebaut ist
 
@@ -77,7 +83,7 @@ Die MCP-Oberfläche ist so gebaut, dass auch Modelle mit schwächerer Planung si
 - **Zusammengeführte Peripherie**: Custom Columns, Widgets und Webhooks liegen jeweils hinter einem Tool (`manage_custom_columns`, `manage_widgets`, `manage_webhooks`) mit `action`-Schalter, sodass das Modell eine Action wählt statt zwischen vielen fast identischen Tools.
 - **Inline-Enum-Hinweise**: jedes Enum-Feld listet gültige Werte inline in der Beschreibung, sodass das Modell keine externen Typen auflösen muss.
 - **Filter-Beispiele inline**: jeder `filters`-Parameter hat ein konkretes JSON-Beispiel in der Beschreibung.
-- **Relationship-Sicherheit**: Beziehungen ändern sich nur über `manage_record_links` (add oder remove); `null` auf einem Relationship-Array wird mit Remediation-Hint abgelehnt.
+- **Relationship-Sicherheit**: Beziehungen ändern sich über `manage_record_links` (add oder remove). Die `update_*`-Tools akzeptieren keine Relations-ID-Felder: Ein Feld `organizationIds`, `userIds`, `contactIds`, `dealIds`, `serviceIds` oder `taskIds` wird dort als unbekanntes Feld abgelehnt. Einzige Ausnahme ist `services` in `update_deals`, das die gesamte Service-Liste des Deals samt Mengen ersetzt. `null` auf `customFieldValues` oder auf `services` in `update_deals` wird mit dem Hinweis abgelehnt, das Feld wegzulassen, `[]` zu übergeben oder `manage_record_links` zu nutzen.
 - **Explizite Absicht**: `manage_custom_columns` upsert verlangt `intent` (`create` oder `update`); beim Update sind `label`, `type` und `entityType` unveränderlich, und das Label muss mit dem bestehenden übereinstimmen. Ein Typ- oder Label-Wechsel bedeutet also löschen und neu anlegen.
 - **Destructive-Flags**: jedes destruktive Tool und jede destruktive Action hat `destructiveHint: true` und nennt `IRREVERSIBLE` in seiner Beschreibung.
 
@@ -89,11 +95,11 @@ Wenn Sie einen lokalen Client statt GUI wollen, verbinden Tools wie `mcporter` d
 
 Beide liegen an derselben Basis-URL. MCP nutzt `/api/v1/mcp`, die OpenAPI-Spezifikation `/api/v1/openapi`. Die OpenAPI-Operationen entsprechen den REST-Endpunkten. MCP bildet unterstützte Operationen als typisierte Tools mit Anweisungen, Metadaten und derselben Produkt-Autorisierung ab. Die Anweisungen fügen keine zweite serverseitige Bestätigung hinzu.
 
-## Tool-Katalog [#tool-catalog]
+## Tool-Katalog: die vollständige Liste der MCP-Tools [#tool-catalog]
 
-Customermates exponiert [[derived.mcp.tools.total]] MCP-Tools, alle standardmäßig aktiviert. Sie decken Records, Workspace, Messaging, Social Posts, Dokumentation und Deep Research, Custom Columns, Widgets, Routinen, Webhooks, Admin und Support ab. Jedes destruktive Tool ist geflaggt und nennt `IRREVERSIBLE` in seiner Beschreibung. Beziehungen ändern sich nur über `manage_record_links`; die Update-Tools fassen sie nie an.
+Customermates exponiert [[derived.mcp.tools.total]] MCP-Tools, alle standardmäßig aktiviert. Sie decken Records, Workspace, Messaging, Social Posts, Dokumentation und Deep Research, Custom Columns, Widgets, Routinen, Webhooks, Admin und Support ab. Jedes destruktive Tool ist geflaggt und nennt `IRREVERSIBLE` in seiner Beschreibung. Beziehungen ändern sich über `manage_record_links`; die Update-Tools fassen sie nicht an, außer `services` in `update_deals`, das die Service-Liste eines Deals ersetzt.
 
-Jedes Tool unten führt seine Zusammenfassung, sein Flag (sofern vorhanden) und seine Argumente. Zwei Flags sind wichtig: **Nur lesend** kennzeichnet ein Tool, das nichts verändert und das Sie in Ihrem Client ohne Rückfrage erlauben können, und **IRREVERSIBEL** kennzeichnet eines, das Daten löscht oder nicht rückgängig zu machen ist. Bei zusammengeführten Tools gilt das zerstörende Flag für die löschenden Actions.
+Jedes Tool unten führt seine Zusammenfassung, sein Flag (sofern vorhanden) und seine Argumente. Zwei Flags sind wichtig: **Nur lesend** kennzeichnet ein Tool, das nichts verändert und das Sie in Ihrem Client ohne Rückfrage erlauben können, und **IRREVERSIBEL** kennzeichnet eines, das Daten löscht. Bei zusammengeführten Tools gilt das zerstörende Flag für die löschenden Actions. Tools, die etwas Echtes versenden oder Daten außerhalb des Workspace ändern, tragen keines der beiden Flags, darunter `send_email`, `send_chat_message`, `request_support`, `manage_team` (die Action invite versendet echte E-Mails), `manage_social_relations` (Actions invite, accept und cancel), die Save-Action von `linkedin_manage_sales_lists` und `move_email_thread` (verschiebt den Thread im echten Postfach). Lassen Sie sie in Ihrem Client auf *Ask*; die Server-Anweisungen fordern das Modell auf, die meisten davon bestätigen zu lassen.
 
 {/* mcp-catalog:flags */}
 **Nur lesend:** `get_record_schema`, `list_records`, `search_records`, `get_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
@@ -105,7 +111,7 @@ Das volle JSON-Schema jedes Tools liegt live an `POST /api/v1/mcp` mit `method: 
 
 ### Records
 
-Siebzehn Tools arbeiten gegen die fünf Record-Typen (contact, organization, deal, service, task). Records tragen pro Workspace definierte Custom Columns, deshalb ist `get_record_schema` der Anker: Es liefert die Custom-Column-IDs und Optionswerte, die Schreibzugriffe brauchen. Felder wie ein Deal- oder Task-Status sind konfigurierbare singleSelect Custom Columns, keine festen nativen Felder; `get_record_schema` liefert genau die Spalten, die der Workspace tatsächlich hat.
+[[derived.mcp.tools.groups.records]] Tools arbeiten gegen die fünf Record-Typen (contact, organization, deal, service, task). Records tragen pro Workspace definierte Custom Columns, deshalb ist `get_record_schema` der Anker: Es liefert die Custom-Column-IDs und Optionswerte, die Schreibzugriffe brauchen. Felder wie ein Deal- oder Task-Status sind konfigurierbare singleSelect Custom Columns, keine festen nativen Felder; `get_record_schema` liefert genau die Spalten, die der Workspace tatsächlich hat.
 
 Alle Create- und Update-Tools nehmen Custom-Column-Werte über customFieldValues; rufen Sie zuerst `get_record_schema` für die Column-IDs auf. `list_records` liefert `total` und, bei Entitäten mit numerischen Spalten, `sums` vor den Elementen; bei Deals enthält `sums` `totalValue`, `totalQuantity` und `weightedValue`, die mit der Gewinnwahrscheinlichkeit der jeweiligen Stufe gewichtete Pipeline, über alle Datensätze, die zu den Filtern passen. `pageSize` wird auf die nächste unterstützte Größe aufgerundet: 5, 10, 25 oder 100.
 
@@ -202,7 +208,7 @@ Pflicht: `entity`, `mode`, `items`.
 
 #### `manage_record_links`
 
-IDs auf einer Beziehung hinzufügen oder entfernen (`action` add oder remove). Der einzige Weg, Beziehungen zu ändern.
+IDs auf einer Beziehung hinzufügen oder entfernen (`action` add oder remove). Der Weg, Beziehungen zu ändern; nur `update_deals` ersetzt außerdem die gesamte Service-Liste eines Deals.
 
 Pflicht: `action`, `entity`, `sourceId`, `relation`, `ids`.
 
@@ -218,7 +224,7 @@ IRREVERSIBLES Hard-Delete von 1 bis 100 Records per ID (Contacts auch per E-Mail
 {/* mcp-catalog:workspace */}
 #### `get_workspace_context`
 
-Ihr User, das Company-Profil, alle Rollen inklusive Rechte und Ihre verbundenen Messaging-Konten (Ihre eigenen plus die mit dem Workspace geteilten) in einem Call. Der natürliche erste Call einer Session.
+Ihr User, die Workspace-Währung und die Bezeichnungen der Datensatztypen (terminology, die Wörter für Antworten an den User), alle Rollen inklusive Rechte und Ihre verbundenen Messaging-Konten (Ihre eigenen plus die mit dem Workspace geteilten; leer, wenn Ihre Rolle bei Inbox-Nachrichten keinen Lesezugriff hat) in einem Call. Der natürliche erste Call einer Session.
 
 **Nur lesend.** Keine Argumente.
 
@@ -231,7 +237,9 @@ Teammitglieder mit ID, Name, E-Mail, roleId und Status. Hat die Rolle des Aufruf
 
 ### Messaging
 
-Messaging-basierte Tools sind im Cloud-Modus ab dem Pro-Tarif verfügbar. `get_activities` kann ohne Messaging-Berechtigung weiterhin Änderungen aus dem Audit-Log liefern, wenn der aufrufende User die Audit-Log-Berechtigung hat. Nachrichten, Aktivitäten verbundener Accounts und Kalenderquellen erfordern zusätzlich die Berechtigung für den Posteingang und Messaging.
+Messaging-basierte Tools brauchen einen Tarif mit Messaging: ab Pro, nur in der Cloud; Starter und selbst gehostete Instanzen lehnen sie ab. `get_activities` kann ohne Messaging im Tarif weiterhin Änderungen aus dem Audit-Log liefern, wenn die Rolle des aufrufenden Users **Lesen** **Alle** in der Zeile **Audit-Log** hat. Die Quellen Nachrichten, Aktivitäten verbundener Konten und Kalender brauchen **Lesen** in der Zeile **Inbox-Nachrichten** und dazu einen Tarif mit Messaging.
+
+`connect_messaging_account` braucht außerdem **Verwalten** **Ja** bei **Inbox-Nachrichten** und einen freien Kontoplatz: Pro erlaubt [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer, Business [[commercial.entitlement.business.includedAccountsPerUser]] und Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]].
 
 {/* mcp-catalog:messaging */}
 #### `get_messaging_threads`
@@ -242,7 +250,7 @@ Zwei Modi: ohne threadId listet es Inbox-Threads mit Filtern und Sortierung (Thr
 
 #### `get_activities`
 
-Aktivitäts-Timeline mit optionalem technischem Entitätsumfang und UND-verknüpften Filtern. Filter unterstützen Kategorie/Roh-Typ, Unterhaltung, Anbieter, verbundenen Account sowie verknüpfte Kontakte, Organisationen, Deals, Services und Aufgaben. Jedes Aktivitätsfilterfeld darf einmal vorkommen; Alternativen gehören in das Werte-Array einer einzigen Mitgliedschaftsregel. Beziehungsfelder akzeptieren `in`, `notIn`, `hasSome` und `hasNone`; Mitgliedschaft benötigt 1–50 UUIDs. Beziehungs-UUIDs müssen auf Datensätze verweisen, die Sie lesen dürfen; nicht auflösbare Ids werden abgelehnt. Das Ergebnis enthält `availableSources`, `scopeTruncated`, `pageLimitReached`, Gesamtzahl und Seite. Die Seitennummer ist auf 40 begrenzt.
+Aktivitäts-Timeline mit optionalem technischem Entitätsumfang und UND-verknüpften Filtern. Filter unterstützen Kategorie/Roh-Typ, Unterhaltung, Anbieter, verbundenen Account sowie verknüpfte Kontakte, Organisationen, Deals, Services und Aufgaben. Jedes Aktivitätsfilterfeld darf einmal vorkommen; Alternativen gehören in das Werte-Array einer einzigen Mitgliedschaftsregel. Beziehungsfelder akzeptieren `in`, `notIn`, `hasSome` und `hasNone`; Mitgliedschaft benötigt 1 bis 50 UUIDs. Beziehungs-UUIDs müssen auf Datensätze verweisen, die Sie lesen dürfen; nicht auflösbare Ids werden abgelehnt. Das Ergebnis enthält `availableSources`, `scopeTruncated`, `pageLimitReached`, Gesamtzahl und Seite. Die Seitennummer ist auf 40 begrenzt.
 
 **Nur lesend.** Optional: `page`, `pageSize`, `scope`, `filters`, `sortDescriptor`.
 
@@ -290,12 +298,14 @@ Pflicht: `threadId`, `folderId`.
 
 #### `connect_messaging_account`
 
-Erzeugt einen Link, den der User im Browser öffnet, um einen Kanal zu verbinden (WhatsApp, LinkedIn, E-Mail, Instagram, Telegram). Sie geben den Link zurück; der User schließt die Auth dort ab. Läuft nach 30 Minuten ab.
+Erzeugt einen Link, den der User im Browser öffnet, um einen Kanal zu verbinden: Gmail (google), Outlook, IMAP-E-Mail, WhatsApp, LinkedIn Classic, Sales Navigator oder Recruiter, Instagram oder Telegram. Sie geben den Link zurück; der User schließt die Auth dort ab. Der Link gilt nur für den anfragenden User und läuft nach 30 Minuten ab. Braucht Verwalten auf Inbox-Nachrichten, einen Tarif mit Messaging und einen freien Platz für ein verbundenes Konto in diesem Tarif.
 
 Pflicht: `channel`.
 {/* /mcp-catalog */}
 
 ### Social Posts
+
+Wie Messaging brauchen diese Tools einen Tarif mit Messaging (ab Pro, nur Cloud) und ein verbundenes LinkedIn- oder Instagram-Konto. Die `linkedin_*`-Tools brauchen zusätzlich das Sales-Navigator-Abo dieses LinkedIn-Kontos.
 
 {/* mcp-catalog:social */}
 #### `get_social_posts`
@@ -387,13 +397,13 @@ Für ein Unternehmen rufen Sie `get_social_profile` mit `profileType=company` un
 {/* mcp-catalog:docs */}
 #### `search_docs`
 
-Volltextsuche über die Docs; standardmäßig nur die Produkt-Guides (source=docs); mit source=api oder all auch die REST-API-Referenz. Liefert Slug, Source, Titel, URL, Snippet.
+Volltextsuche über die Docs; standardmäßig nur die Produkt-Guides (source=docs); mit source=api oder all auch die REST-API-Referenz. Liefert bis zu 5 Seiten, jeweils mit Slug, Source, Titel, URL, dem passendsten Abschnitt samt Anker und einem Snippet, dazu die Gesamtzahl.
 
 **Nur lesend.** Pflicht: `query`. Optional: `locale`, `source`.
 
 #### `get_docs_page`
 
-Eine Doku-Seite als Markdown inklusive kanonischer URL. Listet bei einem Miss alle gültigen Slugs.
+Eine Doku-Seite als Markdown inklusive kanonischer URL. Mit `query` kommt statt der ganzen Seite ein Auszug von etwa 1.400 Zeichen aus dem passendsten Abschnitt (plus einem zweiten Abschnitt, wenn er hineinpasst). Listet bei einem Miss alle gültigen Slugs.
 
 **Nur lesend.** Pflicht: `slug`. Optional: `query`, `locale`, `source`.
 
@@ -415,7 +425,7 @@ Deep-Research-Gegenstück zu `search`: holt ein Ergebnis per ID.
 {/* mcp-catalog:custom-columns */}
 #### `manage_custom_columns`
 
-Ein Tool mit `action`-Schalter: list, upsert (anlegen oder aktualisieren), delete. upsert verlangt `intent` (`create` oder `update`). Deckt alle zehn Spaltentypen ab; label, type und entityType sind beim Update unveränderlich. Delete ist IRREVERSIBLE und löscht alle gespeicherten Werte.
+Ein Tool mit `action`-Schalter: list, upsert (anlegen oder aktualisieren), delete. upsert verlangt `intent` (`create` oder `update`); ältere Aufrufer dürfen es nur weglassen, wenn sie auch `id` weglassen. Deckt alle zehn Spaltentypen ab; label, type und entityType sind beim Update unveränderlich. Bei singleSelect ERSETZT die Optionsliste alle Optionen, und eine weggelassene Option verliert ihre gespeicherten Werte. Anlegen, Ändern und Löschen einer Spalte braucht Verwalten in der Zeile des Datensatztyps (Kontakte, Organisationen, Deals, Services oder Aufgaben). Delete ist IRREVERSIBLE, löscht alle gespeicherten Werte und wird abgelehnt, solange eine Routine die Spalte verwendet.
 
 **IRREVERSIBEL.** Pflicht: `action`. Optional: `entityType`, `id`, `intent`, `type`, `label`, `selectOptions`, `options`.
 {/* /mcp-catalog */}
@@ -468,6 +478,8 @@ Pflicht: `action`. Optional: `emails`, `userId`, `roleId`, `status`.
 
 Kein Tool liest das Abonnement, den Plan, die Nutzerplätze oder die Abrechnung oder ändert den Plan, und keines legt Rollen oder API-Keys an, bearbeitet oder löscht sie; auch `get_workspace_context` liefert keine Plan- oder Testphasendaten. Die abgerechneten Nutzerplätze folgen der Zahl der Mitglieder mit Status **Aktiv**: Wer mit `manage_team` den Status eines Mitglieds ändert, ändert also wie in der App auch die Zahl der Nutzerplätze ([wie Nutzerplätze gezählt werden](/docs/app-company#how-are-seats-counted-and-billed)). Abonnement, Rollen und API-Keys verwalten Sie in der App: **Mein Unternehmen → Abonnement**, **Mein Unternehmen → Rollen** und **Mein Profil → API & Konnektoren**.
 
+**Link:** die Seite **Abonnement**, `/company/subscription` (nur Cloud), die Seite **Rollen**, `/company/roles`, und die Seite **API & Konnektoren**, `/profile/api-keys`, Cloud-URLs `https://customermates.com/de/company/subscription`, `https://customermates.com/de/company/roles` und `https://customermates.com/de/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-company-subscription`, `nav-company-roles` oder `nav-profile-api-keys`, und `highlight_element` mit `company-roles-add` für **Hinzufügen** auf **Rollen**.
+
 ### Support
 
 {/* mcp-catalog:support */}
@@ -478,7 +490,7 @@ Sendet eine Support-Anfrage an das Customermates-Team (Betreff plus Beschreibung
 Pflicht: `subject`, `body`.
 {/* /mcp-catalog */}
 
-### Eingrenzen mit ?toolsets=
+### Eingrenzen mit ?toolsets= [#narrowing-with-toolsets]
 
 Alle [[derived.mcp.tools.total]] Tools sind standardmäßig an. Um nur einen Teil der Oberfläche zu exponieren, hängen Sie `?toolsets=` mit kommagetrennten Gruppen-Keys an die Endpoint-URL:
 
@@ -488,7 +500,7 @@ https://customermates.com/api/v1/mcp?toolsets=records,messaging
 
 Keys: records, workspace, messaging, social, docs, custom-columns, widgets, routines, webhooks, admin, support. Kein Parameter heißt alles; unbekannte Keys werden ignoriert, und eine Liste ohne erkannten Key liefert die volle Oberfläche. `search` und `fetch` sind immer an, damit Deep-Research-Connectors auch auf einer eingegrenzten Oberfläche funktionieren.
 
-### Wenn ein Aufruf abgelehnt wird
+### Wenn ein Aufruf abgelehnt wird [#when-a-call-is-refused]
 
 Eine Ablehnung ist Datum, kein Absturz. Das Ergebnis trägt `isError: true`, eine menschenlesbare Nachricht in `content` und einen maschinenlesbaren Umschlag in `_meta.failure` mit `kind` und den betroffenen `issues`, die jeweils den Feld-`path` benennen:
 
@@ -508,18 +520,25 @@ Eine Ablehnung ist Datum, kein Absturz. Das Ergebnis trägt `isError: true`, ein
 `kind` ist eines von `validation`, `authentication`, `authorization`, `not_found`, `conflict`, `rate_limit` oder `unavailable`. Darauf verzweigen statt Nachrichtentexte zu matchen:
 
 - **validation**: die Argumente waren falsch. `issues[].path` lesen, das Feld korrigieren, erneut aufrufen. `get_record_schema` klärt die meisten dieser Fälle.
-- **authorization**: die Rolle des Aufrufers erlaubt es nicht. Wiederholen hilft nie; benennen, was abgelehnt wurde und welche Berechtigung es braucht. Rollen sind workspace-definiert, also `get_workspace_context.roles` lesen statt einen festen Satz anzunehmen.
+- **authorization**: die Rolle des Aufrufers erlaubt es nicht. Wiederholen hilft nie; benennen, was abgelehnt wurde und welche Berechtigung es braucht. Rollen sind workspace-definiert, also `get_workspace_context.roles` lesen statt einen festen Satz anzunehmen. Ein Key oder eine Verbindung, deren Besitzer auf **Inaktiv** steht, landet ebenfalls hier, mit „Your user account is inactive. Contact a workspace administrator.“
 - **not_found**: die Id existiert nicht oder gehört zu einem anderen Workspace. Jeder Aufruf ist mandantengebunden, eine fremde Id liest sich daher als fehlend, nicht als verboten.
 - **conflict**: etwas belegt die Ressource bereits. Vor dem Wiederholen den aktuellen Stand lesen.
 - **rate_limit** und **unavailable**: vorübergehend oder kapazitätsbedingt. Zurückhalten, und `unavailable` als Provider-Problem darstellen, nicht als Fehler des Users.
-- **authentication**: der Key fehlt, ist abgelaufen oder widerrufen. Der User muss einen neuen ausstellen.
+- **authentication**: der Key ist falsch, abgeschnitten, abgelaufen oder gelöscht, und jeder Aufruf meldet „Sign in to use this action.“ Der User muss einen neuen Key anlegen. Eine Anfrage ohne Key und ohne gültiges OAuth-Token erhält HTTP `401`, bevor ein Tool läuft.
 
-Entitlements lehnen auf demselben Weg ab. Messaging-gestützte Tools brauchen die Pro-Stufe, Sales-Navigator-Tools das entsprechende LinkedIn-Abo, und das Verbinden eines Accounts endet am Kanal-Limit des Plans. Berechtigung und Entitlement sind unabhängig: ein Aufrufer kann Inbox-Berechtigung haben und trotzdem am Plan scheitern, und umgekehrt.
+Zwei Arten von Ergebnissen mit `isError: true` tragen kein `_meta.failure`; unterscheiden Sie sie am Text:
+
+- **Abgewiesen, bevor das Tool lief.** Argumente, die nicht zum Input-Schema des Tools passen, einschließlich eines Felds, das das Schema nicht kennt, sowie ein Tool-Name, den der Server nicht anbietet, kommen nur als Text zurück, beginnend mit `MCP error -32602:` (bei einer Schema-Abweichung `Input validation error: Invalid arguments for tool <name>:`, gefolgt von den betroffenen Feldern). Behandeln Sie das wie `validation`: Argumente mit dem Schema des Tools aus `tools/list` vergleichen, korrigieren und erneut aufrufen.
+- **Unerwarteter Serverfehler.** Der Text lautet genau „Error: The operation could not be completed“; behandeln Sie es wie `unavailable`.
+
+Jede Ablehnung, die das Tool selbst entscheidet, einschließlich Berechtigungs-, Tarif-, Not-found- und Konflikt-Ablehnungen, trägt `_meta.failure`.
+
+Tarife lehnen auf demselben Weg ab. Messaging-, Kalender- und Social-Tools brauchen einen Tarif mit Messaging (ab Pro, nur Cloud), Sales-Navigator-Tools das entsprechende LinkedIn-Abo, und das Verbinden eines Kontos endet, sobald das Kontolimit pro Nutzer des Tarifs erreicht ist. Eine Tarif-Ablehnung kommt als kind `validation` mit leerem `path` und ohne `customCode`; andere Argumente helfen nicht, also geben Sie die Meldung (Pro-Tarif nötig, kein aktives Abonnement und keine laufende Testphase, oder nur in der Cloud) an den User weiter. Auch Routinen sind pro Nutzer begrenzt: `manage_routines` create wird mit kind `conflict` und `customCode` `routineLimitReached` abgelehnt, sobald der Aufrufer so viele Routinen besitzt, wie der Tarif enthält ([[commercial.entitlement.starter.includedRoutinesPerUser]] in Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] in Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] in Business und Enterprise). Ohne Messaging im Tarif lassen Aktivitäts-Widgets und ihre filterbaren Felder in `manage_widgets` Nachrichten und Kalendertermine weg, statt abzulehnen. Berechtigung und Tarif sind unabhängig: Ein Aufrufer kann die Berechtigung für **Inbox-Nachrichten** haben und trotzdem am Tarif scheitern, und umgekehrt.
 
 ### Tool-Metadaten und serverseitige Grenzen
 
-- **Bestätigungshinweis für den Client.** Die Server-Anweisungen sagen ausdrücklich, dass hier nichts abgesichert ist, listen jedes Tool auf, das löscht, versendet oder nach außen wirkt, und fordern das Modell auf, vorher die Bestätigung seiner eigenen Nutzerin oder seines eigenen Nutzers einzuholen und dabei die genauen Datensätze oder Empfänger zu nennen. Der MCP-Endpunkt führt einen autorisierten Tool-Aufruf aus, sobald der Client ihn sendet; die Bestätigung ist damit Sache des Clients, und zu prüfen, ob er sie einhält, gehört zur Auswahl.
-- **Beziehungen nur über `manage_record_links`.** Die Update-Tools fassen Beziehungen nie an, und `null` auf einem Relationship-Array wird serverseitig mit Remediation-Hint abgelehnt.
+- **Bestätigungshinweis für den Client.** Die Server-Anweisungen sagen ausdrücklich, dass hier nichts abgesichert ist, listen die Tools auf, die löschen, versenden oder nach außen wirken (`move_email_thread` sowie die Actions accept und cancel von `manage_social_relations` stehen nicht auf dieser Liste), und fordern das Modell auf, vorher die Bestätigung seiner eigenen Nutzerin oder seines eigenen Nutzers einzuholen und dabei die genauen Datensätze oder Empfänger zu nennen. Der MCP-Endpunkt führt einen autorisierten Tool-Aufruf aus, sobald der Client ihn sendet; die Bestätigung ist damit Sache des Clients, und zu prüfen, ob er sie einhält, gehört zur Auswahl.
+- **Beziehungen über `manage_record_links`.** Die `update_*`-Tools akzeptieren keine Relations-ID-Felder; ein trotzdem gesendetes wird als unbekanntes Feld abgelehnt. Einzige Ausnahme ist `services` in `update_deals`, das die gesamte Service-Liste des Deals samt Mengen ersetzt. `null` auf `customFieldValues` oder auf `services` in `update_deals` wird serverseitig mit dem Hinweis abgelehnt, das Feld wegzulassen, `[]` zu übergeben oder `manage_record_links` zu nutzen.
 - **Erst Draft, dann Send.** `send_email` und `send_chat_message` stellen sofort zu. Wer eine Nachricht vorbereitet haben will, bekommt sie über `save_message_draft`, und Sie senden sie aus der Inbox. Ein Draft braucht keine bestehende Unterhaltung: Mit `connectedAccountId` und `recipients` entsteht der Thread lokal, erscheint in der Inbox und erreicht den Anbieter erst beim Senden.
 - **Destructive-Flags überall.** Jedes destruktive Tool und jede destruktive Action hat `destructiveHint: true` und nennt `IRREVERSIBLE` in seiner Beschreibung.
 - **Jedes Enum-Feld** listet gültige Werte inline in der Beschreibung, und **jedes `filters`-Feld** enthält ein konkretes JSON-Beispiel.
@@ -531,13 +550,16 @@ Entitlements lehnen auf demselben Weg ab. Messaging-gestützte Tools brauchen di
 Den 64-stelligen API-Key im Header `x-api-key` senden, oder per OAuth verbinden, wo der Client das unterstützt. Keys entstehen unter **Mein Profil → API & Konnektoren → Hinzufügen**. Jeder Key trägt die eigenen Rechte, ein Client kann also nie mehr als man selbst.
 </FaqItem>
 <FaqItem question="Welche AI-Clients können sich verbinden?">
-Für Claude im Web, mobil und als Desktop-App, ChatGPT, Claude Code, Codex und Cursor sind oben Verbindungswege dokumentiert. Ein anderer Client kann sich verbinden, wenn er MCP über Streamable HTTP und die benötigte Authentifizierung unterstützt. Prüfen Sie vor der Nutzung die konkrete Kompatibilität und den Umgang mit Anweisungen.
+Für Claude im Web, mobil und als Desktop-App, ChatGPT, Claude Code, Codex, Cursor und die Gemini CLI sind oben Verbindungswege dokumentiert. Ein anderer Client kann sich verbinden, wenn er MCP über Streamable HTTP und die benötigte Authentifizierung unterstützt. Prüfen Sie vor der Nutzung die konkrete Kompatibilität und den Umgang mit Anweisungen.
+</FaqItem>
+<FaqItem question="Welchen Tarif brauche ich für MCP?">
+Keinen bestimmten. Der MCP-Endpoint und API-Keys funktionieren in jedem Tarif, während der Testphase und auf selbst gehosteten Instanzen. Der Tarif ändert, was einige Tools erlauben: Die Messaging-, Kalender- und Social-Tools brauchen einen Tarif mit Messaging, ab Pro in der Cloud, und lehnen in Starter oder selbst gehostet mit einer Tarif-Meldung ab; das Verbinden eines Messaging-Kontos endet am Kontolimit pro Nutzer des Tarifs; `manage_routines` lehnt eine neue Routine ab, sobald der Aufrufer das Routinenlimit des Tarifs erreicht hat; und Aktivitäts-Widgets lassen ohne Messaging Nachrichten und Kalendertermine weg. Siehe [Wenn ein Aufruf abgelehnt wird](/docs/mcp#when-a-call-is-refused). Endet die Testphase oder bleibt eine Zahlung aus, pausiert zuerst die Web-App, während API-Keys und MCP-Verbindungen weiterarbeiten, bis die Mitglieder auf **Inaktiv** gesetzt werden; siehe [was passiert, wenn die Testphase endet](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails).
 </FaqItem>
 <FaqItem question="Kann ich die Zahl der Tools reduzieren, die ein Client sieht?">
 Ja. `?toolsets=` mit einer kommagetrennten Liste der Gruppen oben an die Endpoint-URL anhängen, dann werden nur diese Tools angeboten. Die beiden Connector-Tools `search` und `fetch` bleiben immer aktiv.
 </FaqItem>
 <FaqItem question="Woran erkenne ich gefährliche Tools?">
-Jedes destruktive Tool ist im Katalog oben markiert und nennt `IRREVERSIBLE` in seiner Beschreibung. Clients, die MCP-Metadaten auswerten, erhalten zusätzlich `destructiveHint` und können vor dem Aufruf nachfragen. Diese Metadaten helfen dem Client; eine zweite serverseitige Freigabe sind sie nicht.
+Jedes destruktive Tool ist im Katalog oben markiert und nennt `IRREVERSIBLE` in seiner Beschreibung. Tools, die etwas Echtes versenden, etwa `send_email`, `send_chat_message` oder die Einladung über `manage_team`, tragen kein destruktives Flag; der [Tool-Katalog](/docs/mcp#tool-catalog) listet sie. Clients, die MCP-Metadaten auswerten, erhalten zusätzlich `destructiveHint` und können vor dem Aufruf nachfragen. Diese Metadaten helfen dem Client; eine zweite serverseitige Freigabe sind sie nicht.
 </FaqItem>
 <FaqItem question="Liefern Tools maschinenlesbare Ergebnisse?">
 Ja. Jedes Tool deklariert ein Output-Schema, live sichtbar über `tools/list`, und liefert dazu passendes `structuredContent` neben der kompakten Textform, sodass ein Client Ergebnisse verketten kann, ohne Text zu parsen.

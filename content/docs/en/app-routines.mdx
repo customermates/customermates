@@ -5,64 +5,81 @@ description: "Routines run Mate on a schedule or when a record changes, using th
 
 A routine is a saved instruction plus a trigger. When the trigger fires, Customermates opens a new assistant conversation, sends your instruction, and lets Mate work on its own. Who can see a routine follows the **Routines** row of their role under **My Company › Roles**: **Read access** **All** shows every routine in the workspace, **Assigned** shows the ones they own, and **None** hides **Routines**; creating and editing your own routines needs **Manage** set to **Yes**. Run summaries follow the routine. The full assistant transcript stays with the person the run executed as. Routines exist on Customermates Cloud only, because they spend hosted AI credits from the owner's monthly allowance.
 
+**Link:** the **Routines** page, `/routines`, Cloud URL `https://customermates.com/en/routines`; a single routine has no link of its own, so open it from the list. **Mate:** `navigate` and `highlight_element` with `nav-routines`; `routines-add` highlights **Add** (present only with **Manage** **Yes** on **Routines**), `routines-search` and `routines-filter` the search box and filters, `routines-display-options` the display options with `routines-layout-table` and `routines-layout-board` inside them. Once the routine dialog is open, `routine-modal-save` and `routine-modal-reset` highlight **Save** and **Reset**, which are shown only to the routine's owner with **Manage** **Yes**, **Reset** only after a change, and neither while **Run details** is open; the dialog's fields, **Test trigger**, **Delete** and **Pause routine** are not highlight targets, so Mate names them.
+
 ## What is a routine made of?
 
+- **Name**: required, up to 120 characters.
 - **Instructions**: the prompt Mate receives on every run, up to 5,000 characters. Write it as if you were asking in chat.
-- **Trigger**: either a schedule, or one or more in-app events such as a deal being updated.
+- **Trigger**: **On a schedule**, or **When something changes** for one or more in-app events such as a deal being updated.
 - **Limits**: Customermates caps how often a routine may run and how many credits a single run may spend, so a routine cannot drain your allowance unattended.
 
-The creator becomes the routine owner. Only that owner can change its instructions or triggers, activate or pause it, or use **Test trigger**, because every run uses that person's identity, access and AI credits. Deleting a routine, your own included, needs the **Admin** role; on another person's routine, a member with the **Admin** role can pause or delete it but cannot edit, test or run it. Members are never deleted, only set to **Inactive** under **My Company › Members**. When an owner stops being **Active**, their routines are paused at once, their queued or running runs end as `blocked`, and each routine keeps its history. It then stays paused and read-only until a member with the **Admin** role deletes it, or until the owner is set to **Active** again and switches it back on.
+A routine you add in the app is saved **Active**; switch it to **Paused** before saving to keep it as a draft. A routine Mate creates is a draft unless you asked for it to be active.
+
+The creator becomes the routine owner. Only that owner can change its instructions or triggers, activate or pause it, or use **Test trigger**, because every run uses that person's identity, access and AI credits. Deleting a routine, your own included, needs the **Admin** role and is refused while one of its runs is running (**Wait for the active run to finish before deleting this routine.**); deleting also removes the run history. On another person's routine, a member with the **Admin** role can pause or delete it but cannot edit, test or run it. Members are never deleted, only set to **Inactive** under **My Company › Members**. When an owner stops being **Active**, their routines are paused at once, their queued or running runs end as **Blocked**, and each routine keeps its history. It then stays paused and read-only until a member with the **Admin** role deletes it, or until the owner is set to **Active** again and switches it back on.
 
 ## How many routines does my plan include?
 
 Each user gets a separate allowance: Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user, Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user, and Business and Enterprise include [[commercial.entitlement.business.includedRoutinesPerUser]] routines per user. Another user's routines never use your slots. Pausing a routine does not free a slot, deleting one does. At the limit, a new routine is refused with a prompt to upgrade, which a role with **Manage** on the **Company** row does under **My Company › Subscription**; the limit is checked only when a routine is created, so routines above a lower plan's limit are kept after a downgrade. See [Plans and credits](/docs/app-assistant#plans-and-credits) for the credit allowance the runs draw on.
 
+**Link:** the **Routines** page, `/routines`, Cloud URL `https://customermates.com/en/routines`, and the **Subscription** page, `/company/subscription`, Cloud URL `https://customermates.com/en/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-routines`, or `nav-company-subscription` (highlightable only while **My Company** is expanded in the sidebar); on the **Subscription** page, `company-subscription-plan-picker` highlights the plan cards where they are shown.
+
 ## What are the limits?
 
 | Limit | Value | What happens at the limit |
 |---|---|---|
-| Runs per routine and hour | 4 | Further runs in that hour are recorded as `skipped` |
-| Credits per run | 10 | The run stops at the cap and is recorded as `partial` |
+| Runs per routine and hour | 4 | Further runs in that hour do not start; a matching event is dropped without a run entry, and a due scheduled run or **Test trigger** run is recorded as **Skipped** |
+| Credits per run | 10 | The run stops at the cap and is recorded as **Partial** |
 | Consecutive failed runs | 3 | The routine pauses itself and shows the reason on its page |
 | Shortest schedule interval | 15 minutes | A more frequent schedule is rejected when you save |
 | Run history | 90 days | Older runs are removed |
-| Event debounce | 300 seconds by default, 0 to 86,400 | Events inside the window are folded into one run |
+| Event debounce | 300 seconds by default, 0 to 86,400; set only through Mate or MCP | After a run starts, further matching events within the window are ignored; the run only knows the first event |
 
 Skipped runs do not count against the hourly cap. A routine paused after repeated failures is re-enabled by its owner once the cause is fixed.
 
-## How do schedules work?
+## Schedules: how do I run a routine every morning or every Monday? [#how-do-schedules-work]
 
-Pick how often the routine repeats: every 15 or 30 minutes, or every hour, day, week, or month, plus the time; **Custom** accepts a five-field cron expression. Underneath, the schedule is spelled out in words so you can check it at a glance. Times use an IANA time zone, prefilled from the browser the routine was created in and UTC when that is unknown; the monthly preset accepts days 1 to 28. The default schedule is daily at 09:00.
+Under **Repeats**, pick how often the routine runs: **Every 15 minutes**, **Every 30 minutes**, **Every hour**, **Every day**, **Every week** or **Every month**, plus the weekday, day of the month or time in five-minute steps where the choice needs one. A schedule that fits none of these, for example weekdays only, can be set only through Mate or an MCP client (`manage_routines` passes a five-field cron expression); the dialog then shows **This routine uses a custom schedule** with the expression and **Switch to a preset**. For **Every hour**, **Every day**, **Every week** and **Every month**, the schedule is spelled out in words underneath so you can check it at a glance. Times use an IANA time zone, taken from the browser the routine was created in (UTC when that is unknown) and shown after the spelled-out schedule for those same four presets, including **Every hour** (**Times are shown in ...**); only Mate or an MCP client can change it. The monthly preset accepts days 1 to 28. The default schedule is daily at 09:00.
 
 The scheduler checks for due routines every five minutes, so a run may start a few minutes after its nominal time. A run that is still queued after two minutes is dispatched again.
 
+**Link:** the **Routines** page, `/routines`, Cloud URL `https://customermates.com/en/routines`. **Mate:** `navigate` and `highlight_element` with `nav-routines`, then `routines-add` for **Add** and `routine-modal-save` for **Save** once the owner has the dialog open; **Repeats**, the time selects and **Switch to a preset** are not highlight targets, so Mate names them.
+
 ## How do event triggers work?
 
-An event trigger names one or more in-app events: every record event and every messaging event that a [webhook](/docs/webhooks#which-events-exist) can subscribe to, except the two message-deleted events. Two optional controls narrow it further, so the routine spends credits only on the cases you care about.
+An event trigger names one or more in-app events: every record event and every messaging event that a [webhook](/docs/webhooks#which-events-exist) can subscribe to, except **Email Deleted** and **Chat Deleted** (`messaging.email.deleted`, `messaging.chat.deleted`). Pick them under **Events**. Changes a routine run makes never trigger routines, so routines cannot chain or loop; changes made in the app, in a Mate chat, over the API or over MCP do. Two optional controls narrow it further, so the routine spends credits only on the cases you care about.
 
 **Changed fields** applies to update events only. Name the fields you want to watch, for example a deal's value or one of your custom columns, and the routine runs only when one of them actually changed. The control is hidden when no update event is selected, because creations and deletions do not report field-level changes.
 
 **Record filters** restrict the routine to records matching the conditions you set, for example only deals assigned to you. They are not applied to deletions, because the record is already gone by the time the routine starts. Both controls are only offered while all selected events belong to one record type.
 
-Leave either control empty to run on every matching event. Before a matching event starts a run, Customermates skips it when a run for that routine is already queued or running, then applies the debounce window, then the hourly cap.
+Leave either control empty to run on every matching event. An event starts a run only for a record or conversation the routine owner can see under their role; with **Assigned** read access, other people's records never trigger it, whatever the filters say. Before a matching event starts a run, Customermates skips it when a run for that routine is already queued or running, then applies the debounce window, then the hourly cap. An event that does not pass these checks leaves no entry in the run list. The owner's access and the filters are checked again when the run starts.
 
 When an event starts a run, Mate is told what happened before your instructions: the event name, the kind of record and its id, which fields changed on an update, and for an inbox event the thread the message belongs to. It can read the record itself from there. It is not given the previous values of the fields that changed.
 
+**Link:** the **Routines** page, `/routines`, Cloud URL `https://customermates.com/en/routines`. **Mate:** `navigate` and `highlight_element` with `nav-routines`, then `routines-add` for **Add** and `routine-modal-save` for **Save** once the owner has the dialog open; **Events**, **Changed fields** and **Record filters** are not highlight targets, so Mate names them.
+
 ## What do the runs and their statuses mean?
 
-Open a routine to see its runs, newest first. Each run records the person whose identity and credits it used. Everyone who can see the routine sees run status, summary and credit use. Only the recorded executor can open the full transcript: what Mate was asked, which records it read or changed, and what it replied.
+Open a routine to see its runs, newest first: on a wide screen they sit next to the configuration, on a narrow one under the **Runs** tab, with the configuration under **Details**. Each run records the person whose identity and credits it used. Everyone who can see the routine sees run status, summary and credit use. Only the recorded executor can open the full transcript: what Mate was asked, which records it read or changed, and what it replied.
+
+A run opens in **Run details** (**Back** returns to the routine), which shows **Ran as** with the owner's name, the credits it used, what triggered it (**Record**, **Changed fields**, **Conversation**) and, when it stopped early, the reason, for example the credit cap. When the run has finished, the executor can reply below the transcript to continue that conversation with Mate; this spends their credits.
 
 | Status | Meaning |
 |---|---|
-| `queued` | Waiting for the scheduler to start it |
-| `running` | Mate is working |
-| `succeeded` | The run completed its instruction |
-| `partial` | The run stopped early, for example at the 10-credit cap or when a policy declined an action |
-| `failed` | The run ended with an error or without a usable result |
-| `skipped` | A limit stopped it: the routine was paused, the hourly cap was reached, or the record filters did not match |
-| `blocked` | Mate could not start, for example because the owner is out of credits or the owner's account is no longer active |
+| **Queued** (`queued`) | Waiting for the scheduler to start it |
+| **Running** (`running`) | Mate is working |
+| **Succeeded** (`succeeded`) | The run completed its instruction |
+| **Partial** (`partial`) | The run stopped early, for example at the 10-credit cap or when a policy declined an action |
+| **Failed** (`failed`) | The run ended with an error or without a usable result |
+| **Skipped** (`skipped`) | The run was queued but did not start: the routine was paused, the hourly cap was reached, the record no longer matched the filters or the owner's access, the trigger was changed meanwhile, the run was stopped, or the assistant could not take the run, for example because it was already busy with another run |
+| **Blocked** (`blocked`) | Mate could not start, for example because the owner is out of credits or the owner's account is no longer active |
+
+The raw values in parentheses appear in `manage_routines` output.
 
 Use **Test trigger** to start a real run immediately. It is available to the owner of an enabled scheduled routine with no unsaved changes; it uses AI credits and may change workspace data. Event-triggered routines need a real matching event, so the control is disabled for them.
+
+**Link:** the **Routines** page, `/routines`, Cloud URL `https://customermates.com/en/routines`. **Mate:** `navigate` and `highlight_element` with `nav-routines`; the routine rows, the **Details** and **Runs** tabs, **Run details** and **Test trigger** are not highlight targets, so Mate names them. Mate can also read run history with `manage_routines`.
 
 ## What a routine may do without approval
 
@@ -74,7 +91,7 @@ Interface tools are unavailable to routines, because there is no browser attache
 
 ## How does Mate manage routines?
 
-In a chat, Mate uses `manage_routines` to list routines, read run history, create and update routines, pause them, and start a run now; none of these actions asks you first. A routine Mate creates is saved as a draft unless you explicitly asked for it to be active. Deleting a routine asks for your approval and, as in the app, needs the **Admin** role. Pausing through the tool uses the administrator path, so it needs the same permission as pausing another person's routine in the app; an owner pausing their own routine sets `enabled` to false with an update instead.
+In a chat, Mate uses `manage_routines` to list routines, read run history, create and update routines, pause them, and start a run now; none of these actions asks you first. A routine Mate creates is saved as a draft unless you explicitly asked for it to be active. Mate can also set what the dialog cannot: a custom five-field cron expression such as `0 9 * * 1-5` for weekdays at 09:00, the time zone, and the event debounce. Deleting a routine asks for your approval and, as in the app, needs the **Admin** role. Pausing through the tool uses the administrator path, so it needs the same permission as pausing another person's routine in the app; an owner pausing their own routine sets `enabled` to false with an update instead.
 
 ## Which ids does the page have?
 
@@ -84,6 +101,6 @@ Mate can navigate to and highlight these targets:
 |---|---|---|---|
 | Routines | `/routines` | `#nav-routines` | `#routines-add`, `#routines-search`, `#routines-filter`, `#routines-display-options` |
 
-Layout controls inside the display options: `#routines-layout-table`, `#routines-layout-board`.
+Layout controls inside the display options: `#routines-layout-table`, `#routines-layout-board`. `#routines-add` is rendered only for roles with **Manage** set to **Yes** on **Routines**. Routines have no import and export menu.
 
-The routine dialog (open a routine or add one first) has the DOM ids `#routine-modal-save` and `#routine-modal-reset` for external browser clients.
+The routine dialog (open a routine or add one first) has **Save** (`#routine-modal-save`) and **Reset** (`#routine-modal-reset`), which Mate can highlight once the dialog is open; they are shown only to the routine's owner with **Manage** **Yes**, **Reset** only after a change, and neither while **Run details** is open. It also has the element ids `#routine-admin-pause` for **Pause routine** and `#routine-tab-details` and `#routine-tab-runs` for the tabs on narrow screens, for external browser clients; these are not Mate highlight targets, so Mate names them.

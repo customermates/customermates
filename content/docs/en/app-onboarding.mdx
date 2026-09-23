@@ -3,39 +3,52 @@ title: "Onboarding Wizard"
 description: "The three-step setup a fresh workspace walks through after sign-up: profile, team invites, and connecting an AI client, with the stable ids agents can drive."
 ---
 
-A fresh sign-up first lands on `/onboarding`, where you create a workspace or join one through an invitation, and then opens the onboarding wizard at `/onboarding/wizard`. It runs once; finishing it lands on the dashboard. This page documents the wizard for people and for AI agents that drive the UI.
+A fresh sign-up first lands on `/onboarding`, where you choose **Create a new workspace** or **Join an existing workspace**; joining needs an invitation from a workspace administrator. The onboarding wizard at `/onboarding/wizard` follows. A new workspace is created only when you save **Your profile**. The wizard runs once; finishing it lands on the dashboard. This page documents the wizard for people and for AI agents that drive the UI.
 
-## What are the three steps?
+**Link:** the onboarding wizard, `/onboarding/wizard`, Cloud URL `https://customermates.com/en/onboarding/wizard`, and the choice page `/onboarding`, Cloud URL `https://customermates.com/en/onboarding`; both open only until onboarding is finished and otherwise lead to the dashboard. **Mate:** no target, and Mate is not available during onboarding, so it can only give the link; `#onboarding-back` and `#onboarding-next` are element ids, not highlightable by Mate.
+
+## What are the three steps of the onboarding wizard? [#what-are-the-three-steps]
 
 <Steps>
 <Step title="Your profile">
-Your name and country. The fields are ordinary form inputs (`firstName`, `lastName`, `country`) addressed by their visible labels; the terms checkbox (`agreeToTerms`) is rendered only in cloud mode. This step is required.
+Your name and country. The email field shows your sign-in address and cannot be changed here; **First Name**, **Last Name** and **Country** are ordinary form inputs (`firstName`, `lastName`, `country`) addressed by their visible labels, and the terms checkbox (`agreeToTerms`) is rendered only in cloud mode. **Continue** saves the profile, creates the workspace when you chose to create one, and moves to the invite step. This step is required. Once it is saved the wizard cannot return to it; change your name or country later under **My Profile › Settings**.
 </Step>
 <Step title="Invite your team">
-Invite teammates by email, or copy the shareable link of the form `/invitation/{token}`. Anyone who registers through that link joins the workspace with status **Waiting for approval** until someone whose role has **Manage** set to **Yes** on **Users & Roles**, or an **Admin**, assigns a role and sets the status to **Active** on [**My Company › Members**](/docs/app-company). This step can be skipped and repeated later from **My Company › Members**; **Next** (`#onboarding-next`) moves on to Connect your AI.
+The step has two tabs. **Share link**, open by default, shows a link of the form `/invitation/{token}` to copy: anyone with it can join, and it is valid for 7 days. **Send emails** takes up to 20 addresses per send, separated by a comma or Enter, and **Send invitations** emails them that link. Whether people come through the link or an email, they join with status **Waiting for approval** until someone whose role has **Manage** set to **Yes** on **Users & Roles**, or an **Admin**, assigns a role and sets the status to **Active** on [**My Company › Members**](/docs/app-company). **Next** (`#onboarding-next`) moves on to Connect your AI, with or without invitations; you can invite people later from **My Company › Members**. **Back** (`#onboarding-back`) is shown but disabled, because the saved profile cannot be reopened.
 </Step>
 <Step title="Connect your AI">
-Connect an external AI client (Claude, ChatGPT and Codex, Cursor, or Gemini) to the workspace's [MCP endpoint](/docs/mcp). For the local setups (Claude Code or Claude Desktop, Codex, Cursor, Gemini) the flow creates an API key for the chosen client and shows its setup snippet; the Claude account and ChatGPT app methods connect through the hosted connector and create no key. This step can be skipped with **Skip for now**; the same flow stays available on the [Profile page](/docs/app-profile), and the in-app [Assistant](/docs/app-assistant) works without it. The wizard is finished with **Finish** in this step's own footer.
+Connect an external AI client (Claude, ChatGPT and Codex, Cursor, or Gemini) to the workspace's [MCP endpoint](/docs/mcp). For the local setups (Claude Code or Claude Desktop, Codex, Cursor, Gemini) the flow creates an API key for the chosen client and shows its setup snippet; the Claude account and ChatGPT app methods connect through the hosted connector and create no key. On the list of clients, **Back** returns to the invite step and **Skip for now** opens **Set up an AI later**. Once a client is chosen, **Back** returns to the list and **Finish** completes the wizard; **Finish** becomes available after you create the key for a local client, pick a connector method, or skip. The same flow stays available under [**My Profile › API & Connectors**](/docs/app-profile#api--connectors-tab), and the in-app [Assistant](/docs/app-assistant) works without it.
 </Step>
 </Steps>
+
+## What does an invited person see?
+
+Someone who opens an invitation link sees only **Your profile**, without the progress bar, with a note **Invitation from ...** naming the person who invited them and a terms checkbox worded for invited members on cloud. After **Continue** they are registered with status **Waiting for approval** and land on **Waiting for Approval**; they can sign in again at any time, but every sign-in lands on that screen (or first on **Email Verification**, if their email is still unverified 24 hours after registering) until someone whose role can manage **Users & Roles**, or an **Admin**, sets them to **Active**; only then can they work in the workspace. They never see the invite or AI steps.
+
+**Link:** the **Members** page, `/company/members`, Cloud URL `https://customermates.com/en/company/members`. **Mate:** `navigate` and `highlight_element` with `nav-company-members` (highlightable only while **My Company** is expanded in the sidebar); once a member's **User** dialog is open, `member-modal-role`, `member-modal-status` and `member-modal-save` highlight **Role**, **Status** and **Save** (**Save** for roles with **Manage** only); the member rows are not highlight targets, so Mate names them.
 
 ## Which stable ids does the wizard have?
 
 | Control | Id | Where it exists |
 |---|---|---|
-| Back to the profile step | `#onboarding-back` (**Back**) | Only on the invite step; disabled when the wizard opened on the invite step because the profile was already complete |
+| Back to the profile step | `#onboarding-back` (**Back**) | Only on the invite step, where it is disabled: once the profile is saved the wizard cannot return to it (edit it later under **My Profile › Settings**) |
 | Continue to Connect your AI | `#onboarding-next` (**Next**) | Only on the invite step |
+| Email addresses to invite | `#invite-modal-emails` | Invite step, **Send emails** tab |
+| Send the email invitations | `#invite-modal-send` (**Send invitations**) | Invite step, **Send emails** tab |
 
-The profile and AI steps use their own buttons without stable ids (**Back**, **Skip for now** and **Finish** on the AI step): drive those by their visible labels. Inside every step the fields are a regular form; fill it by label, then activate the step's primary button.
+The invite step reuses the email form of the **Invite User** dialog, so it carries that dialog's ids. The profile and AI steps use their own buttons without stable ids (**Continue** on the profile step; **Back**, **Skip for now** and **Finish** on the AI step): drive those by their visible labels. Inside every step the fields are a regular form; fill it by label, then activate the step's primary button. Mate is not available in the wizard, so it highlights none of these controls here.
 
 ## Frequently asked questions
 
 <Faq>
 <FaqItem question="Can I skip steps?">
-The invite and AI steps are skippable. Invitations can be sent later from the Company page, and the AI-client flow stays available on the Profile page. The profile step is required.
+The invite and AI steps are skippable: **Next** leaves the invite step without sending anything, and **Skip for now** followed by **Finish** leaves the AI step. Invitations can be sent later from **My Company › Members**, and the AI-client flow stays available under **My Profile › API & Connectors**. The profile step is required.
+</FaqItem>
+<FaqItem question="Can I go back to my profile?">
+No. Once **Your profile** is saved, **Back** on the invite step stays disabled. Change your name, country and other personal settings later under **My Profile › Settings**.
 </FaqItem>
 <FaqItem question="What happens to people who register through the invitation link?">
-They join the workspace with status **Waiting for approval**. Someone whose role can manage **Users & Roles**, or an **Admin**, assigns a role and sets them to **Active** on **My Company › Members**; until then they cannot work in the workspace.
+They join the workspace with status **Waiting for approval**, whether they used the shared link or an email invitation. Someone whose role can manage **Users & Roles**, or an **Admin**, assigns a role and sets them to **Active** on **My Company › Members**; until then they see **Waiting for Approval** and cannot work in the workspace. The link stays valid for 7 days.
 </FaqItem>
 <FaqItem question="Do I need to connect an AI client to use the assistant?">
 No. The built-in Assistant works without any external client. The AI step connects external tools such as Claude or Cursor to your workspace through MCP.

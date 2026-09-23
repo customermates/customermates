@@ -7,9 +7,15 @@ Die globale Suche ist ein Modal, keine Seite: Sie öffnet überall in der App mi
 
 ## Was findet die globale Suche?
 
-Das Modal durchsucht **Kontakte, Organisationen, Deals und Services** nach Name und verwandten Feldern, bis zu 50 Treffer pro Datensatztyp, und zeigt vor der Eingabe eine Gruppe **Zuletzt geöffnet**. Aufgaben sind nicht Teil der globalen Suche: Sie finden sie auf `/tasks` über die Listensuche und Filter oder mit dem MCP-Tool `list_records`. Nachrichten werden ebenfalls nicht durchsucht; der Posteingang hat seine eigene Suche.
+Das Modal durchsucht **Kontakte, Organisationen, Deals und Services**, bis zu 50 Treffer pro Datensatztyp. Kontakte werden über Vorname, Nachname, jeden Kanal-Identifikator (etwa eine E-Mail-Adresse oder eine WhatsApp-Nummer) und die Namen verknüpfter Organisationen gefunden, Organisationen über ihren Namen und die Vor- und Nachnamen ihrer Kontakte, Deals und Services nur über ihren Namen. Jedes eingegebene Wort muss treffen, ohne Beachtung der Groß- und Kleinschreibung, "anna schmidt" findet also nur Datensätze, die beide Wörter treffen.
+
+Sie sehen nur die Datensatztypen, die Ihre Rolle lesen darf, und **Lesen** mit **Zugewiesen** beschränkt die Treffer auf Datensätze, denen Sie zugewiesen sind. Vor der Eingabe zeigt **Zuletzt geöffnet** Ihre letzten 8 Auswahlen aus dieser Suche, nur in diesem Browser gespeichert; **Leeren** leert die Liste. Die Pfeiltasten bewegen sich durch die Treffer, Enter öffnet einen.
+
+Aufgaben sind nicht Teil der globalen Suche: Sie finden sie auf `/tasks` über die Listensuche und Filter oder mit den MCP-Tools `search_records` oder `list_records`, die auch Aufgaben abdecken. Nachrichten werden ebenfalls nicht durchsucht; der Posteingang hat seine eigene Suche.
 
 Die Auswahl eines Ergebnisses öffnet die Detailseite des Datensatzes unter `/{type}/{id}`. Um stattdessen einen Datensatz anzulegen, nutzen Sie das Steuerelement **Hinzufügen** seiner Listenseite oder den Deep-Link `?open={entityType}:new`, dokumentiert in [CRM-Datensätze](/docs/app-records).
+
+**Link:** keine Seite; öffnen Sie das Modal auf jeder App-Seite mit Cmd+K oder Ctrl+K oder über **Suchen** in der Sidebar. **Mate:** `highlight_element` mit `nav-search` (Mate kann weder mit `navigate` dorthin wechseln noch das Modal öffnen); das Suchfeld und die Treffer sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Welche stabilen Ids hat sie?
 
@@ -24,10 +30,10 @@ Für einen Agent passiert die Eingabe nach dem Öffnen des Modals in `#global-se
 
 <Faq>
 <FaqItem question="Warum taucht eine Aufgabe nicht in der globalen Suche auf?">
-Aufgaben sind nicht Teil der globalen Suche. Sie finden sie in der Aufgabenliste über deren Suche und Filter oder über das MCP-Tool `list_records`.
+Aufgaben sind nicht Teil der globalen Suche. Sie finden sie in der Aufgabenliste über deren Suche und Filter oder über die MCP-Tools `search_records` oder `list_records`.
 </FaqItem>
 <FaqItem question="Was ist das Tastenkürzel?">
-Cmd+K auf macOS, sonst Ctrl+K, überall in der App. Der Sidebar-Trigger öffnet dasselbe Modal.
+Cmd+K oder Ctrl+K, auf jedem Betriebssystem, überall in der App. Der Sidebar-Trigger **Suchen**, der ⌘K anzeigt, öffnet dasselbe Modal.
 </FaqItem>
 <FaqItem question="Wo öffnen sich Ergebnisse?">
 Auf der Detailseite des Datensatzes unter `/{type}/{id}`, dokumentiert in CRM-Datensätze.

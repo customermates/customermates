@@ -3,41 +3,53 @@ title: "Schnellstart: Customermates-CRM einrichten"
 description: Von der Registrierung bis zum ersten KI-aktualisierten Datensatz in wenigen Minuten.
 ---
 
-Legen Sie einen Customermates-Account an, verbinden Sie einen KI-Client und beginnen Sie, Prompts zu senden. Customermates ist ein KI-natives Open-Source-CRM. Claude und ChatGPT verbinden sich per Custom Connector und brauchen keinen API-Key. CLI-Clients und Editoren verbinden sich per API-Key.
+Legen Sie einen Customermates-Account an, verbinden Sie einen KI-Client und beginnen Sie, Prompts zu senden. Customermates ist ein KI-natives Open-Source-CRM. Claude und ChatGPT verbinden sich per Custom Connector und brauchen keinen API-Key. CLI-Clients und Editoren verbinden sich per API-Key. Dieser Schnellstart behandelt jeden Schritt unten in einem eigenen Abschnitt.
 
-<Steps>
-<Step title="Account anlegen">
-Registrieren Sie sich unter [customermates.com/auth/signup](/auth/signup). Keine Kreditkarte nötig. Die ersten [[commercial.trial.days]] Tage sind eine kostenlose Testphase des Pro-Plans. Einen bezahlten Plan wählen Sie unter **Mein Unternehmen → Abonnement**. Wählen Sie ihn vor dem Ende der Testphase, damit Sie weiter auf den Workspace zugreifen können; siehe [was passiert, wenn die Testphase endet](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails).
-</Step>
-<Step title="Ihre KI verbinden">
-**Nutzen Sie Claude (Web, Desktop, Mobile) oder ChatGPT?** Fügen Sie einen Custom Connector hinzu, kein API-Key nötig. In Ihrem KI-Client: **Settings → Connectors → Add custom connector**, `https://customermates.com/api/v1/mcp` einfügen, anmelden und freigeben. Volle Schritte: [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
+## Wie registriere ich mich, und wie lange dauert die Testphase? [#how-do-i-sign-up-and-how-long-is-the-free-trial]
 
-**Nutzen Sie ein CLI oder einen Editor?** Legen Sie zuerst einen API-Key an: Öffnen Sie **Mein Profil → API & Konnektoren**, klicken Sie auf **Hinzufügen** und wählen Sie **Standard-API-Key**, oder lassen Sie die **Schnellverbindungen** den Key zusammen mit dem Setup-Snippet Ihres Clients anlegen. Kopieren Sie den 64 Zeichen langen Key, der nur einmal angezeigt wird. Zum Anlegen von Keys braucht Ihre Rolle die Berechtigung **API & Webhooks**; die Rolle **Admin**, die automatisch erhält, wer den Workspace anlegt, hat sie. Details: [API-Keys](/docs/api-keys). Dann folgen Sie der Seite Ihres Clients:
+Registrieren Sie sich unter [customermates.com/auth/signup](/auth/signup). Keine Kreditkarte nötig. Die ersten [[commercial.trial.days]] Tage sind eine kostenlose Testphase des Pro-Tarifs.
+
+Einen bezahlten Tarif wählen Sie unter **Mein Unternehmen → Abonnement**. Wählen Sie ihn vor dem Ende der Testphase, damit Sie weiter auf den Workspace zugreifen können; siehe [was passiert, wenn die Testphase endet](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails). Zum Wählen eines Tarifs braucht Ihre Rolle **Verwalten** **Ja** in der Zeile **Unternehmen**; die Rolle **Admin**, die automatisch erhält, wer den Workspace anlegt, hat es. Die Tarife vergleicht [Welche Tarife gibt es?](/docs/app-company#which-plans-are-there). Lieber selbst hosten? Siehe [Self-Hosting](/docs/self-hosting); eine selbst gehostete Instanz hat keine Testphase und kein Abonnement.
+
+**Link:** die Seite **Abonnement**, `/company/subscription`, Cloud-URL `https://customermates.com/de/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-company-subscription`, danach `highlight_element` mit `company-subscription-plan-picker` für die Tarifkarten, die bis zum ersten Checkout und nur für Rollen mit **Verwalten** bei **Unternehmen** erscheinen; das Ziel umrahmt alle Karten, deshalb nennt Mate den Tarif, den Sie wählen.
+
+## Wie verbinde ich Claude oder ChatGPT? [#how-do-i-connect-claude-or-chatgpt]
+
+Fügen Sie einen Custom Connector hinzu; ein API-Key ist nicht nötig.
+
+- **Claude** (Web, Desktop, Mobile): **Settings → Connectors → Add custom connector**.
+- **ChatGPT**: **Settings → Connectors → Add connector → Custom connector (MCP)**, mit **Authentication** auf OAuth.
+
+Fügen Sie `https://customermates.com/api/v1/mcp` ein, melden Sie sich bei Customermates an und klicken Sie auf dem Screen **Zugriff autorisieren** auf **Zulassen**. Volle Schritte: [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
+
+Der Server sendet seine Instruktionen beim Verbinden an den Client, sodass die KI die Tool-Oberfläche und die Workspace-Konventionen von Anfang an kennt. In Clients, die MCP-Prompts unterstützen, etwa Claude, können Sie zusätzlich den eingebauten `get-started`-Prompt starten, der den Start personalisiert: Ihr Name, Ihre Rolle und eine erste Zusammenfassung Ihres Workspace.
+
+## Wie verbinde ich ein CLI oder einen Editor? [#how-do-i-connect-a-cli-or-editor]
+
+Legen Sie zuerst einen API-Key an: Öffnen Sie **Mein Profil → API & Konnektoren**, klicken Sie auf **Hinzufügen** und wählen Sie **Standard-API-Key**, oder lassen Sie die **Schnellverbindungen** den Key zusammen mit dem Setup-Snippet Ihres Clients anlegen. Kopieren Sie den 64 Zeichen langen Key, der nur einmal angezeigt wird. Zum Anlegen eines Keys braucht Ihre Rolle **Verwalten** **Ja** in der Zeile **API & Webhooks**, und die Seite selbst braucht **Lesen** **Alle** in dieser Zeile; die Rolle **Admin** hat beides. Details: [API-Keys](/docs/api-keys). Dann folgen Sie der Seite Ihres Clients:
 
 - [Claude Code](/docs/connect-cli#claude-code): ein Terminal-Befehl
 - [Cursor](/docs/connect-cli#cursor): Settings-UI, zwei Klicks
 - [Codex](/docs/connect-cli#codex): ein TOML-Block in `~/.codex/config.toml`
 - [Gemini](/docs/connect-cli#gemini-cli): ein Settings-Block
 
-Der Server sendet seine Instruktionen beim Verbinden an den Client, sodass die KI die Tool-Oberfläche und die Workspace-Konventionen von Anfang an kennt. In Clients, die MCP-Prompts unterstützen, etwa Claude, können Sie zusätzlich den eingebauten `get-started`-Prompt starten, der den Start personalisiert: Ihr Name, Ihre Rolle und eine erste Zusammenfassung Ihres Workspace.
-</Step>
-<Step title="Einen echten Prompt probieren">
+**Link:** die Seite **API & Konnektoren**, `/profile/api-keys`, Cloud-URL `https://customermates.com/de/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`; `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**), danach `api-key-option-standard` für **Standard-API-Key** (Voraussetzung `profile-api-keys-generate`) sowie `api-key-name`, `api-key-expires` und `api-key-save` für **Name**, **Läuft ab** und **Speichern** (Voraussetzung `api-key-option-standard`). Die Kacheln der **Schnellverbindungen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+
+## Was probiere ich zuerst? [#what-should-i-try-first]
+
 - *"Setze den Status des Acme-Deals auf Won und füge eine Notiz hinzu, dass der Vertrag heute unterschrieben wurde."*
 - *"Hol die letzten zehn Contacts, die ich angelegt habe. Welche haben keine E-Mail-Adresse?"*
 - *"Leg einen Contact für Jane Doe bei Initech an, verknüpf ihn mit der Organisation Initech und starte einen Deal über 12 Stunden Beratung."*
 
 Der Agent meldet, welche Tools er aufgerufen hat und was sich geändert hat. Feldnamen wie der Status eines Deals sind pro Workspace konfigurierbare Custom Columns, keine festen Produktfelder. Rufen Sie `get_record_schema` auf, um die Columns zu sehen, die in Ihrem Workspace existieren.
-</Step>
-<Step title="Optional: einen Webhook abonnieren">
-Um andere Tools zu benachrichtigen, wenn sich im CRM etwas ändert:
 
-Öffnen Sie **Mein Unternehmen → Webhooks** und klicken Sie auf **Hinzufügen**. Tragen Sie unter **URL** einen Einweg-Endpoint von [webhook.site](https://webhook.site) ein. Wählen Sie unter **Ereignisse** **Kontakt erstellt** (`contact.created`) und **Deal aktualisiert** (`deal.updated`) und klicken Sie auf **Speichern**. Zum Anlegen eines Webhooks brauchen Sie dieselbe Berechtigung **API & Webhooks**.
+## Wie teste ich einen Webhook? [#how-do-i-test-a-webhook]
 
-Legen Sie einen Contact an oder ändern Sie einen Deal. Innerhalb weniger Sekunden erscheint die Delivery auf webhook.site mit voller Payload, und **Mein Unternehmen → Letzte Zustellungen** listet sie ebenfalls.
+Optional: Um andere Tools zu benachrichtigen, wenn sich im CRM etwas ändert, öffnen Sie **Mein Unternehmen → Webhooks** und klicken auf **Hinzufügen**. Tragen Sie unter **URL** einen Einweg-Endpoint von [webhook.site](https://webhook.site) ein. Wählen Sie unter **Ereignisse** **Kontakt erstellt** (`contact.created`) und **Deal aktualisiert** (`deal.updated`) und klicken Sie auf **Speichern**. Zum Anlegen eines Webhooks braucht Ihre Rolle **Verwalten** **Ja** in der Zeile **API & Webhooks**, und die Seite selbst braucht **Lesen** **Alle** in dieser Zeile, wie bei API-Keys; die Rolle **Admin** hat beides.
 
-Volle Webhook-Docs: [Webhooks](/docs/webhooks).
-</Step>
-</Steps>
+Legen Sie einen Contact an oder ändern Sie einen Deal. Innerhalb weniger Sekunden erscheint die Delivery auf webhook.site mit voller Payload, und **Mein Unternehmen → Letzte Zustellungen** listet sie ebenfalls. Volle Webhook-Docs: [Webhooks](/docs/webhooks).
+
+**Link:** die Seite **Webhooks**, `/company/webhooks`, Cloud-URL `https://customermates.com/de/company/webhooks`, und die Seite **Letzte Zustellungen**, `/company/webhook-deliveries`, Cloud-URL `https://customermates.com/de/company/webhook-deliveries`. **Mate:** `navigate` und `highlight_element` mit `nav-company-webhooks` oder `nav-company-webhook-deliveries`, und `highlight_element` mit `company-webhooks-add` für **Hinzufügen** (Rollen mit **Verwalten** bei **API & Webhooks**); ist der Dialog **Webhook** geöffnet (Voraussetzung `company-webhooks-add`), heben `webhook-modal-url` und `webhook-modal-events` **URL** und **Ereignisse** hervor, und `webhook-modal-save` hebt **Speichern** hervor.
 
 ## Weiter
 

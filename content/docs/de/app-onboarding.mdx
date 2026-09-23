@@ -3,39 +3,52 @@ title: "Onboarding-Wizard"
 description: "Das Setup in drei Schritten nach der Registrierung: Profil, Team-Einladungen und KI-Client verbinden, mit den stabilen Ids, die Agents steuern können."
 ---
 
-Nach der Registrierung landen Sie zuerst unter `/onboarding`, wo Sie einen Workspace anlegen oder über eine Einladung einem beitreten, und danach im Onboarding-Wizard unter `/onboarding/wizard`. Er läuft genau einmal; nach dem Abschluss landen Sie auf dem Dashboard. Diese Seite dokumentiert den Wizard für Menschen und für KI-Agents, die die UI steuern.
+Nach der Registrierung landen Sie zuerst unter `/onboarding`, wo Sie **Neuen Workspace erstellen** oder **Bestehendem Workspace beitreten** wählen; zum Beitreten brauchen Sie eine Einladung von einem Workspace-Administrator. Danach folgt der Onboarding-Wizard unter `/onboarding/wizard`. Ein neuer Workspace wird erst angelegt, wenn Sie Ihr Profil speichern. Der Wizard läuft genau einmal; nach dem Abschluss landen Sie auf dem Dashboard. Diese Seite dokumentiert den Wizard für Menschen und für KI-Agents, die die UI steuern.
 
-## Welche drei Schritte gibt es?
+**Link:** der Onboarding-Wizard, `/onboarding/wizard`, Cloud-URL `https://customermates.com/de/onboarding/wizard`, und die Auswahlseite `/onboarding`, Cloud-URL `https://customermates.com/de/onboarding`; beide öffnen sich nur, bis das Onboarding abgeschlossen ist, und führen sonst zum Dashboard. **Mate:** kein Ziel, und Mate ist während des Onboardings nicht verfügbar, kann also nur den Link nennen; `#onboarding-back` und `#onboarding-next` sind Element-Ids, die Mate nicht hervorheben kann.
+
+## Welche drei Schritte hat der Onboarding-Wizard? [#what-are-the-three-steps]
 
 <Steps>
 <Step title="Ihr Profil">
-Ihr Name und Ihr Land. Die Felder sind gewöhnliche Formulareingaben (`firstName`, `lastName`, `country`), adressierbar über ihre sichtbaren Labels; die Checkbox für die Nutzungsbedingungen (`agreeToTerms`) wird nur im Cloud-Modus angezeigt. Dieser Schritt ist erforderlich.
+Im Wizard heißt dieser Schritt **Dein Profil**. Er fragt Ihren Namen und Ihr Land ab. Das E-Mail-Feld zeigt Ihre Anmeldeadresse und lässt sich hier nicht ändern; **Vorname**, **Nachname** und **Land** sind gewöhnliche Formulareingaben (`firstName`, `lastName`, `country`), adressierbar über ihre sichtbaren Labels, und die Checkbox für die Nutzungsbedingungen (`agreeToTerms`) wird nur im Cloud-Modus angezeigt. **Weiter** speichert das Profil, legt den Workspace an, wenn Sie einen neuen erstellen wollten, und führt zum Einladungsschritt. Dieser Schritt ist erforderlich. Nach dem Speichern kann der Wizard nicht mehr zu ihm zurückkehren; Name und Land ändern Sie später unter **Mein Profil › Einstellungen**.
 </Step>
 <Step title="Team einladen">
-Laden Sie Teammitglieder per E-Mail ein oder kopieren Sie den teilbaren Link der Form `/invitation/{token}`. Wer sich über diesen Link registriert, tritt dem Workspace mit dem Status **Wartet auf Genehmigung** bei, bis jemand, dessen Rolle bei **Benutzer & Rollen** **Verwalten** auf **Ja** hat, oder ein **Admin** auf [**Mein Unternehmen › Mitglieder**](/docs/app-company) eine Rolle zuweist und den Status auf **Aktiv** setzt. Dieser Schritt ist überspringbar und lässt sich später über **Mein Unternehmen › Mitglieder** wiederholen; **Weiter** (`#onboarding-next`) führt zu KI verbinden.
+Der Schritt hat zwei Tabs. **Link teilen**, standardmäßig geöffnet, zeigt einen Link der Form `/invitation/{token}` zum Kopieren: Jede Person mit diesem Link kann beitreten, und er ist 7 Tage gültig. **E-Mails senden** nimmt bis zu 20 Adressen pro Versand an, getrennt durch Komma oder Enter, und **Einladungen senden** schickt ihnen diesen Link per E-Mail. Ob über den Link oder eine E-Mail, neue Personen treten mit dem Status **Wartet auf Genehmigung** bei, bis jemand, dessen Rolle bei **Benutzer & Rollen** **Verwalten** auf **Ja** hat, oder ein **Admin** auf [**Mein Unternehmen › Mitglieder**](/docs/app-company) eine Rolle zuweist und den Status auf **Aktiv** setzt. **Weiter** (`#onboarding-next`) führt mit oder ohne Einladungen zu KI verbinden; einladen können Sie auch später über **Mein Unternehmen › Mitglieder**. **Zurück** (`#onboarding-back`) wird angezeigt, ist aber deaktiviert, weil sich das gespeicherte Profil nicht erneut öffnen lässt.
 </Step>
 <Step title="KI verbinden">
-Verbinden Sie einen externen KI-Client (Claude, ChatGPT und Codex, Cursor oder Gemini) mit dem [MCP-Endpoint](/docs/mcp) des Workspace. Bei den lokalen Einrichtungen (Claude Code oder Claude Desktop, Codex, Cursor, Gemini) erstellt der Flow einen API-Key für den gewählten Client und zeigt dessen Einrichtungsausschnitt; die Methoden Claude-Konto und ChatGPT-App verbinden sich über den gehosteten Konnektor und erstellen keinen Key. Dieser Schritt ist mit **Später einrichten** überspringbar; derselbe Flow bleibt auf der Seite [Mein Profil](/docs/app-profile) verfügbar, und der eingebaute [Assistent](/docs/app-assistant) Mate funktioniert auch ohne ihn. Der Wizard wird mit **Fertig** in der eigenen Fußzeile dieses Schritts abgeschlossen.
+Verbinden Sie einen externen KI-Client (Claude, ChatGPT und Codex, Cursor oder Gemini) mit dem [MCP-Endpoint](/docs/mcp) des Workspace. Bei den lokalen Einrichtungen (Claude Code oder Claude Desktop, Codex, Cursor, Gemini) erstellt der Flow einen API-Key für den gewählten Client und zeigt dessen Einrichtungsausschnitt; die Methoden Claude-Konto und ChatGPT-App verbinden sich über den gehosteten Konnektor und erstellen keinen Key. In der Liste der Clients führt **Zurück** zum Einladungsschritt, und **Später einrichten** öffnet **KI später einrichten**. Ist ein Client gewählt, führt **Zurück** zur Liste, und **Fertig** schließt den Wizard ab; **Fertig** wird verfügbar, sobald Sie den Key für einen lokalen Client erstellt, eine Konnektor-Methode gewählt oder übersprungen haben. Derselbe Flow bleibt unter [**Mein Profil › API & Konnektoren**](/docs/app-profile#api--connectors-tab) verfügbar, und der eingebaute [Assistent](/docs/app-assistant) Mate funktioniert auch ohne ihn.
 </Step>
 </Steps>
 
-## Welche stabilen Ids hat der Wizard?
+## Was sieht eine eingeladene Person? [#what-does-an-invited-person-see]
+
+Wer einen Einladungslink öffnet, sieht nur den Schritt **Dein Profil**, ohne Fortschrittsanzeige, mit dem Hinweis **Einladung von ...**, der die einladende Person nennt, und in der Cloud mit einer Checkbox für die Nutzungsbedingungen im Wortlaut für eingeladene Mitglieder. Nach **Weiter** ist die Person mit dem Status **Wartet auf Genehmigung** registriert und landet auf **Warten auf Genehmigung**; anmelden kann sie sich jederzeit, jede Anmeldung führt aber auf diese Seite (oder zuerst auf **E-Mail-Verifizierung**, wenn ihre E-Mail-Adresse 24 Stunden nach der Registrierung noch nicht bestätigt ist), bis jemand, dessen Rolle **Benutzer & Rollen** verwalten darf, oder ein **Admin** sie auf **Aktiv** setzt; erst dann kann sie im Workspace arbeiten. Den Einladungs- und den KI-Schritt sieht sie nie.
+
+**Link:** die Seite **Mitglieder**, `/company/members`, Cloud-URL `https://customermates.com/de/company/members`. **Mate:** `navigate` und `highlight_element` mit `nav-company-members` (hervorhebbar nur, solange **Mein Unternehmen** in der Seitenleiste aufgeklappt ist); ist der Dialog **Benutzer** eines Mitglieds geöffnet, heben `member-modal-role`, `member-modal-status` und `member-modal-save` **Rolle**, **Status** und **Speichern** hervor (**Speichern** nur für Rollen mit **Verwalten**); die Zeilen der Mitglieder sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+
+## Welche stabilen Ids hat der Wizard? [#which-stable-ids-does-the-wizard-have]
 
 | Control | Id | Wo vorhanden |
 |---|---|---|
-| Zurück zum Profil-Schritt | `#onboarding-back` (**Zurück**) | Nur im Einladungsschritt; deaktiviert, wenn der Wizard im Einladungsschritt geöffnet wurde, weil das Profil bereits vollständig war |
+| Zurück zum Profil-Schritt | `#onboarding-back` (**Zurück**) | Nur im Einladungsschritt, dort deaktiviert: Nach dem Speichern des Profils kann der Wizard nicht mehr dorthin zurück (später unter **Mein Profil › Einstellungen** ändern) |
 | Weiter zu KI verbinden | `#onboarding-next` (**Weiter**) | Nur im Einladungsschritt |
+| E-Mail-Adressen für Einladungen | `#invite-modal-emails` | Einladungsschritt, Tab **E-Mails senden** |
+| E-Mail-Einladungen senden | `#invite-modal-send` (**Einladungen senden**) | Einladungsschritt, Tab **E-Mails senden** |
 
-Der Profil- und der KI-Schritt verwenden eigene Buttons ohne stabile Ids (**Zurück**, **Später einrichten** und **Fertig** im KI-Schritt): Steuern Sie diese über ihre sichtbaren Labels. Innerhalb jedes Schritts sind die Felder ein normales Formular; füllen Sie es per Label aus und aktivieren Sie dann den Primär-Button des Schritts.
+Der Einladungsschritt nutzt das E-Mail-Formular des Dialogs **Benutzer einladen** und trägt deshalb dessen Ids. Der Profil- und der KI-Schritt verwenden eigene Buttons ohne stabile Ids (**Weiter** im Profil-Schritt; **Zurück**, **Später einrichten** und **Fertig** im KI-Schritt): Steuern Sie diese über ihre sichtbaren Labels. Innerhalb jedes Schritts sind die Felder ein normales Formular; füllen Sie es per Label aus und aktivieren Sie dann den Primär-Button des Schritts. Mate ist im Wizard nicht verfügbar und hebt hier deshalb keines dieser Controls hervor.
 
-## Häufige Fragen
+## Häufige Fragen [#frequently-asked-questions]
 
 <Faq>
 <FaqItem question="Kann ich Schritte überspringen?">
-Der Einladungs- und der KI-Schritt sind überspringbar. Einladungen lassen sich später von der Seite Unternehmen aus verschicken, und der KI-Client-Flow bleibt auf der Seite Profil verfügbar. Der Profil-Schritt ist erforderlich.
+Der Einladungs- und der KI-Schritt sind überspringbar: **Weiter** verlässt den Einladungsschritt, ohne etwas zu senden, und **Später einrichten** gefolgt von **Fertig** verlässt den KI-Schritt. Einladungen lassen sich später über **Mein Unternehmen › Mitglieder** verschicken, und der KI-Client-Flow bleibt unter **Mein Profil › API & Konnektoren** verfügbar. Der Profil-Schritt ist erforderlich.
+</FaqItem>
+<FaqItem question="Kann ich zu meinem Profil zurückkehren?">
+Nein. Sobald das Profil gespeichert ist, bleibt **Zurück** im Einladungsschritt deaktiviert. Name, Land und andere persönliche Einstellungen ändern Sie später unter **Mein Profil › Einstellungen**.
 </FaqItem>
 <FaqItem question="Was passiert mit Personen, die sich über den Einladungslink registrieren?">
-Sie treten dem Workspace mit dem Status **Wartet auf Genehmigung** bei. Jemand, dessen Rolle **Benutzer & Rollen** verwalten darf, oder ein **Admin** weist auf **Mein Unternehmen › Mitglieder** eine Rolle zu und setzt den Status auf **Aktiv**; bis dahin können sie nicht im Workspace arbeiten.
+Sie treten dem Workspace mit dem Status **Wartet auf Genehmigung** bei, egal ob sie den geteilten Link oder eine E-Mail-Einladung genutzt haben. Jemand, dessen Rolle **Benutzer & Rollen** verwalten darf, oder ein **Admin** weist auf **Mein Unternehmen › Mitglieder** eine Rolle zu und setzt den Status auf **Aktiv**; bis dahin sehen sie **Warten auf Genehmigung** und können nicht im Workspace arbeiten. Der Link bleibt 7 Tage gültig.
 </FaqItem>
 <FaqItem question="Muss ich einen KI-Client verbinden, um den Assistenten zu nutzen?">
 Nein. Der eingebaute Assistent Mate funktioniert ohne externen Client. Der KI-Schritt verbindet externe Tools wie Claude oder Cursor über MCP mit Ihrem Workspace.
