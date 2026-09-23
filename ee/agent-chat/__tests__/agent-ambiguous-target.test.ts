@@ -53,10 +53,11 @@ const novaRows: [string, string][] = [
   [NOVA_2025, "Nova Expansion 2025"],
 ];
 const novaSearch: Read = { input: { entity: "deal", searchTerm: "Nova Expansion" }, result: table(novaRows) };
-const request = (latestUserText: string, previousAssistantText = ""): AmbiguityRequest => ({
-  latestUserText: latestUserText.toLowerCase(),
-  previousAssistantText: previousAssistantText.toLowerCase(),
-});
+const request = (latestUserText: string, previousAssistantText = ""): AmbiguityRequest =>
+  ambiguityRequestOf([
+    { role: "assistant", text: previousAssistantText },
+    { role: "user", text: latestUserText },
+  ]);
 const C34 = request("Mark the Nova Expansion deal as Won.");
 
 describe("ambiguous write targets", () => {
@@ -161,19 +162,69 @@ describe("ambiguous write targets", () => {
     expect(targets).toHaveLength(1);
   });
 
-  it("matches names on word boundaries, never inside another word", () => {
-    const rows: [string, string][] = [
+  describe("name matching", () => {
+    const search = (rows: [string, string][], searchTerm = rows[0][1]): Read => ({
+      input: { entity: "deal", searchTerm },
+      result: table(rows),
+    });
+    const nova = search([
       [NOVA, "Nova"],
       [NOVA_2025, "Nova East"],
-    ];
-    const search = { input: { entity: "deal", searchTerm: "Nova" }, result: table(rows) };
-    expect(
-      ambiguousTargetsFromMessages(
-        reads(search),
-        request("Delete the Nova deal.", "The renovation budget for Nova East is 12,000."),
-      ),
-    ).toHaveLength(1);
-    expect(ambiguousTargetsFromMessages(reads(search), request("Plan the renovation deal."))).toEqual([]);
+    ]);
+    const armed = (read: Read, latest: string, previous = "") =>
+      ambiguousTargetsFromMessages(reads(read), request(latest, previous)).length;
+
+    it("never counts a name found inside another word as a mention", () => {
+      expect(armed(nova, "Delete the Nova deal.", "The renovation budget for Nova East is 12,000.")).toBe(1);
+      expect(armed(nova, "Plan the renovation deal.")).toBe(0);
+      const threeNovas = search([
+        [NOVA, "Nova"],
+        [NOVA_2025, "Nova East"],
+        [UNRELATED, "Nova West"],
+      ]);
+      expect(armed(threeNovas, "The Nova Eastern one", "Did you mean Nova East or Nova West?")).toBe(1);
+      expect(
+        armed(
+          search([
+            [NOVA, "Acme"],
+            [NOVA_2025, "Acme Pro"],
+          ]),
+          "Delete the Acme deal, see the Acme Profile note",
+        ),
+      ).toBe(1);
+    });
+
+    it("arms on a phrase the user inflected or wrote without spaces around it", () => {
+      const muller = search([
+        [NOVA, "Müller"],
+        [NOVA_2025, "Müller GmbH"],
+      ]);
+      expect(armed(muller, "Setze Müllers Deal auf Gewonnen")).toBe(1);
+      expect(armed(nova, "Poista Novan kauppa")).toBe(1);
+      expect(armed(nova, "删除Nova的交易")).toBe(1);
+      expect(armed(nova, "Lösche den Novadeal.")).toBe(1);
+    });
+
+    it("takes a possessive or an unspaced script as a clear choice", () => {
+      expect(armed(nova, "Setze Nova Easts Deal auf Gewonnen")).toBe(0);
+      expect(armed(nova, "删除 Nova East的交易")).toBe(0);
+      expect(armed(nova, "Nova", "您是指Nova还是Nova East？")).toBe(0);
+    });
+
+    it("treats combining marks as part of a word and compares composed text", () => {
+      const ram = search([
+        [NOVA, "राम"],
+        [NOVA_2025, "राम ट्रेडर्स"],
+      ]);
+      expect(armed(ram, "राम का सौदा हटाओ", "रामायण बजट राम ट्रेडर्स के लिए 12,000 है।")).toBe(1);
+      expect(armed(ram, "राम का सौदा हटाओ", "राम या राम ट्रेडर्स?")).toBe(0);
+      expect(armed(nova, "Delete the Nova deal.", "The Nova\u0308 budget for Nova East is 12,000.")).toBe(1);
+      const cafe = search([
+        [NOVA, "Café"],
+        [NOVA_2025, "Café Nord"],
+      ]);
+      expect(armed(cafe, "Delete the Cafe\u0301 deal.")).toBe(1);
+    });
   });
 
   it("widens an armed target with a later read's candidates and never narrows it", () => {

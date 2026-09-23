@@ -9,13 +9,29 @@ const MIN_PHRASE_LENGTH = 3;
 const UUID = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/g;
 const TOON_TABLE_ROW = /^\s+([0-9a-fA-F-]{36}),(?:"((?:[^"\\]|\\.)*)"|([^\n,]*))/gm;
 const TOON_LIST_ROW = /^\s*-\s+id:\s*([0-9a-fA-F-]{36})\s*\n\s+name:\s*(?:"((?:[^"\\]|\\.)*)"|([^\n]*))/gm;
+const UNSPACED_SCRIPTS = ["Han", "Hiragana", "Katakana", "Thai", "Lao", "Khmer", "Myanmar"]
+  .map((script) => `\\p{scx=${script}}`)
+  .join("");
+const WORD_CHAR = `[[\\p{L}\\p{N}\\p{M}\\u200c\\u200d]--[${UNSPACED_SCRIPTS}]]`;
 
 type Row = { id: string; name: string };
 
+function fold(text: string): string {
+  return text.normalize("NFC").toLowerCase();
+}
+
+function escapeName(name: string): string {
+  return name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function startsWordWith(text: string, phrase: string): boolean {
+  if (!phrase) return false;
+  return new RegExp(`(?<!${WORD_CHAR})${escapeName(phrase)}`, "v").test(text);
+}
+
 function containsName(text: string, name: string): boolean {
   if (!name) return false;
-  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return new RegExp(`(?<![\\p{L}\\p{N}])${escaped}(?![\\p{L}\\p{N}])`, "u").test(text);
+  return new RegExp(`(?<!${WORD_CHAR})${escapeName(name)}(?:['’]?s)?(?!${WORD_CHAR})`, "v").test(text);
 }
 
 export function ambiguityRequestOf(history: readonly { role: string; text: string }[]): AmbiguityRequest {
@@ -24,8 +40,8 @@ export function ambiguityRequestOf(history: readonly { role: string; text: strin
     .slice(0, Math.max(latestIndex, 0))
     .findLast((message) => message.role === "assistant");
   return {
-    latestUserText: (latestIndex >= 0 ? history[latestIndex].text : "").toLowerCase(),
-    previousAssistantText: (previousAssistant?.text ?? "").toLowerCase(),
+    latestUserText: fold(latestIndex >= 0 ? history[latestIndex].text : ""),
+    previousAssistantText: fold(previousAssistant?.text ?? ""),
   };
 }
 
@@ -105,22 +121,22 @@ function unwrap(output: unknown): unknown {
 function exactNameInsideAnother(needle: string, candidates: Row[]): boolean {
   return candidates.some(
     (candidate) =>
-      candidate.name.toLowerCase() === needle &&
-      candidates.some((other) => other !== candidate && other.name.toLowerCase().includes(needle)),
+      fold(candidate.name) === needle &&
+      candidates.some((other) => other !== candidate && fold(other.name).includes(needle)),
   );
 }
 
 function namedUniquely(latest: string, candidates: Row[]): boolean {
   return candidates.some((candidate) => {
-    const name = candidate.name.toLowerCase();
+    const name = fold(candidate.name);
     if (!containsName(latest, name)) return false;
-    return candidates.every((other) => other === candidate || !other.name.toLowerCase().includes(name));
+    return candidates.every((other) => other === candidate || !fold(other.name).includes(name));
   });
 }
 
 function mentionedAlone(text: string, name: string, candidates: Row[]): boolean {
   const longer = candidates
-    .map((candidate) => candidate.name.toLowerCase())
+    .map((candidate) => fold(candidate.name))
     .filter((other) => other !== name && other.includes(name));
   const remaining = longer.reduce((rest, other) => rest.split(other).join(" "), text);
   return containsName(remaining, name);
@@ -128,21 +144,21 @@ function mentionedAlone(text: string, name: string, candidates: Row[]): boolean 
 
 function answersClarification(request: AmbiguityRequest, candidates: Row[]): boolean {
   const listed = candidates.filter((candidate) =>
-    mentionedAlone(request.previousAssistantText, candidate.name.toLowerCase(), candidates),
+    mentionedAlone(request.previousAssistantText, fold(candidate.name), candidates),
   );
   if (listed.length < 2) return false;
   return listed.some((candidate) => {
-    const name = candidate.name.toLowerCase();
+    const name = fold(candidate.name);
     if (!containsName(request.latestUserText, name)) return false;
     return candidates.every((other) => {
-      const otherName = other.name.toLowerCase();
+      const otherName = fold(other.name);
       return other === candidate || !otherName.includes(name) || !containsName(request.latestUserText, otherName);
     });
   });
 }
 
 export function ambiguousTargetKey(target: AmbiguousTarget): string {
-  return `${target.entity}:${target.phrase.toLowerCase()}`;
+  return `${target.entity}:${fold(target.phrase)}`;
 }
 
 export function mergeAmbiguousTarget(armed: AmbiguousTarget | undefined, next: AmbiguousTarget): AmbiguousTarget {
@@ -174,17 +190,15 @@ export function ambiguousTargetsFromMessages(
         if (!input) continue;
         const entity = queriedEntity(part.toolName, input);
         const phrase = nameQuery(input);
-        if (!entity || !phrase || !containsName(latest, phrase.toLowerCase())) continue;
+        if (!entity || !phrase || !startsWordWith(latest, fold(phrase))) continue;
         calls.set(part.toolCallId, { entity, phrase });
         continue;
       }
       if (part.type !== "tool-result" || !part.toolCallId) continue;
       const call = calls.get(part.toolCallId);
       if (!call) continue;
-      const needle = call.phrase.toLowerCase();
-      const candidates = rowsOf(unwrap(part.output), call.entity).filter((row) =>
-        row.name.toLowerCase().includes(needle),
-      );
+      const needle = fold(call.phrase);
+      const candidates = rowsOf(unwrap(part.output), call.entity).filter((row) => fold(row.name).includes(needle));
       if (candidates.length < 2 || !exactNameInsideAnother(needle, candidates)) continue;
       if (namedUniquely(latest, candidates) || answersClarification(request, candidates)) continue;
       found.push({ entity: call.entity, phrase: call.phrase, candidates });
