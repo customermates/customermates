@@ -17,8 +17,8 @@ vi.mock("@/features/search/entity-list-executors", () => ({
 
 import { listRecordsTool } from "../entity-generic.mcp-tools";
 
-function listDeals() {
-  return listRecordsTool.execute(listRecordsTool.inputSchema.parse({ entity: "deal" }));
+function listDeals(input: Record<string, unknown> = {}) {
+  return listRecordsTool.execute(listRecordsTool.inputSchema.parse({ entity: "deal", ...input }));
 }
 
 describe("list_records numeric totals", () => {
@@ -57,5 +57,73 @@ describe("list_records numeric totals", () => {
     expect(listRecordsTool.description).toContain("not just the current page");
     expect(listRecordsTool.description).toContain("weightedValue");
     expect(listRecordsTool.description).toMatch(/single-select[^.]*not/i);
+  });
+
+  it("puts ambiguous write guidance next to multi-match search results", async () => {
+    spies.listDeals.mockResolvedValue({
+      ok: true,
+      data: {
+        items: [
+          { id: "d1", name: "Nova Expansion", totalValue: 24_000 },
+          { id: "d2", name: "Nova Expansion 2025", totalValue: 18_000 },
+        ],
+        pagination: { total: 2 },
+      },
+    });
+
+    const output = await listDeals({ searchTerm: "Nova Expansion" });
+    expect(output).toMatchObject({
+      structuredContent: {
+        writeTargetGuidance: {
+          status: "ambiguous",
+          candidates: ["Nova Expansion", "Nova Expansion 2025"],
+        },
+      },
+    });
+    expect(typeof output === "string" ? output : output.text).toContain(
+      "An exact-name result does not resolve the other matches",
+    );
+  });
+
+  it("does not add write guidance to an unfiltered multi-record list", async () => {
+    spies.listDeals.mockResolvedValue({
+      ok: true,
+      data: {
+        items: [
+          { id: "d1", name: "Nova Expansion" },
+          { id: "d2", name: "Nova Expansion 2025" },
+        ],
+        pagination: { total: 2 },
+      },
+    });
+
+    const output = await listDeals();
+    expect(output).not.toHaveProperty("structuredContent.writeTargetGuidance");
+  });
+
+  it("does not add write guidance to a single search result", async () => {
+    spies.listDeals.mockResolvedValue({
+      ok: true,
+      data: {
+        items: [{ id: "d1", name: "Nova Expansion" }],
+        pagination: { total: 1 },
+      },
+    });
+
+    const output = await listDeals({ searchTerm: "Nova Expansion" });
+    expect(output).not.toHaveProperty("structuredContent.writeTargetGuidance");
+  });
+
+  it("explains how to inspect matches beyond the returned page", async () => {
+    spies.listDeals.mockResolvedValue({
+      ok: true,
+      data: {
+        items: [{ id: "d1", name: "Nova Expansion" }],
+        pagination: { total: 3 },
+      },
+    });
+
+    const output = await listDeals({ searchTerm: "Nova Expansion", pageSize: 1 });
+    expect(typeof output === "string" ? output : output.text).toContain("review more pages before acting");
   });
 });

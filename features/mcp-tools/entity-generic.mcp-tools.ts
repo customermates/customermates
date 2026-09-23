@@ -191,6 +191,16 @@ const RecordSchemaOutputSchema = z
 
 const ListRecordsOutputSchema = z.object({
   total: z.number().describe("Matching records across all pages"),
+  writeTargetGuidance: z
+    .object({
+      status: z.literal("ambiguous"),
+      instruction: z.string(),
+      candidates: z.array(z.string()).describe("Candidate names returned on the current page"),
+    })
+    .optional()
+    .describe(
+      "Present when a name search matched several records and selecting only one for a write requires clarification",
+    ),
   sums: z
     .record(z.string(), z.number())
     .optional()
@@ -355,6 +365,9 @@ export const listRecordsTool = {
     "every record matching the filters, not just the current page. Read sums directly instead of adding " +
     "up items, which would only cover one page. For deals sums holds totalValue (pipeline), totalQuantity " +
     "and weightedValue (pipeline weighted by each stage's win probability). " +
+    "When a name search matches several records, writeTargetGuidance names the candidates returned on the current page: ask the user to choose before " +
+    "changing only one result, even when one candidate exactly equals the search term. If total exceeds the candidates returned on the current page, narrow the search or review more pages first. " +
+    "An explicit request to change every match may proceed. " +
     "Numeric columns of the record are summable; single-select and other custom fields are not, so filter " +
     "or group by those instead. " +
     "Use get_records (batched, pass many ids in one call) to fetch full field/custom-column values.",
@@ -377,8 +390,23 @@ export const listRecordsTool = {
     });
     if (!result.ok) return mcpInteractorFailure(result.error);
 
+    const total = result.data.pagination?.total ?? result.data.items.length;
+    const names = result.data.items
+      .map((item: any) => entityNameExtractors[entity](item))
+      .filter((name: unknown): name is string => typeof name === "string" && name.trim().length > 0);
+
     return toonResult({
-      total: result.data.pagination?.total ?? result.data.items.length,
+      total,
+      ...(searchTerm && total > 1
+        ? {
+            writeTargetGuidance: {
+              status: "ambiguous" as const,
+              instruction:
+                "Do not change only one result until the user selects a candidate. An exact-name result does not resolve the other matches. If total exceeds the candidates returned on this page, narrow the search or review more pages before acting. A request to change every match may proceed.",
+              candidates: names,
+            },
+          }
+        : {}),
       ...(result.data.valueSums && Object.keys(result.data.valueSums).length > 0
         ? { sums: result.data.valueSums }
         : {}),
