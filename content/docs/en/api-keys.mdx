@@ -16,6 +16,8 @@ A key created by **Quick connections** is named after its client (`Claude Code`,
 
 Keys belong to the user who created them and inherit that user's permissions.
 
+**Link:** `/profile/api-keys`, Cloud URL `https://customermates.com/en/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys` (highlightable only while **My Profile** is expanded, which it is by default on its own pages unless the member collapsed it); the buttons and fields here are not highlight targets, so Mate names them. **Add** carries the element id `#profile-api-keys-generate` and the dialog's **Save** the element id `#api-key-save`; neither is highlightable by Mate.
+
 ## Who can create and see API keys?
 
 The **API & Connectors** page and its **Add** button follow the **API & Webhooks** row of your role, which a member with **Manage** on **Users & Roles** sets under **My Company → Roles**:
@@ -54,6 +56,8 @@ Open the key from its card and choose **Delete**; a confirmation follows and the
 Rotate when a device that held the key is lost or compromised, when a teammate with access leaves, or when you suspect the key leaked. One key per client lets you delete a single client without breaking the others. It does not separate them in the audit log, which names the user a key belongs to, not the key. Keep keys in an environment variable or a password manager, never in a config file you commit.
 
 Only the owner can delete a key. To stop the keys of a member who leaves, open **My Company → Members**, open the member, set **Status** to **Inactive** and save; this needs **Manage** **Yes** and read access **All** on **Users & Roles**, you cannot deactivate yourself, and the last active member with the **Admin** role cannot be deactivated. Every call with that member's keys that reads or changes workspace data is then refused. Taking **API & Webhooks** away from their role is not enough: it hides the page and its **Add** button, but keys they already hold keep working.
+
+**Link:** `/profile/api-keys`, Cloud URL `https://customermates.com/en/profile/api-keys`, and for deactivating a member `/company/members`, Cloud URL `https://customermates.com/en/company/members`. **Mate:** `navigate` with `nav-profile-api-keys` or `nav-company-members`; `highlight_element` with `nav-profile-api-keys` on a **My Profile** page and with `nav-company-members` on a **My Company** page, because a sidebar entry can be highlighted only while its group is expanded; the key cards, **Delete**, the member rows, **Status** and **Save** (element id `#member-modal-save`, not highlightable by Mate) are not highlight targets, so Mate names them.
 
 ## What is the key format?
 

@@ -9,19 +9,23 @@ Customermates is an open-source CRM with a built-in MCP server. This page docume
 
 Workspace-wide administration: the subscription (Cloud only), the workspace settings, the team and its permissions, outbound webhooks with their delivery history, and the audit trail. Everything that affects the whole workspace, not a single record, lives here.
 
-In the sidebar, **My Company** (`#nav-company`) sits in the **Workspace** group next to **My Profile**. It is a toggle: clicking it expands or collapses its list of pages and opens no page itself. Expanding it collapses the other expanded group, and it opens by itself while you are on one of its pages. All app routes are locale-prefixed (example: https://customermates.com/en/company/members), and each page has its own route. The breadcrumb reads **My Company** › page name; the first crumb opens the first page you can see, and the second switches between the sibling pages.
+In the sidebar, **My Company** (`#nav-company`) sits in the **Workspace** group next to **My Profile**. It is a toggle: clicking it expands or collapses its list of pages and opens no page itself. Expanding it collapses the other expanded group, and it opens by itself while you are on one of its pages. All app routes are locale-prefixed (example: `https://customermates.com/en/company/members`), and each page has its own route. The breadcrumb reads **My Company** › page name; the first crumb opens the first page you can see, and the second switches between the sibling pages.
 
-| Page | Route | Sidebar id | Who sees it |
-|---|---|---|---|
-| **Subscription** | `/company/subscription` | `#nav-company-subscription` | Every member, Cloud only |
-| **Settings** | `/company/settings` | `#nav-company-settings` | Every member |
-| **Members** | `/company/members` | `#nav-company-members` | Every member |
-| **Roles** | `/company/roles` | `#nav-company-roles` | Every member |
-| **Audit Logs** | `/company/audit-logs` | `#nav-company-audit-logs` | Roles with **Audit Log** read access **All** |
-| **Webhooks** | `/company/webhooks` | `#nav-company-webhooks` | Roles with **API & Webhooks** read access **All** |
-| **Recent Deliveries** | `/company/webhook-deliveries` | `#nav-company-webhook-deliveries` | Roles with **API & Webhooks** read access **All** |
+The Cloud URLs are the English ones; swap `/en/` for the user's app language (`/de/`, `/fr/`, `/it/` or `/es/`). Mate's `highlight_element` also takes each navigate target: `nav-company` points at the **My Company** toggle, and every other one at its page's sidebar entry. A sidebar entry can be highlighted only while **My Company** is expanded, which it is by default on its own pages unless the member collapsed it. **Add** targets exist only for roles that can manage the page, and the layout targets only while display options are open.
 
-Every role can read **Company** and at least its own row of **Users & Roles**, so Subscription, Settings, Members and Roles are always listed; the role decides whether their editing controls appear and, on Members, which rows are listed. The built-in **Admin** role sees and can change everything.
+Subscription is Cloud only. Audit Logs needs **Audit Log** read access **All**, and Webhooks and Recent Deliveries need **API & Webhooks** read access **All**. Every role can read **Company** and at least its own row of **Users & Roles**, so Subscription, Settings, Members and Roles are always listed; the role decides whether their editing controls appear and, on Members, which rows are listed. The built-in **Admin** role sees and can change everything.
+
+| Page | Route and Cloud URL | Navigate target | Highlight targets on the page | Explained in |
+|---|---|---|---|---|
+| **Subscription** | `/company/subscription`, `https://customermates.com/en/company/subscription` | `nav-company-subscription` | None | [Subscription](#subscription-tab) |
+| **Settings** | `/company/settings`, `https://customermates.com/en/company/settings` | `nav-company-settings`, also `nav-company` | None | [Settings](#settings-tab) |
+| **Members** | `/company/members`, `https://customermates.com/en/company/members` | `nav-company-members` | `company-members-add`, `company-members-search`, `company-members-filter`, `company-members-display-options`, `company-members-layout-table`, `company-members-layout-board` | [Members](#members-tab) |
+| **Roles** | `/company/roles`, `https://customermates.com/en/company/roles` | `nav-company-roles` | `company-roles-add`, `company-roles-display-options`, `company-roles-layout-table`, `company-roles-layout-board` | [Roles](#roles-tab) |
+| **Audit Logs** | `/company/audit-logs`, `https://customermates.com/en/company/audit-logs` | `nav-company-audit-logs` | `company-audit-logs-search`, `company-audit-logs-filter`, `company-audit-logs-display-options`, `company-audit-logs-layout-table`, `company-audit-logs-layout-board` | [Audit Logs](#audit-logs-tab) |
+| **Webhooks** | `/company/webhooks`, `https://customermates.com/en/company/webhooks` | `nav-company-webhooks` | `company-webhooks-add`, `company-webhooks-search`, `company-webhooks-filter`, `company-webhooks-display-options`, `company-webhooks-layout-table`, `company-webhooks-layout-board` | [Webhooks](#webhooks-tab) |
+| **Recent Deliveries** | `/company/webhook-deliveries`, `https://customermates.com/en/company/webhook-deliveries` | `nav-company-webhook-deliveries` | `company-webhook-deliveries-search`, `company-webhook-deliveries-filter`, `company-webhook-deliveries-display-options`, `company-webhook-deliveries-layout-table`, `company-webhook-deliveries-layout-board` | [Recent Deliveries](#deliveries-tab) |
+| **Subscription Required** | `/subscription-expired`, `https://customermates.com/en/subscription-expired` | None | None, Mate is not available there | [Trial end or failed payment](#what-happens-when-the-trial-ends-or-a-payment-fails) |
+| **Legal documents updated** | `/legal-update`, `https://customermates.com/en/legal-update` | None | None, Mate is not available there | [Members without a permission](#what-does-a-member-without-a-permission-see) |
 
 ### What does a member without a permission see?
 
@@ -30,6 +34,8 @@ Every role can read **Company** and at least its own row of **Users & Roles**, s
 - On Cloud, while the subscription is unpaid or expired, or after the trial has ended, every page shows **Subscription Required** instead; see [what happens when the trial ends](#what-happens-when-the-trial-ends-or-a-payment-fails).
 - On Cloud, when the Terms or the DPA change, the sidebar shows **Legal documents updated** with **Review Terms and DPA** and the date by which to accept. Only a member with the **Admin** role can accept, on that page, by confirming the checkbox and clicking **Accept and continue**; everyone else sees "A company administrator must accept by" that date. If nobody accepts in time, every page opens this screen until an Admin accepts.
 - Role changes apply on the member's next page load or API call.
+
+**Link:** `/legal-update` for **Legal documents updated**, Cloud URL `https://customermates.com/en/legal-update`; it opens only while an acceptance is pending. **Mate:** no target, and Mate is not available on this page, so it can only give the link; the checkbox `#legal-acceptance` is an element id, not highlightable by Mate.
 
 ## Subscription tab
 
@@ -43,6 +49,8 @@ Route `/company/subscription`, sidebar id `#nav-company-subscription`, Cloud onl
 | **Active seats** | The number of billed seats. Before the first checkout it shows the number of **Active** members. The note below reads "You pay per active user. Seat changes are prorated on your next invoice." |
 
 The top bar holds **Refresh** and **Manage with Lemon Squeezy**; neither has an element id. Plan prices and allowances are listed below; the hosted AI credits per plan are under [Plans and credits](/docs/app-assistant#plans-and-credits).
+
+**Link:** the **Subscription** page, `/company/subscription`, Cloud URL `https://customermates.com/en/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`; the fields, **Refresh**, **Manage with Lemon Squeezy** and the plan cards are not highlight targets, so Mate names them. On self-hosted, `list_ui_targets` still offers the target, but the page redirects to the Dashboard.
 
 ### What does each subscription status mean?
 
@@ -61,6 +69,8 @@ A trial whose end date has passed without a checkout counts as expired, too. Ref
 
 The chip under the Customermates name in the sidebar shows the plan name while the status is **Active**, and otherwise the plan with its status, for example **Pro · Trial · 3 days left**, **1 day left** or **ends today**. It is green, turns amber at 3 or fewer trial days, and is red for every other status. Clicking it opens this page. Self-hosted installs show no chip.
 
+**Link:** `/company/subscription`, Cloud URL `https://customermates.com/en/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`; the status chip and the plan chip in the sidebar are not highlight targets, so Mate names them.
+
 ### Which plans are there?
 
 | Plan | Price per seat and month | Connected accounts per user | Routines per user | Inbox and messaging | Shared accounts |
@@ -72,6 +82,8 @@ The chip under the Customermates name in the sidebar shows the plan name while t
 
 Every plan includes the full CRM, the audit log, the API, the MCP server and the hosted assistant. Starter, Pro and Business are billed monthly per seat, in euros; there is no other billing interval.
 
+**Link:** `/company/subscription`, Cloud URL `https://customermates.com/en/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`; the plan cards are not highlight targets, so Mate names them.
+
 ### How do I choose or change a plan?
 
 While the workspace has no Lemon Squeezy subscription yet, which in practice means during the trial, roles that can manage Company see the plan picker below the fields: cards for **Starter**, **Pro** and **Business**, the last one marked **Most popular**. Each card shows the price per user and month, the features, the connected accounts per user (left out when a plan includes no connected accounts, as on Starter), the routines per user, and the hosted AI credits per active user and month.
@@ -79,6 +91,8 @@ While the workspace has no Lemon Squeezy subscription yet, which in practice mea
 Clicking a card opens the Lemon Squeezy checkout for as many seats as the workspace has **Active** members. After payment, Lemon Squeezy returns you to this page, and the plan, status and seats update once Lemon Squeezy confirms the payment. Checkout adds no second trial: billing starts at checkout, even when trial days are left.
 
 After the first checkout the picker does not come back on its own; change the plan with **Manage with Lemon Squeezy** instead. Enterprise workspaces never see the picker, and a checkout is refused with "Enterprise workspaces are billed manually and cannot start self-service checkout."
+
+**Link:** `/company/subscription`, Cloud URL `https://customermates.com/en/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`; the plan cards are not highlight targets, so Mate names them.
 
 ### How do I cancel, change the payment method or get invoices?
 
@@ -88,11 +102,15 @@ Changes made in the portal reach Customermates automatically. If the page still 
 
 Members without Company Manage see neither button. The hosted assistant and MCP clients cannot read or change the plan, the status, the seats or anything else about billing.
 
+**Link:** `/company/subscription`, Cloud URL `https://customermates.com/en/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`; **Manage with Lemon Squeezy** and **Refresh** are not highlight targets, so Mate names them.
+
 ### How are seats counted and billed?
 
 A seat is a member with status **Active**. Members **Waiting for approval** and **Inactive** members are not billed. The checkout takes the number of Active members at that moment. After that, every status change on **Members**, or through `manage_team`, sends the new number of Active members to Lemon Squeezy right away, and the in-app note says seat changes are prorated on your next invoice. Enterprise seats are not synced to billing.
 
 To lower the bill, set members who no longer need access to **Inactive** on [Members](#members-tab). That also pauses the routines they own and removes their connected messaging accounts at the next daily run.
+
+**Link:** `/company/subscription` for **Active seats**, Cloud URL `https://customermates.com/en/company/subscription`, and `/company/members` to change a status, Cloud URL `https://customermates.com/en/company/members`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription` or `nav-company-members`; **Active seats** and the member rows are not highlight targets, so Mate names them.
 
 ### What happens when the trial ends or a payment fails?
 
@@ -117,17 +135,25 @@ A paid workspace that stays **Unpaid** or **Expired** for 3 days has all members
 
 Only the web app is paused before that point. Until the members are set **Inactive**, their API keys and MCP connections keep reading and changing records, and webhooks keep firing for those changes; messaging, channels and the hosted assistant stop as soon as the subscription is no longer usable.
 
+**Link:** `/subscription-expired` for **Subscription Required**, Cloud URL `https://customermates.com/en/subscription-expired`; it opens only while access is paused, otherwise it redirects to **Subscription**. **Mate:** no target, and Mate is not available on this page, so it can only pass on the URL; the plan cards, **Contact Support** and **Retry** have no id.
+
 ### What happens to connected accounts when the plan changes?
 
 When Lemon Squeezy reports a different plan, through the automatic sync or **Refresh**, Customermates removes each user's newest connected accounts beyond the new plan's allowance per user. The Starter allowance is [[commercial.entitlement.starter.includedAccountsPerUser]] per user, so every connected account is removed. The first checkout from the trial counts as a change from Pro: choosing Starter removes every connected account. Members with the **Admin** role get an email that lists the removed accounts. Routines above the new allowance are kept, because the allowance applies only when a routine is created.
+
+**Link:** `/company/subscription`, Cloud URL `https://customermates.com/en/company/subscription`, and the remaining accounts on `/profile/connected-accounts`, Cloud URL `https://customermates.com/en/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription` or `nav-profile-connected-accounts`; **Refresh** and the account cards are not highlight targets, so Mate names them.
 
 ### How does an Enterprise workspace differ?
 
 An **Enterprise** workspace is set up with Customermates and billed by invoice. The page shows **Plan** and the note "This workspace is on an Enterprise plan billed by invoice. Contact your account manager to make changes." **Trial ends**, **Current period ends**, **Active seats**, the plan picker, **Refresh** and **Manage with Lemon Squeezy** are hidden, self-service checkout is refused, and member status changes are not sent to billing.
 
+**Link:** `/company/subscription`, Cloud URL `https://customermates.com/en/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`; **Plan** and the Enterprise note are not highlight targets, so Mate names them.
+
 ### Where do upgrade buttons lead?
 
 On Starter, the Inbox and **My Profile** › **Channels** show **Upgrade to unlock messaging** with the button **Upgrade your plan**. A Pro user at the connected-account limit sees **Upgrade to connect more accounts** with **View plans**, and the hosted assistant's credit notice shows **View plans** too. All of them open **My Company** › **Subscription**. Only roles that can manage Company can act there, and once the workspace has a subscription, upgrading goes through **Manage with Lemon Squeezy**.
+
+**Link:** `/company/subscription`, Cloud URL `https://customermates.com/en/company/subscription`; the buttons sit on `/inbox` (`https://customermates.com/en/inbox`) and `/profile/connected-accounts` (`https://customermates.com/en/profile/connected-accounts`). **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`, `nav-inbox` or `nav-profile-connected-accounts`; **Upgrade your plan** and **View plans** are not highlight targets, so Mate names them.
 
 ## Settings tab
 
@@ -143,9 +169,13 @@ One form holds three parts, and one **Save** (`#company-settings-save`) in the t
 | **Total pipeline**, **Weighted pipeline**, **Not weighted · no** plus the field name | Read-only totals, explained below. |
 | **Data model** | The name each record type carries in the workspace, explained below. |
 
+**Link:** the **Settings** page, `/company/settings`, Cloud URL `https://customermates.com/en/company/settings`. **Mate:** `navigate` and `highlight_element` with `nav-company-settings`, and `nav-company` also navigates here; **Save** (`#company-settings-save`) and **Reset** (`#company-settings-reset`) are element ids, not highlightable by Mate, and the fields are not highlight targets either, so Mate names them.
+
 ### Who can change the currency and the other settings?
 
 Every member can open **My Company › Settings**; only roles with **Company** set to **Manage** **Yes**, and **Admin**, can change what is on it. For everyone else the fields are read-only and **Save** and **Reset** are not shown. That covers the currency, the deal stage field, the probabilities and the Data model. To get one of them changed, ask a member with that role. The hosted assistant can change the currency and the Data model names with `update_workspace_settings`, under the same permission.
+
+**Link:** `/company/settings`, Cloud URL `https://customermates.com/en/company/settings`. **Mate:** `navigate` and `highlight_element` with `nav-company-settings`; the **Currency** field is not a highlight target, so Mate names it.
 
 ### How do stage probabilities and totals work?
 
@@ -156,6 +186,8 @@ Saving a new stage field or new probabilities recalculates the weighted value of
 - **Not weighted · no Stage** (named after your stage field): the value of deals with no stage selected, shown only when it is above zero.
 
 The probability inputs and the totals load only for members who can read deals, and the totals count only the deals that member can read; without deal read access the section shows an error instead. Probabilities can also be edited in the **Probability** column when you edit the stage field itself: editing the field needs **Deals** set to **Manage** **Yes**, and the **Probability** column stays read-only without the same Company permission. The concept is explained under [weighted pipeline](/docs/concepts#how-does-a-weighted-pipeline-work).
+
+**Link:** `/company/settings`, Cloud URL `https://customermates.com/en/company/settings`. **Mate:** `navigate` and `highlight_element` with `nav-company-settings`; **Deal stage field**, the probability inputs and the totals are not highlight targets, so Mate names them.
 
 ### How do I rename record types in the Data model?
 
@@ -173,6 +205,8 @@ The choice applies to the whole workspace and appears in each member's display l
 
 `update_workspace_settings` with `target: "company"` changes **Currency** and the Data model names; it needs the same Company permission and runs without an approval prompt in the hosted assistant. No tool chooses the stage field. `manage_custom_columns` can set the probabilities as the `weight` of each option of the stage field, which edits that field and so needs **Deals** set to **Manage** **Yes**; include the weight on every option, because an update replaces the option list.
 
+**Link:** `/company/settings`, Cloud URL `https://customermates.com/en/company/settings`. **Mate:** `navigate` and `highlight_element` with `nav-company-settings`; the **Data model** selects are not highlight targets, so Mate names them.
+
 ## Members tab
 
 Route `/company/members`, sidebar id `#nav-company-members`. Every member can open it: with **Users & Roles** read access **All** the list shows every member, with **Assigned** only your own row. Inviting, approving and editing members need **Users & Roles** set to **Manage** **Yes**, or **Admin**. The columns are **Name**, **E-Mail**, **Role**, **Status**, **Updated at** and **Created at**.
@@ -186,6 +220,8 @@ Route `/company/members`, sidebar id `#nav-company-members`. Every member can op
 | Search, filter, display options | Members toolbar | `#company-members-search` / `#company-members-filter` / `#company-members-display-options` | List controls; filters cover status, updated at and created at |
 | Layout | Display-options popover | `#company-members-layout-table` / `#company-members-layout-board` | Table is the only usable layout; the board control is present but disabled because members have nothing to group by |
 
+**Link:** the **Members** page, `/company/members`, Cloud URL `https://customermates.com/en/company/members`. **Mate:** `navigate` and `highlight_element` with `nav-company-members`; `highlight_element` also takes the toolbar ids in this table, `company-members-add` only for roles with Manage. `#member-modal-save` and `#member-modal-reset` are element ids, not highlightable by Mate, and rows and the **Invite User** dialog have no target, so Mate names them.
+
 ### How do invitations work?
 
 The **Invite User** dialog has two tabs. **Share link** shows one **Invitation link** of the form `/invitation/{token}` for the whole workspace. It is valid for 7 days, shows "Expires on" with the date, and is reused until then; the first time the dialog opens after it expired, a new link is created. Anyone who has the link can register, and there is no button to revoke it early.
@@ -195,6 +231,8 @@ The **Invite User** dialog has two tabs. **Share link** shows one **Invitation l
 People who register through the link join with status **Waiting for approval** and no role, and see a **Waiting for Approval** screen until someone approves them. An expired or altered link shows an error that asks them to request a new link from an administrator. Each registration also creates an **Approve User** task in **Tasks** for members whose **Tasks** read access is **All**; it disappears once the member is approved or set Inactive.
 
 The hosted assistant's `manage_team` action `invite` sends the same emails and always asks for approval first, because it emails real people. No tool returns the invitation link.
+
+**Link:** `/company/members`, Cloud URL `https://customermates.com/en/company/members`. **Mate:** `navigate` and `highlight_element` with `nav-company-members`, then `highlight_element` with `company-members-add` for **Add**; the **Share link** and **Send emails** tabs, the copy button and **Send invitations** are not highlight targets, so Mate names them.
 
 ### How do I approve, deactivate or edit a member?
 
@@ -219,6 +257,8 @@ Setting a member **Inactive** blocks their sign-in ("Your account is currently i
 
 `manage_team` action `update_member` changes a member's role and status without an approval prompt; for a member still **Waiting for approval**, pass both a `roleId` and the status `active`. Other members' names, country and avatar can only be changed in this dialog. `list_users` returns the members your role can read.
 
+**Link:** `/company/members`, Cloud URL `https://customermates.com/en/company/members`. **Mate:** `navigate` and `highlight_element` with `nav-company-members`; rows have no id, and **Save** (`#member-modal-save`) and **Reset** (`#member-modal-reset`) in the **User** dialog are element ids, not highlightable by Mate, so Mate names the row, the fields and the buttons.
+
 ## Roles tab
 
 Route `/company/roles`, sidebar id `#nav-company-roles`. A role is a set of permissions that every member with that role gets. Every member can open the list, with the columns **Name**, **Type** and **Description**; **Type** is **System** for the built-in **Admin** role and **Custom** for all others. Creating, editing and deleting roles needs **Users & Roles** set to **Manage** **Yes**, or **Admin**.
@@ -231,6 +271,8 @@ Route `/company/roles`, sidebar id `#nav-company-roles`. A role is a set of perm
 | Search | Roles toolbar | `#company-roles-search` | Not rendered: the Roles list has no search box and no filter |
 | Display options | Roles toolbar | `#company-roles-display-options` | List controls |
 | Layout | Display-options popover | `#company-roles-layout-table` / `#company-roles-layout-board` | Table only; the board control is disabled |
+
+**Link:** the **Roles** page, `/company/roles`, Cloud URL `https://customermates.com/en/company/roles`. **Mate:** `navigate` and `highlight_element` with `nav-company-roles`; `highlight_element` also takes `company-roles-add` (roles with Manage), `company-roles-display-options` and the layout ids. `company-roles-search` is registered, but nothing renders it, so highlighting it fails. Rows, the **Role** editor and **Delete** have no target, so Mate names them.
 
 ### How does the role editor work?
 
@@ -251,9 +293,13 @@ The **Role** editor has the fields **Name** (required, up to 255 characters) and
 
 Row names stay the same when the Data model renames record types. On a self-hosted install the **Inbox messages** and **Routines** rows are hidden.
 
+**Link:** `/company/roles`, Cloud URL `https://customermates.com/en/company/roles`. **Mate:** `navigate` and `highlight_element` with `nav-company-roles`, then `highlight_element` with `company-roles-add` for a new role; the editor's fields, **Save**, **Reset** and **Delete** are not highlight targets, so Mate names them.
+
 ### What is the Admin role?
 
 Every workspace starts with one built-in role, **Admin**, given to the person who created the workspace. It passes every permission check, shows every row as Yes and All, and its editor opens read-only with "This is a system role and cannot be edited or deleted." Nobody can change or delete it. The workspace must keep at least one **Active** member with this role, and only members with it can delete routines or pause someone else's routine.
+
+**Link:** `/company/roles`, Cloud URL `https://customermates.com/en/company/roles`. **Mate:** `navigate` and `highlight_element` with `nav-company-roles`; the **Admin** row and its read-only editor have no target, so Mate names them.
 
 ### What are the rules for editing roles?
 
@@ -261,6 +307,8 @@ Every workspace starts with one built-in role, **Admin**, given to the person wh
 - **Delete** appears only for a custom role that no member has, inactive members included; move everyone to another role first.
 - Changes apply to every member with the role on their next page load or API call, and they are recorded in the audit log.
 - No assistant or MCP tool creates, edits or deletes roles. `get_workspace_context` lists them with their permissions, and `manage_team` assigns an existing role to a member.
+
+**Link:** `/company/roles`, Cloud URL `https://customermates.com/en/company/roles`. **Mate:** `navigate` and `highlight_element` with `nav-company-roles`; rows, the **Role** editor and **Delete** have no target, so Mate names them.
 
 ## Webhooks tab
 
@@ -274,6 +322,8 @@ Route `/company/webhooks`, sidebar id `#nav-company-webhooks`. Outbound event su
 | Search, filter, display options | Webhooks toolbar | `#company-webhooks-search` / `#company-webhooks-filter` / `#company-webhooks-display-options` | List controls; search matches the URL |
 | Layout | Display-options popover | `#company-webhooks-layout-table` / `#company-webhooks-layout-board` | Table only; the board control is disabled |
 
+**Link:** the **Webhooks** page, `/company/webhooks`, Cloud URL `https://customermates.com/en/company/webhooks`. **Mate:** `navigate` and `highlight_element` with `nav-company-webhooks`; `highlight_element` also takes the toolbar ids in this table, `company-webhooks-add` only for roles with Manage. `#webhook-modal-save` and `#webhook-modal-reset` are element ids, not highlightable by Mate, and rows, the dialog fields and **Delete** have no target, so Mate names them.
+
 ## Recent Deliveries tab [#deliveries-tab]
 
 Route `/company/webhook-deliveries`, sidebar id `#nav-company-webhook-deliveries`, with the same **API & Webhooks** permission as Webhooks. One row per delivery with **URL**, **Event**, **Element**, **Status**, **Status Code** and **Created at**, newest first; search matches the event and the URL. Click a row to open **Event Details** with the status (**Pending** until the first attempt finishes, then **Delivered** or **Failed**), the status code, the response message and the event payload. Payloads cover every record in the workspace, including records the viewer's role cannot open.
@@ -284,6 +334,8 @@ Route `/company/webhook-deliveries`, sidebar id `#nav-company-webhook-deliveries
 |---|---|---|---|
 | Search, filter, display options | Deliveries toolbar | `#company-webhook-deliveries-search` / `#company-webhook-deliveries-filter` / `#company-webhook-deliveries-display-options` | List controls |
 | Layout | Display-options popover | `#company-webhook-deliveries-layout-table` / `#company-webhook-deliveries-layout-board` | Table only; the board control is disabled |
+
+**Link:** the **Recent Deliveries** page, `/company/webhook-deliveries`, Cloud URL `https://customermates.com/en/company/webhook-deliveries`. **Mate:** `navigate` and `highlight_element` with `nav-company-webhook-deliveries`; `highlight_element` also takes the toolbar ids in this table. Rows, **Event Details** and **Resend** are not highlight targets, so Mate names them.
 
 ## Audit Logs tab
 
@@ -296,9 +348,12 @@ Reading it needs **Audit Log** read access **All** on your role, or **Admin**; t
 | Search, filter, display options | Audit toolbar | `#company-audit-logs-search` / `#company-audit-logs-filter` / `#company-audit-logs-display-options` | List controls |
 | Layout | Display-options popover | `#company-audit-logs-layout-table` / `#company-audit-logs-layout-board` | Table only; the board control is disabled |
 
+**Link:** the **Audit Logs** page, `/company/audit-logs`, Cloud URL `https://customermates.com/en/company/audit-logs`. **Mate:** `navigate` and `highlight_element` with `nav-company-audit-logs`; `highlight_element` also takes the toolbar ids in this table. Rows and **Audit Log Details** are not highlight targets, so Mate names them.
+
 ## Tips for agents
 
-- `#nav-company` only expands the sidebar group. The hosted assistant's `navigate` opens every page here through its sidebar id, and `nav-company` itself opens **Settings**. It can highlight the sidebar entries and the toolbar controls listed above; `company-roles-search` is registered, but the Roles page renders no search box.
+- Every section above closes with its route, the Cloud address to hand to the user, and the ids Mate can use. **Subscription Required** and **Legal documents updated** have no target and Mate is not available there, so pass on their address.
+- `#nav-company` only expands the sidebar group. The hosted assistant's `navigate` opens every page here through its sidebar id, and `nav-company` itself opens **Settings**; a toolbar id also works and opens its page. It can highlight the sidebar entries and the toolbar controls listed above; `company-roles-search` is registered, but the Roles page renders no search box. `list_ui_targets` lists targets whatever the user's role or plan, so an **Add** target can be missing on screen.
 - It cannot highlight form and dialog buttons (`#company-settings-save`, `#company-settings-reset`, `#member-modal-save`, `#member-modal-reset`, `#webhook-modal-save`, `#webhook-modal-reset`), the invite dialog, the role editor, the Settings fields or the Subscription buttons, and it cannot click a row or submit a dialog.
 - Rows never carry ids. Navigate to a page via its URL (for example `/company/webhooks`) and open a row by clicking it. Edits happen in dialogs, not in a drawer.
 - Prefer [MCP](/docs/mcp) tools over clicking when a tool exists: `update_workspace_settings` changes the currency and the Data model names, `manage_team` invites and updates members, `manage_webhooks` manages webhooks and deliveries, and `get_workspace_context` lists the company settings and the roles with their permissions.

@@ -16,6 +16,8 @@ Ein Key aus den **Schnellverbindungen** trägt den Namen seines Clients (`Claude
 
 Keys gehören dem Nutzer, der sie angelegt hat, und erben dessen Berechtigungen.
 
+**Link:** `/profile/api-keys`, Cloud-URL `https://customermates.com/de/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys` (hervorhebbar nur, solange **Mein Profil** aufgeklappt ist, standardmäßig auf jeder seiner Seiten, sofern das Mitglied es nicht zugeklappt hat); die Schaltflächen und Felder hier sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen. **Hinzufügen** trägt die Element-Id `#profile-api-keys-generate` und **Speichern** im Dialog die Element-Id `#api-key-save`; beide sind für Mate nicht hervorhebbar.
+
 ## Wer kann API-Keys anlegen und sehen?
 
 Die Seite **API & Konnektoren** und ihre Schaltfläche **Hinzufügen** richten sich nach der Zeile **API & Webhooks** Ihrer Rolle. Diese Zeile setzt ein Mitglied mit **Verwalten** auf **Benutzer & Rollen** unter **Mein Unternehmen → Rollen**:
@@ -54,6 +56,8 @@ Ein **Standard-API-Key** läuft nur ab, wenn Sie unter **Läuft ab** ein Datum w
 Rotieren Sie, wenn ein Gerät mit dem Key verloren geht oder kompromittiert ist, wenn ein Teammitglied mit Zugriff das Team verlässt oder wenn Sie einen Leak vermuten. Ein Key pro Client erlaubt es, einen einzelnen Client zu löschen, ohne die anderen zu brechen. Im Audit-Log trennt er sie nicht, denn dort steht der Nutzer, dem ein Key gehört, nicht der Key selbst. Bewahren Sie Keys in einer Umgebungsvariable oder einem Passwort-Manager auf, nie in einer Config-Datei, die Sie committen.
 
 Nur der Besitzer kann einen Key löschen. Um die Keys eines ausscheidenden Mitglieds zu stoppen, öffnen Sie **Mein Unternehmen → Mitglieder**, öffnen das Mitglied, setzen **Status** auf **Inaktiv** und speichern; dafür brauchen Sie **Verwalten** **Ja** und Leserecht **Alle** auf **Benutzer & Rollen**, sich selbst können Sie nicht deaktivieren, und das letzte aktive Mitglied mit der Rolle **Admin** lässt sich nicht deaktivieren. Danach wird jeder Aufruf mit den Keys dieses Mitglieds abgelehnt, der Workspace-Daten liest oder ändert. Seiner Rolle die Berechtigung **API & Webhooks** zu entziehen, reicht nicht: Das blendet die Seite und ihre Schaltfläche **Hinzufügen** aus, aber bereits vorhandene Keys funktionieren weiter.
+
+**Link:** `/profile/api-keys`, Cloud-URL `https://customermates.com/de/profile/api-keys`, und zum Deaktivieren eines Mitglieds `/company/members`, Cloud-URL `https://customermates.com/de/company/members`. **Mate:** `navigate` mit `nav-profile-api-keys` oder `nav-company-members`; `highlight_element` mit `nav-profile-api-keys` auf einer Seite unter **Mein Profil** und mit `nav-company-members` auf einer Seite unter **Mein Unternehmen**, weil ein Sidebar-Eintrag nur hervorhebbar ist, solange seine Gruppe aufgeklappt ist; die Key-Karten, **Löschen**, die Zeilen der Mitglieder, **Status** und **Speichern** (Element-Id `#member-modal-save`, für Mate nicht hervorhebbar) sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Welches Format hat ein Key?
 

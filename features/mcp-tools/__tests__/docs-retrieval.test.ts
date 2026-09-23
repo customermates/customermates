@@ -152,4 +152,117 @@ describe("searchSections and sectionExcerpt", () => {
     if (!rotate) throw new Error("Rotate section missing");
     expect(sectionExcerpt(rotate, "rotate", 500, "english")).toBe("### Rotate\nRotate keys every quarter.");
   });
+
+  it("keeps the section's link line when the matching text fills the excerpt", () => {
+    const [billing] = splitSections({
+      slug: "app-company",
+      source: "docs",
+      pageTitle: "My Company",
+      markdown: [
+        "## Billing",
+        "",
+        "Cancel the subscription in the Lemon Squeezy portal, which also holds invoices and the payment method.",
+        "",
+        "Refresh re-reads the subscription after a change in the portal and confirms it.",
+        "",
+        "**Link:** `/company/subscription`. **Mate:** `navigate` with `nav-company-subscription`.",
+      ].join("\n"),
+    });
+    if (!billing) throw new Error("Billing section missing");
+    const excerpt = sectionExcerpt(billing, "cancel subscription invoices", 260, "english", true);
+    expect(excerpt.startsWith("## Billing\nCancel the subscription")).toBe(true);
+    expect(excerpt).not.toContain("Refresh re-reads");
+    expect(excerpt.split("\n").at(-1)).toBe(
+      "**Link:** `/company/subscription`. **Mate:** `navigate` with `nav-company-subscription`.",
+    );
+    expect(excerpt.match(/\*\*Link:\*\*/g)).toHaveLength(1);
+    expect(excerpt.length).toBeLessThanOrEqual(270);
+  });
+
+  it("appends every link line once, in order, without pulling one in as leading context", () => {
+    const [billing] = splitSections({
+      slug: "app-company",
+      source: "docs",
+      pageTitle: "My Company",
+      markdown: [
+        "## Billing",
+        "",
+        "Intro.",
+        "",
+        "**Link:** `/a`.",
+        "Cancel the subscription here.",
+        "",
+        "Tail text that is long enough to be cut off by the budget.",
+        "**Link:** `/b`.",
+      ].join("\n"),
+    });
+    if (!billing) throw new Error("Billing section missing");
+    const excerpt = sectionExcerpt(billing, "cancel subscription", 80, "english", true);
+    const lines = excerpt.split("\n");
+    expect(lines.slice(-2)).toEqual(["**Link:** `/a`.", "**Link:** `/b`."]);
+    expect(excerpt.match(/\*\*Link:\*\*/g)).toHaveLength(2);
+    expect(excerpt).toContain("Cancel the subscription here.");
+    expect(excerpt).not.toContain("Intro.");
+    expect(excerpt).not.toContain("Tail text");
+    expect(excerpt.length).toBeLessThanOrEqual(84);
+  });
+
+  it("trims the matching line rather than drop the link line when both do not fit", () => {
+    const [billing] = splitSections({
+      slug: "app-company",
+      source: "docs",
+      pageTitle: "My Company",
+      markdown: [
+        "## Billing",
+        "",
+        "Cancel the subscription in the portal, which also holds invoices, the payment method and the plan.",
+        "",
+        "**Link:** `/company/subscription`.",
+      ].join("\n"),
+    });
+    if (!billing) throw new Error("Billing section missing");
+    const excerpt = sectionExcerpt(billing, "cancel subscription", 80, "english", true);
+    expect(excerpt).toContain("Cancel the subscription");
+    expect(excerpt).toContain("…");
+    expect(excerpt.split("\n").at(-1)).toBe("**Link:** `/company/subscription`.");
+    expect(excerpt.length).toBeLessThanOrEqual(84);
+  });
+
+  it("treats link lines as ordinary lines unless asked to keep them", () => {
+    const [billing] = splitSections({
+      slug: "app-company",
+      source: "docs",
+      pageTitle: "My Company",
+      markdown: [
+        "## Billing",
+        "",
+        "Intro.",
+        "",
+        "**Link:** `/a`.",
+        "Cancel the subscription here.",
+        "",
+        "Tail text that is long enough to be cut off by the budget.",
+        "**Link:** `/b`.",
+      ].join("\n"),
+    });
+    if (!billing) throw new Error("Billing section missing");
+    expect(sectionExcerpt(billing, "cancel subscription", 80, "english")).toBe(
+      "## Billing\n…\n**Link:** `/a`.\nCancel the subscription here.\n\n…",
+    );
+  });
+
+  it("leaves a section without a link line unchanged", () => {
+    const [plain] = splitSections({
+      slug: "app-company",
+      source: "docs",
+      pageTitle: "My Company",
+      markdown: ["## Billing", "", "Cancel the subscription here.", "", "Tail text that runs past the budget."].join(
+        "\n",
+      ),
+    });
+    if (!plain) throw new Error("Billing section missing");
+    expect(sectionExcerpt(plain, "cancel subscription", 45, "english")).toBe(
+      "## Billing\nCancel the subscription here.\n\n…",
+    );
+  });
 });

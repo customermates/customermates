@@ -160,7 +160,7 @@ export function relevantDocsExcerpt(
   }
 
   const stemmer = docsStemmerForLocale(page.locale);
-  const primary = sectionExcerpt(ranked[0].section, query, PAGE_EXCERPT_CHARS, stemmer);
+  const primary = sectionExcerpt(ranked[0].section, query, PAGE_EXCERPT_CHARS, stemmer, true);
   const secondary = ranked[1]
     ? sectionExcerpt(ranked[1].section, query, Math.max(0, PAGE_EXCERPT_CHARS - primary.length), stemmer)
     : "";

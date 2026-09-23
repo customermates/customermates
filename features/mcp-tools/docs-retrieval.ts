@@ -758,11 +758,14 @@ export function rankPages(
 
 const EXCERPT_LEADING_LINES = 1;
 
+const LINK_LINE = /^\*\*Link:\*\*/;
+
 export function sectionExcerpt(
   section: DocsSection,
   query: string,
   maxChars: number,
   stemmer: DocsStemmer = "english",
+  keepLinkLines = false,
 ): string {
   const heading = section.headingPath.length
     ? `${"#".repeat(Math.min(3, section.headingPath.length + 1))} ${section.headingPath.at(-1)}`
@@ -797,19 +800,38 @@ export function sectionExcerpt(
       tableHeader.push(lines[cursor], lines[cursor + 1]);
   }
   for (const line of tableHeader) budget -= line.length + 1;
+  const linkLines = keepLinkLines ? lines.filter((line, index) => index !== bestLine && LINK_LINE.test(line)) : [];
+  const linkLength = linkLines.reduce((total, line) => total + line.length + 1, 0);
+  const keptLinks = linkLines.length > 0 && linkLength < budget ? linkLines : [];
+  if (keptLinks.length) budget -= linkLength;
   const picked: string[] = [];
   let end = bestLine;
-  while (end < lines.length && budget - lines[end].length - 1 >= 0) {
+  while (end < lines.length) {
+    if (keptLinks.includes(lines[end])) {
+      end += 1;
+      continue;
+    }
+    if (budget - lines[end].length - 1 < 0) {
+      if (keptLinks.length && picked.length === 0 && budget > 2) {
+        picked.push(`${lines[end].slice(0, budget - 2)}…`);
+        budget = 0;
+        end += 1;
+      }
+      break;
+    }
     picked.push(lines[end]);
     budget -= lines[end].length + 1;
     end += 1;
   }
   for (let context = 0; context < EXCERPT_LEADING_LINES && start > 0; context += 1) {
-    if (budget - lines[start - 1].length - 1 < 0 || tableHeader.includes(lines[start - 1])) break;
+    const previous = lines[start - 1];
+    if (budget - previous.length - 1 < 0 || tableHeader.includes(previous) || keptLinks.includes(previous)) break;
     start -= 1;
     picked.unshift(lines[start]);
     budget -= lines[start].length + 1;
   }
   const excerpt = [...tableHeader.filter((line) => !picked.includes(line)), ...picked].join("\n");
-  return [heading, start > 0 ? "…" : "", excerpt, end < lines.length ? "…" : ""].filter(Boolean).join("\n");
+  return [heading, start > 0 ? "…" : "", excerpt, end < lines.length ? "…" : "", ...keptLinks]
+    .filter(Boolean)
+    .join("\n");
 }
