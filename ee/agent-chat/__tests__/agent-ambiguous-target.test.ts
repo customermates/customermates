@@ -53,8 +53,9 @@ const novaRows: [string, string][] = [
   [NOVA_2025, "Nova Expansion 2025"],
 ];
 const novaSearch: Read = { input: { entity: "deal", searchTerm: "Nova Expansion" }, result: table(novaRows) };
-const request = (latestUserText: string, previousAssistantText = ""): AmbiguityRequest =>
+const request = (latestUserText: string, previousAssistantText = "", earlierUserText = ""): AmbiguityRequest =>
   ambiguityRequestOf([
+    { role: "user", text: earlierUserText },
     { role: "assistant", text: previousAssistantText },
     { role: "user", text: latestUserText },
   ]);
@@ -76,6 +77,8 @@ describe("ambiguous write targets", () => {
   it("never arms on a name the user governs with a set word or a name rule", () => {
     for (const text of [
       "Set both Nova Expansion deals to Won.",
+      "Set both Nova Expansion deals and the Kestrel deal to Won.",
+      "Set both Nova Expansion to Won, then archive Kestrel and Falcon.",
       "Set all the Nova Expansion deals to Won.",
       "Set the two Nova Expansion deals to Won.",
       "Assign both Nova Expansion deals to Max Klein as owner.",
@@ -91,6 +94,15 @@ describe("ambiguous write targets", () => {
       "Update the deal named Nova Expansion to Won.",
       "Update the deal with the name Nova Expansion to Won.",
       "Update all records named in the list and mark Nova Expansion as Won.",
+      "Mark both Nova Expansion and Kestrel as Won.",
+      "Show me all activities of Nova Expansion, then mark it Won.",
+      "Segna i due deal Nova Expansion e Kestrel come vinti.",
+      "Update both Nova Expansion's value and stage.",
+      "Link all contacts to the deal called Nova Expansion.",
+      "Verknüpfe alle Kontakte mit dem Deal namens Nova Expansion.",
+      "Ordne alle offenen Aufgaben dem Deal mit dem Namen Nova Expansion zu.",
+      "Associe toutes les tâches au deal nommé Nova Expansion.",
+      "Update Nova Expansion: 2025 forecast is 30000.",
       "Alles klar, Nova Expansion bitte auf Gewonnen setzen.",
       "OK, that's all. Nova Expansion: mark it as Won.",
     ])
@@ -144,6 +156,7 @@ describe("ambiguous write targets", () => {
     for (const text of [
       "Set every overdue task with the name Follow up to Done.",
       "Set all overdue tasks whose name is Follow up to Done.",
+      "Set all overdue high priority open tasks named Follow up to Done.",
       "Close all tasks whose name contains the phrase Follow up.",
     ])
       expect(ambiguousTargetsFromMessages(followUpRead, request(text)), text).toEqual([]);
@@ -265,8 +278,8 @@ describe("ambiguous write targets", () => {
       [NOVA, "Café"],
       [NOVA_2025, "Café Nord"],
     ]);
-    const armed = (read: Read, latest: string, previous = "") =>
-      Number(ambiguousTargetsFromMessages(reads(read), request(latest, previous)).length > 0);
+    const armed = (read: Read, latest: string, previous = "", earlier = "") =>
+      Number(ambiguousTargetsFromMessages(reads(read), request(latest, previous, earlier)).length > 0);
 
     it("arms on a written name another candidate contains, however the model searched for it", () => {
       const broad = search(
@@ -442,6 +455,23 @@ describe("ambiguous write targets", () => {
         [NOVA_2025, "Acme Inc. Europe"],
       ]);
       expect(armed(acmeEurope, "Update the address of Acme Inc Europe to Main Street 5")).toBe(0);
+      expect(armed(acmeEurope, "Update the address of Acme Inc. Europe to Main Street 5")).toBe(0);
+      const kestrel = search([
+        [NOVA, "Kestrel"],
+        [NOVA_2025, "Kestrel Renewal"],
+      ]);
+      expect(armed(kestrel, "Kestrel: renewal confirmed, mark the deal as Won.")).toBe(1);
+      const nested = search(
+        [
+          [NOVA, "Nova"],
+          [NOVA_2025, "Nova Expansion"],
+          [UNRELATED, "Nova Expansion 2025"],
+        ],
+        "Nova",
+      );
+      expect(armed(nested, "Mark Nova Expansion and Nova Expansion 2025 as Won.")).toBe(0);
+      expect(armed(nested, "Mark Nova and Nova Expansion 2025 as Won.")).toBe(1);
+      expect(armed(nested, "Mark Nova Expansion as Won.")).toBe(1);
       const muellerBau = search([
         [NOVA, "Müller Bau"],
         [NOVA_2025, "Müller Bau 2025"],
@@ -480,6 +510,30 @@ describe("ambiguous write targets", () => {
       ];
       const text = "Lege für jeden dieser Deals eine Aufgabe Verlängerung besprechen an.";
       expect(ambiguousTargetsFromMessages(messages, request(text))).toEqual([]);
+      const oneCreated = [
+        messages[0],
+        {
+          role: "tool",
+          content: [
+            {
+              type: "tool-result",
+              toolCallId: "create-1",
+              output: {
+                type: "json",
+                value: { ok: true, result: encode({ items: [{ id: NOVA, name: "Verlängerung besprechen" }] }) },
+              },
+            },
+          ],
+        },
+        ...reads({
+          input: { entity: "task", searchTerm: "Verlängerung besprechen" },
+          result: table([
+            [NOVA, "Verlängerung besprechen"],
+            [NOVA_2025, "Verlängerung besprechen"],
+          ]),
+        }),
+      ];
+      expect(ambiguousTargetsFromMessages(oneCreated, request(text))).toEqual([]);
       expect(ambiguousTargetsFromMessages(messages.slice(2), request(text))).toHaveLength(1);
     });
 
@@ -495,22 +549,56 @@ describe("ambiguous write targets", () => {
           [NOVA_2025, "Alex Müller"],
         ]),
       };
+      const original = "Update Alex Müller's phone number to +12025550199.";
       const asked =
         "There are two contacts named Alex Müller: one at Northstar Services GmbH and one at Southbank Systems GmbH. Which one do you mean?";
-      expect(armed(twins, "Update Alex Müller's phone number to +49 30 1234")).toBe(1);
+      expect(armed(twins, original)).toBe(1);
       expect(armed(twins, "Update the contact named Alex Müller")).toBe(1);
-      expect(armed(twins, "Alex Müller bei Northstar Services GmbH", asked)).toBe(0);
-      expect(armed(twins, "The Northstar one", asked)).toBe(0);
-      expect(armed(twins, "Alex Müller", asked)).toBe(1);
-      expect(armed(twins, "Alex Müller, the one", asked)).toBe(1);
+      expect(armed(twins, "Alex Müller bei Northstar Services GmbH", asked, original)).toBe(0);
+      expect(armed(twins, "The Northstar one", asked, original)).toBe(0);
+      expect(armed(twins, "Alex Müller", asked, original)).toBe(1);
+      expect(armed(twins, "Alex Müller, the one", asked, original)).toBe(1);
+      expect(armed(twins, original, asked, original)).toBe(1);
       expect(armed(twins, "Update Alex Müller at Northstar", "Northstar Services GmbH has three open deals.")).toBe(1);
       expect(
         armed(
           twins,
-          "Update Alex Müller's phone number to +12025550199.",
-          "Alex Müller's phone number is +1 202 555 0101.",
+          "Update Alex Müller at Northstar",
+          "There are two contacts named Alex Müller, one at Northstar Services GmbH and one at Southbank Systems GmbH.",
+          "Show me Alex Müller.",
+        ),
+      ).toBe(0);
+      expect(
+        armed(
+          twins,
+          "Update Alex Müller at Northstar",
+          "There are two contacts named Alex Müller, one at Northstar Services GmbH and one at Southbank Systems GmbH.",
+          "Show me Alex Müller at Northstar.",
         ),
       ).toBe(1);
+      expect(armed(twins, original, "Alex Müller's phone number is +1 202 555 0101.")).toBe(1);
+      const listedWithoutAsking =
+        "There are two contacts named Alex Müller, each with a phone number:\n- Northstar Services GmbH: +1 202 555 0101\n- Southbank Systems GmbH: +1 202 555 0102";
+      expect(armed(twins, original, listedWithoutAsking, "What is Alex Müller's phone number?")).toBe(1);
+      expect(
+        armed(
+          twins,
+          original,
+          `${listedWithoutAsking}\nWhich one should I update?`,
+          "What is Alex Müller's phone number?",
+        ),
+      ).toBe(1);
+      for (const question of [
+        "Which Alex Müller do you mean: the one at Northstar Services GmbH or the one at Southbank Systems GmbH?",
+        "Welchen Alex Müller meinst du – den bei Northstar Services GmbH oder den bei Southbank Systems GmbH?",
+        "I found 2 contacts named Alex Müller: one at Northstar Services GmbH, one at Southbank Systems GmbH. Which one?",
+        "Es gibt mehrere Kontakte namens Alex Müller, bei Northstar Services GmbH & Co. KG und bei Southbank Systems GmbH. Welchen meinst du?",
+        "I found two contacts named Alex Müller:\n- Northstar Services GmbH (alex@northstar.de)\n- Southbank Systems GmbH (alex@southbank.de)\nWhich one should I update?",
+        "There are two contacts named Alex Müller. One works at Northstar Services GmbH, the other at Southbank Systems GmbH. Which one do you mean?",
+      ]) {
+        expect(armed(twins, "Alex Müller bei Northstar", question, original), question).toBe(0);
+        expect(armed(twins, "Alex Müller at Southbank", question, original), question).toBe(0);
+      }
       const expansions = search(
         [
           [NOVA, "Nova Expansion"],
@@ -518,22 +606,14 @@ describe("ambiguous write targets", () => {
         ],
         "Nova Expansion",
       );
+      const request = "Mark the Nova Expansion deal as Won.";
       const which = "Two deals are named Nova Expansion: one in Berlin, one in Hamburg. Which should I mark as Won?";
-      expect(armed(expansions, "Mark the Nova Expansion deal as Won", which)).toBe(1);
-      expect(armed(expansions, "Mark the Nova Expansion deals as Won", which)).toBe(1);
-      expect(armed(expansions, "Nova Expansion in Berlin", which)).toBe(0);
-      const mixed = search(
-        [
-          [NOVA, "Nova"],
-          [NOVA_2025, "Nova Expansion"],
-          [UNRELATED, "Nova Expansion"],
-        ],
-        "Nova",
-      );
-      const listing = "Three deals match: Nova, Nova Expansion (Northwind) and Nova Expansion (Southbank). Which one?";
-      expect(armed(mixed, "Nova Expansion", listing)).toBe(1);
-      expect(armed(mixed, "Nova Expansion at Northwind", listing)).toBe(0);
-      expect(armed(twins, "Update Alex Müller at Northstar")).toBe(1);
+      expect(armed(expansions, "Mark the Nova Expansion deal as Won", which, request)).toBe(1);
+      expect(armed(expansions, "Mark the Nova Expansion deals as Won", which, request)).toBe(1);
+      expect(armed(expansions, "Nova Expansion in Berlin", which, request)).toBe(0);
+      const german =
+        "Es gibt zwei Deals namens Nova Expansion: einer mit 24.000 € (Berlin) und einer mit 18.000 € (Hamburg). Welchen meinen Sie?";
+      expect(armed(expansions, "Nova Expansion in Hamburg", german, request)).toBe(0);
     });
 
     it("arms on the spellings people type for a stored name", () => {
@@ -906,6 +986,7 @@ describe("ambiguous write targets", () => {
     ).toEqual({
       latestUserText: "mark the nova expansion deal as won.",
       previousAssistantText: "nova expansion and nova expansion 2025.",
+      earlierUserText: "which deals are open?",
     });
   });
 });

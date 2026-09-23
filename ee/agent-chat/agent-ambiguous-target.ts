@@ -2,7 +2,7 @@ import { decode } from "@toon-format/toon";
 
 export type AmbiguousTarget = { entity: string; phrase: string; candidates: { id: string; name: string }[] };
 
-export type AmbiguityRequest = { latestUserText: string; previousAssistantText: string };
+export type AmbiguityRequest = { latestUserText: string; previousAssistantText: string; earlierUserText: string };
 
 const UUID = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/g;
 const TOON_TABLE_ROW = /^\s+([0-9a-fA-F-]{36}),(?:"((?:[^"\\]|\\.)*)"|([^\n,]*))/gm;
@@ -18,10 +18,10 @@ const ANY_WORD_CHAR = new RegExp(`^[[${WORD}]--[${NEVER_WORD}]]$`, "v");
 const SPACED_WORD_CHAR = new RegExp(`^[[${WORD}]--[${NEVER_WORD}${UNSPACED_SCRIPTS}]]$`, "v");
 const WORD_BEFORE_PHRASE = new RegExp(`^[[${WORD}]--[${NEVER_WORD}${UNSPACED_SCRIPTS}${PROCLITIC_SCRIPTS}]]$`, "v");
 const UNSPACED_CHAR = new RegExp(`^[${UNSPACED_SCRIPTS}]$`, "v");
-const MIN_DISTINGUISHING_WORD = 4;
 const SET_WORD_REACH = 2;
 const SELECTION_RULE_REACH = 3;
 const NAMING_CLAUSE_REACH = 8;
+const MIN_DISTINGUISHING_WORD = 4;
 const CLAUSE_LOOKBACK_CHARS = 400;
 const CLAUSE_MARKS = [".", "!", "?", ";", ":", ",", "\n"];
 const COUNT_WORDS = [
@@ -53,6 +53,52 @@ const COUNT_WORDS = [
   "quattro",
   "cinque",
 ];
+const QUESTION_WORDS = [
+  "which",
+  "welche",
+  "welcher",
+  "welchen",
+  "welches",
+  "welchem",
+  "cuál",
+  "cuáles",
+  "quel",
+  "quelle",
+  "quels",
+  "quelles",
+  "lequel",
+  "laquelle",
+  "quale",
+  "quali",
+];
+const COORDINATORS = ["and", "und", "sowie", "y", "e", "et", "ed"];
+const PLURAL_RECORD_NOUNS = [
+  "deals",
+  "contacts",
+  "tasks",
+  "organizations",
+  "organisations",
+  "services",
+  "companies",
+  "kontakte",
+  "aufgaben",
+  "organisationen",
+  "firmen",
+  "dienstleistungen",
+  "tratos",
+  "contactos",
+  "tareas",
+  "organizaciones",
+  "servicios",
+  "empresas",
+  "tâches",
+  "entreprises",
+  "contatti",
+  "attività",
+  "organizzazioni",
+  "servizi",
+  "aziende",
+];
 const COMMON_WORDS = [
   "deal",
   "deals",
@@ -75,16 +121,10 @@ const COMMON_WORDS = [
   "aufgaben",
   "firma",
   "firmen",
-  "dienstleistung",
-  "dienstleistungen",
   "contacto",
   "contactos",
   "tarea",
   "tareas",
-  "organización",
-  "organizaciones",
-  "servicio",
-  "servicios",
   "empresa",
   "empresas",
   "tâche",
@@ -94,16 +134,52 @@ const COMMON_WORDS = [
   "contatto",
   "contatti",
   "attività",
-  "organizzazione",
-  "organizzazioni",
-  "servizio",
-  "servizi",
   "azienda",
   "aziende",
+  "phone",
+  "number",
+  "telefon",
+  "telefonnummer",
+  "nummer",
+  "teléfono",
+  "número",
+  "téléphone",
+  "numéro",
+  "telefono",
+  "numero",
+  "email",
+  "mail",
+  "address",
+  "adresse",
+  "dirección",
+  "indirizzo",
+  "value",
+  "wert",
+  "valor",
+  "valeur",
+  "valore",
+  "owner",
+  "inhaber",
+  "besitzer",
+  "propietario",
+  "propriétaire",
+  "proprietario",
+  "stage",
+  "phase",
+  "etapa",
+  "étape",
+  "fase",
+  "status",
+  "estado",
+  "statut",
+  "stato",
+  "date",
+  "datum",
+  "fecha",
+  "data",
   "there",
   "these",
   "those",
-  "which",
   "with",
   "from",
   "that",
@@ -111,20 +187,111 @@ const COMMON_WORDS = [
   "have",
   "your",
   "mean",
-  "welche",
-  "welcher",
-  "welchen",
-  "welches",
   "diese",
   "dieser",
   "meinen",
   "meinst",
-  "cuál",
-  "cuáles",
-  "quel",
-  "quelle",
-  "quale",
-  "quali",
+  "update",
+  "change",
+  "mark",
+  "delete",
+  "remove",
+  "move",
+  "link",
+  "assign",
+  "create",
+  "should",
+  "ändern",
+  "ändere",
+  "aktualisieren",
+  "aktualisiere",
+  "setze",
+  "setzen",
+  "markiere",
+  "markieren",
+  "lösche",
+  "löschen",
+  "verschiebe",
+  "soll",
+  "sollen",
+  "actualiza",
+  "actualizar",
+  "cambia",
+  "cambiar",
+  "marca",
+  "marcar",
+  "elimina",
+  "eliminar",
+  "mets",
+  "mettre",
+  "modifie",
+  "modifier",
+  "marque",
+  "marquer",
+  "supprime",
+  "supprimer",
+  "aggiorna",
+  "aggiornare",
+  "segna",
+  "imposta",
+];
+const ARTICLES = ["the", "die", "der", "el", "los", "las", "les", "le", "la", "lo", "i", "gli"];
+const PHRASE_BREAKS = [
+  "to",
+  "into",
+  "for",
+  "from",
+  "of",
+  "on",
+  "in",
+  "at",
+  "as",
+  "and",
+  "or",
+  "mit",
+  "zu",
+  "zum",
+  "zur",
+  "für",
+  "von",
+  "vom",
+  "an",
+  "auf",
+  "im",
+  "und",
+  "oder",
+  "dem",
+  "den",
+  "das",
+  "a",
+  "al",
+  "para",
+  "por",
+  "de",
+  "del",
+  "con",
+  "y",
+  "o",
+  "à",
+  "au",
+  "aux",
+  "pour",
+  "du",
+  "des",
+  "avec",
+  "et",
+  "ou",
+  "sur",
+  "dans",
+  "alla",
+  "ai",
+  "per",
+  "di",
+  "della",
+  "e",
+  "su",
+  "nel",
+  "nella",
 ];
 const SET_WORD_LIST = [
   "all",
@@ -269,8 +436,11 @@ function spellings(text: string): string[] {
   return respell(text, false);
 }
 
-function strictSpellings(text: string): string[] {
-  return respell(text, true);
+function strictSpellings(text: string, clauses = false): string[] {
+  if (!clauses) return respell(text, true);
+  const [raw] = respell(text, true);
+  const [, transliterated, unaccented] = respell(text.replace(/[.,:;!?]+(?=\s|$)/g, "\n"), true);
+  return [raw, transliterated, unaccented];
 }
 
 function wordsOf(text: string): string[] {
@@ -282,12 +452,13 @@ function inEverySpelling(words: string[]): string[] {
 }
 
 const SET_WORDS = new Set(inEverySpelling([...SET_WORD_LIST, ...COUNT_WORDS]));
-const COUNTING_WORDS = new Set(inEverySpelling(COUNT_WORDS));
+const COORDINATING_WORDS = new Set(inEverySpelling(COORDINATORS));
+const PLURAL_NOUNS = new Set(inEverySpelling(PLURAL_RECORD_NOUNS));
+const ARTICLE_WORDS = new Set(inEverySpelling(ARTICLES));
+const BREAKING_WORDS = new Set(inEverySpelling(PHRASE_BREAKS));
+const GENERIC_WORDS = new Set(inEverySpelling([...COMMON_WORDS, ...QUESTION_WORDS, ...NAMING_WORD_LIST]));
 const NAMING_RULES = inEverySpelling(NAMING_WORD_LIST).map((rule) => rule.split(" "));
 const SELECTION_RULES = inEverySpelling(SELECTION_RULE_LIST).map((rule) => rule.split(" "));
-const GENERIC_WORDS = new Set(
-  inEverySpelling([...COMMON_WORDS, ...NAMING_WORD_LIST.filter((word) => !word.includes(" "))]),
-);
 
 function codePointBefore(text: string, index: number): string {
   return [...text.slice(Math.max(0, index - 2), index)].at(-1) ?? "";
@@ -339,17 +510,36 @@ function endsWithSequence(words: string[], sequence: string[]): boolean {
   return tail.length === sequence.length && sequence.every((part, index) => tail[index] === part);
 }
 
-function governedByRule(text: string, start: number): boolean {
+function namingPhraseGoverned(words: string[]): boolean {
+  const rule = NAMING_RULES.find((naming) => endsWithSequence(words, naming));
+  if (!rule) return false;
+  const head = words.slice(0, words.length - rule.length).slice(-NAMING_CLAUSE_REACH);
+  const setAt = head.findLastIndex((word) => SET_WORDS.has(word));
+  if (setAt < 0) return false;
+  const between = head.slice(setAt + 1);
+  const described = ARTICLE_WORDS.has(between[0] ?? "") ? between.slice(1) : between;
+  return described.every((word) => !BREAKING_WORDS.has(word) && !ARTICLE_WORDS.has(word));
+}
+
+function coordinatedAfter(text: string, end: number): boolean {
+  const after = text.slice(end, end + CLAUSE_LOOKBACK_CHARS);
+  const clauseEnd = Math.min(
+    ...CLAUSE_MARKS.map((mark) => after.indexOf(mark)).filter((index) => index >= 0),
+    after.length,
+  );
+  const words = wordsOf(after.slice(0, clauseEnd)).slice(0, SELECTION_RULE_REACH);
+  if (PLURAL_NOUNS.has(words[0] ?? "")) return false;
+  return words.some((word) => COORDINATING_WORDS.has(word));
+}
+
+function governedByRule(text: string, start: number, end: number): boolean {
   const before = text.slice(Math.max(0, start - CLAUSE_LOOKBACK_CHARS), start);
   const clauseStart = Math.max(...CLAUSE_MARKS.map((mark) => before.lastIndexOf(mark))) + 1;
   const words = wordsOf(before.slice(clauseStart));
-  if (words.slice(-SET_WORD_REACH).some((word) => SET_WORDS.has(word))) return true;
+  if (words.slice(-SET_WORD_REACH).some((word) => SET_WORDS.has(word)) && !coordinatedAfter(text, end)) return true;
   const recent = words.slice(-SELECTION_RULE_REACH);
   if (SELECTION_RULES.some((rule) => holdsSequence(recent, rule))) return true;
-  return (
-    NAMING_RULES.some((rule) => endsWithSequence(words, rule)) &&
-    words.slice(-NAMING_CLAUSE_REACH).some((word) => SET_WORDS.has(word))
-  );
+  return namingPhraseGoverned(words);
 }
 
 function writtenAsRecord(text: string, name: string): boolean {
@@ -359,7 +549,8 @@ function writtenAsRecord(text: string, name: string): boolean {
   return someOccurrence(
     text,
     name,
-    (start) => (openBefore || !WORD_BEFORE_PHRASE.test(codePointBefore(text, start))) && !governedByRule(text, start),
+    (start, end) =>
+      (openBefore || !WORD_BEFORE_PHRASE.test(codePointBefore(text, start))) && !governedByRule(text, start, end),
   );
 }
 
@@ -370,11 +561,21 @@ function writtenInSomeSpelling(text: string, name: string): boolean {
 
 function writtenOutside(text: string, name: string, chosen: string[]): boolean {
   const names = spellings(name);
-  const chosenSpellings = chosen.map(strictSpellings);
-  return strictSpellings(text).some((spelling, index) => {
+  const chosenSpellings = chosen.map((other) => strictSpellings(other));
+  return strictSpellings(text, true).some((spelling, index) => {
     if (!chosenSpellings.every((other) => containsName(spelling, other[index]))) return false;
     const rest = chosenSpellings.reduce((remaining, other) => remaining.split(other[index]).join("\n"), spelling);
     return writtenAsRecord(loose(rest).trim(), names[index]);
+  });
+}
+
+function containsOutside(text: string, name: string, others: string[]): boolean {
+  const names = strictSpellings(name);
+  const otherSpellings = others.map((other) => strictSpellings(other));
+  return strictSpellings(text, true).some((spelling, index) => {
+    if (!otherSpellings.every((other) => containsName(spelling, other[index]))) return false;
+    const rest = otherSpellings.reduce((remaining, other) => remaining.split(other[index]).join("\n"), spelling);
+    return containsName(rest, names[index]);
   });
 }
 
@@ -385,12 +586,13 @@ function containsInSomeSpelling(text: string, name: string): boolean {
 
 export function ambiguityRequestOf(history: readonly { role: string; text: string }[]): AmbiguityRequest {
   const latestIndex = history.findLastIndex((message) => message.role === "user");
-  const previousAssistant = history
-    .slice(0, Math.max(latestIndex, 0))
-    .findLast((message) => message.role === "assistant");
+  const earlier = history.slice(0, Math.max(latestIndex, 0));
+  const assistantIndex = earlier.findLastIndex((message) => message.role === "assistant");
+  const earlierUser = earlier.slice(0, Math.max(assistantIndex, 0)).findLast((message) => message.role === "user");
   return {
     latestUserText: fold(latestIndex >= 0 ? history[latestIndex].text : ""),
-    previousAssistantText: fold(previousAssistant?.text ?? ""),
+    previousAssistantText: fold(assistantIndex >= 0 ? earlier[assistantIndex].text : ""),
+    earlierUserText: fold(earlierUser?.text ?? ""),
   };
 }
 
@@ -480,10 +682,23 @@ function unwrap(output: unknown): unknown {
   return output;
 }
 
-function namedUniquely(latest: string, candidate: Row, candidates: Row[]): boolean {
-  const name = fold(candidate.name);
-  if (!containsInSomeSpelling(latest, name)) return false;
-  return candidates.every((other) => other === candidate || !holdsName(fold(other.name), name));
+function chosenAmong(latest: string, candidates: Row[]): Row[] {
+  const chosen: Row[] = [];
+  const longestFirst = [...candidates].sort((a, b) => fold(b.name).length - fold(a.name).length);
+  for (const candidate of longestFirst) {
+    const name = fold(candidate.name);
+    const holders = candidates.filter((other) => other !== candidate && holdsName(fold(other.name), name));
+    if (!holders.every((holder) => chosen.includes(holder))) continue;
+    if (
+      containsOutside(
+        latest,
+        name,
+        holders.map((holder) => fold(holder.name)),
+      )
+    )
+      chosen.push(candidate);
+  }
+  return chosen;
 }
 
 function mentionedAlone(text: string, name: string, candidates: Row[]): boolean {
@@ -495,22 +710,14 @@ function mentionedAlone(text: string, name: string, candidates: Row[]): boolean 
 }
 
 function settlesTwins(request: AmbiguityRequest, name: string): boolean {
-  const sentences = request.previousAssistantText
-    .split(/(?<=[.!?\n])/u)
-    .map((sentence) => sentence.trim())
-    .filter((sentence) => containsName(sentence, name));
-  const mentions = sentences.reduce((count, sentence) => count + sentence.split(name).length - 1, 0);
-  const counted =
-    mentions >= 2 || sentences.some((sentence) => wordsOf(sentence).some((word) => COUNTING_WORDS.has(word)));
-  if (!counted) return false;
-  const nameWords = new Set(wordsOf(name));
-  const offered = new Set(sentences.flatMap(wordsOf));
+  const offered = new Set(wordsOf(request.previousAssistantText));
+  const excluded = new Set([...wordsOf(name), ...wordsOf(request.earlierUserText)]);
   return wordsOf(request.latestUserText).some(
     (word) =>
       [...word].length >= MIN_DISTINGUISHING_WORD &&
-      !nameWords.has(word) &&
-      !GENERIC_WORDS.has(word) &&
-      offered.has(word),
+      offered.has(word) &&
+      !excluded.has(word) &&
+      !GENERIC_WORDS.has(word),
   );
 }
 
@@ -556,7 +763,7 @@ function targetsAmong(entity: string, rows: Row[], request: AmbiguityRequest): A
   return written.flatMap((name) => {
     const candidates = named.filter((entry) => holdsName(entry.name, name)).map((entry) => entry.row);
     if (answersClarification(request, candidates)) return [];
-    const chosen = candidates.filter((candidate) => namedUniquely(latest, candidate, candidates));
+    const chosen = chosenAmong(latest, candidates);
     const chosenNames = chosen.map((candidate) => fold(candidate.name));
     if (chosen.length > 0 && !writtenOutside(latest, name, chosenNames)) return [];
     const remaining = candidates.filter((candidate) => !chosen.includes(candidate));
