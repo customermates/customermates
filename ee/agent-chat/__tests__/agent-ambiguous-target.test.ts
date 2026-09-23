@@ -668,6 +668,7 @@ describe("ambiguous write targets", () => {
         "Thanks all! Mark Cafe Nord as Won.",
         "Merci à tous. Passe Cafe Nord à gagné.",
         "Mark Cafe Nord 2025 as won. Thanks all, Cafe Nord as lost.",
+        "Thanks all, Cafe Nord as lost.",
       ])
         expect(armed(cafeNord, text), text).toBe(1);
       const mullerKg = search([
@@ -752,6 +753,7 @@ describe("ambiguous write targets", () => {
       expect(armed(nova, "Close these as lost:\nNova\nEast Frisia Wind\nKestrel")).toBe(1);
       expect(armed(search(novaRows, "Nova Expansion"), "Mark the Nova\nExpansion deal as Won")).toBe(1);
       expect(armed(nova, "After the renovation, delete the Nova deal.")).toBe(1);
+      expect(armed(nova, "Plan the renovation and delete the Nova deal.")).toBe(1);
       for (const before of [
         "删除",
         "取引の",
