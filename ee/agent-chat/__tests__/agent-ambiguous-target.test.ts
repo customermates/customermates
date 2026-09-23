@@ -181,7 +181,77 @@ describe("ambiguous write targets", () => {
       [NOVA_2025, "Café Nord"],
     ]);
     const armed = (read: Read, latest: string, previous = "") =>
-      ambiguousTargetsFromMessages(reads(read), request(latest, previous)).length;
+      Number(ambiguousTargetsFromMessages(reads(read), request(latest, previous)).length > 0);
+
+    it("arms on a written name another candidate contains, however the model searched for it", () => {
+      const broad = search(
+        [
+          [NOVA, "Nova Expansion"],
+          [NOVA_2025, "Nova Expansion 2025"],
+          [UNRELATED, "Nova West"],
+        ],
+        "Nova",
+      );
+      const [target] = ambiguousTargetsFromMessages(reads(broad), C34);
+      expect(target?.phrase).toBe("Nova Expansion");
+      expect(target?.candidates.map((candidate) => candidate.id)).toEqual([NOVA, NOVA_2025]);
+      expect(
+        armed(
+          search([
+            [NOVA, "HP"],
+            [NOVA_2025, "HP Enterprise"],
+          ]),
+          "Mark the HP deal as won",
+        ),
+      ).toBe(1);
+      expect(
+        armed(
+          search([
+            [NOVA, "腾讯"],
+            [NOVA_2025, "腾讯音乐"],
+          ]),
+          "把腾讯的交易标记为赢单",
+        ),
+      ).toBe(1);
+      expect(
+        armed(
+          search(
+            [
+              [NOVA, "Renewal call"],
+              [NOVA_2025, "Renewal call follow-up"],
+            ],
+            "Renewal",
+          ),
+          "Mark the renewal tasks due this week as done",
+        ),
+      ).toBe(0);
+      expect(
+        armed(
+          search(
+            [
+              [NOVA, "Kestrel"],
+              [NOVA_2025, "Merlin"],
+            ],
+            "Kestrel",
+          ),
+          "Setze Kestrels Deal auf Gewonnen",
+        ),
+      ).toBe(0);
+      const contacts: Read = {
+        input: {
+          entity: "contact",
+          filters: [
+            { field: "firstName", operator: "equals", value: "Alex" },
+            { field: "lastName", operator: "equals", value: "Müller" },
+          ],
+        },
+        result: table([
+          [NOVA, "Alex Müller"],
+          [NOVA_2025, "Alex Müller"],
+        ]),
+      };
+      expect(armed(contacts, "Update Alex Müller's phone number to +49 30 1234")).toBe(1);
+    });
 
     it("never counts a name found inside another word as a mention", () => {
       expect(armed(nova, "Delete the Nova deal.", "The renovation budget for Nova East is 12,000.")).toBe(1);
@@ -231,6 +301,14 @@ describe("ambiguous write targets", () => {
         "Es gibt drei passende Deals: Nova, Nova Expansion (Org B) und Nova Expansion (Org C). Welchen meinen Sie?";
       expect(armed(duplicates, "Nova Expansions Deal auf Gewonnen setzen", listing)).toBe(1);
       expect(armed(duplicates, "Nova, bitte", listing)).toBe(0);
+      const expansion = search(
+        [
+          [NOVA, "Nova"],
+          [NOVA_2025, "Nova Expansion"],
+        ],
+        "Nova",
+      );
+      expect(armed(expansion, "Nova Expansions Deal auf Gewonnen setzen", "Nova oder Nova Expansion?")).toBe(1);
     });
 
     it("arms on a phrase the user inflected or wrote without spaces around it", () => {
@@ -241,7 +319,26 @@ describe("ambiguous write targets", () => {
       expect(armed(muller, "Setze Müllers Deal auf Gewonnen")).toBe(1);
       expect(armed(nova, "Poista Novan kauppa")).toBe(1);
       expect(armed(nova, "Lösche den Novadeal.")).toBe(1);
-      for (const before of ["删除", "取引の", "ディール", "ลบดีล", "ລົບ", "លុប", "ဖျက်", "بـ", "ו", "❤️", "1️⃣"])
+      expect(armed(search(novaRows, "Nova Expansion"), "Setze den Nova-Expansion-Deal auf Gewonnen.")).toBe(1);
+      expect(armed(nova, "Close these as lost:\nNova\nEast Frisia Wind\nKestrel")).toBe(1);
+      expect(armed(search(novaRows, "Nova Expansion"), "Mark the Nova\nExpansion deal as Won")).toBe(1);
+      expect(armed(nova, "After the renovation, delete the Nova deal.")).toBe(1);
+      for (const before of [
+        "删除",
+        "取引の",
+        "ディール",
+        "ลบดีล",
+        "ລົບ",
+        "លុប",
+        "ဖျက်",
+        "بـ",
+        "ب",
+        "ו",
+        "የ",
+        "ܕ",
+        "❤️",
+        "1️⃣",
+      ])
         expect(armed(nova, `${before}Nova`), before).toBe(1);
     });
 
@@ -250,7 +347,9 @@ describe("ambiguous write targets", () => {
         [NOVA, "O'Brien"],
         [NOVA_2025, "O'Brien Consulting"],
       ]);
-      expect(armed(obrien, "Delete the O’Brien deal")).toBe(1);
+      for (const apostrophe of ["’", "´", "`", "′"])
+        expect(armed(obrien, `Delete the O${apostrophe}Brien deal`), apostrophe).toBe(1);
+
       const east = search([
         [NOVA, "Nova East"],
         [NOVA_2025, "Nova East 2"],
@@ -258,6 +357,7 @@ describe("ambiguous write targets", () => {
       expect(armed(east, "Nova\u3000East を削除")).toBe(1);
       expect(armed(east, "Delete Nova\u00a0East")).toBe(1);
       expect(armed(east, "Delete Nova  East,\nplease")).toBe(1);
+      expect(armed(east, "Delete Nova  East 2")).toBe(0);
       expect(armed(nova, "Ｎｏｖａを削除")).toBe(1);
     });
 
@@ -374,33 +474,50 @@ describe("ambiguous write targets", () => {
   it("falls back to row patterns when a truncated result no longer decodes", () => {
     const [target] = ambiguousTargetsFromMessages(reads({ ...novaSearch, result: `${table(novaRows)}\n  333` }), C34);
     expect(target?.candidates).toHaveLength(2);
+    const listForm = encode({
+      total: 2,
+      items: [
+        { id: NOVA, name: "Nova Expansion", totalValue: 24_000 },
+        { id: NOVA_2025, name: "Nova Expansion 2025" },
+      ],
+    });
+    const [listed] = ambiguousTargetsFromMessages(
+      reads({ ...novaSearch, result: `${listForm}\n  - id: 33333333-3333` }),
+      C34,
+    );
+    expect(listed?.candidates).toHaveLength(2);
   });
 
-  it("reads search_records only when it names a single entity", () => {
+  it("reads search_records per entity, whichever entities it searched", () => {
     const result = encode({
       searchTerm: "Nova Expansion",
-      results: [{ entity: "deal", total: 2, items: novaRows.map(([id, name]) => ({ id, name })) }],
+      results: [
+        { entity: "deal", total: 2, items: novaRows.map(([id, name]) => ({ id, name })) },
+        { entity: "contact", total: 1, items: [{ id: UNRELATED, name: "Nova Expansion" }] },
+      ],
     });
-    const single = ambiguousTargetsFromMessages(
-      reads({ toolName: "search_records", input: { entities: ["deal"], searchTerm: "Nova Expansion" }, result }),
-      C34,
-    );
-    const several = ambiguousTargetsFromMessages(
-      reads({
-        toolName: "search_records",
-        input: { entities: ["deal", "contact"], searchTerm: "Nova Expansion" },
-        result,
-      }),
-      C34,
-    );
-    expect(single.map((target) => target.entity)).toEqual(["deal"]);
-    expect(several).toEqual([]);
+    for (const input of [
+      { entities: ["deal"], searchTerm: "Nova Expansion" },
+      { entities: ["deal", "contact"], searchTerm: "Nova Expansion" },
+      { searchTerm: "Nova Expansion" },
+    ]) {
+      const targets = ambiguousTargetsFromMessages(reads({ toolName: "search_records", input, result }), C34);
+      expect(targets.map((target) => target.entity)).toEqual(["deal"]);
+      expect(targets[0].candidates.map((candidate) => candidate.id)).toEqual([NOVA, NOVA_2025]);
+    }
+    expect(
+      ambiguousTargetsFromMessages(
+        reads({ toolName: "search_records", input: { entities: ["contact"], searchTerm: "Nova Expansion" }, result }),
+        C34,
+      ),
+    ).toEqual([]);
   });
 
-  it("stays quiet when the search phrase is not something the user wrote", () => {
+  it("arms only on a read that looked records up by name, whatever name it looked up", () => {
+    expect(ambiguousTargetsFromMessages(reads({ ...novaSearch, input: { entity: "deal" } }), C34)).toEqual([]);
     expect(
       ambiguousTargetsFromMessages(reads({ ...novaSearch, input: { entity: "deal", searchTerm: "Kestrel" } }), C34),
-    ).toEqual([]);
+    ).toHaveLength(1);
   });
 
   it("takes the request from the turn's own messages, never from a continuation prompt", () => {

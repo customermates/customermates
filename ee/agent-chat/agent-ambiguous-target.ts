@@ -5,37 +5,54 @@ export type AmbiguousTarget = { entity: string; phrase: string; candidates: { id
 export type AmbiguityRequest = { latestUserText: string; previousAssistantText: string };
 
 const NAME_QUERY_KEYS = ["searchTerm", "name"] as const;
-const MIN_PHRASE_LENGTH = 3;
 const UUID = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/g;
 const TOON_TABLE_ROW = /^\s+([0-9a-fA-F-]{36}),(?:"((?:[^"\\]|\\.)*)"|([^\n,]*))/gm;
 const TOON_LIST_ROW = /^\s*-\s+id:\s*([0-9a-fA-F-]{36})\s*\n\s+name:\s*(?:"((?:[^"\\]|\\.)*)"|([^\n]*))/gm;
 const UNSPACED_SCRIPTS = ["Han", "Hiragana", "Katakana", "Thai", "Lao", "Khmer", "Myanmar"]
   .map((script) => `\\p{scx=${script}}`)
   .join("");
+const PROCLITIC_SCRIPTS = ["Hebrew", "Arabic", "Syriac", "Ethiopic"].map((script) => `\\p{scx=${script}}`).join("");
 const WORD = "\\p{L}\\p{N}\\p{M}\\u200c\\u200d";
 const NEVER_WORD = "\\u20e3";
-const PROCLITIC_SCRIPTS = "\\p{scx=Hebrew}\\p{scx=Arabic}";
-const ANY_WORD_CHAR = `[[${WORD}]--[${NEVER_WORD}]]`;
-const SPACED_WORD_CHAR = `[[${WORD}]--[${NEVER_WORD}${UNSPACED_SCRIPTS}]]`;
-const WORD_BEFORE_PHRASE = `[[${WORD}]--[${NEVER_WORD}${UNSPACED_SCRIPTS}${PROCLITIC_SCRIPTS}]]`;
-const UNSPACED_CHAR = new RegExp(`[${UNSPACED_SCRIPTS}]`, "v");
+const ANY_WORD_CHAR = new RegExp(`^[[${WORD}]--[${NEVER_WORD}]]$`, "v");
+const SPACED_WORD_CHAR = new RegExp(`^[[${WORD}]--[${NEVER_WORD}${UNSPACED_SCRIPTS}]]$`, "v");
+const WORD_BEFORE_PHRASE = new RegExp(`^[[${WORD}]--[${NEVER_WORD}${UNSPACED_SCRIPTS}${PROCLITIC_SCRIPTS}]]$`, "v");
+const UNSPACED_CHAR = new RegExp(`^[${UNSPACED_SCRIPTS}]$`, "v");
 
 type Row = { id: string; name: string };
+type NameRead = { tool: string; entities: string[] | null };
 
 function fold(text: string): string {
   return text
+    .replace(/[‘’ʼ´`′ʹ]/g, "'")
     .normalize("NFKC")
     .toLowerCase()
     .replace(/\p{Variation_Selector}/gu, "")
-    .replace(/[‘’ʼ]/g, "'")
-    .replace(/\s+/g, " ");
+    .replace(/[\n\r\v\f\u0085\u2028\u2029]+/g, "\n")
+    .replace(/[^\S\n]+/g, " ");
 }
 
-function escapeName(name: string): string {
-  return name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function loose(text: string): string {
+  return text.replace(/\p{Pd}/gu, " ").replace(/\s+/g, " ");
 }
 
-function wordCharNextTo(edge: string): string {
+function codePointBefore(text: string, index: number): string {
+  return [...text.slice(Math.max(0, index - 2), index)].at(-1) ?? "";
+}
+
+function codePointAt(text: string, index: number): string {
+  const code = text.codePointAt(index);
+  return code === undefined ? "" : String.fromCodePoint(code);
+}
+
+function someOccurrence(text: string, needle: string, bounded: (start: number, end: number) => boolean): boolean {
+  for (let start = text.indexOf(needle); start !== -1; start = text.indexOf(needle, start + 1))
+    if (bounded(start, start + needle.length)) return true;
+
+  return false;
+}
+
+function wordCharNextTo(edge: string): RegExp {
   return UNSPACED_CHAR.test(edge) ? ANY_WORD_CHAR : SPACED_WORD_CHAR;
 }
 
@@ -43,7 +60,7 @@ function startsWordWith(text: string, phrase: string): boolean {
   const [first] = [...phrase];
   if (!first) return false;
   if (UNSPACED_CHAR.test(first)) return text.includes(phrase);
-  return new RegExp(`(?<!${WORD_BEFORE_PHRASE})${escapeName(phrase)}`, "v").test(text);
+  return someOccurrence(text, phrase, (start) => !WORD_BEFORE_PHRASE.test(codePointBefore(text, start)));
 }
 
 function containsName(text: string, name: string): boolean {
@@ -51,7 +68,11 @@ function containsName(text: string, name: string): boolean {
   if (chars.length === 0) return false;
   const before = wordCharNextTo(chars[0]);
   const after = wordCharNextTo(chars[chars.length - 1]);
-  return new RegExp(`(?<!${before})${escapeName(name)}(?!${after})`, "v").test(text);
+  return someOccurrence(
+    text,
+    name,
+    (start, end) => !before.test(codePointBefore(text, start)) && !after.test(codePointAt(text, end)),
+  );
 }
 
 export function ambiguityRequestOf(history: readonly { role: string; text: string }[]): AmbiguityRequest {
@@ -65,26 +86,33 @@ export function ambiguityRequestOf(history: readonly { role: string; text: strin
   };
 }
 
-function nameQuery(input: Record<string, unknown>): string | null {
-  for (const key of NAME_QUERY_KEYS) {
-    const value = input[key];
-    if (typeof value === "string" && value.trim().length >= MIN_PHRASE_LENGTH) return value.trim();
-  }
-  const filters = input.filters;
-  if (!Array.isArray(filters)) return null;
+function filterValue(filters: unknown[], field: string): string | null {
   for (const raw of filters) {
     const filter = raw as { field?: unknown; value?: unknown };
-    if (filter?.field !== "name" || typeof filter.value !== "string") continue;
-    if (filter.value.trim().length >= MIN_PHRASE_LENGTH) return filter.value.trim();
+    if (filter?.field === field && typeof filter.value === "string" && filter.value.trim()) return filter.value.trim();
   }
   return null;
 }
 
-function queriedEntity(toolName: string, input: Record<string, unknown>): string | null {
-  if (toolName === "list_records") return typeof input.entity === "string" ? input.entity : null;
-  if (toolName !== "search_records") return null;
-  const entities = input.entities;
-  return Array.isArray(entities) && entities.length === 1 && typeof entities[0] === "string" ? entities[0] : null;
+function nameQuery(input: Record<string, unknown>): string | null {
+  for (const key of NAME_QUERY_KEYS) {
+    const value = input[key];
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  const filters = Array.isArray(input.filters) ? input.filters : [];
+  const parts = [filterValue(filters, "firstName"), filterValue(filters, "lastName")].filter(
+    (part): part is string => part !== null,
+  );
+  return filterValue(filters, "name") ?? (parts.length > 0 ? parts.join(" ") : null);
+}
+
+function queriedEntities(toolName: string, input: Record<string, unknown>): string[] | null | undefined {
+  if (toolName === "list_records") return typeof input.entity === "string" ? [input.entity] : undefined;
+  if (toolName !== "search_records") return undefined;
+  const entities = Array.isArray(input.entities)
+    ? input.entities.filter((entity): entity is string => typeof entity === "string")
+    : [];
+  return entities.length > 0 ? entities : null;
 }
 
 function unescapeToon(value: string): string {
@@ -101,19 +129,6 @@ function rowsFromItems(items: unknown): Row[] {
   });
 }
 
-function decodedRows(text: string, entity: string): Row[] | null {
-  try {
-    const decoded = decode(text) as { items?: unknown; results?: { entity?: unknown; items?: unknown }[] };
-    if (Array.isArray(decoded?.items)) return rowsFromItems(decoded.items);
-    const result = Array.isArray(decoded?.results)
-      ? decoded.results.find((entry) => entry.entity === entity)
-      : undefined;
-    return result ? rowsFromItems(result.items) : null;
-  } catch {
-    return null;
-  }
-}
-
 function matchedRows(text: string, pattern: RegExp): Row[] {
   return [...text.matchAll(pattern)].map((match) => ({
     id: match[1],
@@ -121,29 +136,42 @@ function matchedRows(text: string, pattern: RegExp): Row[] {
   }));
 }
 
-function rowsOf(output: unknown, entity: string): Row[] {
+function decoded(text: string): { items?: unknown; results?: unknown } | null {
+  try {
+    const value = decode(text) as { items?: unknown; results?: unknown } | null;
+    return value && typeof value === "object" ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function rowSets(output: unknown, read: NameRead): { entity: string; rows: Row[] }[] {
   const record = output && typeof output === "object" ? (output as Record<string, unknown>) : null;
   if (!record || record.ok !== true || typeof record.result !== "string") return [];
-  return (
-    decodedRows(record.result, entity) ?? [
-      ...matchedRows(record.result, TOON_TABLE_ROW),
-      ...matchedRows(record.result, TOON_LIST_ROW),
-    ]
-  );
+  const value = decoded(record.result);
+  if (value && read.tool === "list_records") {
+    return read.entities && Array.isArray(value.items)
+      ? [{ entity: read.entities[0], rows: rowsFromItems(value.items) }]
+      : [];
+  }
+
+  if (value) {
+    const results = Array.isArray(value.results) ? (value.results as { entity?: unknown; items?: unknown }[]) : [];
+    return results.flatMap((entry) =>
+      typeof entry?.entity === "string" && (!read.entities || read.entities.includes(entry.entity))
+        ? [{ entity: entry.entity, rows: rowsFromItems(entry.items) }]
+        : [],
+    );
+  }
+  if (read.entities?.length !== 1) return [];
+  const rows = [...matchedRows(record.result, TOON_TABLE_ROW), ...matchedRows(record.result, TOON_LIST_ROW)];
+  return [{ entity: read.entities[0], rows }];
 }
 
 function unwrap(output: unknown): unknown {
   const record = output && typeof output === "object" ? (output as Record<string, unknown>) : null;
   if (record && record.type === "json" && "value" in record) return record.value;
   return output;
-}
-
-function exactNameInsideAnother(needle: string, candidates: Row[]): boolean {
-  return candidates.some(
-    (candidate) =>
-      fold(candidate.name) === needle &&
-      candidates.some((other) => other !== candidate && fold(other.name).includes(needle)),
-  );
 }
 
 function namedUniquely(latest: string, candidates: Row[]): boolean {
@@ -190,14 +218,34 @@ export function mergeAmbiguousTarget(armed: AmbiguousTarget | undefined, next: A
   };
 }
 
+function targetsAmong(entity: string, rows: Row[], request: AmbiguityRequest, spokenText: string): AmbiguousTarget[] {
+  const named = rows.map((row) => ({ row, name: fold(row.name) }));
+  const written = new Set(
+    named
+      .filter(
+        ({ row, name }) =>
+          name.length > 0 &&
+          named.some((other) => other.row !== row && other.name.includes(name)) &&
+          startsWordWith(spokenText, loose(name)),
+      )
+      .map(({ name }) => name),
+  );
+  return [...written].flatMap((name) => {
+    const candidates = named.filter((entry) => entry.name.includes(name)).map((entry) => entry.row);
+    if (namedUniquely(request.latestUserText, candidates) || answersClarification(request, candidates)) return [];
+    const phrase = candidates.find((candidate) => fold(candidate.name) === name)?.name ?? name;
+    return [{ entity, phrase, candidates }];
+  });
+}
+
 export function ambiguousTargetsFromMessages(
   messages: readonly unknown[],
   request: AmbiguityRequest,
 ): AmbiguousTarget[] {
-  const latest = request.latestUserText;
-  if (!latest) return [];
+  if (!request.latestUserText) return [];
+  const spokenText = loose(request.latestUserText);
 
-  const calls = new Map<string, { entity: string; phrase: string }>();
+  const reads = new Map<string, NameRead>();
   const found: AmbiguousTarget[] = [];
 
   for (const message of messages) {
@@ -208,20 +256,16 @@ export function ambiguousTargetsFromMessages(
       if (part.type === "tool-call" && part.toolCallId && typeof part.toolName === "string") {
         const input = part.input && typeof part.input === "object" ? (part.input as Record<string, unknown>) : null;
         if (!input) continue;
-        const entity = queriedEntity(part.toolName, input);
-        const phrase = nameQuery(input);
-        if (!entity || !phrase || !startsWordWith(latest, fold(phrase))) continue;
-        calls.set(part.toolCallId, { entity, phrase });
+        const entities = queriedEntities(part.toolName, input);
+        if (entities === undefined || !nameQuery(input)) continue;
+        reads.set(part.toolCallId, { tool: part.toolName, entities });
         continue;
       }
       if (part.type !== "tool-result" || !part.toolCallId) continue;
-      const call = calls.get(part.toolCallId);
-      if (!call) continue;
-      const needle = fold(call.phrase);
-      const candidates = rowsOf(unwrap(part.output), call.entity).filter((row) => fold(row.name).includes(needle));
-      if (candidates.length < 2 || !exactNameInsideAnother(needle, candidates)) continue;
-      if (namedUniquely(latest, candidates) || answersClarification(request, candidates)) continue;
-      found.push({ entity: call.entity, phrase: call.phrase, candidates });
+      const read = reads.get(part.toolCallId);
+      if (!read) continue;
+      for (const { entity, rows } of rowSets(unwrap(part.output), read))
+        found.push(...targetsAmong(entity, rows, request, spokenText));
     }
   }
 
