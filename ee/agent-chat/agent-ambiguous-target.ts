@@ -21,7 +21,6 @@ const UNSPACED_CHAR = new RegExp(`^[${UNSPACED_SCRIPTS}]$`, "v");
 const SET_WORD_REACH = 2;
 const SELECTION_RULE_REACH = 3;
 const NAMING_CLAUSE_REACH = 8;
-const MIN_DISTINGUISHING_WORD = 4;
 const CLAUSE_LOOKBACK_CHARS = 400;
 const CLAUSE_MARKS = [".", "!", "?", ";", ":", ",", "\n"];
 const COUNT_WORDS = [
@@ -52,24 +51,6 @@ const COUNT_WORDS = [
   "quattro",
   "cinque",
 ];
-const QUESTION_WORDS = [
-  "which",
-  "welche",
-  "welcher",
-  "welchen",
-  "welches",
-  "welchem",
-  "cuál",
-  "cuáles",
-  "quel",
-  "quelle",
-  "quels",
-  "quelles",
-  "lequel",
-  "laquelle",
-  "quale",
-  "quali",
-];
 const COORDINATORS = ["and", "und", "sowie", "y", "e", "et", "ed"];
 const ENTITY_PLURALS: Record<string, string[]> = {
   deal: ["deals", "tratos"],
@@ -89,142 +70,6 @@ const ENTITY_PLURALS: Record<string, string[]> = {
   ],
   service: ["services", "dienstleistungen", "servicios", "servizi"],
 };
-const COMMON_WORDS = [
-  "deal",
-  "deals",
-  "contact",
-  "contacts",
-  "task",
-  "tasks",
-  "organization",
-  "organizations",
-  "organisation",
-  "organisations",
-  "organisationen",
-  "service",
-  "services",
-  "company",
-  "companies",
-  "kontakt",
-  "kontakte",
-  "aufgabe",
-  "aufgaben",
-  "firma",
-  "firmen",
-  "contacto",
-  "contactos",
-  "tarea",
-  "tareas",
-  "empresa",
-  "empresas",
-  "tâche",
-  "tâches",
-  "entreprise",
-  "entreprises",
-  "contatto",
-  "contatti",
-  "attività",
-  "azienda",
-  "aziende",
-  "phone",
-  "number",
-  "telefon",
-  "telefonnummer",
-  "nummer",
-  "teléfono",
-  "número",
-  "téléphone",
-  "numéro",
-  "telefono",
-  "numero",
-  "email",
-  "mail",
-  "address",
-  "adresse",
-  "dirección",
-  "indirizzo",
-  "value",
-  "wert",
-  "valor",
-  "valeur",
-  "valore",
-  "owner",
-  "inhaber",
-  "besitzer",
-  "propietario",
-  "propriétaire",
-  "proprietario",
-  "stage",
-  "phase",
-  "etapa",
-  "étape",
-  "fase",
-  "status",
-  "estado",
-  "statut",
-  "stato",
-  "date",
-  "datum",
-  "fecha",
-  "data",
-  "there",
-  "these",
-  "those",
-  "with",
-  "from",
-  "that",
-  "this",
-  "have",
-  "your",
-  "mean",
-  "diese",
-  "dieser",
-  "meinen",
-  "meinst",
-  "update",
-  "change",
-  "mark",
-  "delete",
-  "remove",
-  "move",
-  "link",
-  "assign",
-  "create",
-  "should",
-  "ändern",
-  "ändere",
-  "aktualisieren",
-  "aktualisiere",
-  "setze",
-  "setzen",
-  "markiere",
-  "markieren",
-  "lösche",
-  "löschen",
-  "verschiebe",
-  "soll",
-  "sollen",
-  "actualiza",
-  "actualizar",
-  "cambia",
-  "cambiar",
-  "marca",
-  "marcar",
-  "elimina",
-  "eliminar",
-  "mets",
-  "mettre",
-  "modifie",
-  "modifier",
-  "marque",
-  "marquer",
-  "supprime",
-  "supprimer",
-  "aggiorna",
-  "aggiornare",
-  "segna",
-  "imposta",
-];
 const ARTICLES = ["the", "die", "der", "el", "los", "las", "les", "le", "la", "lo", "i", "gli"];
 const PHRASE_BREAKS = [
   "to",
@@ -448,7 +293,6 @@ const PLURALS_BY_ENTITY = new Map(
 );
 const ARTICLE_WORDS = new Set(inEverySpelling(ARTICLES));
 const BREAKING_WORDS = new Set(inEverySpelling(PHRASE_BREAKS));
-const GENERIC_WORDS = new Set(inEverySpelling([...COMMON_WORDS, ...QUESTION_WORDS, ...NAMING_WORD_LIST]));
 const NAMING_RULES = inEverySpelling(NAMING_WORD_LIST).map((rule) => rule.split(" "));
 const SELECTION_RULES = inEverySpelling(SELECTION_RULE_LIST).map((rule) => rule.split(" "));
 
@@ -682,7 +526,7 @@ function chosenAmong(latest: string, candidates: Row[]): Row[] {
   const longestFirst = [...candidates].sort((a, b) => fold(b.name).length - fold(a.name).length);
   for (const candidate of longestFirst) {
     const name = fold(candidate.name);
-    const holders = candidates.filter((other) => other !== candidate && holdsName(fold(other.name), name));
+    const holders = candidates.filter((other) => fold(other.name) !== name && holdsName(fold(other.name), name));
     if (!holders.every((holder) => chosen.includes(holder))) continue;
     if (
       containsOutside(
@@ -704,18 +548,6 @@ function mentionedAlone(text: string, name: string, candidates: Row[]): boolean 
   return containsName(remaining, name);
 }
 
-function settlesTwins(request: AmbiguityRequest, name: string): boolean {
-  const offered = new Set(wordsOf(request.previousAssistantText));
-  const excluded = new Set(wordsOf(name));
-  return wordsOf(request.latestUserText).some(
-    (word) =>
-      [...word].length >= MIN_DISTINGUISHING_WORD &&
-      offered.has(word) &&
-      !excluded.has(word) &&
-      !GENERIC_WORDS.has(word),
-  );
-}
-
 function answersClarification(request: AmbiguityRequest, candidates: Row[], entity: string): boolean {
   const listed = candidates.filter((candidate) =>
     mentionedAlone(request.previousAssistantText, fold(candidate.name), candidates),
@@ -724,8 +556,6 @@ function answersClarification(request: AmbiguityRequest, candidates: Row[], enti
   return listed.some((candidate) => {
     const name = fold(candidate.name);
     if (!containsInSomeSpelling(request.latestUserText, name)) return false;
-    const twins = candidates.filter((other) => other !== candidate && fold(other.name) === name);
-    if (twins.length > 0 && !settlesTwins(request, name)) return false;
     return candidates.every((other) => {
       const otherName = fold(other.name);
       return (
@@ -754,7 +584,7 @@ function targetsAmong(entity: string, rows: Row[], request: AmbiguityRequest): A
   const latest = request.latestUserText;
   const named = rows.map((row) => ({ row, name: fold(row.name) }));
   const nested = named.filter(
-    ({ row, name }) => name.length > 0 && named.some((other) => other.row !== row && holdsName(other.name, name)),
+    ({ name }) => name.length > 0 && named.some((other) => other.name !== name && holdsName(other.name, name)),
   );
   const written = [...new Set(nested.map(({ name }) => name))].filter((name) =>
     writtenInSomeSpelling(latest, name, entity),
