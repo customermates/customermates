@@ -203,6 +203,9 @@ describe("ambiguous write targets", () => {
       ]);
       expect(armed(dongfang, "把东方红星期一的交易删了")).toBe(1);
       expect(armed(dongfang, "delete东方红")).toBe(1);
+      expect(armed(dongfang, "东方红星期一的交易删了")).toBe(1);
+      expect(armed(dongfang, "删除新东方红星")).toBe(1);
+      expect(armed(dongfang, "东方红星\u{E0100}期一的交易删了")).toBe(1);
       expect(armed(dongfang, "东方红星")).toBe(0);
     });
 
@@ -219,6 +222,15 @@ describe("ambiguous write targets", () => {
           "I moved both Novas: Nova East to Negotiation and Nova West to Won.",
         ),
       ).toBe(1);
+      const duplicates = search([
+        [NOVA, "Nova"],
+        [NOVA_2025, "Nova Expansion"],
+        [UNRELATED, "Nova Expansion"],
+      ]);
+      const listing =
+        "Es gibt drei passende Deals: Nova, Nova Expansion (Org B) und Nova Expansion (Org C). Welchen meinen Sie?";
+      expect(armed(duplicates, "Nova Expansions Deal auf Gewonnen setzen", listing)).toBe(1);
+      expect(armed(duplicates, "Nova, bitte", listing)).toBe(0);
     });
 
     it("arms on a phrase the user inflected or wrote without spaces around it", () => {
@@ -229,8 +241,24 @@ describe("ambiguous write targets", () => {
       expect(armed(muller, "Setze Müllers Deal auf Gewonnen")).toBe(1);
       expect(armed(nova, "Poista Novan kauppa")).toBe(1);
       expect(armed(nova, "Lösche den Novadeal.")).toBe(1);
-      for (const before of ["删除", "取引の", "ディール", "ลบดีล", "ລົບ", "លុប", "ဖျက်", "❤️", "1️⃣"])
+      for (const before of ["删除", "取引の", "ディール", "ลบดีล", "ລົບ", "លុប", "ဖျက်", "بـ", "ו", "❤️", "1️⃣"])
         expect(armed(nova, `${before}Nova`), before).toBe(1);
+    });
+
+    it("compares typographic apostrophes and any kind of space as their plain forms", () => {
+      const obrien = search([
+        [NOVA, "O'Brien"],
+        [NOVA_2025, "O'Brien Consulting"],
+      ]);
+      expect(armed(obrien, "Delete the O’Brien deal")).toBe(1);
+      const east = search([
+        [NOVA, "Nova East"],
+        [NOVA_2025, "Nova East 2"],
+      ]);
+      expect(armed(east, "Nova\u3000East を削除")).toBe(1);
+      expect(armed(east, "Delete Nova\u00a0East")).toBe(1);
+      expect(armed(east, "Delete Nova  East,\nplease")).toBe(1);
+      expect(armed(nova, "Ｎｏｖａを削除")).toBe(1);
     });
 
     it("takes a name set off from its neighbours as a clear choice", () => {
@@ -258,6 +286,30 @@ describe("ambiguous write targets", () => {
       );
       expect(armed(decomposed, "Delete the Café deal.")).toBe(1);
       expect(armed(decomposed, "Delete the Café Nord deal.")).toBe(0);
+      expect(armed(decomposed, "Now mark Café as won.", "I moved Café Nord to Negotiation.")).toBe(1);
+      expect(
+        armed(
+          search(
+            [
+              [NOVA, "Café"],
+              [NOVA_2025, "Café Nord"],
+            ],
+            "Cafe\u0301",
+          ),
+          "Delete the Café deal.",
+        ),
+      ).toBe(1);
+      expect(
+        armed(
+          search([
+            [NOVA, "Cafe\u0301"],
+            [NOVA_2025, "Cafe\u0301 Nord"],
+            [UNRELATED, "Cafe\u0301 Nord"],
+          ]),
+          "Café Nord, please",
+          "Did you mean Café or one of the Café Nord deals?",
+        ),
+      ).toBe(1);
     });
   });
 

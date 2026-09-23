@@ -13,15 +13,22 @@ const UNSPACED_SCRIPTS = ["Han", "Hiragana", "Katakana", "Thai", "Lao", "Khmer",
   .map((script) => `\\p{scx=${script}}`)
   .join("");
 const WORD = "\\p{L}\\p{N}\\p{M}\\u200c\\u200d";
-const NEVER_WORD = "\\p{Variation_Selector}\\u20e3";
+const NEVER_WORD = "\\u20e3";
+const PROCLITIC_SCRIPTS = "\\p{scx=Hebrew}\\p{scx=Arabic}";
 const ANY_WORD_CHAR = `[[${WORD}]--[${NEVER_WORD}]]`;
 const SPACED_WORD_CHAR = `[[${WORD}]--[${NEVER_WORD}${UNSPACED_SCRIPTS}]]`;
+const WORD_BEFORE_PHRASE = `[[${WORD}]--[${NEVER_WORD}${UNSPACED_SCRIPTS}${PROCLITIC_SCRIPTS}]]`;
 const UNSPACED_CHAR = new RegExp(`[${UNSPACED_SCRIPTS}]`, "v");
 
 type Row = { id: string; name: string };
 
 function fold(text: string): string {
-  return text.normalize("NFC").toLowerCase();
+  return text
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/\p{Variation_Selector}/gu, "")
+    .replace(/[‘’ʼ]/g, "'")
+    .replace(/\s+/g, " ");
 }
 
 function escapeName(name: string): string {
@@ -36,7 +43,7 @@ function startsWordWith(text: string, phrase: string): boolean {
   const [first] = [...phrase];
   if (!first) return false;
   if (UNSPACED_CHAR.test(first)) return text.includes(phrase);
-  return new RegExp(`(?<!${SPACED_WORD_CHAR})${escapeName(phrase)}`, "v").test(text);
+  return new RegExp(`(?<!${WORD_BEFORE_PHRASE})${escapeName(phrase)}`, "v").test(text);
 }
 
 function containsName(text: string, name: string): boolean {
@@ -165,7 +172,7 @@ function answersClarification(request: AmbiguityRequest, candidates: Row[]): boo
     if (!containsName(request.latestUserText, name)) return false;
     return candidates.every((other) => {
       const otherName = fold(other.name);
-      return other === candidate || !otherName.includes(name) || !containsName(request.latestUserText, otherName);
+      return other === candidate || !otherName.includes(name) || !startsWordWith(request.latestUserText, otherName);
     });
   });
 }
