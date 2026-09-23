@@ -6,6 +6,7 @@ import {
   mcpInteractorFailure,
   mcpPage,
   mcpPageSize,
+  mcpPageSizeEcho,
   filtersDescription,
   sortDescription,
   toonResult,
@@ -115,12 +116,13 @@ export const listUsersTool = {
         searchTerm: params.searchTerm,
         filters: params.filters,
         sortDescriptor: params.sortDescriptor,
-        pagination: { page: params.page, pageSize: params.pageSize },
+        pagination: { page: params.page, pageSize: params.pageSize.applied },
       }),
       (data) =>
         toonResult({
           total: data.pagination?.total ?? data.items.length,
           page: params.page,
+          ...mcpPageSizeEcho(params.pageSize),
           items: data.items.map((item) => ({
             id: item.id,
             firstName: item.firstName,

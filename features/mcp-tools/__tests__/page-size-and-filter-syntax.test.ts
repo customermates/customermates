@@ -9,6 +9,7 @@ import {
   FILTER_SYNTAX,
   mcpOptionalPageSize,
   mcpPageSize,
+  mcpPageSizeEcho,
   roundMcpPageSize,
   nameMatchNote,
   nameQueryOf,
@@ -24,14 +25,19 @@ describe("page size", () => {
     expect(roundMcpPageSize(7)).toBe(5);
     expect(roundMcpPageSize(25)).toBe(25);
     const schema = z.object({ pageSize: mcpPageSize(25) });
-    expect(schema.parse({}).pageSize).toBe(25);
-    expect(schema.parse({ pageSize: "50" }).pageSize).toBe(25);
-    expect(schema.parse({ pageSize: 3 }).pageSize).toBe(5);
+    expect(schema.parse({}).pageSize).toEqual({ applied: 25, requested: 25 });
+    expect(schema.parse({ pageSize: "50" }).pageSize).toEqual({ applied: 25, requested: 50 });
+    expect(schema.parse({ pageSize: 3 }).pageSize).toEqual({ applied: 5, requested: 3 });
     expect(schema.safeParse({ pageSize: 0 }).success).toBe(false);
     expect(schema.safeParse({ pageSize: 101 }).success).toBe(false);
     const optional = z.object({ pageSize: mcpOptionalPageSize("x") });
     expect(optional.parse({}).pageSize).toBeUndefined();
-    expect(optional.parse({ pageSize: 12 }).pageSize).toBe(10);
+    expect(optional.parse({ pageSize: 12 }).pageSize).toBe(12);
+  });
+
+  it("echoes the requested size next to the applied one only when they differ", () => {
+    expect(mcpPageSizeEcho({ applied: 25, requested: 25 })).toEqual({});
+    expect(mcpPageSizeEcho({ applied: 25, requested: 50 })).toEqual({ pageSize: 25, requestedPageSize: 50 });
   });
 
   it("advertises a plain bounded integer on the wire instead of a literal union", () => {

@@ -513,8 +513,14 @@ describe("the authoritative input gate", () => {
     const rounded = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: 7 }, 400);
     const rejected = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: 0 }, 400);
 
-    expect(coerced).toEqual({ ok: true, input: { entity: "contact", page: 1, pageSize: 25 } });
-    expect(rounded).toEqual({ ok: true, input: { entity: "contact", page: 1, pageSize: 5 } });
+    expect(coerced).toEqual({
+      ok: true,
+      input: { entity: "contact", page: 1, pageSize: { applied: 25, requested: 25 } },
+    });
+    expect(rounded).toEqual({
+      ok: true,
+      input: { entity: "contact", page: 1, pageSize: { applied: 5, requested: 7 } },
+    });
     expect(rejected.ok).toBe(false);
   });
 

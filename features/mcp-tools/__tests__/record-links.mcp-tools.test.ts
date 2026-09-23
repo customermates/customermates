@@ -75,7 +75,7 @@ describe("manage_record_links", () => {
       mode: "add",
       ids: [orgOne, orgTwo],
     });
-    expect(mcpToolResultText(result)).toBe(`Linked 2 organizations to contact ${sourceId} (was 1, now 3)`);
+    expect(mcpToolResultText(result)).toBe(`Linked 2 of 2 organizations to contact ${sourceId} (was 1, now 3)`);
     for (const spy of otherSpies()) expect(spy).not.toHaveBeenCalled();
   });
 
@@ -98,8 +98,36 @@ describe("manage_record_links", () => {
       mode: "remove",
       ids: [orgOne],
     });
-    expect(mcpToolResultText(result)).toBe(`Unlinked 1 organizations from contact ${sourceId} (was 3, now 2)`);
+    expect(mcpToolResultText(result)).toBe(`Unlinked 1 of 1 organizations from contact ${sourceId} (was 3, now 2)`);
     for (const spy of otherSpies()) expect(spy).not.toHaveBeenCalled();
+  });
+
+  it("says plainly when a call changed nothing, so a wrong id is noticed", async () => {
+    spies.modifyRelation.mockResolvedValue({ ok: true, data: { requested: 1, before: 2, after: 2 } });
+    const removed = await execute({ action: "remove", entity: "task", sourceId, relation: "deals", ids: [orgOne] });
+    expect(mcpToolResultText(removed)).toMatch(/^Nothing was unlinked: none of the 1 ids is linked as deals of task/);
+    expect(removed).toMatchObject({ structuredContent: { changed: 0, before: 2, after: 2 } });
+
+    spies.modifyRelation.mockResolvedValue({ ok: true, data: { requested: 2, before: 3, after: 4 } });
+    const added = await execute({
+      action: "add",
+      entity: "contact",
+      sourceId,
+      relation: "organizations",
+      ids: [orgOne, orgTwo],
+    });
+    expect(mcpToolResultText(added)).toBe(`Linked 1 of 2 organizations to contact ${sourceId} (was 3, now 4)`);
+    expect(added).toMatchObject({ structuredContent: { changed: 1 } });
+
+    spies.modifyRelation.mockResolvedValue({ ok: true, data: { requested: 1, before: 3, after: 3 } });
+    const noop = await execute({
+      action: "add",
+      entity: "contact",
+      sourceId,
+      relation: "organizations",
+      ids: [orgOne],
+    });
+    expect(mcpToolResultText(noop)).toMatch(/^Nothing was linked: all 1 organizations were already linked/);
   });
 
   it.each([

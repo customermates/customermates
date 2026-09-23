@@ -9,6 +9,7 @@ import {
   formatDatesInResponse,
   mcpPage,
   mcpPageSize,
+  mcpPageSizeEcho,
   mcpInteractorFailure,
   runInteractor,
   customMcpFailure,
@@ -201,6 +202,10 @@ const ListRecordsOutputSchema = z.object({
     ),
   page: z.number(),
   pageSize: z.number(),
+  requestedPageSize: z
+    .number()
+    .optional()
+    .describe("Present when the requested page size was lowered to a supported one; the call still succeeded"),
   nameMatchNote: z
     .string()
     .optional()
@@ -249,6 +254,7 @@ const ManageRecordLinksOutputSchema = z.object({
   action: z.enum(["add", "remove"]),
   relation: RelationSchema,
   requested: z.number(),
+  changed: z.number().describe("Links this call actually added or removed; 0 means nothing changed"),
   before: z.number().describe("Linked ids in the relationship before the call"),
   after: z.number().describe("Linked ids in the relationship after the call"),
 });
@@ -385,7 +391,7 @@ export const listRecordsTool = {
       searchTerm,
       filters,
       sortDescriptor,
-      pagination: { page, pageSize },
+      pagination: { page, pageSize: pageSize.applied },
     });
     if (!result.ok) return mcpInteractorFailure(result.error);
 
@@ -405,7 +411,8 @@ export const listRecordsTool = {
         ? { sums: result.data.valueSums }
         : {}),
       page,
-      pageSize,
+      pageSize: pageSize.applied,
+      ...mcpPageSizeEcho(pageSize),
       ...(note ? { nameMatchNote: note } : {}),
       items,
       ...(filters ? { filters } : {}),
@@ -555,6 +562,29 @@ export const updateRecordNotesTool = {
   },
 };
 
+function recordLinksResultText(result: {
+  action: "add" | "remove";
+  entity: string;
+  sourceId: string;
+  relation: string;
+  requested: number;
+  before: number;
+  after: number;
+}): string {
+  const { action, entity, sourceId, relation, requested, before, after } = result;
+  const counts = `(was ${before}, now ${after})`;
+  if (action === "add") {
+    const added = after - before;
+    if (added === 0)
+      return `Nothing was linked: all ${requested} ${relation} were already linked to ${entity} ${sourceId} ${counts}`;
+    return `Linked ${added} of ${requested} ${relation} to ${entity} ${sourceId} ${counts}`;
+  }
+  const removed = before - after;
+  if (removed === 0)
+    return `Nothing was unlinked: none of the ${requested} ids is linked as ${relation} of ${entity} ${sourceId} ${counts}. Check that the ids are the linked ${relation}, not the ${entity} itself.`;
+  return `Unlinked ${removed} of ${requested} ${relation} from ${entity} ${sourceId} ${counts}`;
+}
+
 export const manageRecordLinksTool = {
   name: "manage_record_links",
   title: "Manage record links",
@@ -575,10 +605,15 @@ export const manageRecordLinksTool = {
     runInteractor(
       getModifyEntityRelationInteractor().invoke({ entity, sourceId, relation, mode: action, ids }),
       ({ requested, before, after }) =>
-        action === "add"
-          ? `Linked ${requested} ${relation} to ${entity} ${sourceId} (was ${before}, now ${after})`
-          : `Unlinked ${requested} ${relation} from ${entity} ${sourceId} (was ${before}, now ${after})`,
-      ({ requested, before, after }) => ({ action, relation, requested, before, after }),
+        recordLinksResultText({ action, entity, sourceId, relation, requested, before, after }),
+      ({ requested, before, after }) => ({
+        action,
+        relation,
+        requested,
+        changed: Math.abs(after - before),
+        before,
+        after,
+      }),
     ),
 };
 

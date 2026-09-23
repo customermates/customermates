@@ -53,6 +53,18 @@ describe("list_records numeric totals", () => {
     expect(text).not.toContain("sums");
   });
 
+  it("reports a lowered page size next to the requested one, so an adjustment never reads as a refusal", async () => {
+    spies.listDeals.mockResolvedValue({ ok: true, data: { items: [], pagination: { total: 0 } } });
+
+    const lowered = await listRecordsTool.execute(listRecordsTool.inputSchema.parse({ entity: "deal", pageSize: 50 }));
+    const exact = await listRecordsTool.execute(listRecordsTool.inputSchema.parse({ entity: "deal", pageSize: 10 }));
+
+    expect(spies.listDeals).toHaveBeenCalledWith(expect.objectContaining({ pagination: { page: 1, pageSize: 25 } }));
+    expect(lowered).toMatchObject({ structuredContent: { pageSize: 25, requestedPageSize: 50 } });
+    expect(exact).toMatchObject({ structuredContent: { pageSize: 10 } });
+    expect(JSON.stringify(exact)).not.toContain("requestedPageSize");
+  });
+
   it("tells an agent the totals span the filters rather than the page", () => {
     expect(listRecordsTool.description).toContain("not just the current page");
     expect(listRecordsTool.description).toContain("weightedValue");

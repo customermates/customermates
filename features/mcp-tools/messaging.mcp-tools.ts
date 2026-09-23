@@ -8,6 +8,7 @@ import {
   mcpInteractorFailure,
   mcpPage,
   mcpPageSize,
+  mcpPageSizeEcho,
   mcpValidationFailure,
   runInteractor,
   sortDescription,
@@ -175,57 +176,60 @@ export const getMessagingThreadsTool = {
   execute: (params: z.infer<typeof GetMessagingThreadsSchema>) => {
     const { threadId, page, pageSize, searchTerm, filters, sortDescriptor } = params;
     if (threadId) {
-      return runInteractor(getGetMessagingThreadInteractor().invoke({ threadId, page, pageSize }), (data) =>
-        toonResult(
-          formatDatesInResponse({
-            thread: {
-              id: data.thread.id,
-              connectedAccountId: data.thread.connectedAccountId,
-              provider: data.thread.provider,
-              type: data.thread.type,
-              name: data.thread.name,
-              subject: data.thread.subject,
-              preview: data.thread.preview,
-              state: data.thread.state,
-              lastMessageAt: data.thread.lastMessageAt,
-              participantCount: data.thread.participants.length,
-              participants: data.thread.participants.map((p) => ({
-                displayName: p.displayName,
-                identifier: p.identifier,
+      return runInteractor(
+        getGetMessagingThreadInteractor().invoke({ threadId, page, pageSize: pageSize.applied }),
+        (data) =>
+          toonResult(
+            formatDatesInResponse({
+              thread: {
+                id: data.thread.id,
+                connectedAccountId: data.thread.connectedAccountId,
                 provider: data.thread.provider,
-                isSelf: p.isSelf ?? false,
-                isLinked: p.contact != null,
-                contact: p.contact
-                  ? {
-                      id: p.contact.id,
-                      name: `${p.contact.firstName} ${p.contact.lastName}`.trim() || null,
-                    }
-                  : null,
+                type: data.thread.type,
+                name: data.thread.name,
+                subject: data.thread.subject,
+                preview: data.thread.preview,
+                state: data.thread.state,
+                lastMessageAt: data.thread.lastMessageAt,
+                participantCount: data.thread.participants.length,
+                participants: data.thread.participants.map((p) => ({
+                  displayName: p.displayName,
+                  identifier: p.identifier,
+                  provider: data.thread.provider,
+                  isSelf: p.isSelf ?? false,
+                  isLinked: p.contact != null,
+                  contact: p.contact
+                    ? {
+                        id: p.contact.id,
+                        name: `${p.contact.firstName} ${p.contact.lastName}`.trim() || null,
+                      }
+                    : null,
+                })),
+                sharedToCrm: data.thread.sharedToCrm,
+                isOwner: data.thread.isOwner,
+                folder: threadFolder(data.folderContext, data.thread.provider),
+              },
+              messages: data.messages.map((message) => ({
+                id: message.id,
+                direction: message.direction,
+                sender: message.sender?.displayName ?? message.sender?.identifier ?? null,
+                subject: message.subject,
+                bodyText: message.bodyText,
+                isDraft: message.isDraft,
+                draftRevision: message.draftRevision,
+                attachments: message.attachmentsMeta.map((attachment) => ({
+                  name: attachment.fileName ?? attachment.name,
+                  type: attachment.type,
+                  mime: attachment.mime,
+                })),
+                sentAt: message.sentAt,
+                editedAt: message.editedAt,
               })),
-              sharedToCrm: data.thread.sharedToCrm,
-              isOwner: data.thread.isOwner,
-              folder: threadFolder(data.folderContext, data.thread.provider),
-            },
-            messages: data.messages.map((message) => ({
-              id: message.id,
-              direction: message.direction,
-              sender: message.sender?.displayName ?? message.sender?.identifier ?? null,
-              subject: message.subject,
-              bodyText: message.bodyText,
-              isDraft: message.isDraft,
-              draftRevision: message.draftRevision,
-              attachments: message.attachmentsMeta.map((attachment) => ({
-                name: attachment.fileName ?? attachment.name,
-                type: attachment.type,
-                mime: attachment.mime,
-              })),
-              sentAt: message.sentAt,
-              editedAt: message.editedAt,
-            })),
-            total: data.total,
-            page,
-          }),
-        ),
+              total: data.total,
+              page,
+              ...mcpPageSizeEcho(pageSize),
+            }),
+          ),
       );
     }
     return runInteractor(
@@ -234,7 +238,7 @@ export const getMessagingThreadsTool = {
           searchTerm,
           filters,
           sortDescriptor,
-          pagination: { page, pageSize },
+          pagination: { page, pageSize: pageSize.applied },
         }),
       ),
       (data) =>
@@ -242,6 +246,7 @@ export const getMessagingThreadsTool = {
           formatDatesInResponse({
             total: data.pagination?.total ?? data.items.length,
             page,
+            ...mcpPageSizeEcho(pageSize),
             items: data.items.map((thread) => ({
               id: thread.id,
               connectedAccountId: thread.connectedAccountId,
@@ -312,7 +317,7 @@ export const getActivitiesTool = {
     runInteractor(
       getGetActivitiesApiInteractor().invoke(
         ActivitiesApiParamsSchema.parse({
-          pagination: { page, pageSize },
+          pagination: { page, pageSize: pageSize.applied },
           scope,
           filters,
           sortDescriptor,
@@ -324,6 +329,7 @@ export const getActivitiesTool = {
             availableSources: data.availableSources,
             total: data.pagination?.total ?? data.items.length,
             page,
+            ...mcpPageSizeEcho(pageSize),
             items: data.items.map(withoutRawMessageHtml),
             pageLimitReached: data.pageLimitReached,
             scopeTruncated: data.scopeTruncated,
@@ -394,7 +400,7 @@ export const getCalendarsTool = {
       searchTerm,
       filters,
       sortDescriptor,
-      pagination: { page, pageSize },
+      pagination: { page, pageSize: pageSize.applied },
     });
 
     if (list === "events") {
@@ -403,6 +409,7 @@ export const getCalendarsTool = {
           formatDatesInResponse({
             total: data.pagination?.total ?? data.items.length,
             page,
+            ...mcpPageSizeEcho(pageSize),
             items: data.items,
           }),
         ),
@@ -414,6 +421,7 @@ export const getCalendarsTool = {
         formatDatesInResponse({
           total: data.pagination?.total ?? data.items.length,
           page,
+          ...mcpPageSizeEcho(pageSize),
           items: data.items,
         }),
       ),

@@ -22,6 +22,7 @@ import {
   MCP_PAGE_SIZE_DESCRIPTION,
   mcpPage,
   mcpPageSize,
+  mcpPageSizeEcho,
   mcpValidationFailure,
   runInteractor,
   toonResult,
@@ -123,10 +124,15 @@ export const manageRoutinesTool = {
       return runInteractor(
         getGetRoutinesApiInteractor().invoke({
           page: params.page,
-          pageSize: params.pageSize,
+          pageSize: params.pageSize.applied,
           searchTerm: params.searchTerm,
         }),
-        (data) => toonResult({ total: data.pagination?.total ?? data.items.length, items: data.items }),
+        (data) =>
+          toonResult({
+            total: data.pagination?.total ?? data.items.length,
+            ...mcpPageSizeEcho(params.pageSize),
+            items: data.items,
+          }),
       );
     }
 

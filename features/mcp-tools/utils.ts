@@ -37,22 +37,25 @@ export function roundMcpPageSize(value: number): McpPageSize {
 }
 
 export const MCP_PAGE_SIZE_DESCRIPTION =
-  "Results per page: 5, 10, 25 or 100. A number in between is not refused, it is lowered to the next of those sizes and the call still succeeds, so never report an adjusted page size as a rejection; the size actually used comes back as pageSize. When a result was truncated, ask for the next size down.";
+  "Results per page: 5, 10, 25 or 100. A number in between is not refused: it is lowered to the next of those sizes, the call still succeeds, and the result then reports requestedPageSize next to the pageSize actually used, so never report an adjusted page size as a rejection. When a result was truncated, ask for the next size down.";
+
+export type McpPageSizeRequest = { applied: McpPageSize; requested: number };
+
+function mcpPageSizeRequest(requested: number): McpPageSizeRequest {
+  return { applied: roundMcpPageSize(requested), requested };
+}
 
 export const mcpPageSize = (
   defaultValue: McpPageSize,
   describe = `${MCP_PAGE_SIZE_DESCRIPTION} Default ${defaultValue}.`,
-) => z.coerce.number().int().min(1).max(100).default(defaultValue).transform(roundMcpPageSize).describe(describe);
+) => z.coerce.number().int().min(1).max(100).default(defaultValue).transform(mcpPageSizeRequest).describe(describe);
 
 export const mcpOptionalPageSize = (describe: string) =>
-  z.coerce
-    .number()
-    .int()
-    .min(1)
-    .max(100)
-    .optional()
-    .transform((value) => (value === undefined ? undefined : roundMcpPageSize(value)))
-    .describe(describe);
+  z.coerce.number().int().min(1).max(100).optional().describe(describe);
+
+export function mcpPageSizeEcho(size: McpPageSizeRequest): { pageSize?: McpPageSize; requestedPageSize?: number } {
+  return size.applied === size.requested ? {} : { pageSize: size.applied, requestedPageSize: size.requested };
+}
 
 export const mcpPage = (maximum?: number) => {
   const page = z.coerce.number().int().min(1);

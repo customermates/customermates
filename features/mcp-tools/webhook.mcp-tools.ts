@@ -11,6 +11,7 @@ import {
   mcpOptionalPageSize,
   mcpPage,
   mcpPageSize,
+  mcpPageSizeEcho,
   mcpValidationFailure,
   runInteractor,
   sortDescription,
@@ -230,7 +231,7 @@ export const manageWebhooksTool = {
           searchTerm: parsed.data.searchTerm,
           filters: parsed.data.filters,
           sortDescriptor: parsed.data.sortDescriptor,
-          pagination: { page: parsed.data.page, pageSize: parsed.data.pageSize },
+          pagination: { page: parsed.data.page, pageSize: parsed.data.pageSize.applied },
         }),
         (data) => {
           const items = formatDatesInResponse(
@@ -244,7 +245,12 @@ export const manageWebhooksTool = {
               updatedAt: webhook.updatedAt,
             })),
           );
-          const payload = { total: data.pagination?.total ?? items.length, page: parsed.data.page, items };
+          const payload = {
+            total: data.pagination?.total ?? items.length,
+            page: parsed.data.page,
+            ...mcpPageSizeEcho(parsed.data.pageSize),
+            items,
+          };
           return { text: encodeToToon(payload), structuredContent: payload };
         },
       );
@@ -330,12 +336,13 @@ export const manageWebhooksTool = {
           searchTerm: parsed.data.searchTerm,
           filters,
           sortDescriptor: parsed.data.sortDescriptor,
-          pagination: { page: parsed.data.page, pageSize: parsed.data.pageSize },
+          pagination: { page: parsed.data.page, pageSize: parsed.data.pageSize.applied },
         }),
         (data) =>
           toonResult({
             total: data.pagination?.total ?? data.items.length,
             page: parsed.data.page,
+            ...mcpPageSizeEcho(parsed.data.pageSize),
             items: formatDatesInResponse(data.items),
           }),
       );
