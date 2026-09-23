@@ -18,7 +18,8 @@ const ANY_WORD_CHAR = new RegExp(`^[[${WORD}]--[${NEVER_WORD}]]$`, "v");
 const SPACED_WORD_CHAR = new RegExp(`^[[${WORD}]--[${NEVER_WORD}${UNSPACED_SCRIPTS}]]$`, "v");
 const WORD_BEFORE_PHRASE = new RegExp(`^[[${WORD}]--[${NEVER_WORD}${UNSPACED_SCRIPTS}${PROCLITIC_SCRIPTS}]]$`, "v");
 const UNSPACED_CHAR = new RegExp(`^[${UNSPACED_SCRIPTS}]$`, "v");
-const SET_WORD_REACH = 2;
+const SET_WORD_REACH = 3;
+const DETERMINER_REACH = 2;
 const SELECTION_RULE_REACH = 3;
 const NAMING_CLAUSE_REACH = 8;
 const CLAUSE_LOOKBACK_CHARS = 400;
@@ -72,6 +73,40 @@ const ENTITY_PLURALS: Record<string, string[]> = {
   service: ["services", "dienstleistungen", "servicios", "servizi"],
 };
 const ARTICLES = ["the", "die", "der", "el", "los", "las", "les", "le", "la", "lo", "i", "gli"];
+const POSSESSIVES = [
+  "our",
+  "my",
+  "your",
+  "their",
+  "unsere",
+  "unseren",
+  "unserer",
+  "meine",
+  "meinen",
+  "deine",
+  "ihre",
+  "ihren",
+  "nuestros",
+  "nuestras",
+  "mis",
+  "tus",
+  "sus",
+  "nos",
+  "mes",
+  "tes",
+  "ses",
+  "vos",
+  "leurs",
+  "nostri",
+  "nostre",
+  "miei",
+  "mie",
+  "tuoi",
+  "tue",
+  "suoi",
+  "sue",
+  "loro",
+];
 const PHRASE_BREAKS = [
   "to",
   "into",
@@ -293,6 +328,7 @@ const PLURALS_BY_ENTITY = new Map(
   Object.entries(ENTITY_PLURALS).map(([entity, plurals]) => [entity, new Set(inEverySpelling(plurals))]),
 );
 const ARTICLE_WORDS = new Set(inEverySpelling(ARTICLES));
+const DETERMINER_WORDS = new Set(inEverySpelling([...ARTICLES, ...POSSESSIVES]));
 const BREAKING_WORDS = new Set(inEverySpelling(PHRASE_BREAKS));
 const NAMING_RULES = inEverySpelling(NAMING_WORD_LIST).map((rule) => rule.split(" "));
 const SELECTION_RULES = inEverySpelling(SELECTION_RULE_LIST).map((rule) => rule.split(" "));
@@ -358,7 +394,7 @@ function namingPhraseGoverned(words: string[]): boolean {
   return described.every((word) => !BREAKING_WORDS.has(word) && !ARTICLE_WORDS.has(word));
 }
 
-function countsThisRecord(text: string, end: number, entity: string): boolean {
+function followingKind(text: string, end: number, entity: string): "plural" | "coordinated" | "open" | "other" {
   const after = text.slice(end, end + CLAUSE_LOOKBACK_CHARS);
   const clauseEnd = Math.min(
     ...CLAUSE_MARKS.map((mark) => after.indexOf(mark)).filter((index) => index >= 0),
@@ -366,17 +402,26 @@ function countsThisRecord(text: string, end: number, entity: string): boolean {
   );
   const words = wordsOf(after.slice(0, clauseEnd)).slice(0, SELECTION_RULE_REACH);
   const [next] = words;
-  if (next !== undefined && PLURALS_BY_ENTITY.get(entity)?.has(next)) return true;
-  if (words.some((word) => COORDINATING_WORDS.has(word))) return false;
-  return next === undefined || BREAKING_WORDS.has(next);
+  if (next !== undefined && PLURALS_BY_ENTITY.get(entity)?.has(next)) return "plural";
+  if (words.some((word) => COORDINATING_WORDS.has(word))) return "coordinated";
+  return next === undefined || BREAKING_WORDS.has(next) ? "open" : "other";
+}
+
+function setWordGoverns(words: string[], text: string, end: number, entity: string): boolean {
+  let index = words.length - 1;
+  for (let skipped = 0; skipped < DETERMINER_REACH && DETERMINER_WORDS.has(words[index] ?? ""); skipped += 1)
+    index -= 1;
+  const adjacent = SET_WORDS.has(words[index] ?? "");
+  if (!adjacent && !words.slice(-SET_WORD_REACH).some((word) => SET_WORDS.has(word))) return false;
+  const kind = followingKind(text, end, entity);
+  return kind === "plural" || (adjacent && kind === "open");
 }
 
 function governedByRule(text: string, start: number, end: number, entity: string): boolean {
   const before = text.slice(Math.max(0, start - CLAUSE_LOOKBACK_CHARS), start);
   const clauseStart = Math.max(...CLAUSE_MARKS.map((mark) => before.lastIndexOf(mark))) + 1;
   const words = wordsOf(before.slice(clauseStart));
-  if (words.slice(-SET_WORD_REACH).some((word) => SET_WORDS.has(word)) && countsThisRecord(text, end, entity))
-    return true;
+  if (setWordGoverns(words, text, end, entity)) return true;
   const recent = words.slice(-SELECTION_RULE_REACH);
   if (SELECTION_RULES.some((rule) => holdsSequence(recent, rule))) return true;
   return namingPhraseGoverned(words);
