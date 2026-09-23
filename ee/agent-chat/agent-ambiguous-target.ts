@@ -1,26 +1,26 @@
-import { ENTITY_UPDATE_TOOL_NAMES } from "./agent-tool-groups";
+import { decode } from "@toon-format/toon";
 
 export type AmbiguousTarget = { entity: string; phrase: string; candidates: { id: string; name: string }[] };
+
+export type AmbiguityRequest = { latestUserText: string; previousAssistantText: string };
 
 const NAME_QUERY_KEYS = ["searchTerm", "name"] as const;
 const MIN_PHRASE_LENGTH = 3;
 const UUID = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/g;
-const TOON_ROW = /^\s+([0-9a-fA-F-]{36}),(?:"((?:[^"\\]|\\.)*)"|([^\n,]*))/gm;
+const TOON_TABLE_ROW = /^\s+([0-9a-fA-F-]{36}),(?:"((?:[^"\\]|\\.)*)"|([^\n,]*))/gm;
+const TOON_LIST_ROW = /^\s*-\s+id:\s*([0-9a-fA-F-]{36})\s*\n\s+name:\s*(?:"((?:[^"\\]|\\.)*)"|([^\n]*))/gm;
 
-function textOf(content: unknown): string {
-  if (typeof content === "string") return content;
-  if (!Array.isArray(content)) return "";
-  return content
-    .map((part) => (part && typeof part === "object" && "text" in part ? String((part as { text: unknown }).text) : ""))
-    .join(" ");
-}
+type Row = { id: string; name: string };
 
-function latestUserText(messages: readonly unknown[]): string | null {
-  for (let index = messages.length - 1; index >= 0; index -= 1) {
-    const message = messages[index] as { role?: string; content?: unknown };
-    if (message?.role === "user") return textOf(message.content).toLowerCase();
-  }
-  return null;
+export function ambiguityRequestOf(history: readonly { role: string; text: string }[]): AmbiguityRequest {
+  const latestIndex = history.findLastIndex((message) => message.role === "user");
+  const previousAssistant = history
+    .slice(0, Math.max(latestIndex, 0))
+    .findLast((message) => message.role === "assistant");
+  return {
+    latestUserText: (latestIndex >= 0 ? history[latestIndex].text : "").toLowerCase(),
+    previousAssistantText: (previousAssistant?.text ?? "").toLowerCase(),
+  };
 }
 
 function nameQuery(input: Record<string, unknown>): string | null {
@@ -49,13 +49,45 @@ function unescapeToon(value: string): string {
   return value.replace(/\\(.)/g, "$1");
 }
 
-function rowsOf(output: unknown): { id: string; name: string }[] {
-  const record = output && typeof output === "object" ? (output as Record<string, unknown>) : null;
-  if (!record || record.ok !== true || typeof record.result !== "string") return [];
-  return [...record.result.matchAll(TOON_ROW)].map((match) => ({
+function rowsFromItems(items: unknown): Row[] {
+  if (!Array.isArray(items)) return [];
+  return items.flatMap((item) => {
+    const record = item as { id?: unknown; name?: unknown };
+    return typeof record?.id === "string" && typeof record.name === "string"
+      ? [{ id: record.id, name: record.name.trim() }]
+      : [];
+  });
+}
+
+function decodedRows(text: string, entity: string): Row[] | null {
+  try {
+    const decoded = decode(text) as { items?: unknown; results?: { entity?: unknown; items?: unknown }[] };
+    if (Array.isArray(decoded?.items)) return rowsFromItems(decoded.items);
+    const result = Array.isArray(decoded?.results)
+      ? decoded.results.find((entry) => entry.entity === entity)
+      : undefined;
+    return result ? rowsFromItems(result.items) : null;
+  } catch {
+    return null;
+  }
+}
+
+function matchedRows(text: string, pattern: RegExp): Row[] {
+  return [...text.matchAll(pattern)].map((match) => ({
     id: match[1],
     name: (match[2] !== undefined ? unescapeToon(match[2]) : (match[3] ?? "")).trim(),
   }));
+}
+
+function rowsOf(output: unknown, entity: string): Row[] {
+  const record = output && typeof output === "object" ? (output as Record<string, unknown>) : null;
+  if (!record || record.ok !== true || typeof record.result !== "string") return [];
+  return (
+    decodedRows(record.result, entity) ?? [
+      ...matchedRows(record.result, TOON_TABLE_ROW),
+      ...matchedRows(record.result, TOON_LIST_ROW),
+    ]
+  );
 }
 
 function unwrap(output: unknown): unknown {
@@ -64,7 +96,7 @@ function unwrap(output: unknown): unknown {
   return output;
 }
 
-function exactNameInsideAnother(needle: string, candidates: { name: string }[]): boolean {
+function exactNameInsideAnother(needle: string, candidates: Row[]): boolean {
   return candidates.some(
     (candidate) =>
       candidate.name.toLowerCase() === needle &&
@@ -72,7 +104,7 @@ function exactNameInsideAnother(needle: string, candidates: { name: string }[]):
   );
 }
 
-function namedUniquely(latest: string, candidates: { name: string }[]): boolean {
+function namedUniquely(latest: string, candidates: Row[]): boolean {
   return candidates.some((candidate) => {
     const name = candidate.name.toLowerCase();
     if (!name || !latest.includes(name)) return false;
@@ -80,12 +112,32 @@ function namedUniquely(latest: string, candidates: { name: string }[]): boolean 
   });
 }
 
-export function ambiguousTargetFromMessages(messages: readonly unknown[]): AmbiguousTarget | null {
-  const latest = latestUserText(messages);
-  if (!latest) return null;
+function answersClarification(request: AmbiguityRequest, candidates: Row[]): boolean {
+  const listed = candidates.filter((candidate) => request.previousAssistantText.includes(candidate.name.toLowerCase()));
+  if (listed.length < 2) return false;
+  return candidates.some((candidate) => {
+    const name = candidate.name.toLowerCase();
+    if (!name || !request.latestUserText.includes(name)) return false;
+    return candidates.every((other) => {
+      const otherName = other.name.toLowerCase();
+      return other === candidate || !otherName.includes(name) || !request.latestUserText.includes(otherName);
+    });
+  });
+}
+
+export function ambiguousTargetKey(target: AmbiguousTarget): string {
+  return `${target.entity}:${target.phrase.toLowerCase()}`;
+}
+
+export function ambiguousTargetsFromMessages(
+  messages: readonly unknown[],
+  request: AmbiguityRequest,
+): AmbiguousTarget[] {
+  const latest = request.latestUserText;
+  if (!latest) return [];
 
   const calls = new Map<string, { entity: string; phrase: string }>();
-  let found: AmbiguousTarget | null = null;
+  const found: AmbiguousTarget[] = [];
 
   for (const message of messages) {
     const content = (message as { content?: unknown })?.content;
@@ -105,21 +157,16 @@ export function ambiguousTargetFromMessages(messages: readonly unknown[]): Ambig
       const call = calls.get(part.toolCallId);
       if (!call) continue;
       const needle = call.phrase.toLowerCase();
-      const candidates = rowsOf(unwrap(part.output)).filter((row) => row.name.toLowerCase().includes(needle));
-      found =
-        candidates.length >= 2 && exactNameInsideAnother(needle, candidates) && !namedUniquely(latest, candidates)
-          ? { entity: call.entity, phrase: call.phrase, candidates }
-          : null;
+      const candidates = rowsOf(unwrap(part.output), call.entity).filter((row) =>
+        row.name.toLowerCase().includes(needle),
+      );
+      if (candidates.length < 2 || !exactNameInsideAnother(needle, candidates)) continue;
+      if (namedUniquely(latest, candidates) || answersClarification(request, candidates)) continue;
+      found.push({ entity: call.entity, phrase: call.phrase, candidates });
     }
   }
 
   return found;
-}
-
-export function withheldToolNamesFor(target: AmbiguousTarget | null): readonly string[] {
-  if (!target) return [];
-  const updateTool = ENTITY_UPDATE_TOOL_NAMES[target.entity];
-  return updateTool ? [updateTool] : [];
 }
 
 export function candidateIdsIn(target: AmbiguousTarget, input: unknown): number {
@@ -127,8 +174,14 @@ export function candidateIdsIn(target: AmbiguousTarget, input: unknown): number 
   return target.candidates.filter((candidate) => ids.has(candidate.id.toLowerCase())).length;
 }
 
-export function refusesAmbiguousWrite(target: AmbiguousTarget | null, readOnly: boolean, input: unknown): boolean {
-  return Boolean(target) && !readOnly && candidateIdsIn(target as AmbiguousTarget, input) === 1;
+export function refusingTarget(
+  targets: Iterable<AmbiguousTarget>,
+  readOnly: boolean,
+  input: unknown,
+): AmbiguousTarget | null {
+  if (readOnly) return null;
+  for (const target of targets) if (candidateIdsIn(target, input) === 1) return target;
+  return null;
 }
 
 export function ambiguousTargetRefusal(target: AmbiguousTarget): string {

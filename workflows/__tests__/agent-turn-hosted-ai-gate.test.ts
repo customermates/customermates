@@ -576,52 +576,6 @@ describe("agent-turn credit-bounded continuation", () => {
     );
   });
 
-  it("retries from a state where an already-run tool is settled, so the retry cannot run it again", async () => {
-    const settled = [
-      {
-        role: "assistant",
-        content: [{ type: "tool-call", toolName: "request_support", toolCallId: "approved-1", input: {} }],
-      },
-      {
-        role: "tool",
-        content: [
-          {
-            type: "tool-result",
-            toolName: "request_support",
-            toolCallId: "approved-1",
-            output: { type: "json", value: { ok: true, result: "sent" } },
-          },
-        ],
-      },
-    ];
-    const seen: unknown[][] = [];
-    let segment = 0;
-    state.runTools = ({ messages }) => {
-      segment += 1;
-      seen.push(messages);
-      if (segment === 1) {
-        return Promise.resolve({
-          finishReason: "error",
-          messages: [{ role: "system", content: "instructions" }, ...messages, ...settled],
-          steps: [streamedStep("", "error")],
-          error: new Error("Vertex said no"),
-        });
-      }
-      return Promise.resolve({ finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] });
-    };
-
-    await runAgentTurn(payload);
-
-    expect(segment).toBe(2);
-    expect(JSON.stringify(seen[1])).toContain('"toolCallId":"approved-1"');
-    expect(JSON.stringify(seen[1])).toContain('"type":"tool-result"');
-    expect(JSON.stringify(seen[1])).not.toContain("tool-approval-response");
-    expect(state.execute).not.toHaveBeenCalled();
-    expect(state.finalize).toHaveBeenCalledWith(
-      expect.objectContaining({ terminalCode: "completed", stopReason: null }),
-    );
-  });
-
   it("stops with provider_error once the resolved-error retries are spent", async () => {
     state.runTools = ({ messages }) =>
       Promise.resolve({
@@ -1123,6 +1077,196 @@ describe("agent-turn authoritative tool inputs", () => {
       else expect(state.execute).not.toHaveBeenCalled();
       if (decision === "approve") expect(resumed).not.toContain('"reason"');
       else expect(resumed).toContain(JSON.stringify(approvalDenialReason(decision as "reject" | "timeout")));
+    },
+  );
+
+  function approvedDeleteThenError(thirdSegment: () => Promise<unknown>) {
+    define("delete_records");
+    const input = { entity: "contact", ids: ["record-1"] };
+    state.normalize.mockResolvedValue({ ok: true, input });
+    state.readApproval.mockResolvedValue({ toolName: "delete_records", decision: "approve" });
+    const seen: string[] = [];
+    let segment = 0;
+    state.runTools = async ({ tools, messages, completeStepAndPrepareNext }) => {
+      segment += 1;
+      seen.push(JSON.stringify(messages));
+      if (segment === 1) {
+        await tools.delete_records.needsApproval(input, { toolCallId: "call-1" });
+        await completeStepAndPrepareNext(streamedToolCallStep("delete_records", "call-1", input));
+        return { finishReason: "tool-calls", messages: [pendingMessage("delete_records", input)], steps: [] };
+      }
+      if (segment === 2) {
+        const output = await executeTool(tools.delete_records, input);
+        return {
+          finishReason: "error",
+          messages: [
+            { role: "system", content: "instructions" },
+            pendingMessage("delete_records", input),
+            {
+              role: "tool",
+              content: [
+                {
+                  type: "tool-result",
+                  toolName: "delete_records",
+                  toolCallId: "call-1",
+                  output: { type: "json", value: output },
+                },
+              ],
+            },
+          ],
+          steps: [streamedStep("", "error")],
+          error: new Error("Vertex said no"),
+        };
+      }
+      return thirdSegment();
+    };
+    return { seen, segments: () => segment };
+  }
+
+  it("retries after an approved tool ran without resending the approval or running the tool again", async () => {
+    const run = approvedDeleteThenError(() => Promise.resolve(finish()));
+
+    await runAgentTurn(payload);
+
+    expect(run.segments()).toBe(3);
+    expect(run.seen[1]).toContain("tool-approval-response");
+    expect(run.seen[2]).not.toContain("tool-approval-response");
+    expect(run.seen[2]).toContain('"toolCallId":"call-1"');
+    expect(state.execute).toHaveBeenCalledTimes(1);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "completed", affectedResources: ["contacts"] }),
+    );
+  });
+
+  it("keeps an approved write that ran as successful when the retry after it also fails", async () => {
+    approvedDeleteThenError(() =>
+      Promise.reject(
+        Object.assign(new Error("provider unavailable"), { [Symbol.for("vercel.ai.gateway.error")]: true }),
+      ),
+    );
+
+    await runAgentTurn(payload);
+
+    expect(state.execute).toHaveBeenCalledTimes(1);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ stopReason: "provider_error", affectedResources: ["contacts"] }),
+    );
+  });
+
+  function novaSearched(request: string) {
+    const nova = "11111111-1111-4111-8111-111111111111";
+    const nova2025 = "22222222-2222-4222-8222-222222222222";
+    const messages = [
+      { role: "user", content: request },
+      {
+        role: "assistant",
+        content: [
+          {
+            type: "tool-call",
+            toolName: "list_records",
+            toolCallId: "list-1",
+            input: { entity: "deal", searchTerm: "Nova Expansion" },
+          },
+        ],
+      },
+      {
+        role: "tool",
+        content: [
+          {
+            type: "tool-result",
+            toolCallId: "list-1",
+            toolName: "list_records",
+            output: {
+              type: "json",
+              value: {
+                ok: true,
+                result: `total: 2\nitems[2]{id,name}:\n  ${nova},Nova Expansion\n  ${nova2025},Nova Expansion 2025`,
+              },
+            },
+          },
+        ],
+      },
+    ];
+    return { nova, nova2025, messages };
+  }
+
+  it.each([
+    ["exactly one candidate", false],
+    ["both candidates", true],
+  ])("refuses a gated write to %s of several same-named records only when it names one", async (_label, both) => {
+    define("list_records");
+    define("delete_records");
+    const request = "Delete the Nova Expansion deal.";
+    const { nova, nova2025, messages: searched } = novaSearched(request);
+    const input = { entity: "deal", ids: both ? [nova, nova2025] : [nova] };
+    state.normalize.mockImplementation((_name: string, value: unknown) => Promise.resolve({ ok: true, input: value }));
+    state.readApproval.mockResolvedValue({ toolName: "delete_records", decision: "reject" });
+    let gated: boolean | undefined;
+    let output: unknown;
+    let round = 0;
+    state.runTools = async ({ tools, completeStepAndPrepareNext }) => {
+      if (round++ > 0) return finish();
+      await completeStepAndPrepareNext(
+        streamedToolCallStep("list_records", "list-1", { entity: "deal", searchTerm: "Nova Expansion" }),
+        searched,
+      );
+      gated = await tools.delete_records.needsApproval(input, { toolCallId: "call-1" });
+      if (!gated) {
+        output = await executeTool(tools.delete_records, input);
+        return finish();
+      }
+      return {
+        finishReason: "tool-calls",
+        messages: [...searched.slice(1), pendingMessage("delete_records", input)],
+        steps: [],
+      };
+    };
+
+    await runAgentTurn({ ...payload, messages: [{ role: "user", text: request }] });
+
+    expect(gated).toBe(both);
+    if (both) expect(state.createApproval).toHaveBeenCalledTimes(1);
+    else {
+      expect(output).toEqual({ ok: false, result: expect.stringContaining("More than one deal matches") });
+      expect(state.createApproval).not.toHaveBeenCalled();
+    }
+    expect(state.execute).not.toHaveBeenCalled();
+  });
+
+  it.each(["length", "error"])(
+    "never replays a tool call a %s step did not run, and settles it as not run",
+    async (finishReason) => {
+      define("list_records");
+      const seen: string[] = [];
+      let segment = 0;
+      state.runTools = ({ messages }) => {
+        segment += 1;
+        seen.push(JSON.stringify(messages));
+        if (segment === 1) {
+          return Promise.resolve({
+            finishReason,
+            messages: [{ role: "user", content: "Hello" }],
+            steps: [
+              {
+                ...streamedStep("Partial.", finishReason),
+                content: [
+                  { type: "text", text: "Partial." },
+                  { type: "tool-call", toolName: "list_records", toolCallId: "unrun-1", input: { entity: "deal" } },
+                ],
+              },
+            ],
+            ...(finishReason === "error" ? { error: new Error("Vertex said no") } : {}),
+          });
+        }
+        return Promise.resolve(finish());
+      };
+
+      await runAgentTurn(payload);
+
+      expect(segment).toBe(2);
+      expect(seen[1]).not.toContain("unrun-1");
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+      expect(JSON.stringify(state.writes)).not.toMatch(/"toolCallId":"unrun-1"[^}]*"status":"error"/);
     },
   );
 

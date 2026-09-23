@@ -32,10 +32,12 @@ import {
 import { agentUiCommandHookToken, isAgentPanelTool, toAgentUiCommandInput } from "@/ee/agent-chat/agent-ui-command";
 import { activeAgentToolNames } from "@/ee/agent-chat/agent-toolset-routing";
 import {
-  ambiguousTargetFromMessages,
+  ambiguityRequestOf,
+  ambiguousTargetKey,
   ambiguousTargetRefusal,
-  refusesAmbiguousWrite,
-  withheldToolNamesFor,
+  ambiguousTargetsFromMessages,
+  refusingTarget,
+  type AmbiguousTarget,
 } from "@/ee/agent-chat/agent-ambiguous-target";
 import { googleThinkingProviderOptions } from "@/ee/agent-chat/agent-thinking-options";
 import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-context";
@@ -820,7 +822,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     } | null = null;
     let providerStop: Extract<AgentTurnStopReason, "provider_error" | "content_filter"> | null = null;
     let resolvedProviderErrorRetries = 0;
-    let ambiguousTarget: ReturnType<typeof ambiguousTargetFromMessages> = null;
+    const armedTargets = new Map<string, AmbiguousTarget>();
+    const ambiguityRequest = ambiguityRequestOf(payload.messages);
+    const refusedByTarget = (readOnly: boolean, input: unknown) =>
+      refusingTarget(armedTargets.values(), readOnly, input);
     let providerFailure: WorkflowFailure | null = null;
     let budgetStop = false;
     let hostedAiStop = false;
@@ -958,14 +963,30 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           return;
         }
 
-        if (hasPausedCall) {
-          for (const raw of step.content) {
-            const part = raw as { type?: string; toolCallId?: string };
-            if (part.type === "tool-call" && part.toolCallId) settledToolCallIds.add(part.toolCallId);
-          }
+        const unrun = new Map<string, string | undefined>();
+        for (const raw of step.content) {
+          const part = raw as { type?: string; toolCallId?: string; toolName?: string };
+          if (part.type === "tool-call" && part.toolCallId && !settledIds.has(part.toolCallId))
+            unrun.set(part.toolCallId, part.toolName);
+        }
+        for (const [toolCallId, toolName] of unrun) {
+          if (settledToolCallIds.has(toolCallId)) continue;
+          settledToolCallIds.add(toolCallId);
+          transcript.completeToolCall({ toolCallId, toolName, status: "cancelled", failed: false });
         }
 
-        recordContinuationRound(step, outcomes);
+        recordContinuationRound(
+          unrun.size > 0
+            ? {
+                ...step,
+                content: step.content.filter((raw) => {
+                  const part = raw as { type?: string; toolCallId?: string };
+                  return !(part.type === "tool-call" && part.toolCallId && unrun.has(part.toolCallId));
+                }),
+              }
+            : step,
+          outcomes,
+        );
       } catch (error) {
         roundFailure ??= toWorkflowFailure(
           error instanceof Error
@@ -1047,11 +1068,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                 return (
                   prepared.ok &&
                   shell.gated &&
-                  !refusesAmbiguousWrite(
-                    ambiguousTarget,
-                    isReadOnlyTool({ annotations: shell.annotations }),
-                    prepared.input,
-                  ) &&
+                  !refusedByTarget(isReadOnlyTool({ annotations: shell.annotations }), prepared.input) &&
                   requiresApproval(internalToolIdentity(shell.name), { annotations: shell.annotations }, prepared.input)
                 );
               },
@@ -1061,15 +1078,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                     execute: async (input: unknown, options: { toolCallId: string }) => {
                       const prepared = await resolveToolInput(shell.name, options.toolCallId, input);
                       if (!prepared.ok) return prepared;
-                      if (
-                        ambiguousTarget &&
-                        refusesAmbiguousWrite(
-                          ambiguousTarget,
-                          isReadOnlyTool({ annotations: shell.annotations }),
-                          prepared.input,
-                        )
-                      )
-                        return { ok: false, result: ambiguousTargetRefusal(ambiguousTarget) };
+                      const refused = refusedByTarget(
+                        isReadOnlyTool({ annotations: shell.annotations }),
+                        prepared.input,
+                      );
+                      if (refused) return { ok: false, result: ambiguousTargetRefusal(refused) };
                       const outcome = await executeAgentTool(
                         payload,
                         shell.name,
@@ -1103,14 +1116,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         prepareStep: async ({ messages: stepMessages }) => {
           if (abandoned || cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null)
             throw AGENT_LOCAL_TERMINATION_REQUIRED;
-          ambiguousTarget = ambiguousTargetFromMessages(stepMessages);
-          const withheld = withheldToolNamesFor(ambiguousTarget);
-          const routed = activeToolNamesFor(stepMessages);
-          const activeTools = withheld.length
-            ? (routed ?? toolDefinitions.map((definition) => definition.name)).filter(
-                (name) => !withheld.includes(name),
-              )
-            : routed;
+          for (const target of ambiguousTargetsFromMessages(stepMessages, ambiguityRequest))
+            armedTargets.set(ambiguousTargetKey(target), target);
+          const activeTools = activeToolNamesFor(stepMessages);
           const activeDefinitions = activeTools
             ? toolDefinitions.filter((definition) => activeTools.includes(definition.name))
             : toolDefinitions;
@@ -1178,6 +1186,14 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
       for (const step of (result.steps as unknown as AgentRoundResult[]).slice(appliedThisCall)) await applyRound(step);
 
+      for (const message of result.messages) {
+        if (message.role !== "tool" || typeof message.content === "string") continue;
+        for (const part of message.content) {
+          if (part.type !== "tool-result") continue;
+          settleToolOutcome(part.toolCallId, part.toolName, unwrapToolOutput(part.output));
+        }
+      }
+
       if (finishReason === "content-filter") providerStop = "content_filter";
       else if (!["stop", "length", "tool-calls"].includes(finishReason)) {
         const resolvedError = (result as { error?: unknown }).error;
@@ -1190,14 +1206,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         }
         await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries);
         providerStop = "provider_error";
-      }
-
-      for (const message of result.messages) {
-        if (message.role !== "tool" || typeof message.content === "string") continue;
-        for (const part of message.content) {
-          if (part.type !== "tool-result") continue;
-          settleToolOutcome(part.toolCallId, part.toolName, unwrapToolOutput(part.output));
-        }
       }
 
       if (abandoned) break;
@@ -1238,10 +1246,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           prepared: await resolveToolInput(call.toolName, call.toolCallId, call.input),
         })),
       );
-      const refusedOutput = (call: (typeof pending)[number], input: unknown) =>
-        ambiguousTarget && call.toolName === "navigate" && refusesAmbiguousWrite(ambiguousTarget, false, input)
-          ? { ok: false, result: ambiguousTargetRefusal(ambiguousTarget) }
-          : null;
+      const refusedOutput = (call: (typeof pending)[number], input: unknown) => {
+        const refused = call.toolName === "navigate" ? refusedByTarget(false, input) : null;
+        return refused ? { ok: false, result: ambiguousTargetRefusal(refused) } : null;
+      };
       const invalidResults = preparedPending.flatMap(({ call, prepared }) => {
         const output = prepared.ok ? refusedOutput(call, prepared.input) : prepared;
         return output ? [{ toolCallId: call.toolCallId, toolName: call.toolName, output }] : [];
