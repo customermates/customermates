@@ -124,7 +124,11 @@ export const AccountSignature = observer(({ account, store }: Props) => {
                 <p className="text-muted-foreground text-xs">{t("ConnectedAccountsCard.emailSignatureDescription")}</p>
               </div>
 
-              <FormSwitch id="settings.signature.enabled" label={t("ConnectedAccountsCard.emailSignatureEnabled")} />
+              <FormSwitch
+                id="settings.signature.enabled"
+                inputId="connected-account-signature"
+                label={t("ConnectedAccountsCard.emailSignatureEnabled")}
+              />
             </div>
 
             {settings.signature.enabled && (
@@ -197,7 +201,12 @@ export const AccountSignature = observer(({ account, store }: Props) => {
         </section>
 
         <div className="flex justify-end lg:col-span-2">
-          <Button disabled={isDisabled || !store.hasUnsavedChanges} size="sm" type="submit">
+          <Button
+            disabled={isDisabled || !store.hasUnsavedChanges}
+            id="connected-account-email-save"
+            size="sm"
+            type="submit"
+          >
             {t("ConnectedAccountsCard.emailSave")}
           </Button>
         </div>

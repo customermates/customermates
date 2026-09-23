@@ -51,20 +51,31 @@ export const CompanyInviteModal = observer(() => {
         <AppCardBody>
           <Tabs defaultValue="link">
             <TabsList>
-              <TabsTrigger value="link">{t("OnboardingWizard.invite.tabs.link")}</TabsTrigger>
+              <TabsTrigger id="invite-modal-tab-link" value="link">
+                {t("OnboardingWizard.invite.tabs.link")}
+              </TabsTrigger>
 
-              <TabsTrigger value="email">{t("OnboardingWizard.invite.tabs.email")}</TabsTrigger>
+              <TabsTrigger id="invite-modal-tab-email" value="email">
+                {t("OnboardingWizard.invite.tabs.email")}
+              </TabsTrigger>
             </TabsList>
 
-            <TabsContent className="mt-3" value="link">
+            <TabsContent aria-labelledby="invite-modal-tab-link" className="mt-3" value="link">
               <div className="space-y-1.5">
-                <FormLabel htmlFor="inviteLink">{t("CompanyInviteModal.label")}</FormLabel>
+                <FormLabel htmlFor="invite-modal-link">{t("CompanyInviteModal.label")}</FormLabel>
 
                 <div className="flex gap-2 items-center">
-                  <Input readOnly className="truncate" disabled={isLoading} id="inviteLink" value={resolvedValue} />
+                  <Input
+                    readOnly
+                    className="truncate"
+                    disabled={isLoading}
+                    id="invite-modal-link"
+                    value={resolvedValue}
+                  />
 
                   <Button
                     disabled={isLoading}
+                    id="invite-modal-copy-link"
                     size="icon"
                     variant="ghost"
                     onClick={() => runUserAction(() => copy(form.inviteLink))}
@@ -77,7 +88,7 @@ export const CompanyInviteModal = observer(() => {
               </div>
             </TabsContent>
 
-            <TabsContent className="mt-3" value="email">
+            <TabsContent aria-labelledby="invite-modal-tab-email" className="mt-3" value="email">
               <InviteByEmailForm />
             </TabsContent>
           </Tabs>

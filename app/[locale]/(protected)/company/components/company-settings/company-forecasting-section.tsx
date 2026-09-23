@@ -76,7 +76,7 @@ export const CompanyForecastingSection = observer(() => {
     case "content":
       body = (
         <div className="flex flex-col gap-2">
-          <ul className="flex flex-col gap-2">
+          <ul className="flex flex-col gap-2" id="company-settings-stage-weights">
             {store.form.dealStageWeights.map((stage, index) => {
               const option = optionByValue.get(stage.optionValue);
               const label = option?.label ?? stage.optionValue;
@@ -111,6 +111,7 @@ export const CompanyForecastingSection = observer(() => {
       <div className="flex flex-col gap-1.5">
         <FormSelect
           id="dealWeightingColumnId"
+          inputId="company-settings-deal-stage-field"
           items={columnItems}
           label={t("CompanySettings.forecasting.columnLabel", { deal: singular(EntityType.deal) })}
           optionsLoading={store.isLoadingDealStageColumns}
@@ -133,6 +134,7 @@ export const CompanyForecastingSection = observer(() => {
         <div className="flex flex-col gap-3">
           <FormOutputField
             help={t("CompanySettings.forecasting.totalPipelineHelp", { deals, services })}
+            id="company-settings-total-pipeline"
             label={t("CompanySettings.forecasting.totalPipeline")}
           >
             <span className="text-x-md font-mono tabular-nums">
@@ -142,6 +144,7 @@ export const CompanyForecastingSection = observer(() => {
 
           <FormOutputField
             help={t("CompanySettings.forecasting.currentTotalHelp", { deals, services })}
+            id="company-settings-weighted-pipeline"
             label={t("CompanySettings.forecasting.currentTotal")}
           >
             <span className="text-x-md font-mono tabular-nums">

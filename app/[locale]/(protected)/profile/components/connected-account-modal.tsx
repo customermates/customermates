@@ -76,6 +76,7 @@ export const ConnectedAccountModal = observer(() => {
     ? canReconnect
       ? {
           id: "reconnect-account",
+          anchorId: "connected-account-reactivate",
           label: t("ConnectedAccountsCard.reactivate"),
           icon: Plug,
           onClick: () => connectedAccountsStore.reconnect(account.id),
@@ -83,6 +84,7 @@ export const ConnectedAccountModal = observer(() => {
       : canResync
         ? {
             id: "resync-account",
+            anchorId: "connected-account-resync",
             label: t("ConnectedAccountsCard.resync"),
             icon: RefreshCw,
             onClick: () => connectedAccountsStore.resync(account.id),
@@ -93,6 +95,7 @@ export const ConnectedAccountModal = observer(() => {
     hasAccountActions && canDelete
       ? {
           id: "disconnect-account",
+          anchorId: "connected-account-disconnect",
           label: t("ConnectedAccountsCard.disconnect"),
           icon: Trash2,
           variant: "destructive",

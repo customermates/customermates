@@ -20,7 +20,9 @@ describe("currency picker catalog", () => {
       "utf8",
     );
 
-    expect(companySettings).toContain('<FormAutocompleteCurrency required id="currency" />');
+    expect(companySettings).toContain(
+      '<FormAutocompleteCurrency required id="currency" inputId="company-settings-currency" />',
+    );
     expect(customColumn).toContain("<FormAutocompleteCurrency");
     expect(customColumn).toContain('id="options.currency"');
     expect(currencyAutocomplete).toContain("items={CURRENCIES}");

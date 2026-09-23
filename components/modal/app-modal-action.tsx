@@ -18,6 +18,7 @@ export type AppModalActionVariant = "neutral" | "destructive";
 
 type SharedActionProps = {
   id: string;
+  anchorId?: string;
   icon: LucideIcon;
   label: string;
   tooltip?: ReactNode;
@@ -70,6 +71,7 @@ export function AppModalAction(props: AppModalActionProps) {
         data-slot="app-modal-action"
         data-variant={variant}
         href={props.href}
+        id={props.anchorId}
         rel="noopener noreferrer"
         target="_blank"
       >
@@ -84,6 +86,7 @@ export function AppModalAction(props: AppModalActionProps) {
         data-slot="app-modal-action"
         data-variant={variant}
         href={props.href}
+        id={props.anchorId}
       >
         {content}
       </IntlLink>
@@ -98,6 +101,7 @@ export function AppModalAction(props: AppModalActionProps) {
       data-slot="app-modal-action"
       data-variant={variant}
       disabled={props.disabled || isBusy}
+      id={props.anchorId}
       type="button"
       onClick={() => runUserAction(props.onClick)}
     >

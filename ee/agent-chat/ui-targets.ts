@@ -3,13 +3,17 @@ import { z } from "zod";
 import { WORKSPACE_SECTIONS } from "@/app/components/navigation/workspace-sections";
 
 import {
+  CONTROL_PAGES,
+  FORM_PAGES,
   PRIMARY_NAV_PAGES,
   SCOPES_WITHOUT_FILTER,
+  SCOPES_WITHOUT_SEARCH,
   STATIC_NAV_PAGES,
   TOOLBAR_PAGES_WITH_ADD,
   TOOLBAR_PAGES_WITHOUT_ADD,
   WORKSPACE_NAV_GROUPS,
   type AnchorPage,
+  type ControlPage,
   TRANSFERABLE_SCOPES,
 } from "./ui-anchors";
 
@@ -65,11 +69,15 @@ function toolbarTargets(page: AnchorPage, hasAdd: boolean): AgentUiTarget[] {
           },
         ]
       : []),
-    {
-      id: `${page.scope}-search`,
-      route: page.route,
-      description: `Search input over ${page.label}`,
-    },
+    ...(SCOPES_WITHOUT_SEARCH.has(page.scope)
+      ? []
+      : [
+          {
+            id: `${page.scope}-search`,
+            route: page.route,
+            description: `Search input over ${page.label}`,
+          },
+        ]),
     ...(TRANSFERABLE_SCOPES.has(page.scope)
       ? [
           {
@@ -102,6 +110,36 @@ function toolbarTargets(page: AnchorPage, hasAdd: boolean): AgentUiTarget[] {
   ];
 }
 
+function prerequisiteOf(opener: string | undefined) {
+  return opener ? { prerequisite: opener } : {};
+}
+
+function formTargets(page: AnchorPage): AgentUiTarget[] {
+  return [
+    {
+      id: `${page.scope}-save`,
+      route: page.route,
+      description: `Save button of the ${page.label}; ${page.hiddenUntilDirty ? "shown" : "enabled"} once something changed`,
+      ...prerequisiteOf(page.opener),
+    },
+    {
+      id: `${page.scope}-reset`,
+      route: page.route,
+      description: `Reset button that discards unsaved changes in the ${page.label}; shown once something changed`,
+      ...prerequisiteOf(page.resetOpener ?? page.opener),
+    },
+  ];
+}
+
+function controlTargets(page: ControlPage): AgentUiTarget[] {
+  return page.controls.map((control) => ({
+    id: `${page.scope}-${control.control}`,
+    route: page.route,
+    description: control.description,
+    ...prerequisiteOf(control.prerequisite),
+  }));
+}
+
 export const AGENT_UI_TARGETS: AgentUiTarget[] = [
   ...navTargets(),
   {
@@ -116,6 +154,8 @@ export const AGENT_UI_TARGETS: AgentUiTarget[] = [
   },
   ...TOOLBAR_PAGES_WITH_ADD.flatMap((page) => toolbarTargets(page, true)),
   ...TOOLBAR_PAGES_WITHOUT_ADD.flatMap((page) => toolbarTargets(page, false)),
+  ...FORM_PAGES.flatMap(formTargets),
+  ...CONTROL_PAGES.flatMap(controlTargets),
 ];
 
 export const AGENT_UI_TARGET_IDS = AGENT_UI_TARGETS.map((target) => target.id) as [string, ...string[]];

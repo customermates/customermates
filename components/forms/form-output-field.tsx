@@ -13,6 +13,7 @@ import { FormOutput } from "./form-output";
 import { FormControlRow } from "./form-control-row";
 
 type Props = {
+  id?: string;
   label: string;
   children: ReactNode;
   help?: ReactNode;
@@ -24,6 +25,7 @@ type Props = {
 };
 
 export function FormOutputField({
+  id,
   label,
   children,
   help,
@@ -38,7 +40,7 @@ export function FormOutputField({
   const descriptionId = useId();
 
   return (
-    <div data-form-output-field className={cn("space-y-1.5", className)}>
+    <div data-form-output-field className={cn("space-y-1.5", className)} id={id}>
       <div className="flex items-center gap-1.5">
         <FormLabel id={labelId}>{label}</FormLabel>
 

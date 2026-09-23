@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { RootStore } from "@/core/stores/root.store";
 
@@ -51,5 +51,38 @@ describe("AgentUiControlStore.navigate", () => {
 
     expect(navigate).toHaveBeenCalledTimes(AGENT_RECORD_ENTITIES.length);
     for (const [path] of navigate.mock.calls) expect(String(path)).not.toContain("?open=");
+  });
+});
+
+describe("AgentUiControlStore.highlight", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function onPage(pathname: string) {
+    vi.stubGlobal("window", { location: { pathname } });
+    vi.stubGlobal("document", { getElementById: () => null });
+  }
+
+  it("names what the user must open when a target of the current page is not rendered", () => {
+    onPage("/de/company/members");
+
+    expect(controlStore().highlight("member-modal-role")).toEqual({
+      ok: false,
+      result:
+        "Target member-modal-role belongs to this page but is not rendered right now. It may be inside a dialog, tab or menu the user must open first (a member row), or hidden by role, plan or state.",
+    });
+    expect(controlStore().highlight("company-members-search").result).toBe(
+      "Target company-members-search belongs to this page but is not rendered right now. It may be inside a dialog, tab or menu the user must open first, or hidden by role, plan or state.",
+    );
+  });
+
+  it("asks to navigate first when the target belongs to another page", () => {
+    onPage("/company/members");
+
+    expect(controlStore().highlight("webhook-modal-url")).toEqual({
+      ok: false,
+      result: "Target webhook-modal-url is not on the current page. Navigate first.",
+    });
   });
 });

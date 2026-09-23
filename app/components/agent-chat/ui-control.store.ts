@@ -5,7 +5,8 @@ import type { RootStore } from "@/core/stores/root.store";
 import { BaseStore } from "@/core/base/base.store";
 import { ENTITY_URL_SEGMENT } from "@/components/entity-detail/entity-relations";
 import { EntityType } from "@/generated/prisma";
-import { findAgentNavigationTarget } from "@/ee/agent-chat/ui-targets";
+import { findAgentNavigationTarget, findAgentUiTarget } from "@/ee/agent-chat/ui-targets";
+import { stripLocalePrefix } from "@/i18n/locale-registry";
 import { NavigateRecordTargetSchema } from "@/ee/agent-chat/ui-operations";
 import { agentGuidedTour, type AgentGuidedTourStep, type AgentTourStepData } from "@/ee/agent-chat/agent-tours";
 import {
@@ -35,6 +36,21 @@ function resolveAgentNavigationRoute(input: Record<string, unknown>): { path: st
 
 function describeNavigationInput(input: Record<string, unknown>) {
   return input.targetId !== undefined ? String(input.targetId) : `${String(input.entity)}:${String(input.recordId)}`;
+}
+
+function currentAppPathname() {
+  if (typeof window === "undefined") return null;
+  const pathname = stripLocalePrefix(window.location.pathname);
+  return pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+}
+
+function missingTargetMessage(targetId: string) {
+  const target = findAgentUiTarget(targetId);
+  const pathname = currentAppPathname();
+  if (!target || pathname === null || (target.route !== "*" && target.route !== pathname))
+    return `Target ${targetId} is not on the current page. Navigate first.`;
+  const opener = target.prerequisite ? ` (${target.prerequisite})` : "";
+  return `Target ${targetId} belongs to this page but is not rendered right now. It may be inside a dialog, tab or menu the user must open first${opener}, or hidden by role, plan or state.`;
 }
 
 export function findAgentTargetElement(targetId: string) {
@@ -104,7 +120,7 @@ export class AgentUiControlStore extends BaseStore {
     if (!element) {
       return {
         ok: false,
-        result: `Target ${targetId} is not on the current page. Navigate first.`,
+        result: missingTargetMessage(targetId),
       };
     }
 

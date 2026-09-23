@@ -28,6 +28,7 @@ type Identifiable = { id: string } | { key: string } | { value: string };
 
 type Props<T extends Identifiable> = {
   id: string;
+  inputId?: string;
   label?: string | null;
   labelEndAddon?: ReactNode;
   controlStartAddon?: ReactNode;
@@ -70,6 +71,7 @@ function textOf(rendered: ReactElement<{ textValue?: string; children?: ReactNod
 export const FormAutocomplete = observer(
   <T extends Identifiable>({
     id,
+    inputId,
     label,
     labelEndAddon,
     controlStartAddon,
@@ -120,6 +122,7 @@ export const FormAutocomplete = observer(
     const isReadOnly = !isDisabled && (Boolean(readOnly) || Boolean(store?.isReadOnly));
     const canEdit = !isReadOnly && !isDisabled;
     const labelId = `${id}-label`;
+    const domId = inputId ?? id;
 
     const itemsArray: T[] = useMemo(() => Array.from(items ?? []), [items]);
     const popoverOpen = canEdit && open;
@@ -384,7 +387,7 @@ export const FormAutocomplete = observer(
       <div className={cn("space-y-1.5", containerClassName)}>
         {resolvedLabel && (
           <div className="flex items-center gap-1.5">
-            <FormLabel htmlFor={isReadOnly ? undefined : id} id={labelId}>
+            <FormLabel htmlFor={isReadOnly ? undefined : domId} id={labelId}>
               {resolvedLabel}
 
               {required ? <span className="text-destructive"> *</span> : null}
@@ -403,7 +406,7 @@ export const FormAutocomplete = observer(
                 aria-labelledby={resolvedLabel ? labelId : undefined}
                 data-field-state="read-only"
                 data-invalid={hasError || undefined}
-                id={id}
+                id={domId}
                 role="group"
                 tabIndex={hasReadOnlyChipActions ? undefined : 0}
               >
@@ -419,7 +422,7 @@ export const FormAutocomplete = observer(
                   aria-invalid={hasError}
                   className={fieldClassName}
                   disabled={isDisabled}
-                  id={id}
+                  id={domId}
                   role="combobox"
                   type="button"
                   variant="field"

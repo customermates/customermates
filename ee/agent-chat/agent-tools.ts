@@ -217,7 +217,8 @@ function listUiTargets(input: z.infer<typeof ListUiTargetsSchema>, resultMaxChar
     );
   }
   const cursor = Math.min(input.cursor ?? 0, targets.length);
-  const header = "actions n=navigate,h=highlight; >target is a prerequisite the user must open\n";
+  const header =
+    "actions n=navigate,h=highlight; >X is what the user must open first: a target id or a named row or card\n";
 
   const lines: string[] = [];
   let nextCursor = cursor;
@@ -275,7 +276,7 @@ function uiTools(deps: AgentToolDeps): ToolSet {
   return {
     list_ui_targets: tool({
       description:
-        "List exact stable interface target ids before using an interface tool. Make one focused query with the workflow or page phrase and reuse every relevant id it returns instead of querying ids one by one. Results use action codes n=navigate and h=highlight; >target names a prerequisite the user must open. Continue only when nextCursor is present.",
+        "List exact stable interface target ids before using an interface tool. Make one focused query with the workflow or page phrase and reuse every relevant id it returns instead of querying ids one by one. Results use action codes n=navigate and h=highlight; >X is what the user must open first: a target id or a named row or card. Continue only when nextCursor is present.",
       inputSchema: providerSafeSchema(ListUiTargetsSchema),
       execute: (input) => listUiTargets(input, deps.resultMaxChars),
     }),

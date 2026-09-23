@@ -21,6 +21,7 @@ export const InviteByEmailForm = observer(() => {
       <FormInputChips
         arrayMode
         id="emails"
+        inputId="invite-modal-emails"
         placeholder={form.emails.length === 0 ? t("OnboardingWizard.invite.emailPlaceholder") : ""}
       />
 
@@ -32,7 +33,7 @@ export const InviteByEmailForm = observer(() => {
       </p>
 
       <div className="flex justify-end">
-        <Button disabled={isLoading} size="sm" type="submit">
+        <Button disabled={isLoading} id="invite-modal-send" size="sm" type="submit">
           {isLoading && <Loader2 className="size-4 animate-spin" />}
 
           {t("OnboardingWizard.invite.send")}

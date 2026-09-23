@@ -35,7 +35,7 @@ export const PlanPicker = observer(function PlanPicker({ isLoading, onSelect }: 
   }
 
   return (
-    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-3">
+    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-3" id="company-subscription-plan-picker">
       {PURCHASABLE_PLAN_IDS.map((plan) => {
         const featured = plan === "business";
         const offer = PLAN_CATALOG[plan].offers.monthly;

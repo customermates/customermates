@@ -25,6 +25,7 @@ export type FormSelectItem = {
 
 type Props = {
   id: string;
+  inputId?: string;
   label?: string | null;
   description?: ReactNode;
   placeholder?: string;
@@ -43,6 +44,7 @@ type Props = {
 export const FormSelect = observer(
   ({
     id,
+    inputId,
     label,
     description,
     placeholder,
@@ -67,12 +69,13 @@ export const FormSelect = observer(
     const isDisabled = Boolean(disabled) || Boolean(store?.isLoading);
     const isReadOnly = !isDisabled && ((store?.isReadOnly ?? false) || Boolean(readOnly));
     const hasUnresolvedValue = value !== "" && selectedItem === undefined;
+    const domId = inputId ?? id;
 
     return (
       <div className={cn("flex flex-col gap-1.5", containerClassName)}>
         {resolvedLabel && (
           <div className="flex items-center gap-1.5">
-            <FormLabel htmlFor={id}>
+            <FormLabel htmlFor={domId}>
               {resolvedLabel}
 
               {required ? <span className="text-destructive"> *</span> : null}
@@ -95,7 +98,7 @@ export const FormSelect = observer(
             aria-invalid={hasError}
             aria-readonly={isReadOnly || undefined}
             className={cn("w-full", className, isReadOnly && "[&>svg:last-child]:hidden")}
-            id={id}
+            id={domId}
           >
             <SelectValue placeholder={placeholder ?? " "}>
               {optionsLoading && !selectedItem ? (

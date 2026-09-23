@@ -29,7 +29,12 @@ export const SubscribeManageButton = observer(() => {
   if (!subscription?.hasBillingPortal) return null;
 
   return (
-    <Button className="h-8" size="sm" onClick={() => runUserAction(() => subscriptionStore.handleManageBilling())}>
+    <Button
+      className="h-8"
+      id="company-subscription-manage"
+      size="sm"
+      onClick={() => runUserAction(() => subscriptionStore.handleManageBilling())}
+    >
       {icon}
 
       <span className="hidden sm:inline">{t("Subscription.manageWithLemonSqueezy")}</span>
