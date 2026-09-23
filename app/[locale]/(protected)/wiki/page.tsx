@@ -5,6 +5,8 @@ import { PageContainer } from "@/components/shared/page-container";
 import { getGetWikiHomepageSetupStateInteractor, getGetWikiPageInteractor, getGetWikiPagesInteractor } from "@/core/di";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 import { requireAccess } from "@/features/auth/next/require";
+import { getOptionalP13n } from "@/features/p13n/next/get-optional-p13n";
+import { WIKI_LAYOUT_P13N_ID } from "@/features/wiki/wiki-layout";
 
 import { WikiPageView } from "./components/wiki-page-view";
 
@@ -21,9 +23,10 @@ export default async function WikiPage({ searchParams }: Props) {
 
   const raw = await searchParams;
   const listPage = Math.max(1, Number.parseInt(firstString(raw.listPage) ?? "1", 10) || 1);
-  const [initialPages, setupState] = await Promise.all([
+  const [initialPages, setupState, layout] = await Promise.all([
     unwrapValidated(getGetWikiPagesInteractor().invoke({ page: listPage, pageSize: 25 })),
     unwrapValidated(getGetWikiHomepageSetupStateInteractor().invoke()),
+    getOptionalP13n(WIKI_LAYOUT_P13N_ID),
   ]);
   const pages =
     initialPages.total > 0 && initialPages.items.length === 0
@@ -44,6 +47,7 @@ export default async function WikiPage({ searchParams }: Props) {
       <WikiPageView
         initialPage={selectedPage}
         initialSetupState={setupState}
+        layoutInitial={layout?.columnWidths}
         listPage={pages}
         pinnedPage={pinnedPage}
         readOnly={env.APP_MODE === "demo"}

@@ -3181,6 +3181,10 @@
     "resetPasswordCta": "Reset",
     "title": "Reset your password"
   },
+  "ResizablePanels": {
+    "hint": "Drag to resize. Double-click to reset.",
+    "resize": "Resize {before} and {after}. Drag or use arrow keys to resize; double-tap or press Enter to reset."
+  },
   "RoleModal": {
     "manageAccess": "Manage",
     "no": "No",
@@ -3608,6 +3612,7 @@
     "conflict": "This page has changed. Your edits are still here. Reload to use the latest version.",
     "copyLink": "Copy page link",
     "delete": "Delete page",
+    "document": "Document",
     "emptyBody": "Keep your processes, company knowledge, and writing guidelines here. Start a page or let Mate read your homepage.",
     "emptyBodyManual": "Create your first Wiki page.",
     "emptyBodyReadOnly": "No Wiki pages have been created yet.",

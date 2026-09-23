@@ -3181,6 +3181,10 @@
     "resetPasswordCta": "Reimposta",
     "title": "Reimposta la tua password"
   },
+  "ResizablePanels": {
+    "hint": "Trascina per ridimensionare. Fai doppio clic per ripristinare.",
+    "resize": "Ridimensiona {before} e {after}. Trascina o usa i tasti freccia; tocca due volte o premi Invio per ripristinare."
+  },
   "RoleModal": {
     "manageAccess": "Gestione",
     "no": "No",
@@ -3608,6 +3612,7 @@
     "conflict": "Questa pagina è cambiata. Le tue modifiche sono ancora qui. Ricarica per usare l’ultima versione.",
     "copyLink": "Copia link della pagina",
     "delete": "Elimina pagina",
+    "document": "Documento",
     "emptyBody": "Raccogli qui processi, conoscenze aziendali e linee guida di scrittura. Crea una pagina oppure lascia che Mate legga il tuo sito web.",
     "emptyBodyManual": "Crea la tua prima pagina wiki.",
     "emptyBodyReadOnly": "Non è stata ancora creata alcuna pagina wiki.",

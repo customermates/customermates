@@ -13,8 +13,16 @@ import { WikiPageOutline, wikiDocumentHeadings } from "../wiki-page-outline";
 const document = {
   type: "doc",
   content: [
-    { type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: "Overview" }] },
-    { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Products" }] },
+    {
+      type: "heading",
+      attrs: { level: 1 },
+      content: [{ type: "text", text: "Overview" }],
+    },
+    {
+      type: "heading",
+      attrs: { level: 2 },
+      content: [{ type: "text", text: "Products" }],
+    },
     { type: "heading", attrs: { level: 2 }, content: [] },
     {
       type: "heading",
@@ -93,7 +101,13 @@ describe("Wiki page outline", () => {
         containerRef: { current: null },
         document: {
           type: "doc",
-          content: [{ type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: "Only" }] }],
+          content: [
+            {
+              type: "heading",
+              attrs: { level: 1 },
+              content: [{ type: "text", text: "Only" }],
+            },
+          ],
         },
       }),
     );
@@ -101,7 +115,7 @@ describe("Wiki page outline", () => {
     expect(html).toBe("");
   });
 
-  it("renders a 2xl-only hierarchy and scrolls the matching rendered heading smoothly", async () => {
+  it("renders a document-container-aware hierarchy and scrolls the matching rendered heading smoothly", async () => {
     vi.stubGlobal(
       "matchMedia",
       vi.fn(() => ({ matches: false })),
@@ -112,7 +126,7 @@ describe("Wiki page outline", () => {
     const headings = container.querySelectorAll<HTMLElement>(".tiptap h1, .tiptap h2, .tiptap h3");
 
     expect(outline?.className).toContain("hidden");
-    expect(outline?.className).toContain("2xl:block");
+    expect(outline?.className).toContain("@6xl/wiki:block");
     expect(buttons.map((button) => button.textContent)).toEqual(["Overview", "Products", "Support process"]);
     expect(buttons[0]?.className).not.toContain("pl-3");
     expect(buttons[1]?.className).toContain("pl-3");
@@ -121,7 +135,10 @@ describe("Wiki page outline", () => {
     const scrollIntoView = vi.fn();
     if (headings[3]) headings[3].scrollIntoView = scrollIntoView;
     act(() => buttons[2]?.click());
-    expect(scrollIntoView).toHaveBeenCalledExactlyOnceWith({ behavior: "smooth", block: "start" });
+    expect(scrollIntoView).toHaveBeenCalledExactlyOnceWith({
+      behavior: "smooth",
+      block: "start",
+    });
   });
 
   it("disables smooth scrolling when reduced motion is preferred", async () => {
@@ -135,6 +152,9 @@ describe("Wiki page outline", () => {
     const scrollIntoView = vi.fn();
     if (firstHeading) firstHeading.scrollIntoView = scrollIntoView;
     act(() => container.querySelector<HTMLButtonElement>("nav button")?.click());
-    expect(scrollIntoView).toHaveBeenCalledExactlyOnceWith({ behavior: "auto", block: "start" });
+    expect(scrollIntoView).toHaveBeenCalledExactlyOnceWith({
+      behavior: "auto",
+      block: "start",
+    });
   });
 });

@@ -66,13 +66,16 @@ export function WikiPageOutline({ containerRef, document }: Props) {
       typeof window !== "undefined" &&
       typeof window.matchMedia === "function" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    heading.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    heading.scrollIntoView({
+      behavior: reduceMotion ? "auto" : "smooth",
+      block: "start",
+    });
   };
 
   return (
     <nav
       aria-label={t("Wiki.onThisPage")}
-      className="sticky top-8 hidden max-h-[calc(100dvh-4rem)] self-start overflow-y-auto border-l border-border pl-4 2xl:block"
+      className="sticky top-8 hidden max-h-[calc(100dvh-4rem)] self-start overflow-y-auto border-l border-border pl-4 @6xl/wiki:block"
     >
       <p className="mb-2 text-xs font-medium text-foreground">{t("Wiki.onThisPage")}</p>
 

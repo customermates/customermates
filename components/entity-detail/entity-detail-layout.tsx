@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import type { ResizablePanelDefinition } from "@/components/shared/resizable-panels";
 import type { BaseFormStore } from "@/core/base/base-form.store";
 import type {
   BaseCustomColumnEntityModalStore,
@@ -26,6 +27,9 @@ import { cn } from "@/core/utils/cn";
 import { PageState } from "@/components/page-state/page-state";
 import { useEntityDrawerStack } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import { ResizablePanelGroup } from "@/components/shared/resizable-panels";
+import { useP13nColumnWidths } from "@/components/shared/use-p13n-column-widths";
+import { mergeStoredPanelSizes, readStoredPanelSizes } from "@/components/shared/resizable-panels.utils";
 
 import { EntityNotesPanel } from "./entity-notes-panel";
 import { EntityDetailPageSkeleton } from "./entity-detail-page-skeleton";
@@ -52,6 +56,11 @@ type Props<Form extends FormEntityDto, Dto extends EntityDto> = {
   fallbackTitle: string;
   canDelete?: boolean;
   historyPanel: ReactNode;
+  panelLayout?: {
+    initial?: Record<string, number>;
+    p13nId?: string;
+    persistenceScope: string;
+  };
   summary?: ReactNode;
   showNotesPanel?: boolean;
   serverSnapshotApplied?: boolean;
@@ -71,6 +80,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   fallbackTitle,
   canDelete = true,
   historyPanel,
+  panelLayout,
   summary,
   showNotesPanel = true,
   serverSnapshotApplied = true,
@@ -124,6 +134,24 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   const showEditFieldsAction = !canPersonalize && canManage && !isEditingCustomField;
   const showEditFieldsActiveActions = canManage && isEditingCustomField;
   const hasSummary = Boolean(summary) && (!canPersonalize || starredFieldIds.length > 0);
+  const showActivityPanel = hasMounted && canSeeHistory;
+  const panelIds = useMemo(
+    () => ["details", ...(showNotesPanel ? ["notes"] : []), ...(showActivityPanel ? ["activities"] : [])],
+    [showActivityPanel, showNotesPanel],
+  );
+  const panelLayoutId = panelIds.join("-");
+  const { columnWidths, commitColumnWidths } = useP13nColumnWidths({
+    initial: panelLayout?.initial,
+    p13nId: panelLayout?.p13nId,
+    persistenceScope: panelLayout?.persistenceScope ?? "anonymous",
+  });
+  const initialPanelSizes = readStoredPanelSizes(columnWidths, panelLayoutId, panelIds);
+  const savePanelSizes = useCallback(
+    (sizes: readonly number[] | null) => {
+      commitColumnWidths((current) => mergeStoredPanelSizes(current, panelLayoutId, panelIds, sizes));
+    },
+    [commitColumnWidths, panelIds, panelLayoutId],
+  );
 
   useEffect(() => {
     const key = `${ENTITY_URL_SEGMENT[entityType]}:${entityId}`;
@@ -345,6 +373,93 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
     }
   }
 
+  const threePanels = showNotesPanel && showActivityPanel;
+  const detailsAndNotes = showNotesPanel && !showActivityPanel;
+  const detailsAndActivities = !showNotesPanel && showActivityPanel;
+  const defaultPanelTemplate = threePanels
+    ? "minmax(0, 3fr) 1px minmax(0, 2fr) 1px 360px"
+    : detailsAndNotes
+      ? "minmax(0, 2fr) 1px minmax(0, 1fr)"
+      : detailsAndActivities
+        ? "minmax(0, 1fr) 1px 360px"
+        : "minmax(0, 1fr)";
+  const panelDefinitions: ResizablePanelDefinition[] = [
+    {
+      id: "details",
+      label: t("EntityDetail.overview"),
+      controlId: `${formId}-details-panel`,
+      minimumSize: 320,
+      defaultSize: threePanels ? 600 : 640,
+      element: (
+        <div
+          aria-labelledby={`${formId}-details-tab`}
+          className={cn(
+            "flex flex-col bg-background",
+            selectedPanel !== "details" && "hidden",
+            "@6xl/detail:flex @6xl/detail:min-h-0 @6xl/detail:overflow-x-hidden @6xl/detail:overflow-y-auto",
+          )}
+          data-detail-panel="details"
+          id={`${formId}-details-panel`}
+          role="tabpanel"
+        >
+          <div className="p-4 @6xl/detail:flex-1 @6xl/detail:min-h-0">{masterData}</div>
+        </div>
+      ),
+    },
+    ...(showNotesPanel
+      ? [
+          {
+            id: "notes",
+            label: t("EntityDetail.sections.notes"),
+            controlId: `${formId}-notes-panel`,
+            minimumSize: 280,
+            defaultSize: threePanels ? 400 : 320,
+            element: (
+              <div
+                aria-labelledby={`${formId}-notes-tab`}
+                className={cn(
+                  "min-h-[28rem] flex-col bg-background",
+                  selectedPanel === "notes" ? "flex" : "hidden",
+                  "@6xl/detail:flex @6xl/detail:min-h-0 @6xl/detail:overflow-hidden",
+                )}
+                data-detail-panel="notes"
+                id={`${formId}-notes-panel`}
+                role="tabpanel"
+              >
+                <EntityNotesPanel key={entityId} store={store} />
+              </div>
+            ),
+          },
+        ]
+      : []),
+    ...(showActivityPanel
+      ? [
+          {
+            id: "activities",
+            label: t("EntityTimeline.types.activities"),
+            controlId: `${formId}-activities-panel`,
+            minimumSize: 320,
+            defaultSize: 360,
+            element: (
+              <div
+                aria-labelledby={`${formId}-activities-tab`}
+                className={cn(
+                  "min-h-[28rem] flex-col bg-background",
+                  selectedPanel === "activities" ? "flex" : "hidden",
+                  "@6xl/detail:flex @6xl/detail:min-h-0 @6xl/detail:overflow-hidden",
+                )}
+                data-detail-panel="activities"
+                id={`${formId}-activities-panel`}
+                role="tabpanel"
+              >
+                {historyPanel}
+              </div>
+            ),
+          },
+        ]
+      : []),
+  ];
+
   return (
     <AppForm id={formId} store={store as unknown as BaseFormStore}>
       <div className="@container/detail flex min-h-0 w-full flex-1 flex-col">
@@ -397,62 +512,15 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
             </div>
           )}
 
-          <div
+          <ResizablePanelGroup
             data-detail-grid
-            className={cn(
-              "grid grid-cols-1 gap-px bg-border contain-[layout]",
-              "@6xl/detail:flex-1 @6xl/detail:min-h-0",
-              showNotesPanel && canSeeHistory && "@6xl/detail:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_360px]",
-              showNotesPanel && !canSeeHistory && "@6xl/detail:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]",
-              !showNotesPanel && canSeeHistory && "@6xl/detail:grid-cols-[minmax(0,1fr)_360px]",
-            )}
-          >
-            <div
-              aria-labelledby={`${formId}-details-tab`}
-              className={cn(
-                "flex flex-col bg-background",
-                selectedPanel !== "details" && "hidden",
-                "@6xl/detail:flex @6xl/detail:min-h-0 @6xl/detail:overflow-x-hidden @6xl/detail:overflow-y-auto",
-              )}
-              data-detail-panel="details"
-              id={`${formId}-details-panel`}
-              role="tabpanel"
-            >
-              <div className="p-4 @6xl/detail:flex-1 @6xl/detail:min-h-0">{masterData}</div>
-            </div>
-
-            {showNotesPanel && (
-              <div
-                aria-labelledby={`${formId}-notes-tab`}
-                className={cn(
-                  "min-h-[28rem] flex-col bg-background",
-                  selectedPanel === "notes" ? "flex" : "hidden",
-                  "@6xl/detail:flex @6xl/detail:min-h-0 @6xl/detail:overflow-hidden",
-                )}
-                data-detail-panel="notes"
-                id={`${formId}-notes-panel`}
-                role="tabpanel"
-              >
-                <EntityNotesPanel key={entityId} store={store} />
-              </div>
-            )}
-
-            {hasMounted && canSeeHistory && (
-              <div
-                aria-labelledby={`${formId}-activities-tab`}
-                className={cn(
-                  "min-h-[28rem] flex-col bg-background",
-                  selectedPanel === "activities" ? "flex" : "hidden",
-                  "@6xl/detail:flex @6xl/detail:min-h-0 @6xl/detail:overflow-hidden",
-                )}
-                data-detail-panel="activities"
-                id={`${formId}-activities-panel`}
-                role="tabpanel"
-              >
-                {historyPanel}
-              </div>
-            )}
-          </div>
+            className="grid grid-cols-1 contain-[layout] @6xl/detail:flex-1 @6xl/detail:min-h-0 @6xl/detail:grid-cols-[var(--panel-grid-template)]"
+            defaultTemplate={defaultPanelTemplate}
+            handleClassName="hidden @6xl/detail:flex"
+            initialSizes={initialPanelSizes}
+            panels={panelDefinitions}
+            onSizesCommit={savePanelSizes}
+          />
         </div>
       </div>
     </AppForm>

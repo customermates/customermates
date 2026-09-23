@@ -2,6 +2,7 @@ import { z } from "zod";
 import { Action, Resource } from "@/generated/prisma";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import type { Data, Validated } from "@/core/validation/validation.utils";
@@ -36,6 +37,7 @@ export abstract class GetWikiHomepageSetupStateRepo {
   }>;
 }
 
+@AllowInDemoMode
 @TenantInteractor({ resource: Resource.wiki, action: Action.readAll })
 export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor<undefined, WikiHomepageSetupState> {
   constructor(private repo: GetWikiHomepageSetupStateRepo) {

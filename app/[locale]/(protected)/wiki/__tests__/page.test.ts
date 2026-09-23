@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   appMode: "cloud" as "cloud" | "demo",
   getPage: vi.fn(),
+  getP13n: vi.fn(),
   getSetupState: vi.fn(),
   listPages: vi.fn(),
   requireAccess: vi.fn(),
@@ -10,11 +11,16 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("@/core/di", () => ({
   getGetWikiPageInteractor: () => ({ invoke: mocks.getPage }),
-  getGetWikiHomepageSetupStateInteractor: () => ({ invoke: mocks.getSetupState }),
+  getGetWikiHomepageSetupStateInteractor: () => ({
+    invoke: mocks.getSetupState,
+  }),
   getGetWikiPagesInteractor: () => ({ invoke: mocks.listPages }),
 }));
 vi.mock("@/features/auth/next/require", () => ({
   requireAccess: mocks.requireAccess,
+}));
+vi.mock("@/features/p13n/next/get-optional-p13n", () => ({
+  getOptionalP13n: mocks.getP13n,
 }));
 vi.mock("@/env", () => ({
   env: {
@@ -46,9 +52,16 @@ beforeEach(() => {
   vi.clearAllMocks();
   mocks.appMode = "cloud";
   mocks.requireAccess.mockResolvedValue(undefined);
+  mocks.getP13n.mockResolvedValue(null);
   mocks.getSetupState.mockResolvedValue({
     ok: true,
-    data: { status: "idle", homepage: null, domain: null, conversationId: null, pages: [] },
+    data: {
+      status: "idle",
+      homepage: null,
+      domain: null,
+      conversationId: null,
+      pages: [],
+    },
   });
 });
 
@@ -78,6 +91,24 @@ describe("WikiPage", () => {
     expect(result.props.children.props.listPage.items).toHaveLength(25);
     expect(result.props.children.props.pinnedPage).toBeNull();
     expect(result.props.children.props.readOnly).toBe(false);
+    expect(mocks.getP13n).toHaveBeenCalledExactlyOnceWith("wiki-layout");
+  });
+
+  it("hydrates the user's persisted Wiki panel layout", async () => {
+    const columnWidths = {
+      "panel:pages-document:pages": 280,
+      "panel:pages-document:document": 720,
+    };
+    mocks.listPages.mockResolvedValue({
+      ok: true,
+      data: { items: [summary], total: 1, page: 1, pageSize: 25 },
+    });
+    mocks.getPage.mockResolvedValue({ ok: true, data: page });
+    mocks.getP13n.mockResolvedValue({ p13nId: "wiki-layout", columnWidths });
+
+    const result = await WikiPage({ searchParams: Promise.resolve({}) });
+
+    expect(result.props.children.props.layoutInitial).toEqual(columnWidths);
   });
 
   it("marks the Wiki read-only in demo mode", async () => {

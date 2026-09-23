@@ -1,6 +1,7 @@
 "use client";
 
 import type { WikiPageListResult, WikiPageDto, WikiPageSummary } from "@/features/wiki/wiki.schema";
+import type { ResizablePanelDefinition } from "@/components/shared/resizable-panels";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
 import { observer } from "mobx-react-lite";
@@ -23,6 +24,10 @@ import { cn } from "@/core/utils/cn";
 import { EMPTY_WIKI_HOMEPAGE_SETUP_STATE, WikiHomepageSetup } from "@/components/wiki/wiki-homepage-setup";
 import { wikiPagePath } from "@/features/wiki/wiki-links";
 import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
+import { ResizablePanelGroup } from "@/components/shared/resizable-panels";
+import { useP13nColumnWidths } from "@/components/shared/use-p13n-column-widths";
+import { mergeStoredPanelSizes, readStoredPanelSizes } from "@/components/shared/resizable-panels.utils";
+import { WIKI_LAYOUT_P13N_ID, WIKI_PANEL_LAYOUT_ID } from "@/features/wiki/wiki-layout";
 
 import { WikiPageStore } from "./wiki-page.store";
 import { WikiPageActions } from "./wiki-page-actions";
@@ -31,9 +36,12 @@ import { WikiPageSkeleton } from "./wiki-page-skeleton";
 import { WikiLinkPicker } from "./wiki-link-picker";
 import { useWikiPages } from "./use-wiki-pages";
 
+const WIKI_PANEL_IDS = ["pages", "document"] as const;
+
 type Props = {
   initialPage: WikiPageDto | null;
   initialSetupState?: WikiHomepageSetupState;
+  layoutInitial?: Record<string, number>;
   listPage: WikiPageListResult;
   pinnedPage?: WikiPageSummary | null;
   readOnly?: boolean;
@@ -43,6 +51,7 @@ type Props = {
 const WikiPageViewComponent = ({
   initialPage,
   initialSetupState = EMPTY_WIKI_HOMEPAGE_SETUP_STATE,
+  layoutInitial,
   listPage,
   pinnedPage = null,
   readOnly = false,
@@ -68,6 +77,12 @@ const WikiPageViewComponent = ({
   const titleContainer = useRef<HTMLDivElement>(null);
   const documentContainer = useRef<HTMLDivElement>(null);
   const pages = useWikiPages(listPage);
+  const { columnWidths, commitColumnWidths } = useP13nColumnWidths({
+    initial: layoutInitial,
+    p13nId: readOnly ? undefined : WIKI_LAYOUT_P13N_ID,
+    persistenceScope: rootStore.userStore?.user?.id ?? "anonymous",
+  });
+  const initialPanelSizes = readStoredPanelSizes(columnWidths, WIKI_PANEL_LAYOUT_ID, WIKI_PANEL_IDS, false);
   const canManage = store.canManage && !readOnly;
   const setupActive = initialSetupState.status === "working" || setupStarted;
 
@@ -104,6 +119,14 @@ const WikiPageViewComponent = ({
     });
   };
   const reload = useCallback(() => tryNavigate(() => runUserAction(store.reload)), [store, tryNavigate]);
+  const savePanelSizes = useCallback(
+    (sizes: readonly number[] | null) => {
+      commitColumnWidths((current) =>
+        mergeStoredPanelSizes(current, WIKI_PANEL_LAYOUT_ID, WIKI_PANEL_IDS, sizes, false),
+      );
+    },
+    [commitColumnWidths],
+  );
   const topBar = useMemo(
     () =>
       isNavigating ? null : (
@@ -218,126 +241,159 @@ const WikiPageViewComponent = ({
     </div>
   );
 
-  return (
-    <div className="flex min-h-0 flex-1 flex-col md:grid md:grid-cols-[15rem_minmax(0,1fr)]">
-      <aside className="hidden min-h-0 flex-col border-r border-border md:flex">{pageList}</aside>
+  const panelDefinitions: ResizablePanelDefinition[] = [
+    {
+      id: "pages",
+      label: t("Wiki.pagesLabel"),
+      controlId: "wiki-pages-panel",
+      minimumSize: 192,
+      maximumSize: 384,
+      defaultSize: 240,
+      element: (
+        <aside className="hidden min-h-0 flex-col lg:flex" id="wiki-pages-panel">
+          {pageList}
+        </aside>
+      ),
+    },
+    {
+      id: "document",
+      label: t("Wiki.document"),
+      controlId: "wiki-document-panel",
+      minimumSize: 480,
+      defaultSize: 720,
+      element: (
+        <main className="@container/wiki flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto" id="wiki-document-panel">
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+            <div className="flex min-w-0 items-center border-b border-border px-4 py-2 lg:hidden">
+              <SheetTrigger asChild>
+                <Button className="min-w-0 max-w-full justify-between gap-3 font-normal" variant="ghost">
+                  <BookOpen className="shrink-0" />
 
-      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <div className="flex min-w-0 items-center border-b border-border px-4 py-2 md:hidden">
-          <SheetTrigger asChild>
-            <Button className="min-w-0 max-w-full justify-between gap-3 font-normal" variant="ghost">
-              <BookOpen className="shrink-0" />
+                  <span className="truncate">{store.form.title || t("Wiki.pagesLabel")}</span>
 
-              <span className="truncate">{store.form.title || t("Wiki.pagesLabel")}</span>
-
-              <ChevronDown className="shrink-0" />
-            </Button>
-          </SheetTrigger>
-        </div>
-
-        <SheetContent aria-describedby={undefined} className="gap-0" side="left">
-          <SheetHeader>
-            <SheetTitle>{t("Wiki.pagesLabel")}</SheetTitle>
-          </SheetHeader>
-
-          <SheetBody className="flex min-h-0 flex-1 flex-col p-0">{pageList}</SheetBody>
-        </SheetContent>
-      </Sheet>
-
-      <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
-        {isNavigating ? (
-          <PageState background={<WikiPageSkeleton documentOnly />} label={t("PageState.loading")} state="loading" />
-        ) : missing ? (
-          <PageState description={t("Wiki.unavailableBody")} state="error" title={t("Wiki.unavailableTitle")} />
-        ) : !hasDocument ? (
-          <PageState
-            action={
-              canManage ? (
-                <div className="w-full max-w-xl space-y-4">
-                  {(canSetupWithMate || initialSetupState.status !== "idle") && (
-                    <WikiHomepageSetup
-                      canStart={canSetupWithMate}
-                      initialState={initialSetupState}
-                      onAccepted={async (conversationId) => {
-                        setSetupStarted(true);
-                        rootStore.agentChatStore.open();
-                        await rootStore.agentChatStore.loadConfig();
-                        await rootStore.agentChatStore.selectConversation(conversationId);
-                      }}
-                      onCreateBlank={setupActive ? undefined : create}
-                    />
-                  )}
-
-                  {!canSetupWithMate && !setupActive ? (
-                    <Button disabled={store.isLoading} size="sm" variant="secondary" onClick={create}>
-                      <Plus />
-
-                      {t("Wiki.newPage")}
-                    </Button>
-                  ) : null}
-                </div>
-              ) : undefined
-            }
-            background={<WikiPageSkeleton documentOnly animated={false} />}
-            description={
-              !canManage
-                ? t("Wiki.emptyBodyReadOnly")
-                : canSetupWithMate || initialSetupState.status !== "idle"
-                  ? t("Wiki.emptyBody")
-                  : t("Wiki.emptyBodyManual")
-            }
-            icon={BookOpen}
-            state="empty"
-            title={t("Wiki.emptyTitle")}
-          />
-        ) : (
-          <AppForm className="mx-auto w-full max-w-6xl flex-1 px-6 py-8 md:px-10 md:py-10" id={formId} store={store}>
-            <div className="grid items-start gap-12 2xl:grid-cols-[minmax(0,48rem)_12rem] 2xl:justify-center">
-              <div ref={documentContainer} className="mx-auto w-full max-w-3xl min-w-0 space-y-6 2xl:mx-0">
-                {store.conflict && (
-                  <div
-                    className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border p-3 text-sm"
-                    role="alert"
-                  >
-                    <p>{t("Wiki.conflict")}</p>
-
-                    <Button disabled={store.isLoading} size="sm" variant="secondary" onClick={reload}>
-                      {t("Wiki.reload")}
-                    </Button>
-                  </div>
-                )}
-
-                <div ref={titleContainer}>
-                  {canManage ? (
-                    <FormInput
-                      required
-                      aria-label={t("Wiki.pageTitle")}
-                      className="h-auto rounded-none border-0 bg-transparent px-0 py-1 text-3xl font-semibold tracking-tight shadow-none placeholder:text-muted-foreground/60 focus-visible:ring-2 md:text-3xl"
-                      id="title"
-                      label={null}
-                      maxLength={120}
-                      placeholder={t("Wiki.untitled")}
-                    />
-                  ) : (
-                    <h1 className="break-words text-3xl font-semibold tracking-tight">{store.form.title}</h1>
-                  )}
-                </div>
-
-                <EditorLinkPickerContext.Provider value={WikiLinkPicker}>
-                  <Editor
-                    data={store.editorDocument}
-                    readOnly={!canManage || store.isLoading}
-                    onChange={store.onEditorChange}
-                  />
-                </EditorLinkPickerContext.Provider>
-              </div>
-
-              <WikiPageOutline containerRef={documentContainer} document={store.editorDocument} />
+                  <ChevronDown className="shrink-0" />
+                </Button>
+              </SheetTrigger>
             </div>
-          </AppForm>
-        )}
-      </main>
-    </div>
+
+            <SheetContent aria-describedby={undefined} className="gap-0" side="left">
+              <SheetHeader>
+                <SheetTitle>{t("Wiki.pagesLabel")}</SheetTitle>
+              </SheetHeader>
+
+              <SheetBody className="flex min-h-0 flex-1 flex-col p-0">{pageList}</SheetBody>
+            </SheetContent>
+          </Sheet>
+
+          {isNavigating ? (
+            <PageState background={<WikiPageSkeleton documentOnly />} label={t("PageState.loading")} state="loading" />
+          ) : missing ? (
+            <PageState description={t("Wiki.unavailableBody")} state="error" title={t("Wiki.unavailableTitle")} />
+          ) : !hasDocument ? (
+            <PageState
+              action={
+                canManage ? (
+                  <div className="w-full max-w-xl space-y-4">
+                    {(canSetupWithMate || initialSetupState.status !== "idle") && (
+                      <WikiHomepageSetup
+                        canStart={canSetupWithMate}
+                        initialState={initialSetupState}
+                        onAccepted={async (conversationId) => {
+                          setSetupStarted(true);
+                          rootStore.agentChatStore.open();
+                          await rootStore.agentChatStore.loadConfig();
+                          await rootStore.agentChatStore.selectConversation(conversationId);
+                        }}
+                        onCreateBlank={setupActive ? undefined : create}
+                      />
+                    )}
+
+                    {!canSetupWithMate && !setupActive ? (
+                      <Button disabled={store.isLoading} size="sm" variant="secondary" onClick={create}>
+                        <Plus />
+
+                        {t("Wiki.newPage")}
+                      </Button>
+                    ) : null}
+                  </div>
+                ) : undefined
+              }
+              background={<WikiPageSkeleton documentOnly animated={false} />}
+              description={
+                !canManage
+                  ? t("Wiki.emptyBodyReadOnly")
+                  : canSetupWithMate || initialSetupState.status !== "idle"
+                    ? t("Wiki.emptyBody")
+                    : t("Wiki.emptyBodyManual")
+              }
+              icon={BookOpen}
+              state="empty"
+              title={t("Wiki.emptyTitle")}
+            />
+          ) : (
+            <AppForm id={formId} store={store}>
+              <div
+                className="mx-auto grid w-full max-w-6xl flex-1 items-start gap-12 px-6 py-8 md:px-10 md:py-10 @6xl/wiki:grid-cols-[minmax(0,48rem)_12rem] @6xl/wiki:justify-center"
+                data-wiki-document-layout=""
+              >
+                <div ref={documentContainer} className="mx-auto w-full max-w-3xl min-w-0 space-y-6 @6xl/wiki:mx-0">
+                  {store.conflict && (
+                    <div
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border p-3 text-sm"
+                      role="alert"
+                    >
+                      <p>{t("Wiki.conflict")}</p>
+
+                      <Button disabled={store.isLoading} size="sm" variant="secondary" onClick={reload}>
+                        {t("Wiki.reload")}
+                      </Button>
+                    </div>
+                  )}
+
+                  <div ref={titleContainer}>
+                    {canManage ? (
+                      <FormInput
+                        required
+                        aria-label={t("Wiki.pageTitle")}
+                        className="h-auto rounded-none border-0 bg-transparent px-0 py-1 text-3xl font-semibold tracking-tight shadow-none placeholder:text-muted-foreground/60 focus-visible:ring-2 md:text-3xl"
+                        id="title"
+                        label={null}
+                        maxLength={120}
+                        placeholder={t("Wiki.untitled")}
+                      />
+                    ) : (
+                      <h1 className="break-words text-3xl font-semibold tracking-tight">{store.form.title}</h1>
+                    )}
+                  </div>
+
+                  <EditorLinkPickerContext.Provider value={WikiLinkPicker}>
+                    <Editor
+                      data={store.editorDocument}
+                      readOnly={!canManage || store.isLoading}
+                      onChange={store.onEditorChange}
+                    />
+                  </EditorLinkPickerContext.Provider>
+                </div>
+
+                <WikiPageOutline containerRef={documentContainer} document={store.editorDocument} />
+              </div>
+            </AppForm>
+          )}
+        </main>
+      ),
+    },
+  ];
+
+  return (
+    <ResizablePanelGroup
+      className="flex min-h-0 flex-1 flex-col lg:grid lg:grid-cols-[var(--panel-grid-template)]"
+      defaultTemplate="15rem 1px minmax(30rem, 1fr)"
+      handleClassName="hidden lg:flex"
+      initialSizes={initialPanelSizes}
+      layoutMode="fixed-first"
+      panels={panelDefinitions}
+      onSizesCommit={savePanelSizes}
+    />
   );
 };
 

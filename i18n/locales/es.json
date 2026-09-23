@@ -3181,6 +3181,10 @@
     "resetPasswordCta": "Restablecer",
     "title": "Restablece tu contraseña"
   },
+  "ResizablePanels": {
+    "hint": "Arrastra para redimensionar. Haz doble clic para restablecer.",
+    "resize": "Redimensiona {before} y {after}. Arrastra o usa las flechas; toca dos veces o pulsa Intro para restablecer."
+  },
   "RoleModal": {
     "manageAccess": "Gestión",
     "no": "No",
@@ -3608,6 +3612,7 @@
     "conflict": "Esta página ha cambiado. Tus cambios siguen aquí. Recarga para usar la versión más reciente.",
     "copyLink": "Copiar enlace de la página",
     "delete": "Eliminar página",
+    "document": "Documento",
     "emptyBody": "Guarda aquí tus procesos, conocimientos de la empresa y pautas de escritura. Crea una página o deja que Mate lea tu sitio web.",
     "emptyBodyManual": "Crea tu primera página de la wiki.",
     "emptyBodyReadOnly": "Aún no se han creado páginas de la wiki.",

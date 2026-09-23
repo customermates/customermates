@@ -28,6 +28,7 @@ const harness = vi.hoisted(() => ({
   open: vi.fn(),
   loadConfig: vi.fn(),
   selectConversation: vi.fn(),
+  p13nUpsert: vi.fn(),
   tryNavigate: vi.fn((navigate: () => void) => {
     navigate();
     return true;
@@ -35,6 +36,7 @@ const harness = vi.hoisted(() => ({
 }));
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("@/app/actions", () => ({ upsertP13nAction: harness.p13nUpsert }));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => harness.rootStore,
 }));
@@ -178,6 +180,7 @@ function configure(canManage: boolean, agentChatEnabled: boolean, agentEnabled: 
       selectConversation: harness.selectConversation,
     },
     navigationGuard: { tryNavigate: harness.tryNavigate },
+    userStore: { user: { id: "user-1" } },
   };
 }
 
@@ -242,9 +245,40 @@ beforeEach(() => {
   harness.toolbarRenders = 0;
   harness.loadConfig.mockResolvedValue("ready");
   harness.selectConversation.mockResolvedValue(undefined);
+  harness.p13nUpsert.mockResolvedValue({
+    ok: true,
+    data: { p13nId: "wiki-layout", columnWidths: {} },
+  });
 });
 
 describe("Wiki document view", () => {
+  it("renders real document padding, a container-aware outline, and an accessible wide-layout divider", async () => {
+    configure(true, false);
+    harness.store.form = page;
+    const { container } = await mount(
+      createElement(WikiPageView, {
+        initialPage: page,
+        layoutInitial: {
+          "panel:pages-document:pages": 280,
+          "panel:pages-document:document": 720,
+        },
+        listPage: populatedList,
+      }),
+    );
+    const layout = container.querySelector<HTMLElement>("[data-wiki-document-layout]");
+    const group = container.querySelector<HTMLElement>("[data-resizable-panel-group]");
+    const handle = container.querySelector<HTMLButtonElement>('[role="separator"]');
+
+    expect(layout?.className.split(" ")).toEqual(expect.arrayContaining(["px-6", "py-8", "md:px-10", "md:py-10"]));
+    expect(layout?.closest("form")?.className).toBe("");
+    expect(container.querySelector("main")?.className).toContain("@container/wiki");
+    expect(container.querySelector("aside")?.className).toContain("lg:flex");
+    expect(group?.className).toContain("lg:grid-cols-[var(--panel-grid-template)]");
+    expect(group?.style.getPropertyValue("--panel-grid-template")).toContain("280px");
+    expect(handle?.getAttribute("aria-controls")).toBe("wiki-pages-panel wiki-document-panel");
+    expect(handle?.parentElement?.className).toContain("lg:flex");
+  });
+
   it("settles with the real toolbar provider and updates actions without republishing the toolbar", async () => {
     configure(true, false);
     harness.store.form = page;
@@ -310,6 +344,37 @@ describe("Wiki document view", () => {
 
     act(() => topBar.querySelector<HTMLButtonElement>('[aria-label="Common.actions.reset"]')?.click());
     expect(harness.store.resetDocument).toHaveBeenCalledOnce();
+  });
+
+  it("keeps the dirty document, conflict, and editor instance while resizing", async () => {
+    configure(true, false);
+    harness.store.form = page;
+    harness.store.hasUnsavedChanges = true;
+    harness.store.conflict = true;
+    const { container } = await mount(
+      createElement(WikiPageView, {
+        initialPage: page,
+        listPage: populatedList,
+      }),
+    );
+    const editor = container.querySelector('[data-editor-readonly="false"]');
+    const handle = container.querySelector<HTMLButtonElement>('[role="separator"]');
+
+    act(() => {
+      handle?.dispatchEvent(
+        new KeyboardEvent("keydown", {
+          bubbles: true,
+          key: "ArrowRight",
+        }),
+      );
+    });
+
+    expect(container.querySelector('[data-editor-readonly="false"]')).toBe(editor);
+    expect(container.querySelector('[role="alert"]')).not.toBeNull();
+    expect(harness.store.hasUnsavedChanges).toBe(true);
+    expect(harness.store.load).not.toHaveBeenCalled();
+    expect(harness.store.resetDocument).not.toHaveBeenCalled();
+    expect(harness.store.onEditorChange).not.toHaveBeenCalled();
   });
 
   it("renders readers without edit, Save, or New controls", () => {

@@ -10,11 +10,11 @@ export function WikiPageSkeleton({
   return (
     <div
       className={
-        documentOnly ? "h-full min-h-80" : "grid h-full min-h-0 grid-cols-1 md:grid-cols-[15rem_minmax(0,1fr)]"
+        documentOnly ? "h-full min-h-80" : "grid h-full min-h-0 grid-cols-1 lg:grid-cols-[15rem_minmax(0,1fr)]"
       }
     >
       {!documentOnly && (
-        <aside className="hidden border-r border-border p-4 md:block">
+        <aside className="hidden border-r border-border p-4 lg:block">
           <Shape animated={animated} className="mb-5 h-8 w-full rounded-md" />
 
           <div className="space-y-2">

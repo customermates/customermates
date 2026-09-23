@@ -3181,6 +3181,10 @@
     "resetPasswordCta": "Zurücksetzen",
     "title": "Passwort zurücksetzen"
   },
+  "ResizablePanels": {
+    "hint": "Zum Ändern der Größe ziehen. Zum Zurücksetzen doppelklicken.",
+    "resize": "Größe von {before} und {after} ändern. Ziehen oder Pfeiltasten verwenden; durch Doppeltippen oder die Eingabetaste zurücksetzen."
+  },
   "RoleModal": {
     "manageAccess": "Verwalten",
     "no": "Nein",
@@ -3608,6 +3612,7 @@
     "conflict": "Diese Seite wurde geändert. Deine Änderungen sind noch vorhanden. Lade die neueste Version, um fortzufahren.",
     "copyLink": "Seitenlink kopieren",
     "delete": "Seite löschen",
+    "document": "Dokument",
     "emptyBody": "Halte hier Abläufe, Unternehmenswissen und Schreibrichtlinien fest. Erstelle eine Seite oder lass Mate deine Homepage lesen.",
     "emptyBodyManual": "Erstelle deine erste Wiki-Seite.",
     "emptyBodyReadOnly": "Es wurden noch keine Wiki-Seiten erstellt.",
