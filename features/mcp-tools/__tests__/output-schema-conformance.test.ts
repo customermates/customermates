@@ -75,6 +75,7 @@ const thread = {
   state: "read",
   lastMessageAt: sentAt,
   lastMessageFromSelf: false,
+  lastSentMessageFromSelf: false,
   participants: [participant],
   sharedToCrm: false,
   isOwner: true,

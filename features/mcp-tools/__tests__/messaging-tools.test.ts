@@ -286,8 +286,8 @@ describe("email body exposure", () => {
 });
 
 describe("get_messaging_threads list rows", () => {
-  it("say whether the latest message went out from the connected account, so answered threads are not read as waiting", async () => {
-    const thread = (id: string, lastMessageFromSelf: boolean) => ({
+  it("say whether the latest sent message went out from the connected account, so answered threads are not read as waiting", async () => {
+    const thread = (id: string, lastSentMessageFromSelf: boolean) => ({
       id,
       connectedAccountId: "66666666-6666-4666-8666-666666666666",
       provider: "gmail",
@@ -297,7 +297,8 @@ describe("get_messaging_threads list rows", () => {
       preview: "preview",
       state: "read",
       lastMessageAt: new Date("2026-09-01T06:55:15.000Z"),
-      lastMessageFromSelf,
+      lastMessageFromSelf: true,
+      lastSentMessageFromSelf,
       participants: [],
       sharedToCrm: false,
       isOwner: true,
@@ -312,11 +313,14 @@ describe("get_messaging_threads list rows", () => {
     expect(result).toMatchObject({
       structuredContent: {
         items: [
-          { id: "answered", lastMessageFromSelf: true },
-          { id: "waiting", lastMessageFromSelf: false },
+          { id: "answered", lastSentMessageFromSelf: true },
+          { id: "waiting", lastSentMessageFromSelf: false },
         ],
       },
     });
-    expect(getMessagingThreadsTool.description).toContain("lastMessageFromSelf");
+    const [first] = (result as { structuredContent: Record<string, unknown[]> }).structuredContent.items;
+    expect(first).not.toHaveProperty("lastMessageFromSelf");
+    expect(getMessagingThreadsTool.description).toContain("lastSentMessageFromSelf");
+    expect(getMessagingThreadsTool.description).toContain("an unsent draft does not count");
   });
 });
