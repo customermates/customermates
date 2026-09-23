@@ -3,6 +3,16 @@ import type { AgentModelEntry } from "@/ee/agent-chat/model-catalog";
 import type { BenchmarkArm } from "./arms";
 import type { EpisodeArtifact } from "./episode";
 
+export type MergeCheckFailure = { arm: string; caseId: string; repetition: number; reason: string };
+export type MergeCheckSummary = {
+  status: "passed" | "failed";
+  expectedCases: number;
+  expectedTurns: number;
+  runtimeVariant: string;
+  sourceCommit: string;
+  failures: MergeCheckFailure[];
+};
+
 const SAFE_PATH_SEGMENT = /^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/u;
 
 export function benchmarkPathSegment(

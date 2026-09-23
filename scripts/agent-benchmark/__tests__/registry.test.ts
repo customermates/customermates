@@ -42,6 +42,8 @@ describe("unified benchmark registry", () => {
       locale: "de",
       pageRoute: expect.stringContaining("/de/contacts/{contact}"),
     });
+    expect(byId.get("V40")?.prompts[0]).toContain("set the search text to View");
+    expect(byId.get("V40")?.prompts[0]).toContain("group them by creation month");
     expect(byId.get("R49")?.contexts).toEqual([{ modelKey: "fast" }, { modelKey: "omit" }]);
     expect(benchmarkCaseModelSelection("R49", armById("shipped"))).toMatchObject({
       modelKey: "fast",

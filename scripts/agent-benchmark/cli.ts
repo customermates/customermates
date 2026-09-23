@@ -41,12 +41,14 @@ import {
   benchmarkPathSegment,
   exactMatrixIssues,
   mergeGateFailureIds,
+  type MergeCheckFailure,
 } from "./gate";
 import { judgeArtifact, judgeVerdictIsComplete } from "./judge";
 import { validateJudgePreflight } from "./judge-preflight";
 import {
   benchmarkReportDirectoryName,
   buildReport,
+  persistMergeCheckSummary,
   renderReport,
   selectArms,
 } from "./report";
@@ -135,8 +137,6 @@ function changedRepositoryPaths(): string[] {
   ];
 }
 
-type MatrixFailure = { arm: string; caseId: CaseId; repetition: number; reason: string };
-
 async function runMatrix(input: {
   pool: Pool;
   db: Awaited<ReturnType<typeof createBenchmarkDb>>;
@@ -147,8 +147,8 @@ async function runMatrix(input: {
   reps: number;
   runtimeVariant: string;
   excluded: Set<string>;
-}): Promise<MatrixFailure[]> {
-  const failures: MatrixFailure[] = [];
+}): Promise<MergeCheckFailure[]> {
+  const failures: MergeCheckFailure[] = [];
   const outputDir = resolve(RUNS_DIR, input.campaign.id);
   for (let repetition = 1; repetition <= input.reps; repetition += 1)
     for (const caseId of input.caseIds)
@@ -451,6 +451,14 @@ async function main() {
       return { campaign, failures, totalUsd: await campaignSpendUsd(pool, campaign.id) };
     });
     await db.prisma.$disconnect();
+    await persistMergeCheckSummary(resolve(RUNS_DIR, result.campaign.id), {
+      status: result.failures.length ? "failed" : "passed",
+      expectedCases: BENCHMARK_CASES.length,
+      expectedTurns: BENCHMARK_CASES.reduce((total, definition) => total + definition.prompts.length, 0),
+      runtimeVariant,
+      sourceCommit: sourceAtStart.sourceCommit,
+      failures: result.failures,
+    });
     const report = await buildReport(
       result.campaign.id,
       resolve(RUNS_DIR, result.campaign.id),

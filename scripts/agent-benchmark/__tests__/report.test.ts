@@ -12,6 +12,7 @@ import { JUDGE_MODELS, type JudgeVerdict } from "../judge";
 import {
   benchmarkReportDirectoryName,
   buildReport,
+  persistMergeCheckSummary,
   renderReport,
   selectArms,
 } from "../report";
@@ -124,6 +125,53 @@ describe("benchmark report", () => {
     expect(selection.reasoning.join("\n")).toMatch(/slow: below the speed floor/);
     expect(selection.reasoning.join("\n")).toMatch(/subset: ineligible.*exact repetition coverage false/);
     expect(renderReport(report)).toContain("| current/candidate |");
+    expect(report.mergeCheck).toBeNull();
+    expect(renderReport(report)).toContain("Not evaluated for this campaign.");
+  });
+
+  it("keeps full-suite coverage and the exact merge-check result separate from comparative metrics", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "agent-benchmark-"));
+    const runtimeFailure = artifact("shipped", "H10", 1, false, 0.02, 20_000, 4);
+    runtimeFailure.oracle = { caseId: "H10", passed: false, checks: [{ id: "expected-terminal-code", passed: false, gate: "runtime" }] };
+    const strict = artifact("shipped", "V42", 1, true, 0.01, 10_000, 4);
+    strict.comparative = false;
+    strict.judgeable = false;
+    strict.mergeRequired = true;
+    strict.prompts = ["first", "second"];
+    strict.turns = [strict.turns[0]!, { ...strict.turns[0]!, index: 1 }];
+    for (const entry of [runtimeFailure, strict]) {
+      const path = join(dir, entry.runtimeVariant, entry.arm);
+      await mkdir(path, { recursive: true });
+      await writeFile(join(path, `${entry.caseId}-r${entry.repetition}.json`), JSON.stringify(entry));
+    }
+    await persistMergeCheckSummary(dir, {
+      status: "failed",
+      expectedCases: 52,
+      expectedTurns: 58,
+      runtimeVariant: "current",
+      sourceCommit: "source-commit",
+      failures: [{ arm: "shipped", caseId: "H10", repetition: 1, reason: "merge gate failed: expected-terminal-code" }],
+    });
+
+    const report = await buildReport("c", dir);
+    const markdown = renderReport(report);
+    expect(report.suiteCoverage).toMatchObject({ episodes: 2, distinctCases: 2, turns: 3, comparativeEpisodes: 1, comparativeCases: 1, comparativeTurns: 1, strictCases: 1 });
+    expect(report.mergeCheck?.failures).toEqual([expect.objectContaining({ caseId: "H10", reason: "merge gate failed: expected-terminal-code" })]);
+    expect(markdown).toContain("2 episodes across 2 distinct cases and 3 actual user turns");
+    expect(markdown).toContain("1 episode across 1 case and 1 turn feed comparative quality metrics");
+    expect(markdown).toContain("**FAIL** for current/shipped");
+    expect(markdown).toContain("H10 r1: merge gate failed: expected-terminal-code");
+    expect(markdown).toContain("1/1");
+
+    await persistMergeCheckSummary(dir, {
+      status: "passed",
+      expectedCases: 52,
+      expectedTurns: 58,
+      runtimeVariant: "current",
+      sourceCommit: "source-commit",
+      failures: [],
+    });
+    expect(renderReport(await buildReport("c", dir))).toContain("**PASS** for current/shipped");
   });
 
   it("does not select a cohort with incomplete judge coverage", async () => {

@@ -49,7 +49,9 @@ Commands (`yarn agent:benchmark <command>`):
   documentation.
 - `verify-arms`: read the Gateway endpoint listing and record which arms report ZDR and no-training; excluded arms never run.
 - `check --label pr-182-final --cap 10`: create (or, with `--campaign`, resume) a one-repetition merge run over every
-  case using `MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY]`. It requires a clean Git tree and a production server that reports
+  case with the shipped control resolved from `MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY]`. The model-pinning contract R49
+  intentionally requests the catalog's `fast` key before proving the conversation remains pinned to that selection; all
+  other cases use the shipped control. The check requires a clean Git tree and a production server that reports
   the same source commit. It exits nonzero for failed strict release regressions, shared safety/runtime-integrity failures,
   skipped, missing or errored episodes. Stochastic answer-quality misses remain visible in the same report without
   turning one model-variance sample into a code-regression failure.

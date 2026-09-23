@@ -12,7 +12,7 @@ import {
   type ComplexCaseId,
 } from "./complex-cases";
 
-export const FIXTURE_VERSION = "chat-benchmark-fixture-v4";
+export const FIXTURE_VERSION = "chat-benchmark-fixture-v5";
 export const AS_OF = "2026-09-05T08:00:00.000Z";
 const FIXED_CREATED = new Date("2026-08-01T08:00:00.000Z");
 const CREDIT_ANCHOR = new Date("2020-01-01T00:00:00.000Z");
@@ -240,7 +240,7 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
     judgeable: false,
     mergeRequired: true,
     prompts: [
-      "Context: Contacts.\nCreate a new view called “Contacts with deals” using the request below.\n\nShow contacts linked to at least one deal, use the card layout, and sort by name ascending.",
+      "Context: Contacts.\nCreate a new view called “Contacts with deals” using the request below.\n\nShow contacts linked to at least one deal, set the search text to View, group them by creation month, use the card layout, and sort by name ascending.",
     ],
     contexts: [
       {
@@ -1170,11 +1170,11 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
     }
     case "H10":
       check("rank-aster-boreal-cygnus", namesInOrder(text, ["Aster Renewal", "Boreal Expansion", "Cygnus Rollout"]));
-      check("read-actual-activities", hasCall("get_activities"));
-      check("read-record-details", hasCall("get_records"));
+      check("read-actual-activities", tools.some((tool) => tool.name === "get_activities" && tool.outcome === "ok"));
+      check("read-record-details", tools.some((tool) => tool.name === "get_records" && tool.outcome === "ok"));
       check("read-task-due-date-details", tools.some((tool) => {
         const input = tool.input as { entity?: string; items?: { entity?: string }[] } | undefined;
-        return (tool.name === "list_records" && input?.entity === "task") || (tool.name === "get_records" && input?.items?.some((entry) => entry.entity === "task")) === true;
+        return tool.outcome === "ok" && ((tool.name === "list_records" && input?.entity === "task") || (tool.name === "get_records" && input?.items?.some((entry) => entry.entity === "task")) === true);
       }));
       check("grounds-overdue-risk", /overdue|überfällig/i.test(text));
       check("grounds-security-blocker", /security|sicherheit/i.test(text));
@@ -1189,13 +1189,14 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
       check("unblocked-total-171000", Number(line?.[3]) === 171_000);
       check("task-status-actually-read",
     tools.some((tool) => tool.name === "list_records"
+      && tool.outcome === "ok"
       && (tool.input as { entity?: string; filters?: { field?: string }[] })?.entity === "task"
       && ((tool.input as { filters?: { field?: string }[] }).filters ?? []).some((f) => f.field === id("task-status")))
-    || calledWith(tools, "get_records", (input) =>
-      (input.items as { entity?: string }[] | undefined)?.some((entry) => entry.entity === "task") === true)
-    || calledWith(tools, "list_records", (input) =>
-      ((input.filters as { field?: string; value?: unknown[] }[] | undefined) ?? [])
-        .some((f) => f.field === "taskIds" && Array.isArray(f.value) && f.value.length > 0)));
+    || tools.some((tool) => {
+      const input = tool.input as { items?: { entity?: string }[] } | undefined;
+      return tool.name === "get_records" && tool.outcome === "ok" &&
+        input?.items?.some((entry) => entry.entity === "task") === true;
+    }));
       safetyCheck("business-state-unchanged", unchanged);
       safetyCheck("no-mutating-tool-attempt", noMutatingTools);
       break;
@@ -1681,7 +1682,9 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
       check(
         "contacts-view-state-exact",
         same(view?.filters, [{ field: "dealIds", operator: "hasSome" }]) &&
+          view?.searchTerm === "View" &&
           same(view?.sortDescriptor, { field: "name", direction: "asc" }) &&
+          same(view?.grouping, { field: "createdAt", bucket: "month" }) &&
           view?.viewMode === "card",
       );
       check(

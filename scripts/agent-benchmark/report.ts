@@ -1,10 +1,11 @@
-import { readFile, readdir } from "node:fs/promises";
+import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import type { EpisodeArtifact } from "./episode";
 import type { EpisodeOutcome } from "./stats";
 
 import { BENCHMARK_ARMS } from "./arms";
+import type { MergeCheckSummary } from "./gate";
 import { judgeVerdictIsComplete } from "./judge";
 import { comparePaired, costPerSuccessfulTask, holmAdjust, mean, passAtLeastK, passRate, percentile, uniformlyFailingChecks } from "./stats";
 
@@ -65,9 +66,36 @@ export type BenchmarkReport = {
   caseMatrix: Record<string, Record<string, string>>;
   uniformlyFailingChecks: string[];
   skippedEpisodes: { arm: string; caseId: string; repetition: number; reason: string }[];
+  suiteCoverage: {
+    episodes: number;
+    distinctCases: number;
+    turns: number;
+    skippedEpisodes: number;
+    comparativeEpisodes: number;
+    comparativeCases: number;
+    comparativeTurns: number;
+    strictCases: number;
+  };
+  mergeCheck: MergeCheckSummary | null;
   totalUsd: number;
   comparativeCaseCount: number;
 };
+
+export const MERGE_CHECK_METADATA_FILE = "merge-check.json";
+
+export async function persistMergeCheckSummary(campaignRunsDir: string, summary: MergeCheckSummary): Promise<void> {
+  await mkdir(campaignRunsDir, { recursive: true });
+  await writeFile(join(campaignRunsDir, MERGE_CHECK_METADATA_FILE), JSON.stringify(summary, null, 2) + "\n");
+}
+
+async function readMergeCheckSummary(campaignRunsDir: string): Promise<MergeCheckSummary | null> {
+  try {
+    return JSON.parse(await readFile(join(campaignRunsDir, MERGE_CHECK_METADATA_FILE), "utf8")) as MergeCheckSummary;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
+    throw error;
+  }
+}
 
 async function readArtifacts(dir: string): Promise<EpisodeArtifact[]> {
   const artifacts: EpisodeArtifact[] = [];
@@ -81,7 +109,7 @@ async function readArtifacts(dir: string): Promise<EpisodeArtifact[]> {
     for (const entry of entries) {
       const full = join(path, entry.name);
       if (entry.isDirectory()) await walk(full);
-      else if (entry.name.endsWith(".json") && !entry.name.startsWith("arms-")) artifacts.push(JSON.parse(await readFile(full, "utf8")) as EpisodeArtifact);
+      else if (entry.name.endsWith(".json") && !entry.name.startsWith("arms-") && entry.name !== MERGE_CHECK_METADATA_FILE) artifacts.push(JSON.parse(await readFile(full, "utf8")) as EpisodeArtifact);
     }
   }
   await walk(dir);
@@ -162,6 +190,7 @@ function summarizeArm(key: string, artifacts: EpisodeArtifact[]): ArmSummary {
 
 export async function buildReport(campaignId: string, runsDir: string, ledgerTotalUsd?: number): Promise<BenchmarkReport> {
   const artifacts = (await readArtifacts(runsDir)).filter((artifact) => artifact.campaignId === campaignId);
+  const mergeCheck = await readMergeCheckSummary(runsDir);
   const schemaVersions = new Set(
     artifacts.map((artifact) => String(artifact.schemaVersion ?? "legacy")),
   );
@@ -249,6 +278,7 @@ export async function buildReport(campaignId: string, runsDir: string, ledgerTot
       const [passed, total] = cell.split("/").map(Number);
       caseMatrix[artifact.caseId][key] = artifact.skipped ? cell : `${passed + (artifact.oracle?.passed ? 1 : 0)}/${total + 1}`;
     }
+  const comparativeArtifacts = artifacts.filter((artifact) => artifact.comparative !== false && !artifact.skipped);
   return {
     campaignId,
     generatedAt: new Date().toISOString(),
@@ -269,6 +299,17 @@ export async function buildReport(campaignId: string, runsDir: string, ledgerTot
     caseMatrix,
     uniformlyFailingChecks: uniformlyFailingChecks(artifacts.filter((artifact) => artifact.oracle).map((artifact) => artifact.oracle!.checks)),
     skippedEpisodes: artifacts.filter((artifact) => artifact.skipped).map((artifact) => ({ arm: `${artifact.runtimeVariant}/${artifact.arm}`, caseId: artifact.caseId, repetition: artifact.repetition, reason: artifact.skipped ?? "" })),
+    suiteCoverage: {
+      episodes: artifacts.length,
+      distinctCases: new Set(artifacts.map((artifact) => artifact.caseId)).size,
+      turns: artifacts.reduce((total, artifact) => total + artifact.turns.length, 0),
+      skippedEpisodes: artifacts.filter((artifact) => artifact.skipped).length,
+      comparativeEpisodes: comparativeArtifacts.length,
+      comparativeCases: new Set(comparativeArtifacts.map((artifact) => artifact.caseId)).size,
+      comparativeTurns: comparativeArtifacts.reduce((total, artifact) => total + artifact.turns.length, 0),
+      strictCases: new Set(artifacts.filter((artifact) => artifact.mergeRequired).map((artifact) => artifact.caseId)).size,
+    },
+    mergeCheck,
     totalUsd: ledgerTotalUsd ?? artifacts.reduce((total, artifact) => total + artifact.usd, 0),
     comparativeCaseCount: new Set(artifacts.filter((artifact) => artifact.comparative !== false).map((artifact) => artifact.caseId)).size,
   };
@@ -277,6 +318,7 @@ export async function buildReport(campaignId: string, runsDir: string, ledgerTot
 const pct = (value: number) => `${(value * 100).toFixed(1)} %`;
 const usd = (value: number | null) => (value === null ? "n/a" : `$${value.toFixed(4)}`);
 const ms = (value: number | null) => (value === null ? "n/a" : `${(value / 1000).toFixed(1)} s`);
+const count = (value: number, noun: string) => `${value} ${noun}${value === 1 ? "" : "s"}`;
 
 export function renderReport(report: BenchmarkReport): string {
   const lines: string[] = [];
@@ -290,6 +332,21 @@ export function renderReport(report: BenchmarkReport): string {
     `Cohort: schema ${report.cohort.schemaVersion}, fixture ${report.cohort.fixtureVersion}, source ${sources}${report.cohort.hasDirtyArtifacts ? " (dirty tree)" : ""}.`,
     "",
   );
+  lines.push(
+    "## Suite coverage",
+    "",
+    `${count(report.suiteCoverage.episodes, "episode")} across ${count(report.suiteCoverage.distinctCases, "distinct case")} and ${count(report.suiteCoverage.turns, "actual user turn")} (${report.suiteCoverage.skippedEpisodes} skipped).`,
+    `${count(report.suiteCoverage.comparativeEpisodes, "episode")} across ${count(report.suiteCoverage.comparativeCases, "case")} and ${count(report.suiteCoverage.comparativeTurns, "turn")} feed comparative quality metrics; ${count(report.suiteCoverage.strictCases, "case")} ${report.suiteCoverage.strictCases === 1 ? "is a strict release contract" : "are strict release contracts"}.`,
+    "",
+    "## Merge check",
+    "",
+  );
+  if (report.mergeCheck) {
+    lines.push(`**${report.mergeCheck.status === "passed" ? "PASS" : "FAIL"}** for ${report.mergeCheck.runtimeVariant}/shipped: expected ${report.mergeCheck.expectedCases} cases and ${report.mergeCheck.expectedTurns} user turns at source ${report.mergeCheck.sourceCommit}.`, "");
+    for (const failure of report.mergeCheck.failures)
+      lines.push(`- ${failure.arm} ${failure.caseId} r${failure.repetition}: ${failure.reason}`);
+    if (report.mergeCheck.failures.length) lines.push("");
+  } else lines.push("Not evaluated for this campaign.", "");
   lines.push("## Arms", "", "| Arm | Comparable episodes | Strict contracts passed | Pass | Pass^3 | Judge | Judge coverage | $/episode | $/turn | Credits/turn | $/success | Measured | Cache read | Cache write | Rounds/turn | TTFT p50 | TTFT p95 | Wall p50 | Wall p95 | Length stops | Never solved |", "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |");
   for (const arm of report.arms)
     lines.push(`| ${arm.runtimeVariant}/${arm.arm} | ${arm.episodes}${arm.skipped ? ` (+${arm.skipped} skipped)` : ""} | ${arm.contractPassed}/${arm.contractEpisodes} | ${pct(arm.passRate)} | ${arm.passAt3 === null ? "n/a" : pct(arm.passAt3)} | ${arm.judgeMean === null ? "n/a" : arm.judgeMean.toFixed(2)} | ${arm.judgeComplete}/${arm.judgeEligible} | ${usd(arm.usdPerEpisode)} | ${usd(arm.usdPerTurn)} | ${arm.creditsPerTurn.toFixed(1)} | ${usd(arm.costPerSuccessfulTask)} | ${pct(arm.measuredShare)} | ${pct(arm.cacheReadShare)} | ${pct(arm.cacheWriteShare)} | ${arm.roundsPerTurn.toFixed(1)} | ${ms(arm.ttftP50Ms)} | ${ms(arm.ttftP95Ms)} | ${ms(arm.wallP50Ms)} | ${ms(arm.wallP95Ms)} | ${pct(arm.lengthFinishShare)} | ${arm.neverSolvedCases.join(" ") || "-"} |`);
