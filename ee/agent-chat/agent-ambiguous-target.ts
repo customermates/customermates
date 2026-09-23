@@ -2,7 +2,7 @@ import { decode } from "@toon-format/toon";
 
 export type AmbiguousTarget = { entity: string; phrase: string; candidates: { id: string; name: string }[] };
 
-export type AmbiguityRequest = { latestUserText: string; previousAssistantText: string; earlierUserText: string };
+export type AmbiguityRequest = { latestUserText: string; previousAssistantText: string };
 
 const UUID = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/g;
 const TOON_TABLE_ROW = /^\s+([0-9a-fA-F-]{36}),(?:"((?:[^"\\]|\\.)*)"|([^\n,]*))/gm;
@@ -48,7 +48,6 @@ const COUNT_WORDS = [
   "cinq",
   "entrambi",
   "entrambe",
-  "due",
   "tre",
   "quattro",
   "cinque",
@@ -72,33 +71,24 @@ const QUESTION_WORDS = [
   "quali",
 ];
 const COORDINATORS = ["and", "und", "sowie", "y", "e", "et", "ed"];
-const PLURAL_RECORD_NOUNS = [
-  "deals",
-  "contacts",
-  "tasks",
-  "organizations",
-  "organisations",
-  "services",
-  "companies",
-  "kontakte",
-  "aufgaben",
-  "organisationen",
-  "firmen",
-  "dienstleistungen",
-  "tratos",
-  "contactos",
-  "tareas",
-  "organizaciones",
-  "servicios",
-  "empresas",
-  "tâches",
-  "entreprises",
-  "contatti",
-  "attività",
-  "organizzazioni",
-  "servizi",
-  "aziende",
-];
+const ENTITY_PLURALS: Record<string, string[]> = {
+  deal: ["deals", "tratos"],
+  contact: ["contacts", "kontakte", "contactos", "contatti"],
+  task: ["tasks", "aufgaben", "tareas", "tâches", "attività"],
+  organization: [
+    "organizations",
+    "organisations",
+    "organisationen",
+    "organizaciones",
+    "organizzazioni",
+    "companies",
+    "firmen",
+    "empresas",
+    "entreprises",
+    "aziende",
+  ],
+  service: ["services", "dienstleistungen", "servicios", "servizi"],
+};
 const COMMON_WORDS = [
   "deal",
   "deals",
@@ -453,7 +443,9 @@ function inEverySpelling(words: string[]): string[] {
 
 const SET_WORDS = new Set(inEverySpelling([...SET_WORD_LIST, ...COUNT_WORDS]));
 const COORDINATING_WORDS = new Set(inEverySpelling(COORDINATORS));
-const PLURAL_NOUNS = new Set(inEverySpelling(PLURAL_RECORD_NOUNS));
+const PLURALS_BY_ENTITY = new Map(
+  Object.entries(ENTITY_PLURALS).map(([entity, plurals]) => [entity, new Set(inEverySpelling(plurals))]),
+);
 const ARTICLE_WORDS = new Set(inEverySpelling(ARTICLES));
 const BREAKING_WORDS = new Set(inEverySpelling(PHRASE_BREAKS));
 const GENERIC_WORDS = new Set(inEverySpelling([...COMMON_WORDS, ...QUESTION_WORDS, ...NAMING_WORD_LIST]));
@@ -521,28 +513,31 @@ function namingPhraseGoverned(words: string[]): boolean {
   return described.every((word) => !BREAKING_WORDS.has(word) && !ARTICLE_WORDS.has(word));
 }
 
-function coordinatedAfter(text: string, end: number): boolean {
+function countsThisRecord(text: string, end: number, entity: string): boolean {
   const after = text.slice(end, end + CLAUSE_LOOKBACK_CHARS);
   const clauseEnd = Math.min(
     ...CLAUSE_MARKS.map((mark) => after.indexOf(mark)).filter((index) => index >= 0),
     after.length,
   );
   const words = wordsOf(after.slice(0, clauseEnd)).slice(0, SELECTION_RULE_REACH);
-  if (PLURAL_NOUNS.has(words[0] ?? "")) return false;
-  return words.some((word) => COORDINATING_WORDS.has(word));
+  const [next] = words;
+  if (next !== undefined && PLURALS_BY_ENTITY.get(entity)?.has(next)) return true;
+  if (words.some((word) => COORDINATING_WORDS.has(word))) return false;
+  return next === undefined || BREAKING_WORDS.has(next);
 }
 
-function governedByRule(text: string, start: number, end: number): boolean {
+function governedByRule(text: string, start: number, end: number, entity: string): boolean {
   const before = text.slice(Math.max(0, start - CLAUSE_LOOKBACK_CHARS), start);
   const clauseStart = Math.max(...CLAUSE_MARKS.map((mark) => before.lastIndexOf(mark))) + 1;
   const words = wordsOf(before.slice(clauseStart));
-  if (words.slice(-SET_WORD_REACH).some((word) => SET_WORDS.has(word)) && !coordinatedAfter(text, end)) return true;
+  if (words.slice(-SET_WORD_REACH).some((word) => SET_WORDS.has(word)) && countsThisRecord(text, end, entity))
+    return true;
   const recent = words.slice(-SELECTION_RULE_REACH);
   if (SELECTION_RULES.some((rule) => holdsSequence(recent, rule))) return true;
   return namingPhraseGoverned(words);
 }
 
-function writtenAsRecord(text: string, name: string): boolean {
+function writtenAsRecord(text: string, name: string, entity: string): boolean {
   const [first] = [...name];
   if (!first) return false;
   const openBefore = UNSPACED_CHAR.test(first);
@@ -550,22 +545,23 @@ function writtenAsRecord(text: string, name: string): boolean {
     text,
     name,
     (start, end) =>
-      (openBefore || !WORD_BEFORE_PHRASE.test(codePointBefore(text, start))) && !governedByRule(text, start, end),
+      (openBefore || !WORD_BEFORE_PHRASE.test(codePointBefore(text, start))) &&
+      !governedByRule(text, start, end, entity),
   );
 }
 
-function writtenInSomeSpelling(text: string, name: string): boolean {
+function writtenInSomeSpelling(text: string, name: string, entity: string): boolean {
   const names = spellings(name);
-  return spellings(text).some((spelling, index) => writtenAsRecord(spelling, names[index]));
+  return spellings(text).some((spelling, index) => writtenAsRecord(spelling, names[index], entity));
 }
 
-function writtenOutside(text: string, name: string, chosen: string[]): boolean {
+function writtenOutside(text: string, name: string, chosen: string[], entity: string): boolean {
   const names = spellings(name);
   const chosenSpellings = chosen.map((other) => strictSpellings(other));
   return strictSpellings(text, true).some((spelling, index) => {
     if (!chosenSpellings.every((other) => containsName(spelling, other[index]))) return false;
     const rest = chosenSpellings.reduce((remaining, other) => remaining.split(other[index]).join("\n"), spelling);
-    return writtenAsRecord(loose(rest).trim(), names[index]);
+    return writtenAsRecord(loose(rest).trim(), names[index], entity);
   });
 }
 
@@ -586,13 +582,12 @@ function containsInSomeSpelling(text: string, name: string): boolean {
 
 export function ambiguityRequestOf(history: readonly { role: string; text: string }[]): AmbiguityRequest {
   const latestIndex = history.findLastIndex((message) => message.role === "user");
-  const earlier = history.slice(0, Math.max(latestIndex, 0));
-  const assistantIndex = earlier.findLastIndex((message) => message.role === "assistant");
-  const earlierUser = earlier.slice(0, Math.max(assistantIndex, 0)).findLast((message) => message.role === "user");
+  const previousAssistant = history
+    .slice(0, Math.max(latestIndex, 0))
+    .findLast((message) => message.role === "assistant");
   return {
     latestUserText: fold(latestIndex >= 0 ? history[latestIndex].text : ""),
-    previousAssistantText: fold(assistantIndex >= 0 ? earlier[assistantIndex].text : ""),
-    earlierUserText: fold(earlierUser?.text ?? ""),
+    previousAssistantText: fold(previousAssistant?.text ?? ""),
   };
 }
 
@@ -711,7 +706,7 @@ function mentionedAlone(text: string, name: string, candidates: Row[]): boolean 
 
 function settlesTwins(request: AmbiguityRequest, name: string): boolean {
   const offered = new Set(wordsOf(request.previousAssistantText));
-  const excluded = new Set([...wordsOf(name), ...wordsOf(request.earlierUserText)]);
+  const excluded = new Set(wordsOf(name));
   return wordsOf(request.latestUserText).some(
     (word) =>
       [...word].length >= MIN_DISTINGUISHING_WORD &&
@@ -721,7 +716,7 @@ function settlesTwins(request: AmbiguityRequest, name: string): boolean {
   );
 }
 
-function answersClarification(request: AmbiguityRequest, candidates: Row[]): boolean {
+function answersClarification(request: AmbiguityRequest, candidates: Row[], entity: string): boolean {
   const listed = candidates.filter((candidate) =>
     mentionedAlone(request.previousAssistantText, fold(candidate.name), candidates),
   );
@@ -734,7 +729,9 @@ function answersClarification(request: AmbiguityRequest, candidates: Row[]): boo
     return candidates.every((other) => {
       const otherName = fold(other.name);
       return (
-        otherName === name || !holdsName(otherName, name) || !writtenInSomeSpelling(request.latestUserText, otherName)
+        otherName === name ||
+        !holdsName(otherName, name) ||
+        !writtenInSomeSpelling(request.latestUserText, otherName, entity)
       );
     });
   });
@@ -759,13 +756,15 @@ function targetsAmong(entity: string, rows: Row[], request: AmbiguityRequest): A
   const nested = named.filter(
     ({ row, name }) => name.length > 0 && named.some((other) => other.row !== row && holdsName(other.name, name)),
   );
-  const written = [...new Set(nested.map(({ name }) => name))].filter((name) => writtenInSomeSpelling(latest, name));
+  const written = [...new Set(nested.map(({ name }) => name))].filter((name) =>
+    writtenInSomeSpelling(latest, name, entity),
+  );
   return written.flatMap((name) => {
     const candidates = named.filter((entry) => holdsName(entry.name, name)).map((entry) => entry.row);
-    if (answersClarification(request, candidates)) return [];
+    if (answersClarification(request, candidates, entity)) return [];
     const chosen = chosenAmong(latest, candidates);
     const chosenNames = chosen.map((candidate) => fold(candidate.name));
-    if (chosen.length > 0 && !writtenOutside(latest, name, chosenNames)) return [];
+    if (chosen.length > 0 && !writtenOutside(latest, name, chosenNames, entity)) return [];
     const remaining = candidates.filter((candidate) => !chosen.includes(candidate));
     const phrase = remaining.find((candidate) => fold(candidate.name) === name)?.name ?? name;
     return [{ entity, phrase, candidates: remaining }];

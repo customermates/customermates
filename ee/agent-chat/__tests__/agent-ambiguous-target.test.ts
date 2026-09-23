@@ -79,6 +79,7 @@ describe("ambiguous write targets", () => {
       "Set both Nova Expansion deals to Won.",
       "Set both Nova Expansion deals and the Kestrel deal to Won.",
       "Set both Nova Expansion to Won, then archive Kestrel and Falcon.",
+      "Close both Nova Expansion.",
       "Set all the Nova Expansion deals to Won.",
       "Set the two Nova Expansion deals to Won.",
       "Assign both Nova Expansion deals to Max Klein as owner.",
@@ -96,6 +97,13 @@ describe("ambiguous write targets", () => {
       "Update all records named in the list and mark Nova Expansion as Won.",
       "Mark both Nova Expansion and Kestrel as Won.",
       "Show me all activities of Nova Expansion, then mark it Won.",
+      "All Nova Expansion tasks are done, so mark the deal as Won.",
+      "Two Nova Expansion stakeholders signed today, mark the deal as Won.",
+      "Alles zu Nova Expansion ist erledigt, setze den Deal auf gewonnen.",
+      "The invoice due from Nova Expansion was paid, so mark the deal as Won.",
+      "Payment due from Nova Expansion; mark the deal as Won.",
+      "Mark the payment due from Nova Expansion",
+      "Set all overdue open Nova Expansion deals to Won.",
       "Segna i due deal Nova Expansion e Kestrel come vinti.",
       "Update both Nova Expansion's value and stage.",
       "Link all contacts to the deal called Nova Expansion.",
@@ -154,6 +162,7 @@ describe("ambiguous write targets", () => {
       expect(ambiguousTargetsFromMessages(nachfassen, request(text)), text).toEqual([]);
 
     for (const text of [
+      "Close all Follow up tasks.",
       "Set every overdue task with the name Follow up to Done.",
       "Set all overdue tasks whose name is Follow up to Done.",
       "Set all overdue high priority open tasks named Follow up to Done.",
@@ -568,14 +577,13 @@ describe("ambiguous write targets", () => {
           "Show me Alex Müller.",
         ),
       ).toBe(0);
-      expect(
-        armed(
-          twins,
-          "Update Alex Müller at Northstar",
-          "There are two contacts named Alex Müller, one at Northstar Services GmbH and one at Southbank Systems GmbH.",
-          "Show me Alex Müller at Northstar.",
-        ),
-      ).toBe(1);
+      const opened = "Update Alex Müller at Northstar: phone +49 30 1234.";
+      const whichOne =
+        "There are two contacts named Alex Müller: one at Northstar Services GmbH and one at Southbank Systems GmbH. Which one should I update?";
+      expect(armed(twins, opened)).toBe(1);
+      expect(armed(twins, "Alex Müller at Northstar", whichOne, opened)).toBe(0);
+      expect(armed(twins, "Alex Müller at Northstar", whichOne, "Alex Müller at Northstar")).toBe(0);
+      expect(armed(twins, "Update all of Alex Müller's details: phone +49 30 1234.")).toBe(1);
       expect(armed(twins, original, "Alex Müller's phone number is +1 202 555 0101.")).toBe(1);
       const listedWithoutAsking =
         "There are two contacts named Alex Müller, each with a phone number:\n- Northstar Services GmbH: +1 202 555 0101\n- Southbank Systems GmbH: +1 202 555 0102";
@@ -986,7 +994,6 @@ describe("ambiguous write targets", () => {
     ).toEqual({
       latestUserText: "mark the nova expansion deal as won.",
       previousAssistantText: "nova expansion and nova expansion 2025.",
-      earlierUserText: "which deals are open?",
     });
   });
 });
