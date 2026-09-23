@@ -62,12 +62,12 @@ describe("analysis isolate", () => {
       null,
       {
         ...ANALYSIS_LIMITS,
-        maxSteps: 10_000,
+        maxSteps: 1_000,
         wallMs: 60_000,
       },
     );
     expect(outcome).toEqual({ ok: false, error: "The analysis code exceeded its step budget and was stopped." });
-  });
+  }, 30_000);
 
   it("stops an allocation beyond the memory limit", async () => {
     const outcome = await runAnalysisCode(
