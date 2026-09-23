@@ -468,6 +468,8 @@ export class PrismaConnectedAccountRepo
   }
 
   async listAccounts() {
+    if (!this.canAccess(Resource.inboxMessages)) return [];
+
     const rows = await this.prisma.connectedAccount.findMany({
       where: {
         companyId: this.companyId,
