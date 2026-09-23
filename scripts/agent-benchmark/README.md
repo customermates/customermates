@@ -17,6 +17,7 @@ and the application started in production mode with the benchmark model overlay:
 
 ```sh
 export WORKFLOW_LOCAL_BASE_URL=http://localhost:4107
+export WORKFLOW_LOCAL_DATA_DIR="$PWD/.next/workflow-data"
 yarn build
 LOCAL_AGENT_BENCHMARK=true \
 AGENT_BENCHMARK_ARMS="$(yarn -s agent:benchmark overlay)" \
@@ -26,7 +27,15 @@ yarn next start -p 4107
 The `shipped` control resolves through `MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY]`, the same production catalog entry used
 by the Assistant. The overlay contains only the experimental arms, so it cannot replace or drift from that control.
 
-`WORKFLOW_LOCAL_BASE_URL` must be exported for the CLI as well as the server, because loading the product graph starts a second workflow worker inside the CLI process and that worker posts durable steps over HTTP. Without the variable it probes for a port, and a probe that fails mid-campaign sends every step it picked up into a backoff whose next attempt is hours away: a run stalled after 31 episodes this way.
+`WORKFLOW_LOCAL_BASE_URL` and `WORKFLOW_LOCAL_DATA_DIR` must be exported for the server. The benchmark bootstrap preserves
+an explicit data directory or defaults the CLI to the same absolute `.next/workflow-data` directory that Next uses. The
+shared directory lets direct approval, UI-command and cancellation responders see the server's durable hooks. The CLI
+also forces `WORKFLOW_LOCAL_RECOVER_ACTIVE_RUNS=false`, so its secondary worker cannot recover or enqueue the server's
+active runs. When using a custom directory, start the server and CLI with that same value (and set
+`WORKFLOW_TARGET_WORLD=local` so the Next plugin preserves it).
+
+The base URL is required in both processes because the CLI's secondary worker posts durable steps over HTTP. Without it,
+the worker probes for a port, and a probe that fails mid-campaign sends every step it picked up into a long backoff.
 
 Run nothing else against the same database while a campaign runs. Any other application process on this machine — a development server left running in a second worktree — executes the durable workflow steps of your run with its own code, so the model is offered that tree's tool catalog and prompt. The symptom is a turn that calls a tool this build does not define; the driver now fails the episode with that explanation instead of scoring it. Either stop the other process or give the run its own database.
 

@@ -1,5 +1,7 @@
 import "dotenv/config";
 
+import { isAbsolute } from "node:path";
+
 const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]", "::1"]);
 const DEPLOYMENT_MARKERS = ["VERCEL", "VERCEL_ENV", "VERCEL_URL", "VERCEL_DEPLOYMENT_ID", "VERCEL_PROJECT_ID"];
 
@@ -7,6 +9,7 @@ export type BenchmarkEnvironment = {
   appUrl: string;
   databaseUrl: string;
   gatewayApiKey: string;
+  workflowDataDir: string;
 };
 
 function loopbackUrl(value: string | undefined, label: string, protocols: readonly string[]): URL {
@@ -45,7 +48,22 @@ export function requireLocalBenchmarkEnvironment(
   if (loopbackUrl(workflowBaseUrl, "WORKFLOW_LOCAL_BASE_URL", ["http:"]).origin !== app.origin)
     throw new Error("WORKFLOW_LOCAL_BASE_URL must point at the same origin as BASE_URL.");
 
-  return { appUrl: app.origin, databaseUrl: database.href, gatewayApiKey };
+  const workflowDataDir = environment.WORKFLOW_LOCAL_DATA_DIR?.trim() ?? "";
+  if (!workflowDataDir || !isAbsolute(workflowDataDir))
+    throw new Error(
+      "WORKFLOW_LOCAL_DATA_DIR must be an absolute path shared by the application server and benchmark CLI.",
+    );
+  if (environment.WORKFLOW_LOCAL_RECOVER_ACTIVE_RUNS !== "false")
+    throw new Error(
+      "WORKFLOW_LOCAL_RECOVER_ACTIVE_RUNS=false is required so the benchmark CLI cannot recover the server's active runs.",
+    );
+
+  return {
+    appUrl: app.origin,
+    databaseUrl: database.href,
+    gatewayApiKey,
+    workflowDataDir,
+  };
 }
 
 export function requireLocalBenchmarkDatabase(environment: Record<string, string | undefined> = process.env): string {

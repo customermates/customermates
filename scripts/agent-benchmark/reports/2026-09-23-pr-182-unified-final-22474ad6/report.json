@@ -1,0 +1,301 @@
+{
+  "report": {
+    "campaignId": "22474ad6-0d83-4ca3-a008-3c117ca94908",
+    "generatedAt": "2026-09-23T16:18:11.658Z",
+    "cohort": {
+      "schemaVersion": "4",
+      "fixtureVersion": "chat-benchmark-fixture-v4",
+      "sourceCommits": [
+        "d45fadeed6f8d6753bc6ef334231e45461573b08"
+      ],
+      "hasDirtyArtifacts": false
+    },
+    "arms": [
+      {
+        "arm": "shipped",
+        "label": "google/gemini-3.5-flash-lite, balanced catalog configuration (shipped)",
+        "runtimeVariant": "pr182-unified-final",
+        "sourceCommit": "d45fadeed6f8d6753bc6ef334231e45461573b08",
+        "sourceDirty": false,
+        "episodes": 41,
+        "distinctCases": 41,
+        "coverage": [
+          "C25:r1",
+          "C26:r1",
+          "C27:r1",
+          "C28:r1",
+          "C29:r1",
+          "C30:r1",
+          "C31:r1",
+          "C32:r1",
+          "C33:r1",
+          "C34:r1",
+          "C35:r1",
+          "C36:r1",
+          "H10:r1",
+          "H11:r1",
+          "H12:r1",
+          "H9:r1",
+          "M5:r1",
+          "M6:r1",
+          "M7:r1",
+          "N13:r1",
+          "N14:r1",
+          "N15:r1",
+          "N16:r1",
+          "N17:r1",
+          "N18:r1",
+          "N19:r1",
+          "N20:r1",
+          "N21:r1",
+          "N22:r1",
+          "N23:r1",
+          "R47:r1",
+          "R48:r1",
+          "S1:r1",
+          "S2:r1",
+          "S3:r1",
+          "S4:r1",
+          "V37:r1",
+          "V38:r1",
+          "V39:r1",
+          "V40:r1",
+          "V41:r1"
+        ],
+        "skipped": 7,
+        "contractEpisodes": 17,
+        "contractPassed": 10,
+        "passRate": 0.9024390243902439,
+        "passAt3": null,
+        "judgeMean": null,
+        "judgeComplete": 0,
+        "judgeEligible": 34,
+        "usdPerEpisode": 0.01607096731707317,
+        "usdPerTurn": 0.014324123043478257,
+        "creditsPerTurn": 1.8478260869565217,
+        "costPerSuccessfulTask": 0.017808369189189186,
+        "measuredShare": 0.975609756097561,
+        "cacheReadShare": 0.6505682076185024,
+        "cacheWriteShare": 0,
+        "roundsPerTurn": 3.782608695652174,
+        "ttftP50Ms": 8582,
+        "ttftP95Ms": 21176,
+        "wallP50Ms": 9140,
+        "wallP95Ms": 22270,
+        "lengthFinishShare": 0,
+        "neverSolvedCases": [
+          "H10",
+          "H12",
+          "N13",
+          "N14"
+        ]
+      }
+    ],
+    "comparisons": [],
+    "caseMatrix": {
+      "C25": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "C26": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "C27": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "C28": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "C29": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "C30": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "C31": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "C32": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "C33": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "C34": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "C35": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "C36": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "H10": {
+        "pr182-unified-final/shipped": "0/1"
+      },
+      "H11": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "H12": {
+        "pr182-unified-final/shipped": "0/1"
+      },
+      "H9": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "M5": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "M6": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "M7": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "M8": {
+        "pr182-unified-final/shipped": "0/0"
+      },
+      "N13": {
+        "pr182-unified-final/shipped": "0/1"
+      },
+      "N14": {
+        "pr182-unified-final/shipped": "0/1"
+      },
+      "N15": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "N16": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "N17": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "N18": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "N19": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "N20": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "N21": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "N22": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "N23": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "N24": {
+        "pr182-unified-final/shipped": "0/0"
+      },
+      "R43": {
+        "pr182-unified-final/shipped": "0/1"
+      },
+      "R47": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "R48": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "R49": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "R50": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "R51": {
+        "pr182-unified-final/shipped": "0/0"
+      },
+      "R52": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "S1": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "S2": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "S3": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "S4": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "U44": {
+        "pr182-unified-final/shipped": "0/0"
+      },
+      "U45": {
+        "pr182-unified-final/shipped": "0/0"
+      },
+      "U46": {
+        "pr182-unified-final/shipped": "0/0"
+      },
+      "V37": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "V38": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "V39": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "V40": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "V41": {
+        "pr182-unified-final/shipped": "1/1"
+      },
+      "V42": {
+        "pr182-unified-final/shipped": "0/0"
+      }
+    },
+    "uniformlyFailingChecks": [],
+    "skippedEpisodes": [
+      {
+        "arm": "pr182-unified-final/shipped",
+        "caseId": "M8",
+        "repetition": 1,
+        "reason": "the benchmark responder failed, so this episode observes the harness and not the assistant: Approval 0e42f4b9-7767-433d-8bc0-40d7e530959b:call_97333 did not resume its workflow hook."
+      },
+      {
+        "arm": "pr182-unified-final/shipped",
+        "caseId": "N24",
+        "repetition": 1,
+        "reason": "the benchmark responder failed, so this episode observes the harness and not the assistant: Approval f6c2df28-3858-4a55-a8b9-48d4fb02eb88:call_111566 did not resume its workflow hook."
+      },
+      {
+        "arm": "pr182-unified-final/shipped",
+        "caseId": "R51",
+        "repetition": 1,
+        "reason": "the benchmark responder failed, so this episode observes the harness and not the assistant: Approval 40c6a584-18b6-4f63-b278-453a714f3e5f:call_102432 did not resume its workflow hook."
+      },
+      {
+        "arm": "pr182-unified-final/shipped",
+        "caseId": "U44",
+        "repetition": 1,
+        "reason": "the benchmark responder failed, so this episode observes the harness and not the assistant: UI command call_127729 did not resume its workflow hook."
+      },
+      {
+        "arm": "pr182-unified-final/shipped",
+        "caseId": "U45",
+        "repetition": 1,
+        "reason": "the benchmark responder failed, so this episode observes the harness and not the assistant: UI command call_149668 did not resume its workflow hook."
+      },
+      {
+        "arm": "pr182-unified-final/shipped",
+        "caseId": "U46",
+        "repetition": 1,
+        "reason": "the benchmark responder failed, so this episode observes the harness and not the assistant: UI command call_94732 did not resume its workflow hook."
+      },
+      {
+        "arm": "pr182-unified-final/shipped",
+        "caseId": "V42",
+        "repetition": 1,
+        "reason": "the benchmark responder failed, so this episode observes the harness and not the assistant: Approval 0106cdbd-efd7-4fcc-88f8-b6ca4cc75a31:call_131520 did not resume its workflow hook."
+      }
+    ],
+    "totalUsd": 0.67913538,
+    "comparativeCaseCount": 46
+  }
+}
