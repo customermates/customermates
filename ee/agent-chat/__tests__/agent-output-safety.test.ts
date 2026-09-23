@@ -289,6 +289,73 @@ describe("agent client-visible output safety", () => {
     );
   });
 
+  it("hydrates only a validated public source domain for website-read progress", () => {
+    const parts = clientSafeAgentMessageParts([
+      {
+        type: "activity",
+        id: "valid-web-read",
+        activity: {
+          kind: "web.read",
+          affectedResources: [],
+          risk: "read",
+          sourceDomain: "customermates.com",
+          target: "customermates.com/private?token=never-show",
+        },
+        status: "done",
+      },
+      {
+        type: "activity",
+        id: "invalid-web-read",
+        activity: {
+          kind: "web.read",
+          affectedResources: [],
+          risk: "read",
+          sourceDomain: "127.0.0.1",
+        },
+        status: "done",
+      },
+      {
+        type: "activity",
+        id: "invisible-web-read",
+        activity: {
+          kind: "web.read",
+          affectedResources: [],
+          risk: "read",
+          sourceDomain: "evil\u200B.com",
+        },
+        status: "done",
+      },
+      {
+        type: "activity",
+        id: "bidi-web-read",
+        activity: {
+          kind: "web.read",
+          affectedResources: [],
+          risk: "read",
+          sourceDomain: "evil\u202E.com",
+        },
+        status: "done",
+      },
+    ]);
+
+    expect(parts).toEqual([
+      {
+        type: "activity",
+        id: "valid-web-read",
+        activity: {
+          kind: "web.read",
+          affectedResources: [],
+          risk: "read",
+          sourceDomain: "customermates.com",
+        },
+        status: "done",
+      },
+    ]);
+    expect(JSON.stringify(parts)).not.toMatch(
+      /private|never-show|127\.0\.0\.1|target|invisible-web-read|bidi-web-read/,
+    );
+  });
+
   it("sanitizes and bounds titles while removing legacy route envelopes", () => {
     const title = sanitizeAgentConversationTitle(
       `\uFEFF <page_context route="/en/dashboard"/>\nLaunch ${"x".repeat(100)} apiKey=never-show`,

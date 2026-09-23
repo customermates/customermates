@@ -14,6 +14,7 @@ import {
   Quote,
   Heading1,
   Heading2,
+  Heading3,
   Table as TableIcon,
   Image as ImageIcon,
 } from "lucide-react";
@@ -84,6 +85,12 @@ export function SlashMenu({ editor, anchorRect, onClose }: Props) {
         title: t("Editor.heading2"),
         icon: Heading2,
         run: () => chain().toggleHeading({ level: 2 }).run(),
+      },
+      {
+        key: "heading3",
+        title: t("Editor.heading3"),
+        icon: Heading3,
+        run: () => chain().toggleHeading({ level: 3 }).run(),
       },
       {
         key: "normalText",

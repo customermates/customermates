@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { Loader2, Plus, Search, Sparkles } from "lucide-react";
+import { Loader2, Search, Sparkles } from "lucide-react";
 
 import { AppImage } from "@/components/shared/app-image";
 import { AppLink } from "@/components/shared/app-link";
@@ -20,10 +20,8 @@ type Props = {
   assistantBusy?: boolean;
   assistantBusyLabel?: string;
   searchLabel: string;
-  addLabel: string;
   onAssistant?: (invoker: HTMLElement) => void;
   onSearch: (invoker: HTMLElement) => void;
-  onAdd: (invoker: HTMLElement) => void;
 };
 
 export function NavHeader({
@@ -36,10 +34,8 @@ export function NavHeader({
   assistantBusy,
   assistantBusyLabel,
   searchLabel,
-  addLabel,
   onAssistant,
   onSearch,
-  onAdd,
 }: Props) {
   return (
     <SidebarHeader>
@@ -102,14 +98,6 @@ export function NavHeader({
             </SidebarMenuButton>
           </SidebarMenuItem>
         )}
-
-        <SidebarMenuItem>
-          <SidebarMenuButton id="nav-add" tooltip={addLabel} onClick={(event) => onAdd(event.currentTarget)}>
-            <Plus />
-
-            <span>{addLabel}</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
       </SidebarMenu>
     </SidebarHeader>
   );

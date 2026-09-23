@@ -17,6 +17,7 @@ const domTestFiles = [
   "app/[locale]/(public)/auth/reset-password/__tests__/reset-password-form.test.ts",
   "app/**/company/components/company-settings/__tests__/company-settings-form.test.ts",
   "app/**/wiki/components/__tests__/wiki-page-view.test.ts",
+  "app/**/wiki/components/__tests__/wiki-page-outline.test.ts",
   "app/**/wiki/components/__tests__/wiki-page-editor.test.ts",
   "app/**/wiki/components/__tests__/use-wiki-pages.test.ts",
   "app/**/dashboard/components/__tests__/widget-chart.test.ts",

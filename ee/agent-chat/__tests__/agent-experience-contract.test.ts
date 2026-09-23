@@ -186,7 +186,7 @@ describe("agent experience contract", () => {
 
   it("explains homepage reading and Wiki creation with task-specific progress", () => {
     const websiteRead = describeInternalTool("read_public_page", {
-      url: "https://private.example/company",
+      url: "https://www.customermates.com/company?token=never-show#private",
     });
     const wikiCreate = describeInternalTool("manage_wiki_pages", {
       action: "create",
@@ -199,6 +199,7 @@ describe("agent experience contract", () => {
       kind: "web.read",
       affectedResources: [],
       risk: "read",
+      sourceDomain: "customermates.com",
     });
     expect(wikiCreate).toMatchObject({
       kind: "records.create",
@@ -207,9 +208,19 @@ describe("agent experience contract", () => {
       risk: "write",
       affectedResources: ["wiki"],
     });
-    expect(agentActivityCopy(websiteRead, enT).running).toBe("Reading a website page");
+    expect(agentActivityCopy(websiteRead, enT)).toMatchObject({
+      running: "Reading customermates.com",
+      done: "Read customermates.com",
+      error: "Couldn’t read customermates.com",
+    });
     expect(agentActivityCopy(wikiCreate, enT).running).toBe("Creating 5 Wiki pages");
-    expect(JSON.stringify([websiteRead, wikiCreate])).not.toMatch(/private\.example|Private page/);
+    expect(JSON.stringify([websiteRead, wikiCreate])).not.toMatch(/company|never-show|private|Private page/);
+
+    const legacyOrInvalidRead = describeInternalTool("read_public_page", {
+      url: "https://127.0.0.1/private?token=never-show",
+    });
+    expect(legacyOrInvalidRead).not.toHaveProperty("sourceDomain");
+    expect(agentActivityCopy(legacyOrInvalidRead, enT).running).toBe("Reading a website page");
   });
 
   it("keeps no input-derived data on a navigate or highlight activity", () => {

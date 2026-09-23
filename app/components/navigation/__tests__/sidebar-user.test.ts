@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { Action, Resource } from "@/generated/prisma";
 
-import { sidebarUserCanAccess, sidebarUserCanManage, toSidebarUser, type SidebarUser } from "../sidebar-user";
+import { sidebarUserCanAccess, toSidebarUser, type SidebarUser } from "../sidebar-user";
 
 function sidebarUser(overrides: Partial<SidebarUser> = {}): SidebarUser {
   return {
@@ -16,11 +16,10 @@ function sidebarUser(overrides: Partial<SidebarUser> = {}): SidebarUser {
 }
 
 describe("sidebar user access", () => {
-  it("gives a system role the same visible destinations and actions as the full sidebar", () => {
+  it("gives a system role access to every sidebar destination", () => {
     const user = sidebarUser({ role: { isSystemRole: true, permissions: [] } });
 
     expect(sidebarUserCanAccess(user, Resource.contacts)).toBe(true);
-    expect(sidebarUserCanManage(user, Resource.contacts)).toBe(true);
   });
 
   it.each([Action.readOwn, Action.readAll])("shows a resource with %s permission", (action) => {
@@ -33,22 +32,6 @@ describe("sidebar user access", () => {
 
     expect(sidebarUserCanAccess(user, Resource.contacts)).toBe(true);
     expect(sidebarUserCanAccess(user, Resource.deals)).toBe(false);
-    expect(sidebarUserCanManage(user, Resource.contacts)).toBe(false);
-  });
-
-  it("requires every mutation permission before showing a management action", () => {
-    const user = sidebarUser({
-      role: {
-        isSystemRole: false,
-        permissions: [Action.create, Action.update, Action.delete].map((action) => ({
-          action,
-          resource: Resource.contacts,
-        })),
-      },
-    });
-
-    expect(sidebarUserCanManage(user, Resource.contacts)).toBe(true);
-    expect(sidebarUserCanManage(user, Resource.deals)).toBe(false);
   });
 
   it("projects only account-menu identity and role permissions from the tenant user", () => {

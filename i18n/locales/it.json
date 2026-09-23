@@ -107,6 +107,7 @@
       "countedResource": "{count} {resource}",
       "countedSingular": "1 {resource}",
       "defaultRecords": "record",
+      "defaultWebsitePage": "una pagina web",
       "label": {
         "preview": "Anteprima",
         "subject": "Oggetto",
@@ -324,9 +325,9 @@
         },
         "web": {
           "read": {
-            "done": "Pagina del sito letta",
-            "error": "Impossibile leggere una pagina del sito",
-            "running": "Lettura di una pagina del sito"
+            "done": "Lettura di {target} completata",
+            "error": "Impossibile leggere {target}",
+            "running": "Lettura di {target}"
           },
           "search": {
             "done": "Ricerca sul web completata",
@@ -829,8 +830,8 @@
       "undo": "Annulla",
       "untitled": "Nuova chat",
       "waitElapsed": "{seconds} s trascorsi",
-      "websiteSourcesRunning": "{count, plural, one {Verifica di 1 fonte del sito} other {Verifica di # fonti del sito}}",
-      "websiteWikiComplete": "{count, plural, one {Wiki iniziale creata da 1 fonte del sito} other {Wiki iniziale creata da # fonti del sito}}",
+      "websiteSourcesRunning": "{count, plural, one {Lettura di 1 pagina del sito per il tuo wiki} other {Lettura di # pagine del sito per il tuo wiki}}",
+      "websiteWikiComplete": "{count, plural, one {Il tuo wiki iniziale è stato creato da 1 pagina del sito} other {Il tuo wiki iniziale è stato creato da # pagine del sito}}",
       "workingOnRequest": "Elaborazione della tua richiesta…"
     }
   },
@@ -2146,6 +2147,7 @@
     "formatting": "Formattazione",
     "heading1": "Titolo 1",
     "heading2": "Titolo 2",
+    "heading3": "Titolo 3",
     "image": "Immagine",
     "imageUrlPrompt": "Inserisci l'URL dell'immagine",
     "italic": "Corsivo",
@@ -2711,9 +2713,6 @@
     "title": "Passa a un piano superiore per la messaggistica"
   },
   "NavigationBar": {
-    "addEntity": "Aggiungi {entity}",
-    "addPickerDescription": "Scegli il tipo di record che vuoi creare.",
-    "addPickerTitle": "Crea nuovo…",
     "admin": "Amministrazione",
     "affiliate": "Programma di affiliazione",
     "connectedAccounts": "Canali",
@@ -3618,6 +3617,7 @@
     "newPage": "Nuova pagina",
     "next": "Avanti",
     "noResults": "Nessuna pagina corrispondente.",
+    "onThisPage": "In questa pagina",
     "page": "Pagina {current} di {total}",
     "pageActions": "Azioni della pagina",
     "pagesLabel": "Pagine della wiki",

@@ -107,6 +107,7 @@
       "countedResource": "{count} {resource}",
       "countedSingular": "1 {resource}",
       "defaultRecords": "enregistrements",
+      "defaultWebsitePage": "une page web",
       "label": {
         "preview": "Aperçu",
         "subject": "Objet",
@@ -324,9 +325,9 @@
         },
         "web": {
           "read": {
-            "done": "Page du site consultée",
-            "error": "Impossible de consulter une page du site",
-            "running": "Consultation d’une page du site"
+            "done": "Lecture de {target} terminée",
+            "error": "Impossible de lire {target}",
+            "running": "Lecture de {target}"
           },
           "search": {
             "done": "Recherche web terminée",
@@ -829,8 +830,8 @@
       "undo": "Annuler",
       "untitled": "Nouvelle discussion",
       "waitElapsed": "{seconds} s écoulées",
-      "websiteSourcesRunning": "{count, plural, one {Vérification de 1 source du site} other {Vérification de # sources du site}}",
-      "websiteWikiComplete": "{count, plural, one {Wiki de départ créé à partir de 1 source du site} other {Wiki de départ créé à partir de # sources du site}}",
+      "websiteSourcesRunning": "{count, plural, one {Lecture de 1 page du site pour votre wiki} other {Lecture de # pages du site pour votre wiki}}",
+      "websiteWikiComplete": "{count, plural, one {Votre wiki de départ a été créé à partir de 1 page du site} other {Votre wiki de départ a été créé à partir de # pages du site}}",
       "workingOnRequest": "Traitement de votre demande…"
     }
   },
@@ -2146,6 +2147,7 @@
     "formatting": "Mise en forme",
     "heading1": "Titre 1",
     "heading2": "Titre 2",
+    "heading3": "Titre 3",
     "image": "Image",
     "imageUrlPrompt": "Saisissez l'URL de l'image",
     "italic": "Italique",
@@ -2711,9 +2713,6 @@
     "title": "Passez à une formule supérieure pour débloquer la messagerie"
   },
   "NavigationBar": {
-    "addEntity": "Ajouter {entity}",
-    "addPickerDescription": "Choisissez le type d'enregistrement à créer.",
-    "addPickerTitle": "Créer…",
     "admin": "Administration",
     "affiliate": "Programme d'affiliation",
     "connectedAccounts": "Canaux",
@@ -3618,6 +3617,7 @@
     "newPage": "Nouvelle page",
     "next": "Suivant",
     "noResults": "Aucune page correspondante.",
+    "onThisPage": "Sur cette page",
     "page": "Page {current} sur {total}",
     "pageActions": "Actions de la page",
     "pagesLabel": "Pages du wiki",

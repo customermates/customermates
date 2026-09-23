@@ -37,6 +37,35 @@ describe("agent durable stream reader", () => {
     ]);
   });
 
+  it("keeps only the registrable domain when describing a public page read", () => {
+    const events = read([
+      {
+        type: "tool-call",
+        toolCallId: "call-website",
+        toolName: "read_public_page",
+        input: {
+          url: "https://www.customermates.com/private/path?token=never-show#details",
+        },
+      },
+    ]);
+
+    expect(events).toEqual([
+      {
+        type: "activity",
+        payload: {
+          id: "call-website",
+          activity: {
+            kind: "web.read",
+            affectedResources: [],
+            risk: "read",
+            sourceDomain: "customermates.com",
+          },
+        },
+      },
+    ]);
+    expect(JSON.stringify(events)).not.toMatch(/private|never-show|details/);
+  });
+
   it("never forwards raw tool output, which would put record data in the browser", () => {
     const events = read([
       {

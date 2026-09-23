@@ -7,7 +7,7 @@ import type { NavGroup } from "./navigation/nav-main";
 import type { NavSecondaryItem } from "./navigation/nav-secondary";
 import type { SidebarUser } from "./navigation/sidebar-user";
 
-import { startTransition, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { usePathname as useIntlPathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -22,7 +22,6 @@ import {
   Inbox,
   Mail,
   Package,
-  Plus,
   LayoutGrid,
   Repeat,
   ShieldCheck,
@@ -35,12 +34,8 @@ import { Resource, Theme as ThemeEnum } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
-import { useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { AppChip } from "@/components/chip/app-chip";
 import { Sidebar, SidebarContent, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
-import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
-import { Icon } from "@/components/shared/icon";
 import { signOutAction } from "@/app/[locale]/actions";
 import { FeedbackType } from "@/features/feedback/send-feedback.schema";
 import { EntityType } from "@/generated/prisma";
@@ -54,7 +49,7 @@ import { NavSecondary } from "./navigation/nav-secondary";
 import { NavUser } from "./navigation/nav-user";
 import { LegalUpdateAlert } from "./navigation/legal-update-alert";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import { sidebarUserCanAccess, sidebarUserCanManage } from "./navigation/sidebar-user";
+import { sidebarUserCanAccess } from "./navigation/sidebar-user";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 type FullProps = {
@@ -128,18 +123,14 @@ const FullAppSidebar = observer(
     const router = useRouter();
     const rootStore = useRootStore();
     const { feedbackModalStore, globalSearchModalStore, terminologyStore, userStore } = rootStore;
-    const { singular, plural } = useEntityTerminology();
+    const { plural } = useEntityTerminology();
 
     const { isMobile, setOpenMobile } = useSidebar();
     const { resolvedTheme, setTheme } = useTheme();
-    const openEntity = useOpenEntity();
     const subscriptionStatus = subscription?.status ?? null;
     const subscriptionPlan = subscription?.plan ?? null;
     const isDocsRoute = pathname.split("/")[2] === "docs";
     const [selectedKey, setSelectedKey] = useState<string | null>(pathname.split("/")[2]);
-    const [isAddPickerOpen, setIsAddPickerOpen] = useState(false);
-    const addPickerInvokerRef = useRef<HTMLElement | null>(null);
-    const addPickerFallbackRef = useRef<HTMLElement | null>(null);
 
     function handleThemeChange() {
       const next = resolvedTheme === "dark" ? ThemeEnum.light : ThemeEnum.dark;
@@ -344,49 +335,6 @@ const FullAppSidebar = observer(
       },
     ];
 
-    const addItems = [
-      {
-        resource: Resource.contacts,
-        key: "add_contact",
-        label: t("NavigationBar.addEntity", {
-          entity: singular(EntityType.contact),
-        }),
-        entity: EntityType.contact,
-      },
-      {
-        resource: Resource.organizations,
-        key: "add_organization",
-        label: t("NavigationBar.addEntity", {
-          entity: singular(EntityType.organization),
-        }),
-        entity: EntityType.organization,
-      },
-      {
-        resource: Resource.deals,
-        key: "add_deal",
-        label: t("NavigationBar.addEntity", {
-          entity: singular(EntityType.deal),
-        }),
-        entity: EntityType.deal,
-      },
-      {
-        resource: Resource.services,
-        key: "add_service",
-        label: t("NavigationBar.addEntity", {
-          entity: singular(EntityType.service),
-        }),
-        entity: EntityType.service,
-      },
-      {
-        resource: Resource.tasks,
-        key: "add_task",
-        label: t("NavigationBar.addEntity", {
-          entity: singular(EntityType.task),
-        }),
-        entity: EntityType.task,
-      },
-    ];
-
     if (isDocsRoute && !restricted) return null;
 
     const isCloudHosted = rootStore.appMode !== "self-hosted";
@@ -409,177 +357,75 @@ const FullAppSidebar = observer(
     );
 
     return (
-      <>
-        <Sidebar collapsible="icon" side="left" variant="inset">
-          <NavHeader
-            addLabel={t("Common.actions.add")}
-            assistantBusy={assistantBusy}
-            assistantBusyLabel={assistantBusyLabel}
-            assistantLabel={
-              rootStore.agentChatEnabled && rootStore.agentChatStore.enabled === true ? t("AgentChat.askAi") : undefined
+      <Sidebar collapsible="icon" side="left" variant="inset">
+        <NavHeader
+          assistantBusy={assistantBusy}
+          assistantBusyLabel={assistantBusyLabel}
+          assistantLabel={
+            rootStore.agentChatEnabled && rootStore.agentChatStore.enabled === true ? t("AgentChat.askAi") : undefined
+          }
+          assistantShortcut="⌘J"
+          brandName="Customermates"
+          brandSubtitle={planSubtitle}
+          homeHref={
+            restricted ? "/dashboard" : rootStore.appMode === "demo" ? "https://customermates.com" : "/dashboard"
+          }
+          logoAlt={t("Common.imageAlt.logo")}
+          searchLabel={t("NavigationBar.search")}
+          onAssistant={() => {
+            if (restricted) {
+              closeMobileSidebar(recheckAccountState);
+              return;
             }
-            assistantShortcut="⌘J"
-            brandName="Customermates"
-            brandSubtitle={planSubtitle}
-            homeHref={
-              restricted ? "/dashboard" : rootStore.appMode === "demo" ? "https://customermates.com" : "/dashboard"
+            closeMobileSidebar(() => rootStore.agentChatStore.toggle());
+          }}
+          onSearch={(invoker) => {
+            if (restricted) {
+              closeMobileSidebar(recheckAccountState);
+              return;
             }
-            logoAlt={t("Common.imageAlt.logo")}
-            searchLabel={t("NavigationBar.search")}
-            onAdd={(invoker) => {
-              if (restricted) {
-                closeMobileSidebar(recheckAccountState);
-                return;
-              }
 
-              closeMobileSidebar(() => {
-                addPickerInvokerRef.current = invoker;
-                addPickerFallbackRef.current = document.getElementById("sidebar-trigger");
-                setIsAddPickerOpen(true);
-              });
-            }}
-            onAssistant={() => {
-              if (restricted) {
-                closeMobileSidebar(recheckAccountState);
-                return;
-              }
-              closeMobileSidebar(() => rootStore.agentChatStore.toggle());
-            }}
-            onSearch={(invoker) => {
-              if (restricted) {
-                closeMobileSidebar(recheckAccountState);
-                return;
-              }
+            closeMobileSidebar(() => {
+              const sidebarTrigger = document.getElementById("sidebar-trigger");
+              globalSearchModalStore.openFrom(invoker, sidebarTrigger);
+            });
+          }}
+        />
 
-              closeMobileSidebar(() => {
-                const sidebarTrigger = document.getElementById("sidebar-trigger");
-                globalSearchModalStore.openFrom(invoker, sidebarTrigger);
-              });
-            }}
+        <SidebarContent>
+          {legalStatus ? <LegalUpdateAlert status={legalStatus} onNavigate={() => closeMobileSidebar()} /> : null}
+
+          <NavMain
+            groups={navGroups}
+            pathname={intlPathname}
+            selectedKey={restricted ? null : selectedKey}
+            onNavigate={(key) => closeMobileSidebar(restricted ? undefined : () => setSelectedKey(key))}
           />
 
-          <SidebarContent>
-            {legalStatus ? <LegalUpdateAlert status={legalStatus} onNavigate={() => closeMobileSidebar()} /> : null}
+          <NavSecondary className="mt-auto" items={secondaryItems} />
+        </SidebarContent>
 
-            <NavMain
-              groups={navGroups}
-              pathname={intlPathname}
-              selectedKey={restricted ? null : selectedKey}
-              onNavigate={(key) => closeMobileSidebar(restricted ? undefined : () => setSelectedKey(key))}
-            />
-
-            <NavSecondary className="mt-auto" items={secondaryItems} />
-          </SidebarContent>
-
-          <SidebarFooter>
-            <NavUser
-              labels={{
-                signOut: t("UserAvatar.signOut"),
-                lightMode: t("UserAvatar.lightMode"),
-                darkMode: t("UserAvatar.darkMode"),
-              }}
-              theme={resolvedTheme}
-              user={user}
-              onSignOut={() =>
-                closeMobileSidebar(() => {
-                  runUserAction(handleSignOut);
-                })
-              }
-              onThemeChange={handleThemeChange}
-            />
-          </SidebarFooter>
-        </Sidebar>
-
-        {!restricted ? (
-          <AddPickerDrawer
-            items={addItems.filter((item) => sidebarUserCanManage(user, item.resource))}
-            open={isAddPickerOpen}
-            returnFocusFallback={addPickerFallbackRef.current}
-            returnFocusTarget={addPickerInvokerRef.current}
-            onOpenChange={setIsAddPickerOpen}
-            onPick={(entity) => {
-              startTransition(() => {
-                setIsAddPickerOpen(false);
-                openEntity(entity, "new", addPickerInvokerRef.current, addPickerFallbackRef.current);
-              });
+        <SidebarFooter>
+          <NavUser
+            labels={{
+              signOut: t("UserAvatar.signOut"),
+              lightMode: t("UserAvatar.lightMode"),
+              darkMode: t("UserAvatar.darkMode"),
             }}
+            theme={resolvedTheme}
+            user={user}
+            onSignOut={() =>
+              closeMobileSidebar(() => {
+                runUserAction(handleSignOut);
+              })
+            }
+            onThemeChange={handleThemeChange}
           />
-        ) : null}
-      </>
+        </SidebarFooter>
+      </Sidebar>
     );
   },
 );
-
-type AddPickerItem = {
-  key: string;
-  label: string;
-  entity: EntityType;
-};
-
-function AddPickerDrawer({
-  items,
-  open,
-  returnFocusFallback,
-  returnFocusTarget,
-  onOpenChange,
-  onPick,
-}: {
-  items: AddPickerItem[];
-  open: boolean;
-  returnFocusFallback: HTMLElement | null;
-  returnFocusTarget: HTMLElement | null;
-  onOpenChange: (o: boolean) => void;
-  onPick: (entity: EntityType) => void;
-}) {
-  const t = useTranslations();
-  const isHandingOffRef = useRef(false);
-  const focusReturn = useOverlayFocusReturn(open, returnFocusTarget, returnFocusFallback);
-
-  function handleCloseAutoFocus(event: Event) {
-    if (isHandingOffRef.current) {
-      isHandingOffRef.current = false;
-      event.preventDefault();
-      return;
-    }
-
-    focusReturn.onCloseAutoFocus(event);
-  }
-
-  return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        className="gap-0 sm:max-w-[420px]"
-        side="left"
-        {...focusReturn}
-        onCloseAutoFocus={handleCloseAutoFocus}
-      >
-        <SheetHeader className="px-6 pt-6">
-          <SheetTitle>{t("NavigationBar.addPickerTitle")}</SheetTitle>
-
-          <SheetDescription>{t("NavigationBar.addPickerDescription")}</SheetDescription>
-        </SheetHeader>
-
-        <SheetBody className="flex flex-col gap-1 py-4">
-          {items.map((item) => (
-            <button
-              key={item.key}
-              className="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
-              type="button"
-              onClick={() => {
-                isHandingOffRef.current = true;
-                onPick(item.entity);
-              }}
-            >
-              <span>{item.label}</span>
-
-              <Icon className="size-3.5 opacity-50" icon={Plus} />
-            </button>
-          ))}
-        </SheetBody>
-      </SheetContent>
-    </Sheet>
-  );
-}
 
 function buildPlanSubtitle(
   status: SubscriptionStatus | null,

@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { parsePublicPageUrl } from "@/features/wiki/wiki-homepage";
+
 import { approvalFreeActionsForTool, readOnlyActionsForTool } from "./gated-tools";
 import type { AgentToolIdentity } from "./tool-identity";
 import { internalToolIdentity, isInternalToolIdentity } from "./tool-identity";
@@ -146,6 +148,11 @@ export const AgentActivityDescriptorSchema = z.preprocess(
     affectedResources: z.array(z.enum(AGENT_ACTIVITY_RESOURCES)).max(8),
     risk: z.enum(["read", "write", "sensitive"]),
     count: z.number().int().min(1).max(100).optional(),
+    sourceDomain: z
+      .string()
+      .max(253)
+      .refine((value) => parsePublicPageUrl(`https://${value}`)?.registrableDomain === value)
+      .optional(),
     consequence: AgentActivityConsequenceSchema.optional(),
   }),
 );
@@ -263,7 +270,14 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
   if (toolName === "configure_view") return descriptor("interface.interact", undefined, "read");
   if (toolName === "start_tour") return descriptor("interface.tour", undefined, "read");
   if (toolName === "web_search") return descriptor("web.search", undefined, "read");
-  if (toolName === "read_public_page") return descriptor("web.read", undefined, "read");
+  if (toolName === "read_public_page") {
+    const sourceDomain =
+      typeof details.url === "string" ? parsePublicPageUrl(details.url)?.registrableDomain : undefined;
+    return {
+      ...descriptor("web.read", undefined, "read"),
+      ...(sourceDomain ? { sourceDomain } : {}),
+    };
+  }
   if (toolName === "manage_wiki_pages") {
     const action = actionValue(details);
     if (isMultiplexedRead(toolName, details)) return descriptor("records.read", "wiki", "read");
@@ -683,6 +697,10 @@ export function agentActivityCopy(
     : undefined;
   const hasCustomTerminology = Boolean(activity.resource && terminology[activity.resource]);
   const mutationTarget = countedResourceCopy(activity.count, activity.resource, t, resource, hasCustomTerminology);
+  const target =
+    activity.kind === "web.read"
+      ? (activity.sourceDomain ?? t("AgentChat.activity.defaultWebsitePage"))
+      : mutationTarget;
   const detail =
     agentConsequenceDetail(activity, t, resource, hasCustomTerminology) ??
     (resource ? resource.charAt(0).toUpperCase() + resource.slice(1) : undefined);
@@ -690,7 +708,7 @@ export function agentActivityCopy(
     t(`AgentChat.activity.state.${activity.kind}.${name}`, {
       count: activity.count ?? 0,
       resource: resource ?? t("AgentChat.activity.yourRecords"),
-      target: mutationTarget,
+      target,
     });
 
   const approval = AGENT_APPROVAL_COPY_KINDS.includes(activity.kind)

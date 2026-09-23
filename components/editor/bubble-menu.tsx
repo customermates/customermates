@@ -3,7 +3,7 @@
 import type { Editor } from "@tiptap/react";
 import type { EditorAnchorRect } from "./use-editor-anchor";
 
-import { Bold, Italic, Strikethrough, Code, Heading1, Heading2, Underline } from "lucide-react";
+import { Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Underline } from "lucide-react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
@@ -42,6 +42,12 @@ export function BubbleMenu({ editor, anchorRect, onClose }: Props) {
       label: t("Editor.heading2"),
       isActive: () => editor.isActive("heading", { level: 2 }),
       onClick: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
+    },
+    {
+      icon: Heading3,
+      label: t("Editor.heading3"),
+      isActive: () => editor.isActive("heading", { level: 3 }),
+      onClick: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
     },
     {
       icon: Bold,

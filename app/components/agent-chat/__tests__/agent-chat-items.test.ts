@@ -3,7 +3,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string) => key,
+  useTranslations: () => (key: string, values?: Record<string, string | number>) =>
+    values?.target ? `${key}:${values.target}` : key,
 }));
 vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
   useEntityTerminology: () => ({ plural: () => "Contacts" }),
@@ -95,6 +96,7 @@ describe("AgentActivity", () => {
         kind: "web.read" as const,
         affectedResources: [],
         risk: "read" as const,
+        sourceDomain: "customermates.com",
       },
       status: "done" as const,
     };
@@ -129,6 +131,7 @@ describe("AgentActivity", () => {
 
     expect(runningHtml).toContain("AgentChat.ui.websiteSourcesRunning");
     expect(completedHtml).toContain("AgentChat.ui.websiteWikiComplete");
+    expect(completedHtml).toContain("AgentChat.activity.state.web.read.done:customermates.com");
     expect(completedHtml).not.toContain("AgentChat.ui.stepsTook");
 
     const ordinaryChatHtml = renderToStaticMarkup(
@@ -149,6 +152,7 @@ describe("AgentActivity", () => {
         kind: "web.read" as const,
         affectedResources: [],
         risk: "read" as const,
+        sourceDomain: "customermates.com",
       },
       status: "done" as const,
     };

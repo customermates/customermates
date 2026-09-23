@@ -26,6 +26,7 @@ import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-s
 
 import { WikiPageStore } from "./wiki-page.store";
 import { WikiPageActions } from "./wiki-page-actions";
+import { WikiPageOutline } from "./wiki-page-outline";
 import { WikiPageSkeleton } from "./wiki-page-skeleton";
 import { WikiLinkPicker } from "./wiki-link-picker";
 import { useWikiPages } from "./use-wiki-pages";
@@ -65,6 +66,7 @@ const WikiPageViewComponent = ({
   );
   const formId = useId();
   const titleContainer = useRef<HTMLDivElement>(null);
+  const documentContainer = useRef<HTMLDivElement>(null);
   const pages = useWikiPages(listPage);
   const canManage = store.canManage && !readOnly;
   const setupActive = initialSetupState.status === "working" || setupStarted;
@@ -289,47 +291,49 @@ const WikiPageViewComponent = ({
             title={t("Wiki.emptyTitle")}
           />
         ) : (
-          <AppForm
-            className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-6 py-8 md:px-10 md:py-10"
-            id={formId}
-            store={store}
-          >
-            {store.conflict && (
-              <div
-                className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border p-3 text-sm"
-                role="alert"
-              >
-                <p>{t("Wiki.conflict")}</p>
+          <AppForm className="mx-auto w-full max-w-6xl flex-1 px-6 py-8 md:px-10 md:py-10" id={formId} store={store}>
+            <div className="grid items-start gap-12 2xl:grid-cols-[minmax(0,48rem)_12rem] 2xl:justify-center">
+              <div ref={documentContainer} className="mx-auto w-full max-w-3xl min-w-0 space-y-6 2xl:mx-0">
+                {store.conflict && (
+                  <div
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border p-3 text-sm"
+                    role="alert"
+                  >
+                    <p>{t("Wiki.conflict")}</p>
 
-                <Button disabled={store.isLoading} size="sm" variant="secondary" onClick={reload}>
-                  {t("Wiki.reload")}
-                </Button>
+                    <Button disabled={store.isLoading} size="sm" variant="secondary" onClick={reload}>
+                      {t("Wiki.reload")}
+                    </Button>
+                  </div>
+                )}
+
+                <div ref={titleContainer}>
+                  {canManage ? (
+                    <FormInput
+                      required
+                      aria-label={t("Wiki.pageTitle")}
+                      className="h-auto rounded-none border-0 bg-transparent px-0 py-1 text-3xl font-semibold tracking-tight shadow-none placeholder:text-muted-foreground/60 focus-visible:ring-2 md:text-3xl"
+                      id="title"
+                      label={null}
+                      maxLength={120}
+                      placeholder={t("Wiki.untitled")}
+                    />
+                  ) : (
+                    <h1 className="break-words text-3xl font-semibold tracking-tight">{store.form.title}</h1>
+                  )}
+                </div>
+
+                <EditorLinkPickerContext.Provider value={WikiLinkPicker}>
+                  <Editor
+                    data={store.editorDocument}
+                    readOnly={!canManage || store.isLoading}
+                    onChange={store.onEditorChange}
+                  />
+                </EditorLinkPickerContext.Provider>
               </div>
-            )}
 
-            <div ref={titleContainer}>
-              {canManage ? (
-                <FormInput
-                  required
-                  aria-label={t("Wiki.pageTitle")}
-                  className="h-auto rounded-none border-0 bg-transparent px-0 py-1 text-3xl font-semibold tracking-tight shadow-none placeholder:text-muted-foreground/60 focus-visible:ring-2 md:text-3xl"
-                  id="title"
-                  label={null}
-                  maxLength={120}
-                  placeholder={t("Wiki.untitled")}
-                />
-              ) : (
-                <h1 className="break-words text-3xl font-semibold tracking-tight">{store.form.title}</h1>
-              )}
+              <WikiPageOutline containerRef={documentContainer} document={store.editorDocument} />
             </div>
-
-            <EditorLinkPickerContext.Provider value={WikiLinkPicker}>
-              <Editor
-                data={store.editorDocument}
-                readOnly={!canManage || store.isLoading}
-                onChange={store.onEditorChange}
-              />
-            </EditorLinkPickerContext.Provider>
           </AppForm>
         )}
       </main>

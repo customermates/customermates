@@ -107,6 +107,7 @@
       "countedResource": "{count} {resource}",
       "countedSingular": "1 {resource}",
       "defaultRecords": "records",
+      "defaultWebsitePage": "a website page",
       "label": {
         "preview": "Preview",
         "subject": "Subject",
@@ -324,9 +325,9 @@
         },
         "web": {
           "read": {
-            "done": "Read a website page",
-            "error": "Couldn’t read a website page",
-            "running": "Reading a website page"
+            "done": "Read {target}",
+            "error": "Couldn’t read {target}",
+            "running": "Reading {target}"
           },
           "search": {
             "done": "Searched the web",
@@ -829,8 +830,8 @@
       "undo": "Undo",
       "untitled": "New chat",
       "waitElapsed": "{seconds}s elapsed",
-      "websiteSourcesRunning": "{count, plural, one {Checking 1 website source} other {Checking # website sources}}",
-      "websiteWikiComplete": "{count, plural, one {Built the starter Wiki from 1 website source} other {Built the starter Wiki from # website sources}}",
+      "websiteSourcesRunning": "{count, plural, one {Reading 1 website page for your Wiki} other {Reading # website pages for your Wiki}}",
+      "websiteWikiComplete": "{count, plural, one {Built your starter Wiki from 1 website page} other {Built your starter Wiki from # website pages}}",
       "workingOnRequest": "Working on your request…"
     }
   },
@@ -2146,6 +2147,7 @@
     "formatting": "Formatting",
     "heading1": "Heading 1",
     "heading2": "Heading 2",
+    "heading3": "Heading 3",
     "image": "Image",
     "imageUrlPrompt": "Enter image URL",
     "italic": "Italic",
@@ -2711,9 +2713,6 @@
     "title": "Upgrade to unlock messaging"
   },
   "NavigationBar": {
-    "addEntity": "Add {entity}",
-    "addPickerDescription": "Pick the type of record you want to create.",
-    "addPickerTitle": "Create new…",
     "admin": "Admin",
     "affiliate": "Affiliate Program",
     "connectedAccounts": "Channels",
@@ -3618,6 +3617,7 @@
     "newPage": "New page",
     "next": "Next",
     "noResults": "No matching pages.",
+    "onThisPage": "On this page",
     "page": "Page {current} of {total}",
     "pageActions": "Page actions",
     "pagesLabel": "Wiki pages",

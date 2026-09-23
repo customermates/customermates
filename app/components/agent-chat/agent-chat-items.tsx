@@ -305,7 +305,7 @@ export const AgentActivity = observer(function AgentActivity({
     >
       <summary className="flex cursor-pointer list-none items-center gap-2 text-xs text-muted-foreground transition-colors select-none hover:text-foreground [&::-webkit-details-marker]:hidden">
         {isActive ? (
-          <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
+          <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" />
         ) : hasBlockingError ? (
           <X aria-hidden="true" className="size-3.5 text-destructive" />
         ) : hasCancelled ? (
@@ -314,7 +314,7 @@ export const AgentActivity = observer(function AgentActivity({
           <Check aria-hidden="true" className="size-3.5" />
         )}
 
-        <span className="flex-1 text-left">{summary}</span>
+        <span className="min-w-0 flex-1 text-left [overflow-wrap:anywhere]">{summary}</span>
 
         <ChevronDown aria-hidden="true" className="size-3.5 transition-transform group-open:rotate-180" />
       </summary>
@@ -344,7 +344,10 @@ export const AgentActivity = observer(function AgentActivity({
               )}
             >
               {status === "running" ? (
-                <Loader2 aria-hidden="true" className="mt-0.5 size-3.5 shrink-0 animate-spin" />
+                <Loader2
+                  aria-hidden="true"
+                  className="mt-0.5 size-3.5 shrink-0 animate-spin motion-reduce:animate-none"
+                />
               ) : status === "error" ? (
                 <X aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
               ) : status === "cancelled" ? (
@@ -353,7 +356,7 @@ export const AgentActivity = observer(function AgentActivity({
                 <Check aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
               )}
 
-              <span className="min-w-0 text-foreground">{label}</span>
+              <span className="min-w-0 text-foreground [overflow-wrap:anywhere]">{label}</span>
             </div>
           );
         })}

@@ -70,6 +70,14 @@ afterEach(() => {
 });
 
 describe("Wiki live Notes document", () => {
+  it("renders third-level headings and Markdown links with their semantic elements", async () => {
+    const href = "https://example.com/product";
+    const { container } = await mount(`### Positioning\n\n[Read the source](${href})`);
+
+    expect(container.querySelector("h3")?.textContent).toBe("Positioning");
+    expect(container.querySelector<HTMLAnchorElement>("a")?.getAttribute("href")).toBe(href);
+  });
+
   it("renders stable Wiki page links with the exact UUID target", async () => {
     const targetId = "20000000-0000-4000-8000-000000000002";
     const href = `/wiki?page=${targetId}`;

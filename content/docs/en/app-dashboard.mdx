@@ -51,7 +51,6 @@ The sidebar is the same on every screen; its controls are documented here becaus
 | Add widget | Page header | `#dashboard-add-widget` | Opens the widget modal |
 | Global search | Top of sidebar | `#nav-search` | Opens the search modal (also Cmd/Ctrl+K); see [Global search](/docs/app-search) |
 | Search input | Search modal | `#global-search-input` | Finds contacts, organizations, deals and services by name; tasks are not searched |
-| Create a record | Top of sidebar | `#nav-add` | Opens the record type picker |
 | Open documentation | Sidebar footer | `#nav-documentation` | Opens `/docs` |
 | Send feedback | Sidebar footer | `#nav-feedback` | Opens the feedback dialog |
 
@@ -62,7 +61,7 @@ New accounts land in the [onboarding wizard](/docs/app-onboarding) at `/onboardi
 ## Tips for agents
 
 - The hosted assistant can navigate here and highlight `#nav-dashboard` and `#dashboard-add-widget`; it creates widgets through `manage_widgets` instead of driving the modal.
-- Rows never carry ids. Open a record via its page URL `/{type}/{id}`. The drawer deep-link `?open={entityType}:new` adds a record and works on every signed-in page, the Dashboard included.
+- Rows never carry ids. Open a record via its page URL `/{type}/{id}`. Create records from the relevant record page's top-right button. The drawer deep-link `?open={entityType}:new` also adds a record and works on every signed-in page, the Dashboard included.
 - Prefer [MCP](/docs/mcp) tools over clicking when a tool exists. Reading and writing CRM data is faster and safer through tools than through the UI.
 
 ## Related

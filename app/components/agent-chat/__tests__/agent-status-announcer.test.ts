@@ -7,7 +7,8 @@ const testContext = vi.hoisted(() => ({
 }));
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string) => key,
+  useTranslations: () => (key: string, values?: Record<string, string | number>) =>
+    values?.target ? `${key}:${values.target}` : key,
 }));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({ agentChatStore: testContext.store }),
@@ -78,6 +79,28 @@ describe("AgentStatusAnnouncer", () => {
       progressPhase: null,
     });
     expect(renderToStaticMarkup(createElement(AgentInitialProgress))).toBe("");
+  });
+
+  it("announces the website domain while Mate reads it", () => {
+    const markup = renderStatus({
+      isWorking: true,
+      streamStatus: "working",
+      items: [
+        {
+          kind: "activity",
+          id: "read-1",
+          activity: {
+            kind: "web.read",
+            affectedResources: [],
+            risk: "read",
+            sourceDomain: "customermates.com",
+          },
+          status: "running",
+        },
+      ],
+    });
+
+    expect(markup).toContain("AgentChat.activity.state.web.read.running:customermates.com");
   });
   it("does not announce a historical result hydrated into a closed assistant", () => {
     const historical = renderStatus({

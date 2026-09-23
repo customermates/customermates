@@ -107,6 +107,7 @@
       "countedResource": "{count} {resource}",
       "countedSingular": "1 {resource}",
       "defaultRecords": "Datensätze",
+      "defaultWebsitePage": "eine Webseite",
       "label": {
         "preview": "Vorschau",
         "subject": "Betreff",
@@ -324,9 +325,9 @@
         },
         "web": {
           "read": {
-            "done": "Webseite gelesen",
-            "error": "Webseite konnte nicht gelesen werden",
-            "running": "Webseite wird gelesen"
+            "done": "{target} wurde gelesen",
+            "error": "{target} konnte nicht gelesen werden",
+            "running": "{target} wird gelesen"
           },
           "search": {
             "done": "Web wurde durchsucht",
@@ -829,8 +830,8 @@
       "undo": "Rückgängig",
       "untitled": "Neuer Chat",
       "waitElapsed": "{seconds} s vergangen",
-      "websiteSourcesRunning": "{count, plural, one {1 Website-Quelle wird geprüft} other {# Website-Quellen werden geprüft}}",
-      "websiteWikiComplete": "{count, plural, one {Starter-Wiki aus 1 Website-Quelle erstellt} other {Starter-Wiki aus # Website-Quellen erstellt}}",
+      "websiteSourcesRunning": "{count, plural, one {1 Website-Seite wird für dein Wiki gelesen} other {# Website-Seiten werden für dein Wiki gelesen}}",
+      "websiteWikiComplete": "{count, plural, one {Dein Start-Wiki wurde aus 1 Website-Seite erstellt} other {Dein Start-Wiki wurde aus # Website-Seiten erstellt}}",
       "workingOnRequest": "Deine Anfrage wird bearbeitet…"
     }
   },
@@ -2146,6 +2147,7 @@
     "formatting": "Formatierung",
     "heading1": "Überschrift 1",
     "heading2": "Überschrift 2",
+    "heading3": "Überschrift 3",
     "image": "Bild",
     "imageUrlPrompt": "Bild-URL eingeben",
     "italic": "Kursiv",
@@ -2711,9 +2713,6 @@
     "title": "Upgrade nötig, um Messaging freizuschalten"
   },
   "NavigationBar": {
-    "addEntity": "{entity} hinzufügen",
-    "addPickerDescription": "Wähle den Typ des Datensatzes, den du anlegen möchtest.",
-    "addPickerTitle": "Neu anlegen…",
     "admin": "Administration",
     "affiliate": "Affiliate-Programm",
     "connectedAccounts": "Kanäle",
@@ -3618,6 +3617,7 @@
     "newPage": "Neue Seite",
     "next": "Weiter",
     "noResults": "Keine passenden Seiten.",
+    "onThisPage": "Auf dieser Seite",
     "page": "Seite {current} von {total}",
     "pageActions": "Seitenaktionen",
     "pagesLabel": "Wiki-Seiten",
