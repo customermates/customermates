@@ -323,6 +323,11 @@
           }
         },
         "web": {
+          "read": {
+            "done": "Read a website page",
+            "error": "Couldn’t read a website page",
+            "running": "Reading a website page"
+          },
           "search": {
             "done": "Searched the web",
             "error": "Couldn’t search the web",
@@ -399,7 +404,7 @@
       "cancelled": "Cancelled",
       "reject": "Rejected",
       "rejectAction": "Cancel",
-      "resuming": "Decision saved — Mate is continuing…",
+      "resuming": "Decision saved. Mate is continuing…",
       "retryResume": "Mate could not resume yet. Retry the same decision.",
       "timeout": "Timed out without a response",
       "title": "Mate wants to run:"
@@ -824,6 +829,8 @@
       "undo": "Undo",
       "untitled": "New chat",
       "waitElapsed": "{seconds}s elapsed",
+      "websiteSourcesRunning": "{count, plural, one {Checking 1 website source} other {Checking # website sources}}",
+      "websiteWikiComplete": "{count, plural, one {Built the starter Wiki from 1 website source} other {Built the starter Wiki from # website sources}}",
       "workingOnRequest": "Working on your request…"
     }
   },
@@ -2934,8 +2941,8 @@
         "title": "Your profile"
       },
       "wiki": {
-        "subtitle": "Mate gathers useful public knowledge from your company website so your AI agents have the context they need. You can review and edit it later.",
-        "title": "Build your Wiki from your website?"
+        "subtitle": "Add your company website. Mate turns what it can verify into editable Wiki pages for Mate and the AI tools you connect.",
+        "title": "Give Mate your company context"
       }
     }
   },
@@ -3624,51 +3631,64 @@
     "untitled": "Untitled page"
   },
   "WikiSetup": {
+    "agentPrompt": "Learn about our company from {homepage} and create our Wiki pages.",
     "continue": "Continue",
-    "continueBackground": "Continue — Mate keeps working",
+    "continueBackground": "Continue while Mate works",
+    "conversationTitle": "Set up Workspace Wiki",
     "createBlank": "Create a blank page",
-    "description": "Turn your website into a starter Wiki with five connected pages.",
+    "description": "Turn your website into five useful, connected Wiki pages for Mate and the AI tools you connect.",
     "gapsNote": "Mate cites what it finds and marks missing information instead of guessing.",
     "generated": {
+      "defaultGaps": {
+        "company_overview": "Which mission, story, markets, and company facts should Mate treat as authoritative?\n- Which proof points and contact paths should Mate use?",
+        "customers_competitors": "Which customer segments, needs, and buying triggers should Mate prioritize?\n- Which competitors, alternatives, objections, and proof should Mate use?",
+        "products_services": "Which offerings and value claims should Mate use in customer work?\n- Which limitations, implementation details, and product changes require internal confirmation?",
+        "support_faq": "Which sales stages, qualification rules, CRM fields, and owners should Mate follow?\n- What are the handoffs, support channels, service levels, and escalation paths?\n- Which routines need human approval, and who gives it?",
+        "voice_tone": "Which wording, claims, examples, and calls to action are approved?\n- Which terms, promises, and styles should Mate avoid?"
+      },
       "gapsHeading": "Gaps to confirm",
       "relatedPages": "Related pages",
       "sourcesHeading": "Sources",
       "topics": {
         "company_overview": "Company Overview",
-        "customers_competitors": "Customers, Positioning & Competitors",
-        "products_services": "Products & Services",
-        "support_faq": "Support & FAQ",
-        "voice_tone": "Voice & Tone"
+        "customers_competitors": "Customers, Market & Competition",
+        "products_services": "Products, Services & Value",
+        "support_faq": "Sales, Onboarding & Support",
+        "voice_tone": "Voice, Tone & Messaging"
       }
     },
-    "homepageHelp": "Public HTTP(S) website. Mate may read up to four useful pages linked from it.",
+    "homepageHelp": "Public HTTP(S) website. Mate reads this page and may follow up to three useful links on the same site.",
     "homepageLabel": "Company website",
     "homepagePlaceholder": "https://example.com",
     "openTask": "Open Mate task",
+    "progressLoadFailed": "Mate’s progress could not be loaded here. Try again.",
+    "progressLoading": "Loading Mate’s progress",
     "skip": "Not now",
     "start": "Build my Wiki",
     "startFailed": "Mate could not start the Wiki setup. Please try again.",
     "status": {
-      "completedBody": "Your connected starter pages are ready to review and edit.",
-      "completedBodyOnboarding": "Your starter Wiki is ready. Continue now and review or edit it later.",
+      "completedBody": "Your five connected starter pages are ready, with cited website facts and clear gaps for anything the site could not verify.",
+      "completedBodyOnboarding": "Mate created five connected starter pages with cited website facts and clear gaps for anything it could not verify. You can review and edit them later in the Wiki.",
       "completedExistingBody": "Your Wiki already contains pages. Continue onboarding or review the existing content.",
-      "completedTitle": "Your Wiki is ready",
+      "completedTitle": "Your starter Wiki is ready",
       "failedBody": "No pages were added. Try another website, or continue and add pages later.",
       "failedTitle": "Setup did not finish",
-      "noContentBody": "Mate could not find enough reliable public information, so it created no pages.",
-      "noContentTitle": "No usable content found",
-      "workingBody": "Mate is reading {domain} and building your Wiki. Follow along here or continue while it finishes in the background.",
-      "workingBodyNoTask": "Mate is reading {domain} and building your Wiki. You can continue while it finishes in the background.",
-      "workingTitle": "Mate is building your Wiki"
+      "noContentBody": "Review the Mate task for details. You can try another website or continue and add pages later.",
+      "noContentTitle": "No Wiki pages were created",
+      "workingBody": "Mate is reading {domain}, checking useful pages, and turning sourced information into your Wiki. You can follow the progress here or continue to the next step.",
+      "workingBodyNoTask": "Mate is reading {domain} and turning sourced information into your Wiki. You can continue to the next step while it works.",
+      "workingBodyNoTaskWiki": "Mate is reading {domain} and building the Wiki. You can return later to see the finished pages.",
+      "workingBodyWiki": "Mate is reading {domain}, checking useful pages, and turning sourced information into your Wiki. You can keep this task open or return later.",
+      "workingTitle": "Mate is learning about your company"
     },
     "topics": {
       "company": "Company overview",
-      "customers": "Customers and competitors",
-      "products": "Products and services",
-      "support": "Support and FAQ",
-      "voice": "Voice and tone"
+      "customers": "Customers, market and competition",
+      "products": "Products, services and value",
+      "support": "Sales, onboarding and support",
+      "voice": "Voice, tone and messaging"
     },
     "tryAnother": "Try another website",
-    "unavailable": "Mate setup is not available right now. You can create Wiki pages later from Wiki."
+    "unavailable": "Mate setup is not available right now. You can create Wiki pages later in the Wiki."
   }
 }

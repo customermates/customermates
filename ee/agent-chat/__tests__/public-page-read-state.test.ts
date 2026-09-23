@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   createPublicPageReadState,
-  publicPageSourcesWereRead,
+  normalizePublicPageSources,
+  publicPageResearchProgress,
   recordPublicPageLinks,
   reservePublicPageRead,
 } from "../public-page-read-state";
@@ -11,6 +12,10 @@ const homepage = {
   url: "https://example.com/",
   registrableDomain: "example.com",
 };
+
+function sections(content = "Verified facts") {
+  return [{ heading: "Details", content }];
+}
 
 function startedState() {
   const state = createPublicPageReadState(homepage);
@@ -68,7 +73,7 @@ describe("public page read state", () => {
     });
   });
 
-  it("accepts citations only for exact pages that were read successfully", () => {
+  it("replaces fragment aliases with exact recorded URLs and deduplicates them", () => {
     const state = startedState();
     recordPublicPageLinks(state, homepage.url, {
       ok: true,
@@ -84,26 +89,206 @@ describe("public page read state", () => {
     expect(reservePublicPageRead(state, "https://example.com/failed").ok).toBe(true);
     recordPublicPageLinks(state, "https://example.com/failed", { ok: false });
 
-    expect(
-      publicPageSourcesWereRead(state, {
+    const input = {
+      action: "create",
+      pages: [
+        {
+          sections: sections(),
+          sources: [
+            "https://example.com/#top",
+            "https://example.com/#another",
+            "https://example.com/about#team",
+            "https://example.com/about",
+          ],
+        },
+      ],
+    };
+    expect(normalizePublicPageSources(state, input)).toEqual({
+      ok: true,
+      input: {
+        action: "create",
         pages: [
           {
-            sources: ["https://example.com/#top", "https://example.com/about#team"],
+            sections: sections(),
+            sources: ["https://example.com/", "https://example.com/about"],
+          },
+        ],
+      },
+    });
+    expect(input.pages[0].sources).toEqual([
+      "https://example.com/#top",
+      "https://example.com/#another",
+      "https://example.com/about#team",
+      "https://example.com/about",
+    ]);
+  });
+
+  it("accepts only a redirect's final successful URL", () => {
+    const state = startedState();
+    recordPublicPageLinks(state, homepage.url, {
+      ok: true,
+      url: "https://www.example.com/en?locale=en#top",
+      links: [],
+    });
+
+    expect(
+      normalizePublicPageSources(state, {
+        pages: [
+          {
+            sections: sections(),
+            sources: ["https://www.example.com/en?locale=en#proof"],
           },
         ],
       }),
-    ).toBe(true);
+    ).toMatchObject({
+      ok: true,
+      input: {
+        pages: [
+          {
+            sources: ["https://www.example.com/en?locale=en"],
+          },
+        ],
+      },
+    });
     expect(
-      publicPageSourcesWereRead(state, {
-        pages: [{ sources: ["https://example.com/failed"] }],
+      normalizePublicPageSources(state, {
+        pages: [{ sections: sections("Facts"), sources: [homepage.url] }],
       }),
-    ).toBe(false);
+    ).toEqual({ ok: false });
+  });
+
+  it("does not require an already-attempted homepage alias after a redirect", () => {
+    const state = startedState();
+    recordPublicPageLinks(state, homepage.url, {
+      ok: true,
+      url: "https://www.example.com/",
+      links: [{ url: homepage.url }, { url: "https://www.example.com/" }, { url: "https://www.example.com/about" }],
+    });
+
+    expect(state.linkedUrls).toEqual(["https://www.example.com/about"]);
+    expect(publicPageResearchProgress(state)).toEqual({ complete: false, remaining: 1 });
+    expect(reservePublicPageRead(state, "https://www.example.com/about")).toMatchObject({ ok: true });
+    recordPublicPageLinks(state, "https://www.example.com/about", { ok: false });
+    expect(publicPageResearchProgress(state)).toEqual({ complete: true, remaining: 0 });
+  });
+
+  it("keeps distinct query URLs separate when validating sources", () => {
+    const state = startedState();
+    recordPublicPageLinks(state, homepage.url, {
+      ok: true,
+      url: "https://example.com/index.php?id=42#overview",
+      links: [],
+    });
+
     expect(
-      publicPageSourcesWereRead(state, {
-        pages: [{ sources: ["https://example.com/guessed"] }],
+      normalizePublicPageSources(state, {
+        pages: [
+          {
+            sections: sections(),
+            sources: ["https://example.com/index.php?id=42#details"],
+          },
+        ],
       }),
-    ).toBe(false);
-    expect(publicPageSourcesWereRead(state, { pages: [{ sources: [] }] })).toBe(false);
+    ).toMatchObject({
+      ok: true,
+      input: {
+        pages: [{ sources: ["https://example.com/index.php?id=42"] }],
+      },
+    });
+    for (const source of ["https://example.com/index.php?id=43", "https://example.com/index.php"]) {
+      expect(
+        normalizePublicPageSources(state, {
+          pages: [{ sections: sections("Facts"), sources: [source] }],
+        }),
+      ).toEqual({ ok: false });
+    }
+  });
+
+  it("fails closed for unread, failed, malformed, or structurally invalid sources", () => {
+    const state = startedState();
+    recordPublicPageLinks(state, homepage.url, {
+      ok: true,
+      url: homepage.url,
+      links: [{ url: "https://example.com/failed" }],
+    });
+    expect(reservePublicPageRead(state, "https://example.com/failed").ok).toBe(true);
+    recordPublicPageLinks(state, "https://example.com/failed", { ok: false });
+
+    for (const input of [
+      null,
+      {},
+      { pages: [] },
+      { pages: [null] },
+      { pages: [{ sections: sections("Facts") }] },
+      { pages: [{ sections: sections("Facts"), sources: [42] }] },
+      { pages: [{ sections: sections("Facts"), sources: ["not a URL"] }] },
+      {
+        pages: [
+          {
+            sections: sections("Facts"),
+            sources: ["https://example.com/failed"],
+          },
+        ],
+      },
+      {
+        pages: [
+          {
+            sections: sections("Facts"),
+            sources: ["https://example.com/guessed"],
+          },
+        ],
+      },
+    ])
+      expect(normalizePublicPageSources(state, input)).toEqual({ ok: false });
+  });
+
+  it("permits empty sources only on an unsupported setup page", () => {
+    const state = startedState();
+    recordPublicPageLinks(state, homepage.url, {
+      ok: true,
+      url: homepage.url,
+      links: [],
+    });
+
+    expect(
+      normalizePublicPageSources(state, {
+        action: "create",
+        pages: [
+          {
+            sections: sections(),
+            sources: [homepage.url],
+          },
+          {
+            sections: [],
+            sources: [],
+          },
+        ],
+      }),
+    ).toEqual({
+      ok: true,
+      input: {
+        action: "create",
+        pages: [
+          {
+            sections: sections(),
+            sources: [homepage.url],
+          },
+          {
+            sections: [],
+            sources: [],
+          },
+        ],
+      },
+    });
+    for (const page of [
+      { sections: sections("Unsupported claim"), sources: [] },
+      { sources: [] },
+      { sections: "not an array", sources: [] },
+    ]) {
+      expect(normalizePublicPageSources(state, { pages: [page] })).toEqual({
+        ok: false,
+      });
+    }
   });
 
   it("counts failed attempts, rejects retries, and reserves synchronously before parallel work", () => {
@@ -115,13 +300,13 @@ describe("public page read state", () => {
         url: `https://example.com/page-${index}`,
       })),
     });
-    for (let index = 0; index < 4; index++) {
+    for (let index = 0; index < 3; index++) {
       expect(reservePublicPageRead(state, `https://example.com/page-${index}`).ok).toBe(true);
       recordPublicPageLinks(state, `https://example.com/page-${index}`, {
         ok: false,
       });
     }
-    expect(reservePublicPageRead(state, "https://example.com/page-4")).toEqual({
+    expect(reservePublicPageRead(state, "https://example.com/page-3")).toEqual({
       ok: false,
       reason: "page_limit",
     });
@@ -129,7 +314,44 @@ describe("public page read state", () => {
       ok: false,
       reason: "already_attempted",
     });
-    expect(state.attemptedUrls).toHaveLength(5);
+    expect(state.attemptedUrls).toHaveLength(4);
+  });
+
+  it("requires up to three linked reads to settle before setup can create pages", () => {
+    const state = startedState();
+    expect(publicPageResearchProgress(state)).toEqual({ complete: false, remaining: 0 });
+    recordPublicPageLinks(state, homepage.url, {
+      ok: true,
+      url: homepage.url,
+      links: Array.from({ length: 5 }, (_, index) => ({ url: `https://example.com/page-${index}` })),
+    });
+    expect(publicPageResearchProgress(state)).toEqual({ complete: false, remaining: 3 });
+
+    for (let index = 0; index < 3; index++)
+      expect(reservePublicPageRead(state, `https://example.com/page-${index}`).ok).toBe(true);
+
+    expect(publicPageResearchProgress(state)).toEqual({ complete: false, remaining: 3 });
+    recordPublicPageLinks(state, "https://example.com/page-0", { ok: false });
+    recordPublicPageLinks(state, "https://example.com/page-1", {
+      ok: true,
+      url: "https://example.com/page-1",
+      links: [],
+    });
+    recordPublicPageLinks(state, "https://example.com/page-2", { ok: false });
+    expect(publicPageResearchProgress(state)).toEqual({ complete: true, remaining: 0 });
+  });
+
+  it("requires every available linked read when fewer than three exist", () => {
+    const state = startedState();
+    recordPublicPageLinks(state, homepage.url, {
+      ok: true,
+      url: homepage.url,
+      links: [{ url: "https://example.com/about" }],
+    });
+    expect(publicPageResearchProgress(state)).toEqual({ complete: false, remaining: 1 });
+    expect(reservePublicPageRead(state, "https://example.com/about").ok).toBe(true);
+    recordPublicPageLinks(state, "https://example.com/about", { ok: false });
+    expect(publicPageResearchProgress(state)).toEqual({ complete: true, remaining: 0 });
   });
 
   it("keeps query-addressed pages distinct while deduplicating their fragments", () => {
@@ -165,7 +387,7 @@ describe("public page read state", () => {
     expect(state.attemptedUrls).toHaveLength(3);
   });
 
-  it("counts every allowed query variant toward the five-page attempt limit", () => {
+  it("counts every allowed query variant toward the four-page attempt limit", () => {
     const state = startedState();
     recordPublicPageLinks(state, homepage.url, {
       ok: true,
@@ -174,13 +396,14 @@ describe("public page read state", () => {
         url: `https://example.com/index.php?id=${index}`,
       })),
     });
-    for (let index = 0; index < 4; index++)
+    for (let index = 0; index < 3; index++)
       expect(reservePublicPageRead(state, `https://example.com/index.php?id=${index}`).ok).toBe(true);
-    expect(reservePublicPageRead(state, "https://example.com/index.php?id=4")).toEqual({
+
+    expect(reservePublicPageRead(state, "https://example.com/index.php?id=3")).toEqual({
       ok: false,
       reason: "page_limit",
     });
-    expect(state.attemptedUrls).toHaveLength(5);
+    expect(state.attemptedUrls).toHaveLength(4);
   });
 
   it("does not admit pages after an unsuccessful homepage read or duplicate homepage attempt", () => {

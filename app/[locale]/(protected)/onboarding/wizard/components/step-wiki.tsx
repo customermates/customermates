@@ -3,6 +3,7 @@
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useRef, useTransition } from "react";
 import { useTranslations } from "next-intl";
+import { Loader2 } from "lucide-react";
 
 import { AgentConversationLog } from "@/app/components/agent-chat/agent-conversation";
 import { AgentRouteReloadBridge } from "@/app/components/agent-chat/agent-route-reload";
@@ -10,7 +11,6 @@ import { AgentChatStoreProvider } from "@/app/components/agent-chat/agent-chat-s
 import { AgentProgressStatus, AgentStatusAnnouncer } from "@/app/components/agent-chat/agent-status-announcer";
 import { WikiHomepageSetup } from "@/components/wiki/wiki-homepage-setup";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
@@ -54,14 +54,19 @@ const WikiSetupConversation = observer(function WikiSetupConversation({ conversa
       <AgentRouteReloadBridge reload={refreshPage} />
 
       <TooltipProvider>
-        <div className="flex h-72 min-w-0 flex-col overflow-hidden rounded-xl border bg-card sm:h-80">
+        <div
+          className="flex h-64 min-w-0 flex-col overflow-hidden rounded-lg border border-border bg-background sm:h-72"
+          data-testid="wiki-setup-conversation"
+        >
           {loading ? (
-            <div className="flex flex-1 items-center justify-center" role="status">
-              <Spinner aria-label={t("PageState.loading")} />
+            <div className="flex flex-1 items-center justify-center gap-2 text-sm text-muted-foreground" role="status">
+              <Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" />
+
+              <span>{t("WikiSetup.progressLoading")}</span>
             </div>
           ) : failed ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center" role="alert">
-              <p className="text-sm text-muted-foreground">{t("AgentChat.errors.turnFailed")}</p>
+              <p className="max-w-sm text-sm text-muted-foreground">{t("WikiSetup.progressLoadFailed")}</p>
 
               <Button size="sm" type="button" variant="secondary" onClick={() => runUserAction(loadConversation)}>
                 {t("ErrorCard.retry")}
@@ -69,7 +74,7 @@ const WikiSetupConversation = observer(function WikiSetupConversation({ conversa
             </div>
           ) : (
             <>
-              <AgentConversationLog readOnly renderLinksAsText />
+              <AgentConversationLog readOnly renderLinksAsText activityContext="wikiHomepageSetup" />
 
               {wikiSetupChatStore.isWorking ? <AgentProgressStatus /> : null}
 

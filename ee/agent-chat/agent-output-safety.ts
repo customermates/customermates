@@ -1,5 +1,5 @@
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
-import { findWikiPageHrefRanges } from "@/features/wiki/wiki-links";
+import { findWikiPageHrefRanges, parseWikiPageHref } from "@/features/wiki/wiki-links";
 
 const INTERNAL_REFERENCE = "[internal reference]";
 const REDACTED_VALUE = "[redacted]";
@@ -7,6 +7,7 @@ const INTERNAL_DETAILS = "[internal details]";
 const WIKI_LOCALE_SOURCE = ROUTING_LOCALES.map((locale) => locale.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
 const WIKI_LOCALE_PATH_SOURCE = WIKI_LOCALE_SOURCE ? `(?:(?:${WIKI_LOCALE_SOURCE})\/)?` : "";
 const WIKI_URL_TOKEN_PATTERN = new RegExp(`(?:^|\\s)\\S*\\/${WIKI_LOCALE_PATH_SOURCE}wiki\\?page=\\S*`, "gi");
+const WIKI_TO_LINK_PATTERN = /\]\(to:(\/(?:[a-z]{2}\/)?wiki\?page=[^)]+)\)/giu;
 
 const UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})(?=$|[^0-9a-f])/gi;
 const PARTIAL_UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}-(?:[0-9a-f]{0,4}(?:-[0-9a-f]{0,4}){0,3})?)$/gi;
@@ -107,6 +108,13 @@ function replaceUuid(value: string, wikiBaseUrl?: string) {
     return pageLinks.some((link) => link.id === id.toLowerCase() && idStart >= link.start && idEnd <= link.end)
       ? match
       : `${prefix}${INTERNAL_REFERENCE}`;
+  });
+}
+
+function normalizeWikiLinkAliases(value: string, wikiBaseUrl?: string) {
+  return value.replace(WIKI_TO_LINK_PATTERN, (match, href: string) => {
+    const target = parseWikiPageHref(href, wikiBaseUrl);
+    return target ? `](${target.path})` : match;
   });
 }
 
@@ -227,7 +235,7 @@ function protectStreamBoundary(value: string, requestedEnd: number, wikiBaseUrl?
 
 function redactCompleteAgentVisibleText(value: string, wikiBaseUrl?: string) {
   return replaceUuid(
-    value
+    normalizeWikiLinkAliases(value, wikiBaseUrl)
       .replace(PAGE_CONTEXT_TAG_PATTERN, "")
       .replace(ENCODED_PAGE_CONTEXT_TAG_PATTERN, "")
       .replace(PRIVATE_REASONING_TAG_PATTERN, "")

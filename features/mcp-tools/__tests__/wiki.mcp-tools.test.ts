@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { decode } from "@toon-format/toon";
 
 import { ForbiddenError } from "@/core/errors/app-errors";
+import { WikiMarkdownSchema, WIKI_MARKDOWN_MAX_LENGTH } from "@/features/wiki/wiki.schema";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { createMockDiModule, MOCK_ENV_MODULE, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
 
@@ -81,15 +82,14 @@ describe("manage_wiki_pages registry", () => {
       "support_faq",
     ].map((topic) => ({
       topic,
-      body: "Body",
-      gaps: "Confirm with the team.",
+      sections: [{ heading: "Details", content: "Body" }],
       sources: [`https://example.com/${topic}`],
     }));
 
     expect(
       WikiHomepageSetupCreateSchema.safeParse({
         action: "create",
-        pages: validPages,
+        pages: validPages.map((page, index) => (index === 4 ? { ...page, sections: [], sources: [] } : page)),
         requireEmpty: true,
       }).success,
     ).toBe(true);
@@ -104,17 +104,21 @@ describe("manage_wiki_pages registry", () => {
       },
       {
         action: "create",
-        pages: validPages.map((page, index) => (index === 0 ? { ...page, body: " " } : page)),
-        requireEmpty: true,
-      },
-      {
-        action: "create",
-        pages: validPages.map((page, index) => (index === 0 ? { ...page, gaps: "" } : page)),
+        pages: validPages.map((page, index) => (index === 0 ? { ...page, sections: [] } : page)),
         requireEmpty: true,
       },
       {
         action: "create",
         pages: validPages.map((page, index) => (index === 0 ? { ...page, sources: [] } : page)),
+        requireEmpty: true,
+      },
+      {
+        action: "create",
+        pages: validPages.map((page) => ({
+          ...page,
+          sections: [],
+          sources: [],
+        })),
         requireEmpty: true,
       },
       { action: "create", pages: validPages, requireEmpty: false },
@@ -123,15 +127,179 @@ describe("manage_wiki_pages registry", () => {
       expect(WikiHomepageSetupCreateSchema.safeParse(invalid).success).toBe(false);
   });
 
+  it("normalizes structured section Markdown before storage", () => {
+    const pages = ["company_overview", "products_services", "customers_competitors", "voice_tone", "support_faq"].map(
+      (topic) => ({
+        topic,
+        sections: [
+          {
+            heading: "## Useful &mdash; section",
+            content: "Verified &mdash; content &#8212; more\n\nSetext label\n---\n\n### Nested label",
+          },
+        ],
+        sources: [`https://example.com/${topic}`],
+      }),
+    );
+    const parsed = WikiHomepageSetupCreateSchema.parse({
+      action: "create",
+      pages,
+      requireEmpty: true,
+    });
+
+    expect(parsed.pages[0].sections).toEqual([
+      {
+        heading: "Useful - section",
+        content: "Verified - content - more\n\nSetext label\n\nNested label",
+      },
+    ]);
+    expect(parsed.pages[0].sections[0]?.content).not.toMatch(/[—#]/u);
+    expect(parsed.pages[0].sections[0]?.heading).not.toContain("—");
+    expect(
+      WikiHomepageSetupCreateSchema.safeParse({
+        action: "create",
+        requireEmpty: true,
+        pages: pages.map((page, index) =>
+          index === 0
+            ? {
+                ...page,
+                sections: [{ heading: "Two\nlines", content: "Body" }],
+              }
+            : page,
+        ),
+      }).success,
+    ).toBe(false);
+    expect(
+      WikiHomepageSetupCreateSchema.safeParse({
+        action: "create",
+        requireEmpty: true,
+        pages: pages.map((page, index) =>
+          index === 0
+            ? {
+                ...page,
+                sections: [{ heading: "—".repeat(120), content: "Body" }],
+              }
+            : page,
+        ),
+      }).success,
+    ).toBe(false);
+  });
+
+  it("accepts zero to five structured sections without model-authored headings", () => {
+    const topics = [
+      "company_overview",
+      "products_services",
+      "customers_competitors",
+      "voice_tone",
+      "support_faq",
+    ] as const;
+    const setup = (sections: { heading: string; content: string }[]) => ({
+      action: "create" as const,
+      requireEmpty: true as const,
+      pages: topics.map((topic) => ({
+        topic,
+        sections,
+        sources: sections.length ? [`https://example.com/${topic}`] : [],
+      })),
+    });
+
+    expect(WikiHomepageSetupCreateSchema.safeParse(setup([{ heading: "Verified", content: "Content" }])).success).toBe(
+      true,
+    );
+    expect(
+      WikiHomepageSetupCreateSchema.safeParse(
+        setup(
+          Array.from({ length: 5 }, (_, index) => ({
+            heading: `Section ${index + 1}`,
+            content: "Content",
+          })),
+        ),
+      ).success,
+    ).toBe(true);
+    expect(
+      WikiHomepageSetupCreateSchema.safeParse(
+        setup(
+          Array.from({ length: 6 }, (_, index) => ({
+            heading: `Section ${index + 1}`,
+            content: "Content",
+          })),
+        ),
+      ).success,
+    ).toBe(false);
+    expect(WikiHomepageSetupCreateSchema.safeParse(setup([{ heading: "Details", content: " " }])).success).toBe(false);
+    expect(
+      WikiHomepageSetupCreateSchema.safeParse(setup([{ heading: "Details", content: "x".repeat(8_001) }])).success,
+    ).toBe(false);
+    expect(
+      WikiHomepageSetupCreateSchema.safeParse(setup([{ heading: "Details", content: "[".repeat(8_000) }])).success,
+    ).toBe(false);
+    for (const heading of [
+      "Sources",
+      "Quellen",
+      "Fuentes",
+      "Points à confirmer",
+      "Pagine correlate",
+      "**Sources**",
+      "_Gaps to confirm_",
+      "`Sources`",
+      "Sources ##",
+      "[Linked heading](/wiki?page=00000000-0000-4000-8000-000000000001)",
+    ])
+      expect(WikiHomepageSetupCreateSchema.safeParse(setup([{ heading, content: "Content" }])).success).toBe(false);
+    for (const content of [
+      "[External](https://attacker.example/path)",
+      "<https://attacker.example/path>",
+      "https://attacker.example/path",
+      "www.attacker.example/path",
+      "[Relative](/hidden)",
+      "![Image](/logo.png)",
+      "[Reference][ref]\n\n[ref]: /hidden",
+      "- ## Sources\n\n  Fake source",
+      "> ## Gaps to confirm\n> Fake gap",
+    ])
+      expect(WikiHomepageSetupCreateSchema.safeParse(setup([{ heading: "Details", content }])).success).toBe(false);
+  });
+
+  it("keeps the largest accepted structured page within the Wiki limit", async () => {
+    calls.create.mockResolvedValue({ ok: true, data: [page()] });
+    const topics = [
+      "company_overview",
+      "products_services",
+      "customers_competitors",
+      "voice_tone",
+      "support_faq",
+    ] as const;
+    const longSources = Array.from({ length: 4 }, (_, index) => `https://example.com/${index}/${"a".repeat(1_970)}`);
+    const input = WikiHomepageSetupCreateSchema.parse({
+      action: "create",
+      requireEmpty: true,
+      pages: topics.map((topic, pageIndex) => ({
+        topic,
+        sections:
+          pageIndex === 0
+            ? Array.from({ length: 5 }, (_, sectionIndex) => ({
+                heading: `${sectionIndex}${"h".repeat(119)}`,
+                content: "x".repeat(8_000),
+              }))
+            : [{ heading: "Details", content: "Supported" }],
+        sources: pageIndex === 0 ? longSources : [`https://example.com/${topic}`],
+      })),
+    });
+
+    await wikiHomepageSetupTool("en").execute(input);
+
+    const markdown = calls.create.mock.calls[0][0].pages[0].markdown;
+    expect(WikiMarkdownSchema.parse(markdown).length).toBeLessThanOrEqual(WIKI_MARKDOWN_MAX_LENGTH);
+  });
+
   it.each([
     [
       "en",
       [
         "Company Overview",
-        "Products & Services",
-        "Customers, Positioning & Competitors",
-        "Voice & Tone",
-        "Support & FAQ",
+        "Products, Services & Value",
+        "Customers, Market & Competition",
+        "Voice, Tone & Messaging",
+        "Sales, Onboarding & Support",
       ],
       "Gaps to confirm",
       "Sources",
@@ -141,10 +309,10 @@ describe("manage_wiki_pages registry", () => {
       "de",
       [
         "Unternehmensüberblick",
-        "Produkte & Leistungen",
-        "Kunden, Positionierung & Wettbewerber",
-        "Sprache & Tonalität",
-        "Support & häufige Fragen",
+        "Produkte, Leistungen und Mehrwert",
+        "Kunden, Markt und Wettbewerb",
+        "Sprache, Ton und Botschaften",
+        "Vertrieb, Onboarding und Support",
       ],
       "Noch zu klären",
       "Quellen",
@@ -154,10 +322,10 @@ describe("manage_wiki_pages registry", () => {
       "es",
       [
         "Resumen de la empresa",
-        "Productos y servicios",
-        "Clientes, posicionamiento y competidores",
-        "Voz y tono",
-        "Soporte y preguntas frecuentes",
+        "Productos, servicios y valor",
+        "Clientes, mercado y competencia",
+        "Voz, tono y mensajes",
+        "Ventas, incorporación de clientes y soporte",
       ],
       "Aspectos por confirmar",
       "Fuentes",
@@ -167,10 +335,10 @@ describe("manage_wiki_pages registry", () => {
       "fr",
       [
         "Présentation de l’entreprise",
-        "Produits et services",
-        "Clients, positionnement et concurrents",
-        "Voix et ton",
-        "Support et FAQ",
+        "Produits, services et valeur",
+        "Clients, marché et concurrence",
+        "Voix, ton et messages",
+        "Ventes, intégration client et support",
       ],
       "Points à confirmer",
       "Sources",
@@ -180,10 +348,10 @@ describe("manage_wiki_pages registry", () => {
       "it",
       [
         "Panoramica dell’azienda",
-        "Prodotti e servizi",
-        "Clienti, posizionamento e concorrenti",
-        "Voce e tono",
-        "Supporto e FAQ",
+        "Prodotti, servizi e valore",
+        "Clienti, mercato e concorrenza",
+        "Voce, tono e messaggi",
+        "Vendite, onboarding e supporto",
       ],
       "Aspetti da confermare",
       "Fonti",
@@ -199,8 +367,7 @@ describe("manage_wiki_pages registry", () => {
         pages: ["company_overview", "products_services", "customers_competitors", "voice_tone", "support_faq"].map(
           (topic) => ({
             topic,
-            body: `Verified ${topic}`,
-            gaps: `Confirm ${topic}`,
+            sections: [{ heading: "Details", content: `Verified ${topic}` }],
             sources: [`https://example.com/${topic}`],
           }),
         ),
@@ -225,6 +392,54 @@ describe("manage_wiki_pages registry", () => {
       }
     },
   );
+
+  it("creates an honest gaps-only page without an empty Sources section", async () => {
+    calls.create.mockResolvedValue({ ok: true, data: [page()] });
+    const input = WikiHomepageSetupCreateSchema.parse({
+      action: "create",
+      requireEmpty: true,
+      pages: ["company_overview", "products_services", "customers_competitors", "voice_tone", "support_faq"].map(
+        (topic, index) => ({
+          topic,
+          sections: index === 4 ? [] : [{ heading: "Details", content: `Supported ${topic}` }],
+          sources: index === 4 ? [] : [`https://example.com/${topic}`],
+        }),
+      ),
+    });
+
+    await wikiHomepageSetupTool("en").execute(input);
+
+    const gapsOnly = calls.create.mock.calls[0][0].pages[4].markdown;
+    expect(gapsOnly).toBe(
+      "## Gaps to confirm\n\n- Which sales stages, qualification rules, CRM fields, and owners should Mate follow?\n- What are the handoffs, support channels, service levels, and escalation paths?\n- Which routines need human approval, and who gives it?",
+    );
+    expect(gapsOnly).not.toContain("## Sources");
+  });
+
+  it("adds a tailored review question to every starter page", async () => {
+    calls.create.mockResolvedValue({ ok: true, data: [page()] });
+    const input = WikiHomepageSetupCreateSchema.parse({
+      action: "create",
+      requireEmpty: true,
+      pages: ["company_overview", "products_services", "customers_competitors", "voice_tone", "support_faq"].map(
+        (topic) => ({
+          topic,
+          sections: [{ heading: "Details", content: `Supported ${topic}` }],
+          sources: [`https://example.com/${topic}`],
+        }),
+      ),
+    });
+
+    await wikiHomepageSetupTool("en").execute(input);
+
+    const completePage = calls.create.mock.calls[0][0].pages[0].markdown;
+    expect(completePage).toContain("## Sources");
+    expect(completePage).toContain("## Gaps to confirm");
+    expect(completePage).toContain(
+      "Which mission, story, markets, and company facts should Mate treat as authoritative?",
+    );
+    expect(completePage).toContain("Which proof points and contact paths should Mate use?");
+  });
 });
 
 describe("manage_wiki_pages reads", () => {

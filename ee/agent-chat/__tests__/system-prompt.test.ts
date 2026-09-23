@@ -42,16 +42,53 @@ describe("system prompt", () => {
 
   it("keeps homepage setup bounded while asking for broad, complementary evidence", () => {
     const prompt = buildAgentSystemPrompt({ ...base, wikiHomepageSetup: true });
-    expect(prompt).toContain("read at most four useful explicit links");
-    expect(prompt).toContain("broad, complementary evidence");
-    expect(prompt).toContain("products or services");
-    expect(prompt).toContain("customers or competitors");
-    expect(prompt).toContain("documentation or support");
-    expect(prompt).toContain("company voice or background");
-    expect(prompt).toContain("exactly five concise localized pages in one atomic call");
-    expect(prompt).toContain("sources array containing one to five exact URLs returned by successful reads");
+    expect(prompt).toContain("attempt three useful explicit links");
+    expect(prompt).toContain("otherwise attempt every useful returned link, up to three");
+    expect(prompt).toContain("Failed attempts still count and must not be retried");
+    expect(prompt).toContain("Do not use em dashes in any tool input or visible response");
+    expect(prompt).toContain("Select complementary evidence");
+    expect(prompt).toContain("offerings and value");
+    expect(prompt).toContain("audience, customer, use-case, market, or comparison page");
+    expect(prompt).toContain("If an explicit audience or customer page is available, use it for customer evidence");
+    expect(prompt).toContain("documentation, support, security, or policy page");
+    expect(prompt).toContain("The homepage supplies company background, brand, and proof");
+    expect(prompt).toContain("Do not read pricing, plans, or other mutable commercial-detail pages");
+    expect(prompt).toContain("exactly five localized starter pages in one atomic call");
+    expect(prompt).toContain("use empty sections and sources");
+    expect(prompt).toContain("At least one page must contain sourced sections");
+    expect(prompt).toContain("tailored review questions");
+    expect(prompt).toContain("Never substitute a pricing-plan table for customer or competition evidence");
+    expect(prompt).toContain(
+      "Voice and tone may summarize observable patterns only when clearly framed as observations",
+    );
+    expect(prompt).toContain("support_faq owns public customer onboarding, customer support, documentation");
+    expect(prompt).toContain("One strong section is better than three weak ones");
+    expect(prompt).toContain("Commercial-term evidence is never usable for any topic");
+    expect(prompt).toContain("Product signup or API connection steps do not establish the workspace's internal sales");
+    expect(prompt).toContain("Do not place headings, Sources, gaps, or related pages inside section content");
+    expect(prompt).toContain("Section content must contain only facts directly supported by text you read");
+    expect(prompt).toContain("Do not infer industries, adoption, geographic focus, customer segments, company sizes");
+    expect(prompt).toContain("never generalize review of outbound drafts into approval of CRM changes");
+    expect(prompt).toContain("Do not copy trials, discounts, plan-by-plan prices, plan names, plan gating");
+    expect(prompt).toContain("plan names, plan gating, credits, allowances, quotas");
+    expect(prompt).toContain("Prefer durable capabilities, workflows, and positioning over narrow feature absences");
+    expect(prompt).toContain("Do not infer geographic reach from navigation labels, feature names");
+    expect(prompt).toContain("Put all external provenance only in sources");
+    expect(prompt).toContain("audit every factual sentence against the retrieved text");
+    expect(prompt).toContain("Prefer empty sections over filler");
+    expect(prompt).toContain("using the form [Title](/wiki?page=<id>)");
     expect(prompt).toContain("Never invent competitors");
     expect(prompt).not.toContain("Use web_search");
+  });
+
+  it("keeps direct page reads setup-only and uses native search for ordinary turns", () => {
+    const unavailable = buildAgentSystemPrompt({ ...base, webSearchEnabled: false });
+    const available = buildAgentSystemPrompt({ ...base, webSearchEnabled: true });
+
+    expect(unavailable).not.toContain("read_public_page");
+    expect(unavailable).toContain("General web search is not available");
+    expect(available).not.toContain("read_public_page");
+    expect(available).toContain("Use web_search automatically");
   });
 
   it("describes the approval rule for routines and inbox moves exactly as the runtime gates them", () => {

@@ -148,24 +148,28 @@ export function WikiHomepageSetup({
     const completed = state.status === "completed";
     const working = state.status === "working";
     const domain = state.domain ?? state.homepage ?? "";
-    const workingBody = state.conversationId
-      ? t("WikiSetup.status.workingBody", { domain })
-      : t("WikiSetup.status.workingBodyNoTask", { domain });
+    const workingBody = onboarding
+      ? state.conversationId
+        ? t("WikiSetup.status.workingBody", { domain })
+        : t("WikiSetup.status.workingBodyNoTask", { domain })
+      : state.conversationId
+        ? t("WikiSetup.status.workingBodyWiki", { domain })
+        : t("WikiSetup.status.workingBodyNoTaskWiki", { domain });
     const completedBody = !state.homepage
       ? t("WikiSetup.status.completedExistingBody")
       : onboarding
         ? t("WikiSetup.status.completedBodyOnboarding")
         : t("WikiSetup.status.completedBody");
     return (
-      <section className="w-full space-y-5 text-left">
+      <section aria-busy={controlsDisabled} className="w-full space-y-4 text-left">
         <div aria-live="polite" className="flex items-start gap-3">
           <div className="mt-0.5 rounded-full bg-muted p-2 text-muted-foreground">
             {working ? (
-              <Loader2 className="size-4 animate-spin motion-reduce:animate-none" />
+              <Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" />
             ) : completed ? (
-              <CheckCircle2 className="size-4 text-success" />
+              <CheckCircle2 aria-hidden="true" className="size-4 text-success" />
             ) : (
-              <TriangleAlert className="size-4 text-warning" />
+              <TriangleAlert aria-hidden="true" className="size-4 text-warning" />
             )}
           </div>
 
@@ -249,6 +253,8 @@ export function WikiHomepageSetup({
 
           {onContinue ? (
             <Button disabled={controlsDisabled} type="button" onClick={() => runUserAction(onContinue)}>
+              {disabled ? <Loader2 aria-hidden="true" className="animate-spin motion-reduce:animate-none" /> : null}
+
               {working && onboarding ? t("WikiSetup.continueBackground") : t("WikiSetup.continue")}
             </Button>
           ) : null}
@@ -323,6 +329,8 @@ export function WikiHomepageSetup({
       <div className="flex flex-wrap justify-end gap-2">
         {onSkip ? (
           <Button disabled={controlsDisabled} type="button" variant="secondary" onClick={() => runUserAction(onSkip)}>
+            {disabled ? <Loader2 aria-hidden="true" className="animate-spin motion-reduce:animate-none" /> : null}
+
             {t("WikiSetup.skip")}
           </Button>
         ) : null}

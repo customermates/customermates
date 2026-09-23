@@ -15,6 +15,7 @@ import { GetWikiCatalogInteractor } from "../get-wiki-catalog.interactor";
 import {
   wikiExcerpt,
   wikiPlainText,
+  wikiRelevantMarkdownPreview,
   wikiRelevantSearchTerms,
   wikiSearchSnippet,
   wikiSearchTerms,
@@ -51,6 +52,8 @@ describe("Wiki catalog content", () => {
     expect(wikiSearchTerms("如何处理支持请求？")).toEqual(["如何处理支持请求", "如何", "处理", "支持", "请求"]);
     expect(wikiSearchTerms("_%!:&|")).toEqual([]);
     expect(wikiSearchTerms(Array.from({ length: 40 }, (_, i) => `word${i}`).join(" "))).toHaveLength(32);
+    expect(wikiRelevantSearchTerms("What is our refund policy?")).toEqual(["refund", "policy"]);
+    expect(wikiRelevantSearchTerms("Wie ist unsere Rückerstattungsrichtlinie?")).toEqual(["rückerstattungsrichtlinie"]);
     expect(
       wikiRelevantSearchTerms(
         `${"a to our ".repeat(20)}${Array.from({ length: 40 }, (_, i) => `word${i}`).join(" ")} distinctiveprocess`,
@@ -75,6 +78,13 @@ describe("Wiki catalog content", () => {
     expect(snippet.startsWith("…")).toBe(true);
     expect(snippet.endsWith("…")).toBe(true);
     expect(snippet.endsWith("\ud83c")).toBe(false);
+  });
+
+  it("anchors automatic previews on the most distinctive request term", () => {
+    const markdown = `${"Our policy background. ".repeat(80)}\n\nRefund approvals require a manager.`;
+    const preview = wikiRelevantMarkdownPreview(markdown, "What is our refund policy?", "https://example.com");
+
+    expect(preview.markdownPreview).toContain("Refund approvals require a manager");
   });
 
   it("never starts or ends a search snippet inside an astral character", () => {

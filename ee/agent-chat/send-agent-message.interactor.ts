@@ -11,6 +11,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import { env } from "@/env";
 
 import { resolveUserLocale } from "@/i18n/user-locale";
+import { getTranslator } from "@/i18n/get-translator";
 import { AgentConversationOrigin } from "@/generated/prisma";
 
 import {
@@ -250,8 +251,18 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     if ((setupDomain || setupUrl) && (!wikiHomepageSetup || wikiHomepageSetup.registrableDomain !== setupDomain))
       return fail(CustomErrorCode.invalidUrl, ["wikiHomepageSetupUrl"]);
     const baseModel = resolveAgentModel(requestedModelKey);
-    const turnModel = wikiHomepageSetup ? { ...baseModel, maxOutputTokens: 8_192 } : baseModel;
+    const turnModel = wikiHomepageSetup
+      ? {
+          ...baseModel,
+          maxOutputTokens: 8_192,
+        }
+      : baseModel;
     const locale = data.locale ?? resolveUserLocale(user);
+    let conversationTitle = data.text;
+    if (wikiHomepageSetup) {
+      const t = await getTranslator(locale, "WikiSetup");
+      conversationTitle = t("conversationTitle");
+    }
     const toolOptions = {
       locale,
       surface,
@@ -317,7 +328,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           if (await this.repo.isAtAgentRunLimit(phaseOneAt)) return "at-user-limit" as const;
           await this.repo.createAgentConversationForRun({
             conversationId,
-            title: wikiHomepageSetup ? "Set up Workspace Wiki" : data.text,
+            title: conversationTitle,
             modelKey: requestedModelKey,
             now: phaseOneAt,
           });
@@ -495,6 +506,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       }
       if (error instanceof WikiHomepageSetupAlreadyRunningError)
         return failConflict(CustomErrorCode.agentTurnAlreadyRunning, ["homepage"]);
+
       throw error;
     }
   }

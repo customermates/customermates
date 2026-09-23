@@ -177,22 +177,29 @@ export class PrismaWikiPageRepo
     };
   }
 
-  async findReusableSetupRequest(data: { clientRequestId: string; prompt: string }) {
+  async findReusableSetupRequest(data: { clientRequestId: string; homepageUrl: string; registrableDomain: string }) {
     const setupWhere = {
       companyId: this.companyId,
       userId: this.user.id,
       wikiHomepageSetupDomain: { not: null },
-      text: data.prompt,
     } as const;
     const exact = await this.prisma.agentTurnRequest.findFirst({
       where: { ...setupWhere, clientRequestId: data.clientRequestId },
-      select: { clientRequestId: true },
+      select: {
+        clientRequestId: true,
+        text: true,
+        wikiHomepageSetupDomain: true,
+        wikiHomepageSetupUrl: true,
+      },
     });
     if (exact) {
-      return {
-        disposition: "reuse" as const,
-        clientRequestId: exact.clientRequestId,
-      };
+      return exact.wikiHomepageSetupDomain === data.registrableDomain && exact.wikiHomepageSetupUrl === data.homepageUrl
+        ? {
+            disposition: "reuse" as const,
+            clientRequestId: exact.clientRequestId,
+            text: exact.text,
+          }
+        : { disposition: "blocked" as const };
     }
 
     const activeAfter = new Date(Date.now() - AGENT_RUN_LEASE_MS);
@@ -206,13 +213,22 @@ export class PrismaWikiPageRepo
         OR: [{ heartbeatAt: { gt: activeAfter } }, { heartbeatAt: null, updatedAt: { gt: activeAfter } }],
       },
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-      select: { clientRequestId: true, text: true, userId: true },
+      select: {
+        clientRequestId: true,
+        text: true,
+        userId: true,
+        wikiHomepageSetupDomain: true,
+        wikiHomepageSetupUrl: true,
+      },
     });
     if (!active) return null;
-    return active.userId === this.user.id && active.text === data.prompt
+    return active.userId === this.user.id &&
+      active.wikiHomepageSetupDomain === data.registrableDomain &&
+      active.wikiHomepageSetupUrl === data.homepageUrl
       ? {
           disposition: "reuse" as const,
           clientRequestId: active.clientRequestId,
+          text: active.text,
         }
       : { disposition: "blocked" as const };
   }

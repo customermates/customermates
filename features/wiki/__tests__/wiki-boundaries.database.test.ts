@@ -215,6 +215,40 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     });
   });
 
+  it("does not let request scaffolding crowd out the distinctive automatic Wiki match", async () => {
+    const created = await create(user, [
+      ...Array.from({ length: 3 }, (_, index) => ({
+        title: `General guidance ${index + 1}`,
+        markdown: "What is our current approach? ".repeat(80),
+      })),
+      {
+        title: "Returns",
+        markdown: `${"General background. ".repeat(80)}\n\nRefund policy requires manager approval.`,
+      },
+    ]);
+    if (!created.ok) throw new Error("Wiki fixtures were not created.");
+    const target = created.data[3];
+
+    const catalog = await runWithTenant(user, () =>
+      new GetWikiCatalogInteractor(new PrismaWikiPageRepo()).invoke({
+        page: 1,
+        query: "What is our refund policy?",
+      }),
+    );
+
+    expect(catalog).toMatchObject({
+      ok: true,
+      data: {
+        relevantPages: [
+          {
+            id: target.id,
+            markdownPreview: expect.stringContaining("Refund policy requires manager approval"),
+          },
+        ],
+      },
+    });
+  });
+
   it("finds non-English guidance and immediately reflects edits in search and catalog", async () => {
     const created = await create(user, [
       {

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ForbiddenError } from "@/core/errors/app-errors";
+import type * as Ai from "ai";
 import type * as LocaleRegistry from "@/i18n/locale-registry";
 
 type WorkflowTool = {
@@ -147,9 +148,9 @@ vi.mock("workflow", () => ({
   sleep: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock("ai", () => ({
+vi.mock("ai", async (importOriginal) => ({
+  ...(await importOriginal<typeof Ai>()),
   isStepCount: () => () => false,
-  jsonSchema: (schema: unknown) => schema,
 }));
 
 vi.mock("@/core/decorators/background-tenant", () => ({
@@ -1855,6 +1856,16 @@ describe("routine browse-or-mutate batch safety", () => {
     action: "create",
     pages: [{ title: "Tone", markdown: "Be clear." }],
   };
+  const setupTopics = ["company_overview", "products_services", "customers_competitors", "voice_tone", "support_faq"];
+  const setupWrite = (source = "https://example.com/") => ({
+    action: "create",
+    requireEmpty: true,
+    pages: setupTopics.map((topic, index) => ({
+      topic,
+      sections: index === 2 ? [] : [{ heading: "Details", content: `Supported ${topic}` }],
+      sources: index === 2 ? [] : [source],
+    })),
+  });
   const call = (toolName: string, toolCallId: string, input: unknown) => ({
     type: "tool-call",
     toolName,
@@ -2121,17 +2132,84 @@ describe("routine browse-or-mutate batch safety", () => {
     expect(state.execute).not.toHaveBeenCalled();
   });
 
-  it("creates setup pages only when every cited source was read successfully", async () => {
-    const citedWrite = {
-      ...write,
-      pages: [
-        {
-          title: "Tone",
-          markdown: "Be clear.",
-          sources: ["https://example.com/#source"],
-        },
-      ],
+  it("requires the bounded linked-page review to settle before setup pages are created", async () => {
+    const citedWrite = setupWrite();
+    let earlyResult: unknown;
+    let finalResult: unknown;
+    const links = ["about", "customers", "docs", "security"].map((slug) => ({
+      url: `https://example.com/${slug}`,
+    }));
+    state.readPage.mockImplementation(({ url }: { url: string }) =>
+      Promise.resolve({
+        ok: true,
+        url,
+        title: "Example",
+        text: "Useful information",
+        links: url === read.url ? links : [],
+        truncated: false,
+      }),
+    );
+    state.runTools = async ({ executeAndCompleteTool }) => {
+      await executeAndCompleteTool("read_public_page", read, "read-home");
+      await executeAndCompleteTool("read_public_page", links[0], "read-about");
+      earlyResult = await executeAndCompleteTool("manage_wiki_pages", citedWrite, "write-early");
+      await Promise.all([
+        executeAndCompleteTool("read_public_page", links[1], "read-customers"),
+        executeAndCompleteTool("read_public_page", links[2], "read-docs"),
+      ]);
+      finalResult = await executeAndCompleteTool("manage_wiki_pages", citedWrite, "write-final");
+      return finish();
     };
+
+    await runAgentTurn({
+      ...payload,
+      wikiHomepageSetup: {
+        url: read.url,
+        registrableDomain: "example.com",
+      },
+    });
+
+    expect(earlyResult).toMatchObject({
+      ok: false,
+      result: expect.stringContaining("Read 2 more useful links"),
+    });
+    expect(finalResult).toMatchObject({ ok: true });
+    expect(state.execute).toHaveBeenCalledOnce();
+  });
+
+  it("never creates setup pages in the same batch as website reads", async () => {
+    const citedWrite = setupWrite();
+    state.runTools = async ({ executeAndCompleteTool }) => {
+      const batch = [
+        {
+          role: "assistant",
+          content: [
+            call("read_public_page", "read-home", read),
+            call("manage_wiki_pages", "write-same-batch", citedWrite),
+          ],
+        },
+      ];
+      await executeAndCompleteTool("read_public_page", read, "read-home", batch);
+      expect(await executeAndCompleteTool("manage_wiki_pages", citedWrite, "write-same-batch", batch)).toMatchObject({
+        ok: false,
+        result: expect.stringContaining("later step"),
+      });
+      return finish();
+    };
+
+    await runAgentTurn({
+      ...payload,
+      wikiHomepageSetup: {
+        url: read.url,
+        registrableDomain: "example.com",
+      },
+    });
+
+    expect(state.execute).not.toHaveBeenCalled();
+  });
+
+  it("creates setup pages only when every cited source was read successfully", async () => {
+    const citedWrite = setupWrite();
     state.runTools = async ({ executeAndCompleteTool }) => {
       expect(await executeAndCompleteTool("read_public_page", read, "read-1")).toMatchObject({ ok: true });
       expect(await executeAndCompleteTool("manage_wiki_pages", citedWrite, "write-1")).toMatchObject({ ok: true });
@@ -2147,19 +2225,20 @@ describe("routine browse-or-mutate batch safety", () => {
     });
 
     expect(state.execute).toHaveBeenCalledOnce();
+    expect(state.execute).toHaveBeenCalledWith(
+      {
+        ...citedWrite,
+        pages: citedWrite.pages.map((page) => ({
+          ...page,
+          sources: page.sources.length > 0 ? ["https://example.com/"] : [],
+        })),
+      },
+      expect.anything(),
+    );
   });
 
   it("rejects a setup citation to an unread or failed page", async () => {
-    const unsupportedWrite = {
-      ...write,
-      pages: [
-        {
-          title: "Tone",
-          markdown: "Be clear.",
-          sources: ["https://example.com/guessed"],
-        },
-      ],
-    };
+    const unsupportedWrite = setupWrite("https://example.com/guessed");
     state.runTools = async ({ executeAndCompleteTool }) => {
       await executeAndCompleteTool("read_public_page", read, "read-1");
       expect(await executeAndCompleteTool("manage_wiki_pages", unsupportedWrite, "write-1")).toMatchObject({

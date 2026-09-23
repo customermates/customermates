@@ -245,6 +245,16 @@ describe("i18n parity", () => {
     expect(icuStructure("<strong>{name}</strong>", "en")).not.toBe(icuStructure("{name}<strong></strong>", "en"));
   });
 
+  it("keeps localized application copy free of em dashes", () => {
+    const offenders: string[] = [];
+    for (const locale of ROUTING_LOCALES) {
+      for (const [key, value] of loadLocaleLeaves(locale)) {
+        if (value.includes("—")) offenders.push(`${locale}:${key}`);
+      }
+    }
+    expect(offenders, `application copy contains em dashes:\n${offenders.join("\n")}`).toEqual([]);
+  });
+
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("has every default-locale leaf key in every routing locale", () => {
     const problems: string[] = [];
     for (const locale of otherRoutingLocales) {

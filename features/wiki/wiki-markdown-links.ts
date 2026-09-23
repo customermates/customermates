@@ -56,6 +56,34 @@ export function extractWikiPageLinks(markdown: string, baseUrl: string, limit = 
   return links;
 }
 
+export function wikiMarkdownHasLinksOrImages(markdown: string): boolean {
+  if (/\b(?:https?:\/\/|www\.)/iu.test(markdown)) return true;
+  const document = parseMarkdownToJSON(markdown) as MarkdownNode;
+  let found = false;
+  visit(document, (node) => {
+    if (node.type === "image" || node.marks?.some((mark) => mark.type === "link")) found = true;
+  });
+  return found;
+}
+
+export function wikiMarkdownHasHeadings(markdown: string): boolean {
+  const document = parseMarkdownToJSON(markdown) as MarkdownNode;
+  let found = false;
+  visit(document, (node) => {
+    if (node.type === "heading") found = true;
+  });
+  return found;
+}
+
+export function wikiMarkdownPlainText(markdown: string): string {
+  const document = parseMarkdownToJSON(markdown) as MarkdownNode;
+  const text: string[] = [];
+  visit(document, (node) => {
+    if (node.text) text.push(node.text);
+  });
+  return text.join("").trim();
+}
+
 export function externalizeWikiPageLinks(markdown: string, baseUrl: string): string {
   const document = parseMarkdownToJSON(markdown) as MarkdownNode;
   visit(document, (node) => {

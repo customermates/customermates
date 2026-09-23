@@ -29,10 +29,12 @@ import {
 } from "@/core/di";
 import { extractWikiPageLinks, externalizeWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
 import { parseWikiPageReference, wikiPageFetchId, wikiPageUrl } from "@/features/wiki/wiki-links";
+import { wikiCodePointBoundary, wikiMarkdownChunk } from "@/features/wiki/wiki-page-chunk";
 
 type Entity = "contact" | "organization" | "deal" | "service" | "task";
 
 const ENTITIES: Entity[] = ["contact", "organization", "deal", "service", "task"];
+const WIKI_FETCH_TEXT_TARGET_LENGTH = 5_500;
 
 const entityRoutes: Record<Entity, string> = {
   contact: "contacts",
@@ -77,9 +79,20 @@ const SearchOutputSchema = z.object({
 const FetchOutputSchema = z.object({
   id: z.string().describe("The canonical result id"),
   title: z.string().describe("Display name of the Wiki page, record, or docs page"),
-  text: z.string().describe("Full content: Wiki Markdown, record fields plus notes, or product docs Markdown"),
+  text: z
+    .string()
+    .describe("Content. Wiki results return one bounded Markdown chunk; records and product docs return full content"),
   url: z.string().describe("Canonical app or docs URL"),
   metadata: z.record(z.string(), z.string()).optional().describe("Extra context such as entity type or locale"),
+  offset: z.number().int().nonnegative().optional().describe("Wiki chunk start offset"),
+  nextOffset: z
+    .number()
+    .int()
+    .nonnegative()
+    .nullable()
+    .optional()
+    .describe("Next Wiki chunk offset, or null at the end"),
+  totalChars: z.number().int().nonnegative().optional().describe("Total characters in the externalized Wiki Markdown"),
 });
 
 async function fetchRecord(entity: Entity, key: string) {
@@ -127,31 +140,56 @@ function fetchDoc(locale: ContentLocale, slug: string) {
   return { text: JSON.stringify(output), structuredContent: output };
 }
 
-async function fetchWiki(id: string) {
+async function fetchWiki(id: string, requestedOffset: number) {
   const result = await getGetWikiPageInteractor().invoke({ id });
   if (!result.ok) return mcpInteractorFailure(result.error);
   if (!result.data) return customMcpFailure(CustomErrorCode.wikiPageNotFound);
   const page = result.data;
-  const links = extractWikiPageLinks(page.markdown, env.BASE_URL);
-  const output = {
+  const links = extractWikiPageLinks(page.markdown, env.BASE_URL, 6);
+  const markdown = externalizeWikiPageLinks(page.markdown, env.BASE_URL);
+  const offset = wikiMarkdownChunk(markdown, requestedOffset, 0, env.BASE_URL).offset;
+  const base = {
     id: wikiPageFetchId(page.id),
     title: page.title,
-    text: externalizeWikiPageLinks(page.markdown, env.BASE_URL),
     url: wikiPageUrl(env.BASE_URL, page.id),
     metadata: {
       source: "wiki",
       createdAt: page.createdAt.toISOString(),
       updatedAt: page.updatedAt.toISOString(),
       outgoingWikiLinks: JSON.stringify(
-        links.map(({ id: linkedId, label, url, fetchId }) => ({
+        links.slice(0, 5).map(({ id: linkedId, label, url, fetchId }) => ({
           id: linkedId,
           label,
           url,
           fetchId,
         })),
       ),
+      outgoingWikiLinksTruncated: String(links.length > 5),
     },
+    offset,
+    nextOffset: null as number | null,
+    totalChars: markdown.length,
   };
+  const outputAt = (end: number) => ({
+    ...base,
+    text: markdown.slice(offset, end),
+    nextOffset: end < markdown.length ? end : null,
+  });
+
+  let low = offset;
+  let high = markdown.length;
+  while (low < high) {
+    const middle = Math.ceil((low + high) / 2);
+    if (JSON.stringify(outputAt(middle)).length <= WIKI_FETCH_TEXT_TARGET_LENGTH) low = middle;
+    else high = middle - 1;
+  }
+
+  const safe = wikiMarkdownChunk(markdown, offset, Math.max(0, low - offset), env.BASE_URL);
+  const safeOutput = outputAt(safe.nextOffset ?? safe.totalChars);
+  const output =
+    JSON.stringify(safeOutput).length <= WIKI_FETCH_TEXT_TARGET_LENGTH
+      ? safeOutput
+      : outputAt(wikiCodePointBoundary(markdown, low));
   return { text: JSON.stringify(output), structuredContent: output };
 }
 
@@ -243,7 +281,7 @@ export const fetchTool = {
   description:
     "Read a result from search, including Workspace Wiki Markdown by wiki:<uuid>. " +
     "Wiki pages may also be fetched by their exact relative, localized, or same-origin absolute Wiki URL. " +
-    "Returns full current content with absolute internal links and a source URL for citations; Wiki Read is required for Wiki pages. " +
+    "Wiki content is returned in bounded chunks with absolute internal links and a source URL for citations; pass nextOffset back as offset until it is null. Wiki Read is required for Wiki pages. " +
     "Compatible with ChatGPT company knowledge and deep research. For focused CRM or product-documentation retrieval, prefer get_records or get_docs_page.",
   annotations: {
     readOnlyHint: true,
@@ -256,14 +294,21 @@ export const fetchTool = {
       .string()
       .min(1)
       .describe("A result id returned by search: 'wiki:<uuid>', 'record:<entity>:<id>', or 'doc:<locale>:<slug>'"),
+    offset: z.coerce
+      .number()
+      .int()
+      .min(0)
+      .default(0)
+      .describe("For Wiki results, the nextOffset from the previous fetch; start at 0"),
   }),
   outputSchema: FetchOutputSchema,
-  execute: async ({ id }: { id: string }) => {
+  execute: async ({ id, offset = 0 }: { id: string; offset?: number }) => {
     const wikiReference = parseWikiPageReference(id, env.BASE_URL);
-    if (wikiReference) return fetchWiki(wikiReference.id);
+    if (wikiReference) return fetchWiki(wikiReference.id, offset);
 
     const [kind, qualifier, ...rest] = id.split(":");
     const key = rest.join(":");
+    if (offset !== 0) return mcpMessageFailure("offset is supported only for Workspace Wiki results.");
 
     if (kind === "record" && qualifier && isEntity(qualifier) && key.length > 0) return fetchRecord(qualifier, key);
     if (kind === "doc" && isContentLocale(qualifier) && key.length > 0) return fetchDoc(qualifier, key);

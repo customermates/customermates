@@ -193,6 +193,7 @@ describe("WikiHomepageSetup", () => {
     });
 
     expect(container.textContent).toContain("WikiSetup.status.workingTitle");
+    expect(container.textContent).toContain("WikiSetup.status.workingBodyWiki");
     expect(container.querySelector("form")).toBeNull();
     act(() => button("WikiSetup.openTask").click());
     expect(onAccepted).toHaveBeenCalledExactlyOnceWith("conversation-1");
@@ -217,6 +218,8 @@ describe("WikiHomepageSetup", () => {
     const inlineConversation = container.querySelector('[data-inline-conversation="conversation-1"]');
     if (!inlineConversation) throw new Error("Inline conversation did not render.");
     expect(container.textContent).toContain("Inline Mate task");
+    expect(container.textContent).toContain("WikiSetup.status.workingBody");
+    expect(container.textContent).not.toContain("WikiSetup.status.workingBodyWiki");
     expect(container.textContent).not.toContain("WikiSetup.openTask");
     expect(container.textContent).toContain("WikiSetup.continueBackground");
     expect(button("WikiSetup.continueBackground").compareDocumentPosition(inlineConversation)).toBe(
@@ -224,6 +227,34 @@ describe("WikiHomepageSetup", () => {
     );
     act(() => button("WikiSetup.continueBackground").click());
     expect(onContinue).toHaveBeenCalledOnce();
+  });
+
+  it("shows which onboarding action is still completing", () => {
+    render(
+      {
+        status: "working",
+        homepage: "https://example.com/",
+        domain: "example.com",
+        conversationId: "conversation-1",
+        pages: [],
+      },
+      {
+        disabled: true,
+        onboarding: true,
+        renderConversation: () => createElement("div", null, "Inline Mate task"),
+      },
+    );
+
+    const status = container.querySelector("section");
+    expect(status?.getAttribute("aria-busy")).toBe("true");
+    expect(button("WikiSetup.continueBackground").disabled).toBe(true);
+    expect(button("WikiSetup.continueBackground").querySelector("svg.animate-spin")).not.toBeNull();
+
+    render(undefined, { disabled: true, onboarding: true });
+
+    expect(form().getAttribute("aria-busy")).toBe("true");
+    expect(button("WikiSetup.skip").disabled).toBe(true);
+    expect(button("WikiSetup.skip").querySelector("svg.animate-spin")).not.toBeNull();
   });
 
   it("uses the inline task instead of duplicate completed-page rows", () => {
@@ -358,8 +389,29 @@ describe("WikiHomepageSetup", () => {
       pages: [],
     });
 
-    expect(container.textContent).toContain("WikiSetup.status.workingBodyNoTask");
+    expect(container.textContent).toContain("WikiSetup.status.workingBodyNoTaskWiki");
     expect(container.textContent).not.toContain("WikiSetup.openTask");
+  });
+
+  it("shows a neutral zero-page result and keeps the Mate task available", () => {
+    render(
+      {
+        status: "noContent",
+        homepage: "https://example.com/",
+        domain: "example.com",
+        conversationId: "conversation-1",
+        pages: [],
+      },
+      {
+        renderConversation: (conversationId) =>
+          createElement("div", { "data-inline-conversation": conversationId }, "Mate task details"),
+      },
+    );
+
+    expect(container.textContent).toContain("WikiSetup.status.noContentTitle");
+    expect(container.textContent).toContain("WikiSetup.status.noContentBody");
+    expect(container.textContent).toContain("Mate task details");
+    expect(container.textContent).toContain("WikiSetup.tryAnother");
   });
 
   it("preserves the submitted homepage after validation failures and rotates the request id", async () => {

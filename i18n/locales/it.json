@@ -323,6 +323,11 @@
           }
         },
         "web": {
+          "read": {
+            "done": "Pagina del sito letta",
+            "error": "Impossibile leggere una pagina del sito",
+            "running": "Lettura di una pagina del sito"
+          },
           "search": {
             "done": "Ricerca sul web completata",
             "error": "Impossibile effettuare la ricerca sul web",
@@ -399,7 +404,7 @@
       "cancelled": "Annullato",
       "reject": "Rifiutato",
       "rejectAction": "Annulla",
-      "resuming": "Decisione salvata — Mate continua…",
+      "resuming": "Decisione salvata. Mate continua…",
       "retryResume": "Mate non è ancora riuscito a riprendere. Riprova la stessa decisione.",
       "timeout": "Tempo scaduto senza risposta",
       "title": "Mate vuole eseguire:"
@@ -824,6 +829,8 @@
       "undo": "Annulla",
       "untitled": "Nuova chat",
       "waitElapsed": "{seconds} s trascorsi",
+      "websiteSourcesRunning": "{count, plural, one {Verifica di 1 fonte del sito} other {Verifica di # fonti del sito}}",
+      "websiteWikiComplete": "{count, plural, one {Wiki iniziale creata da 1 fonte del sito} other {Wiki iniziale creata da # fonti del sito}}",
       "workingOnRequest": "Elaborazione della tua richiesta…"
     }
   },
@@ -2934,8 +2941,8 @@
         "title": "Il tuo profilo"
       },
       "wiki": {
-        "subtitle": "Mate raccoglie le informazioni pubbliche utili dal sito della tua azienda, così i tuoi agenti IA hanno il contesto necessario. Potrai controllare e modificare tutto in seguito.",
-        "title": "Creare la wiki dal tuo sito web?"
+        "subtitle": "Aggiungi il sito web della tua azienda. Mate trasforma le informazioni verificabili in pagine wiki modificabili per Mate e gli strumenti di IA che colleghi.",
+        "title": "Dai a Mate il contesto della tua azienda"
       }
     }
   },
@@ -3624,49 +3631,62 @@
     "untitled": "Pagina senza titolo"
   },
   "WikiSetup": {
+    "agentPrompt": "Scopri la nostra azienda da {homepage} e crea le pagine della nostra wiki.",
     "continue": "Continua",
-    "continueBackground": "Continua — Mate prosegue il lavoro",
+    "continueBackground": "Continua mentre Mate lavora",
+    "conversationTitle": "Configura la wiki dell’area di lavoro",
     "createBlank": "Crea una pagina vuota",
-    "description": "Trasforma il tuo sito in una wiki iniziale con cinque pagine collegate.",
+    "description": "Trasforma il tuo sito in cinque pagine wiki utili e collegate per Mate e gli strumenti di IA che colleghi.",
     "gapsNote": "Mate cita ciò che trova e segnala le informazioni mancanti invece di inventarle.",
     "generated": {
+      "defaultGaps": {
+        "company_overview": "Quali missione, storia, mercati e fatti aziendali deve considerare Mate come riferimento?\n- Quali prove e canali di contatto deve usare Mate?",
+        "customers_competitors": "Quali segmenti di clienti, esigenze e motivi di acquisto deve privilegiare Mate?\n- Quali concorrenti, alternative, obiezioni e prove deve usare Mate?",
+        "products_services": "Quali offerte e promesse di valore deve usare Mate nel lavoro con i clienti?\n- Quali limitazioni, dettagli di implementazione e modifiche del prodotto richiedono conferma interna?",
+        "support_faq": "Quali fasi di vendita, regole di qualificazione, campi e responsabili CRM deve seguire Mate?\n- Quali sono i passaggi di consegne, i canali di supporto, i livelli di servizio e i percorsi di escalation?\n- Quali routine richiedono l’approvazione umana e chi la concede?",
+        "voice_tone": "Quali formulazioni, affermazioni, esempi e inviti all’azione sono approvati?\n- Quali termini, promesse e stili deve evitare Mate?"
+      },
       "gapsHeading": "Aspetti da confermare",
       "relatedPages": "Pagine correlate",
       "sourcesHeading": "Fonti",
       "topics": {
         "company_overview": "Panoramica dell’azienda",
-        "customers_competitors": "Clienti, posizionamento e concorrenti",
-        "products_services": "Prodotti e servizi",
-        "support_faq": "Supporto e FAQ",
-        "voice_tone": "Voce e tono"
+        "customers_competitors": "Clienti, mercato e concorrenza",
+        "products_services": "Prodotti, servizi e valore",
+        "support_faq": "Vendite, onboarding e supporto",
+        "voice_tone": "Voce, tono e messaggi"
       }
     },
-    "homepageHelp": "Sito HTTP(S) pubblico. Mate può leggere fino a quattro pagine utili collegate.",
+    "homepageHelp": "Sito web HTTP(S) pubblico. Mate legge questa pagina e può seguire fino a tre link utili sullo stesso sito.",
     "homepageLabel": "Sito web dell’azienda",
     "homepagePlaceholder": "https://esempio.it",
     "openTask": "Apri attività Mate",
+    "progressLoadFailed": "Non è stato possibile caricare qui i progressi di Mate. Riprova.",
+    "progressLoading": "Caricamento dei progressi di Mate",
     "skip": "Non ora",
     "start": "Crea la mia wiki",
     "startFailed": "Mate non è riuscito ad avviare la configurazione della wiki. Riprova.",
     "status": {
-      "completedBody": "Le pagine iniziali collegate sono pronte per essere controllate e modificate.",
-      "completedBodyOnboarding": "La tua wiki iniziale è pronta. Continua ora e controllala o modificala in seguito.",
+      "completedBody": "Le cinque pagine wiki iniziali e collegate sono pronte. Includono fatti supportati dal sito web e lacune chiare per ciò che non è stato possibile verificare.",
+      "completedBodyOnboarding": "Mate ha creato cinque pagine iniziali collegate con fatti supportati dal sito web e lacune chiare per ciò che non ha potuto verificare. Potrai controllarle e modificarle in seguito nella wiki.",
       "completedExistingBody": "La wiki contiene già delle pagine. Continua l’onboarding o controlla i contenuti esistenti.",
-      "completedTitle": "La tua wiki è pronta",
+      "completedTitle": "La tua wiki iniziale è pronta",
       "failedBody": "Non è stata aggiunta alcuna pagina. Prova un altro sito oppure continua e aggiungi le pagine più tardi.",
       "failedTitle": "Configurazione non completata",
-      "noContentBody": "Mate non ha trovato abbastanza informazioni pubbliche affidabili e non ha creato pagine.",
-      "noContentTitle": "Nessun contenuto utilizzabile trovato",
-      "workingBody": "Mate sta leggendo {domain} e creando la tua wiki. Segui qui i progressi o continua mentre termina in background.",
-      "workingBodyNoTask": "Mate sta leggendo {domain} e creando la tua wiki. Puoi continuare mentre termina in background.",
-      "workingTitle": "Mate sta creando la tua wiki"
+      "noContentBody": "Controlla l’attività di Mate per i dettagli. Puoi provare un altro sito oppure continuare e aggiungere pagine in seguito.",
+      "noContentTitle": "Non è stata creata alcuna pagina Wiki",
+      "workingBody": "Mate sta leggendo {domain}, controllando le pagine utili e trasferendo nella tua wiki le informazioni raccolte dalle fonti. Puoi seguire qui i progressi o procedere al passaggio successivo.",
+      "workingBodyNoTask": "Mate sta leggendo {domain} e trasferendo nella tua wiki le informazioni raccolte dalle fonti. Puoi passare al passaggio successivo mentre lavora.",
+      "workingBodyNoTaskWiki": "Mate sta leggendo {domain} e creando la wiki. Puoi tornare più tardi per vedere le pagine completate.",
+      "workingBodyWiki": "Mate sta leggendo {domain}, controllando le pagine utili e trasferendo nella tua wiki le informazioni raccolte dalle fonti. Puoi lasciare aperta questa attività o tornare più tardi.",
+      "workingTitle": "Mate sta conoscendo la tua azienda"
     },
     "topics": {
       "company": "Panoramica dell’azienda",
-      "customers": "Clienti e concorrenti",
-      "products": "Prodotti e servizi",
-      "support": "Supporto e FAQ",
-      "voice": "Voce e tono"
+      "customers": "Clienti, mercato e concorrenza",
+      "products": "Prodotti, servizi e valore",
+      "support": "Vendite, onboarding e supporto",
+      "voice": "Voce, tono e messaggi"
     },
     "tryAnother": "Prova un altro sito",
     "unavailable": "La configurazione con Mate non è disponibile al momento. Potrai creare pagine in seguito dalla wiki."

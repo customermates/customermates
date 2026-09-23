@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { buildWikiHomepageSetupPrompt, parsePublicDomainName, parsePublicWikiHomepage } from "../wiki-homepage";
+import { parsePublicDomainName, parsePublicWikiHomepage } from "../wiki-homepage";
 
 describe("parsePublicWikiHomepage", () => {
   it.each([
     ["example.com", "https://example.com/", "example.com"],
     ["https://www.example.com/about?campaign=1#team", "https://www.example.com/about", "example.com"],
-    ["http://shop.example.co.uk/catalog", "http://shop.example.co.uk/catalog", "example.co.uk"],
+    ["http://shop.example.co.uk/catalog", "https://shop.example.co.uk/catalog", "example.co.uk"],
     ["tenant.github.io/docs", "https://tenant.github.io/docs", "tenant.github.io"],
     ["https://Example.COM./", "https://example.com/", "example.com"],
   ])("canonicalizes %s", (input, url, registrableDomain) => {
@@ -37,16 +37,5 @@ describe("parsePublicWikiHomepage", () => {
     expect(parsePublicDomainName("tenant.github.io")).toBe("tenant.github.io");
     expect(parsePublicDomainName("www.example.com")).toBeNull();
     expect(parsePublicDomainName("localhost")).toBeNull();
-  });
-});
-
-describe("buildWikiHomepageSetupPrompt", () => {
-  it("keeps the visible setup task stable and points at the canonical homepage", () => {
-    const prompt = buildWikiHomepageSetupPrompt({
-      url: "https://example.com/",
-      registrableDomain: "example.com",
-    });
-
-    expect(prompt).toBe("Set up our Workspace Wiki from https://example.com/");
   });
 });

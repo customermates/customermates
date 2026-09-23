@@ -184,6 +184,34 @@ describe("agent experience contract", () => {
     expect(JSON.stringify([created, updated])).not.toMatch(/Ada|Grace|Private project|never-show|00000000/);
   });
 
+  it("explains homepage reading and Wiki creation with task-specific progress", () => {
+    const websiteRead = describeInternalTool("read_public_page", {
+      url: "https://private.example/company",
+    });
+    const wikiCreate = describeInternalTool("manage_wiki_pages", {
+      action: "create",
+      pages: Array.from({ length: 5 }, (_, index) => ({
+        title: `Private page ${index + 1}`,
+      })),
+    });
+
+    expect(websiteRead).toEqual({
+      kind: "web.read",
+      affectedResources: [],
+      risk: "read",
+    });
+    expect(wikiCreate).toMatchObject({
+      kind: "records.create",
+      resource: "wiki",
+      count: 5,
+      risk: "write",
+      affectedResources: ["wiki"],
+    });
+    expect(agentActivityCopy(websiteRead, enT).running).toBe("Reading a website page");
+    expect(agentActivityCopy(wikiCreate, enT).running).toBe("Creating 5 Wiki pages");
+    expect(JSON.stringify([websiteRead, wikiCreate])).not.toMatch(/private\.example|Private page/);
+  });
+
   it("keeps no input-derived data on a navigate or highlight activity", () => {
     const navigate = describeInternalTool("navigate", {
       targetId: "nav-contacts",

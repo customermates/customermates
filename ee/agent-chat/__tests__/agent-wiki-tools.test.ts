@@ -354,6 +354,7 @@ describe("managed Wiki retrieval tools", () => {
     expect(tools.get_workspace_context).toBeDefined();
     expect(tools.manage_wiki_pages).toBeDefined();
     expect(tools.fetch).toBeUndefined();
+    expect(tools.read_public_page).toBeUndefined();
     expect(description).toContain("get returns one Markdown chunk");
     expect(description).toContain("nextOffset");
     expect(description).toContain("/wiki?page=<page-id>");
@@ -561,8 +562,7 @@ describe("homepage setup tool boundary", () => {
     "support_faq",
   ].map((topic) => ({
     topic,
-    body: `Verified ${topic}`,
-    gaps: `Confirm ${topic}`,
+    sections: [{ heading: "Details", content: `Verified ${topic}` }],
     sources: [`https://example.com/${topic}`],
   }));
 
@@ -620,12 +620,14 @@ describe("homepage setup tool boundary", () => {
       {
         action: "create",
         requireEmpty: true,
-        pages: setupPages.map((page, index) => (index === 0 ? { ...page, body: "   " } : page)),
-      },
-      {
-        action: "create",
-        requireEmpty: true,
-        pages: setupPages.map((page, index) => (index === 0 ? { ...page, gaps: "" } : page)),
+        pages: setupPages.map((page, index) =>
+          index === 0
+            ? {
+                ...page,
+                sections: [{ heading: "Details", content: "   " }],
+              }
+            : page,
+        ),
       },
       {
         action: "create",
@@ -670,19 +672,19 @@ describe("homepage setup tool boundary", () => {
         }),
         expect.objectContaining({
           setupTopic: "products_services",
-          title: "Products & Services",
+          title: "Products, Services & Value",
         }),
         expect.objectContaining({
           setupTopic: "customers_competitors",
-          title: "Customers, Positioning & Competitors",
+          title: "Customers, Market & Competition",
         }),
         expect.objectContaining({
           setupTopic: "voice_tone",
-          title: "Voice & Tone",
+          title: "Voice, Tone & Messaging",
         }),
         expect.objectContaining({
           setupTopic: "support_faq",
-          title: "Support & FAQ",
+          title: "Sales, Onboarding & Support",
         }),
       ],
     });

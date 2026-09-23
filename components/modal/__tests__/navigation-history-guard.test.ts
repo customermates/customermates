@@ -7,6 +7,7 @@ import { observable, runInAction } from "mobx";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { NavigationGuardController } from "@/core/stores/navigation-guard.controller";
+import { connectNavigationHistoryGuard } from "../navigation-history-guard";
 
 const state = vi.hoisted(() => ({
   controller: null as NavigationGuardController | null,
@@ -286,6 +287,78 @@ describe("shared dirty history navigation", () => {
     } finally {
       window.history.pushState = pushState;
       window.history.replaceState = replaceState;
+    }
+  });
+
+  it("guards an unmarked entry that predates the protected layout", async () => {
+    const entries = [
+      { state: { __NA: true, tree: "public" }, url: "/sign-in" },
+      { state: { __NA: true, tree: "wiki" }, url: "/wiki?page=draft" },
+    ];
+    let index = 1;
+    const target = new EventTarget();
+    const go = (delta = 0) => {
+      const next = index + delta;
+      if (next < 0 || next >= entries.length || next === index) return;
+      index = next;
+      target.dispatchEvent(new PopStateEvent("popstate", { state: entries[index].state }));
+    };
+    const history = {
+      get length() {
+        return entries.length;
+      },
+      get state() {
+        return entries[index]?.state ?? null;
+      },
+      pushState(data: object, _unused: string, url?: string | URL | null) {
+        entries.splice(index + 1, entries.length, {
+          state: data as { __NA: boolean; tree: string },
+          url: url ? String(url) : entries[index].url,
+        });
+        index += 1;
+      },
+      replaceState(data: object, _unused: string, url?: string | URL | null) {
+        entries[index] = {
+          state: data as { __NA: boolean; tree: string },
+          url: url ? String(url) : entries[index].url,
+        };
+      },
+      go,
+      back() {
+        go(-1);
+      },
+      forward() {
+        go(1);
+      },
+    } as unknown as History;
+    const browser = Object.assign(target, { history }) as unknown as Window;
+    const controller = new NavigationGuardController();
+    const localStore = observable({
+      hasUnsavedChanges: true,
+      withUnsavedChangesGuard: true,
+    });
+    controller.register(localStore as BaseFormStore);
+    const nextRouter = vi.fn();
+    browser.addEventListener("popstate", nextRouter);
+    const disconnect = connectNavigationHistoryGuard(controller, browser);
+
+    try {
+      browser.history.back();
+      await settleHistory();
+
+      expect(entries[index].url).toBe("/wiki?page=draft");
+      expect(controller.isPending).toBe(true);
+      expect(nextRouter).not.toHaveBeenCalled();
+
+      act(() => controller.confirm());
+      await settleHistory();
+
+      expect(entries[index].url).toBe("/sign-in");
+      expect(nextRouter).toHaveBeenCalledOnce();
+      expect(controller.isPending).toBe(false);
+    } finally {
+      disconnect();
+      browser.removeEventListener("popstate", nextRouter);
     }
   });
 });

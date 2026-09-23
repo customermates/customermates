@@ -110,7 +110,7 @@ describe("GetWikiHomepageSetupStateInteractor", () => {
     });
   });
 
-  it("distinguishes a successful no-content turn from a failed turn", async () => {
+  it("keeps a completed zero-page turn distinct without claiming why no pages were created", async () => {
     const noContent = {
       getHomepageSetupProjection: vi.fn().mockResolvedValue({
         setup: { ...SETUP, status: "completed", terminalCode: "completed" },

@@ -3514,16 +3514,22 @@ describe("AgentChatStore", () => {
   it("completes a soft route refresh without clearing a newer queued refresh", () => {
     const store = new AgentChatStore(root() as never);
 
+    runInAction(() => {
+      store.streamStatus = "finalizing";
+    });
     store.markRouteSyncRefreshing();
     store.markRouteSyncComplete();
     expect(store.routeSyncStatus).toBe("idle");
+    expect(store.streamStatus).toBe("idle");
 
     store.markRouteSyncRefreshing();
     runInAction(() => {
       store.routeSyncStatus = "queued";
+      store.streamStatus = "finalizing";
     });
     store.markRouteSyncComplete();
     expect(store.routeSyncStatus).toBe("queued");
+    expect(store.streamStatus).toBe("finalizing");
   });
 
   it("reconnects an active durable stream from the next confirmed sequence", async () => {

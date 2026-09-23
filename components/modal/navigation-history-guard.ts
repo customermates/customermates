@@ -2,6 +2,7 @@ import type { NavigationGuardController } from "@/core/stores/navigation-guard.c
 
 const HISTORY_KEY = "__customermatesHistory";
 type Position = { session: string; index: number };
+type RestoreTarget = Position | { previousEntries: number };
 type HistoryGuard = {
   connect: (guard: NavigationGuardController) => () => void;
 };
@@ -32,8 +33,9 @@ function createHistoryGuard(browser: Window): HistoryGuard {
     session: crypto.randomUUID(),
     index: 0,
   };
-  let restoring: Position | null = null;
+  let restoring: RestoreTarget | null = null;
   let approved: Position | null = null;
+  let approvedPrevious = false;
 
   const withPosition = (state: unknown, value: Position) => ({
     ...(state && typeof state === "object" ? state : {}),
@@ -54,21 +56,40 @@ function createHistoryGuard(browser: Window): HistoryGuard {
     "popstate",
     (event) => {
       const next = positionFrom(event.state);
+      const guard = [...guards.keys()].find((candidate) => candidate.isGuarding);
       if (!next || next.session !== position.session) {
+        if (approvedPrevious) {
+          approvedPrevious = false;
+          position = next ?? { session: crypto.randomUUID(), index: 0 };
+          replaceState(withPosition(history.state, position), "");
+          approved = null;
+          return;
+        }
+        if (guard) {
+          event.stopImmediatePropagation();
+          const previousEntries = restoring && "previousEntries" in restoring ? restoring.previousEntries + 1 : 1;
+          restoring = { previousEntries };
+          history.forward();
+          return;
+        }
         position = next ?? { session: crypto.randomUUID(), index: 0 };
         replaceState(withPosition(history.state, position), "");
         restoring = null;
         approved = null;
         return;
       }
-      const guard = [...guards.keys()].find((candidate) => candidate.isGuarding);
       if (next.index === position.index && restoring) {
         event.stopImmediatePropagation();
         const target = restoring;
         restoring = null;
         const navigate = () => {
-          approved = target;
-          history.go(target.index - position.index);
+          if ("previousEntries" in target) {
+            approvedPrevious = true;
+            history.go(-target.previousEntries);
+          } else {
+            approved = target;
+            history.go(target.index - position.index);
+          }
         };
         if (guard) guard.tryNavigate(navigate);
         else navigate();

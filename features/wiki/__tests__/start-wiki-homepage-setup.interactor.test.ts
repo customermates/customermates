@@ -53,7 +53,7 @@ describe("StartWikiHomepageSetupInteractor", () => {
     expect(agent.invoke).toHaveBeenCalledOnce();
     expect(agent.invoke).toHaveBeenCalledWith({
       clientRequestId: CLIENT_REQUEST_ID,
-      text: expect.stringContaining("https://www.example.com/about"),
+      text: "Informiere dich auf https://www.example.com/about über unser Unternehmen und erstelle unsere Wiki-Seiten.",
       locale: "de",
       retry: false,
       wikiHomepageSetupDomain: "example.com",
@@ -61,6 +61,11 @@ describe("StartWikiHomepageSetupInteractor", () => {
     });
     expect(agent.invoke.mock.calls[0][0].text).not.toContain("?ref=");
     expect(agent.invoke.mock.calls[0][0].text).not.toContain("#team");
+    expect(repo.findReusableSetupRequest).toHaveBeenCalledWith({
+      clientRequestId: CLIENT_REQUEST_ID,
+      homepageUrl: "https://www.example.com/about",
+      registrableDomain: "example.com",
+    });
   });
 
   it("rejects an unsafe homepage before checking or dispatching", async () => {
@@ -113,6 +118,7 @@ describe("StartWikiHomepageSetupInteractor", () => {
       findReusableSetupRequest: vi.fn().mockResolvedValue({
         disposition: "reuse",
         clientRequestId: CLIENT_REQUEST_ID,
+        text: "Persisted setup prompt.",
       }),
     };
     const replay = {
@@ -134,6 +140,7 @@ describe("StartWikiHomepageSetupInteractor", () => {
       }),
     ).resolves.toBe(replay);
     expect(repo.wikiIsEmpty).not.toHaveBeenCalled();
+    expect(agent.invoke).toHaveBeenCalledWith(expect.objectContaining({ text: "Persisted setup prompt." }));
   });
 
   it("recovers an in-flight setup after reload without starting a duplicate turn", async () => {
@@ -143,6 +150,7 @@ describe("StartWikiHomepageSetupInteractor", () => {
       findReusableSetupRequest: vi.fn().mockResolvedValue({
         disposition: "reuse",
         clientRequestId: priorRequestId,
+        text: "Persisted active prompt.",
       }),
     };
     const agent = {
@@ -164,7 +172,9 @@ describe("StartWikiHomepageSetupInteractor", () => {
     });
 
     expect(repo.wikiIsEmpty).not.toHaveBeenCalled();
-    expect(agent.invoke).toHaveBeenCalledWith(expect.objectContaining({ clientRequestId: priorRequestId }));
+    expect(agent.invoke).toHaveBeenCalledWith(
+      expect.objectContaining({ clientRequestId: priorRequestId, text: "Persisted active prompt." }),
+    );
   });
 
   it("replays an exact completed request even when its pages make the Wiki non-empty", async () => {
@@ -173,6 +183,7 @@ describe("StartWikiHomepageSetupInteractor", () => {
       findReusableSetupRequest: vi.fn().mockResolvedValue({
         disposition: "reuse",
         clientRequestId: CLIENT_REQUEST_ID,
+        text: "Persisted completed prompt.",
       }),
     };
     const replay = {

@@ -46,6 +46,7 @@ describe("AgentActivity", () => {
   it("shows an unrecovered tool failure as an error after the turn ends", () => {
     const html = renderToStaticMarkup(
       createElement(AgentActivity, {
+        activityContext: "wikiHomepageSetup",
         isTrailing: true,
         isWorking: false,
         items: [failedRead],
@@ -85,5 +86,103 @@ describe("AgentActivity", () => {
     expect(html).toContain("text-destructive");
     expect(html).not.toContain("animate-spin");
     expect(isWorkingActivityGroup(conversationItems, 2, true)).toBe(true);
+  });
+
+  it("summarizes homepage setup as website research and a completed Wiki", () => {
+    const websiteRead = {
+      ...failedRead,
+      activity: {
+        kind: "web.read" as const,
+        affectedResources: [],
+        risk: "read" as const,
+      },
+      status: "done" as const,
+    };
+    const wikiCreate = {
+      ...websiteRead,
+      id: "activity-2",
+      providerCallId: "call-2",
+      activity: {
+        kind: "records.create" as const,
+        resource: "wiki" as const,
+        affectedResources: ["wiki" as const],
+        risk: "write" as const,
+        count: 5,
+      },
+    };
+    const runningHtml = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        activityContext: "wikiHomepageSetup",
+        isTrailing: true,
+        isWorking: true,
+        items: [{ ...websiteRead, status: "running" as const }],
+      }),
+    );
+    const completedHtml = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        activityContext: "wikiHomepageSetup",
+        isTrailing: true,
+        isWorking: false,
+        items: [websiteRead, wikiCreate],
+      }),
+    );
+
+    expect(runningHtml).toContain("AgentChat.ui.websiteSourcesRunning");
+    expect(completedHtml).toContain("AgentChat.ui.websiteWikiComplete");
+    expect(completedHtml).not.toContain("AgentChat.ui.stepsTook");
+
+    const ordinaryChatHtml = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        isTrailing: true,
+        isWorking: false,
+        items: [websiteRead, wikiCreate],
+      }),
+    );
+    expect(ordinaryChatHtml).toContain("AgentChat.ui.activityComplete");
+    expect(ordinaryChatHtml).not.toContain("AgentChat.ui.websiteWikiComplete");
+  });
+
+  it("treats an optional linked-page failure as settled after the Wiki is created", () => {
+    const websiteRead = {
+      ...failedRead,
+      activity: {
+        kind: "web.read" as const,
+        affectedResources: [],
+        risk: "read" as const,
+      },
+      status: "done" as const,
+    };
+    const failedLinkedRead = {
+      ...websiteRead,
+      id: "activity-2",
+      providerCallId: "call-2",
+      status: "error" as const,
+    };
+    const wikiCreate = {
+      ...websiteRead,
+      id: "activity-3",
+      providerCallId: "call-3",
+      activity: {
+        kind: "records.create" as const,
+        resource: "wiki" as const,
+        affectedResources: ["wiki" as const],
+        risk: "write" as const,
+        count: 5,
+      },
+    };
+
+    const html = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        activityContext: "wikiHomepageSetup",
+        isTrailing: true,
+        isWorking: false,
+        items: [websiteRead, failedLinkedRead, wikiCreate],
+      }),
+    );
+
+    expect(html).toContain("AgentChat.ui.websiteWikiComplete");
+    expect(html.split("</summary>")[0]).not.toContain("text-destructive");
+    expect(html).toContain("AgentChat.activity.state.web.read.error");
+    expect(html).not.toContain("AgentChat.ui.activityError");
   });
 });

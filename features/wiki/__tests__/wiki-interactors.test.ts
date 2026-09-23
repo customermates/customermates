@@ -143,10 +143,10 @@ describe("CreateWikiPagesInteractor", () => {
     };
     const topics = [
       ["company_overview", "Company Overview"],
-      ["products_services", "Products & Services"],
-      ["customers_competitors", "Customers, Positioning & Competitors"],
-      ["voice_tone", "Voice & Tone"],
-      ["support_faq", "Support & FAQ"],
+      ["products_services", "Products, Services & Value"],
+      ["customers_competitors", "Customers, Market & Competition"],
+      ["voice_tone", "Voice, Tone & Messaging"],
+      ["support_faq", "Sales, Onboarding & Support"],
     ] as const;
 
     const result = await new CreateWikiPagesInteractor(repo as never, eventService() as never).invoke({

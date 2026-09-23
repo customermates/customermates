@@ -45,7 +45,8 @@ import {
 import { agentWebSourcesFooter, collectAgentWebSources } from "@/ee/agent-chat/agent-web-search";
 import {
   createPublicPageReadState,
-  publicPageSourcesWereRead,
+  normalizePublicPageSources,
+  publicPageResearchProgress,
   reservePublicPageRead,
   recordPublicPageLinks,
 } from "@/ee/agent-chat/public-page-read-state";
@@ -1188,22 +1189,41 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                           const prepared = await resolveToolInput(shell.name, options.toolCallId, input);
                           if (!prepared.ok) return prepared;
                           const readOnly = isReadOnlyAgentToolCall(shell.name, shell, prepared.input);
+                          let executionInput = prepared.input;
                           if (payload.wikiHomepageSetup && !readOnly && !browsed) {
                             return {
                               ok: false,
                               result: "Read the submitted homepage successfully before creating Wiki pages.",
                             };
                           }
-                          if (
-                            payload.wikiHomepageSetup &&
-                            !readOnly &&
-                            (!publicPageState || !publicPageSourcesWereRead(publicPageState, prepared.input))
-                          ) {
-                            return {
-                              ok: false,
-                              result:
-                                "Every setup page must cite at least one exact URL that this task read successfully. Nothing was changed.",
-                            };
+                          if (payload.wikiHomepageSetup && !readOnly) {
+                            if (agentBatchContainsWebCall(options.messages, options.toolCallId)) {
+                              return {
+                                ok: false,
+                                result:
+                                  "Finish the website reads first, then create Wiki pages in a later step so the page content can use those results. Nothing was changed.",
+                              };
+                            }
+                            const research = publicPageState
+                              ? publicPageResearchProgress(publicPageState)
+                              : { complete: false, remaining: 1 };
+                            if (!research.complete) {
+                              return {
+                                ok: false,
+                                result: `Read ${research.remaining} more useful link${research.remaining === 1 ? "" : "s"} from the submitted homepage before creating Wiki pages. Attempt the remaining reads together. Nothing was changed.`,
+                              };
+                            }
+                            const normalized = publicPageState
+                              ? normalizePublicPageSources(publicPageState, prepared.input)
+                              : { ok: false as const };
+                            if (!normalized.ok) {
+                              return {
+                                ok: false,
+                                result:
+                                  "Every setup page with factual content must cite an exact URL that this task read successfully. Nothing was changed.",
+                              };
+                            }
+                            executionInput = normalized.input;
                           }
                           if (
                             isUnattendedSurface(surface) &&
@@ -1255,7 +1275,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                             payload,
                             shell.name,
                             options.toolCallId,
-                            prepared.input,
+                            executionInput,
                             grants.get(options.toolCallId) ?? "not-required",
                           );
                           if (!readOnly && isSuccessfulToolOutcome(outcome)) performedWrite = true;

@@ -225,7 +225,7 @@ describe("readPublicPage", () => {
     expect(responses[0].destroyed).toBe(true);
   });
 
-  it("follows same-domain redirects and returns their final source URL", async () => {
+  it("upgrades HTTP before the first request and follows same-domain redirects", async () => {
     fixtures.push({
       statusCode: 301,
       headers: { location: "https://www.example.com/en" },
@@ -235,8 +235,8 @@ describe("readPublicPage", () => {
       ok: true,
       url: "https://www.example.com/en",
     });
-    expect(mocks.httpRequest).toHaveBeenCalledTimes(1);
-    expect(mocks.httpsRequest).toHaveBeenCalledTimes(1);
+    expect(mocks.httpRequest).not.toHaveBeenCalled();
+    expect(mocks.httpsRequest).toHaveBeenCalledTimes(2);
   });
 
   it("requests functional query parameters unchanged and strips only the fragment", async () => {
@@ -283,7 +283,6 @@ describe("readPublicPage", () => {
     ["https://evil.com/", "outside_domain"],
     ["https://evil.com/index.php?id=42", "outside_domain"],
     ["https://127.0.0.1/", "invalid_url"],
-    ["http://example.com/insecure", "invalid_url"],
     ["https://user:secret@example.com/", "invalid_url"],
     ["https://example.com:8080/", "invalid_url"],
   ])("blocks redirect to %s before a second network request", async (location, reason) => {

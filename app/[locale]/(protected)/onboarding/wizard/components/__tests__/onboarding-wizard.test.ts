@@ -198,6 +198,8 @@ describe("OnboardingWizard", () => {
 
     const html = renderToStaticMarkup(props.renderConversation("conversation-1"));
 
+    expect(html).toContain('data-testid="wiki-setup-conversation"');
+    expect(html).toMatch(/class="[^"]*bg-background[^"]*" data-testid="wiki-setup-conversation"/);
     expect(html).toContain('data-agent-conversation="true"');
     expect(html).toContain('data-read-only="true"');
     expect(html).toContain('data-links-as-text="true"');

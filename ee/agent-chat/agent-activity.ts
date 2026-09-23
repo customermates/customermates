@@ -28,6 +28,7 @@ export const AGENT_ACTIVITY_KINDS = [
   "docs.search",
   "docs.read",
   "web.search",
+  "web.read",
   "records.read",
   "records.create",
   "records.update",
@@ -262,9 +263,28 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
   if (toolName === "configure_view") return descriptor("interface.interact", undefined, "read");
   if (toolName === "start_tour") return descriptor("interface.tour", undefined, "read");
   if (toolName === "web_search") return descriptor("web.search", undefined, "read");
+  if (toolName === "read_public_page") return descriptor("web.read", undefined, "read");
   if (toolName === "manage_wiki_pages") {
-    const risk = isMultiplexedRead(toolName, details) ? "read" : multiplexedRisk(toolName, details);
-    return descriptor(risk === "read" ? "workspace.read" : "workspace.configure", "wiki", risk);
+    const action = actionValue(details);
+    if (isMultiplexedRead(toolName, details)) return descriptor("records.read", "wiki", "read");
+    if (action === "create") {
+      const count = boundedCount(details.pages);
+      return {
+        ...descriptor("records.create", "wiki", "write"),
+        ...(count ? { count } : {}),
+      };
+    }
+    if (action === "update") return { ...descriptor("records.update", "wiki", "write"), count: 1 };
+    if (action === "delete") {
+      return {
+        ...descriptor("records.delete", "wiki", "sensitive", ["wiki"], {
+          action: "records.delete",
+          count: 1,
+        }),
+        count: 1,
+      };
+    }
+    return descriptor("workspace.configure", "wiki", multiplexedRisk(toolName, details));
   }
   if (toolName === "request_support") {
     return descriptor("support.escalate", undefined, "sensitive", [], {

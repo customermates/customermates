@@ -452,7 +452,10 @@ export class AgentChatStore extends BaseStore {
   };
 
   markRouteSyncComplete = () => {
-    if (this.routeSyncStatus === "refreshing") this.routeSyncStatus = "idle";
+    if (this.routeSyncStatus !== "refreshing") return;
+    this.routeSyncStatus = "idle";
+    if (!this.hasPendingRouteReload && !this.isWorking && !this.queuedPrompt && this.streamStatus === "finalizing")
+      this.streamStatus = "idle";
   };
 
   close = () => {

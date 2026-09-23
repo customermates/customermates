@@ -70,6 +70,16 @@ afterEach(() => {
 });
 
 describe("Wiki live Notes document", () => {
+  it("renders stable Wiki page links with the exact UUID target", async () => {
+    const targetId = "20000000-0000-4000-8000-000000000002";
+    const href = `/wiki?page=${targetId}`;
+    const { container } = await mount(`[Voice, Tone & Messaging](${href})`);
+
+    const link = container.querySelector<HTMLAnchorElement>("a");
+    expect(link).toBeInstanceOf(HTMLAnchorElement);
+    expect(link?.getAttribute("href")).toBe(href);
+  });
+
   it("preserves each typed space and the cursor instead of parsing Markdown back", async () => {
     const { store, editor } = await mount();
     act(() => {

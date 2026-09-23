@@ -147,24 +147,42 @@ describe("read-only Wiki search and fetch compatibility", () => {
     expect(fetchTool.annotations.readOnlyHint).toBe(true);
   });
 
-  it("returns complete long Markdown to external fetch clients with a canonical citation URL", async () => {
+  it("returns every character of long Markdown through bounded external fetch chunks", async () => {
     const markdown = "Wiki content\n\n".repeat(1_000).trim();
     calls.get.mockResolvedValue({ ok: true, data: { ...page, markdown } });
-    const result = await fetchTool.execute({ id: `wiki:${id}` });
-    expect(calls.get).toHaveBeenCalledWith({ id });
-    if (!("structuredContent" in result)) throw new Error("Expected Wiki content.");
-    expect(result.structuredContent).toEqual({
-      id: `wiki:${id}`,
-      title: page.title,
-      text: markdown,
-      url: `http://localhost:4000/wiki?page=${id}`,
-      metadata: {
-        source: "wiki",
-        createdAt: page.createdAt.toISOString(),
-        updatedAt: page.updatedAt.toISOString(),
-        outgoingWikiLinks: "[]",
-      },
-    });
+    let offset = 0;
+    let complete = "";
+    let reads = 0;
+
+    while (reads < 20) {
+      const result = await fetchTool.execute({ id: `wiki:${id}`, offset });
+      if (!("structuredContent" in result)) throw new Error("Expected Wiki content.");
+      if (!("nextOffset" in result.structuredContent)) throw new Error("Expected a chunked Wiki result.");
+      expect(result.text.length).toBeLessThanOrEqual(5_500);
+      expect(result.structuredContent).toMatchObject({
+        id: `wiki:${id}`,
+        title: page.title,
+        url: `http://localhost:4000/wiki?page=${id}`,
+        offset,
+        totalChars: markdown.length,
+        metadata: {
+          source: "wiki",
+          createdAt: page.createdAt.toISOString(),
+          updatedAt: page.updatedAt.toISOString(),
+          outgoingWikiLinks: "[]",
+          outgoingWikiLinksTruncated: "false",
+        },
+      });
+      complete += result.structuredContent.text;
+      reads += 1;
+      if (result.structuredContent.nextOffset === null) break;
+      expect(result.structuredContent.nextOffset).toBeGreaterThan(offset);
+      offset = result.structuredContent.nextOffset;
+    }
+
+    expect(calls.get).toHaveBeenCalledTimes(reads);
+    expect(complete).toBe(markdown);
+    expect(reads).toBeGreaterThan(1);
   });
 
   it("accepts exact Wiki links and makes linked pages directly followable outside Customermates", async () => {

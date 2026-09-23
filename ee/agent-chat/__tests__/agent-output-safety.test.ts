@@ -47,6 +47,35 @@ describe("agent client-visible output safety", () => {
     }
   });
 
+  it("normalizes a provider-added to: prefix on otherwise canonical Wiki links", () => {
+    const id = "00000000-0000-4000-8000-000000000001";
+    const source = `Created [Company Overview](to:/wiki?page=${id}).`;
+    const expected = `Created [Company Overview](/wiki?page=${id}).`;
+
+    expect(sanitizeAgentVisibleText(source, wikiBaseUrl)).toBe(expected);
+    for (let split = 0; split <= source.length; split += 1) {
+      const sanitizer = new AgentVisibleTextStreamSanitizer(wikiBaseUrl);
+      expect(
+        `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`,
+      ).toBe(expected);
+    }
+    const sanitizer = new AgentVisibleTextStreamSanitizer(wikiBaseUrl);
+    expect([...source].map((character) => sanitizer.push(character)).join("") + sanitizer.finish()).toBe(expected);
+  });
+
+  it("does not normalize a to: prefix on noncanonical Wiki links", () => {
+    const id = "00000000-0000-4000-8000-000000000001";
+    for (const href of [
+      `to:/wiki?page=${id}&other=true`,
+      `to:https://example.com/wiki?page=${id}`,
+      `to:/pt/wiki?page=${id}`,
+    ]) {
+      const result = sanitizeAgentVisibleText(`[Page](${href})`, wikiBaseUrl);
+      expect(result).toContain("to:");
+      expect(result).not.toContain(id);
+    }
+  });
+
   it("does not exempt external, noncanonical, or incomplete Wiki citations from ID redaction", () => {
     const id = "00000000-0000-4000-8000-000000000001";
     for (const [path, identifier] of [

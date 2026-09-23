@@ -23,6 +23,7 @@ import { UsageRing } from "./usage-ring";
 import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-context";
 
 export const AgentConversationLog = observer(function AgentConversationLog({
+  activityContext,
   readOnly = false,
   renderLinksAsText = false,
   scrollContainerRef,
@@ -30,6 +31,7 @@ export const AgentConversationLog = observer(function AgentConversationLog({
   scrollable = true,
   userLabel,
 }: {
+  activityContext?: "wikiHomepageSetup";
   readOnly?: boolean;
   renderLinksAsText?: boolean;
   scrollContainerRef?: RefObject<HTMLElement | null>;
@@ -71,7 +73,7 @@ export const AgentConversationLog = observer(function AgentConversationLog({
 
               {item.kind === "activity" ? (
                 prev?.kind === "activity" ? null : (
-                  <ActivityGroup index={index} />
+                  <ActivityGroup activityContext={activityContext} index={index} />
                 )
               ) : (
                 <AgentChatItemView
@@ -164,12 +166,19 @@ export const AgentComposer = observer(function AgentComposer() {
   );
 });
 
-const ActivityGroup = observer(function ActivityGroup({ index }: { index: number }) {
+const ActivityGroup = observer(function ActivityGroup({
+  activityContext,
+  index,
+}: {
+  activityContext?: "wikiHomepageSetup";
+  index: number;
+}) {
   const store = useAgentChatStore();
   const items = consecutiveActivityItems(store.items, index);
 
   return (
     <AgentActivity
+      activityContext={activityContext}
       isTrailing={index + items.length === store.items.length}
       isWorking={isWorkingActivityGroup(store.items, index, store.isWorking)}
       items={items}

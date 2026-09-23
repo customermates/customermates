@@ -353,18 +353,14 @@ export function hostedMcpTools() {
 }
 
 export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolOptions = {}): ToolSet {
-  const web = {
-    read_public_page: tool({
-      description:
-        "Read one public HTTP(S) page as text. Supply its exact URL; follow only useful explicit source links. Network protections and page limits are enforced by the runtime.",
-      inputSchema: providerSafeSchema(ReadPublicPageSchema),
-    }),
-    ...((options.webSearchEnabled ?? AGENT_WEB_SEARCH_RELEASED) ? { web_search: getAgentWebSearchTool() } : {}),
-  };
   if (options.wikiHomepageSetup) {
     return withCallerContext(
       {
-        read_public_page: web.read_public_page,
+        read_public_page: tool({
+          description:
+            "Read one public HTTP(S) page as text for this homepage setup. Supply its exact URL; follow only useful explicit source links. Network protections and page limits are enforced by the runtime.",
+          inputSchema: providerSafeSchema(ReadPublicPageSchema),
+        }),
         manage_wiki_pages: crmTool(wikiHomepageSetupTool(options.locale), deps),
       },
       deps,
@@ -376,7 +372,7 @@ export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolOptions =
       ...Object.fromEntries(crm),
       ...(options.surface === "routine" ? {} : uiTools(deps)),
       [LOAD_TOOLSET_TOOL_NAME]: loadToolsetTool(),
-      ...web,
+      ...((options.webSearchEnabled ?? AGENT_WEB_SEARCH_RELEASED) ? { web_search: getAgentWebSearchTool() } : {}),
       request_support: tool({
         description:
           "Email a support request to the Customermates team. Use when the user asks for a human, reports a bug, or you cannot help after a genuine attempt. The recent Assistant conversation is included, and the team replies to the email address on the user's account.",

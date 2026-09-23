@@ -29,6 +29,7 @@ function parsePublicUrl(value: string, preserveQuery: boolean): PublicWikiHomepa
     const homepage = new URL(candidate);
     if (!(["http:", "https:"] as const).includes(homepage.protocol as "http:" | "https:")) return null;
     if (homepage.username || homepage.password || homepage.port) return null;
+    if (homepage.protocol === "http:") homepage.protocol = "https:";
 
     if (homepage.hostname.endsWith(".")) homepage.hostname = homepage.hostname.slice(0, -1);
 
@@ -55,8 +56,4 @@ export function parsePublicWikiHomepage(value: string): PublicWikiHomepage | nul
 
 export function parsePublicPageUrl(value: string): PublicWikiHomepage | null {
   return parsePublicUrl(value, true);
-}
-
-export function buildWikiHomepageSetupPrompt(homepage: PublicWikiHomepage): string {
-  return `Set up our Workspace Wiki from ${homepage.url}`;
 }

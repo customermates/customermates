@@ -412,6 +412,7 @@ describe("Workspace Wiki admission bootstrap", () => {
       maxOutputTokens: 8_192,
     });
     expect(payload.turnBudget.maxOutputTokens).toBe(8_192);
+    expect(payload.turnBudget.thinkingLevel).toBe("low");
     expect(payload.turnBudget.servingProvider).toBe(admission.model.servingProvider);
     expect(payload.wikiCatalog).toBeNull();
     expect(payload.wikiHomepageSetup).toMatchObject({
