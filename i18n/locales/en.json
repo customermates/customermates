@@ -1087,6 +1087,7 @@
       "apiKeyMaxExpiration": "API key expiration cannot exceed 365 days.",
       "apiKeyMinExpiration": "API key expiration must be at least 1 day.",
       "assigneeRequired": "You must assign yourself to this item. Please note that you will only be able to view items assigned to you.",
+      "billingPortalUnavailable": "The billing portal is not available for this workspace. Contact support to make changes.",
       "calendarEventNotFound": "Calendar event ID not found or not accessible.",
       "channelAlreadyLinked": "This channel is already linked to another contact.",
       "connectedAccountNotFound": "Channel ID not found or not accessible.",
@@ -3379,7 +3380,6 @@
     }
   },
   "Subscription": {
-    "billingPortalUnavailable": "The billing portal is not available for this workspace. Contact support to make changes.",
     "currentPeriodEnd": "Current period ends",
     "fieldHelp": {
       "currentPeriodEndManage": "Set by the current billing cycle. Use {billing} to make subscription changes.",

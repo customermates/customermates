@@ -1087,6 +1087,7 @@
       "apiKeyMaxExpiration": "L'expiration d'une clé API ne peut pas dépasser 365 jours.",
       "apiKeyMinExpiration": "L'expiration d'une clé API doit être d'au moins 1 jour.",
       "assigneeRequired": "Vous devez vous assigner cet élément. Notez que vous ne pourrez consulter que les éléments qui vous sont assignés.",
+      "billingPortalUnavailable": "Le portail de facturation n’est pas disponible pour cet espace de travail. Contactez l’assistance pour effectuer des modifications.",
       "calendarEventNotFound": "ID d'évènement d'agenda introuvable ou inaccessible.",
       "channelAlreadyLinked": "Ce canal est déjà lié à un autre contact.",
       "connectedAccountNotFound": "ID de canal introuvable ou inaccessible.",
@@ -3379,7 +3380,6 @@
     }
   },
   "Subscription": {
-    "billingPortalUnavailable": "Le portail de facturation n’est pas disponible pour cet espace de travail. Contactez l’assistance pour effectuer des modifications.",
     "currentPeriodEnd": "Fin de la période en cours",
     "fieldHelp": {
       "currentPeriodEndManage": "Définie par le cycle de facturation actuel. Utilisez « {billing} » pour modifier l’abonnement.",

@@ -60,7 +60,8 @@ export async function getSubscriptionAction() {
 
 export async function getBillingPortalUrlAction() {
   const result = await getGetBillingPortalUrlInteractor().invoke();
-  return result.data;
+  if (isRedirect(result)) return { ok: true as const, data: { url: result.redirect } };
+  return { ok: false as const, error: z.treeifyError(result.error) };
 }
 
 export async function updateCompanyAction(data: UpdateCompanySettingsData) {

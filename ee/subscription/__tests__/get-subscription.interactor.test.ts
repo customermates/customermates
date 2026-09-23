@@ -16,6 +16,9 @@ vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env } }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
+vi.mock("next-intl/server", () => ({
+  getTranslations: () => Promise.resolve({ raw: (key: string) => key }),
+}));
 
 const { GetSubscriptionInteractor } = await import("../get-subscription.interactor");
 const { GetBillingPortalUrlInteractor } = await import("../get-billing-portal-url.interactor");
@@ -111,21 +114,42 @@ describe("GetBillingPortalUrlInteractor", () => {
     expect(lemonSqueezyService.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
   });
 
-  it("returns the portal url to a member who can act on the company", async () => {
+  it("redirects a member who can act on the company to the billing portal", async () => {
     const { interactor, lemonSqueezyService } = makePortal();
 
     const result = await runWithTenant(billingManager(), () => interactor.invoke());
 
-    expect(result.data).toBe(PORTAL_URL);
+    expect(result).toMatchObject({ redirect: PORTAL_URL });
     expect(lemonSqueezyService.getSubscriptionOrThrowUnscoped).toHaveBeenCalledOnce();
   });
 
-  it("returns nothing for an enterprise plan without calling the billing provider", async () => {
+  it("rejects an enterprise plan before calling the billing provider", async () => {
     const { interactor, lemonSqueezyService } = makePortal({ plan: "enterprise" });
 
-    const result = await runWithTenant(billingManager(), () => interactor.invoke());
-
-    expect(result.data).toBeNull();
+    await expect(runWithTenant(billingManager(), () => interactor.invoke())).resolves.toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: "billingPortalUnavailable" } }] },
+    });
     expect(lemonSqueezyService.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("rejects a workspace without a billing subscription before calling the billing provider", async () => {
+    const { interactor, lemonSqueezyService } = makePortal({ lemonSqueezyId: null });
+
+    await expect(runWithTenant(billingManager(), () => interactor.invoke())).resolves.toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: "billingPortalUnavailable" } }] },
+    });
+    expect(lemonSqueezyService.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("rejects when the billing provider returns no portal url", async () => {
+    const { interactor, lemonSqueezyService } = makePortal();
+    lemonSqueezyService.getSubscriptionOrThrowUnscoped.mockResolvedValue({ data: { attributes: { urls: null } } });
+
+    await expect(runWithTenant(billingManager(), () => interactor.invoke())).resolves.toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: "billingPortalUnavailable" } }] },
+    });
   });
 });

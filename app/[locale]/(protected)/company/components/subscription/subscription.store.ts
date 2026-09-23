@@ -49,13 +49,12 @@ export class SubscriptionStore extends BaseStore {
 
   handleManageBilling = async (): Promise<void> => {
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
-      const url = await getBillingPortalUrlAction();
-      if (url) {
-        window.location.assign(url);
+      const res = await getBillingPortalUrlAction();
+      if (!res.ok) {
+        toastZodErrorTree(res.error);
         return;
       }
-      await this.reloadSubscription();
-      this.toastError("Subscription.billingPortalUnavailable");
+      window.location.assign(res.data.url);
     });
   };
 

@@ -1087,6 +1087,7 @@
       "apiKeyMaxExpiration": "Die Ablaufzeit des API-Schlüssels darf 365 Tage nicht überschreiten.",
       "apiKeyMinExpiration": "Die Ablaufzeit des API-Schlüssels muss mindestens 1 Tag betragen.",
       "assigneeRequired": "Du musst dich diesem Element zuweisen. Beachte, dass du nur Elemente sehen kannst, die dir zugewiesen sind.",
+      "billingPortalUnavailable": "Das Abrechnungsportal ist für diesen Workspace nicht verfügbar. Wende dich für Änderungen an den Support.",
       "calendarEventNotFound": "Kalenderereignis-ID nicht gefunden oder nicht zugänglich.",
       "channelAlreadyLinked": "Dieser Kanal ist bereits mit einem anderen Kontakt verknüpft.",
       "connectedAccountNotFound": "Kanal-ID nicht gefunden oder nicht zugänglich.",
@@ -3379,7 +3380,6 @@
     }
   },
   "Subscription": {
-    "billingPortalUnavailable": "Das Abrechnungsportal ist für diesen Workspace nicht verfügbar. Wende dich für Änderungen an den Support.",
     "currentPeriodEnd": "Ende des aktuellen Abrechnungszeitraums",
     "fieldHelp": {
       "currentPeriodEndManage": "Wird durch den aktuellen Abrechnungszeitraum festgelegt. Verwende „{billing}“ für Änderungen am Abonnement.",

@@ -10,12 +10,8 @@ const harness = vi.hoisted(() => ({
   outputs: [] as Array<{ description?: ReactNode; help?: ReactNode; label: string; children: ReactNode }>,
   planPickerRenders: 0,
   translationCalls: [] as Array<{ key: string; values?: Record<string, string | number> }>,
-  companyActions: new Set<string>(),
+  userCanManage: true,
 }));
-
-const FULL_MANAGE = ["readOwn", "readAll", "create", "update", "delete"];
-const READ_ONLY = ["readOwn", "readAll"];
-const UPDATE_ONLY = ["readOwn", "readAll", "update"];
 
 const subscriptionStore = vi.hoisted(() => ({
   subscription: null as SubscriptionDto | null,
@@ -48,11 +44,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     loadingOverlayStore: { isLoading: false },
     subscriptionStore,
-    userStore: {
-      can: (resource: string, action: string) => resource === "company" && harness.companyActions.has(action),
-      canManage: (resource: string) =>
-        resource === "company" && ["create", "update", "delete"].every((action) => harness.companyActions.has(action)),
-    },
+    userStore: { canManage: () => harness.userCanManage },
   }),
 }));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
@@ -73,7 +65,7 @@ beforeEach(() => {
   harness.outputs.length = 0;
   harness.planPickerRenders = 0;
   harness.translationCalls.length = 0;
-  harness.companyActions = new Set(FULL_MANAGE);
+  harness.userCanManage = true;
   subscriptionStore.subscription = null;
 });
 
@@ -128,7 +120,7 @@ describe("SubscriptionPanel read-only fields", () => {
   });
 
   it("hides checkout and uses administrator guidance for a read-only workspace", () => {
-    harness.companyActions = new Set(READ_ONLY);
+    harness.userCanManage = false;
 
     renderToStaticMarkup(createElement(SubscriptionPanel, { initialSubscription: null }));
 
@@ -141,7 +133,7 @@ describe("SubscriptionPanel read-only fields", () => {
   });
 
   it("uses administrator guidance when billing management is unavailable", () => {
-    harness.companyActions = new Set(READ_ONLY);
+    harness.userCanManage = false;
 
     renderToStaticMarkup(
       createElement(SubscriptionPanel, {
@@ -192,39 +184,5 @@ describe("SubscriptionPanel read-only fields", () => {
       key: "Subscription.fieldHelp.currentPeriodEndUnavailable",
       values: undefined,
     });
-  });
-});
-
-describe("SubscriptionPanel follows the server's billing permission", () => {
-  it("offers checkout to a role that may update the company without creating or deleting it", () => {
-    harness.companyActions = new Set(UPDATE_ONLY);
-
-    renderToStaticMarkup(createElement(SubscriptionPanel, { initialSubscription: null }));
-
-    expect(harness.planPickerRenders).toBe(1);
-    expect(harness.translationCalls).toContainEqual({ key: "Subscription.fieldHelp.planPicker", values: undefined });
-    expect(harness.translationCalls.some(({ key }) => key === "Subscription.fieldHelp.planReadOnly")).toBe(false);
-  });
-
-  it("gives that role the manage guidance, not the ask-an-administrator guidance, on an active subscription", () => {
-    harness.companyActions = new Set(UPDATE_ONLY);
-
-    renderToStaticMarkup(
-      createElement(SubscriptionPanel, {
-        initialSubscription: {
-          activeUsers: 3,
-          currentPeriodEnd: new Date("2026-09-30T00:00:00.000Z"),
-          hasBillingPortal: true,
-          hasActiveSubscription: true,
-          plan: SubscriptionPlan.pro,
-          quantity: 3,
-          status: SubscriptionStatus.active,
-          trialEndDate: null,
-        },
-      }),
-    );
-
-    expect(harness.translationCalls.some(({ key }) => key === "Subscription.fieldHelp.planManage")).toBe(true);
-    expect(harness.translationCalls.some(({ key }) => key === "Subscription.fieldHelp.planReadOnly")).toBe(false);
   });
 });

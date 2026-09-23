@@ -6,7 +6,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const harness = vi.hoisted(() => ({
-  companyActions: new Set<string>(),
+  userCanManage: true,
   subscription: null as Partial<SubscriptionDto> | null,
 }));
 
@@ -22,11 +22,7 @@ vi.mock("@/core/errors/report-application-error", () => ({ runUserAction: vi.fn(
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     subscriptionStore: { subscription: harness.subscription, handleManageBilling: vi.fn() },
-    userStore: {
-      can: (resource: string, action: string) => resource === "company" && harness.companyActions.has(action),
-      canManage: (resource: string) =>
-        resource === "company" && ["create", "update", "delete"].every((action) => harness.companyActions.has(action)),
-    },
+    userStore: { canManage: () => harness.userCanManage },
   }),
 }));
 
@@ -36,23 +32,17 @@ const renders = () =>
   renderToStaticMarkup(createElement(SubscribeManageButton)).includes("Subscription.manageWithLemonSqueezy");
 
 beforeEach(() => {
-  harness.companyActions = new Set(["readOwn", "readAll", "create", "update", "delete"]);
+  harness.userCanManage = true;
   harness.subscription = { plan: "pro", hasBillingPortal: true, hasActiveSubscription: true };
 });
 
-describe("SubscribeManageButton follows the server's billing permission", () => {
-  it("is shown to a role with full company management", () => {
+describe("SubscribeManageButton", () => {
+  it("is shown to a member who can manage the company when the workspace has a billing portal", () => {
     expect(renders()).toBe(true);
   });
 
-  it("is shown to a role that may update the company without creating or deleting it", () => {
-    harness.companyActions = new Set(["readOwn", "readAll", "update"]);
-
-    expect(renders()).toBe(true);
-  });
-
-  it("is hidden from a role that may only read the company", () => {
-    harness.companyActions = new Set(["readOwn", "readAll"]);
+  it("is hidden from a member who cannot manage the company", () => {
+    harness.userCanManage = false;
 
     expect(renders()).toBe(false);
   });
