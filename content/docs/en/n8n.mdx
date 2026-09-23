@@ -20,7 +20,7 @@ If you want an AI to drive the CRM in conversation, use [MCP](/docs/mcp) instead
 Copy the URL it generates.
 </Step>
 <Step title="Subscribe in Customermates">
-Go to **Company → Webhooks → New**, paste the URL, and select the events you want.
+Go to **My Company › Webhooks** and click **Add**, paste the URL, and select the events you want.
 </Step>
 <Step title="Handle the payload">
 Add steps after the Webhook node to transform and forward it.
@@ -56,7 +56,7 @@ Deal and task lifecycle values such as status or priority are workspace-configur
 
 ## How does authentication work?
 
-Store the API key as an n8n **Header Auth** credential with header name `x-api-key`. Reuse it across nodes so you replace it in one place. Keys are 64-character base62 strings and inherit the owning user's permissions; there is no per-key scoping. See [API keys](/docs/api-keys).
+Store the API key as an n8n **Header Auth** credential with header name `x-api-key`. Reuse it across nodes so you replace it in one place. Keys are 64 characters of ASCII letters (`a-z`, `A-Z`) and inherit the owning user's permissions; there is no per-key scoping. See [API keys](/docs/api-keys).
 
 ## What are the common gotchas?
 

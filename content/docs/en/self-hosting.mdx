@@ -62,7 +62,7 @@ When the app is ready, open `http://localhost:4000` (or your custom `APP_PORT`).
 
 </Step>
 <Step title="First account">
-Open the URL. Sign up with your email, click the verification link from the inbox, then choose a workspace name. Manage roles for additional users from Company → Users and Company → Roles.
+Open the URL. Sign up with your email, click the verification link from the inbox, then choose a workspace name. This first account gets the built-in **Admin** role. Invite teammates under **My Company › Members** with **Add**, and define what they may do under **My Company › Roles**; see [My Company](/docs/app-company).
 </Step>
 <Step title="Reverse proxy and TLS">
 Point your reverse proxy (Caddy, nginx, Traefik) at the app port (4000 by default, or your custom `APP_PORT`). Caddy example:
@@ -77,7 +77,7 @@ Customermates sets secure cookies when `BASE_URL` uses `https://`. Make sure the
 
 </Step>
 <Step title="Create an API key">
-Profile → API Keys → New key. Same flow as cloud. See [API keys](/docs/api-keys).
+**My Profile › API & Connectors**, then **Add**. Same flow as cloud. See [API keys](/docs/api-keys).
 </Step>
 </Steps>
 
@@ -139,6 +139,8 @@ For production:
 ## Edition boundary
 
 Every self-hosted deployment uses Starter entitlements. Connected messaging accounts, the unified inbox, connected calendar view, hosted Mate and hosted AI credits are cloud-only capabilities and are not unlocked in self-hosting by a paid cloud plan. External AI clients remain available through MCP. Review `LICENSE` and `ee/LICENSE.md` in the repository for the exact code-license boundary.
+
+A self-hosted workspace has no subscription and no trial: it starts active, and nothing in the app is billed. The sidebar therefore shows no **Subscription** entry under **My Company**, no **Channels** entry under **My Profile**, and no **Inbox** or **Routines**, and the role editor under **My Company › Roles** hides the **Inbox messages** and **Routines** rows. Opening one of those pages by URL returns you to the Dashboard.
 
 The hosted in-app Assistant is cloud-only and remains release-gated. External MCP uses your own AI provider. Enterprise SSO and white-labeling are not implemented in either deployment model.
 

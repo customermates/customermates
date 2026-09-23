@@ -54,7 +54,7 @@ Prefer a static key? Add the connector the same way, but authenticate with a hea
 
 <Steps>
 <Step title="Create a key">
-**Profile → API Keys → New key**. Copy the 64-character string immediately. It is shown once.
+In Customermates, open **My Profile → API & Connectors**, press **Add** and choose **Standard API key**. Copy the 64-character string immediately. It is shown once. Creating keys needs the **API & Webhooks** permission in your role, see [API keys](/docs/api-keys).
 </Step>
 <Step title="Authenticate with a header">
 In the connector form set **Authentication: Header**, **Header name: `x-api-key`**, **Header value:** your key.
@@ -87,7 +87,7 @@ The connector accepts any client, so the **Authorize access** screen is the gate
 
 - Add it once on Claude web and it appears on **desktop and mobile** too. The connection is tied to your Claude account, not one device.
 - It refreshes in the background. Use it within any 30-day window and you never re-authorize; go idle longer and you approve once more.
-- Every call runs as the Customermates user who approved, inside that account's data. API keys inherit the owning user's permissions; there is no per-key scoping.
+- Every call runs as the Customermates user who approved, inside that account's data and with that user's role permissions. Connecting over OAuth needs no API key and no extra role permission. API keys inherit the owning user's permissions; there is no per-key scoping.
 
 ## Try your first prompt
 

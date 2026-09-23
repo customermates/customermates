@@ -35,7 +35,7 @@ Die neuesten Einträge stehen zuerst. Mit **Ältere laden** öffnen Sie die näc
 | Beide Berechtigungen, in einem Tarif mit Messaging | Ein zusammengeführter Verlauf mit allen zulässigen Quellen |
 | Keine von beiden | Ein neutraler Hinweis auf fehlende Verfügbarkeit |
 
-Audit-Log-Änderungen sind unabhängig von der Messaging-Berechtigung verfügbar. Nachrichten, Aktivitäten verbundener Konten und Kalenderereignisse erfordern den Cloud-Modus, Zugriff auf den Posteingang und einen Tarif mit Messaging (Pro und höher). Ein fehlendes verbundenes Messaging-Konto entfernt die Messaging-basierten Quellen, verbirgt aber keine zulässigen Audit-Änderungen. Gelöschte oder neu unzugängliche Filterwerte liefern keine Treffer mehr, werden zur sicheren Entfernung auf dem Filter-Chip als **Filter nicht verfügbar** und in der Werteauswahl als **Auswahl nicht verfügbar** angezeigt und geben nie ihre rohen Ids preis.
+Die beiden Berechtigungen sind die Zeilen **Audit-Log** und **Inbox-Nachrichten** der Rolle des Mitglieds unter **Mein Unternehmen › Rollen**, jeweils mit **Lesen** auf **Alle**. Audit-Log-Änderungen sind unabhängig von der Messaging-Berechtigung verfügbar. Nachrichten, Aktivitäten verbundener Konten und Kalenderereignisse erfordern den Cloud-Modus, Zugriff auf den Posteingang und einen Tarif mit Messaging (Pro und höher); im Starter-Tarif zeigt der **Posteingang** den Hinweis **Upgrade nötig, um Messaging freizuschalten** mit der Schaltfläche **Tarif upgraden**, die **Mein Unternehmen › Abonnement** öffnet. Ein fehlendes verbundenes Messaging-Konto entfernt die Messaging-basierten Quellen, verbirgt aber keine zulässigen Audit-Änderungen. Gelöschte oder neu unzugängliche Filterwerte liefern keine Treffer mehr, werden zur sicheren Entfernung auf dem Filter-Chip als **Filter nicht verfügbar** und in der Werteauswahl als **Auswahl nicht verfügbar** angezeigt und geben nie ihre rohen Ids preis.
 
 ## Wie funktioniert der Widget-Editor?
 
@@ -44,6 +44,8 @@ Bei einem Diagramm-Widget ist das Modal in drei Tabs organisiert: `#widget-tab-d
 ## Welche Controls bringt die Sidebar mit?
 
 Die Sidebar ist auf jedem Screen dieselbe; ihre Controls sind hier dokumentiert, weil das Dashboard der Ort ist, an dem Sie landen.
+
+Die Einträge stehen in drei Gruppen: **Übersicht** (**Dashboard**, in der Cloud außerdem **Posteingang** und **Routinen**), **CRM** (die fünf Datensatztypen, unter den Namen Ihres Workspace) und **Workspace** (**Mein Profil** und **Mein Unternehmen**). Ein Eintrag, den Ihre Rolle nicht lesen darf, ist ausgeblendet, eine Gruppe ohne sichtbare Einträge verschwindet, und wer eine ausgeblendete Seite per URL öffnet, landet wieder auf dem Dashboard. **Mein Profil** und **Mein Unternehmen** klappen nur auf oder zu; erst ihre Untereinträge öffnen die Seiten.
 
 | Aktion | Wo | Anchor-Id | Was passiert |
 |---|---|---|---|
@@ -54,6 +56,12 @@ Die Sidebar ist auf jedem Screen dieselbe; ihre Controls sind hier dokumentiert,
 | Datensatz erstellen | Oben in der Sidebar | `#nav-add` (**Hinzufügen**) | Öffnet die Auswahl des Datensatztyps |
 | Dokumentation öffnen | Sidebar-Footer | `#nav-documentation` (**Dokumentation**) | Öffnet `/docs` |
 | Feedback senden | Sidebar-Footer | `#nav-feedback` (**Feedback**) | Öffnet den Feedback-Dialog |
+| Mate fragen | Oben in der Sidebar, wenn Mate verfügbar ist | `#nav-assistant` (**KI fragen**) | Öffnet oder schließt das Panel des [Assistenten](/docs/app-assistant) (auch Cmd/Ctrl+J) |
+| Tarif und Status | Unter dem Markennamen, nur in der Cloud | keine | Zeigt den Tarif oder den Tarif mit seinem Status, zum Beispiel **Pro · Testphase · noch 5 Tage**; grün, gelb bei höchstens 3 verbleibenden Testtagen, rot bei **Überfällig**, **Unbezahlt**, **Gekündigt** oder **Abgelaufen**; öffnet **Mein Unternehmen › Abonnement** |
+| E-Mail bestätigen | Unter dem Markennamen | keine | **E-Mail nicht verifiziert** erscheint, bis Sie Ihre Adresse bestätigt haben; öffnet **Mein Profil › Einstellungen** |
+| Persönliche Einstellungen | Gruppe Workspace | `#nav-profile` (**Mein Profil**) | Klappt **Einstellungen**, **Kanäle** und **API & Konnektoren** auf oder zu; siehe [Mein Profil](/docs/app-profile) |
+| Workspace-Verwaltung | Gruppe Workspace | `#nav-company` (**Mein Unternehmen**) | Klappt **Abonnement**, **Einstellungen**, **Mitglieder**, **Rollen**, **Audit-Logs**, **Webhooks** und **Letzte Zustellungen** auf oder zu; siehe [Mein Unternehmen](/docs/app-company) |
+| Darstellung und Abmelden | Sidebar-Footer, Ihr Name | keine | **Dunkler Modus** oder **Heller Modus** wechselt und speichert Ihre Darstellung; **Abmelden** beendet die Sitzung |
 
 ## Was passiert beim ersten Start?
 
@@ -62,6 +70,7 @@ Neue Accounts landen im [Onboarding-Wizard](/docs/app-onboarding) unter `/onboar
 ## Tipps für Agents
 
 - Der gehostete Assistent Mate kann hierher navigieren und `#nav-dashboard` sowie `#dashboard-add-widget` hervorheben; Widgets erstellt er über `manage_widgets`, statt das Modal zu bedienen.
+- `#nav-search`, `#nav-documentation` und `#nav-feedback` lassen sich hervorheben, sind aber keine Navigationsziele. Die Navigation zu `#nav-profile` oder `#nav-company` öffnet die Seite **Einstellungen** der jeweiligen Gruppe. `#nav-add`, `#nav-assistant`, die beiden Chips und das Menü unter Ihrem Namen sind keine Ziele des Assistenten.
 - Zeilen tragen nie Ids. Öffnen Sie einen Datensatz über seine Seiten-URL `/{type}/{id}`. Der Drawer-Deep-Link `?open={entityType}:new` legt einen Datensatz an und funktioniert auf jeder angemeldeten Seite, auch auf dem Dashboard.
 - Bevorzugen Sie [MCP](/docs/mcp)-Tools statt Klicken, wenn ein Tool existiert. CRM-Daten lesen und schreiben ist über Tools schneller und sicherer als über die UI.
 

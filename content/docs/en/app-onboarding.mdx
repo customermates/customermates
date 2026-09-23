@@ -12,7 +12,7 @@ A fresh sign-up first lands on `/onboarding`, where you create a workspace or jo
 Your name and country. The fields are ordinary form inputs (`firstName`, `lastName`, `country`) addressed by their visible labels; the terms checkbox (`agreeToTerms`) is rendered only in cloud mode. This step is required.
 </Step>
 <Step title="Invite your team">
-Invite teammates by email, or copy the shareable link of the form `/invitation/{token}`. Anyone who registers through that link joins the workspace as **Waiting for Approval** until an admin assigns a role and activates them on the [Company page](/docs/app-company). This step can be skipped and repeated later from the Company page; **Next** (`#onboarding-next`) moves on to Connect your AI.
+Invite teammates by email, or copy the shareable link of the form `/invitation/{token}`. Anyone who registers through that link joins the workspace with status **Waiting for approval** until someone whose role has **Manage** set to **Yes** on **Users & Roles**, or an **Admin**, assigns a role and sets the status to **Active** on [**My Company › Members**](/docs/app-company). This step can be skipped and repeated later from **My Company › Members**; **Next** (`#onboarding-next`) moves on to Connect your AI.
 </Step>
 <Step title="Connect your AI">
 Connect an external AI client (Claude, ChatGPT and Codex, Cursor, or Gemini) to the workspace's [MCP endpoint](/docs/mcp). For the local setups (Claude Code or Claude Desktop, Codex, Cursor, Gemini) the flow creates an API key for the chosen client and shows its setup snippet; the Claude account and ChatGPT app methods connect through the hosted connector and create no key. This step can be skipped with **Skip for now**; the same flow stays available on the [Profile page](/docs/app-profile), and the in-app [Assistant](/docs/app-assistant) works without it. The wizard is finished with **Finish** in this step's own footer.
@@ -35,7 +35,7 @@ The profile and AI steps use their own buttons without stable ids (**Back**, **S
 The invite and AI steps are skippable. Invitations can be sent later from the Company page, and the AI-client flow stays available on the Profile page. The profile step is required.
 </FaqItem>
 <FaqItem question="What happens to people who register through the invitation link?">
-They join the workspace as Waiting for Approval. An admin assigns a role and activates them on the Company page; until then they cannot work in the workspace.
+They join the workspace with status **Waiting for approval**. Someone whose role can manage **Users & Roles**, or an **Admin**, assigns a role and sets them to **Active** on **My Company › Members**; until then they cannot work in the workspace.
 </FaqItem>
 <FaqItem question="Do I need to connect an AI client to use the assistant?">
 No. The built-in Assistant works without any external client. The AI step connects external tools such as Claude or Cursor to your workspace through MCP.

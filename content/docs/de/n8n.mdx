@@ -20,7 +20,7 @@ Wenn eine KI das CRM im Gespräch steuern soll, nutzen Sie stattdessen oder zus�
 Kopieren Sie die generierte URL.
 </Step>
 <Step title="In Customermates abonnieren">
-Gehen Sie zu **Unternehmen → Webhooks → Neu**, fügen Sie die URL ein und wählen Sie die gewünschten Events.
+Öffnen Sie **Mein Unternehmen › Webhooks** und klicken Sie auf **Hinzufügen**, fügen Sie die URL ein und wählen Sie die gewünschten Events.
 </Step>
 <Step title="Payload verarbeiten">
 Ergänzen Sie nach dem Webhook-Node Schritte zum Transformieren und Weiterleiten.
@@ -56,7 +56,7 @@ Lebenszyklus-Werte von Deals und Aufgaben wie Status oder Priorität sind pro Wo
 
 ## Wie funktioniert die Authentifizierung?
 
-Speichern Sie den API-Key als n8n-**Header Auth**-Credential mit dem Header-Namen `x-api-key`. Verwenden Sie ihn über Nodes hinweg wieder, damit Sie ihn an einer Stelle ersetzen. Keys sind 64 Zeichen lange Base62-Strings und erben die Berechtigungen des besitzenden Users; ein Scoping pro Key gibt es nicht. Siehe [API-Keys](/docs/api-keys).
+Speichern Sie den API-Key als n8n-**Header Auth**-Credential mit dem Header-Namen `x-api-key`. Verwenden Sie ihn über Nodes hinweg wieder, damit Sie ihn an einer Stelle ersetzen. Keys bestehen aus 64 ASCII-Buchstaben (`a-z`, `A-Z`) und erben die Berechtigungen des besitzenden Users; ein Scoping pro Key gibt es nicht. Siehe [API-Keys](/docs/api-keys).
 
 ## Was sind typische Fallstricke?
 

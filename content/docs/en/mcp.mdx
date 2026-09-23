@@ -31,7 +31,7 @@ The endpoint speaks the Model Context Protocol (streamable HTTP variant). `tools
 
 Because it is the streamable HTTP variant, every request must send `Accept: application/json, text/event-stream`. Without it the endpoint returns `406 Not Acceptable`. The documented client guides configure the supported connection path; raw HTTP callers such as curl or scripts must add the header explicitly.
 
-The `x-api-key` header is the API-key method. The key is 64 characters, base62 (a-z, A-Z, 0-9), and inherits the permissions of the user who created it. There is no per-key scoping. Custom-connector clients (Claude, ChatGPT) authenticate over OAuth instead and send a bearer token they obtain and refresh for you. See [Connect with a custom connector](/docs/connect-custom-connector).
+The `x-api-key` header is the API-key method. The key is 64 letters (a-z, A-Z) and inherits the permissions of the user who created it. There is no per-key scoping. Custom-connector clients (Claude, ChatGPT) authenticate over OAuth instead and send a bearer token they obtain and refresh for you. See [Connect with a custom connector](/docs/connect-custom-connector).
 
 ## Connect a client
 
@@ -39,7 +39,7 @@ Getting an AI client onto your workspace is the same three moves every time:
 
 <Steps>
 <Step title="Create an API key">
-**Profile → API Keys → New key**. Choose the guided setup for Claude, ChatGPT, Cursor, or Gemini, or a standard key for your own integration. The key is shown once, so copy it before closing the dialog.
+**My Profile → API & Connectors → Add**. Choose **Quick connections** for guided setup of Claude, ChatGPT & Codex, Cursor, or Gemini, or **Standard API key** for your own integration. The key is shown once, so copy it before closing the dialog. Creating keys needs the **API & Webhooks** permission in your role; see [API keys](/docs/api-keys).
 </Step>
 <Step title="Point the client at the endpoint">
 Give the client `POST https://customermates.com/api/v1/mcp` with the `x-api-key` header from the step above, or connect through OAuth where the client supports it. The per-client guides in the table below carry the exact configuration.
@@ -224,7 +224,7 @@ Your user, the company profile, all roles including permissions, and your connec
 
 #### `list_users`
 
-Team members with id, name, email, roleId, and status.
+Team members with id, name, email, roleId, and status. When the caller's role has Users & Roles read access Assigned, only the caller is returned.
 
 **Read-only.** Optional: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
 {/* /mcp-catalog */}
@@ -435,7 +435,7 @@ One tool with an `action` switch: list, get, create, update, delete. Omitted cre
 {/* mcp-catalog:routines */}
 #### `manage_routines`
 
-One tool with an `action` switch: list, runs, create, update, pause, run_now, delete. A routine is saved instructions the assistant runs on a cron schedule or when a CRM event fires. Omitting `enabled` on create produces a LIVE routine, so pass `enabled: false` to draft one; the hosted assistant must state `enabled` explicitly and drafts unless the user asked to activate. A change of `triggerKind` must arrive with that kind's schedule or events. pause disables the routine and settles its queued runs to skipped, which re-enabling does not undo, and only an active system administrator may call it. run_now applies to scheduled routines only, and only to an enabled routine the caller owns. Runs are paginated by `cursor` and carry status, summary and trigger.
+One tool with an `action` switch: list, runs, create, update, pause, run_now, delete. A routine is saved instructions the assistant runs on a cron schedule or when a CRM event fires. Omitting `enabled` on create produces a LIVE routine, so pass `enabled: false` to draft one; the hosted assistant must state `enabled` explicitly and drafts unless the user asked to activate. A change of `triggerKind` must arrive with that kind's schedule or events. pause disables the routine and settles its queued runs to skipped, which re-enabling does not undo; only an active system administrator may pause or delete a routine. run_now applies to scheduled routines only, and only to an enabled routine the caller owns. Runs are paginated by `cursor` and carry status, summary and trigger.
 
 **IRREVERSIBLE.** Required: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `changedFields`, `triggerFilters`, `debounceSeconds`.
 {/* /mcp-catalog */}
@@ -445,7 +445,7 @@ One tool with an `action` switch: list, runs, create, update, pause, run_now, de
 {/* mcp-catalog:webhooks */}
 #### `manage_webhooks`
 
-One tool with an `action` switch: list, get, create, update, delete, plus the delivery log (action list_deliveries, scoped to one webhook's current url when you pass its `id`) and re-delivery (action resend_delivery).
+One tool with an `action` switch: list, get, create, update, delete, plus the delivery log (action list_deliveries, scoped to one webhook's current url when you pass its `id`) and re-delivery (action resend_delivery). Reads need API & Webhooks read access All; every change and resend needs Manage on API & Webhooks.
 
 **IRREVERSIBLE.** Required: `action`. Optional: `id`, `url`, `description`, `events`, `secret`, `headers`, `bodyTemplate`, `enabled`, `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
 {/* /mcp-catalog */}
@@ -455,16 +455,18 @@ One tool with an `action` switch: list, get, create, update, delete, plus the de
 {/* mcp-catalog:admin */}
 #### `update_workspace_settings`
 
-`target` profile updates your own name, country, and avatar; `target` company updates the workspace currency (admin only).
+`target` profile updates your own name, country, and avatar. `target` company updates the workspace currency and the names of the five record types (the Data model presets on My Company → Settings), and needs Manage on the Company row of the caller's role.
 
 Required: `target`. Optional: `firstName`, `lastName`, `country`, `avatarUrl`, `currency`, `terminology`.
 
 #### `manage_team`
 
-Invite members by email (action invite, up to 20, sends real invitation emails) or change a member's role and status (action update_member).
+Invite members by email (action invite, up to 20, sends real invitation emails) or change a member's role and status (action update_member). Both actions need Manage on Users & Roles.
 
 Required: `action`. Optional: `emails`, `userId`, `roleId`, `status`.
 {/* /mcp-catalog */}
+
+No tool reads the subscription, plan, seats or billing, or changes the plan, and none creates, edits or deletes roles or API keys; `get_workspace_context` returns no plan or trial data either. Billed seats follow the number of **Active** members, so a status change made with `manage_team` changes the seat count just as it does in the app ([how seats are counted](/docs/app-company#how-are-seats-counted-and-billed)). The subscription, roles and API keys are managed in the app: **My Company → Subscription**, **My Company → Roles** and **My Profile → API & Connectors**.
 
 ### Support
 
@@ -526,7 +528,7 @@ Entitlements refuse the same way. Messaging-backed tools need the Pro tier, Sale
 
 <Faq>
 <FaqItem question="How do I authenticate against the MCP endpoint?">
-Send your 64-character API key in the `x-api-key` header, or connect through OAuth where the client supports it. Create keys at **Profile → API Keys → New key**. Every key carries your own permissions, so a client can never do more than you can.
+Send your 64-character API key in the `x-api-key` header, or connect through OAuth where the client supports it. Create keys under **My Profile → API & Connectors → Add**. Every key carries your own permissions, so a client can never do more than you can.
 </FaqItem>
 <FaqItem question="Which AI clients can connect?">
 Claude on web, mobile and desktop, ChatGPT, Claude Code, Codex and Cursor have documented connection paths above. Another client may connect when it supports MCP over streamable HTTP and the required authentication, but verify its exact compatibility and instruction handling before use.

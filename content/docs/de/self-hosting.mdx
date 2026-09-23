@@ -62,7 +62,7 @@ Wenn die App ready ist, `http://localhost:4000` öffnen (oder Ihr eigenes `APP_P
 
 </Step>
 <Step title="Erster Account">
-URL öffnen. Mit E-Mail registrieren, Verifizierungs-Link aus dem Postfach klicken, dann Workspace-Namen wählen. Weitere User und Rollen verwalten über Unternehmen → Benutzer und Unternehmen → Rollen.
+URL öffnen. Mit E-Mail registrieren, Verifizierungs-Link aus dem Postfach klicken, dann Workspace-Namen wählen. Dieser erste Account erhält die eingebaute Rolle **Admin**. Teammitglieder laden Sie unter **Mein Unternehmen › Mitglieder** mit **Hinzufügen** ein, und was sie dürfen, legen Sie unter **Mein Unternehmen › Rollen** fest; siehe [Mein Unternehmen](/docs/app-company).
 </Step>
 <Step title="Reverse-Proxy und TLS">
 Reverse-Proxy (Caddy, nginx, Traefik) auf den App-Port zeigen (4000 by default, oder Ihr eigenes `APP_PORT`). Caddy:
@@ -77,7 +77,7 @@ Customermates setzt Secure-Cookies, wenn `BASE_URL` mit `https://` startet. Der 
 
 </Step>
 <Step title="API-Key anlegen">
-Profil → API Keys → Neuer Key. Genau wie in der Cloud. Siehe [API-Keys](/docs/api-keys).
+**Mein Profil › API & Konnektoren**, dann **Hinzufügen**. Genau wie in der Cloud. Siehe [API-Keys](/docs/api-keys).
 </Step>
 </Steps>
 
@@ -139,6 +139,8 @@ Für Produktion:
 ## Editionsgrenze
 
 Jedes Self-Hosted-Deployment nutzt Starter-Berechtigungen. Verbundene Messaging-Konten, einheitlicher Posteingang, verbundene Kalenderansicht, gehostetes Mate und gehostete KI-Credits bleiben Cloud-Funktionen und werden beim Self-Hosting nicht durch einen bezahlten Cloud-Tarif freigeschaltet. Externe KI-Clients bleiben über MCP verfügbar. Die genaue Lizenzgrenze des Codes steht in `LICENSE` und `ee/LICENSE.md` im Repository.
+
+Ein Self-Hosted-Workspace hat weder Abonnement noch Testphase: Er startet aktiv, und in der App wird nichts abgerechnet. Die Seitenleiste zeigt deshalb unter **Mein Unternehmen** keinen Eintrag **Abonnement**, unter **Mein Profil** keinen Eintrag **Kanäle** und weder **Posteingang** noch **Routinen**, und der Rolleneditor unter **Mein Unternehmen › Rollen** blendet die Zeilen **Inbox-Nachrichten** und **Routinen** aus. Wer eine dieser Seiten per URL öffnet, landet wieder auf dem Dashboard.
 
 Der gehostete In-App-Assistent ist nur in der Cloud verfügbar und bleibt freigabegebunden. Externes MCP nutzt Ihren eigenen KI-Anbieter. Enterprise-SSO und White-Labeling sind in keiner Variante implementiert.
 

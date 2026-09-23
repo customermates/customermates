@@ -7,12 +7,12 @@ Create a Customermates account, connect an AI client, and start issuing prompts.
 
 <Steps>
 <Step title="Create your account">
-Sign up at [customermates.com/auth/signup](/auth/signup). No credit card is required. The first [[commercial.trial.days]] days are free, after which you pick a plan.
+Sign up at [customermates.com/auth/signup](/auth/signup). No credit card is required. The first [[commercial.trial.days]] days are a free trial of the Pro plan. You choose a paid plan under **My Company → Subscription**. Choose one before the trial ends to keep access to the workspace; see [what happens when the trial ends](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails).
 </Step>
 <Step title="Connect your AI">
 **Using Claude (web, desktop, mobile) or ChatGPT?** Add a custom connector, no API key needed. In your AI client: **Settings → Connectors → Add custom connector**, paste `https://customermates.com/api/v1/mcp`, sign in, and approve. Full steps: [Connect with a custom connector](/docs/connect-custom-connector).
 
-**Using a CLI or editor?** First create an API key (**Profile → API Keys → New key**) and copy the 64-character string, which is shown once. Then follow your client's page:
+**Using a CLI or editor?** First create an API key: open **My Profile → API & Connectors**, press **Add**, and choose **Standard API key**, or let **Quick connections** create the key together with your client's setup snippet. Copy the 64-character key, which is shown once. Creating keys needs the **API & Webhooks** permission in your role; the **Admin** role, which the person who creates the workspace gets, has it. Details: [API keys](/docs/api-keys). Then follow your client's page:
 
 - [Claude Code](/docs/connect-cli#claude-code): one terminal command
 - [Cursor](/docs/connect-cli#cursor): Settings UI, two clicks
@@ -31,9 +31,9 @@ The agent reports which tools it called and what changed. Field names such as a 
 <Step title="Optional: subscribe to a webhook">
 To notify other tools when the CRM changes:
 
-Go to **Company → Webhooks → New**. Set the URL to a throwaway endpoint from [webhook.site](https://webhook.site). Under events, select `contact.created` and `deal.updated`, then save.
+Open **My Company → Webhooks** and press **Add**. Set **URL** to a throwaway endpoint from [webhook.site](https://webhook.site). Under **Events**, select **Contact Created** (`contact.created`) and **Deal Updated** (`deal.updated`), then press **Save**. Adding a webhook needs the same **API & Webhooks** permission.
 
-Edit a contact. Within a few seconds the delivery appears at webhook.site with the full payload.
+Create a contact or change a deal. Within a few seconds the delivery appears at webhook.site with the full payload, and **My Company → Recent Deliveries** lists it too.
 
 Full webhook docs: [Webhooks](/docs/webhooks).
 </Step>

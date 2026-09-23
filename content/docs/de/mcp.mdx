@@ -31,7 +31,7 @@ Der Endpoint spricht Model Context Protocol (Streamable-HTTP-Variante). `tools/l
 
 Da es die Streamable-HTTP-Variante ist, muss jede Anfrage `Accept: application/json, text/event-stream` senden. Ohne diesen Header liefert der Endpoint `406 Not Acceptable`. Die dokumentierten Client-Anleitungen konfigurieren den unterstützten Verbindungsweg; rohe HTTP-Aufrufe mit curl oder Skripten müssen den Header explizit ergänzen.
 
-Der `x-api-key`-Header ist die API-Key-Methode. Der Key ist 64 Zeichen lang, base62 (a-z, A-Z, 0-9), und erbt die Rechte des Users, der ihn erstellt hat. Es gibt kein Scoping pro Key. Custom-Connector-Clients (Claude, ChatGPT) authentifizieren sich stattdessen per OAuth und senden ein Bearer-Token, das sie für Sie holen und erneuern. Siehe [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
+Der `x-api-key`-Header ist die API-Key-Methode. Der Key besteht aus 64 Buchstaben (a-z, A-Z) und erbt die Rechte des Users, der ihn erstellt hat. Es gibt kein Scoping pro Key. Custom-Connector-Clients (Claude, ChatGPT) authentifizieren sich stattdessen per OAuth und senden ein Bearer-Token, das sie für Sie holen und erneuern. Siehe [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
 
 ## Client verbinden
 
@@ -39,7 +39,7 @@ Einen AI-Client mit dem Workspace zu verbinden sind immer dieselben drei Schritt
 
 <Steps>
 <Step title="API-Key erstellen">
-**Profil → API Keys → Neuer Key**. Entweder das geführte Setup für Claude, ChatGPT, Cursor oder Gemini wählen, oder einen Standard-Key für die eigene Integration. Der Key wird nur einmal angezeigt, also vor dem Schließen des Dialogs kopieren.
+**Mein Profil → API & Konnektoren → Hinzufügen**. Entweder **Schnellverbindungen** für das geführte Setup von Claude, ChatGPT & Codex, Cursor oder Gemini wählen, oder **Standard-API-Key** für die eigene Integration. Der Key wird nur einmal angezeigt, also vor dem Schließen des Dialogs kopieren. Zum Anlegen von Keys braucht Ihre Rolle die Berechtigung **API & Webhooks**; siehe [API-Keys](/docs/api-keys).
 </Step>
 <Step title="Client auf den Endpoint zeigen lassen">
 Dem Client `POST https://customermates.com/api/v1/mcp` mit dem `x-api-key`-Header aus dem vorherigen Schritt geben, oder per OAuth verbinden, wo der Client das unterstützt. Die Guides pro Client in der Tabelle unten enthalten die genaue Konfiguration.
@@ -224,7 +224,7 @@ Ihr User, das Company-Profil, alle Rollen inklusive Rechte und Ihre verbundenen 
 
 #### `list_users`
 
-Teammitglieder mit ID, Name, E-Mail, roleId und Status.
+Teammitglieder mit ID, Name, E-Mail, roleId und Status. Hat die Rolle des Aufrufers bei Benutzer & Rollen die Leseberechtigung Zugewiesen, kommt nur der Aufrufer selbst zurück.
 
 **Nur lesend.** Optional: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
 {/* /mcp-catalog */}
@@ -435,7 +435,7 @@ Ein Tool mit `action`-Schalter: list, get, create, update, delete. Ohne `kind` b
 {/* mcp-catalog:routines */}
 #### `manage_routines`
 
-Ein Tool mit einem `action`-Schalter: list, runs, create, update, pause, run_now, delete. Eine Routine sind gespeicherte Anweisungen, die der Assistent nach Zeitplan oder bei einem CRM-Ereignis ausführt. Ohne `enabled` erzeugt create eine LIVE-Routine; für einen Entwurf `enabled: false` übergeben; der gehostete Assistent muss `enabled` ausdrücklich angeben und speichert einen Entwurf, sofern der Nutzer nicht die Aktivierung verlangt hat. Ein Wechsel von `triggerKind` muss den Zeitplan oder die Ereignisse der neuen Art mitbringen. pause deaktiviert die Routine und setzt wartende Läufe auf übersprungen, was ein erneutes Aktivieren nicht rückgängig macht; nur aktive Systemadministratoren dürfen pausieren. run_now gilt nur für geplante Routinen und nur für eine aktivierte Routine, die der Aufrufer besitzt. Läufe werden über `cursor` paginiert und enthalten Status, Zusammenfassung und Auslöser.
+Ein Tool mit einem `action`-Schalter: list, runs, create, update, pause, run_now, delete. Eine Routine sind gespeicherte Anweisungen, die der Assistent nach Zeitplan oder bei einem CRM-Ereignis ausführt. Ohne `enabled` erzeugt create eine LIVE-Routine; für einen Entwurf `enabled: false` übergeben; der gehostete Assistent muss `enabled` ausdrücklich angeben und speichert einen Entwurf, sofern der Nutzer nicht die Aktivierung verlangt hat. Ein Wechsel von `triggerKind` muss den Zeitplan oder die Ereignisse der neuen Art mitbringen. pause deaktiviert die Routine und setzt wartende Läufe auf übersprungen, was ein erneutes Aktivieren nicht rückgängig macht; nur aktive Systemadministratoren dürfen eine Routine pausieren oder löschen. run_now gilt nur für geplante Routinen und nur für eine aktivierte Routine, die der Aufrufer besitzt. Läufe werden über `cursor` paginiert und enthalten Status, Zusammenfassung und Auslöser.
 
 **IRREVERSIBEL.** Pflicht: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `changedFields`, `triggerFilters`, `debounceSeconds`.
 {/* /mcp-catalog */}
@@ -445,7 +445,7 @@ Ein Tool mit einem `action`-Schalter: list, runs, create, update, pause, run_now
 {/* mcp-catalog:webhooks */}
 #### `manage_webhooks`
 
-Ein Tool mit `action`-Schalter: list, get, create, update, delete, dazu das Delivery-Log (Action list_deliveries, auf die aktuelle url eines Webhooks beschränkt, wenn Sie dessen `id` übergeben) und die erneute Zustellung (Action resend_delivery).
+Ein Tool mit `action`-Schalter: list, get, create, update, delete, dazu das Delivery-Log (Action list_deliveries, auf die aktuelle url eines Webhooks beschränkt, wenn Sie dessen `id` übergeben) und die erneute Zustellung (Action resend_delivery). Lesen braucht bei API & Webhooks die Leseberechtigung Alle; jede Änderung und erneute Zustellung braucht Verwalten auf API & Webhooks.
 
 **IRREVERSIBEL.** Pflicht: `action`. Optional: `id`, `url`, `description`, `events`, `secret`, `headers`, `bodyTemplate`, `enabled`, `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
 {/* /mcp-catalog */}
@@ -455,16 +455,18 @@ Ein Tool mit `action`-Schalter: list, get, create, update, delete, dazu das Deli
 {/* mcp-catalog:admin */}
 #### `update_workspace_settings`
 
-`target` profile aktualisiert Ihren Namen, Ihr Land und Ihren Avatar; `target` company aktualisiert die Workspace-Währung (nur Admins).
+`target` profile aktualisiert Ihren Namen, Ihr Land und Ihren Avatar. `target` company aktualisiert die Workspace-Währung und die Bezeichnungen der fünf Datensatztypen (die Vorlagen unter Datenmodell auf Mein Unternehmen → Einstellungen) und braucht Verwalten in der Zeile Unternehmen der Rolle des Aufrufers.
 
 Pflicht: `target`. Optional: `firstName`, `lastName`, `country`, `avatarUrl`, `currency`, `terminology`.
 
 #### `manage_team`
 
-Mitglieder per E-Mail einladen (Action invite, bis 20, verschickt echte Einladungs-E-Mails) oder Rolle und Status eines Mitglieds ändern (Action update_member).
+Mitglieder per E-Mail einladen (Action invite, bis 20, verschickt echte Einladungs-E-Mails) oder Rolle und Status eines Mitglieds ändern (Action update_member). Beide Actions brauchen Verwalten auf Benutzer & Rollen.
 
 Pflicht: `action`. Optional: `emails`, `userId`, `roleId`, `status`.
 {/* /mcp-catalog */}
+
+Kein Tool liest das Abonnement, den Plan, die Nutzerplätze oder die Abrechnung oder ändert den Plan, und keines legt Rollen oder API-Keys an, bearbeitet oder löscht sie; auch `get_workspace_context` liefert keine Plan- oder Testphasendaten. Die abgerechneten Nutzerplätze folgen der Zahl der Mitglieder mit Status **Aktiv**: Wer mit `manage_team` den Status eines Mitglieds ändert, ändert also wie in der App auch die Zahl der Nutzerplätze ([wie Nutzerplätze gezählt werden](/docs/app-company#how-are-seats-counted-and-billed)). Abonnement, Rollen und API-Keys verwalten Sie in der App: **Mein Unternehmen → Abonnement**, **Mein Unternehmen → Rollen** und **Mein Profil → API & Konnektoren**.
 
 ### Support
 
@@ -526,7 +528,7 @@ Entitlements lehnen auf demselben Weg ab. Messaging-gestützte Tools brauchen di
 
 <Faq>
 <FaqItem question="Wie authentifiziere ich mich am MCP-Endpoint?">
-Den 64-stelligen API-Key im Header `x-api-key` senden, oder per OAuth verbinden, wo der Client das unterstützt. Keys entstehen unter **Profil → API Keys → Neuer Key**. Jeder Key trägt die eigenen Rechte, ein Client kann also nie mehr als man selbst.
+Den 64-stelligen API-Key im Header `x-api-key` senden, oder per OAuth verbinden, wo der Client das unterstützt. Keys entstehen unter **Mein Profil → API & Konnektoren → Hinzufügen**. Jeder Key trägt die eigenen Rechte, ein Client kann also nie mehr als man selbst.
 </FaqItem>
 <FaqItem question="Welche AI-Clients können sich verbinden?">
 Für Claude im Web, mobil und als Desktop-App, ChatGPT, Claude Code, Codex und Cursor sind oben Verbindungswege dokumentiert. Ein anderer Client kann sich verbinden, wenn er MCP über Streamable HTTP und die benötigte Authentifizierung unterstützt. Prüfen Sie vor der Nutzung die konkrete Kompatibilität und den Umgang mit Anweisungen.

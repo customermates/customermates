@@ -3,7 +3,7 @@ title: "Webhooks: Signaturen, Retries und Event-Katalog"
 description: CRM-Events abonnieren, Signaturen verifizieren, fehlgeschlagene Deliveries prüfen und den vollständigen Event-Katalog auf einer Seite lesen.
 ---
 
-Customermates sendet einen JSON-POST an Ihren HTTPS-Endpunkt, sobald sich abonnierte Daten ändern. Sie wählen die Events und geben die URL an. Fehlgeschlagene Deliveries können Sie aus der UI oder per MCP erneut zustellen. Deliveries werden per HMAC-SHA256 über den rohen Request-Body signiert. Jedes Event und seine Payload-Struktur stehen im Katalog am Ende dieser Seite.
+Customermates sendet einen JSON-POST an Ihren Endpunkt, sobald sich abonnierte Daten ändern. Sie wählen die Events und geben die URL an. Fehlgeschlagene Deliveries können Sie aus der UI oder per MCP erneut zustellen. Hat der Webhook ein Secret, werden Deliveries per HMAC-SHA256 über den rohen Request-Body signiert. Jedes Event und seine Payload-Struktur stehen im Katalog am Ende dieser Seite.
 
 ## Wofür sind Webhooks da?
 
@@ -14,11 +14,23 @@ Webhooks lassen andere Systeme auf CRM-Änderungen reagieren, ohne zu pollen.
 - Einen Finance-Workflow auslösen, wenn ein Deal als abgeschlossen markiert wird.
 - Records nahezu in Echtzeit in ein Data Warehouse synchronisieren.
 
-## Wie lege ich einen Webhook an?
+## Wie füge ich einen Webhook hinzu? [#how-do-i-create-a-webhook]
 
-**UI:** Unternehmen, dann Webhooks, dann Neu.
+**UI:** Klappen Sie in der Seitenleiste **Mein Unternehmen** auf, öffnen Sie **Webhooks** und klicken Sie auf **Hinzufügen** (auf schmalen Bildschirmen zeigt die Schaltfläche nur ein Plus-Symbol). Füllen Sie den Dialog **Webhook** aus und klicken Sie auf **Speichern**.
 
-**MCP:** `manage_webhooks` mit `action: "create"`, dazu `url`, `events[]` und optional `description`, `secret`, `enabled`.
+| Feld | Wirkung |
+|---|---|
+| **URL** | Pflichtfeld. Der Endpunkt, der für jedes abonnierte Ereignis einen `POST` erhält. Eine URL ohne Schema wird mit vorangestelltem `https://` gespeichert. |
+| **Beschreibung** | Optional, bis zu 500 Zeichen. Erscheint in der Liste. |
+| **Ereignisse** | Pflichtfeld. Ein oder mehrere Ereignisse aus dem Katalog am Ende dieser Seite. |
+| **Secret** | Optional, 1 bis 256 Zeichen. Ist es gesetzt, tragen Zustellungen eine damit erstellte Signatur (siehe „Wie prüfe ich die Signatur?“ weiter unten). Zeigt ein älterer Webhook auf dieselbe URL, gilt stattdessen dessen Secret, und ohne Secret gehen Zustellungen unsigniert hinaus (siehe „Eine URL, eine Konfiguration“ weiter unten). |
+| **Eigene Header** | Optional. Ein `Name: Wert` pro Zeile (siehe „Custom Headers und Body-Vorlagen“ weiter unten). |
+| **Body-Vorlage** | Optionales JSON-Dokument, das den Standardumschlag ersetzt. |
+| **Aktiviert** | Standardmäßig eingeschaltet. Ein deaktivierter Webhook erhält keine Zustellungen und behält seine Konfiguration, Sie können ihn also pausieren, ohne ihn zu löschen. |
+
+Um einen Webhook zu ändern, klicken Sie auf seine Zeile, bearbeiten den Dialog und klicken auf **Speichern**. Zum Entfernen klicken Sie oben im Dialog auf das Papierkorb-Symbol (**Löschen**) und bestätigen; seine bisherigen Zustellungen bleiben unter **Letzte Zustellungen** erhalten. Die Liste zeigt für jeden Webhook **URL**, **Beschreibung**, **Ereignisse**, **Status** (**Aktiviert** oder **Deaktiviert**), **Erstellt am** und **Aktualisiert am**. Das Suchfeld durchsucht die URL, die Filter decken Erstellungs- und Änderungsdatum ab.
+
+**MCP:** `manage_webhooks` mit `action: "create"`, dazu `url`, `events[]` und optional `description`, `secret`, `headers`, `bodyTemplate`, `enabled`. Der gehostete Assistent nutzt dasselbe Tool und kann außerdem **Webhooks** oder **Letzte Zustellungen** für Sie öffnen und auf die Schaltfläche **Hinzufügen** zeigen.
 
 ```json
 {
@@ -29,7 +41,19 @@ Webhooks lassen andere Systeme auf CRM-Änderungen reagieren, ohne zu pollen.
 }
 ```
 
-Verwenden Sie einen HTTPS-Endpunkt. Eine `http://`-URL wird für lokale Tests akzeptiert, ein Webhook mit eigenen Headern muss aber `https://` verwenden, da Header in der Regel ein Credential tragen.
+Verwenden Sie einen HTTPS-Endpunkt. Eine reine `http://`-URL wird für jeden Host akzeptiert, solange der Webhook keine eigenen Header hat. Ein Webhook mit eigenen Headern muss `https://` verwenden oder `http://` auf `localhost`, `127.0.0.1` oder `::1`, da Header in der Regel ein Credential tragen. Diese Regel wird beim Speichern und erneut vor jeder Zustellung geprüft.
+
+## Wer kann Webhooks sehen und ändern?
+
+Den Zugriff legt die Zeile **API & Webhooks** im Rolleneditor unter **Mein Unternehmen** → **Rollen** fest. Dieselbe Zeile steuert auch **Mein Profil** → **API & Konnektoren**. Eine Rolle, die ihre eigenen API-Keys verwalten darf, darf also auch jeden Webhook im Workspace verwalten.
+
+| Einstellung bei **API & Webhooks** | Was Mitglieder mit dieser Rolle tun können |
+|---|---|
+| **Lesen** **Keine** (Standard für eine neue Rolle) | **Webhooks** und **Letzte Zustellungen** sind in der Seitenleiste ausgeblendet. Wer die Adresse direkt öffnet, landet auf dem Dashboard. |
+| **Lesen** **Alle**, **Verwalten** **Nein** | Beide Seiten öffnen, den Dialog jedes Webhooks schreibgeschützt öffnen (einschließlich der Werte von **Secret** und **Eigene Header**) und **Ereignis-Details** zu jeder Zustellung öffnen. |
+| **Lesen** **Alle**, **Verwalten** **Ja** | Alles oben Genannte, dazu Webhooks anlegen, bearbeiten und löschen sowie Zustellungen erneut senden. |
+
+Die Rolle **Admin** darf alles. Webhooks sind an keinen Tarif gebunden und funktionieren in jedem Cloud-Tarif sowie in einer selbstgehosteten Installation. Dieselben Berechtigungen gelten für `manage_webhooks` über MCP und im gehosteten Assistenten. Im gehosteten Assistenten fragt das Löschen eines Webhooks oder das erneute Senden einer Zustellung vorher nach Ihrer Freigabe.
 
 ## Wie sieht der Payload aus?
 
@@ -100,9 +124,9 @@ Wenn ein Write kein Feld ändert, wird das Event unterdrückt. No-op-`*.updated`
 
 Manche Empfänger akzeptieren die Standardzustellung nicht. Dafür gibt es zwei optionale Einstellungen; ein Webhook, der keine davon setzt, stellt genau wie oben beschrieben zu.
 
-**Custom Headers** werden bei jeder Zustellung mitgesendet, für Endpunkte mit eigener Authentifizierung. In der Oberfläche tragen Sie sie zeilenweise als `Name: Wert` ein, über MCP und API als `headers`-Objekt. Sechs Namen sind reserviert und werden beim Speichern abgelehnt: `Connection`, `Content-Length`, `Content-Type`, `Host`, `Transfer-Encoding` und `X-Webhook-Signature`. Header-Namen müssen gültige HTTP-Tokens sein, Werte müssen Latin-1-Text ohne Zeilenumbrüche sein, und ein Webhook darf bis zu 20 Header tragen, mit Namen bis 128 Zeichen, Werten bis 2.048 Zeichen und insgesamt 8.192 Zeichen. Da Header in der Regel ein Credential tragen, muss ein Webhook mit Headern einen HTTPS-Endpunkt verwenden; reines HTTP wird nur für localhost akzeptiert.
+**Custom Headers** werden bei jeder Zustellung mitgesendet, für Endpunkte mit eigener Authentifizierung. In der Oberfläche tragen Sie sie im Feld **Eigene Header** zeilenweise als `Name: Wert` ein (eine Zeile ohne Doppelpunkt wird ignoriert, und ein geleertes Feld entfernt alle Header), über MCP und API als `headers`-Objekt. Sechs Namen sind reserviert und werden beim Speichern abgelehnt: `Connection`, `Content-Length`, `Content-Type`, `Host`, `Transfer-Encoding` und `X-Webhook-Signature`. Header-Namen müssen gültige HTTP-Tokens sein, Werte müssen Latin-1-Text ohne Zeilenumbrüche sein, und ein Webhook darf bis zu 20 Header tragen, mit Namen bis 128 Zeichen, Werten bis 2.048 Zeichen und insgesamt 8.192 Zeichen. Da Header in der Regel ein Credential tragen, muss ein Webhook mit Headern einen HTTPS-Endpunkt verwenden; reines HTTP wird nur für `localhost`, `127.0.0.1` und `::1` akzeptiert.
 
-Header-Werte werden von der REST-API und von MCP nie zurückgegeben, beide liefern stattdessen `headerNames`. Das Webhook-Formular in Customermates zeigt sie weiterhin an, sodass jede Person, die Webhooks im Workspace verwalten darf, sie lesen kann, genau wie das Signaturgeheimnis. Eine Aktualisierung über API oder MCP ohne `headers` behält die gespeicherten Werte, eine mit `null` löscht sie.
+Header-Werte und das Signaturgeheimnis werden von der REST-API und von MCP nie zurückgegeben, beide liefern stattdessen `headerNames` und `hasSecret`. Der Dialog **Webhook** zeigt sie dagegen an: Jede Person, deren Rolle die Seite **Webhooks** öffnen kann, also **Lesen** **Alle** bei **API & Webhooks** oder die Rolle **Admin**, kann beide dort lesen, unabhängig davon, ob die Rolle Webhooks verwalten darf. Das Secret bleibt maskiert, bis Sie es über das Augensymbol einblenden. Eine Aktualisierung über API oder MCP ohne `headers` behält die gespeicherten Werte, eine mit `null` löscht sie.
 
 **Eine Body-Vorlage** ersetzt den Standardumschlag für Endpunkte mit fester Struktur. Schreiben Sie ein JSON-Dokument und verweisen Sie über Platzhalter auf Werte des Umschlags:
 
@@ -112,15 +136,17 @@ Header-Werte werden von der REST-API und von MCP nie zurückgegeben, beide liefe
 
 Verfügbar sind `{{event}}`, `{{timestamp}}` sowie jeder Pfad unterhalb von `{{data}}`, darunter `{{data.entityId}}`, `{{data.companyId}}`, `{{data.userId}}` und `{{data.payload}}`. Ein Platzhalter muss innerhalb eines JSON-Strings stehen; `{"count": {{data.payload.count}}}` wird abgelehnt. Ein Platzhalter, der ein Objekt liefert, wird als JSON-String eingesetzt, ein fehlender Pfad wird zu einem leeren String. Eingesetzte Werte werden escaped, sodass Datensatzinhalte die Struktur des Dokuments nicht verändern können.
 
-Die Vorlage muss ein JSON-Objekt ergeben. Sie wird beim Speichern geprüft, und eine Zustellung, deren Vorlage nicht gerendert werden kann, wird als fehlgeschlagen erfasst statt gesendet. Die Signatur wird immer über den tatsächlich gesendeten Body berechnet, prüfen Sie sie also gegen den gerenderten Body und nicht gegen den Umschlag.
+Die Vorlage darf bis zu 8.192 Zeichen lang sein und muss ein JSON-Objekt ergeben. Sie wird beim Speichern geprüft. Eine Zustellung, deren Vorlage nicht gerendert werden kann oder deren gerenderter Body länger als 131.072 Zeichen ist, wird als fehlgeschlagen erfasst statt gesendet und nicht wiederholt. Die Signatur wird immer über den tatsächlich gesendeten Body berechnet, prüfen Sie sie also gegen den gerenderten Body und nicht gegen den Umschlag.
 
-**Eine URL, eine Konfiguration.** Header und Body-Vorlagen werden einer Zustellung über Workspace und URL zugeordnet, nicht über den Webhook. Zeigen zwei Webhooks desselben Workspace auf dieselbe URL und trägt einer von ihnen Header oder eine Body-Vorlage, schlägt jede Zustellung an diese URL fehl und wird nicht wiederholt, auch die des Webhooks ohne Überschreibungen. Geben Sie jeder Subscription eine eigene URL, etwa über einen Pfad oder einen Query-String, bevor Sie Header oder eine Vorlage hinzufügen.
+**Secret oder Vorlage entfernen.** Der Dialog kann ein gespeichertes **Secret** oder eine gespeicherte **Body-Vorlage** nicht entfernen: Das Speichern eines leeren Felds wird abgelehnt. Zum Entfernen aktualisieren Sie den Webhook über `manage_webhooks` oder die REST-API mit `secret: null` oder `bodyTemplate: null`, oder Sie löschen den Webhook und legen ihn neu an.
 
-Zustellungen werden mit dem Ereignis-Payload erfasst, nicht mit dem gerenderten Body. Das Zustellungsdetail zeigt also das ausgelöste Ereignis und nicht die exakt gesendeten Bytes.
+**Eine URL, eine Konfiguration.** Secret, Header und Body-Vorlage werden einer Zustellung über Workspace und URL zugeordnet, nicht über den Webhook. Zeigen mehrere Webhooks desselben Workspace auf dieselbe URL, deaktivierte eingeschlossen, wird jede Zustellung an diese URL mit dem Secret des ältesten von ihnen signiert, oder unsigniert gesendet, wenn dieser kein Secret hat. Trägt einer von ihnen Header oder eine Body-Vorlage, schlägt jede Zustellung an diese URL fehl und wird nicht wiederholt, auch die des Webhooks ohne Überschreibungen. Geben Sie jeder Subscription eine eigene URL, etwa über einen Pfad oder einen Query-String, bevor Sie ein Secret, Header oder eine Vorlage hinzufügen.
+
+Zustellungen werden mit dem Ereignis-Payload erfasst, nicht mit dem gerenderten Body. **Ereignis-Details** zeigt also das ausgelöste Ereignis und nicht die exakt gesendeten Bytes.
 
 ## Wie sende ich an Slack, Discord oder n8n?
 
-Jedes Rezept nennt die URL, die eigenen Header und die Body-Vorlage zum Einfügen unter **Unternehmen → Webhooks → Neu**. Setzen Sie in jedem Fall ein Signaturgeheimnis; ein Empfänger, der es nicht prüfen kann, ignoriert den Header einfach.
+Jedes Rezept nennt die URL, die eigenen Header und die Body-Vorlage zum Einfügen in den Dialog **Webhook** unter **Mein Unternehmen** → **Webhooks** → **Hinzufügen**. Setzen Sie in jedem Fall ein Signaturgeheimnis; ein Empfänger, der es nicht prüfen kann, ignoriert den Header einfach.
 
 ### Claude-Code-Routinen
 
@@ -188,13 +214,13 @@ Ein Empfänger, der weder eigene Authentifizierung noch eine feste Body-Struktur
 
 ## Wie prüfe ich die Signatur?
 
-Wenn Sie ein `secret` setzen, enthält jede Request:
+Hat der Webhook ein **Secret**, enthält jede Request:
 
 ```
 X-Webhook-Signature: <hex>
 ```
 
-`<hex>` ist `HMAC-SHA256(secret, rawRequestBody)`, Lowercase-Hex, ohne Präfix. Berechnen Sie den Wert auf Ihrer Seite neu und vergleichen Sie in konstanter Zeit.
+`<hex>` ist `HMAC-SHA256(secret, rawRequestBody)`, Lowercase-Hex, ohne Präfix. Berechnen Sie den Wert auf Ihrer Seite neu und vergleichen Sie in konstanter Zeit. Teilen sich mehrere Webhooks eine URL, gilt das Secret des ältesten, wie oben unter „Eine URL, eine Konfiguration“ beschrieben.
 
 Node.js-Beispiel:
 
@@ -209,13 +235,15 @@ function verify(rawBody: string, received: string, secret: string) {
 
 ## Wie funktionieren Retries und fehlgeschlagene Deliveries?
 
-Jede Delivery wird protokolliert. Deliveries sehen Sie in der UI (Unternehmen, dann Webhook-Deliveries) oder per `manage_webhooks` mit `action: "list_deliveries"`.
+Jede Delivery wird protokolliert. Klappen Sie in der Seitenleiste **Mein Unternehmen** auf und öffnen Sie **Letzte Zustellungen**, oder rufen Sie `manage_webhooks` mit `action: "list_deliveries"` auf. Die Seite listet die neuesten Zustellungen zuerst, mit **URL**, **Ereignis**, **Element** (dem betroffenen Datensatz), **Status**, **Status-Code** und **Erstellt am**. Das Suchfeld durchsucht Ereignis und URL, die Filter decken Ereignis, URL und Erstellungsdatum ab. Zustellungen werden nicht automatisch gelöscht; sie bleiben erhalten, solange der Workspace besteht.
 
-Eine Delivery gilt als fehlgeschlagen, wenn der HTTP-Status außerhalb des 2xx-Bereichs liegt oder die Request timeoutet. Der Request-Timeout beträgt 5 Sekunden.
+Ein Klick auf eine Zeile öffnet **Ereignis-Details**. Der Dialog zeigt den Status (**Ausstehend**, bis der erste Versuch abgeschlossen ist, danach **Zugestellt** oder **Fehlgeschlagen**), **URL**, **Ereignis**, **Element**, **Erstellt am**, **Status-Code**, **Antwort-Nachricht** und den **Ereignis-Payload**. Der Payload wird vollständig angezeigt, auch für Datensätze, die die Rolle der lesenden Person sonst nicht öffnen kann.
 
-Customermates wiederholt fehlgeschlagene Deliveries automatisch: bis zu 5 Wiederholungen bei Timeouts, 5xx-Responses und 408, 425 und 429. Dauerhafte 4xx-Responses (zum Beispiel 400, 401, 403, 404) werden nicht wiederholt, weil ein erneuter Versuch genauso scheitern würde. Die Retries laufen innerhalb des Delivery-Runs, erzeugen also keine zusätzlichen Delivery-Records; jeder Record zeigt das Endergebnis.
+Eine Delivery gilt als fehlgeschlagen, wenn der HTTP-Status außerhalb des 2xx-Bereichs liegt, die Request timeoutet oder keine Antwort eintrifft. Der Request-Timeout beträgt 5 Sekunden. Eine Delivery schlägt außerdem schon vor dem Senden fehl, mit Status-Code 422, wenn ihre URL mit einem anderen Webhook geteilt wird und einer von ihnen Header oder eine Vorlage trägt, wenn Header an eine Adresse gehen würden, die sie nicht erlaubt, oder wenn die Body-Vorlage nicht gerendert werden kann.
 
-Sie können jede Delivery zusätzlich selbst erneut zustellen, aus der UI oder per `manage_webhooks` mit `action: "resend_delivery"` und der Delivery-id. Ein manueller Resend erzeugt einen neuen Delivery-Record; das Original bleibt unverändert.
+Customermates wiederholt fehlgeschlagene Deliveries automatisch: bis zu 5 Wiederholungen bei Timeouts, Netzwerkfehlern, 5xx-Responses und 408, 425 und 429. Dauerhafte 4xx-Responses (zum Beispiel 400, 401, 403, 404) und die 422-Fehler oben werden nicht wiederholt, weil ein erneuter Versuch genauso scheitern würde. Die Retries laufen innerhalb des Delivery-Runs, erzeugen also keine zusätzlichen Delivery-Records; jeder Record zeigt das jeweils letzte Ergebnis, kann also **Fehlgeschlagen** anzeigen, während noch Retries ausstehen, und zu **Zugestellt** wechseln, sobald einer gelingt.
+
+Sie können eine Delivery zusätzlich selbst erneut zustellen. In **Ereignis-Details** erscheint oben das Symbol mit den kreisförmigen Pfeilen (**Erneut senden**), sobald die Zustellung **Zugestellt** oder **Fehlgeschlagen** ist, für Rollen mit **Verwalten** **Ja** bei **API & Webhooks**. Über MCP nutzen Sie `manage_webhooks` mit `action: "resend_delivery"` und der Delivery-id. Ein erneutes Senden schickt das gespeicherte Ereignis an dieselbe URL, mit dem aktuellen Secret, den aktuellen Headern und der aktuellen Vorlage dieser URL, und erzeugt einen neuen Delivery-Record; das Original bleibt unverändert. Es wird auch dann gesendet, wenn der Webhook inzwischen deaktiviert oder gelöscht wurde; nach einem Löschen geht es, sofern kein anderer Webhook dieselbe URL nutzt, unsigniert, ohne eigene Header und im Standardumschlag hinaus.
 
 ## Sind Deliveries geordnet?
 
@@ -233,7 +261,7 @@ Delete-Events enthalten unter `payload` den vollständigen Record, wie er vor de
 
 - Nutzen Sie [webhook.site](https://webhook.site) als Einweg-Receiver beim Integrationstest.
 - Das Delivery-Log (`manage_webhooks`, `action: "list_deliveries"`) unterstützt `searchTerm` auf URL und Event-Name.
-- Wenn Ihr Receiver einen Fehlerstatus zurückgibt, protokolliert Customermates die Antwort, sodass Sie nachvollziehen können, was passiert ist.
+- Für jede Delivery erfasst Customermates nur den HTTP-Status-Code und den Statustext, den Ihr Receiver zurückgegeben hat (zum Beispiel `404` und `Not Found`), angezeigt als **Status-Code** und **Antwort-Nachricht** in **Ereignis-Details**. Der Response-Body wird nicht gespeichert, protokollieren Sie ihn also auf der Empfängerseite. Trifft keine Antwort ein, zeigt **Status-Code** einen Strich (in der Liste bleibt die Spalte leer) und **Antwort-Nachricht** nennt die Ursache, etwa den Timeout.
 
 ## Welche Ereignisse gibt es? [#which-events-exist]
 
@@ -261,7 +289,7 @@ Delete-Events enthalten unter `payload` den vollständigen Record, wie er vor de
 
 ### Messaging-Events
 
-Messaging-Events feuern bei eingehender Provider-Aktivität auf verbundenen Accounts. `userId` ist `null`. Payloads referenzieren Provider-Records per id (`connectedAccountId`, `provider`, `providerMessageId`, `threadId` und ähnliche), statt CRM-Records einzubetten.
+Messaging-Events feuern bei eingehender Provider-Aktivität auf verbundenen Accounts. Die Liste **Ereignisse** bietet sie in jedem Workspace an, sie feuern aber nur, wo verbundene Accounts existieren, und das setzt die Cloud und einen Tarif mit Messaging voraus. `userId` ist `null`. Payloads referenzieren Provider-Records per id (`connectedAccountId`, `provider`, `providerMessageId`, `threadId` und ähnliche), statt CRM-Records einzubetten.
 
 | Event | Wann es feuert |
 |---|---|

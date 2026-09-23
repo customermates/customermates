@@ -9,7 +9,7 @@ Customermates ist das Open-Source-KI-CRM. Einmal verbunden, liest und schreibt I
 
 ## API-Key anlegen
 
-In Customermates: **Profil → API Keys → Neuer Key**. Geben Sie ihm einen Namen, der den Client beschreibt (z.B. `Claude Code`). Der 64-Zeichen-Key wird einmal angezeigt, also sofort kopieren. Ein Key erbt die Berechtigungen des Users, der ihn erstellt hat; ein Scope pro Key gibt es nicht. Legen Sie pro Client einen eigenen Key an, damit Sie einen Client einzeln widerrufen können, ohne die anderen zu treffen; das Audit-Log protokolliert den User, dem ein Key gehört, nicht den Key selbst.
+Öffnen Sie in Customermates **Mein Profil → API & Konnektoren**, klicken Sie auf **Hinzufügen** und wählen Sie **Standard-API-Key**. Geben Sie ihm einen Namen, der den Client beschreibt (z.B. `Claude Code`); ohne Datum unter **Läuft ab** läuft er nie ab. Der 64-Zeichen-Key wird einmal angezeigt, also sofort kopieren. Die **Schnellverbindungen** im selben Dialog erledigen das automatisch: Dort wird der Key nach dem Client benannt, läuft nach 365 Tagen ab und steht bereits im angezeigten Setup-Snippet. Zum Anlegen von Keys braucht Ihre Rolle die Berechtigung **API & Webhooks**, siehe [API-Keys](/docs/api-keys). Ein Key erbt die Berechtigungen des Users, der ihn erstellt hat; ein Scope pro Key gibt es nicht. Legen Sie pro Client einen eigenen Key an, damit Sie einen Client einzeln widerrufen können, ohne die anderen zu treffen; das Audit-Log protokolliert den User, dem ein Key gehört, nicht den Key selbst.
 
 ## Claude Code
 
@@ -87,7 +87,8 @@ Die verfügbaren Record-Typen sind Contact, Organization, Deal, Service und Task
 | Claude Desktop | `npx: command not found` | Kein Node im `PATH` | Node 18+ von [nodejs.org](https://nodejs.org) installieren |
 | Claude Desktop | Tools-Panel nach Config-Änderung leer | Claude Desktop lädt MCP-Configs nicht hot | Vollständig beenden (⌘Q) und neu öffnen |
 | Codex | TOML-Parse-Fehler | Inline-Tabellen nutzen `=`, nicht `:` | Die `env_http_headers = { ... }`-Zeile prüfen |
-| Alle | "Invalid API key" | Falscher oder abgeschnittener Key | In Profil → API Keys neu erstellen; der Key muss vollständige 64 Zeichen haben |
+| Alle | "Invalid API key" | Falscher oder abgeschnittener Key | Unter **Mein Profil → API & Konnektoren** einen neuen Key anlegen; der Key muss vollständige 64 Zeichen haben |
+| Alle | Eine Verbindung, die funktioniert hat, wird nicht mehr authentifiziert | Der Key ist abgelaufen (Keys aus den **Schnellverbindungen** laufen nach 365 Tagen ab), wurde gelöscht, oder sein Besitzer steht auf **Inaktiv** | Ist der Key abgelaufen oder gelöscht, unter **Mein Profil → API & Konnektoren** einen neuen Key anlegen und den Client aktualisieren. Steht sein Besitzer auf **Inaktiv**, setzt ihn ein Mitglied mit **Verwalten** auf **Benutzer & Rollen** unter **Mein Unternehmen → Mitglieder** wieder auf **Aktiv**; danach funktioniert der vorhandene Key wieder |
 | Alle | Relation-Update wird abgelehnt | `update_*`-Tools akzeptieren keine Relation-Arrays | Den Agent bitten, `manage_record_links` zum Hinzufügen oder Entfernen von Verknüpfungen zu nutzen |
 
 ## Weiter

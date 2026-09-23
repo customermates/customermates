@@ -12,7 +12,7 @@ Nach der Registrierung landen Sie zuerst unter `/onboarding`, wo Sie einen Works
 Ihr Name und Ihr Land. Die Felder sind gewöhnliche Formulareingaben (`firstName`, `lastName`, `country`), adressierbar über ihre sichtbaren Labels; die Checkbox für die Nutzungsbedingungen (`agreeToTerms`) wird nur im Cloud-Modus angezeigt. Dieser Schritt ist erforderlich.
 </Step>
 <Step title="Team einladen">
-Laden Sie Teammitglieder per E-Mail ein oder kopieren Sie den teilbaren Link der Form `/invitation/{token}`. Wer sich über diesen Link registriert, tritt dem Workspace mit dem Status **Wartet auf Genehmigung** bei, bis ein Admin auf der Seite [Unternehmen](/docs/app-company) eine Rolle zuweist und die Person aktiviert. Dieser Schritt ist überspringbar und lässt sich später von der Seite Unternehmen aus wiederholen; **Weiter** (`#onboarding-next`) führt zu KI verbinden.
+Laden Sie Teammitglieder per E-Mail ein oder kopieren Sie den teilbaren Link der Form `/invitation/{token}`. Wer sich über diesen Link registriert, tritt dem Workspace mit dem Status **Wartet auf Genehmigung** bei, bis jemand, dessen Rolle bei **Benutzer & Rollen** **Verwalten** auf **Ja** hat, oder ein **Admin** auf [**Mein Unternehmen › Mitglieder**](/docs/app-company) eine Rolle zuweist und den Status auf **Aktiv** setzt. Dieser Schritt ist überspringbar und lässt sich später über **Mein Unternehmen › Mitglieder** wiederholen; **Weiter** (`#onboarding-next`) führt zu KI verbinden.
 </Step>
 <Step title="KI verbinden">
 Verbinden Sie einen externen KI-Client (Claude, ChatGPT und Codex, Cursor oder Gemini) mit dem [MCP-Endpoint](/docs/mcp) des Workspace. Bei den lokalen Einrichtungen (Claude Code oder Claude Desktop, Codex, Cursor, Gemini) erstellt der Flow einen API-Key für den gewählten Client und zeigt dessen Einrichtungsausschnitt; die Methoden Claude-Konto und ChatGPT-App verbinden sich über den gehosteten Konnektor und erstellen keinen Key. Dieser Schritt ist mit **Später einrichten** überspringbar; derselbe Flow bleibt auf der Seite [Mein Profil](/docs/app-profile) verfügbar, und der eingebaute [Assistent](/docs/app-assistant) Mate funktioniert auch ohne ihn. Der Wizard wird mit **Fertig** in der eigenen Fußzeile dieses Schritts abgeschlossen.
@@ -35,7 +35,7 @@ Der Profil- und der KI-Schritt verwenden eigene Buttons ohne stabile Ids (**Zur�
 Der Einladungs- und der KI-Schritt sind überspringbar. Einladungen lassen sich später von der Seite Unternehmen aus verschicken, und der KI-Client-Flow bleibt auf der Seite Profil verfügbar. Der Profil-Schritt ist erforderlich.
 </FaqItem>
 <FaqItem question="Was passiert mit Personen, die sich über den Einladungslink registrieren?">
-Sie treten dem Workspace mit dem Status Wartet auf Genehmigung bei. Ein Admin weist auf der Seite Unternehmen eine Rolle zu und aktiviert sie; bis dahin können sie nicht im Workspace arbeiten.
+Sie treten dem Workspace mit dem Status **Wartet auf Genehmigung** bei. Jemand, dessen Rolle **Benutzer & Rollen** verwalten darf, oder ein **Admin** weist auf **Mein Unternehmen › Mitglieder** eine Rolle zu und setzt den Status auf **Aktiv**; bis dahin können sie nicht im Workspace arbeiten.
 </FaqItem>
 <FaqItem question="Muss ich einen KI-Client verbinden, um den Assistenten zu nutzen?">
 Nein. Der eingebaute Assistent Mate funktioniert ohne externen Client. Der KI-Schritt verbindet externe Tools wie Claude oder Cursor über MCP mit Ihrem Workspace.

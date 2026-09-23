@@ -3,7 +3,7 @@ title: "Routines: Scheduled and Event-Driven Assistant Runs"
 description: "Routines run Mate on a schedule or when a record changes, using the owner's AI credits, with limits, run statuses, approvals, and stable anchor ids."
 ---
 
-A routine is a saved instruction plus a trigger. When the trigger fires, Customermates opens a new assistant conversation, sends your instruction, and lets Mate work on its own. Who can see a routine follows the Routines permission on their role: full access shows every routine in the workspace, own-only shows the ones they own. Run summaries follow the routine. The full assistant transcript stays with the person the run executed as. Routines exist on Customermates Cloud only, because they spend hosted AI credits from the owner's monthly allowance.
+A routine is a saved instruction plus a trigger. When the trigger fires, Customermates opens a new assistant conversation, sends your instruction, and lets Mate work on its own. Who can see a routine follows the **Routines** row of their role under **My Company › Roles**: **Read access** **All** shows every routine in the workspace, **Assigned** shows the ones they own, and **None** hides **Routines**; creating and editing your own routines needs **Manage** set to **Yes**. Run summaries follow the routine. The full assistant transcript stays with the person the run executed as. Routines exist on Customermates Cloud only, because they spend hosted AI credits from the owner's monthly allowance.
 
 ## What is a routine made of?
 
@@ -11,11 +11,11 @@ A routine is a saved instruction plus a trigger. When the trigger fires, Custome
 - **Trigger**: either a schedule, or one or more in-app events such as a deal being updated.
 - **Limits**: Customermates caps how often a routine may run and how many credits a single run may spend, so a routine cannot drain your allowance unattended.
 
-The creator becomes the routine owner. Only that owner can change its instructions or triggers, activate or pause it, or use **Test trigger**, because every run uses that person's identity, access and AI credits. A company administrator can pause or delete another person's routine but cannot edit, test or run it. If an owner becomes inactive or is removed, the routine and its history are preserved, but the routine stays paused and read-only until an administrator deletes it.
+The creator becomes the routine owner. Only that owner can change its instructions or triggers, activate or pause it, or use **Test trigger**, because every run uses that person's identity, access and AI credits. Deleting a routine, your own included, needs the **Admin** role; on another person's routine, a member with the **Admin** role can pause or delete it but cannot edit, test or run it. Members are never deleted, only set to **Inactive** under **My Company › Members**. When an owner stops being **Active**, their routines are paused at once, their queued or running runs end as `blocked`, and each routine keeps its history. It then stays paused and read-only until a member with the **Admin** role deletes it, or until the owner is set to **Active** again and switches it back on.
 
 ## How many routines does my plan include?
 
-Each user gets a separate allowance: Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user, Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user, and Business and Enterprise include [[commercial.entitlement.business.includedRoutinesPerUser]] routines per user. Another user's routines never use your slots. Pausing a routine does not free a slot, deleting one does. See [Plans and credits](/docs/app-assistant#plans-and-credits) for the credit allowance the runs draw on.
+Each user gets a separate allowance: Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user, Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user, and Business and Enterprise include [[commercial.entitlement.business.includedRoutinesPerUser]] routines per user. Another user's routines never use your slots. Pausing a routine does not free a slot, deleting one does. At the limit, a new routine is refused with a prompt to upgrade, which a role with **Manage** on the **Company** row does under **My Company › Subscription**; the limit is checked only when a routine is created, so routines above a lower plan's limit are kept after a downgrade. See [Plans and credits](/docs/app-assistant#plans-and-credits) for the credit allowance the runs draw on.
 
 ## What are the limits?
 
@@ -74,7 +74,7 @@ Interface tools are unavailable to routines, because there is no browser attache
 
 ## How does Mate manage routines?
 
-In a chat, Mate uses `manage_routines` to list routines, read run history, create and update routines, pause them, and start a run now; none of these actions asks you first. A routine Mate creates is saved as a draft unless you explicitly asked for it to be active. Deleting a routine asks for your approval. Pausing through the tool uses the administrator path, so it needs the same permission as pausing another person's routine in the app; an owner pausing their own routine sets `enabled` to false with an update instead.
+In a chat, Mate uses `manage_routines` to list routines, read run history, create and update routines, pause them, and start a run now; none of these actions asks you first. A routine Mate creates is saved as a draft unless you explicitly asked for it to be active. Deleting a routine asks for your approval and, as in the app, needs the **Admin** role. Pausing through the tool uses the administrator path, so it needs the same permission as pausing another person's routine in the app; an owner pausing their own routine sets `enabled` to false with an update instead.
 
 ## Which ids does the page have?
 

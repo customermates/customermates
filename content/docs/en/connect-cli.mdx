@@ -9,7 +9,7 @@ Customermates is the open-source, AI-native CRM. Once connected, your coding age
 
 ## Create an API key
 
-In Customermates: **Profile → API Keys → New key**. Name it for the client (e.g. `Claude Code`). The 64-character key is shown once, so copy it immediately. A key inherits the permissions of the user who created it; there is no per-key scoping. Create one key per client so you can revoke one client without touching the others; the audit log records the user a key belongs to, not the key itself.
+In Customermates, open **My Profile → API & Connectors**, press **Add** and choose **Standard API key**. Name it for the client (e.g. `Claude Code`); without an **Expires in** date it never expires. The 64-character key is shown once, so copy it immediately. **Quick connections** in the same dialog does this for you: it names the key after the client, sets it to expire after 365 days, and shows the setup snippet with the key filled in. Creating keys needs the **API & Webhooks** permission in your role, see [API keys](/docs/api-keys). A key inherits the permissions of the user who created it; there is no per-key scoping. Create one key per client so you can revoke one client without touching the others; the audit log records the user a key belongs to, not the key itself.
 
 ## Claude Code
 
@@ -87,7 +87,8 @@ The available record types are contact, organization, deal, service, and task. D
 | Claude Desktop | `npx: command not found` | No Node on `PATH` | Install Node 18+ from [nodejs.org](https://nodejs.org) |
 | Claude Desktop | Tools panel empty after a config edit | Claude Desktop does not hot-reload MCP configs | Fully quit (⌘Q) and reopen |
 | Codex | TOML parse error | Inline-table values use `=`, not `:` | Check the `env_http_headers = { ... }` line |
-| All | "Invalid API key" | Wrong or truncated key | Regenerate in Profile → API Keys; the key must be the full 64 characters |
+| All | "Invalid API key" | Wrong or truncated key | Create a new key under **My Profile → API & Connectors**; the key must be the full 64 characters |
+| All | A connection that worked stops authenticating | The key expired (keys from **Quick connections** expire after 365 days), was deleted, or its owner was set to **Inactive** | If the key expired or was deleted, create a new key under **My Profile → API & Connectors** and update the client. If its owner is **Inactive**, a member with **Manage** on **Users & Roles** sets them back to **Active** under **My Company → Members**, and the existing key works again |
 | All | Relation update rejected | `update_*` tools do not accept relation arrays | Ask the agent to use `manage_record_links` to add or remove links |
 
 ## Next

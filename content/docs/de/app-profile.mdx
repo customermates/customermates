@@ -1,64 +1,177 @@
 ---
 title: "Profileinstellungen im Customermates-CRM"
-description: "Der Profil-Screen bündelt Ihre persönlichen Einstellungen Tab für Tab: Identität und Präferenzen, API-Keys mit Ablaufdatum und verbundene Messaging-Konten."
+description: "Unter Mein Profil liegen Ihre persönlichen Einstellungen: Name, Sprache, Formate und Darstellung, die Kanäle für den Posteingang und Ihre API-Keys."
 ---
 
 Customermates ist ein Open-Source-CRM, KI-nativ gebaut. Diese Seite dokumentiert den Screen **Mein Profil** der Web-App für Menschen und für KI-Agents, die die UI steuern.
 
-## Was liegt auf dem Profil-Screen?
+## Was liegt unter Mein Profil?
 
-Alles, was an Ihnen als Nutzer hängt und nicht am Unternehmen: Ihre Einstellungen (Name, Land, Avatar, Theme, Sprache), die API-Keys für MCP- und REST-Clients und die Messaging-Konten, die den Posteingang speisen. Änderungen hier betreffen nur Ihren eigenen Account. URLs sind locale-präfixiert, zum Beispiel `https://customermates.com/en/profile/settings`; jeder Tab hat seine eigene Route; der Sidebar-Eintrag **Mein Profil** (`#nav-profile`) klappt die Profil-Gruppe auf, und ihr Untereintrag `#nav-profile-settings` öffnet `/profile/settings`.
+Alles, was an Ihnen als Nutzer hängt und nicht am Unternehmen: Ihr Profil und Ihre Präferenzen (**Einstellungen**), die Messaging-Kanäle, die Sie verbinden (**Kanäle**), und Ihre API-Keys für MCP- und REST-Clients (**API & Konnektoren**). Die meisten Änderungen hier betreffen nur Sie. Ausnahme sind Kanäle: Ein Kanal, den Sie teilen, wird für Ihre Teammitglieder sichtbar, und wenn Sie einen geteilten Kanal trennen, verschwindet er auch für sie.
+
+In der Seitenleisten-Gruppe **Workspace** klappt **Mein Profil** (`#nav-profile`) seine Einträge nur auf oder zu; eine eigene Seite öffnet es nicht. Die Einträge öffnen die Seiten, jede unter ihrer eigenen Route, und die Breadcrumb lautet **Mein Profil › Einstellungen**, mit einem Umschalter zu den anderen Seiten, die Sie sehen dürfen. URLs sind locale-präfixiert, zum Beispiel `https://customermates.com/de/profile/settings`.
+
+| Eintrag | Anchor-Id | Route | Sichtbar, wenn |
+|---|---|---|---|
+| **Einstellungen** | `#nav-profile-settings` | `/profile/settings` | Immer |
+| **Kanäle** | `#nav-profile-connected-accounts` | `/profile/connected-accounts` | Nur in Customermates Cloud, und die Zeile **Inbox-Nachrichten** Ihrer Rolle steht bei **Lesen** auf **Alle** |
+| **API & Konnektoren** | `#nav-profile-api-keys` | `/profile/api-keys` | Die Zeile **API & Webhooks** Ihrer Rolle steht bei **Lesen** auf **Alle** |
+
+Rollen bearbeitet unter **Mein Unternehmen › Rollen** ein Mitglied, dessen Rolle bei **Benutzer & Rollen** das Recht **Verwalten** hat; siehe [App-Guide, Unternehmen](/docs/app-company). Eine neue benutzerdefinierte Rolle startet in beiden Zeilen mit **Lesen** **Keine**, ihre Mitglieder sehen also nur **Einstellungen**, bis jemand die Rolle ändert. Die Rolle **Admin** sieht jeden Eintrag, den die Installation bietet. Wer eine ausgeblendete Seite über ihre URL öffnet, landet wieder auf dem Dashboard.
 
 ## Tab Einstellungen
 
-Route `/profile/settings`, Sidebar-Id `#nav-profile-settings` (**Einstellungen**). Ein Formular deckt Identität (Name, Land, Avatar) und Präferenzen (Theme, Sprache) ab. Speichern oder verwerfen Sie mit `#profile-settings-save` (**Speichern**) und `#profile-settings-reset` (**Zurücksetzen**); beide Buttons erscheinen erst, wenn das Formular ungespeicherte Änderungen hat. Über MCP ändert `update_workspace_settings` mit `target: "profile"` nur Vorname, Nachname, Land und Avatar-URL; Theme und Sprache stellen Sie in der UI ein.
+Route `/profile/settings`, Seitenleisten-Eintrag **Einstellungen**. Jedes angemeldete Mitglied kann die Seite öffnen, unabhängig von der Rolle, und das Formular ändert nur Ihr eigenes Profil. Speichern oder verwerfen Sie mit **Speichern** (`#profile-settings-save`) und **Zurücksetzen** (`#profile-settings-reset`) unter dem Formular; beide Buttons erscheinen, sobald das Formular ungespeicherte Änderungen hat. **Speichern** sichert alle Felder auf einmal.
 
-## Tab API-Keys
+### Wie ändere ich Namen, Avatar, Sprache oder Darstellung?
 
-Route `/profile/api-keys`, Sidebar-Id `#nav-profile-api-keys` (**API & Konnektoren**). Keys für MCP- und REST-Clients; die Regeln stehen unter [API-Keys](/docs/api-keys).
+Ändern Sie das Feld und klicken Sie auf **Speichern**.
+
+| Feld | Optionen und Regeln | Wirkung |
+|---|---|---|
+| **Vorname**, **Nachname** | Pflichtfelder, jeweils bis zu 255 Zeichen | Ihr Name überall, wo Sie im Workspace erscheinen |
+| **Land** | Pflichtfeld, Auswahl aus der Länderliste | Wird mit Ihrem Profil gespeichert; es ändert nicht, wie Datumsangaben oder Zahlen geschrieben werden |
+| **Avatar-URL** | Optionaler Link auf ein öffentlich erreichbares Bild; fehlt `https://`, wird es ergänzt; einen Upload gibt es nicht | Ihr Bild; bei leerem Feld erscheinen Ihre Initialen |
+| **Anzeigesprache** | **Englisch**, **Deutsch**, **Französisch**, **Italienisch**, **Spanisch** oder **System** (die Sprache Ihres Browsers, Englisch, wenn es keine der fünf ist) | Die Sprache der Oberfläche, in der auch der Assistent antwortet. Nach dem Speichern eines neuen Werts lädt die App in dieser Sprache neu. Benachrichtigungs-E-Mails von Customermates, etwa Erinnerungen zur Testphase, folgen ihr ebenfalls; bei **System** kommen sie auf Englisch |
+| **Regionales Format** | **Englisch** (US-Formate), **Deutsch**, **Französisch**, **Italienisch**, **Spanisch** oder **System** (die Formate Ihrer Anzeigesprache) | Wie Zahlen, Datumsangaben, Uhrzeiten und Beträge geschrieben werden, unabhängig von der Sprache der Oberfläche |
+| **Darstellung** | **System** (folgt Ihrem Betriebssystem), **Dunkel**, **Hell** | Helle oder dunkle Oberfläche |
+
+Der Kopfbereich über dem Formular zeigt Ihren Namen, Ihre E-Mail-Adresse, **E-Mail verifiziert** oder **E-Mail nicht verifiziert**, Ihren Status und Ihre Rolle. Nichts davon lässt sich hier ändern. Die E-Mail-Adresse lässt sich nirgends in der App ändern. Rolle und Status setzt unter **Mein Unternehmen › Mitglieder** ein Mitglied, dessen Rolle bei **Benutzer & Rollen** das Recht **Verwalten** hat; es kann dort auch Ihren Vornamen, Nachnamen, Ihr Land und Ihre Avatar-URL bearbeiten.
+
+Das Avatar-Menü unten in der Seitenleiste enthält den Schalter **Dunkler Modus** bzw. **Heller Modus**, der Ihre Darstellung ebenfalls speichert, sowie **Abmelden**.
+
+### Wie verifiziere ich meine E-Mail-Adresse?
+
+Solange Ihre Adresse nicht verifiziert ist, zeigt die Seitenleiste unter dem Markennamen **E-Mail nicht verifiziert**. Ein Klick öffnet diese Seite, deren Kopfleiste **Verifizierungs-E-Mail erneut senden** anbietet. Ein neues Konto lässt sich 24 Stunden ohne Verifizierung nutzen. Danach leitet jede Seite auf den Verifizierungs-Screen um, bis Sie die Adresse über den Link in der E-Mail bestätigen.
+
+### Was lässt sich hier nicht ändern?
+
+Es gibt keine Einstellung für Passwort, E-Mail-Adresse, Zeitzone, Benachrichtigungen oder das Löschen Ihres Kontos. Für ein neues Passwort melden Sie sich ab und nutzen auf der Anmeldeseite **Passwort vergessen?**. E-Mail-Signaturen gehören zum jeweiligen E-Mail-Konto auf der Seite Kanäle, siehe E-Mail-Darstellung und Signatur weiter unten.
+
+Im Assistenten und über MCP ändert `update_workspace_settings` mit `target: "profile"` nur **Vorname**, **Nachname**, **Land** und **Avatar-URL**. **Anzeigesprache**, **Regionales Format** und **Darstellung** stellen Sie nur in der App ein. Die REST-API liest Ihr Profil mit `GET /v1/users/me`, kann es aber nicht ändern.
+
+## Tab API & Konnektoren
+
+Route `/profile/api-keys`, Seitenleisten-Eintrag **API & Konnektoren**. Keys für MCP- und REST-Clients; alle Regeln stehen unter [API-Keys](/docs/api-keys). Die Seite listet nur Ihre eigenen Keys. Zum Öffnen braucht die Zeile **API & Webhooks** Ihrer Rolle **Lesen** **Alle**, zum Hinzufügen und Löschen von Keys **Verwalten** **Ja** in derselben Zeile. Dieselbe Zeile steuert auch **Mein Unternehmen › Webhooks** und **Letzte Zustellungen**.
 
 | Aktion | Wo | Anchor-Id | Was passiert |
 |---|---|---|---|
-| Key hinzufügen | Seitenkopf | `#profile-api-keys-generate` (**Hinzufügen**) | Öffnet den Dialog zum Hinzufügen mit zwei Wegen |
-| Standard-Key anlegen | Bereich Standard-API-Key | `#api-key-save` (**Speichern**) | Name plus optionales Ablaufdatum; der Key wird einmal angezeigt, kopieren Sie ihn also sofort |
-| Schnellverbindungen | Bereich Schnellverbindungen | keine | Vier Client-Kacheln, unten beschrieben |
-| Key öffnen | Key-Karte | keine | Zeigt das Erstellungsdatum; die Zeilen für Ablauf und letzte Verwendung erscheinen nur, wenn sie gesetzt sind |
-| Key löschen | Key-Dialog | keine | Button mit Label Löschen, mit Bestätigung |
+| Key hinzufügen | Kopfleiste | `#profile-api-keys-generate` (**Hinzufügen**) | Öffnet **API-Key hinzufügen** mit zwei Wegen |
+| Standard-Key anlegen | **Standard-API-Key** | `#api-key-save` (**Speichern**) | **Name** plus optionales Datum unter **Läuft ab**, 1 bis 365 Tage in der Zukunft (Standard **Läuft nie ab**); der Key wird einmal angezeigt, kopieren Sie ihn also sofort |
+| Schnellverbindungen | **Schnellverbindungen** | keine | Vier Client-Kacheln, unten beschrieben |
+| Key öffnen | Key-Karte | keine | Die Karte zeigt **Erstellt am**, **Läuft ab** und **Zuletzt verwendet**; der Dialog zeigt das Erstellungsdatum, Ablauf und letzte Verwendung nur, wenn gesetzt |
+| Key löschen | Key-Dialog | keine | **Löschen**, mit Bestätigung; der Key funktioniert sofort nicht mehr |
 
-Der Bereich Schnellverbindungen bietet vier Kacheln: Claude, ChatGPT und Codex, Cursor und Gemini. Die lokalen Einrichtungen, also Claude Code oder Claude Desktop, Codex, Cursor und Gemini, erstellen den Key und zeigen den Einrichtungsausschnitt des jeweiligen Clients. Die Methoden Claude-Konto und ChatGPT-App verbinden stattdessen über den gehosteten Connector und erstellen keinen Key.
+Der Bereich Schnellverbindungen bietet vier Kacheln: **Claude**, **ChatGPT & Codex**, **Cursor** und **Gemini**. Die lokalen Einrichtungen, also Claude Code oder Claude Desktop, Codex, Cursor und Gemini, erstellen einen nach dem Client benannten Key, der nach 365 Tagen abläuft, und zeigen den Einrichtungsausschnitt des Clients mit eingetragenem Key. Die Methoden Claude-Konto und ChatGPT-App verbinden stattdessen über den gehosteten Konnektor und erstellen keinen Key.
 
-Es gibt keinen Rotate- oder Revoke-Button: Erstellen Sie einen neuen Key, aktualisieren Sie den Client und löschen Sie dann den alten.
+Es gibt keinen Rotate- oder Revoke-Button: Erstellen Sie einen neuen Key, aktualisieren Sie den Client und löschen Sie dann den alten. Wird einer Rolle **API & Webhooks** entzogen, bleiben die Keys ihrer Mitglieder gültig; um die Keys eines Mitglieds zu stoppen, setzen Sie es unter **Mein Unternehmen › Mitglieder** auf **Inaktiv**.
 
-## Tab Verbundene Konten
+## Tab Kanäle
 
-Route `/profile/connected-accounts`, Sidebar-Id `#nav-profile-connected-accounts` (**Kanäle**), nur Cloud. **Kanal verbinden** (`#profile-connected-accounts-connect`) öffnet eine Kanalauswahl (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram); die Wahl eines Kanals navigiert den aktuellen Tab zur Hosted-Auth-Seite, und das verbundene Konto speist danach den [Posteingang](/docs/app-inbox). WhatsApp verbinden Sie durch Scannen des QR-Codes auf dieser Seite.
+Route `/profile/connected-accounts`, Seitenleisten-Eintrag **Kanäle** (`#nav-profile-connected-accounts`), nur in Customermates Cloud; einen Kanal verbinden Sie mit **Kanal verbinden** (`#profile-connected-accounts-connect`). Kanäle sind die E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Konten, die den [Posteingang](/docs/app-inbox) speisen. Die Seite listet zuerst Ihre eigenen Kanäle, danach jeden Kanal, den ein Teammitglied mit dem Workspace geteilt hat. Brauchen Kanäle Aufmerksamkeit (**Erneute Verbindung nötig**, **Berechtigungsproblem** oder **Fehler**), zeigt der Seitenleisten-Eintrag ihre Anzahl, einschließlich geteilter Kanäle von Teammitgliedern, die nur deren Besitzer beheben kann.
 
 | Aktion | Wo | Anchor-Id | Was passiert |
 |---|---|---|---|
-| Konto verbinden | Karten-Header | `#profile-connected-accounts-connect` (**Kanal verbinden**) | Öffnet die Kanalauswahl; die Wahl eines Kanals navigiert zur Hosted-Auth-Seite |
-| Konto aus einem leeren Profil verbinden | Zentrierter Leerzustand | `#profile-connected-accounts-connect-empty` (**Kanal verbinden**) | Dieselbe Auswahl, angezeigt, wenn noch kein Konto existiert und Sie verbinden dürfen; ist der Assistent aktiviert, zeigt der Leerzustand stattdessen Startvorschläge des Assistenten |
-| Konto verwalten | Klick auf die Konto-Zeile | keine | Öffnet das Konto-Modal auf dem Tab Details |
-| Tab Details | Konto-Modal | `#connected-account-tab-details` (**Details**) | Provider, Status, Sichtbarkeit, Besitzer, Ordneranzahl und Sync-Zeiten |
-| Tab E-Mail | Konto-Modal | `#connected-account-tab-email` (**E-Mail**) | E-Mail-Darstellung und Signatur; nur bei einem eigenen E-Mail-Konto |
-| Tab Ordner | Konto-Modal | `#connected-account-tab-folders` (**Ordner**) | Auswahl der Provider-Ordner, die synchronisiert werden; nur, wenn das Konto Ordner bereitstellt |
+| Kanal verbinden | Kopfleiste | `#profile-connected-accounts-connect` (**Kanal verbinden**) | Öffnet die Kanalauswahl; auf schmalen Bildschirmen zeigt der Button nur Kanal-Symbole |
+| Aus einer leeren Seite verbinden | Zentrierter Leerzustand | `#profile-connected-accounts-connect-empty` (**Kanal verbinden**) | Dieselbe Auswahl, angezeigt, wenn Sie noch keinen Kanal haben und verbinden dürfen; ist der Assistent verfügbar, zeigt der Leerzustand stattdessen Startvorschläge des Assistenten |
+| Kanal öffnen | Klick auf die Kanal-Karte | keine | Öffnet den Kanal-Dialog auf dem Tab **Details** |
+| Tab Details | Kanal-Dialog | `#connected-account-tab-details` (**Details**) | **Anbieter**, **Status**, **Sichtbarkeit**, **Besitzer**, **Ordner**, **Verbunden** und **Zuletzt synchronisiert** |
+| Teilen oder nicht mehr teilen | Tab Details | `#connected-account-visibility` | Der Schalter **Sichtbarkeit** zwischen **Privat** und **Geteilt**; nur für den Besitzer |
+| Tab E-Mail | Kanal-Dialog | `#connected-account-tab-email` (**E-Mail**) | Darstellung und Signatur; nur bei einem eigenen Gmail-, Outlook- oder IMAP-Konto |
+| Tab Ordner | Kanal-Dialog | `#connected-account-tab-folders` (**Ordner** mit Zähler, zum Beispiel **Ordner 4/6**) | Ein Schalter pro Ordner; nur, wenn das Konto Ordner meldet |
 
-Das Verbinden navigiert den aktuellen Tab zur Hosted-Auth-Seite: Rechnen Sie mit einer vollständigen Seitennavigation, nicht mit einem Popup, und mit der Rückkehr in die App, sobald der Provider fertig ist. Wie viele Konten ein Nutzer verbinden darf, hängt vom Tarif ab: Starter [[commercial.entitlement.starter.includedAccountsPerUser]], Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]] pro Nutzer.
+### Wer kann Kanäle nutzen?
+
+Um die Seite zu sehen, braucht die Zeile **Inbox-Nachrichten** Ihrer Rolle **Lesen** **Alle**; bei **Keine** sind **Kanäle** und der Posteingang ausgeblendet. Einen Kanal verbinden, ändern, reaktivieren, neu synchronisieren oder trennen erfordert **Verwalten** **Ja** in derselben Zeile. Mit reinem Lesezugriff sehen Sie Ihre Kanäle und die geteilten Kanäle anderer, können aber nichts ändern. Unabhängig von Ihrer Rolle, auch als **Admin**, können Sie nur Kanäle ändern, die Ihnen gehören.
+
+Der Tarif des Workspace muss Messaging enthalten: Pro, Business, Enterprise oder eine Testphase. In Starter zeigt die Seite **Upgrade nötig, um Messaging freizuschalten** mit dem Button **Tarif upgraden**, der **Mein Unternehmen › Abonnement** öffnet. Jede Aktion außer dem Trennen braucht außerdem ein nutzbares Abonnement, also den Status **Aktiv** oder eine noch nicht abgelaufene Testphase; sonst wird sie abgelehnt, und **Kanal verbinden** meldet „Das Verbinden von Kanälen erfordert ein aktives Abonnement oder eine noch nicht abgelaufene Testphase.“ Self-Hosted-Installationen haben keine Seite Kanäle.
+
+### Wie verbinde ich einen Kanal?
+
+Öffnen Sie **Mein Profil › Kanäle** (`#nav-profile-connected-accounts`), klicken Sie auf **Kanal verbinden** (`#profile-connected-accounts-connect`) und wählen Sie einen von neun Einträgen, zum Beispiel **WhatsApp** für Ihre WhatsApp-Chats im Posteingang:
+
+| Eintrag | Verbindet |
+|---|---|
+| **Gmail**, **Outlook** | Ein Gmail- oder Outlook-Konto; das Feld **Anbieter** auf der Karte zeigt, ob E-Mail, Kalender oder beides verbunden ist |
+| **IMAP** | Jedes andere E-Mail-Konto über IMAP und SMTP |
+| **WhatsApp** | Ihr WhatsApp-Konto; Sie scannen einen QR-Code auf der Verbindungsseite |
+| **LinkedIn (Classic)** | Ihr LinkedIn-Konto |
+| **LinkedIn (Classic & Sales Navigator)**, **LinkedIn (Classic & Recruiter)** | Ihr LinkedIn-Konto zusammen mit Sales Navigator oder Recruiter |
+| **Instagram**, **Telegram** | Ihr Instagram- oder Telegram-Konto |
+
+Die Wahl eines Eintrags leitet den aktuellen Browser-Tab auf eine sichere Verbindungsseite um, kein Popup. Der Link ist 30 Minuten gültig. Wenn Sie dort fertig sind, kehren Sie zu **Kanäle** zurück, und eine Meldung zeigt das Ergebnis:
+
+- **Kanal verbunden**: Ihr Verlauf wird im Hintergrund importiert, und die Karte zeigt so lange **Wird im Hintergrund synchronisiert**. Das dauert meist wenige Minuten, bei großen Konten bis zu einer Stunde.
+- **Konto bereits verbunden**: Dieses Konto ist bereits von einem Mitglied Ihres Workspace verbunden. Ist das jemand anderes, bitten Sie die Person, es mit dem Workspace zu teilen, statt es doppelt zu verbinden.
+- **Ungültige Anmeldedaten**, **Link abgelaufen**, **Verifizierung fehlgeschlagen**, **Konto getrennt** oder **Kanalverbindung fehlgeschlagen**: Beginnen Sie erneut mit **Kanal verbinden**.
+
+### Wie viele Kanäle kann ich verbinden?
+
+Kanäle pro Mitglied: Starter [[commercial.entitlement.starter.includedAccountsPerUser]], Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]. Eine Testphase zählt als Pro. Jeder Kanal, der Ihnen gehört, zählt unabhängig von seinem Status, bis Sie ihn trennen; nur Kanäle mit dem Status **Gelöscht** zählen nicht. Geteilte Kanäle anderer belasten Ihr Kontingent nie.
+
+Ist das Limit in Pro erreicht, öffnet **Kanal verbinden** den Dialog **Upgrade, um mehr Konten zu verbinden**; dessen Button **Tarife ansehen** führt zu **Mein Unternehmen › Abonnement**. In Business verweist eine Fehlermeldung auf Enterprise. Nach einem Downgrade werden bei jedem Mitglied die neuesten Kanäle oberhalb des neuen Kontingents entfernt und als **Gelöscht** markiert, und Mitglieder mit der Rolle **Admin** erhalten eine E-Mail.
+
+### Was bedeutet welcher Status?
+
+| Status | Bedeutung | Was tun |
+|---|---|---|
+| **Verbunden** | Funktioniert normal | Nichts; **Neu synchronisieren** importiert den Verlauf erneut |
+| **Wird verbunden** | Die Verbindung wird noch eingerichtet | Abwarten; **Neu synchronisieren** ist verfügbar |
+| **Erneute Verbindung nötig** | Der Anbieter meldet, dass die Anmeldung nicht mehr funktioniert oder unvollständig ist | Der Besitzer klickt **Reaktivieren** |
+| **Berechtigungsproblem** | Erscheint, wenn der Anbieter fehlende Berechtigungen meldet | Der Besitzer klickt **Reaktivieren** |
+| **Fehler** | Der Anbieter meldet einen Fehler | Der Besitzer klickt **Reaktivieren** |
+| **Gestoppt** | Der Anbieter hat das Konto pausiert | Der Besitzer klickt **Reaktivieren** |
+| **Gelöscht** | Das Konto wurde beim Anbieter entfernt oder automatisch: nach einem Downgrade oder bei der täglichen Bereinigung, sobald eine Testphase seit einem Tag vorbei ist, sobald ein bezahltes Abonnement seit drei Tagen **Unbezahlt** oder **Abgelaufen** ist, oder nachdem der Besitzer auf **Inaktiv** gesetzt wurde | Die Karte bleibt sichtbar, und der Besitzer erhält nur noch **Trennen**; verbinden Sie das Konto erneut, wenn der Tarif es erlaubt |
+
+### Privat oder geteilt?
+
+Ein neuer Kanal ist **Privat**: Nur Sie sehen seine Unterhaltungen. Der Besitzer stellt **Sichtbarkeit** auf dem Tab **Details** auf **Geteilt**, und die Änderung gilt sofort, bestätigt mit **Konto mit deinem Workspace geteilt**. Ein geteilter Kanal wird mit allen Unterhaltungen für jedes Mitglied sichtbar, dessen Rolle bei **Inbox-Nachrichten** Lesezugriff hat, und wer in dieser Zeile **Verwalten** hat, kann darüber auch antworten und senden. Mit **Privat** blenden Sie ihn wieder aus.
+
+Teilen erfordert den Business- oder Enterprise-Tarif; in anderen Tarifen ist der Schalter deaktiviert, mit dem Hinweis „Geteilte Konten erfordern den Business-Tarif oder höher.“ Außerdem braucht es **Verwalten** bei **Inbox-Nachrichten** und ein nutzbares Abonnement. Teammitglieder sehen Ihren geteilten Kanal auf ihrer Seite Kanäle, können dort Details und Ordner öffnen, ihn aber weder ändern noch reaktivieren, neu synchronisieren oder trennen. Einzelne Unterhaltungen lassen sich auch im Posteingang teilen, siehe [App-Guide, Posteingang](/docs/app-inbox).
+
+### Was steuert der Tab Ordner?
+
+E-Mail-Konten, deren Anbieter Ordner meldet, erhalten einen Tab **Ordner** mit einem Schalter pro Ordner. Ein Schalter entscheidet, ob die Nachrichten dieses Ordners im Posteingang erscheinen, für Sie und für alle, die den Kanal sehen; ein ausgeschalteter Ordner blendet seine Nachrichten aus, ohne sie zu löschen. Die Änderung gilt sofort.
+
+Standardmäßig ist jeder Ordner eingeschaltet außer Papierkorb, Junk oder Spam, Entwürfen und dem Ordner mit allen E-Mails; kennzeichnet der Anbieter seine Ordner nicht, gilt dasselbe für Namen mit junk, spam, trash, deleted, draft oder outbox. Wird einer dieser ausgenommenen Ordner eingeschaltet, startet ein Import seines Verlaufs im Hintergrund. Nur der Besitzer mit **Verwalten** bei **Inbox-Nachrichten** kann Ordner schalten; alle anderen sehen **Synchronisiert** oder **Ausgeblendet**.
 
 ### E-Mail-Darstellung und Signatur
 
-Der Tab **E-Mail** legt fest, wie jede aus diesem Konto gesendete Nachricht aussieht. Die Darstellung umfasst Schriftart, Basis-Schriftgröße, Linkfarbe und Linkstil und gilt für die gesamte E-Mail. Die Linkfarbe erwartet einen sechsstelligen Hex-Wert mit Farbwähler daneben, prüft die Eingabe sofort und weist auf zu geringen Kontrast hin, ohne zu blockieren.
+Der Tab **E-Mail** legt fest, wie Nachrichten aus diesem Konto aussehen. Er erscheint nur bei einem eigenen Gmail-, Outlook- oder IMAP-Konto, Bearbeiten erfordert **Verwalten** bei **Inbox-Nachrichten**, und **E-Mail-Einstellungen speichern** sichert beide Bereiche.
 
-Die Signatur darunter ist ein einzelner Markdown-Block mit Ein/Aus-Schalter, das Ausschalten behält den gespeicherten Text also für später. Wählen Sie ein Layout aus Nur Text, Logo oben oder Logo daneben, geben Sie eine öffentliche HTTPS-Logo-URL an und passen Sie unter **Layoutoptionen** Logogröße, Trennlinie und Abstand an. Eine Live-Vorschau zeigt das Ergebnis. Gespeicherte Darstellung und Signatur gelten für jede aus diesem Konto gesendete E-Mail, ob aus dem Posteingang, über die REST-API oder ein MCP-Tool. Agents dürfen die Signatur daher nicht zusätzlich in den Nachrichtentext schreiben.
+| Feld | Optionen | Standard |
+|---|---|---|
+| **Schriftart** | **Serifenlos (Arial)**, **Serifenschrift (Georgia)**, **Nichtproportional (Courier New)** | Serifenlos (Arial) |
+| **Schriftgrösse** | 10 bis 20 | 13 |
+| **Linkfarbe** | Ein sechsstelliger Hex-Wert (`#RRGGBB`) mit Farbwähler daneben | `#7161e8` |
+| **Linkstil** | **Unterstrichen**, **Nicht unterstrichen** | Unterstrichen |
+
+Die Linkfarbe wird bei der Eingabe geprüft, und ein Hinweis erscheint, wenn ihr Kontrast auf hellem oder dunklem Hintergrund unter 3:1 liegt; das Speichern blockiert er nicht. Die Darstellung gilt für E-Mails, die als Klartext oder Markdown geschrieben sind, also für alles, was Sie im Posteingang schreiben. Eine E-Mail, die über die REST-API oder MCP mit explizitem HTML-Text gesendet wird, behält ihr eigenes Styling.
+
+Bei einem neuen Konto ist die Signatur ausgeschaltet; schalten Sie **Signatur hinzufügen** ein, um sie zu bearbeiten. Wählen Sie als **Layout** **Nur Text**, **Logo oben** (vorausgewählt) oder **Logo daneben**. Logo-Layouts brauchen eine **Logo-URL**, eine öffentliche HTTPS-Bildadresse mit bis zu 500 Zeichen; voreingestellt ist das Customermates-Symbol, ersetzen Sie es also durch Ihr eigenes Logo. Die **Layoutoptionen** der Logo-Layouts setzen **Logogröße** (**Klein**, **Mittel**, **Groß**; Standard Mittel), **Trennlinie** (**Keine**, **Dünne Linie**; Standard Keine) und **Abstand** (**Kompakt**, **Großzügig**; Standard Großzügig). Der **Signaturinhalt** ist ein Markdown-Block mit bis zu 2.000 Zeichen. Das Ausschalten der Signatur behält den gespeicherten Text für später, und die **Vorschau** zeigt das Ergebnis.
+
+Solange **Signatur hinzufügen** eingeschaltet ist, wird die gespeicherte Signatur unter jede E-Mail aus diesem Konto gesetzt, ob sie aus dem Posteingang, über die REST-API oder ein MCP-Tool gesendet wird, HTML-Texte eingeschlossen. Agents dürfen die Signatur daher nicht zusätzlich in den Nachrichtentext schreiben.
+
+### Wie reaktiviere, synchronisiere oder trenne ich einen Kanal?
+
+Öffnen Sie den Kanal über seine Karte. Die Aktionen liegen im Kanal-Dialog und erscheinen nur für den Besitzer:
+
+- **Reaktivieren**, bei **Erneute Verbindung nötig**, **Berechtigungsproblem**, **Fehler** oder **Gestoppt**: leitet den Tab auf die Verbindungsseite für dasselbe Konto um (30 Minuten gültig) und bringt Sie zurück zu **Kanäle**.
+- **Neu synchronisieren**, bei **Verbunden** oder **Wird verbunden**: importiert den Verlauf im Hintergrund erneut, was meist 1 bis 3 Minuten dauert.
+- **Trennen**: fragt nach einer Bestätigung, entfernt das Konto dann beim Anbieter und löscht dauerhaft die Unterhaltungen, Nachrichten, Kalender und Ereignisse, die Customermates daraus importiert hat. Ein geteilter Kanal verschwindet auch für Ihre Teammitglieder.
+
+Alle drei erfordern **Verwalten** bei **Inbox-Nachrichten**.
 
 ## Tipps für Agents
 
-- Der gehostete Assistent Mate kann zu den drei Tabs navigieren und `#nav-profile-connected-accounts` sowie `#profile-connected-accounts-connect` hervorheben; drücken kann er sie nicht. Bitten Sie ihn um eine Tour zum Verbinden eines Kontos, und er führt Sie dorthin.
-- Zeilen tragen nie Ids. Öffnen Sie einen Key oder ein Konto per Klick auf seine Karte oder Zeile; die Tabs sind einfache Routen.
-- Bevorzugen Sie MCP-Tools, wenn ein Tool existiert: `connect_messaging_account` erstellt den Authentifizierungslink für einen neuen Kanal, und `get_workspace_context` listet die verbundenen Konten. Für das Erstellen eines API-Keys gibt es kein Tool; nutzen Sie den Dialog oben.
+- Der gehostete Assistent Mate kann zu den drei Seiten navigieren und ihre Seitenleisten-Einträge (`#nav-profile`, `#nav-profile-settings`, `#nav-profile-connected-accounts`, `#nav-profile-api-keys`) sowie `#profile-connected-accounts-connect` hervorheben; drücken kann er sie nicht. Bitten Sie ihn um eine Tour zum Verbinden eines Kontos, und er führt Sie dorthin. Die Speichern-Buttons, der Button **Hinzufügen** unter **API & Konnektoren**, der Button im Leerzustand und die Tabs des Kanal-Dialogs sind keine Ziele des Assistenten.
+- Karten tragen nie Ids. Öffnen Sie einen Key oder einen Kanal per Klick auf seine Karte; die Seiten sind einfache Routen.
+- Bevorzugen Sie MCP-Tools, wenn ein Tool existiert: `connect_messaging_account` erstellt den Verbindungslink für einen der neun Kanal-Einträge, nach denselben Regeln zu Tarif, Berechtigung und Kontingent, und `get_workspace_context` listet Ihre eigenen und geteilten Kanäle mit ihrem Status. Kein Tool ändert Sichtbarkeit, Ordner, Darstellung oder Signatur, reaktiviert, synchronisiert oder trennt einen Kanal, ändert Anzeigesprache, regionales Format oder Darstellung der Oberfläche oder erstellt einen API-Key; nutzen Sie dafür die Seiten oben. Der REST-Endpoint `GET /v1/messaging/connected-accounts` liest nur.
 - Ein generierter API-Key wird genau einmal angezeigt, ob als Standard-Key oder über die lokale Einrichtung einer Schnellverbindung erstellt. Kopieren Sie ihn im selben Schritt.
 
 ## Verwandt
 
 - [API-Keys](/docs/api-keys): Keys erstellen, nutzen, ablaufen lassen und löschen.
-- [App-Guide, Posteingang](/docs/app-inbox): der Screen, den Ihre verbundenen Konten speisen.
+- [App-Guide, Posteingang](/docs/app-inbox): der Screen, den Ihre Kanäle speisen.
+- [App-Guide, Unternehmen](/docs/app-company): Rollen, Mitglieder und das Abonnement.
 - [CLI und Editoren](/docs/connect-cli): wohin ein generierter Key für Claude Code, Codex und Cursor gehört.

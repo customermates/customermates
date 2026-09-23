@@ -1,68 +1,295 @@
 ---
-title: "Company Settings: Roles, Audit Log, Team Access"
-description: "The Company screen is workspace-wide admin in Customermates: subscription, currency, members, roles, webhooks, deliveries, and the audit trail, tab by tab."
+title: "My Company: Billing, Roles, Team Access, Audit Log"
+description: "My Company is the workspace admin area in Customermates: subscription and billing, currency, members, roles, webhooks, deliveries and the audit log."
 ---
 
-Customermates is an open-source CRM with a built-in MCP server. This page documents the **Company** screen of the web app for humans and for AI agents that drive the UI.
+Customermates is an open-source CRM with a built-in MCP server. This page documents the **My Company** section of the web app, page by page, for humans and for AI agents that drive the UI: what each setting does, who can change it, and where to find it.
 
-## What lives on the Company screen?
+## What lives under My Company? [#what-lives-on-the-company-screen]
 
-Workspace-wide administration: the subscription (Cloud only), the workspace currency, the team and its permissions, outbound webhooks with their delivery history, and the audit trail. Everything that affects the whole workspace, not a single record, lives here. All app routes are locale-prefixed (example: https://customermates.com/en/company/members), and each tab has its own route. The sidebar entry `#nav-company` opens `/company/subscription` on Cloud and `/company/settings` on a self-hosted install.
+Workspace-wide administration: the subscription (Cloud only), the workspace settings, the team and its permissions, outbound webhooks with their delivery history, and the audit trail. Everything that affects the whole workspace, not a single record, lives here.
+
+In the sidebar, **My Company** (`#nav-company`) sits in the **Workspace** group next to **My Profile**. It is a toggle: clicking it expands or collapses its list of pages and opens no page itself. Expanding it collapses the other expanded group, and it opens by itself while you are on one of its pages. All app routes are locale-prefixed (example: https://customermates.com/en/company/members), and each page has its own route. The breadcrumb reads **My Company** › page name; the first crumb opens the first page you can see, and the second switches between the sibling pages.
+
+| Page | Route | Sidebar id | Who sees it |
+|---|---|---|---|
+| **Subscription** | `/company/subscription` | `#nav-company-subscription` | Every member, Cloud only |
+| **Settings** | `/company/settings` | `#nav-company-settings` | Every member |
+| **Members** | `/company/members` | `#nav-company-members` | Every member |
+| **Roles** | `/company/roles` | `#nav-company-roles` | Every member |
+| **Audit Logs** | `/company/audit-logs` | `#nav-company-audit-logs` | Roles with **Audit Log** read access **All** |
+| **Webhooks** | `/company/webhooks` | `#nav-company-webhooks` | Roles with **API & Webhooks** read access **All** |
+| **Recent Deliveries** | `/company/webhook-deliveries` | `#nav-company-webhook-deliveries` | Roles with **API & Webhooks** read access **All** |
+
+Every role can read **Company** and at least its own row of **Users & Roles**, so Subscription, Settings, Members and Roles are always listed; the role decides whether their editing controls appear and, on Members, which rows are listed. The built-in **Admin** role sees and can change everything.
+
+### What does a member without a permission see?
+
+- A page the role cannot read is missing from the sidebar, and opening its URL directly lands on the **Dashboard**.
+- On a page the role can read but not manage, **Save**, **Reset** and **Add** are not shown, and forms and dialogs open read-only.
+- On Cloud, while the subscription is unpaid or expired, or after the trial has ended, every page shows **Subscription Required** instead; see [what happens when the trial ends](#what-happens-when-the-trial-ends-or-a-payment-fails).
+- On Cloud, when the Terms or the DPA change, the sidebar shows **Legal documents updated** with **Review Terms and DPA** and the date by which to accept. Only a member with the **Admin** role can accept, on that page, by confirming the checkbox and clicking **Accept and continue**; everyone else sees "A company administrator must accept by" that date. If nobody accepts in time, every page opens this screen until an Admin accepts.
+- Role changes apply on the member's next page load or API call.
 
 ## Subscription tab
 
-Route `/company/subscription`, sidebar id `#nav-company-subscription`, Cloud only. Shows the plan, the trial status and the plan picker. Plan prices and allowances are listed under [Plans and credits](/docs/app-assistant#plans-and-credits).
+Route `/company/subscription`, sidebar id `#nav-company-subscription`, Cloud only: on a self-hosted install the entry is hidden, the URL redirects to the Dashboard, and there is no subscription. Every member can open the page. Only roles with **Company** set to **Manage** **Yes**, and the **Admin** role, see the billing controls; everyone else sees the values read-only with a hint to ask a workspace administrator. Customermates bills through Lemon Squeezy, the payment provider that runs checkout and the customer portal.
+
+| Field | What it shows |
+|---|---|
+| **Plan** | The current plan, **Starter**, **Pro**, **Business** or **Enterprise**, with a status chip. Read-only: it is synced from billing and changes through the plan picker or the customer portal. |
+| **Trial ends** | The date the free trial ends. Shown only while the status is **Trial**. |
+| **Current period ends** | The end of the current billing period, synced from Lemon Squeezy: the renewal date, or after a cancellation the date the subscription ends. Shown once billing has set it. |
+| **Active seats** | The number of billed seats. Before the first checkout it shows the number of **Active** members. The note below reads "You pay per active user. Seat changes are prorated on your next invoice." |
+
+The top bar holds **Refresh** and **Manage with Lemon Squeezy**; neither has an element id. Plan prices and allowances are listed below; the hosted AI credits per plan are under [Plans and credits](/docs/app-assistant#plans-and-credits).
+
+### What does each subscription status mean?
+
+The status chip next to **Plan** shows one of six statuses. The app sets **Trial** when a Cloud workspace is created; every other status comes from Lemon Squeezy, or from a correction by Customermates support. Nobody in the workspace can set it.
+
+| Status | Meaning | Effect on the workspace |
+|---|---|---|
+| **Trial** | The free trial: [[commercial.trial.days]] days with Pro features, starting at sign-up | Everything works until **Trial ends** |
+| **Active** | Paid and current | Everything the plan includes works |
+| **Past Due** | Lemon Squeezy reports an overdue payment | Pages stay open, but the Inbox and messaging, connecting channels, shared accounts and the hosted assistant are refused, and hosted AI credits drop to 0 |
+| **Cancelled** | The subscription was cancelled | Same as Past Due |
+| **Unpaid** | Lemon Squeezy reports the subscription as unpaid | Every page redirects to **Subscription Required** |
+| **Expired** | The subscription has ended | Every page redirects to **Subscription Required** |
+
+A trial whose end date has passed without a checkout counts as expired, too. Refused messaging and channel actions show "Connecting channels requires an active subscription or a trial that hasn't expired." The hosted assistant is switched off instead, so **Ask AI** disappears from the sidebar.
+
+The chip under the Customermates name in the sidebar shows the plan name while the status is **Active**, and otherwise the plan with its status, for example **Pro · Trial · 3 days left**, **1 day left** or **ends today**. It is green, turns amber at 3 or fewer trial days, and is red for every other status. Clicking it opens this page. Self-hosted installs show no chip.
+
+### Which plans are there?
+
+| Plan | Price per seat and month | Connected accounts per user | Routines per user | Inbox and messaging | Shared accounts |
+|---|---|---|---|---|---|
+| Starter | [[commercial.price.starter.monthly]] | [[commercial.entitlement.starter.includedAccountsPerUser]] | [[commercial.entitlement.starter.includedRoutinesPerUser]] | No | No |
+| Pro | [[commercial.price.pro.monthly]] | [[commercial.entitlement.pro.includedAccountsPerUser]] | [[commercial.entitlement.pro.includedRoutinesPerUser]] | Yes | No |
+| Business | [[commercial.price.business.monthly]] | [[commercial.entitlement.business.includedAccountsPerUser]] | [[commercial.entitlement.business.includedRoutinesPerUser]] | Yes | Yes |
+| Enterprise | On request | [[commercial.entitlement.enterprise.includedAccountsPerUser]] | [[commercial.entitlement.enterprise.includedRoutinesPerUser]] | Yes | Yes |
+
+Every plan includes the full CRM, the audit log, the API, the MCP server and the hosted assistant. Starter, Pro and Business are billed monthly per seat, in euros; there is no other billing interval.
+
+### How do I choose or change a plan?
+
+While the workspace has no Lemon Squeezy subscription yet, which in practice means during the trial, roles that can manage Company see the plan picker below the fields: cards for **Starter**, **Pro** and **Business**, the last one marked **Most popular**. Each card shows the price per user and month, the features, the connected accounts per user (left out when a plan includes no connected accounts, as on Starter), the routines per user, and the hosted AI credits per active user and month.
+
+Clicking a card opens the Lemon Squeezy checkout for as many seats as the workspace has **Active** members. After payment, Lemon Squeezy returns you to this page, and the plan, status and seats update once Lemon Squeezy confirms the payment. Checkout adds no second trial: billing starts at checkout, even when trial days are left.
+
+After the first checkout the picker does not come back on its own; change the plan with **Manage with Lemon Squeezy** instead. Enterprise workspaces never see the picker, and a checkout is refused with "Enterprise workspaces are billed manually and cannot start self-service checkout."
+
+### How do I cancel, change the payment method or get invoices?
+
+Use **Manage with Lemon Squeezy** in the top bar, shown as the Lemon Squeezy icon only on narrow screens. The button appears for roles that can manage Company once the workspace has a self-serve Lemon Squeezy subscription, so not during a trial before checkout and never on Enterprise. It opens the Lemon Squeezy customer portal for the workspace's subscription, which is where billing is managed: changing the plan, updating the payment method, getting invoices and cancelling are what the portal is for.
+
+Changes made in the portal reach Customermates automatically. If the page still shows old values, **Refresh** re-reads the subscription from Lemon Squeezy (status, plan, seats and dates) and confirms with "Subscription refreshed successfully". It appears for the same roles, except during a trial and on Enterprise. Once Lemon Squeezy reports a cancellation, the status shows **Cancelled** and the restrictions in the status table apply. A plan with fewer connected accounts removes accounts; see [plan changes](#what-happens-to-connected-accounts-when-the-plan-changes).
+
+Members without Company Manage see neither button. The hosted assistant and MCP clients cannot read or change the plan, the status, the seats or anything else about billing.
+
+### How are seats counted and billed?
+
+A seat is a member with status **Active**. Members **Waiting for approval** and **Inactive** members are not billed. The checkout takes the number of Active members at that moment. After that, every status change on **Members**, or through `manage_team`, sends the new number of Active members to Lemon Squeezy right away, and the in-app note says seat changes are prorated on your next invoice. Enterprise seats are not synced to billing.
+
+To lower the bill, set members who no longer need access to **Inactive** on [Members](#members-tab). That also pauses the routines they own and removes their connected messaging accounts at the next daily run.
+
+### What happens when the trial ends or a payment fails?
+
+When the status is **Unpaid** or **Expired**, or the trial has passed its end date, every page opens **Subscription Required** (`/subscription-expired`) with the subtitle **Workspace access is paused**. **Past Due** and **Cancelled** do not lock the pages. What the page offers depends on the role:
+
+| Who | What the page offers |
+|---|---|
+| Roles that can manage Company, and **Admin**, on Starter, Pro or Business | The plan picker to start a new checkout, plus **Contact Support** |
+| The same roles on Enterprise | A note that the workspace is billed manually, **Contact Support** and **Retry** |
+| Everyone else | "A company administrator must restore the subscription", **Contact Support** and **Retry** |
+
+**Contact Support** opens an email to Customermates support with the subject "Subscription Inquiry"; **Retry** reloads the page. Once the subscription is usable again, the page sends you to **My Company** › **Subscription**. While it is shown, **Search**, **Ask AI** and **Add** in the sidebar only check access again.
+
+A daily job at 09:00 UTC takes these steps after a trial ends without a checkout:
+
+1. Within the first day, an email offers to extend the trial.
+2. After one day, every connected messaging account in the workspace is deleted.
+3. After 3 to 4 days, a reminder email follows.
+4. After 6 to 7 days, every member, admins included, is set **Inactive** and notified by email. Nobody can sign in afterwards, so restoring access goes through Customermates support.
+
+A paid workspace that stays **Unpaid** or **Expired** for 3 days has all members set **Inactive** with an email, and the same daily job then deletes their connected accounts.
+
+Only the web app is paused before that point. Until the members are set **Inactive**, their API keys and MCP connections keep reading and changing records, and webhooks keep firing for those changes; messaging, channels and the hosted assistant stop as soon as the subscription is no longer usable.
+
+### What happens to connected accounts when the plan changes?
+
+When Lemon Squeezy reports a different plan, through the automatic sync or **Refresh**, Customermates removes each user's newest connected accounts beyond the new plan's allowance per user. The Starter allowance is [[commercial.entitlement.starter.includedAccountsPerUser]] per user, so every connected account is removed. The first checkout from the trial counts as a change from Pro: choosing Starter removes every connected account. Members with the **Admin** role get an email that lists the removed accounts. Routines above the new allowance are kept, because the allowance applies only when a routine is created.
+
+### How does an Enterprise workspace differ?
+
+An **Enterprise** workspace is set up with Customermates and billed by invoice. The page shows **Plan** and the note "This workspace is on an Enterprise plan billed by invoice. Contact your account manager to make changes." **Trial ends**, **Current period ends**, **Active seats**, the plan picker, **Refresh** and **Manage with Lemon Squeezy** are hidden, self-service checkout is refused, and member status changes are not sent to billing.
+
+### Where do upgrade buttons lead?
+
+On Starter, the Inbox and **My Profile** › **Channels** show **Upgrade to unlock messaging** with the button **Upgrade your plan**. A Pro user at the connected-account limit sees **Upgrade to connect more accounts** with **View plans**, and the hosted assistant's credit notice shows **View plans** too. All of them open **My Company** › **Subscription**. Only roles that can manage Company can act there, and once the workspace has a subscription, upgrading goes through **Manage with Lemon Squeezy**.
 
 ## Settings tab
 
-Route `/company/settings`, sidebar id `#nav-company-settings`. Holds the workspace currency for all money values. Save or discard with `#company-settings-save` and `#company-settings-reset`.
+Route `/company/settings`, sidebar id `#nav-company-settings`, on Cloud and self-hosted, with no plan limits.
+
+One form holds three parts, and one **Save** (`#company-settings-save`) in the top bar applies all of them together. **Save** stays disabled until something changes; **Reset** (`#company-settings-reset`) appears once there are unsaved changes and discards them. Every save is recorded in the audit log.
+
+| Field | What it does |
+|---|---|
+| **Currency** | The workspace currency, chosen from the list of ISO currencies; EUR by default. It formats deal values, service amounts and pipeline totals everywhere in the CRM. It is display only: switching does not convert amounts, the same numbers are shown in the new currency. Custom fields of type Currency keep the currency set on the field. |
+| **Deal stage field** | Which Single Select deal field drives the weighted pipeline; the first word follows your name for deals, for example **Opportunity stage field**. **Not configured** turns weighting off. A new workspace starts with its **Stage** field selected. |
+| Win probability per stage | A percent input from 0 to 100 next to each option of the chosen field. The **Stage** field of a new workspace starts at Prospecting 10, Qualification 20, Demo 40, Proposal 60, Negotiation 80, Won 100 and Lost 0. |
+| **Total pipeline**, **Weighted pipeline**, **Not weighted · no** plus the field name | Read-only totals, explained below. |
+| **Data model** | The name each record type carries in the workspace, explained below. |
+
+### Who can change the currency and the other settings?
+
+Every member can open **My Company › Settings**; only roles with **Company** set to **Manage** **Yes**, and **Admin**, can change what is on it. For everyone else the fields are read-only and **Save** and **Reset** are not shown. That covers the currency, the deal stage field, the probabilities and the Data model. To get one of them changed, ask a member with that role. The hosted assistant can change the currency and the Data model names with `update_workspace_settings`, under the same permission.
+
+### How do stage probabilities and totals work?
+
+Saving a new stage field or new probabilities recalculates the weighted value of every deal: the deal value times the probability of its current stage. The totals below the probabilities preview unsaved changes in the currency you picked:
+
+- **Total pipeline**: the value of all deals.
+- **Weighted pipeline**: each stage's total times its probability.
+- **Not weighted · no Stage** (named after your stage field): the value of deals with no stage selected, shown only when it is above zero.
+
+The probability inputs and the totals load only for members who can read deals, and the totals count only the deals that member can read; without deal read access the section shows an error instead. Probabilities can also be edited in the **Probability** column when you edit the stage field itself: editing the field needs **Deals** set to **Manage** **Yes**, and the **Probability** column stays read-only without the same Company permission. The concept is explained under [weighted pipeline](/docs/concepts#how-does-a-weighted-pipeline-work).
+
+### How do I rename record types in the Data model?
+
+Each of the five record types takes one preset name; free text is not possible.
+
+| Record type | Available names |
+|---|---|
+| Contacts | Contacts, People, Clients, Leads |
+| Organizations | Organizations, Companies, Accounts |
+| Deals | Deals, Opportunities, Projects, Jobs |
+| Services | Services, Products, Offerings, Packages |
+| Tasks | Tasks, To-dos, Action items, Follow-ups |
+
+The choice applies to the whole workspace and appears in each member's display language: in the sidebar, lists, forms and field labels, and in what the assistant reads from `get_workspace_context`. Routes, API and MCP entity names, existing records and their links stay the same, and the role editor keeps the standard names. Below the selection, **How records connect** summarizes the relationships in the chosen names.
+
+`update_workspace_settings` with `target: "company"` changes **Currency** and the Data model names; it needs the same Company permission and runs without an approval prompt in the hosted assistant. No tool chooses the stage field. `manage_custom_columns` can set the probabilities as the `weight` of each option of the stage field, which edits that field and so needs **Deals** set to **Manage** **Yes**; include the weight on every option, because an update replaces the option list.
 
 ## Members tab
 
-Route `/company/members`, sidebar id `#nav-company-members`.
+Route `/company/members`, sidebar id `#nav-company-members`. Every member can open it: with **Users & Roles** read access **All** the list shows every member, with **Assigned** only your own row. Inviting, approving and editing members need **Users & Roles** set to **Manage** **Yes**, or **Admin**. The columns are **Name**, **E-Mail**, **Role**, **Status**, **Updated at** and **Created at**.
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
-| Invite member | Members toolbar | `#company-members-add` | Opens the invite modal |
-| Send invite | Invite modal footer | `#member-modal-save` / `#member-modal-reset` | Sends the invitation email |
-| Search, filter, display options | Members toolbar | `#company-members-search` / `#company-members-filter` / `#company-members-display-options` | List controls |
+| Invite members | Members toolbar, **Add** | `#company-members-add` | Opens the **Invite User** dialog |
+| Share the invitation link | **Invite User**, tab **Share link** | none | Shows the **Invitation link** with a copy button and its expiry date |
+| Invite by email | **Invite User**, tab **Send emails**, **Send invitations** | none | Emails the workspace link to up to 20 addresses |
+| Edit or approve a member | Click the row, **User** dialog | `#member-modal-save` / `#member-modal-reset` | **Save** applies the role, status and profile fields; **Reset** discards changes |
+| Search, filter, display options | Members toolbar | `#company-members-search` / `#company-members-filter` / `#company-members-display-options` | List controls; filters cover status, updated at and created at |
 | Layout | Display-options popover | `#company-members-layout-table` / `#company-members-layout-board` | Table is the only usable layout; the board control is present but disabled because members have nothing to group by |
 
-People who register through an invitation link appear as **Waiting for Approval** until an admin assigns a role and activates them. Sending an invitation always asks the assistant's user for approval, because it emails a real person.
+### How do invitations work?
+
+The **Invite User** dialog has two tabs. **Share link** shows one **Invitation link** of the form `/invitation/{token}` for the whole workspace. It is valid for 7 days, shows "Expires on" with the date, and is reused until then; the first time the dialog opens after it expired, a new link is created. Anyone who has the link can register, and there is no button to revoke it early.
+
+**Send emails** takes 1 to 20 addresses, separated by a comma or Enter, and sends each address once. **Send invitations** emails every address the same workspace link and confirms with "Sent 3 invitations." (with the actual count).
+
+People who register through the link join with status **Waiting for approval** and no role, and see a **Waiting for Approval** screen until someone approves them. An expired or altered link shows an error that asks them to request a new link from an administrator. Each registration also creates an **Approve User** task in **Tasks** for members whose **Tasks** read access is **All**; it disappears once the member is approved or set Inactive.
+
+The hosted assistant's `manage_team` action `invite` sends the same emails and always asks for approval first, because it emails real people. No tool returns the invitation link.
+
+### How do I approve, deactivate or edit a member?
+
+Click the member's row to open the **User** dialog:
+
+| Field | Rules |
+|---|---|
+| **E-Mail** | Read-only; it identifies the member |
+| **First Name**, **Last Name** | Required |
+| **Country** | Required |
+| **Role** | Required; lists every role, the built-in one as **Admin** |
+| **Avatar URL** | Optional link to a publicly accessible image |
+| **Status** | **Active** or **Inactive**; **Waiting for approval** is set only by an invitation and cannot be chosen |
+
+To approve a member, choose a **Role**, set **Status** to **Active** and click **Save**. They can sign in right away and count as a billed seat.
+
+Setting a member **Inactive** blocks their sign-in ("Your account is currently inactive. Please contact your administrator to reactivate your account.") and every API key and MCP connection of theirs, removes their seat from billing, pauses the routines they own, and the daily job deletes their connected messaging accounts. Members cannot be deleted; **Inactive** is how access ends.
+
+- Your own row opens read-only with "You can edit your own user account in your settings." Change your name in **My Profile** › **Settings**, and ask another member with Users & Roles Manage to change your role or status.
+- The workspace always keeps at least one **Active** member with the **Admin** role. A save that would remove the last one fails with "At least one user must be a system administrator."
+- Changes apply on the member's next page load or API call, and every save is recorded in the audit log.
+
+`manage_team` action `update_member` changes a member's role and status without an approval prompt; for a member still **Waiting for approval**, pass both a `roleId` and the status `active`. Other members' names, country and avatar can only be changed in this dialog. `list_users` returns the members your role can read.
 
 ## Roles tab
 
-Route `/company/roles`, sidebar id `#nav-company-roles`. Roles are permission sets: for every resource (the five record types, users, roles, audit log, API, routines and so on) they grant read, create, update and delete rights.
+Route `/company/roles`, sidebar id `#nav-company-roles`. A role is a set of permissions that every member with that role gets. Every member can open the list, with the columns **Name**, **Type** and **Description**; **Type** is **System** for the built-in **Admin** role and **Custom** for all others. Creating, editing and deleting roles needs **Users & Roles** set to **Manage** **Yes**, or **Admin**.
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
-| Add role | Roles toolbar | `#company-roles-add` | Opens the role editor |
-| Search, display options | Roles toolbar | `#company-roles-search` / `#company-roles-display-options` | Roles have no filterable fields, so no filter control renders |
+| Add role | Roles toolbar, **Add** | `#company-roles-add` | Opens the **Role** editor with the defaults for a new role |
+| Edit role | Click a row | none | Opens the **Role** editor; **Save** and **Reset** sit in its footer |
+| Delete role | **Role** editor, **Delete** | none | Offered only for a custom role that no member has, with a confirmation |
+| Search | Roles toolbar | `#company-roles-search` | Not rendered: the Roles list has no search box and no filter |
+| Display options | Roles toolbar | `#company-roles-display-options` | List controls |
 | Layout | Display-options popover | `#company-roles-layout-table` / `#company-roles-layout-board` | Table only; the board control is disabled |
+
+### How does the role editor work?
+
+The **Role** editor has the fields **Name** (required, up to 255 characters) and **Description** (required, up to 500 characters), plus one row per resource with two columns:
+
+- **Manage**: **Yes** lets the role create, edit and delete that resource; **No** allows none of it. There is no separate switch for create, edit or delete.
+- **Read access**: **All** shows every record in the workspace, **Assigned** only the records the member is an assigned user of, and **None** hides the page and its records. A row without this choice shows a dash.
+
+| Row | Manage | Read access | New role | What it controls |
+|---|---|---|---|---|
+| **API & Webhooks** | Yes, No | All, None | No, None | Read opens **My Profile** › **API & Connectors**, **Webhooks** and **Recent Deliveries**. Manage creates and deletes API keys, adds, edits and deletes webhooks, and resends deliveries. Taking it away does not disable API keys the member already has; set the member **Inactive** to stop them. |
+| **Users & Roles** | Yes, No | All, Assigned | No, Assigned | Read opens **Members** (Assigned: only your own row) and **Roles**. Manage invites, approves and edits members, and creates, edits and deletes roles. |
+| **Company** | Yes, No | No choice, always granted | No | Every role can open **Settings** and **Subscription**. Manage edits Settings, chooses a plan, uses **Manage with Lemon Squeezy** and **Refresh**, and restores an expired subscription. |
+| **Audit Log** | No choice | All, None | None | All opens **Audit Logs** and shows the change history on record pages and in activity timelines. |
+| **Tasks**, **Contacts**, **Organizations**, **Deals**, **Services** | Yes, No | All, Assigned, None | No, Assigned | Read decides whether the sidebar entry appears and which records the member sees. Manage creates, edits and deletes them. |
+| **Inbox messages** (Cloud only) | Yes, No | All, None | No, None | Read opens **Inbox** and **My Profile** › **Channels**, plus social posts and Sales Navigator; threads stay limited to your own and shared accounts. Manage connects channels, sends and drafts. The plan must include messaging as well. |
+| **Routines** (Cloud only) | Yes, No | All, Assigned, None | No, Assigned | All shows every routine, Assigned only the member's own. Manage creates and edits routines; deleting a routine, or pausing someone else's, needs the **Admin** role. |
+
+Row names stay the same when the Data model renames record types. On a self-hosted install the **Inbox messages** and **Routines** rows are hidden.
+
+### What is the Admin role?
+
+Every workspace starts with one built-in role, **Admin**, given to the person who created the workspace. It passes every permission check, shows every row as Yes and All, and its editor opens read-only with "This is a system role and cannot be edited or deleted." Nobody can change or delete it. The workspace must keep at least one **Active** member with this role, and only members with it can delete routines or pause someone else's routine.
+
+### What are the rules for editing roles?
+
+- You cannot edit your own role. Its editor opens read-only with "This role is assigned to you and cannot be edited. Ask another administrator to change it."
+- **Delete** appears only for a custom role that no member has, inactive members included; move everyone to another role first.
+- Changes apply to every member with the role on their next page load or API call, and they are recorded in the audit log.
+- No assistant or MCP tool creates, edits or deletes roles. `get_workspace_context` lists them with their permissions, and `manage_team` assigns an existing role to a member.
 
 ## Webhooks tab
 
-Route `/company/webhooks`, sidebar id `#nav-company-webhooks`. Outbound event subscriptions; the payloads, signatures and retries are documented on [Webhooks](/docs/webhooks).
+Route `/company/webhooks`, sidebar id `#nav-company-webhooks`. Outbound event subscriptions; payloads, signatures, retries and the rules for every field are on [Webhooks](/docs/webhooks). Opening the page needs **API & Webhooks** read access **All**; adding, editing and deleting need **API & Webhooks** set to **Manage** **Yes**. Anyone who can open the page can also open a webhook's dialog read-only, including its secret and header values. Available on every plan and self-hosted.
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
-| Create webhook | Webhooks toolbar | `#company-webhooks-add` | Opens the webhook modal |
-| Save webhook | Webhook modal footer | `#webhook-modal-save` / `#webhook-modal-reset` | Subscribes the URL to events |
-| Search, filter, display options | Webhooks toolbar | `#company-webhooks-search` / `#company-webhooks-filter` / `#company-webhooks-display-options` | List controls |
+| Create webhook | Webhooks toolbar, **Add** | `#company-webhooks-add` | Opens the **Webhook** dialog with **URL**, **Description**, **Events**, **Secret**, **Custom headers**, **Body template** and **Enabled** |
+| Save webhook | Webhook dialog footer | `#webhook-modal-save` / `#webhook-modal-reset` | Subscribes the URL to the chosen events; clearing **Enabled** pauses deliveries without deleting the webhook |
+| Delete webhook | Webhook dialog, **Delete** | none | Removes the subscription after a confirmation; past deliveries stay in Recent Deliveries |
+| Search, filter, display options | Webhooks toolbar | `#company-webhooks-search` / `#company-webhooks-filter` / `#company-webhooks-display-options` | List controls; search matches the URL |
 | Layout | Display-options popover | `#company-webhooks-layout-table` / `#company-webhooks-layout-board` | Table only; the board control is disabled |
 
-## Deliveries tab
+## Recent Deliveries tab [#deliveries-tab]
 
-Route `/company/webhook-deliveries`, sidebar id `#nav-company-webhook-deliveries`. One row per delivery with its status and payload; open a row to inspect it and resend it from there.
+Route `/company/webhook-deliveries`, sidebar id `#nav-company-webhook-deliveries`, with the same **API & Webhooks** permission as Webhooks. One row per delivery with **URL**, **Event**, **Element**, **Status**, **Status Code** and **Created at**, newest first; search matches the event and the URL. Click a row to open **Event Details** with the status (**Pending** until the first attempt finishes, then **Delivered** or **Failed**), the status code, the response message and the event payload. Payloads cover every record in the workspace, including records the viewer's role cannot open.
+
+**Resend** appears on delivered and failed deliveries for roles with Manage. It sends the stored payload again as a new delivery, with the URL's current secret, headers and body template; the original row stays unchanged.
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
 | Search, filter, display options | Deliveries toolbar | `#company-webhook-deliveries-search` / `#company-webhook-deliveries-filter` / `#company-webhook-deliveries-display-options` | List controls |
 | Layout | Display-options popover | `#company-webhook-deliveries-layout-table` / `#company-webhook-deliveries-layout-board` | Table only; the board control is disabled |
 
-## Audit logs tab
+## Audit Logs tab
 
-Route `/company/audit-logs`, sidebar id `#nav-company-audit-logs`. Changes to records and workspace configuration with who, what and when, as a field-level diff for updates and a snapshot for creates and deletes; messaging events are not logged, and webhook secrets and header values are redacted. Reading it needs the audit-log permission on your role. There is no export; the [dashboard](/docs/app-dashboard) activity timeline shows the same changes as a feed.
+Route `/company/audit-logs`, sidebar id `#nav-company-audit-logs`. Changes to records and workspace configuration with who, what and when, as a field-level diff for updates and a snapshot for creates and deletes. Role edits are included as a diff, member and Settings saves as a snapshot. Messaging events are not logged, and webhook secrets and header values are redacted.
+
+Reading it needs **Audit Log** read access **All** on your role, or **Admin**; the same permission shows the change history on record pages. The list covers the whole workspace, including records the reader's role cannot open. Search matches the element ID only, and the filters are event and creation date; click a row for **Audit Log Details** with the event data. Entries are not deleted on a schedule. There is no export; the [dashboard](/docs/app-dashboard) activity timeline shows the same changes as a feed. Available on every plan and self-hosted.
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
@@ -71,11 +298,14 @@ Route `/company/audit-logs`, sidebar id `#nav-company-audit-logs`. Changes to re
 
 ## Tips for agents
 
-- The hosted assistant can navigate to every tab and highlight every id above; it cannot click a row or submit a modal.
-- Rows never carry ids. Navigate to a tab via its URL (for example `/company/webhooks`) and open a row by clicking it. Edits happen in modals, not in a drawer.
-- Prefer [MCP](/docs/mcp) tools over clicking when a tool exists: `manage_team` invites and updates members, `manage_webhooks` manages subscriptions and deliveries, and `get_workspace_context` lists roles.
+- `#nav-company` only expands the sidebar group. The hosted assistant's `navigate` opens every page here through its sidebar id, and `nav-company` itself opens **Settings**. It can highlight the sidebar entries and the toolbar controls listed above; `company-roles-search` is registered, but the Roles page renders no search box.
+- It cannot highlight form and dialog buttons (`#company-settings-save`, `#company-settings-reset`, `#member-modal-save`, `#member-modal-reset`, `#webhook-modal-save`, `#webhook-modal-reset`), the invite dialog, the role editor, the Settings fields or the Subscription buttons, and it cannot click a row or submit a dialog.
+- Rows never carry ids. Navigate to a page via its URL (for example `/company/webhooks`) and open a row by clicking it. Edits happen in dialogs, not in a drawer.
+- Prefer [MCP](/docs/mcp) tools over clicking when a tool exists: `update_workspace_settings` changes the currency and the Data model names, `manage_team` invites and updates members, `manage_webhooks` manages webhooks and deliveries, and `get_workspace_context` lists the company settings and the roles with their permissions.
+- No tool reads or changes the subscription, the stage field or the invitation link, and no tool changes role permissions (`get_workspace_context` only reads them). For "which plan are we on" or "how do I cancel", send the user to **My Company** › **Subscription**.
 
 ## Related
 
 - [Webhooks](/docs/webhooks)
 - [App guide, Profile](/docs/app-profile)
+- [Plans and credits](/docs/app-assistant#plans-and-credits)

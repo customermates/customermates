@@ -3,7 +3,7 @@ title: "Webhooks: Signatures, Retries, and Event Catalog"
 description: Subscribe to CRM events, verify signatures, inspect failed deliveries, and read the full event catalog in one place.
 ---
 
-Customermates sends a JSON POST to your HTTPS endpoint whenever subscribed data changes. You choose the events and provide the URL. Failed deliveries can be re-sent from the UI or through MCP. Deliveries are signed with HMAC-SHA256 over the raw request body. Every event and its payload shape is listed in the catalog at the end of this page.
+Customermates sends a JSON POST to your endpoint whenever subscribed data changes. You choose the events and provide the URL. Failed deliveries can be re-sent from the UI or through MCP. When the webhook has a secret, deliveries are signed with HMAC-SHA256 over the raw request body. Every event and its payload shape is listed in the catalog at the end of this page.
 
 ## What are webhooks for?
 
@@ -14,11 +14,23 @@ Webhooks let other systems react to CRM changes without polling.
 - Trigger a finance workflow when a deal is marked as closed.
 - Sync records into a data warehouse in near real time.
 
-## How do I create a webhook?
+## How do I add a webhook? [#how-do-i-create-a-webhook]
 
-**UI:** Company, then Webhooks, then New.
+**UI:** In the sidebar, expand **My Company**, open **Webhooks** and click **Add** (on narrow screens the button shows only a plus icon). Fill in the **Webhook** dialog and click **Save**.
 
-**MCP:** `manage_webhooks` with `action: "create"`, plus `url`, `events[]`, and optional `description`, `secret`, `enabled`.
+| Field | What it does |
+|---|---|
+| **URL** | Required. The endpoint that receives a `POST` for every subscribed event. A URL entered without a scheme is saved with `https://` in front. |
+| **Description** | Optional, up to 500 characters. Shown in the list. |
+| **Events** | Required. One or more events from the catalog at the end of this page. |
+| **Secret** | Optional, 1 to 256 characters. When set, deliveries carry a signature made with it (see "How do I verify the signature?" below). If an older webhook points at the same URL, that webhook's secret applies instead, and without one deliveries go out unsigned (see "One URL, one configuration" below). |
+| **Custom headers** | Optional. One `Name: value` per line (see "Custom headers and body templates" below). |
+| **Body template** | Optional JSON document that replaces the standard envelope. |
+| **Enabled** | On by default. A disabled webhook receives no deliveries and keeps its configuration, so you can pause it without deleting it. |
+
+To change a webhook, click its row, edit the dialog and click **Save**. To remove it, click the trash icon (**Delete**) at the top of the dialog and confirm; its past deliveries stay under **Recent Deliveries**. The list shows each webhook's **URL**, **Description**, **Events**, **Status** (**Enabled** or **Disabled**), **Created at** and **Updated at**. The search box matches the URL, and the filters cover the creation and update dates.
+
+**MCP:** `manage_webhooks` with `action: "create"`, plus `url`, `events[]`, and optional `description`, `secret`, `headers`, `bodyTemplate`, `enabled`. The hosted assistant uses the same tool, and it can also open **Webhooks** or **Recent Deliveries** for you and point at the **Add** button.
 
 ```json
 {
@@ -29,7 +41,19 @@ Webhooks let other systems react to CRM changes without polling.
 }
 ```
 
-Use an HTTPS endpoint. An `http://` URL is accepted for local testing, but a webhook that carries custom headers must be `https://`, because headers usually carry a credential.
+Use an HTTPS endpoint. A plain `http://` URL is accepted for any host as long as the webhook has no custom headers. A webhook with custom headers must use `https://`, or `http://` on `localhost`, `127.0.0.1` or `::1`, because headers usually carry a credential. This rule is checked when you save and again before every delivery.
+
+## Who can see and change webhooks?
+
+Access is set by the **API & Webhooks** row of the role editor under **My Company** → **Roles**. The same row also controls **My Profile** → **API & Connectors**, so a role that may manage its own API keys may also manage every webhook in the workspace.
+
+| Role setting on **API & Webhooks** | What members with that role can do |
+|---|---|
+| **Read access** **None** (the default for a new role) | **Webhooks** and **Recent Deliveries** are hidden in the sidebar. Opening their address directly leads to the Dashboard. |
+| **Read access** **All**, **Manage** **No** | Open both pages, open every webhook's dialog read-only (including its **Secret** and **Custom headers** values), and open **Event Details** for every delivery. |
+| **Read access** **All**, **Manage** **Yes** | Everything above, plus add, edit and delete webhooks and resend deliveries. |
+
+The **Admin** role can do everything. Webhooks have no plan restriction: they work on every Cloud plan and in a self-hosted installation. The same permissions apply to `manage_webhooks` through MCP and in the hosted assistant. In the hosted assistant, deleting a webhook or resending a delivery asks for your approval first.
 
 ## What does the payload look like?
 
@@ -100,9 +124,9 @@ If a write does not change any field, the event is suppressed. No-op `*.updated`
 
 Some receivers will not accept the standard delivery. Two optional settings cover that, and a webhook that sets neither delivers exactly as described above.
 
-**Custom headers** are sent with every delivery, for endpoints that require their own authentication. Set them in the UI one per line as `Name: value`, or pass a `headers` object through MCP and the API. Six names are reserved and rejected when you save: `Connection`, `Content-Length`, `Content-Type`, `Host`, `Transfer-Encoding` and `X-Webhook-Signature`. Header names must be valid HTTP tokens, values must be Latin-1 text without line breaks, and a webhook may carry up to 20 headers with names up to 128 characters, values up to 2,048 characters, and 8,192 characters in total. Because headers usually carry a credential, a webhook that has them must use an HTTPS endpoint; plain HTTP is accepted only for localhost.
+**Custom headers** are sent with every delivery, for endpoints that require their own authentication. Set them in the **Custom headers** field one per line as `Name: value` (a line without a colon is ignored, and emptying the field removes all headers), or pass a `headers` object through MCP and the API. Six names are reserved and rejected when you save: `Connection`, `Content-Length`, `Content-Type`, `Host`, `Transfer-Encoding` and `X-Webhook-Signature`. Header names must be valid HTTP tokens, values must be Latin-1 text without line breaks, and a webhook may carry up to 20 headers with names up to 128 characters, values up to 2,048 characters, and 8,192 characters in total. Because headers usually carry a credential, a webhook that has them must use an HTTPS endpoint; plain HTTP is accepted only for `localhost`, `127.0.0.1` and `::1`.
 
-Header values are never returned by the REST API or by MCP, which report `headerNames` instead. The webhook form in Customermates does still show them, so anyone who can manage webhooks in the workspace can read them, the same as the signing secret. An API or MCP update that omits `headers` keeps the stored values, and one that passes `null` clears them.
+Header values and the signing secret are never returned by the REST API or by MCP, which report `headerNames` and `hasSecret` instead. The **Webhook** dialog does show them: everyone whose role can open the **Webhooks** page, meaning **API & Webhooks** Read access **All** or the **Admin** role, can read both there, whether or not the role may manage webhooks. The secret stays masked until revealed with the eye icon. An API or MCP update that omits `headers` keeps the stored values, and one that passes `null` clears them.
 
 **A body template** replaces the standard envelope for endpoints that expect a fixed shape. Write a JSON document and reference envelope values with placeholders:
 
@@ -112,15 +136,17 @@ Header values are never returned by the REST API or by MCP, which report `header
 
 Available placeholders are `{{event}}`, `{{timestamp}}` and any path under `{{data}}`, including `{{data.entityId}}`, `{{data.companyId}}`, `{{data.userId}}` and `{{data.payload}}`. A placeholder must sit inside a JSON string; `{"count": {{data.payload.count}}}` is rejected. A placeholder that resolves to an object is inserted as a JSON string, and a missing path becomes an empty string. Substituted values are escaped, so record content cannot alter the structure of the document.
 
-The template must produce a JSON object. It is checked when you save the webhook, and a delivery whose template fails to render is recorded as failed rather than sent. The signature is always computed over the body actually sent, so verify it against the rendered body rather than the envelope.
+The template may be up to 8,192 characters and must produce a JSON object. It is checked when you save the webhook. A delivery whose template fails to render, or whose rendered body is longer than 131,072 characters, is recorded as failed rather than sent and is not retried. The signature is always computed over the body actually sent, so verify it against the rendered body rather than the envelope.
 
-**One URL, one configuration.** Headers and body templates are matched to a delivery by workspace and URL, not by webhook. If two webhooks in the same workspace point at the same URL and either one carries headers or a body template, every delivery to that URL fails and is not retried, including deliveries from the webhook that has no overrides. Give each subscription its own URL, by adding a path or a query string, before adding headers or a template.
+**Removing a secret or a template.** The dialog cannot remove a saved **Secret** or **Body template**: saving either field empty is rejected. To remove one, update the webhook through `manage_webhooks` or the REST API with `secret: null` or `bodyTemplate: null`, or delete the webhook and create it again.
 
-Deliveries are recorded with the event payload rather than the rendered body, so the delivery detail shows the event that fired and not the exact bytes sent.
+**One URL, one configuration.** The secret, the headers and the body template are matched to a delivery by workspace and URL, not by webhook. When several webhooks in the same workspace point at the same URL, disabled ones included, every delivery to that URL is signed with the secret of the oldest of them, or sent unsigned if that one has no secret. If any of them carries headers or a body template, every delivery to that URL fails and is not retried, including deliveries from the webhook that has no overrides. Give each subscription its own URL, by adding a path or a query string, before adding a secret, headers or a template.
+
+Deliveries are recorded with the event payload rather than the rendered body, so **Event Details** shows the event that fired and not the exact bytes sent.
 
 ## How do I send to Slack, Discord or n8n?
 
-Each recipe is the URL, the custom headers, and the body template to paste into **Company → Webhooks → New**. Set a signing secret in every case; a receiver that cannot verify it simply ignores the header.
+Each recipe is the URL, the custom headers, and the body template to paste into the **Webhook** dialog under **My Company** → **Webhooks** → **Add**. Set a signing secret in every case; a receiver that cannot verify it simply ignores the header.
 
 ### Claude Code routines
 
@@ -188,13 +214,13 @@ A receiver that needs neither its own authentication nor a fixed body needs neit
 
 ## How do I verify the signature?
 
-If you set a `secret`, every request includes:
+If the webhook has a **Secret**, every request includes:
 
 ```
 X-Webhook-Signature: <hex>
 ```
 
-`<hex>` is `HMAC-SHA256(secret, rawRequestBody)`, lowercase hex, no prefix. Recompute it on your side and compare in constant time.
+`<hex>` is `HMAC-SHA256(secret, rawRequestBody)`, lowercase hex, no prefix. Recompute it on your side and compare in constant time. When several webhooks share a URL, the secret of the oldest one applies, as described under "One URL, one configuration" above.
 
 Node.js example:
 
@@ -209,13 +235,15 @@ function verify(rawBody: string, received: string, secret: string) {
 
 ## How do retries and failed deliveries work?
 
-Every delivery is recorded. Review deliveries in the UI (Company, then Webhook Deliveries) or through `manage_webhooks` with `action: "list_deliveries"`.
+Every delivery is recorded. In the sidebar, expand **My Company** and open **Recent Deliveries**, or call `manage_webhooks` with `action: "list_deliveries"`. The page lists the newest deliveries first with their **URL**, **Event**, **Element** (the affected record), **Status**, **Status Code** and **Created at**. The search box matches the event and the URL, and the filters cover the event, the URL and the creation date. Delivery records are not deleted automatically; they are kept as long as the workspace exists.
 
-A delivery is marked failed if the HTTP status is outside the 2xx range or the request times out. The request timeout is 5 seconds.
+Click a row to open **Event Details**. It shows the status (**Pending** until the first attempt finishes, then **Delivered** or **Failed**), **URL**, **Event**, **Element**, **Created At**, **Status Code**, **Response Message** and the **Event payload**. The payload is shown in full, including records that the reader's role cannot open elsewhere.
 
-Customermates automatically retries failed deliveries: up to 5 retries for timeouts, 5xx responses, and 408, 425, and 429. Permanent 4xx responses (for example 400, 401, 403, 404) are not retried, because a repeat would fail the same way. Retries happen inside the delivery run, so they do not create extra delivery records; each record shows the final outcome.
+A delivery is marked failed if the HTTP status is outside the 2xx range, the request times out, or no response arrives. The request timeout is 5 seconds. A delivery also fails before any request is sent, with status code 422, when its URL is shared with another webhook and one of them carries headers or a template, when headers would go to an address that does not allow them, or when the body template cannot be rendered.
 
-You can also resend any delivery yourself from the UI or with `manage_webhooks` and `action: "resend_delivery"` plus the delivery id. A manual resend creates a new delivery record; the original is unchanged.
+Customermates automatically retries failed deliveries: up to 5 retries for timeouts, network errors, 5xx responses, and 408, 425, and 429. Permanent 4xx responses (for example 400, 401, 403, 404) and the 422 failures above are not retried, because a repeat would fail the same way. Retries happen inside the delivery run, so they do not create extra delivery records; each record shows the latest outcome, so it can show **Failed** while retries are still pending and change to **Delivered** when one succeeds.
+
+You can also resend a delivery yourself. In **Event Details**, the circular-arrows icon (**Resend**) appears at the top once the delivery is **Delivered** or **Failed**, for roles with **Manage** **Yes** on **API & Webhooks**. Through MCP, use `manage_webhooks` with `action: "resend_delivery"` plus the delivery id. A resend posts the stored event to the same URL with that URL's current secret, headers and template, and creates a new delivery record; the original is unchanged. It is sent even if the webhook has since been disabled or deleted; after a deletion, if no other webhook uses that URL, it goes out unsigned, without custom headers, in the standard envelope.
 
 ## Are deliveries ordered?
 
@@ -233,7 +261,7 @@ Delete events carry the full record as it was before deletion, under `payload`, 
 
 - Use [webhook.site](https://webhook.site) as a throwaway receiver during integration testing.
 - The delivery log (`manage_webhooks`, `action: "list_deliveries"`) supports `searchTerm` on url and event name.
-- If your receiver returns an error status, Customermates records the response so you can inspect what happened.
+- For each delivery, Customermates records only the HTTP status code and the status text your receiver returned (for example `404` and `Not Found`), shown as **Status Code** and **Response Message** in **Event Details**. The response body is not stored, so log it on the receiving side. When no response arrives, **Status Code** shows a dash (the list column stays empty) and **Response Message** names the cause, such as the timeout.
 
 ## Which events exist?
 
@@ -261,7 +289,7 @@ Delete events carry the full record as it was before deletion, under `payload`, 
 
 ### Messaging events
 
-Messaging events fire on inbound provider activity on connected accounts. `userId` is `null`. Payloads reference provider records by id (`connectedAccountId`, `provider`, `providerMessageId`, `threadId`, and similar) rather than embedding CRM records.
+Messaging events fire on inbound provider activity on connected accounts. The **Events** list offers them in every workspace, but they fire only where connected accounts exist, which requires Cloud and a plan that includes messaging. `userId` is `null`. Payloads reference provider records by id (`connectedAccountId`, `provider`, `providerMessageId`, `threadId`, and similar) rather than embedding CRM records.
 
 | Event | When it fires |
 |---|---|

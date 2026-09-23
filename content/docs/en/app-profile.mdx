@@ -1,64 +1,177 @@
 ---
 title: "User Profile Settings in the Customermates CRM"
-description: "The Profile screen holds your personal Customermates settings tab by tab: identity and preferences, API keys with expiration, and connected messaging accounts."
+description: "My Profile holds your personal Customermates settings: name, language, formats and theme, the channels that feed the Inbox, and your API keys."
 ---
 
 Customermates is an open-source, AI-native CRM. This page documents the **My Profile** screen of the web app for humans and for AI agents that drive the UI.
 
 ## What lives on the Profile screen?
 
-Everything scoped to you as a user rather than to the company: your settings (name, country, avatar, theme, language), the API keys for MCP and REST clients, and the messaging accounts that feed the Inbox. Changes here affect only your own account. URLs are locale-prefixed, for example `https://customermates.com/en/profile/settings`; each tab has its own route; the sidebar entry **My Profile** (`#nav-profile`) expands the profile group, and its sub-entry `#nav-profile-settings` opens `/profile/settings`.
+Everything that belongs to you as a user rather than to the company: your profile and preferences (**Settings**), the messaging channels you connect (**Channels**) and your API keys for MCP and REST clients (**API & Connectors**). Most changes here affect only you. Channels are the exception: a channel you share becomes visible to your teammates, and disconnecting a shared channel removes it for them too.
+
+In the sidebar group **Workspace**, **My Profile** (`#nav-profile`) only expands or collapses its entries; it opens no page itself. Its entries open the pages, each on its own route, and the breadcrumb reads **My Profile › Settings** with a switcher to the other pages you can see. URLs are locale-prefixed, for example `https://customermates.com/en/profile/settings`.
+
+| Entry | Anchor id | Route | Shown when |
+|---|---|---|---|
+| **Settings** | `#nav-profile-settings` | `/profile/settings` | Always |
+| **Channels** | `#nav-profile-connected-accounts` | `/profile/connected-accounts` | Customermates Cloud only, and your role's **Inbox messages** row has **Read access** **All** |
+| **API & Connectors** | `#nav-profile-api-keys` | `/profile/api-keys` | Your role's **API & Webhooks** row has **Read access** **All** |
+
+Roles are edited under **My Company › Roles** by a member whose role has **Manage** on **Users & Roles**; see [App guide, Company](/docs/app-company). A new custom role starts with **Read access** **None** on both rows, so its members see only **Settings** until someone changes the role. The **Admin** role sees every entry the installation offers. Opening a hidden page by its URL brings you back to the Dashboard.
 
 ## Settings tab
 
-Route `/profile/settings`, sidebar id `#nav-profile-settings`. One form covers identity (name, country, avatar) and preferences (theme, language). Save or discard with `#profile-settings-save` and `#profile-settings-reset`; both buttons appear only once the form has unsaved changes. Over MCP, `update_workspace_settings` with `target: "profile"` changes first name, last name, country and avatar URL only; theme and language are set in the UI.
+Route `/profile/settings`, sidebar entry **Settings**. Every signed-in member can open it, whatever the role, and the form changes only your own profile. Save or discard with **Save** (`#profile-settings-save`) and **Reset** (`#profile-settings-reset`) below the form; both buttons appear once the form has unsaved changes. **Save** stores all fields at once.
 
-## API keys tab (API & Connectors)
+### How do I change my name, avatar, language or theme?
 
-Route `/profile/api-keys`, sidebar id `#nav-profile-api-keys`. Keys for MCP and REST clients; the rules are on [API keys](/docs/api-keys).
+Change the field and click **Save**.
+
+| Field | Options and rules | Effect |
+|---|---|---|
+| **First Name**, **Last Name** | Required, up to 255 characters each | Your name wherever you appear in the workspace |
+| **Country** | Required, chosen from the country list | Stored with your profile; it does not change how dates or numbers are written |
+| **Avatar URL** | Optional link to a publicly reachable image; `https://` is added when you type an address without it; there is no upload | Your picture; with the field empty, your initials are shown |
+| **Display Language** | **English**, **German**, **French**, **Italian**, **Spanish**, or **System** (your browser's language, English when it is none of the five) | The interface language, which the assistant also answers in. Saving a new value reloads the app in that language. Notification emails from Customermates, such as trial reminders, use it too; with **System** they are sent in English |
+| **Formatting Locale** | **English** (US formats), **German**, **French**, **Italian**, **Spanish**, or **System** (the formats of your display language) | How numbers, dates, times and amounts are written, independent of the interface language |
+| **Theme** | **System** (follows your operating system), **Dark**, **Light** | Light or dark interface |
+
+The header above the form shows your name, your email address, **Email verified** or **Email not verified**, your status and your role. None of these can be changed here. The email address cannot be changed anywhere in the app. Role and status are set under **My Company › Members** by a member whose role has **Manage** on **Users & Roles**, who can also edit your first name, last name, country and avatar URL there.
+
+The avatar menu at the bottom of the sidebar has a **Dark Mode** or **Light Mode** switch that also saves your theme, and **Sign Out**.
+
+### How do I verify my email address?
+
+While your address is unverified, the sidebar shows **Email not verified** under the brand name; it opens this page, where the top bar offers **Resend verification email**. A new account can be used for 24 hours without verification. After that, every page redirects to the verification screen until you confirm the address with the link from the email.
+
+### What can I not change here?
+
+There is no setting for your password, email address, time zone, notifications or deleting your account. To set a new password, sign out and use **Forgot password?** on the sign-in page. Email signatures belong to each email account on the Channels page, see Email appearance and signature below.
+
+In the assistant and over MCP, `update_workspace_settings` with `target: "profile"` changes **First Name**, **Last Name**, **Country** and **Avatar URL** only. **Display Language**, **Formatting Locale** and **Theme** are set in the app only. The REST API reads your profile with `GET /v1/users/me` but cannot change it.
+
+## API & Connectors tab
+
+Route `/profile/api-keys`, sidebar entry **API & Connectors**. Keys for MCP and REST clients; the full rules are on [API keys](/docs/api-keys). The page lists only your own keys. Opening it needs **Read access** **All** on your role's **API & Webhooks** row, and adding or deleting keys needs **Manage** **Yes** on that row. The same row also controls **My Company › Webhooks** and **Recent Deliveries**.
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
-| Add a key | Page header | `#profile-api-keys-generate` | Opens the add dialog with two routes |
-| Create a standard key | Standard route | `#api-key-save` | Name plus optional expiration date; the key is shown once, so copy it immediately |
-| Quick connections | Quick route | none | Four client tiles, described below |
-| Open a key | Key card | none | Shows the creation date; the expiration and last-used rows appear only when set |
-| Delete a key | Key dialog | none | Button labeled Delete, with a confirmation |
+| Add a key | Top bar | `#profile-api-keys-generate` (**Add**) | Opens **Add an API key** with two routes |
+| Create a standard key | **Standard API key** | `#api-key-save` (**Save**) | **Name** plus an optional **Expires in** date 1 to 365 days ahead (default **Never expires**); the key is shown once, so copy it immediately |
+| Quick connections | **Quick connections** | none | Four client tiles, described below |
+| Open a key | Key card | none | The card shows **Created at**, **Expires at** and **Last used**; the dialog shows the creation date, and expiry and last use only when set |
+| Delete a key | Key dialog | none | **Delete**, with a confirmation; the key stops working immediately |
 
-The quick route offers four tiles: Claude, ChatGPT and Codex, Cursor, and Gemini. The local setups, meaning Claude Code or Claude Desktop, Codex, Cursor and Gemini, create the key and show that client's setup snippet. The Claude account and ChatGPT app methods connect through the hosted connector instead and create no key.
+The quick route offers four tiles: **Claude**, **ChatGPT & Codex**, **Cursor** and **Gemini**. The local setups, meaning Claude Code or Claude Desktop, Codex, Cursor and Gemini, create a key named after the client that expires after 365 days, and show that client's setup snippet with the key filled in. The Claude account and ChatGPT app methods connect through the hosted connector instead and create no key.
 
-There is no rotate or revoke button: create a new key, update the client, then delete the old one.
+There is no rotate or revoke button: create a new key, update the client, then delete the old one. Taking **API & Webhooks** away from a role does not disable keys its members already hold; to stop a member's keys, set that member **Inactive** under **My Company › Members**.
 
-## Connected accounts tab
+## Channels tab
 
-Route `/profile/connected-accounts`, sidebar id `#nav-profile-connected-accounts`, Cloud only. **Connect channel** (`#profile-connected-accounts-connect`) opens a channel picker (email, LinkedIn, WhatsApp, Instagram, Telegram); choosing a channel navigates the current tab to the hosted-auth page, and the connected account then feeds the [Inbox](/docs/app-inbox). Connecting WhatsApp means scanning the QR code on that page.
+Route `/profile/connected-accounts`, sidebar entry **Channels** (`#nav-profile-connected-accounts`), Customermates Cloud only; you connect a channel with **Connect channel** (`#profile-connected-accounts-connect`). Channels are the email, LinkedIn, WhatsApp, Instagram and Telegram accounts that feed the [Inbox](/docs/app-inbox). The page lists your own channels first, then every channel a teammate has shared with the workspace. When channels need attention (**Reconnect needed**, **Permission issue** or **Error**), the sidebar entry shows their count, including teammates' shared channels that only their owner can fix.
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
-| Connect an account | Card header | `#profile-connected-accounts-connect` | Opens the channel picker; picking a channel navigates to the hosted-auth page |
-| Connect from an empty profile | Centered empty state | `#profile-connected-accounts-connect-empty` | The same picker, rendered when no account exists and you may connect; when the assistant is enabled the empty state shows assistant starter prompts instead of this button |
-| Manage an account | Account row click | none | Opens the account modal on its Details tab |
-| Details tab | Account modal | `#connected-account-tab-details` | Provider, status, visibility, owner, folder count and sync times |
-| Email tab | Account modal | `#connected-account-tab-email` | Email appearance and signature; only for an email account you own |
-| Folders tab | Account modal | `#connected-account-tab-folders` | Choose which provider folders sync; only when the account exposes folders |
+| Connect a channel | Top bar | `#profile-connected-accounts-connect` (**Connect channel**) | Opens the channel picker; on narrow screens the button shows channel icons only |
+| Connect from an empty page | Centered empty state | `#profile-connected-accounts-connect-empty` (**Connect channel**) | The same picker, shown when you have no channel yet and may connect; when the assistant is available, the empty state shows assistant starter prompts instead of this button |
+| Open a channel | Channel card click | none | Opens the channel dialog on its **Details** tab |
+| Details tab | Channel dialog | `#connected-account-tab-details` (**Details**) | **Provider**, **Status**, **Visibility**, **Owner**, **Folders**, **Connected** and **Last synced** |
+| Share or unshare | Details tab | `#connected-account-visibility` | The **Visibility** switch between **Private** and **Shared**; owner only |
+| Email tab | Channel dialog | `#connected-account-tab-email` (**Email**) | Appearance and signature; only on a Gmail, Outlook or IMAP account you own |
+| Folders tab | Channel dialog | `#connected-account-tab-folders` (**Folders** with a count, for example **Folders 4/6**) | One switch per folder; only when the account reports folders |
 
-Connecting navigates the current tab to the hosted-auth page: expect a full-page navigation, not a popup, and a return to the app when the provider finishes. How many accounts a user may connect depends on the plan: Starter [[commercial.entitlement.starter.includedAccountsPerUser]], Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]] per user.
+### Who can use Channels?
+
+Seeing the page needs **Read access** **All** on your role's **Inbox messages** row; with **None**, both **Channels** and the Inbox are hidden. Connecting a channel and changing, reactivating, resyncing or disconnecting it needs **Manage** **Yes** on the same row. With read access alone you see your channels and teammates' shared ones but cannot change anything. Whatever your role, including **Admin**, you can act only on channels you own.
+
+The workspace plan must include messaging: Pro, Business, Enterprise, or a trial. On Starter the page shows **Upgrade to unlock messaging** with the button **Upgrade your plan**, which opens **My Company › Subscription**. Every action except disconnecting also needs a usable subscription, meaning status **Active** or a trial that has not ended; otherwise it is refused, and **Connect channel** shows "Connecting channels requires an active subscription or a trial that hasn't expired." Self-hosted installs have no Channels page.
+
+### How do I connect a channel?
+
+Open **My Profile › Channels** (`#nav-profile-connected-accounts`), click **Connect channel** (`#profile-connected-accounts-connect`) and pick one of nine entries, for example **WhatsApp** for your WhatsApp chats in the Inbox:
+
+| Entry | Connects |
+|---|---|
+| **Gmail**, **Outlook** | A Gmail or Outlook account; the card's **Provider** shows whether email, calendar or both are connected |
+| **IMAP** | Any other email account over IMAP and SMTP |
+| **WhatsApp** | Your WhatsApp account; you scan a QR code on the connection page |
+| **LinkedIn (Classic)** | Your LinkedIn account |
+| **LinkedIn (Classic & Sales Navigator)**, **LinkedIn (Classic & Recruiter)** | Your LinkedIn account together with Sales Navigator or Recruiter |
+| **Instagram**, **Telegram** | Your Instagram or Telegram account |
+
+Picking an entry sends the current browser tab to a secure connection page, not a popup. The link is valid for 30 minutes. When you finish there, you return to **Channels** and a message reports the result:
+
+- **Channel connected**: your history imports in the background, and the card shows **Syncing in background** meanwhile. This usually takes a few minutes, for large accounts up to an hour.
+- **Account already connected**: this account is already connected by a member of your workspace. If that is someone else, ask them to share it with the workspace instead of connecting it twice.
+- **Invalid credentials**, **Link expired**, **Verification failed**, **Account disconnected** or **Channel connection failed**: start again from **Connect channel**.
+
+### How many channels can I connect?
+
+Channels per member: Starter [[commercial.entitlement.starter.includedAccountsPerUser]], Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]. A trial counts as Pro. Every channel you own counts, whatever its status, until you disconnect it; only channels with status **Deleted** do not count. Teammates' shared channels never use your allowance.
+
+At the limit on Pro, **Connect channel** opens **Upgrade to connect more accounts** with **View plans**, which leads to **My Company › Subscription**. On Business, an error message points to Enterprise. After a downgrade, each member's newest channels above the new allowance are removed and marked **Deleted**, and members with the **Admin** role get an email.
+
+### What does each status mean?
+
+| Status | Meaning | What to do |
+|---|---|---|
+| **Connected** | Working normally | Nothing; **Resync** re-imports the history |
+| **Connecting** | The connection is still being set up | Wait; **Resync** is available |
+| **Reconnect needed** | The provider reports that the login no longer works or is incomplete | The owner clicks **Reactivate** |
+| **Permission issue** | Shown when the provider reports missing permissions | The owner clicks **Reactivate** |
+| **Error** | The provider reports an error | The owner clicks **Reactivate** |
+| **Stopped** | The provider has paused the account | The owner clicks **Reactivate** |
+| **Deleted** | The account was removed at the provider, or automatically: after a plan downgrade, or by the daily clean-up once a trial has been over for a day, once a paid subscription has been **Unpaid** or **Expired** for three days, or after the owner was set **Inactive** | The card stays listed, and the owner is offered only **Disconnect**; connect the account again if the plan allows |
+
+### Private or shared?
+
+A new channel is **Private**: only you see its conversations. The owner switches **Visibility** on the **Details** tab to **Shared**, and the change applies at once with the message **Account shared with your workspace**. A shared channel, with all its conversations, becomes visible to every member whose role has **Inbox messages** read access, and those with **Manage** on that row can also reply and send from it. Switching back to **Private** hides it again.
+
+Sharing needs the Business or Enterprise plan; on other plans the switch is disabled with the hint "Shared accounts require the Business plan or higher." It also needs **Manage** on **Inbox messages** and a usable subscription. Teammates see your shared channel on their Channels page, where they can open its details and folders but cannot change, reactivate, resync or disconnect it. Single conversations can also be shared from the Inbox, see [App guide, Inbox](/docs/app-inbox).
+
+### What does the Folders tab control?
+
+Email accounts whose provider reports folders get a **Folders** tab with one switch per folder. A switch decides whether that folder's messages show in the Inbox, for you and for everyone who can see the channel; switching a folder off hides its messages without deleting them. The change applies at once.
+
+By default every folder is on except trash, junk or spam, drafts and the all-mail folder; when the provider does not label its folders, names containing junk, spam, trash, deleted, draft or outbox are treated the same way. Switching on one of the excluded folders starts a background import of its history. Only the owner with **Manage** on **Inbox messages** can switch folders; everyone else sees **Synced** or **Hidden**.
 
 ### Email appearance and signature
 
-The **Email** tab sets how every message sent from that account looks. Appearance covers the font family, base font size, link colour and link style, and applies to the whole email. The link colour takes a six-digit hex value with a colour picker beside it, validates as you type, and warns about low contrast without blocking you.
+The **Email** tab sets how messages sent from that account look. It appears only on a Gmail, Outlook or IMAP account you own, editing needs **Manage** on **Inbox messages**, and **Save email settings** stores both sections.
 
-The signature below it is a single Markdown block with an on/off toggle, so switching it off keeps the saved text for later. Pick a layout of text only, logo above or logo beside, give a public HTTPS logo URL, and adjust logo size, divider and spacing under **Layout options**. A live preview shows the result. Saved appearance and signature apply to every email sent from that account, whether it is sent from the Inbox, the REST API or an MCP tool, so agents must not repeat the signature in the message body.
+| Field | Options | Default |
+|---|---|---|
+| **Font family** | **Sans serif (Arial)**, **Serif (Georgia)**, **Monospace (Courier New)** | Sans serif (Arial) |
+| **Font size** | 10 to 20 | 13 |
+| **Link colour** | A six-digit hex value (`#RRGGBB`) with a colour picker beside it | `#7161e8` |
+| **Link style** | **Underlined**, **No underline** | Underlined |
+
+The link colour is checked as you type, and a warning appears when its contrast is below 3:1 on a light or a dark background; it does not block saving. Appearance applies to emails written as plain text or Markdown, which includes everything you write in the Inbox. An email sent over the REST API or MCP with an explicit HTML body keeps its own styling.
+
+The signature is off for a new account; switch on **Add a signature** to edit it. Choose a **Layout** of **Text only**, **Logo above** (preselected) or **Logo beside**. Logo layouts need a **Logo URL**, a public HTTPS image address of up to 500 characters; it starts out as the Customermates icon, so replace it with your own logo. **Layout options** for logo layouts set **Logo size** (**Small**, **Medium**, **Large**; default Medium), **Divider** (**None**, **Thin line**; default None) and **Spacing** (**Compact**, **Comfortable**; default Comfortable). **Signature content** is one Markdown block of up to 2,000 characters. Switching the signature off keeps the saved text for later, and the **Preview** shows the result.
+
+While **Add a signature** is on, the saved signature is added below every email sent from that account, whether it is sent from the Inbox, the REST API or an MCP tool, HTML bodies included, so agents must not repeat the signature in the message body.
+
+### How do I reactivate, resync or disconnect a channel?
+
+Open the channel from its card. The actions sit in the channel dialog and appear only for the owner:
+
+- **Reactivate**, for **Reconnect needed**, **Permission issue**, **Error** or **Stopped**: sends the tab to the connection page for the same account (valid for 30 minutes) and brings you back to **Channels**.
+- **Resync**, for **Connected** or **Connecting**: re-imports the history in the background, which usually takes 1 to 3 minutes.
+- **Disconnect**: asks for confirmation, then removes the account at the provider and permanently deletes the conversations, messages, calendars and events Customermates imported from it. A shared channel disappears for your teammates as well.
+
+All three need **Manage** on **Inbox messages**.
 
 ## Tips for agents
 
-- The hosted assistant can navigate to the three tabs and highlight `#nav-profile-connected-accounts` and `#profile-connected-accounts-connect`; it cannot press them. Ask it for a tour of connecting an account and it walks you there.
-- Rows never carry ids. Open a key or an account by clicking its card or row; the tabs are plain routes.
-- Prefer MCP tools when a tool exists: `connect_messaging_account` creates the authentication link for a new channel, and `get_workspace_context` lists the connected accounts. Creating an API key has no tool; use the dialog above.
+- The hosted assistant Mate can navigate to the three pages and highlight their sidebar entries (`#nav-profile`, `#nav-profile-settings`, `#nav-profile-connected-accounts`, `#nav-profile-api-keys`) and `#profile-connected-accounts-connect`; it cannot press them. Ask it for a tour of connecting an account and it walks you there. The save buttons, the **Add** button on **API & Connectors**, the empty-state button and the channel dialog tabs are not assistant targets.
+- Cards never carry ids. Open a key or a channel by clicking its card; the pages are plain routes.
+- Prefer MCP tools when a tool exists: `connect_messaging_account` creates the connection link for one of the nine channel entries, under the same plan, permission and allowance rules, and `get_workspace_context` lists your own and shared channels with their status. No tool changes visibility, folders, appearance or the signature, reactivates, resyncs or disconnects a channel, changes the display language, formatting locale or theme, or creates an API key; use the pages above. The REST endpoint `GET /v1/messaging/connected-accounts` only reads.
 - A generated API key is shown exactly once, whether created as a standard key or through a quick connection's local setup. Copy it in the same step.
 
 ## Related
 
 - [API keys](/docs/api-keys): creating, using, expiring and deleting keys.
-- [App guide, Inbox](/docs/app-inbox): the screen your connected accounts feed.
+- [App guide, Inbox](/docs/app-inbox): the screen your channels feed.
+- [App guide, Company](/docs/app-company): roles, members and the subscription.
 - [CLI and editors](/docs/connect-cli): where a generated key goes for Claude Code, Codex, and Cursor.
