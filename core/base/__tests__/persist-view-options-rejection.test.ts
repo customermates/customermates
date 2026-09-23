@@ -13,7 +13,10 @@ vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn((
 vi.mock("../../utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn(() => true) }));
 
 const captureException = vi.fn();
-vi.mock("@sentry/nextjs", () => ({ captureException: (...args: unknown[]) => captureException(...args) }));
+vi.mock("@sentry/nextjs", () => ({
+  captureException: (...args: unknown[]) => captureException(...args),
+  init: vi.fn(),
+}));
 
 import { BaseDataViewStore, type HasId, type TableColumn } from "../base-data-view.store";
 import { registerApplicationErrorHandler } from "@/core/errors/report-application-error";
