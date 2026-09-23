@@ -160,7 +160,7 @@ export const FILTER_SYNTAX = {
     noValue: "omit value",
   },
   examples: [
-    { field: "status", operator: "equals", value: "active" },
+    { field: "<single-select-custom-column-uuid>", operator: "in", value: ["<option-uuid>"] },
     { field: "createdAt", operator: "inLastDays", value: 30 },
     { field: "email", operator: "isNotNull" },
   ],

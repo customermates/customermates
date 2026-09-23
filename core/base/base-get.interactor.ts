@@ -47,6 +47,7 @@ import type { ViewMode } from "./base-query-builder";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { resolveDataViewState } from "@/core/data-view/resolve-data-view-state";
 import { runPrecheck } from "../validation/run-precheck";
+import { acceptSingleValueEquals } from "./filter-compat";
 
 export interface GetResult<T> {
   p13nId?: string;
@@ -180,13 +181,17 @@ export abstract class BaseGetInteractor<T> {
       this.repo.customColumnsOnce(),
     ]);
     const sortableFields = this.repo.getSortableFields();
+    const requestedFilters = acceptSingleValueEquals(
+      resolved.filters,
+      this.queryParamsPrecheckFilterableFields ?? filterableFields,
+    );
 
     if (this.mode === "api") {
       const precheck = this.queryParamsPrecheck;
       if (!precheck) throw new Error("api mode requires a queryParamsPrecheck");
 
       const checked = await runPrecheck(
-        { filters: resolved.filters, sortDescriptor: resolved.sortDescriptor },
+        { filters: requestedFilters, sortDescriptor: resolved.sortDescriptor },
         (data, ctx) =>
           precheck.invoke(
             {
@@ -202,7 +207,7 @@ export abstract class BaseGetInteractor<T> {
       if (!checked.ok) return { ok: false as const, error: checked.error };
     }
 
-    const filters = this.repo.validateFilters({ filters: resolved.filters, filterableFields });
+    const filters = this.repo.validateFilters({ filters: requestedFilters, filterableFields });
     const sortDescriptor = this.repo.validateSortDescriptor({
       sortDescriptor: resolved.sortDescriptor,
       sortableFields,

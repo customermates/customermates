@@ -53,6 +53,15 @@ describe("filter syntax", () => {
     );
   });
 
+  it("teaches single-select filters as in with option ids, the only shape those columns accept", () => {
+    expect(FILTER_SYNTAX.examples).toContainEqual({
+      field: "<single-select-custom-column-uuid>",
+      operator: "in",
+      value: ["<option-uuid>"],
+    });
+    expect(FILTER_SYNTAX.examples.some((example) => example.operator === "equals")).toBe(false);
+  });
+
   it("stays compact enough to leave room for the schema it accompanies", () => {
     expect(JSON.stringify(FILTER_SYNTAX).length).toBeLessThan(700);
   });

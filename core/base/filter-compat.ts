@@ -1,4 +1,4 @@
-import type { Filter } from "./base-get.schema";
+import type { Filter, FilterableField } from "./base-get.schema";
 
 import { normalizeFilterNumberValueInput } from "./filter-value";
 
@@ -35,4 +35,18 @@ export function normalizeFilter(filter: Filter): Filter {
 
 export function normalizeFilters(filters: Filter[]): Filter[] {
   return filters.map(normalizeFilter);
+}
+
+export function acceptSingleValueEquals(
+  filters: Filter[] | undefined,
+  filterableFields: readonly FilterableField[],
+): Filter[] | undefined {
+  return filters?.map((filter) => {
+    if ((filter.operator as string) !== "equals" || !("value" in filter)) return filter;
+    const operators: readonly string[] | undefined = filterableFields.find(
+      (field) => field.field === filter.field,
+    )?.operators;
+    if (!operators || operators.includes("equals") || !operators.includes("in")) return filter;
+    return { field: filter.field, operator: "in", value: [filter.value] } as Filter;
+  });
 }
