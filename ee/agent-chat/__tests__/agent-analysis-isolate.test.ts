@@ -56,17 +56,22 @@ describe("analysis isolate", () => {
     for (const specifier of relativeImports) expect(specifier).toMatch(/^\.\/[\w-]+\.js$/);
   });
 
-  it("returns a result that arrived in time even when the main thread was busy past the budget", async () => {
-    const pending = runAnalysisCode("(data) => data.length", [1, 2, 3], { ...ANALYSIS_LIMITS, wallMs: 300 });
-    await new Promise<void>((resolve) =>
-      setImmediate(() => {
-        const until = Date.now() + 1_200;
-        while (Date.now() < until);
-        resolve();
-      }),
-    );
-    await expect(pending).resolves.toEqual({ ok: true, value: 3 });
-  }, 30_000);
+  it.each([400, 1_200])(
+    "returns a result that arrived in time while the main thread was busy for %i ms",
+    async (busyMs) => {
+      await runAnalysisCode("() => 0", null);
+      const pending = runAnalysisCode("(data) => data.length", [1, 2, 3], { ...ANALYSIS_LIMITS, wallMs: 300 });
+      await new Promise<void>((resolve) =>
+        setImmediate(() => {
+          const until = Date.now() + busyMs;
+          while (Date.now() < until);
+          resolve();
+        }),
+      );
+      await expect(pending).resolves.toEqual({ ok: true, value: 3 });
+    },
+    30_000,
+  );
 
   it("stops code that exceeds its step budget", async () => {
     const outcome = await runAnalysisCode(

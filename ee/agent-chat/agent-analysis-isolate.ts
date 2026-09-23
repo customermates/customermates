@@ -105,9 +105,11 @@ async function runInWorker(workerData: AnalysisWorkerData, terminateAfterMs: num
       }, terminateAfterMs);
       channel.port1.on("message", resolve);
       worker.on("error", reject);
-      worker.on("exit", (exitCode) =>
-        reject(new Error(`The analysis worker exited with code ${exitCode} before it reported a result.`)),
-      );
+      worker.on("exit", (exitCode) => {
+        const pending = receiveMessageOnPort(channel.port1);
+        if (pending) resolve(pending.message as WorkerReport);
+        else reject(new Error(`The analysis worker exited with code ${exitCode} before it reported a result.`));
+      });
     });
   } finally {
     clearTimeout(timer);
@@ -121,11 +123,12 @@ export async function runAnalysisCode(
   data: unknown,
   limits: AnalysisLimits = ANALYSIS_LIMITS,
 ): Promise<AnalysisOutcome> {
+  const wasm = await quickjsModule();
   const deadline = Date.now() + limits.wallMs;
   const report = await runInWorker(
     {
       quickjsUrl: pathToFileURL(join(process.cwd(), "node_modules", "quickjs-wasi", "dist", "index.js")).href,
-      wasm: await quickjsModule(),
+      wasm,
       source: analysisSource(code),
       input: JSON.stringify(data ?? null),
       deadline,
