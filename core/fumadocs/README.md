@@ -6,7 +6,7 @@ In a shallow clone, Git treats the oldest available commit as a root. A file unc
 
 Missing Git history, files absent from the current committed tree, and failed lookups also omit the generated date. Recreating a deleted path cannot inherit the deletion date, even when the new file is staged. The resolver never substitutes a build timestamp or file modification time and never fetches history. It reads repository boundaries and committed paths once per resolver instance; create a new instance after changing the available history.
 
-When no trustworthy generated date exists, the sitemap uses a valid declared blog publication date, or omits `lastmod` for undated pages. Blog Article metadata keeps its declared publication-date fallback. Builds that require more Git-derived dates must provide sufficient history before loading content.
+When no trustworthy generated date exists, the sitemap uses a valid declared blog publication date, or omits `lastmod` for undated pages. Blog Article metadata keeps its declared publication-date fallback. Builds that require more Git-derived dates must provide sufficient history before loading content. On Vercel, whose clone holds only the last 10 commits, `scripts/vercel-build.sh` fetches the checked-out commit's commit and tree history, without file contents, from the repository URL before building; the resolver reads nothing else, so it still makes no network request. When that fetch fails, the build continues with the dates the shallow clone can prove.
 
 Dates track changes to the MDX file itself. Changes to shared components or substituted commercial tokens are not included in the file's Git history.
 

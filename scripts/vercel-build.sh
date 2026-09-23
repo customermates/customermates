@@ -37,12 +37,23 @@ else
     npx --no-install tsx prisma/seed.ts
   fi
 fi
-# fumadocs' lastModified() plugin derives each content page's <lastmod> from Git history.
-# Vercel clones shallow, so outside that window the resolver returns nothing and 258 of the
-# 414 sitemap URLs ship with no lastmod at all - every /for, /features and /compare page.
-# Deepen the clone so the dates are real; never fail the deployment if the remote refuses.
-if [[ -n "${VERCEL:-}" && "$(git rev-parse --is-shallow-repository 2>/dev/null)" == "true" ]]; then
-  git fetch --unshallow --quiet ||
-    echo "WARNING: could not deepen the Git clone; content dates fall back to frontmatter." >&2
+# fumadocs' lastModified() plugin derives each content page's <lastmod> from Git history, and
+# core/fumadocs/git-last-modified.ts omits every date the available history cannot prove.
+# Vercel checks out only the last 10 commits and leaves no usable remote, so a bare
+# `git fetch --unshallow` exits 0 and the clone stays shallow. Fetch the checked-out commit's
+# history from the repository URL instead, without file contents (the resolver reads commits
+# and trees only), and judge the result by the shallow flag rather than the exit status.
+# A failed or slow fetch costs content dates, never the deployment.
+shallow="$(git rev-parse --is-shallow-repository 2>&1 || true)"
+if [[ "$shallow" != "false" ]]; then
+  if [[ "${VERCEL_GIT_PROVIDER:-}" == "github" && -n "${VERCEL_GIT_REPO_OWNER:-}" && -n "${VERCEL_GIT_REPO_SLUG:-}" ]]; then
+    GIT_TERMINAL_PROMPT=0 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch --quiet --no-tags --unshallow --filter=blob:none \
+      "https://github.com/${VERCEL_GIT_REPO_OWNER}/${VERCEL_GIT_REPO_SLUG}.git" "$(git rev-parse HEAD)" || true
+  fi
+  if [[ "$(git rev-parse --is-shallow-repository 2>/dev/null)" == "false" ]]; then
+    echo "Deepened the Git clone to $(git rev-list --count HEAD) commits for content dates."
+  else
+    echo "WARNING: could not deepen the Git clone (shallow: ${shallow:-unknown}, provider: ${VERCEL_GIT_PROVIDER:-unset}); content pages keep only the dates the clone can prove." >&2
+  fi
 fi
 yarn build
