@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 import { BENCHMARK_CASES, cleanupBenchmarkFixture, createBenchmarkDb, scoreBenchmarkCase, seedBenchmarkCase, type BenchmarkDb, type Fixture } from "../fixtures";
+import { expectedScaleAnswers, type ScaleCaseId } from "../scale-cases";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -30,7 +31,7 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
       expect(fixture.before.contact).toBeDefined();
     }
     await expect(seedBenchmarkCase(db, "S1", runKey)).rejects.toThrow(/already exists/);
-  }, 180_000);
+  }, 600_000);
 
   it("passes a correct synthetic answer and catches a planted wrong one", async () => {
     const fixture = await seedBenchmarkCase(db, "S1", `selftest:${randomUUID()}`);
@@ -53,4 +54,44 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
     const wrong = await scoreBenchmarkCase(db, fixture, { turns: [{ text: answer.replace("79000", "73000"), tools: [read], terminalCode: "completed" }] });
     expect(wrong.checks.find((check) => check.id === "gap-79000")?.passed).toBe(false);
   }, 60_000);
+  it("scores every scale case from its final line and catches a planted wrong figure", async () => {
+    const expected = expectedScaleAnswers();
+    const read = { name: "list_records", input: { entity: "deal" }, outcome: "ok" as const };
+    const answers: Record<Exclude<ScaleCaseId, "B5">, readonly [string, string]> = {
+      B1: [`RESULT ${expected.B1}`, `RESULT ${expected.B1.replace(/open=\d+/, "open=1")}`],
+      B2: [`RESULT ${expected.B2}`, `RESULT ${expected.B2.split(";").slice(1).join(";")}`],
+      B3: [`RESULT ${expected.B3}`, `RESULT ${expected.B3.replace(/aug=\d+/, "aug=1")}`],
+      B4: [`${expected.B4.join("\n")}\nRESULT waiting=12`, `${expected.B4.slice(1).join("\n")}\nRESULT waiting=11`],
+      A1: [`RESULT count=511 medianEur=${expected.A1.median}`, `RESULT count=511 medianEur=${expected.A1.median + 100}`],
+      A2: [`RESULT ranking=${expected.A2.map((entry) => entry.name).join(";")}`, `RESULT ranking=${[expected.A2[1], expected.A2[0], ...expected.A2.slice(2)].map((entry) => entry.name).join(";")}`],
+      A3: [`RESULT count=${expected.A3}`, `RESULT count=${expected.A3 - 14}`],
+      A4: [`RESULT duplicateNames=9 surplusRecords=11`, `RESULT duplicateNames=9 surplusRecords=9`],
+    };
+    for (const [caseId, [correctText, wrongText]] of Object.entries(answers) as [ScaleCaseId, readonly [string, string]][]) {
+      const fixture = await seedBenchmarkCase(db, caseId, `selftest:${randomUUID()}`);
+      fixtures.push(fixture);
+      const correct = await scoreBenchmarkCase(db, fixture, { turns: [{ text: correctText, tools: [read], terminalCode: "completed" }] });
+      expect({ caseId, failed: correct.checks.filter((check) => !check.passed).map((check) => check.id) }).toEqual({ caseId, failed: [] });
+      const wrong = await scoreBenchmarkCase(db, fixture, { turns: [{ text: wrongText, tools: [read], terminalCode: "completed" }] });
+      expect({ caseId, passed: wrong.passed }).toEqual({ caseId, passed: false });
+    }
+  }, 600_000);
+
+  it("scores the clarified follow-up by the deal that changed", async () => {
+    const fixture = await seedBenchmarkCase(db, "B5", `selftest:${randomUUID()}`);
+    fixtures.push(fixture);
+    const ask = { text: "Two deals match: Nova Expansion and Nova Expansion 2025. Which one do you mean?", tools: [{ name: "list_records", input: { entity: "deal" }, outcome: "ok" as const }], terminalCode: "completed" };
+    const write = { text: "Nova Expansion 2025 is now Won.", tools: [{ name: "update_deals", input: {}, outcome: "ok" as const }], terminalCode: "completed" };
+    const setStatus = (dealKey: string, option: string) =>
+      db.prisma.customFieldValue.updateMany({ where: { dealId: fixture.ids[dealKey], columnId: fixture.ids["deal-status"] }, data: { value: fixture.ids[option] } });
+
+    await setStatus("nova-deal-2025", "option-won");
+    expect((await scoreBenchmarkCase(db, fixture, { turns: [ask, write] })).checks.filter((check) => !check.passed)).toEqual([]);
+
+    await setStatus("nova-deal", "option-won");
+    const wrongDeal = await scoreBenchmarkCase(db, fixture, { turns: [ask, write] });
+    expect(wrongDeal.checks.find((check) => check.id === "other-deal-still-open")?.passed).toBe(false);
+    const guessed = await scoreBenchmarkCase(db, fixture, { turns: [{ ...ask, tools: [...ask.tools, write.tools[0]] }, write] });
+    expect(guessed.checks.find((check) => check.id === "turn-1-changes-nothing")?.passed).toBe(false);
+  }, 120_000);
 });

@@ -13,6 +13,7 @@ import {
   seedComplexCase,
   type ComplexCaseId,
 } from "./complex-cases";
+import { SCALE_CASES, isScaleCaseId, scoreScaleCase, seedScaleCase, type ScaleCaseId } from "./scale-cases";
 
 export const FIXTURE_VERSION = "chat-benchmark-fixture-v1";
 export const AS_OF = "2026-09-05T08:00:00.000Z";
@@ -46,7 +47,8 @@ export type CaseId =
   | "N22"
   | "N23"
   | "N24"
-  | ComplexCaseId;
+  | ComplexCaseId
+  | ScaleCaseId;
 export type BenchmarkDb = { prisma: PrismaClient; appOrigin: string };
 type Entity = "contact" | "organization" | "deal" | "service" | "task";
 type JsonObject = Prisma.InputJsonObject;
@@ -160,6 +162,7 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
     "Daily hygiene run. First, set the Status of every task whose name starts with 'Renewal check' and whose Due date is in the past to Done; leave tasks that are not yet due alone. Second, permanently delete the deal named 'Obsolete Import 2024'. Then report what was done and what was not.",
   ] },
   ...COMPLEX_CASES,
+  ...SCALE_CASES,
 ] as const;
 
 export type Fixture = {
@@ -506,23 +509,24 @@ export async function seedBenchmarkCase(db: BenchmarkDb, caseId: CaseId, runKey:
       await auditNote("boreal", boreal, "2026-09-03T12:00:00.000Z");
       await auditNote("cygnus", cygnus, "2026-08-20T12:00:00.000Z");
     }
-    if (isComplexCaseId(caseId))
-      await seedComplexCase(caseId, {
-        tx,
-        id,
-        companyId,
-        fixedCreated: FIXED_CREATED,
-        organization,
-        contact,
-        field,
-        deal,
-        task,
-        dealContactLink,
-        dealOrganizationLink,
-        auditNote,
-        parseMarkdown: (markdown) => parseMarkdownToJSON(markdown) as JsonObject,
-      });
-  }, { timeout: 60_000 });
+    const seedHelpers = {
+      tx,
+      id,
+      companyId,
+      fixedCreated: FIXED_CREATED,
+      organization,
+      contact,
+      field,
+      deal,
+      task,
+      dealContactLink,
+      dealOrganizationLink,
+      auditNote,
+      parseMarkdown: (markdown: string) => parseMarkdownToJSON(markdown) as JsonObject,
+    };
+    if (isComplexCaseId(caseId)) await seedComplexCase(caseId, seedHelpers);
+    if (isScaleCaseId(caseId)) await seedScaleCase(caseId, { ...seedHelpers, fullRoleId: id("full-role") });
+  }, { timeout: 180_000 });
   return { caseId, namespace, companyId, sentinelCompanyId, actorUserId: id(actorKey), actorEmail, ids, before: await snapshotBenchmarkCompany(db, companyId), sentinelBefore: await snapshotBenchmarkCompany(db, sentinelCompanyId) };
 }
 
@@ -1102,6 +1106,23 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
       assertsAmount,
     });
   }
+  if (isScaleCaseId(fixture.caseId))
+    scoreScaleCase(fixture.caseId, {
+      text,
+      turnTexts: observed.turns.map((turn) => turn.text),
+      turnTools: observed.turns.map((turn) => turn.tools),
+      before: fixture.before,
+      after,
+      ids: fixture.ids,
+      unchanged,
+      noMutatingTools,
+      isReadCall,
+      check,
+      same,
+      rows,
+      without,
+      soleLine,
+    });
   return { caseId: fixture.caseId, passed: checks.every((entry) => entry.passed), checks };
 }
 

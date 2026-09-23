@@ -214,7 +214,7 @@ async function auditValueChange(h: SeedHelpers, key: string, previous: number, c
   });
 }
 
-async function mailThread(
+export async function mailThread(
   h: SeedHelpers,
   key: string,
   subject: string,

@@ -23,7 +23,7 @@ function artifact(arm: string, caseId: string, repetition: number, passed: boole
     actorUserId: "user",
     prompts: ["p"],
     judgeFacts: [],
-    turns: [{ index: 0, prompt: "p", conversationId: "x", status: 200, timing: { firstFrameMs: 500, firstDeltaMs: 1200, lastFrameMs: wallMs }, wallMs, terminal: { type: "turn_done", terminalCode }, uiCommands: [], approvals: [], frameCount: 3, error: null }],
+    turns: [{ index: 0, prompt: "p", conversationId: "x", status: 200, timing: { firstFrameMs: 500, firstOutputMs: 800, firstDeltaMs: 1200, lastFrameMs: wallMs }, wallMs, terminal: { type: "turn_done", terminalCode }, uiCommands: [], approvals: [], frameCount: 3, error: null }],
     observed: [{ text: "answer", tools: [], terminalCode: "completed" }],
     metrics: { turns: [{ id: "t", status: "completed", terminalCode: "completed", stopReason: null, modelSpec: "m", servingProvider: "p", createdAt: "2026-09-13T00:00:00.000Z", providerStartedAt: null, terminalAt: null }], rounds: [{ turnRequestId: "t", roundIndex: 0, inputTokens: 1000, outputTokens: 100, cacheReadTokens: 500, cacheWriteTokens: 0, reasoningTokens: 0, costMicrocents: "1", finishReason: "stop", createdAt: "2026-09-13T00:00:00.000Z" }] },
     usage: [{ turnRequestId: "t", costMicrocents: String(Math.round(usd * 100_000_000)), costSource: "measured", chargedCredits: Math.max(1, Math.ceil(usd * 100)), state: "settled", model: "m" }],
@@ -57,6 +57,7 @@ describe("benchmark report", () => {
     expect(shipped?.neverSolvedCases).toEqual(["S4"]);
     expect(candidate?.passAt3).toBe(1);
     expect(candidate?.incompleteTurnShare).toBe(0);
+    expect(candidate).toMatchObject({ firstOutputP50Ms: 800, ttftP50Ms: 1200, judgeCoverage: 0, judgeDisagreementShare: 0 });
     expect(report.arms.find((arm) => arm.arm === "slow")?.incompleteTurnShare).toBeCloseTo(1 / 12, 6);
     expect(report.uniformlyFailingChecks).toEqual(["always-fails"]);
     const comparison = report.comparisons.find((entry) => entry.arm === "current/candidate");

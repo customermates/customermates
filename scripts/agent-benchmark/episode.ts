@@ -137,7 +137,7 @@ async function runTurn(input: {
     prompt: input.prompt,
     conversationId: input.conversationId,
     status: 0,
-    timing: { firstFrameMs: null, firstDeltaMs: null, lastFrameMs: null },
+    timing: { firstFrameMs: null, firstOutputMs: null, firstDeltaMs: null, lastFrameMs: null },
     wallMs: 0,
     terminal: null,
     uiCommands: [],
