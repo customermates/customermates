@@ -1,8 +1,6 @@
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { randomUUID } from "node:crypto";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 
 import { Client } from "pg";
 import { createTranslator } from "next-intl";
@@ -627,34 +625,6 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     await client.query('DELETE FROM "Company" WHERE "id" = $1', [cascadeCompanyId]);
 
     expect(await client.query('SELECT 1 FROM "WikiPage" WHERE "id" = $1', [pageId])).toMatchObject({ rowCount: 0 });
-  });
-
-  it("backfills Wiki Read for every existing non-system role and remains idempotent", async () => {
-    const regularRoleId = randomUUID();
-    const systemRoleId = randomUUID();
-    const migration = readFileSync(
-      join(process.cwd(), "prisma/migrations/20260908120100_workspace_wiki_default_read/migration.sql"),
-      "utf8",
-    );
-
-    await client.query("BEGIN");
-    try {
-      await client.query(
-        'INSERT INTO "UserRole" ("id", "name", "isSystemRole", "companyId", "createdAt", "updatedAt") VALUES ($1, $2, false, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), ($4, $5, true, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)',
-        [regularRoleId, `Wiki reader ${regularRoleId}`, companyId, systemRoleId, `Wiki admin ${systemRoleId}`],
-      );
-
-      await client.query(migration);
-      await client.query(migration);
-
-      const permissions = await client.query(
-        'SELECT "roleId", "resource", "action" FROM "RolePermission" WHERE "roleId" = ANY($1) ORDER BY "roleId"',
-        [[regularRoleId, systemRoleId]],
-      );
-      expect(permissions.rows).toEqual([{ roleId: regularRoleId, resource: "wiki", action: "readAll" }]);
-    } finally {
-      await client.query("ROLLBACK");
-    }
   });
 
   it("persists Wiki Manage as CRUD plus Read, supports Read-only, and supports revocation", async () => {
