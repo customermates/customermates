@@ -144,8 +144,11 @@ describe("analyze_records", () => {
       { reads: [read("list_things"), read("list_things")], code: "() => 1" },
       { tools: [tool] },
     );
-    expect(outcome.ok).toBe(false);
-    expect(outcome.result).toMatch(/matched 3000 rows, more than the 5000/);
+    expect(outcome).toEqual({
+      ok: false,
+      result:
+        "list_things matched 3000 rows, more than the 2000 left of the 5000 one analysis can work on after its earlier reads. Narrow its filters, or split the question. The analysis code was not run.",
+    });
   });
 
   it("stops on an unreadable input or a failed read, and reports a failing function", async () => {

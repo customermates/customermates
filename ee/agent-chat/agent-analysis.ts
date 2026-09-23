@@ -91,9 +91,13 @@ async function runRead(mcp: McpTool, read: Read, rowBudget: number): Promise<Rea
     return { ok: true, data: firstContent, rows: 0 };
   const total = typeof firstContent.total === "number" ? firstContent.total : firstItems.length;
   if (total > rowBudget) {
+    const limit =
+      rowBudget < ANALYSIS_MAX_ROWS
+        ? `the ${rowBudget} left of the ${ANALYSIS_MAX_ROWS} one analysis can work on after its earlier reads`
+        : `the ${ANALYSIS_MAX_ROWS} one analysis can work on`;
     return {
       ok: false,
-      error: `${mcp.name} matched ${total} rows, more than the ${ANALYSIS_MAX_ROWS} one analysis can work on. Narrow its filters, or split the question.`,
+      error: `${mcp.name} matched ${total} rows, more than ${limit}. Narrow its filters, or split the question.`,
     };
   }
 
