@@ -7,9 +7,7 @@ export function getAgentProviderOptions(
   return {
     gateway: {
       only: [servingProvider],
-      inferenceRegion: inferenceRegion
-        ? { scope: "zone" as const, geoRegion: inferenceRegion }
-        : { scope: "global" as const },
+      ...(inferenceRegion ? { inferenceRegion: { scope: "zone" as const, geoRegion: inferenceRegion } } : {}),
       zeroDataRetention: true,
       disallowPromptTraining: true,
       caching: "auto" as const,
