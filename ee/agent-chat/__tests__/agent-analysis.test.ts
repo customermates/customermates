@@ -96,6 +96,19 @@ function deps(...tools: McpTool[]): AnalysisDeps {
 }
 
 describe("analyze_records", () => {
+  it("refuses code that does not parse before it runs any read", async () => {
+    const { tool, execute } = listTool("list_things", 5);
+    const outcome = await analyzeRecords(
+      { reads: [{ tool: "list_things", input: {} }], code: "function count(d) { return d.length; } count(data)" },
+      deps(tool),
+    );
+    expect(outcome.ok).toBe(false);
+    expect(outcome.result).toMatch(
+      /^The analysis code does not parse as one function expression \(.+\)\. .+ No read was run\.$/,
+    );
+    expect(execute).not.toHaveBeenCalled();
+  });
+
   it("reads every page of a list with the largest page size and hands the full set to the code", async () => {
     const { tool, execute } = listTool("list_things", 250);
     const outcome = await analyzeRecords(

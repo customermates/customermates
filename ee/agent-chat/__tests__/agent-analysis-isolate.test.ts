@@ -7,7 +7,7 @@ import type * as WorkerThreads from "node:worker_threads";
 
 import { describe, expect, it, vi } from "vitest";
 
-import { ANALYSIS_LIMITS, runAnalysisCode } from "../agent-analysis-isolate";
+import { ANALYSIS_LIMITS, checkAnalysisCode, runAnalysisCode } from "../agent-analysis-isolate";
 
 const TIME_BUDGET_ERROR = "The analysis code ran longer than its time budget and was stopped.";
 const STEP_BUDGET_ERROR = "The analysis code exceeded its step budget and was stopped.";
@@ -280,6 +280,29 @@ describe("analysis isolate", () => {
       ok: true,
       serialized: "2",
     });
+  });
+
+  it("runs a function expression that ends in a comment or a semicolon", async () => {
+    for (const code of [
+      "(data) => data.length // count the rows",
+      "(data) => {\n  return data.length;\n} // count",
+      "(data) => data.length;",
+      "(data) => {\r\n  return data.length;\r\n};  ;\r\n",
+      "async (data) => data.length // count",
+    ]) {
+      await expect(runAnalysisCode(code, "[1, 2, 3]", RESULT_MAX_CHARS)).resolves.toEqual({
+        ok: true,
+        serialized: "3",
+      });
+    }
+  });
+
+  it("checks that the code parses without running it", async () => {
+    await expect(checkAnalysisCode("(data) => data.length;")).resolves.toBeNull();
+    await expect(checkAnalysisCode("(() => { for (;;) {} })(), (data) => 1")).resolves.toBeNull();
+    await expect(checkAnalysisCode("const run = (data) => data.length; run")).resolves.toMatch(
+      /^The analysis code does not parse as one function expression \(.+\)\. Write it as \(data\) => \{ \.\.\.; return result; \} and declare any helper functions inside it\.$/,
+    );
   });
 
   it("runs async code and a function that returns a promise, and returns what the promise resolves to", async () => {

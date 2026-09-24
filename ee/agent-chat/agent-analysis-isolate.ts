@@ -54,6 +54,7 @@ type AnalysisWorkerData = {
   resultMaxChars: number;
   messageMaxChars: number;
   compileOnly: number;
+  checkOnly: boolean;
 };
 
 const TIMED_OUT: WorkerReport = { ok: false, stop: "time", message: "" };
@@ -94,6 +95,10 @@ const ANALYSIS_WORKER_SOURCE = `(async () => {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       report.postMessage({ ok: false, stop, message: message.slice(0, workerData.messageMaxChars), unparsed: true });
+      return;
+    }
+    if (workerData.checkOnly) {
+      report.postMessage({ ok: true, serialized: null });
       return;
     }
     const input = vm.newString(workerData.input);
@@ -146,8 +151,14 @@ function quickjsModule(): Promise<WebAssembly.Module> {
   return compiledModule;
 }
 
+function withoutTrailingSemicolons(code: string): string {
+  let end = code.trimEnd().length;
+  while (end > 0 && code[end - 1] === ";") end = code.slice(0, end - 1).trimEnd().length;
+  return code.slice(0, end);
+}
+
 function analysisSource(code: string): string {
-  return `(() => { const run = (${code}); if (typeof run !== "function") throw new TypeError("${NOT_A_FUNCTION}"); const data = JSON.parse(__analysisInput); __analysisInput = undefined; const iterates = (item) => item instanceof Map || item instanceof Set || item instanceof WeakMap || item instanceof WeakSet || (!Array.isArray(item) && (typeof item.next === "function" || typeof item[Symbol.asyncIterator] === "function")); const serialize = (value) => JSON.stringify(value, (key, item) => { if (item instanceof Promise) throw new TypeError("${HOLDS_PROMISE}"); if (typeof item === "object" && item !== null && iterates(item)) throw new TypeError("${HOLDS_ITERATOR}"); return item; }); const result = run(data); return result instanceof Promise ? result.then(serialize) : serialize(result); })()`;
+  return `(() => { const run = (\n${withoutTrailingSemicolons(code)}\n); if (typeof run !== "function") throw new TypeError("${NOT_A_FUNCTION}"); const data = JSON.parse(__analysisInput); __analysisInput = undefined; const iterates = (item) => item instanceof Map || item instanceof Set || item instanceof WeakMap || item instanceof WeakSet || (!Array.isArray(item) && (typeof item.next === "function" || typeof item[Symbol.asyncIterator] === "function")); const serialize = (value) => JSON.stringify(value, (key, item) => { if (item instanceof Promise) throw new TypeError("${HOLDS_PROMISE}"); if (typeof item === "object" && item !== null && iterates(item)) throw new TypeError("${HOLDS_ITERATOR}"); return item; }); const result = run(data); return result instanceof Promise ? result.then(serialize) : serialize(result); })()`;
 }
 
 function reportedMessage(message: string): string {
@@ -211,15 +222,21 @@ async function runInWorker(
   }
 }
 
-export async function runAnalysisCode(
+function unparsedError(message: string): string {
+  if (/out of memory/i.test(message)) return "The analysis code ran out of memory and was stopped.";
+  return `The analysis code does not parse as one function expression (${message.slice(0, MESSAGE_MAX_CHARS)}). Write it as (data) => { ...; return result; } and declare any helper functions inside it.`;
+}
+
+async function runAnalysisWorker(
   code: string,
   input: string,
   resultMaxChars: number,
-  limits: AnalysisLimits = ANALYSIS_LIMITS,
-): Promise<AnalysisOutcome> {
+  limits: AnalysisLimits,
+  checkOnly: boolean,
+): Promise<WorkerReport> {
   const wasm = await quickjsModule();
   const deadline = Date.now() + limits.wallMs;
-  const report = await runInWorker(
+  return runInWorker(
     {
       quickjsUrl: pathToFileURL(join(process.cwd(), "node_modules", "quickjs-wasi", "dist", "index.js")).href,
       wasm,
@@ -232,17 +249,31 @@ export async function runAnalysisCode(
       resultMaxChars,
       messageMaxChars: MESSAGE_MAX_CHARS,
       compileOnly: EvalFlags.COMPILE_ONLY,
+      checkOnly,
     },
     deadline + TERMINATE_MARGIN_MS - Date.now(),
     limits.workerHeapMb,
   );
+}
+
+export async function checkAnalysisCode(
+  code: string,
+  limits: AnalysisLimits = ANALYSIS_LIMITS,
+): Promise<string | null> {
+  const report = await runAnalysisWorker(code, "null", 0, limits, true);
+  if (report.ok || "resultChars" in report) return null;
+  return report.unparsed ? unparsedError(report.message) : stoppedError(report.stop, report.message);
+}
+
+export async function runAnalysisCode(
+  code: string,
+  input: string,
+  resultMaxChars: number,
+  limits: AnalysisLimits = ANALYSIS_LIMITS,
+): Promise<AnalysisOutcome> {
+  const report = await runAnalysisWorker(code, input, resultMaxChars, limits, false);
   if (report.ok) return { ok: true, serialized: report.serialized };
   if ("resultChars" in report) return { ok: false, resultChars: report.resultChars };
-  if (report.unparsed) {
-    return {
-      ok: false,
-      error: `The analysis code does not parse as one function expression (${report.message.slice(0, MESSAGE_MAX_CHARS)}). Write it as (data) => { ...; return result; } and declare any helper functions inside it.`,
-    };
-  }
+  if (report.unparsed) return { ok: false, error: unparsedError(report.message) };
   return { ok: false, error: stoppedError(report.stop, report.message) };
 }

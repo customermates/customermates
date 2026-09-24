@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { executeMcpTool, validationError, type McpTool } from "@/features/mcp-tools/mcp-tool";
 
-import { runAnalysisCode, type AnalysisLimits } from "./agent-analysis-isolate";
+import { checkAnalysisCode, runAnalysisCode, type AnalysisLimits } from "./agent-analysis-isolate";
 import { isReadOnlyTool } from "./gated-tools";
 
 export const ANALYSIS_MAX_ROWS = 10_000;
@@ -204,6 +204,9 @@ export async function analyzeRecords(
     }
     planned.push({ read, mcp });
   }
+
+  const unparsed = await checkAnalysisCode(input.code, deps.limits);
+  if (unparsed) return { ok: false, result: `${unparsed} No read was run.` };
 
   const collected = await readAll(planned);
   if (!collected.ok) return collected;
