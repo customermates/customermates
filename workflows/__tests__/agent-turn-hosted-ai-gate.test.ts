@@ -1856,14 +1856,13 @@ describe("routine browse-or-mutate batch safety", () => {
     action: "create",
     pages: [{ title: "Tone", markdown: "Be clear." }],
   };
-  const setupTopics = ["company_overview", "products_services", "customers_competitors", "voice_tone", "support_faq"];
   const setupWrite = (source = "https://example.com/") => ({
     action: "create",
     requireEmpty: true,
-    pages: setupTopics.map((topic, index) => ({
-      topic,
-      sections: index === 2 ? [] : [{ heading: "Details", content: `Supported ${topic}` }],
-      sources: index === 2 ? [] : [source],
+    pages: ["Company overview", "Products and value"].map((title) => ({
+      title,
+      sections: [{ heading: "Details", content: `Supported ${title}` }],
+      sources: [source],
     })),
   });
   const call = (toolName: string, toolCallId: string, input: unknown) => ({
@@ -2209,7 +2208,7 @@ describe("routine browse-or-mutate batch safety", () => {
   });
 
   it("creates setup pages only when every cited source was read successfully", async () => {
-    const citedWrite = setupWrite();
+    const citedWrite = setupWrite("https://example.com/#evidence");
     state.runTools = async ({ executeAndCompleteTool }) => {
       expect(await executeAndCompleteTool("read_public_page", read, "read-1")).toMatchObject({ ok: true });
       expect(await executeAndCompleteTool("manage_wiki_pages", citedWrite, "write-1")).toMatchObject({ ok: true });
@@ -2228,10 +2227,7 @@ describe("routine browse-or-mutate batch safety", () => {
     expect(state.execute).toHaveBeenCalledWith(
       {
         ...citedWrite,
-        pages: citedWrite.pages.map((page) => ({
-          ...page,
-          sources: page.sources.length > 0 ? ["https://example.com/"] : [],
-        })),
+        pages: citedWrite.pages.map((page) => ({ ...page, sources: ["https://example.com/"] })),
       },
       expect.anything(),
     );

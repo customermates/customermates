@@ -1,14 +1,14 @@
 import { z } from "zod";
 
 import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/editor/editor.utils";
+import { MAX_NOTES_LENGTH } from "@/core/validation/validate-notes";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx, type Data } from "@/core/validation/validation.utils";
 
-export const WIKI_MARKDOWN_MAX_LENGTH = 65_535;
 export const WIKI_TITLE_MAX_LENGTH = 120;
 
 export const WikiMarkdownSchema = z.string().transform((markdown, ctx) => {
-  if (markdown.length > WIKI_MARKDOWN_MAX_LENGTH) {
+  if (markdown.length > MAX_NOTES_LENGTH) {
     ctx.addIssue({
       code: "custom",
       params: { error: CustomErrorCode.notesExceedsMaxLength },
@@ -18,7 +18,7 @@ export const WikiMarkdownSchema = z.string().transform((markdown, ctx) => {
 
   try {
     const canonical = serializeJSONToMarkdown(parseMarkdownToJSON(markdown));
-    if (canonical.length > WIKI_MARKDOWN_MAX_LENGTH) {
+    if (canonical.length > MAX_NOTES_LENGTH) {
       ctx.addIssue({
         code: "custom",
         params: { error: CustomErrorCode.notesExceedsMaxLength },

@@ -3669,26 +3669,11 @@
     "continueBackground": "Continue while Mate works",
     "conversationTitle": "Set up Workspace Wiki",
     "createBlank": "Create a blank page",
-    "description": "Turn your website into five useful, connected Wiki pages for Mate and the AI tools you connect.",
+    "description": "Turn your website into useful Wiki pages for Mate and the AI tools you connect.",
     "gapsNote": "Mate cites what it finds and marks missing information instead of guessing.",
     "generated": {
-      "defaultGaps": {
-        "company_overview": "Which mission, story, markets, and company facts should Mate treat as authoritative?\n- Which proof points and contact paths should Mate use?",
-        "customers_competitors": "Which customer segments, needs, and buying triggers should Mate prioritize?\n- Which competitors, alternatives, objections, and proof should Mate use?",
-        "products_services": "Which offerings and value claims should Mate use in customer work?\n- Which limitations, implementation details, and product changes require internal confirmation?",
-        "support_faq": "Which sales stages, qualification rules, CRM fields, and owners should Mate follow?\n- What are the handoffs, support channels, service levels, and escalation paths?\n- Which routines need human approval, and who gives it?",
-        "voice_tone": "Which wording, claims, examples, and calls to action are approved?\n- Which terms, promises, and styles should Mate avoid?"
-      },
       "gapsHeading": "Gaps to confirm",
-      "relatedPages": "Related pages",
-      "sourcesHeading": "Sources",
-      "topics": {
-        "company_overview": "Company Overview",
-        "customers_competitors": "Customers, Market & Competition",
-        "products_services": "Products, Services & Value",
-        "support_faq": "Sales, Onboarding & Support",
-        "voice_tone": "Voice, Tone & Messaging"
-      }
+      "sourcesHeading": "Sources"
     },
     "homepageHelp": "Public HTTP(S) website. Mate reads this page and may follow up to three useful links on the same site.",
     "homepageLabel": "Company website",
@@ -3701,8 +3686,8 @@
     "startFailed": "Mate could not start the Wiki setup. Please try again.",
     "startFromWebsite": "Build from my website",
     "status": {
-      "completedBody": "Your five connected starter pages are ready, with cited website facts and clear gaps for anything the site could not verify.",
-      "completedBodyOnboarding": "Mate created five connected starter pages with cited website facts and clear gaps for anything it could not verify. You can review and edit them later in the Wiki.",
+      "completedBody": "Your starter pages are ready, with cited website facts and clear gaps for anything the site could not verify.",
+      "completedBodyOnboarding": "Mate created your starter pages with cited website facts and clear gaps for anything it could not verify. You can review and edit them later in the Wiki.",
       "completedExistingBody": "Your Wiki already contains pages. Continue onboarding or review the existing content.",
       "completedTitle": "Your starter Wiki is ready",
       "failedBody": "No pages were added. Try another website, or continue and add pages later.",

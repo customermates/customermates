@@ -21,6 +21,7 @@ vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
 }));
 
+import { MAX_NOTES_LENGTH } from "@/core/validation/validate-notes";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { DomainEvent } from "@/features/event/domain-events";
 
@@ -30,7 +31,7 @@ import { GetWikiPageInteractor } from "../get-wiki-page.interactor";
 import { GetWikiPagesInteractor } from "../get-wiki-pages.interactor";
 import { SearchWikiPagesInteractor } from "../search-wiki-pages.interactor";
 import { UpdateWikiPageInteractor } from "../update-wiki-page.interactor";
-import { WIKI_MARKDOWN_MAX_LENGTH, WikiMarkdownSchema, type WikiPageDto } from "../wiki.schema";
+import { WikiMarkdownSchema, type WikiPageDto } from "../wiki.schema";
 
 const PAGE_ID = "00000000-0000-4000-8000-000000000001";
 const UPDATED_AT = new Date("2026-09-08T10:00:00.000Z");
@@ -129,75 +130,11 @@ describe("CreateWikiPagesInteractor", () => {
     expect(submitted[0].markdown).toBe("Read [the source](https://example.com/source).");
     expect(submitted[1].title).toBe(String.raw`Voice [external] \ handbook`);
     expect(submitted.every((item: { id: string }) => /^[0-9a-f-]{36}$/.test(item.id))).toBe(true);
+    expect(submitted.map((item: object) => Object.keys(item).toSorted())).toEqual([
+      ["id", "markdown", "title"],
+      ["id", "markdown", "title"],
+    ]);
     expect(WikiMarkdownSchema.parse(submitted[0].markdown)).toBe(submitted[0].markdown);
-  });
-
-  it("adds stable server-generated links across the exact five homepage topics", async () => {
-    const repo = {
-      createPages: vi.fn().mockImplementation((data) =>
-        Promise.resolve({
-          status: "created",
-          pages: data.pages.map((item: { id: string; title: string; markdown: string }) => page(item)),
-        }),
-      ),
-    };
-    const topics = [
-      ["company_overview", "Company Overview"],
-      ["products_services", "Products, Services & Value"],
-      ["customers_competitors", "Customers, Market & Competition"],
-      ["voice_tone", "Voice, Tone & Messaging"],
-      ["support_faq", "Sales, Onboarding & Support"],
-    ] as const;
-
-    const result = await new CreateWikiPagesInteractor(repo as never, eventService() as never).invoke({
-      requireEmpty: true,
-      pages: topics.map(([setupTopic, title]) => ({
-        setupTopic,
-        setupRelatedHeading: "Related pages",
-        title,
-        markdown: `Verified ${title}\n\n## Gaps to confirm\n\nConfirm with the team.`,
-      })),
-    });
-
-    expect(result.ok).toBe(true);
-    const submitted = repo.createPages.mock.calls[0][0].pages as Array<{
-      id: string;
-      setupTopic: string;
-      title: string;
-      markdown: string;
-    }>;
-    expect(new Set(submitted.map(({ id }) => id))).toHaveProperty("size", 5);
-    const overview = submitted.find(({ setupTopic }) => setupTopic === "company_overview");
-    if (!overview) throw new Error("Overview was not created.");
-    for (const target of submitted.filter(({ setupTopic }) => setupTopic !== "company_overview")) {
-      expect(overview.markdown).toContain(`[${target.title}](/wiki?page=${target.id})`);
-      expect(target.markdown).toContain(`[${overview.title}](/wiki?page=${overview.id})`);
-      expect(WikiMarkdownSchema.parse(target.markdown)).toBe(target.markdown);
-    }
-  });
-
-  it("rejects a partial or mixed homepage setup before writing", async () => {
-    const repo = { createPages: vi.fn() };
-    const result = await new CreateWikiPagesInteractor(repo, eventService() as never).invoke({
-      requireEmpty: true,
-      pages: [
-        {
-          setupTopic: "company_overview",
-          setupRelatedHeading: "Related pages",
-          title: "Company Overview",
-          markdown: "Body",
-        },
-        { title: "Ordinary page", markdown: "Body" },
-      ],
-    });
-
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.error.issues[0]).toMatchObject({
-        params: { error: CustomErrorCode.notesInvalidFormat },
-      });
-    }
-    expect(repo.createPages).not.toHaveBeenCalled();
   });
 
   it("returns a structured refusal when Markdown exceeds the cap", async () => {
@@ -208,7 +145,7 @@ describe("CreateWikiPagesInteractor", () => {
       pages: [
         {
           title: "Long page",
-          markdown: "a".repeat(WIKI_MARKDOWN_MAX_LENGTH + 1),
+          markdown: "a".repeat(MAX_NOTES_LENGTH + 1),
         },
       ],
       requireEmpty: true,

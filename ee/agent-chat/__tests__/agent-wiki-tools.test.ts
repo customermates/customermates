@@ -554,16 +554,10 @@ describe("managed Wiki retrieval tools", () => {
 });
 
 describe("homepage setup tool boundary", () => {
-  const setupPages = [
-    "company_overview",
-    "products_services",
-    "customers_competitors",
-    "voice_tone",
-    "support_faq",
-  ].map((topic) => ({
-    topic,
-    sections: [{ heading: "Details", content: `Verified ${topic}` }],
-    sources: [`https://example.com/${topic}`],
+  const setupPages = ["Company overview", "Products and value", "Customers and market"].map((title, index) => ({
+    title,
+    sections: [{ heading: "Details", content: `Verified ${title}` }],
+    sources: [`https://example.com/${index}`],
   }));
 
   it.each([false, true])(
@@ -587,13 +581,15 @@ describe("homepage setup tool boundary", () => {
       expect(getAgentAiToolDefinitions(provider, options)).toEqual(describeAgentAiTools(actual, provider));
   });
 
-  it("validates the exact five-topic empty-only creation and denies all other actions before execution", async () => {
+  it("validates one to five evidence-backed empty-only pages and denies all other actions before execution", async () => {
     const options = { wikiHomepageSetup: true, webSearchEnabled: true };
-    const input = { action: "create", requireEmpty: true, pages: setupPages };
-    expect(await normalizeAgentAiToolInput("manage_wiki_pages", input, 6_000, options)).toMatchObject({
-      ok: true,
-      input,
-    });
+    for (const pages of [setupPages.slice(0, 1), setupPages]) {
+      const input = { action: "create", requireEmpty: true, pages };
+      expect(await normalizeAgentAiToolInput("manage_wiki_pages", input, 6_000, options)).toMatchObject({
+        ok: true,
+        input,
+      });
+    }
     for (const input of [
       { action: "get", id: PAGE_ID },
       {
@@ -610,12 +606,17 @@ describe("homepage setup tool boundary", () => {
       {
         action: "create",
         requireEmpty: true,
-        pages: setupPages.slice(0, 4),
+        pages: [...setupPages, ...setupPages.map((page, index) => ({ ...page, title: `Extra ${index}` }))],
       },
       {
         action: "create",
         requireEmpty: true,
-        pages: [...setupPages.slice(0, 4), setupPages[0]],
+        pages: [...setupPages, setupPages[0]],
+      },
+      {
+        action: "create",
+        requireEmpty: true,
+        pages: setupPages.map((page, index) => (index === 0 ? { ...page, sections: [] } : page)),
       },
       {
         action: "create",
@@ -663,33 +664,9 @@ describe("homepage setup tool boundary", () => {
     });
     expect(calls.create).toHaveBeenCalledWith({
       requireEmpty: true,
-      pages: [
-        expect.objectContaining({
-          setupTopic: "company_overview",
-          setupRelatedHeading: "Related pages",
-          title: "Company Overview",
-          markdown: expect.stringContaining("## Gaps to confirm"),
-        }),
-        expect.objectContaining({
-          setupTopic: "products_services",
-          title: "Products, Services & Value",
-        }),
-        expect.objectContaining({
-          setupTopic: "customers_competitors",
-          title: "Customers, Market & Competition",
-        }),
-        expect.objectContaining({
-          setupTopic: "voice_tone",
-          title: "Voice, Tone & Messaging",
-        }),
-        expect.objectContaining({
-          setupTopic: "support_faq",
-          title: "Sales, Onboarding & Support",
-        }),
-      ],
+      pages: setupPages.map(({ title }) => ({ title, markdown: expect.stringContaining("## Sources") })),
     });
-    expect(calls.create.mock.calls[0][0].pages[0].markdown).toContain("## Sources");
-    expect(calls.create.mock.calls[0][0].pages[0].markdown).toContain("<https://example.com/company_overview>");
+    expect(calls.create.mock.calls[0][0].pages[0].markdown).toContain("<https://example.com/0>");
     expect(deps.runExactlyOnce).toHaveBeenCalledWith("wiki-test-call", "manage_wiki_pages", expect.any(Function));
     expect(deps.requestApproval).not.toHaveBeenCalled();
     expect(deps.runInCallerContext).toHaveBeenCalledOnce();

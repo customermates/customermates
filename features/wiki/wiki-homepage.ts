@@ -5,15 +5,6 @@ export type PublicWikiHomepage = {
   registrableDomain: string;
 };
 
-export const WIKI_HOMEPAGE_TOPICS = [
-  "company_overview",
-  "products_services",
-  "customers_competitors",
-  "voice_tone",
-  "support_faq",
-] as const;
-export type WikiHomepageTopic = (typeof WIKI_HOMEPAGE_TOPICS)[number];
-
 export function parsePublicDomainName(value: string): string | null {
   const canonical = value.trim().toLowerCase();
   const parsed = parseDomain(canonical, { allowPrivateDomains: true });

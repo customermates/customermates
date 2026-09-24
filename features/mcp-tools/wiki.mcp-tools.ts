@@ -19,7 +19,6 @@ import {
 import { wikiPageUrl } from "@/features/wiki/wiki-links";
 import { WikiMarkdownSchema, WIKI_TITLE_MAX_LENGTH } from "@/features/wiki/wiki.schema";
 import { env } from "@/env";
-import { WIKI_HOMEPAGE_TOPICS } from "@/features/wiki/wiki-homepage";
 import { getTranslator } from "@/i18n/get-translator";
 import { DEFAULT_LOCALE, isAppLocale, type AppLocale } from "@/i18n/locale-registry";
 
@@ -58,30 +57,24 @@ const PageInputSchema = z.object({
   title: z.string().trim().min(1).max(WIKI_TITLE_MAX_LENGTH),
   markdown: z.string(),
 });
-const WikiHomepageTopicSchema = z.enum(WIKI_HOMEPAGE_TOPICS);
-const WIKI_HOMEPAGE_RESERVED_HEADINGS = new Set(
+export const WIKI_HOMEPAGE_RESERVED_HEADINGS = new Set(
   [
     "Sources",
     "Gaps to confirm",
-    "Related pages",
     "Quellen",
     "Noch zu klären",
-    "Verwandte Seiten",
     "Fuentes",
     "Aspectos por confirmar",
-    "Páginas relacionadas",
     "Points à confirmer",
-    "Pages associées",
     "Fonti",
     "Aspetti da confermare",
-    "Pagine correlate",
   ].map((heading) => heading.toLocaleLowerCase()),
 );
 function normalizeWikiHomepageText(value: string) {
   return value.replace(/[ \t]*—[ \t]*/gu, " - ").trim();
 }
 
-function normalizeWikiHomepageHeading(value: string) {
+function normalizeWikiHomepageLine(value: string) {
   const canonical = WikiMarkdownSchema.safeParse(value);
   return normalizeWikiHomepageText(wikiMarkdownPlainText(canonical.success ? canonical.data : value)).replace(
     /[ \t]+#{1,6}[ \t]*$/u,
@@ -98,25 +91,25 @@ function normalizeWikiHomepageContent(value: string) {
   return reparsed.success ? reparsed.data.trim() : "";
 }
 
-const WikiHomepageSectionHeadingSchema = z
-  .string()
-  .trim()
-  .min(1)
-  .max(120)
-  .refine((value) => !/[\r\n]/u.test(value), "A section heading must be one line.")
-  .refine((value) => !wikiMarkdownHasLinksOrImages(value), "A section heading cannot contain links or images.")
-  .transform(normalizeWikiHomepageHeading)
-  .pipe(
-    z
-      .string()
-      .min(1, "A section heading cannot contain only Markdown markers.")
-      .max(120)
-      .refine((value) => !/[\r\n]/u.test(value), "A section heading must be one line.")
-      .refine(
-        (value) => !WIKI_HOMEPAGE_RESERVED_HEADINGS.has(value.toLocaleLowerCase()),
-        "Sources, gaps, and related-page headings are added by the server.",
+function wikiHomepageLineSchema(maxLength: number) {
+  const plainLine = (schema: z.ZodString) =>
+    schema
+      .refine((value) => !/[\r\n]/u.test(value), "Use one line.")
+      .refine((value) => !wikiMarkdownHasLinksOrImages(value), "Links and images are not allowed here.");
+  return plainLine(z.string().trim().min(1).max(maxLength))
+    .transform(normalizeWikiHomepageLine)
+    .pipe(
+      plainLine(z.string().min(1, "Use text, not only Markdown markers.").max(maxLength)).refine(
+        (value) => !wikiMarkdownHasHeadings(value),
+        "Use plain text without Markdown headings.",
       ),
-  );
+    );
+}
+
+const WikiHomepageSectionHeadingSchema = wikiHomepageLineSchema(120).refine(
+  (value) => !WIKI_HOMEPAGE_RESERVED_HEADINGS.has(value.toLocaleLowerCase()),
+  "Sources and gaps headings are added by the server.",
+);
 const WikiHomepageSectionContentSchema = z
   .string()
   .trim()
@@ -139,58 +132,55 @@ const WikiHomepageSectionSchema = z.object({
     "Short descriptive heading in the requested language. Do not include Markdown # markers.",
   ),
   content: WikiHomepageSectionContentSchema.describe(
-    "Concise evidence-backed Markdown paragraphs or lists for this section. Do not include any headings, Sources, gaps, related pages, or em dashes.",
+    "Concise evidence-backed Markdown paragraphs or lists for this section. Do not include any headings, sources, gaps, or em dashes.",
   ),
 });
-const WikiHomepageSetupPageSchema = z
-  .object({
-    topic: WikiHomepageTopicSchema.describe(
-      "The single starter-page topic. company_overview covers identity, mission, public proof, and trust. products_services covers durable offerings, value, capabilities, use cases, and integrations without plan names, pricing, limits, or plan gating. customers_competitors uses only explicit company audience evidence; competitor copy cannot establish this company's customers. voice_tone records observable wording and examples as unapproved observations. support_faq covers public onboarding, support, documentation, security, policies, and useful gaps in internal process without commercial offer terms.",
+const WikiHomepageSetupPageSchema = z.object({
+  title: wikiHomepageLineSchema(WIKI_TITLE_MAX_LENGTH).describe(
+    "Short page title in the requested language that names the knowledge area this page covers. Unique within the call.",
+  ),
+  sections: z
+    .array(WikiHomepageSectionSchema)
+    .min(1)
+    .max(5)
+    .describe(
+      "One to five complementary sections containing only durable facts directly supported by successfully read pages. One strong section is better than several weak ones. Omit trials and offers, plan names, pricing, limits, plan gating, inferred audiences, and unsupported approval behavior. The server renders each heading as H2.",
     ),
-    sections: z
-      .array(WikiHomepageSectionSchema)
-      .max(5)
-      .describe(
-        "Zero to five complementary sections containing only durable facts directly supported by successfully read pages. One strong section is better than several weak ones. Use zero when the sources do not support this topic with durable facts. Omit trials and offers, plan names, pricing, limits, plan gating, inferred audiences, and unsupported approval behavior. The server renders the H2 headings and adds localized review questions.",
-      ),
-    sources: z
-      .array(PublicSourceUrlSchema)
-      .max(4)
-      .describe("Exact successful read_public_page result URLs used as evidence for this page's sections."),
-  })
-  .superRefine((page, ctx) => {
-    if (page.sections.length > 0 !== page.sources.length > 0) {
-      ctx.addIssue({
-        code: "custom",
-        message: "Sections and sources must either both contain evidence or both be empty.",
-        path: page.sections.length > 0 ? ["sources"] : ["sections"],
-      });
-    }
-  });
+  sources: z
+    .array(PublicSourceUrlSchema)
+    .min(1)
+    .max(4)
+    .describe(
+      "One to four exact successful read_public_page result URLs used as evidence for this page's sections. The server lists them under a localized Sources heading.",
+    ),
+  gaps: z
+    .array(wikiHomepageLineSchema(300))
+    .max(5)
+    .optional()
+    .describe(
+      "Up to five short questions in the requested language about details this page needs but the read pages did not state. Name the specific missing detail; never answer it with a guess. The server lists them under a localized gaps heading.",
+    ),
+});
 export const WikiHomepageSetupCreateSchema = z
   .object({
     action: z.literal("create"),
-    pages: z.array(WikiHomepageSetupPageSchema).length(WIKI_HOMEPAGE_TOPICS.length),
+    pages: z
+      .array(WikiHomepageSetupPageSchema)
+      .min(1)
+      .max(5)
+      .describe(
+        "One to five pages, one per knowledge area the read pages support. Merge thin areas into a related page and skip areas without evidence.",
+      ),
     requireEmpty: z.literal(true),
   })
   .superRefine((data, ctx) => {
-    const topics = new Set(data.pages.map(({ topic }) => topic));
-    for (const topic of WIKI_HOMEPAGE_TOPICS) {
-      if (!topics.has(topic)) {
-        ctx.addIssue({
-          code: "custom",
-          message: `Missing required topic: ${topic}`,
-          path: ["pages"],
-        });
-      }
-    }
-    if (!data.pages.some(({ sections }) => sections.length > 0)) {
-      ctx.addIssue({
-        code: "custom",
-        message: "At least one page must contain sourced website information.",
-        path: ["pages"],
-      });
-    }
+    const titles = new Set<string>();
+    data.pages.forEach(({ title }, index) => {
+      const key = title.toLocaleLowerCase();
+      if (titles.has(key))
+        ctx.addIssue({ code: "custom", message: "Each page title must be unique.", path: ["pages", index, "title"] });
+      titles.add(key);
+    });
   });
 const CreateSchema = z.object({
   pages: z.array(PageInputSchema).min(1).max(5),
@@ -390,36 +380,14 @@ export const manageWikiPagesTool = {
 
 async function setupPages(input: z.infer<typeof WikiHomepageSetupCreateSchema>, locale: AppLocale) {
   const t = await getTranslator(locale, "WikiSetup.generated");
-  const pagesByTopic = new Map(input.pages.map((page) => [page.topic, page]));
-  const titles = {
-    company_overview: t("topics.company_overview"),
-    products_services: t("topics.products_services"),
-    customers_competitors: t("topics.customers_competitors"),
-    voice_tone: t("topics.voice_tone"),
-    support_faq: t("topics.support_faq"),
-  } satisfies Record<(typeof WIKI_HOMEPAGE_TOPICS)[number], string>;
-  const defaultGaps = {
-    company_overview: t("defaultGaps.company_overview"),
-    products_services: t("defaultGaps.products_services"),
-    customers_competitors: t("defaultGaps.customers_competitors"),
-    voice_tone: t("defaultGaps.voice_tone"),
-    support_faq: t("defaultGaps.support_faq"),
-  } satisfies Record<(typeof WIKI_HOMEPAGE_TOPICS)[number], string>;
-  return WIKI_HOMEPAGE_TOPICS.map((topic) => {
-    const page = pagesByTopic.get(topic);
-    if (!page) throw new Error(`The homepage setup payload is missing ${topic}.`);
-    const body = page.sections.map(({ heading, content }) => `## ${heading}\n\n${content}`).join("\n\n");
-    const sourcedContent = body
-      ? `${body}\n\n## ${t("sourcesHeading")}\n\n` +
-        `${[...new Set(page.sources)].map((source) => `- <${source}>`).join("\n")}`
-      : "";
-    return {
-      setupTopic: topic,
-      setupRelatedHeading: t("relatedPages"),
-      title: titles[topic],
-      markdown: [sourcedContent, `## ${t("gapsHeading")}\n\n- ${defaultGaps[topic]}`].filter(Boolean).join("\n\n"),
-    };
-  });
+  return input.pages.map(({ title, sections, sources, gaps }) => ({
+    title,
+    markdown: [
+      ...sections.map(({ heading, content }) => `## ${heading}\n\n${content}`),
+      `## ${t("sourcesHeading")}\n\n${[...new Set(sources)].map((source) => `- <${source}>`).join("\n")}`,
+      ...(gaps?.length ? [`## ${t("gapsHeading")}\n\n${gaps.map((gap) => `- ${gap}`).join("\n")}`] : []),
+    ].join("\n\n"),
+  }));
 }
 
 export function wikiHomepageSetupTool(locale: string | undefined) {
@@ -427,7 +395,7 @@ export function wikiHomepageSetupTool(locale: string | undefined) {
   return {
     ...manageWikiPagesTool,
     description:
-      "Create five broad starter Wiki pages in one atomic empty-Wiki-only call. Supply each topic exactly once. Evidence-backed pages use zero to five structured sections and one to four exact successfully read source URLs; unsupported topics use empty sections and sources. Localized titles, H2 headings, Sources, tailored review questions, and stable internal links are added by the server.",
+      "Create one to five evidence-backed Wiki pages in one atomic call that succeeds only while the Wiki is empty. Create a page only for a knowledge area the read pages support; merge thin areas and skip unsupported ones. Each page needs a localized title, one to five structured sections, one to four exact successfully read source URLs, and optional page-specific gaps. The server adds the H2 headings, the localized Sources list, and a gaps list only when gaps are provided.",
     inputSchema: WikiHomepageSetupCreateSchema,
     execute: async (params: z.infer<typeof WikiHomepageSetupCreateSchema>) => {
       const parsed = WikiHomepageSetupCreateSchema.safeParse(params);

@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import { MAX_NOTES_LENGTH } from "@/core/validation/validate-notes";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-import { WIKI_MARKDOWN_MAX_LENGTH, WIKI_TITLE_MAX_LENGTH, WikiPageInputSchema } from "../wiki.schema";
+import { WIKI_TITLE_MAX_LENGTH, WikiPageInputSchema } from "../wiki.schema";
 
 describe("WikiPageInputSchema", () => {
   it("canonicalizes Markdown with the existing Notes parser and serializer", () => {
@@ -34,7 +35,7 @@ describe("WikiPageInputSchema", () => {
 
     const result = WikiPageInputSchema.safeParse({
       title: "Too long",
-      markdown: "x".repeat(WIKI_MARKDOWN_MAX_LENGTH + 1),
+      markdown: "x".repeat(MAX_NOTES_LENGTH + 1),
     });
 
     expect(result.success).toBe(false);
@@ -53,7 +54,7 @@ describe("WikiPageInputSchema", () => {
     expect(
       WikiPageInputSchema.safeParse({
         title: "Too much raw Markdown",
-        markdown: " ".repeat(WIKI_MARKDOWN_MAX_LENGTH + 1),
+        markdown: " ".repeat(MAX_NOTES_LENGTH + 1),
       }).success,
     ).toBe(false);
   });

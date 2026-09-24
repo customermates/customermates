@@ -101,12 +101,7 @@ export function normalizePublicPageSources(
     const pageInput = page as Record<string, unknown>;
     const sources = pageInput.sources;
     const sections = pageInput.sections;
-    if (!Array.isArray(sources)) return { ok: false };
-    if (sources.length === 0) {
-      if (!Array.isArray(sections) || sections.length > 0) return { ok: false };
-      normalizedPages.push({ ...pageInput, sources: [] });
-      continue;
-    }
+    if (!Array.isArray(sources) || sources.length === 0) return { ok: false };
     if (!Array.isArray(sections) || sections.length === 0) return { ok: false };
 
     const normalizedSources: string[] = [];

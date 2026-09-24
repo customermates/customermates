@@ -242,7 +242,7 @@ describe("public page read state", () => {
       expect(normalizePublicPageSources(state, input)).toEqual({ ok: false });
   });
 
-  it("permits empty sources only on an unsupported setup page", () => {
+  it("requires every setup page to cite a read source for its sections", () => {
     const state = startedState();
     recordPublicPageLinks(state, homepage.url, {
       ok: true,
@@ -250,44 +250,16 @@ describe("public page read state", () => {
       links: [],
     });
 
-    expect(
-      normalizePublicPageSources(state, {
-        action: "create",
-        pages: [
-          {
-            sections: sections(),
-            sources: [homepage.url],
-          },
-          {
-            sections: [],
-            sources: [],
-          },
-        ],
-      }),
-    ).toEqual({
-      ok: true,
-      input: {
-        action: "create",
-        pages: [
-          {
-            sections: sections(),
-            sources: [homepage.url],
-          },
-          {
-            sections: [],
-            sources: [],
-          },
-        ],
-      },
-    });
     for (const page of [
+      { sections: [], sources: [] },
       { sections: sections("Unsupported claim"), sources: [] },
-      { sources: [] },
-      { sections: "not an array", sources: [] },
+      { sections: [], sources: [homepage.url] },
+      { sources: [homepage.url] },
+      { sections: "not an array", sources: [homepage.url] },
     ]) {
-      expect(normalizePublicPageSources(state, { pages: [page] })).toEqual({
-        ok: false,
-      });
+      expect(
+        normalizePublicPageSources(state, { pages: [{ sections: sections(), sources: [homepage.url] }, page] }),
+      ).toEqual({ ok: false });
     }
   });
 

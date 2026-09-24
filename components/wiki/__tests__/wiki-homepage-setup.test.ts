@@ -109,7 +109,7 @@ afterEach(() => {
 });
 
 describe("WikiHomepageSetup", () => {
-  it("explains the five starter topics and keeps setup optional", () => {
+  it("lists the knowledge areas as guidance and keeps setup optional", () => {
     expect(input()).toMatchObject({
       type: "text",
       inputMode: "url",

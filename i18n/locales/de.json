@@ -3669,26 +3669,11 @@
     "continueBackground": "Weiter, während Mate arbeitet",
     "conversationTitle": "Workspace-Wiki einrichten",
     "createBlank": "Leere Seite erstellen",
-    "description": "Verwandle deine Website in fünf nützliche, verknüpfte Wiki-Seiten für Mate und verbundene KI-Tools.",
+    "description": "Verwandle deine Website in nützliche Wiki-Seiten für Mate und verbundene KI-Tools.",
     "gapsNote": "Mate belegt gefundene Informationen mit Quellen und markiert Lücken, statt zu raten.",
     "generated": {
-      "defaultGaps": {
-        "company_overview": "Welche Mission, Geschichte, Märkte und Unternehmensfakten soll Mate als verbindlich behandeln?\n- Welche Nachweise und Kontaktwege soll Mate verwenden?",
-        "customers_competitors": "Welche Kundensegmente, Bedürfnisse und Kaufsignale soll Mate priorisieren?\n- Welche Wettbewerber, Alternativen, Einwände und Nachweise soll Mate verwenden?",
-        "products_services": "Welche Angebote und Nutzenversprechen soll Mate in der Kundenarbeit verwenden?\n- Welche Einschränkungen, Umsetzungsdetails und Produktänderungen müssen intern bestätigt werden?",
-        "support_faq": "Welche Vertriebsphasen, Qualifizierungsregeln, CRM-Felder und Zuständigkeiten soll Mate befolgen?\n- Welche Übergaben, Supportkanäle, Servicelevels und Eskalationswege gelten?\n- Welche Routinen brauchen eine menschliche Freigabe, und wer erteilt sie?",
-        "voice_tone": "Welche Formulierungen, Aussagen, Beispiele und Handlungsaufforderungen sind freigegeben?\n- Welche Begriffe, Versprechen und Stilmittel soll Mate vermeiden?"
-      },
       "gapsHeading": "Noch zu klären",
-      "relatedPages": "Verwandte Seiten",
-      "sourcesHeading": "Quellen",
-      "topics": {
-        "company_overview": "Unternehmensüberblick",
-        "customers_competitors": "Kunden, Markt und Wettbewerb",
-        "products_services": "Produkte, Leistungen und Mehrwert",
-        "support_faq": "Vertrieb, Onboarding und Support",
-        "voice_tone": "Sprache, Ton und Botschaften"
-      }
+      "sourcesHeading": "Quellen"
     },
     "homepageHelp": "Öffentliche HTTP(S)-Website. Mate liest diese Seite und kann bis zu drei hilfreichen Links auf derselben Website folgen.",
     "homepageLabel": "Unternehmenswebsite",
@@ -3701,8 +3686,8 @@
     "startFailed": "Mate konnte die Wiki-Einrichtung nicht starten. Bitte versuche es erneut.",
     "startFromWebsite": "Aus meiner Website erstellen",
     "status": {
-      "completedBody": "Deine fünf verknüpften Wiki-Startseiten sind bereit. Sie enthalten belegte Fakten von deiner Website und klar markierte Lücken für alles, was dort nicht geprüft werden konnte.",
-      "completedBodyOnboarding": "Mate hat fünf verknüpfte Startseiten mit belegten Website-Fakten und klar markierten Lücken für alles erstellt, was nicht geprüft werden konnte. Du kannst sie später im Wiki prüfen und bearbeiten.",
+      "completedBody": "Deine Wiki-Startseiten sind bereit. Sie enthalten belegte Fakten von deiner Website und klar markierte Lücken für alles, was dort nicht geprüft werden konnte.",
+      "completedBodyOnboarding": "Mate hat deine Startseiten mit belegten Website-Fakten und klar markierten Lücken für alles erstellt, was nicht geprüft werden konnte. Du kannst sie später im Wiki prüfen und bearbeiten.",
       "completedExistingBody": "Dein Wiki enthält bereits Seiten. Fahre mit dem Onboarding fort oder prüfe die vorhandenen Inhalte.",
       "completedTitle": "Dein erstes Wiki ist bereit",
       "failedBody": "Es wurden keine Seiten hinzugefügt. Versuche eine andere Website oder fahre fort und füge später Seiten hinzu.",

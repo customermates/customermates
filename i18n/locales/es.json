@@ -3669,26 +3669,11 @@
     "continueBackground": "Continuar mientras Mate trabaja",
     "conversationTitle": "Configurar la wiki del espacio de trabajo",
     "createBlank": "Crear una página en blanco",
-    "description": "Convierte tu sitio web en cinco páginas wiki útiles y conectadas para Mate y las herramientas de IA que conectes.",
+    "description": "Convierte tu sitio web en páginas wiki útiles para Mate y las herramientas de IA que conectes.",
     "gapsNote": "Mate cita lo que encuentra y marca la información que falta en vez de inventarla.",
     "generated": {
-      "defaultGaps": {
-        "company_overview": "¿Qué misión, historia, mercados y datos de la empresa debe considerar Mate como referencia?\n- ¿Qué pruebas y vías de contacto debe usar Mate?",
-        "customers_competitors": "¿Qué segmentos de clientes, necesidades y motivos de compra debe priorizar Mate?\n- ¿Qué competidores, alternativas, objeciones y pruebas debe usar Mate?",
-        "products_services": "¿Qué ofertas y propuestas de valor debe usar Mate en el trabajo con clientes?\n- ¿Qué limitaciones, detalles de implementación y cambios de producto requieren confirmación interna?",
-        "support_faq": "¿Qué etapas de ventas, reglas de calificación, campos y responsables del CRM debe seguir Mate?\n- ¿Cuáles son los traspasos, canales de soporte, niveles de servicio y vías de escalación?\n- ¿Qué rutinas necesitan aprobación humana y quién la concede?",
-        "voice_tone": "¿Qué formulaciones, afirmaciones, ejemplos y llamadas a la acción están aprobados?\n- ¿Qué términos, promesas y estilos debe evitar Mate?"
-      },
       "gapsHeading": "Aspectos por confirmar",
-      "relatedPages": "Páginas relacionadas",
-      "sourcesHeading": "Fuentes",
-      "topics": {
-        "company_overview": "Resumen de la empresa",
-        "customers_competitors": "Clientes, mercado y competencia",
-        "products_services": "Productos, servicios y valor",
-        "support_faq": "Ventas, incorporación de clientes y soporte",
-        "voice_tone": "Voz, tono y mensajes"
-      }
+      "sourcesHeading": "Fuentes"
     },
     "homepageHelp": "Sitio web HTTP(S) público. Mate lee esta página y puede seguir hasta tres enlaces útiles del mismo sitio.",
     "homepageLabel": "Sitio web de la empresa",
@@ -3701,8 +3686,8 @@
     "startFailed": "Mate no pudo iniciar la configuración de la wiki. Inténtalo de nuevo.",
     "startFromWebsite": "Crear desde mi sitio web",
     "status": {
-      "completedBody": "Tus cinco páginas wiki iniciales y conectadas están listas. Incluyen datos respaldados por el sitio web y vacíos claros para lo que no se pudo verificar.",
-      "completedBodyOnboarding": "Mate ha creado cinco páginas iniciales conectadas con datos respaldados por el sitio web y vacíos claros para lo que no pudo verificar. Podrás revisarlas y editarlas más tarde en la wiki.",
+      "completedBody": "Tus páginas wiki iniciales están listas. Incluyen datos respaldados por el sitio web y vacíos claros para lo que no se pudo verificar.",
+      "completedBodyOnboarding": "Mate ha creado tus páginas iniciales con datos respaldados por el sitio web y vacíos claros para lo que no pudo verificar. Podrás revisarlas y editarlas más tarde en la wiki.",
       "completedExistingBody": "Tu wiki ya contiene páginas. Continúa la incorporación o revisa el contenido existente.",
       "completedTitle": "Tu wiki inicial está lista",
       "failedBody": "No se añadió ninguna página. Prueba otro sitio o continúa y añade páginas más tarde.",
