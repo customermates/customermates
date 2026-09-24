@@ -655,7 +655,7 @@ describe("analyze_records", () => {
       "createdAt and updatedAt",
       "a join, such as the deals that have an open task, is two list reads and one function",
       "get_record_schema maps option ids to labels",
-      "Pass include: [] on a list read that needs none of these fields",
+      "Pass include: [] on a list read that needs only id, name and the deal totals",
       "prefer filters, sums or list_records groupBy",
       "an empty array means none you can see is linked; a missing key means you cannot read that relation",
     ])
@@ -664,9 +664,9 @@ describe("analyze_records", () => {
     expect(ANALYZE_RECORDS_DESCRIPTION).not.toContain("an empty array means none is linked");
   });
 
-  it("puts the include: [] advice directly after the sentence that lists the fields include adds, before the date note", () => {
+  it("puts the include: [] advice directly after the sentence that lists the list_records fields, before the date note", () => {
     const listing = "and for deals totalValue, totalQuantity and weightedValue. ";
-    const advice = "Pass include: [] on a list read that needs none of these fields. ";
+    const advice = "Pass include: [] on a list read that needs only id, name and the deal totals. ";
     expect(ANALYZE_RECORDS_DESCRIPTION).toContain(`${listing}${advice}In userIds and the link arrays`);
     expect(ANALYZE_RECORDS_DESCRIPTION.split(advice)).toHaveLength(2);
     expect(ANALYZE_RECORDS_DESCRIPTION.indexOf(advice)).toBeLessThan(
