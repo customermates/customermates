@@ -51,8 +51,10 @@ describe("generateMetadataFromMeta", () => {
       openGraph: {
         description: "Plans and pricing",
         images: [image],
+        siteName: "Customermates",
         title: "Pricing",
         type: "website",
+        url: `${BASE_URL}/en/pricing`,
       },
       title: "Pricing",
       twitter: {

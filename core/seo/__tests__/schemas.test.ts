@@ -53,6 +53,11 @@ describe("article images", () => {
     slug: "agentic-crm",
   };
 
+  it("declares the article's language from the locale it is served in", () => {
+    expect(articleSchema(params).inLanguage).toBe("en");
+    expect(articleSchema({ ...params, locale: "de" }).inLanguage).toBe("de");
+  });
+
   it("dates the article's modification by its publication unless a later date is given", () => {
     expect(articleSchema(params).dateModified).toBe(params.datePublished);
     expect(articleSchema({ ...params, dateModified: "2026-09-01" }).dateModified).toBe("2026-09-01");
