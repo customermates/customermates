@@ -27,10 +27,7 @@ export type McpToolFailureResult = {
 export type McpToolResult =
   | string
   | McpToolFailureResult
-  | {
-      text: string;
-      structuredContent: Record<string, unknown>;
-    };
+  | { text: string; structuredContent: Record<string, unknown> };
 
 export function mcpToolResultText(result: McpToolResult): string {
   return typeof result === "string" ? result : result.text;

@@ -507,12 +507,7 @@ export class PrismaActivitiesRepo
 
     const idsFor = (entityType: EntityType) => [...(byType.get(entityType) ?? [])];
     const record = (entityType: EntityType, rows: Array<{ id: string } & ResolvedRecord>) => {
-      for (const row of rows) {
-        out.set(recordRefKey(entityType, row.id), {
-          label: row.label,
-          avatarUrl: row.avatarUrl,
-        });
-      }
+      for (const row of rows) out.set(recordRefKey(entityType, row.id), { label: row.label, avatarUrl: row.avatarUrl });
     };
 
     const [contacts, organizations, deals, services, tasks] = await Promise.all([
@@ -552,11 +547,7 @@ export class PrismaActivitiesRepo
 
     const rows = await this.findNamedRows(model, ids);
 
-    return rows.map((row) => ({
-      id: row.id,
-      label: row.name ?? "",
-      avatarUrl: null,
-    }));
+    return rows.map((row) => ({ id: row.id, label: row.name ?? "", avatarUrl: null }));
   }
 
   private accessibleAuditEntityIds(entityType: EntityType): Promise<string[] | undefined> {
@@ -822,9 +813,7 @@ export class PrismaActivitiesRepo
       : EMPTY_CALENDAR_WHERE;
     const calendarNegative: Prisma.CalendarEventWhereInput = emails.length ? { NOT: calendar } : {};
     const thread: Prisma.MessagingThreadWhereInput = identifierGroups.length
-      ? {
-          OR: [participantThread, { messages: { some: { OR: senderTargets } } }],
-        }
+      ? { OR: [participantThread, { messages: { some: { OR: senderTargets } } }] }
       : EMPTY_THREAD_WHERE;
 
     return {
@@ -836,9 +825,7 @@ export class PrismaActivitiesRepo
       calendarNegative,
       thread,
       threadNegative: identifierGroups.length
-        ? {
-            AND: [{ NOT: participantThread }, { messages: { some: senderNegative } }],
-          }
+        ? { AND: [{ NOT: participantThread }, { messages: { some: senderNegative } }] }
         : {},
     };
   }

@@ -99,12 +99,7 @@ export function extractAuditChanges(eventData: unknown): AuditChange[] {
       continue;
     }
 
-    result.push({
-      field,
-      ...(isSnapshot && { snapshot: true }),
-      previous: value.previous,
-      current: value.current,
-    });
+    result.push({ field, ...(isSnapshot && { snapshot: true }), previous: value.previous, current: value.current });
   }
 
   return result

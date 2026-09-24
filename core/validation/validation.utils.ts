@@ -206,18 +206,10 @@ function nonBlankText(max: number) {
     .string()
     .max(max)
     .superRefine((value, ctx) => {
-      if (value.trim().length === 0) {
-        ctx.addIssue({
-          code: "custom",
-          params: { error: CustomErrorCode.mustNotBeBlank },
-        });
-      }
-      if (/\u0000/.test(value)) {
-        ctx.addIssue({
-          code: "custom",
-          params: { error: CustomErrorCode.mustNotContainNullChars },
-        });
-      }
+      if (value.trim().length === 0)
+        ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.mustNotBeBlank } });
+      if (/\u0000/.test(value))
+        ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.mustNotContainNullChars } });
     });
 }
 
