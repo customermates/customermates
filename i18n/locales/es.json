@@ -418,8 +418,8 @@
     "context": {
       "addAria": "Añadir contexto",
       "addTooltip": "Añadir contexto o escribir /",
-      "namedNewViewLabel": "Nueva vista: {name}",
-      "newViewLabel": "Nueva vista de {location}",
+      "namedNewViewLabel": "Nueva {viewType}: {name}",
+      "newViewLabel": "Nueva {viewType}",
       "noResults": "No hay ningún contexto coincidente",
       "onThisPage": "En esta página",
       "records": "Registros",
@@ -434,8 +434,11 @@
         "timeline": "Cambia los filtros de actividad o la ordenación de esta vista así: ",
         "update": "Actualiza esta vista así: "
       },
-      "timelineLocation": "Historial de actividad de este registro",
-      "viewLabel": "Vista: {name}"
+      "surfaceViewType": "vista de {location}",
+      "surfaceViewTypeStandalone": "Vista de {location}",
+      "timelineViewType": "vista de actividad",
+      "timelineViewTypeStandalone": "Vista de actividad",
+      "viewLabel": "{viewType}: {name}"
     },
     "credits": {
       "blocked": {

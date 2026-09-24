@@ -418,8 +418,8 @@
     "context": {
       "addAria": "Add context",
       "addTooltip": "Add context or type /",
-      "namedNewViewLabel": "New view: {name}",
-      "newViewLabel": "New {location} view",
+      "namedNewViewLabel": "New {viewType}: {name}",
+      "newViewLabel": "New {viewType}",
       "noResults": "No matching context",
       "onThisPage": "On this page",
       "records": "Records",
@@ -434,8 +434,11 @@
         "timeline": "Change the activity filters or sorting for this view as follows: ",
         "update": "Update this view as follows: "
       },
-      "timelineLocation": "Activity timeline for this record",
-      "viewLabel": "View: {name}"
+      "surfaceViewType": "{location} view",
+      "surfaceViewTypeStandalone": "{location} view",
+      "timelineViewType": "Activity view",
+      "timelineViewTypeStandalone": "Activity view",
+      "viewLabel": "{viewType}: {name}"
     },
     "credits": {
       "blocked": {

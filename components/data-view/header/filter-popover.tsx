@@ -22,16 +22,14 @@ type Props = {
   store: BaseDataViewStore<any>;
   compact?: boolean;
   id?: string;
-  registerPageContext?: boolean;
 };
 
-export const FilterPopover = observer(function FilterPopover({ store, compact, id, registerPageContext }: Props) {
+export const FilterPopover = observer(function FilterPopover({ store, compact, id }: Props) {
   const t = useTranslations();
   const { filterPaletteStore: palette } = useRootStore();
   const filterFieldLabel = useFilterFieldLabel();
-  const triggerRef = useRef<HTMLButtonElement>(null);
   const ai = useViewAi(store, {
-    registerPageContext: registerPageContext ?? false,
+    registerPageContext: false,
     entry: "filters",
   });
   const pendingAi = useRef<(() => void) | null>(null);
@@ -66,7 +64,6 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, i
 
   const trigger = (
     <Button
-      ref={triggerRef}
       aria-label={t("Common.ariaLabels.tooltipFilters")}
       className={cn(
         "relative",

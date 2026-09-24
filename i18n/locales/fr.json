@@ -418,8 +418,8 @@
     "context": {
       "addAria": "Ajouter du contexte",
       "addTooltip": "Ajouter du contexte ou saisir /",
-      "namedNewViewLabel": "Nouvelle vue : {name}",
-      "newViewLabel": "Nouvelle vue {location}",
+      "namedNewViewLabel": "Nouvelle {viewType} : {name}",
+      "newViewLabel": "Nouvelle {viewType}",
       "noResults": "Aucun contexte correspondant",
       "onThisPage": "Sur cette page",
       "records": "Enregistrements",
@@ -434,8 +434,11 @@
         "timeline": "Modifiez les filtres d’activité ou le tri de cette vue comme suit : ",
         "update": "Modifiez cette vue comme suit : "
       },
-      "timelineLocation": "Historique d’activité de cette fiche",
-      "viewLabel": "Vue : {name}"
+      "surfaceViewType": "vue {location}",
+      "surfaceViewTypeStandalone": "Vue {location}",
+      "timelineViewType": "vue des activités",
+      "timelineViewTypeStandalone": "Vue des activités",
+      "viewLabel": "{viewType} : {name}"
     },
     "credits": {
       "blocked": {

@@ -53,7 +53,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({ appMode: harness.appMode.current, agentChatStore: harness.agent }),
 }));
 vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ plural: (entity: string) => `${entity}s` }),
+  useEntityTerminology: () => ({ singular: (entity: string) => entity }),
 }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock("@/app/actions", () => ({
@@ -325,7 +325,7 @@ describe("data view rail interaction", () => {
     expect(closeEvent.defaultPrevented).toBe(true);
     expect(harness.agent.openWithContextDraft).toHaveBeenCalledExactlyOnceWith({
       context: {
-        label: "AgentChat.context.viewLabel(Open deals)",
+        label: "AgentChat.context.viewLabel(Open deals,AgentChat.context.surfaceViewTypeStandalone(deal))",
         reference: {
           kind: "dataView",
           requestedAction: "update",
@@ -350,7 +350,7 @@ describe("data view rail interaction", () => {
     expect(harness.agent.openWithContextDraft).toHaveBeenCalledWith(
       expect.objectContaining({
         context: expect.objectContaining({
-          label: "AgentChat.context.viewLabel(DataView.views.all)",
+          label: "AgentChat.context.viewLabel(DataView.views.all,AgentChat.context.surfaceViewTypeStandalone(deal))",
           reference: expect.objectContaining({ viewKey: ALL_VIEW_KEY }),
         }),
       }),
@@ -368,10 +368,10 @@ describe("data view rail interaction", () => {
   });
 
   it.each([
-    ["", "AgentChat.context.newViewLabel(deals)", "AgentChat.context.starter.create"],
+    ["", "AgentChat.context.newViewLabel(AgentChat.context.surfaceViewType(deal))", "AgentChat.context.starter.create"],
     [
       "  Qualified leads  ",
-      "AgentChat.context.namedNewViewLabel(Qualified leads)",
+      "AgentChat.context.namedNewViewLabel(Qualified leads,AgentChat.context.surfaceViewType(deal))",
       "AgentChat.context.starter.createNamed(Qualified leads)",
     ],
   ])("carries the optional name %j into the attached create-view context", (name, label, draft) => {
@@ -425,7 +425,7 @@ describe("data view rail interaction", () => {
     expect(harness.agent.openWithContextDraft).toHaveBeenCalledWith(
       expect.objectContaining({
         context: expect.objectContaining({
-          label: "AgentChat.context.viewLabel(Open deals)",
+          label: "AgentChat.context.viewLabel(Open deals,AgentChat.context.surfaceViewTypeStandalone(deal))",
           reference: expect.objectContaining({ viewKey: OPEN.id }),
         }),
       }),

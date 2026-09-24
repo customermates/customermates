@@ -59,9 +59,15 @@ vi.mock("../agent-chat-items", () => ({
   consecutiveActivityItems: () => [],
   isWorkingActivityGroup: () => false,
 }));
-vi.mock("../agent-status-announcer", () => ({ AgentInitialProgress: () => null }));
-vi.mock("../agent-composer-contexts", () => ({ AgentComposerContexts: () => null }));
-vi.mock("../credit-blocked-notice", () => ({ CreditBlockedNotice: () => null }));
+vi.mock("../agent-status-announcer", () => ({
+  AgentInitialProgress: () => null,
+}));
+vi.mock("../agent-composer-contexts", () => ({
+  AgentComposerContexts: () => null,
+}));
+vi.mock("../credit-blocked-notice", () => ({
+  CreditBlockedNotice: () => null,
+}));
 vi.mock("../queued-prompt", () => ({ QueuedPrompt: () => null }));
 vi.mock("../usage-ring", () => ({ UsageRing: () => null }));
 
@@ -95,23 +101,28 @@ afterEach(() => {
 });
 
 describe("AgentComposer context shortcut", () => {
-  it("opens the same controlled context picker without changing the existing draft", () => {
+  it("opens the same controlled context picker without changing the existing draft", async () => {
     act(() => root.render(createElement(AgentComposer)));
+    await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
 
-    const textarea = container.querySelector<HTMLTextAreaElement>('[data-testid="agent-composer"]');
-    expect(textarea).not.toBeNull();
+    const editor = container.querySelector<HTMLElement>('[data-testid="agent-composer-input-line"] [role="textbox"]');
+    expect(editor).not.toBeNull();
     expect(harness.pickerProps?.open).toBe(false);
-    textarea?.setSelectionRange(textarea.value.length, textarea.value.length);
+    expect(editor?.textContent).toBe("Keep my draft ");
 
-    const slash = new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "/" });
+    const slash = new KeyboardEvent("keydown", {
+      bubbles: true,
+      cancelable: true,
+      key: "/",
+    });
     act(() => {
-      textarea?.dispatchEvent(slash);
+      editor?.dispatchEvent(slash);
     });
 
     expect(slash.defaultPrevented).toBe(true);
     expect(harness.pickerProps?.open).toBe(true);
     expect(harness.pickerProps?.restoreComposerFocusOnEscape).toBe(true);
-    expect(textarea?.value).toBe("Keep my draft ");
+    expect(editor?.textContent).toBe("Keep my draft ");
     expect(harness.store.setComposerDraft).not.toHaveBeenCalled();
 
     act(() => harness.pickerProps?.onOpenChange(false));
@@ -119,5 +130,109 @@ describe("AgentComposer context shortcut", () => {
 
     act(() => harness.pickerProps?.onOpenChange(true));
     expect(harness.pickerProps?.restoreComposerFocusOnEscape).toBe(false);
+  });
+
+  it("keeps plain text editing, line breaks, and submit behavior inside the inline editor", async () => {
+    act(() => root.render(createElement(AgentComposer)));
+    await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
+
+    const inputLine = container.querySelector<HTMLElement>('[data-testid="agent-composer-input-line"]');
+    const editor = inputLine?.querySelector<HTMLElement>('[role="textbox"]');
+    expect(inputLine?.className).not.toContain("flex-wrap");
+    expect(editor?.className).toContain("agent-composer-editor inline");
+    expect(editor?.getAttribute("contenteditable")).toBe("true");
+    expect(editor?.getAttribute("aria-multiline")).toBe("true");
+
+    const lineBreak = new KeyboardEvent("keydown", {
+      bubbles: true,
+      cancelable: true,
+      key: "Enter",
+      shiftKey: true,
+    });
+    act(() => {
+      editor?.dispatchEvent(lineBreak);
+    });
+    expect(lineBreak.defaultPrevented).toBe(true);
+    expect(harness.store.setComposerDraft).toHaveBeenCalledWith("Keep my draft \n");
+    expect(harness.store.submitDraft).not.toHaveBeenCalled();
+
+    const submit = new KeyboardEvent("keydown", {
+      bubbles: true,
+      cancelable: true,
+      key: "Enter",
+    });
+    act(() => {
+      editor?.dispatchEvent(submit);
+    });
+    expect(submit.defaultPrevented).toBe(true);
+    expect(harness.store.submitDraft).toHaveBeenCalledOnce();
+  });
+
+  it("pastes markup as literal plain text", async () => {
+    act(() => root.render(createElement(AgentComposer)));
+    await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
+
+    const editor = container.querySelector<HTMLElement>('[data-testid="agent-composer-input-line"] [role="textbox"]');
+    const paste = new Event("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(paste, "clipboardData", {
+      value: { getData: () => "<strong>plain</strong>" },
+    });
+    act(() => {
+      editor?.dispatchEvent(paste);
+    });
+
+    expect(paste.defaultPrevented).toBe(true);
+    expect(editor?.querySelector("strong")).toBeNull();
+    expect(editor?.textContent).toBe("Keep my draft <strong>plain</strong>");
+    expect(harness.store.setComposerDraft).toHaveBeenCalledWith("Keep my draft <strong>plain</strong>");
+  });
+
+  it("appends after a controlled starter draft injected after mount", async () => {
+    harness.store.composerDraft = "";
+    act(() => root.render(createElement(AgentComposer)));
+    await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
+
+    harness.store.composerDraft = "Injected starter ";
+    act(() => root.render(createElement(AgentComposer)));
+
+    const editor = container.querySelector<HTMLElement>('[data-testid="agent-composer-input-line"] [role="textbox"]');
+    const paste = new Event("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(paste, "clipboardData", {
+      value: { getData: () => "details" },
+    });
+    act(() => {
+      editor?.dispatchEvent(paste);
+    });
+
+    expect(editor?.textContent).toBe("Injected starter details");
+    expect(harness.store.setComposerDraft).toHaveBeenCalledWith("Injected starter details");
+  });
+
+  it("does not erase a selected draft when the clipboard has no plain text", async () => {
+    act(() => root.render(createElement(AgentComposer)));
+    await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
+
+    const editor = container.querySelector<HTMLElement>('[data-testid="agent-composer-input-line"] [role="textbox"]');
+    const paste = new Event("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(paste, "clipboardData", {
+      value: { getData: () => "" },
+    });
+    act(() => {
+      editor?.dispatchEvent(paste);
+    });
+
+    expect(paste.defaultPrevented).toBe(true);
+    expect(editor?.textContent).toBe("Keep my draft ");
+    expect(harness.store.setComposerDraft).not.toHaveBeenCalled();
+  });
+
+  it("renders an inline placeholder when the controlled draft is empty", () => {
+    harness.store.composerDraft = "";
+    act(() => root.render(createElement(AgentComposer)));
+
+    const placeholder = container.querySelector<HTMLElement>('[data-testid="agent-composer-placeholder"]');
+    const editor = container.querySelector<HTMLElement>('[role="textbox"]');
+    expect(placeholder?.textContent).toBe("AgentChat.placeholder");
+    expect(editor?.getAttribute("aria-placeholder")).toBe("AgentChat.placeholder");
   });
 });

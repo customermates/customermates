@@ -80,8 +80,8 @@ vi.mock("@/core/stores/root-store.provider", () => ({
 }));
 vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
   useEntityTerminology: () => ({
-    plural: (entity: string) =>
-      harness.locale ? catalogs[harness.locale].EntityTerminology.presets.contact.contact.plural : `${entity}s`,
+    singular: (entity: string) =>
+      harness.locale ? catalogs[harness.locale].EntityTerminology.presets.contact.contact.singular : entity,
   }),
 }));
 vi.mock("@/components/entity-terminology/use-column-label", () => ({
@@ -262,7 +262,7 @@ describe("view menu AI context handoff", () => {
     expect(closeEvent.defaultPrevented).toBe(true);
     expect(harness.agent.openWithContextDraft).toHaveBeenCalledExactlyOnceWith({
       context: {
-        label: "View: All",
+        label: "Contact view: All",
         reference: {
           kind: "dataView",
           requestedAction: "update",
@@ -306,6 +306,8 @@ describe("view menu AI context handoff", () => {
       });
       render(createElement(FilterPopover, { id: "filters", store }));
 
+      expect(harness.agent.contextRegistry.register).not.toHaveBeenCalled();
+
       const closeEvent = openAi("filters");
 
       const pageRoute = `${harness.pathname}?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.entityTimeline}&viewAction=update`;
@@ -314,6 +316,7 @@ describe("view menu AI context handoff", () => {
         context: {
           label: interpolate(copy.AgentChat.context.viewLabel, {
             name: copy.DataView.views.all,
+            viewType: copy.AgentChat.context.timelineViewTypeStandalone,
           }),
           reference: {
             kind: "dataView",
@@ -366,7 +369,7 @@ describe("view menu AI context handoff", () => {
     expect(closeEvent.defaultPrevented).toBe(true);
     expect(harness.agent.openWithContextDraft).toHaveBeenCalledExactlyOnceWith({
       context: {
-        label: "AgentChat.context.viewLabel(Qualified contacts)",
+        label: "AgentChat.context.viewLabel(Qualified contacts,AgentChat.context.surfaceViewTypeStandalone(contact))",
         reference: {
           kind: "dataView",
           requestedAction: "update",

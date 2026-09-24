@@ -418,8 +418,8 @@
     "context": {
       "addAria": "Aggiungi contesto",
       "addTooltip": "Aggiungi contesto o digita /",
-      "namedNewViewLabel": "Nuova vista: {name}",
-      "newViewLabel": "Nuova vista {location}",
+      "namedNewViewLabel": "Nuova {viewType}: {name}",
+      "newViewLabel": "Nuova {viewType}",
       "noResults": "Nessun contesto corrispondente",
       "onThisPage": "In questa pagina",
       "records": "Record",
@@ -434,8 +434,11 @@
         "timeline": "Modifica i filtri delle attività o l’ordinamento di questa vista come segue: ",
         "update": "Aggiorna questa vista come segue: "
       },
-      "timelineLocation": "Cronologia delle attività di questo record",
-      "viewLabel": "Vista: {name}"
+      "surfaceViewType": "vista {location}",
+      "surfaceViewTypeStandalone": "Vista {location}",
+      "timelineViewType": "vista attività",
+      "timelineViewTypeStandalone": "Vista attività",
+      "viewLabel": "{viewType}: {name}"
     },
     "credits": {
       "blocked": {

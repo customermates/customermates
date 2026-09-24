@@ -45,7 +45,7 @@ describe("benchmark structured context requests", () => {
     );
     expect(request.contexts).toEqual([
       {
-        label: "View: All",
+        label: "Contact view: All",
         reference: {
           kind: "dataView",
           surfaceKey: SURFACE.contacts,
@@ -68,7 +68,7 @@ describe("benchmark structured context requests", () => {
     );
     expect(request.contexts).toEqual([
       {
-        label: "New view: Contacts with deals",
+        label: "New Contact view: Contacts with deals",
         reference: {
           kind: "dataView",
           surfaceKey: SURFACE.contacts,
@@ -92,7 +92,7 @@ describe("benchmark structured context requests", () => {
     );
     expect(request.contexts).toEqual([
       {
-        label: "Ansicht: Alle",
+        label: "Aktivitätsansicht: Alle",
         reference: {
           kind: "dataView",
           surfaceKey: SURFACE.entityTimeline,

@@ -418,8 +418,8 @@
     "context": {
       "addAria": "Kontext hinzufügen",
       "addTooltip": "Kontext hinzufügen oder / eingeben",
-      "namedNewViewLabel": "Neue Ansicht: {name}",
-      "newViewLabel": "Neue {location}-Ansicht",
+      "namedNewViewLabel": "Neue {viewType}: {name}",
+      "newViewLabel": "Neue {viewType}",
       "noResults": "Kein passender Kontext",
       "onThisPage": "Auf dieser Seite",
       "records": "Datensätze",
@@ -434,8 +434,11 @@
         "timeline": "Ändere Aktivitätsfilter oder Sortierung dieser Ansicht wie folgt: ",
         "update": "Aktualisiere diese Ansicht wie folgt: "
       },
-      "timelineLocation": "Aktivitätenverlauf dieses Datensatzes",
-      "viewLabel": "Ansicht: {name}"
+      "surfaceViewType": "{location}-Ansicht",
+      "surfaceViewTypeStandalone": "{location}-Ansicht",
+      "timelineViewType": "Aktivitätsansicht",
+      "timelineViewTypeStandalone": "Aktivitätsansicht",
+      "viewLabel": "{viewType}: {name}"
     },
     "credits": {
       "blocked": {

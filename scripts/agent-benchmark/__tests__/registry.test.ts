@@ -43,7 +43,7 @@ describe("unified benchmark registry", () => {
       pageRoute: `/en/contacts?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.contacts}&viewAction=update`,
       contexts: [
         {
-          label: "View: All",
+          label: "Contact view: All",
           reference: {
             kind: "dataView",
             surfaceKey: SURFACE.contacts,
@@ -58,7 +58,7 @@ describe("unified benchmark registry", () => {
       pageRoute: expect.stringContaining("viewAction=create"),
       contexts: [
         {
-          label: "New view: Contacts with deals",
+          label: "New Contact view: Contacts with deals",
           reference: {
             kind: "dataView",
             surfaceKey: SURFACE.contacts,
@@ -73,7 +73,7 @@ describe("unified benchmark registry", () => {
       pageRoute: `/de/contacts/{contact}?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.entityTimeline}&viewAction=update`,
       contexts: [
         {
-          label: "Ansicht: Alle",
+          label: "Aktivitätsansicht: Alle",
           reference: {
             kind: "dataView",
             surfaceKey: SURFACE.entityTimeline,

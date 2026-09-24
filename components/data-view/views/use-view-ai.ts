@@ -14,7 +14,7 @@ import { SurfaceKeySchema } from "@/core/data-view/data-view-identity.schema";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
-import { viewAiLocation } from "./view-ai-location";
+import { viewAiTypeLabel } from "./view-ai-type-label";
 
 const subscribeToHydration = () => () => undefined;
 const clientSnapshot = () => true;
@@ -38,7 +38,7 @@ export function useViewAi<E extends HasId>(
   const { agentChatStore } = useRootStore();
   const pathname = usePathname();
   const t = useTranslations();
-  const { plural } = useEntityTerminology();
+  const { singular } = useEntityTerminology();
   const hydrated = useSyncExternalStore(subscribeToHydration, clientSnapshot, serverSnapshot);
   const releaseActionContext = useRef<(() => void) | null>(null);
 
@@ -57,7 +57,8 @@ export function useViewAi<E extends HasId>(
     const releaseCandidates = agentChatStore.contextRegistry.register(pathname, () => {
       if (!store.isReady || store.p13nId !== surfaceKey) return [];
       const activeName = store.views.find((view) => view.id === store.activeViewKey)?.name ?? t("DataView.views.all");
-      const location = viewAiLocation(surfaceKey, t, plural);
+      const currentViewType = viewAiTypeLabel(surfaceKey, t, singular, "standalone");
+      const newViewType = viewAiTypeLabel(surfaceKey, t, singular, "embedded");
       const current: AgentContextAttachment = {
         reference: {
           kind: "dataView",
@@ -65,7 +66,10 @@ export function useViewAi<E extends HasId>(
           viewKey: store.activeViewKey,
           requestedAction: "update",
         },
-        label: t("AgentChat.context.viewLabel", { name: activeName }),
+        label: t("AgentChat.context.viewLabel", {
+          name: activeName,
+          viewType: currentViewType,
+        }),
       };
       const create: AgentContextAttachment = {
         reference: {
@@ -73,13 +77,15 @@ export function useViewAi<E extends HasId>(
           surfaceKey,
           requestedAction: "create",
         },
-        label: t("AgentChat.context.newViewLabel", { location }),
+        label: t("AgentChat.context.newViewLabel", { viewType: newViewType }),
       };
       return [
         {
           context: current,
           pageRoute: viewRoute(pathname, surfaceKey, store.activeViewKey, "update"),
-          starter: t("AgentChat.context.starter.update", { name: activeName }),
+          starter: t("AgentChat.context.starter.update", {
+            name: activeName,
+          }),
         },
         {
           context: create,
@@ -93,7 +99,7 @@ export function useViewAi<E extends HasId>(
       releaseCandidates();
       releaseView();
     };
-  }, [agentChatStore, pathname, plural, registerPageContext, store, store.p13nId, t]);
+  }, [agentChatStore, pathname, registerPageContext, singular, store, store.p13nId, t]);
 
   useEffect(
     () => () => {
@@ -115,7 +121,7 @@ export function useViewAi<E extends HasId>(
     if (!available || !surface.success || !agentChatStore || !isAiManageableDataViewSurface(surface.data)) return;
     const viewKey = store.activeViewKey;
     const surfaceKey = surface.data;
-    const location = viewAiLocation(surfaceKey, t, plural);
+    const viewType = viewAiTypeLabel(surfaceKey, t, singular, mode === "update" ? "standalone" : "embedded");
     const reference: AgentContextAttachment["reference"] =
       mode === "update"
         ? { kind: "dataView", surfaceKey, viewKey, requestedAction: "update" }
@@ -130,9 +136,9 @@ export function useViewAi<E extends HasId>(
       label:
         mode === "create"
           ? name
-            ? t("AgentChat.context.namedNewViewLabel", { name })
-            : t("AgentChat.context.newViewLabel", { location })
-          : t("AgentChat.context.viewLabel", { name }),
+            ? t("AgentChat.context.namedNewViewLabel", { name, viewType })
+            : t("AgentChat.context.newViewLabel", { viewType })
+          : t("AgentChat.context.viewLabel", { name, viewType }),
     };
     const starter =
       mode === "create"

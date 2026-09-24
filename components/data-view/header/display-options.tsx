@@ -102,7 +102,6 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
 }: Props<E>) {
   const t = useTranslations();
   const [isOpen, setIsOpen] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement>(null);
   const ai = useViewAi(store, {
     registerPageContext: false,
     entry: "appearance",
@@ -186,7 +185,6 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
 
   const trigger = (
     <Button
-      ref={triggerRef}
       aria-label={t("Common.ariaLabels.tooltipFields")}
       className="relative h-8"
       id={id}

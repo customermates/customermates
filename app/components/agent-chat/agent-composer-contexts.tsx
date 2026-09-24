@@ -31,7 +31,7 @@ export function AgentComposerContexts({
         return (
           <AppChip
             key={key}
-            className="max-w-full pr-0.5 align-middle"
+            className="mr-1 h-5 max-w-full px-1.5 py-0 align-middle text-sm leading-5 font-normal"
             endContent={
               onRemove ? (
                 <button

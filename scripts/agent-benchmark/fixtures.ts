@@ -221,6 +221,9 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
           {
             label: benchmarkMessage(en.AgentChat.context.viewLabel, {
               name: en.DataView.views.all,
+              viewType: benchmarkMessage(en.AgentChat.context.surfaceViewTypeStandalone, {
+                location: en.EntityTerminology.presets.contact.contact.singular,
+              }),
             }),
             reference: {
               kind: "dataView",
@@ -275,6 +278,9 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
           {
             label: benchmarkMessage(en.AgentChat.context.namedNewViewLabel, {
               name: "Contacts with deals",
+              viewType: benchmarkMessage(en.AgentChat.context.surfaceViewType, {
+                location: en.EntityTerminology.presets.contact.contact.singular,
+              }),
             }),
             reference: {
               kind: "dataView",
@@ -304,6 +310,7 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
           {
             label: benchmarkMessage(de.AgentChat.context.viewLabel, {
               name: de.DataView.views.all,
+              viewType: de.AgentChat.context.timelineViewTypeStandalone,
             }),
             reference: {
               kind: "dataView",

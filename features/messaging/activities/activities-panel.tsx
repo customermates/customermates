@@ -82,7 +82,7 @@ export const EntityTimelinePanel = observer(({ entityType, entityId, initial }: 
           <span className="text-muted-foreground text-xs font-normal">{t("Common.actions.labelHistory")}</span>
 
           <div className="ml-auto flex items-center gap-1.5">
-            <FilterPopover compact registerPageContext store={store} />
+            <FilterPopover compact store={store} />
           </div>
         </div>
 

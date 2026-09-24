@@ -11,15 +11,14 @@ import { MessageDateSeparator, isSameDay } from "@/app/[locale]/(protected)/inbo
 import { MessagesScrollContainer } from "@/components/scroll/messages-scroll-container";
 
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 import { ActionTooltip, chatUiCopy } from "./chat-ui";
 import { AgentActivity, AgentChatItemView, consecutiveActivityItems, isWorkingActivityGroup } from "./agent-chat-items";
 import { AgentInitialProgress } from "./agent-status-announcer";
 import { AgentComposerContexts } from "./agent-composer-contexts";
+import { AgentComposerTextInput } from "./agent-composer-text-input";
 import { AgentContextPicker } from "./agent-context-picker";
-import { isAgentContextSlashCommand } from "./agent-context-shortcut";
 import { CreditBlockedNotice } from "./credit-blocked-notice";
 import { QueuedPrompt } from "./queued-prompt";
 import { UsageRing } from "./usage-ring";
@@ -111,47 +110,20 @@ export const AgentComposer = observer(function AgentComposer() {
         ) : (
           <div className="flex items-end gap-2">
             <div className="min-w-0 flex-1">
-              <div
-                className="flex max-h-40 min-h-9 min-w-0 flex-wrap items-center gap-1 overflow-y-auto px-1 py-1.5"
-                data-testid="agent-composer-input-line"
+              <AgentComposerTextInput
+                id={uiTargets.composerId}
+                label={t("AgentChat.placeholder")}
+                placeholder={t("AgentChat.placeholder")}
+                value={store.composerDraft}
+                onChange={store.setComposerDraft}
+                onContextShortcut={() => {
+                  setContextPickerOpenedBySlash(true);
+                  setContextPickerOpen(true);
+                }}
+                onSubmit={submit}
               >
                 <AgentComposerContexts contexts={store.composerContexts} onRemove={store.removeComposerContext} />
-
-                <Textarea
-                  aria-label={t("AgentChat.placeholder")}
-                  className="max-h-36 min-h-5 min-w-[min(10rem,100%)] w-auto flex-[1_1_10rem] resize-none border-0 bg-transparent p-0 leading-5 shadow-none focus-visible:border-0 focus-visible:ring-0"
-                  data-testid="agent-composer"
-                  id={uiTargets.composerId}
-                  placeholder={t("AgentChat.placeholder")}
-                  rows={1}
-                  value={store.composerDraft}
-                  onChange={(event) => store.setComposerDraft(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (
-                      isAgentContextSlashCommand({
-                        altKey: event.altKey,
-                        ctrlKey: event.ctrlKey,
-                        isComposing: event.nativeEvent.isComposing,
-                        key: event.key,
-                        metaKey: event.metaKey,
-                        selectionEnd: event.currentTarget.selectionEnd,
-                        selectionStart: event.currentTarget.selectionStart,
-                        value: event.currentTarget.value,
-                      })
-                    ) {
-                      event.preventDefault();
-                      setContextPickerOpenedBySlash(true);
-                      setContextPickerOpen(true);
-                      return;
-                    }
-
-                    if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
-                      event.preventDefault();
-                      submit();
-                    }
-                  }}
-                />
-              </div>
+              </AgentComposerTextInput>
 
               <AgentContextPicker
                 open={contextPickerOpen}

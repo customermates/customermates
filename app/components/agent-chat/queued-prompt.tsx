@@ -29,10 +29,10 @@ export const QueuedPrompt = observer(function QueuedPrompt() {
   return (
     <div ref={rowRef} className="mb-2 rounded-lg bg-muted/60 px-2 py-1.5 text-xs" role="status">
       <div className="flex items-center gap-2">
-        <span className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
+        <span className="min-w-0 flex-1 truncate leading-5">
           <AgentComposerContexts contexts={store.queuedContexts} />
 
-          <span className="min-w-0 truncate">
+          <span>
             <span className="font-medium">{copy.queued}:</span>
 
             <span>{` ${prompt}`}</span>

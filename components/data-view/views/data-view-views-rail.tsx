@@ -64,8 +64,6 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
   const [meta, setMeta] = useState<ViewMetaDraft | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const pendingAi = useRef<(() => void) | null>(null);
-  const menuTriggerRef = useRef<HTMLButtonElement>(null);
-  const createTriggerRef = useRef<HTMLButtonElement>(null);
   const ai = useViewAi(store);
   const offersViews = Boolean(store.p13nId);
 
@@ -195,7 +193,6 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
               open={meta !== null}
               trigger={
                 <Button
-                  ref={createTriggerRef}
                   className={cn(
                     VIEW_TAB_CLASS,
                     "border-dashed border-input bg-transparent text-muted-foreground shadow-none hover:bg-transparent",
@@ -222,7 +219,6 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
         <DropdownMenu modal={false} open={menuOpen} onOpenChange={setMenuOpen}>
           <DropdownMenuTrigger asChild>
             <Button
-              ref={menuTriggerRef}
               aria-label={t("DataView.views.menu")}
               className={cn(VIEW_SURFACE_CLASS, "size-7 rounded-full")}
               id="global-data-views-menu"
