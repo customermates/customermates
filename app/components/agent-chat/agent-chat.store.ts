@@ -1,6 +1,7 @@
 import { makeObservable, observable, action, computed, reaction, runInAction } from "mobx";
 
 import type { RootStore } from "@/core/stores/root.store";
+import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 import type { AgentUsageSummary } from "@/ee/agent-chat/agent-usage.service";
 import type { AgentMessageTurn } from "@/ee/agent-chat/agent-history";
 import {
@@ -261,6 +262,8 @@ export class AgentChatStore extends BaseStore {
   olderMessagesPending = false;
   items: AgentChatItem[] = [];
   composerDraft = "";
+  wikiHomepageSetup: WikiHomepageSetupState | null = null;
+  wikiHomepageSetupConversationId: string | null = null;
   queuedPrompt: string | null = null;
   queuedPromptNeedsAttention = false;
   routeRefreshRevision = 0;
@@ -339,6 +342,8 @@ export class AgentChatStore extends BaseStore {
         olderMessagesPending: observable,
         items: observable,
         composerDraft: observable,
+        wikiHomepageSetup: observable.ref,
+        wikiHomepageSetupConversationId: observable,
         queuedPrompt: observable,
         queuedPromptNeedsAttention: observable,
         routeRefreshRevision: observable,
@@ -359,6 +364,10 @@ export class AgentChatStore extends BaseStore {
         hasPendingRouteReload: computed,
         open: action,
         openWithDraft: action,
+        openWikiHomepageSetup: action,
+        markWikiHomepageSetupAccepted: action,
+        acknowledgeWikiHomepageSetup: action,
+        dismissWikiHomepageSetup: action,
         close: action,
         toggle: action,
         toggleExpanded: action,
@@ -388,9 +397,38 @@ export class AgentChatStore extends BaseStore {
   };
 
   openWithDraft = (value: string) => {
+    this.wikiHomepageSetup = null;
     this.isHistoryOpen = false;
     this.composerDraft = value;
     this.open();
+  };
+
+  openWikiHomepageSetup = (state: WikiHomepageSetupState) => {
+    if (this.isWorking || this.historyMutationPending) return;
+    this.composerDraft = "";
+    this.isHistoryOpen = false;
+    this.wikiHomepageSetup = {
+      ...state,
+      pages: [...state.pages],
+    };
+    this.setOpenState(true);
+    void this.loadConfig();
+  };
+
+  markWikiHomepageSetupAccepted = (state: WikiHomepageSetupState) => {
+    this.wikiHomepageSetupConversationId = state.conversationId;
+    this.wikiHomepageSetup = {
+      ...state,
+      pages: [...state.pages],
+    };
+  };
+
+  acknowledgeWikiHomepageSetup = () => {
+    this.wikiHomepageSetupConversationId = null;
+  };
+
+  dismissWikiHomepageSetup = () => {
+    this.wikiHomepageSetup = null;
   };
 
   get conversationTitle() {
@@ -459,6 +497,7 @@ export class AgentChatStore extends BaseStore {
   };
 
   close = () => {
+    this.wikiHomepageSetup = null;
     this.setOpenState(false);
   };
 
@@ -473,6 +512,7 @@ export class AgentChatStore extends BaseStore {
 
   toggleHistory = () => {
     const opening = !this.isHistoryOpen;
+    if (opening) this.wikiHomepageSetup = null;
     this.isHistoryOpen = opening;
     if (opening) void this.refreshConversations();
   };
@@ -483,6 +523,7 @@ export class AgentChatStore extends BaseStore {
   };
 
   private beginNewConversation() {
+    this.wikiHomepageSetup = null;
     this.resetConversation(null);
     this.isDraftConversationSelected = true;
     this.composerDraft = "";
@@ -505,6 +546,8 @@ export class AgentChatStore extends BaseStore {
     this.openPreference = readAgentChatOpenPreference(storageKey);
     this.isOpen = this.openOverride ?? this.openPreference === true;
     this.demoAutoOpened = false;
+    this.wikiHomepageSetup = null;
+    this.wikiHomepageSetupConversationId = null;
   }
 
   setComposerDraft = (value: string) => {
@@ -623,13 +666,14 @@ export class AgentChatStore extends BaseStore {
   }
 
   selectConversation = async (id: string) => {
-    if (this.isWorking || this.historyMutationPending) return;
+    if (this.historyMutationPending) return;
     if (this.conversationId === id && !this.conversationLoadError) {
       runInAction(() => {
         this.isHistoryOpen = false;
       });
       return;
     }
+    if (this.isWorking) return;
     await this.loadConversation(id);
   };
 

@@ -38,7 +38,7 @@ import { WikiHomepageSetup } from "../wiki-homepage-setup";
 
 let container: HTMLDivElement;
 let root: Root;
-let onAccepted: ReturnType<typeof vi.fn<(conversationId: string) => void>>;
+let onAccepted: ReturnType<typeof vi.fn<(conversationId: string) => void | Promise<void>>>;
 let onContinue: ReturnType<typeof vi.fn<() => void>>;
 let onSkip: ReturnType<typeof vi.fn<() => void>>;
 
@@ -97,7 +97,7 @@ beforeEach(() => {
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
-  onAccepted = vi.fn<(conversationId: string) => void>();
+  onAccepted = vi.fn<(conversationId: string) => void | Promise<void>>();
   onContinue = vi.fn<() => void>();
   onSkip = vi.fn<() => void>();
   render();
@@ -130,6 +130,11 @@ describe("WikiHomepageSetup", () => {
     render(undefined, { onboarding: true });
 
     expect(input().getAttribute("aria-describedby")).toBeNull();
+    expect(input().className).toContain("pr-9");
+    expect(input().className).not.toContain("pl-9");
+    const suffix = container.querySelector<SVGElement>('[data-testid="wiki-homepage-suffix"]');
+    expect(suffix?.classList.contains("right-3")).toBe(true);
+    expect(suffix?.classList.contains("left-3")).toBe(false);
     expect(container.textContent).not.toContain("WikiSetup.description");
     expect(container.textContent).not.toContain("WikiSetup.gapsNote");
     expect(container.textContent).not.toContain("WikiSetup.homepageHelp");
@@ -194,6 +199,39 @@ describe("WikiHomepageSetup", () => {
 
     act(() => button("WikiSetup.continue").click());
     expect(onContinue).toHaveBeenCalledOnce();
+  });
+
+  it("refreshes the page as soon as setup is accepted without waiting for the task transcript", async () => {
+    let finishLoading!: () => void;
+    onAccepted.mockReturnValue(
+      new Promise<void>((resolve) => {
+        finishLoading = resolve;
+      }),
+    );
+    harness.action.mockResolvedValue({
+      ok: true,
+      data: {
+        conversationId: "conversation-1",
+        homepage: "https://example.com/",
+        domain: "example.com",
+      },
+    });
+    typeHomepage("example.com");
+
+    await act(async () => {
+      submit();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(onAccepted).toHaveBeenCalledExactlyOnceWith("conversation-1");
+    expect(harness.refresh).toHaveBeenCalledOnce();
+    expect(button("WikiSetup.openTask").disabled).toBe(true);
+
+    await act(async () => {
+      finishLoading();
+      await Promise.resolve();
+    });
   });
 
   it("restores working state after refresh and reopens the same Mate task", () => {

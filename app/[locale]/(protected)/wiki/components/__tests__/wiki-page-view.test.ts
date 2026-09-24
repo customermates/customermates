@@ -11,13 +11,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const harness = vi.hoisted(() => ({
   rootStore: {} as Record<string, unknown>,
   store: {} as Record<string, unknown>,
-  setupProps: null as null | {
-    onAccepted: (conversationId: string) => Promise<void>;
-    onCreateBlank?: () => void;
-    onSkip?: () => void;
-    canStart?: boolean;
-    compact?: boolean;
-  },
   replace: vi.fn(),
   push: vi.fn(),
   topBar: null as ReactNode,
@@ -30,6 +23,8 @@ const harness = vi.hoisted(() => ({
   open: vi.fn(),
   loadConfig: vi.fn(),
   selectConversation: vi.fn(),
+  openWikiHomepageSetup: vi.fn(),
+  acknowledgeWikiHomepageSetup: vi.fn(),
   p13nUpsert: vi.fn(),
   tryNavigate: vi.fn((navigate: () => void) => {
     navigate();
@@ -130,21 +125,6 @@ vi.mock("@/components/wiki/wiki-homepage-setup", () => ({
     conversationId: null,
     pages: [],
   },
-  WikiHomepageSetup: (props: {
-    onAccepted: (conversationId: string) => Promise<void>;
-    onCreateBlank?: () => void;
-    onSkip?: () => void;
-    canStart?: boolean;
-    compact?: boolean;
-  }) => {
-    harness.setupProps = props;
-    return createElement(
-      "div",
-      { "data-wiki-homepage-setup": true },
-      props.onCreateBlank ? createElement("button", { onClick: props.onCreateBlank }, "Wiki.newPage") : null,
-      props.onSkip ? createElement("button", { onClick: props.onSkip }, "WikiSetup.skip") : null,
-    );
-  },
 }));
 vi.mock("../wiki-page.store", () => ({
   WikiPageStore: function WikiPageStore() {
@@ -187,9 +167,15 @@ function configure(canManage: boolean, agentChatEnabled: boolean, agentEnabled: 
     agentChatEnabled,
     agentChatStore: {
       enabled: agentEnabled,
+      isWorking: false,
+      historyMutationPending: null,
+      conversationId: null,
+      wikiHomepageSetupConversationId: null,
       open: harness.open,
       loadConfig: harness.loadConfig,
       selectConversation: harness.selectConversation,
+      openWikiHomepageSetup: harness.openWikiHomepageSetup,
+      acknowledgeWikiHomepageSetup: harness.acknowledgeWikiHomepageSetup,
     },
     navigationGuard: { tryNavigate: harness.tryNavigate },
     userStore: { can: () => canManage, user: { id: "user-1" } },
@@ -252,7 +238,6 @@ beforeEach(() => {
     navigate();
     return true;
   });
-  harness.setupProps = null;
   harness.topBar = null;
   harness.toolbarRenders = 0;
   harness.loadConfig.mockResolvedValue("ready");
@@ -658,10 +643,9 @@ describe("Wiki empty state", () => {
     expect(container.querySelectorAll('[data-testid="empty-page-agent-suggestions"] button')).toHaveLength(3);
     expect(container.innerHTML).not.toContain("data-wiki-homepage-setup");
     expect(container.textContent).not.toContain("Wiki.newPage");
-    expect(harness.setupProps).toBeNull();
   });
 
-  it("reveals the compact trusted website setup from the first Mate action", async () => {
+  it("opens the trusted website setup in the standard Mate panel", async () => {
     const { container } = await hydrate(true, true, null, true);
     const firstAction = container.querySelector<HTMLButtonElement>(
       '[data-testid="empty-page-agent-suggestions"] button',
@@ -670,32 +654,43 @@ describe("Wiki empty state", () => {
     expect(firstAction?.textContent).toContain("WikiSetup.startFromWebsite");
     act(() => firstAction?.click());
 
-    expect(container.innerHTML).toContain("data-wiki-homepage-setup");
-    expect(harness.setupProps).toMatchObject({ compact: true, canStart: true });
-    expect(container.querySelector('[data-testid="empty-page-agent-suggestions"]')).toBeNull();
-
-    act(() => harness.setupProps?.onSkip?.());
-
+    expect(harness.openWikiHomepageSetup).toHaveBeenCalledExactlyOnceWith({
+      status: "idle",
+      homepage: null,
+      domain: null,
+      conversationId: null,
+      pages: [],
+    });
     expect(container.querySelector('[data-testid="empty-page-agent-suggestions"]')).not.toBeNull();
     expect(container.innerHTML).not.toContain("data-wiki-homepage-setup");
   });
 
-  it("keeps the trusted setup active immediately after Mate accepts it", async () => {
-    const { container } = await hydrate(true, true, null, true);
-    act(() =>
-      container.querySelector<HTMLButtonElement>('[data-testid="empty-page-agent-suggestions"] button')?.click(),
+  it("disables website setup while Mate is already running another turn", async () => {
+    configure(true, true, true);
+    (harness.rootStore.agentChatStore as { isWorking: boolean }).isWorking = true;
+    const { container } = await mount(createElement(WikiPageView, { initialPage: null, listPage }));
+    const firstAction = container.querySelector<HTMLButtonElement>(
+      '[data-testid="empty-page-agent-suggestions"] button',
     );
 
-    await act(async () => {
-      await harness.setupProps?.onAccepted("conversation-1");
-    });
+    expect(firstAction?.disabled).toBe(true);
+    act(() => firstAction?.click());
+    expect(harness.openWikiHomepageSetup).not.toHaveBeenCalled();
+  });
+
+  it("locks manual creation as soon as a homepage setup turn is accepted", async () => {
+    configure(true, true, true);
+    (
+      harness.rootStore.agentChatStore as {
+        wikiHomepageSetupConversationId: string | null;
+      }
+    ).wikiHomepageSetupConversationId = "conversation-1";
+    const { container } = await mount(createElement(WikiPageView, { initialPage: null, listPage }));
     const { container: topBar } = await mount(harness.topBar);
 
-    expect(container.innerHTML).toContain("data-wiki-homepage-setup");
+    expect(container.textContent).toContain("WikiSetup.openTask");
+    expect(container.textContent).not.toContain("Wiki.newPage");
     expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
-    expect(harness.open).toHaveBeenCalledOnce();
-    expect(harness.loadConfig).toHaveBeenCalledOnce();
-    expect(harness.selectConversation).toHaveBeenCalledExactlyOnceWith("conversation-1");
   });
 
   it("starts the first manual document as a blank draft", async () => {
@@ -727,13 +722,23 @@ describe("Wiki empty state", () => {
     );
     const { container: topBar } = await mount(harness.topBar);
 
-    expect(container.innerHTML).toContain("data-wiki-homepage-setup");
+    await act(async () => {
+      [...container.querySelectorAll<HTMLButtonElement>("main button")]
+        .find((button) => button.textContent?.includes("WikiSetup.openTask"))
+        ?.click();
+      await Promise.resolve();
+    });
+
+    expect(container.innerHTML).not.toContain("data-wiki-homepage-setup");
     expect(container.textContent).not.toContain("Wiki.newPage");
     expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
     expect(harness.store.startCreate).not.toHaveBeenCalled();
+    expect(harness.open).toHaveBeenCalledOnce();
+    expect(harness.loadConfig).toHaveBeenCalledOnce();
+    expect(harness.selectConversation).toHaveBeenCalledExactlyOnceWith("conversation-1");
   });
 
-  it("keeps an active setup visible when Agent availability changes", async () => {
+  it("does not offer a competing manual page while an active setup cannot be opened", async () => {
     configure(true, true, false);
     const { container } = await mount(
       createElement(WikiPageView, {
@@ -750,8 +755,7 @@ describe("Wiki empty state", () => {
     );
     const { container: topBar } = await mount(harness.topBar);
 
-    expect(container.innerHTML).toContain("data-wiki-homepage-setup");
-    expect(harness.setupProps).toMatchObject({ canStart: false });
+    expect(container.innerHTML).not.toContain("data-wiki-homepage-setup");
     expect(container.textContent).not.toContain("Wiki.newPage");
     expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
   });

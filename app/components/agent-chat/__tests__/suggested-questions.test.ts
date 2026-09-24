@@ -160,6 +160,33 @@ describe("AgentStarterActions", () => {
     expect(harness.focusComposer).not.toHaveBeenCalled();
   });
 
+  it("lets a page disable a contextual action while its workflow is busy", () => {
+    const override = vi.fn();
+    act(() => {
+      reactRoot.render(
+        createElement(AgentStarterActions, {
+          actionOverrides: {
+            "first-wiki-page": {
+              disabled: true,
+              label: "Build from my website",
+              onChoose: override,
+            },
+          },
+          pageId: "wiki",
+          state: "empty",
+          surface: "page",
+        }),
+      );
+    });
+
+    const first = container.querySelector<HTMLButtonElement>("button");
+    expect(first?.disabled).toBe(true);
+
+    act(() => first?.click());
+
+    expect(override).not.toHaveBeenCalled();
+  });
+
   it("offers permission-safe Wiki guidance when the user cannot create pages", () => {
     harness.root = {
       agentChatStore: {

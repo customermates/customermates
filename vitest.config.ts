@@ -24,6 +24,7 @@ const domTestFiles = [
   "app/[locale]/(protected)/__tests__/protected-layout.test.ts",
   "app/**/onboarding/wizard/components/__tests__/onboarding-wizard.test.ts",
   "app/components/agent-chat/__tests__/agent-chat-message-links.test.ts",
+  "app/components/agent-chat/__tests__/agent-wiki-homepage-setup.test.ts",
   "app/components/agent-chat/__tests__/use-activity-group-state.test.ts",
   "app/components/agent-chat/__tests__/agent-route-reload.integration.test.ts",
   "app/components/agent-chat/__tests__/suggested-questions.test.ts",

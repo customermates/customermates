@@ -35,6 +35,7 @@ type Props = {
     Record<
       string,
       {
+        disabled?: boolean;
         label: string;
         onChoose: () => void;
       }
@@ -138,6 +139,7 @@ const AvailableAgentStarterActions = observer(function AvailableAgentStarterActi
       <Button
         key={index}
         className="h-auto gap-1.5 rounded-full px-3 py-2 text-xs font-normal whitespace-normal"
+        disabled={override?.disabled}
         size="sm"
         variant="secondary"
         onClick={() => (override ? override.onChoose() : choose(prompt))}

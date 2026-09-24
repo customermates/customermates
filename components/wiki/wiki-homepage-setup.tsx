@@ -32,6 +32,7 @@ type Props = {
   initialState?: WikiHomepageSetupState;
   onboarding?: boolean;
   onAccepted: (conversationId: string) => void | Promise<void>;
+  onStarted?: (state: WikiHomepageSetupState) => void;
   onContinue?: () => void | Promise<void>;
   onCreateBlank?: () => void;
   onSkip?: () => void | Promise<void>;
@@ -52,6 +53,7 @@ export function WikiHomepageSetup({
   initialState = EMPTY_WIKI_HOMEPAGE_SETUP_STATE,
   onboarding = false,
   onAccepted,
+  onStarted,
   onContinue,
   onCreateBlank,
   onSkip,
@@ -121,17 +123,20 @@ export function WikiHomepageSetup({
 
       const { conversationId, domain, homepage: canonicalHomepage } = result.data;
       focusStatusAfterSubmit.current = true;
-      setState({
+      const workingState: WikiHomepageSetupState = {
         status: "working",
         homepage: canonicalHomepage,
         domain,
         conversationId,
         pages: [],
-      });
+      };
+      setState(workingState);
       setHomepage(canonicalHomepage);
       setRetrying(false);
-      await onAccepted(conversationId);
+      onStarted?.(workingState);
+      const accepted = onAccepted(conversationId);
       router.refresh();
+      await accepted;
       setClientRequestId(crypto.randomUUID());
     } finally {
       submitting.current = false;
@@ -297,13 +302,16 @@ export function WikiHomepageSetup({
         <Label htmlFor="wiki-homepage">{t("WikiSetup.homepageLabel")}</Label>
 
         <div className="relative mt-1.5">
-          <Globe2 className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Globe2
+            className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+            data-testid="wiki-homepage-suffix"
+          />
 
           <Input
             ref={homepageInput}
             aria-describedby={onboarding ? undefined : "wiki-homepage-help"}
             autoComplete="url"
-            className="pl-9"
+            className="pr-9"
             disabled={controlsDisabled}
             id="wiki-homepage"
             inputMode="url"

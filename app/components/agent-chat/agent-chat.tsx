@@ -20,6 +20,7 @@ import { AgentComposer, AgentConversationLog } from "./agent-conversation";
 import { AgentProgressStatus, AgentStatusAnnouncer } from "./agent-status-announcer";
 import { ArchiveUndo, ConversationHistory } from "./conversation-history";
 import { SuggestedQuestions } from "./suggested-questions";
+import { AgentWikiHomepageSetup } from "./agent-wiki-homepage-setup";
 import { AgentRouteReloadBridge } from "./agent-route-reload";
 import { useAgentChatConfig } from "./use-agent-chat-config";
 
@@ -87,7 +88,9 @@ export const AgentChat = observer(function AgentChat() {
     const targetId = store.isOpen
       ? store.isHistoryOpen
         ? "agent-history-back"
-        : "agent-composer"
+        : store.wikiHomepageSetup
+          ? "wiki-homepage"
+          : "agent-composer"
       : wasOpen
         ? "nav-assistant"
         : null;
@@ -100,7 +103,7 @@ export const AgentChat = observer(function AgentChat() {
           : document.getElementById("agent-panel-dialog"));
       target?.focus();
     });
-  }, [store.isHistoryOpen, store.isOpen]);
+  }, [store.isHistoryOpen, store.isOpen, store.wikiHomepageSetup]);
 
   if (store.enabled !== true) return null;
 
@@ -176,10 +179,14 @@ const AgentChatPanel = observer(function AgentChatPanel() {
         )}
 
         <span className="mr-auto truncate text-sm font-medium">
-          {store.isHistoryOpen ? copy.chats : (store.conversationTitle ?? copy.newChat)}
+          {store.isHistoryOpen
+            ? copy.chats
+            : store.wikiHomepageSetup
+              ? t("WikiSetup.conversationTitle")
+              : (store.conversationTitle ?? copy.newChat)}
         </span>
 
-        {!store.isHistoryOpen && (
+        {!store.isHistoryOpen && !store.wikiHomepageSetup && (
           <ActionTooltip label={copy.history}>
             <Button
               aria-label={copy.history}
@@ -193,18 +200,20 @@ const AgentChatPanel = observer(function AgentChatPanel() {
           </ActionTooltip>
         )}
 
-        <ActionTooltip label={copy.newChat}>
-          <Button
-            aria-label={copy.newChat}
-            className="size-7"
-            disabled={store.isWorking || Boolean(store.historyMutationPending)}
-            size="icon"
-            variant="ghost"
-            onClick={store.newConversation}
-          >
-            <Plus className="size-4" />
-          </Button>
-        </ActionTooltip>
+        {!store.wikiHomepageSetup && (
+          <ActionTooltip label={copy.newChat}>
+            <Button
+              aria-label={copy.newChat}
+              className="size-7"
+              disabled={store.isWorking || Boolean(store.historyMutationPending)}
+              size="icon"
+              variant="ghost"
+              onClick={store.newConversation}
+            >
+              <Plus className="size-4" />
+            </Button>
+          </ActionTooltip>
+        )}
 
         <ActionTooltip label={store.isExpanded ? t("Common.actions.collapse") : t("Common.actions.expand")}>
           <Button
@@ -231,7 +240,7 @@ const AgentChatPanel = observer(function AgentChatPanel() {
         </ActionTooltip>
       </div>
 
-      {!store.isHistoryOpen && store.lastArchivedConversation && (
+      {!store.isHistoryOpen && !store.wikiHomepageSetup && store.lastArchivedConversation && (
         <div className="px-3 pt-2">
           <ArchiveUndo />
         </div>
@@ -239,6 +248,8 @@ const AgentChatPanel = observer(function AgentChatPanel() {
 
       {store.isHistoryOpen ? (
         <ConversationHistory />
+      ) : store.wikiHomepageSetup ? (
+        <AgentWikiHomepageSetup initialState={store.wikiHomepageSetup} />
       ) : store.items.length === 0 ? (
         <div className={cn(OVERLAY_SCROLL_REGION, "flex flex-col justify-end gap-6 px-6 py-8 text-center")}>
           <article
@@ -262,9 +273,9 @@ const AgentChatPanel = observer(function AgentChatPanel() {
         <AgentConversationLog />
       )}
 
-      <AgentProgressStatus />
+      {!store.wikiHomepageSetup && <AgentProgressStatus />}
 
-      {!store.isHistoryOpen && <AgentComposer />}
+      {!store.isHistoryOpen && !store.wikiHomepageSetup && <AgentComposer />}
     </div>
   );
 });
