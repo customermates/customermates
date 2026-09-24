@@ -14,7 +14,7 @@ import {
 
 const mockUser = createMockUser();
 
-vi.mock("@/env", () => MOCK_ENV_MODULE);
+vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, AGENT_ANALYSIS_TOOL_ENABLED: true } }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
@@ -109,6 +109,9 @@ const ACCEPTED_TODAY: [string, unknown][] = [
   ["search_records", { searchTerm: "a" }],
   ["manage_widgets", { action: "list" }],
   ["send_email", { connectedAccountId: UUID, subject: "s", body: "b", to: [{ identifier: "ada@example.com" }] }],
+  ["analyze_records", { reads: [{ tool: "list_records", input: { entity: "deal" } }], code: "(data) => data" }],
+  ["analyze_records", { reads: [{ tool: "list_records", input: '{"entity":"deal"}' }], code: "(data) => data" }],
+  ["analyze_records", { reads: [{ tool: "get_activities" }], code: "(data) => data" }],
 ];
 
 const REJECTED_TODAY: [string, unknown][] = [
@@ -120,6 +123,7 @@ const REJECTED_TODAY: [string, unknown][] = [
   ["manage_webhooks", { action: "detonate" }],
   ["update_contacts", { contacts: [{ id: UUID, customFieldValues: [{ columnId: UUID, value: 5 }] }] }],
   ["send_email", { connectedAccountId: "nope", subject: "s", body: "b", to: [{ identifier: "a@b.com" }] }],
+  ["analyze_records", { reads: [{ tool: "list_records", input: [{ entity: "deal" }] }], code: "(data) => data" }],
 ];
 
 const declaredTools = getAgentAiToolDefinitions();
@@ -450,8 +454,8 @@ describe("the shipped tool catalog on the Google wire", () => {
     const changes = changesForShippedCatalog();
 
     expect(summarizeGoogleSchemaChanges(changes)).toEqual({
-      "$schema:removed": 51,
-      "additionalProperties:removed": 56,
+      "$schema:removed": 52,
+      "additionalProperties:removed": 57,
       "anyOf:collapsed": 45,
       "const:removed": 1,
       "const:rewritten": 218,
@@ -459,15 +463,15 @@ describe("the shipped tool catalog on the Google wire", () => {
       "exclusiveMinimum:rewritten": 11,
       "nullable:collapsed": 10,
       "nullable:rewritten": 25,
-      "propertyNames:removed": 1,
+      "propertyNames:removed": 2,
       "oneOf:rewritten": 18,
     });
     expect(summarizeGoogleSchemaChanges(changes.filter((change) => change.loosened))).toEqual({
-      "additionalProperties:removed": 56,
+      "additionalProperties:removed": 57,
       "const:removed": 1,
       "enum:removed": 18,
       "exclusiveMinimum:rewritten": 2,
-      "propertyNames:removed": 1,
+      "propertyNames:removed": 2,
       "oneOf:rewritten": 18,
     });
   });

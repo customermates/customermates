@@ -1,3 +1,4 @@
+import Ajv from "ajv";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -35,6 +36,7 @@ vi.mock("../agent-analysis", async (importOriginal) => ({
 }));
 
 import { agentActivityCopy, describeAgentTool } from "../agent-activity";
+import { AnalyzeRecordsSchema } from "../agent-analysis";
 import {
   AGENT_HOSTED_TOOL_ANNOTATIONS,
   getAgentAiToolDefinitions,
@@ -122,5 +124,56 @@ describe("analyze_records on the hosted surface", () => {
       kind: "records.analyze",
       resource: undefined,
     });
+  });
+
+  it("shows the entity of a first read whose input is an object", () => {
+    expect(
+      describeAgentTool(internalToolIdentity("analyze_records"), {
+        reads: [{ tool: "list_records", input: { entity: "deal" } }],
+        code: "(data) => data",
+      }),
+    ).toMatchObject({ kind: "records.analyze", resource: "deals", risk: "read" });
+    expect(
+      describeAgentTool(internalToolIdentity("analyze_records"), { reads: [{ tool: "get_activities" }] }),
+    ).toMatchObject({ kind: "records.analyze", resource: undefined });
+  });
+
+  it("declares a read's input as an object or a string on every wire, and each wire accepts both", () => {
+    type Wire = { properties: { reads: { items: { properties: { input: unknown }; required: string[] } } } };
+    const schemaFor = (provider: string) =>
+      getAgentAiToolDefinitions(provider).find((definition) => definition.name === "analyze_records")
+        ?.inputSchema as Wire;
+    const description = AnalyzeRecordsSchema.shape.reads.element.shape.input.description;
+
+    expect(description).toContain("input as a JSON object (a JSON string is also accepted)");
+    expect(description).toContain("Paging is handled for you: omit page and pageSize.");
+    expect(schemaFor("vertex").properties.reads.items.properties.input).toEqual({
+      description,
+      anyOf: [{ type: "object" }, { type: "string" }],
+    });
+    for (const provider of ["azure", "bedrock"]) {
+      expect(schemaFor(provider).properties.reads.items.properties.input, provider).toEqual({
+        description,
+        anyOf: [{ type: "object", propertyNames: { type: "string" }, additionalProperties: {} }, { type: "string" }],
+      });
+    }
+
+    for (const provider of ["vertex", "azure"]) {
+      expect(schemaFor(provider).properties.reads.items.required, provider).toEqual(["tool"]);
+      const validate = new Ajv().compile(schemaFor(provider) as never);
+      const accepts = (input: unknown) =>
+        validate({
+          reads: [{ tool: "list_records", ...(input === undefined ? {} : { input }) }],
+          code: "(data) => data",
+        });
+      expect(
+        [{ entity: "deal" }, '{"entity":"deal"}', undefined].map((input) => accepts(input)),
+        provider,
+      ).toEqual([true, true, true]);
+      expect(
+        [[{ entity: "deal" }], 42, null].map((input) => accepts(input)),
+        provider,
+      ).toEqual([false, false, false]);
+    }
   });
 });

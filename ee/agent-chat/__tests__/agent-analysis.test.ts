@@ -326,4 +326,56 @@ describe("analyze_records", () => {
     expect(failing.ok).toBe(false);
     expect(failing.result).toMatch(/^The analysis code failed:/);
   });
+
+  it("reads an object input exactly like the same object as a JSON string, and an omitted one as {}", async () => {
+    const run = async (input?: Record<string, unknown> | string) => {
+      const { tool, execute } = listTool("list_things", 150);
+      const outcome = await analyzeRecords(
+        { reads: [{ tool: "list_things", input }], code: "(data) => data[0].items.length" },
+        deps(tool),
+      );
+      return { outcome, calls: execute.mock.calls.map(([call]) => call) };
+    };
+
+    const asObject = await run({ prefix: "A" });
+    expect(await run(JSON.stringify({ prefix: "A" }))).toEqual(asObject);
+    expect(asObject).toEqual({
+      outcome: { ok: true, result: JSON.stringify({ rowsRead: 150, result: 150 }) },
+      calls: [
+        { prefix: "A", page: 1, pageSize: 100 },
+        { prefix: "A", page: 2, pageSize: 100 },
+      ],
+    });
+    expect(await run()).toEqual({
+      outcome: asObject.outcome,
+      calls: [
+        { page: 1, pageSize: 100 },
+        { page: 2, pageSize: 100 },
+      ],
+    });
+  });
+
+  it("keeps refusing a string that is not a JSON object, and the schema refuses every other shape", async () => {
+    const { tool, execute } = listTool("list_things", 3);
+    for (const [input, problem] of [
+      ["{nope", "is not valid JSON"],
+      ['{"entity":"task","pageSize:100}', "is not valid JSON"],
+      ["[1]", "must be a JSON object"],
+      ["42", "must be a JSON object"],
+      ["null", "must be a JSON object"],
+    ]) {
+      await expect(
+        analyzeRecords({ reads: [{ tool: "list_things", input }], code: "() => 1" }, deps(tool)),
+      ).resolves.toEqual({
+        ok: false,
+        result: `The input for list_things ${problem}. The analysis code was not run.`,
+      });
+    }
+    expect(execute).not.toHaveBeenCalled();
+
+    const parses = (input: unknown) =>
+      AnalyzeRecordsSchema.safeParse({ reads: [{ tool: "list_things", input }], code: "() => 1" }).success;
+    expect([{ prefix: "A" }, '{"prefix":"A"}', undefined].map((input) => parses(input))).toEqual([true, true, true]);
+    expect([[{ prefix: "A" }], 42, null, true].map((input) => parses(input))).toEqual([false, false, false, false]);
+  });
 });

@@ -227,7 +227,7 @@ function isMultiplexedRead(toolName: string, details: Record<string, unknown>): 
 function analysisResource(details: Record<string, unknown>): AgentActivityResource | undefined {
   const reads = Array.isArray(details.reads) ? details.reads : [];
   const first = reads[0] as { input?: unknown } | undefined;
-  if (typeof first?.input !== "string") return undefined;
+  if (typeof first?.input !== "string") return entityResource(first?.input);
   try {
     return entityResource(JSON.parse(first.input));
   } catch {

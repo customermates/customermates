@@ -15,10 +15,10 @@ export const AnalyzeRecordsSchema = z.object({
       z.object({
         tool: z.string().min(1).describe("A read-only tool, for example list_records or get_messaging_threads"),
         input: z
-          .string()
-          .default("{}")
+          .union([z.record(z.string(), z.unknown()), z.string()])
+          .optional()
           .describe(
-            'That tool\'s input as a JSON object string, for example {"entity":"deal","filters":[{"field":"name","operator":"startsWith","value":"Atlas-"}]}. Paging is handled for you: omit page and pageSize.',
+            'That tool\'s input as a JSON object (a JSON string is also accepted), for example {"entity":"deal","filters":[{"field":"name","operator":"startsWith","value":"Atlas-"}]}. Paging is handled for you: omit page and pageSize.',
           ),
       }),
     )
@@ -45,7 +45,7 @@ export const ANALYZE_RECORDS_DESCRIPTION =
 
 export type AnalysisDeps = { tools: readonly McpTool[]; resultMaxChars: number };
 
-type Read = { tool: string; input: string };
+type Read = AnalyzeRecordsInput["reads"][number];
 type TooMuchData = { ok: false; tooMuchData: true };
 type ReadResult = { ok: true; data: unknown; rows: number } | { ok: false; error: string } | TooMuchData;
 type DataUsage = { chars: number };
@@ -68,6 +68,8 @@ function isPageable(mcp: McpTool): boolean {
 }
 
 function parseReadInput(read: Read): Record<string, unknown> | string {
+  if (read.input === undefined) return {};
+  if (typeof read.input !== "string") return read.input;
   try {
     const parsed: unknown = JSON.parse(read.input);
     if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) return parsed as Record<string, unknown>;

@@ -36,6 +36,16 @@ describe("benchmark read-call predicate", () => {
     expect(withAnalysisReads([analysis, write]).filter((tool) => !isReadCall(tool))).toEqual([write]);
   });
 
+  it("reads an analyze_records input given as an object the same as one given as a JSON string", () => {
+    const asObject = { name: "analyze_records", input: { reads: [{ tool: "list_records", input: { entity: "deal" } }, { tool: "get_activities" }], code: "(data) => data" }, outcome: "ok" as const };
+    const asString = { ...asObject, input: { ...asObject.input, reads: [{ tool: "list_records", input: '{"entity":"deal"}' }, { tool: "get_activities" }] } };
+    expect(analysisReads(asObject)).toEqual([
+      { name: "list_records", input: { entity: "deal" }, outcome: "ok" },
+      { name: "get_activities", input: {}, outcome: "ok" },
+    ]);
+    expect(analysisReads(asString)).toEqual(analysisReads(asObject));
+  });
+
   it("adds nothing for a write named inside analyze_records or for any other tool", () => {
     const smuggled = { name: "analyze_records", input: { reads: [{ tool: "update_deals", input: '{"deals":[]}' }], code: "(data) => data" }, outcome: "error" as const };
     expect(analysisReads(smuggled)).toEqual([]);
