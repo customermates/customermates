@@ -25,7 +25,10 @@ export type StartWikiHomepageSetupData = Data<typeof StartWikiHomepageSetupSchem
 
 export abstract class StartWikiHomepageSetupRepo {
   abstract wikiIsEmpty(): Promise<boolean>;
-  abstract findReusableSetupRequest(data: {
+}
+
+export abstract class StartWikiHomepageSetupTurnRepo {
+  abstract findReusableWikiHomepageSetupTurn(data: {
     clientRequestId: string;
     homepageUrl: string;
     registrableDomain: string;
@@ -39,6 +42,7 @@ export class StartWikiHomepageSetupInteractor extends AuthenticatedInteractor<
 > {
   constructor(
     private repo: StartWikiHomepageSetupRepo,
+    private setupTurnRepo: StartWikiHomepageSetupTurnRepo,
     private agent: Pick<SendAgentMessageInteractor, "invoke">,
   ) {
     super();
@@ -48,7 +52,7 @@ export class StartWikiHomepageSetupInteractor extends AuthenticatedInteractor<
   async invoke(data: StartWikiHomepageSetupData): Validated<SendAgentMessageResult> {
     const homepage = parsePublicWikiHomepage(data.homepage);
     if (!homepage) return fail(CustomErrorCode.invalidUrl, ["homepage"]);
-    const reusable = await this.repo.findReusableSetupRequest({
+    const reusable = await this.setupTurnRepo.findReusableWikiHomepageSetupTurn({
       clientRequestId: data.clientRequestId,
       homepageUrl: homepage.url,
       registrableDomain: homepage.registrableDomain,

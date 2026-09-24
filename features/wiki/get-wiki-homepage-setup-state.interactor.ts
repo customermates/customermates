@@ -6,9 +6,9 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import type { Data, Validated } from "@/core/validation/validation.utils";
-import { AGENT_RUN_LEASE_MS } from "@/ee/agent-chat/agent-turn-request";
 
-import { WikiPageSummarySchema, type WikiPageSummary } from "./wiki.schema";
+import type { GetWikiPagesRepo } from "./get-wiki-pages.interactor";
+import { WikiPageSummarySchema } from "./wiki.schema";
 
 const WikiHomepageSetupStatusSchema = z.enum(["idle", "working", "completed", "noContent", "failed"]);
 export const WikiHomepageSetupStateSchema = z.object({
@@ -20,38 +20,37 @@ export const WikiHomepageSetupStateSchema = z.object({
 });
 export type WikiHomepageSetupState = Data<typeof WikiHomepageSetupStateSchema>;
 
-type StoredHomepageSetup = {
+export type WikiHomepageSetupTurn = {
+  active: boolean;
   status: "running" | "waitingBudget" | "needsAttention" | "completed" | "failed" | "uncertain";
   terminalCode: "completed" | "partial" | "error" | "cancelled" | "policyBreach" | null;
   homepage: string;
   domain: string;
   conversationId: string | null;
   affectedResources: unknown;
-  activityAt: Date;
 };
 
-export abstract class GetWikiHomepageSetupStateRepo {
-  abstract getHomepageSetupProjection(): Promise<{
-    setup: StoredHomepageSetup | null;
-    pages: WikiPageSummary[];
-  }>;
+export abstract class GetWikiHomepageSetupTurnRepo {
+  abstract findWikiHomepageSetupTurn(): Promise<WikiHomepageSetupTurn | null>;
 }
 
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.wiki, action: Action.readAll })
 export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor<undefined, WikiHomepageSetupState> {
-  constructor(private repo: GetWikiHomepageSetupStateRepo) {
+  constructor(
+    private pageRepo: GetWikiPagesRepo,
+    private setupTurnRepo: GetWikiHomepageSetupTurnRepo,
+  ) {
     super();
   }
 
   @ValidateOutput(WikiHomepageSetupStateSchema)
   async invoke(): Validated<WikiHomepageSetupState> {
-    const { setup, pages } = await this.repo.getHomepageSetupProjection();
-    const setupIsActive =
-      setup !== null &&
-      ["running", "waitingBudget"].includes(setup.status) &&
-      setup.activityAt.getTime() > Date.now() - AGENT_RUN_LEASE_MS;
-    if (setupIsActive) {
+    const [setup, { items: pages }] = await Promise.all([
+      this.setupTurnRepo.findWikiHomepageSetupTurn(),
+      this.pageRepo.listPages({ page: 1, pageSize: 5 }),
+    ]);
+    if (setup?.active) {
       return {
         ok: true,
         data: {

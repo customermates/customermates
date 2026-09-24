@@ -12,6 +12,7 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { EventService } from "@/features/event/event.service";
 import { PrismaAuditLogRepo } from "@/features/audit-log/prisma-audit-log.repository";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
+import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
 import type { UpsertRoleData } from "@/features/role/upsert-role.interactor";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
@@ -27,8 +28,10 @@ import { DeleteWikiPageInteractor } from "../delete-wiki-page.interactor";
 import { GetWikiPageInteractor } from "../get-wiki-page.interactor";
 import { GetWikiPagesInteractor } from "../get-wiki-pages.interactor";
 import { GetWikiCatalogInteractor } from "../get-wiki-catalog.interactor";
+import { GetWikiHomepageSetupStateInteractor } from "../get-wiki-homepage-setup-state.interactor";
 import { PrismaWikiPageRepo } from "../prisma-wiki-page.repository";
 import { SearchWikiPagesInteractor } from "../search-wiki-pages.interactor";
+import { StartWikiHomepageSetupInteractor } from "../start-wiki-homepage-setup.interactor";
 import { UpdateWikiPageInteractor } from "../update-wiki-page.interactor";
 
 const databaseUrl = getLocalDatabaseTestUrl();
@@ -611,6 +614,77 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     expect(audits.rows).toHaveLength(5);
     expect(new Set(audits.rows.map((row) => row.entityId))).toEqual(new Set(stored.rows.map((row) => row.id)));
     for (const audit of audits.rows) expect(audit.eventData.payload).toMatchObject({ id: audit.entityId });
+  });
+
+  it("keeps another company's pages and active homepage setup out of local setup decisions", async () => {
+    const foreign = await create(foreignUser, [{ title: "Foreign page", markdown: "Foreign body" }]);
+    if (!foreign.ok) throw new Error("Foreign Wiki fixture was not created.");
+    const foreignConversationId = randomUUID();
+    await client.query(
+      'INSERT INTO "AgentConversation" ("id", "companyId", "userId", "updatedAt") VALUES ($1, $2, $3, CURRENT_TIMESTAMP)',
+      [foreignConversationId, foreignCompanyId, foreignUserId],
+    );
+    await client.query(
+      `INSERT INTO "AgentTurnRequest" ("id", "companyId", "userId", "conversationId", "clientRequestId", "text", "wikiHomepageSetupDomain", "wikiHomepageSetupUrl", "status", "runId", "userMessageId", "heartbeatAt", "updatedAt")
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'running', $9, $10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+      [
+        randomUUID(),
+        foreignCompanyId,
+        foreignUserId,
+        foreignConversationId,
+        randomUUID(),
+        "Set up the Wiki from https://example.com/",
+        "example.com",
+        "https://example.com/",
+        randomUUID(),
+        randomUUID(),
+      ],
+    );
+    const setupState = (tenant: TenantUser) =>
+      runWithTenant(tenant, () =>
+        new GetWikiHomepageSetupStateInteractor(new PrismaWikiPageRepo(), new PrismaAgentChatRepo()).invoke(),
+      );
+    const agent = {
+      invoke: vi.fn().mockResolvedValue({
+        ok: true,
+        data: {
+          disposition: "run",
+          clientRequestId: randomUUID(),
+          conversationId: randomUUID(),
+        },
+      }),
+    };
+    const startSetup = (tenant: TenantUser) =>
+      runWithTenant(tenant, () =>
+        new StartWikiHomepageSetupInteractor(
+          new PrismaWikiPageRepo(),
+          new PrismaAgentChatRepo(),
+          agent as never,
+        ).invoke({ homepage: "example.org", clientRequestId: randomUUID(), locale: "en" }),
+      );
+
+    try {
+      expect(await setupState(foreignUser)).toMatchObject({
+        ok: true,
+        data: { status: "working", domain: "example.com", conversationId: foreignConversationId },
+      });
+      expect(customCode(await startSetup(foreignUser))).toBe(CustomErrorCode.agentTurnAlreadyRunning);
+
+      expect(await setupState(user)).toEqual({
+        ok: true,
+        data: { status: "idle", homepage: null, domain: null, conversationId: null, pages: [] },
+      });
+      expect(await startSetup(user)).toMatchObject({ ok: true, data: { disposition: "run" } });
+      expect(agent.invoke).toHaveBeenCalledExactlyOnceWith(
+        expect.objectContaining({
+          wikiHomepageSetupDomain: "example.org",
+          wikiHomepageSetupUrl: "https://example.org/",
+        }),
+      );
+      expect(await create(user, [{ title: "Local page", markdown: "Local body" }], true)).toMatchObject({ ok: true });
+    } finally {
+      await client.query('DELETE FROM "AgentConversation" WHERE "id" = $1', [foreignConversationId]);
+    }
   });
 
   it("cascades Wiki pages when their company is deleted", async () => {

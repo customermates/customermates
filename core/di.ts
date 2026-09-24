@@ -1146,8 +1146,9 @@ export const getCreateWikiPagesInteractor = () => new CreateWikiPagesInteractor(
 export const getUpdateWikiPageInteractor = () => new UpdateWikiPageInteractor(getWikiPageRepo(), getEventService());
 export const getDeleteWikiPageInteractor = () => new DeleteWikiPageInteractor(getWikiPageRepo(), getEventService());
 export const getStartWikiHomepageSetupInteractor = () =>
-  new StartWikiHomepageSetupInteractor(getWikiPageRepo(), getSendAgentMessageInteractor());
-export const getGetWikiHomepageSetupStateInteractor = () => new GetWikiHomepageSetupStateInteractor(getWikiPageRepo());
+  new StartWikiHomepageSetupInteractor(getWikiPageRepo(), getAgentChatRepo(), getSendAgentMessageInteractor());
+export const getGetWikiHomepageSetupStateInteractor = () =>
+  new GetWikiHomepageSetupStateInteractor(getWikiPageRepo(), getAgentChatRepo());
 
 // --- Webhook ---
 

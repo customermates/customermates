@@ -15,6 +15,11 @@ import {
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { env } from "@/env";
+import type {
+  GetWikiHomepageSetupTurnRepo,
+  WikiHomepageSetupTurn,
+} from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
+import type { StartWikiHomepageSetupTurnRepo } from "@/features/wiki/start-wiki-homepage-setup.interactor";
 
 import type { AgentUsageRepo } from "./agent-usage.service";
 import { AGENT_CONVERSATION_PAGE_SIZE, AGENT_MESSAGE_PAGE_SIZE, type AgentConversationPage } from "./agent-history";
@@ -192,7 +197,20 @@ export type AgentUsageReservationExtension =
   | { disposition: "hosted_ai_unavailable" }
   | { disposition: "turn_error" };
 
-export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRepo {
+function activeWikiHomepageSetupWhere(companyId: string, now: Date): Prisma.AgentTurnRequestWhereInput {
+  const freshnessCutoff = new Date(now.getTime() - AGENT_RUN_LEASE_MS);
+  return {
+    companyId,
+    wikiHomepageSetupDomain: { not: null },
+    status: { in: ["running", "waitingBudget"] },
+    OR: [{ heartbeatAt: { gt: freshnessCutoff } }, { heartbeatAt: null, updatedAt: { gt: freshnessCutoff } }],
+  };
+}
+
+export class PrismaAgentChatRepo
+  extends BaseRepository
+  implements AgentUsageRepo, StartWikiHomepageSetupTurnRepo, GetWikiHomepageSetupTurnRepo
+{
   private async resolveCurrentAgentCreditEntitlement(user: AgentUsageUser, now: Date) {
     if (!user.subscription) return null;
 
@@ -508,15 +526,8 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       }
 
       if (args.turn.wikiHomepageSetupDomain) {
-        const freshnessCutoff = new Date(admittedAt.getTime() - AGENT_RUN_LEASE_MS);
         const activeSetup = await this.prisma.agentTurnRequest.findFirst({
-          where: {
-            id: { not: args.turn.turnRequestId },
-            companyId,
-            wikiHomepageSetupDomain: { not: null },
-            status: { in: ["running", "waitingBudget"] },
-            OR: [{ heartbeatAt: { gt: freshnessCutoff } }, { heartbeatAt: null, updatedAt: { gt: freshnessCutoff } }],
-          },
+          where: { ...activeWikiHomepageSetupWhere(companyId, admittedAt), id: { not: args.turn.turnRequestId } },
           select: { id: true },
         });
         if (activeSetup) throw new WikiHomepageSetupAlreadyRunningError();
@@ -612,6 +623,81 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         recentMessages: recentMessages.reverse(),
       };
     });
+  }
+
+  async findWikiHomepageSetupTurn(): Promise<WikiHomepageSetupTurn | null> {
+    const select = {
+      status: true,
+      terminalCode: true,
+      wikiHomepageSetupUrl: true,
+      wikiHomepageSetupDomain: true,
+      conversationId: true,
+      userId: true,
+      affectedResources: true,
+    } as const;
+    const orderBy = [{ createdAt: "desc" as const }, { id: "desc" as const }];
+    const active = await this.prisma.agentTurnRequest.findFirst({
+      where: activeWikiHomepageSetupWhere(this.companyId, new Date()),
+      orderBy,
+      select,
+    });
+    const setup =
+      active ??
+      (await this.prisma.agentTurnRequest.findFirst({
+        where: {
+          companyId: this.companyId,
+          wikiHomepageSetupDomain: { not: null },
+          wikiHomepageSetupUrl: { not: null },
+        },
+        orderBy,
+        select,
+      }));
+    if (!setup?.wikiHomepageSetupUrl || !setup.wikiHomepageSetupDomain) return null;
+    return {
+      active: active !== null,
+      status: setup.status,
+      terminalCode: setup.terminalCode,
+      homepage: setup.wikiHomepageSetupUrl,
+      domain: setup.wikiHomepageSetupDomain,
+      conversationId: setup.userId === this.userId ? setup.conversationId : null,
+      affectedResources: setup.affectedResources,
+    };
+  }
+
+  async findReusableWikiHomepageSetupTurn(data: {
+    clientRequestId: string;
+    homepageUrl: string;
+    registrableDomain: string;
+  }): ReturnType<StartWikiHomepageSetupTurnRepo["findReusableWikiHomepageSetupTurn"]> {
+    const select = {
+      clientRequestId: true,
+      text: true,
+      userId: true,
+      wikiHomepageSetupDomain: true,
+      wikiHomepageSetupUrl: true,
+    } as const;
+    const exact = await this.prisma.agentTurnRequest.findFirst({
+      where: {
+        companyId: this.companyId,
+        userId: this.userId,
+        wikiHomepageSetupDomain: { not: null },
+        clientRequestId: data.clientRequestId,
+      },
+      select,
+    });
+    const turn =
+      exact ??
+      (await this.prisma.agentTurnRequest.findFirst({
+        where: activeWikiHomepageSetupWhere(this.companyId, new Date()),
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        select,
+      }));
+    if (!turn) return null;
+    return turn.userId === this.userId &&
+      turn.wikiHomepageSetupDomain === data.registrableDomain &&
+      turn.wikiHomepageSetupUrl === data.homepageUrl
+      ? { disposition: "reuse", clientRequestId: turn.clientRequestId, text: turn.text }
+      : { disposition: "blocked" };
   }
 
   async archiveConversation(id: string) {

@@ -9,7 +9,11 @@ vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 
-import { GetWikiHomepageSetupStateInteractor } from "../get-wiki-homepage-setup-state.interactor";
+import {
+  GetWikiHomepageSetupStateInteractor,
+  type WikiHomepageSetupTurn,
+} from "../get-wiki-homepage-setup-state.interactor";
+import type { WikiPageSummary } from "../wiki.schema";
 
 const PAGE = {
   id: "00000000-0000-4000-8000-000000000001",
@@ -17,25 +21,31 @@ const PAGE = {
   createdAt: new Date("2026-09-22T09:00:00.000Z"),
   updatedAt: new Date("2026-09-22T09:00:00.000Z"),
 };
-const SETUP = {
-  status: "running" as const,
+const SETUP: WikiHomepageSetupTurn = {
+  active: true,
+  status: "running",
   terminalCode: null,
   homepage: "https://example.com/",
   domain: "example.com",
   conversationId: "conversation-1",
   affectedResources: [],
-  activityAt: new Date("2099-09-22T09:00:00.000Z"),
 };
+
+const INACTIVE: WikiHomepageSetupTurn = { ...SETUP, active: false };
 
 beforeEach(() => vi.clearAllMocks());
 
+function interactor(setup: WikiHomepageSetupTurn | null, pages: WikiPageSummary[] = []) {
+  const pageRepo = {
+    listPages: vi.fn().mockResolvedValue({ items: pages, total: pages.length, page: 1, pageSize: 5 }),
+  };
+  const setupTurnRepo = { findWikiHomepageSetupTurn: vi.fn().mockResolvedValue(setup) };
+  return { pageRepo, setupTurnRepo, interactor: new GetWikiHomepageSetupStateInteractor(pageRepo, setupTurnRepo) };
+}
+
 describe("GetWikiHomepageSetupStateInteractor", () => {
   it("returns idle when neither pages nor a setup turn exist", async () => {
-    const repo = {
-      getHomepageSetupProjection: vi.fn().mockResolvedValue({ setup: null, pages: [] }),
-    };
-
-    await expect(new GetWikiHomepageSetupStateInteractor(repo).invoke()).resolves.toEqual({
+    await expect(interactor(null).interactor.invoke()).resolves.toEqual({
       ok: true,
       data: {
         status: "idle",
@@ -48,11 +58,7 @@ describe("GetWikiHomepageSetupStateInteractor", () => {
   });
 
   it.each(["running", "waitingBudget"] as const)("restores %s setup as working after refresh", async (status) => {
-    const repo = {
-      getHomepageSetupProjection: vi.fn().mockResolvedValue({ setup: { ...SETUP, status }, pages: [] }),
-    };
-
-    await expect(new GetWikiHomepageSetupStateInteractor(repo).invoke()).resolves.toMatchObject({
+    await expect(interactor({ ...SETUP, status }).interactor.invoke()).resolves.toMatchObject({
       ok: true,
       data: {
         status: "working",
@@ -64,21 +70,15 @@ describe("GetWikiHomepageSetupStateInteractor", () => {
   });
 
   it("keeps an active setup visible when another client creates a page", async () => {
-    const repo = {
-      getHomepageSetupProjection: vi.fn().mockResolvedValue({ setup: SETUP, pages: [PAGE] }),
-    };
-
-    await expect(new GetWikiHomepageSetupStateInteractor(repo).invoke()).resolves.toMatchObject({
+    const { interactor: getState, pageRepo } = interactor(SETUP, [PAGE]);
+    await expect(getState.invoke()).resolves.toMatchObject({
       data: { status: "working", pages: [] },
     });
+    expect(pageRepo.listPages).toHaveBeenCalledWith({ page: 1, pageSize: 5 });
   });
 
   it("reports pages as complete even when they were created manually", async () => {
-    const repo = {
-      getHomepageSetupProjection: vi.fn().mockResolvedValue({ setup: null, pages: [PAGE] }),
-    };
-
-    await expect(new GetWikiHomepageSetupStateInteractor(repo).invoke()).resolves.toEqual({
+    await expect(interactor(null, [PAGE]).interactor.invoke()).resolves.toEqual({
       ok: true,
       data: {
         status: "completed",
@@ -91,14 +91,8 @@ describe("GetWikiHomepageSetupStateInteractor", () => {
   });
 
   it("does not attribute manually created pages to an earlier failed setup", async () => {
-    const repo = {
-      getHomepageSetupProjection: vi.fn().mockResolvedValue({
-        setup: { ...SETUP, status: "failed", terminalCode: "error" },
-        pages: [PAGE],
-      }),
-    };
-
-    await expect(new GetWikiHomepageSetupStateInteractor(repo).invoke()).resolves.toEqual({
+    const failed = { ...INACTIVE, status: "failed" as const, terminalCode: "error" as const };
+    await expect(interactor(failed, [PAGE]).interactor.invoke()).resolves.toEqual({
       ok: true,
       data: {
         status: "completed",
@@ -111,64 +105,37 @@ describe("GetWikiHomepageSetupStateInteractor", () => {
   });
 
   it("keeps a completed zero-page turn distinct without claiming why no pages were created", async () => {
-    const noContent = {
-      getHomepageSetupProjection: vi.fn().mockResolvedValue({
-        setup: { ...SETUP, status: "completed", terminalCode: "completed" },
-        pages: [],
-      }),
-    };
-    const failed = {
-      getHomepageSetupProjection: vi.fn().mockResolvedValue({
-        setup: { ...SETUP, status: "failed", terminalCode: "error" },
-        pages: [],
-      }),
-    };
+    const noContent = { ...INACTIVE, status: "completed" as const, terminalCode: "completed" as const };
+    const failed = { ...INACTIVE, status: "failed" as const, terminalCode: "error" as const };
 
-    await expect(new GetWikiHomepageSetupStateInteractor(noContent).invoke()).resolves.toMatchObject({
+    await expect(interactor(noContent).interactor.invoke()).resolves.toMatchObject({
       data: { status: "noContent" },
     });
-    await expect(new GetWikiHomepageSetupStateInteractor(failed).invoke()).resolves.toMatchObject({
+    await expect(interactor(failed).interactor.invoke()).resolves.toMatchObject({
       data: { status: "failed" },
     });
   });
 
   it.each(["needsAttention", "uncertain"] as const)("allows a terminal %s setup to be retried", async (status) => {
-    const repo = {
-      getHomepageSetupProjection: vi.fn().mockResolvedValue({ setup: { ...SETUP, status }, pages: [] }),
-    };
-
-    await expect(new GetWikiHomepageSetupStateInteractor(repo).invoke()).resolves.toMatchObject({
+    await expect(interactor({ ...INACTIVE, status }).interactor.invoke()).resolves.toMatchObject({
       data: { status: "failed" },
     });
   });
 
   it("does not poll forever after a running setup lease becomes stale", async () => {
-    const repo = {
-      getHomepageSetupProjection: vi.fn().mockResolvedValue({
-        setup: { ...SETUP, activityAt: new Date("2020-01-01T00:00:00.000Z") },
-        pages: [],
-      }),
-    };
-
-    await expect(new GetWikiHomepageSetupStateInteractor(repo).invoke()).resolves.toMatchObject({
+    await expect(interactor(INACTIVE).interactor.invoke()).resolves.toMatchObject({
       data: { status: "failed" },
     });
   });
 
   it("returns to idle when the pages from a successful setup were later deleted", async () => {
-    const repo = {
-      getHomepageSetupProjection: vi.fn().mockResolvedValue({
-        setup: {
-          ...SETUP,
-          status: "completed",
-          terminalCode: "completed",
-          affectedResources: ["wiki"],
-        },
-        pages: [],
-      }),
+    const deleted = {
+      ...INACTIVE,
+      status: "completed" as const,
+      terminalCode: "completed" as const,
+      affectedResources: ["wiki"],
     };
-
-    await expect(new GetWikiHomepageSetupStateInteractor(repo).invoke()).resolves.toMatchObject({
+    await expect(interactor(deleted).interactor.invoke()).resolves.toMatchObject({
       data: { status: "idle", homepage: null, conversationId: null },
     });
   });

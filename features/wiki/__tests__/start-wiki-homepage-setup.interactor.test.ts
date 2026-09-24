@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createMockUser } from "@/tests/helpers/mock-user";
+import { Action, Resource } from "@/generated/prisma";
+import { runWithTenant } from "@/core/decorators/tenant-context";
+import { ForbiddenError } from "@/core/errors/app-errors";
+import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import {
   createMockDiModule,
   MOCK_ENV_MODULE,
@@ -20,17 +23,47 @@ vi.mock("next-intl/server", () => ({
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-import { StartWikiHomepageSetupInteractor } from "../start-wiki-homepage-setup.interactor";
+import {
+  StartWikiHomepageSetupInteractor,
+  type StartWikiHomepageSetupRepo,
+  type StartWikiHomepageSetupTurnRepo,
+} from "../start-wiki-homepage-setup.interactor";
 
 const CLIENT_REQUEST_ID = "00000000-0000-4000-8000-000000000001";
+
+function setupInteractor(
+  repo: StartWikiHomepageSetupRepo & StartWikiHomepageSetupTurnRepo,
+  agent: { invoke: unknown },
+) {
+  return new StartWikiHomepageSetupInteractor(repo, repo, agent as never);
+}
 
 beforeEach(() => vi.clearAllMocks());
 
 describe("StartWikiHomepageSetupInteractor", () => {
+  it("rejects a Wiki Read-only member before checking setup state or dispatching a paid turn", async () => {
+    const repo = { wikiIsEmpty: vi.fn(), findReusableWikiHomepageSetupTurn: vi.fn() };
+    const agent = { invoke: vi.fn() };
+    const readOnly = createMockUserWithPermissions([{ resource: Resource.wiki, action: Action.readAll }]);
+
+    await expect(
+      runWithTenant(readOnly, () =>
+        setupInteractor(repo, agent).invoke({
+          homepage: "example.com",
+          clientRequestId: CLIENT_REQUEST_ID,
+          locale: "en",
+        }),
+      ),
+    ).rejects.toBeInstanceOf(ForbiddenError);
+    expect(repo.wikiIsEmpty).not.toHaveBeenCalled();
+    expect(repo.findReusableWikiHomepageSetupTurn).not.toHaveBeenCalled();
+    expect(agent.invoke).not.toHaveBeenCalled();
+  });
+
   it("dispatches one visible, localized, domain-restricted durable Mate turn", async () => {
     const repo = {
       wikiIsEmpty: vi.fn().mockResolvedValue(true),
-      findReusableSetupRequest: vi.fn().mockResolvedValue(null),
+      findReusableWikiHomepageSetupTurn: vi.fn().mockResolvedValue(null),
     };
     const outcome = {
       ok: true as const,
@@ -43,7 +76,7 @@ describe("StartWikiHomepageSetupInteractor", () => {
     };
     const agent = { invoke: vi.fn().mockResolvedValue(outcome) };
 
-    const result = await new StartWikiHomepageSetupInteractor(repo, agent as never).invoke({
+    const result = await setupInteractor(repo, agent).invoke({
       homepage: "https://www.example.com/about?ref=onboarding#team",
       clientRequestId: CLIENT_REQUEST_ID,
       locale: "de",
@@ -61,7 +94,7 @@ describe("StartWikiHomepageSetupInteractor", () => {
     });
     expect(agent.invoke.mock.calls[0][0].text).not.toContain("?ref=");
     expect(agent.invoke.mock.calls[0][0].text).not.toContain("#team");
-    expect(repo.findReusableSetupRequest).toHaveBeenCalledWith({
+    expect(repo.findReusableWikiHomepageSetupTurn).toHaveBeenCalledWith({
       clientRequestId: CLIENT_REQUEST_ID,
       homepageUrl: "https://www.example.com/about",
       registrableDomain: "example.com",
@@ -69,10 +102,10 @@ describe("StartWikiHomepageSetupInteractor", () => {
   });
 
   it("rejects an unsafe homepage before checking or dispatching", async () => {
-    const repo = { wikiIsEmpty: vi.fn(), findReusableSetupRequest: vi.fn() };
+    const repo = { wikiIsEmpty: vi.fn(), findReusableWikiHomepageSetupTurn: vi.fn() };
     const agent = { invoke: vi.fn() };
 
-    const result = await new StartWikiHomepageSetupInteractor(repo, agent as never).invoke({
+    const result = await setupInteractor(repo, agent).invoke({
       homepage: "http://localhost/admin",
       clientRequestId: CLIENT_REQUEST_ID,
       locale: "en",
@@ -85,18 +118,18 @@ describe("StartWikiHomepageSetupInteractor", () => {
       });
     }
     expect(repo.wikiIsEmpty).not.toHaveBeenCalled();
-    expect(repo.findReusableSetupRequest).not.toHaveBeenCalled();
+    expect(repo.findReusableWikiHomepageSetupTurn).not.toHaveBeenCalled();
     expect(agent.invoke).not.toHaveBeenCalled();
   });
 
   it("rejects a non-empty Wiki without creating a conversation", async () => {
     const repo = {
       wikiIsEmpty: vi.fn().mockResolvedValue(false),
-      findReusableSetupRequest: vi.fn().mockResolvedValue(null),
+      findReusableWikiHomepageSetupTurn: vi.fn().mockResolvedValue(null),
     };
     const agent = { invoke: vi.fn() };
 
-    const result = await new StartWikiHomepageSetupInteractor(repo, agent as never).invoke({
+    const result = await setupInteractor(repo, agent).invoke({
       homepage: "example.com",
       clientRequestId: CLIENT_REQUEST_ID,
       locale: "en",
@@ -115,7 +148,7 @@ describe("StartWikiHomepageSetupInteractor", () => {
   it("returns the Assistant's exactly-once replay outcome unchanged", async () => {
     const repo = {
       wikiIsEmpty: vi.fn().mockResolvedValue(true),
-      findReusableSetupRequest: vi.fn().mockResolvedValue({
+      findReusableWikiHomepageSetupTurn: vi.fn().mockResolvedValue({
         disposition: "reuse",
         clientRequestId: CLIENT_REQUEST_ID,
         text: "Persisted setup prompt.",
@@ -133,7 +166,7 @@ describe("StartWikiHomepageSetupInteractor", () => {
     const agent = { invoke: vi.fn().mockResolvedValue(replay) };
 
     await expect(
-      new StartWikiHomepageSetupInteractor(repo, agent as never).invoke({
+      setupInteractor(repo, agent).invoke({
         homepage: "example.com",
         clientRequestId: CLIENT_REQUEST_ID,
         locale: "fr",
@@ -147,7 +180,7 @@ describe("StartWikiHomepageSetupInteractor", () => {
     const priorRequestId = "00000000-0000-4000-8000-000000000003";
     const repo = {
       wikiIsEmpty: vi.fn().mockResolvedValue(true),
-      findReusableSetupRequest: vi.fn().mockResolvedValue({
+      findReusableWikiHomepageSetupTurn: vi.fn().mockResolvedValue({
         disposition: "reuse",
         clientRequestId: priorRequestId,
         text: "Persisted active prompt.",
@@ -165,7 +198,7 @@ describe("StartWikiHomepageSetupInteractor", () => {
       }),
     };
 
-    await new StartWikiHomepageSetupInteractor(repo, agent as never).invoke({
+    await setupInteractor(repo, agent).invoke({
       homepage: "example.com",
       clientRequestId: CLIENT_REQUEST_ID,
       locale: "en",
@@ -180,7 +213,7 @@ describe("StartWikiHomepageSetupInteractor", () => {
   it("replays an exact completed request even when its pages make the Wiki non-empty", async () => {
     const repo = {
       wikiIsEmpty: vi.fn().mockResolvedValue(false),
-      findReusableSetupRequest: vi.fn().mockResolvedValue({
+      findReusableWikiHomepageSetupTurn: vi.fn().mockResolvedValue({
         disposition: "reuse",
         clientRequestId: CLIENT_REQUEST_ID,
         text: "Persisted completed prompt.",
@@ -204,7 +237,7 @@ describe("StartWikiHomepageSetupInteractor", () => {
     const agent = { invoke: vi.fn().mockResolvedValue(replay) };
 
     await expect(
-      new StartWikiHomepageSetupInteractor(repo, agent as never).invoke({
+      setupInteractor(repo, agent).invoke({
         homepage: "example.com",
         clientRequestId: CLIENT_REQUEST_ID,
         locale: "en",
@@ -216,11 +249,11 @@ describe("StartWikiHomepageSetupInteractor", () => {
   it("blocks a second setup while another workspace setup is active", async () => {
     const repo = {
       wikiIsEmpty: vi.fn(),
-      findReusableSetupRequest: vi.fn().mockResolvedValue({ disposition: "blocked" }),
+      findReusableWikiHomepageSetupTurn: vi.fn().mockResolvedValue({ disposition: "blocked" }),
     };
     const agent = { invoke: vi.fn() };
 
-    const result = await new StartWikiHomepageSetupInteractor(repo, agent as never).invoke({
+    const result = await setupInteractor(repo, agent).invoke({
       homepage: "different.example.com",
       clientRequestId: CLIENT_REQUEST_ID,
       locale: "en",

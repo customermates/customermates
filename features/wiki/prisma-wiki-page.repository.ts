@@ -2,7 +2,6 @@ import { Prisma } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import type { RepoArgs } from "@/core/utils/types";
-import { AGENT_RUN_LEASE_MS } from "@/ee/agent-chat/agent-turn-request";
 
 import type { CreateWikiPagesRepo } from "./create-wiki-pages.interactor";
 import type { DeleteWikiPageRepo } from "./delete-wiki-page.interactor";
@@ -12,7 +11,6 @@ import type { GetWikiCatalogRepo } from "./get-wiki-catalog.interactor";
 import type { SearchWikiPagesRepo } from "./search-wiki-pages.interactor";
 import type { UpdateWikiPageRepo } from "./update-wiki-page.interactor";
 import type { StartWikiHomepageSetupRepo } from "./start-wiki-homepage-setup.interactor";
-import type { GetWikiHomepageSetupStateRepo } from "./get-wiki-homepage-setup-state.interactor";
 import type { WikiPageDto } from "./wiki.schema";
 import { WIKI_CATALOG_PAGE_SIZE, WIKI_CATALOG_RELEVANT_PAGE_LIMIT } from "./wiki.schema";
 import { wikiRelevantSearchTerms, wikiSearchSnippet, wikiSearchTerms, wikiSubstringSearchTerms } from "./wiki-content";
@@ -27,8 +25,7 @@ export class PrismaWikiPageRepo
     CreateWikiPagesRepo,
     UpdateWikiPageRepo,
     DeleteWikiPageRepo,
-    StartWikiHomepageSetupRepo,
-    GetWikiHomepageSetupStateRepo
+    StartWikiHomepageSetupRepo
 {
   private get pageSelect() {
     return {
@@ -133,104 +130,6 @@ export class PrismaWikiPageRepo
         where: { companyId: this.companyId },
       })) === 0
     );
-  }
-
-  async getHomepageSetupProjection() {
-    const setup = await this.prisma.agentTurnRequest.findFirst({
-      where: {
-        companyId: this.companyId,
-        wikiHomepageSetupDomain: { not: null },
-        wikiHomepageSetupUrl: { not: null },
-      },
-      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-      select: {
-        status: true,
-        terminalCode: true,
-        wikiHomepageSetupUrl: true,
-        wikiHomepageSetupDomain: true,
-        conversationId: true,
-        userId: true,
-        affectedResources: true,
-        heartbeatAt: true,
-        updatedAt: true,
-      },
-    });
-    const pages = await this.prisma.wikiPage.findMany({
-      where: { companyId: this.companyId },
-      select: this.summarySelect,
-      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
-      take: 5,
-    });
-    return {
-      setup: setup
-        ? {
-            status: setup.status,
-            terminalCode: setup.terminalCode,
-            homepage: setup.wikiHomepageSetupUrl as string,
-            domain: setup.wikiHomepageSetupDomain as string,
-            conversationId: setup.userId === this.user.id ? setup.conversationId : null,
-            affectedResources: setup.affectedResources,
-            activityAt: setup.heartbeatAt ?? setup.updatedAt,
-          }
-        : null,
-      pages,
-    };
-  }
-
-  async findReusableSetupRequest(data: { clientRequestId: string; homepageUrl: string; registrableDomain: string }) {
-    const setupWhere = {
-      companyId: this.companyId,
-      userId: this.user.id,
-      wikiHomepageSetupDomain: { not: null },
-    } as const;
-    const exact = await this.prisma.agentTurnRequest.findFirst({
-      where: { ...setupWhere, clientRequestId: data.clientRequestId },
-      select: {
-        clientRequestId: true,
-        text: true,
-        wikiHomepageSetupDomain: true,
-        wikiHomepageSetupUrl: true,
-      },
-    });
-    if (exact) {
-      return exact.wikiHomepageSetupDomain === data.registrableDomain && exact.wikiHomepageSetupUrl === data.homepageUrl
-        ? {
-            disposition: "reuse" as const,
-            clientRequestId: exact.clientRequestId,
-            text: exact.text,
-          }
-        : { disposition: "blocked" as const };
-    }
-
-    const activeAfter = new Date(Date.now() - AGENT_RUN_LEASE_MS);
-    const active = await this.prisma.agentTurnRequest.findFirst({
-      where: {
-        companyId: this.companyId,
-        wikiHomepageSetupDomain: { not: null },
-        status: {
-          in: ["running", "waitingBudget"],
-        },
-        OR: [{ heartbeatAt: { gt: activeAfter } }, { heartbeatAt: null, updatedAt: { gt: activeAfter } }],
-      },
-      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-      select: {
-        clientRequestId: true,
-        text: true,
-        userId: true,
-        wikiHomepageSetupDomain: true,
-        wikiHomepageSetupUrl: true,
-      },
-    });
-    if (!active) return null;
-    return active.userId === this.user.id &&
-      active.wikiHomepageSetupDomain === data.registrableDomain &&
-      active.wikiHomepageSetupUrl === data.homepageUrl
-      ? {
-          disposition: "reuse" as const,
-          clientRequestId: active.clientRequestId,
-          text: active.text,
-        }
-      : { disposition: "blocked" as const };
   }
 
   async createPages(data: RepoArgs<CreateWikiPagesRepo, "createPages">) {
