@@ -1,13 +1,14 @@
-import { getLocale } from "next-intl/server";
+import { MarketingShell } from "./components/navigation/marketing-shell";
 
-import { AppShell } from "./components/navigation/app-shell";
-
+import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
 import { NotFoundPageView } from "@/components/shared/not-found-page-view";
 
 export default async function NotFoundPage() {
+  const account = await resolveRequestAccountState();
+
   return (
-    <AppShell displayLanguage={await getLocale()}>
+    <MarketingShell accountState={account.state}>
       <NotFoundPageView />
-    </AppShell>
+    </MarketingShell>
   );
 }

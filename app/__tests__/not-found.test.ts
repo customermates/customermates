@@ -2,21 +2,23 @@ import type { ReactElement } from "react";
 
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("next-intl/server", () => ({ getLocale: () => Promise.resolve("de") }));
-vi.mock("../components/navigation/app-shell", () => ({ AppShell: () => null }));
+vi.mock("@/features/auth/next/resolve-account-state", () => ({
+  resolveRequestAccountState: () => Promise.resolve({ state: "allowed", user: null }),
+}));
+vi.mock("../components/navigation/marketing-shell", () => ({ MarketingShell: () => null }));
 vi.mock("@/components/shared/not-found-page-view", () => ({ NotFoundPageView: () => null }));
 
 import NotFoundPage from "../not-found";
-import { AppShell } from "../components/navigation/app-shell";
+import { MarketingShell } from "../components/navigation/marketing-shell";
 
 import { NotFoundPageView } from "@/components/shared/not-found-page-view";
 
 describe("root not-found page", () => {
-  it("renders an unmatched URL inside the shell the account state selects, as the root layout did before it moved into the route groups", async () => {
-    const page = (await NotFoundPage()) as ReactElement<{ displayLanguage: string; children: ReactElement }>;
+  it("renders an unmatched URL inside the marketing shell with the visitor's account state, so it keeps a navbar without shipping the store", async () => {
+    const page = (await NotFoundPage()) as ReactElement<{ accountState: string; children: ReactElement }>;
 
-    expect(page.type).toBe(AppShell);
-    expect(page.props.displayLanguage).toBe("de");
+    expect(page.type).toBe(MarketingShell);
+    expect(page.props.accountState).toBe("allowed");
     expect(page.props.children.type).toBe(NotFoundPageView);
   });
 });

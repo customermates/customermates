@@ -16,7 +16,7 @@ import { REPO_ROOT } from "./walk";
 const CLIENT_ENTRY_POINTS = [
   "app/layout.tsx",
   "app/providers.tsx",
-  "components/shared/not-found-page-view.tsx",
+  "app/not-found.tsx",
   "app/[locale]/layout.tsx",
   "app/[locale]/error.tsx",
   "app/[locale]/(static)/layout.tsx",
