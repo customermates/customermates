@@ -173,7 +173,7 @@ One form holds three parts, and one **Save** (`#company-settings-save`) in the t
 
 ### Who can change the currency and the other settings?
 
-Every member can open **My Company › Settings**; only roles with **Company** set to **Manage** **Yes**, and **Admin**, can change what is on it. For everyone else the fields are read-only and **Save** and **Reset** are not shown. That covers the currency, the deal stage field, the probabilities and the Data model. To get one of them changed, ask a member with that role. The hosted assistant can change the currency and the Data model names with `update_workspace_settings`, under the same permission.
+Every member can open **My Company › Settings**; only roles with **Company** set to **Manage** **Yes**, and **Admin**, can change what is on it. For everyone else the fields are read-only and **Save** and **Reset** are not shown. That covers the currency, the deal stage field, the probabilities and the Data model. Deleting the stage field in its **Edit Field** dialog turns weighting off, so it needs this permission as well as **Manage** on **Deals**. To get one of them changed, ask a member with that role. The hosted assistant can change the currency and the Data model names with `update_workspace_settings`, under the same permission.
 
 **Link:** `/company/settings`, Cloud URL `https://customermates.com/en/company/settings`. **Mate:** `navigate` and `highlight_element` with `nav-company-settings`, then `highlight_element` with `company-settings-currency` for **Currency** and `company-settings-save` for **Save**; members without **Company** **Manage** see the currency read-only and have no **Save** or **Reset** on screen.
 
@@ -203,7 +203,7 @@ Each of the five record types takes one preset name; free text is not possible.
 
 The choice applies to the whole workspace and appears in each member's display language: in the sidebar, lists, forms and field labels, and in what the assistant reads from `get_workspace_context`. Routes, API and MCP entity names, existing records and their links stay the same, and the role editor keeps the standard names. Below the selection, **How records connect** summarizes the relationships in the chosen names.
 
-`update_workspace_settings` with `target: "company"` changes **Currency** and the Data model names; it needs the same Company permission and runs without an approval prompt in the hosted assistant. No tool chooses the stage field. `manage_custom_columns` can set the probabilities as the `weight` of each option of the stage field, which edits that field and so needs **Deals** set to **Manage** **Yes**; include the weight on every option, because an update replaces the option list.
+`update_workspace_settings` with `target: "company"` changes **Currency** and the Data model names; it needs the same Company permission and runs without an approval prompt in the hosted assistant. No tool chooses the stage field. `manage_custom_columns` can set the probabilities as the `weight` of each option of the stage field; changing a weight needs **Deals** and **Company** both set to **Manage** **Yes**, or **Admin**, while other edits to the field need only **Deals**. Include each option's current weight on every update, because an update replaces the option list and a dropped weight counts as a change. Deleting the stage field with `manage_custom_columns` turns weighting off and also needs **Deals** and **Company** both set to **Manage** **Yes**, or **Admin**.
 
 **Link:** `/company/settings`, Cloud URL `https://customermates.com/en/company/settings`. **Mate:** `navigate` and `highlight_element` with `nav-company-settings`, then `highlight_element` with `company-settings-data-model` for the **Data model** section, or with the select id in this table without `#` for one record type. The selects exist only for roles with **Company** **Manage**; everyone else sees the names as plain text with no target, so Mate names the record type.
 
@@ -312,7 +312,7 @@ Every workspace starts with one built-in role, **Admin**, given to the person wh
 
 ## Webhooks tab
 
-Route `/company/webhooks`, sidebar id `#nav-company-webhooks`. Outbound event subscriptions; payloads, signatures, retries and the rules for every field are on [Webhooks](/docs/webhooks). Opening the page needs **API & Webhooks** read access **All**; adding, editing and deleting need **API & Webhooks** set to **Manage** **Yes**. Anyone who can open the page can also open a webhook's dialog read-only, including its secret and header values. Available on every plan and self-hosted.
+Route `/company/webhooks`, sidebar id `#nav-company-webhooks`. Outbound event subscriptions; payloads, signatures, retries and the rules for every field are on [Webhooks](/docs/webhooks). Opening the page needs **API & Webhooks** read access **All**; adding, editing and deleting need **API & Webhooks** set to **Manage** **Yes**. Anyone who can open the page can also open a webhook's dialog read-only; without **Manage**, the secret and each header value show as `********`, with the header names visible. Available on every plan and self-hosted.
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|

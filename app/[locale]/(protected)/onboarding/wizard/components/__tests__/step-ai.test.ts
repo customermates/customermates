@@ -13,6 +13,12 @@ vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => testContext.rootStore,
 }));
 
+vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
+  useHydratedIntlStore: () => ({
+    formatNumericalShortDateTime: (date: Date) => `short-date-time(${date.toISOString()})`,
+  }),
+}));
+
 vi.mock("@/i18n/navigation", () => ({
   IntlLink: "a",
   usePathname: () => "/onboarding/wizard",
@@ -267,7 +273,7 @@ describe("StepAi ChatGPT and Codex setup", () => {
 
     runInAction(() => {
       store.credentials = {
-        codex: { id: "synthetic-id", key: "synthetic-secret" },
+        codex: { id: "synthetic-id", key: "synthetic-secret", expiresAt: new Date("2027-09-24T10:00:00.000Z") },
       };
     });
     const afterKey = renderStep(store);
@@ -276,6 +282,9 @@ describe("StepAi ChatGPT and Codex setup", () => {
     expect(afterKey).toContain("synthetic-secret");
     expect(afterKey).not.toContain("OnboardingWizard.ai.install.instruction.cursor");
     expect(paragraphContaining(afterKey, "OnboardingWizard.ai.install.keyNote")).toContain(">guide</a>");
+    expect(paragraphContaining(afterKey, "OnboardingWizard.ai.install.expiryNote")).toContain(
+      "date=short-date-time(2027-09-24T10:00:00.000Z) tool=OnboardingWizard.ai.choices.codex",
+    );
     expect(afterKey).not.toContain('data-api-key-setup="codex"');
     expectButtonDisabled(buttonContaining(afterKey, "OnboardingWizard.finish"), false);
   });
@@ -314,12 +323,13 @@ describe("StepAi ChatGPT and Codex setup", () => {
     runInAction(() => {
       store.pendingTool = null;
       store.credentials = {
-        gemini: { id: "synthetic-id", key: "synthetic-secret" },
+        gemini: { id: "synthetic-id", key: "synthetic-secret", expiresAt: null },
       };
     });
     const submittingHtml = renderStep(store, true);
 
     expectButtonDisabled(buttonContaining(submittingHtml, "OnboardingWizard.finish"), true);
+    expect(submittingHtml).not.toContain("OnboardingWizard.ai.install.expiryNote");
   });
 
   it("confirms Skip as a terminal choice with a way Back", () => {

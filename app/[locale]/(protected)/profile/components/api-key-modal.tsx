@@ -38,7 +38,9 @@ const ExpiresInPicker = observer(() => {
 
   return (
     <div className="space-y-1.5">
-      <FormLabel htmlFor="api-key-expires">{t("ApiKeyModal.expiresIn")}</FormLabel>
+      <FormLabel fieldId="expiresIn" htmlFor="api-key-expires">
+        {t("ApiKeyModal.expiresIn")}
+      </FormLabel>
 
       <Popover>
         <PopoverTrigger asChild>

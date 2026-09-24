@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { appErrorResponse } from "@/core/errors/app-errors";
 import { prismaClientError } from "@/core/errors/prisma-client-error";
+import { interactorFailureStatus } from "@/core/validation/validation.utils";
 
 export const ErrorResponseSchema = z.string();
 
@@ -31,6 +32,14 @@ export const CommonApiResponses = {
       },
     },
   },
+  "404": {
+    description: "Not found",
+    content: {
+      "application/json": {
+        schema: ErrorResponseSchema,
+      },
+    },
+  },
   "500": {
     description: "Unexpected error",
     content: {
@@ -40,6 +49,40 @@ export const CommonApiResponses = {
     },
   },
 } as const;
+
+export const ConflictApiResponse = {
+  "409": {
+    description: "Conflict",
+    content: {
+      "application/json": {
+        schema: ErrorResponseSchema,
+      },
+    },
+  },
+} as const;
+
+export const MessagingProviderApiResponses = {
+  "422": {
+    description: "Unavailable",
+    content: {
+      "application/json": {
+        schema: ErrorResponseSchema,
+      },
+    },
+  },
+  "429": {
+    description: "Rate limited",
+    content: {
+      "application/json": {
+        schema: ErrorResponseSchema,
+      },
+    },
+  },
+} as const;
+
+export function interactorFailureResponse(error: z.ZodError): NextResponse {
+  return NextResponse.json(z.prettifyError(error), { status: interactorFailureStatus(error) });
+}
 
 export function handleError(source: unknown): NextResponse {
   const appError = appErrorResponse(source);

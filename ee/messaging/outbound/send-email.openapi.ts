@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { SendEmailSchema } from "@/ee/messaging/outbound/send-email.interactor";
 import { MessagingMessageDtoSchema } from "@/ee/messaging/inbox/inbox.schema";
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, ConflictApiResponse, MessagingProviderApiResponses } from "@/core/api/interactor-handler";
 
 export const sendEmailOperation: ZodOpenApiOperationObject = {
   operationId: "sendEmail",
@@ -32,5 +32,7 @@ export const sendEmailOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...ConflictApiResponse,
+    ...MessagingProviderApiResponses,
   },
 };

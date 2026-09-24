@@ -16,8 +16,8 @@ describe("routine modal accessibility contract", () => {
 
     expect(source).toContain('<TabsTrigger id="routine-tab-details" value="details">');
     expect(source).toContain('<TabsTrigger id="routine-tab-runs" value="runs">');
-    expect(source).toContain(`<${tabsContent} className="mt-0" value="details">`);
-    expect(source).toContain(`<${tabsContent} className="mt-0" value="runs">`);
+    expect(source).toContain(`<${tabsContent} aria-labelledby="routine-tab-details" className="mt-0" value="details">`);
+    expect(source).toContain(`<${tabsContent} aria-labelledby="routine-tab-runs" className="mt-0" value="runs">`);
   });
 
   it("uses owner status and viewer role for read-only guidance", () => {

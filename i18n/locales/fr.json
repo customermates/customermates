@@ -1086,6 +1086,7 @@
       "agentTurnAlreadyRunning": "Une autre demande de l’assistant est déjà en cours.",
       "apiKeyMaxExpiration": "L'expiration d'une clé API ne peut pas dépasser 365 jours.",
       "apiKeyMinExpiration": "L'expiration d'une clé API doit être d'au moins 1 jour.",
+      "apiKeyNameLength": "Le nom d'une clé API doit comporter entre 1 et 255 caractères.",
       "assigneeRequired": "Vous devez vous assigner cet élément. Notez que vous ne pourrez consulter que les éléments qui vous sont assignés.",
       "billingPortalUnavailable": "Le portail de facturation n’est pas disponible pour cet espace de travail. Contactez l’assistance pour effectuer des modifications.",
       "calendarEventNotFound": "ID d'évènement d'agenda introuvable ou inaccessible.",
@@ -1153,7 +1154,7 @@
       "operatorTrialEndRequired": "Une date de fin d'essai ne peut pas être supprimée, seulement déplacée. L'effacer laisserait l'espace de travail sur un essai qui n'expire jamais.",
       "operatorUnavailable": "La correction demandée n’est pas disponible pour la configuration actuelle du compte.",
       "organizationNotFound": "ID d'organisation introuvable ou inaccessible.",
-      "passwordInvalid": "Le mot de passe doit comporter au moins 8 caractères et contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial.",
+      "passwordInvalid": "Le mot de passe doit comporter entre 8 et 128 caractères et contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial.",
       "passwordMismatch": "Les mots de passe doivent correspondre.",
       "permissionDenied": "Cette action n’est pas disponible avec vos autorisations actuelles.",
       "privacyAcknowledgementRequired": "Veuillez confirmer que vous avez lu la politique de confidentialité.",
@@ -2808,6 +2809,7 @@
         "createFailed": "Impossible de créer la clé API. Veuillez réessayer."
       },
       "install": {
+        "expiryNote": "Cette clé API expire le {date}. Créez-en une nouvelle avant cette date pour que {tool} reste connecté.",
         "instruction": {
           "claudeCode": "Exécutez ceci dans un terminal :",
           "claudeDesktop": "Ouvrez Claude → Paramètres → Développeur → Modifier la configuration, fusionnez ceci, puis quittez et rouvrez Claude Desktop :",

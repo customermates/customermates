@@ -300,7 +300,7 @@ export function OverlayGallery() {
                 </Button>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent align="start">
+              <DropdownMenuContent align="start" aria-labelledby="overlay-nested-dropdown">
                 {OPTION_VALUES.map((value) => (
                   <DropdownMenuItem key={value}>{value}</DropdownMenuItem>
                 ))}
@@ -329,7 +329,7 @@ export function OverlayGallery() {
         <DropdownMenu open={open} onOpenChange={setOpen}>
           <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
 
-          <DropdownMenuContent align="start">
+          <DropdownMenuContent align="start" aria-labelledby="overlay-trigger">
             {OPTION_VALUES.map((value) => (
               <DropdownMenuItem key={value}>{value}</DropdownMenuItem>
             ))}

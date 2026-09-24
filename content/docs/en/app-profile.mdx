@@ -74,7 +74,7 @@ Route `/profile/api-keys`, sidebar entry **API & Connectors**. Keys for MCP and 
 | Open a key | Key card | none | The card shows **Created at**, **Expires at** and **Last used**; the dialog shows the creation date, and expiry and last use only when set |
 | Delete a key | Key dialog | `#api-key-delete` (**Delete**) | **Delete**, with a confirmation; the key stops working immediately |
 
-The quick route offers four tiles: **Claude**, **ChatGPT & Codex**, **Cursor** and **Gemini**. The local setups, meaning Claude Code or Claude Desktop, Codex, Cursor and Gemini, create a key named after the client that expires after 365 days, and show that client's setup snippet with the key filled in. The Claude account and ChatGPT app methods connect through the hosted connector instead and create no key.
+The quick route offers four tiles: **Claude**, **ChatGPT & Codex**, **Cursor** and **Gemini**. The local setups, meaning Claude Code or Claude Desktop, Codex, Cursor and Gemini, create a key named after the client that expires after 365 days, and show that client's setup snippet with the key filled in, followed by the date and time the key expires. The Claude account and ChatGPT app methods connect through the hosted connector instead and create no key.
 
 There is no rotate or revoke button: create a new key, update the client, then delete the old one. Taking **API & Webhooks** away from a role does not disable keys its members already hold; to stop a member's keys, set that member **Inactive** under **My Company › Members**.
 

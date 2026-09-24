@@ -241,6 +241,24 @@ describe("EntityDetailLayout", () => {
     expect(html).toContain("@6xl/detail:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_360px]");
   });
 
+  it.each([
+    ["notes and history", true, true],
+    ["notes only", true, false],
+    ["history only", false, true],
+    ["neither notes nor history", false, false],
+  ] as const)("points every panel and tab reference at a rendered id with %s", (_, showNotesPanel, canReadHistory) => {
+    harness.canReadHistory = canReadHistory;
+
+    const { html } = renderState("content", { showNotesPanel });
+    const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]));
+    const references = [...html.matchAll(/\saria-(?:controls|labelledby)="([^"]+)"/g)].flatMap((match) =>
+      match[1].split(" "),
+    );
+
+    expect(references.filter((reference) => !ids.has(reference))).toEqual([]);
+    expect(html.includes('role="tabpanel"')).toBe(showNotesPanel || canReadHistory);
+  });
+
   it("uses one Customize control to enter personalization and field editing together", () => {
     harness.personalizationEnabled = true;
     const { store } = renderState("content", { canManage: true });

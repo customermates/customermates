@@ -3,7 +3,7 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { CustomColumnType, EntityType } from "@/generated/prisma";
+import { Action, CustomColumnType, EntityType, Resource } from "@/generated/prisma";
 
 vi.mock("@/app/actions", () => ({
   deleteCustomColumnAction: vi.fn(),
@@ -218,5 +218,57 @@ describe("CustomColumnModalStore default option selection", () => {
     store.deleteOption(first);
 
     expect(defaults(store)).toEqual([false]);
+  });
+});
+
+describe("CustomColumnModalStore delete action on the deal weighting column", () => {
+  const STAGE_COLUMN = {
+    id: "col-stage",
+    label: "Stage",
+    type: CustomColumnType.singleSelect,
+    entityType: EntityType.deal,
+    options: {
+      options: [{ value: "opt-1", label: "Lead", color: "secondary", isDefault: true, index: 0, weight: 10 }],
+    },
+  } as CustomColumnDto;
+
+  function permissionStore({
+    canUpdateCompany,
+    weightingColumnId,
+  }: {
+    canUpdateCompany: boolean;
+    weightingColumnId: string;
+  }) {
+    const store = new CustomColumnModalStore({
+      ...rootStore((_key, values) => `Option ${String(values?.number)}`),
+      companyStore: { company: { dealWeightingColumnId: weightingColumnId } },
+      userStore: {
+        user: {},
+        canManage: () => true,
+        can: (resource: Resource, action: Action) =>
+          !(resource === Resource.company && action === Action.update) || canUpdateCompany,
+      },
+    } as unknown as RootStore);
+    store.openWithColumn(STAGE_COLUMN);
+    return store;
+  }
+
+  it("disables deleting the deal weighting column without company update permission", () => {
+    const store = permissionStore({ canUpdateCompany: false, weightingColumnId: STAGE_COLUMN.id });
+
+    expect(store.isDisabled).toBe(false);
+    expect(store.isDeleteColumnDisabled).toBe(true);
+  });
+
+  it("allows deleting the deal weighting column with company update permission", () => {
+    const store = permissionStore({ canUpdateCompany: true, weightingColumnId: STAGE_COLUMN.id });
+
+    expect(store.isDeleteColumnDisabled).toBe(false);
+  });
+
+  it("leaves deleting any other column to the record type permission", () => {
+    const store = permissionStore({ canUpdateCompany: false, weightingColumnId: "col-other" });
+
+    expect(store.isDeleteColumnDisabled).toBe(false);
   });
 });

@@ -34,6 +34,7 @@ vi.mock("next-intl", () => ({
 
 vi.mock("@/components/forms/form-context", () => ({
   useAppForm: () => ({
+    getError: () => undefined,
     getValue: () => testContext.value,
     isDisabled: testContext.isLoading || testContext.isReadOnly,
     isLoading: testContext.isLoading,

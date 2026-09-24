@@ -165,7 +165,7 @@ export const ConnectedAccountModal = observer(() => {
               )}
             </TabsList>
 
-            <TabsContent className="pt-5" value="details">
+            <TabsContent aria-labelledby="connected-account-tab-details" className="pt-5" value="details">
               <div className="flex flex-col gap-2">
                 <InfoRow label={t("ConnectedAccountsCard.provider")}>{providerLabel}</InfoRow>
 
@@ -259,7 +259,12 @@ export const ConnectedAccountModal = observer(() => {
             </TabsContent>
 
             {showEmailTab && (
-              <TabsContent forceMount className="pt-5 data-[state=inactive]:hidden" value="email">
+              <TabsContent
+                forceMount
+                aria-labelledby="connected-account-tab-email"
+                className="pt-5 data-[state=inactive]:hidden"
+                value="email"
+              >
                 <AccountSignature
                   key={account.id}
                   account={account}
@@ -269,7 +274,7 @@ export const ConnectedAccountModal = observer(() => {
             )}
 
             {showFoldersTab && (
-              <TabsContent className="pt-5" value="folders">
+              <TabsContent aria-labelledby="connected-account-tab-folders" className="pt-5" value="folders">
                 <AccountFolders
                   account={account}
                   editable={account.isOwner && canUpdate}

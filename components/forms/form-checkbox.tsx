@@ -48,7 +48,7 @@ export const FormCheckbox = observer(
           />
 
           {label && (
-            <FormLabel htmlFor={domId}>
+            <FormLabel fieldId={id} htmlFor={domId}>
               <span>
                 {label}
 

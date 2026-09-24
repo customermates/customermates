@@ -55,7 +55,7 @@ export const FormInput = observer(
       <div className={cn("space-y-1.5", containerClassName)}>
         {resolvedLabel && (
           <div className="flex items-center gap-1.5">
-            <FormLabel htmlFor={domId}>
+            <FormLabel fieldId={id} htmlFor={domId}>
               {resolvedLabel}
 
               {required ? <span className="text-destructive"> *</span> : null}

@@ -387,7 +387,7 @@ export const FormAutocomplete = observer(
       <div className={cn("space-y-1.5", containerClassName)}>
         {resolvedLabel && (
           <div className="flex items-center gap-1.5">
-            <FormLabel htmlFor={isReadOnly ? undefined : domId} id={labelId}>
+            <FormLabel fieldId={id} htmlFor={isReadOnly ? undefined : domId} id={labelId}>
               {resolvedLabel}
 
               {required ? <span className="text-destructive"> *</span> : null}

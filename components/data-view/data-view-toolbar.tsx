@@ -83,7 +83,7 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
               </Button>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" aria-labelledby={anchorScope ? `${anchorScope}-transfer` : undefined}>
               {onExport && (
                 <DropdownMenuItem onSelect={() => runUserAction(() => onExport())}>
                   <ArrowDownToLine className="size-4" />

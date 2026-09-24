@@ -1086,6 +1086,7 @@
       "agentTurnAlreadyRunning": "Eine andere Assistenten-Anfrage wird bereits ausgeführt.",
       "apiKeyMaxExpiration": "Die Ablaufzeit des API-Schlüssels darf 365 Tage nicht überschreiten.",
       "apiKeyMinExpiration": "Die Ablaufzeit des API-Schlüssels muss mindestens 1 Tag betragen.",
+      "apiKeyNameLength": "Der Name eines API-Schlüssels muss zwischen 1 und 255 Zeichen lang sein.",
       "assigneeRequired": "Du musst dich diesem Element zuweisen. Beachte, dass du nur Elemente sehen kannst, die dir zugewiesen sind.",
       "billingPortalUnavailable": "Das Abrechnungsportal ist für diesen Workspace nicht verfügbar. Wende dich für Änderungen an den Support.",
       "calendarEventNotFound": "Kalenderereignis-ID nicht gefunden oder nicht zugänglich.",
@@ -1153,7 +1154,7 @@
       "operatorTrialEndRequired": "Ein Testende kann nicht entfernt, sondern nur verschoben werden. Ein Löschen würde den Arbeitsbereich in einer Testphase belassen, die nie abläuft.",
       "operatorUnavailable": "Die gewünschte Korrektur ist für die aktuelle Kontokonfiguration nicht verfügbar.",
       "organizationNotFound": "Organisations-ID nicht gefunden oder nicht zugänglich.",
-      "passwordInvalid": "Das Passwort muss mindestens 8 Zeichen lang sein und mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und ein Sonderzeichen enthalten.",
+      "passwordInvalid": "Das Passwort muss zwischen 8 und 128 Zeichen lang sein und mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und ein Sonderzeichen enthalten.",
       "passwordMismatch": "Passwörter müssen übereinstimmen.",
       "permissionDenied": "Diese Aktion ist mit deinen aktuellen Berechtigungen nicht verfügbar.",
       "privacyAcknowledgementRequired": "Bitte bestätigen Sie, dass Sie die Datenschutzerklärung gelesen haben.",
@@ -2808,6 +2809,7 @@
         "createFailed": "API-Key konnte nicht erstellt werden. Bitte erneut versuchen."
       },
       "install": {
+        "expiryNote": "Dieser API-Key läuft am {date} ab. Erstelle vorher einen neuen, damit {tool} verbunden bleibt.",
         "instruction": {
           "claudeCode": "In einem Terminal ausführen:",
           "claudeDesktop": "Claude → Settings → Developer → Edit Config öffnen, das hier mergen, dann Claude Desktop beenden und neu öffnen:",

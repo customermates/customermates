@@ -265,7 +265,7 @@ export const CustomColumnModal = observer(() => {
                 label: t("Common.actions.deleteCustomFields"),
                 icon: Trash2,
                 variant: "destructive",
-                disabled: store.isDisabled,
+                disabled: store.isDeleteColumnDisabled,
                 onClick: () => showDeleteConfirmation(() => store.deleteColumn(), form.label),
               },
             ]

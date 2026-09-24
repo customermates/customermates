@@ -25,6 +25,7 @@ export type AiConnectionRoute =
 export type AiConnectionCredential = {
   id: string;
   key: string;
+  expiresAt: Date | null;
 };
 
 export type AiConnectionCreateResult =
@@ -83,6 +84,10 @@ export class AiConnectionStore {
 
   get apiKey(): string | null {
     return this.credential?.key ?? null;
+  }
+
+  get apiKeyExpiresAt(): Date | null {
+    return this.credential?.expiresAt ?? null;
   }
 
   get isCreating(): boolean {
@@ -183,7 +188,7 @@ export class AiConnectionStore {
         return { status: "failed", error: res.error };
       }
 
-      const credential = { id: res.data.id, key: res.data.key };
+      const credential = { id: res.data.id, key: res.data.key, expiresAt: res.data.expiresAt };
       runInAction(() => {
         this.credentials = { ...this.credentials, [tool]: credential };
       });

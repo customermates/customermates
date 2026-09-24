@@ -217,6 +217,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
 
           <DropdownMenuContent
             align="end"
+            aria-labelledby="global-data-views-menu"
             onCloseAutoFocus={(event) => {
               event.preventDefault();
               const nameInput = document.getElementById(VIEW_META_NAME_INPUT_ID);

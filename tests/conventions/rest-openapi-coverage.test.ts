@@ -751,6 +751,25 @@ export async function ${verb}(${parameters}) {
 `;
 }
 
+const INTERACTOR_FAILURE_BRANCH = /if \(!(\w+)\.ok\)\s*\{?\s*([^;]*;)/g;
+
+function interactorFailureViolations(file: string, text: string): string[] {
+  const branches = [...text.matchAll(INTERACTOR_FAILURE_BRANCH)];
+  return [
+    ...(text.includes("prettifyError") ? [`${file} formats an interactor failure itself`] : []),
+    ...(/status:\s*400\b/.test(text) ? [`${file} hard-codes status 400`] : []),
+    ...branches
+      .filter(([, name, returned]) => returned !== `return interactorFailureResponse(${name}.error);`)
+      .map(([statement]) => `${file} returns a failure without interactorFailureResponse: ${statement}`),
+  ];
+}
+
+function appRouteFailureViolations(file: string, text: string): string[] {
+  return [...text.matchAll(INTERACTOR_FAILURE_BRANCH)]
+    .filter(([, name, statement]) => !new RegExp(`interactorFailure(?:Response|Status)\\(${name}\\.error\\)`).test(statement))
+    .map(([statement]) => `${file} maps a failure without the shared status mapping: ${statement}`);
+}
+
 describe("REST route analyzer self-tests", () => {
   it.each([
     {
@@ -821,7 +840,7 @@ describe("REST route analyzer self-tests", () => {
       source:
         ROUTE_IMPORTS +
         canonicalHandler("POST", {
-          after: `const result = await getExampleInteractor().invoke(data); if (!result.ok) return Response.json(z.prettifyError(result.error), { status: 400 }); return Response.json(result.data);`,
+          after: `const result = await getExampleInteractor().invoke(data); if (!result.ok) return interactorFailureResponse(result.error); return Response.json(result.data);`,
         }),
       specs: { post: "json" } as const,
     },
@@ -1186,6 +1205,44 @@ describe("REST route analyzer self-tests", () => {
     expect(syntheticViolations(source, specs).join("\n")).toContain(expected);
   });
 
+  it.each([
+    ["single-line", "if (!result.ok) return interactorFailureResponse(result.error);", []],
+    ["braced", "if (!result.ok) {\n      return interactorFailureResponse(result.error);\n    }", []],
+    [
+      "braced literal",
+      "if (!result.ok) {\n      return NextResponse.json(result.error.message, { status: 422 });\n    }",
+      [
+        "probe/route.ts returns a failure without interactorFailureResponse: if (!result.ok) {\n      return NextResponse.json(result.error.message, { status: 422 });",
+      ],
+    ],
+    [
+      "status 400 literal",
+      "if (!result.ok) return interactorFailureResponse(result.error);\n    if (!ready) return NextResponse.json(\"x\", { status: 400 });",
+      ["probe/route.ts hard-codes status 400"],
+    ],
+    [
+      "prettifyError",
+      "if (!result.ok) return interactorFailureResponse(result.error);\n    z.prettifyError(other);",
+      ["probe/route.ts formats an interactor failure itself"],
+    ],
+  ] as const)("checks the %s interactor failure branch", (_, source, expected) => {
+    expect(interactorFailureViolations("probe/route.ts", source)).toEqual(expected);
+  });
+
+  it.each([
+    ["shared response", "if (!page.ok) {\n  failure = interactorFailureResponse(page.error);\n  return null;\n}", []],
+    ["shared status", "if (!result.ok) {\n  const status = interactorFailureStatus(result.error);", []],
+    [
+      "status literal",
+      "if (!result.ok) return NextResponse.json(z.prettifyError(result.error), { status: 400 });",
+      [
+        "probe/route.ts maps a failure without the shared status mapping: if (!result.ok) return NextResponse.json(z.prettifyError(result.error), { status: 400 });",
+      ],
+    ],
+  ] as const)("checks the %s failure branch in an app route", (_, source, expected) => {
+    expect(appRouteFailureViolations("probe/route.ts", source)).toEqual(expected);
+  });
+
   it("reports an undocumented route operation", () => {
     expect(syntheticViolations(ROUTE_IMPORTS + canonicalHandler("POST"), {}).join("\n")).toContain(
       "post /v1/__route_analyzer_probe__ (app/api/v1/__route_analyzer_probe__/route.ts) has no operation",
@@ -1238,6 +1295,24 @@ describe("v1 REST OpenAPI coverage", () => {
       }
     }
     expect(missing).toEqual([]);
+  });
+
+  it("returns every interactor failure through the shared status mapping", () => {
+    const violations = walkFiles(join(REPO_ROOT, "app", "api", "v1"), (path) => ROUTE_MODULE_PATTERN.test(path)).flatMap(
+      (path) => interactorFailureViolations(path.slice(REPO_ROOT.length + 1), readFileSync(path, "utf8")),
+    );
+
+    expect(violations).toEqual([]);
+  });
+
+  it("maps interactor failures in the app's other routes through the shared status mapping", () => {
+    const v1 = join(REPO_ROOT, "app", "api", "v1");
+    const violations = walkFiles(
+      join(REPO_ROOT, "app", "api"),
+      (path) => ROUTE_MODULE_PATTERN.test(path) && !path.startsWith(v1),
+    ).flatMap((path) => appRouteFailureViolations(path.slice(REPO_ROOT.length + 1), readFileSync(path, "utf8")));
+
+    expect(violations).toEqual([]);
   });
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(

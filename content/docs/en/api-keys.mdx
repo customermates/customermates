@@ -9,10 +9,10 @@ API keys authenticate Model Context Protocol (MCP) and REST clients against your
 
 In the sidebar, open **My Profile** in the **Workspace** group, choose **API & Connectors** (`/profile/api-keys`), and press **Add** in the top bar. The **Add an API key** dialog offers two routes:
 
-- **Standard API key**: enter a **Name** that says where the key is used, for example `Claude Desktop, personal laptop` (up to 32 characters), optionally pick a date under **Expires in**, and press **Save**. The key is shown once under **API key created successfully**; copy it before you close the dialog.
+- **Standard API key**: enter a **Name** that says where the key is used, for example `Claude Desktop, personal laptop` (up to 255 characters), optionally pick a date under **Expires in**, and press **Save**. The key is shown once under **API key created successfully**; copy it before you close the dialog.
 - **Quick connections**: pick **Claude**, **ChatGPT & Codex**, **Cursor** or **Gemini**, then the setup that matches where you use it. For a local setup (**Claude Code or Desktop**, then **Claude Code** or **Claude Desktop**; **Codex CLI or IDE**; Cursor or Gemini), press **Create API key**: the dialog creates the key and shows that client's setup snippet with the key already filled in. **Claude account** and **ChatGPT App** connect through OAuth instead and create no key. Press **Done** when you are finished.
 
-A key created by **Quick connections** is named after its client (`Claude Code`, `Claude Desktop`, `Codex`, `Cursor` or `Gemini`) and expires 365 days after creation; you cannot choose another name or date there. The AI step of the onboarding wizard uses the same setup and creates its keys the same way. A key's name and expiry cannot be changed after it is created.
+A key created by **Quick connections** is named after its client (`Claude Code`, `Claude Desktop`, `Codex`, `Cursor` or `Gemini`) and expires 365 days after creation; you cannot choose another name or date there. Below the setup snippet the dialog shows the date and time the key expires, and the key card lists it under **Expires at**. The AI step of the onboarding wizard uses the same setup and creates its keys the same way. A key's name and expiry cannot be changed after it is created.
 
 Keys belong to the user who created them and inherit that user's permissions.
 

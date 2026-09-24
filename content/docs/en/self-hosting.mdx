@@ -120,16 +120,7 @@ If the instance should serve one team only, limit who can reach it, for example 
 
 Yes, once you configure them. Register an OAuth client with Google, or an app registration in Microsoft Entra ID, with the redirect URI `<BASE_URL>/api/auth/callback/google` or `<BASE_URL>/api/auth/callback/microsoft`. The Microsoft provider uses the `common` endpoint, so register the app for accounts in any organizational directory.
 
-Put `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, or `AZURE_AD_CLIENT_ID` and `AZURE_AD_CLIENT_SECRET`, into `.env`. The Compose file passes only the variables it lists to the app, so also add them to the `environment:` block of the `app` service in `docker-compose.yml`:
-
-```yaml
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      AZURE_AD_CLIENT_ID: ${AZURE_AD_CLIENT_ID}
-      AZURE_AD_CLIENT_SECRET: ${AZURE_AD_CLIENT_SECRET}
-```
-
-Add only the lines for the providers you use, then run `docker compose up -d`. A provider appears only when both of its values are set; the sign-in page then shows **Continue with Google** or **Continue with Microsoft**, and the sign-up page **Register with Google** or **Register with Microsoft**. Enterprise SSO over SAML is not implemented.
+Remove the `#` in front of the lines for the providers you use in `.env`, fill in `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, or `AZURE_AD_CLIENT_ID` and `AZURE_AD_CLIENT_SECRET`, then run `docker compose up -d`. The Compose file passes all four values to the app; if your `docker-compose.yml` does not list them yet, fetch it again with the `curl` command from the installation steps. A provider appears only when both of its values are set; the sign-in page then shows **Continue with Google** or **Continue with Microsoft**, and the sign-up page **Register with Google** or **Register with Microsoft**. Enterprise SSO over SAML is not implemented.
 
 ## How do I connect an AI client to my self-hosted instance?
 
@@ -158,7 +149,7 @@ To decide when updates happen, pin the image in `docker-compose.yml` to a build 
 
 ## How do I apply .env changes? [#apply-env-changes]
 
-Run `docker compose up -d`. It recreates the containers whose configuration changed, so they start with the new `.env` values. `docker compose restart` keeps the old environment and does not apply `.env` changes. Variables the Compose file does not list, such as the Google and Microsoft sign-in values, also need an entry in `docker-compose.yml`.
+Run `docker compose up -d`. It recreates the containers whose configuration changed, so they start with the new `.env` values. `docker compose restart` keeps the old environment and does not apply `.env` changes.
 
 ## Where are the logs, and how do I troubleshoot?
 

@@ -120,16 +120,7 @@ Soll die Instanz nur einem Team dienen, beschränken Sie den Zugang, zum Beispie
 
 Ja, sobald Sie es einrichten. Registrieren Sie einen OAuth-Client bei Google oder eine App-Registrierung in Microsoft Entra ID mit der Weiterleitungs-URI `<BASE_URL>/api/auth/callback/google` beziehungsweise `<BASE_URL>/api/auth/callback/microsoft`. Der Microsoft-Anbieter nutzt den Endpunkt `common`; registrieren Sie die App deshalb für Konten in einem beliebigen Organisationsverzeichnis.
 
-Tragen Sie `GOOGLE_CLIENT_ID` und `GOOGLE_CLIENT_SECRET` oder `AZURE_AD_CLIENT_ID` und `AZURE_AD_CLIENT_SECRET` in `.env` ein. Die Compose-Datei gibt nur die Variablen an die App weiter, die sie auflistet; ergänzen Sie sie deshalb auch im Block `environment:` des Dienstes `app` in `docker-compose.yml`:
-
-```yaml
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      AZURE_AD_CLIENT_ID: ${AZURE_AD_CLIENT_ID}
-      AZURE_AD_CLIENT_SECRET: ${AZURE_AD_CLIENT_SECRET}
-```
-
-Ergänzen Sie nur die Zeilen der Anbieter, die Sie nutzen, und führen Sie dann `docker compose up -d` aus. Ein Anbieter erscheint nur, wenn beide Werte gesetzt sind; die Anmeldeseite zeigt dann **Anmelden mit Google** oder **Anmelden mit Microsoft**, die Registrierungsseite **Registrieren mit Google** oder **Registrieren mit Microsoft**. Enterprise-SSO über SAML ist nicht implementiert.
+Entfernen Sie in `.env` das `#` vor den Zeilen der Anbieter, die Sie nutzen, tragen Sie `GOOGLE_CLIENT_ID` und `GOOGLE_CLIENT_SECRET` oder `AZURE_AD_CLIENT_ID` und `AZURE_AD_CLIENT_SECRET` ein und führen Sie dann `docker compose up -d` aus. Die Compose-Datei gibt alle vier Werte an die App weiter; listet Ihre `docker-compose.yml` sie noch nicht auf, holen Sie die Datei erneut mit dem `curl`-Befehl aus den Installationsschritten. Ein Anbieter erscheint nur, wenn beide Werte gesetzt sind; die Anmeldeseite zeigt dann **Anmelden mit Google** oder **Anmelden mit Microsoft**, die Registrierungsseite **Registrieren mit Google** oder **Registrieren mit Microsoft**. Enterprise-SSO über SAML ist nicht implementiert.
 
 ## Wie verbinde ich einen KI-Client mit meiner Self-Hosted-Instanz? [#how-do-i-connect-an-ai-client-to-my-self-hosted-instance]
 
@@ -158,7 +149,7 @@ Um selbst zu bestimmen, wann Updates kommen, pinnen Sie das Image in `docker-com
 
 ## Wie wende ich Änderungen an der .env an? [#apply-env-changes]
 
-Führen Sie `docker compose up -d` aus. Der Befehl erstellt die Container neu, deren Konfiguration sich geändert hat, sodass sie mit den neuen `.env`-Werten starten. `docker compose restart` behält die alte Umgebung und übernimmt `.env`-Änderungen nicht. Variablen, die die Compose-Datei nicht auflistet, etwa die Werte für die Anmeldung mit Google und Microsoft, brauchen zusätzlich einen Eintrag in `docker-compose.yml`.
+Führen Sie `docker compose up -d` aus. Der Befehl erstellt die Container neu, deren Konfiguration sich geändert hat, sodass sie mit den neuen `.env`-Werten starten. `docker compose restart` behält die alte Umgebung und übernimmt `.env`-Änderungen nicht.
 
 ## Wo finde ich die Logs, und wie suche ich Fehler? [#where-are-the-logs-and-how-do-i-troubleshoot]
 

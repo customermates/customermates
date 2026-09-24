@@ -26,6 +26,7 @@ vi.mock("next-intl/server", () => ({
 
 import { CreateApiKeyInteractor } from "../create-api-key.interactor";
 import { API_KEY_MAX_EXPIRATION_SECONDS, API_KEY_MIN_EXPIRATION_SECONDS } from "../api-key-expiration";
+import { API_KEY_NAME_MAX_LENGTH } from "../api-key-name";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const createdApiKey = {
@@ -105,4 +106,42 @@ describe("CreateApiKeyInteractor expiration contract", () => {
       }
     },
   );
+});
+
+describe("CreateApiKeyInteractor name contract", () => {
+  it("accepts a name at the schema boundary of the documented maximum length", async () => {
+    const { createApiKey, interactor } = makeInteractor();
+    const name = "n".repeat(API_KEY_NAME_MAX_LENGTH);
+
+    const result = await interactor.invoke({ name, expiresIn: undefined });
+
+    expect(result).toMatchObject({ ok: true });
+    expect(createApiKey).toHaveBeenCalledExactlyOnceWith({ name, expiresIn: undefined });
+  });
+
+  it("rejects a name past the maximum length before calling Better Auth", async () => {
+    const { createApiKey, interactor } = makeInteractor();
+
+    const result = await interactor.invoke({ name: "n".repeat(API_KEY_NAME_MAX_LENGTH + 1), expiresIn: undefined });
+
+    expect(result).toMatchObject({ ok: false });
+    if (!result.ok) expect(result.error.issues[0]).toMatchObject({ path: ["name"] });
+    expect(createApiKey).not.toHaveBeenCalled();
+  });
+
+  it("returns the Better Auth name length fallback as a name field error", async () => {
+    const { createApiKey, interactor } = makeInteractor();
+    createApiKey.mockResolvedValueOnce({ ok: false, error: CustomErrorCode.apiKeyNameLength });
+
+    const result = await interactor.invoke({ name: "Synthetic integration", expiresIn: undefined });
+
+    expect(result).toMatchObject({ ok: false });
+    if (!result.ok) {
+      expect(result.error.issues[0]).toMatchObject({
+        message: `Common.errors.${CustomErrorCode.apiKeyNameLength}`,
+        path: ["name"],
+        params: { error: CustomErrorCode.apiKeyNameLength },
+      });
+    }
+  });
 });

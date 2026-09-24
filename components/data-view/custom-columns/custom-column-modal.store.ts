@@ -85,6 +85,14 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
     return this.isDisabled || !this.rootStore.userStore.can(Resource.company, Action.update);
   }
 
+  get isDeleteColumnDisabled(): boolean {
+    void this.rootStore.userStore.user;
+
+    return (
+      this.isDisabled || (this.isDealWeightingColumn && !this.rootStore.userStore.can(Resource.company, Action.update))
+    );
+  }
+
   get customColumns() {
     return this.tableStoreMap[this.form.entityType].customColumns;
   }

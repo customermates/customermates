@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { AppLink } from "@/components/shared/app-link";
 import { CopyableCode } from "@/components/shared/copyable-code";
 import { cn } from "@/core/utils/cn";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { getMcpInstallSnippet } from "@/features/docs/mcp-install-snippet";
 
 const DOCS_LINKS: Record<McpTool, string> = {
@@ -23,6 +24,7 @@ const DOCS_LINKS: Record<McpTool, string> = {
 type Props = {
   apiKey: string | null;
   baseUrl: string;
+  expiresAt: Date | null;
   hasError: boolean;
   isCreating: boolean;
   nested?: boolean;
@@ -34,6 +36,7 @@ type Props = {
 export function AiConnectionApiKeySetup({
   apiKey,
   baseUrl,
+  expiresAt,
   hasError,
   isCreating,
   nested = false,
@@ -42,6 +45,7 @@ export function AiConnectionApiKeySetup({
   onCreate,
 }: Props) {
   const t = useTranslations();
+  const intlStore = useHydratedIntlStore();
   const toolName = t(`OnboardingWizard.ai.choices.${tool}`);
   const installSnippet = apiKey && baseUrl ? getMcpInstallSnippet(tool, apiKey, baseUrl) : "";
   const actionTitleId = `api-key-action-${tool}-title`;
@@ -116,6 +120,15 @@ export function AiConnectionApiKeySetup({
       </div>
 
       <CopyableCode value={installSnippet} />
+
+      {expiresAt ? (
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          {t("OnboardingWizard.ai.install.expiryNote", {
+            date: intlStore.formatNumericalShortDateTime(expiresAt),
+            tool: toolName,
+          })}
+        </p>
+      ) : null}
 
       <p className="text-xs leading-relaxed text-muted-foreground">
         {t.rich("OnboardingWizard.ai.install.keyNote", {

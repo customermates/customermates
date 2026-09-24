@@ -220,7 +220,7 @@ export const manageCustomColumnsTool = {
     "action list returns { id, label, type, entityType, options } per column. " +
     "action upsert requires type, entityType, label. For CREATE, use intent=create and OMIT id (a null id is normalized to omission only for explicit creates; legacy callers may omit intent only when id is also omitted). For UPDATE, intent=update and an existing id are both required; mismatched intent/id pairs are rejected without writing. Label, type and entityType are immutable through this tool, so create a new column instead of repurposing an existing one. " +
     'For singleSelect, prefer top-level selectOptions; for example {"action":"upsert","intent":"create","entityType":"contact","type":"singleSelect","label":"Priority","selectOptions":[{"label":"High"}]}. Legacy options.options remains accepted, but never pass both. The list REPLACES every option: keep an existing option\'s stable value uuid to preserve stored records, use a fresh uuid for new options; dropping one deletes its stored values. ' +
-    "action delete is IRREVERSIBLE and removes the column plus ALL values stored against it.",
+    "action delete is IRREVERSIBLE and removes the column plus ALL values stored against it; deleting the company's deal weighting column turns weighting off and also requires update permission on the company.",
   annotations: {
     readOnlyHint: false,
     destructiveHint: true,

@@ -384,7 +384,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
 
                   {canSeeHistory && (
                     <TabsTrigger
-                      aria-controls={`${formId}-activities-panel`}
+                      aria-controls={hasMounted ? `${formId}-activities-panel` : undefined}
                       className="h-full rounded-none px-4 after:z-10 group-data-[orientation=horizontal]/tabs:after:-bottom-px"
                       id={`${formId}-activities-tab`}
                       value="activities"
@@ -408,7 +408,6 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
             )}
           >
             <div
-              aria-labelledby={`${formId}-details-tab`}
               className={cn(
                 "flex flex-col bg-background",
                 selectedPanel !== "details" && "hidden",
@@ -416,7 +415,9 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
               )}
               data-detail-panel="details"
               id={`${formId}-details-panel`}
-              role="tabpanel"
+              {...(showNotesPanel || canSeeHistory
+                ? { role: "tabpanel", "aria-labelledby": `${formId}-details-tab` }
+                : {})}
             >
               <div className="p-4 @6xl/detail:flex-1 @6xl/detail:min-h-0">{masterData}</div>
             </div>

@@ -1086,6 +1086,7 @@
       "agentTurnAlreadyRunning": "Ya se está ejecutando otra solicitud del asistente.",
       "apiKeyMaxExpiration": "La caducidad de una clave de API no puede superar los 365 días.",
       "apiKeyMinExpiration": "La caducidad de una clave de API debe ser de al menos 1 día.",
+      "apiKeyNameLength": "El nombre de una clave de API debe tener entre 1 y 255 caracteres.",
       "assigneeRequired": "Debes asignarte este elemento. Ten en cuenta que solo podrás ver los elementos asignados a ti.",
       "billingPortalUnavailable": "El portal de facturación no está disponible para este espacio de trabajo. Contacta con soporte para hacer cambios.",
       "calendarEventNotFound": "ID de evento de calendario no encontrado o no accesible.",
@@ -1153,7 +1154,7 @@
       "operatorTrialEndRequired": "La fecha de fin de prueba no se puede quitar, solo mover. Borrarla dejaría el espacio de trabajo en una prueba que nunca caduca.",
       "operatorUnavailable": "La corrección solicitada no está disponible para la configuración actual de la cuenta.",
       "organizationNotFound": "ID de organización no encontrado o no accesible.",
-      "passwordInvalid": "La contraseña debe tener al menos 8 caracteres e incluir al menos una mayúscula, una minúscula, un número y un carácter especial.",
+      "passwordInvalid": "La contraseña debe tener entre 8 y 128 caracteres e incluir al menos una mayúscula, una minúscula, un número y un carácter especial.",
       "passwordMismatch": "Las contraseñas deben coincidir.",
       "permissionDenied": "Esta acción no está disponible con tus permisos actuales.",
       "privacyAcknowledgementRequired": "Confirma que has leído la Política de privacidad.",
@@ -2808,6 +2809,7 @@
         "createFailed": "No se pudo crear la clave de API. Inténtalo de nuevo."
       },
       "install": {
+        "expiryNote": "Esta clave de API caduca el {date}. Crea una nueva antes de esa fecha para que {tool} siga conectado.",
         "instruction": {
           "claudeCode": "Ejecuta esto en cualquier terminal:",
           "claudeDesktop": "Abre Claude → Ajustes → Desarrollador → Editar configuración, fusiona esto y luego cierra y vuelve a abrir Claude Desktop:",

@@ -75,7 +75,7 @@ export const FormSelect = observer(
       <div className={cn("flex flex-col gap-1.5", containerClassName)}>
         {resolvedLabel && (
           <div className="flex items-center gap-1.5">
-            <FormLabel htmlFor={domId}>
+            <FormLabel fieldId={id} htmlFor={domId}>
               {resolvedLabel}
 
               {required ? <span className="text-destructive"> *</span> : null}

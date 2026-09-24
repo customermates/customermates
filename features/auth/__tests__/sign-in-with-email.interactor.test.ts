@@ -1,4 +1,5 @@
 import type { AuthService } from "../auth.service";
+import type * as ValidationUtils from "@/core/validation/validation.utils";
 
 import { describe, expect, it, vi } from "vitest";
 
@@ -10,6 +11,11 @@ vi.mock("next-intl/server", () => ({
     }),
   ),
 }));
+
+vi.mock("@/core/validation/validation.utils", async (importOriginal) => {
+  const actual = await importOriginal<typeof ValidationUtils>();
+  return { ...actual, PASSWORD_MIN_LENGTH: 12 };
+});
 
 import { SignInWithEmailInteractor } from "../sign-in-with-email.interactor";
 
@@ -76,5 +82,20 @@ describe("SignInWithEmailInteractor", () => {
         rememberMe: true,
       }),
     ).resolves.toEqual({ redirect: "/auth/error?type=invalidOnboardingIntent" });
+  });
+
+  it("rejects a password below the shared minimum length before authentication", async () => {
+    const signInWithEmail = vi.fn();
+    const interactor = new SignInWithEmailInteractor({ signInWithEmail } as unknown as AuthService);
+
+    const result = await interactor.invoke({
+      email: "synthetic@example.com",
+      password: "p".repeat(11),
+      rememberMe: true,
+    });
+
+    expect(result).toMatchObject({ ok: false });
+    if ("ok" in result && !result.ok) expect(result.error.issues[0]).toMatchObject({ path: ["password"] });
+    expect(signInWithEmail).not.toHaveBeenCalled();
   });
 });

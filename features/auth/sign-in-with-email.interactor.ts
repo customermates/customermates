@@ -10,12 +10,12 @@ import { callbackUrlSchema } from "./callback-url.schema";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { createZodError } from "@/core/validation/validation.utils";
+import { createZodError, PASSWORD_MIN_LENGTH } from "@/core/validation/validation.utils";
 import { onboardingIntentFromPath, pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 
 const Schema = z.object({
   email: z.email(),
-  password: z.string().min(8),
+  password: z.string().min(PASSWORD_MIN_LENGTH),
   rememberMe: z.boolean(),
   callbackURL: callbackUrlSchema.optional(),
 });

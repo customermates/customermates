@@ -122,7 +122,7 @@ const ConnectAction = observer(({ id, variant = "default" }: { id: string; varia
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" aria-labelledby={id}>
         {CONNECT_CHANNEL_OPTIONS.map((option) => {
           const ChannelIcon = getProviderIcon(option.icon);
           return (

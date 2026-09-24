@@ -425,7 +425,7 @@ Deep-research companion to `search`: fetches one result by its id.
 {/* mcp-catalog:custom-columns */}
 #### `manage_custom_columns`
 
-One tool with an `action` switch: list, upsert (create or update), delete. Upsert requires `intent` (`create` or `update`); legacy callers may omit it only when they also omit `id`. Covers all ten column types; label, type and entityType are immutable on update. For singleSelect the option list REPLACES every option, and a dropped option loses its stored values. Creating, changing or deleting a column needs Manage on that record type's row (Contacts, Organizations, Deals, Services or Tasks). Delete is IRREVERSIBLE, removes every stored value, and is refused while a routine references the column.
+One tool with an `action` switch: list, upsert (create or update), delete. Upsert requires `intent` (`create` or `update`); legacy callers may omit it only when they also omit `id`. Covers all ten column types; label, type and entityType are immutable on update. For singleSelect the option list REPLACES every option, and a dropped option loses its stored values. Creating, changing or deleting a column needs Manage on that record type's row (Contacts, Organizations, Deals, Services or Tasks). Changing an option's `weight` on the deal stage field, or deleting that field, also needs Manage on the Company row. Delete is IRREVERSIBLE, removes every stored value, and is refused while a routine references the column.
 
 **IRREVERSIBLE.** Required: `action`. Optional: `entityType`, `id`, `intent`, `type`, `label`, `selectOptions`, `options`.
 {/* /mcp-catalog */}
@@ -521,9 +521,9 @@ A refusal is data, not a crash. The result carries `isError: true`, a human-read
 
 - **validation**: the arguments were wrong. Read `issues[].path`, fix that field, and call again. `get_record_schema` resolves most of these.
 - **authorization**: the caller's role does not permit it. Retrying never helps; say what was refused and which permission it needs. Roles are workspace-defined, so read `get_workspace_context.roles` rather than assuming a fixed set. A key or connection whose owner was set to **Inactive** also lands here, with "Your user account is inactive. Contact a workspace administrator."
-- **not_found**: the id does not exist, or belongs to another workspace. Every call is tenant-scoped, so an id from elsewhere reads as missing rather than forbidden.
-- **conflict**: something already holds the resource. Read current state before retrying.
-- **rate_limit** and **unavailable**: transient or capacity-bound. Back off, and surface `unavailable` as a provider problem rather than a user mistake.
+- **not_found**: the id does not exist, or belongs to another workspace. Every call is tenant-scoped, so an id from elsewhere reads as missing rather than forbidden. A recipient, profile or thread that the messaging provider cannot find or show also returns `not_found`, with `customCode` `unipileResourceNotFound`; your own record ids are fine in that case.
+- **conflict**: something already holds the resource. Read current state before retrying. A contact channel that another contact already holds returns `conflict` with `customCode` `channelAlreadyLinked`.
+- **rate_limit** and **unavailable**: transient or capacity-bound. Back off, and surface `unavailable` as a provider problem rather than a user mistake. A messaging channel that hit its provider limit returns `rate_limit` with `customCode` `unipileRateLimit`, and its message says when to try again ([messaging rate limits](/docs/messaging-rate-limits)). A provider outage or timeout returns `unavailable`; after a timeout the action may still have completed, so check before retrying.
 - **authentication**: the key is wrong, truncated, expired or deleted, and every call says "Sign in to use this action." The user must create a new key. A request with no key and no valid OAuth token gets HTTP `401` before any tool runs.
 
 Two kinds of `isError: true` result carry no `_meta.failure`, so tell them apart by their text:

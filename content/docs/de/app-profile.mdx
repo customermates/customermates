@@ -74,7 +74,7 @@ Route `/profile/api-keys`, Seitenleisten-Eintrag **API & Konnektoren**. Keys fü
 | Key öffnen | Key-Karte | keine | Die Karte zeigt **Erstellt am**, **Läuft ab** und **Zuletzt verwendet**; der Dialog zeigt das Erstellungsdatum, Ablauf und letzte Verwendung nur, wenn gesetzt |
 | Key löschen | Key-Dialog | `#api-key-delete` (**Löschen**) | **Löschen**, mit Bestätigung; der Key funktioniert sofort nicht mehr |
 
-Der Bereich Schnellverbindungen bietet vier Kacheln: **Claude**, **ChatGPT & Codex**, **Cursor** und **Gemini**. Die lokalen Einrichtungen, also Claude Code oder Claude Desktop, Codex, Cursor und Gemini, erstellen einen nach dem Client benannten Key, der nach 365 Tagen abläuft, und zeigen den Einrichtungsausschnitt des Clients mit eingetragenem Key. Die Methoden Claude-Konto und ChatGPT-App verbinden stattdessen über den gehosteten Konnektor und erstellen keinen Key.
+Der Bereich Schnellverbindungen bietet vier Kacheln: **Claude**, **ChatGPT & Codex**, **Cursor** und **Gemini**. Die lokalen Einrichtungen, also Claude Code oder Claude Desktop, Codex, Cursor und Gemini, erstellen einen nach dem Client benannten Key, der nach 365 Tagen abläuft, und zeigen den Einrichtungsausschnitt des Clients mit eingetragenem Key, gefolgt von Datum und Uhrzeit, zu denen der Key abläuft. Die Methoden Claude-Konto und ChatGPT-App verbinden stattdessen über den gehosteten Konnektor und erstellen keinen Key.
 
 Es gibt keinen Rotate- oder Revoke-Button: Erstellen Sie einen neuen Key, aktualisieren Sie den Client und löschen Sie dann den alten. Wird einer Rolle **API & Webhooks** entzogen, bleiben die Keys ihrer Mitglieder gültig; um die Keys eines Mitglieds zu stoppen, setzen Sie es unter **Mein Unternehmen › Mitglieder** auf **Inaktiv**.
 

@@ -63,7 +63,7 @@ Other actions word it differently:
 - **Refresh** in the Inbox: "Some channels hit their rate limit. Try again in a few minutes."
 - Moving an email to another folder: "Stopped filing into `{folder}` because the provider is rate limiting." with the waiting time for the rest.
 
-The waiting time in the message comes from the `Retry-After` value of the rate-limited response Unipile returns; without one, the message falls back to 60 seconds and reads "in 1 minute". Customermates does not retry the action for you: the waiting time is only a hint, and you can retry once the indicated window passes. Nothing is lost in the meantime. Over MCP and the REST API the call fails with the same message and waiting time: the REST API answers with HTTP status 400, and MCP returns a failure of kind `validation` whose issue in `_meta.failure` has `customCode: "unipileRateLimit"`, not the kind `rate_limit`.
+The waiting time in the message comes from the `Retry-After` value of the rate-limited response Unipile returns; without one, the message falls back to 60 seconds and reads "in 1 minute". Customermates does not retry the action for you: the waiting time is only a hint, and you can retry once the indicated window passes. Nothing is lost in the meantime. Over MCP and the REST API the call fails with the same message and waiting time: the REST API answers with HTTP status 429, and MCP returns a failure of kind `rate_limit` whose issue in `_meta.failure` has `customCode: "unipileRateLimit"`.
 
 **Link:** the **Inbox** page, `/inbox`, Cloud URL `https://customermates.com/en/inbox`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`; **Refresh** and **Resync thread** are not highlight targets, so Mate names them.
 

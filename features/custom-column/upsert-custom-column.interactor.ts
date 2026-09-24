@@ -2,6 +2,7 @@ import type { EventService } from "@/features/event/event.service";
 import type { UserService } from "@/features/user/user.service";
 import type { Data } from "@/core/validation/validation.utils";
 import type { ValidateCustomColumnIdsInteractor } from "@/core/validation/validators/validate-custom-column-ids.interactor";
+import type { GetDealWeightingColumnRepo } from "@/features/company/get-deal-weighting-column.repo";
 
 import { z } from "zod";
 import { Action, CustomColumnType, EntityType, Resource, Currency } from "@/generated/prisma";
@@ -17,6 +18,8 @@ import { CHIP_COLORS } from "@/constants/chip-colors";
 import { DATE_DISPLAY_FORMATS } from "@/constants/date-format";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { failConflict } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 export const OptionSchema = z.object({
   value: z
@@ -34,7 +37,7 @@ export const OptionSchema = z.object({
     .max(100)
     .optional()
     .describe(
-      "Win probability of this stage as a percentage, used only when the column is the company's deal weighting column.",
+      "Win probability of this stage as a percentage, used only when the column is the company's deal weighting column. Changing it there also requires update permission on the company.",
     ),
 });
 
@@ -145,6 +148,7 @@ export abstract class UpsertCustomColumnRepo {
 export class UpsertCustomColumnInteractor extends AuthenticatedInteractor<UpsertCustomColumnData, CustomColumnDto> {
   constructor(
     private repo: UpsertCustomColumnRepo,
+    private companyRepo: GetDealWeightingColumnRepo,
     private userService: UserService,
     private eventService: EventService,
     private validator: ValidateCustomColumnIdsInteractor,
@@ -167,12 +171,27 @@ export class UpsertCustomColumnInteractor extends AuthenticatedInteractor<Upsert
       [EntityType.task]: Resource.tasks,
     };
 
-    const action = data.id ? Action.update : Action.create;
-
-    await this.userService.hasPermissionOrThrow(resourceByEntityType[data.entityType], action);
-
     const previousCustomColumn = data.id ? await this.repo.findByIdOrThrow(data.id) : undefined;
-    const customColumn = await this.repo.upsertCustomColumnOrThrow(data);
+
+    if (!previousCustomColumn)
+      await this.userService.hasPermissionOrThrow(resourceByEntityType[data.entityType], Action.create);
+    else {
+      await this.userService.hasPermissionOrThrow(resourceByEntityType[previousCustomColumn.entityType], Action.update);
+
+      if (previousCustomColumn.type !== data.type) {
+        return failConflict(CustomErrorCode.customColumnTypeMismatch, ["type"], {
+          actualType: previousCustomColumn.type,
+          expectedType: data.type,
+        });
+      }
+
+      if (await this.changesDealStageWeights(previousCustomColumn, data))
+        await this.userService.hasPermissionOrThrow(Resource.company, Action.update);
+    }
+
+    const customColumn = await this.repo.upsertCustomColumnOrThrow(
+      previousCustomColumn ? { ...data, entityType: previousCustomColumn.entityType } : data,
+    );
 
     if (previousCustomColumn) {
       const changes = calculateChanges(previousCustomColumn, customColumn);
@@ -192,6 +211,15 @@ export class UpsertCustomColumnInteractor extends AuthenticatedInteractor<Upsert
     }
 
     return { ok: true as const, data: customColumn };
+  }
+
+  private async changesDealStageWeights(previous: CustomColumnDto, data: UpsertCustomColumnData) {
+    if (previous.type !== CustomColumnType.singleSelect || data.type !== CustomColumnType.singleSelect) return false;
+    if ((await this.companyRepo.getDealWeightingColumnId()) !== previous.id) return false;
+
+    const previousWeights = new Map(previous.options.options.map((option) => [option.value, option.weight ?? 0]));
+
+    return data.options.options.some((option) => (option.weight ?? 0) !== (previousWeights.get(option.value) ?? 0));
   }
 
   private async precheck(data: UpsertCustomColumnData, ctx: z.RefinementCtx) {

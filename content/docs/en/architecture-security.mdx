@@ -85,7 +85,7 @@ The published self-hosted image sets no error reporting address and turns off Ne
 
 ## How are webhook secrets and destinations secured?
 
-- Webhook secrets and custom header values are stored in Postgres without hashing, because they must be retrievable to sign and send outgoing requests. The REST API and MCP never return them, and the audit log redacts them, but the webhook dialog shows them to the **Admin** role and to every role with **Read access** **All** on **API & Webhooks**. To keep them elsewhere, self-host with your own secret manager.
+- Webhook secrets and custom header values are stored in Postgres without hashing, because they must be retrievable to sign and send outgoing requests. The REST API and MCP never return them, the audit log redacts them, and the webhook dialog shows them only to the **Admin** role and to roles with **Manage** **Yes** on **API & Webhooks**; a role with **Read access** **All** alone sees `********` in their place. To keep them elsewhere, self-host with your own secret manager.
 - A webhook URL may use plain `http://` for any host as long as the webhook has no custom headers. A webhook with custom headers must use `https://`, except for `localhost`, `127.0.0.1` and `::1`; this is checked when the webhook is saved and again before each delivery.
 - Webhook URLs are not limited to public addresses: the server sends requests to any host it can reach, including internal services on its network. On self-host, restrict the app container's outbound network if internal services must stay unreachable, and give **Manage** on **API & Webhooks** only to trusted roles. See [Webhooks](/docs/webhooks).
 

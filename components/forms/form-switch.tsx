@@ -45,7 +45,7 @@ export const FormSwitch = observer(
           />
 
           {label && (
-            <FormLabel htmlFor={domId}>
+            <FormLabel fieldId={id} htmlFor={domId}>
               {label}
 
               {required ? <span className="text-destructive"> *</span> : null}

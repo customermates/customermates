@@ -4,7 +4,7 @@ import { ContactDtoSchema } from "../contact.schema";
 
 import { CreateContactSchema } from "./create-contact.interactor";
 
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, ConflictApiResponse } from "@/core/api/interactor-handler";
 
 export const createContactOperation: ZodOpenApiOperationObject = {
   operationId: "createContact",
@@ -30,5 +30,6 @@ export const createContactOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...ConflictApiResponse,
   },
 };

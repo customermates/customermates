@@ -1086,6 +1086,7 @@
       "agentTurnAlreadyRunning": "Another Assistant turn is already running.",
       "apiKeyMaxExpiration": "API key expiration cannot exceed 365 days.",
       "apiKeyMinExpiration": "API key expiration must be at least 1 day.",
+      "apiKeyNameLength": "API key names must be between 1 and 255 characters long.",
       "assigneeRequired": "You must assign yourself to this item. Please note that you will only be able to view items assigned to you.",
       "billingPortalUnavailable": "The billing portal is not available for this workspace. Contact support to make changes.",
       "calendarEventNotFound": "Calendar event ID not found or not accessible.",
@@ -1153,7 +1154,7 @@
       "operatorTrialEndRequired": "A trial end date cannot be removed, only moved. Clearing it would leave the workspace on a trial that never expires.",
       "operatorUnavailable": "The requested correction is not available for the current account configuration.",
       "organizationNotFound": "Organization ID not found or not accessible.",
-      "passwordInvalid": "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
+      "passwordInvalid": "Password must be between 8 and 128 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
       "passwordMismatch": "Passwords must match.",
       "permissionDenied": "This action is not available with your current permissions.",
       "privacyAcknowledgementRequired": "Please confirm that you have read the Privacy Policy.",
@@ -2808,6 +2809,7 @@
         "createFailed": "Could not create the API key. Please try again."
       },
       "install": {
+        "expiryNote": "This API key expires at {date}. Create a new one before then to keep {tool} connected.",
         "instruction": {
           "claudeCode": "Run this in any terminal:",
           "claudeDesktop": "Open Claude → Settings → Developer → Edit Config, merge this in, then quit and reopen Claude Desktop:",

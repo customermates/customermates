@@ -2,6 +2,7 @@ import type { UserService } from "../user/user.service";
 import type { EventService } from "@/features/event/event.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { ValidateCustomColumnIdsInteractor } from "@/core/validation/validators/validate-custom-column-ids.interactor";
+import type { GetDealWeightingColumnRepo } from "@/features/company/get-deal-weighting-column.repo";
 
 import { z } from "zod";
 import { Action, EntityType, Resource } from "@/generated/prisma";
@@ -35,6 +36,7 @@ export class DeleteCustomColumnInteractor extends AuthenticatedInteractor<Delete
   constructor(
     private repo: DeleteCustomColumnRepo,
     private routineRepo: DeleteCustomColumnRoutineRepo,
+    private companyRepo: GetDealWeightingColumnRepo,
     private userService: UserService,
     private eventService: EventService,
     private validator: ValidateCustomColumnIdsInteractor,
@@ -71,6 +73,9 @@ export class DeleteCustomColumnInteractor extends AuthenticatedInteractor<Delete
     const permission = entityTypePermissionMap[customColumn.entityType];
 
     await this.userService.hasPermissionOrThrow(permission.resource, permission.action);
+
+    if ((await this.companyRepo.getDealWeightingColumnId()) === customColumn.id)
+      await this.userService.hasPermissionOrThrow(Resource.company, Action.update);
 
     if (await this.routineRepo.hasRoutineFieldReference(customColumn.id))
       return failConflict(CustomErrorCode.customColumnUsedByRoutineCannotDelete, ["id"]);
